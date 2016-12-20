@@ -22,6 +22,7 @@
 #include "World/CScriptSpawnPoint.hpp"
 #include "AutoMapper/CMapWorldInfo.hpp"
 #include "Particle/CGenDescription.hpp"
+#include "CMemoryCardSys.hpp"
 
 #include <cmath>
 
@@ -806,6 +807,25 @@ void CStateManager::UpdateObjectInLists(CEntity&)
 TUniqueId CStateManager::AllocateUniqueId()
 {
     return 0;
+}
+
+std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
+{
+    u32 num = 0;
+    u32 denom = 0;
+    int idx = 0;
+    for (const std::pair<u32, float>& scan : x8b8_playerState->GetScanTimes())
+    {
+        CSaveWorld::EScanCategory category = g_MemoryCardSys->GetScanStates()[idx++].second;
+        if (category != CSaveWorld::EScanCategory::None &&
+            category != CSaveWorld::EScanCategory::Research)
+        {
+            ++denom;
+            if (scan.second == 1.f)
+                ++num;
+        }
+    }
+    return {num, denom};
 }
 
 }

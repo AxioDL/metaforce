@@ -117,7 +117,7 @@ bool CMemoryCardSys::InitializePump()
 
             x20_scanStates.reserve(x20_scanStates.size() + savw.GetScans().size());
             for (const CSaveWorld::SScanState& scan : savw.GetScans())
-                x20_scanStates[scan.x0_id] = scan.x4_category;
+                x20_scanStates.emplace_back(scan.x0_id, scan.x4_category);
 
             wldMemOut.x3c_saveWorld = std::move(world.x34_saveWorld);
             wldMemOut.x2c_worldName = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), wldMemOut.x0_strgId});
@@ -153,6 +153,26 @@ CMemoryCardSys::ECardResult CMemoryCardSys::GetNumFreeBytes(EMemoryCardPort port
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::GetSerialNo(EMemoryCardPort port, u64& serialOut)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::GetResultCode(EMemoryCardPort port)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::GetStatus(EMemoryCardPort port, int fileNo, CARDStat& statOut)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::DeleteFile(EMemoryCardPort port, const char* name)
+{
+    return ECardResult::CARD_RESULT_READY;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardSys::FastDeleteFile(EMemoryCardPort port, int fileNo)
 {
     return ECardResult::CARD_RESULT_READY;
 }

@@ -277,7 +277,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
 
     PlayAdvanceSfx();
 
-    if (g_GameState->SystemOptions().PlayerHasHardMode())
+    if (g_GameState->SystemOptions().GetPlayerHasHardMode())
     {
         x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(102));
         x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
@@ -414,7 +414,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
     }
     else
     {
-        if (g_GameState->SystemOptions().PlayerHasHardMode())
+        if (g_GameState->SystemOptions().GetPlayerHasHardMode())
         {
             if (x40_tablegroup_popup->GetUserSelection() == 1)
             {
@@ -502,7 +502,7 @@ void CFrontEndUI::SGBASupportFrame::FinishedLoading()
     x2c_tablegroup_fusionsuit->SetIsActive(false);
     x2c_tablegroup_fusionsuit->SetIsVisible(false);
     x2c_tablegroup_fusionsuit->SetD1(false);
-    x2c_tablegroup_fusionsuit->SetUserSelection(g_GameState->SystemOptions().PlayerHasFusion());
+    x2c_tablegroup_fusionsuit->SetUserSelection(g_GameState->SystemOptions().GetPlayerHasFusion());
 
     SetTableColors(x28_tablegroup_options);
     SetTableColors(x2c_tablegroup_fusionsuit);

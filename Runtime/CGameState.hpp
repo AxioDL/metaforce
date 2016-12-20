@@ -108,7 +108,21 @@ public:
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
+    void MergePersistentOptions(const CPersistentOptions& opts);
     void PutTo(CBitStreamWriter& writer) const;
+
+    struct GameFileStateInfo
+    {
+        double x0_playTime;
+        u32 x8_mlvlId;
+        float xc_health;
+        u32 x10_energyTanks;
+        u32 x14_timestamp;
+        u32 x18_itemPercent;
+        float x1c_scanPercent;
+        bool x20_hardMode;
+    };
+    static GameFileStateInfo LoadGameFileState(const u8* data);
 };
 
 }

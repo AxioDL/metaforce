@@ -88,6 +88,52 @@ void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
     x14_layerState->PutTo(writer);
 }
 
+CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
+{
+    CBitStreamReader stream(data, 4096);
+    GameFileStateInfo ret;
+
+    for (u32 i = 0; i < 128; i++)
+        stream.ReadEncoded(8);
+    ret.x14_timestamp = stream.ReadEncoded(32);
+
+    ret.x20_hardMode = stream.ReadEncoded(1);
+    stream.ReadEncoded(1);
+    ret.x8_mlvlId = stream.ReadEncoded(32);
+
+    union BitsToDouble
+    {
+        struct
+        {
+            u32 low;
+            u32 high;
+        };
+        double doub;
+    } conv;
+    conv.low = stream.ReadEncoded(32);
+    conv.high = stream.ReadEncoded(32);
+    ret.x0_playTime = conv.doub;
+
+    CPlayerState playerState(stream);
+    ret.x10_energyTanks = playerState.GetItemCapacity(CPlayerState::EItemType::EnergyTanks);
+
+    u32 itemPercent;
+    if (ret.x8_mlvlId == 0x158EFE17)
+        itemPercent = 0;
+    else
+        itemPercent = playerState.CalculateItemCollectionRate() * 100 / playerState.GetPickupTotal();
+    ret.x18_itemPercent = itemPercent;
+
+    float somePercent;
+    if (playerState.GetTotalLogScans() == 0)
+        somePercent = 0.f;
+    else
+        somePercent = 100.f * playerState.GetLogScans() / float(playerState.GetTotalLogScans());
+    ret.x1c_scanPercent = somePercent;
+
+    return ret;
+}
+
 CGameState::CGameState()
 {
     x98_playerState.reset(new CPlayerState());
@@ -137,6 +183,19 @@ CGameState::CGameState(CBitStreamReader& stream)
     }
 }
 
+void CGameState::MergePersistentOptions(const CPersistentOptions& opts)
+{
+    if (opts.xd0_24_)
+        xa8_systemOptions.xd0_24_ = true;
+    if (opts.xd0_27_)
+        xa8_systemOptions.xd0_27_ = true;
+    if (&opts != &xa8_systemOptions)
+        memcpy(xa8_systemOptions.x0_, opts.x0_, 98);
+    xa8_systemOptions.SetLogScanCount(opts.GetLogScanCount());
+    xa8_systemOptions.SetAllItemsCollected(opts.GetAllItemsCollected());
+    xa8_systemOptions.SetPlayerHasHardMode(opts.GetPlayerHasHardMode());
+    xa8_systemOptions.SetPlayerBeatHardMode(opts.GetPlayerBeatHardMode());
+}
 
 void CGameState::PutTo(CBitStreamWriter& writer) const
 {

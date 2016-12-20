@@ -303,6 +303,8 @@ public:
     CListeningAiList& GetListeningAiObjectList() const { return *x834_listenAiObjs; }
     CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
     CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
+
+    std::pair<u32, u32> CalculateScanCompletionRate() const;
 };
 }
 

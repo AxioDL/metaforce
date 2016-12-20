@@ -57,22 +57,6 @@ bool CSaveUI::PumpLoad()
     return true;
 }
 
-static bool InRange1(EState v)
-{
-    return v >= EState::TwentySix && v <= EState::ThirtySeven;
-}
-
-static bool InRange2(EState v)
-{
-    if (v < EState::TwentyFive)
-        return false;
-    if (v == EState::TwentySeven)
-        return false;
-    if (v == EState::TwentyNine)
-        return false;
-    return true;
-}
-
 CSaveUI::UIType CSaveUI::SelectUIType() const
 {
     if (x6c_cardDriver->x10_state == EState::Two)
@@ -87,9 +71,9 @@ CSaveUI::UIType CSaveUI::SelectUIType() const
     default: break;
     }
 
-    if (InRange1(x6c_cardDriver->x10_state))
+    if (CMemoryCardDriver::InCardInsertedRange(x6c_cardDriver->x10_state))
     {
-        if (!InRange2(x6c_cardDriver->x10_state))
+        if (!CMemoryCardDriver::InRange2(x6c_cardDriver->x10_state))
             return UIType::Two;
         return UIType::One;
     }
@@ -156,7 +140,6 @@ void CSaveUI::ProcessUserInput(const CFinalInput& input)
 
 void CSaveUI::StartGame(int idx)
 {
-
 }
 
 void CSaveUI::EraseGame(int idx)
@@ -178,7 +161,7 @@ CSaveUI::CSaveUI(u32 instIdx, u32 a, u32 b)
     x38_strgMemoryCard = g_SimplePool->GetObj("STRG_MemoryCard");
     x44_frmeGenericMenu = g_SimplePool->GetObj("FRME_GenericMenu");
 
-    x6c_cardDriver = ConstructCardDriver(x0_instIdx / 32);
+    x6c_cardDriver = ConstructCardDriver(x0_instIdx);
 
     if (instIdx == 1)
     {

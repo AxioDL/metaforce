@@ -9,6 +9,7 @@ namespace urde
 /** Options tracked persistently between game sessions */
 class CPersistentOptions
 {
+    friend class CGameState;
     bool x0_[98] = {};
     bool x68_[64] = {};
     std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
@@ -40,11 +41,16 @@ public:
     CPersistentOptions(CBitStreamReader& stream);
 
     void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
-    bool PlayerHasHardMode() const { return xd0_25_hasHardMode; }
-    bool PlayerBeatHardMode() const { return xd0_26_hardModeBeat; }
-    bool PlayerHasFusion() const { return xd0_28_hasFusion; }
-    bool AllItemsCollected() const { return xd0_29_allItemsCollected; }
+    bool GetPlayerHasHardMode() const { return xd0_25_hasHardMode; }
+    void SetPlayerHasHardMode(bool v) { xd0_25_hasHardMode = v; }
+    bool GetPlayerBeatHardMode() const { return xd0_26_hardModeBeat; }
+    void SetPlayerBeatHardMode(bool v) { xd0_26_hardModeBeat = v; }
+    bool GetPlayerHasFusion() const { return xd0_28_hasFusion; }
+    void SetPlayerHasFusion(bool v) { xd0_28_hasFusion = v; }
+    bool GetAllItemsCollected() const { return xd0_29_allItemsCollected; }
+    void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
     u32 GetLogScanCount() const { return xcc_logScanCount; }
+    void SetLogScanCount(u32 v) { xcc_logScanCount = v; }
 };
 
 /** Options tracked per game session */

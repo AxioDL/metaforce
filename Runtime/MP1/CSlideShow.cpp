@@ -174,9 +174,9 @@ u32 CSlideShow::SlideShowGalleryFlags()
         ret |= 1;
     if (g_GameState->SystemOptions().GetLogScanCount() == 100)
         ret |= 2;
-    if (g_GameState->SystemOptions().PlayerBeatHardMode())
+    if (g_GameState->SystemOptions().GetPlayerBeatHardMode())
         ret |= 4;
-    if (g_GameState->SystemOptions().AllItemsCollected())
+    if (g_GameState->SystemOptions().GetAllItemsCollected())
         ret |= 8;
     return ret;
 }
