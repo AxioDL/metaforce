@@ -91,6 +91,7 @@ private:
         u8 x0_saveBuffer[940] = {};
         CGameState::GameFileStateInfo x944_fileInfo;
         SGameFileSlot();
+        SGameFileSlot(CMemoryInStream& in);
         void InitializeFromGameState();
     };
 

@@ -103,6 +103,12 @@ CMemoryCardDriver::SGameFileSlot::SGameFileSlot()
     InitializeFromGameState();
 }
 
+CMemoryCardDriver::SGameFileSlot::SGameFileSlot(CMemoryInStream& in)
+{
+    in.readBytesToBuf(x0_saveBuffer, 940);
+    x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer);
+}
+
 void CMemoryCardDriver::SGameFileSlot::InitializeFromGameState()
 {
     CBitStreamWriter w(x0_saveBuffer, 940);
@@ -202,10 +208,7 @@ CMemoryCardDriver::SSaveHeader CMemoryCardDriver::LoadSaveHeader(CMemoryInStream
 
 std::unique_ptr<CMemoryCardDriver::SGameFileSlot> CMemoryCardDriver::LoadSaveFile(CMemoryInStream& in)
 {
-    auto ret = std::make_unique<CMemoryCardDriver::SGameFileSlot>();
-    in.readBytesToBuf(ret->x0_saveBuffer, 940);
-    ret->x944_fileInfo = CGameState::LoadGameFileState(ret->x0_saveBuffer);
-    return ret;
+    return std::make_unique<CMemoryCardDriver::SGameFileSlot>(in);
 }
 
 void CMemoryCardDriver::ReadFinished()
