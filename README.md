@@ -1,5 +1,6 @@
 ## URDE
 **Status:** Extract Only
+[![Build status](https://ci.appveyor.com/api/projects/status/avx3mpu1gd75ju1b?svg=true)](https://ci.appveyor.com/project/jackoalan/urde)
 
 ### Download
 Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://github.com/AxioDL/urde/releases. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.

@@ -676,7 +676,7 @@ CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame()
 
 bool CFrontEndUI::SFusionBonusFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveUi)
 {
-    bool flag = (saveUi && saveUi->x10_uiType != CSaveUI::UIType::Sixteen) ? false : true;
+    bool flag = (saveUi && saveUi->GetUIType() != CSaveUI::UIType::Sixteen) ? false : true;
     x10_remTime = std::max(x10_remTime - dt, 0.f);
 
     zeus::CColor geomCol(zeus::CColor::skWhite);

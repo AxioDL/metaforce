@@ -1,0 +1,67 @@
+############################################################################
+# URDE appveyor build configuration
+############################################################################
+clone_depth: 1
+
+os:
+  - Visual Studio 2015
+
+build:
+  verbosity: detailed
+
+configuration:
+  - Debug
+
+install:
+  ############################################################################
+  # All external dependencies are installed in C:\projects\deps
+  ############################################################################
+  - mkdir C:\projects\deps
+  - cd C:\projects\deps
+
+  ############################################################################
+  # Install Ninja
+  ############################################################################
+  - set NINJA_URL="https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip"
+  - appveyor DownloadFile %NINJA_URL% -FileName ninja.zip
+  - 7z x ninja.zip -oC:\projects\deps\ninja > nul
+  - set PATH=C:\projects\deps\ninja;%PATH%
+  - ninja --version
+
+  ############################################################################
+  # Install a recent CMake
+  ############################################################################
+  - set CMAKE_URL="https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.zip"
+  - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
+  - 7z x cmake.zip -oC:\projects\deps\cmake > nul
+  - set PATH=C:\projects\deps\cmake\bin;%PATH%
+  - cmake --version
+  
+  ############################################################################
+  # Install custom LLVM
+  ############################################################################
+  - set LLVM_URL="https://www.dropbox.com/s/8vz8ogsxjhhxoi2/LLVM-4.0.0svn-win64-athena.exe?dl=1"
+  - appveyor DownloadFile %LLVM_URL% -FileName llvm.exe
+  - llvm.exe /S /D=C:\projects\deps\llvm
+  - set PATH=C:\projects\deps\llvm\bin;%PATH%
+  - llvm-config --version
+  
+before_build:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+  - cd C:\projects\urde
+  - git submodule update --init --recursive
+
+build_script:
+  - mkdir build
+  - cd build
+  - cmake -GNinja ..
+  - ninja
+  
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: uoO0I0PWyCx0KLjBOG6d17aSVuEEvYztB/UiF8J0LmTb2O735mAdWcuZHTImDFUGZxeI34/qzOB2JKqF+h8dZA5yiprSTkWIookqQjUokAM=
+  
+# Uncomment this to debug AppVeyor failures.
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
