@@ -76,13 +76,13 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         }
         case EGuiModelDrawFlags::Alpha:
         {
-            CModelFlags flags(4, 0, (xb7_24_depthWrite << 1) | xb6_31_depthTest, moduCol);
+            CModelFlags flags(4, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Additive:
         {
-            CModelFlags flags(3, 0, (xb7_24_depthWrite << 1) | xb6_31_depthTest, moduCol);
+            CModelFlags flags(3, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
             model->Draw(flags);
             break;
         }
@@ -93,7 +93,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
 
             flags.m_blendMode = 5;
             flags.m_matSetIdx = 0;
-            flags.m_flags = (xb7_24_depthWrite << 1) | xb6_31_depthTest;
+            flags.m_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
             flags.color = moduCol;
             model->Draw(flags);
             break;

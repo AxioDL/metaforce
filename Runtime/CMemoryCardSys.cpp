@@ -2,7 +2,6 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "CGameState.hpp"
-#include "GuiSys/CStringTable.hpp"
 
 namespace urde
 {

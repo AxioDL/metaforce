@@ -21,12 +21,12 @@ CAreaRenderOctTree::CAreaRenderOctTree(std::unique_ptr<u8[]>&& buf)
 
     x30_bitmaps = reinterpret_cast<u32*>(x0_buf.get() + 64);
     u32 wc = x14_bitmapWordCount * x8_bitmapCount;
-    for (int i=0 ; i<wc ; ++i)
+    for (u32 i=0 ; i<wc ; ++i)
         x30_bitmaps[i] = hecl::SBig(x30_bitmaps[i]);
 
     x34_indirectionTable = x30_bitmaps + wc;
     x38_entries = reinterpret_cast<u8*>(x34_indirectionTable) + x10_nodeCount;
-    for (int i=0 ; i<x10_nodeCount ; ++i)
+    for (u32 i=0 ; i<x10_nodeCount ; ++i)
     {
         x34_indirectionTable[i] = hecl::SBig(x34_indirectionTable[i]);
         Node* n = reinterpret_cast<Node*>(x38_entries + x34_indirectionTable[i]);
@@ -189,7 +189,7 @@ void CGameArea::CAreaFog::Update(float dt)
     float colorDelta = x34_colorDelta * dt;
     zeus::CVector2f rangeDelta = x14_rangeDelta * dt;
 
-    for (int i=0 ; i<3 ; ++i)
+    for (u32 i=0 ; i<3 ; ++i)
     {
         float delta = x28_colorTarget[i] - x1c_colorCur[i];
         if (std::fabs(delta) <= colorDelta)
@@ -205,7 +205,7 @@ void CGameArea::CAreaFog::Update(float dt)
         }
     }
 
-    for (int i=0 ; i<2 ; ++i)
+    for (u32 i=0 ; i<2 ; ++i)
     {
         float delta = xc_rangeTarget[i] - x4_rangeCur[i];
         if (std::fabs(delta) <= rangeDelta[i])
@@ -617,7 +617,7 @@ bool CGameArea::StartStreamingMainArea()
 
         u32 totalSz = 0;
         u32 secCount = GetNumPartSizes();
-        for (int i=2 ; i<secCount ; ++i)
+        for (u32 i=2 ; i<secCount ; ++i)
             totalSz += hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
 
         AllocNewAreaData(x128_mreaDataOffset, totalSz);
@@ -627,7 +627,7 @@ bool CGameArea::StartStreamingMainArea()
         m_resolvedBufs.emplace_back(x110_mreaSecBufs[1].first.get(), x110_mreaSecBufs[1].second);
 
         u32 curOff = 0;
-        for (int i=2 ; i<secCount ; ++i)
+        for (u32 i=2 ; i<secCount ; ++i)
         {
             u32 size = hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
             m_resolvedBufs.emplace_back(x110_mreaSecBufs[2].first.get() + curOff, size);
@@ -704,7 +704,7 @@ void CGameArea::PostConstructArea()
     /* Models */
     if (header.modelCount)
     {
-        for (int i=0 ; i<header.modelCount ; ++i)
+        for (u32 i=0 ; i<header.modelCount ; ++i)
         {
             u32 surfCount = hecl::SBig(*reinterpret_cast<u32*>((secIt+6)->first.get()));
             secIt += 7 + surfCount;
@@ -899,7 +899,7 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
     header.arotSecIdx = r.readUint32Big();
 
     header.secSizes.reserve(header.secCount);
-    for (int i=0 ; i<header.secCount ; ++i)
+    for (u32 i=0 ; i<header.secCount ; ++i)
         header.secSizes.push_back(r.readUint32Big());
 
     return header;

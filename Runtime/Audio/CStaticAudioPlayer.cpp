@@ -61,7 +61,7 @@ void CStaticAudioPlayer::DecodeMonoAndMix(s16* bufOut, u32 numSamples,
         const std::unique_ptr<u8[]>& buf = x48_buffers[curBuf];
         const u8* byte = &buf[cur - curBuf * RSF_BUFFER_SIZE];
 
-        for (int i=0; i<remTillLoop; ++i, ++byte)
+        for (u32 i=0; i<remTillLoop; ++i, ++byte)
         {
             if (!loopState && cur + i == loopStartCur)
                 loopState.emplace(state);

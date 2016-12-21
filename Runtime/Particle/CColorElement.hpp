@@ -14,8 +14,8 @@ class CCEKeyframeEmitter : public CColorElement
     u32 x8_unk1;
     bool xc_loop;
     bool xd_unk2;
-    u32 x10_loopEnd;
-    u32 x14_loopStart;
+    s32 x10_loopEnd;
+    s32 x14_loopStart;
     std::vector<zeus::CColor> x18_keys;
 public:
     CCEKeyframeEmitter(CInputStream& in);

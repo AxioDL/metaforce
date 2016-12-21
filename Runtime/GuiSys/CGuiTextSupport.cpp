@@ -93,7 +93,7 @@ void CGuiTextSupport::Update(float dt)
     {
         if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
         {
-            for (int i=0 ; i<buf->GetPrimitiveCount() ; ++i)
+            for (s32 i=0 ; i<buf->GetPrimitiveCount() ; ++i)
             {
                 float chStartTime = 0.f;
                 for (const std::pair<float, int>& p : x40_primStartTimes)

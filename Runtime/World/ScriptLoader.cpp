@@ -746,7 +746,8 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int prop
     if (propCount > 14)
         b10 = in.readBool();
 
-    u32 flags = b2 | b3 << 1 | b4 << 2 | b5 << 3 | b6 << 4 | b7 << 5 | b8 << 6 | b9 << 8;
+    u32 flags = u32(b2) | u32(b3) << 1 | u32(b4) << 2 | u32(b5) << 3 | u32(b6) << 4 |
+                                     u32(b7) << 5 | u32(b8) << 6 | u32(b9) << 8;
 
     return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
                                 f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
