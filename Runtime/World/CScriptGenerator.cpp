@@ -1,4 +1,5 @@
 #include "CScriptGenerator.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -17,9 +18,8 @@ CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const
 
 void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {
-    if (msg == EScriptObjectMessage::SetToZero)
+    if (msg == EScriptObjectMessage::SetToZero && GetActive())
     {
-
     }
 
     CEntity::AcceptScriptMsg(msg, objId, stateMgr);

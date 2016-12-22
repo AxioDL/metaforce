@@ -42,7 +42,10 @@ s16 IGameArea::Dock::GetOtherDockNumber(s32 other) const
 
 bool IGameArea::Dock::GetShouldLoadOther(s32 other) const
 {
-    return false;
+    if (other >= x4_dockReferences.size())
+        return false;
+
+    return false; //return x4_dockReferences[other].GetShouldLoad();
 }
 
 void IGameArea::Dock::SetShouldLoadOther(s32 other, bool should)

@@ -29,14 +29,14 @@ public:
             SDockReference() = default;
         };
     private:
-        u32 x0_ = 0;
+        u32 x0_referenceCount = 0;
         std::vector<SDockReference> x4_dockReferences;
         rstl::reserved_vector<zeus::CVector3f, 4> x14_planeVertices;
         bool x48_;
     public:
 
         const rstl::reserved_vector<zeus::CVector3f, 4>& GetPlaneVertices() const {return x14_planeVertices;}
-        u32 GetReferenceCount() const { return x0_; }
+        u32 GetReferenceCount() const { return x0_referenceCount; }
         const std::vector<SDockReference>& GetDockRefs() const { return x4_dockReferences; }
         Dock(CInputStream& in, const zeus::CTransform& xf);
         TAreaId GetConnectedAreaId(s32 other) const;

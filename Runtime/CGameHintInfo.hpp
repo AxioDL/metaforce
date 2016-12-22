@@ -24,10 +24,17 @@ public:
         float x10_;
         float x14_fadeInTime;
         ResId x18_stringId;
-        float x1c_;
+        float x1c_time;
         std::vector<SHintLocation> x20_locations;
     public:
         CGameHint(CInputStream&, s32);
+
+        float GetTime() const { return x1c_time; }
+        float GetFadeInTime() const { return x14_fadeInTime; }
+        float GetX10() const { return x10_; }
+        const std::string& GetName() const { return x0_name; }
+        ResId GetStringID() const { return x18_stringId; }
+        const std::vector<SHintLocation>& GetLocations() const { return x20_locations; }
     };
 
 private:

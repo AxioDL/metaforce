@@ -127,6 +127,7 @@ public:
     CHintOptions() = default;
     CHintOptions(CBitStreamReader& stream);
     void PutTo(CBitStreamWriter& writer) const;
+    void SetNextHintTime();
 };
 
 }

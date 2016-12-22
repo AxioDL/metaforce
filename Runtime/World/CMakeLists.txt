@@ -59,12 +59,14 @@ set(WORLD_SOURCES
     CScriptDamageableTrigger.hpp CScriptDamageableTrigger.cpp
     CScriptDebris.hpp CScriptDebris.cpp
     CScriptDistanceFog.hpp CScriptDistanceFog.cpp
+    CScriptDockAreaChange.hpp CScriptDockAreaChange.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CScriptSwitch.hpp CScriptSwitch.cpp
     CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
+    CRepulsor.hpp CRepulsor.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CGrappleParameters.hpp

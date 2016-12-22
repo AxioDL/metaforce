@@ -2,6 +2,8 @@
 #include "CActorParameters.hpp"
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
+#include "CWorld.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -28,5 +30,15 @@ CScriptDock::CScriptDock(TUniqueId uid, const std::string &name, const CEntityIn
     x268_24_ = false;
     x268_25_ = b1;
     x268_26_ = false;
+}
+
+void CScriptDock::AreaLoaded(CStateManager & mgr)
+{
+    SetLoadConnected(mgr, x268_25_);
+}
+
+void CScriptDock::SetLoadConnected(CStateManager& mgr, bool loadOther)
+{
+    IGameArea::Dock* dock = mgr.GetWorld()->GetArea(x260_area)->DockNC(x25c_dock);
 }
 }
