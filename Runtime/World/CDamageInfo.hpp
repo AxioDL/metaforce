@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "Weapon/CWeaponMgr.hpp"
+#include "Weapon/CWeaponMode.hpp"
 
 namespace urde
 {
@@ -10,17 +11,7 @@ namespace urde
 class CDamageVulnerability;
 class CDamageInfo
 {
-    EWeaponType x0_type = EWeaponType::None;
-    union
-    {
-        struct
-        {
-            bool x4_24_ : 1;
-            bool x4_25_ : 1;
-            bool x4_26_ : 1;
-        };
-        u8 _dummy = 0;
-    };
+    CWeaponMode x0_weaponMode;
     float x8_damage;
     float xc_radiusDamage;
     float x10_radius;
@@ -31,13 +22,21 @@ public:
     CDamageInfo(CInputStream& in)
     {
         in.readUint32Big();
-        x0_type = EWeaponType(in.readUint32Big());
+        x0_weaponMode = CWeaponMode(EWeaponType(in.readUint32Big()));
         x8_damage = in.readFloatBig();
         xc_radiusDamage = x8_damage;
         x10_radius = in.readFloatBig();
         x14_knockback = in.readFloatBig();
     }
+    CDamageInfo(const CWeaponMode&, float damage, float radius, float knockback);
+    CDamageInfo(const CDamageInfo& other) = default;
 
+    const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }
+    float GetRadius() const { return x10_radius; }
+    void SetRadius(float r) { x10_radius = r; }
+    float GetKnockBackPower() const { return x14_knockback; }
+    float GetDamage() const { return x8_damage; }
+    void GetDamage(const CDamageVulnerability& dVuln);
     float GetRadiusDamage() const { return xc_radiusDamage; }
     float GetRadiusDamage(const CDamageVulnerability& dVuln);
 };

@@ -69,6 +69,7 @@ set(WORLD_SOURCES
     CRepulsor.hpp CRepulsor.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
+    CScriptBeam.hpp CScriptBeam.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

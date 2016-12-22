@@ -11,6 +11,7 @@
 #include "CWorld.hpp"
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
+#include "Particle/CWeaponDescription.hpp"
 #include "CDamageInfo.hpp"
 #include "CScriptActor.hpp"
 #include "CScriptWaypoint.hpp"
@@ -52,6 +53,7 @@
 #include "CRepulsor.hpp"
 #include "CScriptCameraPitchVolume.hpp"
 #include "CScriptCameraHintTrigger.hpp"
+#include "CScriptBeam.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CBeetle.hpp"
@@ -748,8 +750,8 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int prop
     if (propCount > 14)
         b10 = in.readBool();
 
-    u32 flags = u32(b2) | u32(b3) << 1 | u32(b4) << 2 | u32(b5) << 3 | u32(b6) << 4 |
-                                     u32(b7) << 5 | u32(b8) << 6 | u32(b9) << 8;
+    u32 flags = u32(b2) | u32(b3) << 1 | u32(b4) << 2 | u32(b5) << 3 | u32(b6) << 4 | u32(b7) << 5 | u32(b8) << 6 |
+                u32(b9) << 8;
 
     return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
                                 f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
@@ -1993,9 +1995,23 @@ CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in, int pr
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadScriptBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "Beam"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    u32 weaponDescId = in.readUint32Big();
+    if (!g_ResFactory->GetResourceTypeById(weaponDescId))
+        return nullptr;
+
+    CBeamInfo beamInfo(in);
+    CDamageInfo dInfo(in);
+    TToken<CWeaponDescription> weaponDesc = g_SimplePool->GetObj({SBIG('WPSC'), weaponDescId});
+
+    return new CScriptBeam(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active,
+                           weaponDesc, beamInfo, dInfo);
 }
 
 CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

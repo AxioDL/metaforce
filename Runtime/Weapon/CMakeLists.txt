@@ -1,4 +1,5 @@
 set(WEAPON_SOURCES
+    WeaponCommon.hpp
     CWeaponMgr.hpp CWeaponMgr.cpp
     CGunController.hpp CGunController.cpp
     CGunMotion.hpp CGunMotion.cpp
@@ -15,6 +16,11 @@ set(WEAPON_SOURCES
     CGSFreeLook.hpp CGSFreeLook.cpp
     CGSComboFire.hpp CGSComboFire.cpp
     CGSFidget.hpp CGSFidget.cpp
-    CFidget.hpp CFidget.cpp)
+    CFidget.hpp CFidget.cpp
+    CWeapon.hpp CWeapon.cpp
+    CGameProjectile.hpp CGameProjectile.cpp
+    CBeamProjectile.hpp CBeamProjectile.cpp
+    CBeamInfo.hpp CBeamInfo.cpp
+    CPlasmaProjectile.hpp CPlasmaProjectile.cpp)
 
 runtime_add_list(Weapon WEAPON_SOURCES)

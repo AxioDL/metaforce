@@ -7,6 +7,11 @@ CWeaponMode::CWeaponMode(EWeaponType type, bool, bool)
 {
 }
 
+EWeaponType CWeaponMode::GetType() const
+{
+    return x0_weaponType;
+}
+
 CWeaponMode CWeaponMode::Invalid()
 {
     return CWeaponMode(EWeaponType::None, false, false);
