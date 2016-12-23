@@ -17,7 +17,7 @@ public:
     };
 
 private:
-    //TReservedAverage<float, 8> x2e0_;
+    TReservedAverage<float, 8> x2e0_;
 public:
     CScriptDebris(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, ResId, const zeus::CVector3f&, float, const zeus::CVector3f&,

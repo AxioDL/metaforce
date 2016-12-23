@@ -5,6 +5,7 @@
 #include "World/CWorld.hpp"
 #include "CGameHintInfo.hpp"
 #include "CSaveWorld.hpp"
+#include "GuiSys/CStringTable.hpp"
 #include <vector>
 
 // longest file name string excluding terminating zero

@@ -676,7 +676,7 @@ CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame()
 
 bool CFrontEndUI::SFusionBonusFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveUi)
 {
-    bool flag = (saveUi && saveUi->x10_uiType != CSaveUI::UIType::Sixteen) ? false : true;
+    bool flag = (saveUi && saveUi->GetUIType() != CSaveUI::UIType::Sixteen) ? false : true;
     x10_remTime = std::max(x10_remTime - dt, 0.f);
 
     zeus::CColor geomCol(zeus::CColor::skWhite);
@@ -686,6 +686,7 @@ bool CFrontEndUI::SFusionBonusFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveU
     {
 
     }
+    return false;
 }
 
 void CFrontEndUI::SFusionBonusFrame::Draw(CSaveUI* saveUi) const
@@ -903,10 +904,10 @@ void CFrontEndUI::Draw() const
             auto vidDimensions = xcc_curMoviePtr->GetVideoDimensions();
             float aspectRatio = vidDimensions.first / float(vidDimensions.second);
             float verticalOff = (CGraphics::g_ViewportResolution.x / aspectRatio - CGraphics::g_ViewportResolution.y) * 0.5f;
-            xcc_curMoviePtr->SetFrame({0.f, -verticalOff, 0.f},
-                                      {CGraphics::g_ViewportResolution.x, verticalOff, 0.f},
-                                      {0.f, CGraphics::g_ViewportResolution.y + verticalOff, 0.f},
-                                      {CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y + verticalOff, 0.f});
+            xcc_curMoviePtr->SetFrame(zeus::CVector3f(0.f, -verticalOff, 0.f),
+                                      zeus::CVector3f(CGraphics::g_ViewportResolution.x, verticalOff, 0.f),
+                                      zeus::CVector3f(0.f, CGraphics::g_ViewportResolution.y + verticalOff, 0.f),
+                                      zeus::CVector3f(CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y + verticalOff, 0.f));
             xcc_curMoviePtr->DrawFrame();
         }
 

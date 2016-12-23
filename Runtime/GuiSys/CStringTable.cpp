@@ -72,7 +72,7 @@ void CStringTable::LoadStringTable(CInputStream &in)
 
 std::wstring CStringTable::GetString(s32 str) const
 {
-    if (str < 0 || str >= x0_stringCount)
+    if (str < 0 || u32(str) >= x0_stringCount)
         return L"Invalid";
 
     u32 off = *(reinterpret_cast<u32*>(x4_data.get() + str * 4));

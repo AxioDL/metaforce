@@ -19,8 +19,9 @@ class CGuiTableGroup;
 namespace MP1
 {
 
-struct CSaveUI
+class CSaveUI
 {
+public:
     enum class UIType
     {
         Zero,
@@ -56,6 +57,7 @@ struct CSaveUI
         }
     }
 
+private:
     u32 x0_instIdx;
     u32 x8_a;
     u32 xc_b;
@@ -83,6 +85,7 @@ struct CSaveUI
     bool x92_ = false;
     bool x93_secondaryInst;
 
+public:
     static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool flag);
     CIOWin::EMessageReturn Update(float dt);
     bool PumpLoad();
@@ -97,6 +100,7 @@ struct CSaveUI
     void StartGame(int idx);
     void EraseGame(int idx);
     void* GetGameData(int idx) const;
+    UIType GetUIType() const { return x10_uiType; }
     CSaveUI(u32 inst, u32 a, u32 b);
 };
 

@@ -200,4 +200,11 @@ void CHintOptions::PutTo(CBitStreamWriter& writer) const
     }
 }
 
+void CHintOptions::SetNextHintTime()
+{
+    if (x10_nextHintIdx == -1)
+        return;
+    x0_hintStates[x10_nextHintIdx].x4_time = g_MemoryCardSys->GetHints()[x10_nextHintIdx].GetTime();
+}
+
 }

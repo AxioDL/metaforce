@@ -11,6 +11,7 @@
 #include "CWorld.hpp"
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
+#include "Particle/CWeaponDescription.hpp"
 #include "CDamageInfo.hpp"
 #include "CScriptActor.hpp"
 #include "CScriptWaypoint.hpp"
@@ -43,13 +44,16 @@
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptDebris.hpp"
 #include "CScriptDistanceFog.hpp"
+#include "CScriptDockAreaChange.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "CScriptSwitch.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
+#include "CRepulsor.hpp"
 #include "CScriptCameraPitchVolume.hpp"
 #include "CScriptCameraHintTrigger.hpp"
+#include "CScriptBeam.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/CNewIntroBoss.hpp"
 #include "MP1/CBeetle.hpp"
@@ -746,7 +750,8 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int prop
     if (propCount > 14)
         b10 = in.readBool();
 
-    u32 flags = b2 | b3 << 1 | b4 << 2 | b5 << 3 | b6 << 4 | b7 << 5 | b8 << 6 | b9 << 8;
+    u32 flags = u32(b2) | u32(b3) << 1 | u32(b4) << 2 | u32(b5) << 3 | u32(b6) << 4 | u32(b7) << 5 | u32(b8) << 6 |
+                u32(b9) << 8;
 
     return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
                                 f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
@@ -1485,7 +1490,14 @@ CEntity* ScriptLoader::LoadMetareeAlpha(CStateManager& mgr, CInputStream& in, in
 
 CEntity* ScriptLoader::LoadDockAreaChange(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 3, "DockAreaChange"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    s32 w1 = in.readInt32Big();
+    bool active = in.readBool();
+
+    return new CScriptDockAreaChange(mgr.AllocateUniqueId(), *name, info, w1, active);
 }
 
 CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1791,7 +1803,15 @@ CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, i
 
 CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "Repulsor"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CVector3f center = in.readVec3fBig();
+    bool active = in.readBool();
+    float radius = in.readFloatBig();
+
+    return new CRepulsor(mgr.AllocateUniqueId(), active, *name, info, center, radius);
 }
 
 CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1975,9 +1995,23 @@ CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in, int pr
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadScriptBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "Beam"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    u32 weaponDescId = in.readUint32Big();
+    if (!g_ResFactory->GetResourceTypeById(weaponDescId))
+        return nullptr;
+
+    CBeamInfo beamInfo(in);
+    CDamageInfo dInfo(in);
+    TToken<CWeaponDescription> weaponDesc = g_SimplePool->GetObj({SBIG('WPSC'), weaponDescId});
+
+    return new CScriptBeam(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active,
+                           weaponDesc, beamInfo, dInfo);
 }
 
 CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

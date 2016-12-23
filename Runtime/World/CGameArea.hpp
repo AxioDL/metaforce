@@ -301,6 +301,7 @@ public:
     const zeus::CAABox& GetAABB() const {return x6c_aabb;}
 
     const std::vector<Dock> GetDocks() const {return xcc_docks;}
+    Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
 
     bool IsPostConstructed() const {return xf0_24_postConstructed;}
     const CPostConstructed* GetPostConstructed() const {return x12c_postConstructed.get();}

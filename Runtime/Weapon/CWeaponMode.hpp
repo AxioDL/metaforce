@@ -1,13 +1,13 @@
 #ifndef __URDE_CWEAPONMODE_HPP__
 #define __URDE_CWEAPONMODE_HPP__
 
-#include "CWeaponMgr.hpp"
+#include "WeaponCommon.hpp"
 
 namespace urde
 {
 class CWeaponMode
 {
-    EWeaponType x0_weaponType;
+    EWeaponType x0_weaponType = EWeaponType::None;
     union
     {
         struct
@@ -19,7 +19,8 @@ class CWeaponMode
         u8 dummy = 0;
     };
 public:
-    CWeaponMode(EWeaponType, bool, bool);
+    CWeaponMode() = default;
+    CWeaponMode(EWeaponType, bool = false, bool = false);
     EWeaponType GetType() const;
 
 

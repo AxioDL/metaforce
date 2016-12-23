@@ -37,7 +37,7 @@ size_t CTexture::ComputeMippedTexelCount()
     size_t w = x4_w;
     size_t h = x6_h;
     size_t ret = w * h;
-    for (int i=x8_mips ; i>1 ; --i)
+    for (u32 i=x8_mips ; i>1 ; --i)
     {
         if (w > 1)
             w /= 2;
@@ -53,7 +53,7 @@ size_t CTexture::ComputeMippedBlockCountDXT1()
     size_t w = x4_w / 4;
     size_t h = x6_h / 4;
     size_t ret = w * h;
-    for (int i=x8_mips ; i>1 ; --i)
+    for (u32 i=x8_mips ; i>1 ; --i)
     {
         if (w > 1)
             w /= 2;
@@ -80,7 +80,7 @@ void CTexture::BuildI4FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 7) / 8;
         int bheight = (h + 7) / 8;
@@ -128,7 +128,7 @@ void CTexture::BuildI8FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 7) / 8;
         int bheight = (h + 3) / 4;
@@ -176,7 +176,7 @@ void CTexture::BuildIA4FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 7) / 8;
         int bheight = (h + 3) / 4;
@@ -225,7 +225,7 @@ void CTexture::BuildIA8FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 3) / 4;
         int bheight = (h + 3) / 4;
@@ -339,7 +339,7 @@ void CTexture::BuildC4FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 7) / 8;
         int bheight = (h + 7) / 8;
@@ -383,7 +383,7 @@ void CTexture::BuildC8FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 7) / 8;
         int bheight = (h + 3) / 4;
@@ -431,7 +431,7 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 3) / 4;
         int bheight = (h + 3) / 4;
@@ -478,7 +478,7 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 3) / 4;
         int bheight = (h + 3) / 4;
@@ -535,7 +535,7 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in)
     int w = x4_w;
     int h = x6_h;
     RGBA8* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 3) / 4;
         int bheight = (h + 3) / 4;
@@ -599,7 +599,7 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
     int w = x4_w / 4;
     int h = x6_h / 4;
     DXT1Block* targetMip = buf.get();
-    for (int mip=0 ; mip<x8_mips ; ++mip)
+    for (u32 mip=0 ; mip<x8_mips ; ++mip)
     {
         int bwidth = (w + 1) / 2;
         int bheight = (h + 1) / 2;
@@ -618,7 +618,7 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
                     {
                         target[x].color1 = hecl::SBig(source[x].color1);
                         target[x].color2 = hecl::SBig(source[x].color2);
-                        for (int i=0 ; i<4 ; ++i)
+                        for (u32 i=0 ; i<4 ; ++i)
                         {
                             u8 ind[4];
                             u8 packed = source[x].lines[i];

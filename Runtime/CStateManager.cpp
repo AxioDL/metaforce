@@ -172,7 +172,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::Seedling)] = ScriptLoader::LoadSeedling;
     x90c_loaderFuncs[int(EScriptObjectType::ThermalHeatFader)] = ScriptLoader::LoadThermalHeatFader;
     x90c_loaderFuncs[int(EScriptObjectType::Burrower)] = ScriptLoader::LoadBurrower;
-    x90c_loaderFuncs[int(EScriptObjectType::ScriptBeam)] = ScriptLoader::LoadScriptBeam;
+    x90c_loaderFuncs[int(EScriptObjectType::ScriptBeam)] = ScriptLoader::LoadBeam;
     x90c_loaderFuncs[int(EScriptObjectType::WorldLightFader)] = ScriptLoader::LoadWorldLightFader;
     x90c_loaderFuncs[int(EScriptObjectType::MetroidPrimeStage2)] = ScriptLoader::LoadMetroidPrimeStage2;
     x90c_loaderFuncs[int(EScriptObjectType::MetroidPrimeStage1)] = ScriptLoader::LoadMetroidPrimeStage1;

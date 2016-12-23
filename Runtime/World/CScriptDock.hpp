@@ -27,7 +27,16 @@ public:
     CScriptDock(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CVector3f position,
                 const zeus::CVector3f& extent, s32, TAreaId, bool active, s32 w1, bool b1);
 
+    TAreaId GetAreaId() const { return x260_area; }
     s32 GetDockId() const { return x25c_dock; }
+    void SetDockReference(s32) {}
+    void GetDockReference(s32) {}
+    TAreaId GetCurrentConnectedAreaId(const CStateManager&) const;
+    void UpdateAreaActivateFlags(CStateManager&);
+    bool HasPointCrossedDock(const CStateManager&, const zeus::CVector3f&) const;
+    void AreaLoaded(CStateManager&);
+    void AreaUnloaded(CStateManager&);
+    void SetLoadConnected(CStateManager&, bool);
 };
 }
 #endif // __URDE_CSCRIPTDOCK_HPP__

@@ -15,7 +15,7 @@ using EState = CMemoryCardDriver::EState;
 
 CIOWin::EMessageReturn CSaveUI::Update(float dt)
 {
-
+    return CIOWin::EMessageReturn::Normal;
 }
 
 bool CSaveUI::PumpLoad()
