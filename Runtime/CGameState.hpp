@@ -80,8 +80,8 @@ class CGameState
     CPersistentOptions xa8_systemOptions;
     CGameOptions x17c_gameOptions;
     CHintOptions x1f8_hintOptions;
-    u32 x210_;
-    u32 x214_;
+    u64 x210_cardSerial;
+    std::vector<u8> x218_backupBuf;
 
     union
     {
@@ -108,7 +108,10 @@ public:
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
-    void MergePersistentOptions(const CPersistentOptions& opts);
+    void ImportPersistentOptions(const CPersistentOptions& opts);
+    void ExportPersistentOptions(CPersistentOptions& opts) const;
+    void WriteBackupBuf();
+    void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
     void PutTo(CBitStreamWriter& writer) const;
 
     struct GameFileStateInfo

@@ -15,30 +15,44 @@ class CMemoryCardDriver
 public:
     enum class EState
     {
-        Zero,
-        One = 1,
-        Two = 2,
-        Five = 5,
-        Six = 6,
-        Seven = 7,
+        Initial,
+        Ready = 1,
+        NoCard = 2,
+        RuntimeBackup = 3,
+        CardFormatted = 4,
+        CardNeedsMount = 5,
+        CardMountDone = 6,
+        SelectCardFile = 7,
+        WillWrite = 8,
+        Nine = 9,
+        Ten = 10,
+        Eleven = 11,
         Twelve = 12,
         Thirteen = 13,
         Fourteen = 14,
         Fifteen = 15,
+        Sixteen = 16,
         Seventeen = 17,
-        TwentyFive = 26,
-        TwentySix = 26,
+        Eighteen = 18,
+        Nineteen = 19,
+        Twenty = 20,
+        TwentyOne = 21,
+        TwentyTwo = 22,
+        TwentyThree = 23,
+        CardFormatBroken = 24,
+        TwentyFive = 25,
+        CardMount = 26,
         TwentySeven = 27,
         TwentyEight = 28,
         TwentyNine = 29,
         Thirty = 30,
         ThirtyOne = 31,
-        ThirtyTwo = 32,
+        Write = 32,
         ThirtyThree = 33,
         ThirtyFour = 34,
         ThirtyFive = 35,
         ThirtySix = 36,
-        ThirtySeven = 37
+        CardFormat = 37
     };
 
     enum class EError
@@ -72,9 +86,11 @@ private:
         std::vector<u8> x24_saveFileData;
         std::vector<u8> x34_saveData;
         SFileInfo(CMemoryCardSys::EMemoryCardPort cardPort, const std::string& name);
+        CMemoryCardSys::ECardResult Open();
         CMemoryCardSys::ECardResult Close();
         CMemoryCardSys::EMemoryCardPort GetFileCardPort() const { return x0_fileInfo.x0_cardPort; }
         int GetFileNo() const { return x0_fileInfo.x4_fileNo; }
+        CMemoryCardSys::ECardResult StartRead();
         CMemoryCardSys::ECardResult TryFileRead();
         CMemoryCardSys::ECardResult FileRead();
         CMemoryCardSys::ECardResult GetSaveDataOffset(u32& offOut);
@@ -99,7 +115,7 @@ private:
     ResId x4_saveBanner;
     ResId x8_saveIcon0;
     ResId xc_saveIcon1;
-    EState x10_state = EState::Zero;
+    EState x10_state = EState::Initial;
     EError x14_error = EError::Zero;
     s32 x18_cardFreeBytes = 0;
     s32 x1c_cardFreeFiles = 0;
@@ -110,13 +126,13 @@ private:
     std::unique_ptr<SGameFileSlot> xe4_fileSlots[3];
     std::vector<std::pair<u32, SFileInfo>> x100_mcFileInfos;
     u32 x194_fileIdx = -1;
-    u32 x198_ = 0;
+    std::unique_ptr<CMemoryCardSys::CCardFileInfo> x198_fileInfo;
     bool x19c_ = false;
-    bool x19d_doMergePersistent;
+    bool x19d_doImportPersistent;
 
 public:
     CMemoryCardDriver(CMemoryCardSys::EMemoryCardPort cardPort, ResId saveBanner,
-                      ResId saveIcon0, ResId saveIcon1, bool flag);
+                      ResId saveIcon0, ResId saveIcon1, bool importPersistent);
     void FinishedLoading();
     void FinishedLoading2();
     void NoCardFound();
@@ -127,7 +143,8 @@ public:
     static SSaveHeader LoadSaveHeader(CMemoryInStream& in);
     static std::unique_ptr<SGameFileSlot> LoadSaveFile(CMemoryInStream& in);
     void ReadFinished();
-    void MergePersistentOptions();
+    void ImportPersistentOptions();
+    void ExportPersistentOptions();
     void DeleteFile();
     void CheckCardCapacity();
 
@@ -146,14 +163,24 @@ public:
 
     void GoTo17();
     void GoTo28();
+    void GoTo29();
+    void GoTo32();
+    void GoTo33();
+    void GoTo34();
+    void GoTo35();
+    void GoTo36();
+    void GoTo37();
 
+    void ClearFileInfo() { x198_fileInfo.reset(); }
+    void InitializeFileInfo();
+    void WriteBackupBuf();
     bool GetCardFreeBytes();
     void HandleCardError(CMemoryCardSys::ECardResult result, EState state);
     void Update();
 
     static bool InCardInsertedRange(EState v)
     {
-        return v >= EState::TwentySix && v <= EState::ThirtySeven;
+        return v >= EState::CardMount && v <= EState::CardFormat;
     }
 
     static bool InRange2(EState v)

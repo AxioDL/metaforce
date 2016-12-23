@@ -684,7 +684,7 @@ void CTexture::BuildC8(const void* data, size_t length)
     });
 }
 
-CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length)
+CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex)
 {
     std::unique_ptr<u8[]> owned = std::move(in);
     athena::io::MemoryReader r(owned.get(), length);
@@ -737,6 +737,9 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length)
     default:
         Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));
     }
+
+    if (otex)
+        m_otex = std::move(owned);
 }
 
 void CTexture::Load(int slot, EClampMode clamp) const
@@ -744,12 +747,125 @@ void CTexture::Load(int slot, EClampMode clamp) const
 
 }
 
+std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
+                                                   std::unique_ptr<u8[]>& paletteOut) const
+{
+    if (!m_otex)
+        Log.report(logvisor::Fatal, "MemoryCard TXTR not loaded with 'otex'");
+
+    size_t texelCount = x4_w * x6_h;
+    std::unique_ptr<u8[]> ret;
+    if (x0_fmt == ETexelFormat::RGBA8PC)
+    {
+        sizeOut = texelCount * 2;
+        fmtOut = ETexelFormat::RGB5A3;
+        ret.reset(new u8[sizeOut]);
+        u16* texel = reinterpret_cast<u16*>(ret.get());
+
+        int w = x4_w;
+        int h = x6_h;
+        const RGBA8* sourceMip = reinterpret_cast<const RGBA8*>(m_otex.get() + 12);
+        int bwidth = (w + 3) / 4;
+        int bheight = (h + 3) / 4;
+        for (int by=0 ; by<bheight ; ++by)
+        {
+            int baseY = by * 4;
+            for (int bx=0 ; bx<bwidth ; ++bx)
+            {
+                int baseX = bx * 4;
+                for (int y=0 ; y<4 ; ++y)
+                {
+                    const RGBA8* source = sourceMip + (baseY + y) * w + baseX;
+                    for (int x=0 ; x<4 ; ++x)
+                    {
+                        if (source[x].a == 0xff)
+                        {
+                            *texel++ = hecl::SBig(u16((source[x].r >> 3 << 10) |
+                                                      (source[x].g >> 3 << 5) |
+                                                      (source[x].b >> 3)));
+                        }
+                        else
+                        {
+                            *texel++ = hecl::SBig(u16((source[x].r >> 4 << 8) |
+                                                      (source[x].g >> 4 << 4) |
+                                                      (source[x].b >> 4) |
+                                                      (source[x].a >> 5 << 12)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (x0_fmt == ETexelFormat::C8PC)
+    {
+        sizeOut = texelCount;
+        fmtOut = ETexelFormat::C8;
+        ret.reset(new u8[sizeOut]);
+        paletteOut.reset(new u8[512]);
+        u8* texel = ret.get();
+        u16* paletteColors = reinterpret_cast<u16*>(paletteOut.get());
+
+        int w = x4_w;
+        int h = x6_h;
+        const u8* data = m_otex.get() + 12;
+        u32 nentries = hecl::SBig(*reinterpret_cast<const u32*>(data));
+        const RGBA8* paletteTexels = reinterpret_cast<const RGBA8*>(data + 4);
+        const u8* sourceMip = data + 4 + nentries * 4;
+
+        for (int i=0; i<256; ++i)
+        {
+            u16& color = paletteColors[i];
+            if (i < nentries)
+                color = 0;
+            else
+            {
+                const RGBA8& colorIn = paletteTexels[i];
+                if (colorIn.a == 0xff)
+                {
+                    color = hecl::SBig(u16((colorIn.r >> 3 << 10) |
+                                           (colorIn.g >> 3 << 5) |
+                                           (colorIn.b >> 3)));
+                }
+                else
+                {
+                    color = hecl::SBig(u16((colorIn.r >> 4 << 8) |
+                                           (colorIn.g >> 4 << 4) |
+                                           (colorIn.b >> 4) |
+                                           (colorIn.a >> 5 << 12)));
+                }
+            }
+        }
+
+        int bwidth = (w + 7) / 8;
+        int bheight = (h + 3) / 4;
+        for (int by=0 ; by<bheight ; ++by)
+        {
+            int baseY = by * 4;
+            for (int bx=0 ; bx<bwidth ; ++bx)
+            {
+                int baseX = bx * 8;
+                for (int y=0 ; y<4 ; ++y)
+                {
+                    const u8* source = sourceMip + (baseY + y) * w + baseX;
+                    for (int x=0 ; x<8 ; ++x)
+                        *texel++ = source[x];
+                }
+            }
+        }
+    }
+    else
+        Log.report(logvisor::Fatal, "MemoryCard texture may only use RGBA8PC or C8PC format");
+
+    return ret;
+}
+
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,
                                  std::unique_ptr<u8[]>&& in, u32 len,
                                  const urde::CVParamTransfer& vparms,
                                  CObjectReference* selfRef)
 {
-    return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(std::move(in), len));
+    return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(std::move(in), len,
+        vparms.GetOwnedObj<u32>() == SBIG('OTEX')));
 }
 
 }

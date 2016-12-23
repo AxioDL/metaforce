@@ -7,8 +7,20 @@ namespace urde
 namespace MP1
 {
 
+static const char* SaveFileNames[] =
+{
+    "MetroidPrime A",
+    "MetroidPrime B"
+};
+
 using ECardResult = CMemoryCardSys::ECardResult;
 using EMemoryCardPort = CMemoryCardSys::EMemoryCardPort;
+
+ECardResult CMemoryCardDriver::SFileInfo::Open()
+{
+    //CARDOpen(GetFileCardPort(), x14_name.data(), &x0_fileInfo);
+    return ECardResult::CARD_RESULT_READY;
+}
 
 ECardResult CMemoryCardDriver::SFileInfo::Close()
 {
@@ -17,6 +29,20 @@ ECardResult CMemoryCardDriver::SFileInfo::Close()
     //result = CARDClose(backup);
     x0_fileInfo.x0_cardPort = backup;
     return result;
+}
+
+CMemoryCardSys::ECardResult CMemoryCardDriver::SFileInfo::StartRead()
+{
+    CMemoryCardSys::CARDStat stat = {};
+    ECardResult result = CMemoryCardSys::GetStatus(GetFileCardPort(), GetFileNo(), stat);
+    if (result != ECardResult::CARD_RESULT_READY)
+        return result;
+
+    u32 length = stat.GetFileLength();
+    x34_saveData.clear();
+    x24_saveFileData.resize(length);
+    //return CARDReadAsync(&x0_fileInfo, x24_saveFileData.data(), length, 0, 0);
+    return ECardResult::CARD_RESULT_READY;
 }
 
 ECardResult CMemoryCardDriver::SFileInfo::TryFileRead()
@@ -124,13 +150,13 @@ CMemoryCardDriver::SFileInfo::SFileInfo(EMemoryCardPort port,
 }
 
 CMemoryCardDriver::CMemoryCardDriver(EMemoryCardPort cardPort, ResId saveBanner,
-                                     ResId saveIcon0, ResId saveIcon1, bool mergePersistent)
+                                     ResId saveIcon0, ResId saveIcon1, bool importPersistent)
 : x0_cardPort(cardPort), x4_saveBanner(saveBanner),
-  x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_doMergePersistent(mergePersistent)
+  x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_doImportPersistent(importPersistent)
 {
     x100_mcFileInfos.reserve(2);
-    x100_mcFileInfos.emplace_back(0, SFileInfo(x0_cardPort, "MetroidPrime A"));
-    x100_mcFileInfos.emplace_back(0, SFileInfo(x0_cardPort, "MetroidPrime B"));
+    x100_mcFileInfos.emplace_back(0, SFileInfo(x0_cardPort, SaveFileNames[0]));
+    x100_mcFileInfos.emplace_back(0, SFileInfo(x0_cardPort, SaveFileNames[1]));
 }
 
 void CMemoryCardDriver::FinishedLoading()
@@ -152,7 +178,7 @@ void CMemoryCardDriver::FinishedLoading2()
             x14_error = EError::Seven;
             return;
         }
-        x10_state = EState::Five;
+        x10_state = EState::CardNeedsMount;
         MountCard();
         break;
     case ECardResult::CARD_RESULT_BUSY:
@@ -169,13 +195,13 @@ void CMemoryCardDriver::FinishedLoading2()
 
 void CMemoryCardDriver::NoCardFound()
 {
-    x10_state = EState::Two;
+    x10_state = EState::NoCard;
     static_cast<CMain*>(g_Main)->SetCardInserted(false);
 }
 
 void CMemoryCardDriver::MountCard()
 {
-    x10_state = EState::TwentySix;
+    x10_state = EState::CardMount;
     x14_error = EError::Zero;
     ECardResult result = CMemoryCardSys::MountCard(x0_cardPort);
     if (result != ECardResult::CARD_RESULT_READY)
@@ -229,22 +255,31 @@ void CMemoryCardDriver::ReadFinished()
     for (int i=0 ; i<3 ; ++i)
         xe4_fileSlots[i] = LoadSaveFile(r);
 
-    if (x19d_doMergePersistent)
-        MergePersistentOptions();
+    if (x19d_doImportPersistent)
+        ImportPersistentOptions();
 }
 
-void CMemoryCardDriver::MergePersistentOptions()
+void CMemoryCardDriver::ImportPersistentOptions()
 {
     CBitStreamReader r(x30_systemData, 174);
     CPersistentOptions opts(r);
-    g_GameState->MergePersistentOptions(opts);
+    g_GameState->ImportPersistentOptions(opts);
+}
+
+void CMemoryCardDriver::ExportPersistentOptions()
+{
+    CBitStreamReader r(x30_systemData, 174);
+    CPersistentOptions opts(r);
+    g_GameState->ExportPersistentOptions(opts);
+    CBitStreamWriter w(x30_systemData, 174);
+    opts.PutTo(w);
 }
 
 void CMemoryCardDriver::DeleteFile()
 {
     x14_error = EError::Zero;
     x10_state = EState::Thirty;
-    SFileInfo& fileInfo = x100_mcFileInfos[bool(x194_fileIdx)].second;
+    SFileInfo& fileInfo = x100_mcFileInfos[!bool(x194_fileIdx)].second;
     ECardResult result = CMemoryCardSys::FastDeleteFile(x0_cardPort, fileInfo.GetFileNo());
     if (result != ECardResult::CARD_RESULT_READY)
         Case30(result);
@@ -261,11 +296,11 @@ void CMemoryCardDriver::Case26(ECardResult result)
     switch (result)
     {
     case ECardResult::CARD_RESULT_READY:
-        x10_state = EState::Six;
+        x10_state = EState::CardMountDone;
         CheckCard();
         break;
     case ECardResult::CARD_RESULT_BROKEN:
-        x10_state = EState::Six;
+        x10_state = EState::CardMountDone;
         x14_error = EError::One;
         CheckCard();
         break;
@@ -280,7 +315,7 @@ void CMemoryCardDriver::Case27(ECardResult result)
     switch (result)
     {
     case ECardResult::CARD_RESULT_READY:
-        x10_state = EState::Seven;
+        x10_state = EState::SelectCardFile;
         if (!GetCardFreeBytes())
             return;
         if (CMemoryCardSys::GetSerialNo(x0_cardPort, x28_cardSerial) == ECardResult::CARD_RESULT_READY)
@@ -301,14 +336,14 @@ void CMemoryCardDriver::Case28(ECardResult result)
     if (result == ECardResult::CARD_RESULT_READY)
     {
         x100_mcFileInfos[x194_fileIdx].first = 1;
-        if (x100_mcFileInfos[bool(x194_fileIdx)].first == 3)
+        if (x100_mcFileInfos[!bool(x194_fileIdx)].first == 3)
         {
             x10_state = EState::Seventeen;
             GoTo28();
         }
         else
         {
-            x10_state = EState::Seven;
+            x10_state = EState::SelectCardFile;
             if (!GetCardFreeBytes())
                 return;
             GoTo17();
@@ -330,10 +365,10 @@ void CMemoryCardDriver::Case29(ECardResult result)
             return;
         }
 
-        u32 fileIdx = bool(x194_fileIdx);
+        u32 fileIdx = !bool(x194_fileIdx);
         if (readRes == ECardResult::CARD_RESULT_READY)
         {
-            x10_state = EState::One;
+            x10_state = EState::Ready;
             ReadFinished();
             u32 fileId = x100_mcFileInfos[fileIdx].first;
             if (fileId == 1)
@@ -348,7 +383,7 @@ void CMemoryCardDriver::Case29(ECardResult result)
             x100_mcFileInfos[x194_fileIdx].first = 3;
             if (x100_mcFileInfos[fileIdx].first == 2)
             {
-                x10_state = EState::Seven;
+                x10_state = EState::SelectCardFile;
                 GoTo17();
             }
             else
@@ -364,52 +399,347 @@ void CMemoryCardDriver::Case29(ECardResult result)
 
 void CMemoryCardDriver::Case30(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        x10_state = EState::Ready;
+        if (GetCardFreeBytes())
+            CheckCardCapacity();
+    }
+    else
+        HandleCardError(result, EState::Sixteen);
 }
 
 void CMemoryCardDriver::Case31(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        x10_state = EState::WillWrite;
+        GoTo32();
+    }
+    else
+        HandleCardError(result, EState::Eighteen);
 }
 
 void CMemoryCardDriver::Case32(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        ECardResult xferResult = x198_fileInfo->PumpCardTransfer();
+        if (xferResult == ECardResult::CARD_RESULT_READY)
+        {
+            x10_state = EState::Ready;
+            if (x198_fileInfo->Close() == ECardResult::CARD_RESULT_READY)
+                return;
+            NoCardFound();
+            return;
+        }
+        if (xferResult == ECardResult::CARD_RESULT_BUSY)
+            return;
+        if (xferResult == ECardResult::CARD_RESULT_IOERROR)
+        {
+            x10_state = EState::Nineteen;
+            x14_error = EError::Three;
+            return;
+        }
+        NoCardFound();
+    }
+    else
+        HandleCardError(result, EState::Nineteen);
 }
 
 void CMemoryCardDriver::Case33(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        x10_state = EState::Nine;
+        GoTo34();
+    }
+    else
+        HandleCardError(result, EState::Twenty);
 }
 
 void CMemoryCardDriver::Case34(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        ECardResult xferResult = x198_fileInfo->PumpCardTransfer();
+        if (xferResult == ECardResult::CARD_RESULT_READY)
+        {
+            x10_state = EState::Ten;
+            if (x198_fileInfo->Close() != ECardResult::CARD_RESULT_READY)
+            {
+                NoCardFound();
+                return;
+            }
+            GoTo35();
+            return;
+        }
+        if (xferResult == ECardResult::CARD_RESULT_BUSY)
+            return;
+        if (xferResult == ECardResult::CARD_RESULT_IOERROR)
+        {
+            x10_state = EState::TwentyOne;
+            x14_error = EError::Three;
+            return;
+        }
+        NoCardFound();
+    }
+    else
+        HandleCardError(result, EState::TwentyOne);
 }
 
 void CMemoryCardDriver::Case35(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        x10_state = EState::Eleven;
+        if (GetCardFreeBytes())
+            GoTo36();
+    }
+    else
+        HandleCardError(result, EState::TwentyTwo);
 }
 
 void CMemoryCardDriver::Case36(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+    {
+        x10_state = EState::RuntimeBackup;
+        WriteBackupBuf();
+    }
+    else
+        HandleCardError(result, EState::TwentyThree);
 }
 
 void CMemoryCardDriver::Case37(ECardResult result)
 {
-
+    if (result == ECardResult::CARD_RESULT_READY)
+        x10_state = EState::CardFormatted;
+    else if (result == ECardResult::CARD_RESULT_BROKEN)
+    {
+        x10_state = EState::CardFormatBroken;
+        x14_error = EError::Three;
+    }
+    else
+        HandleCardError(result, EState::CardFormatBroken);
 }
 
 void CMemoryCardDriver::GoTo17()
 {
+    x14_error = EError::Zero;
+    for (std::pair<u32, SFileInfo>& info : x100_mcFileInfos)
+    {
+        if (info.first == 0)
+        {
+            ECardResult result = info.second.Open();
+            if (result == ECardResult::CARD_RESULT_NOFILE)
+            {
+                info.first = 1;
+                continue;
+            }
+            else if (result == ECardResult::CARD_RESULT_READY)
+            {
+                CMemoryCardSys::CARDStat stat = {};
+                if (CMemoryCardSys::GetStatus(x0_cardPort, info.second.GetFileNo(), stat) ==
+                        ECardResult::CARD_RESULT_READY)
+                {
+                    u32 comment = stat.GetCommentAddr();
+                    if (comment == -1)
+                        info.first = 3;
+                    else
+                        info.first = 2;
+                }
+                else
+                {
+                    NoCardFound();
+                    return;
+                }
+                if (info.second.Close() == ECardResult::CARD_RESULT_NOCARD)
+                {
+                    NoCardFound();
+                    return;
+                }
+            }
+            else
+            {
+                NoCardFound();
+                return;
+            }
+        }
+    }
 
+    if (x100_mcFileInfos[0].first == 2)
+    {
+        if (x100_mcFileInfos[1].first == 2)
+        {
+            CMemoryCardSys::CARDStat stat = {};
+            if (CMemoryCardSys::GetStatus(x0_cardPort, x100_mcFileInfos[0].second.GetFileNo(), stat) ==
+                    ECardResult::CARD_RESULT_READY)
+            {
+                u32 timeA = stat.GetTime();
+                if (CMemoryCardSys::GetStatus(x0_cardPort, x100_mcFileInfos[1].second.GetFileNo(), stat) ==
+                        ECardResult::CARD_RESULT_READY)
+                {
+                    u32 timeB = stat.GetTime();
+                    if (timeA > timeB)
+                        x194_fileIdx = 0;
+                    else
+                        x194_fileIdx = 1;
+                    GoTo29();
+                    return;
+                }
+                NoCardFound();
+                return;
+            }
+            NoCardFound();
+            return;
+        }
+        x194_fileIdx = 0;
+        GoTo29();
+        return;
+    }
+
+    if (x100_mcFileInfos[1].first == 2)
+    {
+        x194_fileIdx = 1;
+        GoTo29();
+        return;
+    }
+
+    if (x100_mcFileInfos[0].first == 3 || x100_mcFileInfos[1].first == 3)
+    {
+        x10_state = EState::Seventeen;
+        x14_error = EError::Nine;
+    }
+    else
+    {
+        x10_state = EState::Seventeen;
+        x14_error = EError::Eight;
+    }
 }
 
 void CMemoryCardDriver::GoTo28()
 {
+    x14_error = EError::Zero;
+    x10_state = EState::TwentyEight;
+    int idx = 0;
+    for (std::pair<u32, SFileInfo>& info : x100_mcFileInfos)
+    {
+        if (info.first == 3)
+        {
+            x194_fileIdx = idx;
+            ECardResult result = CMemoryCardSys::FastDeleteFile(x0_cardPort, info.second.GetFileNo());
+            if (result != ECardResult::CARD_RESULT_READY)
+            {
+                Case28(result);
+                return;
+            }
+        }
+        ++idx;
+    }
+}
 
+void CMemoryCardDriver::GoTo29()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::TwentyNine;
+    ECardResult result = x100_mcFileInfos[x194_fileIdx].second.Open();
+    if (result != ECardResult::CARD_RESULT_READY)
+    {
+        Case29(result);
+        return;
+    }
+
+    result = x100_mcFileInfos[x194_fileIdx].second.StartRead();
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case29(result);
+}
+
+void CMemoryCardDriver::GoTo32()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::Write;
+    ECardResult result = x198_fileInfo->Write();
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case32(result);
+}
+
+void CMemoryCardDriver::GoTo33()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::ThirtyThree;
+    ClearFileInfo();
+    if (x18_cardFreeBytes < 8192 || !x1c_cardFreeFiles)
+    {
+        x10_state = EState::Twenty;
+        x14_error = EError::Five;
+        return;
+    }
+
+    x198_fileInfo = std::make_unique<CMemoryCardSys::CCardFileInfo>(x0_cardPort, SaveFileNames[x194_fileIdx]);
+    InitializeFileInfo();
+    ECardResult result = x198_fileInfo->CreateFile();
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case33(result);
+}
+
+void CMemoryCardDriver::GoTo34()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::ThirtyFour;
+    ECardResult result = x198_fileInfo->Write();
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case34(result);
+}
+
+void CMemoryCardDriver::GoTo35()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::ThirtyFive;
+    ECardResult result = CMemoryCardSys::DeleteFile(x0_cardPort,
+                                                    SaveFileNames[!bool(x194_fileIdx)]);
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case35(result);
+}
+
+void CMemoryCardDriver::GoTo36()
+{
+    if (x194_fileIdx == 1)
+    {
+        x14_error = EError::Zero;
+        x10_state = EState::ThirtySix;
+        ECardResult result = CMemoryCardSys::Rename(x0_cardPort,
+                                                    SaveFileNames[x194_fileIdx],
+                                                    SaveFileNames[!bool(x194_fileIdx)]);
+        if (result != ECardResult::CARD_RESULT_READY)
+            Case36(result);
+    }
+    else
+    {
+        x10_state = EState::RuntimeBackup;
+        WriteBackupBuf();
+    }
+}
+
+void CMemoryCardDriver::GoTo37()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::CardFormat;
+    ECardResult result = CMemoryCardSys::FormatCard(x0_cardPort);
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case37(result);
+}
+
+void CMemoryCardDriver::InitializeFileInfo()
+{
+    ExportPersistentOptions();
+    /* TODO: Finish */
+}
+
+void CMemoryCardDriver::WriteBackupBuf()
+{
+    g_GameState->WriteBackupBuf();
+    g_GameState->SetCardSerial(x28_cardSerial);
 }
 
 bool CMemoryCardDriver::GetCardFreeBytes()
@@ -451,7 +781,7 @@ void CMemoryCardDriver::Update()
 
     if (result.x0_error == ECardResult::CARD_RESULT_NOCARD)
     {
-        if (x10_state != EState::Two)
+        if (x10_state != EState::NoCard)
             NoCardFound();
         static_cast<CMain*>(g_Main)->SetCardInserted(false);
         return;
@@ -474,7 +804,7 @@ void CMemoryCardDriver::Update()
 
         switch (x10_state)
         {
-        case EState::TwentySix:
+        case EState::CardMount:
             Case26(resultCode);
             break;
         case EState::TwentySeven:
@@ -492,7 +822,7 @@ void CMemoryCardDriver::Update()
         case EState::ThirtyOne:
             Case31(resultCode);
             break;
-        case EState::ThirtyTwo:
+        case EState::Write:
             Case32(resultCode);
             break;
         case EState::ThirtyThree:
@@ -507,7 +837,7 @@ void CMemoryCardDriver::Update()
         case EState::ThirtySix:
             Case36(resultCode);
             break;
-        case EState::ThirtySeven:
+        case EState::CardFormat:
             Case37(resultCode);
             break;
         default: break;

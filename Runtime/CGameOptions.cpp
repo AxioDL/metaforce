@@ -54,6 +54,48 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     }
 }
 
+void CPersistentOptions::PutTo(CBitStreamWriter& w) const
+{
+    for (int b=0 ; b<98 ; ++b)
+        w.WriteEncoded(x0_[b], 1);
+
+    for (int b=0 ; b<64 ; ++b)
+        w.WriteEncoded(x68_[b], 1);
+
+    w.WriteEncoded(xc0_, 2);
+    w.WriteEncoded(xc4_, 2);
+    w.WriteEncoded(xc8_, 1);
+    w.WriteEncoded(xcc_logScanCount, 7);
+    w.WriteEncoded(xd0_24_, 1);
+    w.WriteEncoded(xd0_25_hasHardMode, 1);
+    w.WriteEncoded(xd0_26_hardModeBeat, 1);
+    w.WriteEncoded(xd0_27_, 1);
+    w.WriteEncoded(xd0_28_hasFusion, 1);
+    w.WriteEncoded(xd0_29_allItemsCollected, 1);
+    w.WriteEncoded(xbc_, 2);
+
+    auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
+    for (const auto& world : memWorlds)
+    {
+        TLockedToken<CSaveWorld> saveWorld =
+            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
+
+        for (TEditorId cineId : saveWorld->GetCinematics())
+            w.WriteEncoded(GetCinematicState(world.first, cineId), 1);
+    }
+}
+
+bool CPersistentOptions::GetCinematicState(ResId mlvlId, TEditorId cineId) const
+{
+    auto existing = std::find_if(xac_cinematicStates.cbegin(), xac_cinematicStates.cend(),
+    [&](const std::pair<ResId, TEditorId>& pair) -> bool
+    {
+        return pair.first == mlvlId && pair.second == cineId;
+    });
+
+    return existing != xac_cinematicStates.cend();
+}
+
 void CPersistentOptions::SetCinematicState(ResId mlvlId, TEditorId cineId, bool state)
 {
     auto existing = std::find_if(xac_cinematicStates.cbegin(), xac_cinematicStates.cend(),

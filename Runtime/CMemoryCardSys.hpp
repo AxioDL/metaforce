@@ -16,6 +16,7 @@ namespace urde
 {
 class CDummyWorld;
 class CStringTable;
+class CSimplePool;
 
 class CSaveWorldMemory
 {
@@ -79,6 +80,7 @@ public:
         CARD_RESULT_ENCODING = -13,
         CARD_RESULT_BROKEN = -6,
         CARD_RESULT_IOERROR = -5,
+        CARD_RESULT_NOFILE = -4,
         CARD_RESULT_NOCARD = -3,
         CARD_RESULT_WRONGDEVICE = -2,
         CARD_RESULT_BUSY = -1,
@@ -116,6 +118,7 @@ public:
         u32  x64_offsetIconTlut;
         u32  x68_offsetData;
 
+        u32 GetFileLength() const { return x20_length; }
         u32 GetTime() const { return x24_time; }
         u32 GetBannerFormat() const { return x2e_bannerFormat & 0x3; }
         void SetBannerFormat(u32 fmt) { x2e_bannerFormat = (x2e_bannerFormat & ~0x3) | fmt; }
@@ -136,6 +139,68 @@ public:
         void SetCommentAddr(u32 addr) { x38_commentAddr = addr; }
     };
 
+    struct CARDFileInfo
+    {
+        EMemoryCardPort chan;
+        s32 fileNo = -1;
+
+        s32 offset;
+        s32 length;
+        u16 iBlock;
+        u16 __padding;
+
+        CARDFileInfo(EMemoryCardPort port) : chan(port) {}
+    };
+
+    struct CCardFileInfo
+    {
+        struct Icon
+        {
+            ResId x0_id;
+            u32 x4_speed;
+            TLockedToken<CTexture> x8_tex;
+            Icon(ResId id, u32 speed, CSimplePool& sp, const CVParamTransfer& cv);
+        };
+
+        enum class EStatus
+        {
+            Standby,
+            Transferring,
+            Done
+        };
+
+        EStatus x0_status = EStatus::Standby;
+        CARDFileInfo x4_info;
+        std::string x18_name;
+        std::string x28_name2;
+        ResId x3c_bannerTex = -1;
+        std::experimental::optional<TLockedToken<CTexture>> x40_bannerTok;
+        rstl::reserved_vector<Icon, 8> x50_iconToks;
+        std::vector<u8> xf4_saveBuffer;
+        std::vector<u8> x104_cardBuffer;
+
+        CVParamTransfer m_texParam = {new TObjOwnerParam<u32>(SBIG('OTEX'))};
+
+        CCardFileInfo(EMemoryCardPort port, const std::string& name)
+        : x4_info(port), x18_name(name) {}
+
+        void LockBannerToken(ResId bannerTxtr, CSimplePool& sp);
+        void LockIconToken(ResId iconTxtr, u32 speed, CSimplePool& sp);
+
+        EMemoryCardPort GetCardPort() const { return x4_info.chan; }
+        int GetFileNo() const { return x4_info.fileNo; }
+        u32 CalculateBannerDataSize() const;
+        u32 CalculateTotalDataSize() const;
+        void BuildCardBuffer();
+        void WriteBannerData(CMemoryOutStream& out) const;
+        void WriteIconData(CMemoryOutStream& out) const;
+        ECardResult PumpCardTransfer();
+        ECardResult GetStatus(CARDStat& stat) const;
+        ECardResult CreateFile();
+        ECardResult Write();
+        ECardResult Close();
+    };
+
     static CardProbeResults CardProbe(EMemoryCardPort port);
     static ECardResult MountCard(EMemoryCardPort port);
     static ECardResult CheckCard(EMemoryCardPort port);
@@ -143,8 +208,11 @@ public:
     static ECardResult GetSerialNo(EMemoryCardPort port, u64& serialOut);
     static ECardResult GetResultCode(EMemoryCardPort port);
     static ECardResult GetStatus(EMemoryCardPort port, int fileNo, CARDStat& statOut);
+    static ECardResult SetStatus(EMemoryCardPort port, int fileNo, const CARDStat& stat);
     static ECardResult DeleteFile(EMemoryCardPort port, const char* name);
     static ECardResult FastDeleteFile(EMemoryCardPort port, int fileNo);
+    static ECardResult Rename(EMemoryCardPort port, const char* oldName, const char* newName);
+    static ECardResult FormatCard(EMemoryCardPort port);
 };
 
 }

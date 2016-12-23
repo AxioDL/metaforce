@@ -21,6 +21,7 @@ class CTexture
     boo::GraphicsDataToken m_booToken;
     boo::ITexture* m_booTex;
     boo::ITexture* m_paletteTex;
+    std::unique_ptr<u8[]> m_otex;
 
     size_t ComputeMippedTexelCount();
     size_t ComputeMippedBlockCountDXT1();
@@ -39,18 +40,22 @@ class CTexture
     void BuildC8(const void* data, size_t length);
 
 public:
-    CTexture(std::unique_ptr<u8[]>&& in, u32 length);
+    CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex);
     enum class EClampMode
     {
         None,
         One
     };
     ETexelFormat GetTexelFormat() const {return x0_fmt;}
+    ETexelFormat GetMemoryCardTexelFormat() const
+    {return x0_fmt == ETexelFormat::C8PC ? ETexelFormat::C8 : ETexelFormat::RGB5A3;}
     u16 GetWidth() const {return x4_w;}
     u16 GetHeight() const {return x6_h;}
     void Load(int slot, EClampMode clamp) const;
     boo::ITexture* GetBooTexture() {return m_booTex;}
     boo::ITexture* GetPaletteTexture() {return m_paletteTex;}
+    std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
+                                             std::unique_ptr<u8[]>& paletteOut) const;
 };
 
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,

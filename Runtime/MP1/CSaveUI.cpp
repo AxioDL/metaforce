@@ -59,7 +59,7 @@ bool CSaveUI::PumpLoad()
 
 CSaveUI::UIType CSaveUI::SelectUIType() const
 {
-    if (x6c_cardDriver->x10_state == EState::Two)
+    if (x6c_cardDriver->x10_state == EState::NoCard)
         return UIType::Three;
 
     switch (x10_uiType)
@@ -78,7 +78,7 @@ CSaveUI::UIType CSaveUI::SelectUIType() const
         return UIType::One;
     }
 
-    if (x6c_cardDriver->x10_state == EState::One)
+    if (x6c_cardDriver->x10_state == EState::Ready)
     {
         if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Six)
             return UIType::Twelve;

@@ -22,8 +22,7 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag,
                                                          CObjectReference* selfRef)
 {
 
-    const CCharacterInfo& charInfo =
-        *static_cast<TObjOwnerParam<const CCharacterInfo*>&>(*params.GetObj()).GetParam();
+    const CCharacterInfo& charInfo = *params.GetOwnedObj<const CCharacterInfo*>();
 
     switch (tag.type.toUint32() & 0x1)
     {

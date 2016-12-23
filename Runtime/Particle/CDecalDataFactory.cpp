@@ -139,7 +139,7 @@ void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool,
 
 CFactoryFnReturn FDecalDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
 {
-    CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
     return TToken<CDecalDescription>::GetIObjObjectFor(std::unique_ptr<CDecalDescription>(CDecalDataFactory::GetGeneratorDesc(in, sp)));
 }
 

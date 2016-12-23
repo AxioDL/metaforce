@@ -40,6 +40,7 @@ public:
     CPersistentOptions() = default;
     CPersistentOptions(CBitStreamReader& stream);
 
+    bool GetCinematicState(ResId mlvlId, TEditorId cineId) const;
     void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
     bool GetPlayerHasHardMode() const { return xd0_25_hasHardMode; }
     void SetPlayerHasHardMode(bool v) { xd0_25_hasHardMode = v; }
@@ -51,6 +52,7 @@ public:
     void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
     u32 GetLogScanCount() const { return xcc_logScanCount; }
     void SetLogScanCount(u32 v) { xcc_logScanCount = v; }
+    void PutTo(CBitStreamWriter& w) const;
 };
 
 /** Options tracked per game session */

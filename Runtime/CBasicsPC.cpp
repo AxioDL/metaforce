@@ -59,4 +59,11 @@ std::chrono::system_clock::time_point CBasics::FromWiiTime(OSTime wiiTime)
     return std::chrono::system_clock::from_time_t(time - tzDiff);
 }
 
+OSCalendarTime CBasics::ToCalendarTime(OSTime time)
+{
+    OSCalendarTime ret = {};
+    /* TODO: Finsh */
+    return ret;
+}
+
 }

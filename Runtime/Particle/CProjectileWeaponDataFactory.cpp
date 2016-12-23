@@ -166,7 +166,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
 
 CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
 {
-    CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
     return TToken<CWeaponDescription>::GetIObjObjectFor(std::unique_ptr<CWeaponDescription>(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp)));
 }
 

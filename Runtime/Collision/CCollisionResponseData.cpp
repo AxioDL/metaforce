@@ -284,7 +284,7 @@ FourCC CCollisionResponseData::UncookedResType()
 
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
 {
-    CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
     return TToken<CCollisionResponseData>::GetIObjObjectFor(std::unique_ptr<CCollisionResponseData>(new CCollisionResponseData(in, sp)));
 }
 

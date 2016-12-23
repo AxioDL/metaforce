@@ -72,9 +72,7 @@ CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in,
                                    const CVParamTransfer& params,
                                    CObjectReference* selfRef)
 {
-    CSimplePool* sp = static_cast<CSimplePool*>(
-        static_cast<TObjOwnerParam<IObjectStore*>*>(
-            params.GetObj())->GetParam());
+    CSimplePool* sp = params.GetOwnedObj<CSimplePool*>();
     return TToken<CAllFormatsAnimSource>::GetIObjObjectFor(
         std::make_unique<CAllFormatsAnimSource>(in, *sp, tag));
 }

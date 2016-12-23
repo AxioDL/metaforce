@@ -134,7 +134,7 @@ void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc)
 
 CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
 {
-    CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam());
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
     return TToken<CElectricDescription>::GetIObjObjectFor(std::unique_ptr<CElectricDescription>(CParticleElectricDataFactory::GetGeneratorDesc(in, sp)));
 }
 

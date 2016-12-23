@@ -184,7 +184,7 @@ std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream
                                              const CVParamTransfer& cvParms,
                                              CObjectReference* selfRef)
 {
-    CSimplePool* sp = static_cast<CSimplePool*>(static_cast<TObjOwnerParam<IObjectStore*>*>(cvParms.GetObj())->GetParam());
+    CSimplePool* sp = cvParms.GetOwnedObj<CSimplePool*>();
     std::unique_ptr<CGuiFrame> frame(CGuiFrame::CreateFrame(tag.id, *g_GuiSys, in, sp));
     return TToken<CGuiFrame>::GetIObjObjectFor(std::move(frame));
 }

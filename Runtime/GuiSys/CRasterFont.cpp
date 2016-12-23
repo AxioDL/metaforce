@@ -2,6 +2,7 @@
 #include "CDrawStringOptions.hpp"
 #include "CTextRenderBuffer.hpp"
 #include "Graphics/CTexture.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
@@ -195,8 +196,8 @@ void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& heigh
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                          CObjectReference* selfRef)
 {
-    return TToken<CRasterFont>::GetIObjObjectFor(
-                std::make_unique<CRasterFont>(in, *static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam()));
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
+    return TToken<CRasterFont>::GetIObjObjectFor(std::make_unique<CRasterFont>(in, *sp));
 }
 
 }

@@ -9,6 +9,7 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "Character/CSkinRules.hpp"
 #include "GameGlobalObjects.hpp"
+#include "CSimplePool.hpp"
 #include <array>
 
 namespace urde
@@ -807,8 +808,8 @@ CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
                                const urde::CVParamTransfer& vparms,
                                CObjectReference* selfRef)
 {
-    IObjectStore* store = static_cast<TObjOwnerParam<IObjectStore*>*>(vparms.GetObj())->GetParam();
-    CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, store, selfRef));
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
+    CFactoryFnReturn ret = TToken<CModel>::GetIObjObjectFor(std::make_unique<CModel>(std::move(in), len, sp, selfRef));
     return ret;
 }
 
