@@ -214,7 +214,7 @@ private:
             bool x160_28_ : 1;
             bool x160_29_ : 1;
             bool x160_30_ : 1;
-            bool x160_31_cardInserted : 1;
+            bool x160_31_cardBusy : 1;
             bool x161_24_ : 1;
         };
         u16 _dummy = 0;
@@ -251,7 +251,7 @@ public:
     void ShutdownSubsystems() {}
     EGameplayResult GetGameplayResult() const {return xe4_gameplayResult;}
     void SetGameplayResult(EGameplayResult wl) {xe4_gameplayResult = wl;}
-    void SetCardInserted(bool v) {x160_31_cardInserted = v;}
+    void SetCardBusy(bool v) {x160_31_cardBusy = v;}
 
     EFlowState GetFlowState() const { return x12c_flowState; }
 };

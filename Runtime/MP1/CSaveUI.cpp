@@ -18,9 +18,9 @@ void CSaveUI::ResetCardDriver()
 {
     x92_ = false;
     x6c_cardDriver.reset();
-    bool flag = (x0_instIdx == 0 && !x90_needsDriverReset);
-    x6c_cardDriver = ConstructCardDriver(flag);
-    x6c_cardDriver->FinishedLoading();
+    bool importState = (x0_instIdx == 0 && !x90_needsDriverReset);
+    x6c_cardDriver = ConstructCardDriver(importState);
+    x6c_cardDriver->StartCardProbe();
     x10_uiType = UIType::Zero;
     FinishedLoading();
 }
@@ -33,7 +33,7 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
     x50_loadedFrame->Update(dt);
     x6c_cardDriver->Update();
 
-    if (x6c_cardDriver->x10_state == EState::RuntimeBackup)
+    if (x6c_cardDriver->x10_state == EState::DriverClosed)
     {
         if (x90_needsDriverReset)
         {
@@ -43,7 +43,7 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
         else
             x80_iowRet = CIOWin::EMessageReturn::Exit;
     }
-    else if (x6c_cardDriver->x10_state == EState::SelectCardFile && x10_uiType != UIType::Fourteen)
+    else if (x6c_cardDriver->x10_state == EState::CardCheckDone && x10_uiType != UIType::Fourteen)
     {
         if (x6c_cardDriver->x28_cardSerial && x8_serial)
         {
@@ -55,14 +55,14 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
             else
             {
                 x8_serial = x6c_cardDriver->x28_cardSerial;
-                x6c_cardDriver->GoTo17();
+                x6c_cardDriver->IndexFiles();
             }
         }
     }
     else if (x6c_cardDriver->x10_state == EState::Ready)
     {
         if (x90_needsDriverReset)
-            x6c_cardDriver->GoTo33();
+            x6c_cardDriver->StartFileCreateTransactional();
     }
 
     if (x80_iowRet != CIOWin::EMessageReturn::Normal)
@@ -76,18 +76,18 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
     if (x6c_cardDriver->x10_state == EState::NoCard)
     {
         auto res = CMemoryCardSys::CardProbe(CMemoryCardSys::EMemoryCardPort::SlotA);
-        if (res.x0_error == CMemoryCardSys::ECardResult::CARD_RESULT_READY ||
-            res.x0_error == CMemoryCardSys::ECardResult::CARD_RESULT_WRONGDEVICE)
+        if (res.x0_error == CMemoryCardSys::ECardResult::READY ||
+            res.x0_error == CMemoryCardSys::ECardResult::WRONGDEVICE)
             ResetCardDriver();
     }
     else if (x6c_cardDriver->x10_state == EState::CardFormatted)
     {
         ResetCardDriver();
     }
-    else if (x6c_cardDriver->x10_state == EState::Seventeen &&
-             x6c_cardDriver->x14_error == EError::Eight)
+    else if (x6c_cardDriver->x10_state == EState::FileBad &&
+             x6c_cardDriver->x14_error == EError::FileMissing)
     {
-        x6c_cardDriver->GoTo31();
+        x6c_cardDriver->StartFileCreate();
     }
 
     return CIOWin::EMessageReturn::Normal;
@@ -125,7 +125,7 @@ bool CSaveUI::PumpLoad()
         std::bind(&CSaveUI::DoSelectionChange, this, std::placeholders::_1));
 
     if (x0_instIdx == 1)
-        x6c_cardDriver->FinishedLoading();
+        x6c_cardDriver->StartCardProbe();
 
     x10_uiType = SelectUIType();
     FinishedLoading();
@@ -146,43 +146,43 @@ CSaveUI::UIType CSaveUI::SelectUIType() const
     default: break;
     }
 
-    if (CMemoryCardDriver::InCardInsertedRange(x6c_cardDriver->x10_state))
+    if (CMemoryCardDriver::IsCardBusy(x6c_cardDriver->x10_state))
     {
-        if (!CMemoryCardDriver::InRange2(x6c_cardDriver->x10_state))
+        if (!CMemoryCardDriver::IsOperationDestructive(x6c_cardDriver->x10_state))
             return UIType::Two;
         return UIType::One;
     }
 
     if (x6c_cardDriver->x10_state == EState::Ready)
     {
-        if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Six)
+        if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardStillFull)
             return UIType::Twelve;
         return UIType::Sixteen;
     }
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::One)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardBroken)
         return UIType::Four;
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Two)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongCharacterSet)
         return UIType::Five;
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Four)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongDevice)
         return UIType::Seven;
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Five)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardFull)
     {
-        if (x6c_cardDriver->x10_state == EState::Fourteen)
+        if (x6c_cardDriver->x10_state == EState::CardCheckFailed)
             return UIType::Eight;
         return UIType::Nine;
     }
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Seven)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardNon8KSectors)
         return UIType::Ten;
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Nine)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::FileCorrupted)
         return UIType::Eleven;
 
-    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::Three)
+    if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardIOError)
         return UIType::Six;
 
     return UIType::Zero;
@@ -254,12 +254,12 @@ CSaveUI::CSaveUI(u32 instIdx, u64 serial)
     }
 }
 
-std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool flag)
+std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool importState)
 {
     return std::make_unique<CMemoryCardDriver>(CMemoryCardSys::EMemoryCardPort::SlotA,
         g_ResFactory->GetResourceIdByName("TXTR_SaveBanner")->id,
         g_ResFactory->GetResourceIdByName("TXTR_SaveIcon0")->id,
-        g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, flag);
+        g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, importState);
 }
 
 }

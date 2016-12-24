@@ -8,6 +8,8 @@
 #include "GuiSys/CStringTable.hpp"
 #include <vector>
 
+#undef NOFILE
+
 // longest file name string excluding terminating zero
 #define CARD_FILENAME_MAX 32
 
@@ -76,16 +78,16 @@ public:
 
     enum class ECardResult
     {
-        CARD_RESULT_CRC_MISMATCH = -1003,
-        CARD_RESULT_FATAL_ERROR = -128,
-        CARD_RESULT_ENCODING = -13,
-        CARD_RESULT_BROKEN = -6,
-        CARD_RESULT_IOERROR = -5,
-        CARD_RESULT_NOFILE = -4,
-        CARD_RESULT_NOCARD = -3,
-        CARD_RESULT_WRONGDEVICE = -2,
-        CARD_RESULT_BUSY = -1,
-        CARD_RESULT_READY = 0
+        CRC_MISMATCH = -1003,
+        FATAL_ERROR = -128,
+        ENCODING = -13,
+        BROKEN = -6,
+        IOERROR = -5,
+        NOFILE = -4,
+        NOCARD = -3,
+        WRONGDEVICE = -2,
+        BUSY = -1,
+        READY = 0
     };
 
     struct CardProbeResults

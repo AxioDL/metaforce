@@ -87,7 +87,7 @@ private:
     void ResetCardDriver();
 
 public:
-    static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool flag);
+    static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool importState);
     CIOWin::EMessageReturn Update(float dt);
     bool PumpLoad();
     UIType SelectUIType() const;

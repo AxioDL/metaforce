@@ -15,58 +15,58 @@ class CMemoryCardDriver
 public:
     enum class EState
     {
-        Initial,
+        Initial = 0,
         Ready = 1,
         NoCard = 2,
-        RuntimeBackup = 3,
+        DriverClosed = 3,
         CardFormatted = 4,
-        CardNeedsMount = 5,
+        CardProbeDone = 5,
         CardMountDone = 6,
-        SelectCardFile = 7,
-        WillWrite = 8,
-        Nine = 9,
-        Ten = 10,
-        Eleven = 11,
-        Twelve = 12,
-        Thirteen = 13,
-        Fourteen = 14,
-        Fifteen = 15,
-        Sixteen = 16,
-        Seventeen = 17,
-        Eighteen = 18,
-        Nineteen = 19,
-        Twenty = 20,
-        TwentyOne = 21,
-        TwentyTwo = 22,
-        TwentyThree = 23,
-        CardFormatBroken = 24,
-        TwentyFive = 25,
+        CardCheckDone = 7,
+        FileCreateDone = 8,
+        FileCreateTransactionalDone = 9,
+        FileWriteTransactionalDone = 10,
+        FileDeleteAltTransactionalDone = 11,
+        CardProbeFailed = 12,
+        CardMountFailed = 13,
+        CardCheckFailed = 14,
+        FileDeleteBadFailed = 15,
+        FileDeleteAltFailed = 16,
+        FileBad = 17,
+        FileCreateFailed = 18,
+        FileWriteFailed = 19,
+        FileCreateTransactionalFailed = 20,
+        FileWriteTransactionalFailed = 21,
+        FileDeleteAltTransactionalFailed = 22,
+        FileRenameBtoAFailed = 23,
+        CardFormatFailed = 24,
+        CardProbe = 25,
         CardMount = 26,
-        TwentySeven = 27,
-        TwentyEight = 28,
-        TwentyNine = 29,
-        Thirty = 30,
-        ThirtyOne = 31,
-        ThirtyTwo = 32,
-        FileBuild = 33,
-        FileWrite = 34,
-        ThirtyFive = 35,
-        FileRename = 36,
+        CardCheck = 27,
+        FileDeleteBad = 28,
+        FileRead = 29,
+        FileDeleteAlt = 30,
+        FileCreate = 31,
+        FileWrite = 32,
+        FileCreateTransactional = 33,
+        FileWriteTransactional = 34,
+        FileDeleteAltTransactional = 35,
+        FileRenameBtoA = 36,
         CardFormat = 37
     };
 
     enum class EError
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight,
-        Nine
+        OK,
+        CardBroken,
+        CardWrongCharacterSet,
+        CardIOError,
+        CardWrongDevice,
+        CardFull,
+        CardStillFull, /* After attempting alt-delete (if needed) */
+        CardNon8KSectors,
+        FileMissing,
+        FileCorrupted
     };
 
 private:
@@ -121,20 +121,27 @@ private:
         }
     };
 
+    enum class EFileState
+    {
+        Unknown,
+        NoFile,
+        File,
+        BadFile
+    };
+
     CMemoryCardSys::EMemoryCardPort x0_cardPort;
     ResId x4_saveBanner;
     ResId x8_saveIcon0;
     ResId xc_saveIcon1;
     EState x10_state = EState::Initial;
-    EError x14_error = EError::Zero;
+    EError x14_error = EError::OK;
     s32 x18_cardFreeBytes = 0;
     s32 x1c_cardFreeFiles = 0;
     u32 x20_fileTime = 0;
-    u32 x24_ = 0;
     u64 x28_cardSerial = 0;
     u8 x30_systemData[174] = {};
     std::unique_ptr<SGameFileSlot> xe4_fileSlots[3];
-    std::vector<std::pair<u32, SFileInfo>> x100_mcFileInfos;
+    std::vector<std::pair<EFileState, SFileInfo>> x100_mcFileInfos;
     u32 x194_fileIdx = -1;
     std::unique_ptr<CMemoryCardSys::CCardFileInfo> x198_fileInfo;
     bool x19c_ = false;
@@ -143,44 +150,44 @@ private:
 public:
     CMemoryCardDriver(CMemoryCardSys::EMemoryCardPort cardPort, ResId saveBanner,
                       ResId saveIcon0, ResId saveIcon1, bool importPersistent);
-    void FinishedLoading();
-    void FinishedLoading2();
-    void NoCardFound();
-    void MountCard();
-    void CheckCard();
 
+    void NoCardFound();
     CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx);
     static SSaveHeader LoadSaveHeader(CMemoryInStream& in);
     static std::unique_ptr<SGameFileSlot> LoadSaveFile(CMemoryInStream& in);
     void ReadFinished();
     void ImportPersistentOptions();
     void ExportPersistentOptions();
-    void DeleteFile();
     void CheckCardCapacity();
+    void IndexFiles();
 
-    void Case26(CMemoryCardSys::ECardResult result);
-    void Case27(CMemoryCardSys::ECardResult result);
-    void Case28(CMemoryCardSys::ECardResult result);
-    void Case29(CMemoryCardSys::ECardResult result);
-    void Case30(CMemoryCardSys::ECardResult result);
-    void Case31(CMemoryCardSys::ECardResult result);
-    void Case32(CMemoryCardSys::ECardResult result);
-    void Case33(CMemoryCardSys::ECardResult result);
-    void Case34(CMemoryCardSys::ECardResult result);
-    void Case35(CMemoryCardSys::ECardResult result);
-    void Case36(CMemoryCardSys::ECardResult result);
-    void Case37(CMemoryCardSys::ECardResult result);
+    void StartCardProbe(); // 25
+    void StartMountCard(); // 26
+    void StartCardCheck(); // 27
+    void StartFileDeleteBad(); // 28
+    void StartFileRead(); // 29
+    void StartFileDeleteAlt(); // 30
+    void StartFileCreate(); // 31
+    void StartFileWrite(); // 32
+    void StartFileCreateTransactional(); // 33
+    void StartFileWriteTransactional(); // 34
+    void StartFileDeleteAltTransactional(); // 35
+    void StartFileRenameBtoA(); // 36
+    void StartCardFormat(); // 37
 
-    void GoTo17();
-    void GoTo28();
-    void GoTo29();
-    void GoTo31();
-    void GoTo32();
-    void GoTo33();
-    void GoTo34();
-    void GoTo35();
-    void GoTo36();
-    void GoTo37();
+    void UpdateCardProbe(); // 25
+    void UpdateMountCard(CMemoryCardSys::ECardResult result); // 26
+    void UpdateCardCheck(CMemoryCardSys::ECardResult result); // 27
+    void UpdateFileDeleteBad(CMemoryCardSys::ECardResult result); // 28
+    void UpdateFileRead(CMemoryCardSys::ECardResult result); // 29
+    void UpdateFileDeleteAlt(CMemoryCardSys::ECardResult result); // 30
+    void UpdateFileCreate(CMemoryCardSys::ECardResult result); // 31
+    void UpdateFileWrite(CMemoryCardSys::ECardResult result); // 32
+    void UpdateFileCreateTransactional(CMemoryCardSys::ECardResult result); // 33
+    void UpdateFileWriteTransactional(CMemoryCardSys::ECardResult result); // 34
+    void UpdateFileDeleteAltTransactional(CMemoryCardSys::ECardResult result); // 35
+    void UpdateFileRenameBtoA(CMemoryCardSys::ECardResult result); // 36
+    void UpdateCardFormat(CMemoryCardSys::ECardResult result); // 37
 
     void ClearFileInfo() { x198_fileInfo.reset(); }
     void InitializeFileInfo();
@@ -189,18 +196,18 @@ public:
     void HandleCardError(CMemoryCardSys::ECardResult result, EState state);
     void Update();
 
-    static bool InCardInsertedRange(EState v)
+    static bool IsCardBusy(EState v)
     {
         return v >= EState::CardMount && v <= EState::CardFormat;
     }
 
-    static bool InRange2(EState v)
+    static bool IsOperationDestructive(EState v)
     {
-        if (v < EState::TwentyFive)
+        if (v < EState::CardProbe)
             return false;
-        if (v == EState::TwentySeven)
+        if (v == EState::CardCheck)
             return false;
-        if (v == EState::TwentyNine)
+        if (v == EState::FileRead)
             return false;
         return true;
     }

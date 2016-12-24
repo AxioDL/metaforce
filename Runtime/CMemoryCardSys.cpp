@@ -242,28 +242,28 @@ void CMemoryCardSys::CCardFileInfo::WriteIconData(CMemoryOutStream& out) const
 CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer()
 {
     if (x0_status == EStatus::Standby)
-        return ECardResult::CARD_RESULT_READY;
+        return ECardResult::READY;
     else if (x0_status == EStatus::Transferring)
     {
         ECardResult result = CMemoryCardSys::GetResultCode(GetCardPort());
-        if (result != ECardResult::CARD_RESULT_BUSY)
+        if (result != ECardResult::BUSY)
             x104_cardBuffer.clear();
-        if (result != ECardResult::CARD_RESULT_READY)
+        if (result != ECardResult::READY)
             return result;
         x0_status = EStatus::Done;
         CARDStat stat = {};
         result = GetStatus(stat);
-        if (result != ECardResult::CARD_RESULT_READY)
+        if (result != ECardResult::READY)
             return result;
         result = CMemoryCardSys::SetStatus(GetCardPort(), GetFileNo(), stat);
-        if (result != ECardResult::CARD_RESULT_READY)
+        if (result != ECardResult::READY)
             return result;
-        return ECardResult::CARD_RESULT_BUSY;
+        return ECardResult::BUSY;
     }
     else
     {
         ECardResult result = CMemoryCardSys::GetResultCode(GetCardPort());
-        if (result == ECardResult::CARD_RESULT_READY)
+        if (result == ECardResult::READY)
             x0_status = EStatus::Standby;
         return result;
     }
@@ -272,7 +272,7 @@ CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer()
 CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(CARDStat& stat) const
 {
     ECardResult result = CMemoryCardSys::GetStatus(GetCardPort(), GetFileNo(), stat);
-    if (result != ECardResult::CARD_RESULT_READY)
+    if (result != ECardResult::READY)
         return result;
 
     stat.SetCommentAddr(4);
@@ -303,12 +303,12 @@ CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(CARDStat& s
         stat.SetIconSpeed(0, idx);
     }
 
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::CreateFile()
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::Write()
@@ -316,7 +316,7 @@ CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::Write()
     BuildCardBuffer();
     //DCStoreRange(info.x104_cardBuffer.data(), info.x104_cardBuffer.size());
     //CARDWriteAsync(&info.x4_info, info.x104_cardBuffer.data(), info.x104_cardBuffer.size(), 0, 0);
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::Close()
@@ -324,7 +324,7 @@ CMemoryCardSys::ECardResult CMemoryCardSys::CCardFileInfo::Close()
     EMemoryCardPort port = GetCardPort();
     //CARDClose(port);
     x4_info.chan = port;
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::CardProbeResults CMemoryCardSys::CardProbe(EMemoryCardPort port)
@@ -334,57 +334,57 @@ CMemoryCardSys::CardProbeResults CMemoryCardSys::CardProbe(EMemoryCardPort port)
 
 CMemoryCardSys::ECardResult CMemoryCardSys::MountCard(EMemoryCardPort port)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::CheckCard(EMemoryCardPort port)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::GetNumFreeBytes(EMemoryCardPort port, s32& freeBytes, s32& freeFiles)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::GetSerialNo(EMemoryCardPort port, u64& serialOut)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::GetResultCode(EMemoryCardPort port)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::GetStatus(EMemoryCardPort port, int fileNo, CARDStat& statOut)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::SetStatus(EMemoryCardPort port, int fileNo, const CARDStat& stat)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::DeleteFile(EMemoryCardPort port, const char* name)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::FastDeleteFile(EMemoryCardPort port, int fileNo)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::Rename(EMemoryCardPort port, const char* oldName, const char* newName)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 CMemoryCardSys::ECardResult CMemoryCardSys::FormatCard(EMemoryCardPort port)
 {
-    return ECardResult::CARD_RESULT_READY;
+    return ECardResult::READY;
 }
 
 }
