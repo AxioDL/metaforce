@@ -226,9 +226,9 @@ CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int idx)
 CMemoryCardDriver::SSaveHeader CMemoryCardDriver::LoadSaveHeader(CMemoryInStream& in)
 {
     SSaveHeader ret;
-    ret.x0_ = in.readUint32Big();
+    ret.x0_version = in.readUint32Big();
     for (int i=0 ; i<3 ; ++i)
-        ret.x4_[i] = in.readBool();
+        ret.x4_savePresent[i] = in.readBool();
     return ret;
 }
 
@@ -655,10 +655,28 @@ void CMemoryCardDriver::GoTo29()
         Case29(result);
 }
 
+void CMemoryCardDriver::GoTo31()
+{
+    x14_error = EError::Zero;
+    x10_state = EState::ThirtyOne;
+    if (x18_cardFreeBytes < 8192 || x1c_cardFreeFiles < 2)
+    {
+        x10_state = EState::Eighteen;
+        x14_error = EError::Five;
+        return;
+    }
+
+    x198_fileInfo = std::make_unique<CMemoryCardSys::CCardFileInfo>(x0_cardPort, SaveFileNames[x194_fileIdx]);
+    InitializeFileInfo();
+    ECardResult result = x198_fileInfo->CreateFile();
+    if (result != ECardResult::CARD_RESULT_READY)
+        Case31(result);
+}
+
 void CMemoryCardDriver::GoTo32()
 {
     x14_error = EError::Zero;
-    x10_state = EState::Write;
+    x10_state = EState::ThirtyTwo;
     ECardResult result = x198_fileInfo->Write();
     if (result != ECardResult::CARD_RESULT_READY)
         Case32(result);
@@ -667,7 +685,7 @@ void CMemoryCardDriver::GoTo32()
 void CMemoryCardDriver::GoTo33()
 {
     x14_error = EError::Zero;
-    x10_state = EState::ThirtyThree;
+    x10_state = EState::FileBuild;
     ClearFileInfo();
     if (x18_cardFreeBytes < 8192 || !x1c_cardFreeFiles)
     {
@@ -686,7 +704,7 @@ void CMemoryCardDriver::GoTo33()
 void CMemoryCardDriver::GoTo34()
 {
     x14_error = EError::Zero;
-    x10_state = EState::ThirtyFour;
+    x10_state = EState::FileWrite;
     ECardResult result = x198_fileInfo->Write();
     if (result != ECardResult::CARD_RESULT_READY)
         Case34(result);
@@ -707,7 +725,7 @@ void CMemoryCardDriver::GoTo36()
     if (x194_fileIdx == 1)
     {
         x14_error = EError::Zero;
-        x10_state = EState::ThirtySix;
+        x10_state = EState::FileRename;
         ECardResult result = CMemoryCardSys::Rename(x0_cardPort,
                                                     SaveFileNames[x194_fileIdx],
                                                     SaveFileNames[!bool(x194_fileIdx)]);
@@ -733,7 +751,31 @@ void CMemoryCardDriver::GoTo37()
 void CMemoryCardDriver::InitializeFileInfo()
 {
     ExportPersistentOptions();
-    /* TODO: Finish */
+
+    OSCalendarTime time = CBasics::ToCalendarTime(std::chrono::system_clock::now());
+    char timeString[32];
+    snprintf(timeString, 32, "%02d.%02d.%02d  %02d:%02d",
+             time.x10_mon + 1, time.xc_mday, time.x14_year % 100,
+             time.x8_hour, time.x4_min);
+    std::string comment("Metroid Prime                   ");
+    comment += timeString;
+    x198_fileInfo->SetComment(comment);
+
+    x198_fileInfo->LockBannerToken(x4_saveBanner, *g_SimplePool);
+    x198_fileInfo->LockIconToken(x8_saveIcon0, 2, *g_SimplePool);
+
+    CMemoryOutStream w = x198_fileInfo->BeginMemoryOut(3004);
+
+    SSaveHeader header;
+    for (int i=0 ; i<3 ; ++i)
+        header.x4_savePresent[i] = xe4_fileSlots[i].operator bool();
+    header.DoPut(w);
+
+    w.writeBytes(x30_systemData, 174);
+
+    for (int i=0 ; i<3 ; ++i)
+        if (xe4_fileSlots[i])
+            xe4_fileSlots[i]->DoPut(w);
 }
 
 void CMemoryCardDriver::WriteBackupBuf()
@@ -822,19 +864,19 @@ void CMemoryCardDriver::Update()
         case EState::ThirtyOne:
             Case31(resultCode);
             break;
-        case EState::Write:
+        case EState::ThirtyTwo:
             Case32(resultCode);
             break;
-        case EState::ThirtyThree:
+        case EState::FileBuild:
             Case33(resultCode);
             break;
-        case EState::ThirtyFour:
+        case EState::FileWrite:
             Case34(resultCode);
             break;
         case EState::ThirtyFive:
             Case35(resultCode);
             break;
-        case EState::ThirtySix:
+        case EState::FileRename:
             Case36(resultCode);
             break;
         case EState::CardFormat:

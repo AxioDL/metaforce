@@ -189,9 +189,9 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer()
 
     CMemoryOutStream w(x104_cardBuffer.data(), x104_cardBuffer.size());
     w.writeUint32Big(0);
-    char name[64];
-    strncpy(name, x28_name2.data(), 64);
-    w.writeBytes(name, 64);
+    char comment[64];
+    strncpy(comment, x28_comment.data(), 64);
+    w.writeBytes(comment, 64);
     WriteBannerData(w);
     WriteIconData(w);
     memmove(x104_cardBuffer.data() + bannerSz, xf4_saveBuffer.data(), xf4_saveBuffer.size());

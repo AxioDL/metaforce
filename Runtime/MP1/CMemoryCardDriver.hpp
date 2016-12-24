@@ -47,11 +47,11 @@ public:
         TwentyNine = 29,
         Thirty = 30,
         ThirtyOne = 31,
-        Write = 32,
-        ThirtyThree = 33,
-        ThirtyFour = 34,
+        ThirtyTwo = 32,
+        FileBuild = 33,
+        FileWrite = 34,
         ThirtyFive = 35,
-        ThirtySix = 36,
+        FileRename = 36,
         CardFormat = 37
     };
 
@@ -98,8 +98,14 @@ private:
 
     struct SSaveHeader
     {
-        u32 x0_;
-        u32 x4_[3];
+        u32 x0_version = 0;
+        bool x4_savePresent[3];
+        void DoPut(CMemoryOutStream& out) const
+        {
+            out.writeUint32Big(x0_version);
+            for (int i=0 ; i<3 ; ++i)
+                out.writeBool(x4_savePresent[i]);
+        }
     };
 
     struct SGameFileSlot
@@ -109,6 +115,10 @@ private:
         SGameFileSlot();
         SGameFileSlot(CMemoryInStream& in);
         void InitializeFromGameState();
+        void DoPut(CMemoryOutStream& w) const
+        {
+            w.writeBytes(x0_saveBuffer, 940);
+        }
     };
 
     CMemoryCardSys::EMemoryCardPort x0_cardPort;
@@ -164,6 +174,7 @@ public:
     void GoTo17();
     void GoTo28();
     void GoTo29();
+    void GoTo31();
     void GoTo32();
     void GoTo33();
     void GoTo34();

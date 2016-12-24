@@ -59,8 +59,7 @@ public:
 
 private:
     u32 x0_instIdx;
-    u32 x8_a;
-    u32 xc_b;
+    u64 x8_serial;
     UIType x10_uiType = UIType::Zero;
     TLockedToken<CTexture> x14_txtrSaveBanner;
     TLockedToken<CTexture> x20_txtrSaveIcon0;
@@ -76,14 +75,16 @@ private:
     CGuiTextPane* x68_textpane_choice3;
     std::unique_ptr<CMemoryCardDriver> x6c_cardDriver;
     std::vector<TLockedToken<CSaveWorld>> x70_saveWorlds;
-    u32 x80_ = 0;
+    CIOWin::EMessageReturn x80_iowRet = CIOWin::EMessageReturn::Normal;
     u32 x84_navConfirmSfx = 1460;
     u32 x88_navMoveSfx = 1461;
     u32 x8c_navBackSfx = 1459;
-    bool x90_ = false;
+    bool x90_needsDriverReset = false;
     bool x91_ = false;
     bool x92_ = false;
     bool x93_secondaryInst;
+
+    void ResetCardDriver();
 
 public:
     static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool flag);
@@ -101,7 +102,7 @@ public:
     void EraseGame(int idx);
     void* GetGameData(int idx) const;
     UIType GetUIType() const { return x10_uiType; }
-    CSaveUI(u32 inst, u32 a, u32 b);
+    CSaveUI(u32 inst, u64 serial);
 };
 
 }

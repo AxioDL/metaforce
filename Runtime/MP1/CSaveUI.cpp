@@ -12,9 +12,84 @@ namespace MP1
 {
 
 using EState = CMemoryCardDriver::EState;
+using EError = CMemoryCardDriver::EError;
+
+void CSaveUI::ResetCardDriver()
+{
+    x92_ = false;
+    x6c_cardDriver.reset();
+    bool flag = (x0_instIdx == 0 && !x90_needsDriverReset);
+    x6c_cardDriver = ConstructCardDriver(flag);
+    x6c_cardDriver->FinishedLoading();
+    x10_uiType = UIType::Zero;
+    FinishedLoading();
+}
 
 CIOWin::EMessageReturn CSaveUI::Update(float dt)
 {
+    if (PumpLoad())
+        return CIOWin::EMessageReturn::Normal;
+
+    x50_loadedFrame->Update(dt);
+    x6c_cardDriver->Update();
+
+    if (x6c_cardDriver->x10_state == EState::RuntimeBackup)
+    {
+        if (x90_needsDriverReset)
+        {
+            ResetCardDriver();
+            x90_needsDriverReset = false;
+        }
+        else
+            x80_iowRet = CIOWin::EMessageReturn::Exit;
+    }
+    else if (x6c_cardDriver->x10_state == EState::SelectCardFile && x10_uiType != UIType::Fourteen)
+    {
+        if (x6c_cardDriver->x28_cardSerial && x8_serial)
+        {
+            if (x93_secondaryInst)
+            {
+                x10_uiType = UIType::Fourteen;
+                x91_ = true;
+            }
+            else
+            {
+                x8_serial = x6c_cardDriver->x28_cardSerial;
+                x6c_cardDriver->GoTo17();
+            }
+        }
+    }
+    else if (x6c_cardDriver->x10_state == EState::Ready)
+    {
+        if (x90_needsDriverReset)
+            x6c_cardDriver->GoTo33();
+    }
+
+    if (x80_iowRet != CIOWin::EMessageReturn::Normal)
+        return x80_iowRet;
+
+    UIType oldTp = x10_uiType;
+    x10_uiType = SelectUIType();
+    if (oldTp == x10_uiType || x91_)
+        FinishedLoading();
+
+    if (x6c_cardDriver->x10_state == EState::NoCard)
+    {
+        auto res = CMemoryCardSys::CardProbe(CMemoryCardSys::EMemoryCardPort::SlotA);
+        if (res.x0_error == CMemoryCardSys::ECardResult::CARD_RESULT_READY ||
+            res.x0_error == CMemoryCardSys::ECardResult::CARD_RESULT_WRONGDEVICE)
+            ResetCardDriver();
+    }
+    else if (x6c_cardDriver->x10_state == EState::CardFormatted)
+    {
+        ResetCardDriver();
+    }
+    else if (x6c_cardDriver->x10_state == EState::Seventeen &&
+             x6c_cardDriver->x14_error == EError::Eight)
+    {
+        x6c_cardDriver->GoTo31();
+    }
+
     return CIOWin::EMessageReturn::Normal;
 }
 
@@ -152,8 +227,8 @@ void* CSaveUI::GetGameData(int idx) const
     return nullptr;
 }
 
-CSaveUI::CSaveUI(u32 instIdx, u32 a, u32 b)
-: x0_instIdx(instIdx), x8_a(a), xc_b(b)
+CSaveUI::CSaveUI(u32 instIdx, u64 serial)
+: x0_instIdx(instIdx), x8_serial(serial)
 {
     x14_txtrSaveBanner = g_SimplePool->GetObj("TXTR_SaveBanner");
     x20_txtrSaveIcon0 = g_SimplePool->GetObj("TXTR_SaveIcon0");

@@ -172,8 +172,8 @@ public:
 
         EStatus x0_status = EStatus::Standby;
         CARDFileInfo x4_info;
-        std::string x18_name;
-        std::string x28_name2;
+        std::string x18_fileName;
+        std::string x28_comment;
         ResId x3c_bannerTex = -1;
         std::experimental::optional<TLockedToken<CTexture>> x40_bannerTok;
         rstl::reserved_vector<Icon, 8> x50_iconToks;
@@ -183,7 +183,7 @@ public:
         CVParamTransfer m_texParam = {new TObjOwnerParam<u32>(SBIG('OTEX'))};
 
         CCardFileInfo(EMemoryCardPort port, const std::string& name)
-        : x4_info(port), x18_name(name) {}
+        : x4_info(port), x18_fileName(name) {}
 
         void LockBannerToken(ResId bannerTxtr, CSimplePool& sp);
         void LockIconToken(ResId iconTxtr, u32 speed, CSimplePool& sp);
@@ -195,11 +195,18 @@ public:
         void BuildCardBuffer();
         void WriteBannerData(CMemoryOutStream& out) const;
         void WriteIconData(CMemoryOutStream& out) const;
+        void SetComment(const std::string& c) { x28_comment = c; }
         ECardResult PumpCardTransfer();
         ECardResult GetStatus(CARDStat& stat) const;
         ECardResult CreateFile();
         ECardResult Write();
         ECardResult Close();
+
+        CMemoryOutStream BeginMemoryOut(u32 sz)
+        {
+            xf4_saveBuffer.resize(sz);
+            return CMemoryOutStream(xf4_saveBuffer.data(), sz);
+        }
     };
 
     static CardProbeResults CardProbe(EMemoryCardPort port);
