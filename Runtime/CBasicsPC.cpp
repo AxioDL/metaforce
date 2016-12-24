@@ -27,7 +27,7 @@ const u64 CBasics::TICKS_PER_SECOND = 60750000LL;
 #ifndef _WIN32
 static struct tm* localtime_r(const time_t& time, struct tm& timeSt, long& gmtOff)
 {
-    auto ret = localtime_r(&time, &timeSt);
+    auto ret = ::localtime_r(&time, &timeSt);
     if (!ret)
         return nullptr;
     gmtOff = ret->tm_gmtoff;

@@ -286,4 +286,14 @@ CWorldState& CGameState::StateForWorld(ResId mlvlId)
     return *it;
 }
 
+float CGameState::GetHardModeDamageMultiplier() const
+{
+    return g_tweakGame->GetHardModeDamageMultiplier();
+}
+
+float CGameState::GetHardModeWeaponMultiplier() const
+{
+    return g_tweakGame->GetHardModeWeaponMultiplier();
+}
+
 }

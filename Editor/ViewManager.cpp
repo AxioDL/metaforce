@@ -56,7 +56,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     TLockedToken<CTexture> xrayPalette = objStore.GetObj("TXTR_XRayPalette");
     m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView, xrayPalette));
 
-#if 1
+#if 0
     m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
     m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
     CDvdFile testRSF("Audio/frontend_1.rsf");

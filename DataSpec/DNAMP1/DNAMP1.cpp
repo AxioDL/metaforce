@@ -32,6 +32,7 @@
 #include "Tweaks/CTweakPlayer.hpp"
 #include "Tweaks/CTweakCameraBob.hpp"
 #include "Tweaks/CTweakSlideShow.hpp"
+#include "Tweaks/CTweakGame.hpp"
 
 namespace DataSpec
 {
@@ -382,6 +383,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
                 return {ExtractTweak<CTweakCameraBob>, {_S(".yaml")}};
             if (!name.compare("SlideShow"))
                 return {ExtractTweak<CTweakSlideShow>, {_S(".yaml")}};
+            if (!name.compare("Game"))
+                return {ExtractTweak<CTweakGame>, {_S(".yaml")}};
         }
         break;
     }
