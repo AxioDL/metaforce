@@ -221,9 +221,9 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     else if (obj->type == 0x3A)
                     {
                         SpecialFunction& specialFunc = static_cast<SpecialFunction&>(*obj);
-                        if (specialFunc.type == ESpecialFunctionType::CinematicSkip)
+                        if (specialFunc.function == ESpecialFunctionType::CinematicSkip)
                             savw.skippableCutscenes.push_back(specialFunc.id);
-                        else if (specialFunc.type == ESpecialFunctionType::ScriptLayerController)
+                        else if (specialFunc.function == ESpecialFunctionType::ScriptLayerController)
                         {
                             savw.layers.emplace_back();
                             SAVWCommon::Layer& layer = savw.layers.back();

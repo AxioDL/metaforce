@@ -15,7 +15,7 @@ struct SpecialFunction : IScriptObject
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
-    Value<ESpecialFunctionType> type;
+    Value<ESpecialFunctionType> function;
     String<-1> unknown1;
     Value<float> unknown2;
     Value<float> unknown3;
