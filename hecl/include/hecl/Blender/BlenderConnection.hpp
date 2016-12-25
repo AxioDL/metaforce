@@ -50,7 +50,7 @@ public:
         Frame
     };
 private:
-    std::atomic_bool m_lock = false;
+    std::atomic_bool m_lock = {false};
 #if _WIN32
     PROCESS_INFORMATION m_pinfo = {};
     std::thread m_consoleThread;
