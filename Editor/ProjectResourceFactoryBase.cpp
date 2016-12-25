@@ -69,7 +69,7 @@ void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPat
             continue;
 
         athena::io::YAMLNode& node = *p.second;
-        hecl::ProjectPath path(m_proj->getProjectWorkingPath(), node.m_scalarString);
+        hecl::ProjectPath path;
         if (node.m_type == YAML_SCALAR_NODE)
         {
             path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_scalarString);
