@@ -95,7 +95,7 @@ void SanitizePath(std::string& path)
     });
 }
 
-static const std::wstring WIllegals {L"<>?*\"|"};
+static const std::wstring WIllegals {L"<>?\"|"};
 
 void SanitizePath(std::wstring& path)
 {

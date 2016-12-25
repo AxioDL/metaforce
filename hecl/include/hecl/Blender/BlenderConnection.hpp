@@ -51,6 +51,8 @@ public:
     };
 private:
     std::atomic_bool m_lock = {false};
+    bool m_pyStreamActive = false;
+    bool m_dataStreamActive = false;
 #if _WIN32
     PROCESS_INFORMATION m_pinfo = {};
     std::thread m_consoleThread;
@@ -122,6 +124,7 @@ public:
           m_deleteOnError(deleteOnError),
           m_sbuf(*this, deleteOnError)
         {
+            m_parent->m_pyStreamActive = true;
             m_parent->_writeStr("PYBEGIN");
             char readBuf[16];
             m_parent->_readStr(readBuf, 16);
@@ -143,6 +146,7 @@ public:
                 m_parent->_readStr(readBuf, 16);
                 if (strcmp(readBuf, "DONE"))
                     BlenderLog.report(logvisor::Fatal, "unable to close PyOutStream with blender");
+                m_parent->m_pyStreamActive = false;
                 m_parent->m_lock = false;
             }
         }
@@ -308,6 +312,7 @@ public:
         DataStream(BlenderConnection* parent)
         : m_parent(parent)
         {
+            m_parent->m_dataStreamActive = true;
             m_parent->_writeStr("DATABEGIN");
             char readBuf[16];
             m_parent->_readStr(readBuf, 16);
@@ -328,6 +333,7 @@ public:
                 m_parent->_readStr(readBuf, 16);
                 if (strcmp(readBuf, "DONE"))
                     BlenderLog.report(logvisor::Fatal, "unable to close DataStream with blender");
+                m_parent->m_dataStreamActive = false;
                 m_parent->m_lock = false;
             }
         }
@@ -805,6 +811,7 @@ public:
     }
 
     BlenderToken() = default;
+    ~BlenderToken() { shutdown(); }
     BlenderToken(const BlenderToken&)=delete;
     BlenderToken& operator=(const BlenderToken&)=delete;
     BlenderToken(BlenderToken&&)=default;

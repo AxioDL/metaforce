@@ -317,7 +317,8 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         CloseHandle(consoleErrWrite);
         CloseHandle(consoleOutWrite);
 
-        m_consoleThread = std::thread([&]()
+        m_consoleThreadRunning = true;
+        m_consoleThread = std::thread([=]()
         {
             CHAR lpBuffer[256];
             DWORD nBytesRead;
@@ -1550,8 +1551,24 @@ BlenderConnection::DataStream::getBoneMatrices(const std::string& name)
 
 void BlenderConnection::quitBlender()
 {
-    _writeStr("QUIT");
     char lineBuf[256];
+    if (m_lock)
+    {
+        if (m_pyStreamActive)
+        {
+            _writeStr("PYEND");
+            _readStr(lineBuf, sizeof(lineBuf));
+            m_pyStreamActive = false;
+        }
+        else if (m_dataStreamActive)
+        {
+            _writeStr("DATAEND");
+            _readStr(lineBuf, sizeof(lineBuf));
+            m_dataStreamActive = false;
+        }
+        m_lock = false;
+    }
+    _writeStr("QUIT");
     _readStr(lineBuf, sizeof(lineBuf));
 }
 
