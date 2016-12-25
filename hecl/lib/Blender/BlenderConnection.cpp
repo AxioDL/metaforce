@@ -329,17 +329,18 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
                if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer),
                              &nBytesRead, NULL) || !nBytesRead)
                {
-                  if (GetLastError() == ERROR_BROKEN_PIPE)
-                     break; // pipe done - normal exit path.
-                  else
-                     BlenderLog.report(logvisor::Fatal, "Error with ReadFile"); // Something bad happened.
+                   DWORD err = GetLastError();
+                   if (err == ERROR_BROKEN_PIPE)
+                       break; // pipe done - normal exit path.
+                   else
+                       BlenderLog.report(logvisor::Error, "Error with ReadFile: %08X", err); // Something bad happened.
                }
 
                // Display the character read on the screen.
                auto lk = logvisor::LockLog();
                if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer,
                                   nBytesRead, &nCharsWritten, NULL))
-                  BlenderLog.report(logvisor::Fatal, "Error with WriteConsole");
+                   BlenderLog.report(logvisor::Error, "Error with WriteConsole: %08X", GetLastError());
             }
 
             CloseHandle(consoleOutRead);
