@@ -138,7 +138,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x270_playerXYHalfExtent;
     Value<float> x274_;
     Value<float> x278_;
-    Value<float> x27c_;
+    Value<float> x27c_playerBallHalfExtent;
     Value<float> x280_;
     Value<float> x284_;
     Value<float> x288_;
@@ -183,7 +183,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
     float GetX274() const { return x274_; }
     float GetX278() const { return x278_; }
-    float GetX27C() const { return x27c_; }
+    float GetX27C() const { return x27c_playerBallHalfExtent; }
     float GetX124() const { return x134_; }
     bool GetX228_24() const { return x228_24_; }
     float GetX288() const { return x288_; }

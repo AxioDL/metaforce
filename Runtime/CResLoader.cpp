@@ -1,7 +1,5 @@
 #include "CResLoader.hpp"
 #include "CPakFile.hpp"
-#include "CMemory.hpp"
-#include "CCallStack.hpp"
 
 namespace urde
 {

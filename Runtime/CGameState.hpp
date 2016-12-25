@@ -113,6 +113,8 @@ public:
     void WriteBackupBuf();
     void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
     void PutTo(CBitStreamWriter& writer) const;
+    float GetHardModeDamageMultiplier() const;
+    float GetHardModeWeaponMultiplier() const;
 
     struct GameFileStateInfo
     {

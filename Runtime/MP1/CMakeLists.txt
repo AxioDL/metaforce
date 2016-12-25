@@ -16,6 +16,7 @@ set(MP1_SOURCES
     CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
     CSpacePirate.hpp CSpacePirate.cpp
+    CBabygoth.hpp CBabygoth.cpp
     CSaveUI.hpp CSaveUI.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     MP1.hpp MP1.cpp)

@@ -26,7 +26,7 @@ if(WIN32)
 elseif(APPLE)
   list(APPEND PLAT_SRCS CMemoryCardSysOSX.cpp)
 else()
-  list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp CCallStackNix.cpp)
+  list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
 endif()
 
 add_subdirectory(MP1)
@@ -48,14 +48,11 @@ add_library(RuntimeCommon
             ${PARTICLE_SOURCES}
             ${WORLD_SOURCES}
             ${WEAPON_SOURCES}
-            #CMemory.hpp CMemory.cpp
             ITweak.hpp
             IMain.hpp
             CMemoryCardSys.hpp CMemoryCardSys.cpp
             CScannableObjectInfo.hpp CScannableObjectInfo.cpp
             CSaveWorld.hpp CSaveWorld.cpp
-            IAllocator.hpp IAllocator.cpp
-            CGameAllocator.hpp CGameAllocator.cpp
             CDependencyGroup.hpp CDependencyGroup.cpp
             CBasics.hpp CBasicsPC.cpp
             CIOWin.hpp
@@ -91,7 +88,6 @@ add_library(RuntimeCommon
             CFactoryMgr.hpp CFactoryMgr.cpp
             CPakFile.hpp CPakFile.cpp
             CStringExtras.hpp
-            CCallStack.hpp
             IOStreams.hpp IOStreams.cpp
             CMainFlowBase.hpp CMainFlowBase.cpp
             CMFGameBase.hpp

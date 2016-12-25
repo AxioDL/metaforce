@@ -407,8 +407,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x274_ = __dna_reader.readFloatBig();
     /* x278_ */
     x278_ = __dna_reader.readFloatBig();
-    /* x27c_ */
-    x27c_ = __dna_reader.readFloatBig();
+    /* x27c_playerBallHalfExtent */
+    x27c_playerBallHalfExtent = __dna_reader.readFloatBig();
     /* x280_ */
     x280_ = __dna_reader.readFloatBig();
     /* x284_ */
@@ -847,8 +847,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x274_);
     /* x278_ */
     __dna_writer.writeFloatBig(x278_);
-    /* x27c_ */
-    __dna_writer.writeFloatBig(x27c_);
+    /* x27c_playerBallHalfExtent */
+    __dna_writer.writeFloatBig(x27c_playerBallHalfExtent);
     /* x280_ */
     __dna_writer.writeFloatBig(x280_);
     /* x284_ */
@@ -1362,8 +1362,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x274_ = __dna_docin.readFloat("x274_");
     /* x278_ */
     x278_ = __dna_docin.readFloat("x278_");
-    /* x27c_ */
-    x27c_ = __dna_docin.readFloat("x27c_");
+    /* x27c_playerBallHalfExtent */
+    x27c_playerBallHalfExtent = __dna_docin.readFloat("x27c_playerBallHalfExtent");
     /* x280_ */
     x280_ = __dna_docin.readFloat("x280_");
     /* x284_ */
@@ -1862,8 +1862,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x274_", x274_);
     /* x278_ */
     __dna_docout.writeFloat("x278_", x278_);
-    /* x27c_ */
-    __dna_docout.writeFloat("x27c_", x27c_);
+    /* x27c_playerBallHalfExtent */
+    __dna_docout.writeFloat("x27c_playerBallHalfExtent", x27c_playerBallHalfExtent);
     /* x280_ */
     __dna_docout.writeFloat("x280_", x280_);
     /* x284_ */

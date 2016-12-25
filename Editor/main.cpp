@@ -2,7 +2,7 @@
 #include "boo/boo.hpp"
 #include "specter/specter.hpp"
 #include "hecl/CVarManager.hpp"
-#include "Runtime/CGameAllocator.hpp"
+#include "Runtime/CBasics.hpp"
 #include <functional>
 #include "ViewManager.hpp"
 
