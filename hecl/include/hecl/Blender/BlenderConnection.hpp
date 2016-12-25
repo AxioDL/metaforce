@@ -20,6 +20,7 @@
 #include <functional>
 #include <iostream>
 #include <unordered_map>
+#include <atomic>
 
 #include "hecl/hecl.hpp"
 #include "hecl/HMDLMeta.hpp"
@@ -49,7 +50,7 @@ public:
         Frame
     };
 private:
-    bool m_lock = false;
+    std::atomic_bool m_lock;
 #if _WIN32
     HANDLE m_blenderProc = 0;
     PROCESS_INFORMATION m_pinfo = {};
@@ -81,8 +82,8 @@ public:
 
     BlenderConnection(const BlenderConnection&)=delete;
     BlenderConnection& operator=(const BlenderConnection&)=delete;
-    BlenderConnection(BlenderConnection&&)=default;
-    BlenderConnection& operator=(BlenderConnection&&)=default;
+    BlenderConnection(BlenderConnection&&)=delete;
+    BlenderConnection& operator=(BlenderConnection&&)=delete;
 
     bool hasSLERP() const {return m_hasSlerp;}
 
@@ -122,7 +123,6 @@ public:
           m_deleteOnError(deleteOnError),
           m_sbuf(*this, deleteOnError)
         {
-            m_parent->m_lock = true;
             m_parent->_writeStr("PYBEGIN");
             char readBuf[16];
             m_parent->_readStr(readBuf, 16);
@@ -296,7 +296,8 @@ public:
     };
     PyOutStream beginPythonOut(bool deleteOnError=false)
     {
-        if (m_lock)
+        bool expect = false;
+        if (!m_lock.compare_exchange_strong(expect, true))
             BlenderLog.report(logvisor::Fatal, "lock already held for BlenderConnection::beginPythonOut()");
         return PyOutStream(this, deleteOnError);
     }
@@ -308,7 +309,6 @@ public:
         DataStream(BlenderConnection* parent)
         : m_parent(parent)
         {
-            m_parent->m_lock = true;
             m_parent->_writeStr("DATABEGIN");
             char readBuf[16];
             m_parent->_readStr(readBuf, 16);
@@ -767,7 +767,8 @@ public:
     };
     DataStream beginData()
     {
-        if (m_lock)
+        bool expect = false;
+        if (!m_lock.compare_exchange_strong(expect, true))
             BlenderLog.report(logvisor::Fatal, "lock already held for BlenderConnection::beginDataIn()");
         return DataStream(this);
     }
@@ -786,12 +787,12 @@ public:
 
 class BlenderToken
 {
-    std::experimental::optional<BlenderConnection> m_conn;
+    std::unique_ptr<BlenderConnection> m_conn;
 public:
     BlenderConnection& getBlenderConnection()
     {
         if (!m_conn)
-            m_conn.emplace(hecl::VerbosityLevel);
+            m_conn = std::make_unique<BlenderConnection>(hecl::VerbosityLevel);
         return *m_conn;
     }
     void shutdown()
@@ -799,10 +800,16 @@ public:
         if (m_conn)
         {
             m_conn->quitBlender();
-            m_conn = std::experimental::nullopt;
+            m_conn.reset();
             BlenderLog.report(logvisor::Info, "BlenderConnection Shutdown Successful");
         }
     }
+
+    BlenderToken() = default;
+    BlenderToken(const BlenderToken&)=delete;
+    BlenderToken& operator=(const BlenderToken&)=delete;
+    BlenderToken(BlenderToken&&)=default;
+    BlenderToken& operator=(BlenderToken&&)=default;
 };
 
 class HMDLBuffers

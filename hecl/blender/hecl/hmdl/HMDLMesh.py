@@ -81,7 +81,8 @@ class VertPool:
 
         writebuf(struct.pack('I', len(vert_groups)))
         for vgrp in vert_groups:
-            writebuf((vgrp.name + '\n').encode())
+            writebuf(struct.pack('I', len(vgrp.name)))
+            writebuf(vgrp.name.encode())
 
         writebuf(struct.pack('I', len(self.skin)))
         for s in sorted(self.skin.items(), key=operator.itemgetter(1)):

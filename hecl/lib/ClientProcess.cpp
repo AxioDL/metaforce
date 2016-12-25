@@ -91,7 +91,7 @@ void ClientProcess::Worker::proc()
 ClientProcess::ClientProcess(int verbosityLevel)
 : m_verbosity(verbosityLevel)
 {
-#ifdef NDEBUG
+#if defined(NDEBUG)
     int cpuCount = GetCPUCount();
 #else
     constexpr int cpuCount = 1;
