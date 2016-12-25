@@ -1,4 +1,4 @@
-import bpy, sys, os, re, struct
+import bpy, sys, os, re, struct, traceback
 
 ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
@@ -16,11 +16,12 @@ if sys.platform == "win32":
     readfd = msvcrt.open_osfhandle(readfd, os.O_RDONLY | os.O_BINARY)
     writefd = msvcrt.open_osfhandle(writefd, os.O_WRONLY | os.O_BINARY)
     err_path = "/Temp"
+    if 'TEMP' in os.environ:
+        err_path = os.environ['TEMP']
 else:
     err_path = "/tmp"
-
-if 'TMPDIR' in os.environ:
-    err_path = os.environ['TMPDIR']
+    if 'TMPDIR' in os.environ:
+        err_path = os.environ['TMPDIR']
 
 err_path += "/hecl_%016X.derp" % os.getpid()
 
@@ -476,7 +477,6 @@ try:
             hecl.command(cmdargs, writepipestr, writepipebuf)
 
 except Exception:
-    import traceback
     fout = open(err_path, 'w')
     traceback.print_exc(file=fout)
     fout.close()

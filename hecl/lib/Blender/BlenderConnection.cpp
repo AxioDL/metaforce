@@ -183,7 +183,7 @@ void BlenderConnection::_blenderDied()
             std::unique_ptr<char[]> buf(new char[len+1]);
             memset(buf.get(), 0, len+1);
             fread(buf.get(), 1, len, errFp);
-            BlenderLog.report(logvisor::Fatal, "\n%s", buf.get());
+            BlenderLog.report(logvisor::Fatal, "\n%.*s", int(len), buf.get());
         }
     }
     BlenderLog.report(logvisor::Fatal, "Blender Exception");
@@ -401,7 +401,8 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
 #endif
 
         /* Stash error path and unlink existing file */
-        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"), (unsigned long long)m_blenderProc);
+        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"),
+                                                                 (unsigned long long)m_pinfo.dwProcessId);
         hecl::Unlink(m_errPath.c_str());
 
         /* Handle first response */

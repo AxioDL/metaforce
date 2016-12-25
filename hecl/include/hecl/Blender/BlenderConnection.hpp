@@ -50,9 +50,8 @@ public:
         Frame
     };
 private:
-    std::atomic_bool m_lock;
+    std::atomic_bool m_lock = false;
 #if _WIN32
-    HANDLE m_blenderProc = 0;
     PROCESS_INFORMATION m_pinfo = {};
     std::thread m_consoleThread;
     bool m_consoleThreadRunning = true;
