@@ -200,8 +200,8 @@ public:
 
     hecl::SystemString getResourceRelativePath(const EntryType& a, const IDType& b) const;
 
-    std::string getBestEntryName(const EntryType& entry) const;
-    std::string getBestEntryName(const IDType& entry) const;
+    std::string getBestEntryName(const EntryType& entry, bool stdOverride=true) const;
+    std::string getBestEntryName(const IDType& entry, bool stdOverride=true) const;
 
     bool extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::BlenderToken& btok,
                           std::function<void(const hecl::SystemChar*, float)> progress);

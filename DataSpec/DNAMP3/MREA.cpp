@@ -113,7 +113,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
               "from mathutils import Vector\n"
               "\n"
               "bpy.context.scene.name = '%s'\n",
-              pakRouter.getBestEntryName(entry).c_str());
+              pakRouter.getBestEntryName(entry, false).c_str());
     DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath(), true);
     MaterialSet::RegisterMaterialProps(os);
     os << "# Clear Scene\n"

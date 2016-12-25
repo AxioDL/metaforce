@@ -224,6 +224,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
                       bool fast, hecl::BlenderToken& btok, FCookProgress progress)
 {
+    cookedPath.makeDirChain(false);
     DataSpec::g_curSpec.reset(this);
 
     hecl::ProjectPath asBlend;
@@ -364,14 +365,14 @@ void SpecBase::flattenDependencies(const UniqueID32& id, std::vector<hecl::Proje
 {
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
     if (path)
-        flattenDependencies(path, pathsOut, hecl::SharedBlenderToken);
+        flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get());
 }
 
 void SpecBase::flattenDependencies(const UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut)
 {
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
     if (path)
-        flattenDependencies(path, pathsOut, hecl::SharedBlenderToken);
+        flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get());
 }
 
 bool SpecBase::canPackage(const PackagePassInfo& info)

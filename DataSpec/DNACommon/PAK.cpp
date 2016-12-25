@@ -473,14 +473,14 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
 }
 
 template <class BRIDGETYPE>
-std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry) const
+std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry, bool stdOverride) const
 {
     std::string name;
     for (const BRIDGETYPE& bridge : *m_bridges)
     {
         const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
 
-        if (isShared())
+        if (stdOverride && isShared())
         {
             if (entry.type == FOURCC('MLVL'))
                 return "!world";
@@ -499,7 +499,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry) cons
 }
 
 template <class BRIDGETYPE>
-std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry) const
+std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool stdOverride) const
 {
     std::string name;
     for (const BRIDGETYPE& bridge : *m_bridges)
@@ -509,7 +509,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry) const
         if (!e)
             continue;
 
-        if (isShared())
+        if (stdOverride && isShared())
         {
             if (e->type == FOURCC('MLVL'))
                 return "!world";
@@ -543,7 +543,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             if (extractor.weight != w)
                 continue;
 
-            std::string bestName = getBestEntryName(*item);
+            std::string bestName = getBestEntryName(*item, false);
             hecl::SystemStringView bestNameView(bestName);
             float thisFac = ++count / fsz;
             progress(bestNameView.c_str(), thisFac);

@@ -153,7 +153,8 @@ struct MLVL : BigYAML
 
     static bool Cook(const hecl::ProjectPath& outPath,
                      const hecl::ProjectPath& inPath,
-                     const World& wld);
+                     const World& wld,
+                     hecl::BlenderToken& btok);
 };
 
 }

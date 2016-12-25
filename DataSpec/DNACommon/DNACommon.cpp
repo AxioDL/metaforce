@@ -8,6 +8,7 @@ namespace DataSpec
 logvisor::Module LogDNACommon("urde::DNACommon");
 ThreadLocalPtr<SpecBase> g_curSpec;
 ThreadLocalPtr<PAKRouterBase> g_PakRouter;
+ThreadLocalPtr<hecl::BlenderToken> g_ThreadBlenderToken;
 ThreadLocalPtr<hecl::Database::Project> UniqueIDBridge::s_Project;
 UniqueID32 UniqueID32::kInvalidId;
 
@@ -29,7 +30,7 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
     {
         if (pakRouter)
         {
-            if (!silenceWarnings)
+            if (!silenceWarnings && id)
                 LogDNACommon.report(logvisor::Warning,
                                     "unable to translate %s to path", id.toString().c_str());
             return {};
@@ -42,7 +43,7 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
     const hecl::ProjectPath* search = project->lookupBridgePath(id.toUint64());
     if (!search)
     {
-        if (!silenceWarnings)
+        if (!silenceWarnings && id)
             LogDNACommon.report(logvisor::Warning,
                                 "unable to translate %s to path", id.toString().c_str());
         return {};

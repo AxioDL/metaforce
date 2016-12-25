@@ -40,7 +40,8 @@ bool MLVL::Extract(const SpecBase& dataSpec,
                                       entry, force, fileChanged);
 }
 
-bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const World& wld)
+bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                const World& wld, hecl::BlenderToken& btok)
 {
     MLVL mlvl = {};
     athena::io::FileReader reader(inPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
@@ -120,7 +121,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 /* Area map */
                 hecl::ProjectPath mapPath(area.path, _S("/!map.blend"));
                 if (mapPath.isFile())
-                    mapaTags.push_back(g_curSpec->BuildTagFromPath(mapPath, hecl::SharedBlenderToken));
+                    mapaTags.push_back(g_curSpec->BuildTagFromPath(mapPath, btok));
 
                 /* Populate area record */
                 mlvl.areas.emplace_back();
@@ -200,6 +201,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
             /* Gather memory relays, scans, and dependencies */
             {
+                g_ThreadBlenderToken.reset(&btok);
                 std::vector<hecl::ProjectPath> depPaths;
                 std::vector<Scan> scans;
                 for (std::unique_ptr<IScriptObject>& obj : layer.objects)
@@ -221,9 +223,9 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     else if (obj->type == 0x3A)
                     {
                         SpecialFunction& specialFunc = static_cast<SpecialFunction&>(*obj);
-                        if (specialFunc.type == ESpecialFunctionType::CinematicSkip)
+                        if (specialFunc.function == ESpecialFunctionType::CinematicSkip)
                             savw.skippableCutscenes.push_back(specialFunc.id);
-                        else if (specialFunc.type == ESpecialFunctionType::ScriptLayerController)
+                        else if (specialFunc.function == ESpecialFunctionType::ScriptLayerController)
                         {
                             savw.layers.emplace_back();
                             SAVWCommon::Layer& layer = savw.layers.back();
@@ -248,7 +250,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     if (addedPaths.find(path.hash()) == addedPaths.cend())
                     {
                         addedPaths.insert(path.hash());
-                        urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, hecl::SharedBlenderToken);
+                        urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
                         areaOut.deps.emplace_back(tag.id, tag.type);
                     }
                 }
@@ -300,12 +302,12 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 if (addedPaths.find(path.hash()) == addedPaths.cend())
                 {
                     addedPaths.insert(path.hash());
-                    urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, hecl::SharedBlenderToken);
+                    urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
                     areaOut.deps.emplace_back(tag.id, tag.type);
                 }
             }
 
-            urde::SObjectTag tag = g_curSpec->BuildTagFromPath(areaPath, hecl::SharedBlenderToken);
+            urde::SObjectTag tag = g_curSpec->BuildTagFromPath(areaPath, btok);
             areaOut.deps.emplace_back(tag.id, tag.type);
         }
 
@@ -330,7 +332,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     /* Write out MAPW */
     {
         hecl::ProjectPath mapwCooked =
-            mapwPath.getCookedPath(*g_curSpec->overrideDataSpec(mapwPath, nullptr, hecl::SharedBlenderToken));
+            mapwPath.getCookedPath(*g_curSpec->overrideDataSpec(mapwPath, nullptr, btok));
         mapwCooked.makeDirChain(false);
         athena::io::FileWriter fo(mapwCooked.getAbsolutePath());
         fo.writeUint32Big(0xDEADF00D);
@@ -350,7 +352,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         savw.scanCount = savw.scans.size();
 
         hecl::ProjectPath savwCooked =
-            savwPath.getCookedPath(*g_curSpec->overrideDataSpec(savwPath, nullptr, hecl::SharedBlenderToken));
+            savwPath.getCookedPath(*g_curSpec->overrideDataSpec(savwPath, nullptr, btok));
         savwCooked.makeDirChain(false);
         athena::io::FileWriter fo(savwCooked.getAbsolutePath());
         savw.write(fo);

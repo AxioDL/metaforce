@@ -18,6 +18,7 @@ namespace DataSpec
 extern logvisor::Module LogDNACommon;
 extern ThreadLocalPtr<SpecBase> g_curSpec;
 extern ThreadLocalPtr<class PAKRouterBase> g_PakRouter;
+extern ThreadLocalPtr<hecl::BlenderToken> g_ThreadBlenderToken;
 
 /* This comes up a great deal */
 typedef athena::io::DNA<athena::BigEndian> BigDNA;

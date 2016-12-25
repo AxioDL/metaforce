@@ -601,7 +601,8 @@ struct SpecMP1 : SpecBase
                    FCookProgress progress)
     {
         BlendStream::World world = ds.compileWorld();
-        DNAMP1::MLVL::Cook(out, in, world);
+        ds.close();
+        DNAMP1::MLVL::Cook(out, in, world, btok);
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
