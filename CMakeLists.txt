@@ -8,7 +8,7 @@ if(MSVC)
 
   # Shaddup MSVC
   add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1
-      /IGNORE:4221 /wd4800 /wd4005 /wd4311 /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 ${VS_DEFINES})
+      /IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 ${VS_DEFINES})
 
   # Link-time Code Generation for Release builds
   set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
