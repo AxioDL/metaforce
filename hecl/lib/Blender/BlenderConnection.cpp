@@ -403,8 +403,13 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
 #endif
 
         /* Stash error path and unlink existing file */
+#if _WIN32
         m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"),
                                                                  (unsigned long long)m_pinfo.dwProcessId);
+#else
+        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"),
+                                                                 (unsigned long long)m_blenderProc);
+#endif
         hecl::Unlink(m_errPath.c_str());
 
         /* Handle first response */
