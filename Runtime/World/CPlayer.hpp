@@ -229,7 +229,7 @@ public:
     void SetVisorSteam(float, float, float, u32, bool);
     void UpdateFootstepBounds(const CFinalInput& input, CStateManager&, float);
     u16 GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, int, u16);
-    u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u16);
+    u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
     void UpdateCrosshairsState(const CFinalInput&);
     void UpdateVisorTransition(float, CStateManager& mgr);
     void UpdateVisorState(const CFinalInput&, float, CStateManager& mgr);

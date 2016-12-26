@@ -13,9 +13,6 @@ class CPersistentOptions
     bool x0_[98] = {};
     bool x68_[64] = {};
     std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
-    u32 xb0_ = 0;
-    u32 xb4_ = 0;
-    u32 xb8_ = 0;
     u32 xbc_ = 0;
     u32 xc0_ = 0;
     u32 xc4_ = 0;

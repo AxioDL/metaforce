@@ -5,6 +5,7 @@
 #include "GuiSys/CGuiFrame.hpp"
 #include "GuiSys/CGuiTableGroup.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
+#include "GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde
 {
@@ -190,12 +191,12 @@ CSaveUI::UIType CSaveUI::SelectUIType() const
 
 void CSaveUI::FinishedLoading()
 {
-
 }
 
 void CSaveUI::Draw() const
 {
-
+    //if (x50_loadedFrame)
+        //x50_loadedFrame->Draw(CGuiWidgetDrawParams::Default());
 }
 
 void CSaveUI::DoAdvance(CGuiTableGroup* caller)

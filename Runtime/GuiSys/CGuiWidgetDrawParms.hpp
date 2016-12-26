@@ -7,6 +7,9 @@ namespace urde
 struct CGuiWidgetDrawParms
 {
     float x0_alphaMod;
+    float x4_;
+    float x8_;
+    float xc_;
 };
 
 }

@@ -195,6 +195,7 @@ public:
     bool GetCardFreeBytes();
     void HandleCardError(CMemoryCardSys::ECardResult result, EState state);
     void Update();
+    void ClearError() { x14_error = EError::OK; }
 
     static bool IsCardBusy(EState v)
     {

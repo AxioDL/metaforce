@@ -63,6 +63,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     SAVW savw = {};
     savw.header.magic = 0xC001D00D;
     savw.header.version = 0x3;
+    std::unordered_set<UniqueID32> addedScans;
 
     size_t areaIdx = 0;
     size_t nameOffset = 0;
@@ -256,7 +257,6 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 }
 
                 /* Cull duplicate scans and add to list */
-                std::unordered_set<UniqueID32> addedScans;
                 for (const Scan& scan : scans)
                 {
                     if (!scan.scanId)

@@ -100,7 +100,7 @@ public:
         x0_list &= ~(other.x0_list);
     }
 
-    bool HasMaterial(EMaterialTypes type)
+    bool HasMaterial(EMaterialTypes type) const
     {
         return (x0_list & (1ull << u64(type))) != 0;
     }
