@@ -354,6 +354,19 @@ ECardResult CMemoryCardSys::MountCard(kabufuda::ECardSlot port)
     return result;
 }
 
+ECardResult CMemoryCardSys::UnmountCard(kabufuda::ECardSlot port)
+{
+    kabufuda::Card& card = g_CardStates[int(port)];
+    if (CardResult err = card.getError())
+    {
+        g_OpResults[int(port)] = err;
+        return err;
+    }
+    card = kabufuda::Card();
+    g_OpResults[int(port)] = ECardResult::READY;
+    return ECardResult::READY;
+}
+
 ECardResult CMemoryCardSys::CheckCard(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
@@ -551,6 +564,12 @@ ECardResult CMemoryCardSys::FormatCard(kabufuda::ECardSlot port)
     card.format(port);
     g_OpResults[int(port)] = ECardResult::READY;
     return ECardResult::READY;
+}
+
+void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port)
+{
+    kabufuda::Card& card = g_CardStates[int(port)];
+    card.commit();
 }
 
 }

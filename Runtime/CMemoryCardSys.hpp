@@ -145,6 +145,7 @@ public:
 
     static kabufuda::ProbeResults CardProbe(kabufuda::ECardSlot port);
     static ECardResult MountCard(kabufuda::ECardSlot port);
+    static ECardResult UnmountCard(kabufuda::ECardSlot port);
     static ECardResult CheckCard(kabufuda::ECardSlot port);
     static ECardResult CreateFile(kabufuda::ECardSlot port, const char* name, u32 size, CardFileHandle& info);
     static ECardResult OpenFile(kabufuda::ECardSlot port, const char* name, CardFileHandle& info);
@@ -161,6 +162,8 @@ public:
     static ECardResult FastDeleteFile(kabufuda::ECardSlot port, int fileNo);
     static ECardResult Rename(kabufuda::ECardSlot port, const char* oldName, const char* newName);
     static ECardResult FormatCard(kabufuda::ECardSlot port);
+
+    static void CommitToDisk(kabufuda::ECardSlot port);
 };
 
 }
