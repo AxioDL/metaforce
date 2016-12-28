@@ -12,7 +12,7 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
 
     /* XDG-selected data path */
     kabufuda::SystemString path =
-        (dataHome && dataHome[0] == '/') ? dataHome : (home + "/.local/share") + "/.dolphin-emu";
+        ((dataHome && dataHome[0] == '/') ? dataHome : hecl::SystemString(home)) + "/.local/share/dolphin-emu";
     path += hecl::Format("/GC/MemoryCard%c.USA.raw",
                          slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
 
