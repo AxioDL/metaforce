@@ -1,6 +1,5 @@
 #include "CMemoryCardSys.hpp"
 #include <shlobj.h>
-#include <sys/stat.h>
 
 namespace urde
 {
