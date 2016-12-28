@@ -14,6 +14,7 @@ class AGSC
     struct Header : BigDNA
     {
         DECL_DNA
+        Value<atUint32> unk;
         String<-1> groupName;
         Value<atUint16> groupId = -1;
         Value<atUint32> poolSz = 0;
