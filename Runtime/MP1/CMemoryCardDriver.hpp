@@ -70,30 +70,22 @@ public:
     };
 
 private:
-    struct CARDFileInfo
-    {
-        CMemoryCardSys::EMemoryCardPort x0_cardPort;
-        int x4_fileNo = -1;
-        int x8_offset;
-        int xc_length;
-        u16 iBlock;
-    };
 
     struct SFileInfo
     {
-        CARDFileInfo x0_fileInfo;
+        CMemoryCardSys::CardFileHandle x0_fileInfo;
         std::string x14_name;
         std::vector<u8> x24_saveFileData;
         std::vector<u8> x34_saveData;
-        SFileInfo(CMemoryCardSys::EMemoryCardPort cardPort, const std::string& name);
-        CMemoryCardSys::ECardResult Open();
-        CMemoryCardSys::ECardResult Close();
-        CMemoryCardSys::EMemoryCardPort GetFileCardPort() const { return x0_fileInfo.x0_cardPort; }
-        int GetFileNo() const { return x0_fileInfo.x4_fileNo; }
-        CMemoryCardSys::ECardResult StartRead();
-        CMemoryCardSys::ECardResult TryFileRead();
-        CMemoryCardSys::ECardResult FileRead();
-        CMemoryCardSys::ECardResult GetSaveDataOffset(u32& offOut);
+        SFileInfo(kabufuda::ECardSlot cardPort, const std::string& name);
+        kabufuda::ECardResult Open();
+        kabufuda::ECardResult Close();
+        kabufuda::ECardSlot GetFileCardPort() const { return x0_fileInfo.slot; }
+        int GetFileNo() const { return x0_fileInfo->getFileNo(); }
+        kabufuda::ECardResult StartRead();
+        kabufuda::ECardResult TryFileRead();
+        kabufuda::ECardResult FileRead();
+        kabufuda::ECardResult GetSaveDataOffset(u32& offOut);
     };
 
     struct SSaveHeader
@@ -129,7 +121,7 @@ private:
         BadFile
     };
 
-    CMemoryCardSys::EMemoryCardPort x0_cardPort;
+    kabufuda::ECardSlot x0_cardPort;
     ResId x4_saveBanner;
     ResId x8_saveIcon0;
     ResId xc_saveIcon1;
@@ -148,7 +140,7 @@ private:
     bool x19d_doImportPersistent;
 
 public:
-    CMemoryCardDriver(CMemoryCardSys::EMemoryCardPort cardPort, ResId saveBanner,
+    CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
                       ResId saveIcon0, ResId saveIcon1, bool importPersistent);
 
     void NoCardFound();
@@ -176,24 +168,24 @@ public:
     void StartCardFormat(); // 37
 
     void UpdateCardProbe(); // 25
-    void UpdateMountCard(CMemoryCardSys::ECardResult result); // 26
-    void UpdateCardCheck(CMemoryCardSys::ECardResult result); // 27
-    void UpdateFileDeleteBad(CMemoryCardSys::ECardResult result); // 28
-    void UpdateFileRead(CMemoryCardSys::ECardResult result); // 29
-    void UpdateFileDeleteAlt(CMemoryCardSys::ECardResult result); // 30
-    void UpdateFileCreate(CMemoryCardSys::ECardResult result); // 31
-    void UpdateFileWrite(CMemoryCardSys::ECardResult result); // 32
-    void UpdateFileCreateTransactional(CMemoryCardSys::ECardResult result); // 33
-    void UpdateFileWriteTransactional(CMemoryCardSys::ECardResult result); // 34
-    void UpdateFileDeleteAltTransactional(CMemoryCardSys::ECardResult result); // 35
-    void UpdateFileRenameBtoA(CMemoryCardSys::ECardResult result); // 36
-    void UpdateCardFormat(CMemoryCardSys::ECardResult result); // 37
+    void UpdateMountCard(kabufuda::ECardResult result); // 26
+    void UpdateCardCheck(kabufuda::ECardResult result); // 27
+    void UpdateFileDeleteBad(kabufuda::ECardResult result); // 28
+    void UpdateFileRead(kabufuda::ECardResult result); // 29
+    void UpdateFileDeleteAlt(kabufuda::ECardResult result); // 30
+    void UpdateFileCreate(kabufuda::ECardResult result); // 31
+    void UpdateFileWrite(kabufuda::ECardResult result); // 32
+    void UpdateFileCreateTransactional(kabufuda::ECardResult result); // 33
+    void UpdateFileWriteTransactional(kabufuda::ECardResult result); // 34
+    void UpdateFileDeleteAltTransactional(kabufuda::ECardResult result); // 35
+    void UpdateFileRenameBtoA(kabufuda::ECardResult result); // 36
+    void UpdateCardFormat(kabufuda::ECardResult result); // 37
 
     void ClearFileInfo() { x198_fileInfo.reset(); }
     void InitializeFileInfo();
     void WriteBackupBuf();
     bool GetCardFreeBytes();
-    void HandleCardError(CMemoryCardSys::ECardResult result, EState state);
+    void HandleCardError(kabufuda::ECardResult result, EState state);
     void Update();
     void ClearError() { x14_error = EError::OK; }
 

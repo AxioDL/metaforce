@@ -76,7 +76,7 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
 
     if (x6c_cardDriver->x10_state == EState::NoCard)
     {
-        auto res = CMemoryCardSys::CardProbe(CMemoryCardSys::EMemoryCardPort::SlotA);
+        auto res = CMemoryCardSys::CardProbe(kabufuda::ECardSlot::SlotA);
         if (res.x0_error == CMemoryCardSys::ECardResult::READY ||
             res.x0_error == CMemoryCardSys::ECardResult::WRONGDEVICE)
             ResetCardDriver();
@@ -257,7 +257,7 @@ CSaveUI::CSaveUI(u32 instIdx, u64 serial)
 
 std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool importState)
 {
-    return std::make_unique<CMemoryCardDriver>(CMemoryCardSys::EMemoryCardPort::SlotA,
+    return std::make_unique<CMemoryCardDriver>(kabufuda::ECardSlot::SlotA,
         g_ResFactory->GetResourceIdByName("TXTR_SaveBanner")->id,
         g_ResFactory->GetResourceIdByName("TXTR_SaveIcon0")->id,
         g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, importState);
