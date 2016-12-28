@@ -9,8 +9,6 @@ namespace urde
  * Modified to not use dolphin-binary-relative paths. */
 kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot)
 {
-    kabufuda::SystemString userPath;
-
     /* Detect where the User directory is. There are two different cases
      * 1. HKCU\Software\Dolphin Emulator\UserConfigPath exists
      *    -> Use this as the user directory path
@@ -36,14 +34,14 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
     bool my_documents_found = SUCCEEDED(
         SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, my_documents));
 
+    kabufuda::SystemString path;
     if (configPath[0])  /* Case 1 */
-        userPath = configPath;
+        path = configPath;
     else if (my_documents_found)  /* Case 2 */
-        userPath = my_documents + _S("/Dolphin Emulator");
+        path = kabufuda::SystemString(my_documents) + _S("/Dolphin Emulator");
     else  /* Unable to find */
         return {};
 
-    kabufuda::SystemString path = userPath;
     path += hecl::SysFormat(_S("/GC/MemoryCard%c.USA.raw"),
                             slot == kabufuda::ECardSlot::SlotA ? _S('A') : _S('B'));
 
