@@ -13,27 +13,22 @@ static const char* SaveFileNames[] =
     "MetroidPrime B"
 };
 
-using ECardResult = CMemoryCardSys::ECardResult;
-using EMemoryCardPort = CMemoryCardSys::EMemoryCardPort;
+using ECardResult = kabufuda::ECardResult;
+using ECardSlot = kabufuda::ECardSlot;
 
 ECardResult CMemoryCardDriver::SFileInfo::Open()
 {
-    //CARDOpen(GetFileCardPort(), x14_name.data(), &x0_fileInfo);
-    return ECardResult::READY;
+    return CMemoryCardSys::OpenFile(GetFileCardPort(), x14_name.c_str(), x0_fileInfo);
 }
 
 ECardResult CMemoryCardDriver::SFileInfo::Close()
 {
-    auto backup = GetFileCardPort();
-    ECardResult result = ECardResult::READY;
-    //result = CARDClose(backup);
-    x0_fileInfo.x0_cardPort = backup;
-    return result;
+    return CMemoryCardSys::CloseFile(x0_fileInfo);
 }
 
-CMemoryCardSys::ECardResult CMemoryCardDriver::SFileInfo::StartRead()
+ECardResult CMemoryCardDriver::SFileInfo::StartRead()
 {
-    CMemoryCardSys::CARDStat stat = {};
+    CMemoryCardSys::CardStat stat = {};
     ECardResult result = CMemoryCardSys::GetStatus(GetFileCardPort(), GetFileNo(), stat);
     if (result != ECardResult::READY)
         return result;
@@ -41,8 +36,7 @@ CMemoryCardSys::ECardResult CMemoryCardDriver::SFileInfo::StartRead()
     u32 length = stat.GetFileLength();
     x34_saveData.clear();
     x24_saveFileData.resize(length);
-    //return CARDReadAsync(&x0_fileInfo, x24_saveFileData.data(), length, 0, 0);
-    return ECardResult::READY;
+    return CMemoryCardSys::ReadFile(x0_fileInfo, x24_saveFileData.data(), length, 0);
 }
 
 ECardResult CMemoryCardDriver::SFileInfo::TryFileRead()
@@ -83,7 +77,7 @@ ECardResult CMemoryCardDriver::SFileInfo::FileRead()
 
 ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut)
 {
-    CMemoryCardSys::CARDStat stat = {};
+    CMemoryCardSys::CardStat stat = {};
     ECardResult result = CMemoryCardSys::GetStatus(GetFileCardPort(), GetFileNo(), stat);
     if (result != ECardResult::READY)
     {
@@ -95,10 +89,10 @@ ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut)
     offOut += 64;
     switch (stat.GetBannerFormat())
     {
-    case 1:
+    case kabufuda::EImageFormat::C8:
         offOut += 3584;
         break;
-    case 2:
+    case kabufuda::EImageFormat::RGB5A3:
         offOut += 6144;
         break;
     default: break;
@@ -106,9 +100,11 @@ ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut)
 
     int idx = 0;
     bool paletteIcon = false;
-    while (u32 fmt = stat.GetIconFormat(idx))
+    for (kabufuda::EImageFormat fmt = stat.GetIconFormat(idx);
+         fmt != kabufuda::EImageFormat::None;
+         fmt = stat.GetIconFormat(idx))
     {
-        if (fmt == 1)
+        if (fmt == kabufuda::EImageFormat::C8)
         {
             paletteIcon = true;
             offOut += 1024;
@@ -142,14 +138,10 @@ void CMemoryCardDriver::SGameFileSlot::InitializeFromGameState()
     x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer);
 }
 
-CMemoryCardDriver::SFileInfo::SFileInfo(EMemoryCardPort port,
-                                        const std::string& name)
-: x14_name(name)
-{
-    x0_fileInfo.x0_cardPort = port;
-}
+CMemoryCardDriver::SFileInfo::SFileInfo(kabufuda::ECardSlot port, const std::string& name)
+: x0_fileInfo(port), x14_name(name) {}
 
-CMemoryCardDriver::CMemoryCardDriver(EMemoryCardPort cardPort, ResId saveBanner,
+CMemoryCardDriver::CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
                                      ResId saveIcon0, ResId saveIcon1, bool importPersistent)
 : x0_cardPort(cardPort), x4_saveBanner(saveBanner),
   x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_doImportPersistent(importPersistent)
@@ -189,10 +181,9 @@ std::unique_ptr<CMemoryCardDriver::SGameFileSlot> CMemoryCardDriver::LoadSaveFil
 
 void CMemoryCardDriver::ReadFinished()
 {
-    CMemoryCardSys::CARDStat stat = {};
+    CMemoryCardSys::CardStat stat = {};
     SFileInfo& fileInfo = x100_mcFileInfos[x194_fileIdx].second;
-    if (CMemoryCardSys::GetStatus(x0_cardPort, fileInfo.GetFileNo(), stat) !=
-        ECardResult::READY)
+    if (CMemoryCardSys::GetStatus(x0_cardPort, fileInfo.GetFileNo(), stat) != ECardResult::READY)
     {
         NoCardFound();
         return;
@@ -247,9 +238,9 @@ void CMemoryCardDriver::IndexFiles()
             }
             else if (result == ECardResult::READY)
             {
-                CMemoryCardSys::CARDStat stat = {};
+                CMemoryCardSys::CardStat stat = {};
                 if (CMemoryCardSys::GetStatus(x0_cardPort, info.second.GetFileNo(), stat) ==
-                        ECardResult::READY)
+                    ECardResult::READY)
                 {
                     u32 comment = stat.GetCommentAddr();
                     if (comment == -1)
@@ -280,7 +271,7 @@ void CMemoryCardDriver::IndexFiles()
     {
         if (x100_mcFileInfos[1].first == EFileState::File)
         {
-            CMemoryCardSys::CARDStat stat = {};
+            CMemoryCardSys::CardStat stat = {};
             if (CMemoryCardSys::GetStatus(x0_cardPort, x100_mcFileInfos[0].second.GetFileNo(), stat) ==
                     ECardResult::READY)
             {
@@ -421,7 +412,7 @@ void CMemoryCardDriver::StartFileWrite()
 {
     x14_error = EError::OK;
     x10_state = EState::FileWrite;
-    ECardResult result = x198_fileInfo->Write();
+    ECardResult result = x198_fileInfo->WriteFile();
     if (result != ECardResult::READY)
         UpdateFileWrite(result);
 }
@@ -450,7 +441,7 @@ void CMemoryCardDriver::StartFileWriteTransactional()
 {
     x14_error = EError::OK;
     x10_state = EState::FileWriteTransactional;
-    ECardResult result = x198_fileInfo->Write();
+    ECardResult result = x198_fileInfo->WriteFile();
     if (result != ECardResult::READY)
         UpdateFileWriteTransactional(result);
 }
@@ -658,7 +649,7 @@ void CMemoryCardDriver::UpdateFileWrite(ECardResult result)
         if (xferResult == ECardResult::READY)
         {
             x10_state = EState::Ready;
-            if (x198_fileInfo->Close() == ECardResult::READY)
+            if (x198_fileInfo->CloseFile() == ECardResult::READY)
                 return;
             NoCardFound();
             return;
@@ -696,7 +687,7 @@ void CMemoryCardDriver::UpdateFileWriteTransactional(ECardResult result)
         if (xferResult == ECardResult::READY)
         {
             x10_state = EState::FileWriteTransactionalDone;
-            if (x198_fileInfo->Close() != ECardResult::READY)
+            if (x198_fileInfo->CloseFile() != ECardResult::READY)
             {
                 NoCardFound();
                 return;
@@ -768,7 +759,7 @@ void CMemoryCardDriver::InitializeFileInfo()
     x198_fileInfo->SetComment(comment);
 
     x198_fileInfo->LockBannerToken(x4_saveBanner, *g_SimplePool);
-    x198_fileInfo->LockIconToken(x8_saveIcon0, 2, *g_SimplePool);
+    x198_fileInfo->LockIconToken(x8_saveIcon0, kabufuda::EAnimationSpeed::Middle, *g_SimplePool);
 
     CMemoryOutStream w = x198_fileInfo->BeginMemoryOut(3004);
 
@@ -825,7 +816,7 @@ void CMemoryCardDriver::HandleCardError(ECardResult result, EState state)
 
 void CMemoryCardDriver::Update()
 {
-    CMemoryCardSys::CardProbeResults result = CMemoryCardSys::CardProbe(x0_cardPort);
+    kabufuda::ProbeResults result = CMemoryCardSys::CardProbe(x0_cardPort);
 
     if (result.x0_error == ECardResult::NOCARD)
     {

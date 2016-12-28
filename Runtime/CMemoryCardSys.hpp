@@ -6,14 +6,8 @@
 #include "CGameHintInfo.hpp"
 #include "CSaveWorld.hpp"
 #include "GuiSys/CStringTable.hpp"
+#include "kabufuda/Card.hpp"
 #include <vector>
-
-#undef NOFILE
-
-// longest file name string excluding terminating zero
-#define CARD_FILENAME_MAX 32
-
-#define CARD_ICON_MAX 8
 
 namespace urde
 {
@@ -64,105 +58,40 @@ class CMemoryCardSys
     std::experimental::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
     std::vector<std::pair<ResId, CSaveWorld::EScanCategory>> x20_scanStates;
 public:
+    using ECardResult = kabufuda::ECardResult;
+    struct CardResult
+    {
+        ECardResult result;
+        CardResult(ECardResult res) : result(res) {}
+        operator ECardResult() const { return result; }
+        operator bool() const { return result != ECardResult::READY; }
+    };
+
+    struct CardFileHandle
+    {
+        kabufuda::ECardSlot slot;
+        std::unique_ptr<kabufuda::IFileHandle> handle;
+        CardFileHandle(kabufuda::ECardSlot slot) : slot(slot) {}
+        kabufuda::IFileHandle* operator->() const { return handle.get(); }
+        operator std::unique_ptr<kabufuda::IFileHandle>&() { return handle; }
+        operator const std::unique_ptr<kabufuda::IFileHandle>&() const { return handle; }
+    };
+
+    using CardStat = kabufuda::CardStat;
     const std::vector<CGameHintInfo::CGameHint>& GetHints() const { return x0_hints->GetHints(); }
     const std::vector<std::pair<ResId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
     const std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
     CMemoryCardSys();
     bool InitializePump();
 
-    enum class EMemoryCardPort
-    {
-        SlotA,
-        SlotB
-    };
-
-    enum class ECardResult
-    {
-        CRC_MISMATCH = -1003,
-        FATAL_ERROR = -128,
-        ENCODING = -13,
-        BROKEN = -6,
-        IOERROR = -5,
-        NOFILE = -4,
-        NOCARD = -3,
-        WRONGDEVICE = -2,
-        BUSY = -1,
-        READY = 0
-    };
-
-    struct CardProbeResults
-    {
-        ECardResult x0_error;
-        u32 x4_cardSize; // in megabits
-        u32 x8_sectorSize; // in bytes
-    };
-
-    struct CARDStat
-    {
-        // read-only (Set by CARDGetStatus)
-        char x0_fileName[CARD_FILENAME_MAX];
-        u32  x20_length;
-        u32  x24_time;           // seconds since 01/01/2000 midnight
-        u8   x28_gameName[4];
-        u8   x2c_company[2];
-
-        // read/write (Set by CARDGetStatus/CARDSetStatus)
-        u8   x2e_bannerFormat;
-        u8   x2f___padding;
-        u32  x30_iconAddr;      // offset to the banner, bannerTlut, icon, iconTlut data set.
-        u16  x34_iconFormat;
-        u16  x36_iconSpeed;
-        u32  x38_commentAddr;   // offset to the pair of 32 byte character strings.
-
-        // read-only (Set by CARDGetStatus)
-        u32  x3c_offsetBanner;
-        u32  x40_offsetBannerTlut;
-        u32  x44_offsetIcon[CARD_ICON_MAX];
-        u32  x64_offsetIconTlut;
-        u32  x68_offsetData;
-
-        u32 GetFileLength() const { return x20_length; }
-        u32 GetTime() const { return x24_time; }
-        u32 GetBannerFormat() const { return x2e_bannerFormat & 0x3; }
-        void SetBannerFormat(u32 fmt) { x2e_bannerFormat = (x2e_bannerFormat & ~0x3) | fmt; }
-        u32 GetIconFormat(int idx) const { return (x34_iconFormat >> (idx * 2)) & 0x3; }
-        void SetIconFormat(u32 fmt, int idx)
-        {
-            x34_iconFormat &= ~(0x3 << (idx * 2));
-            x34_iconFormat |= fmt << (idx * 2);
-        }
-        void SetIconSpeed(u32 sp, int idx)
-        {
-            x36_iconSpeed &= ~(0x3 << (idx * 2));
-            x36_iconSpeed |= sp << (idx * 2);
-        }
-        u32 GetIconAddr() const { return x30_iconAddr; }
-        void SetIconAddr(u32 addr) { x30_iconAddr = addr; }
-        u32 GetCommentAddr() const { return x38_commentAddr; }
-        void SetCommentAddr(u32 addr) { x38_commentAddr = addr; }
-    };
-
-    struct CARDFileInfo
-    {
-        EMemoryCardPort chan;
-        s32 fileNo = -1;
-
-        s32 offset;
-        s32 length;
-        u16 iBlock;
-        u16 __padding;
-
-        CARDFileInfo(EMemoryCardPort port) : chan(port) {}
-    };
-
     struct CCardFileInfo
     {
         struct Icon
         {
             ResId x0_id;
-            u32 x4_speed;
+            kabufuda::EAnimationSpeed x4_speed;
             TLockedToken<CTexture> x8_tex;
-            Icon(ResId id, u32 speed, CSimplePool& sp, const CVParamTransfer& cv);
+            Icon(ResId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp, const CVParamTransfer& cv);
         };
 
         enum class EStatus
@@ -173,7 +102,8 @@ public:
         };
 
         EStatus x0_status = EStatus::Standby;
-        CARDFileInfo x4_info;
+        //CARDFileInfo x4_info;
+        CardFileHandle m_handle;
         std::string x18_fileName;
         std::string x28_comment;
         ResId x3c_bannerTex = -1;
@@ -184,14 +114,14 @@ public:
 
         CVParamTransfer m_texParam = {new TObjOwnerParam<u32>(SBIG('OTEX'))};
 
-        CCardFileInfo(EMemoryCardPort port, const std::string& name)
-        : x4_info(port), x18_fileName(name) {}
+        CCardFileInfo(kabufuda::ECardSlot port, const std::string& name)
+        : m_handle(port), x18_fileName(name) {}
 
         void LockBannerToken(ResId bannerTxtr, CSimplePool& sp);
-        void LockIconToken(ResId iconTxtr, u32 speed, CSimplePool& sp);
+        void LockIconToken(ResId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp);
 
-        EMemoryCardPort GetCardPort() const { return x4_info.chan; }
-        int GetFileNo() const { return x4_info.fileNo; }
+        kabufuda::ECardSlot GetCardPort() const { return m_handle.slot; }
+        int GetFileNo() const { return m_handle->getFileNo(); }
         u32 CalculateBannerDataSize() const;
         u32 CalculateTotalDataSize() const;
         void BuildCardBuffer();
@@ -199,10 +129,10 @@ public:
         void WriteIconData(CMemoryOutStream& out) const;
         void SetComment(const std::string& c) { x28_comment = c; }
         ECardResult PumpCardTransfer();
-        ECardResult GetStatus(CARDStat& stat) const;
+        ECardResult GetStatus(CardStat& stat) const;
         ECardResult CreateFile();
-        ECardResult Write();
-        ECardResult Close();
+        ECardResult WriteFile();
+        ECardResult CloseFile();
 
         CMemoryOutStream BeginMemoryOut(u32 sz)
         {
@@ -211,18 +141,24 @@ public:
         }
     };
 
-    static CardProbeResults CardProbe(EMemoryCardPort port);
-    static ECardResult MountCard(EMemoryCardPort port);
-    static ECardResult CheckCard(EMemoryCardPort port);
-    static ECardResult GetNumFreeBytes(EMemoryCardPort port, s32& freeBytes, s32& freeFiles);
-    static ECardResult GetSerialNo(EMemoryCardPort port, u64& serialOut);
-    static ECardResult GetResultCode(EMemoryCardPort port);
-    static ECardResult GetStatus(EMemoryCardPort port, int fileNo, CARDStat& statOut);
-    static ECardResult SetStatus(EMemoryCardPort port, int fileNo, const CARDStat& stat);
-    static ECardResult DeleteFile(EMemoryCardPort port, const char* name);
-    static ECardResult FastDeleteFile(EMemoryCardPort port, int fileNo);
-    static ECardResult Rename(EMemoryCardPort port, const char* oldName, const char* newName);
-    static ECardResult FormatCard(EMemoryCardPort port);
+    static kabufuda::ProbeResults CardProbe(kabufuda::ECardSlot port);
+    static ECardResult MountCard(kabufuda::ECardSlot port);
+    static ECardResult CheckCard(kabufuda::ECardSlot port);
+    static ECardResult CreateFile(kabufuda::ECardSlot port, const char* name, u32 size, CardFileHandle& info);
+    static ECardResult OpenFile(kabufuda::ECardSlot port, const char* name, CardFileHandle& info);
+    static ECardResult FastOpenFile(kabufuda::ECardSlot port, int fileNo, CardFileHandle& info);
+    static ECardResult CloseFile(CardFileHandle& info);
+    static ECardResult ReadFile(const CardFileHandle& info, void* buf, s32 length, s32 offset);
+    static ECardResult WriteFile(const CardFileHandle& info, const void* buf, s32 length, s32 offset);
+    static ECardResult GetNumFreeBytes(kabufuda::ECardSlot port, s32& freeBytes, s32& freeFiles);
+    static ECardResult GetSerialNo(kabufuda::ECardSlot port, u64& serialOut);
+    static ECardResult GetResultCode(kabufuda::ECardSlot port);
+    static ECardResult GetStatus(kabufuda::ECardSlot port, int fileNo, CardStat& statOut);
+    static ECardResult SetStatus(kabufuda::ECardSlot port, int fileNo, const CardStat& stat);
+    static ECardResult DeleteFile(kabufuda::ECardSlot port, const char* name);
+    static ECardResult FastDeleteFile(kabufuda::ECardSlot port, int fileNo);
+    static ECardResult Rename(kabufuda::ECardSlot port, const char* oldName, const char* newName);
+    static ECardResult FormatCard(kabufuda::ECardSlot port);
 };
 
 }
