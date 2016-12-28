@@ -988,7 +988,7 @@ BlenderConnection::DataStream::ColMesh::Material::Material(BlenderConnection& co
         name.assign(nameLen, '\0');
         conn._readBuf(&name[0], nameLen);
     }
-    conn._readBuf(&type, 5);
+    conn._readBuf(&unknown, 42);
 }
 
 BlenderConnection::DataStream::ColMesh::Edge::Edge(BlenderConnection& conn)

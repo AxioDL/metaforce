@@ -204,6 +204,12 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
     bpy.data.objects.remove(copy_obj)
     bpy.data.meshes.remove(copy_mesh)
 
+def prop_val_from_colmat(name, m):
+    if name in m:
+       return m[name]
+
+    return False
+
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to collision geometry
 def cookcol(writebuf, mesh_obj):
@@ -249,14 +255,55 @@ def cookcol(writebuf, mesh_obj):
     for m in copy_mesh.materials:
         writebuf(struct.pack('I', len(m.name)))
         writebuf(m.name.encode())
-        cType = 0
-        if 'retro_collision_type' in m:
-            cType = m['retro_collision_type']
-        projPassthrough = False
-        if 'retro_projectile_passthrough' in m:
-            projPassthrough = m['retro_projectile_passthrough']
+        unknown = prop_val_from_colmat('retro_unknown', m)
+        surfaceStone = prop_val_from_colmat('retro_surface_stone', m)
+        surfaceMetal = prop_val_from_colmat('retro_surface_metal', m)
+        surfaceGrass = prop_val_from_colmat('retro_surface_grass', m)
+        surfaceIce = prop_val_from_colmat('retro_surface_ice', m)
+        pillar = prop_val_from_colmat('retro_pillar', m)
+        surfaceMetalGrating = prop_val_from_colmat('retro_surface_metal_grating', m)
+        surfacePhazon = prop_val_from_colmat('retro_surface_phazon', m)
+        surfaceDirt = prop_val_from_colmat('retro_surface_dirt', m)
+        surfaceLava = prop_val_from_colmat('retro_surface_lava', m)
+        surfaceSPMetal = prop_val_from_colmat('retro_surface_sp_metal', m)
+        surfaceStoneRock = prop_val_from_colmat('retro_surface_stone_rock', m)
+        surfaceSnow = prop_val_from_colmat('retro_surface_snow', m)
+        surfaceMudSlow = prop_val_from_colmat('retro_surface_mud_slow', m)
+        surfaceFabric = prop_val_from_colmat('retro_surface_fabric', m)
+        halfPipe = prop_val_from_colmat('retro_half_pipe', m)
+        surfaceMud = prop_val_from_colmat('retro_surface_mud', m)
+        surfaceGlass = prop_val_from_colmat('retro_surface_glass', m)
+        unused3 = prop_val_from_colmat('retro_unused3', m)
+        unused4 =  prop_val_from_colmat('retro_unused4', m)
+        surfaceShield = prop_val_from_colmat('retro_surface_shield', m)
+        surfaceSand = prop_val_from_colmat('retro_surface_sand', m)
+        surfaceMothOrSeedOrganics = prop_val_from_colmat('retro_surface_moth_or_seed_organics', m)
+        surfaceWeb = prop_val_from_colmat('retro_surface_web', m)
+        projPassthrough = prop_val_from_colmat('retro_projectile_passthrough', m)
+        solid = prop_val_from_colmat('retro_solid', m)
+        u20 = prop_val_from_colmat('retro_u20', m)
+        camPassthrough = prop_val_from_colmat('retro_camera_passthrough', m)
+        surfaceWood = prop_val_from_colmat('retro_surface_wood', m)
+        surfaceOrganic = prop_val_from_colmat('retro_surface_organic', m)
+        u24 = prop_val_from_colmat('retro_u24', m)
+        surfaceRubber = prop_val_from_colmat('retro_surface_rubber', m)
+        seeThrough = prop_val_from_colmat('retro_see_through', m)
+        scanPassthrough = prop_val_from_colmat('retro_scan_passthrough', m)
+        aiPassthrough = prop_val_from_colmat('retro_ai_passthrough', m)
+        ceiling = prop_val_from_colmat('retro_ceiling', m)
+        wall = prop_val_from_colmat('retro_wall', m)
+        floor = prop_val_from_colmat('retro_floor', m)
+        aiBlock = prop_val_from_colmat('retro_ai_block', m)
+        jumpNotAllowed = prop_val_from_colmat('retro_jump_not_allowed', m)
+        spiderBall = prop_val_from_colmat('retro_spider_ball', m)
+        screwAttackWallJump = prop_val_from_colmat('retro_screw_attack_wall_jump', m)
 
-        writebuf(struct.pack('Ib', cType, projPassthrough))
+        writebuf(struct.pack('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', unknown, surfaceStone, surfaceMetal, surfaceGrass,
+                 surfaceIce, pillar, surfaceMetalGrating, surfacePhazon, surfaceDirt, surfaceLava, surfaceSPMetal,
+                 surfaceStoneRock, surfaceSnow, surfaceMudSlow, surfaceFabric, halfPipe, surfaceMud, surfaceGlass,
+                 unused3, unused4, surfaceShield, surfaceSand, surfaceMothOrSeedOrganics, surfaceWeb, projPassthrough,
+                 solid, u20, camPassthrough, surfaceWood, surfaceOrganic, u24, surfaceRubber, seeThrough, scanPassthrough,
+                 aiPassthrough, ceiling, wall, floor, aiBlock, jumpNotAllowed, spiderBall, screwAttackWallJump))
 
     # Send verts
     writebuf(struct.pack('I', len(copy_mesh.vertices)))
