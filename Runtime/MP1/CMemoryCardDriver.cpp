@@ -29,7 +29,7 @@ ECardResult CMemoryCardDriver::SFileInfo::Close()
 ECardResult CMemoryCardDriver::SFileInfo::StartRead()
 {
     CMemoryCardSys::CardStat stat = {};
-    ECardResult result = CMemoryCardSys::GetStatus(GetFileCardPort(), GetFileNo(), stat);
+    ECardResult result = CMemoryCardSys::GetStatus(x0_fileInfo, stat);
     if (result != ECardResult::READY)
         return result;
 
@@ -78,7 +78,7 @@ ECardResult CMemoryCardDriver::SFileInfo::FileRead()
 ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut)
 {
     CMemoryCardSys::CardStat stat = {};
-    ECardResult result = CMemoryCardSys::GetStatus(GetFileCardPort(), GetFileNo(), stat);
+    ECardResult result = CMemoryCardSys::GetStatus(x0_fileInfo, stat);
     if (result != ECardResult::READY)
     {
         offOut = -1;
@@ -183,7 +183,7 @@ void CMemoryCardDriver::ReadFinished()
 {
     CMemoryCardSys::CardStat stat = {};
     SFileInfo& fileInfo = x100_mcFileInfos[x194_fileIdx].second;
-    if (CMemoryCardSys::GetStatus(x0_cardPort, fileInfo.GetFileNo(), stat) != ECardResult::READY)
+    if (CMemoryCardSys::GetStatus(fileInfo.x0_fileInfo, stat) != ECardResult::READY)
     {
         NoCardFound();
         return;
@@ -239,7 +239,7 @@ void CMemoryCardDriver::IndexFiles()
             else if (result == ECardResult::READY)
             {
                 CMemoryCardSys::CardStat stat = {};
-                if (CMemoryCardSys::GetStatus(x0_cardPort, info.second.GetFileNo(), stat) ==
+                if (CMemoryCardSys::GetStatus(info.second.x0_fileInfo, stat) ==
                     ECardResult::READY)
                 {
                     u32 comment = stat.GetCommentAddr();
@@ -272,11 +272,11 @@ void CMemoryCardDriver::IndexFiles()
         if (x100_mcFileInfos[1].first == EFileState::File)
         {
             CMemoryCardSys::CardStat stat = {};
-            if (CMemoryCardSys::GetStatus(x0_cardPort, x100_mcFileInfos[0].second.GetFileNo(), stat) ==
+            if (CMemoryCardSys::GetStatus(x100_mcFileInfos[0].second.x0_fileInfo, stat) ==
                     ECardResult::READY)
             {
                 u32 timeA = stat.GetTime();
-                if (CMemoryCardSys::GetStatus(x0_cardPort, x100_mcFileInfos[1].second.GetFileNo(), stat) ==
+                if (CMemoryCardSys::GetStatus(x100_mcFileInfos[1].second.x0_fileInfo, stat) ==
                         ECardResult::READY)
                 {
                     u32 timeB = stat.GetTime();

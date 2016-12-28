@@ -58,6 +58,8 @@ class CMemoryCardSys
     std::experimental::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
     std::vector<std::pair<ResId, CSaveWorld::EScanCategory>> x20_scanStates;
 public:
+    static kabufuda::SystemString ResolveDolphinCardPath(kabufuda::ECardSlot slot);
+
     using ECardResult = kabufuda::ECardResult;
     struct CardResult
     {
@@ -153,8 +155,8 @@ public:
     static ECardResult GetNumFreeBytes(kabufuda::ECardSlot port, s32& freeBytes, s32& freeFiles);
     static ECardResult GetSerialNo(kabufuda::ECardSlot port, u64& serialOut);
     static ECardResult GetResultCode(kabufuda::ECardSlot port);
-    static ECardResult GetStatus(kabufuda::ECardSlot port, int fileNo, CardStat& statOut);
-    static ECardResult SetStatus(kabufuda::ECardSlot port, int fileNo, const CardStat& stat);
+    static ECardResult GetStatus(const CardFileHandle& info, CardStat& statOut);
+    static ECardResult SetStatus(const CardFileHandle& info, const CardStat& stat);
     static ECardResult DeleteFile(kabufuda::ECardSlot port, const char* name);
     static ECardResult FastDeleteFile(kabufuda::ECardSlot port, int fileNo);
     static ECardResult Rename(kabufuda::ECardSlot port, const char* oldName, const char* newName);
