@@ -2,6 +2,7 @@
 #include "AROTBuilder.hpp"
 #include "DataSpec/DNAMP1/DeafBabe.hpp"
 #include "DataSpec/DNAMP2/DeafBabe.hpp"
+#include <inttypes.h>
 
 namespace DataSpec
 {
@@ -41,10 +42,10 @@ void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFB
                   "    for i in range(3):\n"
                   "        face.verts[i].co = tri_verts[i].co\n"
                   "    col_bm.verts.ensure_lookup_table()\n"
-                  "face.material_index = select_material(0x%08X)\n"
+                  "face.material_index = select_material(0x%016" PRIX64 ")\n"
                   "face.smooth = False\n"
                   "\n",
-                  atUint32(triMat.material));
+                  atUint64(triMat.material));
     }
 
     db.insertNoClimb(os);
@@ -58,6 +59,11 @@ void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFB
           "    col_mesh.materials.append(mat)\n"
           "\n"
           "bpy.context.scene.objects.link(col_mesh_obj)\n"
+          "bpy.context.scene.objects.active = col_mesh_obj\n"
+          "bpy.ops.object.mode_set(mode='EDIT')\n"
+          "bpy.ops.mesh.tris_convert_to_quads(materials=True)\n"
+          "bpy.ops.object.mode_set(mode='OBJECT')\n"
+          "bpy.context.scene.objects.active = None\n"
           "col_mesh_obj.layers[1] = True\n"
           "col_mesh_obj.layers[0] = False\n"
           "col_mesh_obj.draw_type = 'SOLID'\n"
@@ -79,11 +85,51 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     }
 
     db.materials.reserve(colMesh.materials.size());
-    for (const auto& mat : colMesh.materials)
+    for (const hecl::BlenderConnection::DataStream::ColMesh::Material& mat : colMesh.materials)
     {
         db.materials.emplace_back();
-        db.materials.back().setFireThrough(mat.fireThrough);
-        db.materials.back().setType(typename DEAFBABE::Material::Type(mat.type));
+        db.materials.back().setUnknown(mat.unknown);
+        db.materials.back().setSurfaceStone(mat.surfaceStone);
+        db.materials.back().setSurfaceMetal(mat.surfaceMetal);
+        db.materials.back().setSurfaceGrass(mat.surfaceGrass);
+        db.materials.back().setSurfaceIce(mat.surfaceIce);
+        db.materials.back().setPillar(mat.pillar);
+        db.materials.back().setSurfaceMetalGrating(mat.surfaceMetalGrating);
+        db.materials.back().setSurfacePhazon(mat.surfacePhazon);
+        db.materials.back().setSurfaceDirt(mat.surfaceDirt);
+        db.materials.back().setSurfaceLava(mat.surfaceLava);
+        db.materials.back().setSurfaceSPMetal(mat.surfaceSPMetal);
+        db.materials.back().setSurfaceStoneRock(mat.surfaceStoneRock);
+        db.materials.back().setSurfaceSnow(mat.surfaceSnow);
+        db.materials.back().setSurfaceMudSlow(mat.surfaceMudSlow);
+        db.materials.back().setSurfaceFabric(mat.surfaceFabric);
+        db.materials.back().setHalfPipe(mat.halfPipe);
+        db.materials.back().setSurfaceMud(mat.surfaceMud);
+        db.materials.back().setSurfaceGlass(mat.surfaceGlass);
+        db.materials.back().setUnused3(mat.unused3);
+        db.materials.back().setUnused4(mat.unused4);
+        db.materials.back().setSurfaceShield(mat.surfaceShield);
+        db.materials.back().setSurfaceSand(mat.surfaceSand);
+        db.materials.back().setSurfaceMothOrSeedOrganics(mat.surfaceMothOrSeedOrganics);
+        db.materials.back().setSurfaceWeb(mat.surfaceWeb);
+        db.materials.back().setProjectilePassthrough(mat.projPassthrough);
+        db.materials.back().setSolid(mat.solid);
+        db.materials.back().setU20(mat.u20);
+        db.materials.back().setCameraPassthrough(mat.camPassthrough);
+        db.materials.back().setSurfaceWood(mat.surfaceWood);
+        db.materials.back().setSurfaceOrganic(mat.surfaceOrganic);
+        db.materials.back().setU24(mat.u24);
+        db.materials.back().setSurfaceRubber(mat.surfaceRubber);
+        db.materials.back().setSeeThrough(mat.seeThrough);
+        db.materials.back().setScanPassthrough(mat.scanPassthrough);
+        db.materials.back().setAiPassthrough(mat.aiPassthrough);
+        db.materials.back().setCeiling(mat.ceiling);
+        db.materials.back().setWall(mat.wall);
+        db.materials.back().setFloor(mat.floor);
+        db.materials.back().setAiBlock(mat.aiBlock);
+        db.materials.back().setJumpNotAllowed(mat.jumpNotAllowed);
+        db.materials.back().setSpiderBall(mat.spiderBall);
+        db.materials.back().setScrewAttackWallJump(mat.screwAttackWallJump);
     }
     db.materialCount = colMesh.materials.size();
 
