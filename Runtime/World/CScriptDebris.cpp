@@ -8,7 +8,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const std::string& name, const CEnti
                              const zeus::CVector3f&, const zeus::CColor&, float f1, float f2, float f3,
                              CScriptDebris::EScaleType, bool, bool, bool active)
     : CPhysicsActor(uid, active, name, info, xf, std::move(mData),
-                    CMaterialList(EMaterialTypes::Nineteen, EMaterialTypes::FourtyFour),
+                    CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Debris),
                     mData.GetBounds(xf.getRotation()), SMoverData(f2), aParams, 0.3, 0.1)
 {
 

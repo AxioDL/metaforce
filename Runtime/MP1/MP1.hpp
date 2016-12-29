@@ -53,7 +53,7 @@ class CGameGlobalObjects
     CSimplePool& xcc_simplePool;
     CCharacterFactoryBuilder xec_charFactoryBuilder;
     CAiFuncMap x110_aiFuncMap;
-    CGameState x134_gameState;
+    std::unique_ptr<CGameState> x134_gameState;
     TLockedToken<CStringTable> x13c_mainStringTable;
     CInGameTweakManager x150_tweakManager;
     std::unique_ptr<CBooRenderer> m_renderer;
@@ -79,7 +79,8 @@ public:
         g_SimplePool = &xcc_simplePool;
         g_CharFactoryBuilder = &xec_charFactoryBuilder;
         g_AiFuncMap = &x110_aiFuncMap;
-        g_GameState = &x134_gameState;
+        x134_gameState.reset(new CGameState());
+        g_GameState = x134_gameState.get();
         g_TweakManager = &x150_tweakManager;
     }
 
@@ -99,6 +100,12 @@ public:
                 g_MemoryCardSys = x0_memoryCardSys.get();
         }
     }
+
+    void ResetGameState()
+    {
+        x134_gameState.reset(new CGameState());
+        g_GameState = x134_gameState.get();
+    }
 };
 
 #if MP1_USE_BOO
@@ -108,36 +115,37 @@ class CGameArchitectureSupport
 #endif
 {
     CMain& m_parent;
-    CArchitectureQueue m_archQueue;
-    CAudioSys m_audioSys;
-    CInputGenerator m_inputGenerator;
-    CGuiSys m_guiSys;
-    CIOWinManager m_ioWinManager;
+    CArchitectureQueue x4_archQueue;
+    CAudioSys x0_audioSys;
+    CInputGenerator x30_inputGenerator;
+    CGuiSys x44_guiSys;
+    CIOWinManager x58_ioWinManager;
+    s32 x78_;
     boo::SWindowRect m_windowRect;
     bool m_rectIsDirty;
 
     void mouseDown(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
-    { m_inputGenerator.mouseDown(coord, button, mods); }
+    { x30_inputGenerator.mouseDown(coord, button, mods); }
     void mouseUp(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
-    { m_inputGenerator.mouseUp(coord, button, mods); }
+    { x30_inputGenerator.mouseUp(coord, button, mods); }
     void mouseMove(const boo::SWindowCoord &coord)
-    { m_inputGenerator.mouseMove(coord); }
+    { x30_inputGenerator.mouseMove(coord); }
     void scroll(const boo::SWindowCoord &coord, const boo::SScrollDelta &scroll)
-    { m_inputGenerator.scroll(coord, scroll); }
+    { x30_inputGenerator.scroll(coord, scroll); }
     void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
-    { m_inputGenerator.charKeyDown(charCode, mods, isRepeat); }
+    { x30_inputGenerator.charKeyDown(charCode, mods, isRepeat); }
     void charKeyUp(unsigned long charCode, boo::EModifierKey mods)
-    { m_inputGenerator.charKeyUp(charCode, mods); }
+    { x30_inputGenerator.charKeyUp(charCode, mods); }
     void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
-    { m_inputGenerator.specialKeyDown(key, mods, isRepeat); }
+    { x30_inputGenerator.specialKeyDown(key, mods, isRepeat); }
     void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
-    { m_inputGenerator.specialKeyUp(key, mods); }
+    { x30_inputGenerator.specialKeyUp(key, mods); }
     void modKeyDown(boo::EModifierKey mod, bool isRepeat)
-    { m_inputGenerator.modKeyDown(mod, isRepeat);}
+    { x30_inputGenerator.modKeyDown(mod, isRepeat);}
     void modKeyUp(boo::EModifierKey mod)
-    { m_inputGenerator.modKeyUp(mod); }
+    { x30_inputGenerator.modKeyUp(mod); }
 
-    void destroyed() { m_archQueue.Push(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)); }
+    void destroyed() { x4_archQueue.Push(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)); }
 
     void resized(const boo::SWindowRect &rect)
     {

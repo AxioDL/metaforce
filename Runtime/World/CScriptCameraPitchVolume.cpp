@@ -13,7 +13,7 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, c
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
                                                    const zeus::CTransform& xf, const zeus::CRelAngle& r1,
                                                    const zeus::CRelAngle& r2, float maxInterpDistance)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::ThirtyFour),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_obbox(xf, scale * skScaleFactor)
 , x124_(r1)

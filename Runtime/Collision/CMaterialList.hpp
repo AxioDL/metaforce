@@ -7,41 +7,53 @@ namespace urde
 {
 enum class EMaterialTypes
 {
-    Zero = 0,
-    One = 1,
-    Two = 2,
-    Three = 3,
-    Four = 4,
-    Five = 5,
-    Six = 6,
-    Seven = 7,
-    Eight = 8,
-    Nine = 9,
+    Unknown = 0,
+    Stone = 1,
+    Metal = 2,
+    Grass = 3,
+    Ice = 4,
+    Pillar = 5,
+    MetalGrating = 6,
+    Phazon = 7,
+    Dirt = 8,
+    Lava = 9,
     Ten = 10,
-    Eleven = 11,
-    Twelve = 12,
-    Thirten = 13,
-    Fourteen = 14,
-    Fifteen = 15,
-    Eighteen = 18,
-    Nineteen = 19,
-    TwentyOne = 21,
-    ThirtyTwo = 32,
-    ThirtyThree = 33,
-    ThirtyFour = 34,
-    ThirtyFive = 35,
-    ThirtySeven = 37,
+    Snow = 11,
+    MudSlow = 12,
+    HalfPipe = 13,
+    Mud = 14,
+    Glass = 15,
+    Shield = 16,
+    Sand = 17,
+    ProjectilePassthrough = 18,
+    Solid = 19,
+    CameraPassthrough = 21,
+    Wood = 22,
+    Organic = 23,
+    TwentyFour = 24,
+    RedundantEdgeOrFlippedTri = 25,
+    SeeThrough = 26,
+    ScanPassthrough = 27,
+    AIPassthrough = 28,
+    Ceiling = 29,
+    Wall = 30,
+    Floor = 31,
+    Player = 32,
+    Character = 33,
+    Trigger = 34,
+    Projectile = 35,
+    GroundCollider = 37,
     ThirtyEight = 38,
-    ThirtyNine = 39,
-    Fourty = 40,
-    FourtyOne = 41,
-    FourtyTwo = 42,
-    FourtyThree = 43,
-    FourtyFour = 44,
-    FourtyEight = 48,
-    FourtyNine = 49,
-    Fifty = 50,
-    FiftySix = 56,
+    Scannable = 39,
+    Target = 40,
+    Orbit = 41,
+    Occluder = 42,
+    Immovable = 43,
+    Debris = 44,
+    AIBlock = 48,
+    Platform = 49,
+    NonSolidDamageable = 50,
+    ExcludeFromLineOfSightTest = 56,
     SixtyThree = 63
 };
 
@@ -114,6 +126,11 @@ public:
         }
 
         return false;
+    }
+
+    u64 Intersection(const CMaterialList& other) const
+    {
+        return other.x0_list & x0_list;
     }
 };
 

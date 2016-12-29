@@ -13,10 +13,10 @@ CActorParameters MakeDamageableTriggerActorParms(const CActorParameters& aParams
 CMaterialList MakeDamageableTriggerMaterial(CScriptDamageableTrigger::ECanOrbit canOrbit)
 {
     if (canOrbit == CScriptDamageableTrigger::ECanOrbit::Orbit)
-        return CMaterialList(EMaterialTypes::FourtyOne, EMaterialTypes::ThirtyFour, EMaterialTypes::FourtyThree,
-                             EMaterialTypes::Fifty, EMaterialTypes::FiftySix);
-    return CMaterialList(EMaterialTypes::ThirtyFour, EMaterialTypes::FourtyThree,
-                         EMaterialTypes::Fifty, EMaterialTypes::FiftySix);
+        return CMaterialList(EMaterialTypes::Orbit, EMaterialTypes::Trigger, EMaterialTypes::Immovable,
+                             EMaterialTypes::NonSolidDamageable, EMaterialTypes::ExcludeFromLineOfSightTest);
+    return CMaterialList(EMaterialTypes::Trigger, EMaterialTypes::Immovable,
+                         EMaterialTypes::NonSolidDamageable, EMaterialTypes::ExcludeFromLineOfSightTest);
 }
 
 

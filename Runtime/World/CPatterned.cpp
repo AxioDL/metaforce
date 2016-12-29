@@ -4,11 +4,11 @@
 namespace urde
 {
 
-CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::ThirtyThree, EMaterialTypes::Nineteen,
-                                            EMaterialTypes::FourtyOne, EMaterialTypes::ThirtySeven,
-                                            EMaterialTypes::Fourty);
-CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::ThirtyThree, EMaterialTypes::Nineteen,
-                                           EMaterialTypes::FourtyOne, EMaterialTypes::Fourty);
+CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
+                                            EMaterialTypes::Orbit, EMaterialTypes::GroundCollider,
+                                            EMaterialTypes::Target);
+CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
+                                           EMaterialTypes::Orbit, EMaterialTypes::Target);
 
 CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,

@@ -109,8 +109,10 @@ public:
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
+    void SetPersistentOptions(const CPersistentOptions& opts) { xa8_systemOptions = opts; }
     void ImportPersistentOptions(const CPersistentOptions& opts);
     void ExportPersistentOptions(CPersistentOptions& opts) const;
+    void SetGameOptions(const CGameOptions& opts) { x17c_gameOptions = opts; }
     void WriteBackupBuf();
     void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
     void PutTo(CBitStreamWriter& writer) const;

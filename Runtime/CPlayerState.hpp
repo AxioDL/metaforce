@@ -136,8 +136,8 @@ public:
     CHealthInfo& HealthInfo();
     CHealthInfo GetHealthInfo() const;
     u32 GetPickupTotal() { return 99; }
-    void SetFusion(bool val) { x0_26_fusion = val; }
-    bool GetFusion() const { return x0_26_fusion; }
+    void SetIsFusionEnabled(bool val) { x0_26_fusion = val; }
+    bool IsFusionEnabled() const { return x0_26_fusion; }
     EPlayerSuit GetCurrentSuit() const;
     EBeamId GetCurrentBeam() const { return x8_currentBeam; }
     bool CanVisorSeeFog(const CStateManager& stateMgr) const;

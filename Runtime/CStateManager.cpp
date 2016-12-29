@@ -674,8 +674,8 @@ void CStateManager::CreateStandardGameObjects()
     auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
     x84c_player.reset(new CPlayer(AllocateUniqueId(), zeus::CTransform(q), pBounds, 0,
                                   zeus::CVector3f{1.65f, 1.65f, 1.65f},
-                                  200.f, unk1, unk2, unk3, CMaterialList(EMaterialTypes::ThirtyTwo,
-                                  EMaterialTypes::Nineteen, EMaterialTypes::ThirtySeven)));
+                                  200.f, unk1, unk2, unk3, CMaterialList(EMaterialTypes::Player,
+                                  EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
     AddObject(*x84c_player);
 }
 

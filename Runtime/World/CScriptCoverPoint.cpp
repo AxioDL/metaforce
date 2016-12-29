@@ -7,7 +7,7 @@ namespace urde
 CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, const std::string &name, const CEntityInfo &info,
                                      zeus::CTransform xf, bool active, u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime)
     : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(),
-             CMaterialList(EMaterialTypes::Zero), CActorParameters::None(), kInvalidUniqueId),
+             CMaterialList(EMaterialTypes::Unknown), CActorParameters::None(), kInvalidUniqueId),
       xe8_flags(flags),
       xf4_coverTime(coverTime),
       xf8_24_crouch(crouch)

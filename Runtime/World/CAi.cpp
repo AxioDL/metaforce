@@ -9,8 +9,8 @@ namespace urde
 static CMaterialList MakeAiMaterialList(const CMaterialList& in)
 {
     CMaterialList ret = in;
-    ret.Add(EMaterialTypes::FourtyEight);
-    ret.Add(EMaterialTypes::TwentyOne);
+    ret.Add(EMaterialTypes::AIBlock);
+    ret.Add(EMaterialTypes::CameraPassthrough);
     return ret;
 }
 

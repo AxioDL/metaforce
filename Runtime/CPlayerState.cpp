@@ -188,7 +188,7 @@ CHealthInfo CPlayerState::GetHealthInfo() const
 
 CPlayerState::EPlayerSuit CPlayerState::GetCurrentSuit() const
 {
-    if (GetFusion())
+    if (IsFusionEnabled())
         return EPlayerSuit::FusionPower;
 
     return x20_currentSuit;

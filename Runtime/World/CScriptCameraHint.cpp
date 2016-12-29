@@ -9,7 +9,7 @@ CScriptCameraHint::CScriptCameraHint(TUniqueId uid, const std::string& name, con
                                      const zeus::CTransform& xf, bool active, u32, u32, u32, float, float, float,
                                      const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&, float,
                                      float, float, float, float, float, float, float, float, float)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Zero),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
          CActorParameters::None(), kInvalidUniqueId)
 {
 }

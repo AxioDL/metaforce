@@ -54,7 +54,7 @@ public:
     CScriptDoor(TUniqueId, const std::string& name, const CEntityInfo& info,
                 const zeus::CTransform&, CModelData&&, const CActorParameters&,
                 const zeus::CVector3f&, const zeus::CAABox&,
-                bool active, bool material, bool, float, bool ballDoor);
+                bool active, bool open, bool, float, bool ballDoor);
 
     zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);

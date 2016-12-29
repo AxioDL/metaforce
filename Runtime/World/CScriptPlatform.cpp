@@ -7,10 +7,10 @@ namespace urde
 static CMaterialList MakePlatformMaterialList()
 {
     CMaterialList ret;
-    ret.Add(EMaterialTypes::Nineteen);
-    ret.Add(EMaterialTypes::FourtyThree);
-    ret.Add(EMaterialTypes::FourtyNine);
-    ret.Add(EMaterialTypes::FourtyTwo);
+    ret.Add(EMaterialTypes::Solid);
+    ret.Add(EMaterialTypes::Immovable);
+    ret.Add(EMaterialTypes::Platform);
+    ret.Add(EMaterialTypes::Occluder);
     return ret;
 }
 

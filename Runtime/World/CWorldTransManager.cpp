@@ -19,7 +19,7 @@ namespace urde
 int CWorldTransManager::GetSuitCharIdx()
 {
     CPlayerState& state = *g_GameState->GetPlayerState();
-    if (state.GetFusion())
+    if (state.IsFusionEnabled())
     {
         switch (state.x20_currentSuit)
         {
