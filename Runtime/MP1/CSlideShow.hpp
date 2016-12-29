@@ -6,12 +6,11 @@
 #include "CToken.hpp"
 #include "GuiSys/CGuiTextSupport.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Audio/CSfxHandle.hpp"
+#include "Audio/CSfxManager.hpp"
 
 namespace urde
 {
 class CTexture;
-class CSfxHandle;
 class CDependencyGroup;
 
 class CSlideShow : public CIOWin

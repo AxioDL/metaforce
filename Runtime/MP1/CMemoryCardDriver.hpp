@@ -194,7 +194,7 @@ public:
         return v >= EState::CardMount && v <= EState::CardFormat;
     }
 
-    static bool IsOperationDestructive(EState v)
+    static bool IsCardWriting(EState v)
     {
         if (v < EState::CardProbe)
             return false;

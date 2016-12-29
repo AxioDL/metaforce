@@ -23,8 +23,8 @@ public:
         float x1c_distComp;
         u32 x20_flags;
         u16 x24_sfxId;
-        u8 x26_maxVol;
-        u8 x27_minVol;
+        float x26_maxVol;
+        float x27_minVol;
         u8 x28_extra[2];
     };
     CAudioSys(boo::IAudioVoiceEngine* voiceEngine,

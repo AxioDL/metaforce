@@ -22,13 +22,13 @@ CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
 
 CTextRenderBuffer* CGuiTextSupport::GetCurrentLineRenderBuffer() const
 {
-    if (x60_renderBuf && !x308_multilineFlag)
+    if (x60_renderBuf && !x308_multipageFlag)
         return const_cast<CTextRenderBuffer*>(&*x60_renderBuf);
-    if (!x308_multilineFlag || x300_ <= x304_lineCounter)
+    if (!x308_multipageFlag || x300_ <= x304_pageCounter)
         return nullptr;
     int idx = 0;
-    for (const CTextRenderBuffer& buf : x2f0_lineRenderBufs)
-        if (idx++ == x304_lineCounter)
+    for (const CTextRenderBuffer& buf : x2f0_pageRenderBufs)
+        if (idx++ == x304_pageCounter)
             return const_cast<CTextRenderBuffer*>(&buf);
     return nullptr;
 }
@@ -192,7 +192,7 @@ void CGuiTextSupport::AddText(const std::wstring& str)
     ClearRenderBuffer();
 }
 
-void CGuiTextSupport::SetText(const std::wstring& str, bool multiline)
+void CGuiTextSupport::SetText(const std::wstring& str, bool multipage)
 {
     if (x0_string.compare(str))
     {
@@ -200,14 +200,14 @@ void CGuiTextSupport::SetText(const std::wstring& str, bool multiline)
         x3c_curTime = 0.f;
         x0_string = str;
         ClearRenderBuffer();
-        x308_multilineFlag = multiline;
-        x304_lineCounter = 0;
+        x308_multipageFlag = multipage;
+        x304_pageCounter = 0;
     }
 }
 
-void CGuiTextSupport::SetText(const std::string& str, bool multiline)
+void CGuiTextSupport::SetText(const std::string& str, bool multipage)
 {
-    SetText(hecl::UTF8ToWide(str), multiline);
+    SetText(hecl::UTF8ToWide(str), multipage);
 }
 
 bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const

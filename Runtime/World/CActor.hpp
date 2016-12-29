@@ -4,12 +4,12 @@
 #include "CEntity.hpp"
 #include "Graphics/CGraphics.hpp"
 #include "Graphics/CSimpleShadow.hpp"
-#include "Audio/CSfxHandle.hpp"
 #include "zeus/zeus.hpp"
 #include "Collision/CMaterialFilter.hpp"
 #include "Character/CModelData.hpp"
 #include "Character/CActorLights.hpp"
 #include "Collision/CCollisionResponseData.hpp"
+#include "Audio/CSfxManager.hpp"
 
 namespace urde
 {
@@ -22,7 +22,6 @@ class CDamageVulnerability;
 class CLightParameters;
 class CScannableObjectInfo;
 class CScriptWater;
-class CSfxHandle;
 class CSimpleShadow;
 
 class CActor : public CEntity

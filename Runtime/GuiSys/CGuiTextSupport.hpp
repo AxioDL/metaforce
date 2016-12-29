@@ -97,10 +97,10 @@ class CGuiTextSupport
     zeus::CVector2f x2dc_;
     zeus::CVector2f x2e4_;
 
-    std::list<CTextRenderBuffer> x2f0_lineRenderBufs;
+    std::list<CTextRenderBuffer> x2f0_pageRenderBufs;
     u32 x300_ = 0;
-    u32 x304_lineCounter = 0;
-    bool x308_multilineFlag = false;
+    u32 x304_pageCounter = 0;
+    bool x308_multipageFlag = false;
 
     CTextRenderBuffer* GetCurrentLineRenderBuffer() const;
 
@@ -121,8 +121,8 @@ public:
     void SetOutlineColor(const zeus::CColor& col);
     void SetFontColor(const zeus::CColor& col);
     void AddText(const std::wstring& str);
-    void SetText(const std::wstring& str, bool multiline=false);
-    void SetText(const std::string& str, bool multiline=false);
+    void SetText(const std::wstring& str, bool multipage=false);
+    void SetText(const std::string& str, bool multipage=false);
     bool GetIsTextSupportFinishedLoading() const;
 };
 

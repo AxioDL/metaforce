@@ -24,33 +24,33 @@ class CSaveUI
 public:
     enum class UIType
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight,
-        Nine,
-        Ten,
-        Eleven,
-        Twelve,
-        Thirteen,
-        Fourteen,
-        Fifteen,
-        Sixteen
+        Empty = 0,
+        BusyReading = 1,
+        BusyWriting = 2,
+        NoCardFound = 3,
+        NeedsFormatBroken = 4,
+        NeedsFormatEncoding = 5,
+        CardDamaged = 6,
+        WrongDevice = 7,
+        InsufficientSpaceBadCheck = 8,
+        InsufficientSpaceOKCheck = 9,
+        IncompatibleCard = 10,
+        SaveCorrupt = 11,
+        StillInsufficientSpace = 12,
+        ProgressWillBeLost = 13,
+        NotOriginalCard = 14,
+        AllDataWillBeLost = 15,
+        SaveProgress = 16
     };
 
     bool IsDrawConditional()
     {
         switch (x10_uiType)
         {
-        case UIType::Sixteen:
-        case UIType::Zero:
-        case UIType::One:
-        case UIType::Two:
+        case UIType::SaveProgress:
+        case UIType::Empty:
+        case UIType::BusyReading:
+        case UIType::BusyWriting:
             return false;
         default:
             return true;
@@ -60,7 +60,7 @@ public:
 private:
     u32 x0_instIdx;
     u64 x8_serial;
-    UIType x10_uiType = UIType::Zero;
+    UIType x10_uiType = UIType::Empty;
     TLockedToken<CTexture> x14_txtrSaveBanner;
     TLockedToken<CTexture> x20_txtrSaveIcon0;
     TLockedToken<CTexture> x2c_txtrSaveIcon1;
@@ -80,18 +80,20 @@ private:
     u32 x88_navMoveSfx = 1461;
     u32 x8c_navBackSfx = 1459;
     bool x90_needsDriverReset = false;
-    bool x91_ = false;
+    bool x91_uiTextDirty = false;
     bool x92_ = false;
     bool x93_secondaryInst;
 
     void ResetCardDriver();
+    void ContinueWithoutSaving();
 
 public:
     static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool importState);
     CIOWin::EMessageReturn Update(float dt);
     bool PumpLoad();
     UIType SelectUIType() const;
-    void FinishedLoading();
+    void SetUIText();
+    void SetUIColors();
     void Draw() const;
 
     void DoAdvance(CGuiTableGroup* caller);

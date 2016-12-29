@@ -6,10 +6,12 @@ namespace urde
 
 struct CGuiWidgetDrawParms
 {
-    float x0_alphaMod;
-    float x4_;
-    float x8_;
-    float xc_;
+    float x0_alphaMod = 1.f;
+    float x4_ = 0.f;
+    float x8_ = 0.f;
+    float xc_ = 0.f;
+
+    static CGuiWidgetDrawParms Default;
 };
 
 }
