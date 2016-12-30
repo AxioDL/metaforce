@@ -19,10 +19,16 @@ class CGuiTableGroup;
 namespace MP1
 {
 
+enum class ESaveContext
+{
+    FrontEnd,
+    InGame
+};
+
 class CSaveUI
 {
 public:
-    enum class UIType
+    enum class EUIType
     {
         Empty = 0,
         BusyReading = 1,
@@ -47,10 +53,10 @@ public:
     {
         switch (x10_uiType)
         {
-        case UIType::SaveProgress:
-        case UIType::Empty:
-        case UIType::BusyReading:
-        case UIType::BusyWriting:
+        case EUIType::SaveProgress:
+        case EUIType::Empty:
+        case EUIType::BusyReading:
+        case EUIType::BusyWriting:
             return false;
         default:
             return true;
@@ -58,9 +64,9 @@ public:
     }
 
 private:
-    u32 x0_instIdx;
+    ESaveContext x0_saveCtx;
     u64 x8_serial;
-    UIType x10_uiType = UIType::Empty;
+    EUIType x10_uiType = EUIType::Empty;
     TLockedToken<CTexture> x14_txtrSaveBanner;
     TLockedToken<CTexture> x20_txtrSaveIcon0;
     TLockedToken<CTexture> x2c_txtrSaveIcon1;
@@ -82,16 +88,17 @@ private:
     bool x90_needsDriverReset = false;
     bool x91_uiTextDirty = false;
     bool x92_ = false;
-    bool x93_secondaryInst;
+    bool x93_inGame;
 
     void ResetCardDriver();
     void ContinueWithoutSaving();
 
 public:
-    static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool importState);
+    static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool inGame);
     CIOWin::EMessageReturn Update(float dt);
+    void SetInGame(bool v) { x93_inGame = v; }
     bool PumpLoad();
-    UIType SelectUIType() const;
+    EUIType SelectUIType() const;
     void SetUIText();
     void SetUIColors();
     void Draw() const;
@@ -102,9 +109,9 @@ public:
     void ProcessUserInput(const CFinalInput& input);
     void StartGame(int idx);
     void EraseGame(int idx);
-    void* GetGameData(int idx) const;
-    UIType GetUIType() const { return x10_uiType; }
-    CSaveUI(u32 inst, u64 serial);
+    const CGameState::GameFileStateInfo* GetGameData(int idx) const;
+    EUIType GetUIType() const { return x10_uiType; }
+    CSaveUI(ESaveContext saveCtx, u64 serial);
 };
 
 }

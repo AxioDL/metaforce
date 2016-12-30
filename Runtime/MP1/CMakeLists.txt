@@ -19,6 +19,7 @@ set(MP1_SOURCES
     CBabygoth.hpp CBabygoth.cpp
     CSaveUI.hpp CSaveUI.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
+    CQuitScreen.hpp CQuitScreen.cpp
     MP1.hpp MP1.cpp)
 
 runtime_add_list(MP1 MP1_SOURCES)

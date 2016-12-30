@@ -34,7 +34,7 @@ public:
 
     virtual void RegisterResourceTweaks() {}
     virtual void ResetGameState()=0;
-    virtual void StreamNewGameState(CInputStream&) {}
+    virtual void StreamNewGameState(CBitStreamReader&, u32 idx) {}
     virtual void CheckTweakManagerDebugOptions() {}
     virtual void Init(const hecl::Runtime::FileStoreManager& storeMgr,
               boo::IAudioVoiceEngine* voiceEngine,

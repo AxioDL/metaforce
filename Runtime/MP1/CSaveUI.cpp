@@ -7,6 +7,7 @@
 #include "GuiSys/CGuiTextPane.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "MP1/MP1.hpp"
 
 namespace urde
 {
@@ -20,10 +21,10 @@ void CSaveUI::ResetCardDriver()
 {
     x92_ = false;
     x6c_cardDriver.reset();
-    bool importState = (x0_instIdx == 0 && !x90_needsDriverReset);
+    bool importState = (x0_saveCtx == ESaveContext::FrontEnd && !x90_needsDriverReset);
     x6c_cardDriver = ConstructCardDriver(importState);
     x6c_cardDriver->StartCardProbe();
-    x10_uiType = UIType::Empty;
+    x10_uiType = EUIType::Empty;
     SetUIText();
 }
 
@@ -45,13 +46,13 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
         else
             x80_iowRet = CIOWin::EMessageReturn::Exit;
     }
-    else if (x6c_cardDriver->x10_state == EState::CardCheckDone && x10_uiType != UIType::NotOriginalCard)
+    else if (x6c_cardDriver->x10_state == EState::CardCheckDone && x10_uiType != EUIType::NotOriginalCard)
     {
         if (x6c_cardDriver->x28_cardSerial != x8_serial)
         {
-            if (x93_secondaryInst)
+            if (x93_inGame)
             {
-                x10_uiType = UIType::NotOriginalCard;
+                x10_uiType = EUIType::NotOriginalCard;
                 x91_uiTextDirty = true;
             }
             else
@@ -70,7 +71,7 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
     if (x80_iowRet != CIOWin::EMessageReturn::Normal)
         return x80_iowRet;
 
-    UIType oldTp = x10_uiType;
+    EUIType oldTp = x10_uiType;
     x10_uiType = SelectUIType();
     if (oldTp != x10_uiType || x91_uiTextDirty)
         SetUIText();
@@ -126,7 +127,7 @@ bool CSaveUI::PumpLoad()
     x58_tablegroup_choices->SetMenuSelectionChangeCallback(
         std::bind(&CSaveUI::DoSelectionChange, this, std::placeholders::_1));
 
-    if (x0_instIdx == 1)
+    if (x0_saveCtx == ESaveContext::InGame)
         x6c_cardDriver->StartCardProbe();
 
     x10_uiType = SelectUIType();
@@ -134,16 +135,16 @@ bool CSaveUI::PumpLoad()
     return true;
 }
 
-CSaveUI::UIType CSaveUI::SelectUIType() const
+CSaveUI::EUIType CSaveUI::SelectUIType() const
 {
     if (x6c_cardDriver->x10_state == EState::NoCard)
-        return UIType::NoCardFound;
+        return EUIType::NoCardFound;
 
     switch (x10_uiType)
     {
-    case UIType::ProgressWillBeLost:
-    case UIType::NotOriginalCard:
-    case UIType::AllDataWillBeLost:
+    case EUIType::ProgressWillBeLost:
+    case EUIType::NotOriginalCard:
+    case EUIType::AllDataWillBeLost:
         return x10_uiType;
     default: break;
     }
@@ -151,43 +152,43 @@ CSaveUI::UIType CSaveUI::SelectUIType() const
     if (CMemoryCardDriver::IsCardBusy(x6c_cardDriver->x10_state))
     {
         if (CMemoryCardDriver::IsCardWriting(x6c_cardDriver->x10_state))
-            return UIType::BusyWriting;
-        return UIType::BusyReading;
+            return EUIType::BusyWriting;
+        return EUIType::BusyReading;
     }
 
     if (x6c_cardDriver->x10_state == EState::Ready)
     {
         if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardStillFull)
-            return UIType::StillInsufficientSpace;
-        return UIType::SaveProgress;
+            return EUIType::StillInsufficientSpace;
+        return EUIType::SaveProgress;
     }
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardBroken)
-        return UIType::NeedsFormatBroken;
+        return EUIType::NeedsFormatBroken;
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongCharacterSet)
-        return UIType::NeedsFormatEncoding;
+        return EUIType::NeedsFormatEncoding;
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardWrongDevice)
-        return UIType::WrongDevice;
+        return EUIType::WrongDevice;
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardFull)
     {
         if (x6c_cardDriver->x10_state == EState::CardCheckFailed)
-            return UIType::InsufficientSpaceBadCheck;
-        return UIType::InsufficientSpaceOKCheck;
+            return EUIType::InsufficientSpaceBadCheck;
+        return EUIType::InsufficientSpaceOKCheck;
     }
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardNon8KSectors)
-        return UIType::IncompatibleCard;
+        return EUIType::IncompatibleCard;
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::FileCorrupted)
-        return UIType::SaveCorrupt;
+        return EUIType::SaveCorrupt;
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardIOError)
-        return UIType::CardDamaged;
+        return EUIType::CardDamaged;
 
-    return UIType::Empty;
+    return EUIType::Empty;
 }
 
 void CSaveUI::SetUIText()
@@ -202,64 +203,64 @@ void CSaveUI::SetUIText()
 
     switch (x10_uiType)
     {
-    case UIType::BusyReading:
+    case EUIType::BusyReading:
         msgB = 24; // Reading
         break;
-    case UIType::BusyWriting:
+    case EUIType::BusyWriting:
         msgB = 25; // Writing
         break;
-    case UIType::NoCardFound:
+    case EUIType::NoCardFound:
         msgB = 0; // No card found
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         break;
-    case UIType::NeedsFormatBroken:
+    case EUIType::NeedsFormatBroken:
         msgB = 1; // Needs format (card broken)
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         opt2 = 20; // Format
         break;
-    case UIType::NeedsFormatEncoding:
+    case EUIType::NeedsFormatEncoding:
         msgB = 2; // Needs format (wrong char set)
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         opt2 = 20; // Format
         break;
-    case UIType::CardDamaged:
+    case EUIType::CardDamaged:
         msgB = 3; // Damaged
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         break;
-    case UIType::WrongDevice:
+    case EUIType::WrongDevice:
         msgB = 5; // Invalid device
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         break;
-    case UIType::InsufficientSpaceOKCheck:
+    case EUIType::InsufficientSpaceOKCheck:
         msgB = 6; // Insufficient space (completely filled)
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         opt2 = 19; // Manage memory card
         break;
-    case UIType::InsufficientSpaceBadCheck:
-        msgB = bool(x0_instIdx) + 9;  // Insufficient space A or B
+    case EUIType::InsufficientSpaceBadCheck:
+        msgB = bool(x0_saveCtx) + 9;  // Insufficient space A or B
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         opt2 = 19; // Manage memory card
         break;
-    case UIType::IncompatibleCard:
+    case EUIType::IncompatibleCard:
         msgB = 7; // Incompatible card
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
         break;
-    case UIType::SaveCorrupt:
+    case EUIType::SaveCorrupt:
         msgB = 4; // Save corrupt
         opt0 = 22; // Delete corrupt file
         opt1 = 17; // Continue without saving
         opt2 = 18; // Retry
         break;
-    case UIType::StillInsufficientSpace:
-        if (x0_instIdx == 1)
+    case EUIType::StillInsufficientSpace:
+        if (x0_saveCtx == ESaveContext::InGame)
         {
             msgB = 10; // Insufficient space B
             opt0 = 17; // Continue without saving
@@ -274,26 +275,26 @@ void CSaveUI::SetUIText()
             opt2 = 19; // Manage memory card
         }
         break;
-    case UIType::ProgressWillBeLost:
+    case EUIType::ProgressWillBeLost:
         msgA = 28; // Warning
         msgB = 11; // Progress will be lost
         opt0 = 21; // Cancel
         opt1 = 16; // Continue
         break;
-    case UIType::NotOriginalCard:
+    case EUIType::NotOriginalCard:
         msgA = 28; // Warning
         msgB = 12; // Not the original card
-        opt0 = x0_instIdx == 1 ? 21 : 17; // Cancel : continue without saving
+        opt0 = x0_saveCtx == ESaveContext::InGame ? 21 : 17; // Cancel : continue without saving
         opt1 = 16; // Continue
         break;
-    case UIType::AllDataWillBeLost:
+    case EUIType::AllDataWillBeLost:
         msgA = 28; // Warning
         msgB = 13; // All card data will be erased
         opt0 = 16; // Continue
         opt1 = 21; // Cancel
         break;
-    case UIType::SaveProgress:
-        if (x0_instIdx == 1)
+    case EUIType::SaveProgress:
+        if (x0_saveCtx == ESaveContext::InGame)
         {
             msgB = 8; // Save progress?
             opt0 = 14; // Yes
@@ -359,18 +360,18 @@ void CSaveUI::ContinueWithoutSaving()
 void CSaveUI::DoAdvance(CGuiTableGroup* caller)
 {
     int userSel = x58_tablegroup_choices->GetUserSelection();
-    s32 sfx = -1;
+    int sfx = -1;
 
     switch (x10_uiType)
     {
-    case UIType::NoCardFound:
-    case UIType::CardDamaged:
-    case UIType::WrongDevice:
-    case UIType::IncompatibleCard:
+    case EUIType::NoCardFound:
+    case EUIType::CardDamaged:
+    case EUIType::WrongDevice:
+    case EUIType::IncompatibleCard:
         if (userSel == 0)
         {
             /* Continue without saving */
-            if (x0_instIdx == 1)
+            if (x0_saveCtx == ESaveContext::InGame)
                 x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
             else
                 ContinueWithoutSaving();
@@ -384,22 +385,205 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
         }
         break;
 
-    case UIType::NeedsFormatBroken:
-    case UIType::NeedsFormatEncoding:
+    case EUIType::NeedsFormatBroken:
+    case EUIType::NeedsFormatEncoding:
+        if (userSel == 0)
+        {
+            /* Continue without saving */
+            if (x0_saveCtx == ESaveContext::InGame)
+                x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+            else
+                ContinueWithoutSaving();
+            sfx = x8c_navBackSfx;
+        }
+        else if (userSel == 1)
+        {
+            /* Retry */
+            ResetCardDriver();
+            sfx = x84_navConfirmSfx;
+        }
+        else if (userSel == 2)
+        {
+            /* Format */
+            x10_uiType = EUIType::AllDataWillBeLost;
+            x91_uiTextDirty = true;
+            sfx = x84_navConfirmSfx;
+        }
+        break;
 
-    case UIType::InsufficientSpaceBadCheck:
-    case UIType::InsufficientSpaceOKCheck:
+    case EUIType::InsufficientSpaceBadCheck:
+    case EUIType::InsufficientSpaceOKCheck:
+        if (userSel == 0)
+        {
+            /* Continue without saving */
+            if (x0_saveCtx == ESaveContext::InGame)
+                x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+            else
+                ContinueWithoutSaving();
+            sfx = x8c_navBackSfx;
+        }
+        else if (userSel == 1)
+        {
+            /* Retry */
+            ResetCardDriver();
+            sfx = x84_navConfirmSfx;
+        }
+        else if (userSel == 2)
+        {
+            /* Manage memory card */
+            if (x0_saveCtx == ESaveContext::InGame)
+            {
+                x10_uiType = EUIType::ProgressWillBeLost;
+                x91_uiTextDirty = true;
+                sfx = x84_navConfirmSfx;
+            }
+            else
+                static_cast<MP1::CMain*>(g_Main)->SetManageCard(true);
+        }
+        break;
 
-    case UIType::SaveCorrupt:
+    case EUIType::SaveCorrupt:
+        if (userSel == 0)
+        {
+            /* Delete corrupt file */
+            x6c_cardDriver->StartFileDeleteBad();
+            sfx = x84_navConfirmSfx;
+        }
+        else if (userSel == 1)
+        {
+            /* Continue without saving */
+            if (x0_saveCtx == ESaveContext::InGame)
+                x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+            else
+                ContinueWithoutSaving();
+            sfx = x8c_navBackSfx;
+        }
+        else if (userSel == 2)
+        {
+            /* Retry */
+            ResetCardDriver();
+            sfx = x84_navConfirmSfx;
+        }
+        break;
 
-    case UIType::StillInsufficientSpace:
+    case EUIType::StillInsufficientSpace:
+        if (x0_saveCtx == ESaveContext::InGame)
+        {
+            if (userSel == 0)
+            {
+                /* Continue without saving */
+                x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+                sfx = x8c_navBackSfx;
+            }
+            else if (userSel == 1)
+            {
+                /* Retry */
+                ResetCardDriver();
+                sfx = x84_navConfirmSfx;
+            }
+            else if (userSel == 2)
+            {
+                /* Manage memory card */
+                x10_uiType = EUIType::ProgressWillBeLost;
+                x91_uiTextDirty = true;
+                sfx = x84_navConfirmSfx;
+            }
+        }
+        else
+        {
+            if (userSel == 0)
+            {
+                /* Continue without saving */
+                if (x93_inGame)
+                {
+                    x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+                    sfx = x8c_navBackSfx;
+                }
+                else
+                {
+                    x6c_cardDriver->ClearError();
+                    x92_ = true;
+                    sfx = x84_navConfirmSfx;
+                }
+            }
+            else if (userSel == 1)
+            {
+                /* Retry */
+                ResetCardDriver();
+                sfx = x84_navConfirmSfx;
+            }
+            else if (userSel == 2)
+            {
+                /* Manage memory card */
+                static_cast<MP1::CMain*>(g_Main)->SetManageCard(true);
+            }
+        }
+        break;
 
-    case UIType::NotOriginalCard:
+    case EUIType::ProgressWillBeLost:
+        if (userSel == 1)
+        {
+            /* Continue */
+            static_cast<MP1::CMain*>(g_Main)->SetManageCard(true);
+        }
+        else if (userSel == 0)
+        {
+            /* Cancel */
+            x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+            sfx = x8c_navBackSfx;
+        }
+        break;
 
-    case UIType::AllDataWillBeLost:
+    case EUIType::NotOriginalCard:
+        if (userSel == 1)
+        {
+            /* Continue */
+            x8_serial = x6c_cardDriver->x28_cardSerial;
+            x10_uiType = EUIType::Empty;
+            x6c_cardDriver->IndexFiles();
+            sfx = x84_navConfirmSfx;
+        }
+        else if (userSel == 0)
+        {
+            /* Cancel */
+            x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+            sfx = x8c_navBackSfx;
+        }
+        break;
 
-    case UIType::SaveProgress:
+    case EUIType::AllDataWillBeLost:
+        if (userSel == 0)
+        {
+            /* Continue */
+            x6c_cardDriver->StartCardFormat();
+            x10_uiType = EUIType::Empty;
+            sfx = x84_navConfirmSfx;
+        }
+        else if (userSel == 1)
+        {
+            /* Cancel */
+            ResetCardDriver();
+            sfx = x8c_navBackSfx;
+        }
+        break;
 
+    case EUIType::SaveProgress:
+        if (x0_saveCtx == ESaveContext::InGame)
+        {
+            if (userSel == 0)
+            {
+                /* Yes */
+                x6c_cardDriver->BuildExistingFileSlot(g_GameState->GetFileIdx());
+                x6c_cardDriver->StartFileCreateTransactional();
+                sfx = x84_navConfirmSfx;
+            }
+            else if (userSel == 1)
+            {
+                /* No */
+                x80_iowRet = CIOWin::EMessageReturn::RemoveIOWinAndExit;
+                sfx = x8c_navBackSfx;
+            }
+        }
 
     default: break;
     }
@@ -410,30 +594,44 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
 
 void CSaveUI::DoSelectionChange(CGuiTableGroup* caller)
 {
-
+    SetUIColors();
+    CSfxManager::SfxStart(x88_navMoveSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 void CSaveUI::ProcessUserInput(const CFinalInput& input)
 {
-
+    if (x50_loadedFrame)
+        x50_loadedFrame->ProcessUserInput(input);
 }
 
 void CSaveUI::StartGame(int idx)
 {
+    const CGameState::GameFileStateInfo* info = x6c_cardDriver->GetGameFileStateInfo(idx);
+    x6c_cardDriver->ExportPersistentOptions();
+    x6c_cardDriver->BuildNewFileSlot(idx);
+    if (info)
+        x6c_cardDriver->StartFileCreateTransactional();
+    else
+        x80_iowRet = CIOWin::EMessageReturn::Exit;
 }
 
 void CSaveUI::EraseGame(int idx)
 {
-
+    if (!x92_)
+    {
+        x90_needsDriverReset = true;
+        x8_serial = x6c_cardDriver->x28_cardSerial;
+        x6c_cardDriver->StartFileCreateTransactional();
+    }
 }
 
-void* CSaveUI::GetGameData(int idx) const
+const CGameState::GameFileStateInfo* CSaveUI::GetGameData(int idx) const
 {
-    return nullptr;
+    return x6c_cardDriver->GetGameFileStateInfo(idx);
 }
 
-CSaveUI::CSaveUI(u32 instIdx, u64 serial)
-: x0_instIdx(instIdx), x8_serial(serial)
+CSaveUI::CSaveUI(ESaveContext saveCtx, u64 serial)
+: x0_saveCtx(saveCtx), x8_serial(serial)
 {
     x14_txtrSaveBanner = g_SimplePool->GetObj("TXTR_SaveBanner");
     x20_txtrSaveIcon0 = g_SimplePool->GetObj("TXTR_SaveIcon0");
@@ -441,15 +639,15 @@ CSaveUI::CSaveUI(u32 instIdx, u64 serial)
     x38_strgMemoryCard = g_SimplePool->GetObj("STRG_MemoryCard");
     x44_frmeGenericMenu = g_SimplePool->GetObj("FRME_GenericMenu");
 
-    x6c_cardDriver = ConstructCardDriver(x0_instIdx);
+    x6c_cardDriver = ConstructCardDriver(bool(x0_saveCtx));
 
-    if (instIdx == 1)
+    if (saveCtx == ESaveContext::InGame)
     {
         x84_navConfirmSfx = 1432;
         x88_navMoveSfx = 1436;
         x8c_navBackSfx = 1431;
     }
-    x93_secondaryInst = instIdx;
+    x93_inGame = bool(saveCtx);
 
     x70_saveWorlds.reserve(g_MemoryCardSys->GetMemoryWorlds().size());
     for (const std::pair<ResId, CSaveWorldMemory>& wld : g_MemoryCardSys->GetMemoryWorlds())
@@ -459,12 +657,12 @@ CSaveUI::CSaveUI(u32 instIdx, u64 serial)
     }
 }
 
-std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool importState)
+std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool inGame)
 {
     return std::make_unique<CMemoryCardDriver>(kabufuda::ECardSlot::SlotA,
         g_ResFactory->GetResourceIdByName("TXTR_SaveBanner")->id,
         g_ResFactory->GetResourceIdByName("TXTR_SaveIcon0")->id,
-        g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, importState);
+        g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, inGame);
 }
 
 }

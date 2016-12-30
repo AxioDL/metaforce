@@ -107,6 +107,7 @@ private:
         SGameFileSlot();
         SGameFileSlot(CMemoryInStream& in);
         void InitializeFromGameState();
+        void LoadGameState(u32 idx);
         void DoPut(CMemoryOutStream& w) const
         {
             w.writeBytes(x0_saveBuffer, 940);
@@ -137,14 +138,14 @@ private:
     u32 x194_fileIdx = -1;
     std::unique_ptr<CMemoryCardSys::CCardFileInfo> x198_fileInfo;
     bool x19c_ = false;
-    bool x19d_doImportPersistent;
+    bool x19d_inGame;
 
 public:
     CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
-                      ResId saveIcon0, ResId saveIcon1, bool importPersistent);
+                      ResId saveIcon0, ResId saveIcon1, bool inGame);
 
     void NoCardFound();
-    CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx);
+    const CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx);
     static SSaveHeader LoadSaveHeader(CMemoryInStream& in);
     static std::unique_ptr<SGameFileSlot> LoadSaveFile(CMemoryInStream& in);
     void ReadFinished();
@@ -182,6 +183,8 @@ public:
     void UpdateCardFormat(kabufuda::ECardResult result); // 37
 
     void ClearFileInfo() { x198_fileInfo.reset(); }
+    void BuildNewFileSlot(u32 saveIdx);
+    void BuildExistingFileSlot(u32 saveIdx);
     void InitializeFileInfo();
     void WriteBackupBuf();
     bool GetCardFreeBytes();

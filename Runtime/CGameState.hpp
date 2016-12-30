@@ -77,19 +77,20 @@ class CGameState
     std::vector<CWorldState> x88_worldStates;
     std::shared_ptr<CPlayerState> x98_playerState;
     std::shared_ptr<CWorldTransManager> x9c_transManager;
-    double xa0_playTime;
+    double xa0_playTime = 0.0;
     CPersistentOptions xa8_systemOptions;
     CGameOptions x17c_gameOptions;
     CHintOptions x1f8_hintOptions;
-    u64 x210_cardSerial;
+    u32 x20c_saveFileIdx = 0;
+    u64 x210_cardSerial = 0;
     std::vector<u8> x218_backupBuf;
 
     union
     {
         struct
         {
-            bool x228_24_hardMode;
-            bool x228_25_deferPowerupInit;
+            bool x228_24_hardMode : 1;
+            bool x228_25_deferPowerupInit : 1;
         };
         u8 _dummy = 0;
     };
@@ -98,20 +99,24 @@ class CGameState
 
 public:
     CGameState();
-    CGameState(CBitStreamReader& stream);
+    CGameState(CBitStreamReader& stream, u32 saveIdx);
     void SetCurrentWorldId(ResId id);
     std::shared_ptr<CPlayerState> GetPlayerState() {return x98_playerState;}
     std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() {return x9c_transManager;}
     void SetTotalPlayTime(float time);
     CPersistentOptions& SystemOptions() { return xa8_systemOptions; }
     CGameOptions& GameOptions() { return x17c_gameOptions; }
+    CHintOptions& HintOptions() { return x1f8_hintOptions; }
     CWorldState& StateForWorld(ResId mlvlId);
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
+    void ReadPersistentOptions(CBitStreamReader& r);
     void ImportPersistentOptions(const CPersistentOptions& opts);
     void ExportPersistentOptions(CPersistentOptions& opts) const;
     void WriteBackupBuf();
+    u32 GetFileIdx() const { return x20c_saveFileIdx; }
+    void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }
     void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
     void PutTo(CBitStreamWriter& writer) const;
     float GetHardModeDamageMultiplier() const;

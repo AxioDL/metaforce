@@ -141,7 +141,8 @@ CGameState::CGameState()
     x228_25_deferPowerupInit = true;
 }
 
-CGameState::CGameState(CBitStreamReader& stream)
+CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
+: x20c_saveFileIdx(saveIdx)
 {
     x228_25_deferPowerupInit = true;
 
@@ -181,6 +182,11 @@ CGameState::CGameState(CBitStreamReader& stream)
             g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
         x88_worldStates.emplace_back(stream, memWorld.first, *saveWorld);
     }
+}
+
+void CGameState::ReadPersistentOptions(CBitStreamReader& r)
+{
+    xa8_systemOptions = CPersistentOptions(r);
 }
 
 void CGameState::ImportPersistentOptions(const CPersistentOptions& opts)

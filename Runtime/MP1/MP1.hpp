@@ -48,6 +48,8 @@ class CMain;
 
 class CGameGlobalObjects
 {
+    friend class CMain;
+
     std::unique_ptr<CMemoryCardSys> x0_memoryCardSys;
     IFactory& x4_resFactory;
     CSimplePool& xcc_simplePool;
@@ -210,7 +212,7 @@ private:
             bool x160_25_ : 1;
             bool x160_26_ : 1;
             bool x160_27_ : 1;
-            bool x160_28_ : 1;
+            bool x160_28_manageCard : 1;
             bool x160_29_ : 1;
             bool x160_30_ : 1;
             bool x160_31_cardBusy : 1;
@@ -230,7 +232,7 @@ public:
           boo::ITextureR* spareTex);
     void RegisterResourceTweaks();
     void ResetGameState();
-    void StreamNewGameState(CInputStream&) {}
+    void StreamNewGameState(CBitStreamReader&, u32 idx);
     void CheckTweakManagerDebugOptions() {}
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
@@ -242,15 +244,17 @@ public:
     void Shutdown();
 
     bool CheckReset() { return false; }
-    bool CheckTerminate() {return false;}
+    bool CheckTerminate() { return false; }
     void DrawDebugMetrics(double, CStopWatch&) {}
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
     void LoadAudio();
     void ShutdownSubsystems() {}
-    EGameplayResult GetGameplayResult() const {return xe4_gameplayResult;}
-    void SetGameplayResult(EGameplayResult wl) {xe4_gameplayResult = wl;}
-    void SetCardBusy(bool v) {x160_31_cardBusy = v;}
+    EGameplayResult GetGameplayResult() const { return xe4_gameplayResult; }
+    void SetGameplayResult(EGameplayResult wl) { xe4_gameplayResult = wl; }
+    void SetManageCard(bool v) { x160_28_manageCard = v; }
+    bool GetBardBusy() const { return x160_31_cardBusy; }
+    void SetCardBusy(bool v) { x160_31_cardBusy = v; }
 
     EFlowState GetFlowState() const { return x12c_flowState; }
 };

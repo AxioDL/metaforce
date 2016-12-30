@@ -34,6 +34,7 @@ namespace MP1
 {
 class CNESEmulator;
 class CSaveUI;
+class CQuitScreen;
 
 class CFrontEndUI : public CIOWin
 {
@@ -108,17 +109,18 @@ public:
             Three
         };
 
-        enum class EPhase
+        enum class EAction
         {
             Zero,
             One,
-            Two
+            Two,
+            Three
         };
 
         u32 x0_rnd;
         CSaveUI* x4_saveUI;
         ESubMenu x8_subMenu = ESubMenu::Zero;
-        EPhase xc_phase = EPhase::Zero;
+        EAction xc_action = EAction::Zero;
         TLockedToken<CGuiFrame> x10_frme;
         CGuiFrame* x1c_loadedFrame = nullptr;
         CGuiTableGroup* x20_tablegroup_fileselect = nullptr;
@@ -144,7 +146,7 @@ public:
         void FinishedLoading();
         bool PumpLoad();
         bool IsTextDoneAnimating() const;
-        EPhase ProcessUserInput(const CFinalInput& input);
+        EAction ProcessUserInput(const CFinalInput& input);
         void Draw() const;
 
         void HandleActiveChange(CGuiTableGroup* active);
@@ -169,6 +171,13 @@ public:
 
     struct SGBASupportFrame
     {
+        enum class EAction
+        {
+            Zero,
+            One,
+            Two
+        };
+
         u32 x0_ = 0;
         std::unique_ptr<CGBASupport> x4_gbaSupport;
         TLockedToken<CGuiFrame> xc_gbaScreen;
@@ -185,7 +194,7 @@ public:
         void FinishedLoading();
         bool PumpLoad();
         void SetTableColors(CGuiTableGroup* tbgp) const;
-        void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+        EAction ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         void Draw() const;
 
         void DoOptionsCancel(CGuiTableGroup* caller);
@@ -195,7 +204,17 @@ public:
 
     struct SFrontEndFrame
     {
+        enum class EAction
+        {
+            Zero,
+            One,
+            Two,
+            Three,
+            Four
+        };
+
         u32 x0_rnd;
+        EAction x4_action;
         TLockedToken<CGuiFrame> x8_frme;
         CGuiFrame* x14_loadedFrme = nullptr;
         CGuiTableGroup* x18_tablegroup_mainmenu = nullptr;
@@ -204,7 +223,7 @@ public:
         SFrontEndFrame(u32 rnd);
         void FinishedLoading();
         bool PumpLoad();
-        void ProcessUserInput(const CFinalInput& input);
+        EAction ProcessUserInput(const CFinalInput& input);
         void Draw() const;
 
         void DoCancel(CGuiTableGroup* caller);
@@ -212,16 +231,26 @@ public:
         void DoAdvance(CGuiTableGroup* caller);
     };
 
-    struct SFusionBonusFrame
+    struct SNesEmulatorFrame
     {
-        u32 x0_ = 0;
+        enum class EMode
+        {
+            Emulator,
+            QuitNESMetroid,
+            ContinuePlaying,
+            SaveProgress
+        };
+
+        EMode x0_mode = EMode::Emulator;
         std::unique_ptr<CNESEmulator> x4_nesEmu;
+        std::unique_ptr<CQuitScreen> x8_quitScreen;
         std::unique_ptr<CGuiTextSupport> xc_textSupport;
         float x10_remTime = 8.f;
         bool x14_ = false;
         bool x15_ = true;
 
-        SFusionBonusFrame();
+        SNesEmulatorFrame();
+        void SetMode(EMode mode);
         void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         bool DoUpdateWithSaveUI(float dt, CSaveUI* saveUi);
         void Draw(CSaveUI* saveUi) const;
@@ -252,7 +281,7 @@ public:
             };
         };
         SOptionsFrontEndFrame();
-        void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+        bool ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         void Draw() const;
     };
 
@@ -296,7 +325,7 @@ private:
     std::unique_ptr<SNewFileSelectFrame> xe0_newFileSel;
     std::unique_ptr<SGBASupportFrame> xe4_gbaSupportFrme;
     std::unique_ptr<SFrontEndFrame> xe8_frontendFrme;
-    std::unique_ptr<SFusionBonusFrame> xec_fusionFrme;
+    std::unique_ptr<SNesEmulatorFrame> xec_emuFrme;
     std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
     CStaticAudioPlayer* xf4_curAudio = nullptr;
 

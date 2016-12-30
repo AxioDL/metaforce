@@ -17,7 +17,9 @@
 #include "CGameState.hpp"
 #include "CDependencyGroup.hpp"
 #include "Audio/CAudioGroupSet.hpp"
+#include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "CNESEmulator.hpp"
+#include "CQuitScreen.hpp"
 
 namespace urde
 {
@@ -118,7 +120,8 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading()
     for (int i=0 ; i<3 ; ++i)
         x64_fileSelections[i] = FindFileSelectOption(x1c_loadedFrame, i);
 
-    x104_rowPitch = (x64_fileSelections[1].x0_base->GetLocalPosition() - x64_fileSelections[0].x0_base->GetLocalPosition()).z;
+    x104_rowPitch = (x64_fileSelections[1].x0_base->GetLocalPosition() -
+                     x64_fileSelections[0].x0_base->GetLocalPosition()).z;
 }
 
 bool CFrontEndUI::SNewFileSelectFrame::PumpLoad()
@@ -150,7 +153,7 @@ bool CFrontEndUI::SNewFileSelectFrame::IsTextDoneAnimating() const
     return x38_textpane_gba.x0_panes[0]->GetTextSupport()->IsAnimationDone();
 }
 
-CFrontEndUI::SNewFileSelectFrame::EPhase
+CFrontEndUI::SNewFileSelectFrame::EAction
 CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
 {
     if (x8_subMenu != ESubMenu::Two)
@@ -160,7 +163,7 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
         x108_curTime = std::min(0.5f, x108_curTime + input.DeltaTime());
 
     if (x108_curTime < 0.5f)
-        return xc_phase;
+        return xc_action;
 
     if (x10c_inputEnable)
         x1c_loadedFrame->ProcessUserInput(input);
@@ -183,7 +186,7 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
         x10e_needsNewToggle = false;
     }
 
-    return xc_phase;
+    return xc_action;
 }
 
 void CFrontEndUI::SNewFileSelectFrame::Draw() const
@@ -419,7 +422,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
             if (x40_tablegroup_popup->GetUserSelection() == 1)
             {
                 PlayAdvanceSfx();
-                xc_phase = EPhase::One;
+                xc_action = EAction::One;
                 return;
             }
             g_GameState->SetHardMode(x20_tablegroup_fileselect->GetUserSelection());
@@ -430,7 +433,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
             if (x40_tablegroup_popup->GetUserSelection() == 1)
             {
                 PlayAdvanceSfx();
-                xc_phase = EPhase::One;
+                xc_action = EAction::One;
                 return;
             }
             x4_saveUI->StartGame(x40_tablegroup_popup->GetUserSelection());
@@ -540,7 +543,8 @@ void CFrontEndUI::SGBASupportFrame::SetTableColors(CGuiTableGroup* tbgp) const
                     zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
-void CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
+CFrontEndUI::SGBASupportFrame::EAction
+CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
 
 }
@@ -630,14 +634,17 @@ bool CFrontEndUI::SFrontEndFrame::PumpLoad()
     return false;
 }
 
-void CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input)
+CFrontEndUI::SFrontEndFrame::EAction
+CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input)
 {
-
+    x4_action = EAction::Zero;
+    x14_loadedFrme->ProcessUserInput(input);
+    return x4_action;
 }
 
 void CFrontEndUI::SFrontEndFrame::Draw() const
 {
-
+    x14_loadedFrme->Draw(CGuiWidgetDrawParms::Default);
 }
 
 void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller)
@@ -661,7 +668,7 @@ CFrontEndUI::SFrontEndFrame::SFrontEndFrame(u32 rnd)
     x8_frme = g_SimplePool->GetObj("FRME_FrontEndPL");
 }
 
-CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame()
+CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame()
 {
     x4_nesEmu = std::make_unique<CNESEmulator>();
 
@@ -674,9 +681,56 @@ CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame()
                                                        0, 0, g_SimplePool);
 }
 
-bool CFrontEndUI::SFusionBonusFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveUi)
+void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode)
 {
-    bool flag = (saveUi && saveUi->GetUIType() != CSaveUI::UIType::SaveProgress) ? false : true;
+    switch (mode)
+    {
+    case EMode::Emulator:
+        x8_quitScreen.reset();
+        break;
+    case EMode::QuitNESMetroid:
+        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::QuitNESMetroid);
+        break;
+    case EMode::ContinuePlaying:
+        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::ContinuePlaying);
+        break;
+    case EMode::SaveProgress:
+        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::SaveProgress);
+        break;
+    default: break;
+    }
+    x0_mode = mode;
+}
+
+void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
+{
+    bool processInput = true;
+    if (sui && sui->GetUIType() != CSaveUI::EUIType::SaveProgress)
+        processInput = false;
+    if (sui)
+        sui->ProcessUserInput(input);
+    if (!processInput)
+        return;
+
+    switch (x0_mode)
+    {
+    case EMode::Emulator:
+        x4_nesEmu->ProcessUserInput(input, 4);
+        if (input.ControllerIdx() == 0 && input.PL())
+            SetMode(EMode::SaveProgress);
+        break;
+    case EMode::QuitNESMetroid:
+    case EMode::ContinuePlaying:
+    case EMode::SaveProgress:
+        x8_quitScreen->ProcessUserInput(input);
+        break;
+    default: break;
+    }
+}
+
+bool CFrontEndUI::SNesEmulatorFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveUi)
+{
+    bool flag = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveProgress) ? false : true;
     x10_remTime = std::max(x10_remTime - dt, 0.f);
 
     zeus::CColor geomCol(zeus::CColor::skWhite);
@@ -689,7 +743,7 @@ bool CFrontEndUI::SFusionBonusFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveU
     return false;
 }
 
-void CFrontEndUI::SFusionBonusFrame::Draw(CSaveUI* saveUi) const
+void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveUI* saveUi) const
 {
 
 }
@@ -700,7 +754,7 @@ CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame()
     x10_pauseScreen = g_SimplePool->GetObj("STRG_PauseScreen");
 }
 
-void CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
+bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
 
 }
@@ -893,8 +947,8 @@ void CFrontEndUI::Draw() const
     if (x14_phase < EPhase::Four)
         return;
 
-    if (xec_fusionFrme)
-        xec_fusionFrme->Draw(xdc_saveUI.get());
+    if (xec_emuFrme)
+        xec_emuFrme->Draw(xdc_saveUI.get());
     else
     {
         //g_Renderer->SetDepthReadWrite(false, false);
@@ -970,8 +1024,6 @@ void CFrontEndUI::Draw() const
                 xdc_saveUI->Draw();
         }
     }
-
-
 }
 
 void CFrontEndUI::UpdateMovies(float dt)
@@ -1033,6 +1085,119 @@ bool CFrontEndUI::PumpMovieLoad()
 
 void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue& queue)
 {
+    if (static_cast<CMain*>(g_Main)->GetBardBusy())
+        return;
+    if (input.ControllerIdx() > 1)
+        return;
+
+    if (xec_emuFrme)
+    {
+        xec_emuFrme->ProcessUserInput(input, xdc_saveUI.get());
+        return;
+    }
+
+    if (x14_phase != EPhase::Four || input.ControllerIdx() != 0)
+        return;
+
+    if (x50_curScreen != x54_nextScreen)
+    {
+        if (x54_nextScreen == EScreen::Two && (input.PStart() || input.PA()))
+        {
+            SetMovieSeconds(std::min(1.f, x58_movieSeconds));
+            PlayAdvanceSfx();
+            return;
+        }
+
+        if (input.PA() || input.PStart())
+        {
+            if (x50_curScreen == EScreen::Zero && x54_nextScreen == EScreen::One &&
+                x58_movieSeconds > 1.f)
+            {
+                xd0_ = true;
+                SetMovieSeconds(1.f);
+                return;
+            }
+        }
+    }
+    else
+    {
+        if (x50_curScreen == EScreen::One)
+        {
+            if (input.PStart() || input.PA())
+            {
+                if (x58_movieSeconds < 30.f - g_tweakGame->GetPressStartDelay())
+                {
+                    CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    StartStateTransition(EScreen::Three);
+                    return;
+                }
+            }
+        }
+        else if (x50_curScreen == EScreen::Three && x54_nextScreen == EScreen::Three)
+        {
+            if (xf0_optionsFrme)
+            {
+                if (xf0_optionsFrme->ProcessUserInput(input, xdc_saveUI.get()))
+                    return;
+                xf0_optionsFrme.reset();
+                return;
+            }
+            else if (xe0_newFileSel)
+            {
+                switch (xe0_newFileSel->ProcessUserInput(input))
+                {
+                case SNewFileSelectFrame::EAction::Two:
+                    StartStateTransition(EScreen::Four);
+                    return;
+                case SNewFileSelectFrame::EAction::One:
+                    xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
+                    return;
+                case SNewFileSelectFrame::EAction::Three:
+                    xd2_ = true;
+                    StartSlideShow(queue);
+                    return;
+                default: return;
+                }
+            }
+            else
+            {
+                switch (xe8_frontendFrme->ProcessUserInput(input))
+                {
+                case SFrontEndFrame::EAction::Two:
+                    StartStateTransition(EScreen::Four);
+                    return;
+                case SFrontEndFrame::EAction::Three:
+                    xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
+                    return;
+                case SFrontEndFrame::EAction::One:
+                    TransitionToFive();
+                    return;
+                case SFrontEndFrame::EAction::Four:
+                    xd2_ = true;
+                    StartSlideShow(queue);
+                    return;
+                default: return;
+                }
+            }
+        }
+        else if (x50_curScreen == EScreen::Four && x54_nextScreen == EScreen::Four)
+        {
+            switch (xe4_gbaSupportFrme->ProcessUserInput(input, xdc_saveUI.get()))
+            {
+            case SGBASupportFrame::EAction::One:
+                StartStateTransition(EScreen::Three);
+                return;
+            case SGBASupportFrame::EAction::Two:
+                xf4_curAudio->StopMixing();
+                xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
+                if (xdc_saveUI)
+                    xdc_saveUI->SetInGame(true);
+                return;
+            default: return;
+            }
+        }
+    }
 }
 
 void CFrontEndUI::TransitionToFive()
@@ -1139,11 +1304,11 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
     case EPhase::Four:
     case EPhase::Five:
 
-        if (xec_fusionFrme)
+        if (xec_emuFrme)
         {
-            if (xec_fusionFrme->DoUpdateWithSaveUI(dt, xdc_saveUI.get()))
+            if (xec_emuFrme->DoUpdateWithSaveUI(dt, xdc_saveUI.get()))
             {
-                xec_fusionFrme.reset();
+                xec_emuFrme.reset();
                 xf4_curAudio->StartMixing();
             }
             break;

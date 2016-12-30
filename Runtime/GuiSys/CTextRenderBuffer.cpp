@@ -4,6 +4,9 @@
 #include "Graphics/CGraphics.hpp"
 #include "CRasterFont.hpp"
 #include "Graphics/CTexture.hpp"
+#include "CTextExecuteBuffer.hpp"
+#include "CFontRenderState.hpp"
+#include "CInstruction.hpp"
 
 namespace urde
 {
@@ -228,6 +231,43 @@ void CTextRenderBuffer::AddFontChange(const TToken<CRasterFont>& font)
 
     m_activeFontCh = m_fontCharacters.size();
     m_fontCharacters.push_back({font});
+}
+
+CTextRenderBufferPages::CTextRenderBufferPages(CTextExecuteBuffer& buf, const zeus::CVector2i& extent)
+{
+    for (auto it = buf.x0_instList.begin() ; it != buf.x0_instList.end() ;)
+    {
+        std::shared_ptr<CInstruction>& inst = *it;
+        CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally);
+
+        {
+            CFontRenderState rstate;
+            for (auto it2 = buf.x0_instList.begin() ; it2 != buf.x0_instList.end() ;)
+            {
+                std::shared_ptr<CInstruction>& inst2 = *it2;
+                inst2->Invoke(rstate, &rbuf);
+            }
+        }
+
+        rbuf.SetMode(CTextRenderBuffer::EMode::BufferFill);
+
+        /* TODO: Finish */
+        {
+            CFontRenderState rstate;
+            for (auto it2 = buf.x0_instList.begin() ; it2 != buf.x0_instList.end() ;)
+            {
+                std::shared_ptr<CInstruction>& inst2 = *it2;
+                if (it2 != it)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+        }
+    }
 }
 
 }

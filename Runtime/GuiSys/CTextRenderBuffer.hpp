@@ -16,6 +16,7 @@ namespace urde
 class CGraphicsPalette;
 class CRasterFont;
 class CGlyph;
+class CTextExecuteBuffer;
 
 using CTextColor = zeus::CColor;
 
@@ -152,6 +153,12 @@ public:
     void AddCharacter(const zeus::CVector2i& offset, wchar_t ch, const zeus::CColor& color);
     void AddPaletteChange(const zeus::CColor& main, const zeus::CColor& outline);
     void AddFontChange(const TToken<CRasterFont>& font);
+};
+
+class CTextRenderBufferPages
+{
+public:
+    CTextRenderBufferPages(CTextExecuteBuffer&, const zeus::CVector2i&);
 };
 
 }

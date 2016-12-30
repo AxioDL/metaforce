@@ -3,12 +3,15 @@
 
 namespace urde
 {
+class CFinalInput;
+
 namespace MP1
 {
 
 class CNESEmulator
 {
-
+public:
+    void ProcessUserInput(const CFinalInput& input, int);
 };
 
 }

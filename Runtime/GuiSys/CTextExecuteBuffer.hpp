@@ -16,6 +16,7 @@ class CLineInstruction;
 class CTextExecuteBuffer
 {
     friend class CGuiTextSupport;
+    friend class CTextRenderBufferPages;
 
     std::list<std::shared_ptr<CInstruction>> x0_instList;
     u32 x14_ = 0;

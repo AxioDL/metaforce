@@ -13,6 +13,7 @@ namespace urde
 class CSimplePool;
 class CRasterFont;
 class CTextRenderBuffer;
+class CTextExecuteBuffer;
 
 enum class EJustification
 {
@@ -102,7 +103,8 @@ class CGuiTextSupport
     u32 x304_pageCounter = 0;
     bool x308_multipageFlag = false;
 
-    CTextRenderBuffer* GetCurrentLineRenderBuffer() const;
+    CTextRenderBuffer* GetCurrentPageRenderBuffer() const;
+    bool _GetIsTextSupportFinishedLoading() const;
 
 public:
     CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
@@ -115,7 +117,9 @@ public:
     void SetTypeWriteEffectOptions(bool enable, float chFadeTime, float chRate);
     void Update(float dt);
     void ClearRenderBuffer();
-    void CheckAndRebuildTextRenderBuffer();
+    void CheckAndRebuildTextBuffer();
+    bool CheckAndRebuildRenderBuffer();
+
     void Render() const;
     void SetGeometryColor(const zeus::CColor& col);
     void SetOutlineColor(const zeus::CColor& col);

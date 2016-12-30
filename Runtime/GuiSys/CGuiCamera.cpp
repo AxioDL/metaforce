@@ -1,6 +1,7 @@
 #include "CGuiCamera.hpp"
 #include "CGuiFrame.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "CGuiWidgetDrawParms.hpp"
 
 namespace urde
 {
@@ -41,7 +42,7 @@ void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const
         CGraphics::SetPerspective(xfc_fov, x100_aspect, x104_znear, x108_zfar);
     else
         CGraphics::SetOrtho(xfc_left, x100_right, x104_top, x108_bottom, x10c_znear, x110_zfar);
-    CGraphics::SetViewPointMatrix(x34_worldXF);
+    CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(parms.x4_cameraOffset) * x34_worldXF);
     CGuiWidget::Draw(parms);
 }
 

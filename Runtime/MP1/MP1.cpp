@@ -142,6 +142,16 @@ void CMain::LoadAudio()
 {
 }
 
+void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
+{
+    bool fusionBackup = g_GameState->SystemOptions().GetPlayerHasFusion();
+    x128_globalObjects.x134_gameState = CGameState(r, idx);
+    g_GameState = &x128_globalObjects.x134_gameState;
+    g_GameState->SystemOptions().SetPlayerHasFusion(fusionBackup);
+    g_GameState->GetPlayerState()->SetFusion(fusionBackup);
+    g_GameState->HintOptions().SetNextHintTime();
+}
+
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
                  boo::IAudioVoiceEngine* voiceEngine,
                  amuse::IBackendVoiceAllocator& backend)

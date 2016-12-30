@@ -19,14 +19,14 @@ zeus::CColor CFontRenderState::ConvertToTextureSpace(const CTextColor& col) cons
 
 void CFontRenderState::PopState()
 {
-    static_cast<CSaveableState&>(*this) = xa4_pushedStates.back();
-    xa4_pushedStates.pop_back();
+    static_cast<CSaveableState&>(*this) = x10c_pushedStates.back();
+    x10c_pushedStates.pop_back();
     RefreshPalette();
 }
 
 void CFontRenderState::PushState()
 {
-    xa4_pushedStates.push_back(*this);
+    x10c_pushedStates.push_back(*this);
 }
 
 void CFontRenderState::SetColor(EColorType tp, const CTextColor& col)

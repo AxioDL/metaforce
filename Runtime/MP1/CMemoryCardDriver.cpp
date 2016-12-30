@@ -138,13 +138,19 @@ void CMemoryCardDriver::SGameFileSlot::InitializeFromGameState()
     x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer);
 }
 
+void CMemoryCardDriver::SGameFileSlot::LoadGameState(u32 idx)
+{
+    CBitStreamReader r(x0_saveBuffer, 940);
+    static_cast<MP1::CMain*>(g_Main)->StreamNewGameState(r, idx);
+}
+
 CMemoryCardDriver::SFileInfo::SFileInfo(kabufuda::ECardSlot port, const std::string& name)
 : x0_fileInfo(port), x14_name(name) {}
 
 CMemoryCardDriver::CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
-                                     ResId saveIcon0, ResId saveIcon1, bool importPersistent)
+                                     ResId saveIcon0, ResId saveIcon1, bool inGame)
 : x0_cardPort(cardPort), x4_saveBanner(saveBanner),
-  x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_doImportPersistent(importPersistent)
+  x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_inGame(inGame)
 {
     x100_mcFileInfos.reserve(2);
     x100_mcFileInfos.emplace_back(EFileState::Unknown, SFileInfo(x0_cardPort, SaveFileNames[0]));
@@ -157,7 +163,7 @@ void CMemoryCardDriver::NoCardFound()
     static_cast<CMain*>(g_Main)->SetCardBusy(false);
 }
 
-CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int idx)
+const CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int idx)
 {
     SGameFileSlot* slot = xe4_fileSlots[idx].get();
     if (!slot)
@@ -197,7 +203,7 @@ void CMemoryCardDriver::ReadFinished()
     for (int i=0 ; i<3 ; ++i)
         xe4_fileSlots[i] = LoadSaveFile(r);
 
-    if (x19d_doImportPersistent)
+    if (x19d_inGame)
         ImportPersistentOptions();
 }
 
@@ -743,6 +749,37 @@ void CMemoryCardDriver::UpdateCardFormat(ECardResult result)
     }
     else
         HandleCardError(result, EState::CardFormatFailed);
+}
+
+void CMemoryCardDriver::BuildNewFileSlot(u32 saveIdx)
+{
+    g_GameState->SetFileIdx(saveIdx);
+    bool fusionBackup = g_GameState->SystemOptions().GetPlayerHasFusion();
+
+    std::unique_ptr<SGameFileSlot>& slot = xe4_fileSlots[saveIdx];
+    if (!slot)
+        slot = std::make_unique<SGameFileSlot>();
+    slot->LoadGameState(saveIdx);
+
+    CBitStreamReader r(x30_systemData, 174);
+    g_GameState->ReadPersistentOptions(r);
+    ImportPersistentOptions();
+    g_GameState->SetCardSerial(x28_cardSerial);
+    g_GameState->SystemOptions().SetPlayerHasFusion(fusionBackup);
+}
+
+void CMemoryCardDriver::BuildExistingFileSlot(u32 saveIdx)
+{
+    g_GameState->SetFileIdx(saveIdx);
+
+    std::unique_ptr<SGameFileSlot>& slot = xe4_fileSlots[saveIdx];
+    if (!slot)
+        slot = std::make_unique<SGameFileSlot>();
+    else
+        slot->InitializeFromGameState();
+
+    CBitStreamWriter w(x30_systemData, 174);
+    g_GameState->PutTo(w);
 }
 
 void CMemoryCardDriver::InitializeFileInfo()

@@ -18,13 +18,15 @@ class CFontRenderState : public CSaveableState
     friend class CImageInstruction;
     friend class CWordInstruction;
 
-    CBlockInstruction* x54_curBlock = nullptr;
-    CDrawStringOptions x58_drawOpts;
-    s32 x6c_curX = 0;
-    s32 x70_curY;
-    const CLineInstruction* x74_currentLineInst = nullptr;
-    bool xa0_lineInitialized = true;
-    std::vector<CSaveableState> xa4_pushedStates;
+    CBlockInstruction* x88_curBlock = nullptr;
+    CDrawStringOptions x8c_drawOpts;
+    s32 xd4_curX = 0;
+    s32 xd8_curY = 0;
+    const CLineInstruction* xdc_currentLineInst = nullptr;
+    std::vector<u32> xe8_;
+    std::vector<u8> xf8_;
+    bool x108_lineInitialized = true;
+    std::list<CSaveableState> x10c_pushedStates;
 public:
     CFontRenderState();
     zeus::CColor ConvertToTextureSpace(const CTextColor& col) const;

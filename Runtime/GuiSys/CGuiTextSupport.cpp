@@ -20,7 +20,7 @@ CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
     x2cc_font = store->GetObj({SBIG('FONT'), fontId});
 }
 
-CTextRenderBuffer* CGuiTextSupport::GetCurrentLineRenderBuffer() const
+CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() const
 {
     if (x60_renderBuf && !x308_multipageFlag)
         return const_cast<CTextRenderBuffer*>(&*x60_renderBuf);
@@ -36,7 +36,7 @@ CTextRenderBuffer* CGuiTextSupport::GetCurrentLineRenderBuffer() const
 float CGuiTextSupport::GetCurrentAnimationOverAge() const
 {
     float ret = 0.f;
-    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+    if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
     {
         if (x50_typeEnable)
         {
@@ -56,7 +56,7 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const
 
 float CGuiTextSupport::GetNumCharsPrinted() const
 {
-    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+    if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
     {
         if (x50_typeEnable)
         {
@@ -69,7 +69,7 @@ float CGuiTextSupport::GetNumCharsPrinted() const
 
 float CGuiTextSupport::GetTotalAnimationTime() const
 {
-    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+    if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
         if (x50_typeEnable)
             return buf->GetPrimitiveCount() / x58_chRate;
     return 0.f;
@@ -91,7 +91,7 @@ void CGuiTextSupport::Update(float dt)
 {
     if (x50_typeEnable)
     {
-        if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+        if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
         {
             for (s32 i=0 ; i<buf->GetPrimitiveCount() ; ++i)
             {
@@ -127,7 +127,7 @@ void CGuiTextSupport::ClearRenderBuffer()
     x60_renderBuf = std::experimental::nullopt;
 }
 
-void CGuiTextSupport::CheckAndRebuildTextRenderBuffer()
+void CGuiTextSupport::CheckAndRebuildTextBuffer()
 {
     g_TextExecuteBuf->Clear();
     g_TextExecuteBuf->x18_textState.x7c_enableWordWrap = x14_props.x0_wordWrap;
@@ -146,9 +146,30 @@ void CGuiTextSupport::CheckAndRebuildTextRenderBuffer()
     g_TextExecuteBuf->EndBlock();
 }
 
+bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
+{
+    if (x308_multipageFlag || x60_renderBuf)
+    {
+        if (!x308_multipageFlag || x300_)
+            return true;
+    }
+
+    CheckAndRebuildTextBuffer();
+    x2bc_assets = g_TextExecuteBuf->GetAssets();
+
+    if (!_GetIsTextSupportFinishedLoading())
+        return false;
+
+    CheckAndRebuildTextBuffer();
+    if (x308_multipageFlag)
+    {
+        zeus::CVector2i extent(x34_extentX, x38_extentY);
+    }
+}
+
 void CGuiTextSupport::Render() const
 {
-    if (CTextRenderBuffer* buf = GetCurrentLineRenderBuffer())
+    if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
     {
         zeus::CTransform oldModel = CGraphics::g_GXModelMatrix;
         CGraphics::SetModelMatrix(oldModel * zeus::CTransform::Scale(1.f, 1.f, -1.f));
@@ -210,15 +231,21 @@ void CGuiTextSupport::SetText(const std::string& str, bool multipage)
     SetText(hecl::UTF8ToWide(str), multipage);
 }
 
-bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const
+bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() const
 {
     for (const CToken& tok : x2bc_assets)
     {
-        ((CToken&)tok).Lock();
+        const_cast<CToken&>(tok).Lock();
         if (!tok.IsLoaded())
             return false;
     }
     return x2cc_font.IsLoaded();
+}
+
+bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const
+{
+    const_cast<CGuiTextSupport*>(this)->CheckAndRebuildRenderBuffer();
+    return _GetIsTextSupportFinishedLoading();
 }
 
 }
