@@ -546,7 +546,7 @@ void CFrontEndUI::SGBASupportFrame::SetTableColors(CGuiTableGroup* tbgp) const
 CFrontEndUI::SGBASupportFrame::EAction
 CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
-
+    return EAction::Zero;
 }
 
 void CFrontEndUI::SGBASupportFrame::Draw() const
@@ -756,7 +756,7 @@ CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame()
 
 bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
-
+    return true;
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::Draw() const

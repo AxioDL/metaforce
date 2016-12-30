@@ -165,6 +165,8 @@ bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
     {
         zeus::CVector2i extent(x34_extentX, x38_extentY);
     }
+
+    return true;
 }
 
 void CGuiTextSupport::Render() const
