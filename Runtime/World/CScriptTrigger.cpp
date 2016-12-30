@@ -12,7 +12,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
                                const CDamageInfo& dInfo, const zeus::CVector3f& forceField,
                                ETriggerFlags triggerFlags, bool active, bool b2, bool b3)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
-         CMaterialList(EMaterialTypes::ThirtyFour), CActorParameters::None(), kInvalidUniqueId),
+         CMaterialList(EMaterialTypes::Trigger), CActorParameters::None(), kInvalidUniqueId),
   x100_damageInfo(dInfo),
   x11c_forceField(forceField),
   x128_forceMagnitude(forceField.magnitude()),

@@ -10,9 +10,9 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
 {
     CMaterialList ret = materialList;
     if (params.GetVisorParameters().x0_28_b3)
-        ret.Add(EMaterialTypes::Fourteen);
+        ret.Add(EMaterialTypes::Mud);
     if (params.GetVisorParameters().x0_29_b4)
-        ret.Add(EMaterialTypes::Fifteen);
+        ret.Add(EMaterialTypes::Glass);
     return ret;
 }
 
@@ -20,7 +20,7 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
                CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid)
 : CEntity(uid, info, active, name)
 , x60_material(MakeActorMaterialList(list, params))
-, x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Nineteen}, {EMaterialTypes::Zero}))
+, x70_(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Unknown}))
 , xc6_(otherUid)
 {
     if (mData.x10_animData || mData.x1c_normalModel)
@@ -42,10 +42,10 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         break;
     case EScriptObjectMessage::InternalMessage11: // 33
     {
-        if (x94_simpleShadow)
-            AddMaterial(EMaterialTypes::ThirtyNine, mgr);
+        if (x98_scanObjectInfo)
+            AddMaterial(EMaterialTypes::Scannable, mgr);
         else
-            RemoveMaterial(EMaterialTypes::ThirtyNine, mgr);
+            RemoveMaterial(EMaterialTypes::Scannable, mgr);
 
         if (HasModelData() && x64_modelData->AnimationData())
         {

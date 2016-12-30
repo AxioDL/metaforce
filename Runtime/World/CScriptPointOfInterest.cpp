@@ -9,7 +9,7 @@ namespace urde
 CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, const std::string& name, const CEntityInfo info,
                                                const zeus::CTransform& xf, bool active,
                                                const CScannableParameters& parms, float f1)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(u64(EMaterialTypes::FourtyOne)),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(u64(EMaterialTypes::Orbit)),
          CActorParameters::None().Scannable(parms), kInvalidUniqueId)
 , xe8_pointSize(f1)
 {

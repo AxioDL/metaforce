@@ -98,8 +98,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     if (player->x304_ == 4 || player->x304_ == 1)
     {
         const CActor* act = dynamic_cast<const CActor*>(mgr.GetObjectById(player->x310_grapplePointId));
-        /* TODO: Not sure about this */
-        if (act && act->GetMaterialList().BitPosition(0x200) != -1)
+        if (act && act->GetMaterialList().Intersection(CMaterialList(EMaterialTypes::Lava)) != 0)
         {
             zeus::CVector3f v = player->x318_ - eyePos;
             if (v.canBeNormalized())

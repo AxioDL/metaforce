@@ -13,7 +13,7 @@ CMaterialFilter::CMaterialFilter(const CMaterialList& include, const CMaterialLi
 
 CMaterialFilter CMaterialFilter::MakeInclude(const CMaterialList& include)
 {
-    return CMaterialFilter(include, {EMaterialTypes::Zero}, EFilterType::Zero);
+    return CMaterialFilter(include, {EMaterialTypes::Unknown}, EFilterType::Zero);
 }
 
 CMaterialFilter CMaterialFilter::MakeExclude(const CMaterialList& exclude)

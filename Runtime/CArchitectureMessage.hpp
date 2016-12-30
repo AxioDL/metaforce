@@ -161,7 +161,7 @@ public:
     {
         return *msg.GetParm<CArchMsgParmVoidPtr>();
     }
-    static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, int a)
+    static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, const int& a)
     {
         return CArchitectureMessage(target, EArchMsgType::FrameBegin, new CArchMsgParmInt32(a));
     }

@@ -12,14 +12,14 @@
 namespace urde
 {
 
-static CMaterialList MakeDoorMaterialList(bool material)
+static CMaterialList MakeDoorMaterialList(bool open)
 {
     CMaterialList ret;
-    ret.Add(EMaterialTypes::Nineteen);
-    ret.Add(EMaterialTypes::FourtyThree);
-    ret.Add(EMaterialTypes::FourtyOne);
-    if (material)
-        ret.Add(EMaterialTypes::FourtyTwo);
+    ret.Add(EMaterialTypes::Solid);
+    ret.Add(EMaterialTypes::Immovable);
+    ret.Add(EMaterialTypes::Orbit);
+    if (!open)
+        ret.Add(EMaterialTypes::Occluder);
 
     return ret;
 }
@@ -27,19 +27,19 @@ static CMaterialList MakeDoorMaterialList(bool material)
 CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                          const zeus::CVector3f&, const zeus::CAABox& aabb, bool active,
-                         bool material, bool b2, float, bool ballDoor)
-    : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(material),
+                         bool open, bool b2, float, bool ballDoor)
+    : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(open),
                 aabb, SMoverData(1.f), actParms, 0.3f, 0.1f),
       x2a8_29_ballDoor(ballDoor),
-      x2a8_25_(material),
-      x2a8_26_(material),
+      x2a8_25_(open),
+      x2a8_26_(open),
       x2a8_28_(b2),
       x2a8_27_(true)
 {
     x264_ = GetBoundingBox();
     x284_modelBounds = x64_modelData->GetBounds(xf.getRotation());
 
-    if (material)
+    if (open)
         SetDoorAnimation(EDoorAnimType::Open);
 
     SetMass(0.f);

@@ -112,8 +112,10 @@ public:
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
     void ReadPersistentOptions(CBitStreamReader& r);
+    void SetPersistentOptions(const CPersistentOptions& opts) { xa8_systemOptions = opts; }
     void ImportPersistentOptions(const CPersistentOptions& opts);
     void ExportPersistentOptions(CPersistentOptions& opts) const;
+    void SetGameOptions(const CGameOptions& opts) { x17c_gameOptions = opts; }
     void WriteBackupBuf();
     u32 GetFileIdx() const { return x20c_saveFileIdx; }
     void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }

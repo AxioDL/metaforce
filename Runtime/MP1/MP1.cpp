@@ -26,29 +26,29 @@ namespace MP1
 CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
                                                    amuse::IBackendVoiceAllocator& backend)
 : m_parent(parent),
-  m_audioSys(voiceEngine, backend, 0,0,0,0,0),
-  m_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
+  x0_audioSys(voiceEngine, backend, 0,0,0,0,0),
+  x30_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(),
                    g_tweakPlayer->GetRightLogicalThreshold()),
-  m_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
+  x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
 {
-    g_GuiSys = &m_guiSys;
-    m_inputGenerator.startScanning();
+    g_GuiSys = &x44_guiSys;
+    x30_inputGenerator.startScanning();
     g_Main->ResetGameState();
 
     std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
-    m_ioWinManager.AddIOWin(splash, 1000, 10000);
+    x58_ioWinManager.AddIOWin(splash, 1000, 10000);
 
     std::shared_ptr<CIOWin> mf = std::make_shared<CMainFlow>();
-    m_ioWinManager.AddIOWin(mf, 0, 0);
+    x58_ioWinManager.AddIOWin(mf, 0, 0);
 
     std::shared_ptr<CIOWin> console = std::make_shared<CConsoleOutputWindow>(8, 5.f, 0.75f);
-    m_ioWinManager.AddIOWin(console, 100, 0);
+    x58_ioWinManager.AddIOWin(console, 100, 0);
 
     std::shared_ptr<CIOWin> audState = std::make_shared<CAudioStateWin>();
-    m_ioWinManager.AddIOWin(audState, 100, -1);
+    x58_ioWinManager.AddIOWin(audState, 100, -1);
 
     std::shared_ptr<CIOWin> errWin = std::make_shared<CErrorOutputWindow>(false);
-    m_ioWinManager.AddIOWin(errWin, 10000, 100000);
+    x58_ioWinManager.AddIOWin(errWin, 10000, 100000);
 }
 
 bool CGameArchitectureSupport::Update()
@@ -57,39 +57,19 @@ bool CGameArchitectureSupport::Update()
         m_parent.x128_globalObjects.MemoryCardInitializePump();
 
     bool finished = false;
-    m_inputGenerator.Update(1.0 / 60.0, m_archQueue);
 
     g_GameState->GetWorldTransitionManager()->TouchModels();
-    int unk = 0;
-    m_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, unk));
-    m_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
+    x4_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, x78_));
+    x4_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
 
-    m_ioWinManager.PumpMessages(m_archQueue);
+    x58_ioWinManager.PumpMessages(x4_archQueue);
 
-    /*
-    while (m_archQueue)
-    {
-        CArchitectureMessage msg = m_archQueue.Pop();
-        if (msg.GetTarget() == EArchMsgTarget::ArchitectureSupport)
-        {
-            if (msg.GetType() == EArchMsgType::ApplicationExit)
-                finished = true;
-        }
-
-        if (msg.GetTarget() == EArchMsgTarget::Game && msg.GetType() == EArchMsgType::UserInput)
-        {
-            const CArchMsgParmUserInput* input = msg.GetParm<CArchMsgParmUserInput>();
-            if (input->x4_parm.DStart())
-                m_archQueue.Push(std::move(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)));
-        }
-    }
-    */
     return finished;
 }
 
 void CGameArchitectureSupport::Draw()
 {
-    m_ioWinManager.Draw();
+    x58_ioWinManager.Draw();
 }
 
 CMain::CMain(IFactory& resFactory, CSimplePool& resStore,
@@ -123,6 +103,12 @@ void CMain::RegisterResourceTweaks()
 }
 void CMain::ResetGameState()
 {
+    CPersistentOptions sysOpts = g_GameState->SystemOptions();
+    CGameOptions gameOpts = g_GameState->GameOptions();
+    x128_globalObjects.ResetGameState();
+    g_GameState->ImportPersistentOptions(sysOpts);
+    g_GameState->SetGameOptions(gameOpts);
+    g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerHasFusion());
 }
 
 void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr)

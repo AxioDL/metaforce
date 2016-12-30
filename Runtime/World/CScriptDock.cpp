@@ -10,9 +10,9 @@ namespace urde
 CMaterialList MakeDockMaterialList()
 {
     CMaterialList list;
-    list.Add(EMaterialTypes::ThirtyFour);
-    list.Add(EMaterialTypes::FourtyThree);
-    list.Add(EMaterialTypes::FourtyEight);
+    list.Add(EMaterialTypes::Trigger);
+    list.Add(EMaterialTypes::Immovable);
+    list.Add(EMaterialTypes::AIBlock);
     return list;
 }
 

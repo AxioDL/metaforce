@@ -385,9 +385,9 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     CActorParameters actParms = LoadActorParameters(in);
 
     bool b1 = in.readBool();
-    bool b2 = in.readBool();
-    bool b3 = in.readBool();
-    bool b4 = in.readBool();
+    bool snow = in.readBool();
+    bool grass = in.readBool();
+    bool metalGrating = in.readBool();
     bool b5 = in.readBool();
     u32 w2 = in.readUint32Big();
     float f3 = in.readFloatBig();
@@ -403,14 +403,14 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, centroid);
 
     CMaterialList list;
-    if (b2)
-        list.Add(EMaterialTypes::Eleven);
+    if (snow) // Bool 2
+        list.Add(EMaterialTypes::Snow);
 
-    if (b3)
-        list.Add(EMaterialTypes::Three);
+    if (grass) // Bool 3
+        list.Add(EMaterialTypes::Grass);
 
-    if (b4)
-        list.Add(EMaterialTypes::Six);
+    if (metalGrating) // Bool 4
+        list.Add(EMaterialTypes::MetalGrating);
 
     bool generateExtent = false;
     if (collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)
