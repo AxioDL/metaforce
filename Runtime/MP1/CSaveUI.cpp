@@ -19,7 +19,7 @@ using EError = CMemoryCardDriver::EError;
 
 void CSaveUI::ResetCardDriver()
 {
-    x92_ = false;
+    x92_savingDisabled = false;
     x6c_cardDriver.reset();
     bool importState = (x0_saveCtx == ESaveContext::FrontEnd && !x90_needsDriverReset);
     x6c_cardDriver = ConstructCardDriver(importState);
@@ -502,7 +502,7 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
                 else
                 {
                     x6c_cardDriver->ClearError();
-                    x92_ = true;
+                    x92_savingDisabled = true;
                     sfx = x84_navConfirmSfx;
                 }
             }
@@ -615,14 +615,21 @@ void CSaveUI::StartGame(int idx)
         x80_iowRet = CIOWin::EMessageReturn::Exit;
 }
 
-void CSaveUI::EraseGame(int idx)
+void CSaveUI::SaveNESState()
 {
-    if (!x92_)
+    if (!x92_savingDisabled)
     {
         x90_needsDriverReset = true;
         x8_serial = x6c_cardDriver->x28_cardSerial;
         x6c_cardDriver->StartFileCreateTransactional();
     }
+}
+
+void CSaveUI::EraseGame(int idx)
+{
+    x6c_cardDriver->EraseFileSlot(idx);
+    x90_needsDriverReset = true;
+    x6c_cardDriver->StartFileCreateTransactional();
 }
 
 const CGameState::GameFileStateInfo* CSaveUI::GetGameData(int idx) const

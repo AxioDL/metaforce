@@ -87,7 +87,7 @@ private:
     u32 x8c_navBackSfx = 1459;
     bool x90_needsDriverReset = false;
     bool x91_uiTextDirty = false;
-    bool x92_ = false;
+    bool x92_savingDisabled = false;
     bool x93_inGame;
 
     void ResetCardDriver();
@@ -108,9 +108,11 @@ public:
 
     void ProcessUserInput(const CFinalInput& input);
     void StartGame(int idx);
+    void SaveNESState();
     void EraseGame(int idx);
     const CGameState::GameFileStateInfo* GetGameData(int idx) const;
     EUIType GetUIType() const { return x10_uiType; }
+    bool IsSavingDisabled() const { return x92_savingDisabled; }
     CSaveUI(ESaveContext saveCtx, u64 serial);
 };
 

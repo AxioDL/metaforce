@@ -184,6 +184,7 @@ public:
 
     void ClearFileInfo() { x198_fileInfo.reset(); }
     void BuildNewFileSlot(u32 saveIdx);
+    void EraseFileSlot(u32 saveIdx);
     void BuildExistingFileSlot(u32 saveIdx);
     void InitializeFileInfo();
     void WriteBackupBuf();

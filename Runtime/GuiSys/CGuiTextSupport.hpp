@@ -94,11 +94,9 @@ class CGuiTextSupport
     std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
     std::vector<CToken> x2bc_assets;
     TLockedToken<CRasterFont> x2cc_font;
+    std::pair<zeus::CVector2i, zeus::CVector2i> x2dc_oneBufBounds;
 
-    zeus::CVector2f x2dc_;
-    zeus::CVector2f x2e4_;
-
-    std::list<CTextRenderBuffer> x2f0_pageRenderBufs;
+    std::list<CTextRenderBuffer> x2ec_renderBufferPages;
     u32 x300_ = 0;
     u32 x304_pageCounter = 0;
     bool x308_multipageFlag = false;
@@ -119,6 +117,8 @@ public:
     void ClearRenderBuffer();
     void CheckAndRebuildTextBuffer();
     bool CheckAndRebuildRenderBuffer();
+    const std::pair<zeus::CVector2i, zeus::CVector2i>& GetBounds();
+    void AutoSetExtent();
 
     void Render() const;
     void SetGeometryColor(const zeus::CColor& col);

@@ -11,7 +11,7 @@
 namespace urde
 {
 
-CTextRenderBuffer CTextExecuteBuffer::CreateTextRenderBuffer() const
+CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer() const
 {
     CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);
 
@@ -27,6 +27,92 @@ CTextRenderBuffer CTextExecuteBuffer::CreateTextRenderBuffer() const
         CFontRenderState rendState;
         for (const std::shared_ptr<CInstruction>& inst : x0_instList)
             inst->Invoke(rendState, &ret);
+    }
+
+    return ret;
+}
+
+CTextRenderBuffer CTextExecuteBuffer::BuildRenderBufferPage(InstList::const_iterator start,
+                                                            InstList::const_iterator pgStart,
+                                                            InstList::const_iterator pgEnd) const
+{
+    CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);
+
+    {
+        CFontRenderState rendState;
+        for (auto it = start ; it != pgStart ; ++it)
+        {
+            const std::shared_ptr<CInstruction>& inst = *it;
+            inst->PageInvoke(rendState, &ret);
+        }
+        for (auto it = pgStart ; it != pgEnd ; ++it)
+        {
+            const std::shared_ptr<CInstruction>& inst = *it;
+            inst->Invoke(rendState, &ret);
+        }
+    }
+
+    ret.SetMode(CTextRenderBuffer::EMode::BufferFill);
+
+    {
+        CFontRenderState rendState;
+        for (auto it = start ; it != pgStart ; ++it)
+        {
+            const std::shared_ptr<CInstruction>& inst = *it;
+            inst->PageInvoke(rendState, &ret);
+        }
+        for (auto it = pgStart ; it != pgEnd ; ++it)
+        {
+            const std::shared_ptr<CInstruction>& inst = *it;
+            inst->Invoke(rendState, &ret);
+        }
+    }
+
+    return ret;
+}
+
+std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const zeus::CVector2i& extent) const
+{
+    std::list<CTextRenderBuffer> ret;
+
+    for (auto it = x0_instList.begin() ; it != x0_instList.end() ;)
+    {
+        const std::shared_ptr<CInstruction>& inst = *it;
+        CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally);
+
+        {
+            CFontRenderState rstate;
+            for (auto it2 = x0_instList.begin() ; it2 != x0_instList.end() ;)
+            {
+                const std::shared_ptr<CInstruction>& inst2 = *it2;
+                inst2->Invoke(rstate, &rbuf);
+            }
+        }
+
+        rbuf.SetMode(CTextRenderBuffer::EMode::BufferFill);
+
+        InstList::const_iterator pageEnd = it;
+        {
+            CFontRenderState rstate;
+            for (auto it2 = x0_instList.begin() ; it2 != x0_instList.end() ;)
+            {
+                const std::shared_ptr<CInstruction>& inst2 = *it2;
+                if (it2 != it)
+                {
+                    inst2->PageInvoke(rstate, &rbuf);
+                }
+                else
+                {
+                    inst2->Invoke(rstate, &rbuf);
+                    if (!rbuf.HasSpaceAvailable(zeus::CVector2i{}, extent))
+                        break;
+                    ++pageEnd;
+                }
+            }
+        }
+
+        ret.push_back(BuildRenderBufferPage(x0_instList.cbegin(), it, pageEnd));
+        it = pageEnd;
     }
 
     return ret;

@@ -36,6 +36,30 @@ void CTextRenderBuffer::BooCharacterInstance::SetMetrics(const CGlyph& glyph,
     m_uv[3].assign(glyph.GetEndU(), glyph.GetEndV());
 }
 
+CTextRenderBuffer::BooImage::BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset)
+: m_imageDef(imgDef)
+{
+    zeus::CVector2f imgSize;
+    if (imgDef.x4_texs.size())
+    {
+        const CTexture& tex = *imgDef.x4_texs[0].GetObj();
+        imgSize.assign(tex.GetWidth() * imgDef.x14_pointsPerTexel.x,
+                       tex.GetHeight() * imgDef.x14_pointsPerTexel.y);
+    }
+
+    m_imageData.m_pos[0].assign(offset.x, 0.f, offset.y);
+    m_imageData.m_uv[0].assign(0.f, 0.f);
+
+    m_imageData.m_pos[1].assign(offset.x + imgSize.x, 0.f, offset.y);
+    m_imageData.m_uv[1].assign(1.f, 0.f);
+
+    m_imageData.m_pos[2].assign(offset.x, 0.f, offset.y + imgSize.y);
+    m_imageData.m_uv[2].assign(0.f, 1.f);
+
+    m_imageData.m_pos[3].assign(offset.x + imgSize.x, 0.f, offset.y + imgSize.y);
+    m_imageData.m_uv[3].assign(1.f, 1.f);
+}
+
 void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, float opacity)
 {
     switch (m_cmd)
@@ -176,7 +200,7 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
         if (img.m_dirty)
         {
             img.m_instBuf->load(&img.m_imageData, sizeof(BooImageInstance));
-            ((BooImage&)img).m_dirty = false;
+            const_cast<BooImage&>(img).m_dirty = false;
         }
         int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
         CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
@@ -189,7 +213,7 @@ void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImage
     if (x0_mode == EMode::AllocTally)
         m_primitiveMarks.push_back({Command::ImageRender, m_imagesCount++, 0});
     else
-        m_images.push_back({image});
+        m_images.push_back({image, offset});
 }
 
 void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, wchar_t ch,
@@ -233,41 +257,45 @@ void CTextRenderBuffer::AddFontChange(const TToken<CRasterFont>& font)
     m_fontCharacters.push_back({font});
 }
 
-CTextRenderBufferPages::CTextRenderBufferPages(CTextExecuteBuffer& buf, const zeus::CVector2i& extent)
+bool CTextRenderBuffer::HasSpaceAvailable(const zeus::CVector2i& origin,
+                                          const zeus::CVector2i& extent) const
 {
-    for (auto it = buf.x0_instList.begin() ; it != buf.x0_instList.end() ;)
+    std::pair<zeus::CVector2i, zeus::CVector2i> bounds = AccumulateTextBounds();
+    if (bounds.first.x > bounds.second.x)
+        return true;
+
+    if (0 < origin.y)
+        return false;
+
+    zeus::CVector2i size = bounds.second - bounds.first;
+    return size.y <= extent.y;
+}
+
+std::pair<zeus::CVector2i, zeus::CVector2i> CTextRenderBuffer::AccumulateTextBounds() const
+{
+    std::pair<zeus::CVector2i, zeus::CVector2i> ret = std::make_pair(zeus::CVector2i{INT_MAX, INT_MAX},
+                                                                     zeus::CVector2i{INT_MIN, INT_MIN});
+
+    for (const BooFontCharacters& chars : m_fontCharacters)
     {
-        std::shared_ptr<CInstruction>& inst = *it;
-        CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally);
-
+        for (const BooCharacterInstance& charInst : chars.m_charData)
         {
-            CFontRenderState rstate;
-            for (auto it2 = buf.x0_instList.begin() ; it2 != buf.x0_instList.end() ;)
-            {
-                std::shared_ptr<CInstruction>& inst2 = *it2;
-                inst2->Invoke(rstate, &rbuf);
-            }
-        }
-
-        rbuf.SetMode(CTextRenderBuffer::EMode::BufferFill);
-
-        /* TODO: Finish */
-        {
-            CFontRenderState rstate;
-            for (auto it2 = buf.x0_instList.begin() ; it2 != buf.x0_instList.end() ;)
-            {
-                std::shared_ptr<CInstruction>& inst2 = *it2;
-                if (it2 != it)
-                {
-
-                }
-                else
-                {
-
-                }
-            }
+            ret.first.x = std::min(ret.first.x, int(charInst.m_pos[0].x));
+            ret.first.y = std::min(ret.first.y, int(charInst.m_pos[0].z));
+            ret.second.x = std::max(ret.second.x, int(charInst.m_pos[3].x));
+            ret.second.y = std::max(ret.second.y, int(charInst.m_pos[3].z));
         }
     }
+
+    for (const BooImage& imgs : m_images)
+    {
+        ret.first.x = std::min(ret.first.x, int(imgs.m_imageData.m_pos[0].x));
+        ret.first.y = std::min(ret.first.y, int(imgs.m_imageData.m_pos[0].z));
+        ret.second.x = std::max(ret.second.x, int(imgs.m_imageData.m_pos[3].x));
+        ret.second.y = std::max(ret.second.y, int(imgs.m_imageData.m_pos[3].z));
+    }
+
+    return ret;
 }
 
 }

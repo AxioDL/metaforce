@@ -80,7 +80,7 @@ void CQuitScreen::DoAdvance(CGuiTableGroup* caller)
     }
 }
 
-EQuitAction CQuitScreen::Update()
+EQuitAction CQuitScreen::Update(float dt)
 {
     if (!x10_loadedFrame && x4_frame.IsLoaded())
         FinishedLoading();

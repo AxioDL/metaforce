@@ -171,6 +171,28 @@ public:
 
     struct SGBASupportFrame
     {
+        struct SGBALinkFrame
+        {
+            enum class EUIType
+            {
+                Zero,
+                One,
+                Two,
+                Three,
+                Four,
+                Five,
+                Six,
+                Seven
+            };
+
+            void SetUIText(EUIType tp);
+            void ProcessUserInput(const CFinalInput &input, bool sui);
+            void Update(float dt);
+            void FinishedLoading();
+            void Draw();
+            SGBALinkFrame(const CGuiFrame* linkFrame, CGBASupport* support, bool);
+        };
+
         enum class EAction
         {
             Zero,
@@ -178,7 +200,7 @@ public:
             Two
         };
 
-        u32 x0_ = 0;
+        std::unique_ptr<SGBALinkFrame> x0_gbaLinkFrame;
         std::unique_ptr<CGBASupport> x4_gbaSupport;
         TLockedToken<CGuiFrame> xc_gbaScreen;
         TLockedToken<CGuiFrame> x18_gbaLink;
@@ -236,9 +258,9 @@ public:
         enum class EMode
         {
             Emulator,
-            QuitNESMetroid,
+            SaveProgress,
             ContinuePlaying,
-            SaveProgress
+            QuitNESMetroid
         };
 
         EMode x0_mode = EMode::Emulator;
@@ -246,13 +268,13 @@ public:
         std::unique_ptr<CQuitScreen> x8_quitScreen;
         std::unique_ptr<CGuiTextSupport> xc_textSupport;
         float x10_remTime = 8.f;
-        bool x14_ = false;
-        bool x15_ = true;
+        bool x14_emulationSuspended = false;
+        bool x15_enableFiltering = true;
 
         SNesEmulatorFrame();
         void SetMode(EMode mode);
         void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
-        bool DoUpdateWithSaveUI(float dt, CSaveUI* saveUi);
+        bool Update(float dt, CSaveUI* saveUi);
         void Draw(CSaveUI* saveUi) const;
     };
 

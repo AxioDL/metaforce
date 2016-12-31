@@ -768,6 +768,11 @@ void CMemoryCardDriver::BuildNewFileSlot(u32 saveIdx)
     g_GameState->SystemOptions().SetPlayerHasFusion(fusionBackup);
 }
 
+void CMemoryCardDriver::EraseFileSlot(u32 saveIdx)
+{
+    xe4_fileSlots[saveIdx].reset();
+}
+
 void CMemoryCardDriver::BuildExistingFileSlot(u32 saveIdx)
 {
     g_GameState->SetFileIdx(saveIdx);

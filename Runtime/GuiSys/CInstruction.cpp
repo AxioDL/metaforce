@@ -7,6 +7,10 @@
 namespace urde
 {
 
+void CInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+}
+
 void CInstruction::GetAssets(std::vector<CToken>& assetsOut) const
 {
 }
@@ -21,6 +25,11 @@ void CColorInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
     state.SetColor(x4_cType, x8_color);
 }
 
+void CColorInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
+}
+
 void CColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     state.x64_colorOverrides[x4_overrideIdx] = true;
@@ -28,11 +37,21 @@ void CColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffe
     state.x0_drawStrOpts.x4_colors[x4_overrideIdx] = convCol;
 }
 
+void CColorOverrideInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
+}
+
 void CFontInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     buf->AddFontChange(x4_font);
     state.x48_font = x4_font;
     state.RefreshPalette();
+}
+
+void CFontInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
 }
 
 void CFontInstruction::GetAssets(std::vector<CToken>& assetsOut) const
@@ -48,6 +67,11 @@ size_t CFontInstruction::GetAssetCount() const
 void CLineExtraSpaceInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     state.x78_extraLineSpace = x4_extraSpace;
+}
+
+void CLineExtraSpaceInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
 }
 
 void CLineInstruction::TestLargestFont(s32 monoW, s32 monoH, s32 baseline)
@@ -154,9 +178,20 @@ void CLineInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) c
     state.xdc_currentLineInst = this;
 }
 
+void CLineInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    if (!state.xdc_currentLineInst)
+        Invoke(state, buf);
+}
+
 void CLineSpacingInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     state.x74_lineSpacing = x4_lineSpacing;
+}
+
+void CLineSpacingInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
 }
 
 void CPopStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -164,14 +199,29 @@ void CPopStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* bu
     state.PopState();
 }
 
+void CPopStateInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
+}
+
 void CPushStateInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     state.PushState();
 }
 
+void CPushStateInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
+}
+
 void CRemoveColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     state.x64_colorOverrides[x4_idx] = false;
+}
+
+void CRemoveColorOverrideInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
 }
 
 void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -191,6 +241,17 @@ void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
             state.xd4_curX += tex->GetWidth() * x4_image.x14_pointsPerTexel.x;
         }
     }
+}
+
+void CImageInstruction::GetAssets(std::vector<CToken>& assetsOut) const
+{
+    for (const CToken& tok : x4_image.x4_texs)
+        assetsOut.push_back(tok);
+}
+
+size_t CImageInstruction::GetAssetCount() const
+{
+    return x4_image.x4_texs.size();
 }
 
 void CTextInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
@@ -252,6 +313,11 @@ void CBlockInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
         SetupPositionLTR(state);
 }
 
+void CBlockInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    Invoke(state, buf);
+}
+
 void CWordInstruction::InvokeLTR(CFontRenderState& state) const
 {
     CRasterFont* font = state.x48_font.GetObj();
@@ -289,6 +355,11 @@ void CWordInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) c
 
     if (state.x0_drawStrOpts.x0_direction == ETextDirection::Horizontal)
         InvokeLTR(state);
+}
+
+void CWordInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const
+{
+    state.x108_lineInitialized = false;
 }
 
 }

@@ -191,7 +191,8 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
 
 void CFrontEndUI::SNewFileSelectFrame::Draw() const
 {
-
+    if (x1c_loadedFrame && x10c_inputEnable)
+        x1c_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
 }
 
 void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active)
@@ -485,6 +486,36 @@ CFrontEndUI::SGBASupportFrame::SGBASupportFrame()
     x18_gbaLink = g_SimplePool->GetObj("FRME_GBALink");
 }
 
+void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SetUIText(EUIType tp)
+{
+
+}
+
+void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput &input, bool sui)
+{
+
+}
+
+void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::Update(float dt)
+{
+
+}
+
+void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::FinishedLoading()
+{
+
+}
+
+void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::Draw()
+{
+
+}
+
+CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SGBALinkFrame(const CGuiFrame* linkFrame, CGBASupport* support, bool)
+{
+
+}
+
 void CFrontEndUI::SGBASupportFrame::FinishedLoading()
 {
     x28_tablegroup_options = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_options"));
@@ -551,7 +582,12 @@ CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveU
 
 void CFrontEndUI::SGBASupportFrame::Draw() const
 {
+    if (!x38_)
+        return;
+    if (x0_gbaLinkFrame)
+    {
 
+    }
 }
 
 void CFrontEndUI::SGBASupportFrame::DoOptionsCancel(CGuiTableGroup* caller)
@@ -688,14 +724,14 @@ void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode)
     case EMode::Emulator:
         x8_quitScreen.reset();
         break;
-    case EMode::QuitNESMetroid:
-        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::QuitNESMetroid);
+    case EMode::SaveProgress:
+        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::SaveProgress);
         break;
     case EMode::ContinuePlaying:
         x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::ContinuePlaying);
         break;
-    case EMode::SaveProgress:
-        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::SaveProgress);
+    case EMode::QuitNESMetroid:
+        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::QuitNESMetroid);
         break;
     default: break;
     }
@@ -717,20 +753,20 @@ void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, 
     case EMode::Emulator:
         x4_nesEmu->ProcessUserInput(input, 4);
         if (input.ControllerIdx() == 0 && input.PL())
-            SetMode(EMode::SaveProgress);
+            SetMode(EMode::QuitNESMetroid);
         break;
-    case EMode::QuitNESMetroid:
-    case EMode::ContinuePlaying:
     case EMode::SaveProgress:
+    case EMode::ContinuePlaying:
+    case EMode::QuitNESMetroid:
         x8_quitScreen->ProcessUserInput(input);
         break;
     default: break;
     }
 }
 
-bool CFrontEndUI::SNesEmulatorFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveUi)
+bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveUI* saveUi)
 {
-    bool flag = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveProgress) ? false : true;
+    bool doUpdate = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveProgress) ? false : true;
     x10_remTime = std::max(x10_remTime - dt, 0.f);
 
     zeus::CColor geomCol(zeus::CColor::skWhite);
@@ -738,14 +774,104 @@ bool CFrontEndUI::SNesEmulatorFrame::DoUpdateWithSaveUI(float dt, CSaveUI* saveU
     xc_textSupport->SetGeometryColor(geomCol);
     if (xc_textSupport->GetIsTextSupportFinishedLoading())
     {
-
+        xc_textSupport->AutoSetExtent();
+        xc_textSupport->ClearRenderBuffer();
     }
+
+    if (!doUpdate)
+        return false;
+
+    switch (x0_mode)
+    {
+    case EMode::Emulator:
+    {
+        x4_nesEmu->Update();
+        if (!x4_nesEmu->WantsQuit())
+            x14_emulationSuspended = false;
+        if (x4_nesEmu->WantsQuit() && !x14_emulationSuspended)
+        {
+            x14_emulationSuspended = true;
+            if (saveUi && !saveUi->IsSavingDisabled())
+            {
+                SetMode(EMode::SaveProgress);
+                break;
+            }
+            SetMode(EMode::ContinuePlaying);
+            break;
+        }
+        if (x4_nesEmu->WantsLoad() && saveUi)
+            x4_nesEmu->LoadState(g_GameState->SystemOptions().GetNESState());
+        break;
+    }
+
+    case EMode::SaveProgress:
+    {
+        if (saveUi)
+        {
+            EQuitAction action = x8_quitScreen->Update(dt);
+            if (action == EQuitAction::Yes)
+            {
+                memmove(g_GameState->SystemOptions().GetNESState(), x4_nesEmu->GetSaveState(), 18);
+                saveUi->SaveNESState();
+                SetMode(EMode::ContinuePlaying);
+            }
+            else if (action == EQuitAction::No)
+                SetMode(EMode::ContinuePlaying);
+        }
+        else
+            SetMode(EMode::ContinuePlaying);
+        break;
+    }
+
+    case EMode::ContinuePlaying:
+    {
+        EQuitAction action = x8_quitScreen->Update(dt);
+        if (action == EQuitAction::Yes)
+            SetMode(EMode::Emulator);
+        else if (action == EQuitAction::No)
+            return true;
+        break;
+    }
+
+    case EMode::QuitNESMetroid:
+    {
+        EQuitAction action = x8_quitScreen->Update(dt);
+        if (action == EQuitAction::Yes)
+            return true;
+        else if (action == EQuitAction::No)
+            SetMode(EMode::Emulator);
+        break;
+    }
+
+    default: break;
+    }
+
     return false;
 }
 
 void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveUI* saveUi) const
 {
+    zeus::CColor mulColor = zeus::CColor::skWhite;
+    bool doDraw = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveProgress) ? false : true;
 
+    if (doDraw)
+        mulColor = zeus::CColor::skBlack;
+    else if (x8_quitScreen)
+        mulColor = zeus::CColor{0.376470f, 0.376470f, 0.376470f, 1.f};
+
+    x4_nesEmu->Draw(mulColor, x15_enableFiltering);
+    if (!doDraw && x8_quitScreen)
+        x8_quitScreen->Draw();
+
+    if (x10_remTime >= 7.5f)
+        return;
+    if (x10_remTime <= 0.f)
+        return;
+    if (xc_textSupport->GetIsTextSupportFinishedLoading())
+    {
+        CGraphics::SetModelMatrix(zeus::CTransform::Translate(-280.f, 0.f, -160.f));
+        xc_textSupport->Render();
+    }
 }
 
 CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame()
@@ -1306,7 +1432,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 
         if (xec_emuFrme)
         {
-            if (xec_emuFrme->DoUpdateWithSaveUI(dt, xdc_saveUI.get()))
+            if (xec_emuFrme->Update(dt, xdc_saveUI.get()))
             {
                 xec_emuFrme.reset();
                 xf4_curAudio->StartMixing();

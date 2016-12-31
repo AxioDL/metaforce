@@ -17,8 +17,9 @@ class CTextExecuteBuffer
 {
     friend class CGuiTextSupport;
     friend class CTextRenderBufferPages;
+    using InstList = std::list<std::shared_ptr<CInstruction>>;
 
-    std::list<std::shared_ptr<CInstruction>> x0_instList;
+    InstList x0_instList;
     u32 x14_ = 0;
     CSaveableState x18_textState;
     CBlockInstruction* xa0_curBlock = nullptr;
@@ -39,7 +40,11 @@ public:
         xa8_curWordIt = x0_instList.begin();
     }
 
-    CTextRenderBuffer CreateTextRenderBuffer() const;
+    CTextRenderBuffer BuildRenderBuffer() const;
+    CTextRenderBuffer BuildRenderBufferPage(InstList::const_iterator start,
+                                            InstList::const_iterator pgStart,
+                                            InstList::const_iterator pgEnd) const;
+    std::list<CTextRenderBuffer> BuildRenderBufferPages(const zeus::CVector2i& extent) const;
     std::vector<CToken> GetAssets() const;
     void AddString(const wchar_t* str, int len);
     void AddStringFragment(const wchar_t* str, int len);

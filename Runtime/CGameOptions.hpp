@@ -10,7 +10,7 @@ namespace urde
 class CPersistentOptions
 {
     friend class CGameState;
-    bool x0_[98] = {};
+    u8 x0_[98] = {};
     bool x68_[64] = {};
     std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
     u32 xbc_ = 0;
@@ -50,6 +50,8 @@ public:
     u32 GetLogScanCount() const { return xcc_logScanCount; }
     void SetLogScanCount(u32 v) { xcc_logScanCount = v; }
     void PutTo(CBitStreamWriter& w) const;
+
+    u8* GetNESState() { return x0_; }
 };
 
 /** Options tracked per game session */

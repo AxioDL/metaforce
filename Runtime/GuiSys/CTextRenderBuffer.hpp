@@ -31,6 +31,7 @@ public:
         FontChange,
         PaletteChange
     };
+#if 0
     struct Primitive
     {
         CTextColor x0_color1;
@@ -40,6 +41,7 @@ public:
         wchar_t xc_glyph;
         u8 xe_imageIndex;
     };
+#endif
     enum class EMode
     {
         AllocTally,
@@ -55,6 +57,7 @@ private:
     std::vector<char> x34_bytecode;
     u32 x44_blobSize = 0;
     u32 x48_curBytecodeOffset = 0;
+    u8 x4c_activeFont;
     u32 x50_paletteCount = 0;
     std::array<std::unique_ptr<CGraphicsPalette>, 64> x54_palettes;
     u32 x254_nextPalette = 0;
@@ -106,10 +109,7 @@ private:
         std::vector<boo::IShaderDataBinding*> m_dataBinding;
         BooImageInstance m_imageData;
         bool m_dirty = true;
-        BooImage(const CFontImageDef& imgDef)
-            : m_imageDef(imgDef)
-        {
-        }
+        BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
     };
     std::vector<BooImage> m_images;
 
@@ -145,7 +145,7 @@ public:
     void AddPaletteChange(const CGraphicsPalette& palette);
 #else
     void SetPrimitiveOpacity(int idx, float opacity);
-    u32 GetPrimitiveCount() const {return m_primitiveMarks.size();}
+    u32 GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 #endif
     void SetMode(EMode mode);
     void Render(const zeus::CColor& col, float) const;
@@ -153,12 +153,9 @@ public:
     void AddCharacter(const zeus::CVector2i& offset, wchar_t ch, const zeus::CColor& color);
     void AddPaletteChange(const zeus::CColor& main, const zeus::CColor& outline);
     void AddFontChange(const TToken<CRasterFont>& font);
-};
 
-class CTextRenderBufferPages
-{
-public:
-    CTextRenderBufferPages(CTextExecuteBuffer&, const zeus::CVector2i&);
+    bool HasSpaceAvailable(const zeus::CVector2i& origin, const zeus::CVector2i& extent) const;
+    std::pair<zeus::CVector2i, zeus::CVector2i> AccumulateTextBounds() const;
 };
 
 }

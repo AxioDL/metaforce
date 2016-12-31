@@ -27,7 +27,7 @@ CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() const
     if (!x308_multipageFlag || x300_ <= x304_pageCounter)
         return nullptr;
     int idx = 0;
-    for (const CTextRenderBuffer& buf : x2f0_pageRenderBufs)
+    for (const CTextRenderBuffer& buf : x2ec_renderBufferPages)
         if (idx++ == x304_pageCounter)
             return const_cast<CTextRenderBuffer*>(&buf);
     return nullptr;
@@ -125,6 +125,7 @@ void CGuiTextSupport::Update(float dt)
 void CGuiTextSupport::ClearRenderBuffer()
 {
     x60_renderBuf = std::experimental::nullopt;
+    x2ec_renderBufferPages.clear();
 }
 
 void CGuiTextSupport::CheckAndRebuildTextBuffer()
@@ -149,10 +150,8 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
 bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
 {
     if (x308_multipageFlag || x60_renderBuf)
-    {
         if (!x308_multipageFlag || x300_)
             return true;
-    }
 
     CheckAndRebuildTextBuffer();
     x2bc_assets = g_TextExecuteBuf->GetAssets();
@@ -164,9 +163,30 @@ bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
     if (x308_multipageFlag)
     {
         zeus::CVector2i extent(x34_extentX, x38_extentY);
+        x2ec_renderBufferPages = g_TextExecuteBuf->BuildRenderBufferPages(extent);
     }
+    else
+    {
+        x60_renderBuf.emplace(g_TextExecuteBuf->BuildRenderBuffer());
+        x2dc_oneBufBounds = x60_renderBuf->AccumulateTextBounds();
+    }
+    g_TextExecuteBuf->Clear();
+    Update(0.f);
 
     return true;
+}
+
+const std::pair<zeus::CVector2i, zeus::CVector2i>& CGuiTextSupport::GetBounds()
+{
+    CheckAndRebuildRenderBuffer();
+    return x2dc_oneBufBounds;
+}
+
+void CGuiTextSupport::AutoSetExtent()
+{
+    auto& bounds = GetBounds();
+    x34_extentX = bounds.second.x;
+    x38_extentY = bounds.second.y;
 }
 
 void CGuiTextSupport::Render() const

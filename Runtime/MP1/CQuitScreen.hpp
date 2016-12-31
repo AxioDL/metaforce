@@ -44,7 +44,7 @@ public:
     void FinishedLoading();
     void DoSelectionChange(CGuiTableGroup* caller);
     void DoAdvance(CGuiTableGroup* caller);
-    EQuitAction Update();
+    EQuitAction Update(float dt);
     void Draw();
     void ProcessUserInput(const CFinalInput& input);
     CQuitScreen(EQuitType pos);
