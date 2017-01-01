@@ -20,11 +20,11 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     xc4_ = stream.ReadEncoded(2);
     xc8_ = stream.ReadEncoded(1);
     xcc_logScanCount = stream.ReadEncoded(7);
-    xd0_24_ = stream.ReadEncoded(1);
-    xd0_25_hasHardMode = stream.ReadEncoded(1);
+    xd0_24_fusionLinked = stream.ReadEncoded(1);
+    xd0_25_normalModeBeat = stream.ReadEncoded(1);
     xd0_26_hardModeBeat = stream.ReadEncoded(1);
-    xd0_27_ = stream.ReadEncoded(1);
-    xd0_28_hasFusion = stream.ReadEncoded(1);
+    xd0_27_fusionBeat = stream.ReadEncoded(1);
+    xd0_28_fusionSuitActive = stream.ReadEncoded(1);
     xd0_29_allItemsCollected = stream.ReadEncoded(1);
     xbc_ = stream.ReadEncoded(2);
 
@@ -66,11 +66,11 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     w.WriteEncoded(xc4_, 2);
     w.WriteEncoded(xc8_, 1);
     w.WriteEncoded(xcc_logScanCount, 7);
-    w.WriteEncoded(xd0_24_, 1);
-    w.WriteEncoded(xd0_25_hasHardMode, 1);
+    w.WriteEncoded(xd0_24_fusionLinked, 1);
+    w.WriteEncoded(xd0_25_normalModeBeat, 1);
     w.WriteEncoded(xd0_26_hardModeBeat, 1);
-    w.WriteEncoded(xd0_27_, 1);
-    w.WriteEncoded(xd0_28_hasFusion, 1);
+    w.WriteEncoded(xd0_27_fusionBeat, 1);
+    w.WriteEncoded(xd0_28_fusionSuitActive, 1);
     w.WriteEncoded(xd0_29_allItemsCollected, 1);
     w.WriteEncoded(xbc_, 2);
 

@@ -21,6 +21,13 @@ const char* CBasics::Stringize(const char* fmt, ...)
     return STRINGIZE_STR;
 }
 
+u64 CBasics::GetGCTicks()
+{
+    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+    return nanos * 486000000 / 1000000000;
+}
+
 const u64 CBasics::SECONDS_TO_2000 = 946684800LL;
 const u64 CBasics::TICKS_PER_SECOND = 60750000LL;
 

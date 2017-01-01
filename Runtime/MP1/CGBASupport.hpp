@@ -10,20 +10,43 @@ namespace MP1
 
 class CGBASupport : public CDvdFile
 {
+public:
+    enum class EPhase
+    {
+        LoadClientPad,
+        Standby,
+        StartProbeTimeout,
+        PollProbe,
+        StartJoyBusBoot,
+        PollJoyBusBoot,
+        DataTransfer,
+        Complete,
+        Failed
+    };
+
+private:
     u32 x28_fileSize;
     std::unique_ptr<u8[]> x2c_buffer;
     std::shared_ptr<IDvdRequest> x30_dvdReq;
-    u32 x34_ = 0;
-    float x38_ = 0.f;
-    bool x3c_ = false;
-    u32 x40_ = -1;
-    bool x44_ = false;
-    bool x45_ = false;
+    EPhase x34_phase = EPhase::LoadClientPad;
+    float x38_timeout = 0.f;
+    u8 x3c_status = 0;
+    u32 x40_siChan = -1;
+    bool x44_fusionLinked = false;
+    bool x45_fusionBeat = false;
     static CGBASupport* SharedInstance;
+
 public:
     CGBASupport();
     ~CGBASupport();
-    bool IsReady() const;
+    bool PollResponse();
+    void Update(float dt);
+    bool IsReady();
+    void InitializeSupport();
+    void StartLink();
+    EPhase GetPhase() const { return x34_phase; }
+    bool IsFusionLinked() const { return x44_fusionLinked; }
+    bool IsFusionBeat() const { return x45_fusionBeat; }
 };
 
 }

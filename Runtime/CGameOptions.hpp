@@ -23,11 +23,11 @@ class CPersistentOptions
     {
         struct
         {
-            bool xd0_24_ : 1;
-            bool xd0_25_hasHardMode : 1;
+            bool xd0_24_fusionLinked : 1;
+            bool xd0_25_normalModeBeat : 1;
             bool xd0_26_hardModeBeat : 1;
-            bool xd0_27_ : 1;
-            bool xd0_28_hasFusion : 1;
+            bool xd0_27_fusionBeat : 1;
+            bool xd0_28_fusionSuitActive : 1;
             bool xd0_29_allItemsCollected : 1;
         };
         u16 _dummy = 0;
@@ -39,12 +39,16 @@ public:
 
     bool GetCinematicState(ResId mlvlId, TEditorId cineId) const;
     void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
-    bool GetPlayerHasHardMode() const { return xd0_25_hasHardMode; }
-    void SetPlayerHasHardMode(bool v) { xd0_25_hasHardMode = v; }
+    bool GetPlayerLinkedFusion() const { return xd0_24_fusionLinked; }
+    void SetPlayerLinkedFusion(bool v) { xd0_24_fusionLinked = v; }
+    bool GetPlayerBeatNormalMode() const { return xd0_25_normalModeBeat; }
+    void SetPlayerBeatNormalMode(bool v) { xd0_25_normalModeBeat = v; }
     bool GetPlayerBeatHardMode() const { return xd0_26_hardModeBeat; }
     void SetPlayerBeatHardMode(bool v) { xd0_26_hardModeBeat = v; }
-    bool GetPlayerHasFusion() const { return xd0_28_hasFusion; }
-    void SetPlayerHasFusion(bool v) { xd0_28_hasFusion = v; }
+    bool GetPlayerBeatFusion() const { return xd0_27_fusionBeat; }
+    void SetPlayerBeatFusion(bool v) { xd0_27_fusionBeat = v; }
+    bool GetPlayerFusionSuitActive() const { return xd0_28_fusionSuitActive; }
+    void SetPlayerFusionSuitActive(bool v) { xd0_28_fusionSuitActive = v; }
     bool GetAllItemsCollected() const { return xd0_29_allItemsCollected; }
     void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
     u32 GetLogScanCount() const { return xcc_logScanCount; }

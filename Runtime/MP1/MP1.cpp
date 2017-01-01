@@ -108,7 +108,7 @@ void CMain::ResetGameState()
     x128_globalObjects.ResetGameState();
     g_GameState->ImportPersistentOptions(sysOpts);
     g_GameState->SetGameOptions(gameOpts);
-    g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerHasFusion());
+    g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
 }
 
 void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr)
@@ -130,10 +130,10 @@ void CMain::LoadAudio()
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 {
-    bool fusionBackup = g_GameState->SystemOptions().GetPlayerHasFusion();
+    bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
     x128_globalObjects.x134_gameState = std::make_unique<CGameState>(r, idx);
     g_GameState = x128_globalObjects.x134_gameState.get();
-    g_GameState->SystemOptions().SetPlayerHasFusion(fusionBackup);
+    g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionBackup);
     g_GameState->GetPlayerState()->SetIsFusionEnabled(fusionBackup);
     g_GameState->HintOptions().SetNextHintTime();
 }

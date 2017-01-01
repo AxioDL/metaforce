@@ -281,7 +281,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
 
     PlayAdvanceSfx();
 
-    if (g_GameState->SystemOptions().GetPlayerHasHardMode())
+    if (g_GameState->SystemOptions().GetPlayerBeatNormalMode())
     {
         x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(102));
         x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
@@ -418,7 +418,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
     }
     else
     {
-        if (g_GameState->SystemOptions().GetPlayerHasHardMode())
+        if (g_GameState->SystemOptions().GetPlayerBeatNormalMode())
         {
             if (x40_tablegroup_popup->GetUserSelection() == 1)
             {
@@ -488,32 +488,239 @@ CFrontEndUI::SGBASupportFrame::SGBASupportFrame()
 
 void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SetUIText(EUIType tp)
 {
+    int instructions = -1;
+    int yes = -1;
+    int no = -1;
 
+    bool cableVisible = false;
+    bool circleGcVisible = false;
+    bool circleGbaVisible = false;
+    bool circleStartVisible = false;
+    bool pakoutVisible = false;
+    bool gbaScreenVisible = false;
+    bool connectVisible = false;
+
+    switch (tp)
+    {
+    case EUIType::InsertPak:
+        instructions = 73; // Insert Game Pak
+        no = 82;
+        yes = 83;
+        pakoutVisible = true;
+        circleGbaVisible = true;
+        break;
+    case EUIType::ConnectSocket:
+        instructions = 68; // Connect socket
+        no = 82;
+        yes = 83;
+        cableVisible = true;
+        circleGcVisible = true;
+        circleGbaVisible = true;
+        break;
+    case EUIType::PressStartAndSelect:
+        instructions = 74; // Hold start and select
+        no = 82;
+        yes = 83;
+        cableVisible = true;
+        circleStartVisible = true;
+        gbaScreenVisible = true;
+        break;
+    case EUIType::BeginLink:
+        instructions = 75; // Begin link?
+        no = 82;
+        yes = 83;
+        cableVisible = true;
+        gbaScreenVisible = true;
+        break;
+    case EUIType::TurnOffGBA:
+        instructions = 76; // Turn off GBA
+        no = 82;
+        yes = 83;
+        cableVisible = true;
+        gbaScreenVisible = true;
+        circleStartVisible = true;
+        break;
+    case EUIType::Linking:
+        x4_gbaSupport->StartLink();
+        instructions = 72; // Linking
+        cableVisible = true;
+        gbaScreenVisible = true;
+        connectVisible = true;
+        break;
+    case EUIType::LinkFailed:
+        instructions = 69; // Link failed
+        no = 82;
+        yes = 83;
+        cableVisible = true;
+        circleGcVisible = true;
+        circleGbaVisible = true;
+        circleStartVisible = true;
+        gbaScreenVisible = true;
+        break;
+    case EUIType::LinkCompleteOrLinking:
+        yes = 83;
+        instructions = x40_linkInProgress + 71; // Complete or linking
+        cableVisible = true;
+        gbaScreenVisible = true;
+        break;
+    case EUIType::Complete:
+    case EUIType::Cancelled:
+    default:
+        break;
+    }
+
+    std::wstring instructionsStr;
+    if (instructions != -1)
+        instructionsStr = g_MainStringTable->GetString(instructions);
+    xc_textpane_instructions.SetPairText(instructionsStr);
+
+    std::wstring yesStr;
+    if (yes != -1)
+        yesStr = g_MainStringTable->GetString(yes);
+    x14_textpane_yes->TextSupport()->SetText(yesStr);
+
+    std::wstring noStr;
+    if (no != -1)
+        noStr = g_MainStringTable->GetString(no);
+    x18_textpane_no->TextSupport()->SetText(noStr);
+
+    x1c_model_gc->SetVisibility(true, ETraversalMode::Children);
+    x20_model_gba->SetVisibility(true, ETraversalMode::Children);
+    x24_model_cable->SetVisibility(cableVisible, ETraversalMode::Children);
+    x28_model_circlegcport->SetVisibility(circleGcVisible, ETraversalMode::Children);
+    x2c_model_circlegbaport->SetVisibility(circleGbaVisible, ETraversalMode::Children);
+    x30_model_circlestartselect->SetVisibility(circleStartVisible, ETraversalMode::Children);
+    x34_model_pakout->SetVisibility(pakoutVisible, ETraversalMode::Children);
+    x38_model_gbascreen->SetVisibility(gbaScreenVisible, ETraversalMode::Children);
+    x3c_model_connect->SetVisibility(connectVisible, ETraversalMode::Children);
+
+    x0_uiType = tp;
 }
 
-void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput &input, bool sui)
+static const CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType NextLinkUI[] =
 {
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::ConnectSocket,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::PressStartAndSelect,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::BeginLink,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Linking,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::TurnOffGBA,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Complete,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::InsertPak,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty
+};
 
+static const CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType PrevLinkUI[] =
+{
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty
+};
+
+CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EAction
+CFrontEndUI::SGBASupportFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput &input, bool linkInProgress)
+{
+    if (linkInProgress != x40_linkInProgress)
+    {
+        x40_linkInProgress = linkInProgress;
+        SetUIText(x0_uiType);
+    }
+
+    switch (x0_uiType)
+    {
+    case EUIType::InsertPak:
+    case EUIType::ConnectSocket:
+    case EUIType::PressStartAndSelect:
+    case EUIType::BeginLink:
+    case EUIType::LinkFailed:
+    case EUIType::LinkCompleteOrLinking:
+    case EUIType::TurnOffGBA:
+        if (input.PA())
+        {
+            PlayAdvanceSfx();
+            SetUIText(NextLinkUI[int(x0_uiType)]);
+        }
+        else if (input.PB())
+        {
+            EUIType prevUi = PrevLinkUI[int(x0_uiType)];
+            if (prevUi == EUIType::Empty)
+                break;
+            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            SetUIText(prevUi);
+        }
+        break;
+    case EUIType::Linking:
+        if (x4_gbaSupport->GetPhase() == CGBASupport::EPhase::Complete)
+        {
+            if (x4_gbaSupport->IsFusionLinked())
+                g_GameState->SystemOptions().SetPlayerLinkedFusion(true);
+            if (x4_gbaSupport->IsFusionBeat())
+                g_GameState->SystemOptions().SetPlayerBeatFusion(true);
+            if (x4_gbaSupport->IsFusionLinked())
+            {
+                PlayAdvanceSfx();
+                SetUIText(EUIType::LinkCompleteOrLinking);
+            }
+            else
+            {
+                CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                SetUIText(EUIType::LinkFailed);
+            }
+        }
+        break;
+    case EUIType::Complete:
+        return EAction::Complete;
+    case EUIType::Cancelled:
+        return EAction::Cancelled;
+    default: break;
+    }
+
+    return EAction::None;
 }
 
 void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::Update(float dt)
 {
-
+    x4_gbaSupport->Update(dt);
+    x8_frme->Update(dt);
 }
 
 void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::FinishedLoading()
 {
-
+    xc_textpane_instructions = FindTextPanePair(x8_frme, "textpane_instructions");
+    x14_textpane_yes = static_cast<CGuiTextPane*>(x8_frme->FindWidget("textpane_yes"));
+    x18_textpane_no = static_cast<CGuiTextPane*>(x8_frme->FindWidget("textpane_no"));
+    x1c_model_gc = static_cast<CGuiModel*>(x8_frme->FindWidget("model_gc"));
+    x20_model_gba = static_cast<CGuiModel*>(x8_frme->FindWidget("model_gba"));
+    x24_model_cable = static_cast<CGuiModel*>(x8_frme->FindWidget("model_cable"));
+    x28_model_circlegcport = static_cast<CGuiModel*>(x8_frme->FindWidget("model_circlegcport"));
+    x2c_model_circlegbaport = static_cast<CGuiModel*>(x8_frme->FindWidget("model_circlegbaport"));
+    x30_model_circlestartselect = static_cast<CGuiModel*>(x8_frme->FindWidget("model_circlestartselect"));
+    x34_model_pakout = static_cast<CGuiModel*>(x8_frme->FindWidget("model_pakout"));
+    x38_model_gbascreen = static_cast<CGuiModel*>(x8_frme->FindWidget("model_gbascreen"));
+    x3c_model_connect = static_cast<CGuiModel*>(x8_frme->FindWidget("model_connect"));
+    SetUIText(EUIType::InsertPak);
 }
 
 void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::Draw()
 {
-
+    x8_frme->Draw(CGuiWidgetDrawParms::Default);
 }
 
-CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SGBALinkFrame(const CGuiFrame* linkFrame, CGBASupport* support, bool)
+CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFrame,
+                                                            CGBASupport* support,
+                                                            bool linkInProgress)
+: x4_gbaSupport(support), x8_frme(linkFrame), x40_linkInProgress(linkInProgress)
 {
-
+    support->InitializeSupport();
+    FinishedLoading();
 }
 
 void CFrontEndUI::SGBASupportFrame::FinishedLoading()
@@ -536,17 +743,17 @@ void CFrontEndUI::SGBASupportFrame::FinishedLoading()
     x2c_tablegroup_fusionsuit->SetIsActive(false);
     x2c_tablegroup_fusionsuit->SetIsVisible(false);
     x2c_tablegroup_fusionsuit->SetD1(false);
-    x2c_tablegroup_fusionsuit->SetUserSelection(g_GameState->SystemOptions().GetPlayerHasFusion());
+    x2c_tablegroup_fusionsuit->SetUserSelection(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
 
     SetTableColors(x28_tablegroup_options);
     SetTableColors(x2c_tablegroup_fusionsuit);
 
     x28_tablegroup_options->SetMenuAdvanceCallback(
-        std::bind(&SGBASupportFrame::DoOptionsAdvance, this, std::placeholders::_1));
+        std::bind(&SGBASupportFrame::DoAdvance, this, std::placeholders::_1));
     x28_tablegroup_options->SetMenuSelectionChangeCallback(
         std::bind(&SGBASupportFrame::DoSelectionChange, this, std::placeholders::_1));
     x28_tablegroup_options->SetMenuCancelCallback(
-        std::bind(&SGBASupportFrame::DoOptionsCancel, this, std::placeholders::_1));
+        std::bind(&SGBASupportFrame::DoCancel, this, std::placeholders::_1));
     x2c_tablegroup_fusionsuit->SetMenuSelectionChangeCallback(
         std::bind(&SGBASupportFrame::DoSelectionChange, this, std::placeholders::_1));
 }
@@ -574,35 +781,172 @@ void CFrontEndUI::SGBASupportFrame::SetTableColors(CGuiTableGroup* tbgp) const
                     zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
+void CFrontEndUI::SGBASupportFrame::Update(float dt, CSaveUI* saveUI)
+{
+    bool doUpdate = false;
+    if (saveUI)
+        if (saveUI->GetUIType() == CSaveUI::EUIType::SaveProgress)
+            doUpdate = true;
+
+    if (doUpdate != x38_lastDoUpdate)
+    {
+        x38_lastDoUpdate = doUpdate;
+        ResetCompletionFlags();
+    }
+
+    if (x0_gbaLinkFrame)
+        x0_gbaLinkFrame->Update(dt);
+    else if (x24_loadedFrame)
+        x24_loadedFrame->Update(dt);
+
+    bool showFusionSuit = g_GameState->SystemOptions().GetPlayerLinkedFusion() &&
+                          g_GameState->SystemOptions().GetPlayerBeatNormalMode();
+    bool showFusionSuitProceed = showFusionSuit && x28_tablegroup_options->GetUserSelection() == 1;
+    x2c_tablegroup_fusionsuit->SetIsActive(showFusionSuitProceed);
+    x2c_tablegroup_fusionsuit->SetIsVisible(showFusionSuitProceed);
+    x24_loadedFrame->FindWidget("textpane_proceed")->SetIsVisible(showFusionSuitProceed);
+
+    std::wstring instructionStr;
+    if (x28_tablegroup_options->GetUserSelection() == 1)
+    {
+        /* Fusion Suit */
+        if (x3a_mpNotComplete)
+            instructionStr = g_MainStringTable->GetString(80); // MP not complete
+        else if (!showFusionSuit)
+            instructionStr = g_MainStringTable->GetString(78); // To enable fusion suit
+    }
+    else
+    {
+        /* NES Metroid */
+        if (x39_fusionNotComplete)
+            instructionStr = g_MainStringTable->GetString(79); // You have not completed fusion
+        else if (!g_GameState->SystemOptions().GetPlayerBeatFusion())
+            instructionStr = g_MainStringTable->GetString(77); // To play NES Metroid
+    }
+
+    x30_textpane_instructions.SetPairText(instructionStr);
+}
+
 CFrontEndUI::SGBASupportFrame::EAction
 CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
-    return EAction::Zero;
+    x8_action = EAction::None;
+
+    if (sui)
+        sui->ProcessUserInput(input);
+
+    if (x38_lastDoUpdate)
+    {
+        if (x0_gbaLinkFrame)
+        {
+            SGBALinkFrame::EAction action = x0_gbaLinkFrame->ProcessUserInput(input, sui);
+            if (action != SGBALinkFrame::EAction::None)
+            {
+                x0_gbaLinkFrame.reset();
+                if (action == SGBALinkFrame::EAction::Complete)
+                {
+                    if (x28_tablegroup_options->GetUserSelection() == 0 &&
+                        !g_GameState->SystemOptions().GetPlayerBeatFusion())
+                        x39_fusionNotComplete = true;
+                    else if (sui)
+                        sui->SaveNESState();
+                    else if (x24_loadedFrame)
+                        x24_loadedFrame->ProcessUserInput(input);
+                }
+            }
+        }
+    }
+
+    return x8_action;
 }
 
 void CFrontEndUI::SGBASupportFrame::Draw() const
 {
-    if (!x38_)
+    if (!x38_lastDoUpdate)
         return;
     if (x0_gbaLinkFrame)
-    {
-
-    }
+        x0_gbaLinkFrame->Draw();
+    else if (x24_loadedFrame)
+        x24_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
 }
 
-void CFrontEndUI::SGBASupportFrame::DoOptionsCancel(CGuiTableGroup* caller)
+void CFrontEndUI::SGBASupportFrame::DoCancel(CGuiTableGroup* caller)
 {
-
+    if (x39_fusionNotComplete || x3a_mpNotComplete)
+    {
+        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
+    else
+    {
+        x8_action = EAction::GoBack;
+        x28_tablegroup_options->SetUserSelection(0);
+        x2c_tablegroup_fusionsuit->SetIsActive(false);
+        x30_textpane_instructions.SetPairText(L"");
+        SetTableColors(x28_tablegroup_options);
+    }
 }
 
 void CFrontEndUI::SGBASupportFrame::DoSelectionChange(CGuiTableGroup* caller)
 {
-
+    if (caller == x28_tablegroup_options)
+    {
+        CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        x3a_mpNotComplete = false;
+        x39_fusionNotComplete = false;
+    }
+    else
+    {
+        CSfxManager::SfxStart(1095, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        bool fusionActive = x2c_tablegroup_fusionsuit->GetUserSelection() == 1;
+        g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionActive);
+        g_GameState->GetPlayerState()->SetIsFusionEnabled(fusionActive);
+    }
+    SetTableColors(caller);
 }
 
-void CFrontEndUI::SGBASupportFrame::DoOptionsAdvance(CGuiTableGroup* caller)
+void CFrontEndUI::SGBASupportFrame::DoAdvance(CGuiTableGroup* caller)
 {
-
+    switch (x28_tablegroup_options->GetUserSelection())
+    {
+    case 1:
+        /* Fusion Suit */
+        if (x3a_mpNotComplete)
+        {
+            x3a_mpNotComplete = false;
+            PlayAdvanceSfx();
+        }
+        else if (g_GameState->SystemOptions().GetPlayerBeatNormalMode())
+        {
+            if (g_GameState->SystemOptions().GetPlayerLinkedFusion())
+                return;
+            x0_gbaLinkFrame = std::make_unique<SGBALinkFrame>(x18_gbaLink.GetObj(), x4_gbaSupport.get(), false);
+            PlayAdvanceSfx();
+        }
+        else
+        {
+            x3a_mpNotComplete = true;
+            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        }
+        break;
+    case 0:
+        /* NES Metroid */
+        if (x39_fusionNotComplete)
+        {
+            x39_fusionNotComplete = false;
+            PlayAdvanceSfx();
+        }
+        else if (g_GameState->SystemOptions().GetPlayerBeatFusion())
+        {
+            x8_action = EAction::PlayNESMetroid;
+        }
+        else
+        {
+            x0_gbaLinkFrame = std::make_unique<SGBALinkFrame>(x18_gbaLink.GetObj(), x4_gbaSupport.get(), false);
+            PlayAdvanceSfx();
+        }
+        break;
+    default: break;
+    }
 }
 
 void CFrontEndUI::SGuiTextPair::SetPairText(const std::wstring& str)
@@ -1311,10 +1655,10 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
         {
             switch (xe4_gbaSupportFrme->ProcessUserInput(input, xdc_saveUI.get()))
             {
-            case SGBASupportFrame::EAction::One:
+            case SGBASupportFrame::EAction::GoBack:
                 StartStateTransition(EScreen::Three);
                 return;
-            case SGBASupportFrame::EAction::Two:
+            case SGBASupportFrame::EAction::PlayNESMetroid:
                 xf4_curAudio->StopMixing();
                 xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
                 if (xdc_saveUI)

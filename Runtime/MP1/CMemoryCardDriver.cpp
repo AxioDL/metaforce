@@ -754,7 +754,7 @@ void CMemoryCardDriver::UpdateCardFormat(ECardResult result)
 void CMemoryCardDriver::BuildNewFileSlot(u32 saveIdx)
 {
     g_GameState->SetFileIdx(saveIdx);
-    bool fusionBackup = g_GameState->SystemOptions().GetPlayerHasFusion();
+    bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
 
     std::unique_ptr<SGameFileSlot>& slot = xe4_fileSlots[saveIdx];
     if (!slot)
@@ -765,7 +765,7 @@ void CMemoryCardDriver::BuildNewFileSlot(u32 saveIdx)
     g_GameState->ReadPersistentOptions(r);
     ImportPersistentOptions();
     g_GameState->SetCardSerial(x28_cardSerial);
-    g_GameState->SystemOptions().SetPlayerHasFusion(fusionBackup);
+    g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionBackup);
 }
 
 void CMemoryCardDriver::EraseFileSlot(u32 saveIdx)

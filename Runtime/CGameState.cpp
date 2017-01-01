@@ -191,27 +191,27 @@ void CGameState::ReadPersistentOptions(CBitStreamReader& r)
 
 void CGameState::ImportPersistentOptions(const CPersistentOptions& opts)
 {
-    if (opts.xd0_24_)
-        xa8_systemOptions.xd0_24_ = true;
-    if (opts.xd0_27_)
-        xa8_systemOptions.xd0_27_ = true;
+    if (opts.xd0_24_fusionLinked)
+        xa8_systemOptions.xd0_24_fusionLinked = true;
+    if (opts.xd0_27_fusionBeat)
+        xa8_systemOptions.xd0_27_fusionBeat = true;
     if (&opts != &xa8_systemOptions)
         memcpy(xa8_systemOptions.x0_, opts.x0_, 98);
     xa8_systemOptions.SetLogScanCount(opts.GetLogScanCount());
     xa8_systemOptions.SetAllItemsCollected(opts.GetAllItemsCollected());
-    xa8_systemOptions.SetPlayerHasHardMode(opts.GetPlayerHasHardMode());
+    xa8_systemOptions.SetPlayerBeatNormalMode(opts.GetPlayerBeatNormalMode());
     xa8_systemOptions.SetPlayerBeatHardMode(opts.GetPlayerBeatHardMode());
 }
 
 void CGameState::ExportPersistentOptions(CPersistentOptions& opts) const
 {
-    if (xa8_systemOptions.xd0_24_)
-        opts.xd0_24_ = true;
-    if (xa8_systemOptions.xd0_27_)
-        opts.xd0_27_ = true;
+    if (xa8_systemOptions.xd0_24_fusionLinked)
+        opts.xd0_24_fusionLinked = true;
+    if (xa8_systemOptions.xd0_27_fusionBeat)
+        opts.xd0_27_fusionBeat = true;
     if (&opts != &xa8_systemOptions)
         memcpy(opts.x0_, xa8_systemOptions.x0_, 98);
-    opts.SetPlayerHasFusion(xa8_systemOptions.GetPlayerHasFusion());
+    opts.SetPlayerFusionSuitActive(xa8_systemOptions.GetPlayerFusionSuitActive());
 }
 
 void CGameState::WriteBackupBuf()

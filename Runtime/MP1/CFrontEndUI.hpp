@@ -175,53 +175,88 @@ public:
         {
             enum class EUIType
             {
-                Zero,
-                One,
-                Two,
-                Three,
-                Four,
-                Five,
-                Six,
-                Seven
+                Empty = -1,
+                InsertPak = 0,
+                ConnectSocket = 1,
+                PressStartAndSelect = 2,
+                BeginLink = 3,
+                Linking = 4,
+                LinkFailed = 5,
+                LinkCompleteOrLinking = 6,
+                TurnOffGBA = 7,
+                Complete = 8,
+                Cancelled = 9
             };
 
+            enum class EAction
+            {
+                None = 0,
+                Complete = 1,
+                Cancelled = 2
+            };
+
+            EUIType x0_uiType;
+            CGBASupport* x4_gbaSupport;
+            CGuiFrame* x8_frme;
+            SGuiTextPair xc_textpane_instructions;
+            CGuiTextPane* x14_textpane_yes = nullptr;
+            CGuiTextPane* x18_textpane_no = nullptr;
+            CGuiModel* x1c_model_gc = nullptr;
+            CGuiModel* x20_model_gba = nullptr;
+            CGuiModel* x24_model_cable = nullptr;
+            CGuiModel* x28_model_circlegcport = nullptr;
+            CGuiModel* x2c_model_circlegbaport = nullptr;
+            CGuiModel* x30_model_circlestartselect = nullptr;
+            CGuiModel* x34_model_pakout = nullptr;
+            CGuiModel* x38_model_gbascreen = nullptr;
+            CGuiModel* x3c_model_connect = nullptr;
+            bool x40_linkInProgress;
+
             void SetUIText(EUIType tp);
-            void ProcessUserInput(const CFinalInput &input, bool sui);
+            EAction ProcessUserInput(const CFinalInput &input, bool linkInProgress);
             void Update(float dt);
             void FinishedLoading();
             void Draw();
-            SGBALinkFrame(const CGuiFrame* linkFrame, CGBASupport* support, bool);
+            SGBALinkFrame(CGuiFrame* linkFrame, CGBASupport* support, bool linkInProgress);
         };
 
         enum class EAction
         {
-            Zero,
-            One,
-            Two
+            None,
+            GoBack,
+            PlayNESMetroid
         };
 
         std::unique_ptr<SGBALinkFrame> x0_gbaLinkFrame;
         std::unique_ptr<CGBASupport> x4_gbaSupport;
+        EAction x8_action = EAction::None;
         TLockedToken<CGuiFrame> xc_gbaScreen;
         TLockedToken<CGuiFrame> x18_gbaLink;
         CGuiFrame* x24_loadedFrame = nullptr;
         CGuiTableGroup* x28_tablegroup_options = nullptr;
         CGuiTableGroup* x2c_tablegroup_fusionsuit = nullptr;
         SGuiTextPair x30_textpane_instructions;
-        bool x38_ = false;
-        bool x39_ = false;
-        bool x3a_ = false;
+        bool x38_lastDoUpdate = false;
+        bool x39_fusionNotComplete = false;
+        bool x3a_mpNotComplete = false;
 
         SGBASupportFrame();
         void FinishedLoading();
         bool PumpLoad();
         void SetTableColors(CGuiTableGroup* tbgp) const;
+        void Update(float dt, CSaveUI* saveUI);
         EAction ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         void Draw() const;
 
-        void DoOptionsCancel(CGuiTableGroup* caller);
+        void ResetCompletionFlags()
+        {
+            x39_fusionNotComplete = false;
+            x3a_mpNotComplete = false;
+        }
+
+        void DoCancel(CGuiTableGroup* caller);
         void DoSelectionChange(CGuiTableGroup* caller);
-        void DoOptionsAdvance(CGuiTableGroup* caller);
+        void DoAdvance(CGuiTableGroup* caller);
     };
 
     struct SFrontEndFrame
