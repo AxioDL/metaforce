@@ -21,6 +21,11 @@ namespace MP1
 #define GBA_JOYBOOT_UNKNOWN_STATE       3
 #define GBA_JOYBOOT_ERR_INVALID         4
 
+static void GBAInit()
+{
+
+}
+
 static s32 GBAJoyBootAsync(s32 chan, s32 paletteColor, s32 paletteSpeed,
                            u8* programp, s32 length, u8* status)
 {
@@ -52,6 +57,30 @@ static s32 GBAWrite(s32 chan, u8* src, u8* status)
     return GBA_READY;
 }
 
+static u32 calculateJBusChecksum(const u8* data, size_t len)
+{
+    const u8* ptr = data;
+    u32 sum = -1;
+    for (int i = len ; i > 0; --i)
+    {
+        u8 ch = *ptr;
+        ptr++;
+        sum ^= ch;
+        for (int j = 0; j < 8; ++j)
+        {
+            if ((sum & 1))
+            {
+                sum >>= 1;
+                sum ^= 0xb010;
+            }
+            else
+                sum >>= 1;
+        }
+    }
+
+    return sum;
+}
+
 CGBASupport* CGBASupport::SharedInstance = nullptr;
 
 CGBASupport::CGBASupport()
@@ -60,7 +89,7 @@ CGBASupport::CGBASupport()
     x28_fileSize = ROUND_UP_32(Length());
     x2c_buffer.reset(new u8[x28_fileSize]);
     x30_dvdReq = AsyncRead(x2c_buffer.get(), x28_fileSize);
-    //GBAInit();
+    GBAInit();
     SharedInstance = this;
 }
 
@@ -123,7 +152,9 @@ bool CGBASupport::PollResponse()
     if (GBARead(x40_siChan, bytes, &status) != GBA_READY)
         return false;
 
-    /* CRC Here */
+    u32 swapped = hecl::SBig(reinterpret_cast<u32&>(bytes));
+    if (bytes[0] != calculateJBusChecksum(reinterpret_cast<u8*>(&swapped), 3))
+        return false;
 
     x44_fusionLinked = (bytes[2] & 0x2) != 0;
     if (x44_fusionLinked && (bytes[2] & 0x1) != 0)
