@@ -463,7 +463,7 @@ static void VisitGlob(const ProjectPath& path,
                       CookProgress& progress)
 {
     std::vector<ProjectPath> children;
-    path.getGlobResults(children);
+    path.getGlobResults(children, path.getProject().getProjectRootPath().getAbsolutePath());
 
     /* Pass 1: child file count */
     int childFileCount = 0;

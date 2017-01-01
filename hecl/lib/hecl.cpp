@@ -164,7 +164,7 @@ bool IsPathPNG(const hecl::ProjectPath& path)
     FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
     if (!fp)
         return false;
-    uint32_t buf;
+    uint32_t buf = 0;
     if (fread(&buf, 1, 4, fp) != 4)
     {
         fclose(fp);
@@ -185,7 +185,7 @@ bool IsPathBlend(const hecl::ProjectPath& path)
     FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
     if (!fp)
         return false;
-    uint32_t buf;
+    uint32_t buf = 0;
     if (fread(&buf, 1, 4, fp) != 4)
     {
         fclose(fp);

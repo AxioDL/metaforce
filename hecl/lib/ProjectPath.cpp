@@ -151,7 +151,7 @@ Time ProjectPath::getModtime() const
     if (m_absPath.find(_S('*')) != SystemString::npos)
     {
         std::vector<ProjectPath> globResults;
-        getGlobResults(globResults);
+        getGlobResults(globResults, m_proj->getProjectRootPath().getAbsolutePath());
         for (ProjectPath& path : globResults)
         {
             if (!hecl::Stat(path.getAbsolutePath().c_str(), &theStat))
@@ -244,19 +244,22 @@ hecl::DirectoryEnumerator ProjectPath::enumerateDir() const
     return hecl::DirectoryEnumerator(m_absPath);
 }
 
-void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
+void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths, const SystemString& startPath) const
 {
-#if _WIN32
     SystemString itStr;
-    SystemRegexMatch letterMatch;
-    if (m_absPath.compare(0, 2, _S("//")))
-        itStr = _S("\\\\");
-    else if (std::regex_search(m_absPath, letterMatch, regDRIVELETTER))
-        if (letterMatch[1].str().size())
-            itStr = letterMatch[1];
+    if (startPath == _S(""))
+    {
+#if _WIN32
+        SystemRegexMatch letterMatch;
+        if (m_absPath.compare(0, 2, _S("//")))
+            itStr = _S("\\\\");
+        else if (std::regex_search(m_absPath, letterMatch, regDRIVELETTER))
+            if (letterMatch[1].str().size())
+                itStr = letterMatch[1];
 #else
-    SystemString itStr = _S("/");
+        itStr = _S("/");
 #endif
+    }
 
     _recursiveGlob(*m_proj, outPaths, m_absPath, itStr, false);
 }

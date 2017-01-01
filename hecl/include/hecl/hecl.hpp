@@ -1165,8 +1165,9 @@ public:
     /**
      * @brief Insert glob matches into existing vector
      * @param outPaths Vector to add matches to (will not erase existing contents)
+     * @param startPath Path to start searching for matches from
      */
-    void getGlobResults(std::vector<ProjectPath>& outPaths) const;
+    void getGlobResults(std::vector<ProjectPath>& outPaths, const SystemString& startPath = _S("")) const;
 
     /**
      * @brief Count how many directory levels deep in project path is
