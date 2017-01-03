@@ -486,13 +486,13 @@ class CKawasedoChallenge
         x58_resK1 = xf8_dspHmac.x20_resK1;
         x5c_resMAC = xf8_dspHmac.x24_resMAC;
 
-        x20_xfMAC = ~KawasedoLUT[0x24] & (KawasedoLUT[0x24] + xc_progLen);
-        u32 tmp = KawasedoLUT[0x14] << KawasedoLUT[0x21];
+        x20_xfMAC = ~0x7 & (0x7 + xc_progLen);
+        u32 tmp = 0x20 << 0x4;
         if (x20_xfMAC < tmp)
             x20_xfMAC = tmp;
         x64_intermediateMAC = x20_xfMAC;
         x20_xfMAC -= tmp;
-        x20_xfMAC >>= KawasedoLUT[0x20];
+        x20_xfMAC >>= 0x3;
 
         reinterpret_cast<u32&>(x1c_writeBuf) = x5c_resMAC;
 
@@ -527,10 +527,10 @@ class CKawasedoChallenge
             else
             {
                 if (!(*x10_statusPtr & GBA_JSTAT_PSF1) ||
-                    (*x10_statusPtr & GBA_JSTAT_PSF0) >> KawasedoLUT[0x21] !=
-                    (x34_secret & KawasedoLUT[0x21]) >> KawasedoLUT[0x1f])
+                    (*x10_statusPtr & GBA_JSTAT_PSF0) >> 0x4 !=
+                    (x34_secret & 0x4) >> 0x2)
                     return false;
-                x34_secret -= (KawasedoLUT[0x19] - KawasedoLUT[0x17]);
+                x34_secret -= (0x73 - 0x77);
             }
 
             if (x34_secret <= x64_intermediateMAC)
@@ -538,35 +538,35 @@ class CKawasedoChallenge
                 u32 checksum;
                 if (x34_secret != x64_intermediateMAC)
                 {
-                    x20_xfMAC = KawasedoLUT[0x1d];
-                    checksum = KawasedoLUT[0x1d];
-                    while (x20_xfMAC < KawasedoLUT[0x21])
+                    x20_xfMAC = 0x0;
+                    checksum = 0x0;
+                    while (x20_xfMAC < 0x4)
                     {
                         if (xc_progLen)
                         {
-                            checksum |= *x8_progPtr++ << (x20_xfMAC * KawasedoLUT[0x25]);
+                            checksum |= *x8_progPtr++ << (x20_xfMAC * 0x8);
                             --xc_progLen;
                         }
                     }
 
-                    if (x34_secret == KawasedoLUT[0x26])
+                    if (x34_secret == 0xac)
                     {
                         x60_progChecksum = checksum;
                     }
-                    else if (KawasedoLUT[0x27] == x34_secret)
+                    else if (0xc4 == x34_secret)
                     {
-                        checksum = m_chan << KawasedoLUT[0x25];
+                        checksum = m_chan << 0x8;
                     }
 
-                    if (x34_secret >= KawasedoLUT[0x2])
+                    if (x34_secret >= 0xc0)
                     {
                         u32 checksum2 = checksum;
-                        u32 tmp = KawasedoLUT[0x14];
+                        u32 tmp = 0x20;
                         u32 tmpSecret = x38_xfSecret;
-                        u32 xorTerm = (KawasedoLUT[0x26] << 8) +
-                            (((KawasedoLUT[0x2b] - (KawasedoLUT[0x2b] << 4)) +
-                            KawasedoLUT[0x28]) - KawasedoLUT[0x23]);
-                        while (tmp > KawasedoLUT[0x1e])
+                        u32 xorTerm = (0xac << 8) +
+                            (((0xbf - (0xbf << 4)) +
+                            0xf8) - 0x6);
+                        while (tmp > 0x0)
                         {
                             if (checksum2 ^ tmpSecret)
                                 tmpSecret = (tmpSecret >> 1) ^ xorTerm;
@@ -579,13 +579,13 @@ class CKawasedoChallenge
                         x38_xfSecret = tmpSecret;
                     }
 
-                    if (x34_secret == KawasedoLUT[0x28] + 256)
+                    if (x34_secret == 0xf8 + 256)
                     {
                         x3c_[0] = checksum;
                     }
-                    else if (x34_secret == KawasedoLUT[0x1] + 256)
+                    else if (x34_secret == 0xfc + 256)
                     {
-                        x20_xfMAC = KawasedoLUT[0x7];
+                        x20_xfMAC = 0x1;
                         x3c_[x20_xfMAC] = checksum;
                     }
                 }
@@ -594,26 +594,26 @@ class CKawasedoChallenge
                     checksum = x38_xfSecret | x34_secret << 16;
                 }
 
-                if (x34_secret > KawasedoLUT[0x2b])
+                if (x34_secret > 0xbf)
                 {
-                    x58_resK1 = ((KawasedoLUT[0x18] << KawasedoLUT[0x25]) | KawasedoLUT[0x15] |
-                        (KawasedoLUT[0x18] << KawasedoLUT[0x2c]) | (KawasedoLUT[0x17] << KawasedoLUT[0x2a])) *
-                        x58_resK1 - (KawasedoLUT[0x1b] - KawasedoLUT[0x1a]);
+                    x58_resK1 = ((0x61 << 0x8) | 0x4b |
+                        (0x61 << 0x18) | (0x77 << 0x10)) *
+                        x58_resK1 - (0x64 - 0x65);
 
                     checksum ^= x58_resK1;
-                    checksum ^= -((KawasedoLUT[0xb] << 20) + x34_secret);
-                    checksum ^= KawasedoLUT[0xb] | (KawasedoLUT[0x13] << 8) | (KawasedoLUT[0x12] << 16);
+                    checksum ^= -((0x20 << 20) + x34_secret);
+                    checksum ^= 0x20 | (0x79 << 8) | (0x62 << 16);
                 }
 
-                x1c_writeBuf[3] = checksum >> KawasedoLUT[0x0];
-                x1c_writeBuf[0] = checksum >> KawasedoLUT[0x1e];
-                x1c_writeBuf[1] = checksum >> KawasedoLUT[0x29];
-                x1c_writeBuf[2] = checksum >> KawasedoLUT[0x2a];
+                x1c_writeBuf[3] = checksum >> 0x18;
+                x1c_writeBuf[0] = checksum >> 0x0;
+                x1c_writeBuf[1] = checksum >> 0x8;
+                x1c_writeBuf[2] = checksum >> 0x10;
 
-                if (x34_secret == KawasedoLUT[0x1] + KawasedoLUT[0x1])
+                if (x34_secret == 0xfc + 0xfc)
                     x3c_[2] = checksum;
 
-                if (x20_xfMAC < KawasedoLUT[0x21])
+                if (x20_xfMAC < 0x4)
                 {
                     x3c_[(3 - (1 - x20_xfMAC))] = checksum;
                     x3c_[5 - x20_xfMAC] = x3c_[(2 - (1 - x20_xfMAC))] * x3c_[4 - x20_xfMAC];
@@ -726,7 +726,7 @@ public:
       x4_pSpeed(paletteSpeed), x8_progPtr(programp),
       xc_progLen(length), x10_statusPtr(status)
     {
-        x34_secret = KawasedoLUT[0x8];
+        x34_secret = 0x0;
     }
 
     bool DoChallenge()
