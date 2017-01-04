@@ -311,6 +311,7 @@ public:
     void SetAreaAttributes(const CScriptAreaAttributes* areaAttributes);
     bool GetActive() const { return xf0_25_active; }
     void SetActive(bool active) { xf0_25_active = active; }
+    CObjectList& GetAreaObjects() const { return *GetPostConstructed()->x10c0_areaObjs.get(); }
 };
 
 }

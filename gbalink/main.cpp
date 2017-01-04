@@ -11,7 +11,9 @@
 #include <arpa/inet.h>
 #include <string>
 #include "hecl/hecl.hpp"
+#if __APPLE__
 #include <mach/mach_time.h>
+#endif
 
 namespace net
 {
@@ -309,12 +311,21 @@ static u64 LastGCTick = 0;
 static u64 TimeCmdSent = 0;
 static bool Booted = false;
 
-static u64 MachToDolphinNum;
-static u64 MachToDolphinDenom;
+static u64 SysToDolphinNum;
+static u64 SysToDolphinDenom;
 
 static u64 GetGCTicks()
 {
-    return mach_absolute_time() * MachToDolphinNum / MachToDolphinDenom;
+#if __APPLE__
+    return mach_absolute_time() * SysToDolphinNum / SysToDolphinDenom;
+#elif __linux__
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+
+    return u64((tp.tv_sec * 1000000000ull) + tp.tv_nsec) * SysToDolphinNum / SysToDolphinDenom;
+#else
+    return 0;
+#endif
 }
 
 static void WaitGCTicks(u64 ticks)
@@ -1303,11 +1314,15 @@ void CGBASupport::StartLink()
 
 int main(int argc, char** argv)
 {
+#if __APPLE__
     mach_timebase_info_data_t timebase;
     mach_timebase_info(&timebase);
-    MachToDolphinNum = 486000000ull * timebase.numer;
-    MachToDolphinDenom = 1000000000ull * timebase.denom;
-
+    SysToDolphinNum = 486000000ull * timebase.numer;
+    SysToDolphinDenom = 1000000000ull * timebase.denom;
+#elif __linux__
+    SysToDolphinNum = 486000000ull;
+    SysToDolphinDenom = 1000000000ull;
+#endif
     CGBASupport gba("client_pad.bin");
     gba.Update(0.f);
     gba.InitializeSupport();
