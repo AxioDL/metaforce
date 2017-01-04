@@ -11,9 +11,17 @@
 #include <arpa/inet.h>
 #include <string>
 #include "hecl/hecl.hpp"
+#include <mach/mach_time.h>
 
 namespace net
 {
+
+/* Define the low-level send/receive flags, which depend on the OS */
+#ifdef __linux__
+static const int _flags = MSG_NOSIGNAL;
+#else
+static const int _flags = 0;
+#endif
 
 /** IP address class derived from SFML */
 class IPAddress
@@ -139,9 +147,10 @@ public:
 
     void setBlocking(bool blocking)
     {
+        m_isBlocking = blocking;
         int status = fcntl(m_socket, F_GETFL);
         if (m_isBlocking)
-            fcntl(m_socket, F_SETFL, status | ~O_NONBLOCK);
+            fcntl(m_socket, F_SETFL, status & ~O_NONBLOCK);
         else
             fcntl(m_socket, F_SETFL, status | O_NONBLOCK);
     }
@@ -199,15 +208,52 @@ public:
         m_socket = -1;
     }
 
-    ssize_t read(void* buf, size_t len)
+    ssize_t send(const void* buf, size_t len)
     {
-        return ::read(m_socket, buf, len);
+        if (!isOpen())
+            return -1;
+
+        if (!buf || !len)
+            return -1;
+
+        /* Loop until every byte has been sent */
+        ssize_t result = 0;
+        for (size_t sent = 0; sent < len; sent += result)
+        {
+            /* Send a chunk of data */
+            result = ::send(m_socket, static_cast<const char*>(buf) + sent, len - sent, _flags);
+
+            /* Check for errors */
+            if (result < 0)
+                return -1;
+        }
+
+        return len;
     }
 
-    ssize_t write(const void* buf, size_t len)
+    ssize_t recv(void* buf, size_t len)
     {
-        return ::write(m_socket, buf, len);
+        if (!isOpen())
+            return -1;
+
+        if (!buf)
+            return -1;
+
+        if (!len)
+            return 0;
+
+        /* Receive a chunk of bytes */
+        int sizeReceived = ::recv(m_socket, static_cast<char*>(buf), static_cast<int>(len), _flags);
+
+        if (sizeReceived <= 0)
+            return -1;
+
+        return sizeReceived;
     }
+
+    operator bool() const { return isOpen(); }
+
+    int GetInternalSocket() const { return m_socket; }
 };
 
 }
@@ -254,16 +300,220 @@ public:
 
 CGBASupport* CGBASupport::SharedInstance;
 
-net::Socket DataServer = {true};
-net::Socket DataSocket = {true};
-net::Socket ClockServer = {true};
-net::Socket ClockSocket = {true};
+static net::Socket DataServer = {false};
+static net::Socket DataSocket = {false};
+static net::Socket ClockServer = {false};
+static net::Socket ClockSocket = {true};
+static u8 Cmd = 0;
+static u64 LastGCTick = 0;
+static u64 TimeCmdSent = 0;
+static bool Booted = false;
+
+static u64 MachToDolphinNum;
+static u64 MachToDolphinDenom;
 
 static u64 GetGCTicks()
 {
-    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()).count();
-    return nanos * 486000000 / 1000000000;
+    return mach_absolute_time() * MachToDolphinNum / MachToDolphinDenom;
+}
+
+static void WaitGCTicks(u64 ticks)
+{
+    struct timeval tv = {};
+    tv.tv_sec = ticks / 486000000;
+    tv.tv_usec = (ticks % 486000000) * 1000000 / 486000000;
+    select(0, NULL, NULL, NULL, &tv);
+}
+
+enum EJoybusCmds
+{
+    CMD_RESET = 0xff,
+    CMD_STATUS = 0x00,
+    CMD_READ = 0x14,
+    CMD_WRITE = 0x15
+};
+
+static const u64 BITS_PER_SECOND = 115200;
+static const u64 BYTES_PER_SECOND = BITS_PER_SECOND / 8;
+
+static u64 GetTransferTime(u8 cmd)
+{
+    u64 bytes = 0;
+
+    switch (cmd)
+    {
+    case CMD_RESET:
+    case CMD_STATUS:
+    {
+        bytes = 4;
+        break;
+    }
+    case CMD_READ:
+    {
+        bytes = 6;
+        break;
+    }
+    case CMD_WRITE:
+    {
+        bytes = 1;
+        break;
+    }
+    default:
+    {
+        bytes = 1;
+        break;
+    }
+    }
+    return bytes * 486000000ull / BYTES_PER_SECOND;
+}
+
+static void ClockSync()
+{
+    if (!ClockSocket)
+        return;
+
+    u32 TickDelta = 0;
+    if (!LastGCTick)
+    {
+        LastGCTick = GetGCTicks();
+        TickDelta = 486000000ull / 60;
+    }
+    else
+        TickDelta = GetGCTicks() - LastGCTick;
+
+    /* Scale GameCube clock into GBA clock */
+    TickDelta = u32(u64(TickDelta) * 16777216 / 486000000);
+    LastGCTick = GetGCTicks();
+    TickDelta = hecl::SBig(TickDelta);
+    u8* deltaStr = reinterpret_cast<u8*>(&TickDelta);
+    //printf("%02x %02x %02x %02x\n", deltaStr[0], deltaStr[1], deltaStr[2], deltaStr[3]);
+    if (ClockSocket.send(&TickDelta, 4) < 0)
+        ClockSocket.close();
+}
+
+static void Send(const u8* buffer)
+{
+    Cmd = buffer[0];
+
+    //DataSocket.setBlocking(true);
+    ssize_t status;
+    if (Cmd == CMD_WRITE)
+        status = DataSocket.send(buffer, 5);
+    else
+        status = DataSocket.send(buffer, 1);
+
+    if (Cmd != CMD_STATUS)
+        Booted = true;
+
+    if (status < 0)
+        DataSocket.close();
+    else
+    {
+        printf("Send %02x [> %02x%02x%02x%02x] (%ld)\n", buffer[0],
+               buffer[1], buffer[2], buffer[3], buffer[4], status);
+    }
+
+    TimeCmdSent = GetGCTicks();
+}
+
+static size_t Receive(u8* buffer)
+{
+    if (!DataSocket)
+        return 0;
+
+    ssize_t recvBytes = 0;
+    u64 transferTime = GetTransferTime(Cmd);
+    bool block = (GetGCTicks() - TimeCmdSent) > transferTime;
+    if (Cmd == CMD_STATUS && !Booted)
+        block = false;
+
+    if (block)
+    {
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(DataSocket.GetInternalSocket(), &fds);
+        struct timeval tv = {};
+        tv.tv_sec = 1;
+        select(DataSocket.GetInternalSocket() + 1, &fds, NULL, NULL, &tv);
+    }
+
+    recvBytes = DataSocket.recv(buffer, 5);
+    if (recvBytes < 0)
+    {
+        if (errno == EAGAIN)
+            recvBytes = 0;
+        else
+        {
+            DataSocket.close();
+            return 5;
+        }
+    }
+
+    if (recvBytes > 5)
+        recvBytes = 5;
+
+    if (recvBytes > 0)
+    {
+        if (Cmd == CMD_STATUS || Cmd == CMD_RESET)
+        {
+            printf("Stat/Reset [< %02x%02x%02x%02x%02x] (%lu)\n",
+                   (u8)buffer[0], (u8)buffer[1], (u8)buffer[2],
+                   (u8)buffer[3], (u8)buffer[4], recvBytes);
+        }
+        else
+        {
+            printf("Receive [< %02x%02x%02x%02x%02x] (%lu)\n",
+                   (u8)buffer[0], (u8)buffer[1], (u8)buffer[2],
+                   (u8)buffer[3], (u8)buffer[4], recvBytes);
+        }
+    }
+
+    return recvBytes;
+}
+
+static bool WaitingForResp = false;
+static size_t DataReceivedBytes = 0;
+static u64 TimeSent = 0;
+
+static size_t RunBuffer(u8* buffer, u64& remTicks)
+{
+    /*
+    if (TimeSent)
+    {
+        s64 waitDelta = GetGCTicks() - TimeSent;
+        if (GetTransferTime(Cmd) > waitDelta)
+            return 0;
+    }
+    */
+
+    if (!WaitingForResp)
+    {
+        DataReceivedBytes = 0;
+        ClockSync();
+        Send(buffer);
+        TimeSent = GetGCTicks();
+        WaitingForResp = true;
+    }
+
+    if (WaitingForResp && DataReceivedBytes == 0)
+    {
+        DataReceivedBytes = Receive(buffer);
+    }
+
+    u64 ticksSinceSend = GetGCTicks() - TimeSent;
+    u64 targetTransferTime = GetTransferTime(Cmd);
+    if (targetTransferTime > ticksSinceSend)
+    {
+        remTicks = targetTransferTime - ticksSinceSend;
+        return 0;
+    }
+    else
+    {
+        remTicks = 0;
+        if (DataReceivedBytes != 0)
+            WaitingForResp = false;
+        return DataReceivedBytes;
+    }
 }
 
 #define GBA_JSTAT_MASK                  0x3a
@@ -280,17 +530,61 @@ static u64 GetGCTicks()
 #define GBA_JOYBOOT_UNKNOWN_STATE       3
 #define GBA_JOYBOOT_ERR_INVALID         4
 
+static void SleepABit()
+{
+    struct timeval tv = {};
+    tv.tv_usec = 1000000  / 120;
+    select(0, NULL, NULL, NULL, &tv);
+}
+
 static void GBAInit()
 {
-    DataServer.openAndListen(net::IPAddress("0.0.0.0"), 0xd6ba);
+    if (!DataServer.openAndListen(net::IPAddress("0.0.0.0"), 0xd6ba))
+    {
+        printf("data open failed %s\n", strerror(errno));
+        exit(1);
+    }
     printf("data listening\n");
-    ClockServer.openAndListen(net::IPAddress("0.0.0.0"), 0xc10c);
+    if (!ClockServer.openAndListen(net::IPAddress("0.0.0.0"), 0xc10c))
+    {
+        printf("clock open failed %s\n", strerror(errno));
+        exit(1);
+    }
     printf("clock listening\n");
 
-    DataServer.accept(DataSocket);
-    printf("data accepted\n");
-    ClockServer.accept(ClockSocket);
-    printf("clock accepted\n");
+    while (!DataSocket && !ClockSocket)
+    {
+        if (!DataSocket)
+        {
+            if (!DataServer.accept(DataSocket))
+            {
+                if (errno != EAGAIN)
+                {
+                    printf("data accept failed %d %s\n", errno, strerror(errno));
+                    exit(1);
+                }
+            }
+            else
+                printf("data accepted\n");
+        }
+        if (!ClockSocket)
+        {
+            if (!ClockServer.accept(ClockSocket))
+            {
+                if (errno != EAGAIN)
+                {
+                    printf("clock accept failed %s\n", strerror(errno));
+                    exit(1);
+                }
+            }
+            else
+                printf("clock accepted\n");
+        }
+        SleepABit();
+    }
+
+    Cmd = 0;
+    Booted = false;
 }
 
 static s32 GBAGetProcessStatus(s32 chan, u8* percentp)
@@ -300,21 +594,38 @@ static s32 GBAGetProcessStatus(s32 chan, u8* percentp)
 
 static s32 GBAGetStatus(s32 chan, u8* status)
 {
+    u8 buffer[] = { CMD_STATUS, 0, 0, 0, 0 };
+    u64 waitTicks;
+    while (!RunBuffer(buffer, waitTicks)) { WaitGCTicks(waitTicks); }
+    *status = buffer[2];
     return GBA_READY;
 }
 
 static s32 GBAReset(s32 chan, u8* status)
 {
+    u8 buffer[] = { CMD_RESET, 0, 0, 0, 0 };
+    u64 waitTicks;
+    while (!RunBuffer(buffer, waitTicks)) { WaitGCTicks(waitTicks); }
+    *status = buffer[2];
     return GBA_READY;
 }
 
 static s32 GBARead(s32 chan, u8* dst, u8* status)
 {
+    u8 buffer[] = { CMD_READ, 0, 0, 0, 0 };
+    u64 waitTicks;
+    while (!RunBuffer(buffer, waitTicks)) { WaitGCTicks(waitTicks); }
+    *status = buffer[4];
+    memmove(dst, buffer, 4);
     return GBA_READY;
 }
 
 static s32 GBAWrite(s32 chan, u8* src, u8* status)
 {
+    u8 buffer[] = { CMD_WRITE, src[0], src[1], src[2], src[3] };
+    u64 waitTicks;
+    while (!RunBuffer(buffer, waitTicks)) { WaitGCTicks(waitTicks); }
+    *status = buffer[0];
     return GBA_READY;
 }
 
@@ -348,7 +659,7 @@ class CKawasedoChallenge
         //u32* x10_resultsDest; /* Written to resK1 and resK2 instead */
 
         u32 x20_resK1; /* Transformed key */
-        u32 x24_resMAC; /* Message authentication code */
+        u32 x24_resHMAC; /* Message authentication code */
 
         void ProcessGBACrypto()
         {
@@ -396,7 +707,11 @@ class CKawasedoChallenge
 
             // Send the result back to mram
             x20_resK1 = (x20 << 16) | x21;
-            x24_resMAC = (x22 << 16) | x23;
+            x24_resHMAC = (x22 << 16) | x23;
+
+            printf("key: %08x, len: %08x, unk1: %08x, unk2: %08x 20: %04x, 21: %04x, 22: %04x, 23: %04x\n",
+                      x0_gbaK1.l, xc_progLen,
+                      x4_pColor.l, x8_pSpeed.l, x20, x21, x22, x23);
         }
     } xf8_dspHmac;
 
@@ -410,17 +725,16 @@ class CKawasedoChallenge
     void* x14_callback;
     u8 x18_readBuf[4];
     u8 x1c_writeBuf[4];
-    u32 x20_xfMAC;
+    s32 x20_byteInWindow;
     u64 x28_ticksAfterXf;
-    u32 x30_xfDone;
-    u32 x34_secret;
-    u32 x38_xfSecret;
-    u32 x3c_[7];
-
-    u32 x58_resK1;
-    u32 x5c_resMAC;
-    u32 x60_progChecksum;
-    u32 x64_intermediateMAC;
+    u32 x30_justStarted;
+    u32 x34_bytesSent;
+    u32 x38_crc;
+    u32 x3c_checkStore[7];
+    s32 x58_currentKey;
+    s32 x5c_HMAC;
+    s32 x60_gameId;
+    u32 x64_totalBytes;
 
     bool F23(u8 status)
     {
@@ -475,6 +789,7 @@ class CKawasedoChallenge
     void GBAX02()
     {
         xf8_dspHmac.x0_gbaK1.l = reinterpret_cast<u32&>(x18_readBuf);
+        xf8_dspHmac.x0_gbaK1.l = hecl::SBig(0xd3aa85a2);
         xf8_dspHmac.x4_pColor.l = x0_pColor;
         xf8_dspHmac.x8_pSpeed.l = x4_pSpeed;
         xf8_dspHmac.xc_progLen = xc_progLen;
@@ -483,21 +798,24 @@ class CKawasedoChallenge
 
     bool GBAX01()
     {
-        x58_resK1 = xf8_dspHmac.x20_resK1;
-        x5c_resMAC = xf8_dspHmac.x24_resMAC;
+        x58_currentKey = xf8_dspHmac.x20_resK1;
+        x58_currentKey = 0xd3aa85a2;
+        x5c_HMAC = xf8_dspHmac.x24_resHMAC;
 
-        x20_xfMAC = ~KawasedoLUT[0x24] & (KawasedoLUT[0x24] + xc_progLen);
-        u32 tmp = KawasedoLUT[0x14] << KawasedoLUT[0x21];
-        if (x20_xfMAC < tmp)
-            x20_xfMAC = tmp;
-        x64_intermediateMAC = x20_xfMAC;
-        x20_xfMAC -= tmp;
-        x20_xfMAC >>= KawasedoLUT[0x20];
+        x20_byteInWindow = ROUND_UP_8(xc_progLen);
+        if (x20_byteInWindow < 512)
+            x20_byteInWindow = 512;
+        x64_totalBytes = x20_byteInWindow;
+        x20_byteInWindow -= 512;
+        x20_byteInWindow /= 8;
 
-        reinterpret_cast<u32&>(x1c_writeBuf) = x5c_resMAC;
+        reinterpret_cast<u32&>(x1c_writeBuf) = x5c_HMAC;
+
+        x38_crc = 0x15a0;
+        x34_bytesSent = 0;
 
         x28_ticksAfterXf = GetGCTicks();
-        x30_xfDone = 1;
+        x30_justStarted = 1;
 
         if (GBAWrite(m_chan, x1c_writeBuf, x10_statusPtr) != GBA_READY)
         {
@@ -520,105 +838,99 @@ class CKawasedoChallenge
 
         for (;;)
         {
-            if (x30_xfDone)
+            printf("PROG [%d/%d]\n", x34_bytesSent, x64_totalBytes);
+            if (x30_justStarted)
             {
-                x30_xfDone = 0;
+                x30_justStarted = 0;
             }
             else
             {
                 if (!(*x10_statusPtr & GBA_JSTAT_PSF1) ||
-                    (*x10_statusPtr & GBA_JSTAT_PSF0) >> KawasedoLUT[0x21] !=
-                    (x34_secret & KawasedoLUT[0x21]) >> KawasedoLUT[0x1f])
+                    (*x10_statusPtr & GBA_JSTAT_PSF0) >> 4 != (x34_bytesSent & 4) >> 2)
                     return false;
-                x34_secret -= (KawasedoLUT[0x19] - KawasedoLUT[0x17]);
+                x34_bytesSent += 4;
             }
 
-            if (x34_secret <= x64_intermediateMAC)
+            if (x34_bytesSent <= x64_totalBytes)
             {
-                u32 checksum;
-                if (x34_secret != x64_intermediateMAC)
+                u32 cryptWindow;
+                if (x34_bytesSent != x64_totalBytes)
                 {
-                    x20_xfMAC = KawasedoLUT[0x1d];
-                    checksum = KawasedoLUT[0x1d];
-                    while (x20_xfMAC < KawasedoLUT[0x21])
+                    x20_byteInWindow = 0;
+                    cryptWindow = 0;
+                    while (x20_byteInWindow < 4)
                     {
                         if (xc_progLen)
                         {
-                            checksum |= *x8_progPtr++ << (x20_xfMAC * KawasedoLUT[0x25]);
+                            cryptWindow |= *x8_progPtr++ << (x20_byteInWindow * 8);
                             --xc_progLen;
                         }
+                        ++x20_byteInWindow;
                     }
 
-                    if (x34_secret == KawasedoLUT[0x26])
+                    if (x34_bytesSent == 0xac)
                     {
-                        x60_progChecksum = checksum;
+                        x60_gameId = cryptWindow;
                     }
-                    else if (KawasedoLUT[0x27] == x34_secret)
+                    else if (x34_bytesSent == 0xc4)
                     {
-                        checksum = m_chan << KawasedoLUT[0x25];
+                        cryptWindow = m_chan << 0x8;
                     }
 
-                    if (x34_secret >= KawasedoLUT[0x2])
+                    if (x34_bytesSent >= 0xc0)
                     {
-                        u32 checksum2 = checksum;
-                        u32 tmp = KawasedoLUT[0x14];
-                        u32 tmpSecret = x38_xfSecret;
-                        u32 xorTerm = (KawasedoLUT[0x26] << 8) +
-                            (((KawasedoLUT[0x2b] - (KawasedoLUT[0x2b] << 4)) +
-                            KawasedoLUT[0x28]) - KawasedoLUT[0x23]);
-                        while (tmp > KawasedoLUT[0x1e])
+                        u32 checksum2 = cryptWindow;
+                        u32 tmpSecret = x38_crc;
+                        for (int i=0 ; i<32 ; ++i)
                         {
-                            if (checksum2 ^ tmpSecret)
-                                tmpSecret = (tmpSecret >> 1) ^ xorTerm;
+                            if ((checksum2 ^ tmpSecret) & 0x1)
+                                tmpSecret = (tmpSecret >> 1) ^ 0xa1c1;
                             else
                                 tmpSecret >>= 1;
 
-                            ++checksum2;
-                            --tmp;
+                            checksum2 >>= 1;
                         }
-                        x38_xfSecret = tmpSecret;
+                        x38_crc = tmpSecret;
                     }
 
-                    if (x34_secret == KawasedoLUT[0x28] + 256)
+                    if (x34_bytesSent == 0x1f8)
                     {
-                        x3c_[0] = checksum;
+                        x3c_checkStore[0] = cryptWindow;
                     }
-                    else if (x34_secret == KawasedoLUT[0x1] + 256)
+                    else if (x34_bytesSent == 0x1fc)
                     {
-                        x20_xfMAC = KawasedoLUT[0x7];
-                        x3c_[x20_xfMAC] = checksum;
+                        x20_byteInWindow = 1;
+                        x3c_checkStore[x20_byteInWindow] = cryptWindow;
                     }
                 }
                 else
                 {
-                    checksum = x38_xfSecret | x34_secret << 16;
+                    cryptWindow = x38_crc | x34_bytesSent << 16;
                 }
 
-                if (x34_secret > KawasedoLUT[0x2b])
+                if (x34_bytesSent > 0xbf)
                 {
-                    x58_resK1 = ((KawasedoLUT[0x18] << KawasedoLUT[0x25]) | KawasedoLUT[0x15] |
-                        (KawasedoLUT[0x18] << KawasedoLUT[0x2c]) | (KawasedoLUT[0x17] << KawasedoLUT[0x2a])) *
-                        x58_resK1 - (KawasedoLUT[0x1b] - KawasedoLUT[0x1a]);
+                    x58_currentKey = 0x6177614b * x58_currentKey + 1;
 
-                    checksum ^= x58_resK1;
-                    checksum ^= -((KawasedoLUT[0xb] << 20) + x34_secret);
-                    checksum ^= KawasedoLUT[0xb] | (KawasedoLUT[0x13] << 8) | (KawasedoLUT[0x12] << 16);
+                    cryptWindow ^= x58_currentKey;
+                    cryptWindow ^= -((0x20 << 20) + x34_bytesSent);
+                    cryptWindow ^= 0x20796220;
                 }
 
-                x1c_writeBuf[3] = checksum >> KawasedoLUT[0x0];
-                x1c_writeBuf[0] = checksum >> KawasedoLUT[0x1e];
-                x1c_writeBuf[1] = checksum >> KawasedoLUT[0x29];
-                x1c_writeBuf[2] = checksum >> KawasedoLUT[0x2a];
+                x1c_writeBuf[0] = cryptWindow >> 0;
+                x1c_writeBuf[1] = cryptWindow >> 8;
+                x1c_writeBuf[2] = cryptWindow >> 16;
+                x1c_writeBuf[3] = cryptWindow >> 24;
 
-                if (x34_secret == KawasedoLUT[0x1] + KawasedoLUT[0x1])
-                    x3c_[2] = checksum;
+                if (x34_bytesSent == 0x1f8)
+                    x3c_checkStore[2] = cryptWindow;
 
-                if (x20_xfMAC < KawasedoLUT[0x21])
+                if (x20_byteInWindow < 4)
                 {
-                    x3c_[(3 - (1 - x20_xfMAC))] = checksum;
-                    x3c_[5 - x20_xfMAC] = x3c_[(2 - (1 - x20_xfMAC))] * x3c_[4 - x20_xfMAC];
-                    x3c_[(5 - (1 - x20_xfMAC))] = x3c_[(2 - (1 - x20_xfMAC))] * x3c_[1 - x20_xfMAC];
-                    x3c_[7 - x20_xfMAC] = x3c_[-(1 - x20_xfMAC)] * x3c_[4 - x20_xfMAC];
+                    x3c_checkStore[2 + x20_byteInWindow] = cryptWindow;
+                    x3c_checkStore[5 - x20_byteInWindow] = x3c_checkStore[1 + x20_byteInWindow] * x3c_checkStore[4 - x20_byteInWindow];
+                    x3c_checkStore[4 + x20_byteInWindow] = x3c_checkStore[1 + x20_byteInWindow] * x3c_checkStore[1 - x20_byteInWindow];
+                    x3c_checkStore[7 - x20_byteInWindow] = x3c_checkStore[-1 + x20_byteInWindow] * x3c_checkStore[4 - x20_byteInWindow];
                 }
 
                 if (GBAWrite(m_chan, x1c_writeBuf, x10_statusPtr) != GBA_READY)
@@ -629,7 +941,7 @@ class CKawasedoChallenge
                 }
                 continue;
             }
-            else // x34_secret > x64_intermediateMAC
+            else // x34_bytesWritten > x64_totalBytes
             {
                 if (GBARead(m_chan, x18_readBuf, x10_statusPtr) != GBA_READY)
                 {
@@ -726,7 +1038,7 @@ public:
       x4_pSpeed(paletteSpeed), x8_progPtr(programp),
       xc_progLen(length), x10_statusPtr(status)
     {
-        x34_secret = KawasedoLUT[0x8];
+        x34_bytesSent = 0;
     }
 
     bool DoChallenge()
@@ -736,26 +1048,26 @@ public:
             x14_callback = nullptr;
             return false;
         }
-        if (!F23(*x10_statusPtr))
+        if (!F23(GBA_READY))
             return false;
-        if (!F25(*x10_statusPtr))
+        if (!F25(GBA_READY))
             return false;
-        if (!F27(*x10_statusPtr))
+        if (!F27(GBA_READY))
             return false;
-        if (!F29(*x10_statusPtr))
+        if (!F29(GBA_READY))
             return false;
         GBAX02();
         if (!GBAX01())
             return false;
-        if (!F31(*x10_statusPtr))
+        if (!F31(GBA_READY))
             return false;
-        if (!F33(*x10_statusPtr))
+        if (!F33(GBA_READY))
             return false;
-        if (!F35(*x10_statusPtr))
+        if (!F35(GBA_READY))
             return false;
-        if (!F37(*x10_statusPtr))
+        if (!F37(GBA_READY))
             return false;
-        if (!F39(*x10_statusPtr))
+        if (!F39(GBA_READY))
             return false;
         return true;
     }
@@ -785,7 +1097,8 @@ static s32 GBAJoyBootAsync(s32 chan, s32 paletteColor, s32 paletteSpeed,
         return ret;
 
     CKawasedoChallenge challenge(chan, paletteColor, paletteSpeed, programp, length, status);
-    challenge.DoChallenge();
+    if (!challenge.DoChallenge())
+        return GBA_NOT_READY;
 
     return GBA_READY;
 }
@@ -869,7 +1182,7 @@ bool CGBASupport::PollResponse()
         return false;
 
     u64 profStart = GetGCTicks();
-    const u64 timeToSpin = 486000000 / 8000;
+    const u64 timeToSpin = 486000000ull / 8000;
     for (;;)
     {
         u64 curTime = GetGCTicks();
@@ -916,12 +1229,14 @@ void CGBASupport::Update(float dt)
 
     case EPhase::PollProbe:
         /* SIProbe poll normally occurs here with 4 second timeout */
-        x40_siChan = 1;
+        x40_siChan = 3;
         x34_phase = EPhase::StartJoyBusBoot;
 
     case EPhase::StartJoyBusBoot:
         x34_phase = EPhase::PollJoyBusBoot;
-        GBAJoyBootAsync(x40_siChan, x40_siChan * 2, 2, x2c_buffer.get(), x28_fileSize, &x3c_status);
+        if (GBAJoyBootAsync(x40_siChan, x40_siChan * 2, 2,
+                            x2c_buffer.get(), x28_fileSize, &x3c_status) != GBA_READY)
+            x34_phase = EPhase::Failed;
         break;
 
     case EPhase::PollJoyBusBoot:
@@ -942,6 +1257,12 @@ void CGBASupport::Update(float dt)
             x34_phase = EPhase::Complete;
             break;
         }
+        else
+        {
+            /* Synchronous mode */
+            x34_phase = EPhase::Failed;
+            break;
+        }
         x38_timeout = std::max(0.f, x38_timeout - dt);
         if (x38_timeout == 0.f)
             x34_phase = EPhase::Failed;
@@ -958,7 +1279,7 @@ bool CGBASupport::IsReady()
 
     x34_phase = EPhase::Standby;
     /* Conveniently already little-endian */
-    reinterpret_cast<u32&>(x2c_buffer[0xc8]) = u32(GetGCTicks());
+    //reinterpret_cast<u32&>(x2c_buffer[0xc8]) = u32(GetGCTicks());
     x2c_buffer[0xaf] = 'E';
     x2c_buffer[0xbd] = 0xc9;
     return true;
@@ -982,7 +1303,52 @@ void CGBASupport::StartLink()
 
 int main(int argc, char** argv)
 {
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    MachToDolphinNum = 486000000ull * timebase.numer;
+    MachToDolphinDenom = 1000000000ull * timebase.denom;
+
     CGBASupport gba("client_pad.bin");
+    gba.Update(0.f);
     gba.InitializeSupport();
     gba.StartLink();
+
+    printf("Waiting 5 sec\n");
+    s64 waitedTicks = 0;
+    while (waitedTicks < 486000000ll * 5)
+    {
+        s64 start = GetGCTicks();
+        u8 status;
+        GBAGetStatus(1, &status);
+        s64 end = GetGCTicks();
+        s64 passedTicks = end - start;
+        s64 waitTicks = 486000000ll / 1 - passedTicks;
+        if (waitTicks > 0)
+        {
+            WaitGCTicks(waitTicks);
+            waitedTicks += 486000000ll / 1;
+        }
+        else
+            waitedTicks += passedTicks;
+    }
+
+    printf("Connecting\n");
+    while (gba.GetPhase() < CGBASupport::EPhase::Complete)
+    {
+        s64 frameStart = GetGCTicks();
+        gba.Update(1.f / 60.f);
+        fflush(stdout);
+        s64 frameEnd = GetGCTicks();
+        s64 passedTicks = frameEnd - frameStart;
+        s64 waitTicks = 486000000ll / 60 - passedTicks;
+        if (waitTicks > 0)
+            WaitGCTicks(waitTicks);
+    }
+
+    CGBASupport::EPhase finalPhase = gba.GetPhase();
+    printf("%s Linked: %d Beat: %d\n",
+           finalPhase == CGBASupport::EPhase::Complete ? "Complete" : "Failed",
+           gba.IsFusionLinked(), gba.IsFusionBeat());
+
+    return 0;
 }
