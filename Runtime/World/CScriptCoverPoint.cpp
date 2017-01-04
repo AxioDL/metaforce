@@ -120,7 +120,7 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
         for (const SConnection& con : x20_conns)
             if (con.x0_state == EScriptObjectState::Retreat)
             {
-                xfc_ = mgr.GetIdForScript(con.x8_objId);
+                xfc_retreating = mgr.GetIdForScript(con.x8_objId);
                 break;
             }
     }

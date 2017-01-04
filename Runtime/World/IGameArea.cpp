@@ -45,16 +45,23 @@ bool IGameArea::Dock::GetShouldLoadOther(s32 other) const
     if (other >= x4_dockReferences.size())
         return false;
 
-    return false; //return x4_dockReferences[other].GetShouldLoad();
+   return x4_dockReferences[other].x6_loadOther;
 }
 
 void IGameArea::Dock::SetShouldLoadOther(s32 other, bool should)
 {
+    if (other >= x4_dockReferences.size())
+        return;
+
+    x4_dockReferences[other].x6_loadOther = should;
 }
 
 bool IGameArea::Dock::ShouldLoadOtherArea(s32 other) const
 {
-    return false;
+    if (x4_dockReferences.size() == 0)
+        return false;
+
+    return x4_dockReferences[other].x6_loadOther;
 }
 
 zeus::CVector3f IGameArea::Dock::GetPoint(s32 idx) const

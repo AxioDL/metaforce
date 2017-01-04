@@ -68,7 +68,7 @@ class CStateMachine
 public:
     CStateMachine(CInputStream& in);
 
-    s32 GetStateIndex(const std::string& state);
+    s32 GetStateIndex(const std::string& state) const;
     const std::vector<CAiState>& GetStateVector() const;
 };
 
@@ -76,9 +76,9 @@ class CStateMachineState
 {
     const CStateMachine* x0_machine = nullptr;
     CAiState* x4_state = nullptr;
-    float x8_ = 0;
-    float xc_ = 0;
-    float x10_ = 0;
+    float x8_time = 0.f;
+    float xc_ = 0.f;
+    float x10_ = 0.f;
     union
     {
         struct
@@ -95,12 +95,12 @@ public:
 
     void Update(CStateManager& mgr, CAi& ai, float delta)
     {
-        x8_ += delta;
+        x8_time += delta;
         if (x4_state)
             x4_state->CallFunc(mgr, ai, EStateMsg::One, delta);
     }
     void SetState(CStateManager&, CAi&, s32);
-    void SetState(CStateManager &, CAi &, const std::string&);
+    void SetState(CStateManager&, CAi&, const CStateMachine*, const std::string&);
     const std::vector<CAiState>* GetStateVector() const;
     void Setup(const CStateMachine* machine);
     std::string GetName() const;

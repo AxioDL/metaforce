@@ -6,6 +6,7 @@ namespace urde
 namespace InternalColliders
 {
     void AddTypes();
+    void AddColliders();
 }
 }
 #endif // __URDE_INTERNALCOLLIDERS_HPP__

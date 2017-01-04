@@ -301,13 +301,16 @@ public:
     const zeus::CAABox& GetAABB() const {return x6c_aabb;}
 
     const std::vector<Dock> GetDocks() const {return xcc_docks;}
+    const Dock* GetDock(s32 dock) const { return &xcc_docks[dock]; }
+    s32 GetDockCount() const { return xcc_docks.size(); }
     Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
 
     bool IsPostConstructed() const {return xf0_24_postConstructed;}
     const CPostConstructed* GetPostConstructed() const {return x12c_postConstructed.get();}
 
     void SetAreaAttributes(const CScriptAreaAttributes* areaAttributes);
-
+    bool GetActive() const { return xf0_25_active; }
+    void SetActive(bool active) { xf0_25_active = active; }
 };
 
 }

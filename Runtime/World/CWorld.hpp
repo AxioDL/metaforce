@@ -170,6 +170,7 @@ public:
     CMapWorld* IMapWorld();
     const CGameArea* GetAreaAlways(TAreaId) const;
     CGameArea* GetArea(TAreaId);
+    s32 GetNumAreas() const { return x18_areas.size(); }
     const IGameArea* IGetAreaAlways(TAreaId id) const;
     TAreaId IGetCurrentAreaId() const;
     TAreaId IGetAreaId(ResId id) const;

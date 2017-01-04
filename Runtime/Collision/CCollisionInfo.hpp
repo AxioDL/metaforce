@@ -33,7 +33,7 @@ public:
     bool IsValid() const;
     void GetMaterialLeft() const;
     void GetMaterialRight() const;
-    void GetExtreme() const;
+    zeus::CVector3f GetExtreme() const;
     void Swap();
     void Transform(const zeus::CTransform&);
     zeus::CVector3f GetNormalLeft() const;

@@ -44,7 +44,7 @@ protected:
         struct
         {
             bool x30_24_active : 1;
-            bool x30_25_ : 1;
+            bool x30_25_inGraveyard : 1;
             bool x30_26_scriptingBlocked : 1;
             bool x30_27_ : 1;
         };
@@ -65,6 +65,11 @@ public:
     {
         x30_24_active ^= 1;
     }
+
+    bool IsInGraveyard() const { return x30_25_inGraveyard; }
+    void SetIsInGraveyard(bool in) { x30_25_inGraveyard = in; }
+    bool IsScriptingBlocked() const { return x30_26_scriptingBlocked; }
+    void SetIsScriptingBlocked(bool blocked) { x30_26_scriptingBlocked = blocked; }
 
     TAreaId GetAreaId() const
     {

@@ -40,6 +40,7 @@ class CTexture
     void BuildC8(const void* data, size_t length);
 
 public:
+    CTexture(ETexelFormat, s16, s16, s32);
     CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex);
     enum class EClampMode
     {

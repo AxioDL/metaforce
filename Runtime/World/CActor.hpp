@@ -29,8 +29,8 @@ class CActor : public CEntity
 protected:
     zeus::CTransform x34_transform;
     std::unique_ptr<CModelData> x64_modelData;
-    CMaterialList x60_material;
-    CMaterialFilter x70_;
+    CMaterialList x68_material;
+    CMaterialFilter x70_materialFilter;
     s16 x88_sfxId = -1;
     std::unique_ptr<CSfxHandle> x8c_sfxHandle;
     std::unique_ptr<CActorLights> x90_actorLights;
@@ -133,8 +133,9 @@ public:
     bool GetCallTouch() const;
     void SetUseInSortedList(bool use);
     bool GetUseInSortedLists() const;
-    const CMaterialFilter& GetMaterialFilter() const { return x70_; }
-    const CMaterialList& GetMaterialList() const { return x60_material; }
+    const CMaterialFilter& GetMaterialFilter() const { return x70_materialFilter; }
+    void SetMaterialFilter(const CMaterialFilter& filter) { x70_materialFilter = filter; }
+    const CMaterialList& GetMaterialList() const { return x68_material; }
     void SetInFluid(bool in, TUniqueId uid);
     bool HasModelData() const;
     const CSfxHandle* GetSfxHandle() const;
@@ -143,6 +144,7 @@ public:
     void SetAddedToken(u32 tok);
     float GetPitch() const;
     float GetYaw() const;
+    const CModelData* GetModelData() const { return x64_modelData.get(); }
 };
 }
 

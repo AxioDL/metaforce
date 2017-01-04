@@ -16,23 +16,16 @@ public:
     public:
         struct SDockReference
         {
-            u32 x0_area;
-            s16 x4_dock;
-            union
-            {
-                struct
-                {
-                    bool x6_16_ : 1;
-                };
-                u16 x6_ = 0;
-            };
+            u32 x0_area = 0;
+            s16 x4_dock = 0;
+            bool x6_loadOther = false;
             SDockReference() = default;
         };
     private:
         u32 x0_referenceCount = 0;
         std::vector<SDockReference> x4_dockReferences;
         rstl::reserved_vector<zeus::CVector3f, 4> x14_planeVertices;
-        bool x48_;
+        bool x48_isReferenced;
     public:
 
         const rstl::reserved_vector<zeus::CVector3f, 4>& GetPlaneVertices() const {return x14_planeVertices;}
@@ -45,6 +38,8 @@ public:
         void SetShouldLoadOther(s32 other, bool should);
         bool ShouldLoadOtherArea(s32 other) const;
         zeus::CVector3f GetPoint(s32 idx) const;
+        bool IsReferenced() const { return x48_isReferenced; }
+        void SetReferenceCount(s32 v) { x0_referenceCount = v; x48_isReferenced = true; }
     };
 
     struct IAreaObjectList

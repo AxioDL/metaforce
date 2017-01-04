@@ -15,4 +15,14 @@ void CSortedListManager::Reset()
         xb000_sortedLists[i].Reset();
 }
 
+void CSortedListManager::RemoveFromList(ESortedList list, s16 id)
+{
+    SSortedList& sl = xb000_sortedLists[u32(list)];
+}
+
+void CSortedListManager::Remove(const CActor *)
+{
+
+}
+
 }

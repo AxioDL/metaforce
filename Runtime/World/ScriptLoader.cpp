@@ -59,6 +59,7 @@
 #include "MP1/CBeetle.hpp"
 #include "MP1/CWarWasp.hpp"
 #include "MP1/CSpacePirate.hpp"
+#include "CScriptShadowProjector.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -140,7 +141,7 @@ static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id, const z
                                     const zeus::CVector3f& offset)
 {
     zeus::CAABox box(-extent * 0.5f + offset, extent * 0.5f + offset);
-    const zeus::CTransform& rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
+    const zeus::CTransform& rot = stateMgr.WorldNC()->GetGameAreas()[id]->GetTransform().getRotation();
     return box.getTransformedAABox(rot);
 }
 
@@ -520,7 +521,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
 
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
-    const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
+    const zeus::CTransform& areaXf = mgr.WorldNC()->GetGameAreas()[info.GetAreaId()]->GetTransform();
     zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
     return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, flags, active,
@@ -1074,7 +1075,7 @@ u32 ClassifyVector(const zeus::CVector3f& dir)
 
 u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags)
 {
-    CGameArea* area = mgr.GetWorld()->GetGameAreas().at(u32(aId)).get();
+    CGameArea* area = mgr.WorldNC()->GetGameAreas().at(u32(aId)).get();
     zeus::CTransform rotation = area->GetTransform().getRotation();
 
     u32 ret = 0;
@@ -2010,8 +2011,8 @@ CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCo
     CDamageInfo dInfo(in);
     TToken<CWeaponDescription> weaponDesc = g_SimplePool->GetObj({SBIG('WPSC'), weaponDescId});
 
-    return new CScriptBeam(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active,
-                           weaponDesc, beamInfo, dInfo);
+    return new CScriptBeam(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, weaponDesc,
+                           beamInfo, dInfo);
 }
 
 CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2062,7 +2063,21 @@ CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 10, "ShadowProjector"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    zeus::CVector3f position(zeus::CVector3f::ReadBig(in));
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    zeus::CVector3f vec2(zeus::CVector3f::ReadBig(in));
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    bool b2 = in.readBool();
+    u32 w1 = in.readUint32Big();
+    return new CScriptShadowProjector(mgr.AllocateUniqueId(), *name, info, zeus::CTransform::Translate(position), b1,
+                                      vec2, b2, f1, f2, f3, f4, w1);
 }
 
 CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

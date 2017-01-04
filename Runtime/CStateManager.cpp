@@ -725,8 +725,27 @@ void CStateManager::ClearGraveyard()
 {
 }
 
-void CStateManager::DeleteObjectRequest(TUniqueId)
+void CStateManager::DeleteObjectRequest(TUniqueId id)
 {
+    CEntity* entity = ObjectById(id);
+    if (!entity)
+        return;
+
+    if (entity->IsInGraveyard())
+        return;
+
+    entity->SetIsInGraveyard(true);
+
+    x858_objectGraveyard.push_back(entity->GetUniqueId());
+    entity->AcceptScriptMsg(EScriptObjectMessage::InternalMessage12, kInvalidUniqueId, *this);
+    entity->SetIsScriptingBlocked(true);
+
+    CActor* actor = static_cast<CActor*>(entity);
+    if (actor)
+    {
+        x874_sortedListManager->Remove(actor);
+        actor->SetUseInSortedList(false);
+    }
 }
 
 CEntity* CStateManager::ObjectById(TUniqueId uid)

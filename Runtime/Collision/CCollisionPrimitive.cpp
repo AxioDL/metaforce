@@ -6,25 +6,21 @@
 namespace urde
 {
 std::unique_ptr<std::vector<CCollisionPrimitive::Type>> CCollisionPrimitive::sCollisionTypeList;
+std::unique_ptr<std::vector<ComparisonFunc>> CCollisionPrimitive::sTableOfCollidables;
+std::unique_ptr<std::vector<BooleanComparisonFunc>> CCollisionPrimitive::sTableOfBooleanCollidables;
+std::unique_ptr<std::vector<MovingComparisonFunc>> CCollisionPrimitive::sTableOfMovingCollidables;
+bool CCollisionPrimitive::sTypesAdded = false;
 bool CCollisionPrimitive::sTypesAdding = false;
-CCollisionPrimitive::CCollisionPrimitive(const CMaterialList& list)
-    : x8_material(list)
-{
-}
+bool CCollisionPrimitive::sCollidersAdded = false;
+bool CCollisionPrimitive::sCollidersAdding = false;
+CCollisionPrimitive::CCollisionPrimitive(const CMaterialList& list) : x8_material(list) {}
 
-void CCollisionPrimitive::SetMaterial(const CMaterialList& material)
-{
-    x8_material = material;
-}
+void CCollisionPrimitive::SetMaterial(const CMaterialList& material) { x8_material = material; }
 
-const CMaterialList& CCollisionPrimitive::GetMaterial() const
-{
-    return x8_material;
+const CMaterialList& CCollisionPrimitive::GetMaterial() const { return x8_material; }
 
-}
-
-CRayCastResult CCollisionPrimitive::CastRay(const zeus::CVector3f& start, const zeus::CVector3f& end, float d, const
-                                            CMaterialFilter& filter, const zeus::CTransform& xf) const
+CRayCastResult CCollisionPrimitive::CastRay(const zeus::CVector3f& start, const zeus::CVector3f& end, float d,
+                                            const CMaterialFilter& filter, const zeus::CTransform& xf) const
 {
     return CastRayInternal(CInternalRayCastStructure(start, end, d, xf, filter));
 }
@@ -45,25 +41,46 @@ void CCollisionPrimitive::InitAddType(const CCollisionPrimitive::Type& tp)
     sCollisionTypeList->push_back(tp);
 }
 
-void CCollisionPrimitive::InitEndTypes()
+void CCollisionPrimitive::InitEndTypes() { sTypesAdding = false; }
+
+void CCollisionPrimitive::InitBeginColliders()
 {
-    sTypesAdding = false;
+    sTableOfCollidables.reset(new std::vector<ComparisonFunc>());
+    sTableOfBooleanCollidables.reset(new std::vector<BooleanComparisonFunc>());
+    sTableOfMovingCollidables.reset(new std::vector<MovingComparisonFunc>());
+    sCollidersAdding = true;
+    InternalColliders::AddColliders();
 }
 
-CCollisionPrimitive::Type::Type(const std::function<void(u32)>& setter, const char *info)
-    : x0_setter(setter),
-      x4_info(info)
+void CCollisionPrimitive::InitAddBooleanCollider(const CCollisionPrimitive::BooleanComparison& cmp)
 {
 }
 
-const char *CCollisionPrimitive::Type::GetInfo() const
+void CCollisionPrimitive::InitAddBooleanCollider(const BooleanComparisonFunc& cmp, const char* a, const char* b)
 {
-    return x4_info;
+    InitAddBooleanCollider({std::move(cmp), a, b});
 }
 
-std::function<void (u32)> CCollisionPrimitive::Type::GetSetter() const
+void CCollisionPrimitive::InitAddMovingCollider(const CCollisionPrimitive::MovingComparison& cmp) {}
+
+void CCollisionPrimitive::InitAddMovingCollider(const MovingComparisonFunc& cmp, const char* a, const char* b)
 {
-    return x0_setter;
+    InitAddMovingCollider({std::move(cmp), a, b});
 }
 
+void CCollisionPrimitive::InitAddCollider(const CCollisionPrimitive::Comparison& cmp) {}
+
+void CCollisionPrimitive::InitAddCollider(const ComparisonFunc& cmp, const char* a, const char* b)
+{
+    InitAddCollider({std::move(cmp), a, b});
+}
+
+CCollisionPrimitive::Type::Type(const std::function<void(u32)>& setter, const char* info)
+: x0_setter(setter), x4_info(info)
+{
+}
+
+const char* CCollisionPrimitive::Type::GetInfo() const { return x4_info; }
+
+std::function<void(u32)> CCollisionPrimitive::Type::GetSetter() const { return x0_setter; }
 }

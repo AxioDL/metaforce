@@ -5,12 +5,19 @@
 
 namespace urde
 {
+namespace Collide
+{
+bool Sphere_AABox(const CInternalCollisionStructure&, CCollisionInfoList&);
+bool Sphere_AABox_Bool(const CInternalCollisionStructure&);
+bool Sphere_Sphere(const CInternalCollisionStructure&, CCollisionInfoList&);
+bool Sphere_Sphere_Bool(const CInternalCollisionStructure&);
+}
 class CCollidableSphere : public CCollisionPrimitive
 {
     static const Type sType;
     static u32 sTableIndex;
-public:
 
+public:
     virtual u32 GetTableIndex() const;
     virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
     virtual zeus::CAABox CalculateLocalAABox() const;
@@ -19,6 +26,10 @@ public:
 
     static const Type& GetType();
     static void SetStaticTableIndex(u32 index);
+    static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                   CCollisionInfo&);
+    static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                   CCollisionInfo&);
 };
 }
 

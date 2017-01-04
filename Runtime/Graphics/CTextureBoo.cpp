@@ -681,7 +681,20 @@ void CTexture::BuildC8(const void* data, size_t length)
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::I8,
                                         texels, texelCount);
         return true;
-    });
+});
+}
+
+CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
+    : x0_fmt(fmt)
+    , x4_w(w)
+    , x6_h(h)
+    , x8_mips(mips)
+{
+    /*
+    x64_ = sMangleMipmaps;
+    InitBitmapBuffers(fmt, w, h, mips);
+    InitTextureObjs();
+    */
 }
 
 CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex)

@@ -15,6 +15,7 @@ class CCollidableOBBTreeGroup : public CCollisionPrimitive
     static u32 sTableIndex;
     std::vector<std::unique_ptr<COBBTree>> x0_trees;
     std::vector<zeus::CAABox> x10_aabbs;
+
 public:
     CCollidableOBBTreeGroup(CInputStream& in);
     virtual ~CCollidableOBBTreeGroup() {}
@@ -28,12 +29,20 @@ public:
 
     static const Type& GetType();
     static void SetStaticTableIndex(u32 index);
+    /* Sphere Collide */
+    static bool SphereCollide(const CInternalCollisionStructure&, CCollisionInfoList&);
+    static bool SphereCollideBoolean(const CInternalCollisionStructure&);
+    static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                    CCollisionInfo&);
+    /* AABox Collide */
+    static bool AABoxCollide(const CInternalCollisionStructure&, CCollisionInfoList&);
+    static bool AABoxCollideBoolean(const CInternalCollisionStructure&);
+    static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                    CCollisionInfo&);
 };
 
-CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream& in,
-                                                const CVParamTransfer& vparms,
+CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                 CObjectReference* selfRef);
-
 }
 
 #endif // __URDE_CCOLLIDABLEOBBTREEGROUP_HPP__
