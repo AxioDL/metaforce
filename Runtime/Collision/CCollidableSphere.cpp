@@ -40,4 +40,39 @@ void CCollidableSphere::SetStaticTableIndex(u32 index)
     sTableIndex = index;
 }
 
+bool CCollidableSphere::CollideMovingAABox(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+{
+    return false;
+}
+
+bool CCollidableSphere::CollideMovingSphere(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+{
+    return false;
+}
+
+namespace Collide
+{
+
+bool Sphere_AABox(const CInternalCollisionStructure &, CCollisionInfoList &)
+{
+    return false;
+}
+
+bool Sphere_AABox_Bool(const CInternalCollisionStructure &)
+{
+    return false;
+}
+
+bool Sphere_Sphere(const CInternalCollisionStructure &, CCollisionInfoList &)
+{
+    return false;
+}
+
+bool Sphere_Sphere_Bool(const CInternalCollisionStructure &)
+{
+    return false;
+}
+
+}
+
 }

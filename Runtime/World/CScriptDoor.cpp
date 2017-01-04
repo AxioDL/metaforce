@@ -111,7 +111,7 @@ bool CScriptDoor::IsConnectedToArea(const CStateManager& mgr, TAreaId area)
     const CScriptDock* dock = dynamic_cast<const CScriptDock*>(mgr.GetObjectById(x282_dockId));
     if (dock)
     {
-        if (dock->x260_area == area)
+        if (dock->GetDestinationAreaId() == area)
             return true;
         /*
          * TODO: Determine what's going on here

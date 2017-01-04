@@ -31,7 +31,7 @@ class CScriptCoverPoint : public CActor
         u32 xf8_flags = 0;
     };
     TUniqueId xfa_occupant = kInvalidUniqueId;
-    TUniqueId xfc_ = kInvalidUniqueId;
+    TUniqueId xfc_retreating = kInvalidUniqueId;
     std::experimental::optional<zeus::CAABox> x100_touchBounds;
     float x11c_timeLeft = 0.f;
 public:

@@ -7,6 +7,7 @@ namespace urde
 {
 class CScriptMazeNode : CActor
 {
+    static u32 sMazeSeeds[300];
     s32 xe8_;
     s32 xec_;
     s32 xf0_;

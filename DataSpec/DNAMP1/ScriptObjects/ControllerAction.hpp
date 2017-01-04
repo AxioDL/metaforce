@@ -12,7 +12,6 @@ namespace DNAMP1
 struct ControllerAction : IScriptObject
 {
     DECL_YAML
-    Value<atUint32> propertyCount;
     String<-1> name;
     Value<bool> unknown1;
     Value<atUint32> unknown2;

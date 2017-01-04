@@ -70,6 +70,8 @@ set(WORLD_SOURCES
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CScriptBeam.hpp CScriptBeam.cpp
+    CScriptMazeNode.hpp CScriptMazeNode.cpp
+    CScriptShadowProjector.hpp CScriptShadowProjector.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp
@@ -84,6 +86,7 @@ set(WORLD_SOURCES
     CPatterned.hpp CPatterned.cpp
     CHUDMemoParms.hpp CHUDMemoParms.cpp
     CWorldShadow.hpp CWorldShadow.cpp
+    CProjectedShadow.hpp CProjectedShadow.cpp
     CGameLight.hpp CGameLight.cpp
     CFluidPlane.hpp CFluidPlane.cpp
     CFluidPlaneCPU.hpp CFluidPlaneCPU.cpp

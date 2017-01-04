@@ -8,7 +8,7 @@ namespace urde
 namespace Collide
 {
 bool AABox_AABox(const CInternalCollisionStructure&, CCollisionInfoList&);
-bool AABox_AABox_Bool(const CInternalCollisionStructure&, CCollisionInfoList&);
+bool AABox_AABox_Bool(const CInternalCollisionStructure&);
 }
 
 class CCollidableAABox : public CCollisionPrimitive
@@ -17,6 +17,7 @@ class CCollidableAABox : public CCollisionPrimitive
     static u32 sTableIndex;
 
     zeus::CAABox x10_aabox;
+
 public:
     CCollidableAABox();
     CCollidableAABox(const zeus::CAABox&, const CMaterialList&);
@@ -30,6 +31,10 @@ public:
 
     static const CCollisionPrimitive::Type& GetType();
     static void SetStaticTableIndex(u32 index);
+    static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                   CCollisionInfo&);
+    static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                   CCollisionInfo&);
 };
 }
 

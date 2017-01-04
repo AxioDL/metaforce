@@ -6,14 +6,25 @@
 
 namespace urde
 {
+enum ESortedList
+{
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five
+};
 
 struct SSortedList
 {
     TUniqueId x0_ids[1024];
+    u32 x800_;
     void Reset() {std::fill(std::begin(x0_ids), std::end(x0_ids), -1);}
     SSortedList() {Reset();}
 };
 
+class CActor;
 class CSortedListManager
 {
     struct SNode
@@ -31,6 +42,8 @@ class CSortedListManager
 public:
     CSortedListManager();
     void Reset();
+    void RemoveFromList(ESortedList, s16);
+    void Remove(const CActor*);
 };
 
 }

@@ -25,7 +25,7 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
                 TUniqueId id = it->second;
                 CScriptDock* dock = dynamic_cast<CScriptDock*>(stateMgr.ObjectById(id));
                 if (dock)
-                    dock->SetDockReference(x34_dockReference);
+                    dock->SetDockReference(stateMgr, x34_dockReference);
             }
         }
 

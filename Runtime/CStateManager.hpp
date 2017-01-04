@@ -251,6 +251,7 @@ public:
     void RemoveObject(TUniqueId);
     void RemoveActor(TUniqueId);
     void UpdateRoomAcoustics(TAreaId);
+    TAreaId GetNextAreaId() const { return x8cc_nextAreaId; }
     void SetCurrentAreaId(TAreaId);
     void ClearGraveyard();
     void DeleteObjectRequest(TUniqueId);
@@ -285,7 +286,8 @@ public:
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
 
     CEnvFxManager* GetEnvFxManager() { return x880_envFxManager; }
-    CWorld* GetWorld() {return x850_world.get();}
+    CWorld* WorldNC() {return x850_world.get();}
+    const CWorld* GetWorld() const { return x850_world.get(); }
     CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
     CCameraManager* GetCameraManager() const { return x870_cameraManager; }
 
@@ -303,7 +305,6 @@ public:
     CListeningAiList& GetListeningAiObjectList() const { return *x834_listenAiObjs; }
     CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
     CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
-
     std::pair<u32, u32> CalculateScanCompletionRate() const;
 };
 }

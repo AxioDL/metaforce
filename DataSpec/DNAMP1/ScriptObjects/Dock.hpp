@@ -18,7 +18,7 @@ struct Dock : IScriptObject
     Value<atVec3f> volume;
     Value<atUint32> dock;
     Value<atUint32> room;
-    Value<bool> autoLoad;
+    Value<bool> loadConnected;
 };
 }
 }

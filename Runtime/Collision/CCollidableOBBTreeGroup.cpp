@@ -64,6 +64,36 @@ void CCollidableOBBTreeGroup::SetStaticTableIndex(u32 index)
     sTableIndex = index;
 }
 
+bool CCollidableOBBTreeGroup::SphereCollide(const CInternalCollisionStructure &, CCollisionInfoList &)
+{
+    return false;
+}
+
+bool CCollidableOBBTreeGroup::SphereCollideBoolean(const CInternalCollisionStructure &)
+{
+    return false;
+}
+
+bool CCollidableOBBTreeGroup::CollideMovingSphere(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+{
+    return false;
+}
+
+bool CCollidableOBBTreeGroup::AABoxCollide(const CInternalCollisionStructure &, CCollisionInfoList &)
+{
+    return false;
+}
+
+bool CCollidableOBBTreeGroup::AABoxCollideBoolean(const CInternalCollisionStructure &)
+{
+    return false;
+}
+
+bool CCollidableOBBTreeGroup::CollideMovingAABox(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+{
+    return false;
+}
+
 CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream& in,
                                                 const CVParamTransfer& vparms,
                                                 CObjectReference* selfRef)
