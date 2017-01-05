@@ -10,9 +10,9 @@ class CScriptDock : public CPhysicsActor
 {
     enum EDockState
     {
-        Zero,
+        Idle,
         PlayerTouched,
-        Two,
+        EnterNextArea,
         Three
     };
 
