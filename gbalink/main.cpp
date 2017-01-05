@@ -305,7 +305,7 @@ CGBASupport* CGBASupport::SharedInstance;
 static net::Socket DataServer = {false};
 static net::Socket DataSocket = {false};
 static net::Socket ClockServer = {false};
-static net::Socket ClockSocket = {true};
+static net::Socket ClockSocket = {false};
 static u8 Cmd = 0;
 static u64 LastGCTick = 0;
 static u64 TimeCmdSent = 0;
@@ -328,11 +328,16 @@ static u64 GetGCTicks()
 #endif
 }
 
+static constexpr u64 GetGCTicksPerSec()
+{
+    return 486000000ull;
+}
+
 static void WaitGCTicks(u64 ticks)
 {
     struct timeval tv = {};
-    tv.tv_sec = ticks / 486000000;
-    tv.tv_usec = (ticks % 486000000) * 1000000 / 486000000;
+    tv.tv_sec = ticks / GetGCTicksPerSec();
+    tv.tv_usec = (ticks % GetGCTicksPerSec()) * 1000000 / GetGCTicksPerSec();
     select(0, NULL, NULL, NULL, &tv);
 }
 
@@ -375,7 +380,7 @@ static u64 GetTransferTime(u8 cmd)
         break;
     }
     }
-    return bytes * 486000000ull / BYTES_PER_SECOND;
+    return bytes * GetGCTicksPerSec() / BYTES_PER_SECOND;
 }
 
 static void ClockSync()
@@ -387,13 +392,13 @@ static void ClockSync()
     if (!LastGCTick)
     {
         LastGCTick = GetGCTicks();
-        TickDelta = 486000000ull / 60;
+        TickDelta = GetGCTicksPerSec() / 60;
     }
     else
         TickDelta = GetGCTicks() - LastGCTick;
 
     /* Scale GameCube clock into GBA clock */
-    TickDelta = u32(u64(TickDelta) * 16777216 / 486000000);
+    TickDelta = u32(u64(TickDelta) * 16777216 / GetGCTicksPerSec());
     LastGCTick = GetGCTicks();
     TickDelta = hecl::SBig(TickDelta);
     u8* deltaStr = reinterpret_cast<u8*>(&TickDelta);
@@ -406,7 +411,6 @@ static void Send(const u8* buffer)
 {
     Cmd = buffer[0];
 
-    //DataSocket.setBlocking(true);
     ssize_t status;
     if (Cmd == CMD_WRITE)
         status = DataSocket.send(buffer, 5);
@@ -488,15 +492,6 @@ static u64 TimeSent = 0;
 
 static size_t RunBuffer(u8* buffer, u64& remTicks)
 {
-    /*
-    if (TimeSent)
-    {
-        s64 waitDelta = GetGCTicks() - TimeSent;
-        if (GetTransferTime(Cmd) > waitDelta)
-            return 0;
-    }
-    */
-
     if (!WaitingForResp)
     {
         DataReceivedBytes = 0;
@@ -640,20 +635,11 @@ static s32 GBAWrite(s32 chan, u8* src, u8* status)
     return GBA_READY;
 }
 
-static const u8 KawasedoLUT[] =
-{
-  0x18, 0xFC, 0xC0, 0x80, 0x7F, 0x40, 0x3F, 0x01, 0x00, 0x2F,
-  0x2F, 0x20, 0x43, 0x6F, 0x64, 0x65, 0x64, 0x20, 0x62, 0x79,
-  0x20, 0x4B, 0x61, 0x77, 0x61, 0x73, 0x65, 0x64, 0x6F, 0x00,
-  0x00, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0xAC, 0xC4,
-  0xF8, 0x08, 0x10, 0xBF, 0x18, 0x00, 0x00, 0x00
-};
-
 /** Self-contained class for solving Kawasedo's GBA BootROM challenge.
  *  GBA will boot client_pad.bin code on completion. */
 class CKawasedoChallenge
 {
-    /** DSP-hosted HMAC function
+    /** DSP-hosted public-key unwrap and initial message crypt
      *  Reference: https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/HW/DSPHLE/UCodes/GBA.cpp */
     struct DSPSecParms
     {
@@ -667,10 +653,10 @@ class CKawasedoChallenge
         ShortAndLong x4_pColor; /* Palette of Nintendo logo */
         ShortAndLong x8_pSpeed; /* Speed of logo pulsing */
         u32 xc_progLen; /* Length of program to boot */
-        //u32* x10_resultsDest; /* Written to resK1 and resK2 instead */
+        //u32* x10_resultsDest; /* Written to x20_publicKey and x24_initMessage instead */
 
-        u32 x20_resK1; /* Transformed key */
-        u32 x24_resHMAC; /* Message authentication code */
+        u32 x20_publicKey; /* Transformed public key */
+        u32 x24_initMessage; /* Message authentication code */
 
         void ProcessGBACrypto()
         {
@@ -717,8 +703,8 @@ class CKawasedoChallenge
             }
 
             // Send the result back to mram
-            x20_resK1 = (x20 << 16) | x21;
-            x24_resHMAC = (x22 << 16) | x23;
+            x20_publicKey = (x20 << 16) | x21;
+            x24_initMessage = (x22 << 16) | x23;
 
             printf("key: %08x, len: %08x, unk1: %08x, unk2: %08x 20: %04x, 21: %04x, 22: %04x, 23: %04x\n",
                       x0_gbaK1.l, xc_progLen,
@@ -743,7 +729,7 @@ class CKawasedoChallenge
     u32 x38_crc;
     u32 x3c_checkStore[7];
     s32 x58_currentKey;
-    s32 x5c_HMAC;
+    s32 x5c_initMessage;
     s32 x60_gameId;
     u32 x64_totalBytes;
 
@@ -800,7 +786,6 @@ class CKawasedoChallenge
     void GBAX02()
     {
         xf8_dspHmac.x0_gbaK1.l = reinterpret_cast<u32&>(x18_readBuf);
-        xf8_dspHmac.x0_gbaK1.l = hecl::SBig(0xd3aa85a2);
         xf8_dspHmac.x4_pColor.l = x0_pColor;
         xf8_dspHmac.x8_pSpeed.l = x4_pSpeed;
         xf8_dspHmac.xc_progLen = xc_progLen;
@@ -809,9 +794,8 @@ class CKawasedoChallenge
 
     bool GBAX01()
     {
-        x58_currentKey = xf8_dspHmac.x20_resK1;
-        x58_currentKey = 0xd3aa85a2;
-        x5c_HMAC = xf8_dspHmac.x24_resHMAC;
+        x58_currentKey = xf8_dspHmac.x20_publicKey;
+        x5c_initMessage = xf8_dspHmac.x24_initMessage;
 
         x20_byteInWindow = ROUND_UP_8(xc_progLen);
         if (x20_byteInWindow < 512)
@@ -820,7 +804,7 @@ class CKawasedoChallenge
         x20_byteInWindow -= 512;
         x20_byteInWindow /= 8;
 
-        reinterpret_cast<u32&>(x1c_writeBuf) = x5c_HMAC;
+        reinterpret_cast<u32&>(x1c_writeBuf) = x5c_initMessage;
 
         x38_crc = 0x15a0;
         x34_bytesSent = 0;
@@ -890,18 +874,18 @@ class CKawasedoChallenge
 
                     if (x34_bytesSent >= 0xc0)
                     {
-                        u32 checksum2 = cryptWindow;
-                        u32 tmpSecret = x38_crc;
+                        u32 shiftWindow = cryptWindow;
+                        u32 shiftCrc = x38_crc;
                         for (int i=0 ; i<32 ; ++i)
                         {
-                            if ((checksum2 ^ tmpSecret) & 0x1)
-                                tmpSecret = (tmpSecret >> 1) ^ 0xa1c1;
+                            if ((shiftWindow ^ shiftCrc) & 0x1)
+                                shiftCrc = (shiftCrc >> 1) ^ 0xa1c1;
                             else
-                                tmpSecret >>= 1;
+                                shiftCrc >>= 1;
 
-                            checksum2 >>= 1;
+                            shiftWindow >>= 1;
                         }
-                        x38_crc = tmpSecret;
+                        x38_crc = shiftCrc;
                     }
 
                     if (x34_bytesSent == 0x1f8)
@@ -924,7 +908,7 @@ class CKawasedoChallenge
                     x58_currentKey = 0x6177614b * x58_currentKey + 1;
 
                     cryptWindow ^= x58_currentKey;
-                    cryptWindow ^= -((0x20 << 20) + x34_bytesSent);
+                    cryptWindow ^= -(0x2000000 + x34_bytesSent);
                     cryptWindow ^= 0x20796220;
                 }
 
@@ -991,7 +975,7 @@ class CKawasedoChallenge
                 return false;
             }
 
-            if (*x10_statusPtr == GBA_JSTAT_SEND)
+            if (*x10_statusPtr != GBA_JSTAT_SEND)
             {
                 if (GBAGetStatus(m_chan, x10_statusPtr) != GBA_READY)
                 {
@@ -1114,14 +1098,12 @@ static s32 GBAJoyBootAsync(s32 chan, s32 paletteColor, s32 paletteSpeed,
     return GBA_READY;
 }
 
-static u32 calculateJBusChecksum(const u8* data, size_t len)
+static u8 calculateJBusChecksum(const u8* data, size_t len)
 {
-    const u8* ptr = data;
     u32 sum = -1;
-    for (int i = len ; i > 0; --i)
+    for (int i = 0 ; i < len; ++i)
     {
-        u8 ch = *ptr;
-        ptr++;
+        u8 ch = *data++;
         sum ^= ch;
         for (int j = 0; j < 8; ++j)
         {
@@ -1134,7 +1116,6 @@ static u32 calculateJBusChecksum(const u8* data, size_t len)
                 sum >>= 1;
         }
     }
-
     return sum;
 }
 
@@ -1193,7 +1174,7 @@ bool CGBASupport::PollResponse()
         return false;
 
     u64 profStart = GetGCTicks();
-    const u64 timeToSpin = 486000000ull / 8000;
+    const u64 timeToSpin = GetGCTicksPerSec() / 8000;
     for (;;)
     {
         u64 curTime = GetGCTicks();
@@ -1215,11 +1196,10 @@ bool CGBASupport::PollResponse()
     if (GBARead(x40_siChan, bytes, &status) != GBA_READY)
         return false;
 
-    u32 swapped = hecl::SBig(reinterpret_cast<u32&>(bytes));
-    if (bytes[0] != calculateJBusChecksum(reinterpret_cast<u8*>(&swapped), 3))
+    if (bytes[3] != calculateJBusChecksum(bytes, 3))
         return false;
 
-    x44_fusionLinked = (bytes[2] & 0x2) != 0;
+    x44_fusionLinked = (bytes[2] & 0x2) == 0;
     if (x44_fusionLinked && (bytes[2] & 0x1) != 0)
         x45_fusionBeat = true;
 
@@ -1268,12 +1248,6 @@ void CGBASupport::Update(float dt)
             x34_phase = EPhase::Complete;
             break;
         }
-        else
-        {
-            /* Synchronous mode */
-            x34_phase = EPhase::Failed;
-            break;
-        }
         x38_timeout = std::max(0.f, x38_timeout - dt);
         if (x38_timeout == 0.f)
             x34_phase = EPhase::Failed;
@@ -1317,12 +1291,13 @@ int main(int argc, char** argv)
 #if __APPLE__
     mach_timebase_info_data_t timebase;
     mach_timebase_info(&timebase);
-    SysToDolphinNum = 486000000ull * timebase.numer;
+    SysToDolphinNum = GetGCTicksPerSec() * timebase.numer;
     SysToDolphinDenom = 1000000000ull * timebase.denom;
 #elif __linux__
-    SysToDolphinNum = 486000000ull;
+    SysToDolphinNum = GetGCTicksPerSec();
     SysToDolphinDenom = 1000000000ull;
 #endif
+
     CGBASupport gba("client_pad.bin");
     gba.Update(0.f);
     gba.InitializeSupport();
@@ -1330,21 +1305,24 @@ int main(int argc, char** argv)
 
     printf("Waiting 5 sec\n");
     s64 waitedTicks = 0;
-    while (waitedTicks < 486000000ll * 5)
+    while (waitedTicks < GetGCTicksPerSec() * 5)
     {
         s64 start = GetGCTicks();
         u8 status;
         GBAGetStatus(1, &status);
         s64 end = GetGCTicks();
-        s64 passedTicks = end - start;
-        s64 waitTicks = 486000000ll / 1 - passedTicks;
-        if (waitTicks > 0)
-        {
-            WaitGCTicks(waitTicks);
-            waitedTicks += 486000000ll / 1;
-        }
-        else
-            waitedTicks += passedTicks;
+        waitedTicks += end - start;
+
+        WaitGCTicks(GetGCTicksPerSec() * 0.684);
+        waitedTicks += GetGCTicksPerSec() * 0.684;
+
+        start = GetGCTicks();
+        GBAGetStatus(1, &status);
+        end = GetGCTicks();
+        waitedTicks += end - start;
+
+        WaitGCTicks(GetGCTicksPerSec() * 0.066);
+        waitedTicks += GetGCTicksPerSec() * 0.066;
     }
 
     printf("Connecting\n");
@@ -1352,13 +1330,15 @@ int main(int argc, char** argv)
     {
         s64 frameStart = GetGCTicks();
         gba.Update(1.f / 60.f);
-        fflush(stdout);
         s64 frameEnd = GetGCTicks();
         s64 passedTicks = frameEnd - frameStart;
-        s64 waitTicks = 486000000ll / 60 - passedTicks;
+        s64 waitTicks = GetGCTicksPerSec() / 60 - passedTicks;
         if (waitTicks > 0)
             WaitGCTicks(waitTicks);
     }
+
+    u8 status;
+    GBAGetStatus(1, &status);
 
     CGBASupport::EPhase finalPhase = gba.GetPhase();
     printf("%s Linked: %d Beat: %d\n",
