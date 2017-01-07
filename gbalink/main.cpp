@@ -260,8 +260,7 @@ int main(int argc, char** argv)
         if (endpoint)
             break;
         s64 frameEnd = jbus::GetGCTicks();
-        s64 passedTicks = frameEnd - frameStart;
-        s64 waitTicks = jbus::GetGCTicksPerSec() / 60 - passedTicks;
+        s64 waitTicks = jbus::GetGCTicksPerSec() / 60;
         if (waitTicks > 0)
             jbus::WaitGCTicks(waitTicks);
     }
