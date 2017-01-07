@@ -4,6 +4,7 @@
 #include "CSimplePool.hpp"
 #include "CSaveWorld.hpp"
 #include "CGameHintInfo.hpp"
+//#include "Audio/CStreamedAudioManager.hpp"
 
 namespace urde
 {
@@ -33,7 +34,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     for (const auto& world : memWorlds)
     {
         TLockedToken<CSaveWorld> saveWorld =
-            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
+                g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
         cinematicCount += saveWorld->GetCinematicCount();
     }
 
@@ -45,7 +46,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     for (const auto& world : memWorlds)
     {
         TLockedToken<CSaveWorld> saveWorld =
-            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
+                g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
 
         auto stateIt = cinematicStates.cbegin();
         for (TEditorId cineId : saveWorld->GetCinematics())
@@ -78,7 +79,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     for (const auto& world : memWorlds)
     {
         TLockedToken<CSaveWorld> saveWorld =
-            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
+                g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
 
         for (TEditorId cineId : saveWorld->GetCinematics())
             w.WriteEncoded(GetCinematicState(world.first, cineId), 1);
@@ -88,7 +89,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
 bool CPersistentOptions::GetCinematicState(ResId mlvlId, TEditorId cineId) const
 {
     auto existing = std::find_if(xac_cinematicStates.cbegin(), xac_cinematicStates.cend(),
-    [&](const std::pair<ResId, TEditorId>& pair) -> bool
+                                 [&](const std::pair<ResId, TEditorId>& pair) -> bool
     {
         return pair.first == mlvlId && pair.second == cineId;
     });
@@ -99,7 +100,7 @@ bool CPersistentOptions::GetCinematicState(ResId mlvlId, TEditorId cineId) const
 void CPersistentOptions::SetCinematicState(ResId mlvlId, TEditorId cineId, bool state)
 {
     auto existing = std::find_if(xac_cinematicStates.cbegin(), xac_cinematicStates.cend(),
-    [&](const std::pair<ResId, TEditorId>& pair) -> bool
+                                 [&](const std::pair<ResId, TEditorId>& pair) -> bool
     {
         return pair.first == mlvlId && pair.second == cineId;
     });
@@ -118,19 +119,39 @@ CGameOptions::CGameOptions(CBitStreamReader& stream)
     x44_soundMode = ESoundMode(stream.ReadEncoded(2));
     x48_ = stream.ReadEncoded(4);
 
-    x4c_ = stream.ReadEncoded(6);
-    x50_ = stream.ReadEncoded(6);
-    x54_ = stream.ReadEncoded(5);
-    x58_ = stream.ReadEncoded(7);
+    x4c_screenXOffset = stream.ReadEncoded(6);
+    x50_screenYOffset = stream.ReadEncoded(6);
+    x54_screenStretch = stream.ReadEncoded(5);
+    x58_sfxVol = stream.ReadEncoded(7);
     x5c_musicVol = stream.ReadEncoded(7);
-    x60_ = stream.ReadEncoded(8);
-    x64_ = stream.ReadEncoded(8);
+    x60_helmetAlpha = stream.ReadEncoded(8);
+    x64_hudAlpha = stream.ReadEncoded(8);
 
-    x68_24_ = stream.ReadEncoded(1);
-    x68_28_ = stream.ReadEncoded(1);
-    x68_25_ = stream.ReadEncoded(1);
-    x68_26_ = stream.ReadEncoded(1);
-    x68_27_ = stream.ReadEncoded(1);
+    x68_24_hudLag = stream.ReadEncoded(1);
+    x68_28_hintSystem = stream.ReadEncoded(1);
+    x68_25_invertY = stream.ReadEncoded(1);
+    x68_26_rumble = stream.ReadEncoded(1);
+    x68_27_swapBeamsControls = stream.ReadEncoded(1);
+}
+
+void CGameOptions::ResetToDefaults()
+{
+    x48_ = 4;
+    x4c_screenXOffset = 0;
+    x50_screenYOffset = 0;
+    x54_screenStretch = 0;
+    x58_sfxVol = 0x7f;
+    x5c_musicVol = 0x7f;
+    x44_soundMode = ESoundMode::Stereo;
+    x60_helmetAlpha = 0xFF;
+    x64_hudAlpha = 0xFF;
+    x68_24_hudLag = true;
+    x68_25_invertY = false;
+    x68_26_rumble = true;
+    x68_27_swapBeamsControls = false;
+    x68_28_hintSystem = true;
+    InitSoundMode();
+    EnsureSettings();
 }
 
 void CGameOptions::PutTo(CBitStreamWriter& writer) const
@@ -141,32 +162,198 @@ void CGameOptions::PutTo(CBitStreamWriter& writer) const
     writer.WriteEncoded(u32(x44_soundMode), 2);
     writer.WriteEncoded(x48_, 4);
 
-    writer.WriteEncoded(x4c_, 6);
-    writer.WriteEncoded(x50_, 6);
-    writer.WriteEncoded(x54_, 5);
-    writer.WriteEncoded(x58_, 7);
+    writer.WriteEncoded(x4c_screenXOffset, 6);
+    writer.WriteEncoded(x50_screenYOffset, 6);
+    writer.WriteEncoded(x54_screenStretch, 5);
+    writer.WriteEncoded(x58_sfxVol, 7);
     writer.WriteEncoded(x5c_musicVol, 7);
-    writer.WriteEncoded(x60_, 8);
-    writer.WriteEncoded(x64_, 8);
+    writer.WriteEncoded(x60_helmetAlpha, 8);
+    writer.WriteEncoded(x64_hudAlpha, 8);
 
-    writer.WriteEncoded(x68_24_, 1);
-    writer.WriteEncoded(x68_28_, 1);
-    writer.WriteEncoded(x68_25_, 1);
-    writer.WriteEncoded(x68_26_, 1);
-    writer.WriteEncoded(x68_27_, 1);
+    writer.WriteEncoded(x68_24_hudLag, 1);
+    writer.WriteEncoded(x68_28_hintSystem, 1);
+    writer.WriteEncoded(x68_25_invertY, 1);
+    writer.WriteEncoded(x68_26_rumble, 1);
+    writer.WriteEncoded(x68_27_swapBeamsControls, 1);
 }
 
 CGameOptions::CGameOptions()
 {
-    x68_24_ = true;
-    x68_26_ = true;
-    x68_28_ = true;
+    x68_24_hudLag = true;
+    x68_26_rumble = true;
+    x68_28_hintSystem = true;
     InitSoundMode();
+}
+
+float CGameOptions::sub8020F054()
+{
+    return (0.375f * 1.f) + (float(x48_) * 0.25f);
 }
 
 void CGameOptions::InitSoundMode()
 {
     /* If system is mono, force x44 to mono, otherwise honor user preference */
+}
+static float flt805A8844 = 0.f;
+void CGameOptions::sub8020F098(int val, bool b)
+{
+    x48_ = zeus::clamp(0, val, 8);
+
+    if (b)
+        flt805A8844 = sub8020F054();
+}
+
+void CGameOptions::SetScreenPositionX(s32 pos, bool apply)
+{
+    x4c_screenXOffset = zeus::clamp(-30, pos, 30);
+
+    if (apply)
+    {
+        /* TOOD: CGraphics related funcs */
+    }
+}
+
+void CGameOptions::SetScreenPositionY(s32 pos, bool apply)
+{
+    x50_screenYOffset = zeus::clamp(-30, pos, 30);
+
+    if (apply)
+    {
+        /* TOOD: CGraphics related funcs */
+    }
+}
+
+void CGameOptions::SetScreenStretch(s32 st, bool apply)
+{
+    x54_screenStretch = zeus::clamp(-10, st, 10);
+
+    if (apply)
+    {
+        /* TOOD: CGraphics related funcs */
+    }
+}
+
+void CGameOptions::SetSfxVolume(s32 vol, bool apply)
+{
+    x58_sfxVol = zeus::clamp(0, vol, 0x7f);
+
+#if 0
+    if (apply)
+    {
+        CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, 1, 1);
+        CStreamedAudioManager::SetSfxVolume(x58_sfxVol);
+        CMoviePlayer::SetSfxVolume(x58_sfxVol);
+    }
+#endif
+}
+
+void CGameOptions::SetMusicVolume(s32 vol, bool apply)
+{
+    x5c_musicVol = zeus::clamp(0, vol, 0x7f);
+# if 0
+    if (apply)
+        CStreamedAudioManager::SetGlobalVolume(x5c_musicVol);
+#endif
+}
+
+void CGameOptions::SetHUDAlpha(u32 alpha)
+{
+    x64_hudAlpha = alpha;
+}
+
+u32 CGameOptions::GetHUDAlpha() const
+{
+    return x64_hudAlpha;
+}
+
+void CGameOptions::SetHelmetAlpha(u32 alpha)
+{
+    x60_helmetAlpha = alpha;
+}
+
+u32 CGameOptions::GetHelmetAlpha() const
+{
+    return x60_helmetAlpha;
+}
+
+void CGameOptions::SetHUDLag(bool lag)
+{
+    x68_24_hudLag = lag;
+}
+
+bool CGameOptions::GetHUDLag() const
+{
+    return x68_24_hudLag;
+}
+
+void CGameOptions::SetInvertYAxis(bool invert)
+{
+    x68_25_invertY = invert;
+}
+
+bool CGameOptions::GetInvertYAxis() const
+{
+    return x68_25_invertY;
+}
+
+void CGameOptions::SetIsRumbleEnabled(bool rumble)
+{
+    x68_26_rumble = rumble;
+}
+
+bool CGameOptions::IsRumbleEnabled() const
+{
+    return x68_26_rumble;
+}
+
+void CGameOptions::ToggleControls(bool swap)
+{
+    x68_27_swapBeamsControls = swap;
+    if (!swap)
+        SetControls(0);
+    else
+        SetControls(1);
+}
+
+void CGameOptions::SetIsHintSystemEnabled(bool hints)
+{
+    x68_28_hintSystem = hints;
+}
+
+bool CGameOptions::IsHintSystemEnabled() const
+{
+    return x68_28_hintSystem;
+}
+
+void CGameOptions::SetControls(s32 controls)
+{
+    if (controls == 0)
+        g_currentPlayerControl = g_tweakPlayerControl;
+    else
+        g_currentPlayerControl = g_tweakPlayerControlAlt;
+
+    ResetControllerAssets();
+}
+
+void CGameOptions::ResetControllerAssets()
+{
+}
+
+void CGameOptions::EnsureSettings()
+{
+    sub8020F098(x48_, true);
+    SetScreenPositionX(x4c_screenXOffset, true);
+    SetScreenPositionY(x50_screenYOffset, true);
+    SetScreenStretch(x54_screenStretch, true);
+    SetSfxVolume(x58_sfxVol, true);
+    SetMusicVolume(x5c_musicVol, true);
+    //SetSurroundMode(x44_soundMode, true);
+    SetHUDAlpha(x64_hudAlpha);
+    SetHUDLag(x68_24_hudLag);
+    SetInvertYAxis(x68_25_invertY);
+    SetIsRumbleEnabled(x68_26_rumble);
+    SetIsHintSystemEnabled(x68_28_hintSystem);
+    ToggleControls(x68_27_swapBeamsControls);
 }
 
 CHintOptions::CHintOptions(CBitStreamReader& stream)
@@ -205,7 +392,7 @@ void CHintOptions::SetNextHintTime()
     if (x10_nextHintIdx == -1)
         return;
     x0_hintStates[x10_nextHintIdx].x4_time =
-        g_MemoryCardSys->GetHints()[x10_nextHintIdx].GetTime() + 5.f;
+            g_MemoryCardSys->GetHints()[x10_nextHintIdx].GetTime() + 5.f;
 }
 
 }

@@ -827,14 +827,14 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
     for (int i = 0; i < propCount - 6; ++i)
         itemCounts.push_back(in.readUint32Big());
 
-    bool b1 = in.readBool();
-    bool b2 = in.readBool();
-    bool b3 = false;
+    bool defaultSpawn = in.readBool();
+    bool active = in.readBool();
+    bool morphed = false;
     if (propCount > 34)
-        b3 = in.readBool();
+        morphed = in.readBool();
 
     return new CScriptSpawnPoint(mgr.AllocateUniqueId(), *name, info,
-                                 ConvertEditorEulerToTransform4f(rotation, position), itemCounts, b1, b2, b3);
+                                 ConvertEditorEulerToTransform4f(rotation, position), itemCounts, defaultSpawn, active, morphed);
 }
 
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

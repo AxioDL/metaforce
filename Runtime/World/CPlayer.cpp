@@ -133,7 +133,7 @@ u16 CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, int, u1
 u16 CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, u32 tableLen, u16 defId)
 {
     u16 id = defId;
-    for (u32 i = 0 ; i < tableLen; ++i)
+    for (u32 i = 0; i < tableLen; ++i)
     {
         if (mat.HasMaterial(EMaterialTypes(i)) && idList[i] != 0xFFFF)
             id = idList[i];
@@ -359,4 +359,6 @@ void CPlayer::CVisorSteam::Update(float dt)
 
     x24_ = 0.1f;
 }
+
+void CPlayer::SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState, CStateManager&) {}
 }

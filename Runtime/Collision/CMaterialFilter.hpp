@@ -10,15 +10,15 @@ class CMaterialFilter
 public:
     enum class EFilterType
     {
-        Zero,
+        Include,
         One,
-        Two,
-        Three
+        Exclude,
+        IncludeExclude
     };
 private:
     CMaterialList x0_include;
     CMaterialList x8_exclude;
-    EFilterType x10_type = EFilterType::Three;
+    EFilterType x10_type = EFilterType::IncludeExclude;
 public:
     static const CMaterialFilter skPassEverything;
 

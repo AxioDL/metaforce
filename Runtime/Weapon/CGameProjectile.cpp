@@ -8,10 +8,9 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>&,
                                  u32 w1, bool b2, const zeus::CVector3f&,
                                  const rstl::optional_object<TLockedToken<CGenDescription>>&, s16, bool b3)
 : CWeapon(owner, aid, uid, active, wType, name, xf,
-          CMaterialFilter(CMaterialList(EMaterialTypes::NonSolidDamageable, matType),
-                          CMaterialList(EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType,
-                                        EMaterialTypes::Solid),
-                          CMaterialFilter::EFilterType::Three),
+          CMaterialFilter::MakeIncludeExclude(
+              {EMaterialTypes::NonSolidDamageable, matType},
+              {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType, EMaterialTypes::Solid}),
           CMaterialList(), dInfo, EProjectileAttrib(w1) | GetBeamAttribType(wType), CModelData::CModelDataNull())
 {
 }

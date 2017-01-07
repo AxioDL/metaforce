@@ -274,6 +274,7 @@ public:
     void PreRender();
     void AliveUpdate(float dt);
     void SetOcclusionState(EOcclusionState state);
+    EOcclusionState GetOcclusionState() const { return GetPostConstructed()->x10dc_occlusionState; }
     void RemoveStaticGeometry();
     void AddStaticGeometry();
     //void TransferTokensToARAM();
@@ -283,6 +284,7 @@ public:
     //void UnloadAllLoadedTextures();
     //void ReloadAllLoadedTextures();
     void ReloadAllUnloadedTextures();
+    void PrepTokens();
     u32 GetNumPartSizes() const;
     void AllocNewAreaData(int, int);
     bool Invalidate(CStateManager& mgr);

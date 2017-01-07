@@ -20,14 +20,12 @@ class CWorldLayerState
     friend class CSaveWorldIntermediate;
     std::vector<CWorldLayers::Area> x0_areaLayers;
     DataSpec::WordBitmap x10_saveLayers;
+
 public:
     CWorldLayerState() = default;
     CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld);
 
-    bool IsLayerActive(int areaIdx, int layerIdx) const
-    {
-        return (x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1;
-    }
+    bool IsLayerActive(int areaIdx, int layerIdx) const { return (x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1; }
 
     void SetLayerActive(int areaIdx, int layerIdx, bool active)
     {
@@ -39,10 +37,7 @@ public:
 
     void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);
 
-    u32 GetAreaLayerCount(int areaIdx) const
-    {
-        return x0_areaLayers[areaIdx].m_layerCount;
-    }
+    u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
 
     void PutTo(CBitStreamWriter& writer) const;
 };
@@ -55,10 +50,11 @@ class CWorldState
     std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
     u32 x10_;
     std::shared_ptr<CWorldLayerState> x14_layerState;
+
 public:
     CWorldState(ResId id);
     CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld);
-    ResId GetWorldAssetId() const {return x0_mlvlId;}
+    ResId GetWorldAssetId() const { return x0_mlvlId; }
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }
     TAreaId GetCurrentAreaId() const { return x4_areaId; }
     const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
@@ -101,8 +97,8 @@ public:
     CGameState();
     CGameState(CBitStreamReader& stream, u32 saveIdx);
     void SetCurrentWorldId(ResId id);
-    std::shared_ptr<CPlayerState> GetPlayerState() {return x98_playerState;}
-    std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() {return x9c_transManager;}
+    std::shared_ptr<CPlayerState> GetPlayerState() { return x98_playerState; }
+    std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() { return x9c_transManager; }
     void SetTotalPlayTime(float time);
     CPersistentOptions& SystemOptions() { return xa8_systemOptions; }
     CGameOptions& GameOptions() { return x17c_gameOptions; }
@@ -137,7 +133,6 @@ public:
     };
     static GameFileStateInfo LoadGameFileState(const u8* data);
 };
-
 }
 
 #endif // __URDE_CGAMESTATE_HPP__

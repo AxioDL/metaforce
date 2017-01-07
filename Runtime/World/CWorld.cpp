@@ -10,53 +10,30 @@
 namespace urde
 {
 
-CWorld::CSoundGroupData::CSoundGroupData(int grpId, ResId agsc)
-: x0_groupId(grpId), x4_agscId(agsc)
+CWorld::CSoundGroupData::CSoundGroupData(int grpId, ResId agsc) : x0_groupId(grpId), x4_agscId(agsc)
 {
     x1c_groupData = g_SimplePool->GetObj(SObjectTag{FOURCC('AGSC'), agsc});
 }
 
-CDummyWorld::CDummyWorld(ResId mlvlId, bool loadMap)
-: x4_loadMap(loadMap), xc_mlvlId(mlvlId)
+CDummyWorld::CDummyWorld(ResId mlvlId, bool loadMap) : x4_loadMap(loadMap), xc_mlvlId(mlvlId)
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->LoadResourceAsync(tag, x34_loadBuf);
 }
 
-ResId CDummyWorld::IGetWorldAssetId() const
-{
-    return xc_mlvlId;
-}
+ResId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
 
-ResId CDummyWorld::IGetStringTableAssetId() const
-{
-    return x10_strgId;
-}
+ResId CDummyWorld::IGetStringTableAssetId() const { return x10_strgId; }
 
-ResId CDummyWorld::IGetSaveWorldAssetId() const
-{
-    return x14_savwId;
-}
+ResId CDummyWorld::IGetSaveWorldAssetId() const { return x14_savwId; }
 
-const CMapWorld* CDummyWorld::IGetMapWorld() const
-{
-    return x2c_mapWorld.GetObj();
-}
+const CMapWorld* CDummyWorld::IGetMapWorld() const { return x2c_mapWorld.GetObj(); }
 
-CMapWorld* CDummyWorld::IMapWorld()
-{
-    return x2c_mapWorld.GetObj();
-}
+CMapWorld* CDummyWorld::IMapWorld() { return x2c_mapWorld.GetObj(); }
 
-const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const
-{
-    return &x18_areas.at(id);
-}
+const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const { return &x18_areas.at(id); }
 
-TAreaId CDummyWorld::IGetCurrentAreaId() const
-{
-    return x3c_curAreaId;
-}
+TAreaId CDummyWorld::IGetCurrentAreaId() const { return x3c_curAreaId; }
 
 TAreaId CDummyWorld::IGetAreaId(ResId id) const
 {
@@ -85,7 +62,7 @@ std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryR
     std::vector<CWorld::CRelay> ret;
     u32 count = r.readUint32Big();
     ret.reserve(count);
-    for (u32 i=0 ; i<count ; ++i)
+    for (u32 i = 0; i < count; ++i)
         ret.emplace_back(r);
     return ret;
 }
@@ -96,7 +73,7 @@ CWorldLayers CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r)
 
     u32 areaCount = r.readUint32Big();
     ret.m_areas.reserve(areaCount);
-    for (u32 i=0 ; i<areaCount ; ++i)
+    for (u32 i = 0; i < areaCount; ++i)
     {
         ret.m_areas.emplace_back();
         ret.m_areas.back().m_layerCount = r.readUint32Big();
@@ -105,11 +82,11 @@ CWorldLayers CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r)
 
     u32 nameCount = r.readUint32Big();
     ret.m_names.reserve(areaCount);
-    for (u32 i=0 ; i<nameCount ; ++i)
+    for (u32 i = 0; i < nameCount; ++i)
         ret.m_names.push_back(r.readString());
 
     areaCount = r.readUint32Big();
-    for (u32 i=0 ; i<areaCount ; ++i)
+    for (u32 i = 0; i < areaCount; ++i)
         ret.m_areas[i].m_startNameIdx = r.readUint32Big();
 
     return ret;
@@ -139,7 +116,7 @@ bool CDummyWorld::ICheckWorldComplete()
         r.readUint32Big();
 
         x18_areas.reserve(areaCount);
-        for (u32 i=0 ; i<areaCount ; ++i)
+        for (u32 i = 0; i < areaCount; ++i)
             x18_areas.emplace_back(r, i, version);
 
         x28_mapWorldId = r.readUint32Big();
@@ -152,7 +129,7 @@ bool CDummyWorld::ICheckWorldComplete()
         if (version > 10)
         {
             u32 audioGroupCount = r.readUint32Big();
-            for (u32 i=0 ; i<audioGroupCount ; ++i)
+            for (u32 i = 0; i < audioGroupCount; ++i)
             {
                 r.readUint32Big();
                 r.readUint32Big();
@@ -196,15 +173,9 @@ bool CDummyWorld::ICheckWorldComplete()
     return false;
 }
 
-std::string CDummyWorld::IGetDefaultAudioTrack() const
-{
-    return {};
-}
+std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
 
-int CDummyWorld::IGetAreaCount() const
-{
-    return x18_areas.size();
-}
+int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
 : x60_objectStore(objStore), x64_resFactory(resFactory)
@@ -213,50 +184,23 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
     static_cast<ProjectResourceFactoryBase&>(resFactory).LoadResourceAsync(tag, x40_loadBuf);
 }
 
-ResId CWorld::IGetWorldAssetId() const
-{
-    return x8_mlvlId;
-}
+ResId CWorld::IGetWorldAssetId() const { return x8_mlvlId; }
 
-ResId CWorld::IGetStringTableAssetId() const
-{
-    return xc_strgId;
-}
+ResId CWorld::IGetStringTableAssetId() const { return xc_strgId; }
 
-ResId CWorld::IGetSaveWorldAssetId() const
-{
-    return x10_savwId;
-}
+ResId CWorld::IGetSaveWorldAssetId() const { return x10_savwId; }
 
-const CMapWorld* CWorld::IGetMapWorld() const
-{
-    return const_cast<CWorld*>(this)->GetMapWorld();
-}
+const CMapWorld* CWorld::IGetMapWorld() const { return const_cast<CWorld*>(this)->GetMapWorld(); }
 
-CMapWorld* CWorld::IMapWorld()
-{
-    return const_cast<CMapWorld*>(GetMapWorld());
-}
+CMapWorld* CWorld::IMapWorld() { return const_cast<CMapWorld*>(GetMapWorld()); }
 
-const CGameArea* CWorld::GetAreaAlways(TAreaId id) const
-{
-    return x18_areas.at(id).get();
-}
+const CGameArea* CWorld::GetAreaAlways(TAreaId id) const { return x18_areas.at(id).get(); }
 
-CGameArea* CWorld::GetArea(TAreaId id)
-{
-    return const_cast<CGameArea*>(GetAreaAlways(id));
-}
+CGameArea* CWorld::GetArea(TAreaId id) { return const_cast<CGameArea*>(GetAreaAlways(id)); }
 
-const IGameArea* CWorld::IGetAreaAlways(TAreaId id) const
-{
-    return GetAreaAlways(id);
-}
+const IGameArea* CWorld::IGetAreaAlways(TAreaId id) const { return GetAreaAlways(id); }
 
-TAreaId CWorld::IGetCurrentAreaId() const
-{
-    return x68_curAreaId;
-}
+TAreaId CWorld::IGetCurrentAreaId() const { return x68_curAreaId; }
 
 TAreaId CWorld::IGetAreaId(ResId id) const
 {
@@ -285,13 +229,9 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain)
     x4c_chainHeads[int(chain)] = area;
 }
 
-void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data)
-{
-}
+void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data) {}
 
-void CWorld::LoadSoundGroups()
-{
-}
+void CWorld::LoadSoundGroups() {}
 
 bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
 {
@@ -338,12 +278,12 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         r.readUint32Big();
 
         x18_areas.reserve(areaCount);
-        for (u32 i=0 ; i<areaCount ; ++i)
+        for (u32 i = 0; i < areaCount; ++i)
             x18_areas.push_back(std::make_unique<CGameArea>(r, i, version));
 
         if (x48_chainCount < 5)
         {
-            for (int i=x48_chainCount ; i<5 ; ++i)
+            for (int i = x48_chainCount; i < 5; ++i)
                 x4c_chainHeads[i] = nullptr;
             x48_chainCount = 5;
         }
@@ -365,7 +305,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         {
             u32 audioGroupCount = r.readUint32Big();
             x74_soundGroupData.reserve(audioGroupCount);
-            for (u32 i=0 ; i<audioGroupCount ; ++i)
+            for (u32 i = 0; i < audioGroupCount; ++i)
             {
                 int grpId = r.readUint32Big();
                 ResId agscId = r.readUint32Big();
@@ -523,7 +463,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         for (CGameArea::Dock& dock : area->xcc_docks)
         {
             u32 dockRefCount = dock.GetDockRefs().size();
-            for (u32 i=0 ; i<dockRefCount ; ++i)
+            for (u32 i = 0; i < dockRefCount; ++i)
             {
                 if (!dock.ShouldLoadOtherArea(i))
                     continue;
@@ -541,7 +481,6 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
                 else
                     ScheduleAreaToLoad(cArea, mgr);
             }
-
         }
     }
 
@@ -567,24 +506,53 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
     GetMapWorld()->SetWhichMapAreasLoaded(*this, aid, 3);
 }
 
-bool CWorld::ICheckWorldComplete()
-{
-    return CheckWorldComplete(nullptr, kInvalidAreaId, -1);
-}
+bool CWorld::ICheckWorldComplete() { return CheckWorldComplete(nullptr, kInvalidAreaId, -1); }
 
-std::string CWorld::IGetDefaultAudioTrack() const
-{
-    return x84_defAudioTrack;
-}
+std::string CWorld::IGetDefaultAudioTrack() const { return x84_defAudioTrack; }
 
-int CWorld::IGetAreaCount() const
-{
-    return x18_areas.size();
-}
+int CWorld::IGetAreaCount() const { return x18_areas.size(); }
 
-bool CWorld::DoesAreaExist(TAreaId area) const
-{
-    return (area >= 0 && area < x18_areas.size());
-}
+bool CWorld::DoesAreaExist(TAreaId area) const { return (area >= 0 && area < x18_areas.size()); }
 
+void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGameArea* area, CWorld* world)
+{
+    if (!area->GetPostConstructed() || occlusionState == area->GetOcclusionState())
+        return;
+
+    if (occlusionState == CGameArea::EOcclusionState::Occluded)
+        area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
+
+    CGameArea* areaItr = world->x4c_chainHeads[3];
+
+    while (areaItr != skGlobalNonConstEnd)
+    {
+        if (areaItr == area)
+        {
+            areaItr = areaItr->x130_next;
+            continue;
+        }
+        if (areaItr->IsPostConstructed() && areaItr->GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
+            areaItr->PrepTokens();
+        areaItr = areaItr->x130_next;
+    }
+
+    areaItr = world->x4c_chainHeads[3];
+
+    while (areaItr != skGlobalNonConstEnd)
+    {
+        if (areaItr == area)
+        {
+            areaItr = areaItr->x130_next;
+            continue;
+        }
+
+
+        if (area->IsPostConstructed() && areaItr->GetOcclusionState() == CGameArea::EOcclusionState::NotOccluded)
+            areaItr->PrepTokens();
+        areaItr = areaItr->x130_next;
+    }
+
+    if (occlusionState == CGameArea::EOcclusionState::NotOccluded)
+        area->SetOcclusionState(CGameArea::EOcclusionState::NotOccluded);
+}
 }
