@@ -183,7 +183,10 @@ void CGBASupport::Update(float dt)
     case EPhase::StartJoyBusBoot:
         x34_phase = EPhase::PollJoyBusBoot;
         if (m_endpoint->GBAJoyBootAsync(x40_siChan * 2, 2,
-            x2c_buffer.get(), x28_fileSize, &x3c_status, JoyBootDone) != jbus::GBA_READY)
+            x2c_buffer.get(), x28_fileSize, &x3c_status,
+            std::bind(JoyBootDone,
+                      std::placeholders::_1,
+                      std::placeholders::_2)) != jbus::GBA_READY)
             x34_phase = EPhase::Failed;
         break;
 
