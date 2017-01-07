@@ -32,6 +32,8 @@ extern class CStringTable* g_MainStringTable;
 extern DataSpec::ITweakGame*   g_tweakGame;
 extern DataSpec::ITweakPlayer* g_tweakPlayer;
 extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
+extern DataSpec::ITweakPlayerControl* g_tweakPlayerControlAlt;
+extern DataSpec::ITweakPlayerControl* g_currentPlayerControl;
 extern DataSpec::ITweakPlayerGun* g_tweakPlayerGun;
 extern DataSpec::ITweakGunRes* g_tweakGunRes;
 extern DataSpec::ITweakPlayerRes* g_tweakPlayerRes;

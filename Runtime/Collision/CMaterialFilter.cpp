@@ -2,7 +2,7 @@
 
 namespace urde
 {
-const CMaterialFilter CMaterialFilter::skPassEverything({0x00000000FFFFFFFF}, {0}, CMaterialFilter::EFilterType::Zero);
+const CMaterialFilter CMaterialFilter::skPassEverything({0x00000000FFFFFFFF}, {0}, CMaterialFilter::EFilterType::Include);
 
 CMaterialFilter::CMaterialFilter(const CMaterialList& include, const CMaterialList& exclude, CMaterialFilter::EFilterType type)
     : x0_include(include),
@@ -13,17 +13,17 @@ CMaterialFilter::CMaterialFilter(const CMaterialList& include, const CMaterialLi
 
 CMaterialFilter CMaterialFilter::MakeInclude(const CMaterialList& include)
 {
-    return CMaterialFilter(include, {EMaterialTypes::Unknown}, EFilterType::Zero);
+    return CMaterialFilter(include, {0ull}, EFilterType::Include);
 }
 
 CMaterialFilter CMaterialFilter::MakeExclude(const CMaterialList& exclude)
 {
-    return CMaterialFilter({u64(0x00000000FFFFFFFF)}, exclude, EFilterType::Two);
+    return CMaterialFilter({u64(0x00000000FFFFFFFF)}, exclude, EFilterType::Exclude);
 }
 
 CMaterialFilter CMaterialFilter::MakeIncludeExclude(const CMaterialList& include, const CMaterialList& exclude)
 {
-    return CMaterialFilter(include, exclude, EFilterType::Three);
+    return CMaterialFilter(include, exclude, EFilterType::IncludeExclude);
 }
 
 }

@@ -84,7 +84,7 @@ void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
     writer.WriteEncoded(x4_areaId, 32);
     writer.WriteEncoded(x10_, 32);
     x8_relayTracker->PutTo(writer, savw);
-    xc_mapWorldInfo->PutTo(writer, savw);
+    xc_mapWorldInfo->PutTo(writer, savw, x0_mlvlId);
     x14_layerState->PutTo(writer);
 }
 

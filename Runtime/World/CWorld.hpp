@@ -101,7 +101,8 @@ public:
     };
 
 private:
-
+    static constexpr CGameArea* skGlobalEnd = nullptr;
+    static constexpr CGameArea* skGlobalNonConstEnd = nullptr;
     enum class Phase
     {
         Loading,
@@ -177,6 +178,10 @@ public:
     bool ICheckWorldComplete();
     std::string IGetDefaultAudioTrack() const;
     int IGetAreaCount() const;
+
+    static void PropogateAreaChain(CGameArea::EOcclusionState, CGameArea*, CWorld*);
+    static const CGameArea* GetAliveAreasEnd()  { return skGlobalEnd; }
+    static CGameArea* AliveAreasEnd()  { return skGlobalNonConstEnd; }
 };
 
 struct CWorldLayers

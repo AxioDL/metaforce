@@ -45,6 +45,14 @@ public:
     {
     };
 
+    enum class EPlayerMorphBallState
+    {
+        Unmorphed,
+        Morphed,
+        Morphing,
+        UnMorphing
+    };
+
 private:
     struct CVisorSteam
     {
@@ -210,6 +218,7 @@ public:
     void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
     void ValidateScanning(const CFinalInput& input, CStateManager& mgr);
     void SetScanningState(EPlayerScanState, CStateManager& mgr);
+    void SetSpawnedMorphBallState(EPlayerMorphBallState, CStateManager&);
     bool GetExplorationMode() const;
     bool GetCombatMode() const;
     void RenderGun(CStateManager& mgr, const zeus::CVector3f&) const;

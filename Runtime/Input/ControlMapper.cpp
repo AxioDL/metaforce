@@ -206,7 +206,7 @@ bool ControlMapper::GetPressInput(ECommands cmd, const CFinalInput& input)
 {
     if (!skCommandFilterFlag[int(cmd)])
         return false;
-    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(atUint32(cmd)));
+    EFunctionList func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
     if (func > EFunctionList::MAX)
         return false;
     BoolReturnFn fn = skPressFuncs[int(func)];
@@ -219,7 +219,7 @@ bool ControlMapper::GetDigitalInput(ECommands cmd, const CFinalInput& input)
 {
     if (!skCommandFilterFlag[int(cmd)])
         return false;
-    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(atUint32(cmd)));
+    EFunctionList func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
     if (func > EFunctionList::MAX)
         return false;
     BoolReturnFn fn = skDigitalFuncs[int(func)];
@@ -232,7 +232,7 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input)
 {
     if (!skCommandFilterFlag[int(cmd)])
         return 0.0;
-    EFunctionList func = EFunctionList(g_tweakPlayerControl->GetMapping(atUint32(cmd)));
+    EFunctionList func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
     if (func > EFunctionList::MAX)
         return 0.0;
     FloatReturnFn fn = skAnalogFuncs[int(func)];

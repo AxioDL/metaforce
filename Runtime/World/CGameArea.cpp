@@ -654,6 +654,11 @@ void CGameArea::ReloadAllUnloadedTextures()
 {
 }
 
+void CGameArea::PrepTokens()
+{
+
+}
+
 u32 CGameArea::GetNumPartSizes() const
 {
     return hecl::SBig(*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get() + 60));

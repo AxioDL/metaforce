@@ -105,7 +105,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         CMaterialList exclude = GetMaterialFilter().GetExcludeList();
         CMaterialList include = GetMaterialFilter().GetIncludeList();
         include.Add(EMaterialTypes::AIBlock);
-        SetMaterialFilter({include, exclude, CMaterialFilter::EFilterType::Three});
+        SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
     }
     break;
     case EScriptObjectMessage::SetToZero:
@@ -147,10 +147,8 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         }
         else if (aid == 0 || (mgr.GetWorld()->GetNumAreas() <= aid || !mgr.WorldNC()->GetArea(aid)->GetActive()))
             return;
-#if 0
-        /* Propogate through area chain */
-        sub800C40DC((msg == EScriptObjectMessage::Increment), mgr.GetWorld()->GetAreaAlways(aid), mgr.WorldNC());
-#endif
+        CWorld::PropogateAreaChain(CGameArea::EOcclusionState(msg == EScriptObjectMessage::Increment),
+                                   mgr.WorldNC()->GetArea(aid), mgr.WorldNC());
     }
     break;
     default:

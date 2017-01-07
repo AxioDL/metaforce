@@ -19,7 +19,7 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& saveWor
 
 }
 
-void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
+void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResId mlvlId) const
 {
 
 }

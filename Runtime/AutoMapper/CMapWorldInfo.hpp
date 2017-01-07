@@ -15,7 +15,7 @@ class CMapWorldInfo
 public:
     CMapWorldInfo()=default;
     CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, ResId mlvlId);
-    void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const;
+    void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResId mlvlId) const;
     bool IsMapped() const;
     void SetIsMapped(bool) const;
     void SetDoorVisited(TEditorId eid, bool val);

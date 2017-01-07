@@ -17,7 +17,7 @@ class CScriptSpawnPoint : public CEntity
         struct
         {
             bool x10c_24_firstSpawn : 1;
-            bool x10c_25_ : 1;
+            bool x10c_25_morphed : 1;
         };
         u8 _dummy = 0;
     };
@@ -26,6 +26,7 @@ public:
                       const zeus::CTransform& xf, const std::vector<u32>& itemCounts,
                       bool, bool, bool);
 
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     bool FirstSpawn() const { return x10c_24_firstSpawn; }
     const zeus::CTransform& GetTransform() const { return x34_xf; }
     u32 GetPowerup(CPlayerState::EItemType item) const;

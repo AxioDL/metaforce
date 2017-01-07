@@ -2,6 +2,7 @@
 #define __URDE_CGAMEOPTIONS_HPP__
 
 #include "RetroTypes.hpp"
+#include "Audio/CAudioSys.hpp"
 
 namespace urde
 {
@@ -73,23 +74,23 @@ private:
     bool x0_[64] = {};
     ESoundMode x44_soundMode = ESoundMode::Stereo;
     u32 x48_ = 4;
-    u32 x4c_ = 0;
-    u32 x50_ = 0;
-    u32 x54_ = 0;
-    u32 x58_ = 0x7f;
+    s32 x4c_screenXOffset = 0;
+    s32 x50_screenYOffset = 0;
+    s32 x54_screenStretch = 0;
+    u32 x58_sfxVol = 0x7f;
     u32 x5c_musicVol = 0x7f;
-    u32 x60_ = 0xff;
-    u32 x64_ = 0xff;
+    u32 x60_helmetAlpha = 0xff;
+    u32 x64_hudAlpha = 0xff;
 
     union
     {
         struct
         {
-            bool x68_24_ : 1;
-            bool x68_25_ : 1;
-            bool x68_26_ : 1;
-            bool x68_27_ : 1;
-            bool x68_28_ : 1;
+            bool x68_24_hudLag : 1;
+            bool x68_25_invertY : 1;
+            bool x68_26_rumble : 1;
+            bool x68_27_swapBeamsControls : 1;
+            bool x68_28_hintSystem : 1;
         };
         u16 _dummy = 0;
     };
@@ -101,9 +102,35 @@ private:
 public:
     CGameOptions();
     CGameOptions(CBitStreamReader& stream);
+    void ResetToDefaults();
     void InitSoundMode();
+    void EnsureSettings();
     void PutTo(CBitStreamWriter& writer) const;
     u32 GetMusicVolume() const { return x5c_musicVol; }
+
+    float sub8020F054();
+    void sub8020F098(int, bool);
+    void SetScreenPositionX(s32, bool);
+    void SetScreenPositionY(s32, bool);
+    void SetScreenStretch(s32, bool);
+    void SetSfxVolume(s32, bool);
+    void SetMusicVolume(s32, bool);
+    //void SetSurroundMode(CAudioSys::ESurroundModes, int);
+    void SetHUDAlpha(u32);
+    u32 GetHUDAlpha() const;
+    void SetHelmetAlpha(u32);
+    u32 GetHelmetAlpha() const;
+    void SetHUDLag(bool);
+    bool GetHUDLag() const;
+    void SetInvertYAxis(bool);
+    bool GetInvertYAxis() const;
+    void SetIsRumbleEnabled(bool);
+    bool IsRumbleEnabled() const;
+    void ToggleControls(bool);
+    void SetIsHintSystemEnabled(bool);
+    bool IsHintSystemEnabled() const;
+    void SetControls(s32);
+    void ResetControllerAssets();
 };
 
 class CHintOptions

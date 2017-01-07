@@ -20,7 +20,7 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
                CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid)
 : CEntity(uid, info, active, name)
 , x68_material(MakeActorMaterialList(list, params))
-, x70_materialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Unknown}))
+, x70_materialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}))
 , xc6_(otherUid)
 {
     if (mData.x10_animData || mData.x1c_normalModel)
