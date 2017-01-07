@@ -111,6 +111,8 @@ set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.cpp)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum)
+add_subdirectory(jbus)
+set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/jbus/include)
 add_subdirectory(gbalink)
 
 unset(GIT_EXECUTABLE CACHE)

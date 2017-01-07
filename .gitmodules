@@ -13,3 +13,6 @@
 [submodule "kabufuda"]
 	path = kabufuda
 	url = https://github.com/AxioDL/kabufuda.git
+[submodule "jbus"]
+	path = jbus
+	url = https://github.com/AxioDL/jbus.git
