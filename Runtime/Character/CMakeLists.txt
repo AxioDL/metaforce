@@ -22,6 +22,7 @@ set(CHARACTER_SOURCES
     CSegIdList.hpp CSegIdList.cpp
     CSegId.hpp CSegId.cpp
     TSegIdMap.hpp
+    CIkChain.hpp CIkChain.cpp
     CSkinRules.hpp CSkinRules.cpp
     CAnimCharacterSet.hpp CAnimCharacterSet.cpp
     CAnimationSet.hpp CAnimationSet.cpp
