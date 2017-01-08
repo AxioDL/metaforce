@@ -1,14 +1,42 @@
+#ifndef _WIN32
+#include <unistd.h>
+#include <sys/time.h>
+#if __APPLE__
+#include <mach/mach_time.h>
+#endif
+#else
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
 
 #include "CBasics.hpp"
 
+#if __APPLE__
+static u64 MachToDolphinNum;
+static u64 MachToDolphinDenom;
+#elif _WIN32
+static LARGE_INTEGER PerfFrequency;
+#endif
+
 namespace urde
 {
 
-void CBasics::Init()
+void CBasics::Initialize()
 {
+#if __APPLE__
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    MachToDolphinNum = GetGCTicksPerSec() * timebase.numer;
+    MachToDolphinDenom = 1000000000ull * timebase.denom;
+#elif _WIN32
+    QueryPerformanceFrequency(&PerfFrequency);
+#endif
 }
 
 const char* CBasics::Stringize(const char* fmt, ...)
@@ -23,9 +51,22 @@ const char* CBasics::Stringize(const char* fmt, ...)
 
 u64 CBasics::GetGCTicks()
 {
-    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()).count();
-    return nanos * 486000000 / 1000000000;
+#if __APPLE__
+    return mach_absolute_time() * MachToDolphinNum / MachToDolphinDenom;
+#elif __linux__ || __FreeBSD__
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+
+    return u64((tp.tv_sec * 1000000000ull) + tp.tv_nsec) * GetGCTicksPerSec() / 1000000000ull;
+#elif _WIN32
+    LARGE_INTEGER perf;
+    QueryPerformanceCounter(&perf);
+    perf.QuadPart *= GetGCTicksPerSec();
+    perf.QuadPart /= PerfFrequency.QuadPart;
+    return perf.QuadPart;
+#else
+    return 0;
+#endif
 }
 
 const u64 CBasics::SECONDS_TO_2000 = 946684800LL;

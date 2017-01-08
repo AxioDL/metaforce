@@ -9,6 +9,7 @@
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "CGBASupport.hpp"
+#include "CBasics.hpp"
 
 namespace urde
 {
@@ -114,6 +115,7 @@ void CMain::ResetGameState()
 
 void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr)
 {
+    CBasics::Initialize();
     CModelShaders::Initialize(storeMgr, CGraphics::g_BooFactory);
     CMoviePlayer::Initialize();
     CLineRenderer::Initialize();

@@ -30,7 +30,7 @@ struct OSCalendarTime
 class CBasics
 {
 public:
-    static void Init();
+    static void Initialize();
     static const char* Stringize(const char* fmt, ...);
 
     static const u64 SECONDS_TO_2000;
@@ -40,6 +40,7 @@ public:
     static std::chrono::system_clock::time_point FromWiiTime(OSTime wiiTime);
 
     static u64 GetGCTicks();
+    static constexpr u64 GetGCTicksPerSec() { return 486000000ull; }
 
     static OSCalendarTime ToCalendarTime(OSTime time) { return ToCalendarTime(FromWiiTime(time)); }
     static OSCalendarTime ToCalendarTime(std::chrono::system_clock::time_point time);
