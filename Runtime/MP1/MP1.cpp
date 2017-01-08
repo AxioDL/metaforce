@@ -8,6 +8,7 @@
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
 #include "Character/CCharLayoutInfo.hpp"
+#include "CGBASupport.hpp"
 
 namespace urde
 {
@@ -119,6 +120,7 @@ void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr
     CElementGen::Initialize();
     CAnimData::InitializeCache();
     CDecalManager::Initialize();
+    CGBASupport::Initialize();
 }
 
 void CMain::FillInAssetIDs()
@@ -154,6 +156,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
 
 bool CMain::Proc()
 {
+    CGBASupport::GlobalPoll();
     xe8_b24_finished = m_archSupport->Update();
     return xe8_b24_finished;
 }

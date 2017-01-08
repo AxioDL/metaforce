@@ -1,70 +1,49 @@
 #include "CGBASupport.hpp"
 #include "CDvdRequest.hpp"
 #include "CBasics.hpp"
+#include "jbus/Listener.hpp"
+#include "jbus/Endpoint.hpp"
 
 namespace urde
 {
 namespace MP1
 {
 
-#define GBA_JSTAT_MASK                  0x3a
-#define GBA_JSTAT_FLAGS_SHIFT           4
-#define GBA_JSTAT_FLAGS_MASK            0x30
-#define GBA_JSTAT_PSF1                  0x20
-#define GBA_JSTAT_PSF0                  0x10
-#define GBA_JSTAT_SEND                  0x08
-#define GBA_JSTAT_RECV                  0x02
+static jbus::Listener g_JbusListener;
+static std::unique_ptr<jbus::Endpoint> g_JbusEndpoint;
 
-#define GBA_READY                       0
-#define GBA_NOT_READY                   1
-#define GBA_BUSY                        2
-#define GBA_JOYBOOT_UNKNOWN_STATE       3
-#define GBA_JOYBOOT_ERR_INVALID         4
-
-static void GBAInit()
+void CGBASupport::Initialize()
 {
-
+    jbus::Initialize();
+    g_JbusListener.start();
 }
 
-static s32 GBAJoyBootAsync(s32 chan, s32 paletteColor, s32 paletteSpeed,
-                           u8* programp, s32 length, u8* status)
+void CGBASupport::GlobalPoll()
 {
-    return GBA_READY;
-}
-
-static s32 GBAGetProcessStatus(s32 chan, u8* percentp)
-{
-    return GBA_READY;
-}
-
-static s32 GBAGetStatus(s32 chan, u8* status)
-{
-    return GBA_READY;
-}
-
-static s32 GBAReset(s32 chan, u8* status)
-{
-    return GBA_READY;
-}
-
-static s32 GBARead(s32 chan, u8* dst, u8* status)
-{
-    return GBA_READY;
-}
-
-static s32 GBAWrite(s32 chan, u8* src, u8* status)
-{
-    return GBA_READY;
-}
-
-static u32 calculateJBusChecksum(const u8* data, size_t len)
-{
-    const u8* ptr = data;
-    u32 sum = -1;
-    for (int i = len ; i > 0; --i)
+    if (g_JbusEndpoint && !g_JbusEndpoint->connected())
+        g_JbusEndpoint.reset();
+    if (!g_JbusEndpoint)
     {
-        u8 ch = *ptr;
-        ptr++;
+        g_JbusEndpoint = g_JbusListener.accept();
+        if (g_JbusEndpoint)
+            g_JbusEndpoint->setChan(3);
+    }
+}
+
+CGBASupport::CGBASupport()
+: CDvdFile("client_pad.bin")
+{
+    x28_fileSize = ROUND_UP_32(Length());
+    x2c_buffer.reset(new u8[x28_fileSize]);
+    x30_dvdReq = AsyncRead(x2c_buffer.get(), x28_fileSize);
+}
+
+u8 CGBASupport::CalculateFusionJBusChecksum(const u8* data, size_t len)
+{
+    u32 sum = -1;
+    for (int i = 0 ; i < len; ++i)
+    {
+        u8 ch = *data++;
         sum ^= ch;
         for (int j = 0; j < 8; ++j)
         {
@@ -77,91 +56,77 @@ static u32 calculateJBusChecksum(const u8* data, size_t len)
                 sum >>= 1;
         }
     }
-
     return sum;
-}
-
-CGBASupport* CGBASupport::SharedInstance = nullptr;
-
-CGBASupport::CGBASupport()
-: CDvdFile("client_pad.bin")
-{
-    x28_fileSize = ROUND_UP_32(Length());
-    x2c_buffer.reset(new u8[x28_fileSize]);
-    x30_dvdReq = AsyncRead(x2c_buffer.get(), x28_fileSize);
-    GBAInit();
-    SharedInstance = this;
-}
-
-CGBASupport::~CGBASupport()
-{
-    SharedInstance = nullptr;
 }
 
 bool CGBASupport::PollResponse()
 {
+    if (!g_JbusEndpoint)
+        return false;
+
     u8 status;
-    if (GBAReset(x40_siChan, &status) == GBA_NOT_READY)
-        if (GBAReset(x40_siChan, &status) == GBA_NOT_READY)
+    if (g_JbusEndpoint->GBAReset(&status) == jbus::GBA_NOT_READY)
+        if (g_JbusEndpoint->GBAReset(&status) == jbus::GBA_NOT_READY)
             return false;
 
-    if (GBAGetStatus(x40_siChan, &status) == GBA_NOT_READY)
+    if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
         return false;
-    if (status != (GBA_JSTAT_PSF1 | GBA_JSTAT_SEND))
+    if (status != (jbus::GBA_JSTAT_PSF1 | jbus::GBA_JSTAT_SEND))
         return false;
 
     u8 bytes[4];
-    if (GBARead(x40_siChan, bytes, &status) == GBA_NOT_READY)
+    if (g_JbusEndpoint->GBARead(bytes, &status) == jbus::GBA_NOT_READY)
         return false;
     if (reinterpret_cast<u32&>(bytes) != SBIG('AMTE'))
         return false;
 
-    if (GBAGetStatus(x40_siChan, &status) == GBA_NOT_READY)
+    if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
         return false;
-    if (status != GBA_JSTAT_PSF1)
-        return false;
-
-    if (GBAWrite(x40_siChan, (unsigned char*)"AMTE", &status) == GBA_NOT_READY)
+    if (status != jbus::GBA_JSTAT_PSF1)
         return false;
 
-    if (GBAGetStatus(x40_siChan, &status) == GBA_NOT_READY)
-        return false;
-    if ((status & GBA_JSTAT_FLAGS_MASK) != GBA_JSTAT_FLAGS_MASK)
+    if (g_JbusEndpoint->GBAWrite((unsigned char*)"AMTE", &status) == jbus::GBA_NOT_READY)
         return false;
 
-    u64 profStart = CBasics::GetGCTicks();
-    const u64 timeToSpin = 486000000 / 8000;
+    if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
+        return false;
+    if ((status & jbus::GBA_JSTAT_FLAGS_MASK) != jbus::GBA_JSTAT_FLAGS_MASK)
+        return false;
+
+    u64 profStart = jbus::GetGCTicks();
+    const u64 timeToSpin = jbus::GetGCTicksPerSec() / 8000;
     for (;;)
     {
-        u64 curTime = CBasics::GetGCTicks();
+        u64 curTime = jbus::GetGCTicks();
         if (curTime - profStart > timeToSpin)
             return true;
 
-        if (GBAGetStatus(x40_siChan, &status) == GBA_NOT_READY)
+        if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
             continue;
-        if (!(status & GBA_JSTAT_SEND))
+        if (!(status & jbus::GBA_JSTAT_SEND))
             continue;
 
-        if (GBAGetStatus(x40_siChan, &status) == GBA_NOT_READY)
+        if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
             continue;
-        if (status != (GBA_JSTAT_FLAGS_MASK | GBA_JSTAT_SEND))
+        if (status != (jbus::GBA_JSTAT_FLAGS_MASK | jbus::GBA_JSTAT_SEND))
             continue;
         break;
     }
 
-    if (GBARead(x40_siChan, bytes, &status) != GBA_READY)
+    if (g_JbusEndpoint->GBARead(bytes, &status) != jbus::GBA_READY)
         return false;
 
-    u32 swapped = hecl::SBig(reinterpret_cast<u32&>(bytes));
-    if (bytes[0] != calculateJBusChecksum(reinterpret_cast<u8*>(&swapped), 3))
+    if (bytes[3] != CalculateFusionJBusChecksum(bytes, 3))
         return false;
 
-    x44_fusionLinked = (bytes[2] & 0x2) != 0;
+    x44_fusionLinked = (bytes[2] & 0x2) == 0;
     if (x44_fusionLinked && (bytes[2] & 0x1) != 0)
         x45_fusionBeat = true;
 
     return true;
 }
+
+static void JoyBootDone(jbus::ThreadLocalEndpoint& endpoint, jbus::EJoyReturn status) {}
 
 void CGBASupport::Update(float dt)
 {
@@ -177,17 +142,29 @@ void CGBASupport::Update(float dt)
 
     case EPhase::PollProbe:
         /* SIProbe poll normally occurs here with 4 second timeout */
+        if (!g_JbusEndpoint)
+        {
+            x34_phase = EPhase::Failed;
+            break;
+        }
+        x40_siChan = g_JbusEndpoint->getChan();
         x34_phase = EPhase::StartJoyBusBoot;
 
     case EPhase::StartJoyBusBoot:
         x34_phase = EPhase::PollJoyBusBoot;
-        GBAJoyBootAsync(x40_siChan, x40_siChan * 2, 2, x2c_buffer.get(), x28_fileSize, &x3c_status);
+        if (!g_JbusEndpoint || g_JbusEndpoint->GBAJoyBootAsync(x40_siChan * 2, 2,
+                               x2c_buffer.get(), x28_fileSize, &x3c_status,
+                               std::bind(JoyBootDone,
+                                         std::placeholders::_1,
+                                         std::placeholders::_2)) != jbus::GBA_READY)
+            x34_phase = EPhase::Failed;
         break;
 
     case EPhase::PollJoyBusBoot:
-        if (GBAGetProcessStatus(x40_siChan, &x3c_status) == GBA_BUSY)
+        u8 percent;
+        if (g_JbusEndpoint && g_JbusEndpoint->GBAGetProcessStatus(percent) == jbus::GBA_BUSY)
             break;
-        if (GBAGetStatus(x40_siChan, &x3c_status) == GBA_NOT_READY)
+        if (!g_JbusEndpoint || g_JbusEndpoint->GBAGetStatus(&x3c_status) == jbus::GBA_NOT_READY)
         {
             x34_phase = EPhase::Failed;
             break;

@@ -43,8 +43,9 @@ target_link_libraries(urde
                       RuntimeCommon
                       specter specter-fonts freetype ${DATA_SPEC_LIBS}
                       hecl-common hecl-blender-addon
-                      athena-core nod logvisor athena-libyaml amuse boo ${PNG_LIB} libjpeg-turbo squish xxhash zeus
-                      kabufuda ${ZLIB_LIBRARIES} ${LZO_LIB}
+                      athena-core nod logvisor athena-libyaml amuse boo
+                      ${PNG_LIB} libjpeg-turbo squish xxhash zeus
+                      kabufuda jbus ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})
 
 set_target_properties(urde PROPERTIES

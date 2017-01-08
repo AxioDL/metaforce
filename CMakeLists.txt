@@ -104,6 +104,9 @@ add_subdirectory(kabufuda)
 include_directories(${KABUFUDA_INCLUDE_DIR})
 add_subdirectory(Editor)
 
+add_subdirectory(jbus)
+set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/jbus/include)
+
 set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.hpp
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.cpp
@@ -111,8 +114,6 @@ set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.cpp)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum)
-add_subdirectory(jbus)
-set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/jbus/include)
 add_subdirectory(gbalink)
 
 unset(GIT_EXECUTABLE CACHE)
