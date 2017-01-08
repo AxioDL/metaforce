@@ -192,7 +192,7 @@ void CGBASupport::Update(float dt)
 
     case EPhase::PollJoyBusBoot:
         u8 percent;
-        if (m_endpoint->GBAGetProcessStatus(&percent) == jbus::GBA_BUSY)
+        if (m_endpoint->GBAGetProcessStatus(percent) == jbus::GBA_BUSY)
             break;
         if (m_endpoint->GBAGetStatus(&x3c_status) == jbus::GBA_NOT_READY)
         {
