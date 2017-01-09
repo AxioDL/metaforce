@@ -41,23 +41,22 @@ class CFrontEndUI : public CIOWin
 public:
     enum class EPhase
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six
+        LoadDepsGroup,
+        LoadDeps,
+        LoadFrames,
+        LoadMovies,
+        DisplayFrontEnd,
+        ToPlayGame,
+        ExitFrontEnd
     };
     enum class EScreen
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six
+        OpenCredits,
+        Title,
+        AttractMovie,
+        FileSelect,
+        FusionBonus,
+        ToPlayGame
     };
     enum class EMenuMovie
     {
@@ -90,8 +89,8 @@ public:
         /* filename, world, playtime, date */
         SGuiTextPair x4_textpanes[4];
 
-        u32 x28_ = 0;
-        float x2c_ = ComputeRandom();
+        u32 x28_curField = 0;
+        float x2c_chRate = ComputeRandom();
 
         static float ComputeRandom()
         {
@@ -103,24 +102,24 @@ public:
     {
         enum class ESubMenu
         {
-            Zero,
-            One,
-            Two,
-            Three
+            Root,
+            EraseGame,
+            ExistingGamePopup,
+            NewGamePopup
         };
 
         enum class EAction
         {
-            Zero,
-            One,
-            Two,
-            Three
+            None,
+            GameOptions,
+            FusionBonus,
+            SlideShow
         };
 
         u32 x0_rnd;
         CSaveUI* x4_saveUI;
-        ESubMenu x8_subMenu = ESubMenu::Zero;
-        EAction xc_action = EAction::Zero;
+        ESubMenu x8_subMenu = ESubMenu::Root;
+        EAction xc_action = EAction::None;
         TLockedToken<CGuiFrame> x10_frme;
         CGuiFrame* x1c_loadedFrame = nullptr;
         CGuiTableGroup* x20_tablegroup_fileselect = nullptr;
@@ -146,6 +145,7 @@ public:
         void FinishedLoading();
         bool PumpLoad();
         bool IsTextDoneAnimating() const;
+        void Update(float dt);
         EAction ProcessUserInput(const CFinalInput& input);
         void Draw() const;
 
@@ -156,20 +156,21 @@ public:
         void ActivateNewGamePopup();
 
         void ResetFrame();
+        void ActivateErase();
         void ClearFrameContents();
         void SetupFrameContents();
 
         void DoPopupCancel(CGuiTableGroup* caller);
         void DoPopupAdvance(CGuiTableGroup* caller);
         void DoFileMenuCancel(CGuiTableGroup* caller);
-        void DoSelectionChange(CGuiTableGroup* caller);
+        void DoSelectionChange(CGuiTableGroup* caller, int userSel);
         void DoFileMenuAdvance(CGuiTableGroup* caller);
 
         static SFileMenuOption FindFileSelectOption(CGuiFrame* frame, int idx);
         static void StartTextAnimating(CGuiTextPane* text, const std::wstring& str, float chRate);
     };
 
-    struct SGBASupportFrame
+    struct SFusionBonusFrame
     {
         struct SGBALinkFrame
         {
@@ -240,7 +241,7 @@ public:
         bool x39_fusionNotComplete = false;
         bool x3a_mpNotComplete = false;
 
-        SGBASupportFrame();
+        SFusionBonusFrame();
         void FinishedLoading();
         bool PumpLoad();
         void SetTableColors(CGuiTableGroup* tbgp) const;
@@ -255,7 +256,7 @@ public:
         }
 
         void DoCancel(CGuiTableGroup* caller);
-        void DoSelectionChange(CGuiTableGroup* caller);
+        void DoSelectionChange(CGuiTableGroup* caller, int userSel);
         void DoAdvance(CGuiTableGroup* caller);
     };
 
@@ -263,11 +264,11 @@ public:
     {
         enum class EAction
         {
-            Zero,
-            One,
-            Two,
-            Three,
-            Four
+            None,
+            StartGame,
+            FusionBonus,
+            GameOptions,
+            SlideShow
         };
 
         u32 x0_rnd;
@@ -280,11 +281,12 @@ public:
         SFrontEndFrame(u32 rnd);
         void FinishedLoading();
         bool PumpLoad();
+        void Update(float dt);
         EAction ProcessUserInput(const CFinalInput& input);
         void Draw() const;
 
         void DoCancel(CGuiTableGroup* caller);
-        void DoSelectionChange(CGuiTableGroup* caller);
+        void DoSelectionChange(CGuiTableGroup* caller, int userSel);
         void DoAdvance(CGuiTableGroup* caller);
     };
 
@@ -339,31 +341,32 @@ public:
         };
         SOptionsFrontEndFrame();
         bool ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+        void Update(float dt, CSaveUI* saveUi);
         void Draw() const;
     };
 
-    bool IsSaveUIConditional() const
+    bool CanShowSaveUI() const
     {
-        if (x50_curScreen != EScreen::Three && x50_curScreen != EScreen::Four)
+        if (x50_curScreen != EScreen::FileSelect && x50_curScreen != EScreen::FusionBonus)
             return false;
-        if (x54_nextScreen != EScreen::Three && x54_nextScreen != EScreen::Four)
+        if (x54_nextScreen != EScreen::FileSelect && x54_nextScreen != EScreen::FusionBonus)
             return false;
         return true;
     }
 
 private:
-    EPhase x14_phase = EPhase::Zero;
+    EPhase x14_phase = EPhase::LoadDepsGroup;
     u32 x18_rndA;
     u32 x1c_rndB;
     TLockedToken<CDependencyGroup> x20_depsGroup;
     std::vector<CToken> x2c_deps;
     TLockedToken<CTexture> x38_pressStart;
     TLockedToken<CAudioGroupSet> x44_frontendAudioGrp;
-    EScreen x50_curScreen = EScreen::Zero;
-    EScreen x54_nextScreen = EScreen::Zero;
-    float x58_movieSeconds = 0.f;
-    bool x5c_movieSecondsNeeded = false;
-    float x60_ = 0.f;
+    EScreen x50_curScreen = EScreen::OpenCredits;
+    EScreen x54_nextScreen = EScreen::OpenCredits;
+    float x58_fadeBlackTimer = 0.f;
+    bool x5c_fadeBlackWithMovie = false;
+    float x60_pressStartTime = 0.f;
     float x64_pressStartAlpha = 0.f;
     float x68_musicVol = 1.f;
     u32 x6c_;
@@ -373,15 +376,15 @@ private:
     int xc0_attractCount = 0;
     std::unique_ptr<CMoviePlayer> xc4_attractMovie;
     CMoviePlayer* xcc_curMoviePtr = nullptr;
-    bool xd0_ = false;
+    bool xd0_playerSkipToTitle = false;
     bool xd1_moviesLoaded = false;
-    bool xd2_ = false;
+    bool xd2_deferSlideShow = false;
     std::unique_ptr<CStaticAudioPlayer> xd4_audio1;
     std::unique_ptr<CStaticAudioPlayer> xd8_audio2;
     std::unique_ptr<CSaveUI> xdc_saveUI;
-    std::unique_ptr<SNewFileSelectFrame> xe0_newFileSel;
-    std::unique_ptr<SGBASupportFrame> xe4_gbaSupportFrme;
-    std::unique_ptr<SFrontEndFrame> xe8_frontendFrme;
+    std::unique_ptr<SNewFileSelectFrame> xe0_frontendCardFrme;
+    std::unique_ptr<SFusionBonusFrame> xe4_fusionBonusFrme;
+    std::unique_ptr<SFrontEndFrame> xe8_frontendNoCardFrme;
     std::unique_ptr<SNesEmulatorFrame> xec_emuFrme;
     std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
     CStaticAudioPlayer* xf4_curAudio = nullptr;
@@ -389,46 +392,33 @@ private:
     CColoredQuadFilter m_fadeToBlack = {CCameraFilterPass::EFilterType::Blend};
     std::experimental::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
 
-    void SetMovieSecondsDeferred()
+    void SetFadeBlackWithMovie()
     {
-        x58_movieSeconds = 1000000.f;
-        x5c_movieSecondsNeeded = true;
+        x58_fadeBlackTimer = 1000000.f;
+        x5c_fadeBlackWithMovie = true;
     }
 
-    void SetMovieSeconds(float seconds)
+    void SetFadeBlackTimer(float seconds)
     {
-        x58_movieSeconds = seconds;
-        x5c_movieSecondsNeeded = false;
+        x58_fadeBlackTimer = seconds;
+        x5c_fadeBlackWithMovie = false;
     }
 
-    void TransitionToFive();
+    void TransitionToGame();
     void UpdateMusicVolume();
     void FinishedLoadingDepsGroup();
     bool PumpLoad();
 public:
 
     CFrontEndUI(CArchitectureQueue& queue);
-    void OnSliderSelectionChange(CGuiSliderGroup* grp, float);
-    void OnCheckBoxSelectionChange(CGuiTableGroup* grp);
-    void OnOptionSubMenuCancel(CGuiTableGroup* grp);
-    void OnOptionsMenuCancel(CGuiTableGroup* grp);
-    void OnNewGameMenuCancel(CGuiTableGroup* grp);
-    void OnFileMenuCancel(CGuiTableGroup* grp);
-    void OnGenericMenuSelectionChange(CGuiTableGroup* grp, int, int);
-    void OnOptionsMenuAdvance(CGuiTableGroup* grp);
-    void OnNewGameMenuAdvance(CGuiTableGroup* grp);
-    void OnFileMenuAdvance(CGuiTableGroup* grp);
-    void OnMainMenuAdvance(CGuiTableGroup* grp);
     void StartSlideShow(CArchitectureQueue& queue);
     std::string GetAttractMovieFileName(int idx);
     std::string GetNextAttractMovieFileName();
     void SetCurrentMovie(EMenuMovie movie);
     void StopAttractMovie();
     void StartAttractMovie();
-    void UpdateMenuHighlights(CGuiTableGroup* grp);
-    void CompleteStateTransition();
-    bool CanBuild(const SObjectTag& tag);
     void StartStateTransition(EScreen screen);
+    void CompleteStateTransition();
     void HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArchitectureQueue& queue);
     void Draw() const;
     void UpdateMovies(float dt);
@@ -436,8 +426,6 @@ public:
     void ProcessUserInput(const CFinalInput& input, CArchitectureQueue& queue);
     EMessageReturn Update(float dt, CArchitectureQueue& queue);
     EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
-    void StartGame();
-    void InitializeFrame();
 };
 
 }

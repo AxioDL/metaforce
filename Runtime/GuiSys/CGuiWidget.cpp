@@ -11,7 +11,7 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
   xac_drawFlags(parms.x14_drawFlags), xb0_frame(parms.x0_frame),
   xb6_24_pg(parms.xd_g), xb6_25_isVisible(parms.xa_defaultVisible),
   xb6_26_isActive(parms.xb_defaultActive),
-  xb6_27_(true), xb6_28_eventLock(false),
+  xb6_27_isSelectable(true), xb6_28_eventLock(false),
   xb6_29_cullFaces(parms.xc_cullFaces), xb6_30_(false),
   xb6_31_depthTest(true), xb7_24_depthWrite(false), xb7_25_(true)
 {

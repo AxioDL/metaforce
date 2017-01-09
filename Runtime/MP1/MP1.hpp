@@ -261,7 +261,7 @@ public:
     EGameplayResult GetGameplayResult() const { return xe4_gameplayResult; }
     void SetGameplayResult(EGameplayResult wl) { xe4_gameplayResult = wl; }
     void SetManageCard(bool v) { x160_28_manageCard = v; }
-    bool GetBardBusy() const { return x160_31_cardBusy; }
+    bool GetCardBusy() const { return x160_31_cardBusy; }
     void SetCardBusy(bool v) { x160_31_cardBusy = v; }
 
     EFlowState GetFlowState() const { return x12c_flowState; }

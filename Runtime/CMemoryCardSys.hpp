@@ -32,6 +32,12 @@ public:
 
     const TLockedToken<CStringTable>& GetWorldName() const { return x2c_worldName; }
     const TLockedToken<CSaveWorld>& GetSaveWorld() const { return x3c_saveWorld; }
+    std::wstring GetFrontEndName() const
+    {
+        if (!x2c_worldName)
+            return {};
+        return x2c_worldName->GetString(0);
+    }
 };
 
 class CSaveWorldIntermediate
@@ -83,6 +89,10 @@ public:
     const std::vector<CGameHintInfo::CGameHint>& GetHints() const { return x0_hints->GetHints(); }
     const std::vector<std::pair<ResId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
     const std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
+
+    bool HasSaveWorldMemory(ResId wldId) const;
+    const CSaveWorldMemory& GetSaveWorldMemory(ResId wldId) const;
+
     CMemoryCardSys();
     bool InitializePump();
 

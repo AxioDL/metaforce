@@ -54,6 +54,14 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const
     return ret;
 }
 
+float CGuiTextSupport::GetNumCharsTotal() const
+{
+    if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
+        if (x50_typeEnable)
+            return buf->GetPrimitiveCount();
+    return 0.f;
+}
+
 float CGuiTextSupport::GetNumCharsPrinted() const
 {
     if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())

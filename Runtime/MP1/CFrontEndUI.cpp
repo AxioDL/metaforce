@@ -27,8 +27,8 @@ namespace MP1
 {
 
 /* Music volume constants */
-#define FE1_VOL 0.7421875f
-#define FE2_VOL 0.7421875f
+static const float FE1_VOL = 0.7421875f;
+static const float FE2_VOL = 0.7421875f;
 
 /* L/R Stereo transition cues */
 static const u16 FETransitionBackSFX[3][2] =
@@ -98,22 +98,22 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading()
         proceed->TextSupport()->SetText(g_MainStringTable->GetString(85));
     x40_tablegroup_popup->SetIsVisible(false);
     x40_tablegroup_popup->SetIsActive(false);
-    x40_tablegroup_popup->SetD1(false);
+    x40_tablegroup_popup->SetVertical(false);
     CGuiWidget* worker = x40_tablegroup_popup->GetWorkerWidget(2);
-    worker->SetB627(false);
+    worker->SetIsSelectable(false);
     worker->SetVisibility(false, ETraversalMode::Children);
 
     x20_tablegroup_fileselect->SetMenuAdvanceCallback(
         std::bind(&SNewFileSelectFrame::DoFileMenuAdvance, this, std::placeholders::_1));
     x20_tablegroup_fileselect->SetMenuSelectionChangeCallback(
-        std::bind(&SNewFileSelectFrame::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&SNewFileSelectFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
     x20_tablegroup_fileselect->SetMenuCancelCallback(
         std::bind(&SNewFileSelectFrame::DoFileMenuCancel, this, std::placeholders::_1));
 
     x40_tablegroup_popup->SetMenuAdvanceCallback(
         std::bind(&SNewFileSelectFrame::DoPopupAdvance, this, std::placeholders::_1));
     x40_tablegroup_popup->SetMenuSelectionChangeCallback(
-        std::bind(&SNewFileSelectFrame::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&SNewFileSelectFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
     x40_tablegroup_popup->SetMenuCancelCallback(
         std::bind(&SNewFileSelectFrame::DoPopupCancel, this, std::placeholders::_1));
 
@@ -142,21 +142,26 @@ bool CFrontEndUI::SNewFileSelectFrame::PumpLoad()
 
 bool CFrontEndUI::SNewFileSelectFrame::IsTextDoneAnimating() const
 {
-    if (x64_fileSelections[0].x28_ != 4)
+    if (x64_fileSelections[0].x28_curField != 4)
         return false;
-    if (x64_fileSelections[1].x28_ != 4)
+    if (x64_fileSelections[1].x28_curField != 4)
         return false;
-    if (x64_fileSelections[2].x28_ != 4)
+    if (x64_fileSelections[2].x28_curField != 4)
         return false;
     if (!x28_textpane_erase.x0_panes[0]->GetTextSupport()->IsAnimationDone())
         return false;
     return x38_textpane_gba.x0_panes[0]->GetTextSupport()->IsAnimationDone();
 }
 
+void CFrontEndUI::SNewFileSelectFrame::Update(float dt)
+{
+
+}
+
 CFrontEndUI::SNewFileSelectFrame::EAction
 CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
 {
-    if (x8_subMenu != ESubMenu::Two)
+    if (x8_subMenu != ESubMenu::ExistingGamePopup)
         x4_saveUI->ProcessUserInput(input);
 
     if (IsTextDoneAnimating())
@@ -207,7 +212,7 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
         x24_model_erase->SetLocalTransform(zeus::CTransform::Translate(
             zeus::CVector3f{0.f, 0.f, active->GetUserSelection() * x104_rowPitch} + xf8_model_erase_position));
 
-    if (x8_subMenu == ESubMenu::Zero || x8_subMenu == ESubMenu::Three)
+    if (x8_subMenu == ESubMenu::Root || x8_subMenu == ESubMenu::NewGamePopup)
         x24_model_erase->SetIsVisible(false);
     else
         x24_model_erase->SetIsVisible(true);
@@ -234,7 +239,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateExistingGamePopup()
             x40_tablegroup_popup->GetTransform());
     x20_tablegroup_fileselect->SetIsActive(false);
 
-    x8_subMenu = ESubMenu::Two;
+    x8_subMenu = ESubMenu::ExistingGamePopup;
     HandleActiveChange(x40_tablegroup_popup);
 
     x48_textpane_popupadvance.SetPairText(g_MainStringTable->GetString(95));
@@ -252,7 +257,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivateNewGamePopup()
     x20_tablegroup_fileselect->SetIsActive(true);
 
     CGuiWidget* worker = x40_tablegroup_popup->GetWorkerWidget(2);
-    worker->SetB627(false);
+    worker->SetIsSelectable(false);
     worker->SetVisibility(false, ETraversalMode::Children);
 
     x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
@@ -274,7 +279,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
             x40_tablegroup_popup->GetTransform());
     x20_tablegroup_fileselect->SetIsActive(false);
 
-    x8_subMenu = ESubMenu::Three;
+    x8_subMenu = ESubMenu::NewGamePopup;
     HandleActiveChange(x40_tablegroup_popup);
     x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
         x0_base->SetColor(zeus::CColor{1.f, 1.f, 1.f, 0.f});
@@ -287,7 +292,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
         x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
         x58_textpane_popupextra.SetPairText(g_MainStringTable->GetString(101));
         CGuiWidget* worker = x40_tablegroup_popup->GetWorkerWidget(2);
-        worker->SetB627(true);
+        worker->SetIsSelectable(true);
         worker->SetVisibility(true, ETraversalMode::Children);
         x44_model_dash7->SetVisibility(true, ETraversalMode::Children);
     }
@@ -302,19 +307,48 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
 
 void CFrontEndUI::SNewFileSelectFrame::ResetFrame()
 {
-    x8_subMenu = ESubMenu::Zero;
+    x8_subMenu = ESubMenu::Root;
 
-    x38_textpane_gba.x0_panes[0]->SetB627(true);
+    x38_textpane_gba.x0_panes[0]->SetIsSelectable(true);
     x38_textpane_gba.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
 
-    x30_textpane_cheats.x0_panes[0]->SetB627(true);
+    x30_textpane_cheats.x0_panes[0]->SetIsSelectable(true);
     x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
 
     ClearFrameContents();
 
     for (int i=2 ; i>=0 ; --i)
-        x20_tablegroup_fileselect->GetWorkerWidget(i)->SetB627(true);
+        x20_tablegroup_fileselect->GetWorkerWidget(i)->SetIsSelectable(true);
     x60_textpane_cancel->TextSupport()->SetText("");
+}
+
+void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
+{
+    x8_subMenu = ESubMenu::EraseGame;
+    x28_textpane_erase.x0_panes[0]->SetIsSelectable(false);
+    zeus::CColor color = zeus::CColor::skGrey;
+    color.a = 0.5f;
+    x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(color);
+    x38_textpane_gba.x0_panes[0]->TextSupport()->SetFontColor(color);
+    x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(color);
+
+    for (int i=2 ; i>=0 ; --i)
+    {
+        SFileMenuOption& fileOpt = x64_fileSelections[i];
+        const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i);
+        if (data)
+        {
+            fileOpt.x4_textpanes[0].x0_panes[0]->SetIsSelectable(true);
+            x20_tablegroup_fileselect->SetUserSelection(i);
+        }
+        else
+        {
+            fileOpt.x4_textpanes[0].x0_panes[0]->SetIsSelectable(false);
+        }
+    }
+
+    x60_textpane_cancel->TextSupport()->SetText(g_MainStringTable->GetString(82));
+    HandleActiveChange(x20_tablegroup_fileselect);
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
@@ -326,8 +360,8 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
         if (x4_saveUI->GetGameData(i))
             hasSave = true;
         SFileMenuOption& option = x64_fileSelections[i];
-        option.x2c_ = SFileMenuOption::ComputeRandom();
-        option.x28_ = -1;
+        option.x2c_chRate = SFileMenuOption::ComputeRandom();
+        option.x28_curField = -1;
         for (int j=0 ; j<4 ; ++j)
             option.x4_textpanes[j].SetPairText(L"");
     }
@@ -342,12 +376,12 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
 
     if (hasSave)
     {
-        x28_textpane_erase.x0_panes[0]->SetB627(true);
+        x28_textpane_erase.x0_panes[0]->SetIsSelectable(true);
         x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
     }
     else
     {
-        x28_textpane_erase.x0_panes[0]->SetB627(false);
+        x28_textpane_erase.x0_panes[0]->SetIsSelectable(false);
         zeus::CColor color = zeus::CColor::skGrey;
         color.a = 0.5f;
         x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(color);
@@ -357,12 +391,12 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
     CGuiTextPane* cheats = static_cast<CGuiTextPane*>(x20_tablegroup_fileselect->GetWorkerWidget(5));
     if (CSlideShow::SlideShowGalleryFlags())
     {
-        cheats->SetB627(true);
+        cheats->SetIsSelectable(true);
         x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
     }
     else
     {
-        cheats->SetB627(false);
+        cheats->SetIsSelectable(false);
         zeus::CColor color = zeus::CColor::skGrey;
         color.a = 0.5f;
         x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(color);
@@ -376,36 +410,90 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
     for (int i=0 ; i<3 ; ++i)
     {
         SFileMenuOption& option = x64_fileSelections[i];
-        if (option.x28_ == 4)
+        if (option.x28_curField == 4)
             continue;
-        SGuiTextPair* pair = (option.x28_ == -1) ? nullptr : &option.x4_textpanes[option.x28_];
-        if (pair)
+        SGuiTextPair* pair = (option.x28_curField == -1) ? nullptr : &option.x4_textpanes[option.x28_curField];
+        if (!pair ||
+            pair->x0_panes[0]->GetTextSupport()->GetNumCharsPrinted() >=
+            pair->x0_panes[0]->GetTextSupport()->GetNumCharsTotal())
         {
-            //pair->x0_panes[0]->GetTextSupport()->GetNumCharsPrinted()
-        }
+            if (++option.x28_curField < 4)
+            {
+                std::wstring str;
+                SGuiTextPair& populatePair = option.x4_textpanes[option.x28_curField];
+                const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i);
 
+                switch (option.x28_curField)
+                {
+                case 0:
+                    // Completion percent
+                    if (data)
+                    {
+                        std::wstring fileStr = g_MainStringTable->GetString(data->x20_hardMode ? 106 : 39);
+                        str = fileStr + hecl::WideFormat(L"  %02d%%", data->x18_itemPercent);
+                        break;
+                    }
+                    str = g_MainStringTable->GetString(36);
+                    break;
+
+                case 1:
+                    // World name
+                    if (data)
+                    {
+                        if (g_MemoryCardSys->HasSaveWorldMemory(data->x8_mlvlId))
+                        {
+                            const CSaveWorldMemory& wldMem = g_MemoryCardSys->GetSaveWorldMemory(data->x8_mlvlId);
+                            str = wldMem.GetFrontEndName();
+                        }
+                        break;
+                    }
+                    str = g_MainStringTable->GetString(51);
+                    break;
+
+                case 2:
+                    // Formatted time
+                    if (data)
+                    {
+                        auto pt = std::div(data->x0_playTime, 3600);
+                        str = hecl::WideFormat(L"%02d:%02d", pt.quot, pt.rem / 60);
+                    }
+                    str = g_MainStringTable->GetString(52);
+                    break;
+
+                case 3:
+                    // "Elapsed"
+                    str = g_MainStringTable->GetString(data ? 54 : 53);
+                    break;
+
+                default: break;
+                }
+
+                StartTextAnimating(populatePair.x0_panes[0], str, option.x2c_chRate);
+                StartTextAnimating(populatePair.x0_panes[1], str, option.x2c_chRate);
+            }
+        }
     }
 }
 
 void CFrontEndUI::SNewFileSelectFrame::DoPopupCancel(CGuiTableGroup* caller)
 {
-    if (x8_subMenu == ESubMenu::Two)
+    if (x8_subMenu == ESubMenu::ExistingGamePopup)
     {
         CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        x8_subMenu = ESubMenu::One;
+        x8_subMenu = ESubMenu::EraseGame;
         x10d_needsExistingToggle = true;
     }
     else
     {
         CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        x8_subMenu = ESubMenu::Zero;
+        x8_subMenu = ESubMenu::Root;
         x10e_needsNewToggle = true;
     }
 }
 
 void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
 {
-    if (x8_subMenu == ESubMenu::Two)
+    if (x8_subMenu == ESubMenu::ExistingGamePopup)
     {
         if (x40_tablegroup_popup->GetUserSelection() == 1)
         {
@@ -413,7 +501,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
             ResetFrame();
         }
         else
-            x8_subMenu = ESubMenu::One;
+            x8_subMenu = ESubMenu::EraseGame;
         x10d_needsExistingToggle = true;
     }
     else
@@ -423,7 +511,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
             if (x40_tablegroup_popup->GetUserSelection() == 1)
             {
                 PlayAdvanceSfx();
-                xc_action = EAction::One;
+                xc_action = EAction::GameOptions;
                 return;
             }
             g_GameState->SetHardMode(x20_tablegroup_fileselect->GetUserSelection());
@@ -434,7 +522,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
             if (x40_tablegroup_popup->GetUserSelection() == 1)
             {
                 PlayAdvanceSfx();
-                xc_action = EAction::One;
+                xc_action = EAction::GameOptions;
                 return;
             }
             x4_saveUI->StartGame(x40_tablegroup_popup->GetUserSelection());
@@ -444,14 +532,14 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupAdvance(CGuiTableGroup* caller)
 
 void CFrontEndUI::SNewFileSelectFrame::DoFileMenuCancel(CGuiTableGroup* caller)
 {
-    if (x8_subMenu == ESubMenu::One)
+    if (x8_subMenu == ESubMenu::EraseGame)
     {
         CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         ResetFrame();
     }
 }
 
-void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller)
+void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
     HandleActiveChange(caller);
     CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -459,7 +547,40 @@ void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller)
 
 void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
 {
-
+    int userSel = x20_tablegroup_fileselect->GetUserSelection();
+    if (userSel < 3)
+    {
+        if (x8_subMenu == ESubMenu::EraseGame)
+        {
+            const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(userSel);
+            if (data)
+            {
+                PlayAdvanceSfx();
+                x10d_needsExistingToggle = true;
+            }
+        }
+        else
+        {
+            const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(userSel);
+            if (data)
+                x4_saveUI->StartGame(userSel);
+            else
+                x10e_needsNewToggle = true;
+        }
+    }
+    else if (userSel == 3)
+    {
+        PlayAdvanceSfx();
+        ActivateErase();
+    }
+    else if (userSel == 4)
+    {
+        xc_action = EAction::FusionBonus;
+    }
+    else if (userSel == 5)
+    {
+        xc_action = EAction::SlideShow;
+    }
 }
 
 CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOption(CGuiFrame* frame, int idx)
@@ -479,14 +600,14 @@ void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, co
     text->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, chRate);
 }
 
-CFrontEndUI::SGBASupportFrame::SGBASupportFrame()
+CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame()
 {
     x4_gbaSupport = std::make_unique<CGBASupport>();
     xc_gbaScreen = g_SimplePool->GetObj("FRME_GBAScreen");
     x18_gbaLink = g_SimplePool->GetObj("FRME_GBALink");
 }
 
-void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SetUIText(EUIType tp)
+void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp)
 {
     int instructions = -1;
     int yes = -1;
@@ -597,36 +718,36 @@ void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SetUIText(EUIType tp)
     x0_uiType = tp;
 }
 
-static const CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType NextLinkUI[] =
+static const CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType NextLinkUI[] =
 {
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::ConnectSocket,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::PressStartAndSelect,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::BeginLink,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Linking,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::TurnOffGBA,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Complete,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::InsertPak,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::ConnectSocket,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::PressStartAndSelect,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::BeginLink,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Linking,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::TurnOffGBA,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Complete,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::InsertPak,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty
 };
 
-static const CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType PrevLinkUI[] =
+static const CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType PrevLinkUI[] =
 {
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EUIType::Empty
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty
 };
 
-CFrontEndUI::SGBASupportFrame::SGBALinkFrame::EAction
-CFrontEndUI::SGBASupportFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput &input, bool linkInProgress)
+CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction
+CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput &input, bool linkInProgress)
 {
     if (linkInProgress != x40_linkInProgress)
     {
@@ -686,13 +807,13 @@ CFrontEndUI::SGBASupportFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput
     return EAction::None;
 }
 
-void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::Update(float dt)
+void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Update(float dt)
 {
     x4_gbaSupport->Update(dt);
     x8_frme->Update(dt);
 }
 
-void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::FinishedLoading()
+void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::FinishedLoading()
 {
     xc_textpane_instructions = FindTextPanePair(x8_frme, "textpane_instructions");
     x14_textpane_yes = static_cast<CGuiTextPane*>(x8_frme->FindWidget("textpane_yes"));
@@ -709,12 +830,12 @@ void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::FinishedLoading()
     SetUIText(EUIType::InsertPak);
 }
 
-void CFrontEndUI::SGBASupportFrame::SGBALinkFrame::Draw()
+void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Draw()
 {
     x8_frme->Draw(CGuiWidgetDrawParms::Default);
 }
 
-CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFrame,
+CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFrame,
                                                             CGBASupport* support,
                                                             bool linkInProgress)
 : x4_gbaSupport(support), x8_frme(linkFrame), x40_linkInProgress(linkInProgress)
@@ -723,7 +844,7 @@ CFrontEndUI::SGBASupportFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFrame
     FinishedLoading();
 }
 
-void CFrontEndUI::SGBASupportFrame::FinishedLoading()
+void CFrontEndUI::SFusionBonusFrame::FinishedLoading()
 {
     x28_tablegroup_options = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_options"));
     x2c_tablegroup_fusionsuit = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_fusionsuit"));
@@ -742,23 +863,23 @@ void CFrontEndUI::SGBASupportFrame::FinishedLoading()
 
     x2c_tablegroup_fusionsuit->SetIsActive(false);
     x2c_tablegroup_fusionsuit->SetIsVisible(false);
-    x2c_tablegroup_fusionsuit->SetD1(false);
+    x2c_tablegroup_fusionsuit->SetVertical(false);
     x2c_tablegroup_fusionsuit->SetUserSelection(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
 
     SetTableColors(x28_tablegroup_options);
     SetTableColors(x2c_tablegroup_fusionsuit);
 
     x28_tablegroup_options->SetMenuAdvanceCallback(
-        std::bind(&SGBASupportFrame::DoAdvance, this, std::placeholders::_1));
+        std::bind(&SFusionBonusFrame::DoAdvance, this, std::placeholders::_1));
     x28_tablegroup_options->SetMenuSelectionChangeCallback(
-        std::bind(&SGBASupportFrame::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&SFusionBonusFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
     x28_tablegroup_options->SetMenuCancelCallback(
-        std::bind(&SGBASupportFrame::DoCancel, this, std::placeholders::_1));
+        std::bind(&SFusionBonusFrame::DoCancel, this, std::placeholders::_1));
     x2c_tablegroup_fusionsuit->SetMenuSelectionChangeCallback(
-        std::bind(&SGBASupportFrame::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&SFusionBonusFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-bool CFrontEndUI::SGBASupportFrame::PumpLoad()
+bool CFrontEndUI::SFusionBonusFrame::PumpLoad()
 {
     if (x24_loadedFrame)
         return true;
@@ -775,17 +896,17 @@ bool CFrontEndUI::SGBASupportFrame::PumpLoad()
     return true;
 }
 
-void CFrontEndUI::SGBASupportFrame::SetTableColors(CGuiTableGroup* tbgp) const
+void CFrontEndUI::SFusionBonusFrame::SetTableColors(CGuiTableGroup* tbgp) const
 {
     tbgp->SetColors(zeus::CColor::skWhite,
                     zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
-void CFrontEndUI::SGBASupportFrame::Update(float dt, CSaveUI* saveUI)
+void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
 {
     bool doUpdate = false;
     if (saveUI)
-        if (saveUI->GetUIType() == CSaveUI::EUIType::SaveProgress)
+        if (saveUI->GetUIType() == CSaveUI::EUIType::SaveReady)
             doUpdate = true;
 
     if (doUpdate != x38_lastDoUpdate)
@@ -827,8 +948,8 @@ void CFrontEndUI::SGBASupportFrame::Update(float dt, CSaveUI* saveUI)
     x30_textpane_instructions.SetPairText(instructionStr);
 }
 
-CFrontEndUI::SGBASupportFrame::EAction
-CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
+CFrontEndUI::SFusionBonusFrame::EAction
+CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
     x8_action = EAction::None;
 
@@ -860,7 +981,7 @@ CFrontEndUI::SGBASupportFrame::ProcessUserInput(const CFinalInput& input, CSaveU
     return x8_action;
 }
 
-void CFrontEndUI::SGBASupportFrame::Draw() const
+void CFrontEndUI::SFusionBonusFrame::Draw() const
 {
     if (!x38_lastDoUpdate)
         return;
@@ -870,7 +991,7 @@ void CFrontEndUI::SGBASupportFrame::Draw() const
         x24_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
 }
 
-void CFrontEndUI::SGBASupportFrame::DoCancel(CGuiTableGroup* caller)
+void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller)
 {
     if (x39_fusionNotComplete || x3a_mpNotComplete)
     {
@@ -886,7 +1007,7 @@ void CFrontEndUI::SGBASupportFrame::DoCancel(CGuiTableGroup* caller)
     }
 }
 
-void CFrontEndUI::SGBASupportFrame::DoSelectionChange(CGuiTableGroup* caller)
+void CFrontEndUI::SFusionBonusFrame::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
     if (caller == x28_tablegroup_options)
     {
@@ -904,7 +1025,7 @@ void CFrontEndUI::SGBASupportFrame::DoSelectionChange(CGuiTableGroup* caller)
     SetTableColors(caller);
 }
 
-void CFrontEndUI::SGBASupportFrame::DoAdvance(CGuiTableGroup* caller)
+void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
 {
     switch (x28_tablegroup_options->GetUserSelection())
     {
@@ -990,7 +1111,7 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading()
     x18_tablegroup_mainmenu->SetMenuAdvanceCallback(
         std::bind(&SFrontEndFrame::DoAdvance, this, std::placeholders::_1));
     x18_tablegroup_mainmenu->SetMenuSelectionChangeCallback(
-        std::bind(&SFrontEndFrame::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&SFrontEndFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
     x18_tablegroup_mainmenu->SetMenuCancelCallback(
         std::bind(&SFrontEndFrame::DoCancel, this, std::placeholders::_1));
 }
@@ -1014,10 +1135,15 @@ bool CFrontEndUI::SFrontEndFrame::PumpLoad()
     return false;
 }
 
+void CFrontEndUI::SFrontEndFrame::Update(float dt)
+{
+
+}
+
 CFrontEndUI::SFrontEndFrame::EAction
 CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input)
 {
-    x4_action = EAction::Zero;
+    x4_action = EAction::None;
     x14_loadedFrme->ProcessUserInput(input);
     return x4_action;
 }
@@ -1032,7 +1158,7 @@ void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller)
 
 }
 
-void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller)
+void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
 
 }
@@ -1085,7 +1211,7 @@ void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode)
 void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
 {
     bool processInput = true;
-    if (sui && sui->GetUIType() != CSaveUI::EUIType::SaveProgress)
+    if (sui && sui->GetUIType() != CSaveUI::EUIType::SaveReady)
         processInput = false;
     if (sui)
         sui->ProcessUserInput(input);
@@ -1110,7 +1236,7 @@ void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, 
 
 bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveUI* saveUi)
 {
-    bool doUpdate = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveProgress) ? false : true;
+    bool doUpdate = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveReady) ? false : true;
     x10_remTime = std::max(x10_remTime - dt, 0.f);
 
     zeus::CColor geomCol(zeus::CColor::skWhite);
@@ -1196,7 +1322,7 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveUI* saveUi)
 void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveUI* saveUi) const
 {
     zeus::CColor mulColor = zeus::CColor::skWhite;
-    bool doDraw = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveProgress) ? false : true;
+    bool doDraw = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveReady) ? false : true;
 
     if (doDraw)
         mulColor = zeus::CColor::skBlack;
@@ -1229,6 +1355,11 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
     return true;
 }
 
+void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveUI* saveUi)
+{
+
+}
+
 void CFrontEndUI::SOptionsFrontEndFrame::Draw() const
 {
 
@@ -1251,41 +1382,9 @@ CFrontEndUI::CFrontEndUI(CArchitectureQueue& queue)
         ++xc0_attractCount;
 }
 
-void CFrontEndUI::OnSliderSelectionChange(CGuiSliderGroup* grp, float)
-{}
-
-void CFrontEndUI::OnCheckBoxSelectionChange(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnOptionSubMenuCancel(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnOptionsMenuCancel(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnNewGameMenuCancel(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnFileMenuCancel(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnGenericMenuSelectionChange(CGuiTableGroup* grp, int, int)
-{}
-
-void CFrontEndUI::OnOptionsMenuAdvance(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnNewGameMenuAdvance(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnFileMenuAdvance(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::OnMainMenuAdvance(CGuiTableGroup* grp)
-{}
-
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)
 {
+    xf4_curAudio->StopMixing();
     queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CSlideShow()));
 }
 
@@ -1341,51 +1440,40 @@ void CFrontEndUI::StartAttractMovie()
     xcc_curMoviePtr = xc4_attractMovie.get();
 }
 
-void CFrontEndUI::UpdateMenuHighlights(CGuiTableGroup* grp)
-{}
-
-void CFrontEndUI::CompleteStateTransition()
-{}
-
-bool CFrontEndUI::CanBuild(const SObjectTag& tag)
-{
-    return false;
-}
-
 void CFrontEndUI::StartStateTransition(EScreen screen)
 {
     switch (x50_curScreen)
     {
-    case EScreen::One:
-        if (screen != EScreen::Three)
+    case EScreen::Title:
+        if (screen != EScreen::FileSelect)
             break;
         SetCurrentMovie(EMenuMovie::StartFileSelectA);
-        SetMovieSeconds(xcc_curMoviePtr->GetTotalSeconds());
+        SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
         break;
-    case EScreen::Three:
-        if (screen == EScreen::Five)
+    case EScreen::FileSelect:
+        if (screen == EScreen::ToPlayGame)
         {
             SetCurrentMovie(EMenuMovie::FileSelectPlayGameA);
-            SetMovieSeconds(xcc_curMoviePtr->GetTotalSeconds());
+            SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
         }
-        else if (screen == EScreen::Four)
+        else if (screen == EScreen::FusionBonus)
         {
             SetCurrentMovie(EMenuMovie::FileSelectGBA);
-            SetMovieSeconds(xcc_curMoviePtr->GetTotalSeconds());
+            SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
             CSfxManager::SfxStart(1108, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             CSfxManager::SfxStart(1109, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         break;
-    case EScreen::Four:
-        if (screen == EScreen::Five)
+    case EScreen::FusionBonus:
+        if (screen == EScreen::ToPlayGame)
         {
             SetCurrentMovie(EMenuMovie::GBAFileSelectB);
-            SetMovieSeconds(xcc_curMoviePtr->GetTotalSeconds());
+            SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
         }
-        else if (screen == EScreen::Three)
+        else if (screen == EScreen::FileSelect)
         {
             SetCurrentMovie(EMenuMovie::GBAFileSelectA);
-            SetMovieSeconds(xcc_curMoviePtr->GetTotalSeconds());
+            SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
             CSfxManager::SfxStart(1110, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             CSfxManager::SfxStart(1111, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
@@ -1394,18 +1482,61 @@ void CFrontEndUI::StartStateTransition(EScreen screen)
 
     switch (screen)
     {
-    case EScreen::Zero:
-    case EScreen::One:
+    case EScreen::OpenCredits:
+    case EScreen::Title:
         SetCurrentMovie(EMenuMovie::FirstStart);
-        SetMovieSeconds(xcc_curMoviePtr->GetTotalSeconds());
+        SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
         break;
-    case EScreen::Two:
+    case EScreen::AttractMovie:
         StartAttractMovie();
-        SetMovieSecondsDeferred();
+        SetFadeBlackWithMovie();
     default: break;
     }
 
     x54_nextScreen = screen;
+}
+
+void CFrontEndUI::CompleteStateTransition()
+{
+    EScreen oldScreen = x50_curScreen;
+    x50_curScreen = x54_nextScreen;
+
+    switch (x50_curScreen)
+    {
+    case EScreen::AttractMovie:
+        x54_nextScreen = EScreen::OpenCredits;
+        x50_curScreen = EScreen::OpenCredits;
+        xd0_playerSkipToTitle = false;
+        StartStateTransition(EScreen::Title);
+        break;
+
+    case EScreen::Title:
+        SetCurrentMovie(EMenuMovie::StartLoop);
+        SetFadeBlackTimer(30.f);
+        break;
+
+    case EScreen::FileSelect:
+        SetCurrentMovie(EMenuMovie::FileSelectLoop);
+        if (oldScreen == EScreen::Title)
+        {
+            xf4_curAudio->StopMixing();
+            xf4_curAudio = xd8_audio2.get();
+            xf4_curAudio->StartMixing();
+        }
+        if (xdc_saveUI)
+            xdc_saveUI->ResetCardDriver();
+        break;
+
+    case EScreen::FusionBonus:
+        SetCurrentMovie(EMenuMovie::GBALoop);
+        break;
+
+    case EScreen::ToPlayGame:
+        x14_phase = EPhase::ExitFrontEnd;
+        break;
+
+    default: break;
+    }
 }
 
 void CFrontEndUI::HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArchitectureQueue& queue)
@@ -1413,42 +1544,51 @@ void CFrontEndUI::HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArch
 
 void CFrontEndUI::Draw() const
 {
-    //printf("DRAW\n");
-    if (x14_phase < EPhase::Four)
+    if (x14_phase < EPhase::DisplayFrontEnd)
         return;
 
     if (xec_emuFrme)
+    {
         xec_emuFrme->Draw(xdc_saveUI.get());
+    }
     else
     {
         //g_Renderer->SetDepthReadWrite(false, false);
         g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
+
         if (xcc_curMoviePtr && xcc_curMoviePtr->GetIsFullyCached())
         {
+            /* Render movie */
             auto vidDimensions = xcc_curMoviePtr->GetVideoDimensions();
             float aspectRatio = vidDimensions.first / float(vidDimensions.second);
             float verticalOff = (CGraphics::g_ViewportResolution.x / aspectRatio - CGraphics::g_ViewportResolution.y) * 0.5f;
             xcc_curMoviePtr->SetFrame(zeus::CVector3f(0.f, -verticalOff, 0.f),
                                       zeus::CVector3f(CGraphics::g_ViewportResolution.x, verticalOff, 0.f),
                                       zeus::CVector3f(0.f, CGraphics::g_ViewportResolution.y + verticalOff, 0.f),
-                                      zeus::CVector3f(CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y + verticalOff, 0.f));
+                                      zeus::CVector3f(CGraphics::g_ViewportResolution.x,
+                                                      CGraphics::g_ViewportResolution.y + verticalOff, 0.f));
             xcc_curMoviePtr->DrawFrame();
         }
 
-        if (x50_curScreen == EScreen::Three && x54_nextScreen == EScreen::Three)
+        if (x50_curScreen == EScreen::FileSelect && x54_nextScreen == EScreen::FileSelect)
         {
+            /* Render active FileSelect UI */
             if (xf0_optionsFrme)
                 xf0_optionsFrme->Draw();
-            else if (xe0_newFileSel)
-                xe0_newFileSel->Draw();
+            else if (xe0_frontendCardFrme)
+                xe0_frontendCardFrme->Draw();
             else
-                xe8_frontendFrme->Draw();
+                xe8_frontendNoCardFrme->Draw();
         }
-        else if (x50_curScreen == EScreen::Four && x54_nextScreen == EScreen::Four)
-            xe4_gbaSupportFrme->Draw();
+        else if (x50_curScreen == EScreen::FusionBonus && x54_nextScreen == EScreen::FusionBonus)
+        {
+            /* Render Fusion bonus UI */
+            xe4_fusionBonusFrme->Draw();
+        }
 
         if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded() && m_pressStartQuad)
         {
+            /* Render "Press Start" */
             float nativeRatio = CGraphics::g_ViewportResolution.x / 640.f;
             float hOffset = x38_pressStart->GetWidth() / 2.f * nativeRatio;
             float vOffset = x38_pressStart->GetHeight() / 2.f * nativeRatio;
@@ -1461,36 +1601,42 @@ void CFrontEndUI::Draw() const
 
         if (xc0_attractCount > 0)
         {
-            if (((x50_curScreen == EScreen::One && x54_nextScreen == EScreen::One) ||
-                 x54_nextScreen == EScreen::Two) && x58_movieSeconds < 1.f)
+            /* Render fade-to-black into attract movie */
+            if (((x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title) ||
+                 x54_nextScreen == EScreen::AttractMovie) && x58_fadeBlackTimer < 1.f)
             {
+                /* To black */
                 zeus::CColor color = zeus::CColor::skBlack;
-                color.a = 1.f - x58_movieSeconds;
+                color.a = 1.f - x58_fadeBlackTimer;
                 const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
             }
         }
 
-        if (xd0_)
+        if (xd0_playerSkipToTitle)
         {
-            if (x54_nextScreen == EScreen::One && x50_curScreen == EScreen::Zero)
+            /* Render fade-through-black into title if player skips */
+            if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title)
             {
+                /* To black */
                 zeus::CColor color = zeus::CColor::skBlack;
-                color.a = zeus::clamp(0.f, 1.f - x58_movieSeconds, 1.f);
+                color.a = zeus::clamp(0.f, 1.f - x58_fadeBlackTimer, 1.f);
                 const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
             }
-            else if (x54_nextScreen == EScreen::One && x50_curScreen == EScreen::One)
+            else if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title)
             {
+                /* From black with 30-sec skip to title */
                 zeus::CColor color = zeus::CColor::skBlack;
-                color.a = 1.f - zeus::clamp(0.f, 30.f - x58_movieSeconds, 1.f);
+                color.a = 1.f - zeus::clamp(0.f, 30.f - x58_fadeBlackTimer, 1.f);
                 const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
             }
         }
 
         if (xdc_saveUI)
         {
-            if ((IsSaveUIConditional() && !xdc_saveUI->IsDrawConditional()) ||
-                ((x50_curScreen == EScreen::Three && x54_nextScreen == EScreen::Three) ||
-                 (x50_curScreen == EScreen::Four && x54_nextScreen == EScreen::Four)))
+            /* Render memory card feedback strings */
+            if ((CanShowSaveUI() && !xdc_saveUI->IsHiddenFromFrontEnd()) ||
+                ((x50_curScreen == EScreen::FileSelect && x54_nextScreen == EScreen::FileSelect) ||
+                 (x50_curScreen == EScreen::FusionBonus && x54_nextScreen == EScreen::FusionBonus)))
                 xdc_saveUI->Draw();
         }
     }
@@ -1498,31 +1644,39 @@ void CFrontEndUI::Draw() const
 
 void CFrontEndUI::UpdateMovies(float dt)
 {
-    if (xcc_curMoviePtr && x5c_movieSecondsNeeded)
+    if (xcc_curMoviePtr && x5c_fadeBlackWithMovie)
     {
-        x5c_movieSecondsNeeded = false;
-        x58_movieSeconds = xcc_curMoviePtr->GetTotalSeconds();
+        /* Set fade-to-black timer to match attract movie */
+        x5c_fadeBlackWithMovie = false;
+        x58_fadeBlackTimer = xcc_curMoviePtr->GetTotalSeconds();
     }
 
+    /* Advance playing menu movies */
     for (auto& movie : x70_menuMovies)
         if (movie)
             movie->Update(dt);
 
+    /* Advance attract movie */
     if (xc4_attractMovie)
         xc4_attractMovie->Update(dt);
 }
 
 void CFrontEndUI::FinishedLoadingDepsGroup()
 {
+    /* Transfer DGRP tokens into FrontEnd and lock */
     const CDependencyGroup* dgrp = x20_depsGroup.GetObj();
     x2c_deps.reserve(dgrp->GetObjectTagVector().size());
     for (const SObjectTag& tag : dgrp->GetObjectTagVector())
+    {
         x2c_deps.push_back(g_SimplePool->GetObj(tag));
+        x2c_deps.back().Lock();
+    }
     x44_frontendAudioGrp.Lock();
 }
 
 bool CFrontEndUI::PumpLoad()
 {
+    /* Poll all tokens for load completion */
     for (CToken& tok : x2c_deps)
         if (!tok.IsLoaded())
             return false;
@@ -1537,6 +1691,7 @@ bool CFrontEndUI::PumpLoad()
 
 bool CFrontEndUI::PumpMovieLoad()
 {
+    /* Prepare all FrontEnd movies and pause each */
     if (xd1_moviesLoaded)
         return true;
     for (int i=0 ; i<9 ; ++i)
@@ -1555,76 +1710,84 @@ bool CFrontEndUI::PumpMovieLoad()
 
 void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue& queue)
 {
-    if (static_cast<CMain*>(g_Main)->GetBardBusy())
+    if (static_cast<CMain*>(g_Main)->GetCardBusy())
         return;
     if (input.ControllerIdx() > 1)
         return;
 
     if (xec_emuFrme)
     {
+        /* NES emulator pre-empts user input if active */
         xec_emuFrme->ProcessUserInput(input, xdc_saveUI.get());
         return;
     }
 
-    if (x14_phase != EPhase::Four || input.ControllerIdx() != 0)
+    /* Controllers other than first shall not pass */
+    if (x14_phase != EPhase::DisplayFrontEnd || input.ControllerIdx() != 0)
         return;
 
     if (x50_curScreen != x54_nextScreen)
     {
-        if (x54_nextScreen == EScreen::Two && (input.PStart() || input.PA()))
+        if (x54_nextScreen == EScreen::AttractMovie && (input.PStart() || input.PA()))
         {
-            SetMovieSeconds(std::min(1.f, x58_movieSeconds));
+            /* Player wants to return to opening credits from attract movie */
+            SetFadeBlackTimer(std::min(1.f, x58_fadeBlackTimer));
             PlayAdvanceSfx();
             return;
         }
 
         if (input.PA() || input.PStart())
         {
-            if (x50_curScreen == EScreen::Zero && x54_nextScreen == EScreen::One &&
-                x58_movieSeconds > 1.f)
+            if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title &&
+                x58_fadeBlackTimer > 1.f)
             {
-                xd0_ = true;
-                SetMovieSeconds(1.f);
+                /* Player is too impatient to view opening credits */
+                xd0_playerSkipToTitle = true;
+                SetFadeBlackTimer(1.f);
                 return;
             }
         }
     }
     else
     {
-        if (x50_curScreen == EScreen::One)
+        if (x50_curScreen == EScreen::Title)
         {
             if (input.PStart() || input.PA())
             {
-                if (x58_movieSeconds < 30.f - g_tweakGame->GetPressStartDelay())
+                if (x58_fadeBlackTimer < 30.f - g_tweakGame->GetPressStartDelay())
                 {
+                    /* Proceed to file select UI */
                     CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                     CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-                    StartStateTransition(EScreen::Three);
+                    StartStateTransition(EScreen::FileSelect);
                     return;
                 }
             }
         }
-        else if (x50_curScreen == EScreen::Three && x54_nextScreen == EScreen::Three)
+        else if (x50_curScreen == EScreen::FileSelect && x54_nextScreen == EScreen::FileSelect)
         {
             if (xf0_optionsFrme)
             {
+                /* Control options UI */
                 if (xf0_optionsFrme->ProcessUserInput(input, xdc_saveUI.get()))
                     return;
+                /* Exit options UI */
                 xf0_optionsFrme.reset();
                 return;
             }
-            else if (xe0_newFileSel)
+            else if (xe0_frontendCardFrme)
             {
-                switch (xe0_newFileSel->ProcessUserInput(input))
+                /* Control FrontEnd with memory card */
+                switch (xe0_frontendCardFrme->ProcessUserInput(input))
                 {
-                case SNewFileSelectFrame::EAction::Two:
-                    StartStateTransition(EScreen::Four);
+                case SNewFileSelectFrame::EAction::FusionBonus:
+                    StartStateTransition(EScreen::FusionBonus);
                     return;
-                case SNewFileSelectFrame::EAction::One:
+                case SNewFileSelectFrame::EAction::GameOptions:
                     xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
                     return;
-                case SNewFileSelectFrame::EAction::Three:
-                    xd2_ = true;
+                case SNewFileSelectFrame::EAction::SlideShow:
+                    xd2_deferSlideShow = true;
                     StartSlideShow(queue);
                     return;
                 default: return;
@@ -1632,33 +1795,35 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
             }
             else
             {
-                switch (xe8_frontendFrme->ProcessUserInput(input))
+                /* Control FrontEnd without memory card */
+                switch (xe8_frontendNoCardFrme->ProcessUserInput(input))
                 {
-                case SFrontEndFrame::EAction::Two:
-                    StartStateTransition(EScreen::Four);
+                case SFrontEndFrame::EAction::FusionBonus:
+                    StartStateTransition(EScreen::FusionBonus);
                     return;
-                case SFrontEndFrame::EAction::Three:
+                case SFrontEndFrame::EAction::GameOptions:
                     xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
                     return;
-                case SFrontEndFrame::EAction::One:
-                    TransitionToFive();
+                case SFrontEndFrame::EAction::StartGame:
+                    TransitionToGame();
                     return;
-                case SFrontEndFrame::EAction::Four:
-                    xd2_ = true;
+                case SFrontEndFrame::EAction::SlideShow:
+                    xd2_deferSlideShow = true;
                     StartSlideShow(queue);
                     return;
                 default: return;
                 }
             }
         }
-        else if (x50_curScreen == EScreen::Four && x54_nextScreen == EScreen::Four)
+        else if (x50_curScreen == EScreen::FusionBonus && x54_nextScreen == EScreen::FusionBonus)
         {
-            switch (xe4_gbaSupportFrme->ProcessUserInput(input, xdc_saveUI.get()))
+            /* Control Fusion bonus UI */
+            switch (xe4_fusionBonusFrme->ProcessUserInput(input, xdc_saveUI.get()))
             {
-            case SGBASupportFrame::EAction::GoBack:
-                StartStateTransition(EScreen::Three);
+            case SFusionBonusFrame::EAction::GoBack:
+                StartStateTransition(EScreen::FileSelect);
                 return;
-            case SGBASupportFrame::EAction::PlayNESMetroid:
+            case SFusionBonusFrame::EAction::PlayNESMetroid:
                 xf4_curAudio->StopMixing();
                 xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
                 if (xdc_saveUI)
@@ -1670,17 +1835,17 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
     }
 }
 
-void CFrontEndUI::TransitionToFive()
+void CFrontEndUI::TransitionToGame()
 {
-    if (x14_phase >= EPhase::Five)
+    if (x14_phase >= EPhase::ToPlayGame)
         return;
 
     const u16* sfx = FETransitionForwardSFX[x1c_rndB];
     CSfxManager::SfxStart(sfx[0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     CSfxManager::SfxStart(sfx[1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
-    x14_phase = EPhase::Five;
-    StartStateTransition(EScreen::Five);
+    x14_phase = EPhase::ToPlayGame;
+    StartStateTransition(EScreen::ToPlayGame);
 }
 
 void CFrontEndUI::UpdateMusicVolume()
@@ -1693,63 +1858,81 @@ void CFrontEndUI::UpdateMusicVolume()
     }
 }
 
+static const float AudioFadeTimeA[] =
+{
+    0.44f, 5.41f, 3.41f
+};
+
+static const float AudioFadeTimeB[] =
+{
+    4.2f, 6.1f, 6.1f
+};
+
 CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {
-    if (xdc_saveUI && x50_curScreen >= EScreen::Three)
+    if (xdc_saveUI && x50_curScreen >= EScreen::FileSelect)
     {
         switch (xdc_saveUI->Update(dt))
         {
         case EMessageReturn::Exit:
-            TransitionToFive();
+            /* Memory card operation complete, transition to game */
+            TransitionToGame();
             break;
         case EMessageReturn::RemoveIOWinAndExit:
         case EMessageReturn::RemoveIOWin:
-            xe0_newFileSel.reset();
+            /* No memory card available, fallback to non-save UI */
+            xe0_frontendCardFrme.reset();
             xdc_saveUI.reset();
         default: break;
         }
     }
 
+    /* Set music fade volume */
     UpdateMusicVolume();
 
     switch (x14_phase)
     {
-    case EPhase::Zero:
+    case EPhase::LoadDepsGroup:
+        /* Poll DGRP load */
         if (!x20_depsGroup.IsLoaded())
             return EMessageReturn::Exit;
         FinishedLoadingDepsGroup();
         x20_depsGroup.Unlock();
-        x14_phase = EPhase::One;
+        x14_phase = EPhase::LoadDeps;
 
-    case EPhase::One:
+    case EPhase::LoadDeps:
+        /* Poll loading DGRP resources */
         if (PumpLoad())
         {
-            xe0_newFileSel = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB);
-            xe4_gbaSupportFrme = std::make_unique<SGBASupportFrame>();
-            xe8_frontendFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
+            xe0_frontendCardFrme = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB);
+            xe4_fusionBonusFrme = std::make_unique<SFusionBonusFrame>();
+            xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
             x38_pressStart.GetObj();
             CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
             xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
             xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
-            x14_phase = EPhase::Two;
+            x14_phase = EPhase::LoadFrames;
         }
-        if (x14_phase == EPhase::One)
+        if (x14_phase == EPhase::LoadDeps)
             return EMessageReturn::Exit;
 
-    case EPhase::Two:
+    case EPhase::LoadFrames:
+        /* Poll loading music and FRME resources */
         if (!xd4_audio1->IsReady() || !xd8_audio2->IsReady() ||
-            !xe0_newFileSel->PumpLoad() || !xe4_gbaSupportFrme->PumpLoad() ||
-            !xe8_frontendFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
+            !xe0_frontendCardFrme->PumpLoad() || !xe4_fusionBonusFrme->PumpLoad() ||
+            !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
             return EMessageReturn::Exit;
         xf4_curAudio = xd4_audio1.get();
         xf4_curAudio->StartMixing();
-        x14_phase = EPhase::Three;
+        x14_phase = EPhase::LoadMovies;
 
-    case EPhase::Three:
+    case EPhase::LoadMovies:
     {
+        /* Poll loading movies */
         bool moviesReady = true;
         if (PumpMovieLoad())
         {
+            /* Prime first frame of movies */
             UpdateMovies(dt);
             for (int i=0 ; i<9 ; ++i)
             {
@@ -1765,24 +1948,158 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 
         if (moviesReady)
         {
-            x14_phase = EPhase::Four;
-            StartStateTransition(EScreen::One);
+            /* Ready to display FrontEnd */
+            x14_phase = EPhase::DisplayFrontEnd;
+            StartStateTransition(EScreen::Title);
         }
         else
             return EMessageReturn::Exit;
     }
-    case EPhase::Four:
-    case EPhase::Five:
 
+    case EPhase::DisplayFrontEnd:
+    case EPhase::ToPlayGame:
+        /* Displaying frontend to user */
         if (xec_emuFrme)
         {
+            /* Update just the emulator if active */
             if (xec_emuFrme->Update(dt, xdc_saveUI.get()))
             {
+                /* Exit emulator */
                 xec_emuFrme.reset();
+                if (xdc_saveUI)
+                    xdc_saveUI->SetInGame(false);
                 xf4_curAudio->StartMixing();
             }
             break;
         }
+
+        if (xd2_deferSlideShow)
+        {
+            /* Start mixing slideshow music */
+            xd2_deferSlideShow = false;
+            xf4_curAudio->StartMixing();
+            if (xdc_saveUI)
+                xdc_saveUI->ResetCardDriver();
+        }
+
+        if (x50_curScreen == EScreen::FileSelect && x54_nextScreen == EScreen::FileSelect)
+        {
+            /* Main FrontEnd UI tree active */
+            if (xf0_optionsFrme)
+            {
+                bool optionsActive = true;
+                if (xdc_saveUI && xdc_saveUI->GetUIType() != CSaveUI::EUIType::SaveReady)
+                    optionsActive = false;
+
+                if (optionsActive)
+                {
+                    /* Update options UI */
+                    xf0_optionsFrme->Update(dt, xdc_saveUI.get());
+                }
+                else
+                {
+                    /* Save triggered; exit options UI here */
+                    xf0_optionsFrme.reset();
+                }
+            }
+            else if (xe0_frontendCardFrme)
+            {
+                /* Update FrontEnd with memory card UI */
+                xe0_frontendCardFrme->Update(dt);
+            }
+            else
+            {
+                /* Update FrontEnd without memory card UI */
+                xe8_frontendNoCardFrme->Update(dt);
+            }
+        }
+        else if (x50_curScreen == EScreen::FusionBonus && x54_nextScreen == EScreen::FusionBonus)
+        {
+            /* Update Fusion bonus UI */
+            xe4_fusionBonusFrme->Update(dt, xdc_saveUI.get());
+        }
+
+        if (x50_curScreen != x54_nextScreen && xcc_curMoviePtr &&
+            (xcc_curMoviePtr->GetIsMovieFinishedPlaying() || xcc_curMoviePtr->IsLooping()))
+        {
+            /* Movie-based transition complete */
+            CompleteStateTransition();
+        }
+
+        if (x58_fadeBlackTimer > 0.f && !x5c_fadeBlackWithMovie)
+        {
+            SetFadeBlackTimer(std::max(0.f, x58_fadeBlackTimer - dt));
+            if (x58_fadeBlackTimer == 0.f)
+            {
+                if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title)
+                {
+                    if (xc0_attractCount > 0)
+                    {
+                        /* Screen black, start attract movie */
+                        StartStateTransition(EScreen::AttractMovie);
+                    }
+                }
+                else if (x54_nextScreen == EScreen::AttractMovie)
+                {
+                    /* Attract movie done, play open credits again */
+                    CompleteStateTransition();
+                }
+                else if (x50_curScreen != x54_nextScreen)
+                {
+                    /* Fade-based transition complete */
+                    CompleteStateTransition();
+                }
+            }
+        }
+
+        /* Advance active movies */
+        UpdateMovies(dt);
+
+        if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title)
+        {
+            /* Update press-start pulsing */
+            if (x58_fadeBlackTimer < 30.f - g_tweakGame->GetPressStartDelay())
+            {
+                x60_pressStartTime = std::fmod(x60_pressStartTime + dt, 1.f);
+                if (x60_pressStartTime < 0.5f)
+                    x64_pressStartAlpha = x60_pressStartTime / 0.5f;
+                else
+                    x64_pressStartAlpha = (1.f - x60_pressStartTime) / 0.5f;
+            }
+        }
+        else
+        {
+            /* Clear press-start pulsing */
+            x60_pressStartTime = 0.f;
+            x64_pressStartAlpha = 0.f;
+        }
+
+        if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::FileSelect)
+        {
+            /* Fade out title music */
+            x68_musicVol = 1.f - zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() -
+                                                   AudioFadeTimeA[x18_rndA]) / 2.5f, 1.f);
+        }
+        else if (x54_nextScreen == EScreen::ToPlayGame)
+        {
+            /* Fade out menu music */
+            float delay = AudioFadeTimeB[x1c_rndB];
+            x68_musicVol = 1.f - zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - delay) /
+                                                  (xcc_curMoviePtr->GetTotalSeconds() - delay), 1.f);
+        }
+        else
+        {
+            /* Full music volume */
+            x68_musicVol = 1.f;
+        }
+
+        return EMessageReturn::Exit;
+
+    case EPhase::ExitFrontEnd:
+        /* Remove FrontEnd IOWin and begin updating next IOWin */
+        return EMessageReturn::RemoveIOWin;
+
+    default: break;
     }
 
     return EMessageReturn::Exit;
@@ -1794,30 +2111,27 @@ CIOWin::EMessageReturn CFrontEndUI::OnMessage(const CArchitectureMessage& msg, C
     {
     case EArchMsgType::UserInput:
     {
+        /* Forward user events */
         const CArchMsgParmUserInput& input = MakeMsg::GetParmUserInput(msg);
         ProcessUserInput(input.x4_parm, queue);
         break;
     }
     case EArchMsgType::TimerTick:
     {
+        /* Forward frame events */
         float dt = MakeMsg::GetParmTimerTick(msg).x4_parm;
         return Update(dt, queue);
     }
     case EArchMsgType::QuitGameplay:
     {
-        x14_phase = EPhase::Six;
+        /* Immediately exit FrontEnd */
+        x14_phase = EPhase::ExitFrontEnd;
         break;
     }
     default: break;
     }
     return EMessageReturn::Normal;
 }
-
-void CFrontEndUI::StartGame()
-{}
-
-void CFrontEndUI::InitializeFrame()
-{}
 
 }
 }

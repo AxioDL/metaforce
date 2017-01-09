@@ -9,10 +9,13 @@ namespace urde
 class CGuiTableGroup : public CGuiCompoundWidget
 {
 public:
-    struct SomeState
+    class CRepeatState
     {
-        float x0_ = 0.f;
+        float x0_timer = 0.f;
+    public:
+        bool Update(float dt, bool state);
     };
+
     enum class TableSelectReturn
     {
         Changed,
@@ -21,17 +24,34 @@ public:
     };
 
 private:
-    SomeState xb8_;
-    SomeState xbc_;
+    CRepeatState xb8_decRepeat;
+    CRepeatState xbc_incRepeat;
     int xc0_elementCount;
     int xc4_userSelection;
     int xc8_prevUserSelection;
     int xcc_defaultUserSelection;
     bool xd0_selectWraparound;
-    bool xd1_ = true;
+    bool xd1_vertical = true;
     std::function<void(CGuiTableGroup*)> xd4_doMenuAdvance;
     std::function<void(CGuiTableGroup*)> xec_doMenuCancel;
-    std::function<void(CGuiTableGroup*)> x104_doMenuSelChange;
+    std::function<void(CGuiTableGroup*, int)> x104_doMenuSelChange;
+
+    bool IsWorkerSelectable(int) const;
+    void SelectWorker(int);
+    void DeactivateWorker(CGuiWidget* widget);
+    void ActivateWorker(CGuiWidget* widget);
+
+    TableSelectReturn DecrementSelectedRow();
+    TableSelectReturn IncrementSelectedRow();
+    void DoSelectPrevRow();
+    void DoSelectNextRow();
+
+    void DoCancel();
+    void DoAdvance();
+    bool PreDecrement();
+    void DoDecrement();
+    bool PreIncrement();
+    void DoIncrement();
 
 public:
     CGuiTableGroup(const CGuiWidgetParms& parms, int, int, bool);
@@ -47,7 +67,7 @@ public:
         xec_doMenuCancel = std::move(cb);
     }
 
-    void SetMenuSelectionChangeCallback(std::function<void(CGuiTableGroup*)>&& cb)
+    void SetMenuSelectionChangeCallback(std::function<void(CGuiTableGroup*, int)>&& cb)
     {
         x104_doMenuSelChange = std::move(cb);
     }
@@ -64,7 +84,7 @@ public:
         }
     }
 
-    void SetD1(bool v) { xd1_ = v; }
+    void SetVertical(bool v) { xd1_vertical = v; }
 
     void SetUserSelection(int sel)
     {
@@ -72,31 +92,9 @@ public:
         xc4_userSelection = sel;
     }
 
-    TableSelectReturn DecrementSelectedRow()
-    {
-        xc8_prevUserSelection = xc4_userSelection;
-        --xc4_userSelection;
-        if (xc4_userSelection < 0)
-        {
-            xc4_userSelection = xd0_selectWraparound ? xc0_elementCount - 1 : 0;
-            return xd0_selectWraparound ? TableSelectReturn::WrappedAround : TableSelectReturn::Unchanged;
-        }
-        return TableSelectReturn::Changed;
-    }
-
-    TableSelectReturn IncrementSelectedRow()
-    {
-        xc8_prevUserSelection = xc4_userSelection;
-        ++xc4_userSelection;
-        if (xc4_userSelection >= xc0_elementCount)
-        {
-            xc4_userSelection = xd0_selectWraparound ? 0 : xc0_elementCount - 1;
-            return xd0_selectWraparound ? TableSelectReturn::WrappedAround : TableSelectReturn::Unchanged;
-        }
-        return TableSelectReturn::Changed;
-    }
-
     int GetUserSelection() const { return xc4_userSelection; }
+
+    void ProcessUserInput(const CFinalInput& input);
 
     static CGuiTableGroup* Create(CGuiFrame* frame, CInputStream& in, bool);
 };

@@ -44,7 +44,7 @@ void CQuitScreen::FinishedLoading()
     x14_tablegroup_quitgame->SetMenuAdvanceCallback(
         std::bind(&CQuitScreen::DoAdvance, this, std::placeholders::_1));
     x14_tablegroup_quitgame->SetMenuSelectionChangeCallback(
-        std::bind(&CQuitScreen::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&CQuitScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
 
     static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_title"))->TextSupport()->
         SetText(g_MainStringTable->GetString(Titles[int(x0_type)]));
@@ -58,7 +58,7 @@ void CQuitScreen::FinishedLoading()
     SetColors();
 }
 
-void CQuitScreen::DoSelectionChange(CGuiTableGroup* caller)
+void CQuitScreen::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
     SetColors();
     CSfxManager::SfxStart(1424, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

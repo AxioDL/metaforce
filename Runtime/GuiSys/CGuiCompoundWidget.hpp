@@ -14,7 +14,7 @@ public:
 
     void OnVisibleChange();
     void OnActiveChange();
-    virtual CGuiWidget* GetWorkerWidget(int id);
+    virtual CGuiWidget* GetWorkerWidget(int id) const;
 };
 
 }

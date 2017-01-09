@@ -61,6 +61,22 @@ bool CSaveWorldIntermediate::InitializePump()
     return false;
 }
 
+bool CMemoryCardSys::HasSaveWorldMemory(ResId wldId) const
+{
+    auto existingSearch =
+        std::find_if(xc_memoryWorlds.cbegin(), xc_memoryWorlds.cend(), [&](const auto& wld)
+        { return wld.first == wldId; });
+    return existingSearch != xc_memoryWorlds.cend();
+}
+
+const CSaveWorldMemory& CMemoryCardSys::GetSaveWorldMemory(ResId wldId) const
+{
+    auto existingSearch =
+        std::find_if(xc_memoryWorlds.cbegin(), xc_memoryWorlds.cend(), [&](const auto& wld)
+        { return wld.first == wldId; });
+    return existingSearch->second;
+}
+
 CMemoryCardSys::CMemoryCardSys()
 {
     g_CardImagePaths[0] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotA);
@@ -74,10 +90,7 @@ CMemoryCardSys::CMemoryCardSys()
     {
         if (tag.type == FOURCC('MLVL'))
         {
-            auto existingSearch =
-                std::find_if(xc_memoryWorlds.cbegin(), xc_memoryWorlds.cend(), [&](const auto& wld)
-                { return wld.first == tag.id; });
-            if (existingSearch == xc_memoryWorlds.cend())
+            if (!HasSaveWorldMemory(tag.id))
             {
                 xc_memoryWorlds.emplace_back(tag.id, CSaveWorldMemory{});
                 x1c_worldInter->emplace_back(tag.id, -1);

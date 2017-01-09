@@ -37,9 +37,9 @@ public:
     void MultiplyO2P(const zeus::CTransform& xf);
     void AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd);
     CGuiObject* RemoveChildObject(CGuiObject* obj, bool makeWorldLocal);
-    CGuiObject* GetParent() {return x70_parent;}
-    CGuiObject* GetChildObject() {return x74_child;}
-    CGuiObject* GetNextSibling() {return x78_nextSibling;}
+    CGuiObject* GetParent() const {return x70_parent;}
+    CGuiObject* GetChildObject() const {return x74_child;}
+    CGuiObject* GetNextSibling() const {return x78_nextSibling;}
     void RecalculateTransforms();
     void Reorthogonalize();
     void SetO2WTransform(const zeus::CTransform& xf);

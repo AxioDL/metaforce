@@ -125,7 +125,7 @@ bool CSaveUI::PumpLoad()
     x58_tablegroup_choices->SetMenuAdvanceCallback(
         std::bind(&CSaveUI::DoAdvance, this, std::placeholders::_1));
     x58_tablegroup_choices->SetMenuSelectionChangeCallback(
-        std::bind(&CSaveUI::DoSelectionChange, this, std::placeholders::_1));
+        std::bind(&CSaveUI::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
 
     if (x0_saveCtx == ESaveContext::InGame)
         x6c_cardDriver->StartCardProbe();
@@ -160,7 +160,7 @@ CSaveUI::EUIType CSaveUI::SelectUIType() const
     {
         if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardStillFull)
             return EUIType::StillInsufficientSpace;
-        return EUIType::SaveProgress;
+        return EUIType::SaveReady;
     }
 
     if (x6c_cardDriver->x14_error == CMemoryCardDriver::EError::CardBroken)
@@ -293,7 +293,7 @@ void CSaveUI::SetUIText()
         opt0 = 16; // Continue
         opt1 = 21; // Cancel
         break;
-    case EUIType::SaveProgress:
+    case EUIType::SaveReady:
         if (x0_saveCtx == ESaveContext::InGame)
         {
             msgB = 8; // Save progress?
@@ -330,10 +330,10 @@ void CSaveUI::SetUIText()
     std::wstring opt3Str;
     x68_textpane_choice3->TextSupport()->SetText(opt3Str);
 
-    x5c_textpane_choice0->SetB627(opt0 != -1);
-    x60_textpane_choice1->SetB627(opt1 != -1);
-    x64_textpane_choice2->SetB627(opt2 != -1);
-    x68_textpane_choice3->SetB627(false);
+    x5c_textpane_choice0->SetIsSelectable(opt0 != -1);
+    x60_textpane_choice1->SetIsSelectable(opt1 != -1);
+    x64_textpane_choice2->SetIsSelectable(opt2 != -1);
+    x68_textpane_choice3->SetIsSelectable(false);
 
     x58_tablegroup_choices->SetIsActive(opt0 != -1 || opt1 != -1 || opt2 != -1);
     SetUIColors();
@@ -567,7 +567,7 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
         }
         break;
 
-    case EUIType::SaveProgress:
+    case EUIType::SaveReady:
         if (x0_saveCtx == ESaveContext::InGame)
         {
             if (userSel == 0)
@@ -592,7 +592,7 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
         CSfxManager::SfxStart(sfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CSaveUI::DoSelectionChange(CGuiTableGroup* caller)
+void CSaveUI::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
     SetUIColors();
     CSfxManager::SfxStart(x88_navMoveSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

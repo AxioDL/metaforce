@@ -109,6 +109,7 @@ public:
                     const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                     const zeus::CColor& geomCol, s32 extX, s32 extY, CSimplePool* store);
     float GetCurrentAnimationOverAge() const;
+    float GetNumCharsTotal() const;
     float GetNumCharsPrinted() const;
     float GetTotalAnimationTime() const;
     bool IsAnimationDone() const;

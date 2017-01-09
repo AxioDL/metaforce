@@ -156,6 +156,7 @@ public:
             return false;
         return xc8_curFrame == x28_thpHead.numFrames;
     }
+    bool IsLooping() const { return xf4_24_loop; }
     bool GetIsFullyCached() const {return xa0_bufferQueue.size() >= xf0_preLoadFrames;}
     float GetPlayedSeconds() const {return xdc_frameRem + xe8_curSeconds;}
     float GetTotalSeconds() const {return xe4_totalSeconds;}

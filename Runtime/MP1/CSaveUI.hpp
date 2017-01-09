@@ -46,14 +46,14 @@ public:
         ProgressWillBeLost = 13,
         NotOriginalCard = 14,
         AllDataWillBeLost = 15,
-        SaveProgress = 16
+        SaveReady = 16
     };
 
-    bool IsDrawConditional()
+    bool IsHiddenFromFrontEnd()
     {
         switch (x10_uiType)
         {
-        case EUIType::SaveProgress:
+        case EUIType::SaveReady:
         case EUIType::Empty:
         case EUIType::BusyReading:
         case EUIType::BusyWriting:
@@ -90,11 +90,11 @@ private:
     bool x92_savingDisabled = false;
     bool x93_inGame;
 
-    void ResetCardDriver();
     void ContinueWithoutSaving();
 
 public:
     static std::unique_ptr<CMemoryCardDriver> ConstructCardDriver(bool inGame);
+    void ResetCardDriver();
     CIOWin::EMessageReturn Update(float dt);
     void SetInGame(bool v) { x93_inGame = v; }
     bool PumpLoad();
@@ -104,7 +104,7 @@ public:
     void Draw() const;
 
     void DoAdvance(CGuiTableGroup* caller);
-    void DoSelectionChange(CGuiTableGroup* caller);
+    void DoSelectionChange(CGuiTableGroup* caller, int userSel);
 
     void ProcessUserInput(const CFinalInput& input);
     void StartGame(int idx);

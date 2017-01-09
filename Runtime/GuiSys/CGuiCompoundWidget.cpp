@@ -30,7 +30,7 @@ void CGuiCompoundWidget::OnActiveChange()
     CGuiWidget::OnActiveChange();
 }
 
-CGuiWidget* CGuiCompoundWidget::GetWorkerWidget(int id)
+CGuiWidget* CGuiCompoundWidget::GetWorkerWidget(int id) const
 {
     CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
     while (child)

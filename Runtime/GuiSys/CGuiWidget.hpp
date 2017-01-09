@@ -79,7 +79,7 @@ protected:
     bool xb6_24_pg : 1;
     bool xb6_25_isVisible : 1;
     bool xb6_26_isActive : 1;
-    bool xb6_27_ : 1;
+    bool xb6_27_isSelectable : 1;
     bool xb6_28_eventLock : 1;
     bool xb6_29_cullFaces : 1;
     bool xb6_30_ : 1;
@@ -116,8 +116,8 @@ public:
     void ReapplyXform();
     void SetIsVisible(bool);
     void SetIsActive(bool);
-
-    void SetB627(bool v) { xb6_27_ = v; }
+    bool GetIsSelectable() const { return xb6_27_isSelectable; }
+    void SetIsSelectable(bool v) { xb6_27_isSelectable = v; }
 
     void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
     void AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool atEnd);
