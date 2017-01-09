@@ -177,7 +177,7 @@ enum class EScriptObjectState
 enum class EScriptObjectMessage
 {
     None              = -1,
-    UNKM1             = 0,
+    UNKM0             = 0,
     Activate          = 1,
     UNKM2             = 2,
     Close             = 3,
@@ -195,7 +195,7 @@ enum class EScriptObjectMessage
     Stop              = 15,
     StopAndReset      = 16,
     ToggleActive      = 17,
-    UNKM3             = 18,
+    UNKM18            = 18,
     Action            = 19,
     Play              = 20,
     Alert             = 21,

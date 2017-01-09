@@ -18,8 +18,8 @@ public:
         float xc_scale;
         std::experimental::optional<zeus::CVector3f> x10_scaleVec;
     public:
-        const TLockedToken<CCharLayoutInfo>& GetCharLayoutInfo() const {return x0_layoutToken;}
-        float GetScale() const {return xc_scale;}
+        const TLockedToken<CCharLayoutInfo>& ScaledLayout() const {return x0_layoutToken;}
+        float GlobalScale() const {return xc_scale;}
         const std::experimental::optional<zeus::CVector3f>& GetScaleVec() const {return x10_scaleVec;}
     };
 private:
@@ -33,6 +33,13 @@ public:
     GetScaledLayoutDescription() const {return xc_scaled;}
 
     const TLockedToken<CCharLayoutInfo>& GetCharLayoutInfo() const {return x0_layoutToken;}
+    bool UsesScale() const { return bool(xc_scaled); }
+    const TLockedToken<CCharLayoutInfo>& ScaledLayout() const
+    {
+        if (UsesScale())
+            return xc_scaled->ScaledLayout();
+        return x0_layoutToken;
+    }
 };
 
 }

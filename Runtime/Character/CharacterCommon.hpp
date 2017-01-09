@@ -89,8 +89,9 @@ enum class ECoverDirection
 
 enum class EBodyType
 {
+    Zero,
     One,
-    Two = 2,
+    Two,
     Three
 };
 enum class EBodyStateCmd

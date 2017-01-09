@@ -40,7 +40,7 @@ void CHierarchyPoseBuilder::RecursivelyBuildNoScale(const CSegId& boneId, const 
     if (x0_layoutDesc.GetScaledLayoutDescription())
     {
         const CLayoutDescription::CScaledLayoutDescription& desc = *x0_layoutDesc.GetScaledLayoutDescription();
-        bindOffset = desc.GetCharLayoutInfo()->GetFromRootUnrotated(boneId);
+        bindOffset = desc.ScaledLayout()->GetFromRootUnrotated(boneId);
     }
     else
         bindOffset = x0_layoutDesc.GetCharLayoutInfo()->GetFromRootUnrotated(boneId);
@@ -70,8 +70,8 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
     if (x0_layoutDesc.GetScaledLayoutDescription())
     {
         const CLayoutDescription::CScaledLayoutDescription& desc = *x0_layoutDesc.GetScaledLayoutDescription();
-        scale = desc.GetScale();
-        bindOffset = desc.GetCharLayoutInfo()->GetFromRootUnrotated(boneId);
+        scale = desc.GlobalScale();
+        bindOffset = desc.ScaledLayout()->GetFromRootUnrotated(boneId);
     }
     else
     {
@@ -103,8 +103,8 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
     float scale;
     if (x0_layoutDesc.GetScaledLayoutDescription())
     {
-        layoutInfoTok = x0_layoutDesc.GetScaledLayoutDescription()->GetCharLayoutInfo();
-        scale = x0_layoutDesc.GetScaledLayoutDescription()->GetScale();
+        layoutInfoTok = x0_layoutDesc.GetScaledLayoutDescription()->ScaledLayout();
+        scale = x0_layoutDesc.GetScaledLayoutDescription()->GlobalScale();
     }
     else
     {
@@ -171,7 +171,7 @@ CHierarchyPoseBuilder::CHierarchyPoseBuilder(const CLayoutDescription& layout)
 {
     TLockedToken<CCharLayoutInfo> layoutInfoTok;
     if (layout.GetScaledLayoutDescription())
-        layoutInfoTok = layout.GetScaledLayoutDescription()->GetCharLayoutInfo();
+        layoutInfoTok = layout.GetScaledLayoutDescription()->ScaledLayout();
     else
         layoutInfoTok = layout.GetCharLayoutInfo();
     const CCharLayoutInfo& layoutInfo = *layoutInfoTok.GetObj();

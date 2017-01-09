@@ -216,9 +216,9 @@ public:
     CSegId GetLocatorSegId(const std::string& name) const;
     zeus::CAABox GetBoundingBox(const zeus::CTransform& xf) const;
     zeus::CAABox GetBoundingBox() const;
-
     static void FreeCache();
     static void InitializeCache();
+    const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }
     const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
 };
 
