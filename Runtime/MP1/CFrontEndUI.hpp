@@ -137,7 +137,7 @@ public:
         zeus::CVector3f xf8_model_erase_position;
         float x104_rowPitch = 0.f;
         float x108_curTime = 0.f;
-        bool x10c_inputEnable = false;
+        bool x10c_saveReady = false;
         bool x10d_needsExistingToggle = false;
         bool x10e_needsNewToggle = false;
 
@@ -284,6 +284,7 @@ public:
         void Update(float dt);
         EAction ProcessUserInput(const CFinalInput& input);
         void Draw() const;
+        void HandleActiveChange(CGuiTableGroup* active);
 
         void DoCancel(CGuiTableGroup* caller);
         void DoSelectionChange(CGuiTableGroup* caller, int userSel);
@@ -317,17 +318,17 @@ public:
 
     struct SOptionsFrontEndFrame
     {
-        float x0_ = 0.f;
+        float x0_uiAlpha = 0.f;
         TLockedToken<CGuiFrame> x4_frme;
         TLockedToken<CStringTable> x10_pauseScreen;
-        u32 x1c_ = 0;
-        u32 x20_ = 0;
-        u32 x24_ = 0;
-        u32 x28_ = 0;
-        u32 x2c_ = 0;
-        u32 x30_ = 0;
-        u32 x34_ = 0;
-        float x38_ = 0.f;
+        CGuiFrame* x1c_loadedFrame = nullptr;
+        CStringTable* x20_loadedPauseStrg = nullptr;
+        CGuiTableGroup* x24_tablegroup_leftmenu = nullptr;
+        CGuiTableGroup* x28_tablegroup_rightmenu = nullptr;
+        CGuiTableGroup* x2c_tablegroup_double = nullptr;
+        CGuiTableGroup* x30_tablegroup_triple = nullptr;
+        CGuiSliderGroup* x34_slidergroup_slider = nullptr;
+        float x38_rowPitch = 0.f;
         u32 x3c_ = 0;
         CRumbleGenerator x40_rumbleGen;
         union
@@ -335,11 +336,24 @@ public:
             u8 _dummy = 0;
             struct
             {
-                bool x134_24_;
-                bool x134_25_;
+                bool x134_24_visible : 1;
+                bool x134_25_exitOptions : 1;
             };
         };
         SOptionsFrontEndFrame();
+
+        void DoSliderChange(CGuiSliderGroup* caller, float value);
+        void DoMenuCancel(CGuiTableGroup* caller);
+        void DoMenuSelectionChange(CGuiTableGroup* caller, int sel);
+        void DoLeftMenuAdvance(CGuiTableGroup* caller);
+
+        void DeactivateRightMenu();
+
+        void SetRightUIText();
+        void SetTableColors(CGuiTableGroup* tbgp) const;
+        void FinishedLoading();
+        bool PumpLoad();
+
         bool ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
         void Update(float dt, CSaveUI* saveUi);
         void Draw() const;

@@ -6,6 +6,48 @@
 
 namespace urde
 {
+class CFinalInput;
+
+/** Options presented in UI */
+enum class EGameOption
+{
+    VisorOpacity,
+    HelmetOpacity,
+    HUDLag,
+    HintSystem,
+    ScreenBrightness,
+    ScreenOffsetX,
+    ScreenOffsetY,
+    ScreenStretch,
+    SFXVolume,
+    MusicVolume,
+    SoundMode,
+    ReverseYAxis,
+    Rumble,
+    SwapBeamControls,
+    RestoreDefaults
+};
+
+/** Option UI type */
+enum class EOptionType
+{
+    Float,
+    Boolean,
+    Enum,
+    RestoreDefaults
+};
+
+/** Option UI presentation information */
+struct SGameOption
+{
+    EGameOption option;
+    u32 stringId;
+    float minVal, maxVal, increment;
+    EOptionType type;
+};
+
+/** Static registry of Option UI presentation information */
+extern const std::pair<int, const SGameOption*> GameOptionsRegistry[];
 
 /** Options tracked persistently between game sessions */
 class CPersistentOptions
@@ -62,18 +104,9 @@ public:
 /** Options tracked per game session */
 class CGameOptions
 {
-public:
-    enum class ESoundMode
-    {
-        Mono,
-        Stereo,
-        Surround
-    };
-
-private:
     bool x0_[64] = {};
-    ESoundMode x44_soundMode = ESoundMode::Stereo;
-    u32 x48_ = 4;
+    CAudioSys::ESurroundModes x44_soundMode = CAudioSys::ESurroundModes::Stereo;
+    u32 x48_screenBrightness = 4;
     s32 x4c_screenXOffset = 0;
     s32 x50_screenYOffset = 0;
     s32 x54_screenStretch = 0;
@@ -108,20 +141,21 @@ public:
     void PutTo(CBitStreamWriter& writer) const;
     u32 GetMusicVolume() const { return x5c_musicVol; }
 
-    float sub8020F054();
-    void sub8020F098(int, bool);
+    float TuneScreenBrightness();
+    void SetScreenBrightness(s32, bool);
     void SetScreenPositionX(s32, bool);
     void SetScreenPositionY(s32, bool);
     void SetScreenStretch(s32, bool);
     void SetSfxVolume(s32, bool);
     void SetMusicVolume(s32, bool);
-    //void SetSurroundMode(CAudioSys::ESurroundModes, int);
     void SetHUDAlpha(u32);
     u32 GetHUDAlpha() const;
     void SetHelmetAlpha(u32);
     u32 GetHelmetAlpha() const;
     void SetHUDLag(bool);
     bool GetHUDLag() const;
+    void SetSurroundMode(int mode, bool apply);
+    CAudioSys::ESurroundModes GetSurroundMode() const;
     void SetInvertYAxis(bool);
     bool GetInvertYAxis() const;
     void SetIsRumbleEnabled(bool);
@@ -131,6 +165,10 @@ public:
     bool IsHintSystemEnabled() const;
     void SetControls(s32);
     void ResetControllerAssets();
+
+    static void TryRestoreDefaults(const CFinalInput& input, int category,
+                                   int option, bool frontend);
+    static void SetOption(EGameOption option, int value);
 };
 
 class CHintOptions

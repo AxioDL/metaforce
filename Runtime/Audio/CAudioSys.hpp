@@ -15,6 +15,13 @@ class CAudioSys
     boo::IAudioVoiceEngine* m_voiceEngine;
     amuse::Engine m_engine;
 public:
+    enum class ESurroundModes
+    {
+        Mono,
+        Stereo,
+        Surround
+    };
+
     struct C3DEmitterParmData
     {
         zeus::CVector3f x0_pos;
@@ -53,6 +60,10 @@ public:
     static amuse::Engine& GetAmuseEngine()
     {
         return g_SharedSys->m_engine;
+    }
+    static void SetSurroundMode(ESurroundModes mode)
+    {
+
     }
 };
 

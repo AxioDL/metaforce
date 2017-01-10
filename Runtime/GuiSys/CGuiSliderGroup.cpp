@@ -9,7 +9,7 @@ CGuiSliderGroup::CGuiSliderGroup(const CGuiWidgetParms& parms, float a, float b,
 }
 
 void CGuiSliderGroup::SetSelectionChangedCallback
-    (std::function<void(const CGuiSliderGroup*, float)>&& func)
+    (std::function<void(CGuiSliderGroup*, float)>&& func)
 {
     x114_changeCallback = std::move(func);
 }
