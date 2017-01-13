@@ -6,6 +6,7 @@
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
 #include "Audio/CStaticAudioPlayer.hpp"
+#include "Audio/CSfxManager.hpp"
 #include "CGBASupport.hpp"
 #include "zeus/CVector3f.hpp"
 #include "Input/CRumbleGenerator.hpp"
@@ -329,7 +330,7 @@ public:
         CGuiTableGroup* x30_tablegroup_triple = nullptr;
         CGuiSliderGroup* x34_slidergroup_slider = nullptr;
         float x38_rowPitch = 0.f;
-        u32 x3c_ = 0;
+        CSfxHandle x3c_sliderSfx;
         CRumbleGenerator x40_rumbleGen;
         union
         {
@@ -348,6 +349,7 @@ public:
         void DoLeftMenuAdvance(CGuiTableGroup* caller);
 
         void DeactivateRightMenu();
+        void HandleRightSelectionChange();
 
         void SetRightUIText();
         void SetTableColors(CGuiTableGroup* tbgp) const;

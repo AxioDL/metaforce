@@ -32,8 +32,8 @@ enum class EGameOption
 enum class EOptionType
 {
     Float,
-    Boolean,
-    Enum,
+    DoubleEnum,
+    TripleEnum,
     RestoreDefaults
 };
 
@@ -112,8 +112,8 @@ class CGameOptions
     s32 x54_screenStretch = 0;
     u32 x58_sfxVol = 0x7f;
     u32 x5c_musicVol = 0x7f;
-    u32 x60_helmetAlpha = 0xff;
-    u32 x64_hudAlpha = 0xff;
+    u32 x60_hudAlpha = 0xff;
+    u32 x64_helmetAlpha = 0xff;
 
     union
     {
@@ -139,36 +139,43 @@ public:
     void InitSoundMode();
     void EnsureSettings();
     void PutTo(CBitStreamWriter& writer) const;
-    u32 GetMusicVolume() const { return x5c_musicVol; }
 
     float TuneScreenBrightness();
     void SetScreenBrightness(s32, bool);
+    s32 GetScreenBrightness() const { return x48_screenBrightness; }
     void SetScreenPositionX(s32, bool);
+    s32 GetScreenPositionX() const { return x4c_screenXOffset; }
     void SetScreenPositionY(s32, bool);
+    s32 GetScreenPositionY() const { return x50_screenYOffset; }
     void SetScreenStretch(s32, bool);
+    s32 GetScreenStretch() const { return x54_screenStretch; }
     void SetSfxVolume(s32, bool);
+    s32 GetSfxVolume() const { return x58_sfxVol; }
     void SetMusicVolume(s32, bool);
+    s32 GetMusicVolume() const { return x5c_musicVol; }
     void SetHUDAlpha(u32);
-    u32 GetHUDAlpha() const;
+    u32 GetHUDAlpha() const { return x60_hudAlpha; }
     void SetHelmetAlpha(u32);
-    u32 GetHelmetAlpha() const;
+    u32 GetHelmetAlpha() const { return x64_helmetAlpha; }
     void SetHUDLag(bool);
-    bool GetHUDLag() const;
+    bool GetHUDLag() const { return x68_24_hudLag; }
     void SetSurroundMode(int mode, bool apply);
     CAudioSys::ESurroundModes GetSurroundMode() const;
     void SetInvertYAxis(bool);
-    bool GetInvertYAxis() const;
+    bool GetInvertYAxis() const { return x68_25_invertY; }
     void SetIsRumbleEnabled(bool);
-    bool IsRumbleEnabled() const;
-    void ToggleControls(bool);
+    bool GetIsRumbleEnabled() const { return x68_26_rumble; }
+    void SetSwapBeamControls(bool);
+    bool GetSwapBeamControls() const { return x68_27_swapBeamsControls; }
     void SetIsHintSystemEnabled(bool);
-    bool IsHintSystemEnabled() const;
+    bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
     void SetControls(s32);
     void ResetControllerAssets();
 
     static void TryRestoreDefaults(const CFinalInput& input, int category,
                                    int option, bool frontend);
     static void SetOption(EGameOption option, int value);
+    static int GetOption(EGameOption option);
 };
 
 class CHintOptions

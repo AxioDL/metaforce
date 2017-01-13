@@ -140,7 +140,8 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
     x2c_widgets.reserve(count);
     for (u32 i=0 ; i<count ; ++i)
     {
-        FourCC type = in.readUint32Big();
+        DataSpec::DNAFourCC type;
+        type.read(in);
         CGuiWidget* widget = CGuiSys::CreateWidgetInGame(type, in, this);
         type = widget->GetWidgetTypeID();
         switch (type)

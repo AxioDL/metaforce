@@ -6,6 +6,7 @@ set(INPUT_SOURCES
     CFinalInput.hpp CFinalInput.cpp
     CRumbleManager.hpp CRumbleManager.cpp
     CRumbleGenerator.hpp CRumbleGenerator.cpp
-    CRumbleVoice.hpp CRumbleVoice.cpp)
+    CRumbleVoice.hpp CRumbleVoice.cpp
+    RumbleFxTable.hpp RumbleFxTable.cpp)
 
 runtime_add_list(Input INPUT_SOURCES)

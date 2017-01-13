@@ -11,7 +11,8 @@ enum class ERumbleFxId
 };
 enum class ERumblePriority
 {
-    None,
+    None = 0,
+    One = 1,
     Two = 2
 };
 

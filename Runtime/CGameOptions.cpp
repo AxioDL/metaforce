@@ -17,8 +17,8 @@ static const SGameOption VisorOpts[] =
 {
     {EGameOption::VisorOpacity, 21, 0.f, 255.f, 1.f, EOptionType::Float},
     {EGameOption::HelmetOpacity, 22, 0.f, 255.f, 1.f, EOptionType::Float},
-    {EGameOption::HUDLag, 23, 0.f, 1.f, 1.f, EOptionType::Boolean},
-    {EGameOption::HintSystem, 24, 0.f, 1.f, 1.f, EOptionType::Boolean},
+    {EGameOption::HUDLag, 23, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::HintSystem, 24, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
     {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}
 };
 
@@ -35,15 +35,15 @@ static const SGameOption SoundOpts[] =
 {
     {EGameOption::SFXVolume, 29, 0.f, 127.f, 1.f, EOptionType::Float},
     {EGameOption::MusicVolume, 30, 0.f, 127.f, 1.f, EOptionType::Float},
-    {EGameOption::SoundMode, 31, 0.f, 1.f, 1.f, EOptionType::Enum},
+    {EGameOption::SoundMode, 31, 0.f, 1.f, 1.f, EOptionType::TripleEnum},
     {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}
 };
 
 static const SGameOption ControllerOpts[] =
 {
-    {EGameOption::ReverseYAxis, 32, 0.f, 1.f, 1.f, EOptionType::Boolean},
-    {EGameOption::Rumble, 33, 0.f, 1.f, 1.f, EOptionType::Boolean},
-    {EGameOption::SwapBeamControls, 34, 0.f, 1.f, 1.f, EOptionType::Boolean},
+    {EGameOption::ReverseYAxis, 32, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::Rumble, 33, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
+    {EGameOption::SwapBeamControls, 34, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
     {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}
 };
 
@@ -170,8 +170,8 @@ CGameOptions::CGameOptions(CBitStreamReader& stream)
     x54_screenStretch = stream.ReadEncoded(5);
     x58_sfxVol = stream.ReadEncoded(7);
     x5c_musicVol = stream.ReadEncoded(7);
-    x60_helmetAlpha = stream.ReadEncoded(8);
-    x64_hudAlpha = stream.ReadEncoded(8);
+    x60_hudAlpha = stream.ReadEncoded(8);
+    x64_helmetAlpha = stream.ReadEncoded(8);
 
     x68_24_hudLag = stream.ReadEncoded(1);
     x68_28_hintSystem = stream.ReadEncoded(1);
@@ -189,8 +189,8 @@ void CGameOptions::ResetToDefaults()
     x58_sfxVol = 0x7f;
     x5c_musicVol = 0x7f;
     x44_soundMode = CAudioSys::ESurroundModes::Stereo;
-    x60_helmetAlpha = 0xFF;
-    x64_hudAlpha = 0xFF;
+    x60_hudAlpha = 0xFF;
+    x64_helmetAlpha = 0xFF;
     x68_24_hudLag = true;
     x68_25_invertY = false;
     x68_26_rumble = true;
@@ -213,8 +213,8 @@ void CGameOptions::PutTo(CBitStreamWriter& writer) const
     writer.WriteEncoded(x54_screenStretch, 5);
     writer.WriteEncoded(x58_sfxVol, 7);
     writer.WriteEncoded(x5c_musicVol, 7);
-    writer.WriteEncoded(x60_helmetAlpha, 8);
-    writer.WriteEncoded(x64_hudAlpha, 8);
+    writer.WriteEncoded(x60_hudAlpha, 8);
+    writer.WriteEncoded(x64_helmetAlpha, 8);
 
     writer.WriteEncoded(x68_24_hudLag, 1);
     writer.WriteEncoded(x68_28_hintSystem, 1);
@@ -304,32 +304,17 @@ void CGameOptions::SetMusicVolume(s32 vol, bool apply)
 
 void CGameOptions::SetHUDAlpha(u32 alpha)
 {
-    x64_hudAlpha = alpha;
-}
-
-u32 CGameOptions::GetHUDAlpha() const
-{
-    return x64_hudAlpha;
+    x60_hudAlpha = alpha;
 }
 
 void CGameOptions::SetHelmetAlpha(u32 alpha)
 {
-    x60_helmetAlpha = alpha;
-}
-
-u32 CGameOptions::GetHelmetAlpha() const
-{
-    return x60_helmetAlpha;
+    x64_helmetAlpha = alpha;
 }
 
 void CGameOptions::SetHUDLag(bool lag)
 {
     x68_24_hudLag = lag;
-}
-
-bool CGameOptions::GetHUDLag() const
-{
-    return x68_24_hudLag;
 }
 
 void CGameOptions::SetSurroundMode(int mode, bool apply)
@@ -349,22 +334,12 @@ void CGameOptions::SetInvertYAxis(bool invert)
     x68_25_invertY = invert;
 }
 
-bool CGameOptions::GetInvertYAxis() const
-{
-    return x68_25_invertY;
-}
-
 void CGameOptions::SetIsRumbleEnabled(bool rumble)
 {
     x68_26_rumble = rumble;
 }
 
-bool CGameOptions::IsRumbleEnabled() const
-{
-    return x68_26_rumble;
-}
-
-void CGameOptions::ToggleControls(bool swap)
+void CGameOptions::SetSwapBeamControls(bool swap)
 {
     x68_27_swapBeamsControls = swap;
     if (!swap)
@@ -376,11 +351,6 @@ void CGameOptions::ToggleControls(bool swap)
 void CGameOptions::SetIsHintSystemEnabled(bool hints)
 {
     x68_28_hintSystem = hints;
-}
-
-bool CGameOptions::IsHintSystemEnabled() const
-{
-    return x68_28_hintSystem;
 }
 
 void CGameOptions::SetControls(s32 controls)
@@ -406,12 +376,12 @@ void CGameOptions::EnsureSettings()
     SetSfxVolume(x58_sfxVol, true);
     SetMusicVolume(x5c_musicVol, true);
     SetSurroundMode(int(x44_soundMode), true);
-    SetHUDAlpha(x64_hudAlpha);
+    SetHUDAlpha(x60_hudAlpha);
     SetHUDLag(x68_24_hudLag);
     SetInvertYAxis(x68_25_invertY);
     SetIsRumbleEnabled(x68_26_rumble);
     SetIsHintSystemEnabled(x68_28_hintSystem);
-    ToggleControls(x68_27_swapBeamsControls);
+    SetSwapBeamControls(x68_27_swapBeamsControls);
 }
 
 void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category,
@@ -462,7 +432,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category,
     case 3:
         gameOptions.SetInvertYAxis(false);
         gameOptions.SetIsRumbleEnabled(true);
-        gameOptions.ToggleControls(false);
+        gameOptions.SetSwapBeamControls(false);
         break;
 
     default: break;
@@ -515,10 +485,50 @@ void CGameOptions::SetOption(EGameOption option, int value)
         options.SetIsRumbleEnabled(value);
         break;
     case EGameOption::SwapBeamControls:
-        options.ToggleControls(value);
+        options.SetSwapBeamControls(value);
         break;
     default: break;
     }
+}
+
+int CGameOptions::GetOption(EGameOption option)
+{
+    const CGameOptions& options = g_GameState->GameOptions();
+
+    switch (option)
+    {
+    case EGameOption::VisorOpacity:
+        return options.GetHUDAlpha();
+    case EGameOption::HelmetOpacity:
+        return options.GetHelmetAlpha();
+    case EGameOption::HUDLag:
+        return options.GetHUDLag();
+    case EGameOption::HintSystem:
+        return options.GetIsHintSystemEnabled();
+    case EGameOption::ScreenBrightness:
+        return options.GetScreenBrightness();
+    case EGameOption::ScreenOffsetX:
+        return options.GetScreenPositionX();
+    case EGameOption::ScreenOffsetY:
+        return options.GetScreenPositionY();
+    case EGameOption::ScreenStretch:
+        return options.GetScreenStretch();
+    case EGameOption::SFXVolume:
+        return options.GetSfxVolume();
+    case EGameOption::MusicVolume:
+        return options.GetMusicVolume();
+    case EGameOption::SoundMode:
+        return int(options.GetSurroundMode());
+    case EGameOption::ReverseYAxis:
+        return options.GetInvertYAxis();
+    case EGameOption::Rumble:
+        return options.GetIsRumbleEnabled();
+    case EGameOption::SwapBeamControls:
+        return options.GetSwapBeamControls();
+    default: break;
+    }
+
+    return 0;
 }
 
 CHintOptions::CHintOptions(CBitStreamReader& stream)

@@ -21,6 +21,7 @@
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "CNESEmulator.hpp"
 #include "CQuitScreen.hpp"
+#include "Input/RumbleFxTable.hpp"
 
 namespace urde
 {
@@ -1414,22 +1415,73 @@ CFrontEndUI::SOptionsFrontEndFrame::SOptionsFrontEndFrame()
 
 void CFrontEndUI::SOptionsFrontEndFrame::DoSliderChange(CGuiSliderGroup* caller, float value)
 {
-
+    if (x28_tablegroup_rightmenu->GetIsActive())
+    {
+        int leftSel = x24_tablegroup_leftmenu->GetUserSelection();
+        int rightSel = x28_tablegroup_rightmenu->GetUserSelection();
+        const auto& optionCategory = GameOptionsRegistry[leftSel];
+        const SGameOption& option = optionCategory.second[rightSel];
+        CGameOptions::SetOption(option.option, caller->GetGurVal());
+    }
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::DoMenuCancel(CGuiTableGroup* caller)
 {
-
+    if (x28_tablegroup_rightmenu == caller)
+    {
+        DeactivateRightMenu();
+        x24_tablegroup_leftmenu->SetIsActive(true);
+        x28_tablegroup_rightmenu->SetIsActive(false);
+        x28_tablegroup_rightmenu->SetUserSelection(0);
+        SetTableColors(x28_tablegroup_rightmenu);
+        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* caller, int sel)
 {
+    SetTableColors(caller);
+    if (x24_tablegroup_leftmenu == caller)
+    {
+        SetRightUIText();
+        CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
+    else if (x28_tablegroup_rightmenu == caller)
+    {
+        HandleRightSelectionChange();
+        CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
+    else if (x2c_tablegroup_double == caller || x30_tablegroup_triple == caller)
+    {
+        if (x28_tablegroup_rightmenu->GetIsActive())
+        {
+            int leftSel = x24_tablegroup_leftmenu->GetUserSelection();
+            int rightSel = x28_tablegroup_rightmenu->GetUserSelection();
+            const auto& optionCategory = GameOptionsRegistry[leftSel];
+            const SGameOption& option = optionCategory.second[rightSel];
+            CGameOptions::SetOption(option.option, caller->GetUserSelection());
+            CSfxManager::SfxStart(1095, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
+            if (option.option == EGameOption::Rumble && caller->GetUserSelection() > 0)
+            {
+                x40_rumbleGen.HardStopAll();
+                x40_rumbleGen.Rumble(RumbleFxTable[11], 1.f, ERumblePriority::One, EIOPort::Zero);
+            }
+        }
+    }
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::DoLeftMenuAdvance(CGuiTableGroup* caller)
 {
-
+    if (caller == x24_tablegroup_leftmenu)
+    {
+        HandleRightSelectionChange();
+        x28_tablegroup_rightmenu->SetUserSelection(0);
+        x24_tablegroup_leftmenu->SetIsActive(false);
+        x28_tablegroup_rightmenu->SetIsActive(true);
+        CSfxManager::SfxStart(1096, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::DeactivateRightMenu()
@@ -1440,6 +1492,52 @@ void CFrontEndUI::SOptionsFrontEndFrame::DeactivateRightMenu()
     x2c_tablegroup_double->SetVisibility(false, ETraversalMode::Children);
     x30_tablegroup_triple->SetVisibility(false, ETraversalMode::Children);
     x34_slidergroup_slider->SetVisibility(false, ETraversalMode::Children);
+}
+
+void CFrontEndUI::SOptionsFrontEndFrame::HandleRightSelectionChange()
+{
+    DeactivateRightMenu();
+    int leftSel = x24_tablegroup_leftmenu->GetUserSelection();
+    int rightSel = x28_tablegroup_rightmenu->GetUserSelection();
+    const auto& optionCategory = GameOptionsRegistry[leftSel];
+    const SGameOption& option = optionCategory.second[rightSel];
+
+    switch (option.type)
+    {
+    case EOptionType::Float:
+        x34_slidergroup_slider->SetIsActive(true);
+        x34_slidergroup_slider->SetVisibility(true, ETraversalMode::Children);
+        x34_slidergroup_slider->SetMinVal(option.minVal);
+        x34_slidergroup_slider->SetMaxVal(option.maxVal);
+        x34_slidergroup_slider->SetIncrement(option.increment);
+        x34_slidergroup_slider->SetCurVal(CGameOptions::GetOption(option.option));
+        x34_slidergroup_slider->SetLocalTransform(
+            zeus::CTransform::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
+            x34_slidergroup_slider->GetTransform());
+        break;
+
+    case EOptionType::DoubleEnum:
+        x2c_tablegroup_double->SetUserSelection(CGameOptions::GetOption(option.option));
+        x2c_tablegroup_double->SetIsVisible(true);
+        x2c_tablegroup_double->SetIsActive(true);
+        x2c_tablegroup_double->SetLocalTransform(
+            zeus::CTransform::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
+            x2c_tablegroup_double->GetTransform());
+        SetTableColors(x2c_tablegroup_double);
+        break;
+
+    case EOptionType::TripleEnum:
+        x30_tablegroup_triple->SetUserSelection(CGameOptions::GetOption(option.option));
+        x30_tablegroup_triple->SetIsVisible(true);
+        x30_tablegroup_triple->SetIsActive(true);
+        x30_tablegroup_triple->SetLocalTransform(
+            zeus::CTransform::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
+            x30_tablegroup_triple->GetTransform());
+        SetTableColors(x30_tablegroup_triple);
+        break;
+
+    default: break;
+    }
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText()
@@ -1584,7 +1682,28 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
 
 void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveUI* sui)
 {
+    x40_rumbleGen.Update(dt);
+    x134_24_visible = sui && sui->GetUIType() == CSaveUI::EUIType::SaveReady;
 
+    if (!PumpLoad())
+        return;
+
+    x0_uiAlpha = std::min(1.f, x0_uiAlpha + dt);
+    x1c_loadedFrame->Update(dt);
+
+    bool isSliding = x34_slidergroup_slider->GetState() != CGuiSliderGroup::EState::None;
+    if (x3c_sliderSfx.operator bool() != isSliding)
+    {
+        if (isSliding)
+        {
+            x3c_sliderSfx = CSfxManager::SfxStart(1458, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        }
+        else
+        {
+            CSfxManager::SfxStop(x3c_sliderSfx);
+            x3c_sliderSfx.reset();
+        }
+    }
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::Draw() const

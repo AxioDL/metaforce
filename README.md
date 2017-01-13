@@ -10,7 +10,7 @@ Everything else is much too experimental to make portable/stable release builds 
 
 ### Platform Support
 * Windows 7+ (64-bit support only)
-* Mac OS X 10.9+
+* macOS 10.9+
 * Linux
     * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
     * **[WIP]** Vulkan loader detection is also integrated into the cmake for Linux
@@ -22,9 +22,9 @@ Everything else is much too experimental to make portable/stable release builds 
 * [Python 3+](https://python.org)
 * LLVM development package *(headers and libs)*
     * [Specialized Windows Package](https://www.dropbox.com/s/8vz8ogsxjhhxoi2/LLVM-4.0.0svn-win64-athena.exe?dl=1)
-    * [OS X Package](http://llvm.org/releases/3.9.0/clang+llvm-3.9.0-x86_64-apple-darwin.tar.xz)
+    * [macOS Package](http://llvm.org/releases/3.9.0/clang+llvm-3.9.0-x86_64-apple-darwin.tar.xz)
 * **[Windows]** [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
-* **[OS X]** [Xcode Tools](https://developer.apple.com/xcode/download/)
+* **[macOS]** [Xcode Tools](https://developer.apple.com/xcode/download/)
 * **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
 
 ### Prep Directions
@@ -51,7 +51,7 @@ Open the repository's `CMakeLists.txt` via File > Open File or Project.
 
 Configure the desired CMake targets to build in the *Projects* area of the IDE.
 
-Build / Debug / Run on Windows, OS X and Linux in a unified way.
+Build / Debug / Run on Windows, macOS and Linux in a unified way.
 
 #### Visual Studio
 
