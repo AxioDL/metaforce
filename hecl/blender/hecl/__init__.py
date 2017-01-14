@@ -2,7 +2,7 @@ bl_info = {
     "name": "HECL",
     "author": "Jack Andersen <jackoalan@gmail.com>",
     "version": (1, 0),
-    "blender": (2, 77),
+    "blender": (2, 78),
     "tracker_url": "https://github.com/AxioDL/hecl/issues/new",
     "location": "Properties > Scene > HECL",
     "description": "Enables blender to gather meshes, materials, and textures for hecl",
@@ -109,6 +109,7 @@ def register():
     hmdl.register()
     sact.register()
     srea.register()
+    frme.register()
     bpy.utils.register_class(hecl_scene_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
     bpy.app.handlers.load_post.append(scene_loaded)

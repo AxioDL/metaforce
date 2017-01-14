@@ -1,2 +1,159 @@
+import bpy
+
 def draw(layout, context):
-    pass
+    if bpy.context.active_object:
+        obj = bpy.context.active_object
+        layout.label("Widget Settings:", icon='OBJECT_DATA')
+        layout.prop_menu_enum(obj, 'retro_widget_type', text='Widget Type')
+        #layout.prop_search(obj, 'retro_widget_parent', context.scene, 'objects', text='Widget Parent')
+        row = layout.row(align=True)
+        row.prop(obj, 'retro_widget_default_visible', text='Visible')
+        row.prop(obj, 'retro_widget_default_active', text='Active')
+        row.prop(obj, 'retro_widget_cull_faces', text='Cull Faces')
+        layout.prop(obj, 'retro_widget_color', text='Color')
+        layout.prop_menu_enum(obj, 'retro_widget_model_draw_flags', text='Draw Flags')
+        row = layout.row(align=True)
+        row.prop(obj, 'retro_widget_is_worker', text='Is Worker')
+        if obj.retro_widget_is_worker:
+            row.prop(obj, 'retro_widget_worker_id', text='Worker Id')
+
+        if obj.retro_widget_type == 'RETRO_MODL':
+            layout.prop(obj, 'retro_model_light_mask', text='Light Mask')
+        elif obj.retro_widget_type == 'RETRO_PANE':
+            layout.prop(obj, 'retro_pane_dimensions', text='Dimensions')
+            layout.prop(obj, 'retro_pane_scale_center', text='Center')
+        elif obj.retro_widget_type == 'RETRO_TXPN':
+            layout.prop(obj, 'retro_pane_dimensions', text='Dimensions')
+            layout.prop(obj, 'retro_pane_scale_center', text='Center')
+            layout.prop(obj, 'retro_textpane_font_path', text='Font Path')
+            row = layout.row(align=True)
+            row.prop(obj, 'retro_textpane_word_wrap', text='Word Wrap')
+            row.prop(obj, 'retro_textpane_vertical', text='Vertical')
+            layout.prop(obj, 'retro_textpane_fill_color', text='Fill Color')
+            layout.prop(obj, 'retro_textpane_outline_color', text='Outline Color')
+            layout.prop(obj, 'retro_textpane_block_extent', text='Point Dimensions')
+            layout.prop(obj, 'retro_textpane_jp_font_path', text='JP Font Path')
+            layout.prop(obj, 'retro_textpane_jp_font_scale', text='JP Point Dimensions')
+            layout.prop_menu_enum(obj, 'retro_textpane_hjustification', text='Horizontal Justification')
+            layout.prop_menu_enum(obj, 'retro_textpane_vjustification', text='Vertical Justification')
+        elif obj.retro_widget_type == 'RETRO_TBGP':
+            layout.prop(obj, 'retro_tablegroup_elem_count', text='Element Count')
+            layout.prop(obj, 'retro_tablegroup_elem_default', text='Default Element')
+            layout.prop(obj, 'retro_tablegroup_wraparound', text='Wraparound')
+        elif obj.retro_widget_type == 'RETRO_GRUP':
+            layout.prop(obj, 'retro_group_default_worker', text='Default Worker')
+        elif obj.retro_widget_type == 'RETRO_SLGP':
+            row = layout.row(align=True)
+            row.prop(obj, 'retro_slider_min', text='Min')
+            row.prop(obj, 'retro_slider_max', text='Max')
+            layout.prop(obj, 'retro_slider_default', text='Default')
+            layout.prop(obj, 'retro_slider_increment', text='Increment')
+        elif obj.retro_widget_type == 'RETRO_ENRG':
+            layout.prop(obj, 'retro_energybar_texture_path', text='Energy Bar Texture Path')
+        elif obj.retro_widget_type == 'RETRO_METR':
+            layout.prop(obj, 'retro_meter_no_round_up', text='No Round Up')
+            layout.prop(obj, 'retro_meter_max_capacity', text='Max Capacity')
+            layout.prop(obj, 'retro_meter_worker_count', text='Worker Count')
+        elif obj.retro_widget_type == 'RETRO_LITE':
+            if obj.data and obj.type == 'LAMP':
+                layout.prop(obj.data, 'retro_light_index', text='Index')
+                layout.label("Angular Falloff:", icon='LAMP_SPOT')
+                row = layout.row(align=True)
+                row.prop(obj.data, 'retro_light_angle_constant', text='Constant')
+                row.prop(obj.data, 'retro_light_angle_linear', text='Linear')
+                row.prop(obj.data, 'retro_light_angle_quadratic', text='Quadratic')
+
+
+# Registration
+def register():
+    frame_widget_types = [
+        ('RETRO_BWIG', 'Base Widget', '', 0),
+        ('RETRO_CAMR', 'Camera', '', 1),
+        ('RETRO_ENRG', 'Energy Bar', '', 2),
+        ('RETRO_GRUP', 'Group', '', 3),
+        ('RETRO_HWIG', 'Head Widget', '', 4),
+        ('RETRO_IMGP', 'Image Pane', '', 5),
+        ('RETRO_LITE', 'Light', '', 6),
+        ('RETRO_MODL', 'Model', '', 7),
+        ('RETRO_METR', 'Meter', '', 8),
+        ('RETRO_PANE', 'Pane', '', 9),
+        ('RETRO_SLGP', 'Slider Group', '', 10),
+        ('RETRO_TBGP', 'Table Group', '', 11),
+        ('RETRO_TXPN', 'Text Pane', '', 12)]
+    bpy.types.Object.retro_widget_type = bpy.props.EnumProperty(items=frame_widget_types, name='Retro: FRME Widget Type', default='RETRO_BWIG')
+    model_draw_flags = [
+        ('RETRO_SHADELESS', 'Shadeless', '', 0),
+        ('RETRO_OPAQUE', 'Opaque', '', 1),
+        ('RETRO_ALPHA', 'Alpha', '', 2),
+        ('RETRO_ADDITIVE', 'Additive', '', 3),
+        ('RETRO_ALPHA_ADDITIVE_OVERDRAW', 'Alpha Additive Overdraw', '', 4)]
+    bpy.types.Object.retro_widget_parent = bpy.props.StringProperty(name='Retro: FRME Widget Parent', description='Refers to internal frame widgets')
+    bpy.types.Object.retro_widget_use_anim_controller = bpy.props.BoolProperty(name='Retro: Use Animiation Conroller')
+    bpy.types.Object.retro_widget_default_visible = bpy.props.BoolProperty(name='Retro: Default Visible', description='Sets widget is visible by default')
+    bpy.types.Object.retro_widget_default_active = bpy.props.BoolProperty(name='Retro: Default Active', description='Sets widget is cases by default')
+    bpy.types.Object.retro_widget_cull_faces = bpy.props.BoolProperty(name='Retro: Cull Faces', description='Enables face culling')
+    bpy.types.Object.retro_widget_color = bpy.props.FloatVectorProperty(name='Retro: Color', description='Sets widget color', subtype='COLOR', size=4, min=0.0, max=1.0)
+    bpy.types.Object.retro_widget_model_draw_flags = bpy.props.EnumProperty(items=model_draw_flags, name='Retro: Model Draw Flags', default='RETRO_ALPHA')
+    bpy.types.Object.retro_widget_is_worker = bpy.props.BoolProperty(name='Retro: Is Worker Widget', default=False)
+    bpy.types.Object.retro_widget_worker_id = bpy.props.IntProperty(name='Retro: Worker Widget ID', min=0, default=0)
+
+    bpy.types.Object.retro_model_light_mask = bpy.props.IntProperty(name='Retro: Model Light Mask', min=0, default=0)
+
+    bpy.types.Object.retro_pane_dimensions = bpy.props.FloatVectorProperty(name='Retro: Pane Dimensions', min=0.0, size=2)
+    bpy.types.Object.retro_pane_scale_center = bpy.props.FloatVectorProperty(name='Retro: Scale Center', min=0.0, size=3)
+
+    bpy.types.Object.retro_textpane_font_path = bpy.props.StringProperty(name='Retro: Font Path')
+    bpy.types.Object.retro_textpane_word_wrap = bpy.props.BoolProperty(name='Retro: Word Wrap')
+    bpy.types.Object.retro_textpane_vertical = bpy.props.BoolProperty(name='Retro: Vertical')
+    bpy.types.Object.retro_textpane_fill_color = bpy.props.FloatVectorProperty(name='Retro: Fill Color', min=0.0, max=1.0, size=4, subtype='COLOR')
+    bpy.types.Object.retro_textpane_outline_color = bpy.props.FloatVectorProperty(name='Retro: Outline Color', min=0.0, max=1.0, size=4, subtype='COLOR')
+    bpy.types.Object.retro_textpane_block_extent = bpy.props.FloatVectorProperty(name='Retro: Block Extent', min=0.0, size=2)
+    bpy.types.Object.retro_textpane_jp_font_path = bpy.props.StringProperty(name='Retro: Japanese Font Path')
+    bpy.types.Object.retro_textpane_jp_font_scale = bpy.props.IntVectorProperty(name='Retro: Japanese Font Scale', min=0, size=2)
+    frame_textpane_hjustifications = [
+        ('LEFT', 'Left', '', 0),
+        ('CENTER', 'Center', '', 1),
+        ('RIGHT', 'Right', '', 2),
+        ('FULL', 'Full', '', 3),
+        ('NLEFT', 'Left Normalized', '', 4),
+        ('NCENTER', 'Center Normalized', '', 5),
+        ('NRIGHT', 'Right Normalized', '', 6),
+        ('LEFTMONO', 'Left Monospaced', '', 7),
+        ('CENTERMONO', 'Center Monospaced', '', 8),
+        ('RIGHTMONO', 'Right Monospaced', '', 9)]
+    bpy.types.Object.retro_textpane_hjustification = bpy.props.EnumProperty(items=frame_textpane_hjustifications, name='Retro: Horizontal Justification', default='LEFT')
+    frame_textpane_vjustifications = [
+        ('TOP', 'Top', '', 0),
+        ('CENTER', 'Center', '', 1),
+        ('BOTTOM', 'Bottom', '', 2),
+        ('FULL', 'Full', '', 3),
+        ('NTOP', 'Top Normalized', '', 4),
+        ('NCENTER', 'Center Normalized', '', 5),
+        ('NBOTTOM', 'Bottom Normalized', '', 6),
+        ('TOPMONO', 'Top Monospaced', '', 7),
+        ('CENTERMONO', 'Center Monospaced', '', 8),
+        ('BOTTOMMONO', 'Bottom Monospaced', '', 9)]
+    bpy.types.Object.retro_textpane_vjustification = bpy.props.EnumProperty(items=frame_textpane_vjustifications, name='Retro: Vertical Justification', default='TOP')
+
+    bpy.types.Object.retro_tablegroup_elem_count = bpy.props.IntProperty(name='Retro: Table Group Element Count', min=0, default=0)
+    bpy.types.Object.retro_tablegroup_elem_default = bpy.props.IntProperty(name='Retro: Table Group Default Element', min=0, default=0)
+    bpy.types.Object.retro_tablegroup_wraparound = bpy.props.BoolProperty(name='Retro: Table Group Wraparound', default=False)
+
+    bpy.types.Object.retro_group_default_worker = bpy.props.IntProperty(name='Retro: Group Default Worker', min=0, default=0)
+
+    bpy.types.Object.retro_slider_min = bpy.props.FloatProperty(name='Retro: Slider Min', default=0.0)
+    bpy.types.Object.retro_slider_max = bpy.props.FloatProperty(name='Retro: Slider Max', default=1.0)
+    bpy.types.Object.retro_slider_default = bpy.props.FloatProperty(name='Retro: Slider Default', default=0.0)
+    bpy.types.Object.retro_slider_increment = bpy.props.FloatProperty(name='Retro: Slider Increment', min=0.0, default=1.0)
+
+    bpy.types.Object.retro_energybar_texture_path = bpy.props.StringProperty(name='Retro: Energy Bar Texture Path')
+
+    bpy.types.Object.retro_meter_no_round_up = bpy.props.BoolProperty(name='Retro: No Round Up', default=True)
+    bpy.types.Object.retro_meter_max_capacity = bpy.props.IntProperty(name='Retro: Max Capacity', min=0, default=100)
+    bpy.types.Object.retro_meter_worker_count = bpy.props.IntProperty(name='Retro: Worker Count', min=0, default=1)
+
+    bpy.types.Lamp.retro_light_index = bpy.props.IntProperty(name='Retro: Light Index', min=0, default=0)
+    bpy.types.Lamp.retro_light_angle_constant = bpy.props.FloatProperty(name='Retro: Light Angle Constant', min=0.0, default=0.0)
+    bpy.types.Lamp.retro_light_angle_linear = bpy.props.FloatProperty(name='Retro: Light Angle Linear', min=0.0, default=0.0)
+    bpy.types.Lamp.retro_light_angle_quadratic = bpy.props.FloatProperty(name='Retro: Light Angle Quadratic', min=0.0, default=0.0)
+

@@ -107,8 +107,13 @@ def read_cmdargs():
 def exec_compbuf(compbuf, globals):
     if verbosity_level >= 3:
         print('EXEC', compbuf)
-    co = compile(compbuf, '<HECL>', 'exec')
-    exec(co, globals)
+    try:
+        co = compile(compbuf, '<HECL>', 'exec')
+        exec(co, globals)
+    except Exception as e:
+        trace_prefix = 'Error processing:\n'
+        trace_prefix += compbuf
+        raise RuntimeError(trace_prefix) from e
 
 # Command loop for writing animation key data to blender
 def animin_loop(globals):
