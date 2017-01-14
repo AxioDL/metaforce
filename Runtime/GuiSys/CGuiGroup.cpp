@@ -8,7 +8,7 @@ void CGuiGroup::LoadWidgetFnMap()
 }
 
 CGuiGroup::CGuiGroup(const CGuiWidgetParms& parms, int defaultWorker, bool b)
-: CGuiCompoundWidget(parms), xfc_selectedWorker(defaultWorker), x100_b(b)
+: CGuiCompoundWidget(parms), xbc_selectedWorker(defaultWorker), xc0_b(b)
 {
 }
 
@@ -38,12 +38,12 @@ void CGuiGroup::SelectWorkerWidget(int workerId, bool setActive, bool setVisible
 
 CGuiWidget* CGuiGroup::GetSelectedWidget()
 {
-    return GetWorkerWidget(xfc_selectedWorker);
+    return GetWorkerWidget(xbc_selectedWorker);
 }
 
 bool CGuiGroup::AddWorkerWidget(CGuiWidget* worker)
 {
-    ++xf8_workerCount;
+    ++xb8_workerCount;
     return true;
 }
 

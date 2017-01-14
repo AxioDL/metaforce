@@ -241,7 +241,7 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
     xa0_curBlock->x2c_lineX = std::max(xa0_curBlock->x2c_lineX, xa4_curLine->x8_curX);
     xb0_curX += w;
 
-    x0_instList.emplace(x0_instList.cend(), new CTextInstruction(str, rem));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CTextInstruction>(str, rem));
 
     if (rem != len)
         StartNewLine();
@@ -251,15 +251,15 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
 
 void CTextExecuteBuffer::MoveWordLTR()
 {
-    xa4_curLine->xc_curY = std::min(xa4_curLine->xc_curY, xb8_);
+    xa4_curLine->xc_curY = std::min(xa4_curLine->xc_curY, xb8_curWordY);
     xbc_spaceDistance = 0;
     --xa4_curLine->x4_wordCount;
     TerminateLineLTR();
 
     xa4_curLine = static_cast<CLineInstruction*>(x0_instList.emplace(xa8_curWordIt,
-        new CLineInstruction(x18_textState.x80_just, x18_textState.x84_vjust))->get());
+        std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust))->get());
 
-    x0_instList.emplace(xa8_curWordIt, new CWordInstruction());
+    x0_instList.emplace(xa8_curWordIt, std::make_shared<CWordInstruction>());
 
     ++xa0_curBlock->x34_lineCount;
 }
@@ -270,7 +270,7 @@ void CTextExecuteBuffer::StartNewLine()
         TerminateLine();
 
     xa8_curWordIt = x0_instList.emplace(x0_instList.cend(),
-        new CLineInstruction(x18_textState.x80_just, x18_textState.x84_vjust));
+        std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust));
     xbc_spaceDistance = 0;
 
     StartNewWord();
@@ -279,11 +279,11 @@ void CTextExecuteBuffer::StartNewLine()
 
 void CTextExecuteBuffer::StartNewWord()
 {
-    xa8_curWordIt = x0_instList.emplace(x0_instList.cend(), new CWordInstruction());
+    xa8_curWordIt = x0_instList.emplace(x0_instList.cend(), std::make_shared<CWordInstruction>());
     xb0_curX = 0;
     xac_curY = 0;
-    xb4_ = xa4_curLine->x8_curX;
-    xb8_ = xa4_curLine->xc_curY;
+    xb4_curWordX = xa4_curLine->x8_curX;
+    xb8_curWordY = xa4_curLine->xc_curY;
     ++xa4_curLine->x4_wordCount;
 }
 
@@ -313,7 +313,7 @@ void CTextExecuteBuffer::TerminateLineLTR()
 
 void CTextExecuteBuffer::AddPopState()
 {
-    x0_instList.emplace(x0_instList.cend(), new CPopStateInstruction());
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CPopStateInstruction>());
 
     x18_textState = xc4_stateStack.back();
     xc4_stateStack.pop_back();
@@ -327,7 +327,7 @@ void CTextExecuteBuffer::AddPopState()
 
 void CTextExecuteBuffer::AddPushState()
 {
-    x0_instList.emplace(x0_instList.cend(), new CPushStateInstruction());
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CPushStateInstruction>());
     xc4_stateStack.push_back(x18_textState);
 }
 
@@ -353,29 +353,29 @@ void CTextExecuteBuffer::AddJustification(EJustification just)
 
 void CTextExecuteBuffer::AddLineExtraSpace(s32 space)
 {
-    x0_instList.emplace(x0_instList.cend(), new CLineExtraSpaceInstruction(space));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CLineExtraSpaceInstruction>(space));
     x18_textState.x78_extraLineSpace = space;
 }
 
 void CTextExecuteBuffer::AddLineSpacing(float spacing)
 {
-    x0_instList.emplace(x0_instList.cend(), new CLineSpacingInstruction(spacing));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CLineSpacingInstruction>(spacing));
     x18_textState.x74_lineSpacing = spacing;
 }
 
 void CTextExecuteBuffer::AddRemoveColorOverride(int idx)
 {
-    x0_instList.emplace(x0_instList.cend(), new CRemoveColorOverrideInstruction(idx));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CRemoveColorOverrideInstruction>(idx));
 }
 
 void CTextExecuteBuffer::AddColorOverride(int idx, const CTextColor& color)
 {
-    x0_instList.emplace(x0_instList.cend(), new CColorOverrideInstruction(idx, color));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CColorOverrideInstruction>(idx, color));
 }
 
 void CTextExecuteBuffer::AddColor(EColorType tp, const CTextColor& color)
 {
-    x0_instList.emplace(x0_instList.cend(), new CColorInstruction(tp, color));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CColorInstruction>(tp, color));
 }
 
 void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
@@ -395,12 +395,12 @@ void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
                 xa0_curBlock->x2c_lineX = xa4_curLine->x8_curX;
     }
 
-    x0_instList.emplace(x0_instList.cend(), new CImageInstruction(image));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CImageInstruction>(image));
 }
 
 void CTextExecuteBuffer::AddFont(const TToken<CRasterFont>& font)
 {
-    x0_instList.emplace(x0_instList.cend(), new CFontInstruction(font));
+    x0_instList.emplace(x0_instList.cend(), std::make_shared<CFontInstruction>(font));
     x18_textState.x48_font = font;
 
     if (xa0_curBlock)
@@ -427,7 +427,7 @@ void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
                                     EVerticalJustification vjust)
 {
     x0_instList.emplace(x0_instList.cend(),
-        new CBlockInstruction(offX, offY, padX, padY, dir, just, vjust));
+        std::make_shared<CBlockInstruction>(offX, offY, padX, padY, dir, just, vjust));
 
     if (x18_textState.x48_font)
     {
@@ -451,8 +451,8 @@ void CTextExecuteBuffer::Clear()
     xa0_curBlock = nullptr;
     xa4_curLine = nullptr;
     xa8_curWordIt = x0_instList.begin();
-    xb4_ = 0;
-    xb8_ = 0;
+    xb4_curWordX = 0;
+    xb8_curWordY = 0;
     xbc_spaceDistance = 0;
 }
 

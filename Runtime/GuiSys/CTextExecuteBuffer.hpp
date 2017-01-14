@@ -27,8 +27,8 @@ class CTextExecuteBuffer
     std::list<std::shared_ptr<CInstruction>>::iterator xa8_curWordIt;
     s32 xac_curY;
     s32 xb0_curX;
-    s32 xb4_ = 0;
-    s32 xb8_ = 0;
+    s32 xb4_curWordX = 0;
+    s32 xb8_curWordY = 0;
     s32 xbc_spaceDistance = 0;
     bool xc0_ = false;
     std::list<CSaveableState> xc4_stateStack;

@@ -8,9 +8,9 @@ namespace urde
 
 class CGuiGroup : public CGuiCompoundWidget
 {
-    u32 xf8_workerCount = 0;
-    int xfc_selectedWorker;
-    bool x100_b;
+    u32 xb8_workerCount = 0;
+    int xbc_selectedWorker;
+    bool xc0_b;
 public:
     CGuiGroup(const CGuiWidgetParms& parms, int defaultWorker, bool b);
     FourCC GetWidgetTypeID() const {return FOURCC('GRUP');}

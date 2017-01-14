@@ -24,9 +24,9 @@ enum class EJustification
     NLeft,
     NCenter,
     NRight,
-    Seven,
-    Eight,
-    Nine
+    LeftMono,
+    CenterMono,
+    RightMono
 };
 
 enum class EVerticalJustification
@@ -38,9 +38,9 @@ enum class EVerticalJustification
     NTop,
     NCenter,
     NBottom,
-    Seven,
-    Eight,
-    Nine
+    TopMono,
+    CenterMono,
+    RightMono
 };
 
 enum class EColorType

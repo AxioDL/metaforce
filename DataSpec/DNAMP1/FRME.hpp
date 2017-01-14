@@ -42,11 +42,12 @@ struct FRME : BigDNA
             virtual void read(athena::io::IStreamReader&) {}
             void write(athena::io::IStreamWriter&) const {}
             size_t binarySize(size_t __isz) const { return __isz; }
+            virtual FourCC fourcc() const=0;
         };
 
         std::unique_ptr<IWidgetInfo> widgetInfo;
         Value<bool> isWorker;
-        Value<atUint16> workerId;
+        Value<atUint16> workerId = 0;
         Value<atVec3f> origin;
         Value<atVec3f> basis[3];
         Value<atVec3f> rotationCenter;
@@ -55,10 +56,16 @@ struct FRME : BigDNA
         Value<atInt16> animControllerCount;
 
         struct BWIGInfo : IWidgetInfo
-        { Delete _d; };
+        {
+            Delete _d;
+            FourCC fourcc() const { return FOURCC('BWIG'); }
+        };
 
         struct HWIGInfo : IWidgetInfo
-        { Delete _d; };
+        {
+            Delete _d;
+            FourCC fourcc() const { return FOURCC('HWIG'); }
+        };
 
         struct CAMRInfo : IWidgetInfo
         {
@@ -99,6 +106,8 @@ struct FRME : BigDNA
                 Value<float> zfar;
             };
             std::unique_ptr<IProjection> projection;
+
+            FourCC fourcc() const { return FOURCC('CAMR'); }
         };
 
         struct MODLInfo : IWidgetInfo
@@ -115,6 +124,8 @@ struct FRME : BigDNA
 
             Value<atUint32> blendMode;
             Value<atUint32> lightMask;
+
+            FourCC fourcc() const { return FOURCC('MODL'); }
         };
 
         struct LITEInfo : IWidgetInfo
@@ -138,20 +149,27 @@ struct FRME : BigDNA
             Value<float> angQ;
             Value<atUint32> loadedIdx;
             Value<float> cutoff; /* Spot only */
+
+            FourCC fourcc() const { return FOURCC('LITE'); }
         };
 
         struct ENRGInfo : IWidgetInfo
         {
             DECL_DNA
             UniqueID32 texture;
+
+            FourCC fourcc() const { return FOURCC('ENRG'); }
         };
 
         struct METRInfo : IWidgetInfo
         {
             DECL_DNA
-            Value<atUint16> unk1;
-            Value<atUint32> value1;
-            Value<atUint32> value2;
+            Value<bool> unk1;
+            Value<bool> noRoundUp;
+            Value<atUint32> maxCapacity;
+            Value<atUint32> workerCount;
+
+            FourCC fourcc() const { return FOURCC('METR'); }
         };
 
         struct GRUPInfo : IWidgetInfo
@@ -159,6 +177,8 @@ struct FRME : BigDNA
             DECL_DNA
             Value<atInt16> defaultWorker;
             Value<bool> unk3;
+
+            FourCC fourcc() const { return FOURCC('GRUP'); }
         };
 
         struct TBGPInfo : IWidgetInfo
@@ -179,6 +199,8 @@ struct FRME : BigDNA
             Value<atUint16> unk9;
             Value<atUint16> unk10;
             Value<atUint16> unk11;
+
+            FourCC fourcc() const { return FOURCC('TBGP'); }
         };
 
         struct SLGPInfo : IWidgetInfo
@@ -188,6 +210,18 @@ struct FRME : BigDNA
             Value<float> max;
             Value<float> cur;
             Value<float> increment;
+
+            FourCC fourcc() const { return FOURCC('SLGP'); }
+        };
+
+        struct PANEInfo : IWidgetInfo
+        {
+            DECL_DNA
+            Value<float> xDim;
+            Value<float> zDim;
+            Value<atVec3f> scaleCenter;
+
+            FourCC fourcc() const { return FOURCC('PANE'); }
         };
 
         struct TXPNInfo : IWidgetInfo
@@ -201,9 +235,9 @@ struct FRME : BigDNA
                 NLeft,
                 NCenter,
                 NRight,
-                Seven,
-                Eight,
-                Nine
+                LeftMono,
+                CenterMono,
+                RightMono
             };
 
             enum class VerticalJustification : atUint32
@@ -215,9 +249,9 @@ struct FRME : BigDNA
                 NTop,
                 NCenter,
                 NBottom,
-                Seven,
-                Eight,
-                Nine
+                LeftMono,
+                CenterMono,
+                RightMono
             };
 
             DECL_EXPLICIT_DNA
@@ -239,7 +273,9 @@ struct FRME : BigDNA
             Value<atVec2f> blockExtent; /* In points; converted to int by loader */
             /* The following is only found in V1 */
             UniqueID32 jpnFont;
-            Value<atInt32> jpnPointScale[2];
+            Value<atInt32> jpnPointScale[2] = {};
+
+            FourCC fourcc() const { return FOURCC('TXPN'); }
         };
 
         struct IMGPInfo : IWidgetInfo
@@ -252,6 +288,8 @@ struct FRME : BigDNA
             Vector<atVec3f, DNA_COUNT(quadCoordCount)> quadCoords;
             Value<atUint32> uvCoordCount;
             Vector<atVec2f, DNA_COUNT(uvCoordCount)>  uvCoords;
+
+            FourCC fourcc() const { return FOURCC('IMGP'); }
         };
     };
 

@@ -96,11 +96,11 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
     case EJustification::Left:
     case EJustification::Full:
     case EJustification::NLeft:
-    case EJustification::Seven:
+    case EJustification::LeftMono:
         state.xd4_curX = state.x88_curBlock->x4_offsetX;
         break;
     case EJustification::Center:
-    case EJustification::Eight:
+    case EJustification::CenterMono:
         state.xd4_curX = state.x88_curBlock->x4_offsetX +
             state.x88_curBlock->xc_blockExtentX / 2 - x8_curX / 2;
         break;
@@ -118,7 +118,7 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
         }
         break;
     case EJustification::Right:
-    case EJustification::Nine:
+    case EJustification::RightMono:
         state.xd4_curX = state.x88_curBlock->x4_offsetX +
             state.x88_curBlock->xc_blockExtentX - x8_curX;
         break;
@@ -152,14 +152,14 @@ void CLineInstruction::InvokeLTR(CFontRenderState& state) const
                 val = 0;
             val += inst.xc_curY;
             break;
-        case EVerticalJustification::Seven:
+        case EVerticalJustification::TopMono:
             val = state.x88_curBlock->x24_largestMonoH;
             break;
-        case EVerticalJustification::Eight:
+        case EVerticalJustification::CenterMono:
             val = (inst.xc_curY - state.x88_curBlock->x24_largestMonoH) / 2 +
                 state.x88_curBlock->x24_largestMonoH;
             break;
-        case EVerticalJustification::Nine:
+        case EVerticalJustification::RightMono:
             val = state.x88_curBlock->x24_largestMonoH * 2 - inst.xc_curY;
             break;
         }
@@ -285,21 +285,21 @@ void CBlockInstruction::SetupPositionLTR(CFontRenderState& state) const
     case EVerticalJustification::Top:
     case EVerticalJustification::Full:
     case EVerticalJustification::NTop:
-    case EVerticalJustification::Seven:
+    case EVerticalJustification::TopMono:
         state.xd8_curY = x8_offsetY;
         break;
     case EVerticalJustification::Center:
     case EVerticalJustification::NCenter:
         state.xd8_curY = x8_offsetY + (x10_blockExtentY - x30_lineY) / 2;
         break;
-    case EVerticalJustification::Eight:
+    case EVerticalJustification::CenterMono:
         state.xd8_curY = x8_offsetY + (x10_blockExtentY - x34_lineCount * x24_largestMonoH) / 2;
         break;
     case EVerticalJustification::Bottom:
     case EVerticalJustification::NBottom:
         state.xd8_curY = x8_offsetY + x10_blockExtentY - x30_lineY;
         break;
-    case EVerticalJustification::Nine:
+    case EVerticalJustification::RightMono:
         state.xd8_curY = x8_offsetY + x10_blockExtentY - x34_lineCount * x24_largestMonoH;
         break;
     }
