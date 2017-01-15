@@ -29,25 +29,24 @@
 
 namespace urde
 {
-
+logvisor::Module LogModule("urde::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
-                             const std::weak_ptr<CMapWorldInfo>& mwInfo,
-                             const std::weak_ptr<CPlayerState>& playerState,
+                             const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
                              const std::weak_ptr<CWorldLayerState>& layerState)
-: x80c_allObjs(new CObjectList(EGameObjectList::All)),
-  x814_actorObjs(new CActorList()),
-  x81c_physActorObjs(new CPhysicsActorList()),
-  x824_cameraObjs(new CGameCameraList()),
-  x82c_lightObjs(new CGameLightList()),
-  x834_listenAiObjs(new CListeningAiList()),
-  x83c_aiWaypointObjs(new CAiWaypointList()),
-  x844_platformAndDoorObjs(new CPlatformAndDoorList()),
-  x8b8_playerState(playerState),
-  x8bc_relayTracker(relayTracker),
-  x8c0_mapWorldInfo(mwInfo),
-  x8c4_worldTransManager(wtMgr),
-  x8c8_worldLayerState(layerState)
+: x80c_allObjs(new CObjectList(EGameObjectList::All))
+, x814_actorObjs(new CActorList())
+, x81c_physActorObjs(new CPhysicsActorList())
+, x824_cameraObjs(new CGameCameraList())
+, x82c_lightObjs(new CGameLightList())
+, x834_listenAiObjs(new CListeningAiList())
+, x83c_aiWaypointObjs(new CAiWaypointList())
+, x844_platformAndDoorObjs(new CPlatformAndDoorList())
+, x8b8_playerState(playerState)
+, x8bc_relayTracker(relayTracker)
+, x8c0_mapWorldInfo(mwInfo)
+, x8c4_worldTransManager(wtMgr)
+, x8c8_worldLayerState(layerState)
 {
     x86c_stateManagerContainer.reset(new CStateManagerContainer);
     x870_cameraManager = &x86c_stateManagerContainer->x0_cameraManager;
@@ -100,7 +99,8 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::GrapplePoint)] = ScriptLoader::LoadGrapplePoint;
     x90c_loaderFuncs[int(EScriptObjectType::PuddleSpore)] = ScriptLoader::LoadPuddleSpore;
     x90c_loaderFuncs[int(EScriptObjectType::DebugCameraWaypoint)] = ScriptLoader::LoadDebugCameraWaypoint;
-    x90c_loaderFuncs[int(EScriptObjectType::SpiderBallAttractionSurface)] = ScriptLoader::LoadSpiderBallAttractionSurface;
+    x90c_loaderFuncs[int(EScriptObjectType::SpiderBallAttractionSurface)] =
+        ScriptLoader::LoadSpiderBallAttractionSurface;
     x90c_loaderFuncs[int(EScriptObjectType::PuddleToadGamma)] = ScriptLoader::LoadPuddleToadGamma;
     x90c_loaderFuncs[int(EScriptObjectType::DistanceFog)] = ScriptLoader::LoadDistanceFog;
     x90c_loaderFuncs[int(EScriptObjectType::FireFlea)] = ScriptLoader::LoadFireFlea;
@@ -144,7 +144,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::ColorModulate)] = ScriptLoader::LoadColorModulate;
     x90c_loaderFuncs[int(EScriptObjectType::ThardusRockProjectile)] = ScriptLoader::LoadThardusRockProjectile;
     x90c_loaderFuncs[int(EScriptObjectType::Midi)] = ScriptLoader::LoadMidi;
-    x90c_loaderFuncs[int(EScriptObjectType::StreamedAudio)] = ScriptLoader::LoadStreamedMusic;
+    x90c_loaderFuncs[int(EScriptObjectType::StreamedAudio)] = ScriptLoader::LoadStreamedAudio;
     x90c_loaderFuncs[int(EScriptObjectType::WorldTeleporterToo)] = ScriptLoader::LoadWorldTeleporter;
     x90c_loaderFuncs[int(EScriptObjectType::Repulsor)] = ScriptLoader::LoadRepulsor;
     x90c_loaderFuncs[int(EScriptObjectType::GunTurret)] = ScriptLoader::LoadGunTurret;
@@ -203,7 +203,8 @@ void CStateManager::UpdateThermalVisor()
         for (const CGameArea::Dock& dock : area->GetDocks())
         {
             zeus::CVector3f dockCenter = (dock.GetPlaneVertices()[0] + dock.GetPlaneVertices()[1] +
-                                          dock.GetPlaneVertices()[2] + dock.GetPlaneVertices()[3]) * 0.25f;
+                                          dock.GetPlaneVertices()[2] + dock.GetPlaneVertices()[3]) *
+                                         0.25f;
             dockCenter.z = 0.f;
             float dist = (playerXYPos - dockCenter).magSquared();
             if (dist < closestDist)
@@ -237,9 +238,8 @@ void CStateManager::UpdateThermalVisor()
                 else
                     closestDist = 0.5f;
 
-                xf24_thermColdScale1 =
-                    (1.f - closestDist) * lastArea->GetPostConstructed()->x111c_thermalCurrent +
-                                closestDist * area->GetPostConstructed()->x111c_thermalCurrent;
+                xf24_thermColdScale1 = (1.f - closestDist) * lastArea->GetPostConstructed()->x111c_thermalCurrent +
+                                       closestDist * area->GetPostConstructed()->x111c_thermalCurrent;
                 return;
             }
         }
@@ -248,12 +248,10 @@ void CStateManager::UpdateThermalVisor()
     }
 }
 
-bool CStateManager::RenderLast(TUniqueId)
-{
-    return false;
-}
+bool CStateManager::RenderLast(TUniqueId) { return false; }
 
-void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane, const zeus::CAABox& aabb) const
+void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane,
+                                          const zeus::CAABox& aabb) const
 {
 #if 0
     actor.SetAddedToken(x8dc_ + 1);
@@ -261,8 +259,7 @@ void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlan
     g_Renderer->AddPlaneObject(static_cast<const void*>(&actor), aabb, plane, 0);
 }
 
-void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec,
-                                     const zeus::CAABox& aabb) const
+void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const
 {
 #if 0
     actor.SetAddedToken(x8dc_ + 1);
@@ -271,59 +268,40 @@ void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f&
                             IRenderer::EDrawableSorting::SortedCallback);
 }
 
-void CStateManager::SpecialSkipCinematic()
+void CStateManager::SpecialSkipCinematic() {}
+
+void CStateManager::GetVisAreaId() const {}
+
+void CStateManager::GetWeaponIdCount(TUniqueId, EWeaponType) {}
+
+void CStateManager::RemoveWeaponId(TUniqueId, EWeaponType) {}
+
+void CStateManager::AddWeaponId(TUniqueId, EWeaponType) {}
+
+void CStateManager::UpdateEscapeSequenceTimer(float) {}
+
+float CStateManager::GetEscapeSequenceTimer() const { return 0.f; }
+
+void CStateManager::ResetEscapeSequenceTimer(float) {}
+
+void CStateManager::SetupParticleHook(const CActor& actor) const {}
+
+void CStateManager::MurderScriptInstanceNames() {}
+
+std::string CStateManager::HashInstanceName(CInputStream& in)
 {
+#ifdef NDEBUG
+    static std::string name;
+    while (in.readByte() != 0) {};
+    return name;
+#else
+    return in.readString();
+#endif
 }
 
-void CStateManager::GetVisAreaId() const
-{
-}
+void CStateManager::SetActorAreaId(CActor& actor, TAreaId) {}
 
-void CStateManager::GetWeaponIdCount(TUniqueId, EWeaponType)
-{
-}
-
-void CStateManager::RemoveWeaponId(TUniqueId, EWeaponType)
-{
-}
-
-void CStateManager::AddWeaponId(TUniqueId, EWeaponType)
-{
-}
-
-void CStateManager::UpdateEscapeSequenceTimer(float)
-{
-}
-
-float CStateManager::GetEscapeSequenceTimer() const
-{
-    return 0.f;
-}
-
-void CStateManager::ResetEscapeSequenceTimer(float)
-{
-}
-
-void CStateManager::SetupParticleHook(const CActor& actor) const
-{
-}
-
-void CStateManager::MurderScriptInstanceNames()
-{
-}
-
-const std::string* CStateManager::HashInstanceName(CInputStream& in)
-{
-    return nullptr;
-}
-
-void CStateManager::SetActorAreaId(CActor& actor, TAreaId)
-{
-}
-
-void CStateManager::TouchSky() const
-{
-}
+void CStateManager::TouchSky() const {}
 
 void CStateManager::TouchPlayerActor()
 {
@@ -347,63 +325,33 @@ void CStateManager::DrawSpaceWarp(const zeus::CVector3f& v, float strength) cons
     }
 }
 
-void CStateManager::DrawReflection(const zeus::CVector3f&)
-{
-}
+void CStateManager::DrawReflection(const zeus::CVector3f&) {}
 
-void CStateManager::CacheReflection()
-{
-}
+void CStateManager::CacheReflection() {}
 
-bool CStateManager::CanCreateProjectile(TUniqueId, EWeaponType, int) const
-{
-    return false;
-}
+bool CStateManager::CanCreateProjectile(TUniqueId, EWeaponType, int) const { return false; }
 
-const CGameLightList* CStateManager::GetDynamicLightList() const
-{
-    return nullptr;
-}
+const CGameLightList* CStateManager::GetDynamicLightList() const { return nullptr; }
 
-void CStateManager::BuildDynamicLightListForWorld(std::vector<CLight>& listOut) const
-{
-}
+void CStateManager::BuildDynamicLightListForWorld(std::vector<CLight>& listOut) const {}
 
-void CStateManager::DrawDebugStuff() const
-{
-}
+void CStateManager::DrawDebugStuff() const {}
 
-void CStateManager::RenderCamerasAndAreaLights() const
-{
-}
+void CStateManager::RenderCamerasAndAreaLights() const {}
 
-void CStateManager::DrawE3DeathEffect() const
-{
-}
+void CStateManager::DrawE3DeathEffect() const {}
 
-void CStateManager::DrawAdditionalFilters() const
-{
-}
+void CStateManager::DrawAdditionalFilters() const {}
 
-void CStateManager::DrawWorld() const
-{
-}
+void CStateManager::DrawWorld() const {}
 
-void CStateManager::SetupFogForArea(const CGameArea& area) const
-{
-}
+void CStateManager::SetupFogForArea(const CGameArea& area) const {}
 
-void CStateManager::PreRender()
-{
-}
+void CStateManager::PreRender() {}
 
-void CStateManager::GetVisSetForArea(TAreaId, TAreaId) const
-{
-}
+void CStateManager::GetVisSetForArea(TAreaId, TAreaId) const {}
 
-void CStateManager::RecursiveDrawTree(TUniqueId) const
-{
-}
+void CStateManager::RecursiveDrawTree(TUniqueId) const {}
 
 void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg)
 {
@@ -426,16 +374,13 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
         dst->AcceptScriptMsg(msg, src, *this);
 }
 
-void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest,
-                                  EScriptObjectMessage msg, EScriptObjectState state)
+void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMessage msg, EScriptObjectState state)
 {
     CEntity* ent = ObjectById(src);
     auto search = GetIdListForScript(dest);
-    if (ent &&
-        search.first != x890_scriptIdMap.cend() &&
-        search.second != x890_scriptIdMap.cend())
+    if (ent && search.first != x890_scriptIdMap.cend() && search.second != x890_scriptIdMap.cend())
     {
-        for (auto it = search.first ; it != search.second ; ++it)
+        for (auto it = search.first; it != search.second; ++it)
         {
             TUniqueId id = it->second;
             CEntity* dobj = x80c_allObjs->GetObjectById(id);
@@ -444,39 +389,23 @@ void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest,
     }
 }
 
-void CStateManager::FreeScriptObjects(TAreaId)
-{
-}
+void CStateManager::FreeScriptObjects(TAreaId) {}
 
-void CStateManager::GetBuildForScript(TEditorId) const
-{
-}
+void CStateManager::GetBuildForScript(TEditorId) const {}
 
-TEditorId CStateManager::GetEditorIdForUniqueId(TUniqueId) const
-{
-    return 0;
-}
+TEditorId CStateManager::GetEditorIdForUniqueId(TUniqueId) const { return 0; }
 
-TUniqueId CStateManager::GetIdForScript(TEditorId) const
-{
-    return 0;
-}
+TUniqueId CStateManager::GetIdForScript(TEditorId) const { return kInvalidUniqueId; }
 
-std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator,
-          std::multimap<TEditorId, TUniqueId>::const_iterator>
+std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator, std::multimap<TEditorId, TUniqueId>::const_iterator>
 CStateManager::GetIdListForScript(TEditorId id) const
 {
     return x890_scriptIdMap.equal_range(id);
 }
 
-void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut)
-{
-}
+void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut) {}
 
-void CStateManager::LoadScriptObject(TAreaId, EScriptObjectType, u32,
-                                     CInputStream& in)
-{
-}
+void CStateManager::LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in) {}
 
 void CStateManager::InitScriptObjects(std::vector<TEditorId>& ids)
 {
@@ -490,29 +419,26 @@ void CStateManager::InitScriptObjects(std::vector<TEditorId>& ids)
     MurderScriptInstanceNames();
 }
 
-void CStateManager::InformListeners(const zeus::CVector3f&, EListenNoiseType)
-{
-}
+void CStateManager::InformListeners(const zeus::CVector3f&, EListenNoiseType) {}
 
-bool CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info,
-                                   const CDamageVulnerability&, const zeus::CVector3f&, float)
+bool CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability&,
+                                   const zeus::CVector3f&, float)
 {
     return false;
 }
 
-bool CStateManager::ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
-                                       const CDamageInfo& info, const CMaterialFilter&)
+bool CStateManager::ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&, const CDamageInfo& info,
+                                       const CMaterialFilter&)
 {
     return false;
 }
 
-void CStateManager::ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVector3f&,
-                                        const CDamageInfo& info, const CMaterialFilter&)
+void CStateManager::ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVector3f&, const CDamageInfo& info,
+                                        const CMaterialFilter&)
 {
 }
 
-bool CStateManager::ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
-                                      const CDamageInfo& info)
+bool CStateManager::ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&, const CDamageInfo& info)
 {
     return false;
 }
@@ -541,45 +467,29 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
     {
         if (x870_cameraManager->IsInCinematicCamera())
         {
-
         }
     }
     return false;
 }
 
-bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
-                                const CMaterialFilter&)
+bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info, const CMaterialFilter&)
 {
     return false;
 }
 
-void CStateManager::UpdateAreaSounds()
-{
-}
+void CStateManager::UpdateAreaSounds() {}
 
-void CStateManager::FrameEnd()
-{
-}
+void CStateManager::FrameEnd() {}
 
-void CStateManager::ProcessPlayerInput()
-{
-}
+void CStateManager::ProcessPlayerInput() {}
 
-void CStateManager::ProcessInput(const CFinalInput& input)
-{
-}
+void CStateManager::ProcessInput(const CFinalInput& input) {}
 
-void CStateManager::Update(float dt)
-{
-}
+void CStateManager::Update(float dt) {}
 
-void CStateManager::UpdateGameState()
-{
-}
+void CStateManager::UpdateGameState() {}
 
-void CStateManager::FrameBegin()
-{
-}
+void CStateManager::FrameBegin() {}
 
 void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
 {
@@ -636,7 +546,7 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
                 break;
 
             g_GameState->x228_25_deferPowerupInit = false;
-            for (int i=0 ; i<int(CPlayerState::EItemType::Max) ; ++i)
+            for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i)
             {
                 CPlayerState::EItemType iType = CPlayerState::EItemType(i);
 
@@ -673,10 +583,9 @@ void CStateManager::CreateStandardGameObjects()
     float unk3 = g_tweakPlayer->GetX27C();
     zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
     auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
-    x84c_player.reset(new CPlayer(AllocateUniqueId(), zeus::CTransform(q), pBounds, 0,
-                                  zeus::CVector3f{1.65f, 1.65f, 1.65f},
-                                  200.f, unk1, unk2, unk3, CMaterialList(EMaterialTypes::Player,
-                                  EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
+    x84c_player.reset(new CPlayer(
+        AllocateUniqueId(), zeus::CTransform(q), pBounds, 0, zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, unk1, unk2,
+        unk3, CMaterialList(EMaterialTypes::Player, EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
     AddObject(*x84c_player);
 }
 
@@ -692,18 +601,11 @@ const CObjectList* CStateManager::GetObjectListById(EGameObjectList type) const
     return lists[int(type)].get();
 }
 
-void CStateManager::RemoveObject(TUniqueId)
-{
-}
+void CStateManager::RemoveObject(TUniqueId) {}
 
-void CStateManager::RemoveActor(TUniqueId)
-{
+void CStateManager::RemoveActor(TUniqueId) {}
 
-}
-
-void CStateManager::UpdateRoomAcoustics(TAreaId)
-{
-}
+void CStateManager::UpdateRoomAcoustics(TAreaId) {}
 
 void CStateManager::SetCurrentAreaId(TAreaId aid)
 {
@@ -722,9 +624,7 @@ void CStateManager::SetCurrentAreaId(TAreaId aid)
     x850_world->GetMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
 }
 
-void CStateManager::ClearGraveyard()
-{
-}
+void CStateManager::ClearGraveyard() {}
 
 void CStateManager::DeleteObjectRequest(TUniqueId id)
 {
@@ -749,63 +649,39 @@ void CStateManager::DeleteObjectRequest(TUniqueId id)
     }
 }
 
-CEntity* CStateManager::ObjectById(TUniqueId uid)
-{
-    return x80c_allObjs->GetObjectById(uid);
-}
-const CEntity* CStateManager::GetObjectById(TUniqueId uid) const
-{
-    return x80c_allObjs->GetObjectById(uid);
-}
+CEntity* CStateManager::ObjectById(TUniqueId uid) { return x80c_allObjs->GetObjectById(uid); }
+const CEntity* CStateManager::GetObjectById(TUniqueId uid) const { return x80c_allObjs->GetObjectById(uid); }
 
-void CStateManager::AreaUnloaded(TAreaId)
-{
-}
+void CStateManager::AreaUnloaded(TAreaId) {}
 
-void CStateManager::PrepareAreaUnload(TAreaId)
+void CStateManager::PrepareAreaUnload(TAreaId) {}
+
+void CStateManager::AreaLoaded(TAreaId) {}
+
+void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOut, const zeus::CVector3f&,
+                                  const zeus::CVector3f&, float, const CMaterialFilter&, const CActor*) const
 {
 }
 
-void CStateManager::AreaLoaded(TAreaId)
+void CStateManager::BuildColliderList(rstl::reserved_vector<TUniqueId, 1024>& listOut, const CActor&,
+                                      const zeus::CAABox&) const
 {
 }
 
-void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOut,
-                                  const zeus::CVector3f&, const zeus::CVector3f&, float,
+void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOut, const zeus::CAABox&,
                                   const CMaterialFilter&, const CActor*) const
 {
 }
 
-void CStateManager::BuildColliderList(rstl::reserved_vector<TUniqueId, 1024>& listOut,
-                                      const CActor&, const zeus::CAABox&) const
-{
-}
+void CStateManager::UpdateActorInSortedLists(CActor&) {}
 
-void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOut,
-                                  const zeus::CAABox&, const CMaterialFilter&, const CActor*) const
-{
-}
+void CStateManager::UpdateSortedLists() {}
 
-void CStateManager::UpdateActorInSortedLists(CActor&)
-{
-}
+zeus::CAABox CStateManager::CalculateObjectBounds(const CActor&) { return {}; }
 
-void CStateManager::UpdateSortedLists()
-{
-}
+void CStateManager::AddObject(CEntity&) {}
 
-zeus::CAABox CStateManager::CalculateObjectBounds(const CActor&)
-{
-    return {};
-}
-
-void CStateManager::AddObject(CEntity&)
-{
-}
-
-void CStateManager::AddObject(CEntity*)
-{
-}
+void CStateManager::AddObject(CEntity*) {}
 
 bool CStateManager::RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
                                           const CMaterialFilter&) const
@@ -813,20 +689,33 @@ bool CStateManager::RayStaticIntersection(const zeus::CVector3f&, const zeus::CV
     return false;
 }
 
-bool CStateManager::RayWorldIntersection(TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&,
-                                         float, const CMaterialFilter&,
+bool CStateManager::RayWorldIntersection(TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&, float,
+                                         const CMaterialFilter&,
                                          const rstl::reserved_vector<TUniqueId, 1024>& list) const
 {
     return false;
 }
 
-void CStateManager::UpdateObjectInLists(CEntity&)
-{
-}
+void CStateManager::UpdateObjectInLists(CEntity&) {}
 
 TUniqueId CStateManager::AllocateUniqueId()
 {
-    return 0;
+    const s16 lastIndex = x0_nextFreeIndex;
+    s16 ourIndex = 0;
+    do
+    {
+        ourIndex = x0_nextFreeIndex;
+        x0_nextFreeIndex = (x0_nextFreeIndex + 1) & 0x3ff;
+        if (ourIndex == lastIndex)
+            LogModule.report(logvisor::Fatal, "Object List Full!");
+    }
+    while (x80c_allObjs->GetObjectByIndex(ourIndex) != nullptr);
+
+    x8_idArr[ourIndex]++;
+    if (((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF) == kInvalidUniqueId)
+        x8_idArr[0] = 0;
+
+    return ((ourIndex | ((x8_idArr[ourIndex]) << 10))  & 0xFFFF);
 }
 
 std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
@@ -837,8 +726,7 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
     for (const std::pair<u32, float>& scan : x8b8_playerState->GetScanTimes())
     {
         CSaveWorld::EScanCategory category = g_MemoryCardSys->GetScanStates()[idx++].second;
-        if (category != CSaveWorld::EScanCategory::None &&
-            category != CSaveWorld::EScanCategory::Research)
+        if (category != CSaveWorld::EScanCategory::None && category != CSaveWorld::EScanCategory::Research)
         {
             ++denom;
             if (scan.second == 1.f)
@@ -848,4 +736,9 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
     return {num, denom};
 }
 
+bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info, const CMaterialFilter&,
+                                const zeus::CVector3f&)
+{
+    return false;
+}
 }

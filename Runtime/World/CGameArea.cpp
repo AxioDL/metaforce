@@ -799,9 +799,7 @@ void CGameArea::PostConstructArea()
         ++secIt;
     }
 
-    x12c_postConstructed->x10c0_areaObjs.reset(new CObjectList(EGameObjectList::Invalid));
-    x12c_postConstructed->x10c0_areaObjs->m_areaIdx = x4_selfIdx;
-
+    x12c_postConstructed->x10c0_areaObjs.reset(new CAreaObjectList(x4_selfIdx));
     x12c_postConstructed->x10c4_areaFog.reset(new CAreaFog());
 
     xf0_24_postConstructed = true;
@@ -918,6 +916,11 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes)
 
     x12c_postConstructed->x111c_thermalCurrent = areaAttributes->GetThermalHeat();
     x12c_postConstructed->x1128_worldLightingLevel = areaAttributes->GetWorldLightingLevel();
+}
+
+bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent)
+{
+    return (ent.GetAreaId() == x200c_areaIdx);
 }
 
 }

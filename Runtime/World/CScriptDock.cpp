@@ -74,7 +74,7 @@ void CScriptDock::Think(float dt, CStateManager& mgr)
                 CObjectList& objs = mgr.WorldNC()->GetArea(aid)->GetAreaObjects();
                 for (CEntity* ent : objs)
                 {
-                    CScriptDock* dock = static_cast<CScriptDock*>(ent);
+                    TCastToPtr<CScriptDock> dock(ent);
                     if (dock && dock->GetDockId() == otherDock)
                         dock->SetLoadConnected(mgr, true);
                 }
@@ -129,7 +129,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         CPlatformAndDoorList& lst = mgr.GetPlatformAndDoorObjectList();
         for (CEntity* ent : lst)
         {
-            CScriptDoor* door = static_cast<CScriptDoor*>(ent);
+            TCastToPtr<CScriptDoor> door(ent);
             if (door && !door->IsConnectedToArea(mgr, aid))
                 door->ForceClosed(mgr);
         }
@@ -176,7 +176,7 @@ void CScriptDock::Touch(CActor& act, CStateManager&)
     if (x264_dockState == EDockState::Three)
         return;
 
-    if (static_cast<CPlayer*>(&act) != nullptr)
+    if (TCastToPtr<CPlayer>(act))
         x264_dockState = EDockState::PlayerTouched;
 }
 

@@ -29,7 +29,7 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
             for (auto it = search.first ; it != search.second ; ++it)
             {
                 TUniqueId id = it->second;
-                CScriptDock* dock = TCastToPtr<CScriptDock>(stateMgr.ObjectById(id));
+                TCastToPtr<CScriptDock> dock(stateMgr.ObjectById(id));
                 if (dock)
                     dock->SetDockReference(stateMgr, x34_dockReference);
             }

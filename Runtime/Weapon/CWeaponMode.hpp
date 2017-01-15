@@ -20,7 +20,7 @@ class CWeaponMode
     };
 public:
     CWeaponMode() = default;
-    CWeaponMode(EWeaponType, bool = false, bool = false);
+    CWeaponMode(EWeaponType, bool = false, bool = false, bool instaKill = false);
     EWeaponType GetType() const;
 
 

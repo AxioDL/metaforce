@@ -126,7 +126,7 @@ static zeus::CTransform LoadEditorTransformPivotOnly(CInputStream& in)
 static SActorHead LoadActorHead(CInputStream& in, CStateManager& stateMgr)
 {
     SActorHead ret;
-    ret.x0_name = *stateMgr.HashInstanceName(in);
+    ret.x0_name = stateMgr.HashInstanceName(in);
     ret.x10_transform = LoadEditorTransform(in);
     return ret;
 }
@@ -502,7 +502,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
     if (!EnsurePropertyCount(propCount, 9, "Trigger"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
 
     zeus::CVector3f position;
     position.readBig(in);
@@ -525,7 +525,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
     const zeus::CTransform& areaXf = mgr.WorldNC()->GetGameAreas()[info.GetAreaId()]->GetTransform();
     zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
-    return new CScriptTrigger(mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, flags, active,
+    return new CScriptTrigger(mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, flags, active,
                               b2, b3);
 }
 
@@ -534,7 +534,7 @@ CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in, int propC
     if (!EnsurePropertyCount(propCount, 6, "Timer"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
 
     float f1 = in.readFloatBig();
     float f2 = in.readFloatBig();
@@ -542,7 +542,7 @@ CEntity* ScriptLoader::LoadTimer(CStateManager& mgr, CInputStream& in, int propC
     bool b2 = in.readBool();
     bool b3 = in.readBool();
 
-    return new CScriptTimer(mgr.AllocateUniqueId(), *name, info, f1, f2, b1, b2, b3);
+    return new CScriptTimer(mgr.AllocateUniqueId(), name, info, f1, f2, b1, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -550,14 +550,14 @@ CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in, int pro
     if (!EnsurePropertyCount(propCount, 5, "Counter"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
 
     u32 w1 = in.readUint32Big();
     u32 w2 = in.readUint32Big();
     bool b1 = in.readBool();
     bool b2 = in.readBool();
 
-    return new CScriptCounter(mgr.AllocateUniqueId(), *name, info, w1, w2, b1, b2);
+    return new CScriptCounter(mgr.AllocateUniqueId(), name, info, w1, w2, b1, b2);
 }
 
 CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -696,7 +696,7 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int p
     if (!EnsurePropertyCount(propCount, 8, "Generator"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
 
     u32 w1 = in.readUint32Big();
     bool b1 = in.readBool();
@@ -709,7 +709,7 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int p
     float f1 = in.readFloatBig();
     float f2 = in.readFloatBig();
 
-    return new CScriptGenerator(mgr.AllocateUniqueId(), *name, info, w1, b1, v1, b2, b3, f1, f2);
+    return new CScriptGenerator(mgr.AllocateUniqueId(), name, info, w1, b1, v1, b2, b3, f1, f2);
 }
 
 CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -717,7 +717,7 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in, int propCo
     if (!EnsurePropertyCount(propCount, 7, "Dock"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
     zeus::CVector3f position;
     position.readBig(in);
@@ -726,7 +726,7 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in, int propCo
     u32 dock = in.readUint32Big();
     TAreaId area = in.readUint32Big();
     bool b1 = in.readBool();
-    return new CScriptDock(mgr.AllocateUniqueId(), *name, info, position, scale, dock, area, active, 0, b1);
+    return new CScriptDock(mgr.AllocateUniqueId(), name, info, position, scale, dock, area, active, 0, b1);
 }
 
 CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -815,7 +815,7 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
     if (!EnsurePropertyCount(propCount, 35, "SpawnPoint"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
 
     zeus::CVector3f position;
     position.readBig(in);
@@ -834,7 +834,7 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
     if (propCount > 34)
         morphed = in.readBool();
 
-    return new CScriptSpawnPoint(mgr.AllocateUniqueId(), *name, info,
+    return new CScriptSpawnPoint(mgr.AllocateUniqueId(), name, info,
                                  ConvertEditorEulerToTransform4f(rotation, position), itemCounts, defaultSpawn, active, morphed);
 }
 
@@ -929,27 +929,27 @@ CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in, int
     if (!EnsurePropertyCount(propCount, 3, "MemoryRelay") || propCount > 4)
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     bool b1 = in.readBool();
     bool b2 = in.readBool();
     bool b3 = false;
     if (propCount > 3)
         b3 = in.readBool();
 
-    return new CScriptMemoryRelay(mgr.AllocateUniqueId(), *name, info, b1, b2, b3);
+    return new CScriptMemoryRelay(mgr.AllocateUniqueId(), name, info, b1, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadRandomRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 5, "RandomRelay"))
         return nullptr;
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     u32 w1 = in.readUint32Big();
     u32 w2 = in.readUint32Big();
     bool b1 = in.readBool();
     bool b2 = in.readBool();
 
-    return new CScriptRandomRelay(mgr.AllocateUniqueId(), *name, info, w1, w2, b1, b2);
+    return new CScriptRandomRelay(mgr.AllocateUniqueId(), name, info, w1, w2, b1, b2);
 }
 
 CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -957,19 +957,19 @@ CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in, int propC
     if (!EnsurePropertyCount(propCount, 2, "Relay") || propCount > 3)
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     if (propCount >= 3)
         in.readUint32Big();
     bool b1 = in.readBool();
 
-    return new CScriptRelay(mgr.AllocateUniqueId(), *name, info, b1);
+    return new CScriptRelay(mgr.AllocateUniqueId(), name, info, b1);
 }
 
 CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 16, "Beetle"))
         return nullptr;
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
     zeus::CTransform xfrm = LoadEditorTransform(in);
     zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
@@ -1000,7 +1000,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
     const CAnimationParameters& animParams = pInfo.GetAnimationParameters();
     CAnimRes animRes(animParams.GetACSFile(), animParams.GetCharacter(), scale, animParams.GetInitialAnimation(), true);
 
-    return new MP1::CBeetle(mgr.AllocateUniqueId(), *name, info, xfrm, animRes, pInfo, flavor, entrance, dInfo, dVuln2,
+    return new MP1::CBeetle(mgr.AllocateUniqueId(), name, info, xfrm, animRes, pInfo, flavor, entrance, dInfo, dVuln2,
                             v1, f2, f3, f1, dVuln1, aParams, abdomenRes);
 }
 
@@ -1008,7 +1008,7 @@ CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int pro
 {
     if (propCount != 5 && !EnsurePropertyCount(propCount, 6, "HUDMemo"))
         return 0;
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     CHUDMemoParms hParms(in);
     CScriptHUDMemo::EDisplayType displayType = CScriptHUDMemo::EDisplayType::MessageBox;
     if (propCount == 6)
@@ -1016,7 +1016,7 @@ CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int pro
     ResId message = in.readUint32Big();
     bool active = in.readBool();
 
-    return new CScriptHUDMemo(mgr.AllocateUniqueId(), *name, info, hParms, displayType, message, active);
+    return new CScriptHUDMemo(mgr.AllocateUniqueId(), name, info, hParms, displayType, message, active);
 }
 
 CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1024,7 +1024,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
 {
     if (!EnsurePropertyCount(propCount, 10, "CameraFilterKeyframe"))
         return nullptr;
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
     u32 w1 = in.readUint32Big();
     u32 w2 = in.readUint32Big();
@@ -1036,7 +1036,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
     float f2 = in.readFloatBig();
     u32 w5 = in.readUint32Big();
 
-    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), *name, info, w1, w2, w3, w4, color, f1, f2, w5,
+    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, w1, w2, w3, w4, color, f1, f2, w5,
                                            active);
 }
 
@@ -1046,7 +1046,7 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
     if (!EnsurePropertyCount(propCount, 7, "CameraBlurKeyframe"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
     u32 w1 = in.readUint32Big();
     float f1 = in.readFloatBig();
@@ -1054,7 +1054,7 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
     float f2 = in.readFloatBig();
     float f3 = in.readFloatBig();
 
-    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), *name, info, w1, f1, w2, f2, f3, active);
+    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), name, info, w1, f1, w2, f2, f3, active);
 }
 
 u32 ClassifyVector(const zeus::CVector3f& dir)
@@ -1101,7 +1101,7 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
     if (!EnsurePropertyCount(propCount, 12, "DamageableTrigger"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f position(zeus::CVector3f::ReadBig(in));
     zeus::CVector3f volume(zeus::CVector3f::ReadBig(in));
 
@@ -1115,7 +1115,7 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
     CScriptDamageableTrigger::ECanOrbit canOrbit = CScriptDamageableTrigger::ECanOrbit(in.readBool());
     bool active = in.readBool();
     CVisorParameters vParms = LoadVisorParameters(in);
-    return new CScriptDamageableTrigger(mgr.AllocateUniqueId(), *name, info, position, volume, hInfo, dVuln,
+    return new CScriptDamageableTrigger(mgr.AllocateUniqueId(), name, info, position, volume, hInfo, dVuln,
                                         triggerFlags, w1, w2, w3, canOrbit, active, vParms);
 }
 
@@ -1158,7 +1158,7 @@ CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, i
     if (!EnsurePropertyCount(propCount, 7, "ActorKeyframe"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     s32 w1 = in.readInt32Big();
     bool b1 = in.readBool();
     float f1 = in.readFloatBig();
@@ -1169,7 +1169,7 @@ CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, i
     if (w1 == -1)
         return nullptr;
 
-    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), *name, info, w1, b1, f1, false, w2, active, f2);
+    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), name, info, w1, b1, f1, false, w2, active, f2);
 }
 
 CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1177,7 +1177,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     if (!EnsurePropertyCount(propCount, 63, "Water"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f position;
     position.readBig(in);
     zeus::CVector3f extent;
@@ -1188,7 +1188,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     ETriggerFlags triggerFlags = ETriggerFlags(in.readUint32Big()) | ETriggerFlags::DetectProjectiles1 |
                                  ETriggerFlags::DetectProjectiles2 | ETriggerFlags::DetectProjectiles3 |
                                  ETriggerFlags::DetectProjectiles4 | ETriggerFlags::DetectBombs |
-                                 ETriggerFlags::Unknown1 | ETriggerFlags::DetectProjectiles5 |
+                                 ETriggerFlags::DetectPowerBombs | ETriggerFlags::DetectProjectiles5 |
                                  ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
     bool b1 = in.readBool();
     bool displaySurface = in.readBool();
@@ -1280,7 +1280,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
         realTextureId5 = textureId5;
 
     return new CScriptWater(
-        mgr, mgr.AllocateUniqueId(), *name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
+        mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
         textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2, f3, active,
         fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle, partId2, partId3,
         partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5, f13, w19, f14, f15, f16, f17, f18, f19,
@@ -1292,7 +1292,7 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
     if (!EnsurePropertyCount(propCount, 13, "WarWasp"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
     zeus::CTransform xf = LoadEditorTransformPivotOnly(in);
     zeus::CVector3f scale;
@@ -1318,7 +1318,7 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
 
     CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, true, aParms.GetInitialAnimation());
     CModelData mData(res);
-    return new MP1::CWarWasp(mgr.AllocateUniqueId(), *name, info, xf, std::move(mData), pInfo, flavor, collider,
+    return new MP1::CWarWasp(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, flavor, collider,
                              damageInfo1, actorParms, weaponDesc, damageInfo2, particle, w1);
 }
 
@@ -1416,11 +1416,11 @@ CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in, in
     if (!EnsurePropertyCount(propCount, 5, "GrapplePoint"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CTransform grappleXf = LoadEditorTransform(in);
     bool active = in.readBool();
     CGrappleParameters parameters = LoadGrappleParameters(in);
-    return new CScriptGrapplePoint(mgr.AllocateUniqueId(), *name, info, grappleXf, active, parameters);
+    return new CScriptGrapplePoint(mgr.AllocateUniqueId(), name, info, grappleXf, active, parameters);
 }
 
 CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1450,7 +1450,7 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int
     if (!EnsurePropertyCount(propCount, 8, "DistanceFog"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     u32 mode = in.readUint32Big();
     zeus::CColor color;
     color.readRGBABig(in);
@@ -1476,7 +1476,7 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int
     else if (mode == 5)
         realMode = ERglFogMode::PerspRevExp2;
 
-    return new CScriptDistanceFog(mgr.AllocateUniqueId(), *name, info, realMode, color, range, colorDelta, rangeDelta,
+    return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, realMode, color, range, colorDelta, rangeDelta,
                                   expl, active, 0.f, 0.f, 0.f, 0.f);
 }
 
@@ -1495,11 +1495,11 @@ CEntity* ScriptLoader::LoadDockAreaChange(CStateManager& mgr, CInputStream& in, 
     if (!EnsurePropertyCount(propCount, 3, "DockAreaChange"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     s32 w1 = in.readInt32Big();
     bool active = in.readBool();
 
-    return new CScriptDockAreaChange(mgr.AllocateUniqueId(), *name, info, w1, active);
+    return new CScriptDockAreaChange(mgr.AllocateUniqueId(), name, info, w1, active);
 }
 
 CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1507,14 +1507,14 @@ CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in, int
     if (!EnsurePropertyCount(propCount, 6, "ActorRotate"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f rotation = zeus::CVector3f::ReadBig(in);
     float scale = in.readFloatBig();
     bool b1 = in.readBool();
     bool b2 = in.readBool();
     bool active = in.readBool();
 
-    return new CScriptActorRotate(mgr.AllocateUniqueId(), *name, info, rotation, scale, b1, b2, active);
+    return new CScriptActorRotate(mgr.AllocateUniqueId(), name, info, rotation, scale, b1, b2, active);
 }
 
 CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1571,11 +1571,11 @@ CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in,
     if (!EnsurePropertyCount(propCount, 4, "PickupGenerator"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
     bool active = in.readBool();
     float f1 = in.readFloatBig();
-    return new CScriptPickupGenerator(mgr.AllocateUniqueId(), *name, info, pos, f1, active);
+    return new CScriptPickupGenerator(mgr.AllocateUniqueId(), name, info, pos, f1, active);
 }
 
 CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1716,12 +1716,12 @@ CEntity* ScriptLoader::LoadSwitch(CStateManager& mgr, CInputStream& in, int prop
     if (!EnsurePropertyCount(propCount, 4, "Switch"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
     bool b2 = in.readBool();
     bool b3 = in.readBool();
 
-    return new CScriptSwitch(mgr.AllocateUniqueId(), *name, info, active, b2, b3);
+    return new CScriptSwitch(mgr.AllocateUniqueId(), name, info, active, b2, b3);
 }
 
 CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1769,7 +1769,7 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, i
     if (!EnsurePropertyCount(propCount, 12, "ColorModulate"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CColor c1;
     c1.readRGBABig(in);
     zeus::CColor c2;
@@ -1783,7 +1783,7 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, i
     bool b4 = in.readBool();
     bool b5 = in.readBool();
     bool active = in.readBool();
-    return new CScriptColorModulate(mgr.AllocateUniqueId(), *name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5,
+    return new CScriptColorModulate(mgr.AllocateUniqueId(), name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5,
                                     active);
 }
 
@@ -1798,12 +1798,12 @@ CEntity* ScriptLoader::LoadMidi(CStateManager& mgr, CInputStream& in, int propCo
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadStreamedMusic(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
     if (!EnsurePropertyCount(propCount, 9, "StreamedAudio"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    const std::string name = mgr.HashInstanceName(in);
     bool b1 = in.readBool();
     std::string fileName = in.readString();
     bool b2 = in.readBool();
@@ -1813,7 +1813,7 @@ CEntity* ScriptLoader::LoadStreamedMusic(CStateManager& mgr, CInputStream& in, i
     u32 w2 = in.readUint32Big();
     bool b3 = in.readBool();
 
-    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, *name, b1, fileName, b2, f1, f2, w1, !w2, b3);
+    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, name, b1, fileName, b2, f1, f2, w1, !w2, b3);
 }
 
 CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1821,12 +1821,12 @@ CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int pr
     if (!EnsurePropertyCount(propCount, 4, "Repulsor"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f center = in.readVec3fBig();
     bool active = in.readBool();
     float radius = in.readFloatBig();
 
-    return new CRepulsor(mgr.AllocateUniqueId(), active, *name, info, center, radius);
+    return new CRepulsor(mgr.AllocateUniqueId(), active, name, info, center, radius);
 }
 
 CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1854,7 +1854,7 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
     if (!EnsurePropertyCount(propCount, 5, "RadialDamage"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f center = zeus::CVector3f::ReadBig(in);
     bool active = in.readBool();
     CDamageInfo dInfo(in);
@@ -1862,7 +1862,7 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
     zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, center);
 
     return new CScriptSpecialFunction(
-        mgr.AllocateUniqueId(), *name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius,
+        mgr.AllocateUniqueId(), name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius,
         0.f, 0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, dInfo, -1, -1, -1, -1, -1, -1);
 }
 
@@ -2080,7 +2080,7 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
     if (!EnsurePropertyCount(propCount, 10, "ShadowProjector"))
         return nullptr;
 
-    const std::string* name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f position(zeus::CVector3f::ReadBig(in));
     bool b1 = in.readBool();
     float f1 = in.readFloatBig();
@@ -2090,7 +2090,7 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
     float f4 = in.readFloatBig();
     bool b2 = in.readBool();
     u32 w1 = in.readUint32Big();
-    return new CScriptShadowProjector(mgr.AllocateUniqueId(), *name, info, zeus::CTransform::Translate(position), b1,
+    return new CScriptShadowProjector(mgr.AllocateUniqueId(), name, info, zeus::CTransform::Translate(position), b1,
                                       vec2, b2, f1, f2, f3, f4, w1);
 }
 

@@ -1,4 +1,5 @@
 #include "Weapon/CGameProjectile.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -7,7 +8,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>&,
                                  const CDamageInfo& dInfo, TUniqueId owner, TAreaId aid, TUniqueId uid, TUniqueId,
                                  u32 w1, bool b2, const zeus::CVector3f&,
                                  const rstl::optional_object<TLockedToken<CGenDescription>>&, s16, bool b3)
-: CWeapon(owner, aid, uid, active, wType, name, xf,
+: CWeapon(owner, aid, active, uid, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(
               {EMaterialTypes::NonSolidDamageable, matType},
               {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType, EMaterialTypes::Solid}),
@@ -28,4 +29,10 @@ CWeapon::EProjectileAttrib CGameProjectile::GetBeamAttribType(EWeaponType wType)
 
     return EProjectileAttrib::None;
 }
+
+void CGameProjectile::Accept(urde::IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

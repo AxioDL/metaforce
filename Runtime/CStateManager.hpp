@@ -54,6 +54,7 @@ struct SScriptObjectStream
 
 class CStateManager
 {
+    s16 x0_nextFreeIndex = 0;
     TUniqueId x8_idArr[1024] = {};
 
     std::unique_ptr<CObjectList> x80c_allObjs;
@@ -162,6 +163,7 @@ class CStateManager
     TUniqueId xf6c_playerActor;
     void UpdateThermalVisor();
 
+    TUniqueId xf74_lastTrigger = kInvalidUniqueId;
 public:
     /* TODO: Figure out what these are
      * Public for CScriptRelay
@@ -189,7 +191,7 @@ public:
     void ResetEscapeSequenceTimer(float);
     void SetupParticleHook(const CActor& actor) const;
     void MurderScriptInstanceNames();
-    const std::string* HashInstanceName(CInputStream& in);
+    std::string HashInstanceName(CInputStream& in);
     void SetActorAreaId(CActor& actor, TAreaId);
     void TouchSky() const;
     void TouchPlayerActor();
@@ -236,6 +238,8 @@ public:
                           const CWeaponMode&);
     bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
                      const CMaterialFilter&);
+    bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
+                     const CMaterialFilter&, const zeus::CVector3f&);
     void UpdateAreaSounds();
     void FrameEnd();
     void ProcessPlayerInput();
@@ -306,6 +310,8 @@ public:
     CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
     CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
     std::pair<u32, u32> CalculateScanCompletionRate() const;
+    void SetLastTrigger(TUniqueId uid) { xf74_lastTrigger = uid; }
+    TUniqueId GetLastTrigger() const { return xf74_lastTrigger; }
 };
 }
 

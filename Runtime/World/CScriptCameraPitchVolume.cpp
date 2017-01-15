@@ -42,7 +42,7 @@ rstl::optional_object<zeus::CAABox> CScriptCameraPitchVolume::GetTouchBounds() c
 
 void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr)
 {
-    CPlayer* pl = TCastToPtr<CPlayer>(&act);
+    TCastToPtr<CPlayer> pl(act);
     if (!pl)
         return;
 

@@ -143,7 +143,7 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 CGameCamera* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
 {
     CObjectList* camList = stateMgr.ObjectListById(EGameObjectList::GameCamera);
-    return static_cast<CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
+    return TCastToPtr<CGameCamera>(camList->GetObjectById(GetCurrentCameraId())).GetPtr();
 }
 
 const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMgr) const
@@ -169,7 +169,7 @@ void CCameraManager::ThinkCameras(float dt, CStateManager& mgr)
 
     for (CEntity* ent : gcList)
     {
-        CGameCamera* gc = TCastToPtr<CGameCamera>(ent);
+        TCastToPtr<CGameCamera> gc(ent);
         if (gc)
         {
             gc->Think(dt, mgr);
@@ -221,7 +221,7 @@ void CCameraManager::ResetCameras(CStateManager& mgr)
 
     for (CEntity* ent : mgr.GetCameraObjectList())
     {
-        CGameCamera* camObj = static_cast<CGameCamera*>(ent);
+        TCastToPtr<CGameCamera> camObj(ent);
         camObj->Reset(xf, mgr);
     }
 }

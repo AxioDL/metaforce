@@ -35,7 +35,7 @@ class CIkChain
 public:
     CIkChain() = default;
 
-    bool GetActive() const;
+    bool GetActive() const { return x44_24_activated; }
     void Update(float);
     void Deactivate();
     void Activate(const CAnimData&, const CSegId&, const zeus::CTransform&);

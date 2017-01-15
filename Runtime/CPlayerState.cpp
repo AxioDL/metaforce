@@ -181,7 +181,7 @@ CHealthInfo& CPlayerState::HealthInfo()
     return xc_health;
 }
 
-CHealthInfo CPlayerState::GetHealthInfo() const
+const CHealthInfo& CPlayerState::GetHealthInfo() const
 {
     return xc_health;
 }

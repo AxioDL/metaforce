@@ -50,7 +50,18 @@ void CPlayerCameraBob::SetPlayerVelocity(const zeus::CVector3f& velocity)
     x68_ = zeus::min(x68_, velocity.z);
 }
 
-void CPlayerCameraBob::SetBobMagnitude(float magnitude) { x10_bobMagnitude = zeus::clamp(0.f, magnitude, 1.f); }
+void CPlayerCameraBob::SetBobMagnitude(float magnitude)
+{
+#if 0
+    /* Retro Original (This is why underpaid (re: unpaid) interns make crappy programmers) */
+    x10_bobMagnitude = magnitude;
+    x10_bobMagnitude = std::max(0.f, x10_bobMagnitude);
+    x10_bobMagnitude = std::max(1.f, x10_bobMagnitude);
+#else
+    /* Should fix lightshow */
+    x10_bobMagnitude = zeus::clamp(0.f, magnitude, 1.f);
+#endif
+}
 
 void CPlayerCameraBob::SetBobTimeScale(float ts) { x18_bobTimeScale = zeus::clamp(0.f, ts, 1.f); }
 

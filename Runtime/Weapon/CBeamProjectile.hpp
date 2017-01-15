@@ -10,6 +10,7 @@ public:
     CBeamProjectile(const TToken<CWeaponDescription>&, const std::string&, EWeaponType, const zeus::CTransform&, int,
                     float, float, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, u32, bool);
 
+    virtual void Accept(IVisitor &visitor);
     float GetMaxRadius() const;
     zeus::CVector3f GetSurfaceNormal() const;
     void GetDamageType() const;

@@ -50,7 +50,7 @@ public:
         Unmorphed,
         Morphed,
         Morphing,
-        UnMorphing
+        Unmorphing
     };
 
 private:
@@ -98,7 +98,7 @@ private:
     zeus::CAABox x2d8_;
     float x2f0_ = 0.f;
     u32 x2f4_cameraState = 0;
-    u32 x2f8_morphTransState = 0;
+    EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
     u32 x2fc_ = 0;
     float x300_ = 0.f;
     u32 x304_ = 0;
@@ -185,9 +185,12 @@ private:
     float x79c_;
     CVisorSteam x7a0_ = CVisorSteam(0.f, 0.f, 0.f, -1);
     float x9f4_;
+    TUniqueId xa00_;
     float xa04_;
     ResId xa08_steamTextureId;
     ResId xa0c_;
+    u32 xa10_;
+    float xa14_;
 
 public:
     CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, unsigned int, const zeus::CVector3f&, float, float,
@@ -248,7 +251,7 @@ public:
     void UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool);
     void DrawGun(CStateManager& mgr);
     void HolsterGun(CStateManager& mgr);
-    bool GetMorphballTransitionState() const;
+    CPlayer::EPlayerMorphBallState GetMorphballTransitionState() const;
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
     void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);
     bool ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr);
@@ -318,6 +321,9 @@ public:
 
     void Touch();
     const std::unique_ptr<CPlayerCameraBob>& GetCameraBob() const { return x76c_cameraBob; }
+
+    void DecrementPhazon();
+    void IncrementPhazon();
 };
 }
 
