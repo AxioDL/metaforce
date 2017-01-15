@@ -13,6 +13,8 @@ public:
     CPlasmaProjectile(const TToken<CWeaponDescription>&, const std::string&, EWeaponType, const CBeamInfo&,
                       const zeus::CTransform&, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, u32,
                       bool, u32);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

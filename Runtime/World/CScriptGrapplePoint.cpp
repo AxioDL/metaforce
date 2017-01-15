@@ -2,6 +2,7 @@
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -14,6 +15,11 @@ CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, const std::string &name,
            x34_transform.origin + 0.5f),
       x100_parameters(params)
 {
+}
+
+void CScriptGrapplePoint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

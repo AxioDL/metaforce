@@ -9,6 +9,8 @@ class CScriptCameraBlurKeyframe : public CEntity
 {
 public:
     CScriptCameraBlurKeyframe(TUniqueId, const std::string&, const CEntityInfo&, u32, float, u32, float, float, bool);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

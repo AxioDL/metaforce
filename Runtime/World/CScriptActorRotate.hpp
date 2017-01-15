@@ -27,6 +27,8 @@ class CScriptActorRotate : public CEntity
 public:
     CScriptActorRotate(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float, bool, bool,
                        bool);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

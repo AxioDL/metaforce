@@ -72,6 +72,7 @@ set(WORLD_SOURCES
     CScriptBeam.hpp CScriptBeam.cpp
     CScriptMazeNode.hpp CScriptMazeNode.cpp
     CScriptShadowProjector.hpp CScriptShadowProjector.cpp
+    CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

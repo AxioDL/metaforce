@@ -6,6 +6,7 @@
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Particle/CGenDescription.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -69,7 +70,10 @@ bool CPlayer::WasDamaged() const { return false; }
 
 void CPlayer::TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr) {}
 
-void CPlayer::Accept(IVisitor& visitor) {}
+void CPlayer::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
 
 CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return nullptr; }
 

@@ -22,6 +22,16 @@ public:
     {
         return CompareCaseInsensitive(a.c_str(), b.c_str());
     }
+
+    static int IndexOfSubstring(const std::string& haystack, const std::string& needle)
+    {
+        std::string str = haystack;
+        std::transform(str.begin(), str.end(), str.begin(), tolower);
+        std::string::size_type s = str.find(needle);
+        if (s == std::string::npos)
+            return -1;
+        return s;
+    }
 };
 
 }

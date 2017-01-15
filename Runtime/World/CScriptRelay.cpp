@@ -1,5 +1,6 @@
 #include "CScriptRelay.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -7,6 +8,11 @@ namespace urde
 CScriptRelay::CScriptRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool active)
     : CEntity(uid, info, active, name)
 {
+}
+
+void CScriptRelay::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr)
@@ -66,7 +72,7 @@ void CScriptRelay::UpdateObjectRef(CStateManager& stateMgr)
             *tmp = x34_;
             return;
         }
-        const CScriptRelay* obj = dynamic_cast<const CScriptRelay*>(stateMgr.GetObjectById(*tmp));
+        const CScriptRelay* obj = TCastToConstPtr<CScriptRelay>(stateMgr.GetObjectById(*tmp));
         if (obj)
             tmp = (TUniqueId*)&obj->x34_;
     }

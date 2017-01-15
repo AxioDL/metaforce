@@ -2,6 +2,7 @@
 #include "CEnvFxManager.hpp"
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -19,6 +20,11 @@ CScriptAreaAttributes::CScriptAreaAttributes(TUniqueId uid, const CEntityInfo& i
 , x4c_skybox(skybox)
 , x50_phazon(phazonType)
 {
+}
+
+void CScriptAreaAttributes::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

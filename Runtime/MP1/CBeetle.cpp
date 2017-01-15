@@ -1,6 +1,7 @@
 #include "CBeetle.hpp"
 #include "World/CDamageInfo.hpp"
 #include "Character/CCharLayoutInfo.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -15,6 +16,11 @@ CBeetle::CBeetle(TUniqueId uid, const std::string& name, const CEntityInfo& info
                  EColliderType::One, EBodyType::One, aParams, bool(flavor))
 {
 
+}
+
+void CBeetle::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

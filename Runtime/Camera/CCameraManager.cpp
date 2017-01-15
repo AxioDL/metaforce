@@ -12,6 +12,8 @@
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CGraphics.hpp"
 #include "CObjectList.hpp"
+#include "TCastTo.hpp"
+
 namespace urde
 {
 float CCameraManager::sAspect = 1.42f;
@@ -115,7 +117,7 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 
     if (x74_fluidCounter)
     {
-        const CScriptWater* water = dynamic_cast<const CScriptWater*>(stateMgr.GetObjectById(x78_fluidId));
+        const CScriptWater* water = TCastToConstPtr<CScriptWater>(stateMgr.GetObjectById(x78_fluidId));
         if (water)
         {
             // TODO: Finish
@@ -167,7 +169,7 @@ void CCameraManager::ThinkCameras(float dt, CStateManager& mgr)
 
     for (CEntity* ent : gcList)
     {
-        CGameCamera* gc = dynamic_cast<CGameCamera*>(ent);
+        CGameCamera* gc = TCastToPtr<CGameCamera>(ent);
         if (gc)
         {
             gc->Think(dt, mgr);
@@ -179,7 +181,7 @@ void CCameraManager::ThinkCameras(float dt, CStateManager& mgr)
         return;
 
     TUniqueId camId = GetLastCameraId();
-    const CGameCamera* cam = dynamic_cast<const CGameCamera*>(mgr.GetObjectById(camId));
+    const CGameCamera* cam = TCastToConstPtr<CGameCamera>(mgr.GetObjectById(camId));
 
     if (cam)
         x3bc_curFov = cam->GetFov();

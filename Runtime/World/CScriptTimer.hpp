@@ -18,6 +18,7 @@ public:
     CScriptTimer(TUniqueId, const std::string& name, const CEntityInfo& info,
                  float, float, bool, bool, bool);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     bool IsTiming() const;

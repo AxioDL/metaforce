@@ -1,6 +1,7 @@
 #include "CScriptDockAreaChange.hpp"
 #include "CStateManager.hpp"
 #include "World/CScriptDock.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -8,6 +9,11 @@ CScriptDockAreaChange::CScriptDockAreaChange(TUniqueId uid, const std::string& n
                                              bool active)
 : CEntity(uid, info, active, name), x34_dockReference(w1)
 {
+}
+
+void CScriptDockAreaChange::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
@@ -23,7 +29,7 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
             for (auto it = search.first ; it != search.second ; ++it)
             {
                 TUniqueId id = it->second;
-                CScriptDock* dock = dynamic_cast<CScriptDock*>(stateMgr.ObjectById(id));
+                CScriptDock* dock = TCastToPtr<CScriptDock>(stateMgr.ObjectById(id));
                 if (dock)
                     dock->SetDockReference(stateMgr, x34_dockReference);
             }

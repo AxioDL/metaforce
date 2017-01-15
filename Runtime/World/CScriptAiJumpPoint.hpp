@@ -25,6 +25,7 @@ private:
 public:
     CScriptAiJumpPoint(TUniqueId, const std::string&, const CEntityInfo&, zeus::CTransform&, bool, float);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}

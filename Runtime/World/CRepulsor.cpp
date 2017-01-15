@@ -1,5 +1,6 @@
 #include "CRepulsor.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -9,6 +10,11 @@ CRepulsor::CRepulsor(TUniqueId uid, bool active, const std::string& name, const 
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_affectRadius(radius)
 {
+}
+
+void CRepulsor::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CRepulsor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

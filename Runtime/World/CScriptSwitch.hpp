@@ -12,6 +12,7 @@ class CScriptSwitch : public CEntity
 public:
     CScriptSwitch(TUniqueId, const std::string&, const CEntityInfo&, bool, bool, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }

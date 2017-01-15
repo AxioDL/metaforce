@@ -2,6 +2,7 @@
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,6 +13,11 @@ CScriptSound::CScriptSound(TUniqueId uid, const std::string& name, const CEntity
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(),
          CMaterialList(), CActorParameters::None(), kInvalidUniqueId)
 {
+}
+
+void CScriptSound::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

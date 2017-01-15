@@ -18,6 +18,7 @@ public:
     CScriptBeam(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool,
                 const TToken<CWeaponDescription>&, const CBeamInfo&, const CDamageInfo&);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
 };

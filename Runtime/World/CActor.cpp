@@ -3,6 +3,7 @@
 #include "CStateManager.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -70,7 +71,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
             if (conn.x0_state != EScriptObjectState::DFST)
                 continue;
 
-            const CActor* act = dynamic_cast<const CActor*>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
+            const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
             if (act && xc6_ == kInvalidUniqueId)
                 xc6_ = act->GetUniqueId();
         }

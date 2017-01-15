@@ -16,6 +16,8 @@ public:
                     CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float, bool, float,
                     bool, const CHealthInfo& hInfo, const CDamageVulnerability& dInfo,
                     const rstl::optional_object<TLockedToken<CCollidableOBBTreeGroup>>& dcln, bool, u32, u32);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

@@ -2,6 +2,7 @@
 #include "Character/CModelData.hpp"
 #include "CActorParameters.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -33,6 +34,11 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, const std::string&
 {
     if (xe8_function == ESpecialFunction::HUDTarget)
         x1c8_ = {{zeus::CVector3f(-1.f), zeus::CVector3f(1.f)}};
+}
+
+void CScriptSpecialFunction::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptSpecialFunction::Think(float, CStateManager &)

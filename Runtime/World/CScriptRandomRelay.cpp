@@ -1,5 +1,6 @@
 #include "CScriptRandomRelay.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -10,6 +11,11 @@ CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, const std::string& name, c
       x38_variance(variance),
       x3c_clamp(clamp)
 {
+}
+
+void CScriptRandomRelay::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptRandomRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

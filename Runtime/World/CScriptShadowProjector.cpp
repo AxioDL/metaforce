@@ -2,6 +2,7 @@
 #include "World/CActorParameters.hpp"
 #include "World/CProjectedShadow.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -20,6 +21,11 @@ CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, const std::string&
 , x10c_textureSize(textureSize)
 , x110_24_persistent(b2)
 {
+}
+
+void CScriptShadowProjector::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptShadowProjector::Think(float dt, CStateManager& mgr)
@@ -65,7 +71,7 @@ void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             if (conn.x0_state != EScriptObjectState::Play)
                 continue;
 
-            const CActor* act = dynamic_cast<const CActor*>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
+            const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
             if (!act)
                 continue;
             const CModelData* mData = act->GetModelData();

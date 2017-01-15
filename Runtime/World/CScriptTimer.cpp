@@ -1,5 +1,6 @@
 #include "CScriptTimer.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -14,6 +15,11 @@ CScriptTimer::CScriptTimer(TUniqueId uid, const std::string& name, const CEntity
 , x41_autoStart(autoStart)
 , x42_isTiming(autoStart)
 {
+}
+
+void CScriptTimer::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptTimer::Think(float dt, CStateManager& mgr)

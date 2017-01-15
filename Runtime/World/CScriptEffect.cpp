@@ -2,6 +2,7 @@
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -14,6 +15,11 @@ CScriptEffect::CScriptEffect(TUniqueId uid, const std::string& name, const CEnti
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)
 {
+}
+
+void CScriptEffect::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

@@ -35,6 +35,7 @@ public:
     CScriptDock(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CVector3f position,
                 const zeus::CVector3f& extent, s32, TAreaId, bool active, s32 w1, bool b1);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;

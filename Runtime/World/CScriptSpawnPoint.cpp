@@ -2,6 +2,7 @@
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
 #include "CPlayer.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -13,6 +14,11 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, const std::string& name, con
 {
     x10c_24_firstSpawn = defaultSpawn;
     x10c_25_morphed = morphed;
+}
+
+void CScriptSpawnPoint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

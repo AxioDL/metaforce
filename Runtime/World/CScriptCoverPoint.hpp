@@ -38,6 +38,7 @@ public:
     CScriptCoverPoint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                       zeus::CTransform xf, bool active, u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AddToRenderer(const zeus::CFrustum &, CStateManager &) {}
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);

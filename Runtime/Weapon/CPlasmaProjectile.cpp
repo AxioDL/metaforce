@@ -1,4 +1,5 @@
 #include "CPlasmaProjectile.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -10,4 +11,10 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, co
 : CBeamProjectile(wDesc, name, wType, xf, bInfo.x18_, bInfo.x1c_, bInfo.x38_, matType, dInfo, owner, aid, uid, w2, b1)
 {
 }
+
+void CPlasmaProjectile::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

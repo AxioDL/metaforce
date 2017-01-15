@@ -57,6 +57,7 @@ public:
                 bool active, bool open, bool, float, bool ballDoor);
 
     zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
     void Think(float, CStateManager& mgr);
     void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr);

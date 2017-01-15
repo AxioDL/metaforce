@@ -26,6 +26,7 @@ public:
     CScriptGenerator(TUniqueId uid, const std::string& name, const CEntityInfo& info, u32, bool, const zeus::CVector3f&,
                      bool, bool, float, float);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
 };
 }

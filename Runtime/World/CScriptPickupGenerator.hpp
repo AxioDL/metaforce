@@ -15,6 +15,7 @@ class CScriptPickupGenerator : public CEntity
 public:
     CScriptPickupGenerator(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }

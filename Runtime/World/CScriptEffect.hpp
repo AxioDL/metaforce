@@ -14,6 +14,8 @@ public:
                   ResId partId, ResId elscId, bool, bool, bool, bool active,
                   bool, float, float, float, float, bool, float, float, float,
                   bool, bool, bool, const CLightParameters& lParms, bool);
+
+    void Accept(IVisitor& visitor);
 };
 
 }

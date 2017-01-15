@@ -3,6 +3,7 @@
 #include "Particle/CWeaponDescription.hpp"
 #include "Weapon/CPlasmaProjectile.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -16,6 +17,11 @@ CScriptBeam::CScriptBeam(TUniqueId uid, const std::string& name, const CEntityIn
 , xf4_beamInfo(bInfo)
 , x138_damageInfo(dInfo)
 {
+}
+
+void CScriptBeam::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptBeam::Think(float dt, CStateManager& mgr)

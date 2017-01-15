@@ -1,6 +1,7 @@
 #include "CScriptCameraHint.hpp"
 #include "Character/CModelData.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -13,4 +14,10 @@ CScriptCameraHint::CScriptCameraHint(TUniqueId uid, const std::string& name, con
          CActorParameters::None(), kInvalidUniqueId)
 {
 }
+
+void CScriptCameraHint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

@@ -22,6 +22,7 @@ public:
                           float envFxDensity, float thermalHeat, float xrayFogDistance, float worldLightingLevel,
                           ResId skybox, EPhazonType phazonType);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
 
     bool GetNeedsSky() const;

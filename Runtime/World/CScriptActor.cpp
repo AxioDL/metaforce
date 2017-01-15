@@ -1,4 +1,5 @@
 #include "CScriptActor.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -10,4 +11,10 @@ CScriptActor::CScriptActor(TUniqueId uid, const std::string& name, const CEntity
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), matList, aabb, SMoverData(a), actParms, 0.3f, 0.1f)
 {
 }
+
+void CScriptActor::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

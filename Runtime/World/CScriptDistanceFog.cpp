@@ -1,6 +1,7 @@
 #include "CScriptDistanceFog.hpp"
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -26,6 +27,11 @@ CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, const std::string& name, c
         x61_nonZero = false;
     else
         x61_nonZero = true;
+}
+
+void CScriptDistanceFog::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

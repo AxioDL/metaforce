@@ -1,4 +1,5 @@
 #include "CScriptPickupGenerator.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -6,6 +7,11 @@ CScriptPickupGenerator::CScriptPickupGenerator(TUniqueId uid, const std::string&
                                                const zeus::CVector3f& pos, float frequency, bool active)
 : CEntity(uid, info, active, name), x34_position(pos), x40_frequency(frequency)
 {
+}
+
+void CScriptPickupGenerator::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptPickupGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

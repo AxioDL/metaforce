@@ -1,5 +1,6 @@
 #include "CScriptCameraWaypoint.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -10,6 +11,11 @@ CScriptCameraWaypoint::CScriptCameraWaypoint(TUniqueId uid, const std::string& n
          CActorParameters::None(), kInvalidUniqueId)
 {
 
+}
+
+void CScriptCameraWaypoint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

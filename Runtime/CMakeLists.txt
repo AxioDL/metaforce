@@ -1,4 +1,5 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${BOO_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR}
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+                    ${BOO_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR}
                     ${ZLIB_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec ${JBUS_INCLUDE_DIR})
 
 macro(runtime_add_list rel_path a_list)
@@ -28,6 +29,11 @@ elseif(APPLE)
 else()
   list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
 endif()
+
+add_custom_command(OUTPUT TCastTo.hpp TCastTo.cpp DEPENDS MkCastTo.py
+                   COMMAND python ARGS ${CMAKE_CURRENT_SOURCE_DIR}/MkCastTo.py
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                   COMMENT "Generating cast functions")
 
 add_subdirectory(MP1)
 add_subdirectory(MP2)
@@ -97,5 +103,7 @@ add_library(RuntimeCommon
             CGameHintInfo.hpp CGameHintInfo.cpp
             rstl.hpp rstl.cpp
             GameGlobalObjects.hpp GameGlobalObjects.cpp
+            MkCastTo.py
+            TCastTo.hpp TCastTo.cpp
             GCNTypes.hpp
             ${PLAT_SRCS})

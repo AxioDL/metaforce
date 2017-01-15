@@ -17,6 +17,8 @@ public:
                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                   const CActorParameters& actParms, float, u32, const CDamageInfo& dInfo,
                   u32, u32, u32, u32);
+
+    void Accept(IVisitor& visitor);
 };
 
 }

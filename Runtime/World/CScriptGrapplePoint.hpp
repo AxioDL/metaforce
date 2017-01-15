@@ -13,6 +13,8 @@ class CScriptGrapplePoint : public CActor
 public:
     CScriptGrapplePoint(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& transform,
                         bool active, const CGrappleParameters& params);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

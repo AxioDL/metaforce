@@ -3,6 +3,7 @@
 #include "CActorParameters.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -21,6 +22,11 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
   x148_26_(b2),
   x148_27_(b3)
 {
+}
+
+void CScriptTrigger::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 CScriptTrigger::CObjectTracker* CScriptTrigger::FindInhabitant(TUniqueId id)

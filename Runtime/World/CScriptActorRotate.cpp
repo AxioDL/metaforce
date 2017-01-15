@@ -1,4 +1,5 @@
 #include "CScriptActorRotate.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -7,4 +8,10 @@ CScriptActorRotate::CScriptActorRotate(TUniqueId uid, const std::string& name, c
 : CEntity(uid, info, active, name)
 {
 }
+
+void CScriptActorRotate::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

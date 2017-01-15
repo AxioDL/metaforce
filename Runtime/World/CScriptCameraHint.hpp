@@ -12,6 +12,8 @@ public:
     CScriptCameraHint(TUniqueId, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf, bool,
                       u32, u32, u32, float, float, float, const zeus::CVector3f&, const zeus::CVector3f&,
                       const zeus::CVector3f&, float, float, float, float, float, float, float, float, float, float);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

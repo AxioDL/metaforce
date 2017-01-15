@@ -11,6 +11,7 @@ class CScriptDockAreaChange : public CEntity
 public:
     CScriptDockAreaChange(TUniqueId, const std::string&, const CEntityInfo&, s32, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }

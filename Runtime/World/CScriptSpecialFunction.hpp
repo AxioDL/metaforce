@@ -113,6 +113,7 @@ public:
                            const std::string&, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
                            bool, const CDamageInfo&, ResId, ResId, ResId, s16, s16, s16);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void PreRender(const zeus::CFrustum &, const CStateManager &);

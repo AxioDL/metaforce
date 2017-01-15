@@ -1,6 +1,7 @@
 #include "CScriptMemoryRelay.hpp"
 #include "CStateManager.hpp"
 #include "CRelayTracker.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -11,6 +12,11 @@ CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, const std::string& name, c
       x34_25_skipSendNone(b2),
       x34_26_ignoreMessages(b3)
 {
+}
+
+void CScriptMemoryRelay::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr)

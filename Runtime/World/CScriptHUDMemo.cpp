@@ -1,4 +1,5 @@
 #include "CScriptHUDMemo.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -7,6 +8,11 @@ CScriptHUDMemo::CScriptHUDMemo(TUniqueId uid, const std::string& name, const CEn
                                CScriptHUDMemo::EDisplayType, ResId, bool active)
     : CEntity(uid, info, active, name)
 {
+}
+
+void CScriptHUDMemo::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

@@ -2,6 +2,7 @@
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
 #include "CScriptWaypoint.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,6 +13,11 @@ CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, const std::string& name, c
 , xe8_(f1)
 {
     xec_.emplace(xf.origin, xf.origin);
+}
+
+void CScriptAiJumpPoint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptAiJumpPoint::Think(float dt, CStateManager&)

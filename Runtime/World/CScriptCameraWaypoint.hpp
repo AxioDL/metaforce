@@ -11,6 +11,8 @@ class CScriptCameraWaypoint : public CActor
 public:
     CScriptCameraWaypoint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                           const zeus::CTransform& xf, bool active, float, u32);
+
+    void Accept(IVisitor& visitor);
 };
 
 }

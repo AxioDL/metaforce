@@ -4,6 +4,7 @@
 #include "CPlayer.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -23,6 +24,11 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, c
 {
 }
 
+void CScriptCameraPitchVolume::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 void CScriptCameraPitchVolume::Think(float, CStateManager&)
 {
     if (!x30_24_active)
@@ -36,7 +42,7 @@ rstl::optional_object<zeus::CAABox> CScriptCameraPitchVolume::GetTouchBounds() c
 
 void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr)
 {
-    CPlayer* pl = dynamic_cast<CPlayer*>(&act);
+    CPlayer* pl = TCastToPtr<CPlayer>(&act);
     if (!pl)
         return;
 

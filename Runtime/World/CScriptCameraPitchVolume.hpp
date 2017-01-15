@@ -29,6 +29,7 @@ public:
     CScriptCameraPitchVolume(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CVector3f&,
                              const zeus::CTransform&, const zeus::CRelAngle&, const zeus::CRelAngle&, float);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);

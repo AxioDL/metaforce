@@ -12,6 +12,7 @@ class CScriptRelay : public CEntity
 public:
     CScriptRelay(TUniqueId, const std::string&, const CEntityInfo&, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     void Think(float, CStateManager& stateMgr);
     void UpdateObjectRef(CStateManager& stateMgr);

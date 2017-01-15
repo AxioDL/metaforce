@@ -22,6 +22,8 @@ public:
     CScriptDebris(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, ResId, const zeus::CVector3f&, float, const zeus::CVector3f&,
                   const zeus::CColor&, float, float, float, EScaleType, bool, bool, bool);
+
+    void Accept(IVisitor& visitor);
 #if 0
     CScriptDebris(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, float, float, float, float, float, float, float, float, float,

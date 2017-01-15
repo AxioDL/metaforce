@@ -15,6 +15,8 @@ public:
              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
              CPatterned::EFlavorType flavor, CPatterned::EColliderType, const CDamageInfo& dInfo1, const CActorParameters&,
              ResId weapon, const CDamageInfo& dInfo2, ResId particle, u32 w3);
+
+    void Accept(IVisitor& visitor);
 };
 }
 }

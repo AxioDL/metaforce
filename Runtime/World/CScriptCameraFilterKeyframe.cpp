@@ -1,4 +1,5 @@
 #include "CScriptCameraFilterKeyframe.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -8,4 +9,10 @@ CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, const st
 : CEntity(uid, info, active, name)
 {
 }
+
+void CScriptCameraFilterKeyframe::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

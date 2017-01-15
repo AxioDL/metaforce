@@ -2,6 +2,7 @@
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,6 +13,11 @@ CScriptWaypoint::CScriptWaypoint(TUniqueId uid, const std::string& name, const C
 : CActor(uid, active, name, info, xf, CModelData(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)
 {
+}
+
+void CScriptWaypoint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

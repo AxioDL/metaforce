@@ -1,4 +1,5 @@
 #include "CScriptDebris.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,6 +13,11 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const std::string& name, const CEnti
                     mData.GetBounds(xf.getRotation()), SMoverData(f2), aParams, 0.3, 0.1)
 {
 
+}
+
+void CScriptDebris::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 #if 0

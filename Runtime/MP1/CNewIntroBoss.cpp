@@ -1,5 +1,6 @@
 #include "CNewIntroBoss.hpp"
 #include "Character/CCharLayoutInfo.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -13,6 +14,11 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, const std::string& name, const CEnti
 : CPatterned(EUnknown::TwentyThree, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Two, actParms, true)
 {
+}
+
+void CNewIntroBoss::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

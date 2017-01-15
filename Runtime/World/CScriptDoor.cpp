@@ -8,6 +8,7 @@
 #include "CWorld.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CBallCamera.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -43,6 +44,11 @@ CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityIn
         SetDoorAnimation(EDoorAnimType::Open);
 
     SetMass(0.f);
+}
+
+void CScriptDoor::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007F054 */
@@ -108,7 +114,7 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
 /* ORIGINAL 0-00 OFFSET: 8007E1C4 */
 bool CScriptDoor::IsConnectedToArea(const CStateManager& mgr, TAreaId area)
 {
-    const CScriptDock* dock = dynamic_cast<const CScriptDock*>(mgr.GetObjectById(x282_dockId));
+    const CScriptDock* dock = TCastToConstPtr<CScriptDock>(mgr.GetObjectById(x282_dockId));
     if (dock)
     {
         if (dock->GetDestinationAreaId() == area)
@@ -127,7 +133,7 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
     TEditorId eid = mgr.GetEditorIdForUniqueId(uid);
     mgr.MapWorldInfo()->SetDoorVisited(eid, true);
 
-    const CScriptDoor* door = dynamic_cast<const CScriptDoor*>(mgr.GetObjectById(uid));
+    const CScriptDoor* door = TCastToConstPtr<CScriptDoor>(mgr.GetObjectById(uid));
 
     if (door)
         x27c_partner = door->GetUniqueId();
@@ -146,7 +152,7 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
 /* ORIGINAL 0-00 OFFSET: 8007ED4C */
 u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
 {
-    const CScriptDock* dock = dynamic_cast<const CScriptDock*>(mgr.GetObjectById(x282_dockId));
+    const CScriptDock* dock = TCastToConstPtr<CScriptDock>(mgr.GetObjectById(x282_dockId));
 
     if (!dock)
         return 2;

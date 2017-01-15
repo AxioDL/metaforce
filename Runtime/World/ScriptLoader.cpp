@@ -60,6 +60,7 @@
 #include "MP1/CWarWasp.hpp"
 #include "MP1/CSpacePirate.hpp"
 #include "CScriptShadowProjector.hpp"
+#include "CScriptStreamedMusic.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -1797,9 +1798,22 @@ CEntity* ScriptLoader::LoadMidi(CStateManager& mgr, CInputStream& in, int propCo
     return nullptr;
 }
 
-CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
+CEntity* ScriptLoader::LoadStreamedMusic(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 9, "StreamedAudio"))
+        return nullptr;
+
+    const std::string* name = mgr.HashInstanceName(in);
+    bool b1 = in.readBool();
+    std::string fileName = in.readString();
+    bool b2 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    bool b3 = in.readBool();
+
+    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, *name, b1, fileName, b2, f1, f2, w1, !w2, b3);
 }
 
 CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

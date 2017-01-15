@@ -6,6 +6,7 @@
 #include "CStateManager.hpp"
 #include "CScriptDoor.hpp"
 #include "CPlayer.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -29,6 +30,11 @@ CScriptDock::CScriptDock(TUniqueId uid, const std::string& name, const CEntityIn
 , x260_area(area)
 , x268_25_loadConnected(loadConnected)
 {
+}
+
+void CScriptDock::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptDock::Think(float dt, CStateManager& mgr)

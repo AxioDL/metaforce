@@ -13,6 +13,7 @@ class CScriptRandomRelay : public CEntity
 public:
     CScriptRandomRelay(TUniqueId, const std::string&, const CEntityInfo&, s32, s32, bool, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     void SendLocalScriptMsgs(EScriptObjectState state, CStateManager& stateMgr);
 };

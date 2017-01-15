@@ -1,4 +1,5 @@
 #include "CScriptActorKeyframe.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -13,6 +14,11 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, const std::string& nam
 , x44_25_(b2)
 , x44_26_(w2)
 {
+}
+
+void CScriptActorKeyframe::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {}

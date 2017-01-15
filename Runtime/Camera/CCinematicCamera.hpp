@@ -12,6 +12,7 @@ public:
     CCinematicCamera(TUniqueId, const std::string& name, const CEntityInfo& info,
                      const zeus::CTransform& xf, bool, float, float, float, float, float, u32);
 
+    void Accept(IVisitor& visitor);
     void ProcessInput(const CFinalInput&, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
 };

@@ -26,6 +26,7 @@ public:
                       const zeus::CTransform& xf, const std::vector<u32>& itemCounts,
                       bool, bool, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     bool FirstSpawn() const { return x10c_24_firstSpawn; }
     const zeus::CTransform& GetTransform() const { return x34_xf; }

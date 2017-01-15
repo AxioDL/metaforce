@@ -1,5 +1,6 @@
 #include "CScriptGenerator.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -14,6 +15,11 @@ CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const
   x48_minScale(minScale),
   x4c_maxScale(maxScale)
 {
+}
+
+void CScriptGenerator::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

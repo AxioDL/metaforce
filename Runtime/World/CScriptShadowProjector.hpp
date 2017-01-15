@@ -30,6 +30,7 @@ public:
     CScriptShadowProjector(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool,
                            const zeus::CVector3f&, bool, float, float, float, float, s32);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void PreRender(const zeus::CFrustum &, const CStateManager &);

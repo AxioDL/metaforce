@@ -1,4 +1,5 @@
 #include "CScriptPickup.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -9,4 +10,10 @@ CScriptPickup::CScriptPickup(TUniqueId uid, const std::string& name, const CEnti
                     0.3f, 0.1f)
 {
 }
+
+void CScriptPickup::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

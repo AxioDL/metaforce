@@ -384,7 +384,11 @@ bool FRME::Extract(const SpecBase &dataSpec,
                 {
                     CAMRInfo::OrthographicProjection* proj = static_cast<CAMRInfo::OrthographicProjection*>(info->projection.get());
                     os.format("cam.type = 'ORTHO'\n"
-                              "cam.ortho_scale = %f\n", std::fabs(proj->right - proj->left));
+                              "cam.ortho_scale = %f\n"
+                              "cam.clip_start = %f\n"
+                              "cam.clip_end = %f\n",
+                              std::fabs(proj->right - proj->left),
+                              proj->znear, proj->zfar);
                 }
                 else if (info->projectionType == CAMRInfo::ProjectionType::Perspective)
                 {

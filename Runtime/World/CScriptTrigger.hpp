@@ -71,6 +71,7 @@ public:
                    const zeus::CAABox&, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
                    ETriggerFlags triggerFlags, bool, bool, bool);
 
+    void Accept(IVisitor& visitor);
     virtual void InhabitantRejected(CActor&, CStateManager&) {}
     virtual void InhabitantExited(CActor&, CStateManager&) {}
     virtual void InhabitantIdle(CActor&, CStateManager&) {}

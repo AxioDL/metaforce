@@ -1,5 +1,6 @@
 #include "CScriptDamageableTrigger.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -29,6 +30,11 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, const std::str
              kInvalidUniqueId),
       x14c_bounds(-extent * 0.5f, extent * 0.5f)
 {
+}
+
+void CScriptDamageableTrigger::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 }

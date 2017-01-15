@@ -1,5 +1,6 @@
 #include "CSpacePirate.hpp"
 #include "Character/CCharLayoutInfo.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,5 +13,11 @@ CSpacePirate::CSpacePirate(TUniqueId uid, const std::string& name, const CEntity
                  EColliderType::One, EBodyType::One, aParams, true)
 {
 }
+
+void CSpacePirate::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }
 }

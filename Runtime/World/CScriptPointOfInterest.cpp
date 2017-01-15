@@ -2,6 +2,7 @@
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
 #include "CPlayerState.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -13,6 +14,11 @@ CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, const std::string&
          CActorParameters::None().Scannable(parms), kInvalidUniqueId)
 , xe8_pointSize(f1)
 {
+}
+
+void CScriptPointOfInterest::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptPointOfInterest::Think(float dt, CStateManager& mgr)

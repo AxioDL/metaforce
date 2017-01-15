@@ -11,6 +11,7 @@ class CRepulsor : public CActor
 public:
     CRepulsor(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
 
     float GetAffectRadius() const { return xe8_affectRadius; }

@@ -1,6 +1,8 @@
 #include "CScriptColorModulate.hpp"
 #include "Graphics/CModel.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
+
 namespace urde
 {
 CScriptColorModulate::CScriptColorModulate(TUniqueId uid, const std::string& name, const CEntityInfo& info,
@@ -20,6 +22,11 @@ CScriptColorModulate::CScriptColorModulate(TUniqueId uid, const std::string& nam
       x54_28_(b5)
 {
 
+}
+
+void CScriptColorModulate::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptColorModulate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr)

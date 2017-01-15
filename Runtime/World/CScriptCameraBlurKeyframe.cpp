@@ -1,4 +1,5 @@
 #include "CScriptCameraBlurKeyframe.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -7,4 +8,10 @@ CScriptCameraBlurKeyframe::CScriptCameraBlurKeyframe(TUniqueId uid, const std::s
 : CEntity(uid, info, active, name)
 {
 }
+
+void CScriptCameraBlurKeyframe::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

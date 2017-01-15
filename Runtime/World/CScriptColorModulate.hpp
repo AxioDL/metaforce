@@ -44,6 +44,7 @@ public:
     CScriptColorModulate(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CColor&, const zeus::CColor&,
                          EBlendMode, float, float, bool, bool, bool, bool, bool, bool);
 
+    void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     void Think(float, CStateManager &);
     zeus::CColor CalculateFlags(const zeus::CColor&) const;

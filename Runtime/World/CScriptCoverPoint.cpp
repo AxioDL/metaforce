@@ -1,6 +1,7 @@
 #include "CScriptCoverPoint.hpp"
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -15,6 +16,11 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, const std::string &name, con
     xec_cosHorizontalAngle = std::cos(zeus::degToRad(horizontalAngle) * 0.5f);
     xf0_sinVerticalAngle = std::sin(zeus::degToRad(verticalAngle) * 0.5f);
     x100_touchBounds.emplace(xf.origin, xf.origin);
+}
+
+void CScriptCoverPoint::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptCoverPoint::Think(float delta, CStateManager&)

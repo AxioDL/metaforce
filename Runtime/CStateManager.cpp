@@ -23,6 +23,7 @@
 #include "AutoMapper/CMapWorldInfo.hpp"
 #include "Particle/CGenDescription.hpp"
 #include "CMemoryCardSys.hpp"
+#include "TCastTo.hpp"
 
 #include <cmath>
 
@@ -143,7 +144,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::ColorModulate)] = ScriptLoader::LoadColorModulate;
     x90c_loaderFuncs[int(EScriptObjectType::ThardusRockProjectile)] = ScriptLoader::LoadThardusRockProjectile;
     x90c_loaderFuncs[int(EScriptObjectType::Midi)] = ScriptLoader::LoadMidi;
-    x90c_loaderFuncs[int(EScriptObjectType::StreamedAudio)] = ScriptLoader::LoadStreamedAudio;
+    x90c_loaderFuncs[int(EScriptObjectType::StreamedAudio)] = ScriptLoader::LoadStreamedMusic;
     x90c_loaderFuncs[int(EScriptObjectType::WorldTeleporterToo)] = ScriptLoader::LoadWorldTeleporter;
     x90c_loaderFuncs[int(EScriptObjectType::Repulsor)] = ScriptLoader::LoadRepulsor;
     x90c_loaderFuncs[int(EScriptObjectType::GunTurret)] = ScriptLoader::LoadGunTurret;
@@ -330,7 +331,7 @@ void CStateManager::TouchPlayerActor()
         return;
 
 #if 0
-    CScriptPlayerActor* spa = dynamic_cast<CScriptPlayerActor*>(GetObjectById(xf6c_playerActor));
+    CScriptPlayerActor* spa = TCastToPtr<CScriptPlayerActor>(GetObjectById(xf6c_playerActor));
     if (spa)
         spa->TouchModels();
 #endif
@@ -528,12 +529,12 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
 
     float f30 = dt;
 
-    CPlayer* player = dynamic_cast<CPlayer*>(&actor);
-    CAi* ai = dynamic_cast<CAi*>(&actor);
+    CPlayer* player = TCastToPtr<CPlayer>(&actor);
+    CAi* ai = TCastToPtr<CAi>(&actor);
 #if 0
     CDestroyableRock* dRock = nullptr;
     if (!ai)
-        dynamic_cast<CDestroyableRock*>(&actor);
+        TCastToPtr<CDestroyableRock>(&actor);
 #endif
 
     if (player)
@@ -620,7 +621,7 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
 
     for (CEntity* ent : *x80c_allObjs)
     {
-        CScriptSpawnPoint* sp = dynamic_cast<CScriptSpawnPoint*>(ent);
+        CScriptSpawnPoint* sp = TCastToPtr<CScriptSpawnPoint>(ent);
         if (sp && sp->x30_24_active && sp->FirstSpawn())
         {
             const zeus::CTransform& xf = sp->GetTransform();

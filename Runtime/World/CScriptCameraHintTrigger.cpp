@@ -1,5 +1,6 @@
 #include "CScriptCameraHintTrigger.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -15,4 +16,10 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, c
 , x130_25_(b3)
 {
 }
+
+void CScriptCameraHintTrigger::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

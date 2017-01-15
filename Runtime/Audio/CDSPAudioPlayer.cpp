@@ -4,6 +4,62 @@
 namespace urde
 {
 
+struct SDSPStreamCacheEntry
+{
+    std::string x0_fileName;
+    u32 x10_;
+    u32 x14_;
+    float x18_;
+    float x1c_;
+    u32 x20_;
+    float x24_;
+    bool x28_;
+};
+
+/* Standard DSPADPCM header */
+struct dspadpcm_header
+{
+    uint32_t x0_num_samples;
+    uint32_t x4_num_nibbles;
+    uint32_t x8_sample_rate;
+    uint16_t xc_loop_flag;
+    uint16_t xe_format; /* 0 for ADPCM */
+    uint32_t x10_loop_start_nibble;
+    uint32_t x14_loop_end_nibble;
+    uint32_t x18_ca;
+    int16_t x1c_coef[16];
+    int16_t x3c_gain;
+    int16_t x3e_ps;
+    int16_t x40_hist1;
+    int16_t x42_hist2;
+    int16_t x44_loop_ps;
+    int16_t x46_loop_hist1;
+    int16_t x48_loop_hist2;
+    uint16_t x4a_pad[11];
+};
+
+struct CDSPStreamManager
+{
+    dspadpcm_header x0_header;
+    std::string x60_fileName; // arg1
+    union
+    {
+        u8 dummy = 0;
+        struct
+        {
+            bool x70_24_claimed : 1;
+            bool x70_25_ : 1;
+            u8 x70_26_ : 2;
+        };
+    };
+    u8 x71_ = -1;
+    u8 x72_ = -1;
+    u8 x73_arg3;
+    u8 x74_arg4;
+    u32 x78_handleId; // arg2
+    //DVDFileInfo x80_dvdHandle;
+};
+
 struct SDSPStreamInfo
 {
     const char* x0_fileName;
@@ -13,6 +69,7 @@ struct SDSPStreamInfo
     u32 x10_;
     u32 x14_;
     u32 x18_adpcmOffset;
+
     u32 x1c_;
     u32 x20_;
     u32 x24_adpcmCur;

@@ -20,6 +20,8 @@ class CScriptCameraFilterKeyframe : public CEntity
 public:
     CScriptCameraFilterKeyframe(TUniqueId, const std::string&, const CEntityInfo&, u32, u32, u32, u32,
                                 const zeus::CColor&, float, float, u32, bool);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

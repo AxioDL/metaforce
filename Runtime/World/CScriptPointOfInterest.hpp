@@ -14,6 +14,7 @@ public:
     CScriptPointOfInterest(TUniqueId, const std::string&, const CEntityInfo, const zeus::CTransform&, bool,
                            const CScannableParameters&, float);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void AddToRenderer(const zeus::CFrustum &, const CStateManager &) const;

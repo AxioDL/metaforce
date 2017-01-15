@@ -20,6 +20,8 @@ public:
     CScriptDamageableTrigger(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, const zeus::CVector3f&,
                              const CHealthInfo&, const CDamageVulnerability&, u32, ResId, ResId, ResId, ECanOrbit, bool,
                              const CVisorParameters&);
+
+    void Accept(IVisitor& visitor);
 };
 }
 

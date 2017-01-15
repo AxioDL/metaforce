@@ -1,5 +1,6 @@
 #include "CScriptPlatform.hpp"
 #include "Collision/CMaterialList.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -24,4 +25,10 @@ CScriptPlatform::CScriptPlatform(TUniqueId uid, const std::string& name, const C
                 actParms, 0.3f, 0.1f)
 {
 }
+
+void CScriptPlatform::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

@@ -1,4 +1,5 @@
 #include "CCinematicCamera.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -8,6 +9,11 @@ CCinematicCamera::CCinematicCamera(TUniqueId uid, const std::string& name, const
                                    u32 e)
 : CGameCamera(uid, active, name, info, xf, a, b, c, d, kInvalidUniqueId, e & 0x20, 0)
 {
+}
+
+void CCinematicCamera::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CCinematicCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {}

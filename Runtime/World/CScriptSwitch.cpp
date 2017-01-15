@@ -1,5 +1,6 @@
 #include "CScriptSwitch.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -7,6 +8,11 @@ CScriptSwitch::CScriptSwitch(TUniqueId uid, const std::string& name, const CEnti
                              bool closeOnOpened)
 : CEntity(uid, info, active, name), x34_opened(opened), x35_closeOnOpened(closeOnOpened)
 {
+}
+
+void CScriptSwitch::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CScriptSwitch::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr)

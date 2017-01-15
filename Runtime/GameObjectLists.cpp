@@ -6,6 +6,7 @@
 #include "World/CScriptAiJumpPoint.hpp"
 #include "World/CPatterned.hpp"
 #include "Camera/CGameCamera.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -15,7 +16,7 @@ CActorList::CActorList()
 
 bool CActorList::IsQualified(const CEntity& ent)
 {
-    return static_cast<const CActor*>(&ent) != nullptr;
+    return TCastToConstPtr<CActor>(ent);
 }
 
 CPhysicsActorList::CPhysicsActorList()
@@ -23,7 +24,7 @@ CPhysicsActorList::CPhysicsActorList()
 
 bool CPhysicsActorList::IsQualified(const CEntity& ent)
 {
-    return static_cast<const CPhysicsActor*>(&ent) != nullptr;
+    return TCastToConstPtr<CPhysicsActor>(ent);
 }
 
 CGameCameraList::CGameCameraList()
@@ -31,7 +32,7 @@ CGameCameraList::CGameCameraList()
 
 bool CGameCameraList::IsQualified(const CEntity& ent)
 {
-    return static_cast<const CGameCamera*>(&ent) != nullptr;
+    return TCastToConstPtr<CGameCamera>(ent);
 }
 
 CListeningAiList::CListeningAiList()
@@ -39,7 +40,7 @@ CListeningAiList::CListeningAiList()
 
 bool CListeningAiList::IsQualified(const CEntity& ent)
 {
-    return (static_cast<const CPatterned*>(&ent) != nullptr);
+    return TCastToConstPtr<CPatterned>(ent);
 }
 
 CAiWaypointList::CAiWaypointList()
@@ -47,8 +48,8 @@ CAiWaypointList::CAiWaypointList()
 
 bool CAiWaypointList::IsQualified(const CEntity& ent)
 {
-    return static_cast<const CScriptCoverPoint*>(&ent) != nullptr ||
-           static_cast<const CScriptAiJumpPoint*>(&ent) != nullptr;
+    return TCastToConstPtr<CScriptCoverPoint>(ent) ||
+           TCastToConstPtr<CScriptAiJumpPoint>(ent);
 }
 
 CPlatformAndDoorList::CPlatformAndDoorList()
@@ -61,12 +62,12 @@ bool CPlatformAndDoorList::IsQualified(const CEntity& ent)
 
 bool CPlatformAndDoorList::IsDoor(const CEntity& ent)
 {
-    return static_cast<const CScriptDoor*>(&ent) != nullptr;
+    return TCastToConstPtr<CScriptDoor>(ent);
 }
 
 bool CPlatformAndDoorList::IsPlatform(const CEntity& ent)
 {
-    return static_cast<const CScriptPlatform*>(&ent) != nullptr;
+    return TCastToConstPtr<CScriptPlatform>(ent);
 }
 
 CGameLightList::CGameLightList()
@@ -74,7 +75,7 @@ CGameLightList::CGameLightList()
 
 bool CGameLightList::IsQualified(const CEntity& lt)
 {
-    return static_cast<const CGameLight*>(&lt) != nullptr;
+    return TCastToConstPtr<CGameLight>(lt);
 }
 
 }
