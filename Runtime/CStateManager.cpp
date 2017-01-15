@@ -529,12 +529,12 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
 
     float f30 = dt;
 
-    CPlayer* player = TCastToPtr<CPlayer>(&actor);
-    CAi* ai = TCastToPtr<CAi>(&actor);
+    CPlayer* player = TCastToPtr<CPlayer>(actor);
+    CAi* ai = TCastToPtr<CAi>(actor);
 #if 0
     CDestroyableRock* dRock = nullptr;
     if (!ai)
-        TCastToPtr<CDestroyableRock>(&actor);
+        TCastToPtr<CDestroyableRock>(actor);
 #endif
 
     if (player)
