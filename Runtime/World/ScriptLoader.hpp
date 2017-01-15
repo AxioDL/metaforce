@@ -123,7 +123,7 @@ public:
     static CEntity* LoadColorModulate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadMidi(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-    static CEntity* LoadStreamedMusic(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+    static CEntity* LoadStreamedAudio(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadGunTurret(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadFogVolume(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

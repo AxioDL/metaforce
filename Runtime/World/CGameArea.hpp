@@ -122,6 +122,21 @@ class CGameArea : public IGameArea
     std::list<std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>> xf8_loadTransactions;
 
 public:
+
+    class CAreaObjectList : public CObjectList
+    {
+    private:
+        TAreaId x200c_areaIdx = 0;
+    public:
+        CAreaObjectList(TAreaId areaIdx)
+            : CObjectList(EGameObjectList::Invalid)
+            , x200c_areaIdx(areaIdx)
+        {
+        }
+
+        bool IsQualified(const CEntity& ent);
+    };
+
     enum class EOcclusionState
     {
         NotOccluded,
@@ -170,7 +185,7 @@ public:
         TLockedToken<CPFArea> x10ac_path;
         // bool x10b8_ = 0; optional flag for CToken
         u32 x10bc_ = 0;
-        std::unique_ptr<CObjectList> x10c0_areaObjs;
+        std::unique_ptr<CAreaObjectList> x10c0_areaObjs;
         std::unique_ptr<CAreaFog> x10c4_areaFog;
         std::unique_ptr<u8[]> x10c8_sclyBuf;
         u32 x10d0_sclySize = 0;
@@ -241,12 +256,6 @@ private:
     };
 
 public:
-
-    struct CAreaObjectList : public IAreaObjectList
-    {
-        bool IsQualified(const CEntity& ent);
-    };
-
 
     CGameArea(CInputStream& in, int idx, int mlvlVersion);
 

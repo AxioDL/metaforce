@@ -32,9 +32,9 @@ void CPlayer::Update(float, CStateManager& mgr) {}
 
 bool CPlayer::IsPlayerDeadEnough() const
 {
-    if (x2f8_morphTransState == 0)
+    if (x2f8_morphTransState == CPlayer::EPlayerMorphBallState::Unmorphed)
         return x9f4_ < 2.5f;
-    else if (x2f8_morphTransState == 1)
+    else if (x2f8_morphTransState == CPlayer::EPlayerMorphBallState::Morphed)
         return x9f4_ < 6.f;
 
     return false;
@@ -75,7 +75,7 @@ void CPlayer::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return nullptr; }
+CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
 
 bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const { return false; }
 
@@ -166,7 +166,7 @@ void CPlayer::DrawGun(CStateManager& mgr) {}
 
 void CPlayer::HolsterGun(CStateManager& mgr) {}
 
-bool CPlayer::GetMorphballTransitionState() const { return false; }
+CPlayer::EPlayerMorphBallState CPlayer::GetMorphballTransitionState() const { return x2f8_morphTransState; }
 
 void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float) {}
 
@@ -365,4 +365,21 @@ void CPlayer::CVisorSteam::Update(float dt)
 }
 
 void CPlayer::SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState, CStateManager&) {}
+
+void CPlayer::DecrementPhazon()
+{
+    if (xa10_ == 0)
+        return;
+
+    xa10_--;
+}
+
+void CPlayer::IncrementPhazon()
+{
+    if (xa10_ != 0)
+        xa10_++;
+    else
+        xa14_ = 0.f;
+}
+
 }

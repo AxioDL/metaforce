@@ -16,16 +16,21 @@ public:
         Ice = (1 << 3),
         Wave = (1 << 4),
         Plasma = (1 << 5),
-        Phazon = (1 << 6)
+        Phazon = (1 << 6),
+        Unknown1 = (1 << 7),
+        Bombs = (1 << 8),
+        PowerBombs = (1 << 9),
     };
 
 private:
+    EProjectileAttrib xe8_projectileAttribs;
 public:
     CWeapon(TUniqueId, TAreaId, bool, TUniqueId, EWeaponType, const std::string&, const zeus::CTransform&,
             const CMaterialFilter&, const CMaterialList&, const CDamageInfo&, EProjectileAttrib, CModelData&&);
 
+    virtual void Accept(IVisitor &visitor);
     bool HasAttrib(EProjectileAttrib) const;
-    EProjectileAttrib GetAttribField() const;
+    EProjectileAttrib GetAttribField() const { return xe8_projectileAttribs; }
     const CMaterialFilter& GetFilter() const;
     void SetFilter(const CMaterialFilter&);
     TUniqueId GetOwnerId() const;

@@ -66,6 +66,7 @@ set(WORLD_SOURCES
     CScriptSwitch.hpp CScriptSwitch.cpp
     CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
+    CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
     CRepulsor.hpp CRepulsor.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp

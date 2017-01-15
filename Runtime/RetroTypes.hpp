@@ -36,9 +36,6 @@ struct SObjectTag
     }
 };
 
-using TUniqueId = s16;
-using TAreaId = s32;
-
 struct TEditorId
 {
     TEditorId() = default;
@@ -46,12 +43,15 @@ struct TEditorId
     u32 id = -1;
     u8 LayerNum() const { return (id >> 26) & 0x3f; }
     u16 AreaNum() const { return (id >> 16) & 0x3ff; }
-    TUniqueId Id() const { return id & 0xffff; }
+    u16 Id() const { return id & 0xffff; }
 
     bool operator<(const TEditorId& other) const { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
     bool operator!=(const TEditorId& other) const { return (id & 0x3ffffff) != (other.id & 0x3ffffff); }
     bool operator==(const TEditorId& other) const { return (id & 0x3ffffff) == (other.id & 0x3ffffff); }
 };
+
+using TUniqueId = s16;
+using TAreaId = s32;
 
 #define kInvalidEditorId TEditorId()
 #define kInvalidUniqueId TUniqueId(-1)
@@ -107,7 +107,7 @@ public:
         if (this->empty())
             return {};
 
-        return {::GetAverage<T>(this->data(), this->size()) };
+        return {::GetAverage<T>(this->data(), this->size())};
     }
 
     void Clear() { this->clear(); }

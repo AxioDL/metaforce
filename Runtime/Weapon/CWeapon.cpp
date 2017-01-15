@@ -1,5 +1,6 @@
 #include "CWeapon.hpp"
 #include "World/CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -11,4 +12,10 @@ CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId, EWeaponType
          CActorParameters::None(), kInvalidUniqueId)
 {
 }
+
+void CWeapon::Accept(urde::IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

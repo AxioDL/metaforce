@@ -1,4 +1,5 @@
 #include "Weapon/CBeamProjectile.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -35,4 +36,10 @@ void CBeamProjectile::UpdateFX(const zeus::CTransform &, float, CStateManager &)
 {
 
 }
+
+void CBeamProjectile::Accept(urde::IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

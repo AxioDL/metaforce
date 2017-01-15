@@ -42,11 +42,6 @@ public:
         void SetReferenceCount(s32 v) { x0_referenceCount = v; x48_isReferenced = true; }
     };
 
-    struct IAreaObjectList
-    {
-        virtual bool IsQualified(const CEntity& ent)=0;
-    };
-
     virtual bool IGetScriptingMemoryAlways() const=0;
     virtual TAreaId IGetAreaId() const=0;
     virtual ResId IGetAreaAssetId() const=0;

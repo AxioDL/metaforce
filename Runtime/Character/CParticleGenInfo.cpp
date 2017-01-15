@@ -98,7 +98,7 @@ bool CParticleGenInfoGeneric::HasLight() const
 
 TUniqueId CParticleGenInfoGeneric::GetLightId() const
 {
-    return 0;
+    return kInvalidUniqueId;
 }
 
 void CParticleGenInfoGeneric::SetModulationColor(const zeus::CColor& color)

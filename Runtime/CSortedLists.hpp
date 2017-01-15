@@ -20,7 +20,7 @@ struct SSortedList
 {
     TUniqueId x0_ids[1024];
     u32 x800_;
-    void Reset() {std::fill(std::begin(x0_ids), std::end(x0_ids), -1);}
+    void Reset() {std::fill(std::begin(x0_ids), std::end(x0_ids), kInvalidUniqueId);}
     SSortedList() {Reset();}
 };
 
@@ -31,11 +31,14 @@ class CSortedListManager
     {
         u32 x0_ = 0;
         zeus::CAABox x4_box = zeus::CAABox::skNullBox;
-        u32 x1c_;
-        u32 x20_;
-        u32 x24_;
-        u32 x28_ = -1;
-        bool x2a_ = false;
+        u16 x1c_;
+        u16 x1e_;
+        u16 x20_;
+        u16 x22_;
+        u16 x24_;
+        u16 x26_;
+        u16 x28_ = -1;
+        bool x2a_full = false;
     };
     SNode x0_nodes[1024];
     SSortedList xb000_sortedLists[6];

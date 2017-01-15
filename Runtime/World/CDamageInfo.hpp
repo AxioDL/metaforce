@@ -28,7 +28,14 @@ public:
         x10_radius = in.readFloatBig();
         x14_knockback = in.readFloatBig();
     }
-    CDamageInfo(const CWeaponMode&, float damage, float radius, float knockback);
+    CDamageInfo(const CWeaponMode& mode, float damage, float radius, float knockback)
+        : x0_weaponMode(mode)
+        , x8_damage(damage)
+        , xc_radiusDamage(damage)
+        , x10_radius(radius)
+        , x14_knockback(knockback)
+    {}
+
     CDamageInfo(const CDamageInfo& other) = default;
 
     const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }

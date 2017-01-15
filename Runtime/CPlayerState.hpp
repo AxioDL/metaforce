@@ -134,7 +134,7 @@ public:
     u32 CalculateItemCollectionRate() const;
 
     CHealthInfo& HealthInfo();
-    CHealthInfo GetHealthInfo() const;
+    const CHealthInfo &GetHealthInfo() const;
     u32 GetPickupTotal() { return 99; }
     void SetIsFusionEnabled(bool val) { x0_26_fusion = val; }
     bool IsFusionEnabled() const { return x0_26_fusion; }

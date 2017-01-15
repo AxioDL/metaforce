@@ -19,6 +19,7 @@ public:
                     EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, TUniqueId, u32, bool,
                     const zeus::CVector3f&, const rstl::optional_object<TLockedToken<CGenDescription>>&, s16, bool);
 
+    virtual void Accept(IVisitor &visitor);
     static EProjectileAttrib GetBeamAttribType(EWeaponType wType);
 };
 }
