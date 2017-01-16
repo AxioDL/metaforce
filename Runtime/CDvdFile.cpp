@@ -15,6 +15,7 @@ class CFileDvdRequest : public IDvdRequest
     int m_offset;
     bool m_cancel = false;
     bool m_complete = false;
+    std::function<void(u32)> m_callback;
 public:
     ~CFileDvdRequest()
     {
@@ -40,20 +41,25 @@ public:
         return EMediaType::File;
     }
 
-    CFileDvdRequest(CDvdFile& file, void* buf, u32 len, ESeekOrigin whence, int off)
-    : m_reader(file.m_reader), m_buf(buf), m_len(len), m_whence(whence), m_offset(off) {}
+    CFileDvdRequest(CDvdFile& file, void* buf, u32 len, ESeekOrigin whence, int off, std::function<void(u32)>&& cb)
+    : m_reader(file.m_reader), m_buf(buf), m_len(len), m_whence(whence), m_offset(off), m_callback(std::move(cb)) {}
 
     void DoRequest()
     {
         if (m_cancel)
             return;
+        u32 readLen;
         if (m_whence == ESeekOrigin::Cur && m_offset == 0)
-            m_reader->readBytesToBuf(m_buf, m_len);
+        {
+            readLen = m_reader->readBytesToBuf(m_buf, m_len);
+        }
         else
         {
             m_reader->seek(m_offset, athena::SeekOrigin(m_whence));
-            m_reader->readBytesToBuf(m_buf, m_len);
+            readLen = m_reader->readBytesToBuf(m_buf, m_len);
         }
+        if (m_callback)
+            m_callback(readLen);
         m_complete = true;
     }
 };
@@ -89,10 +95,11 @@ void CDvdFile::WorkerProc()
     }
 }
 
-std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off)
+std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence,
+                                                     int off, std::function<void(u32)>&& cb)
 {
     std::shared_ptr<IDvdRequest> ret =
-        std::make_shared<CFileDvdRequest>(*this, buf, len, whence, off);
+        std::make_shared<CFileDvdRequest>(*this, buf, len, whence, off, std::move(cb));
     std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
     m_RequestQueue.emplace_back(ret);
     lk.unlock();

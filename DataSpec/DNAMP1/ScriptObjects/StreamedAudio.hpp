@@ -14,13 +14,13 @@ struct StreamedAudio : IScriptObject
     DECL_YAML
     String<-1> name;
     Value<bool> active;
-    String<-1> channels;
-    Value<bool> unnknown1;
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<atUint32> unknown4;
-    Value<atUint32> unknown5;
-    Value<bool> unknown6;
+    String<-1> fileName;
+    Value<bool> noStopOnDeactivate;
+    Value<float> fadeInTime;
+    Value<float> fadeOutTime;
+    Value<atUint32> volume;
+    Value<atUint32> oneShot;
+    Value<bool> music;
 };
 }
 }

@@ -14,8 +14,17 @@ class CTweakValue
 public:
     struct Audio
     {
-        Audio(float, float, float, const std::string&, u32);
-        void None();
+        float x0_fadeIn, x4_fadeOut, x8_volume;
+        std::string xc_fileName;
+        u32 x1c_handle;
+        Audio(float fadeIn, float fadeOut, float vol, const std::string& fileName, u32 handle)
+        : x0_fadeIn(fadeIn), x4_fadeOut(fadeOut), x8_volume(vol), xc_fileName(fileName), x1c_handle(handle) {}
+        float GetFadeIn() const { return x0_fadeIn; }
+        float GetFadeOut() const { return x4_fadeOut; }
+        float GetVolume() const { return x8_volume; }
+        const std::string& GetFileName() const { return xc_fileName; }
+        u32 GetHandle() const { return x1c_handle; }
+        static Audio None() { return Audio{0.f, 0.f, 0.f, "", 0}; }
     };
     enum class EType
     {
@@ -24,7 +33,13 @@ public:
 
     EType x0_type;
     std::string x4_key;
-    std::string x30_str;
+    std::string x14_str;
+    Audio x24_audio;
+    union
+    {
+        u32 x44_int;
+        float x44_flt;
+    };
 public:
     CTweakValue()=default;
     //CTweakValue(CTextInputStream&);
@@ -32,7 +47,7 @@ public:
     const std::string& GetName() const { return x4_key; }
     const std::string& GetValueAsString() const;
     void SetValueFromString(const std::string&);
-    const Audio& GetAudio() const;
+    const Audio& GetAudio() const { return x24_audio; }
     EType GetType() const { return x0_type; }
 };
 

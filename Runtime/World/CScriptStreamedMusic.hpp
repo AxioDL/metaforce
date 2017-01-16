@@ -9,27 +9,26 @@ namespace urde
 class CScriptStreamedMusic : public CEntity
 {
     std::string x34_fileName;
-    bool x44_b1;
-    bool x45_fileNameValid;
-    bool x46_b2;
-    bool x47_b3;
-    float x48_f1;
-    float x4c_f2;
-    u32 x50_w1;
-    static bool ValidateFileName(const std::string& fileName);
+    bool x44_noStopOnDeactivate;
+    bool x45_fileIsDsp; // As opposed to .adp for DTK streaming
+    bool x46_loop;
+    bool x47_music;
+    float x48_fadeIn;
+    float x4c_fadeOut;
+    u32 x50_volume;
+    static bool IsDSPFile(const std::string& fileName);
     void StopStream(CStateManager& mgr);
     void StartStream(CStateManager& mgr);
+    void TweakOverride(CStateManager& mgr);
 
 public:
     CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, const std::string& name,
-                         bool, const std::string& fileName, bool, float, float, u32,
-                         bool, bool);
+                         bool active, const std::string& fileName, bool noStopOnDeactivate,
+                         float fadeIn, float fadeOut, u32 volume, bool loop, bool music);
 
     void Stop(CStateManager& mgr);
     void Play(CStateManager& mgr);
     void Accept(IVisitor& visitor);
-    void PreThink(float, CStateManager&);
-    void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
 };
 

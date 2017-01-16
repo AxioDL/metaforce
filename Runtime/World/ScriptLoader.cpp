@@ -1804,16 +1804,18 @@ CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, i
         return nullptr;
 
     const std::string name = mgr.HashInstanceName(in);
-    bool b1 = in.readBool();
+    bool active = in.readBool();
     std::string fileName = in.readString();
-    bool b2 = in.readBool();
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    u32 w1 = in.readUint32Big();
-    u32 w2 = in.readUint32Big();
-    bool b3 = in.readBool();
+    bool noStopOnDeactivate = in.readBool();
+    float fadeIn = in.readFloatBig();
+    float fadeOut = in.readFloatBig();
+    u32 volume = in.readUint32Big();
+    u32 oneShot = in.readUint32Big();
+    bool music = in.readBool();
 
-    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, name, b1, fileName, b2, f1, f2, w1, !w2, b3);
+    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, name,
+                                    active, fileName, noStopOnDeactivate,
+                                    fadeIn, fadeOut, volume, !oneShot, music);
 }
 
 CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

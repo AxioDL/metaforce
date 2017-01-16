@@ -274,6 +274,7 @@ public:
     void SetXRaySpeedAndTarget(float f1, float f2);
     void SetThermalSpeedAndTarget(float f1, float f2);
 
+    ResId GetAreaAssetId() const { return x84_mrea; }
     const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
     CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
     bool DoesAreaNeedEnvFx() const;

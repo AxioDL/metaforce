@@ -49,6 +49,7 @@ public:
         : x18_path(path),
           m_reader(std::make_shared<athena::io::FileReader>(
                    hecl::ProjectPath(m_DvdRoot, path).getAbsolutePath())) {}
+    operator bool() const { return m_reader->isOpen(); }
     void UpdateFilePos(int pos)
     {
         m_reader->seek(pos, athena::SeekOrigin::Begin);
@@ -61,19 +62,20 @@ public:
     {
         m_reader->close();
     }
-    std::shared_ptr<IDvdRequest> AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off);
-    void SyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int offset)
+    std::shared_ptr<IDvdRequest> AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence,
+                                               int off, std::function<void(u32)>&& cb = {});
+    u32 SyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int offset)
     {
         m_reader->seek(offset, athena::SeekOrigin(whence));
-        m_reader->readBytesToBuf(buf, len);
+        return m_reader->readBytesToBuf(buf, len);
     }
-    std::shared_ptr<IDvdRequest> AsyncRead(void* buf, u32 len)
+    std::shared_ptr<IDvdRequest> AsyncRead(void* buf, u32 len, std::function<void(u32)>&& cb = {})
     {
-        return AsyncSeekRead(buf, len, ESeekOrigin::Cur, 0);
+        return AsyncSeekRead(buf, len, ESeekOrigin::Cur, 0, std::move(cb));
     }
-    void SyncRead(void* buf, u32 len)
+    u32 SyncRead(void* buf, u32 len)
     {
-        m_reader->readBytesToBuf(buf, len);
+        return m_reader->readBytesToBuf(buf, len);
     }
     u64 Length() {return m_reader->length();}
 };
