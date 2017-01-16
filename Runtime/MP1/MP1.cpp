@@ -8,6 +8,7 @@
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
 #include "Character/CCharLayoutInfo.hpp"
+#include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
 #include "CBasics.hpp"
 
@@ -35,6 +36,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
 {
     g_GuiSys = &x44_guiSys;
     x30_inputGenerator.startScanning();
+    CStreamAudioManager::Initialize();
     g_Main->ResetGameState();
 
     std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
@@ -160,6 +162,7 @@ bool CMain::Proc()
 {
     CGBASupport::GlobalPoll();
     xe8_b24_finished = m_archSupport->Update();
+    CStreamAudioManager::Update(1.f / 60.f);
     return xe8_b24_finished;
 }
 

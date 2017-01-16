@@ -238,7 +238,7 @@ struct SDSPStream
         m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewMonoVoice(32000.0, &m_booCallback);
     }
 
-    static void PreallocateAllStreams()
+    static void Initialize()
     {
         for (int i=0 ; i<4 ; ++i)
         {
@@ -299,6 +299,20 @@ struct SDSPStream
         m_booVoice->setMonoChannelLevels(nullptr, coefs, true);
     }
 
+    static void UpdateVolume(u32 id, u8 vol)
+    {
+        u32 idx = FindStreamIdx(id);
+        if (idx == -1)
+            return;
+
+        SDSPStream& stream = g_Streams[idx];
+        stream.UpdateStreamVolume(vol);
+        if (SDSPStream* left = stream.x8_stereoLeft)
+            left->UpdateStreamVolume(vol);
+        if (SDSPStream* right = stream.xc_stereoRight)
+            right->UpdateStreamVolume(vol);
+    }
+
     void SilenceStream()
     {
         if (!x0_active || xe8_silent)
@@ -324,7 +338,9 @@ struct SDSPStream
 
     void StopStream()
     {
+        x0_active = false;
         m_booVoice->stop();
+        m_file = std::experimental::nullopt;
     }
 
     static bool IsStreamActive(u32 id)
@@ -404,9 +420,9 @@ class CDSPStreamManager
 public:
     enum class EState
     {
-        Zero,
-        One,
-        Two
+        Looping,
+        Oneshot,
+        Preparing
     };
 
 private:
@@ -518,17 +534,17 @@ public:
     {
         u32 idx = FindClaimedStreamIdx(handle);
         if (idx == -1)
-            return EState::One;
+            return EState::Oneshot;
 
         CDSPStreamManager& stream = g_Streams[idx];
         switch (stream.x70_26_headerReadState)
         {
         case 0:
-            return EState::One;
+            return EState::Oneshot;
         case 2:
             return EState(!stream.x0_header.xc_loop_flag);
         default:
-            return EState::Two;
+            return EState::Preparing;
         }
     }
 
@@ -613,8 +629,6 @@ public:
             return;
         }
 
-
-
         x70_26_headerReadState = 2;
 
         u32 companion = -1;
@@ -626,14 +640,29 @@ public:
         if (companion != -1)
         {
             /* Stereo */
+            CDSPStreamManager& companionStream = g_Streams[companion];
+            if (companionStream.x70_24_unclaimed ||
+                companionStream.x70_26_headerReadState == 0 ||
+                (companionStream.x71_companionRight != selfIdx &&
+                 companionStream.x72_companionLeft != selfIdx))
+            {
+                *this = CDSPStreamManager();
+                return;
+            }
+
+            if (companionStream.x70_26_headerReadState == 1)
+                return;
+
+            if (companionStream.x71_companionRight != -1)
+                AllocateStream(companion);
+            else
+                AllocateStream(selfIdx);
         }
         else
         {
             /* Mono */
             AllocateStream(selfIdx);
         }
-
-
     }
 
     static bool StartHeaderRead(CDSPStreamManager& stream)
@@ -756,7 +785,26 @@ public:
 
     static void UpdateVolume(u32 handle, u8 volume)
     {
+        u32 idx = FindClaimedStreamIdx(handle);
+        if (idx == -1)
+            return;
 
+        CDSPStreamManager& stream = g_Streams[idx];
+        stream.x73_volume = volume;
+        if (stream.x7c_streamId == -1)
+            return;
+
+        SDSPStream::UpdateVolume(stream.x7c_streamId, volume);
+    }
+
+    static void Initialize()
+    {
+        SDSPStream::Initialize();
+        for (int i=0 ; i<4 ; ++i)
+        {
+            CDSPStreamManager& stream = g_Streams[i];
+            stream = CDSPStreamManager();
+        }
     }
 };
 
@@ -948,7 +996,7 @@ void CStreamAudioManager::UpdateDSP(bool oneshot, float dt)
     else
     {
         if (p.x10_playState != EPlayerState::Stopped &&
-            CDSPStreamManager::GetStreamState(p.x20_internalHandle) == CDSPStreamManager::EState::One &&
+            CDSPStreamManager::GetStreamState(p.x20_internalHandle) == CDSPStreamManager::EState::Oneshot &&
             CDSPStreamManager::CanStop(p.x20_internalHandle))
         {
             StopStreaming(oneshot);
@@ -1016,6 +1064,11 @@ void CStreamAudioManager::UpdateDSPStreamers(float dt)
 void CStreamAudioManager::Update(float dt)
 {
     UpdateDSPStreamers(dt);
+}
+
+void CStreamAudioManager::Initialize()
+{
+    CDSPStreamManager::Initialize();
 }
 
 u8 CStreamAudioManager::g_MusicVolume = 0x7f;
