@@ -13,7 +13,7 @@ CPreFrontEnd::CPreFrontEnd()
 
 CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage&, CArchitectureQueue&)
 {
-    return EMessageReturn::Normal;
+    return EMessageReturn::Exit;
 }
 
 }

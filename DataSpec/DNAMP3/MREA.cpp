@@ -5,6 +5,8 @@
 
 namespace DataSpec
 {
+extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
+
 namespace DNAMP3
 {
 
@@ -88,7 +90,9 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* MREA decompression stream */
     StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
-    athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
+    hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP3ORIG).getWithExtension(_S(".decomp"));
+    decompPath.makeDirChain(false);
+    athena::io::FileWriter mreaDecompOut(decompPath.getAbsolutePath());
     head.write(mreaDecompOut);
     mreaDecompOut.seekAlign32();
     drs.writeDecompInfos(mreaDecompOut);

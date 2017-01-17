@@ -7,6 +7,8 @@
 
 namespace DataSpec
 {
+extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
+
 namespace DNAMP2
 {
 
@@ -179,7 +181,9 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* MREA decompression stream */
     StreamReader drs(rs, head.compressedBlockCount);
-    athena::io::FileWriter mreaDecompOut(pakRouter.getCooked(&entry).getWithExtension(_S(".decomp")).getAbsolutePath());
+    hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP2ORIG).getWithExtension(_S(".decomp"));
+    decompPath.makeDirChain(false);
+    athena::io::FileWriter mreaDecompOut(decompPath.getAbsolutePath());
     head.write(mreaDecompOut);
     mreaDecompOut.seekAlign32();
     drs.writeDecompInfos(mreaDecompOut);
