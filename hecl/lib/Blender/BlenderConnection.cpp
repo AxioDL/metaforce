@@ -1332,6 +1332,22 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
     return ret;
 }
 
+void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, int version)
+{
+    if (m_parent->m_loadedType != BlendType::Frame)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not a FRAME blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[512];
+    snprintf(req, 512, "FRAMECOMPILE %s %d", pathOut.c_str(), version);
+    m_parent->_writeStr(req);
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile frame: %s", readBuf);
+}
+
 std::vector<ProjectPath> BlenderConnection::DataStream::getTextures()
 {
     m_parent->_writeStr("GETTEXTURES");

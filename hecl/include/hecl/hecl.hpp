@@ -706,7 +706,7 @@ public:
      * Fatal log report is issued if directory is not able to be created or doesn't already exist.
      * If directory already exists, no action taken.
      */
-    void makeDir() const {MakeDir(m_projRoot.c_str());}
+    void makeDir() const { MakeDir(m_projRoot.c_str()); }
 
     /**
      * @brief HECL-specific xxhash
@@ -1188,7 +1188,7 @@ public:
      * Fatal log report is issued if directory is not able to be created or doesn't already exist.
      * If directory already exists, no action taken.
      */
-    void makeDir() const {MakeDir(m_absPath.c_str());}
+    void makeDir() const { MakeDir(m_absPath.c_str()); }
 
     /**
      * @brief Create directory chain leading up to path

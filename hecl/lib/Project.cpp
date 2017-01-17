@@ -499,7 +499,7 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress,
     std::vector<SpecInst> specInsts;
     specInsts.reserve(m_compiledSpecs.size());
     for (const ProjectDataSpec& spec : m_compiledSpecs)
-        if (spec.active)
+        if (spec.active && spec.spec.m_factory)
             specInsts.emplace_back(&spec.spec,
             std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, DataSpecTool::Cook)));
 

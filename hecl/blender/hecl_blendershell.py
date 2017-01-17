@@ -26,7 +26,11 @@ else:
 err_path += "/hecl_%016X.derp" % os.getpid()
 
 def readpipestr():
-    read_len = struct.unpack('I', os.read(readfd, 4))[0]
+    read_bytes = os.read(readfd, 4)
+    if len(read_bytes) != 4:
+        print('HECL connection lost or desynchronized')
+        bpy.ops.wm.quit_blender()
+    read_len = struct.unpack('I', read_bytes)[0]
     return os.read(readfd, read_len)
 
 def writepipestr(linebytes):
@@ -222,6 +226,16 @@ def dataout_loop():
         elif cmdargs[0] == 'WORLDCOMPILE':
             writepipestr(b'OK')
             hecl.swld.cook(writepipebuf)
+
+        elif cmdargs[0] == 'FRAMECOMPILE':
+            pathOut = cmdargs[1]
+            version = int(cmdargs[2])
+            if version != 1:
+                writepipestr(b'bad version')
+                continue
+
+            writepipestr(b'OK')
+            hecl.frme.cook(pathOut, version)
 
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
             writepipestr(b'OK')

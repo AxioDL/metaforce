@@ -72,10 +72,11 @@ private:
     struct Worker
     {
         ClientProcess& m_proc;
+        int m_idx;
         std::thread m_thr;
         BlenderToken m_blendTok;
         bool m_didInit = false;
-        Worker(ClientProcess& proc);
+        Worker(ClientProcess& proc, int idx);
         void proc();
     };
     std::vector<Worker> m_workers;

@@ -1,4 +1,4 @@
-import bpy
+import bpy, struct
 
 def draw(layout, context):
     if bpy.context.active_object:
@@ -63,24 +63,28 @@ def draw(layout, context):
                 row.prop(obj.data, 'retro_light_angle_linear', text='Linear')
                 row.prop(obj.data, 'retro_light_angle_quadratic', text='Quadratic')
 
+def cook(path_out, version):
+    fout = open(path_out, 'wb')
+    fout.write(struct.pack('>IIIII'))
 
 # Registration
 def register():
     frame_widget_types = [
-        ('RETRO_BWIG', 'Base Widget', '', 0),
-        ('RETRO_CAMR', 'Camera', '', 1),
-        ('RETRO_ENRG', 'Energy Bar', '', 2),
-        ('RETRO_GRUP', 'Group', '', 3),
-        ('RETRO_HWIG', 'Head Widget', '', 4),
-        ('RETRO_IMGP', 'Image Pane', '', 5),
-        ('RETRO_LITE', 'Light', '', 6),
-        ('RETRO_MODL', 'Model', '', 7),
-        ('RETRO_METR', 'Meter', '', 8),
-        ('RETRO_PANE', 'Pane', '', 9),
-        ('RETRO_SLGP', 'Slider Group', '', 10),
-        ('RETRO_TBGP', 'Table Group', '', 11),
-        ('RETRO_TXPN', 'Text Pane', '', 12)]
-    bpy.types.Object.retro_widget_type = bpy.props.EnumProperty(items=frame_widget_types, name='Retro: FRME Widget Type', default='RETRO_BWIG')
+        ('RETRO_NONE', 'Not a Widget', '', 0),
+        ('RETRO_BWIG', 'Base Widget', '', 1),
+        ('RETRO_CAMR', 'Camera', '', 2),
+        ('RETRO_ENRG', 'Energy Bar', '', 3),
+        ('RETRO_GRUP', 'Group', '', 4),
+        ('RETRO_HWIG', 'Head Widget', '', 5),
+        ('RETRO_IMGP', 'Image Pane', '', 6),
+        ('RETRO_LITE', 'Light', '', 7),
+        ('RETRO_MODL', 'Model', '', 8),
+        ('RETRO_METR', 'Meter', '', 9),
+        ('RETRO_PANE', 'Pane', '', 10),
+        ('RETRO_SLGP', 'Slider Group', '', 11),
+        ('RETRO_TBGP', 'Table Group', '', 12),
+        ('RETRO_TXPN', 'Text Pane', '', 13)]
+    bpy.types.Object.retro_widget_type = bpy.props.EnumProperty(items=frame_widget_types, name='Retro: FRME Widget Type', default='RETRO_NONE')
     model_draw_flags = [
         ('RETRO_SHADELESS', 'Shadeless', '', 0),
         ('RETRO_OPAQUE', 'Opaque', '', 1),

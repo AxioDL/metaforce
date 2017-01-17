@@ -73,13 +73,16 @@ public:
         m_specPasses.reserve(hecl::Database::DATA_SPEC_REGISTRY.size());
         for (const hecl::Database::DataSpecEntry* entry : hecl::Database::DATA_SPEC_REGISTRY)
         {
-            hecl::Database::IDataSpec* ds = entry->m_factory(*m_useProj, hecl::Database::DataSpecTool::Extract);
-            if (ds)
+            if (entry->m_factory)
             {
-                if (ds->canExtract(m_einfo, m_reps))
-                    m_specPasses.emplace_back(entry, ds);
-                else
-                    delete ds;
+                hecl::Database::IDataSpec* ds = entry->m_factory(*m_useProj, hecl::Database::DataSpecTool::Extract);
+                if (ds)
+                {
+                    if (ds->canExtract(m_einfo, m_reps))
+                        m_specPasses.emplace_back(entry, ds);
+                    else
+                        delete ds;
+                }
             }
         }
     }

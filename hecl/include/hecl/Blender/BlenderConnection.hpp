@@ -706,6 +706,9 @@ public:
         /** Gather all lights in scene (AREA blends only) */
         std::vector<Light> compileLights();
 
+        /** Compile GUI into FRME data (FRAME blends only) */
+        void compileGuiFrame(const std::string& pathOut, int version);
+
         /** Gather all texture paths in scene */
         std::vector<ProjectPath> getTextures();
 

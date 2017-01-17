@@ -53,14 +53,18 @@ void ClientProcess::LambdaTransaction::run(BlenderToken& btok)
     m_complete = true;
 }
 
-ClientProcess::Worker::Worker(ClientProcess& proc)
-: m_proc(proc)
+ClientProcess::Worker::Worker(ClientProcess& proc, int idx)
+: m_proc(proc), m_idx(idx)
 {
     m_thr = std::thread(std::bind(&Worker::proc, this));
 }
 
 void ClientProcess::Worker::proc()
 {
+    char thrName[64];
+    snprintf(thrName, 64, "HECL Client Worker %d", m_idx);
+    logvisor::RegisterThreadName(thrName);
+
     while (m_proc.m_running)
     {
         std::unique_lock<std::mutex> lk(m_proc.m_mutex);
@@ -100,7 +104,7 @@ ClientProcess::ClientProcess(int verbosityLevel)
     for (int i=0 ; i<cpuCount ; ++i)
     {
         std::unique_lock<std::mutex> lk(m_mutex);
-        m_workers.emplace_back(*this);
+        m_workers.emplace_back(*this, m_workers.size());
         m_initCv.wait(lk);
     }
 }
