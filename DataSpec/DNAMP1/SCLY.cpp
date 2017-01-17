@@ -43,7 +43,7 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
         bool active;
         hecl::ProjectPath layerPath = pakRouter.getAreaLayerWorking(entry.id, i, active);
         if (layerPath.isNone())
-            layerPath.makeDir();
+            layerPath.makeDirChain(true);
 
         if (active)
         {

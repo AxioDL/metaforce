@@ -14,10 +14,5 @@ CSpacePirate::CSpacePirate(TUniqueId uid, const std::string& name, const CEntity
 {
 }
 
-void CSpacePirate::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
 }
 }

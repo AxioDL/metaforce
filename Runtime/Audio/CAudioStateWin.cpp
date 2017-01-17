@@ -20,7 +20,7 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     else if (msgType == EArchMsgType::QuitGameplay)
     {
         if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
-            g_Main->GetFlowState() != IMain::EFlowState::Zero)
+            g_Main->GetFlowState() != EFlowState::Zero)
         {
             CSfxManager::SetChannel(CSfxManager::ESfxChannels::Zero);
             CSfxManager::KillAll(CSfxManager::ESfxChannels::One);

@@ -11,6 +11,7 @@ set(MP1_SOURCES
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp
     CFrontEndUI.hpp CFrontEndUI.cpp
+    CPreFrontEnd.hpp CPreFrontEnd.cpp
     CSlideShow.hpp CSlideShow.cpp
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     CBeetle.hpp CBeetle.cpp
@@ -20,6 +21,8 @@ set(MP1_SOURCES
     CSaveUI.hpp CSaveUI.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     CQuitScreen.hpp CQuitScreen.cpp
+    CCredits.hpp CCredits.cpp
+    CStateSetterFlow.hpp CStateSetterFlow.cpp
     MP1.hpp MP1.cpp)
 
 runtime_add_list(MP1 MP1_SOURCES)

@@ -72,6 +72,7 @@ bool CDvdFile::m_WorkerRun = false;
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
 void CDvdFile::WorkerProc()
 {
+    logvisor::RegisterThreadName("CDvdFile Thread");
     while (m_WorkerRun)
     {
         std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
@@ -87,6 +88,7 @@ void CDvdFile::WorkerProc()
                 concreteReq.DoRequest();
             }
             waitlk.unlock();
+            swapQueue.clear();
             lk.lock();
         }
         if (!m_WorkerRun)

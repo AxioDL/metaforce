@@ -17,6 +17,7 @@ namespace DataSpec
 
 static logvisor::Module Log("urde::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
+extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 
 struct SpecMP3 : SpecBase
 {
@@ -340,9 +341,6 @@ struct SpecMP3 : SpecBase
         if (doMP3)
         {
             m_workPath.makeDir();
-            const hecl::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
-            cookPath.makeDir();
-            m_cookPath.makeDir();
 
             progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
             m_pakRouter.build(m_paks, [&progress, &compIdx](float factor)
@@ -404,9 +402,6 @@ struct SpecMP3 : SpecBase
         if (doMPTFE)
         {
             m_feWorkPath.makeDir();
-            const hecl::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP3);
-            cookPath.makeDir();
-            m_feCookPath.makeDir();
 
             progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
             m_fePakRouter.build(m_fePaks, [&progress, &compIdx](float factor)
@@ -465,9 +460,14 @@ struct SpecMP3 : SpecBase
         return true;
     }
 
-    const hecl::Database::DataSpecEntry* getOriginalSpec() const
+    const hecl::Database::DataSpecEntry& getOriginalSpec() const
     {
-        return &SpecEntMP3;
+        return SpecEntMP3;
+    }
+
+    const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const
+    {
+        return SpecEntMP3ORIG;
     }
 
     hecl::ProjectPath getWorking(class UniqueID64& id)
@@ -520,6 +520,12 @@ struct SpecMP3 : SpecBase
     {
     }
 
+    void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                      BlendStream& ds, hecl::BlenderToken& btok,
+                      FCookProgress progress)
+    {
+    }
+
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   athena::io::IStreamReader& fin, FCookProgress progress)
     {
@@ -559,6 +565,13 @@ hecl::Database::DataSpecEntry SpecEntMP3PC =
             return new struct SpecMP3(&SpecEntMP3PC, project, true);
         return nullptr;
     }
+};
+
+hecl::Database::DataSpecEntry SpecEntMP3ORIG =
+{
+    _S("MP3-ORIG"),
+    _S("Data specification for unmodified Metroid Prime 3 resources"),
+    {}
 };
 
 }

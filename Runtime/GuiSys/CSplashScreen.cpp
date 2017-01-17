@@ -41,7 +41,7 @@ CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& msg,
         {
             if (x14_which != ESplashScreen::Retro)
                 queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 9999, 9999,
-                                                      new CSplashScreen(ESplashScreen(int(x14_which) + 1))));
+                                                      std::make_shared<CSplashScreen>(ESplashScreen(int(x14_which) + 1))));
             return EMessageReturn::RemoveIOWinAndExit;
         }
         break;

@@ -67,20 +67,26 @@ namespace DataSpec
 {
     extern hecl::Database::DataSpecEntry SpecEntMP1;
     extern hecl::Database::DataSpecEntry SpecEntMP1PC;
+    extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
     extern hecl::Database::DataSpecEntry SpecEntMP2;
     extern hecl::Database::DataSpecEntry SpecEntMP2PC;
+    extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
     extern hecl::Database::DataSpecEntry SpecEntMP3;
     extern hecl::Database::DataSpecEntry SpecEntMP3PC;
+    extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 }")
 set(HECL_DATASPEC_PUSHES
 "    /* RetroCommon */
-    hecl::Database::DATA_SPEC_REGISTRY.reserve(6);
+    hecl::Database::DATA_SPEC_REGISTRY.reserve(9);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1PC);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1ORIG);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2PC);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2ORIG);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);")
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
+    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
 add_subdirectory(hecl)
 
 if(NOT TARGET atdna)

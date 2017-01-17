@@ -106,7 +106,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
     {
         /* Extract root files for repacking later */
         hecl::ProjectPath outDir(m_project.getProjectWorkingPath(), _S("out"));
-        outDir.makeDir();
+        outDir.makeDirChain(true);
         nod::ExtractionContext ctx = {true, info.force, nullptr};
 
         if (!m_standalone)
@@ -218,7 +218,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
     {
         return oldEntry;
     }
-    return getOriginalSpec();
+    return &getOriginalSpec();
 }
 
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
@@ -262,6 +262,12 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
         {
             hecl::BlenderConnection::DataStream ds = conn.beginData();
             cookWorld(cookedPath, path, ds, fast, btok, progress);
+            break;
+        }
+        case hecl::BlenderConnection::BlendType::Frame:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            cookGuiFrame(cookedPath, path, ds, btok, progress);
             break;
         }
         default: break;

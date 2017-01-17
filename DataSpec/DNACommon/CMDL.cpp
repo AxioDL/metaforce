@@ -84,6 +84,7 @@ void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
         hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
         if (!txtrPath.isNone())
         {
+            txtrPath.makeDirChain(false);
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
             TXTR::Extract(rs, txtrPath);
         }

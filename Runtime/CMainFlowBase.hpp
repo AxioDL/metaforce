@@ -9,10 +9,10 @@ namespace urde
 enum class EClientFlowStates
 {
     Unspecified = -1,
-    FrontEnd = 7,
-    StateLoad = 8,
-    GameLoad = 13,
-    MoviePlay = 14
+    PreFrontEnd = 7,
+    FrontEnd = 8,
+    Game = 14,
+    GameExit = 15
 };
 
 class CMainFlowBase : public CIOWin

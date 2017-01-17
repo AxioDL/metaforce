@@ -376,7 +376,7 @@ void CGameOptions::EnsureSettings()
     SetSfxVolume(x58_sfxVol, true);
     SetMusicVolume(x5c_musicVol, true);
     SetSurroundMode(int(x44_soundMode), true);
-    SetHUDAlpha(x60_hudAlpha);
+    SetHelmetAlpha(x64_helmetAlpha);
     SetHUDLag(x68_24_hudLag);
     SetInvertYAxis(x68_25_invertY);
     SetIsRumbleEnabled(x68_26_rumble);

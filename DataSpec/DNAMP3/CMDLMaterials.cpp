@@ -126,6 +126,7 @@ void Material::SectionPASS::constructNode(hecl::BlenderConnection::PyOutStream& 
         hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
         if (txtrPath.isNone())
         {
+            txtrPath.makeDirChain(false);
             PAKEntryReadStream rs = texEntry->beginReadStream(*node);
             TXTR::Extract(rs, txtrPath);
         }

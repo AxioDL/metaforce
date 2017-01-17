@@ -50,7 +50,10 @@ struct SpecBase : hecl::Database::IDataSpec
                                               hecl::BlenderToken& btok) const=0;
 
     /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
-    virtual const hecl::Database::DataSpecEntry* getOriginalSpec() const=0;
+    virtual const hecl::Database::DataSpecEntry& getOriginalSpec() const=0;
+
+    /* This will return a pseudo-spec for unmodified resources */
+    virtual const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const=0;
 
     /* Basic path check (game directory matching) */
     virtual bool checkPathPrefix(const hecl::ProjectPath& path) const=0;
@@ -77,6 +80,9 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                            BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                            FCookProgress progress)=0;
+    virtual void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                              BlendStream& ds, hecl::BlenderToken& btok,
+                              FCookProgress progress)=0;
     virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           athena::io::IStreamReader& fin, FCookProgress progress)=0;
     virtual void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,

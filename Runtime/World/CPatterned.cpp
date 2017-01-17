@@ -1,5 +1,6 @@
 #include "CPatterned.hpp"
 #include "CPatternedInfo.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -23,4 +24,10 @@ CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatter
       pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f)
 {
 }
+
+void CPatterned::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 }

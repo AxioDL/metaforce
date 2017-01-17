@@ -19,9 +19,8 @@ bool CIOWinManager::OnIOWinMessage(const CArchitectureMessage& msg)
     }
     case EArchMsgType::CreateIOWin:
     {
-        const CArchMsgParmInt32Int32VoidPtr& parm = MakeMsg::GetParmCreateIOWin(msg);
-        std::shared_ptr<CIOWin> iow(static_cast<CIOWin*>(parm.xc_parm3));
-        AddIOWin(iow, parm.x4_parm1, parm.x8_parm2);
+        const CArchMsgParmInt32Int32IOWin& parm = MakeMsg::GetParmCreateIOWin(msg);
+        AddIOWin(parm.xc_parm3, parm.x4_parm1, parm.x8_parm2);
         return false;
     }
     case EArchMsgType::ChangeIOWinPriority:

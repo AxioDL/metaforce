@@ -16,11 +16,6 @@ CWarWasp::CWarWasp(TUniqueId uid, const std::string& name, const CEntityInfo& in
 
 }
 
-void CWarWasp::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
 }
 
 }

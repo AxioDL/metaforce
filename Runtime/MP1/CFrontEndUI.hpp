@@ -426,7 +426,7 @@ private:
     bool PumpLoad();
 public:
 
-    CFrontEndUI(CArchitectureQueue& queue);
+    CFrontEndUI();
     void StartSlideShow(CArchitectureQueue& queue);
     std::string GetAttractMovieFileName(int idx);
     std::string GetNextAttractMovieFileName();

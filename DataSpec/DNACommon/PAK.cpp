@@ -119,20 +119,16 @@ hecl::ProjectPath UniqueResult::uniquePath(const hecl::ProjectPath& pakPath) con
         levelDir.assign(pakPath, *m_levelName);
     else
         levelDir = pakPath;
-    levelDir.makeDir();
 
     if (m_type == Type::Area)
     {
         hecl::ProjectPath areaDir(levelDir, *m_areaName);
-        areaDir.makeDir();
         return areaDir;
     }
     else if (m_type == Type::Layer)
     {
         hecl::ProjectPath areaDir(levelDir, *m_areaName);
-        areaDir.makeDir();
         hecl::ProjectPath layerDir(areaDir, *m_layerName);
-        layerDir.makeDir();
         return layerDir;
     }
 
@@ -228,6 +224,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         /* Write catalog */
         intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
         const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
+        pakPath.makeDirChain(true);
         hecl::SystemString catalogPath = hecl::ProjectPath(pakPath, "!catalog.yaml").getAbsolutePath();
         athena::io::FileWriter writer(catalogPath);
         catalogWriter.finish(&writer);
@@ -244,8 +241,6 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge)
     {
         if (&bridge == &pakBridge)
         {
-            pit->first.makeDir();
-            pit->second.makeDir();
             m_pak.reset(&pakBridge.getPAK());
             m_node.reset(&pakBridge.getNode());
             m_curBridgeIdx.reset(reinterpret_cast<void*>(bridgeIdx));
@@ -297,7 +292,6 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
         if (singleSearch)
         {
             const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
-            pakPath.makeDir();
 #if HECL_UCS2
             hecl::SystemString entName = hecl::UTF8ToWide(getBestEntryName(*entry));
 #else
@@ -322,7 +316,6 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
     {
         const BRIDGETYPE& bridge = m_bridges->at(uniqueSearch->second.first);
         const hecl::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].first;
-        pakPath.makeDir();
 #if HECL_UCS2
         hecl::SystemString entName = hecl::UTF8ToWide(getBestEntryName(*entry));
 #else
@@ -369,7 +362,6 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
             auxInfo = chWork.getAuxInfo();
         }
         hecl::ProjectPath sharedPath(m_sharedWorking, entName);
-        m_sharedWorking.makeDir();
         return sharedPath.ensureAuxInfo(auxInfo);
     }
 
@@ -417,7 +409,6 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
         if (singleSearch)
         {
             const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].second;
-            pakPath.makeDir();
             return hecl::ProjectPath(pakPath, getBestEntryName(*entry));
         }
     }
@@ -426,7 +417,6 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
     {
         const BRIDGETYPE& bridge = m_bridges->at(uniqueSearch->second.first);
         const hecl::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].second;
-        pakPath.makeDir();
         if (bridge.getPAK().m_noShare)
         {
             return hecl::ProjectPath(pakPath, getBestEntryName(*entry));
@@ -440,7 +430,6 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
     auto sharedSearch = m_sharedEntries.find(entry->id);
     if (sharedSearch != m_sharedEntries.end())
     {
-        m_sharedCooked.makeDir();
         return hecl::ProjectPath(m_sharedCooked, getBestEntryName(*entry));
     }
     LogDNACommon.report(logvisor::Fatal, "Unable to find entry %s", entry->id.toString().c_str());
@@ -551,14 +540,16 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             const nod::Node* node = m_node.get();
 
             hecl::ProjectPath working = getWorking(item, extractor);
+            working.makeDirChain(false);
             hecl::ResourceLock resLk(working);
             if (!resLk)
                 continue;
 
-            /* Extract first, so they start out invalid */
-            hecl::ProjectPath cooked = getCooked(item);
+            /* Extract to unmodified directory */
+            hecl::ProjectPath cooked = working.getCookedPath(m_dataSpec.getUnmodifiedSpec());
             if (force || cooked.isNone())
             {
+                cooked.makeDirChain(false);
                 PAKEntryReadStream s = item->beginReadStream(*node);
                 FILE* fout = hecl::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
                 fwrite(s.data(), 1, s.length(), fout);

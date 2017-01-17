@@ -265,6 +265,9 @@ public:
     void SetCardBusy(bool v) { x160_31_cardBusy = v; }
 
     EFlowState GetFlowState() const { return x12c_flowState; }
+    void SetFlowState(EFlowState s) { x12c_flowState = s; }
+
+    void SetX30(bool v) { x160_30_ = v; }
 };
 
 }

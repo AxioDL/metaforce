@@ -1715,7 +1715,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::Draw() const
     }
 }
 
-CFrontEndUI::CFrontEndUI(CArchitectureQueue& queue)
+CFrontEndUI::CFrontEndUI()
 : CIOWin("FrontEndUI")
 {
     x18_rndA = std::min(rand() * 3 / RAND_MAX, 2);
@@ -1735,7 +1735,8 @@ CFrontEndUI::CFrontEndUI(CArchitectureQueue& queue)
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)
 {
     xf4_curAudio->StopMixing();
-    queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, new CSlideShow()));
+    queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11,
+                                          std::make_shared<CSlideShow>()));
 }
 
 std::string CFrontEndUI::GetAttractMovieFileName(int idx)

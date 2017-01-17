@@ -62,13 +62,6 @@ CENTITY_TYPES = (
     ('CScriptDockAreaChange', 'World/CScriptDockAreaChange.hpp'),
     ('CScriptSpecialFunction', 'World/CScriptSpecialFunction.hpp'),
     ('CScriptDebris', 'World/CScriptDebris.hpp'),
-
-    Namespace('MP1'),
-    ('CBeetle', 'MP1/CBeetle.hpp', 'MP1'),
-    ('CWarWasp', 'MP1/CWarWasp.hpp', 'MP1'),
-    ('CSpacePirate', 'MP1/CSpacePirate.hpp', 'MP1'),
-    ('CNewIntroBoss', 'MP1/CNewIntroBoss.hpp', 'MP1'),
-    EndNamespace(),
 )
 
 def getqualified(tp):

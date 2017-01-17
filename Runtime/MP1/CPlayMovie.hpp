@@ -16,7 +16,9 @@ public:
     enum class EWhichMovie
     {
         WinGame,
-        LoseGame
+        LoseGame,
+        Two,
+        AfterCredits
     };
 private:
     EWhichMovie x14_which;

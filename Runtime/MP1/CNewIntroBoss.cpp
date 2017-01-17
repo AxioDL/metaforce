@@ -16,10 +16,5 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, const std::string& name, const CEnti
 {
 }
 
-void CNewIntroBoss::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
 }
 }

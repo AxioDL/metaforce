@@ -24,13 +24,13 @@ public:
         RemoveIOWin = 3
     };
     virtual ~CIOWin() {}
-    CIOWin(const char* name) : x4_name(name) {m_nameHash = std::hash<std::string>()(x4_name);}
+    CIOWin(const char* name) : x4_name(name) { m_nameHash = std::hash<std::string>()(x4_name); }
     virtual EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&)=0;
-    virtual bool GetIsContinueDraw() const {return true;}
+    virtual bool GetIsContinueDraw() const { return true; }
     virtual void Draw() const {}
     virtual void PreDraw() const {}
-    const std::string& GetName() const {return x4_name;}
-    size_t GetNameHash() const {return m_nameHash;}
+    const std::string& GetName() const { return x4_name; }
+    size_t GetNameHash() const { return m_nameHash; }
 };
 
 static bool operator==(std::shared_ptr<CIOWin> a, std::shared_ptr<CIOWin> b)

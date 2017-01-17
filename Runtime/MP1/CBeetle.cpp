@@ -18,10 +18,5 @@ CBeetle::CBeetle(TUniqueId uid, const std::string& name, const CEntityInfo& info
 
 }
 
-void CBeetle::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
 }
 }

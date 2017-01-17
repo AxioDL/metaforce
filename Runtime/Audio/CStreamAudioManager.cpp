@@ -269,6 +269,8 @@ struct SDSPStream
                 continue;
             stream.x0_active = true;
             stream.x4_ownerId = ++s_HandleCounter2;
+            if (stream.x4_ownerId == -1)
+                stream.x4_ownerId = ++s_HandleCounter2;
             stream.x8_stereoLeft = nullptr;
             stream.xc_stereoRight = nullptr;
             streamOut = &stream;
@@ -294,8 +296,9 @@ struct SDSPStream
         if (!x0_active || xe8_silent)
             return;
         float coefs[8] = {};
-        coefs[int(boo::AudioChannel::FrontLeft)] = (0x7f - x4d_pan) / 127.f;
-        coefs[int(boo::AudioChannel::FrontRight)] = x4d_pan / 127.f;
+        float fvol = x4c_vol / 127.f;
+        coefs[int(boo::AudioChannel::FrontLeft)] = ((0x7f - x4d_pan) / 127.f) * fvol;
+        coefs[int(boo::AudioChannel::FrontRight)] = (x4d_pan / 127.f) * fvol;
         m_booVoice->setMonoChannelLevels(nullptr, coefs, true);
     }
 
@@ -406,6 +409,7 @@ struct SDSPStream
         xd8_ringBytes = 0x11DC0;
         xdc_ringSamples = 0x1f410;
         memset(xd4_ringBuffer.get(), 0, 0x11DC0);
+        m_booVoice->resetSampleRate(info.x4_sampleRate);
         m_booVoice->start();
     }
 
@@ -461,7 +465,7 @@ public:
             x70_24_unclaimed = true;
     }
 
-    static u32 FindUnlaimedStreamIdx()
+    static u32 FindUnclaimedStreamIdx()
     {
         for (int i=0 ; i<4 ; ++i)
         {
@@ -474,7 +478,7 @@ public:
 
     static bool FindUnclaimedStereoPair(u32& left, u32& right)
     {
-        u32 idx = FindUnlaimedStreamIdx();
+        u32 idx = FindUnclaimedStreamIdx();
 
         for (u32 i=0 ; i<4 ; ++i)
         {
@@ -646,13 +650,16 @@ public:
                 (companionStream.x71_companionRight != selfIdx &&
                  companionStream.x72_companionLeft != selfIdx))
             {
+                /* No consistent companion available */
                 *this = CDSPStreamManager();
                 return;
             }
 
+            /* Companion is pending; its completion will continue */
             if (companionStream.x70_26_headerReadState == 1)
                 return;
 
+            /* Use whichever stream is the left channel */
             if (companionStream.x71_companionRight != -1)
                 AllocateStream(companion);
             else
@@ -674,10 +681,10 @@ public:
         if (!file)
             return false;
 
+        stream.x70_26_headerReadState = 1;
         stream.m_dvdReq = file.AsyncRead(&stream.x0_header, sizeof(dspadpcm_header),
                                          std::bind(&CDSPStreamManager::HeaderReadComplete, &stream,
                                                    std::placeholders::_1));
-        stream.x70_26_headerReadState = 1;
         return true;
     }
 
@@ -694,7 +701,7 @@ public:
         if (pipePos == std::string::npos)
         {
             /* Mono stream */
-            u32 idx = FindUnlaimedStreamIdx();
+            u32 idx = FindUnclaimedStreamIdx();
             if (idx == -1)
                 return -1;
 

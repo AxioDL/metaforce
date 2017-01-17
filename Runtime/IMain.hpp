@@ -18,20 +18,21 @@ enum class EGameplayResult
     Playing
 };
 
+enum class EFlowState
+{
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+};
+
 class IMain
 {
 public:
-    enum class EFlowState
-    {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-    };
-
+    virtual ~IMain() = default;
     virtual void RegisterResourceTweaks() {}
     virtual void ResetGameState()=0;
     virtual void StreamNewGameState(CBitStreamReader&, u32 idx) {}
@@ -51,6 +52,7 @@ public:
     virtual void ShutdownSubsystems()=0;
     virtual EGameplayResult GetGameplayResult() const=0;
     virtual void SetGameplayResult(EGameplayResult wl)=0;
+    virtual void SetFlowState(EFlowState s)=0;
     virtual EFlowState GetFlowState() const=0;
 };
 }

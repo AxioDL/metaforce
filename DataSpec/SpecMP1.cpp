@@ -36,6 +36,7 @@ namespace DataSpec
 static logvisor::Module Log("urde::SpecMP1");
 extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
+extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
 struct SpecMP1 : SpecBase
 {
@@ -239,9 +240,6 @@ struct SpecMP1 : SpecBase
         nod::ExtractionContext ctx = {true, force, nullptr};
 
         m_workPath.makeDir();
-        const hecl::ProjectPath& cookPath = m_project.getProjectCookedPath(SpecEntMP1);
-        cookPath.makeDir();
-        m_cookPath.makeDir();
 
         progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
@@ -314,9 +312,14 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    const hecl::Database::DataSpecEntry* getOriginalSpec() const
+    const hecl::Database::DataSpecEntry& getOriginalSpec() const
     {
-        return &SpecEntMP1;
+        return SpecEntMP1;
+    }
+
+    const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const
+    {
+        return SpecEntMP1ORIG;
     }
 
     hecl::ProjectPath getWorking(class UniqueID32& id)
@@ -605,6 +608,13 @@ struct SpecMP1 : SpecBase
         DNAMP1::MLVL::Cook(out, in, world, btok);
     }
 
+    void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                      BlendStream& ds, hecl::BlenderToken& btok,
+                      FCookProgress progress)
+    {
+        ds.compileGuiFrame(out.getAbsolutePathUTF8(), 0);
+    }
+
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   athena::io::IStreamReader& fin, FCookProgress progress)
     {
@@ -801,6 +811,13 @@ hecl::Database::DataSpecEntry SpecEntMP1PC =
             return new struct SpecMP1(&SpecEntMP1PC, project, true);
         return nullptr;
     }
+};
+
+hecl::Database::DataSpecEntry SpecEntMP1ORIG =
+{
+    _S("MP1-ORIG"),
+    _S("Data specification for unmodified Metroid Prime resources"),
+    {}
 };
 
 }

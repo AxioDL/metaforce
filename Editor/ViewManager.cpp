@@ -17,6 +17,7 @@
 #include "World/CWorldTransManager.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Audio/CStreamAudioManager.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -69,8 +70,11 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_videoVoice->start();
 #endif
 
-    m_newAudioPlayer.emplace(*m_voiceEngine, "Audio/frontend_1.rsf", 416480, 1973664);
-    m_newAudioPlayer->StartMixing();
+    //m_newAudioPlayer.emplace(*m_voiceEngine, "Audio/frontend_1.rsf", 416480, 1973664);
+    //m_newAudioPlayer->StartMixing();
+
+    // Test DSP streaming
+    CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
 
     //m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
