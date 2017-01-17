@@ -715,7 +715,9 @@ FontCache::FontCache(const hecl::Runtime::FileStoreManager& fileMgr)
   m_regFace(m_fontLib, DROIDSANS_PERMISSIVE, DROIDSANS_PERMISSIVE_SZ),
   m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ),
   m_curvesFace(m_fontLib, SPECTERCURVES, SPECTERCURVES_SZ)
-{hecl::MakeDir(m_cacheRoot.c_str());}
+{
+    hecl::MakeDir(m_cacheRoot.c_str());
+}
 
 FontTag FontCache::prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,
                                   FCharFilter filter, bool subpixel,
