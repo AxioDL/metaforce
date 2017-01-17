@@ -19,6 +19,7 @@
 #if _WIN32
 #include <io.h>
 #include <fcntl.h>
+#include <Shlwapi.h>
 #endif
 
 namespace std
@@ -1332,6 +1333,17 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
     return ret;
 }
 
+static bool PathRelative(const SystemString& path)
+{
+    if (path.empty())
+        return false;
+#if _WIN32
+    return PathIsRelative(path.c_str());
+#else
+    return path[0] != '/';
+#endif
+}
+
 void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, int version)
 {
     if (m_parent->m_loadedType != BlendType::Frame)
@@ -1342,10 +1354,30 @@ void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, 
     snprintf(req, 512, "FRAMECOMPILE %s %d", pathOut.c_str(), version);
     m_parent->_writeStr(req);
 
-    char readBuf[256];
-    m_parent->_readStr(readBuf, 256);
+    char readBuf[1024];
+    m_parent->_readStr(readBuf, 1024);
     if (strcmp(readBuf, "OK"))
         BlenderLog.report(logvisor::Fatal, "unable to compile frame: %s", readBuf);
+
+    while (true)
+    {
+        m_parent->_readStr(readBuf, 1024);
+        if (!strcmp(readBuf, "FRAMEDONE"))
+            break;
+
+        std::string readStr(readBuf);
+        SystemStringView absolute(readStr);
+        auto& proj = m_parent->m_loadedBlend.getProject();
+        SystemString relative;
+        if (PathRelative(absolute.sys_str()))
+            relative = absolute.sys_str();
+        else
+            relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
+        hecl::ProjectPath path(proj.getProjectWorkingPath(), relative);
+
+        snprintf(req, 512, "%016llX", path.hash().val64());
+        m_parent->_writeStr(req);
+    }
 }
 
 std::vector<ProjectPath> BlenderConnection::DataStream::getTextures()

@@ -46,6 +46,21 @@ def quitblender():
     writepipestr(b'QUITTING')
     bpy.ops.wm.quit_blender()
 
+class PathHasher:
+    def hashpath32(self, path):
+        writepipestr(path)
+        read_str = readpipestr()
+        if len(read_str) >= 8:
+            return int(read_str[0:8], 16)
+        return 0
+
+    def hashpath64(self, path):
+        writepipestr(path)
+        read_str = readpipestr()
+        if len(read_str) >= 16:
+            return int(read_str[0:16], 16)
+        return 0
+
 # If there's a third argument, use it as the .zip path containing the addon
 did_install = False
 if len(args) >= 4 and args[3] != 'SKIPINSTALL':
@@ -235,7 +250,8 @@ def dataout_loop():
                 continue
 
             writepipestr(b'OK')
-            hecl.frme.cook(pathOut, version)
+            hecl.frme.cook(pathOut, version, PathHasher())
+            writepipestr(b'FRAMEDONE')
 
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
             writepipestr(b'OK')
