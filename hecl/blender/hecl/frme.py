@@ -87,7 +87,7 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
         if obj.data.type == 'PERSP':
             if aspect > 1.0:
                 fov = math.degrees(math.atan(math.tan(obj.data.angle / 2.0) / aspect)) * 2.0
-            elif:
+            else:
                 fov = math.degrees(obj.data.angle)
             fout.write(struct.pack('>Iffff', 0, fov, aspect, obj.data.clip_start, obj.data.clip_end))
 
@@ -208,10 +208,10 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
 
         fout.write(struct.pack('>IffffffIf',
                                type_enum, constant, linear, quadratic,
-                               obj.retro_light_angle_constant,
-                               obj.retro_light_angle_linear,
-                               obj.retro_light_angle_quadratic,
-                               obj.retro_light_index,
+                               obj.data.retro_light_angle_constant,
+                               obj.data.retro_light_angle_linear,
+                               obj.data.retro_light_angle_quadratic,
+                               obj.data.retro_light_index,
                                cutoff))
 
     elif obj.retro_widget_type == 'RETRO_IMGP':
@@ -246,6 +246,20 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
         for i in range(4):
             co = model_obj.data.uv_layers[0].data[i].uv
             fout.write(struct.pack('>ff', co[0], co[1]))
+
+    if obj.retro_widget_is_worker:
+        fout.write('>bH', True, obj.retro_widget_worker_id)
+    else:
+        fout.write('>b', False)
+
+    fout.write(struct.pack('>fffffffffffffffHHH',
+        obj.matrix_local[0][3],
+        obj.matrix_local[1][3],
+        obj.matrix_local[2][3],
+        obj.matrix_local[0][0], obj.matrix_local[0][1], obj.matrix_local[0][2],
+        obj.matrix_local[1][0], obj.matrix_local[1][1], obj.matrix_local[1][2],
+        obj.matrix_local[2][0], obj.matrix_local[2][1], obj.matrix_local[2][2],
+        0.0, 0.0, 0.0, 0, 0, 0))
 
     for ch in obj.children:
         if ch.retro_widget_type != 'RETRO_NONE':
