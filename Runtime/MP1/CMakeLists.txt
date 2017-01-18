@@ -18,6 +18,7 @@ set(MP1_SOURCES
     CWarWasp.hpp CWarWasp.cpp
     CSpacePirate.hpp CSpacePirate.cpp
     CBabygoth.hpp CBabygoth.cpp
+    CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CSaveUI.hpp CSaveUI.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     CQuitScreen.hpp CQuitScreen.cpp

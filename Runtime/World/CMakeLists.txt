@@ -45,6 +45,8 @@ set(WORLD_SOURCES
     CScriptPickupGenerator.hpp CScriptPickupGenerator.cpp
     CScriptPointOfInterest.hpp CScriptPointOfInterest.cpp
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
+    CFishCloud.hpp CFishCloud.cpp
+    CScriptVisorFlare.hpp CScriptVisorFlare.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
     CScriptCoverPoint.hpp CScriptCoverPoint.cpp
     CScriptSpawnPoint.hpp CScriptSpawnPoint.cpp
@@ -58,17 +60,25 @@ set(WORLD_SOURCES
     CScriptCameraBlurKeyframe.hpp CScriptCameraBlurKeyframe.cpp
     CScriptDamageableTrigger.hpp CScriptDamageableTrigger.cpp
     CScriptDebris.hpp CScriptDebris.cpp
+    CScriptDebugCameraWaypoint.hpp CScriptDebugCameraWaypoint.cpp
     CScriptDistanceFog.hpp CScriptDistanceFog.cpp
     CScriptDockAreaChange.hpp CScriptDockAreaChange.cpp
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
+    CScriptPlayerHint.hpp CScriptPlayerHint.cpp
+    CScriptTargetingPoint.hpp CScriptTargetingPoint.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CScriptSwitch.hpp CScriptSwitch.cpp
     CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
+    CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
     CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
     CRepulsor.hpp CRepulsor.cpp
+    CScriptGunTurret.hpp CScriptGunTurret.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
+    CTeamAiMgr.hpp CTeamAiMgr.cpp
+    CSnakeWeedSwarm.hpp CSnakeWeedSwarm.cpp
+    CScriptSpindleCamera.hpp CScriptSpindleCamera.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CScriptBeam.hpp CScriptBeam.cpp
     CScriptMazeNode.hpp CScriptMazeNode.cpp
@@ -94,6 +104,8 @@ set(WORLD_SOURCES
     CFluidPlaneCPU.hpp CFluidPlaneCPU.cpp
     CFluidPlaneDoor.hpp CFluidPlaneDoor.cpp
     CRippleManager.hpp CRippleManager.cpp
-    CRipple.hpp CRipple.cpp)
+    CRipple.hpp CRipple.cpp
+    CDestroyableRock.hpp CDestroyableRock.cpp
+    CHUDBillboardEffect.hpp CHUDBillboardEffect.cpp)
 
 runtime_add_list(World WORLD_SOURCES)

@@ -40,7 +40,8 @@ CListeningAiList::CListeningAiList()
 
 bool CListeningAiList::IsQualified(const CEntity& ent)
 {
-    return TCastToConstPtr<CPatterned>(ent);
+    TCastToConstPtr<CAi> ai(ent);
+    return ai && ai->IsListening();
 }
 
 CAiWaypointList::CAiWaypointList()

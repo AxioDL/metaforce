@@ -46,7 +46,7 @@ public:
     virtual CDamageVulnerability GetDamageVulnerability()  { return x260_damageVulnerability; }
     virtual void TakeDamage(const zeus::CVector3f&, float) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
-    virtual bool IsListening() { return false; }
+    virtual bool IsListening() const { return false; }
     virtual int Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
 
     virtual void Patrol(CStateManager&, EStateMsg, float) {}

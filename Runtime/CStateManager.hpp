@@ -164,11 +164,8 @@ class CStateManager
     void UpdateThermalVisor();
 
     TUniqueId xf74_lastTrigger = kInvalidUniqueId;
+    TUniqueId xf76_lastRelay = kInvalidUniqueId;
 public:
-    /* TODO: Figure out what these are
-     * Public for CScriptRelay
-     */
-    TUniqueId xf76_ = kInvalidUniqueId;
     /* TODO: Public for CFirstPersonCamera */
     u32 x904_;
 
@@ -310,8 +307,11 @@ public:
     CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
     CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
     std::pair<u32, u32> CalculateScanCompletionRate() const;
-    void SetLastTrigger(TUniqueId uid) { xf74_lastTrigger = uid; }
-    TUniqueId GetLastTrigger() const { return xf74_lastTrigger; }
+    void SetLastTriggerId(TUniqueId uid) { xf74_lastTrigger = uid; }
+    TUniqueId GetLastTriggerId() const { return xf74_lastTrigger; }
+    void SetLastRelayId(TUniqueId uid) { xf76_lastRelay = uid; }
+    TUniqueId* GetLastRelayIdPtr() { return &xf76_lastRelay; }
+    TUniqueId GetLastRelayId() const { return xf76_lastRelay; }
 };
 }
 

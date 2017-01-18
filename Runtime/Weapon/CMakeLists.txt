@@ -21,6 +21,10 @@ set(WEAPON_SOURCES
     CGameProjectile.hpp CGameProjectile.cpp
     CBeamProjectile.hpp CBeamProjectile.cpp
     CBeamInfo.hpp CBeamInfo.cpp
-    CPlasmaProjectile.hpp CPlasmaProjectile.cpp)
+    CPlasmaProjectile.hpp CPlasmaProjectile.cpp
+    CEnergyProjectile.cpp CEnergyProjectile.cpp
+    CExplosion.hpp CExplosion.cpp
+    CBomb.hpp CBomb.cpp
+    CPowerBomb.hpp CPowerBomb.cpp)
 
 runtime_add_list(Weapon WEAPON_SOURCES)
