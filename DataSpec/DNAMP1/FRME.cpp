@@ -698,9 +698,9 @@ bool FRME::Extract(const SpecBase &dataSpec,
                   "frme_obj.rotation_quaternion = mtxd[1] * angle\n"
                   "frme_obj.scale = mtxd[2]\n"
                   "bpy.context.scene.objects.link(frme_obj)\n",
-                  w.basis[0].vec[0], w.basis[0].vec[1], w.basis[0].vec[2],w.origin.vec[0],
-                  w.basis[1].vec[0], w.basis[1].vec[1], w.basis[1].vec[2],w.origin.vec[1],
-                  w.basis[2].vec[0], w.basis[2].vec[1], w.basis[2].vec[2],w.origin.vec[2]);
+                  w.basis[0].vec[0], w.basis[0].vec[1], w.basis[0].vec[2], w.origin.vec[0],
+                  w.basis[1].vec[0], w.basis[1].vec[1], w.basis[1].vec[2], w.origin.vec[1],
+                  w.basis[2].vec[0], w.basis[2].vec[1], w.basis[2].vec[2], w.origin.vec[2]);
     }
 
     os.centerView();

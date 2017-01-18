@@ -50,19 +50,19 @@ struct SDSPStreamInfo
     SDSPStreamInfo(const CDSPStreamManager& stream);
 };
 
-struct SDSPStream
+struct SDSPStream : boo::IAudioVoiceCallback
 {
     bool x0_active;
     bool x1_oneshot;
     u32 x4_ownerId;
     SDSPStream* x8_stereoLeft;
-    SDSPStream* xc_stereoRight;
+    SDSPStream* xc_companionRight;
     SDSPStreamInfo x10_info;
     u8 x4c_vol;
     u8 x4d_pan;
     //DVDFileInfo x50_dvdHandle1;
     //DVDFileInfo x8c_dvdHandle2;
-    u32 xc8_streamId = -1; // MusyX stream handle
+    //u32 xc8_streamId = -1; // MusyX stream handle
     u32 xcc_fileCur = 0;
     std::unique_ptr<u8[]> xd4_ringBuffer;
     u32 xd8_ringBytes = 0x11DC0; // 73152 4sec in ADPCM bytes
@@ -75,33 +75,59 @@ struct SDSPStream
     std::shared_ptr<IDvdRequest> m_readReqs[2];
 
     void ReadBuffer(int buf)
-    {
+    {        
         u32 halfSize = xd8_ringBytes / 2;
         u8* data = xd4_ringBuffer.get() + (buf ? halfSize : 0);
 
-        if (!x10_info.x10_loopFlag && xcc_fileCur == x10_info.xc_adpcmBytes)
+        if (x10_info.x10_loopFlag)
         {
-            memset(data, 0, halfSize);
-            return;
-        }
+            u32 remFileBytes = x10_info.x18_loopEndByte - xcc_fileCur;
 
-        u32 remFileBytes =
-            (x10_info.x10_loopFlag ? x10_info.x18_loopEndByte : x10_info.xc_adpcmBytes) - xcc_fileCur;
-        if (remFileBytes < halfSize)
-        {
-            m_readReqs[buf] = m_file->AsyncSeekRead(data, remFileBytes,
-                              ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
-            memset(data + remFileBytes, 0, halfSize - remFileBytes);
-            if (x10_info.x10_loopFlag)
+            if (remFileBytes < halfSize)
+            {
+                printf("Buffering %d from %d into %d\n", remFileBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
+                m_file->AsyncSeekRead(data, remFileBytes,
+                                      ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
                 xcc_fileCur = x10_info.x14_loopStartByte;
+                u32 remBytes = halfSize - remFileBytes;
+                printf("Loop Buffering %d from %d into %d\n", remBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
+                m_readReqs[buf] = m_file->AsyncSeekRead(data + remFileBytes, remBytes,
+                                  ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
+                xcc_fileCur += remBytes;
+            }
             else
-                xcc_fileCur = x10_info.xc_adpcmBytes;
+            {
+                printf("Buffering %d from %d into %d\n", halfSize, xcc_fileCur + x10_info.x8_headerSize, buf);
+                m_readReqs[buf] = m_file->AsyncSeekRead(data, halfSize,
+                                  ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
+                xcc_fileCur += halfSize;
+            }
         }
         else
         {
-            m_readReqs[buf] = m_file->AsyncSeekRead(data, halfSize,
-                              ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
-            xcc_fileCur += halfSize;
+            if (xcc_fileCur == x10_info.xc_adpcmBytes)
+            {
+                memset(data, 0, halfSize);
+                return;
+            }
+
+            u32 remFileBytes = x10_info.xc_adpcmBytes - xcc_fileCur;
+
+            if (remFileBytes < halfSize)
+            {
+                printf("Buffering %d from %d into %d\n", remFileBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
+                m_readReqs[buf] = m_file->AsyncSeekRead(data, remFileBytes,
+                                  ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
+                memset(data + remFileBytes, 0, halfSize - remFileBytes);
+                xcc_fileCur = x10_info.xc_adpcmBytes;
+            }
+            else
+            {
+                printf("Buffering %d from %d into %d\n", halfSize, xcc_fileCur + x10_info.x8_headerSize, buf);
+                m_readReqs[buf] = m_file->AsyncSeekRead(data, halfSize,
+                                  ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
+                xcc_fileCur += halfSize;
+            }
         }
     }
 
@@ -145,97 +171,95 @@ struct SDSPStream
         return false;
     }
 
-    struct VoiceCallback : boo::IAudioVoiceCallback
+    u32 m_curSample = 0;
+    u32 m_totalSamples = 0;
+    s16 m_prev1 = 0;
+    s16 m_prev2 = 0;
+
+    void preSupplyAudio(boo::IAudioVoice&, double) {}
+
+    void decompressChunk(u32 readToSample, int16_t*& data)
     {
-        SDSPStream& m_parent;
-        u32 m_curSample = 0;
-        u32 m_totalSamples = 0;
-        s16 m_prev1 = 0;
-        s16 m_prev2 = 0;
-        VoiceCallback(SDSPStream& parent) : m_parent(parent) {}
-        void preSupplyAudio(boo::IAudioVoice&, double) {}
-
-        void decompressChunk(u32 readToSample, int16_t*& data)
+        auto sampDiv = std::div(m_curSample, 14);
+        if (sampDiv.rem)
         {
-            auto sampDiv = std::div(m_curSample, 14);
-            if (sampDiv.rem)
-            {
-                unsigned samps = DSPDecompressFrameRanged(data, m_parent.xd4_ringBuffer.get() + sampDiv.quot * 8,
-                                                          m_parent.x10_info.x1c_coef, &m_prev1, &m_prev2, sampDiv.rem,
-                                                          readToSample - m_curSample);
-                m_curSample += samps;
-                data += samps;
-                ++sampDiv.quot;
-            }
-
-            while (m_curSample < readToSample)
-            {
-                unsigned samps = DSPDecompressFrame(data, m_parent.xd4_ringBuffer.get() + sampDiv.quot * 8,
-                                                    m_parent.x10_info.x1c_coef, &m_prev1, &m_prev2,
-                                                    readToSample - m_curSample);
-                m_curSample += samps;
-                data += samps;
-                ++sampDiv.quot;
-            }
+            unsigned samps = DSPDecompressFrameRanged(data, xd4_ringBuffer.get() + sampDiv.quot * 8,
+                                                      x10_info.x1c_coef, &m_prev1, &m_prev2, sampDiv.rem,
+                                                      readToSample - m_curSample);
+            m_curSample += samps;
+            data += samps;
+            ++sampDiv.quot;
         }
 
-        size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
+        while (m_curSample < readToSample)
         {
-            if (m_parent.xe8_silent)
+            unsigned samps = DSPDecompressFrame(data, xd4_ringBuffer.get() + sampDiv.quot * 8,
+                                                x10_info.x1c_coef, &m_prev1, &m_prev2,
+                                                readToSample - m_curSample);
+            m_curSample += samps;
+            data += samps;
+            ++sampDiv.quot;
+        }
+    }
+
+    size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data)
+    {
+        if (xe8_silent)
+        {
+            StopStream();
+            memset(data, 0, frames * 2);
+            return frames;
+        }
+
+        if (xec_readState != 2 || (xe0_curBuffer == 0 && m_curSample >= xdc_ringSamples / 2))
+        {
+            printf("Should fill 0\n");
+            if (!BufferStream())
             {
-                m_parent.StopStream();
                 memset(data, 0, frames * 2);
                 return frames;
             }
-
-            if (!m_parent.xec_readState || m_curSample >= m_parent.xdc_ringSamples / 2)
-            {
-                if (!m_parent.BufferStream())
-                {
-                    memset(data, 0, frames * 2);
-                    return frames;
-                }
-            }
-
-            if (!m_parent.x10_info.x10_loopFlag)
-            {
-                m_totalSamples += frames;
-                u32 fileSamples = m_parent.x10_info.xc_adpcmBytes * 14 / 8;
-                if (m_totalSamples >= fileSamples)
-                {
-                    u32 overSamples = m_totalSamples - fileSamples;
-                    u32 samplesIn = frames - overSamples;
-                    memset(data + samplesIn, 0, overSamples * 2);
-                    m_parent.StopStream();
-                }
-            }
-
-            u32 readToSample = m_curSample + frames;
-            u32 leftoverSamples = 0;
-            if (readToSample > m_parent.xdc_ringSamples)
-            {
-                leftoverSamples = readToSample - m_parent.xdc_ringSamples;
-                readToSample = m_parent.xdc_ringSamples;
-            }
-
-            decompressChunk(readToSample, data);
-
-            if (leftoverSamples)
-            {
-                m_parent.BufferStream();
-                m_curSample = 0;
-                decompressChunk(leftoverSamples, data);
-            }
-
-            return frames;
         }
-    } m_booCallback = {*this};
+
+        u32 readToSample = m_curSample + frames;
+        if (!x10_info.x10_loopFlag)
+        {
+            m_totalSamples += frames;
+            u32 fileSamples = x10_info.xc_adpcmBytes * 14 / 8;
+            if (m_totalSamples >= fileSamples)
+            {
+                u32 leftover = m_totalSamples - fileSamples;
+                readToSample -= leftover;
+                memset(data + frames - leftover, 0, leftover * 2);
+                StopStream();
+            }
+        }
+
+        u32 leftoverSamples = 0;
+        if (readToSample > xdc_ringSamples)
+        {
+            leftoverSamples = readToSample - xdc_ringSamples;
+            readToSample = xdc_ringSamples;
+        }
+
+        decompressChunk(readToSample, data);
+
+        if (leftoverSamples)
+        {
+            printf("Should fill 1\n");
+            BufferStream();
+            m_curSample = 0;
+            decompressChunk(leftoverSamples, data);
+        }
+
+        return frames;
+    }
     std::unique_ptr<boo::IAudioVoice> m_booVoice;
 
     void DoAllocateStream()
     {
         xd4_ringBuffer.reset(new u8[0x11DC0]);
-        m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewMonoVoice(32000.0, &m_booCallback);
+        m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewMonoVoice(32000.0, this);
     }
 
     static void Initialize()
@@ -247,7 +271,6 @@ struct SDSPStream
             stream.xd4_ringBuffer.reset();
             stream.xd8_ringBytes = 0x11DC0;
             stream.xdc_ringSamples = 0x1f410;
-            stream.xc8_streamId = -1;
             if (i < 2)
             {
                 stream.x1_oneshot = false;
@@ -272,7 +295,7 @@ struct SDSPStream
             if (stream.x4_ownerId == -1)
                 stream.x4_ownerId = ++s_HandleCounter2;
             stream.x8_stereoLeft = nullptr;
-            stream.xc_stereoRight = nullptr;
+            stream.xc_companionRight = nullptr;
             streamOut = &stream;
             return stream.x4_ownerId;
         }
@@ -312,7 +335,7 @@ struct SDSPStream
         stream.UpdateStreamVolume(vol);
         if (SDSPStream* left = stream.x8_stereoLeft)
             left->UpdateStreamVolume(vol);
-        if (SDSPStream* right = stream.xc_stereoRight)
+        if (SDSPStream* right = stream.xc_companionRight)
             right->UpdateStreamVolume(vol);
     }
 
@@ -335,7 +358,7 @@ struct SDSPStream
         stream.SilenceStream();
         if (SDSPStream* left = stream.x8_stereoLeft)
             left->SilenceStream();
-        if (SDSPStream* right = stream.xc_stereoRight)
+        if (SDSPStream* right = stream.xc_companionRight)
             right->SilenceStream();
     }
 
@@ -390,6 +413,9 @@ struct SDSPStream
         if (PickFreeStream(rstream, oneshot) == -1)
             return -1;
 
+        rstream->x8_stereoLeft = lstream;
+        lstream->xc_companionRight = rstream;
+
         lstream->AllocateStream(linfo, vol, 0);
         rstream->AllocateStream(rinfo, vol, 0x7f);
         return lid;
@@ -401,6 +427,8 @@ struct SDSPStream
         m_file.emplace(x10_info.x0_fileName);
         if (!xd4_ringBuffer)
             DoAllocateStream();
+        m_readReqs[0].reset();
+        m_readReqs[1].reset();
         x4c_vol = vol;
         x4d_pan = pan;
         xe8_silent = false;
@@ -408,9 +436,15 @@ struct SDSPStream
         xe0_curBuffer = -1;
         xd8_ringBytes = 0x11DC0;
         xdc_ringSamples = 0x1f410;
+        xcc_fileCur = 0;
+        m_curSample = 0;
+        m_totalSamples = 0;
+        m_prev1 = 0;
+        m_prev2 = 0;
         memset(xd4_ringBuffer.get(), 0, 0x11DC0);
         m_booVoice->resetSampleRate(info.x4_sampleRate);
         m_booVoice->start();
+        UpdateStreamVolume(vol);
     }
 
     static SDSPStream g_Streams[4];
@@ -579,7 +613,7 @@ public:
             return false;
 
         if (stream.x7c_streamId == -1)
-            return true;
+            return false;
 
         return SDSPStream::IsStreamAvailable(stream.x7c_streamId);
     }
@@ -613,10 +647,8 @@ public:
         }
     }
 
-    void HeaderReadComplete(u32 readLen)
+    void HeaderReadComplete()
     {
-        m_dvdReq.reset();
-
         u32 selfIdx = -1;
         for (int i=0 ; i<4 ; ++i)
         {
@@ -627,7 +659,7 @@ public:
             }
         }
 
-        if (x70_24_unclaimed || readLen != sizeof(dspadpcm_header) || selfIdx == -1)
+        if (x70_24_unclaimed || selfIdx == -1)
         {
             *this = CDSPStreamManager();
             return;
@@ -672,7 +704,20 @@ public:
         }
     }
 
-    static bool StartHeaderRead(CDSPStreamManager& stream)
+    static void PollHeaderReadCompletions()
+    {
+        for (int i=0 ; i<4 ; ++i)
+        {
+            CDSPStreamManager& stream = g_Streams[i];
+            if (stream.m_dvdReq && stream.m_dvdReq->IsComplete())
+            {
+                stream.m_dvdReq.reset();
+                stream.HeaderReadComplete();
+            }
+        }
+    }
+
+    static bool StartMonoHeaderRead(CDSPStreamManager& stream)
     {
         if (stream.x70_26_headerReadState != 0 || stream.x70_24_unclaimed)
             return false;
@@ -682,9 +727,29 @@ public:
             return false;
 
         stream.x70_26_headerReadState = 1;
-        stream.m_dvdReq = file.AsyncRead(&stream.x0_header, sizeof(dspadpcm_header),
-                                         std::bind(&CDSPStreamManager::HeaderReadComplete, &stream,
-                                                   std::placeholders::_1));
+        stream.m_dvdReq = file.AsyncRead(&stream.x0_header, sizeof(dspadpcm_header));
+        return true;
+    }
+
+    static bool StartStereoHeaderRead(CDSPStreamManager& lstream, CDSPStreamManager& rstream)
+    {
+        if (lstream.x70_26_headerReadState != 0 || lstream.x70_24_unclaimed ||
+            rstream.x70_26_headerReadState != 0 || rstream.x70_24_unclaimed)
+            return false;
+
+        CDvdFile lfile(lstream.x60_fileName.c_str());
+        if (!lfile)
+            return false;
+
+        CDvdFile rfile(rstream.x60_fileName.c_str());
+        if (!rfile)
+            return false;
+
+        lstream.x70_26_headerReadState = 1;
+        rstream.x70_26_headerReadState = 1;
+
+        lstream.m_dvdReq = lfile.AsyncRead(&lstream.x0_header, sizeof(dspadpcm_header));
+        rstream.m_dvdReq = rfile.AsyncRead(&rstream.x0_header, sizeof(dspadpcm_header));
         return true;
     }
 
@@ -713,7 +778,7 @@ public:
             CDSPStreamManager& stream = g_Streams[idx];
             stream = tmpStream;
 
-            if (!StartHeaderRead(stream))
+            if (!StartMonoHeaderRead(stream))
             {
                 stream.x70_25_headerReadCancelled = true;
                 stream.WaitForReadCompletion();
@@ -749,9 +814,7 @@ public:
             leftStream = tmpLeftStream;
             rightStream = tmpRightStream;
 
-            bool leftRet = StartHeaderRead(leftStream);
-            bool rightRet = StartHeaderRead(rightStream);
-            if (!leftRet || !rightRet)
+            if (!StartStereoHeaderRead(leftStream, rightStream))
             {
                 leftStream.x70_25_headerReadCancelled = true;
                 rightStream.x70_25_headerReadCancelled = true;
@@ -1012,8 +1075,7 @@ void CStreamAudioManager::UpdateDSP(bool oneshot, float dt)
 
         if ((p.x10_playState != EPlayerState::FadeIn &&
              p.x10_playState != EPlayerState::FadeOut &&
-             p.x10_playState != EPlayerState::FadeOutNoStop) ||
-             !CDSPStreamManager::IsStreamAvailable(p.x20_internalHandle))
+             p.x10_playState != EPlayerState::FadeOutNoStop))
         {
             if (p.x10_playState == EPlayerState::Playing)
                 CDSPStreamManager::UpdateVolume(p.x20_internalHandle,
@@ -1070,6 +1132,7 @@ void CStreamAudioManager::UpdateDSPStreamers(float dt)
 
 void CStreamAudioManager::Update(float dt)
 {
+    CDSPStreamManager::PollHeaderReadCompletions();
     UpdateDSPStreamers(dt);
 }
 
