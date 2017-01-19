@@ -27,14 +27,14 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CS
         if (x30_24_active)
             return;
 
-        x38_++;
-        TUniqueId tmp = stateMgr.xf76_;
+        x38_refCount++;
+        TUniqueId tmp = stateMgr.GetLastRelayId();
         while (tmp != kInvalidUniqueId)
         {
             const CEntity* obj = stateMgr.GetObjectById(tmp);
             if (!obj)
             {
-                tmp = x34_;
+                tmp = x34_nextRelay;
                 continue;
             }
 
@@ -44,19 +44,19 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CS
 
         if (tmp == kInvalidUniqueId)
             return;
-        x34_ = stateMgr.xf76_;
-        stateMgr.xf76_ = GetUniqueId();
+        x34_nextRelay = stateMgr.GetLastRelayId();
+        stateMgr.SetLastRelayId(GetUniqueId());
     }
 }
 
 void CScriptRelay::Think(float, CStateManager& stateMgr)
 {
-    if (x38_ == 0)
+    if (x38_refCount == 0)
         return;
 
-    while (x38_ != 0)
+    while (x38_refCount != 0)
     {
-        x38_--;
+        x38_refCount--;
         SendScriptMsgs(EScriptObjectState::Zero, stateMgr, EScriptObjectMessage::None);
     }
     UpdateObjectRef(stateMgr);
@@ -64,17 +64,18 @@ void CScriptRelay::Think(float, CStateManager& stateMgr)
 
 void CScriptRelay::UpdateObjectRef(CStateManager& stateMgr)
 {
-    TUniqueId* tmp = &stateMgr.xf76_;
+    TUniqueId* tmp = stateMgr.GetLastRelayIdPtr();
     while (*tmp != kInvalidUniqueId && tmp != nullptr)
     {
         if (*tmp == GetUniqueId())
         {
-            *tmp = x34_;
+            *tmp = x34_nextRelay;
             return;
         }
-        const CScriptRelay* obj = TCastToConstPtr<CScriptRelay>(stateMgr.GetObjectById(*tmp));
-        if (obj)
-            tmp = (TUniqueId*)&obj->x34_;
+        CScriptRelay* obj = dynamic_cast<CScriptRelay*>(stateMgr.ObjectById(*tmp));
+        if (obj == nullptr)
+            return;
+        tmp = &obj->x34_nextRelay;
     }
 }
 

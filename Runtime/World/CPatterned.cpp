@@ -25,9 +25,4 @@ CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatter
 {
 }
 
-void CPatterned::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
 }

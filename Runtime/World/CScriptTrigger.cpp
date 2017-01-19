@@ -58,8 +58,8 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
                 x148_29_didPhazonDamage = false;
             }
 
-            if (x8_uid == mgr.GetLastTrigger())
-                mgr.SetLastTrigger(kInvalidUniqueId);
+            if (x8_uid == mgr.GetLastTriggerId())
+                mgr.SetLastTriggerId(kInvalidUniqueId);
         }
     }
 
@@ -229,8 +229,8 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
         {
 
             if (x128_forceMagnitude > 0.f && (x12c_flags & ETriggerFlags::DetectPlayer) != ETriggerFlags::None &&
-                mgr.GetLastTrigger() == kInvalidUniqueId)
-                mgr.SetLastTrigger(x8_uid);
+                mgr.GetLastTriggerId() == kInvalidUniqueId)
+                mgr.SetLastTriggerId(x8_uid);
 
             testFlags |= ETriggerFlags::DetectPlayer;
             if (pl->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)

@@ -41,7 +41,6 @@ public:
                CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
                const CActorParameters& params, bool b1);
 
-    void Accept(IVisitor& visitor);
     virtual void Death(const zeus::CVector3f&, CStateManager&) {}
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&) {}
 };
