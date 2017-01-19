@@ -85,19 +85,19 @@ struct SDSPStream : boo::IAudioVoiceCallback
 
             if (remFileBytes < halfSize)
             {
-                printf("Buffering %d from %d into %d\n", remFileBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
+                //printf("Buffering %d from %d into %d\n", remFileBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
                 m_file->AsyncSeekRead(data, remFileBytes,
                                       ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
                 xcc_fileCur = x10_info.x14_loopStartByte;
                 u32 remBytes = halfSize - remFileBytes;
-                printf("Loop Buffering %d from %d into %d\n", remBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
+                //printf("Loop Buffering %d from %d into %d\n", remBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
                 m_readReqs[buf] = m_file->AsyncSeekRead(data + remFileBytes, remBytes,
                                   ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
                 xcc_fileCur += remBytes;
             }
             else
             {
-                printf("Buffering %d from %d into %d\n", halfSize, xcc_fileCur + x10_info.x8_headerSize, buf);
+                //printf("Buffering %d from %d into %d\n", halfSize, xcc_fileCur + x10_info.x8_headerSize, buf);
                 m_readReqs[buf] = m_file->AsyncSeekRead(data, halfSize,
                                   ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
                 xcc_fileCur += halfSize;
@@ -115,7 +115,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
 
             if (remFileBytes < halfSize)
             {
-                printf("Buffering %d from %d into %d\n", remFileBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
+                //printf("Buffering %d from %d into %d\n", remFileBytes, xcc_fileCur + x10_info.x8_headerSize, buf);
                 m_readReqs[buf] = m_file->AsyncSeekRead(data, remFileBytes,
                                   ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
                 memset(data + remFileBytes, 0, halfSize - remFileBytes);
@@ -123,7 +123,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
             }
             else
             {
-                printf("Buffering %d from %d into %d\n", halfSize, xcc_fileCur + x10_info.x8_headerSize, buf);
+                //printf("Buffering %d from %d into %d\n", halfSize, xcc_fileCur + x10_info.x8_headerSize, buf);
                 m_readReqs[buf] = m_file->AsyncSeekRead(data, halfSize,
                                   ESeekOrigin::Begin, xcc_fileCur + x10_info.x8_headerSize);
                 xcc_fileCur += halfSize;
@@ -213,7 +213,6 @@ struct SDSPStream : boo::IAudioVoiceCallback
 
         if (xec_readState != 2 || (xe0_curBuffer == 0 && m_curSample >= xdc_ringSamples / 2))
         {
-            printf("Should fill 0\n");
             if (!BufferStream())
             {
                 memset(data, 0, frames * 2);
@@ -246,7 +245,6 @@ struct SDSPStream : boo::IAudioVoiceCallback
 
         if (leftoverSamples)
         {
-            printf("Should fill 1\n");
             BufferStream();
             m_curSample = 0;
             decompressChunk(leftoverSamples, data);
@@ -346,6 +344,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
         float coefs[8] = {};
         m_booVoice->setMonoChannelLevels(nullptr, coefs, true);
         xe8_silent = true;
+        x0_active = false;
     }
 
     static void Silence(u32 id)

@@ -162,7 +162,6 @@ bool CMain::Proc()
 {
     CGBASupport::GlobalPoll();
     xe8_b24_finished = m_archSupport->Update();
-    CStreamAudioManager::Start(false, "Audio/min_x_wind_lp_01L.dsp|Audio/min_x_wind_lp_01R.dsp", 0x7f, true, 0.f, 0.f);
     CStreamAudioManager::Update(1.f / 60.f);
     return xe8_b24_finished;
 }
