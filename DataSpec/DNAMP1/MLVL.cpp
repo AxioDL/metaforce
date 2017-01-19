@@ -286,7 +286,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         }
 
         /* Cull duplicate area paths and add typed hash to list */
-        auto& conn = hecl::BlenderConnection::SharedConnection();
+        auto& conn = btok.getBlenderConnection();
         if (conn.openBlend(areaPath))
         {
             MLVL::Area& areaOut = mlvl.areas.back();
