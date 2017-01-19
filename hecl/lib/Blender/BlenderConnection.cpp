@@ -107,11 +107,13 @@ uint32_t BlenderConnection::_readStr(char* buf, uint32_t bufSz)
         return 0;
     }
     else if (readLen >= 4)
+    {
         if (!memcmp(buf, "EXCEPTION", std::min(readLen, uint32_t(9))))
         {
             _blenderDied();
             return 0;
         }
+    }
 
     *(buf+readLen) = '\0';
     return readLen;
