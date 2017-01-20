@@ -13,7 +13,7 @@ class CStreamAudioManager
     static bool g_MusicUnmute;
     static bool g_SfxUnmute;
 
-    static u8 GetTargetDSPVolume(u8 fileVol, bool music);
+    static float GetTargetDSPVolume(float fileVol, bool music);
     static void StopStreaming(bool oneshot);
     static void UpdateDSP(bool oneshot, float dt);
     static void UpdateDSPStreamers(float dt);

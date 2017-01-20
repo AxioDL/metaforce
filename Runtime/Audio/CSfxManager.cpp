@@ -1,8 +1,23 @@
 #include "CSfxManager.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
+static TLockedToken<std::vector<s16>> mpSfxTranslationTableTok;
 std::vector<s16>* CSfxManager::mpSfxTranslationTable = nullptr;
+
+CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in,
+                                               const CVParamTransfer& vparms,
+                                               CObjectReference* selfRef)
+{
+    std::unique_ptr<std::vector<s16>> obj = std::make_unique<std::vector<s16>>();
+    u32 count = in.readUint32Big();
+    obj->reserve(count);
+    for (u32 i=0 ; i<count ; ++i)
+        obj->push_back(in.readUint16Big());
+    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
+    return TToken<std::vector<s16>>::GetIObjObjectFor(std::move(obj));
+}
 
 CSfxManager::CSfxChannel CSfxManager::m_channels[4];
 rstl::reserved_vector<std::shared_ptr<CSfxManager::CSfxEmitterWrapper>, 128> CSfxManager::m_emitterWrapperPool;
@@ -18,6 +33,17 @@ u16 CSfxManager::kMaxPriority;
 u16 CSfxManager::kMedPriority;
 u16 CSfxManager::kInternalInvalidSfxId;
 u32 CSfxManager::kAllAreas;
+
+bool CSfxManager::LoadTranslationTable(CSimplePool* pool, const SObjectTag* tag)
+{
+    if (!tag)
+        return false;
+    mpSfxTranslationTableTok = pool->GetObj(*tag);
+    if (!mpSfxTranslationTableTok)
+        return false;
+    mpSfxTranslationTable = mpSfxTranslationTableTok.GetObj();
+    return true;
+}
 
 bool CSfxManager::CSfxWrapper::IsPlaying() const
 {

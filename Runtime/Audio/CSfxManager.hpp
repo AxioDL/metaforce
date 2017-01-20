@@ -144,6 +144,7 @@ public:
     static u16 kInternalInvalidSfxId;
     static u32 kAllAreas;
 
+    static bool LoadTranslationTable(CSimplePool* pool, const SObjectTag* tag);
     static bool IsAuxProcessingEnabled() { return m_auxProcessingEnabled; }
     static void SetChannel(ESfxChannels) {}
     static void KillAll(ESfxChannels) {}

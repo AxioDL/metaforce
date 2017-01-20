@@ -48,7 +48,7 @@ public:
     virtual void DrawDebugMetrics(double, CStopWatch&) {}
     virtual void DoPreDrawMetrics(){}
     virtual void FillInAssetIDs()=0;
-    virtual void LoadAudio()=0;
+    virtual bool LoadAudio()=0;
     virtual void ShutdownSubsystems()=0;
     virtual EGameplayResult GetGameplayResult() const=0;
     virtual void SetGameplayResult(EGameplayResult wl)=0;

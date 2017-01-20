@@ -21,6 +21,7 @@ class CAudioGroupSet
 public:
     CAudioGroupSet(std::unique_ptr<u8[]>&& in);
     const amuse::AudioGroupData& GetAudioGroupData() const {return m_data;}
+    const std::string& GetName() const { return x20_name; }
 };
 
 CFactoryFnReturn FAudioGroupSetDataFactory(const urde::SObjectTag& tag,

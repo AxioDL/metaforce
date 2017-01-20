@@ -20,6 +20,7 @@
 #include "Runtime/CSaveWorld.hpp"
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 #include "Audio/CAudioGroupSet.hpp"
+#include "Audio/CSfxManager.hpp"
 #include "Runtime/CDependencyGroup.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
 
@@ -48,6 +49,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('DCLN'), FFactoryFunc(FCollidableOBBTreeGroupFactory));
     m_factoryMgr.AddFactory(FOURCC('DGRP'), FFactoryFunc(FDependencyGroupFactory));
     m_factoryMgr.AddFactory(FOURCC('AGSC'), FMemFactoryFunc(FAudioGroupSetDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('ATBL'), FFactoryFunc(FAudioTranslationTableFactory));
     m_factoryMgr.AddFactory(FOURCC('STRG'), FFactoryFunc(FStringTableFactory));
     m_factoryMgr.AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
     m_factoryMgr.AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));

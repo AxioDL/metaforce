@@ -1,4 +1,7 @@
 #include "CPreFrontEnd.hpp"
+#include "CResLoader.hpp"
+#include "GameGlobalObjects.hpp"
+#include "MP1.hpp"
 
 namespace urde
 {
@@ -11,9 +14,25 @@ CPreFrontEnd::CPreFrontEnd()
 
 }
 
-CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage&, CArchitectureQueue&)
+CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue&)
 {
-    return EMessageReturn::Exit;
+    if (msg.GetType() != EArchMsgType::TimerTick)
+        return EMessageReturn::Normal;
+
+    CMain* m = static_cast<CMain*>(g_Main);
+    //if (CResLoader::AreAllPaksLoaded())
+    //    return EMessageReturn::Exit;
+    if (!x14_resourceTweaksRegistered)
+    {
+        m->RegisterResourceTweaks();
+        x14_resourceTweaksRegistered = true;
+    }
+    m->MemoryCardInitializePump();
+    if (!g_MemoryCardSys)
+        return EMessageReturn::Exit;
+    if (!m->LoadAudio())
+        return EMessageReturn::Exit;
+    return EMessageReturn::RemoveIOWinAndExit;
 }
 
 }

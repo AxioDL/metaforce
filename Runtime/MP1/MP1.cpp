@@ -11,6 +11,7 @@
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
 #include "CBasics.hpp"
+#include "Audio/CAudioGroupSet.hpp"
 
 namespace urde
 {
@@ -55,20 +56,89 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
     x58_ioWinManager.AddIOWin(errWin, 10000, 100000);
 }
 
-bool CGameArchitectureSupport::Update()
+void CGameArchitectureSupport::UpdateTicks()
 {
-    if (!g_MemoryCardSys)
-        m_parent.x128_globalObjects.MemoryCardInitializePump();
+    x4_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
+}
 
-    bool finished = false;
-
+void CGameArchitectureSupport::Update()
+{
     g_GameState->GetWorldTransitionManager()->TouchModels();
     x4_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, x78_));
-    x4_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
-
     x58_ioWinManager.PumpMessages(x4_archQueue);
+}
 
-    return finished;
+struct AudioGroupInfo
+{
+    const char* name;
+    u32 id;
+};
+
+static const AudioGroupInfo StaticAudioGroups[] =
+{
+    {"Misc_AGSC", 39},
+    {"MiscSamus_AGSC", 41},
+    {"UI_AGSC", 40},
+    {"Weapons_AGSC", 43},
+    {"ZZZ_AGSC", 65}
+};
+
+bool CGameArchitectureSupport::LoadAudio()
+{
+    if (x88_audioLoadStatus == EAudioLoadStatus::Loaded)
+        return true;
+
+    for (int i=0 ; i<5 ; ++i)
+    {
+        TToken<CAudioGroupSet>& tok = x8c_pendingAudioGroups[i];
+        if (tok.IsLocked())
+        {
+            if (tok.IsLoaded())
+            {
+                CAudioGroupSet* set = tok.GetObj();
+                if (!CAudioSys::SysIsGroupSetLoaded(set->GetName()))
+                {
+                    CAudioSys::SysLoadGroupSet(tok, set->GetName(), tok.GetObjectTag()->id);
+                    CAudioSys::SysAddGroupIntoAmuse(set->GetName());
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            /* Lock next pending group */
+            tok.Lock();
+            return false;
+        }
+    }
+
+    CSfxManager::LoadTranslationTable(g_SimplePool, g_ResFactory->GetResourceIdByName("sound_lookup"));
+    x8c_pendingAudioGroups = std::vector<TToken<CAudioGroupSet>>();
+    x88_audioLoadStatus = EAudioLoadStatus::Loaded;
+
+    return true;
+}
+
+void CGameArchitectureSupport::PreloadAudio()
+{
+    if (x88_audioLoadStatus != EAudioLoadStatus::Uninitialized)
+        return;
+    x8c_pendingAudioGroups.clear();
+    x8c_pendingAudioGroups.reserve(5);
+
+    for (int i=0 ; i<5 ; ++i)
+    {
+        const AudioGroupInfo& info = StaticAudioGroups[i];
+        CToken grp = g_SimplePool->GetObj(info.name);
+        if (i == 0) /* Lock first group in sequence */
+            grp.Lock();
+        x8c_pendingAudioGroups.push_back(std::move(grp));
+    }
+
+    x88_audioLoadStatus = EAudioLoadStatus::Loading;
 }
 
 void CGameArchitectureSupport::Draw()
@@ -130,8 +200,12 @@ void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr
 void CMain::FillInAssetIDs()
 {
 }
-void CMain::LoadAudio()
+
+bool CMain::LoadAudio()
 {
+    if (x164_archSupport)
+        return x164_archSupport->LoadAudio();
+    return true;
 }
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
@@ -152,23 +226,27 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     x70_tweaks.RegisterResourceTweaks();
-    m_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
-    g_archSupport = m_archSupport.get();
-    //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
     FillInAssetIDs();
+    x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
+    g_archSupport = x164_archSupport.get();
+    x164_archSupport->PreloadAudio();
+    //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
+
+    CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
 }
 
 bool CMain::Proc()
 {
     CGBASupport::GlobalPoll();
-    xe8_b24_finished = m_archSupport->Update();
+    x164_archSupport->UpdateTicks();
+    x164_archSupport->Update();
     CStreamAudioManager::Update(1.f / 60.f);
-    return xe8_b24_finished;
+    return x160_24_finished;
 }
 
 void CMain::Draw()
 {
-    m_archSupport->Draw();
+    x164_archSupport->Draw();
 }
 
 void CMain::Shutdown()

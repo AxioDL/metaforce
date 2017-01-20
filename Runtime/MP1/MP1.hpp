@@ -92,17 +92,6 @@ public:
         m_renderer.reset(AllocateRenderer(xcc_simplePool, x4_resFactory));
     }
 
-    void MemoryCardInitializePump()
-    {
-        if (!g_MemoryCardSys)
-        {
-            if (!x0_memoryCardSys)
-                x0_memoryCardSys.reset(new CMemoryCardSys());
-            if (x0_memoryCardSys->InitializePump())
-                g_MemoryCardSys = x0_memoryCardSys.get();
-        }
-    }
-
     void ResetGameState()
     {
         x134_gameState.reset(new CGameState());
@@ -123,6 +112,16 @@ class CGameArchitectureSupport
     CGuiSys x44_guiSys;
     CIOWinManager x58_ioWinManager;
     s32 x78_;
+
+    enum class EAudioLoadStatus
+    {
+        Loading,
+        Loaded,
+        Uninitialized
+    };
+    EAudioLoadStatus x88_audioLoadStatus = EAudioLoadStatus::Uninitialized;
+    std::vector<TToken<CAudioGroupSet>> x8c_pendingAudioGroups;
+
     boo::SWindowRect m_windowRect;
     bool m_rectIsDirty;
 
@@ -159,7 +158,9 @@ public:
     CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
                              amuse::IBackendVoiceAllocator& backend);
     void PreloadAudio();
-    bool Update();
+    bool LoadAudio();
+    void UpdateTicks();
+    void Update();
     void Draw();
 
     bool isRectDirty() { return m_rectIsDirty; }
@@ -202,11 +203,9 @@ private:
     //CMemorySys x6c_memSys;
     CTweaks x70_tweaks;
     EGameplayResult xe4_gameplayResult;
-    bool xe8_b24_finished = false;
 
     /* urde addition: these are simply initialized along with everything else */
     CGameGlobalObjects x128_globalObjects;
-    std::unique_ptr<CGameArchitectureSupport> m_archSupport;
 
     EFlowState x12c_flowState = EFlowState::Five;
 
@@ -216,7 +215,7 @@ private:
     {
         struct
         {
-            bool x160_24_ : 1;
+            bool x160_24_finished : 1;
             bool x160_25_ : 1;
             bool x160_26_ : 1;
             bool x160_27_ : 1;
@@ -229,7 +228,7 @@ private:
         u16 _dummy = 0;
     };
 
-    u32 x164_ = 0;
+    std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
 
@@ -251,12 +250,24 @@ public:
     void Draw();
     void Shutdown();
 
+    void MemoryCardInitializePump()
+    {
+        if (!g_MemoryCardSys)
+        {
+            std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
+            if (!memSys)
+                memSys.reset(new CMemoryCardSys());
+            if (memSys->InitializePump())
+                g_MemoryCardSys = memSys.get();
+        }
+    }
+
     bool CheckReset() { return false; }
     bool CheckTerminate() { return false; }
     void DrawDebugMetrics(double, CStopWatch&) {}
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
-    void LoadAudio();
+    bool LoadAudio();
     void ShutdownSubsystems() {}
     EGameplayResult GetGameplayResult() const { return xe4_gameplayResult; }
     void SetGameplayResult(EGameplayResult wl) { xe4_gameplayResult = wl; }

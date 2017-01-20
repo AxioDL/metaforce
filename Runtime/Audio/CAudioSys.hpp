@@ -5,9 +5,17 @@
 #include "zeus/CVector3f.hpp"
 #include "amuse/amuse.hpp"
 #include "boo/audiodev/IAudioVoiceEngine.hpp"
+#include "RetroTypes.hpp"
+#include "CToken.hpp"
 
 namespace urde
 {
+class CSimplePool;
+class CAudioGroupSet;
+
+CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in,
+                                               const CVParamTransfer& vparms,
+                                               CObjectReference* selfRef);
 
 class CAudioSys
 {
@@ -65,6 +73,14 @@ public:
     {
 
     }
+    static TLockedToken<CAudioGroupSet> FindGroupSet(const std::string& name);
+    static const std::string& SysGetGroupSetName(ResId id);
+    static bool SysLoadGroupSet(CSimplePool* pool, ResId id);
+    static bool SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, ResId id);
+    static void SysUnloadAudioGroupSet(const std::string& name);
+    static bool SysIsGroupSetLoaded(const std::string& name);
+    static void SysAddGroupIntoAmuse(const std::string& name);
+    static void SysRemoveGroupFromAmuse(const std::string& name);
 };
 
 }
