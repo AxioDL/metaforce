@@ -5,13 +5,13 @@ namespace urde
 {
 const std::vector<FourCC> CStringTable::skLanguages =
 {
-    'ENGL',
-    'FREN',
-    'GERM',
-    'SPAN',
-    'ITAL',
-    'DUTC',
-    'JAPN'
+    FOURCC('ENGL'),
+    FOURCC('FREN'),
+    FOURCC('GERM'),
+    FOURCC('SPAN'),
+    FOURCC('ITAL'),
+    FOURCC('DUTC'),
+    FOURCC('JAPN')
 };
 
 FourCC CStringTable::mCurrentLanguage = CStringTable::skLanguages[0];
@@ -58,7 +58,7 @@ void CStringTable::LoadStringTable(CInputStream &in)
     m_bufLen = dataLen;
     x4_data.reset(new u8[dataLen]);
     in.readUBytesToBuf(x4_data.get(), dataLen);
-    for (u32 i = 0 ; i<x0_stringCount ; i += 4)
+    for (u32 i = 0 ; i < (x0_stringCount * 4) ; i += 4)
     {
         u32* off = reinterpret_cast<u32*>(x4_data.get() + i);
         *off = hecl::SBig(*off);
@@ -75,7 +75,7 @@ std::wstring CStringTable::GetString(s32 str) const
     if (str < 0 || u32(str) >= x0_stringCount)
         return L"Invalid";
 
-    u32 off = *(reinterpret_cast<u32*>(x4_data.get() + str * 4));
+    u32 off = *(reinterpret_cast<u32*>(x4_data.get() + (str * 4)));
     CMemoryInStream tmp(x4_data.get() + off, m_bufLen - off);
     return tmp.readWString();
 }
