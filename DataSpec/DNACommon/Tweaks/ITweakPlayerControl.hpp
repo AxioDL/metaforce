@@ -1,12 +1,12 @@
 #ifndef __DNACOMMON_ITWEAKPLAYERCONTROL_HPP__
 #define __DNACOMMON_ITWEAKPLAYERCONTROL_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakPlayerControl : BigYAML
+struct ITweakPlayerControl : ITweak
 {
     virtual atUint32 GetMapping(atUint32) const=0;
 };

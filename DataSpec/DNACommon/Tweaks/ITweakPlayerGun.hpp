@@ -1,13 +1,13 @@
 #ifndef __DNACOMMON_ITWEAKPLAYERGUN_HPP__
 #define __DNACOMMON_ITWEAKPLAYERGUN_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 #include "zeus/CAABox.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakPlayerGun : BigYAML
+struct ITweakPlayerGun : ITweak
 {
     virtual float GetSomething1() const=0; // x24
     virtual float GetSomething2() const=0; // x28

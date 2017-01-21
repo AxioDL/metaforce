@@ -1,12 +1,12 @@
 #ifndef __DNACOMMON_ITWEAKSLIDESHOW_HPP__
 #define __DNACOMMON_ITWEAKSLIDESHOW_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakSlideShow : BigYAML
+struct ITweakSlideShow : ITweak
 {
     virtual const std::string& GetFont() const=0;
     virtual const zeus::CColor& GetFontColor() const=0;

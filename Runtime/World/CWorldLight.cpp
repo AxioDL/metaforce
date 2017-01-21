@@ -23,7 +23,7 @@ CLight CWorldLight::GetAsCGraphicsLight() const
     zeus::CColor color(x4_color.x, x4_color.y, x4_color.z);
     float tmp = x28_q;
     if (epsilon < tmp)
-        tmp = 0.0000011920929f;
+        tmp = 0.000001f;
 /*
     if (x0_type == ELightType::Spot)
     {

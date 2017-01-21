@@ -1152,41 +1152,41 @@ void CElementGen::BuildParticleSystemBounds()
 
     for (std::unique_ptr<CElementGen>& ch : x234_activePartChildren)
     {
-        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
-        if (chBounds.second)
+        auto chBounds = ch->GetBounds();
+        if (chBounds)
         {
             accumulated = true;
-            aabb.accumulateBounds(chBounds.first);
+            aabb.accumulateBounds(chBounds.value());
         }
     }
 
     for (std::unique_ptr<CElementGen>& ch : x248_finishPartChildren)
     {
-        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
-        if (chBounds.second)
+        auto chBounds = ch->GetBounds();
+        if (chBounds)
         {
             accumulated = true;
-            aabb.accumulateBounds(chBounds.first);
+            aabb.accumulateBounds(chBounds.value());
         }
     }
 
     for (std::unique_ptr<CParticleSwoosh>& ch : x260_swhcChildren)
     {
-        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
-        if (chBounds.second)
+        auto chBounds = ch->GetBounds();
+        if (chBounds)
         {
             accumulated = true;
-            aabb.accumulateBounds(chBounds.first);
+            aabb.accumulateBounds(chBounds.value());
         }
     }
 
     for (std::unique_ptr<CParticleElectric>& ch : x280_elscChildren)
     {
-        std::pair<zeus::CAABox, bool> chBounds = ch->GetBounds();
-        if (chBounds.second)
+        auto chBounds = ch->GetBounds();
+        if (chBounds)
         {
             accumulated = true;
-            aabb.accumulateBounds(chBounds.first);
+            aabb.accumulateBounds(chBounds.value());
         }
     }
 
@@ -2245,12 +2245,12 @@ bool CElementGen::IsSystemDeletable() const
     return false;
 }
 
-std::pair<zeus::CAABox, bool> CElementGen::GetBounds() const
+rstl::optional_object<zeus::CAABox> CElementGen::GetBounds() const
 {
     if (GetParticleCountAll() == 0)
-        return {zeus::CAABox(), false};
+        return {zeus::CAABox()};
     else
-        return {x2c4_systemBounds, true};
+        return {x2c4_systemBounds};
 }
 
 u32 CElementGen::GetParticleCount() const

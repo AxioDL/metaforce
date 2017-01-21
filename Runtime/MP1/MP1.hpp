@@ -58,14 +58,14 @@ class CGameGlobalObjects
     std::unique_ptr<CGameState> x134_gameState;
     TLockedToken<CStringTable> x13c_mainStringTable;
     CInGameTweakManager x150_tweakManager;
-    std::unique_ptr<CBooRenderer> m_renderer;
+    std::unique_ptr<IRenderer> m_renderer;
 
     void LoadStringTable()
     {
         x13c_mainStringTable = g_SimplePool->GetObj("STRG_Main");
         g_MainStringTable = x13c_mainStringTable.GetObj();
     }
-    static CBooRenderer*
+    static IRenderer*
     AllocateRenderer(IObjectStore& store, IFactory& resFactory)
     {
         g_Renderer = new CBooRenderer(store, resFactory);

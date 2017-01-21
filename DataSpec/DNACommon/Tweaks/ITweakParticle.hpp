@@ -1,12 +1,12 @@
 #ifndef __DNACOMMON_ITWEAKPARTICLE_HPP__
 #define __DNACOMMON_ITWEAKPARTICLE_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakParticle : BigYAML
+struct ITweakParticle : ITweak
 {
 };
 

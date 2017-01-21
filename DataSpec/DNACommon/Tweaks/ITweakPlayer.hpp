@@ -1,13 +1,13 @@
 #ifndef __DNACOMMON_ITWEAKPLAYER_HPP__
 #define __DNACOMMON_ITWEAKPLAYER_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 #include "zeus/CAABox.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakPlayer : BigYAML
+struct ITweakPlayer : ITweak
 {
     virtual float GetX50() const=0;
     virtual float GetX54() const=0;

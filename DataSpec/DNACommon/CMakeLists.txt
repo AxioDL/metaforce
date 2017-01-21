@@ -31,6 +31,7 @@ set(DNACOMMON_SOURCES
     BabeDead.hpp BabeDead.cpp
     RigInverter.hpp RigInverter.cpp
     AROTBuilder.hpp AROTBuilder.cpp
+    Tweaks/ITweak.hpp
     Tweaks/TweakWriter.hpp
     Tweaks/ITweakGame.hpp
     Tweaks/ITweakParticle.hpp
@@ -40,7 +41,8 @@ set(DNACOMMON_SOURCES
     Tweaks/ITweakGunRes.hpp
     Tweaks/ITweakPlayerRes.hpp
     Tweaks/ITweakGui.hpp
-    Tweaks/ITweakSlideShow.hpp)
+    Tweaks/ITweakSlideShow.hpp
+    Tweaks/ITweakTargeting.hpp)
 
 dataspec_add_list(DNACommon DNACOMMON_SOURCES)
 list(APPEND DNACOMMON_SOURCES ${liblist})

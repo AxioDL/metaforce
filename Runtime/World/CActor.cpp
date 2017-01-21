@@ -253,6 +253,14 @@ void CActor::SetSfxPitchBend(s32 val)
     CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
 }
 
+void CActor::SetRotation(const zeus::CQuaternion &q)
+{
+    x34_transform = q.toTransform(x34_transform.origin);
+    xe4_27_ = true;
+    xe4_28_ = true;
+    xe4_29_ = true;
+}
+
 void CActor::SetTranslation(const zeus::CVector3f& tr)
 {
     x34_transform.origin = tr;

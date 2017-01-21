@@ -483,11 +483,11 @@ void CBooRenderer::PostRenderFogs()
 
 void CBooRenderer::AddParticleGen(const CParticleGen& gen)
 {
-    std::pair<zeus::CAABox, bool> bounds = gen.GetBounds();
-    if (bounds.second)
+    auto bounds = gen.GetBounds();
+    if (bounds)
     {
-        zeus::CVector3f pt = bounds.first.closestPointAlongVector(xb0_viewPlane.vec);
-        Buckets::Insert(pt, bounds.first, EDrawableType::Particle, &gen, xb0_viewPlane, 0);
+        zeus::CVector3f pt = bounds.value().closestPointAlongVector(xb0_viewPlane.vec);
+        Buckets::Insert(pt, bounds.value(), EDrawableType::Particle, &gen, xb0_viewPlane, 0);
     }
 }
 
