@@ -48,14 +48,14 @@ def quitblender():
 
 class PathHasher:
     def hashpath32(self, path):
-        writepipestr(path)
+        writepipestr(path.encode())
         read_str = readpipestr()
-        if len(read_str) >= 8:
-            return int(read_str[0:8], 16)
+        if len(read_str) >= 16:
+            return int(read_str[0:16], 16) & 0xffffffff
         return 0
 
     def hashpath64(self, path):
-        writepipestr(path)
+        writepipestr(path.encode())
         read_str = readpipestr()
         if len(read_str) >= 16:
             return int(read_str[0:16], 16)
@@ -245,7 +245,7 @@ def dataout_loop():
         elif cmdargs[0] == 'FRAMECOMPILE':
             pathOut = cmdargs[1]
             version = int(cmdargs[2])
-            if version != 1:
+            if version != 0 and version != 1:
                 writepipestr(b'bad version')
                 continue
 

@@ -65,12 +65,13 @@ def draw(layout, context):
 
 hjustifications = None
 vjustifications = None
+model_draw_flags_e = None
 
-def recursive_cook(fout, obj, version, path_hasher, parent_name):
-    fout.write(struct.pack('>4s', retro_widget_type[6:]))
-    fout.write(obj.name.encode())
-    fout.write(parent_name.encode())
-    fout.write(struct.pack('>bbbbffffI',
+def recursive_cook(buffer, obj, version, path_hasher, parent_name):
+    buffer += struct.pack('>4s', obj.retro_widget_type[6:].encode())
+    buffer += obj.name.encode() + b'\0'
+    buffer += parent_name.encode() + b'\0'
+    buffer += struct.pack('>bbbbffffI',
         False,
         obj.retro_widget_default_visible,
         obj.retro_widget_default_active,
@@ -79,7 +80,7 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
         obj.retro_widget_color[1],
         obj.retro_widget_color[2],
         obj.retro_widget_color[3],
-        obj.retro_widget_model_draw_flags))
+        model_draw_flags_e[obj.retro_widget_model_draw_flags])
 
     if obj.retro_widget_type == 'RETRO_CAMR':
         aspect = bpy.context.scene.render.resolution_x / bpy.context.scene.render.resolution_y
@@ -89,12 +90,12 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
                 fov = math.degrees(math.atan(math.tan(obj.data.angle / 2.0) / aspect)) * 2.0
             else:
                 fov = math.degrees(obj.data.angle)
-            fout.write(struct.pack('>Iffff', 0, fov, aspect, obj.data.clip_start, obj.data.clip_end))
+            buffer += struct.pack('>Iffff', 0, fov, aspect, obj.data.clip_start, obj.data.clip_end)
 
         elif obj.data.type == 'ORTHO':
             ortho_half = obj.data.ortho_scale / 2.0
-            fout.write(struct.pack('>Iffffff', 1, -ortho_half, ortho_half, -ortho_half / aspect,
-                                   ortho_half / aspect, obj.data.clip_start, obj.data.clip_end))
+            buffer += struct.pack('>Iffffff', 1, -ortho_half, ortho_half, -ortho_half / aspect,
+                                  ortho_half / aspect, obj.data.clip_start, obj.data.clip_end)
 
     elif obj.retro_widget_type == 'RETRO_MODL':
         if len(obj.children) == 0:
@@ -106,86 +107,86 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
             raise RuntimeException('Model Widget must have a linked library MESH')
         path = bpy.path.abspath(model_obj.data.library.filepath)
         path_hash = path_hasher.hashpath32(path)
-        fout.write(struct.pack('>III', path_hash, 0, obj.retro_model_light_mask))
+        buffer += struct.pack('>III', path_hash, 0, obj.retro_model_light_mask)
 
     elif obj.retro_widget_type == 'RETRO_PANE':
-        fout.write(struct.pack('>fffff',
-                               obj.retro_pane_dimensions[0],
-                               obj.retro_pane_dimensions[1],
-                               obj.retro_pane_scale_center[0],
-                               obj.retro_pane_scale_center[1],
-                               obj.retro_pane_scale_center[2]))
+        buffer += struct.pack('>fffff',
+                              obj.retro_pane_dimensions[0],
+                              obj.retro_pane_dimensions[1],
+                              obj.retro_pane_scale_center[0],
+                              obj.retro_pane_scale_center[1],
+                              obj.retro_pane_scale_center[2])
 
     elif obj.retro_widget_type == 'RETRO_TXPN':
         path_hash = path_hasher.hashpath32(obj.retro_textpane_font_path)
-        fout.write(struct.pack('>fffffIbbIIffffffffff',
-                               obj.retro_pane_dimensions[0],
-                               obj.retro_pane_dimensions[1],
-                               obj.retro_pane_scale_center[0],
-                               obj.retro_pane_scale_center[1],
-                               obj.retro_pane_scale_center[2],
-                               path_hash,
-                               obj.retro_textpane_word_wrap,
-                               obj.retro_textpane_vertical,
-                               hjustifications[obj.retro_textpane_hjustification],
-                               vjustifications[obj.retro_textpane_vjustification],
-                               obj.retro_textpane_fill_color[0],
-                               obj.retro_textpane_fill_color[1],
-                               obj.retro_textpane_fill_color[2],
-                               obj.retro_textpane_fill_color[3],
-                               obj.retro_textpane_outline_color[0],
-                               obj.retro_textpane_outline_color[1],
-                               obj.retro_textpane_outline_color[2],
-                               obj.retro_textpane_outline_color[3],
-                               obj.retro_textpane_block_extent[0],
-                               obj.retro_textpane_block_extent[1]))
+        buffer += struct.pack('>fffffIbbIIffffffffff',
+                              obj.retro_pane_dimensions[0],
+                              obj.retro_pane_dimensions[1],
+                              obj.retro_pane_scale_center[0],
+                              obj.retro_pane_scale_center[1],
+                              obj.retro_pane_scale_center[2],
+                              path_hash,
+                              obj.retro_textpane_word_wrap,
+                              obj.retro_textpane_vertical,
+                              hjustifications[obj.retro_textpane_hjustification],
+                              vjustifications[obj.retro_textpane_vjustification],
+                              obj.retro_textpane_fill_color[0],
+                              obj.retro_textpane_fill_color[1],
+                              obj.retro_textpane_fill_color[2],
+                              obj.retro_textpane_fill_color[3],
+                              obj.retro_textpane_outline_color[0],
+                              obj.retro_textpane_outline_color[1],
+                              obj.retro_textpane_outline_color[2],
+                              obj.retro_textpane_outline_color[3],
+                              obj.retro_textpane_block_extent[0],
+                              obj.retro_textpane_block_extent[1])
         if version >= 1:
             path_hash = path_hasher.hashpath32(obj.retro_textpane_jp_font_path)
-            fout.write(struct.pack('>III',
-                                   path_hash,
-                                   obj.retro_textpane_jp_font_scale[0],
-                                   obj.retro_textpane_jp_font_scale[1]))
+            buffer += struct.pack('>III',
+                                  path_hash,
+                                  obj.retro_textpane_jp_font_scale[0],
+                                  obj.retro_textpane_jp_font_scale[1])
 
     elif obj.retro_widget_type == 'RETRO_TBGP':
-        fout.write(struct.pack('>HHIHHbbffbfHHHH',
-                               obj.retro_tablegroup_elem_count,
-                               0,
-                               0,
-                               obj.retro_tablegroup_elem_default,
-                               0,
-                               obj.retro_tablegroup_wraparound,
-                               False,
-                               0.0,
-                               0.0,
-                               False,
-                               0.0,
-                               0,
-                               0,
-                               0,
-                               0))
+        buffer += struct.pack('>HHIHHbbffbfHHHH',
+                              obj.retro_tablegroup_elem_count,
+                              0,
+                              0,
+                              obj.retro_tablegroup_elem_default,
+                              0,
+                              obj.retro_tablegroup_wraparound,
+                              False,
+                              0.0,
+                              0.0,
+                              False,
+                              0.0,
+                              0,
+                              0,
+                              0,
+                              0)
 
     elif obj.retro_widget_type == 'RETRO_GRUP':
-        fout.write(struct.pack('>Hb',
-                               obj.retro_group_default_worker,
-                               False))
+        buffer += struct.pack('>Hb',
+                              obj.retro_group_default_worker,
+                              False)
 
     elif obj.retro_widget_type == 'RETRO_SLGP':
-        fout.write(struct.pack('>ffff',
-                               obj.retro_slider_min,
-                               obj.retro_slider_max,
-                               obj.retro_slider_default,
-                               obj.retro_slider_increment))
+        buffer += struct.pack('>ffff',
+                              obj.retro_slider_min,
+                              obj.retro_slider_max,
+                              obj.retro_slider_default,
+                              obj.retro_slider_increment)
 
     elif obj.retro_widget_type == 'RETRO_ENRG':
         path_hash = path_hasher.hashpath32(obj.retro_energybar_texture_path)
-        fout.write(struct.pack('>ffff', path_hash))
+        buffer += struct.pack('>ffff', path_hash)
 
     elif obj.retro_widget_type == 'RETRO_METR':
-        fout.write(struct.pack('>bbII',
-                               False,
-                               obj.retro_meter_no_round_up,
-                               obj.retro_meter_max_capacity,
-                               obj.retro_meter_worker_count))
+        buffer += struct.pack('>bbII',
+                              False,
+                              obj.retro_meter_no_round_up,
+                              obj.retro_meter_max_capacity,
+                              obj.retro_meter_worker_count)
 
     elif obj.retro_widget_type == 'RETRO_LITE':
         type_enum = 0
@@ -206,13 +207,14 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
             linear = obj.data.linear_coefficient
             quadratic = obj.data.quadratic_coefficient
 
-        fout.write(struct.pack('>IffffffIf',
-                               type_enum, constant, linear, quadratic,
-                               obj.data.retro_light_angle_constant,
-                               obj.data.retro_light_angle_linear,
-                               obj.data.retro_light_angle_quadratic,
-                               obj.data.retro_light_index,
-                               cutoff))
+        buffer += struct.pack('>IffffffI',
+                              type_enum, constant, linear, quadratic,
+                              obj.data.retro_light_angle_constant,
+                              obj.data.retro_light_angle_linear,
+                              obj.data.retro_light_angle_quadratic,
+                              obj.data.retro_light_index)
+        if obj.data.type == 'SPOT':
+            buffer += struct.pack('>f', cutoff)
 
     elif obj.retro_widget_type == 'RETRO_IMGP':
         if len(obj.children) == 0:
@@ -234,53 +236,60 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
                     path = bpy.path.abspath(image.filepath)
                     path_hash = path_hasher.hashpath32(path)
 
-        fout.write(struct.pack('>IIII', path_hash, 0, 0, 4))
+        buffer += struct.pack('>IIII', path_hash, 0, 0, 4)
         for i in range(4):
             vi = model_obj.data.loops[i].vertex_index
             co = model_obj.data.vertices[vi].co
-            fout.write(struct.pack('>fff', co[0], co[1], co[2]))
+            buffer += struct.pack('>fff', co[0], co[1], co[2])
 
-        fout.write(struct.pack('>I', 4))
+        buffer += struct.pack('>I', 4)
         for i in range(4):
             co = model_obj.data.uv_layers[0].data[i].uv
-            fout.write(struct.pack('>ff', co[0], co[1]))
+            buffer += struct.pack('>ff', co[0], co[1])
 
     if obj.retro_widget_is_worker:
-        fout.write('>bH', True, obj.retro_widget_worker_id)
+        buffer += struct.pack('>bH', True, obj.retro_widget_worker_id)
     else:
-        fout.write('>b', False)
+        buffer += struct.pack('>b', False)
 
-    fout.write(struct.pack('>fffffffffffffffHHH',
+    buffer += struct.pack('>fffffffffffffffHHH',
         obj.matrix_local[0][3],
         obj.matrix_local[1][3],
         obj.matrix_local[2][3],
         obj.matrix_local[0][0], obj.matrix_local[0][1], obj.matrix_local[0][2],
         obj.matrix_local[1][0], obj.matrix_local[1][1], obj.matrix_local[1][2],
         obj.matrix_local[2][0], obj.matrix_local[2][1], obj.matrix_local[2][2],
-        0.0, 0.0, 0.0, 0, 0, 0))
+        0.0, 0.0, 0.0, 0, 0, 0)
 
     for ch in obj.children:
         if ch.retro_widget_type != 'RETRO_NONE':
-            recursive_cook(fout, ch, version, path_hasher, obj.name)
+            recursive_cook(buffer, ch, version, path_hasher, obj.name)
 
 
 def cook(path_out, version, path_hasher):
+    global hjustifications, vjustifications, model_draw_flags_e
     hjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_hjustification[1]['items'])
     vjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_vjustification[1]['items'])
+    model_draw_flags_e = dict((i[0], i[3]) for i in bpy.types.Object.retro_widget_model_draw_flags[1]['items'])
 
-    fout = open(path_out, 'wb')
-    fout.write(struct.pack('>IIIII', 0, 0, 0, 0))
+    buffer = bytearray()
+    buffer += struct.pack('>IIII', 0, 0, 0, 0)
 
     widget_count = 0
     for obj in bpy.data.objects:
         if obj.retro_widget_type != 'RETRO_NONE':
             widget_count += 1
-    fout.write(struct.pack('>I', widget_count))
+    buffer += struct.pack('>I', widget_count)
 
     for obj in bpy.data.objects:
         if obj.retro_widget_type != 'RETRO_NONE' and not obj.parent:
-            recursive_cook(fout, obj, version, path_hasher, 'kGSYS_DummyWidgetID')
+            recursive_cook(buffer, obj, version, path_hasher, 'kGSYS_DummyWidgetID')
 
+    rem_bytes = 32 - len(buffer) % 32
+    for i in range(rem_bytes):
+        buffer.append(0xff)
+    fout = open(path_out, 'wb')
+    fout.write(buffer)
     fout.close()
 
 
