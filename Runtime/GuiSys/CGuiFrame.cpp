@@ -142,7 +142,6 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
     {
         DataSpec::DNAFourCC type;
         type.read(in);
-        printf("%.4s\n", type.toString().c_str());
         CGuiWidget* widget = CGuiSys::CreateWidgetInGame(type, in, this);
         type = widget->GetWidgetTypeID();
         switch (type)
