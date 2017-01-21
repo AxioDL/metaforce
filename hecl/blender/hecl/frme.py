@@ -224,17 +224,15 @@ def recursive_cook(fout, obj, version, path_hasher, parent_name):
             raise RuntimeException('Imagepane Widget must have a child MESH with 4 verts')
         if len(model_obj.data.uv_layers) < 1:
             raise RuntimeException('Imagepane Widget must have a child MESH with a UV layer')
-        if len(model_obj.data.materials) == 0:
-            raise RuntimeException('Imagepane Widget must have a material')
-        material = model_obj.data.materials[0]
-        if len(material.texture_slots) == 0 or not material.texture_slots[0]:
-            raise RuntimeException('Imagepane Widget must have a texture-slotted material')
-        tex_slot = material.texture_slots[0]
-        if tex_slot.texture.type != 'IMAGE' or not tex_slot.texture.image:
-            raise RuntimeException('Imagepane Widget must have an IMAGE texture-slot')
-        image = tex_slot.texture.image
-        path = bpy.path.abspath(image.filepath)
-        path_hash = path_hasher.hashpath32(path)
+        path_hash = 0xffffffff
+        if len(model_obj.data.materials):
+            material = model_obj.data.materials[0]
+            if len(material.texture_slots) and material.texture_slots[0]:
+                tex_slot = material.texture_slots[0]
+                if tex_slot.texture.type == 'IMAGE' and tex_slot.texture.image:
+                    image = tex_slot.texture.image
+                    path = bpy.path.abspath(image.filepath)
+                    path_hash = path_hasher.hashpath32(path)
 
         fout.write(struct.pack('>IIII', path_hash, 0, 0, 4))
         for i in range(4):
