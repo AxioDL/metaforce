@@ -239,6 +239,12 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             DumpCacheAdd(pathTag, subPath);
 #endif
         }
+        else if (pathTag.type == SBIG('AGSC'))
+        {
+            /* Transform tag to glob */
+            pathTag = {SBIG('AGSC'), asGlob.hash().val32()};
+            useGlob = true;
+        }
 
         /* Cache in-memory */
         const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
@@ -357,7 +363,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                             std::string chLower = child.first;
                             std::transform(chLower.cbegin(), chLower.cend(), chLower.begin(), tolower);
                             m_catalogNameToTag[chLower] = search->first;
-                            WriteNameTag(nameWriter, search->first, chLower);
+                            WriteNameTag(nameWriter, search->first, child.first);
                         }
                     }
                 }

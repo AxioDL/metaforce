@@ -13,6 +13,7 @@
 #include "DNAMP1/ANCS.hpp"
 #include "DNAMP1/AGSC.hpp"
 #include "DNAMP1/CSNG.hpp"
+#include "DNACommon/ATBL.hpp"
 #include "DNACommon/FONT.hpp"
 #include "DNACommon/PART.hpp"
 #include "DNACommon/SWHC.hpp"
@@ -384,6 +385,20 @@ struct SpecMP1 : SpecBase
             return {SBIG('CSKR'), path.hash().val32()};
         else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
             return {SBIG('ANIM'), path.hash().val32()};
+        else if (const hecl::SystemChar* ext = path.getLastComponentExt())
+        {
+            if (ext[0] == _S('*') || !hecl::StrCmp(ext, _S("proj")))
+            {
+                if (path.getWithExtension(_S(".proj"), true).isFile() &&
+                    path.getWithExtension(_S(".pool"), true).isFile() &&
+                    path.getWithExtension(_S(".sdir"), true).isFile() &&
+                    path.getWithExtension(_S(".samp"), true).isFile())
+                {
+                    hecl::ProjectPath glob = path.getWithExtension(_S(".*"), true);
+                    return {SBIG('AGSC'), glob.hash().val32()};
+                }
+            }
+        }
 
         hecl::ProjectPath asBlend;
         if (path.getPathType() == hecl::ProjectPath::Type::Glob)
@@ -513,6 +528,11 @@ struct SpecMP1 : SpecBase
                 else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
                 {
                     resTag.type = SBIG('HINT');
+                    return true;
+                }
+                else if (!strcmp(className, "ATBL"))
+                {
+                    resTag.type = SBIG('ATBL');
                     return true;
                 }
 
@@ -712,6 +732,10 @@ struct SpecMP1 : SpecBase
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {
                 DNAMP1::HINT::Cook(in, out);
+            }
+            else if (!classStr.compare("ATBL"))
+            {
+                DNAAudio::ATBL::Cook(in, out);
             }
         }
         progress(_S("Done"));
