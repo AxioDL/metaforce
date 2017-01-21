@@ -232,7 +232,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     x164_archSupport->PreloadAudio();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 
-    CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
+    //CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
 }
 
 bool CMain::Proc()

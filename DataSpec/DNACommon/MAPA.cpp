@@ -282,6 +282,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
 
 
     os << "mesh = bpy.data.meshes.new('MAP')\n"
+          "mesh.show_edge_seams = True\n"
           "obj = bpy.data.objects.new(mesh.name, mesh)\n"
           "bm.to_mesh(mesh)\n"
           "bpy.context.scene.objects.link(obj)\n"

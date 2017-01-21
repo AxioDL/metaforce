@@ -470,13 +470,24 @@ bool FRME::Extract(const SpecBase &dataSpec,
                     }
                     resPath = pakRouter.getResourceRelativePath(entry, info->texture);
                 }
-                hecl::SystemUTF8View resPathView(resPath);
-                os.format("if '%s' in bpy.data.images:\n"
-                          "    image = bpy.data.images['%s']\n"
-                          "else:\n"
-                          "    image = bpy.data.images.load('''//%s''')\n"
-                          "    image.name = '%s'\n"
-                          "material = bpy.data.materials.new('%s')\n"
+
+                if (resPath.size())
+                {
+                    hecl::SystemUTF8View resPathView(resPath);
+                    os.format("if '%s' in bpy.data.images:\n"
+                              "    image = bpy.data.images['%s']\n"
+                              "else:\n"
+                              "    image = bpy.data.images.load('''//%s''')\n"
+                              "    image.name = '%s'\n",
+                              texName.c_str(), texName.c_str(),
+                              resPathView.str().c_str(), texName.c_str());
+                }
+                else
+                {
+                    os << "image = None\n";
+                }
+
+                os.format("material = bpy.data.materials.new('%s')\n"
                           "material.specular_intensity = 0.0\n"
                           "tex_slot = material.texture_slots.add()\n"
                           "tex_slot.texture = bpy.data.textures.new('%s', 'IMAGE')\n"
@@ -484,9 +495,8 @@ bool FRME::Extract(const SpecBase &dataSpec,
                           "material.active_texture = tex_slot.texture\n"
                           "bm = bmesh.new()\n"
                           "verts = []\n",
-                          texName.c_str(), texName.c_str(),
-                          resPathView.str().c_str(), texName.c_str(),
                           w.header.name.c_str(), w.header.name.c_str());
+
                 for (int i=0 ; i<info->quadCoordCount ; ++i)
                 {
                     int ti;

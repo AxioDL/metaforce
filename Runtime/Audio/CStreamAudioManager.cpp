@@ -921,7 +921,7 @@ struct SDSPPlayer
 {
     std::string x0_fileName;
     EPlayerState x10_playState = EPlayerState::Stopped;
-    float x14_volume = 0.0;
+    float x14_volume = 0.f;
     float x18_fadeIn = 0.f;
     float x1c_fadeOut = 0.f;
     u32 x20_internalHandle = -1;
