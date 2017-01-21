@@ -9,6 +9,7 @@ std::unique_ptr<std::vector<CCollisionPrimitive::Type>> CCollisionPrimitive::sCo
 std::unique_ptr<std::vector<ComparisonFunc>> CCollisionPrimitive::sTableOfCollidables;
 std::unique_ptr<std::vector<BooleanComparisonFunc>> CCollisionPrimitive::sTableOfBooleanCollidables;
 std::unique_ptr<std::vector<MovingComparisonFunc>> CCollisionPrimitive::sTableOfMovingCollidables;
+s32 CCollisionPrimitive::sNumTypes = 0;
 bool CCollisionPrimitive::sTypesAdded = false;
 bool CCollisionPrimitive::sTypesAdding = false;
 bool CCollisionPrimitive::sCollidersAdded = false;
@@ -68,11 +69,27 @@ void CCollisionPrimitive::InitAddMovingCollider(const MovingComparisonFunc& cmp,
     InitAddMovingCollider({std::move(cmp), a, b});
 }
 
-void CCollisionPrimitive::InitAddCollider(const CCollisionPrimitive::Comparison& cmp) {}
+void CCollisionPrimitive::InitAddCollider(const CCollisionPrimitive::Comparison& cmp)
+{
+}
 
 void CCollisionPrimitive::InitAddCollider(const ComparisonFunc& cmp, const char* a, const char* b)
 {
     InitAddCollider({std::move(cmp), a, b});
+}
+
+void CCollisionPrimitive::InitEndColliders()
+{
+}
+
+void CCollisionPrimitive::Unitialize()
+{
+    sCollidersAdding = false;
+    sTypesAdding = false;
+    sCollisionTypeList.reset();
+    sTableOfCollidables.reset();
+    sTableOfMovingCollidables.reset();
+    sTableOfBooleanCollidables.reset();
 }
 
 CCollisionPrimitive::Type::Type(const std::function<void(u32)>& setter, const char* info)

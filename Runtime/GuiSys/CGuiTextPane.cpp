@@ -117,8 +117,12 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     outlineCol.readRGBABig(in);
     int extentX = in.readFloatBig();
     int extentY = in.readFloatBig();
-    return new CGuiTextPane(parms, xDim, zDim, vec, fontId, props,
+    CGuiTextPane* ret = new CGuiTextPane(parms, xDim, zDim, vec, fontId, props,
                             fontCol, outlineCol, extentX, extentY);
+    ret->ParseBaseInfo(frame, in, parms);
+    ret->InitializeBuffers();
+    ret->TextSupport()->SetText("?\?(?\?)", false);
+    return ret;
 }
 
 }

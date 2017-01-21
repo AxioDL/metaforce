@@ -7,7 +7,19 @@ namespace urde
 {
 class CWorldLight
 {
-    ELightType x0_type = ELightType::Custom;
+public:
+    enum class EWorldLightType
+    {
+        LocalAmbient,
+        Directional,
+        Custom,
+        Spot,
+        Spot2,
+        LocalAmbient2,
+    };
+
+private:
+    EWorldLightType x0_type = EWorldLightType::Spot2;
     zeus::CVector3f x4_color;
     zeus::CVector3f x10_position;
     zeus::CVector3f x1c_direction;

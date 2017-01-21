@@ -12,7 +12,9 @@ CAuiEnergyBarT01* CAuiEnergyBarT01::Create(CGuiFrame* frame, CInputStream& in, b
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
     u32 a = in.readUint32Big();
-    return new CAuiEnergyBarT01(parms, a);
+    CAuiEnergyBarT01* ret = new CAuiEnergyBarT01(parms, a);
+    ret->ParseBaseInfo(frame, in, parms);
+    return ret;
 }
 
 }

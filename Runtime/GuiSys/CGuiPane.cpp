@@ -57,7 +57,9 @@ CGuiPane* CGuiPane::Create(CGuiFrame* frame, CInputStream& in, bool flag)
     float z = in.readFloatBig();
     zeus::CVector3f scaleCenter;
     scaleCenter.readBig(in);
-    return new CGuiPane(parms, x, z, scaleCenter);
+    CGuiPane* pane =  new CGuiPane(parms, x, z, scaleCenter);
+    pane->ParseBaseInfo(frame, in, parms);
+    return pane;
 }
 
 }

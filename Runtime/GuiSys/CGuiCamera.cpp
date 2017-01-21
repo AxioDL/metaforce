@@ -76,6 +76,7 @@ CGuiCamera* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, bool flag)
     break;
     }
     frame->SetFrameCamera(ret);
+    ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }
 

@@ -619,7 +619,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
         for (int i=0 ; i<paletteCount ; ++i)
         {
             png_sPLT_tp palette = &palettes[i];
-            if (!strcmp(palette->name, "GXPalette"))
+            if (!strncmp(palette->name, "GX_", 3))
             {
                 if (palette->nentries > 16)
                 {

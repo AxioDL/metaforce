@@ -146,6 +146,8 @@ public:
     float GetPitch() const;
     float GetYaw() const;
     const CModelData* GetModelData() const { return x64_modelData.get(); }
+    void EnsureRendered(const CStateManager&);
+    void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
 };
 }
 

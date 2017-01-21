@@ -65,7 +65,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
     ReapplyXform();
     zeus::CVector3f rotCenter;
     rotCenter.readBig(in);
-    SetRotationCenter(rotCenter);
+    in.readUint32Big();
     in.readUint16Big();
     if (a)
         if (!parent->AddWorkerWidget(this))
