@@ -36,7 +36,6 @@ std::tuple<float, float, float> CalculateLightFalloff(EFalloffType falloff, floa
 CLight CWorldLight::GetAsCGraphicsLight() const
 {
     zeus::CVector3f float_color = x4_color;
-    zeus::CColor tmpColor;
     float q = x28_q;
     if (q < FLT_EPSILON)
         q = 0.000001f;
@@ -57,11 +56,12 @@ CLight CWorldLight::GetAsCGraphicsLight() const
     }
     else if (x0_type == EWorldLightType::Directional)
     {
-        return CLight::BuildDirectional(x1c_direction, tmpColor);
+        return CLight::BuildDirectional(x1c_direction, zeus::CColor{x4_color.x, x4_color.y, x4_color.z, 1.f});
     }
     else if (x0_type == EWorldLightType::Spot)
     {
-        CLight light = CLight::BuildSpot(x10_position, x1c_direction.normalized(), tmpColor, x2c_cutoffAngle * .5f);
+        CLight light = CLight::BuildSpot(x10_position, x1c_direction.normalized(),
+                                         zeus::CColor{x4_color.x, x4_color.y, x4_color.z, 1.f}, x2c_cutoffAngle * .5f);
 
         float c, l, q;
         std::tie(c, l, q) = CalculateLightFalloff(x3c_falloff, x28_q);
