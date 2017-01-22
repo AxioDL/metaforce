@@ -18,7 +18,7 @@ public:
         {
             struct
             {
-                bool x0_24_ : 1;
+                bool x0_24_invalid : 1;
             };
             u32 _dummy = 0;
         };
@@ -28,7 +28,7 @@ public:
             : x4_lifetime(i),
               x8_rotation(f)
         {
-            x0_24_ = true;
+            x0_24_invalid = true;
         }
     };
 private:
@@ -39,11 +39,20 @@ private:
     zeus::CTransform xc_transform;
     CQuadDecal x3c_decalQuad1;
     CQuadDecal x48_decalQuad2;
-    u32 x54_ = 0;
-    u32 x58_ = 0;
-    u32 x5c_ = 0;
-    zeus::CVector3f x60_;
-    void InitQuad(CQuadDecal&, const CDecalDescription::SQuadDescr&);
+    s32 x54_lifetime = 0;
+    s32 x58_frameIdx = 0;
+    union
+    {
+        struct
+        {
+            bool x5c_31_quad1Invalid : 1;
+            bool x5c_30_quad2Invalid : 1;
+            bool x5c_29_modelInvalid : 1;
+        };
+        u32 x5c_dummy = 0;
+    };
+    zeus::CVector3f x60_rotation;
+    bool InitQuad(CQuadDecal&, const CDecalDescription::SQuadDescr&);
 public:
     CDecal(const TToken<CDecalDescription>&, const zeus::CTransform&);
     bool IsDone() const;

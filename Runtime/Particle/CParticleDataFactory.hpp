@@ -31,6 +31,7 @@ struct SParticleModel
     SParticleModel() = default;
     SParticleModel(CToken&& tok, bool found)
     : m_token(std::move(tok)), m_found(found) {}
+    operator bool() const { return m_found; }
 };
 
 struct SChildGeneratorDesc
@@ -41,6 +42,7 @@ struct SChildGeneratorDesc
     SChildGeneratorDesc() = default;
     SChildGeneratorDesc(CToken&& tok, bool found)
     : m_token(std::move(tok)), m_found(found) {}
+    operator bool() const { return m_found; }
 };
 
 struct SSwooshGeneratorDesc
@@ -51,6 +53,7 @@ struct SSwooshGeneratorDesc
     SSwooshGeneratorDesc() = default;
     SSwooshGeneratorDesc(CToken&& tok, bool found)
     : m_token(std::move(tok)), m_found(found) {}
+    operator bool() const { return m_found; }
 };
 
 struct SElectricGeneratorDesc
@@ -61,6 +64,7 @@ struct SElectricGeneratorDesc
     SElectricGeneratorDesc() = default;
     SElectricGeneratorDesc(CToken&& tok, bool found)
     : m_token(std::move(tok)), m_found(found) {}
+    operator bool() const { return m_found; }
 };
 
 class CParticleDataFactory

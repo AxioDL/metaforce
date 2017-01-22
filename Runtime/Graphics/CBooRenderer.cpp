@@ -4,6 +4,8 @@
 #include "CTexture.hpp"
 #include "CModel.hpp"
 #include "Particle/CParticleGen.hpp"
+#include "Particle/CDecal.hpp"
+#include "Particle/CElementGen.hpp"
 #include "CMetroidModelInstance.hpp"
 #include "Collision/CAreaOctTree.hpp"
 
@@ -652,6 +654,8 @@ void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& col
     x318_29_thermalVisor = thermal;
     x2f0_thermalVisorLevel = level;
     x2f4_thermColor = color;
+    CDecal::SetMoveRedToAlphaBuffer(false);
+    CElementGen::SetMoveRedToAlphaBuffer(false);
 }
 
 void CBooRenderer::SetThermalColdScale(float scale)
@@ -680,6 +684,8 @@ void CBooRenderer::DoThermalBlendCold()
 
     m_thermColdFilter.setShift(x2a8_thermalRand.Next() % 32);
     m_thermColdFilter.draw();
+    CElementGen::SetMoveRedToAlphaBuffer(true);
+    CDecal::SetMoveRedToAlphaBuffer(true);
 }
 
 void CBooRenderer::DoThermalBlendHot()

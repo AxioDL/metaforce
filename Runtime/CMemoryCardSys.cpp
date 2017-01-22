@@ -585,4 +585,10 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port)
     card.commit();
 }
 
+void CMemoryCardSys::Shutdown()
+{
+    UnmountCard(kabufuda::ECardSlot::SlotA);
+    UnmountCard(kabufuda::ECardSlot::SlotB);
+}
+
 }

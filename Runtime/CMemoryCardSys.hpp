@@ -63,6 +63,7 @@ class CMemoryCardSys
     std::vector<std::pair<ResId, CSaveWorldMemory>> xc_memoryWorlds; /* MLVL as key */
     std::experimental::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
     std::vector<std::pair<ResId, CSaveWorld::EScanCategory>> x20_scanStates;
+
 public:
     static kabufuda::SystemString ResolveDolphinCardPath(kabufuda::ECardSlot slot);
 
@@ -174,6 +175,7 @@ public:
     static ECardResult FormatCard(kabufuda::ECardSlot port);
 
     static void CommitToDisk(kabufuda::ECardSlot port);
+    static void Shutdown();
 };
 
 }

@@ -66,6 +66,7 @@ void CGameArchitectureSupport::UpdateTicks()
 void CGameArchitectureSupport::Update()
 {
     g_GameState->GetWorldTransitionManager()->TouchModels();
+    x30_inputGenerator.Update(1 / 60.f, x4_archQueue);
     x4_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, x78_));
     x58_ioWinManager.PumpMessages(x4_archQueue);
 }
@@ -282,6 +283,7 @@ void CMain::ShutdownSubsystems()
     CDecalManager::Shutdown();
     CElementGen::Shutdown();
     CAnimData::FreeCache();
+    CMemoryCardSys::Shutdown();
 }
 
 void CMain::Shutdown()

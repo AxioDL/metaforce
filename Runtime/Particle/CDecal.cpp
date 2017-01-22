@@ -2,6 +2,8 @@
 
 namespace urde
 {
+CRandom16 CDecal::sDecalRandom(99);
+bool CDecal::sMoveRedToAphaBuffer = false;
 
 CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf)
     : x0_description(desc),
@@ -11,11 +13,25 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
 {
     CGlobalRandom gr(sDecalRandom);
 
-    InitQuad(x3c_decalQuad1, x0_description.GetObj()->x0_Quad);
-    InitQuad(x48_decalQuad2, x0_description.GetObj()->x1c_Quad);
+    x5c_31_quad1Invalid = InitQuad(x3c_decalQuad1, x0_description.GetObj()->x0_Quad);
+    x5c_30_quad2Invalid = InitQuad(x48_decalQuad2, x0_description.GetObj()->x1c_Quad);
+
+    CDecalDescription* d = x0_description.GetObj();
+    if (d->x38_DMDL)
+    {
+        if (d->x48_DLFT)
+            d->x48_DLFT->GetValue(0, x54_lifetime);
+        else
+            x54_lifetime = 0x7FFFFF;
+
+        if (d->x50_DMRT)
+            d->x50_DMRT->GetValue(0, x60_rotation);
+    }
+    else
+        x5c_29_modelInvalid = true;
 }
 
-void CDecal::InitQuad(CDecal::CQuadDecal& quad, const CDecalDescription::SQuadDescr& desc)
+bool CDecal::InitQuad(CDecal::CQuadDecal& quad, const CDecalDescription::SQuadDescr& desc)
 {
     if (desc.x14_TEX)
     {
@@ -26,18 +42,34 @@ void CDecal::InitQuad(CDecal::CQuadDecal& quad, const CDecalDescription::SQuadDe
         if (desc.x8_ROT)
         {
             desc.x8_ROT->GetValue(0, quad.x8_rotation);
-            u32 r0 = (quad._dummy >> 25) & 1;
-            r0 &= desc.x8_ROT->IsConstant();
-            quad._dummy = (quad._dummy & ~0x80) | ((r0 << 7) & 0x80);
+            quad.x0_24_invalid = desc.x8_ROT->IsConstant();
         }
 
         if (desc.x4_SZE)
         {
-
+            quad.x0_24_invalid = desc.x4_SZE->IsConstant();
+            float size = 1.f;
+            desc.x4_SZE->GetValue(0, size);
+            quad.x0_24_invalid = size <= 1.f;
         }
+
+        if (desc.xc_OFF)
+            quad.x0_24_invalid = desc.xc_OFF->IsFastConstant();
+        return false;
     }
-    else
-        quad.x0_24_ = false;
+
+    quad.x0_24_invalid = false;
+    return true;
 }
 
+
+void CDecal::SetGlobalSeed(u16 seed)
+{
+    sDecalRandom.SetSeed(seed);
+}
+
+void CDecal::SetMoveRedToAlphaBuffer(bool move)
+{
+    sMoveRedToAphaBuffer = move;
+}
 }

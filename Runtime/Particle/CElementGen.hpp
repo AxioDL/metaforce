@@ -172,7 +172,7 @@ public:
     static bool g_StaticListInitialized;
     static int g_ParticleAliveCount;
     static int g_ParticleSystemAliveCount;
-    static bool g_MoveRedToAlphaBuffer;
+    static bool sMoveRedToAlphaBuffer;
     static void Initialize();
     static void Shutdown();
 
@@ -239,6 +239,8 @@ public:
     bool GetParticleEmission() const;
     void DestroyParticles();
     void Reset();
+
+    static void SetMoveRedToAlphaBuffer(bool);
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

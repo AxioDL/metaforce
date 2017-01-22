@@ -21,7 +21,7 @@ int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
 s32 CElementGen::g_FreeIndex;
 bool CElementGen::g_StaticListInitialized = false;
-bool CElementGen::g_MoveRedToAlphaBuffer = false;
+bool CElementGen::sMoveRedToAlphaBuffer = false;
 CElementGen::CParticle* CElementGen::g_currentParticle = nullptr;
 static rstl::reserved_vector<CElementGen::CParticle, MAX_GLOBAL_PARTICLES> g_StaticParticleList;
 static rstl::reserved_vector<u16, MAX_GLOBAL_PARTICLES> g_StaticFreeList;
@@ -1273,7 +1273,7 @@ void CElementGen::RenderModels()
 
     if (desc->x45_24_x31_26_PMUS)
     {
-        if (g_MoveRedToAlphaBuffer && desc->x44_31_x31_25_PMAB && desc->x54_x40_TEXR)
+        if (sMoveRedToAlphaBuffer && desc->x44_31_x31_25_PMAB && desc->x54_x40_TEXR)
             moveRedToAlphaBuffer = true;
 
         if (desc->x44_31_x31_25_PMAB)
@@ -1638,7 +1638,7 @@ void CElementGen::RenderParticles()
     }
 
     bool moveRedToAlphaBuffer = false;
-    if (g_MoveRedToAlphaBuffer && x224_26_AAPH)
+    if (sMoveRedToAlphaBuffer && x224_26_AAPH)
         moveRedToAlphaBuffer = true;
 
     if (moveRedToAlphaBuffer)
@@ -2319,6 +2319,11 @@ void CElementGen::Reset()
     x64_prevFrame = -1;
     x208_activeParticleCount = 0;
     x225_28_warmedUp = false;
+}
+
+void CElementGen::SetMoveRedToAlphaBuffer(bool move)
+{
+    sMoveRedToAlphaBuffer = move;
 }
 
 }
