@@ -298,6 +298,8 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::Projec
 
 void ProjectResourceFactoryBase::BackgroundIndexProc()
 {
+    logvisor::RegisterThreadName("Resource Index Thread");
+
     hecl::ProjectPath tagCachePath(m_proj->getProjectCookedPath(*m_origSpec), _S("tag_cache.yaml"));
     hecl::ProjectPath nameCachePath(m_proj->getProjectCookedPath(*m_origSpec), _S("name_cache.yaml"));
     hecl::ProjectPath specRoot(m_proj->getProjectWorkingPath(), m_origSpec->m_name);

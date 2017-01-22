@@ -405,6 +405,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
         if (id == -1)
             return -1;
 
+        /* -3dB pan law for mono */
         stream->AllocateStream(info, vol, 0.707f, 0.707f);
         return id;
     }

@@ -55,7 +55,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
 
     TLockedToken<CTexture> xrayPalette = objStore.GetObj("TXTR_XRayPalette");
-    m_particleView.reset(new ParticleView(*this, m_viewResources, *m_rootView, xrayPalette));
+    m_testGameView.reset(new TestGameView(*this, m_viewResources, *m_rootView, xrayPalette));
 
 #if 0
     m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
@@ -74,7 +74,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     //m_newAudioPlayer->StartMixing();
 
     m_rootView->accessContentViews().clear();
-    m_rootView->accessContentViews().push_back(m_particleView.get());
+    m_rootView->accessContentViews().push_back(m_testGameView.get());
     m_rootView->updateSize();
 }
 
@@ -83,13 +83,13 @@ void ViewManager::InitMP1(MP1::CMain& main)
     main.Init(m_fileStoreManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
 }
 
-void ViewManager::ParticleView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
+void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     specter::View::resized(root, sub);
     urde::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
 }
 
-void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
+void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
 {
     gfxQ->clearTarget(false, true);
 

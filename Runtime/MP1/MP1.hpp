@@ -125,6 +125,19 @@ class CGameArchitectureSupport
     boo::SWindowRect m_windowRect;
     bool m_rectIsDirty;
 
+    void destroyed() { x4_archQueue.Push(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)); }
+
+    void resized(const boo::SWindowRect &rect)
+    {
+        m_windowRect = rect;
+        m_rectIsDirty = true;
+    }
+
+public:
+    CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
+                             amuse::IBackendVoiceAllocator& backend);
+    ~CGameArchitectureSupport();
+
     void mouseDown(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
     { x30_inputGenerator.mouseDown(coord, button, mods); }
     void mouseUp(const boo::SWindowCoord &coord, boo::EMouseButton button, boo::EModifierKey mods)
@@ -145,19 +158,6 @@ class CGameArchitectureSupport
     { x30_inputGenerator.modKeyDown(mod, isRepeat);}
     void modKeyUp(boo::EModifierKey mod)
     { x30_inputGenerator.modKeyUp(mod); }
-
-    void destroyed() { x4_archQueue.Push(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)); }
-
-    void resized(const boo::SWindowRect &rect)
-    {
-        m_windowRect = rect;
-        m_rectIsDirty = true;
-    }
-
-public:
-    CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
-                             amuse::IBackendVoiceAllocator& backend);
-    ~CGameArchitectureSupport();
 
     void PreloadAudio();
     bool LoadAudio();
@@ -282,6 +282,8 @@ public:
     void SetFlowState(EFlowState s) { x12c_flowState = s; }
 
     void SetX30(bool v) { x160_30_ = v; }
+
+    CGameArchitectureSupport* GetArchSupport() const { return x164_archSupport.get(); }
 };
 
 }

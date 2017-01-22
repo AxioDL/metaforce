@@ -1914,18 +1914,16 @@ void CFrontEndUI::Draw() const
         if (xcc_curMoviePtr && xcc_curMoviePtr->GetIsFullyCached())
         {
             /* Render movie */
-            auto vidDimensions = xcc_curMoviePtr->GetVideoDimensions();
-            float aspectRatio = vidDimensions.first / float(vidDimensions.second);
             float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
             if (vpAspectRatio >= 1.78f)
             {
                 float hPad = 1.78f / vpAspectRatio;
-                float vPad = 1.78f / aspectRatio;
+                float vPad = 1.78f / 1.33f;
                 xcc_curMoviePtr->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
             }
             else
             {
-                float vPad = vpAspectRatio / aspectRatio;
+                float vPad = vpAspectRatio / 1.33f;
                 xcc_curMoviePtr->SetFrame({-1.f, vPad, 0.f}, {-1.f, -vPad, 0.f}, {1.f, -vPad, 0.f}, {1.f, vPad, 0.f});
             }
 
@@ -1951,11 +1949,22 @@ void CFrontEndUI::Draw() const
         if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded() && m_pressStartQuad)
         {
             /* Render "Press Start" */
-            float nativeRatio = CGraphics::g_ViewportResolution.x / 640.f;
-            float hOffset = x38_pressStart->GetWidth() / 2.f * nativeRatio;
-            float vOffset = x38_pressStart->GetHeight() / 2.f * nativeRatio;
-            zeus::CRectangle rect(CGraphics::g_ViewportResolutionHalf.x - hOffset, 72.f * nativeRatio - vOffset,
-                                  x38_pressStart->GetWidth() * nativeRatio, x38_pressStart->GetHeight() * nativeRatio);
+            float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+            float hPad, vPad;
+            if (vpAspectRatio >= 1.78f)
+            {
+                hPad = 1.78f / vpAspectRatio;
+                vPad = 1.78f / 1.33f;
+            }
+            else
+            {
+                hPad = 1.f;
+                vPad = vpAspectRatio / 1.33f;
+            }
+            zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
+                                  0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
+                                  x38_pressStart->GetWidth() / 640.f * hPad,
+                                  x38_pressStart->GetHeight() / 480.f * vPad);
             zeus::CColor color = zeus::CColor::skWhite;
             color.a = x64_pressStartAlpha;
             const_cast<CTexturedQuadFilterAlpha&>(*m_pressStartQuad).draw(color, 1.f, rect);
@@ -2046,7 +2055,7 @@ bool CFrontEndUI::PumpLoad()
         return false;
 
     /* Ready to construct texture quads */
-    m_pressStartQuad.emplace(CCameraFilterPass::EFilterType::Blend, x38_pressStart);
+    m_pressStartQuad.emplace(CCameraFilterPass::EFilterType::Add, x38_pressStart);
 
     return true;
 }

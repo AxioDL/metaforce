@@ -50,7 +50,7 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<RootSpace> m_rootSpace;
     specter::View* m_rootSpaceView = nullptr;
 
-    class ParticleView : public specter::View
+    class TestGameView : public specter::View
     {
         ViewManager& m_vm;
         CSpaceWarpFilter m_spaceWarpFilter;
@@ -61,13 +61,69 @@ class ViewManager : public specter::IViewManager
         float m_theta = 0.f;
         unsigned m_frame = 0;
     public:
-        ParticleView(ViewManager& vm, specter::ViewResources& res, specter::View& parent,
+        TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent,
                      TLockedToken<CTexture>& xrayPalette)
         : View(res, parent), m_vm(vm), m_xrayBlur(xrayPalette), m_random(20) {}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+        void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->mouseDown(coord, button, mkey);
+        }
+
+        void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->mouseUp(coord, button, mkey);
+        }
+
+        void mouseMove(const boo::SWindowCoord& coord)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->mouseMove(coord);
+        }
+
+        void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& sd)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->scroll(coord, sd);
+        }
+
+        void charKeyDown(unsigned long cc, boo::EModifierKey mkey, bool repeat)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->charKeyDown(cc, mkey, repeat);
+        }
+
+        void charKeyUp(unsigned long cc, boo::EModifierKey mkey)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->charKeyUp(cc, mkey);
+        }
+
+        void specialKeyDown(boo::ESpecialKey skey, boo::EModifierKey mkey, bool repeat)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->specialKeyDown(skey, mkey, repeat);
+        }
+
+        void specialKeyUp(boo::ESpecialKey skey, boo::EModifierKey mkey)
+        {
+            if (MP1::CMain* m = m_vm.m_projManager.gameMain())
+                if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
+                    as->specialKeyUp(skey, mkey);
+        }
     };
-    std::unique_ptr<ParticleView> m_particleView;
+    std::unique_ptr<TestGameView> m_testGameView;
     urde::TLockedToken<CModel> m_modelTest;
     urde::TLockedToken<CGenDescription> m_partGenDesc;
     TLockedToken<CGameHintInfo> m_hints;
