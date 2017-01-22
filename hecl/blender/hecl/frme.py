@@ -217,18 +217,15 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
             buffer += struct.pack('>f', cutoff)
 
     elif obj.retro_widget_type == 'RETRO_IMGP':
-        if len(obj.children) == 0:
-            raise RuntimeException('Imagepane Widget must have a child model object')
-        model_obj = obj.children[0]
-        if model_obj.type != 'MESH':
-            raise RuntimeException('Imagepane Widget must have a child MESH')
-        if len(model_obj.data.loops) < 4:
-            raise RuntimeException('Imagepane Widget must have a child MESH with 4 verts')
-        if len(model_obj.data.uv_layers) < 1:
-            raise RuntimeException('Imagepane Widget must have a child MESH with a UV layer')
+        if obj.type != 'MESH':
+            raise RuntimeException('Imagepane Widget must be a MESH')
+        if len(obj.data.loops) < 4:
+            raise RuntimeException('Imagepane Widget must be a MESH with 4 verts')
+        if len(obj.data.uv_layers) < 1:
+            raise RuntimeException('Imagepane Widget must ba a MESH with a UV layer')
         path_hash = 0xffffffff
-        if len(model_obj.data.materials):
-            material = model_obj.data.materials[0]
+        if len(obj.data.materials):
+            material = obj.data.materials[0]
             if len(material.texture_slots) and material.texture_slots[0]:
                 tex_slot = material.texture_slots[0]
                 if tex_slot.texture.type == 'IMAGE' and tex_slot.texture.image:
@@ -238,13 +235,13 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
 
         buffer += struct.pack('>IIII', path_hash, 0, 0, 4)
         for i in range(4):
-            vi = model_obj.data.loops[i].vertex_index
-            co = model_obj.data.vertices[vi].co
+            vi = obj.data.loops[i].vertex_index
+            co = obj.data.vertices[vi].co
             buffer += struct.pack('>fff', co[0], co[1], co[2])
 
         buffer += struct.pack('>I', 4)
         for i in range(4):
-            co = model_obj.data.uv_layers[0].data[i].uv
+            co = obj.data.uv_layers[0].data[i].uv
             buffer += struct.pack('>ff', co[0], co[1])
 
     if obj.retro_widget_is_worker:
@@ -252,14 +249,14 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
     else:
         buffer += struct.pack('>b', False)
 
-    buffer += struct.pack('>fffffffffffffffHHH',
+    buffer += struct.pack('>fffffffffffffffIH',
         obj.matrix_local[0][3],
         obj.matrix_local[1][3],
         obj.matrix_local[2][3],
         obj.matrix_local[0][0], obj.matrix_local[0][1], obj.matrix_local[0][2],
         obj.matrix_local[1][0], obj.matrix_local[1][1], obj.matrix_local[1][2],
         obj.matrix_local[2][0], obj.matrix_local[2][1], obj.matrix_local[2][2],
-        0.0, 0.0, 0.0, 0, 0, 0)
+        0.0, 0.0, 0.0, 0, 0)
 
     for ch in obj.children:
         if ch.retro_widget_type != 'RETRO_NONE':
