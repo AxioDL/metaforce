@@ -1353,7 +1353,7 @@ void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, 
                           m_parent->m_loadedBlend.getAbsolutePath().c_str());
 
     char req[512];
-    snprintf(req, 512, "FRAMECOMPILE %s %d", pathOut.c_str(), version);
+    snprintf(req, 512, "FRAMECOMPILE '%s' %d", pathOut.c_str(), version);
     m_parent->_writeStr(req);
 
     char readBuf[1024];
@@ -1377,7 +1377,7 @@ void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, 
             relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
         hecl::ProjectPath path(proj.getProjectWorkingPath(), relative);
 
-        snprintf(req, 512, "%016llX", path.hash().val64());
+        snprintf(req, 512, "%016" PRIX64 , path.hash().val64());
         m_parent->_writeStr(req);
     }
 }
