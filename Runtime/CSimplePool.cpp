@@ -6,7 +6,7 @@ namespace urde
 {
 
 CSimplePool::CSimplePool(IFactory& factory)
-: x30_factory(factory), x34_paramXfer(new TObjOwnerParam<IObjectStore*>(this))
+: x18_factory(factory), x1c_paramXfer(new TObjOwnerParam<IObjectStore*>(this))
 {}
 
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer)
@@ -14,28 +14,28 @@ CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXf
     if (!tag)
         return {};
 
-    auto iter = x4_resources.find(tag);
-    if (iter != x4_resources.end())
+    auto iter = x8_resources.find(tag);
+    if (iter != x8_resources.end())
         return CToken(iter->second);
 
     CObjectReference* ret = new CObjectReference(*this, std::unique_ptr<IObj>(), tag, paramXfer);
-    x4_resources.emplace(std::make_pair<SObjectTag, CObjectReference*>((SObjectTag)tag, std::move(ret)));
+    x8_resources.emplace(std::make_pair<SObjectTag, CObjectReference*>((SObjectTag)tag, std::move(ret)));
     return CToken(ret);
 }
 
 CToken CSimplePool::GetObj(const SObjectTag& tag)
 {
-    return GetObj(tag, x34_paramXfer);
+    return GetObj(tag, x1c_paramXfer);
 }
 
 CToken CSimplePool::GetObj(const char* resourceName)
 {
-    return GetObj(resourceName, x34_paramXfer);
+    return GetObj(resourceName, x1c_paramXfer);
 }
 
 CToken CSimplePool::GetObj(const char* resourceName, const CVParamTransfer& paramXfer)
 {
-    const SObjectTag* tag = x30_factory.GetResourceIdByName(resourceName);
+    const SObjectTag* tag = x18_factory.GetResourceIdByName(resourceName);
     if (!tag)
         return {};
     return GetObj(*tag, paramXfer);
@@ -43,16 +43,16 @@ CToken CSimplePool::GetObj(const char* resourceName, const CVParamTransfer& para
 
 bool CSimplePool::HasObject(const SObjectTag& tag) const
 {
-    auto iter = x4_resources.find(tag);
-    if (iter != x4_resources.cend())
+    auto iter = x8_resources.find(tag);
+    if (iter != x8_resources.cend())
         return true;
-    return x30_factory.CanBuild(tag);
+    return x18_factory.CanBuild(tag);
 }
 
 bool CSimplePool::ObjectIsLive(const SObjectTag& tag) const
 {
-    auto iter = x4_resources.find(tag);
-    if (iter == x4_resources.cend())
+    auto iter = x8_resources.find(tag);
+    if (iter == x8_resources.cend())
         return false;
     return iter->second->IsLoaded();
 }
@@ -63,9 +63,9 @@ void CSimplePool::Flush()
 
 void CSimplePool::ObjectUnreferenced(const SObjectTag& tag)
 {
-    auto iter = x4_resources.find(tag);
-    if (iter != x4_resources.end())
-        x4_resources.erase(iter);
+    auto iter = x8_resources.find(tag);
+    if (iter != x8_resources.end())
+        x8_resources.erase(iter);
 }
 
 }

@@ -14,10 +14,11 @@ class CObjectReference;
 class CSimplePool : public IObjectStore
 {
 protected:
-    //std::list<std::pair<SObjectTag, CObjectReference*>> x4_resources;
-    std::unordered_map<SObjectTag, CObjectReference*> x4_resources;
-    IFactory& x30_factory;
-    CVParamTransfer x34_paramXfer;
+    u8 x4_;
+    u8 x5_;
+    std::unordered_map<SObjectTag, CObjectReference*> x8_resources;
+    IFactory& x18_factory;
+    CVParamTransfer x1c_paramXfer;
 public:
     CSimplePool(IFactory& factory);
     CToken GetObj(const SObjectTag&, const CVParamTransfer&);
@@ -26,7 +27,7 @@ public:
     CToken GetObj(const char*, const CVParamTransfer&);
     bool HasObject(const SObjectTag&) const;
     bool ObjectIsLive(const SObjectTag&) const;
-    IFactory& GetFactory() const {return x30_factory;}
+    IFactory& GetFactory() const {return x18_factory;}
     void Flush();
     void ObjectUnreferenced(const SObjectTag&);
 };
