@@ -124,6 +124,7 @@ class ViewManager : public specter::IViewManager
     specter::SplitView::Axis m_deferSplitAxis;
     int m_deferSplitThisSlot;
     boo::SWindowCoord m_deferSplitCoord;
+    hecl::SystemString m_deferedProject;
 
 public:
     ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr);

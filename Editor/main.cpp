@@ -56,12 +56,31 @@ struct Application : boo::IApplicationCallback
     {
         m_running = false;
     }
-    void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>&);
+    void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>& paths)
+    {
+        for (const auto& path : paths)
+        {
+            hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
+            if (projPath)
+            {
+                m_viewManager->projectManager().openProject(path);
+                break;
+            }
+        }
+    }
 
-    void initialize(boo::IApplication* /*app*/)
+    void initialize(boo::IApplication* app)
     {
         zeus::detectCPU();
-        hecl::VerbosityLevel = 1;
+        for (const boo::SystemString& arg : app->getArgs())
+        {
+            if (arg.find(_S("--verbosity=")) == 0)
+            {
+                hecl::SystemUTF8View utf8Arg(arg.substr(arg.find_last_of('=') + 1));
+                hecl::VerbosityLevel = atoi(utf8Arg.c_str());
+                hecl::LogModule.report(logvisor::Info, "Set verbosity level to %i", hecl::VerbosityLevel);
+            }
+        }
 
         const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
@@ -101,12 +120,6 @@ struct Application : boo::IApplicationCallback
         Log.report(logvisor::Info, _S("CPU Features: %s"), features.c_str());
     }
 };
-
-/* This is here to prevent a vtable being dumped into every translation unit */
-void Application::appFilesOpen(boo::IApplication *, const std::vector<boo::SystemString> &)
-{
-
-}
 
 }
 

@@ -28,7 +28,7 @@ namespace urde
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
     m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
-#if 1
+#if 0
     SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.*"));
     SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
     SObjectTag bgModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_BC34D54C.blend"));
@@ -36,11 +36,11 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
                                                                platModel.id, zeus::CVector3f::skOne,
                                                                bgModel.id, zeus::CVector3f::skOne, true);
-#endif
 
     SObjectTag areaTag = m_projManager.TagFromPath(
         _S("MP1/Metroid1/!1IntroLevel1027/00 Exterior Docking Hangar/!area.blend"));
     auto areaData = m_projManager.resourceFactoryMP1().LoadResourceSync(areaTag);
+#endif
 
     //m_modelTest = objStore.GetObj("gun_cmdl");
 
@@ -73,7 +73,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
     //m_newAudioPlayer.emplace(*m_voiceEngine, "Audio/frontend_1.rsf", 416480, 1973664);
     //m_newAudioPlayer->StartMixing();
 
-    //m_rootView->accessContentViews().clear();
+    m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_particleView.get());
     m_rootView->updateSize();
 }
@@ -98,7 +98,7 @@ void ViewManager::ParticleView::draw(boo::IGraphicsCommandQueue *gfxQ)
 
     if (m_vm.m_modelTest.IsLoaded())
     {
-#if 1
+#if 0
         CModelFlags flags;
 
         flags.m_extendedShaderIdx = 0;
@@ -354,6 +354,16 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->setWaitCursor(false);
     m_voiceEngine = boo::NewAudioVoiceEngine();
     m_amuseAllocWrapper.emplace(*m_voiceEngine);
+
+    for (const auto& arg : app->getArgs())
+    {
+        if (hecl::SearchForProject(arg))
+        {
+            m_deferedProject = arg;
+            break;
+        }
+    }
+
     /*
     CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
     CModelShaders::Initialize(m_fileStoreManager, gf);
@@ -365,6 +375,12 @@ void ViewManager::init(boo::IApplication* app)
 
 bool ViewManager::proc()
 {
+    if (!m_deferedProject.empty() && m_viewResources.fontCacheReady())
+    {
+        m_projManager.openProject(m_deferedProject);
+        m_deferedProject.clear();
+    }
+
     boo::IGraphicsCommandQueue* gfxQ = m_mainWindow->getCommandQueue();
     if (m_rootView->isDestroyed())
         return false;
@@ -412,7 +428,6 @@ bool ViewManager::proc()
     m_mainWindow->waitForRetrace();
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
-
     return true;
 }
 
