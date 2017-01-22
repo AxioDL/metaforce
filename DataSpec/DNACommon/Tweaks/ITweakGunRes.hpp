@@ -1,13 +1,13 @@
 #ifndef __DNACOMMON_ITWEAKGUNRES_HPP__
 #define __DNACOMMON_ITWEAKGUNRES_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakGunRes : BigYAML
+struct ITweakGunRes : ITweak
 {
     using ResId = int64_t;
     enum class EBeamId

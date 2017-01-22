@@ -94,6 +94,7 @@ private:
     static std::unique_ptr<std::vector<ComparisonFunc>> sTableOfCollidables;
     static std::unique_ptr<std::vector<BooleanComparisonFunc>> sTableOfBooleanCollidables;
     static std::unique_ptr<std::vector<MovingComparisonFunc>> sTableOfMovingCollidables;
+    static s32 sNumTypes;
     static bool sTypesAdded;
     static bool sTypesAdding;
     static bool sCollidersAdded;
@@ -125,6 +126,8 @@ public:
     static void InitAddCollider(const Comparison& cmp);
     static void InitAddCollider(const ComparisonFunc&, const char*, const char*);
     static void InitEndColliders();
+
+    static void Unitialize();
 };
 }
 

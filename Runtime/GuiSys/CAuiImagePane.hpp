@@ -15,7 +15,6 @@ public:
                   rstl::reserved_vector<zeus::CVector2f, 4>&& uvs, bool);
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
-
 }
 
 #endif // __URDE_CAUIIMAGEPANE_HPP__

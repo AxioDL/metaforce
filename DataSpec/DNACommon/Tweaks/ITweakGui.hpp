@@ -1,13 +1,13 @@
 #ifndef __DNACOMMON_ITWEAKGUI_HPP__
 #define __DNACOMMON_ITWEAKGUI_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 #include "zeus/CVector2f.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakGui : BigYAML
+struct ITweakGui : ITweak
 {
     virtual float GetScanSpeed(int idx) const=0;
     virtual float GetXrayBlurScaleLinear() const=0;

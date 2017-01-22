@@ -140,11 +140,14 @@ public:
     bool HasModelData() const;
     const CSfxHandle* GetSfxHandle() const;
     void SetSfxPitchBend(s32);
+    void SetRotation(const zeus::CQuaternion& q);
     void SetTranslation(const zeus::CVector3f& tr);
     void SetAddedToken(u32 tok);
     float GetPitch() const;
     float GetYaw() const;
     const CModelData* GetModelData() const { return x64_modelData.get(); }
+    void EnsureRendered(const CStateManager&);
+    void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
 };
 }
 

@@ -118,7 +118,8 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
         std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props,
                                        fontCol, outlineCol, extentX, extentY);
     ret->ParseBaseInfo(frame, in, parms);
-    ret->TextSupport()->SetText(L"");
+    ret->InitializeBuffers();
+    ret->TextSupport()->SetText(L"?\?(?\?)");
     return ret;
 }
 

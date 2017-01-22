@@ -1,13 +1,13 @@
 #ifndef __DNACOMMON_ITWEAKPLAYERRES_HPP__
 #define __DNACOMMON_ITWEAKPLAYERRES_HPP__
 
-#include "../DNACommon.hpp"
+#include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
 
 namespace DataSpec
 {
 
-struct ITweakPlayerRes : BigYAML
+struct ITweakPlayerRes : ITweak
 {
     using ResId = int64_t;
     enum class EBeamId

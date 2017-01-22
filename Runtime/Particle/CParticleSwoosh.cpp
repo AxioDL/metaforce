@@ -88,9 +88,9 @@ bool CParticleSwoosh::IsSystemDeletable() const
     return false;
 }
 
-std::pair<zeus::CAABox, bool> CParticleSwoosh::GetBounds() const
+rstl::optional_object<zeus::CAABox> CParticleSwoosh::GetBounds() const
 {
-    return std::make_pair(zeus::CAABox(), false);
+    return {};
 }
 
 u32 CParticleSwoosh::GetParticleCount() const

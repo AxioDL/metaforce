@@ -5,13 +5,13 @@ namespace urde
 {
 const std::vector<FourCC> CStringTable::skLanguages =
 {
-    'ENGL',
-    'FREN',
-    'GERM',
-    'SPAN',
-    'ITAL',
-    'DUTC',
-    'JAPN'
+    FOURCC('ENGL'),
+    FOURCC('FREN'),
+    FOURCC('GERM'),
+    FOURCC('SPAN'),
+    FOURCC('ITAL'),
+    FOURCC('DUTC'),
+    FOURCC('JAPN')
 };
 
 FourCC CStringTable::mCurrentLanguage = CStringTable::skLanguages[0];

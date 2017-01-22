@@ -97,7 +97,7 @@ public:
     const zeus::CVector3f& GetGlobalScale() const;
     const zeus::CColor& GetModulationColor() const;
     bool IsSystemDeletable() const;
-    std::pair<zeus::CAABox, bool> GetBounds() const;
+    rstl::optional_object<zeus::CAABox> GetBounds() const;
     u32 GetParticleCount() const;
     bool SystemHasLight() const;
     CLight GetLight() const;

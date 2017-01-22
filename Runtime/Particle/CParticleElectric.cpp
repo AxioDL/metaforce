@@ -185,9 +185,9 @@ bool CParticleElectric::IsSystemDeletable() const
     return false;
 }
 
-std::pair<zeus::CAABox, bool> CParticleElectric::GetBounds() const
+rstl::optional_object<zeus::CAABox> CParticleElectric::GetBounds() const
 {
-    return std::make_pair(zeus::CAABox(), false);
+    return {};
 }
 
 u32 CParticleElectric::GetParticleCount() const

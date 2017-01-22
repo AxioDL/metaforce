@@ -1,6 +1,7 @@
-#include "CGameLight.hpp"
-#include "CActorParameters.hpp"
+#include "World/CGameLight.hpp"
+#include "World/CActorParameters.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -9,20 +10,25 @@ CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, const std::strin
                        TUniqueId parentId, const CLight& light, u32 w1, u32 w2, float f1)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(), kInvalidUniqueId),
-  xe8_parentId(parentId), xec_light(light), x13c_(w1), x140_(w2), x144_(f1)
+  xe8_parentId(parentId), xec_light(light), x13c_(w1), x140_(w2), x144_lifeTime(f1)
 {
     xec_light.GetRadius();
     xec_light.GetIntensity();
     SetLightPriorityAndId();
 }
 
+void CGameLight::Accept(IVisitor &visitor)
+{
+    visitor.Visit(this);
+}
+
 void CGameLight::Think(float dt, CStateManager& mgr)
 {
-    if (x144_ <= 0.f)
+    if (x144_lifeTime <= 0.f)
         return;
-    x144_ -= dt;
+    x144_lifeTime -= dt;
 
-    if (x144_ <= 0.f)
+    if (x144_lifeTime <= 0.f)
         mgr.RemoveActor(GetUniqueId());
 }
 

@@ -36,7 +36,7 @@ public:
     virtual const zeus::CVector3f& GetGlobalScale() const=0;
     virtual const zeus::CColor& GetModulationColor() const=0;
     virtual bool IsSystemDeletable() const=0;
-    virtual std::pair<zeus::CAABox, bool> GetBounds() const=0;
+    virtual rstl::optional_object<zeus::CAABox> GetBounds() const=0;
     virtual u32 GetParticleCount() const=0;
     virtual bool SystemHasLight() const=0;
     virtual CLight GetLight() const=0;
