@@ -4,6 +4,7 @@
 #include "CTexture.hpp"
 #include "CModel.hpp"
 #include "Particle/CParticleGen.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "Particle/CDecal.hpp"
 #include "Particle/CElementGen.hpp"
 #include "CMetroidModelInstance.hpp"
