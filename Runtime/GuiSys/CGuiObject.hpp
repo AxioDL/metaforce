@@ -10,26 +10,24 @@ namespace urde
 {
 struct CGuiWidgetDrawParms;
 
-class CGuiObject
+class CGuiObject : public std::enable_shared_from_this<CGuiObject>
 {
 protected:
     zeus::CTransform x4_localXF;
     zeus::CTransform x34_worldXF;
-    zeus::CVector3f x64_rotationCenter;
-    CGuiObject* x70_parent = nullptr;
-    CGuiObject* x74_child = nullptr;
-    CGuiObject* x78_nextSibling = nullptr;
+    CGuiObject* x64_parent = nullptr;
+    CGuiObject* x68_child = nullptr;
+    CGuiObject* x6c_nextSibling = nullptr;
 public:
-    virtual ~CGuiObject();
+    virtual ~CGuiObject() = default;
     virtual void Update(float dt);
     virtual void Draw(const CGuiWidgetDrawParms& parms) const;
     virtual void Initialize()=0;
 
     void MoveInWorld(const zeus::CVector3f& vec);
-    const zeus::CVector3f& GetLocalPosition() const {return x4_localXF.origin;}
+    const zeus::CVector3f& GetLocalPosition() const { return x4_localXF.origin; }
     void SetLocalPosition(const zeus::CVector3f& pos);
-    const zeus::CVector3f& GetWorldPosition() const {return x34_worldXF.origin;}
-    void SetRotationCenter(const zeus::CVector3f& center) {x64_rotationCenter = center;}
+    const zeus::CVector3f& GetWorldPosition() const { return x34_worldXF.origin; }
     void RotateReset();
     zeus::CVector3f RotateW2O(const zeus::CVector3f& vec) const;
     zeus::CVector3f RotateO2P(const zeus::CVector3f& vec) const;
@@ -37,9 +35,9 @@ public:
     void MultiplyO2P(const zeus::CTransform& xf);
     void AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd);
     CGuiObject* RemoveChildObject(CGuiObject* obj, bool makeWorldLocal);
-    CGuiObject* GetParent() const {return x70_parent;}
-    CGuiObject* GetChildObject() const {return x74_child;}
-    CGuiObject* GetNextSibling() const {return x78_nextSibling;}
+    CGuiObject* GetParent() const { return x64_parent; }
+    CGuiObject* GetChildObject() const { return x68_child; }
+    CGuiObject* GetNextSibling() const { return x6c_nextSibling; }
     void RecalculateTransforms();
     void Reorthogonalize();
     void SetO2WTransform(const zeus::CTransform& xf);

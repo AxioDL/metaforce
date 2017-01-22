@@ -1,11 +1,9 @@
 #include "CGuiSys.hpp"
 #include "CGuiWidget.hpp"
 #include "CGuiHeadWidget.hpp"
-#include "CGuiBackground.hpp"
 #include "CGuiLight.hpp"
 #include "CGuiCamera.hpp"
 #include "CGuiGroup.hpp"
-#include "CGuiStaticImage.hpp"
 #include "CGuiPane.hpp"
 #include "CAuiImagePane.hpp"
 #include "CAuiMeter.hpp"
@@ -25,43 +23,40 @@ CGuiSys* g_GuiSys = nullptr;
 CTextExecuteBuffer* g_TextExecuteBuf = nullptr;
 CTextParser* g_TextParser = nullptr;
 
-CGuiWidget* CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame)
+std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in,
+                                                        CGuiFrame* frame, CSimplePool* sp)
 {
     switch (type)
     {
     case SBIG('BWIG'):
-        return CGuiWidget::Create(frame, in, false);
+        return CGuiWidget::Create(frame, in, sp);
     case SBIG('HWIG'):
-        return CGuiHeadWidget::Create(frame, in, false);
-    case SBIG('BGND'):
-        return CGuiBackground::Create(frame, in, false);
+        return CGuiHeadWidget::Create(frame, in, sp);
     case SBIG('LITE'):
-        return CGuiLight::Create(frame, in, false);
+        return CGuiLight::Create(frame, in, sp);
     case SBIG('CAMR'):
-        return CGuiCamera::Create(frame, in, false);
+        return CGuiCamera::Create(frame, in, sp);
     case SBIG('GRUP'):
-        return CGuiGroup::Create(frame, in, false);
-    case SBIG('IMAG'):
-        return CGuiStaticImage::Create(frame, in, false);
+        return CGuiGroup::Create(frame, in, sp);
     case SBIG('PANE'):
-        return CGuiPane::Create(frame, in, false);
+        return CGuiPane::Create(frame, in, sp);
     case SBIG('IMGP'):
-        return CAuiImagePane::Create(frame, in, false);
+        return CAuiImagePane::Create(frame, in, sp);
     case SBIG('METR'):
-        return CAuiMeter::Create(frame, in, false);
+        return CAuiMeter::Create(frame, in, sp);
     case SBIG('MODL'):
-        return CGuiModel::Create(frame, in, false);
+        return CGuiModel::Create(frame, in, sp);
     case SBIG('TBGP'):
-        return CGuiTableGroup::Create(frame, in, false);
+        return CGuiTableGroup::Create(frame, in, sp);
     case SBIG('SLGP'):
-        return CGuiSliderGroup::Create(frame, in, false);
+        return CGuiSliderGroup::Create(frame, in, sp);
     case SBIG('TXPN'):
-        return CGuiTextPane::Create(frame, in, false);
+        return CGuiTextPane::Create(frame, in, sp);
     case SBIG('ENRG'):
-        return CAuiEnergyBarT01::Create(frame, in, false);
+        return CAuiEnergyBarT01::Create(frame, in, sp);
     default: break;
     }
-    return nullptr;
+    return {};
 }
 
 CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)

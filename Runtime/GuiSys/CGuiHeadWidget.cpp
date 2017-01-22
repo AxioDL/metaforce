@@ -7,11 +7,11 @@ namespace urde
 CGuiHeadWidget::CGuiHeadWidget(const CGuiWidgetParms& parms)
 : CGuiWidget(parms) {}
 
-CGuiHeadWidget* CGuiHeadWidget::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiHeadWidget::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
-    CGuiHeadWidget* ret = new CGuiHeadWidget(parms);
-    frame->SetHeadWidget(ret);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
+    std::shared_ptr<CGuiHeadWidget> ret = std::make_shared<CGuiHeadWidget>(parms);
+    frame->SetHeadWidget(ret->shared_from_this());
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

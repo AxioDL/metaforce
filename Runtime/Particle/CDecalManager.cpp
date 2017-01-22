@@ -26,4 +26,10 @@ void CDecalManager::Initialize()
     m_LastDecalCreatedIndex = -1;
     m_LastDecalCreatedAssetId = -1;
 }
+
+void CDecalManager::Shutdown()
+{
+
+}
+
 }

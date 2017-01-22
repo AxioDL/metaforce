@@ -51,9 +51,8 @@ struct FRME : BigDNA
         Value<atVec3f> origin;
         Value<atVec3f> basis[3];
         Value<atVec3f> rotationCenter;
-        Value<atInt16> msgCount;
-        Value<atInt16> funcDefCount;
-        Value<atInt16> animControllerCount;
+        Value<atInt32> unk1;
+        Value<atInt16> unk2;
 
         struct BWIGInfo : IWidgetInfo
         {

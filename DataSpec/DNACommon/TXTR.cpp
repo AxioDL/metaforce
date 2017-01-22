@@ -88,12 +88,6 @@ static inline uint8_t Convert6To8(uint8_t v)
     return (v << 2) | (v >> 4);
 }
 
-static inline uint16_t Convert8To16(uint16_t v)
-{
-    /* Swizzle bits: 01234567 -> 0123456701234567 */
-    return (v << 8) | v;
-}
-
 static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y)
 {
     int bwidth = (width + 7) / 8;
@@ -305,10 +299,10 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
         GXEntry.name = (char*)"GX_IA8";
         for (int e=0 ; e<numEntries ; ++e)
         {
-            entries[e].red = Convert8To16(data[e*2]);
-            entries[e].green = Convert8To16(data[e*2]);
-            entries[e].blue = Convert8To16(data[e*2]);
-            entries[e].alpha = Convert8To16(data[e*2+1]);
+            entries[e].red = data[e*2];
+            entries[e].green = data[e*2];
+            entries[e].blue = data[e*2];
+            entries[e].alpha = data[e*2+1];
         }
         break;
     }
@@ -320,10 +314,10 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
         for (int e=0 ; e<numEntries ; ++e)
         {
             uint16_t texel = hecl::SBig(data16[e]);
-            entries[e].red = Convert8To16(Convert5To8(texel >> 11 & 0x1f));
-            entries[e].green = Convert8To16(Convert6To8(texel >> 5 & 0x3f));
-            entries[e].blue = Convert8To16(Convert5To8(texel & 0x1f));
-            entries[e].alpha = Convert8To16(0xff);
+            entries[e].red = Convert5To8(texel >> 11 & 0x1f);
+            entries[e].green = Convert6To8(texel >> 5 & 0x3f);
+            entries[e].blue = Convert5To8(texel & 0x1f);
+            entries[e].alpha = 0xff;
         }
         break;
     }
@@ -337,17 +331,17 @@ static const uint8_t* DecodePaletteSPLT(png_structrp png, png_infop info,
             uint16_t texel = hecl::SBig(data16[e]);
             if (texel & 0x8000)
             {
-                entries[e].red = Convert8To16(Convert5To8(texel >> 10 & 0x1f));
-                entries[e].green = Convert8To16(Convert5To8(texel >> 5 & 0x1f));
-                entries[e].blue = Convert8To16(Convert5To8(texel & 0x1f));
-                entries[e].alpha = Convert8To16(0xff);
+                entries[e].red = Convert5To8(texel >> 10 & 0x1f);
+                entries[e].green = Convert5To8(texel >> 5 & 0x1f);
+                entries[e].blue = Convert5To8(texel & 0x1f);
+                entries[e].alpha = 0xff;
             }
             else
             {
-                entries[e].red = Convert8To16(Convert4To8(texel >> 8 & 0xf));
-                entries[e].green = Convert8To16(Convert4To8(texel >> 4 & 0xf));
-                entries[e].blue = Convert8To16(Convert4To8(texel & 0xf));
-                entries[e].alpha = Convert8To16(Convert3To8(texel >> 12 & 0x7));
+                entries[e].red = Convert4To8(texel >> 8 & 0xf);
+                entries[e].green = Convert4To8(texel >> 4 & 0xf);
+                entries[e].blue = Convert4To8(texel & 0xf);
+                entries[e].alpha = Convert3To8(texel >> 12 & 0x7);
             }
         }
         break;
@@ -619,7 +613,7 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
         for (int i=0 ; i<paletteCount ; ++i)
         {
             png_sPLT_tp palette = &palettes[i];
-            if (!strcmp(palette->name, "GXPalette"))
+            if (!strncmp(palette->name, "GX_", 3))
             {
                 if (palette->nentries > 16)
                 {
@@ -633,10 +627,20 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
                         if (j < palette->nentries)
                         {
                             png_sPLT_entryp entry = &palette->entries[j];
-                            *cur++ = entry->red >> 8;
-                            *cur++ = entry->green >> 8;
-                            *cur++ = entry->blue >> 8;
-                            *cur++ = entry->alpha >> 8;
+                            if (palette->depth == 16)
+                            {
+                                *cur++ = entry->red >> 8;
+                                *cur++ = entry->green >> 8;
+                                *cur++ = entry->blue >> 8;
+                                *cur++ = entry->alpha >> 8;
+                            }
+                            else
+                            {
+                                *cur++ = entry->red;
+                                *cur++ = entry->green;
+                                *cur++ = entry->blue;
+                                *cur++ = entry->alpha;
+                            }
                         }
                         else
                         {
@@ -659,10 +663,20 @@ static std::unique_ptr<uint8_t[]> ReadPalette(png_structp png, png_infop info, s
                         if (j < palette->nentries)
                         {
                             png_sPLT_entryp entry = &palette->entries[j];
-                            *cur++ = entry->red >> 8;
-                            *cur++ = entry->green >> 8;
-                            *cur++ = entry->blue >> 8;
-                            *cur++ = entry->alpha >> 8;
+                            if (palette->depth == 16)
+                            {
+                                *cur++ = entry->red >> 8;
+                                *cur++ = entry->green >> 8;
+                                *cur++ = entry->blue >> 8;
+                                *cur++ = entry->alpha >> 8;
+                            }
+                            else
+                            {
+                                *cur++ = entry->red;
+                                *cur++ = entry->green;
+                                *cur++ = entry->blue;
+                                *cur++ = entry->alpha;
+                            }
                         }
                         else
                         {

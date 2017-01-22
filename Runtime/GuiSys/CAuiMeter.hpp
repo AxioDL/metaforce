@@ -5,6 +5,7 @@
 
 namespace urde
 {
+class CSimplePool;
 
 class CAuiMeter : public CGuiGroup
 {
@@ -27,7 +28,7 @@ public:
     CGuiWidget* GetWorkerWidget(int id) const;
     bool AddWorkerWidget(CGuiWidget* worker);
 
-    static CAuiMeter* Create(CGuiFrame* frame, CInputStream& in, bool flag);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
 }

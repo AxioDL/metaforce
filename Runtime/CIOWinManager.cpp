@@ -212,11 +212,19 @@ void CIOWinManager::ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int draw
 
 void CIOWinManager::RemoveAllIOWins()
 {
-    for (IOWinPQNode* node = x0_drawRoot ; node ; node = node->x8_next)
-        delete node;
+    for (IOWinPQNode* node = x0_drawRoot ; node ;)
+    {
+        IOWinPQNode* n = node;
+        node = n->x8_next;
+        delete n;
+    }
     x0_drawRoot = nullptr;
-    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
-        delete node;
+    for (IOWinPQNode* node = x4_pumpRoot ; node ;)
+    {
+        IOWinPQNode* n = node;
+        node = n->x8_next;
+        delete n;
+    }
     x4_pumpRoot = nullptr;
 }
 

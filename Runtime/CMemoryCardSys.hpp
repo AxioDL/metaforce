@@ -32,10 +32,10 @@ public:
 
     const TLockedToken<CStringTable>& GetWorldName() const { return x2c_worldName; }
     const TLockedToken<CSaveWorld>& GetSaveWorld() const { return x3c_saveWorld; }
-    std::wstring GetFrontEndName() const
+    const wchar_t* GetFrontEndName() const
     {
         if (!x2c_worldName)
-            return {};
+            return L"";
         return x2c_worldName->GetString(0);
     }
 };

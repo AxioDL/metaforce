@@ -281,6 +281,17 @@ struct SDSPStream : boo::IAudioVoiceCallback
         }
     }
 
+    static void FreeAllStreams()
+    {
+        for (int i=0 ; i<4 ; ++i)
+        {
+            SDSPStream& stream = g_Streams[i];
+            stream.m_booVoice.reset();
+            stream.x0_active = false;
+            stream.xd4_ringBuffer.reset();
+        }
+    }
+
     static u32 PickFreeStream(SDSPStream*& streamOut, bool oneshot)
     {
         for (int i=0 ; i<4 ; ++i)
@@ -875,6 +886,16 @@ public:
             stream = CDSPStreamManager();
         }
     }
+
+    static void Shutdown()
+    {
+        SDSPStream::FreeAllStreams();
+        for (int i=0 ; i<4 ; ++i)
+        {
+            CDSPStreamManager& stream = g_Streams[i];
+            stream = CDSPStreamManager();
+        }
+    }
 };
 
 CDSPStreamManager CDSPStreamManager::g_Streams[4] = {};
@@ -1140,6 +1161,11 @@ void CStreamAudioManager::Update(float dt)
 void CStreamAudioManager::Initialize()
 {
     CDSPStreamManager::Initialize();
+}
+
+void CStreamAudioManager::Shutdown()
+{
+    CDSPStreamManager::Shutdown();
 }
 
 u8 CStreamAudioManager::g_MusicVolume = 0x7f;

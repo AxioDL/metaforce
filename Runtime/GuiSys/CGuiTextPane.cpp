@@ -9,13 +9,12 @@
 namespace urde
 {
 
-CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, float xDim, float zDim,
+CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
                            const zeus::CVector3f& vec, ResId fontId, const CGuiTextProperties& props,
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                            s32 extentX, s32 extentY)
-: CGuiPane(parms, xDim, zDim, vec), xd4_textSupport(fontId, props, fontCol, outlineCol,
-                                                     zeus::CColor::skWhite, extentX, extentY,
-                                                     &parms.x0_frame->GetGuiSys().GetResStore()) {}
+: CGuiPane(parms, dim, vec), xd4_textSupport(fontId, props, fontCol, outlineCol,
+                                                     zeus::CColor::skWhite, extentX, extentY, sp) {}
 
 void CGuiTextPane::Update(float dt)
 {
@@ -98,13 +97,11 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
     }
 }
 
-CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
-    float xDim = in.readFloatBig();
-    float zDim = in.readFloatBig();
-    zeus::CVector3f vec;
-    vec.readBig(in);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
+    zeus::CVector2f dim = zeus::CVector2f::ReadBig(in);
+    zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
     u32 fontId = in.readUint32Big();
     bool wordWrap = in.readBool();
     bool vertical = in.readBool();
@@ -117,8 +114,12 @@ CGuiTextPane* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, bool flag
     outlineCol.readRGBABig(in);
     int extentX = in.readFloatBig();
     int extentY = in.readFloatBig();
-    return new CGuiTextPane(parms, xDim, zDim, vec, fontId, props,
-                            fontCol, outlineCol, extentX, extentY);
+    std::shared_ptr<CGuiTextPane> ret =
+        std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props,
+                                       fontCol, outlineCol, extentX, extentY);
+    ret->ParseBaseInfo(frame, in, parms);
+    ret->TextSupport()->SetText(L"");
+    return ret;
 }
 
 }

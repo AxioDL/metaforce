@@ -23,12 +23,12 @@ private:
     ResId x0_id;
     u32 x4_ = 0;
     CGuiSys& x8_guiSys;
-    CGuiHeadWidget* xc_headWidget = nullptr;
-    std::unique_ptr<CGuiWidget> x10_rootWidget;
-    CGuiCamera* x14_camera = nullptr;
+    std::shared_ptr<CGuiHeadWidget> xc_headWidget;
+    std::shared_ptr<CGuiWidget> x10_rootWidget;
+    std::shared_ptr<CGuiCamera> x14_camera;
     CGuiWidgetIdDB x18_idDB;
-    std::vector<CGuiWidget*> x2c_widgets;
-    std::vector<CGuiLight*> x3c_lights;
+    std::vector<std::shared_ptr<CGuiWidget>> x2c_widgets;
+    std::vector<std::shared_ptr<CGuiLight>> x3c_lights;
     int x4c_a;
     int x50_b;
     int x54_c;
@@ -39,28 +39,28 @@ public:
 
     CGuiSys& GetGuiSys() {return x8_guiSys;}
 
-    CGuiLight* GetFrameLight(int idx) {return x3c_lights[idx];}
+    CGuiLight* GetFrameLight(int idx) const { return x3c_lights[idx].get(); }
     CGuiWidget* FindWidget(const std::string& name) const;
     CGuiWidget* FindWidget(s16 id) const;
-    void SetFrameCamera(CGuiCamera* camr) {x14_camera = camr;}
-    void SetHeadWidget(CGuiHeadWidget* hwig) {xc_headWidget = hwig;}
+    void SetFrameCamera(std::shared_ptr<CGuiCamera>&& camr) { x14_camera = std::move(camr); }
+    void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }
     void SortDrawOrder();
     void EnableLights(u32 lights) const;
     void DisableLights() const;
     void RemoveLight(CGuiLight* light);
-    void AddLight(CGuiLight* light);
+    void AddLight(std::shared_ptr<CGuiLight>&& light);
     bool GetIsFinishedLoading() const;
     void Touch() const;
 
     void Update(float dt);
     void Draw(const CGuiWidgetDrawParms& parms) const;
     void Initialize();
-    void LoadWidgetsInGame(CInputStream& in);
+    void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
     void ProcessUserInput(const CFinalInput& input) const;
 
     CGuiWidgetIdDB& GetWidgetIdDB() {return x18_idDB;}
 
-    static CGuiFrame* CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp);
+    static std::unique_ptr<CGuiFrame> CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp);
 };
 
 std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,

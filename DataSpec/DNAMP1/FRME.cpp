@@ -91,12 +91,10 @@ void FRME::Widget::read(athena::io::IStreamReader& __dna_reader)
     basis[2] = __dna_reader.readVec3fBig();
     /* rotationCenter */
     rotationCenter = __dna_reader.readVec3fBig();
-    /* msgCount */
-    msgCount = __dna_reader.readInt16Big();
-    /* funcDefCount */
-    funcDefCount = __dna_reader.readInt16Big();
-    /* animControllerCount */
-    animControllerCount = __dna_reader.readInt16Big();
+    /* unk1 */
+    unk1 = __dna_reader.readInt32Big();
+    /* unk2 */
+    unk2 = __dna_reader.readInt16Big();
 }
 
 void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
@@ -128,12 +126,10 @@ void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeVec3fBig(basis[2]);
     /* rotationCenter */
     __dna_writer.writeVec3fBig(rotationCenter);
-    /* msgCount */
-    __dna_writer.writeInt16Big(msgCount);
-    /* funcDefCount */
-    __dna_writer.writeInt16Big(funcDefCount);
-    /* animControllerCount */
-    __dna_writer.writeInt16Big(animControllerCount);
+    /* unk1 */
+    __dna_writer.writeInt32Big(unk1);
+    /* unk2 */
+    __dna_writer.writeInt16Big(unk2);
 }
 
 size_t FRME::Widget::binarySize(size_t __isz) const

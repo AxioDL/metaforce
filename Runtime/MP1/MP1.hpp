@@ -29,7 +29,7 @@
 #include "GuiSys/CConsoleOutputWindow.hpp"
 #include "GuiSys/CErrorOutputWindow.hpp"
 #include "GuiSys/CTextParser.hpp"
-#include "Audio/CAudioStateWin.hpp"
+#include "CAudioStateWin.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CArchitectureQueue.hpp"
 #include "CTimeProvider.hpp"
@@ -157,8 +157,11 @@ class CGameArchitectureSupport
 public:
     CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
                              amuse::IBackendVoiceAllocator& backend);
+    ~CGameArchitectureSupport();
+
     void PreloadAudio();
     bool LoadAudio();
+    void UnloadAudio();
     void UpdateTicks();
     void Update();
     void Draw();
@@ -268,7 +271,7 @@ public:
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
     bool LoadAudio();
-    void ShutdownSubsystems() {}
+    void ShutdownSubsystems();
     EGameplayResult GetGameplayResult() const { return xe4_gameplayResult; }
     void SetGameplayResult(EGameplayResult wl) { xe4_gameplayResult = wl; }
     void SetManageCard(bool v) { x160_28_manageCard = v; }

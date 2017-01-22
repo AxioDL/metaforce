@@ -48,15 +48,15 @@ CLight CGuiLight::BuildLight() const
 void CGuiLight::SetIsVisible(bool vis)
 {
     if (vis)
-        xb0_frame->AddLight(this);
+        xb0_frame->AddLight(shared_from_this());
     else
         xb0_frame->RemoveLight(this);
     CGuiWidget::SetIsVisible(vis);
 }
 
-CGuiLight* CGuiLight::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
     ELightType tp = ELightType(in.readUint32Big());
     float distC = in.readFloatBig();
@@ -67,7 +67,7 @@ CGuiLight* CGuiLight::Create(CGuiFrame* frame, CInputStream& in, bool flag)
     float angQ = in.readFloatBig();
     u32 loadedIdx = in.readUint32Big();
 
-    CGuiLight* ret = nullptr;
+    std::shared_ptr<CGuiLight> ret = {};
     switch (tp)
     {
     case ELightType::Spot:
@@ -78,7 +78,7 @@ CGuiLight* CGuiLight::Create(CGuiFrame* frame, CInputStream& in, bool flag)
         lt.SetAttenuation(distC, distL, distQ);
         lt.SetAngleAttenuation(angC, angL, angQ);
         lt.x40_loadedIdx = loadedIdx;
-        ret = new CGuiLight(parms, lt);
+        ret = std::make_shared<CGuiLight>(parms, lt);
         break;
     }
     case ELightType::Point:
@@ -86,21 +86,21 @@ CGuiLight* CGuiLight::Create(CGuiFrame* frame, CInputStream& in, bool flag)
         CLight lt = CLight::BuildPoint(zeus::CVector3f::skZero, parms.x10_color);
         lt.SetAttenuation(distC, distL, distQ);
         lt.x40_loadedIdx = loadedIdx;
-        ret = new CGuiLight(parms, lt);
+        ret = std::make_shared<CGuiLight>(parms, lt);
         break;
     }
     case ELightType::Directional:
     {
         CLight lt = CLight::BuildDirectional(zeus::CVector3f::skZero, parms.x10_color);
         lt.x40_loadedIdx = loadedIdx;
-        ret = new CGuiLight(parms, lt);
+        ret = std::make_shared<CGuiLight>(parms, lt);
         break;
     }
     default: break;
     }
 
     ret->ParseBaseInfo(frame, in, parms);
-    frame->AddLight(ret);
+    frame->AddLight(ret->shared_from_this());
     return ret;
 }
 

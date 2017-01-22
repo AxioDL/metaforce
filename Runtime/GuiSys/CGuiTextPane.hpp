@@ -11,9 +11,9 @@ class CGuiTextPane : public CGuiPane
 {
     CGuiTextSupport xd4_textSupport;
 public:
-    CGuiTextPane(const CGuiWidgetParms& parms, float xDim, float zDim, const zeus::CVector3f& vec,
-                 ResId fontId, const CGuiTextProperties& props, const zeus::CColor& col1,
-                 const zeus::CColor& col2, s32 padX, s32 padY);
+    CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
+                 const zeus::CVector3f& vec, ResId fontId, const CGuiTextProperties& props,
+                 const zeus::CColor& col1, const zeus::CColor& col2, s32 padX, s32 padY);
     FourCC GetWidgetTypeID() const {return FOURCC('TXPN');}
 
     CGuiTextSupport* TextSupport() {return &xd4_textSupport;}
@@ -25,7 +25,7 @@ public:
     void ScaleDimensions(const zeus::CVector3f& scale);
     void Draw(const CGuiWidgetDrawParms& parms) const;
 
-    static CGuiTextPane* Create(CGuiFrame* frame, CInputStream& in, bool);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
 }

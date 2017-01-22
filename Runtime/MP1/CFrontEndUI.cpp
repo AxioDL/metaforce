@@ -286,7 +286,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivateNewGamePopup()
 
     x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
         x0_base->SetColor(zeus::CColor::skWhite);
-    x60_textpane_cancel->TextSupport()->SetText("");
+    x60_textpane_cancel->TextSupport()->SetText(L"");
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
@@ -339,7 +339,7 @@ void CFrontEndUI::SNewFileSelectFrame::ResetFrame()
 
     for (int i=2 ; i>=0 ; --i)
         x20_tablegroup_fileselect->GetWorkerWidget(i)->SetIsSelectable(true);
-    x60_textpane_cancel->TextSupport()->SetText("");
+    x60_textpane_cancel->TextSupport()->SetText(L"");
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
@@ -1718,6 +1718,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::Draw() const
 CFrontEndUI::CFrontEndUI()
 : CIOWin("FrontEndUI")
 {
+    CMain* m = static_cast<CMain*>(g_Main);
+
     x18_rndA = std::min(rand() * 3 / RAND_MAX, 2);
     x1c_rndB = std::min(rand() * 3 / RAND_MAX, 2);
 
@@ -1725,7 +1727,9 @@ CFrontEndUI::CFrontEndUI()
     x38_pressStart = g_SimplePool->GetObj("TXTR_PressStart");
     x44_frontendAudioGrp = g_SimplePool->GetObj("FrontEnd_AGSC");
 
-    g_Main->ResetGameState();
+    xdc_saveUI = std::make_unique<CSaveUI>(ESaveContext::FrontEnd, g_GameState->GetCardSerial());
+
+    m->ResetGameState();
     g_GameState->SetCurrentWorldId(g_DefaultWorldTag.id);
 
     for (int i=0 ; CDvdFile::FileExists(GetAttractMovieFileName(i).c_str()) ; ++i)
@@ -1912,12 +1916,19 @@ void CFrontEndUI::Draw() const
             /* Render movie */
             auto vidDimensions = xcc_curMoviePtr->GetVideoDimensions();
             float aspectRatio = vidDimensions.first / float(vidDimensions.second);
-            float verticalOff = (CGraphics::g_ViewportResolution.x / aspectRatio - CGraphics::g_ViewportResolution.y) * 0.5f;
-            xcc_curMoviePtr->SetFrame(zeus::CVector3f(0.f, -verticalOff, 0.f),
-                                      zeus::CVector3f(CGraphics::g_ViewportResolution.x, verticalOff, 0.f),
-                                      zeus::CVector3f(0.f, CGraphics::g_ViewportResolution.y + verticalOff, 0.f),
-                                      zeus::CVector3f(CGraphics::g_ViewportResolution.x,
-                                                      CGraphics::g_ViewportResolution.y + verticalOff, 0.f));
+            float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+            if (vpAspectRatio >= 1.78f)
+            {
+                float hPad = 1.78f / vpAspectRatio;
+                float vPad = 1.78f / aspectRatio;
+                xcc_curMoviePtr->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
+            }
+            else
+            {
+                float vPad = vpAspectRatio / aspectRatio;
+                xcc_curMoviePtr->SetFrame({-1.f, vPad, 0.f}, {-1.f, -vPad, 0.f}, {1.f, -vPad, 0.f}, {1.f, vPad, 0.f});
+            }
+
             xcc_curMoviePtr->DrawFrame();
         }
 

@@ -37,7 +37,8 @@ private:
     std::unique_ptr<CTextExecuteBuffer> xc_textExecuteBuf;
     std::unique_ptr<CTextParser> x10_textParser;
 
-    static CGuiWidget* CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame);
+    static std::shared_ptr<CGuiWidget> CreateWidgetInGame(FourCC type, CInputStream& in,
+                                                          CGuiFrame* frame, CSimplePool* sp);
 public:
     CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode);
 

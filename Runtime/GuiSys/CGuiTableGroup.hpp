@@ -96,7 +96,9 @@ public:
 
     void ProcessUserInput(const CFinalInput& input);
 
-    static CGuiTableGroup* Create(CGuiFrame* frame, CInputStream& in, bool);
+    bool AddWorkerWidget(CGuiWidget* worker) { return true; }
+
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
 }

@@ -38,7 +38,7 @@ CGuiWidget* CGuiFrame::FindWidget(s16 id) const
 void CGuiFrame::SortDrawOrder()
 {
     std::sort(x2c_widgets.begin(), x2c_widgets.end(),
-    [](const CGuiWidget* a, const CGuiWidget* b) -> bool
+    [](const std::shared_ptr<CGuiWidget>& a, const std::shared_ptr<CGuiWidget>& b) -> bool
     {
         return a->GetWorldPosition().y < b->GetWorldPosition().y;
     });
@@ -50,7 +50,7 @@ void CGuiFrame::EnableLights(u32 lights) const
     zeus::CColor accumColor(zeus::CColor::skBlack);
     ERglLight lightId = ERglLight::Zero;
     int idx = 0;
-    for (CGuiLight* light : x3c_lights)
+    for (auto& light : x3c_lights)
     {
         if ((lights & (1 << idx)) != 0)
         {
@@ -75,19 +75,19 @@ void CGuiFrame::DisableLights() const
 
 void CGuiFrame::RemoveLight(CGuiLight* light)
 {
-    x3c_lights[light->GetLoadedIdx()] = nullptr;
+    x3c_lights[light->GetLoadedIdx()].reset();
 }
 
-void CGuiFrame::AddLight(CGuiLight* light)
+void CGuiFrame::AddLight(std::shared_ptr<CGuiLight>&& light)
 {
-    x3c_lights[light->GetLoadedIdx()] = light;
+    x3c_lights[light->GetLoadedIdx()] = std::move(light);
 }
 
 bool CGuiFrame::GetIsFinishedLoading() const
 {
     if (x58_24_loaded)
         return true;
-    for (const CGuiWidget* widget : x2c_widgets)
+    for (const auto& widget : x2c_widgets)
     {
         if (widget->GetIsFinishedLoading())
             continue;
@@ -99,7 +99,7 @@ bool CGuiFrame::GetIsFinishedLoading() const
 
 void CGuiFrame::Touch() const
 {
-    for (const CGuiWidget* widget : x2c_widgets)
+    for (const auto& widget : x2c_widgets)
         widget->Touch();
 }
 
@@ -120,7 +120,7 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
 
-        for (const CGuiWidget* widget : x2c_widgets)
+        for (const auto& widget : x2c_widgets)
             if (widget->GetIsVisible())
                 widget->Draw(parms);
     }
@@ -134,7 +134,7 @@ void CGuiFrame::Initialize()
     xc_headWidget->DispatchInitialize();
 }
 
-void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
+void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp)
 {
     u32 count = in.readUint32Big();
     x2c_widgets.reserve(count);
@@ -142,7 +142,7 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
     {
         DataSpec::DNAFourCC type;
         type.read(in);
-        CGuiWidget* widget = CGuiSys::CreateWidgetInGame(type, in, this);
+        std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type, in, this, sp);
         type = widget->GetWidgetTypeID();
         switch (type)
         {
@@ -151,7 +151,7 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in)
         case SBIG('BGND'):
             break;
         default:
-            x2c_widgets.push_back(widget);
+            x2c_widgets.push_back(std::move(widget));
             break;
         }
     }
@@ -162,22 +162,22 @@ void CGuiFrame::ProcessUserInput(const CFinalInput& input) const
 {
     if (x4_)
         return;
-    for (CGuiWidget* widget : x2c_widgets)
+    for (auto& widget : x2c_widgets)
     {
         if (widget->GetIsActive())
             widget->ProcessUserInput(input);
     }
 }
 
-CGuiFrame* CGuiFrame::CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp)
+std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp)
 {
     in.readInt32Big();
     int a = in.readInt32Big();
     int b = in.readInt32Big();
     int c = in.readInt32Big();
 
-    CGuiFrame* ret = new CGuiFrame(frmeId, sys, a, b, c, sp);
-    ret->LoadWidgetsInGame(in);
+    std::unique_ptr<CGuiFrame> ret = std::make_unique<CGuiFrame>(frmeId, sys, a, b, c, sp);
+    ret->LoadWidgetsInGame(in, sp);
     return ret;
 }
 

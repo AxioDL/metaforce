@@ -20,7 +20,7 @@ public:
     bool AddWorkerWidget(CGuiWidget* worker);
     void OnActiveChange();
 
-    static CGuiGroup* Create(CGuiFrame* frame, CInputStream& in, bool flag);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
     static void LoadWidgetFnMap();
 };
 

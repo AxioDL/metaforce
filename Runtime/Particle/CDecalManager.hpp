@@ -28,6 +28,7 @@ class CDecalManager
     static rstl::reserved_vector<s32, 64> m_ActiveIndexList;
 public:
     static void Initialize();
+    static void Shutdown();
 };
 
 }

@@ -164,8 +164,11 @@ public:
     static u16 TranslateSFXID(u16);
     static void SfxStop(const CSfxHandle& handle);
     static CSfxHandle SfxStart(u16 id, float vol, float pan, bool useAcoustics, s16 prio, bool looped, s32 areaId);
+    static void StopAndRemoveAllEmitters();
+    static void DisableAuxCallbacks();
 
     static void Update();
+    static void Shutdown();
 
 private:
     static std::shared_ptr<CSfxWrapper>* AllocateCSfxWrapper();

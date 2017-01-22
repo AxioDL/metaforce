@@ -31,7 +31,8 @@ void CMFGame::Draw() const
 
 CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
 {
-    switch (g_Main->GetFlowState())
+    CMain* m = static_cast<CMain*>(g_Main);
+    switch (m->GetFlowState())
     {
     case EFlowState::Five:
     case EFlowState::Six:

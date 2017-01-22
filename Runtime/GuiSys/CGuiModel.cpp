@@ -8,14 +8,14 @@
 namespace urde
 {
 
-CGuiModel::CGuiModel(const CGuiWidgetParms& parms, ResId modelId, u32 lightMask, bool flag)
+CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, ResId modelId, u32 lightMask, bool flag)
 : CGuiWidget(parms), x108_modelId(modelId), x10c_lightMask(lightMask)
 {
     if (!flag || (modelId & 0xffff) == 0xffff ||
         parms.x0_frame->GetGuiSys().GetUsageMode() == CGuiSys::EUsageMode::Two)
         return;
 
-    xf8_model = parms.x0_frame->GetGuiSys().GetResStore().GetObj({SBIG('CMDL'), modelId});
+    xf8_model = sp->GetObj({SBIG('CMDL'), modelId});
 }
 
 std::vector<ResId> CGuiModel::GetModelAssets() const
@@ -109,15 +109,15 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
     CGuiWidget::Draw(parms);
 }
 
-CGuiModel* CGuiModel::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiModel::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
     ResId model = in.readUint32Big();
     in.readUint32Big();
     u32 lightMask = in.readUint32Big();
 
-    CGuiModel* ret = new CGuiModel(parms, model, lightMask, flag);
+    std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiModel>(parms, sp, model, lightMask, true);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

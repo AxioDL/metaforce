@@ -7,6 +7,7 @@
 
 namespace urde
 {
+class CSimplePool;
 
 class CGuiModel : public CGuiWidget
 {
@@ -14,7 +15,7 @@ class CGuiModel : public CGuiWidget
     ResId x108_modelId;
     u32 x10c_lightMask;
 public:
-    CGuiModel(const CGuiWidgetParms& parms, ResId modelId, u32 lightMask, bool flag);
+    CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, ResId modelId, u32 lightMask, bool flag);
     FourCC GetWidgetTypeID() const {return FOURCC('MODL');}
 
     std::vector<ResId> GetModelAssets() const;
@@ -22,7 +23,7 @@ public:
     void Touch() const;
     void Draw(const CGuiWidgetDrawParms& parms) const;
 
-    static CGuiModel* Create(CGuiFrame* frame, CInputStream& in, bool);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
 }

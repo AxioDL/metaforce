@@ -6,6 +6,7 @@
 
 namespace urde
 {
+class CSimplePool;
 
 class CGuiSliderGroup : public CGuiCompoundWidget
 {
@@ -55,7 +56,7 @@ public:
     bool AddWorkerWidget(CGuiWidget* worker);
     CGuiWidget* GetWorkerWidget(int id);
 
-    static CGuiSliderGroup* Create(CGuiFrame* frame, CInputStream& in, bool flag);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
 }

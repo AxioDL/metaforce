@@ -24,6 +24,7 @@ set(MP1_SOURCES
     CQuitScreen.hpp CQuitScreen.cpp
     CCredits.hpp CCredits.cpp
     CStateSetterFlow.hpp CStateSetterFlow.cpp
+    CAudioStateWin.hpp CAudioStateWin.cpp
     MP1.hpp MP1.cpp)
 
 runtime_add_list(MP1 MP1_SOURCES)

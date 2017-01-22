@@ -46,11 +46,11 @@ void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const
     CGuiWidget::Draw(parms);
 }
 
-CGuiCamera* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
     EProjection proj = EProjection(in.readUint32Big());
-    CGuiCamera* ret = nullptr;
+    std::shared_ptr<CGuiCamera> ret = {};
     switch (proj)
     {
     case EProjection::Perspective:
@@ -59,7 +59,7 @@ CGuiCamera* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, bool flag)
         float aspect = in.readFloatBig();
         float znear = in.readFloatBig();
         float zfar = in.readFloatBig();
-        ret = new CGuiCamera(parms, fov, aspect, znear, zfar);
+        ret = std::make_shared<CGuiCamera>(parms, fov, aspect, znear, zfar);
         break;
     }
     case EProjection::Orthographic:
@@ -70,12 +70,13 @@ CGuiCamera* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, bool flag)
         float bottom = in.readFloatBig();
         float znear = in.readFloatBig();
         float zfar = in.readFloatBig();
-        ret = new CGuiCamera(parms, left, right, top, bottom, znear, zfar);
+        ret = std::make_shared<CGuiCamera>(parms, left, right, top, bottom, znear, zfar);
         break;
     }
     break;
     }
-    frame->SetFrameCamera(ret);
+    frame->SetFrameCamera(ret->shared_from_this());
+    ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }
 

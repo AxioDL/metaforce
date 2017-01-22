@@ -28,6 +28,7 @@
 #include "DNAMP1/Tweaks/CTweakSlideShow.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DNAMP1/Tweaks/CTweakCameraBob.hpp"
+#include "DNAMP1/Tweaks/CTweakGame.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -369,6 +370,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakCameraBob::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::CTweakGame::DNAType()))
+                return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
             else if (!strcmp(classType, "ATBL"))
@@ -520,7 +523,8 @@ struct SpecMP1 : SpecBase
                          !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
                          !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
                          !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob"))
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGame"))
                 {
                     resTag.type = SBIG('CTWK');
                     return true;
@@ -728,6 +732,12 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakCameraBob cBob;
                 cBob.read(reader);
                 WriteTweak(cBob, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakGame::DNAType()))
+            {
+                DNAMP1::CTweakGame cGame;
+                cGame.read(reader);
+                WriteTweak(cGame, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

@@ -101,14 +101,14 @@ bool CAuiMeter::AddWorkerWidget(CGuiWidget* worker)
     return true;
 }
 
-CAuiMeter* CAuiMeter::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CAuiMeter::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
     in.readBool();
     bool noRoundUp = in.readBool();
     u32 maxCapacity = in.readUint32Big();
     u32 workerCount = in.readUint32Big();
-    CAuiMeter* ret = new CAuiMeter(parms, noRoundUp, maxCapacity, workerCount);
+    std::shared_ptr<CAuiMeter> ret = std::make_shared<CAuiMeter>(parms, noRoundUp, maxCapacity, workerCount);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

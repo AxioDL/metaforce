@@ -1,16 +1,20 @@
 #include "CAudioStateWin.hpp"
-#include "CSfxManager.hpp"
+#include "Audio/CSfxManager.hpp"
 #include "CArchitectureMessage.hpp"
 #include "CArchitectureQueue.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CGameState.hpp"
-#include "IMain.hpp"
+#include "MP1.hpp"
 
 namespace urde
+{
+namespace MP1
 {
 
 CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
+    CMain* m = static_cast<CMain*>(g_Main);
+
     const EArchMsgType msgType = msg.GetType();
     if (msgType == EArchMsgType::SetGameState)
     {
@@ -20,7 +24,7 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     else if (msgType == EArchMsgType::QuitGameplay)
     {
         if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
-            g_Main->GetFlowState() != EFlowState::Zero)
+            m->GetFlowState() != EFlowState::Zero)
         {
             CSfxManager::SetChannel(CSfxManager::ESfxChannels::Zero);
             CSfxManager::KillAll(CSfxManager::ESfxChannels::One);
@@ -29,4 +33,5 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     return EMessageReturn::Normal;
 }
 
+}
 }

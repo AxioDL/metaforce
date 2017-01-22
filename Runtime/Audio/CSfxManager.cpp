@@ -199,9 +199,27 @@ std::shared_ptr<CSfxManager::CSfxWrapper>* CSfxManager::AllocateCSfxWrapper()
     return nullptr;
 }
 
+void CSfxManager::StopAndRemoveAllEmitters()
+{
+
+}
+
+void CSfxManager::DisableAuxCallbacks()
+{
+
+}
+
 void CSfxManager::Update()
 {
 
+}
+
+void CSfxManager::Shutdown()
+{
+    mpSfxTranslationTable = nullptr;
+    mpSfxTranslationTableTok = TLockedToken<std::vector<s16>>{};
+    StopAndRemoveAllEmitters();
+    DisableAuxCallbacks();
 }
 
 }

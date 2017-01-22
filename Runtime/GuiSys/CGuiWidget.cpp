@@ -19,7 +19,7 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 }
 
 CGuiWidget::CGuiWidgetParms
-CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool flag)
+CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in)
 {
     std::string name = in.readString(-1);
     s16 selfId = frame->GetWidgetIdDB().AddWidget(name);
@@ -36,13 +36,13 @@ CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool flag)
 
     return CGuiWidget::CGuiWidgetParms(frame, useAnimController, selfId,
                                        parentId, defaultVis, defaultActive,
-                                       cullFaces, color, df, true, flag);
+                                       cullFaces, color, df, true, false);
 }
 
-CGuiWidget* CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
-    CGuiWidget* ret = new CGuiWidget(parms);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
+    std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiWidget>(parms);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }
@@ -54,26 +54,25 @@ void CGuiWidget::Initialize()
 void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms)
 {
     CGuiWidget* parent = frame->FindWidget(parms.x8_parentId);
-    bool a = in.readBool();
-    if (a)
+    bool isWorker = in.readBool();
+    if (isWorker)
         xb4_workerId = in.readInt16Big();
-    zeus::CVector3f trans;
-    trans.readBig(in);
-    zeus::CMatrix3f orient;
-    orient.readBig(in);
+    zeus::CVector3f trans = zeus::CVector3f::ReadBig(in);
+    zeus::CMatrix3f orient = zeus::CMatrix3f::ReadBig(in);
     x74_transform = zeus::CTransform(orient, trans);
     ReapplyXform();
-    zeus::CVector3f rotCenter;
-    rotCenter.readBig(in);
-    SetRotationCenter(rotCenter);
+    zeus::CVector3f::ReadBig(in);
+    in.readUint32Big();
     in.readUint16Big();
-    if (a)
+    if (isWorker)
+    {
         if (!parent->AddWorkerWidget(this))
         {
             Log.report(logvisor::Warning,
             "Warning: Discarding useless worker id. Parent is not a compound widget.");
             xb4_workerId = -1;
         }
+    }
     parent->AddChildWidget(this, false, true);
 }
 

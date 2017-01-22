@@ -5,32 +5,26 @@
 namespace urde
 {
 
-CGuiObject::~CGuiObject()
-{
-    delete x74_child;
-    delete x78_nextSibling;
-}
-
 void CGuiObject::Update(float dt)
 {
-    if (x74_child)
-        x74_child->Update(dt);
-    if (x78_nextSibling)
-        x78_nextSibling->Update(dt);
+    if (x68_child)
+        x68_child->Update(dt);
+    if (x6c_nextSibling)
+        x6c_nextSibling->Update(dt);
 }
 
 void CGuiObject::Draw(const CGuiWidgetDrawParms& parms) const
 {
-    if (x74_child)
-        x74_child->Draw(parms);
-    if (x78_nextSibling)
-        x78_nextSibling->Draw(parms);
+    if (x68_child)
+        x68_child->Draw(parms);
+    if (x6c_nextSibling)
+        x6c_nextSibling->Draw(parms);
 }
 
 void CGuiObject::MoveInWorld(const zeus::CVector3f& vec)
 {
-    if (x70_parent)
-        x70_parent->RotateW2O(vec);
+    if (x64_parent)
+        x64_parent->RotateW2O(vec);
     x4_localXF.origin += vec;
     Reorthogonalize();
     RecalculateTransforms();
@@ -65,33 +59,31 @@ zeus::CVector3f CGuiObject::RotateTranslateW2O(const zeus::CVector3f& vec) const
 
 void CGuiObject::MultiplyO2P(const zeus::CTransform& xf)
 {
-    x4_localXF.origin += x64_rotationCenter;
     x4_localXF = xf * x4_localXF;
-    x4_localXF.origin -= x64_rotationCenter;
     Reorthogonalize();
     RecalculateTransforms();
 }
 
 void CGuiObject::AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd)
 {
-    obj->x70_parent = this;
+    obj->x64_parent = this;
 
-    if (!x74_child)
+    if (!x68_child)
     {
-        x74_child = obj;
+        x68_child = obj;
     }
     else if (atEnd)
     {
         CGuiObject* prev = nullptr;
-        CGuiObject* cur = x74_child;
-        for (; cur ; cur = cur->x78_nextSibling) {prev = cur;}
+        CGuiObject* cur = x68_child;
+        for (; cur ; cur = cur->x6c_nextSibling) {prev = cur;}
         if (prev)
-            prev->x78_nextSibling = obj;
+            prev->x6c_nextSibling = obj;
     }
     else
     {
-        obj->x78_nextSibling = x74_child;
-        x74_child = obj;
+        obj->x6c_nextSibling = x68_child;
+        x68_child = obj;
     }
 
     if (makeWorldLocal)
@@ -111,14 +103,14 @@ void CGuiObject::AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd
 CGuiObject* CGuiObject::RemoveChildObject(CGuiObject* obj, bool makeWorldLocal)
 {
     CGuiObject* prev = nullptr;
-    CGuiObject* cur = x74_child;
-    for (; cur && cur != obj ; cur = cur->x78_nextSibling) {prev = cur;}
+    CGuiObject* cur = x68_child;
+    for (; cur && cur != obj ; cur = cur->x6c_nextSibling) {prev = cur;}
     if (!cur)
         return nullptr;
     if (prev)
-        prev->x78_nextSibling = cur->x78_nextSibling;
-    cur->x78_nextSibling = nullptr;
-    cur->x70_parent = nullptr;
+        prev->x6c_nextSibling = cur->x6c_nextSibling;
+    cur->x6c_nextSibling = nullptr;
+    cur->x64_parent = nullptr;
 
     if (makeWorldLocal)
         cur->x4_localXF = cur->x34_worldXF;
@@ -129,22 +121,15 @@ CGuiObject* CGuiObject::RemoveChildObject(CGuiObject* obj, bool makeWorldLocal)
 
 void CGuiObject::RecalculateTransforms()
 {
-    if (x70_parent)
-    {
-        x4_localXF.origin += x64_rotationCenter;
-        x34_worldXF = x70_parent->x34_worldXF * x4_localXF;
-        x4_localXF.origin -= x64_rotationCenter;
-        x34_worldXF.origin -= x64_rotationCenter;
-    }
+    if (x64_parent)
+        x34_worldXF = x64_parent->x34_worldXF * x4_localXF;
     else
-    {
         x34_worldXF = x4_localXF;
-    }
 
-    if (x78_nextSibling)
-        x78_nextSibling->RecalculateTransforms();
-    if (x74_child)
-        x74_child->RecalculateTransforms();
+    if (x6c_nextSibling)
+        x6c_nextSibling->RecalculateTransforms();
+    if (x68_child)
+        x68_child->RecalculateTransforms();
 }
 
 void CGuiObject::Reorthogonalize()

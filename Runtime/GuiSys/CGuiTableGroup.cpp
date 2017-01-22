@@ -240,9 +240,9 @@ void CGuiTableGroup::DoIncrement()
         x104_doMenuSelChange(this, xc4_userSelection);
 }
 
-CGuiTableGroup* CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
     int elementCount = in.readInt16Big();
     in.readInt16Big();
@@ -260,7 +260,7 @@ CGuiTableGroup* CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, bool 
     in.readInt16Big();
     in.readInt16Big();
 
-    CGuiTableGroup* ret = new CGuiTableGroup(parms, elementCount, defaultSel, selectWraparound);
+    std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiTableGroup>(parms, elementCount, defaultSel, selectWraparound);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

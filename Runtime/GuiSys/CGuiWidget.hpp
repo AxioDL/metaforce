@@ -10,6 +10,7 @@ namespace urde
 class CGuiFrame;
 class CGuiTextSupport;
 class CFinalInput;
+class CSimplePool;
 
 enum class ETraversalMode
 {
@@ -90,8 +91,8 @@ protected:
 public:
     CGuiWidget(const CGuiWidgetParms& parms);
 
-    static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in, bool);
-    static CGuiWidget* Create(CGuiFrame* frame, CInputStream& in, bool);
+    static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
     virtual void Update(float dt);
     virtual void Draw(const CGuiWidgetDrawParms& drawParms) const;

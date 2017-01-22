@@ -33,27 +33,12 @@ class IMain
 {
 public:
     virtual ~IMain() = default;
-    virtual void RegisterResourceTweaks() {}
-    virtual void ResetGameState()=0;
-    virtual void StreamNewGameState(CBitStreamReader&, u32 idx) {}
-    virtual void CheckTweakManagerDebugOptions() {}
     virtual void Init(const hecl::Runtime::FileStoreManager& storeMgr,
               boo::IAudioVoiceEngine* voiceEngine,
               amuse::IBackendVoiceAllocator& backend)=0;
     virtual void Draw()=0;
     virtual bool Proc()=0;
     virtual void Shutdown()=0;
-    virtual bool CheckReset()=0;
-    virtual bool CheckTerminate()=0;
-    virtual void DrawDebugMetrics(double, CStopWatch&) {}
-    virtual void DoPreDrawMetrics(){}
-    virtual void FillInAssetIDs()=0;
-    virtual bool LoadAudio()=0;
-    virtual void ShutdownSubsystems()=0;
-    virtual EGameplayResult GetGameplayResult() const=0;
-    virtual void SetGameplayResult(EGameplayResult wl)=0;
-    virtual void SetFlowState(EFlowState s)=0;
-    virtual EFlowState GetFlowState() const=0;
 };
 }
 

@@ -33,18 +33,45 @@ void CTweaks::RegisterTweaks()
 {
     ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
     std::experimental::optional<CMemoryInStream> strm;
+    const SObjectTag* tag;
 
-    const SObjectTag* tag = factory.GetResourceIdByName("SlideShow");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
-    g_tweakSlideShow = new DataSpec::DNAMP1::CTweakSlideShow(*strm);
+    /* Particle */
 
+    /* Player */
     tag = factory.GetResourceIdByName("Player");
     strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakPlayer = new DataSpec::DNAMP1::CTweakPlayer(*strm);
 
+    /* CameraBob */
     tag = factory.GetResourceIdByName("CameraBob");
     strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     CPlayerCameraBob::ReadTweaks(*strm);
+
+    /* Ball */
+
+    /* PlayerGun */
+
+    /* Targeting */
+
+    /* Game */
+    tag = factory.GetResourceIdByName("Game");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakGame = new DataSpec::DNAMP1::CTweakGame(*strm);
+
+    /* GuiColors */
+
+    /* AutoMapper */
+
+    /* Gui */
+
+    /* PlayerControls */
+
+    /* PlayerControls2 */
+
+    /* SlideShow */
+    tag = factory.GetResourceIdByName("SlideShow");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakSlideShow = new DataSpec::DNAMP1::CTweakSlideShow(*strm);
 }
 
 void CTweaks::RegisterResourceTweaks()

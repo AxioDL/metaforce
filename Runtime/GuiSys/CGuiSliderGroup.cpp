@@ -125,16 +125,16 @@ CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id)
     return xcc_sliderRangeWidgets[id];
 }
 
-CGuiSliderGroup* CGuiSliderGroup::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiSliderGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
     float min = in.readFloatBig();
     float max = in.readFloatBig();
     float cur = in.readFloatBig();
     float increment = in.readFloatBig();
 
-    CGuiSliderGroup* ret = new CGuiSliderGroup(parms, min, max, cur, increment);
+    std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiSliderGroup>(parms, min, max, cur, increment);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

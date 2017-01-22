@@ -5,6 +5,7 @@
 
 namespace urde
 {
+class CSimplePool;
 
 class CGuiCamera : public CGuiWidget
 {
@@ -40,10 +41,13 @@ public:
                                              float top, float bottom,
                                              float znear, float zfar);
     CGuiCamera(const CGuiWidgetParms& parms, float fov, float aspect, float znear, float zfar);
-    static CGuiCamera* Create(CGuiFrame* frame, CInputStream& in, bool flag);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& vec) const;
     void Draw(const CGuiWidgetDrawParms& parms) const;
+
+    std::shared_ptr<CGuiCamera> shared_from_this()
+    { return std::static_pointer_cast<CGuiCamera>(CGuiObject::shared_from_this()); }
 };
 
 }

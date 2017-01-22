@@ -58,26 +58,25 @@ void CStringTable::LoadStringTable(CInputStream &in)
     m_bufLen = dataLen;
     x4_data.reset(new u8[dataLen]);
     in.readUBytesToBuf(x4_data.get(), dataLen);
-    for (u32 i = 0 ; i<x0_stringCount ; i += 4)
-    {
-        u32* off = reinterpret_cast<u32*>(x4_data.get() + i);
+
+    u32* off = reinterpret_cast<u32*>(x4_data.get());
+    for (u32 i = 0 ; i < x0_stringCount ; ++i, ++off)
         *off = hecl::SBig(*off);
-    }
-    for (u32 i = x0_stringCount * 4 ; i<dataLen ; i += 2)
+
+    for (u32 i = x0_stringCount * 4 ; i < dataLen ; i += 2)
     {
         u16* chr = reinterpret_cast<u16*>(x4_data.get() + i);
         *chr = hecl::SBig(*chr);
     }
 }
 
-std::wstring CStringTable::GetString(s32 str) const
+const wchar_t* CStringTable::GetString(s32 str) const
 {
     if (str < 0 || u32(str) >= x0_stringCount)
         return L"Invalid";
 
-    u32 off = *(reinterpret_cast<u32*>(x4_data.get() + str * 4));
-    CMemoryInStream tmp(x4_data.get() + off, m_bufLen - off);
-    return tmp.readWString();
+    u32 off = *reinterpret_cast<u32*>(x4_data.get() + str * 4);
+    return reinterpret_cast<wchar_t*>(x4_data.get() + off);
 }
 
 void CStringTable::SetLanguage(s32 lang)

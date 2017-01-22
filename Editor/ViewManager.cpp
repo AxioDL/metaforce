@@ -420,9 +420,6 @@ void ViewManager::stop()
 {
     m_videoVoice.reset();
     m_projManager.shutdown();
-    CElementGen::Shutdown();
-    CMoviePlayer::Shutdown();
-    CLineRenderer::Shutdown();
     CDvdFile::Shutdown();
     m_iconsToken.doDestroy();
     m_viewResources.destroyResData();

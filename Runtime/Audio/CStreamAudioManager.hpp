@@ -26,6 +26,7 @@ public:
     static void TemporaryFadeOut(bool oneshot, float fadeTime);
     static void Update(float dt);
     static void Initialize();
+    static void Shutdown();
 };
 
 }

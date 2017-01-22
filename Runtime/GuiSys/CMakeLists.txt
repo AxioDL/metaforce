@@ -25,8 +25,6 @@ set(GUISYS_SOURCES
     CGuiModel.hpp
     CGuiSliderGroup.cpp
     CGuiSliderGroup.hpp
-    CGuiStaticImage.cpp
-    CGuiStaticImage.hpp
     CGuiSys.cpp
     CGuiSys.hpp
     CGuiTableGroup.cpp
@@ -56,8 +54,6 @@ set(GUISYS_SOURCES
     CGuiWidgetIdDB.hpp
     CGuiHeadWidget.cpp
     CGuiHeadWidget.hpp
-    CGuiBackground.cpp
-    CGuiBackground.hpp
     CGuiPane.cpp
     CGuiPane.hpp
     CFontRenderState.cpp

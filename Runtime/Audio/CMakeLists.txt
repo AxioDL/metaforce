@@ -1,6 +1,5 @@
 set(AUDIO_SOURCES
     CAudioSys.hpp CAudioSys.cpp
-    CAudioStateWin.hpp CAudioStateWin.cpp
     CAudioGroupSet.hpp CAudioGroupSet.cpp
     CSfxManager.hpp CSfxManager.cpp
     CStaticAudioPlayer.hpp CStaticAudioPlayer.cpp

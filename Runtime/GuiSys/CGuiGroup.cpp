@@ -54,12 +54,12 @@ void CGuiGroup::OnActiveChange()
         sel->SetIsActive(true);
 }
 
-CGuiGroup* CGuiGroup::Create(CGuiFrame* frame, CInputStream& in, bool flag)
+std::shared_ptr<CGuiWidget> CGuiGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
-    CGuiWidgetParms parms = ReadWidgetHeader(frame, in, flag);
+    CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
     s16 defaultWorker = in.readInt16Big();
     bool b = in.readBool();
-    CGuiGroup* ret = new CGuiGroup(parms, defaultWorker, b);
+    std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiGroup>(parms, defaultWorker, b);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
 }

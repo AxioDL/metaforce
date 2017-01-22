@@ -35,10 +35,12 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
                    g_tweakPlayer->GetRightLogicalThreshold()),
   x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero)
 {
+    CMain* m = static_cast<CMain*>(g_Main);
+
     g_GuiSys = &x44_guiSys;
     x30_inputGenerator.startScanning();
     CStreamAudioManager::Initialize();
-    g_Main->ResetGameState();
+    m->ResetGameState();
 
     std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
     x58_ioWinManager.AddIOWin(splash, 1000, 10000);
@@ -141,9 +143,33 @@ void CGameArchitectureSupport::PreloadAudio()
     x88_audioLoadStatus = EAudioLoadStatus::Loading;
 }
 
+void CGameArchitectureSupport::UnloadAudio()
+{
+
+    for (int i=0 ; i<5 ; ++i)
+    {
+        const AudioGroupInfo& info = StaticAudioGroups[i];
+        const SObjectTag* tag = g_ResFactory->GetResourceIdByName(info.name);
+        const std::string& name = CAudioSys::SysGetGroupSetName(tag->id);
+        CAudioSys::SysRemoveGroupFromAmuse(name);
+        CAudioSys::SysUnloadAudioGroupSet(name);
+    }
+
+    x8c_pendingAudioGroups = std::vector<TToken<CAudioGroupSet>>();
+    x88_audioLoadStatus = EAudioLoadStatus::Uninitialized;
+}
+
 void CGameArchitectureSupport::Draw()
 {
     x58_ioWinManager.Draw();
+}
+
+CGameArchitectureSupport::~CGameArchitectureSupport()
+{
+    x58_ioWinManager.RemoveAllIOWins();
+    UnloadAudio();
+    CSfxManager::Shutdown();
+    CStreamAudioManager::Shutdown();
 }
 
 CMain::CMain(IFactory& resFactory, CSimplePool& resStore,
@@ -249,8 +275,19 @@ void CMain::Draw()
     x164_archSupport->Draw();
 }
 
+void CMain::ShutdownSubsystems()
+{
+    CMoviePlayer::Shutdown();
+    CLineRenderer::Shutdown();
+    CDecalManager::Shutdown();
+    CElementGen::Shutdown();
+    CAnimData::FreeCache();
+}
+
 void CMain::Shutdown()
 {
+    x164_archSupport.reset();
+    ShutdownSubsystems();
     TShader<CThermalColdFilter>::Shutdown();
     TShader<CThermalHotFilter>::Shutdown();
     TShader<CSpaceWarpFilter>::Shutdown();

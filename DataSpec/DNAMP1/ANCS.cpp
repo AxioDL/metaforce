@@ -1296,10 +1296,11 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     }
 
     /* Write out ANCS */
-    athena::io::FileWriter w(outPath.getAbsolutePath(), true, false);
+    hecl::ProjectPath pathOut = inPath.ensureAuxInfo("").getCookedPath(SpecEntMP1);
+    athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
     if (w.hasError())
         Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                   outPath.getRelativePath().c_str());
+                   pathOut.getRelativePath().c_str());
     ancs.write(w);
 
     return true;

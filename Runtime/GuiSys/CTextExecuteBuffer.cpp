@@ -271,6 +271,7 @@ void CTextExecuteBuffer::StartNewLine()
 
     xa8_curWordIt = x0_instList.emplace(x0_instList.cend(),
         std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust));
+    xa4_curLine = static_cast<CLineInstruction*>(xa8_curWordIt->get());
     xbc_spaceDistance = 0;
 
     StartNewWord();
@@ -426,8 +427,8 @@ void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
                                     ETextDirection dir, EJustification just,
                                     EVerticalJustification vjust)
 {
-    x0_instList.emplace(x0_instList.cend(),
-        std::make_shared<CBlockInstruction>(offX, offY, padX, padY, dir, just, vjust));
+    xa0_curBlock = static_cast<CBlockInstruction*>(x0_instList.emplace(x0_instList.cend(),
+        std::make_shared<CBlockInstruction>(offX, offY, padX, padY, dir, just, vjust))->get());
 
     if (x18_textState.x48_font)
     {
@@ -435,8 +436,7 @@ void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
         s32 baseline = font->GetBaseline();
         s32 monoH = font->GetMonoHeight();
         s32 monoW = font->GetMonoWidth();
-        static_cast<CBlockInstruction&>(*x0_instList.back()).
-            TestLargestFont(monoW, monoH, baseline);
+        xa0_curBlock->TestLargestFont(monoW, monoH, baseline);
     }
 
     x18_textState.x0_drawStrOpts.x0_direction = dir;

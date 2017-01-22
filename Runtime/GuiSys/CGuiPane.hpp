@@ -10,8 +10,7 @@ namespace urde
 class CGuiPane : public CGuiWidget
 {
 protected:
-    float xf8_xDim;
-    float xfc_zDim;
+    zeus::CVector2f xb8_dim;
 
     /* Originally a vert-buffer pointer for GX */
     std::vector<specter::View::TexShaderVert> x100_verts;
@@ -20,7 +19,7 @@ protected:
     zeus::CVector3f x108_scaleCenter;
 
 public:
-    CGuiPane(const CGuiWidgetParms& parms, float xDim, float zDim, const zeus::CVector3f& scaleCenter);
+    CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, const zeus::CVector3f& scaleCenter);
     FourCC GetWidgetTypeID() const {return FOURCC('PANE');}
 
     virtual void ScaleDimensions(const zeus::CVector3f& scale);
@@ -29,7 +28,7 @@ public:
     virtual void InitializeBuffers();
     virtual void WriteData(COutputStream& out, bool flag) const;
 
-    static CGuiPane* Create(CGuiFrame* frame, CInputStream& in, bool);
+    static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 
 }
