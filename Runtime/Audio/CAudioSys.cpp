@@ -61,8 +61,8 @@ void CAudioSys::SysUnloadAudioGroupSet(const std::string& name)
     if (!set)
         return;
 
-    mpGroupSetResNameDB.erase(set.GetObjectTag()->id);
     mpGroupSetDB.erase(name);
+    mpGroupSetResNameDB.erase(set.GetObjectTag()->id);
 }
 
 bool CAudioSys::SysIsGroupSetLoaded(const std::string& name)

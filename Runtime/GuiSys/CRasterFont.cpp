@@ -53,8 +53,8 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
         s32 cellHeight = in.readInt32Big();
         s32 baseline = in.readInt32Big();
         s32 kernStart = in.readInt32Big();
-        xc_glyphs[i] = std::make_pair(chr, CGlyph(a, b, c, startU, startV, endU, endV,
-                                                  cellWidth, cellHeight, baseline, kernStart));
+        xc_glyphs.push_back(std::make_pair(chr, CGlyph(a, b, c, startU, startV, endU, endV,
+                                                       cellWidth, cellHeight, baseline, kernStart)));
     }
 
     std::sort(xc_glyphs.begin(), xc_glyphs.end(), [=](auto& a, auto& b) -> bool{
@@ -69,7 +69,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
         wchar_t first = in.readUint16Big();
         wchar_t second = in.readUint16Big();
         s32 howMuch = in.readUint32Big();
-        x1c_kerning[i] = CKernPair(first, second, howMuch);
+        x1c_kerning.emplace_back(first, second, howMuch);
     }
 
     if (magic == SBIG('FONT') && version <= 2)
