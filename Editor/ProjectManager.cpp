@@ -203,6 +203,7 @@ void ProjectManager::shutdown()
         m_mainMP1->Shutdown();
     m_clientProc.shutdown();
     m_factoryMP1.Shutdown();
+    hecl::BlenderConnection::Shutdown();
 }
 
 }
