@@ -35,6 +35,7 @@ private:
     float            x128 = 0.f;
     float            x12c = 0.f;
     zeus::CVector3f  x130;
+    zeus::CVector3f  x13c;
     CRandom16        x14c_randState;
     int              x150_SSEG = 8;
     int              x154_SCNT = 1;

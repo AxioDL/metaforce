@@ -216,6 +216,8 @@ public:
     const boo::SystemChar* platformName() { return m_mainPlatformName; }
     bool proc();
     void stop();
+
+    void deferOpenProject(const hecl::SystemString& path) { m_deferedProject = path; }
 };
 
 }

@@ -237,13 +237,13 @@ public:
     bool GetValue(int frame, float& valOut) const;
 };
 
-class CREPSLL : public CRealElement
+class CREParticleSizeOrLineLength : public CRealElement
 {
 public:
     bool GetValue(int frame, float& valOut) const;
 };
 
-class CREPRLW : public CRealElement
+class CREParticleRotationOrLineWidth : public CRealElement
 {
 public:
     bool GetValue(int frame, float& valOut) const;

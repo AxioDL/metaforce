@@ -38,14 +38,14 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     else
         x2c_LIFE = 0x7FFFFF;
 
-    if (desc->x40_SSWH.m_found)
+    if (desc->x40_SSWH)
     {
         x450_27_HaveSSWH = true;
         for (int i = 0 ; i < x154_SCNT ; i++)
             x1e0_lineManagers[i].SSWH.reset(new CParticleSwoosh(desc->x40_SSWH.m_token, x150_SSEG));
     }
 
-    if (desc->x50_GPSM.m_found)
+    if (desc->x50_GPSM)
     {
         x450_25_HaveGPSM = true;
         for (int i = 0 ; i < x154_SCNT ; i++)
@@ -54,7 +54,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
                                                             CElementGen::EOptionalSystemFlags::One));
     }
 
-    if (desc->x60_EPSM.m_found)
+    if (desc->x60_EPSM)
     {
         x450_26_HaveEPSM = true;
         for (int i = 0 ; i < x154_SCNT ; i++)
@@ -135,8 +135,8 @@ void CParticleElectric::SetGlobalScale(const zeus::CVector3f& scale)
 void CParticleElectric::SetLocalScale(const zeus::CVector3f& scale)
 {
     xec_localScale = scale;
-    x450_28 = true;
-    if (x450_26_HaveEPSM)
+    x450_29 = true;
+    if (x450_27_HaveSSWH)
     {
     }
 }

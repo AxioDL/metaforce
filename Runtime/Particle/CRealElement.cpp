@@ -281,13 +281,13 @@ bool CREParticleAccessParam8::GetValue(int /*frame*/, float& valOut) const
     return false;
 }
 
-bool CREPSLL::GetValue(int /*frame*/, float& valOut) const
+bool CREParticleSizeOrLineLength::GetValue(int /*frame*/, float& valOut) const
 {
     valOut = CElementGen::g_currentParticle->x2c_lineLengthOrSize;
     return false;
 }
 
-bool CREPRLW::GetValue(int /*frame*/, float& valOut) const
+bool CREParticleRotationOrLineWidth::GetValue(int /*frame*/, float& valOut) const
 {
     valOut = CElementGen::g_currentParticle->x30_lineWidthOrRota;
     return false;

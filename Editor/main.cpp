@@ -63,7 +63,7 @@ struct Application : boo::IApplicationCallback
             hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
             if (projPath)
             {
-                m_viewManager->projectManager().openProject(path);
+                m_viewManager->deferOpenProject(path);
                 break;
             }
         }

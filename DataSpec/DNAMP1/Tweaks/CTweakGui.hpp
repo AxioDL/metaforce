@@ -1,5 +1,5 @@
-#ifndef _DNAMP1_CTWEAKGAME_HPP_
-#define _DNAMP1_CTWEAKGAME_HPP_
+#ifndef _DNAMP1_CTWEAKGUI_HPP_
+#define _DNAMP1_CTWEAKGUI_HPP_
 
 #include "../../DNACommon/Tweaks/ITweakGui.hpp"
 
@@ -7,7 +7,6 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-
 struct CTweakGui : ITweakGui
 {
     DECL_YAML
@@ -232,4 +231,4 @@ struct CTweakGui : ITweakGui
 }
 }
 
-#endif
+#endif // _DNAMP1_CTWEAKGUI_HPP_

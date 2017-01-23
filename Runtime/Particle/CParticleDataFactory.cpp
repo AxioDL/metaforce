@@ -630,11 +630,11 @@ CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
     }
     case SBIG('PSLL'):
     {
-        return new CREPSLL;
+        return new CREParticleSizeOrLineLength;
     }
     case SBIG('PRLW'):
     {
-        return new CREPRLW;
+        return new CREParticleRotationOrLineWidth;
     }
     case SBIG('SUB_'):
     {

@@ -29,10 +29,17 @@ void CScriptCameraPitchVolume::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-void CScriptCameraPitchVolume::Think(float, CStateManager&)
+void CScriptCameraPitchVolume::Think(float, CStateManager& mgr)
 {
     if (!x30_24_active)
         return;
+
+    if (x13c_24_entered && !x13c_25_occupied)
+        Entered(mgr);
+    else if (!x13c_24_entered && x13c_25_occupied)
+        Exited(mgr);
+
+    x13c_24_entered = false;
 }
 
 rstl::optional_object<zeus::CAABox> CScriptCameraPitchVolume::GetTouchBounds() const
@@ -50,8 +57,7 @@ void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr)
     if (!plBox)
         return;
 
-    zeus::COBBox plOBox = zeus::COBBox::FromAABox(plBox.value(), zeus::CTransform::Identity());
-    xe8_obbox;
+    x13c_24_entered = xe8_obbox.AABoxIntersectsBox(plBox.value());
 }
 
 const zeus::CVector3f& CScriptCameraPitchVolume::GetScale() const { return x12c_scale; }

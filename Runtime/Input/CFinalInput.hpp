@@ -111,8 +111,8 @@ public:
     bool DDPLeft() const {return x2d_b26_DPLeft;}
     bool DDPDown() const {return x2d_b25_DPDown;}
     bool DDPUp() const {return x2c_b31_DPUp;}
-    bool DRTrigger() const {return x1c_anaRightTrigger > 050000001;}
-    bool DLTrigger() const {return x18_anaLeftTrigger > 050000001;}
+    bool DRTrigger() const {return x1c_anaRightTrigger > 0.050000001;}
+    bool DLTrigger() const {return x18_anaLeftTrigger > 0.050000001;}
     bool DRARight() const {return x10_anaRightX > 0.69999999;}
     bool DRALeft() const {return x10_anaRightX < -0.69999999;}
     bool DRADown() const {return x14_anaRightY < -0.69999999;}

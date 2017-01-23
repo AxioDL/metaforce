@@ -34,6 +34,7 @@
 #include "Tweaks/CTweakSlideShow.hpp"
 #include "Tweaks/CTweakGame.hpp"
 #include "Tweaks/CTweakTargeting.hpp"
+#include "Tweaks/CTweakGui.hpp"
 
 namespace DataSpec
 {
@@ -388,6 +389,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
                 return {ExtractTweak<CTweakGame>, {_S(".yaml")}};
             if (!name.compare("Targeting"))
                 return {ExtractTweak<CTweakTargeting>, {_S(".yaml")}};
+            if (!name.compare("Gui"))
+                return {ExtractTweak<CTweakGui>, {_S(".yaml")}};
         }
         break;
     }
