@@ -19,9 +19,6 @@ CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStre
 
 class CAudioSys
 {
-    static CAudioSys* g_SharedSys;
-    boo::IAudioVoiceEngine* m_voiceEngine;
-    amuse::Engine m_engine;
 public:
     enum class ESurroundModes
     {
@@ -30,6 +27,12 @@ public:
         Surround
     };
 
+private:
+    static CAudioSys* g_SharedSys;
+    boo::IAudioVoiceEngine* m_voiceEngine;
+    amuse::Engine m_engine;
+
+public:
     struct C3DEmitterParmData
     {
         zeus::CVector3f x0_pos;
@@ -40,7 +43,8 @@ public:
         u16 x24_sfxId;
         float x26_maxVol;
         float x27_minVol;
-        u8 x28_extra[2];
+        u8 x28_;
+        u8 x29_;
     };
     CAudioSys(boo::IAudioVoiceEngine* voiceEngine,
               amuse::IBackendVoiceAllocator& backend, u8,u8,u8,u8,u32)
@@ -81,6 +85,11 @@ public:
     static bool SysIsGroupSetLoaded(const std::string& name);
     static void SysAddGroupIntoAmuse(const std::string& name);
     static void SysRemoveGroupFromAmuse(const std::string& name);
+    static void SysSetVolume(u8 volume);
+
+    static s16 GetDefaultVolumeScale();
+    static void SetDefaultVolumeScale(s16 scale);
+    static void SetVolumeScale(s16 scale);
 };
 
 }

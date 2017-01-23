@@ -6,6 +6,16 @@ namespace urde
 static TLockedToken<std::vector<s16>> mpSfxTranslationTableTok;
 std::vector<s16>* CSfxManager::mpSfxTranslationTable = nullptr;
 
+static amuse::EffectReverbHiInfo s_ReverbHiQueued;
+static amuse::EffectChorusInfo s_ChorusQueued;
+static amuse::EffectReverbStdInfo s_ReverbStdQueued;
+static amuse::EffectDelayInfo s_DelayQueued;
+
+static amuse::EffectReverbHi* s_ReverbHiState = nullptr;
+static amuse::EffectChorus* s_ChorusState = nullptr;
+static amuse::EffectReverbStd* s_ReverbStdState = nullptr;
+static amuse::EffectDelay* s_DelayState = nullptr;
+
 CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in,
                                                const CVParamTransfer& vparms,
                                                CObjectReference* selfRef)
@@ -20,14 +30,14 @@ CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStre
 }
 
 CSfxManager::CSfxChannel CSfxManager::m_channels[4];
-rstl::reserved_vector<std::shared_ptr<CSfxManager::CSfxEmitterWrapper>, 128> CSfxManager::m_emitterWrapperPool;
-rstl::reserved_vector<std::shared_ptr<CSfxManager::CSfxWrapper>, 128> CSfxManager::m_wrapperPool;
-CSfxManager::ESfxChannels CSfxManager::m_currentChannel;
+CSfxManager::ESfxChannels CSfxManager::m_currentChannel = CSfxManager::ESfxChannels::Default;
 bool CSfxManager::m_doUpdate;
 void* CSfxManager::m_usedSounds;
 bool CSfxManager::m_muted;
-bool CSfxManager::m_auxProcessingEnabled;
+bool CSfxManager::m_auxProcessingEnabled = false;
 float CSfxManager::m_reverbAmount = 1.f;
+CSfxManager::EAuxEffect CSfxManager::m_activeEffect = CSfxManager::EAuxEffect::None;
+CSfxManager::EAuxEffect CSfxManager::m_nextEffect = CSfxManager::EAuxEffect::None;
 
 u16 CSfxManager::kMaxPriority;
 u16 CSfxManager::kMedPriority;
@@ -38,10 +48,10 @@ bool CSfxManager::LoadTranslationTable(CSimplePool* pool, const SObjectTag* tag)
 {
     if (!tag)
         return false;
+    mpSfxTranslationTable = nullptr;
     mpSfxTranslationTableTok = pool->GetObj(*tag);
     if (!mpSfxTranslationTableTok)
         return false;
-    mpSfxTranslationTable = mpSfxTranslationTableTok.GetObj();
     return true;
 }
 
@@ -79,6 +89,27 @@ bool CSfxManager::CSfxWrapper::Ready()
     if (IsLooped())
         return true;
     return x24_ready;
+}
+
+u16 CSfxManager::CSfxWrapper::GetSfxId() const
+{
+    return x18_sfxId;
+}
+
+void CSfxManager::CSfxWrapper::UpdateEmitterSilent()
+{
+    x1c_voiceHandle->setVolume(1.f / 127.f);
+}
+
+void CSfxManager::CSfxWrapper::UpdateEmitter()
+{
+    x1c_voiceHandle->setVolume(x20_vol);
+}
+
+void CSfxManager::CSfxWrapper::SetReverb(float rev)
+{
+    if (IsAuxProcessingEnabled() && UseAcoustics())
+        x1c_voiceHandle->setReverbVol(rev);
 }
 
 bool CSfxManager::CSfxEmitterWrapper::IsPlaying() const
@@ -138,10 +169,86 @@ CSfxManager::ESfxAudibility CSfxManager::CSfxEmitterWrapper::GetAudible(const ze
     return ESfxAudibility::Aud0;
 }
 
-CSfxManager::CSfxManager()
+u16 CSfxManager::CSfxEmitterWrapper::GetSfxId() const
 {
-    m_emitterWrapperPool.resize(128);
-    m_wrapperPool.resize(128);
+    return x24_parmData.x24_sfxId;
+}
+
+void CSfxManager::CSfxEmitterWrapper::UpdateEmitterSilent()
+{
+    x50_emitterHandle->setPos(x24_parmData.x0_pos.v);
+    x50_emitterHandle->setDir(x24_parmData.xc_dir.v);
+    x50_emitterHandle->setMaxVol(1.f / 127.f);
+    x55_cachedMaxVol = x24_parmData.x26_maxVol;
+}
+
+void CSfxManager::CSfxEmitterWrapper::UpdateEmitter()
+{
+    x50_emitterHandle->setPos(x24_parmData.x0_pos.v);
+    x50_emitterHandle->setDir(x24_parmData.xc_dir.v);
+    x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
+}
+
+void CSfxManager::CSfxEmitterWrapper::SetReverb(float rev)
+{
+    if (IsAuxProcessingEnabled() && UseAcoustics())
+        x1a_reverb = rev;
+}
+
+void CSfxManager::SetChannel(ESfxChannels chan)
+{
+    if (m_currentChannel == chan)
+        return;
+    if (m_currentChannel != ESfxChannels::Invalid)
+        TurnOffChannel(m_currentChannel);
+    TurnOnChannel(chan);
+    m_currentChannel = chan;
+}
+
+void CSfxManager::TurnOnChannel(ESfxChannels chan)
+{
+    CSfxChannel& chanObj = m_channels[int(chan)];
+    m_currentChannel = chan;
+    m_doUpdate = true;
+    if (chanObj.x44_listenerActive)
+    {
+        for (const CSfxHandle& handle : chanObj.x48_handles)
+        {
+            handle->UpdateEmitter();
+        }
+    }
+}
+
+void CSfxManager::TurnOffChannel(ESfxChannels chan)
+{
+    CSfxChannel& chanObj = m_channels[int(chan)];
+    for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
+    {
+        const CSfxHandle& handle = *it;
+        if (handle->IsLooped())
+        {
+            handle->UpdateEmitterSilent();
+        }
+        else
+        {
+            handle->Stop();
+            it = chanObj.x48_handles.erase(it);
+            continue;
+        }
+        ++it;
+    }
+
+    for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
+    {
+        const CSfxHandle& handle = *it;
+        if (!handle->IsLooped())
+        {
+            handle->Release();
+            it = chanObj.x48_handles.erase(it);
+            continue;
+        }
+        ++it;
+    }
 }
 
 void CSfxManager::AddListener(ESfxChannels,
@@ -155,6 +262,47 @@ void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector
                                  const zeus::CVector3f& heading, const zeus::CVector3f& up,
                                  u8 vol)
 {
+}
+
+s16 CSfxManager::GetRank(CBaseSfxWrapper* sfx)
+{
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+    if (!sfx->IsInArea())
+        return 0;
+
+    s16 rank = sfx->GetPriority() / 4;
+    if (sfx->IsPlaying())
+        ++rank;
+
+    if (sfx->IsLooped())
+        rank -= 2;
+
+    if (sfx->Ready() && !sfx->IsPlaying())
+        rank += 3;
+
+    if (chanObj.x44_listenerActive)
+    {
+        ESfxAudibility aud = sfx->GetAudible(chanObj.x0_pos);
+        if (aud == ESfxAudibility::Aud0)
+            return 0;
+        rank += int(aud) / 2;
+    }
+
+    return rank;
+}
+
+void CSfxManager::ApplyReverb()
+{
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+    for (const CSfxHandle& handle : chanObj.x48_handles)
+    {
+        handle->SetReverb(m_reverbAmount);
+    }
+}
+
+float CSfxManager::GetReverbAmount()
+{
+    return m_reverbAmount;
 }
 
 u16 CSfxManager::TranslateSFXID(u16 id)
@@ -172,10 +320,19 @@ u16 CSfxManager::TranslateSFXID(u16 id)
     return ret;
 }
 
+void CSfxManager::StopSound(const CSfxHandle& handle)
+{
+    m_doUpdate = true;
+    if (handle->IsPlaying())
+        handle->Stop();
+    handle->Release();
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+    chanObj.x48_handles.erase(handle);
+}
+
 void CSfxManager::SfxStop(const CSfxHandle& handle)
 {
-    if (handle)
-        handle->Stop();
+    StopSound(handle);
 }
 
 CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics, s16 prio, bool looped, s32 areaId)
@@ -183,35 +340,226 @@ CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics
     if (m_muted || id == 0xffff)
         return {};
 
-    std::shared_ptr<CSfxWrapper>* wrapper = AllocateCSfxWrapper();
-    if (!wrapper)
-        return {};
-
-    *wrapper = std::make_shared<CSfxWrapper>(looped, prio, id, vol, pan, useAcoustics, areaId);
-    return std::static_pointer_cast<CBaseSfxWrapper>(*wrapper);
-}
-
-std::shared_ptr<CSfxManager::CSfxWrapper>* CSfxManager::AllocateCSfxWrapper()
-{
-    for (std::shared_ptr<CSfxWrapper>& existing : m_wrapperPool)
-        if (!existing || existing->Available())
-            return &existing;
-    return nullptr;
+    m_doUpdate = true;
+    CSfxHandle wrapper = std::make_shared<CSfxWrapper>(looped, prio, id, vol, pan, useAcoustics, areaId);
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+    chanObj.x48_handles.insert(wrapper);
+    return wrapper;
 }
 
 void CSfxManager::StopAndRemoveAllEmitters()
 {
-
+    for (int i=0 ; i<4 ; ++i)
+    {
+        CSfxChannel& chanObj = m_channels[i];
+        for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
+        {
+            const CSfxHandle& handle = *it;
+            if (handle->IsPlaying())
+                handle->Stop();
+            handle->Release();
+            it = chanObj.x48_handles.erase(it);
+        }
+    }
 }
 
-void CSfxManager::DisableAuxCallbacks()
+void CSfxManager::EnableAuxCallback()
 {
+    m_reverbAmount = 0.f;
+    ApplyReverb();
+    if (m_activeEffect != EAuxEffect::None)
+        DisableAuxCallback();
 
+    auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
+    amuse::Submix& smix = studio->getAuxA();
+
+    m_activeEffect = m_nextEffect;
+    switch (m_activeEffect)
+    {
+    case EAuxEffect::ReverbHi:
+        s_ReverbHiState = &smix.makeReverbHi(s_ReverbHiQueued);
+        break;
+    case EAuxEffect::Chorus:
+        s_ChorusState = &smix.makeChorus(s_ChorusQueued);
+        break;
+    case EAuxEffect::ReverbStd:
+        s_ReverbStdState = &smix.makeReverbStd(s_ReverbStdQueued);
+        break;
+    case EAuxEffect::Delay:
+        s_DelayState = &smix.makeDelay(s_DelayQueued);
+        break;
+    default: break;
+    }
+
+    m_auxProcessingEnabled = true;
 }
 
-void CSfxManager::Update()
+void CSfxManager::PrepareDelayCallback(const amuse::EffectDelayInfo& info)
 {
+    DisableAuxProcessing();
+    s_DelayQueued = info;
+    m_nextEffect = EAuxEffect::Delay;
+    if (m_reverbAmount == 0.f)
+        EnableAuxCallback();
+}
 
+void CSfxManager::PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info)
+{
+    DisableAuxProcessing();
+    s_ReverbStdQueued = info;
+    m_nextEffect = EAuxEffect::ReverbStd;
+    if (m_reverbAmount == 0.f)
+        EnableAuxCallback();
+}
+
+void CSfxManager::PrepareChorusCallback(const amuse::EffectChorusInfo& info)
+{
+    DisableAuxProcessing();
+    s_ChorusQueued = info;
+    m_nextEffect = EAuxEffect::Chorus;
+    if (m_reverbAmount == 0.f)
+        EnableAuxCallback();
+}
+
+void CSfxManager::PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info)
+{
+    DisableAuxProcessing();
+    s_ReverbHiQueued = info;
+    m_nextEffect = EAuxEffect::ReverbHi;
+    if (m_reverbAmount == 0.f)
+        EnableAuxCallback();
+}
+
+void CSfxManager::DisableAuxCallback()
+{
+    auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
+    studio->getAuxA().clearEffects();
+
+    switch (m_activeEffect)
+    {
+    case EAuxEffect::ReverbHi:
+        s_ReverbHiState = nullptr;
+        break;
+    case EAuxEffect::Chorus:
+        s_ChorusState = nullptr;
+        break;
+    case EAuxEffect::ReverbStd:
+        s_ReverbStdState = nullptr;
+        break;
+    case EAuxEffect::Delay:
+        s_DelayState = nullptr;
+        break;
+    default: break;
+    }
+
+    m_activeEffect = EAuxEffect::None;
+}
+
+void CSfxManager::DisableAuxProcessing()
+{
+    m_nextEffect = EAuxEffect::None;
+    m_auxProcessingEnabled = false;
+}
+
+void CSfxManager::Update(float dt)
+{
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+
+    for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
+    {
+        const CSfxHandle& handle = *it;
+        if (!handle->IsLooped())
+        {
+            float timeRem = handle->GetTimeRemaining();
+            handle->SetTimeRemaining(timeRem - dt);
+            if (timeRem < 0.f)
+            {
+                handle->Stop();
+                m_doUpdate = true;
+                it = chanObj.x48_handles.erase(it);
+                continue;
+            }
+        }
+        ++it;
+    }
+
+    if (m_doUpdate)
+    {
+        std::vector<CSfxHandle> rankedSfx;
+        rankedSfx.reserve(chanObj.x48_handles.size());
+        for (const CSfxHandle& handle : chanObj.x48_handles)
+        {
+            rankedSfx.push_back(handle);
+            handle->SetRank(GetRank(handle.get()));
+        }
+
+        std::sort(rankedSfx.begin(), rankedSfx.end(),
+        [](const CSfxHandle& a, const CSfxHandle& b) -> bool
+        {
+            return a->GetRank() < b->GetRank();
+        });
+
+        for (int i=48 ; i<rankedSfx.size() ; ++i)
+        {
+            const CSfxHandle& handle = rankedSfx[i];
+            if (handle->IsPlaying())
+            {
+                handle->Stop();
+                chanObj.x48_handles.erase(handle);
+            }
+        }
+
+        for (const CSfxHandle& handle : rankedSfx)
+        {
+            if (handle->IsPlaying() && !handle->IsInArea())
+            {
+                handle->Stop();
+                chanObj.x48_handles.erase(handle);
+            }
+        }
+
+        for (const CSfxHandle& handle : chanObj.x48_handles)
+        {
+            if (handle->IsPlaying())
+                continue;
+            if (handle->Ready() && handle->IsInArea())
+                handle->Play();
+        }
+
+        m_doUpdate = false;
+    }
+
+    for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
+    {
+        const CSfxHandle& handle = *it;
+        if (!handle->IsPlaying() && !handle->IsLooped())
+        {
+            handle->Release();
+            m_doUpdate = true;
+            it = chanObj.x48_handles.erase(it);
+            continue;
+        }
+        ++it;
+    }
+
+    if (m_auxProcessingEnabled && m_reverbAmount < 1.f)
+    {
+        m_reverbAmount = std::min(1.f, dt / 0.1f + m_reverbAmount);
+        ApplyReverb();
+    }
+    else if (!m_auxProcessingEnabled && m_reverbAmount > 0.f)
+    {
+        m_reverbAmount = std::max(0.f, m_reverbAmount - dt / (2.f * 0.1f));
+        ApplyReverb();
+        if (m_reverbAmount == 0.f)
+        {
+            DisableAuxCallback();
+            EnableAuxCallback();
+        }
+    }
+
+    if (mpSfxTranslationTableTok.IsLoaded() && !mpSfxTranslationTable)
+        mpSfxTranslationTable = mpSfxTranslationTableTok.GetObj();
 }
 
 void CSfxManager::Shutdown()
@@ -219,7 +567,7 @@ void CSfxManager::Shutdown()
     mpSfxTranslationTable = nullptr;
     mpSfxTranslationTableTok = TLockedToken<std::vector<s16>>{};
     StopAndRemoveAllEmitters();
-    DisableAuxCallbacks();
+    DisableAuxCallback();
 }
 
 }

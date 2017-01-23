@@ -84,6 +84,7 @@ set(WORLD_SOURCES
     CScriptMazeNode.hpp CScriptMazeNode.cpp
     CScriptShadowProjector.hpp CScriptShadowProjector.cpp
     CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
+    CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

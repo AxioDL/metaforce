@@ -61,6 +61,7 @@
 #include "MP1/CSpacePirate.hpp"
 #include "CScriptShadowProjector.hpp"
 #include "CScriptStreamedMusic.hpp"
+#include "CScriptRoomAcoustics.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -1761,7 +1762,44 @@ CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in
 
 CEntity* ScriptLoader::LoadRoomAcoustics(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 32, "RoomAcoustics"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    bool a = in.readBool();
+    u32 b = in.readUint32Big();
+    bool c = in.readBool();
+    bool d = in.readBool();
+    float e = in.readFloatBig();
+    float f = in.readFloatBig();
+    float g = in.readFloatBig();
+    float h = in.readFloatBig();
+    float i = in.readFloatBig();
+    float j = in.readFloatBig();
+    bool k = in.readBool();
+    float l = in.readFloatBig();
+    float m = in.readFloatBig();
+    float n = in.readFloatBig();
+    bool o = in.readBool();
+    bool p = in.readBool();
+    float q = in.readFloatBig();
+    float r = in.readFloatBig();
+    float s = in.readFloatBig();
+    float t = in.readFloatBig();
+    float u = in.readFloatBig();
+    bool v = in.readBool();
+    u32 w = in.readUint32Big();
+    u32 x = in.readUint32Big();
+    u32 y = in.readUint32Big();
+    u32 z = in.readUint32Big();
+    u32 _a = in.readUint32Big();
+    u32 _b = in.readUint32Big();
+    u32 _c = in.readUint32Big();
+    u32 _d = in.readUint32Big();
+    u32 _e = in.readUint32Big();
+
+    return new CScriptRoomAcoustics(mgr.AllocateUniqueId(), name, info, a, b, c, d, e, f, g, h, i, j,
+                                    k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, _a, _b, _c, _d, _e);
 }
 
 CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

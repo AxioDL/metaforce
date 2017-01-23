@@ -39,6 +39,10 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
 
     g_GuiSys = &x44_guiSys;
     x30_inputGenerator.startScanning();
+
+    CAudioSys::SysSetVolume(0x7f);
+    CAudioSys::SetDefaultVolumeScale(0x75);
+    CAudioSys::SetVolumeScale(CAudioSys::GetDefaultVolumeScale());
     CStreamAudioManager::Initialize();
     m->ResetGameState();
 
@@ -267,6 +271,7 @@ bool CMain::Proc()
     CGBASupport::GlobalPoll();
     x164_archSupport->UpdateTicks();
     x164_archSupport->Update();
+    CSfxManager::Update(1.f / 60.f);
     CStreamAudioManager::Update(1.f / 60.f);
     return x160_24_finished;
 }

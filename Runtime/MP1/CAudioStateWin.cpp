@@ -18,16 +18,16 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     const EArchMsgType msgType = msg.GetType();
     if (msgType == EArchMsgType::SetGameState)
     {
-        CSfxManager::KillAll(CSfxManager::ESfxChannels::One);
-        CSfxManager::TurnOnChannel(CSfxManager::ESfxChannels::One);
+        CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
+        CSfxManager::TurnOnChannel(CSfxManager::ESfxChannels::Game);
     }
     else if (msgType == EArchMsgType::QuitGameplay)
     {
         if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
             m->GetFlowState() != EFlowState::Zero)
         {
-            CSfxManager::SetChannel(CSfxManager::ESfxChannels::Zero);
-            CSfxManager::KillAll(CSfxManager::ESfxChannels::One);
+            CSfxManager::SetChannel(CSfxManager::ESfxChannels::Default);
+            CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
         }
     }
     return EMessageReturn::Normal;

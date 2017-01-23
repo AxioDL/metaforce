@@ -24,7 +24,7 @@ float CCameraManager::sThirdPersonFOV = 60.f;
 
 CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId)
 {
-    CSfxManager::AddListener(CSfxManager::ESfxChannels::One, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
+    CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
                              {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 0x7f);
     sAspect = float(gViewport.x8_width / gViewport.xc_height);
     sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
