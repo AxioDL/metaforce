@@ -269,6 +269,14 @@ void CActor::SetTranslation(const zeus::CVector3f& tr)
     xe4_29_ = true;
 }
 
+void CActor::SetTransform(const zeus::CTransform& tr)
+{
+    x34_transform = tr;
+    xe4_27_ = true;
+    xe4_28_ = true;
+    xe4_29_ = true;
+}
+
 void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }
 
 float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).pitch(); }

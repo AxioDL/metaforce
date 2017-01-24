@@ -69,6 +69,7 @@ set(WORLD_SOURCES
     CScriptTargetingPoint.hpp CScriptTargetingPoint.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CScriptSwitch.hpp CScriptSwitch.cpp
+    CWallCrawlerSwarm.hpp CWallCrawlerSwarm.cpp
     CScriptAiJumpPoint.hpp CScriptAiJumpPoint.cpp
     CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp

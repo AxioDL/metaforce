@@ -9,16 +9,16 @@ namespace urde
 
 class CScriptGenerator : public CEntity
 {
-    u32 x34_;
+    u32 x34_spawnCount;
     union {
         struct
         {
-            bool x38_24_ : 1;
-            bool x38_25_ : 1;
+            bool x38_24_reuseFollowers : 1;
+            bool x38_25_inheritTransform : 1;
         };
         u8 dummy1 = 0;
     };
-    zeus::CVector3f x3c_;
+    zeus::CVector3f x3c_offset;
     float x48_minScale;
     float x4c_maxScale;
 

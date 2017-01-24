@@ -144,12 +144,12 @@ class CStateManager
     {
         struct
         {
-            bool xe86_24_;
-            bool xe86_25_;
-            bool xe86_26_;
-            bool xe86_27_;
-            bool xe86_28_;
-            bool xe86_29_;
+            bool xe86_24_ : 1;
+            bool xe86_25_ : 1;
+            bool xe86_26_ : 1;
+            bool xe86_27_ : 1;
+            bool xe86_28_ : 1;
+            bool xe86_29_ : 1;
         };
         u16 _dummy = 0;
     };
@@ -165,10 +165,18 @@ class CStateManager
 
     TUniqueId xf74_lastTrigger = kInvalidUniqueId;
     TUniqueId xf76_lastRelay = kInvalidUniqueId;
+    union
+    {
+        struct
+        {
+            bool xf94_26_generatingObject : 1;
+        };
+        u32 xf94_ = 0;
+    };
+
 public:
     /* TODO: Public for CFirstPersonCamera */
     u32 x904_;
-
     CStateManager(const std::weak_ptr<CRelayTracker>&,
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,
@@ -221,6 +229,7 @@ public:
     GetIdListForScript(TEditorId) const;
     void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
     void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
+    std::pair<TEditorId, TUniqueId> GenerateObject(TEditorId);
     void InitScriptObjects(std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);
     bool ApplyKnockBack(CActor& actor, const CDamageInfo& info,
@@ -312,6 +321,8 @@ public:
     void SetLastRelayId(TUniqueId uid) { xf76_lastRelay = uid; }
     TUniqueId* GetLastRelayIdPtr() { return &xf76_lastRelay; }
     TUniqueId GetLastRelayId() const { return xf76_lastRelay; }
+    bool GetIsGeneratingObject() const { return xf94_26_generatingObject; }
+    void SetIsGeneratingObject(bool gen) { xf94_26_generatingObject = gen; }
 };
 }
 

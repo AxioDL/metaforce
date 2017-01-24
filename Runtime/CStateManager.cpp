@@ -407,6 +407,11 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 
 void CStateManager::LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in) {}
 
+std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId)
+{
+    return {kInvalidEditorId, kInvalidUniqueId};
+}
+
 void CStateManager::InitScriptObjects(std::vector<TEditorId>& ids)
 {
     for (TEditorId id : ids)

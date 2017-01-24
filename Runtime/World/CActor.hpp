@@ -50,7 +50,8 @@ protected:
     float xd0_;
     u8 xd4_ = 0x7F;
     u32 xd8_ = 2;
-    union {
+    union
+    {
         struct
         {
             bool xe4_27_ : 1;
@@ -117,6 +118,7 @@ public:
 
     void RemoveEmitter();
     const zeus::CTransform& GetTransform() const { return x34_transform; }
+    const zeus::CVector3f& GetTranslation() const { return x34_transform.origin; }
     const zeus::CTransform GetScaledLocatorTransform(const std::string& segName) const;
     const zeus::CTransform GetLocatorTransform(const std::string& segName) const;
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -142,10 +144,12 @@ public:
     void SetSfxPitchBend(s32);
     void SetRotation(const zeus::CQuaternion& q);
     void SetTranslation(const zeus::CVector3f& tr);
+    void SetTransform(const zeus::CTransform& tr);
     void SetAddedToken(u32 tok);
     float GetPitch() const;
     float GetYaw() const;
     const CModelData* GetModelData() const { return x64_modelData.get(); }
+    CModelData* ModelData() { return x64_modelData.get(); }
     void EnsureRendered(const CStateManager&);
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
 };

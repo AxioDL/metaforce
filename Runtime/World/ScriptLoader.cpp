@@ -48,6 +48,7 @@
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "CScriptSwitch.hpp"
+#include "CWallCrawlerSwarm.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
 #include "CRepulsor.hpp"
@@ -666,30 +667,30 @@ CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propC
         return nullptr;
 
     SActorHead head = LoadActorHead(in, mgr);
-
     s32 soundId = in.readInt32Big();
-    bool b1 = in.readBool();
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
+    bool active = in.readBool();
+    float maxDistance = in.readFloatBig();
+    float minDistance = in.readFloatBig();
     float f3 = in.readFloatBig();
-    u32 w2 = in.readUint32Big();
-    u32 w3 = in.readUint32Big();
-    u32 w4 = in.readUint32Big();
-    u32 w5 = in.readUint32Big();
-    bool b2 = in.readBool();
-    bool b3 = in.readBool();
+    u32 priority = in.readUint32Big();
+    u32 maxVolume = in.readUint32Big();
+    u32 minVolume = in.readUint32Big();
+    u32 panning = in.readUint32Big();
+    bool loop = in.readBool();
+    bool persistent = in.readBool();
+    bool triggered = in.readBool();
     bool b4 = in.readBool();
-    bool b5 = in.readBool();
+    bool roomAcoustic = in.readBool();
     bool b6 = in.readBool();
     bool b7 = in.readBool();
-    bool b8 = in.readBool();
-    u32 w6 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
 
     if (soundId < 0)
         return nullptr;
 
-    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, soundId, b1, f1, f2, f3, w2,
-                            w3, w4, w5, w6, 0, b2, b3, b4, b5, b6, b7, b8, w6);
+    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, soundId, active,
+                            maxDistance, minDistance, f3, priority, maxVolume, 0, minVolume, panning, 0, loop,
+                            persistent, triggered, b4, roomAcoustic, b6, b7, w5);
 }
 
 CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -703,8 +704,7 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int p
     bool b1 = in.readBool();
     bool b2 = in.readBool();
 
-    zeus::CVector3f v1;
-    v1.readBig(in);
+    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
 
     bool b3 = in.readBool();
     float f1 = in.readFloatBig();
@@ -836,7 +836,8 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
         morphed = in.readBool();
 
     return new CScriptSpawnPoint(mgr.AllocateUniqueId(), name, info,
-                                 ConvertEditorEulerToTransform4f(rotation, position), itemCounts, defaultSpawn, active, morphed);
+                                 ConvertEditorEulerToTransform4f(rotation, position), itemCounts, defaultSpawn, active,
+                                 morphed);
 }
 
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1739,7 +1740,52 @@ CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int pro
 CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 39, "WallCrawlerSwarm"))
+        return nullptr;
+
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    bool active = in.readBool();
+    CActorParameters aParams = LoadActorParameters(in);
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
+    u32 w6 = in.readUint32Big();
+    u32 w7 = in.readUint32Big();
+    u32 w8 = in.readUint32Big();
+    u32 w9 = in.readUint32Big();
+    u32 w10 = in.readUint32Big();
+    CDamageInfo dInfo1(in);
+    float f1 = in.readFloatBig();
+    CDamageInfo dInfo2(in);
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    u32 w11 = in.readUint32Big();
+    u32 w12 = in.readUint32Big();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+    float f10 = in.readFloatBig();
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+    float f13 = in.readFloatBig();
+    u32 w13 = in.readUint32Big();
+    float f14 = in.readFloatBig();
+    float f15 = in.readFloatBig();
+    float f16 = in.readFloatBig();
+    CHealthInfo hInfo(in);
+    CDamageVulnerability dVulns(in);
+    u32 w14 = in.readUint32Big();
+    u32 w15 = in.readUint32Big();
+
+    return new CWallCrawlerSwarm(mgr.AllocateUniqueId(), active, aHead.x0_name, info,
+                                 aHead.x40_scale, aHead.x10_transform, w1, CAnimRes(w2, w3, {1.5f}, w4, true), w5, w6,
+                                 w7, w8, w9, w10, dInfo1, dInfo2, f1, f2, f3, f4, w11, w12, f5, f6, f7, f8, f9, f10,
+                                 f11, f12, f13, w13, f14, f15, f16, hInfo, dVulns, w14, w15, aParams);
 }
 
 CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1798,8 +1844,8 @@ CEntity* ScriptLoader::LoadRoomAcoustics(CStateManager& mgr, CInputStream& in, i
     u32 _d = in.readUint32Big();
     u32 _e = in.readUint32Big();
 
-    return new CScriptRoomAcoustics(mgr.AllocateUniqueId(), name, info, a, b, c, d, e, f, g, h, i, j,
-                                    k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, _a, _b, _c, _d, _e);
+    return new CScriptRoomAcoustics(mgr.AllocateUniqueId(), name, info, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,
+                                    q, r, s, t, u, v, w, x, y, z, _a, _b, _c, _d, _e);
 }
 
 CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1821,8 +1867,7 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, i
     bool b4 = in.readBool();
     bool b5 = in.readBool();
     bool active = in.readBool();
-    return new CScriptColorModulate(mgr.AllocateUniqueId(), name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5,
-                                    active);
+    return new CScriptColorModulate(mgr.AllocateUniqueId(), name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5, active);
 }
 
 CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1851,9 +1896,8 @@ CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, i
     u32 oneShot = in.readUint32Big();
     bool music = in.readBool();
 
-    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, name,
-                                    active, fileName, noStopOnDeactivate,
-                                    fadeIn, fadeOut, volume, !oneShot, music);
+    return new CScriptStreamedMusic(mgr.AllocateUniqueId(), info, name, active, fileName, noStopOnDeactivate, fadeIn,
+                                    fadeOut, volume, !oneShot, music);
 }
 
 CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1902,8 +1946,8 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
     zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, center);
 
     return new CScriptSpecialFunction(
-        mgr.AllocateUniqueId(), name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius,
-        0.f, 0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, dInfo, -1, -1, -1, -1, -1, -1);
+        mgr.AllocateUniqueId(), name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius, 0.f,
+        0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, dInfo, -1, -1, -1, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in, int propCount,
