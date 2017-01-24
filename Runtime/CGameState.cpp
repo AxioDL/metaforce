@@ -8,6 +8,20 @@
 
 namespace urde
 {
+union BitsToDouble
+{
+    struct
+    {
+#if BYTE_ORDER == __LITTLE_ENDIAN
+        u32 high;
+        u32 low;
+#else
+        u32 low;
+        u32 high;
+#endif
+    };
+    double doub;
+};
 
 CWorldLayerState::CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld)
 {
@@ -101,15 +115,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
     stream.ReadEncoded(1);
     ret.x8_mlvlId = stream.ReadEncoded(32);
 
-    union BitsToDouble
-    {
-        struct
-        {
-            u32 low;
-            u32 high;
-        };
-        double doub;
-    } conv;
+    BitsToDouble conv;
     conv.low = stream.ReadEncoded(32);
     conv.high = stream.ReadEncoded(32);
     ret.x0_playTime = conv.doub;
@@ -155,15 +161,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
     x84_mlvlId = stream.ReadEncoded(32);
     EnsureWorldPakReady(x84_mlvlId);
 
-    union BitsToDouble
-    {
-        struct
-        {
-            u32 low;
-            u32 high;
-        };
-        double doub;
-    } conv;
+    BitsToDouble conv;
     conv.low = stream.ReadEncoded(32);
     conv.high = stream.ReadEncoded(32);
     xa0_playTime = conv.doub;
@@ -231,15 +229,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const
     writer.WriteEncoded(x228_25_deferPowerupInit, 1);
     writer.WriteEncoded(x84_mlvlId, 32);
 
-    union BitsToDouble
-    {
-        struct
-        {
-            u32 low;
-            u32 high;
-        };
-        double doub;
-    } conv;
+    BitsToDouble conv;
     conv.doub = xa0_playTime;
     writer.WriteEncoded(conv.low, 32);
     writer.WriteEncoded(conv.high, 32);
