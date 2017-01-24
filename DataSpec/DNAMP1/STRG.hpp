@@ -51,7 +51,7 @@ struct STRG : ISTRG
         auto search = langMap.find(lang);
         if (search != langMap.end())
 #if HECL_UCS2
-            return search->second->at(idx);
+            return hecl::Char16ToWide(search->second->at(idx));
 #else
             return hecl::Char16ToUTF8(search->second->at(idx));
 #endif
