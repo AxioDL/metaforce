@@ -65,6 +65,20 @@ std::wstring WideFormat(const wchar_t* format, ...)
     return std::wstring(resultBuf, printSz);
 }
 
+std::u16string Char16Format(const wchar_t* format, ...)
+{
+    wchar_t resultBuf[FORMAT_BUF_SZ];
+    va_list va;
+    va_start(va, format);
+    int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+    va_end(va);
+    std::u16string res;
+    res.reserve(printSz);
+    for (size_t i=0 ; i<printSz ; ++i)
+        res.push_back(resultBuf[i]);
+    return res;
+}
+
 void SanitizePath(std::string& path)
 {
     if (path.empty())

@@ -52,7 +52,9 @@ extern logvisor::Module LogModule;
 #endif
 
 std::string WideToUTF8(const std::wstring& src);
+std::string Char16ToUTF8(const std::u16string& src);
 std::wstring UTF8ToWide(const std::string& src);
+std::u16string UTF8ToChar16(const std::string& src);
 
 /* humanize_number port from FreeBSD's libutil */
 enum class HNFlags
@@ -424,6 +426,7 @@ std::string Format(const char* format, ...);
 
 std::wstring WideFormat(const wchar_t* format, ...);
 
+std::u16string Char16Format(const wchar_t* format, ...);
 
 static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
 {
