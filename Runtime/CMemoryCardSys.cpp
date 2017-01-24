@@ -278,7 +278,7 @@ ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer()
         result = GetStatus(stat);
         if (result != ECardResult::READY)
             return result;
-        result = CMemoryCardSys::SetStatus(m_handle, stat);
+        result = CMemoryCardSys::SetStatus(m_handle.slot, m_handle.getFileNo(), stat);
         if (result != ECardResult::READY)
             return result;
         return ECardResult::BUSY;
@@ -294,7 +294,7 @@ ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer()
 
 ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(kabufuda::CardStat& stat) const
 {
-    ECardResult result = CMemoryCardSys::GetStatus(m_handle, stat);
+    ECardResult result = CMemoryCardSys::GetStatus(m_handle.slot, m_handle.getFileNo(), stat);
     if (result != ECardResult::READY)
         return result;
 
@@ -438,11 +438,11 @@ ECardResult CMemoryCardSys::CloseFile(CardFileHandle& info)
         g_OpResults[int(info.slot)] = err;
         return err;
     }
-    info.handle.reset();
+    card.closeFile(info.handle);
     return ECardResult::READY;
 }
 
-ECardResult CMemoryCardSys::ReadFile(const CardFileHandle& info, void* buf, s32 length, s32 offset)
+ECardResult CMemoryCardSys::ReadFile(CardFileHandle& info, void* buf, s32 length, s32 offset)
 {
     kabufuda::Card& card = g_CardStates[int(info.slot)];
     if (CardResult err = card.getError())
@@ -450,13 +450,13 @@ ECardResult CMemoryCardSys::ReadFile(const CardFileHandle& info, void* buf, s32 
         g_OpResults[int(info.slot)] = err;
         return err;
     }
-    card.seek(info, offset, kabufuda::SeekOrigin::Begin);
-    card.read(info, buf, length);
+    card.seek(info.handle, offset, kabufuda::SeekOrigin::Begin);
+    card.read(info.handle, buf, length);
     g_OpResults[int(info.slot)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
-ECardResult CMemoryCardSys::WriteFile(const CardFileHandle& info, const void* buf, s32 length, s32 offset)
+ECardResult CMemoryCardSys::WriteFile(CardFileHandle& info, const void* buf, s32 length, s32 offset)
 {
     kabufuda::Card& card = g_CardStates[int(info.slot)];
     if (CardResult err = card.getError())
@@ -464,8 +464,8 @@ ECardResult CMemoryCardSys::WriteFile(const CardFileHandle& info, const void* bu
         g_OpResults[int(info.slot)] = err;
         return err;
     }
-    card.seek(info, offset, kabufuda::SeekOrigin::Begin);
-    card.write(info, buf, length);
+    card.seek(info.handle, offset, kabufuda::SeekOrigin::Begin);
+    card.write(info.handle, buf, length);
     g_OpResults[int(info.slot)] = ECardResult::READY;
     return ECardResult::READY;
 }
@@ -501,29 +501,29 @@ ECardResult CMemoryCardSys::GetResultCode(kabufuda::ECardSlot port)
     return g_OpResults[int(port)];
 }
 
-ECardResult CMemoryCardSys::GetStatus(const CardFileHandle& info, CardStat& statOut)
+ECardResult CMemoryCardSys::GetStatus(kabufuda::ECardSlot port, int fileNo, CardStat& statOut)
 {
-    kabufuda::Card& card = g_CardStates[int(info.slot)];
+    kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(info.slot)] = err;
+        g_OpResults[int(port)] = err;
         return err;
     }
-    ECardResult result = card.getStatus(info, statOut);
-    g_OpResults[int(info.slot)] = result;
+    ECardResult result = card.getStatus(fileNo, statOut);
+    g_OpResults[int(port)] = result;
     return result;
 }
 
-ECardResult CMemoryCardSys::SetStatus(const CardFileHandle& info, const CardStat& stat)
+ECardResult CMemoryCardSys::SetStatus(kabufuda::ECardSlot port, int fileNo, const CardStat& stat)
 {
-    kabufuda::Card& card = g_CardStates[int(info.slot)];
+    kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(info.slot)] = err;
+        g_OpResults[int(port)] = err;
         return err;
     }
-    ECardResult result = card.setStatus(info, stat);
-    g_OpResults[int(info.slot)] = result;
+    ECardResult result = card.setStatus(fileNo, stat);
+    g_OpResults[int(port)] = result;
     return result;
 }
 

@@ -145,9 +145,9 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
     g_TextExecuteBuf->AddColor(EColorType::Main, x24_fontColor);
     g_TextExecuteBuf->AddColor(EColorType::Outline, x28_outlineColor);
 
-    std::wstring initStr;
+    std::u16string initStr;
     if ((x5c_fontId & 0xffff) != 0xffff)
-        initStr = hecl::WideFormat(L"&font=%08X;", u32(x5c_fontId));
+        initStr = hecl::Char16Format(L"&font=%08X;", u32(x5c_fontId));
     initStr += x0_string;
 
     g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size());
@@ -231,7 +231,7 @@ void CGuiTextSupport::SetFontColor(const zeus::CColor& col)
     }
 }
 
-void CGuiTextSupport::AddText(const std::wstring& str)
+void CGuiTextSupport::AddText(const std::u16string& str)
 {
     if (x60_renderBuf)
     {
@@ -243,7 +243,7 @@ void CGuiTextSupport::AddText(const std::wstring& str)
     ClearRenderBuffer();
 }
 
-void CGuiTextSupport::SetText(const std::wstring& str, bool multipage)
+void CGuiTextSupport::SetText(const std::u16string& str, bool multipage)
 {
     if (x0_string.compare(str))
     {
@@ -258,7 +258,7 @@ void CGuiTextSupport::SetText(const std::wstring& str, bool multipage)
 
 void CGuiTextSupport::SetText(const std::string& str, bool multipage)
 {
-    SetText(hecl::UTF8ToWide(str), multipage);
+    SetText(hecl::UTF8ToChar16(str), multipage);
 }
 
 bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() const

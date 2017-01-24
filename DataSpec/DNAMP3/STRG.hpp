@@ -45,12 +45,12 @@ struct STRG : ISTRG
             return search->second->at(idx);
         return std::string();
     }
-    inline std::wstring getUTF16(const FourCC& lang, size_t idx) const
+    inline std::u16string getUTF16(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
-            return hecl::UTF8ToWide(search->second->at(idx));
-        return std::wstring();
+            return hecl::UTF8ToChar16(search->second->at(idx));
+        return std::u16string();
     }
     inline hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const
     {

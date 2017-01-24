@@ -77,7 +77,7 @@ public:
 class CGuiTextSupport
 {
     friend class CGuiTextPane;
-    std::wstring x0_string;
+    std::u16string x0_string;
     float x10_curTimeMod900 = 0.f;
     CGuiTextProperties x14_props;
     zeus::CColor x24_fontColor;
@@ -125,8 +125,8 @@ public:
     void SetGeometryColor(const zeus::CColor& col);
     void SetOutlineColor(const zeus::CColor& col);
     void SetFontColor(const zeus::CColor& col);
-    void AddText(const std::wstring& str);
-    void SetText(const std::wstring& str, bool multipage=false);
+    void AddText(const std::u16string& str);
+    void SetText(const std::u16string& str, bool multipage=false);
     void SetText(const std::string& str, bool multipage=false);
     bool GetIsTextSupportFinishedLoading() const;
 };

@@ -80,7 +80,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     for (const auto& world : memWorlds)
     {
         TLockedToken<CSaveWorld> saveWorld =
-                g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
+            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
         cinematicCount += saveWorld->GetCinematicCount();
     }
 
@@ -92,7 +92,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     for (const auto& world : memWorlds)
     {
         TLockedToken<CSaveWorld> saveWorld =
-                g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.first});
+            g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
         auto stateIt = cinematicStates.cbegin();
         for (TEditorId cineId : saveWorld->GetCinematics())

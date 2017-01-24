@@ -321,7 +321,7 @@ void CBlockInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* b
 void CWordInstruction::InvokeLTR(CFontRenderState& state) const
 {
     CRasterFont* font = state.x48_font.GetObj();
-    wchar_t space = L' ';
+    char16_t space = u' ';
     int w, h;
     font->GetSize(state.x0_drawStrOpts, w, h, &space, 1);
 

@@ -17,7 +17,7 @@ public:
     CStringTable(CInputStream& in);
     void LoadStringTable(CInputStream& in);
 
-    const wchar_t* GetString(s32) const;
+    const char16_t* GetString(s32) const;
     static void SetLanguage(s32);
 };
 

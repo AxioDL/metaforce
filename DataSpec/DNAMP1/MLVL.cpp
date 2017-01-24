@@ -6,6 +6,7 @@
 #include "ScriptObjects/SpecialFunction.hpp"
 #include "ScriptObjects/DoorArea.hpp"
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace DataSpec
 {
@@ -207,7 +208,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 std::vector<Scan> scans;
                 for (std::unique_ptr<IScriptObject>& obj : layer.objects)
                 {
-                    if (obj->type == 0x13)
+                    if (obj->type == int(urde::EScriptObjectType::MemoryRelay))
                     {
                         MemoryRelay& memRelay = static_cast<MemoryRelay&>(*obj);
                         for (IScriptObject::Connection& conn : memRelay.connections)
@@ -221,7 +222,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                         }
                         savw.relays.push_back(memRelay.id);
                     }
-                    else if (obj->type == 0x3A)
+                    else if (obj->type == int(urde::EScriptObjectType::SpecialFunction))
                     {
                         SpecialFunction& specialFunc = static_cast<SpecialFunction&>(*obj);
                         if (specialFunc.function == ESpecialFunctionType::CinematicSkip)
@@ -234,7 +235,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                             layer.layer = specialFunc.layerSwitch.layerIdx;
                         }
                     }
-                    else if (obj->type == 0x3)
+                    else if (obj->type == int(urde::EScriptObjectType::Door))
                     {
                         DoorArea& doorArea = static_cast<DoorArea&>(*obj);
                         savw.doors.push_back(doorArea.id);

@@ -32,10 +32,10 @@ public:
 
     const TLockedToken<CStringTable>& GetWorldName() const { return x2c_worldName; }
     const TLockedToken<CSaveWorld>& GetSaveWorld() const { return x3c_saveWorld; }
-    const wchar_t* GetFrontEndName() const
+    const char16_t* GetFrontEndName() const
     {
         if (!x2c_worldName)
-            return L"";
+            return u"";
         return x2c_worldName->GetString(0);
     }
 };
@@ -79,11 +79,9 @@ public:
     struct CardFileHandle
     {
         kabufuda::ECardSlot slot;
-        std::unique_ptr<kabufuda::IFileHandle> handle;
+        kabufuda::FileHandle handle;
         CardFileHandle(kabufuda::ECardSlot slot) : slot(slot) {}
-        kabufuda::IFileHandle* operator->() const { return handle.get(); }
-        operator std::unique_ptr<kabufuda::IFileHandle>&() { return handle; }
-        operator const std::unique_ptr<kabufuda::IFileHandle>&() const { return handle; }
+        int getFileNo() const { return handle.getFileNo(); }
     };
 
     using CardStat = kabufuda::CardStat;
@@ -134,7 +132,7 @@ public:
         void LockIconToken(ResId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp);
 
         kabufuda::ECardSlot GetCardPort() const { return m_handle.slot; }
-        int GetFileNo() const { return m_handle->getFileNo(); }
+        int GetFileNo() const { return m_handle.getFileNo(); }
         u32 CalculateBannerDataSize() const;
         u32 CalculateTotalDataSize() const;
         void BuildCardBuffer();
@@ -162,13 +160,13 @@ public:
     static ECardResult OpenFile(kabufuda::ECardSlot port, const char* name, CardFileHandle& info);
     static ECardResult FastOpenFile(kabufuda::ECardSlot port, int fileNo, CardFileHandle& info);
     static ECardResult CloseFile(CardFileHandle& info);
-    static ECardResult ReadFile(const CardFileHandle& info, void* buf, s32 length, s32 offset);
-    static ECardResult WriteFile(const CardFileHandle& info, const void* buf, s32 length, s32 offset);
+    static ECardResult ReadFile(CardFileHandle& info, void* buf, s32 length, s32 offset);
+    static ECardResult WriteFile(CardFileHandle& info, const void* buf, s32 length, s32 offset);
     static ECardResult GetNumFreeBytes(kabufuda::ECardSlot port, s32& freeBytes, s32& freeFiles);
     static ECardResult GetSerialNo(kabufuda::ECardSlot port, u64& serialOut);
     static ECardResult GetResultCode(kabufuda::ECardSlot port);
-    static ECardResult GetStatus(const CardFileHandle& info, CardStat& statOut);
-    static ECardResult SetStatus(const CardFileHandle& info, const CardStat& stat);
+    static ECardResult GetStatus(kabufuda::ECardSlot port, int fileNo, CardStat& statOut);
+    static ECardResult SetStatus(kabufuda::ECardSlot port, int fileNo, const CardStat& stat);
     static ECardResult DeleteFile(kabufuda::ECardSlot port, const char* name);
     static ECardResult FastDeleteFile(kabufuda::ECardSlot port, int fileNo);
     static ECardResult Rename(kabufuda::ECardSlot port, const char* oldName, const char* newName);

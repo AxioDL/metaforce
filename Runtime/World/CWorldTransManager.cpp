@@ -389,7 +389,7 @@ void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, bool b1,
 
     x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
     xc_strTable = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), stringId});
-    x8_textData->SetText(L"");
+    x8_textData->SetText(u"");
 }
 
 void CWorldTransManager::DisableTransition()

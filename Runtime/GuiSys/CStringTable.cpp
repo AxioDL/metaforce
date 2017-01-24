@@ -70,13 +70,13 @@ void CStringTable::LoadStringTable(CInputStream &in)
     }
 }
 
-const wchar_t* CStringTable::GetString(s32 str) const
+const char16_t* CStringTable::GetString(s32 str) const
 {
     if (str < 0 || u32(str) >= x0_stringCount)
-        return L"Invalid";
+        return u"Invalid";
 
     u32 off = *reinterpret_cast<u32*>(x4_data.get() + str * 4);
-    return reinterpret_cast<wchar_t*>(x4_data.get() + off);
+    return reinterpret_cast<char16_t*>(x4_data.get() + off);
 }
 
 void CStringTable::SetLanguage(s32 lang)

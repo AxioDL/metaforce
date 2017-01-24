@@ -30,7 +30,7 @@ void CSaveUI::ResetCardDriver()
 
 CIOWin::EMessageReturn CSaveUI::Update(float dt)
 {
-    if (PumpLoad())
+    if (!PumpLoad())
         return CIOWin::EMessageReturn::Normal;
 
     x50_loadedFrame->Update(dt);
@@ -60,6 +60,10 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
                 x8_serial = x6c_cardDriver->x28_cardSerial;
                 x6c_cardDriver->IndexFiles();
             }
+        }
+        else
+        {
+            x6c_cardDriver->IndexFiles();
         }
     }
     else if (x6c_cardDriver->x10_state == EState::Ready)
@@ -304,30 +308,30 @@ void CSaveUI::SetUIText()
     default: break;
     }
 
-    std::wstring msgAStr;
+    std::u16string msgAStr;
     if (msgA != -1)
         msgAStr = x38_strgMemoryCard->GetString(msgA);
-    std::wstring msgBStr;
+    std::u16string msgBStr;
     if (msgB != -1)
         msgBStr = x38_strgMemoryCard->GetString(msgB);
     x54_textpane_message->TextSupport()->SetText(msgAStr + msgBStr);
 
-    std::wstring opt0Str;
+    std::u16string opt0Str;
     if (opt0 != -1)
         opt0Str = x38_strgMemoryCard->GetString(opt0);
     x5c_textpane_choice0->TextSupport()->SetText(opt0Str);
 
-    std::wstring opt1Str;
+    std::u16string opt1Str;
     if (opt1 != -1)
         opt1Str = x38_strgMemoryCard->GetString(opt1);
     x60_textpane_choice1->TextSupport()->SetText(opt1Str);
 
-    std::wstring opt2Str;
+    std::u16string opt2Str;
     if (opt2 != -1)
         opt2Str = x38_strgMemoryCard->GetString(opt2);
     x64_textpane_choice2->TextSupport()->SetText(opt2Str);
 
-    std::wstring opt3Str;
+    std::u16string opt3Str;
     x68_textpane_choice3->TextSupport()->SetText(opt3Str);
 
     x5c_textpane_choice0->SetIsSelectable(opt0 != -1);

@@ -16,7 +16,7 @@ struct ISTRG : BigYAML
 
     virtual size_t count() const=0;
     virtual std::string getUTF8(const FourCC& lang, size_t idx) const=0;
-    virtual std::wstring getUTF16(const FourCC& lang, size_t idx) const=0;
+    virtual std::u16string getUTF16(const FourCC& lang, size_t idx) const=0;
     virtual hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const=0;
     virtual int32_t lookupIdx(const std::string& name) const=0;
 

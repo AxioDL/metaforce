@@ -16,8 +16,8 @@ struct STRG : ISTRG
     DECL_YAML
     Delete expl;
     void _read(athena::io::IStreamReader& reader);
-    std::vector<std::pair<FourCC, std::vector<std::wstring>>> langs;
-    std::unordered_map<FourCC, std::vector<std::wstring>*> langMap;
+    std::vector<std::pair<FourCC, std::vector<std::u16string>>> langs;
+    std::unordered_map<FourCC, std::vector<std::u16string>*> langMap;
 
     inline int32_t lookupIdx(const std::string& name) const {return -1;}
 
@@ -36,15 +36,15 @@ struct STRG : ISTRG
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
-            return hecl::WideToUTF8(search->second->at(idx));
+            return hecl::Char16ToUTF8(search->second->at(idx));
         return std::string();
     }
-    inline std::wstring getUTF16(const FourCC& lang, size_t idx) const
+    inline std::u16string getUTF16(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
             return search->second->at(idx);
-        return std::wstring();
+        return std::u16string();
     }
     inline hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const
     {
@@ -53,7 +53,7 @@ struct STRG : ISTRG
 #if HECL_UCS2
             return search->second->at(idx);
 #else
-            return hecl::WideToUTF8(search->second->at(idx));
+            return hecl::Char16ToUTF8(search->second->at(idx));
 #endif
         return hecl::SystemString();
     }

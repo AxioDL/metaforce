@@ -5,7 +5,17 @@
 namespace urde
 {
 
-CTextColor CTextParser::ParseColor(const wchar_t* str, int len)
+static float u16stof(char16_t* str)
+{
+    wchar_t wstr[16];
+    int i;
+    for (i=0 ; i<15 && str[i] != u'\0' ; ++i)
+        wstr[i] = str[i];
+    wstr[i+1] = L'\0';
+    return std::wcstof(wstr, nullptr);
+}
+
+CTextColor CTextParser::ParseColor(const char16_t* str, int len)
 {
     u8 r = GetColorValue(str + 1);
     u8 g = GetColorValue(str + 3);
@@ -16,30 +26,30 @@ CTextColor CTextParser::ParseColor(const wchar_t* str, int len)
     return CTextColor(r, g, b, a);
 }
 
-u8 CTextParser::GetColorValue(const wchar_t* str)
+u8 CTextParser::GetColorValue(const char16_t* str)
 {
     return (FromHex(str[0]) << 4) + FromHex(str[1]);
 }
 
-u32 CTextParser::FromHex(wchar_t ch)
+u32 CTextParser::FromHex(char16_t ch)
 {
-    if (ch >= L'0' && ch <= L'9')
-        return ch - L'0';
+    if (ch >= u'0' && ch <= u'9')
+        return ch - u'0';
 
-    if (ch >= L'A' && ch <= L'F')
-        return ch - L'A' + 10;
+    if (ch >= u'A' && ch <= u'F')
+        return ch - u'A' + 10;
 
-    if (ch >= L'a' && ch <= L'f')
-        return ch - L'a' + 10;
+    if (ch >= u'a' && ch <= u'f')
+        return ch - u'a' + 10;
 
     return 0;
 }
 
-s32 CTextParser::ParseInt(const wchar_t* str, int len, bool signVal)
+s32 CTextParser::ParseInt(const char16_t* str, int len, bool signVal)
 {
     bool neg = false;
     int procCur = 0;
-    if (signVal && len && *str == L'-')
+    if (signVal && len && *str == u'-')
     {
         neg = true;
         procCur = 1;
@@ -50,14 +60,14 @@ s32 CTextParser::ParseInt(const wchar_t* str, int len, bool signVal)
     {
         val *= 10;
         wchar_t ch = str[procCur];
-        val += ch - L'0';
+        val += ch - u'0';
         ++procCur;
     }
 
     return neg ? -val : val;
 }
 
-bool CTextParser::Equals(const wchar_t* str, int len, const wchar_t* other)
+bool CTextParser::Equals(const char16_t* str, int len, const char16_t* other)
 {
     int i=0;
     for (; *other && i<len ; ++i, ++str, ++other)
@@ -65,10 +75,10 @@ bool CTextParser::Equals(const wchar_t* str, int len, const wchar_t* other)
         if (*str != *other)
             return false;
     }
-    return other[i] == L'\0';
+    return other[i] == u'\0';
 }
 
-bool CTextParser::BeginsWith(const wchar_t* str, int len, const wchar_t* other)
+bool CTextParser::BeginsWith(const char16_t* str, int len, const char16_t* other)
 {
     int i=0;
     for (; *other && i<len ; ++i, ++str, ++other)
@@ -79,52 +89,52 @@ bool CTextParser::BeginsWith(const wchar_t* str, int len, const wchar_t* other)
     return true;
 }
 
-void CTextParser::ParseTag(CTextExecuteBuffer& out, const wchar_t* str, int len)
+void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len)
 {
-    if (BeginsWith(str, len, L"font="))
+    if (BeginsWith(str, len, u"font="))
     {
         TToken<CRasterFont> font = GetFont(str + 5, len - 5);
         out.AddFont(font);
     }
-    else if (BeginsWith(str, len, L"image="))
+    else if (BeginsWith(str, len, u"image="))
     {
         CFontImageDef image = GetImage(str + 6, len - 6);
         out.AddImage(image);
     }
-    else if (BeginsWith(str, len, L"fg-color="))
+    else if (BeginsWith(str, len, u"fg-color="))
     {
         CTextColor color = ParseColor(str + 9, len - 9);
         out.AddColor(EColorType::Foreground, color);
     }
-    else if (BeginsWith(str, len, L"main-color="))
+    else if (BeginsWith(str, len, u"main-color="))
     {
         CTextColor color = ParseColor(str + 11, len - 11);
         out.AddColor(EColorType::Main, color);
     }
-    else if (BeginsWith(str, len, L"geometry-color="))
+    else if (BeginsWith(str, len, u"geometry-color="))
     {
         CTextColor color = ParseColor(str + 15, len - 15);
         out.AddColor(EColorType::Geometry, color);
     }
-    else if (BeginsWith(str, len, L"outline-color="))
+    else if (BeginsWith(str, len, u"outline-color="))
     {
         CTextColor color = ParseColor(str + 14, len - 14);
         out.AddColor(EColorType::Outline, color);
     }
-    else if (BeginsWith(str, len, L"color"))
+    else if (BeginsWith(str, len, u"color"))
     {
-        const wchar_t* valCur = str + 7;
+        const char16_t* valCur = str + 7;
         len -= 7;
-        int val = str[6] - L'0';
-        if (str[7] >= L'0' && str[7] <= L'9')
+        int val = str[6] - u'0';
+        if (str[7] >= u'0' && str[7] <= u'9')
         {
             ++valCur;
             --len;
             val *= 10;
-            val += str[7] - L'0';
+            val += str[7] - u'0';
         }
 
-        if (Equals(valCur + 10, len - 10, L"no"))
+        if (Equals(valCur + 10, len - 10, u"no"))
             out.AddRemoveColorOverride(val);
         else
         {
@@ -132,80 +142,80 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const wchar_t* str, int len)
             out.AddColorOverride(val, color);
         }
     }
-    else if (BeginsWith(str, len, L"line-spacing="))
+    else if (BeginsWith(str, len, u"line-spacing="))
     {
         out.AddLineSpacing(ParseInt(str + 13, len - 13, true) / 100.0);
     }
-    else if (BeginsWith(str, len, L"line-extra-space="))
+    else if (BeginsWith(str, len, u"line-extra-space="))
     {
         out.AddLineSpacing(ParseInt(str + 17, len - 17, true));
     }
-    else if (BeginsWith(str, len, L"just="))
+    else if (BeginsWith(str, len, u"just="))
     {
-        if (Equals(str + 5, len - 5, L"left"))
+        if (Equals(str + 5, len - 5, u"left"))
             out.AddJustification(EJustification::Left);
-        else if (Equals(str + 5, len - 5, L"center"))
+        else if (Equals(str + 5, len - 5, u"center"))
             out.AddJustification(EJustification::Center);
-        else if (Equals(str + 5, len - 5, L"right"))
+        else if (Equals(str + 5, len - 5, u"right"))
             out.AddJustification(EJustification::Right);
-        else if (Equals(str + 5, len - 5, L"full"))
+        else if (Equals(str + 5, len - 5, u"fulu"))
             out.AddJustification(EJustification::Full);
-        else if (Equals(str + 5, len - 5, L"nleft"))
+        else if (Equals(str + 5, len - 5, u"nleft"))
             out.AddJustification(EJustification::NLeft);
-        else if (Equals(str + 5, len - 5, L"ncenter"))
+        else if (Equals(str + 5, len - 5, u"ncenter"))
             out.AddJustification(EJustification::NCenter);
-        else if (Equals(str + 5, len - 5, L"nright"))
+        else if (Equals(str + 5, len - 5, u"nright"))
             out.AddJustification(EJustification::NRight);
     }
-    else if (BeginsWith(str, len, L"vjust="))
+    else if (BeginsWith(str, len, u"vjust="))
     {
-        if (Equals(str + 6, len - 6, L"top"))
+        if (Equals(str + 6, len - 6, u"top"))
             out.AddVerticalJustification(EVerticalJustification::Top);
-        else if (Equals(str + 6, len - 6, L"center"))
+        else if (Equals(str + 6, len - 6, u"center"))
             out.AddVerticalJustification(EVerticalJustification::Center);
-        else if (Equals(str + 6, len - 6, L"bottom"))
+        else if (Equals(str + 6, len - 6, u"bottom"))
             out.AddVerticalJustification(EVerticalJustification::Bottom);
-        else if (Equals(str + 6, len - 6, L"full"))
+        else if (Equals(str + 6, len - 6, u"fulu"))
             out.AddVerticalJustification(EVerticalJustification::Full);
-        else if (Equals(str + 6, len - 6, L"ntop"))
+        else if (Equals(str + 6, len - 6, u"ntop"))
             out.AddVerticalJustification(EVerticalJustification::NTop);
-        else if (Equals(str + 6, len - 6, L"ncenter"))
+        else if (Equals(str + 6, len - 6, u"ncenter"))
             out.AddVerticalJustification(EVerticalJustification::NCenter);
-        else if (Equals(str + 6, len - 6, L"nbottom"))
+        else if (Equals(str + 6, len - 6, u"nbottom"))
             out.AddVerticalJustification(EVerticalJustification::NBottom);
     }
-    else if (Equals(str, len, L"push"))
+    else if (Equals(str, len, u"push"))
     {
         out.AddPushState();
     }
-    else if (Equals(str, len, L"pop"))
+    else if (Equals(str, len, u"pop"))
     {
         out.AddPopState();
     }
 }
 
-CFontImageDef CTextParser::GetImage(const wchar_t* str, int len)
+CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
 {
     int commaCount = 0;
     for (int i=0 ; i<len ; ++i)
-        if (str[i] == L',')
+        if (str[i] == u',')
             ++commaCount;
 
     if (commaCount)
     {
-        std::wstring iterable(str, len);
+        std::u16string iterable(str, len);
         size_t tokenPos;
         size_t commaPos;
-        commaPos = iterable.find(L',');
-        iterable[commaPos] = L'\0';
+        commaPos = iterable.find(u',');
+        iterable[commaPos] = u'\0';
         tokenPos = commaPos + 1;
 
         auto AdvanceCommaPos = [&]()
         {
-            commaPos = iterable.find(L',', tokenPos);
-            if (commaPos == std::wstring::npos)
+            commaPos = iterable.find(u',', tokenPos);
+            if (commaPos == std::u16string::npos)
                 commaPos = iterable.size();
-            iterable[commaPos] = L'\0';
+            iterable[commaPos] = u'\0';
         };
 
         auto AdvanceTokenPos = [&]()
@@ -213,11 +223,11 @@ CFontImageDef CTextParser::GetImage(const wchar_t* str, int len)
             tokenPos = commaPos + 1;
         };
 
-        if (BeginsWith(str, len, L"A"))
+        if (BeginsWith(str, len, u"A"))
         {
             /* Animated texture array */
             AdvanceCommaPos();
-            float interval = std::wcstof(&iterable[tokenPos], nullptr);
+            float interval = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             std::vector<TToken<CTexture>> texs;
@@ -232,19 +242,19 @@ CFontImageDef CTextParser::GetImage(const wchar_t* str, int len)
 
             return CFontImageDef(std::move(texs), interval, zeus::CVector2f(1.f, 1.f));
         }
-        else if (BeginsWith(str, len, L"SA"))
+        else if (BeginsWith(str, len, u"SA"))
         {
             /* Scaled and animated texture array */
             AdvanceCommaPos();
-            float interval = std::wcstof(&iterable[tokenPos], nullptr);
+            float interval = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
-            float scaleX = std::wcstof(&iterable[tokenPos], nullptr);
+            float scaleX = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
-            float scaleY = std::wcstof(&iterable[tokenPos], nullptr);
+            float scaleY = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             std::vector<TToken<CTexture>> texs;
@@ -259,15 +269,15 @@ CFontImageDef CTextParser::GetImage(const wchar_t* str, int len)
 
             return CFontImageDef(std::move(texs), interval, zeus::CVector2f(scaleX, scaleY));
         }
-        else if (BeginsWith(str, len, L"SI"))
+        else if (BeginsWith(str, len, u"SI"))
         {
             /* Scaled single texture */
             AdvanceCommaPos();
-            float scaleX = std::wcstof(&iterable[tokenPos], nullptr);
+            float scaleX = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
-            float scaleY = std::wcstof(&iterable[tokenPos], nullptr);
+            float scaleY = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
@@ -283,7 +293,7 @@ CFontImageDef CTextParser::GetImage(const wchar_t* str, int len)
     return CFontImageDef(std::move(tex), zeus::CVector2f(1.f, 1.f));
 }
 
-ResId CTextParser::GetAssetIdFromString(const wchar_t* str)
+ResId CTextParser::GetAssetIdFromString(const char16_t* str)
 {
     u8 r = GetColorValue(str);
     u8 g = GetColorValue(str + 2);
@@ -292,27 +302,27 @@ ResId CTextParser::GetAssetIdFromString(const wchar_t* str)
     return (r << 24) | (g << 16) | (b << 8) | a;
 }
 
-TToken<CRasterFont> CTextParser::GetFont(const wchar_t* str, int len)
+TToken<CRasterFont> CTextParser::GetFont(const char16_t* str, int len)
 {
     return x0_store.GetObj({SBIG('FONT'), GetAssetIdFromString(str)});
 }
 
-void CTextParser::ParseText(CTextExecuteBuffer& out, const wchar_t* str, int len)
+void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int len)
 {
     for (int b=0, e=0 ; str[e] && (len == -1 || e < len) ;)
     {
-        if (str[e] != L'&')
+        if (str[e] != u'&')
         {
             ++e;
             continue;
         }
-        if ((len == -1 || e+1 < len) && str[e+1] != L'&')
+        if ((len == -1 || e+1 < len) && str[e+1] != u'&')
         {
             out.AddString(str + b, e - b);
             ++e;
             b = e;
 
-            while (str[e] && (len == -1 || e < len) && str[e] != L';')
+            while (str[e] && (len == -1 || e < len) && str[e] != u';')
                 ++e;
 
             ParseTag(out, str + e, e - b);

@@ -286,7 +286,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivateNewGamePopup()
 
     x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
         x0_base->SetColor(zeus::CColor::skWhite);
-    x60_textpane_cancel->TextSupport()->SetText(L"");
+    x60_textpane_cancel->TextSupport()->SetText(u"");
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
@@ -339,7 +339,7 @@ void CFrontEndUI::SNewFileSelectFrame::ResetFrame()
 
     for (int i=2 ; i>=0 ; --i)
         x20_tablegroup_fileselect->GetWorkerWidget(i)->SetIsSelectable(true);
-    x60_textpane_cancel->TextSupport()->SetText(L"");
+    x60_textpane_cancel->TextSupport()->SetText(u"");
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
@@ -383,7 +383,7 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
         option.x2c_chRate = SFileMenuOption::ComputeRandom();
         option.x28_curField = -1;
         for (int j=0 ; j<4 ; ++j)
-            option.x4_textpanes[j].SetPairText(L"");
+            option.x4_textpanes[j].SetPairText(u"");
     }
 
     StartTextAnimating(x28_textpane_erase.x0_panes[0], g_MainStringTable->GetString(38), 60.f);
@@ -439,7 +439,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
         {
             if (++option.x28_curField < 4)
             {
-                std::wstring str;
+                std::u16string str;
                 SGuiTextPair& populatePair = option.x4_textpanes[option.x28_curField];
                 const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i);
 
@@ -449,8 +449,8 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
                     // Completion percent
                     if (data)
                     {
-                        std::wstring fileStr = g_MainStringTable->GetString(data->x20_hardMode ? 106 : 39);
-                        str = fileStr + hecl::WideFormat(L"  %02d%%", data->x18_itemPercent);
+                        std::u16string fileStr = g_MainStringTable->GetString(data->x20_hardMode ? 106 : 39);
+                        str = fileStr + hecl::Char16Format(L"  %02d%%", data->x18_itemPercent);
                         break;
                     }
                     str = g_MainStringTable->GetString(36);
@@ -475,7 +475,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
                     if (data)
                     {
                         auto pt = std::div(data->x0_playTime, 3600);
-                        str = hecl::WideFormat(L"%02d:%02d", pt.quot, pt.rem / 60);
+                        str = hecl::Char16Format(L"%02d:%02d", pt.quot, pt.rem / 60);
                     }
                     str = g_MainStringTable->GetString(52);
                     break;
@@ -614,7 +614,7 @@ CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOpt
     return ret;
 }
 
-void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, const std::wstring& str, float chRate)
+void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, const std::u16string& str, float chRate)
 {
     text->TextSupport()->SetText(str);
     text->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, chRate);
@@ -710,17 +710,17 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp)
         break;
     }
 
-    std::wstring instructionsStr;
+    std::u16string instructionsStr;
     if (instructions != -1)
         instructionsStr = g_MainStringTable->GetString(instructions);
     xc_textpane_instructions.SetPairText(instructionsStr);
 
-    std::wstring yesStr;
+    std::u16string yesStr;
     if (yes != -1)
         yesStr = g_MainStringTable->GetString(yes);
     x14_textpane_yes->TextSupport()->SetText(yesStr);
 
-    std::wstring noStr;
+    std::u16string noStr;
     if (no != -1)
         noStr = g_MainStringTable->GetString(no);
     x18_textpane_no->TextSupport()->SetText(noStr);
@@ -947,7 +947,7 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
     x2c_tablegroup_fusionsuit->SetIsVisible(showFusionSuitProceed);
     x24_loadedFrame->FindWidget("textpane_proceed")->SetIsVisible(showFusionSuitProceed);
 
-    std::wstring instructionStr;
+    std::u16string instructionStr;
     if (x28_tablegroup_options->GetUserSelection() == 1)
     {
         /* Fusion Suit */
@@ -1022,7 +1022,7 @@ void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller)
         x8_action = EAction::GoBack;
         x28_tablegroup_options->SetUserSelection(0);
         x2c_tablegroup_fusionsuit->SetIsActive(false);
-        x30_textpane_instructions.SetPairText(L"");
+        x30_textpane_instructions.SetPairText(u"");
         SetTableColors(x28_tablegroup_options);
     }
 }
@@ -1090,7 +1090,7 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
     }
 }
 
-void CFrontEndUI::SGuiTextPair::SetPairText(const std::wstring& str)
+void CFrontEndUI::SGuiTextPair::SetPairText(const std::u16string& str)
 {
     x0_panes[0]->TextSupport()->SetText(str);
     x0_panes[1]->TextSupport()->SetText(str);
@@ -1104,7 +1104,7 @@ CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, const 
     return ret;
 }
 
-void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, const std::wstring& str)
+void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, const std::u16string& str)
 {
     CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
     w1->TextSupport()->SetText(str);
@@ -1557,7 +1557,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText()
         }
         else
         {
-            FindTextPanePair(x1c_loadedFrame, name).SetPairText(L"");
+            FindTextPanePair(x1c_loadedFrame, name).SetPairText(u"");
             x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(false);
         }
     }

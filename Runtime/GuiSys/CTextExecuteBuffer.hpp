@@ -46,9 +46,9 @@ public:
                                             InstList::const_iterator pgEnd) const;
     std::list<CTextRenderBuffer> BuildRenderBufferPages(const zeus::CVector2i& extent) const;
     std::vector<CToken> GetAssets() const;
-    void AddString(const wchar_t* str, int len);
-    void AddStringFragment(const wchar_t* str, int len);
-    int WrapOneLTR(const wchar_t* str, int len);
+    void AddString(const char16_t* str, int len);
+    void AddStringFragment(const char16_t* str, int len);
+    int WrapOneLTR(const char16_t* str, int len);
     void MoveWordLTR();
     void StartNewLine();
     void StartNewWord();

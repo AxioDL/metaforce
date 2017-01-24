@@ -133,21 +133,21 @@ std::vector<CToken> CTextExecuteBuffer::GetAssets() const
     return ret;
 }
 
-void CTextExecuteBuffer::AddString(const wchar_t* str, int count)
+void CTextExecuteBuffer::AddString(const char16_t* str, int count)
 {
     if (!xa4_curLine)
         StartNewLine();
 
-    const wchar_t* charCur = str;
-    const wchar_t* wordCur = str;
+    const char16_t* charCur = str;
+    const char16_t* wordCur = str;
 
     for (int ac=0 ; *charCur && (ac < count || count == -1) ; ++charCur, ++ac)
     {
-        if (*charCur == L'\n' || *charCur == L' ')
+        if (*charCur == u'\n' || *charCur == u' ')
         {
             AddStringFragment(wordCur, charCur - wordCur);
             wordCur = charCur + 1;
-            if (*charCur == L'\n')
+            if (*charCur == u'\n')
             {
                 StartNewLine();
             }
@@ -155,7 +155,7 @@ void CTextExecuteBuffer::AddString(const wchar_t* str, int count)
             {
                 StartNewWord();
                 int w, h;
-                wchar_t space = L' ';
+                char16_t space = u' ';
                 x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
                                                           w, h, &space, 1);
                 if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
@@ -176,14 +176,14 @@ void CTextExecuteBuffer::AddString(const wchar_t* str, int count)
         AddStringFragment(wordCur, charCur - wordCur);
 }
 
-void CTextExecuteBuffer::AddStringFragment(const wchar_t* str, int len)
+void CTextExecuteBuffer::AddStringFragment(const char16_t* str, int len)
 {
     if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
         for (int i=0 ; i<len ;)
             i += WrapOneLTR(str + i, len - i);
 }
 
-int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
+int CTextExecuteBuffer::WrapOneLTR(const char16_t* str, int len)
 {
     if (!x18_textState.x48_font)
         return len;
@@ -204,7 +204,7 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len)
         }
         if (w + xa4_curLine->x8_curX > xa0_curBlock->xc_blockExtentX && len > 1)
         {
-            const wchar_t* strEnd = str + len;
+            const char16_t* strEnd = str + len;
             int aRank = 5;
 
             do

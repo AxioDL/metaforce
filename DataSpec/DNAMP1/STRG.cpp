@@ -38,7 +38,7 @@ void STRG::_read(athena::io::IStreamReader& reader)
     langs.reserve(skLanguages.size());
     for (const std::pair<FourCC, atUint32>& lang : readLangs)
     {
-        std::vector<std::wstring> strs;
+        std::vector<std::u16string> strs;
         reader.seek(tablesStart + lang.second, athena::SeekOrigin::Begin);
         reader.readUint32Big(); // table size
         atUint32 langStart = reader.position();
@@ -47,7 +47,7 @@ void STRG::_read(athena::io::IStreamReader& reader)
             atUint32 strOffset = reader.readUint32Big();
             atUint32 tmpOffset = reader.position();
             reader.seek(langStart + strOffset, athena::SeekOrigin::Begin);
-            strs.emplace_back(reader.readWStringBig());
+            strs.emplace_back(reader.readU16StringBig());
             reader.seek(tmpOffset, athena::SeekOrigin::Begin);
         }
         langs.emplace_back(lang.first, strs);
@@ -55,7 +55,7 @@ void STRG::_read(athena::io::IStreamReader& reader)
 
     langMap.clear();
     langMap.reserve(langCount);
-    for (std::pair<FourCC, std::vector<std::wstring>>& item : langs)
+    for (std::pair<FourCC, std::vector<std::u16string>>& item : langs)
         langMap.emplace(item.first, &item.second);
 }
 
@@ -81,7 +81,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
     writer.writeUint32Big(strCount);
 
     atUint32 offset = 0;
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
         DNAFourCC(lang.first).write(writer);
         writer.writeUint32Big(offset);
@@ -97,7 +97,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         }
     }
 
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
         atUint32 langStrCount = lang.second.size();
         atUint32 tableSz = strCount * 4;
@@ -123,7 +123,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                writer.writeWStringBig(lang.second[s]);
+                writer.writeU16StringBig(lang.second[s]);
             else
                 writer.writeUByte(0);
         }
@@ -137,7 +137,7 @@ size_t STRG::binarySize(size_t __isz) const
 
     size_t strCount = STRG::count();
     __isz += langs.size() * strCount * 4;
-    for (const std::pair<FourCC, std::vector<std::wstring>>& lang : langs)
+    for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
         atUint32 langStrCount = lang.second.size();
         for (atUint32 s=0 ; s<strCount ; ++s)
@@ -197,9 +197,9 @@ void STRG::read(athena::io::YAMLDocReader& reader)
         if (lang.first == "DNAType")
             continue;
 
-        std::vector<std::wstring> strs;
+        std::vector<std::u16string> strs;
         for (const auto& str : lang.second->m_seqChildren)
-            strs.emplace_back(hecl::UTF8ToWide(str->m_scalarString));
+            strs.emplace_back(hecl::UTF8ToChar16(str->m_scalarString));
         langs.emplace_back(FourCC(lang.first.c_str()), strs);
     }
 
@@ -214,8 +214,8 @@ void STRG::write(athena::io::YAMLDocWriter& writer) const
     for (const auto& lang : langs)
     {
         writer.enterSubVector(lang.first.toString().c_str());
-        for (const std::wstring& str : lang.second)
-            writer.writeWString(nullptr, str);
+        for (const std::u16string& str : lang.second)
+            writer.writeU16String(nullptr, str);
         writer.leaveSubVector();
     }
 }

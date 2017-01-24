@@ -55,18 +55,18 @@ public:
 class CKernPair
 {
 private:
-    wchar_t x0_first;
-    wchar_t x2_second;
+    char16_t x0_first;
+    char16_t x2_second;
     s32     x4_howMuch;
 
 public:
     CKernPair() = default;
-    CKernPair(wchar_t first, wchar_t second, s32 howMuch)
+    CKernPair(char16_t first, char16_t second, s32 howMuch)
         : x0_first(first), x2_second(second), x4_howMuch(howMuch)
     {}
 
-    wchar_t GetFirst()  const { return x0_first; }
-    wchar_t GetSecond() const { return x2_second; }
+    char16_t GetFirst()  const { return x0_first; }
+    char16_t GetSecond() const { return x2_second; }
     s32 GetHowMuch()    const { return x4_howMuch; }
 };
 
@@ -92,7 +92,7 @@ class CRasterFont
     bool x0_initialized = false;
     s32 x4_monoWidth = 16;
     s32 x8_monoHeight = 16;
-    std::vector<std::pair<wchar_t, CGlyph>> xc_glyphs;
+    std::vector<std::pair<char16_t, CGlyph>> xc_glyphs;
     std::vector<CKernPair> x1c_kerning;
     EColorType x2c_mode = EColorType::Main;
     CFontInfo x30_fontInfo;
@@ -100,7 +100,7 @@ class CRasterFont
     s32 x8c_baseline;
     s32 x90_lineMargin = 0;
 
-    const CGlyph* InternalGetGlyph(wchar_t chr) const
+    const CGlyph* InternalGetGlyph(char16_t chr) const
     {
         u32 i = 0;
         for (; i < xc_glyphs.size(); ++i)
@@ -135,17 +135,17 @@ public:
 
     void SinglePassDrawString(const CDrawStringOptions&, int x, int y, int& xout, int& yout,
                               CTextRenderBuffer* renderBuf,
-                              const wchar_t* str, s32 len) const;
+                              const char16_t* str, s32 len) const;
     void DrawSpace(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, int len) const;
     void DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                     CTextRenderBuffer* renderBuf,
-                    const wchar_t* str, int len) const;
-    const CGlyph* GetGlyph(wchar_t chr) const
+                    const char16_t* str, int len) const;
+    const CGlyph* GetGlyph(char16_t chr) const
     {
         return InternalGetGlyph(chr);
     }
     void GetSize(const CDrawStringOptions& opts, int& width, int& height,
-                 const wchar_t* str, int len) const;
+                 const char16_t* str, int len) const;
     TToken<CTexture>& GetTexture() { return x80_texture; }
 };
 

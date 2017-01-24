@@ -74,6 +74,7 @@ private:
     struct SFileInfo
     {
         CMemoryCardSys::CardFileHandle x0_fileInfo;
+
         std::string x14_name;
         std::vector<u8> x24_saveFileData;
         std::vector<u8> x34_saveData;
@@ -81,7 +82,7 @@ private:
         kabufuda::ECardResult Open();
         kabufuda::ECardResult Close();
         kabufuda::ECardSlot GetFileCardPort() const { return x0_fileInfo.slot; }
-        int GetFileNo() const { return x0_fileInfo->getFileNo(); }
+        int GetFileNo() const { return x0_fileInfo.getFileNo(); }
         kabufuda::ECardResult StartRead();
         kabufuda::ECardResult TryFileRead();
         kabufuda::ECardResult FileRead();

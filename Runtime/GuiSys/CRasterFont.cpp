@@ -41,7 +41,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
 
     for (u32 i = 0 ; i < glyphCount ; ++i)
     {
-        wchar_t chr = in.readUint16Big();
+        char16_t chr = in.readUint16Big();
         float startU = in.readFloatBig();
         float startV = in.readFloatBig();
         float endU = in.readFloatBig();
@@ -66,8 +66,8 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
 
     for (u32 i = 0 ; i < kernCount ; ++i)
     {
-        wchar_t first = in.readUint16Big();
-        wchar_t second = in.readUint16Big();
+        char16_t first = in.readUint16Big();
+        char16_t second = in.readUint16Big();
         s32 howMuch = in.readUint32Big();
         x1c_kerning.emplace_back(first, second, howMuch);
     }
@@ -78,14 +78,14 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
 
 void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                                        CTextRenderBuffer* renderBuf,
-                                       const wchar_t* str, s32 length) const
+                                       const char16_t* str, s32 length) const
 {
     if (!x0_initialized)
         return;
 
-    const wchar_t* chr = str;
+    const char16_t* chr = str;
     const CGlyph* prevGlyph = nullptr;
-    while (*chr != '\0')
+    while (*chr != u'\0')
     {
         const CGlyph* glyph = GetGlyph(*chr);
         if (glyph)
@@ -130,7 +130,8 @@ void CRasterFont::DrawSpace(const CDrawStringOptions& opts, int x, int y, int& x
     yout = y;
 }
 
-void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, CTextRenderBuffer* renderBuf, const wchar_t* str, int len) const
+void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
+                             CTextRenderBuffer* renderBuf, const char16_t* str, int len) const
 {
     if (!x0_initialized)
         return;
@@ -152,15 +153,15 @@ void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& 
     SinglePassDrawString(opts, x, y, xout, yout, renderBuf, str, len);
 }
 
-void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& height, const wchar_t* str, int len) const
+void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& height, const char16_t* str, int len) const
 {
     width = 0;
     height = 0;
 
-    const wchar_t* chr = str;
+    const char16_t* chr = str;
     const CGlyph* prevGlyph = nullptr;
     int prevWidth = 0;
-    while (*chr != L'\0')
+    while (*chr != u'\0')
     {
         const CGlyph* glyph = GetGlyph(*chr);
 

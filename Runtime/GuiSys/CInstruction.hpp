@@ -132,9 +132,9 @@ public:
 
 class CTextInstruction : public CInstruction
 {
-    std::wstring x4_str; /* used to be a placement-new sized allocation */
+    std::u16string x4_str; /* used to be a placement-new sized allocation */
 public:
-    CTextInstruction(const wchar_t* str, int len) : x4_str(str, len) {}
+    CTextInstruction(const char16_t* str, int len) : x4_str(str, len) {}
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 };
 
