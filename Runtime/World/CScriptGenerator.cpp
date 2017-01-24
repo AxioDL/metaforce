@@ -6,13 +6,13 @@
 namespace urde
 {
 
-CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const CEntityInfo& info, u32 w1, bool b1,
-                                   const zeus::CVector3f& vec1, bool follow, bool active, float minScale,
-                                   float maxScale)
+CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const CEntityInfo& info, u32 spawnCount,
+                                   bool reuseFollowers, const zeus::CVector3f& vec1, bool inheritXf, bool active,
+                                   float minScale, float maxScale)
 : CEntity(uid, info, active, name)
-, x34_spawnCount(w1)
-, x38_24_reuseFollowers(b1)
-, x38_25_inheritTransform(follow)
+, x34_spawnCount(spawnCount)
+, x38_24_reuseFollowers(reuseFollowers)
+, x38_25_inheritTransform(inheritXf)
 , x3c_offset(vec1)
 , x48_minScale(minScale)
 , x4c_maxScale(maxScale)
@@ -99,7 +99,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId
                     {
                         if (x38_25_inheritTransform)
                             activateActor->SetTransform(followActor->GetTransform());
-                        activateActor->SetTranslation(activateActor->GetTranslation() + x3c_offset);
+                        activateActor->SetTranslation(followActor->GetTranslation() + x3c_offset);
                     }
                     else if (follow != nullptr)
                     {
@@ -115,7 +115,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId
                         {
                             if (x38_25_inheritTransform)
                                 activateActor->SetTransform(followActor->GetTransform());
-                            activateActor->SetTranslation(activateActor->GetTranslation() + x3c_offset);
+                            activateActor->SetTranslation(followActor->GetTranslation() + x3c_offset);
                         }
 
                         float rnd = stateMgr.GetActiveRandom()->Range(x48_minScale, x4c_maxScale);
