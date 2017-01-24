@@ -640,4 +640,9 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
     return ret;
 }
 
+std::wstring Char16ToWide(const std::u16string& src)
+{
+    return std::wstring(src.begin(), src.end());
+}
+
 }

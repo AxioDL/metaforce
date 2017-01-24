@@ -53,6 +53,7 @@ extern logvisor::Module LogModule;
 
 std::string WideToUTF8(const std::wstring& src);
 std::string Char16ToUTF8(const std::u16string& src);
+std::wstring Char16ToWide(const std::u16string& src);
 std::wstring UTF8ToWide(const std::string& src);
 std::u16string UTF8ToChar16(const std::string& src);
 
