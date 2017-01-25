@@ -39,7 +39,12 @@ class CGunController
     };
 
 public:
-    CGunController(CModelData& modelData) : x0_modelData(modelData), x58_24_(true) {}
+    CGunController(CModelData& modelData)
+    : x0_modelData(modelData)
+    {
+        x58_24_ = true;
+    }
+
     void UnLoadFidget();
     void LoadFidgetAnimAsync(CStateManager&, s32, s32, s32);
     void GetFreeLookSetId() const;

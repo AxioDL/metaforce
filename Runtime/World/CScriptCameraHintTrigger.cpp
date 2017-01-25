@@ -12,9 +12,9 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, c
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_obb(xf, scale)
 , x124_scale(scale)
-, x130_24_(b2)
-, x130_25_(b3)
 {
+    x130_24_ = b2;
+    x130_25_ = b3;
 }
 
 void CScriptCameraHintTrigger::Accept(IVisitor& visitor)

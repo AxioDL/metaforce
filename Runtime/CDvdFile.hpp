@@ -78,6 +78,7 @@ public:
         return m_reader->readBytesToBuf(buf, len);
     }
     u64 Length() {return m_reader->length();}
+    const std::string& GetPath() const { return x18_path; }
 };
 }
 

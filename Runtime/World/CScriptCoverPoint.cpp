@@ -10,9 +10,9 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, const std::string &name, con
     : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(),
              CMaterialList(EMaterialTypes::Unknown), CActorParameters::None(), kInvalidUniqueId),
       xe8_flags(flags),
-      xf4_coverTime(coverTime),
-      xf8_24_crouch(crouch)
+      xf4_coverTime(coverTime)
 {
+    xf8_24_crouch = crouch;
     xec_cosHorizontalAngle = std::cos(zeus::degToRad(horizontalAngle) * 0.5f);
     xf0_sinVerticalAngle = std::sin(zeus::degToRad(verticalAngle) * 0.5f);
     x100_touchBounds.emplace(xf.origin, xf.origin);

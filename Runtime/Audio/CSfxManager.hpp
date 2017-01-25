@@ -65,19 +65,12 @@ public:
         s16 xa_prio;
         //CSfxHandle xc_handle;
         TAreaId x10_area;
-        union
-        {
-            struct
-            {
-                bool x14_24_isActive:1;
-                bool x14_25_isPlaying:1;
-                bool x14_26_looped:1;
-                bool x14_27_inArea:1;
-                bool x14_28_available:1;
-                bool x14_29_useAcoustics:1;
-            };
-            u16 _dummy = 0;
-        };
+        bool x14_24_isActive:1;
+        bool x14_25_isPlaying:1;
+        bool x14_26_looped:1;
+        bool x14_27_inArea:1;
+        bool x14_28_available:1;
+        bool x14_29_useAcoustics:1;
     public:
         virtual ~CBaseSfxWrapper() = default;
         virtual void SetActive(bool v) { x14_24_isActive = v; }

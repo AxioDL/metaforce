@@ -9,19 +9,18 @@ CScriptColorModulate::CScriptColorModulate(TUniqueId uid, const std::string& nam
                                            const zeus::CColor& c1, const zeus::CColor& c2,
                                            EBlendMode bm, float f1, float f2,
                                            bool b1, bool b2, bool b3, bool b4, bool b5, bool active)
-    : CEntity(uid, info, active, name),
-      x40_(c1),
-      x44_(c2),
-      x48_blendMode(bm),
-      x4c_(f1),
-      x50_(f2),
-      x54_24_(b1),
-      x54_25_(b2),
-      x54_26_(b3),
-      x54_27_(b4),
-      x54_28_(b5)
+: CEntity(uid, info, active, name),
+  x40_(c1),
+  x44_(c2),
+  x48_blendMode(bm),
+  x4c_(f1),
+  x50_(f2)
 {
-
+    x54_24_ = b1;
+    x54_25_ = b2;
+    x54_26_ = b3;
+    x54_27_ = b4;
+    x54_28_ = b5;
 }
 
 void CScriptColorModulate::Accept(IVisitor& visitor)

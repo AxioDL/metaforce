@@ -28,8 +28,8 @@ CScriptDock::CScriptDock(TUniqueId uid, const std::string& name, const CEntityIn
 , x258_dockReferenceCount(dockReferenceCount)
 , x25c_dock(dock)
 , x260_area(area)
-, x268_25_loadConnected(loadConnected)
 {
+    x268_25_loadConnected = loadConnected;
 }
 
 void CScriptDock::Accept(IVisitor& visitor)

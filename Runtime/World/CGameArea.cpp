@@ -355,8 +355,9 @@ const zeus::CTransform& CDummyGameArea::IGetTM() const
 }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
-: x4_selfIdx(idx), xf0_25_active(true)
+: x4_selfIdx(idx)
 {
+    xf0_25_active = true;
     x8_nameSTRG = in.readUint32Big();
     xc_transform.read34RowMajor(in);
     x3c_invTransform = xc_transform.inverse();

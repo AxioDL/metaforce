@@ -14,8 +14,9 @@ namespace MP1
 
 CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
                  const CArchitectureQueue&)
-: CMFGameBase("CMFGame"), x14_stateManager(stateMgr.lock()), x18_guiManager(guiMgr.lock()), x2a_25_(true)
+: CMFGameBase("CMFGame"), x14_stateManager(stateMgr.lock()), x18_guiManager(guiMgr.lock())
 {
+    x2a_25_ = true;
     //g_Main->x160_25_ = true;
 }
 

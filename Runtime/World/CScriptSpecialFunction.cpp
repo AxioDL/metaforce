@@ -30,8 +30,8 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, const std::string&
 , x1bc_(aId1)
 , x1c0_(aId2)
 , x1c4_(aId3)
-, x1e4_26_(true)
 {
+    x1e4_26_ = true;
     if (xe8_function == ESpecialFunction::HUDTarget)
         x1c8_ = {{zeus::CVector3f(-1.f), zeus::CVector3f(1.f)}};
 }

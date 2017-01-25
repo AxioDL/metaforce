@@ -18,14 +18,8 @@ class CGameCamera : public CActor
     float x164_zfar;
     float x168_aspect;
     u32 x16c_;
-    union {
-        struct
-        {
-            bool x170_24_perspDirty : 1;
-            bool x170_25_disablesInput : 1;
-        };
-        u32 _dummy = 0;
-    };
+    bool x170_24_perspDirty : 1;
+    bool x170_25_disablesInput : 1;
     float x174_ = 0.f;
     float x178_ = 0.f;
     float x17c_ = 0.f;

@@ -7,7 +7,10 @@ const std::vector<SConnection> CEntity::NullConnectionList;
 
 CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, const std::string& name)
 : x4_areaId(info.GetAreaId()), x8_uid(uniqueId), xc_editorId(info.GetEditorId()), x10_name(name),
-  x20_conns(info.GetConnectionList()), x30_24_active(active) {}
+  x20_conns(info.GetConnectionList())
+{
+    x30_24_active = active;
+}
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {

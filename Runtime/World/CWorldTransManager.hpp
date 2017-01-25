@@ -99,7 +99,7 @@ private:
     void DrawText();
 
 public:
-    CWorldTransManager() : x44_24_transFinished(true) {}
+    CWorldTransManager() { x44_24_transFinished = true; }
 
 
     void Update(float);

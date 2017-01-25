@@ -10,10 +10,10 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, const std::string& nam
 , x38_(f1)
 , x3c_(totalPlayback)
 , x40_(f1)
-, x44_24_(b1)
-, x44_25_(b2)
-, x44_26_(w2)
 {
+    x44_24_ = b1;
+    x44_25_ = b2;
+    x44_26_ = w2;
 }
 
 void CScriptActorKeyframe::Accept(IVisitor& visitor)

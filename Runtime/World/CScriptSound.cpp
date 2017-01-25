@@ -24,14 +24,14 @@ CScriptSound::CScriptSound(TUniqueId uid, const std::string& name, const CEntity
 , x114_(w5)
 , x116_(w6)
 , x118_(w7 + 8192)
-, x11c_25_(b1)
-, x11c_26_(b2)
-, x11c_27_(b3)
-, x11c_28_(b4)
-, x11c_29_(b5)
-, x11c_30_(b6)
-, x11d_24_(b7)
 {
+    x11c_25_ = b1;
+    x11c_26_ = b2;
+    x11c_27_ = b3;
+    x11c_28_ = b4;
+    x11c_29_ = b5;
+    x11c_30_ = b6;
+    x11d_24_ = b7;
     if (x11c_30_ && (!x11c_26_ || !x11c_25_))
         x11c_30_ = false;
 }

@@ -23,9 +23,9 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
 , x128_forceMagnitude(forceField.magnitude())
 , x12c_flags(triggerFlags)
 , x130_bounds(bounds)
-, x148_26_deactivateOnEntered(b2)
-, x148_27_deactivateOnExited(b3)
 {
+    x148_26_deactivateOnEntered = b2;
+    x148_27_deactivateOnExited = b3;
 }
 
 void CScriptTrigger::Accept(IVisitor& visitor)

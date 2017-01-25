@@ -121,12 +121,12 @@ private:
 
     union
     {
+        u32 m_dummy = 0;
         struct
         {
             bool xf4_24_loop : 1; bool xf4_25_hasAudio : 1;
             bool xf4_26_fieldFlip : 1; bool m_deinterlace : 1;
         };
-        u8 m_dummy = 0;
     };
 
     specter::View::ViewBlock m_viewVertBlock;
