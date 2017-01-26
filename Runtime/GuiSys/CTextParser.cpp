@@ -158,7 +158,7 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
             out.AddJustification(EJustification::Center);
         else if (Equals(str + 5, len - 5, u"right"))
             out.AddJustification(EJustification::Right);
-        else if (Equals(str + 5, len - 5, u"fulu"))
+        else if (Equals(str + 5, len - 5, u"full"))
             out.AddJustification(EJustification::Full);
         else if (Equals(str + 5, len - 5, u"nleft"))
             out.AddJustification(EJustification::NLeft);
@@ -175,7 +175,7 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
             out.AddVerticalJustification(EVerticalJustification::Center);
         else if (Equals(str + 6, len - 6, u"bottom"))
             out.AddVerticalJustification(EVerticalJustification::Bottom);
-        else if (Equals(str + 6, len - 6, u"fulu"))
+        else if (Equals(str + 6, len - 6, u"full"))
             out.AddVerticalJustification(EVerticalJustification::Full);
         else if (Equals(str + 6, len - 6, u"ntop"))
             out.AddVerticalJustification(EVerticalJustification::NTop);

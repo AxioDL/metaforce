@@ -18,15 +18,20 @@ class CInGameTweakManagerBase* g_TweakManager = nullptr;
 class CBooRenderer* g_Renderer = nullptr;
 class CStringTable* g_MainStringTable = nullptr;
 
-DataSpec::ITweakGame*   g_tweakGame = nullptr;
-DataSpec::ITweakPlayer* g_tweakPlayer = nullptr;
-DataSpec::ITweakPlayerControl* g_tweakPlayerControl = nullptr;
-DataSpec::ITweakPlayerControl* g_tweakPlayerControlAlt = nullptr;
-DataSpec::ITweakPlayerControl* g_currentPlayerControl = nullptr;
-DataSpec::ITweakPlayerGun* g_tweakPlayerGun = nullptr;
-DataSpec::ITweakGunRes* g_tweakGunRes = nullptr;
-DataSpec::ITweakPlayerRes* g_tweakPlayerRes = nullptr;
-DataSpec::ITweakGui* g_tweakGui = nullptr;
-DataSpec::ITweakSlideShow* g_tweakSlideShow = nullptr;
+ITweakGame*   g_tweakGame = nullptr;
+ITweakPlayer* g_tweakPlayer = nullptr;
+ITweakPlayerControl* g_tweakPlayerControl = nullptr;
+ITweakPlayerControl* g_tweakPlayerControlAlt = nullptr;
+ITweakPlayerControl* g_currentPlayerControl = nullptr;
+ITweakPlayerGun* g_tweakPlayerGun = nullptr;
+ITweakGunRes* g_tweakGunRes = nullptr;
+ITweakPlayerRes* g_tweakPlayerRes = nullptr;
+ITweakTargeting* g_tweakTargeting = nullptr;
+ITweakAutoMapper* g_tweakAutoMapper = nullptr;
+ITweakGui* g_tweakGui = nullptr;
+ITweakSlideShow* g_tweakSlideShow = nullptr;
+ITweakParticle* g_tweakParticle = nullptr;
+ITweakBall* g_tweakBall = nullptr;
+ITweakGuiColors* g_tweakGuiColors = nullptr;
 
 }

@@ -29,7 +29,10 @@ make_dnalist(liblist DNAMP1
              Tweaks/CTweakGui
              Tweaks/CTweakSlideShow
              Tweaks/CTweakCameraBob
-             Tweaks/CTweakTargeting)
+             Tweaks/CTweakTargeting
+             Tweaks/CTweakAutoMapper
+             Tweaks/CTweakBall
+             Tweaks/CTweakGuiColors)
 
 set(DNAMP1_SOURCES
     DNAMP1.hpp DNAMP1.cpp
@@ -50,7 +53,8 @@ set(DNAMP1_SOURCES
     FRME.cpp
     DeafBabe.cpp
     Tweaks/CTweakPlayer.cpp
-    Tweaks/CTweakTargeting.cpp)
+    Tweaks/CTweakTargeting.cpp
+    Tweaks/CTweakBall.cpp)
 
 dataspec_add_list(DNAMP1 DNAMP1_SOURCES)
 list(APPEND DNAMP1_SOURCES ${liblist})

@@ -1,6 +1,5 @@
 #include "CScannableObjectInfo.hpp"
 #include "GameGlobalObjects.hpp"
-#include "GuiSys/ITweakGui.hpp"
 
 namespace urde
 {

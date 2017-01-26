@@ -11,6 +11,12 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakGunRes.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakSlideShow.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakAutoMapper.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakTargeting.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakGui.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakParticle.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakBall.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakGuiColors.hpp"
 #include "World/CPlayerCameraBob.hpp"
 
 namespace urde
@@ -36,6 +42,9 @@ void CTweaks::RegisterTweaks()
     const SObjectTag* tag;
 
     /* Particle */
+    tag = factory.GetResourceIdByName("Particle");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakParticle = new DataSpec::DNAMP1::CTweakParticle(*strm);
 
     /* Player */
     tag = factory.GetResourceIdByName("Player");
@@ -48,10 +57,16 @@ void CTweaks::RegisterTweaks()
     CPlayerCameraBob::ReadTweaks(*strm);
 
     /* Ball */
+    tag = factory.GetResourceIdByName("Ball");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakBall = new DataSpec::DNAMP1::CTweakBall(*strm);
 
     /* PlayerGun */
 
     /* Targeting */
+    tag = factory.GetResourceIdByName("Targeting");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakTargeting = new DataSpec::DNAMP1::CTweakTargeting(*strm);
 
     /* Game */
     tag = factory.GetResourceIdByName("Game");
@@ -59,14 +74,31 @@ void CTweaks::RegisterTweaks()
     g_tweakGame = new DataSpec::DNAMP1::CTweakGame(*strm);
 
     /* GuiColors */
+    tag = factory.GetResourceIdByName("GuiColors");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakGuiColors = new DataSpec::DNAMP1::CTweakGuiColors(*strm);
 
     /* AutoMapper */
+    tag = factory.GetResourceIdByName("AutoMapper");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakAutoMapper = new DataSpec::DNAMP1::CTweakAutoMapper(*strm);
 
     /* Gui */
+    tag = factory.GetResourceIdByName("Gui");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakGui = new DataSpec::DNAMP1::CTweakGui(*strm);
 
     /* PlayerControls */
+    tag = factory.GetResourceIdByName("PlayerControls");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakPlayerControl = new DataSpec::DNAMP1::CTweakPlayerControl(*strm);
 
     /* PlayerControls2 */
+    tag = factory.GetResourceIdByName("PlayerControls2");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakPlayerControlAlt = new DataSpec::DNAMP1::CTweakPlayerControl(*strm);
+
+    g_currentPlayerControl = g_tweakPlayerControl;
 
     /* SlideShow */
     tag = factory.GetResourceIdByName("SlideShow");

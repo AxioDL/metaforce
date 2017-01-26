@@ -2,9 +2,6 @@ include_directories(. ..)
 set(MP1_SOURCES
     CTweaks.hpp CTweaks.cpp
     CInGameTweakManager.hpp CInGameTweakManager.cpp
-    Tweaks/CTweakAutoMapper.hpp Tweaks/CTweakAutoMapper.cpp
-    Tweaks/CTweakPlayer.hpp Tweaks/CTweakPlayer.cpp
-    Tweaks/CTweakGui.hpp Tweaks/CTweakGui.cpp
     CGBASupport.hpp CGBASupport.cpp
     CNESEmulator.hpp CNESEmulator.cpp
     CMainFlow.hpp CMainFlow.cpp

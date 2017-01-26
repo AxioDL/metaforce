@@ -29,6 +29,13 @@
 #include "DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DNAMP1/Tweaks/CTweakCameraBob.hpp"
 #include "DNAMP1/Tweaks/CTweakGame.hpp"
+#include "DNAMP1/Tweaks/CTweakTargeting.hpp"
+#include "DNAMP1/Tweaks/CTweakAutoMapper.hpp"
+#include "DNAMP1/Tweaks/CTweakGui.hpp"
+#include "DNAMP1/Tweaks/CTweakPlayerControl.hpp"
+#include "DNAMP1/Tweaks/CTweakBall.hpp"
+#include "DNAMP1/Tweaks/CTweakParticle.hpp"
+#include "DNAMP1/Tweaks/CTweakGuiColors.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -372,6 +379,20 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakGame::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::CTweakAutoMapper::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakTargeting::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakGui::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakPlayerControl::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakBall::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakParticle::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::CTweakGuiColors::DNAType()))
+                return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
             else if (!strcmp(classType, "ATBL"))
@@ -524,7 +545,14 @@ struct SpecMP1 : SpecBase
                          !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
                          !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
                          !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGame"))
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGame") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakTargeting") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakAutoMapper") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGui") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerControl") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakBall") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakParticle") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGuiColors"))
                 {
                     resTag.type = SBIG('CTWK');
                     return true;
@@ -738,6 +766,42 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakGame cGame;
                 cGame.read(reader);
                 WriteTweak(cGame, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakAutoMapper::DNAType()))
+            {
+                DNAMP1::CTweakAutoMapper autoMapper;
+                autoMapper.read(reader);
+                WriteTweak(autoMapper, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakTargeting::DNAType()))
+            {
+                DNAMP1::CTweakTargeting targeting;
+                targeting.read(reader);
+                WriteTweak(targeting, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakGui::DNAType()))
+            {
+                DNAMP1::CTweakGui gui;
+                gui.read(reader);
+                WriteTweak(gui, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakBall::DNAType()))
+            {
+                DNAMP1::CTweakBall ball;
+                ball.read(reader);
+                WriteTweak(ball, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakParticle::DNAType()))
+            {
+                DNAMP1::CTweakParticle part;
+                part.read(reader);
+                WriteTweak(part, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakGuiColors::DNAType()))
+            {
+                DNAMP1::CTweakGuiColors gColors;
+                gColors.read(reader);
+                WriteTweak(gColors, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

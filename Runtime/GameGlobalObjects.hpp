@@ -8,8 +8,12 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerRes.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakSlideShow.hpp"
-#include "AutoMapper/ITweakAutoMapper.hpp"
-#include "GuiSys/ITweakGui.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakTargeting.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakAutoMapper.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakParticle.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakBall.hpp"
+#include "../DataSpec/DNACommon/Tweaks/ITweakGuiColors.hpp"
 
 namespace urde
 {
@@ -18,7 +22,6 @@ namespace MP1
 {
 extern class CGameArchitectureSupport* g_archSupport;
 }
-
 extern class CMemoryCardSys* g_MemoryCardSys;
 extern class IFactory* g_ResFactory;
 extern class CSimplePool* g_SimplePool;
@@ -29,17 +32,35 @@ extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 extern class CStringTable* g_MainStringTable;
 
-extern DataSpec::ITweakGame*   g_tweakGame;
-extern DataSpec::ITweakPlayer* g_tweakPlayer;
-extern DataSpec::ITweakPlayerControl* g_tweakPlayerControl;
-extern DataSpec::ITweakPlayerControl* g_tweakPlayerControlAlt;
-extern DataSpec::ITweakPlayerControl* g_currentPlayerControl;
-extern DataSpec::ITweakPlayerGun* g_tweakPlayerGun;
-extern DataSpec::ITweakGunRes* g_tweakGunRes;
-extern DataSpec::ITweakPlayerRes* g_tweakPlayerRes;
+using ITweakGame = DataSpec::ITweakGame;
+using ITweakPlayer = DataSpec::ITweakPlayer;
+using ITweakPlayerRes = DataSpec::ITweakPlayerRes;
+using ITweakPlayerControl = DataSpec::ITweakPlayerControl;
+using ITweakPlayerGun = DataSpec::ITweakPlayerGun;
+using ITweakGunRes = DataSpec::ITweakGunRes;
+using ITweakTargeting = DataSpec::ITweakTargeting;
+using ITweakAutoMapper = DataSpec::ITweakAutoMapper;
+using ITweakGui = DataSpec::ITweakGui;
+using ITweakSlideShow = DataSpec::ITweakSlideShow;
+using ITweakParticle = DataSpec::ITweakParticle;
+using ITweakBall = DataSpec::ITweakBall;
+using ITweakGuiColors = DataSpec::ITweakGuiColors;
+
+extern ITweakGame*   g_tweakGame;
+extern ITweakPlayer* g_tweakPlayer;
+extern ITweakPlayerControl* g_tweakPlayerControl;
+extern ITweakPlayerControl* g_tweakPlayerControlAlt;
+extern ITweakPlayerControl* g_currentPlayerControl;
+extern ITweakPlayerGun* g_tweakPlayerGun;
+extern ITweakGunRes* g_tweakGunRes;
+extern ITweakPlayerRes* g_tweakPlayerRes;
+extern ITweakTargeting* g_tweakTargeting;
 extern ITweakAutoMapper* g_tweakAutoMapper;
-extern DataSpec::ITweakGui* g_tweakGui;
-extern DataSpec::ITweakSlideShow* g_tweakSlideShow;
+extern ITweakGui* g_tweakGui;
+extern ITweakSlideShow* g_tweakSlideShow;
+extern ITweakParticle* g_tweakParticle;
+extern ITweakBall* g_tweakBall;
+extern ITweakGuiColors* g_tweakGuiColors;
 
 }
 

@@ -1,77 +1,40 @@
 set(GUISYS_SOURCES
-    CSplashScreen.cpp
-    CSplashScreen.hpp
-    CGuiObject.cpp
-    CGuiObject.hpp
-    CConsoleOutputWindow.cpp
-    CConsoleOutputWindow.hpp
-    CAuiEnergyBarT01.cpp
-    CAuiEnergyBarT01.hpp
-    CAuiImagePane.cpp
-    CAuiImagePane.hpp
-    CAuiMeter.cpp
-    CAuiMeter.hpp
-    CConsoleOutputWindow.cpp
-    CConsoleOutputWindow.hpp
-    CErrorOutputWindow.cpp
-    CErrorOutputWindow.hpp
-    CGuiCamera.cpp
-    CGuiCamera.hpp
-    CGuiFrame.cpp
-    CGuiFrame.hpp
-    CGuiLight.cpp
-    CGuiLight.hpp
-    CGuiModel.cpp
-    CGuiModel.hpp
-    CGuiSliderGroup.cpp
-    CGuiSliderGroup.hpp
-    CGuiSys.cpp
-    CGuiSys.hpp
-    CGuiTableGroup.cpp
-    CGuiTableGroup.hpp
-    CGuiTextPane.cpp
-    CGuiTextPane.hpp
-    CGuiTextSupport.cpp
-    CGuiTextSupport.hpp
-    CGuiWidget.cpp
-    CGuiWidgetDrawParms.cpp
-    CGuiWidgetDrawParms.hpp
-    CGuiWidget.hpp
-    CMakeLists.txt
-    CSplashScreen.cpp
-    CSplashScreen.hpp
-    CGuiCompoundWidget.cpp
-    CGuiCompoundWidget.hpp
-    CSaveableState.cpp
-    CSaveableState.hpp
-    CDrawStringOptions.cpp
-    CDrawStringOptions.hpp
-    CRasterFont.cpp
-    CRasterFont.hpp
-    CGuiGroup.cpp
-    CGuiGroup.hpp
-    CGuiWidgetIdDB.cpp
-    CGuiWidgetIdDB.hpp
-    CGuiHeadWidget.cpp
-    CGuiHeadWidget.hpp
-    CGuiPane.cpp
-    CGuiPane.hpp
-    CFontRenderState.cpp
-    CFontRenderState.hpp
-    CTextExecuteBuffer.cpp
-    CTextExecuteBuffer.hpp
-    CTextRenderBuffer.cpp
-    CTextRenderBuffer.hpp
-    CInstruction.cpp
-    CInstruction.hpp
-    CTextParser.cpp
-    CTextParser.hpp
-    CWordBreakTables.cpp
-    CWordBreakTables.hpp
-    CFontImageDef.cpp
-    CFontImageDef.hpp
-    ITweakGui.hpp
-    CStringTable.cpp
-    CStringTable.hpp)
+    CSplashScreen.hpp CSplashScreen.cpp
+    CGuiObject.hpp CGuiObject.cpp
+    CConsoleOutputWindow.hpp CConsoleOutputWindow.cpp
+    CAuiEnergyBarT01.hpp CAuiEnergyBarT01.cpp
+    CAuiImagePane.hpp CAuiImagePane.cpp
+    CAuiMeter.hpp CAuiMeter.cpp
+    CConsoleOutputWindow.hpp CConsoleOutputWindow.cpp
+    CErrorOutputWindow.hpp CErrorOutputWindow.cpp
+    CGuiCamera.hpp CGuiCamera.cpp
+    CGuiFrame.hpp CGuiFrame.cpp
+    CGuiLight.hpp CGuiLight.cpp
+    CGuiModel.hpp CGuiModel.cpp
+    CGuiSliderGroup.hpp CGuiSliderGroup.cpp
+    CGuiSys.hpp CGuiSys.cpp
+    CGuiTableGroup.hpp CGuiTableGroup.cpp
+    CGuiTextPane.hpp CGuiTextPane.cpp
+    CGuiTextSupport.hpp CGuiTextSupport.cpp
+    CGuiWidget.hpp CGuiWidget.cpp
+    CGuiWidgetDrawParms.hpp CGuiWidgetDrawParms.cpp
+    CSplashScreen.hpp CSplashScreen.cpp
+    CGuiCompoundWidget.hpp CGuiCompoundWidget.cpp
+    CSaveableState.hpp CSaveableState.cpp
+    CDrawStringOptions.hpp CDrawStringOptions.cpp
+    CRasterFont.hpp CRasterFont.cpp
+    CGuiGroup.hpp CGuiGroup.cpp
+    CGuiWidgetIdDB.hpp CGuiWidgetIdDB.cpp
+    CGuiHeadWidget.hpp CGuiHeadWidget.cpp
+    CGuiPane.hpp CGuiPane.cpp
+    CFontRenderState.hpp CFontRenderState.cpp
+    CTextExecuteBuffer.hpp CTextExecuteBuffer.cpp
+    CTextRenderBuffer.hpp CTextRenderBuffer.cpp
+    CInstruction.hpp CInstruction.cpp
+    CTextParser.hpp CTextParser.cpp
+    CWordBreakTables.hpp CWordBreakTables.cpp
+    CFontImageDef.hpp CFontImageDef.cpp
+    CStringTable.hpp CStringTable.cpp
+    CTargetingManager.hpp CTargetingManager.cpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)

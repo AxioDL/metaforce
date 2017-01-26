@@ -4,12 +4,11 @@
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
 #include "zeus/CTransform.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
 class CStateManager;
-class ITweakAutoMapper;
-
 class CMappableObject
 {
 public:

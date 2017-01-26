@@ -34,7 +34,12 @@
 #include "Tweaks/CTweakSlideShow.hpp"
 #include "Tweaks/CTweakGame.hpp"
 #include "Tweaks/CTweakTargeting.hpp"
+#include "Tweaks/CTweakAutoMapper.hpp"
 #include "Tweaks/CTweakGui.hpp"
+#include "Tweaks/CTweakPlayerControl.hpp"
+#include "Tweaks/CTweakBall.hpp"
+#include "Tweaks/CTweakParticle.hpp"
+#include "Tweaks/CTweakGuiColors.hpp"
 
 namespace DataSpec
 {
@@ -391,6 +396,16 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
                 return {ExtractTweak<CTweakTargeting>, {_S(".yaml")}};
             if (!name.compare("Gui"))
                 return {ExtractTweak<CTweakGui>, {_S(".yaml")}};
+            if (!name.compare("AutoMapper"))
+                return {ExtractTweak<CTweakAutoMapper>, {_S(".yaml")}};
+            if (!name.compare("PlayerControls") || !name.compare("PlayerControls2"))
+                return {ExtractTweak<CTweakPlayerControl>, {_S(".yaml")}};
+            if (!name.compare("Ball"))
+                return {ExtractTweak<CTweakBall>, {_S(".yaml")}};
+            if (!name.compare("Particle"))
+                return {ExtractTweak<CTweakParticle>, {_S(".yaml")}};
+            if (!name.compare("GuiColors"))
+                return {ExtractTweak<CTweakGuiColors>, {_S(".yaml")}};
         }
         break;
     }

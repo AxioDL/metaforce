@@ -119,7 +119,7 @@ struct CTweakGui : ITweakGui
     Value<float> x1f4_;
     Value<float> x1f8_;
     Value<float> x1fc_;
-    atVec4f x200_;
+    float x200_;
     float x204_xrayBlurScaleLinear = 0.0014f;
     float x208_xrayBlurScaleQuadratic = 0.0000525f;
     Value<float> x20c_;
@@ -149,23 +149,23 @@ struct CTweakGui : ITweakGui
     Value<float> x26c_;
     Value<float> x270_;
     Value<bool> x274_;
-    Value<bool> x275_ = true;
+    bool x275_ = true;
     Value<float> x278_;
     Value<atUint32> x27c_;
     Value<float> x280_;
     Value<float> x284_;
-    Value<atVec4f> x288_;
+    DNAColor x288_;
     Value<float> x28c_;
-    Value<atVec4f> x290_;
-    Value<atVec4f> x294_;
-    Value<atVec4f> x298_;
-    Value<atVec4f> x29c_;
-    Value<atVec4f> x2a0_;
-    Value<atVec4f> x2a4_;
-    Value<atVec4f> x2a8_;
-    Value<atVec4f> x2ac_;
-    Value<atVec4f> x2b0_;
-    Value<atVec4f> x2b4_;
+    DNAColor x290_;
+    DNAColor x294_;
+    DNAColor x298_;
+    DNAColor x29c_;
+    DNAColor x2a0_;
+    DNAColor x2a4_;
+    DNAColor x2a8_;
+    DNAColor x2ac_;
+    DNAColor x2b0_;
+    DNAColor x2b4_;
     Value<float> x2b8_;
     Value<float> x2bc_;
     Value<float> x2c0_;
@@ -174,24 +174,26 @@ struct CTweakGui : ITweakGui
     String<-1> x2d0_;
     String<-1> x2e0_;
     String<-1> x2f0_;
-    Value<atVec4f> x300_;
-    Value<atVec4f> x304_;
+    DNAColor x300_;
+    DNAColor x304_;
     Value<float> x308_;
     Value<float> x30c_;
     Value<float> x310_;
     String<-1> x314_;
     String<-1> x324_;
     String<-1> x334_;
-    Value<atVec4f> x344_;
-    Value<atVec4f> x348_;
-    Value<atVec4f> x34c_;
-    Value<atVec4f> x350_;
-    Value<atVec4f> x354_;
-    Value<atVec4f> x358_;
+    DNAColor x344_;
+    DNAColor x348_;
+    DNAColor x34c_;
+    DNAColor x350_;
+    DNAColor x354_;
+    DNAColor x358_;
     Value<float> x35c_;
     Value<float> x360_;
     Value<float> x364_;
 
+    CTweakGui() = default;
+    CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
 
@@ -207,10 +209,9 @@ struct CTweakGui : ITweakGui
         xd8_ = zeus::degToRad(xd8_);
         xdc_ = zeus::degToRad(xdc_);
 
-        x200_.vec[0] = x1f4_ * 0.25f;
-        x200_.vec[1] = x1f8_ * 0.25f;
-        x200_.vec[2] = x1fc_ * 0.25f;
-        x200_.vec[3] = 1.f;
+        x200_ = x1f4_ * 0.25f;
+        x204_xrayBlurScaleLinear = x1f8_ * 0.25f;
+        x208_xrayBlurScaleQuadratic = x1fc_ * 0.25f;
 
         x210_ = zeus::degToRad(x210_);
         x228_ = x220_ + x224_;

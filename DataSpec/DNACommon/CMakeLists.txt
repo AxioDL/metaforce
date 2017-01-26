@@ -42,7 +42,10 @@ set(DNACOMMON_SOURCES
     Tweaks/ITweakPlayerRes.hpp
     Tweaks/ITweakGui.hpp
     Tweaks/ITweakSlideShow.hpp
-    Tweaks/ITweakTargeting.hpp)
+    Tweaks/ITweakTargeting.hpp
+    Tweaks/ITweakAutoMapper.hpp
+    Tweaks/ITweakBall.hpp
+    Tweaks/ITweakGuiColors.hpp)
 
 dataspec_add_list(DNACommon DNACOMMON_SOURCES)
 list(APPEND DNACOMMON_SOURCES ${liblist})

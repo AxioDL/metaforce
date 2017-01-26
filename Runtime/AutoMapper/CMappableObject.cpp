@@ -1,6 +1,5 @@
 #include "CMappableObject.hpp"
 #include "GameGlobalObjects.hpp"
-#include "ITweakAutoMapper.hpp"
 
 namespace urde
 {
