@@ -7,12 +7,12 @@ namespace urde
 
 static float u16stof(char16_t* str)
 {
-    wchar_t wstr[16];
+    char cstr[16];
     int i;
     for (i=0 ; i<15 && str[i] != u'\0' ; ++i)
-        wstr[i] = str[i];
-    wstr[i+1] = L'\0';
-    return std::wcstof(wstr, nullptr);
+        cstr[i] = str[i];
+    cstr[i] = '\0';
+    return strtof(cstr, nullptr);
 }
 
 CTextColor CTextParser::ParseColor(const char16_t* str, int len)
@@ -325,7 +325,7 @@ void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int le
             while (str[e] && (len == -1 || e < len) && str[e] != u';')
                 ++e;
 
-            ParseTag(out, str + e, e - b);
+            ParseTag(out, str + b, e - b);
             b = e + 1;
         }
         else

@@ -41,6 +41,7 @@ std::unique_ptr<ISTRG> LoadSTRG(athena::io::IStreamReader& reader)
         newStrg->_read(reader);
         return std::unique_ptr<ISTRG>(newStrg);
     }
+    default: break;
     }
     return std::unique_ptr<ISTRG>();
 }

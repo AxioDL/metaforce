@@ -17,6 +17,262 @@ const std::vector<FourCC> skLanguages =
     FOURCC('JAPN')
 };
 
+static float u16stof(char16_t* str)
+{
+    char cstr[16];
+    int i;
+    for (i=0 ; i<15 && str[i] != u'\0' ; ++i)
+        cstr[i] = str[i];
+    cstr[i] = '\0';
+    return strtof(cstr, nullptr);
+}
+
+static uint32_t ParseTag(const char16_t* str)
+{
+    char parseStr[9];
+    int i;
+    for (i=0 ; i<8 && str[i] ; ++i)
+        parseStr[i] = str[i];
+    parseStr[i] = '\0';
+    return strtol(parseStr, nullptr, 16);
+}
+
+static std::u16string::const_iterator SkipCommas(std::u16string& ret,
+                                                 const std::u16string& str,
+                                                 std::u16string::const_iterator it,
+                                                 size_t count)
+{
+    for (size_t i=0 ; i<count ; ++i)
+    {
+        auto cpos = str.find(u',', it - str.begin());
+        if (cpos == std::u16string::npos)
+            return str.end();
+        auto end = str.begin() + cpos + 1;
+        ret.insert(ret.end(), it, end);
+        it = end;
+    }
+    return it;
+}
+
+static std::u16string::const_iterator UncookTextureList(std::u16string& ret,
+                                                        const std::u16string& str,
+                                                        std::u16string::const_iterator it)
+{
+    while (true)
+    {
+        UniqueID32 id = ParseTag(&*it);
+        hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
+        ret.append(hecl::UTF8ToChar16(path ? path.getRelativePathUTF8() : id.toString()));
+        it += 8;
+        if (*it == u';')
+        {
+            ret.push_back(u';');
+            return it + 1;
+        }
+        else if (*it == u',')
+        {
+            ret.push_back(u',');
+            ++it;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    /* Failsafe */
+    auto scpos = str.find(u';', it - str.begin());
+    if (scpos == std::u16string::npos)
+        return str.end();
+    return str.begin() + scpos + 1;
+}
+
+static std::u16string::const_iterator CookTextureList(std::u16string& ret,
+                                                      const std::u16string& str,
+                                                      std::u16string::const_iterator it)
+{
+    while (true)
+    {
+        auto end = str.find(u',', it - str.begin());
+        if (end == std::u16string::npos)
+            Log.report(logvisor::Fatal, "Missing comma token while pasing font tag");
+        auto endIt = str.begin() + end + 1;
+        hecl::ProjectPath path =
+            UniqueIDBridge::MakePathFromString<UniqueID32>(
+                hecl::Char16ToUTF8(std::u16string(it, endIt)));
+        ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
+        it = endIt;
+        if (*it == u';')
+        {
+            ret.push_back(u';');
+            return it + 1;
+        }
+        else if (*it == u',')
+        {
+            ret.push_back(u',');
+            ++it;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    /* Failsafe */
+    auto scpos = str.find(u';', it - str.begin());
+    if (scpos == std::u16string::npos)
+        return str.end();
+    return str.begin() + scpos + 1;
+}
+
+static std::u16string UncookString(const std::u16string& str)
+{
+    std::u16string ret;
+    ret.reserve(str.size());
+    for (auto it = str.begin() ; it != str.end() ;)
+    {
+        if (*it == u'&')
+        {
+            ret.push_back(u'&');
+            ++it;
+            if (!str.compare(it - str.begin(), 5, u"image"))
+            {
+                ret.append(u"image=");
+                it += 6;
+                if (!str.compare(it - str.begin(), 1, u"A"))
+                {
+                    it = SkipCommas(ret, str, it, 2);
+                    it = UncookTextureList(ret, str, it);
+                    continue;
+                }
+                else if (!str.compare(it - str.begin(), 2, u"SA"))
+                {
+                    it = SkipCommas(ret, str, it, 4);
+                    it = UncookTextureList(ret, str, it);
+                    continue;
+                }
+                else if (!str.compare(it - str.begin(), 2, u"SI"))
+                {
+                    it = SkipCommas(ret, str, it, 3);
+                    it = UncookTextureList(ret, str, it);
+                    continue;
+                }
+            }
+            else if (!str.compare(it - str.begin(), 4, u"font"))
+            {
+                ret.append(u"font=");
+                it += 5;
+                UniqueID32 id = ParseTag(&*it);
+                hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id, true);
+                ret.append(hecl::UTF8ToChar16(path ? path.getRelativePathUTF8() : id.toString()));
+
+                ret.push_back(u';');
+                auto scpos = str.find(u';', it - str.begin());
+                if (scpos == std::u16string::npos)
+                    it = str.end();
+                else
+                    it = str.begin() + scpos + 1;
+            }
+            else
+            {
+                auto scpos = str.find(u';', it - str.begin());
+                if (scpos == std::u16string::npos)
+                {
+                    it = str.end();
+                }
+                else
+                {
+                    auto end = str.begin() + scpos + 1;
+                    ret.insert(ret.end(), it, end);
+                    it = end;
+                }
+            }
+        }
+        else
+        {
+            ret.push_back(*it);
+            ++it;
+        }
+    }
+    return ret;
+}
+
+static std::u16string CookString(const std::u16string& str)
+{
+    std::u16string ret;
+    ret.reserve(str.size());
+    for (auto it = str.begin() ; it != str.end() ;)
+    {
+        if (*it == u'&')
+        {
+            ret.push_back(u'&');
+            ++it;
+            if (!str.compare(it - str.begin(), 5, u"image"))
+            {
+                ret.append(u"image=");
+                it += 6;
+                if (!str.compare(it - str.begin(), 1, u"A"))
+                {
+                    it = SkipCommas(ret, str, it, 2);
+                    it = CookTextureList(ret, str, it);
+                    continue;
+                }
+                else if (!str.compare(it - str.begin(), 2, u"SA"))
+                {
+                    it = SkipCommas(ret, str, it, 4);
+                    it = CookTextureList(ret, str, it);
+                    continue;
+                }
+                else if (!str.compare(it - str.begin(), 2, u"SI"))
+                {
+                    it = SkipCommas(ret, str, it, 3);
+                    it = CookTextureList(ret, str, it);
+                    continue;
+                }
+            }
+            else if (!str.compare(it - str.begin(), 4, u"font"))
+            {
+                ret.append(u"font=");
+                it += 5;
+                auto end = str.find(u',', it - str.begin());
+                if (end == std::u16string::npos)
+                    Log.report(logvisor::Fatal, "Missing comma token while pasing font tag");
+                hecl::ProjectPath path =
+                    UniqueIDBridge::MakePathFromString<UniqueID32>(
+                        hecl::Char16ToUTF8(std::u16string(it, str.begin() + end + 1)));
+                ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
+
+                ret.push_back(u';');
+                auto scpos = str.find(u';', it - str.begin());
+                if (scpos == std::u16string::npos)
+                    it = str.end();
+                else
+                    it = str.begin() + scpos + 1;
+            }
+            else
+            {
+                auto scpos = str.find(u';', it - str.begin());
+                if (scpos == std::u16string::npos)
+                {
+                    it = str.end();
+                }
+                else
+                {
+                    auto end = str.begin() + scpos + 1;
+                    ret.insert(ret.end(), it, end);
+                    it = end;
+                }
+            }
+        }
+        else
+        {
+            ret.push_back(*it);
+            ++it;
+        }
+    }
+    return ret;
+}
+
 void STRG::_read(athena::io::IStreamReader& reader)
 {
     atUint32 langCount = reader.readUint32Big();
@@ -47,7 +303,7 @@ void STRG::_read(athena::io::IStreamReader& reader)
             atUint32 strOffset = reader.readUint32Big();
             atUint32 tmpOffset = reader.position();
             reader.seek(langStart + strOffset, athena::SeekOrigin::Begin);
-            strs.emplace_back(reader.readU16StringBig());
+            strs.emplace_back(UncookString(reader.readU16StringBig()));
             reader.seek(tmpOffset, athena::SeekOrigin::Begin);
         }
         langs.emplace_back(lang.first, strs);
@@ -123,7 +379,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                writer.writeU16StringBig(lang.second[s]);
+                writer.writeU16StringBig(CookString(lang.second[s]));
             else
                 writer.writeUByte(0);
         }

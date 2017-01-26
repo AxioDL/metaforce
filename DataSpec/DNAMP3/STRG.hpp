@@ -19,7 +19,7 @@ struct STRG : ISTRG
     std::unordered_map<DNAFourCC, std::vector<std::string>*> langMap;
     std::map<std::string, int32_t> names;
 
-    inline int32_t lookupIdx(const std::string& name) const
+    int32_t lookupIdx(const std::string& name) const
     {
         auto search = names.find(name);
         if (search == names.end())
@@ -27,7 +27,7 @@ struct STRG : ISTRG
         return search->second;
     }
 
-    inline size_t count() const
+    size_t count() const
     {
         size_t retval = 0;
         for (const auto& item : langs)
@@ -38,21 +38,21 @@ struct STRG : ISTRG
         }
         return retval;
     }
-    inline std::string getUTF8(const FourCC& lang, size_t idx) const
+    std::string getUTF8(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
             return search->second->at(idx);
         return std::string();
     }
-    inline std::u16string getUTF16(const FourCC& lang, size_t idx) const
+    std::u16string getUTF16(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
             return hecl::UTF8ToChar16(search->second->at(idx));
         return std::u16string();
     }
-    inline hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const
+    hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const
     {
         auto search = langMap.find(lang);
         if (search != langMap.end())
