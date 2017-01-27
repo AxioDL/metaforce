@@ -95,7 +95,12 @@ static std::u16string::const_iterator CookTextureList(std::u16string& ret,
     {
         auto end = str.find(u',', it - str.begin());
         if (end == std::u16string::npos)
-            Log.report(logvisor::Fatal, "Missing comma token while pasing font tag");
+        {
+            end = str.find(u';', it - str.begin());
+            if (end == std::u16string::npos)
+                Log.report(logvisor::Fatal,
+                           "Missing comma/semicolon token while pasing font tag");
+        }
         auto endIt = str.begin() + end + 1;
         hecl::ProjectPath path =
             UniqueIDBridge::MakePathFromString<UniqueID32>(
@@ -234,20 +239,15 @@ static std::u16string CookString(const std::u16string& str)
             {
                 ret.append(u"font=");
                 it += 5;
-                auto end = str.find(u',', it - str.begin());
-                if (end == std::u16string::npos)
-                    Log.report(logvisor::Fatal, "Missing comma token while pasing font tag");
-                hecl::ProjectPath path =
-                    UniqueIDBridge::MakePathFromString<UniqueID32>(
-                        hecl::Char16ToUTF8(std::u16string(it, str.begin() + end + 1)));
-                ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
-
-                ret.push_back(u';');
                 auto scpos = str.find(u';', it - str.begin());
                 if (scpos == std::u16string::npos)
-                    it = str.end();
-                else
-                    it = str.begin() + scpos + 1;
+                    Log.report(logvisor::Fatal, "Missing semicolon token while pasing font tag");
+                hecl::ProjectPath path =
+                    UniqueIDBridge::MakePathFromString<UniqueID32>(
+                        hecl::Char16ToUTF8(std::u16string(it, str.begin() + scpos)));
+                ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
+                ret.push_back(u';');
+                it = str.begin() + scpos + 1;
             }
             else
             {
@@ -336,6 +336,9 @@ void STRG::write(athena::io::IStreamWriter& writer) const
     atUint32 strCount = STRG::count();
     writer.writeUint32Big(strCount);
 
+    std::vector<std::u16string> strings;
+    strings.reserve(strCount * langs.size());
+
     atUint32 offset = 0;
     for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
@@ -345,44 +348,52 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         atUint32 langStrCount = lang.second.size();
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
-            atUint32 chCount = lang.second[s].size();
+            std::u16string str = CookString(lang.second[s]);
+            atUint32 chCount = str.size();
             if (s < langStrCount)
                 offset += (chCount + 1) * 2;
             else
                 offset += 1;
+            strings.push_back(std::move(str));
         }
     }
 
+    auto langIt = strings.cbegin();
     for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
         atUint32 langStrCount = lang.second.size();
         atUint32 tableSz = strCount * 4;
+        auto strIt = langIt;
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                tableSz += (lang.second[s].size() + 1) * 2;
+                tableSz += ((strIt++)->size() + 1) * 2;
             else
                 tableSz += 1;
         }
         writer.writeUint32Big(tableSz);
 
         offset = strCount * 4;
+        strIt = langIt;
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             writer.writeUint32Big(offset);
             if (s < langStrCount)
-                offset += (lang.second[s].size() + 1) * 2;
+                offset += ((strIt++)->size() + 1) * 2;
             else
                 offset += 1;
         }
 
+        strIt = langIt;
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                writer.writeU16StringBig(CookString(lang.second[s]));
+                writer.writeU16StringBig(*strIt++);
             else
                 writer.writeUByte(0);
         }
+
+        langIt = strIt;
     }
 }
 
@@ -399,7 +410,7 @@ size_t STRG::binarySize(size_t __isz) const
         for (atUint32 s=0 ; s<strCount ; ++s)
         {
             if (s < langStrCount)
-                __isz += (lang.second[s].size() + 1) * 2;
+                __isz += (CookString(lang.second[s]).size() + 1) * 2;
             else
                 __isz += 1;
         }

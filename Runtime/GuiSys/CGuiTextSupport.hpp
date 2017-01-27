@@ -90,7 +90,7 @@ class CGuiTextSupport
     bool x50_typeEnable = false;
     float x54_chFadeTime = 0.1f;
     float x58_chRate = 10.0f;
-    ResId x5c_fontId;
+    ResId x5c_fontId = -1;
     std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
     std::vector<CToken> x2bc_assets;
     TLockedToken<CRasterFont> x2cc_font;

@@ -299,7 +299,7 @@ ResId CTextParser::GetAssetIdFromString(const char16_t* str)
     u8 g = GetColorValue(str + 2);
     u8 b = GetColorValue(str + 4);
     u8 a = GetColorValue(str + 6);
-    return (r << 24) | (g << 16) | (b << 8) | a;
+    return ((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff;
 }
 
 TToken<CRasterFont> CTextParser::GetFont(const char16_t* str, int len)

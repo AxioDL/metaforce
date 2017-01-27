@@ -13,7 +13,7 @@ namespace urde
 {
 
 using FourCC = hecl::FourCC;
-using ResId = s64;
+using ResId = u64;
 
 struct SObjectTag
 {

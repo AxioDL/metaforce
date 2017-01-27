@@ -15,7 +15,7 @@ CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
                                  const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                                  const zeus::CColor& geomCol, s32 padX, s32 padY, CSimplePool* store)
 : x14_props(props), x24_fontColor(fontCol), x28_outlineColor(outlineCol),
-  x2c_geometryColor(geomCol), x34_extentX(padX), x38_extentY(padY)
+  x2c_geometryColor(geomCol), x34_extentX(padX), x38_extentY(padY), x5c_fontId(fontId)
 {
     x2cc_font = store->GetObj({SBIG('FONT'), fontId});
 }

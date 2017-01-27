@@ -785,6 +785,12 @@ struct SpecMP1 : SpecBase
                 gui.read(reader);
                 WriteTweak(gui, out);
             }
+            else if (!classStr.compare(DNAMP1::CTweakPlayerControl::DNAType()))
+            {
+                DNAMP1::CTweakPlayerControl pc;
+                pc.read(reader);
+                WriteTweak(pc, out);
+            }
             else if (!classStr.compare(DNAMP1::CTweakBall::DNAType()))
             {
                 DNAMP1::CTweakBall ball;

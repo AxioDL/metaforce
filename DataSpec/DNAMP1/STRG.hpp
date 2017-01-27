@@ -62,7 +62,7 @@ struct STRG : ISTRG
     {
         STRG strg;
         strg.read(rs);
-        athena::io::FileWriter writer(outPath.getAbsolutePath());
+        athena::io::TransactionalFileWriter writer(outPath.getAbsolutePath());
         strg.toYAMLStream(writer);
         return true;
     }
@@ -72,14 +72,14 @@ struct STRG : ISTRG
         STRG strg;
         athena::io::FileReader reader(inPath.getAbsolutePath());
         strg.fromYAMLStream(reader);
-        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        athena::io::TransactionalFileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;
     }
 
     static bool Cook(const STRG& strg, const hecl::ProjectPath& outPath)
     {
-        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        athena::io::TransactionalFileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;
     }

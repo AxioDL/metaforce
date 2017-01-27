@@ -67,7 +67,7 @@ struct STRG : ISTRG
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         std::unique_ptr<ISTRG> strg = LoadSTRG(rs);
-        athena::io::FileWriter writer(outPath.getAbsolutePath());
+        athena::io::TransactionalFileWriter writer(outPath.getAbsolutePath());
         strg->toYAMLStream(writer);
         return true;
     }
@@ -77,7 +77,7 @@ struct STRG : ISTRG
         STRG strg;
         athena::io::FileReader reader(inPath.getAbsolutePath());
         strg.fromYAMLStream(reader);
-        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        athena::io::TransactionalFileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;
     }
