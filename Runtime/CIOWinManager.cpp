@@ -62,17 +62,18 @@ void CIOWinManager::Draw() const
 bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
                                          CArchitectureQueue& queue)
 {
+    CArchitectureMessage tmpMsg = msg;
     for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
         CIOWin* iow = node->GetIOWin();
-        CIOWin::EMessageReturn mret = iow->OnMessage(msg, x8_localGatherQueue);
+        CIOWin::EMessageReturn mret = iow->OnMessage(tmpMsg, x8_localGatherQueue);
 
         while (x8_localGatherQueue)
         {
-            CArchitectureMessage msg = x8_localGatherQueue.Pop();
-            if (msg.GetTarget() == EArchMsgTarget::IOWinManager)
+            tmpMsg = x8_localGatherQueue.Pop();
+            if (tmpMsg.GetTarget() == EArchMsgTarget::IOWinManager)
             {
-                if (OnIOWinMessage(msg))
+                if (OnIOWinMessage(tmpMsg))
                 {
                     x8_localGatherQueue.Clear();
                     queue.Clear();
@@ -80,7 +81,7 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
                 }
             }
             else
-                queue.Push(std::move(msg));
+                queue.Push(std::move(tmpMsg));
         }
 
         switch (mret)

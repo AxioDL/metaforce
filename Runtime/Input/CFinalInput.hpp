@@ -111,16 +111,16 @@ public:
     bool DDPLeft() const {return x2d_b26_DPLeft;}
     bool DDPDown() const {return x2d_b25_DPDown;}
     bool DDPUp() const {return x2c_b31_DPUp;}
-    bool DRTrigger() const {return x1c_anaRightTrigger > 0.050000001;}
-    bool DLTrigger() const {return x18_anaLeftTrigger > 0.050000001;}
-    bool DRARight() const {return x10_anaRightX > 0.69999999;}
-    bool DRALeft() const {return x10_anaRightX < -0.69999999;}
-    bool DRADown() const {return x14_anaRightY < -0.69999999;}
-    bool DRAUp() const {return x14_anaRightY > 0.69999999;}
-    bool DLARight() const {return x8_anaLeftX > 0.69999999;}
-    bool DLALeft() const {return x8_anaLeftX < -0.69999999;}
-    bool DLADown() const {return xc_anaLeftY < -0.69999999;}
-    bool DLAUp() const {return xc_anaLeftY > 0.69999999;}
+    bool DRTrigger() const {return x1c_anaRightTrigger > 0.05f;}
+    bool DLTrigger() const {return x18_anaLeftTrigger > 0.05f;}
+    bool DRARight() const {return x10_anaRightX > 0.7f;}
+    bool DRALeft() const {return x10_anaRightX < -0.7f;}
+    bool DRADown() const {return x14_anaRightY < -0.7f;}
+    bool DRAUp() const {return x14_anaRightY > 0.7f;}
+    bool DLARight() const {return x8_anaLeftX > 0.7f;}
+    bool DLALeft() const {return x8_anaLeftX < -0.7f;}
+    bool DLADown() const {return xc_anaLeftY < -0.7f;}
+    bool DLAUp() const {return xc_anaLeftY > 0.7f;}
     float AStart() const {return x2d_b27_Start ? 1.0 : 0.0;}
     float AR() const {return x2c_b30_R ? 1.0 : 0.0;}
     float AL() const {return x2c_b29_L ? 1.0 : 0.0;}

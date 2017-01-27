@@ -16,7 +16,7 @@ class CIOWinManager
     {
         std::shared_ptr<CIOWin> x0_iowin;
         int x4_prio;
-        CIOWinManager::IOWinPQNode* x8_next;
+        CIOWinManager::IOWinPQNode* x8_next = nullptr;
         IOWinPQNode(std::weak_ptr<CIOWin> iowin, int prio,
                     CIOWinManager::IOWinPQNode* next)
         : x0_iowin(iowin), x4_prio(prio), x8_next(next) {}
