@@ -40,6 +40,7 @@
 #include "Tweaks/CTweakBall.hpp"
 #include "Tweaks/CTweakParticle.hpp"
 #include "Tweaks/CTweakGuiColors.hpp"
+#include "Tweaks/CTweakPlayerGun.hpp"
 
 namespace DataSpec
 {
@@ -406,6 +407,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
                 return {ExtractTweak<CTweakParticle>, {_S(".yaml")}};
             if (!name.compare("GuiColors"))
                 return {ExtractTweak<CTweakGuiColors>, {_S(".yaml")}};
+            if (!name.compare("PlayerGun"))
+                return {ExtractTweak<CTweakPlayerGun>, {_S(".yaml")}};
         }
         break;
     }

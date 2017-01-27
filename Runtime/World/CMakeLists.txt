@@ -92,7 +92,7 @@ set(WORLD_SOURCES
     CScannableParameters.hpp
     CVisorParameters.hpp
     CAnimationParameters.hpp
-    CDamageInfo.hpp
+    CDamageInfo.hpp CDamageInfo.cpp
     CDamageVulnerability.hpp
     CFluidUVMotion.hpp CFluidUVMotion.cpp
     CPatternedInfo.hpp CPatternedInfo.cpp

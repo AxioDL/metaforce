@@ -17,6 +17,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakParticle.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakBall.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGuiColors.hpp"
+#include "DataSpec/DNAMP1/Tweaks/CTweakPlayerGun.hpp"
 #include "World/CPlayerCameraBob.hpp"
 
 namespace urde
@@ -62,6 +63,9 @@ void CTweaks::RegisterTweaks()
     g_tweakBall = new DataSpec::DNAMP1::CTweakBall(*strm);
 
     /* PlayerGun */
+    tag = factory.GetResourceIdByName("PlayerGun");
+    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    g_tweakPlayerGun = new DataSpec::DNAMP1::CTweakPlayerGun(*strm);
 
     /* Targeting */
     tag = factory.GetResourceIdByName("Targeting");

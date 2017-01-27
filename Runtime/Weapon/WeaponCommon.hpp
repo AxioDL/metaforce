@@ -2,10 +2,10 @@
 #define __URDE_WEAPONCOMMON_HPP__
 
 #include "RetroTypes.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
 
 namespace urde
 {
-
 enum class EWeaponType
 {
     None = -1,

@@ -58,6 +58,12 @@ struct CTweakBall : public ITweakBall
     float x128_ = 40000.f;
     float x12c_ = 10000.f;
     float x130_ = 10000.f;
+    float x134_ = 1000.f;
+    float x138_ = 10000.f;
+    float x13c_ = 2000.f;
+    float x140_ = 2000.f;
+    float x144_ = 2000.f;
+    float x148_ = 2000.f;
     Value<float> x14c_;
     Value<float> x150_;
     Value<float> x158_;
@@ -114,7 +120,22 @@ struct CTweakBall : public ITweakBall
     Value<float> x234_;
 
     CTweakBall()=default;
-    CTweakBall(athena::io::IStreamReader& r) { this->read(r); }
+    CTweakBall(athena::io::IStreamReader& r)
+    {
+        this->read(r);
+        x74_ = zeus::degToRad(x74_);
+        x90_ = zeus::degToRad(x90_);
+        x15c_ = zeus::degToRad(x15c_);
+        x16c_ = zeus::degToRad(x16c_);
+        x174_ = zeus::degToRad(x174_);
+        x17c_ = zeus::degToRad(x17c_);
+        x184_ = zeus::degToRad(x184_);
+        x188_ = zeus::degToRad(x188_);
+        x1a8_ = zeus::degToRad(x1a8_);
+        x1b0_ = zeus::degToRad(x1b0_);
+        x1b4_ = zeus::degToRad(x1b4_);
+        x1ec_ = zeus::degToRad(x1ec_);
+    }
 };
 }
 }

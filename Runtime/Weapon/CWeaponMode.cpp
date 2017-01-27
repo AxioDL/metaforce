@@ -1,12 +1,13 @@
 #include "CWeaponMode.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
 
 namespace urde
 {
-CWeaponMode::CWeaponMode(EWeaponType type, bool b1, bool b2, bool b3)
+CWeaponMode::CWeaponMode(EWeaponType type, bool charged, bool comboed, bool instaKill)
     : x0_weaponType(type)
-    , x4_24_(b1)
-    , x4_25_(b2)
-    , x4_26_instantKill(b3)
+    , x4_24_charged(charged)
+    , x4_25_comboed(comboed)
+    , x4_26_instantKill(instaKill)
 {
 }
 

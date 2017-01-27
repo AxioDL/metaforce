@@ -6,17 +6,41 @@
 
 namespace DataSpec
 {
+struct SShotParam : BigYAML
+{
+    DECL_YAML
+    Value<atUint32> weaponType = -1;
+    Value<float> damage = 0.f;
+    Value<float> radiusDamage = 0.f;
+    Value<float> radius = 0.f;
+    Value<float> knockback = 0.f;
+    virtual bool Charged() const { return false; }
+    virtual bool Comboed() const { return false; }
+    virtual bool InstaKill() const { return false; }
+};
+
+struct SComboShotParam : SShotParam
+{
+    DECL_YAML
+    bool Comboed() const { return true; }
+};
+
+struct SChargedShotParam : SShotParam
+{
+    DECL_YAML
+    bool Charged() const { return true; }
+};
 
 struct ITweakPlayerGun : ITweak
 {
-    virtual float GetSomething1() const=0; // x24
-    virtual float GetSomething2() const=0; // x28
-    virtual float GetSomething3() const=0; // x2c
-    virtual float GetSomething4() const=0; // x30
-    virtual float GetSomething5() const=0; // x34
-    virtual float GetSomething6() const=0; // x38
+    DECL_YAML
+    virtual float GetX24() const = 0; // x24
+    virtual float GetX28() const = 0; // x28
+    virtual float GetX2c() const = 0; // x2c
+    virtual float GetX30() const = 0; // x30
+    virtual float GetX34() const = 0; // x34
+    virtual float GetX38() const = 0; // x38
 };
-
 }
 
 #endif // __DNACOMMON_ITWEAKPLAYERGUN_HPP__

@@ -3,7 +3,8 @@ make_dnalist(liblist DNACommon
              MAPA
              EGMC
              SAVWCommon
-             ParticleCommon)
+             ParticleCommon
+             Tweaks/ITweakPlayerGun)
 
 set(DNACOMMON_SOURCES
     DNACommon.hpp DNACommon.cpp
@@ -37,7 +38,6 @@ set(DNACOMMON_SOURCES
     Tweaks/ITweakParticle.hpp
     Tweaks/ITweakPlayer.hpp
     Tweaks/ITweakPlayerControl.hpp
-    Tweaks/ITweakPlayerGun.hpp
     Tweaks/ITweakGunRes.hpp
     Tweaks/ITweakPlayerRes.hpp
     Tweaks/ITweakGui.hpp

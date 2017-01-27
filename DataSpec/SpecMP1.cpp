@@ -36,6 +36,7 @@
 #include "DNAMP1/Tweaks/CTweakBall.hpp"
 #include "DNAMP1/Tweaks/CTweakParticle.hpp"
 #include "DNAMP1/Tweaks/CTweakGuiColors.hpp"
+#include "DNAMP1/Tweaks/CTweakPlayerGun.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -393,6 +394,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::CTweakGuiColors::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::CTweakPlayerGun::DNAType()))
+                return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
             else if (!strcmp(classType, "ATBL"))
@@ -552,7 +555,8 @@ struct SpecMP1 : SpecBase
                          !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerControl") ||
                          !strcmp(className, "DataSpec::DNAMP1::CTweakBall") ||
                          !strcmp(className, "DataSpec::DNAMP1::CTweakParticle") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGuiColors"))
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakGuiColors") ||
+                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerGun"))
                 {
                     resTag.type = SBIG('CTWK');
                     return true;
@@ -808,6 +812,18 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakGuiColors gColors;
                 gColors.read(reader);
                 WriteTweak(gColors, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakPlayerGun::DNAType()))
+            {
+                DNAMP1::CTweakPlayerGun pGun;
+                pGun.read(reader);
+                WriteTweak(pGun, out);
+            }
+            else if (!classStr.compare(DNAMP1::CTweakPlayerControl::DNAType()))
+            {
+                DNAMP1::CTweakPlayerControl pControl;
+                pControl.read(reader);
+                WriteTweak(pControl, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

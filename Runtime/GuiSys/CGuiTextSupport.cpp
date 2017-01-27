@@ -138,6 +138,7 @@ void CGuiTextSupport::ClearRenderBuffer()
 
 void CGuiTextSupport::CheckAndRebuildTextBuffer()
 {
+#if 0
     g_TextExecuteBuf->Clear();
     g_TextExecuteBuf->x18_textState.x7c_enableWordWrap = x14_props.x0_wordWrap;
     g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, x14_props.xc_direction,
@@ -153,6 +154,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
     g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size());
 
     g_TextExecuteBuf->EndBlock();
+#endif
 }
 
 bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
