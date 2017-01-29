@@ -14,6 +14,19 @@ class CVParamTransfer;
 
 class CTexture
 {
+public:
+    enum class EFontType
+    {
+        None = -1,
+        OneLayer = 0, /* Fill bit0 */
+        OneLayerOutline = 1, /* Fill bit0, Outline bit1 */
+        FourLayers = 2,
+        TwoLayersOutlines = 3, /* Fill bit0/2, Outline bit1/3 */
+        TwoLayers = 4, /* Fill bit0/1 and copied to bit2/3 */
+        TwoLayersOutlines2 = 8 /* Fill bit2/3, Outline bit0/1 */
+    };
+
+private:
     ETexelFormat x0_fmt;
     u16 x4_w;
     u16 x6_h;
@@ -22,6 +35,7 @@ class CTexture
     boo::ITexture* m_booTex;
     boo::ITexture* m_paletteTex;
     std::unique_ptr<u8[]> m_otex;
+    EFontType m_ftype = EFontType::None;
 
     size_t ComputeMippedTexelCount();
     size_t ComputeMippedBlockCountDXT1();
@@ -38,6 +52,7 @@ class CTexture
     void BuildDXT1FromGCN(CInputStream& in);
     void BuildRGBA8(const void* data, size_t length);
     void BuildC8(const void* data, size_t length);
+    void BuildC8Font(const void* data, EFontType ftype);
 
 public:
     CTexture(ETexelFormat, s16, s16, s32);
@@ -57,6 +72,7 @@ public:
     boo::ITexture* GetPaletteTexture() {return m_paletteTex;}
     std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
                                              std::unique_ptr<u8[]>& paletteOut) const;
+    boo::ITexture* GetFontTexture(EFontType tp);
 };
 
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,

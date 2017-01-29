@@ -110,20 +110,18 @@ void CGuiFrame::Update(float dt)
 
 void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const
 {
-    if (x4_)
-    {
-        CGraphics::SetCullMode(ERglCullMode::None);
-        CGraphics::SetAmbientColor(zeus::CColor::skWhite);
-        DisableLights();
-        x14_camera->Draw(parms);
-        // Set one-stage modulate
-        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
-                                ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
+    CGraphics::SetCullMode(ERglCullMode::None);
+    CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+    DisableLights();
+    x14_camera->Draw(parms);
+    // Set one-stage modulate
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
+                            ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
 
-        for (const auto& widget : x2c_widgets)
-            if (widget->GetIsVisible())
-                widget->Draw(parms);
-    }
+    for (const auto& widget : x2c_widgets)
+        if (widget->GetIsVisible())
+            widget->Draw(parms);
+
     CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
@@ -160,7 +158,7 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp)
 
 void CGuiFrame::ProcessUserInput(const CFinalInput& input) const
 {
-    if (x4_)
+    if (input.ControllerIdx() != 0)
         return;
     for (auto& widget : x2c_widgets)
     {

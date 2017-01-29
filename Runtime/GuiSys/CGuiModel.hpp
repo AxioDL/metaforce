@@ -16,7 +16,7 @@ class CGuiModel : public CGuiWidget
     u32 x10c_lightMask;
 public:
     CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, ResId modelId, u32 lightMask, bool flag);
-    FourCC GetWidgetTypeID() const {return FOURCC('MODL');}
+    FourCC GetWidgetTypeID() const { return FOURCC('MODL'); }
 
     std::vector<ResId> GetModelAssets() const;
     bool GetIsFinishedLoadingWidgetSpecific() const;

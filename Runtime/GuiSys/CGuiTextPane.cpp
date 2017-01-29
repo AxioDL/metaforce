@@ -14,7 +14,7 @@ CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const 
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                            s32 extentX, s32 extentY)
 : CGuiPane(parms, dim, vec), xd4_textSupport(fontId, props, fontCol, outlineCol,
-                                                     zeus::CColor::skWhite, extentX, extentY, sp) {}
+                                             zeus::CColor::skWhite, extentX, extentY, sp, xac_drawFlags) {}
 
 void CGuiTextPane::Update(float dt)
 {
@@ -64,6 +64,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
     geomCol.a *= parms.x0_alphaMod;
     const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
 
+# if 0
     CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);
 
     switch (xac_drawFlags)
@@ -95,6 +96,9 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
         xd4_textSupport.Render();
         break;
     }
+#else
+    xd4_textSupport.Render();
+#endif
 }
 
 std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)

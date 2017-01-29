@@ -75,11 +75,11 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
+static boo::IShaderPipeline* s_Pipeline = nullptr;
+
 struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat*,
                                                     CThermalColdFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
@@ -92,7 +92,7 @@ struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDa
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(pipeline,
+        return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
@@ -102,35 +102,30 @@ struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDa
 struct CThermalColdFilterVulkanDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
                                                     CThermalColdFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(s_Pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }
 };
 #endif
 
-TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::GLDataFactory::Context& ctx,
-                                                                                 boo::IShaderPipeline*& pipeOut)
+TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
     const char* texNames[] = {"sceneTex", "shiftTex"};
     const char* uniNames[] = {"ThermalColdUniform"};
-    pipeOut = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CThermalColdFilterGLDataBindingFactory;
 }
 
 #if BOO_HAS_VULKAN
-TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
-                                                                                 boo::IShaderPipeline*& pipeOut,
-                                                                                 boo::IVertexFormat*& vtxFmtOut)
+TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -138,8 +133,8 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CThermalColdFilterVulkanDataBindingFactory;
 }
 #endif

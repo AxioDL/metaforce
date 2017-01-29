@@ -49,40 +49,55 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
+static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
+static boo::IShaderPipeline* s_AddPipeline = nullptr;
+static boo::IShaderPipeline* s_MultPipeline = nullptr;
+
+static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
+{
+    switch (type)
+    {
+    case CCameraFilterPass::EFilterType::Blend:
+        return s_AlphaPipeline;
+    case CCameraFilterPass::EFilterType::Add:
+        return s_AddPipeline;
+    case CCameraFilterPass::EFilterType::Multiply:
+        return s_MultPipeline;
+    default:
+        return nullptr;
+    }
+}
+
 struct CColoredQuadFilterMetalDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
+                                                    CCameraFilterPass::EFilterType type,
                                                     CColoredQuadFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr);
     }
 };
 
 TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory*
-CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx,
-                               boo::IShaderPipeline*& alphaPipeOut,
-                               boo::IShaderPipeline*& additivePipeOut,
-                               boo::IShaderPipeline*& colorMultiplyPipeOut,
-                               boo::IVertexFormat*& vtxFmtOut)
+CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
-    vtxFmtOut = ctx.newVertexFormat(1, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                            boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
-                                                 boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
+    s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
+    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+    s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
+                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CColoredQuadFilterMetalDataBindingFactory;
 }
 

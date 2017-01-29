@@ -5,6 +5,7 @@
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
 #include "CTextRenderBuffer.hpp"
+#include "CGuiWidget.hpp"
 #include "optional.hpp"
 #include <string>
 
@@ -91,6 +92,7 @@ class CGuiTextSupport
     float x54_chFadeTime = 0.1f;
     float x58_chRate = 10.0f;
     ResId x5c_fontId = -1;
+    CGuiWidget::EGuiModelDrawFlags m_drawFlags;
     std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
     std::vector<CToken> x2bc_assets;
     TLockedToken<CRasterFont> x2cc_font;
@@ -107,7 +109,8 @@ class CGuiTextSupport
 public:
     CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
-                    const zeus::CColor& geomCol, s32 extX, s32 extY, CSimplePool* store);
+                    const zeus::CColor& geomCol, s32 extX, s32 extY, CSimplePool* store,
+                    CGuiWidget::EGuiModelDrawFlags drawFlags);
     float GetCurrentAnimationOverAge() const;
     float GetNumCharsTotal() const;
     float GetNumCharsPrinted() const;

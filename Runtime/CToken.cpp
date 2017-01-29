@@ -152,7 +152,11 @@ CToken::CToken(const CToken& other)
 : x0_objRef(other.x0_objRef)
 {
     if (x0_objRef)
+    {
         ++x0_objRef->x0_refCount;
+        if (other.x4_lockHeld)
+            Lock();
+    }
 }
 CToken::CToken(CToken&& other)
 : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld)

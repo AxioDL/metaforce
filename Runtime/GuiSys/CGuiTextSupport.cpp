@@ -13,9 +13,11 @@ namespace urde
 
 CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
                                  const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
-                                 const zeus::CColor& geomCol, s32 padX, s32 padY, CSimplePool* store)
+                                 const zeus::CColor& geomCol, s32 padX, s32 padY, CSimplePool* store,
+                                 CGuiWidget::EGuiModelDrawFlags drawFlags)
 : x14_props(props), x24_fontColor(fontCol), x28_outlineColor(outlineCol),
-  x2c_geometryColor(geomCol), x34_extentX(padX), x38_extentY(padY), x5c_fontId(fontId)
+  x2c_geometryColor(geomCol), x34_extentX(padX), x38_extentY(padY), x5c_fontId(fontId),
+  m_drawFlags(drawFlags)
 {
     x2cc_font = store->GetObj({SBIG('FONT'), fontId});
 }
@@ -138,7 +140,6 @@ void CGuiTextSupport::ClearRenderBuffer()
 
 void CGuiTextSupport::CheckAndRebuildTextBuffer()
 {
-#if 0
     g_TextExecuteBuf->Clear();
     g_TextExecuteBuf->x18_textState.x7c_enableWordWrap = x14_props.x0_wordWrap;
     g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, x14_props.xc_direction,
@@ -154,7 +155,6 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
     g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size());
 
     g_TextExecuteBuf->EndBlock();
-#endif
 }
 
 bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
@@ -173,11 +173,11 @@ bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
     if (x308_multipageFlag)
     {
         zeus::CVector2i extent(x34_extentX, x38_extentY);
-        x2ec_renderBufferPages = g_TextExecuteBuf->BuildRenderBufferPages(extent);
+        x2ec_renderBufferPages = g_TextExecuteBuf->BuildRenderBufferPages(extent, m_drawFlags);
     }
     else
     {
-        x60_renderBuf.emplace(g_TextExecuteBuf->BuildRenderBuffer());
+        x60_renderBuf.emplace(g_TextExecuteBuf->BuildRenderBuffer(m_drawFlags));
         x2dc_oneBufBounds = x60_renderBuf->AccumulateTextBounds();
     }
     g_TextExecuteBuf->Clear();
@@ -201,6 +201,7 @@ void CGuiTextSupport::AutoSetExtent()
 
 void CGuiTextSupport::Render() const
 {
+    const_cast<CGuiTextSupport*>(this)->CheckAndRebuildRenderBuffer();
     if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
     {
         zeus::CTransform oldModel = CGraphics::g_GXModelMatrix;

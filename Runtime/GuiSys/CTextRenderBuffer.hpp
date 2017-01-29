@@ -8,7 +8,8 @@
 #include "CToken.hpp"
 #include "CFontImageDef.hpp"
 #include "RetroTypes.hpp"
-
+#include "CGuiWidget.hpp"
+#include "Graphics/Shaders/CTextSupportShader.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace urde
@@ -23,6 +24,7 @@ using CTextColor = zeus::CColor;
 class CTextRenderBuffer
 {
     friend class CGuiTextSupport;
+    friend class CTextSupportShader;
 public:
     enum class Command
     {
@@ -64,50 +66,27 @@ private:
 
 #else
     /* Boo-specific text-rendering functionality */
-    struct BooUniform
-    {
-        zeus::CMatrix4f m_mvp;
-        zeus::CColor m_uniformColor;
-    };
-    boo::IGraphicsBufferD* m_uniBuf;
-
-    struct BooCharacterInstance
-    {
-        zeus::CVector3f m_pos[4];
-        zeus::CVector2f m_uv[4];
-        zeus::CColor m_fontColor;
-        zeus::CColor m_outlineColor;
-        void SetMetrics(const CGlyph& glyph, const zeus::CVector2i& offset);
-    };
-
-    struct BooImageInstance
-    {
-        zeus::CVector3f m_pos[4];
-        zeus::CVector2f m_uv[4];
-        zeus::CColor m_color;
-    };
+    hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
 
     struct BooFontCharacters
     {
-        TToken<CRasterFont> m_font;
-        boo::IGraphicsBufferD* m_instBuf = nullptr;
+        TLockedToken<CRasterFont> m_font;
+        hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
         boo::IShaderDataBinding* m_dataBinding = nullptr;
-        std::vector<BooCharacterInstance> m_charData;
+        std::vector<CTextSupportShader::CharacterInstance> m_charData;
         u32 m_charCount = 0;
         bool m_dirty = true;
         BooFontCharacters(const CToken& token)
-            : m_font(token)
-        {
-        }
+        : m_font(token) {}
     };
     std::vector<BooFontCharacters> m_fontCharacters;
 
     struct BooImage
     {
         CFontImageDef m_imageDef;
-        boo::IGraphicsBufferD* m_instBuf = nullptr;
+        hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
         std::vector<boo::IShaderDataBinding*> m_dataBinding;
-        BooImageInstance m_imageData;
+        CTextSupportShader::ImageInstance m_imageData;
         bool m_dirty = true;
         BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
     };
@@ -129,12 +108,14 @@ private:
     zeus::CColor m_main;
     zeus::CColor m_outline;
 
+    CGuiWidget::EGuiModelDrawFlags m_drawFlags;
+
     bool m_committed = false;
     void CommitResources();
 #endif
 
 public:
-    CTextRenderBuffer(EMode mode);
+    CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df);
 #if 0
     void SetPrimitive(const Primitive&, int);
     Primitive GetPrimitive(int) const;
@@ -150,7 +131,7 @@ public:
     void SetMode(EMode mode);
     void Render(const zeus::CColor& col, float) const;
     void AddImage(const zeus::CVector2i& offset, const CFontImageDef& image);
-    void AddCharacter(const zeus::CVector2i& offset, wchar_t ch, const zeus::CColor& color);
+    void AddCharacter(const zeus::CVector2i& offset, char16_t ch, const zeus::CColor& color);
     void AddPaletteChange(const zeus::CColor& main, const zeus::CColor& outline);
     void AddFontChange(const TToken<CRasterFont>& font);
 

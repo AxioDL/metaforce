@@ -175,6 +175,7 @@ void CFrontEndUI::SNewFileSelectFrame::Update(float dt)
     }
     if (x10c_saveReady)
         SetupFrameContents();
+
     x1c_loadedFrame->Update(dt);
 }
 
@@ -1246,7 +1247,7 @@ CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame()
                              ETextDirection::Horizontal);
     xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::CColor::skWhite,
                                                        zeus::CColor::skBlack, zeus::CColor::skWhite,
-                                                       0, 0, g_SimplePool);
+                                                       0, 0, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
 }
 
 void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode)
@@ -2002,7 +2003,7 @@ void CFrontEndUI::Draw() const
             }
         }
 
-        if (xdc_saveUI)
+        if (0 && xdc_saveUI)
         {
             /* Render memory card feedback strings */
             if ((CanShowSaveUI() && !xdc_saveUI->IsHiddenFromFrontEnd()) ||

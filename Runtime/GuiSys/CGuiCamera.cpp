@@ -10,7 +10,7 @@ CGuiCamera::CGuiCamera(const CGuiWidgetParms& parms,
                        float left, float right,
                        float top, float bottom,
                        float znear, float zfar)
-: CGuiWidget(parms),
+: CGuiWidget(parms), xf8_proj(EProjection::Orthographic),
   xfc_left(left), x100_right(right),
   x104_top(top), x108_bottom(bottom),
   x10c_znear(znear), x110_zfar(zfar)
@@ -19,7 +19,7 @@ CGuiCamera::CGuiCamera(const CGuiWidgetParms& parms,
 CGuiCamera::CGuiCamera(const CGuiWidgetParms& parms,
                        float fov, float aspect,
                        float znear, float zfar)
-: CGuiWidget(parms),
+: CGuiWidget(parms), xf8_proj(EProjection::Perspective),
   xfc_fov(fov), x100_aspect(aspect),
   x104_znear(znear), x108_zfar(zfar)
 {}

@@ -64,11 +64,12 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
+static boo::IShaderPipeline* s_Pipeline = nullptr;
+
 struct CXRayBlurFilterGLDataBindingFactory : TShader<CXRayBlurFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat*,
                                                     CXRayBlurFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
@@ -81,7 +82,7 @@ struct CXRayBlurFilterGLDataBindingFactory : TShader<CXRayBlurFilter>::IDataBind
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_booTex};
-        return cctx.newShaderDataBinding(pipeline,
+        return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
@@ -99,36 +100,33 @@ struct CXRayBlurFilterVulkanDataBindingFactory : TShader<CXRayBlurFilter>::IData
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_booTex};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }
 };
 #endif
 
-TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::GLDataFactory::Context& ctx,
-                                                                           boo::IShaderPipeline*& pipeOut)
+TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
     const char* texNames[] = {"sceneTex", "paletteTex"};
     const char* uniNames[] = {"XRayBlurUniform"};
-    pipeOut = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CXRayBlurFilterGLDataBindingFactory;
 }
 
 #if BOO_HAS_VULKAN
-TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
-                                                                           boo::IShaderPipeline*& pipeOut,
-                                                                           boo::IVertexFormat*& vtxFmtOut)
+TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CXRayBlurFilterVulkanDataBindingFactory;
 }
 #endif

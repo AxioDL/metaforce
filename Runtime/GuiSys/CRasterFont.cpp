@@ -92,7 +92,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
         {
             if (opts.x0_direction == ETextDirection::Horizontal)
             {
-                x += glyph->GetA();
+                x += glyph->GetLeftPadding();
 
                 if (prevGlyph != 0)
                     x += KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *chr);
@@ -102,10 +102,10 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
                 if (renderBuf)
                 {
                     left += x;
-                    top += glyph->GetBaseline() - y;
+                    top += y - glyph->GetBaseline();
                     renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x4_colors[0]);
                 }
-                x += glyph->GetC() + glyph->GetB();
+                x += glyph->GetRightPadding() + glyph->GetAdvance();
             }
         }
         prevGlyph = glyph;
@@ -113,7 +113,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
         if (length == -1)
             continue;
 
-        if ((str - chr) >= length)
+        if ((chr - str) >= length)
             break;
     }
 
@@ -173,8 +173,8 @@ void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& heigh
                 if (prevGlyph)
                     advance = KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *chr);
 
-                s16 curWidth = prevWidth - (glyph->GetA() + glyph->GetB() + glyph->GetC() + advance);
-                s16 curHeight = glyph->GetBaseline() - (x8_monoHeight + glyph->GetCellHeight());
+                int curWidth = prevWidth + (glyph->GetLeftPadding() + glyph->GetAdvance() + glyph->GetRightPadding() + advance);
+                int curHeight = glyph->GetBaseline() - (x8_monoHeight + glyph->GetCellHeight());
 
                 width = curWidth;
                 prevWidth = curWidth;
@@ -189,7 +189,7 @@ void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& heigh
         if (len == -1)
             continue;
 
-        if ((str - chr) >= len)
+        if ((chr - str) >= len)
             break;
     }
 }

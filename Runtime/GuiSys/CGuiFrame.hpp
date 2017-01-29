@@ -2,6 +2,7 @@
 #define __URDE_CGUIFRAME_HPP__
 
 #include "CGuiWidget.hpp"
+#include "CGuiHeadWidget.hpp"
 #include "CGuiWidgetIdDB.hpp"
 #include "IObj.hpp"
 
@@ -10,7 +11,6 @@ namespace urde
 class CGuiSys;
 class CLight;
 class CGuiCamera;
-class CGuiHeadWidget;
 class CFinalInput;
 class CGuiLight;
 class CVParamTransfer;
@@ -44,6 +44,7 @@ public:
     CGuiWidget* FindWidget(s16 id) const;
     void SetFrameCamera(std::shared_ptr<CGuiCamera>&& camr) { x14_camera = std::move(camr); }
     void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }
+    CGuiHeadWidget* GetHeadWidget() const { return xc_headWidget.get(); }
     void SortDrawOrder();
     void EnableLights(u32 lights) const;
     void DisableLights() const;

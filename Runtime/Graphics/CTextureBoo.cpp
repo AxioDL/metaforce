@@ -684,6 +684,108 @@ void CTexture::BuildC8(const void* data, size_t length)
 });
 }
 
+void CTexture::BuildC8Font(const void* data, EFontType ftype)
+{
+    size_t texelCount = ComputeMippedTexelCount();
+
+    size_t layerCount;
+    switch (ftype)
+    {
+    case EFontType::OneLayer:
+    case EFontType::OneLayerOutline:
+        layerCount = 1;
+        break;
+    case EFontType::FourLayers:
+        layerCount = 4;
+        break;
+    case EFontType::TwoLayersOutlines:
+    case EFontType::TwoLayers:
+    case EFontType::TwoLayersOutlines2:
+        layerCount = 2;
+        break;
+    default: break;
+    }
+
+    uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+    const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
+    std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount * layerCount]);
+    memset(buf.get(), 0, texelCount * layerCount * 4);
+
+    size_t w = x4_w;
+    size_t h = x6_h;
+    RGBA8* bufCur = buf.get();
+    for (size_t i=0 ; i<x8_mips ; ++i)
+    {
+        size_t tCount = w * h;
+        RGBA8* l0 = bufCur;
+        RGBA8* l1 = bufCur + tCount;
+        RGBA8* l2 = bufCur + tCount * 2;
+        RGBA8* l3 = bufCur + tCount * 3;
+        for (size_t j=0 ; j<tCount ; ++j)
+        {
+            u8 texel = texels[j];
+            switch (ftype)
+            {
+            case EFontType::OneLayer:
+                l0[j].r = (texel & 0x1) ? 0xff : 0;
+                l0[j].a = 0xff;
+                break;
+            case EFontType::OneLayerOutline:
+                l0[j].r = (texel & 0x1) ? 0xff : 0;
+                l0[j].g = (texel & 0x2) ? 0xff : 0;
+                l0[j].a = 0xff;
+                break;
+            case EFontType::FourLayers:
+                l0[j].r = (texel & 0x1) ? 0xff : 0;
+                l0[j].a = 0xff;
+                l1[j].r = (texel & 0x2) ? 0xff : 0;
+                l1[j].a = 0xff;
+                l2[j].r = (texel & 0x4) ? 0xff : 0;
+                l2[j].a = 0xff;
+                l3[j].r = (texel & 0x8) ? 0xff : 0;
+                l3[j].a = 0xff;
+                break;
+            case EFontType::TwoLayersOutlines:
+                l0[j].r = (texel & 0x1) ? 0xff : 0;
+                l0[j].g = (texel & 0x2) ? 0xff : 0;
+                l0[j].a = 0xff;
+                l1[j].r = (texel & 0x4) ? 0xff : 0;
+                l1[j].g = (texel & 0x8) ? 0xff : 0;
+                l1[j].a = 0xff;
+                break;
+            case EFontType::TwoLayers:
+                l0[j].r = (texel & 0x1) ? 0xff : 0;
+                l0[j].a = 0xff;
+                l1[j].r = (texel & 0x2) ? 0xff : 0;
+                l1[j].a = 0xff;
+                break;
+            case EFontType::TwoLayersOutlines2:
+                l0[j].r = (texel & 0x4) ? 0xff : 0;
+                l0[j].g = (texel & 0x1) ? 0xff : 0;
+                l0[j].a = 0xff;
+                l1[j].r = (texel & 0x8) ? 0xff : 0;
+                l1[j].g = (texel & 0x2) ? 0xff : 0;
+                l1[j].a = 0xff;
+                break;
+            default: break;
+            }
+        }
+        texels += tCount;
+        bufCur += tCount * layerCount;
+        if (w > 1)
+            w /= 2;
+        if (h > 1)
+            h /= 2;
+    }
+
+    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticArrayTexture(x4_w, x6_h, layerCount, x8_mips, boo::TextureFormat::RGBA8,
+                                             buf.get(), texelCount * layerCount * 4);
+        return true;
+    });
+}
+
 CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
     : x0_fmt(fmt)
     , x4_w(w)
@@ -746,6 +848,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex)
         break;
     case ETexelFormat::C8PC:
         BuildC8(owned.get() + 12, length - 12);
+        otex = true;
         break;
     default:
         Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));
@@ -872,13 +975,24 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
     return ret;
 }
 
+boo::ITexture* CTexture::GetFontTexture(EFontType tp)
+{
+    if (m_ftype != tp && x0_fmt == ETexelFormat::C8PC)
+    {
+        m_ftype = tp;
+        BuildC8Font(m_otex.get() + 12, m_ftype);
+    }
+    return m_booTex;
+}
+
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,
                                  std::unique_ptr<u8[]>&& in, u32 len,
                                  const urde::CVParamTransfer& vparms,
                                  CObjectReference* selfRef)
 {
+    u32 u32Owned = vparms.GetOwnedObj<u32>();
     return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(std::move(in), len,
-        vparms.GetOwnedObj<u32>() == SBIG('OTEX')));
+        u32Owned == SBIG('OTEX')));
 }
 
 }

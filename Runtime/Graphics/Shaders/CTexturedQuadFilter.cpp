@@ -77,6 +77,8 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale)
 
 const zeus::CRectangle CTexturedQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
 
+void CTexturedQuadFilter::Shutdown() {}
+
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterType type, boo::ITexture* tex)
@@ -97,6 +99,8 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterTyp
 {
     m_tex = tex;
 }
+
+void CTexturedQuadFilterAlpha::Shutdown() {}
 
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 

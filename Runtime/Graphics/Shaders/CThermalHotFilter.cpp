@@ -36,6 +36,8 @@ void CThermalHotFilter::draw()
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CThermalHotFilter::Shutdown() {}
+
 URDE_SPECIALIZE_SHADER(CThermalHotFilter)
 
 }

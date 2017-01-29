@@ -13,6 +13,7 @@ public:
     CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, ResId, ResId,
                   rstl::reserved_vector<zeus::CVector3f, 4>&& coords,
                   rstl::reserved_vector<zeus::CVector2f, 4>&& uvs, bool);
+    FourCC GetWidgetTypeID() const { return FOURCC('IMGP'); }
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };
 }

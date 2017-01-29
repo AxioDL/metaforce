@@ -66,6 +66,8 @@ void CThermalColdFilter::draw()
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CThermalColdFilter::Shutdown() {}
+
 URDE_SPECIALIZE_SHADER(CThermalColdFilter)
 
 }

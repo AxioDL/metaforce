@@ -85,35 +85,34 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
+static boo::IShaderPipeline* s_Pipeline = nullptr;
+
 struct CThermalColdFilterMetalDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
                                                     CThermalColdFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }
 };
 
-TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::MetalDataFactory::Context& ctx,
-                                                                                       boo::IShaderPipeline*& pipeOut,
-                                                                                       boo::IVertexFormat*& vtxFmtOut)
+TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::MetalDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, CGraphics::g_ViewportSamples, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CThermalColdFilterMetalDataBindingFactory;
 }
 

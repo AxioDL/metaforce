@@ -80,11 +80,11 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 
+static boo::IShaderPipeline* s_Pipeline = nullptr;
+
 struct CCameraBlurFilterGLDataBindingFactory : TShader<CCameraBlurFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat*,
                                                     CCameraBlurFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
@@ -97,7 +97,7 @@ struct CCameraBlurFilterGLDataBindingFactory : TShader<CCameraBlurFilter>::IData
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
-        return cctx.newShaderDataBinding(pipeline,
+        return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 1, texs);
     }
@@ -107,35 +107,30 @@ struct CCameraBlurFilterGLDataBindingFactory : TShader<CCameraBlurFilter>::IData
 struct CCameraBlurFilterVulkanDataBindingFactory : TShader<CCameraBlurFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
                                                     CCameraBlurFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(s_Pipeline, vtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs);
     }
 };
 #endif
 
-TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::GLDataFactory::Context& ctx,
-                                                                               boo::IShaderPipeline*& pipeOut)
+TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
     const char* texNames[] = {"sceneTex"};
     const char* uniNames[] = {"CameraBlurUniform"};
-    pipeOut = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
-                                    boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
+                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
     return new CCameraBlurFilterGLDataBindingFactory;
 }
 
 #if BOO_HAS_VULKAN
-TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
-                                                                               boo::IShaderPipeline*& pipeOut,
-                                                                               boo::IVertexFormat*& vtxFmtOut)
+TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -143,8 +138,8 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
-                                    boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
     return new CCameraBlurFilterVulkanDataBindingFactory;
 }
 #endif

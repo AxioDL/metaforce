@@ -23,7 +23,7 @@ class CGuiLight : public CGuiWidget
 public:
     ~CGuiLight();
     CGuiLight(const CGuiWidgetParms& parms, const CLight& light);
-    FourCC GetWidgetTypeID() const {return FOURCC('LITE');}
+    FourCC GetWidgetTypeID() const { return FOURCC('LITE'); }
 
     CLight BuildLight() const;
     void SetIsVisible(bool vis);

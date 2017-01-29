@@ -54,6 +54,8 @@ void CXRayBlurFilter::draw(float amount)
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CXRayBlurFilter::Shutdown() {}
+
 URDE_SPECIALIZE_SHADER(CXRayBlurFilter)
 
 }

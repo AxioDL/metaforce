@@ -385,7 +385,7 @@ void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, bool b1,
                              EVerticalJustification::Center, ETextDirection::Horizontal);
     x8_textData.reset(new CGuiTextSupport(fontId, props, zeus::CColor::skWhite,
                                           zeus::CColor::skBlack, zeus::CColor::skWhite,
-                                          640, 448, g_SimplePool));
+                                          640, 448, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha));
 
     x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
     xc_strTable = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), stringId});

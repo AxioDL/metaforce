@@ -19,7 +19,7 @@ class CAuiMeter : public CGuiGroup
 public:
     CAuiMeter(const CGuiWidgetParms& parms, bool noRoundUp,
               u32 maxCapacity, u32 workerCount);
-    FourCC GetWidgetTypeID() const {return FOURCC('METR');}
+    FourCC GetWidgetTypeID() const { return FOURCC('METR'); }
 
     void OnVisibleChange();
     void SetCurrValue(s32 val);

@@ -3,18 +3,19 @@
 namespace urde
 {
 
-CFontImageDef::CFontImageDef(std::vector<TToken<CTexture>>&& texs,
+CFontImageDef::CFontImageDef(const std::vector<TToken<CTexture>>& texs,
                              float interval, const zeus::CVector2f& vec)
-: x0_fps(interval), x4_texs(std::move(texs)), x14_pointsPerTexel(vec)
+: x0_fps(interval), x14_pointsPerTexel(vec)
 {
-    for (TToken<CTexture>& tok : x4_texs)
-        tok.Lock();
+    x4_texs.reserve(texs.size());
+    for (const TToken<CTexture>& tok : texs)
+        x4_texs.push_back(tok);
 }
 
-CFontImageDef::CFontImageDef(TToken<CTexture>&& tex, const zeus::CVector2f& vec)
-: x0_fps(0.f), x4_texs({std::move(tex)}), x14_pointsPerTexel(vec)
+CFontImageDef::CFontImageDef(const TToken<CTexture>& tex, const zeus::CVector2f& vec)
+: x0_fps(0.f), x14_pointsPerTexel(vec)
 {
-    x4_texs[0].Lock();
+    x4_texs.push_back(tex);
 }
 
 bool CFontImageDef::IsLoaded() const

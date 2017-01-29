@@ -5,11 +5,11 @@
 #include "CToken.hpp"
 #include "zeus/CVector2i.hpp"
 #include "CGuiTextSupport.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
 class IObjectStore;
-class CTexture;
 class CDrawStringOptions;
 class CTextRenderBuffer;
 
@@ -28,28 +28,30 @@ private:
     s16     x1a_cellHeight;
     s16     x1c_baseline;
     s16     x1e_kernStart;
+    s16     m_layer;
+
 public:
     CGlyph() = default;
     CGlyph(s16 a, s16 b, s32 c, float startU, float startV, float endU, float endV,
-           s16 cellWidth, s16 cellHeight, s16 baseline, s16 kernStart)
+           s16 cellWidth, s16 cellHeight, s16 baseline, s16 kernStart, s16 layer=0)
         : x0_leftPadding(a), x2_advance(b), x4_rightPadding(c),
           x8_startU(startU), xc_startV(startV), x10_endU(endU), x14_endV(endV),
           x18_cellWidth(cellWidth), x1a_cellHeight(cellHeight),
-          x1c_baseline(baseline), x1e_kernStart(kernStart)
+          x1c_baseline(baseline), x1e_kernStart(kernStart), m_layer(layer)
     {}
 
-    s16 GetA()          const { return x0_leftPadding; }
-    s16 GetB()          const { return x2_advance; }
-    s16 GetC()          const { return x4_rightPadding; }
-    float GetStartU()   const { return x8_startU; }
-    float GetStartV()   const { return xc_startV; }
-    float GetEndU()     const { return x10_endU; }
-    float GetEndV()     const { return x14_endV; }
-    s16 GetCellWidth()  const { return x18_cellWidth; }
-    s16 GetCellHeight() const { return x1a_cellHeight; }
-    s16 GetBaseline()   const { return x1c_baseline; }
-    s16 GetKernStart()  const { return x1e_kernStart; }
-
+    s16 GetLeftPadding()  const { return x0_leftPadding; }
+    s16 GetAdvance()      const { return x2_advance; }
+    s16 GetRightPadding() const { return x4_rightPadding; }
+    float GetStartU()     const { return x8_startU; }
+    float GetStartV()     const { return xc_startV; }
+    float GetEndU()       const { return x10_endU; }
+    float GetEndV()       const { return x14_endV; }
+    s16 GetCellWidth()    const { return x18_cellWidth; }
+    s16 GetCellHeight()   const { return x1a_cellHeight; }
+    s16 GetBaseline()     const { return x1c_baseline; }
+    s16 GetKernStart()    const { return x1e_kernStart; }
+    s16 GetLayer()        const { return m_layer; }
 };
 
 class CKernPair
@@ -146,7 +148,7 @@ public:
     }
     void GetSize(const CDrawStringOptions& opts, int& width, int& height,
                  const char16_t* str, int len) const;
-    TToken<CTexture>& GetTexture() { return x80_texture; }
+    boo::ITexture* GetTexture() { return x80_texture->GetFontTexture(CTexture::EFontType(x2c_mode)); }
 };
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

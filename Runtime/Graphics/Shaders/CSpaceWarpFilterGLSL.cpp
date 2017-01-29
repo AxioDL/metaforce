@@ -53,11 +53,11 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
+static boo::IShaderPipeline* s_Pipeline = nullptr;
+
 struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat*,
                                                     CSpaceWarpFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
@@ -70,7 +70,7 @@ struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBi
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_warpTex};
-        return cctx.newShaderDataBinding(pipeline,
+        return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs);
     }
@@ -80,8 +80,6 @@ struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBi
 struct CSpaceWarpFilterVulkanDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
                                                     CSpaceWarpFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
@@ -95,20 +93,17 @@ struct CSpaceWarpFilterVulkanDataBindingFactory : TShader<CSpaceWarpFilter>::IDa
 };
 #endif
 
-TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo::GLDataFactory::Context& ctx,
-                                                                             boo::IShaderPipeline*& pipeOut)
+TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
     const char* texNames[] = {"sceneTex", "indTex"};
     const char* uniNames[] = {"SpaceWarpUniform"};
-    pipeOut = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CSpaceWarpFilterGLDataBindingFactory;
 }
 
 #if BOO_HAS_VULKAN
-TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo::VulkanDataFactory::Context& ctx,
-                                                                             boo::IShaderPipeline*& pipeOut,
-                                                                             boo::IVertexFormat*& vtxFmtOut)
+TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -116,8 +111,8 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
-                                    boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CSpaceWarpFilterVulkanDataBindingFactory;
 }
 #endif

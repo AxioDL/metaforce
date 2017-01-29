@@ -101,7 +101,7 @@ public:
     virtual void Touch() const;
     virtual bool GetIsVisible() const;
     virtual bool GetIsActive() const;
-    virtual FourCC GetWidgetTypeID() const {return FOURCC('BWIG');}
+    virtual FourCC GetWidgetTypeID() const { return FOURCC('BWIG'); }
     virtual bool AddWorkerWidget(CGuiWidget* worker);
     virtual bool GetIsFinishedLoadingWidgetSpecific() const;
     virtual void OnVisibleChange();

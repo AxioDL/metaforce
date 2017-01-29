@@ -7,34 +7,13 @@
 #include "CTextExecuteBuffer.hpp"
 #include "CFontRenderState.hpp"
 #include "CInstruction.hpp"
+#include "Graphics/Shaders/CTextSupportShader.hpp"
 
 namespace urde
 {
 
-boo::IShaderPipeline* g_TextShaderPipeline = nullptr;
-boo::IVertexFormat* g_TextVtxFmt = nullptr;
-
-boo::IShaderPipeline* g_TextImageShaderPipeline = nullptr;
-boo::IVertexFormat* g_TextImageVtxFmt = nullptr;
-
-CTextRenderBuffer::CTextRenderBuffer(EMode mode)
-: x0_mode(mode) {}
-
-void CTextRenderBuffer::BooCharacterInstance::SetMetrics(const CGlyph& glyph,
-                                                         const zeus::CVector2i& offset)
-{
-    m_pos[0].assign(offset.x, 0.f, offset.y);
-    m_uv[0].assign(glyph.GetStartU(), glyph.GetStartV());
-
-    m_pos[1].assign(offset.x + glyph.GetCellWidth(), 0.f, offset.y);
-    m_uv[1].assign(glyph.GetEndU(), glyph.GetStartV());
-
-    m_pos[2].assign(offset.x, 0.f, offset.y + glyph.GetCellHeight());
-    m_uv[2].assign(glyph.GetStartU(), glyph.GetEndV());
-
-    m_pos[3].assign(offset.x + glyph.GetCellWidth(), 0.f, offset.y + glyph.GetCellHeight());
-    m_uv[3].assign(glyph.GetEndU(), glyph.GetEndV());
-}
+CTextRenderBuffer::CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df)
+: x0_mode(mode), m_drawFlags(df) {}
 
 CTextRenderBuffer::BooImage::BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset)
 : m_imageDef(imgDef)
@@ -47,17 +26,7 @@ CTextRenderBuffer::BooImage::BooImage(const CFontImageDef& imgDef, const zeus::C
                        tex.GetHeight() * imgDef.x14_pointsPerTexel.y);
     }
 
-    m_imageData.m_pos[0].assign(offset.x, 0.f, offset.y);
-    m_imageData.m_uv[0].assign(0.f, 0.f);
-
-    m_imageData.m_pos[1].assign(offset.x + imgSize.x, 0.f, offset.y);
-    m_imageData.m_uv[1].assign(1.f, 0.f);
-
-    m_imageData.m_pos[2].assign(offset.x, 0.f, offset.y + imgSize.y);
-    m_imageData.m_uv[2].assign(0.f, 1.f);
-
-    m_imageData.m_pos[3].assign(offset.x + imgSize.x, 0.f, offset.y + imgSize.y);
-    m_imageData.m_uv[3].assign(1.f, 1.f);
+    m_imageData.SetMetrics(imgSize, offset);
 }
 
 void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, float opacity)
@@ -67,7 +36,7 @@ void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, floa
     case Command::CharacterRender:
     {
         BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
-        BooCharacterInstance& inst = fc.m_charData[m_instIdx];
+        CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
         inst.m_fontColor.a = opacity;
         inst.m_outlineColor.a = opacity;
         fc.m_dirty = true;
@@ -90,70 +59,87 @@ void CTextRenderBuffer::CommitResources()
         return;
     m_committed = true;
 
+    /* Ensure font textures are ready outside transaction */
+    for (BooFontCharacters& chs : m_fontCharacters)
+        chs.m_font->GetTexture();
+
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(BooUniform), 1);
+        m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
+        auto uBufInfo = m_uniBuf.getBufferInfo();
 
         for (BooFontCharacters& chs : m_fontCharacters)
         {
-            chs.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
-                                                 sizeof(BooCharacterInstance),
-                                                 chs.m_charCount);
-            boo::IVertexFormat* vFmt = g_TextVtxFmt;
+            chs.m_instBuf = CTextSupportShader::s_CharInsts.allocateBlock(CGraphics::g_BooFactory, chs.m_charCount);
+            auto iBufInfo = chs.m_instBuf.getBufferInfo();
+
+            boo::IVertexFormat* vFmt = CTextSupportShader::s_TextVtxFmt;
             if (ctx.bindingNeedsVertexFormat())
             {
+                boo::IGraphicsBufferD* buf = iBufInfo.first;
                 boo::VertexElementDescriptor elems[] =
                 {
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
-                    {chs.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
+                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
                 };
-                vFmt = ctx.newVertexFormat(10, elems);
+                vFmt = ctx.newVertexFormat(10, elems, 0, iBufInfo.second);
             }
 
-            boo::IGraphicsBuffer* uniforms[] = {m_uniBuf};
-            boo::ITexture* texs[] = {chs.m_font.GetObj()->GetTexture()->GetBooTexture()};
-            chs.m_dataBinding = ctx.newShaderDataBinding(g_TextShaderPipeline, vFmt,
-                                                         nullptr, chs.m_instBuf, nullptr,
-                                                         1, uniforms, nullptr, 1, texs);
+            boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
+            boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
+            size_t unioffs[] = {uBufInfo.second};
+            size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
+            boo::ITexture* texs[] = {chs.m_font->GetTexture()};
+            chs.m_dataBinding = ctx.newShaderDataBinding(CTextSupportShader::SelectTextPipeline(m_drawFlags),
+                                                         vFmt, nullptr, iBufInfo.first, nullptr,
+                                                         1, uniforms, unistages, unioffs,
+                                                         unisizes, 1, texs, 0, iBufInfo.second);
         }
 
         for (BooImage& img : m_images)
         {
-            img.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(BooImageInstance), 1);
-            boo::IVertexFormat* vFmt = g_TextImageVtxFmt;
+            img.m_instBuf = CTextSupportShader::s_ImgInsts.allocateBlock(CGraphics::g_BooFactory, 1);
+            auto iBufInfo = img.m_instBuf.getBufferInfo();
+
+            boo::IVertexFormat* vFmt = CTextSupportShader::s_ImageVtxFmt;
             if (ctx.bindingNeedsVertexFormat())
             {
+                boo::IGraphicsBufferD* buf = iBufInfo.first;
                 boo::VertexElementDescriptor elems[] =
                 {
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                    {img.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
                 };
-                vFmt = ctx.newVertexFormat(9, elems);
+                vFmt = ctx.newVertexFormat(9, elems, 0, iBufInfo.second);
             }
 
-            boo::IGraphicsBuffer* uniforms[] = {m_uniBuf};
+            boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
+            boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
+            size_t unioffs[] = {uBufInfo.second};
+            size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
             img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
             for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)
             {
                 boo::ITexture* texs[] = {tex->GetBooTexture()};
-                img.m_dataBinding.push_back(ctx.newShaderDataBinding(g_TextImageShaderPipeline, vFmt,
-                                                                     nullptr, img.m_instBuf, nullptr,
-                                                                     1, uniforms, nullptr, 1, texs));
+                img.m_dataBinding.push_back(ctx.newShaderDataBinding(CTextSupportShader::SelectImagePipeline(m_drawFlags),
+                                                                     vFmt, nullptr, iBufInfo.first, nullptr,
+                                                                     1, uniforms, unistages, unioffs,
+                                                                     unisizes, 1, texs, 0, iBufInfo.second));
             }
         }
         return true;
@@ -169,6 +155,7 @@ void CTextRenderBuffer::SetMode(EMode mode)
             fc.m_charData.reserve(fc.m_charCount);
     }
     m_activeFontCh = -1;
+    x0_mode = mode;
 }
 
 void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity)
@@ -180,26 +167,34 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
 {
     const_cast<CTextRenderBuffer*>(this)->CommitResources();
 
-    BooUniform uniforms = {CGraphics::GetPerspectiveProjectionMatrix(true) *
-                           CGraphics::g_GXModelView.toMatrix4f(), col};
-    m_uniBuf->load(&uniforms, sizeof(uniforms));
+    zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
+    zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+    zeus::CMatrix4f mat = proj * mv;
+
+    const_cast<CTextRenderBuffer*>(this)->m_uniBuf.access() =
+        CTextSupportShader::Uniform{mat, col};
 
     for (const BooFontCharacters& chs : m_fontCharacters)
     {
-        if (chs.m_dirty)
+        if (chs.m_charData.size())
         {
-            chs.m_instBuf->load(chs.m_charData.data(), sizeof(BooCharacterInstance) * chs.m_charData.size());
-            ((BooFontCharacters&)chs).m_dirty = false;
+            if (chs.m_dirty)
+            {
+                memmove(const_cast<BooFontCharacters&>(chs).m_instBuf.access(),
+                        chs.m_charData.data(), sizeof(CTextSupportShader::CharacterInstance) *
+                        chs.m_charData.size());
+                const_cast<BooFontCharacters&>(chs).m_dirty = false;
+            }
+            CGraphics::SetShaderDataBinding(chs.m_dataBinding);
+            CGraphics::DrawInstances(0, 4, chs.m_charData.size());
         }
-        CGraphics::SetShaderDataBinding(chs.m_dataBinding);
-        CGraphics::DrawInstances(0, 4, chs.m_charData.size());
     }
 
     for (const BooImage& img : m_images)
     {
         if (img.m_dirty)
         {
-            img.m_instBuf->load(&img.m_imageData, sizeof(BooImageInstance));
+            *const_cast<BooImage&>(img).m_instBuf.access() = img.m_imageData;
             const_cast<BooImage&>(img).m_dirty = false;
         }
         int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
@@ -216,7 +211,7 @@ void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImage
         m_images.push_back({image, offset});
 }
 
-void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, wchar_t ch,
+void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch,
                                      const zeus::CColor& color)
 {
     if (m_activeFontCh == -1)
@@ -228,7 +223,7 @@ void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, wchar_t ch,
     {
         const CGlyph* glyph = chs.m_font.GetObj()->GetGlyph(ch);
         chs.m_charData.emplace_back();
-        BooCharacterInstance& inst = chs.m_charData.back();
+        CTextSupportShader::CharacterInstance& inst = chs.m_charData.back();
         inst.SetMetrics(*glyph, offset);
         inst.m_fontColor = m_main * color;
         inst.m_outlineColor = m_outline * color;
@@ -278,7 +273,7 @@ std::pair<zeus::CVector2i, zeus::CVector2i> CTextRenderBuffer::AccumulateTextBou
 
     for (const BooFontCharacters& chars : m_fontCharacters)
     {
-        for (const BooCharacterInstance& charInst : chars.m_charData)
+        for (const CTextSupportShader::CharacterInstance& charInst : chars.m_charData)
         {
             ret.first.x = std::min(ret.first.x, int(charInst.m_pos[0].x));
             ret.first.y = std::min(ret.first.y, int(charInst.m_pos[0].z));

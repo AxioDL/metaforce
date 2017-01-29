@@ -152,6 +152,8 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CSpaceWarpFilter::Shutdown() {}
+
 URDE_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 }

@@ -238,7 +238,7 @@ void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
                 tex->GetHeight() * x4_image.x14_pointsPerTexel.y * 2 / 3);
                 buf->AddImage(coords, x4_image);
             }
-            state.xd4_curX += tex->GetWidth() * x4_image.x14_pointsPerTexel.x;
+            state.xd4_curX = state.xd4_curX + tex->GetWidth() * x4_image.x14_pointsPerTexel.x;
         }
     }
 }

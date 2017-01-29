@@ -7,6 +7,7 @@
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
+#include "Graphics/Shaders/CTextSupportShader.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -23,6 +24,7 @@ URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTextSupportShader)
 
 namespace MP1
 {
@@ -46,8 +48,8 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
     CStreamAudioManager::Initialize();
     m->ResetGameState();
 
-    std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
-    x58_ioWinManager.AddIOWin(splash, 1000, 10000);
+    //std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
+    //x58_ioWinManager.AddIOWin(splash, 1000, 10000);
 
     std::shared_ptr<CIOWin> mf = std::make_shared<CMainFlow>();
     x58_ioWinManager.AddIOWin(mf, 0, 0);
@@ -201,6 +203,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
+    TMultiBlendShader<CTextSupportShader>::Initialize();
 }
 
 void CMain::RegisterResourceTweaks()
@@ -303,6 +306,7 @@ void CMain::Shutdown()
     TMultiBlendShader<CColoredQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();
+    TMultiBlendShader<CTextSupportShader>::Shutdown();
 }
 
 #if MP1_USE_BOO

@@ -11,9 +11,9 @@
 namespace urde
 {
 
-CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer() const
+CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const
 {
-    CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);
+    CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally, df);
 
     {
         CFontRenderState rendState;
@@ -34,9 +34,10 @@ CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer() const
 
 CTextRenderBuffer CTextExecuteBuffer::BuildRenderBufferPage(InstList::const_iterator start,
                                                             InstList::const_iterator pgStart,
-                                                            InstList::const_iterator pgEnd) const
+                                                            InstList::const_iterator pgEnd,
+                                                            CGuiWidget::EGuiModelDrawFlags df) const
 {
-    CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);
+    CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally, df);
 
     {
         CFontRenderState rendState;
@@ -71,14 +72,15 @@ CTextRenderBuffer CTextExecuteBuffer::BuildRenderBufferPage(InstList::const_iter
     return ret;
 }
 
-std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const zeus::CVector2i& extent) const
+std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const zeus::CVector2i& extent,
+                                                                        CGuiWidget::EGuiModelDrawFlags df) const
 {
     std::list<CTextRenderBuffer> ret;
 
     for (auto it = x0_instList.begin() ; it != x0_instList.end() ;)
     {
         const std::shared_ptr<CInstruction>& inst = *it;
-        CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally);
+        CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally, df);
 
         {
             CFontRenderState rstate;
@@ -111,7 +113,7 @@ std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const ze
             }
         }
 
-        ret.push_back(BuildRenderBufferPage(x0_instList.cbegin(), it, pageEnd));
+        ret.push_back(BuildRenderBufferPage(x0_instList.cbegin(), it, pageEnd, df));
         it = pageEnd;
     }
 

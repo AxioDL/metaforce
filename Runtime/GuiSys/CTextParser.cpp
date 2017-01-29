@@ -240,7 +240,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
-            return CFontImageDef(std::move(texs), interval, zeus::CVector2f(1.f, 1.f));
+            return CFontImageDef(texs, interval, zeus::CVector2f(1.f, 1.f));
         }
         else if (BeginsWith(str, len, u"SA"))
         {
@@ -267,7 +267,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
-            return CFontImageDef(std::move(texs), interval, zeus::CVector2f(scaleX, scaleY));
+            return CFontImageDef(texs, interval, zeus::CVector2f(scaleX, scaleY));
         }
         else if (BeginsWith(str, len, u"SI"))
         {
@@ -285,12 +285,12 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
                 GetAssetIdFromString(&iterable[tokenPos])});
             AdvanceTokenPos();
 
-            return CFontImageDef(std::move(tex), zeus::CVector2f(scaleX, scaleY));
+            return CFontImageDef(tex, zeus::CVector2f(scaleX, scaleY));
         }
     }
 
     TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(str)});
-    return CFontImageDef(std::move(tex), zeus::CVector2f(1.f, 1.f));
+    return CFontImageDef(tex, zeus::CVector2f(1.f, 1.f));
 }
 
 ResId CTextParser::GetAssetIdFromString(const char16_t* str)
@@ -309,7 +309,8 @@ TToken<CRasterFont> CTextParser::GetFont(const char16_t* str, int len)
 
 void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int len)
 {
-    for (int b=0, e=0 ; str[e] && (len == -1 || e < len) ;)
+    int b=0, e=0;
+    for (b=0, e=0 ; str[e] && (len == -1 || e < len) ;)
     {
         if (str[e] != u'&')
         {
@@ -335,6 +336,9 @@ void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int le
             b = e;
         }
     }
+
+    if (e > b)
+        out.AddString(str + b, e - b);
 }
 
 }

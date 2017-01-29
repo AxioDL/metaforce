@@ -8,7 +8,8 @@ if(WIN32)
       Shaders/CThermalHotFilterHLSL.cpp
       Shaders/CSpaceWarpFilterHLSL.cpp
       Shaders/CCameraBlurFilterHLSL.cpp
-      Shaders/CXRayBlurFilterHLSL.cpp)
+      Shaders/CXRayBlurFilterHLSL.cpp
+      Shaders/CTextSupportShaderHLSL.cpp)
 elseif(BOO_HAS_METAL)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
@@ -19,7 +20,8 @@ elseif(BOO_HAS_METAL)
       Shaders/CThermalHotFilterMetal.cpp
       Shaders/CSpaceWarpFilterMetal.cpp
       Shaders/CCameraBlurFilterMetal.cpp
-      Shaders/CXRayBlurFilterMetal.cpp)
+      Shaders/CXRayBlurFilterMetal.cpp
+      Shaders/CTextSupportShaderMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -48,12 +50,12 @@ set(GRAPHICS_SOURCES
     Shaders/CTexturedQuadFilter.hpp Shaders/CTexturedQuadFilter.cpp Shaders/CTexturedQuadFilterGLSL.cpp
     Shaders/CColoredQuadFilter.hpp Shaders/CColoredQuadFilter.cpp Shaders/CColoredQuadFilterGLSL.cpp
     Shaders/CModelShaders.hpp Shaders/CModelShaders.cpp Shaders/CModelShadersGLSL.cpp
-    Shaders/CXrayOutlineFilter.hpp Shaders/CXrayOutlineFilter.cpp Shaders/CXrayOutlineFilterGLSL.cpp
     Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp Shaders/CThermalColdFilterGLSL.cpp
     Shaders/CThermalHotFilter.hpp Shaders/CThermalHotFilter.cpp Shaders/CThermalHotFilterGLSL.cpp
     Shaders/CSpaceWarpFilter.hpp Shaders/CSpaceWarpFilter.cpp Shaders/CSpaceWarpFilterGLSL.cpp
     Shaders/CCameraBlurFilter.hpp Shaders/CCameraBlurFilter.cpp Shaders/CCameraBlurFilterGLSL.cpp
     Shaders/CXRayBlurFilter.hpp Shaders/CXRayBlurFilter.cpp Shaders/CXRayBlurFilterGLSL.cpp
+    Shaders/CTextSupportShader.hpp Shaders/CTextSupportShader.cpp Shaders/CTextSupportShaderGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

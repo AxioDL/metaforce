@@ -13,7 +13,7 @@ void CGuiCompoundWidget::OnVisibleChange()
     CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
     while (child)
     {
-        child->SetIsVisible(true);
+        child->SetIsVisible(GetIsVisible());
         child = static_cast<CGuiWidget*>(child->GetNextSibling());
     }
     CGuiWidget::OnVisibleChange();
@@ -24,7 +24,7 @@ void CGuiCompoundWidget::OnActiveChange()
     CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
     while (child)
     {
-        child->SetIsActive(true);
+        child->SetIsActive(GetIsActive());
         child = static_cast<CGuiWidget*>(child->GetNextSibling());
     }
     CGuiWidget::OnActiveChange();

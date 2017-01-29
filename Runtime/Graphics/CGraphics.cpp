@@ -2,6 +2,7 @@
 #include "Graphics/CLight.hpp"
 #include "zeus/Math.hpp"
 #include "CTimeProvider.hpp"
+#include "Shaders/CTextSupportShader.hpp"
 
 namespace urde
 {
@@ -114,6 +115,9 @@ void CGraphics::EndScene()
      * so simulate field-flipping with XOR instead */
     g_InterruptLastFrameUsedAbove ^= 1;
     g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove;
+
+    /* Flush text instance buffers just before GPU command list submission */
+    CTextSupportShader::UpdateBuffers();
 }
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1)
@@ -222,49 +226,99 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
 
 zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
 {
-    float rml = g_Proj.x8_right - g_Proj.x4_left;
-    float rpl = g_Proj.x8_right + g_Proj.x4_left;
-    float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
-    float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
-    float fpn = g_Proj.x18_far + g_Proj.x14_near;
-    float fmn = g_Proj.x18_far - g_Proj.x14_near;
+    if (g_Proj.x0_persp)
+    {
+        float rml = g_Proj.x8_right - g_Proj.x4_left;
+        float rpl = g_Proj.x8_right + g_Proj.x4_left;
+        float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
+        float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
+        float fpn = g_Proj.x18_far + g_Proj.x14_near;
+        float fmn = g_Proj.x18_far - g_Proj.x14_near;
 
-    if (!forRenderer)
-    {
-        return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
-                               0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                               0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
-                               0.f, 0.f, -1.f, 0.f);
-    }
+        if (!forRenderer)
+        {
+            return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                                   0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                                   0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+                                   0.f, 0.f, -1.f, 0.f);
+        }
 
-    switch (g_BooPlatform)
-    {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-    default:
-    {
-        return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
-                               0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                               0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
-                               0.f, 0.f, -1.f, 0.f);
+        switch (g_BooPlatform)
+        {
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
+        default:
+        {
+            return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                                   0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                                   0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+                                   0.f, 0.f, -1.f, 0.f);
+        }
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+        case boo::IGraphicsDataFactory::Platform::Metal:
+        {
+            zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                                 0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                                 0.f, 0.f, g_Proj.x18_far / fmn, g_Proj.x14_near * g_Proj.x18_far / fmn,
+                                 0.f, 0.f, -1.f, 0.f);
+            return PlusOneZ * mat2;
+        }
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+        {
+            zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
+                                 0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+                                 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+                                 0.f, 0.f, -1.f, 0.f);
+            return PlusOneZFlip * mat2;
+        }
+        }
     }
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-    case boo::IGraphicsDataFactory::Platform::Metal:
+    else
     {
-        zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
-                             0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                             0.f, 0.f, g_Proj.x18_far / fmn, g_Proj.x14_near * g_Proj.x18_far / fmn,
-                             0.f, 0.f, -1.f, 0.f);
-        return PlusOneZ * mat2;
-    }
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-    {
-        zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
-                             0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-                             0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
-                             0.f, 0.f, -1.f, 0.f);
-        return PlusOneZFlip * mat2;
-    }
+        float rml = g_Proj.x8_right - g_Proj.x4_left;
+        float rpl = g_Proj.x8_right + g_Proj.x4_left;
+        float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
+        float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
+        float fpn = g_Proj.x18_far + g_Proj.x14_near;
+        float fmn = g_Proj.x18_far - g_Proj.x14_near;
+
+        if (!forRenderer)
+        {
+            return zeus::CMatrix4f(2.f / rml, 0.f, 0.f, -rpl / rml,
+                                   0.f, 2.f / tmb, 0.f, -tpb / tmb,
+                                   0.f, 0.f, -2.f / fmn, -fpn / fmn,
+                                   0.f, 0.f, 0.f, 1.f);
+        }
+
+        switch (g_BooPlatform)
+        {
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
+        default:
+        {
+            return zeus::CMatrix4f(2.f / rml, 0.f, 0.f, -rpl / rml,
+                                   0.f, 2.f / tmb, 0.f, -tpb / tmb,
+                                   0.f, 0.f, -2.f / fmn, -fpn / fmn,
+                                   0.f, 0.f, 0.f, 1.f);
+        }
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+        case boo::IGraphicsDataFactory::Platform::Metal:
+        {
+            zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml,
+                                 0.f, 2.f / tmb, 0.f, -tpb / tmb,
+                                 0.f, 0.f, 1.f / fmn, -g_Proj.x14_near / fmn,
+                                 0.f, 0.f, 0.f, 1.f);
+            return PlusOneZ * mat2;
+        }
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+        {
+            zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml,
+                                 0.f, 2.f / tmb, 0.f, -tpb / tmb,
+                                 0.f, 0.f, 1.f / fmn, -g_Proj.x14_near / fmn,
+                                 0.f, 0.f, 0.f, 1.f);
+            return PlusOneZFlip * mat2;
+        }
+        }
     }
 }
 

@@ -20,13 +20,15 @@ CSlideShow::CSlideShow()
         xc4_textA = std::make_unique<CGuiTextSupport>(font->id, propsA,
                                                       g_tweakSlideShow->GetFontColor(),
                                                       g_tweakSlideShow->GetOutlineColor(),
-                                                      zeus::CColor::skWhite, 640, 480, g_SimplePool);
+                                                      zeus::CColor::skWhite, 640, 480, g_SimplePool,
+                                                      CGuiWidget::EGuiModelDrawFlags::Alpha);
 
         CGuiTextProperties propsB(false, true, EJustification::Right, EVerticalJustification::Bottom);
         xc8_textB = std::make_unique<CGuiTextSupport>(font->id, propsB,
                                                       g_tweakSlideShow->GetFontColor(),
                                                       g_tweakSlideShow->GetOutlineColor(),
-                                                      zeus::CColor::skWhite, 640, 480, g_SimplePool);
+                                                      zeus::CColor::skWhite, 640, 480, g_SimplePool,
+                                                      CGuiWidget::EGuiModelDrawFlags::Alpha);
     }
 
     xf8_stickTextures.reserve(18);

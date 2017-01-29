@@ -55,7 +55,7 @@ private:
 
 public:
     CGuiTableGroup(const CGuiWidgetParms& parms, int, int, bool);
-    FourCC GetWidgetTypeID() const {return FOURCC('TBGP');}
+    FourCC GetWidgetTypeID() const { return FOURCC('TBGP'); }
 
     void SetMenuAdvanceCallback(std::function<void(CGuiTableGroup*)>&& cb)
     {

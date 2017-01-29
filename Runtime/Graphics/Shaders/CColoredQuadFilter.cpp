@@ -83,6 +83,8 @@ void CWideScreenFilter::SetViewportToFull()
     CGraphics::g_BooMainCommandQueue->setViewport(rect);
 }
 
+void CColoredQuadFilter::Shutdown() {}
+
 const zeus::CRectangle CColoredQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
 
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)

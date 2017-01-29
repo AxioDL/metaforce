@@ -40,7 +40,7 @@ private:
 
 public:
     CGuiSliderGroup(const CGuiWidgetParms& parms, float a, float b, float c, float d);
-    FourCC GetWidgetTypeID() const {return FOURCC('SLGP');}
+    FourCC GetWidgetTypeID() const { return FOURCC('SLGP'); }
 
     EState GetState() const { return xf0_state; }
     void SetSelectionChangedCallback(std::function<void(CGuiSliderGroup*, float)>&& func);

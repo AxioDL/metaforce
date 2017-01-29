@@ -41,6 +41,8 @@ public:
                                              float top, float bottom,
                                              float znear, float zfar);
     CGuiCamera(const CGuiWidgetParms& parms, float fov, float aspect, float znear, float zfar);
+    FourCC GetWidgetTypeID() const { return FOURCC('CAMR'); }
+
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& vec) const;

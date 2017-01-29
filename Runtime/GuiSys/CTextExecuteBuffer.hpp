@@ -24,7 +24,7 @@ class CTextExecuteBuffer
     CSaveableState x18_textState;
     CBlockInstruction* xa0_curBlock = nullptr;
     CLineInstruction* xa4_curLine = nullptr;
-    std::list<std::shared_ptr<CInstruction>>::iterator xa8_curWordIt;
+    InstList::iterator xa8_curWordIt;
     s32 xac_curY;
     s32 xb0_curX;
     s32 xb4_curWordX = 0;
@@ -40,11 +40,13 @@ public:
         xa8_curWordIt = x0_instList.begin();
     }
 
-    CTextRenderBuffer BuildRenderBuffer() const;
+    CTextRenderBuffer BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const;
     CTextRenderBuffer BuildRenderBufferPage(InstList::const_iterator start,
                                             InstList::const_iterator pgStart,
-                                            InstList::const_iterator pgEnd) const;
-    std::list<CTextRenderBuffer> BuildRenderBufferPages(const zeus::CVector2i& extent) const;
+                                            InstList::const_iterator pgEnd,
+                                            CGuiWidget::EGuiModelDrawFlags df) const;
+    std::list<CTextRenderBuffer> BuildRenderBufferPages(const zeus::CVector2i& extent,
+                                                        CGuiWidget::EGuiModelDrawFlags df) const;
     std::vector<CToken> GetAssets() const;
     void AddString(const char16_t* str, int len);
     void AddStringFragment(const char16_t* str, int len);

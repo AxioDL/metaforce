@@ -368,7 +368,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
     for (const FRME::Widget& w : frme.widgets)
     {
         os << "binding = None\n"
-              "angle = Quaternion((0.0, 0.0, 0.0), 0)\n";
+              "angle = Quaternion((1.0, 0.0, 0.0), 0)\n";
         if (w.type == SBIG('CAMR'))
         {
             using CAMRInfo = Widget::CAMRInfo;

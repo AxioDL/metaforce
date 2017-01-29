@@ -93,15 +93,11 @@ static std::u16string::const_iterator CookTextureList(std::u16string& ret,
 {
     while (true)
     {
-        auto end = str.find(u',', it - str.begin());
+        auto end = str.find_first_of(u",;", it - str.begin());
         if (end == std::u16string::npos)
-        {
-            end = str.find(u';', it - str.begin());
-            if (end == std::u16string::npos)
-                Log.report(logvisor::Fatal,
-                           "Missing comma/semicolon token while pasing font tag");
-        }
-        auto endIt = str.begin() + end + 1;
+            Log.report(logvisor::Fatal,
+                       "Missing comma/semicolon token while pasing font tag");
+        auto endIt = str.begin() + end;
         hecl::ProjectPath path =
             UniqueIDBridge::MakePathFromString<UniqueID32>(
                 hecl::Char16ToUTF8(std::u16string(it, endIt)));

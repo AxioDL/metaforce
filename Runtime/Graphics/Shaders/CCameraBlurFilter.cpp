@@ -62,6 +62,8 @@ void CCameraBlurFilter::draw(float amount)
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CCameraBlurFilter::Shutdown() {}
+
 URDE_SPECIALIZE_SHADER(CCameraBlurFilter)
 
 }
