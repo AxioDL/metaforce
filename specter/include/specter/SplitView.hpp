@@ -43,7 +43,7 @@ private:
 
     ViewChild<View*> m_views[2];
     ViewBlock m_splitBlock;
-    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_splitBlockBuf;
+    hecl::UniformBufferPool<ViewBlock>::Token m_splitBlockBuf;
     TexShaderVert m_splitVerts[4];
 
     int m_clearanceA, m_clearanceB;
@@ -104,7 +104,7 @@ public:
     {
         View::setMultiplyColor(color);
         m_splitBlock.m_color = color;
-        m_splitBlockBuf->access() = m_splitBlock;
+        m_splitBlockBuf.access() = m_splitBlock;
 
         if (m_views[0].m_view)
             m_views[0].m_view->setMultiplyColor(color);

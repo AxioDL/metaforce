@@ -18,8 +18,8 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_ttBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
-        m_vertsBinding.init(ctx, res, 16, *m_ttBlockBuf);
+        m_ttBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
+        m_vertsBinding.init(ctx, res, 16, m_ttBlockBuf);
         return true;
     });
 
@@ -84,7 +84,7 @@ void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     float pf = rootView().viewRes().pixelFactor();
     setVerts(m_nomWidth, m_nomHeight, pf);
     m_ttBlock.setViewRect(root, sub);
-    m_ttBlockBuf->access() = m_ttBlock;
+    m_ttBlockBuf.access() = m_ttBlock;
 
     std::pair<int,int> margin = m_cornersFilled[0]->queryGlyphDimensions(0);
 

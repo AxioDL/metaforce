@@ -27,8 +27,8 @@ RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFacto
   m_splitActionNode(*this), m_joinActionNode(*this)
 {
     ViewResources& res = *rv.m_viewRes;
-    m_viewVertBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
-    m_vertsBinding.init(ctx, res, 32, *m_viewVertBlockBuf);
+    m_viewVertBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
+    m_vertsBinding.init(ctx, res, 32, m_viewVertBlockBuf);
 
     zeus::CColor col = {0.0,0.0,0.0,0.5};
     for (int i=0 ; i<32 ; ++i)
@@ -106,7 +106,7 @@ void RootView::SplitMenuSystem::setArrowVerts(const boo::SWindowRect& rect, Spli
         m_viewBlock.m_mv[3][1] = 2.0f * (rect.location[1] + (dir == SplitView::ArrowDir::Down ? rect.size[1] : 0)) /
                                  float(root.size[1]) - 1.0f;
     }
-    m_viewVertBlockBuf->access() = m_viewBlock;
+    m_viewVertBlockBuf.access() = m_viewBlock;
 }
 
 void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float split, SplitView::Axis axis)
@@ -130,7 +130,7 @@ void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float
         m_viewBlock.m_mv[3][0] = (rect.location[0] + split * rect.size[0]) * m_viewBlock.m_mv[0][0] - 1.0f;
         m_viewBlock.m_mv[3][1] = 2.0f * (rect.location[1] + rect.size[1] / 2.0f) / float(root.size[1]) - 1.0f;
     }
-    m_viewVertBlockBuf->access() = m_viewBlock;
+    m_viewVertBlockBuf.access() = m_viewBlock;
 }
 
 void RootView::destroyed()

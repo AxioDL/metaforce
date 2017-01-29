@@ -306,7 +306,7 @@ void TextView::_commitResources(size_t capacity)
 
         if (capacity)
         {
-            m_glyphBuf.emplace(res.m_textRes.m_glyphPool.allocateBlock(res.m_factory, capacity));
+            m_glyphBuf = res.m_textRes.m_glyphPool.allocateBlock(res.m_factory, capacity);
 
             boo::IShaderPipeline* shader;
             if (m_fontAtlas.subpixel())
@@ -314,8 +314,8 @@ void TextView::_commitResources(size_t capacity)
             else
                 shader = res.m_textRes.m_regular;
 
-            auto vBufInfo = m_glyphBuf->getBufferInfo();
-            auto uBufInfo = m_viewVertBlockBuf->getBufferInfo();
+            auto vBufInfo = m_glyphBuf.getBufferInfo();
+            auto uBufInfo = m_viewVertBlockBuf.getBufferInfo();
             boo::IGraphicsBuffer* uBufs[] = {uBufInfo.first};
             size_t uBufOffs[] = {size_t(uBufInfo.second)};
             size_t uBufSizes[] = {sizeof(ViewBlock)};
@@ -550,7 +550,7 @@ void TextView::invalidateGlyphs()
 {
     if (m_glyphBuf)
     {
-        RenderGlyph* out = m_glyphBuf->access();
+        RenderGlyph* out = m_glyphBuf.access();
         size_t i = 0;
         for (RenderGlyph& glyph : m_glyphs)
             out[i++] = glyph;

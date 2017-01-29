@@ -36,7 +36,7 @@ private:
     zeus::CColor m_line2Clear;
 
     ViewBlock m_viewBlock;
-    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_viewBlockBuf;
+    hecl::UniformBufferPool<ViewBlock>::Token m_viewBlockBuf;
     union
     {
         struct

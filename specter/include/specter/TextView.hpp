@@ -44,7 +44,7 @@ public:
 
 private:
     size_t m_capacity;
-    std::experimental::optional<hecl::VertexBufferPool<RenderGlyph>::Token> m_glyphBuf;
+    hecl::VertexBufferPool<RenderGlyph>::Token m_glyphBuf;
     boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
     boo::IShaderDataBinding* m_shaderBinding;
     const FontAtlas& m_fontAtlas;

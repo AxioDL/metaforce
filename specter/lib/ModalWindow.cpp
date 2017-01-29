@@ -295,8 +295,8 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView,
     m_windowGfxData = res.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_viewBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
-        m_vertsBinding.init(ctx, res, 38, *m_viewBlockBuf);
+        m_viewBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
+        m_vertsBinding.init(ctx, res, 38, m_viewBlockBuf);
         return true;
     });
 
@@ -453,7 +453,7 @@ void ModalWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
     centerRect.location[1] = root.size[1] / 2 - m_height / 2.0;
     View::resized(root, centerRect);
     m_viewBlock.setViewRect(root, centerRect);
-    m_viewBlockBuf->access() = m_viewBlock;
+    m_viewBlockBuf.access() = m_viewBlock;
 
     setLineVerts(m_width, m_height, pf, m_lineTime);
     setFillVerts(m_width, m_height, pf);

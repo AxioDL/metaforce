@@ -13,7 +13,7 @@ ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, 4, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 4, m_viewVertBlockBuf);
         return true;
     });
 

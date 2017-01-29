@@ -14,7 +14,7 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, 8, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 8, m_viewVertBlockBuf);
         return true;
     });
     m_headText.reset(new TextView(res, *this, res.m_mainFont));
@@ -75,7 +75,7 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode, IMenuNode*
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, 8, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 8, m_viewVertBlockBuf);
         return true;
     });
     m_headText.reset(new TextView(res, *this, res.m_mainFont));
@@ -90,7 +90,7 @@ Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_hlVertsBinding.init(ctx, res, 4, *m_viewVertBlockBuf);
+        m_hlVertsBinding.init(ctx, res, 4, m_viewVertBlockBuf);
         return true;
     });
 

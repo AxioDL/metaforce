@@ -394,7 +394,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
-            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
                                       boo::TextureFormat::RGBA8, texmap.get(), bufSz);
             return true;
         });
@@ -479,7 +479,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
-            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
                                       boo::TextureFormat::I8, texmap.get(), bufSz);
             return true;
         });
@@ -603,7 +603,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
-            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
                                       boo::TextureFormat::RGBA8, texmap.get(), bufSz);
             return false;
         });
@@ -688,7 +688,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
-            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1,
+            ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
                                       boo::TextureFormat::I8, texmap.get(), bufSz);
             return true;
         });

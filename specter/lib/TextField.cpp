@@ -11,7 +11,7 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, 41, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 41, m_viewVertBlockBuf);
         return true;
     });
 

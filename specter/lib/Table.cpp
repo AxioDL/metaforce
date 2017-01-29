@@ -22,7 +22,7 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data,
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, maxColumns * 6, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, maxColumns * 6, m_viewVertBlockBuf);
         return true;
     });
     m_scroll.m_view->setContentView(&m_rowsView);
@@ -36,7 +36,7 @@ Table::RowsView::RowsView(Table& t, ViewResources& res)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, m_viewVertBlockBuf);
         return true;
     });
 }

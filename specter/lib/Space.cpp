@@ -40,7 +40,7 @@ Space::CornerView::CornerView(ViewResources& res, Space& space, const zeus::CCol
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertexBinding.init(ctx, res, 34, *m_viewVertBlockBuf);
+        m_vertexBinding.init(ctx, res, 34, m_viewVertBlockBuf);
         return true;
     });
     float pf = res.pixelFactor();

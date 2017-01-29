@@ -110,7 +110,7 @@ public:
     template <typename VertStruct>
     struct VertexBufferBinding
     {
-        std::experimental::optional<typename hecl::VertexBufferPool<VertStruct>::Token> m_vertsBuf;
+        typename hecl::VertexBufferPool<VertStruct>::Token m_vertsBuf;
         boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
         boo::IShaderDataBinding* m_shaderBinding = nullptr;
 
@@ -118,7 +118,7 @@ public:
         {
             if (m_vertsBuf)
             {
-                VertStruct* out = m_vertsBuf->access();
+                VertStruct* out = m_vertsBuf.access();
                 for (size_t i=0; i<count; ++i)
                     out[i] = data[i];
             }
@@ -131,7 +131,7 @@ public:
             if (m_vertsBuf)
             {
                 constexpr size_t count = sizeof(VertArray) / sizeof(VertStruct);
-                VertStruct* out = m_vertsBuf->access();
+                VertStruct* out = m_vertsBuf.access();
                 for (size_t i=0; i<count; ++i)
                     out[i] = data[i];
             }
@@ -184,7 +184,7 @@ protected:
     "    float4x4 mv;\n"\
     "    float4 mulColor;\n"\
     "};\n"
-    std::experimental::optional<hecl::UniformBufferPool<ViewBlock>::Token> m_viewVertBlockBuf;
+    hecl::UniformBufferPool<ViewBlock>::Token m_viewVertBlockBuf;
 
 public:
     struct Resources
@@ -249,7 +249,7 @@ public:
     {
         m_viewVertBlock.m_color = color;
         if (m_viewVertBlockBuf)
-            m_viewVertBlockBuf->access() = m_viewVertBlock;
+            m_viewVertBlockBuf.access() = m_viewVertBlock;
     }
 
     virtual int nominalWidth() const {return 0;}

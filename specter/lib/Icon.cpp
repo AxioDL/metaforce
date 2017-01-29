@@ -10,7 +10,7 @@ IconView::IconView(ViewResources& res, View& parentView, Icon& icon)
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertexBinding.init(ctx, res, 4, *m_viewVertBlockBuf, icon.m_tex);
+        m_vertexBinding.init(ctx, res, 4, m_viewVertBlockBuf, icon.m_tex);
         return true;
     });
     TexShaderVert verts[] =

@@ -322,8 +322,8 @@ void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeDat
 
 void View::buildResources(boo::IGraphicsDataFactory::Context& ctx, ViewResources& res)
 {
-    m_viewVertBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
-    m_bgVertsBinding.init(ctx, res, 4, *m_viewVertBlockBuf);
+    m_viewVertBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
+    m_bgVertsBinding.init(ctx, res, 4, m_viewVertBlockBuf);
 }
 
 View::View(ViewResources& res)
@@ -348,7 +348,7 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     if (m_viewVertBlockBuf)
-        m_viewVertBlockBuf->access() = m_viewVertBlock;
+        m_viewVertBlockBuf.access() = m_viewVertBlock;
     m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
 }
 
@@ -360,7 +360,7 @@ void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     if (m_viewVertBlockBuf)
-        m_viewVertBlockBuf->access() = vb;
+        m_viewVertBlockBuf.access() = vb;
     m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
 }
 
@@ -389,8 +389,8 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
                                           ViewResources& res, size_t count,
                                           const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf)
 {
-    m_vertsBuf.emplace(res.m_viewRes.m_solidPool.allocateBlock(res.m_factory, count));
-    auto vBufInfo = m_vertsBuf->getBufferInfo();
+    m_vertsBuf = res.m_viewRes.m_solidPool.allocateBlock(res.m_factory, count);
+    auto vBufInfo = m_vertsBuf.getBufferInfo();
     auto uBufInfo = viewBlockBuf.getBufferInfo();
 
     boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
@@ -425,8 +425,8 @@ void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
                                         const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
                                         boo::ITexture* texture)
 {
-    m_vertsBuf.emplace(res.m_viewRes.m_texPool.allocateBlock(res.m_factory, count));
-    auto vBufInfo = m_vertsBuf->getBufferInfo();
+    m_vertsBuf = res.m_viewRes.m_texPool.allocateBlock(res.m_factory, count);
+    auto vBufInfo = m_vertsBuf.getBufferInfo();
     auto uBufInfo = viewBlockBuf.getBufferInfo();
 
     boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};

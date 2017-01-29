@@ -33,8 +33,8 @@ Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned 
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_tbBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
-        m_vertsBinding.init(ctx, res, 10, *m_tbBlockBuf, res.m_toolbarRes.m_shadingTex);
+        m_tbBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
+        m_vertsBinding.init(ctx, res, 10, m_tbBlockBuf, res.m_toolbarRes.m_shadingTex);
         return true;
     });
     setBackground(res.themeData().toolbarBackground());
@@ -140,7 +140,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     setHorizontalVerts(sub.size[0]);
     m_vertsBinding.load<decltype(m_tbVerts)>(m_tbVerts);
     m_tbBlock.setViewRect(root, sub);
-    m_tbBlockBuf->access() = m_tbBlock;
+    m_tbBlockBuf.access() = m_tbBlock;
 
     float gaugeUnit = rootView().viewRes().pixelFactor() * SPECTER_TOOLBAR_GAUGE;
     float yOff = 0.0;

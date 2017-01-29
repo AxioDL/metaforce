@@ -28,8 +28,8 @@ SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_splitBlockBuf.emplace(res.m_viewRes.m_bufPool.allocateBlock(res.m_factory));
-        m_splitVertsBinding.init(ctx, res, 4, *m_splitBlockBuf, res.m_splitRes.m_shadingTex);
+        m_splitBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
+        m_splitVertsBinding.init(ctx, res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex);
         return true;
     });
 }
@@ -476,7 +476,7 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         m_splitBlock.setViewRect(root, ssub);
         setVerticalVerts(ssub.size[1]);
     }
-    m_splitBlockBuf->access() = m_splitBlock;
+    m_splitBlockBuf.access() = m_splitBlock;
     m_splitVertsBinding.load<decltype(m_splitVerts)>(m_splitVerts);
 }
 

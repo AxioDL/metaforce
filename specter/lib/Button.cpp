@@ -25,7 +25,7 @@ Button::Button(ViewResources& res, View& parentView,
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
-        m_vertsBinding.init(ctx, res, 40, *m_viewVertBlockBuf);
+        m_vertsBinding.init(ctx, res, 40, m_viewVertBlockBuf);
         return true;
     });
 
