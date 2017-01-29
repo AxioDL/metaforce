@@ -1,4 +1,5 @@
 import bpy, struct, math
+from mathutils import Quaternion
 
 def draw(layout, context):
     if bpy.context.active_object:
@@ -82,7 +83,10 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
         obj.retro_widget_color[3],
         model_draw_flags_e[obj.retro_widget_model_draw_flags])
 
+    angle = Quaternion((1.0, 0.0, 0.0), 0)
+
     if obj.retro_widget_type == 'RETRO_CAMR':
+        angle = Quaternion((1.0, 0.0, 0.0), math.radians(-90.0))
         aspect = bpy.context.scene.render.resolution_x / bpy.context.scene.render.resolution_y
 
         if obj.data.type == 'PERSP':
@@ -94,8 +98,8 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
 
         elif obj.data.type == 'ORTHO':
             ortho_half = obj.data.ortho_scale / 2.0
-            buffer += struct.pack('>Iffffff', 1, -ortho_half, ortho_half, -ortho_half / aspect,
-                                  ortho_half / aspect, obj.data.clip_start, obj.data.clip_end)
+            buffer += struct.pack('>Iffffff', 1, -ortho_half, ortho_half, ortho_half / aspect,
+                                  -ortho_half / aspect, obj.data.clip_start, obj.data.clip_end)
 
     elif obj.retro_widget_type == 'RETRO_MODL':
         if len(obj.children) == 0:
@@ -189,6 +193,7 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
                               obj.retro_meter_worker_count)
 
     elif obj.retro_widget_type == 'RETRO_LITE':
+        angle = Quaternion((1.0, 0.0, 0.0), math.radians(-90.0))
         type_enum = 0
         constant = 1.0
         linear = 0.0
@@ -249,13 +254,14 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
     else:
         buffer += struct.pack('>b', False)
 
+    angMtx = angle.to_matrix() * obj.matrix_local.to_3x3()
     buffer += struct.pack('>fffffffffffffffIH',
         obj.matrix_local[0][3],
         obj.matrix_local[1][3],
         obj.matrix_local[2][3],
-        obj.matrix_local[0][0], obj.matrix_local[0][1], obj.matrix_local[0][2],
-        obj.matrix_local[1][0], obj.matrix_local[1][1], obj.matrix_local[1][2],
-        obj.matrix_local[2][0], obj.matrix_local[2][1], obj.matrix_local[2][2],
+        angMtx[0][0], angMtx[0][1], angMtx[0][2],
+        angMtx[1][0], angMtx[1][1], angMtx[1][2],
+        angMtx[2][0], angMtx[2][1], angMtx[2][2],
         0.0, 0.0, 0.0, 0, 0)
 
     for ch in obj.children:

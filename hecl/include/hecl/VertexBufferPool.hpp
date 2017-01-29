@@ -96,36 +96,45 @@ public:
     class Token
     {
         friend class VertexBufferPool;
-        VertexBufferPool& m_pool;
-        IndexTp m_index;
-        IndexTp m_count;
+        VertexBufferPool* m_pool = nullptr;
+        IndexTp m_index = -1;
+        IndexTp m_count = 0;
         DivTp m_div;
-        Token(VertexBufferPool& pool, IndexTp count)
+        Token(VertexBufferPool* pool, IndexTp count)
         : m_pool(pool), m_count(count)
         {
-            assert(count <= pool.m_countPerBucket && "unable to fit in bucket");
-            auto& freeSpaces = pool.m_freeElements;
-            int idx = freeSpaces.find_first_contiguous(count, pool.m_countPerBucket);
+            assert(count <= pool->m_countPerBucket && "unable to fit in bucket");
+            auto& freeSpaces = pool->m_freeElements;
+            int idx = freeSpaces.find_first_contiguous(count, pool->m_countPerBucket);
             if (idx == -1)
             {
-                pool.m_buckets.push_back(std::make_unique<Bucket>());
+                pool->m_buckets.push_back(std::make_unique<Bucket>());
                 m_index = freeSpaces.size();
-                freeSpaces.resize(freeSpaces.size() + pool.m_countPerBucket, true);
+                freeSpaces.resize(freeSpaces.size() + pool->m_countPerBucket, true);
             }
             else
             {
                 m_index = idx;
             }
             freeSpaces.reset(m_index, m_index + count);
-            m_div = pool.getBucketDiv(m_index);
+            m_div = pool->getBucketDiv(m_index);
 
-            Bucket& bucket = *m_pool.m_buckets[m_div.quot];
-            bucket.increment(pool);
+            Bucket& bucket = *m_pool->m_buckets[m_div.quot];
+            bucket.increment(*pool);
         }
     public:
+        Token() = default;
         Token(const Token& other) = delete;
         Token& operator=(const Token& other) = delete;
-        Token& operator=(Token&& other) = delete;
+        Token& operator=(Token&& other)
+        {
+            m_pool = other.m_pool;
+            m_index = other.m_index;
+            m_count = other.m_count;
+            m_div = other.m_div;
+            other.m_index = -1;
+            return *this;
+        }
         Token(Token&& other)
         : m_pool(other.m_pool), m_index(other.m_index),
           m_count(other.m_count), m_div(other.m_div)
@@ -137,26 +146,28 @@ public:
         {
             if (m_index != -1)
             {
-                m_pool.m_freeElements.set(m_index, m_index + m_count);
-                Bucket& bucket = *m_pool.m_buckets[m_div.quot];
-                bucket.decrement(m_pool);
+                m_pool->m_freeElements.set(m_index, m_index + m_count);
+                Bucket& bucket = *m_pool->m_buckets[m_div.quot];
+                bucket.decrement(*m_pool);
             }
         }
 
         VertStruct* access()
         {
-            Bucket& bucket = *m_pool.m_buckets[m_div.quot];
+            Bucket& bucket = *m_pool->m_buckets[m_div.quot];
             if (!bucket.cpuBuffer)
                 bucket.cpuBuffer = reinterpret_cast<uint8_t*>(bucket.buffer->map(m_sizePerBucket));
             bucket.dirty = true;
-            return reinterpret_cast<VertStruct*>(&bucket.cpuBuffer[m_div.rem * m_pool.m_stride]);
+            return reinterpret_cast<VertStruct*>(&bucket.cpuBuffer[m_div.rem * m_pool->m_stride]);
         }
 
         std::pair<boo::IGraphicsBufferD*, IndexTp> getBufferInfo() const
         {
-            Bucket& bucket = *m_pool.m_buckets[m_div.quot];
+            Bucket& bucket = *m_pool->m_buckets[m_div.quot];
             return {bucket.buffer, m_div.rem};
         }
+
+        operator bool() const { return m_pool != nullptr && m_index != -1; }
     };
 
     VertexBufferPool() = default;
@@ -176,8 +187,10 @@ public:
     {
         if (!m_token)
             m_token = factory->newBufferPool();
-        return Token(*this, count);
+        return Token(this, count);
     }
+
+    void doDestroy() { m_token.doDestroy(); }
 
     static constexpr IndexTp bucketCapacity() { return m_countPerBucket; }
 };
