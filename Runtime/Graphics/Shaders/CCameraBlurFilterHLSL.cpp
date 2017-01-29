@@ -88,36 +88,35 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
+static boo::IShaderPipeline* s_Pipeline = nullptr;
+
 struct CCameraBlurFilterD3DDataBindingFactory : TShader<CCameraBlurFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
                                                     CCameraBlurFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs);
     }
 };
 
-TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::ID3DDataFactory::Context& ctx,
-                                                                               boo::IShaderPipeline*& pipeOut,
-                                                                               boo::IVertexFormat*& vtxFmtOut)
+TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    pipeOut = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                    vtxFmtOut, boo::BlendFactor::SrcAlpha,
-                                    boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                       s_VtxFmt, boo::BlendFactor::SrcAlpha,
+                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
     return new CCameraBlurFilterD3DDataBindingFactory;
 }
 

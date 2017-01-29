@@ -92,8 +92,6 @@ struct CXRayBlurFilterGLDataBindingFactory : TShader<CXRayBlurFilter>::IDataBind
 struct CXRayBlurFilterVulkanDataBindingFactory : TShader<CXRayBlurFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
                                                     CXRayBlurFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);

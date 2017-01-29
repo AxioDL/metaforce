@@ -95,7 +95,7 @@ void CTextRenderBuffer::CommitResources()
 
             boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
             boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
-            size_t unioffs[] = {uBufInfo.second};
+            size_t unioffs[] = {size_t(uBufInfo.second)};
             size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
             boo::ITexture* texs[] = {chs.m_font->GetTexture()};
             chs.m_dataBinding = ctx.newShaderDataBinding(CTextSupportShader::SelectTextPipeline(m_drawFlags),
@@ -130,7 +130,7 @@ void CTextRenderBuffer::CommitResources()
 
             boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
             boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
-            size_t unioffs[] = {uBufInfo.second};
+            size_t unioffs[] = {size_t(uBufInfo.second)};
             size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
             img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
             for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)

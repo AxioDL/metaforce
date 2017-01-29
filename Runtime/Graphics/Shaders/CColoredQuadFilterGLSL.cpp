@@ -45,6 +45,7 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
 static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AddPipeline = nullptr;
 static boo::IShaderPipeline* s_MultPipeline = nullptr;
@@ -88,12 +89,13 @@ struct CColoredQuadFilterGLDataBindingFactory : TMultiBlendShader<CColoredQuadFi
 struct CColoredQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    CCameraFilterPass::EFilterType type,
                                                     CColoredQuadFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        return cctx.newShaderDataBinding(SelectPipeline(type), vtxFmt,
+        return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr);
     }
@@ -121,12 +123,12 @@ CColoredQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
-    vtxFmtOut = ctx.newVertexFormat(1, VtxVmt);
-    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+    s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
+    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    s_AddPipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcAlpha,
+    s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::SrcColor,
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CColoredQuadFilterVulkanDataBindingFactory;
 }

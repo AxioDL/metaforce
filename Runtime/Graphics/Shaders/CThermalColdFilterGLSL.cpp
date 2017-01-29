@@ -75,6 +75,7 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
 static boo::IShaderPipeline* s_Pipeline = nullptr;
 
 struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDataBindingFactory
@@ -108,7 +109,7 @@ struct CThermalColdFilterVulkanDataBindingFactory : TShader<CThermalColdFilter>:
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
-        return cctx.newShaderDataBinding(s_Pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs);
     }
@@ -132,8 +133,8 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, vtxFmtOut, boo::BlendFactor::One,
+    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
                                        boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CThermalColdFilterVulkanDataBindingFactory;
 }

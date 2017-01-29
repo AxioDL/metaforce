@@ -34,7 +34,7 @@ static uint32_t ParseTag(const char16_t* str)
     for (i=0 ; i<8 && str[i] ; ++i)
         parseStr[i] = str[i];
     parseStr[i] = '\0';
-    return strtol(parseStr, nullptr, 16);
+    return strtoul(parseStr, nullptr, 16);
 }
 
 static std::u16string::const_iterator SkipCommas(std::u16string& ret,
