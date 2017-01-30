@@ -155,6 +155,7 @@ public:
 
     bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
+    bool operator<(const UniqueID32& other) const {return m_id < other.m_id;}
     uint32_t toUint32() const {return m_id;}
     uint64_t toUint64() const {return m_id;}
     std::string toString() const;
@@ -219,6 +220,7 @@ public:
 
     bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
+    bool operator<(const UniqueID64& other) const {return m_id < other.m_id;}
     uint64_t toUint64() const {return m_id;}
     std::string toString() const;
     void clear() {m_id = 0xffffffffffffffff;}

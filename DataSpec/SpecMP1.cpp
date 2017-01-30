@@ -262,6 +262,31 @@ struct SpecMP1 : SpecBase
         outPath.makeDir();
         hecl::ProjectPath mp1OutPath(outPath, _S("MP1"));
         mp1OutPath.makeDir();
+
+        /* Generate original ID mapping for MLVL and SCAN entries */
+        {
+            std::vector<UniqueID32> originalIDs;
+            m_pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool
+            {
+                if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN'))
+                    originalIDs.push_back(ent->id);
+                return true;
+            });
+            std::sort(originalIDs.begin(), originalIDs.end());
+
+            athena::io::YAMLDocWriter yamlW("MP1OriginalIDs");
+            for (const UniqueID32& id : originalIDs)
+            {
+                hecl::ProjectPath path = m_pakRouter.getWorking(id);
+                yamlW.writeString(id.toString().c_str(), path.getRelativePathUTF8());
+            }
+            hecl::ProjectPath path(m_project.getProjectWorkingPath(), "MP1/original_ids.yaml");
+            path.makeDirChain(false);
+            athena::io::FileWriter fileW(path.getAbsolutePath());
+            yamlW.finish(&fileW);
+        }
+
+        /* Extract non-pak files */
         progress(_S("MP1 Root"), _S(""), 3, 0.0);
         int prog = 0;
         ctx.progressCB = [&](const std::string& name) {
@@ -275,6 +300,7 @@ struct SpecMP1 : SpecBase
         }
         progress(_S("MP1 Root"), _S(""), 3, 1.0);
 
+        /* Extract unique resources */
         std::mutex msgLock;
         hecl::ClientProcess process;
         int compIdx = 4;

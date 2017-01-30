@@ -230,6 +230,8 @@ public:
     hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx, bool& activeOut) const;
     hecl::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx) const;
     hecl::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx, bool& activeOut) const;
+
+    void enumerateResources(const std::function<bool(const EntryType*)>& func);
 };
 
 }

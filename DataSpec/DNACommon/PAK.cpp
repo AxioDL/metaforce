@@ -283,10 +283,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 
     const PAKType* pak = m_pak.get();
     intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
-    if (!pak)
-        LogDNACommon.report(logvisor::Fatal,
-        "PAKRouter::enterPAKBridge() must be called before PAKRouter::getWorkingPath()");
-    if (pak->m_noShare)
+    if (pak && pak->m_noShare)
     {
         const EntryType* singleSearch = pak->lookupEntry(entry->id);
         if (singleSearch)
@@ -400,10 +397,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
 
     const PAKType* pak = m_pak.get();
     intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
-    if (!pak)
-        LogDNACommon.report(logvisor::Fatal,
-        "PAKRouter::enterPAKBridge() must be called before PAKRouter::getCookedPath()");
-    if (pak->m_noShare)
+    if (pak && pak->m_noShare)
     {
         const EntryType* singleSearch = pak->lookupEntry(entry->id);
         if (singleSearch)
@@ -759,6 +753,17 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getAreaLayerCooked(const IDType& areaId
         ++bridgePathIt;
     }
     return hecl::ProjectPath();
+}
+
+template <class BRIDGETYPE>
+void PAKRouter<BRIDGETYPE>::enumerateResources(const std::function<bool(const EntryType*)>& func)
+{
+    if (!m_bridges)
+        LogDNACommon.report(logvisor::Fatal,
+        "PAKRouter::build() must be called before PAKRouter::enumerateResources()");
+    for (const auto& entryPair : m_uniqueEntries)
+        if (!func(entryPair.second.second))
+            return;
 }
 
 template class PAKRouter<DNAMP1::PAKBridge>;
