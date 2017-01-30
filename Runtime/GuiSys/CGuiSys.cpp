@@ -84,12 +84,12 @@ void CGuiSys::ViewportResizeFrame(CGuiFrame* frame)
         if (vpAspectRatio >= frame->m_aspectConstraint)
         {
             hPad = frame->m_aspectConstraint / vpAspectRatio;
-            vPad = frame->m_aspectConstraint / 1.36f;
+            vPad = frame->m_aspectConstraint / 1.38f;
         }
         else
         {
             hPad = 1.f;
-            vPad = vpAspectRatio / 1.36f;
+            vPad = vpAspectRatio / 1.38f;
         }
         frame->m_aspectTransform = zeus::CTransform::Scale({hPad, 1.f, vPad});
     }

@@ -250,11 +250,11 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
             AdvanceTokenPos();
 
             AdvanceCommaPos();
-            float scaleX = u16stof(&iterable[tokenPos]);
+            float cropX = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
-            float scaleY = u16stof(&iterable[tokenPos]);
+            float cropY = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             std::vector<TToken<CTexture>> texs;
@@ -267,17 +267,17 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
-            return CFontImageDef(texs, interval, zeus::CVector2f(scaleX, scaleY));
+            return CFontImageDef(texs, interval, zeus::CVector2f(cropX, cropY));
         }
         else if (BeginsWith(str, len, u"SI"))
         {
             /* Scaled single texture */
             AdvanceCommaPos();
-            float scaleX = u16stof(&iterable[tokenPos]);
+            float cropX = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
-            float scaleY = u16stof(&iterable[tokenPos]);
+            float cropY = u16stof(&iterable[tokenPos]);
             AdvanceTokenPos();
 
             AdvanceCommaPos();
@@ -285,7 +285,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
                 GetAssetIdFromString(&iterable[tokenPos])});
             AdvanceTokenPos();
 
-            return CFontImageDef(tex, zeus::CVector2f(scaleX, scaleY));
+            return CFontImageDef(tex, zeus::CVector2f(cropX, cropY));
         }
     }
 

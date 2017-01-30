@@ -10,6 +10,7 @@ namespace urde
 {
 class CGlyph;
 class CTextRenderBuffer;
+class CFontImageDef;
 
 class CTextSupportShader
 {
@@ -48,7 +49,7 @@ class CTextSupportShader
         zeus::CVector3f m_pos[4];
         zeus::CVector2f m_uv[4];
         zeus::CColor m_color;
-        void SetMetrics(const zeus::CVector2f& imgSize, const zeus::CVector2i& offset);
+        void SetMetrics(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
     };
 
     static hecl::VertexBufferPool<CharacterInstance> s_CharInsts;

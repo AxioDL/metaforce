@@ -18,15 +18,7 @@ CTextRenderBuffer::CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags 
 CTextRenderBuffer::BooImage::BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset)
 : m_imageDef(imgDef)
 {
-    zeus::CVector2f imgSize;
-    if (imgDef.x4_texs.size())
-    {
-        const CTexture& tex = *imgDef.x4_texs[0].GetObj();
-        imgSize.assign(tex.GetWidth() * imgDef.x14_pointsPerTexel.x,
-                       tex.GetHeight() * imgDef.x14_pointsPerTexel.y);
-    }
-
-    m_imageData.SetMetrics(imgSize, offset);
+    m_imageData.SetMetrics(imgDef, offset);
 }
 
 void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, float opacity)
