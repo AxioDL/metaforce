@@ -6,6 +6,7 @@ set(CAMERA_SOURCES
     CPathCamera.hpp CPathCamera.cpp
     CCinematicCamera.hpp CCinematicCamera.cpp
     CCameraShakeData.hpp CCameraShakeData.cpp
-    CCameraFilter.hpp CCameraFilter.cpp)
+    CCameraFilter.hpp CCameraFilter.cpp
+    CCameraSpline.hpp CCameraSpline.cpp)
 
 runtime_add_list(Camera CAMERA_SOURCES)

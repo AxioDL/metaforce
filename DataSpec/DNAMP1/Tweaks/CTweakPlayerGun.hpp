@@ -44,8 +44,8 @@ struct CTweakPlayerGun : ITweakPlayerGun
     };
     SWeaponInfo xa8_beams[5];
     SComboShotParam x1f0_combos[5];    // Originally rstl::prereserved_vector<SShotParam,5>
-    Value<float> x280_ricochetData[5]; // Originally rstl::prereserved_vector<float,5>
-    Value<float> unused;               // Kept for consistency
+    Value<float> x280_ricochetData[6]; // Originally rstl::prereserved_vector<float,5>, extended to 6 to capture
+                                       // PhazonBeam's value
     CTweakPlayerGun() = default;
     CTweakPlayerGun(athena::io::IStreamReader& r)
     {
@@ -59,6 +59,42 @@ struct CTweakPlayerGun : ITweakPlayerGun
     float GetX30() const { return x30_; }
     float GetX34() const { return x34_; }
     float GetX38() const { return x38_; }
+    float GetRichochetDamage(atUint32 type) const
+    {
+        switch (type)
+        {
+        case 0: // Power
+            return x280_ricochetData[0];
+        case 1: // Ice
+            return x280_ricochetData[1];
+        case 2: // Wave
+            return x280_ricochetData[2];
+        case 3: // Plasma
+            return x280_ricochetData[3];
+        case 6: // Missile
+            return x280_ricochetData[4];
+        case 8: // Phazon
+                /* Note: In order to return the same value as retail we have to do a bit of a hack
+                 * Retro accidentally forgot to load in PhazonBeam's richochet value, as a result, it loads the
+                 * pointer to CTweakParticle's vtable.
+                 */
+#if MP_v1088
+
+            return float(0x803D9CC4);
+#else
+            return x280_ricochetData[5];
+#endif
+        default:
+            return 1.f;
+        }
+    }
+
+    SWeaponInfo GetBeamInfo(atInt32 beam) const
+    {
+        if (beam < 0 || beam > 5)
+            return xa8_beams[0];
+        return xa8_beams[beam];
+    }
 };
 }
 }
