@@ -764,6 +764,9 @@ void PAKRouter<BRIDGETYPE>::enumerateResources(const std::function<bool(const En
     for (const auto& entryPair : m_uniqueEntries)
         if (!func(entryPair.second.second))
             return;
+    for (const auto& entryPair : m_sharedEntries)
+        if (!func(entryPair.second.second))
+            return;
 }
 
 template class PAKRouter<DNAMP1::PAKBridge>;
