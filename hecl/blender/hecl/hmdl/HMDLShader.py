@@ -350,7 +350,7 @@ def shader(mat_obj, mesh_obj):
     elif mat_obj.game_settings.alpha_blend == 'ADD':
         return "HECLAdditive(%s, %s)" % (color_trace_result, alpha_trace_result), tex_paths
     else:
-        return "HECLOpaque(%s)" % color_trace_result, tex_paths
+        return "HECLOpaque(%s, %s)" % (color_trace_result, alpha_trace_result), tex_paths
 
 # DEBUG operator
 import bpy

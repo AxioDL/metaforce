@@ -264,7 +264,6 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
 
     /* Final instruction is the root call by hecl convention */
     const IR::Instruction& rootCall = ir.m_instructions.back();
-    bool doAlpha = false;
     if (!rootCall.m_call.m_name.compare("HECLOpaque"))
     {
         m_blendSrc = BlendFactor::One;
@@ -274,13 +273,11 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
     {
         m_blendSrc = BlendFactor::SrcAlpha;
         m_blendDst = BlendFactor::InvSrcAlpha;
-        doAlpha = true;
     }
     else if (!rootCall.m_call.m_name.compare("HECLAdditive"))
     {
         m_blendSrc = BlendFactor::SrcAlpha;
         m_blendDst = BlendFactor::One;
-        doAlpha = true;
     }
     else
     {
@@ -295,7 +292,7 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
     m_colorExpr = RecursiveTraceColor(ir, diag, colorRoot, false);
 
     /* Follow Alpha Chain */
-    if (doAlpha)
+    if (rootCall.m_call.m_argInstIdxs.size() > 1)
     {
         const IR::Instruction& alphaRoot =
         ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(1));

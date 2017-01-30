@@ -29,7 +29,7 @@ def draw(layout, context):
             layout.prop(obj, 'retro_textpane_font_path', text='Font Path')
             row = layout.row(align=True)
             row.prop(obj, 'retro_textpane_word_wrap', text='Word Wrap')
-            row.prop(obj, 'retro_textpane_vertical', text='Vertical')
+            row.prop(obj, 'retro_textpane_horizontal', text='Horizontal')
             layout.prop(obj, 'retro_textpane_fill_color', text='Fill Color')
             layout.prop(obj, 'retro_textpane_outline_color', text='Outline Color')
             layout.prop(obj, 'retro_textpane_block_extent', text='Point Dimensions')
@@ -131,7 +131,7 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
                               obj.retro_pane_scale_center[2],
                               path_hash,
                               obj.retro_textpane_word_wrap,
-                              obj.retro_textpane_vertical,
+                              obj.retro_textpane_horizontal,
                               hjustifications[obj.retro_textpane_hjustification],
                               vjustifications[obj.retro_textpane_vjustification],
                               obj.retro_textpane_fill_color[0],
@@ -333,11 +333,11 @@ def register():
     bpy.types.Object.retro_model_light_mask = bpy.props.IntProperty(name='Retro: Model Light Mask', min=0, default=0)
 
     bpy.types.Object.retro_pane_dimensions = bpy.props.FloatVectorProperty(name='Retro: Pane Dimensions', min=0.0, size=2)
-    bpy.types.Object.retro_pane_scale_center = bpy.props.FloatVectorProperty(name='Retro: Scale Center', min=0.0, size=3)
+    bpy.types.Object.retro_pane_scale_center = bpy.props.FloatVectorProperty(name='Retro: Scale Center', size=3)
 
     bpy.types.Object.retro_textpane_font_path = bpy.props.StringProperty(name='Retro: Font Path')
     bpy.types.Object.retro_textpane_word_wrap = bpy.props.BoolProperty(name='Retro: Word Wrap')
-    bpy.types.Object.retro_textpane_vertical = bpy.props.BoolProperty(name='Retro: Vertical')
+    bpy.types.Object.retro_textpane_horizontal = bpy.props.BoolProperty(name='Retro: Horizontal')
     bpy.types.Object.retro_textpane_fill_color = bpy.props.FloatVectorProperty(name='Retro: Fill Color', min=0.0, max=1.0, size=4, subtype='COLOR')
     bpy.types.Object.retro_textpane_outline_color = bpy.props.FloatVectorProperty(name='Retro: Outline Color', min=0.0, max=1.0, size=4, subtype='COLOR')
     bpy.types.Object.retro_textpane_block_extent = bpy.props.FloatVectorProperty(name='Retro: Block Extent', min=0.0, size=2)

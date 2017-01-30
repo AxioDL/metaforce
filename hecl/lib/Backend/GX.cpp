@@ -695,7 +695,6 @@ void GX::reset(const IR& ir, Diagnostics& diag)
 
     /* Final instruction is the root call by hecl convention */
     const IR::Instruction& rootCall = ir.m_instructions.back();
-    bool doAlpha = false;
     if (!rootCall.m_call.m_name.compare("HECLOpaque"))
     {
         m_blendSrc = BL_ONE;
@@ -705,13 +704,11 @@ void GX::reset(const IR& ir, Diagnostics& diag)
     {
         m_blendSrc = BL_SRCALPHA;
         m_blendDst = BL_INVSRCALPHA;
-        doAlpha = true;
     }
     else if (!rootCall.m_call.m_name.compare("HECLAdditive"))
     {
         m_blendSrc = BL_SRCALPHA;
         m_blendDst = BL_ONE;
-        doAlpha = true;
     }
     else
     {
@@ -726,7 +723,7 @@ void GX::reset(const IR& ir, Diagnostics& diag)
     RecursiveTraceColor(ir, diag, colorRoot);
 
     /* Follow Alpha Chain */
-    if (doAlpha)
+    if (rootCall.m_call.m_argInstIdxs.size() > 1)
     {
         const IR::Instruction& alphaRoot =
         ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(1));
