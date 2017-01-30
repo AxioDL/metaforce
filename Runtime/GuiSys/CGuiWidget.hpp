@@ -129,6 +129,8 @@ public:
     CGuiWidget* FindWidget(s16 id);
     bool GetIsFinishedLoading() const;
     void DispatchInitialize();
+
+    CGuiFrame* GetGuiFrame() const { return xb0_frame; }
 };
 
 }

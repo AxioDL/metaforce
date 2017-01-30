@@ -3,6 +3,7 @@
 #include "zeus/Math.hpp"
 #include "CTimeProvider.hpp"
 #include "Shaders/CTextSupportShader.hpp"
+#include "GuiSys/CGuiSys.hpp"
 
 namespace urde
 {
@@ -456,6 +457,8 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
     g_CroppedViewport.xc_width = res.x;
     g_CroppedViewport.x10_height = res.y;
     g_ViewportResolutionHalf = {res.x / 2, res.y / 2};
+    if (g_GuiSys)
+        g_GuiSys->OnViewportResize();
 }
 
 static boo::SWindowRect CachedVP;

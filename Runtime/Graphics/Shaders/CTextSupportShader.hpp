@@ -39,6 +39,7 @@ class CTextSupportShader
         zeus::CVector3f m_uv[4];
         zeus::CColor m_fontColor;
         zeus::CColor m_outlineColor;
+        zeus::CColor m_mulColor;
         void SetMetrics(const CGlyph& glyph, const zeus::CVector2i& offset);
     };
 

@@ -74,24 +74,39 @@ void CLineExtraSpaceInstruction::PageInvoke(CFontRenderState& state, CTextRender
     Invoke(state, buf);
 }
 
-void CLineInstruction::TestLargestFont(s32 monoW, s32 monoH, s32 baseline)
+void CLineInstruction::TestLargestFont(s32 w, s32 h, s32 b)
 {
-    if (!x18_largestBaseline)
-        x18_largestBaseline = baseline;
+    if (!x18_largestMonoBaseline)
+        x18_largestMonoBaseline = b;
 
-    if (x14_largestMonoWidth < monoW)
-        monoW = x14_largestMonoWidth;
+    if (x14_largestMonoWidth < w)
+        x14_largestMonoWidth = w;
 
-    if (x10_largestMonoHeight < monoH)
+    if (x10_largestMonoHeight < h)
     {
-        x10_largestMonoHeight = monoH;
-        x18_largestBaseline = baseline;
+        x10_largestMonoHeight = h;
+        x18_largestMonoBaseline = b;
+    }
+}
+
+void CLineInstruction::TestLargestImage(s32 w, s32 h, s32 b)
+{
+    if (!x24_largestImageBaseline)
+        x24_largestImageBaseline = b;
+
+    if (x20_largestImageWidth < w)
+        x20_largestImageWidth = w;
+
+    if (x1c_largestImageHeight < h)
+    {
+        x1c_largestImageHeight = h;
+        x24_largestImageBaseline = b;
     }
 }
 
 void CLineInstruction::InvokeLTR(CFontRenderState& state) const
 {
-    switch (x1c_just)
+    switch (x28_just)
     {
     case EJustification::Left:
     case EJustification::Full:
@@ -228,17 +243,26 @@ void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
 {
     if (x4_image.IsLoaded() && x4_image.x4_texs.size())
     {
-        if (state.x88_curBlock->x14_direction == ETextDirection::Horizontal)
+        const CTexture* tex = x4_image.x4_texs[0].GetObj();
+        if (state.x88_curBlock->x14_dir == ETextDirection::Horizontal)
         {
-            const CTexture* tex = x4_image.x4_texs[0].GetObj();
             if (buf)
             {
-                zeus::CVector2i coords(state.xd4_curX,
-                state.xd8_curY + state.xdc_currentLineInst->x18_largestBaseline -
-                tex->GetHeight() * x4_image.x14_pointsPerTexel.y * 2 / 3);
+                int y = state.xd8_curY + state.xdc_currentLineInst->GetBaseline() - x4_image.CalculateBaseline();
+                zeus::CVector2i coords(state.xd4_curX, y);
                 buf->AddImage(coords, x4_image);
             }
-            state.xd4_curX = state.xd4_curX + tex->GetWidth() * x4_image.x14_pointsPerTexel.x;
+            state.xd4_curX = state.xd4_curX + tex->GetWidth() * x4_image.x14_pointsPerTexel.y;
+        }
+        else
+        {
+            int scale = state.xdc_currentLineInst->x8_curX - tex->GetWidth() * x4_image.x14_pointsPerTexel.y;
+            if (buf)
+            {
+                zeus::CVector2i coords(scale / 2 + state.xd4_curX, state.xd8_curY);
+                buf->AddImage(coords, x4_image);
+            }
+            state.xd8_curY += x4_image.CalculateHeight();
         }
     }
 }
@@ -257,10 +281,20 @@ size_t CImageInstruction::GetAssetCount() const
 void CTextInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
     int xOut, yOut;
-    state.x48_font.GetObj()->DrawString(state.x0_drawStrOpts, state.xd4_curX,
-                                        state.xdc_currentLineInst->x18_largestBaseline + state.xd8_curY,
-                                        xOut, yOut, buf, x4_str.c_str(), x4_str.size());
-    state.xd4_curX = xOut;
+    if (state.x88_curBlock->x14_dir == ETextDirection::Horizontal)
+    {
+        state.x48_font->DrawString(state.x0_drawStrOpts, state.xd4_curX,
+                                   state.xdc_currentLineInst->GetBaseline() + state.xd8_curY,
+                                   xOut, yOut, buf, x4_str.c_str(), x4_str.size());
+        state.xd4_curX = xOut;
+    }
+    else
+    {
+        int scale = state.xdc_currentLineInst->x8_curX - state.x48_font->GetMonoWidth();
+        state.x48_font->DrawString(state.x0_drawStrOpts, scale / 2 + state.xd4_curX,
+                                   state.xd8_curY, xOut, yOut, buf, x4_str.c_str(), x4_str.size());
+        state.xd8_curY = yOut;
+    }
 }
 
 void CBlockInstruction::TestLargestFont(s32 monoW, s32 monoH, s32 baseline)
@@ -307,9 +341,9 @@ void CBlockInstruction::SetupPositionLTR(CFontRenderState& state) const
 
 void CBlockInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const
 {
-    state.x0_drawStrOpts.x0_direction = x14_direction;
-    state.x88_curBlock = (CBlockInstruction*)this;
-    if (x14_direction == ETextDirection::Horizontal)
+    state.x0_drawStrOpts.x0_direction = x14_dir;
+    state.x88_curBlock = const_cast<CBlockInstruction*>(this);
+    if (x14_dir == ETextDirection::Horizontal)
         SetupPositionLTR(state);
 }
 

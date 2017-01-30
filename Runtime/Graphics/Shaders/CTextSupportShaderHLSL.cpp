@@ -13,6 +13,7 @@ static const char* TextVS =
 "    float4 uvIn[4] : UV;\n"
 "    float4 fontColorIn : COLOR0;\n"
 "    float4 outlineColorIn : COLOR1;\n"
+"    float4 mulColorIn : COLOR2;\n"
 "};\n"
 "\n"
 "cbuffer TextSupportUniform : register(b0)\n"
@@ -26,6 +27,7 @@ static const char* TextVS =
 "    float4 pos : SV_Position;\n"
 "    float4 fontColor : COLOR0;\n"
 "    float4 outlineColor : COLOR1;\n"
+"    float4 mulColor : COLOR2;\n"
 "    float3 uv : UV;\n"
 "};\n"
 "\n"
@@ -34,6 +36,7 @@ static const char* TextVS =
 "    VertToFrag vtf;\n"
 "    vtf.fontColor = color * inst.fontColorIn;\n"
 "    vtf.outlineColor = color * inst.outlineColorIn;\n"
+"    vtf.mulColor = inst.mulColorIn;\n"
 "    vtf.uv = inst.uvIn[vertId].xyz;\n"
 "    vtf.pos = mul(mtx, float4(inst.posIn[vertId].xyz, 1.0));\n"
 "    return vtf;\n"
@@ -45,6 +48,7 @@ static const char* TextFS =
 "    float4 pos : SV_Position;\n"
 "    float4 fontColor : COLOR0;\n"
 "    float4 outlineColor : COLOR1;\n"
+"    float4 mulColor : COLOR2;\n"
 "    float3 uv : UV;\n"
 "};\n"
 "\n"
@@ -54,7 +58,7 @@ static const char* TextFS =
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
 "    float4 texel = tex.Sample(samp, vtf.uv.xyz);\n"
-"    return vtf.fontColor * texel.r + vtf.outlineColor * texel.g;\n"
+"    return (vtf.fontColor * texel.r + vtf.outlineColor * texel.g) * vtf.mulColor;\n"
 "}\n";
 
 static const char* ImgVS =
@@ -119,14 +123,15 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
     };
-    s_TextVtxFmt = ctx.newVertexFormat(10, TextVtxVmt);
+    s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                 s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
-                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                               s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
-                                              boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -143,10 +148,10 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                  s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
-                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
                                                s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
-                                               boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     return nullptr;
 }

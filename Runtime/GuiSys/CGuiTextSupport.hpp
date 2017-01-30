@@ -63,16 +63,15 @@ class CGuiTextProperties
 {
     friend class CGuiTextSupport;
     bool x0_wordWrap;
-    bool x1_multiline;
+    bool x1_horizontal;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
-    ETextDirection xc_direction;
+    u32 xc_;
 public:
-    CGuiTextProperties(bool wordWrap, bool multiline, EJustification justification,
-                       EVerticalJustification vertJustification,
-                       ETextDirection dir=ETextDirection::Horizontal)
-        : x0_wordWrap(wordWrap), x1_multiline(multiline), x4_justification(justification),
-          x8_vertJustification(vertJustification), xc_direction(dir) {}
+    CGuiTextProperties(bool wordWrap, bool horizontal, EJustification justification,
+                       EVerticalJustification vertJustification, u32 unk=0)
+        : x0_wordWrap(wordWrap), x1_horizontal(horizontal), x4_justification(justification),
+          x8_vertJustification(vertJustification), xc_(unk) {}
 };
 
 class CGuiTextSupport
@@ -84,6 +83,7 @@ class CGuiTextSupport
     zeus::CColor x24_fontColor;
     zeus::CColor x28_outlineColor;
     zeus::CColor x2c_geometryColor;
+    bool x30_imageBaseline = false;
     s32 x34_extentX;
     s32 x38_extentY;
     float x3c_curTime = 0.f;
@@ -131,6 +131,9 @@ public:
     void AddText(const std::u16string& str);
     void SetText(const std::u16string& str, bool multipage=false);
     void SetText(const std::string& str, bool multipage=false);
+    void SetJustification(EJustification j);
+    void SetVerticalJustification(EVerticalJustification j);
+    void SetImageBaseline(bool b);
     bool GetIsTextSupportFinishedLoading() const;
 };
 

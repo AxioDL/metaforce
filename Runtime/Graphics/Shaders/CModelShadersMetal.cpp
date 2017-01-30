@@ -79,12 +79,24 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
     hecl::Runtime::ShaderCacheExtensions ext(plat);
 
     /* Normal lit shading */
-    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"}, 1, BlockNames, 0, nullptr,
-                              hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original);
+    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"},
+                              1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original,
+                              hecl::Backend::BlendFactor::Original);
 
     /* Thermal Visor shading */
-    ext.registerExtensionSlot({}, {ThermalPostMetal, "ThermalPostFunc"}, 1, ThermalBlockNames, 1, ThermalTextures,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One);
+    ext.registerExtensionSlot({}, {ThermalPostMetal, "ThermalPostFunc"}, 1, ThermalBlockNames,
+                              1, ThermalTextures, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::One);
+
+    /* Forced alpha shading */
+    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"},
+                              1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha);
+
+    /* Forced additive shading */
+    ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"},
+                              1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::One);
 
     return ext;
 }

@@ -37,8 +37,7 @@ void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, floa
     {
         BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
         CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
-        inst.m_fontColor.a = opacity;
-        inst.m_outlineColor.a = opacity;
+        inst.m_mulColor.a = opacity;
         fc.m_dirty = true;
         break;
     }
@@ -89,8 +88,9 @@ void CTextRenderBuffer::CommitResources()
                     {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
                     {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
                     {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
                 };
-                vFmt = ctx.newVertexFormat(10, elems, 0, iBufInfo.second);
+                vFmt = ctx.newVertexFormat(11, elems, 0, iBufInfo.second);
             }
 
             boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
@@ -227,6 +227,7 @@ void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch,
         inst.SetMetrics(*glyph, offset);
         inst.m_fontColor = m_main * color;
         inst.m_outlineColor = m_outline * color;
+        inst.m_mulColor = zeus::CColor::skWhite;
     }
 }
 

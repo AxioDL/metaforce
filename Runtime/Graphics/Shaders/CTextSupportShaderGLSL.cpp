@@ -13,6 +13,7 @@ BOO_GLSL_BINDING_HEAD
 "layout(location=4) in vec4 uvIn[4];\n"
 "layout(location=8) in vec4 fontColorIn;\n"
 "layout(location=9) in vec4 outlineColorIn;\n"
+"layout(location=10) in vec4 mulColorIn;\n"
 "\n"
 "UBINDING0 uniform TextSupportUniform\n"
 "{\n"
@@ -24,6 +25,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vec4 fontColor;\n"
 "    vec4 outlineColor;\n"
+"    vec4 mulColor;\n"
 "    vec3 uv;\n"
 "};\n"
 "\n"
@@ -32,6 +34,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vtf.fontColor = color * fontColorIn;\n"
 "    vtf.outlineColor = color * outlineColorIn;\n"
+"    vtf.mulColor = mulColorIn;\n"
 "    vtf.uv = uvIn[gl_VertexID].xyz;\n"
 "    gl_Position = mtx * vec4(posIn[gl_VertexID].xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
@@ -44,6 +47,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vec4 fontColor;\n"
 "    vec4 outlineColor;\n"
+"    vec4 mulColor;\n"
 "    vec3 uv;\n"
 "};\n"
 "\n"
@@ -53,7 +57,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vec4 texel = texture(tex, vtf.uv);\n"
-"    colorOut = vtf.fontColor * texel.r + vtf.outlineColor * texel.g;\n"
+"    colorOut = (vtf.fontColor * texel.r + vtf.outlineColor * texel.g) * vtf.mulColor;\n"
 "}\n";
 
 static const char* ImgVS =
@@ -109,14 +113,14 @@ CTextSupportShader::Initialize(boo::GLDataFactory::Context& ctx)
     const char* uniNames[] = {"TextSupportUniform"};
 
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
-                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
-                                              boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
-                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
-                                               boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     return nullptr;
 }
@@ -137,12 +141,13 @@ CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
     };
-    s_TextVtxFmt = ctx.newVertexFormat(10, TextVtxVmt);
+    s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
-                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
-                                              boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -158,9 +163,9 @@ CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
     };
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
-                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
-                                               boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     return nullptr;
 }

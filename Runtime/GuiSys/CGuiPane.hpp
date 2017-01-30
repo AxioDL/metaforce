@@ -13,10 +13,10 @@ protected:
     zeus::CVector2f xb8_dim;
 
     /* Originally a vert-buffer pointer for GX */
-    std::vector<specter::View::TexShaderVert> x100_verts;
+    std::vector<specter::View::TexShaderVert> xc0_verts;
     // u32 x104_ = 4; /* vert count */
 
-    zeus::CVector3f x108_scaleCenter;
+    zeus::CVector3f xc8_scaleCenter;
 
 public:
     CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, const zeus::CVector3f& scaleCenter);

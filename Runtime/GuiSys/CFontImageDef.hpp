@@ -20,6 +20,8 @@ public:
                   const zeus::CVector2f& vec);
     CFontImageDef(const TToken<CTexture>& tex, const zeus::CVector2f& vec);
     bool IsLoaded() const;
+    s32 CalculateBaseline() const;
+    s32 CalculateHeight() const;
 };
 
 }

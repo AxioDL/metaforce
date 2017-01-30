@@ -19,6 +19,7 @@ class CSimplePool;
 
 class CGuiFrame
 {
+    friend class CGuiSys;
 private:
     ResId x0_id;
     u32 x4_ = 0;
@@ -34,8 +35,12 @@ private:
     int x54_c;
     bool x58_24_loaded : 1;
 
+    zeus::CTransform m_aspectTransform;
+    float m_aspectConstraint = -1.f;
+
 public:
     CGuiFrame(ResId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
+    ~CGuiFrame();
 
     CGuiSys& GetGuiSys() {return x8_guiSys;}
 
@@ -52,6 +57,8 @@ public:
     void AddLight(std::shared_ptr<CGuiLight>&& light);
     bool GetIsFinishedLoading() const;
     void Touch() const;
+    const zeus::CTransform& GetAspectTransform() const { return m_aspectTransform; }
+    void SetAspectConstraint(float c);
 
     void Update(float dt);
     void Draw(const CGuiWidgetDrawParms& parms) const;

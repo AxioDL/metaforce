@@ -5,7 +5,7 @@ namespace urde
 
 CGuiPane::CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim,
                    const zeus::CVector3f& scaleCenter)
-: CGuiWidget(parms), xb8_dim(dim), x108_scaleCenter(scaleCenter)
+: CGuiWidget(parms), xb8_dim(dim), xc8_scaleCenter(scaleCenter)
 {
     InitializeBuffers();
 }
@@ -14,11 +14,11 @@ void CGuiPane::ScaleDimensions(const zeus::CVector3f& scale)
 {
     InitializeBuffers();
 
-    for (specter::View::TexShaderVert& v : x100_verts)
+    for (specter::View::TexShaderVert& v : xc0_verts)
     {
-        v.m_pos -= x108_scaleCenter;
+        v.m_pos -= xc8_scaleCenter;
         v.m_pos *= scale;
-        v.m_pos += x108_scaleCenter;
+        v.m_pos += xc8_scaleCenter;
     }
 }
 
@@ -36,13 +36,13 @@ zeus::CVector2f CGuiPane::GetDimensions() const
 
 void CGuiPane::InitializeBuffers()
 {
-    if (x100_verts.size() < 4)
-        x100_verts.resize(4);
+    if (xc0_verts.size() < 4)
+        xc0_verts.resize(4);
 
-    x100_verts[0].m_pos.assign(-xb8_dim.x * 0.5f, 0.f, xb8_dim.y * 0.5f);
-    x100_verts[1].m_pos.assign(-xb8_dim.x * 0.5f, 0.f, -xb8_dim.y * 0.5f);
-    x100_verts[2].m_pos.assign(xb8_dim.x * 0.5f, 0.f, xb8_dim.y * 0.5f);
-    x100_verts[3].m_pos.assign(xb8_dim.x * 0.5f, 0.f, -xb8_dim.y * 0.5f);
+    xc0_verts[0].m_pos.assign(-xb8_dim.x * 0.5f, 0.f, xb8_dim.y * 0.5f);
+    xc0_verts[1].m_pos.assign(-xb8_dim.x * 0.5f, 0.f, -xb8_dim.y * 0.5f);
+    xc0_verts[2].m_pos.assign(xb8_dim.x * 0.5f, 0.f, xb8_dim.y * 0.5f);
+    xc0_verts[3].m_pos.assign(xb8_dim.x * 0.5f, 0.f, -xb8_dim.y * 0.5f);
 }
 
 void CGuiPane::WriteData(COutputStream& out, bool flag) const

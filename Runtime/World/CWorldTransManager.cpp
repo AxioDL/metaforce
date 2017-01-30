@@ -381,8 +381,7 @@ void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, bool b1,
     x4_modelData.reset();
     x44_27_ = b2;
 
-    CGuiTextProperties props(false, true, EJustification::Center,
-                             EVerticalJustification::Center, ETextDirection::Horizontal);
+    CGuiTextProperties props(false, true, EJustification::Center, EVerticalJustification::Center);
     x8_textData.reset(new CGuiTextSupport(fontId, props, zeus::CColor::skWhite,
                                           zeus::CColor::skBlack, zeus::CColor::skWhite,
                                           640, 448, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha));

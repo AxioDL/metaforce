@@ -6,9 +6,9 @@ namespace urde
 
 CFontRenderState::CFontRenderState()
 {
-    x54_[0] = zeus::CColor::skWhite;
-    x54_[1] = zeus::CColor::skGrey;
-    x54_[2] = zeus::CColor::skWhite;
+    x54_colors[0] = zeus::CColor::skWhite;
+    x54_colors[1] = zeus::CColor::skGrey;
+    x54_colors[2] = zeus::CColor::skWhite;
     RefreshPalette();
 }
 
@@ -36,13 +36,13 @@ void CFontRenderState::SetColor(EColorType tp, const CTextColor& col)
     case EColorType::Main:
     case EColorType::Outline:
     case EColorType::Geometry:
-        x54_[int(tp)] = col;
+        x54_colors[int(tp)] = col;
         break;
     case EColorType::Foreground:
-        x54_[0] = col;
+        x54_colors[0] = col;
         break;
     case EColorType::Background:
-        x54_[1] = col;
+        x54_colors[1] = col;
         break;
     }
     RefreshColor(tp);
@@ -61,15 +61,15 @@ void CFontRenderState::RefreshColor(EColorType tp)
     case EColorType::Main:
         if (!x48_font)
             return;
-        switch (x48_font.GetObj()->GetMode())
+        switch (x48_font->GetMode())
         {
         case EColorType::Main:
             if (!x64_colorOverrides[0])
-                x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_[0]);
+                x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
             break;
         case EColorType::Outline:
             if (!x64_colorOverrides[0])
-                x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_[0]);
+                x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
             break;
         default: break;
         }
@@ -79,12 +79,12 @@ void CFontRenderState::RefreshColor(EColorType tp)
             return;
         if (x64_colorOverrides[1])
             return;
-        if (x48_font.GetObj()->GetMode() == EColorType::Outline)
-            x0_drawStrOpts.x4_colors[1] = ConvertToTextureSpace(x54_[1]);
+        if (x48_font->GetMode() == EColorType::Outline)
+            x0_drawStrOpts.x4_colors[1] = ConvertToTextureSpace(x54_colors[1]);
         break;
     case EColorType::Geometry:
         if (!x64_colorOverrides[2])
-            x0_drawStrOpts.x4_colors[2] = ConvertToTextureSpace(x54_[2]);
+            x0_drawStrOpts.x4_colors[2] = ConvertToTextureSpace(x54_colors[2]);
         break;
     case EColorType::Foreground:
         RefreshColor(EColorType::Main);

@@ -15,6 +15,7 @@
 #include "CTextParser.hpp"
 #include "CSimplePool.hpp"
 #include "CTextExecuteBuffer.hpp"
+#include "CGuiFrame.hpp"
 
 namespace urde
 {
@@ -66,6 +67,32 @@ CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
 {
     g_TextExecuteBuf = xc_textExecuteBuf.get();
     g_TextParser = x10_textParser.get();
+}
+
+void CGuiSys::OnViewportResize()
+{
+    for (CGuiFrame* frame : m_registeredFrames)
+        ViewportResizeFrame(frame);
+}
+
+void CGuiSys::ViewportResizeFrame(CGuiFrame* frame)
+{
+    float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    if (frame->m_aspectConstraint > 0.f)
+    {
+        float hPad, vPad;
+        if (vpAspectRatio >= frame->m_aspectConstraint)
+        {
+            hPad = frame->m_aspectConstraint / vpAspectRatio;
+            vPad = frame->m_aspectConstraint / 1.36f;
+        }
+        else
+        {
+            hPad = 1.f;
+            vPad = vpAspectRatio / 1.36f;
+        }
+        frame->m_aspectTransform = zeus::CTransform::Scale({hPad, 1.f, vPad});
+    }
 }
 
 }

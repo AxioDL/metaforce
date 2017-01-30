@@ -24,7 +24,7 @@ class CSaveableState
 protected:
     CDrawStringOptions x0_drawStrOpts;
     TLockedToken<CRasterFont> x48_font;
-    std::vector<CTextColor> x54_;
+    std::vector<CTextColor> x54_colors;
     std::vector<bool> x64_colorOverrides;
     float x74_lineSpacing = 1.f;
     s32 x78_extraLineSpace = 0;
@@ -35,9 +35,11 @@ protected:
 public:
     CSaveableState()
     {
-        x54_.resize(3, zeus::CColor::skBlack);
+        x54_colors.resize(3, zeus::CColor::skBlack);
         x64_colorOverrides.resize(16);
     }
+
+    bool IsFinishedLoading() const;
 };
 
 }

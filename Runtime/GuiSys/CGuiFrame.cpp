@@ -20,6 +20,12 @@ CGuiFrame::CGuiFrame(ResId id, CGuiSys& sys, int a, int b, int c, CSimplePool* s
         CGuiWidget::CGuiWidgetParms(this, false, 0, 0, false, false, false, zeus::CColor::skWhite,
                                     CGuiWidget::EGuiModelDrawFlags::Alpha, false,
                                     x8_guiSys.x8_mode != CGuiSys::EUsageMode::Zero)));
+    x8_guiSys.m_registeredFrames.insert(this);
+}
+
+CGuiFrame::~CGuiFrame()
+{
+    x8_guiSys.m_registeredFrames.erase(this);
 }
 
 CGuiWidget* CGuiFrame::FindWidget(const std::string& name) const
@@ -40,7 +46,7 @@ void CGuiFrame::SortDrawOrder()
     std::sort(x2c_widgets.begin(), x2c_widgets.end(),
     [](const std::shared_ptr<CGuiWidget>& a, const std::shared_ptr<CGuiWidget>& b) -> bool
     {
-        return a->GetWorldPosition().y < b->GetWorldPosition().y;
+        return a->GetWorldPosition().y > b->GetWorldPosition().y;
     });
 }
 
@@ -101,6 +107,12 @@ void CGuiFrame::Touch() const
 {
     for (const auto& widget : x2c_widgets)
         widget->Touch();
+}
+
+void CGuiFrame::SetAspectConstraint(float c)
+{
+    m_aspectConstraint = c;
+    CGuiSys::ViewportResizeFrame(this);
 }
 
 void CGuiFrame::Update(float dt)

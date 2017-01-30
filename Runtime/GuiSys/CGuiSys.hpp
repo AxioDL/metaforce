@@ -36,6 +36,7 @@ private:
     EUsageMode x8_mode;
     std::unique_ptr<CTextExecuteBuffer> xc_textExecuteBuf;
     std::unique_ptr<CTextParser> x10_textParser;
+    std::unordered_set<CGuiFrame*> m_registeredFrames;
 
     static std::shared_ptr<CGuiWidget> CreateWidgetInGame(FourCC type, CInputStream& in,
                                                           CGuiFrame* frame, CSimplePool* sp);
@@ -44,6 +45,9 @@ public:
 
     CSimplePool& GetResStore() {return x4_resStore;}
     EUsageMode GetUsageMode() const {return x8_mode;}
+
+    void OnViewportResize();
+    static void ViewportResizeFrame(CGuiFrame* frame);
 };
 
 /** Global GuiSys instance */

@@ -243,7 +243,7 @@ void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
     /* unk1 */
     wordWrap = __dna_reader.readBool();
     /* unk2 */
-    vertical = __dna_reader.readBool();
+    horizontal = __dna_reader.readBool();
     /* justification */
     justification = Justification(__dna_reader.readUint32Big());
     /* verticalJustification */
@@ -279,7 +279,7 @@ void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) cons
     /* unk1 */
     __dna_writer.writeBool(wordWrap);
     /* unk2 */
-    __dna_writer.writeBool(vertical);
+    __dna_writer.writeBool(horizontal);
     /* justification */
     __dna_writer.writeUint32Big(atUint32(justification));
     /* verticalJustification */
@@ -608,7 +608,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                           "frme_obj.retro_pane_scale_center = (%f,%f,%f)\n"
                           "frme_obj.retro_textpane_font_path = '%s'\n"
                           "frme_obj.retro_textpane_word_wrap = %s\n"
-                          "frme_obj.retro_textpane_vertical = %s\n"
+                          "frme_obj.retro_textpane_horizontal = %s\n"
                           "frme_obj.retro_textpane_fill_color = (%f,%f,%f,%f)\n"
                           "frme_obj.retro_textpane_outline_color = (%f,%f,%f,%f)\n"
                           "frme_obj.retro_textpane_block_extent = (%f,%f)\n"
@@ -622,7 +622,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                           info->scaleCenter.vec[2],
                           fontPath.getRelativePathUTF8().c_str(),
                           info->wordWrap ? "True" : "False",
-                          info->vertical ? "True" : "False",
+                          info->horizontal ? "True" : "False",
                           info->fillColor.vec[0],
                           info->fillColor.vec[1],
                           info->fillColor.vec[2],

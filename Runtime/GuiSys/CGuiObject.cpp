@@ -1,6 +1,8 @@
 #include "CGuiObject.hpp"
 #include "CGuiWidgetDrawParms.hpp"
 #include "Graphics/CTexture.hpp"
+#include "CGuiWidget.hpp"
+#include "CGuiFrame.hpp"
 
 namespace urde
 {

@@ -56,7 +56,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
         dims.y = 0.f;
 
     zeus::CTransform local =
-        zeus::CTransform::Translate(x100_verts.front().m_pos + x108_scaleCenter) *
+        zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
         zeus::CTransform::Scale(dims.x, 1.f, dims.y);
     CGraphics::SetModelMatrix(x34_worldXF * local);
 
@@ -108,10 +108,10 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
     zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
     u32 fontId = in.readUint32Big();
     bool wordWrap = in.readBool();
-    bool vertical = in.readBool();
+    bool horizontal = in.readBool();
     EJustification justification = EJustification(in.readUint32Big());
     EVerticalJustification vJustification = EVerticalJustification(in.readUint32Big());
-    CGuiTextProperties props(wordWrap, vertical, justification, vJustification, ETextDirection::Horizontal);
+    CGuiTextProperties props(wordWrap, horizontal, justification, vJustification);
     zeus::CColor fontCol;
     fontCol.readRGBABig(in);
     zeus::CColor outlineCol;
@@ -123,7 +123,7 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
                                        fontCol, outlineCol, extentX, extentY);
     ret->ParseBaseInfo(frame, in, parms);
     ret->InitializeBuffers();
-    ret->TextSupport()->SetText(u"?\?(?\?)");
+    ret->TextSupport()->SetText(u"");
     return ret;
 }
 

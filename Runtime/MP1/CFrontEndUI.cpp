@@ -82,6 +82,8 @@ CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveUI* sui, u32 rnd)
 
 void CFrontEndUI::SNewFileSelectFrame::FinishedLoading()
 {
+    x1c_loadedFrame->SetAspectConstraint(1.78f);
+
     x20_tablegroup_fileselect = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_fileselect"));
     x24_model_erase = static_cast<CGuiModel*>(x1c_loadedFrame->FindWidget("model_erase"));
     xf8_model_erase_position = x24_model_erase->GetLocalPosition();
@@ -836,6 +838,8 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::Update(float dt)
 
 void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::FinishedLoading()
 {
+    x8_frme->SetAspectConstraint(1.78f);
+
     xc_textpane_instructions = FindTextPanePair(x8_frme, "textpane_instructions");
     x14_textpane_yes = static_cast<CGuiTextPane*>(x8_frme->FindWidget("textpane_yes"));
     x18_textpane_no = static_cast<CGuiTextPane*>(x8_frme->FindWidget("textpane_no"));
@@ -867,6 +871,8 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SGBALinkFrame(CGuiFrame* linkFram
 
 void CFrontEndUI::SFusionBonusFrame::FinishedLoading()
 {
+    x24_loadedFrame->SetAspectConstraint(1.78f);
+
     x28_tablegroup_options = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_options"));
     x2c_tablegroup_fusionsuit = static_cast<CGuiTableGroup*>(x24_loadedFrame->FindWidget("tablegroup_fusionsuit"));
     x30_textpane_instructions = FindTextPanePair(x24_loadedFrame, "textpane_instructions");
@@ -992,10 +998,12 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
                         x39_fusionNotComplete = true;
                     else if (sui)
                         sui->SaveNESState();
-                    else if (x24_loadedFrame)
-                        x24_loadedFrame->ProcessUserInput(input);
                 }
             }
+        }
+        else if (x24_loadedFrame)
+        {
+            x24_loadedFrame->ProcessUserInput(input);
         }
     }
 
@@ -1115,6 +1123,8 @@ void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, const s
 
 void CFrontEndUI::SFrontEndFrame::FinishedLoading()
 {
+    x14_loadedFrme->SetAspectConstraint(1.78f);
+
     x18_tablegroup_mainmenu = static_cast<CGuiTableGroup*>(x14_loadedFrme->FindWidget("tablegroup_mainmenu"));
     x1c_gbaPair = FindTextPanePair(x14_loadedFrme, "textpane_gba");
     x1c_gbaPair.SetPairText(g_MainStringTable->GetString(37));
@@ -1243,8 +1253,7 @@ CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame()
 
     const SObjectTag* deface = g_ResFactory->GetResourceIdByName("FONT_Deface14B");
     CGuiTextProperties props(false, true, EJustification::Left,
-                             EVerticalJustification::Center,
-                             ETextDirection::Horizontal);
+                             EVerticalJustification::Center);
     xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::CColor::skWhite,
                                                        zeus::CColor::skBlack, zeus::CColor::skWhite,
                                                        0, 0, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
@@ -1572,6 +1581,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetTableColors(CGuiTableGroup* tbgp) co
 
 void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading()
 {
+    x1c_loadedFrame->SetAspectConstraint(1.78f);
+
     x24_tablegroup_leftmenu = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_leftmenu"));
     x28_tablegroup_rightmenu = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_rightmenu"));
     x2c_tablegroup_double = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_double"));
@@ -1912,22 +1923,24 @@ void CFrontEndUI::Draw() const
         //g_Renderer->SetDepthReadWrite(false, false);
         g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
 
+        /* Correct movie aspect ratio */
+        float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+        float hPad, vPad;
+        if (vpAspectRatio >= 1.78f)
+        {
+            hPad = 1.78f / vpAspectRatio;
+            vPad = 1.78f / 1.33f;
+        }
+        else
+        {
+            hPad = 1.f;
+            vPad = vpAspectRatio / 1.33f;
+        }
+
         if (xcc_curMoviePtr && xcc_curMoviePtr->GetIsFullyCached())
         {
             /* Render movie */
-            float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
-            if (vpAspectRatio >= 1.78f)
-            {
-                float hPad = 1.78f / vpAspectRatio;
-                float vPad = 1.78f / 1.33f;
-                xcc_curMoviePtr->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
-            }
-            else
-            {
-                float vPad = vpAspectRatio / 1.33f;
-                xcc_curMoviePtr->SetFrame({-1.f, vPad, 0.f}, {-1.f, -vPad, 0.f}, {1.f, -vPad, 0.f}, {1.f, vPad, 0.f});
-            }
-
+            xcc_curMoviePtr->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
             xcc_curMoviePtr->DrawFrame();
         }
 
@@ -1950,18 +1963,6 @@ void CFrontEndUI::Draw() const
         if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded() && m_pressStartQuad)
         {
             /* Render "Press Start" */
-            float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
-            float hPad, vPad;
-            if (vpAspectRatio >= 1.78f)
-            {
-                hPad = 1.78f / vpAspectRatio;
-                vPad = 1.78f / 1.33f;
-            }
-            else
-            {
-                hPad = 1.f;
-                vPad = vpAspectRatio / 1.33f;
-            }
             zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
                                   0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
                                   x38_pressStart->GetWidth() / 640.f * hPad,
@@ -2003,7 +2004,7 @@ void CFrontEndUI::Draw() const
             }
         }
 
-        if (0 && xdc_saveUI)
+        if (xdc_saveUI)
         {
             /* Render memory card feedback strings */
             if ((CanShowSaveUI() && !xdc_saveUI->IsHiddenFromFrontEnd()) ||

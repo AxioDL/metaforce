@@ -76,16 +76,37 @@ class CLineInstruction : public CInstruction
     s32 xc_curY = 0;
     s32 x10_largestMonoHeight = 0;
     s32 x14_largestMonoWidth = 0;
-    s32 x18_largestBaseline = 0;
-    EJustification x1c_just;
-    EVerticalJustification x20_vjust;
+    s32 x18_largestMonoBaseline = 0;
+    s32 x1c_largestImageHeight = 0;
+    s32 x20_largestImageWidth = 0;
+    s32 x24_largestImageBaseline = 0;
+    EJustification x28_just;
+    EVerticalJustification x2c_vjust;
+    bool x30_imageBaseline;
 public:
-    CLineInstruction(EJustification just, EVerticalJustification vjust)
-    : x1c_just(just), x20_vjust(vjust) {}
-    void TestLargestFont(s32 monoW, s32 monoH, s32 baseline);
+    CLineInstruction(EJustification just, EVerticalJustification vjust, bool imageBaseline)
+    : x28_just(just), x2c_vjust(vjust), x30_imageBaseline(imageBaseline) {}
+    void TestLargestFont(s32 w, s32 h, s32 b);
+    void TestLargestImage(s32 w, s32 h, s32 b);
     void InvokeLTR(CFontRenderState& state) const;
     void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
     void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+
+    s32 GetHeight() const
+    {
+        if (x10_largestMonoHeight && !x30_imageBaseline)
+            return x10_largestMonoHeight;
+        else
+            return x1c_largestImageHeight;
+    }
+
+    s32 GetBaseline() const
+    {
+        if (x10_largestMonoHeight && !x30_imageBaseline)
+            return x18_largestMonoBaseline;
+        else
+            return x24_largestImageBaseline;
+    }
 };
 
 class CLineSpacingInstruction : public CInstruction
@@ -143,13 +164,14 @@ class CBlockInstruction : public CInstruction
     friend class CTextExecuteBuffer;
     friend class CLineInstruction;
     friend class CImageInstruction;
+    friend class CTextInstruction;
     friend class CWordInstruction;
 
     s32 x4_offsetX;
     s32 x8_offsetY;
     s32 xc_blockExtentX;
     s32 x10_blockExtentY;
-    ETextDirection x14_direction;
+    ETextDirection x14_dir;
     EJustification x18_justification;
     EVerticalJustification x1c_vertJustification;
     s32 x20_largestMonoW = 0;
@@ -162,7 +184,7 @@ public:
     CBlockInstruction(s32 offX, s32 offY, s32 extX, s32 extY, ETextDirection dir,
                       EJustification just, EVerticalJustification vjust)
     : x4_offsetX(offX), x8_offsetY(offY),
-      xc_blockExtentX(extX), x10_blockExtentY(extY), x14_direction(dir),
+      xc_blockExtentX(extX), x10_blockExtentY(extY), x14_dir(dir),
       x18_justification(just), x1c_vertJustification(vjust) {}
     void TestLargestFont(s32 monoW, s32 monoH, s32 baseline);
     void SetupPositionLTR(CFontRenderState& state) const;

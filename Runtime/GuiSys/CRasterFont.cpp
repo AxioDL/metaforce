@@ -103,7 +103,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, in
                 {
                     left += x;
                     top += y - glyph->GetBaseline();
-                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x4_colors[0]);
+                    renderBuf->AddCharacter(zeus::CVector2i(left, top), *chr, opts.x4_colors[2]);
                 }
                 x += glyph->GetRightPadding() + glyph->GetAdvance();
             }
@@ -138,7 +138,6 @@ void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& 
 
     if (renderBuf)
     {
-        /* TODO: Implement this */
         /* CGraphicsPalette pal = CGraphicsPalette::CGraphcisPalette(2, 4); */
         /* zeus::CColor color = zeus::CColor(0.f, 0.f, 0.f, 0.f) */
         /* tmp = color.ToRGB5A3(); */
@@ -148,6 +147,7 @@ void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& 
         /* tmp5 = tmp4.ToRGBA5A3(); */
         /* pal.UnLock(); */
         /* renderBuf->AddPaletteChange(pal); */
+        renderBuf->AddPaletteChange(opts.x4_colors[0], opts.x4_colors[1]);
     }
 
     SinglePassDrawString(opts, x, y, xout, yout, renderBuf, str, len);
@@ -192,6 +192,13 @@ void CRasterFont::GetSize(const CDrawStringOptions& opts, int& width, int& heigh
         if ((chr - str) >= len)
             break;
     }
+}
+
+bool CRasterFont::IsFinishedLoading() const
+{
+    if (!x80_texture || !x80_texture.IsLoaded())
+        return false;
+    return true;
 }
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

@@ -142,7 +142,8 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
 {
     g_TextExecuteBuf->Clear();
     g_TextExecuteBuf->x18_textState.x7c_enableWordWrap = x14_props.x0_wordWrap;
-    g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, x14_props.xc_direction,
+    g_TextExecuteBuf->BeginBlock(0, 0, x34_extentX, x38_extentY, x30_imageBaseline,
+                                 ETextDirection(!x14_props.x1_horizontal),
                                  x14_props.x4_justification, x14_props.x8_vertJustification);
     g_TextExecuteBuf->AddColor(EColorType::Main, x24_fontColor);
     g_TextExecuteBuf->AddColor(EColorType::Outline, x28_outlineColor);
@@ -272,7 +273,36 @@ bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() const
         if (!tok.IsLoaded())
             return false;
     }
-    return x2cc_font.IsLoaded();
+    if (x2cc_font.IsLoaded())
+        return x2cc_font->IsFinishedLoading();
+    return false;
+}
+
+void CGuiTextSupport::SetJustification(EJustification j)
+{
+    if (j != x14_props.x4_justification)
+    {
+        x14_props.x4_justification = j;
+        ClearRenderBuffer();
+    }
+}
+
+void CGuiTextSupport::SetVerticalJustification(EVerticalJustification j)
+{
+    if (j != x14_props.x8_vertJustification)
+    {
+        x14_props.x8_vertJustification = j;
+        ClearRenderBuffer();
+    }
+}
+
+void CGuiTextSupport::SetImageBaseline(bool b)
+{
+    if (b != x30_imageBaseline)
+    {
+        x30_imageBaseline = b;
+        ClearRenderBuffer();
+    }
 }
 
 bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const

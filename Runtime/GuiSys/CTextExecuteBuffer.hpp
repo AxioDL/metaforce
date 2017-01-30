@@ -30,7 +30,7 @@ class CTextExecuteBuffer
     s32 xb4_curWordX = 0;
     s32 xb8_curWordY = 0;
     s32 xbc_spaceDistance = 0;
-    bool xc0_ = false;
+    bool xc0_imageBaseline = false;
     std::list<CSaveableState> xc4_stateStack;
     u32 xd8_ = 0;
 
@@ -68,8 +68,8 @@ public:
     void AddImage(const CFontImageDef& image);
     void AddFont(const TToken<CRasterFont>& font);
     void EndBlock();
-    void BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
-                    ETextDirection dir, EJustification just,
+    void BeginBlock(s32 offX, s32 offY, s32 extX, s32 extY,
+                    bool imageBaseline, ETextDirection dir, EJustification just,
                     EVerticalJustification vjust);
     void Clear();
 };

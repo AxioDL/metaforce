@@ -119,6 +119,7 @@ bool CSaveUI::PumpLoad()
         return false;
 
     x50_loadedFrame = x44_frmeGenericMenu.GetObj();
+    x50_loadedFrame->SetAspectConstraint(1.78f);
     x54_textpane_message = static_cast<CGuiTextPane*>(x50_loadedFrame->FindWidget("textpane_message"));
     x58_tablegroup_choices = static_cast<CGuiTableGroup*>(x50_loadedFrame->FindWidget("tablegroup_choices"));
     x5c_textpane_choice0 = static_cast<CGuiTextPane*>(x50_loadedFrame->FindWidget("textpane_choice0"));

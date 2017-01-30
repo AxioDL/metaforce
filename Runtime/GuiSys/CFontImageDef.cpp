@@ -1,4 +1,5 @@
 #include "CFontImageDef.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
@@ -24,6 +25,19 @@ bool CFontImageDef::IsLoaded() const
         if (!tok.IsLoaded())
             return false;
     return true;
+}
+
+s32 CFontImageDef::CalculateBaseline() const
+{
+    const CTexture* tex = x4_texs.front().GetObj();
+    return s32(tex->GetHeight() * x14_pointsPerTexel.y) * 2.5f / 3.f;
+}
+
+s32 CFontImageDef::CalculateHeight() const
+{
+    const CTexture* tex = x4_texs.front().GetObj();
+    s32 scaledH = tex->GetHeight() * x14_pointsPerTexel.y;
+    return scaledH - (scaledH - CalculateBaseline());
 }
 
 }

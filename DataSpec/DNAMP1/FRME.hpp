@@ -264,7 +264,7 @@ struct FRME : BigDNA
             Value<atVec3f> scaleCenter;
             UniqueID32 font;
             Value<bool> wordWrap;
-            Value<bool> vertical;
+            Value<bool> horizontal;
             Value<Justification> justification;
             Value<VerticalJustification> verticalJustification;
             Value<atVec4f> fillColor;

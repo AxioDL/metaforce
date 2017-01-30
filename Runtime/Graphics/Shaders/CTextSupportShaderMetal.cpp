@@ -15,6 +15,7 @@ static const char* TextVS =
 "    float4 uvIn[4];\n"
 "    float4 fontColorIn;\n"
 "    float4 outlineColorIn;\n"
+"    float4 mulColorIn;\n"
 "};\n"
 "\n"
 "struct TextSupportUniform\n"
@@ -28,6 +29,7 @@ static const char* TextVS =
 "    float4 pos [[ position ]];\n"
 "    float4 fontColor;\n"
 "    float4 outlineColor;\n"
+"    float4 mulColor;\n"
 "    float3 uv;\n"
 "};\n"
 "\n"
@@ -37,8 +39,9 @@ static const char* TextVS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    constant InstData& inst = instArr[instId];\n"
-"    vtf.fontColor = uData.color * inst.fontColorIn;\n"
-"    vtf.outlineColor = uData.color * inst.outlineColorIn;\n"
+"    vtf.fontColor = inst.fontColorIn * uData.color;\n"
+"    vtf.outlineColor = inst.outlineColorIn * uData.color;\n"
+"    vtf.mulColor = inst.mulColorIn;\n"
 "    vtf.uv = inst.uvIn[vertId].xyz;\n"
 "    vtf.pos = uData.mtx * float4(inst.posIn[vertId].xyz, 1.0);\n"
 "    return vtf;\n"
@@ -47,12 +50,13 @@ static const char* TextVS =
 static const char* TextFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat);\n"
+"constexpr sampler samp(address::repeat, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
 "    float4 fontColor;\n"
 "    float4 outlineColor;\n"
+"    float4 mulColor;\n"
 "    float3 uv;\n"
 "};\n"
 "\n"
@@ -60,7 +64,7 @@ static const char* TextFS =
 "                      texture2d_array<float> tex [[ texture(0) ]])\n"
 "{\n"
 "    float4 texel = tex.sample(samp, vtf.uv.xy, vtf.uv.z);\n"
-"    return vtf.fontColor * texel.r + vtf.outlineColor * texel.g;\n"
+"    return (vtf.fontColor * texel.r + vtf.outlineColor * texel.g) * vtf.mulColor;\n"
 "}\n";
 
 static const char* ImgVS =
@@ -101,7 +105,7 @@ static const char* ImgVS =
 static const char* ImgFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat);\n"
+"constexpr sampler samp(address::repeat, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -131,12 +135,13 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+        {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
     };
-    s_TextVtxFmt = ctx.newVertexFormat(10, TextVtxVmt);
+    s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                              boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -152,9 +157,9 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                               boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
     return nullptr;
 }

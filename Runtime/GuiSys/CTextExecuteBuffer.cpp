@@ -158,9 +158,8 @@ void CTextExecuteBuffer::AddString(const char16_t* str, int count)
                 StartNewWord();
                 int w, h;
                 char16_t space = u' ';
-                x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
-                                                          w, h, &space, 1);
-                if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
+                x18_textState.x48_font->GetSize(x18_textState.x0_drawStrOpts, w, h, &space, 1);
+                if (xa0_curBlock->x14_dir == ETextDirection::Horizontal)
                 {
                     xa4_curLine->x8_curX += w;
                     xbc_spaceDistance = w;
@@ -180,7 +179,7 @@ void CTextExecuteBuffer::AddString(const char16_t* str, int count)
 
 void CTextExecuteBuffer::AddStringFragment(const char16_t* str, int len)
 {
-    if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
+    if (xa0_curBlock->x14_dir == ETextDirection::Horizontal)
         for (int i=0 ; i<len ;)
             i += WrapOneLTR(str + i, len - i);
 }
@@ -193,8 +192,7 @@ int CTextExecuteBuffer::WrapOneLTR(const char16_t* str, int len)
     CRasterFont* font = x18_textState.x48_font.GetObj();
     int rem = len;
     int w, h;
-    x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
-                                              w, h, str, len);
+    x18_textState.x48_font->GetSize(x18_textState.x0_drawStrOpts, w, h, str, len);
 
     if (x18_textState.x7c_enableWordWrap)
     {
@@ -225,8 +223,7 @@ int CTextExecuteBuffer::WrapOneLTR(const char16_t* str, int len)
                 }
                 else
                 {
-                    x18_textState.x48_font.GetObj()->GetSize(x18_textState.x0_drawStrOpts,
-                                                              w, h, str, rem);
+                    x18_textState.x48_font->GetSize(x18_textState.x0_drawStrOpts, w, h, str, rem);
                 }
 
             } while (w + xa4_curLine->x8_curX > xa0_curBlock->xc_blockExtentX && rem > 1);
@@ -259,7 +256,7 @@ void CTextExecuteBuffer::MoveWordLTR()
     TerminateLineLTR();
 
     xa4_curLine = static_cast<CLineInstruction*>(x0_instList.emplace(xa8_curWordIt,
-        std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust))->get());
+        std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust, xc0_imageBaseline))->get());
 
     x0_instList.emplace(xa8_curWordIt, std::make_shared<CWordInstruction>());
 
@@ -272,7 +269,7 @@ void CTextExecuteBuffer::StartNewLine()
         TerminateLine();
 
     xa8_curWordIt = x0_instList.emplace(x0_instList.cend(),
-        std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust));
+        std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust, xc0_imageBaseline));
     xa4_curLine = static_cast<CLineInstruction*>(xa8_curWordIt->get());
     xbc_spaceDistance = 0;
 
@@ -292,15 +289,16 @@ void CTextExecuteBuffer::StartNewWord()
 
 void CTextExecuteBuffer::TerminateLine()
 {
-    if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
+    if (xa0_curBlock->x14_dir == ETextDirection::Horizontal)
         TerminateLineLTR();
 }
 
 void CTextExecuteBuffer::TerminateLineLTR()
 {
-    if (!xa4_curLine->xc_curY && x18_textState.x48_font)
+    if (!xa4_curLine->xc_curY && x18_textState.IsFinishedLoading())
     {
-        xa4_curLine->xc_curY = xa4_curLine->x10_largestMonoHeight;
+        xa4_curLine->xc_curY = std::max(xa4_curLine->GetHeight(),
+                                        x18_textState.x48_font->GetCarriageAdvance());
     }
 
     if (xa0_curBlock->x1c_vertJustification == EVerticalJustification::Full)
@@ -323,8 +321,8 @@ void CTextExecuteBuffer::AddPopState()
 
     if (!xa4_curLine->x8_curX)
     {
-        xa4_curLine->x1c_just = x18_textState.x80_just;
-        xa4_curLine->x20_vjust = x18_textState.x84_vjust;
+        xa4_curLine->x28_just = x18_textState.x80_just;
+        xa4_curLine->x2c_vjust = x18_textState.x84_vjust;
     }
 }
 
@@ -341,7 +339,7 @@ void CTextExecuteBuffer::AddVerticalJustification(EVerticalJustification vjust)
         return;
     if (xa4_curLine->x8_curX)
         return;
-    xa4_curLine->x20_vjust = vjust;
+    xa4_curLine->x2c_vjust = vjust;
 }
 
 void CTextExecuteBuffer::AddJustification(EJustification just)
@@ -351,7 +349,7 @@ void CTextExecuteBuffer::AddJustification(EJustification just)
         return;
     if (xa4_curLine->x8_curX)
         return;
-    xa4_curLine->x1c_just = just;
+    xa4_curLine->x28_just = just;
 }
 
 void CTextExecuteBuffer::AddLineExtraSpace(s32 space)
@@ -391,11 +389,15 @@ void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
         const CTexture* tex = image.x4_texs[0].GetObj();
         int width = tex->GetWidth() * image.x14_pointsPerTexel.x;
         int height = tex->GetHeight() * image.x14_pointsPerTexel.y;
-        xa4_curLine->TestLargestFont(width, height, height);
 
-        if (xa0_curBlock->x14_direction == ETextDirection::Horizontal)
-            if (xa4_curLine->x8_curX > width)
-                xa0_curBlock->x2c_lineX = xa4_curLine->x8_curX;
+        if (xa4_curLine->x8_curX + width > xa0_curBlock->xc_blockExtentX && xa4_curLine->x4_wordCount > 0)
+            StartNewLine();
+
+        xa4_curLine->TestLargestImage(width, height, image.CalculateBaseline());
+
+        xa4_curLine->x8_curX += width;
+        if (xa4_curLine->x8_curX > width)
+            xa0_curBlock->x2c_lineX = xa4_curLine->x8_curX;
     }
 
     x0_instList.emplace(x0_instList.cend(), std::make_shared<CImageInstruction>(image));
@@ -425,12 +427,13 @@ void CTextExecuteBuffer::EndBlock()
     xa0_curBlock = nullptr;
 }
 
-void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 padX, s32 padY,
-                                    ETextDirection dir, EJustification just,
+void CTextExecuteBuffer::BeginBlock(s32 offX, s32 offY, s32 extX, s32 extY,
+                                    bool imageBaseline, ETextDirection dir, EJustification just,
                                     EVerticalJustification vjust)
 {
+    xc0_imageBaseline = imageBaseline;
     xa0_curBlock = static_cast<CBlockInstruction*>(x0_instList.emplace(x0_instList.cend(),
-        std::make_shared<CBlockInstruction>(offX, offY, padX, padY, dir, just, vjust))->get());
+        std::make_shared<CBlockInstruction>(offX, offY, extX, extY, dir, just, vjust))->get());
 
     if (x18_textState.x48_font)
     {

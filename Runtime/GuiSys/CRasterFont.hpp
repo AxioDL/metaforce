@@ -149,6 +149,8 @@ public:
     void GetSize(const CDrawStringOptions& opts, int& width, int& height,
                  const char16_t* str, int len) const;
     boo::ITexture* GetTexture() { return x80_texture->GetFontTexture(CTexture::EFontType(x2c_mode)); }
+
+    bool IsFinishedLoading() const;
 };
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
