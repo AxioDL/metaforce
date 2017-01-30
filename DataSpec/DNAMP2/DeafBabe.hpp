@@ -18,7 +18,7 @@ struct DeafBabe : BigDNA
         DECL_DNA
         Value<atUint64> material;
         bool unknown() const { return material & 1; }
-        void setUnknown(bool v) { material &= ~1; material |= v; }
+        void setUnknown(bool v) { material &= ~1; material |= atUint64(v); }
         bool surfaceStone() const { return (material >> 1ull) & 1; }
         void setSurfaceStone(bool v) { material &= ~(1ull << 1ull); material |= (atUint64(v) << 1ull); }
         bool surfaceMetal() const { return (material >> 2) & 1; }
