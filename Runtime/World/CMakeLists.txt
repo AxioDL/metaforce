@@ -108,6 +108,7 @@ set(WORLD_SOURCES
     CRippleManager.hpp CRippleManager.cpp
     CRipple.hpp CRipple.cpp
     CDestroyableRock.hpp CDestroyableRock.cpp
-    CHUDBillboardEffect.hpp CHUDBillboardEffect.cpp)
+    CHUDBillboardEffect.hpp CHUDBillboardEffect.cpp
+    CEntityInfo.hpp)
 
 runtime_add_list(World WORLD_SOURCES)
