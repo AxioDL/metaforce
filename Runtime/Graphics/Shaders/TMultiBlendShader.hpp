@@ -41,7 +41,7 @@ public:
 #if _WIN32
             case boo::IGraphicsDataFactory::Platform::D3D11:
             case boo::IGraphicsDataFactory::Platform::D3D12:
-                m_bindFactory.reset(FilterImp::Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
+                m_bindFactory.reset(ShaderImp::Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
                 break;
 #endif
 #if BOO_HAS_METAL
@@ -51,7 +51,7 @@ public:
 #endif
 #if BOO_HAS_VULKAN
             case boo::IGraphicsDataFactory::Platform::Vulkan:
-                m_bindFactory.reset(FilterImp::Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx)));
+                m_bindFactory.reset(ShaderImp::Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx)));
                 break;
 #endif
             default: break;

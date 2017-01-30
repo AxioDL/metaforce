@@ -98,87 +98,117 @@ static const char* FSAlpha =
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
+static boo::IVertexFormat* s_VtxFmt = nullptr;
+static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
+static boo::IShaderPipeline* s_AddPipeline = nullptr;
+static boo::IShaderPipeline* s_MultPipeline = nullptr;
+
+static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
+{
+    switch (type)
+    {
+    case CCameraFilterPass::EFilterType::Blend:
+        return s_AlphaPipeline;
+    case CCameraFilterPass::EFilterType::Add:
+        return s_AddPipeline;
+    case CCameraFilterPass::EFilterType::Multiply:
+        return s_MultPipeline;
+    default:
+        return nullptr;
+    }
+}
+
 struct CTexturedQuadFilterD3DDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
+                                                    CCameraFilterPass::EFilterType type,
                                                     CTexturedQuadFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {filter.m_booTex};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs);
     }
 };
 
 TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory*
-CTexturedQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx,
-                                boo::IShaderPipeline*& alphaPipeOut,
-                                boo::IShaderPipeline*& additivePipeOut,
-                                boo::IShaderPipeline*& colorMultiplyPipeOut,
-                                boo::IVertexFormat*& vtxFmtOut)
+CTexturedQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                         vtxFmtOut, boo::BlendFactor::SrcAlpha,
-                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                            vtxFmtOut, boo::BlendFactor::SrcAlpha,
-                                            boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                                 vtxFmtOut, boo::BlendFactor::SrcColor,
-                                                 boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
+    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_AlphaPipeline = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                            s_VtxFmt, boo::BlendFactor::SrcAlpha,
+                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+    s_AddPipeline = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                          s_VtxFmt, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+    s_MultPipeline = ctx.newShaderPipeline(VSNoFlip, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                           s_VtxFmt, boo::BlendFactor::SrcColor,
+                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterD3DDataBindingFactory;
+}
+
+static boo::IVertexFormat* s_AVtxFmt = nullptr;
+static boo::IShaderPipeline* s_AAlphaPipeline = nullptr;
+static boo::IShaderPipeline* s_AAddPipeline = nullptr;
+static boo::IShaderPipeline* s_AMultPipeline = nullptr;
+
+static boo::IShaderPipeline* SelectAlphaPipeline(CCameraFilterPass::EFilterType type)
+{
+    switch (type)
+    {
+    case CCameraFilterPass::EFilterType::Blend:
+        return s_AAlphaPipeline;
+    case CCameraFilterPass::EFilterType::Add:
+        return s_AAddPipeline;
+    case CCameraFilterPass::EFilterType::Multiply:
+        return s_AMultPipeline;
+    default:
+        return nullptr;
+    }
 }
 
 struct CTexturedQuadFilterAlphaD3DDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    boo::IShaderPipeline* pipeline,
-                                                    boo::IVertexFormat* vtxFmt,
+                                                    CCameraFilterPass::EFilterType type,
                                                     CTexturedQuadFilterAlpha& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::ITexture* texs[] = {filter.m_booTex};
-        return cctx.newShaderDataBinding(pipeline, vtxFmt,
+        return cctx.newShaderDataBinding(SelectAlphaPipeline(type), s_AVtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs);
     }
 };
 
 TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory*
-CTexturedQuadFilterAlpha::Initialize(boo::ID3DDataFactory::Context& ctx,
-                                     boo::IShaderPipeline*& alphaPipeOut,
-                                     boo::IShaderPipeline*& additivePipeOut,
-                                     boo::IShaderPipeline*& colorMultiplyPipeOut,
-                                     boo::IVertexFormat*& vtxFmtOut)
+CTexturedQuadFilterAlpha::Initialize(boo::ID3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4},
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
-    vtxFmtOut = ctx.newVertexFormat(2, VtxVmt);
-    alphaPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                         vtxFmtOut, boo::BlendFactor::SrcAlpha,
-                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    additivePipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                            vtxFmtOut, boo::BlendFactor::SrcAlpha,
-                                            boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    colorMultiplyPipeOut = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                                 vtxFmtOut, boo::BlendFactor::SrcColor,
-                                                 boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
+    s_AVtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_AAlphaPipeline = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                             s_AVtxFmt, boo::BlendFactor::SrcAlpha,
+                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+    s_AAddPipeline = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                           s_AVtxFmt, boo::BlendFactor::SrcAlpha,
+                                           boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+    s_AMultPipeline = ctx.newShaderPipeline(VSFlip, FSAlpha, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+                                            s_AVtxFmt, boo::BlendFactor::SrcColor,
+                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CTexturedQuadFilterAlphaD3DDataBindingFactory;
 }
 
