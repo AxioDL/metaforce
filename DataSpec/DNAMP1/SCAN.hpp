@@ -161,11 +161,8 @@ struct SCAN : BigYAML
         return true;
     }
 
-    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+    static bool Cook(const SCAN& scan, const hecl::ProjectPath& outPath)
     {
-        SCAN scan;
-        athena::io::FileReader reader(inPath.getAbsolutePath());
-        scan.fromYAMLStream(reader);
         athena::io::FileWriter ws(outPath.getAbsolutePath());
         scan.write(ws);
         return true;
@@ -203,6 +200,12 @@ struct SCAN : BigYAML
                 ent->name = hecl::Format("SCAN_%s_tex%d", entry.id.toString().c_str(), i+1);
             }
         }
+    }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut)
+    {
+        for (int i = 0; i < 4; ++i)
+            g_curSpec->flattenDependencies(textures[i].texture, pathsOut);
     }
 };
 }

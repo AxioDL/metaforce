@@ -20,7 +20,7 @@ struct ISTRG : BigYAML
     virtual hecl::SystemString getSystemString(const FourCC& lang, size_t idx) const=0;
     virtual int32_t lookupIdx(const std::string& name) const=0;
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const;
+    virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const;
 };
 std::unique_ptr<ISTRG> LoadSTRG(athena::io::IStreamReader& reader);
 

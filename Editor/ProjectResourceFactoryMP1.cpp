@@ -19,6 +19,7 @@
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/CSaveWorld.hpp"
 #include "Runtime/AutoMapper/CMapWorld.hpp"
+#include "Runtime/CScannableObjectInfo.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "Runtime/CDependencyGroup.hpp"
@@ -108,6 +109,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));
     m_factoryMgr.AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
     m_factoryMgr.AddFactory(FOURCC('OIDS'), FFactoryFunc(FMP1OriginalIDsFactory));
+    m_factoryMgr.AddFactory(FOURCC('SCAN'), FFactoryFunc(FScannableObjectInfoFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp)

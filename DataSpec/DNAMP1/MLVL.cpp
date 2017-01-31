@@ -13,36 +13,59 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-bool MLVL::Extract(const SpecBase& dataSpec,
-                   PAKEntryReadStream& rs,
-                   const hecl::ProjectPath& outPath,
-                   PAKRouter<PAKBridge>& pakRouter,
-                   const PAK::Entry& entry,
-                   bool force,
-                   hecl::BlenderToken& btok,
+bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                   PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::BlenderToken& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged)
 {
     MLVL mlvl;
     mlvl.read(rs);
+    const nod::Node* node;
+    const typename PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(mlvl.saveWorldId, &node);
+    hecl::ProjectPath savwPath = pakRouter.getWorking(texEntry);
+    SAVW savw;
+    if (!savwPath.isNone())
+    {
+        savwPath.makeDirChain(false);
+        PAKEntryReadStream rs = texEntry->beginReadStream(*node);
+        savw.read(rs);
+    }
 
+    atUint32 areaIdx = 0;
     for (const MLVL::Area& area : mlvl.areas)
     {
         hecl::ProjectPath areaDir = pakRouter.getWorking(area.areaMREAId).getParentPath();
-        athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _S("!memoryid.yaml")).getAbsolutePath());
-        athena::io::YAMLDocWriter w(nullptr);
-        w.writeUint32("memoryid", area.areaId);
-        w.finish(&fw);
+        {
+            athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _S("!memoryid.yaml")).getAbsolutePath());
+            athena::io::YAMLDocWriter w(nullptr);
+            w.writeUint32("memoryid", area.areaId);
+            w.finish(&fw);
+        }
+        {
+            athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _S("!memoryrelays.yaml")).getAbsolutePath());
+            athena::io::YAMLDocWriter w(nullptr);
+
+            std::vector<atUint32> relayIds;
+            for (const atUint32& relay : savw.relays)
+            {
+                atUint16 aIdx = ((relay >> 16) & 0x3ff);
+                if (aIdx == areaIdx && std::find(relayIds.begin(), relayIds.end(), relay) == relayIds.end())
+                    relayIds.push_back(relay);
+            }
+
+            w.enumerate<atUint32>("memrelays", relayIds);
+            w.finish(&fw);
+        }
+        areaIdx++;
     }
 
     athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
     mlvl.toYAMLStream(writer, static_cast<YAMLWriteMemberFn>(&MLVL::writeMeta));
     hecl::BlenderConnection& conn = btok.getBlenderConnection();
-    return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
-                                      entry, force, fileChanged);
+    return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
 }
 
-bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
-                const World& wld, hecl::BlenderToken& btok)
+bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const World& wld,
+                hecl::BlenderToken& btok)
 {
     MLVL mlvl = {};
     athena::io::FileReader reader(inPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
@@ -77,8 +100,24 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         if (!areaPath.isFile())
             continue;
 
-        hecl::DirectoryEnumerator dEnum(area.path.getAbsolutePath(),
-                                        hecl::DirectoryEnumerator::Mode::DirsSorted);
+        hecl::ProjectPath memRelayPath(area.path, _S("/!memoryrelays.yaml"));
+
+        std::vector<atUint32> memRelays;
+
+        if (memRelayPath.isFile())
+        {
+            athena::io::FileReader fr(memRelayPath.getAbsolutePath());
+            athena::io::YAMLDocReader r;
+            if (r.parse(&fr))
+                r.enumerate<atUint32>("memrelays", memRelays);
+        }
+
+        savw.relays.insert(savw.relays.end(), memRelays.begin(), memRelays.end());
+
+        /* Bare minimum we'll need exactly the same number of links as relays */
+        std::vector<MemRelayLink> memRelayLinks(memRelays.size());
+
+        hecl::DirectoryEnumerator dEnum(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted);
         bool areaInit = false;
 
         size_t layerIdx = 0;
@@ -201,6 +240,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             MLVL::Area& areaOut = mlvl.areas.back();
             areaOut.depLayers.push_back(areaOut.deps.size());
 
+
             /* Gather memory relays, scans, and dependencies */
             {
                 g_ThreadBlenderToken.reset(&btok);
@@ -213,14 +253,28 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                         MemoryRelay& memRelay = static_cast<MemoryRelay&>(*obj);
                         for (IScriptObject::Connection& conn : memRelay.connections)
                         {
-                            mlvl.memRelayLinks.emplace_back();
-                            MemRelayLink& linkOut = mlvl.memRelayLinks.back();
+                            MemRelayLink linkOut;
                             linkOut.memRelayId = memRelay.id;
                             linkOut.targetId = conn.target;
                             linkOut.msg = conn.msg;
                             linkOut.active = memRelay.active;
+                            auto iter = std::find(memRelays.begin(), memRelays.end(), linkOut.memRelayId);
+                            if (iter == memRelays.end())
+                            {
+                                /* We must have a new relay, let's track it */
+                                memRelayLinks.push_back(linkOut);
+                                savw.relays.push_back(memRelay.id);
+                                memRelays.push_back(memRelay.id);
+                            }
+                            else /* Lets insert this in it's appropriate location, target order doesn't matter */
+                            {
+                                atUint32 idx = iter - memRelays.begin();
+                                if (idx >= memRelayLinks.size())
+                                    memRelayLinks.push_back(linkOut);
+                                else
+                                    memRelayLinks.insert(memRelayLinks.begin() + idx, linkOut);
+                            }
                         }
-                        savw.relays.push_back(memRelay.id);
                     }
                     else if (obj->type == int(urde::EScriptObjectType::SpecialFunction))
                     {
@@ -286,6 +340,9 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             ++layerIdx;
         }
 
+        /* Append Memory Relays */
+        mlvl.memRelayLinks.insert(mlvl.memRelayLinks.end(), memRelayLinks.begin(), memRelayLinks.end());
+
         /* Cull duplicate area paths and add typed hash to list */
         auto& conn = btok.getBlenderConnection();
         if (conn.openBlend(areaPath))
@@ -332,8 +389,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
     /* Write out MAPW */
     {
-        hecl::ProjectPath mapwCooked =
-            mapwPath.getCookedPath(*g_curSpec->overrideDataSpec(mapwPath, nullptr, btok));
+        hecl::ProjectPath mapwCooked = mapwPath.getCookedPath(*g_curSpec->overrideDataSpec(mapwPath, nullptr, btok));
         mapwCooked.makeDirChain(false);
         athena::io::FileWriter fo(mapwCooked.getAbsolutePath());
         fo.writeUint32Big(0xDEADF00D);
@@ -352,8 +408,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         savw.doorCount = savw.doors.size();
         savw.scanCount = savw.scans.size();
 
-        hecl::ProjectPath savwCooked =
-            savwPath.getCookedPath(*g_curSpec->overrideDataSpec(savwPath, nullptr, btok));
+        hecl::ProjectPath savwCooked = savwPath.getCookedPath(*g_curSpec->overrideDataSpec(savwPath, nullptr, btok));
         savwCooked.makeDirChain(false);
         athena::io::FileWriter fo(savwCooked.getAbsolutePath());
         savw.write(fo);
@@ -361,6 +416,5 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
     return true;
 }
-
 }
 }

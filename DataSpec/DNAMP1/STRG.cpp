@@ -6,22 +6,14 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-const std::vector<FourCC> skLanguages =
-{
-    FOURCC('ENGL'),
-    FOURCC('FREN'),
-    FOURCC('GERM'),
-    FOURCC('SPAN'),
-    FOURCC('ITAL'),
-    FOURCC('DUTC'),
-    FOURCC('JAPN')
-};
+const std::vector<FourCC> skLanguages = {FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'),
+                                         FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN')};
 
 static float u16stof(char16_t* str)
 {
     char cstr[16];
     int i;
-    for (i=0 ; i<15 && str[i] != u'\0' ; ++i)
+    for (i = 0; i < 15 && str[i] != u'\0'; ++i)
         cstr[i] = str[i];
     cstr[i] = '\0';
     return strtof(cstr, nullptr);
@@ -31,18 +23,16 @@ static uint32_t ParseTag(const char16_t* str)
 {
     char parseStr[9];
     int i;
-    for (i=0 ; i<8 && str[i] ; ++i)
+    for (i = 0; i < 8 && str[i]; ++i)
         parseStr[i] = str[i];
     parseStr[i] = '\0';
     return strtoul(parseStr, nullptr, 16);
 }
 
-static std::u16string::const_iterator SkipCommas(std::u16string& ret,
-                                                 const std::u16string& str,
-                                                 std::u16string::const_iterator it,
-                                                 size_t count)
+static std::u16string::const_iterator SkipCommas(std::u16string& ret, const std::u16string& str,
+                                                 std::u16string::const_iterator it, size_t count)
 {
-    for (size_t i=0 ; i<count ; ++i)
+    for (size_t i = 0; i < count; ++i)
     {
         auto cpos = str.find(u',', it - str.begin());
         if (cpos == std::u16string::npos)
@@ -54,8 +44,7 @@ static std::u16string::const_iterator SkipCommas(std::u16string& ret,
     return it;
 }
 
-static std::u16string::const_iterator UncookTextureList(std::u16string& ret,
-                                                        const std::u16string& str,
+static std::u16string::const_iterator UncookTextureList(std::u16string& ret, const std::u16string& str,
                                                         std::u16string::const_iterator it)
 {
     while (true)
@@ -87,20 +76,17 @@ static std::u16string::const_iterator UncookTextureList(std::u16string& ret,
     return str.begin() + scpos + 1;
 }
 
-static std::u16string::const_iterator CookTextureList(std::u16string& ret,
-                                                      const std::u16string& str,
+static std::u16string::const_iterator CookTextureList(std::u16string& ret, const std::u16string& str,
                                                       std::u16string::const_iterator it)
 {
     while (true)
     {
         auto end = str.find_first_of(u",;", it - str.begin());
         if (end == std::u16string::npos)
-            Log.report(logvisor::Fatal,
-                       "Missing comma/semicolon token while pasing font tag");
+            Log.report(logvisor::Fatal, "Missing comma/semicolon token while pasing font tag");
         auto endIt = str.begin() + end;
         hecl::ProjectPath path =
-            UniqueIDBridge::MakePathFromString<UniqueID32>(
-                hecl::Char16ToUTF8(std::u16string(it, endIt)));
+            UniqueIDBridge::MakePathFromString<UniqueID32>(hecl::Char16ToUTF8(std::u16string(it, endIt)));
         ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
         it = endIt;
         if (*it == u';')
@@ -126,11 +112,47 @@ static std::u16string::const_iterator CookTextureList(std::u16string& ret,
     return str.begin() + scpos + 1;
 }
 
+static std::u16string::const_iterator GatherTextureList(std::vector<hecl::ProjectPath>& pathsOut,
+                                                        const std::u16string& str, std::u16string::const_iterator it)
+{
+    while (true)
+    {
+        auto end = str.find_first_of(u",;", it - str.begin());
+        if (end == std::u16string::npos)
+            Log.report(logvisor::Fatal, "Missing comma/semicolon token while pasing font tag");
+        auto endIt = str.begin() + end;
+        hecl::ProjectPath path =
+            UniqueIDBridge::MakePathFromString<UniqueID32>(hecl::Char16ToUTF8(std::u16string(it, endIt)));
+        if (path)
+            pathsOut.push_back(path);
+
+        it = endIt;
+        if (*it == u';')
+        {
+            return it + 1;
+        }
+        else if (*it == u',')
+        {
+            ++it;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    /* Failsafe */
+    auto scpos = str.find(u';', it - str.begin());
+    if (scpos == std::u16string::npos)
+        return str.end();
+    return str.begin() + scpos + 1;
+}
+
 static std::u16string UncookString(const std::u16string& str)
 {
     std::u16string ret;
     ret.reserve(str.size());
-    for (auto it = str.begin() ; it != str.end() ;)
+    for (auto it = str.begin(); it != str.end();)
     {
         if (*it == u'&')
         {
@@ -202,7 +224,7 @@ static std::u16string CookString(const std::u16string& str)
 {
     std::u16string ret;
     ret.reserve(str.size());
-    for (auto it = str.begin() ; it != str.end() ;)
+    for (auto it = str.begin(); it != str.end();)
     {
         if (*it == u'&')
         {
@@ -238,9 +260,8 @@ static std::u16string CookString(const std::u16string& str)
                 auto scpos = str.find(u';', it - str.begin());
                 if (scpos == std::u16string::npos)
                     Log.report(logvisor::Fatal, "Missing semicolon token while pasing font tag");
-                hecl::ProjectPath path =
-                    UniqueIDBridge::MakePathFromString<UniqueID32>(
-                        hecl::Char16ToUTF8(std::u16string(it, str.begin() + scpos)));
+                hecl::ProjectPath path = UniqueIDBridge::MakePathFromString<UniqueID32>(
+                    hecl::Char16ToUTF8(std::u16string(it, str.begin() + scpos)));
                 ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
                 ret.push_back(u';');
                 it = str.begin() + scpos + 1;
@@ -269,6 +290,68 @@ static std::u16string CookString(const std::u16string& str)
     return ret;
 }
 
+void STRG::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+{
+    std::u16string skip;
+    for (const auto& lang : langs)
+    {
+        for (const std::u16string& str : lang.second)
+        {
+            for (auto it = str.begin(); it != str.end();)
+            {
+                if (*it == u'&')
+                {
+                    ++it;
+                    if (!str.compare(it - str.begin(), 5, u"image"))
+                    {
+                        it += 6;
+                        if (!str.compare(it - str.begin(), 1, u"A"))
+                        {
+                            it = SkipCommas(skip, str, it, 2);
+                            it = GatherTextureList(pathsOut, str, it);
+                            continue;
+                        }
+                        else if (!str.compare(it - str.begin(), 2, u"SA"))
+                        {
+                            it = SkipCommas(skip, str, it, 4);
+                            it = GatherTextureList(pathsOut, str, it);
+                            continue;
+                        }
+                        else if (!str.compare(it - str.begin(), 2, u"SI"))
+                        {
+                            it = SkipCommas(skip, str, it, 3);
+                            it = GatherTextureList(pathsOut, str, it);
+                            continue;
+                        }
+                    }
+                    else if (!str.compare(it - str.begin(), 4, u"font"))
+                    {
+                        it += 5;
+                        auto scpos = str.find(u';', it - str.begin());
+                        if (scpos == std::u16string::npos)
+                            Log.report(logvisor::Fatal, "Missing semicolon token while pasing font tag");
+                        hecl::ProjectPath path = UniqueIDBridge::MakePathFromString<UniqueID32>(
+                            hecl::Char16ToUTF8(std::u16string(it, str.begin() + scpos)));
+                        if (path)
+                            pathsOut.push_back(path);
+                        it = str.begin() + scpos + 1;
+                    }
+                    else
+                    {
+                        auto scpos = str.find(u';', it - str.begin());
+                        if (scpos == std::u16string::npos)
+                            it = str.end();
+                        else
+                            it = str.begin() + scpos + 1;
+                    }
+                }
+                else
+                    ++it;
+            }
+        }
+    }
+}
+
 void STRG::_read(athena::io::IStreamReader& reader)
 {
     atUint32 langCount = reader.readUint32Big();
@@ -277,7 +360,7 @@ void STRG::_read(athena::io::IStreamReader& reader)
     std::vector<std::pair<FourCC, atUint32>> readLangs;
 
     readLangs.reserve(langCount);
-    for (atUint32 l=0 ; l<langCount ; ++l)
+    for (atUint32 l = 0; l < langCount; ++l)
     {
         DNAFourCC lang;
         lang.read(reader);
@@ -294,7 +377,7 @@ void STRG::_read(athena::io::IStreamReader& reader)
         reader.seek(tablesStart + lang.second, athena::SeekOrigin::Begin);
         reader.readUint32Big(); // table size
         atUint32 langStart = reader.position();
-        for (atUint32 s=0 ; s<strCount ; ++s)
+        for (atUint32 s = 0; s < strCount; ++s)
         {
             atUint32 strOffset = reader.readUint32Big();
             atUint32 tmpOffset = reader.position();
@@ -342,7 +425,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         writer.writeUint32Big(offset);
         offset += strCount * 4 + 4;
         atUint32 langStrCount = lang.second.size();
-        for (atUint32 s=0 ; s<strCount ; ++s)
+        for (atUint32 s = 0; s < strCount; ++s)
         {
             std::u16string str = CookString(lang.second[s]);
             atUint32 chCount = str.size();
@@ -360,7 +443,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         atUint32 langStrCount = lang.second.size();
         atUint32 tableSz = strCount * 4;
         auto strIt = langIt;
-        for (atUint32 s=0 ; s<strCount ; ++s)
+        for (atUint32 s = 0; s < strCount; ++s)
         {
             if (s < langStrCount)
                 tableSz += ((strIt++)->size() + 1) * 2;
@@ -371,7 +454,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
 
         offset = strCount * 4;
         strIt = langIt;
-        for (atUint32 s=0 ; s<strCount ; ++s)
+        for (atUint32 s = 0; s < strCount; ++s)
         {
             writer.writeUint32Big(offset);
             if (s < langStrCount)
@@ -381,7 +464,7 @@ void STRG::write(athena::io::IStreamWriter& writer) const
         }
 
         strIt = langIt;
-        for (atUint32 s=0 ; s<strCount ; ++s)
+        for (atUint32 s = 0; s < strCount; ++s)
         {
             if (s < langStrCount)
                 writer.writeU16StringBig(*strIt++);
@@ -403,7 +486,7 @@ size_t STRG::binarySize(size_t __isz) const
     for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
         atUint32 langStrCount = lang.second.size();
-        for (atUint32 s=0 ; s<strCount ; ++s)
+        for (atUint32 s = 0; s < strCount; ++s)
         {
             if (s < langStrCount)
                 __isz += (CookString(lang.second[s]).size() + 1) * 2;
@@ -429,19 +512,22 @@ void STRG::read(athena::io::YAMLDocReader& reader)
 
             if (lang.first.size() != 4)
             {
-                Log.report(logvisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping", lang.first.c_str());
+                Log.report(logvisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping",
+                           lang.first.c_str());
                 return;
             }
             if (lang.second->m_type != YAML_SEQUENCE_NODE)
             {
-                Log.report(logvisor::Warning, "STRG language string '%s' must contain a sequence; skipping", lang.first.c_str());
+                Log.report(logvisor::Warning, "STRG language string '%s' must contain a sequence; skipping",
+                           lang.first.c_str());
                 return;
             }
             for (const auto& str : lang.second->m_seqChildren)
             {
                 if (str->m_type != YAML_SCALAR_NODE)
                 {
-                    Log.report(logvisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+                    Log.report(logvisor::Warning, "STRG language '%s' must contain all scalars; skipping",
+                               lang.first.c_str());
                     return;
                 }
             }
@@ -483,10 +569,6 @@ void STRG::write(athena::io::YAMLDocWriter& writer) const
     }
 }
 
-const char* STRG::DNAType()
-{
-    return "urde::DNAMP1::STRG";
-}
-
+const char* STRG::DNAType() { return "urde::DNAMP1::STRG"; }
 }
 }

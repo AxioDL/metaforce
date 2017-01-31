@@ -8,6 +8,7 @@
 #include "DNAMP1/HINT.hpp"
 #include "DNAMP1/MLVL.hpp"
 #include "DNAMP1/STRG.hpp"
+#include "DNAMP1/SCAN.hpp"
 #include "DNAMP1/CMDL.hpp"
 #include "DNAMP1/MREA.hpp"
 #include "DNAMP1/ANCS.hpp"
@@ -50,12 +51,10 @@ extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
 struct OriginalIDs
 {
-    static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter,
-                         hecl::Database::Project& project)
+    static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project)
     {
         std::vector<UniqueID32> originalIDs;
-        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool
-        {
+        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool {
             if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN'))
                 originalIDs.push_back(ent->id);
             return true;
@@ -91,16 +90,13 @@ struct OriginalIDs
             if (end != node.first.c_str() + 8)
                 continue;
 
-            hecl::ProjectPath path(project.getProjectWorkingPath(),
-                                   node.second->m_scalarString.c_str());
+            hecl::ProjectPath path(project.getProjectWorkingPath(), node.second->m_scalarString.c_str());
             originalIDs.push_back(std::make_pair(id, path.hash().val32()));
         }
         std::sort(originalIDs.begin(), originalIDs.end(),
-        [](const std::pair<UniqueID32, UniqueID32>& a,
-           const std::pair<UniqueID32, UniqueID32>& b) -> bool
-        {
-            return a.first < b.first;
-        });
+                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) -> bool {
+                      return a.first < b.first;
+                  });
 
         athena::io::FileWriter w(outPath.getAbsolutePath());
         w.writeUint32Big(originalIDs.size());
@@ -111,11 +107,9 @@ struct OriginalIDs
         }
 
         std::sort(originalIDs.begin(), originalIDs.end(),
-        [](const std::pair<UniqueID32, UniqueID32>& a,
-           const std::pair<UniqueID32, UniqueID32>& b) -> bool
-        {
-            return a.second < b.second;
-        });
+                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) -> bool {
+                      return a.second < b.second;
+                  });
         for (const auto& idPair : originalIDs)
         {
             idPair.second.write(w);
@@ -142,14 +136,14 @@ struct SpecMP1 : SpecBase
     PAKRouter<DNAMP1::PAKBridge> m_pakRouter;
 
     SpecMP1(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
-    : SpecBase(specEntry, project, pc),
-      m_workPath(project.getProjectWorkingPath(), _S("MP1")),
-      m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1")),
-      m_pakRouter(*this, m_workPath, m_cookPath) {}
+    : SpecBase(specEntry, project, pc)
+    , m_workPath(project.getProjectWorkingPath(), _S("MP1"))
+    , m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1"))
+    , m_pakRouter(*this, m_workPath, m_cookPath)
+    {
+    }
 
-    void buildPaks(nod::Node& root,
-                   const std::vector<hecl::SystemString>& args,
-                   ExtractReport& rep)
+    void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep)
     {
         m_nonPaks.clear();
         m_paks.clear();
@@ -199,7 +193,6 @@ struct SpecMP1 : SpecBase
                     }
 
                     m_paks.emplace_back(m_project, child, good);
-
                 }
             }
 
@@ -226,10 +219,8 @@ struct SpecMP1 : SpecBase
         }
     }
 
-    bool checkFromStandaloneDisc(nod::DiscBase& disc,
-                                 const hecl::SystemString& regstr,
-                                 const std::vector<hecl::SystemString>& args,
-                                 std::vector<ExtractReport>& reps)
+    bool checkFromStandaloneDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
+                                 const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps)
     {
         nod::Partition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
@@ -257,10 +248,8 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    bool checkFromTrilogyDisc(nod::DiscBase& disc,
-                              const hecl::SystemString& regstr,
-                              const std::vector<hecl::SystemString>& args,
-                              std::vector<ExtractReport>& reps)
+    bool checkFromTrilogyDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
+                              const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps)
     {
         std::vector<hecl::SystemString> mp1args;
         bool doExtract = false;
@@ -328,10 +317,7 @@ struct SpecMP1 : SpecBase
         m_workPath.makeDir();
 
         progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
-        m_pakRouter.build(m_paks, [&progress](float factor)
-        {
-            progress(_S("Indexing PAKs"), _S(""), 2, factor);
-        });
+        m_pakRouter.build(m_paks, [&progress](float factor) { progress(_S("Indexing PAKs"), _S(""), 2, factor); });
         progress(_S("Indexing PAKs"), _S(""), 2, 1.0);
 
         hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
@@ -388,11 +374,8 @@ struct SpecMP1 : SpecBase
                 progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
             hecl::SystemString pakName = sysName.sys_str();
-            process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
-            {
-                m_pakRouter.extractResources(pak, force, btok,
-                [&](const hecl::SystemChar* substr, float factor)
-                {
+            process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok) {
+                m_pakRouter.extractResources(pak, force, btok, [&](const hecl::SystemChar* substr, float factor) {
                     std::unique_lock<std::mutex> lk(msgLock);
                     progress(pakName.c_str(), substr, compIdx, factor);
                 });
@@ -404,20 +387,11 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    const hecl::Database::DataSpecEntry& getOriginalSpec() const
-    {
-        return SpecEntMP1;
-    }
+    const hecl::Database::DataSpecEntry& getOriginalSpec() const { return SpecEntMP1; }
 
-    const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const
-    {
-        return SpecEntMP1ORIG;
-    }
+    const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const { return SpecEntMP1ORIG; }
 
-    hecl::ProjectPath getWorking(class UniqueID32& id)
-    {
-        return m_pakRouter.getWorking(id);
-    }
+    hecl::ProjectPath getWorking(class UniqueID32& id) { return m_pakRouter.getWorking(id); }
 
     bool checkPathPrefix(const hecl::ProjectPath& path) const
     {
@@ -428,11 +402,12 @@ struct SpecMP1 : SpecBase
     {
         athena::io::YAMLDocReader reader;
         yaml_parser_set_input(reader.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &fp);
-        return reader.ClassTypeOperation([](const char* classType)
-        {
+        return reader.ClassTypeOperation([](const char* classType) {
             if (!strcmp(classType, DNAMP1::MLVL::DNAType()))
                 return true;
             else if (!strcmp(classType, DNAMP1::STRG::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::SCAN::DNAType()))
                 return true;
             else if (!strcmp(classType, DNAParticle::GPSM<UniqueID32>::DNAType()))
                 return true;
@@ -575,94 +550,98 @@ struct SpecMP1 : SpecBase
             yaml_parser_set_input_file(reader.getParser(), fp);
 
             urde::SObjectTag resTag;
-            if (reader.ClassTypeOperation([&](const char* className) -> bool
-            {
-                if (!strcmp(className, "GPSM"))
-                {
-                    resTag.type = SBIG('PART');
-                    return true;
-                }
-                if (!strcmp(className, "SWSH"))
-                {
-                    resTag.type = SBIG('SWHC');
-                    return true;
-                }
-                if (!strcmp(className, "ELSM"))
-                {
-                    resTag.type = SBIG('ELSC');
-                    return true;
-                }
-                if (!strcmp(className, "WPSM"))
-                {
-                    resTag.type = SBIG('WPSC');
-                    return true;
-                }
-                if (!strcmp(className, "CRSM"))
-                {
-                    resTag.type = SBIG('CRSC');
-                    return true;
-                }
-                if (!strcmp(className, "DPSM"))
-                {
-                    resTag.type = SBIG('DPSC');
-                    return true;
-                }
-                else if (!strcmp(className, "FONT"))
-                {
-                    resTag.type = SBIG('FONT');
-                    return true;
-                }
-                else if (!strcmp(className, "urde::DNAMP1::EVNT"))
-                {
-                    resTag.type = SBIG('EVNT');
-                    return true;
-                }
-                else if (!strcmp(className, "urde::DGRP"))
-                {
-                    resTag.type = SBIG('DGRP');
-                    return true;
-                }
-                else if (!strcmp(className, "urde::DNAMP1::STRG"))
-                {
-                    resTag.type = SBIG('STRG');
-                    return true;
-                }
-                else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGame") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakTargeting") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakAutoMapper") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGui") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerControl") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakBall") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakParticle") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakGuiColors") ||
-                         !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerGun"))
-                {
-                    resTag.type = SBIG('CTWK');
-                    return true;
-                }
-                else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
-                {
-                    resTag.type = SBIG('HINT');
-                    return true;
-                }
-                else if (!strcmp(className, "ATBL"))
-                {
-                    resTag.type = SBIG('ATBL');
-                    return true;
-                }
-                else if (!strcmp(className, "MP1OriginalIDs"))
-                {
-                    resTag.type = SBIG('OIDS');
-                    return true;
-                }
+            if (reader.ClassTypeOperation([&](const char* className) -> bool {
+                    if (!strcmp(className, "GPSM"))
+                    {
+                        resTag.type = SBIG('PART');
+                        return true;
+                    }
+                    if (!strcmp(className, "SWSH"))
+                    {
+                        resTag.type = SBIG('SWHC');
+                        return true;
+                    }
+                    if (!strcmp(className, "ELSM"))
+                    {
+                        resTag.type = SBIG('ELSC');
+                        return true;
+                    }
+                    if (!strcmp(className, "WPSM"))
+                    {
+                        resTag.type = SBIG('WPSC');
+                        return true;
+                    }
+                    if (!strcmp(className, "CRSM"))
+                    {
+                        resTag.type = SBIG('CRSC');
+                        return true;
+                    }
+                    if (!strcmp(className, "DPSM"))
+                    {
+                        resTag.type = SBIG('DPSC');
+                        return true;
+                    }
+                    else if (!strcmp(className, "FONT"))
+                    {
+                        resTag.type = SBIG('FONT');
+                        return true;
+                    }
+                    else if (!strcmp(className, "urde::DNAMP1::EVNT"))
+                    {
+                        resTag.type = SBIG('EVNT');
+                        return true;
+                    }
+                    else if (!strcmp(className, "urde::DGRP"))
+                    {
+                        resTag.type = SBIG('DGRP');
+                        return true;
+                    }
+                    else if (!strcmp(className, "urde::DNAMP1::STRG"))
+                    {
+                        resTag.type = SBIG('STRG');
+                        return true;
+                    }
+                    else if (!strcmp(className, "urde::DNAMP1::SCAN"))
+                    {
+                        resTag.type = SBIG('SCAN');
+                        return true;
+                    }
+                    else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakGame") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakTargeting") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakAutoMapper") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakGui") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerControl") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakBall") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakParticle") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakGuiColors") ||
+                             !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerGun"))
+                    {
+                        resTag.type = SBIG('CTWK');
+                        return true;
+                    }
+                    else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
+                    {
+                        resTag.type = SBIG('HINT');
+                        return true;
+                    }
+                    else if (!strcmp(className, "ATBL"))
+                    {
+                        resTag.type = SBIG('ATBL');
+                        return true;
+                    }
+                    else if (!strcmp(className, "MP1OriginalIDs"))
+                    {
+                        resTag.type = SBIG('OIDS');
+                        return true;
+                    }
 
-                return false;
-            }))
+                    return false;
+                }))
             {
                 resTag.id = path.hash().val32();
                 fclose(fp);
@@ -673,15 +652,12 @@ struct SpecMP1 : SpecBase
         return {};
     }
 
-    void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
-                  FCookProgress progress)
+    void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                  hecl::BlenderToken& btok, FCookProgress progress)
     {
-        Mesh mesh = ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, m_pc ? 16 : -1,
-        [&progress](int surfCount)
-        {
-            progress(hecl::SysFormat(_S("%d"), surfCount).c_str());
-        });
+        Mesh mesh =
+            ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, m_pc ? 16 : -1,
+                           [&progress](int surfCount) { progress(hecl::SysFormat(_S("%d"), surfCount).c_str()); });
 
         if (m_pc)
             DNAMP1::CMDL::HMDLCook(out, in, mesh);
@@ -689,14 +665,11 @@ struct SpecMP1 : SpecBase
             DNAMP1::CMDL::Cook(out, in, mesh);
     }
 
-    void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
-                   FCookProgress progress)
+    void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                   hecl::BlenderToken& btok, FCookProgress progress)
     {
         Actor actor = ds.compileActor();
-        DNAMP1::ANCS::Cook(out, in, actor, ds, m_pc,
-        [&](const hecl::ProjectPath& modelPath) -> bool
-        {
+        DNAMP1::ANCS::Cook(out, in, actor, ds, m_pc, [&](const hecl::ProjectPath& modelPath) -> bool {
             hecl::ProjectPath cooked;
             if (m_pc)
                 cooked = modelPath.getCookedPath(SpecEntMP1PC);
@@ -707,9 +680,8 @@ struct SpecMP1 : SpecBase
         });
     }
 
-    void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
-                  FCookProgress progress)
+    void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                  hecl::BlenderToken& btok, FCookProgress progress)
     {
         std::vector<std::string> meshes = ds.getMeshList();
         std::vector<Mesh> meshCompiles;
@@ -726,11 +698,9 @@ struct SpecMP1 : SpecBase
                 progress(_S("Collision Mesh"));
                 continue;
             }
-            meshCompiles.push_back(ds.compileMesh(mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
-            [&](int surfCount)
-            {
-                progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str());
-            }));
+            meshCompiles.push_back(ds.compileMesh(
+                mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
+                [&](int surfCount) { progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str()); }));
         }
 
         if (!colMesh)
@@ -744,24 +714,22 @@ struct SpecMP1 : SpecBase
             DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
     }
 
-    void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
-                   FCookProgress progress)
+    void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                   hecl::BlenderToken& btok, FCookProgress progress)
     {
         BlendStream::World world = ds.compileWorld();
         ds.close();
         DNAMP1::MLVL::Cook(out, in, world, btok);
     }
 
-    void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                      BlendStream& ds, hecl::BlenderToken& btok,
-                      FCookProgress progress)
+    void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
+                      hecl::BlenderToken& btok, FCookProgress progress)
     {
         ds.compileGuiFrame(out.getAbsolutePathUTF8(), 0);
     }
 
-    void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  athena::io::IStreamReader& fin, FCookProgress progress)
+    void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, athena::io::IStreamReader& fin,
+                  FCookProgress progress)
     {
         athena::io::YAMLDocReader reader;
         if (reader.parse(&fin))
@@ -775,6 +743,12 @@ struct SpecMP1 : SpecBase
                 DNAMP1::STRG strg;
                 strg.read(reader);
                 DNAMP1::STRG::Cook(strg, out);
+            }
+            else if (!classStr.compare(DNAMP1::SCAN::DNAType()))
+            {
+                DNAMP1::SCAN scan;
+                scan.read(reader);
+                DNAMP1::SCAN::Cook(scan, out);
             }
             else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType()))
             {
@@ -945,6 +919,12 @@ struct SpecMP1 : SpecBase
                 strg.read(reader);
                 strg.gatherDependencies(pathsOut);
             }
+            if (!classStr.compare(DNAMP1::SCAN::DNAType()))
+            {
+                DNAMP1::SCAN scan;
+                scan.read(reader);
+                scan.gatherDependencies(pathsOut);
+            }
             else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType()))
             {
                 DNAParticle::GPSM<UniqueID32> gpsm;
@@ -990,49 +970,33 @@ struct SpecMP1 : SpecBase
         }
     }
 
-    void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                        FCookProgress progress)
+    void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress)
     {
         DNAMP1::AGSC::Cook(in, out);
         progress(_S("Done"));
     }
 
-    void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  FCookProgress progress)
+    void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress)
     {
         DNAMP1::CSNG::Cook(in, out);
         progress(_S("Done"));
     }
 };
 
-hecl::Database::DataSpecEntry SpecEntMP1 =
-{
-    _S("MP1"),
-    _S("Data specification for original Metroid Prime engine"),
-    [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return new struct SpecMP1(&SpecEntMP1, project, false);}
-};
+hecl::Database::DataSpecEntry SpecEntMP1 = {
+    _S("MP1"), _S("Data specification for original Metroid Prime engine"),
+    [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> hecl::Database::IDataSpec* {
+        return new struct SpecMP1(&SpecEntMP1, project, false);
+    }};
 
-hecl::Database::DataSpecEntry SpecEntMP1PC =
-{
-    _S("MP1-PC"),
-    _S("Data specification for PC-optimized Metroid Prime engine"),
-    [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
-    -> hecl::Database::IDataSpec*
-    {
+hecl::Database::DataSpecEntry SpecEntMP1PC = {
+    _S("MP1-PC"), _S("Data specification for PC-optimized Metroid Prime engine"),
+    [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool) -> hecl::Database::IDataSpec* {
         if (tool != hecl::Database::DataSpecTool::Extract)
             return new struct SpecMP1(&SpecEntMP1PC, project, true);
         return nullptr;
-    }
-};
+    }};
 
-hecl::Database::DataSpecEntry SpecEntMP1ORIG =
-{
-    _S("MP1-ORIG"),
-    _S("Data specification for unmodified Metroid Prime resources"),
-    {}
-};
-
+hecl::Database::DataSpecEntry SpecEntMP1ORIG = {
+    _S("MP1-ORIG"), _S("Data specification for unmodified Metroid Prime resources"), {}};
 }
-
-

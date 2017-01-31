@@ -84,6 +84,7 @@ struct STRG : ISTRG
         return true;
     }
 
+    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const;
 };
 
 }

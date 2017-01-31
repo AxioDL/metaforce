@@ -34,6 +34,7 @@ private:
     u32 xc_category = 0;
     bool x10_important = false;
     rstl::reserved_vector<SBucket, 4> x14_buckets;
+
 public:
     CScannableObjectInfo(CInputStream&, ResId);
     ResId GetStringTableId() const;
@@ -43,6 +44,7 @@ public:
     bool IsImportant() const;
 };
 
-CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&);
+CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,
+                                             CObjectReference* selfRef);
 }
 #endif // __URDE_CSCANNABLEOBJECTINFO_HPP__

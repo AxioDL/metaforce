@@ -3,32 +3,19 @@
 
 namespace urde
 {
-CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, ResId resId)
-    : x0_scannableObjectId(resId)
+CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, ResId resId) : x0_scannableObjectId(resId)
 {
     u32 version = in.readUint32Big();
     Load(in, version);
 }
 
-ResId CScannableObjectInfo::GetScannableObjectId() const
-{
-    return x0_scannableObjectId;
-}
+ResId CScannableObjectInfo::GetScannableObjectId() const { return x0_scannableObjectId; }
 
-ResId CScannableObjectInfo::GetStringTableId() const
-{
-    return x4_stringId;
-}
+ResId CScannableObjectInfo::GetStringTableId() const { return x4_stringId; }
 
-float CScannableObjectInfo::GetTotalDownloadTime() const
-{
-    return x8_totalDownloadTime;
-}
+float CScannableObjectInfo::GetTotalDownloadTime() const { return x8_totalDownloadTime; }
 
-const CScannableObjectInfo::SBucket& CScannableObjectInfo::GetBucket(s32 idx) const
-{
-    return x14_buckets[idx];
-}
+const CScannableObjectInfo::SBucket& CScannableObjectInfo::GetBucket(s32 idx) const { return x14_buckets[idx]; }
 
 void CScannableObjectInfo::Load(CInputStream& in, u32 version)
 {
@@ -46,7 +33,7 @@ void CScannableObjectInfo::Load(CInputStream& in, u32 version)
     if (version > 4)
         x10_important = in.readBool();
 
-    for (u32 i = 0 ; i<4 ; i++)
+    for (u32 i = 0; i < 4; i++)
         x14_buckets.emplace_back(in, version);
 }
 
@@ -65,9 +52,9 @@ CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version)
     }
 }
 
-CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer &)
+CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer&,
+                                             CObjectReference* selfRef)
 {
     return TToken<CScannableObjectInfo>::GetIObjObjectFor(std::make_unique<CScannableObjectInfo>(in, tag.id));
 }
-
 }
