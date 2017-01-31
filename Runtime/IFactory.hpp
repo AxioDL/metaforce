@@ -40,6 +40,9 @@ public:
     //virtual bool LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target)=0;
     virtual std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag)=0;
     virtual std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off)=0;
+
+    virtual ResId TranslateOriginalToNew(ResId id) const { return -1; }
+    virtual ResId TranslateNewToOriginal(ResId id) const { return -1; }
 };
 
 }

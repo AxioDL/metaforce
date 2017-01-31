@@ -48,6 +48,82 @@ extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
+struct OriginalIDs
+{
+    static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter,
+                         hecl::Database::Project& project)
+    {
+        std::vector<UniqueID32> originalIDs;
+        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool
+        {
+            if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN'))
+                originalIDs.push_back(ent->id);
+            return true;
+        });
+        std::sort(originalIDs.begin(), originalIDs.end());
+
+        athena::io::YAMLDocWriter yamlW("MP1OriginalIDs");
+        for (const UniqueID32& id : originalIDs)
+        {
+            hecl::ProjectPath path = pakRouter.getWorking(id);
+            yamlW.writeString(id.toString().c_str(), path.getRelativePathUTF8());
+        }
+        hecl::ProjectPath path(project.getProjectWorkingPath(), "MP1/!original_ids.yaml");
+        path.makeDirChain(false);
+        athena::io::FileWriter fileW(path.getAbsolutePath());
+        yamlW.finish(&fileW);
+    }
+
+    static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+    {
+        hecl::Database::Project& project = inPath.getProject();
+        athena::io::YAMLDocReader r;
+        athena::io::FileReader fr(inPath.getAbsolutePath());
+        if (!fr.isOpen() || !r.parse(&fr))
+            return;
+
+        std::vector<std::pair<UniqueID32, UniqueID32>> originalIDs;
+        originalIDs.reserve(r.getRootNode()->m_mapChildren.size());
+        for (const auto& node : r.getRootNode()->m_mapChildren)
+        {
+            char* end = const_cast<char*>(node.first.c_str());
+            u32 id = strtoul(end, &end, 16);
+            if (end != node.first.c_str() + 8)
+                continue;
+
+            hecl::ProjectPath path(project.getProjectWorkingPath(),
+                                   node.second->m_scalarString.c_str());
+            originalIDs.push_back(std::make_pair(id, path.hash().val32()));
+        }
+        std::sort(originalIDs.begin(), originalIDs.end(),
+        [](const std::pair<UniqueID32, UniqueID32>& a,
+           const std::pair<UniqueID32, UniqueID32>& b) -> bool
+        {
+            return a.first < b.first;
+        });
+
+        athena::io::FileWriter w(outPath.getAbsolutePath());
+        w.writeUint32Big(originalIDs.size());
+        for (const auto& idPair : originalIDs)
+        {
+            idPair.first.write(w);
+            idPair.second.write(w);
+        }
+
+        std::sort(originalIDs.begin(), originalIDs.end(),
+        [](const std::pair<UniqueID32, UniqueID32>& a,
+           const std::pair<UniqueID32, UniqueID32>& b) -> bool
+        {
+            return a.second < b.second;
+        });
+        for (const auto& idPair : originalIDs)
+        {
+            idPair.second.write(w);
+            idPair.first.write(w);
+        }
+    }
+};
+
 struct SpecMP1 : SpecBase
 {
     bool checkStandaloneID(const char* id) const
@@ -264,27 +340,7 @@ struct SpecMP1 : SpecBase
         mp1OutPath.makeDir();
 
         /* Generate original ID mapping for MLVL and SCAN entries */
-        {
-            std::vector<UniqueID32> originalIDs;
-            m_pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool
-            {
-                if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN'))
-                    originalIDs.push_back(ent->id);
-                return true;
-            });
-            std::sort(originalIDs.begin(), originalIDs.end());
-
-            athena::io::YAMLDocWriter yamlW("MP1OriginalIDs");
-            for (const UniqueID32& id : originalIDs)
-            {
-                hecl::ProjectPath path = m_pakRouter.getWorking(id);
-                yamlW.writeString(id.toString().c_str(), path.getRelativePathUTF8());
-            }
-            hecl::ProjectPath path(m_project.getProjectWorkingPath(), "MP1/original_ids.yaml");
-            path.makeDirChain(false);
-            athena::io::FileWriter fileW(path.getAbsolutePath());
-            yamlW.finish(&fileW);
-        }
+        OriginalIDs::Generate(m_pakRouter, m_project);
 
         /* Extract non-pak files */
         progress(_S("MP1 Root"), _S(""), 3, 0.0);
@@ -425,6 +481,8 @@ struct SpecMP1 : SpecBase
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
             else if (!strcmp(classType, "ATBL"))
+                return true;
+            else if (!strcmp(classType, "MP1OriginalIDs"))
                 return true;
             return false;
         });
@@ -595,6 +653,11 @@ struct SpecMP1 : SpecBase
                 else if (!strcmp(className, "ATBL"))
                 {
                     resTag.type = SBIG('ATBL');
+                    return true;
+                }
+                else if (!strcmp(className, "MP1OriginalIDs"))
+                {
+                    resTag.type = SBIG('OIDS');
                     return true;
                 }
 
@@ -858,6 +921,10 @@ struct SpecMP1 : SpecBase
             else if (!classStr.compare("ATBL"))
             {
                 DNAAudio::ATBL::Cook(in, out);
+            }
+            else if (!classStr.compare("MP1OriginalIDs"))
+            {
+                OriginalIDs::Cook(in, out);
             }
         }
         progress(_S("Done"));

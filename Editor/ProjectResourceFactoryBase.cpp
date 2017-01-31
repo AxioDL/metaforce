@@ -375,6 +375,12 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
         }
     }
 
+    /* Add special original IDs resource if exists (not name-cached to disk) */
+    hecl::ProjectPath oidsPath(specRoot, "!original_ids.yaml");
+    SObjectTag oidsTag = BuildTagFromPath(oidsPath, m_backgroundBlender);
+    if (oidsTag)
+        m_catalogNameToTag["mp1originalids"] = oidsTag;
+
     Log.report(logvisor::Info, _S("Background index of '%s' started"), m_origSpec->m_name);
     BackgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
 
