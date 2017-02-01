@@ -67,9 +67,11 @@ class VertexBufferPool
 
         void updateBuffer()
         {
-            if (buffer)
+            if (cpuBuffer)
+            {
                 buffer->unmap();
-            cpuBuffer = nullptr;
+                cpuBuffer = nullptr;
+            }
             dirty = false;
         }
 
@@ -84,6 +86,11 @@ class VertexBufferPool
         {
             if (useCount.fetch_sub(1) == 1)
             {
+                if (cpuBuffer)
+                {
+                    buffer->unmap();
+                    cpuBuffer = nullptr;
+                }
                 pool.m_token.deletePoolBuffer(buffer);
                 buffer = nullptr;
             }
