@@ -68,7 +68,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     {
         char16_t first = in.readUint16Big();
         char16_t second = in.readUint16Big();
-        s32 howMuch = in.readUint32Big();
+        s32 howMuch = in.readInt32Big();
         x1c_kerning.emplace_back(first, second, howMuch);
     }
 
@@ -77,8 +77,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
 }
 
 void CRasterFont::SinglePassDrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
-                                       CTextRenderBuffer* renderBuf,
-                                       const char16_t* str, s32 length) const
+                                       CTextRenderBuffer* renderBuf, const char16_t* str, s32 length) const
 {
     if (!x0_initialized)
         return;

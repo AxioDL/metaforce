@@ -64,12 +64,12 @@ private:
 public:
     CKernPair() = default;
     CKernPair(char16_t first, char16_t second, s32 howMuch)
-        : x0_first(first), x2_second(second), x4_howMuch(howMuch)
+    : x0_first(first), x2_second(second), x4_howMuch(howMuch)
     {}
 
     char16_t GetFirst()  const { return x0_first; }
     char16_t GetSecond() const { return x2_second; }
-    s32 GetHowMuch()    const { return x4_howMuch; }
+    s32 GetHowMuch()     const { return x4_howMuch; }
 };
 
 class CFontInfo
@@ -122,7 +122,7 @@ public:
     s32 GetCarriageAdvance()  const { return GetLineMargin() + GetMonoHeight(); }
 
     s32 GetBaseline() const  { return x8c_baseline; }
-    static s32 KernLookup(const std::vector<CKernPair>& kernTable, s32 kernStart, s32 chr)
+    static s32 KernLookup(const std::vector<CKernPair>& kernTable, s32 kernStart, char16_t chr)
     {
         auto iter = kernTable.cbegin() + kernStart;
         for (; iter != kernTable.cend() && iter->GetFirst() == kernTable[kernStart].GetFirst() ; ++iter)
@@ -136,8 +136,7 @@ public:
 
 
     void SinglePassDrawString(const CDrawStringOptions&, int x, int y, int& xout, int& yout,
-                              CTextRenderBuffer* renderBuf,
-                              const char16_t* str, s32 len) const;
+                              CTextRenderBuffer* renderBuf, const char16_t* str, s32 len) const;
     void DrawSpace(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout, int len) const;
     void DrawString(const CDrawStringOptions& opts, int x, int y, int& xout, int& yout,
                     CTextRenderBuffer* renderBuf,
