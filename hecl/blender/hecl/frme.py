@@ -337,7 +337,7 @@ def register():
 
     bpy.types.Object.retro_textpane_font_path = bpy.props.StringProperty(name='Retro: Font Path')
     bpy.types.Object.retro_textpane_word_wrap = bpy.props.BoolProperty(name='Retro: Word Wrap')
-    bpy.types.Object.retro_textpane_horizontal = bpy.props.BoolProperty(name='Retro: Horizontal')
+    bpy.types.Object.retro_textpane_horizontal = bpy.props.BoolProperty(name='Retro: Horizontal', default=True)
     bpy.types.Object.retro_textpane_fill_color = bpy.props.FloatVectorProperty(name='Retro: Fill Color', min=0.0, max=1.0, size=4, subtype='COLOR')
     bpy.types.Object.retro_textpane_outline_color = bpy.props.FloatVectorProperty(name='Retro: Outline Color', min=0.0, max=1.0, size=4, subtype='COLOR')
     bpy.types.Object.retro_textpane_block_extent = bpy.props.FloatVectorProperty(name='Retro: Block Extent', min=0.0, size=2)

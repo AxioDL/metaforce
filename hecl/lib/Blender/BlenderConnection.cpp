@@ -83,10 +83,48 @@ static void InstallStartup(const char* path)
     fclose(fp);
 }
 
+static int Read(int fd, void* buf, size_t size)
+{
+    int intrCount = 0;
+    do
+    {
+        auto ret = read(fd, buf, size);
+        if (ret < 0)
+        {
+            if (errno == EINTR)
+                ++intrCount;
+            else
+                return -1;
+        }
+        else
+            return ret;
+    } while (intrCount < 3);
+    return -1;
+}
+
+static int Write(int fd, const void* buf, size_t size)
+{
+    int intrCount = 0;
+    do
+    {
+        auto ret = write(fd, buf, size);
+        if (ret < 0)
+        {
+            if (errno == EINTR)
+                ++intrCount;
+            else
+                return -1;
+        }
+        else
+            return ret;
+    } while (intrCount < 3);
+    return -1;
+}
+
 uint32_t BlenderConnection::_readStr(char* buf, uint32_t bufSz)
 {
     uint32_t readLen;
-    int ret = read(m_readpipe[0], &readLen, 4);
+    int ret = Read(m_readpipe[0], &readLen, 4);
     if (ret < 4)
     {
         _blenderDied();
@@ -100,7 +138,7 @@ uint32_t BlenderConnection::_readStr(char* buf, uint32_t bufSz)
         return 0;
     }
 
-    ret = read(m_readpipe[0], buf, readLen);
+    ret = Read(m_readpipe[0], buf, readLen);
     if (ret < 0)
     {
         BlenderLog.report(logvisor::Fatal, strerror(errno));
@@ -122,10 +160,10 @@ uint32_t BlenderConnection::_readStr(char* buf, uint32_t bufSz)
 uint32_t BlenderConnection::_writeStr(const char* buf, uint32_t len, int wpipe)
 {
     int ret, nlerr;
-    nlerr = write(wpipe, &len, 4);
+    nlerr = Write(wpipe, &len, 4);
     if (nlerr < 4)
         goto err;
-    ret = write(wpipe, buf, len);
+    ret = Write(wpipe, buf, len);
     if (ret < 0)
         goto err;
     return (uint32_t)ret;
@@ -136,7 +174,7 @@ err:
 
 size_t BlenderConnection::_readBuf(void* buf, size_t len)
 {
-    int ret = read(m_readpipe[0], buf, len);
+    int ret = Read(m_readpipe[0], buf, len);
     if (ret < 0)
         goto err;
     if (len >= 4)
@@ -150,7 +188,7 @@ err:
 
 size_t BlenderConnection::_writeBuf(const void* buf, size_t len)
 {
-    int ret = write(m_writepipe[1], buf, len);
+    int ret = Write(m_writepipe[1], buf, len);
     if (ret < 0)
         goto err;
     return ret;
