@@ -2,17 +2,48 @@
 #define __URDE_CSCRIPTACTOR_HPP__
 
 #include "CPhysicsActor.hpp"
+#include "CHealthInfo.hpp"
+#include "CDamageVulnerability.hpp"
 
 namespace urde
 {
 
 class CScriptActor : public CPhysicsActor
 {
+protected:
+    CHealthInfo x258_initialHealth;
+    CHealthInfo x260_currentHealth;
+    CDamageVulnerability x268_damageVulnerability;
+    float x2d0_;
+    float x2d4_;
+    s32 x2d8_;
+    float x2dc_;
+    TUniqueId x2e0_ = kInvalidUniqueId;
+    bool x2e2_24_ : 1;
+    bool x2e2_25_ : 1;
+    bool x2e2_26_ : 1;
+    bool x2e2_27_ : 1;
+    bool x2e2_28_ : 1;
+    bool x2e2_29_ : 1;
+    bool x2e2_30_ : 1;
+    bool x2e2_31_ : 1;
+    bool x2e3_24_ : 1;
+
 public:
     CScriptActor(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                  const zeus::CAABox& aabb, float, float, const CMaterialList& matList, const CHealthInfo&,
                  const CDamageVulnerability&, const CActorParameters&, bool, bool, u32, float, bool, bool, bool, bool);
     void Accept(IVisitor& visitor);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void Think(float, CStateManager&);
+    void PreRender(const zeus::CFrustum&, const CStateManager&);
+    zeus::CAABox GetSortingBounds(const CStateManager&) const;
+    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                   CWeaponMode&, int);
+    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    void Touch(CActor&, CStateManager&);
+    const CDamageVulnerability* GetDamageVulnerability() { return &x268_damageVulnerability; }
+    CHealthInfo* HealthInfo() { return &x260_currentHealth; }
 };
 }
 

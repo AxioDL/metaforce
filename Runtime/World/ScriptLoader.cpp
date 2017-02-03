@@ -56,10 +56,11 @@
 #include "CScriptCameraHintTrigger.hpp"
 #include "CScriptBeam.hpp"
 #include "Camera/CCinematicCamera.hpp"
-#include "MP1/CNewIntroBoss.hpp"
-#include "MP1/CBeetle.hpp"
-#include "MP1/CWarWasp.hpp"
-#include "MP1/CSpacePirate.hpp"
+#include "MP1/World/CNewIntroBoss.hpp"
+#include "MP1/World/CBeetle.hpp"
+#include "MP1/World/CWarWasp.hpp"
+#include "MP1/World/CSpacePirate.hpp"
+#include "MP1/World/CActorContraption.hpp"
 #include "CScriptShadowProjector.hpp"
 #include "CScriptStreamedMusic.hpp"
 #include "CScriptRoomAcoustics.hpp"
@@ -1996,6 +1997,7 @@ CEntity* ScriptLoader::Load(CStateManager& mgr, CInputStream& in, int propCount,
 CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info)
 {
+
     return nullptr;
 }
 

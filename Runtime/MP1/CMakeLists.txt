@@ -1,4 +1,6 @@
 include_directories(. ..)
+add_subdirectory(World)
+
 set(MP1_SOURCES
     CTweaks.hpp CTweaks.cpp
     CInGameTweakManager.hpp CInGameTweakManager.cpp
@@ -10,18 +12,13 @@ set(MP1_SOURCES
     CFrontEndUI.hpp CFrontEndUI.cpp
     CPreFrontEnd.hpp CPreFrontEnd.cpp
     CSlideShow.hpp CSlideShow.cpp
-    CNewIntroBoss.hpp CNewIntroBoss.cpp
-    CBeetle.hpp CBeetle.cpp
-    CWarWasp.hpp CWarWasp.cpp
-    CSpacePirate.hpp CSpacePirate.cpp
-    CBabygoth.hpp CBabygoth.cpp
-    CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CSaveUI.hpp CSaveUI.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     CQuitScreen.hpp CQuitScreen.cpp
     CCredits.hpp CCredits.cpp
     CStateSetterFlow.hpp CStateSetterFlow.cpp
     CAudioStateWin.hpp CAudioStateWin.cpp
-    MP1.hpp MP1.cpp)
+    MP1.hpp MP1.cpp
+    ${MP1_WORLD_SOURCES})
 
 runtime_add_list(MP1 MP1_SOURCES)

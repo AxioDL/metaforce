@@ -25,7 +25,7 @@ CENTITY_TYPES = (
     ('CGameProjectile', 'Weapon/CGameProjectile.hpp'),
     ('CHUDBillboardEffect', 'World/CHUDBillboardEffect.hpp'),
     Namespace('MP1'),
-    ('CMetroidPrimeRelay', 'MP1/CMetroidPrimeRelay.hpp', 'MP1'),
+    ('CMetroidPrimeRelay', 'MP1/World/CMetroidPrimeRelay.hpp', 'MP1'),
     EndNamespace(),
     ('CPathCamera', 'Camera/CPathCamera.hpp'),
     ('CAi', 'World/CAi.hpp'),

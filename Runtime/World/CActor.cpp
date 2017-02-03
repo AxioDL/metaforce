@@ -140,7 +140,7 @@ const zeus::CTransform CActor::GetLocatorTransform(const std::string& segName) c
 }
 
 EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                               CWeaponMode&, int)
+                                                               CWeaponMode&, s32)
 {
     return EWeaponCollisionResponseTypes::Unknown13;
 }
@@ -211,6 +211,23 @@ void CActor::AddMaterial(EMaterialTypes type, CStateManager& mgr)
 {
     x68_material.Add(type);
     mgr.UpdateObjectInLists(*this);
+}
+
+void CActor::CreateShadow(bool b)
+{
+    if (b)
+    {
+        _CreateShadow();
+        if (!xe5_24_ && x94_simpleShadow)
+            xe5_25_ = true;
+    }
+    xe5_24_ = b;
+}
+
+void CActor::_CreateShadow()
+{
+    if (!x94_simpleShadow && x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()))
+        x94_simpleShadow.reset(new CSimpleShadow(1.f, 1.f, 20.f, 0.05f));
 }
 
 void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }
