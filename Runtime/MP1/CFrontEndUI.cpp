@@ -936,14 +936,11 @@ void CFrontEndUI::SFusionBonusFrame::SetTableColors(CGuiTableGroup* tbgp) const
 
 void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
 {
-    bool doUpdate = false;
-    if (saveUI)
-        if (saveUI->GetUIType() == CSaveUI::EUIType::SaveReady)
-            doUpdate = true;
+    bool doDraw = !saveUI || saveUI->GetUIType() == CSaveUI::EUIType::SaveReady;
 
-    if (doUpdate != x38_lastDoUpdate)
+    if (doDraw != x38_lastDoDraw)
     {
-        x38_lastDoUpdate = doUpdate;
+        x38_lastDoDraw = doDraw;
         ResetCompletionFlags();
     }
 
@@ -975,6 +972,13 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
             instructionStr = g_MainStringTable->GetString(79); // You have not completed fusion
         else if (!g_GameState->SystemOptions().GetPlayerBeatFusion())
             instructionStr = g_MainStringTable->GetString(77); // To play NES Metroid
+        else if (m_nesUnsupported)
+        {
+            instructionStr = u"NES Emulator currently unsupported";
+            x30_textpane_instructions.x0_panes[0]->TextSupport()->SetText(instructionStr);
+            x30_textpane_instructions.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skYellow);
+            x30_textpane_instructions.x0_panes[1]->TextSupport()->SetText(instructionStr);
+        }
     }
 
     x30_textpane_instructions.SetPairText(instructionStr);
@@ -988,7 +992,7 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
     if (sui)
         sui->ProcessUserInput(input);
 
-    if (x38_lastDoUpdate)
+    if (x38_lastDoDraw)
     {
         if (x0_gbaLinkFrame)
         {
@@ -1003,6 +1007,7 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
                         x39_fusionNotComplete = true;
                     else if (sui)
                         sui->SaveNESState();
+                    m_nesUnsupported = true;
                 }
             }
         }
@@ -1017,7 +1022,7 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
 
 void CFrontEndUI::SFusionBonusFrame::Draw() const
 {
-    if (!x38_lastDoUpdate)
+    if (!x38_lastDoDraw)
         return;
     if (x0_gbaLinkFrame)
         x0_gbaLinkFrame->Draw();
@@ -1027,7 +1032,7 @@ void CFrontEndUI::SFusionBonusFrame::Draw() const
 
 void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller)
 {
-    if (x39_fusionNotComplete || x3a_mpNotComplete)
+    if (x39_fusionNotComplete || x3a_mpNotComplete || m_nesUnsupported)
     {
         CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1046,8 +1051,7 @@ void CFrontEndUI::SFusionBonusFrame::DoSelectionChange(CGuiTableGroup* caller, i
     if (caller == x28_tablegroup_options)
     {
         CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        x3a_mpNotComplete = false;
-        x39_fusionNotComplete = false;
+        ResetCompletionFlags();
     }
     else
     {
@@ -1090,9 +1094,16 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
             x39_fusionNotComplete = false;
             PlayAdvanceSfx();
         }
+        /*
         else if (g_GameState->SystemOptions().GetPlayerBeatFusion())
         {
             x8_action = EAction::PlayNESMetroid;
+        }
+        */
+        else if (m_nesUnsupported)
+        {
+            m_nesUnsupported = false;
+            PlayAdvanceSfx();
         }
         else
         {
@@ -1150,6 +1161,8 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading()
         std::bind(&SFrontEndFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
     x18_tablegroup_mainmenu->SetMenuCancelCallback(
         std::bind(&SFrontEndFrame::DoCancel, this, std::placeholders::_1));
+
+    HandleActiveChange(x18_tablegroup_mainmenu);
 }
 
 bool CFrontEndUI::SFrontEndFrame::PumpLoad()
@@ -1592,7 +1605,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading()
     x28_tablegroup_rightmenu = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_rightmenu"));
     x2c_tablegroup_double = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_double"));
     x30_tablegroup_triple = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_triple"));
-    x34_slidergroup_slider = static_cast<CGuiSliderGroup*>(x1c_loadedFrame->FindWidget("tablegroup_slider"));
+    x34_slidergroup_slider = static_cast<CGuiSliderGroup*>(x1c_loadedFrame->FindWidget("slidergroup_slider"));
 
     x24_tablegroup_leftmenu->SetMenuAdvanceCallback(
         std::bind(&SOptionsFrontEndFrame::DoLeftMenuAdvance, this, std::placeholders::_1));
@@ -1700,7 +1713,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
 void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveUI* sui)
 {
     x40_rumbleGen.Update(dt);
-    x134_24_visible = sui && sui->GetUIType() == CSaveUI::EUIType::SaveReady;
+    x134_24_visible = !sui || sui->GetUIType() == CSaveUI::EUIType::SaveReady;
 
     if (!PumpLoad())
         return;

@@ -238,9 +238,10 @@ public:
         CGuiTableGroup* x28_tablegroup_options = nullptr;
         CGuiTableGroup* x2c_tablegroup_fusionsuit = nullptr;
         SGuiTextPair x30_textpane_instructions;
-        bool x38_lastDoUpdate = false;
+        bool x38_lastDoDraw = false;
         bool x39_fusionNotComplete = false;
         bool x3a_mpNotComplete = false;
+        bool m_nesUnsupported = false;
 
         SFusionBonusFrame();
         void FinishedLoading();
@@ -254,6 +255,7 @@ public:
         {
             x39_fusionNotComplete = false;
             x3a_mpNotComplete = false;
+            m_nesUnsupported = false;
         }
 
         void DoCancel(CGuiTableGroup* caller);
