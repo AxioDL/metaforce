@@ -19,7 +19,7 @@ BEGIN
             VALUE "CompanyName", "Antidote / Jackoalan"
             VALUE "FileDescription", "URDE"
             VALUE "FileVersion", "BETA"
-            VALUE "LegalCopyright", "Copyright (C) 2015-2016 Antidote / Jackoalan"
+            VALUE "LegalCopyright", "Copyright (C) 2015-2017 Antidote / Jackoalan"
             VALUE "InternalName", "urde"
             VALUE "OriginalFilename", "urde.exe"
             VALUE "ProductName", "URDE"
