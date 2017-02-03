@@ -358,6 +358,7 @@ kabufuda::ProbeResults CMemoryCardSys::CardProbe(kabufuda::ECardSlot port)
 ECardResult CMemoryCardSys::MountCard(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
+    card.commit();
     card = kabufuda::Card(g_CardImagePaths[int(port)], "GM8E", "01");
     ECardResult result = card.getError();
     g_OpResults[int(port)] = result;

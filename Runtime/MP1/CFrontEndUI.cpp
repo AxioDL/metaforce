@@ -819,6 +819,11 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInpu
                 SetUIText(EUIType::LinkFailed);
             }
         }
+        else if (x4_gbaSupport->GetPhase() == CGBASupport::EPhase::Failed)
+        {
+            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            SetUIText(EUIType::LinkFailed);
+        }
         break;
     case EUIType::Complete:
         return EAction::Complete;
