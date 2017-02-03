@@ -241,6 +241,8 @@ ShaderCachedData ShaderCacheManager::lookupData(const Hash& hash)
         m_datFr.readUBytesToBuf(compDat, z.avail_in);
         z.next_in = compDat;
         int ret = inflate(&z, Z_NO_FLUSH);
+        if (ret == Z_STREAM_END)
+            break;
         if (ret != Z_OK)
         {
             inflateEnd(&z);
