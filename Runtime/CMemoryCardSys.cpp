@@ -79,9 +79,6 @@ const CSaveWorldMemory& CMemoryCardSys::GetSaveWorldMemory(ResId wldId) const
 
 CMemoryCardSys::CMemoryCardSys()
 {
-    g_CardImagePaths[0] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotA);
-    g_CardImagePaths[1] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotB);
-
     x0_hints = g_SimplePool->GetObj("HINT_Hints");
     xc_memoryWorlds.reserve(16);
     x1c_worldInter.emplace();
@@ -340,6 +337,7 @@ ECardResult CMemoryCardSys::CCardFileInfo::WriteFile()
 {
     BuildCardBuffer();
     //DCStoreRange(x104_cardBuffer.data(), x104_cardBuffer.size());
+    x0_status = EStatus::Transferring;
     return CMemoryCardSys::WriteFile(m_handle, x104_cardBuffer.data(), x104_cardBuffer.size(), 0);
 }
 
@@ -350,6 +348,9 @@ ECardResult CMemoryCardSys::CCardFileInfo::CloseFile()
 
 kabufuda::ProbeResults CMemoryCardSys::CardProbe(kabufuda::ECardSlot port)
 {
+    g_CardImagePaths[0] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotA);
+    g_CardImagePaths[1] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotB);
+
     kabufuda::ProbeResults res = kabufuda::Card::probeCardFile(g_CardImagePaths[int(port)]);
     g_OpResults[int(port)] = res.x0_error;
     return res;
@@ -358,13 +359,12 @@ kabufuda::ProbeResults CMemoryCardSys::CardProbe(kabufuda::ECardSlot port)
 ECardResult CMemoryCardSys::MountCard(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
-    card.commit();
+    card.close();
     card = kabufuda::Card(g_CardImagePaths[int(port)], "GM8E", "01");
     ECardResult result = card.getError();
     g_OpResults[int(port)] = result;
     if (result == ECardResult::READY)
         return ECardResult::READY;
-    card = kabufuda::Card();
     return result;
 }
 
@@ -570,12 +570,12 @@ ECardResult CMemoryCardSys::Rename(kabufuda::ECardSlot port, const char* oldName
 ECardResult CMemoryCardSys::FormatCard(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
+    card.format(port);
     if (CardResult err = card.getError())
     {
         g_OpResults[int(port)] = err;
         return err;
     }
-    card.format(port);
     g_OpResults[int(port)] = ECardResult::READY;
     return ECardResult::READY;
 }
@@ -584,6 +584,15 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
     card.commit();
+}
+
+kabufuda::SystemString CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot)
+{
+    kabufuda::SystemString path = _CreateDolphinCard(slot);
+    CardProbe(slot);
+    MountCard(slot);
+    FormatCard(slot);
+    return path;
 }
 
 void CMemoryCardSys::Shutdown()

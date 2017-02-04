@@ -30,9 +30,9 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
 
         baseVal = (baseVal & (x1c_val >> (32 - x20_bitOffset))) << diff;
         x20_bitOffset = 0;
-        u32 bit = diff & 7;
-        u32 count = (diff >> 3) + ((-bit | bit) >> 31);
-        readUBytesToBuf(&x1c_val, count);
+        auto pos = std::div(diff, 8);
+        if (pos.rem) ++pos.quot;
+        readUBytesToBuf(&x1c_val, pos.quot);
         /* The game uses Big Endian, which doesn't work for us */
         /* Little Endian sucks */
         athena::utility::BigUint32(x1c_val);
@@ -42,7 +42,7 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
             baseVal2 = (1 << diff) - 1;
 
         ret = baseVal | (baseVal2 & (x1c_val >> (32 - diff))) << x20_bitOffset;
-        x20_bitOffset = (count << 3) - diff;
+        x20_bitOffset = (pos.quot << 3) - diff;
         x1c_val <<= diff;
     }
 
@@ -71,9 +71,9 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount)
         x18_bitOffset = 0;
         u32 tmp = x14_val;
         athena::utility::BigUint32(tmp);
-        u32 bit = (32 - x18_bitOffset) & 7;
-        u32 count = ((32 - x18_bitOffset) >> 3) + ((-bit | bit) >> 31);
-        writeBytes(&tmp, count);
+        auto pos = std::div(32 - x18_bitOffset, 8);
+        if (pos.rem) ++pos.quot;
+        writeBytes(&tmp, pos.quot);
 
         u32 rem = 32 - diff;
         baseVal = -1;
@@ -82,6 +82,20 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount)
 
         x14_val = (val & baseVal) << rem;
         x18_bitOffset -= diff;
+    }
+}
+
+void CBitStreamWriter::Flush()
+{
+    if (x18_bitOffset && x18_bitOffset < 0x20)
+    {
+        u32 tmp = x14_val;
+        athena::utility::BigUint32(tmp);
+        auto pos = std::div(32 - x18_bitOffset, 8);
+        if (pos.rem) ++pos.quot;
+        writeBytes(&tmp, pos.quot);
+        x18_bitOffset = 32;
+        x14_val = 0;
     }
 }
 

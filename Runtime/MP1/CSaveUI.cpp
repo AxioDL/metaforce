@@ -200,11 +200,18 @@ void CSaveUI::SetUIText()
 {
     x91_uiTextDirty = false;
 
-    u32 msgA = -1;
-    u32 msgB = -1;
-    u32 opt0 = -1;
-    u32 opt1 = -1;
-    u32 opt2 = -1;
+    s32 msgA = -1;
+    s32 msgB = -1;
+    s32 opt0 = -1;
+    s32 opt1 = -1;
+    s32 opt2 = -1;
+
+    std::u16string msgAStr;
+    std::u16string msgBStr;
+    std::u16string opt0Str;
+    std::u16string opt1Str;
+    std::u16string opt2Str;
+    std::u16string opt3Str;
 
     switch (x10_uiType)
     {
@@ -218,6 +225,8 @@ void CSaveUI::SetUIText()
         msgB = 0; // No card found
         opt0 = 17; // Continue without saving
         opt1 = 18; // Retry
+        opt2 = -2;
+        opt2Str = u"Create Dolphin Card";
         break;
     case EUIType::NeedsFormatBroken:
         msgB = 1; // Needs format (card broken)
@@ -309,30 +318,24 @@ void CSaveUI::SetUIText()
     default: break;
     }
 
-    std::u16string msgAStr;
-    if (msgA != -1)
+    if (msgA > -1)
         msgAStr = x38_strgMemoryCard->GetString(msgA);
-    std::u16string msgBStr;
-    if (msgB != -1)
+    if (msgB > -1)
         msgBStr = x38_strgMemoryCard->GetString(msgB);
     x54_textpane_message->TextSupport()->SetText(msgAStr + msgBStr);
 
-    std::u16string opt0Str;
-    if (opt0 != -1)
+    if (opt0 > -1)
         opt0Str = x38_strgMemoryCard->GetString(opt0);
     x5c_textpane_choice0->TextSupport()->SetText(opt0Str);
 
-    std::u16string opt1Str;
-    if (opt1 != -1)
+    if (opt1 > -1)
         opt1Str = x38_strgMemoryCard->GetString(opt1);
     x60_textpane_choice1->TextSupport()->SetText(opt1Str);
 
-    std::u16string opt2Str;
-    if (opt2 != -1)
+    if (opt2 > -1)
         opt2Str = x38_strgMemoryCard->GetString(opt2);
     x64_textpane_choice2->TextSupport()->SetText(opt2Str);
 
-    std::u16string opt3Str;
     x68_textpane_choice3->TextSupport()->SetText(opt3Str);
 
     x5c_textpane_choice0->SetIsSelectable(opt0 != -1);
@@ -341,6 +344,7 @@ void CSaveUI::SetUIText()
     x68_textpane_choice3->SetIsSelectable(false);
 
     x58_tablegroup_choices->SetIsActive(opt0 != -1 || opt1 != -1 || opt2 != -1);
+    x58_tablegroup_choices->SetUserSelection(0);
     SetUIColors();
 }
 
@@ -385,6 +389,13 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
         else if (userSel == 1)
         {
             /* Retry */
+            ResetCardDriver();
+            sfx = x84_navConfirmSfx;
+        }
+        else if (userSel == 2 && x10_uiType == EUIType::NoCardFound)
+        {
+            /* Create Dolphin Card */
+            CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot::SlotA);
             ResetCardDriver();
             sfx = x84_navConfirmSfx;
         }
@@ -651,7 +662,7 @@ CSaveUI::CSaveUI(ESaveContext saveCtx, u64 serial)
     x38_strgMemoryCard = g_SimplePool->GetObj("STRG_MemoryCard");
     x44_frmeGenericMenu = g_SimplePool->GetObj("FRME_GenericMenu");
 
-    x6c_cardDriver = ConstructCardDriver(bool(x0_saveCtx));
+    x6c_cardDriver = ConstructCardDriver(x0_saveCtx == ESaveContext::FrontEnd);
 
     if (saveCtx == ESaveContext::InGame)
     {
@@ -669,12 +680,12 @@ CSaveUI::CSaveUI(ESaveContext saveCtx, u64 serial)
     }
 }
 
-std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool inGame)
+std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool importPersistent)
 {
     return std::make_unique<CMemoryCardDriver>(kabufuda::ECardSlot::SlotA,
         g_ResFactory->GetResourceIdByName("TXTR_SaveBanner")->id,
         g_ResFactory->GetResourceIdByName("TXTR_SaveIcon0")->id,
-        g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, inGame);
+        g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, importPersistent);
 }
 
 }

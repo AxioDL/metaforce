@@ -139,11 +139,11 @@ private:
     u32 x194_fileIdx = -1;
     std::unique_ptr<CMemoryCardSys::CCardFileInfo> x198_fileInfo;
     bool x19c_ = false;
-    bool x19d_inGame;
+    bool x19d_importPersistent;
 
 public:
     CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
-                      ResId saveIcon0, ResId saveIcon1, bool inGame);
+                      ResId saveIcon0, ResId saveIcon1, bool importPersistent);
 
     void NoCardFound();
     const CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx);

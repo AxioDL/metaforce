@@ -148,9 +148,9 @@ CMemoryCardDriver::SFileInfo::SFileInfo(kabufuda::ECardSlot port, const std::str
 : x0_fileInfo(port), x14_name(name) {}
 
 CMemoryCardDriver::CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
-                                     ResId saveIcon0, ResId saveIcon1, bool inGame)
+                                     ResId saveIcon0, ResId saveIcon1, bool importPersistent)
 : x0_cardPort(cardPort), x4_saveBanner(saveBanner),
-  x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_inGame(inGame)
+  x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_importPersistent(importPersistent)
 {
     x100_mcFileInfos.reserve(2);
     x100_mcFileInfos.emplace_back(EFileState::Unknown, SFileInfo(x0_cardPort, SaveFileNames[0]));
@@ -205,7 +205,7 @@ void CMemoryCardDriver::ReadFinished()
         if (header.x4_savePresent[i])
             xe4_fileSlots[i] = LoadSaveFile(r);
 
-    if (x19d_inGame)
+    if (x19d_importPersistent)
         ImportPersistentOptions();
 }
 
@@ -412,6 +412,7 @@ void CMemoryCardDriver::StartFileCreate()
         return;
     }
 
+    x194_fileIdx = 0;
     x198_fileInfo = std::make_unique<CMemoryCardSys::CCardFileInfo>(x0_cardPort, SaveFileNames[x194_fileIdx]);
     InitializeFileInfo();
     ECardResult result = x198_fileInfo->CreateFile();
@@ -498,7 +499,6 @@ void CMemoryCardDriver::StartCardFormat()
 
 void CMemoryCardDriver::UpdateMountCard(ECardResult result)
 {
-    printf("MOUNTCARD\n");
     switch (result)
     {
     case ECardResult::READY:
@@ -508,7 +508,7 @@ void CMemoryCardDriver::UpdateMountCard(ECardResult result)
     case ECardResult::BROKEN:
         x10_state = EState::CardMountDone;
         x14_error = EError::CardBroken;
-        StartCardCheck();
+        //StartCardCheck();
         break;
     default:
         HandleCardError(result, EState::CardMountFailed);
@@ -518,7 +518,6 @@ void CMemoryCardDriver::UpdateMountCard(ECardResult result)
 
 void CMemoryCardDriver::UpdateCardProbe()
 {
-    printf("PROBECARD\n");
     auto result = CMemoryCardSys::CardProbe(x0_cardPort);
     switch (result.x0_error)
     {
@@ -546,7 +545,6 @@ void CMemoryCardDriver::UpdateCardProbe()
 
 void CMemoryCardDriver::UpdateCardCheck(ECardResult result)
 {
-    printf("CARDCHECK\n");
     switch (result)
     {
     case ECardResult::READY:
@@ -568,7 +566,6 @@ void CMemoryCardDriver::UpdateCardCheck(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileDeleteBad(ECardResult result)
 {
-    printf("DELETEBAD\n");
     if (result == ECardResult::READY)
     {
         x100_mcFileInfos[x194_fileIdx].first = EFileState::NoFile;
@@ -591,7 +588,6 @@ void CMemoryCardDriver::UpdateFileDeleteBad(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileRead(ECardResult result)
 {
-    printf("FILEREAD\n");
     if (result == ECardResult::READY)
     {
         auto& fileInfo = x100_mcFileInfos[x194_fileIdx];
@@ -636,7 +632,6 @@ void CMemoryCardDriver::UpdateFileRead(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileDeleteAlt(ECardResult result)
 {
-    printf("DELETEALT\n");
     if (result == ECardResult::READY)
     {
         x10_state = EState::Ready;
@@ -649,7 +644,6 @@ void CMemoryCardDriver::UpdateFileDeleteAlt(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileCreate(ECardResult result)
 {
-    printf("FILECREATE\n");
     if (result == ECardResult::READY)
     {
         x10_state = EState::FileCreateDone;
@@ -661,7 +655,6 @@ void CMemoryCardDriver::UpdateFileCreate(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileWrite(ECardResult result)
 {
-    printf("FILEWRITE\n");
     if (result == ECardResult::READY)
     {
         ECardResult xferResult = x198_fileInfo->PumpCardTransfer();
@@ -669,7 +662,10 @@ void CMemoryCardDriver::UpdateFileWrite(ECardResult result)
         {
             x10_state = EState::Ready;
             if (x198_fileInfo->CloseFile() == ECardResult::READY)
+            {
+                CMemoryCardSys::CommitToDisk(x0_cardPort);
                 return;
+            }
             NoCardFound();
             return;
         }
@@ -689,7 +685,6 @@ void CMemoryCardDriver::UpdateFileWrite(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileCreateTransactional(ECardResult result)
 {
-    printf("CREATETRANS\n");
     if (result == ECardResult::READY)
     {
         x10_state = EState::FileCreateTransactionalDone;
@@ -701,7 +696,6 @@ void CMemoryCardDriver::UpdateFileCreateTransactional(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileWriteTransactional(ECardResult result)
 {
-    printf("WRITETRANS\n");
     if (result == ECardResult::READY)
     {
         ECardResult xferResult = x198_fileInfo->PumpCardTransfer();
@@ -732,7 +726,6 @@ void CMemoryCardDriver::UpdateFileWriteTransactional(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileDeleteAltTransactional(ECardResult result)
 {
-    printf("DELETEALTTRANS\n");
     if (result == ECardResult::READY)
     {
         x10_state = EState::FileDeleteAltTransactionalDone;
@@ -745,10 +738,10 @@ void CMemoryCardDriver::UpdateFileDeleteAltTransactional(ECardResult result)
 
 void CMemoryCardDriver::UpdateFileRenameBtoA(ECardResult result)
 {
-    printf("BTOA\n");
     if (result == ECardResult::READY)
     {
         x10_state = EState::DriverClosed;
+        CMemoryCardSys::CommitToDisk(x0_cardPort);
         WriteBackupBuf();
     }
     else
@@ -757,7 +750,6 @@ void CMemoryCardDriver::UpdateFileRenameBtoA(ECardResult result)
 
 void CMemoryCardDriver::UpdateCardFormat(ECardResult result)
 {
-    printf("FORMAT\n");
     if (result == ECardResult::READY)
         x10_state = EState::CardFormatted;
     else if (result == ECardResult::BROKEN)
