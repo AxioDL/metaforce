@@ -264,7 +264,11 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
         angMtx[2][0], angMtx[2][1], angMtx[2][2],
         0.0, 0.0, 0.0, 0, 0)
 
+    ch_list = []
     for ch in obj.children:
+        ch_list.append((ch.pass_index, ch.name))
+    for s_pair in sorted(ch_list):
+        ch = bpy.data.objects[s_pair[1]]
         if ch.retro_widget_type != 'RETRO_NONE':
             recursive_cook(buffer, ch, version, path_hasher, obj.name)
 

@@ -178,7 +178,7 @@ static inline void MakeDir(const char* dir)
     HRESULT err;
     if (!CreateDirectoryA(dir, NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-            LogModule.report(logvisor::Fatal, _S("MakeDir(%s)"), dir);
+            LogModule.report(logvisor::Fatal, "MakeDir(%s)", dir);
 #else
     if (mkdir(dir, 0755))
         if (errno != EEXIST)
@@ -195,6 +195,8 @@ static inline void MakeDir(const wchar_t* dir)
             LogModule.report(logvisor::Fatal, _S("MakeDir(%s)"), dir);
 }
 #endif
+
+int RecursiveMakeDir(const SystemChar* dir);
 
 static inline const SystemChar* GetEnv(const SystemChar* name)
 {

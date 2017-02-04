@@ -645,4 +645,103 @@ std::wstring Char16ToWide(const std::u16string& src)
     return std::wstring(src.begin(), src.end());
 }
 
+/* recursive mkdir */
+#if _WIN32
+int RecursiveMakeDir(const SystemChar* dir) {
+    SystemChar tmp[1024];
+    SystemChar *p = nullptr;
+    Sstat sb;
+    size_t len;
+
+    /* copy path */
+    wcsncpy(tmp, dir, 1024);
+    len = wcslen(tmp);
+    if (len >= 1024) {
+        return -1;
+    }
+
+    /* remove trailing slash */
+    if(tmp[len - 1] == '/' || tmp[len - 1] == '\\') {
+        tmp[len - 1] = 0;
+    }
+
+    /* recursive mkdir */
+    for(p = tmp + 1; *p; p++) {
+        if(*p == '/' || *p == '\\') {
+            *p = 0;
+            /* test path */
+            if (Stat(tmp, &sb) != 0) {
+                /* path does not exist - create directory */
+                if (!CreateDirectoryW(tmp, nullptr)) {
+                    return -1;
+                }
+            } else if (!S_ISDIR(sb.st_mode)) {
+                /* not a directory */
+                return -1;
+            }
+            *p = '/';
+        }
+    }
+    /* test path */
+    if (Stat(tmp, &sb) != 0) {
+        /* path does not exist - create directory */
+        if (!CreateDirectoryW(tmp, nullptr)) {
+            return -1;
+        }
+    } else if (!S_ISDIR(sb.st_mode)) {
+        /* not a directory */
+        return -1;
+    }
+    return 0;
+}
+#else
+int RecursiveMakeDir(const SystemChar* dir) {
+    SystemChar tmp[1024];
+    SystemChar *p = nullptr;
+    Sstat sb;
+    size_t len;
+
+    /* copy path */
+    strncpy(tmp, dir, 1024);
+    len = strlen(tmp);
+    if (len >= 1024) {
+        return -1;
+    }
+
+    /* remove trailing slash */
+    if(tmp[len - 1] == '/') {
+        tmp[len - 1] = 0;
+    }
+
+    /* recursive mkdir */
+    for(p = tmp + 1; *p; p++) {
+        if(*p == '/') {
+            *p = 0;
+            /* test path */
+            if (Stat(tmp, &sb) != 0) {
+                /* path does not exist - create directory */
+                if (mkdir(tmp, 0755) < 0) {
+                    return -1;
+                }
+            } else if (!S_ISDIR(sb.st_mode)) {
+                /* not a directory */
+                return -1;
+            }
+            *p = '/';
+        }
+    }
+    /* test path */
+    if (Stat(tmp, &sb) != 0) {
+        /* path does not exist - create directory */
+        if (mkdir(tmp, 0755) < 0) {
+            return -1;
+        }
+    } else if (!S_ISDIR(sb.st_mode)) {
+        /* not a directory */
+        return -1;
+    }
+    return 0;
+}
+#endif
+
 }
