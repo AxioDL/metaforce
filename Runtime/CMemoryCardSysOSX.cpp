@@ -36,11 +36,6 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
     FILE* fp = hecl::Fopen(path.c_str(), "wb");
     if (!fp)
         return {};
-    /*
-    const u32 fword = 0xffffffff;
-    for (int i=0 ; i<0x1000000/4 ; ++i)
-        fwrite(&fword, 1, 4, fp);
-        */
     fclose(fp);
 
     return path;
