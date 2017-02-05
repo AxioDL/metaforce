@@ -30,4 +30,28 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
     return path;
 }
 
+kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot)
+{
+    const char* home = getenv("HOME");
+    if (!home || home[0] != '/')
+        return {};
+    const char* dataHome = getenv("XDG_DATA_HOME");
+
+    /* XDG-selected data path */
+    kabufuda::SystemString path =
+        ((dataHome && dataHome[0] == '/') ? dataHome : hecl::SystemString(home)) + "/.local/share/dolphin-emu/GC";
+
+    if (hecl::RecursiveMakeDir(path.c_str()) < 0)
+        return {};
+
+    path += hecl::Format("/MemoryCard%c.USA.raw",
+                         slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
+    FILE* fp = hecl::Fopen(path.c_str(), "wb");
+    if (!fp)
+        return {};
+    fclose(fp);
+
+    return path;
+}
+
 }
