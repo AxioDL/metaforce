@@ -891,7 +891,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
                 int baseX = bx * 4;
                 for (int y=0 ; y<4 ; ++y)
                 {
-                    const RGBA8* source = sourceMip + (baseY + y) * w + baseX;
+                    const RGBA8* source = sourceMip + (x6_h - (baseY + y) - 1) * w + baseX;
                     for (int x=0 ; x<4 ; ++x)
                     {
                         if (source[x].a == 0xff)
@@ -931,8 +931,10 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
         for (int i=0; i<256; ++i)
         {
             u16& color = paletteColors[i];
-            if (i < nentries)
+            if (i >= nentries)
+            {
                 color = 0;
+            }
             else
             {
                 const RGBA8& colorIn = paletteTexels[i];
@@ -940,7 +942,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
                 {
                     color = hecl::SBig(u16((colorIn.r >> 3 << 10) |
                                            (colorIn.g >> 3 << 5) |
-                                           (colorIn.b >> 3)));
+                                           (colorIn.b >> 3) | 0x8000));
                 }
                 else
                 {
@@ -962,7 +964,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
                 int baseX = bx * 8;
                 for (int y=0 ; y<4 ; ++y)
                 {
-                    const u8* source = sourceMip + (baseY + y) * w + baseX;
+                    const u8* source = sourceMip + (x6_h - (baseY + y) - 1) * w + baseX;
                     for (int x=0 ; x<8 ; ++x)
                         *texel++ = source[x];
                 }

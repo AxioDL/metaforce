@@ -22,7 +22,7 @@ static const hecl::SystemChar* MomErr[] =
     _S("HECL is experiencing a PTSD attack"),
     _S("Unable to freeze metroids"),
     _S("Ridley ate your homework"),
-    _S("Expected 0 maternal symbolisms, found ∞"),
+    _S("Expected 0 maternal symbolisms, found 2147483647"),
     _S("Contradictive narratives unsupported"),
     _S("Wiimote profile \"NES + Zapper\" not recognized"),
     _S("Unable to find Waldo"),

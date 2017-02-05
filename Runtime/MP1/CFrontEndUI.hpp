@@ -241,7 +241,6 @@ public:
         bool x38_lastDoDraw = false;
         bool x39_fusionNotComplete = false;
         bool x3a_mpNotComplete = false;
-        bool m_nesUnsupported = false;
 
         SFusionBonusFrame();
         void FinishedLoading();
@@ -255,7 +254,6 @@ public:
         {
             x39_fusionNotComplete = false;
             x3a_mpNotComplete = false;
-            m_nesUnsupported = false;
         }
 
         void DoCancel(CGuiTableGroup* caller);

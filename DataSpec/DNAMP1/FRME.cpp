@@ -365,6 +365,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
               "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n",
               pakRouter.getBestEntryName(entry).c_str());
 
+    int pIdx = 0;
     for (const FRME::Widget& w : frme.widgets)
     {
         os << "binding = None\n"
@@ -532,6 +533,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
         }
 
         os.format("frme_obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
+                  "frme_obj.pass_index = %d\n"
                   "parentName = '%s'\n"
                   "frme_obj.retro_widget_type = 'RETRO_%s'\n"
                   "frme_obj.retro_widget_use_anim_controller = %s\n"
@@ -546,7 +548,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                   "    frme_obj.retro_widget_parent = parentName\n"
                   "else:\n"
                   "    frme_obj.parent = bpy.data.objects[parentName]\n",
-                  w.header.name.c_str(), w.header.parent.c_str(),
+                  w.header.name.c_str(), pIdx++, w.header.parent.c_str(),
                   w.type.toString().c_str(),
                   w.header.useAnimController ? "True" : "False",
                   w.header.defaultVisible ? "True" : "False",

@@ -184,6 +184,8 @@ void CFrontEndUI::SNewFileSelectFrame::Update(float dt)
 CFrontEndUI::SNewFileSelectFrame::EAction
 CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
 {
+    xc_action = EAction::None;
+
     if (x8_subMenu != ESubMenu::ExistingGamePopup)
         x4_saveUI->ProcessUserInput(input);
 
@@ -957,6 +959,7 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
     x24_loadedFrame->FindWidget("textpane_proceed")->SetIsVisible(showFusionSuitProceed);
 
     std::u16string instructionStr;
+    x30_textpane_instructions.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
     if (x28_tablegroup_options->GetUserSelection() == 1)
     {
         /* Fusion Suit */
@@ -972,12 +975,10 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
             instructionStr = g_MainStringTable->GetString(79); // You have not completed fusion
         else if (!g_GameState->SystemOptions().GetPlayerBeatFusion())
             instructionStr = g_MainStringTable->GetString(77); // To play NES Metroid
-        else if (m_nesUnsupported)
+        else
         {
             instructionStr = u"NES Emulator currently unsupported";
-            x30_textpane_instructions.x0_panes[0]->TextSupport()->SetText(instructionStr);
             x30_textpane_instructions.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skYellow);
-            x30_textpane_instructions.x0_panes[1]->TextSupport()->SetText(instructionStr);
         }
     }
 
@@ -1007,7 +1008,6 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
                         x39_fusionNotComplete = true;
                     else if (sui)
                         sui->SaveNESState();
-                    m_nesUnsupported = true;
                 }
             }
         }
@@ -1032,7 +1032,7 @@ void CFrontEndUI::SFusionBonusFrame::Draw() const
 
 void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller)
 {
-    if (x39_fusionNotComplete || x3a_mpNotComplete || m_nesUnsupported)
+    if (x39_fusionNotComplete || x3a_mpNotComplete)
     {
         CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1094,16 +1094,10 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
             x39_fusionNotComplete = false;
             PlayAdvanceSfx();
         }
-        /*
         else if (g_GameState->SystemOptions().GetPlayerBeatFusion())
         {
-            x8_action = EAction::PlayNESMetroid;
-        }
-        */
-        else if (m_nesUnsupported)
-        {
-            m_nesUnsupported = false;
-            PlayAdvanceSfx();
+            x8_action = EAction::None;
+            //x8_action = EAction::PlayNESMetroid;
         }
         else
         {
