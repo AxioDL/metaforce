@@ -58,6 +58,8 @@ protected:
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
             bool xe4_30_ : 1;
+            bool xe5_24_ : 1;
+            bool xe5_25_ : 1;
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
@@ -69,6 +71,7 @@ protected:
         };
         u32 dummy = 0;
     };
+    void _CreateShadow();
 
 public:
     enum class EFluidState
@@ -131,6 +134,7 @@ public:
     void AddMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
     void AddMaterial(EMaterialTypes, CStateManager&);
 
+    void CreateShadow(bool);
     void SetCallTouch(bool callTouch);
     bool GetCallTouch() const;
     void SetUseInSortedList(bool use);
