@@ -412,6 +412,10 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         savwCooked.makeDirChain(false);
         athena::io::FileWriter fo(savwCooked.getAbsolutePath());
         savw.write(fo);
+        int64_t rem = fo.position() % 32;
+        if (rem)
+            for (int64_t i=0 ; i<32-rem ; ++i)
+                fo.writeBytes((atInt8*)"\xff", 1);
     }
 
     return true;
