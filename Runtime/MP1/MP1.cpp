@@ -46,6 +46,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
     CAudioSys::SetDefaultVolumeScale(0x75);
     CAudioSys::SetVolumeScale(CAudioSys::GetDefaultVolumeScale());
     CStreamAudioManager::Initialize();
+    CStreamAudioManager::SetMusicVolume(0x7f);
     m->ResetGameState();
 
     //std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
@@ -276,6 +277,16 @@ bool CMain::Proc()
     x164_archSupport->Update();
     CSfxManager::Update(1.f / 60.f);
     CStreamAudioManager::Update(1.f / 60.f);
+    if (x164_archSupport->GetIOWinManager().IsEmpty() || CheckReset())
+    {
+        CStreamAudioManager::StopAll();
+        /*
+        x164_archSupport.reset();
+        g_archSupport = x164_archSupport.get();
+        x164_archSupport->PreloadAudio();
+        */
+        x160_24_finished = true;
+    }
     return x160_24_finished;
 }
 

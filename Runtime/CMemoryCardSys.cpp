@@ -138,7 +138,13 @@ bool CMemoryCardSys::InitializePump()
 
             x20_scanStates.reserve(x20_scanStates.size() + savw.GetScans().size());
             for (const CSaveWorld::SScanState& scan : savw.GetScans())
-                x20_scanStates.emplace_back(scan.x0_id, scan.x4_category);
+            {
+                auto existingSearch =
+                    std::find_if(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& test)
+                    { return test.first == scan.x0_id && test.second == scan.x4_category; });
+                if (existingSearch == x20_scanStates.end())
+                    x20_scanStates.emplace_back(scan.x0_id, scan.x4_category);
+            }
 
             wldMemOut.x3c_saveWorld = std::move(world.x34_saveWorld);
             wldMemOut.x2c_worldName = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), wldMemOut.x0_strgId});

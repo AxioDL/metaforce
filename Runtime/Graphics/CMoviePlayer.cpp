@@ -191,6 +191,9 @@ static u32 StaticLoopEnd = 0;
 static g72x_state StaticStateLeft = {};
 static g72x_state StaticStateRight = {};
 
+/* THP SFX audio */
+static float SfxVolume = 1.f;
+
 static const char* BlockNames[] = {"SpecterViewBlock"};
 static const char* TexNames[] = {"texY", "texU", "texV"};
 
@@ -523,6 +526,11 @@ void CMoviePlayer::SetStaticAudio(const void* data, u32 size, u32 loopBegin, u32
     g72x_init_state(&StaticStateRight);
 }
 
+void CMoviePlayer::SetSfxVolume(u8 volume)
+{
+    SfxVolume = std::min(volume, u8(127)) / 127.f;
+}
+
 void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
 {
     /* No audio frames ready */
@@ -557,9 +565,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 for (u32 i=0 ; i<thisSamples ; ++i, out += 2, in += 2)
                 {
                     out[0] = DSPSampClamp(in[0] +
-                        s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000);
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000 * SfxVolume);
                     out[1] = DSPSampClamp(in[1] +
-                        s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000);
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000 * SfxVolume);
                 }
             }
             else
@@ -567,9 +575,9 @@ void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples)
                 for (u32 i=0 ; i<thisSamples ; ++i, out += 2)
                 {
                     out[0] = DSPSampClamp(
-                        s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000);
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2]) * 0x50F4 / 0x8000 * SfxVolume);
                     out[1] = DSPSampClamp(
-                        s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000);
+                        s32(tex->audioBuf[(i+tex->playedSamples)*2+1]) * 0x50F4 / 0x8000 * SfxVolume);
                 }
             }
             tex->playedSamples += thisSamples;

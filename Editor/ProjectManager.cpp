@@ -183,7 +183,13 @@ bool ProjectManager::saveProject()
 void ProjectManager::mainUpdate()
 {
     if (m_mainMP1)
-        m_mainMP1->Proc();
+    {
+        if (m_mainMP1->Proc())
+        {
+            m_mainMP1->Shutdown();
+            m_mainMP1 = std::experimental::nullopt;
+        }
+    }
 }
 
 void ProjectManager::mainDraw()

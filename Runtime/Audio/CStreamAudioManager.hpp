@@ -17,6 +17,7 @@ class CStreamAudioManager
     static void StopStreaming(bool oneshot);
     static void UpdateDSP(bool oneshot, float dt);
     static void UpdateDSPStreamers(float dt);
+    static void StopAllStreams();
 
 public:
     static void Start(bool oneshot, const std::string& fileName, u8 volume,
@@ -25,6 +26,11 @@ public:
     static void FadeBackIn(bool oneshot, float fadeTime);
     static void TemporaryFadeOut(bool oneshot, float fadeTime);
     static void Update(float dt);
+    static void StopAll();
+    static void SetMusicUnmute(bool unmute);
+    static void SetSfxVolume(u8 volume);
+    static void SetMusicVolume(u8 volume);
+
     static void Initialize();
     static void Shutdown();
 };

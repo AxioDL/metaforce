@@ -29,7 +29,7 @@ class CSaveWorldMemory
 public:
     ResId GetSaveWorldAssetId() const { return x4_savwId; }
     u32 GetAreaCount() const { return x8_areaCount; }
-
+    const std::vector<CWorldLayers::Area>& GetDefaultLayerStates() const { return x1c_defaultLayerStates; }
     const TLockedToken<CStringTable>& GetWorldName() const { return x2c_worldName; }
     const TLockedToken<CSaveWorld>& GetSaveWorld() const { return x3c_saveWorld; }
     const char16_t* GetFrontEndName() const

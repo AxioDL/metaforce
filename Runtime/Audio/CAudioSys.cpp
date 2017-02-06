@@ -82,9 +82,23 @@ void CAudioSys::SysRemoveGroupFromAmuse(const std::string& name)
         RemoveAudioGroup(set->GetAudioGroupData());
 }
 
+static float s_MasterVol = 1.f;
+static float s_SfxVol = 1.f;
+void CAudioSys::_UpdateVolume()
+{
+    GetAmuseEngine().setVolume(s_MasterVol * s_SfxVol);
+}
+
 void CAudioSys::SysSetVolume(u8 volume)
 {
-    GetAmuseEngine().setVolume(volume / 127.f);
+    s_MasterVol = volume / 127.f;
+    _UpdateVolume();
+}
+
+void CAudioSys::SysSetSfxVolume(u8 volume, u16 time, bool music, bool fx)
+{
+    s_SfxVol = volume / 127.f;
+    _UpdateVolume();
 }
 
 static s16 s_VolumeScale = 0x7f;

@@ -31,6 +31,7 @@ private:
     static CAudioSys* g_SharedSys;
     boo::IAudioVoiceEngine* m_voiceEngine;
     amuse::Engine m_engine;
+    static void _UpdateVolume();
 
 public:
     struct C3DEmitterParmData
@@ -86,6 +87,7 @@ public:
     static void SysAddGroupIntoAmuse(const std::string& name);
     static void SysRemoveGroupFromAmuse(const std::string& name);
     static void SysSetVolume(u8 volume);
+    static void SysSetSfxVolume(u8 volume, u16 time, bool music, bool fx);
 
     static s16 GetDefaultVolumeScale();
     static void SetDefaultVolumeScale(s16 scale);

@@ -4,6 +4,8 @@
 #include "CStateManager.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
+#include "CMemoryCardSys.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
@@ -57,8 +59,15 @@ const char* PowerUpNames[41]=
     "Artifact of Newborn",
 };
 
+CPlayerState::CPlayerState()
+: x188_staticIntf(5)
+{
+    x0_24_ = true;
+    x24_powerups.resize(41);
+}
+
 CPlayerState::CPlayerState(CBitStreamReader& stream)
-    : CPlayerState()
+: x188_staticIntf(5)
 {
     x4_ = stream.ReadEncoded(0x20);
     u32 tmp = stream.ReadEncoded(0x20);
@@ -76,14 +85,12 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
         x24_powerups[i] = CPowerUp(a, b);
     }
 
-    x170_scanTimes.resize(846);
-    for (u32 i = 0; i < x170_scanTimes.size(); i++)
+    const auto& scanStates = g_MemoryCardSys->GetScanStates();
+    x170_scanTimes.reserve(scanStates.size());
+    for (const auto& state : scanStates)
     {
-        x170_scanTimes[i].first = stream.ReadEncoded(1);
-        if (x170_scanTimes[i].first)
-            x170_scanTimes[i].second = 1.f;
-        else
-            x170_scanTimes[i].second = 0.f;
+        float time = stream.ReadEncoded(1) ? 1.f : 0.f;
+        x170_scanTimes.emplace_back(state.first, time);
     }
 
     x180_logScans = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
@@ -392,6 +399,17 @@ void CPlayerState::ReInitalizePowerUp(CPlayerState::EItemType type, u32 capacity
 {
     x24_powerups[u32(type)].x4_capacity = 0;
     InitializePowerUp(type, capacity);
+}
+
+void CPlayerState::InitializeScanTimes()
+{
+    if (x170_scanTimes.size())
+        return;
+
+    const auto& scanStates = g_MemoryCardSys->GetScanStates();
+    x170_scanTimes.reserve(scanStates.size());
+    for (const auto& state : scanStates)
+        x170_scanTimes.emplace_back(state.first, 0.f);
 }
 
 }

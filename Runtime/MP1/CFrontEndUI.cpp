@@ -1754,7 +1754,9 @@ CFrontEndUI::CFrontEndUI()
     xdc_saveUI = std::make_unique<CSaveUI>(ESaveContext::FrontEnd, g_GameState->GetCardSerial());
 
     m->ResetGameState();
-    g_GameState->SetCurrentWorldId(g_DefaultWorldTag.id);
+    g_GameState->SetCurrentWorldId(g_ResFactory->TranslateOriginalToNew(g_DefaultWorldTag.id));
+    g_GameState->GameOptions().ResetToDefaults();
+    g_GameState->WriteBackupBuf();
 
     for (int i=0 ; CDvdFile::FileExists(GetAttractMovieFileName(i).c_str()) ; ++i)
         ++xc0_attractCount;

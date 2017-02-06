@@ -37,6 +37,7 @@ public:
     void RemoveAllIOWins();
     void RemoveIOWin(CIOWin* toRemove);
     void AddIOWin(std::weak_ptr<CIOWin> toAdd, int pumpPrio, int drawPrio);
+    bool IsEmpty() const { return x0_drawRoot == nullptr && x4_pumpRoot == nullptr; }
 };
 
 }

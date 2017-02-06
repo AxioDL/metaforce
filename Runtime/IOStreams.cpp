@@ -1,7 +1,21 @@
 #include "IOStreams.hpp"
+#include "hecl/hecl.hpp"
 
 namespace urde
 {
+
+#define DUMP_BITS 0
+
+#if DUMP_BITS
+static void PrintBinary(u32 val, u32 count)
+{
+    for (int i=0 ; i<count ; ++i)
+    {
+        printf("%d", (val >> (count-i-1)) & 0x1);
+    }
+}
+#endif
+
 /*!
  * \brief CBitStreamReader::ReadBit
  * Reads and decodes an encoded value from a bitstream.
@@ -10,41 +24,47 @@ namespace urde
  */
 s32 CBitStreamReader::ReadEncoded(u32 bitCount)
 {
-    s32 ret = 0;
-    if (bitCount < x20_bitOffset)
+#if DUMP_BITS
+    auto pos = position();
+    auto boff = x20_bitOffset;
+#endif
+
+    u32 ret = 0;
+    s32 shiftAmt = x20_bitOffset - s32(bitCount);
+    if (shiftAmt < 0)
     {
-        u32 diff = 0x20 - bitCount;
-        u32 baseVal = -1;
-        if (x20_bitOffset != 0x20)
-            baseVal = (1 << bitCount) - 1;
-        x20_bitOffset -= bitCount;
-        ret = baseVal & (x1c_val >> diff);
-        x1c_val <<= bitCount;
+        /* OR in remaining bits of cached value */
+        u32 mask = (1 << bitCount) - 1;
+        ret |= (x1c_val << -shiftAmt) & mask;
+
+        /* Load in exact number of bytes remaining */
+        auto loadDiv = std::div(-shiftAmt, 8);
+        if (loadDiv.rem) ++loadDiv.quot;
+        readUBytesToBuf(reinterpret_cast<u8*>(&x1c_val) + 4 - loadDiv.quot, loadDiv.quot);
+        x1c_val = hecl::SBig(x1c_val);
+
+        /* New bit offset */
+        x20_bitOffset = loadDiv.quot * 8 + shiftAmt;
+
+        /* OR in next bits */
+        mask = (1 << -shiftAmt) - 1;
+        ret |= (x1c_val >> x20_bitOffset) & mask;
     }
     else
     {
-        u32 diff = bitCount - x20_bitOffset;
-        u32 baseVal = -1;
-        if (x20_bitOffset != 32)
-            baseVal = (1 << x20_bitOffset) - 1;
+        /* OR in bits of cached value */
+        u32 mask = (1 << bitCount) - 1;
+        ret |= (x1c_val >> shiftAmt) & mask;
 
-        baseVal = (baseVal & (x1c_val >> (32 - x20_bitOffset))) << diff;
-        x20_bitOffset = 0;
-        auto pos = std::div(diff, 8);
-        if (pos.rem) ++pos.quot;
-        readUBytesToBuf(&x1c_val, pos.quot);
-        /* The game uses Big Endian, which doesn't work for us */
-        /* Little Endian sucks */
-        athena::utility::BigUint32(x1c_val);
-
-        u32 baseVal2 = -1;
-        if (diff != 32)
-            baseVal2 = (1 << diff) - 1;
-
-        ret = baseVal | (baseVal2 & (x1c_val >> (32 - diff))) << x20_bitOffset;
-        x20_bitOffset = (pos.quot << 3) - diff;
-        x1c_val <<= diff;
+        /* New bit offset */
+        x20_bitOffset -= bitCount;
     }
+
+#if DUMP_BITS
+    printf("READ ");
+    PrintBinary(ret, bitCount);
+    printf(" %d %d\n", int(pos), int(boff));
+#endif
 
     return ret;
 }
@@ -52,49 +72,47 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
 
 void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount)
 {
-    if (x18_bitOffset >= bitCount)
+#if DUMP_BITS
+    printf("WRITE ");
+    PrintBinary(val, bitCount);
+    printf(" %d %d\n", int(position()), int(x18_bitOffset));
+#endif
+
+    s32 shiftAmt = x18_bitOffset - s32(bitCount);
+    if (shiftAmt < 0)
     {
-        int baseVal = -1;
-        if (bitCount != 32)
-            baseVal = (1 << bitCount) - 1;
-        x14_val |= (val & baseVal) << (x18_bitOffset - bitCount);
-        x18_bitOffset -= bitCount;
+        /* OR remaining bits to cached value */
+        u32 mask = (1 << x18_bitOffset) - 1;
+        x14_val |= (val >> -shiftAmt) & mask;
+
+        /* Write out 32-bits */
+        x14_val = hecl::SBig(x14_val);
+        writeUBytes(reinterpret_cast<u8*>(&x14_val), 4);
+
+        /* Cache remaining bits */
+        x18_bitOffset = 0x20 + shiftAmt;
+        x14_val = val << x18_bitOffset;
     }
     else
     {
-        u32 diff = bitCount - x18_bitOffset;
-        u32 baseVal = -1;
-        if (x18_bitOffset != 32)
-            baseVal = (1 << x18_bitOffset) - 1;
+        /* OR bits to cached value */
+        u32 mask = (1 << bitCount) - 1;
+        x14_val |= (val & mask) << shiftAmt;
 
-        x14_val |= (val >> diff) & baseVal;
-        x18_bitOffset = 0;
-        u32 tmp = x14_val;
-        athena::utility::BigUint32(tmp);
-        auto pos = std::div(32 - x18_bitOffset, 8);
-        if (pos.rem) ++pos.quot;
-        writeBytes(&tmp, pos.quot);
-
-        u32 rem = 32 - diff;
-        baseVal = -1;
-        if (diff != 32)
-            baseVal = (1 << diff) - 1;
-
-        x14_val = (val & baseVal) << rem;
-        x18_bitOffset -= diff;
+        /* New bit offset */
+        x18_bitOffset -= bitCount;
     }
 }
 
 void CBitStreamWriter::Flush()
 {
-    if (x18_bitOffset && x18_bitOffset < 0x20)
+    if (x18_bitOffset < 0x20)
     {
-        u32 tmp = x14_val;
-        athena::utility::BigUint32(tmp);
-        auto pos = std::div(32 - x18_bitOffset, 8);
+        auto pos = std::div(0x20 - x18_bitOffset, 8);
         if (pos.rem) ++pos.quot;
-        writeBytes(&tmp, pos.quot);
-        x18_bitOffset = 32;
+        x14_val = hecl::SBig(x14_val);
+        writeUBytes(reinterpret_cast<u8*>(&x14_val), pos.quot);
+        x18_bitOffset = 0x20;
         x14_val = 0;
     }
 }

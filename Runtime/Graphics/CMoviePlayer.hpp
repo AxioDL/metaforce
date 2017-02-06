@@ -146,6 +146,7 @@ public:
     static void DisableStaticAudio() {SetStaticAudio(nullptr, 0, 0, 0);}
     static void SetStaticAudioVolume(int vol);
     static void SetStaticAudio(const void* data, u32 size, u32 loopBegin, u32 loopEnd);
+    static void SetSfxVolume(u8 volume);
     static void MixStaticAudio(s16* out, const s16* in, u32 samples);
     void MixAudio(s16* out, const s16* in, u32 samples);
     void Rewind();

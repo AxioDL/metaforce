@@ -31,38 +31,20 @@ public:
     }
 
     CBitStreamReader(const void* data, atUint64 length)
-        : MemoryReader(data, length)
-    {
-    }
-
-    atUint64 readUBytesToBuf(void *buf, atUint64 len)
-    {
-        x20_bitOffset = 0;
-        atUint64 tmp = MemoryReader::readUBytesToBuf(buf, len);
-        return tmp;
-    }
+    : MemoryReader(data, length) {}
 
     s32 ReadEncoded(u32 key);
 };
 
 class CBitStreamWriter : public athena::io::MemoryWriter
 {
-private:
     u32 x14_val = 0;
-    u32 x18_bitOffset = 32;
+    u32 x18_bitOffset = 0x20;
 public:
-    static inline u32 GetBitCount(u32 maxVal) {  return CBitStreamReader::GetBitCount(maxVal); }
+    static inline u32 GetBitCount(u32 maxVal) { return CBitStreamReader::GetBitCount(maxVal); }
 
     CBitStreamWriter(atUint8* data = nullptr, atUint64 length=0x10)
-        : MemoryWriter(data, length)
-    {}
-
-    void writeUBytes(const atUint8 *data, atUint64 len)
-    {
-        x14_val = 0;
-        x18_bitOffset = 0x20;
-        MemoryWriter::writeUBytes(data, len);
-    }
+    : MemoryWriter(data, length) {}
 
     void WriteEncoded(u32 val, u32 bitCount);
 

@@ -120,6 +120,8 @@ public:
     void PutTo(CBitStreamWriter& writer) const;
     float GetHardModeDamageMultiplier() const;
     float GetHardModeWeaponMultiplier() const;
+    void InitializeMemoryWorlds();
+    void InitializeMemoryStates();
 
     struct GameFileStateInfo
     {

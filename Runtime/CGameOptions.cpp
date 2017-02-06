@@ -8,7 +8,8 @@
 #include "CGameState.hpp"
 #include "Input/CFinalInput.hpp"
 #include "Audio/CSfxManager.hpp"
-//#include "Audio/CStreamedAudioManager.hpp"
+#include "Audio/CStreamAudioManager.hpp"
+#include "Graphics/CMoviePlayer.hpp"
 
 namespace urde
 {
@@ -283,23 +284,19 @@ void CGameOptions::SetSfxVolume(s32 vol, bool apply)
 {
     x58_sfxVol = zeus::clamp(0, vol, 0x7f);
 
-#if 0
     if (apply)
     {
         CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, 1, 1);
-        CStreamedAudioManager::SetSfxVolume(x58_sfxVol);
+        CStreamAudioManager::SetSfxVolume(x58_sfxVol);
         CMoviePlayer::SetSfxVolume(x58_sfxVol);
     }
-#endif
 }
 
 void CGameOptions::SetMusicVolume(s32 vol, bool apply)
 {
     x5c_musicVol = zeus::clamp(0, vol, 0x7f);
-# if 0
     if (apply)
-        CStreamedAudioManager::SetGlobalVolume(x5c_musicVol);
-#endif
+        CStreamAudioManager::SetMusicVolume(x5c_musicVol);
 }
 
 void CGameOptions::SetHUDAlpha(u32 alpha)
@@ -568,6 +565,12 @@ void CHintOptions::SetNextHintTime()
         return;
     x0_hintStates[x10_nextHintIdx].x4_time =
             g_MemoryCardSys->GetHints()[x10_nextHintIdx].GetTime() + 5.f;
+}
+
+void CHintOptions::InitializeMemoryState()
+{
+    const auto& hints = g_MemoryCardSys->GetHints();
+    x0_hintStates.resize(hints.size());
 }
 
 }

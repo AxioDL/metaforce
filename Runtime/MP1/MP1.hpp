@@ -172,6 +172,8 @@ public:
         m_rectIsDirty = false;
         return m_windowRect;
     }
+
+    CIOWinManager& GetIOWinManager() { return x58_ioWinManager; }
 };
 
 #if MP1_USE_BOO
@@ -261,7 +263,10 @@ public:
             if (!memSys)
                 memSys.reset(new CMemoryCardSys());
             if (memSys->InitializePump())
+            {
                 g_MemoryCardSys = memSys.get();
+                g_GameState->InitializeMemoryStates();
+            }
         }
     }
 

@@ -135,6 +135,7 @@ void CMemoryCardDriver::SGameFileSlot::InitializeFromGameState()
 {
     CBitStreamWriter w(x0_saveBuffer, 940);
     g_GameState->PutTo(w);
+    w.Flush();
     x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer);
 }
 

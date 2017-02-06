@@ -113,7 +113,8 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
 
     ret.x20_hardMode = stream.ReadEncoded(1);
     stream.ReadEncoded(1);
-    ret.x8_mlvlId = g_ResFactory->TranslateOriginalToNew(stream.ReadEncoded(32));
+    ResId origMLVL = stream.ReadEncoded(32);
+    ret.x8_mlvlId = g_ResFactory->TranslateOriginalToNew(origMLVL);
 
     BitsToDouble conv;
     conv.low = stream.ReadEncoded(32);
@@ -124,7 +125,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
     ret.x10_energyTanks = playerState.GetItemCapacity(CPlayerState::EItemType::EnergyTanks);
 
     u32 itemPercent;
-    if (ret.x8_mlvlId == 0x158EFE17)
+    if (origMLVL == 0x158EFE17)
         itemPercent = 0;
     else
         itemPercent = playerState.CalculateItemCollectionRate() * 100 / playerState.GetPickupTotal();
@@ -142,14 +143,17 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
 
 CGameState::CGameState()
 {
-    x98_playerState.reset(new CPlayerState());
-    x9c_transManager.reset(new CWorldTransManager());
+    x98_playerState = std::make_shared<CPlayerState>();
+    x9c_transManager = std::make_shared<CWorldTransManager>();
     x228_25_deferPowerupInit = true;
+    if (g_MemoryCardSys)
+        InitializeMemoryStates();
 }
 
 CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
 : x20c_saveFileIdx(saveIdx)
 {
+    x9c_transManager = std::make_shared<CWorldTransManager>();
     x228_25_deferPowerupInit = true;
 
     for (u32 i = 0; i < 128; i++)
@@ -180,6 +184,9 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
             g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), memWorld.second.GetSaveWorldAssetId()});
         x88_worldStates.emplace_back(stream, memWorld.first, *saveWorld);
     }
+
+    InitializeMemoryWorlds();
+    WriteBackupBuf();
 }
 
 void CGameState::ReadPersistentOptions(CBitStreamReader& r)
@@ -290,6 +297,24 @@ float CGameState::GetHardModeDamageMultiplier() const
 float CGameState::GetHardModeWeaponMultiplier() const
 {
     return g_tweakGame->GetHardModeWeaponMultiplier();
+}
+
+void CGameState::InitializeMemoryWorlds()
+{
+    const auto& memoryWorlds = g_MemoryCardSys->GetMemoryWorlds();
+    for (const auto& wld : memoryWorlds)
+    {
+        const auto& layerState = StateForWorld(wld.first).GetLayerState();
+        layerState->InitializeWorldLayers(wld.second.GetDefaultLayerStates());
+    }
+}
+
+void CGameState::InitializeMemoryStates()
+{
+    x98_playerState->InitializeScanTimes();
+    x1f8_hintOptions.InitializeMemoryState();
+    InitializeMemoryWorlds();
+    WriteBackupBuf();
 }
 
 }

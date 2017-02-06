@@ -328,8 +328,8 @@ struct SDSPStream : boo::IAudioVoiceCallback
         if (!x0_active || xe8_silent)
             return;
         float coefs[8] = {};
-        coefs[int(boo::AudioChannel::FrontLeft)] = m_leftgain * vol;
-        coefs[int(boo::AudioChannel::FrontRight)] = m_rightgain * vol;
+        coefs[int(boo::AudioChannel::FrontLeft)] = m_leftgain * vol * 0.7f;
+        coefs[int(boo::AudioChannel::FrontRight)] = m_rightgain * vol * 0.7f;
         m_booVoice->setMonoChannelLevels(nullptr, coefs, true);
     }
 
@@ -1153,10 +1153,42 @@ void CStreamAudioManager::UpdateDSPStreamers(float dt)
     UpdateDSP(true, dt);
 }
 
+void CStreamAudioManager::StopAllStreams()
+{
+    for (int i=0 ; i<2 ; ++i)
+    {
+        StopStreaming(i);
+        SDSPPlayer& p = s_Players[i];
+        SDSPPlayer& qp = s_QueuedPlayers[i];
+        p = SDSPPlayer();
+        qp = SDSPPlayer();
+    }
+}
+
 void CStreamAudioManager::Update(float dt)
 {
     CDSPStreamManager::PollHeaderReadCompletions();
     UpdateDSPStreamers(dt);
+}
+
+void CStreamAudioManager::StopAll()
+{
+    StopAllStreams();
+}
+
+void CStreamAudioManager::SetMusicUnmute(bool unmute)
+{
+    g_MusicUnmute = unmute;
+}
+
+void CStreamAudioManager::SetSfxVolume(u8 volume)
+{
+    g_SfxVolume = std::min(volume, u8(127));
+}
+
+void CStreamAudioManager::SetMusicVolume(u8 volume)
+{
+    g_MusicVolume = std::min(volume, u8(127));
 }
 
 void CStreamAudioManager::Initialize()

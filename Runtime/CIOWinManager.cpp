@@ -63,8 +63,9 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
                                          CArchitectureQueue& queue)
 {
     CArchitectureMessage tmpMsg = msg;
-    for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
+    for (IOWinPQNode* node = x4_pumpRoot ; node ;)
     {
+        IOWinPQNode* next = node->x8_next;
         CIOWin* iow = node->GetIOWin();
         CIOWin::EMessageReturn mret = iow->OnMessage(tmpMsg, x8_localGatherQueue);
 
@@ -99,6 +100,8 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg,
             return false;
         default: break;
         }
+
+        node = next;
     }
 
     return false;
