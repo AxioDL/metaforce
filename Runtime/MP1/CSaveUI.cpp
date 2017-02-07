@@ -625,7 +625,7 @@ void CSaveUI::StartGame(int idx)
     const CGameState::GameFileStateInfo* info = x6c_cardDriver->GetGameFileStateInfo(idx);
     x6c_cardDriver->ExportPersistentOptions();
     x6c_cardDriver->BuildNewFileSlot(idx);
-    if (info)
+    if (!info)
         x6c_cardDriver->StartFileCreateTransactional();
     else
         x80_iowRet = CIOWin::EMessageReturn::Exit;

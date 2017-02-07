@@ -34,8 +34,8 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
     if (shiftAmt < 0)
     {
         /* OR in remaining bits of cached value */
-        u32 mask = (1 << bitCount) - 1;
-        ret |= (x1c_val << -shiftAmt) & mask;
+        u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+        ret |= (x1c_val << u32(-shiftAmt)) & mask;
 
         /* Load in exact number of bytes remaining */
         auto loadDiv = std::div(-shiftAmt, 8);
@@ -47,14 +47,14 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount)
         x20_bitOffset = loadDiv.quot * 8 + shiftAmt;
 
         /* OR in next bits */
-        mask = (1 << -shiftAmt) - 1;
+        mask = (1 << u32(-shiftAmt)) - 1;
         ret |= (x1c_val >> x20_bitOffset) & mask;
     }
     else
     {
         /* OR in bits of cached value */
-        u32 mask = (1 << bitCount) - 1;
-        ret |= (x1c_val >> shiftAmt) & mask;
+        u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+        ret |= (x1c_val >> u32(shiftAmt)) & mask;
 
         /* New bit offset */
         x20_bitOffset -= bitCount;
@@ -83,7 +83,7 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount)
     {
         /* OR remaining bits to cached value */
         u32 mask = (1 << x18_bitOffset) - 1;
-        x14_val |= (val >> -shiftAmt) & mask;
+        x14_val |= (val >> u32(-shiftAmt)) & mask;
 
         /* Write out 32-bits */
         x14_val = hecl::SBig(x14_val);
@@ -96,8 +96,8 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount)
     else
     {
         /* OR bits to cached value */
-        u32 mask = (1 << bitCount) - 1;
-        x14_val |= (val & mask) << shiftAmt;
+        u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+        x14_val |= (val & mask) << u32(shiftAmt);
 
         /* New bit offset */
         x18_bitOffset -= bitCount;
