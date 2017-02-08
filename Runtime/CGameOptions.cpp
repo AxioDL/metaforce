@@ -161,14 +161,14 @@ void CPersistentOptions::SetCinematicState(ResId mlvlId, TEditorId cineId, bool 
 CGameOptions::CGameOptions(CBitStreamReader& stream)
 {
     for (int b=0 ; b<64 ; ++b)
-        x0_[b] = stream.ReadEncoded(1);
+        x0_[b] = stream.ReadEncoded(8);
 
     x44_soundMode = CAudioSys::ESurroundModes(stream.ReadEncoded(2));
     x48_screenBrightness = stream.ReadEncoded(4);
 
-    x4c_screenXOffset = stream.ReadEncoded(6);
-    x50_screenYOffset = stream.ReadEncoded(6);
-    x54_screenStretch = stream.ReadEncoded(5);
+    x4c_screenXOffset = stream.ReadEncoded(6) - 30;
+    x50_screenYOffset = stream.ReadEncoded(6) - 30;
+    x54_screenStretch = stream.ReadEncoded(5) - 10;
     x58_sfxVol = stream.ReadEncoded(7);
     x5c_musicVol = stream.ReadEncoded(7);
     x60_hudAlpha = stream.ReadEncoded(8);
@@ -204,14 +204,14 @@ void CGameOptions::ResetToDefaults()
 void CGameOptions::PutTo(CBitStreamWriter& writer) const
 {
     for (int b=0 ; b<64 ; ++b)
-        writer.WriteEncoded(x0_[b], 1);
+        writer.WriteEncoded(x0_[b], 8);
 
     writer.WriteEncoded(u32(x44_soundMode), 2);
     writer.WriteEncoded(x48_screenBrightness, 4);
 
-    writer.WriteEncoded(x4c_screenXOffset, 6);
-    writer.WriteEncoded(x50_screenYOffset, 6);
-    writer.WriteEncoded(x54_screenStretch, 5);
+    writer.WriteEncoded(x4c_screenXOffset + 30, 6);
+    writer.WriteEncoded(x50_screenYOffset + 30, 6);
+    writer.WriteEncoded(x54_screenStretch + 10, 5);
     writer.WriteEncoded(x58_sfxVol, 7);
     writer.WriteEncoded(x5c_musicVol, 7);
     writer.WriteEncoded(x60_hudAlpha, 8);

@@ -194,7 +194,7 @@ struct CWorldLayers
     };
     std::vector<Area> m_areas;
     std::vector<std::string> m_names;
-    static CWorldLayers ReadWorldLayers(athena::io::MemoryReader& r);
+    static void ReadWorldLayers(athena::io::MemoryReader& r, int version, ResId mlvlId);
 };
 
 }

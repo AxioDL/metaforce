@@ -65,7 +65,7 @@ s32 CSaveWorld::GetCinematicIndex(const TEditorId &id) const
     auto it = std::find(x4_cinematics.begin(), x4_cinematics.end(), id);
     if (it == x4_cinematics.end())
         return -1;
-    return x4_cinematics.begin() - it;
+    return it - x4_cinematics.begin();
 }
 
 u32 CSaveWorld::GetRelayCount() const
@@ -78,7 +78,7 @@ s32 CSaveWorld::GetRelayIndex(const TEditorId &id) const
     auto it = std::find(x14_relays.begin(), x14_relays.end(), id);
     if (it == x14_relays.end())
         return -1;
-    return x14_relays.begin() - it;
+    return it - x14_relays.begin();
 }
 
 TEditorId CSaveWorld::GetRelayEditorId(u32 idx) const
@@ -96,7 +96,7 @@ s32 CSaveWorld::GetDoorIndex(const TEditorId &id) const
     auto it = std::find(x34_doors.begin(), x34_doors.end(), id);
     if (it == x34_doors.end())
         return -1;
-    return x34_doors.begin() - it;
+    return it - x34_doors.begin();
 }
 
 CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& param,

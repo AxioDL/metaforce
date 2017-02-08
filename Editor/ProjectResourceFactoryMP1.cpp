@@ -63,8 +63,8 @@ public:
 
     ResId TranslateOriginalToNew(ResId id) const
     {
-        auto search = std::lower_bound(m_origToNew.cbegin(), m_origToNew.cend(),
-                                       std::make_pair(id, ResId(0)));
+        auto search = std::lower_bound(m_origToNew.cbegin(), m_origToNew.cend(), id,
+        [](const auto& id, ResId test) -> bool { return id.first < test; });
         if (search == m_origToNew.cend() || search->first != id)
             return -1;
         return search->second;
@@ -72,8 +72,8 @@ public:
 
     ResId TranslateNewToOriginal(ResId id) const
     {
-        auto search = std::lower_bound(m_newToOrig.cbegin(), m_newToOrig.cend(),
-                                       std::make_pair(id, ResId(0)));
+        auto search = std::lower_bound(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
+        [](const auto& id, ResId test) -> bool { return id.first < test; });
         if (search == m_newToOrig.cend() || search->first != id)
             return -1;
         return search->second;

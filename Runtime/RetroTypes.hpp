@@ -22,6 +22,7 @@ struct SObjectTag
     operator bool() const { return (id & 0xffffffff) != 0xffffffff; }
     bool operator!=(const SObjectTag& other) const { return id != other.id; }
     bool operator==(const SObjectTag& other) const { return id == other.id; }
+    bool operator<(const SObjectTag& other) const { return id < other.id; }
     SObjectTag() = default;
     SObjectTag(FourCC tp, ResId rid) : type(tp), id(rid) {}
     SObjectTag(CInputStream& in)

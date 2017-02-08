@@ -6,6 +6,7 @@
 #include "CInGameTweakManagerBase.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Editor/ProjectResourceFactoryBase.hpp"
+#include "CGameState.hpp"
 
 namespace urde
 {
@@ -67,8 +68,11 @@ std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryR
     return ret;
 }
 
-CWorldLayers CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r)
+void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, ResId mlvlId)
 {
+    if (version <= 14)
+        return;
+
     CWorldLayers ret;
 
     u32 areaCount = r.readUint32Big();
@@ -89,7 +93,8 @@ CWorldLayers CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r)
     for (u32 i = 0; i < areaCount; ++i)
         ret.m_areas[i].m_startNameIdx = r.readUint32Big();
 
-    return ret;
+    CWorldState& wldState = g_GameState->StateForWorld(mlvlId);
+    wldState.GetLayerState()->InitializeWorldLayers(ret.m_areas);
 }
 
 bool CDummyWorld::ICheckWorldComplete()
@@ -139,7 +144,7 @@ bool CDummyWorld::ICheckWorldComplete()
         if (version > 12)
             r.readString();
 
-        CWorldLayers::ReadWorldLayers(r);
+        CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
 
         if (x4_loadMap)
             x8_phase = Phase::LoadingMap;
@@ -321,7 +326,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
                 x84_defAudioTrack = g_TweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();
         }
 
-        CWorldLayers::ReadWorldLayers(r);
+        CWorldLayers::ReadWorldLayers(r, version, x8_mlvlId);
 
         x4_phase = Phase::LoadingMap;
     }

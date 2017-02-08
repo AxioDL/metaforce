@@ -37,6 +37,7 @@ public:
     u32 GetCinematicCount() const;
     s32 GetCinematicIndex(const TEditorId& id) const;
     const std::vector<TEditorId>& GetCinematics() const { return x4_cinematics; }
+    const std::vector<TEditorId>& GetDoors() const { return x34_doors; }
     const std::vector<SScanState>& GetScans() const { return x44_scans; }
     u32 GetRelayCount() const;
     s32 GetRelayIndex(const TEditorId& id) const;

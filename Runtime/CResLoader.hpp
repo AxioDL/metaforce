@@ -15,16 +15,16 @@ class IDvdRequest;
 class CResLoader
 {
     std::string m_loaderPath;
-    //std::list<std::unique_ptr<CPakFile>> x4_unusedList;
-    std::list<std::unique_ptr<CPakFile>> x1c_pakLoadedList;
-    std::list<std::unique_ptr<CPakFile>> x34_pakLoadingList;
+    //std::list<std::unique_ptr<CPakFile>> x0_aramList;
+    std::list<std::unique_ptr<CPakFile>> x18_pakLoadedList;
+    std::list<std::unique_ptr<CPakFile>> x30_pakLoadingList;
     u32 x44_pakLoadingCount = 0;
     u32 x4c_cachedResId = -1;
     const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
 public:
     const std::vector<u32>* GetTagListForFile(const std::string& name) const;
-    void AddPakFileAsync(const std::string& name, bool flag);
-    void AddPakFile(const std::string& name, bool flag);
+    void AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak);
+    void AddPakFile(const std::string& name, bool samusPak, bool worldPak);
     CInputStream* LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf);
     void LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* sizeOut);
     CInputStream* LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf);

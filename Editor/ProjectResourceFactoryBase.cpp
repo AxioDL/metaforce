@@ -884,6 +884,7 @@ void ProjectResourceFactoryBase::EnumerateNamedResources(
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
         lk.lock();
     }
+    lk.unlock();
     for (const auto& pair : m_catalogNameToTag)
     {
         if (!lambda(pair.first, pair.second))

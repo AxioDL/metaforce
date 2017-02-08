@@ -7,25 +7,25 @@ namespace urde
 const std::vector<u32>* CResLoader::GetTagListForFile(const std::string& name) const
 {
     std::string namePak = name + ".pak";
-    for (const std::unique_ptr<CPakFile>& pak : x1c_pakLoadedList)
+    for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList)
         if (!CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path))
             return &pak->GetDepList();
     return nullptr;
 }
 
-void CResLoader::AddPakFileAsync(const std::string& name, bool flag)
+void CResLoader::AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak)
 {
     std::string namePak = name + ".pak";
     if (CDvdFile::FileExists(namePak.c_str()))
     {
-        x34_pakLoadingList.emplace_back(new CPakFile(namePak, flag));
+        x30_pakLoadingList.emplace_back(new CPakFile(namePak, samusPak, worldPak));
         ++x44_pakLoadingCount;
     }
 }
 
-void CResLoader::AddPakFile(const std::string& name, bool flag)
+void CResLoader::AddPakFile(const std::string& name, bool samusPak, bool worldPak)
 {
-    AddPakFileAsync(name, flag);
+    AddPakFileAsync(name, samusPak, worldPak);
     while (x44_pakLoadingCount)
         AsyncIdlePakLoading();
 }
@@ -119,7 +119,7 @@ FourCC CResLoader::GetResourceTypeById(u32 id) const
 
 const SObjectTag* CResLoader::GetResourceIdByName(const char* name) const
 {
-    for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
+    for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
     {
         const SObjectTag* id = file->GetResIdByName(name);
         if (id)
@@ -135,15 +135,15 @@ bool CResLoader::AreAllPaksLoaded() const
 
 void CResLoader::AsyncIdlePakLoading()
 {
-    for (auto it=x34_pakLoadingList.begin();
-         it != x34_pakLoadingList.end();
+    for (auto it=x30_pakLoadingList.begin();
+         it != x30_pakLoadingList.end();
          ++it)
     {
         (*it)->AsyncIdle();
         if ((*it)->x2c_asyncLoadPhase == CPakFile::EAsyncPhase::Loaded)
         {
             MoveToCorrectLoadedList(std::move(*it));
-            it = x34_pakLoadingList.erase(it);
+            it = x30_pakLoadingList.erase(it);
             --x44_pakLoadingCount;
         }
     }
@@ -151,7 +151,7 @@ void CResLoader::AsyncIdlePakLoading()
 
 bool CResLoader::FindResource(u32 id) const
 {
-    for (const std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
+    for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
         if (const_cast<CResLoader*>(this)->CacheFromPak(*file, id))
             return true;
     return false;
@@ -159,7 +159,7 @@ bool CResLoader::FindResource(u32 id) const
 
 CPakFile* CResLoader::FindResourceForLoad(u32 id)
 {
-    for (std::unique_ptr<CPakFile>& file : x1c_pakLoadedList)
+    for (std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
         if (CacheFromPakForLoad(*file, id))
             return file.get();
     return nullptr;
@@ -196,7 +196,7 @@ bool CResLoader::CacheFromPak(const CPakFile& file, u32 id)
 
 void CResLoader::MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file)
 {
-    x1c_pakLoadedList.push_back(std::move(file));
+    x18_pakLoadedList.push_back(std::move(file));
 }
 
 }

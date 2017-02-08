@@ -101,9 +101,9 @@ void CPlayerState::PutTo(CBitStreamWriter &stream)
 {
     stream.WriteEncoded(x4_, 32);
     float hp = xc_health.GetHP();
-    stream.WriteEncoded(*reinterpret_cast<int*>(&hp), 32);
-    stream.WriteEncoded((u32)x8_currentBeam, CBitStreamWriter::GetBitCount(5));
-    stream.WriteEncoded((u32)x20_currentSuit, CBitStreamWriter::GetBitCount(4));
+    stream.WriteEncoded(*reinterpret_cast<u32*>(&hp), 32);
+    stream.WriteEncoded(u32(x8_currentBeam), CBitStreamWriter::GetBitCount(5));
+    stream.WriteEncoded(u32(x20_currentSuit), CBitStreamWriter::GetBitCount(4));
     for (u32 i = 0; i < x24_powerups.size(); ++i)
     {
         const CPowerUp& pup = x24_powerups[i];
@@ -211,7 +211,9 @@ bool CPlayerState::CanVisorSeeFog(const CStateManager& stateMgr) const
 
 CPlayerState::EPlayerVisor CPlayerState::GetActiveVisor(const CStateManager& stateMgr) const
 {
-    const CFirstPersonCamera* cam = static_cast<const CFirstPersonCamera*>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
+    const CFirstPersonCamera* cam =
+        static_cast<const CFirstPersonCamera*>(
+            stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
     return (cam ? x14_currentVisor : EPlayerVisor::Combat);
 }
 

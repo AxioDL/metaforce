@@ -104,7 +104,7 @@ public:
 /** Options tracked per game session */
 class CGameOptions
 {
-    bool x0_[64] = {};
+    u8 x0_[64] = {};
     CAudioSys::ESurroundModes x44_soundMode = CAudioSys::ESurroundModes::Stereo;
     u32 x48_screenBrightness = 4;
     s32 x4c_screenXOffset = 0;

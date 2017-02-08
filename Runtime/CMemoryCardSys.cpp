@@ -83,18 +83,29 @@ CMemoryCardSys::CMemoryCardSys()
     xc_memoryWorlds.reserve(16);
     x1c_worldInter.emplace();
     x1c_worldInter->reserve(16);
+
+    std::vector<std::pair<ResId, ResId>> orderedMLVLs;
+    orderedMLVLs.reserve(16);
     g_ResFactory->EnumerateNamedResources([&](const std::string& name, const SObjectTag& tag) -> bool
     {
         if (tag.type == FOURCC('MLVL'))
         {
-            if (!HasSaveWorldMemory(tag.id))
-            {
-                xc_memoryWorlds.emplace_back(tag.id, CSaveWorldMemory{});
-                x1c_worldInter->emplace_back(tag.id, -1);
-            }
+            ResId origId = g_ResFactory->TranslateNewToOriginal(tag.id);
+            orderedMLVLs.emplace_back(origId, tag.id);
         }
         return true;
     });
+    std::sort(orderedMLVLs.begin(), orderedMLVLs.end(),
+    [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
+
+    for (const auto& mlvl : orderedMLVLs)
+    {
+        if (!HasSaveWorldMemory(mlvl.second))
+        {
+            xc_memoryWorlds.emplace_back(mlvl.second, CSaveWorldMemory{});
+            x1c_worldInter->emplace_back(mlvl.second, -1);
+        }
+    }
 }
 
 bool CMemoryCardSys::InitializePump()
