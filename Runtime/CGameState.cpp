@@ -128,7 +128,8 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
     if (origMLVL == 0x158EFE17)
         itemPercent = 0;
     else
-        itemPercent = playerState.CalculateItemCollectionRate() * 100 / playerState.GetPickupTotal();
+        itemPercent = std::ceil(playerState.CalculateItemCollectionRate() * 100.f / playerState.GetPickupTotal());
+
     ret.x18_itemPercent = itemPercent;
 
     float somePercent;
