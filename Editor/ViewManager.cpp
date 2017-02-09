@@ -80,7 +80,7 @@ void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 
 void ViewManager::InitMP1(MP1::CMain& main)
 {
-    main.Init(m_fileStoreManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
+    main.Init(m_fileStoreManager, m_mainWindow.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
 }
 
 void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -363,14 +363,6 @@ void ViewManager::init(boo::IApplication* app)
             break;
         }
     }
-
-    /*
-    CGraphics::InitializeBoo(gf, m_mainWindow->getCommandQueue(), root->renderTex());
-    CModelShaders::Initialize(m_fileStoreManager, gf);
-    CElementGen::Initialize();
-    CMoviePlayer::Initialize();
-    CLineRenderer::Initialize();
-    */
 }
 
 bool ViewManager::proc()

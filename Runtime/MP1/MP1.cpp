@@ -29,7 +29,8 @@ URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTextSupportShader)
 namespace MP1
 {
 
-CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
+CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
+                                                   boo::IAudioVoiceEngine* voiceEngine,
                                                    amuse::IBackendVoiceAllocator& backend)
 : m_parent(parent),
   x0_audioSys(voiceEngine, backend, 0,0,0,0,0),
@@ -254,9 +255,11 @@ void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 }
 
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
+                 boo::IWindow* window,
                  boo::IAudioVoiceEngine* voiceEngine,
                  amuse::IBackendVoiceAllocator& backend)
 {
+    m_mainWindow = window;
     InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
@@ -318,6 +321,11 @@ void CMain::Shutdown()
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();
     TMultiBlendShader<CTextSupportShader>::Shutdown();
+}
+
+boo::IWindow* CMain::GetMainWindow() const
+{
+    return m_mainWindow;
 }
 
 #if MP1_USE_BOO
