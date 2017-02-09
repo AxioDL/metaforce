@@ -157,6 +157,10 @@ bool CMemoryCardSys::InitializePump()
                     x20_scanStates.emplace_back(scan.x0_id, scan.x4_category);
             }
 
+            std::sort(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& a, const auto& b) ->bool{
+                return g_ResFactory->TranslateNewToOriginal(a.first) < g_ResFactory->TranslateNewToOriginal(b.first);
+            });
+
             wldMemOut.x3c_saveWorld = std::move(world.x34_saveWorld);
             wldMemOut.x2c_worldName = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), wldMemOut.x0_strgId});
         }

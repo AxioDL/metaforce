@@ -31,7 +31,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
     u32 tmp3 = in.readUint32Big();
     u32 tmp4 = in.readUint32Big();
     std::string name= in.readString();
-    u32 txtrId = in.readUint32Big();
+    u32 txtrId = (version == 5 ? in.readUint64Big() : in.readUint32Big());
     x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
     x80_texture = store.GetObj({FOURCC('TXTR'), txtrId});
     x2c_mode = EColorType(in.readUint32Big());
@@ -46,15 +46,31 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store)
         float startV = in.readFloatBig();
         float endU = in.readFloatBig();
         float endV = in.readFloatBig();
-        s32 a = in.readInt32Big();
-        s32 b = in.readInt32Big();
-        s32 c = in.readInt32Big();
-        s32 cellWidth = in.readInt32Big();
-        s32 cellHeight = in.readInt32Big();
-        s32 baseline = in.readInt32Big();
-        s32 kernStart = in.readInt32Big();
+        s32 layer = 0;
+        s32 a, b, c, cellWidth, cellHeight, baseline, kernStart;
+        if (version < 4)
+        {
+            a = in.readInt32Big();
+            b = in.readInt32Big();
+            c = in.readInt32Big();
+            cellWidth = in.readInt32Big();
+            cellHeight = in.readInt32Big();
+            baseline = in.readInt32Big();
+            kernStart = in.readInt32Big();
+        }
+        else
+        {
+            layer = in.readByte();
+            a = in.readByte();
+            b = in.readByte();
+            c = in.readByte();
+            cellWidth = in.readByte();
+            cellHeight = in.readByte();
+            baseline = in.readByte();
+            kernStart = in.readInt16Big();
+        }
         xc_glyphs.push_back(std::make_pair(chr, CGlyph(a, b, c, startU, startV, endU, endV,
-                                                       cellWidth, cellHeight, baseline, kernStart)));
+                                                       cellWidth, cellHeight, baseline, kernStart, layer)));
     }
 
     std::sort(xc_glyphs.begin(), xc_glyphs.end(), [=](auto& a, auto& b) -> bool{

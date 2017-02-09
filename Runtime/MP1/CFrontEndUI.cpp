@@ -481,6 +481,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
                     {
                         auto pt = std::div(data->x0_playTime, 3600);
                         str = hecl::Char16Format(L"%02d:%02d", pt.quot, pt.rem / 60);
+                        break;
                     }
                     str = g_MainStringTable->GetString(52);
                     break;
