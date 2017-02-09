@@ -20,13 +20,10 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     MLVL mlvl;
     mlvl.read(rs);
     const nod::Node* node;
-    const typename PAKRouter<PAKBridge>::EntryType* texEntry = pakRouter.lookupEntry(mlvl.saveWorldId, &node);
-    hecl::ProjectPath savwPath = pakRouter.getWorking(texEntry);
+    const typename PAKRouter<PAKBridge>::EntryType* savwEntry = pakRouter.lookupEntry(mlvl.saveWorldId, &node);
     SAVW savw;
-    if (!savwPath.isNone())
     {
-        savwPath.makeDirChain(false);
-        PAKEntryReadStream rs = texEntry->beginReadStream(*node);
+        PAKEntryReadStream rs = savwEntry->beginReadStream(*node);
         savw.read(rs);
     }
 

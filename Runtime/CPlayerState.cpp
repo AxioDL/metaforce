@@ -203,8 +203,8 @@ CPlayerState::EPlayerSuit CPlayerState::GetCurrentSuit() const
 
 bool CPlayerState::CanVisorSeeFog(const CStateManager& stateMgr) const
 {
-    u32 activeVisor = u32(GetActiveVisor(stateMgr));
-    if (activeVisor == 0 || activeVisor == 2)
+    EPlayerVisor activeVisor = GetActiveVisor(stateMgr);
+    if (activeVisor == EPlayerVisor::Combat || activeVisor == EPlayerVisor::Scan)
         return true;
     return true;
 }
@@ -222,9 +222,26 @@ void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, const float
     x188_staticIntf.Update(stateMgr, dt);
 }
 
-void CPlayerState::IncreaseScanTime(u32 time, float val)
+void CPlayerState::SetScanTime(ResId res, float time)
 {
+    auto it = std::find_if(x170_scanTimes.begin(), x170_scanTimes.end(), [&](const auto& test) -> bool{
+        return test.first == res;
+    });
 
+    if (it != x170_scanTimes.end())
+        it->second = time;
+}
+
+float CPlayerState::GetScanTime(ResId res) const
+{
+    const auto it = std::find_if(x170_scanTimes.cbegin(), x170_scanTimes.cend(), [&](const auto& test) -> bool{
+        return test.first == res;
+    });
+
+    if (it == x170_scanTimes.end())
+        return 0.f;
+
+    return it->second;
 }
 
 bool CPlayerState::GetIsVisorTransitioning() const
