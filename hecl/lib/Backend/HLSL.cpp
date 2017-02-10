@@ -188,7 +188,8 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
     else
         lightingSrc = "static const float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
                       "static const float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
-                      "static const float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
+                      "static const float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                      "static const float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
 
     std::string texMapDecl;
     if (m_texMapEnd)
@@ -218,9 +219,9 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
 
     retval += "    float4 colorOut;\n";
     if (m_alphaExpr.size())
-        retval += "    colorOut = float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
+        retval += "    colorOut = float4(" + m_colorExpr + ", " + m_alphaExpr + ") * mulColor;\n";
     else
-        retval += "    colorOut = float4(" + m_colorExpr + ", 1.0);\n";
+        retval += "    colorOut = float4(" + m_colorExpr + ", 1.0) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }
@@ -235,7 +236,8 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
     else
         lightingSrc = "static const float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
                       "static const float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
-                      "static const float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
+                      "static const float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                      "static const float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
 
     std::string postSrc;
     if (post.m_source)
@@ -281,9 +283,9 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
 
     retval += "    float4 colorOut;\n";
     if (m_alphaExpr.size())
-        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
+        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     else
-        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", 1.0));\n";
+        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }

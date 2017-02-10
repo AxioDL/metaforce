@@ -233,13 +233,15 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     {
         retval += "    float4 colorReg0 = block0.colorReg0;\n"
                   "    float4 colorReg1 = block0.colorReg1;\n"
-                  "    float4 colorReg2 = block0.colorReg2;\n";
+                  "    float4 colorReg2 = block0.colorReg2;\n"
+                  "    float4 mulColor = block0.mulColor;\n";
     }
     else
     {
         retval += "    float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
                   "    float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
-                  "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
+                  "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                  "    float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
     }
 
     if (m_lighting)
@@ -256,9 +258,9 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
-        retval += "    out.color = float4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
+        retval += "    out.color = float4(" + m_colorExpr + ", " + m_alphaExpr + ") * mulColor;\n";
     else
-        retval += "    out.color = float4(" + m_colorExpr + ", 1.0);\n";
+        retval += "    out.color = float4(" + m_colorExpr + ", 1.0) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") +
            "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
@@ -323,13 +325,15 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     {
         retval += "    float4 colorReg0 = block0.colorReg0;\n"
                   "    float4 colorReg1 = block0.colorReg1;\n"
-                  "    float4 colorReg2 = block0.colorReg2;\n";
+                  "    float4 colorReg2 = block0.colorReg2;\n"
+                  "    float4 mulColor = block0.mulColor;\n";
     }
     else
     {
         retval += "    float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
                   "    float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
-                  "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n";
+                  "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n"
+                  "    float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
     }
 
     if (m_lighting)
@@ -347,10 +351,10 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 
     if (m_alphaExpr.size())
         retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
-                  "float4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
+                  "float4(" + m_colorExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     else
         retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
-                  "float4(" + m_colorExpr + ", 1.0));\n";
+                  "float4(" + m_colorExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") +
            "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"

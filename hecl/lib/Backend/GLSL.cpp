@@ -198,6 +198,7 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
         lightingSrc = "const vec4 colorReg0 = vec4(1.0);\n"
                       "const vec4 colorReg1 = vec4(1.0);\n"
                       "const vec4 colorReg2 = vec4(1.0);\n"
+                      "const vec4 mulColor = vec4(1.0);\n"
                       "\n";
 
     std::string texMapDecl;
@@ -232,9 +233,9 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
-        retval += "    colorOut = vec4(" + m_colorExpr + ", " + m_alphaExpr + ");\n";
+        retval += "    colorOut = vec4(" + m_colorExpr + ", " + m_alphaExpr + ") * mulColor;\n";
     else
-        retval += "    colorOut = vec4(" + m_colorExpr + ", 1.0);\n";
+        retval += "    colorOut = vec4(" + m_colorExpr + ", 1.0) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
@@ -251,6 +252,7 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
         lightingSrc = "const vec4 colorReg0 = vec4(1.0);\n"
                       "const vec4 colorReg1 = vec4(1.0);\n"
                       "const vec4 colorReg2 = vec4(1.0);\n"
+                      "const vec4 mulColor = vec4(1.0);\n"
                       "\n";
 
     std::string postSrc;
@@ -300,9 +302,9 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
     if (m_alphaExpr.size())
-        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", " + m_alphaExpr + "));\n";
+        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     else
-        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", 1.0));\n";
+        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
