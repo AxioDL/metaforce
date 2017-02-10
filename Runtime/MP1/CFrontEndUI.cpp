@@ -74,8 +74,8 @@ void CFrontEndUI::PlayAdvanceSfx()
     CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveUI* sui, u32 rnd)
-: x0_rnd(rnd), x4_saveUI(sui)
+CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveUI* sui, u32 rnd, CFrontEndUITouchBar& touchBar)
+: x0_rnd(rnd), x4_saveUI(sui), m_touchBar(touchBar)
 {
     x10_frme = g_SimplePool->GetObj("FRME_NewFileSelect");
 }
@@ -182,7 +182,7 @@ void CFrontEndUI::SNewFileSelectFrame::Update(float dt)
 }
 
 CFrontEndUI::SNewFileSelectFrame::EAction
-CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
+CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction)
 {
     xc_action = EAction::None;
 
@@ -196,7 +196,28 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input)
         return xc_action;
 
     if (x10c_saveReady)
+    {
         x1c_loadedFrame->ProcessUserInput(input);
+        if (tbAction >= CFrontEndUITouchBar::EAction::FileA &&
+            tbAction <= CFrontEndUITouchBar::EAction::ImageGallery)
+        {
+            switch (tbAction)
+            {
+            case CFrontEndUITouchBar::EAction::FileA:
+            case CFrontEndUITouchBar::EAction::FileB:
+            case CFrontEndUITouchBar::EAction::FileC:
+                x20_tablegroup_fileselect->SetUserSelection(int(tbAction) - int(CFrontEndUITouchBar::EAction::FileA));
+                break;
+            case CFrontEndUITouchBar::EAction::FusionBonus:
+            case CFrontEndUITouchBar::EAction::ImageGallery:
+                x20_tablegroup_fileselect->SetUserSelection(int(tbAction) - int(CFrontEndUITouchBar::EAction::FusionBonus) + 4);
+                break;
+            default: break;
+            }
+            HandleActiveChange(x20_tablegroup_fileselect);
+            DoFileMenuAdvance(x20_tablegroup_fileselect);
+        }
+    }
 
     if (x10d_needsExistingToggle)
     {
@@ -234,8 +255,28 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
                       zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 
     if (active == x20_tablegroup_fileselect)
+    {
         x24_model_erase->SetLocalTransform(zeus::CTransform::Translate(
             zeus::CVector3f{0.f, 0.f, active->GetUserSelection() * x104_rowPitch} + xf8_model_erase_position));
+
+        /* Set Touch Bar contents here */
+        CFrontEndUITouchBar::SFileSelectDetail tbDetails[3] = {};
+        for (int i=0 ; i<3 ; ++i)
+        {
+            if (const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i))
+            {
+                tbDetails[i].state = data->x20_hardMode ? CFrontEndUITouchBar::EFileState::Hard :
+                                                          CFrontEndUITouchBar::EFileState::Normal;
+                tbDetails[i].percent = data->x18_itemPercent;
+            }
+        }
+        m_touchBar.SetFileSelectPhase(tbDetails, x8_subMenu == ESubMenu::EraseGame,
+                                      CSlideShow::SlideShowGalleryFlags());
+    }
+    else
+    {
+        m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::None);
+    }
 
     if (x8_subMenu == ESubMenu::Root || x8_subMenu == ESubMenu::NewGamePopup)
         x24_model_erase->SetIsVisible(false);
@@ -356,19 +397,20 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
     x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(color);
     x38_textpane_gba.x0_panes[0]->TextSupport()->SetFontColor(color);
     x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(color);
+    x38_textpane_gba.x0_panes[0]->SetIsSelectable(false);
+    x30_textpane_cheats.x0_panes[0]->SetIsSelectable(false);
 
     for (int i=2 ; i>=0 ; --i)
     {
         SFileMenuOption& fileOpt = x64_fileSelections[i];
-        const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i);
-        if (data)
+        if (x4_saveUI->GetGameData(i))
         {
-            fileOpt.x4_textpanes[0].x0_panes[0]->SetIsSelectable(true);
+            fileOpt.x0_base->SetIsSelectable(true);
             x20_tablegroup_fileselect->SetUserSelection(i);
         }
         else
         {
-            fileOpt.x4_textpanes[0].x0_panes[0]->SetIsSelectable(false);
+            fileOpt.x0_base->SetIsSelectable(false);
         }
     }
 
@@ -578,8 +620,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
     {
         if (x8_subMenu == ESubMenu::EraseGame)
         {
-            const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(userSel);
-            if (data)
+            if (x4_saveUI->GetGameData(userSel))
             {
                 PlayAdvanceSfx();
                 x10d_needsExistingToggle = true;
@@ -587,9 +628,11 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
         }
         else
         {
-            const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(userSel);
-            if (data)
+            if (x4_saveUI->GetGameData(userSel))
+            {
+                m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::None);
                 x4_saveUI->StartGame(userSel);
+            }
             else
                 x10e_needsNewToggle = true;
         }
@@ -1761,6 +1804,9 @@ CFrontEndUI::CFrontEndUI()
 
     for (int i=0 ; CDvdFile::FileExists(GetAttractMovieFileName(i).c_str()) ; ++i)
         ++xc0_attractCount;
+
+    m_touchBar = NewFrontEndUITouchBar();
+    m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)
@@ -2114,9 +2160,13 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
     if (x14_phase != EPhase::DisplayFrontEnd || input.ControllerIdx() != 0)
         return;
 
+    /* Pop most recent action from Touch Bar */
+    CFrontEndUITouchBar::EAction touchBarAction = m_touchBar->PopAction();
+
     if (x50_curScreen != x54_nextScreen)
     {
-        if (x54_nextScreen == EScreen::AttractMovie && (input.PStart() || input.PA()))
+        if (x54_nextScreen == EScreen::AttractMovie && (input.PStart() || input.PA() ||
+                                                        touchBarAction == CFrontEndUITouchBar::EAction::Start))
         {
             /* Player wants to return to opening credits from attract movie */
             SetFadeBlackTimer(std::min(1.f, x58_fadeBlackTimer));
@@ -2124,7 +2174,7 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
             return;
         }
 
-        if (input.PA() || input.PStart())
+        if (input.PA() || input.PStart() || touchBarAction == CFrontEndUITouchBar::EAction::Start)
         {
             if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title &&
                 x58_fadeBlackTimer > 1.f)
@@ -2140,13 +2190,14 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
     {
         if (x50_curScreen == EScreen::Title)
         {
-            if (input.PStart() || input.PA())
+            if (input.PStart() || input.PA() || touchBarAction == CFrontEndUITouchBar::EAction::Start)
             {
                 if (x58_fadeBlackTimer < 30.f - g_tweakGame->GetPressStartDelay())
                 {
                     /* Proceed to file select UI */
                     CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                     CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
                     StartStateTransition(EScreen::FileSelect);
                     return;
                 }
@@ -2166,15 +2217,18 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
             else if (xe0_frontendCardFrme)
             {
                 /* Control FrontEnd with memory card */
-                switch (xe0_frontendCardFrme->ProcessUserInput(input))
+                switch (xe0_frontendCardFrme->ProcessUserInput(input, touchBarAction))
                 {
                 case SNewFileSelectFrame::EAction::FusionBonus:
+                    m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
                     StartStateTransition(EScreen::FusionBonus);
                     return;
                 case SNewFileSelectFrame::EAction::GameOptions:
+                    m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
                     xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
                     return;
                 case SNewFileSelectFrame::EAction::SlideShow:
+                    m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
                     xd2_deferSlideShow = true;
                     StartSlideShow(queue);
                     return;
@@ -2292,7 +2346,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
         /* Poll loading DGRP resources */
         if (PumpLoad())
         {
-            xe0_frontendCardFrme = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB);
+            xe0_frontendCardFrme = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB, *m_touchBar);
             xe4_fusionBonusFrme = std::make_unique<SFusionBonusFrame>();
             xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
             x38_pressStart.GetObj();
@@ -2338,6 +2392,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
         {
             /* Ready to display FrontEnd */
             x14_phase = EPhase::DisplayFrontEnd;
+            m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::PressStart);
             StartStateTransition(EScreen::Title);
         }
         else

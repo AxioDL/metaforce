@@ -13,6 +13,7 @@
 #include "GuiSys/CGuiTextSupport.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "CFrontEndUITouchBar.hpp"
 
 namespace urde
 {
@@ -142,12 +143,14 @@ public:
         bool x10d_needsExistingToggle = false;
         bool x10e_needsNewToggle = false;
 
-        SNewFileSelectFrame(CSaveUI* sui, u32 rnd);
+        CFrontEndUITouchBar& m_touchBar;
+
+        SNewFileSelectFrame(CSaveUI* sui, u32 rnd, CFrontEndUITouchBar& touchBar);
         void FinishedLoading();
         bool PumpLoad();
         bool IsTextDoneAnimating() const;
         void Update(float dt);
-        EAction ProcessUserInput(const CFinalInput& input);
+        EAction ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction);
         void Draw() const;
 
         void HandleActiveChange(CGuiTableGroup* active);
@@ -407,6 +410,8 @@ private:
 
     CColoredQuadFilter m_fadeToBlack = {CCameraFilterPass::EFilterType::Blend};
     std::experimental::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
+
+    std::unique_ptr<CFrontEndUITouchBar> m_touchBar;
 
     void SetFadeBlackWithMovie()
     {

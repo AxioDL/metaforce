@@ -134,7 +134,8 @@ class CGameArchitectureSupport
     }
 
 public:
-    CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
+    CGameArchitectureSupport(CMain& parent,
+                             boo::IAudioVoiceEngine* voiceEngine,
                              amuse::IBackendVoiceAllocator& backend);
     ~CGameArchitectureSupport();
 
@@ -235,6 +236,8 @@ private:
 
     std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
+    boo::IWindow* m_mainWindow = nullptr;
+
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
 
 public:
@@ -249,11 +252,13 @@ public:
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
     void Init(const hecl::Runtime::FileStoreManager& storeMgr,
+              boo::IWindow* window,
               boo::IAudioVoiceEngine* voiceEngine,
               amuse::IBackendVoiceAllocator& backend);
     bool Proc();
     void Draw();
     void Shutdown();
+    boo::IWindow* GetMainWindow() const;
 
     void MemoryCardInitializePump()
     {
