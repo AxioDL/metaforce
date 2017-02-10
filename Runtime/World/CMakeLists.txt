@@ -93,7 +93,7 @@ set(WORLD_SOURCES
     CVisorParameters.hpp
     CAnimationParameters.hpp
     CDamageInfo.hpp CDamageInfo.cpp
-    CDamageVulnerability.hpp
+    CDamageVulnerability.hpp CDamageVulnerability.cpp
     CFluidUVMotion.hpp CFluidUVMotion.cpp
     CPatternedInfo.hpp CPatternedInfo.cpp
     CHealthInfo.hpp CHealthInfo.cpp

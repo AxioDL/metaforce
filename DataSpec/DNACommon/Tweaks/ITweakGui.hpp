@@ -9,6 +9,7 @@ namespace DataSpec
 
 struct ITweakGui : ITweak
 {
+    virtual float GetScanAppearanceOffset() const = 0;
     virtual float GetScanSpeed(int idx) const=0;
     virtual float GetXrayBlurScaleLinear() const=0;
     virtual float GetXrayBlurScaleQuadratic() const=0;

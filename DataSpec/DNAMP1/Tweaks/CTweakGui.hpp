@@ -136,7 +136,7 @@ struct CTweakGui : ITweakGui
     Value<float> x238_;
     Value<float> x23c_;
     Value<float> x240_;
-    Value<float> x244_;
+    Value<float> x244_scanAppearanceOffset;
     Value<float> x248_;
     Value<float> x24c_;
     Value<float> x250_;
@@ -194,6 +194,8 @@ struct CTweakGui : ITweakGui
 
     CTweakGui() = default;
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
+
+    float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
 
