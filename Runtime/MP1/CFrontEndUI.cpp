@@ -1868,6 +1868,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
                     int value;
                     m_touchBar->GetSelection(leftSel, rightSel, value);
                     x28_tablegroup_rightmenu->SetUserSelection(rightSel);
+                    SetTableColors(x28_tablegroup_rightmenu);
                     HandleRightSelectionChange();
                     const auto& optionCategory = GameOptionsRegistry[leftSel];
                     const SGameOption& option = optionCategory.second[rightSel];

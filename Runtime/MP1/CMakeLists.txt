@@ -2,7 +2,9 @@ include_directories(. ..)
 add_subdirectory(World)
 
 if(APPLE)
-  set(MP1_PLAT_SOURCES CFrontEndUITouchBarMac.mm)
+  set(MP1_PLAT_SOURCES
+      CFrontEndUITouchBarMac.mm
+      CSaveUITouchBarMac.mm)
 endif()
 
 set(MP1_SOURCES
@@ -18,6 +20,7 @@ set(MP1_SOURCES
     CPreFrontEnd.hpp CPreFrontEnd.cpp
     CSlideShow.hpp CSlideShow.cpp
     CSaveUI.hpp CSaveUI.cpp
+    CSaveUITouchBar.hpp CSaveUITouchBar.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
     CQuitScreen.hpp CQuitScreen.cpp
     CCredits.hpp CCredits.cpp

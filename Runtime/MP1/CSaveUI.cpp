@@ -338,6 +338,8 @@ void CSaveUI::SetUIText()
 
     x68_textpane_choice3->TextSupport()->SetText(opt3Str);
 
+    m_touchBar->SetUIOpts(opt0Str, opt1Str, opt2Str);
+
     x5c_textpane_choice0->SetIsSelectable(opt0 != -1);
     x60_textpane_choice1->SetIsSelectable(opt1 != -1);
     x64_textpane_choice2->SetIsSelectable(opt2 != -1);
@@ -617,7 +619,17 @@ void CSaveUI::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 void CSaveUI::ProcessUserInput(const CFinalInput& input)
 {
     if (x50_loadedFrame)
+    {
         x50_loadedFrame->ProcessUserInput(input);
+
+        int tbOpt = m_touchBar->PopOption();
+        if (tbOpt != -1)
+        {
+            x58_tablegroup_choices->SetUserSelection(tbOpt);
+            SetUIColors();
+            DoAdvance(x58_tablegroup_choices);
+        }
+    }
 }
 
 void CSaveUI::StartGame(int idx)
@@ -654,7 +666,7 @@ const CGameState::GameFileStateInfo* CSaveUI::GetGameData(int idx) const
 }
 
 CSaveUI::CSaveUI(ESaveContext saveCtx, u64 serial)
-: x0_saveCtx(saveCtx), x8_serial(serial)
+: x0_saveCtx(saveCtx), x8_serial(serial), m_touchBar(NewSaveUITouchBar())
 {
     x14_txtrSaveBanner = g_SimplePool->GetObj("TXTR_SaveBanner");
     x20_txtrSaveIcon0 = g_SimplePool->GetObj("TXTR_SaveIcon0");

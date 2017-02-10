@@ -5,6 +5,7 @@
 #include "CToken.hpp"
 #include "CIOWin.hpp"
 #include "CMemoryCardDriver.hpp"
+#include "CSaveUITouchBar.hpp"
 
 namespace urde
 {
@@ -89,6 +90,8 @@ private:
     bool x91_uiTextDirty = false;
     bool x92_savingDisabled = false;
     bool x93_inGame;
+
+    std::unique_ptr<CSaveUITouchBar> m_touchBar;
 
     void ContinueWithoutSaving();
 
