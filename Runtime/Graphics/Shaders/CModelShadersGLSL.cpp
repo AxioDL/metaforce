@@ -63,12 +63,12 @@ static const char* MainPostGLSL =
 static const char* ThermalPostGLSL =
 "UBINDING2 uniform ThermalUniform\n"
 "{\n"
-"    vec4 mulColor;\n"
+"    vec4 tmulColor;\n"
 "    vec4 addColor;\n"
 "};\n"
 "vec4 ThermalPostFunc(vec4 colorIn)\n"
 "{\n"
-"    return vec4(texture(tex7, vtf.extTcgs[0]).rrr * mulColor.rgb + addColor.rgb, 1.0);\n"
+"    return vec4(texture(tex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, 1.0);\n"
 "}\n"
 "\n";
 

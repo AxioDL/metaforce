@@ -62,12 +62,12 @@ static const char* MainPostHLSL =
 static const char* ThermalPostHLSL =
 "cbuffer ThermalUniform : register(b2)\n"
 "{\n"
-"    float4 mulColor;\n"
+"    float4 tmulColor;\n"
 "    float4 addColor;\n"
 "};\n"
 "static float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
 "{\n"
-"    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * mulColor.rgb + addColor.rgb, 1.0);\n"
+"    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, 1.0);\n"
 "}\n"
 "\n";
 
