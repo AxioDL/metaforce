@@ -26,6 +26,7 @@ static const char* LightingHLSL =
 "    float4 colorReg0;\n"
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
+"    float4 mulColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"

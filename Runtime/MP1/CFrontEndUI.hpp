@@ -14,6 +14,7 @@
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "CFrontEndUITouchBar.hpp"
+#include "CGameOptionsTouchBar.hpp"
 
 namespace urde
 {
@@ -106,7 +107,7 @@ public:
         {
             Root,
             EraseGame,
-            ExistingGamePopup,
+            EraseGamePopup,
             NewGamePopup
         };
 
@@ -140,7 +141,7 @@ public:
         float x104_rowPitch = 0.f;
         float x108_curTime = 0.f;
         bool x10c_saveReady = false;
-        bool x10d_needsExistingToggle = false;
+        bool x10d_needsEraseToggle = false;
         bool x10e_needsNewToggle = false;
 
         CFrontEndUITouchBar& m_touchBar;
@@ -154,8 +155,8 @@ public:
         void Draw() const;
 
         void HandleActiveChange(CGuiTableGroup* active);
-        void DeactivateExistingGamePopup();
-        void ActivateExistingGamePopup();
+        void DeactivateEraseGamePopup();
+        void ActivateEraseGamePopup();
         void DeactivateNewGamePopup();
         void ActivateNewGamePopup();
 
@@ -218,7 +219,8 @@ public:
             bool x40_linkInProgress;
 
             void SetUIText(EUIType tp);
-            EAction ProcessUserInput(const CFinalInput &input, bool linkInProgress);
+            EAction ProcessUserInput(const CFinalInput &input, bool linkInProgress,
+                                     CFrontEndUITouchBar::EAction tbAction);
             void Update(float dt);
             void FinishedLoading();
             void Draw();
@@ -245,12 +247,15 @@ public:
         bool x39_fusionNotComplete = false;
         bool x3a_mpNotComplete = false;
 
-        SFusionBonusFrame();
+        CFrontEndUITouchBar& m_touchBar;
+
+        SFusionBonusFrame(CFrontEndUITouchBar& touchBar);
         void FinishedLoading();
         bool PumpLoad();
         void SetTableColors(CGuiTableGroup* tbgp) const;
         void Update(float dt, CSaveUI* saveUI);
-        EAction ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
+        EAction ProcessUserInput(const CFinalInput& input, CSaveUI* sui,
+                                 CFrontEndUITouchBar::EAction tbAction);
         void Draw() const;
 
         void ResetCompletionFlags()
@@ -282,11 +287,14 @@ public:
         CGuiTableGroup* x18_tablegroup_mainmenu = nullptr;
         SGuiTextPair x1c_gbaPair;
         SGuiTextPair x24_cheatPair;
-        SFrontEndFrame(u32 rnd);
+
+        CFrontEndUITouchBar& m_touchBar;
+
+        SFrontEndFrame(u32 rnd, CFrontEndUITouchBar& touchBar);
         void FinishedLoading();
         bool PumpLoad();
         void Update(float dt);
-        EAction ProcessUserInput(const CFinalInput& input);
+        EAction ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction);
         void Draw() const;
         void HandleActiveChange(CGuiTableGroup* active);
 
@@ -344,6 +352,11 @@ public:
                 bool x134_25_exitOptions : 1;
             };
         };
+
+        std::unique_ptr<CGameOptionsTouchBar> m_touchBar;
+        bool m_touchBarInValue = false;
+        bool m_touchBarValueDirty = false;
+
         SOptionsFrontEndFrame();
 
         void DoSliderChange(CGuiSliderGroup* caller, float value);

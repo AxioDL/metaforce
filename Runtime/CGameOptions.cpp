@@ -382,7 +382,7 @@ void CGameOptions::EnsureSettings()
 }
 
 void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category,
-                                      int option, bool frontend)
+                                      int option, bool frontend, bool forceRestore)
 {
     const std::pair<int, const SGameOption*>& options = GameOptionsRegistry[category];
     if (!options.first)
@@ -391,7 +391,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category,
     if (options.second[option].option != EGameOption::RestoreDefaults)
         return;
 
-    if (!input.PA())
+    if (!forceRestore && !input.PA())
         return;
 
     if (frontend)

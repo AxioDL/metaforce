@@ -173,7 +173,7 @@ public:
     void ResetControllerAssets();
 
     static void TryRestoreDefaults(const CFinalInput& input, int category,
-                                   int option, bool frontend);
+                                   int option, bool frontend, bool forceRestore);
     static void SetOption(EGameOption option, int value);
     static int GetOption(EGameOption option);
 };

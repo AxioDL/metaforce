@@ -37,6 +37,7 @@ public:
         Light lights[URDE_MAX_LIGHTS];
         zeus::CColor ambient;
         zeus::CColor colorRegs[3];
+        zeus::CColor mulColor;
         CGraphics::CFogState fog;
     };
 

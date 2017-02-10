@@ -41,9 +41,10 @@ add_subdirectory(MP3)
 
 if(APPLE)
   set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
+                              CGameOptionsTouchBarMac.mm
                               PROPERTIES COMPILE_FLAGS -fobjc-arc)
   bintoc(startButton.c Resources/startButton@2x.png START_BUTTON_2X)
-  list(APPEND PLAT_SRCS startButton.c)
+  list(APPEND PLAT_SRCS startButton.c CGameOptionsTouchBarMac.mm)
 endif()
 
 add_library(RuntimeCommon
@@ -85,6 +86,7 @@ add_library(RuntimeCommon
             IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
             CGameOptions.hpp CGameOptions.cpp
+            CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
             CStaticInterference.hpp
             CCRC32.hpp CCRC32.cpp
             IFactory.hpp

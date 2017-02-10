@@ -610,6 +610,7 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
         lightingOut.colorRegs[0] = flags.regColors[0];
         lightingOut.colorRegs[1] = flags.regColors[1];
         lightingOut.colorRegs[2] = flags.regColors[2];
+        lightingOut.mulColor = flags.color;
         lightingOut.fog = CGraphics::g_Fog;
     }
 

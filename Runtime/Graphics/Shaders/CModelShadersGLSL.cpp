@@ -27,6 +27,7 @@ static const char* LightingGLSL =
 "    vec4 colorReg0;\n"
 "    vec4 colorReg1;\n"
 "    vec4 colorReg2;\n"
+"    vec4 mulColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
