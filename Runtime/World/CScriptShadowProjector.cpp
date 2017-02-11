@@ -90,7 +90,7 @@ void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         CreateProjectedShadow();
 }
 
-void CScriptShadowProjector::PreRender(const zeus::CFrustum &, const CStateManager &)
+void CScriptShadowProjector::PreRender(CStateManager&, const zeus::CFrustum &)
 {
 
 }

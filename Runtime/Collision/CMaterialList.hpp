@@ -53,6 +53,8 @@ enum class EMaterialTypes
     AIBlock = 48,
     Platform = 49,
     NonSolidDamageable = 50,
+    Unknown54 = 54,
+    Unknwon55 = 55,
     ExcludeFromLineOfSightTest = 56,
     SixtyThree = 63
 };
