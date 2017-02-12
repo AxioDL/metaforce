@@ -6,6 +6,7 @@
 #include "CStateManager.hpp"
 #include "CScriptDoor.hpp"
 #include "CPlayer.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "TCastTo.hpp"
 
 namespace urde

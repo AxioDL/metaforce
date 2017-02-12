@@ -11,6 +11,7 @@
 #include "CPlayerState.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "CObjectList.hpp"
 #include "TCastTo.hpp"
 

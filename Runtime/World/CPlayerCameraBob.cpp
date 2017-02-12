@@ -3,6 +3,7 @@
 #include "CStateManager.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "zeus/Math.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

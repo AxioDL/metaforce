@@ -5,6 +5,7 @@
 #include "World/CPlayer.hpp"
 #include "World/CPlayerCameraBob.hpp"
 #include "World/CScriptGrapplePoint.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "TCastTo.hpp"
 #include <math.h>
 

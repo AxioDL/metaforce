@@ -8,6 +8,7 @@
 #include "GuiSys/CGuiCamera.hpp"
 #include "GuiSys/CGuiModel.hpp"
 #include "AutoMapper/CAutoMapper.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

@@ -4,6 +4,7 @@
 #include "CPlayer.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "TCastTo.hpp"
 
 namespace urde

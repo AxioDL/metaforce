@@ -7,6 +7,7 @@
 #include "World/CPlayer.hpp"
 #include "Weapon/CGameProjectile.hpp"
 #include "Weapon/CWeapon.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "CPlayerState.hpp"
 
 namespace urde

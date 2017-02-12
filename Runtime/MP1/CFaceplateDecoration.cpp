@@ -3,6 +3,7 @@
 #include "World/CPlayer.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
