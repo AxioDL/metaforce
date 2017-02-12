@@ -12,12 +12,13 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
 {
     char idStr[9];
     snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
-    cacheWriter.enterSubVector(idStr);
-    cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
-    cacheWriter.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
-         path.getRelativePathUTF8());
-    cacheWriter.leaveSubVector();
+    if (auto v = cacheWriter.enterSubVector(idStr))
+    {
+        cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
+        cacheWriter.writeString(nullptr, path.getAuxInfo().size() ?
+            (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
+             path.getRelativePathUTF8());
+    }
 }
 
 static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter,

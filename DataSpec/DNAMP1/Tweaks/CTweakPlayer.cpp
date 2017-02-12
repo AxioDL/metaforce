@@ -889,7 +889,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
 {
     /* x4_ */
     size_t __x4_Count;
-    __dna_docin.enterSubVector("x4_", __x4_Count);
+    if (auto v = __dna_docin.enterSubVector("x4_", __x4_Count))
+    {
     /* x4_[0] */
     x4_[0] = __dna_docin.readFloat("x4_");
     /* x4_[1] */
@@ -906,11 +907,11 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x4_[6] = __dna_docin.readFloat("x4_");
     /* x4_[7] */
     x4_[7] = __dna_docin.readFloat("x4_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x24_ */
     size_t __x24_Count;
-    __dna_docin.enterSubVector("x24_", __x24_Count);
+    if (auto v = __dna_docin.enterSubVector("x24_", __x24_Count))
+    {
     /* x24_[0] */
     x24_[0] = __dna_docin.readFloat("x24_");
     /* x24_[1] */
@@ -927,11 +928,11 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x24_[6] = __dna_docin.readFloat("x24_");
     /* x24_[7] */
     x24_[7] = __dna_docin.readFloat("x24_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x44_ */
     size_t __x44_Count;
-    __dna_docin.enterSubVector("x44_", __x44_Count);
+    if (auto v = __dna_docin.enterSubVector("x44_", __x44_Count))
+    {
     /* x44_[0] */
     x44_[0] = __dna_docin.readFloat("x44_");
     /* x44_[1] */
@@ -948,11 +949,11 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x44_[6] = __dna_docin.readFloat("x44_");
     /* x44_[7] */
     x44_[7] = __dna_docin.readFloat("x44_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x64_ */
     size_t __x64_Count;
-    __dna_docin.enterSubVector("x64_", __x64_Count);
+    if (auto v = __dna_docin.enterSubVector("x64_", __x64_Count))
+    {
     /* x64_[0] */
     x64_[0] = __dna_docin.readFloat("x64_");
     /* x64_[1] */
@@ -969,11 +970,11 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x64_[6] = __dna_docin.readFloat("x64_");
     /* x64_[7] */
     x64_[7] = __dna_docin.readFloat("x64_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x84_ */
     size_t __x84_Count;
-    __dna_docin.enterSubVector("x84_", __x84_Count);
+    if (auto v = __dna_docin.enterSubVector("x84_", __x84_Count))
+    {
     /* x84_[0] */
     x84_[0] = __dna_docin.readFloat("x84_");
     /* x84_[1] */
@@ -990,11 +991,11 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x84_[6] = __dna_docin.readFloat("x84_");
     /* x84_[7] */
     x84_[7] = __dna_docin.readFloat("x84_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* xa4_ */
     size_t __xa4_Count;
-    __dna_docin.enterSubVector("xa4_", __xa4_Count);
+    if (auto v = __dna_docin.enterSubVector("xa4_", __xa4_Count))
+    {
     /* xa4_[0] */
     xa4_[0] = __dna_docin.readFloat("xa4_");
     /* xa4_[1] */
@@ -1011,8 +1012,7 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     xa4_[6] = __dna_docin.readFloat("xa4_");
     /* xa4_[7] */
     xa4_[7] = __dna_docin.readFloat("xa4_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* xc4_ */
     xc4_ = __dna_docin.readFloat("xc4_");
     /* xc8_ */
@@ -1163,37 +1163,37 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x268_ = __dna_docin.readFloat("x268_");
     /* x158_ */
     size_t __x158_Count;
-    __dna_docin.enterSubVector("x158_", __x158_Count);
+    if (auto v = __dna_docin.enterSubVector("x158_", __x158_Count))
+    {
     /* x158_[0] */
     x158_[0] = __dna_docin.readFloat("x158_");
     /* x158_[1] */
     x158_[1] = __dna_docin.readFloat("x158_");
     /* x158_[2] */
     x158_[2] = __dna_docin.readFloat("x158_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x164_ */
     size_t __x164_Count;
-    __dna_docin.enterSubVector("x164_", __x164_Count);
+    if (auto v = __dna_docin.enterSubVector("x164_", __x164_Count))
+    {
     /* x164_[0] */
     x164_[0] = __dna_docin.readFloat("x164_");
     /* x164_[1] */
     x164_[1] = __dna_docin.readFloat("x164_");
     /* x164_[2] */
     x164_[2] = __dna_docin.readFloat("x164_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x170_ */
     size_t __x170_Count;
-    __dna_docin.enterSubVector("x170_", __x170_Count);
+    if (auto v = __dna_docin.enterSubVector("x170_", __x170_Count))
+    {
     /* x170_[0] */
     x170_[0] = __dna_docin.readFloat("x170_");
     /* x170_[1] */
     x170_[1] = __dna_docin.readFloat("x170_");
     /* x170_[2] */
     x170_[2] = __dna_docin.readFloat("x170_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x17c_ */
     x17c_ = __dna_docin.readFloat("x17c_");
     /* x180_ */
@@ -1218,58 +1218,58 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x1a4_ = __dna_docin.readFloat("x1a4_");
     /* x1a8_ */
     size_t __x1a8_Count;
-    __dna_docin.enterSubVector("x1a8_", __x1a8_Count);
+    if (auto v = __dna_docin.enterSubVector("x1a8_", __x1a8_Count))
+    {
     /* x1a8_[0] */
     x1a8_[0] = __dna_docin.readUint32("x1a8_");
     /* x1a8_[1] */
     x1a8_[1] = __dna_docin.readUint32("x1a8_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x1b0_ */
     size_t __x1b0_Count;
-    __dna_docin.enterSubVector("x1b0_", __x1b0_Count);
+    if (auto v = __dna_docin.enterSubVector("x1b0_", __x1b0_Count))
+    {
     /* x1b0_[0] */
     x1b0_[0] = __dna_docin.readUint32("x1b0_");
     /* x1b0_[1] */
     x1b0_[1] = __dna_docin.readUint32("x1b0_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x1b8_ */
     size_t __x1b8_Count;
-    __dna_docin.enterSubVector("x1b8_", __x1b8_Count);
+    if (auto v = __dna_docin.enterSubVector("x1b8_", __x1b8_Count))
+    {
     /* x1b8_[0] */
     x1b8_[0] = __dna_docin.readUint32("x1b8_");
     /* x1b8_[1] */
     x1b8_[1] = __dna_docin.readUint32("x1b8_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x1c0_ */
     size_t __x1c0_Count;
-    __dna_docin.enterSubVector("x1c0_", __x1c0_Count);
+    if (auto v = __dna_docin.enterSubVector("x1c0_", __x1c0_Count))
+    {
     /* x1c0_[0] */
     x1c0_[0] = __dna_docin.readUint32("x1c0_");
     /* x1c0_[1] */
     x1c0_[1] = __dna_docin.readUint32("x1c0_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x1c8_ */
     size_t __x1c8_Count;
-    __dna_docin.enterSubVector("x1c8_", __x1c8_Count);
+    if (auto v = __dna_docin.enterSubVector("x1c8_", __x1c8_Count))
+    {
     /* x1c8_[0] */
     x1c8_[0] = __dna_docin.readUint32("x1c8_");
     /* x1c8_[1] */
     x1c8_[1] = __dna_docin.readUint32("x1c8_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x1d0_ */
     size_t __x1d0_Count;
-    __dna_docin.enterSubVector("x1d0_", __x1d0_Count);
+    if (auto v = __dna_docin.enterSubVector("x1d0_", __x1d0_Count))
+    {
     /* x1d0_[0] */
     x1d0_[0] = __dna_docin.readUint32("x1d0_");
     /* x1d0_[1] */
     x1d0_[1] = __dna_docin.readUint32("x1d0_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x1d8_ */
     x1d8_ = __dna_docin.readFloat("x1d8_");
     /* x1dc_ */
@@ -1403,7 +1403,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
 void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
 {
     /* x4_ */
-    __dna_docout.enterSubVector("x4_");
+    if (auto v = __dna_docout.enterSubVector("x4_"))
+    {
     /* x4_[0] */
     __dna_docout.writeFloat("x4_", x4_[0]);
     /* x4_[1] */
@@ -1420,10 +1421,10 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x4_", x4_[6]);
     /* x4_[7] */
     __dna_docout.writeFloat("x4_", x4_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x24_ */
-    __dna_docout.enterSubVector("x24_");
+    if (auto v = __dna_docout.enterSubVector("x24_"))
+    {
     /* x24_[0] */
     __dna_docout.writeFloat("x24_", x24_[0]);
     /* x24_[1] */
@@ -1440,10 +1441,10 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x24_", x24_[6]);
     /* x24_[7] */
     __dna_docout.writeFloat("x24_", x24_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x44_ */
-    __dna_docout.enterSubVector("x44_");
+    if (auto v = __dna_docout.enterSubVector("x44_"))
+    {
     /* x44_[0] */
     __dna_docout.writeFloat("x44_", x44_[0]);
     /* x44_[1] */
@@ -1460,10 +1461,10 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x44_", x44_[6]);
     /* x44_[7] */
     __dna_docout.writeFloat("x44_", x44_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x64_ */
-    __dna_docout.enterSubVector("x64_");
+    if (auto v = __dna_docout.enterSubVector("x64_"))
+    {
     /* x64_[0] */
     __dna_docout.writeFloat("x64_", x64_[0]);
     /* x64_[1] */
@@ -1480,10 +1481,10 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x64_", x64_[6]);
     /* x64_[7] */
     __dna_docout.writeFloat("x64_", x64_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x84_ */
-    __dna_docout.enterSubVector("x84_");
+    if (auto v = __dna_docout.enterSubVector("x84_"))
+    {
     /* x84_[0] */
     __dna_docout.writeFloat("x84_", x84_[0]);
     /* x84_[1] */
@@ -1500,10 +1501,10 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x84_", x84_[6]);
     /* x84_[7] */
     __dna_docout.writeFloat("x84_", x84_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* xa4_ */
-    __dna_docout.enterSubVector("xa4_");
+    if (auto v = __dna_docout.enterSubVector("xa4_"))
+    {
     /* xa4_[0] */
     __dna_docout.writeFloat("xa4_", xa4_[0]);
     /* xa4_[1] */
@@ -1520,8 +1521,7 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("xa4_", xa4_[6]);
     /* xa4_[7] */
     __dna_docout.writeFloat("xa4_", xa4_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* xc4_ */
     __dna_docout.writeFloat("xc4_", xc4_);
     /* xc8_ */
@@ -1671,35 +1671,35 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     /* x268_ */
     __dna_docout.writeFloat("x268_", x268_);
     /* x158_ */
-    __dna_docout.enterSubVector("x158_");
+    if (auto v = __dna_docout.enterSubVector("x158_"))
+    {
     /* x158_[0] */
     __dna_docout.writeFloat("x158_", x158_[0]);
     /* x158_[1] */
     __dna_docout.writeFloat("x158_", x158_[1]);
     /* x158_[2] */
     __dna_docout.writeFloat("x158_", x158_[2]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x164_ */
-    __dna_docout.enterSubVector("x164_");
+    if (auto v = __dna_docout.enterSubVector("x164_"))
+    {
     /* x164_[0] */
     __dna_docout.writeFloat("x164_", x164_[0]);
     /* x164_[1] */
     __dna_docout.writeFloat("x164_", x164_[1]);
     /* x164_[2] */
     __dna_docout.writeFloat("x164_", x164_[2]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x170_ */
-    __dna_docout.enterSubVector("x170_");
+    if (auto v = __dna_docout.enterSubVector("x170_"))
+    {
     /* x170_[0] */
     __dna_docout.writeFloat("x170_", x170_[0]);
     /* x170_[1] */
     __dna_docout.writeFloat("x170_", x170_[1]);
     /* x170_[2] */
     __dna_docout.writeFloat("x170_", x170_[2]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x17c_ */
     __dna_docout.writeFloat("x17c_", x17c_);
     /* x180_ */
@@ -1723,53 +1723,53 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     /* x1a4_ */
     __dna_docout.writeFloat("x1a4_", x1a4_);
     /* x1a8_ */
-    __dna_docout.enterSubVector("x1a8_");
+    if (auto v = __dna_docout.enterSubVector("x1a8_"))
+    {
     /* x1a8_[0] */
     __dna_docout.writeUint32("x1a8_", x1a8_[0]);
     /* x1a8_[1] */
     __dna_docout.writeUint32("x1a8_", x1a8_[1]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x1b0_ */
-    __dna_docout.enterSubVector("x1b0_");
+    if (auto v = __dna_docout.enterSubVector("x1b0_"))
+    {
     /* x1b0_[0] */
     __dna_docout.writeUint32("x1b0_", x1b0_[0]);
     /* x1b0_[1] */
     __dna_docout.writeUint32("x1b0_", x1b0_[1]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x1b8_ */
-    __dna_docout.enterSubVector("x1b8_");
+    if (auto v = __dna_docout.enterSubVector("x1b8_"))
+    {
     /* x1b8_[0] */
     __dna_docout.writeUint32("x1b8_", x1b8_[0]);
     /* x1b8_[1] */
     __dna_docout.writeUint32("x1b8_", x1b8_[1]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x1c0_ */
-    __dna_docout.enterSubVector("x1c0_");
+    if (auto v = __dna_docout.enterSubVector("x1c0_"))
+    {
     /* x1c0_[0] */
     __dna_docout.writeUint32("x1c0_", x1c0_[0]);
     /* x1c0_[1] */
     __dna_docout.writeUint32("x1c0_", x1c0_[1]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x1c8_ */
-    __dna_docout.enterSubVector("x1c8_");
+    if (auto v = __dna_docout.enterSubVector("x1c8_"))
+    {
     /* x1c8_[0] */
     __dna_docout.writeUint32("x1c8_", x1c8_[0]);
     /* x1c8_[1] */
     __dna_docout.writeUint32("x1c8_", x1c8_[1]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x1d0_ */
-    __dna_docout.enterSubVector("x1d0_");
+    if (auto v = __dna_docout.enterSubVector("x1d0_"))
+    {
     /* x1d0_[0] */
     __dna_docout.writeUint32("x1d0_", x1d0_[0]);
     /* x1d0_[1] */
     __dna_docout.writeUint32("x1d0_", x1d0_[1]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x1d8_ */
     __dna_docout.writeFloat("x1d8_", x1d8_);
     /* x1dc_ */

@@ -125,19 +125,15 @@ void RealElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem.reset();
         return;
     }
-    r.enterSubRecord(elem.first.c_str());
-    m_elem->read(r);
-    r.leaveSubRecord();
+    if (auto rec = r.enterSubRecord(elem.first.c_str()))
+        m_elem->read(r);
 }
 
 void RealElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
-    {
-        w.enterSubRecord(m_elem->ClassID());
-        m_elem->write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
 }
 
 size_t RealElementFactory::binarySize(size_t __isz) const
@@ -348,19 +344,15 @@ void IntElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem.reset();
         return;
     }
-    r.enterSubRecord(elem.first.c_str());
-    m_elem->read(r);
-    r.leaveSubRecord();
+    if (auto rec = r.enterSubRecord(elem.first.c_str()))
+        m_elem->read(r);
 }
 
 void IntElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
-    {
-        w.enterSubRecord(m_elem->ClassID());
-        m_elem->write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
 }
 
 size_t IntElementFactory::binarySize(size_t __isz) const
@@ -522,19 +514,15 @@ void VectorElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem.reset();
         return;
     }
-    r.enterSubRecord(elem.first.c_str());
-    m_elem->read(r);
-    r.leaveSubRecord();
+    if (auto rec = r.enterSubRecord(elem.first.c_str()))
+        m_elem->read(r);
 }
 
 void VectorElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
-    {
-        w.enterSubRecord(m_elem->ClassID());
-        m_elem->write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
 }
 
 size_t VectorElementFactory::binarySize(size_t __isz) const
@@ -664,19 +652,15 @@ void ColorElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem.reset();
         return;
     }
-    r.enterSubRecord(elem.first.c_str());
-    m_elem->read(r);
-    r.leaveSubRecord();
+    if (auto rec = r.enterSubRecord(elem.first.c_str()))
+        m_elem->read(r);
 }
 
 void ColorElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
-    {
-        w.enterSubRecord(m_elem->ClassID());
-        m_elem->write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
 }
 
 size_t ColorElementFactory::binarySize(size_t __isz) const
@@ -790,19 +774,15 @@ void ModVectorElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem.reset();
         return;
     }
-    r.enterSubRecord(elem.first.c_str());
-    m_elem->read(r);
-    r.leaveSubRecord();
+    if (auto rec = r.enterSubRecord(elem.first.c_str()))
+        m_elem->read(r);
 }
 
 void ModVectorElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
-    {
-        w.enterSubRecord(m_elem->ClassID());
-        m_elem->write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
 }
 
 size_t ModVectorElementFactory::binarySize(size_t __isz) const
@@ -909,19 +889,15 @@ void EmitterElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem.reset();
         return;
     }
-    r.enterSubRecord(elem.first.c_str());
-    m_elem->read(r);
-    r.leaveSubRecord();
+    if (auto rec = r.enterSubRecord(elem.first.c_str()))
+        m_elem->read(r);
 }
 
 void EmitterElementFactory::write(athena::io::YAMLDocWriter& w) const
 {
     if (m_elem)
-    {
-        w.enterSubRecord(m_elem->ClassID());
-        m_elem->write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
 }
 
 size_t EmitterElementFactory::binarySize(size_t __isz) const

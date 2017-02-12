@@ -16,253 +16,254 @@ void GPSM<IDType>::read(athena::io::YAMLDocReader& r)
             continue;
         }
 
-        r.enterSubRecord(elem.first.c_str());
-        switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
+        if (auto rec = r.enterSubRecord(elem.first.c_str()))
         {
-        case SBIG('PMCL'):
-            x78_PMCL.read(r);
-        break;
-        case SBIG('LFOR'):
-            x118_LFOR.read(r);
-        break;
-        case SBIG('IDTS'):
-            xa4_IDTS.read(r);
-        break;
-        case SBIG('EMTR'):
-            x40_EMTR.read(r);
-        break;
-        case SBIG('COLR'):
-            x30_COLR.read(r);
-        break;
-        case SBIG('CIND'):
-            x45_30_CIND = r.readBool(nullptr);
-        break;
-        case SBIG('AAPH'):
-            x44_26_AAPH = r.readBool(nullptr);
-        break;
-        case SBIG('CSSD'):
-            xa0_CSSD.read(r);
-        break;
-        case SBIG('GRTE'):
-            x2c_GRTE.read(r);
-        break;
-        case SBIG('FXLL'):
-            x44_25_FXLL = r.readBool(nullptr);
-        break;
-        case SBIG('ICTS'):
-            x8c_ICTS.read(r);
-        break;
-        case SBIG('KSSM'):
-            xd0_KSSM.read(r);
-        break;
-        case SBIG('ILOC'):
-            x38_ILOC.read(r);
-        break;
-        case SBIG('IITS'):
-            xb8_IITS.read(r);
-        break;
-        case SBIG('IVEC'):
-            x3c_IVEC.read(r);
-        break;
-        case SBIG('LDIR'):
-            x110_LDIR.read(r);
-        break;
-        case SBIG('LCLR'):
-            x104_LCLR.read(r);
-        break;
-        case SBIG('LENG'):
-            x20_LENG.read(r);
-        break;
-        case SBIG('MAXP'):
-            x28_MAXP.read(r);
-        break;
-        case SBIG('LOFF'):
-            x10c_LOFF.read(r);
-        break;
-        case SBIG('LINT'):
-            x108_LINT.read(r);
-        break;
-        case SBIG('LINE'):
-            x44_24_LINE = r.readBool(nullptr);
-        break;
-        case SBIG('LFOT'):
-            x114_LFOT.read(r);
-        break;
-        case SBIG('LIT_'):
-            x44_29_LIT_ = r.readBool(nullptr);
-        break;
-        case SBIG('LTME'):
-            x34_LTME.read(r);
-        break;
-        case SBIG('LSLA'):
-            x11c_LSLA.read(r);
-        break;
-        case SBIG('LTYP'):
-            x100_LTYP.read(r);
-        break;
-        case SBIG('NDSY'):
-            xb4_NDSY.read(r);
-        break;
-        case SBIG('MBSP'):
-            x48_MBSP.read(r);
-        break;
-        case SBIG('MBLR'):
-            x44_30_MBLR = r.readBool(nullptr);
-        break;
-        case SBIG('NCSY'):
-            x9c_NCSY.read(r);
-        break;
-        case SBIG('PISY'):
-            xc8_PISY.read(r);
-        break;
-        case SBIG('OPTS'):
-            x45_31_OPTS = r.readBool(nullptr);
-        break;
-        case SBIG('PMAB'):
-            x44_31_PMAB = r.readBool(nullptr);
-        break;
-        case SBIG('SESD'):
-            xf8_SESD.read(r);
-        break;
-        case SBIG('SEPO'):
-            xfc_SEPO.read(r);
-        break;
-        case SBIG('PSLT'):
-            xc_PSLT.read(r);
-        break;
-        case SBIG('PMSC'):
-            x74_PMSC.read(r);
-        break;
-        case SBIG('PMOP'):
-            x6c_PMOP.read(r);
-        break;
-        case SBIG('PMDL'):
-            x5c_PMDL.read(r);
-        break;
-        case SBIG('PMRT'):
-            x70_PMRT.read(r);
-        break;
-        case SBIG('POFS'):
-            x18_POFS.read(r);
-        break;
-        case SBIG('PMUS'):
-            x45_24_PMUS = r.readBool(nullptr);
-        break;
-        case SBIG('PSIV'):
-            x0_PSIV.read(r);
-        break;
-        case SBIG('ROTA'):
-            x50_ROTA.read(r);
-        break;
-        case SBIG('PSVM'):
-            x4_PSVM.read(r);
-        break;
-        case SBIG('PSTS'):
-            x14_PSTS.read(r);
-        break;
-        case SBIG('PSOV'):
-            x8_PSOV.read(r);
-        break;
-        case SBIG('PSWT'):
-            x10_PSWT.read(r);
-        break;
-        case SBIG('PMLC'):
-            xec_PMLC.read(r);
-        break;
-        case SBIG('SEED'):
-            x1c_SEED.read(r);
-        break;
-        case SBIG('PMOO'):
-            x45_25_PMOO = r.readBool(nullptr);
-        break;
-        case SBIG('SSSD'):
-            xe4_SSSD.read(r);
-        break;
-        case SBIG('SORT'):
-            x44_28_SORT = r.readBool(nullptr);
-        break;
-        case SBIG('SIZE'):
-            x4c_SIZE.read(r);
-        break;
-        case SBIG('SISY'):
-            xcc_SISY.read(r);
-        break;
-        case SBIG('SSPO'):
-            xe8_SSPO.read(r);
-        break;
-        case SBIG('TEXR'):
-            x54_TEXR.read(r);
-        break;
-        case SBIG('SSWH'):
-            xd4_SSWH.read(r);
-        break;
-        case SBIG('TIND'):
-            x58_TIND.read(r);
-        break;
-        case SBIG('VMD4'):
-            x45_29_VMD4 = r.readBool(nullptr);
-        break;
-        case SBIG('VMD3'):
-            x45_28_VMD3 = r.readBool(nullptr);
-        break;
-        case SBIG('VMD2'):
-            x45_27_VMD2 = r.readBool(nullptr);
-        break;
-        case SBIG('VMD1'):
-            x45_26_VMD1 = r.readBool(nullptr);
-        break;
-        case SBIG('VEL4'):
-            x88_VEL4.read(r);
-        break;
-        case SBIG('VEL3'):
-            x84_VEL3.read(r);
-        break;
-        case SBIG('VEL2'):
-            x80_VEL2.read(r);
-        break;
-        case SBIG('VEL1'):
-            x7c_VEL1.read(r);
-        break;
-        case SBIG('ZBUF'):
-            x44_27_ZBUF = r.readBool(nullptr);
-        break;
-        case SBIG('WIDT'):
-            x24_WIDT.read(r);
-        break;
-        case SBIG('ORNT'):
-            x30_30_ORNT = r.readBool(nullptr);
-        break;
-        case SBIG('RSOP'):
-            x30_31_RSOP = r.readBool(nullptr);
-        break;
-        case SBIG('ADV1'):
-            x10c_ADV1.read(r);
-        break;
-        case SBIG('ADV2'):
-            x110_ADV2.read(r);
-        break;
-        case SBIG('ADV3'):
-            x114_ADV3.read(r);
-        break;
-        case SBIG('ADV4'):
-            x118_ADV4.read(r);
-        break;
-        case SBIG('ADV5'):
-            x11c_ADV5.read(r);
-        break;
-        case SBIG('ADV6'):
-            x120_ADV6.read(r);
-        break;
-        case SBIG('ADV7'):
-            x124_ADV7.read(r);
-        break;
-        case SBIG('SELC'):
-            xd8_SELC.read(r);
-        break;
-        default:
-        break;
+            switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
+            {
+            case SBIG('PMCL'):
+                x78_PMCL.read(r);
+            break;
+            case SBIG('LFOR'):
+                x118_LFOR.read(r);
+            break;
+            case SBIG('IDTS'):
+                xa4_IDTS.read(r);
+            break;
+            case SBIG('EMTR'):
+                x40_EMTR.read(r);
+            break;
+            case SBIG('COLR'):
+                x30_COLR.read(r);
+            break;
+            case SBIG('CIND'):
+                x45_30_CIND = r.readBool(nullptr);
+            break;
+            case SBIG('AAPH'):
+                x44_26_AAPH = r.readBool(nullptr);
+            break;
+            case SBIG('CSSD'):
+                xa0_CSSD.read(r);
+            break;
+            case SBIG('GRTE'):
+                x2c_GRTE.read(r);
+            break;
+            case SBIG('FXLL'):
+                x44_25_FXLL = r.readBool(nullptr);
+            break;
+            case SBIG('ICTS'):
+                x8c_ICTS.read(r);
+            break;
+            case SBIG('KSSM'):
+                xd0_KSSM.read(r);
+            break;
+            case SBIG('ILOC'):
+                x38_ILOC.read(r);
+            break;
+            case SBIG('IITS'):
+                xb8_IITS.read(r);
+            break;
+            case SBIG('IVEC'):
+                x3c_IVEC.read(r);
+            break;
+            case SBIG('LDIR'):
+                x110_LDIR.read(r);
+            break;
+            case SBIG('LCLR'):
+                x104_LCLR.read(r);
+            break;
+            case SBIG('LENG'):
+                x20_LENG.read(r);
+            break;
+            case SBIG('MAXP'):
+                x28_MAXP.read(r);
+            break;
+            case SBIG('LOFF'):
+                x10c_LOFF.read(r);
+            break;
+            case SBIG('LINT'):
+                x108_LINT.read(r);
+            break;
+            case SBIG('LINE'):
+                x44_24_LINE = r.readBool(nullptr);
+            break;
+            case SBIG('LFOT'):
+                x114_LFOT.read(r);
+            break;
+            case SBIG('LIT_'):
+                x44_29_LIT_ = r.readBool(nullptr);
+            break;
+            case SBIG('LTME'):
+                x34_LTME.read(r);
+            break;
+            case SBIG('LSLA'):
+                x11c_LSLA.read(r);
+            break;
+            case SBIG('LTYP'):
+                x100_LTYP.read(r);
+            break;
+            case SBIG('NDSY'):
+                xb4_NDSY.read(r);
+            break;
+            case SBIG('MBSP'):
+                x48_MBSP.read(r);
+            break;
+            case SBIG('MBLR'):
+                x44_30_MBLR = r.readBool(nullptr);
+            break;
+            case SBIG('NCSY'):
+                x9c_NCSY.read(r);
+            break;
+            case SBIG('PISY'):
+                xc8_PISY.read(r);
+            break;
+            case SBIG('OPTS'):
+                x45_31_OPTS = r.readBool(nullptr);
+            break;
+            case SBIG('PMAB'):
+                x44_31_PMAB = r.readBool(nullptr);
+            break;
+            case SBIG('SESD'):
+                xf8_SESD.read(r);
+            break;
+            case SBIG('SEPO'):
+                xfc_SEPO.read(r);
+            break;
+            case SBIG('PSLT'):
+                xc_PSLT.read(r);
+            break;
+            case SBIG('PMSC'):
+                x74_PMSC.read(r);
+            break;
+            case SBIG('PMOP'):
+                x6c_PMOP.read(r);
+            break;
+            case SBIG('PMDL'):
+                x5c_PMDL.read(r);
+            break;
+            case SBIG('PMRT'):
+                x70_PMRT.read(r);
+            break;
+            case SBIG('POFS'):
+                x18_POFS.read(r);
+            break;
+            case SBIG('PMUS'):
+                x45_24_PMUS = r.readBool(nullptr);
+            break;
+            case SBIG('PSIV'):
+                x0_PSIV.read(r);
+            break;
+            case SBIG('ROTA'):
+                x50_ROTA.read(r);
+            break;
+            case SBIG('PSVM'):
+                x4_PSVM.read(r);
+            break;
+            case SBIG('PSTS'):
+                x14_PSTS.read(r);
+            break;
+            case SBIG('PSOV'):
+                x8_PSOV.read(r);
+            break;
+            case SBIG('PSWT'):
+                x10_PSWT.read(r);
+            break;
+            case SBIG('PMLC'):
+                xec_PMLC.read(r);
+            break;
+            case SBIG('SEED'):
+                x1c_SEED.read(r);
+            break;
+            case SBIG('PMOO'):
+                x45_25_PMOO = r.readBool(nullptr);
+            break;
+            case SBIG('SSSD'):
+                xe4_SSSD.read(r);
+            break;
+            case SBIG('SORT'):
+                x44_28_SORT = r.readBool(nullptr);
+            break;
+            case SBIG('SIZE'):
+                x4c_SIZE.read(r);
+            break;
+            case SBIG('SISY'):
+                xcc_SISY.read(r);
+            break;
+            case SBIG('SSPO'):
+                xe8_SSPO.read(r);
+            break;
+            case SBIG('TEXR'):
+                x54_TEXR.read(r);
+            break;
+            case SBIG('SSWH'):
+                xd4_SSWH.read(r);
+            break;
+            case SBIG('TIND'):
+                x58_TIND.read(r);
+            break;
+            case SBIG('VMD4'):
+                x45_29_VMD4 = r.readBool(nullptr);
+            break;
+            case SBIG('VMD3'):
+                x45_28_VMD3 = r.readBool(nullptr);
+            break;
+            case SBIG('VMD2'):
+                x45_27_VMD2 = r.readBool(nullptr);
+            break;
+            case SBIG('VMD1'):
+                x45_26_VMD1 = r.readBool(nullptr);
+            break;
+            case SBIG('VEL4'):
+                x88_VEL4.read(r);
+            break;
+            case SBIG('VEL3'):
+                x84_VEL3.read(r);
+            break;
+            case SBIG('VEL2'):
+                x80_VEL2.read(r);
+            break;
+            case SBIG('VEL1'):
+                x7c_VEL1.read(r);
+            break;
+            case SBIG('ZBUF'):
+                x44_27_ZBUF = r.readBool(nullptr);
+            break;
+            case SBIG('WIDT'):
+                x24_WIDT.read(r);
+            break;
+            case SBIG('ORNT'):
+                x30_30_ORNT = r.readBool(nullptr);
+            break;
+            case SBIG('RSOP'):
+                x30_31_RSOP = r.readBool(nullptr);
+            break;
+            case SBIG('ADV1'):
+                x10c_ADV1.read(r);
+            break;
+            case SBIG('ADV2'):
+                x110_ADV2.read(r);
+            break;
+            case SBIG('ADV3'):
+                x114_ADV3.read(r);
+            break;
+            case SBIG('ADV4'):
+                x118_ADV4.read(r);
+            break;
+            case SBIG('ADV5'):
+                x11c_ADV5.read(r);
+            break;
+            case SBIG('ADV6'):
+                x120_ADV6.read(r);
+            break;
+            case SBIG('ADV7'):
+                x124_ADV7.read(r);
+            break;
+            case SBIG('SELC'):
+                xd8_SELC.read(r);
+            break;
+            default:
+            break;
+            }
         }
-        r.leaveSubRecord();
     }
 }
 
@@ -270,107 +271,56 @@ template <class IDType>
 void GPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 {
     if (x0_PSIV)
-    {
-        w.enterSubRecord("PSIV");
-        x0_PSIV.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSIV"))
+            x0_PSIV.write(w);
     if (x4_PSVM)
-    {
-        w.enterSubRecord("PSVM");
-        x4_PSVM.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSVM"))
+            x4_PSVM.write(w);
     if (x8_PSOV)
-    {
-        w.enterSubRecord("PSOV");
-        x8_PSOV.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSOV"))
+            x8_PSOV.write(w);
     if (xc_PSLT)
-    {
-        w.enterSubRecord("PSLT");
-        xc_PSLT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSLT"))
+            xc_PSLT.write(w);
     if (x10_PSWT)
-    {
-        w.enterSubRecord("PSWT");
-        x10_PSWT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSWT"))
+            x10_PSWT.write(w);
     if (x14_PSTS)
-    {
-        w.enterSubRecord("PSTS");
-        x14_PSTS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSTS"))
+            x14_PSTS.write(w);
     if (x18_POFS)
-    {
-        w.enterSubRecord("POFS");
-        x18_POFS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("POFS"))
+            x18_POFS.write(w);
     if (x1c_SEED)
-    {
-        w.enterSubRecord("SEED");
-        x1c_SEED.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SEED"))
+            x1c_SEED.write(w);
     if (x20_LENG)
-    {
-        w.enterSubRecord("LENG");
-        x20_LENG.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LENG"))
+            x20_LENG.write(w);
     if (x24_WIDT)
-    {
-        w.enterSubRecord("WIDT");
-        x24_WIDT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("WIDT"))
+            x24_WIDT.write(w);
     if (x28_MAXP)
-    {
-        w.enterSubRecord("MAXP");
-        x28_MAXP.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("MAXP"))
+            x28_MAXP.write(w);
     if (x2c_GRTE)
-    {
-        w.enterSubRecord("GRTE");
-        x2c_GRTE.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("GRTE"))
+            x2c_GRTE.write(w);
     if (x30_COLR)
-    {
-        w.enterSubRecord("COLR");
-        x30_COLR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("COLR"))
+            x30_COLR.write(w);
     if (x34_LTME)
-    {
-        w.enterSubRecord("LTME");
-        x34_LTME.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LTME"))
+            x34_LTME.write(w);
     if (x38_ILOC)
-    {
-        w.enterSubRecord("ILOC");
-        x38_ILOC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ILOC"))
+            x38_ILOC.write(w);
     if (x3c_IVEC)
-    {
-        w.enterSubRecord("IVEC");
-        x3c_IVEC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("IVEC"))
+            x3c_IVEC.write(w);
     if (x40_EMTR)
-    {
-        w.enterSubRecord("EMTR");
-        x40_EMTR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("EMTR"))
+            x40_EMTR.write(w);
     if (x44_24_LINE)
         w.writeBool("LINE", true);
     if (x44_25_FXLL)
@@ -408,281 +358,143 @@ void GPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
     if (x30_31_RSOP)
         w.writeBool("RSOP", true);
     if (x48_MBSP)
-    {
-        w.enterSubRecord("MPSB");
-        x48_MBSP.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("MPSB"))
+            x48_MBSP.write(w);
     if (x4c_SIZE)
-    {
-        w.enterSubRecord("SIZE");
-        x4c_SIZE.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SIZE"))
+            x4c_SIZE.write(w);
     if (x50_ROTA)
-    {
-        w.enterSubRecord("ROTA");
-        x50_ROTA.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ROTA"))
+            x50_ROTA.write(w);
     if (x54_TEXR)
-    {
-        w.enterSubRecord("TEXR");
-        x54_TEXR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("TEXR"))
+            x54_TEXR.write(w);
     if (x58_TIND)
-    {
-        w.enterSubRecord("TIND");
-        x58_TIND.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("TIND"))
+            x58_TIND.write(w);
     if (x5c_PMDL)
-    {
-        w.enterSubRecord("PMDL");
-        x5c_PMDL.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PMDL"))
+            x5c_PMDL.write(w);
     if (x6c_PMOP)
-    {
-        w.enterSubRecord("PMOP");
-        x6c_PMOP.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PMOP"))
+            x6c_PMOP.write(w);
     if (x70_PMRT)
-    {
-        w.enterSubRecord("PMRT");
-        x70_PMRT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PMRT"))
+            x70_PMRT.write(w);
     if (x74_PMSC)
-    {
-        w.enterSubRecord("PMSC");
-        x74_PMSC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PMSC"))
+            x74_PMSC.write(w);
     if (x78_PMCL)
-    {
-        w.enterSubRecord("PMCL");
-        x78_PMCL.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PMCL"))
+            x78_PMCL.write(w);
     if (x7c_VEL1)
-    {
-        w.enterSubRecord("VEL1");
-        x7c_VEL1.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("VEL1"))
+            x7c_VEL1.write(w);
     if (x80_VEL2)
-    {
-        w.enterSubRecord("VEL2");
-        x80_VEL2.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("VEL2"))
+            x80_VEL2.write(w);
     if (x84_VEL3)
-    {
-        w.enterSubRecord("VEL3");
-        x84_VEL3.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("VEL3"))
+            x84_VEL3.write(w);
     if (x88_VEL4)
-    {
-        w.enterSubRecord("VEL4");
-        x88_VEL4.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("VEL4"))
+            x88_VEL4.write(w);
     if (x8c_ICTS)
-    {
-        w.enterSubRecord("ICTS");
-        x8c_ICTS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ICTS"))
+            x8c_ICTS.write(w);
     if (x9c_NCSY)
-    {
-        w.enterSubRecord("NCSY");
-        x9c_NCSY.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("NCSY"))
+            x9c_NCSY.write(w);
     if (xa0_CSSD)
-    {
-        w.enterSubRecord("CSSD");
-        xa0_CSSD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("CSSD"))
+            xa0_CSSD.write(w);
     if (xa4_IDTS)
-    {
-        w.enterSubRecord("IDTS");
-        xa4_IDTS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("IDTS"))
+            xa4_IDTS.write(w);
     if (xb4_NDSY)
-    {
-        w.enterSubRecord("NDSY");
-        xb4_NDSY.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("NDSY"))
+            xb4_NDSY.write(w);
     if (xb8_IITS)
-    {
-        w.enterSubRecord("IITS");
-        xb8_IITS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("IITS"))
+            xb8_IITS.write(w);
     if (xc8_PISY)
-    {
-        w.enterSubRecord("PISY");
-        xc8_PISY.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PISY"))
+            xc8_PISY.write(w);
     if (xcc_SISY)
-    {
-        w.enterSubRecord("SISY");
-        xcc_SISY.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SISY"))
+            xcc_SISY.write(w);
     if (xd0_KSSM)
-    {
-        w.enterSubRecord("KSSM");
-        xd0_KSSM.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("KSSM"))
+            xd0_KSSM.write(w);
     if (xd4_SSWH)
-    {
-        w.enterSubRecord("SSWH");
-        xd4_SSWH.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SSWH"))
+            xd4_SSWH.write(w);
     if (xd8_SELC)
-    {
-        w.enterSubRecord("SELC");
-        xd8_SELC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SELC"))
+            xd8_SELC.write(w);
     if (xe4_SSSD)
-    {
-        w.enterSubRecord("SSSD");
-        xe4_SSSD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SSSD"))
+            xe4_SSSD.write(w);
     if (xe8_SSPO)
-    {
-        w.enterSubRecord("SSPO");
-        xe8_SSPO.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SSPO"))
+            xe8_SSPO.write(w);
     if (xf8_SESD)
-    {
-        w.enterSubRecord("SESD");
-        xf8_SESD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SESD"))
+            xf8_SESD.write(w);
     if (xfc_SEPO)
-    {
-        w.enterSubRecord("SEPO");
-        xfc_SEPO.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SEPO"))
+            xfc_SEPO.write(w);
     if (xec_PMLC)
-    {
-        w.enterSubRecord("PMLC");
-        xec_PMLC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PMLC"))
+            xec_PMLC.write(w);
     if (x100_LTYP)
-    {
-        w.enterSubRecord("LTYP");
-        x100_LTYP.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LTYP"))
+            x100_LTYP.write(w);
     if (x104_LCLR)
-    {
-        w.enterSubRecord("LCLR");
-        x104_LCLR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LCLR"))
+            x104_LCLR.write(w);
     if (x108_LINT)
-    {
-        w.enterSubRecord("LINT");
-        x108_LINT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LINT"))
+            x108_LINT.write(w);
     if (x10c_LOFF)
-    {
-        w.enterSubRecord("LOFF");
-        x10c_LOFF.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LOFF"))
+            x10c_LOFF.write(w);
     if (x110_LDIR)
-    {
-        w.enterSubRecord("LDIR");
-        x110_LDIR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LDIR"))
+            x110_LDIR.write(w);
     if (x114_LFOT)
-    {
-        w.enterSubRecord("LFOT");
-        x114_LFOT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LFOT"))
+            x114_LFOT.write(w);
     if (x118_LFOR)
-    {
-        w.enterSubRecord("LFOR");
-        x118_LFOR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LFOR"))
+            x118_LFOR.write(w);
     if (x11c_LSLA)
-    {
-        w.enterSubRecord("LSLA");
-        x11c_LSLA.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LSLA"))
+            x11c_LSLA.write(w);
     if (x10c_ADV1)
-    {
-        w.enterSubRecord("ADV1");
-        x10c_ADV1.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV1"))
+            x10c_ADV1.write(w);
     if (x110_ADV2)
-    {
-        w.enterSubRecord("ADV2");
-        x110_ADV2.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV2"))
+            x110_ADV2.write(w);
     if (x114_ADV3)
-    {
-        w.enterSubRecord("ADV3");
-        x114_ADV3.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV3"))
+            x114_ADV3.write(w);
     if (x118_ADV4)
-    {
-        w.enterSubRecord("ADV4");
-        x118_ADV4.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV4"))
+            x118_ADV4.write(w);
     if (x11c_ADV5)
-    {
-        w.enterSubRecord("ADV5");
-        x11c_ADV5.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV5"))
+            x11c_ADV5.write(w);
     if (x120_ADV6)
-    {
-        w.enterSubRecord("ADV6");
-        x120_ADV6.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV6"))
+            x120_ADV6.write(w);
     if (x124_ADV7)
-    {
-        w.enterSubRecord("ADV7");
-        x124_ADV7.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV7"))
+            x124_ADV7.write(w);
     if (x128_ADV8)
-    {
-        w.enterSubRecord("ADV8");
-        x128_ADV8.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ADV8"))
+            x128_ADV8.write(w);
 }
 
 template <class IDType>

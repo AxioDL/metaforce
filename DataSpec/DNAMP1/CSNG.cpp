@@ -18,9 +18,8 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
         athena::io::YAMLDocWriter dw("CSNG");
         dw.writeUint32("midiSetupId", head.midiSetupId);
         dw.writeUint32("songGroupId", head.songGroupId);
-        dw.enterSubRecord("agscId");
-        head.agscId.write(dw);
-        dw.leaveSubRecord();
+        if (auto rec = dw.enterSubRecord("agscId"))
+            head.agscId.write(dw);
 
         athena::io::FileWriter w(yamlPath.getAbsolutePath());
         if (w.hasError())
@@ -76,9 +75,8 @@ bool CSNG::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
         Header head;
         head.midiSetupId = dr.readUint32("midiSetupId");
         head.songGroupId = dr.readUint32("songGroupId");
-        dr.enterSubRecord("agscId");
-        head.agscId.read(dr);
-        dr.leaveSubRecord();
+        if (auto rec = dr.enterSubRecord("agscId"))
+            head.agscId.read(dr);
         head.sngLength = sngData.size();
         head.write(w);
     }

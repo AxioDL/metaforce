@@ -173,9 +173,8 @@ public:
     : RootSpace(vm)
     {
         m_state.read(r);
-        r.enterSubRecord("spaceTree");
-        m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
-        r.leaveSubRecord();
+        if (auto rec = r.enterSubRecord("spaceTree"))
+            m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
     }
 
     void think()
@@ -200,12 +199,13 @@ public:
         w.writeUint32("class", atUint32(m_class));
         m_state.write(w);
 
-        w.enterSubRecord("spaceTree");
-        if (m_spaceTree)
-            m_spaceTree->saveState(w);
-        else
-            w.writeUint32("class", 0);
-        w.leaveSubRecord();
+        if (auto rec = w.enterSubRecord("spaceTree"))
+        {
+            if (m_spaceTree)
+                m_spaceTree->saveState(w);
+            else
+                w.writeUint32("class", 0);
+        }
     }
 
     void setChild(std::unique_ptr<Space>&& space)
@@ -248,12 +248,10 @@ public:
     : SplitSpace(vm, parent, specter::SplitView::Axis::Horizontal)
     {
         m_state.read(r);
-        r.enterSubRecord("slot0");
-        m_slots[0].reset(NewSpaceFromConfigStream(vm, this, r));
-        r.leaveSubRecord();
-        r.enterSubRecord("slot1");
-        m_slots[1].reset(NewSpaceFromConfigStream(vm, this, r));
-        r.leaveSubRecord();
+        if (auto rec = r.enterSubRecord("slot0"))
+            m_slots[0].reset(NewSpaceFromConfigStream(vm, this, r));
+        if (auto rec = r.enterSubRecord("slot1"))
+            m_slots[1].reset(NewSpaceFromConfigStream(vm, this, r));
         reloadState();
     }
 
@@ -300,19 +298,21 @@ public:
         w.writeUint32("class", atUint32(m_class));
         m_state.write(w);
 
-        w.enterSubRecord("slot0");
-        if (m_slots[0])
-            m_slots[0]->saveState(w);
-        else
-            w.writeUint32("class", 0);
-        w.leaveSubRecord();
+        if (auto rec = w.enterSubRecord("slot0"))
+        {
+            if (m_slots[0])
+                m_slots[0]->saveState(w);
+            else
+                w.writeUint32("class", 0);
+        }
 
-        w.enterSubRecord("slot1");
-        if (m_slots[1])
-            m_slots[1]->saveState(w);
-        else
-            w.writeUint32("class", 0);
-        w.leaveSubRecord();
+        if (auto rec = w.enterSubRecord("slot1"))
+        {
+            if (m_slots[1])
+                m_slots[1]->saveState(w);
+            else
+                w.writeUint32("class", 0);
+        }
     }
 
     void setChildSlot(unsigned slot, std::unique_ptr<Space>&& space);

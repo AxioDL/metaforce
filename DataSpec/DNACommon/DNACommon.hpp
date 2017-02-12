@@ -63,21 +63,23 @@ public:
     void read(athena::io::YAMLDocReader& reader)
     {
         size_t count;
-        reader.enterSubVector(nullptr, count);
-        r = (count >= 1) ? reader.readFloat(nullptr) : 0.f;
-        g = (count >= 2) ? reader.readFloat(nullptr) : 0.f;
-        b = (count >= 3) ? reader.readFloat(nullptr) : 0.f;
-        a = (count >= 4) ? reader.readFloat(nullptr) : 0.f;
-        reader.leaveSubVector();
+        if (auto v = reader.enterSubVector(nullptr, count))
+        {
+            r = (count >= 1) ? reader.readFloat(nullptr) : 0.f;
+            g = (count >= 2) ? reader.readFloat(nullptr) : 0.f;
+            b = (count >= 3) ? reader.readFloat(nullptr) : 0.f;
+            a = (count >= 4) ? reader.readFloat(nullptr) : 0.f;
+        }
     }
     void write(athena::io::YAMLDocWriter& writer) const
     {
-        writer.enterSubVector(nullptr);
-        writer.writeFloat(nullptr, r);
-        writer.writeFloat(nullptr, g);
-        writer.writeFloat(nullptr, b);
-        writer.writeFloat(nullptr, a);
-        writer.leaveSubVector();
+        if (auto v = writer.enterSubVector(nullptr))
+        {
+            writer.writeFloat(nullptr, r);
+            writer.writeFloat(nullptr, g);
+            writer.writeFloat(nullptr, b);
+            writer.writeFloat(nullptr, a);
+        }
     }
     size_t binarySize(size_t __isz) const
     {return __isz + 4;}

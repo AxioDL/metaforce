@@ -143,30 +143,29 @@ void SCLY::ScriptLayer::read(athena::io::YAMLDocReader& rs)
     unknown = rs.readUByte("unknown");
     size_t objCount;
     objects.clear();
-    if (rs.enterSubVector("objects", objCount))
+    if (auto v = rs.enterSubVector("objects", objCount))
     {
         objectCount = objCount;
         objects.reserve(objCount);
         for (atUint32 i = 0; i < objectCount; i++)
         {
-            rs.enterSubRecord(nullptr);
-            atUint8 type = rs.readUByte("type");
-            auto iter = std::find_if(SCRIPT_OBJECT_DB.begin(), SCRIPT_OBJECT_DB.end(), [&type](const ScriptObjectSpec* obj) -> bool
-            { return obj->type == type; });
-
-            if (iter != SCRIPT_OBJECT_DB.end())
+            if (auto rec = rs.enterSubRecord(nullptr))
             {
-                std::unique_ptr<IScriptObject> obj((*iter)->a());
-                obj->read(rs);
-                obj->type = type;
-                objects.push_back(std::move(obj));
-            }
-            else
-                Log.report(logvisor::Fatal, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+                atUint8 type = rs.readUByte("type");
+                auto iter = std::find_if(SCRIPT_OBJECT_DB.begin(), SCRIPT_OBJECT_DB.end(), [&type](const ScriptObjectSpec* obj) -> bool
+                { return obj->type == type; });
 
-            rs.leaveSubRecord();
+                if (iter != SCRIPT_OBJECT_DB.end())
+                {
+                    std::unique_ptr<IScriptObject> obj((*iter)->a());
+                    obj->read(rs);
+                    obj->type = type;
+                    objects.push_back(std::move(obj));
+                }
+                else
+                    Log.report(logvisor::Fatal, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+            }
         }
-        rs.leaveSubVector();
     }
     else
         objectCount = 0;
@@ -203,15 +202,17 @@ size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
 void SCLY::ScriptLayer::write(athena::io::YAMLDocWriter& ws) const
 {
     ws.writeUByte("unknown", unknown);
-    ws.enterSubVector("objects");
-    for (const std::unique_ptr<IScriptObject>& obj : objects)
+    if (auto v = ws.enterSubVector("objects"))
     {
-        ws.enterSubRecord(nullptr);
-        ws.writeUByte("type", obj->type);
-        obj->write(ws);
-        ws.leaveSubRecord();
-    };
-    ws.leaveSubVector();
+        for (const std::unique_ptr<IScriptObject>& obj : objects)
+        {
+            if (auto rec = ws.enterSubRecord(nullptr))
+            {
+                ws.writeUByte("type", obj->type);
+                obj->write(ws);
+            }
+        }
+    }
 }
 
 const char* SCLY::ScriptLayer::DNAType()

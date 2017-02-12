@@ -247,22 +247,17 @@ void STRG::write(athena::io::YAMLDocWriter& writer) const
 {
     for (const auto& item : langs)
     {
-        writer.enterSubVector(item.first.toString().c_str());
-        for (const std::string& str : item.second)
-            writer.writeString(nullptr, str);
-        writer.leaveSubVector();
+        if (auto v = writer.enterSubVector(item.first.toString().c_str()))
+            for (const std::string& str : item.second)
+                writer.writeString(nullptr, str);
     }
 
     if (names.size())
     {
-        writer.enterSubRecord("names");
-        for (const auto& item : names)
-        {
-            writer.enterSubRecord(item.first.c_str());
-            writer.writeInt32(nullptr, item.second);
-            writer.leaveSubRecord();
-        }
-        writer.leaveSubRecord();
+        if (auto rec = writer.enterSubRecord("names"))
+            for (const auto& item : names)
+                if (auto rec = writer.enterSubRecord(item.first.c_str()))
+                    writer.writeInt32(nullptr, item.second);
     }
 }
 

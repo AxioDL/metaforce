@@ -41,6 +41,8 @@ public:
     virtual std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag)=0;
     virtual std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off)=0;
 
+    virtual void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {}
+
     virtual ResId TranslateOriginalToNew(ResId id) const { return -1; }
     virtual ResId TranslateNewToOriginal(ResId id) const { return -1; }
 };

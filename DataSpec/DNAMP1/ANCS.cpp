@@ -86,29 +86,30 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(a
     unk1 = reader.readUint32("unk1");
     unk2 = reader.readFloat("unk2");
     size_t parmValCount;
-    reader.enterSubVector("parmVals", parmValCount);
-    switch (DataType(parmType))
+    if (auto v = reader.enterSubVector("parmVals", parmValCount))
     {
-    case DataType::Int32:
-        parmVals[0].int32 = reader.readInt32(nullptr);
-        parmVals[1].int32 = reader.readInt32(nullptr);
-        break;
-    case DataType::UInt32:
-    case DataType::Enum:
-        parmVals[0].uint32 = reader.readUint32(nullptr);
-        parmVals[1].uint32 = reader.readUint32(nullptr);
-        break;
-    case DataType::Float:
-        parmVals[0].float32 = reader.readFloat(nullptr);
-        parmVals[1].float32 = reader.readFloat(nullptr);
-        break;
-    case DataType::Bool:
-        parmVals[0].bool1 = reader.readBool(nullptr);
-        parmVals[1].bool1 = reader.readBool(nullptr);
-        break;
-    default: break;
+        switch (DataType(parmType))
+        {
+        case DataType::Int32:
+            parmVals[0].int32 = reader.readInt32(nullptr);
+            parmVals[1].int32 = reader.readInt32(nullptr);
+            break;
+        case DataType::UInt32:
+        case DataType::Enum:
+            parmVals[0].uint32 = reader.readUint32(nullptr);
+            parmVals[1].uint32 = reader.readUint32(nullptr);
+            break;
+        case DataType::Float:
+            parmVals[0].float32 = reader.readFloat(nullptr);
+            parmVals[1].float32 = reader.readFloat(nullptr);
+            break;
+        case DataType::Bool:
+            parmVals[0].bool1 = reader.readBool(nullptr);
+            parmVals[1].bool1 = reader.readBool(nullptr);
+            break;
+        default: break;
+        }
     }
-    reader.leaveSubVector();
 }
 
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(athena::io::YAMLDocWriter& writer) const
@@ -116,28 +117,29 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(
     writer.writeUint32("parmType", parmType);
     writer.writeUint32("unk1", unk1);
     writer.writeFloat("unk2", unk2);
-    writer.enterSubVector("parmVals");
-    switch (DataType(parmType))
+    if (auto v = writer.enterSubVector("parmVals"))
     {
-    case DataType::Int32:
-        writer.writeInt32(nullptr, parmVals[0].int32);
-        writer.writeInt32(nullptr, parmVals[1].int32);
-        break;
-    case DataType::UInt32:
-    case DataType::Enum:
-        writer.writeUint32(nullptr, parmVals[0].uint32);
-        writer.writeUint32(nullptr, parmVals[0].uint32);
-        break;
-    case DataType::Float:
-        writer.writeFloat(nullptr, parmVals[0].float32);
-        writer.writeFloat(nullptr, parmVals[0].float32);
-        break;
-    case DataType::Bool:
-        writer.writeBool(nullptr, parmVals[0].bool1);
-        writer.writeBool(nullptr, parmVals[0].bool1);
-        break;
+        switch (DataType(parmType))
+        {
+        case DataType::Int32:
+            writer.writeInt32(nullptr, parmVals[0].int32);
+            writer.writeInt32(nullptr, parmVals[1].int32);
+            break;
+        case DataType::UInt32:
+        case DataType::Enum:
+            writer.writeUint32(nullptr, parmVals[0].uint32);
+            writer.writeUint32(nullptr, parmVals[0].uint32);
+            break;
+        case DataType::Float:
+            writer.writeFloat(nullptr, parmVals[0].float32);
+            writer.writeFloat(nullptr, parmVals[0].float32);
+            break;
+        case DataType::Bool:
+            writer.writeBool(nullptr, parmVals[0].bool1);
+            writer.writeBool(nullptr, parmVals[0].bool1);
+            break;
+        }
     }
-    writer.leaveSubVector();
 }
 
 const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::DNAType()
@@ -260,28 +262,29 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(athena::io:
         ai.id = reader.readUint32("id");
         ai.parmVals.reserve(parmInfoCount);
         size_t parmValCount;
-        reader.enterSubVector("parmVals", parmValCount);
-        for (const ParmInfo& pi : parmInfos)
+        if (auto v = reader.enterSubVector("parms", parmValCount))
         {
-            switch (ParmInfo::DataType(pi.parmType))
+            for (const ParmInfo& pi : parmInfos)
             {
-            case ParmInfo::DataType::Int32:
-                ai.parmVals.emplace_back(reader.readInt32(nullptr));
-                break;
-            case ParmInfo::DataType::UInt32:
-            case ParmInfo::DataType::Enum:
-                ai.parmVals.emplace_back(reader.readUint32(nullptr));
-                break;
-            case ParmInfo::DataType::Float:
-                ai.parmVals.emplace_back(reader.readFloat(nullptr));
-                break;
-            case ParmInfo::DataType::Bool:
-                ai.parmVals.emplace_back(reader.readBool(nullptr));
-                break;
-            default: break;
+                switch (ParmInfo::DataType(pi.parmType))
+                {
+                case ParmInfo::DataType::Int32:
+                    ai.parmVals.emplace_back(reader.readInt32(nullptr));
+                    break;
+                case ParmInfo::DataType::UInt32:
+                case ParmInfo::DataType::Enum:
+                    ai.parmVals.emplace_back(reader.readUint32(nullptr));
+                    break;
+                case ParmInfo::DataType::Float:
+                    ai.parmVals.emplace_back(reader.readFloat(nullptr));
+                    break;
+                case ParmInfo::DataType::Bool:
+                    ai.parmVals.emplace_back(reader.readBool(nullptr));
+                    break;
+                default: break;
+                }
             }
         }
-        reader.leaveSubVector();
     });
 }
 
@@ -296,31 +299,32 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(athena::io
     {
         writer.writeUint32("id", ai.id);
         auto it = ai.parmVals.begin();
-        writer.enterSubVector("parms");
-        for (const ParmInfo& pi : parmInfos)
+        if (auto v = writer.enterSubVector("parms"))
         {
-            ParmInfo::Parm pVal;
-            if (it != ai.parmVals.end())
-                pVal = *it++;
-            switch (ParmInfo::DataType(pi.parmType))
+            for (const ParmInfo& pi : parmInfos)
             {
-            case ParmInfo::DataType::Int32:
-                writer.writeInt32(nullptr, pVal.int32);
-                break;
-            case ParmInfo::DataType::UInt32:
-            case ParmInfo::DataType::Enum:
-                writer.writeUint32(nullptr, pVal.uint32);
-                break;
-            case ParmInfo::DataType::Float:
-                writer.writeFloat(nullptr, pVal.float32);
-                break;
-            case ParmInfo::DataType::Bool:
-                writer.writeBool(nullptr, pVal.bool1);
-                break;
-            default: break;
+                ParmInfo::Parm pVal;
+                if (it != ai.parmVals.end())
+                    pVal = *it++;
+                switch (ParmInfo::DataType(pi.parmType))
+                {
+                case ParmInfo::DataType::Int32:
+                    writer.writeInt32(nullptr, pVal.int32);
+                    break;
+                case ParmInfo::DataType::UInt32:
+                case ParmInfo::DataType::Enum:
+                    writer.writeUint32(nullptr, pVal.uint32);
+                    break;
+                case ParmInfo::DataType::Float:
+                    writer.writeFloat(nullptr, pVal.float32);
+                    break;
+                case ParmInfo::DataType::Bool:
+                    writer.writeBool(nullptr, pVal.bool1);
+                    break;
+                default: break;
+                }
             }
         }
-        writer.leaveSubVector();
     });
 }
 

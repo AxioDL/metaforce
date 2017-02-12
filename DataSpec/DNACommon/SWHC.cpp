@@ -16,96 +16,96 @@ void SWSH<IDType>::read(athena::io::YAMLDocReader& r)
             continue;
         }
 
-        r.enterSubRecord(elem.first.c_str());
-        switch(*reinterpret_cast<const uint32_t*>(elem.first.data()))
+        if (auto rec = r.enterSubRecord(elem.first.c_str()))
         {
-        case SBIG('PSLT'):
-            x0_PSLT.read(r);
-        break;
-        case SBIG('TIME'):
-            x4_TIME.read(r);
-        break;
-        case SBIG('LRAD'):
-            x8_LRAD.read(r);
-        break;
-        case SBIG('RRAD'):
-            xc_RRAD.read(r);
-        break;
-        case SBIG('LENG'):
-            x10_LENG.read(r);
-        break;
-        case SBIG('COLR'):
-            x14_COLR.read(r);
-        break;
-        case SBIG('SIDE'):
-            x18_SIDE.read(r);
-        break;
-        case SBIG('IROT'):
-            x1c_IROT.read(r);
-        break;
-        case SBIG('ROTM'):
-            x20_ROTM.read(r);
-        break;
-        case SBIG('POFS'):
-            x24_POFS.read(r);
-        break;
-        case SBIG('IVEL'):
-            x28_IVEL.read(r);
-        break;
-        case SBIG('NPOS'):
-            x2c_NPOS.read(r);
-        break;
-        case SBIG('VELM'):
-            x30_VELM.read(r);
-        break;
-        case SBIG('VLM2'):
-            x34_VLM2.read(r);
-        break;
-        case SBIG('SPLN'):
-            x38_SPLN.read(r);
-        break;
-        case SBIG('TEXR'):
-            x3c_TEXR.read(r);
-        break;
-        case SBIG('TSPN'):
-            x40_TSPN.read(r);
-        break;
-        case SBIG('LLRD'):
-            x44_24_LLRD = r.readBool(nullptr);
-        break;
-        case SBIG('CROS'):
-            x44_25_CROS = r.readBool(nullptr);
-        break;
-        case SBIG('VLS1'):
-            x44_26_VLS1 = r.readBool(nullptr);
-        break;
-        case SBIG('VLS2'):
-            x44_27_VLS2 = r.readBool(nullptr);
-        break;
-        case SBIG('SROT'):
-            x44_28_SROT = r.readBool(nullptr);
-        break;
-        case SBIG('WIRE'):
-            x44_29_WIRE = r.readBool(nullptr);
-        break;
-        case SBIG('TEXW'):
-            x44_30_TEXW = r.readBool(nullptr);
-        break;
-        case SBIG('AALP'):
-            x44_31_AALP = r.readBool(nullptr);
-        break;
-        case SBIG('ZBUF'):
-            x45_24_ZBUF = r.readBool(nullptr);
-        break;
-        case SBIG('ORNT'):
-            x45_25_ORNT = r.readBool(nullptr);
-        break;
-        case SBIG('CRND'):
-            x45_26_CRND = r.readBool(nullptr);
-        break;
+            switch(*reinterpret_cast<const uint32_t*>(elem.first.data()))
+            {
+            case SBIG('PSLT'):
+                x0_PSLT.read(r);
+            break;
+            case SBIG('TIME'):
+                x4_TIME.read(r);
+            break;
+            case SBIG('LRAD'):
+                x8_LRAD.read(r);
+            break;
+            case SBIG('RRAD'):
+                xc_RRAD.read(r);
+            break;
+            case SBIG('LENG'):
+                x10_LENG.read(r);
+            break;
+            case SBIG('COLR'):
+                x14_COLR.read(r);
+            break;
+            case SBIG('SIDE'):
+                x18_SIDE.read(r);
+            break;
+            case SBIG('IROT'):
+                x1c_IROT.read(r);
+            break;
+            case SBIG('ROTM'):
+                x20_ROTM.read(r);
+            break;
+            case SBIG('POFS'):
+                x24_POFS.read(r);
+            break;
+            case SBIG('IVEL'):
+                x28_IVEL.read(r);
+            break;
+            case SBIG('NPOS'):
+                x2c_NPOS.read(r);
+            break;
+            case SBIG('VELM'):
+                x30_VELM.read(r);
+            break;
+            case SBIG('VLM2'):
+                x34_VLM2.read(r);
+            break;
+            case SBIG('SPLN'):
+                x38_SPLN.read(r);
+            break;
+            case SBIG('TEXR'):
+                x3c_TEXR.read(r);
+            break;
+            case SBIG('TSPN'):
+                x40_TSPN.read(r);
+            break;
+            case SBIG('LLRD'):
+                x44_24_LLRD = r.readBool(nullptr);
+            break;
+            case SBIG('CROS'):
+                x44_25_CROS = r.readBool(nullptr);
+            break;
+            case SBIG('VLS1'):
+                x44_26_VLS1 = r.readBool(nullptr);
+            break;
+            case SBIG('VLS2'):
+                x44_27_VLS2 = r.readBool(nullptr);
+            break;
+            case SBIG('SROT'):
+                x44_28_SROT = r.readBool(nullptr);
+            break;
+            case SBIG('WIRE'):
+                x44_29_WIRE = r.readBool(nullptr);
+            break;
+            case SBIG('TEXW'):
+                x44_30_TEXW = r.readBool(nullptr);
+            break;
+            case SBIG('AALP'):
+                x44_31_AALP = r.readBool(nullptr);
+            break;
+            case SBIG('ZBUF'):
+                x45_24_ZBUF = r.readBool(nullptr);
+            break;
+            case SBIG('ORNT'):
+                x45_25_ORNT = r.readBool(nullptr);
+            break;
+            case SBIG('CRND'):
+                x45_26_CRND = r.readBool(nullptr);
+            break;
+            }
         }
-
-        r.leaveSubRecord();
     }
 }
 
@@ -113,107 +113,56 @@ template <class IDType>
 void SWSH<IDType>::write(athena::io::YAMLDocWriter& w) const
 {
     if (x0_PSLT)
-    {
-        w.enterSubRecord("PSLT");
-        x0_PSLT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("PSLT"))
+            x0_PSLT.write(w);
     if (x4_TIME)
-    {
-        w.enterSubRecord("TIME");
-        x4_TIME.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("TIME"))
+            x4_TIME.write(w);
     if (x8_LRAD)
-    {
-        w.enterSubRecord("LRAD");
-        x8_LRAD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LRAD"))
+            x8_LRAD.write(w);
     if (xc_RRAD)
-    {
-        w.enterSubRecord("RRAD");
-        xc_RRAD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("RRAD"))
+            xc_RRAD.write(w);
     if (x10_LENG)
-    {
-        w.enterSubRecord("LENG");
-        x10_LENG.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LENG"))
+            x10_LENG.write(w);
     if (x14_COLR)
-    {
-        w.enterSubRecord("COLR");
-        x14_COLR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("COLR"))
+            x14_COLR.write(w);
     if (x18_SIDE)
-    {
-        w.enterSubRecord("SIDE");
-        x18_SIDE.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SIDE"))
+            x18_SIDE.write(w);
     if (x1c_IROT)
-    {
-        w.enterSubRecord("IROT");
-        x1c_IROT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("IROT"))
+            x1c_IROT.write(w);
     if (x20_ROTM)
-    {
-        w.enterSubRecord("ROTM");
-        x20_ROTM.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ROTM"))
+            x20_ROTM.write(w);
     if (x24_POFS)
-    {
-        w.enterSubRecord("POFS");
-        x24_POFS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("POFS"))
+            x24_POFS.write(w);
     if (x28_IVEL)
-    {
-        w.enterSubRecord("IVEL");
-        x28_IVEL.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("IVEL"))
+            x28_IVEL.write(w);
     if (x2c_NPOS)
-    {
-        w.enterSubRecord("NPOS");
-        x2c_NPOS.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("NPOS"))
+            x2c_NPOS.write(w);
     if (x30_VELM)
-    {
-        w.enterSubRecord("VELM");
-        x30_VELM.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("VELM"))
+            x30_VELM.write(w);
     if (x34_VLM2)
-    {
-        w.enterSubRecord("VLM2");
-        x34_VLM2.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("VLM2"))
+            x34_VLM2.write(w);
     if (x38_SPLN)
-    {
-        w.enterSubRecord("SPLN");
-        x38_SPLN.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SPLN"))
+            x38_SPLN.write(w);
     if (x3c_TEXR)
-    {
-        w.enterSubRecord("TEXR");
-        x3c_TEXR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("TEXR"))
+            x3c_TEXR.write(w);
     if (x40_TSPN)
-    {
-        w.enterSubRecord("TSPN");
-        x40_TSPN.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("TSPN"))
+            x40_TSPN.write(w);
 
     if (x44_24_LLRD)
         w.writeBool("LLRD", true);
