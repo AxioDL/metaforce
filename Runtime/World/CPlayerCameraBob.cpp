@@ -124,7 +124,7 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr)
                                        xb0_wanderPitches[(xcc_wanderIndex + 2) & 3],
                                        xb0_wanderPitches[(xcc_wanderIndex + 3) & 3], dt) *
         x100_));
-    xd0_viewWanderXf = zeus::lookAt(pt, zeus::CVector3f::skZero, zeus::kUpVec) * orient;
+    xd0_viewWanderXf = zeus::lookAt(pt, zeus::CVector3f::skZero, zeus::CVector3f::skUp) * orient;
 
     xc4_wanderTime = (xc8_viewWanderSpeed * xc4_wanderTime) + dt;
     if (xc4_wanderTime > 1.f)
@@ -184,7 +184,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
     x78_ = tmp;
 
     x2c_cameraBobTransform = GetViewWanderTransform() * CalculateCameraBobTransformation() *
-                             zeus::lookAt(zeus::CVector3f::skZero, {0.f, 2.f, x78_}, zeus::kUpVec);
+                             zeus::lookAt(zeus::CVector3f::skZero, {0.f, 2.f, x78_}, zeus::CVector3f::skUp);
 }
 
 zeus::CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr)

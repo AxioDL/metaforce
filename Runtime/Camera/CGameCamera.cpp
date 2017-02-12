@@ -79,7 +79,8 @@ zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& a,
     if ((a.rightVector().magnitude() - 1.f) >= epsilon || (a.frontVector().magnitude() - 1.f) >= epsilon ||
         (a.upVector().magnitude() - 1.f) >= epsilon)
         xfCpy.orthonormalize();
-    float f2 =  zeus::kUpVec.x + a.upVector().x * a.upVector().y * a.upVector().z * zeus::kUpVec.y + zeus::kUpVec.z;
+    float f2 =  zeus::CVector3f::skUp.x + a.upVector().x * a.upVector().y * a.upVector().z *
+                zeus::CVector3f::skUp.y + zeus::CVector3f::skUp.z;
     if (std::fabs(f2) > 1.0f)
         f2 = (f2 >= -0.f ? -1.0f : 1.0f);
     if (std::fabs(f2) > 0.999f)

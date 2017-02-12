@@ -155,8 +155,8 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
 float CCameraManager::sub80009148() const
 {
     const zeus::CVector3f uVec = x7c_fpCamera->GetTransform().upVector();
-    return 1.f - std::min(std::fabs(std::min(std::fabs(uVec.dot(zeus::kUpVec)), 1.f) / std::cos(zeus::degToRad(30.f))),
-                          1.f);
+    return 1.f - std::min(std::fabs(std::min(std::fabs(uVec.dot(zeus::CVector3f::skUp)), 1.f) /
+                          std::cos(zeus::degToRad(30.f))), 1.f);
 }
 
 void CCameraManager::sub800097AC(float, CStateManager& mgr)

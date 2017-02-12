@@ -52,7 +52,7 @@ void CWorldTransManager::UpdateLights(float dt)
 
     x4_modelData->x1a0_lights.clear();
     zeus::CVector3f lightPos(0.f, 10.f, 0.f);
-    CLight spot = CLight::BuildSpot(lightPos, zeus::kBackVec, zeus::CColor::skWhite, 90.f);
+    CLight spot = CLight::BuildSpot(lightPos, zeus::CVector3f::skBack, zeus::CColor::skWhite, 90.f);
     spot.SetAttenuation(1.f, 0.f, 0.f);
 
     CLight s1 = spot;

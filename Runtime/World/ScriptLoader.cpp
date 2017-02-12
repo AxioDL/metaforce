@@ -1087,17 +1087,17 @@ u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags)
 
     u32 ret = 0;
     if (flags & 0x01)
-        ret |= ClassifyVector(rotation * zeus::kForwardVec);
+        ret |= ClassifyVector(rotation * zeus::CVector3f::skForward);
     if (flags & 0x02)
-        ret |= ClassifyVector(rotation * zeus::kBackVec);
+        ret |= ClassifyVector(rotation * zeus::CVector3f::skBack);
     if (flags & 0x04)
-        ret |= ClassifyVector(rotation * zeus::kLeftVec);
+        ret |= ClassifyVector(rotation * zeus::CVector3f::skLeft);
     if (flags & 0x08)
-        ret |= ClassifyVector(rotation * zeus::kRightVec);
+        ret |= ClassifyVector(rotation * zeus::CVector3f::skRight);
     if (flags & 0x10)
-        ret |= ClassifyVector(rotation * zeus::kUpVec);
+        ret |= ClassifyVector(rotation * zeus::CVector3f::skUp);
     if (flags & 0x20)
-        ret |= ClassifyVector(rotation * zeus::kDownVec);
+        ret |= ClassifyVector(rotation * zeus::CVector3f::skDown);
     return ret;
 }
 

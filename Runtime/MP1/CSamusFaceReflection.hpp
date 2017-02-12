@@ -12,7 +12,11 @@ namespace MP1
 class CSamusFaceReflection
 {
     CModelData x0_modelData;
-    CActorLights x4c_lights;
+    std::unique_ptr<CActorLights> x4c_lights;
+    zeus::CQuaternion x50_;
+    zeus::CVector3f x60_;
+    u32 x6c_ = 0;
+    bool x70_ = true;
 public:
     CSamusFaceReflection(CStateManager& stateMgr);
 };
