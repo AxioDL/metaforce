@@ -116,7 +116,7 @@ public:
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
-    void PreRender(const zeus::CFrustum &, const CStateManager &);
+    void PreRender(CStateManager &, const zeus::CFrustum &);
     void AddToRenderer(const zeus::CFrustum &, const CStateManager &) const;
     void Render(const CStateManager &) const;
 

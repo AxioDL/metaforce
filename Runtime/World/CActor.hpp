@@ -64,6 +64,7 @@ protected:
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
             bool xe6_26_inFluid : 1;
+            u8 xe6_27_ : 3;
             bool xe6_30_enablePitchBend : 1;
             bool xe7_29_ : 1;
             bool xe7_30_ : 1;
@@ -97,7 +98,7 @@ public:
         xe7_29_ = true;
         CEntity::SetActive(active);
     }
-    virtual void PreRender(const zeus::CFrustum&, const CStateManager&) {}
+    virtual void PreRender(CStateManager&, const zeus::CFrustum&) {}
     virtual void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
     virtual void Render(const CStateManager&) const {}
     virtual bool CanRenderUnsorted(const CStateManager&) const { return false; }
@@ -156,6 +157,7 @@ public:
     CModelData* ModelData() { return x64_modelData.get(); }
     void EnsureRendered(const CStateManager&);
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
+    SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
 };
 }
 

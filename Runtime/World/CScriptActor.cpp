@@ -2,6 +2,9 @@
 #include "CStateManager.hpp"
 #include "CScriptTrigger.hpp"
 #include "CDamageVulnerability.hpp"
+#include "CPlayerState.hpp"
+#include "CScriptColorModulate.hpp"
+#include "Character/IAnimReader.hpp"
 #include "TCastTo.hpp"
 
 namespace urde
@@ -17,7 +20,7 @@ CScriptActor::CScriptActor(TUniqueId uid, const std::string& name, const CEntity
 , x260_currentHealth(hInfo)
 , x268_damageVulnerability(dVuln)
 , x2d8_(w1)
-, x2dc_(f3)
+, x2dc_xrayAlpha(f3)
 , x2e2_24_(b2)
 , x2e2_25_(false)
 , x2e2_26_(true)
@@ -38,17 +41,68 @@ CScriptActor::CScriptActor(TUniqueId uid, const std::string& name, const CEntity
 
 void CScriptActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptActor::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
+{
+    if (msg == EScriptObjectMessage::Reset)
+    {
+        x2e2_25_ = false;
+        x260_currentHealth = x258_initialHealth;
+    }
+    else if (msg == EScriptObjectMessage::Increment && !GetActive())
+    {
+        mgr.SendScriptMsg(this, x8_uid, EScriptObjectMessage::Activate);
+        CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_);
+    }
+    else if (msg == EScriptObjectMessage::Decrement)
+    {
+        CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_);
+    }
+    else if (msg == EScriptObjectMessage::InternalMessage13)
+    {
+        for (const SConnection& conn : x20_conns)
+        {
+            if (conn.x0_state != EScriptObjectState::InheritBounds || conn.x4_msg != EScriptObjectMessage::Activate)
+                continue;
 
-void CScriptActor::Think(float, CStateManager&) {}
+            auto search = mgr.GetIdListForScript(conn.x8_objId);
+            for (auto it = search.first; it != search.second; ++it)
+            {
+                if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second)))
+                {
+                    x2e0_triggerId = it->second;
+                    break;
+                }
+            }
+        }
 
-void CScriptActor::PreRender(const zeus::CFrustum&, const CStateManager&) {}
+        if (x2e2_31_)
+            CActor::AddMaterial(EMaterialTypes::Unknown54, mgr);
+    }
+
+    CActor::AcceptScriptMsg(msg, uid, mgr);
+}
+
+void CScriptActor::Think(float dt, CStateManager& mgr)
+{
+    if (!GetActive())
+        return;
+
+    if (HasModelData() && x64_modelData->HasAnimData())
+    {
+        bool animTimeRemaining = x64_modelData->GetAnimationData()->IsAnimTimeRemaining(dt - FLT_EPSILON, "Whole Body");
+        bool loop = x64_modelData->GetIsLoop();
+
+        CActor::UpdateAnimation(dt, mgr, true);
+    }
+}
+
+void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {}
 
 zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const
 {
-    if (x2e0_ != kInvalidUniqueId)
+    if (x2e0_triggerId != kInvalidUniqueId)
     {
-        TCastToConstPtr<CScriptTrigger> trigger(mgr.GetObjectById(x2e0_));
+        TCastToConstPtr<CScriptTrigger> trigger(mgr.GetObjectById(x2e0_triggerId));
         if (trigger)
             return trigger->GetTriggerBoundsWR();
     }
@@ -60,7 +114,12 @@ EWeaponCollisionResponseTypes
 CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2, CWeaponMode& wMode, s32 w)
 {
     const CDamageVulnerability* dVuln = GetDamageVulnerability();
-    EVulnerability vuln = dVuln->GetVulnerability(wMode, 0);
+    if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Reflect)
+    {
+        EVulnerability phazonVuln = dVuln->GetPhazonVulnerability(wMode);
+        if (phazonVuln < EVulnerability::PassThrough && phazonVuln >= EVulnerability::Normal)
+            return EWeaponCollisionResponseTypes::Unknown15;
+    }
     return CActor::GetCollisionResponseType(v1, v2, wMode, w);
 }
 
@@ -71,7 +130,5 @@ rstl::optional_object<zeus::CAABox> CScriptActor::GetTouchBounds() const
     return {};
 }
 
-void CScriptActor::Touch(CActor&, CStateManager&)
-{
-}
+void CScriptActor::Touch(CActor&, CStateManager&) {}
 }

@@ -49,8 +49,8 @@ public:
     void Think(float, CStateManager &);
     zeus::CColor CalculateFlags(const zeus::CColor&) const;
     void SetTargetFlags(CStateManager&, const CModelFlags&);
-    void FadeOutHelper(CStateManager&, TUniqueId, float);
-    void FadeInHelper(CStateManager&, TUniqueId, float);
+    static void FadeOutHelper(CStateManager&, TUniqueId, float);
+    static void FadeInHelper(CStateManager&, TUniqueId, float);
     void End(CStateManager&);
 };
 }

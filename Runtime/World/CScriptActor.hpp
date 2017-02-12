@@ -17,8 +17,8 @@ protected:
     float x2d0_;
     float x2d4_;
     s32 x2d8_;
-    float x2dc_;
-    TUniqueId x2e0_ = kInvalidUniqueId;
+    float x2dc_xrayAlpha;
+    TUniqueId x2e0_triggerId = kInvalidUniqueId;
     bool x2e2_24_ : 1;
     bool x2e2_25_ : 1;
     bool x2e2_26_ : 1;
@@ -36,7 +36,7 @@ public:
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void Think(float, CStateManager&);
-    void PreRender(const zeus::CFrustum&, const CStateManager&);
+    void PreRender(CStateManager&, const zeus::CFrustum&);
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                    CWeaponMode&, int);

@@ -4,6 +4,7 @@
 #include "Collision/CMaterialList.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "TCastTo.hpp"
+#include "Character/IAnimReader.hpp"
 
 namespace urde
 {
@@ -299,4 +300,9 @@ void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }
 float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).pitch(); }
 
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
+
+SAdvancementDeltas CActor::UpdateAnimation(float, CStateManager&, bool)
+{
+    return {};
+}
 }

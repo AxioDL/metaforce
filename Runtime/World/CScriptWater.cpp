@@ -30,7 +30,7 @@ void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CS
     CScriptTrigger::AcceptScriptMsg(msg, other, mgr);
 }
 
-void CScriptWater::PreRender(const zeus::CFrustum&, const CStateManager&) {}
+void CScriptWater::PreRender(CStateManager &, const zeus::CFrustum &) {}
 
 void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const
 {
@@ -74,7 +74,7 @@ const TLockedToken<CParticleGen>& CScriptWater::GetSplashEffect(float dt) const
 
 float CScriptWater::GetSplashEffectScale(float dt) const
 {
-    if (std::fabs(dt - 1.f) < 0.0000099999997)
+    if (std::fabs(dt - 1.f) < 0.00001f)
         return kSplashScales[5];
 
     u32 idx = GetSplashIndex(dt);

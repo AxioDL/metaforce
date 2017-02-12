@@ -51,7 +51,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CS
 
 }
 
-void CScriptSpecialFunction::PreRender(const zeus::CFrustum &, const CStateManager &)
+void CScriptSpecialFunction::PreRender(CStateManager &, const zeus::CFrustum &)
 {
 
 }
