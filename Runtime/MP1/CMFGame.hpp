@@ -2,6 +2,7 @@
 #define __URDE_CMFGAME_HPP__
 
 #include "CMFGameBase.hpp"
+#include "CInGameGuiManager.hpp"
 
 namespace urde
 {
@@ -39,7 +40,7 @@ class CMFGameLoader : public CMFGameLoaderBase
 {
     std::shared_ptr<CStateManager> x14_stateMgr;
     std::shared_ptr<CInGameGuiManager> x18_guiMgr;
-    std::vector<CToken> x1c_;
+    std::vector<CToken> x1c_loadList;
 
     union
     {

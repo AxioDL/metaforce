@@ -11,7 +11,7 @@ namespace MP1
 
 class CMemoryCardDriver
 {
-    friend class CSaveUI;
+    friend class CSaveGameScreen;
 public:
     enum class EState
     {

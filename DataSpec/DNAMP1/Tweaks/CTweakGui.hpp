@@ -67,12 +67,12 @@ struct CTweakGui : ITweakGui
     Value<float> xec_;
     Value<float> xf0_;
     Value<float> xf4_;
-    Value<atUint32> xf8_;
-    Value<atUint32> xfc_;
-    Value<atUint32> x100_;
+    Value<EHudVisMode> xf8_hudVisMode;
+    Value<EHelmetVisMode> xfc_helmetVisMode;
+    Value<atUint32> x100_enableAutoMapper;
     Value<atUint32> x104_;
-    Value<atUint32> x108_;
-    Value<atUint32> x10c_;
+    Value<atUint32> x108_enableTargetingManager;
+    Value<atUint32> x10c_enablePlayerVisor;
     Value<float> x110_;
     Value<float> x114_;
     Value<float> x118_;
@@ -150,7 +150,7 @@ struct CTweakGui : ITweakGui
     Value<float> x270_;
     Value<bool> x274_;
     bool x275_ = true;
-    Value<float> x278_;
+    Value<float> x278_wtMgrCharsPerSfx;
     Value<atUint32> x27c_;
     Value<float> x280_;
     Value<float> x284_;
@@ -195,9 +195,15 @@ struct CTweakGui : ITweakGui
     CTweakGui() = default;
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
 
+    EHudVisMode GetHudVisMode() const { return xf8_hudVisMode; }
+    EHelmetVisMode GetHelmetVisMode() const { return xfc_helmetVisMode; }
+    atUint32 GetEnableAutoMapper() const { return x100_enableAutoMapper; }
+    atUint32 GetEnableTargetingManager() const { return x108_enableTargetingManager; }
+    atUint32 GetEnablePlayerVisor() const { return x10c_enablePlayerVisor; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
+    float GetWorldTransManagerCharsPerSfx() const { return x278_wtMgrCharsPerSfx; }
 
     float GetScanSpeed(int idx) const
     {

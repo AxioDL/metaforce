@@ -1,7 +1,7 @@
 #ifndef __URDE_CHEALTHINFO_HPP__
 #define __URDE_CHEALTHINFO_HPP__
 
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde
 {

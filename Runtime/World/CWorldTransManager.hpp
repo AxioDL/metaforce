@@ -65,8 +65,10 @@ private:
     u8 x2c_ = 127;
     u8 x2d_ = 64;
     ETransType x30_type = ETransType::Disabled;
-    float x38_ = 0.f;
-    bool x40_;
+    float x34_stopTime;
+    float x38_textStartTime = 0.f;
+    float x3c_sfxInterval;
+    bool x40_strIdx;
     union
     {
         struct
@@ -74,8 +76,8 @@ private:
             bool x44_24_transFinished : 1;
             bool x44_25_stopSoon : 1;
             bool x44_26_goingUp : 1;
-            bool x44_27_ : 1;
-            bool x44_28_ : 1;
+            bool x44_27_fadeWhite : 1;
+            bool x44_28_textDirty : 1;
         };
         u8 dummy = 0;
     };
@@ -101,24 +103,26 @@ private:
 public:
     CWorldTransManager() { x44_24_transFinished = true; }
 
-
     void Update(float);
     void Draw();
 
     void EnableTransition(const CAnimRes& samusRes,
                           ResId platRes, const zeus::CVector3f& platScale,
                           ResId bgRes, const zeus::CVector3f& bgScale, bool goingUp);
-    void EnableTransition(ResId fontId, ResId stringId, bool b1, bool b2,
-                          float chFadeTime, float chFadeRate, float f3);
+    void EnableTransition(ResId fontId, ResId stringId, u32 strIdx, bool fadeWhite,
+                          float chFadeTime, float chFadeRate, float textStartTime);
 
     void StartTransition();
     void EndTransition();
     bool IsTransitionFinished() const { return x44_24_transFinished; }
     void PleaseStopSoon() { x44_25_stopSoon = true; }
+    void StartTextFadeOut();
     bool IsTransitionEnabled() const { return x30_type != ETransType::Disabled; }
     void DisableTransition();
     void TouchModels();
     ETransType GetTransType() { return x30_type; }
+
+    static bool WaitForModelsAndTextures();
 };
 
 }

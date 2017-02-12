@@ -20,6 +20,7 @@
 #include "World/CEnvFxManager.hpp"
 #include "World/CActorModelParticles.hpp"
 #include "Input/CRumbleManager.hpp"
+#include "Camera/CCameraShakeData.hpp"
 
 namespace urde
 {
@@ -44,6 +45,11 @@ class CWorld;
 class CTexture;
 class CWorldLayerState;
 
+namespace MP1
+{
+class CMFGameLoader;
+}
+
 struct SScriptObjectStream
 {
     CEntity* x0_obj;
@@ -52,8 +58,17 @@ struct SScriptObjectStream
     u32 xc_length;
 };
 
+struct SOnScreenTex
+{
+    ResId x0_id = -1;
+    zeus::CVector2i x4_origin;
+    zeus::CVector2i xc_extent;
+};
+
 class CStateManager
 {
+    friend class MP1::CMFGameLoader;
+
     s16 x0_nextFreeIndex = 0;
     TUniqueId x8_idArr[1024] = {};
 
@@ -114,6 +129,8 @@ class CStateManager
     TLockedToken<CTexture> x8f0_shadowTex; /* DefaultShadow in MiscData */
     CRandom16 x8fc_random;
     CRandom16* x900_activeRandom = nullptr;
+    u32 x904_ = 0;
+    u32 x908_ = 0;
     FScriptLoader x90c_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
 
     bool xab0_worldLoaded = false;
@@ -153,30 +170,59 @@ class CStateManager
         };
         u16 _dummy = 0;
     };
-    s32 xef4_;
-    zeus::CVector2i xef8_;
-    zeus::CVector2i xf00_;
+
+    SOnScreenTex xef4_pendingScreenTex;
+    ResId xf08_ = -1;
+    float xf0c_ = 0.f;
+    float xf10_ = 0.f;
+    float xf14_ = 0.f;
+    TUniqueId xf18_ = kInvalidUniqueId;
+    float xf1c_ = 0.f;
+    u32 xf20_ = 0;
     float xf24_thermColdScale1 = 0.f;
     float xf28_thermColdScale2 = 0.f;
     float xf2c_ = 1.f;
     float xf30_ = 1.f;
-    TUniqueId xf6c_playerActor;
-    void UpdateThermalVisor();
+    u32 xf34_ = 2;
+    TUniqueId xf38_ = kInvalidUniqueId;
+    std::list<u32> xf3c_;
+    u32 xf50_ = 0;
+    std::list<u32> xf54_;
+    u32 xf68_ = 0;
+    TUniqueId xf6c_playerActor = kInvalidUniqueId;
+    u32 xf70_ = 0;
 
     TUniqueId xf74_lastTrigger = kInvalidUniqueId;
     TUniqueId xf76_lastRelay = kInvalidUniqueId;
+
+    float xf78_ = 0.f;
+    u32 xf7c_ = 0;
+    u32 xf80_ = 0;
+    ResId xf84_ = -1;
+    ResId xf88_ = -1;
+    float xf8c_ = 0.f;
+    u32 xf90_ = 0;
+
     union
     {
         struct
         {
+            bool xf94_24_ : 1;
+            bool xf94_25_ : 1;
             bool xf94_26_generatingObject : 1;
+            bool xf94_27_ : 1;
+            bool xf94_28_ : 1;
+            bool xf94_29_ : 1;
+            bool xf94_30_ : 1;
         };
         u32 xf94_ = 0;
     };
 
+    void UpdateThermalVisor();
+
 public:
     /* TODO: Public for CFirstPersonCamera */
-    u32 x904_;
+    u32 Get904() const { return x904_; }
     CStateManager(const std::weak_ptr<CRelayTracker>&,
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,

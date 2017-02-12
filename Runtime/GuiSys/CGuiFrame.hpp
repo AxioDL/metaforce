@@ -45,6 +45,7 @@ public:
     CGuiSys& GetGuiSys() {return x8_guiSys;}
 
     CGuiLight* GetFrameLight(int idx) const { return x3c_lights[idx].get(); }
+    CGuiCamera* GetFrameCamera() const { return x14_camera.get(); }
     CGuiWidget* FindWidget(const std::string& name) const;
     CGuiWidget* FindWidget(s16 id) const;
     void SetFrameCamera(std::shared_ptr<CGuiCamera>&& camr) { x14_camera = std::move(camr); }

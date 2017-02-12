@@ -27,6 +27,7 @@ class CSaveWorldMemory
     TLockedToken<CSaveWorld> x3c_saveWorld; /* used to be optional */
 
 public:
+    ResId GetWorldNameId() const { return x0_strgId; }
     ResId GetSaveWorldAssetId() const { return x4_savwId; }
     u32 GetAreaCount() const { return x8_areaCount; }
     const std::vector<CWorldLayers::Area>& GetDefaultLayerStates() const { return x1c_defaultLayerStates; }

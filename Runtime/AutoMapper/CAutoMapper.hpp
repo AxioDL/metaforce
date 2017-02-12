@@ -6,6 +6,7 @@
 #include "zeus/CQuaternion.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CVector3f.hpp"
+#include "MP1/CInGameGuiManager.hpp"
 
 namespace urde
 {
@@ -13,10 +14,10 @@ class CFinalInput;
 class IWorld;
 class CMapWorldInfo;
 class CStateManager;
-enum class EInGameGuiState;
 class CAutoMapper
 {
 public:
+    using EInGameGuiState = MP1::EInGameGuiState;
     enum class EAutoMapperState
     {
     };

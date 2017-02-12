@@ -6,6 +6,8 @@
 #include "zeus/CTransform.hpp"
 #include "Weapon/CWeaponMgr.hpp"
 #include "CPlayerEnergyDrain.hpp"
+#include "Weapon/CPlayerGun.hpp"
+#include "CMorphBall.hpp"
 
 namespace urde
 {
@@ -59,21 +61,21 @@ private:
         float x0_;
         float x4_;
         float x8_;
-        ResId xc_;
+        ResId xc_tex;
         float x10_ = 0.f;
         float x14_ = 0.f;
         float x18_ = 0.f;
         ResId x1c_ = -1;
-        float x20_ = 0.f;
+        float x20_alpha = 0.f;
         float x24_ = 0.f;
         bool x28_ = false;
 
     public:
-        CVisorSteam(float a, float b, float c, ResId tex) : x0_(a), x4_(b), x8_(c), xc_(tex) {}
+        CVisorSteam(float a, float b, float c, ResId tex) : x0_(a), x4_(b), x8_(c), xc_tex(tex) {}
         ResId GetTextureId() const;
         void SetSteam(float a, float b, float c, ResId d, bool e);
         void Update(float dt);
-        float GetAlpha() const;
+        float GetAlpha() const { return x20_alpha; }
     };
     zeus::CVector3f x1b4_;
     TUniqueId x1c4_ = kInvalidUniqueId;
@@ -126,7 +128,7 @@ private:
     float x380_ = 0.f;
     float x384_ = 0.f;
     float x388_ = 0.f;
-    bool x38c_;
+    bool x38c_ = false;
     u32 x390_ = 2;
     u8 x394_ = 0;
     float x398_ = 1.5f;
@@ -149,9 +151,9 @@ private:
     bool x3dc_ = 0;
     bool x3dd_ = 0;
     bool x3de_ = 0;
-    float x3e4_;
-    float x3e8_;
-    float x3ec_;
+    float x3e4_ = 0.f;
+    float x3e8_ = 0.f;
+    float x3ec_ = 0.f;
     float x3f0_ = 0.f;
     TUniqueId x3f4_ = kInvalidUniqueId;
     zeus::CVector3f x3f8_ = zeus::CVector3f::skZero;
@@ -163,37 +165,125 @@ private:
     float x49c_; /* Value retrieved from TweakPlayerGun */
     // std::unqiue_ptr<> x4a0_;
     u32 x4a4_ = 0;
-    bool x558_;
-    float x55c_;
-    float x560_;
+    float x4f8_ = 0.f;
+    float x4fc_ = 0.f;
+    float x53c_ = 0.f;
+    bool x558_ = false;
+    float x55c_ = 0.f;
+    float x560_ = 0.f;
     zeus::CVector3f x564_;
-    float x588_alpha;
+    float x570_ = 0.f;
+    float x574_ = 0.f;
+    float x578_ = 0.f;
+    u32 x57c_ = 0;
+    u32 x580_ = 0;
+    float x588_alpha = 1.f;
+    u32 x594_ = 0;
+    u32 x658_ = 0;
+    u32 x71c_ = 0;
+    u32 x734_ = 0;
+    u32 x738_ = 0;
+    u32 x73c_ = 0;
+    float x740_ = 0.f;
+    float x744_ = 0.f;
+    float x748_ = 0.f;
+    float x74c_ = 1.f;
+    float x750_ = 0.f;
+    u32 x754_ = 0;
+    float x758_ = 0.f;
+    u32 x75c_ = 0;
+    u32 x760_ = 0;
+    float x764_ = 0.f;
     std::unique_ptr<CMorphBall> x768_morphball;
     std::unique_ptr<CPlayerCameraBob> x76c_cameraBob;
     CSfxHandle x770_;
-    float x774_;
-    u32 x778_;
-    u32 x77c_;
-    u32 x780_;
-    float x784_;
-    u16 x88_;
-    u16 x88a_;
-    float x78c_;
-    u32 x790_;
-    float x794_;
-    float x798_;
-    float x79c_;
-    CVisorSteam x7a0_ = CVisorSteam(0.f, 0.f, 0.f, -1);
-    float x9f4_;
-    TUniqueId xa00_;
-    float xa04_;
-    ResId xa08_steamTextureId;
+    float x774_ = 0.f;
+    u32 x778_ = 0;
+    u32 x77c_ = 0;
+    u32 x780_ = 0;
+    float x784_ = 0.f;
+    u16 x788_ = 0;
+    float x78c_ = 0.f;
+    u32 x790_ = 0;
+    zeus::CVector3f x794_;
+    CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, -1);
+    ResId x7cc_ = -1;
+    CAnimRes x7d0_animRes;
+    CPlayerState::EBeamId x7ec_ = CPlayerState::EBeamId::Power;
+    std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
+    zeus::CTransform x7f4_;
+    float x824_ = 0.f;
+    float x828_ = 0.f;
+    bool x82c_ = false;
+    TUniqueId x82e_ = kInvalidUniqueId;
+    TUniqueId x830_ = kInvalidUniqueId;
+    u32 x834_ = 1000;
+    u32 x838_ = 0;
+    u32 x93c_ = 0;
+    u32 x980_ = 0;
+
+    union
+    {
+        struct
+        {
+            bool x9c4_24_ : 1;
+            bool x9c4_25_ : 1;
+            bool x9c4_26_ : 1;
+            bool x9c4_27_ : 1;
+            bool x9c4_28_ : 1;
+            bool x9c4_29_ : 1;
+            bool x9c4_30_ : 1;
+            bool x9c4_31_ : 1;
+            bool x9c5_24_ : 1;
+            bool x9c5_25_ : 1;
+            bool x9c5_26_ : 1;
+            bool x9c5_27_ : 1;
+            bool x9c5_28_ : 1;
+            bool x9c5_29_ : 1;
+            bool x9c5_30_ : 1;
+            bool x9c5_31_ : 1;
+            bool x9c6_24_ : 1;
+            bool x9c6_25_ : 1;
+            bool x9c6_26_ : 1;
+            bool x9c6_27_ : 1;
+            bool x9c6_28_ : 1;
+            bool x9c6_29_ : 1;
+            bool x9c6_30_ : 1;
+            bool x9c6_31_ : 1;
+            bool x9c7_24_ : 1;
+            bool x9c7_25_ : 1;
+        };
+        u32 _dummy = 0;
+    };
+
+    float x9c8_ = 0.f;
+    float x9cc_ = 0.f;
+    u32 x9d0_ = 0;
+    u32 x9d4_ = 0;
+    float x9d8_ = 0.f;
+    float x9dc_ = 1.f;
+    float x9e0_ = 0.f;
+    u32 x9e4_ = 0;
+
+    float x9f4_ = 0.f;
+    float x9f8_ = 0.f;
+    float x9fc_ = 0.f;
+    TUniqueId xa00_ = kInvalidUniqueId;
+    float xa04_ = 0.f;
+    ResId xa08_steamTextureId = -1;
     ResId xa0c_;
-    u32 xa10_;
-    float xa14_;
+    u32 xa10_ = 0;
+    float xa14_ = 0.f;
+    float xa18_ = 0.f;
+    float xa1c_ = 0.f;
+    float xa20_ = 1.f;
+    float xa24_ = 1.f;
+    float xa28_ = 0.f;
+    u32 xa2c_ = 2;
+    float xa30_ = 4.f;
 
 public:
-    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, unsigned int, const zeus::CVector3f&, float, float,
+    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, unsigned int w1, const zeus::CVector3f&, float, float,
             float, float, const CMaterialList&);
 
     bool IsTransparent() const;
@@ -318,6 +408,8 @@ public:
     void ComputeMovement(const CFinalInput& input, CStateManager& mgr, float);
     float GetWeight() const;
     float GetDampedClampedVelocityWR() const;
+    const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
+    float Get74C() const { return x74c_; }
 
     void Touch();
     const std::unique_ptr<CPlayerCameraBob>& GetCameraBob() const { return x76c_cameraBob; }

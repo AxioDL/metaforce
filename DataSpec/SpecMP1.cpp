@@ -53,10 +53,18 @@ struct OriginalIDs
 {
     static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project)
     {
+        std::unordered_set<UniqueID32> addedIDs;
         std::vector<UniqueID32> originalIDs;
         pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool {
-            if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN'))
-                originalIDs.push_back(ent->id);
+            if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN') ||
+                ent->id.toUint32() == 0xB7BBD0B4 || ent->id.toUint32() == 0x1F9DA858)
+            {
+                if (addedIDs.find(ent->id) == addedIDs.cend())
+                {
+                    addedIDs.insert(ent->id);
+                    originalIDs.push_back(ent->id);
+                }
+            }
             return true;
         });
         std::sort(originalIDs.begin(), originalIDs.end());

@@ -8,6 +8,7 @@ namespace DataSpec
 struct ITweakAutoMapper : public ITweak
 {
     virtual const zeus::CVector3f& GetDoorCenter() const=0;
+    virtual float GetCamVerticalOffset() const=0;
 };
 }
 

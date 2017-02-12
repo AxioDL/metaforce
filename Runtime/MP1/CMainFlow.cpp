@@ -7,12 +7,12 @@
 #include "CFrontEndUI.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Character/CCharLayoutInfo.hpp"
-#include "CSaveUI.hpp"
+#include "CSaveGameScreen.hpp"
 #include "CCredits.hpp"
 #include "CPreFrontEnd.hpp"
 #include "CStateSetterFlow.hpp"
 #include "CNESEmulator.hpp"
-#include "CQuitScreen.hpp"
+#include "CQuitGameScreen.hpp"
 
 namespace urde
 {

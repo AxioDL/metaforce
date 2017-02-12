@@ -10,17 +10,17 @@ namespace urde
 namespace MP1
 {
 
-class CSaveUITouchBar
+class CSaveGameScreenTouchBar
 {
 public:
-    virtual ~CSaveUITouchBar() = default;
+    virtual ~CSaveGameScreenTouchBar() = default;
     virtual int PopOption();
     virtual void SetUIOpts(const std::u16string& opt0,
                            const std::u16string& opt1,
                            const std::u16string& opt2);
 };
 
-std::unique_ptr<CSaveUITouchBar> NewSaveUITouchBar();
+std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar();
 
 }
 }

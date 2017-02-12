@@ -78,8 +78,10 @@ static SObjectTag MorphballDoorANCS = {};
 static const SObjectTag& GetMorphballDoorACS()
 {
     if (!MorphballDoorANCS)
-        MorphballDoorANCS =
-            static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->TagFromPath(_S("MP1/Shared/ANCS_1F9DA858.blend"));
+    {
+        MorphballDoorANCS.type = FOURCC('ANCS');
+        MorphballDoorANCS.id = g_ResFactory->TranslateOriginalToNew(0x1F9DA858);
+    }
     return MorphballDoorANCS;
 }
 

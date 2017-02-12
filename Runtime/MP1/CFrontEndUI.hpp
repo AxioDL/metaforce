@@ -36,8 +36,8 @@ class CGuiModel;
 namespace MP1
 {
 class CNESEmulator;
-class CSaveUI;
-class CQuitScreen;
+class CSaveGameScreen;
+class CQuitGameScreen;
 
 class CFrontEndUI : public CIOWin
 {
@@ -120,7 +120,7 @@ public:
         };
 
         u32 x0_rnd;
-        CSaveUI* x4_saveUI;
+        CSaveGameScreen* x4_saveUI;
         ESubMenu x8_subMenu = ESubMenu::Root;
         EAction xc_action = EAction::None;
         TLockedToken<CGuiFrame> x10_frme;
@@ -146,7 +146,7 @@ public:
 
         CFrontEndUITouchBar& m_touchBar;
 
-        SNewFileSelectFrame(CSaveUI* sui, u32 rnd, CFrontEndUITouchBar& touchBar);
+        SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd, CFrontEndUITouchBar& touchBar);
         void FinishedLoading();
         bool PumpLoad();
         bool IsTextDoneAnimating() const;
@@ -253,8 +253,8 @@ public:
         void FinishedLoading();
         bool PumpLoad();
         void SetTableColors(CGuiTableGroup* tbgp) const;
-        void Update(float dt, CSaveUI* saveUI);
-        EAction ProcessUserInput(const CFinalInput& input, CSaveUI* sui,
+        void Update(float dt, CSaveGameScreen* saveUI);
+        EAction ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui,
                                  CFrontEndUITouchBar::EAction tbAction);
         void Draw() const;
 
@@ -315,7 +315,7 @@ public:
 
         EMode x0_mode = EMode::Emulator;
         std::unique_ptr<CNESEmulator> x4_nesEmu;
-        std::unique_ptr<CQuitScreen> x8_quitScreen;
+        std::unique_ptr<CQuitGameScreen> x8_quitScreen;
         std::unique_ptr<CGuiTextSupport> xc_textSupport;
         float x10_remTime = 8.f;
         bool x14_emulationSuspended = false;
@@ -323,9 +323,9 @@ public:
 
         SNesEmulatorFrame();
         void SetMode(EMode mode);
-        void ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
-        bool Update(float dt, CSaveUI* saveUi);
-        void Draw(CSaveUI* saveUi) const;
+        void ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui);
+        bool Update(float dt, CSaveGameScreen* saveUi);
+        void Draw(CSaveGameScreen* saveUi) const;
     };
 
     struct SOptionsFrontEndFrame
@@ -372,8 +372,8 @@ public:
         void FinishedLoading();
         bool PumpLoad();
 
-        bool ProcessUserInput(const CFinalInput& input, CSaveUI* sui);
-        void Update(float dt, CSaveUI* saveUi);
+        bool ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui);
+        void Update(float dt, CSaveGameScreen* saveUi);
         void Draw() const;
     };
 
@@ -413,7 +413,7 @@ private:
     bool xd2_deferSlideShow = false;
     std::unique_ptr<CStaticAudioPlayer> xd4_audio1;
     std::unique_ptr<CStaticAudioPlayer> xd8_audio2;
-    std::unique_ptr<CSaveUI> xdc_saveUI;
+    std::unique_ptr<CSaveGameScreen> xdc_saveUI;
     std::unique_ptr<SNewFileSelectFrame> xe0_frontendCardFrme;
     std::unique_ptr<SFusionBonusFrame> xe4_fusionBonusFrme;
     std::unique_ptr<SFrontEndFrame> xe8_frontendNoCardFrme;

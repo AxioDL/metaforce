@@ -1,4 +1,4 @@
-#include "CSaveUI.hpp"
+#include "CSaveGameScreen.hpp"
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CMemoryCardSys.hpp"
@@ -17,7 +17,7 @@ namespace MP1
 using EState = CMemoryCardDriver::EState;
 using EError = CMemoryCardDriver::EError;
 
-void CSaveUI::ResetCardDriver()
+void CSaveGameScreen::ResetCardDriver()
 {
     x92_savingDisabled = false;
     x6c_cardDriver.reset();
@@ -28,7 +28,7 @@ void CSaveUI::ResetCardDriver()
     SetUIText();
 }
 
-CIOWin::EMessageReturn CSaveUI::Update(float dt)
+CIOWin::EMessageReturn CSaveGameScreen::Update(float dt)
 {
     if (!PumpLoad())
         return CIOWin::EMessageReturn::Normal;
@@ -100,7 +100,7 @@ CIOWin::EMessageReturn CSaveUI::Update(float dt)
     return CIOWin::EMessageReturn::Normal;
 }
 
-bool CSaveUI::PumpLoad()
+bool CSaveGameScreen::PumpLoad()
 {
     if (x50_loadedFrame)
         return true;
@@ -128,9 +128,9 @@ bool CSaveUI::PumpLoad()
     x68_textpane_choice3 = static_cast<CGuiTextPane*>(x50_loadedFrame->FindWidget("textpane_choice3"));
 
     x58_tablegroup_choices->SetMenuAdvanceCallback(
-        std::bind(&CSaveUI::DoAdvance, this, std::placeholders::_1));
+        std::bind(&CSaveGameScreen::DoAdvance, this, std::placeholders::_1));
     x58_tablegroup_choices->SetMenuSelectionChangeCallback(
-        std::bind(&CSaveUI::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&CSaveGameScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
 
     if (x0_saveCtx == ESaveContext::InGame)
         x6c_cardDriver->StartCardProbe();
@@ -140,7 +140,7 @@ bool CSaveUI::PumpLoad()
     return true;
 }
 
-CSaveUI::EUIType CSaveUI::SelectUIType() const
+CSaveGameScreen::EUIType CSaveGameScreen::SelectUIType() const
 {
     if (x6c_cardDriver->x10_state == EState::NoCard)
         return EUIType::NoCardFound;
@@ -196,7 +196,7 @@ CSaveUI::EUIType CSaveUI::SelectUIType() const
     return EUIType::Empty;
 }
 
-void CSaveUI::SetUIText()
+void CSaveGameScreen::SetUIText()
 {
     x91_uiTextDirty = false;
 
@@ -350,25 +350,25 @@ void CSaveUI::SetUIText()
     SetUIColors();
 }
 
-void CSaveUI::SetUIColors()
+void CSaveGameScreen::SetUIColors()
 {
     x58_tablegroup_choices->SetColors(zeus::CColor::skWhite,
                                       zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
-void CSaveUI::Draw() const
+void CSaveGameScreen::Draw() const
 {
     if (x50_loadedFrame)
         x50_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
 }
 
-void CSaveUI::ContinueWithoutSaving()
+void CSaveGameScreen::ContinueWithoutSaving()
 {
     x80_iowRet = CIOWin::EMessageReturn::RemoveIOWin;
     g_GameState->SetCardSerial(0);
 }
 
-void CSaveUI::DoAdvance(CGuiTableGroup* caller)
+void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller)
 {
     int userSel = x58_tablegroup_choices->GetUserSelection();
     int sfx = -1;
@@ -610,13 +610,13 @@ void CSaveUI::DoAdvance(CGuiTableGroup* caller)
         CSfxManager::SfxStart(sfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CSaveUI::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CSaveGameScreen::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
     SetUIColors();
     CSfxManager::SfxStart(x88_navMoveSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CSaveUI::ProcessUserInput(const CFinalInput& input)
+void CSaveGameScreen::ProcessUserInput(const CFinalInput& input)
 {
     if (x50_loadedFrame)
     {
@@ -632,7 +632,7 @@ void CSaveUI::ProcessUserInput(const CFinalInput& input)
     }
 }
 
-void CSaveUI::StartGame(int idx)
+void CSaveGameScreen::StartGame(int idx)
 {
     const CGameState::GameFileStateInfo* info = x6c_cardDriver->GetGameFileStateInfo(idx);
     x6c_cardDriver->ExportPersistentOptions();
@@ -643,7 +643,7 @@ void CSaveUI::StartGame(int idx)
         x80_iowRet = CIOWin::EMessageReturn::Exit;
 }
 
-void CSaveUI::SaveNESState()
+void CSaveGameScreen::SaveNESState()
 {
     if (!x92_savingDisabled)
     {
@@ -653,19 +653,19 @@ void CSaveUI::SaveNESState()
     }
 }
 
-void CSaveUI::EraseGame(int idx)
+void CSaveGameScreen::EraseGame(int idx)
 {
     x6c_cardDriver->EraseFileSlot(idx);
     x90_needsDriverReset = true;
     x6c_cardDriver->StartFileCreateTransactional();
 }
 
-const CGameState::GameFileStateInfo* CSaveUI::GetGameData(int idx) const
+const CGameState::GameFileStateInfo* CSaveGameScreen::GetGameData(int idx) const
 {
     return x6c_cardDriver->GetGameFileStateInfo(idx);
 }
 
-CSaveUI::CSaveUI(ESaveContext saveCtx, u64 serial)
+CSaveGameScreen::CSaveGameScreen(ESaveContext saveCtx, u64 serial)
 : x0_saveCtx(saveCtx), x8_serial(serial), m_touchBar(NewSaveUITouchBar())
 {
     x14_txtrSaveBanner = g_SimplePool->GetObj("TXTR_SaveBanner");
@@ -692,7 +692,7 @@ CSaveUI::CSaveUI(ESaveContext saveCtx, u64 serial)
     }
 }
 
-std::unique_ptr<CMemoryCardDriver> CSaveUI::ConstructCardDriver(bool importPersistent)
+std::unique_ptr<CMemoryCardDriver> CSaveGameScreen::ConstructCardDriver(bool importPersistent)
 {
     return std::make_unique<CMemoryCardDriver>(kabufuda::ECardSlot::SlotA,
         g_ResFactory->GetResourceIdByName("TXTR_SaveBanner")->id,

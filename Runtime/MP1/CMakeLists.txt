@@ -4,7 +4,7 @@ add_subdirectory(World)
 if(APPLE)
   set(MP1_PLAT_SOURCES
       CFrontEndUITouchBarMac.mm
-      CSaveUITouchBarMac.mm)
+      CSaveGameScreenTouchBarMac.mm)
 endif()
 
 set(MP1_SOURCES
@@ -19,13 +19,20 @@ set(MP1_SOURCES
     CFrontEndUITouchBar.hpp CFrontEndUITouchBar.cpp
     CPreFrontEnd.hpp CPreFrontEnd.cpp
     CSlideShow.hpp CSlideShow.cpp
-    CSaveUI.hpp CSaveUI.cpp
-    CSaveUITouchBar.hpp CSaveUITouchBar.cpp
+    CSaveGameScreen.hpp CSaveGameScreen.cpp
+    CSaveGameScreenTouchBar.hpp CSaveGameScreenTouchBar.cpp
     CMemoryCardDriver.hpp CMemoryCardDriver.cpp
-    CQuitScreen.hpp CQuitScreen.cpp
+    CQuitGameScreen.hpp CQuitGameScreen.cpp
+    CMessageScreen.hpp CMessageScreen.cpp
     CCredits.hpp CCredits.cpp
     CStateSetterFlow.hpp CStateSetterFlow.cpp
     CAudioStateWin.hpp CAudioStateWin.cpp
+    CInGameGuiManager.hpp CInGameGuiManager.cpp
+    CSamusFaceReflection.hpp CSamusFaceReflection.cpp
+    CPlayerVisor.hpp CPlayerVisor.cpp
+    CSamusHud.hpp CSamusHud.cpp
+    CPauseScreen.hpp CPauseScreen.cpp
+    CFaceplateDecoration.hpp CFaceplateDecoration.cpp
     MP1.hpp MP1.cpp
     ${MP1_PLAT_SOURCES}
     ${MP1_WORLD_SOURCES})

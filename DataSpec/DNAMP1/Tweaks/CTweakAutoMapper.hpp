@@ -70,7 +70,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> xe0_;
     Value<float> xe4_;
     Value<float> xe8_;
-    Value<float> xec_;
+    Value<float> xec_camVerticalOffset;
     DNAColor xf0_;
     DNAColor xf4_;
     DNAColor xf8_;
@@ -83,6 +83,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     CTweakAutoMapper() = default;
     CTweakAutoMapper(athena::io::IStreamReader& r) { this->read(r); }
     const zeus::CVector3f& GetDoorCenter() const { return xa4_doorCenter; }
+    float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
 };
 }
 }

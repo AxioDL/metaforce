@@ -5,7 +5,7 @@
 #include "CToken.hpp"
 #include "CIOWin.hpp"
 #include "CMemoryCardDriver.hpp"
-#include "CSaveUITouchBar.hpp"
+#include "CSaveGameScreenTouchBar.hpp"
 
 namespace urde
 {
@@ -26,7 +26,7 @@ enum class ESaveContext
     InGame
 };
 
-class CSaveUI
+class CSaveGameScreen
 {
 public:
     enum class EUIType
@@ -91,7 +91,7 @@ private:
     bool x92_savingDisabled = false;
     bool x93_inGame;
 
-    std::unique_ptr<CSaveUITouchBar> m_touchBar;
+    std::unique_ptr<CSaveGameScreenTouchBar> m_touchBar;
 
     void ContinueWithoutSaving();
 
@@ -116,7 +116,7 @@ public:
     const CGameState::GameFileStateInfo* GetGameData(int idx) const;
     EUIType GetUIType() const { return x10_uiType; }
     bool IsSavingDisabled() const { return x92_savingDisabled; }
-    CSaveUI(ESaveContext saveCtx, u64 serial);
+    CSaveGameScreen(ESaveContext saveCtx, u64 serial);
 };
 
 }

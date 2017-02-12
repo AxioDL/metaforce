@@ -94,7 +94,7 @@ struct CTweakPlayerRes : ITweakPlayerRes
 
     const std::string& GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
 
-    const std::string& GetBallTransitionModel(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
+    const std::string& GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
     const std::string& GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
 
     float GetUnkFloat() const { return m_unkFloat; }

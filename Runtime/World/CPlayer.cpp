@@ -21,9 +21,15 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                  const CMaterialList& ml)
 : CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf,
                 MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(mass), CActorParameters::None(), stepUp,
-                stepDown)
+                stepDown), x7d0_animRes(resId, 0, playerScale, 0, true)
 {
     x768_morphball.reset(new CMorphBall(*this, f4));
+    x9c4_26_ = true;
+    x9c4_27_ = true;
+    x9c4_28_ = true;
+    x9c5_31_ = true;
+    ResId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_);
+    x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(CStaticRes(beamId, playerScale));
 }
 
 bool CPlayer::IsTransparent() const { return x588_alpha < 1.f; }
@@ -320,7 +326,7 @@ void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId d, bool e)
     x28_ = e;
 }
 
-ResId CPlayer::CVisorSteam::GetTextureId() const { return xc_; }
+ResId CPlayer::CVisorSteam::GetTextureId() const { return xc_tex; }
 
 void CPlayer::CVisorSteam::Update(float dt)
 {
@@ -331,19 +337,19 @@ void CPlayer::CVisorSteam::Update(float dt)
         x0_ = x10_;
         x4_ = x14_;
         x8_ = x18_;
-        xc_ = x1c_;
+        xc_tex = x1c_;
     }
 
     x1c_ = -1;
-    if ((x20_ - x0_) < 0.000009999f || std::fabs(x20_) > 0.000009999f)
+    if ((x20_alpha - x0_) < 0.000009999f || std::fabs(x20_alpha) > 0.000009999f)
         return;
 
-    if (x20_ > x0_)
+    if (x20_alpha > x0_)
     {
         if (x24_ <= 0.f)
         {
-            x20_ -= (dt / x8_);
-            x20_ = std::min(x20_, x0_);
+            x20_alpha -= (dt / x8_);
+            x20_alpha = std::min(x20_alpha, x0_);
         }
         else
         {
@@ -353,13 +359,13 @@ void CPlayer::CVisorSteam::Update(float dt)
         return;
     }
 
-    CToken tmpTex = g_SimplePool->GetObj({SBIG('TXTR'), xc_});
+    CToken tmpTex = g_SimplePool->GetObj({SBIG('TXTR'), xc_tex});
     if (!tmpTex)
         return;
 
-    x20_ += (x20_ + (dt / x4_));
-    if (x20_ > x0_)
-        x20_ = x0_;
+    x20_alpha += (x20_alpha + (dt / x4_));
+    if (x20_alpha > x0_)
+        x20_alpha = x0_;
 
     x24_ = 0.1f;
 }

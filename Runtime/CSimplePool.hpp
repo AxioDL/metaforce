@@ -30,6 +30,7 @@ public:
     IFactory& GetFactory() const {return x18_factory;}
     void Flush();
     void ObjectUnreferenced(const SObjectTag&);
+    std::vector<SObjectTag> GetReferencedTags() const;
 };
 
 }

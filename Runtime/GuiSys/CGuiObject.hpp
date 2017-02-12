@@ -28,6 +28,7 @@ public:
     const zeus::CVector3f& GetLocalPosition() const { return x4_localXF.origin; }
     void SetLocalPosition(const zeus::CVector3f& pos);
     const zeus::CVector3f& GetWorldPosition() const { return x34_worldXF.origin; }
+    const zeus::CTransform& GetLocalTransform() const { return x34_worldXF; }
     void RotateReset();
     zeus::CVector3f RotateW2O(const zeus::CVector3f& vec) const;
     zeus::CVector3f RotateO2P(const zeus::CVector3f& vec) const;

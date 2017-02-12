@@ -79,7 +79,7 @@ CWorldState::CWorldState(ResId id)
 {
     x8_relayTracker = std::make_shared<CRelayTracker>();
     xc_mapWorldInfo = std::make_shared<CMapWorldInfo>();
-    x10_ = -1;
+    x10_desiredAreaAssetId = -1;
     x14_layerState = std::make_shared<CWorldLayerState>();
 }
 
@@ -87,7 +87,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorl
 : x0_mlvlId(mlvlId)
 {
     x4_areaId = reader.ReadEncoded(32);
-    x10_ = reader.ReadEncoded(32);
+    x10_desiredAreaAssetId = reader.ReadEncoded(32);
     x8_relayTracker = std::make_shared<CRelayTracker>(reader, saveWorld);
     xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
     x14_layerState = std::make_shared<CWorldLayerState>(reader, saveWorld);
@@ -96,7 +96,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorl
 void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
 {
     writer.WriteEncoded(x4_areaId, 32);
-    writer.WriteEncoded(x10_, 32);
+    writer.WriteEncoded(x10_desiredAreaAssetId, 32);
     x8_relayTracker->PutTo(writer, savw);
     xc_mapWorldInfo->PutTo(writer, savw, x0_mlvlId);
     x14_layerState->PutTo(writer);

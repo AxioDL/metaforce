@@ -1,5 +1,5 @@
-#ifndef __URDE_CQUITSCREEN_HPP__
-#define __URDE_CQUITSCREEN_HPP__
+#ifndef __URDE_CQUITGAMESCREEN_HPP__
+#define __URDE_CQUITGAMESCREEN_HPP__
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -31,7 +31,7 @@ enum class EQuitAction
     No
 };
 
-class CQuitScreen
+class CQuitGameScreen
 {
     EQuitType x0_type;
     TLockedToken<CGuiFrame> x4_frame;
@@ -47,10 +47,10 @@ public:
     EQuitAction Update(float dt);
     void Draw();
     void ProcessUserInput(const CFinalInput& input);
-    CQuitScreen(EQuitType pos);
+    CQuitGameScreen(EQuitType pos);
 };
 
 }
 }
 
-#endif // __URDE_CQUITSCREEN_HPP__
+#endif // __URDE_CQUITGAMESCREEN_HPP__

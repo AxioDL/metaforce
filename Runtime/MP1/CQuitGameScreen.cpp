@@ -1,4 +1,4 @@
-#include "CQuitScreen.hpp"
+#include "CQuitGameScreen.hpp"
 #include "Input/CFinalInput.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
@@ -29,22 +29,22 @@ static const float VerticalOffsets[] =
     0.f, 1.6f, 1.f, 0.f, 1.f
 };
 
-void CQuitScreen::SetColors()
+void CQuitGameScreen::SetColors()
 {
     x14_tablegroup_quitgame->SetColors(zeus::CColor{0.784313f, 0.784313f, 0.784313f, 1.f},
                                        zeus::CColor{0.196078f, 0.196078f, 0.196078f, 1.f});
 }
 
-void CQuitScreen::FinishedLoading()
+void CQuitGameScreen::FinishedLoading()
 {
     x10_loadedFrame = x4_frame.GetObj();
 
     x14_tablegroup_quitgame = static_cast<CGuiTableGroup*>(
         x10_loadedFrame->FindWidget("tablegroup_quitgame"));
     x14_tablegroup_quitgame->SetMenuAdvanceCallback(
-        std::bind(&CQuitScreen::DoAdvance, this, std::placeholders::_1));
+        std::bind(&CQuitGameScreen::DoAdvance, this, std::placeholders::_1));
     x14_tablegroup_quitgame->SetMenuSelectionChangeCallback(
-        std::bind(&CQuitScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&CQuitGameScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
 
     static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_title"))->TextSupport()->
         SetText(g_MainStringTable->GetString(Titles[int(x0_type)]));
@@ -58,13 +58,13 @@ void CQuitScreen::FinishedLoading()
     SetColors();
 }
 
-void CQuitScreen::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CQuitGameScreen::DoSelectionChange(CGuiTableGroup* caller, int userSel)
 {
     SetColors();
     CSfxManager::SfxStart(1424, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CQuitScreen::DoAdvance(CGuiTableGroup* caller)
+void CQuitGameScreen::DoAdvance(CGuiTableGroup* caller)
 {
     if (caller->GetUserSelection() == 0)
     {
@@ -80,14 +80,14 @@ void CQuitScreen::DoAdvance(CGuiTableGroup* caller)
     }
 }
 
-EQuitAction CQuitScreen::Update(float dt)
+EQuitAction CQuitGameScreen::Update(float dt)
 {
     if (!x10_loadedFrame && x4_frame.IsLoaded())
         FinishedLoading();
     return x18_action;
 }
 
-void CQuitScreen::Draw()
+void CQuitGameScreen::Draw()
 {
     if (x0_type == EQuitType::QuitGame)
         m_blackScreen->draw(zeus::CColor::skBlack);
@@ -97,7 +97,7 @@ void CQuitScreen::Draw()
         zeus::CVector3f{0.f, 0.f, VerticalOffsets[int(x0_type)]}});
 }
 
-void CQuitScreen::ProcessUserInput(const CFinalInput& input)
+void CQuitGameScreen::ProcessUserInput(const CFinalInput& input)
 {
     if (input.ControllerIdx() != 0)
         return;
@@ -108,7 +108,7 @@ void CQuitScreen::ProcessUserInput(const CFinalInput& input)
         x18_action = EQuitAction::No;
 }
 
-CQuitScreen::CQuitScreen(EQuitType tp)
+CQuitGameScreen::CQuitGameScreen(EQuitType tp)
 : x0_type(tp)
 {
     x4_frame = g_SimplePool->GetObj("FRME_QuitScreen");

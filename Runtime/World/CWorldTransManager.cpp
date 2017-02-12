@@ -12,6 +12,8 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Character/CActorLights.hpp"
+#include "GuiSys/CStringTable.hpp"
+#include "Audio/CSfxManager.hpp"
 
 namespace urde
 {
@@ -128,8 +130,47 @@ void CWorldTransManager::UpdateEnabled(float dt)
     UpdateLights(dt);
 }
 
-void CWorldTransManager::UpdateText(float)
+void CWorldTransManager::UpdateText(float dt)
 {
+    if (x44_28_textDirty)
+    {
+        if (xc_strTable.IsLoaded())
+        {
+            x8_textData->SetText(xc_strTable->GetString(x40_strIdx));
+            x3c_sfxInterval = 0.f;
+            x44_28_textDirty = false;
+        }
+        else if (x0_curTime >= x38_textStartTime)
+        {
+            x38_textStartTime += dt;
+        }
+    }
+
+    if (x0_curTime >= x38_textStartTime)
+    {
+        x8_textData->Update(dt);
+
+        float nextSfxInterval = x3c_sfxInterval + g_tweakGui->GetWorldTransManagerCharsPerSfx();
+        if (x8_textData->GetNumCharsPrinted() >= nextSfxInterval)
+        {
+            x3c_sfxInterval = nextSfxInterval;
+            CSfxManager::SfxStart(1438, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        }
+    }
+
+    if (x44_25_stopSoon)
+    {
+        if (x8_textData->GetTotalAnimationTime() + 1.f < x8_textData->GetCurTime())
+        {
+            /* Done typing + 1 sec */
+            if (x0_curTime - x34_stopTime > 1.f)
+                x44_24_transFinished = true;
+        }
+        else
+        {
+            x34_stopTime = x0_curTime;
+        }
+    }
 }
 
 void CWorldTransManager::Update(float dt)
@@ -266,7 +307,22 @@ void CWorldTransManager::DrawDisabled()
 
 void CWorldTransManager::DrawText()
 {
+    g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
+    CGraphics::SetModelMatrix(zeus::CTransform::Translate(0.f, 0.f, 448.f));
+    x8_textData->Render();
 
+    float filterAlpha = 0.f;
+    if (x0_curTime < 1.f)
+        filterAlpha = 1.f - x0_curTime;
+    else if (x44_25_stopSoon)
+        filterAlpha = std::min(1.f, x0_curTime - x34_stopTime);
+
+    if (filterAlpha > 0.f)
+    {
+        zeus::CColor filterColor = x44_27_fadeWhite ? zeus::CColor::skWhite : zeus::CColor::skBlack;
+        filterColor.a = filterAlpha;
+        m_fadeToBlack.draw(filterColor);
+    }
 }
 
 void CWorldTransManager::Draw()
@@ -370,25 +426,32 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     TouchModels();
 }
 
-void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, bool b1, bool b2,
-                                          float chFadeTime, float chFadeRate, float f3)
+void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, u32 strIdx, bool fadeWhite,
+                                          float chFadeTime, float chFadeRate, float textStartTime)
 {
-    x40_ = b1;
-    x38_ = f3;
+    x40_strIdx = strIdx;
+    x38_textStartTime = textStartTime;
     x44_25_stopSoon = false;
     x30_type = ETransType::Text;
 
     x4_modelData.reset();
-    x44_27_ = b2;
+    x44_27_fadeWhite = fadeWhite;
 
     CGuiTextProperties props(false, true, EJustification::Center, EVerticalJustification::Center);
     x8_textData.reset(new CGuiTextSupport(fontId, props, zeus::CColor::skWhite,
                                           zeus::CColor::skBlack, zeus::CColor::skWhite,
-                                          640, 448, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha));
+                                          640, 448, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Additive));
 
     x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
     xc_strTable = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), stringId});
     x8_textData->SetText(u"");
+}
+
+void CWorldTransManager::StartTextFadeOut()
+{
+    if (!x44_25_stopSoon)
+        x34_stopTime = x0_curTime;
+    x44_25_stopSoon = true;
 }
 
 void CWorldTransManager::DisableTransition()
@@ -403,12 +466,23 @@ void CWorldTransManager::StartTransition()
     x0_curTime = 0.f;
     x18_bgOffset = 0.f;
     x44_24_transFinished = false;
-    x44_28_ = true;
+    x44_28_textDirty = true;
 }
 
 void CWorldTransManager::EndTransition()
 {
     DisableTransition();
+}
+
+bool CWorldTransManager::WaitForModelsAndTextures()
+{
+    std::vector<SObjectTag> tags = g_SimplePool->GetReferencedTags();
+    for (const SObjectTag& tag : tags)
+    {
+        if (tag.type == FOURCC('TXTR') || tag.type == FOURCC('CMDL'))
+            g_SimplePool->GetObj(tag).GetObj();
+    }
+    return true;
 }
 
 }

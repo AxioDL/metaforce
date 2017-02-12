@@ -1,5 +1,5 @@
 #include <AppKit/AppKit.h>
-#include "CSaveUITouchBar.hpp"
+#include "CSaveGameScreenTouchBar.hpp"
 #include "GameGlobalObjects.hpp"
 #include "MP1/MP1.hpp"
 
@@ -7,7 +7,7 @@
 #error ARC Required
 #endif
 
-@interface SaveUITouchBar : NSObject <NSTouchBarDelegate>
+@interface SaveGameScreenTouchBar : NSObject <NSTouchBarDelegate>
 {
 @public
     NSString* _opts[3];
@@ -18,7 +18,7 @@
 -(IBAction)onOpt2:(id)sender;
 @end
 
-@implementation SaveUITouchBar
+@implementation SaveGameScreenTouchBar
 - (NSTouchBar*)makeTouchBar
 {
     NSTouchBar* touchBar = [NSTouchBar new];
@@ -89,13 +89,13 @@ namespace urde
 namespace MP1
 {
 
-class CSaveUITouchBarMac : public CSaveUITouchBar
+class CSaveGameScreenTouchBarMac : public CSaveGameScreenTouchBar
 {
-    SaveUITouchBar* m_touchBar;
+    SaveGameScreenTouchBar* m_touchBar;
 public:
-    CSaveUITouchBarMac()
+    CSaveGameScreenTouchBarMac()
     {
-        m_touchBar = [SaveUITouchBar new];
+        m_touchBar = [SaveGameScreenTouchBar new];
         m_touchBar->_opt = -1;
     }
     int PopOption()
@@ -119,9 +119,9 @@ public:
     }
 };
 
-std::unique_ptr<CSaveUITouchBar> NewSaveUITouchBar()
+std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar()
 {
-    return std::make_unique<CSaveUITouchBarMac>();
+    return std::make_unique<CSaveGameScreenTouchBarMac>();
 }
 
 }

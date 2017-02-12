@@ -68,4 +68,13 @@ void CSimplePool::ObjectUnreferenced(const SObjectTag& tag)
         x8_resources.erase(iter);
 }
 
+std::vector<SObjectTag> CSimplePool::GetReferencedTags() const
+{
+    std::vector<SObjectTag> ret;
+    ret.reserve(x8_resources.size());
+    for (const auto& obj : x8_resources)
+        ret.push_back(obj.first);
+    return ret;
+}
+
 }

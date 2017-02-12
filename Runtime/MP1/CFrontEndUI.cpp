@@ -8,7 +8,7 @@
 #include "CSlideShow.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "Graphics/CMoviePlayer.hpp"
-#include "CSaveUI.hpp"
+#include "CSaveGameScreen.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
 #include "GuiSys/CGuiFrame.hpp"
 #include "GuiSys/CStringTable.hpp"
@@ -20,8 +20,9 @@
 #include "Audio/CAudioGroupSet.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "CNESEmulator.hpp"
-#include "CQuitScreen.hpp"
+#include "CQuitGameScreen.hpp"
 #include "Input/RumbleFxTable.hpp"
+#include <time.h>
 
 namespace urde
 {
@@ -74,7 +75,7 @@ void CFrontEndUI::PlayAdvanceSfx()
     CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveUI* sui, u32 rnd, CFrontEndUITouchBar& touchBar)
+CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd, CFrontEndUITouchBar& touchBar)
 : x0_rnd(rnd), x4_saveUI(sui), m_touchBar(touchBar)
 {
     x10_frme = g_SimplePool->GetObj("FRME_NewFileSelect");
@@ -159,7 +160,7 @@ bool CFrontEndUI::SNewFileSelectFrame::IsTextDoneAnimating() const
 
 void CFrontEndUI::SNewFileSelectFrame::Update(float dt)
 {
-    bool saveReady = x4_saveUI->GetUIType() == CSaveUI::EUIType::SaveReady;
+    bool saveReady = x4_saveUI->GetUIType() == CSaveGameScreen::EUIType::SaveReady;
     if (saveReady != x10c_saveReady)
     {
         if (saveReady)
@@ -1022,9 +1023,9 @@ void CFrontEndUI::SFusionBonusFrame::SetTableColors(CGuiTableGroup* tbgp) const
                     zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
-void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
+void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI)
 {
-    bool doDraw = !saveUI || saveUI->GetUIType() == CSaveUI::EUIType::SaveReady;
+    bool doDraw = !saveUI || saveUI->GetUIType() == CSaveGameScreen::EUIType::SaveReady;
 
     if (doDraw != x38_lastDoDraw)
     {
@@ -1072,7 +1073,7 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveUI* saveUI)
 }
 
 CFrontEndUI::SFusionBonusFrame::EAction
-CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui,
+CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui,
                                                  CFrontEndUITouchBar::EAction tbAction)
 {
     x8_action = EAction::None;
@@ -1225,6 +1226,7 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
         else if (g_GameState->SystemOptions().GetPlayerBeatFusion())
         {
             x8_action = EAction::None;
+            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             //x8_action = EAction::PlayNESMetroid;
         }
         else
@@ -1437,23 +1439,23 @@ void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode)
         x8_quitScreen.reset();
         break;
     case EMode::SaveProgress:
-        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::SaveProgress);
+        x8_quitScreen = std::make_unique<CQuitGameScreen>(EQuitType::SaveProgress);
         break;
     case EMode::ContinuePlaying:
-        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::ContinuePlaying);
+        x8_quitScreen = std::make_unique<CQuitGameScreen>(EQuitType::ContinuePlaying);
         break;
     case EMode::QuitNESMetroid:
-        x8_quitScreen = std::make_unique<CQuitScreen>(EQuitType::QuitNESMetroid);
+        x8_quitScreen = std::make_unique<CQuitGameScreen>(EQuitType::QuitNESMetroid);
         break;
     default: break;
     }
     x0_mode = mode;
 }
 
-void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
+void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui)
 {
     bool processInput = true;
-    if (sui && sui->GetUIType() != CSaveUI::EUIType::SaveReady)
+    if (sui && sui->GetUIType() != CSaveGameScreen::EUIType::SaveReady)
         processInput = false;
     if (sui)
         sui->ProcessUserInput(input);
@@ -1476,9 +1478,9 @@ void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, 
     }
 }
 
-bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveUI* saveUi)
+bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi)
 {
-    bool doUpdate = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveReady) ? false : true;
+    bool doUpdate = (saveUi && saveUi->GetUIType() != CSaveGameScreen::EUIType::SaveReady) ? false : true;
     x10_remTime = std::max(x10_remTime - dt, 0.f);
 
     zeus::CColor geomCol(zeus::CColor::skWhite);
@@ -1561,10 +1563,10 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveUI* saveUi)
     return false;
 }
 
-void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveUI* saveUi) const
+void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const
 {
     zeus::CColor mulColor = zeus::CColor::skWhite;
-    bool doDraw = (saveUi && saveUi->GetUIType() != CSaveUI::EUIType::SaveReady) ? false : true;
+    bool doDraw = (saveUi && saveUi->GetUIType() != CSaveGameScreen::EUIType::SaveReady) ? false : true;
 
     if (doDraw)
         mulColor = zeus::CColor::skBlack;
@@ -1841,7 +1843,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::PumpLoad()
     return true;
 }
 
-bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& input, CSaveUI* sui)
+bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui)
 {
     x134_25_exitOptions = false;
     if (sui)
@@ -1945,10 +1947,10 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
     return !x134_25_exitOptions;
 }
 
-void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveUI* sui)
+void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveGameScreen* sui)
 {
     x40_rumbleGen.Update(dt);
-    x134_24_visible = !sui || sui->GetUIType() == CSaveUI::EUIType::SaveReady;
+    x134_24_visible = !sui || sui->GetUIType() == CSaveGameScreen::EUIType::SaveReady;
 
     if (!PumpLoad())
         return;
@@ -1985,14 +1987,15 @@ CFrontEndUI::CFrontEndUI()
 {
     CMain* m = static_cast<CMain*>(g_Main);
 
-    x18_rndA = std::min(rand() * 3 / RAND_MAX, 2);
-    x1c_rndB = std::min(rand() * 3 / RAND_MAX, 2);
+    CRandom16 r(time(nullptr));
+    x18_rndA = r.Range(0, 2);
+    x1c_rndB = r.Range(0, 2);
 
     x20_depsGroup = g_SimplePool->GetObj("FrontEnd_DGRP");
     x38_pressStart = g_SimplePool->GetObj("TXTR_PressStart");
     x44_frontendAudioGrp = g_SimplePool->GetObj("FrontEnd_AGSC");
 
-    xdc_saveUI = std::make_unique<CSaveUI>(ESaveContext::FrontEnd, g_GameState->GetCardSerial());
+    xdc_saveUI = std::make_unique<CSaveGameScreen>(ESaveContext::FrontEnd, g_GameState->GetCardSerial());
 
     m->ResetGameState();
     g_GameState->SetCurrentWorldId(g_ResFactory->TranslateOriginalToNew(g_DefaultWorldTag.id));
@@ -2330,7 +2333,20 @@ bool CFrontEndUI::PumpMovieLoad()
         if (!x70_menuMovies[i])
         {
             const FEMovie& movie = FEMovies[i];
-            x70_menuMovies[i] = std::make_unique<CMoviePlayer>(movie.path, 0.05f, movie.loop, false);
+            std::string path = movie.path;
+            if (i == int(EMenuMovie::StartFileSelectA))
+            {
+                auto pos = path.find("A.thp");
+                if (pos != std::string::npos)
+                    path[pos] = 'A' + x18_rndA;
+            }
+            else if (i == int(EMenuMovie::FileSelectPlayGameA))
+            {
+                auto pos = path.find("A.thp");
+                if (pos != std::string::npos)
+                    path[pos] = 'A' + x1c_rndB;
+            }
+            x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
             x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
             return false;
         }
@@ -2635,7 +2651,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
             if (xf0_optionsFrme)
             {
                 bool optionsActive = true;
-                if (xdc_saveUI && xdc_saveUI->GetUIType() != CSaveUI::EUIType::SaveReady)
+                if (xdc_saveUI && xdc_saveUI->GetUIType() != CSaveGameScreen::EUIType::SaveReady)
                     optionsActive = false;
 
                 if (optionsActive)

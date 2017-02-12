@@ -48,7 +48,7 @@ class CWorldState
     TAreaId x4_areaId = kInvalidAreaId;
     std::shared_ptr<CRelayTracker> x8_relayTracker;
     std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
-    u32 x10_;
+    ResId x10_desiredAreaAssetId;
     std::shared_ptr<CWorldLayerState> x14_layerState;
 
 public:
@@ -57,6 +57,7 @@ public:
     ResId GetWorldAssetId() const { return x0_mlvlId; }
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }
     TAreaId GetCurrentAreaId() const { return x4_areaId; }
+    ResId GetDesiredAreaAssetId() const { return x10_desiredAreaAssetId; }
     const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
     const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }

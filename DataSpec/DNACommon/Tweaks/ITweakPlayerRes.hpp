@@ -3,6 +3,7 @@
 
 #include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
+#include "Runtime/CPlayerState.hpp"
 
 namespace DataSpec
 {
@@ -10,14 +11,7 @@ namespace DataSpec
 struct ITweakPlayerRes : ITweak
 {
     using ResId = int64_t;
-    enum class EBeamId
-    {
-        Power,
-        Ice,
-        Plasma,
-        Wave,
-        Phazon
-    };
+    using EBeamId = urde::CPlayerState::EBeamId;
 
     ResId x4_saveStationIcon;
     ResId x8_missileStationIcon;
@@ -132,7 +126,7 @@ struct ITweakPlayerRes : ITweak
         xc4_ballTransitionsANCS = factory.GetResourceIdByName(GetBallTransitionsANCS().c_str())->id;
 
         for (int i=0 ; i<5 ; ++i)
-            xc8_ballTransitions[i] = factory.GetResourceIdByName(GetBallTransitionModel(i).c_str())->id;
+            xc8_ballTransitions[i] = factory.GetResourceIdByName(GetBallTransitionBeamRes(i).c_str())->id;
 
         for (int i=0 ; i<5 ; ++i)
             xc8_cineGun[i] = factory.GetResourceIdByName(GetBeamCineModel(i).c_str())->id;
@@ -163,7 +157,7 @@ protected:
 
     virtual const std::string& GetBallTransitionsANCS() const=0;
 
-    virtual const std::string& GetBallTransitionModel(size_t idx) const=0;
+    virtual const std::string& GetBallTransitionBeamRes(size_t idx) const=0;
     virtual const std::string& GetBeamCineModel(size_t idx) const=0;
 
     virtual float GetUnkFloat() const=0;

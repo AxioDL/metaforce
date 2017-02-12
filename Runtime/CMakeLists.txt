@@ -41,7 +41,7 @@ add_subdirectory(MP3)
 
 if(APPLE)
   set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
-                              MP1/CSaveUITouchBarMac.mm
+                              MP1/CSaveGameScreenTouchBarMac.mm
                               CGameOptionsTouchBarMac.mm
                               PROPERTIES COMPILE_FLAGS -fobjc-arc)
   bintoc(startButton.c Resources/startButton@2x.png START_BUTTON_2X)

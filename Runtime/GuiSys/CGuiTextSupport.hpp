@@ -135,6 +135,7 @@ public:
     void SetVerticalJustification(EVerticalJustification j);
     void SetImageBaseline(bool b);
     bool GetIsTextSupportFinishedLoading() const;
+    float GetCurTime() const { return x3c_curTime; }
 };
 
 }

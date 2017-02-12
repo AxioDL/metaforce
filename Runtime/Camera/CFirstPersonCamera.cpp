@@ -232,7 +232,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 
     if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed || player->x304_ == 5 ||
-        player->x3b8_ == 0 || mgr.x904_ == 1 || mgr.GetCameraManager()->IsInCinematicCamera())
+        player->x3b8_ == 0 || mgr.Get904() == 1 || mgr.GetCameraManager()->IsInCinematicCamera())
     {
         bobXf = zeus::CTransform::Identity();
         player->GetCameraBob()->SetCameraBobTransform(bobXf);
