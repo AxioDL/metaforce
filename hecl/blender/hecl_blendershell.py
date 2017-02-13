@@ -51,7 +51,8 @@ class PathHasher:
         writepipestr(path.encode())
         read_str = readpipestr()
         if len(read_str) >= 16:
-            return int(read_str[0:16], 16) & 0xffffffff
+            hash = int(read_str[0:16], 16)
+            return (hash & 0xffffffff) ^ ((hash >> 32) & 0xffffffff)
         return 0
 
     def hashpath64(self, path):

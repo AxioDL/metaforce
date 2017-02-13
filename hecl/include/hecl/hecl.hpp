@@ -536,7 +536,7 @@ public:
     Hash(uint64_t hashin)
     : hash(hashin) {}
     Hash(const Hash& other) {hash = other.hash;}
-    uint32_t val32() const {return uint32_t(hash);}
+    uint32_t val32() const {return uint32_t(hash) ^ uint32_t(hash >> 32);}
     uint64_t val64() const {return uint64_t(hash);}
     size_t valSizeT() const {return size_t(hash);}
     Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
