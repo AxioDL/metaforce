@@ -300,6 +300,30 @@ def _out_actions(sact_data, writebuf):
             mesh = bpy.data.objects[subtype.linked_mesh]
             write_action_aabb(writebuf, arm, mesh)
 
+def _out_action_no_subtypes(sact_data, writebuf, action_name):
+    for action_idx in range(len(sact_data.actions)):
+        action = sact_data.actions[action_idx]
+        if action.name == action_name:
+            sact_data.active_action = action_idx
+            writebuf(struct.pack('I', len(action.name)))
+            writebuf(action.name.encode())
+
+            bact = None
+            if action.name in bpy.data.actions:
+                bact = bpy.data.actions[action.name]
+            if not bact:
+                raise RuntimeError('action %s not found' % action.name)
+
+            writebuf(struct.pack('f', 1.0 / bact.hecl_fps))
+            writebuf(struct.pack('b', int(bact.hecl_additive)))
+            writebuf(struct.pack('b', int(bact.hecl_looping)))
+
+            write_action_channels(writebuf, bact)
+            writebuf(struct.pack('I', 0))
+            return
+
+    raise RuntimeError("Unable to find action '%s'" % action_name)
+
 # Cook
 def cook(writebuf):
     bpy.context.scene.hecl_auto_remap = False
@@ -326,6 +350,13 @@ def cook_character_only(writebuf):
 
     # Output no actions
     writebuf(struct.pack('I', 0))
+
+def cook_action_channels_only(writebuf, action_name):
+    sact_data = bpy.context.scene.hecl_sact_data
+
+    # Output action without AABBs
+    _out_action_no_subtypes(sact_data, writebuf, action_name)
+
 
 # Access actor's contained armature names
 def get_armature_names(writebuf):

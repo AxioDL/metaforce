@@ -1225,10 +1225,10 @@ BlenderConnection::DataStream::Actor::Action::Action(BlenderConnection& conn)
     subtypeAABBs.reserve(aabbCount);
     for (uint32_t i=0 ; i<aabbCount ; ++i)
     {
+        printf("AABB %s %d\n", name.c_str(), i);
         subtypeAABBs.emplace_back();
         subtypeAABBs.back().first.read(conn);
         subtypeAABBs.back().second.read(conn);
-        printf("AABB %s %d\n", name.c_str(), i);
     }
 }
 
@@ -1480,6 +1480,25 @@ BlenderConnection::DataStream::compileActorCharacterOnly()
         BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
 
     return Actor(*m_parent);
+}
+
+BlenderConnection::DataStream::Actor::Action
+BlenderConnection::DataStream::compileActionChannelsOnly(const std::string& name)
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "ACTIONCOMPILECHANNELSONLY %s", name.c_str());
+    m_parent->_writeStr(req);
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile action: %s", readBuf);
+
+    return Actor::Action(*m_parent);
 }
 
 BlenderConnection::DataStream::World

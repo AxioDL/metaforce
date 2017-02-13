@@ -802,6 +802,7 @@ public:
 
         Actor compileActor();
         Actor compileActorCharacterOnly();
+        Actor::Action compileActionChannelsOnly(const std::string& name);
         std::vector<std::string> getArmatureNames();
         std::vector<std::string> getSubtypeNames();
         std::vector<std::string> getActionNames();

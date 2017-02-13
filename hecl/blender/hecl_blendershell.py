@@ -347,6 +347,11 @@ def dataout_loop():
             writepipestr(b'OK')
             hecl.sact.cook_character_only(writepipebuf)
 
+        elif cmdargs[0] == 'ACTIONCOMPILECHANNELSONLY':
+            actionName = cmdargs[1]
+            writepipestr(b'OK')
+            hecl.sact.cook_action_channels_only(writepipebuf, actionName)
+
         elif cmdargs[0] == 'GETARMATURENAMES':
             writepipestr(b'OK')
             hecl.sact.get_armature_names(writepipebuf)
