@@ -631,25 +631,21 @@ struct VEConstant : IVectorElement
     void read(athena::io::YAMLDocReader& r)
     {
         size_t elemCount;
-        r.enterSubVector(nullptr, elemCount);
-        for (int i=0 ; i<3 && i<elemCount ; ++i)
+        if (auto v = r.enterSubVector(nullptr, elemCount))
         {
-            r.enterSubRecord(nullptr);
-            comps[i].read(r);
-            r.leaveSubRecord();
+            for (int i=0 ; i<3 && i<elemCount ; ++i)
+            {
+                if (auto rec = r.enterSubRecord(nullptr))
+                    comps[i].read(r);
+            }
         }
-        r.leaveSubVector();
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
-        w.enterSubVector(nullptr);
-        for (int i=0 ; i<3 ; ++i)
-        {
-            w.enterSubRecord(nullptr);
-            comps[i].write(w);
-            w.leaveSubRecord();
-        }
-        w.leaveSubVector();
+        if (auto v = w.enterSubVector(nullptr))
+            for (int i=0 ; i<3 ; ++i)
+                if (auto rec = w.enterSubRecord(nullptr))
+                    comps[i].write(w);
     }
     size_t binarySize(size_t __isz) const
     {
@@ -782,22 +778,15 @@ struct CEConstant : IColorElement
     void read(athena::io::YAMLDocReader& r)
     {
         for (int i=0 ; i<4 ; ++i)
-        {
-            r.enterSubRecord(nullptr);
-            comps[i].read(r);
-            r.leaveSubRecord();
-        }
+            if (auto rec = r.enterSubRecord(nullptr))
+                comps[i].read(r);
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
-        w.enterSubVector(nullptr);
-        for (int i=0 ; i<4 ; ++i)
-        {
-            w.enterSubRecord(nullptr);
-            comps[i].write(w);
-            w.leaveSubRecord();
-        }
-        w.leaveSubVector();
+        if (auto v = w.enterSubVector(nullptr))
+            for (int i=0 ; i<4 ; ++i)
+                if (auto rec = w.enterSubRecord(nullptr))
+                    comps[i].write(w);
     }
     size_t binarySize(size_t __isz) const
     {
@@ -912,22 +901,15 @@ struct MVEConstant : IModVectorElement
     void read(athena::io::YAMLDocReader& r)
     {
         for (int i=0 ; i<3 ; ++i)
-        {
-            r.enterSubRecord(nullptr);
-            comps[i].read(r);
-            r.leaveSubRecord();
-        }
+            if (auto rec = r.enterSubRecord(nullptr))
+                comps[i].read(r);
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
-        w.enterSubVector(nullptr);
-        for (int i=0 ; i<3 ; ++i)
-        {
-            w.enterSubRecord(nullptr);
-            comps[i].write(w);
-            w.leaveSubRecord();
-        }
-        w.leaveSubVector();
+        if (auto v = w.enterSubVector(nullptr))
+            for (int i=0 ; i<3 ; ++i)
+                if (auto rec = w.enterSubRecord(nullptr))
+                    comps[i].write(w);
     }
     size_t binarySize(size_t __isz) const
     {
@@ -1050,25 +1032,17 @@ struct EESimpleEmitterTR : EESimpleEmitter
     {
         position.m_elem.reset();
         velocity.m_elem.reset();
-        if (r.enterSubRecord("ILOC"))
-        {
+        if (auto rec = r.enterSubRecord("ILOC"))
             position.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("IVEC"))
-        {
+        if (auto rec = r.enterSubRecord("IVEC"))
             velocity.read(r);
-            r.leaveSubRecord();
-        }
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
-        w.enterSubRecord("ILOC");
-        position.write(w);
-        w.leaveSubRecord();
-        w.enterSubRecord("IVEC");
-        velocity.write(w);
-        w.leaveSubRecord();
+        if (auto rec = w.enterSubRecord("ILOC"))
+            position.write(w);
+        if (auto rec = w.enterSubRecord("IVEC"))
+            velocity.write(w);
     }
     size_t binarySize(size_t __isz) const
     {
@@ -1109,17 +1083,13 @@ struct UVEConstant : IUVElement
     void read(athena::io::YAMLDocReader& r)
     {
         tex.clear();
-        if (r.enterSubRecord("tex"))
-        {
+        if (auto rec = r.enterSubRecord("tex"))
             tex.read(r);
-            r.leaveSubRecord();
-        }
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
-        w.enterSubRecord("tex");
-        tex.write(w);
-        w.leaveSubRecord();
+        if (auto rec = w.enterSubRecord("tex"))
+            tex.write(w);
     }
     size_t binarySize(size_t __isz) const
     {
@@ -1160,62 +1130,35 @@ struct UVEAnimTexture : IUVElement
     void read(athena::io::YAMLDocReader& r)
     {
         tex.clear();
-        if (r.enterSubRecord("tex"))
-        {
+        if (auto rec = r.enterSubRecord("tex"))
             tex.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("tileW"))
-        {
+        if (auto rec = r.enterSubRecord("tileW"))
             tileW.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("tileH"))
-        {
+        if (auto rec = r.enterSubRecord("tileH"))
             tileH.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("strideW"))
-        {
+        if (auto rec = r.enterSubRecord("strideW"))
             strideW.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("strideH"))
-        {
+        if (auto rec = r.enterSubRecord("strideH"))
             strideH.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("cycleFrames"))
-        {
+        if (auto rec = r.enterSubRecord("cycleFrames"))
             cycleFrames.read(r);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("loop"))
-        {
+        if (auto rec = r.enterSubRecord("loop"))
             loop = r.readBool(nullptr);
-            r.leaveSubRecord();
-        }
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
-        w.enterSubRecord("tex");
-        tex.write(w);
-        w.leaveSubRecord();
-        w.enterSubRecord("tileW");
-        tileW.write(w);
-        w.leaveSubRecord();
-        w.enterSubRecord("tileH");
-        tileH.write(w);
-        w.leaveSubRecord();
-        w.enterSubRecord("strideW");
-        strideW.write(w);
-        w.leaveSubRecord();
-        w.enterSubRecord("strideH");
-        strideH.write(w);
-        w.leaveSubRecord();
-        w.enterSubRecord("cycleFrames");
-        cycleFrames.write(w);
-        w.leaveSubRecord();
+        if (auto rec = w.enterSubRecord("tex"))
+            tex.write(w);
+        if (auto rec = w.enterSubRecord("tileW"))
+            tileW.write(w);
+        if (auto rec = w.enterSubRecord("tileH"))
+            tileH.write(w);
+        if (auto rec = w.enterSubRecord("strideW"))
+            strideW.write(w);
+        if (auto rec = w.enterSubRecord("strideH"))
+            strideH.write(w);
+        if (auto rec = w.enterSubRecord("cycleFrames"))
+            cycleFrames.write(w);
         w.writeBool("loop", loop);
     }
     size_t binarySize(size_t __isz) const
@@ -1274,17 +1217,15 @@ struct UVElementFactory : BigYAML
 
     void read(athena::io::YAMLDocReader& r)
     {
-        if (r.enterSubRecord("CNST"))
+        if (auto rec = r.enterSubRecord("CNST"))
         {
             m_elem.reset(new struct UVEConstant<IDType>);
             m_elem->read(r);
-            r.leaveSubRecord();
         }
-        else if (r.enterSubRecord("ATEX"))
+        else if (auto rec = r.enterSubRecord("ATEX"))
         {
             m_elem.reset(new struct UVEAnimTexture<IDType>);
             m_elem->read(r);
-            r.leaveSubRecord();
         }
         else
             m_elem.reset();
@@ -1293,11 +1234,8 @@ struct UVElementFactory : BigYAML
     void write(athena::io::YAMLDocWriter& w) const
     {
         if (m_elem)
-        {
-            w.enterSubRecord(m_elem->ClassID());
-            m_elem->write(w);
-            w.leaveSubRecord();
-        }
+            if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+                m_elem->write(w);
     }
 
     size_t binarySize(size_t __isz) const
@@ -1358,32 +1296,19 @@ struct SpawnSystemKeyframeData : BigYAML
 
         void read(athena::io::YAMLDocReader& r)
         {
-            if (r.enterSubRecord("id"))
-            {
+            if (auto rec = r.enterSubRecord("id"))
                 id.read(r);
-                r.leaveSubRecord();
-            }
-            if (r.enterSubRecord("a"))
-            {
+            if (auto rec = r.enterSubRecord("a"))
                 a = r.readUint32(nullptr);
-                r.leaveSubRecord();
-            }
-            if (r.enterSubRecord("b"))
-            {
+            if (auto rec = r.enterSubRecord("b"))
                 b = r.readUint32(nullptr);
-                r.leaveSubRecord();
-            }
-            if (r.enterSubRecord("c"))
-            {
+            if (auto rec = r.enterSubRecord("c"))
                 c = r.readUint32(nullptr);
-                r.leaveSubRecord();
-            }
         }
         void write(athena::io::YAMLDocWriter& w) const
         {
-            w.enterSubRecord("id");
-            id.write(w);
-            w.leaveSubRecord();
+            if (auto rec = w.enterSubRecord("id"))
+                id.write(w);
             w.writeUint32("a", a);
             w.writeUint32("b", b);
             w.writeUint32("c", c);
@@ -1412,55 +1337,39 @@ struct SpawnSystemKeyframeData : BigYAML
 
     void read(athena::io::YAMLDocReader& r)
     {
-        if (r.enterSubRecord("a"))
-        {
+        if (auto rec = r.enterSubRecord("a"))
             a = r.readUint32(nullptr);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("b"))
-        {
+        if (auto rec = r.enterSubRecord("b"))
             b = r.readUint32(nullptr);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("endFrame"))
-        {
+        if (auto rec = r.enterSubRecord("endFrame"))
             endFrame = r.readUint32(nullptr);
-            r.leaveSubRecord();
-        }
-        if (r.enterSubRecord("d"))
-        {
+        if (auto rec = r.enterSubRecord("d"))
             d = r.readUint32(nullptr);
-            r.leaveSubRecord();
-        }
         spawns.clear();
         size_t spawnCount;
-        if (r.enterSubVector("spawns", spawnCount))
+        if (auto v = r.enterSubVector("spawns", spawnCount))
         {
             spawns.reserve(spawnCount);
             for (const auto& child : r.getCurNode()->m_seqChildren)
             {
-                if (r.enterSubRecord(nullptr))
+                if (auto rec = r.enterSubRecord(nullptr))
                 {
                     spawns.emplace_back();
                     spawns.back().first = r.readUint32("startFrame");
                     size_t systemCount;
-                    if (r.enterSubVector("systems", systemCount))
+                    if (auto v = r.enterSubVector("systems", systemCount))
                     {
                         spawns.back().second.reserve(systemCount);
                         for (const auto& in : r.getCurNode()->m_seqChildren)
                         {
                             spawns.back().second.emplace_back();
                             SpawnSystemKeyframeInfo& info = spawns.back().second.back();
-                            r.enterSubRecord(nullptr);
-                            info.read(r);
-                            r.leaveSubRecord();
+                            if (auto rec = r.enterSubRecord(nullptr))
+                                info.read(r);
                         }
-                        r.leaveSubVector();
                     }
-                    r.leaveSubRecord();
                 }
             }
-            r.leaveSubVector();
         }
     }
     void write(athena::io::YAMLDocWriter& w) const
@@ -1471,22 +1380,20 @@ struct SpawnSystemKeyframeData : BigYAML
         w.writeUint32("b", b);
         w.writeUint32("endFrame", endFrame);
         w.writeUint32("d", d);
-        w.enterSubVector("spawns");
-        for (const auto& spawn : spawns)
+        if (auto v = w.enterSubVector("spawns"))
         {
-            w.enterSubRecord(nullptr);
-            w.writeUint32("startFrame", spawn.first);
-            w.enterSubVector("systems");
-            for (const auto& info : spawn.second)
+            for (const auto& spawn : spawns)
             {
-                w.enterSubRecord(nullptr);
-                info.write(w);
-                w.leaveSubRecord();
+                if (auto rec = w.enterSubRecord(nullptr))
+                {
+                    w.writeUint32("startFrame", spawn.first);
+                    if (auto v = w.enterSubVector("systems"))
+                        for (const auto& info : spawn.second)
+                            if (auto rec = w.enterSubRecord(nullptr))
+                                info.write(w);
+                }
             }
-            w.leaveSubVector();
-            w.leaveSubRecord();
         }
-        w.leaveSubVector();
     }
     size_t binarySize(size_t __isz) const
     {
@@ -1566,20 +1473,14 @@ struct ChildResourceFactory : BigYAML
     void read(athena::io::YAMLDocReader& r)
     {
         id.clear();
-        if (r.enterSubRecord("CNST"))
-        {
+        if (auto rec = r.enterSubRecord("CNST"))
             id.read(r);
-            r.leaveSubRecord();
-        }
     }
     void write(athena::io::YAMLDocWriter& w) const
     {
         if (id)
-        {
-            w.enterSubRecord("CNST");
-            id.write(w);
-            w.leaveSubRecord();
-        }
+            if (auto rec = w.enterSubRecord("CNST"))
+                id.write(w);
     }
     size_t binarySize(size_t __isz) const
     {

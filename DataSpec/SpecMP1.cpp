@@ -676,6 +676,15 @@ struct SpecMP1 : SpecBase
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                    hecl::BlenderToken& btok, FCookProgress progress)
     {
+        /*
+        if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".CINF")))
+            return {SBIG('CINF'), path.hash().val32()};
+        else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".CSKR")))
+            return {SBIG('CSKR'), path.hash().val32()};
+        else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".ANIM")))
+            return {SBIG('ANIM'), path.hash().val32()};
+            */
+
         Actor actor = ds.compileActor();
         DNAMP1::ANCS::Cook(out, in, actor, ds, m_pc, [&](const hecl::ProjectPath& modelPath) -> bool {
             hecl::ProjectPath cooked;

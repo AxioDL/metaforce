@@ -65,9 +65,23 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
     }
 }
 
+static const char* LoadDepPAKs[] =
+{
+    "TestAnim",
+    "SamusGun",
+    "SamGunFx",
+    nullptr
+};
+
 void CMFGameLoader::MakeLoadDependencyList()
 {
+    std::vector<SObjectTag> tags;
+    for (int i=0 ; LoadDepPAKs[i] ; ++i)
+        g_ResFactory->GetTagListForFile(LoadDepPAKs[i], tags);
 
+    x1c_loadList.reserve(tags.size());
+    for (const SObjectTag& tag : tags)
+        x1c_loadList.push_back(g_SimplePool->GetObj(tag));
 }
 
 CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
@@ -124,12 +138,26 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
                                           wldState.GetDesiredAreaAssetId());
             return EMessageReturn::Exit;
         }
-        else
+
+        if (!x18_guiMgr)
+            x18_guiMgr = std::make_shared<CInGameGuiManager>(*x14_stateMgr, queue);
+        if (!x18_guiMgr->CheckLoadComplete(*x14_stateMgr))
+            return EMessageReturn::Exit;
+
+        x1c_loadList.clear();
+
+        wtMgr->StartTextFadeOut();
+        x2c_25_transitionFinished = wtMgr->IsTransitionFinished();
+        return EMessageReturn::Exit;
+    }
+    case EArchMsgType::FrameBegin:
+    {
+        if (x2c_25_transitionFinished)
         {
-            if (!x18_guiMgr)
-            {
-                x18_guiMgr = std::make_shared<CInGameGuiManager>(*x14_stateMgr, queue);
-            }
+            queue.Push(
+            MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000,
+                                       std::make_shared<CMFGame>(x14_stateMgr, x18_guiMgr, queue)));
+            return EMessageReturn::RemoveIOWinAndExit;
         }
     }
     default:

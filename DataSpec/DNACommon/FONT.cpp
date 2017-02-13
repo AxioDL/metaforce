@@ -186,20 +186,20 @@ void FONT<IDType>::read(athena::io::YAMLDocReader& __dna_docin)
     /* glyphCount */
     /* glyphs */
     size_t count;
-    __dna_docin.enterSubVector("glyphs", count);
-    glyphCount = count;
-    for (atUint32 i = 0; i < glyphCount; i++)
+    if (auto v = __dna_docin.enterSubVector("glyphs", count))
     {
-        if (version < 4)
-            glyphs.emplace_back(new GlyphMP1);
-        else
-            glyphs.emplace_back(new GlyphMP2);
+        glyphCount = count;
+        for (atUint32 i = 0; i < glyphCount; i++)
+        {
+            if (version < 4)
+                glyphs.emplace_back(new GlyphMP1);
+            else
+                glyphs.emplace_back(new GlyphMP2);
 
-        __dna_docin.enterSubRecord(nullptr);
-        glyphs.back()->read(__dna_docin);
-        __dna_docin.leaveSubRecord();
+            if (auto rec = __dna_docin.enterSubRecord(nullptr))
+                glyphs.back()->read(__dna_docin);
+        }
     }
-    __dna_docin.leaveSubVector();
     /* kerningInfoCount squelched */
     /* kerningInfo */
     kerningInfoCount = __dna_docin.enumerate("kerningInfo", kerningInfo);
@@ -234,16 +234,10 @@ void FONT<IDType>::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeUint32("textureFormat", textureFormat);
     /* glyphCount squelched */
     /* glyphs */
-    __dna_docout.enterSubVector("glyphs");
-
-    for (const std::unique_ptr<IGlyph>& glyph : glyphs)
-    {
-        __dna_docout.enterSubRecord(nullptr);
-        glyph->write(__dna_docout);
-        __dna_docout.leaveSubRecord();
-    }
-
-    __dna_docout.leaveSubVector();
+    if (auto v = __dna_docout.enterSubVector("glyphs"))
+        for (const std::unique_ptr<IGlyph>& glyph : glyphs)
+            if (auto rec = __dna_docout.enterSubRecord(nullptr))
+                glyph->write(__dna_docout);
     /* kerningInfoCount squelched */
     /* kerningInfo */
     __dna_docout.enumerate("kerningInfo", kerningInfo);

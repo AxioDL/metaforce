@@ -84,125 +84,65 @@ template <class IDType>
 void ELSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 {
     if (x0_LIFE)
-    {
-        w.enterSubRecord("LIFE");
-        x0_LIFE.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LIFE"))
+            x0_LIFE.write(w);
     if (x4_SLIF)
-    {
-        w.enterSubRecord("SLIF");
-        x4_SLIF.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SLIF"))
+            x4_SLIF.write(w);
     if (x8_GRAT)
-    {
-        w.enterSubRecord("GRAT");
-        x8_GRAT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("GRAT"))
+            x8_GRAT.write(w);
     if (xc_SCNT)
-    {
-        w.enterSubRecord("SCNT");
-        xc_SCNT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SCNT"))
+            xc_SCNT.write(w);
     if (x10_SSEG)
-    {
-        w.enterSubRecord("SSEG");
-        x10_SSEG.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SSEG"))
+            x10_SSEG.write(w);
     if (x14_COLR)
-    {
-        w.enterSubRecord("COLR");
-        x14_COLR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("COLR"))
+            x14_COLR.write(w);
     if (x18_IEMT)
-    {
-        w.enterSubRecord("IEMT");
-        x18_IEMT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("IEMT"))
+            x18_IEMT.write(w);
     if (x1c_FEMT)
-    {
-        w.enterSubRecord("FEMT");
-        x1c_FEMT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("FEMT"))
+            x1c_FEMT.write(w);
     if (x20_AMPL)
-    {
-        w.enterSubRecord("AMPL");
-        x20_AMPL.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("AMPL"))
+            x20_AMPL.write(w);
     if (x24_AMPD)
-    {
-        w.enterSubRecord("AMPD");
-        x24_AMPD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("AMPD"))
+            x24_AMPD.write(w);
     if (x28_LWD1)
-    {
-        w.enterSubRecord("LWD1");
-        x28_LWD1.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LWD1"))
+            x28_LWD1.write(w);
     if (x2c_LWD2)
-    {
-        w.enterSubRecord("LWD2");
-        x2c_LWD2.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LWD2"))
+            x2c_LWD2.write(w);
     if (x30_LWD3)
-    {
-        w.enterSubRecord("LWD3");
-        x30_LWD3.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LWD3"))
+            x30_LWD3.write(w);
     if (x34_LCL1)
-    {
-        w.enterSubRecord("LCL1");
-        x34_LCL1.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LCL1"))
+            x34_LCL1.write(w);
     if (x38_LCL2)
-    {
-        w.enterSubRecord("LCL2");
-        x38_LCL2.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LCL2"))
+            x38_LCL2.write(w);
     if (x3c_LCL3)
-    {
-        w.enterSubRecord("LCL3");
-        x3c_LCL3.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("LCL3"))
+            x3c_LCL3.write(w);
     if (x40_SSWH)
-    {
-        w.enterSubRecord("SSWH");
-        x40_SSWH.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("SSWH"))
+            x40_SSWH.write(w);
     if (x50_GPSM)
-    {
-        w.enterSubRecord("GPSM");
-        x50_GPSM.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("GPSM"))
+            x50_GPSM.write(w);
     if (x60_EPSM)
-    {
-        w.enterSubRecord("EPSM");
-        x60_EPSM.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("EPSM"))
+            x60_EPSM.write(w);
     if (x70_ZERY)
-    {
-        w.enterSubRecord("ZERY");
-        x70_ZERY.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("ZERY"))
+            x70_ZERY.write(w);
 }
 
 template <class IDType>

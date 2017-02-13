@@ -499,12 +499,13 @@ struct ANCS : BigYAML
     {
         out.clear();
         for (const AnimationSet::Animation& ai : animationSet.animations)
-            ai.metaAnim.m_anim->gatherPrimitives(out);
+            if (AnimationSet::IMetaAnim* anim = ai.metaAnim.m_anim.get())
+                anim->gatherPrimitives(out);
         for (const AnimationSet::Transition& ti : animationSet.transitions)
-            if (ti.metaTrans.m_trans)
-                ti.metaTrans.m_trans->gatherPrimitives(out);
-        if (animationSet.defaultTransition.m_trans)
-            animationSet.defaultTransition.m_trans->gatherPrimitives(out);
+            if (AnimationSet::IMetaTrans* trans = ti.metaTrans.m_trans.get())
+                trans->gatherPrimitives(out);
+        if (AnimationSet::IMetaTrans* trans = animationSet.defaultTransition.m_trans.get())
+            trans->gatherPrimitives(out);
         for (auto& anim : out)
         {
             for (const AnimationSet::AnimationResources& res : animationSet.animResources)
@@ -521,10 +522,13 @@ struct ANCS : BigYAML
     void enumeratePrimitives(const std::function<bool(AnimationSet::MetaAnimPrimitive& prim)>& func)
     {
         for (const AnimationSet::Animation& ai : animationSet.animations)
-            ai.metaAnim.m_anim->enumeratePrimitives(func);
+            if (AnimationSet::IMetaAnim* anim = ai.metaAnim.m_anim.get())
+                anim->enumeratePrimitives(func);
         for (const AnimationSet::Transition& ti : animationSet.transitions)
-            ti.metaTrans.m_trans->enumeratePrimitives(func);
-        animationSet.defaultTransition.m_trans->enumeratePrimitives(func);
+            if (AnimationSet::IMetaTrans* trans = ti.metaTrans.m_trans.get())
+                trans->enumeratePrimitives(func);
+        if (AnimationSet::IMetaTrans* trans = animationSet.defaultTransition.m_trans.get())
+            trans->enumeratePrimitives(func);
     }
 
     static bool Extract(const SpecBase& dataSpec,

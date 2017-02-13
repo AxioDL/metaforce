@@ -207,18 +207,20 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         {
             if (namedEntry.name == "holo_cinf")
                 continue; /* Problematic corner case */
-            catalogWriter.enterSubRecord(namedEntry.name.c_str());
-            hecl::ProjectPath working = getWorking(namedEntry.id);
-            if (working.getAuxInfoUTF8().size())
+            if (auto rec = catalogWriter.enterSubRecord(namedEntry.name.c_str()))
             {
-                catalogWriter.enterSubVector(nullptr);
-                catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
-                catalogWriter.writeString(nullptr, working.getAuxInfoUTF8().c_str());
-                catalogWriter.leaveSubVector();
+                hecl::ProjectPath working = getWorking(namedEntry.id);
+                if (working.getAuxInfoUTF8().size())
+                {
+                    if (auto v = catalogWriter.enterSubVector(nullptr))
+                    {
+                        catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
+                        catalogWriter.writeString(nullptr, working.getAuxInfoUTF8().c_str());
+                    }
+                }
+                else
+                    catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
             }
-            else
-                catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
-            catalogWriter.leaveSubRecord();
         }
 
         /* Write catalog */

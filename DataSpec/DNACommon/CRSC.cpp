@@ -81,43 +81,40 @@ void CRSM<IDType>::read(athena::io::YAMLDocReader& r)
             continue;
         }
 
-        r.enterSubRecord(elem.first.c_str());
-        FourCC clsId(elem.first.c_str());
-        auto gen = std::find_if(GeneratorTypes.begin(), GeneratorTypes.end(), [&clsId](const FourCC& other) -> bool{
-            return clsId == other;
-        });
-        if (gen != GeneratorTypes.end())
+        if (auto rec = r.enterSubRecord(elem.first.c_str()))
         {
-            x0_generators[clsId].read(r);
-            r.leaveSubRecord();
-            continue;
-        }
+            FourCC clsId(elem.first.c_str());
+            auto gen = std::find_if(GeneratorTypes.begin(), GeneratorTypes.end(), [&clsId](const FourCC& other) -> bool{
+                return clsId == other;
+            });
+            if (gen != GeneratorTypes.end())
+            {
+                x0_generators[clsId].read(r);
+                continue;
+            }
 
-        auto sfx = std::find_if(SFXTypes.begin(), SFXTypes.end(), [&clsId](const FourCC& other) -> bool{
-            return clsId == other;
-        });
-        if (sfx != SFXTypes.end())
-        {
-            x10_sfx[clsId] = r.readInt32(clsId.toString().c_str());
-            r.leaveSubRecord();
-            continue;
-        }
+            auto sfx = std::find_if(SFXTypes.begin(), SFXTypes.end(), [&clsId](const FourCC& other) -> bool{
+                return clsId == other;
+            });
+            if (sfx != SFXTypes.end())
+            {
+                x10_sfx[clsId] = r.readInt32(clsId.toString().c_str());
+                continue;
+            }
 
-        auto decal = std::find_if(DecalTypes.begin(), DecalTypes.end(), [&clsId](const FourCC& other) -> bool{
-            return clsId == other;
-        });
-        if (decal != DecalTypes.end())
-        {
-            x20_decals[clsId].read(r);
-            r.leaveSubRecord();
-            continue;
+            auto decal = std::find_if(DecalTypes.begin(), DecalTypes.end(), [&clsId](const FourCC& other) -> bool{
+                return clsId == other;
+            });
+            if (decal != DecalTypes.end())
+            {
+                x20_decals[clsId].read(r);
+                continue;
+            }
+            if (clsId == SBIG('RNGE'))
+                x30_RNGE = r.readFloat(nullptr);
+            else if (clsId == SBIG('FOFF'))
+                x34_FOFF = r.readFloat(nullptr);
         }
-        if (clsId == SBIG('RNGE'))
-            x30_RNGE = r.readFloat(nullptr);
-        else if (clsId == SBIG('FOFF'))
-            x34_FOFF = r.readFloat(nullptr);
-
-        r.leaveSubRecord();
     }
 }
 
@@ -125,30 +122,18 @@ template <class IDType>
 void CRSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 {
     for (const auto& pair : x0_generators)
-    {
         if (pair.second)
-        {
-            w.enterSubRecord(pair.first.toString().c_str());
-            pair.second.write(w);
-            w.leaveSubRecord();
-        }
-    }
+            if (auto rec = w.enterSubRecord(pair.first.toString().c_str()))
+                pair.second.write(w);
 
     for (const auto& pair : x10_sfx)
-    {
         if (pair.second != ~0)
             w.writeUint32(pair.first.toString().c_str(), pair.second);
-    }
 
     for (const auto& pair : x20_decals)
-    {
         if (pair.second)
-        {
-            w.enterSubRecord(pair.first.toString().c_str());
-            pair.second.write(w);
-            w.leaveSubRecord();
-        }
-    }
+            if (auto rec = w.enterSubRecord(pair.first.toString().c_str()))
+                pair.second.write(w);
 
     if (x30_RNGE != 50.f)
         w.writeFloat("RNGE", x30_RNGE);

@@ -449,7 +449,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
 {
     /* x4_ */
     size_t __x4_Count;
-    __dna_docin.enterSubVector("x4_", __x4_Count);
+    if (auto v = __dna_docin.enterSubVector("x4_", __x4_Count))
+    {
     /* x4_[0] */
     x4_[0] = __dna_docin.readFloat("x4_");
     /* x4_[1] */
@@ -466,11 +467,11 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x4_[6] = __dna_docin.readFloat("x4_");
     /* x4_[7] */
     x4_[7] = __dna_docin.readFloat("x4_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x24_ */
     size_t __x24_Count;
-    __dna_docin.enterSubVector("x24_", __x24_Count);
+    if (auto v = __dna_docin.enterSubVector("x24_", __x24_Count))
+    {
     /* x24_[0] */
     x24_[0] = __dna_docin.readFloat("x24_");
     /* x24_[1] */
@@ -487,11 +488,11 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x24_[6] = __dna_docin.readFloat("x24_");
     /* x24_[7] */
     x24_[7] = __dna_docin.readFloat("x24_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x44_ */
     size_t __x44_Count;
-    __dna_docin.enterSubVector("x44_", __x44_Count);
+    if (auto v = __dna_docin.enterSubVector("x44_", __x44_Count))
+    {
     /* x44_[0] */
     x44_[0] = __dna_docin.readFloat("x44_");
     /* x44_[1] */
@@ -508,8 +509,7 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x44_[6] = __dna_docin.readFloat("x44_");
     /* x44_[7] */
     x44_[7] = __dna_docin.readFloat("x44_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* x64_ */
     x64_ = __dna_docin.readFloat("x64_");
     /* x68_ */
@@ -520,7 +520,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x70_ = __dna_docin.readFloat("x70_");
     /* xc4_ */
     size_t __xc4_Count;
-    __dna_docin.enterSubVector("xc4_", __xc4_Count);
+    if (auto v = __dna_docin.enterSubVector("xc4_", __xc4_Count))
+    {
     /* xc4_[0] */
     xc4_[0] = __dna_docin.readFloat("xc4_");
     /* xc4_[1] */
@@ -537,8 +538,7 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     xc4_[6] = __dna_docin.readFloat("xc4_");
     /* xc4_[7] */
     xc4_[7] = __dna_docin.readFloat("xc4_");
-    /*  */
-    __dna_docin.leaveSubVector();
+    }
     /* xe4_ */
     xe4_ = __dna_docin.readFloat("xe4_");
     /* xe8_ */
@@ -688,7 +688,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
 void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
 {
     /* x4_ */
-    __dna_docout.enterSubVector("x4_");
+    if (auto v = __dna_docout.enterSubVector("x4_"))
+    {
     /* x4_[0] */
     __dna_docout.writeFloat("x4_", x4_[0]);
     /* x4_[1] */
@@ -705,10 +706,10 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x4_", x4_[6]);
     /* x4_[7] */
     __dna_docout.writeFloat("x4_", x4_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x24_ */
-    __dna_docout.enterSubVector("x24_");
+    if (auto v = __dna_docout.enterSubVector("x24_"))
+    {
     /* x24_[0] */
     __dna_docout.writeFloat("x24_", x24_[0]);
     /* x24_[1] */
@@ -725,10 +726,10 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x24_", x24_[6]);
     /* x24_[7] */
     __dna_docout.writeFloat("x24_", x24_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x44_ */
-    __dna_docout.enterSubVector("x44_");
+    if (auto v = __dna_docout.enterSubVector("x44_"))
+    {
     /* x44_[0] */
     __dna_docout.writeFloat("x44_", x44_[0]);
     /* x44_[1] */
@@ -745,8 +746,7 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x44_", x44_[6]);
     /* x44_[7] */
     __dna_docout.writeFloat("x44_", x44_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* x64_ */
     __dna_docout.writeFloat("x64_", x64_);
     /* x68_ */
@@ -756,7 +756,8 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x70_ */
     __dna_docout.writeFloat("x70_", x70_);
     /* xc4_ */
-    __dna_docout.enterSubVector("xc4_");
+    if (auto v = __dna_docout.enterSubVector("xc4_"))
+    {
     /* xc4_[0] */
     __dna_docout.writeFloat("xc4_", xc4_[0]);
     /* xc4_[1] */
@@ -773,8 +774,7 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("xc4_", xc4_[6]);
     /* xc4_[7] */
     __dna_docout.writeFloat("xc4_", xc4_[7]);
-    /*  */
-    __dna_docout.leaveSubVector();
+    }
     /* xe4_ */
     __dna_docout.writeFloat("xe4_", xe4_);
     /* xe8_ */

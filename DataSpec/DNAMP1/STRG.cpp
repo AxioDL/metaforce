@@ -562,10 +562,9 @@ void STRG::write(athena::io::YAMLDocWriter& writer) const
 {
     for (const auto& lang : langs)
     {
-        writer.enterSubVector(lang.first.toString().c_str());
-        for (const std::u16string& str : lang.second)
-            writer.writeU16String(nullptr, str);
-        writer.leaveSubVector();
+        if (auto v = writer.enterSubVector(lang.first.toString().c_str()))
+            for (const std::u16string& str : lang.second)
+                writer.writeU16String(nullptr, str);
     }
 }
 

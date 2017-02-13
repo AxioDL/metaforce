@@ -118,6 +118,19 @@ void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj,
     m_origIds = sp.GetObj("MP1OriginalIDs");
 }
 
+void ProjectResourceFactoryMP1::GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const
+{
+    std::string pathPrefix("MP1/");
+    pathPrefix += pakName;
+    pathPrefix += '/';
+
+    std::unique_lock<std::mutex> lk(
+        const_cast<ProjectResourceFactoryMP1&>(*this).m_backgroundIndexMutex);
+    for (const auto& tag : m_tagToPath)
+        if (!tag.second.getRelativePathUTF8().compare(0, pathPrefix.size(), pathPrefix))
+            out.push_back(tag.first);
+}
+
 void ProjectResourceFactoryMP1::Shutdown()
 {
     m_origIds = TLockedToken<MP1OriginalIDs>();

@@ -15,58 +15,58 @@ void DPSM<IDType>::read(athena::io::YAMLDocReader& r)
             continue;
         }
 
-        r.enterSubRecord(elem.first.c_str());
-        bool loadFirstDesc = false;
-        uint32_t clsId = *reinterpret_cast<const uint32_t*>(elem.first.c_str());
-        switch(clsId)
+        if (auto rec = r.enterSubRecord(elem.first.c_str()))
         {
-        case SBIG('1SZE'):
-        case SBIG('1LFT'):
-        case SBIG('1ROT'):
-        case SBIG('1OFF'):
-        case SBIG('1CLR'):
-        case SBIG('1TEX'):
-        case SBIG('1ADD'):
-            loadFirstDesc = true;
-        case SBIG('2SZE'):
-        case SBIG('2LFT'):
-        case SBIG('2ROT'):
-        case SBIG('2OFF'):
-        case SBIG('2CLR'):
-        case SBIG('2TEX'):
-        case SBIG('2ADD'):
-            if (loadFirstDesc)
-                readQuadDecalInfo(r, clsId, x0_quad);
-            else
-                readQuadDecalInfo(r, clsId, x1c_quad);
-        break;
-        case SBIG('DMDL'):
-            x38_DMDL.read(r);
-        break;
-        case SBIG('DLFT'):
-            x48_DLFT.read(r);
-        break;
-        case SBIG('DMOP'):
-            x4c_DMOP.read(r);
-        break;
-        case SBIG('DMRT'):
-            x50_DMRT.read(r);
-        break;
-        case SBIG('DMSC'):
-            x54_DMSC.read(r);
-        break;
-        case SBIG('DMCL'):
-            x58_DMCL.read(r);
-        break;
-        case SBIG('DMAB'):
-            x5c_24_DMAB = r.readBool(nullptr);
-        break;
-        case SBIG('DMOO'):
-            x5c_25_DMOO = r.readBool(nullptr);
-        break;
+            bool loadFirstDesc = false;
+            uint32_t clsId = *reinterpret_cast<const uint32_t*>(elem.first.c_str());
+            switch(clsId)
+            {
+            case SBIG('1SZE'):
+            case SBIG('1LFT'):
+            case SBIG('1ROT'):
+            case SBIG('1OFF'):
+            case SBIG('1CLR'):
+            case SBIG('1TEX'):
+            case SBIG('1ADD'):
+                loadFirstDesc = true;
+            case SBIG('2SZE'):
+            case SBIG('2LFT'):
+            case SBIG('2ROT'):
+            case SBIG('2OFF'):
+            case SBIG('2CLR'):
+            case SBIG('2TEX'):
+            case SBIG('2ADD'):
+                if (loadFirstDesc)
+                    readQuadDecalInfo(r, clsId, x0_quad);
+                else
+                    readQuadDecalInfo(r, clsId, x1c_quad);
+            break;
+            case SBIG('DMDL'):
+                x38_DMDL.read(r);
+            break;
+            case SBIG('DLFT'):
+                x48_DLFT.read(r);
+            break;
+            case SBIG('DMOP'):
+                x4c_DMOP.read(r);
+            break;
+            case SBIG('DMRT'):
+                x50_DMRT.read(r);
+            break;
+            case SBIG('DMSC'):
+                x54_DMSC.read(r);
+            break;
+            case SBIG('DMCL'):
+                x58_DMCL.read(r);
+            break;
+            case SBIG('DMAB'):
+                x5c_24_DMAB = r.readBool(nullptr);
+            break;
+            case SBIG('DMOO'):
+                x5c_25_DMOO = r.readBool(nullptr);
+            break;
+            }
         }
-
-        r.leaveSubRecord();
     }
 }
 
@@ -77,41 +77,24 @@ void DPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
     writeQuadDecalInfo(w, x1c_quad, false);
 
     if (x38_DMDL)
-    {
-        w.enterSubRecord("DMDL");
-        x38_DMDL.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("DMDL"))
+            x38_DMDL.write(w);
     if (x48_DLFT)
-    {
-        w.enterSubRecord("DLFT");
-        x48_DLFT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("DLFT"))
+            x48_DLFT.write(w);
     if (x4c_DMOP)
-    {
-        w.enterSubRecord("DMOP");
-        x4c_DMOP.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("DMOP"))
+            x4c_DMOP.write(w);
     if (x50_DMRT)
-    {
-        w.enterSubRecord("DMRT");
-        x50_DMRT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("DMRT"))
+            x50_DMRT.write(w);
     if (x54_DMSC)
-    {
-        w.enterSubRecord("DMSC");
-        x54_DMSC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("DMSC"))
+            x54_DMSC.write(w);
     if (x58_DMCL)
-    {
-        w.enterSubRecord("DMCL");
-        x54_DMSC.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord("DMCL"))
+            x54_DMSC.write(w);
+
     if (x5c_24_DMAB)
         w.writeBool("DMAB", x5c_24_DMAB);
     if (x5c_25_DMOO)
@@ -160,48 +143,26 @@ void DPSM<IDType>::writeQuadDecalInfo(athena::io::YAMLDocWriter& w,
                                       const typename DPSM<IDType>::SQuadDescr& quad, bool first) const
 {
     if (quad.x0_LFT)
-    {
-        w.enterSubRecord((first ? "1LFT" : "2LFT"));
-        quad.x0_LFT.write(w);
-        w.leaveSubRecord();
-    }
-
+        if (auto rec = w.enterSubRecord((first ? "1LFT" : "2LFT")))
+            quad.x0_LFT.write(w);
     if (quad.x4_SZE)
-    {
-        w.enterSubRecord((first ? "1SZE" : "2SZE"));
-        quad.x4_SZE.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord((first ? "1SZE" : "2SZE")))
+            quad.x4_SZE.write(w);
     if (quad.x8_ROT)
-    {
-        w.enterSubRecord((first ? "1ROT" : "2ROT"));
-        quad.x8_ROT.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord((first ? "1ROT" : "2ROT")))
+            quad.x8_ROT.write(w);
     if (quad.xc_OFF)
-    {
-        w.enterSubRecord((first ? "1OFF" : "2OFF"));
-        quad.xc_OFF.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord((first ? "1OFF" : "2OFF")))
+            quad.xc_OFF.write(w);
     if (quad.x10_CLR)
-    {
-        w.enterSubRecord((first ? "1CLR" : "2CLR"));
-        quad.x10_CLR.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord((first ? "1CLR" : "2CLR")))
+            quad.x10_CLR.write(w);
     if (quad.x14_TEX)
-    {
-        w.enterSubRecord((first ? "1TEX" : "2TEX"));
-        quad.x14_TEX.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord((first ? "1TEX" : "2TEX")))
+            quad.x14_TEX.write(w);
     if (quad.x18_ADD)
-    {
-        w.enterSubRecord((first ? "1ADD" : "2ADD"));
-        quad.x18_ADD.write(w);
-        w.leaveSubRecord();
-    }
+        if (auto rec = w.enterSubRecord((first ? "1ADD" : "2ADD")))
+            quad.x18_ADD.write(w);
 }
 
 template <class IDType>
