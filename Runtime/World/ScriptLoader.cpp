@@ -393,8 +393,8 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
 
     bool b1 = in.readBool();
     bool snow = in.readBool();
-    bool grass = in.readBool();
-    bool metalGrating = in.readBool();
+    bool solid = in.readBool();
+    bool cameraPassthrough = in.readBool();
     bool b5 = in.readBool();
     u32 w2 = in.readUint32Big();
     float f3 = in.readFloatBig();
@@ -413,11 +413,11 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     if (snow) // Bool 2
         list.Add(EMaterialTypes::Snow);
 
-    if (grass) // Bool 3
-        list.Add(EMaterialTypes::Grass);
+    if (solid) // Bool 3
+        list.Add(EMaterialTypes::Solid);
 
-    if (metalGrating) // Bool 4
-        list.Add(EMaterialTypes::MetalGrating);
+    if (cameraPassthrough) // Bool 4
+        list.Add(EMaterialTypes::CameraPassthrough);
 
     bool generateExtent = false;
     if (collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)

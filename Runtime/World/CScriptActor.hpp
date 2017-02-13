@@ -14,18 +14,18 @@ protected:
     CHealthInfo x258_initialHealth;
     CHealthInfo x260_currentHealth;
     CDamageVulnerability x268_damageVulnerability;
-    float x2d0_;
-    float x2d4_;
+    float x2d0_alphaMax;
+    float x2d4_alphaMin;
     s32 x2d8_;
     float x2dc_xrayAlpha;
     TUniqueId x2e0_triggerId = kInvalidUniqueId;
     bool x2e2_24_ : 1;
-    bool x2e2_25_ : 1;
-    bool x2e2_26_ : 1;
+    bool x2e2_25_dead : 1;
+    bool x2e2_26_animating : 1;
     bool x2e2_27_ : 1;
     bool x2e2_28_ : 1;
     bool x2e2_29_ : 1;
-    bool x2e2_30_ : 1;
+    bool x2e2_30_transposeRotate : 1;
     bool x2e2_31_ : 1;
     bool x2e3_24_ : 1;
 

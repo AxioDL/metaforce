@@ -33,13 +33,13 @@ CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCamera
 
 zeus::CVector3f CCameraManager::GetGlobalCameraTranslation(const CStateManager& stateMgr) const
 {
-    const CGameCamera* camera = GetCurrentCamera(stateMgr);
+    TCastToConstPtr<CGameCamera> camera(GetCurrentCamera(stateMgr));
     return camera->GetTransform() * x30_shakeOffset;
 }
 
 zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& stateMgr) const
 {
-    const CGameCamera* camera = GetCurrentCamera(stateMgr);
+    TCastToConstPtr<CGameCamera> camera(GetCurrentCamera(stateMgr));
     return camera->GetTransform() * zeus::CTransform::Translate(x30_shakeOffset);
 }
 
@@ -141,16 +141,16 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 #endif
 }
 
-CGameCamera* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
+CEntity* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
 {
     CObjectList* camList = stateMgr.ObjectListById(EGameObjectList::GameCamera);
-    return TCastToPtr<CGameCamera>(camList->GetObjectById(GetCurrentCameraId())).GetPtr();
+    return camList->GetObjectById(GetCurrentCameraId());
 }
 
-const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMgr) const
+const CEntity* CCameraManager::GetCurrentCamera(const CStateManager& stateMgr) const
 {
     const CObjectList* camList = stateMgr.GetObjectListById(EGameObjectList::GameCamera);
-    return static_cast<const CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
+    return camList->GetObjectById(GetCurrentCameraId());
 }
 
 float CCameraManager::sub80009148() const

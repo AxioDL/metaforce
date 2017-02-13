@@ -81,8 +81,8 @@ public:
     void AddCinemaCamera(TUniqueId, CStateManager& stateMgr);
     void SetInsideFluid(bool, TUniqueId);
     void Update(float dt, CStateManager& stateMgr);
-    CGameCamera* GetCurrentCamera(CStateManager& stateMgr) const;
-    const CGameCamera* GetCurrentCamera(const CStateManager& stateMgr) const;
+    CEntity* GetCurrentCamera(CStateManager& stateMgr) const;
+    const CEntity* GetCurrentCamera(const CStateManager& stateMgr) const;
     void SetCurrentCameraId(TUniqueId id, CStateManager& stateMgr) {x0_curCameraId = id;}
     TUniqueId GetCurrentCameraId() const
     {

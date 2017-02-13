@@ -320,7 +320,7 @@ void CStateManager::DrawSpaceWarp(const zeus::CVector3f& v, float strength) cons
     CPlayerState::EPlayerVisor visor = x8b8_playerState->GetActiveVisor(*this);
     if (visor == CPlayerState::EPlayerVisor::Scan || visor == CPlayerState::EPlayerVisor::Combat)
     {
-        zeus::CVector3f screenV = x870_cameraManager->GetCurrentCamera(*this)->ConvertToScreenSpace(v);
+        zeus::CVector3f screenV = TCastToConstPtr<CGameCamera>(x870_cameraManager->GetCurrentCamera(*this))->ConvertToScreenSpace(v);
         g_Renderer->DrawSpaceWarp(screenV, strength);
     }
 }
