@@ -103,9 +103,9 @@ void CGuiTextSupport::Update(float dt)
     {
         if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
         {
+            float chStartTime = 0.f;
             for (s32 i=0 ; i<buf->GetPrimitiveCount() ; ++i)
             {
-                float chStartTime = 0.f;
                 for (const std::pair<float, int>& p : x40_primStartTimes)
                 {
                     if (p.second < i)
@@ -116,14 +116,9 @@ void CGuiTextSupport::Update(float dt)
                     break;
                 }
 
-#if 0
-                CTextRenderBuffer::Primitive prim = x54_renderBuf->GetPrimitive(i);
-                prim.x0_color1.a = std::min(std::max(0.f, (x30_curTime - chStartTime) / x48_chFadeTime), 1.f);
-                x54_renderBuf->SetPrimitive(prim, i);
-#else
                 buf->SetPrimitiveOpacity(i,
                     std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
-#endif
+                chStartTime += 1.f / x58_chRate;
             }
         }
         x3c_curTime += dt;

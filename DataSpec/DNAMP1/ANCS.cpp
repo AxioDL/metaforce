@@ -1077,10 +1077,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
 
 bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
-                const DNAANCS::Actor& actor,
-                hecl::BlenderConnection::DataStream& ds,
-                bool pc,
-                const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc)
+                const DNAANCS::Actor& actor)
 {
     /* Search for yaml */
     hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
@@ -1151,122 +1148,12 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         return true;
     });
 
-    std::unordered_map<std::string, atInt32> boneIdMap;
-    std::experimental::optional<CINF> rigCinf;
-    std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
-
-    /* Write out CINF resources */
-    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
-    {        
-        hecl::SystemStringView sysStr(arm.name);
-        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".CINF")).getCookedPath(SpecEntMP1);
-        pathOut.makeDirChain(false);
-        athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
-        if (w.hasError())
-            Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                       pathOut.getRelativePath().c_str());
-        CINF cinf(arm, boneIdMap);
-        cinf.write(w);
-
-        if (!rigInv)
-        {
-            rigCinf.emplace(cinf);
-            auto matrices = ds.getBoneMatrices(arm.name);
-            rigInv.emplace(*rigCinf, matrices);
-        }
-    }
-    ds.close();
-
-    /* Write out CSKR resources */
-    for (ANCS::CharacterSet::CharacterInfo& ch : ancs.characterSet.characters)
-    {
-        const DNAANCS::Actor::Subtype* subtype = nullptr;
-        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
-        {
-            if (!sub.name.compare(ch.name))
-            {
-                subtype = &sub;
-                break;
-            }
-        }
-        if (!subtype)
-            Log.report(logvisor::Fatal, "unable to find subtype '%s'", ch.name.c_str());
-
-        const hecl::ProjectPath& modelPath = subtype->mesh;
-
-        if (!modelPath.isFile())
-            Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath.getRelativePath().c_str());
-
-        hecl::ProjectPath skinIntPath = modelPath.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
-        if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath.getModtime())
-            if (!modelCookFunc(modelPath))
-                Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath.getRelativePath().c_str());
-
-        athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
-        if (skinIO.hasError())
-            Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().c_str());
-
-        std::vector<std::vector<uint32_t>> skinBanks;
-        uint32_t bankCount = skinIO.readUint32Big();
-        skinBanks.reserve(bankCount);
-        for (uint32_t i=0 ; i<bankCount ; ++i)
-        {
-            skinBanks.emplace_back();
-            std::vector<uint32_t>& bonesOut = skinBanks.back();
-            uint32_t boneCount = skinIO.readUint32Big();
-            bonesOut.reserve(boneCount);
-            for (uint32_t j=0 ; j<boneCount ; ++j)
-            {
-                uint32_t idx = skinIO.readUint32Big();
-                bonesOut.push_back(idx);
-            }
-        }
-
-        std::vector<std::string> boneNames;
-        uint32_t boneNameCount = skinIO.readUint32Big();
-        boneNames.reserve(boneNameCount);
-        for (uint32_t i=0 ; i<boneNameCount ; ++i)
-            boneNames.push_back(skinIO.readString());
-
-        skinIO.close();
-
-        hecl::SystemStringView sysStr(ch.name);
-        hecl::ProjectPath skinPath = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR")).getCookedPath(SpecEntMP1PC);
-        skinPath.makeDirChain(false);
-        athena::io::FileWriter skinOut(skinPath.getAbsolutePath(), true, false);
-        if (skinOut.hasError())
-            Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                       skinPath.getRelativePath().c_str());
-
-        skinOut.writeUint32Big(bankCount);
-        for (const std::vector<uint32_t>& bank : skinBanks)
-        {
-            skinOut.writeUint32Big(bank.size());
-            for (uint32_t bIdx : bank)
-            {
-                const std::string& name = boneNames[bIdx];
-                auto search = boneIdMap.find(name);
-                if (search == boneIdMap.cend())
-                    Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
-                               name.c_str(), inPath.getRelativePathUTF8().c_str());
-                skinOut.writeUint32Big(search->second);
-            }
-        }
-    }
-
-    /* Write out ANIM resources */
+    /* Gather ANIM resources */
     ancs.animationSet.animResources.reserve(actor.actions.size());
     for (const DNAANCS::Actor::Action& act : actor.actions)
     {
         hecl::SystemStringView sysStr(act.name);
         hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
-        hecl::ProjectPath cookedOut = pathOut.getCookedPath(SpecEntMP1PC);
-        cookedOut.makeDirChain(false);
-        athena::io::FileWriter w(cookedOut.getAbsolutePath(), true, false);
-        if (w.hasError())
-            Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                       cookedOut.getRelativePath().c_str());
-        ANIM anim(act, boneIdMap, *rigInv, pc);
 
         ancs.animationSet.animResources.emplace_back();
         ancs.animationSet.animResources.back().animId = pathOut;
@@ -1275,38 +1162,169 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) +
                                                                   sysStr.sys_str() +
                                                                   _S(".evnt.yaml")).c_str(), true);
+        evntYamlPath = evntYamlPath.ensureAuxInfo(_S(""));
         if (evntYamlPath.isFile())
-        {
-            athena::io::FileReader reader(evntYamlPath.getAbsolutePath());
-            if (reader.isOpen())
-            {
-                EVNT evnt;
-                evnt.fromYAMLStream(reader);
-
-                hecl::ProjectPath evntCookedOut = evntYamlPath.getCookedPath(SpecEntMP1);
-                evntCookedOut.makeDirChain(false);
-                athena::io::FileWriter w(evntCookedOut.getAbsolutePath(), true, false);
-                if (w.hasError())
-                    Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                               evntCookedOut.getRelativePath().c_str());
-
-                evnt.write(w);
-                ancs.animationSet.animResources.back().evntId = evntYamlPath;
-                anim.m_anim->evnt = evntYamlPath;
-            }
-        }
-
-        anim.write(w);
+            ancs.animationSet.animResources.back().evntId = evntYamlPath;
     }
 
     /* Write out ANCS */
-    hecl::ProjectPath pathOut = inPath.ensureAuxInfo("").getCookedPath(SpecEntMP1);
-    athena::io::FileWriter w(pathOut.getAbsolutePath(), true, false);
-    if (w.hasError())
-        Log.report(logvisor::Fatal, _S("unable to open '%s' for writing"),
-                   pathOut.getRelativePath().c_str());
+    athena::io::TransactionalFileWriter w(outPath.getAbsolutePath());
     ancs.write(w);
 
+    return true;
+}
+
+bool ANCS::CookCINF(const hecl::ProjectPath& outPath,
+                    const hecl::ProjectPath& inPath,
+                    const DNAANCS::Actor& actor)
+{
+    hecl::SystemString armName(inPath.getAuxInfo().begin(),
+                               inPath.getAuxInfo().end() - 5);
+
+    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    {
+        hecl::SystemStringView sysStr(arm.name);
+        if (sysStr.sys_str() == armName)
+        {
+            std::unordered_map<std::string, atInt32> boneIdMap;
+            CINF cinf(arm, boneIdMap);
+
+            /* Write out CINF resource */
+            athena::io::TransactionalFileWriter w(outPath.getAbsolutePath());
+            cinf.write(w);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
+                    const hecl::ProjectPath& inPath,
+                    const DNAANCS::Actor& actor,
+                    const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc)
+{
+    hecl::SystemString subName(inPath.getAuxInfo().begin(),
+                               inPath.getAuxInfo().end() - 5);
+    hecl::SystemUTF8View subNameView(subName);
+
+    /* Build bone ID map */
+    std::unordered_map<std::string, atInt32> boneIdMap;
+    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    {
+        CINF cinf(arm, boneIdMap);
+    }
+
+    const DNAANCS::Actor::Subtype* subtype = nullptr;
+    for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+    {
+        if (!sub.name.compare(subNameView.str()))
+        {
+            subtype = &sub;
+            break;
+        }
+    }
+    if (!subtype)
+        Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
+
+    const hecl::ProjectPath& modelPath = subtype->mesh;
+
+    if (!modelPath.isFile())
+        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath.getRelativePath().c_str());
+
+    hecl::ProjectPath skinIntPath = modelPath.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
+    if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath.getModtime())
+        if (!modelCookFunc(modelPath))
+            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath.getRelativePath().c_str());
+
+    athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
+    if (skinIO.hasError())
+        Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().c_str());
+
+    std::vector<std::vector<uint32_t>> skinBanks;
+    uint32_t bankCount = skinIO.readUint32Big();
+    skinBanks.reserve(bankCount);
+    for (uint32_t i=0 ; i<bankCount ; ++i)
+    {
+        skinBanks.emplace_back();
+        std::vector<uint32_t>& bonesOut = skinBanks.back();
+        uint32_t boneCount = skinIO.readUint32Big();
+        bonesOut.reserve(boneCount);
+        for (uint32_t j=0 ; j<boneCount ; ++j)
+        {
+            uint32_t idx = skinIO.readUint32Big();
+            bonesOut.push_back(idx);
+        }
+    }
+
+    std::vector<std::string> boneNames;
+    uint32_t boneNameCount = skinIO.readUint32Big();
+    boneNames.reserve(boneNameCount);
+    for (uint32_t i=0 ; i<boneNameCount ; ++i)
+        boneNames.push_back(skinIO.readString());
+
+    skinIO.close();
+
+    athena::io::TransactionalFileWriter skinOut(outPath.getAbsolutePath());
+
+    skinOut.writeUint32Big(bankCount);
+    for (const std::vector<uint32_t>& bank : skinBanks)
+    {
+        skinOut.writeUint32Big(bank.size());
+        for (uint32_t bIdx : bank)
+        {
+            const std::string& name = boneNames[bIdx];
+            auto search = boneIdMap.find(name);
+            if (search == boneIdMap.cend())
+                Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
+                           name.c_str(), inPath.getRelativePathUTF8().c_str());
+            skinOut.writeUint32Big(search->second);
+        }
+    }
+
+    return true;
+}
+
+bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
+                    const hecl::ProjectPath& inPath,
+                    const DNAANCS::Actor& actor,
+                    hecl::BlenderConnection::DataStream& ds,
+                    bool pc)
+{
+    hecl::SystemString actName(inPath.getAuxInfo().begin(),
+                               inPath.getAuxInfo().end() - 5);
+    hecl::SystemUTF8View actNameView(actName);
+    DNAANCS::Actor::Action action = ds.compileActionChannelsOnly(actNameView.str());
+
+    if (!actor.armatures.size())
+        Log.report(logvisor::Fatal, _S("0 armatures in %s"),
+                   inPath.getRelativePath().c_str());
+
+    /* Build bone ID map */
+    std::unordered_map<std::string, atInt32> boneIdMap;
+    std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
+    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    {
+        CINF cinf(arm, boneIdMap);
+        if (!rigInv)
+        {
+            auto matrices = ds.getBoneMatrices(arm.name);
+            rigInv.emplace(cinf, matrices);
+        }
+    }
+
+    ANIM anim(action, boneIdMap, *rigInv, pc);
+
+    /* Check for associated EVNT YAML */
+    hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) + actName +
+                                                              _S(".evnt.yaml")).c_str(), true);
+    evntYamlPath = evntYamlPath.ensureAuxInfo(_S(""));
+    if (evntYamlPath.isFile())
+        anim.m_anim->evnt = evntYamlPath;
+
+    /* Write out ANIM resource */
+    athena::io::TransactionalFileWriter w(outPath.getAbsolutePath());
+    anim.write(w);
     return true;
 }
 

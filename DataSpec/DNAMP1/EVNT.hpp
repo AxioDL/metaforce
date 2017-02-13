@@ -89,6 +89,22 @@ struct EVNT : BigYAML
         evnt.toYAMLStream(writer);
         return true;
     }
+
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+    {
+        EVNT evnt;
+        athena::io::FileReader reader(inPath.getAbsolutePath());
+        evnt.fromYAMLStream(reader);
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        evnt.write(ws);
+        return true;
+    }
+
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        for (const ParticlePOINode& node : particlePOINodes)
+            g_curSpec->flattenDependencies(node.id, pathsOut);
+    }
 };
 
 }

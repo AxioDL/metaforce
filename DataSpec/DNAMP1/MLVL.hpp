@@ -155,6 +155,13 @@ struct MLVL : BigYAML
                      const hecl::ProjectPath& inPath,
                      const World& wld,
                      hecl::BlenderToken& btok);
+
+    static bool CookMAPW(const hecl::ProjectPath& outPath,
+                         const World& wld,
+                         hecl::BlenderToken& btok);
+
+    static bool CookSAVW(const hecl::ProjectPath& outPath,
+                         const World& wld);
 };
 
 }

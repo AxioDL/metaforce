@@ -463,6 +463,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::EVNT::DNAType()))
+                return true;
             else if (!strcmp(classType, "ATBL"))
                 return true;
             else if (!strcmp(classType, "MP1OriginalIDs"))
@@ -559,97 +561,97 @@ struct SpecMP1 : SpecBase
 
             urde::SObjectTag resTag;
             if (reader.ClassTypeOperation([&](const char* className) -> bool {
-                    if (!strcmp(className, "GPSM"))
-                    {
-                        resTag.type = SBIG('PART');
-                        return true;
-                    }
-                    if (!strcmp(className, "SWSH"))
-                    {
-                        resTag.type = SBIG('SWHC');
-                        return true;
-                    }
-                    if (!strcmp(className, "ELSM"))
-                    {
-                        resTag.type = SBIG('ELSC');
-                        return true;
-                    }
-                    if (!strcmp(className, "WPSM"))
-                    {
-                        resTag.type = SBIG('WPSC');
-                        return true;
-                    }
-                    if (!strcmp(className, "CRSM"))
-                    {
-                        resTag.type = SBIG('CRSC');
-                        return true;
-                    }
-                    if (!strcmp(className, "DPSM"))
-                    {
-                        resTag.type = SBIG('DPSC');
-                        return true;
-                    }
-                    else if (!strcmp(className, "FONT"))
-                    {
-                        resTag.type = SBIG('FONT');
-                        return true;
-                    }
-                    else if (!strcmp(className, "urde::DNAMP1::EVNT"))
-                    {
-                        resTag.type = SBIG('EVNT');
-                        return true;
-                    }
-                    else if (!strcmp(className, "urde::DGRP"))
-                    {
-                        resTag.type = SBIG('DGRP');
-                        return true;
-                    }
-                    else if (!strcmp(className, "urde::DNAMP1::STRG"))
-                    {
-                        resTag.type = SBIG('STRG');
-                        return true;
-                    }
-                    else if (!strcmp(className, "urde::DNAMP1::SCAN"))
-                    {
-                        resTag.type = SBIG('SCAN');
-                        return true;
-                    }
-                    else if (!strcmp(className, "DataSpec::DNAMP1::CTweakPlayerRes") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakGunRes") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakSlideShow") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakPlayer") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakCameraBob") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakGame") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakTargeting") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakAutoMapper") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakGui") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerControl") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakBall") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakParticle") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakGuiColors") ||
-                             !strcmp(className, "DataSpec::DNAMP1::CTweakPlayerGun"))
-                    {
-                        resTag.type = SBIG('CTWK');
-                        return true;
-                    }
-                    else if (!strcmp(className, "DataSpec::DNAMP1::HINT"))
-                    {
-                        resTag.type = SBIG('HINT');
-                        return true;
-                    }
-                    else if (!strcmp(className, "ATBL"))
-                    {
-                        resTag.type = SBIG('ATBL');
-                        return true;
-                    }
-                    else if (!strcmp(className, "MP1OriginalIDs"))
-                    {
-                        resTag.type = SBIG('OIDS');
-                        return true;
-                    }
+                if (!strcmp(className, DNAParticle::GPSM<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('PART');
+                    return true;
+                }
+                if (!strcmp(className, DNAParticle::SWSH<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('SWHC');
+                    return true;
+                }
+                if (!strcmp(className, DNAParticle::ELSM<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('ELSC');
+                    return true;
+                }
+                if (!strcmp(className, DNAParticle::WPSM<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('WPSC');
+                    return true;
+                }
+                if (!strcmp(className, DNAParticle::CRSM<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('CRSC');
+                    return true;
+                }
+                if (!strcmp(className, DNAParticle::DPSM<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('DPSC');
+                    return true;
+                }
+                else if (!strcmp(className, DNAFont::FONT<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('FONT');
+                    return true;
+                }
+                else if (!strcmp(className, DNAMP1::EVNT::DNAType()))
+                {
+                    resTag.type = SBIG('EVNT');
+                    return true;
+                }
+                else if (!strcmp(className, DNADGRP::DGRP<UniqueID32>::DNAType()))
+                {
+                    resTag.type = SBIG('DGRP');
+                    return true;
+                }
+                else if (!strcmp(className, DataSpec::DNAMP1::STRG::DNAType()))
+                {
+                    resTag.type = SBIG('STRG');
+                    return true;
+                }
+                else if (!strcmp(className, DataSpec::DNAMP1::SCAN::DNAType()))
+                {
+                    resTag.type = SBIG('SCAN');
+                    return true;
+                }
+                else if (!strcmp(className, DataSpec::DNAMP1::CTweakPlayerRes::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakGunRes::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakSlideShow::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakPlayer::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakCameraBob::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakGame::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakTargeting::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakAutoMapper::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakGui::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakPlayerControl::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakBall::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakParticle::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakGuiColors::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::CTweakPlayerGun::DNAType()))
+                {
+                    resTag.type = SBIG('CTWK');
+                    return true;
+                }
+                else if (!strcmp(className, DataSpec::DNAMP1::HINT::DNAType()))
+                {
+                    resTag.type = SBIG('HINT');
+                    return true;
+                }
+                else if (!strcmp(className, "ATBL"))
+                {
+                    resTag.type = SBIG('ATBL');
+                    return true;
+                }
+                else if (!strcmp(className, "MP1OriginalIDs"))
+                {
+                    resTag.type = SBIG('OIDS');
+                    return true;
+                }
 
-                    return false;
-                }))
+                return false;
+            }))
             {
                 resTag.id = path.hash().val32();
                 fclose(fp);
@@ -676,25 +678,35 @@ struct SpecMP1 : SpecBase
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                    hecl::BlenderToken& btok, FCookProgress progress)
     {
-        /*
         if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".CINF")))
-            return {SBIG('CINF'), path.hash().val32()};
+        {
+            Actor actor = ds.compileActorCharacterOnly();
+            DNAMP1::ANCS::CookCINF(out, in, actor);
+        }
         else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".CSKR")))
-            return {SBIG('CSKR'), path.hash().val32()};
+        {
+            Actor actor = ds.compileActorCharacterOnly();
+            ds.close();
+            DNAMP1::ANCS::CookCSKR(out, in, actor, [&](const hecl::ProjectPath& modelPath) -> bool {
+                hecl::ProjectPath cooked;
+                if (m_pc)
+                    cooked = modelPath.getCookedPath(SpecEntMP1PC);
+                else
+                    cooked = modelPath.getCookedPath(SpecEntMP1);
+                doCook(modelPath, cooked, fast, btok, progress);
+                return true;
+            });
+        }
         else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".ANIM")))
-            return {SBIG('ANIM'), path.hash().val32()};
-            */
-
-        Actor actor = ds.compileActor();
-        DNAMP1::ANCS::Cook(out, in, actor, ds, m_pc, [&](const hecl::ProjectPath& modelPath) -> bool {
-            hecl::ProjectPath cooked;
-            if (m_pc)
-                cooked = modelPath.getCookedPath(SpecEntMP1PC);
-            else
-                cooked = modelPath.getCookedPath(SpecEntMP1);
-            doCook(modelPath, cooked, fast, btok, progress);
-            return true;
-        });
+        {
+            Actor actor = ds.compileActorCharacterOnly();
+            DNAMP1::ANCS::CookANIM(out, in, actor, ds, m_pc);
+        }
+        else
+        {
+            Actor actor = ds.compileActor();
+            DNAMP1::ANCS::Cook(out, in, actor);
+        }
     }
 
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
@@ -734,9 +746,24 @@ struct SpecMP1 : SpecBase
     void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                    hecl::BlenderToken& btok, FCookProgress progress)
     {
-        BlendStream::World world = ds.compileWorld();
-        ds.close();
-        DNAMP1::MLVL::Cook(out, in, world, btok);
+        if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S("MAPW")))
+        {
+            BlendStream::World world = ds.compileWorld();
+            ds.close();
+            DNAMP1::MLVL::CookMAPW(out, world, btok);
+        }
+        else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S("SAVW")))
+        {
+            BlendStream::World world = ds.compileWorld();
+            ds.close();
+            DNAMP1::MLVL::CookSAVW(out, world);
+        }
+        else
+        {
+            BlendStream::World world = ds.compileWorld();
+            ds.close();
+            DNAMP1::MLVL::Cook(out, in, world, btok);
+        }
     }
 
     void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
@@ -909,6 +936,10 @@ struct SpecMP1 : SpecBase
             {
                 DNAMP1::HINT::Cook(in, out);
             }
+            else if (!classStr.compare(DNAMP1::EVNT::DNAType()))
+            {
+                DNAMP1::EVNT::Cook(in, out);
+            }
             else if (!classStr.compare("ATBL"))
             {
                 DNAAudio::ATBL::Cook(in, out);
@@ -983,6 +1014,12 @@ struct SpecMP1 : SpecBase
                 DNAFont::FONT<UniqueID32> font;
                 font.read(reader);
                 font.gatherDependencies(pathsOut);
+            }
+            else if (!classStr.compare(DNAMP1::EVNT::DNAType()))
+            {
+                DNAMP1::EVNT evnt;
+                evnt.read(reader);
+                evnt.gatherDependencies(pathsOut);
             }
         }
     }
