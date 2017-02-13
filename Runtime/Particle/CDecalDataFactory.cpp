@@ -31,7 +31,6 @@ CDecalDescription* CDecalDataFactory::CreateGeneratorDescription(CInputStream& i
     return nullptr;
 }
 
-
 bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CSimplePool* resPool)
 {
     CRandom16 rand{99};
@@ -62,32 +61,32 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
                 GetQuadDecalInfo(in, resPool, clsId, desc->x0_Quad);
             else
                 GetQuadDecalInfo(in, resPool, clsId, desc->x1c_Quad);
-        break;
+            break;
 
         case SBIG('DMDL'):
             desc->x38_DMDL = CPF::GetModel(in, resPool);
-        break;
+            break;
         case SBIG('DLFT'):
             desc->x48_DLFT.reset(CPF::GetIntElement(in));
-        break;
+            break;
         case SBIG('DMOP'):
             desc->x4c_DMOP.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('DMRT'):
             desc->x50_DMRT.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('DMSC'):
             desc->x54_DMSC.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('DMCL'):
             desc->x58_DMCL.reset(CPF::GetColorElement(in));
-        break;
+            break;
         case SBIG('DMAB'):
             desc->x5c_24_DMAB = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('DMOO'):
             desc->x5c_25_DMOO = CPF::GetBool(in);
-        break;
+            break;
         default:
         {
             uint32_t clsName = clsId.toUint32();
@@ -109,38 +108,39 @@ void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool,
     case SBIG('1LFT'):
     case SBIG('2LFT'):
         quad.x0_LFT.reset(CPF::GetIntElement(in));
-    break;
+        break;
     case SBIG('1SZE'):
     case SBIG('2SZE'):
         quad.x4_SZE.reset(CPF::GetRealElement(in));
-    break;
+        break;
     case SBIG('1ROT'):
     case SBIG('2ROT'):
         quad.x8_ROT.reset(CPF::GetRealElement(in));
-    break;
+        break;
     case SBIG('1OFF'):
     case SBIG('2OFF'):
         quad.xc_OFF.reset(CPF::GetVectorElement(in));
-    break;
+        break;
     case SBIG('1CLR'):
     case SBIG('2CLR'):
         quad.x10_CLR.reset(CPF::GetColorElement(in));
-    break;
+        break;
     case SBIG('1TEX'):
     case SBIG('2TEX'):
         quad.x14_TEX.reset(CPF::GetTextureElement(in, resPool));
-    break;
+        break;
     case SBIG('1ADD'):
     case SBIG('2ADD'):
         quad.x18_ADD = CPF::GetBool(in);
-    break;
+        break;
     }
 }
 
-CFactoryFnReturn FDecalDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
+CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                   CObjectReference*)
 {
     CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-    return TToken<CDecalDescription>::GetIObjObjectFor(std::unique_ptr<CDecalDescription>(CDecalDataFactory::GetGeneratorDesc(in, sp)));
+    return TToken<CDecalDescription>::GetIObjObjectFor(
+        std::unique_ptr<CDecalDescription>(CDecalDataFactory::GetGeneratorDesc(in, sp)));
 }
-
 }

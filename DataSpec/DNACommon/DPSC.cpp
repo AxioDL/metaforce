@@ -350,7 +350,7 @@ void DPSM<IDType>::writeQuadDecalInfo(athena::io::IStreamWriter& w,
     }
     if (quad.x10_CLR)
     {
-        w.writeBytes((first ? "1CLR" : "2LCR"), 4);
+        w.writeBytes((first ? "1CLR" : "2CLR"), 4);
         quad.x10_CLR.write(w);
     }
     if (quad.x14_TEX)

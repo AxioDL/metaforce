@@ -6,6 +6,11 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/Particle/CParticleElectricDataFactory.hpp"
+#include "Runtime/Particle/CParticleSwooshDataFactory.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/Particle/CProjectileWeaponDataFactory.hpp"
+#include "Runtime/Particle/CDecalDataFactory.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
@@ -17,6 +22,7 @@
 #include "Runtime/Character/CAllFormatsAnimSource.hpp"
 #include "Runtime/Character/CAnimPOIData.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/CCollisionResponseData.hpp"
 #include "Runtime/CSaveWorld.hpp"
 #include "Runtime/AutoMapper/CMapWorld.hpp"
 #include "Runtime/CScannableObjectInfo.hpp"
@@ -110,6 +116,11 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
     m_factoryMgr.AddFactory(FOURCC('OIDS'), FFactoryFunc(FMP1OriginalIDsFactory));
     m_factoryMgr.AddFactory(FOURCC('SCAN'), FFactoryFunc(FScannableObjectInfoFactory));
+    m_factoryMgr.AddFactory(FOURCC('CRSC'), FFactoryFunc(FCollisionResponseDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('SWHC'), FFactoryFunc(FParticleSwooshDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('ELSC'), FFactoryFunc(FParticleElectricDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('WPSC'), FFactoryFunc(FProjectileWeaponDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('DPSC'), FFactoryFunc(FDecalDataFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp)

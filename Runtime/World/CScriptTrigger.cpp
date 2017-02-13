@@ -29,10 +29,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
     x148_27_deactivateOnExited = b3;
 }
 
-void CScriptTrigger::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
+void CScriptTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptTrigger::Think(float dt, CStateManager& mgr)
 {
@@ -81,6 +78,8 @@ CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id)
 void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
 {
 #if 0
+    bool inhabitantExited = false;
+    bool player = false;
     for (auto it = xe8_inhabitants.begin(); it != xe8_inhabitants.end();)
     {
         TCastToPtr<CActor> act(mgr.ObjectById((*it).GetObjectId()));
@@ -89,6 +88,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
             TCastToPtr<CPlayer> pl(act);
             if (bool(x12c_flags & ETriggerFlags::DetectPlayer))
             {
+                player = true;
                 using EPlayerMorphBallState = CPlayer::EPlayerMorphBallState;
                 EPlayerMorphBallState mState = pl->GetMorphballTransitionState();
                 if ((mState == EPlayerMorphBallState::Morphed &&
@@ -106,8 +106,8 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                             x148_29_didPhazonDamage = false;
                         }
 
-                        if (mgr.GetLastTrigger() == GetUniqueId())
-                            mgr.SetLastTrigger(kInvalidUniqueId);
+                        if (mgr.GetLastTriggerId() == GetUniqueId())
+                            mgr.SetLastTriggerId(kInvalidUniqueId);
                     }
 
                     InhabitantExited(*act, mgr);
@@ -124,14 +124,16 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                     inhabitantExited = true;
                     InhabitantIdle(*act, mgr);
                     if (act->HealthInfo() && x100_damageInfo.GetDamage() > 0.f)
-                        mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x100_damageInfo, CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}));
+                        mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x100_damageInfo,
+                                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}));
 
                     TCastToPtr<CPhysicsActor> physAct{act};
                     if (physAct)
                     {
                         float forceMult = 1.f;
                         if (bool(x12c_flags & ETriggerFlags::UseBooleanIntersection))
-                            forceMult = touchBounds->booleanIntersection(*actTouchBounds).volume() / actTouchBounds->volume();
+                            forceMult =
+                                touchBounds->booleanIntersection(*actTouchBounds).volume() / actTouchBounds->volume();
 
                         zeus::CVector3f force = forceMult * x11c_forceField;
                         if (bool(x12c_flags & ETriggerFlags::UseCollisionImpulses))
@@ -160,8 +162,8 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                     }
                 }
 
-                if (mgr.GetLastTrigger() == GetUniqueId())
-                    mgr.SetLastTrigger(kInvalidUniqueId);
+                if (mgr.GetLastTriggerId() == GetUniqueId())
+                    mgr.SetLastTriggerId(kInvalidUniqueId);
 
                 InhabitantExited(*act, mgr);
                 continue;
@@ -183,8 +185,8 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                 }
             }
 
-            if (mgr.GetLastTrigger() == GetUniqueId())
-                mgr.SetLastTrigger(kInvalidUniqueId);
+            if (mgr.GetLastTriggerId() == GetUniqueId())
+                mgr.SetLastTriggerId(kInvalidUniqueId);
         }
     }
 
@@ -194,14 +196,13 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
         return;
     }
 
-
     if (!player)
     {
         SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
         if (x148_27_deactivateOnExited)
         {
-            mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()), EScriptObjectMessage::Deactivate,
-                              EScriptObjectState::Exited);
+            mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()),
+                              EScriptObjectMessage::Deactivate, EScriptObjectState::Exited);
         }
     }
 #endif

@@ -71,7 +71,8 @@ public:
     static FourCC UncookedResType();
 };
 
-CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                               CObjectReference*);
 }
 
 #endif // __URDE_CCOLLISIONRESPONSEDATA_HPP__

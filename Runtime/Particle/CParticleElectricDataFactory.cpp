@@ -13,12 +13,12 @@ static logvisor::Module Log("urde::CParticleElectricDataFactory");
 
 using CPF = CParticleDataFactory;
 
-CElectricDescription* CParticleElectricDataFactory::GetGeneratorDesc(CInputStream &in, CSimplePool *resPool)
+CElectricDescription* CParticleElectricDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
 {
     return CreateElectricDescription(in, resPool);
 }
 
-CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CInputStream &in, CSimplePool *resPool)
+CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CInputStream& in, CSimplePool* resPool)
 {
     FourCC cid = CPF::GetClassID(in);
     if (cid == FOURCC('ELSM'))
@@ -32,7 +32,7 @@ CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CI
     return nullptr;
 }
 
-bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInputStream &in, CSimplePool *resPool)
+bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool)
 {
     CRandom16 rand{99};
     CGlobalRandom gr{rand};
@@ -40,59 +40,59 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
     FourCC clsId = CPF::GetClassID(in);
     while (clsId != SBIG('_END'))
     {
-        switch(clsId)
+        switch (clsId)
         {
         case SBIG('LIFE'):
             desc->x0_LIFE.reset(CPF::GetIntElement(in));
-        break;
+            break;
         case SBIG('SLIF'):
             desc->x4_SLIF.reset(CPF::GetIntElement(in));
-        break;
+            break;
         case SBIG('GRAT'):
             desc->x8_GRAT.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('SCNT'):
             desc->xc_SCNT.reset(CPF::GetIntElement(in));
-        break;
+            break;
         case SBIG('SSEG'):
             desc->x10_SSEG.reset(CPF::GetIntElement(in));
-        break;
+            break;
         case SBIG('COLR'):
             desc->x14_COLR.reset(CPF::GetColorElement(in));
-        break;
+            break;
         case SBIG('IEMT'):
             desc->x18_IEMT.reset(CPF::GetEmitterElement(in));
-        break;
+            break;
         case SBIG('FEMT'):
             desc->x1c_FEMT.reset(CPF::GetEmitterElement(in));
-        break;
+            break;
         case SBIG('AMPL'):
             desc->x20_AMPL.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('AMPD'):
             desc->x24_AMPD.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('LWD1'):
             desc->x28_LWD1.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('LWD2'):
             desc->x2c_LWD2.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('LWD3'):
             desc->x30_LWD3.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('LCL1'):
             desc->x34_LCL1.reset(CPF::GetColorElement(in));
-        break;
+            break;
         case SBIG('LCL2'):
             desc->x38_LCL2.reset(CPF::GetColorElement(in));
-        break;
+            break;
         case SBIG('LCL3'):
             desc->x3c_LCL3.reset(CPF::GetColorElement(in));
-        break;
+            break;
         case SBIG('SSWH'):
             desc->x40_SSWH = CPF::GetSwooshGeneratorDesc(in, resPool);
-        break;
+            break;
         case SBIG('GPSM'):
         {
             std::vector<ResId> tracker;
@@ -109,7 +109,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription *desc, CInput
         }
         case SBIG('ZERY'):
             desc->x70_ZERY = CPF::GetBool(in);
-        break;
+            break;
         default:
         {
             uint32_t clsName = clsId.toUint32();
@@ -132,10 +132,11 @@ void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc)
         desc->x60_EPSM.m_gen = desc->x60_EPSM.m_token.GetObj();
 }
 
-CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms)
+CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                              CObjectReference*)
 {
     CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-    return TToken<CElectricDescription>::GetIObjObjectFor(std::unique_ptr<CElectricDescription>(CParticleElectricDataFactory::GetGeneratorDesc(in, sp)));
+    return TToken<CElectricDescription>::GetIObjObjectFor(
+        std::unique_ptr<CElectricDescription>(CParticleElectricDataFactory::GetGeneratorDesc(in, sp)));
 }
-
 }

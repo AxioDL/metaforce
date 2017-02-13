@@ -35,6 +35,8 @@ set(GUISYS_SOURCES
     CWordBreakTables.hpp CWordBreakTables.cpp
     CFontImageDef.hpp CFontImageDef.cpp
     CStringTable.hpp CStringTable.cpp
-    CTargetingManager.hpp CTargetingManager.cpp)
+    CTargetingManager.hpp CTargetingManager.cpp
+    CCompoundTargetReticle.hpp CCompoundTargetReticle.cpp
+    COrbitPointMarker.hpp COrbitPointMarker.cpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)

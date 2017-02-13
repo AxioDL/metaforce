@@ -14,7 +14,7 @@ static logvisor::Module Log("urde::CProjectileWeaponDataFactory");
 
 using CPF = CParticleDataFactory;
 
-CWeaponDescription*CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
+CWeaponDescription* CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
 {
     return CreateGeneratorDescription(in, resPool);
 }
@@ -37,61 +37,61 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
     CGlobalRandom gr{rand};
     FourCC clsId = CPF::GetClassID(in);
 
-    while(clsId != SBIG('_END'))
+    while (clsId != SBIG('_END'))
     {
-        switch(clsId)
+        switch (clsId)
         {
         case SBIG('IORN'):
             desc->x0_IORN.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('IVEC'):
             desc->x4_IVEC.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('PSVM'):
             desc->xc_PSVM.reset(CPF::GetModVectorElement(in));
-        break;
+            break;
         case SBIG('VMD2'):
             desc->x10_VMD2 = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('PSLT'):
             desc->x14_PSLT.reset(CPF::GetIntElement(in));
-        break;
+            break;
         case SBIG('PCSL'):
             desc->x18_PCSL.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('PCOL'):
             desc->x1c_PCOL.reset(CPF::GetColorElement(in));
-        break;
+            break;
         case SBIG('POFS'):
-           desc->x20_POFS.reset(CPF::GetVectorElement(in));
-        break;
+            desc->x20_POFS.reset(CPF::GetVectorElement(in));
+            break;
         case SBIG('OFST'):
             desc->x24_OFST.reset(CPF::GetVectorElement(in));
-        break;
+            break;
         case SBIG('APSO'):
             desc->x28_APSO = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('HOMG'):
             desc->x29_HOMG = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('AP11'):
             desc->x2a_AP11 = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('AP21'):
             desc->x2b_AP21 = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('AS11'):
             desc->x2c_AS11 = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('AS12'):
             desc->x2d_AS12 = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('AS13'):
             desc->x2e_AS13 = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('TRAT'):
             desc->x30_TRAT.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('APSM'):
         {
             std::vector<ResId> tracker;
@@ -108,16 +108,16 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         }
         case SBIG('ASW1'):
             desc->x54_ASW1 = CPF::GetSwooshGeneratorDesc(in, resPool);
-        break;
+            break;
         case SBIG('ASW2'):
             desc->x64_ASW2 = CPF::GetSwooshGeneratorDesc(in, resPool);
-        break;
+            break;
         case SBIG('ASW3'):
             desc->x74_ASW3 = CPF::GetSwooshGeneratorDesc(in, resPool);
-        break;
+            break;
         case SBIG('OHEF'):
             desc->x84_OHEF = CPF::GetModel(in, resPool);
-        break;
+            break;
         case SBIG('COLR'):
         {
             FourCC cid = CPF::GetClassID(in);
@@ -130,13 +130,13 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         }
         case SBIG('EWTR'):
             desc->xa4_EWTR = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('LWTR'):
             desc->xa5_LWTR = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('SWTR'):
             desc->xa6_SWTR = CPF::GetBool(in);
-        break;
+            break;
         case SBIG('PJFX'):
         {
             FourCC cid = CPF::GetClassID(in);
@@ -148,10 +148,10 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         }
         case SBIG('RNGE'):
             desc->xac_RNGE.reset(CPF::GetRealElement(in));
-        break;
+            break;
         case SBIG('FOFF'):
             desc->xb0_FOFF.reset(CPF::GetRealElement(in));
-        break;
+            break;
         default:
         {
             uint32_t clsName = clsId.toUint32();
@@ -164,10 +164,11 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
     return true;
 }
 
-CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms)
+CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                              CObjectReference*)
 {
     CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-    return TToken<CWeaponDescription>::GetIObjObjectFor(std::unique_ptr<CWeaponDescription>(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp)));
+    return TToken<CWeaponDescription>::GetIObjObjectFor(
+        std::unique_ptr<CWeaponDescription>(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp)));
 }
-
 }

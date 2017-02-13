@@ -20,7 +20,8 @@ public:
     static CElectricDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
-CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                              CObjectReference*);
 }
 
 #endif // __URDE_CPARTICLEELECTRICDATAFACTORY_HPP__

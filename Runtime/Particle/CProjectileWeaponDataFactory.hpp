@@ -15,11 +15,13 @@ class CProjectileWeaponDataFactory
 {
     static CWeaponDescription* CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool);
     static bool CreateWPSM(CWeaponDescription* desc, CInputStream& in, CSimplePool* resPool);
+
 public:
     static CWeaponDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
-CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                              CObjectReference*);
 }
 
 #endif // __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__
