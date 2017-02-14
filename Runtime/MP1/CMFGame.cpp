@@ -103,15 +103,11 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
                 return EMessageReturn::Exit;
             }
             u32 loadingCount = 0;
-            std::vector<const SObjectTag*> unloaded;
             for (CToken& tok : x1c_loadList)
             {
                 tok.Lock();
                 if (!tok.IsLoaded())
-                {
-                    unloaded.push_back(tok.GetObjectTag());
                     ++loadingCount;
-                }
             }
             wtMgr->Update(dt);
             if (loadingCount)

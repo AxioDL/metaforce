@@ -47,6 +47,22 @@ void CObjectList::RemoveObject(TUniqueId uid)
     --x200a_count;
 }
 
+const CEntity* CObjectList::operator[](size_t i) const
+{
+    const SObjectListEntry& ent = x0_list[i];
+    if (ent.entity->x30_26_scriptingBlocked)
+        return nullptr;
+    return ent.entity;
+}
+
+CEntity* CObjectList::operator[](size_t i)
+{
+    SObjectListEntry& ent = x0_list[i];
+    if (ent.entity->x30_26_scriptingBlocked)
+        return nullptr;
+    return ent.entity;
+}
+
 const CEntity* CObjectList::GetObjectById(TUniqueId uid) const
 {
     if (!uid)

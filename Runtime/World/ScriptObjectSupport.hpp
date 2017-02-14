@@ -211,7 +211,7 @@ enum class EScriptObjectMessage
     InternalMessage09 = 31,
     InternalMessage10 = 32,
     InternalMessage11 = 33,
-    InternalMessage12 = 34,
+    Deleted = 34,
     InternalMessage13 = 35,
     InternalMessage14 = 36,
     InternalMessage15 = 37,

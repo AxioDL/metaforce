@@ -73,7 +73,7 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     {
     }
     break;
-    case EScriptObjectMessage::InternalMessage12:
+    case EScriptObjectMessage::Deleted:
     {
     }
     break;

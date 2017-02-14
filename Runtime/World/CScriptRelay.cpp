@@ -18,7 +18,7 @@ void CScriptRelay::Accept(IVisitor& visitor)
 void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr)
 {
     CEntity::AcceptScriptMsg(msg, objId, stateMgr);
-    if (msg == EScriptObjectMessage::InternalMessage12)
+    if (msg == EScriptObjectMessage::Deleted)
     {
         UpdateObjectRef(stateMgr);
     }

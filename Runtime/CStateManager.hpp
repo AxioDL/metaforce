@@ -52,10 +52,10 @@ class CMFGameLoader;
 
 struct SScriptObjectStream
 {
-    CEntity* x0_obj;
-    EScriptObjectType x4_type;
-    u32 x8_position;
-    u32 xc_length;
+    //CEntity* x0_obj;
+    EScriptObjectType x0_type;
+    u32 x4_position;
+    u32 x8_length;
 };
 
 struct SOnScreenTex
@@ -142,7 +142,7 @@ class CStateManager
         LoadWorld,
         LoadFirstArea,
         Done
-    } xb3c_initPhase;
+    } xb3c_initPhase = InitPhase::LoadWorld;
 
     CFinalInput xb54_finalInput;
     CCameraFilterPass xb84_camFilterPasses[9];
@@ -267,14 +267,15 @@ public:
                        EScriptObjectMessage msg, EScriptObjectState state);
     void SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptObjectMessage);
     void FreeScriptObjects(TAreaId);
-    void GetBuildForScript(TEditorId) const;
+    void FreeScriptObject(TUniqueId);
+    std::pair<const SScriptObjectStream*, TEditorId> GetBuildForScript(TEditorId) const;
     TEditorId GetEditorIdForUniqueId(TUniqueId) const;
     TUniqueId GetIdForScript(TEditorId) const;
     std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator,
               std::multimap<TEditorId, TUniqueId>::const_iterator>
     GetIdListForScript(TEditorId) const;
     void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
-    void LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
+    std::pair<TEditorId, TUniqueId> LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
     std::pair<TEditorId, TUniqueId> GenerateObject(TEditorId);
     void InitScriptObjects(std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);

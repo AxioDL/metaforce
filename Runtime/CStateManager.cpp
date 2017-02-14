@@ -389,13 +389,73 @@ void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMe
     }
 }
 
-void CStateManager::FreeScriptObjects(TAreaId) {}
+void CStateManager::FreeScriptObjects(TAreaId aid)
+{
+    for (const auto& p : x890_scriptIdMap)
+        if (p.first.AreaNum() == aid)
+            FreeScriptObject(p.second);
 
-void CStateManager::GetBuildForScript(TEditorId) const {}
+    for (auto it = x8a4_loadedScriptObjects.begin() ; it != x8a4_loadedScriptObjects.end() ;)
+    {
+        if (it->first.AreaNum() == aid)
+        {
+            it = x8a4_loadedScriptObjects.erase(it);
+            continue;
+        }
+        ++it;
+    }
 
-TEditorId CStateManager::GetEditorIdForUniqueId(TUniqueId) const { return 0; }
+    CGameArea* area = x850_world->GetGameAreas()[aid].get();
+    if (area->IsPostConstructed())
+    {
+        const CGameArea::CPostConstructed* pc = area->GetPostConstructed();
+        for (CEntity* ent : *pc->x10c0_areaObjs)
+            if (ent && !ent->IsInUse())
+                FreeScriptObject(ent->GetUniqueId());
+    }
+}
 
-TUniqueId CStateManager::GetIdForScript(TEditorId) const { return kInvalidUniqueId; }
+void CStateManager::FreeScriptObject(TUniqueId id)
+{
+    CEntity* ent = ObjectById(id);
+    if (!ent || ent->IsInGraveyard())
+        return;
+
+    ent->SetIsInGraveyard(true);
+    x858_objectGraveyard.push_back(id);
+    ent->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
+    ent->SetIsScriptingBlocked(true);
+
+    if (TCastToPtr<CActor> act = ent)
+    {
+        x874_sortedListManager->Remove(act.GetPtr());
+        act->SetUseInSortedLists(false);
+    }
+}
+
+std::pair<const SScriptObjectStream*, TEditorId> CStateManager::GetBuildForScript(TEditorId id) const
+{
+    auto search = x8a4_loadedScriptObjects.find(id);
+    if (search == x8a4_loadedScriptObjects.cend())
+        return {nullptr, kInvalidEditorId};
+    return {&search->second, search->first};
+}
+
+TEditorId CStateManager::GetEditorIdForUniqueId(TUniqueId id) const
+{
+    const CEntity* ent = GetObjectById(id);
+    if (ent)
+        return ent->GetEditorId();
+    return kInvalidEditorId;
+}
+
+TUniqueId CStateManager::GetIdForScript(TEditorId id) const
+{
+    auto search = x890_scriptIdMap.find(id);
+    if (search == x890_scriptIdMap.cend())
+        return kInvalidUniqueId;
+    return search->second;
+}
 
 std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator, std::multimap<TEditorId, TUniqueId>::const_iterator>
 CStateManager::GetIdListForScript(TEditorId id) const
@@ -403,9 +463,77 @@ CStateManager::GetIdListForScript(TEditorId id) const
     return x890_scriptIdMap.equal_range(id);
 }
 
-void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut) {}
+void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut)
+{
+    in.readUByte();
+    int objCount = in.readUint32Big();
+    idsOut.reserve(idsOut.size() + objCount);
+    for (int i=0 ; i<objCount ; ++i)
+    {
+        EScriptObjectType objType = EScriptObjectType(in.readUByte());
+        u32 objSize = in.readUint32Big();
+        u32 pos = in.position();
+        auto id = LoadScriptObject(aid, objType, objSize, in);
+        if (id.first == kInvalidEditorId)
+            continue;
+        auto build = GetBuildForScript(id.first);
+        if (build.first)
+            continue;
+        x8a4_loadedScriptObjects[id.first] = SScriptObjectStream{objType, pos, objSize};
+        idsOut.push_back(id.first);
+    }
+}
 
-void CStateManager::LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in) {}
+std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type,
+                                                                u32 length, CInputStream& in)
+{
+    TEditorId id = in.readUint32Big();
+    u32 connCount = in.readUint32Big();
+    length -= 8;
+    std::vector<SConnection> conns;
+    conns.reserve(connCount);
+    for (int i=0 ; i<connCount ; ++i)
+    {
+        EScriptObjectState state = EScriptObjectState(in.readUint32Big());
+        EScriptObjectMessage msg = EScriptObjectMessage(in.readUint32Big());
+        TEditorId target = in.readUint32Big();
+        length -= 12;
+        conns.push_back(SConnection{state, msg, target});
+    }
+    u32 propCount = in.readUint32Big();
+    length -= 4;
+    auto startPos = in.position();
+
+    bool error = false;
+    FScriptLoader loader = {};
+    if (type < EScriptObjectType::ScriptObjectTypeMAX && type >= EScriptObjectType::Actor)
+        loader = x90c_loaderFuncs[int(type)];
+
+    CEntity* ent = nullptr;
+    if (loader)
+    {
+        CEntityInfo info(aid, conns, id);
+        ent = loader(*this, in, propCount, info);
+    }
+    else
+    {
+        error = true;
+    }
+
+    if (ent)
+        AddObject(ent);
+    else
+        error = true;
+
+    u32 leftover = length - (in.position() - startPos);
+    for (u32 i=0 ; i<leftover ; ++i)
+        in.readByte();
+
+    if (error || ent == nullptr)
+        return {kInvalidEditorId, kInvalidUniqueId};
+    else
+        return {id, ent->GetUniqueId()};
+}
 
 std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId)
 {
@@ -589,8 +717,11 @@ void CStateManager::CreateStandardGameObjects()
     zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
     auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
     x84c_player.reset(new CPlayer(
-        AllocateUniqueId(), zeus::CTransform(q), pBounds, 0, zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, unk1, unk2,
-        unk3, CMaterialList(EMaterialTypes::Player, EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
+        AllocateUniqueId(), zeus::CTransform(q), pBounds,
+        g_tweakPlayerRes->xc4_ballTransitionsANCS,
+        zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, unk1, unk2,
+        unk3, CMaterialList(EMaterialTypes::Player,
+        EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
     AddObject(*x84c_player);
 }
 
@@ -643,14 +774,13 @@ void CStateManager::DeleteObjectRequest(TUniqueId id)
     entity->SetIsInGraveyard(true);
 
     x858_objectGraveyard.push_back(entity->GetUniqueId());
-    entity->AcceptScriptMsg(EScriptObjectMessage::InternalMessage12, kInvalidUniqueId, *this);
+    entity->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
     entity->SetIsScriptingBlocked(true);
 
-    CActor* actor = static_cast<CActor*>(entity);
-    if (actor)
+    if (TCastToPtr<CActor> actor = entity)
     {
         x874_sortedListManager->Remove(actor);
-        actor->SetUseInSortedList(false);
+        actor->SetUseInSortedLists(false);
     }
 }
 
@@ -706,21 +836,21 @@ void CStateManager::UpdateObjectInLists(CEntity&) {}
 TUniqueId CStateManager::AllocateUniqueId()
 {
     const s16 lastIndex = x0_nextFreeIndex;
-    s16 ourIndex = 0;
+    s16 ourIndex;
     do
     {
         ourIndex = x0_nextFreeIndex;
         x0_nextFreeIndex = (x0_nextFreeIndex + 1) & 0x3ff;
-        if (ourIndex == lastIndex)
+        if (x0_nextFreeIndex == lastIndex)
             LogModule.report(logvisor::Fatal, "Object List Full!");
     }
     while (x80c_allObjs->GetObjectByIndex(ourIndex) != nullptr);
 
-    x8_idArr[ourIndex]++;
+    x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;
     if (((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF) == kInvalidUniqueId)
         x8_idArr[0] = 0;
 
-    return ((ourIndex | ((x8_idArr[ourIndex]) << 10))  & 0xFFFF);
+    return ((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF);
 }
 
 std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const

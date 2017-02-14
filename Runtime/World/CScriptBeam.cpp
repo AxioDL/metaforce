@@ -54,7 +54,7 @@ void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
                                             EMaterialTypes::Projectile, x138_damageInfo, x8_uid, x4_areaId,
                                             x154_projectileId, 8, false, 2));
     }
-    else if (msg == EScriptObjectMessage::InternalMessage12)
+    else if (msg == EScriptObjectMessage::Deleted)
     {
     }
 

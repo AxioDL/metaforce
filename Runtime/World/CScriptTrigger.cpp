@@ -39,7 +39,7 @@ void CScriptTrigger::Think(float dt, CStateManager& mgr)
 
 void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    if (GetActive() && (msg == EScriptObjectMessage::Deactivate || msg == EScriptObjectMessage::InternalMessage12))
+    if (GetActive() && (msg == EScriptObjectMessage::Deactivate || msg == EScriptObjectMessage::Deleted))
     {
         if (msg == EScriptObjectMessage::Deactivate)
         {
@@ -62,7 +62,6 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
     }
 
     CEntity::AcceptScriptMsg(msg, uid, mgr);
-    ;
 }
 
 CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id)

@@ -100,7 +100,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             dock->SetReferenceCount(x258_dockReferenceCount);
     }
     break;
-    case EScriptObjectMessage::InternalMessage12:
+    case EScriptObjectMessage::Deleted:
         CleanUp();
         break;
     case EScriptObjectMessage::InternalMessage13:

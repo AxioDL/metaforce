@@ -23,7 +23,9 @@ CTextColor CTextParser::ParseColor(const char16_t* str, int len)
     u8 a = 0xff;
     if (len == 9)
         a = GetColorValue(str + 7);
-    return CTextColor(r, g, b, a);
+    CTextColor ret;
+    ret.fromRGBA8(r, g, b, a);
+    return ret;
 }
 
 u8 CTextParser::GetColorValue(const char16_t* str)

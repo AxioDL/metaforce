@@ -138,7 +138,7 @@ public:
     void CreateShadow(bool);
     void SetCallTouch(bool callTouch);
     bool GetCallTouch() const;
-    void SetUseInSortedList(bool use);
+    void SetUseInSortedLists(bool use);
     bool GetUseInSortedLists() const;
     const CMaterialFilter& GetMaterialFilter() const { return x70_materialFilter; }
     void SetMaterialFilter(const CMaterialFilter& filter) { x70_materialFilter = filter; }

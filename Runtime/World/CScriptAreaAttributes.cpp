@@ -39,7 +39,7 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
         area->SetAreaAttributes(this);
         stateMgr.GetEnvFxManager()->SetFxDensity(500, x3c_envFxDensity);
     }
-    else if (msg >= EScriptObjectMessage::InternalMessage12)
+    else if (msg >= EScriptObjectMessage::Deleted)
     {
         CGameArea* area = stateMgr.WorldNC()->GetArea(x4_areaId);
 

@@ -53,6 +53,8 @@ public:
 
     void AddObject(CEntity& entity);
     void RemoveObject(TUniqueId uid);
+    const CEntity* operator[](size_t i) const;
+    CEntity* operator[](size_t i);
     const CEntity* GetObjectById(TUniqueId uid) const;
     const CEntity* GetObjectByIndex(s32 index) const { return x0_list[index].entity; }
     CEntity* GetObjectById(TUniqueId uid);

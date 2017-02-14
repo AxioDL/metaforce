@@ -28,7 +28,7 @@ protected:
             bool x30_24_active : 1;
             bool x30_25_inGraveyard : 1;
             bool x30_26_scriptingBlocked : 1;
-            bool x30_27_ : 1;
+            bool x30_27_inUse : 1;
         };
         u8 _dummy = 0;
     };
@@ -53,14 +53,16 @@ public:
     void SetIsInGraveyard(bool in) { x30_25_inGraveyard = in; }
     bool IsScriptingBlocked() const { return x30_26_scriptingBlocked; }
     void SetIsScriptingBlocked(bool blocked) { x30_26_scriptingBlocked = blocked; }
+    bool IsInUse() const { return x30_27_inUse; }
 
     TAreaId GetAreaId() const
     {
-        if (x30_27_)
+        if (x30_27_inUse)
             return x4_areaId;
         return kInvalidAreaId;
     }
     TUniqueId GetUniqueId() const {return x8_uid;}
+    TEditorId GetEditorId() const {return xc_editorId;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
 };
 

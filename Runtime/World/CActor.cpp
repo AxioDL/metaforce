@@ -56,7 +56,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         }
     }
     break;
-    case EScriptObjectMessage::InternalMessage12: // 34
+    case EScriptObjectMessage::Deleted: // 34
     {
         RemoveEmitter();
 #if 0
@@ -235,7 +235,7 @@ void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }
 
 bool CActor::GetCallTouch() const { return xe5_28_callTouch; }
 
-void CActor::SetUseInSortedList(bool use) { xe5_27_useInSortedLists = use; }
+void CActor::SetUseInSortedLists(bool use) { xe5_27_useInSortedLists = use; }
 
 bool CActor::GetUseInSortedLists() const { return xe5_27_useInSortedLists; }
 

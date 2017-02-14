@@ -183,8 +183,9 @@ std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
 int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
-: x60_objectStore(objStore), x64_resFactory(resFactory)
+: x8_mlvlId(mlvlId), x60_objectStore(objStore), x64_resFactory(resFactory)
 {
+    x70_24_ = true;
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     static_cast<ProjectResourceFactoryBase&>(resFactory).LoadResourceAsync(tag, x40_loadBuf);
 }
@@ -263,7 +264,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
     {
         if (!x40_loadBuf)
             return false;
-        athena::io::MemoryReader r(x40_loadBuf.get(), UINT32_MAX, false);
+        athena::io::MemoryReader r(x40_loadBuf.get(), UINT32_MAX);
         r.readUint32Big();
         int version = r.readUint32Big();
         xc_strgId = r.readUint32Big();
