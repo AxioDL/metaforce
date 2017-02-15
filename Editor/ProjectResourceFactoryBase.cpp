@@ -434,6 +434,7 @@ hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectP
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 {
+    Log.report(logvisor::Warning, _S("sync-cooking %s"), working.getRelativePath().c_str());
     return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::SharedBlenderToken);
 }
 
@@ -452,10 +453,17 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
     {
         u32 length = fr->length();
         std::unique_ptr<u8[]> memBuf = fr->readUBytes(length);
-        return m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer, selfRef);
+        CFactoryFnReturn ret =
+            m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer, selfRef);
+        Log.report(logvisor::Info, "sync-built %.4s %08X",
+                   tag.type.toString().c_str(), u32(tag.id));
+        return ret;
     }
 
-    return m_factoryMgr.MakeObject(tag, *fr, paramXfer, selfRef);
+    CFactoryFnReturn ret = m_factoryMgr.MakeObject(tag, *fr, paramXfer, selfRef);
+    Log.report(logvisor::Info, "sync-built %.4s %08X",
+               tag.type.toString().c_str(), u32(tag.id));
+    return ret;
 }
 
 void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& tag,
