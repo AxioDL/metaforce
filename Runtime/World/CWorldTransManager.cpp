@@ -130,8 +130,6 @@ void CWorldTransManager::UpdateEnabled(float dt)
     UpdateLights(dt);
 }
 
-static float lastTime = 0.f;
-
 void CWorldTransManager::UpdateText(float dt)
 {
     if (x44_28_textDirty)
@@ -156,8 +154,6 @@ void CWorldTransManager::UpdateText(float dt)
         float printed = x8_textData->GetNumCharsPrinted();
         if (printed >= nextSfxInterval)
         {
-            printf("%f %f %f\n", x0_curTime, x0_curTime - lastTime, printed);
-            lastTime = x0_curTime;
             x3c_sfxInterval = nextSfxInterval;
             CSfxManager::SfxStart(1438, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
