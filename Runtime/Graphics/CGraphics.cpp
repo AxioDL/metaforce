@@ -307,7 +307,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
         {
             zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml,
                                  0.f, 2.f / tmb, 0.f, -tpb / tmb,
-                                 0.f, 0.f, 1.f / fmn, -g_Proj.x14_near / fmn,
+                                 0.f, 0.f, 1.f / fmn, g_Proj.x14_near / fmn,
                                  0.f, 0.f, 0.f, 1.f);
             return PlusOneZ * mat2;
         }
@@ -315,7 +315,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
         {
             zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml,
                                  0.f, 2.f / tmb, 0.f, -tpb / tmb,
-                                 0.f, 0.f, 1.f / fmn, -g_Proj.x14_near / fmn,
+                                 0.f, 0.f, 1.f / fmn, g_Proj.x14_near / fmn,
                                  0.f, 0.f, 0.f, 1.f);
             return PlusOneZFlip * mat2;
         }

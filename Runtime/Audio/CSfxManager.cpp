@@ -322,6 +322,8 @@ u16 CSfxManager::TranslateSFXID(u16 id)
 
 void CSfxManager::StopSound(const CSfxHandle& handle)
 {
+    if (!handle)
+        return;
     m_doUpdate = true;
     if (handle->IsPlaying())
         handle->Stop();

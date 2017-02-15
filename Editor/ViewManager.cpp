@@ -176,12 +176,6 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_moviePlayer->DrawFrame();
     }
 
-    if (m_frame == 300)
-        g_GameState->GetWorldTransitionManager()->PleaseStopSoon();
-
-    //g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
-    //g_GameState->GetWorldTransitionManager()->Draw();
-
     m_vm.m_projManager.mainDraw();
 
     ++m_frame;
@@ -415,9 +409,8 @@ bool ViewManager::proc()
     m_rootView->draw(gfxQ);
     CGraphics::EndScene();
     gfxQ->execute();
-    m_voiceEngine->pumpAndMixVoices();
     m_projManager.asyncIdle();
-    m_mainWindow->waitForRetrace();
+    m_mainWindow->waitForRetrace(m_voiceEngine.get());
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
     return true;

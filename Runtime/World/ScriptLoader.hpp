@@ -18,8 +18,8 @@ class CAnimationParameters;
 class CFluidUVMotion;
 class CCameraShakeData;
 
-using FScriptLoader = std::function<CEntity*(CStateManager& mgr, CInputStream& in,
-                                             int propCount, const CEntityInfo& info)>;
+typedef CEntity*(*FScriptLoader)(CStateManager& mgr, CInputStream& in,
+                                 int propCount, const CEntityInfo& info);
 
 class ScriptLoader
 {

@@ -268,6 +268,8 @@ bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() const
         if (!tok.IsLoaded())
             return false;
     }
+    if (!x2cc_font)
+        return true;
     if (x2cc_font.IsLoaded())
         return x2cc_font->IsFinishedLoading();
     return false;

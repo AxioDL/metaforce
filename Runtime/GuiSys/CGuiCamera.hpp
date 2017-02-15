@@ -21,19 +21,19 @@ private:
     {
         struct
         {
-            float xfc_fov;
-            float x100_aspect;
-            float x104_znear;
-            float x108_zfar;
-        };
-        struct
-        {
             float xfc_left;
             float x100_right;
             float x104_top;
             float x108_bottom;
             float x10c_znear;
             float x110_zfar;
+        };
+        struct
+        {
+            float xfc_fov;
+            float x100_aspect;
+            float x104_znear;
+            float x108_zfar;
         };
     };
 public:

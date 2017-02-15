@@ -130,6 +130,8 @@ void CWorldTransManager::UpdateEnabled(float dt)
     UpdateLights(dt);
 }
 
+static float lastTime = 0.f;
+
 void CWorldTransManager::UpdateText(float dt)
 {
     if (x44_28_textDirty)
@@ -151,8 +153,11 @@ void CWorldTransManager::UpdateText(float dt)
         x8_textData->Update(dt);
 
         float nextSfxInterval = x3c_sfxInterval + g_tweakGui->GetWorldTransManagerCharsPerSfx();
-        if (x8_textData->GetNumCharsPrinted() >= nextSfxInterval)
+        float printed = x8_textData->GetNumCharsPrinted();
+        if (printed >= nextSfxInterval)
         {
+            printf("%f %f %f\n", x0_curTime, x0_curTime - lastTime, printed);
+            lastTime = x0_curTime;
             x3c_sfxInterval = nextSfxInterval;
             CSfxManager::SfxStart(1438, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
@@ -307,8 +312,11 @@ void CWorldTransManager::DrawDisabled()
 
 void CWorldTransManager::DrawText()
 {
-    g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
-    CGraphics::SetModelMatrix(zeus::CTransform::Translate(0.f, 0.f, 448.f));
+    float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    float width = 448.f * vpAspectRatio;
+    CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
+    CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
+    CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 640.f) / 2.f, 0.f, 448.f));
     x8_textData->Render();
 
     float filterAlpha = 0.f;

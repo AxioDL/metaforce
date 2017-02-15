@@ -474,27 +474,35 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
             return;
         }
 
-        /* Last chance type validation */
-        urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::SharedBlenderToken);
-        if (verifyTag.type != tag.type)
-        {
-            Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
-                       path.getRelativePath().c_str(),
-                       tag.type.toString().c_str(), verifyTag.type.toString().c_str());
-            m_failed = true;
-            return;
-        }
-
-        /* Get cooked representation path */
-        m_cookedPath = m_parent.GetCookedPath(path, true);
-
-        /* Perform mod-time comparison */
+        /* Cached resolve (try PC first, then original) */
+        m_cookedPath = path.getCookedPath(*m_parent.m_pcSpec);
+        if (!m_cookedPath.isFile())
+            m_cookedPath = path.getCookedPath(*m_parent.m_origSpec);
         if (!m_cookedPath.isFile() ||
             m_cookedPath.getModtime() < path.getModtime())
         {
-            /* Start a background cook here */
-            m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path, m_parent.m_cookSpec.get());
-            return;
+            /* Last chance type validation */
+            urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::SharedBlenderToken);
+            if (verifyTag.type != tag.type)
+            {
+                Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+                           path.getRelativePath().c_str(),
+                           tag.type.toString().c_str(), verifyTag.type.toString().c_str());
+                m_failed = true;
+                return;
+            }
+
+            /* Get cooked representation path */
+            m_cookedPath = m_parent.GetCookedPath(path, true);
+
+            /* Perform mod-time comparison */
+            if (!m_cookedPath.isFile() ||
+                m_cookedPath.getModtime() < path.getModtime())
+            {
+                /* Start a background cook here */
+                m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path, m_parent.m_cookSpec.get());
+                return;
+            }
         }
 
         CookComplete();
@@ -544,7 +552,8 @@ bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
     return m_failed;
 }
 
-bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut)
+bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag,
+                                                 const hecl::ProjectPath*& pathOut)
 {
     std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
     auto search = m_tagToPath.find(tag);
@@ -585,29 +594,37 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
         return false;
     }
 
-    /* Last chance type validation */
-    urde::SObjectTag verifyTag = TagFromPath(path, hecl::SharedBlenderToken);
-    if (verifyTag.type != tag.type)
-    {
-        Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
-                   path.getRelativePath().c_str(),
-                   tag.type.toString().c_str(), verifyTag.type.toString().c_str());
-        return false;
-    }
-
-    /* Get cooked representation path */
-    hecl::ProjectPath cooked = GetCookedPath(path, true);
-
-    /* Perform mod-time comparison */
+    /* Cached resolve (try PC first, then original) */
+    hecl::ProjectPath cooked = path.getCookedPath(*m_pcSpec);
+    if (!cooked.isFile())
+        cooked = path.getCookedPath(*m_origSpec);
     if (!cooked.isFile() ||
         cooked.getModtime() < path.getModtime())
     {
-        /* Do a blocking cook here */
-        if (!SyncCook(path))
+        /* Last chance type validation */
+        urde::SObjectTag verifyTag = TagFromPath(path, hecl::SharedBlenderToken);
+        if (verifyTag.type != tag.type)
         {
-            Log.report(logvisor::Error, _S("unable to cook resource path '%s'"),
-                       path.getAbsolutePath().c_str());
+            Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+                       path.getRelativePath().c_str(),
+                       tag.type.toString().c_str(), verifyTag.type.toString().c_str());
             return false;
+        }
+
+        /* Get cooked representation path */
+        cooked = GetCookedPath(path, true);
+
+        /* Perform mod-time comparison */
+        if (!cooked.isFile() ||
+            cooked.getModtime() < path.getModtime())
+        {
+            /* Do a blocking cook here */
+            if (!SyncCook(path))
+            {
+                Log.report(logvisor::Error, _S("unable to cook resource path '%s'"),
+                           path.getAbsolutePath().c_str());
+                return false;
+            }
         }
     }
 
@@ -685,7 +702,8 @@ ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
 {
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer, selfRef))).first->second;
+    return m_asyncLoadList.emplace(std::make_pair(tag,
+        std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer, selfRef))).first->second;
 }
 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
@@ -725,7 +743,8 @@ ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_shared<AsyncTask>(*this, tag, target))).first->second;
+    return m_asyncLoadList.emplace(std::make_pair(tag,
+        std::make_shared<AsyncTask>(*this, tag, target))).first->second;
 }
 
 std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
@@ -737,7 +756,8 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag, std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
+    return m_asyncLoadList.emplace(std::make_pair(tag,
+        std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
 }
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
@@ -904,8 +924,8 @@ void ProjectResourceFactoryBase::AsyncIdle()
     for (auto it=m_asyncLoadList.begin() ; it != m_asyncLoadList.end() ;)
     {
         /* Allow 8 milliseconds (roughly 1/2 frame-time) for each async build cycle */
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - start).count() > 8)
+        std::chrono::steady_clock::time_point resStart = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(resStart - start).count() > 8)
             break;
 
         /* Ensure requested resource is in the index */
@@ -961,6 +981,7 @@ void ProjectResourceFactoryBase::AsyncIdle()
                                u32(task.x0_tag.id));
                 }
             }
+
             it = m_asyncLoadList.erase(it);
             continue;
         }

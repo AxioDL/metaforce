@@ -295,7 +295,7 @@ void CTextExecuteBuffer::TerminateLine()
 
 void CTextExecuteBuffer::TerminateLineLTR()
 {
-    if (!xa4_curLine->xc_curY && x18_textState.IsFinishedLoading())
+    if (!xa4_curLine->xc_curY /*&& x18_textState.IsFinishedLoading()*/)
     {
         xa4_curLine->xc_curY = std::max(xa4_curLine->GetHeight(),
                                         x18_textState.x48_font->GetCarriageAdvance());
