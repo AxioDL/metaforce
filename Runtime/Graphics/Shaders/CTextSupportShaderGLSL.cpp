@@ -37,7 +37,6 @@ BOO_GLSL_BINDING_HEAD
 "    vtf.mulColor = mulColorIn;\n"
 "    vtf.uv = uvIn[gl_VertexID].xyz;\n"
 "    gl_Position = mtx * vec4(posIn[gl_VertexID].xyz, 1.0);\n"
-"    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
 static const char* TextFS =
@@ -85,7 +84,6 @@ BOO_GLSL_BINDING_HEAD
 "    vtf.color = color * colorIn;\n"
 "    vtf.uv = uvIn[gl_VertexID];\n"
 "    gl_Position = mtx * vec4(posIn[gl_VertexID].xyz, 1.0);\n"
-"    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
 static const char* ImgFS =
