@@ -111,7 +111,7 @@ class CGameArchitectureSupport
     CInputGenerator x30_inputGenerator;
     CGuiSys x44_guiSys;
     CIOWinManager x58_ioWinManager;
-    s32 x78_;
+    s32 x78_gameFrameCount;
 
     enum class EAudioLoadStatus
     {
@@ -222,14 +222,14 @@ private:
         struct
         {
             bool x160_24_finished : 1;
-            bool x160_25_ : 1;
-            bool x160_26_ : 1;
+            bool x160_25_mfGameBuilt : 1;
+            bool x160_26_screenFading : 1;
             bool x160_27_ : 1;
             bool x160_28_manageCard : 1;
             bool x160_29_ : 1;
             bool x160_30_ : 1;
             bool x160_31_cardBusy : 1;
-            bool x161_24_ : 1;
+            bool x161_24_gameFrameDrawn : 1;
         };
         u16 _dummy = 0;
     };
@@ -249,6 +249,8 @@ public:
     void ResetGameState();
     void StreamNewGameState(CBitStreamReader&, u32 idx);
     void CheckTweakManagerDebugOptions() {}
+    void SetMFGameBuilt(bool b) { x160_25_mfGameBuilt = b; }
+    void SetScreenFading(bool b) { x160_26_screenFading = b; }
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
     void Init(const hecl::Runtime::FileStoreManager& storeMgr,
@@ -287,6 +289,7 @@ public:
     void SetManageCard(bool v) { x160_28_manageCard = v; }
     bool GetCardBusy() const { return x160_31_cardBusy; }
     void SetCardBusy(bool v) { x160_31_cardBusy = v; }
+    void SetGameFrameDrawn() { x161_24_gameFrameDrawn = true; }
 
     EFlowState GetFlowState() const { return x12c_flowState; }
     void SetFlowState(EFlowState s) { x12c_flowState = s; }

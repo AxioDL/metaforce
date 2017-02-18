@@ -62,7 +62,7 @@ const char* PowerUpNames[41]=
 CPlayerState::CPlayerState()
 : x188_staticIntf(5)
 {
-    x0_24_ = true;
+    x0_24_alive = true;
     x24_powerups.resize(41);
 }
 

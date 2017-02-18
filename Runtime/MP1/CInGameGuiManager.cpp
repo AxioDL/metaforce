@@ -9,6 +9,12 @@
 #include "GuiSys/CGuiModel.hpp"
 #include "AutoMapper/CAutoMapper.hpp"
 #include "Particle/CGenDescription.hpp"
+#include "Audio/CSfxManager.hpp"
+#include "CPauseScreen.hpp"
+#include "CSamusHud.hpp"
+#include "CInventoryScreen.hpp"
+#include "CPauseScreen.hpp"
+#include "Input/CInputGenerator.hpp"
 
 namespace urde
 {
@@ -72,6 +78,141 @@ bool CInGameGuiManager::CheckDGRPLoadComplete() const
 
 void CInGameGuiManager::BeginStateTransition(EInGameGuiState state, CStateManager& stateMgr)
 {
+    if (x1c0_nextState == state)
+        return;
+
+    x1bc_prevState = x1c0_nextState;
+    x1c0_nextState = state;
+
+    switch (state)
+    {
+    case EInGameGuiState::InGame:
+    {
+        CSfxManager::SetChannel(CSfxManager::ESfxChannels::Game);
+        x4c_saveUI.reset();
+        x38_autoMapper->UnmuteAllLoopedSounds();
+        break;
+    }
+    case EInGameGuiState::PauseHUDMessage:
+    {
+        x44_messageScreen = std::make_unique<CMessageScreen>(x124_pauseGameHudMessage, x128_pauseGameHudTime);
+        break;
+    }
+    case EInGameGuiState::PauseSaveGame:
+    {
+        x4c_saveUI = std::make_unique<CSaveGameScreen>(ESaveContext::InGame, g_GameState->GetCardSerial());
+        break;
+    }
+    default:
+    {
+        if (x1bc_prevState >= EInGameGuiState::Zero && x1bc_prevState <= EInGameGuiState::InGame)
+            x1f8_26_deferTransition = true;
+        break;
+    }
+    }
+
+    x3c_pauseScreen->OnNewInGameGuiState(state, stateMgr);
+    if (!x1f8_26_deferTransition)
+        DoStateTransition(stateMgr);
+
+}
+
+void CInGameGuiManager::EnsureStates(CStateManager& stateMgr)
+{
+    if (x1f8_26_deferTransition)
+    {
+        if (!x3c_pauseScreen->GetX50_25())
+        {
+            DestroyAreaTextures(stateMgr);
+            x1f8_26_deferTransition = false;
+            DoStateTransition(stateMgr);
+        }
+    }
+}
+
+void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr)
+{
+    x34_samusHud->OnNewInGameGuiState(x1c0_nextState, stateMgr);
+    x38_autoMapper->OnNewInGameGuiState(x1c0_nextState, stateMgr);
+
+    bool needsLock;
+    switch (x1c0_nextState)
+    {
+    case EInGameGuiState::PauseGame:
+    case EInGameGuiState::PauseLogBook:
+        if (!x48_inventoryScreen)
+        {
+            auto pState = stateMgr.GetPlayerState();
+            CPlayerState::EPlayerSuit suit = pState->GetCurrentSuitRaw();
+            int suitResIdx;
+            if (pState->IsFusionEnabled())
+            {
+                switch (suit)
+                {
+                case CPlayerState::EPlayerSuit::Phazon:
+                    suitResIdx = 7;
+                    break;
+                case CPlayerState::EPlayerSuit::Gravity:
+                    suitResIdx = 6;
+                    break;
+                case CPlayerState::EPlayerSuit::Varia:
+                    suitResIdx = 5;
+                    break;
+                default:
+                    suitResIdx = 4;
+                    break;
+                }
+            }
+            else
+            {
+                switch (suit)
+                {
+                case CPlayerState::EPlayerSuit::Phazon:
+                    suitResIdx = 3;
+                    break;
+                case CPlayerState::EPlayerSuit::Gravity:
+                    suitResIdx = 2;
+                    break;
+                case CPlayerState::EPlayerSuit::Varia:
+                    suitResIdx = 1;
+                    break;
+                default:
+                    suitResIdx = 0;
+                    break;
+                }
+            }
+
+            int w1 = x1c0_nextState == EInGameGuiState::PauseLogBook ? 0 : 2;
+            CDependencyGroup* suitGrp = x5c_pauseScreenDGRPs[suitResIdx].GetObj();
+            x48_inventoryScreen = std::make_unique<CInventoryScreen>(w1, *suitGrp, *suitGrp);
+        }
+
+    case EInGameGuiState::MapScreen:
+    case EInGameGuiState::PauseSaveGame:
+    case EInGameGuiState::PauseHUDMessage:
+        needsLock = true;
+        break;
+    default:
+        needsLock = false;
+        break;
+    }
+
+    for (CToken& tok : xe8_pauseResources)
+    {
+        if (needsLock)
+            tok.Lock();
+        else
+            tok.Unlock();
+    }
+}
+
+void CInGameGuiManager::DestroyAreaTextures(CStateManager& stateMgr)
+{
+
+}
+
+void CInGameGuiManager::TryReloadAreaTextures()
+{
 
 }
 
@@ -90,7 +231,7 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr,
     x1f4_player74c = stateMgr.GetPlayer().Get74C();
 
     x1f8_25_ = true;
-    x1f8_27_ = true;
+    x1f8_27_inSaveUI = true;
 
     xc8_inGameGuiDGRPs.reserve(14);
     for (int i=0 ; i<14 ; ++i)
@@ -154,7 +295,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)
         zeus::CMatrix3f mtx(x170_camRotate);
         x18c_camXf = zeus::CTransform(mtx, x180_camOffset);
 
-        BeginStateTransition(EInGameGuiState::One, stateMgr);
+        BeginStateTransition(EInGameGuiState::InGame, stateMgr);
         x18_loadPhase = ELoadPhase::Done;
     }
     case ELoadPhase::Done:
@@ -165,6 +306,51 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)
     default:
         return false;
     }
+}
+
+void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool)
+{
+    EnsureStates(stateMgr);
+}
+
+void CInGameGuiManager::ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input,
+                                               CArchitectureQueue& archQueue)
+{
+
+}
+
+void CInGameGuiManager::PreDraw(CStateManager& stateMgr)
+{
+
+}
+
+void CInGameGuiManager::Draw(CStateManager& stateMgr)
+{
+
+}
+
+void CInGameGuiManager::ShowPauseGameHudMessage(CStateManager& stateMgr, ResId pauseMsg, float time)
+{
+    x124_pauseGameHudMessage = pauseMsg;
+    x128_pauseGameHudTime = time;
+    PauseGame(stateMgr, EInGameGuiState::PauseHUDMessage);
+}
+
+void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state)
+{
+    g_InputGenerator->SetMotorState(EIOPort::Zero, EMotorState::Stop);
+    CSfxManager::SetChannel(CSfxManager::ESfxChannels::PauseScreen);
+    BeginStateTransition(state, stateMgr);
+}
+
+void CInGameGuiManager::StartFadeIn()
+{
+
+}
+
+bool CInGameGuiManager::GetIsGameDraw() const
+{
+    return x3c_pauseScreen->GetX50_25();
 }
 
 }

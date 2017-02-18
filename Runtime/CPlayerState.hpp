@@ -111,7 +111,7 @@ private:
     };
     union
     {
-        struct { bool x0_24_ : 1; bool x0_25_ : 1; bool x0_26_fusion : 1; };
+        struct { bool x0_24_alive : 1; bool x0_25_ : 1; bool x0_26_fusion : 1; };
         u32 dummy = 0;
     };
 
@@ -139,6 +139,7 @@ public:
     void SetIsFusionEnabled(bool val) { x0_26_fusion = val; }
     bool IsFusionEnabled() const { return x0_26_fusion; }
     EPlayerSuit GetCurrentSuit() const;
+    EPlayerSuit GetCurrentSuitRaw() const { return x20_currentSuit; }
     EBeamId GetCurrentBeam() const { return x8_currentBeam; }
     bool CanVisorSeeFog(const CStateManager& stateMgr) const;
     EPlayerVisor GetCurrentVisor() const { return x14_currentVisor; }
@@ -168,6 +169,7 @@ public:
     void InitializePowerUp(EItemType type, u32 capacity);
     u32 GetLogScans() const { return x180_logScans; }
     u32 GetTotalLogScans() const { return x184_totalLogScans; }
+    bool IsPlayerAlive() const { return x0_24_alive; }
     void InitializeScanTimes();
     const rstl::reserved_vector<std::pair<ResId, float>, 846>& GetScanTimes() const { return x170_scanTimes; }
     CPlayerState();

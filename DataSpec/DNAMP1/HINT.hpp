@@ -18,10 +18,10 @@ struct HINT : BigYAML
     {
         DECL_YAML
         String<-1> name;
-        Value<float> unknown1;
-        Value<float> fadeInTime;
+        Value<float> immediateTime;
+        Value<float> normalTime;
         UniqueID32 stringID;
-        Value<atUint32> unknown2;
+        Value<atUint32> continueDelayTime;
         struct Location : BigYAML
         {
             DECL_YAML

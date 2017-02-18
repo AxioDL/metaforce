@@ -24,6 +24,7 @@
 #include "Particle/CGenDescription.hpp"
 #include "CMemoryCardSys.hpp"
 #include "TCastTo.hpp"
+#include "World/CScriptSpecialFunction.hpp"
 
 #include <cmath>
 
@@ -268,7 +269,23 @@ void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f&
                             IRenderer::EDrawableSorting::SortedCallback);
 }
 
-void CStateManager::SpecialSkipCinematic() {}
+bool CStateManager::SpecialSkipCinematic()
+{
+    if (xf38_skipCineSpecialFunc == kInvalidUniqueId)
+        return false;
+
+    CScriptSpecialFunction* ent = static_cast<CScriptSpecialFunction*>(ObjectById(xf38_skipCineSpecialFunc));
+    if (!ent || !ent->ShouldSkipCinematic(*this))
+        return false;
+
+    bool hadRandom = x900_activeRandom != nullptr;
+    SetActiveRandomToDefault();
+    x870_cameraManager->SkipCinematic(*this);
+    ent->SkipCinematic(*this);
+    x900_activeRandom = hadRandom ? &x8fc_random : nullptr;
+
+    return true;
+}
 
 void CStateManager::GetVisAreaId() const {}
 
@@ -622,12 +639,12 @@ void CStateManager::Update(float dt) {}
 
 void CStateManager::UpdateGameState() {}
 
-void CStateManager::FrameBegin() {}
+void CStateManager::FrameBegin(s32 frameCount) {}
 
 void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
 {
     bool hadRandom = x900_activeRandom != nullptr;
-    x900_activeRandom = &x8fc_random;
+    SetActiveRandomToDefault();
 
     if (xb3c_initPhase == InitPhase::LoadWorld)
     {
@@ -700,9 +717,9 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
     x870_cameraManager->ResetCameras(*this);
 
     if (!hadRandom)
-        x900_activeRandom = nullptr;
+        ClearActiveRandom();
     else
-        x900_activeRandom = &x8fc_random;
+        SetActiveRandomToDefault();
 
     x880_envFxManager->AsyncLoadResources(*this);
 }
@@ -851,6 +868,34 @@ TUniqueId CStateManager::AllocateUniqueId()
         x8_idArr[0] = 0;
 
     return ((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF);
+}
+
+void CStateManager::DeferStateTransition(EStateManagerTransition t)
+{
+    if (t == EStateManagerTransition::InGame)
+    {
+        if (xf90_deferredTransition != EStateManagerTransition::InGame)
+        {
+            x850_world->SetPauseState(false);
+            xf90_deferredTransition = EStateManagerTransition::InGame;
+        }
+    }
+    else
+    {
+        if (xf90_deferredTransition == EStateManagerTransition::InGame)
+        {
+            x850_world->SetPauseState(true);
+            xf90_deferredTransition = t;
+        }
+    }
+}
+
+bool CStateManager::CanShowMapScreen() const
+{
+    const CHintOptions::SHintState* curDispHint = g_GameState->HintOptions().GetCurrentDisplayedHint();
+    if (!curDispHint || curDispHint->CanContinue())
+        return true;
+    return false;
 }
 
 std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const

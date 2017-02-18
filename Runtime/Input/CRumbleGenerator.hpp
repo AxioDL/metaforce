@@ -2,14 +2,7 @@
 #define CRUMBLEGENERATOR_HPP
 
 #include "CRumbleVoice.hpp"
-
-enum class EIOPort
-{
-    Zero,
-    One,
-    Two,
-    Three
-};
+#include "CInputGenerator.hpp"
 
 namespace urde
 {

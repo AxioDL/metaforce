@@ -104,7 +104,7 @@ class CGameArea : public IGameArea
             bool xf0_24_postConstructed : 1;
             bool xf0_25_active : 1;
             bool xf0_26_tokensReady : 1;
-            bool xf0_27_ : 1;
+            bool xf0_27_paused : 1;
             bool xf0_28_ : 1;
         };
         u8 _dummy = 0;
@@ -261,6 +261,7 @@ public:
 
     bool IsFinishedOccluding() const;
     void ReadDependencyList();
+    void SetPauseState(bool paused);
 
     bool IGetScriptingMemoryAlways() const;
     TAreaId IGetAreaId() const;

@@ -13,4 +13,14 @@ bool CAutoMapper::CheckLoadComplete()
     return false;
 }
 
+void CAutoMapper::UnmuteAllLoopedSounds()
+{
+
+}
+
+void CAutoMapper::OnNewInGameGuiState(EInGameGuiState, const CStateManager&)
+{
+
+}
+
 }

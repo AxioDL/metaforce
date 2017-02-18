@@ -1,6 +1,8 @@
 #ifndef __URDE_CMESSAGESCREEN_HPP__
 #define __URDE_CMESSAGESCREEN_HPP__
 
+#include "RetroTypes.hpp"
+
 namespace urde
 {
 namespace MP1
@@ -9,7 +11,7 @@ namespace MP1
 class CMessageScreen
 {
 public:
-    CMessageScreen();
+    CMessageScreen(ResId msg, float time);
 };
 
 }

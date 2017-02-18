@@ -135,7 +135,7 @@ private:
         struct
         {
             bool x70_24_ : 1;
-            bool x70_25_ : 1;
+            bool x70_25_paused : 1;
             bool x70_26_ : 1;
             bool x70_27_ : 1;
         };
@@ -155,6 +155,7 @@ public:
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
+    void SetPauseState(bool paused);
 
     CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId);
     bool DoesAreaExist(TAreaId area) const;

@@ -506,10 +506,17 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         ++toStreamCount;
     }
 
-    if (!toStreamCount && otherLoadArea && !x70_25_)
+    if (!toStreamCount && otherLoadArea && !x70_25_paused)
         otherLoadArea->StartStreamIn(mgr);
 
     GetMapWorld()->SetWhichMapAreasLoaded(*this, aid, 3);
+}
+
+void CWorld::SetPauseState(bool paused)
+{
+    for (CGameArea* headArea = x4c_chainHeads[2] ; headArea != skGlobalEnd ; headArea = headArea->x130_next)
+        headArea->SetPauseState(paused);
+    x70_25_paused = paused;
 }
 
 bool CWorld::ICheckWorldComplete() { return CheckWorldComplete(nullptr, kInvalidAreaId, -1); }

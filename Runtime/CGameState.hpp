@@ -58,6 +58,7 @@ public:
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }
     TAreaId GetCurrentAreaId() const { return x4_areaId; }
     ResId GetDesiredAreaAssetId() const { return x10_desiredAreaAssetId; }
+    void SetDesiredAreaAssetId(ResId id) { x10_desiredAreaAssetId = id; }
     const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
     const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }

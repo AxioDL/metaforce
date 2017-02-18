@@ -441,6 +441,19 @@ const zeus::CTransform& CGameArea::IGetTM() const
     return xc_transform;
 }
 
+void CGameArea::SetPauseState(bool paused)
+{
+    if (xf0_26_tokensReady)
+        return;
+    xf0_27_paused = paused;
+    if (!paused)
+        return;
+
+    for (CToken& tok : xdc_tokens)
+        if (!tok.IsLoaded())
+            tok.Unlock();
+}
+
 void CGameArea::SetXRaySpeedAndTarget(float f1, float f2)
 {
     x12c_postConstructed->x112c_xraySpeed = f1;

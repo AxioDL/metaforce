@@ -130,6 +130,8 @@ public:
     void ThinkSpinnerController(float, CStateManager&, ESpinnerControllerMode);
     void ThinkObjectFollowLocator(float, CStateManager&);
     void ThinkChaffTarget(float, CStateManager&);
+
+    bool ShouldSkipCinematic(CStateManager& stateMgr) const;
 };
 }
 

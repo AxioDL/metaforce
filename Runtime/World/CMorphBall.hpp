@@ -30,6 +30,7 @@ public:
     };
 private:
     CPlayer& x0_player;
+    float x1DE8_boostTime = 0.f;
 
 public:
     CMorphBall(CPlayer& player, float);

@@ -10,6 +10,21 @@ namespace urde
 {
 class CArchitectureQueue;
 
+enum class EIOPort
+{
+    Zero,
+    One,
+    Two,
+    Three
+};
+
+enum class EMotorState
+{
+    Stop,
+    Rumble,
+    StopHard
+};
+
 class CInputGenerator : public boo::DeviceFinder
 {
     enum class EStatusChange
@@ -171,6 +186,24 @@ public:
     {
         if (smashAdapter.get() == device)
             smashAdapter.reset(nullptr);
+    }
+    void SetMotorState(EIOPort port, EMotorState state)
+    {
+        if (smashAdapter)
+        {
+            switch (state)
+            {
+            case EMotorState::Stop:
+                smashAdapter->stopRumble(unsigned(port));
+                break;
+            case EMotorState::Rumble:
+                smashAdapter->startRumble(unsigned(port));
+                break;
+            case EMotorState::StopHard:
+                smashAdapter->stopRumble(unsigned(port), true);
+                break;
+            }
+        }
     }
 
     /* This is where the game thread enters */

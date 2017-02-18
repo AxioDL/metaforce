@@ -312,6 +312,17 @@ float CPlayer::GetWeight() const { return 0.f; }
 
 float CPlayer::GetDampedClampedVelocityWR() const { return 0.f; }
 
+void CPlayer::UpdateCinematicState(CStateManager& mgr)
+{
+    if (mgr.GetCameraManager()->IsInCinematicCamera())
+    {
+        switch (x2f4_cameraState)
+        {
+
+        }
+    }
+}
+
 void CPlayer::Touch() {}
 
 void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId d, bool e)

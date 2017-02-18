@@ -79,12 +79,12 @@ private:
     };
     zeus::CVector3f x1b4_;
     TUniqueId x1c4_ = kInvalidUniqueId;
-    // std::vector<> x258_;
+    u32 x258_jumpState = 0;
     TUniqueId x26c_ = kInvalidUniqueId;
     float x270_ = 0.f;
     CPlayerEnergyDrain x274_ = CPlayerEnergyDrain(4);
     float x288_ = 0.f;
-    float x28c_ = 0.f;
+    float x28c_sjTimer = 0.f;
     float x290_ = 0.f;
     float x294_ = 0.f;
     u32 x298_ = 0;
@@ -410,6 +410,9 @@ public:
     float GetDampedClampedVelocityWR() const;
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
     float Get74C() const { return x74c_; }
+    void UpdateCinematicState(CStateManager& mgr);
+    CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
+    CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
 
     void Touch();
     const std::unique_ptr<CPlayerCameraBob>& GetCameraBob() const { return x76c_cameraBob; }

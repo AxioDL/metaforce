@@ -8,13 +8,16 @@ namespace urde
 
 class CCinematicCamera : public CGameCamera
 {
+    u32 x21c_w1;
 public:
     CCinematicCamera(TUniqueId, const std::string& name, const CEntityInfo& info,
-                     const zeus::CTransform& xf, bool, float, float, float, float, float, u32);
+                     const zeus::CTransform& xf, bool, float, float, float, float, float, u32 w1);
 
     void Accept(IVisitor& visitor);
     void ProcessInput(const CFinalInput&, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
+    u32 GetW1() const { return x21c_w1; }
+    void WasDeactivated(CStateManager& mgr);
 };
 
 }

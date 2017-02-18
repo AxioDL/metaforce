@@ -33,6 +33,7 @@ set(MP1_SOURCES
     CSamusHud.hpp CSamusHud.cpp
     CPauseScreen.hpp CPauseScreen.cpp
     CFaceplateDecoration.hpp CFaceplateDecoration.cpp
+    CInventoryScreen.hpp CInventoryScreen.cpp
     MP1.hpp MP1.cpp
     ${MP1_PLAT_SOURCES}
     ${MP1_WORLD_SOURCES})

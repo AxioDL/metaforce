@@ -32,7 +32,7 @@ public:
     void ProcessInput(const CFinalInput&, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
 
-    void sub800E318();
+    void SkipCinematic();
     zeus::CTransform GetGunFollowTransform();
     void UpdateTransform(CStateManager&, float dt);
     void UpdateElevation(CStateManager&);

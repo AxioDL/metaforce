@@ -31,6 +31,7 @@ extern class CGameState* g_GameState;
 extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 extern class CStringTable* g_MainStringTable;
+extern class CInputGenerator* g_InputGenerator;
 
 using ITweakGame = DataSpec::ITweakGame;
 using ITweakPlayer = DataSpec::ITweakPlayer;

@@ -61,7 +61,7 @@ class CPlayerGun
     u32 x2fc_ = 0;
     u32 x300_ = 0;
     u32 x304_ = 0;
-    u32 x308_ = 3;
+    u32 x308_bombCount = 3;
     u32 x30c_ = 0;
     u32 x310_ = 0;
     u32 x314_ = 0;
@@ -75,14 +75,14 @@ class CPlayerGun
     u32 x334_ = 0;
     u32 x338_ = 0;
     u32 x33c_ = 0;
-    float x340_ = 0.f;
+    float x340_chargeTime = 0.f;
     float x344_ = 0.f;
     float x348_ = 0.f;
     float x34c_ = 0.f;
     float x350_ = 0.f;
     float x354_;
     float x358_;
-    float x35c_ = 0.f;
+    float x35c_bombTime = 0.f;
     float x360_ = 0.f;
     float x364_ = 0.f;
     float x368_ = 0.f;
@@ -200,6 +200,7 @@ public:
     CPlayerGun(TUniqueId id);
 
     void AsyncLoadSuit(CStateManager& mgr);
+    void TouchModel(CStateManager& stateMgr);
 };
 
 }

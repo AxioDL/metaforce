@@ -28,8 +28,8 @@ enum class EArchMsgType
     SetGameState = 6,
     ControllerStatus = 7,
     QuitGameplay = 8,
-    UpdateBegin = 10,
-    FrameBegin = 11,
+    FrameBegin = 10,
+    FrameEnd = 11,
     /* URDE messages, we start at 255 */
     ApplicationExit = 255,
 };
@@ -165,9 +165,14 @@ public:
     {
         return *msg.GetParm<CArchMsgParmVoidPtr>();
     }
-    static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, const int& a)
+    static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, const s32& a)
     {
         return CArchitectureMessage(target, EArchMsgType::FrameBegin,
+                                    std::make_shared<CArchMsgParmInt32>(a));
+    }
+    static CArchitectureMessage CreateFrameEnd(EArchMsgTarget target, const s32& a)
+    {
+        return CArchitectureMessage(target, EArchMsgType::FrameEnd,
                                     std::make_shared<CArchMsgParmInt32>(a));
     }
     /* URDE Messages */

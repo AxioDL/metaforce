@@ -14,6 +14,7 @@
 #include "Particle/CGenDescription.hpp"
 #include "CObjectList.hpp"
 #include "TCastTo.hpp"
+#include "CCinematicCamera.hpp"
 
 namespace urde
 {
@@ -151,6 +152,20 @@ const CEntity* CCameraManager::GetCurrentCamera(const CStateManager& stateMgr) c
 {
     const CObjectList* camList = stateMgr.GetObjectListById(EGameObjectList::GameCamera);
     return camList->GetObjectById(GetCurrentCameraId());
+}
+
+void CCameraManager::SkipCinematic(CStateManager& stateMgr)
+{
+    TUniqueId camId = GetCurrentCameraId();
+    CCinematicCamera* ent = static_cast<CCinematicCamera*>(stateMgr.ObjectById(camId));
+    while (ent)
+    {
+        ent->SetActive(false);
+        ent->WasDeactivated(stateMgr);
+        ent = TCastToPtr<CCinematicCamera>(GetCurrentCamera(stateMgr)).GetPtr();
+    }
+    stateMgr.GetPlayer().UpdateCinematicState(stateMgr);
+    x7c_fpCamera->SkipCinematic();
 }
 
 float CCameraManager::sub80009148() const

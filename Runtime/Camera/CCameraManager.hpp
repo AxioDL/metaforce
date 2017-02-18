@@ -97,6 +97,8 @@ public:
         return kInvalidUniqueId;
     }
 
+    void SkipCinematic(CStateManager& stateMgr);
+
     CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
     CBallCamera* BallCamera(CStateManager&) const;

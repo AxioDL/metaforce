@@ -1,6 +1,8 @@
 #ifndef __URDE_CSAMUSHUD_HPP__
 #define __URDE_CSAMUSHUD_HPP__
 
+#include "CInGameGuiManager.hpp"
+
 namespace urde
 {
 class CGuiFrame;
@@ -16,6 +18,7 @@ class CSamusHud
 public:
     CSamusHud(CStateManager& stateMgr);
     bool CheckLoadComplete(CStateManager& stateMgr);
+    void OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr);
     void Touch();
 };
 

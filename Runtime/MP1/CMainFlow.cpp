@@ -24,13 +24,13 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
     switch (x14_gameState)
     {
     case EClientFlowStates::Game:
-        CMainFlow::SetGameState(EClientFlowStates::GameExit, queue);
+        SetGameState(EClientFlowStates::GameExit, queue);
         break;
     case EClientFlowStates::PreFrontEnd:
-        CMainFlow::SetGameState(EClientFlowStates::FrontEnd, queue);
+        SetGameState(EClientFlowStates::FrontEnd, queue);
         break;
     case EClientFlowStates::FrontEnd:
-        CMainFlow::SetGameState(EClientFlowStates::Game, queue);
+        SetGameState(EClientFlowStates::Game, queue);
         break;
     case EClientFlowStates::GameExit:
     {
@@ -40,7 +40,7 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
             main->SetX30(true);
     }
     case EClientFlowStates::Unspecified:
-        CMainFlow::SetGameState(EClientFlowStates::PreFrontEnd, queue);
+        SetGameState(EClientFlowStates::PreFrontEnd, queue);
         break;
     }
 }

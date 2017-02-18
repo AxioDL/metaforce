@@ -19,11 +19,18 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
 {
 }
 
+void CFirstPersonCamera::PreThink(float, CStateManager&) {}
+
+void CFirstPersonCamera::Think(float, CStateManager&)
+{
+
+}
+
 void CFirstPersonCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {}
 
 void CFirstPersonCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {}
 
-void CFirstPersonCamera::sub800E318()
+void CFirstPersonCamera::SkipCinematic()
 {
     x1c8_ = zeus::CVector3f::skZero;
     x1d4_ = 0.f;

@@ -185,7 +185,8 @@ public:
     {
         Zero,
         One,
-        Two
+        Two,
+        Delayed
     };
     struct SHintState
     {
@@ -196,6 +197,8 @@ public:
         SHintState() = default;
         SHintState(EHintState state, float time, bool flag)
         : x0_state(state), x4_time(time), x8_flag(flag) {}
+
+        bool CanContinue() const { return x4_time / 3.f <= 1.f; }
     };
 private:
     std::vector<SHintState> x0_hintStates;
@@ -206,6 +209,10 @@ public:
     void PutTo(CBitStreamWriter& writer) const;
     void SetNextHintTime();
     void InitializeMemoryState();
+    const SHintState* GetCurrentDisplayedHint() const;
+    void DelayHint(const char* name);
+    void ActivateImmediateHintTimer(const char* name);
+    void ActivateContinueDelayHintTimer(const char* name);
 };
 
 }

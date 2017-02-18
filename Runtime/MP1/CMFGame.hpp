@@ -3,6 +3,7 @@
 
 #include "CMFGameBase.hpp"
 #include "CInGameGuiManager.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
 
 namespace urde
 {
@@ -13,27 +14,52 @@ class CToken;
 namespace MP1
 {
 
+enum class EGameFlowState
+{
+    InGame = 0,
+    Paused,
+    SamusDied,
+    CinematicSkip
+};
+
 class CMFGame : public CMFGameBase
 {
     std::shared_ptr<CStateManager> x14_stateManager;
     std::shared_ptr<CInGameGuiManager> x18_guiManager;
-    u32 x1c_ = 0;
+    EGameFlowState x1c_flowState = EGameFlowState::InGame;
+    float x20_cineSkipTime;
     u32 x24_ = 0;
-    TUniqueId x28_ = kInvalidUniqueId;
+    TUniqueId x28_skippedCineCam = kInvalidUniqueId;
     union
     {
         struct
         {
-            bool x2a_24_ : 1;
-            bool x2a_25_ : 1;
+            bool x2a_24_initialized : 1;
+            bool x2a_25_samusAlive : 1;
         };
         u8 _dummy = 0;
     };
+
+    CColoredQuadFilter m_fadeToBlack = {CCameraFilterPass::EFilterType::Multiply};
+
+    bool IsCameraActiveFlow() const
+    {
+        return (x1c_flowState == EGameFlowState::InGame || x1c_flowState == EGameFlowState::SamusDied);
+    }
+
 public:
     CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
             const CArchitectureQueue&);
     CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
+    void Touch();
     void Draw() const;
+    void PlayerDied();
+    void UnpauseGame();
+    void EnterMessageScreen(float time);
+    void SaveGame();
+    void EnterLogBook();
+    void PauseGame();
+    void EnterMapScreen();
 };
 
 class CMFGameLoader : public CMFGameLoaderBase

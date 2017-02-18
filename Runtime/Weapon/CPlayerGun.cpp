@@ -30,4 +30,9 @@ void CPlayerGun::AsyncLoadSuit(CStateManager& mgr)
     x740_grappleArm->AsyncLoadSuit(mgr);
 }
 
+void CPlayerGun::TouchModel(CStateManager& stateMgr)
+{
+
+}
+
 }

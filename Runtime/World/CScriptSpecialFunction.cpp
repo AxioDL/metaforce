@@ -3,6 +3,9 @@
 #include "CActorParameters.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "TCastTo.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CGameState.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -65,4 +68,16 @@ void CScriptSpecialFunction::Render(const CStateManager &) const
 {
 
 }
+
+void CScriptSpecialFunction::SkipCinematic(CStateManager& stateMgr)
+{
+    SendScriptMsgs(EScriptObjectState::Zero, stateMgr, EScriptObjectMessage::None);
+    stateMgr.SetSkipCinematicSpecialFunction(kInvalidUniqueId);
+}
+
+bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const
+{
+    return g_GameState->SystemOptions().GetCinematicState(stateMgr.GetWorld()->IGetWorldAssetId(), GetEditorId());
+}
+
 }

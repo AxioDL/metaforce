@@ -42,6 +42,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
 
     g_GuiSys = &x44_guiSys;
     x30_inputGenerator.startScanning();
+    g_InputGenerator = &x30_inputGenerator;
 
     CAudioSys::SysSetVolume(0x7f);
     CAudioSys::SetDefaultVolumeScale(0x75);
@@ -68,6 +69,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
 
 void CGameArchitectureSupport::UpdateTicks()
 {
+    x4_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, x78_gameFrameCount));
     x4_archQueue.Push(MakeMsg::CreateTimerTick(EArchMsgTarget::Game, 1.f / 60.f));
 }
 
@@ -75,7 +77,7 @@ void CGameArchitectureSupport::Update()
 {
     g_GameState->GetWorldTransitionManager()->TouchModels();
     x30_inputGenerator.Update(1 / 60.f, x4_archQueue);
-    x4_archQueue.Push(MakeMsg::CreateFrameBegin(EArchMsgTarget::Game, x78_));
+    x4_archQueue.Push(MakeMsg::CreateFrameEnd(EArchMsgTarget::Game, x78_gameFrameCount));
     x58_ioWinManager.PumpMessages(x4_archQueue);
 }
 
@@ -171,6 +173,11 @@ void CGameArchitectureSupport::UnloadAudio()
 void CGameArchitectureSupport::Draw()
 {
     x58_ioWinManager.Draw();
+    if (m_parent.x161_24_gameFrameDrawn)
+    {
+        ++x78_gameFrameCount;
+        m_parent.x161_24_gameFrameDrawn = false;
+    }
 }
 
 CGameArchitectureSupport::~CGameArchitectureSupport()

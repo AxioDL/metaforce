@@ -65,6 +65,16 @@ struct SOnScreenTex
     zeus::CVector2i xc_extent;
 };
 
+enum class EStateManagerTransition
+{
+    InGame,
+    MapScreen,
+    PauseGame,
+    LogBook,
+    SaveGame,
+    MessageScreen
+};
+
 class CStateManager
 {
     friend class MP1::CMFGameLoader;
@@ -172,7 +182,7 @@ class CStateManager
     };
 
     SOnScreenTex xef4_pendingScreenTex;
-    ResId xf08_ = -1;
+    ResId xf08_pauseHudMessage = -1;
     float xf0c_ = 0.f;
     float xf10_ = 0.f;
     float xf14_ = 0.f;
@@ -184,7 +194,7 @@ class CStateManager
     float xf2c_ = 1.f;
     float xf30_ = 1.f;
     u32 xf34_ = 2;
-    TUniqueId xf38_ = kInvalidUniqueId;
+    TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
     std::list<u32> xf3c_;
     u32 xf50_ = 0;
     std::list<u32> xf54_;
@@ -195,23 +205,23 @@ class CStateManager
     TUniqueId xf74_lastTrigger = kInvalidUniqueId;
     TUniqueId xf76_lastRelay = kInvalidUniqueId;
 
-    float xf78_ = 0.f;
+    float xf78_hudMessageTime = 0.f;
     u32 xf7c_ = 0;
-    u32 xf80_ = 0;
+    u32 xf80_hudMessageFrameCount = 0;
     ResId xf84_ = -1;
     ResId xf88_ = -1;
     float xf8c_ = 0.f;
-    u32 xf90_ = 0;
+    EStateManagerTransition xf90_deferredTransition = EStateManagerTransition::InGame;
 
     union
     {
         struct
         {
             bool xf94_24_ : 1;
-            bool xf94_25_ : 1;
+            bool xf94_25_quitGame : 1;
             bool xf94_26_generatingObject : 1;
-            bool xf94_27_ : 1;
-            bool xf94_28_ : 1;
+            bool xf94_27_inMapScreen : 1;
+            bool xf94_28_inSaveUI : 1;
             bool xf94_29_ : 1;
             bool xf94_30_ : 1;
         };
@@ -232,7 +242,7 @@ public:
     bool RenderLast(TUniqueId);
     void AddDrawableActorPlane(const CActor& actor, const zeus::CPlane&, const zeus::CAABox& aabb) const;
     void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
-    void SpecialSkipCinematic();
+    bool SpecialSkipCinematic();
     void GetVisAreaId() const;
     void GetWeaponIdCount(TUniqueId, EWeaponType);
     void RemoveWeaponId(TUniqueId, EWeaponType);
@@ -299,7 +309,7 @@ public:
     void ProcessInput(const CFinalInput& input);
     void Update(float dt);
     void UpdateGameState();
-    void FrameBegin();
+    void FrameBegin(s32 frameCount);
     void InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId);
     void CreateStandardGameObjects();
     const std::unique_ptr<CObjectList>& GetObjectList() const { return x80c_allObjs; }
@@ -336,9 +346,22 @@ public:
                               const rstl::reserved_vector<TUniqueId, 1024>& list) const;
     void UpdateObjectInLists(CEntity&);
     TUniqueId AllocateUniqueId();
+    void DeferStateTransition(EStateManagerTransition t);
+    EStateManagerTransition GetDeferredStateTransition() const { return xf90_deferredTransition; }
+    bool CanShowMapScreen() const;
+    TUniqueId GetSkipCinematicSpecialFunction() const { return xf38_skipCineSpecialFunc; }
+    void SetSkipCinematicSpecialFunction(TUniqueId id) { xf38_skipCineSpecialFunc = id; }
+    float GetHUDMessageTime() const { return xf78_hudMessageTime; }
+    ResId GetPauseHUDMessage() const { return xf08_pauseHudMessage; }
+    void IncrementHUDMessageFrameCounter() { ++xf80_hudMessageFrameCount; }
+    bool ShouldQuitGame() const { return xf94_25_quitGame; }
+    void SetInSaveUI(bool b) { xf94_28_inSaveUI = b; }
+    void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
 
     const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
     CRandom16* GetActiveRandom() {return x900_activeRandom;}
+    void SetActiveRandomToDefault() { x900_activeRandom = &x8fc_random; }
+    void ClearActiveRandom() { x900_activeRandom = nullptr; }
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
     CCameraFilterPass& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
 
