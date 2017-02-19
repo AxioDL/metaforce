@@ -366,7 +366,64 @@ void CStateManager::SetupFogForArea(const CGameArea& area) const {}
 
 void CStateManager::PreRender() {}
 
-void CStateManager::GetVisSetForArea(TAreaId, TAreaId) const {}
+bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) const
+{
+    if (b == kInvalidAreaId)
+        return false;
+
+    zeus::CVector3f viewPoint = CGraphics::g_ViewMatrix.origin;
+    zeus::CVector3f closestDockPoint = viewPoint;
+    bool hasClosestDock = false;
+    if (a != b)
+    {
+        CGameArea& area = *x850_world->GetGameAreas()[b];
+        if (area.IsPostConstructed())
+        {
+            for (const CGameArea::Dock& dock : area.GetDocks())
+            {
+                for (int i=0 ; i<dock.GetDockRefs().size() ; ++i)
+                {
+                    TAreaId connArea = dock.GetConnectedAreaId(i);
+                    if (connArea == a)
+                    {
+                        const auto& verts = dock.GetPlaneVertices();
+                        zeus::CVector3f dockCenter = (verts[0] + verts[1] + verts[2] + verts[4]) * 0.25f;
+                        if (hasClosestDock)
+                            if ((dockCenter - viewPoint).magSquared() >=
+                                (closestDockPoint - viewPoint).magSquared())
+                                continue;
+                        closestDockPoint = dockCenter;
+                        hasClosestDock = true;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        hasClosestDock = true;
+    }
+
+    if (hasClosestDock)
+    {
+        if (CPVSAreaSet* pvs = x850_world->GetGameAreas()[a]->GetPostConstructed()->xa0_pvs.get())
+        {
+            const CPVSVisOctree& octree = pvs->GetVisOctree();
+            zeus::CVector3f closestDockLocal =
+                x850_world->GetGameAreas()[a]->GetInverseTransform() * closestDockPoint;
+            CPVSVisSet set;
+            set.SetTestPoint(octree, closestDockLocal);
+
+            if (set.GetState() == EPVSVisSetState::NodeFound)
+            {
+                setOut = set;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 void CStateManager::RecursiveDrawTree(TUniqueId) const {}
 
@@ -557,14 +614,14 @@ std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId)
     return {kInvalidEditorId, kInvalidUniqueId};
 }
 
-void CStateManager::InitScriptObjects(std::vector<TEditorId>& ids)
+void CStateManager::InitScriptObjects(const std::vector<TEditorId>& ids)
 {
     for (TEditorId id : ids)
     {
         if (id == kInvalidEditorId)
             continue;
         TUniqueId uid = GetIdForScript(id);
-        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::InternalMessage13);
+        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::Constructed);
     }
     MurderScriptInstanceNames();
 }

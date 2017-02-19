@@ -235,6 +235,11 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain)
     x4c_chainHeads[int(chain)] = area;
 }
 
+void CWorld::MoveAreaToChain3(TAreaId aid)
+{
+    MoveToChain(x18_areas[aid].get(), EChain::Three);
+}
+
 void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data) {}
 
 void CWorld::LoadSoundGroups() {}

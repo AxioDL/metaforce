@@ -269,7 +269,7 @@ public:
     void DrawWorld() const;
     void SetupFogForArea(const CGameArea& area) const;
     void PreRender();
-    void GetVisSetForArea(TAreaId, TAreaId) const;
+    bool GetVisSetForArea(TAreaId, TAreaId, CPVSVisSet& setOut) const;
     void RecursiveDrawTree(TUniqueId) const;
     void SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg);
     void SendScriptMsg(TUniqueId dest, TUniqueId src, EScriptObjectMessage msg);
@@ -285,9 +285,10 @@ public:
               std::multimap<TEditorId, TUniqueId>::const_iterator>
     GetIdListForScript(TEditorId) const;
     void LoadScriptObjects(TAreaId, CInputStream& in, std::vector<TEditorId>& idsOut);
+    void InitializeScriptObjects(const std::vector<TEditorId>& objIds);
     std::pair<TEditorId, TUniqueId> LoadScriptObject(TAreaId, EScriptObjectType, u32, CInputStream& in);
     std::pair<TEditorId, TUniqueId> GenerateObject(TEditorId);
-    void InitScriptObjects(std::vector<TEditorId>& ids);
+    void InitScriptObjects(const std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);
     bool ApplyKnockBack(CActor& actor, const CDamageInfo& info,
                         const CDamageVulnerability&, const zeus::CVector3f&, float);

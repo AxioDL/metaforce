@@ -560,6 +560,16 @@ bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
     return m_failed;
 }
 
+void ProjectResourceFactoryBase::AsyncTask::WaitForComplete()
+{
+    using ItType = std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>>::iterator;
+    ItType search = m_parent.m_asyncLoadList.find(x0_tag);
+    if (search == m_parent.m_asyncLoadList.end())
+        return;
+    for (ItType tmp = search ; !m_parent.AsyncPumpTask(tmp) ; tmp = search)
+    {std::this_thread::sleep_for(std::chrono::milliseconds(2));}
+}
+
 bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag,
                                                  const hecl::ProjectPath*& pathOut)
 {
@@ -921,6 +931,70 @@ void ProjectResourceFactoryBase::EnumerateNamedResources(
     }
 }
 
+bool ProjectResourceFactoryBase::AsyncPumpTask(
+    std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>>::iterator& it)
+{
+    /* Ensure requested resource is in the index */
+    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
+    AsyncTask& task = *it->second;
+    auto search = m_tagToPath.find(task.x0_tag);
+    if (search == m_tagToPath.end())
+    {
+        if (!m_backgroundRunning)
+        {
+            Log.report(logvisor::Error, _S("unable to find async load resource (%s, %08X)"),
+                       task.x0_tag.type.toString().c_str(), task.x0_tag.id);
+            it = m_asyncLoadList.erase(it);
+        }
+        return true;
+    }
+    lk.unlock();
+    task.EnsurePath(task.x0_tag, search->second);
+
+    /* Pump load pipeline (cooking if needed) */
+    if (task.AsyncPump())
+    {
+        if (task.m_complete)
+        {
+            /* Load complete, build resource */
+            if (task.xc_targetObjPtr)
+            {
+                /* Factory build */
+                std::unique_ptr<IObj> newObj;
+                if (m_factoryMgr.CanMakeMemory(task.x0_tag))
+                {
+                    newObj = m_factoryMgr.MakeObjectFromMemory(task.x0_tag, std::move(task.x10_loadBuffer),
+                                                               task.x14_resSize, false, task.x18_cvXfer,
+                                                               task.m_selfRef);
+                }
+                else
+                {
+                    athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
+                    newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer, task.m_selfRef);
+                }
+
+                *task.xc_targetObjPtr = newObj.release();
+                Log.report(logvisor::Info, "async-built %.4s %08X",
+                           task.x0_tag.type.toString().c_str(),
+                           u32(task.x0_tag.id));
+            }
+            else if (task.xc_targetDataPtr)
+            {
+                /* Buffer only */
+                *task.xc_targetDataPtr = std::move(task.x10_loadBuffer);
+                Log.report(logvisor::Info, "async-loaded %.4s %08X",
+                           task.x0_tag.type.toString().c_str(),
+                           u32(task.x0_tag.id));
+            }
+        }
+
+        it = m_asyncLoadList.erase(it);
+        return true;
+    }
+    ++it;
+    return false;
+}
+
 void ProjectResourceFactoryBase::AsyncIdle()
 {
     /* Consume completed transactions, they will be processed this cycle at the latest */
@@ -936,64 +1010,7 @@ void ProjectResourceFactoryBase::AsyncIdle()
         if (std::chrono::duration_cast<std::chrono::milliseconds>(resStart - start).count() > 8)
             break;
 
-        /* Ensure requested resource is in the index */
-        std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-        AsyncTask& task = *it->second;
-        auto search = m_tagToPath.find(task.x0_tag);
-        if (search == m_tagToPath.end())
-        {
-            if (!m_backgroundRunning)
-            {
-                Log.report(logvisor::Error, _S("unable to find async load resource (%s, %08X)"),
-                           task.x0_tag.type.toString().c_str(), task.x0_tag.id);
-                it = m_asyncLoadList.erase(it);
-            }
-            continue;
-        }
-        lk.unlock();
-        task.EnsurePath(task.x0_tag, search->second);
-
-        /* Pump load pipeline (cooking if needed) */
-        if (task.AsyncPump())
-        {
-            if (task.m_complete)
-            {
-                /* Load complete, build resource */
-                if (task.xc_targetObjPtr)
-                {
-                    /* Factory build */
-                    std::unique_ptr<IObj> newObj;
-                    if (m_factoryMgr.CanMakeMemory(task.x0_tag))
-                    {
-                        newObj = m_factoryMgr.MakeObjectFromMemory(task.x0_tag, std::move(task.x10_loadBuffer),
-                                                                   task.x14_resSize, false, task.x18_cvXfer,
-                                                                   task.m_selfRef);
-                    }
-                    else
-                    {
-                        athena::io::MemoryReader mr(task.x10_loadBuffer.get(), task.x14_resSize);
-                        newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer, task.m_selfRef);
-                    }
-
-                    *task.xc_targetObjPtr = newObj.release();
-                    Log.report(logvisor::Info, "async-built %.4s %08X",
-                               task.x0_tag.type.toString().c_str(),
-                               u32(task.x0_tag.id));
-                }
-                else if (task.xc_targetDataPtr)
-                {
-                    /* Buffer only */
-                    *task.xc_targetDataPtr = std::move(task.x10_loadBuffer);
-                    Log.report(logvisor::Info, "async-loaded %.4s %08X",
-                               task.x0_tag.type.toString().c_str(),
-                               u32(task.x0_tag.id));
-                }
-            }
-
-            it = m_asyncLoadList.erase(it);
-            continue;
-        }
-        ++it;
+        AsyncPumpTask(it);
     }
 }
 

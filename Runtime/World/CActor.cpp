@@ -65,7 +65,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
 #endif
     }
     break;
-    case EScriptObjectMessage::InternalMessage13: // 35
+    case EScriptObjectMessage::Constructed: // 35
     {
         for (const SConnection& conn : x20_conns)
         {

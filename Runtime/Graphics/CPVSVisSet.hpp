@@ -2,24 +2,33 @@
 #define __URDE_CPVSVISSET_HPP__
 
 #include "RetroTypes.hpp"
+#include "zeus/CAABox.hpp"
 #include <memory>
 
 namespace urde
 {
+class CPVSVisOctree;
+
+enum class EPVSVisSetState
+{
+    EndOfTree,
+    NodeFound,
+    OutOfBounds
+};
 
 class CPVSVisSet
 {
-    int x0_bitCount;
-    int x4_setCount = 0;
-    std::vector<unsigned char> x8_bitset;
+    EPVSVisSetState x0_state;
+    u32 x4_numBits;
+    u32 x8_numLights;
+    //bool xc_; Used to be part of auto_ptr
+    const u8* x10_ptr;
 public:
-    CPVSVisSet(int count) : x0_bitCount(count) {}
-    CPVSVisSet(int a, std::vector<unsigned char>&& bitset)
-    : x0_bitCount(1), x4_setCount(a), x8_bitset(std::move(bitset)) {}
-    void Reset(bool);
-    bool GetVisible(int);
-    void SetVisible(int,bool);
-    void SetFromMemory(const unsigned char*);
+    void Reset(EPVSVisSetState state);
+    EPVSVisSetState GetState() const { return x0_state; }
+    EPVSVisSetState GetVisible(u32 idx) const;
+    void SetFromMemory(u32 numBits, u32 numLights, const u8* leafPtr);
+    void SetTestPoint(const CPVSVisOctree& octree, const zeus::CVector3f&);
 };
 
 }

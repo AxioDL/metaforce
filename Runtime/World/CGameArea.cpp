@@ -709,9 +709,76 @@ void CGameArea::StartStreamIn(CStateManager& mgr)
 {
 }
 
-bool CGameArea::Validate(CStateManager& mgr)
+void CGameArea::Validate(CStateManager& mgr)
 {
-    return false;
+    if (xf0_24_postConstructed)
+        return;
+
+    while (StartStreamingMainArea()) {}
+
+    for (auto& req : xf8_loadTransactions)
+        req->WaitForComplete();
+
+    if (xdc_tokens.empty())
+    {
+        VerifyTokenList(mgr);
+        for (CToken& tok : xdc_tokens)
+            tok.Lock();
+        for (CToken& tok : xdc_tokens)
+            tok.GetObj();
+        xf0_26_tokensReady = true;
+    }
+
+    xf8_loadTransactions.clear();
+
+    PostConstructArea();
+    if (x4_selfIdx != kInvalidAreaId)
+        mgr.WorldNC()->MoveAreaToChain3(x4_selfIdx);
+
+    LoadScriptObjects(mgr);
+
+    CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
+    if (pvs && x12c_postConstructed->x1108_29_)
+    {
+        for (int i=0 ; i<pvs->GetNumActors() ; ++i)
+        {
+            TEditorId entId = pvs->GetEntityIdByIndex(i) | (x4_selfIdx << 16);
+            TUniqueId id = mgr.GetIdForScript(entId);
+            if (id != kInvalidUniqueId)
+            {
+                CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id & 0x3ff];
+                ent.x0_id = i + (pvs->GetNumFeatures() - pvs->GetNumActors());
+                ent.x4_uid = id;
+            }
+        }
+    }
+
+    xf0_28_validated = true;
+    mgr.AreaLoaded(x4_selfIdx);
+}
+
+void CGameArea::LoadScriptObjects(CStateManager& mgr)
+{
+    CWorldLayerState& layerState = *mgr.LayerState();
+    u32 layerCount = layerState.GetAreaLayerCount(x4_selfIdx);
+    std::vector<TEditorId> objIds;
+    for (u32 i=0 ; i<layerCount ; ++i)
+    {
+        if (layerState.IsLayerActive(x4_selfIdx, i))
+        {
+            auto layerBuf = GetLayerScriptBuffer(i);
+            CMemoryInStream r(layerBuf.first, layerBuf.second);
+            mgr.LoadScriptObjects(x4_selfIdx, r, objIds);
+        }
+    }
+    mgr.InitScriptObjects(objIds);
+}
+
+std::pair<u8*, u32> CGameArea::GetLayerScriptBuffer(int layer)
+{
+    if (!xf0_24_postConstructed)
+        return {};
+    return x12c_postConstructed->x110c_layerPtrs[layer];
 }
 
 void CGameArea::PostConstructArea()
@@ -797,7 +864,8 @@ void CGameArea::PostConstructArea()
             {
                 x12c_postConstructed->x1108_29_ = r.readBool();
                 x12c_postConstructed->x1108_30_ = r.readBool();
-                x12c_postConstructed->xa0_pvs.reset(new CPVSAreaSet::CPVSAreaHolder(r));
+                x12c_postConstructed->xa0_pvs = std::make_unique<CPVSAreaSet>(secIt->first.get() + r.position(),
+                                                                              secIt->second - r.position());
             }
         }
 
@@ -848,7 +916,7 @@ void CGameArea::FillInStaticGeometry()
 
 void CGameArea::VerifyTokenList(CStateManager& stateMgr)
 {
-    if (xdc_tokens.empty())
+    if (xdc_tokens.size())
         return;
     ClearTokenList();
 
@@ -881,7 +949,7 @@ void CGameArea::ClearTokenList()
     else
         xdc_tokens.clear();
 
-    xf0_26_tokensReady = 0;
+    xf0_26_tokensReady = false;
 }
 
 u32 CGameArea::GetPreConstructedSize() const

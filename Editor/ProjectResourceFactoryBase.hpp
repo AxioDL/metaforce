@@ -58,6 +58,7 @@ public:
                         const hecl::ProjectPath& path);
         void CookComplete();
         bool AsyncPump();
+        void WaitForComplete();
     };
 
 protected:
@@ -133,6 +134,7 @@ public:
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
     std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
 
+    bool AsyncPumpTask(std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>>::iterator& it);
     void AsyncIdle();
     void Shutdown() {CancelBackgroundIndex();}
 

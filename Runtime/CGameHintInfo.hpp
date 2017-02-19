@@ -24,14 +24,14 @@ public:
         float x10_immediateTime;
         float x14_normalTime;
         ResId x18_stringId;
-        float x1c_continueDelayTime;
+        float x1c_textTime;
         std::vector<SHintLocation> x20_locations;
     public:
         CGameHint(CInputStream&, s32);
 
         float GetNormalTime() const { return x14_normalTime; }
         float GetImmediateTime() const { return x10_immediateTime; }
-        float GetContinueDelayTime() const { return x1c_continueDelayTime; }
+        float GetTextTime() const { return x1c_textTime; }
         const std::string& GetName() const { return x0_name; }
         ResId GetStringID() const { return x18_stringId; }
         const std::vector<SHintLocation>& GetLocations() const { return x20_locations; }

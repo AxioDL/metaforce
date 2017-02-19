@@ -41,7 +41,6 @@ set(GRAPHICS_SOURCES
     CGraphicsPalette.hpp CGraphicsPalette.cpp
     CPVSVisSet.hpp CPVSVisSet.cpp
     CPVSVisOctree.hpp CPVSVisOctree.cpp
-    CPVSBounds.hpp CPVSBounds.cpp
     CPVSAreaSet.hpp CPVSAreaSet.cpp
     CGraphics.hpp CGraphics.cpp
     CSimpleShadow.hpp CSimpleShadow.cpp

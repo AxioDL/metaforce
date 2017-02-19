@@ -19,7 +19,7 @@ CGameHintInfo::CGameHint::CGameHint(CInputStream& in, s32 version)
 , x10_immediateTime(in.readFloatBig())
 , x14_normalTime(in.readFloatBig())
 , x18_stringId(in.readUint32Big())
-, x1c_continueDelayTime(3.f * float(version <= 0 ? 1 : in.readUint32Big()))
+, x1c_textTime(3.f * float(version <= 0 ? 1 : in.readUint32Big()))
 {
     u32 locationCount = in.readUint32Big();
     x20_locations.reserve(locationCount);

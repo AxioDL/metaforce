@@ -564,7 +564,7 @@ void CHintOptions::SetNextHintTime()
     if (x10_nextHintIdx == -1)
         return;
     x0_hintStates[x10_nextHintIdx].x4_time =
-            g_MemoryCardSys->GetHints()[x10_nextHintIdx].GetContinueDelayTime() + 5.f;
+            g_MemoryCardSys->GetHints()[x10_nextHintIdx].GetTextTime() + 5.f;
 }
 
 void CHintOptions::InitializeMemoryState()
@@ -583,7 +583,7 @@ const CHintOptions::SHintState* CHintOptions::GetCurrentDisplayedHint() const
 
     const SHintState& hintState = x0_hintStates[x10_nextHintIdx];
     const CGameHintInfo::CGameHint& hint = g_MemoryCardSys->GetHints()[x10_nextHintIdx];
-    if (hintState.x4_time >= hint.GetContinueDelayTime())
+    if (hintState.x4_time >= hint.GetTextTime())
         return nullptr;
 
     if (hintState.x4_time < 3.f)
@@ -602,11 +602,8 @@ void CHintOptions::DelayHint(const char* name)
         return;
 
     if (x10_nextHintIdx == idx)
-    {
         for (SHintState& state : x0_hintStates)
             state.x4_time += 60.f;
-
-    }
 
     x0_hintStates[idx].x0_state = EHintState::Delayed;
 }
@@ -639,7 +636,7 @@ void CHintOptions::ActivateContinueDelayHintTimer(const char* name)
     if (hintState.x0_state != EHintState::Two)
         return;
 
-    hintState.x4_time = hint.GetContinueDelayTime();
+    hintState.x4_time = hint.GetTextTime();
 }
 
 }

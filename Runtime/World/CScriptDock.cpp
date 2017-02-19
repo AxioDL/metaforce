@@ -103,7 +103,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     case EScriptObjectMessage::Deleted:
         CleanUp();
         break;
-    case EScriptObjectMessage::InternalMessage13:
+    case EScriptObjectMessage::Constructed:
         AreaLoaded(mgr);
         break;
     case EScriptObjectMessage::InternalMessage14:

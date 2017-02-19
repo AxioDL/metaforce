@@ -152,6 +152,7 @@ private:
 public:
 
     void MoveToChain(CGameArea* area, EChain chain);
+    void MoveAreaToChain3(TAreaId aid);
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);

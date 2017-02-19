@@ -21,7 +21,7 @@ struct HINT : BigYAML
         Value<float> immediateTime;
         Value<float> normalTime;
         UniqueID32 stringID;
-        Value<atUint32> continueDelayTime;
+        Value<atUint32> textPageCount;
         struct Location : BigYAML
         {
             DECL_YAML

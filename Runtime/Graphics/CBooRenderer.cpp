@@ -386,13 +386,13 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
         if (xe0_pvsModelCount != item.x10_models.size())
             pvs = nullptr;
 
-        int idx = 0;
+        u32 idx = 0;
         for (auto it = item.x10_models.begin() ; it != item.x10_models.end() ; ++it, ++idx)
         {
             CBooModel* model = *it;
             if (pvs)
             {
-                bool vis = pvs->GetVisible(idx);
+                bool vis = pvs->GetVisible(idx) != EPVSVisSetState::EndOfTree;
                 switch (xc4_pvsMode)
                 {
                 case EPVSMode::PVS:

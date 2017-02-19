@@ -57,7 +57,7 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     {
         CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_alphaMin);
     }
-    else if (msg == EScriptObjectMessage::InternalMessage13)
+    else if (msg == EScriptObjectMessage::Constructed)
     {
         for (const SConnection& conn : x20_conns)
         {

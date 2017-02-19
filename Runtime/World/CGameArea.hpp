@@ -105,7 +105,7 @@ class CGameArea : public IGameArea
             bool xf0_25_active : 1;
             bool xf0_26_tokensReady : 1;
             bool xf0_27_paused : 1;
-            bool xf0_28_ : 1;
+            bool xf0_28_validated : 1;
         };
         u8 _dummy = 0;
     };
@@ -174,13 +174,13 @@ public:
         std::vector<CLight> x70_gfxLightsA;
         std::vector<CWorldLight> x80_lightsB;
         std::vector<CLight> x90_gfxLightsB;
-        std::unique_ptr<CPVSAreaSet::CPVSAreaHolder> xa0_pvs;
+        std::unique_ptr<CPVSAreaSet> xa0_pvs;
         u32 xa4_elemCount = 1024;
         struct MapEntry
         {
             s16 x0_id = -1;
             TUniqueId x4_uid = kInvalidUniqueId;
-        } xa8_map[1024];
+        } xa8_pvsEntityMap[1024];
         u32 x10a8_pvsVersion = 0;
         TLockedToken<CPFArea> x10ac_path;
         // bool x10b8_ = 0; optional flag for CToken
@@ -301,7 +301,9 @@ public:
     bool Invalidate(CStateManager& mgr);
     void CullDeadAreaRequests();
     void StartStreamIn(CStateManager& mgr);
-    bool Validate(CStateManager& mgr);
+    void Validate(CStateManager& mgr);
+    void LoadScriptObjects(CStateManager& mgr);
+    std::pair<u8*, u32> GetLayerScriptBuffer(int layer);
     void PostConstructArea();
     void FillInStaticGeometry();
     void VerifyTokenList(CStateManager& stateMgr);
@@ -313,7 +315,7 @@ public:
     const zeus::CTransform& GetInverseTransform() const {return x3c_invTransform;}
     const zeus::CAABox& GetAABB() const {return x6c_aabb;}
 
-    const std::vector<Dock> GetDocks() const {return xcc_docks;}
+    const std::vector<Dock>& GetDocks() const {return xcc_docks;}
     const Dock* GetDock(s32 dock) const { return &xcc_docks[dock]; }
     s32 GetDockCount() const { return xcc_docks.size(); }
     Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
