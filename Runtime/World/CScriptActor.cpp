@@ -11,11 +11,11 @@ namespace urde
 {
 
 CScriptActor::CScriptActor(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-                           CModelData&& mData, const zeus::CAABox& aabb, float f1, float zMomentum,
+                           CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
                            const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                            const CActorParameters& actParms, bool looping, bool active, u32 w1, float f3, bool b2,
                            bool castsShadow, bool b4, bool b5)
-: CPhysicsActor(uid, active, name, info, xf, std::move(mData), matList, aabb, SMoverData(f1), actParms, 0.3f, 0.1f)
+: CPhysicsActor(uid, active, name, info, xf, std::move(mData), matList, aabb, SMoverData(mass), actParms, 0.3f, 0.1f)
 , x258_initialHealth(hInfo)
 , x260_currentHealth(hInfo)
 , x268_damageVulnerability(dVuln)

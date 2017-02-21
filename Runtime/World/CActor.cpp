@@ -5,6 +5,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "TCastTo.hpp"
 #include "Character/IAnimReader.hpp"
+#include "Character/CActorLights.hpp"
 
 namespace urde
 {
@@ -12,9 +13,9 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
 {
     CMaterialList ret = materialList;
     if (params.GetVisorParameters().x0_28_b3)
-        ret.Add(EMaterialTypes::Mud);
+        ret.Add(EMaterialTypes::Unknown46);
     if (params.GetVisorParameters().x0_29_b4)
-        ret.Add(EMaterialTypes::Glass);
+        ret.Add(EMaterialTypes::ScanPassthrough);
     return ret;
 }
 
@@ -304,5 +305,11 @@ float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatri
 SAdvancementDeltas CActor::UpdateAnimation(float, CStateManager&, bool)
 {
     return {};
+}
+
+void CActor::SetActorLights(std::unique_ptr<CActorLights> lights)
+{
+    x90_actorLights = std::move(lights);
+    xe4_31_lightsDirty = true;
 }
 }

@@ -326,7 +326,7 @@ void CStateManager::TouchPlayerActor()
         return;
 
 #if 0
-    CScriptPlayerActor* spa = TCastToPtr<CScriptPlayerActor>(GetObjectById(xf6c_playerActor));
+    TCastToPtr<CScriptPlayerActor> spa(ObjectById(xf6c_playerActor));
     if (spa)
         spa->TouchModels();
 #endif

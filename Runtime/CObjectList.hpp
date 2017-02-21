@@ -30,7 +30,7 @@ class CObjectList
         TUniqueId next = kInvalidUniqueId;
         TUniqueId prev = kInvalidUniqueId;
     };
-    SObjectListEntry x0_list[1024];
+    SObjectListEntry x0_list[1024]; // was an rstl::prereserved_vector
     EGameObjectList x2004_listEnum;
     TUniqueId x2008_firstId = kInvalidUniqueId;
     u16 x200a_count = 0;

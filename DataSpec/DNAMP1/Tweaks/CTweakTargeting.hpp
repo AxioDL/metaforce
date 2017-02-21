@@ -55,7 +55,7 @@ struct CTweakTargeting : public ITweakTargeting
     Value<atVec4f> xdc_;
     Value<atVec4f> xe0_;
     Value<atVec4f> xe4_;
-    Value<float> xe8_;
+    Value<float> xe8_overshootOffset;
     Value<float> xec_;
     Value<float> xf0_;
     Value<atVec4f> xf4_;
@@ -147,6 +147,9 @@ struct CTweakTargeting : public ITweakTargeting
         x144_ = (2.f * M_PIF) * (0.003f * x144_);
         x208_ = (2.f * M_PIF) * (0.003f * x208_);
     }
+
+    float GetOvershootOffset() const { return xe8_overshootOffset; }
+    float GetXD0() const { return xd0_; }
 };
 }
 }

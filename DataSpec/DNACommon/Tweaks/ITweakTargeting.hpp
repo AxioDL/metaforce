@@ -6,6 +6,8 @@ namespace DataSpec
 {
 struct ITweakTargeting : public ITweak
 {
+    virtual float GetOvershootOffset() const =0;
+    virtual float GetXD0() const = 0;
 };
 }
 

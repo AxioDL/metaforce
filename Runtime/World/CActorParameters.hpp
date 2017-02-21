@@ -11,7 +11,7 @@ namespace urde
 class CActorParameters
 {
     friend class ScriptLoader;
-    CLightParameters x4_lightParms;
+    CLightParameters x0_lightParms;
     CScannableParameters x40_scanParms;
     std::pair<ResId, ResId> x44_xrayAssets = {};
     std::pair<ResId, ResId> x4c_thermalAssets = {};
@@ -23,15 +23,23 @@ class CActorParameters
     float x5c_;
     float x60_;
     float x64_;
+
 public:
-    CActorParameters()
-    : b1(true), b2(false), b3(false), b4(false) {}
+    CActorParameters() : b1(true), b2(false), b3(false), b4(false) {}
     CActorParameters(const CLightParameters& lightParms, const CScannableParameters& scanParms,
                      const std::pair<ResId, ResId>& xrayAssets, const std::pair<ResId, ResId>& thermalAssets,
                      const CVisorParameters& visorParms, bool a, bool b, bool c, bool d)
-    : x4_lightParms(lightParms), x40_scanParms(scanParms),
-      x44_xrayAssets(xrayAssets), x4c_thermalAssets(thermalAssets),
-      x54_visorParms(visorParms), b1(a), b2(b), b3(c), b4(d) {}
+    : x0_lightParms(lightParms)
+    , x40_scanParms(scanParms)
+    , x44_xrayAssets(xrayAssets)
+    , x4c_thermalAssets(thermalAssets)
+    , x54_visorParms(visorParms)
+    , b1(a)
+    , b2(b)
+    , b3(c)
+    , b4(d)
+    {
+    }
     CActorParameters Scannable(const CScannableParameters& sParms) const
     {
         CActorParameters aParms = *this;
@@ -39,12 +47,12 @@ public:
         return aParms;
     }
 
-    static CActorParameters None() {return CActorParameters();}
+    static CActorParameters None() { return CActorParameters(); }
 
     void SetVisorParameters(const CVisorParameters& vParams) { x54_visorParms = vParams; }
-    CVisorParameters GetVisorParameters() const { return x54_visorParms; }
+    const CVisorParameters& GetVisorParameters() const { return x54_visorParms; }
+    const CLightParameters& GetLightParameters() const { return x0_lightParms; }
 };
-
 }
 
 #endif // __URDE_CACTORPARAMETERS_HPP__
