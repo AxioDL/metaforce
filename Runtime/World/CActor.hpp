@@ -58,6 +58,7 @@ protected:
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
             bool xe4_30_ : 1;
+            bool xe4_31_lightsDirty : 1;
             bool xe5_24_ : 1;
             bool xe5_25_ : 1;
             bool xe5_26_muted : 1;
@@ -158,6 +159,7 @@ public:
     void EnsureRendered(const CStateManager&);
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
+    void SetActorLights(std::unique_ptr<CActorLights>);
 };
 }
 

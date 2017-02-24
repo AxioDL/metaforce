@@ -29,6 +29,7 @@
 #include "CScriptGrapplePoint.hpp"
 #include "CScriptPickupGenerator.hpp"
 #include "CScriptPointOfInterest.hpp"
+#include "CScriptPlayerActor.hpp"
 #include "CScriptAreaAttributes.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptCoverPoint.hpp"
@@ -282,7 +283,6 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
         CLightParameters::EWorldLightingOptions lightOpts = CLightParameters::EWorldLightingOptions(in.readUint32Big());
         CLightParameters::ELightRecalculationOptions recalcOpts =
             CLightParameters::ELightRecalculationOptions(in.readUint32Big());
-        ;
 
         zeus::CVector3f vec;
         vec.readBig(in);
@@ -419,17 +419,13 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     if (cameraPassthrough) // Bool 4
         list.Add(EMaterialTypes::CameraPassthrough);
 
-    bool generateExtent = false;
-    if (collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)
-        generateExtent = true;
-
     CModelData data;
     if (animType == SBIG('ANCS'))
         data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
     else
         data = CStaticRes(staticId, head.x40_scale);
 
-    if (generateExtent || collisionExtent.isZero())
+    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)|| collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, f1,
@@ -1650,7 +1646,45 @@ CEntity* ScriptLoader::LoadIceSheegoth(CStateManager& mgr, CInputStream& in, int
 
 CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 19, "PlayerActor"))
+        return nullptr;
+
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    zeus::CVector3f extents = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f offset = zeus::CVector3f::ReadBig(in);
+    float mass = in.readFloatBig();
+    float zMomentum = in.readFloatBig();
+    CHealthInfo hInfo(in);
+    CDamageVulnerability dVuln(in);
+    in.readUint32Big();
+    CAnimationParameters animParms = LoadAnimationParameters(in);
+    CActorParameters actParms = LoadActorParameters(in);
+    bool loop = in.readBool();
+    bool snow = in.readBool();
+    bool solid = in.readBool();
+    bool active = in.readBool();
+    u32 flags = LoadParameterFlags(in);
+    bool w1 = in.readUint32Big() - 1;
+
+    FourCC fcc = g_ResFactory->GetResourceTypeById(animParms.GetACSFile());
+    if (!fcc || fcc != SBIG('ANCS'))
+        return nullptr;
+
+    zeus::CAABox aabox = GetCollisionBox(mgr, info.GetAreaId(), extents, offset);
+    CMaterialList list;
+    if (snow)
+        list.Add(EMaterialTypes::Snow);
+
+    if (solid)
+        list.Add(EMaterialTypes::Solid);
+
+    if ((extents.x < 0.f || extents.y < 0.f || extents.z < 0.f) || extents.isZero())
+        aabox = zeus::CAABox({-.5f}, {0.5f});
+
+    return new CScriptPlayerActor(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
+                                  CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
+                                           animParms.GetInitialAnimation(), loop), CModelData::CModelDataNull(),
+                                  aabox, true, list, mass, zMomentum, hInfo, dVuln, actParms, loop, active, flags, w1);
 }
 
 CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
