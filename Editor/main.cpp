@@ -123,6 +123,9 @@ struct Application : boo::IApplicationCallback
 
 }
 
+static hecl::SystemChar CwdBuf[1024];
+hecl::SystemString ExeDir;
+
 #if _WIN32
 int wmain(int argc, const boo::SystemChar** argv)
 #else
@@ -132,6 +135,17 @@ int main(int argc, const boo::SystemChar** argv)
     logvisor::RegisterStandardExceptions();
     logvisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
+
+    if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024))
+    {
+        if (argv[0][0] != _S('/') && argv[0][0] != _S('\\'))
+            ExeDir = hecl::SystemString(cwd) + _S('/');
+        hecl::SystemString Argv0(argv[0]);
+        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_S("/\\"));
+        if (lastIdx != hecl::SystemString::npos)
+            ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
+    }
+
     urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("urde"), _S("URDE"), argc, argv, false);

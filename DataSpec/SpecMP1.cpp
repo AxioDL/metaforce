@@ -381,6 +381,7 @@ struct SpecMP1 : SpecBase
                 std::unique_lock<std::mutex> lk(msgLock);
                 progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
+
             hecl::SystemString pakName = sysName.sys_str();
             process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok) {
                 m_pakRouter.extractResources(pak, force, btok, [&](const hecl::SystemChar* substr, float factor) {
@@ -737,8 +738,10 @@ struct SpecMP1 : SpecBase
 
         std::vector<Light> lights = ds.compileLights();
 
+        ds.close();
+
         if (m_pc)
-            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh, lights);
+            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh, lights, btok);
         else
             DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
     }

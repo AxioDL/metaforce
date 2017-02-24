@@ -19,8 +19,8 @@ struct DoorArea : IScriptObject
     AnimationParameters animationParameters;
     ActorParameters actorParameters;
     Value<atVec3f> unknown1;
-    Value<atVec3f> unknown2;
-    Value<atVec3f> unknown3;
+    Value<atVec3f> collisionExtent;
+    Value<atVec3f> collisionOffset;
     Value<bool> unknown4;
     Value<bool> unknown5;
     Value<bool> unknown6;
@@ -48,6 +48,28 @@ struct DoorArea : IScriptObject
     void gatherScans(std::vector<Scan>& scansOut) const
     {
         actorParameters.scanIDs(scansOut);
+    }
+
+    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    {
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        zeus::CAABox aabbOut;
+
+        if (animationParameters.animationCharacterSet)
+        {
+            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(
+                animationParameters.animationCharacterSet);
+            conn.openBlend(path.getWithExtension(_S(".blend"), true));
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            auto aabb = ds.getMeshAABB();
+            aabbOut = zeus::CAABox(aabb.first, aabb.second);
+        }
+
+        if (aabbOut.min.x > aabbOut.max.x)
+            return {};
+
+        zeus::CTransform xf = ConvertEditorEulerToTransform4f(scale, orientation, location);
+        return aabbOut.getTransformedAABox(xf);
     }
 };
 }

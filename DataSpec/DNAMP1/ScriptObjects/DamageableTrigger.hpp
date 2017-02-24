@@ -50,6 +50,13 @@ struct DamageableTrigger : IScriptObject
         g_curSpec->flattenDependencies(texture2, pathsOut);
         g_curSpec->flattenDependencies(texture3, pathsOut);
     }
+
+    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    {
+        zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
+        zeus::CVector3f loc(location);
+        return zeus::CAABox(loc - halfExtent, loc + halfExtent);
+    }
 };
 }
 }

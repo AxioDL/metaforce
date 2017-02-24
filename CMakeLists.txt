@@ -121,6 +121,7 @@ set(CLIENT_SOURCES
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum)
 add_subdirectory(gbalink)
+add_subdirectory(visigen)
 
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)

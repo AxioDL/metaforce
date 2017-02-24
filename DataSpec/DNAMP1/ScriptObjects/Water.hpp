@@ -173,6 +173,13 @@ struct Water : IScriptObject
         g_curSpec->flattenDependencies(particle4, pathsOut);
         g_curSpec->flattenDependencies(particle5, pathsOut);
     }
+
+    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    {
+        zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
+        zeus::CVector3f loc(location);
+        return zeus::CAABox(loc - halfExtent, loc + halfExtent);
+    }
 };
 }
 }

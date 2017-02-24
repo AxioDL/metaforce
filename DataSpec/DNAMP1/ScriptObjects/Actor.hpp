@@ -16,7 +16,7 @@ struct Actor : IScriptObject
     Value<atVec3f> orientation;
     Value<atVec3f> scale;
     Value<atVec3f> collisionExtent;
-    Value<atVec3f> centroid;
+    Value<atVec3f> collisionOffset;
     Value<float>   unknown2;
     Value<float>   unknown3;
     HealthInfo     healthInfo;
@@ -63,6 +63,36 @@ struct Actor : IScriptObject
     void gatherScans(std::vector<Scan>& scansOut) const
     {
         actorParameters.scanIDs(scansOut);
+    }
+
+    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    {
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        zeus::CAABox aabbOut;
+
+        if (model)
+        {
+            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(model);
+            conn.openBlend(path);
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            auto aabb = ds.getMeshAABB();
+            aabbOut = zeus::CAABox(aabb.first, aabb.second);
+        }
+        else if (animationParameters.animationCharacterSet)
+        {
+            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(
+                animationParameters.animationCharacterSet);
+            conn.openBlend(path.getWithExtension(_S(".blend"), true));
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            auto aabb = ds.getMeshAABB();
+            aabbOut = zeus::CAABox(aabb.first, aabb.second);
+        }
+
+        if (aabbOut.min.x > aabbOut.max.x)
+            return {};
+
+        zeus::CTransform xf = ConvertEditorEulerToTransform4f(scale, orientation, location);
+        return aabbOut.getTransformedAABox(xf);
     }
 };
 }

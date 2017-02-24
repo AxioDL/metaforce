@@ -3,12 +3,18 @@
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
+#include "zeus/CAABox.hpp"
 #include <stdio.h>
 
 namespace DataSpec
 {
 namespace DNAMP1
 {
+
+zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale,
+                                                 const zeus::CVector3f& orientation,
+                                                 const zeus::CVector3f& position);
+
 struct IScriptObject : BigYAML
 {
     DECL_YAML
@@ -32,6 +38,7 @@ struct IScriptObject : BigYAML
     virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}
     virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {}
     virtual void gatherScans(std::vector<Scan>& scansOut) const {}
+    virtual zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const { return {}; }
 };
 }
 }

@@ -267,5 +267,16 @@ const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB =
     &priv::WorldTeleporterx62Ent,
 };
 
+zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale,
+                                                 const zeus::CVector3f& orientation,
+                                                 const zeus::CVector3f& position)
+{
+    return zeus::CTransform::RotateZ(zeus::degToRad(orientation.z)) *
+           zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
+           zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) *
+           zeus::CTransform::Scale(scale) +
+           position;
+}
+
 }
 }

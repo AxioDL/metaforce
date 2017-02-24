@@ -135,7 +135,8 @@ struct MREA
                        const hecl::ProjectPath& inPath,
                        const std::vector<DNACMDL::Mesh>& meshes,
                        const ColMesh& cMesh,
-                       const std::vector<Light>& lights);
+                       const std::vector<Light>& lights,
+                       hecl::BlenderToken& btok);
 };
 
 }

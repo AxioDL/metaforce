@@ -21,6 +21,13 @@ struct Trigger : IScriptObject
     Value<bool> active;
     Value<bool> unknown2;
     Value<bool> unknown3;
+
+    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    {
+        zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
+        zeus::CVector3f loc(location);
+        return zeus::CAABox(loc - halfExtent, loc + halfExtent);
+    }
 };
 }
 }
