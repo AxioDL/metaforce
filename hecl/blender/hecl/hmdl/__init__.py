@@ -25,6 +25,13 @@ def write_out_material(writebuf, mat, mesh_obj):
             writebuf(prop[0].encode())
             writebuf(struct.pack('i', prop[1]))
 
+    transparent = False
+    if mat.game_settings.alpha_blend == 'ALPHA' or mat.game_settings.alpha_blend == 'ALPHA_SORT':
+        transparent = True
+    elif mat.game_settings.alpha_blend == 'ADD':
+        transparent = True
+    writebuf(struct.pack('b', int(transparent)))
+
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL
 def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None):

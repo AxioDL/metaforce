@@ -188,6 +188,20 @@ def dataout_loop():
                 if meshobj.type == 'MESH' and not meshobj.library:
                     writepipestr(meshobj.name.encode())
 
+        elif cmdargs[0] == 'LIGHTLIST':
+            lightCount = 0
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'LAMP' and not obj.library:
+                    lightCount += 1
+            writepipebuf(struct.pack('I', lightCount))
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'LAMP' and not obj.library:
+                    writepipestr(obj.name.encode())
+
+        elif cmdargs[0] == 'MESHAABB':
+            writepipestr(b'OK')
+            hecl.mesh_aabb(writepipebuf)
+
         elif cmdargs[0] == 'MESHCOMPILE':
             maxSkinBanks = int(cmdargs[2])
 
@@ -281,6 +295,7 @@ def dataout_loop():
                 0.0, 0.0, 0.0, 1.0))
                 writepipebuf(struct.pack('fff', ambient_color[0], ambient_color[1], ambient_color[2]))
                 writepipebuf(struct.pack('IIfffffb', 0, 0, ambient_energy, 0.0, 1.0, 0.0, 0.0, False))
+                writepipestr(b'AMBIENT')
 
             for obj in bpy.context.scene.objects:
                 if obj.type == 'LAMP':
@@ -324,6 +339,8 @@ def dataout_loop():
 
                     writepipebuf(struct.pack('IIfffffb', layer, type, obj.data.energy, spotCutoff, constant, linear, quadratic,
                                                          castShadow))
+
+                    writepipestr(obj.name.encode())
 
         elif cmdargs[0] == 'GETTEXTURES':
             writepipestr(b'OK')
@@ -385,6 +402,20 @@ def dataout_loop():
                 for r in bone.matrix_local.to_3x3():
                     for c in r:
                         writepipebuf(struct.pack('f', c))
+
+        elif cmdargs[0] == 'RENDERPVS':
+            pathOut = cmdargs[1]
+            locX = float(cmdargs[2])
+            locY = float(cmdargs[3])
+            locZ = float(cmdargs[4])
+            hecl.srea.render_pvs(pathOut, (locX, locY, locZ))
+            writepipestr(b'OK')
+
+        elif cmdargs[0] == 'RENDERPVSLIGHT':
+            pathOut = cmdargs[1]
+            lightName = cmdargs[2]
+            hecl.srea.render_pvs_light(pathOut, lightName)
+            writepipestr(b'OK')
 
 loaded_blend = None
 

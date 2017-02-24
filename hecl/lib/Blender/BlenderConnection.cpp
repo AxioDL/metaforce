@@ -237,16 +237,11 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
 
     /* Put hecl_blendershell.py in temp dir */
+    const SystemChar* TMPDIR = GetTmpDir();
 #ifdef _WIN32
-    wchar_t* TMPDIR = _wgetenv(L"TEMP");
-    if (!TMPDIR)
-        TMPDIR = (wchar_t*)L"\\Temp";
     m_startupBlend = hecl::WideToUTF8(TMPDIR);
 #else
     signal(SIGPIPE, SIG_IGN);
-    char* TMPDIR = getenv("TMPDIR");
-    if (!TMPDIR)
-        TMPDIR = (char*)"/tmp";
     m_startupBlend = TMPDIR;
 #endif
 
@@ -905,6 +900,8 @@ BlenderConnection::DataStream::Mesh::Material::Material
         conn._readBuf(&val, 4);
         iprops[readStr] = val;
     }
+
+    conn._readBuf(&transparent, 1);
 }
 
 BlenderConnection::DataStream::Mesh::Surface::Surface
@@ -1088,6 +1085,14 @@ BlenderConnection::DataStream::Light::Light(BlenderConnection& conn)
 : sceneXf(conn), color(conn)
 {
     conn._readBuf(&layer, 29);
+
+    uint32_t nameLen;
+    conn._readBuf(&nameLen, 4);
+    if (nameLen)
+    {
+        name.assign(nameLen, '\0');
+        conn._readBuf(&name[0], nameLen);
+    }
 }
 
 BlenderConnection::DataStream::Actor::Actor(BlenderConnection& conn)
@@ -1660,6 +1665,51 @@ BlenderConnection::DataStream::getBoneMatrices(const std::string& name)
 
     return ret;
 
+}
+
+bool BlenderConnection::DataStream::renderPvs(const std::string& path, const atVec3f& location)
+{
+    if (path.empty())
+        return false;
+
+    if (m_parent->m_loadedType != BlendType::Area)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[256];
+    snprintf(req, 256, "RENDERPVS %s %f %f %f", path.c_str(),
+             location.vec[0], location.vec[1], location.vec[2]);
+    m_parent->_writeStr(req);
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to render PVS for: %s; %s",
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str(), readBuf);
+
+    return true;
+}
+
+bool BlenderConnection::DataStream::renderPvsLight(const std::string& path, const std::string& lightName)
+{
+    if (path.empty())
+        return false;
+
+    if (m_parent->m_loadedType != BlendType::Area)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[256];
+    snprintf(req, 256, "RENDERPVSLIGHT %s %s", path.c_str(), lightName.c_str());
+    m_parent->_writeStr(req);
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to render PVS light %s for: %s; %s", lightName.c_str(),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str(), readBuf);
+
+    return true;
 }
 
 void BlenderConnection::quitBlender()

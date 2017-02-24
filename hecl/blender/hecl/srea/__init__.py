@@ -1,5 +1,7 @@
 import bpy
 from bpy.app.handlers import persistent
+from mathutils import Quaternion, Color
+import math
 from .. import Nodegrid
 
 # Preview update func (for lighting preview)
@@ -403,6 +405,79 @@ class SREARenderLightmaps(bpy.types.Operator):
             bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE_DIRECT')
 
         return {'FINISHED'}
+
+def shadeless_material(idx):
+    name = 'SHADELESS_MAT_%d' % idx
+    if name in bpy.data.materials:
+        return bpy.data.materials[name]
+    mat = bpy.data.materials.new(name)
+    mat.use_shadeless = True
+    r = idx % 256
+    g = (idx % 65536) // 256
+    b = idx // 65536
+    mat.diffuse_color = Color((r / 255.0, g / 255.0, b / 255.0))
+    return mat
+
+look_forward = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_backward = Quaternion((0.0, 0.0, 1.0), math.radians(180.0)) * Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_up = Quaternion((1.0, 0.0, 0.0), math.radians(180.0))
+look_down = Quaternion((1.0, 0.0, 0.0), math.radians(0.0))
+look_left = Quaternion((0.0, 0.0, 1.0), math.radians(90.0)) * Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_right = Quaternion((0.0, 0.0, 1.0), math.radians(-90.0)) * Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_list = (look_forward, look_backward, look_up, look_down, look_left, look_right)
+
+# Render PVS for location
+def render_pvs(pathOut, location):
+    bpy.context.scene.render.resolution_x = 256
+    bpy.context.scene.render.resolution_y = 256
+    bpy.context.scene.render.resolution_percentage = 100
+    bpy.context.scene.render.use_antialiasing = False
+    bpy.context.scene.render.use_textures = False
+    bpy.context.scene.render.use_shadows = False
+    bpy.context.scene.render.use_sss = False
+    bpy.context.scene.render.use_envmaps = False
+    bpy.context.scene.render.use_raytrace = False
+    bpy.context.scene.render.engine = 'BLENDER_RENDER'
+    bpy.context.scene.display_settings.display_device = 'None'
+    bpy.context.scene.render.image_settings.file_format = 'PNG'
+    bpy.context.scene.world.horizon_color = Color((1.0, 1.0, 1.0))
+    bpy.context.scene.world.zenith_color = Color((1.0, 1.0, 1.0))
+
+    cam = bpy.data.cameras.new('CUBIC_CAM')
+    cam_obj = bpy.data.objects.new('CUBIC_CAM', cam)
+    bpy.context.scene.objects.link(cam_obj)
+    bpy.context.scene.camera = cam_obj
+    cam.lens_unit = 'FOV'
+    cam.angle = math.radians(90.0)
+
+    mat_idx = 0
+    for obj in bpy.data.objects:
+        if obj.type == 'MESH':
+            if obj.name == 'CMESH':
+                continue
+            mat = shadeless_material(mat_idx)
+            for slot in obj.material_slots:
+                slot.material = mat
+            mat_idx += 1
+
+    cam_obj.location = location
+    cam_obj.rotation_mode = 'QUATERNION'
+
+    for i in range(6):
+        cam_obj.rotation_quaternion = look_list[i]
+        bpy.context.scene.render.filepath = '%s%d' % (pathOut, i)
+        bpy.ops.render.render(write_still=True)
+
+    bpy.context.scene.camera = None
+    bpy.context.scene.objects.unlink(cam_obj)
+    bpy.data.objects.remove(cam_obj)
+    bpy.data.cameras.remove(cam)
+
+# Render PVS for light
+def render_pvs_light(pathOut, lightName):
+    if lightName not in bpy.data.objects:
+        raise RuntimeError('Unable to find light %s' % lightName)
+    render_pvs(pathOut, bpy.data.objects[lightName].location)
 
 # Cook
 def cook(writebuffunc, platform, endianchar):

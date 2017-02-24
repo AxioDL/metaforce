@@ -85,6 +85,9 @@ static void AthenaExc(athena::error::Level level, const char* file,
     va_end(ap);
 }
 
+static hecl::SystemChar cwdbuf[1024];
+hecl::SystemString ExeDir;
+
 #if _WIN32
 int wmain(int argc, const wchar_t** argv)
 #else
@@ -138,7 +141,6 @@ int main(int argc, const char** argv)
     /* Assemble common tool pass info */
     ToolPassInfo info;
     info.pname = argv[0];
-    hecl::SystemChar cwdbuf[1024];
     if (hecl::Getcwd(cwdbuf, 1024))
     {
         info.cwd = cwdbuf;
@@ -148,6 +150,13 @@ int main(int argc, const char** argv)
 #else
             info.cwd += _S('/');
 #endif
+
+        if (argv[0][0] != _S('/') && argv[0][0] != _S('\\'))
+            ExeDir = hecl::SystemString(cwdbuf) + _S('/');
+        hecl::SystemString Argv0(argv[0]);
+        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_S("/\\"));
+        if (lastIdx != hecl::SystemString::npos)
+            ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
     }
 
     /* Concatenate args */

@@ -11,8 +11,9 @@ bl_info = {
 # Package import
 from . import hmdl, sact, srea, swld, mapa, mapu, frme, Nodegrid, Patching
 Nodegrid = Nodegrid.Nodegrid
-import bpy, os, sys
+import bpy, os, sys, struct
 from bpy.app.handlers import persistent
+from mathutils import Vector
 
 
 # Appendable list allowing external addons to register additional resource types
@@ -68,6 +69,41 @@ def add_export_type(type_tuple):
 # Shell command receiver (from HECL driver)
 def command(cmdline, writepipeline, writepipebuf):
     pass
+
+def mesh_aabb(writepipebuf):
+    scene = bpy.context.scene
+    total_min = Vector((99999.0, 99999.0, 99999.0))
+    total_max = Vector((-99999.0, -99999.0, -99999.0))
+
+    if bpy.context.scene.hecl_type == 'ACTOR':
+        sact_data = bpy.context.scene.hecl_sact_data
+        for subtype in sact_data.subtypes:
+            if subtype.linked_mesh in bpy.data.objects:
+                mesh = bpy.data.objects[subtype.linked_mesh]
+                minPt = mesh.bound_box[0]
+                maxPt = mesh.bound_box[6]
+                for comp in range(3):
+                    if minPt[comp] < total_min[comp]:
+                        total_min[comp] = minPt[comp]
+                for comp in range(3):
+                    if maxPt[comp] > total_max[comp]:
+                        total_max[comp] = maxPt[comp]
+
+    elif bpy.context.scene.hecl_type == 'MESH':
+        meshName = bpy.context.scene.hecl_mesh_obj
+        if meshName in bpy.data.objects:
+            mesh = bpy.data.objects[meshName]
+            minPt = mesh.bound_box[0]
+            maxPt = mesh.bound_box[6]
+            for comp in range(3):
+                if minPt[comp] < total_min[comp]:
+                    total_min[comp] = minPt[comp]
+            for comp in range(3):
+                if maxPt[comp] > total_max[comp]:
+                    total_max[comp] = maxPt[comp]
+
+    writepipebuf(struct.pack('fff', total_min[0], total_min[1], total_min[2]))
+    writepipebuf(struct.pack('fff', total_max[0], total_max[1], total_max[2]))
 
 # Load scene callback
 from bpy.app.handlers import persistent

@@ -264,6 +264,10 @@ static inline bool IsAbsolute(const SystemString& path)
     return false;
 }
 
+const SystemChar* GetTmpDir();
+
+int RunProcess(const SystemChar* path, const SystemChar* const args[]);
+
 enum class FileLockType
 {
     None = 0,

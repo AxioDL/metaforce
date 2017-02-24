@@ -354,6 +354,40 @@ public:
             return retval;
         }
 
+        std::vector<std::string> getLightList()
+        {
+            m_parent->_writeStr("LIGHTLIST");
+            uint32_t count;
+            m_parent->_readBuf(&count, 4);
+            std::vector<std::string> retval;
+            retval.reserve(count);
+            for (uint32_t i=0 ; i<count ; ++i)
+            {
+                char name[128];
+                m_parent->_readStr(name, 128);
+                retval.push_back(name);
+            }
+            return retval;
+        }
+
+        std::pair<atVec3f, atVec3f> getMeshAABB()
+        {
+            if (m_parent->m_loadedType != BlendType::Mesh &&
+                m_parent->m_loadedType != BlendType::Actor)
+                BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH or ACTOR blend"),
+                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+            m_parent->_writeStr("MESHAABB");
+            char readBuf[256];
+            m_parent->_readStr(readBuf, 256);
+            if (strcmp(readBuf, "OK"))
+                BlenderLog.report(logvisor::Fatal, "unable get AABB: %s", readBuf);
+
+            Vector3f min(*m_parent);
+            Vector3f max(*m_parent);
+            return std::make_pair(min.val, max.val);
+        }
+
         /* Vector types with integrated stream reading constructor */
         struct Vector2f
         {
@@ -418,6 +452,7 @@ public:
                 std::string source;
                 std::vector<ProjectPath> texs;
                 std::unordered_map<std::string, int32_t> iprops;
+                bool transparent;
 
                 Material(BlenderConnection& conn);
                 bool operator==(const Material& other) const
@@ -653,7 +688,7 @@ public:
 
         /** Intermediate lamp representation */
         struct Light
-        {
+        {            
             /* Object transform in scene */
             Matrix4f sceneXf;
             Vector3f color;
@@ -674,6 +709,8 @@ public:
             float linear;
             float quadratic;
             bool shadow;
+
+            std::string name;
 
             Light(BlenderConnection& conn);
         };
@@ -814,6 +851,9 @@ public:
             inline const atVec3f& operator[](size_t idx) const {return m[idx];}
         };
         std::unordered_map<std::string, Matrix3f> getBoneMatrices(const std::string& name);
+
+        bool renderPvs(const std::string& path, const atVec3f& location);
+        bool renderPvsLight(const std::string& path, const std::string& lightName);
     };
     DataStream beginData()
     {

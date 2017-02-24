@@ -744,4 +744,37 @@ int RecursiveMakeDir(const SystemChar* dir) {
 }
 #endif
 
+const SystemChar* GetTmpDir()
+{
+#ifdef _WIN32
+    wchar_t* TMPDIR = _wgetenv(L"TEMP");
+    if (!TMPDIR)
+        TMPDIR = (wchar_t*)L"\\Temp";
+#else
+    char* TMPDIR = getenv("TMPDIR");
+    if (!TMPDIR)
+        TMPDIR = (char*)"/tmp";
+#endif
+    return TMPDIR;
+}
+
+int RunProcess(const SystemChar* path, const SystemChar* const args[])
+{
+#ifdef _WIN32
+#else
+    pid_t pid = fork();
+    if (!pid)
+    {
+        execvp(path, (char * const *)args);
+        exit(1);
+    }
+    int ret;
+    if (waitpid(pid, &ret, 0) < 0)
+        return -1;
+    if (WIFEXITED(ret))
+        return WEXITSTATUS(ret);
+    return -1;
+#endif
+}
+
 }
