@@ -19,7 +19,6 @@
 #if _WIN32
 #include <io.h>
 #include <fcntl.h>
-#include <Shlwapi.h>
 #endif
 
 namespace std
@@ -1378,17 +1377,6 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
     return ret;
 }
 
-static bool PathRelative(const SystemString& path)
-{
-    if (path.empty())
-        return false;
-#if _WIN32
-    return PathIsRelative(path.c_str());
-#else
-    return path[0] != '/';
-#endif
-}
-
 void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, int version)
 {
     if (m_parent->m_loadedType != BlendType::Frame)
@@ -1414,7 +1402,7 @@ void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, 
         SystemStringView absolute(readStr);
         auto& proj = m_parent->m_loadedBlend.getProject();
         SystemString relative;
-        if (PathRelative(absolute.sys_str()))
+        if (PathRelative(absolute.c_str()))
             relative = absolute.sys_str();
         else
             relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute);

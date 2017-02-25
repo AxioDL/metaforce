@@ -43,6 +43,13 @@ void ClientProcess::BufferTransaction::run(BlenderToken& btok)
 void ClientProcess::CookTransaction::run(BlenderToken& btok)
 {
     m_dataSpec->setThreadProject();
+    if (m_path.getAuxInfo().empty())
+        LogModule.report(logvisor::Info, _S("Cooking %s"),
+                         m_path.getRelativePath().c_str());
+    else
+        LogModule.report(logvisor::Info, _S("Cooking %s|%s"),
+                         m_path.getRelativePath().c_str(),
+                         m_path.getAuxInfo().c_str());
     m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok);
     m_complete = true;
 }

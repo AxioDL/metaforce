@@ -19,6 +19,7 @@
 #endif
 #include <Windows.h>
 #include <wchar.h>
+#include <Shlwapi.h>
 #include "winsupport.hpp"
 #endif
 
@@ -454,6 +455,17 @@ static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
     if (statvfs(path, &svfs))
         LogModule.report(logvisor::Fatal, "statvfs %s: %s", path, strerror(errno));
     return reqSz < svfs.f_frsize * svfs.f_bavail;
+#endif
+}
+
+static inline bool PathRelative(const SystemChar* path)
+{
+    if (!path || !path[0])
+        return false;
+#if _WIN32
+    return PathIsRelative(path);
+#else
+    return path[0] != '/';
 #endif
 }
 

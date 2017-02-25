@@ -383,9 +383,9 @@ public:
             if (strcmp(readBuf, "OK"))
                 BlenderLog.report(logvisor::Fatal, "unable get AABB: %s", readBuf);
 
-            Vector3f min(*m_parent);
-            Vector3f max(*m_parent);
-            return std::make_pair(min.val, max.val);
+            Vector3f minPt(*m_parent);
+            Vector3f maxPt(*m_parent);
+            return std::make_pair(minPt.val, maxPt.val);
         }
 
         /* Vector types with integrated stream reading constructor */

@@ -761,6 +761,117 @@ const SystemChar* GetTmpDir()
 int RunProcess(const SystemChar* path, const SystemChar* const args[])
 {
 #ifdef _WIN32
+    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+    HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
+    if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0))
+    {
+        LogModule.report(logvisor::Fatal, "Error with CreatePipe");
+        return -1;
+    }
+
+    if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite,
+                         GetCurrentProcess(), &consoleErrWrite, 0,
+                         TRUE,DUPLICATE_SAME_ACCESS))
+    {
+        LogModule.report(logvisor::Fatal, "Error with DuplicateHandle");
+        CloseHandle(consoleOutReadTmp);
+        CloseHandle(consoleOutWrite);
+        return -1;
+    }
+
+    if (!DuplicateHandle(GetCurrentProcess(), consoleOutReadTmp,
+                         GetCurrentProcess(),
+                         &consoleOutRead, // Address of new handle.
+                         0, FALSE, // Make it uninheritable.
+                         DUPLICATE_SAME_ACCESS))
+    {
+        LogModule.report(logvisor::Fatal, "Error with DupliateHandle");
+        CloseHandle(consoleOutReadTmp);
+        CloseHandle(consoleOutWrite);
+        CloseHandle(consoleErrWrite);
+        return -1;
+    }
+
+    CloseHandle(consoleOutReadTmp);
+
+    hecl::SystemString cmdLine;
+    const SystemChar* const* arg = &args[1];
+    while (*arg)
+    {
+        cmdLine += _S(" \"");
+        cmdLine += *arg++;
+        cmdLine += _S('"');
+    }
+
+    STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
+    HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
+                                   &sattrs, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    sinfo.dwFlags = STARTF_USESTDHANDLES;
+    sinfo.hStdInput = nulHandle;
+    sinfo.hStdError = consoleErrWrite;
+    sinfo.hStdOutput = consoleOutWrite;
+
+    PROCESS_INFORMATION pinfo = {};
+    if (!CreateProcessW(path, (LPWSTR)cmdLine.c_str(), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &pinfo))
+    {
+        LPWSTR messageBuffer = nullptr;
+        FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+        LogModule.report(logvisor::Error, L"unable to launch process from %s: %s", path, messageBuffer);
+        LocalFree(messageBuffer);
+
+        CloseHandle(nulHandle);
+        CloseHandle(consoleErrWrite);
+        CloseHandle(consoleOutWrite);
+        CloseHandle(consoleOutRead);
+        return -1;
+    }
+
+    CloseHandle(nulHandle);
+    CloseHandle(consoleErrWrite);
+    CloseHandle(consoleOutWrite);
+
+    bool consoleThreadRunning = true;
+    auto consoleThread = std::thread([=, &consoleThreadRunning]()
+    {
+        CHAR lpBuffer[256];
+        DWORD nBytesRead;
+        DWORD nCharsWritten;
+
+        while (consoleThreadRunning)
+        {
+           if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer),
+                         &nBytesRead, NULL) || !nBytesRead)
+           {
+               DWORD err = GetLastError();
+               if (err == ERROR_BROKEN_PIPE)
+                   break; // pipe done - normal exit path.
+               else
+                   LogModule.report(logvisor::Error, "Error with ReadFile: %08X", err); // Something bad happened.
+           }
+
+           // Display the character read on the screen.
+           auto lk = logvisor::LockLog();
+           if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer,
+                              nBytesRead, &nCharsWritten, NULL))
+               LogModule.report(logvisor::Error, "Error with WriteConsole: %08X", GetLastError());
+        }
+
+        CloseHandle(consoleOutRead);
+    });
+
+    WaitForSingleObject(pinfo.hProcess, INFINITE);
+    DWORD ret;
+    if (!GetExitCodeProcess(pinfo.hProcess, &ret))
+        ret = -1;
+    consoleThreadRunning = false;
+    if (consoleThread.joinable())
+        consoleThread.join();
+
+    CloseHandle(pinfo.hProcess);
+    CloseHandle(pinfo.hThread);
+
+    return ret;
 #else
     pid_t pid = fork();
     if (!pid)
