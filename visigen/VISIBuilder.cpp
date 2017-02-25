@@ -51,7 +51,7 @@ const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVecto
 void VISIBuilder::Progress::report(int divisions)
 {
     m_prog += 1.f / divisions;
-    printf(" %g\%%        \r", m_prog * 100.f);
+    printf(" %g%%        \r", m_prog * 100.f);
     fflush(stdout);
     if (m_updatePercent)
         m_updatePercent(m_prog);
@@ -88,21 +88,21 @@ void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAAB
             // Inward subdivide
             zeus::CAABox Z[2];
             if (flags & 0x4)
-                curAabb.splitZ(Z[1], Z[0]);
+                curAabb.splitZ(Z[0], Z[1]);
             else
                 Z[0] = curAabb;
             for (int i=0 ; i<splits[2] ; ++i)
             {
                 zeus::CAABox Y[2];
                 if (flags & 0x2)
-                    Z[i].splitY(Y[1], Y[0]);
+                    Z[i].splitY(Y[0], Y[1]);
                 else
                     Y[0] = Z[i];
                 for (int j=0 ; j<splits[1] ; ++j)
                 {
                     zeus::CAABox X[2];
                     if (flags & 0x1)
-                        Y[j].splitX(X[1], X[0]);
+                        Y[j].splitX(X[0], X[1]);
                     else
                         X[0] = Y[j];
                     for (int k=0 ; k<splits[0] ; ++k)

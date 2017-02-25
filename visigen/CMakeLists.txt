@@ -10,6 +10,8 @@ endif()
 if(APPLE)
   set(PLAT_SRCS MainMac.mm)
   set_source_files_properties(MainMac.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
+elseif(WIN32)
+  set(PLAT_SRCS MainWin.cpp)
 endif()
 
 add_executable(visigen ${PLAT_SRCS}

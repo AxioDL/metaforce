@@ -42,9 +42,9 @@ static const char* FS =
 "    colorOut = vtf.color;\n"
 "}\n";
 
-static const uint32_t AABBIdxs[19] =
+static const uint32_t AABBIdxs[20] =
 {
-    0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 7, 3, 5, 5, 0, 0, 2, 6, 4
+    0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 1, 7, 3, 5, 5, 0, 0, 2, 6, 4
 };
 
 bool VISIRenderer::SetupShaders()
@@ -107,7 +107,7 @@ bool VISIRenderer::SetupShaders()
 
     glGenBuffers(1, &m_aabbIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_aabbIBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 19 * 4, &AABBIdxs, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 20 * 4, AABBIdxs, GL_STATIC_DRAW);
 
     glGenQueries(1, &m_query);
 
@@ -306,7 +306,7 @@ void VISIRenderer::RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bo
                 // Non-transparents first
                 if (!surf.transparent)
                     glDrawElements(model.topology, surf.count, GL_UNSIGNED_INT,
-                                   reinterpret_cast<void*>(surf.first * 4));
+                                   reinterpret_cast<void*>(uintptr_t(surf.first * 4)));
                 else
                     needTransparent = true;
             }
@@ -355,7 +355,7 @@ void VISIRenderer::RenderPVSTransparent(const std::function<void(int)>& passFunc
                 {
                     glBeginQuery(GL_ANY_SAMPLES_PASSED, m_query);
                     glDrawElements(model.topology, surf.count, GL_UNSIGNED_INT,
-                                   reinterpret_cast<void*>(surf.first * 4));
+                                   reinterpret_cast<void*>(uintptr_t(surf.first * 4)));
                     glEndQuery(GL_ANY_SAMPLES_PASSED);
                     GLint res;
                     glGetQueryObjectiv(m_query, GL_QUERY_RESULT, &res);
@@ -401,7 +401,7 @@ void VISIRenderer::RenderPVSEntitiesAndLights(const std::function<void(int)>& pa
             }
             glBindVertexArray(ent.vao);
             glBeginQuery(GL_ANY_SAMPLES_PASSED, m_query);
-            glDrawElements(GL_TRIANGLE_STRIP, 19, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLE_STRIP, 20, GL_UNSIGNED_INT, 0);
             glEndQuery(GL_ANY_SAMPLES_PASSED);
             GLint res;
             glGetQueryObjectiv(m_query, GL_QUERY_RESULT, &res);

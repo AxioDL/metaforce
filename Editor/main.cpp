@@ -138,7 +138,7 @@ int main(int argc, const boo::SystemChar** argv)
 
     if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024))
     {
-        if (argv[0][0] != _S('/') && argv[0][0] != _S('\\'))
+        if (hecl::PathRelative(argv[0]))
             ExeDir = hecl::SystemString(cwd) + _S('/');
         hecl::SystemString Argv0(argv[0]);
         hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_S("/\\"));

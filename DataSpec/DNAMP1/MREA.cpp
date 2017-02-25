@@ -7,7 +7,7 @@
 #include "DataSpec/DNACommon/AROTBuilder.hpp"
 #include "ScriptObjects/ScriptTypes.hpp"
 
-extern const hecl::SystemString ExeDir;
+extern hecl::SystemString ExeDir;
 
 namespace DataSpec
 {

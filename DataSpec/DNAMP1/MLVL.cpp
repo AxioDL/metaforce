@@ -89,6 +89,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         if (!areaPath.isFile())
             continue;
 
+        Log.report(logvisor::Info, _S("Visiting %s"), area.path.getRelativePath().c_str());
+
         hecl::ProjectPath memRelayPath(area.path, _S("/!memoryrelays.yaml"));
 
         std::vector<atUint32> memRelays;
