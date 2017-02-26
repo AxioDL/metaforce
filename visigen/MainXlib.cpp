@@ -287,7 +287,15 @@ int main(int argc, const char** argv)
 
         renderer.Run(UpdatePercent);
         clientRunning = false;
-        pthread_kill(mainThread, SIGUSR2);
+
+        XLockDisplay(xDisp);
+        XClientMessageEvent exitEvent = {};
+        exitEvent.type = ClientMessage;
+        exitEvent.window = windowId;
+        exitEvent.format = 32;
+        XSendEvent(xDisp, windowId, 0, 0, (XEvent*)&exitEvent);
+        XFlush(xDisp);
+        XUnlockDisplay(xDisp);
     });
     initcv.wait(outerLk);
 
@@ -317,9 +325,11 @@ int main(int argc, const char** argv)
         }
     }
 
+    printf("Joining\n");
     renderer.Terminate();
     if (clientThread.joinable())
         clientThread.join();
 
+    printf("Returning\n");
     return renderer.ReturnVal();
 }

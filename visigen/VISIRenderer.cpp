@@ -415,7 +415,6 @@ void VISIRenderer::RenderPVSEntitiesAndLights(const std::function<void(int)>& pa
         {
             if (!frustum.pointFrustumTest(light.point))
             {
-                ++idx;
                 ++lightIdx;
                 continue;
             }
@@ -427,14 +426,9 @@ void VISIRenderer::RenderPVSEntitiesAndLights(const std::function<void(int)>& pa
             glGetQueryObjectiv(m_query, GL_QUERY_RESULT, &res);
             EPVSVisSetState state = m_totalAABB.pointInside(light.point) ?
                 EPVSVisSetState::EndOfTree : EPVSVisSetState::OutOfBounds;
-            if (res)
-            {
-                passFunc(idx);
-                if (state == EPVSVisSetState::EndOfTree)
-                    state = EPVSVisSetState::NodeFound;
-            }
+            if (res && state == EPVSVisSetState::EndOfTree)
+                state = EPVSVisSetState::NodeFound;
             lightPassFunc(lightIdx, state);
-            ++idx;
             ++lightIdx;
         }
     }

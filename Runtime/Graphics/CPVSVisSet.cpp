@@ -28,7 +28,7 @@ EPVSVisSetState CPVSVisSet::GetVisible(u32 idx) const
     }
 
     /* This is a light lookup */
-    u32 lightTest = idx - numFeatures + x4_numBits;
+    u32 lightTest = idx - numFeatures + idx;
     const u8* ptr = &x10_ptr[lightTest / 8];
     lightTest &= 0x7;
     if (lightTest != 0x7)

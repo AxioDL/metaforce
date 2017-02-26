@@ -203,8 +203,9 @@ static const int NumChildTable[] =
 void VISIBuilder::Node::calculateSizesAndOffs(size_t& cur, size_t leafSz)
 {
     cur += 1;
+    flags |= 0x18;
 
-    if (flags)
+    if (flags & 0x7)
     {
         int splits[3];
         splits[0] = (flags & 0x1) ? 2 : 1;
@@ -245,7 +246,6 @@ void VISIBuilder::Node::calculateSizesAndOffs(size_t& cur, size_t leafSz)
     else
     {
         cur += leafSz;
-        flags |= 0x18;
     }
 }
 
@@ -309,7 +309,7 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
     Log.report(logvisor::Info, "Started!");
 
     size_t featureCount = modelCount + entities.size();
-    renderCache.m_lightMetaBit = featureCount + lights.size();
+    renderCache.m_lightMetaBit = featureCount;
 
     Progress prog(updatePercent);
     bool& terminate = renderCache.m_renderer.m_terminate;
@@ -318,13 +318,12 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
         return {};
 
     // Lights cache their CPVSVisSet result enum as 2 bits
-    size_t leafBitsCount = featureCount + lights.size() * 3;
+    size_t leafBitsCount = featureCount + lights.size() * 2;
     size_t leafBytesCount = ROUND_UP_8(leafBitsCount) / 8;
 
     // Calculate octree size and store relative offsets
     size_t octreeSz = 0;
     rootNode.calculateSizesAndOffs(octreeSz, leafBytesCount);
-    octreeSz += 1; // Terminator node
 
     size_t visiSz = 34 + entities.size() * 4 + lights.size() * leafBytesCount + 36 + octreeSz;
     size_t roundedVisiSz = ROUND_UP_32(visiSz);
@@ -355,11 +354,10 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
 
     w.writeVec3fBig(fullAabb.min);
     w.writeVec3fBig(fullAabb.max);
-    w.writeUint32Big(leafBitsCount);
+    w.writeUint32Big(featureCount + lights.size());
     w.writeUint32Big(lights.size());
     w.writeUint32Big(octreeSz);
     rootNode.writeNodes(w, leafBytesCount);
-    w.writeUByte(0x10);
 
     w.seekAlign32();
 
