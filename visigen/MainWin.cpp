@@ -25,8 +25,8 @@ static void UpdatePercent(float percent)
     PostThreadMessage(s_mainThreadId, WM_USER+1, 0, 0);
 }
 
-const DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-VISIRenderer* s_Renderer;
+static const DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+static VISIRenderer* s_Renderer;
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
