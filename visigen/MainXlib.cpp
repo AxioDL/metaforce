@@ -325,11 +325,9 @@ int main(int argc, const char** argv)
         }
     }
 
-    printf("Joining\n");
     renderer.Terminate();
     if (clientThread.joinable())
         clientThread.join();
 
-    printf("Returning\n");
     return renderer.ReturnVal();
 }
