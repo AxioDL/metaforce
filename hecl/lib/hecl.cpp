@@ -17,6 +17,7 @@
 
 #ifdef __linux__
 #include <mntent.h>
+#include <sys/wait.h>
 #endif
 
 namespace hecl
