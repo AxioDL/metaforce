@@ -94,13 +94,13 @@ public:
 
     zeus::CAABox x0_aabb;
     Node::ETreeType x18_treeType;
-    u8* x1c_buf;
+    const u8* x1c_buf;
     std::unique_ptr<u8[]> x20_treeBuf;
     u32 x24_matCount;
     std::vector<u32> x28_materials;
-    u8* x2c_vertMats;
-    u8* x30_edgeMats;
-    u8* x34_polyMats;
+    const u8* x2c_vertMats;
+    const u8* x30_edgeMats;
+    const u8* x34_polyMats;
     u32 x38_edgeCount;
     std::vector<CCollisionEdge> x3c_edges;
     u32 x40_polyCount;
@@ -111,10 +111,10 @@ public:
     void SwapTreeNode(u8* ptr, Node::ETreeType type);
 
 public:
-    CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, u8* buf, std::unique_ptr<u8[]>&& treeBuf,
-                 u32 matCount, u32* materials, u8* vertMats, u8* edgeMats, u8* polyMats,
-                 u32 edgeCount, CCollisionEdge* edges, u32 polyCount, u16* polyEdges,
-                 u32 vertCount, zeus::CVector3f* verts);
+    CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, const u8* buf, std::unique_ptr<u8[]>&& treeBuf,
+                 u32 matCount, const u32* materials, const u8* vertMats, const u8* edgeMats, const u8* polyMats,
+                 u32 edgeCount, const CCollisionEdge* edges, u32 polyCount, const u16* polyEdges,
+                 u32 vertCount, const zeus::CVector3f* verts);
 
     Node GetRootNode() const { return Node(x20_treeBuf.get(), x0_aabb, *this, x18_treeType); }
     const u8* GetTreeMemory() const { return x20_treeBuf.get(); }
@@ -129,7 +129,7 @@ public:
     const u16* GetTriangleVertexIndices(u16 idx) const;
     const u16* GetTriangleEdgeIndices(u16 idx) const;
 
-    static std::unique_ptr<CAreaOctTree> MakeFromMemory(void* buf, unsigned int size);
+    static std::unique_ptr<CAreaOctTree> MakeFromMemory(const void* buf, unsigned int size);
 };
 
 }

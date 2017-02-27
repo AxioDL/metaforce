@@ -27,6 +27,7 @@ public:
         SObjectTag x0_tag;
         //IDvdRequest* x8_dvdReq = nullptr;
         std::unique_ptr<u8[]>* xc_targetDataPtr = nullptr;
+        u8* xc_targetDataRawPtr = nullptr;
         IObj** xc_targetObjPtr = nullptr;
         std::unique_ptr<u8[]> x10_loadBuffer;
         u32 x14_resSize = UINT32_MAX;
@@ -48,6 +49,11 @@ public:
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
                   std::unique_ptr<u8[]>& ptr, u32 size, u32 off)
         : m_parent(parent), x0_tag(tag), xc_targetDataPtr(&ptr), x14_resSize(size),
+          x14_resOffset(off) {}
+
+        AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
+                  u8* ptr, u32 size, u32 off)
+        : m_parent(parent), x0_tag(tag), xc_targetDataRawPtr(ptr), x14_resSize(size),
           x14_resOffset(off) {}
 
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
@@ -131,6 +137,7 @@ public:
     u32 ResourceSize(const SObjectTag& tag);
     std::shared_ptr<AsyncTask> LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
     std::shared_ptr<AsyncTask> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);
+    std::shared_ptr<AsyncTask> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, u8* target);
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
     std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
 

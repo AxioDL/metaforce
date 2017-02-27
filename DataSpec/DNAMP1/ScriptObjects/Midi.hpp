@@ -13,11 +13,11 @@ struct Midi : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<bool> unknown1;
+    Value<bool> active;
     UniqueID32 song;
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<atUint32> unknown4;
+    Value<float> fadeInTime;
+    Value<float> fadeOutTime;
+    Value<atUint32> volume;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {

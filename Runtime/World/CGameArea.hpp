@@ -61,17 +61,17 @@ struct CAreaRenderOctTree
                                     const zeus::CAABox& testAABB) const;
     };
 
-    std::unique_ptr<u8[]> x0_buf;
+    const u8* x0_buf;
     u32 x8_bitmapCount;
     u32 xc_meshCount;
     u32 x10_nodeCount;
     u32 x14_bitmapWordCount;
     zeus::CAABox x18_aabb;
-    u32* x30_bitmaps;
-    u32* x34_indirectionTable;
-    u8* x38_entries;
+    const u32* x30_bitmaps;
+    const u32* x34_indirectionTable;
+    const u8* x38_entries;
 
-    CAreaRenderOctTree(std::unique_ptr<u8[]>&& buf);
+    CAreaRenderOctTree(const u8* buf);
 
     void FindOverlappingModels(std::vector<u32>& out, const zeus::CAABox& testAABB) const;
 };
@@ -110,14 +110,14 @@ class CGameArea : public IGameArea
         u8 _dummy = 0;
     };
 
-    enum class Phase
+    enum class EPhase
     {
         LoadHeader,
         LoadSecSizes,
         ReserveSections,
         LoadDataSections,
         WaitForFinish
-    } xf4_phase = Phase::LoadHeader;
+    } xf4_phase = EPhase::LoadHeader;
 
     std::list<std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>> xf8_loadTransactions;
 
@@ -187,7 +187,7 @@ public:
         u32 x10bc_ = 0;
         std::unique_ptr<CAreaObjectList> x10c0_areaObjs;
         std::unique_ptr<CAreaFog> x10c4_areaFog;
-        std::unique_ptr<u8[]> x10c8_sclyBuf;
+        const u8* x10c8_sclyBuf = nullptr;
         u32 x10d0_sclySize = 0;
         u32 x10d4_ = 0;
         const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
@@ -213,7 +213,7 @@ public:
             };
             u8 _dummy = 0;
         };
-        std::vector<std::pair<u8*, u32>> x110c_layerPtrs;
+        std::vector<std::pair<const u8*, u32>> x110c_layerPtrs;
         float x111c_thermalCurrent = 0.f;
         float x1120_thermalSpeed = 0.f;
         float x1124_thermalTarget = 0.f;
@@ -226,7 +226,7 @@ public:
     };
 private:
     std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
-    std::vector<std::pair<u8*, int>> m_resolvedBufs;
+    std::vector<std::pair<const u8*, int>> m_resolvedBufs;
     u32 x124_secCount = 0;
     u32 x128_mreaDataOffset = 0;
     std::unique_ptr<CPostConstructed> x12c_postConstructed;
@@ -303,7 +303,7 @@ public:
     void StartStreamIn(CStateManager& mgr);
     void Validate(CStateManager& mgr);
     void LoadScriptObjects(CStateManager& mgr);
-    std::pair<u8*, u32> GetLayerScriptBuffer(int layer);
+    std::pair<const u8*, u32> GetLayerScriptBuffer(int layer);
     void PostConstructArea();
     void FillInStaticGeometry();
     void VerifyTokenList(CStateManager& stateMgr);

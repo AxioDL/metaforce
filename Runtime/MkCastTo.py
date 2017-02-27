@@ -53,6 +53,7 @@ CENTITY_TYPES = (
     ('CScriptPointOfInterest', 'World/CScriptPointOfInterest.hpp'),
     ('CScriptRoomAcoustics', 'World/CScriptRoomAcoustics.hpp'),
     ('CScriptSound', 'World/CScriptSound.hpp'),
+    ('CScriptMidi', 'World/CScriptMidi.hpp'),
     ('CScriptSpawnPoint', 'World/CScriptSpawnPoint.hpp'),
     ('CScriptSpecialFunction', 'World/CScriptSpecialFunction.hpp'),
     ('CScriptSpiderBallAttractionSurface', 'World/CScriptSpiderBallAttractionSurface.hpp'),

@@ -9,27 +9,29 @@
 namespace urde
 {
 
-CAreaRenderOctTree::CAreaRenderOctTree(std::unique_ptr<u8[]>&& buf)
-: x0_buf(std::move(buf))
+static logvisor::Module Log("CGameArea");
+
+CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf)
+: x0_buf(buf)
 {
-    athena::io::MemoryReader r(x0_buf.get() + 8, INT32_MAX);
+    athena::io::MemoryReader r(x0_buf + 8, INT32_MAX);
     x8_bitmapCount = r.readUint32Big();
     xc_meshCount = r.readUint32Big();
     x10_nodeCount = r.readUint32Big();
     x14_bitmapWordCount = (xc_meshCount + 31) / 32;
     x18_aabb.readBoundingBoxBig(r);
 
-    x30_bitmaps = reinterpret_cast<u32*>(x0_buf.get() + 64);
+    x30_bitmaps = reinterpret_cast<const u32*>(x0_buf + 64);
     u32 wc = x14_bitmapWordCount * x8_bitmapCount;
     for (u32 i=0 ; i<wc ; ++i)
-        x30_bitmaps[i] = hecl::SBig(x30_bitmaps[i]);
+        const_cast<u32*>(x30_bitmaps)[i] = hecl::SBig(x30_bitmaps[i]);
 
     x34_indirectionTable = x30_bitmaps + wc;
-    x38_entries = reinterpret_cast<u8*>(x34_indirectionTable) + x10_nodeCount;
+    x38_entries = reinterpret_cast<const u8*>(x34_indirectionTable + x10_nodeCount);
     for (u32 i=0 ; i<x10_nodeCount ; ++i)
     {
-        x34_indirectionTable[i] = hecl::SBig(x34_indirectionTable[i]);
-        Node* n = reinterpret_cast<Node*>(x38_entries + x34_indirectionTable[i]);
+        const_cast<u32*>(x34_indirectionTable)[i] = hecl::SBig(x34_indirectionTable[i]);
+        Node* n = reinterpret_cast<Node*>(const_cast<u8*>(x38_entries) + x34_indirectionTable[i]);
         n->x0_bitmapIdx = hecl::SBig(n->x0_bitmapIdx);
         n->x2_flags = hecl::SBig(n->x2_flags);
         if (n->x2_flags)
@@ -596,42 +598,42 @@ bool CGameArea::StartStreamingMainArea()
 
     switch (xf4_phase)
     {
-    case Phase::LoadHeader:
+    case EPhase::LoadHeader:
     {
         x110_mreaSecBufs.reserve(3);
         AllocNewAreaData(0, 96);
         x12c_postConstructed.reset(new CPostConstructed());
-        xf4_phase = Phase::LoadSecSizes;
+        xf4_phase = EPhase::LoadSecSizes;
         break;
     }
-    case Phase::LoadSecSizes:
+    case EPhase::LoadSecSizes:
     {
         CullDeadAreaRequests();
         if (xf8_loadTransactions.size())
             break;
         MREAHeader header = VerifyHeader();
         AllocNewAreaData(x110_mreaSecBufs[0].second, ROUND_UP_32(header.secCount * 4));
-        xf4_phase = Phase::ReserveSections;
+        xf4_phase = EPhase::ReserveSections;
         break;
     }
-    case Phase::ReserveSections:
+    case EPhase::ReserveSections:
     {
         CullDeadAreaRequests();
         if (xf8_loadTransactions.size())
             break;
-        x110_mreaSecBufs.reserve(GetNumPartSizes() + 2);
+        //x110_mreaSecBufs.reserve(GetNumPartSizes() + 2);
         x124_secCount = 0;
         x128_mreaDataOffset = x110_mreaSecBufs[0].second + x110_mreaSecBufs[1].second;
-        xf4_phase = Phase::LoadDataSections;
+        xf4_phase = EPhase::LoadDataSections;
         break;
     }
-    case Phase::LoadDataSections:
+    case EPhase::LoadDataSections:
     {
         CullDeadAreaRequests();
 
         u32 totalSz = 0;
         u32 secCount = GetNumPartSizes();
-        for (u32 i=2 ; i<secCount ; ++i)
+        for (u32 i=0 ; i<secCount ; ++i)
             totalSz += hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
 
         AllocNewAreaData(x128_mreaDataOffset, totalSz);
@@ -641,17 +643,17 @@ bool CGameArea::StartStreamingMainArea()
         m_resolvedBufs.emplace_back(x110_mreaSecBufs[1].first.get(), x110_mreaSecBufs[1].second);
 
         u32 curOff = 0;
-        for (u32 i=2 ; i<secCount ; ++i)
+        for (u32 i=0 ; i<secCount ; ++i)
         {
             u32 size = hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
             m_resolvedBufs.emplace_back(x110_mreaSecBufs[2].first.get() + curOff, size);
             curOff += size;
         }
 
-        xf4_phase = Phase::WaitForFinish;
+        xf4_phase = EPhase::WaitForFinish;
         break;
     }
-    case Phase::WaitForFinish:
+    case EPhase::WaitForFinish:
     {
         CullDeadAreaRequests();
         if (xf8_loadTransactions.size())
@@ -684,7 +686,7 @@ void CGameArea::AllocNewAreaData(int offset, int size)
     xf8_loadTransactions.push_back(
         static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
         LoadResourcePartAsync(SObjectTag{FOURCC('MREA'), x84_mrea}, size, offset,
-                              x110_mreaSecBufs.back().first));
+                              x110_mreaSecBufs.back().first.get()));
 }
 
 bool CGameArea::Invalidate(CStateManager& mgr)
@@ -707,6 +709,32 @@ void CGameArea::CullDeadAreaRequests()
 
 void CGameArea::StartStreamIn(CStateManager& mgr)
 {
+    if (xf0_24_postConstructed || xf0_27_paused)
+        return;
+
+    VerifyTokenList(mgr);
+
+    if (!xf0_26_tokensReady)
+    {
+        u32 notLoaded = 0;
+        for (CToken& tok : xdc_tokens)
+        {
+            tok.Lock();
+            if (!tok.IsLoaded())
+                ++notLoaded;
+        }
+        if (notLoaded)
+            return;
+        xf0_26_tokensReady = true;
+    }
+
+    StartStreamingMainArea();
+    if (xf4_phase != EPhase::WaitForFinish)
+        return;
+    CullDeadAreaRequests();
+    if (xf8_loadTransactions.size())
+        return;
+    Validate(mgr);
 }
 
 void CGameArea::Validate(CStateManager& mgr)
@@ -774,7 +802,7 @@ void CGameArea::LoadScriptObjects(CStateManager& mgr)
     mgr.InitScriptObjects(objIds);
 }
 
-std::pair<u8*, u32> CGameArea::GetLayerScriptBuffer(int layer)
+std::pair<const u8*, u32> CGameArea::GetLayerScriptBuffer(int layer)
 {
     if (!xf0_24_postConstructed)
         return {};
@@ -785,32 +813,35 @@ void CGameArea::PostConstructArea()
 {
     MREAHeader header = VerifyHeader();
 
-    auto secIt = x110_mreaSecBufs.begin() + 2;
+    auto secIt = m_resolvedBufs.begin() + 2;
+
+    /* Materials */
+    ++secIt;
+
+    u32 sec = 3;
 
     /* Models */
-    if (header.modelCount)
+    for (u32 i=0 ; i<header.modelCount ; ++i)
     {
-        for (u32 i=0 ; i<header.modelCount ; ++i)
-        {
-            u32 surfCount = hecl::SBig(*reinterpret_cast<u32*>((secIt+6)->first.get()));
-            secIt += 7 + surfCount;
-        }
+        u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>((secIt+4)->first));
+        secIt += 5 + surfCount;
+        sec += 5 + surfCount;
     }
 
     /* Render octree */
     if (header.version == 15 && header.arotSecIdx != -1)
     {
-        x12c_postConstructed->xc_octTree.emplace(std::move(secIt->first));
+        x12c_postConstructed->xc_octTree.emplace(secIt->first);
         ++secIt;
     }
 
     /* Scriptable layer section */
-    x12c_postConstructed->x10c8_sclyBuf = std::move(secIt->first);
+    x12c_postConstructed->x10c8_sclyBuf = secIt->first;
     x12c_postConstructed->x10d0_sclySize = secIt->second;
     ++secIt;
 
     /* Collision section */
-    std::unique_ptr<CAreaOctTree> collision = CAreaOctTree::MakeFromMemory(secIt->first.get(), secIt->second);
+    std::unique_ptr<CAreaOctTree> collision = CAreaOctTree::MakeFromMemory(secIt->first, secIt->second);
     if (collision)
     {
         x12c_postConstructed->x0_collision = std::move(collision);
@@ -824,7 +855,7 @@ void CGameArea::PostConstructArea()
     /* Lights section */
     if (header.version > 6)
     {
-        athena::io::MemoryReader r(secIt->first.get(), secIt->second);
+        athena::io::MemoryReader r(secIt->first, secIt->second);
         u32 magic = r.readUint32Big();
         if (magic == 0xBABEDEAD)
         {
@@ -855,7 +886,7 @@ void CGameArea::PostConstructArea()
     /* PVS section */
     if (header.version > 7)
     {
-        athena::io::MemoryReader r(secIt->first.get(), secIt->second);
+        athena::io::MemoryReader r(secIt->first, secIt->second);
         u32 magic = r.readUint32Big();
         if (magic == 'VISI')
         {
@@ -864,7 +895,7 @@ void CGameArea::PostConstructArea()
             {
                 x12c_postConstructed->x1108_29_ = r.readBool();
                 x12c_postConstructed->x1108_30_ = r.readBool();
-                x12c_postConstructed->xa0_pvs = std::make_unique<CPVSAreaSet>(secIt->first.get() + r.position(),
+                x12c_postConstructed->xa0_pvs = std::make_unique<CPVSAreaSet>(secIt->first + r.position(),
                                                                               secIt->second - r.position());
             }
         }
@@ -875,7 +906,7 @@ void CGameArea::PostConstructArea()
     /* Pathfinding section */
     if (header.version > 9)
     {
-        athena::io::MemoryReader r(secIt->first.get(), secIt->second);
+        athena::io::MemoryReader r(secIt->first, secIt->second);
         ResId pathId = r.readUint32Big();
         x12c_postConstructed->x10ac_path = g_SimplePool->GetObj(SObjectTag{FOURCC('PATH'), pathId});
         ++secIt;
@@ -889,7 +920,7 @@ void CGameArea::PostConstructArea()
     /* Resolve layer pointers */
     if (x12c_postConstructed->x10c8_sclyBuf)
     {
-        athena::io::MemoryReader r(x12c_postConstructed->x10c8_sclyBuf.get(), x12c_postConstructed->x10d0_sclySize);
+        athena::io::MemoryReader r(x12c_postConstructed->x10c8_sclyBuf, x12c_postConstructed->x10d0_sclySize);
         u32 magic = r.readUint32Big();
         if (magic == 'SCLY')
         {
@@ -898,7 +929,7 @@ void CGameArea::PostConstructArea()
             x12c_postConstructed->x110c_layerPtrs.resize(layerCount);
             for (u32 l=0 ; l<layerCount ; ++l)
                 x12c_postConstructed->x110c_layerPtrs[l].second = r.readUint32Big();
-            u8* ptr = x12c_postConstructed->x10c8_sclyBuf.get() + r.position();
+            const u8* ptr = x12c_postConstructed->x10c8_sclyBuf + r.position();
             for (u32 l=0 ; l<layerCount ; ++l)
             {
                 x12c_postConstructed->x110c_layerPtrs[l].first = ptr;
@@ -967,6 +998,9 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
     MREAHeader header;
     athena::io::MemoryReader r(x110_mreaSecBufs[0].first.get() + 4, INT32_MAX);
     u32 version = r.readUint32Big();
+    if (!(version & 0x10000))
+        Log.report(logvisor::Fatal, "Attempted to load non-URDE MREA");
+    version &= ~0x10000;
     header.version = (version >= 12 && version <= 15) ? version : 0;
     if (!header.version)
         return {};

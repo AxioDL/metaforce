@@ -99,10 +99,10 @@ void CAreaOctTree::SwapTreeNode(u8* ptr, Node::ETreeType type)
     }
 }
 
-CAreaOctTree::CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, u8* buf, std::unique_ptr<u8[]>&& treeBuf,
-                           u32 matCount, u32* materials, u8* vertMats, u8* edgeMats, u8* polyMats,
-                           u32 edgeCount, CCollisionEdge* edges, u32 polyCount, u16* polyEdges,
-                           u32 vertCount, zeus::CVector3f* verts)
+CAreaOctTree::CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, const u8* buf, std::unique_ptr<u8[]>&& treeBuf,
+                           u32 matCount, const u32* materials, const u8* vertMats, const u8* edgeMats, const u8* polyMats,
+                           u32 edgeCount, const CCollisionEdge* edges, u32 polyCount, const u16* polyEdges,
+                           u32 vertCount, const zeus::CVector3f* verts)
 : x0_aabb(aabb), x18_treeType(treeType), x1c_buf(buf), x20_treeBuf(std::move(treeBuf)),
   x24_matCount(matCount), x2c_vertMats(vertMats),
   x30_edgeMats(edgeMats), x34_polyMats(polyMats), x38_edgeCount(edgeCount),
@@ -140,7 +140,7 @@ CAreaOctTree::CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, u
     }
 }
 
-std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(void* buf, unsigned int size)
+std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(const void* buf, unsigned int size)
 {
     athena::io::MemoryReader r(buf, size);
     r.readUint32Big();
@@ -149,48 +149,48 @@ std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(void* buf, unsigned i
     aabb.readBoundingBoxBig(r);
     Node::ETreeType nodeType = Node::ETreeType(r.readUint32Big());
     u32 treeSize = r.readUint32Big();
-    u8* cur = reinterpret_cast<u8*>(buf) + r.position();
+    const u8* cur = reinterpret_cast<const u8*>(buf) + r.position();
 
     std::unique_ptr<u8[]> treeBuf(new u8[treeSize]);
     memmove(treeBuf.get(), cur, treeSize);
     cur += treeSize;
 
-    u32 matCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 matCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    u32* matBuf = reinterpret_cast<u32*>(cur);
+    const u32* matBuf = reinterpret_cast<const u32*>(cur);
     cur += 4 * matCount;
 
-    u32 vertMatsCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 vertMatsCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    u8* vertMatsBuf = cur;
+    const u8* vertMatsBuf = cur;
     cur += vertMatsCount;
 
-    u32 edgeMatsCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 edgeMatsCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    u8* edgeMatsBuf = cur;
+    const u8* edgeMatsBuf = cur;
     cur += edgeMatsCount;
 
-    u32 polyMatsCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 polyMatsCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    u8* polyMatsBuf = cur;
+    const u8* polyMatsBuf = cur;
     cur += polyMatsCount;
 
-    u32 edgeCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 edgeCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    CCollisionEdge* edgeBuf = reinterpret_cast<CCollisionEdge*>(cur);
+    const CCollisionEdge* edgeBuf = reinterpret_cast<const CCollisionEdge*>(cur);
     cur += edgeCount * sizeof(edgeCount);
 
-    u32 polyCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 polyCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    u16* polyBuf = reinterpret_cast<u16*>(cur);
+    const u16* polyBuf = reinterpret_cast<const u16*>(cur);
     cur += polyCount * 2;
 
-    u32 vertCount = hecl::SBig(*reinterpret_cast<u32*>(cur));
+    u32 vertCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    zeus::CVector3f* vertBuf = reinterpret_cast<zeus::CVector3f*>(cur);
+    const zeus::CVector3f* vertBuf = reinterpret_cast<const zeus::CVector3f*>(cur);
     cur += polyCount * 2;
 
-    return std::make_unique<CAreaOctTree>(aabb, nodeType, reinterpret_cast<u8*>(buf), std::move(treeBuf),
+    return std::make_unique<CAreaOctTree>(aabb, nodeType, reinterpret_cast<const u8*>(buf), std::move(treeBuf),
                                           matCount, matBuf, vertMatsBuf, edgeMatsBuf, polyMatsBuf,
                                           edgeCount, edgeBuf, polyCount, polyBuf, vertCount, vertBuf);
 }

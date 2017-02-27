@@ -379,7 +379,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
                                                            wldState.GetLayerState());
         }
 
-        if (x14_stateMgr->xb3c_initPhase != CStateManager::InitPhase::Done)
+        if (x14_stateMgr->xb3c_initPhase != CStateManager::EInitPhase::Done)
         {
             CWorldState& wldState = g_GameState->CurrentWorldState();
             x14_stateMgr->InitializeState(wldState.GetWorldAssetId(),

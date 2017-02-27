@@ -135,6 +135,7 @@ public:
     bool IsInGame() const { return x1c0_nextState >= EInGameGuiState::Zero && x1c0_nextState <= EInGameGuiState::InGame; }
     bool IsInSaveUI() const { return x1f8_27_inSaveUI; }
     bool GetIsGameDraw() const;
+    static std::string GetIdentifierForMidiEvent(ResId world, ResId area, const std::string& midiObj);
 };
 
 }

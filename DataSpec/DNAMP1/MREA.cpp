@@ -518,7 +518,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             }
         }
         if (!good)
-            secs.emplace_back(0, 0);
+            secs.emplace_back(4, 0);
     }
 
     /* PATH */

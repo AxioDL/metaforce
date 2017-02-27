@@ -77,7 +77,6 @@ struct VISIBuilder
             }
         }
     };
-    static const Leaf NullLeaf;
 
     class PVSRenderCache
     {
@@ -113,7 +112,7 @@ struct VISIBuilder
 
         bool operator==(const Node& other) const
         {
-            if (!leaf || !other.leaf)
+            if ((flags & 0x7) || (other.flags & 0x7))
                 return false;
             return leaf == other.leaf;
         }

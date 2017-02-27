@@ -4,7 +4,6 @@
 #define VISI_MIN_LENGTH 8.0
 
 static logvisor::Module Log("VISIBuilder");
-const VISIBuilder::Leaf VISIBuilder::NullLeaf = {};
 
 VISIBuilder::PVSRenderCache::PVSRenderCache(VISIRenderer& renderer)
 : m_renderer(renderer)
@@ -245,7 +244,10 @@ void VISIBuilder::Node::calculateSizesAndOffs(size_t& cur, size_t leafSz)
     }
     else
     {
-        cur += leafSz;
+        if (!leaf)
+            flags &= ~0x8;
+        else
+            cur += leafSz;
     }
 }
 
@@ -294,7 +296,7 @@ void VISIBuilder::Node::writeNodes(athena::io::MemoryWriter& w, size_t leafBytes
                     childNodes[nodeSel].writeNodes(w, leafBytes);
                 }
     }
-    else
+    else if (leaf)
     {
         leaf.write(w, leafBytes);
     }

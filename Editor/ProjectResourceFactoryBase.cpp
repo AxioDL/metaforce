@@ -532,10 +532,19 @@ void ProjectResourceFactoryBase::AsyncTask::CookComplete()
     /* Ready for buffer transaction at this point */
     u32 availSz = std::max(0, s32(fr.length()) - s32(x14_resOffset));
     x14_resSize = std::min(x14_resSize, availSz);
-    x10_loadBuffer.reset(new u8[x14_resSize]);
-    m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
-                                                                  x10_loadBuffer.get(),
-                                                                  x14_resSize, x14_resOffset);
+    if (xc_targetDataRawPtr)
+    {
+        m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
+                                                                      xc_targetDataRawPtr,
+                                                                      x14_resSize, x14_resOffset);
+    }
+    else
+    {
+        x10_loadBuffer.reset(new u8[x14_resSize]);
+        m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
+                                                                      x10_loadBuffer.get(),
+                                                                      x14_resSize, x14_resOffset);
+    }
 }
 
 bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
@@ -778,6 +787,17 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
         std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
 }
 
+std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, u8* target)
+{
+    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id");
+    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+        return {};
+    return m_asyncLoadList.emplace(std::make_pair(tag,
+        std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
+}
+
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
 {
     if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
@@ -982,6 +1002,13 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(
             {
                 /* Buffer only */
                 *task.xc_targetDataPtr = std::move(task.x10_loadBuffer);
+                Log.report(logvisor::Info, "async-loaded %.4s %08X",
+                           task.x0_tag.type.toString().c_str(),
+                           u32(task.x0_tag.id));
+            }
+            else if (task.xc_targetDataRawPtr)
+            {
+                /* Buffer only raw */
                 Log.report(logvisor::Info, "async-loaded %.4s %08X",
                            task.x0_tag.type.toString().c_str(),
                            u32(task.x0_tag.id));

@@ -703,14 +703,14 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
     bool hadRandom = x900_activeRandom != nullptr;
     SetActiveRandomToDefault();
 
-    if (xb3c_initPhase == InitPhase::LoadWorld)
+    if (xb3c_initPhase == EInitPhase::LoadWorld)
     {
         CreateStandardGameObjects();
         x850_world.reset(new CWorld(*g_SimplePool, *g_ResFactory, mlvlId));
-        xb3c_initPhase = InitPhase::LoadFirstArea;
+        xb3c_initPhase = EInitPhase::LoadFirstArea;
     }
 
-    if (xb3c_initPhase == InitPhase::LoadFirstArea)
+    if (xb3c_initPhase == EInitPhase::LoadFirstArea)
     {
         if (!x8f0_shadowTex.IsLoaded())
             return;
@@ -725,7 +725,7 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
             area->StartStreamIn(*this);
             return;
         }
-        xb3c_initPhase = InitPhase::Done;
+        xb3c_initPhase = EInitPhase::Done;
     }
 
     SetCurrentAreaId(x8cc_nextAreaId);

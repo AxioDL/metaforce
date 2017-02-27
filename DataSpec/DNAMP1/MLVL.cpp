@@ -270,7 +270,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     {
                         addedPaths.insert(path.hash());
                         urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
-                        areaOut.deps.emplace_back(tag.id, tag.type);
+                        if (tag.id != -1)
+                            areaOut.deps.emplace_back(tag.id, tag.type);
                     }
                 }
             }
@@ -308,12 +309,14 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 {
                     addedPaths.insert(path.hash());
                     urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
-                    areaOut.deps.emplace_back(tag.id, tag.type);
+                    if (tag.id != -1)
+                        areaOut.deps.emplace_back(tag.id, tag.type);
                 }
             }
 
             urde::SObjectTag tag = g_curSpec->BuildTagFromPath(areaPath, btok);
-            areaOut.deps.emplace_back(tag.id, tag.type);
+            if (tag.id != -1)
+                areaOut.deps.emplace_back(tag.id, tag.type);
         }
 
         ++areaIdx;

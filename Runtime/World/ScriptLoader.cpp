@@ -64,6 +64,7 @@
 #include "MP1/World/CActorContraption.hpp"
 #include "CScriptShadowProjector.hpp"
 #include "CScriptStreamedMusic.hpp"
+#include "CScriptMidi.hpp"
 #include "CScriptRoomAcoustics.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
@@ -1916,7 +1917,16 @@ CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStrea
 
 CEntity* ScriptLoader::LoadMidi(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 6, "Midi"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    u32 csng = in.readUint32Big();
+    float fadeIn = in.readFloatBig();
+    float fadeOut = in.readFloatBig();
+    u32 vol = in.readUint32Big();
+    return new CScriptMidi(mgr.AllocateUniqueId(), info, name, active, csng, fadeIn, fadeOut, vol);
 }
 
 CEntity* ScriptLoader::LoadStreamedAudio(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

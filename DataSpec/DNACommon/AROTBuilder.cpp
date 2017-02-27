@@ -70,6 +70,10 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
         if (poolIdx > 65535)
             Log.report(logvisor::Fatal, "AROT bitmap exceeds 16-bit node addressing; area too complex");
 
+        uint32_t childCount = AROTChildCounts[flags];
+        nodeOff = curOff;
+        nodeSz = childCount * 2 + 4;
+        curOff += nodeSz;
         if (childNodes.size())
         {
             for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
@@ -82,10 +86,6 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
                     }
                 }
             }
-            uint32_t childCount = AROTChildCounts[flags];
-            nodeOff = curOff;
-            nodeSz = childCount * 2 + 4;
-            curOff += nodeSz;
             idxRefs += childCount;
         }
     }

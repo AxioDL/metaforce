@@ -147,12 +147,12 @@ class CStateManager
 
     std::set<std::string> xab4_uniqueInstanceNames;
 
-    enum class InitPhase
+    enum class EInitPhase
     {
         LoadWorld,
         LoadFirstArea,
         Done
-    } xb3c_initPhase = InitPhase::LoadWorld;
+    } xb3c_initPhase = EInitPhase::LoadWorld;
 
     CFinalInput xb54_finalInput;
     CCameraFilterPass xb84_camFilterPasses[9];

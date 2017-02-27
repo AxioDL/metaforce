@@ -296,6 +296,10 @@ void VISIRenderer::RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bo
         zeus::CFrustum frustum;
         frustum.updatePlanes(mv, g_Proj);
 
+        // Fill depth buffer with backfaces initially
+        glCullFace(GL_FRONT);
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
         for (const Model& model : m_models)
         {
             if (!frustum.aabbFrustumTest(model.aabb))
@@ -309,6 +313,24 @@ void VISIRenderer::RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bo
                                    reinterpret_cast<void*>(uintptr_t(surf.first * 4)));
                 else
                     needTransparent = true;
+            }
+        }
+
+        // Draw frontfaces
+        glCullFace(GL_BACK);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+        for (const Model& model : m_models)
+        {
+            if (!frustum.aabbFrustumTest(model.aabb))
+                continue;
+            glBindVertexArray(model.vao);
+            for (const Model::Surface& surf : model.surfaces)
+            {
+                // Non-transparents first
+                if (!surf.transparent)
+                    glDrawElements(model.topology, surf.count, GL_UNSIGNED_INT,
+                                   reinterpret_cast<void*>(uintptr_t(surf.first * 4)));
             }
         }
     }

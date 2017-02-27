@@ -353,5 +353,12 @@ bool CInGameGuiManager::GetIsGameDraw() const
     return x3c_pauseScreen->GetX50_25();
 }
 
+std::string CInGameGuiManager::GetIdentifierForMidiEvent(ResId world, ResId area,
+                                                         const std::string& midiObj)
+{
+    return hecl::Format("World %8.8x Area %8.8x MidiObject: %s",
+                        u32(world), u32(area), midiObj.c_str());
+}
+
 }
 }

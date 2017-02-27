@@ -74,6 +74,7 @@ set(WORLD_SOURCES
     CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
     CScriptColorModulate.hpp CScriptColorModulate.cpp
     CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
+    CScriptMidi.hpp CScriptMidi.cpp
     CRepulsor.hpp CRepulsor.cpp
     CScriptGunTurret.hpp CScriptGunTurret.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
