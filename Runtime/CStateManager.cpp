@@ -68,6 +68,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::Platform)] = ScriptLoader::LoadPlatform;
     x90c_loaderFuncs[int(EScriptObjectType::Sound)] = ScriptLoader::LoadSound;
     x90c_loaderFuncs[int(EScriptObjectType::Generator)] = ScriptLoader::LoadGenerator;
+    x90c_loaderFuncs[int(EScriptObjectType::Dock)] = ScriptLoader::LoadDock;
     x90c_loaderFuncs[int(EScriptObjectType::Camera)] = ScriptLoader::LoadCamera;
     x90c_loaderFuncs[int(EScriptObjectType::CameraWaypoint)] = ScriptLoader::LoadCameraWaypoint;
     x90c_loaderFuncs[int(EScriptObjectType::NewIntroBoss)] = ScriptLoader::LoadNewIntroBoss;
@@ -599,12 +600,18 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     else
         error = true;
 
-    u32 leftover = length - (in.position() - startPos);
+    u32 readAmt = in.position() - startPos;
+    if (readAmt > length)
+        LogModule.report(logvisor::Fatal, "Script object overread");
+    u32 leftover = length - readAmt;
     for (u32 i=0 ; i<leftover ; ++i)
         in.readByte();
 
     if (error || ent == nullptr)
+    {
+        LogModule.report(logvisor::Fatal, "Script load error");
         return {kInvalidEditorId, kInvalidUniqueId};
+    }
     else
         return {id, ent->GetUniqueId()};
 }

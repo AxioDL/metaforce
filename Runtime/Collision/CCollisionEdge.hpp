@@ -13,8 +13,14 @@ public:
     CCollisionEdge()=default;
     CCollisionEdge(CInputStream&);
 
-    u16 GetVertIndex1() const;
-    u16 GetVertIndex2() const;
+    u16 GetVertIndex1() const { return x0_index1; }
+    u16 GetVertIndex2() const { return x2_index2; }
+
+    void swapBig()
+    {
+        x0_index1 = hecl::SBig(x0_index1);
+        x2_index2 = hecl::SBig(x2_index2);
+    }
 };
 }
 

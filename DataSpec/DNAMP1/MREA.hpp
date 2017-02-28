@@ -137,6 +137,9 @@ struct MREA
                        const ColMesh& cMesh,
                        const std::vector<Light>& lights,
                        hecl::BlenderToken& btok);
+
+    static bool CookPath(const hecl::ProjectPath& outPath,
+                         const hecl::ProjectPath& inPath);
 };
 
 }

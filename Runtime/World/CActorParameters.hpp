@@ -20,9 +20,9 @@ class CActorParameters
     bool b2 : 1;
     bool b3 : 1;
     bool b4 : 1;
-    float x5c_;
-    float x60_;
-    float x64_;
+    float x5c_ = 0.f;
+    float x60_ = 0.f;
+    float x64_ = 0.f;
 
 public:
     CActorParameters() : b1(true), b2(false), b3(false), b4(false) {}

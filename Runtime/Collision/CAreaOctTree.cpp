@@ -58,8 +58,9 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
     }
     else if (type == ETreeType::Leaf)
     {
-        const zeus::CAABox* aabb = reinterpret_cast<const zeus::CAABox*>(m_ptr + offsets[idx] + 36);
-        return Node(aabb, *aabb, m_owner, ETreeType::Leaf);
+        const float* aabb = reinterpret_cast<const float*>(m_ptr + offsets[idx] + 36);
+        zeus::CAABox aabbObj(aabb[0], aabb[1], aabb[2], aabb[3], aabb[4], aabb[5]);
+        return Node(aabb, aabbObj, m_owner, ETreeType::Leaf);
     }
     else
     {
@@ -73,24 +74,24 @@ void CAreaOctTree::SwapTreeNode(u8* ptr, Node::ETreeType type)
     {
         u16* typeBits = reinterpret_cast<u16*>(ptr);
         *typeBits = hecl::SBig(*typeBits);
+        u32* offsets = reinterpret_cast<u32*>(ptr + 4);
 
         for (int i=0 ; i<8 ; ++i)
         {
             Node::ETreeType ctype = Node::ETreeType((*typeBits >> (2 * i)) & 0x3);
-            u32* offsets = reinterpret_cast<u32*>(ptr + 4);
             offsets[i] = hecl::SBig(offsets[i]);
             SwapTreeNode(ptr + offsets[i] + 36, ctype);
         }
     }
     else if (type == Node::ETreeType::Leaf)
     {
-        zeus::CAABox* aabb = reinterpret_cast<zeus::CAABox*>(ptr);
-        aabb->min[0] = hecl::SBig(aabb->min[0]);
-        aabb->min[1] = hecl::SBig(aabb->min[1]);
-        aabb->min[2] = hecl::SBig(aabb->min[2]);
-        aabb->max[0] = hecl::SBig(aabb->max[0]);
-        aabb->max[1] = hecl::SBig(aabb->max[1]);
-        aabb->max[2] = hecl::SBig(aabb->max[2]);
+        float* aabb = reinterpret_cast<float*>(ptr);
+        aabb[0] = hecl::SBig(aabb[0]);
+        aabb[1] = hecl::SBig(aabb[1]);
+        aabb[2] = hecl::SBig(aabb[2]);
+        aabb[3] = hecl::SBig(aabb[3]);
+        aabb[4] = hecl::SBig(aabb[4]);
+        aabb[5] = hecl::SBig(aabb[5]);
 
         u16* countIdxs = reinterpret_cast<u16*>(ptr + 24);
         *countIdxs = hecl::SBig(*countIdxs);
@@ -99,60 +100,43 @@ void CAreaOctTree::SwapTreeNode(u8* ptr, Node::ETreeType type)
     }
 }
 
-CAreaOctTree::CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, const u8* buf, std::unique_ptr<u8[]>&& treeBuf,
+CAreaOctTree::CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, const u8* buf, const u8* treeBuf,
                            u32 matCount, const u32* materials, const u8* vertMats, const u8* edgeMats, const u8* polyMats,
                            u32 edgeCount, const CCollisionEdge* edges, u32 polyCount, const u16* polyEdges,
-                           u32 vertCount, const zeus::CVector3f* verts)
-: x0_aabb(aabb), x18_treeType(treeType), x1c_buf(buf), x20_treeBuf(std::move(treeBuf)),
-  x24_matCount(matCount), x2c_vertMats(vertMats),
+                           u32 vertCount, const float* verts)
+: x0_aabb(aabb), x18_treeType(treeType), x1c_buf(buf), x20_treeBuf(treeBuf),
+  x24_matCount(matCount), x28_materials(materials), x2c_vertMats(vertMats),
   x30_edgeMats(edgeMats), x34_polyMats(polyMats), x38_edgeCount(edgeCount),
-  x40_polyCount(polyCount),
-  x48_vertCount(vertCount)
+  x3c_edges(edges), x40_polyCount(polyCount), x44_polyEdges(polyEdges),
+  x48_vertCount(vertCount), x4c_verts(verts)
 {
-    SwapTreeNode(x20_treeBuf.get(), treeType);
+    SwapTreeNode(const_cast<u8*>(x20_treeBuf), treeType);
 
-    {
-        x28_materials.reserve(matCount);
-        athena::io::MemoryReader r(materials, matCount * 4);
-        for (u32 i=0 ; i<matCount ; ++i)
-            x28_materials.push_back(r.readUint32Big());
-    }
+    for (u32 i=0 ; i<matCount ; ++i)
+        const_cast<u32*>(x28_materials)[i] = hecl::SBig(x28_materials[i]);
 
-    {
-        x3c_edges.reserve(edgeCount);
-        athena::io::MemoryReader r(edges, edgeCount * 4);
-        for (u32 i=0 ; i<edgeCount ; ++i)
-            x3c_edges.emplace_back(r);
-    }
+    for (u32 i=0 ; i<edgeCount ; ++i)
+        const_cast<CCollisionEdge*>(x3c_edges)[i].swapBig();
 
-    {
-        x44_polyEdges.reserve(polyCount);
-        athena::io::MemoryReader r(polyEdges, polyCount * 2);
-        for (u32 i=0 ; i<polyCount ; ++i)
-            x44_polyEdges.push_back(r.readUint16Big());
-    }
+    for (u32 i=0 ; i<polyCount ; ++i)
+        const_cast<u16*>(x44_polyEdges)[i] = hecl::SBig(x44_polyEdges[i]);
 
-    {
-        x4c_verts.reserve(vertCount);
-        athena::io::MemoryReader r(verts, vertCount * 12);
-        for (u32 i=0 ; i<vertCount ; ++i)
-            x4c_verts.push_back(zeus::CVector3f::ReadBig(r));
-    }
+    for (u32 i=0 ; i<vertCount*3 ; ++i)
+        const_cast<float*>(x4c_verts)[i] = hecl::SBig(x4c_verts[i]);
 }
 
-std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(const void* buf, unsigned int size)
+std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(const u8* buf, unsigned int size)
 {
-    athena::io::MemoryReader r(buf, size);
+    athena::io::MemoryReader r(buf + 8, size - 8);
     r.readUint32Big();
     r.readUint32Big();
     zeus::CAABox aabb;
     aabb.readBoundingBoxBig(r);
     Node::ETreeType nodeType = Node::ETreeType(r.readUint32Big());
     u32 treeSize = r.readUint32Big();
-    const u8* cur = reinterpret_cast<const u8*>(buf) + r.position();
+    const u8* cur = reinterpret_cast<const u8*>(buf) + 8 + r.position();
 
-    std::unique_ptr<u8[]> treeBuf(new u8[treeSize]);
-    memmove(treeBuf.get(), cur, treeSize);
+    const u8* treeBuf = cur;
     cur += treeSize;
 
     u32 matCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
@@ -187,10 +171,9 @@ std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(const void* buf, unsi
 
     u32 vertCount = hecl::SBig(*reinterpret_cast<const u32*>(cur));
     cur += 4;
-    const zeus::CVector3f* vertBuf = reinterpret_cast<const zeus::CVector3f*>(cur);
-    cur += polyCount * 2;
+    const float* vertBuf = reinterpret_cast<const float*>(cur);
 
-    return std::make_unique<CAreaOctTree>(aabb, nodeType, reinterpret_cast<const u8*>(buf), std::move(treeBuf),
+    return std::make_unique<CAreaOctTree>(aabb, nodeType, reinterpret_cast<const u8*>(buf + 8), treeBuf,
                                           matCount, matBuf, vertMatsBuf, edgeMatsBuf, polyMatsBuf,
                                           edgeCount, edgeBuf, polyCount, polyBuf, vertCount, vertBuf);
 }
