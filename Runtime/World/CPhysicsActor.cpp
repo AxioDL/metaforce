@@ -10,7 +10,7 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, const std::string& name
 : CActor(uid, active, name, info, xf, std::move(mData), matList, actorParms, kInvalidUniqueId)
 , xe8_mass(moverData.x30_mass)
 , xec_massRecip(moverData.x30_mass <= 0.f ? 1.f : 1.f / moverData.x30_mass)
-, x150_momentum(moverData.x18_)
+, x150_momentum(moverData.x18_momentum)
 , x1c0_collisionPrimitive(box, matList)
 , x1f4_translation(xf.origin)
 , x200_orientation(xf.buildMatrix3f())

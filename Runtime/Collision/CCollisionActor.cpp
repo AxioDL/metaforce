@@ -29,4 +29,18 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bo
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 {
 }
+
+void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+
+CHealthInfo* CCollisionActor::HealthInfo() { return &x28c_healthInfo; }
+
+const CDamageVulnerability* CCollisionActor::GetDamageVulnerability() const { return &x294_damageVuln; }
+
+const CDamageVulnerability* CCollisionActor::GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                    const CDamageInfo&) const
+{
+    return GetDamageVulnerability();
+}
+
+void CCollisionActor::SetDamageVulnerability(const CDamageVulnerability& vuln) { x294_damageVuln = vuln; }
 }

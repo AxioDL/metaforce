@@ -38,7 +38,7 @@ public:
     bool InSpiderBallMode() const { return false; }
     zeus::CVector3f GetBallContactSurfaceNormal() const { return {}; }
     void GetModel() const {}
-    CCollidableSphere GetCollidableSphere() const { return {}; }
+    CCollidableSphere* GetCollidableSphere() const { return nullptr; }
     bool IsProjectile() const { return false; }
     void GetBallContactMeterials() const {}
     void GetWallBumpCounter() const {}

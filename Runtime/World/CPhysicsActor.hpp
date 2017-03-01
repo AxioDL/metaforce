@@ -13,7 +13,7 @@ struct SMoverData
 {
     zeus::CVector3f x0_velocity;
     zeus::CAxisAngle xc_angularVelocity;
-    zeus::CVector3f x18_;
+    zeus::CVector3f x18_momentum;
     zeus::CAxisAngle x24_;
     float x30_mass;
 
