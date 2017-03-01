@@ -34,7 +34,7 @@ CSteadyStateAnimInfo CAnimTreeBlend::VGetSteadyStateAnimInfo() const
     return {};
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeBlend::VClone() const
+std::unique_ptr<IAnimReader> CAnimTreeBlend::VClone() const
 {
     return {};
 }

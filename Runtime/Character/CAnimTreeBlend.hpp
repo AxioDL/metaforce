@@ -22,7 +22,7 @@ public:
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;
     CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-    std::shared_ptr<IAnimReader> VClone() const;
+    std::unique_ptr<IAnimReader> VClone() const;
     void SetBlendingWeight(float w);
     float VGetBlendingWeight() const;
 };

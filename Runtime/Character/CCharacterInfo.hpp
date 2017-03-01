@@ -16,7 +16,7 @@ public:
     {
         std::vector<ResId> x0_part;
         std::vector<ResId> x10_swhc;
-        std::vector<ResId> x20_;
+        std::vector<ResId> x20_elsc;
         std::vector<ResId> x30_elsc;
         CParticleResData(CInputStream& in, u16 tableCount);
     };

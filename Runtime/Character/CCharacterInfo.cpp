@@ -16,9 +16,9 @@ CCharacterInfo::CParticleResData::CParticleResData(CInputStream& in, u16 tableCo
         x10_swhc.push_back(in.readUint32Big());
 
     u32 unkCount = in.readUint32Big();
-    x20_.reserve(unkCount);
+    x20_elsc.reserve(unkCount);
     for (u32 i=0 ; i<unkCount ; ++i)
-        x20_.push_back(in.readUint32Big());
+        x20_elsc.push_back(in.readUint32Big());
 
     if (tableCount > 5)
     {

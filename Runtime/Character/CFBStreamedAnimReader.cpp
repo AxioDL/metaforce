@@ -437,9 +437,9 @@ SAdvancementResults CFBStreamedAnimReader::VReverseView(const CCharAnimTime& tim
     return {};
 }
 
-std::shared_ptr<IAnimReader> CFBStreamedAnimReader::VClone() const
+std::unique_ptr<IAnimReader> CFBStreamedAnimReader::VClone() const
 {
-    return std::make_shared<CFBStreamedAnimReader>(x54_source, xc_curTime);
+    return std::make_unique<CFBStreamedAnimReader>(x54_source, xc_curTime);
 }
 
 void CFBStreamedAnimReader::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const

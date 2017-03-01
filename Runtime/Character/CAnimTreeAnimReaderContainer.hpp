@@ -36,8 +36,8 @@ public:
     CParticleData::EParentedMode VGetParticlePOIState(const char*) const;
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
-    std::shared_ptr<IAnimReader> VClone() const;
-    std::shared_ptr<IAnimReader> VSimplified();
+    std::unique_ptr<IAnimReader> VClone() const;
+    std::pair<std::unique_ptr<IAnimReader>, bool> VSimplified();
     void VSetPhase(float);
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
 };

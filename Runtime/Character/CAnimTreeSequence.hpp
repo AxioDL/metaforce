@@ -39,7 +39,7 @@ public:
     u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-    std::shared_ptr<IAnimReader> VClone() const;
+    std::unique_ptr<IAnimReader> VClone() const;
 };
 
 }

@@ -78,6 +78,7 @@ class CParticlePOINode;
 class CSoundPOINode;
 class IAnimReader;
 struct SAdvancementDeltas;
+struct SAdvancementResults;
 
 class CAnimData
 {
@@ -153,6 +154,7 @@ public:
 
     ResId GetEventResourceIdForAnimResourceId(ResId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);
+    static SAdvancementResults AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time);
     SAdvancementDeltas AdvanceAdditiveAnims(float);
     SAdvancementDeltas UpdateAdditiveAnims(float);
     bool IsAdditiveAnimation(u32) const;

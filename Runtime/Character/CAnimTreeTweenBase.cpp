@@ -49,5 +49,5 @@ zeus::CQuaternion CAnimTreeTweenBase::VGetRotation(const CSegId& seg) const
     return zeus::CQuaternion::slerp(qA, qB, weight);
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeTweenBase::VSimplified() { return {}; }
+std::pair<std::unique_ptr<IAnimReader>, bool> CAnimTreeTweenBase::VSimplified() { return {}; }
 }

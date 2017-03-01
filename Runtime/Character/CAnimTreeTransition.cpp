@@ -49,10 +49,12 @@ CSteadyStateAnimInfo CAnimTreeTransition::VGetSteadyStateAnimInfo() const
     return CSteadyStateAnimInfo(bInfo.IsLooping(), x24_, bInfo.GetOffset());
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeTransition::VClone() const
+std::unique_ptr<IAnimReader> CAnimTreeTransition::VClone() const
 {
-    return std::make_shared<CAnimTreeTransition>(x20_31_b1, std::static_pointer_cast<CAnimTreeNode>(x14_a->Clone()),
-                                                 std::static_pointer_cast<CAnimTreeNode>(x18_b->Clone()), x24_, x2c_,
+    return std::make_unique<CAnimTreeTransition>(x20_31_b1, std::static_pointer_cast<CAnimTreeNode>(
+                                                     std::shared_ptr<IAnimReader>(x14_a->Clone())),
+                                                 std::static_pointer_cast<CAnimTreeNode>(
+                                                     std::shared_ptr<IAnimReader>(x18_b->Clone())), x24_, x2c_,
                                                  x34_, x35_, x1c_flags, x4_name, x36_);
 }
 

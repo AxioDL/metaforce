@@ -86,7 +86,7 @@ public:
     bool VSupportsReverseView() const {return true;}
     void VSetPhase(float);
     SAdvancementResults VReverseView(const CCharAnimTime& time);
-    std::shared_ptr<IAnimReader> VClone() const;
+    std::unique_ptr<IAnimReader> VClone() const;
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);

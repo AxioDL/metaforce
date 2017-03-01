@@ -24,6 +24,8 @@
 
 namespace urde
 {
+static logvisor::Module Log("CAnimData");
+
 rstl::reserved_vector<CBoolPOINode, 8>CAnimData::g_BoolPOINodes;
 rstl::reserved_vector<CInt32POINode, 16> CAnimData::g_Int32POINodes;
 rstl::reserved_vector<CParticlePOINode, 20> CAnimData::g_ParticlePOINodes;
@@ -74,6 +76,23 @@ CAnimData::CAnimData(ResId id,
 
     x108_aabb = xd8_modelData->GetModel()->GetAABB();
     x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
+
+    CHierarchyPoseBuilder pb(xcc_layoutData);
+    pb.BuildNoScale(x224_pose);
+    x220_30_poseBuilt = true;
+
+    if (defaultAnim == -1)
+    {
+        defaultAnim = 0;
+        Log.report(logvisor::Warning, "Character %s has invalid initial animation, so defaulting to first.",
+                   character.GetCharacterName().c_str());
+    }
+
+    std::shared_ptr<CAnimTreeNode> treeNode =
+    GetAnimationManager()->GetAnimationTree(character.GetAnimationIndex(defaultAnim),
+                                            CMetaAnimTreeBuildOrders::NoSpecialOrders());
+    if (treeNode != x1f8_animRoot)
+        x1f8_animRoot = treeNode;
 }
 
 ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
@@ -88,34 +107,79 @@ void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stS
             additive.second.AddToSegStatementSet(list, *xcc_layoutData.GetObj(), stSet);
 }
 
-static void AdvanceAnimationTree(std::weak_ptr<CAnimTreeNode>& anim, const CCharAnimTime& dt)
+SAdvancementResults CAnimData::AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time)
 {
+    SAdvancementResults ret = anim->VAdvanceView(time);
+    std::pair<std::unique_ptr<IAnimReader>, bool> simplified = anim->Simplified();
+    if (simplified.second)
+        anim = std::static_pointer_cast<CAnimTreeNode>(std::shared_ptr<IAnimReader>(std::move(simplified.first)));
+    return ret;
 }
 
 SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt)
 {
     CCharAnimTime time(dt);
 
+    SAdvancementDeltas deltas = {};
+
     for (std::pair<u32, CAdditiveAnimPlayback>& additive : x434_additiveAnims)
     {
+        std::shared_ptr<CAnimTreeNode>& anim = additive.second.GetAnim();
         if (additive.second.IsActive())
         {
             while (time.GreaterThanZero() && std::fabs(time) >= 0.00001f)
             {
-                //additive.second.GetAnim()->GetInt32POIList(time, );
+                x210_passedIntCount += anim->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
+                x20c_passedBoolCount += anim->GetBoolPOIList(time, g_BoolPOINodes.data(), 8, x20c_passedBoolCount, 0);
+                x214_passedParticleCount += anim->GetParticlePOIList(time, g_ParticlePOINodes.data(), 8, x214_passedParticleCount, 0);
+                x218_passedSoundCount += anim->GetSoundPOIList(time, g_SoundPOINodes.data(), 8, x218_passedSoundCount, 0);
+
+                SAdvancementResults results = AdvanceAdditiveAnim(anim, time);
+                deltas.x0_posDelta += results.x8_deltas.x0_posDelta;
+                deltas.xc_rotDelta *= results.x8_deltas.xc_rotDelta;
+                time = results.x0_remTime;
             }
         }
         else
         {
+            CCharAnimTime remTime = anim->VGetTimeRemaining();
+            while (remTime.GreaterThanZero() && std::fabs(remTime) >= 0.00001f)
+            {
+                x210_passedIntCount += anim->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
+                x20c_passedBoolCount += anim->GetBoolPOIList(time, g_BoolPOINodes.data(), 8, x20c_passedBoolCount, 0);
+                x214_passedParticleCount += anim->GetParticlePOIList(time, g_ParticlePOINodes.data(), 8, x214_passedParticleCount, 0);
+                x218_passedSoundCount += anim->GetSoundPOIList(time, g_SoundPOINodes.data(), 8, x218_passedSoundCount, 0);
+
+                SAdvancementResults results = AdvanceAdditiveAnim(anim, time);
+                deltas.x0_posDelta += results.x8_deltas.x0_posDelta;
+                deltas.xc_rotDelta *= results.x8_deltas.xc_rotDelta;
+                CCharAnimTime tmpTime = anim->VGetTimeRemaining();
+                if (tmpTime < results.x0_remTime)
+                    remTime = tmpTime;
+                else
+                    remTime = results.x0_remTime;
+            }
         }
     }
 
-    return {};
+    return deltas;
 }
 
 SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt)
 {
-
+    for (auto it = x434_additiveAnims.begin() ; it != x434_additiveAnims.end() ;)
+    {
+        it->second.Update(dt);
+        CCharAnimTime timeRem = it->second.GetAnim()->VGetTimeRemaining();
+        if (timeRem.EpsilonZero() && it->second.Get20())
+            it->second.FadeOut();
+        if (it->second.GetPhase() == EAdditivePlaybackPhase::FadedOut)
+        {
+            it = x434_additiveAnims.erase(it);
+            continue;
+        }
+        ++it;
+    }
 
     return AdvanceAdditiveAnims(dt);
 }
@@ -153,12 +217,42 @@ bool CAnimData::IsAdditiveAnimationActive(u32 idx) const
     return search->second.IsActive();
 }
 
-void CAnimData::DelAdditiveAnimation(u32)
+void CAnimData::DelAdditiveAnimation(u32 idx)
 {
+    u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+    for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims)
+    {
+        if (anim.first == animIdx &&
+            anim.second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
+            anim.second.GetPhase() != EAdditivePlaybackPhase::FadedOut)
+        {
+            anim.second.FadeOut();
+            return;
+        }
+    }
 }
 
-void CAnimData::AddAdditiveAnimation(u32, float, bool, bool)
+void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool b)
 {
+    u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+    for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims)
+    {
+        if (anim.first == animIdx &&
+            anim.second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
+            anim.second.GetPhase() != EAdditivePlaybackPhase::FadedOut)
+        {
+            anim.second.SetActive(active);
+            anim.second.SetWeight(weight);
+            anim.second.Set20(!anim.second.IsActive() && b);
+            return;
+        }
+    }
+
+    std::shared_ptr<CAnimTreeNode> node =
+    GetAnimationManager()->GetAnimationTree(animIdx, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+
+    const CAdditiveAnimationInfo& info = x0_charFactory->FindAdditiveInfo(animIdx);
+    x434_additiveAnims.emplace_back(std::make_pair(idx, CAdditiveAnimPlayback(node, weight, active, info, b)));
 }
 
 std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager()
@@ -559,23 +653,18 @@ SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat)
 {
     SAdvancementResults results;
-    std::shared_ptr<IAnimReader> simplified;
+    std::pair<std::unique_ptr<IAnimReader>, bool> simplified = {};
 
     if (!x104_)
     {
         results = x1f8_animRoot->VAdvanceView(time);
-        simplified = x1f8_animRoot->VSimplified();
+        simplified = x1f8_animRoot->Simplified();
     }
 
-    if (simplified)
+    if (simplified.second)
     {
-        if (simplified->IsCAnimTreeNode())
-        {
-            if (x1f8_animRoot != simplified)
-                x1f8_animRoot = std::static_pointer_cast<CAnimTreeNode>(std::move(simplified));
-        }
-        else
-            x1f8_animRoot.reset();
+        x1f8_animRoot = std::static_pointer_cast<CAnimTreeNode>(
+            std::shared_ptr<IAnimReader>(std::move(simplified.first)));
     }
 
     if ((x220_28_ || x220_27_) && x210_passedIntCount > 0)

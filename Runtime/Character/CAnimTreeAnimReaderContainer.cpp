@@ -115,14 +115,12 @@ void CAnimTreeAnimReaderContainer::VGetSegStatementSet(const CSegIdList& list, C
     return x14_reader->VGetSegStatementSet(list, setOut, time);
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VClone() const
+std::unique_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VClone() const
 {
-    std::shared_ptr<IAnimReader> ret =
-        std::make_shared<CAnimTreeAnimReaderContainer>(x4_name, x14_reader->Clone(), x1c_animDbIdx);
-    return ret;
+    return std::make_unique<CAnimTreeAnimReaderContainer>(x4_name, x14_reader->Clone(), x1c_animDbIdx);
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VSimplified()
+std::pair<std::unique_ptr<IAnimReader>, bool> CAnimTreeAnimReaderContainer::VSimplified()
 {
     return {};
 }

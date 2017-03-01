@@ -26,7 +26,7 @@ public:
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
     CCharAnimTime VGetTimeRemaining() const;
     CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-    std::shared_ptr<IAnimReader> VClone() const;
+    std::unique_ptr<IAnimReader> VClone() const;
     SAdvancementResults VAdvanceView(const CCharAnimTime& a) const;
     void SetBlendingWeight(float w);
     float VGetBlendingWeight() const;

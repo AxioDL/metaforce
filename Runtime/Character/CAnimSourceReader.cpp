@@ -355,9 +355,9 @@ SAdvancementResults CAnimSourceReader::VReverseView(const CCharAnimTime& dt)
     }
 }
 
-std::shared_ptr<IAnimReader> CAnimSourceReader::VClone() const
+std::unique_ptr<IAnimReader> CAnimSourceReader::VClone() const
 {
-    return std::make_shared<CAnimSourceReader>(*this);
+    return std::make_unique<CAnimSourceReader>(*this);
 }
 
 void CAnimSourceReader::VGetSegStatementSet(const CSegIdList& list,

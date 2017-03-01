@@ -33,7 +33,7 @@ public:
     zeus::CVector3f VGetOffset(const CSegId& seg) const;
     zeus::CQuaternion VGetRotation(const CSegId& seg) const;
 
-    std::shared_ptr<IAnimReader> VSimplified();
+    std::pair<std::unique_ptr<IAnimReader>, bool> VSimplified();
     bool ShouldCullTree() const { return false; }
 
     static void IncAdvancementDepth() { sAdvancementDepth++; }

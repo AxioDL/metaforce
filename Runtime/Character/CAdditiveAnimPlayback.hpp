@@ -27,18 +27,17 @@ public:
     float GetFadeOutDuration() const {return x4_fadeOutDur;}
 };
 
+enum class EAdditivePlaybackPhase
+{
+    None,
+    FadingIn,
+    FadingOut,
+    FadedIn,
+    FadedOut
+};
+
 class CAdditiveAnimPlayback
 {
-public:
-    enum class EAdditivePlaybackPhase
-    {
-        None,
-        FadingIn,
-        FadingOut,
-        FadedIn,
-        FadedOut
-    };
-private:
     CAdditiveAnimationInfo x0_info;
     std::shared_ptr<CAnimTreeNode> x8_anim;
     float xc_targetWeight;
@@ -57,7 +56,12 @@ public:
     void SetWeight(float w);
     float GetTargetWeight() const {return xc_targetWeight;}
     bool IsActive() const {return x14_active;}
+    void SetActive(bool active) {x14_active = active;}
     const std::shared_ptr<CAnimTreeNode>& GetAnim() const {return x8_anim;}
+    std::shared_ptr<CAnimTreeNode>& GetAnim() {return x8_anim;}
+    EAdditivePlaybackPhase GetPhase() const {return x1c_phase;}
+    void Set20(bool b) {x20_ = b;}
+    bool Get20() const {return x20_;}
 };
 
 }

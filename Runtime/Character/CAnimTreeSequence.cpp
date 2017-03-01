@@ -33,7 +33,8 @@ std::shared_ptr<IAnimReader> CAnimTreeSequence::VGetBestUnblendedChild() const
     std::shared_ptr<IAnimReader> ch = x14_child->GetBestUnblendedChild();
     if (!ch)
         return ch;
-    return std::make_shared<CAnimTreeSequence>(std::static_pointer_cast<CAnimTreeNode>(ch->Clone()),
+    return std::make_shared<CAnimTreeSequence>(std::static_pointer_cast<CAnimTreeNode>(
+                                                   std::shared_ptr<IAnimReader>(ch->Clone())),
                                                x28_, x18_, x4_name, x3c_fundamentals, x94_curTime);
 }
 
@@ -88,9 +89,10 @@ u32 CAnimTreeSequence::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode
                        x3c_fundamentals.GetSoundPointsOfInterest(), x94_curTime);
 }
 
-std::shared_ptr<IAnimReader> CAnimTreeSequence::VClone() const
+std::unique_ptr<IAnimReader> CAnimTreeSequence::VClone() const
 {
-    return std::make_shared<CAnimTreeSequence>(std::static_pointer_cast<CAnimTreeNode>(x14_child->Clone()),
+    return std::make_unique<CAnimTreeSequence>(std::static_pointer_cast<CAnimTreeNode>(
+                                                   std::shared_ptr<IAnimReader>(x14_child->Clone())),
                                                x28_, x18_, x4_name, x3c_fundamentals, x94_curTime);
 }
 

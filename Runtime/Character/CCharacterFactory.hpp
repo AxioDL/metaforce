@@ -71,6 +71,7 @@ public:
     ResId GetEventResourceIdForAnimResourceId(ResId animId) const;
 
     const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }
+    const CAdditiveAnimationInfo& FindAdditiveInfo(u32 idx) const;
 };
 
 }

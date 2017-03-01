@@ -19,7 +19,7 @@ public:
 
     CCharAnimTime GetRealLifeTime(const CCharAnimTime&) const;
     void VSetPhase(float);
-    std::shared_ptr<IAnimReader> VSimplified();
+    std::pair<std::unique_ptr<IAnimReader>, bool> VSimplified();
 };
 
 }
