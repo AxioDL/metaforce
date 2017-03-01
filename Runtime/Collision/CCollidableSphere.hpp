@@ -2,6 +2,7 @@
 #define __URDE_CCOLLIDALBESPHERE_HPP
 
 #include "CCollisionPrimitive.hpp"
+#include "zeus/CSphere.hpp"
 
 namespace urde
 {
@@ -17,7 +18,14 @@ class CCollidableSphere : public CCollisionPrimitive
     static const Type sType;
     static u32 sTableIndex;
 
+    zeus::CSphere x10_sphere;
+
 public:
+    CCollidableSphere(const zeus::CSphere&, const CMaterialList&);
+
+    const zeus::CSphere& GetSphere() const;
+    void SetSphereCenter(const zeus::CVector3f&);
+
     virtual u32 GetTableIndex() const;
     virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
     virtual zeus::CAABox CalculateLocalAABox() const;
@@ -29,7 +37,7 @@ public:
     static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
                                    CCollisionInfo&);
     static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
-                                   CCollisionInfo&);
+                                    CCollisionInfo&);
 };
 }
 
