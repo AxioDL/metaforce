@@ -44,6 +44,7 @@
 #include "CScriptCameraBlurKeyframe.hpp"
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptDebris.hpp"
+#include "CScriptSteam.hpp"
 #include "CScriptDistanceFog.hpp"
 #include "CScriptDockAreaChange.hpp"
 #include "CScriptActorRotate.hpp"
@@ -1612,12 +1613,97 @@ CEntity* ScriptLoader::LoadMetroidAlpha(CStateManager& mgr, CInputStream& in, in
 
 CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 39, "DebrisExtended"))
+        return nullptr;
+
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+
+    zeus::CColor c1 = zeus::CColor::ReadRGBABig(in);
+    zeus::CColor c2 = zeus::CColor::ReadRGBABig(in);
+
+    float f10 = in.readFloatBig();
+
+    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+
+    zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
+
+    ResId model = in.readUint32Big();
+
+    CActorParameters aParam = LoadActorParameters(in);
+
+    ResId particle1 = in.readUint32Big();
+    zeus::CVector3f particle1Scale = zeus::CVector3f::ReadBig(in);
+    bool particle1B1 = in.readBool();
+    bool particle1B2 = in.readBool();
+    CScriptDebris::EOrientationType particle1W = CScriptDebris::EOrientationType(in.readUint32Big());
+
+    ResId particle2 = in.readUint32Big();
+    zeus::CVector3f particle2Scale = zeus::CVector3f::ReadBig(in);
+    bool particle2B1 = in.readBool();
+    bool particle2B2 = in.readBool();
+    CScriptDebris::EOrientationType particle2W = CScriptDebris::EOrientationType(in.readUint32Big());
+
+    ResId particle3 = in.readUint32Big();
+    zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in);
+    CScriptDebris::EOrientationType particle3W = CScriptDebris::EOrientationType(in.readUint32Big());
+
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+
+    CModelData modelData;
+    if (g_ResFactory->GetResourceTypeById(model))
+        modelData = CModelData(CStaticRes(model, aHead.x40_scale));
+
+    return new CScriptDebris(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
+                             std::move(modelData), aParam, f1, f2, f3, f4, f5, f6, f7, f8, f9,
+                             c1, c2, f10, aHead.x40_scale, v1, f11, f12, v2,
+                             particle1, particle1Scale, particle1B1, particle1B2, particle1W,
+                             particle2, particle2Scale, particle2B1, particle2B2, particle2W,
+                             particle3, particle3Scale, particle3W, b1, b2, b3, b4);
 }
 
 CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 11, "Steam"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+
+    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
+
+    CDamageInfo dInfo(in);
+
+    zeus::CVector3f v3 = zeus::CVector3f::ReadBig(in);
+
+    ETriggerFlags w1 = ETriggerFlags(in.readUint32Big());
+    bool b1 = in.readBool();
+    u32 w2 = in.readUint32Big();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    bool b2 = in.readBool();
+
+    zeus::CAABox aabb(-v2 * 0.5f, v2 * 0.5f);
+
+    return new CScriptSteam(mgr.AllocateUniqueId(), name, info, v1, aabb, dInfo,
+                            v3, w1, b1, w2, f1, f2, f3, f4, b2);
 }
 
 CEntity* ScriptLoader::LoadRipple(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

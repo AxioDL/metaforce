@@ -525,7 +525,11 @@ struct SpecMP1 : SpecBase
                 }
                 return {SBIG('ANCS'), path.hash().val32()};
             case hecl::BlenderConnection::BlendType::Area:
+            {
+                if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S("PATH")))
+                    return {SBIG('PATH'), path.hash().val32()};
                 return {SBIG('MREA'), path.hash().val32()};
+            }
             case hecl::BlenderConnection::BlendType::World:
             {
                 if (path.getAuxInfo().size())
@@ -713,37 +717,44 @@ struct SpecMP1 : SpecBase
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                   hecl::BlenderToken& btok, FCookProgress progress)
     {
-        std::vector<std::string> meshes = ds.getMeshList();
-        std::vector<Mesh> meshCompiles;
-        meshCompiles.reserve(meshes.size());
-
-        std::experimental::optional<ColMesh> colMesh;
-
-        for (const std::string& mesh : meshes)
+        if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S("PATH")))
         {
-            hecl::SystemStringView meshSys(mesh);
-            if (!mesh.compare("CMESH"))
-            {
-                colMesh = ds.compileColMesh(mesh);
-                progress(_S("Collision Mesh"));
-                continue;
-            }
-            meshCompiles.push_back(ds.compileMesh(
-                mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
-                [&](int surfCount) { progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str()); }));
+            DNAMP1::MREA::CookPath(out, in);
         }
-
-        if (!colMesh)
-            Log.report(logvisor::Fatal, _S("unable to find mesh named 'CMESH' in %s"), in.getAbsolutePath().c_str());
-
-        std::vector<Light> lights = ds.compileLights();
-
-        ds.close();
-
-        if (m_pc)
-            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh, lights, btok);
         else
-            DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
+        {
+            std::vector<std::string> meshes = ds.getMeshList();
+            std::vector<Mesh> meshCompiles;
+            meshCompiles.reserve(meshes.size());
+
+            std::experimental::optional<ColMesh> colMesh;
+
+            for (const std::string& mesh : meshes)
+            {
+                hecl::SystemStringView meshSys(mesh);
+                if (!mesh.compare("CMESH"))
+                {
+                    colMesh = ds.compileColMesh(mesh);
+                    progress(_S("Collision Mesh"));
+                    continue;
+                }
+                meshCompiles.push_back(ds.compileMesh(
+                    mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
+                    [&](int surfCount) { progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str()); }));
+            }
+
+            if (!colMesh)
+                Log.report(logvisor::Fatal, _S("unable to find mesh named 'CMESH' in %s"), in.getAbsolutePath().c_str());
+
+            std::vector<Light> lights = ds.compileLights();
+
+            ds.close();
+
+            if (m_pc)
+                DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh, lights, btok);
+            else
+                DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
+        }
     }
 
     void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,

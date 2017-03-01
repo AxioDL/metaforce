@@ -246,6 +246,17 @@ bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
             pathTag = {SBIG('AGSC'), asGlob.hash().val32()};
             useGlob = true;
         }
+        else if (pathTag.type == SBIG('MREA'))
+        {
+            hecl::ProjectPath subPath = path.ensureAuxInfo(_S("PATH"));
+            SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
+            m_tagToPath[pathTag] = subPath;
+            m_pathToTag[subPath.hash()] = pathTag;
+            WriteTag(cacheWriter, pathTag, subPath);
+#if DUMP_CACHE_FILL
+            DumpCacheAdd(pathTag, subPath);
+#endif
+        }
 
         /* Cache in-memory */
         const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
@@ -889,7 +900,7 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
 FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
 {
     if ((id & 0xffffffff) == 0xffffffff || !id)
-        Log.report(logvisor::Fatal, "attempted to access null id");
+        return {};
 
     std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
     SObjectTag searchTag = {FourCC(), id};

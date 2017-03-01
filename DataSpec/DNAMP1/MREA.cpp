@@ -1,5 +1,6 @@
 #include "MREA.hpp"
 #include "SCLY.hpp"
+#include "PATH.hpp"
 #include "DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
 #include "zeus/Math.hpp"
@@ -433,9 +434,9 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* VISI */
     hecl::ProjectPath visiMetadataPath(areaDirPath, _S("!visi.yaml"));
+    bool visiGood = false;
     if (visiMetadataPath.isFile())
     {
-        bool good = false;
         athena::io::FileReader visiReader(visiMetadataPath.getAbsolutePath());
         athena::io::YAMLDocReader r;
         if (r.parse(&visiReader))
@@ -514,18 +515,19 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                 size_t length = r.length();
                 secs.emplace_back(length, 0);
                 r.readBytesToBuf(secs.back().data(), length);
-                good = true;
+                visiGood = true;
             }
         }
-        if (!good)
-            secs.emplace_back(4, 0);
     }
+    if (!visiGood)
+        secs.emplace_back(4, 0);
 
     /* PATH */
     {
+        UniqueID32 pathId = inPath.ensureAuxInfo(_S("PATH"));
         secs.emplace_back(4, 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
-        w.writeUint32Big(0xffffffff); /* Empty (for now) */
+        pathId.write(w);
     }
 
     /* Assemble sizes and add padding */
@@ -546,6 +548,33 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     athena::io::FileWriter writer(outPath.getAbsolutePath());
     for (const std::vector<uint8_t>& sec : secs)
         writer.writeUBytes(sec.data(), sec.size());
+
+    return true;
+}
+
+bool MREA::CookPath(const hecl::ProjectPath& outPath,
+                    const hecl::ProjectPath& inPath)
+{
+    PATH path = {};
+    path.version = 4;
+    path.unkStructCount = 1;
+    path.unkStructs.emplace_back();
+    PATH::UnknownStruct& s = path.unkStructs.back();
+    s.unk1 = 1;
+    s.unk2[0] = {FLT_MAX, FLT_MAX, FLT_MAX};
+    s.unk2[1] = {FLT_MIN, FLT_MIN, FLT_MIN};
+    s.unk2[2] = {0.f, 0.f, 0.f};
+    for (int i=0 ; i<8 ; ++i)
+        s.unk3[i] = ~0;
+    s.unk4 = 0;
+    s.unk5 = 0;
+
+    athena::io::FileWriter w(outPath.getAbsolutePath());
+    path.write(w);
+    int64_t rem = w.position() % 32;
+    if (rem)
+        for (int64_t i=0 ; i<32-rem ; ++i)
+            w.writeBytes((atInt8*)"\xff", 1);
 
     return true;
 }

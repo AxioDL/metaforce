@@ -95,30 +95,34 @@ public:
     zeus::CAABox x0_aabb;
     Node::ETreeType x18_treeType;
     const u8* x1c_buf;
-    std::unique_ptr<u8[]> x20_treeBuf;
+    const u8* x20_treeBuf;
     u32 x24_matCount;
-    std::vector<u32> x28_materials;
+    const u32* x28_materials;
     const u8* x2c_vertMats;
     const u8* x30_edgeMats;
     const u8* x34_polyMats;
     u32 x38_edgeCount;
-    std::vector<CCollisionEdge> x3c_edges;
+    const CCollisionEdge* x3c_edges;
     u32 x40_polyCount;
-    std::vector<u16> x44_polyEdges;
+    const u16* x44_polyEdges;
     u32 x48_vertCount;
-    std::vector<zeus::CVector3f> x4c_verts;
+    const float* x4c_verts;
 
     void SwapTreeNode(u8* ptr, Node::ETreeType type);
 
 public:
-    CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, const u8* buf, std::unique_ptr<u8[]>&& treeBuf,
+    CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, const u8* buf, const u8* treeBuf,
                  u32 matCount, const u32* materials, const u8* vertMats, const u8* edgeMats, const u8* polyMats,
                  u32 edgeCount, const CCollisionEdge* edges, u32 polyCount, const u16* polyEdges,
-                 u32 vertCount, const zeus::CVector3f* verts);
+                 u32 vertCount, const float* verts);
 
-    Node GetRootNode() const { return Node(x20_treeBuf.get(), x0_aabb, *this, x18_treeType); }
-    const u8* GetTreeMemory() const { return x20_treeBuf.get(); }
-    const zeus::CVector3f& GetVert(int idx) const { return x4c_verts[idx]; }
+    Node GetRootNode() const { return Node(x20_treeBuf, x0_aabb, *this, x18_treeType); }
+    const u8* GetTreeMemory() const { return x20_treeBuf; }
+    zeus::CVector3f GetVert(int idx) const
+    {
+        const float* vert = &x4c_verts[idx * 3];
+        return zeus::CVector3f(vert[0], vert[1], vert[2]);
+    }
     const CCollisionEdge& GetEdge(int idx) const { return x3c_edges[idx]; }
     u32 GetEdgeMaterial(int idx) const { return x28_materials[x30_edgeMats[idx]]; }
     u32 GetTriangleMaterial(int idx) const { return x28_materials[x34_polyMats[idx]]; }
@@ -129,7 +133,7 @@ public:
     const u16* GetTriangleVertexIndices(u16 idx) const;
     const u16* GetTriangleEdgeIndices(u16 idx) const;
 
-    static std::unique_ptr<CAreaOctTree> MakeFromMemory(const void* buf, unsigned int size);
+    static std::unique_ptr<CAreaOctTree> MakeFromMemory(const u8* buf, unsigned int size);
 };
 
 }

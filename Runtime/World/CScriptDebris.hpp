@@ -23,15 +23,14 @@ public:
                   const CActorParameters&, ResId, const zeus::CVector3f&, float, const zeus::CVector3f&,
                   const zeus::CColor&, float, float, float, EScaleType, bool, bool, bool);
 
-    void Accept(IVisitor& visitor);
-#if 0
     CScriptDebris(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, float, float, float, float, float, float, float, float, float,
                   const zeus::CColor&, const zeus::CColor&, float, const zeus::CVector3f&, const zeus::CVector3f&,
                   float, float, const zeus::CVector3f&, u32, const zeus::CVector3f&, bool, bool, EOrientationType, u32,
                   const zeus::CVector3f&, bool, bool, EOrientationType, u32, const zeus::CVector3f&, EOrientationType,
-                  bool, bool, bool);
-#endif
+                  bool, bool, bool, bool);
+
+    void Accept(IVisitor& visitor);
 };
 }
 
