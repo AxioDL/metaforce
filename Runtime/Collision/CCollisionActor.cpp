@@ -1,5 +1,10 @@
 #include "CCollisionActor.hpp"
+#include "Camera/CGameCamera.hpp"
+#include "CStateManager.hpp"
 #include "World/CActorParameters.hpp"
+#include "Collision/CCollidableOBBTreeGroup.hpp"
+#include "Collision/CCollidableSphere.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,23 +17,53 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
                 zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+, x258_primitiveType(EPrimitiveType::OBBTreeGroup)
+, x25c_owner(uid2)
+, x260_boxSize(vec1)
+, x26c_(vec2)
+, x278_obbContainer(new CCollidableOBBTreeGroupContainer(vec1, vec2))
+, x27c_obbTreeGroupPrimitive(new CCollidableOBBTreeGroup(x278_obbContainer.get(), GetMaterialList()))
 {
+    SetCoefficientOfRestitutionModifier(0.5f);
+    SetCallTouch(false);
+    SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::ThirtyEight}));
 }
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& vec, bool active,
-                                 float mass)
+CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& boxSize,
+                                 bool active, float mass)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
                 zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+, x258_primitiveType(EPrimitiveType::AABox)
+, x25c_owner(uid2)
+, x260_boxSize(boxSize)
+, x280_aaboxPrimitive(new CCollidableAABox(zeus::CAABox(-0.5f * boxSize, 0.5f * boxSize),
+                                           CMaterialList(EMaterialTypes::Solid, EMaterialTypes::ThirtyEight)))
 {
+    SetCoefficientOfRestitutionModifier(0.5f);
+    SetCallTouch(false);
+    SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::ThirtyEight}));
 }
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float, float mass)
+CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float radius, float mass)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
                 zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+, x258_primitiveType(EPrimitiveType::Sphere)
+, x25c_owner(uid2)
+, x284_spherePrimitive(new CCollidableSphere(zeus::CSphere(zeus::CVector3f::skZero, radius),
+                                             CMaterialList(EMaterialTypes::ThirtyEight, EMaterialTypes::Solid)))
+, x288_sphereRadius(radius)
 {
+    SetCoefficientOfRestitutionModifier(0.5f);
+    SetCallTouch(false);
+    SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::ThirtyEight}));
 }
+
+void CCollisionActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
 
@@ -43,4 +78,59 @@ const CDamageVulnerability* CCollisionActor::GetDamageVulnerability(const zeus::
 }
 
 void CCollisionActor::SetDamageVulnerability(const CDamageVulnerability& vuln) { x294_damageVuln = vuln; }
+
+zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateManager& mgr)
+{
+    const CGameCamera* gameCamera = static_cast<const CGameCamera*>(mgr.GetCameraManager()->GetCurrentCamera(mgr));
+    return {};
+}
+
+const CCollisionPrimitive* CCollisionActor::GetCollisionPrimitive() const
+{
+    if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
+        return x27c_obbTreeGroupPrimitive.get();
+    if (x258_primitiveType == EPrimitiveType::AABox)
+        return x280_aaboxPrimitive.get();
+    return x284_spherePrimitive.get();
+}
+
+zeus::CTransform CCollisionActor::GetPrimitiveTransform() const
+{
+    zeus::CTransform xf = x34_transform;
+    xf.origin = CPhysicsActor::GetPrimitiveTransform().origin;
+    return xf;
+}
+
+rstl::optional_object<zeus::CAABox> CCollisionActor::GetTouchBounds() const
+{
+    rstl::optional_object<zeus::CAABox> aabox;
+    if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
+        aabox = {x27c_obbTreeGroupPrimitive->CalculateAABox(x34_transform)};
+    else if (x258_primitiveType == EPrimitiveType::AABox)
+        aabox = {x280_aaboxPrimitive->CalculateAABox(x34_transform)};
+    else if (x258_primitiveType == EPrimitiveType::Sphere)
+        aabox = {x280_aaboxPrimitive->CalculateAABox(x34_transform)};
+
+    aabox->accumulateBounds(aabox->max + x304_extendedTouchBounds);
+    aabox->accumulateBounds(aabox->min - x304_extendedTouchBounds);
+
+    return aabox;
+}
+
+void CCollisionActor::OnScanStateChanged(CActor::EScanState state, CStateManager& mgr)
+{
+    TCastToPtr<CActor> actor = mgr.ObjectById(x25c_owner);
+    if (actor)
+        actor->OnScanStateChanged(state, mgr);
+
+    CActor::OnScanStateChanged(state, mgr);
+}
+
+void CCollisionActor::Touch(CActor& actor, CStateManager& mgr)
+{
+    x2fc_lastTouched = actor.GetUniqueId();
+    mgr.SendScriptMsgAlways(x25c_owner, GetUniqueId(), EScriptObjectMessage::InternalMessage08);
+}
+
+zeus::CVector3f CCollisionActor::GetOrbitPosition(const CStateManager&) const { return GetTouchBounds()->center(); }
 }

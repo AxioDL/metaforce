@@ -396,7 +396,7 @@ public:
     float GetStepDownHeight() const;
     void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool);
     zeus::CTransform CreateTransformFromMovementDirection() const;
-    const CCollisionPrimitive& GetCollisionPrimitive() const;
+    const CCollisionPrimitive* GetCollisionPrimitive() const;
     zeus::CTransform GetPrimitiveTransform() const;
     bool CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
     float GetActualFirstPersonMaxVelocity() const;

@@ -114,7 +114,7 @@ public:
     void Render(const CStateManager& mgr) const;
     zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
     zeus::CVector3f GetAimPosition(const CStateManager&, float val) const;
-    virtual const CCollisionPrimitive& GetCollisionPrimitive() const;
+    virtual const CCollisionPrimitive* GetCollisionPrimitive() const;
     virtual zeus::CTransform GetPrimitiveTransform() const;
     virtual void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&);
     virtual float GetStepUpHeight() const;
@@ -135,6 +135,7 @@ public:
     CMotionState GetMotionState() const;
     void SetMotionState(const CMotionState& mst);
     void SetInertiaTensorScalar(float tensor);
+    void SetCoefficientOfRestitutionModifier(float);
     void SetMass(float mass);
     void SetAngularVelocityOR(const zeus::CAxisAngle& angVel);
     zeus::CAxisAngle GetAngularVelocityOR() const;

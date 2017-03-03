@@ -288,7 +288,7 @@ void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool) {}
 
 zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const { return {}; }
 
-const CCollisionPrimitive& CPlayer::GetCollisionPrimitive() const { return CPhysicsActor::GetCollisionPrimitive(); }
+const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const { return CPhysicsActor::GetCollisionPrimitive(); }
 
 zeus::CTransform CPlayer::GetPrimitiveTransform() const { return {}; }
 

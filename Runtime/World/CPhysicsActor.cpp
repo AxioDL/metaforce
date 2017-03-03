@@ -39,7 +39,7 @@ zeus::CVector3f CPhysicsActor::GetAimPosition(const CStateManager&, float dt) co
 
 void CPhysicsActor::CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&) {}
 
-const CCollisionPrimitive& CPhysicsActor::GetCollisionPrimitive() const { return x1c0_collisionPrimitive; }
+const CCollisionPrimitive* CPhysicsActor::GetCollisionPrimitive() const { return &x1c0_collisionPrimitive; }
 
 zeus::CTransform CPhysicsActor::GetPrimitiveTransform() const
 {
@@ -70,7 +70,7 @@ void CPhysicsActor::SetBoundingBox(const zeus::CAABox& box)
 
 zeus::CAABox CPhysicsActor::GetMotionVolume(float dt) const
 {
-    zeus::CAABox aabox = GetCollisionPrimitive().CalculateAABox(GetPrimitiveTransform());
+    zeus::CAABox aabox = GetCollisionPrimitive()->CalculateAABox(GetPrimitiveTransform());
     zeus::CVector3f velocity = CalculateNewVelocityWR_UsingImpulses();
 
     const zeus::CVector3f dv = (dt * velocity);
@@ -142,6 +142,11 @@ void CPhysicsActor::SetInertiaTensorScalar(float tensor)
         tensor = 1.0f;
     xf0_inertiaTensor = tensor;
     xf4_inertiaTensorRecip = 1.0f / tensor;
+}
+
+void CPhysicsActor::SetCoefficientOfRestitutionModifier(float mod)
+{
+    x244_restitutionCoefModifier = mod;
 }
 
 void CPhysicsActor::SetMass(float mass)

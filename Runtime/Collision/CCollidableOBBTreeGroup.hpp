@@ -9,15 +9,25 @@
 
 namespace urde
 {
+class CCollidableOBBTreeGroupContainer
+{
+    friend class CCollidableOBBTreeGroup;
+    std::vector<std::unique_ptr<COBBTree>> x0_trees;
+    std::vector<zeus::CAABox> x10_aabbs;
+    zeus::CAABox x20_aabox;
+public:
+    CCollidableOBBTreeGroupContainer(CInputStream& in);
+    CCollidableOBBTreeGroupContainer(const zeus::CVector3f&, const zeus::CVector3f&);
+};
+
 class CCollidableOBBTreeGroup : public CCollisionPrimitive
 {
     static const Type sType;
     static u32 sTableIndex;
-    std::vector<std::unique_ptr<COBBTree>> x0_trees;
-    std::vector<zeus::CAABox> x10_aabbs;
-
+    const CCollidableOBBTreeGroupContainer* x10_container;
 public:
     CCollidableOBBTreeGroup(CInputStream& in);
+    CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer*, const CMaterialList&);
     virtual ~CCollidableOBBTreeGroup() {}
 
     void ResetTestStats() const;
