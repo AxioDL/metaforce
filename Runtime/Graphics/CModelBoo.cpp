@@ -25,6 +25,27 @@ void CBooModel::ClearModelUniformCounters()
         model->ClearUniformCounter();
 }
 
+zeus::CVector3f CBooModel::g_PlayerPosition = {};
+float CBooModel::g_ModSeconds = 0.f;
+float CBooModel::g_TransformedTime = 0.f;
+float CBooModel::g_TransformedTime2 = 0.f;
+void CBooModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos)
+{
+    g_PlayerPosition = pos;
+    KillCachedViewDepState();
+    u32 modMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count() % u64(100000.f * 4.f * M_PIF / 3.f);
+    g_ModSeconds = modMillis / 1000.f;
+    g_TransformedTime = 1.f / -(0.05f * std::sin(g_ModSeconds * 1.5f) - 1.f);
+    g_TransformedTime2 = 1.f / -(0.015f * std::sin(g_ModSeconds * 1.5f + 1.f) - 1.f);
+}
+
+CBooModel* CBooModel::g_LastModelCached = nullptr;
+void CBooModel::KillCachedViewDepState()
+{
+    g_LastModelCached = nullptr;
+}
+
 CBooModel::~CBooModel()
 {
     if (m_prev)
@@ -213,13 +234,19 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
     return &newInst;
 }
 
-void CBooModel::MakeTexuresFromMats(const MaterialSet& matSet,
-                                    std::vector<TCachedToken<CTexture>>& toksOut,
-                                    IObjectStore& store)
+void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
+                                     std::vector<TCachedToken<CTexture>>& toksOut,
+                                     IObjectStore& store)
 {
     toksOut.reserve(matSet.head.textureIDs.size());
     for (const DataSpec::UniqueID32& id : matSet.head.textureIDs)
         toksOut.emplace_back(store.GetObj({SBIG('TXTR'), id.toUint32()}));
+}
+
+void CBooModel::MakeTexturesFromMats(std::vector<TCachedToken<CTexture>>& toksOut,
+                                     IObjectStore& store)
+{
+    MakeTexturesFromMats(*x4_matSet, toksOut, store);
 }
 
 void CBooModel::ActivateLights(const std::vector<CLight>& lights)
@@ -694,7 +721,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
         CBooModel::SShader& shader = x18_matSets.back();
         athena::io::MemoryReader r(sec, matSetSz);
         shader.m_matSet.read(r);
-        CBooModel::MakeTexuresFromMats(shader.m_matSet, shader.x0_textures, *store);
+        CBooModel::MakeTexturesFromMats(shader.m_matSet, shader.x0_textures, *store);
     }
 
     hecl::HMDLMeta hmdlMeta;

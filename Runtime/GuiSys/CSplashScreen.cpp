@@ -66,7 +66,7 @@ void CSplashScreen::Draw() const
         color.a = x18_splashTimeout * 2.f;
 
     zeus::CRectangle rect;
-    float aspect = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
     rect.size.x = m_quad.GetTex()->GetWidth() / (480.f * aspect);
     rect.size.y = m_quad.GetTex()->GetHeight() / 480.f;
     rect.position.x = 0.5f - rect.size.x / 2.f;

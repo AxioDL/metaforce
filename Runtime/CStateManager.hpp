@@ -107,8 +107,8 @@ class CStateManager
         CActorModelParticles xf168_actorModelParticles;
         CRumbleManager xf250_rumbleManager;
         u32 xf344_ = 0;
-        u32 xf370_ = 0;
-        u32 xf39c_ = 0;
+        rstl::reserved_vector<TUniqueId, 20> xf370_;
+        rstl::reserved_vector<TUniqueId, 20> xf39c_;
     };
     std::unique_ptr<CStateManagerContainer> x86c_stateManagerContainer;
     CCameraManager* x870_cameraManager = nullptr;
@@ -134,7 +134,7 @@ class CStateManager
     //u32 x8d4_updateFrameIdx = 0;
     //u32 x8d8_drawFrameIdx = 0;
 
-    std::vector<CLight> x8dc_dynamicLights;
+    std::vector<CLight> x8e0_dynamicLights;
 
     TLockedToken<CTexture> x8f0_shadowTex; /* DefaultShadow in MiscData */
     CRandom16 x8fc_random;
@@ -191,8 +191,7 @@ class CStateManager
     u32 xf20_ = 0;
     float xf24_thermColdScale1 = 0.f;
     float xf28_thermColdScale2 = 0.f;
-    float xf2c_ = 1.f;
-    float xf30_ = 1.f;
+    zeus::CVector2f xf2c_viewportScale = {1.f, 1.f};
     u32 xf34_ = 2;
     TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
     std::list<u32> xf3c_;
@@ -243,7 +242,7 @@ public:
     void AddDrawableActorPlane(const CActor& actor, const zeus::CPlane&, const zeus::CAABox& aabb) const;
     void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
     bool SpecialSkipCinematic();
-    void GetVisAreaId() const;
+    TAreaId GetVisAreaId() const;
     void GetWeaponIdCount(TUniqueId, EWeaponType);
     void RemoveWeaponId(TUniqueId, EWeaponType);
     void AddWeaponId(TUniqueId, EWeaponType);
@@ -261,11 +260,12 @@ public:
     void CacheReflection();
     bool CanCreateProjectile(TUniqueId, EWeaponType, int) const;
     const CGameLightList* GetDynamicLightList() const;
-    void BuildDynamicLightListForWorld(std::vector<CLight>& listOut) const;
+    void BuildDynamicLightListForWorld();
     void DrawDebugStuff() const;
     void RenderCamerasAndAreaLights() const;
     void DrawE3DeathEffect() const;
     void DrawAdditionalFilters() const;
+    zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
     void DrawWorld() const;
     void SetupFogForArea(const CGameArea& area) const;
     void PreRender();

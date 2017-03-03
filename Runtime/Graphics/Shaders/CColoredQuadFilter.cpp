@@ -39,12 +39,12 @@ void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle&
 
 void CWideScreenFilter::draw(const zeus::CColor& color, float t)
 {
-    float aspect = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
     if (aspect < 1.7777f)
     {
-        float targetHeight = CGraphics::g_ViewportResolution.x / 1.7777f;
-        float delta = (CGraphics::g_ViewportResolution.y - targetHeight) * t / 2.f;
-        delta /= float(CGraphics::g_ViewportResolution.y);
+        float targetHeight = g_Viewport.x8_width / 1.7777f;
+        float delta = (g_Viewport.xc_height - targetHeight) * t / 2.f;
+        delta /= float(g_Viewport.xc_height);
         zeus::CRectangle rect(0.f, 0.f, 1.f, delta);
         m_bottom.draw(color, rect);
         rect.position.y = 1.f - delta;
@@ -54,14 +54,14 @@ void CWideScreenFilter::draw(const zeus::CColor& color, float t)
     
 float CWideScreenFilter::SetViewportToMatch(float t)
 {
-    float aspect = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
     if (aspect < 1.7777f)
     {
-        float targetHeight = CGraphics::g_ViewportResolution.x / 1.7777f;
-        float delta = (CGraphics::g_ViewportResolution.y - targetHeight) * t / 2.f;
+        float targetHeight = g_Viewport.x8_width / 1.7777f;
+        float delta = (g_Viewport.xc_height - targetHeight) * t / 2.f;
         boo::SWindowRect rect = {};
-        rect.size[0] = CGraphics::g_ViewportResolution.x;
-        rect.size[1] = CGraphics::g_ViewportResolution.y - delta * 2.f;
+        rect.size[0] = g_Viewport.x8_width;
+        rect.size[1] = g_Viewport.xc_height - delta * 2.f;
         rect.location[1] = delta;
         CGraphics::g_CroppedViewport = rect;
         CGraphics::g_BooMainCommandQueue->setViewport(rect);
@@ -77,8 +77,8 @@ float CWideScreenFilter::SetViewportToMatch(float t)
 void CWideScreenFilter::SetViewportToFull()
 {
     boo::SWindowRect rect = {};
-    rect.size[0] = CGraphics::g_ViewportResolution.x;
-    rect.size[1] = CGraphics::g_ViewportResolution.y;
+    rect.size[0] = g_Viewport.x8_width;
+    rect.size[1] = g_Viewport.xc_height;
     CGraphics::g_CroppedViewport = rect;
     CGraphics::g_BooMainCommandQueue->setViewport(rect);
 }

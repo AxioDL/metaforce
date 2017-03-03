@@ -77,7 +77,7 @@ void CGuiSys::OnViewportResize()
 
 void CGuiSys::ViewportResizeFrame(CGuiFrame* frame)
 {
-    float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+    float vpAspectRatio = g_Viewport.x8_width / float(g_Viewport.xc_height);
     if (frame->m_aspectConstraint > 0.f)
     {
         float hPad, vPad;

@@ -61,6 +61,7 @@ public:
     TUniqueId GetFirstObjectIndex() const { return x2008_firstId; }
     TUniqueId GetNextObjectIndex(TUniqueId prev) const { return x0_list[prev & 0x3ff].next; }
     virtual bool IsQualified(const CEntity&);
+    u16 size() const { return x200a_count; }
 };
 
 }

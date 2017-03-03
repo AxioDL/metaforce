@@ -53,10 +53,10 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
 
 void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale)
 {
-    float xFac = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_ViewportResolution.x);
-    float yFac = CGraphics::g_CroppedViewport.x10_height / float(CGraphics::g_ViewportResolution.y);
-    float xBias = CGraphics::g_CroppedViewport.x4_left / float(CGraphics::g_ViewportResolution.x);
-    float yBias = CGraphics::g_CroppedViewport.x8_top / float(CGraphics::g_ViewportResolution.y);
+    float xFac = CGraphics::g_CroppedViewport.xc_width / float(g_Viewport.x8_width);
+    float yFac = CGraphics::g_CroppedViewport.x10_height / float(g_Viewport.xc_height);
+    float xBias = CGraphics::g_CroppedViewport.x4_left / float(g_Viewport.x8_width);
+    float yBias = CGraphics::g_CroppedViewport.x8_top / float(g_Viewport.xc_height);
 
     Vert verts[4] =
     {

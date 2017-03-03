@@ -25,12 +25,10 @@ zeus::CTransform CGraphics::g_ViewMatrix;
 zeus::CVector3f CGraphics::g_ViewPoint;
 zeus::CTransform CGraphics::g_GXViewPointMatrix;
 zeus::CTransform CGraphics::g_CameraMatrix;
-zeus::CVector2i CGraphics::g_ViewportResolution;
-zeus::CVector2i CGraphics::g_ViewportResolutionHalf;
 SClipScreenRect CGraphics::g_CroppedViewport;
 int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
-SViewport gViewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
+SViewport g_Viewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
 
 void CGraphics::DisableAllLights()
 {
@@ -380,8 +378,8 @@ void CGraphics::FlushProjection()
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point)
 {
     zeus::CVector3f projPt = GetPerspectiveProjectionMatrix(false).multiplyOneOverW(point);
-    return {int(projPt.x * g_ViewportResolutionHalf.x) + g_ViewportResolutionHalf.x,
-            g_ViewportResolution.y - (int(projPt.y * g_ViewportResolutionHalf.y) + g_ViewportResolutionHalf.y)};
+    return {int(projPt.x * g_Viewport.x10_halfWidth) + g_Viewport.x10_halfWidth,
+            g_Viewport.x14_halfHeight - (int(projPt.y * g_Viewport.x14_halfHeight) + g_Viewport.x14_halfHeight)};
 }
 
 SClipScreenRect CGraphics::ClipScreenRectFromMS(const zeus::CVector3f& p1,
@@ -413,7 +411,7 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
     int minY2 = minY & 0xfffffffe;
 
 
-    if (minX2 >= g_ViewportResolution.x)
+    if (minX2 >= g_Viewport.x8_width)
         return {};
 
     int maxX = abs(sp1.x - sp2.x) + minX;
@@ -422,10 +420,10 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
         return {};
 
     int finalMinX = std::max(minX, 0 /* ViewportX origin */);
-    int finalMaxX = std::min(maxX, g_ViewportResolution.x);
+    int finalMaxX = std::min(maxX, int(g_Viewport.x8_width));
 
 
-    if (minY2 >= g_ViewportResolution.y)
+    if (minY2 >= g_Viewport.xc_height)
         return {};
 
     int maxY = abs(sp1.y - sp2.y) + minY;
@@ -434,13 +432,13 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
         return {};
 
     int finalMinY = std::max(minY, 0 /* ViewportY origin */);
-    int finalMaxY = std::min(maxY, g_ViewportResolution.y);
+    int finalMaxY = std::min(maxY, int(g_Viewport.xc_height));
 
     int width = maxX2 - minX2;
     int height = maxY2 - minY2;
     return {true, minX2, minY2, width, height, width,
-            minX2 / float(g_ViewportResolution.x), maxX2 / float(g_ViewportResolution.x),
-            1.f - maxY2 / float(g_ViewportResolution.y), 1.f - minY2 / float(g_ViewportResolution.y)};
+            minX2 / float(g_Viewport.x8_width), maxX2 / float(g_Viewport.x8_width),
+            1.f - maxY2 / float(g_Viewport.xc_height), 1.f - minY2 / float(g_Viewport.xc_height)};
 
 }
 
@@ -452,11 +450,13 @@ zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3
 
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 {
-    g_ViewportResolution = res;
+    g_Viewport.x8_width = res.x;
+    g_Viewport.xc_height = res.y;
     g_CroppedViewport = SClipScreenRect();
     g_CroppedViewport.xc_width = res.x;
     g_CroppedViewport.x10_height = res.y;
-    g_ViewportResolutionHalf = {res.x / 2, res.y / 2};
+    g_Viewport.x10_halfWidth = res.x / 2.f;
+    g_Viewport.x14_halfHeight = res.y / 2.f;
     if (g_GuiSys)
         g_GuiSys->OnViewportResize();
 }

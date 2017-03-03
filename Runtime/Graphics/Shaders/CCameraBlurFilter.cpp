@@ -21,15 +21,15 @@ void CCameraBlurFilter::draw(float amount)
         return;
 
     SClipScreenRect clipRect = {};
-    clipRect.xc_width = CGraphics::g_ViewportResolution.x;
-    clipRect.x10_height = CGraphics::g_ViewportResolution.y;
+    clipRect.xc_width = g_Viewport.x8_width;
+    clipRect.x10_height = g_Viewport.xc_height;
     CGraphics::ResolveSpareTexture(clipRect);
     float aspect = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_CroppedViewport.x10_height);
     
-    float xFac = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_ViewportResolution.x);
-    float yFac = CGraphics::g_CroppedViewport.x10_height / float(CGraphics::g_ViewportResolution.y);
-    float xBias = CGraphics::g_CroppedViewport.x4_left / float(CGraphics::g_ViewportResolution.x);
-    float yBias = CGraphics::g_CroppedViewport.x8_top / float(CGraphics::g_ViewportResolution.y);
+    float xFac = CGraphics::g_CroppedViewport.xc_width / float(g_Viewport.x8_width);
+    float yFac = CGraphics::g_CroppedViewport.x10_height / float(g_Viewport.xc_height);
+    float xBias = CGraphics::g_CroppedViewport.x4_left / float(g_Viewport.x8_width);
+    float yBias = CGraphics::g_CroppedViewport.x8_top / float(g_Viewport.xc_height);
     
     Vert verts[4] =
     {

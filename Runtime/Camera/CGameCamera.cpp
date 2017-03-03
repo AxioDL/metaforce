@@ -101,16 +101,6 @@ zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& a,
     return xfCpy;
 }
 
-float CGameCamera::GetNearClipDistance() const { return x160_znear; }
-
-float CGameCamera::GetFarClipDistance() const { return x164_zfar; }
-
-float CGameCamera::GetAspectRatio() const { return x168_aspect; }
-
-TUniqueId CGameCamera::GetWatchedObject() const { return xe8_watchedObject; }
-
-float CGameCamera::GetFov() const { return x15c_currentFov; }
-
 void CGameCamera::UpdatePerspective(float dt)
 {
     if (x174_ > 0.f)

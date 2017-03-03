@@ -141,9 +141,12 @@ void Buckets::Init()
 }
 
 CBooRenderer::CAreaListItem::CAreaListItem
-(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
+(const std::vector<CMetroidModelInstance>* geom,
+ const CAreaRenderOctTree* octTree,
+ std::vector<TCachedToken<CTexture>>&& textures,
  std::vector<CBooModel*>&& models, int areaIdx)
-: x0_geometry(geom), x4_octTree(octTree), x10_models(std::move(models)), x18_areaIdx(areaIdx) {}
+ : x0_geometry(geom), x4_octTree(octTree), x8_textures(std::move(textures)),
+   x10_models(std::move(models)), x18_areaIdx(areaIdx) {}
 
 CBooRenderer::CAreaListItem::~CAreaListItem() {}
 
@@ -152,7 +155,7 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
     std::vector<CLight> thisLights;
     thisLights.reserve(4);
 
-    if (x304_lights.size())
+    if (x300_dynamicLights.size())
     {
         /*
         void* unk3 = nullptr;
@@ -168,7 +171,7 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
         float lightRads[] = {-1.f, -1.f, -1.f, -1.f};
         for (int i=0 ; i<4 ; ++i)
         {
-            for (CLight& light : x304_lights)
+            for (CLight& light : x300_dynamicLights)
             {
                 /*
                 if (unk3)
@@ -337,14 +340,16 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
     auto search = FindStaticGeometry(geometry);
     if (search == x1c_areaListItems.end())
     {
+        std::vector<TCachedToken<CTexture>> textures;
         std::vector<CBooModel*> models;
         if (geometry->size())
         {
+            (*geometry)[0].m_instance->MakeTexturesFromMats(textures, xc_store);
             models.reserve(geometry->size());
             for (const CMetroidModelInstance& inst : *geometry)
                 models.push_back(inst.m_instance);
         }
-        x1c_areaListItems.emplace_back(geometry, octTree, std::move(models), areaIdx);
+        x1c_areaListItems.emplace_back(geometry, octTree, std::move(textures), std::move(models), areaIdx);
     }
 }
 
@@ -532,10 +537,10 @@ void CBooRenderer::SetPerspective(float fovy, float aspect, float znear, float z
 
 zeus::CRectangle CBooRenderer::SetViewportOrtho(bool centered, float znear, float zfar)
 {
-    float left = centered ? CGraphics::g_ViewportResolutionHalf.x : 0;
-    float bottom = centered ? CGraphics::g_ViewportResolutionHalf.y : 0;
-    float top = centered ? CGraphics::g_ViewportResolutionHalf.y : CGraphics::g_ViewportResolution.y;
-    float right = centered ? CGraphics::g_ViewportResolutionHalf.x : CGraphics::g_ViewportResolution.x;
+    float left = centered ? g_Viewport.x10_halfWidth : 0;
+    float bottom = centered ? g_Viewport.x14_halfHeight : 0;
+    float top = centered ? g_Viewport.x14_halfHeight : g_Viewport.xc_height;
+    float right = centered ? g_Viewport.x10_halfWidth : g_Viewport.x8_width;
 
     CGraphics::SetOrtho(left, right, top, bottom, znear, zfar);
     CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
@@ -561,7 +566,7 @@ void CBooRenderer::SetDebugOption(EDebugOption, int)
 
 void CBooRenderer::BeginScene()
 {
-    CGraphics::SetViewport(0, 0, CGraphics::g_ViewportResolution.x, CGraphics::g_ViewportResolution.y);
+    CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
     CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());
     CGraphics::BeginScene();
@@ -697,6 +702,29 @@ void CBooRenderer::DoThermalBlendHot()
 u32 CBooRenderer::GetStaticWorldDataSize()
 {
     return 0;
+}
+
+void CBooRenderer::PrepareDynamicLights(const std::vector<CLight>& lights)
+{
+    x300_dynamicLights = lights;
+    for (CAreaListItem& area : x1c_areaListItems)
+    {
+        if (const CAreaRenderOctTree* arot = area.x4_octTree)
+        {
+            area.x1c_lightOctreeWords.clear();
+            area.x1c_lightOctreeWords.resize(arot->x14_bitmapWordCount * lights.size());
+            u32* wordPtr = area.x1c_lightOctreeWords.data();
+            for (const CLight& light : lights)
+            {
+                float radius = light.GetRadius();
+                zeus::CVector3f vMin = light.GetPosition() - radius;
+                zeus::CVector3f vMax = light.GetPosition() + radius;
+                zeus::CAABox aabb(vMin, vMax);
+                arot->FindOverlappingModels(wordPtr, aabb);
+                wordPtr += arot->x14_bitmapWordCount;
+            }
+        }
+    }
 }
 
 }

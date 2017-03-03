@@ -128,15 +128,23 @@ private:
 
     void VerifyCurrentShader(int shaderIdx);
 
+    static zeus::CVector3f g_PlayerPosition;
+    static float g_ModSeconds;
+    static float g_TransformedTime;
+    static float g_TransformedTime2;
+    static CBooModel* g_LastModelCached;
+
 public:
     ~CBooModel();
     CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
               size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, int numInsts);
 
-    static void MakeTexuresFromMats(const MaterialSet& matSet,
-                                    std::vector<TCachedToken<CTexture>>& toksOut,
-                                    IObjectStore& store);
+    static void MakeTexturesFromMats(const MaterialSet& matSet,
+                                     std::vector<TCachedToken<CTexture>>& toksOut,
+                                     IObjectStore& store);
+    void MakeTexturesFromMats(std::vector<TCachedToken<CTexture>>& toksOut,
+                              IObjectStore& store);
 
     bool IsOpaque() const {return x3c_firstSortedSurface == nullptr;}
     void ActivateLights(const std::vector<CLight>& lights);
@@ -167,6 +175,9 @@ public:
 
     static bool g_DrawingOccluders;
     static void SetDrawingOccluders(bool occ) {g_DrawingOccluders = occ;}
+
+    static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos);
+    static void KillCachedViewDepState();
 };
 
 class CModel

@@ -184,6 +184,8 @@ public:
     static void PropogateAreaChain(CGameArea::EOcclusionState, CGameArea*, CWorld*);
     static const CGameArea* GetAliveAreasEnd()  { return skGlobalEnd; }
     static CGameArea* AliveAreasEnd()  { return skGlobalNonConstEnd; }
+
+    void PreRender();
 };
 
 struct CWorldLayers

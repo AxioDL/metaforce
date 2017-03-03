@@ -54,12 +54,16 @@ class CBooRenderer : public IRenderer
     {
         const std::vector<CMetroidModelInstance>* x0_geometry;
         const CAreaRenderOctTree* x4_octTree;
-        //std::vector<TCachedToken<CTexture>> x8_textures;
+        /* originally auto_ptrs of vectors */
+        std::vector<TCachedToken<CTexture>> x8_textures;
         std::vector<CBooModel*> x10_models;
         int x18_areaIdx;
-        std::vector<u32> x20_;
+        /* Per-area octree-word major, light bits minor */
+        std::vector<u32> x1c_lightOctreeWords;
 
-        CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
+        CAreaListItem(const std::vector<CMetroidModelInstance>* geom,
+                      const CAreaRenderOctTree* octTree,
+                      std::vector<TCachedToken<CTexture>>&& textures,
                       std::vector<CBooModel*>&& models, int areaIdx);
         ~CAreaListItem();
     };
@@ -110,7 +114,7 @@ class CBooRenderer : public IRenderer
     CThermalColdFilter m_thermColdFilter;
     std::experimental::optional<CThermalHotFilter> m_thermHotFilter;
 
-    std::vector<CLight> x304_lights;
+    std::vector<CLight> x300_dynamicLights;
 
     union
     {
@@ -198,6 +202,7 @@ public:
     void DoThermalBlendCold();
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
+    void PrepareDynamicLights(const std::vector<CLight>& lights);
 
     boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
 
