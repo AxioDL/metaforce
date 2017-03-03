@@ -6,6 +6,15 @@ namespace urde
 
 class CFluidPlaneManager
 {
+    bool x121_;
+    class CFluidProfile
+    {
+    public:
+        void Clear();
+    };
+    static CFluidProfile sProfile;
+public:
+    void StartFrame(bool);
 };
 
 }

@@ -176,6 +176,12 @@ void CAreaRenderOctTree::FindOverlappingModels(std::vector<u32>& out, const zeus
         RecursiveBuildOverlaps(out.data(), *this, x18_aabb, testAABB);
 }
 
+void CAreaRenderOctTree::FindOverlappingModels(u32* out, const zeus::CAABox& testAABB) const
+{
+    reinterpret_cast<Node*>(x38_entries[x34_indirectionTable[0]])->
+        RecursiveBuildOverlaps(out, *this, x18_aabb, testAABB);
+}
+
 void CGameArea::CAreaFog::SetCurrent() const
 {
     g_Renderer->SetWorldFog(x0_fogMode, x4_rangeCur[0], x4_rangeCur[1], x1c_colorCur);

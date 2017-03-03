@@ -74,11 +74,13 @@ struct CAreaRenderOctTree
     CAreaRenderOctTree(const u8* buf);
 
     void FindOverlappingModels(std::vector<u32>& out, const zeus::CAABox& testAABB) const;
+    void FindOverlappingModels(u32* out, const zeus::CAABox& testAABB) const;
 };
 
 class CGameArea : public IGameArea
 {
     friend class CWorld;
+    friend class CStateManager;
 
     int x4_selfIdx;
     ResId x8_nameSTRG;

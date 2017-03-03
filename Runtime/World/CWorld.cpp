@@ -573,4 +573,12 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
     if (occlusionState == CGameArea::EOcclusionState::NotOccluded)
         area->SetOcclusionState(CGameArea::EOcclusionState::NotOccluded);
 }
+
+void CWorld::PreRender()
+{
+    for (CGameArea* head = x4c_chainHeads[3] ; head != skGlobalNonConstEnd ; head = head->x130_next)
+    {
+        head->PreRender();
+    }
+}
 }

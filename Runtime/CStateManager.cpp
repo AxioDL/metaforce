@@ -2,6 +2,7 @@
 #include "Camera/CCameraShakeData.hpp"
 #include "Camera/CGameCamera.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "World/CGameLight.hpp"
 #include "CSortedLists.hpp"
 #include "Weapon/CWeaponMgr.hpp"
 #include "CFluidPlaneManager.hpp"
@@ -25,6 +26,10 @@
 #include "CMemoryCardSys.hpp"
 #include "TCastTo.hpp"
 #include "World/CScriptSpecialFunction.hpp"
+#include "CTimeProvider.hpp"
+#include "Camera/CBallCamera.hpp"
+#include "Collision/CMaterialFilter.hpp"
+#include "World/CScriptDock.hpp"
 
 #include <cmath>
 
@@ -288,7 +293,27 @@ bool CStateManager::SpecialSkipCinematic()
     return true;
 }
 
-void CStateManager::GetVisAreaId() const {}
+TAreaId CStateManager::GetVisAreaId() const
+{
+    const CGameCamera* cam = static_cast<const CGameCamera*>(x870_cameraManager->GetCurrentCamera(*this));
+    const CBallCamera* ballCam = x870_cameraManager->GetBallCamera();
+    TAreaId curArea = x850_world->x68_curAreaId;
+    if (cam != ballCam)
+        return curArea;
+
+    const zeus::CVector3f& camTranslation = ballCam->GetTranslation();
+    zeus::CAABox camAABB(camTranslation, camTranslation);
+    camAABB.accumulateBounds(x84c_player->GetTranslation());
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    BuildNearList(nearList, camAABB, CMaterialFilter(EMaterialTypes::AIBlock, CMaterialList(),
+                                                     CMaterialFilter::EFilterType::One), nullptr);
+    for (TUniqueId id : nearList)
+        if (TCastToConstPtr<CScriptDock> dock = GetObjectById(id))
+            if (dock->GetDestinationAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation))
+                return dock->GetCurrentConnectedAreaId(*this);
+
+    return curArea;
+}
 
 void CStateManager::GetWeaponIdCount(TUniqueId, EWeaponType) {}
 
@@ -351,7 +376,29 @@ bool CStateManager::CanCreateProjectile(TUniqueId, EWeaponType, int) const { ret
 
 const CGameLightList* CStateManager::GetDynamicLightList() const { return nullptr; }
 
-void CStateManager::BuildDynamicLightListForWorld(std::vector<CLight>& listOut) const {}
+void CStateManager::BuildDynamicLightListForWorld()
+{
+    if (x8b8_playerState->GetActiveVisor(*this) == CPlayerState::EPlayerVisor::Thermal)
+    {
+        x8e0_dynamicLights.clear();
+        return;
+    }
+
+    if (x82c_lightObjs->size() == 0)
+        return;
+
+    x8e0_dynamicLights.clear();
+    for (CEntity* ent : *x82c_lightObjs)
+    {
+        CGameLight& light = static_cast<CGameLight&>(*ent);
+        if (light.GetActive())
+        {
+            CLight l = light.GetLight();
+            if (l.GetIntensity() > FLT_EPSILON && l.GetRadius() > FLT_EPSILON)
+                x8e0_dynamicLights.push_back(l);
+        }
+    }
+}
 
 void CStateManager::DrawDebugStuff() const {}
 
@@ -361,11 +408,87 @@ void CStateManager::DrawE3DeathEffect() const {}
 
 void CStateManager::DrawAdditionalFilters() const {}
 
-void CStateManager::DrawWorld() const {}
+zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
+{
+    const CGameCamera* cam = static_cast<const CGameCamera*>(x870_cameraManager->GetCurrentCamera(*this));
+    zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
+    g_Renderer->SetWorldViewpoint(camXf);
+    CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
+    int vpWidth = xf2c_viewportScale.x * vp.x8_width;
+    int vpHeight = xf2c_viewportScale.y * vp.xc_height;
+    int vpLeft = (vp.x8_width - vpWidth) / 2 + vp.x0_left;
+    int vpTop = (vp.xc_height - vpHeight) / 2 + vp.x4_top;
+    g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
+    CGraphics::SetDepthRange(0.125f, 1.f);
+    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y * 2.f);
+    float width = xf2c_viewportScale.x * vp.x8_width;
+    float height = xf2c_viewportScale.y * vp.xc_height;
+    g_Renderer->SetPerspective(zeus::radToDeg(fov), width, height,
+                               cam->GetNearClipDistance(), cam->GetFarClipDistance());
+    zeus::CFrustum frustum;
+    zeus::CProjection proj;
+    proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
+    frustum.updatePlanes(camXf, proj);
+    g_Renderer->SetClippingPlanes(frustum);
+    //g_Renderer->PrimColor(zeus::CColor::skWhite);
+    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    x87c_fluidPlaneManager->StartFrame(false);
+    g_Renderer->SetDebugOption(IRenderer::EDebugOption::One, 1);
+    return frustum;
+}
+
+void CStateManager::DrawWorld() const
+{
+    CTimeProvider timeProvider(xf14_);
+    zeus::CFrustum frustum = SetupViewForDraw(g_Viewport);
+
+    GetVisAreaId();
+}
 
 void CStateManager::SetupFogForArea(const CGameArea& area) const {}
 
-void CStateManager::PreRender() {}
+void CStateManager::PreRender()
+{
+    if (xf94_24_)
+    {
+        x86c_stateManagerContainer->xf370_.clear();
+        x86c_stateManagerContainer->xf39c_.clear();
+        xf7c_ = 0;
+        x850_world->PreRender();
+        BuildDynamicLightListForWorld();
+        CGameCamera* cam = static_cast<CGameCamera*>(x870_cameraManager->GetCurrentCamera(*this));
+        zeus::CFrustum frustum;
+        zeus::CProjection proj;
+        proj.setPersp(zeus::SProjPersp{zeus::degToRad(cam->GetFov()),
+                                       cam->GetAspectRatio(), cam->GetNearClipDistance(), cam->GetFarClipDistance()});
+        frustum.updatePlanes(x870_cameraManager->GetCurrentCameraTransform(*this), proj);
+        for (CGameArea* area = x850_world->x4c_chainHeads[3];
+             area != CWorld::AliveAreasEnd();
+             area = area->x130_next)
+        {
+            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+            if (area->IsPostConstructed())
+                occState = area->GetOcclusionState();
+            if (occState == CGameArea::EOcclusionState::Occluded)
+            {
+                for (CEntity* ent : *area->GetPostConstructed()->x10c0_areaObjs)
+                {
+                    if (TCastToPtr<CActor> act = ent)
+                    {
+                        if (act->GetE7_29())
+                        {
+                            act->CalculateRenderBounds();
+                            act->PreRender(*this, frustum);
+                        }
+                    }
+                }
+            }
+        }
+
+        CacheReflection();
+        g_Renderer->PrepareDynamicLights(x8e0_dynamicLights);
+    }
+}
 
 bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) const
 {

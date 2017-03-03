@@ -38,11 +38,11 @@ public:
     zeus::CMatrix4f GetPerspectiveMatrix() const;
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f&) const;
     zeus::CTransform ValidateCameraTransform(const zeus::CTransform&, const zeus::CTransform&);
-    float GetNearClipDistance() const;
-    float GetFarClipDistance() const;
-    float GetAspectRatio() const;
-    TUniqueId GetWatchedObject() const;
-    float GetFov() const;
+    float GetNearClipDistance() const { return x160_znear; }
+    float GetFarClipDistance() const { return x164_zfar; }
+    float GetAspectRatio() const { return x168_aspect; }
+    TUniqueId GetWatchedObject() const { return xe8_watchedObject; }
+    float GetFov() const { return x15c_currentFov; }
     void GetControllerNumber() const;
     bool DisablesInput() const;
     void UpdatePerspective(float);

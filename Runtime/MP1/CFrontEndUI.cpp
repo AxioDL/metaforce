@@ -2187,7 +2187,7 @@ void CFrontEndUI::Draw() const
         g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
 
         /* Correct movie aspect ratio */
-        float vpAspectRatio = CGraphics::g_ViewportResolution.x / float(CGraphics::g_ViewportResolution.y);
+        float vpAspectRatio = g_Viewport.x8_width / float(g_Viewport.xc_height);
         float hPad, vPad;
         if (vpAspectRatio >= 1.78f)
         {

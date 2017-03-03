@@ -37,8 +37,8 @@ void CCameraBlurPass::Draw()
         return;
 
     SClipScreenRect rect = {};
-    rect.xc_width = CGraphics::g_ViewportResolution.x;
-    rect.x10_height = CGraphics::g_ViewportResolution.y;
+    rect.xc_width = g_Viewport.x8_width;
+    rect.x10_height = g_Viewport.xc_height;
     CGraphics::ResolveSpareTexture(rect);
 
     if (x10_curType == EBlurType::Xray)

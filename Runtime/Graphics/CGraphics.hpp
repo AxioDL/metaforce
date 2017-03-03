@@ -149,7 +149,7 @@ struct SViewport
     float x14_halfHeight;
 };
 
-extern SViewport gViewport;
+extern SViewport g_Viewport;
 
 struct SClipScreenRect
 {
@@ -236,8 +236,6 @@ public:
     static zeus::CVector3f g_ViewPoint;
     static zeus::CTransform g_GXViewPointMatrix;
     static zeus::CTransform g_CameraMatrix;
-    static zeus::CVector2i g_ViewportResolution;
-    static zeus::CVector2i g_ViewportResolutionHalf;
     static SClipScreenRect g_CroppedViewport;
     static int g_ViewportSamples;
     static bool g_IsGXModelMatrixIdentity;
