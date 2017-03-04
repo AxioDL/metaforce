@@ -7,7 +7,7 @@ namespace urde
 const CCollisionPrimitive::Type CCollidableOBBTreeGroup::sType(CCollidableOBBTreeGroup::SetStaticTableIndex, "CCollidableOBBTreeGroup");
 u32 CCollidableOBBTreeGroup::sTableIndex = -1;
 
-CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(CInputStream& in)
+CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream& in)
 {
     u32 treeCount = in.readUint32Big();
     x0_trees.reserve(treeCount);
@@ -24,6 +24,17 @@ CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(CInputStream& in)
         x10_aabbs.push_back(CCollidableOBBTree(tree.get(), CMaterialList()).CalculateLocalAABox());
 }
 
+CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(const zeus::CVector3f &, const zeus::CVector3f &)
+{
+}
+
+CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer* container,
+                                                 const CMaterialList& matList)
+: CCollisionPrimitive(matList)
+, x10_container(container)
+{
+}
+
 void CCollidableOBBTreeGroup::ResetTestStats() const
 {
 
@@ -36,12 +47,12 @@ u32 CCollidableOBBTreeGroup::GetTableIndex() const
 
 zeus::CAABox CCollidableOBBTreeGroup::CalculateAABox(const zeus::CTransform& xf) const
 {
-    return x10_aabbs.front().getTransformedAABox(xf);
+    return x10_container->x20_aabox.getTransformedAABox(xf);
 }
 
 zeus::CAABox CCollidableOBBTreeGroup::CalculateLocalAABox() const
 {
-    return x10_aabbs.front();
+    return x10_container->x20_aabox;
 }
 
 FourCC CCollidableOBBTreeGroup::GetPrimType() const
@@ -98,7 +109,7 @@ CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStr
                                                 const CVParamTransfer& vparms,
                                                 CObjectReference* selfRef)
 {
-    return TToken<CCollidableOBBTreeGroup>::GetIObjObjectFor(std::make_unique<CCollidableOBBTreeGroup>(in));
+    return TToken<CCollidableOBBTreeGroupContainer>::GetIObjObjectFor(std::make_unique<CCollidableOBBTreeGroupContainer>(in));
 }
 
 }
