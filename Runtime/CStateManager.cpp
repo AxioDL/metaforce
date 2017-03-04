@@ -477,7 +477,7 @@ void CStateManager::DrawWorld() const
 
     int areaCount = 0;
     CGameArea* areaArr[10];
-    for (CGameArea* area = x850_world->x4c_chainHeads[3];
+    for (CGameArea* area = x850_world->GetChainHead(EChain::Alive);
          area != CWorld::AliveAreasEnd() && areaCount != 10;
          area = area->x130_next)
     {
@@ -671,7 +671,7 @@ void CStateManager::PreRender()
         proj.setPersp(zeus::SProjPersp{zeus::degToRad(cam->GetFov()),
                                        cam->GetAspectRatio(), cam->GetNearClipDistance(), cam->GetFarClipDistance()});
         frustum.updatePlanes(x870_cameraManager->GetCurrentCameraTransform(*this), proj);
-        for (CGameArea* area = x850_world->x4c_chainHeads[3];
+        for (CGameArea* area = x850_world->GetChainHead(EChain::Alive);
              area != CWorld::AliveAreasEnd();
              area = area->x130_next)
         {

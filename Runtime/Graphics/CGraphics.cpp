@@ -378,8 +378,9 @@ void CGraphics::FlushProjection()
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point)
 {
     zeus::CVector3f projPt = GetPerspectiveProjectionMatrix(false).multiplyOneOverW(point);
-    return {int(projPt.x * g_Viewport.x10_halfWidth) + g_Viewport.x10_halfWidth,
-            g_Viewport.x14_halfHeight - (int(projPt.y * g_Viewport.x14_halfHeight) + g_Viewport.x14_halfHeight)};
+    return {int(projPt.x * g_Viewport.x10_halfWidth) + int(g_Viewport.x10_halfWidth),
+            int(g_Viewport.x14_halfHeight) - (int(projPt.y * g_Viewport.x14_halfHeight) +
+            int(g_Viewport.x14_halfHeight))};
 }
 
 SClipScreenRect CGraphics::ClipScreenRectFromMS(const zeus::CVector3f& p1,

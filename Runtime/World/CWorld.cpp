@@ -541,34 +541,24 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
     if (occlusionState == CGameArea::EOcclusionState::Occluded)
         area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
 
-    CGameArea* areaItr = world->x4c_chainHeads[3];
-
-    while (areaItr != skGlobalNonConstEnd)
+    for (CGameArea* areaItr = world->GetChainHead(EChain::Alive);
+         areaItr != skGlobalNonConstEnd;
+         areaItr = areaItr->x130_next)
     {
         if (areaItr == area)
-        {
-            areaItr = areaItr->x130_next;
             continue;
-        }
         if (areaItr->IsPostConstructed() && areaItr->GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
             areaItr->PrepTokens();
-        areaItr = areaItr->x130_next;
     }
 
-    areaItr = world->x4c_chainHeads[3];
-
-    while (areaItr != skGlobalNonConstEnd)
+    for (CGameArea* areaItr = world->GetChainHead(EChain::Alive);
+         areaItr != skGlobalNonConstEnd;
+         areaItr = areaItr->x130_next)
     {
         if (areaItr == area)
-        {
-            areaItr = areaItr->x130_next;
             continue;
-        }
-
-
         if (area->IsPostConstructed() && areaItr->GetOcclusionState() == CGameArea::EOcclusionState::NotOccluded)
             areaItr->PrepTokens();
-        areaItr = areaItr->x130_next;
     }
 
     if (occlusionState == CGameArea::EOcclusionState::NotOccluded)
@@ -577,7 +567,9 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
 
 void CWorld::PreRender()
 {
-    for (CGameArea* head = x4c_chainHeads[3] ; head != skGlobalNonConstEnd ; head = head->x130_next)
+    for (CGameArea* head = x4c_chainHeads[3] ;
+         head != skGlobalNonConstEnd ;
+         head = head->x130_next)
     {
         head->PreRender();
     }

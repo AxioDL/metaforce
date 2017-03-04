@@ -29,7 +29,7 @@ void CScriptAreaAttributes::Accept(IVisitor& visitor)
 
 void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {
-    AcceptScriptMsg(msg, objId, stateMgr);
+    CEntity::AcceptScriptMsg(msg, objId, stateMgr);
     if (x4_areaId == kInvalidAreaId)
         return;
 

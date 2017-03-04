@@ -6,6 +6,7 @@
 #include "Particle/CElementGen.hpp"
 #include "Particle/CParticleElectric.hpp"
 #include "Particle/CParticleSwoosh.hpp"
+#include "Particle/CGenDescription.hpp"
 #include "World/CWorld.hpp"
 #include "Graphics/CBooRenderer.hpp"
 
