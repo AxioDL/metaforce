@@ -111,6 +111,7 @@ class CBooRenderer : public IRenderer
     float x2f0_thermalVisorLevel;
     zeus::CColor x2f4_thermColor;
     float x2f8_thermColdScale = 0.f;
+    zeus::CColor x2fc_tevReg1Color = {1.f, 0.f, 1.f, 1.f};
     CThermalColdFilter m_thermColdFilter;
     std::experimental::optional<CThermalHotFilter> m_thermHotFilter;
 
@@ -157,7 +158,7 @@ public:
     void AddParticleGen(const CParticleGen&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);
     void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting);
-    void SetDrawableCallback(TDrawableCallback&&, const void*);
+    void SetDrawableCallback(TDrawableCallback, const void*);
     void SetWorldViewpoint(const zeus::CTransform&);
     void SetPerspective(float, float, float, float, float);
     void SetPerspective(float, float, float, float);
@@ -203,6 +204,7 @@ public:
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
     void PrepareDynamicLights(const std::vector<CLight>& lights);
+    void SetWorldLightFadeLevel(float level);
 
     boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
 

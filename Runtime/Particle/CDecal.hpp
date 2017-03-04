@@ -11,6 +11,7 @@ namespace urde
 {
 class CDecal
 {
+    friend class CDecalManager;
 public:
     struct CQuadDecal
     {
@@ -58,6 +59,7 @@ public:
     bool IsDone() const;
     void RenderQuad(CQuadDecal&, const CDecalDescription::SQuadDescr&) const;
     void RenderMdl() const;
+    void Render() const;
     void ProcessQuad(CQuadDecal&, const CDecalDescription::SQuadDescr&, s32) const;
     void Update(float);
     void CheckTime(s32, s32);

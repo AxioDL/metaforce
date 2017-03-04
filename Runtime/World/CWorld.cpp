@@ -7,6 +7,7 @@
 #include "Audio/CAudioGroupSet.hpp"
 #include "Editor/ProjectResourceFactoryBase.hpp"
 #include "CGameState.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -237,7 +238,7 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain)
 
 void CWorld::MoveAreaToChain3(TAreaId aid)
 {
-    MoveToChain(x18_areas[aid].get(), EChain::Three);
+    MoveToChain(x18_areas[aid].get(), EChain::Alive);
 }
 
 void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data) {}
@@ -416,13 +417,13 @@ bool CWorld::ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr)
     }
     else
     {
-        if (area->x138_curChain != EChain::Three)
+        if (area->x138_curChain != EChain::Alive)
         {
             if (area->x138_curChain != EChain::Four)
             {
                 x70_24_ = true;
             }
-            MoveToChain(area, EChain::Three);
+            MoveToChain(area, EChain::Alive);
         }
         return false;
     }
@@ -464,7 +465,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
     if (area->x138_curChain != EChain::Four)
         x70_24_ = true;
     area->Validate(mgr);
-    MoveToChain(area, EChain::Three);
+    MoveToChain(area, EChain::Alive);
     area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
 
     CGameArea* otherLoadArea = nullptr;
@@ -580,5 +581,39 @@ void CWorld::PreRender()
     {
         head->PreRender();
     }
+}
+
+void CWorld::TouchSky()
+{
+#if 0
+    if (xa4_skyboxB.IsLoaded())
+        xa4_skyboxB->Touch();
+    if (xb4_skyboxC.IsLoaded())
+        xb4_skyboxC->Touch();
+#endif
+}
+
+void CWorld::DrawSky(const zeus::CTransform& xf) const
+{
+    const CModel* model;
+    if (xa4_skyboxB)
+        model = xa4_skyboxB.GetObj();
+    else if (xb4_skyboxC)
+        model = xb4_skyboxC.GetObj();
+    else
+        return;
+
+    if (!x70_27_)
+        return;
+
+    CGraphics::DisableAllLights();
+    CGraphics::SetModelMatrix(xf);
+    g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+    CGraphics::SetDepthRange(0.999f, 1.f);
+
+    CModelFlags flags(0, 0, 1, zeus::CColor::skWhite);
+    model->Draw(flags);
+
+    CGraphics::SetDepthRange(0.125f, 1.f);
 }
 }

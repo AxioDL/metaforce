@@ -145,6 +145,7 @@ private:
     std::string x84_defAudioTrack;
     TLockedToken<CModel> x94_skybox;
     TLockedToken<CModel> xa4_skyboxB;
+    TLockedToken<CModel> xb4_skyboxC;
 
     void LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data);
     void LoadSoundGroups();
@@ -154,6 +155,7 @@ public:
     void MoveToChain(CGameArea* area, EChain chain);
     void MoveAreaToChain3(TAreaId aid);
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
+    CGameArea* GetChainHead(EChain chain) { return x4c_chainHeads[int(chain)]; }
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
     void SetPauseState(bool paused);
@@ -186,6 +188,8 @@ public:
     static CGameArea* AliveAreasEnd()  { return skGlobalNonConstEnd; }
 
     void PreRender();
+    void TouchSky();
+    void DrawSky(const zeus::CTransform& xf) const;
 };
 
 struct CWorldLayers

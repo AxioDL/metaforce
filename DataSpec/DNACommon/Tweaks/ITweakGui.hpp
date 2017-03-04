@@ -36,6 +36,12 @@ struct ITweakGui : ITweak
     virtual float GetXrayBlurScaleLinear() const=0;
     virtual float GetXrayBlurScaleQuadratic() const=0;
     virtual float GetWorldTransManagerCharsPerSfx() const=0;
+    virtual atUint32 GetXRayFogMode() const=0;
+    virtual float GetXRayFogNearZ() const=0;
+    virtual float GetXRayFogFarZ() const=0;
+    virtual const zeus::CColor& GetXRayFogColor() const=0;
+    virtual float GetThermalVisorLevel() const=0;
+    virtual const zeus::CColor& GetThermalVisorColor() const=0;
 };
 
 }

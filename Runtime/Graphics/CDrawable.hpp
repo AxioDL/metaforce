@@ -11,7 +11,8 @@ enum class EDrawableType : u16
     WorldSurface,
     Particle,
     UnsortedCallback,
-    SortedCallback
+    SortedCallback,
+    Decal
 };
 
 class CDrawable

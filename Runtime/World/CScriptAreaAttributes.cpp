@@ -50,11 +50,4 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
     }
 }
 
-bool CScriptAreaAttributes::GetNeedsSky() const { return x34_24_showSkybox; }
-
-bool CScriptAreaAttributes::GetNeedsEnvFx() const { return x38_envFx != EEnvFxType::None; }
-
-float CScriptAreaAttributes::GetThermalHeat() const { return x40_thermalHeat; }
-
-float CScriptAreaAttributes::GetWorldLightingLevel() const { return x48_worldLightingLevel; }
 }

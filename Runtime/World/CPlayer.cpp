@@ -109,7 +109,7 @@ void CPlayer::PreRender(CStateManager& mgr, const zeus::CFrustum&) {}
 
 void CPlayer::CalculateRenderBounds() {}
 
-void CPlayer::AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
+void CPlayer::AddToRenderer(const zeus::CFrustum&, const CStateManager&) {}
 
 void CPlayer::ComputeFreeLook(const CFinalInput& input) {}
 

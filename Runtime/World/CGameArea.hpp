@@ -280,6 +280,7 @@ public:
     ResId GetAreaAssetId() const { return x84_mrea; }
     const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
     CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
+    float GetXRayFogDistance() const;
     bool DoesAreaNeedEnvFx() const;
     bool DoesAreaNeedSkyNow() const;
     bool OtherAreaOcclusionChanged();
@@ -312,6 +313,8 @@ public:
     void ClearTokenList();
     u32 GetPreConstructedSize() const;
     MREAHeader VerifyHeader() const;
+    TUniqueId LookupPVSUniqueID(TUniqueId id) const;
+    s16 LookupPVSID(TUniqueId id) const;
 
     const zeus::CTransform& GetTransform() const {return xc_transform;}
     const zeus::CTransform& GetInverseTransform() const {return x3c_invTransform;}
@@ -329,6 +332,8 @@ public:
     bool GetActive() const { return xf0_25_active; }
     void SetActive(bool active) { xf0_25_active = active; }
     CObjectList& GetAreaObjects() const { return *GetPostConstructed()->x10c0_areaObjs.get(); }
+
+    CGameArea* GetNext() const { return x130_next; }
 };
 
 }

@@ -25,11 +25,13 @@ public:
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
 
-    bool GetNeedsSky() const;
-    bool GetNeedsEnvFx() const;
-    float GetEnvFxDensity() const;
-    float GetThermalHeat() const;
-    float GetWorldLightingLevel() const;
+
+    bool GetNeedsSky() const { return x34_24_showSkybox; }
+    bool GetNeedsEnvFx() const { return x38_envFx != EEnvFxType::None; }
+    float GetEnvFxDensity() const { return x3c_envFxDensity; }
+    float GetThermalHeat() const { return x40_thermalHeat; }
+    float GetXRayFogDistance() const { return x44_xrayFogDistance; }
+    float GetWorldLightingLevel() const { return x48_worldLightingLevel; }
 };
 }
 

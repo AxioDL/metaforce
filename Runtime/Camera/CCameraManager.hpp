@@ -102,7 +102,7 @@ public:
     CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
     CBallCamera* BallCamera(CStateManager&) const;
-    CGameArea::CAreaFog Fog() { return x3c_fog; }
+    CGameArea::CAreaFog& Fog() { return x3c_fog; }
 
     float sub80009148() const;
 

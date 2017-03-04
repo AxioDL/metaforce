@@ -72,4 +72,9 @@ void CDecal::SetMoveRedToAlphaBuffer(bool move)
 {
     sMoveRedToAphaBuffer = move;
 }
+
+void CDecal::Render() const
+{
+
+}
 }

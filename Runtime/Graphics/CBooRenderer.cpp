@@ -231,7 +231,7 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item)
                 if (xa8_drawableCallback)
                 {
                     xa8_drawableCallback(drawable->GetData(), xac_callbackContext,
-                                       int(drawable->GetType()) - 2);
+                                         int(drawable->GetType()) - 2);
                 }
                 break;
             }
@@ -512,9 +512,9 @@ void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, cons
         Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, xb0_viewPlane, 0);
 }
 
-void CBooRenderer::SetDrawableCallback(TDrawableCallback&& cb, const void* ctx)
+void CBooRenderer::SetDrawableCallback(TDrawableCallback cb, const void* ctx)
 {
-    xa8_drawableCallback = std::move(cb);
+    xa8_drawableCallback = cb;
     xac_callbackContext = ctx;
 }
 
@@ -725,6 +725,11 @@ void CBooRenderer::PrepareDynamicLights(const std::vector<CLight>& lights)
             }
         }
     }
+}
+
+void CBooRenderer::SetWorldLightFadeLevel(float level)
+{
+    x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f);
 }
 
 }

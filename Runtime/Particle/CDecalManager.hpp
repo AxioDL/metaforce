@@ -6,17 +6,20 @@
 #include "optional.hpp"
 #include "CToken.hpp"
 #include "CDecal.hpp"
+#include "zeus/CFrustum.hpp"
 
 namespace urde
 {
+class CStateManager;
+
 class CDecalManager
 {
     struct SDecal
     {
-        TAreaId m_areaId;
-        std::experimental::optional<CDecal> x60_decal;
-        SDecal() = default;
-        SDecal(std::experimental::optional<CDecal>&&, TAreaId);
+        std::experimental::optional<CDecal> x0_decal;
+        TAreaId x70_areaId;
+        u8 x74_index;
+        u8 x75_flags : 2;
     };
 
     static bool  m_PoolInitialized;
@@ -29,6 +32,7 @@ class CDecalManager
 public:
     static void Initialize();
     static void Shutdown();
+    static void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr);
 };
 
 }

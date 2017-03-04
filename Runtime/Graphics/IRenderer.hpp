@@ -25,7 +25,7 @@ struct CAreaRenderOctTree;
 class IRenderer
 {
 public:
-    using TDrawableCallback = std::function<void(const void*, const void*, int)>;
+    typedef void(*TDrawableCallback)(const void*, const void*, int);
     using TReflectionCallback = std::function<void(void*, const zeus::CVector3f&)>;
 
     enum class EDrawableSorting
@@ -54,7 +54,7 @@ public:
     virtual void AddParticleGen(const CParticleGen&)=0;
     virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)=0;
     virtual void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting)=0;
-    virtual void SetDrawableCallback(TDrawableCallback&&, const void*)=0;
+    virtual void SetDrawableCallback(TDrawableCallback, const void*)=0;
     virtual void SetWorldViewpoint(const zeus::CTransform&)=0;
     virtual void SetPerspective(float, float, float, float, float)=0;
     virtual void SetPerspective(float, float, float, float)=0;
@@ -100,6 +100,7 @@ public:
     virtual void DoThermalBlendHot()=0;
     virtual u32 GetStaticWorldDataSize()=0;
     virtual void PrepareDynamicLights(const std::vector<CLight>& lights)=0;
+    virtual void SetWorldLightFadeLevel(float level)=0;
 };
 
 }
