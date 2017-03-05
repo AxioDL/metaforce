@@ -166,10 +166,7 @@ void View::Resources::init(boo::ID3DDataFactory::Context& ctx, const IThemeData&
     };
     m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
-    ComPtr<ID3DBlob> vertBlob;
-    ComPtr<ID3DBlob> fragBlob;
-    ComPtr<ID3DBlob> pipeBlob;
-    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, vertBlob, fragBlob, pipeBlob, m_solidVtxFmt,
+    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, nullptr, nullptr, nullptr, m_solidVtxFmt,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, false, false, false);
 
@@ -180,10 +177,7 @@ void View::Resources::init(boo::ID3DDataFactory::Context& ctx, const IThemeData&
     };
     m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
-    vertBlob.Reset();
-    fragBlob.Reset();
-    pipeBlob.Reset();
-    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, vertBlob, fragBlob, pipeBlob, m_texVtxFmt,
+    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, nullptr, nullptr, nullptr, m_texVtxFmt,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                         boo::Primitive::TriStrips, false, false, false);
 }

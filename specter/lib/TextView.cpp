@@ -171,18 +171,13 @@ void TextView::Resources::init(boo::ID3DDataFactory::Context& ctx, FontCache* fc
     };
     m_vtxFmt = ctx.newVertexFormat(13, vdescs);
 
-    ComPtr<ID3DBlob> blobVert;
-    ComPtr<ID3DBlob> blobFrag;
-    ComPtr<ID3DBlob> blobPipe;
     m_regular =
-    ctx.newShaderPipeline(VS, FSReg, blobVert, blobFrag, blobPipe, m_vtxFmt,
+    ctx.newShaderPipeline(VS, FSReg, nullptr, nullptr, nullptr, m_vtxFmt,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                           boo::Primitive::TriStrips, false, false, false);
 
-    blobFrag.Reset();
-    blobPipe.Reset();
     m_subpixel =
-    ctx.newShaderPipeline(nullptr, FSSubpixel, blobVert, blobFrag, blobPipe, m_vtxFmt,
+    ctx.newShaderPipeline(VS, FSSubpixel, nullptr, nullptr, nullptr, m_vtxFmt,
                           boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                           boo::Primitive::TriStrips, false, false, false);
 }
