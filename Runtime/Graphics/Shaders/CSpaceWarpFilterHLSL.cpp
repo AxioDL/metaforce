@@ -81,7 +81,7 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::One,
                                        boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
     return new CSpaceWarpFilterD3DDataBindingFactory;

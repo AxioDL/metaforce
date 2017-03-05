@@ -223,7 +223,7 @@ void CMoviePlayer::Initialize()
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:
             YUVShaderPipeline = static_cast<boo::ID3DDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_HLSL_YUV, FS_HLSL_YUV, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), YUVVTXFmt,
+                    (VS_HLSL_YUV, FS_HLSL_YUV, nullptr, nullptr, nullptr, YUVVTXFmt,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                      boo::Primitive::TriStrips, false, false, false);
             break;

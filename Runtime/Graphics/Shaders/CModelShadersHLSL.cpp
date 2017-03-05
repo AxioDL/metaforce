@@ -76,7 +76,7 @@ static const char* SolidPostHLSL =
 "{\n"
 "    float4 solidColor;\n"
 "};\n"
-"static float4 SolidPostFunc(float4 colorIn)\n"
+"static float4 SolidPostFunc(in VertToFrag vtf, float4 colorIn)\n"
 "{\n"
 "    return solidColor;\n"
 "}\n"
@@ -88,7 +88,7 @@ static const char* MBShadowPostHLSL =
 "    float4 shadowUp;\n"
 "    float shadowId;\n"
 "};\n"
-"static float4 MBShadowPostFunc(float4 colorIn)\n"
+"static float4 MBShadowPostFunc(in VertToFrag vtf, float4 colorIn)\n"
 "{\n"
 "    float idTexel = extTex0.Sample(samp, vtf.extTcgs[0]).a;\n"
 "    float sphereTexel = extTex1.Sample(samp, vtf.extTcgs[1]).a;\n"
@@ -130,7 +130,7 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::Zero);
 
-    /* Solid shading */
+    /* MorphBall shadow shading */
     ext.registerExtensionSlot({}, {MBShadowPostHLSL, "MBShadowPostFunc"},
                               0, nullptr, 3, BallFadeTextures,
                               hecl::Backend::BlendFactor::SrcAlpha,

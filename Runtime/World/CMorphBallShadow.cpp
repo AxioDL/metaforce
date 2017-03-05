@@ -4,6 +4,7 @@
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "World/CPlayer.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

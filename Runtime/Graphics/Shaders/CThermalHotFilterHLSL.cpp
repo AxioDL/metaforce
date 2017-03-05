@@ -80,7 +80,7 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::DstAlpha, boo::BlendFactor::InvDstAlpha,
                                        boo::Primitive::TriStrips, false, false, false);
     return new CThermalHotFilterD3DDataBindingFactory;

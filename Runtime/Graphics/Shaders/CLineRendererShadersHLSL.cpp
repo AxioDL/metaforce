@@ -125,20 +125,20 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     };
     m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
-    m_texAlpha = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                           ComPtr<ID3DBlob>(), m_texVtxFmt,
+    m_texAlpha = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                           nullptr, m_texVtxFmt,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips,false, true, false);
-    m_texAdditive = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                              ComPtr<ID3DBlob>(), m_texVtxFmt,
+    m_texAdditive = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                              nullptr, m_texVtxFmt,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips,false, false, false);
-    m_noTexAlpha = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                             ComPtr<ID3DBlob>(), m_noTexVtxFmt,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                             nullptr, m_noTexVtxFmt,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, false, true, false);
-    m_noTexAdditive = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
-                                                ComPtr<ID3DBlob>(), m_noTexVtxFmt,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                                nullptr, m_noTexVtxFmt,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, false, false, false);
 

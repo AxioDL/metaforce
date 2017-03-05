@@ -68,7 +68,7 @@ static const char* ThermalPostGLSL =
 "};\n"
 "vec4 ThermalPostFunc(vec4 colorIn)\n"
 "{\n"
-"    return vec4(texture(tex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, 1.0);\n"
+"    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, 1.0);\n"
 "}\n"
 "\n";
 
@@ -91,9 +91,9 @@ static const char* MBShadowPostGLSL =
 "};\n"
 "vec4 MBShadowPostFunc(vec4 colorIn)\n"
 "{\n"
-"    float idTexel = texture(tex0, vtf.extTcgs[0]).a;\n"
-"    float sphereTexel = texture(tex1, vtf.extTcgs[1]).a;\n"
-"    float fadeTexel = texture(tex2, vtf.extTcgs[2]).a;\n"
+"    float idTexel = texture(extTex0, vtf.extTcgs[0]).a;\n"
+"    float sphereTexel = texture(extTex1, vtf.extTcgs[1]).a;\n"
+"    float fadeTexel = texture(extTex2, vtf.extTcgs[2]).a;\n"
 "    float val = ((abs(idTexel - shadowId) < 0.001) ?\n"
 "        (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *\n"
 "        sphereTexel * fadeTexel;\n"

@@ -126,10 +126,10 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
     };
     s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
-    s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, nullptr,
                                                 s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
-    s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, nullptr,
                                               s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 
@@ -146,10 +146,10 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
     };
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
-    s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, nullptr,
                                                  s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
                                                  boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
-    s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, nullptr,
                                                s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
                                                boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
 

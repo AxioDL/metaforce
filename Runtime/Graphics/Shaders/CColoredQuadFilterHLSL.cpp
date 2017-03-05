@@ -88,13 +88,13 @@ CColoredQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
-    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                             s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
-    s_AddPipeline = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_AddPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                           s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(), ComPtr<ID3DBlob>(),
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                            s_VtxFmt, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
     return new CColoredQuadFilterD3DDataBindingFactory;
