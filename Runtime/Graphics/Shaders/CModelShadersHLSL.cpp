@@ -71,6 +71,35 @@ static const char* ThermalPostHLSL =
 "}\n"
 "\n";
 
+static const char* SolidPostHLSL =
+"cbuffer SolidUniform : register(b2)\n"
+"{\n"
+"    float4 solidColor;\n"
+"};\n"
+"static float4 SolidPostFunc(float4 colorIn)\n"
+"{\n"
+"    return solidColor;\n"
+"}\n"
+"\n";
+
+static const char* MBShadowPostHLSL =
+"cbuffer MBShadowUniform : register(b2)\n"
+"{\n"
+"    float4 shadowUp;\n"
+"    float shadowId;\n"
+"};\n"
+"static float4 MBShadowPostFunc(float4 colorIn)\n"
+"{\n"
+"    float idTexel = extTex0.Sample(samp, vtf.extTcgs[0]).a;\n"
+"    float sphereTexel = extTex1.Sample(samp, vtf.extTcgs[1]).a;\n"
+"    float fadeTexel = extTex2.Sample(samp, vtf.extTcgs[2]).a;\n"
+"    float val = ((abs(idTexel - shadowId) < 0.001) ?\n"
+"        (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *\n"
+"        sphereTexel * fadeTexel;\n"
+"    return float4(0.0, 0.0, 0.0, val);\n"
+"}\n"
+"\n";
+
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
 {
@@ -95,6 +124,17 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::One);
+
+    /* Solid shading */
+    ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero);
+
+    /* Solid shading */
+    ext.registerExtensionSlot({}, {MBShadowPostHLSL, "MBShadowPostFunc"},
+                              0, nullptr, 3, BallFadeTextures,
+                              hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha);
 
     return ext;
 }

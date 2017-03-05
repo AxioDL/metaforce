@@ -3,11 +3,14 @@
 
 namespace urde
 {
+class CTexture;
+
 class CSimpleShadow
 {
 public:
     CSimpleShadow() = default;
     CSimpleShadow(float, float, float, float);
+    void Render(const CTexture* tex);
 };
 }
 

@@ -58,7 +58,7 @@ enum class EChain
     Zero,
     One,
     Two,
-    Three,
+    Alive,
     Four
 };
 

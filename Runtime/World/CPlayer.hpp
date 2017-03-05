@@ -319,7 +319,7 @@ public:
     void RenderReflectedPlayer(CStateManager& mgr) const;
     void PreRender(CStateManager& mgr, const zeus::CFrustum&);
     void CalculateRenderBounds();
-    void AddToRenderer(const zeus::CFrustum&, CStateManager&);
+    void AddToRenderer(const zeus::CFrustum&, const CStateManager&);
     void ComputeFreeLook(const CFinalInput& input);
     void UpdateFreeLook(float dt);
     float GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const;

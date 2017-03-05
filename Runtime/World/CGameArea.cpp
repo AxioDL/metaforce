@@ -414,16 +414,6 @@ bool CGameArea::IGetScriptingMemoryAlways() const
     return false;
 }
 
-TAreaId CGameArea::IGetAreaId() const
-{
-    return 0;
-}
-
-ResId CGameArea::IGetAreaAssetId() const
-{
-    return 0;
-}
-
 bool CGameArea::IIsActive() const
 {
     return false;
@@ -472,6 +462,14 @@ void CGameArea::SetThermalSpeedAndTarget(float speed, float target)
 {
     x12c_postConstructed->x1120_thermalSpeed = speed;
     x12c_postConstructed->x1124_thermalTarget = target;
+}
+
+float CGameArea::GetXRayFogDistance() const
+{
+    const CScriptAreaAttributes* attrs = x12c_postConstructed->x10d8_areaAttributes;
+    if (attrs)
+        return attrs->GetXRayFogDistance();
+    return 1.f;
 }
 
 bool CGameArea::DoesAreaNeedEnvFx() const
@@ -1028,6 +1026,16 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
         header.secSizes.push_back(r.readUint32Big());
 
     return header;
+}
+
+TUniqueId CGameArea::LookupPVSUniqueID(TUniqueId id) const
+{
+    return x12c_postConstructed->xa8_pvsEntityMap[id & 0x3ff].x4_uid;
+}
+
+s16 CGameArea::LookupPVSID(TUniqueId id) const
+{
+    return x12c_postConstructed->xa8_pvsEntityMap[id & 0x3ff].x0_id;
 }
 
 void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes)

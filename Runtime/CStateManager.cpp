@@ -30,6 +30,7 @@
 #include "Camera/CBallCamera.hpp"
 #include "Collision/CMaterialFilter.hpp"
 #include "World/CScriptDock.hpp"
+#include "Particle/CDecalManager.hpp"
 
 #include <cmath>
 
@@ -62,6 +63,8 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x880_envFxManager = &x86c_stateManagerContainer->xe510_envFxManager;
     x884_actorModelParticles = &x86c_stateManagerContainer->xf168_actorModelParticles;
     x88c_rumbleManager = &x86c_stateManagerContainer->xf250_rumbleManager;
+
+    g_Renderer->SetDrawableCallback(&CStateManager::RendererDrawCallback, this);
 
     x90c_loaderFuncs[int(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
     x90c_loaderFuncs[int(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
@@ -255,22 +258,44 @@ void CStateManager::UpdateThermalVisor()
     }
 }
 
+void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, int type)
+{
+    CStateManager& mgr = reinterpret_cast<CStateManager&>(ctx);
+    switch (type)
+    {
+    case 0:
+    {
+        CActor& actor = reinterpret_cast<CActor&>(drawable);
+        if (actor.xc8_drawnToken == mgr.x8dc_objectDrawToken)
+            break;
+        if (actor.xc6_nextDrawNode != kInvalidUniqueId)
+            mgr.RecursiveDrawTree(actor.xc6_nextDrawNode);
+        actor.Render(mgr);
+        actor.xc8_drawnToken = mgr.x8dc_objectDrawToken;
+        break;
+    }
+    case 1:
+        reinterpret_cast<CSimpleShadow&>(drawable).Render(mgr.x8f0_shadowTex.GetObj());
+        break;
+    case 2:
+        reinterpret_cast<CDecal&>(drawable).Render();
+        break;
+    default: break;
+    }
+}
+
 bool CStateManager::RenderLast(TUniqueId) { return false; }
 
 void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane,
                                           const zeus::CAABox& aabb) const
 {
-#if 0
-    actor.SetAddedToken(x8dc_ + 1);
-#endif
+    const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
     g_Renderer->AddPlaneObject(static_cast<const void*>(&actor), aabb, plane, 0);
 }
 
 void CStateManager::AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const
 {
-#if 0
-    actor.SetAddedToken(x8dc_ + 1);
-#endif
+    const_cast<CActor&>(actor).SetAddedToken(x8dc_objectDrawToken + 1);
     g_Renderer->AddDrawable(static_cast<const void*>(&actor), vec, aabb, 0,
                             IRenderer::EDrawableSorting::SortedCallback);
 }
@@ -344,7 +369,10 @@ std::string CStateManager::HashInstanceName(CInputStream& in)
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId) {}
 
-void CStateManager::TouchSky() const {}
+void CStateManager::TouchSky() const
+{
+    x850_world->TouchSky();
+}
 
 void CStateManager::TouchPlayerActor()
 {
@@ -442,10 +470,191 @@ void CStateManager::DrawWorld() const
     CTimeProvider timeProvider(xf14_);
     zeus::CFrustum frustum = SetupViewForDraw(g_Viewport);
 
-    GetVisAreaId();
+    /* Area camera is in (not necessarily player) */
+    TAreaId visAreaId = GetVisAreaId();
+
+    x850_world->TouchSky();
+
+    int areaCount = 0;
+    CGameArea* areaArr[10];
+    for (CGameArea* area = x850_world->GetChainHead(EChain::Alive);
+         area != CWorld::AliveAreasEnd() && areaCount != 10;
+         area = area->x130_next)
+    {
+        CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+        if (area->IsPostConstructed())
+            occState = area->GetOcclusionState();
+        if (occState == CGameArea::EOcclusionState::Occluded)
+            areaArr[areaCount++] = area;
+    }
+
+    std::sort(std::begin(areaArr), std::begin(areaArr) + areaCount,
+    [visAreaId](CGameArea* a, CGameArea* b) -> bool
+    {
+        if (a->x4_selfIdx == b->x4_selfIdx)
+            return false;
+        if (visAreaId == a->x4_selfIdx)
+            return false;
+        if (visAreaId == b->x4_selfIdx)
+            return true;
+        return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) >
+               CGraphics::g_ViewPoint.dot(b->GetAABB().center());
+    });
+
+    int pvsCount = 0;
+    CPVSVisSet pvsArr[10];
+    for (CGameArea** area = areaArr;
+         area != areaArr + areaCount;
+         ++area)
+    {
+        CGameArea* areaPtr = *area;
+        CPVSVisSet& pvsSet = pvsArr[pvsCount++];
+        pvsSet.Reset(EPVSVisSetState::OutOfBounds);
+        GetVisSetForArea(areaPtr->x4_selfIdx, visAreaId, pvsSet);
+    }
+
+    int mask;
+    int targetMask;
+    CPlayerState::EPlayerVisor visor = x8b8_playerState->GetActiveVisor(*this);
+    bool thermal = visor == CPlayerState::EPlayerVisor::Thermal;
+    if (thermal)
+    {
+        const_cast<CStateManager&>(*this).xf34_particleFlags = 1;
+        mask = 52;
+        targetMask = 0;
+    }
+    else
+    {
+        const_cast<CStateManager&>(*this).xf34_particleFlags = 2;
+        mask = 1 << (visor == CPlayerState::EPlayerVisor::XRay ? 3 : 1);
+        targetMask = 0;
+    }
+
+    g_Renderer->SetThermal(thermal, g_tweakGui->GetThermalVisorLevel(), g_tweakGui->GetThermalVisorColor());
+    g_Renderer->SetThermalColdScale(xf28_thermColdScale2 + xf24_thermColdScale1);
+
+    for (int i=areaCount-1 ; i>=0 ; --i)
+    {
+        CGameArea& area = *areaArr[i];
+        SetupFogForArea(area);
+        g_Renderer->EnablePVS(&pvsArr[i], area.x4_selfIdx);
+        g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
+        g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, targetMask);
+    }
+
+    if (!SetupFogForDraw())
+        g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+
+    x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
+
+    if (areaCount)
+        SetupFogForArea(*areaArr[areaCount-1]);
+
+    for (TUniqueId id : x86c_stateManagerContainer->xf370_)
+    {
+        if (const CActor* ent = static_cast<const CActor*>(GetObjectById(id)))
+        {
+            if (!thermal || ent->xe6_27_ & 0x2)
+            {
+                ent->Render(*this);
+            }
+        }
+    }
+
+    bool morphingPlayerVisible = false;
+    int thermalActorCount = 0;
+    CActor* thermalActorArr[1024];
+    for (int i=0 ; i<areaCount ; ++i)
+    {
+        CGameArea& area = *areaArr[i];
+        CPVSVisSet& pvs = pvsArr[i];
+        bool isVisArea = area.x4_selfIdx == visAreaId;
+        SetupFogForArea(area);
+        g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
+        for (CEntity* ent : *area.GetPostConstructed()->x10c0_areaObjs)
+        {
+            if (TCastToPtr<CActor> actor = ent)
+            {
+                if (!actor->xe7_29_)
+                    continue;
+                TUniqueId actorId = actor->GetUniqueId();
+                if (!thermal && area.LookupPVSUniqueID(actorId) == actorId)
+                    if (pvs.GetVisible(area.LookupPVSID(actorId)) == EPVSVisSetState::EndOfTree)
+                        continue;
+                if (x84c_player.get() == actor.GetPtr())
+                {
+                    if (thermal)
+                        continue;
+                    switch (x84c_player->GetMorphballTransitionState())
+                    {
+                    case CPlayer::EPlayerMorphBallState::Unmorphed:
+                    case CPlayer::EPlayerMorphBallState::Morphed:
+                        x84c_player->AddToRenderer(frustum, *this);
+                        continue;
+                    default:
+                        morphingPlayerVisible = true;
+                        continue;
+                    }
+                }
+                if (!thermal || actor->xe6_27_ & 0x2)
+                    actor->AddToRenderer(frustum, *this);
+                if (thermal && actor->xe6_27_ & 0x4)
+                    thermalActorArr[thermalActorCount++] = actor.GetPtr();
+            }
+        }
+
+        if (isVisArea && !thermal)
+        {
+            CDecalManager::AddToRenderer(frustum, *this);
+            x884_actorModelParticles->AddStragglersToRenderer(*this);
+        }
+
+        ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
+
+        // TODO: Finish
+        x84c_player->GetMorphBall();
+    }
 }
 
-void CStateManager::SetupFogForArea(const CGameArea& area) const {}
+void CStateManager::SetupFogForArea(const CGameArea& area) const
+{
+    if (SetupFogForDraw())
+        return;
+
+    if (x8b8_playerState->GetActiveVisor(*this) == CPlayerState::EPlayerVisor::XRay)
+    {
+        float fogDist = area.GetXRayFogDistance();
+        float farz = g_tweakGui->GetXRayFogNearZ() * (1.f - fogDist) +
+                     g_tweakGui->GetXRayFogFarZ() * fogDist;
+        g_Renderer->SetWorldFog(ERglFogMode(g_tweakGui->GetXRayFogMode()),
+                                g_tweakGui->GetXRayFogNearZ(),
+                                farz, g_tweakGui->GetXRayFogColor());
+    }
+    else
+    {
+        area.GetAreaFog()->SetCurrent();
+    }
+}
+
+bool CStateManager::SetupFogForDraw() const
+{
+    switch (x8b8_playerState->GetActiveVisor(*this))
+    {
+    case CPlayerState::EPlayerVisor::Thermal:
+        g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+        return true;
+    case CPlayerState::EPlayerVisor::XRay:
+    default:
+        return false;
+    case CPlayerState::EPlayerVisor::Combat:
+    case CPlayerState::EPlayerVisor::Scan:
+        auto& fog = x870_cameraManager->Fog();
+        if (fog.IsFogDisabled())
+            return false;
+        fog.SetCurrent();
+        return true;
+    }
+}
 
 void CStateManager::PreRender()
 {
@@ -462,7 +671,7 @@ void CStateManager::PreRender()
         proj.setPersp(zeus::SProjPersp{zeus::degToRad(cam->GetFov()),
                                        cam->GetAspectRatio(), cam->GetNearClipDistance(), cam->GetFarClipDistance()});
         frustum.updatePlanes(x870_cameraManager->GetCurrentCameraTransform(*this), proj);
-        for (CGameArea* area = x850_world->x4c_chainHeads[3];
+        for (CGameArea* area = x850_world->GetChainHead(EChain::Alive);
              area != CWorld::AliveAreasEnd();
              area = area->x130_next)
         {
@@ -549,7 +758,20 @@ bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) c
     return false;
 }
 
-void CStateManager::RecursiveDrawTree(TUniqueId) const {}
+void CStateManager::RecursiveDrawTree(TUniqueId node) const
+{
+    if (TCastToConstPtr<CActor> actor = GetObjectById(node))
+    {
+        if (x8dc_objectDrawToken != actor->xc8_drawnToken)
+        {
+            if (actor->xc6_nextDrawNode != kInvalidUniqueId)
+                RecursiveDrawTree(actor->xc6_nextDrawNode);
+            if (x8dc_objectDrawToken == actor->xcc_addedToken)
+                actor->Render(*this);
+            const_cast<CActor*>(actor.GetPtr())->xc8_drawnToken = x8dc_objectDrawToken;
+        }
+    }
+}
 
 void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg)
 {

@@ -8,6 +8,7 @@ set(WORLD_SOURCES
     CEnergyDrainSource.hpp CEnergyDrainSource.cpp
     CPlayerCameraBob.hpp CPlayerCameraBob.cpp
     CMorphBall.hpp CMorphBall.cpp
+    CMorphBallShadow.hpp CMorphBallShadow.cpp
     CActor.hpp CActor.cpp
     CAi.hpp CAi.cpp
     CAiFuncMap.hpp CAiFuncMap.cpp

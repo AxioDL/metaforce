@@ -26,6 +26,7 @@ class CSimpleShadow;
 
 class CActor : public CEntity
 {
+    friend class CStateManager;
 protected:
     zeus::CTransform x34_transform;
     std::unique_ptr<CModelData> x64_modelData;
@@ -44,9 +45,9 @@ protected:
     float xbc_time = 0.f;
     s32 xc0_ = 0;
     TUniqueId xc4_fluidId = kInvalidUniqueId;
-    TUniqueId xc6_ = kInvalidUniqueId;
-    s32 xc8_ = -1;
-    s32 xcc_addedToken = -1;
+    TUniqueId xc6_nextDrawNode = kInvalidUniqueId;
+    u32 xc8_drawnToken = -1;
+    u32 xcc_addedToken = -1;
     float xd0_;
     u8 xd4_ = 0x7F;
     u32 xd8_ = 2;
@@ -160,6 +161,7 @@ public:
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
     void SetActorLights(std::unique_ptr<CActorLights>);
+    bool CanDrawStatic() const;
     bool GetE7_29() const  { return xe7_29_; }
 };
 }

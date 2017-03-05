@@ -1,6 +1,9 @@
 #include "CDecalManager.hpp"
 #include "CDecalDescription.hpp"
 #include "CDecal.hpp"
+#include "CStateManager.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
@@ -30,6 +33,21 @@ void CDecalManager::Initialize()
 void CDecalManager::Shutdown()
 {
 
+}
+
+void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr)
+{
+    for (s32 idx : m_ActiveIndexList)
+    {
+        CDecalManager::SDecal& decal = m_DecalPool[idx];
+        if (decal.x75_flags & 0x2 || mgr.GetParticleFlags())
+        {
+            const zeus::CVector3f& point = decal.x0_decal->xc_transform.origin;
+            zeus::CAABox aabb(point, point);
+            g_Renderer->AddDrawable(&*decal.x0_decal, point, aabb, 2,
+                                    IRenderer::EDrawableSorting::SortedCallback);
+        }
+    }
 }
 
 }

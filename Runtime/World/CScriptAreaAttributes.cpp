@@ -29,7 +29,7 @@ void CScriptAreaAttributes::Accept(IVisitor& visitor)
 
 void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {
-    AcceptScriptMsg(msg, objId, stateMgr);
+    CEntity::AcceptScriptMsg(msg, objId, stateMgr);
     if (x4_areaId == kInvalidAreaId)
         return;
 
@@ -50,11 +50,4 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
     }
 }
 
-bool CScriptAreaAttributes::GetNeedsSky() const { return x34_24_showSkybox; }
-
-bool CScriptAreaAttributes::GetNeedsEnvFx() const { return x38_envFx != EEnvFxType::None; }
-
-float CScriptAreaAttributes::GetThermalHeat() const { return x40_thermalHeat; }
-
-float CScriptAreaAttributes::GetWorldLightingLevel() const { return x48_worldLightingLevel; }
 }

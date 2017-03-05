@@ -378,8 +378,9 @@ void CGraphics::FlushProjection()
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point)
 {
     zeus::CVector3f projPt = GetPerspectiveProjectionMatrix(false).multiplyOneOverW(point);
-    return {int(projPt.x * g_Viewport.x10_halfWidth) + g_Viewport.x10_halfWidth,
-            g_Viewport.x14_halfHeight - (int(projPt.y * g_Viewport.x14_halfHeight) + g_Viewport.x14_halfHeight)};
+    return {int(projPt.x * g_Viewport.x10_halfWidth) + int(g_Viewport.x10_halfWidth),
+            int(g_Viewport.x14_halfHeight) - (int(projPt.y * g_Viewport.x14_halfHeight) +
+            int(g_Viewport.x14_halfHeight))};
 }
 
 SClipScreenRect CGraphics::ClipScreenRectFromMS(const zeus::CVector3f& p1,
@@ -462,7 +463,7 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 }
 
 static boo::SWindowRect CachedVP;
-static float CachedDepthRange[2] = {0.f, 1.f};
+zeus::CVector2f CGraphics::g_CachedDepthRange = {0.f, 1.f};
 
 void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height)
 {
@@ -470,7 +471,7 @@ void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height)
     CachedVP.location[1] = bottomOff;
     CachedVP.size[0] = width;
     CachedVP.size[1] = height;
-    g_BooMainCommandQueue->setViewport(CachedVP, CachedDepthRange[0], CachedDepthRange[1]);
+    g_BooMainCommandQueue->setViewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
 }
 
 void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height)
@@ -481,9 +482,9 @@ void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height)
 
 void CGraphics::SetDepthRange(float znear, float zfar)
 {
-    CachedDepthRange[0] = znear;
-    CachedDepthRange[1] = zfar;
-    g_BooMainCommandQueue->setViewport(CachedVP, CachedDepthRange[0], CachedDepthRange[1]);
+    g_CachedDepthRange[0] = znear;
+    g_CachedDepthRange[1] = zfar;
+    g_BooMainCommandQueue->setViewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
 }
 
 CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;

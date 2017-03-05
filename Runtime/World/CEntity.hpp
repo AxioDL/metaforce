@@ -61,6 +61,7 @@ public:
             return x4_areaId;
         return kInvalidAreaId;
     }
+    TAreaId GetAreaIdAlways() const { return x4_areaId; }
     TUniqueId GetUniqueId() const {return x8_uid;}
     TEditorId GetEditorId() const {return xc_editorId;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);

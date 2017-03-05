@@ -151,12 +151,12 @@ struct CTweakGui : ITweakGui
     Value<bool> x274_;
     bool x275_ = true;
     Value<float> x278_wtMgrCharsPerSfx;
-    Value<atUint32> x27c_;
-    Value<float> x280_;
-    Value<float> x284_;
-    DNAColor x288_;
-    Value<float> x28c_;
-    DNAColor x290_;
+    Value<atUint32> x27c_xrayFogMode;
+    Value<float> x280_xrayFogNearZ;
+    Value<float> x284_xrayFogFarZ;
+    DNAColor x288_xrayFogColor;
+    Value<float> x28c_thermalVisorLevel;
+    DNAColor x290_thermalVisorColor;
     DNAColor x294_;
     DNAColor x298_;
     DNAColor x29c_;
@@ -204,6 +204,12 @@ struct CTweakGui : ITweakGui
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
     float GetWorldTransManagerCharsPerSfx() const { return x278_wtMgrCharsPerSfx; }
+    atUint32 GetXRayFogMode() const { return x27c_xrayFogMode; }
+    float GetXRayFogNearZ() const { return x280_xrayFogNearZ; }
+    float GetXRayFogFarZ() const { return x284_xrayFogFarZ; }
+    const zeus::CColor& GetXRayFogColor() const { return x288_xrayFogColor; }
+    float GetThermalVisorLevel() const { return x28c_thermalVisorLevel; }
+    const zeus::CColor& GetThermalVisorColor() const { return x290_thermalVisorColor; }
 
     float GetScanSpeed(int idx) const
     {
@@ -224,14 +230,14 @@ struct CTweakGui : ITweakGui
         x210_ = zeus::degToRad(x210_);
         x228_ = x220_ + x224_;
 
-        if (x27c_ == 1)
-            x27c_ = 2;
-        else if (x27c_ == 2)
-            x27c_ = 4;
-        else if (x27c_ == 3)
-            x27c_ = 5;
+        if (x27c_xrayFogMode == 1)
+            x27c_xrayFogMode = 2;
+        else if (x27c_xrayFogMode == 2)
+            x27c_xrayFogMode = 4;
+        else if (x27c_xrayFogMode == 3)
+            x27c_xrayFogMode = 5;
         else
-            x27c_ = 0;
+            x27c_xrayFogMode = 0;
 
         x84_ *= 2.0f;
     }

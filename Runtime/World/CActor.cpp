@@ -24,7 +24,7 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
 : CEntity(uid, info, active, name)
 , x68_material(MakeActorMaterialList(list, params))
 , x70_materialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}))
-, xc6_(otherUid)
+, xc6_nextDrawNode(otherUid)
 {
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
@@ -74,8 +74,8 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
                 continue;
 
             const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
-            if (act && xc6_ == kInvalidUniqueId)
-                xc6_ = act->GetUniqueId();
+            if (act && xc6_nextDrawNode == kInvalidUniqueId)
+                xc6_nextDrawNode = act->GetUniqueId();
         }
     }
     break;
@@ -311,5 +311,16 @@ void CActor::SetActorLights(std::unique_ptr<CActorLights> lights)
 {
     x90_actorLights = std::move(lights);
     xe4_31_lightsDirty = true;
+}
+
+bool CActor::CanDrawStatic() const
+{
+    if (!x30_24_active)
+        return false;
+
+    if (x64_modelData && x64_modelData->HasNormalModel())
+        return xb4_ <= 4;
+
+    return false;
 }
 }

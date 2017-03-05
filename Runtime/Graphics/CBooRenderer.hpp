@@ -99,6 +99,11 @@ class CBooRenderer : public IRenderer
     boo::ITextureS* x220_sphereRamp = nullptr;
     TLockedToken<CTexture> m_thermoPaletteTex;
     boo::ITexture* x288_thermoPalette = nullptr;
+    TLockedToken<CTexture> m_ballFadeTex;
+    boo::ITexture* m_ballFade = nullptr;
+    boo::ITextureR* m_ballShadowId = nullptr;
+    int m_ballShadowIdW = 64;
+    int m_ballShadowIdH = 64;
 
     CRandom16 x2a8_thermalRand;
     std::list<u32> x2b8_;
@@ -111,6 +116,7 @@ class CBooRenderer : public IRenderer
     float x2f0_thermalVisorLevel;
     zeus::CColor x2f4_thermColor;
     float x2f8_thermColdScale = 0.f;
+    zeus::CColor x2fc_tevReg1Color = {1.f, 0.f, 1.f, 1.f};
     CThermalColdFilter m_thermColdFilter;
     std::experimental::optional<CThermalHotFilter> m_thermHotFilter;
 
@@ -135,6 +141,7 @@ class CBooRenderer : public IRenderer
     void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void LoadThermoPalette();
+    void LoadBallFade();
 
     void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
     void RenderBucketItems(CAreaListItem* item);
@@ -157,7 +164,7 @@ public:
     void AddParticleGen(const CParticleGen&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);
     void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting);
-    void SetDrawableCallback(TDrawableCallback&&, const void*);
+    void SetDrawableCallback(TDrawableCallback, const void*);
     void SetWorldViewpoint(const zeus::CTransform&);
     void SetPerspective(float, float, float, float, float);
     void SetPerspective(float, float, float, float);
@@ -203,11 +210,29 @@ public:
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
     void PrepareDynamicLights(const std::vector<CLight>& lights);
+    void SetWorldLightFadeLevel(float level);
 
     boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
 
     void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}
+    void BindBallShadowIdTarget()
+    {
+        CGraphics::g_BooMainCommandQueue->setRenderTarget(m_ballShadowId);
+        SetViewport(0, 0, m_ballShadowIdW, m_ballShadowIdH);
+    }
+    void ResolveBallShadowIdTarget()
+    {
+        CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_ballShadowId,
+                                                             boo::SWindowRect(0, 0,
+                                                                              m_ballShadowIdW,
+                                                                              m_ballShadowIdH),
+                                                             false, true, false);
+    }
+
+    void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
+    int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
+                                     const zeus::CAABox& aabb) const;
 };
 
 }
