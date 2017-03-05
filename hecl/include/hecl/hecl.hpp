@@ -35,7 +35,7 @@
 #include <map>
 #include "logvisor/logvisor.hpp"
 #include <athena/Global.hpp>
-#include "../extern/xxhash/xxhash.h"
+#include "../extern/boo/xxhash/xxhash.h"
 
 namespace hecl
 {
