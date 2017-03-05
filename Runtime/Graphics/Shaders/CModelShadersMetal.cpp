@@ -83,9 +83,9 @@ static const char* SolidPostMetal =
 "\n";
 
 static const char* MBShadowPostMetal =
-"UBINDING2 uniform MBShadowUniform\n"
+"struct MBShadowUniform\n"
 "{\n"
-"    vec4 shadowUp;\n"
+"    float4 shadowUp;\n"
 "    float shadowId;\n"
 "};\n"
 "static float4 MBShadowPostFunc(thread VertToFrag& vtf, constant MBShadowUniform& su,\n"
