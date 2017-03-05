@@ -317,7 +317,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         objOut =
         static_cast<boo::ID3DDataFactory::Context&>(ctx).
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                              vertBlob, fragBlob, pipelineBlob,
+                              ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                               tag.newVertexFormat(ctx),
                               boo::BlendFactor(m_backend.m_blendSrc),
                               boo::BlendFactor(m_backend.m_blendDst),
@@ -412,7 +412,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         boo::IShaderPipeline* ret =
         static_cast<boo::ID3DDataFactory::Context&>(ctx).
             newShaderPipeline(nullptr, nullptr,
-                              vertBlob, fragBlob, pipelineBlob,
+                              ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                               tag.newVertexFormat(ctx),
                               blendSrc, blendDst, tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
@@ -454,7 +454,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::ID3DDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  thisPipeBlobs.vert, thisPipeBlobs.frag, thisPipeBlobs.pipeline,
+                                  ReferenceComPtr(thisPipeBlobs.vert), ReferenceComPtr(thisPipeBlobs.frag), ReferenceComPtr(thisPipeBlobs.pipeline),
                                   tag.newVertexFormat(ctx),
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
@@ -552,7 +552,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::ID3DDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
-                                  vertBlob, fragBlob, pipelineBlob,
+                                  ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                                   tag.newVertexFormat(ctx),
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),

@@ -270,7 +270,7 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     for (int i=0 ; i<extTexCount ; ++i)
     {
         const TextureInfo& extTex = extTexs[i];
-        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n",
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D extTex%u;\n",
                                    extTex.mapIdx, extTex.mapIdx);
     }
 
@@ -552,7 +552,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         objOut =
         static_cast<boo::VulkanDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  vertBlob, fragBlob, pipelineBlob, tag.newVertexFormat(ctx),
+                                  &vertBlob, &fragBlob, &pipelineBlob, tag.newVertexFormat(ctx),
                                   boo::BlendFactor(m_backend.m_blendSrc), boo::BlendFactor(m_backend.m_blendDst),
                                   tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
                                   tag.getBackfaceCulling());
@@ -629,7 +629,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         boo::IShaderPipeline* ret =
         static_cast<boo::VulkanDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
-                                  vertBlob, fragBlob, pipelineBlob,
+                                  &vertBlob, &fragBlob, &pipelineBlob,
                                   tag.newVertexFormat(ctx),
                                   blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
@@ -673,7 +673,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::VulkanDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      pipeBlob.vert, pipeBlob.frag, pipeBlob.pipeline,
+                                      &pipeBlob.vert, &pipeBlob.frag, &pipeBlob.pipeline,
                                       tag.newVertexFormat(ctx),
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ?
                                                            m_backend.m_blendSrc : slot.srcFactor),
@@ -766,7 +766,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             boo::IShaderPipeline* ret =
             static_cast<boo::VulkanDataFactory::Context&>(ctx).
                     newShaderPipeline(nullptr, nullptr,
-                                      vertBlob, fragBlob, pipelineBlob,
+                                      &vertBlob, &fragBlob, &pipelineBlob,
                                       tag.newVertexFormat(ctx),
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),

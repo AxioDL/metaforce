@@ -298,8 +298,8 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         const TextureInfo& extTex = extTexs[i];
         if (extTexCall.size())
             extTexCall += ", ";
-        extTexCall += hecl::Format("tex%u", extTex.mapIdx);
-        texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
+        extTexCall += hecl::Format("extTex%u", extTex.mapIdx);
+        texMapDecl += hecl::Format(",\ntexture2d<float> extTex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
     }
 
     std::string blockCall;
