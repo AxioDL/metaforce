@@ -1,6 +1,7 @@
 #include "CScriptActor.hpp"
 #include "CStateManager.hpp"
 #include "CScriptTrigger.hpp"
+#include "Camera/CGameCamera.hpp"
 #include "CDamageVulnerability.hpp"
 #include "CPlayerState.hpp"
 #include "CScriptColorModulate.hpp"

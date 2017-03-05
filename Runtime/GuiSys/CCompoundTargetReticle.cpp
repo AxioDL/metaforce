@@ -1,5 +1,6 @@
 #include "CCompoundTargetReticle.hpp"
 #include "GameGlobalObjects.hpp"
+#include "Camera/CGameCamera.hpp"
 #include "CSimplePool.hpp"
 #include "Graphics/CModel.hpp"
 #include "CStateManager.hpp"
@@ -23,8 +24,8 @@ CTargetReticleRenderState::CTargetReticleRenderState(TUniqueId target, float f1,
 }
 
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
-: x0_(static_cast<const CActor*>(mgr.GetCameraManager()->GetCurrentCamera(mgr))->GetTransform().buildMatrix3f())
-, x10_(static_cast<const CActor*>(mgr.GetCameraManager()->GetCurrentCamera(mgr))->GetTransform().buildMatrix3f())
+: x0_(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
+, x10_(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
 , x2c_overshootOffsetHalf(0.5f * g_tweakTargeting->GetOvershootOffset())
 , x30_premultOvershootOffset(calculate_premultiplied_overshoot_offset(g_tweakTargeting->GetOvershootOffset()))
 , x34_crosshairs(g_SimplePool->GetObj(skCrosshairsReticleAssetName))

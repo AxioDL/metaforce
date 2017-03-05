@@ -82,7 +82,21 @@ void CCollisionActor::SetDamageVulnerability(const CDamageVulnerability& vuln) {
 zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateManager& mgr)
 {
     const CGameCamera* gameCamera = static_cast<const CGameCamera*>(mgr.GetCameraManager()->GetCurrentCamera(mgr));
-    return {};
+
+    float scanScale;
+    if (x258_primitiveType == EPrimitiveType::Sphere)
+        scanScale = GetSphereRadius();
+    else
+    {
+        const zeus::CVector3f v = GetBoxSize();
+        float comp = (v.x < v.y ? v.y : v.z);
+        comp = (comp < v.z ? v.x : comp);
+
+        scanScale = 0.5f * comp;
+    }
+    scanScale *= 3.0f;
+    zeus::CVector3f orbitPos = GetOrbitPosition(mgr);
+    return (scanScale * (orbitPos - gameCamera->GetTransform().origin).normalized()) - orbitPos;
 }
 
 const CCollisionPrimitive* CCollisionActor::GetCollisionPrimitive() const

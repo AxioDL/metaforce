@@ -142,16 +142,16 @@ void CCameraManager::Update(float dt, CStateManager& stateMgr)
 #endif
 }
 
-CEntity* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
+CGameCamera* CCameraManager::GetCurrentCamera(CStateManager& stateMgr) const
 {
     CObjectList* camList = stateMgr.ObjectListById(EGameObjectList::GameCamera);
-    return camList->GetObjectById(GetCurrentCameraId());
+    return static_cast<CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
 }
 
-const CEntity* CCameraManager::GetCurrentCamera(const CStateManager& stateMgr) const
+const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMgr) const
 {
     const CObjectList* camList = stateMgr.GetObjectListById(EGameObjectList::GameCamera);
-    return camList->GetObjectById(GetCurrentCameraId());
+    return static_cast<const CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
 }
 
 void CCameraManager::SkipCinematic(CStateManager& stateMgr)
