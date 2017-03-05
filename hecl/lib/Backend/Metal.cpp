@@ -285,11 +285,19 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     if (post.m_entry)
         postEntry = post.m_entry;
 
+    int extTexBits = 0;
+    for (int i=0 ; i<extTexCount ; ++i)
+    {
+        const TextureInfo& extTex = extTexs[i];
+        extTexBits |= 1 << extTex.mapIdx;
+    }
+
     std::string texMapDecl;
     if (m_texMapEnd)
     {
         for (int i=0 ; i<m_texMapEnd ; ++i)
-            texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
+            if (!(extTexBits & (1 << i)))
+                texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
     }
 
     std::string extTexCall;
@@ -298,8 +306,9 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         const TextureInfo& extTex = extTexs[i];
         if (extTexCall.size())
             extTexCall += ", ";
-        extTexCall += hecl::Format("extTex%u", extTex.mapIdx);
-        texMapDecl += hecl::Format(",\ntexture2d<float> extTex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
+        extTexCall += hecl::Format("tex%u", extTex.mapIdx);
+        texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
+        extTexBits |= 1 << extTex.mapIdx;
     }
 
     std::string blockCall;
