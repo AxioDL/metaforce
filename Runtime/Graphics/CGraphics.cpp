@@ -463,7 +463,7 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 }
 
 static boo::SWindowRect CachedVP;
-static float CachedDepthRange[2] = {0.f, 1.f};
+zeus::CVector2f CGraphics::g_CachedDepthRange = {0.f, 1.f};
 
 void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height)
 {
@@ -471,7 +471,7 @@ void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height)
     CachedVP.location[1] = bottomOff;
     CachedVP.size[0] = width;
     CachedVP.size[1] = height;
-    g_BooMainCommandQueue->setViewport(CachedVP, CachedDepthRange[0], CachedDepthRange[1]);
+    g_BooMainCommandQueue->setViewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
 }
 
 void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height)
@@ -482,9 +482,9 @@ void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height)
 
 void CGraphics::SetDepthRange(float znear, float zfar)
 {
-    CachedDepthRange[0] = znear;
-    CachedDepthRange[1] = zfar;
-    g_BooMainCommandQueue->setViewport(CachedVP, CachedDepthRange[0], CachedDepthRange[1]);
+    g_CachedDepthRange[0] = znear;
+    g_CachedDepthRange[1] = zfar;
+    g_BooMainCommandQueue->setViewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
 }
 
 CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;

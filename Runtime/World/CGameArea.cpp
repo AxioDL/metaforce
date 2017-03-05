@@ -414,16 +414,6 @@ bool CGameArea::IGetScriptingMemoryAlways() const
     return false;
 }
 
-TAreaId CGameArea::IGetAreaId() const
-{
-    return 0;
-}
-
-ResId CGameArea::IGetAreaAssetId() const
-{
-    return 0;
-}
-
 bool CGameArea::IIsActive() const
 {
     return false;

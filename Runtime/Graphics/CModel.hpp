@@ -126,8 +126,6 @@ private:
     void DrawSurfaces(const CModelFlags& flags) const;
     void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
 
-    void VerifyCurrentShader(int shaderIdx);
-
     static zeus::CVector3f g_PlayerPosition;
     static float g_ModSeconds;
     static float g_TransformedTime;
@@ -152,6 +150,7 @@ public:
     bool TryLockTextures() const;
     void UnlockTextures() const;
     void Touch(int shaderIdx) const;
+    void VerifyCurrentShader(int shaderIdx);
     void UpdateUniformData(const CModelFlags& flags,
                            const CSkinRules* cskr,
                            const CPoseAsTransforms* pose) const;
@@ -178,6 +177,7 @@ public:
 
     static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos);
     static void KillCachedViewDepState();
+
 };
 
 class CModel

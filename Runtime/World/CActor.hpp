@@ -161,6 +161,7 @@ public:
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
     void SetActorLights(std::unique_ptr<CActorLights>);
+    bool CanDrawStatic() const;
     bool GetE7_29() const  { return xe7_29_; }
 };
 }

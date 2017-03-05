@@ -99,6 +99,11 @@ class CBooRenderer : public IRenderer
     boo::ITextureS* x220_sphereRamp = nullptr;
     TLockedToken<CTexture> m_thermoPaletteTex;
     boo::ITexture* x288_thermoPalette = nullptr;
+    TLockedToken<CTexture> m_ballFadeTex;
+    boo::ITexture* m_ballFade = nullptr;
+    boo::ITextureR* m_ballShadowId = nullptr;
+    int m_ballShadowIdW = 64;
+    int m_ballShadowIdH = 64;
 
     CRandom16 x2a8_thermalRand;
     std::list<u32> x2b8_;
@@ -136,6 +141,7 @@ class CBooRenderer : public IRenderer
     void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void LoadThermoPalette();
+    void LoadBallFade();
 
     void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
     void RenderBucketItems(CAreaListItem* item);
@@ -210,6 +216,23 @@ public:
 
     void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}
+    void BindBallShadowIdTarget()
+    {
+        CGraphics::g_BooMainCommandQueue->setRenderTarget(m_ballShadowId);
+        SetViewport(0, 0, m_ballShadowIdW, m_ballShadowIdH);
+    }
+    void ResolveBallShadowIdTarget()
+    {
+        CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_ballShadowId,
+                                                             boo::SWindowRect(0, 0,
+                                                                              m_ballShadowIdW,
+                                                                              m_ballShadowIdH),
+                                                             false, true, false);
+    }
+
+    void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
+    int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
+                                     const zeus::CAABox& aabb) const;
 };
 
 }

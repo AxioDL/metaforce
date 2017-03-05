@@ -220,6 +220,7 @@ public:
     };
 
     static CProjectionState g_Proj;
+    static zeus::CVector2f g_CachedDepthRange;
     static CFogState g_Fog;
     static float g_ProjAspect;
     static u32 g_NumLightsActive;

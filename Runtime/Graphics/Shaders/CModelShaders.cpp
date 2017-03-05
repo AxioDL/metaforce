@@ -32,6 +32,13 @@ const hecl::Backend::TextureInfo CModelShaders::ThermalTextures[] =
     {hecl::Backend::TexGenSrc::Normal, 7, 0, 7, true}
 };
 
+const hecl::Backend::TextureInfo CModelShaders::BallFadeTextures[] =
+{
+    {hecl::Backend::TexGenSrc::Position, 0, 0, 0, false}, // ID tex
+    {hecl::Backend::TexGenSrc::Position, 1, 0, 0, false}, // Sphere ramp
+    {hecl::Backend::TexGenSrc::Position, 2, 0, 1, false}  // TXTR_BallFade
+};
+
 CModelShaders::CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
                              boo::IGraphicsDataFactory* gfxFactory)
     : m_shaderCache(storeMgr, gfxFactory, GetShaderExtensions(gfxFactory->platform())) {}

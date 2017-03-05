@@ -266,8 +266,9 @@ public:
     void SetPauseState(bool paused);
 
     bool IGetScriptingMemoryAlways() const;
-    TAreaId IGetAreaId() const;
-    ResId IGetAreaAssetId() const;
+    TAreaId GetAreaId() const { return x4_selfIdx; }
+    TAreaId IGetAreaId() const { return x4_selfIdx; }
+    ResId IGetAreaAssetId() const { return x84_mrea; }
     bool IIsActive() const;
     TAreaId IGetAttachedAreaId(int) const;
     u32 IGetNumAttachedAreas() const;

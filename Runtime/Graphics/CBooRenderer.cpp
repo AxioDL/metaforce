@@ -295,6 +295,14 @@ void CBooRenderer::LoadThermoPalette()
         x288_thermoPalette = thermoTexObj->GetPaletteTexture();
 }
 
+void CBooRenderer::LoadBallFade()
+{
+    m_ballFadeTex = xc_store.GetObj("TXTR_BallFade");
+    CTexture* ballFadeTexObj = m_ballFadeTex.GetObj();
+    if (ballFadeTexObj)
+        m_ballFade = ballFadeTexObj->GetBooTexture();
+}
+
 CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 : x8_factory(resFac), xc_store(store), x2a8_thermalRand(20)
 {
@@ -305,9 +313,11 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
     {
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
+        m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, true, false);
         return true;
     });
     LoadThermoPalette();
+    LoadBallFade();
     m_thermHotFilter.emplace();
 
     Buckets::Init();
@@ -730,6 +740,93 @@ void CBooRenderer::PrepareDynamicLights(const std::vector<CLight>& lights)
 void CBooRenderer::SetWorldLightFadeLevel(float level)
 {
     x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f);
+}
+
+void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const
+{
+    u32 bitmapWords = 0;
+    for (const CAreaListItem& item : x1c_areaListItems)
+        if (item.x4_octTree)
+            bitmapWords += item.x4_octTree->x14_bitmapWordCount;
+
+    if (!bitmapWords)
+    {
+        modelBits.clear();
+        return;
+    }
+
+    modelBits.clear();
+    modelBits.resize(bitmapWords);
+
+    u32 curWord = 0;
+    for (const CAreaListItem& item : x1c_areaListItems)
+    {
+        if (!item.x4_octTree)
+            continue;
+
+        item.x4_octTree->FindOverlappingModels(modelBits.data() + curWord, aabb);
+
+        u32 wordModel = 0;
+        for (int i=0 ; i<item.x4_octTree->x14_bitmapWordCount ; ++i, wordModel += 32)
+        {
+            u32& word = modelBits[i];
+            if (!word)
+                continue;
+            for (int j=0 ; j<32 ; ++j)
+            {
+                if ((1 << j) & word)
+                {
+                    const zeus::CAABox& modelAABB = item.x10_models[wordModel + j]->x20_aabb;
+                    if (!modelAABB.intersects(aabb))
+                        word &= ~(1 << j);
+                }
+            }
+        }
+
+        curWord += item.x4_octTree->x14_bitmapWordCount;
+    }
+}
+
+int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
+                                               const zeus::CAABox& aabb) const
+{
+    CModelFlags flags(0, 0, 3, zeus::CColor{1.f, 1.f, 1.f, alphaVal / 255.f});
+    flags.m_extendedShaderIdx = 5; // Do solid color draw
+
+    u32 curWord = 0;
+    for (const CAreaListItem& item : x1c_areaListItems)
+    {
+        if (!item.x4_octTree)
+            continue;
+
+        u32 wordModel = 0;
+        for (int i=0 ; i<item.x4_octTree->x14_bitmapWordCount ; ++i, wordModel += 32)
+        {
+            const u32& word = modelBits[i];
+            if (!word)
+                continue;
+            for (int j=0 ; j<32 ; ++j)
+            {
+                if ((1 << j) & word)
+                {
+                    if (alphaVal > 255)
+                        return alphaVal;
+
+                    const CBooModel& model = *item.x10_models[wordModel + j];
+                    const_cast<CBooModel&>(model).VerifyCurrentShader(0);
+                    for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
+                        if (surf->GetBounds().intersects(aabb))
+                            model.DrawSurface(*surf, flags);
+                    alphaVal += 4;
+                    flags.color.a = alphaVal / 255.f;
+                }
+            }
+        }
+
+        curWord += item.x4_octTree->x14_bitmapWordCount;
+    }
+
+    return alphaVal;
 }
 
 }

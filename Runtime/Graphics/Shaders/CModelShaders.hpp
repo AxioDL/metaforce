@@ -22,6 +22,7 @@ class CModelShaders
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat);
     static const hecl::Backend::TextureInfo ThermalTextures[];
+    static const hecl::Backend::TextureInfo BallFadeTextures[];
 public:
     struct Light
     {
@@ -45,6 +46,17 @@ public:
     {
         zeus::CColor mulColor;
         zeus::CColor addColor;
+    };
+
+    struct SolidUniform
+    {
+        zeus::CColor solidColor;
+    };
+
+    struct MBShadowUniform
+    {
+        zeus::CVector4f shadowUp;
+        float shadowId;
     };
 
     static void Initialize(const hecl::Runtime::FileStoreManager& storeMgr,

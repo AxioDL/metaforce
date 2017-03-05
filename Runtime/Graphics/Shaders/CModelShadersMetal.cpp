@@ -71,8 +71,40 @@ static const char* ThermalPostMetal =
 "}\n"
 "\n";
 
+static const char* SolidPostMetal =
+"struct SolidUniform\n"
+"{\n"
+"    float4 solidColor;\n"
+"};\n"
+"static float4 SolidPostFunc(thread VertToFrag& vtf, constant SolidUniform& lu, float4 colorIn)\n"
+"{\n"
+"    return lu.solidColor;\n"
+"}\n"
+"\n";
+
+static const char* MBShadowPostMetal =
+"UBINDING2 uniform MBShadowUniform\n"
+"{\n"
+"    vec4 shadowUp;\n"
+"    float shadowId;\n"
+"};\n"
+"static float4 MBShadowPostFunc(thread VertToFrag& vtf, constant MBShadowUniform& su,\n"
+"                               texture2d<float> tex0, texture2d<float> tex1, texture2d<float> tex2, float4 colorIn)\n"
+"{\n"
+"    float idTexel = tex0.sample(samp, vtf.extTcgs0).a;\n"
+"    float sphereTexel = tex1.sample(samp, vtf.extTcgs1).a;\n"
+"    float fadeTexel = tex2.sample(samp, vtf.extTcgs2).a;\n"
+"    float val = ((fabs(idTexel - su.shadowId) < 0.001) ?\n"
+"        (dot(vtf.mvNorm.xyz, su.shadowUp.xyz) * su.shadowUp.w) : 0.0) *\n"
+"        sphereTexel * fadeTexel;\n"
+"    return float4(0.0, 0.0, 0.0, val);\n"
+"}\n"
+"\n";
+
 static const char* BlockNames[] = {"LightingUniform"};
 static const char* ThermalBlockNames[] = {"ThermalUniform"};
+static const char* SolidBlockNames[] = {"SolidUniform"};
+static const char* MBShadowBlockNames[] = {"MBShadowUniform"};
 
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat)
@@ -98,6 +130,17 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
     ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"},
                               1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::One);
+
+    /* Solid shading */
+    ext.registerExtensionSlot({}, {SolidPostMetal, "SolidPostFunc"},
+                              1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero);
+
+    /* MorphBall shadow shading */
+    ext.registerExtensionSlot({}, {MBShadowPostMetal, "MBShadowPostFunc"},
+                              1, MBShadowBlockNames, 3, BallFadeTextures,
+                              hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha);
 
     return ext;
 }

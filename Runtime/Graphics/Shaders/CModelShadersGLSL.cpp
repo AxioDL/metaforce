@@ -72,6 +72,35 @@ static const char* ThermalPostGLSL =
 "}\n"
 "\n";
 
+static const char* SolidPostGLSL =
+"UBINDING2 uniform SolidUniform\n"
+"{\n"
+"    vec4 solidColor;\n"
+"};\n"
+"vec4 SolidPostFunc(vec4 colorIn)\n"
+"{\n"
+"    return solidColor;\n"
+"}\n"
+"\n";
+
+static const char* MBShadowPostGLSL =
+"UBINDING2 uniform MBShadowUniform\n"
+"{\n"
+"    vec4 shadowUp;\n"
+"    float shadowId;\n"
+"};\n"
+"vec4 MBShadowPostFunc(vec4 colorIn)\n"
+"{\n"
+"    float idTexel = texture(tex0, vtf.extTcgs[0]).a;\n"
+"    float sphereTexel = texture(tex1, vtf.extTcgs[1]).a;\n"
+"    float fadeTexel = texture(tex2, vtf.extTcgs[2]).a;\n"
+"    float val = ((abs(idTexel - shadowId) < 0.001) ?\n"
+"        (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *\n"
+"        sphereTexel * fadeTexel;\n"
+"    return vec4(0.0, 0.0, 0.0, val);\n"
+"}\n"
+"\n";
+
 static const char* BlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
                                    HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
                                    "LightingUniform"};
@@ -79,6 +108,14 @@ static const char* BlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
 static const char* ThermalBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
                                           HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
                                          "ThermalUniform"};
+
+static const char* SolidBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
+                                        HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
+                                        "SolidUniform"};
+
+static const char* MBShadowBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
+                                           HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
+                                           "MBShadowUniform"};
 
 hecl::Runtime::ShaderCacheExtensions
 CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
@@ -104,6 +141,17 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
                               3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::One);
+
+    /* Solid shading */
+    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
+                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero);
+
+    /* MorphBall shadow shading */
+    ext.registerExtensionSlot({}, {MBShadowPostGLSL, "MBShadowPostFunc"},
+                              3, MBShadowBlockNames, 3, BallFadeTextures,
+                              hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha);
 
     return ext;
 }

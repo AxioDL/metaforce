@@ -312,4 +312,15 @@ void CActor::SetActorLights(std::unique_ptr<CActorLights> lights)
     x90_actorLights = std::move(lights);
     xe4_31_lightsDirty = true;
 }
+
+bool CActor::CanDrawStatic() const
+{
+    if (!x30_24_active)
+        return false;
+
+    if (x64_modelData && x64_modelData->HasNormalModel())
+        return xb4_ <= 4;
+
+    return false;
+}
 }
