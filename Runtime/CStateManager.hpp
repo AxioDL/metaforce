@@ -44,6 +44,7 @@ class CPlayer;
 class CWorld;
 class CTexture;
 class CWorldLayerState;
+class CProjectedShadow;
 
 namespace MP1
 {
@@ -206,7 +207,7 @@ class CStateManager
     TUniqueId xf76_lastRelay = kInvalidUniqueId;
 
     float xf78_hudMessageTime = 0.f;
-    u32 xf7c_ = 0;
+    CProjectedShadow* xf7c_projectedShadow = nullptr;
     u32 xf80_hudMessageFrameCount = 0;
     ResId xf84_ = -1;
     ResId xf88_ = -1;
@@ -268,6 +269,7 @@ public:
     void DrawE3DeathEffect() const;
     void DrawAdditionalFilters() const;
     zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
+    void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
     void DrawWorld() const;
     void SetupFogForArea(const CGameArea& area) const;
     bool SetupFogForDraw() const;

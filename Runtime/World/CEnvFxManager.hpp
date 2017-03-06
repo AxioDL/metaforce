@@ -43,6 +43,7 @@ public:
     void AsyncLoadResources(CStateManager& mgr);
 
     void Update(float, float, EEnvFxType, const CStateManager&);
+    void Render(const CStateManager& mgr);
     void SetFxDensity(s32, float);
     void MoveWrapCells(s32, s32);
     void GetParticleBoundsToWorldScale() const;

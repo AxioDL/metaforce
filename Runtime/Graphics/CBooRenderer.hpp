@@ -49,6 +49,7 @@ class CBooRenderer : public IRenderer
 {
     friend class CBooModel;
     friend class CWorldTransManager;
+    friend class CMorphBallShadow;
 
     struct CAreaListItem
     {
@@ -88,7 +89,7 @@ class CBooRenderer : public IRenderer
         PVSAndMask
     } xc4_pvsMode = EPVSMode::Mask;
     std::experimental::optional<CPVSVisSet> xc8_pvs;
-    u32 xe0_pvsModelCount = 0;
+    u32 xe0_pvsAreaIdx = 0;
 
     //boo::ITextureS* xe4_blackTex = nullptr;
     bool xee_24_ : 1;
@@ -128,12 +129,12 @@ class CBooRenderer : public IRenderer
         {
             bool x318_24_refectionDirty : 1;
             bool x318_25_drawWireframe : 1;
-            bool x318_26_ : 1;
-            bool x318_27_ : 1;
+            bool x318_26_requestRGBA6 : 1;
+            bool x318_27_currentRGBA6 : 1;
             bool x318_28_disableFog : 1;
             bool x318_29_thermalVisor : 1;
-            bool x318_30_ : 1;
-            bool x318_31_ : 1;
+            bool x318_30_inAreaDraw : 1;
+            bool x318_31_persistRGBA6 : 1;
         };
         u16 dummy = 0;
     };
@@ -157,6 +158,7 @@ public:
     void EnablePVS(const CPVSVisSet*, u32);
     void DisablePVS();
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
+    void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
     void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask);
     void DrawSortedGeometry(int areaIdx, int mask, int targetMask);
     void DrawStaticGeometry(int areaIdx, int mask, int targetMask);
@@ -233,6 +235,8 @@ public:
     void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
     int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
                                      const zeus::CAABox& aabb) const;
+    void DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
+                                          const zeus::CAABox& aabb, float alpha) const;
 };
 
 }

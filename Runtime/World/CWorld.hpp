@@ -156,6 +156,7 @@ public:
     void MoveAreaToChain3(TAreaId aid);
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
     CGameArea* GetChainHead(EChain chain) { return x4c_chainHeads[int(chain)]; }
+    const CGameArea* GetChainHead(EChain chain) const { return x4c_chainHeads[int(chain)]; }
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
     void SetPauseState(bool paused);

@@ -26,6 +26,7 @@ class CPlayer : public CPhysicsActor
     friend class CStateManager;
     friend class CFirstPersonCamera;
     friend class CPlayerCameraBob;
+    friend class CMorphBall;
 
 public:
     enum class EPlayerScanState
@@ -173,8 +174,8 @@ private:
     float x560_ = 0.f;
     zeus::CVector3f x564_;
     float x570_ = 0.f;
-    float x574_ = 0.f;
-    float x578_ = 0.f;
+    float x574_morphTime = 0.f;
+    float x578_morphDuration = 0.f;
     u32 x57c_ = 0;
     u32 x580_ = 0;
     float x588_alpha = 1.f;
@@ -314,8 +315,8 @@ public:
     void SetSpawnedMorphBallState(EPlayerMorphBallState, CStateManager&);
     bool GetExplorationMode() const;
     bool GetCombatMode() const;
-    void RenderGun(CStateManager& mgr, const zeus::CVector3f&) const;
-    void Render(CStateManager& mgr) const;
+    void RenderGun(const CStateManager& mgr, const zeus::CVector3f&) const;
+    void Render(const CStateManager& mgr) const;
     void RenderReflectedPlayer(CStateManager& mgr) const;
     void PreRender(CStateManager& mgr, const zeus::CFrustum&);
     void CalculateRenderBounds();

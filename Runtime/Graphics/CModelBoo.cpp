@@ -506,9 +506,42 @@ void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut)
     bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
 }
 
+static const zeus::CMatrix4f MBShadowPost0(1.f, 0.f, 0.f, 0.f,
+                                           0.f, -1.f, 0.f, 1.f,
+                                           0.f, 0.f, 0.f, 1.f,
+                                           0.f, 0.f, 0.f, 1.f);
+
+static const zeus::CMatrix4f MBShadowPost1(0.f, 0.f, 0.f, 1.f,
+                                           0.f, 0.f, 1.f, -0.0625f,
+                                           0.f, 0.f, 0.f, 1.f,
+                                           0.f, 0.f, 0.f, 1.f);
+
 void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags)
 {
     u8* start = bufOut;
+
+    /* Special matrices for MorphBall shadow rendering */
+    if (flags.m_extendedShaderIdx == 6)
+    {
+        zeus::CMatrix4f texMtx =
+        (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max.x - flags.mbShadowBox.min.x),
+                                 1.f / (flags.mbShadowBox.max.y - flags.mbShadowBox.min.y),
+                                 1.f / (flags.mbShadowBox.max.z - flags.mbShadowBox.min.z)) *
+         zeus::CTransform::Translate(-flags.mbShadowBox.min.x,
+                                     -flags.mbShadowBox.min.y,
+                                     -flags.mbShadowBox.min.z) * CGraphics::g_GXModelView).toMatrix4f();
+        for (const MaterialSet::Material& mat : matSet->materials)
+        {
+            std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
+            mtxs[0][0] = texMtx;
+            mtxs[0][1] = MBShadowPost0;
+            mtxs[1][0] = texMtx;
+            mtxs[1][1] = MBShadowPost1;
+            bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
+            PadOutBuffer(start, bufOut);
+        }
+        return;
+    }
 
     /* Special Mode0 matrix for exclusive Thermal Visor use */
     std::experimental::optional<std::array<zeus::CMatrix4f, 2>> thermalMtxOut;

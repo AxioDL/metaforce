@@ -25,8 +25,10 @@ public:
     CProjectedShadow(u32, u32, bool);
 
     zeus::CAABox CalculateRenderBounds();
-    void Render(CStateManager&, const CModelData&, const zeus::CTransform&, s32, const zeus::CVector3f&, float,
-                   float);
+    void Render(const CStateManager& mgr);
+    void RenderShadowBuffer(const CStateManager&, const CModelData&,
+                            const zeus::CTransform&, s32,
+                            const zeus::CVector3f&, float, float);
 };
 }
 #endif // __URDE_CPROJECTEDSHADOW_HPP__

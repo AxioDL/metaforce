@@ -9,6 +9,11 @@ CEnvFxManager::CEnvFxManager()
 
 }
 
+void CEnvFxManager::Render(const CStateManager& mgr)
+{
+
+}
+
 void CEnvFxManager::AsyncLoadResources(CStateManager& mgr)
 {
 }

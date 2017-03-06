@@ -268,7 +268,7 @@ void CWorldTransManager::DrawEnabled()
                                wsAspect,
                                CCameraManager::NearPlane(),
                                CCameraManager::FarPlane());
-    g_Renderer->x318_26_ = true;
+    g_Renderer->x318_26_requestRGBA6 = true;
 
     if (x0_curTime <= x4_modelData->x1d0_dissolveStartTime)
         DrawFirstPass();

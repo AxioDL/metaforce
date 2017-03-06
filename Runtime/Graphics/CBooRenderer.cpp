@@ -363,10 +363,10 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
     }
 }
 
-void CBooRenderer::EnablePVS(const CPVSVisSet* set, u32 modelCount)
+void CBooRenderer::EnablePVS(const CPVSVisSet* set, u32 areaIdx)
 {
     xc8_pvs.emplace(*set);
-    xe0_pvsModelCount = modelCount;
+    xe0_pvsAreaIdx = areaIdx;
 }
 
 void CBooRenderer::DisablePVS()
@@ -379,6 +379,44 @@ void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>
     auto search = FindStaticGeometry(geometry);
     if (search != x1c_areaListItems.end())
         x1c_areaListItems.erase(search);
+}
+
+void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
+{
+    x318_30_inAreaDraw = true;
+    CModelFlags flags;
+
+    for (CAreaListItem& item : x1c_areaListItems)
+    {
+        if (areaIdx != -1 || item.x18_areaIdx == areaIdx)
+        {
+            CPVSVisSet* pvs = xc8_pvs ? &*xc8_pvs : nullptr;
+            if (xe0_pvsAreaIdx != item.x18_areaIdx)
+                pvs = nullptr;
+            int modelIdx = 0;
+            for (auto it = item.x10_models.begin() ; it != item.x10_models.end() ; ++it, ++modelIdx)
+            {
+                CBooModel* model = *it;
+                if (pvs)
+                {
+                    bool visible = pvs->GetVisible(modelIdx) != EPVSVisSetState::EndOfTree;
+                    if ((xc4_pvsMode == EPVSMode::PVS && !visible) || (xc4_pvsMode == EPVSMode::PVSAndMask && visible))
+                        continue;
+                }
+                if ((model->x41_mask & mask) != targetMask)
+                    continue;
+                if (!x44_frustumPlanes.aabbFrustumTest(model->x20_aabb))
+                    continue;
+
+                for (const CBooSurface* surf = model->x38_firstUnsortedSurface ; surf ; surf = surf->m_next)
+                    model->DrawSurface(*surf, flags);
+                for (const CBooSurface* surf = model->x3c_firstSortedSurface ; surf ; surf = surf->m_next)
+                    model->DrawSurface(*surf, flags);
+            }
+        }
+    }
+
+    x318_30_inAreaDraw = false;
 }
 
 void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
@@ -398,7 +436,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
         CPVSVisSet* pvs = nullptr;
         if (xc8_pvs)
             pvs = &*xc8_pvs;
-        if (xe0_pvsModelCount != item.x10_models.size())
+        if (xe0_pvsAreaIdx != item.x10_models.size())
             pvs = nullptr;
 
         u32 idx = 0;
@@ -579,6 +617,10 @@ void CBooRenderer::BeginScene()
     CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
     CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    x318_27_currentRGBA6 = x318_26_requestRGBA6;
+    if (!x318_31_persistRGBA6)
+        x318_26_requestRGBA6 = false;
+    //GXSetPixelFmt(x318_27_currentRGBA6);
     CGraphics::BeginScene();
 }
 
@@ -790,7 +832,7 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
 int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
                                                const zeus::CAABox& aabb) const
 {
-    CModelFlags flags(0, 0, 3, zeus::CColor{1.f, 1.f, 1.f, alphaVal / 255.f});
+    CModelFlags flags;
     flags.m_extendedShaderIdx = 5; // Do solid color draw
 
     u32 curWord = 0;
@@ -812,13 +854,13 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
                     if (alphaVal > 255)
                         return alphaVal;
 
+                    flags.color.a = alphaVal / 255.f;
                     const CBooModel& model = *item.x10_models[wordModel + j];
                     const_cast<CBooModel&>(model).VerifyCurrentShader(0);
                     for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
                         if (surf->GetBounds().intersects(aabb))
                             model.DrawSurface(*surf, flags);
                     alphaVal += 4;
-                    flags.color.a = alphaVal / 255.f;
                 }
             }
         }
@@ -827,6 +869,47 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
     }
 
     return alphaVal;
+}
+
+void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
+                                                    const zeus::CAABox& aabb, float alpha) const
+{
+    CModelFlags flags;
+    flags.color.a = alpha;
+    flags.m_extendedShaderIdx = 6; // Do shadow draw
+
+    u32 curWord = 0;
+    for (const CAreaListItem& item : x1c_areaListItems)
+    {
+        if (!item.x4_octTree)
+            continue;
+
+        u32 wordModel = 0;
+        for (int i=0 ; i<item.x4_octTree->x14_bitmapWordCount ; ++i, wordModel += 32)
+        {
+            const u32& word = modelBits[i];
+            if (!word)
+                continue;
+            for (int j=0 ; j<32 ; ++j)
+            {
+                if ((1 << j) & word)
+                {
+                    if (alphaVal > 255)
+                        return;
+
+                    flags.color.r = alphaVal / 255.f;
+                    const CBooModel& model = *item.x10_models[wordModel + j];
+                    const_cast<CBooModel&>(model).VerifyCurrentShader(0);
+                    for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
+                        if (surf->GetBounds().intersects(aabb))
+                            model.DrawSurface(*surf, flags);
+                    alphaVal += 4;
+                }
+            }
+        }
+
+        curWord += item.x4_octTree->x14_bitmapWordCount;
+    }
 }
 
 }

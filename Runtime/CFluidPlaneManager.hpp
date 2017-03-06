@@ -15,6 +15,7 @@ class CFluidPlaneManager
     static CFluidProfile sProfile;
 public:
     void StartFrame(bool);
+    void EndFrame() { x121_ = false; }
 };
 
 }

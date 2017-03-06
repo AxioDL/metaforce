@@ -15,6 +15,7 @@ class CDamageInfo;
 class CFinalInput;
 class CScriptWater;
 class CStateManager;
+class CMorphBallShadow;
 
 class CMorphBall
 {
@@ -31,6 +32,7 @@ public:
 private:
     CPlayer& x0_player;
     float x1DE8_boostTime = 0.f;
+    CMorphBallShadow* x1e50_shadow = nullptr;
 
 public:
     CMorphBall(CPlayer& player, float);
@@ -129,6 +131,7 @@ public:
     void GetBombJumpState() const {}
     void LoadAnimationTokens(const std::string&) {}
     void TakeDamage(float) {}
+    void DrawBallShadow(const CStateManager& mgr);
 };
 
 }

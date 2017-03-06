@@ -14,8 +14,14 @@ zeus::CAABox CProjectedShadow::CalculateRenderBounds()
     return {};
 }
 
-void CProjectedShadow::Render(CStateManager&, const CModelData&, const zeus::CTransform&, s32,
-                                 const zeus::CVector3f&, float, float)
+void CProjectedShadow::Render(const CStateManager& mgr)
+{
+
+}
+
+void CProjectedShadow::RenderShadowBuffer(const CStateManager&, const CModelData&,
+                                          const zeus::CTransform&, s32,
+                                          const zeus::CVector3f&, float, float)
 {
 }
 }

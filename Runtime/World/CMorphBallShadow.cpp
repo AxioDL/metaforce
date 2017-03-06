@@ -9,22 +9,10 @@
 namespace urde
 {
 
-static union
-{
-    struct
-    {
-        bool x_24_ : 1;
-        bool x_25_ : 1;
-        bool x_26_ : 1;
-        bool x_27_ : 1;
-    };
-    u16 _dummy = 0;
-} s_flags;
-
-void CMorphBallShadow::GatherAreas(CStateManager& mgr)
+void CMorphBallShadow::GatherAreas(const CStateManager& mgr)
 {
     x18_areas.clear();
-    for (CGameArea* area = mgr.WorldNC()->GetChainHead(EChain::Alive);
+    for (const CGameArea* area = mgr.GetWorld()->GetChainHead(EChain::Alive);
          area != CWorld::GetAliveAreasEnd();
          area = area->GetNext())
     {
@@ -36,15 +24,15 @@ void CMorphBallShadow::GatherAreas(CStateManager& mgr)
     }
 }
 
-void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, CStateManager& mgr, CPlayer& player)
+void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateManager& mgr, CPlayer& player)
 {
-    xb8_ = aabb;
+    xb8_shadowVolume = aabb;
     x0_actors.clear();
     x18_areas.clear();
     x30_worldModelBits.clear();
-    s_flags.x_26_ = true;
+    g_Renderer->x318_26_requestRGBA6 = true;
 
-    if (!s_flags.x_27_)
+    if (!g_Renderer->x318_27_currentRGBA6)
     {
         xd0_hasIds = false;
         return;
@@ -113,10 +101,10 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, CStateManager& m
     xd0_hasIds = alphaVal != 4;
 }
 
-bool CMorphBallShadow::AreasValid(CStateManager& mgr) const
+bool CMorphBallShadow::AreasValid(const CStateManager& mgr) const
 {
     auto it = x18_areas.begin();
-    for (CGameArea* area = mgr.WorldNC()->GetChainHead(EChain::Alive);
+    for (const CGameArea* area = mgr.GetWorld()->GetChainHead(EChain::Alive);
          area != CWorld::GetAliveAreasEnd();
          area = area->GetNext())
     {
@@ -134,11 +122,31 @@ bool CMorphBallShadow::AreasValid(CStateManager& mgr) const
     return true;
 }
 
-void CMorphBallShadow::Render(CStateManager& mgr, float alpha)
+void CMorphBallShadow::Render(const CStateManager& mgr, float alpha)
 {
     if (!xd0_hasIds || !AreasValid(mgr))
         return;
 
+    CModelFlags flags;
+    flags.color.a = alpha;
+    flags.m_extendedShaderIdx = 6;
+
+    int alphaVal = 4;
+    for (const CActor* actor : x0_actors)
+    {
+        const CModelData* modelData = actor->GetModelData();
+        zeus::CTransform modelXf = actor->GetTransform() * zeus::CTransform::Scale(modelData->GetScale());
+        CGraphics::SetModelMatrix(modelXf);
+
+        flags.color.r = alphaVal / 255.f;
+        const CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
+        const_cast<CBooModel&>(model).VerifyCurrentShader(flags.m_matSetIdx);
+        model.DrawNormal(flags, nullptr, nullptr);
+        alphaVal += 4;
+    }
+
+    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    g_Renderer->DrawOverlappingWorldModelShadows(alphaVal, x30_worldModelBits, xb8_shadowVolume, alpha);
 }
 
 }

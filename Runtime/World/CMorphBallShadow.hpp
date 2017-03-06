@@ -21,13 +21,13 @@ class CMorphBallShadow
     //TToken<CTexture> xa8_ballFade;
     //int xb0_idW;
     //int xb4_idH;
-    zeus::CAABox xb8_;
+    zeus::CAABox xb8_shadowVolume;
     bool xd0_hasIds = false;
-    void GatherAreas(CStateManager& mgr);
-    bool AreasValid(CStateManager& mgr) const;
+    void GatherAreas(const CStateManager& mgr);
+    bool AreasValid(const CStateManager& mgr) const;
 public:
-    void RenderIdBuffer(const zeus::CAABox& aabb, CStateManager& mgr, CPlayer& player);
-    void Render(CStateManager& mgr, float alpha);
+    void RenderIdBuffer(const zeus::CAABox& aabb, const CStateManager& mgr, CPlayer& player);
+    void Render(const CStateManager& mgr, float alpha);
 };
 
 }

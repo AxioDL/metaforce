@@ -31,6 +31,7 @@
 #include "Collision/CMaterialFilter.hpp"
 #include "World/CScriptDock.hpp"
 #include "Particle/CDecalManager.hpp"
+#include "World/CProjectedShadow.hpp"
 
 #include <cmath>
 
@@ -465,10 +466,18 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
     return frustum;
 }
 
+void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
+                                       const zeus::CTransform& backupViewMatrix) const
+{
+
+}
+
 void CStateManager::DrawWorld() const
 {
     CTimeProvider timeProvider(xf14_);
+    SViewport backupViewport = g_Viewport;
     zeus::CFrustum frustum = SetupViewForDraw(g_Viewport);
+    zeus::CTransform backupViewMatrix = CGraphics::g_ViewMatrix;
 
     /* Area camera is in (not necessarily player) */
     TAreaId visAreaId = GetVisAreaId();
@@ -551,15 +560,9 @@ void CStateManager::DrawWorld() const
         SetupFogForArea(*areaArr[areaCount-1]);
 
     for (TUniqueId id : x86c_stateManagerContainer->xf370_)
-    {
         if (const CActor* ent = static_cast<const CActor*>(GetObjectById(id)))
-        {
             if (!thermal || ent->xe6_27_ & 0x2)
-            {
                 ent->Render(*this);
-            }
-        }
-    }
 
     bool morphingPlayerVisible = false;
     int thermalActorCount = 0;
@@ -611,9 +614,117 @@ void CStateManager::DrawWorld() const
 
         ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
 
-        // TODO: Finish
-        x84c_player->GetMorphBall();
+        x84c_player->GetMorphBall()->DrawBallShadow(*this);
+
+        if (xf7c_projectedShadow)
+            xf7c_projectedShadow->Render(*this);
+
+        g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
+        g_Renderer->DrawSortedGeometry(area.x4_selfIdx, mask, targetMask);
     }
+
+    x880_envFxManager->Render(*this);
+
+    if (morphingPlayerVisible)
+        x84c_player->Render(*this);
+
+    g_Renderer->PostRenderFogs();
+
+    if (thermal)
+    {
+        if (x86c_stateManagerContainer->xf39c_.size())
+        {
+            CGraphics::SetDepthRange(0.015625f, 0.03125f);
+            for (TUniqueId id : x86c_stateManagerContainer->xf39c_)
+                if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
+                    if (actor->xe6_27_ & 0x2)
+                        actor->Render(*this);
+            CGraphics::SetDepthRange(0.125f, 1.f);
+        }
+        g_Renderer->DoThermalBlendCold();
+
+        for (TUniqueId id : x86c_stateManagerContainer->xf370_)
+            if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
+                if (actor->xe6_27_ & 0x4)
+                    actor->Render(*this);
+
+        for (int i=areaCount-1 ; i>=0 ; --i)
+        {
+            CGameArea& area = *areaArr[i];
+            CPVSVisSet& pvs = pvsArr[i];
+
+            g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
+            g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, 0x20);
+            g_Renderer->DrawAreaGeometry(area.x4_selfIdx, mask, 0x10);
+        }
+
+        ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
+
+        for (int i=0 ; i<areaCount ; ++i)
+        {
+            CGameArea& area = *areaArr[i];
+            CPVSVisSet& pvs = pvsArr[i];
+
+            for (int j=0 ; j<thermalActorCount ; ++j)
+            {
+                CActor* actor = thermalActorArr[j];
+                if (actor->GetAreaIdAlways() != area.x4_selfIdx)
+                    if (actor->GetAreaIdAlways() != kInvalidAreaId || area.x4_selfIdx != visAreaId)
+                        continue;
+                actor->AddToRenderer(frustum, *this);
+            }
+
+            if (areaCount - 1 == i)
+            {
+                x884_actorModelParticles->AddStragglersToRenderer(*this);
+                CDecalManager::AddToRenderer(frustum, *this);
+                if (x84c_player)
+                    x84c_player->AddToRenderer(frustum, *this);
+            }
+
+            ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
+
+            g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
+            g_Renderer->DrawSortedGeometry(area.x4_selfIdx, mask, 0x10);
+        }
+
+        g_Renderer->PostRenderFogs();
+    }
+
+    x87c_fluidPlaneManager->EndFrame();
+
+    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+
+#if 0
+    if (false)
+        CacheReflection();
+#endif
+
+    if (x84c_player)
+        x84c_player->RenderGun(*this, x870_cameraManager->GetGlobalCameraTranslation(*this));
+
+    if (x86c_stateManagerContainer->xf39c_.size())
+    {
+        CGraphics::SetDepthRange(0.015625f, 0.03125f);
+        for (TUniqueId id : x86c_stateManagerContainer->xf39c_)
+            if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
+                if (actor->xe6_27_ & 0x4)
+                    actor->Render(*this);
+        CGraphics::SetDepthRange(0.125f, 1.f);
+    }
+
+    if (thermal)
+    {
+        g_Renderer->DoThermalBlendHot();
+        g_Renderer->SetThermal(false, 0.f, zeus::CColor::skBlack);
+        const_cast<CStateManager&>(*this).xf34_particleFlags = 2;
+    }
+
+    DrawDebugStuff();
+    RenderCamerasAndAreaLights();
+    ResetViewAfterDraw(backupViewport, backupViewMatrix);
+    DrawE3DeathEffect();
+    DrawAdditionalFilters();
 }
 
 void CStateManager::SetupFogForArea(const CGameArea& area) const
@@ -662,7 +773,7 @@ void CStateManager::PreRender()
     {
         x86c_stateManagerContainer->xf370_.clear();
         x86c_stateManagerContainer->xf39c_.clear();
-        xf7c_ = 0;
+        xf7c_projectedShadow = nullptr;
         x850_world->PreRender();
         BuildDynamicLightListForWorld();
         CGameCamera* cam = static_cast<CGameCamera*>(x870_cameraManager->GetCurrentCamera(*this));

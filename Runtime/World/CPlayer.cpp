@@ -99,9 +99,9 @@ bool CPlayer::GetExplorationMode() const { return false; }
 
 bool CPlayer::GetCombatMode() const { return false; }
 
-void CPlayer::RenderGun(CStateManager& mgr, const zeus::CVector3f&) const {}
+void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f&) const {}
 
-void CPlayer::Render(CStateManager& mgr) const {}
+void CPlayer::Render(const CStateManager& mgr) const {}
 
 void CPlayer::RenderReflectedPlayer(CStateManager& mgr) const {}
 
