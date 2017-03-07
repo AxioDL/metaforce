@@ -150,6 +150,11 @@ CBooRenderer::CAreaListItem::CAreaListItem
 
 CBooRenderer::CAreaListItem::~CAreaListItem() {}
 
+static inline bool TestBit(const u32* words, int bit)
+{
+    return (words[bit / 32] & (1 << (bit & 0x1f))) != 0;
+}
+
 void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
 {
     std::vector<CLight> thisLights;
@@ -157,45 +162,55 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
 
     if (x300_dynamicLights.size())
     {
-        /*
-        void* unk3 = nullptr;
-        int x14 = 0;
-        if (item && item->x18_areaIdx != -1)
+        u32 lightOctreeWordCount = 0;
+        u32* lightOctreeWords = nullptr;
+        if (item && model.x44_areaInstanceIdx != -1)
         {
-            unk3 = item->x28_unk3;
-            x14 = item->x4_octTree->x14_;
+            lightOctreeWordCount = item->x4_octTree->x14_bitmapWordCount;
+            lightOctreeWords = item->x1c_lightOctreeWords.data();
         }
-        void* unk3Cur = unk3;
-        */
 
-        float lightRads[] = {-1.f, -1.f, -1.f, -1.f};
-        for (int i=0 ; i<4 ; ++i)
+        float lightRads[4] = {-1.f, -1.f, -1.f, -1.f};
+        CLight* lightRefs[4] = {};
+        auto it = x300_dynamicLights.begin();
+        for (int i=0 ; i<4 && it != x300_dynamicLights.end() ; ++it, lightOctreeWords += lightOctreeWordCount)
         {
-            for (CLight& light : x300_dynamicLights)
+            CLight& refLight = *it;
+            if (lightOctreeWords && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx))
+                continue;
+
+            bool foundLight = false;
+            for (int j=0 ; j<i ; ++j)
             {
-                /*
-                if (unk3)
-                {
-                }
-                */
-                if (light.x40_loadedIdx == i)
+                if (lightRefs[j] == &refLight)
                     continue;
-                float rad = light.GetRadius();
-                if (model.x20_aabb.intersects(zeus::CSphere{light.x0_pos, rad}))
-                {
-                    if (rad > lightRads[i])
-                    {
-                        lightRads[i] = rad;
-                        light.x40_loadedIdx = i;
-                        thisLights.push_back(light);
-                        break;
-                    }
-                }
+                float radius = model.x20_aabb.intersectionRadius(
+                    zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
+                if (radius < 0.f)
+                    break;
+                if (lightRads[j] <= radius)
+                    break;
+                lightRads[j] = radius;
+                lightRefs[j] = &refLight;
+                thisLights.push_back(refLight);
+                foundLight = true;
             }
+
+            if (foundLight)
+                continue;
+
+            float radius = model.x20_aabb.intersectionRadius(
+                zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
+            if (radius < 0.f)
+                continue;
+            lightRads[i] = radius;
+            lightRefs[i] = &refLight;
+            thisLights.push_back(refLight);
+            ++i;
         }
     }
 
-    //model.ActivateLights(thisLights);
+    model.ActivateLights(thisLights);
 }
 
 void CBooRenderer::RenderBucketItems(CAreaListItem* item)
@@ -250,6 +265,44 @@ void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
     {
         model.DrawSurface(*surf, flags);
         surf = surf->m_next;
+    }
+}
+
+void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
+                                         const CModel* model, const CSkinnedModel* sModel)
+{
+    zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
+    zeus::CTransform backupView = CGraphics::g_ViewMatrix;
+    zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(false);
+    zeus::CVector3f points[8];
+    float wVals[8];
+
+    for (int i=0 ; i<8 ; ++i)
+    {
+        zeus::CVector3f pt = backupModel * aabb.getPoint(i);
+        zeus::CVector3f xfPt =
+        backupView.transposeRotate(zeus::CVector3f(pt.x - backupModel.basis[1].z,
+                                                   pt.y - backupModel.basis[1].y,
+                                                   pt.z - backupModel.basis[1].x));
+        zeus::CVector4f xfPt4 = proj * zeus::CVector4f(xfPt);
+        points[i] = xfPt4.toVec3f();
+        wVals[i] = xfPt4.w;
+    }
+
+    // TODO: Finish
+
+    for (int i=0 ; i<20 ; ++i)
+    {
+        zeus::CVector3f overW;
+        if (i < 8)
+        {
+            overW = points[i] * (1.f / wVals[i]);
+        }
+        else
+        {
+
+        }
+
     }
 }
 
@@ -356,8 +409,12 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
         {
             (*geometry)[0].m_instance->MakeTexturesFromMats(textures, xc_store);
             models.reserve(geometry->size());
+            int instIdx = 0;
             for (const CMetroidModelInstance& inst : *geometry)
+            {
                 models.push_back(inst.m_instance);
+                models.back()->x44_areaInstanceIdx = instIdx++;
+            }
         }
         x1c_areaListItems.emplace_back(geometry, octTree, std::move(textures), std::move(models), areaIdx);
     }
@@ -535,6 +592,31 @@ void CBooRenderer::DrawStaticGeometry(int modelCount, int mask, int targetMask)
 
 void CBooRenderer::PostRenderFogs()
 {
+    for (const auto& warp : x2c4_spaceWarps)
+        DrawSpaceWarp(warp.first, warp.second);
+    x2c4_spaceWarps.clear();
+
+    x2ac_fogVolumes.sort([](const CFogVolumeListItem& a, const CFogVolumeListItem& b)
+    {
+        zeus::CAABox aabbA = a.x34_aabb.getTransformedAABox(a.x0_transform);
+        bool insideA = aabbA.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x, CGraphics::g_ViewPoint.y, aabbA.min.z));
+
+        zeus::CAABox aabbB = b.x34_aabb.getTransformedAABox(b.x0_transform);
+        bool insideB = aabbB.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x, CGraphics::g_ViewPoint.y, aabbB.min.z));
+
+        if (insideA != insideB)
+            return insideA;
+
+        float dotA = aabbA.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+        float dotB = aabbB.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+        return dotA < dotB;
+    });
+    for (const CFogVolumeListItem& fog : x2ac_fogVolumes)
+    {
+        CGraphics::SetModelMatrix(fog.x0_transform);
+        ReallyRenderFogVolume(fog.x30_color, fog.x34_aabb, fog.x4c_model.GetObj(), fog.x5c_skinnedModel);
+    }
+    x2ac_fogVolumes.clear();
 }
 
 void CBooRenderer::AddParticleGen(const CParticleGen& gen)

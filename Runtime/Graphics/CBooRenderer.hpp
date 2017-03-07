@@ -69,6 +69,24 @@ class CBooRenderer : public IRenderer
         ~CAreaListItem();
     };
 
+    struct CFogVolumeListItem
+    {
+        zeus::CTransform x0_transform;
+        zeus::CColor x30_color;
+        zeus::CAABox x34_aabb;
+        TLockedToken<CModel> x4c_model;
+        //bool x58_b; Optional for model token
+        const CSkinnedModel* x5c_skinnedModel = nullptr;
+        CFogVolumeListItem(const zeus::CTransform& xf, const zeus::CColor& color,
+                           const zeus::CAABox& aabb, const TLockedToken<CModel>* model,
+                           const CSkinnedModel* sModel)
+        : x0_transform(xf), x30_color(color), x34_aabb(aabb), x5c_skinnedModel(sModel)
+        {
+            if (model)
+                x4c_model = *model;
+        }
+    };
+
     IFactory& x8_factory;
     IObjectStore& xc_store;
     boo::GraphicsDataToken m_gfxToken;
@@ -107,8 +125,8 @@ class CBooRenderer : public IRenderer
     int m_ballShadowIdH = 64;
 
     CRandom16 x2a8_thermalRand;
-    std::list<u32> x2b8_;
-    std::list<u32> x2d0_;
+    std::list<CFogVolumeListItem> x2ac_fogVolumes;
+    std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
     zeus::CColor x2e0_ = zeus::CColor::skWhite;
     zeus::CVector3f x2e4_ = {0.f, 1.f, 0.f};
 
@@ -147,6 +165,8 @@ class CBooRenderer : public IRenderer
     void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
     void RenderBucketItems(CAreaListItem* item);
     void HandleUnsortedModel(CAreaListItem* item, CBooModel& model);
+    void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
+                               const CModel* model, const CSkinnedModel* sModel);
 
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);

@@ -101,6 +101,7 @@ private:
     bool x40_24_texturesLoaded : 1;
     bool x40_25_modelVisible : 1;
     u8 x41_mask = 0;
+    u32 x44_areaInstanceIdx = -1;
 
     struct UVAnimationBuffer
     {
