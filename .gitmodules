@@ -1,0 +1,18 @@
+[submodule "hecl"]
+	path = hecl
+	url = https://github.com/AxioDL/hecl.git
+[submodule "specter"]
+	path = specter
+	url = https://github.com/AxioDL/specter.git
+[submodule "nod"]
+	path = nod
+	url = https://github.com/AxioDL/nod.git
+[submodule "amuse"]
+	path = amuse
+	url = https://github.com/AxioDL/amuse.git
+[submodule "kabufuda"]
+	path = kabufuda
+	url = https://github.com/AxioDL/kabufuda.git
+[submodule "jbus"]
+	path = jbus
+	url = https://github.com/AxioDL/jbus.git
