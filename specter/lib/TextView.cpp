@@ -256,7 +256,7 @@ void TextView::Resources::init(boo::MetalDataFactory::Context& ctx, FontCache* f
     m_regular =
     ctx.newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                          boo::Primitive::TriStrips, false, false, false);
+                          boo::Primitive::TriStrips, false, false, boo::CullMode::None);
 }
 
 #endif
