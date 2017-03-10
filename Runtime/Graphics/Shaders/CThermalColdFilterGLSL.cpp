@@ -121,7 +121,8 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     const char* texNames[] = {"sceneTex", "shiftTex"};
     const char* uniNames[] = {"ThermalColdUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CThermalColdFilterGLDataBindingFactory;
 }
 
@@ -135,7 +136,8 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CThermalColdFilterVulkanDataBindingFactory;
 }
 #endif

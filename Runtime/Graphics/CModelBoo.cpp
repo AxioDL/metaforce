@@ -400,8 +400,8 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
 
     const std::vector<boo::IShaderDataBinding*>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
     boo::IShaderDataBinding* binding = extendeds[0];
-    if (flags.m_extendedShaderIdx < extendeds.size())
-        binding = extendeds[flags.m_extendedShaderIdx];
+    if (flags.m_extendedShader < extendeds.size())
+        binding = extendeds[flags.m_extendedShader];
 
     CGraphics::SetShaderDataBinding(binding);
     CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
@@ -521,7 +521,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     u8* start = bufOut;
 
     /* Special matrices for MorphBall shadow rendering */
-    if (flags.m_extendedShaderIdx == 6)
+    if (flags.m_extendedShader == EExtendedShader::MorphBallShadow)
     {
         zeus::CMatrix4f texMtx =
         (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max.x - flags.mbShadowBox.min.x),
@@ -545,7 +545,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
 
     /* Special Mode0 matrix for exclusive Thermal Visor use */
     std::experimental::optional<std::array<zeus::CMatrix4f, 2>> thermalMtxOut;
-    if (flags.m_extendedShaderIdx == 2)
+    if (flags.m_extendedShader == EExtendedShader::Thermal)
     {
         thermalMtxOut.emplace();
 
@@ -675,18 +675,18 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
 
     UVAnimationBuffer::Update(dataCur, x4_matSet, flags);
 
-    if (flags.m_extendedShaderIdx == 2) /* Thermal Model (same as UV Mode 0) */
+    if (flags.m_extendedShader == EExtendedShader::Thermal) /* Thermal Model (same as UV Mode 0) */
     {
         CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
         thermalOut.mulColor = flags.color;
         thermalOut.addColor = flags.addColor;
     }
-    else if (flags.m_extendedShaderIdx == 5) /* Solid color render */
+    else if (flags.m_extendedShader == EExtendedShader::SolidColor) /* Solid color render */
     {
         CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
         solidOut.solidColor = flags.color;
     }
-    else if (flags.m_extendedShaderIdx == 6) /* MorphBall shadow render */
+    else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
     {
         CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
         shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::CVector3f::skUp;

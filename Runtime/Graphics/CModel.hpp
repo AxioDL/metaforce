@@ -25,7 +25,7 @@ struct CModelFlags
 {
     u8 m_blendMode = 0; /* Blend state 3/5 enable additive */
     u8 m_matSetIdx = 0;
-    u8 m_extendedShaderIdx = 0; /* 0 for shadeless, 1 for lighting, others defined in CModelShaders */
+    EExtendedShader m_extendedShader = EExtendedShader::Flat;
     u16 m_flags = 0; /* Flags */
     zeus::CColor color; /* Set into kcolor slot specified by material */
     zeus::CColor addColor = zeus::CColor::skClear;

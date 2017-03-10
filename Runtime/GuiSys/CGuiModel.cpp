@@ -65,42 +65,42 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         case EGuiModelDrawFlags::Shadeless:
         {
             CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
-            flags.m_extendedShaderIdx = 0;
+            flags.m_extendedShader = EExtendedShader::Flat;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Opaque:
         {
             CModelFlags flags(1, 0, 3, moduCol);
-            flags.m_extendedShaderIdx = 1;
+            flags.m_extendedShader = EExtendedShader::Lighting;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Alpha:
         {
             CModelFlags flags(4, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-            flags.m_extendedShaderIdx = 3;
+            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Additive:
         {
             CModelFlags flags(3, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-            flags.m_extendedShaderIdx = 4;
+            flags.m_extendedShader = EExtendedShader::ForcedAdditive;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         {
             CModelFlags flags(4, 0, xb6_31_depthTest, moduCol);
-            flags.m_extendedShaderIdx = 3;
+            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             model->Draw(flags);
 
             flags.m_blendMode = 5;
             flags.m_matSetIdx = 0;
             flags.m_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
             flags.color = moduCol;
-            flags.m_extendedShaderIdx = 4;
+            flags.m_extendedShader = EExtendedShader::ForcedAdditive;
             model->Draw(flags);
             break;
         }

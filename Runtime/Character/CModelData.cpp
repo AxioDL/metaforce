@@ -298,7 +298,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
     CGraphics::DisableAllLights();
     CModelFlags drawFlags;
-    drawFlags.m_extendedShaderIdx = 3;
+    drawFlags.m_extendedShader = EExtendedShader::ForcedAlpha;
 
     if (x10_animData)
     {

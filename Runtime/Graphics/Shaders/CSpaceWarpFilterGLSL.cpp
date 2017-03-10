@@ -99,7 +99,8 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
     const char* texNames[] = {"sceneTex", "indTex"};
     const char* uniNames[] = {"SpaceWarpUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CSpaceWarpFilterGLDataBindingFactory;
 }
 
@@ -113,7 +114,8 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CSpaceWarpFilterVulkanDataBindingFactory;
 }
 #endif

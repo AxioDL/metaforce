@@ -98,7 +98,8 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
     const char* texNames[] = {"sceneTex", "paletteTex"};
     const char* uniNames[] = {"ThermalHotUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::DstAlpha,
-                                       boo::BlendFactor::InvDstAlpha, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::InvDstAlpha, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CThermalHotFilterGLDataBindingFactory;
 }
 
@@ -112,7 +113,8 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::DstAlpha,
-                                       boo::BlendFactor::InvDstAlpha, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::InvDstAlpha, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CThermalHotFilterVulkanDataBindingFactory;
 }
 #endif

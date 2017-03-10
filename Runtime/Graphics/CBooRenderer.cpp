@@ -220,7 +220,7 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
 void CBooRenderer::RenderBucketItems(CAreaListItem* item)
 {
     CModelFlags flags;
-    flags.m_extendedShaderIdx = 1;
+    flags.m_extendedShader = EExtendedShader::Lighting;
 
     for (u16 idx : Buckets::sBucketIndex)
     {
@@ -264,7 +264,7 @@ void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
     ActivateLightsForModel(item, model);
     CBooSurface* surf = model.x38_firstUnsortedSurface;
     CModelFlags flags;
-    flags.m_extendedShaderIdx = 1;
+    flags.m_extendedShader = EExtendedShader::Lighting;
     while (surf)
     {
         model.DrawSurface(*surf, flags);
@@ -333,7 +333,7 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
     else
     {
         CModelFlags flags;
-        flags.m_extendedShaderIdx = 5;
+        flags.m_extendedShader = EExtendedShader::SolidColor;
         if (sModel)
         {
             sModel->Draw(flags);
@@ -858,7 +858,7 @@ void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength)
 void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mulCol, const zeus::CColor& addCol)
 {
     CModelFlags flags;
-    flags.m_extendedShaderIdx = 2;
+    flags.m_extendedShader = EExtendedShader::Thermal;
     flags.color = mulCol;
     flags.addColor = addCol;
     model.UpdateLastFrame();
@@ -868,7 +868,7 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
 void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb)
 {
     CModelFlags flags;
-    flags.m_extendedShaderIdx = 3;
+    flags.m_extendedShader = EExtendedShader::ForcedAlpha;
 
     for (CAreaListItem& item : x1c_areaListItems)
     {
@@ -1040,7 +1040,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
                                                const zeus::CAABox& aabb) const
 {
     CModelFlags flags;
-    flags.m_extendedShaderIdx = 5; // Do solid color draw
+    flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
 
     u32 curWord = 0;
     for (const CAreaListItem& item : x1c_areaListItems)
@@ -1083,7 +1083,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
 {
     CModelFlags flags;
     flags.color.a = alpha;
-    flags.m_extendedShaderIdx = 6; // Do shadow draw
+    flags.m_extendedShader = EExtendedShader::MorphBallShadow; // Do shadow draw
 
     u32 curWord = 0;
     for (const CAreaListItem& item : x1c_areaListItems)

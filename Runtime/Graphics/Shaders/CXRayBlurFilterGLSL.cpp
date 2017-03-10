@@ -110,7 +110,8 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
     const char* texNames[] = {"sceneTex", "paletteTex"};
     const char* uniNames[] = {"XRayBlurUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CXRayBlurFilterGLDataBindingFactory;
 }
 
@@ -124,7 +125,8 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false, false);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
+                                       boo::CullMode::None);
     return new CXRayBlurFilterVulkanDataBindingFactory;
 }
 #endif

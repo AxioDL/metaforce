@@ -269,91 +269,91 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3
     m_vtxFormatNoTex = ctx.newVertexFormat(5, TexFmtNoTex);
 
     m_texZTestZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                             nullptr, m_vtxFormatTex,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             boo::Primitive::TriStrips, true, true, boo::CullMode::None);
+    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                               nullptr, m_vtxFormatTex,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                               nullptr, m_vtxFormatTex,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               boo::Primitive::TriStrips, true, false, boo::CullMode::None);
+    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
                                                  nullptr, m_vtxFormatTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 boo::Primitive::TriStrips, true, true, false);
-    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                                   nullptr, m_vtxFormatTex,
-                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                   boo::Primitive::TriStrips, false, true, false);
-    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                                   nullptr, m_vtxFormatTex,
-                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                   boo::Primitive::TriStrips, true, false, false);
-    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                                     nullptr, m_vtxFormatTex,
-                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                     boo::Primitive::TriStrips, false, false, false);
+                                                 boo::Primitive::TriStrips, false, false, boo::CullMode::None);
 
     m_texAdditiveZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                                   nullptr, m_vtxFormatTex,
-                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                   boo::Primitive::TriStrips, true, false, false);
+                                               nullptr, m_vtxFormatTex,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                               boo::Primitive::TriStrips, true, false, boo::CullMode::None);
     m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                                     nullptr, m_vtxFormatTex,
-                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                     boo::Primitive::TriStrips, false, false, false);
+                                                 nullptr, m_vtxFormatTex,
+                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                                 boo::Primitive::TriStrips, false, false, boo::CullMode::None);
 
     m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX_REDTOALPHA, nullptr, nullptr,
-                                                     nullptr, m_vtxFormatTex,
-                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                     boo::Primitive::TriStrips, true, false, false);
+                                                 nullptr, m_vtxFormatTex,
+                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                                 boo::Primitive::TriStrips, true, false, boo::CullMode::None);
     m_texRedToAlphaNoZTest = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX_REDTOALPHA, nullptr, nullptr,
-                                                       nullptr, m_vtxFormatTex,
-                                                       boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                       boo::Primitive::TriStrips, false, false, false);
+                                                   nullptr, m_vtxFormatTex,
+                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                                   boo::Primitive::TriStrips, false, false, boo::CullMode::None);
 
     m_indTexZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, nullptr, nullptr,
-                                               nullptr, m_vtxFormatIndTex,
-                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, false, true, false);
+                                           nullptr, m_vtxFormatIndTex,
+                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                           boo::Primitive::TriStrips, false, true, boo::CullMode::None);
     m_indTexNoZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, nullptr, nullptr,
-                                                 nullptr, m_vtxFormatIndTex,
-                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 boo::Primitive::TriStrips, false, false, false);
+                                             nullptr, m_vtxFormatIndTex,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                             boo::Primitive::TriStrips, false, false, boo::CullMode::None);
     m_indTexAdditive = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_INDTEX, nullptr, nullptr,
-                                                 nullptr, m_vtxFormatIndTex,
-                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 boo::Primitive::TriStrips, false, true, false);
+                                             nullptr, m_vtxFormatIndTex,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                             boo::Primitive::TriStrips, false, true, boo::CullMode::None);
 
     m_cindTexZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, nullptr, nullptr,
-                                                nullptr, m_vtxFormatIndTex,
-                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                boo::Primitive::TriStrips, false, true, false);
+                                            nullptr, m_vtxFormatIndTex,
+                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                            boo::Primitive::TriStrips, false, true, boo::CullMode::None);
     m_cindTexNoZWrite = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, nullptr, nullptr,
-                                                  nullptr, m_vtxFormatIndTex,
-                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                  boo::Primitive::TriStrips, false, false, false);
+                                              nullptr, m_vtxFormatIndTex,
+                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                              boo::Primitive::TriStrips, false, false, boo::CullMode::None);
     m_cindTexAdditive = ctx.newShaderPipeline(VS_HLSL_INDTEX, FS_HLSL_CINDTEX, nullptr, nullptr,
-                                                  nullptr, m_vtxFormatIndTex,
-                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                  boo::Primitive::TriStrips, false, true, false);
+                                              nullptr, m_vtxFormatIndTex,
+                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                              boo::Primitive::TriStrips, false, true, boo::CullMode::None);
 
     m_noTexZTestZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                               nullptr, m_vtxFormatNoTex,
+                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                               boo::Primitive::TriStrips, true, true, boo::CullMode::None);
+    m_noTexNoZTestZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                                 nullptr, m_vtxFormatNoTex,
+                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                                 boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+    m_noTexZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                                 nullptr, m_vtxFormatNoTex,
+                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                                 boo::Primitive::TriStrips, true, false, boo::CullMode::None);
+    m_noTexNoZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
                                                    nullptr, m_vtxFormatNoTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                   boo::Primitive::TriStrips, true, true, false);
-    m_noTexNoZTestZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                                     nullptr, m_vtxFormatNoTex,
-                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                     boo::Primitive::TriStrips, false, true, false);
-    m_noTexZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                                     nullptr, m_vtxFormatNoTex,
-                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                     boo::Primitive::TriStrips, true, false, false);
-    m_noTexNoZTestNoZWrite = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                                       nullptr, m_vtxFormatNoTex,
-                                                       boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                       boo::Primitive::TriStrips, false, false, false);
+                                                   boo::Primitive::TriStrips, false, false, boo::CullMode::None);
 
     m_noTexAdditiveZTest = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                                     nullptr, m_vtxFormatNoTex,
-                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                     boo::Primitive::TriStrips, true, false, false);
+                                                 nullptr, m_vtxFormatNoTex,
+                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                                 boo::Primitive::TriStrips, true, false, boo::CullMode::None);
     m_noTexAdditiveNoZTest = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                                       nullptr, m_vtxFormatNoTex,
-                                                       boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                       boo::Primitive::TriStrips, false, false, false);
+                                                   nullptr, m_vtxFormatNoTex,
+                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                                   boo::Primitive::TriStrips, false, false, boo::CullMode::None);
 
     return new struct D3DElementDataBindingFactory;
 }

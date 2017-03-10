@@ -12,6 +12,17 @@
 namespace urde
 {
 
+enum EExtendedShader : uint8_t
+{
+    Flat,
+    Lighting,
+    Thermal,
+    ForcedAlpha,
+    ForcedAdditive,
+    SolidColor,
+    MorphBallShadow
+};
+
 class CModelShaders
 {
     friend class CModel;

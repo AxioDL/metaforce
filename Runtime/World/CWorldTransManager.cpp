@@ -197,7 +197,7 @@ void CWorldTransManager::DrawAllModels()
     lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
 
     CModelFlags flags = {};
-    flags.m_extendedShaderIdx = 1;
+    flags.m_extendedShader = EExtendedShader::Lighting;
 
     if (!x4_modelData->x100_bgModelData[0].IsNull())
     {
