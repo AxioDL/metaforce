@@ -20,6 +20,10 @@ atdna(atdna_Frontend.cpp ../include/hecl/Frontend.hpp)
 atdna(atdna_Runtime.cpp ../include/hecl/Runtime.hpp)
 atdna(atdna_CVar.cpp ../include/hecl/CVar.hpp)
 
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+  add_definitions(-DHECL_MULTIPROCESSOR)
+endif()
+
 add_library(hecl-common
             ${BLENDER_SOURCES}
             ${BACKEND_SOURCES}

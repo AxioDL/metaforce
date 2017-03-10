@@ -102,8 +102,8 @@ void ClientProcess::Worker::proc()
 ClientProcess::ClientProcess(int verbosityLevel)
 : m_verbosity(verbosityLevel)
 {
-#if defined(NDEBUG)
-    int cpuCount = GetCPUCount();
+#ifdef HECL_MULTIPROCESSOR
+    const int cpuCount = GetCPUCount();
 #else
     constexpr int cpuCount = 1;
 #endif
