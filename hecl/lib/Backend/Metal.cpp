@@ -408,7 +408,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                               boo::BlendFactor(m_backend.m_blendDst),
                               tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
-                              tag.getBackfaceCulling());
+                              tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -445,7 +445,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                               tag.newVertexFormat(ctx), m_rtHint,
                               blendSrc, blendDst, tag.getPrimType(),
                               tag.getDepthTest(), tag.getDepthWrite(),
-                              tag.getBackfaceCulling());
+                              tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
@@ -484,7 +484,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                   tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
-                                  tag.getBackfaceCulling());
+                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -536,7 +536,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                   tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
-                                  tag.getBackfaceCulling());
+                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
