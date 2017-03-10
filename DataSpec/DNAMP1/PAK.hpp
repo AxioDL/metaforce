@@ -48,41 +48,13 @@ struct PAK : BigDNA
     };
 
     std::vector<NameEntry> m_nameEntries;
-    std::vector<Entry> m_entries;
-    std::vector<Entry*> m_firstEntries;
-    std::unordered_map<UniqueID32, Entry*> m_idMap;
-    std::unordered_map<std::string, Entry*> m_nameMap;
+    std::unordered_map<UniqueID32, Entry> m_entries;
+    std::vector<UniqueID32> m_firstEntries;
+    std::unordered_map<std::string, UniqueID32> m_nameMap;
 
-    const Entry* lookupEntry(const UniqueID32& id) const
-    {
-        std::unordered_map<UniqueID32, Entry*>::const_iterator result = m_idMap.find(id);
-        if (result != m_idMap.end())
-            return result->second;
-        return nullptr;
-    }
-
-    const Entry* lookupEntry(const std::string& name) const
-    {
-        std::unordered_map<std::string, Entry*>::const_iterator result = m_nameMap.find(name);
-        if (result != m_nameMap.end())
-            return result->second;
-        return nullptr;
-    }
-
-    std::string bestEntryName(const Entry& entry, bool& named) const
-    {
-        /* Prefer named entries first */
-        for (const NameEntry& nentry : m_nameEntries)
-            if (nentry.id == entry.id)
-            {
-                named = true;
-                return nentry.name;
-            }
-
-        /* Otherwise return ID format string */
-        named = false;
-        return entry.type.toString() + '_' + entry.id.toString();
-    }
+    const Entry* lookupEntry(const UniqueID32& id) const;
+    const Entry* lookupEntry(const std::string& name) const;
+    std::string bestEntryName(const Entry& entry, bool& named) const;
 
     using IDType = UniqueID32;
 };

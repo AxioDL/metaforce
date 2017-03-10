@@ -37,35 +37,24 @@ void PAK::read(athena::io::IStreamReader& reader)
     m_entries.reserve(count);
     m_firstEntries.clear();
     m_firstEntries.reserve(count);
-    m_idMap.clear();
-    m_idMap.reserve(count);
     for (atUint32 e=0 ; e<count ; ++e)
     {
-        m_entries.emplace_back();
-        m_entries.back().read(reader);
-        m_entries.back().offset += dataOffset;
-    }
-    for (Entry& entry : m_entries)
-    {
-        auto search = m_idMap.find(entry.id);
-        if (search == m_idMap.end())
+        Entry entry;
+        entry.read(reader);
+        entry.offset += dataOffset;
+
+        auto search = m_entries.find(entry.id);
+        if (search == m_entries.end())
         {
-            m_firstEntries.push_back(&entry);
-            m_idMap[entry.id] = &entry;
+            m_firstEntries.push_back(entry.id);
+            m_entries[entry.id] = std::move(entry);
         }
     }
 
     m_nameMap.clear();
     m_nameMap.reserve(nameCount);
     for (NameEntry& entry : m_nameEntries)
-    {
-        auto search = m_idMap.find(entry.id);
-        if (search != m_idMap.end())
-        {
-            m_nameMap[entry.name] = search->second;
-            search->second->name = entry.name;
-        }
-    }
+        m_nameMap[entry.name] = entry.id;
 }
 void PAK::write(athena::io::IStreamWriter& writer) const
 {
@@ -88,8 +77,8 @@ void PAK::write(athena::io::IStreamWriter& writer) const
 
     DNAFourCC("DATA").write(writer);
     atUint32 dataSz = 0;
-    for (const Entry& entry : m_entries)
-        dataSz += (entry.size + 63) & ~63;
+    for (const auto& entry : m_entries)
+        dataSz += (entry.second.size + 63) & ~63;
     atUint32 dataPad = ((dataSz + 63) & ~63) - dataSz;
     dataSz += dataPad;
     writer.writeUint32Big(dataSz);
@@ -101,9 +90,9 @@ void PAK::write(athena::io::IStreamWriter& writer) const
     writer.seek(strgPad, athena::Current);
 
     writer.writeUint32Big((atUint32)m_entries.size());
-    for (const Entry& entry : m_entries)
+    for (const auto& entry : m_entries)
     {
-        Entry copy = entry;
+        Entry copy = entry.second;
         copy.offset -= dataOffset;
         copy.write(writer);
     }
@@ -129,8 +118,8 @@ size_t PAK::binarySize(size_t __isz) const
     __isz += strgPad;
 
     __isz += 4;
-    for (const Entry& entry : m_entries)
-        __isz = entry.binarySize(__isz);
+    for (const auto& entry : m_entries)
+        __isz = entry.second.binarySize(__isz);
     __isz += rshdPad;
 
     return __isz;
@@ -213,6 +202,41 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
         szOut = size;
         return std::unique_ptr<atUint8[]>(buf);
     }
+}
+
+const PAK::Entry* PAK::lookupEntry(const UniqueID64& id) const
+{
+    auto result = m_entries.find(id);
+    if (result != m_entries.end())
+        return &result->second;
+    return nullptr;
+}
+
+const PAK::Entry* PAK::lookupEntry(const std::string& name) const
+{
+    auto result = m_nameMap.find(name);
+    if (result != m_nameMap.end())
+    {
+        auto result1 = m_entries.find(result->second);
+        if (result1 != m_entries.end())
+            return &result1->second;
+    }
+    return nullptr;
+}
+
+std::string PAK::bestEntryName(const Entry& entry, bool& named) const
+{
+    /* Prefer named entries first */
+    for (const NameEntry& nentry : m_nameEntries)
+        if (nentry.id == entry.id)
+        {
+            named = true;
+            return nentry.name;
+        }
+
+    /* Otherwise return ID format string */
+    named = false;
+    return entry.type.toString() + '_' + entry.id.toString();
 }
 
 }

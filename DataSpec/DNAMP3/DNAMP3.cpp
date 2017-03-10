@@ -42,8 +42,9 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
 
     /* Append Level String */
     std::set<hecl::SystemString, hecl::CaseInsensitiveCompare> uniq;
-    for (PAK::Entry& entry : m_pak.m_entries)
+    for (auto& ent : m_pak.m_entries)
     {
+        PAK::Entry& entry = ent.second;
         if (entry.type == FOURCC('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
@@ -81,8 +82,9 @@ static hecl::SystemString LayerName(const std::string& name)
 void PAKBridge::build()
 {
     /* First pass: build per-area/per-layer dependency map */
-    for (const PAK::Entry& entry : m_pak.m_entries)
+    for (const auto& ent : m_pak.m_entries)
     {
+        const PAK::Entry& entry = ent.second;
         if (entry.type == FOURCC('MLVL'))
         {
             Level& level = m_levelDeps[entry.id];
@@ -173,9 +175,9 @@ void PAKBridge::build()
     }
 
     /* Second pass: cross-compare uniqueness */
-    for (PAK::Entry& entry : m_pak.m_entries)
+    for (auto& entry : m_pak.m_entries)
     {
-        entry.unique.checkEntry(*this, entry);
+        entry.second.unique.checkEntry(*this, entry.second);
     }
 }
 
@@ -183,21 +185,21 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
         std::unordered_map<UniqueID64, std::pair<UniqueID64, std::string>>& cskrCinfToChar) const
 {
-    for (const std::pair<UniqueID64, PAK::Entry*>& entry : m_pak.m_idMap)
+    for (const std::pair<UniqueID64, PAK::Entry>& entry : m_pak.m_entries)
     {
-        if (entry.second->type == FOURCC('CHAR'))
+        if (entry.second.type == FOURCC('CHAR'))
         {
-            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
             CHAR aChar;
             aChar.read(rs);
             const CHAR::CharacterInfo& ci = aChar.characterInfo;
             addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-            cskrCinfToChar[ci.cskr] = std::make_pair(entry.second->id, hecl::Format("%s.CSKR", ci.name.c_str()));
-            cskrCinfToChar[ci.cinf] = std::make_pair(entry.second->id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
+            cskrCinfToChar[ci.cskr] = std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+            cskrCinfToChar[ci.cinf] = std::make_pair(entry.second.id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
             for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays)
             {
                 addTo[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
-                cskrCinfToChar[overlay.cskr] = std::make_pair(entry.second->id,
+                cskrCinfToChar[overlay.cskr] = std::make_pair(entry.second.id,
                     hecl::Format("%s.%s.CSKR", ci.name.c_str(), overlay.type.toString().c_str()));
             }
         }
@@ -210,16 +212,16 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID64, zeus::CMatrix4f>& addTo,
         std::unordered_map<UniqueID64, hecl::ProjectPath>& pathOverrides) const
 {
-    for (const std::pair<UniqueID64, PAK::Entry*>& entry : m_pak.m_idMap)
+    for (const std::pair<UniqueID64, PAK::Entry>& entry : m_pak.m_entries)
     {
-        if (entry.second->type == FOURCC('MLVL'))
+        if (entry.second.type == FOURCC('MLVL'))
         {
             MLVL mlvl;
             {
-                PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+                PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
                 mlvl.read(rs);
             }
-            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(entry.second).getParentPath();
+            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
             if (mlvl.worldNameId)
                 pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _S("!name.yaml"));

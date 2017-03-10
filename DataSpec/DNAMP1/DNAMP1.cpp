@@ -66,8 +66,9 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
     m_pak.read(rs);
 
     /* Append Level String */
-    for (PAK::Entry& entry : m_pak.m_entries)
+    for (auto& ent : m_pak.m_entries)
     {
+        PAK::Entry& entry = ent.second;
         if (entry.type == FOURCC('MLVL'))
         {
             PAKEntryReadStream rs = entry.beginReadStream(m_node);
@@ -100,8 +101,9 @@ static hecl::SystemString LayerName(const std::string& name)
 void PAKBridge::build()
 {
     /* First pass: build per-area/per-layer dependency map */
-    for (const PAK::Entry& entry : m_pak.m_entries)
+    for (const auto& ent : m_pak.m_entries)
     {
+        const PAK::Entry& entry = ent.second;
         if (entry.type == FOURCC('MLVL'))
         {
             Level& level = m_levelDeps[entry.id];
@@ -207,9 +209,9 @@ void PAKBridge::build()
     }
 
     /* Second pass: cross-compare uniqueness */
-    for (PAK::Entry& entry : m_pak.m_entries)
+    for (auto& entry : m_pak.m_entries)
     {
-        entry.unique.checkEntry(*this, entry);
+        entry.second.unique.checkEntry(*this, entry.second);
     }
 }
 
@@ -217,18 +219,18 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const
 {
-    for (const std::pair<UniqueID32, PAK::Entry*>& entry : m_pak.m_idMap)
+    for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries)
     {
-        if (entry.second->type == FOURCC('ANCS'))
+        if (entry.second.type == FOURCC('ANCS'))
         {
-            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
             ANCS ancs;
             ancs.read(rs);
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
                 addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-                cskrCinfToAncs[ci.cskr] = std::make_pair(entry.second->id, hecl::Format("%s.CSKR", ci.name.c_str()));
-                cskrCinfToAncs[ci.cinf] = std::make_pair(entry.second->id, hecl::Format("CINF_%08X.CINF", ci.cinf.toUint32()));
+                cskrCinfToAncs[ci.cskr] = std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+                cskrCinfToAncs[ci.cinf] = std::make_pair(entry.second.id, hecl::Format("CINF_%08X.CINF", ci.cinf.toUint32()));
                 PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
                 PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
                 PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
@@ -238,7 +240,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 if (ci.cmdlOverlay && ci.cskrOverlay)
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
-                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second->id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
+                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
                     PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
                     PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
                     cmdlEnt->name = hecl::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());
@@ -251,18 +253,18 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             {
                 PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);
                 animEnt->name = hecl::Format("ANCS_%08X_%s", entry.first.toUint32(), ae.second.name.c_str());
-                cskrCinfToAncs[ae.second.animId] = std::make_pair(entry.second->id, hecl::Format("%s.ANIM", ae.second.name.c_str()));
+                cskrCinfToAncs[ae.second.animId] = std::make_pair(entry.second.id, hecl::Format("%s.ANIM", ae.second.name.c_str()));
                 if (ae.second.evntId)
                 {
                     PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.evntId);
                     evntEnt->name = hecl::Format("ANCS_%08X_%s_evnt", entry.first.toUint32(), ae.second.name.c_str());
-                    cskrCinfToAncs[ae.second.evntId] = std::make_pair(entry.second->id, hecl::Format("%s.evnt.yaml", ae.second.name.c_str()));
+                    cskrCinfToAncs[ae.second.evntId] = std::make_pair(entry.second.id, hecl::Format("%s.evnt.yaml", ae.second.name.c_str()));
                 }
             }
         }
-        else if (entry.second->type == FOURCC('MREA'))
+        else if (entry.second.type == FOURCC('MREA'))
         {
-            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
             MREA::AddCMDLRigPairs(rs, pakRouter, addTo);
         }
     }
@@ -274,16 +276,16 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
         std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const
 {
-    for (const std::pair<UniqueID32, PAK::Entry*>& entry : m_pak.m_idMap)
+    for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries)
     {
-        if (entry.second->type == FOURCC('MLVL'))
+        if (entry.second.type == FOURCC('MLVL'))
         {
             MLVL mlvl;
             {
-                PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+                PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
                 mlvl.read(rs);
             }
-            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(entry.second).getParentPath();
+            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
             if (mlvl.worldNameId)
                 pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _S("!name.yaml"));

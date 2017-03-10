@@ -167,8 +167,8 @@ private:
     hecl::ProjectPath m_sharedCooked;
     ThreadLocalPtr<const PAKType> m_pak;
     ThreadLocalPtr<const nod::Node> m_node;
-    std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_uniqueEntries;
-    std::unordered_map<IDType, std::pair<size_t, EntryType*>> m_sharedEntries;
+    std::unordered_map<IDType, std::pair<size_t, const EntryType*>> m_uniqueEntries;
+    std::unordered_map<IDType, std::pair<size_t, const EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, hecl::ProjectPath> m_overrideEntries;
     std::unordered_map<IDType, RigPair> m_cmdlRigs;
     std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrCinfToCharacter;

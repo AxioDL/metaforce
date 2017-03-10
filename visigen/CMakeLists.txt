@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(visigen)
 
 if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
   -std=c++14 -Wno-multichar -fno-exceptions -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")

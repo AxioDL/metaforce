@@ -165,7 +165,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
 
         /* Add to global entry lookup */
         const typename BRIDGETYPE::PAKType& pak = bridge.getPAK();
-        for (const auto& entry : pak.m_idMap)
+        for (const auto& entry : pak.m_entries)
         {
             if (!pak.m_noShare)
             {
@@ -176,13 +176,13 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
                 if (uSearch != m_uniqueEntries.end())
                 {
                     m_uniqueEntries.erase(uSearch);
-                    m_sharedEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
+                    m_sharedEntries[entry.first] = std::make_pair(bridgeIdx, &entry.second);
                 }
                 else
-                    m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
+                    m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, &entry.second);
             }
             else
-                m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, entry.second);
+                m_uniqueEntries[entry.first] = std::make_pair(bridgeIdx, &entry.second);
         }
 
         /* Add RigPairs to global map */
@@ -518,24 +518,25 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
 {
     enterPAKBridge(pakBridge);
     size_t count = 0;
-    size_t sz = m_pak->m_idMap.size();
+    size_t sz = m_pak->m_entries.size();
     float fsz = sz;
     for (unsigned w=0 ; count<sz ; ++w)
     {
         for (const auto& item : m_pak->m_firstEntries)
         {
-            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_pak.get(), *item);
+            const auto* entryPtr = m_pak->lookupEntry(item);
+            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_pak.get(), *entryPtr);
             if (extractor.weight != w)
                 continue;
 
-            std::string bestName = getBestEntryName(*item, false);
+            std::string bestName = getBestEntryName(*entryPtr, false);
             hecl::SystemStringView bestNameView(bestName);
             float thisFac = ++count / fsz;
             progress(bestNameView.c_str(), thisFac);
 
             const nod::Node* node = m_node.get();
 
-            hecl::ProjectPath working = getWorking(item, extractor);
+            hecl::ProjectPath working = getWorking(entryPtr, extractor);
             working.makeDirChain(false);
             hecl::ResourceLock resLk(working);
             if (!resLk)
@@ -546,7 +547,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             if (force || cooked.isNone())
             {
                 cooked.makeDirChain(false);
-                PAKEntryReadStream s = item->beginReadStream(*node);
+                PAKEntryReadStream s = entryPtr->beginReadStream(*node);
                 FILE* fout = hecl::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
                 fwrite(s.data(), 1, s.length(), fout);
                 fclose(fout);
@@ -556,7 +557,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             {
                 if (force || !extractor.IsFullyExtracted(working))
                 {
-                    PAKEntryReadStream s = item->beginReadStream(*node);
+                    PAKEntryReadStream s = entryPtr->beginReadStream(*node);
                     extractor.func_a(s, working);
                 }
             }
@@ -564,8 +565,8 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             {
                 if (force || !extractor.IsFullyExtracted(working))
                 {
-                    PAKEntryReadStream s = item->beginReadStream(*node);
-                    extractor.func_b(m_dataSpec, s, working, *this, *item, force, btok,
+                    PAKEntryReadStream s = entryPtr->beginReadStream(*node);
+                    extractor.func_b(m_dataSpec, s, working, *this, *entryPtr, force, btok,
                                      [&progress, thisFac](const hecl::SystemChar* update)
                                      {
                                          progress(update, thisFac);

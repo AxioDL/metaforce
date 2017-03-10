@@ -1,6 +1,7 @@
 #include "CMorphBall.hpp"
 #include "CPlayer.hpp"
 #include "CMorphBallShadow.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

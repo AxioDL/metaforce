@@ -29,37 +29,25 @@ void PAK::read(athena::io::IStreamReader& reader)
     m_entries.reserve(count);
     m_firstEntries.clear();
     m_firstEntries.reserve(count);
-    m_idMap.clear();
-    m_idMap.reserve(count);
     for (atUint32 e=0 ; e<count ; ++e)
     {
-        m_entries.emplace_back();
-        Entry& ent = m_entries.back();
-        ent.read(reader);
-        if (ent.compressed && m_useLzo)
-            ent.compressed = 2;
-    }
-    for (Entry& entry : m_entries)
-    {
-        auto search = m_idMap.find(entry.id);
-        if (search == m_idMap.end())
+        Entry entry;
+        entry.read(reader);
+        if (entry.compressed && m_useLzo)
+            entry.compressed = 2;
+
+        auto search = m_entries.find(entry.id);
+        if (search == m_entries.end())
         {
-            m_firstEntries.push_back(&entry);
-            m_idMap[entry.id] = &entry;
+            m_firstEntries.push_back(entry.id);
+            m_entries[entry.id] = std::move(entry);
         }
     }
 
     m_nameMap.clear();
     m_nameMap.reserve(nameCount);
     for (NameEntry& entry : m_nameEntries)
-    {
-        std::unordered_map<UniqueID32, Entry*>::iterator found = m_idMap.find(entry.id);
-        if (found != m_idMap.end())
-        {
-            m_nameMap[entry.name] = found->second;
-            found->second->name = entry.name;
-        }
-    }
+        m_nameMap[entry.name] = entry.id;
 }
 
 void PAK::write(athena::io::IStreamWriter& writer) const
@@ -76,9 +64,9 @@ void PAK::write(athena::io::IStreamWriter& writer) const
     }
 
     writer.writeUint32Big(m_entries.size());
-    for (const Entry& entry : m_entries)
+    for (const auto& entry : m_entries)
     {
-        Entry tmp = entry;
+        Entry tmp = entry.second;
         if (tmp.compressed)
             tmp.compressed = 1;
         tmp.write(writer);
@@ -154,6 +142,41 @@ PAK::Entry::getBuffer(const nod::Node& pak, atUint64& szOut) const
         szOut = size;
         return std::unique_ptr<atUint8[]>(buf);
     }
+}
+
+const PAK::Entry* PAK::lookupEntry(const UniqueID32& id) const
+{
+    auto result = m_entries.find(id);
+    if (result != m_entries.end())
+        return &result->second;
+    return nullptr;
+}
+
+const PAK::Entry* PAK::lookupEntry(const std::string& name) const
+{
+    auto result = m_nameMap.find(name);
+    if (result != m_nameMap.end())
+    {
+        auto result1 = m_entries.find(result->second);
+        if (result1 != m_entries.end())
+            return &result1->second;
+    }
+    return nullptr;
+}
+
+std::string PAK::bestEntryName(const Entry& entry, bool& named) const
+{
+    /* Prefer named entries first */
+    for (const NameEntry& nentry : m_nameEntries)
+        if (nentry.id == entry.id)
+        {
+            named = true;
+            return nentry.name;
+        }
+
+    /* Otherwise return ID format string */
+    named = false;
+    return entry.type.toString() + '_' + entry.id.toString();
 }
 
 }

@@ -42,11 +42,12 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
     m_pak.read(rs);
 
     /* Append Level String */
-    for (DNAMP1::PAK::Entry& entry : m_pak.m_entries)
+    for (const auto& entry : m_pak.m_entries)
     {
-        if (entry.type == FOURCC('MLVL'))
+        const DNAMP1::PAK::Entry& e = entry.second;
+        if (e.type == FOURCC('MLVL'))
         {
-            PAKEntryReadStream rs = entry.beginReadStream(m_node);
+            PAKEntryReadStream rs = e.beginReadStream(m_node);
             MLVL mlvl;
             mlvl.read(rs);
             const DNAMP1::PAK::Entry* nameEnt = m_pak.lookupEntry(mlvl.worldNameId);
@@ -75,19 +76,20 @@ static hecl::SystemString LayerName(const std::string& name)
 void PAKBridge::build()
 {
     /* First pass: build per-area/per-layer dependency map */
-    for (const DNAMP1::PAK::Entry& entry : m_pak.m_entries)
+    for (const auto& entry : m_pak.m_entries)
     {
-        if (entry.type == FOURCC('MLVL'))
+        const DNAMP1::PAK::Entry& e = entry.second;
+        if (e.type == FOURCC('MLVL'))
         {
-            Level& level = m_levelDeps[entry.id];
+            Level& level = m_levelDeps[e.id];
 
             MLVL mlvl;
             {
-                PAKEntryReadStream rs = entry.beginReadStream(m_node);
+                PAKEntryReadStream rs = e.beginReadStream(m_node);
                 mlvl.read(rs);
             }
             bool named;
-            std::string bestName = m_pak.bestEntryName(entry, named);
+            std::string bestName = m_pak.bestEntryName(e, named);
             level.name = hecl::SystemStringView(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
@@ -163,9 +165,9 @@ void PAKBridge::build()
     }
 
     /* Second pass: cross-compare uniqueness */
-    for (DNAMP1::PAK::Entry& entry : m_pak.m_entries)
+    for (auto& entry : m_pak.m_entries)
     {
-        entry.unique.checkEntry(*this, entry);
+        entry.second.unique.checkEntry(*this, entry.second);
     }
 }
 
@@ -173,22 +175,22 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const
 {
-    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& entry : m_pak.m_idMap)
+    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry>& entry : m_pak.m_entries)
     {
-        if (entry.second->type == FOURCC('ANCS'))
+        if (entry.second.type == FOURCC('ANCS'))
         {
-            PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+            PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
             ANCS ancs;
             ancs.read(rs);
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
                 addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-                cskrCinfToAncs[ci.cskr] = std::make_pair(entry.second->id, hecl::Format("%s.CSKR", ci.name.c_str()));
-                cskrCinfToAncs[ci.cinf] = std::make_pair(entry.second->id, hecl::Format("CINF_%08X.CINF", ci.cinf.toUint32()));
+                cskrCinfToAncs[ci.cskr] = std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+                cskrCinfToAncs[ci.cinf] = std::make_pair(entry.second.id, hecl::Format("CINF_%08X.CINF", ci.cinf.toUint32()));
                 if (ci.cmdlOverlay)
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
-                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second->id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
+                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
                 }
             }
         }
@@ -201,16 +203,16 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
         std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const
 {
-    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry*>& entry : m_pak.m_idMap)
+    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry>& entry : m_pak.m_entries)
     {
-        if (entry.second->type == FOURCC('MLVL'))
+        if (entry.second.type == FOURCC('MLVL'))
         {
             MLVL mlvl;
             {
-                PAKEntryReadStream rs = entry.second->beginReadStream(m_node);
+                PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
                 mlvl.read(rs);
             }
-            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(entry.second).getParentPath();
+            hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
             if (mlvl.worldNameId)
                 pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _S("!name.yaml"));
