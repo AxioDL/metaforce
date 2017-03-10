@@ -362,7 +362,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor(m_backend.m_blendSrc),
                                   boo::BlendFactor(m_backend.m_blendDst),
                                   tag.getPrimType(), tag.getDepthTest(),
-                                  tag.getDepthWrite(), tag.getBackfaceCulling());
+                                  tag.getDepthWrite(),
+                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -401,7 +402,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                   2, STD_BLOCKNAMES,
                                   blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
-                                  tag.getBackfaceCulling());
+                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
@@ -448,7 +449,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                       tag.getPrimType(), tag.getDepthTest(),
-                                      tag.getDepthWrite(), tag.getBackfaceCulling());
+                                      tag.getDepthWrite(),
+                                      tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -508,7 +510,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                       tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
-                                      tag.getBackfaceCulling());
+                                      tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -555,7 +557,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                   &vertBlob, &fragBlob, &pipelineBlob, tag.newVertexFormat(ctx),
                                   boo::BlendFactor(m_backend.m_blendSrc), boo::BlendFactor(m_backend.m_blendDst),
                                   tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
-                                  tag.getBackfaceCulling());
+                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -633,7 +635,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                   tag.newVertexFormat(ctx),
                                   blendSrc, blendDst, tag.getPrimType(),
                                   tag.getDepthTest(), tag.getDepthWrite(),
-                                  tag.getBackfaceCulling());
+                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
@@ -680,7 +682,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ?
                                                            m_backend.m_blendDst : slot.dstFactor),
                                       tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
-                                      tag.getBackfaceCulling());
+                                      tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             cachedSz += pipeBlob.vert.size() * sizeof(unsigned int);
@@ -771,7 +773,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                       tag.getPrimType(), tag.getDepthTest(), tag.getDepthWrite(),
-                                      tag.getBackfaceCulling());
+                                      tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
