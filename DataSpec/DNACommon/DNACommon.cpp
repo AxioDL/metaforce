@@ -30,7 +30,7 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
     {
         if (pakRouter)
         {
-            if (!silenceWarnings && id)
+            if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id)
                 LogDNACommon.report(logvisor::Warning,
                                     "unable to translate %s to path", id.toString().c_str());
             return {};
@@ -43,7 +43,7 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
     const hecl::ProjectPath* search = project->lookupBridgePath(id.toUint64());
     if (!search)
     {
-        if (!silenceWarnings && id)
+        if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id)
             LogDNACommon.report(logvisor::Warning,
                                 "unable to translate %s to path", id.toString().c_str());
         return {};
