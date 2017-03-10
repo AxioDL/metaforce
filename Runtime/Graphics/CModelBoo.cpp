@@ -764,6 +764,7 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts)
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
 : m_selfToken(selfRef)
 {
+    x38_lastFrame = CGraphics::GetFrameCounter() - 2;
     std::unique_ptr<u8[]> data = std::move(in);
 
     u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));

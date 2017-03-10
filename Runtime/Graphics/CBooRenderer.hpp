@@ -12,6 +12,7 @@
 #include "CPVSVisSet.hpp"
 #include "zeus/CRectangle.hpp"
 #include "World/CGameArea.hpp"
+#include "zeus/CPlane.hpp"
 
 namespace urde
 {
@@ -165,6 +166,10 @@ class CBooRenderer : public IRenderer
     void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
     void RenderBucketItems(CAreaListItem* item);
     void HandleUnsortedModel(CAreaListItem* item, CBooModel& model);
+    static void DrawFogSlices(const zeus::CPlane* planes, int numPlanes, int iteration,
+                              const zeus::CVector3f& center, float delta);
+    static void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelMtx,
+                                     const zeus::CTransform& viewMtx, const CSkinnedModel* sModel);
     void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                const CModel* model, const CSkinnedModel* sModel);
 

@@ -284,6 +284,8 @@ public:
     {g_ExternalTimeProvider = provider;}
     static float GetSecondsMod900();
     static void TickRenderTimings();
+    static u32 g_FrameCounter;
+    static u32 GetFrameCounter() { return g_FrameCounter; }
 
     static boo::IGraphicsDataFactory::Platform g_BooPlatform;
     static const boo::SystemChar* g_BooPlatformName;

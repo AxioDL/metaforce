@@ -9,8 +9,12 @@
 #include "Particle/CElementGen.hpp"
 #include "CMetroidModelInstance.hpp"
 #include "Collision/CAreaOctTree.hpp"
+#include "zeus/CUnitVector.hpp"
+#include "Graphics/CSkinnedModel.hpp"
 
 #define FOGVOL_RAMP_RES 256
+#define FOGVOL_FAR 750.0
+#define FOGVOL_NEAR 0.2
 #define SPHERE_RAMP_RES 32
 
 namespace urde
@@ -268,42 +272,160 @@ void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
     }
 }
 
+static const struct FogVolumeControl
+{
+
+    u32 xfc_[12][2] =
+    {
+        {0, 1},
+        {1, 3},
+        {3, 2},
+        {2, 0},
+        {4, 5},
+        {5, 7},
+        {7, 6},
+        {6, 4},
+        {0, 4},
+        {1, 5},
+        {3, 7},
+        {2, 6}
+    };
+    u32 x15c_[8] = {};
+    //GXVtxDescList x17c_; {{POS, DIRECT}, {TEX0, DIRECT}}
+
+} s_FogVolumeCtrl = {};
+
+void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes,
+                                 int iteration, const zeus::CVector3f& center, float delta)
+{
+
+}
+
+void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model,
+                                        const zeus::CTransform& modelMtx, const zeus::CTransform& viewMtx,
+                                        const CSkinnedModel* sModel)
+{
+    if (!model && !sModel)
+    {
+        zeus::CAABox xfAABB = aabb.getTransformedAABox(modelMtx);
+        zeus::CUnitVector3f viewNormal(viewMtx.basis[1]);
+        zeus::CPlane planes[7] =
+        {
+            {zeus::CVector3f::skRight, xfAABB.min.x},
+            {zeus::CVector3f::skLeft, -xfAABB.max.x},
+            {zeus::CVector3f::skForward, xfAABB.min.y},
+            {zeus::CVector3f::skBack, -xfAABB.max.y},
+            {zeus::CVector3f::skUp, xfAABB.min.z},
+            {zeus::CVector3f::skDown, -xfAABB.max.z},
+            {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f}
+        };
+
+        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+
+        float delta = std::max(std::max(
+            xfAABB.max.x - xfAABB.min.x,
+            xfAABB.max.y - xfAABB.min.y),
+            xfAABB.max.z - xfAABB.min.z) * 2.f;
+
+        for (int i=0 ; i<7 ; ++i)
+            DrawFogSlices(planes, 7, i, xfAABB.center(), delta);
+    }
+    else
+    {
+        CModelFlags flags;
+        flags.m_extendedShaderIdx = 5;
+        if (sModel)
+        {
+            sModel->Draw(flags);
+        }
+        else
+        {
+            model->UpdateLastFrame();
+            model->GetInstance().Draw(flags, nullptr, nullptr);
+        }
+    }
+}
+
 void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                          const CModel* model, const CSkinnedModel* sModel)
 {
     zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
     zeus::CTransform backupView = CGraphics::g_ViewMatrix;
     zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(false);
-    zeus::CVector3f points[8];
-    float wVals[8];
+    zeus::CVector4f points[8];
 
     for (int i=0 ; i<8 ; ++i)
     {
         zeus::CVector3f pt = backupModel * aabb.getPoint(i);
-        zeus::CVector3f xfPt =
-        backupView.transposeRotate(zeus::CVector3f(pt.x - backupModel.basis[1].z,
-                                                   pt.y - backupModel.basis[1].y,
-                                                   pt.z - backupModel.basis[1].x));
-        zeus::CVector4f xfPt4 = proj * zeus::CVector4f(xfPt);
-        points[i] = xfPt4.toVec3f();
-        wVals[i] = xfPt4.w;
+        zeus::CVector3f xfPt = backupView.transposeRotate(pt - backupView.origin);
+        points[i] = proj * zeus::CVector4f(xfPt);
     }
 
-    // TODO: Finish
+    zeus::CVector2i vpMax(0, 0);
+    zeus::CVector2i vpMin(g_Viewport.x8_width, g_Viewport.xc_height);
 
+    bool b1 = true;
     for (int i=0 ; i<20 ; ++i)
     {
         zeus::CVector3f overW;
         if (i < 8)
         {
-            overW = points[i] * (1.f / wVals[i]);
+            overW = points[i].toVec3f() * (1.f / points[i].w);
         }
         else
         {
+            const zeus::CVector4f& pt1 = points[s_FogVolumeCtrl.xfc_[i-8][0]];
+            const zeus::CVector4f& pt2 = points[s_FogVolumeCtrl.xfc_[i-8][1]];
 
+            bool eq1 = (pt1.z / pt1.w) == 1.f;
+            bool eq2 = (pt2.z / pt2.w) == 1.f;
+            if (eq1 == eq2)
+                continue;
+
+            float interp = -(pt1.w - 1.f) / (pt2.w - pt1.w);
+            if (interp <= 0.f || interp >= 1.f)
+                continue;
+
+            float wRecip = 1.f / (interp * (pt2.w - pt1.w) + pt1.w);
+            zeus::CVector3f pt1_3 = pt1.toVec3f();
+            zeus::CVector3f pt2_3 = pt2.toVec3f();
+            overW = (pt1_3 + interp * (pt2_3 - pt1_3)) * wRecip;
         }
 
+        if (overW.z > 1.001f)
+            continue;
+
+        int vpX = zeus::clamp(0, int(g_Viewport.x8_width * overW.x * 0.5f + (g_Viewport.x8_width / 2)), int(g_Viewport.x8_width));
+        int vpY = zeus::clamp(0, int(g_Viewport.xc_height * overW.y * 0.5f + (g_Viewport.xc_height / 2)), int(g_Viewport.xc_height));
+        vpMax.x = std::max(vpMax.x, vpX);
+        vpMin.x = std::min(vpMin.x, vpX);
+        vpMax.y = std::max(vpMax.y, vpY);
+        vpMin.y = std::min(vpMin.y, vpY);
+        b1 = false;
     }
+
+    zeus::CVector2i vpSize = {320, 228};
+    if (!b1)
+    {
+        vpSize.x = std::min(320, vpMax.x - vpMin.x);
+        vpSize.y = std::min(320, vpMax.y - vpMin.y);
+
+    }
+
+    if (vpSize.x <= 0 || vpSize.y <= 0)
+        return;
+
+    //vpMin.y + g_Viewport.x4_top;
+
+    zeus::CAABox box((backupModel * aabb.min) - 1.f, (backupModel * aabb.max) + 1.f);
+    if (box.pointInside(CGraphics::g_ViewPoint) && (model || sModel))
+    {
+
+    }
+
+
+
+
 }
 
 void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx)
@@ -314,7 +436,9 @@ void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& 
         for (int x=0 ; x<FOGVOL_RAMP_RES ; ++x)
         {
             int tmp = y << 16 | x << 8 | 0x7f;
-            double a = zeus::clamp(0.0, (-150.0 / (tmp * 749.7998 - 750.0) - 0.2) * 3.0 / 749.7998, 1.0);
+            double a = zeus::clamp(0.0, (-150.0 / (tmp / double(0xffffff) *
+                (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) * 3.0 /
+                (FOGVOL_FAR - FOGVOL_NEAR), 1.0);
             data[y][x] = (a * a + a) / 2.f * 255;
         }
     }
@@ -737,6 +861,7 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
     flags.m_extendedShaderIdx = 2;
     flags.color = mulCol;
     flags.addColor = addCol;
+    model.UpdateLastFrame();
     model.Draw(flags);
 }
 

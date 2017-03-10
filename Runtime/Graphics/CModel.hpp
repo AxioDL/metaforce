@@ -194,6 +194,7 @@ class CModel
     std::unique_ptr<CBooModel> x28_modelInst;
     CModel* x30_next = nullptr;
     CModel* x34_prev = nullptr;
+    int x38_lastFrame;
 
     /* urde addition: boo! */
     boo::GraphicsDataToken m_gfxToken;
@@ -217,6 +218,7 @@ public:
     CBooModel& GetInstance() {return *x28_modelInst;}
     const CBooModel& GetInstance() const {return *x28_modelInst;}
     std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts);
+    void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

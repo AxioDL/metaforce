@@ -29,6 +29,7 @@ SClipScreenRect CGraphics::g_CroppedViewport;
 int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
 SViewport g_Viewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
+u32 CGraphics::g_FrameCounter = 0;
 
 void CGraphics::DisableAllLights()
 {
@@ -117,6 +118,8 @@ void CGraphics::EndScene()
 
     /* Flush text instance buffers just before GPU command list submission */
     CTextSupportShader::UpdateBuffers();
+
+    ++g_FrameCounter;
 }
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1)
