@@ -93,11 +93,14 @@ CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false, false);
+                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
+                                            boo::CullMode::None);
     s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                          boo::BlendFactor::One, boo::Primitive::TriStrips, false, false, false);
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips, false, false,
+                                          boo::CullMode::None);
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false, false);
+                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false,
+                                           boo::CullMode::None);
     return new CColoredQuadFilterMetalDataBindingFactory;
 }
 

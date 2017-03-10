@@ -139,9 +139,9 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
+                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, boo::CullMode::None);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, boo::CullMode::None);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -157,9 +157,9 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, false);
+                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false, boo::CullMode::None);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, false);
+                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false, boo::CullMode::None);
 
     return nullptr;
 }
