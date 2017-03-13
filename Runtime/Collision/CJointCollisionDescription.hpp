@@ -19,6 +19,17 @@ public:
     };
 
 private:
+    u32 x0_;
+    u32 x4_;
+    CSegId x8_;
+    CSegId x9_;
+    zeus::CVector3f xc_;
+    zeus::CVector3f x18_;
+    float x24_;
+    float x28_;
+    std::string x2c_;
+    TUniqueId x3c_;
+    float x40_;
 public:
     CJointCollisionDescription(ECollisionType, CSegId, CSegId, const zeus::CVector3f&, const zeus::CVector3f&, float,
                                float, EOrientationType, const std::string&, float);

@@ -65,7 +65,30 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bo
 
 void CCollisionActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
+{
+    switch(msg)
+    {
+    case EScriptObjectMessage::ToggleActive:
+    case EScriptObjectMessage::Deleted:
+    case EScriptObjectMessage::Constructed:
+    break;
+    case EScriptObjectMessage::Alert:
+    case EScriptObjectMessage::InternalMessage10:
+    case EScriptObjectMessage::InternalMessage11:
+    {
+        CEntity* ent = mgr.ObjectById(x25c_owner);
+        if (ent)
+            mgr.SendScriptMsg(ent, x2fc_lastTouched, msg);
+    }
+    break;
+    default:
+        mgr.SendScriptMsgAlways(x25c_owner, x8_uid, msg);
+    break;
+    }
+
+    CActor::AcceptScriptMsg(msg, uid, mgr);
+}
 
 CHealthInfo* CCollisionActor::HealthInfo() { return &x28c_healthInfo; }
 

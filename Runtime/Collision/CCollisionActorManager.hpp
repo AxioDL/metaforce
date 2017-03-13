@@ -29,7 +29,7 @@ public:
     void SetActive(CStateManager&, bool);
 
     u32 GetNumCollisionActors() const;
-    CJointCollisionDescription GetCollisionDescFfromIndex(u32) const;
+    CJointCollisionDescription GetCollisionDescFromIndex(u32) const;
     zeus::CTransform GetWRLocatorTransform(const CAnimData&, CSegId, const zeus::CTransform&, const zeus::CTransform&);
 };
 }
