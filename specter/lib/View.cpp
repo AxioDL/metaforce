@@ -81,11 +81,13 @@ void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& t
 {
     m_solidShader = ctx.newShaderPipeline(GLSLSolidVS, GLSLSolidFS, 0, nullptr, 1, BlockNames,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                          boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, false,
+                                          boo::CullMode::None);
 
     m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, 1, TexNames, 1, BlockNames,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                        boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                        boo::Primitive::TriStrips, boo::ZTest::None, false, true, false,
+                                        boo::CullMode::None);
 }
 
 #if _WIN32
@@ -270,7 +272,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
 
     m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                          boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -281,7 +283,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
 
     m_texShader = ctx.newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                        boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                        boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
 
 #endif
@@ -402,7 +404,7 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                    m_vtxFmt, vBufInfo.first, nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
-                                                   bufSizes, 0, nullptr, vBufInfo.second);
+                                                   bufSizes, 0, nullptr, nullptr, nullptr, vBufInfo.second);
     }
     else
     {
@@ -410,7 +412,7 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
                                                    res.m_viewRes.m_solidVtxFmt,
                                                    vBufInfo.first, nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
-                                                   bufSizes, 0, nullptr, vBufInfo.second);
+                                                   bufSizes, 0, nullptr, nullptr, nullptr, vBufInfo.second);
     }
 }
 
@@ -439,7 +441,7 @@ void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
                                                    m_vtxFmt, vBufInfo.first, nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
-                                                   bufSizes, 1, tex, vBufInfo.second);
+                                                   bufSizes, 1, tex, nullptr, nullptr, vBufInfo.second);
     }
     else
     {
@@ -447,7 +449,7 @@ void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
                                                    res.m_viewRes.m_texVtxFmt,
                                                    vBufInfo.first, nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
-                                                   bufSizes, 1, tex, vBufInfo.second);
+                                                   bufSizes, 1, tex, nullptr, nullptr, vBufInfo.second);
     }
 }
 

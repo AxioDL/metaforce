@@ -28,6 +28,22 @@ public:
         zeus::CMatrix4f m_mv;
         zeus::CVector3f m_uv[4];
         zeus::CColor m_color;
+        char _dummy[48];
+        
+        RenderGlyph& operator=(const RenderGlyph& other)
+        {
+            m_pos[0] = other.m_pos[0];
+            m_pos[1] = other.m_pos[1];
+            m_pos[2] = other.m_pos[2];
+            m_pos[3] = other.m_pos[3];
+            m_mv = other.m_mv;
+            m_uv[0] = other.m_uv[0];
+            m_uv[1] = other.m_uv[1];
+            m_uv[2] = other.m_uv[2];
+            m_uv[3] = other.m_uv[3];
+            m_color = other.m_color;
+            return *this;
+        }
 
         RenderGlyph(int& adv, const FontAtlas::Glyph& glyph, const zeus::CColor& defaultColor);
     };
