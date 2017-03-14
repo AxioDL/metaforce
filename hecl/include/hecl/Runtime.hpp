@@ -135,6 +135,11 @@ public:
         const Backend::TextureInfo* texs = nullptr;
         Backend::BlendFactor srcFactor = Backend::BlendFactor::Original;
         Backend::BlendFactor dstFactor = Backend::BlendFactor::Original;
+        Backend::ZTest depthTest = Backend::ZTest::Original;
+        bool frontfaceCull = false;
+        bool noDepthWrite = false;
+        bool noColorWrite = false;
+        bool noAlphaWrite = false;
     };
     std::vector<ExtensionSlot> m_extensionSlots;
 
@@ -149,7 +154,12 @@ public:
     unsigned registerExtensionSlot(Function lighting, Function post,
                                    size_t blockCount, const char** blockNames,
                                    size_t texCount, const Backend::TextureInfo* texs,
-                                   Backend::BlendFactor srcFactor, Backend::BlendFactor dstFactor)
+                                   Backend::BlendFactor srcFactor, Backend::BlendFactor dstFactor,
+                                   Backend::ZTest depthTest = Backend::ZTest::Original,
+                                   bool frontfaceCull = false,
+                                   bool noDepthWrite = false,
+                                   bool noColorWrite = false,
+                                   bool noAlphaWrite = false)
     {
         m_extensionSlots.emplace_back();
         ExtensionSlot& slot = m_extensionSlots.back();
@@ -161,6 +171,11 @@ public:
         slot.texs = texs;
         slot.srcFactor = srcFactor;
         slot.dstFactor = dstFactor;
+        slot.depthTest = depthTest;
+        slot.frontfaceCull = frontfaceCull;
+        slot.noDepthWrite = noDepthWrite;
+        slot.noColorWrite = noColorWrite;
+        slot.noAlphaWrite = noAlphaWrite;
         return m_extensionSlots.size() - 1;
     }
 };
@@ -286,7 +301,8 @@ struct HMDLData
                                                  const boo::PipelineStage* ubufStages,
                                                  size_t texCount, boo::ITexture** texs)
     {return ctx.newShaderDataBinding(shader, m_vtxFmt, m_vbo, nullptr, m_ibo,
-                                     ubufCount, ubufs, ubufStages, nullptr, nullptr, texCount, texs);}
+                                     ubufCount, ubufs, ubufStages, nullptr, nullptr,
+                                     texCount, texs, nullptr, nullptr);}
 };
 
 }

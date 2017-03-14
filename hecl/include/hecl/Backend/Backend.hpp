@@ -13,14 +13,14 @@ using Diagnostics = Frontend::Diagnostics;
 using SourceLocation = Frontend::SourceLocation;
 using ArithmeticOp = IR::Instruction::ArithmeticOpType;
 
-enum class TexGenSrc
+enum class TexGenSrc : uint8_t
 {
     Position,
     Normal,
     UV
 };
 
-enum class BlendFactor
+enum class BlendFactor : uint8_t
 {
     Zero,
     One,
@@ -34,6 +34,15 @@ enum class BlendFactor
     InvDstAlpha,
     SrcColor1,
     InvSrcColor1,
+    Original = 0xff
+};
+
+enum class ZTest : uint8_t
+{
+    None,
+    LEqual,
+    Greater,
+    Equal,
     Original = 0xff
 };
 
