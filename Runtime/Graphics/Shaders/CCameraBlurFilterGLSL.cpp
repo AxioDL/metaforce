@@ -100,7 +100,7 @@ struct CCameraBlurFilterGLDataBindingFactory : TShader<CCameraBlurFilter>::IData
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
         return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
-                                         1, bufs, stages, nullptr, nullptr, 1, texs);
+                                         1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
 
@@ -116,7 +116,7 @@ struct CCameraBlurFilterVulkanDataBindingFactory : TShader<CCameraBlurFilter>::I
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 1, texs);
+                                         nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
 #endif
@@ -126,8 +126,8 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
     const char* texNames[] = {"sceneTex"};
     const char* uniNames[] = {"CameraBlurUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
-                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, true, boo::CullMode::None);
     return new CCameraBlurFilterGLDataBindingFactory;
 }
 
@@ -141,8 +141,8 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
-                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, boo::CullMode::None);
     return new CCameraBlurFilterVulkanDataBindingFactory;
 }
 #endif

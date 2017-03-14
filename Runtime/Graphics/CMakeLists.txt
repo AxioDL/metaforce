@@ -9,7 +9,9 @@ if(WIN32)
       Shaders/CSpaceWarpFilterHLSL.cpp
       Shaders/CCameraBlurFilterHLSL.cpp
       Shaders/CXRayBlurFilterHLSL.cpp
-      Shaders/CTextSupportShaderHLSL.cpp)
+      Shaders/CTextSupportShaderHLSL.cpp
+      Shaders/CFogVolumePlaneShaderHLSL.cpp
+      Shaders/CFogVolumeFilterHLSL.cpp)
 elseif(BOO_HAS_METAL)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
@@ -21,7 +23,9 @@ elseif(BOO_HAS_METAL)
       Shaders/CSpaceWarpFilterMetal.cpp
       Shaders/CCameraBlurFilterMetal.cpp
       Shaders/CXRayBlurFilterMetal.cpp
-      Shaders/CTextSupportShaderMetal.cpp)
+      Shaders/CTextSupportShaderMetal.cpp
+      Shaders/CFogVolumePlaneShaderMetal.cpp
+      Shaders/CFogVolumeFilterMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -55,6 +59,8 @@ set(GRAPHICS_SOURCES
     Shaders/CCameraBlurFilter.hpp Shaders/CCameraBlurFilter.cpp Shaders/CCameraBlurFilterGLSL.cpp
     Shaders/CXRayBlurFilter.hpp Shaders/CXRayBlurFilter.cpp Shaders/CXRayBlurFilterGLSL.cpp
     Shaders/CTextSupportShader.hpp Shaders/CTextSupportShader.cpp Shaders/CTextSupportShaderGLSL.cpp
+    Shaders/CFogVolumePlaneShader.hpp Shaders/CFogVolumePlaneShader.cpp Shaders/CFogVolumePlaneShaderGLSL.cpp
+    Shaders/CFogVolumeFilter.hpp Shaders/CFogVolumeFilter.cpp Shaders/CFogVolumeFilterGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

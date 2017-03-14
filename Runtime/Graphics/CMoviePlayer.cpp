@@ -217,7 +217,7 @@ void CMoviePlayer::Initialize()
             YUVShaderPipeline = static_cast<boo::GLDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_GLSL_YUV, FS_GLSL_YUV, 3, TexNames, 1, BlockNames,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
@@ -225,7 +225,7 @@ void CMoviePlayer::Initialize()
             YUVShaderPipeline = static_cast<boo::ID3DDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_HLSL_YUV, FS_HLSL_YUV, nullptr, nullptr, nullptr, YUVVTXFmt,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;
 #endif
 #if BOO_HAS_METAL
@@ -233,7 +233,7 @@ void CMoviePlayer::Initialize()
             YUVShaderPipeline = static_cast<boo::MetalDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_METAL_YUV, FS_METAL_YUV, YUVVTXFmt, 1,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;
 #endif
 #if BOO_HAS_VULKAN
@@ -241,7 +241,7 @@ void CMoviePlayer::Initialize()
             YUVShaderPipeline = static_cast<boo::VulkanDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_GLSL_YUV, FS_GLSL_YUV, YUVVTXFmt,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;
 #endif
         default: break;
@@ -467,7 +467,8 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 {
                     boo::ITexture* texs[] = {set.Y[j], set.U, set.V};
                     set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
-                                                              nullptr, nullptr, 1, bufs, nullptr, 3, texs);
+                                                              nullptr, nullptr, 1, bufs, nullptr,
+                                                              3, texs, nullptr, nullptr);
                 }
             }
             else
@@ -486,7 +487,8 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
                 boo::ITexture* texs[] = {set.Y[0], set.U, set.V};
                 set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
-                                                          nullptr, nullptr, 1, bufs, nullptr, 3, texs);
+                                                          nullptr, nullptr, 1, bufs, nullptr,
+                                                          3, texs, nullptr, nullptr);
             }
             if (xf4_25_hasAudio)
                 set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);

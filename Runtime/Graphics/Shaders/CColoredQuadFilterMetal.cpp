@@ -80,7 +80,7 @@ struct CColoredQuadFilterMetalDataBindingFactory : TMultiBlendShader<CColoredQua
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 0, nullptr);
+                                         nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
 
@@ -93,14 +93,14 @@ CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
-                                            boo::CullMode::None);
+                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                            boo::ZTest::None, false, true, true, boo::CullMode::None);
     s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
-                                          boo::BlendFactor::One, boo::Primitive::TriStrips, false, false,
-                                          boo::CullMode::None);
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                          boo::ZTest::None, false, true, true, boo::CullMode::None);
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false,
-                                           boo::CullMode::None);
+                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+                                           boo::ZTest::None, false, true, true, boo::CullMode::None);
     return new CColoredQuadFilterMetalDataBindingFactory;
 }
 

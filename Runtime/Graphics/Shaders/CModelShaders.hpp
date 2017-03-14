@@ -20,6 +20,10 @@ enum EExtendedShader : uint8_t
     ForcedAlpha,
     ForcedAdditive,
     SolidColor,
+    SolidColorFrontfaceCullLEqualAlphaOnly,
+    SolidColorFrontfaceCullAlwaysAlphaOnly, // No Z-write or test
+    SolidColorBackfaceCullLEqualAlphaOnly,
+    SolidColorBackfaceCullGreaterAlphaOnly, // No Z-write
     MorphBallShadow
 };
 
@@ -72,6 +76,7 @@ public:
 
     static void Initialize(const hecl::Runtime::FileStoreManager& storeMgr,
                            boo::IGraphicsDataFactory* gfxFactory);
+    static void Shutdown();
 
     CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
                   boo::IGraphicsDataFactory* gfxFactory);

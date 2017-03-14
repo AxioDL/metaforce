@@ -120,7 +120,7 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, renderer.m_vertBuf,
                                                          nullptr, nullptr, 1, uniforms, nullptr,
-                                                         texCount, textures);
+                                                         texCount, textures, nullptr, nullptr);
     }
 };
 
@@ -130,17 +130,17 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     static const char* TexNames[] = {"tex"};
 
     m_texAlpha = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
-                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                           boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+                                       boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                       boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
     m_texAdditive = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
-                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                              boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
     m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                         boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
     m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
-                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                            boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
     return new struct OGLLineDataBindingFactory;
 }

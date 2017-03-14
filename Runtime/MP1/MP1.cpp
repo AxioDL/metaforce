@@ -21,6 +21,8 @@ URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
+URDE_DECL_SPECIALIZE_SHADER(CFogVolumePlaneShader)
+URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
@@ -209,6 +211,8 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TShader<CSpaceWarpFilter>::Initialize();
     TShader<CCameraBlurFilter>::Initialize();
     TShader<CXRayBlurFilter>::Initialize();
+    TShader<CFogVolumePlaneShader>::Initialize();
+    TShader<CFogVolumeFilter>::Initialize();
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
@@ -313,6 +317,7 @@ void CMain::ShutdownSubsystems()
     CElementGen::Shutdown();
     CAnimData::FreeCache();
     CMemoryCardSys::Shutdown();
+    CModelShaders::Shutdown();
 }
 
 void CMain::Shutdown()
@@ -324,6 +329,8 @@ void CMain::Shutdown()
     TShader<CSpaceWarpFilter>::Shutdown();
     TShader<CCameraBlurFilter>::Shutdown();
     TShader<CXRayBlurFilter>::Shutdown();
+    TShader<CFogVolumePlaneShader>::Shutdown();
+    TShader<CFogVolumeFilter>::Shutdown();
     TMultiBlendShader<CColoredQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();

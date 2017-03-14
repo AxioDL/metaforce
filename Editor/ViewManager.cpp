@@ -91,49 +91,51 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
 
 void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
 {
-    gfxQ->clearTarget(false, true);
+    gfxQ->clearTarget(true, true);
 
     //g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
     //g_GameState->GetWorldTransitionManager()->Draw();
 
     if (m_vm.m_modelTest.IsLoaded())
     {
-#if 0
+#if 1
         CModelFlags flags;
 
-        flags.m_extendedShaderIdx = 0;
+        flags.m_extendedShader = EExtendedShader::Flat;
         //flags.m_extendedShaderIdx = 2;
         //if (std::fmod(m_theta, M_PIF) < M_PIF / 2.f)
         //    flags.m_extendedShaderIdx = 1;
 
         m_theta += 0.01f;
         CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta));
-        g_Renderer->SetWorldViewpoint(zeus::lookAt(zeus::CVector3f{0.f, -10.f, 7.f},
+        g_Renderer->SetWorldViewpoint(zeus::lookAt(zeus::CVector3f{0.f, -20.f, 7.f},
                                       {0.f, 0.f, 3.f}));
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
 
-        CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
+        CGraphics::SetPerspective(55.0, aspect, 0.2f, 750.f);
         //CGraphics::SetFog(ERglFogMode::PerspExp, 7.f, 15.f, zeus::CColor::skRed);
         //CGraphics::SetFog(ERglFogMode::PerspExp, 10.f + std::sin(m_theta) * 5.f, 15.f + std::sin(m_theta) * 5.f, zeus::CColor::skRed);
         zeus::CFrustum frustum;
-        frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.1f, 1000.f));
+        frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.2f, 750.f));
         g_Renderer->SetClippingPlanes(frustum);
 
         std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.05f, 0.05f, 0.05f, 1.f}),
                                       CLight::BuildCustom({5.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
                                       {200.f, 200.f, 200.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f)};
-        //lights = {CLight::BuildLocalAmbient({}, {1.0f, 0.0f, 0.0f, 1.f})};
+        lights = {CLight::BuildLocalAmbient({}, {0.5f, 0.5f, 0.5f, 1.f})};
         m_vm.m_modelTest->GetInstance().ActivateLights(lights);
         //g_Renderer->SetThermal(true, 1.f, zeus::CColor::skWhite);
         //g_Renderer->SetThermalColdScale(std::sin(m_theta) * 0.5f + 0.5f);
         //g_Renderer->DoThermalBlendCold();
         //flags.m_extendedShaderIdx = 2;
-        flags.m_extendedShaderIdx = 1;
-        m_widescreen.draw(zeus::CColor::skBlack, std::sin(m_theta * 3.f) / 2.f + 0.5f);
+        //flags.m_extendedShader = EExtendedShader::Lighting;
+        //m_widescreen.draw(zeus::CColor::skBlack, std::sin(m_theta * 3.f) / 2.f + 0.5f);
         m_vm.m_modelTest->Draw(flags);
+        g_Renderer->ReallyRenderFogVolume(zeus::CColor::skRed, m_vm.m_modelTest->GetAABB(),
+                                          nullptr, nullptr);
         //m_xrayBlur.draw(25.f);
-        m_camBlur.draw((std::sin(m_theta * 3.f) / 2.f + 0.5f) * 3.f);
+        //m_camBlur.draw((std::sin(m_theta * 3.f) / 2.f + 0.5f) * 3.f);
         //g_Renderer->DoThermalBlendHot();
         //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
         //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
@@ -176,7 +178,7 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
         m_vm.m_moviePlayer->DrawFrame();
     }
 
-    m_vm.m_projManager.mainDraw();
+    //m_vm.m_projManager.mainDraw();
 
     ++m_frame;
 }
@@ -404,10 +406,13 @@ bool ViewManager::proc()
     if (m_rootSpaceView && m_editorFrames <= 30)
         m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, m_editorFrames / 30.0));
 
-    m_projManager.mainUpdate();
+    //m_projManager.mainUpdate();
 
+    if (g_Renderer)
+        g_Renderer->BeginScene();
     m_rootView->draw(gfxQ);
-    CGraphics::EndScene();
+    if (g_Renderer)
+        g_Renderer->EndScene();
     gfxQ->execute();
     m_projManager.asyncIdle();
     m_mainWindow->waitForRetrace(m_voiceEngine.get());

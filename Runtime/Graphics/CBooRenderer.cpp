@@ -11,6 +11,7 @@
 #include "Collision/CAreaOctTree.hpp"
 #include "zeus/CUnitVector.hpp"
 #include "Graphics/CSkinnedModel.hpp"
+#include "zeus/CVector3d.hpp"
 
 #define FOGVOL_RAMP_RES 256
 #define FOGVOL_FAR 750.0
@@ -295,45 +296,163 @@ static const struct FogVolumeControl
 
 } s_FogVolumeCtrl = {};
 
-void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes,
-                                 int iteration, const zeus::CVector3f& center, float delta)
+static const int OrthogonalAxis[3][2] =
 {
+    {1, 2},
+    {0, 2},
+    {0, 1}
+};
 
+static float GetPlaneInterpolant(const zeus::CPlane& plane,
+                                 const zeus::CVector3f& vert1,
+                                 const zeus::CVector3f& vert2)
+{
+    return zeus::clamp(0.f, -plane.pointToPlaneDist(vert1) / (vert2 - vert1).dot(plane.normal()), 1.f);
+}
+
+void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, const zeus::CVector3f* verts,
+                                  int numVerts, int iteration, int level, CFogVolumePlaneShader& fogVol)
+{
+    if (level == iteration)
+    {
+        CalcDrawFogFan(planes, numPlanes, verts, numVerts, iteration, level + 1, fogVol);
+        return;
+    }
+
+    if (level == numPlanes)
+    {
+        fogVol.addFan(verts, numVerts);
+        return;
+    }
+
+    const zeus::CPlane& plane = planes[level];
+    u32 insidePlaneCount = 0;
+    bool outsidePlane[4];
+    for (int i=0 ; i<numVerts ; ++i)
+        outsidePlane[insidePlaneCount++] = plane.normal().dot(verts[i]) < plane.d;
+
+    u32 numUseVerts = 0;
+    zeus::CVector3f useVerts[4];
+    for (int i=0 ; i<numVerts ; ++i)
+    {
+        int nextIdx = (i + 1) % numVerts;
+        int insidePair = outsidePlane[i] | (outsidePlane[nextIdx] << 1);
+        if (!(insidePair & 0x1))
+            useVerts[numUseVerts++] = verts[i];
+        if (insidePair == 1 || insidePair == 2)
+        {
+            /* Inside/outside transition; clip verts to other plane boundary */
+            const zeus::CVector3f vert1 = verts[i];
+            const zeus::CVector3f vert2 = verts[nextIdx];
+            float interp = GetPlaneInterpolant(plane, vert1, vert2);
+            if (interp > 0.f || interp < 1.f)
+                useVerts[numUseVerts++] = (vert1 * (1.f - interp)) + (vert2 * interp);
+        }
+    }
+
+    if (numUseVerts >= 3)
+        CalcDrawFogFan(planes, numPlanes, useVerts, numUseVerts, iteration, level + 1, fogVol);
+}
+
+void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes,
+                                 int iteration, const zeus::CVector3f& center, float longestAxis,
+                                 CFogVolumePlaneShader& fogVol)
+{
+    u32 vertCount = 0;
+    zeus::CVector3d verts[4];
+    u32 vert2Count = 0;
+    zeus::CVector3f verts2[4];
+    const zeus::CPlane& plane = planes[iteration];
+    int longestNormAxis = std::fabs(plane[1]) > std::fabs(plane[0]);
+    if (std::fabs(plane[2]) > std::fabs(plane[longestNormAxis]))
+        longestNormAxis = 2;
+
+    zeus::CVector3d pointOnPlane = center - (plane.pointToPlaneDist(center) * plane.normal());
+
+    float deltaSign = plane[longestNormAxis] >= 0.f ? -1.f : 1.f;
+    if (longestNormAxis == 1)
+        deltaSign = -deltaSign;
+
+    zeus::CVector3d vec1;
+    zeus::CVector3d vec2;
+
+    vec1[OrthogonalAxis[longestNormAxis][0]] = longestAxis;
+    vec2[OrthogonalAxis[longestNormAxis][1]] = deltaSign * longestAxis;
+
+    verts[vertCount++] = pointOnPlane - vec1 - vec2;
+    verts[vertCount++] = pointOnPlane + vec1 - vec2;
+    verts[vertCount++] = pointOnPlane + vec1 + vec2;
+    verts[vertCount++] = pointOnPlane - vec1 + vec2;
+
+    zeus::CVector3d planeNormal = plane.normal();
+    for (const zeus::CVector3d& vert : verts)
+        verts2[vert2Count++] = vert - (planeNormal * (planeNormal.dot(vert) - plane.d));
+
+    CalcDrawFogFan(planes, numPlanes, verts2, vert2Count, iteration, 0, fogVol);
 }
 
 void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model,
                                         const zeus::CTransform& modelMtx, const zeus::CTransform& viewMtx,
-                                        const CSkinnedModel* sModel)
+                                        const CSkinnedModel* sModel, int pass, CFogVolumePlaneShader* fvs)
 {
     if (!model && !sModel)
     {
-        zeus::CAABox xfAABB = aabb.getTransformedAABox(modelMtx);
-        zeus::CUnitVector3f viewNormal(viewMtx.basis[1]);
-        zeus::CPlane planes[7] =
+        if (pass == 0)
         {
-            {zeus::CVector3f::skRight, xfAABB.min.x},
-            {zeus::CVector3f::skLeft, -xfAABB.max.x},
-            {zeus::CVector3f::skForward, xfAABB.min.y},
-            {zeus::CVector3f::skBack, -xfAABB.max.y},
-            {zeus::CVector3f::skUp, xfAABB.min.z},
-            {zeus::CVector3f::skDown, -xfAABB.max.z},
-            {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f}
-        };
+            zeus::CAABox xfAABB = aabb.getTransformedAABox(modelMtx);
+            zeus::CUnitVector3f viewNormal(viewMtx.basis[1]);
+            zeus::CPlane planes[7] =
+            {
+                {zeus::CVector3f::skRight, xfAABB.min.x},
+                {zeus::CVector3f::skLeft, -xfAABB.max.x},
+                {zeus::CVector3f::skForward, xfAABB.min.y},
+                {zeus::CVector3f::skBack, -xfAABB.max.y},
+                {zeus::CVector3f::skUp, xfAABB.min.z},
+                {zeus::CVector3f::skDown, -xfAABB.max.z},
+                {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f}
+            };
 
-        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+            CGraphics::SetModelMatrix(zeus::CTransform::Identity());
 
-        float delta = std::max(std::max(
-            xfAABB.max.x - xfAABB.min.x,
-            xfAABB.max.y - xfAABB.min.y),
-            xfAABB.max.z - xfAABB.min.z) * 2.f;
+            float longestAxis = std::max(std::max(
+                xfAABB.max.x - xfAABB.min.x,
+                xfAABB.max.y - xfAABB.min.y),
+                xfAABB.max.z - xfAABB.min.z) * 2.f;
 
-        for (int i=0 ; i<7 ; ++i)
-            DrawFogSlices(planes, 7, i, xfAABB.center(), delta);
+            fvs->reset(7 * 6);
+            for (int i=0 ; i<7 ; ++i)
+                DrawFogSlices(planes, 7, i, xfAABB.center(), longestAxis, *fvs);
+            fvs->draw(0);
+        }
+        else
+        {
+            fvs->draw(pass);
+        }
     }
     else
     {
         CModelFlags flags;
-        flags.m_extendedShader = EExtendedShader::SolidColor;
+        switch (pass)
+        {
+        case 0:
+        default:
+            flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
+            flags.color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
+            break;
+        case 1:
+            flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullAlwaysAlphaOnly;
+            flags.color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
+            break;
+        case 2:
+            flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+            flags.color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
+            break;
+        case 3:
+            flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly;
+            flags.color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
+            break;
+        }
+
         if (sModel)
         {
             sModel->Draw(flags);
@@ -341,7 +460,7 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
         else
         {
             model->UpdateLastFrame();
-            model->GetInstance().Draw(flags, nullptr, nullptr);
+            model->Draw(flags);
         }
     }
 }
@@ -349,15 +468,12 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
 void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                          const CModel* model, const CSkinnedModel* sModel)
 {
-    zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
-    zeus::CTransform backupView = CGraphics::g_ViewMatrix;
     zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(false);
     zeus::CVector4f points[8];
 
     for (int i=0 ; i<8 ; ++i)
     {
-        zeus::CVector3f pt = backupModel * aabb.getPoint(i);
-        zeus::CVector3f xfPt = backupView.transposeRotate(pt - backupView.origin);
+        zeus::CVector3f xfPt = CGraphics::g_GXModelView * aabb.getPoint(i);
         points[i] = proj * zeus::CVector4f(xfPt);
     }
 
@@ -392,8 +508,8 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
             overW = (pt1_3 + interp * (pt2_3 - pt1_3)) * wRecip;
         }
 
-        if (overW.z > 1.001f)
-            continue;
+        //if (overW.z > 1.001f)
+        //    continue;
 
         int vpX = zeus::clamp(0, int(g_Viewport.x8_width * overW.x * 0.5f + (g_Viewport.x8_width / 2)), int(g_Viewport.x8_width));
         int vpY = zeus::clamp(0, int(g_Viewport.xc_height * overW.y * 0.5f + (g_Viewport.xc_height / 2)), int(g_Viewport.xc_height));
@@ -404,28 +520,52 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
         b1 = false;
     }
 
-    zeus::CVector2i vpSize = {320, 228};
-    if (!b1)
-    {
-        vpSize.x = std::min(320, vpMax.x - vpMin.x);
-        vpSize.y = std::min(320, vpMax.y - vpMin.y);
-
-    }
-
+    zeus::CVector2i vpSize = {vpMax.x - vpMin.x, vpMax.y - vpMin.y};
     if (vpSize.x <= 0 || vpSize.y <= 0)
         return;
 
-    //vpMin.y + g_Viewport.x4_top;
+    SClipScreenRect rect = {};
+    rect.x4_left = vpMin.x;
+    rect.x8_top = vpMin.y;
+    rect.xc_width = vpSize.x;
+    rect.x10_height = vpSize.y;
+    
+    rect.x4_left = 0;
+    rect.x8_top = 0;
+    rect.xc_width = g_Viewport.x8_width;
+    rect.x10_height = g_Viewport.xc_height;
+    
+    //CGraphics::SetScissor(vpMin.x, vpMin.y, vpSize.x, vpSize.y);
 
-    zeus::CAABox box((backupModel * aabb.min) - 1.f, (backupModel * aabb.max) + 1.f);
-    if (box.pointInside(CGraphics::g_ViewPoint) && (model || sModel))
+    CFogVolumePlaneShader* fvs;
+    if (!model && !sModel)
     {
-
+        fvs = &*((m_nextFogVolumePlaneShader == m_fogVolumePlaneShaders.end()) ?
+        m_fogVolumePlaneShaders.insert(m_fogVolumePlaneShaders.end(), CFogVolumePlaneShader()) :
+        m_nextFogVolumePlaneShader++);
+    }
+    else
+    {
+        fvs = nullptr;
     }
 
+    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 0, fvs);
+    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 1, fvs);
 
+    CGraphics::ResolveSpareDepth(rect, 0);
 
+    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 2, fvs);
+    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 3, fvs);
 
+    CGraphics::ResolveSpareDepth(rect, 1);
+
+    auto fvf = (m_nextFogVolumeFilter == m_fogVolumeFilters.end()) ?
+        m_fogVolumeFilters.insert(m_fogVolumeFilters.end(), CFogVolumeFilter()) :
+        m_nextFogVolumeFilter++;
+    fvf->draw2WayPass(color);
+    fvf->draw1WayPass(color);
+    
+    //CGraphics::SetScissor(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
 }
 
 void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx)
@@ -498,6 +638,9 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
     m_thermHotFilter.emplace();
 
     Buckets::Init();
+
+    m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.end();
+    m_nextFogVolumeFilter = m_fogVolumeFilters.end();
 }
 
 void CBooRenderer::AddWorldSurfaces(CBooModel& model)
@@ -828,6 +971,8 @@ void CBooRenderer::BeginScene()
         x318_26_requestRGBA6 = false;
     //GXSetPixelFmt(x318_27_currentRGBA6);
     CGraphics::BeginScene();
+    m_nextFogVolumePlaneShader = m_fogVolumePlaneShaders.begin();
+    m_nextFogVolumeFilter = m_fogVolumeFilters.begin();
 }
 
 void CBooRenderer::EndScene()

@@ -49,4 +49,9 @@ void CModelShaders::Initialize(const hecl::Runtime::FileStoreManager& storeMgr,
     g_ModelShaders.emplace(storeMgr, gfxFactory);
 }
 
+
+void CModelShaders::Shutdown()
+{
+    g_ModelShaders = std::experimental::nullopt;
+}
 }

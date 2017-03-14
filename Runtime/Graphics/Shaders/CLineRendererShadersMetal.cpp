@@ -119,7 +119,7 @@ struct MetalLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
                                                          nullptr, nullptr, 1, uniforms, nullptr,
-                                                         texCount, textures);
+                                                         texCount, textures, nullptr, nullptr);
     }
 };
 
@@ -141,21 +141,21 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
     m_texAlpha = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
-                                           CGraphics::g_ViewportSamples,
-                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                           boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+                                       CGraphics::g_ViewportSamples,
+                                       boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                       boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
     m_texAdditive = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
-                                              CGraphics::g_ViewportSamples,
-                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                              boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                          CGraphics::g_ViewportSamples,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
     m_noTexAlpha = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
-                                             CGraphics::g_ViewportSamples,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+                                         CGraphics::g_ViewportSamples,
+                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                         boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
     m_noTexAdditive = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
-                                                CGraphics::g_ViewportSamples,
-                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                            CGraphics::g_ViewportSamples,
+                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                            boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
     return new struct MetalLineDataBindingFactory;
 }
