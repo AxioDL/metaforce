@@ -30,6 +30,10 @@
 # endif
 #endif
 
+#ifndef __has_builtin
+# define __has_builtin(x) 0
+#endif
+
 #include "hecl.hpp"
 #include <algorithm>
 #include <cassert>
