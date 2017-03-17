@@ -170,7 +170,7 @@ void View::Resources::init(boo::ID3DDataFactory::Context& ctx, const IThemeData&
 
     m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, nullptr, nullptr, nullptr, m_solidVtxFmt,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                          boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -181,7 +181,7 @@ void View::Resources::init(boo::ID3DDataFactory::Context& ctx, const IThemeData&
 
     m_texShader = ctx.newShaderPipeline(TexVS, TexFS, nullptr, nullptr, nullptr, m_texVtxFmt,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                        boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                        boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
 
 #endif
@@ -300,7 +300,7 @@ void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeDat
 
     m_solidShader = ctx.newShaderPipeline(GLSLSolidVS, GLSLSolidFS, m_solidVtxFmt,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                          boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -311,7 +311,7 @@ void View::Resources::init(boo::VulkanDataFactory::Context& ctx, const IThemeDat
 
     m_texShader = ctx.newShaderPipeline(GLSLTexVS, GLSLTexFS, m_texVtxFmt,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                        boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                        boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
 
 #endif

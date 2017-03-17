@@ -28,7 +28,7 @@ public:
         zeus::CMatrix4f m_mv;
         zeus::CVector3f m_uv[4];
         zeus::CColor m_color;
-        char _dummy[48];
+        //char _dummy[48];
         
         RenderGlyph& operator=(const RenderGlyph& other)
         {

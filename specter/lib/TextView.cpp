@@ -174,12 +174,12 @@ void TextView::Resources::init(boo::ID3DDataFactory::Context& ctx, FontCache* fc
     m_regular =
     ctx.newShaderPipeline(VS, FSReg, nullptr, nullptr, nullptr, m_vtxFmt,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                          boo::Primitive::TriStrips, boo::ZTest::None, false, boo::CullMode::None);
+                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
     m_subpixel =
     ctx.newShaderPipeline(VS, FSSubpixel, nullptr, nullptr, nullptr, m_vtxFmt,
                           boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
-                          boo::Primitive::TriStrips, boo::ZTest::None, false, boo::CullMode::None);
+                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
 
 #endif
@@ -287,7 +287,7 @@ void TextView::Resources::init(boo::VulkanDataFactory::Context& ctx, FontCache* 
     m_regular =
     ctx.newShaderPipeline(GLSLVS, GLSLFSReg, m_vtxFmt,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                          boo::Primitive::TriStrips, boo::ZTest::None, false, boo::CullMode::None);
+                          boo::Primitive::TriStrips,boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
 
 #endif
