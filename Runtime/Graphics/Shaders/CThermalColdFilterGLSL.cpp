@@ -95,7 +95,7 @@ struct CThermalColdFilterGLDataBindingFactory : TShader<CThermalColdFilter>::IDa
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
         return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
-                                         1, bufs, stages, nullptr, nullptr, 2, texs);
+                                         1, bufs, stages, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 
@@ -111,7 +111,7 @@ struct CThermalColdFilterVulkanDataBindingFactory : TShader<CThermalColdFilter>:
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_shiftTex};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 2, texs);
+                                         nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 #endif
@@ -121,8 +121,8 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     const char* texNames[] = {"sceneTex", "shiftTex"};
     const char* uniNames[] = {"ThermalColdUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CThermalColdFilterGLDataBindingFactory;
 }
 
@@ -136,8 +136,8 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, true, boo::CullMode::None);
     return new CThermalColdFilterVulkanDataBindingFactory;
 }
 #endif

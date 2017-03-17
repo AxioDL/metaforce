@@ -102,7 +102,7 @@ struct CCameraBlurFilterD3DDataBindingFactory : TShader<CCameraBlurFilter>::IDat
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 1, texs);
+                                         nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
 
@@ -116,8 +116,8 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::SrcAlpha,
-                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterD3DDataBindingFactory;
 }
 

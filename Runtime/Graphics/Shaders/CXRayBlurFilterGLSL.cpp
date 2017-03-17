@@ -84,7 +84,7 @@ struct CXRayBlurFilterGLDataBindingFactory : TShader<CXRayBlurFilter>::IDataBind
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_booTex};
         return cctx.newShaderDataBinding(s_Pipeline,
                                          ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
-                                         1, bufs, stages, nullptr, nullptr, 2, texs);
+                                         1, bufs, stages, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 
@@ -100,7 +100,7 @@ struct CXRayBlurFilterVulkanDataBindingFactory : TShader<CXRayBlurFilter>::IData
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_booTex};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 2, texs);
+                                         nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 #endif
@@ -110,8 +110,8 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
     const char* texNames[] = {"sceneTex", "paletteTex"};
     const char* uniNames[] = {"XRayBlurUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CXRayBlurFilterGLDataBindingFactory;
 }
 
@@ -125,8 +125,8 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CXRayBlurFilterVulkanDataBindingFactory;
 }
 #endif

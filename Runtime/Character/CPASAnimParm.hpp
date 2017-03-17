@@ -30,7 +30,7 @@ private:
     UParmValue x0_value;
     EParmType x4_type;
 public:
-    CPASAnimParm(UParmValue val, EParmType tp) : x4_type(tp), x0_value(val) {}
+    CPASAnimParm(UParmValue val, EParmType tp) : x0_value(val), x4_type(tp) {}
 
     EParmType GetParameterType() const { return x4_type; }
     s32 GetEnumValue() const {return x0_value.m_int;}

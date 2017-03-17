@@ -125,33 +125,64 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
     /* Normal lit shading */
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
                               3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original,
-                              hecl::Backend::BlendFactor::Original);
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Thermal Visor shading */
     ext.registerExtensionSlot({}, {ThermalPostGLSL, "ThermalPostFunc"}, 3, ThermalBlockNames,
                               1, ThermalTextures, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::One);
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Forced alpha shading */
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
                               3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha);
+                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Forced additive shading */
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
                               3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::One);
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
-    /* Solid shading */
+    /* Solid color */
     ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
                               3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::Zero);
+                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
+                              false, false, false, false);
+
+    /* Alpha-only Solid color frontface cull, LEqual */
+    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
+                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
+                              true, false, true, false);
+
+    /* Alpha-only Solid color frontface cull, Always, No Z-write */
+    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
+                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::None,
+                              true, true, true, false);
+
+    /* Alpha-only Solid color backface cull, LEqual */
+    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
+                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
+                              false, false, true, false);
+
+    /* Alpha-only Solid color backface cull, Greater, No Z-write */
+    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
+                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Greater,
+                              false, true, true, false);
 
     /* MorphBall shadow shading */
     ext.registerExtensionSlot({}, {MBShadowPostGLSL, "MBShadowPostFunc"},
                               3, MBShadowBlockNames, 3, BallFadeTextures,
                               hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha);
+                              hecl::Backend::BlendFactor::InvSrcAlpha,
+                              hecl::Backend::ZTest::Equal,
+                              false, false, false, true);
 
     return ext;
 }

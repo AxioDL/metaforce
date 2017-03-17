@@ -8,6 +8,8 @@
 #include "Shaders/CThermalColdFilter.hpp"
 #include "Shaders/CThermalHotFilter.hpp"
 #include "Shaders/CSpaceWarpFilter.hpp"
+#include "Shaders/CFogVolumePlaneShader.hpp"
+#include "Shaders/CFogVolumeFilter.hpp"
 #include "CRandom16.hpp"
 #include "CPVSVisSet.hpp"
 #include "zeus/CRectangle.hpp"
@@ -127,6 +129,10 @@ class CBooRenderer : public IRenderer
 
     CRandom16 x2a8_thermalRand;
     std::list<CFogVolumeListItem> x2ac_fogVolumes;
+    std::list<CFogVolumePlaneShader> m_fogVolumePlaneShaders;
+    std::list<CFogVolumePlaneShader>::iterator m_nextFogVolumePlaneShader;
+    std::list<CFogVolumeFilter> m_fogVolumeFilters;
+    std::list<CFogVolumeFilter>::iterator m_nextFogVolumeFilter;
     std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
     zeus::CColor x2e0_ = zeus::CColor::skWhite;
     zeus::CVector3f x2e4_ = {0.f, 1.f, 0.f};
@@ -166,12 +172,13 @@ class CBooRenderer : public IRenderer
     void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
     void RenderBucketItems(CAreaListItem* item);
     void HandleUnsortedModel(CAreaListItem* item, CBooModel& model);
+    static void CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, const zeus::CVector3f* verts,
+                               int numVerts, int iteration, int level, CFogVolumePlaneShader& fogVol);
     static void DrawFogSlices(const zeus::CPlane* planes, int numPlanes, int iteration,
-                              const zeus::CVector3f& center, float delta);
+                              const zeus::CVector3f& center, float delta, CFogVolumePlaneShader& fogVol);
     static void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelMtx,
-                                     const zeus::CTransform& viewMtx, const CSkinnedModel* sModel);
-    void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
-                               const CModel* model, const CSkinnedModel* sModel);
+                                     const zeus::CTransform& viewMtx, const CSkinnedModel* sModel, int pass,
+                                     CFogVolumePlaneShader* fvs);
 
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
@@ -239,7 +246,11 @@ public:
     void PrepareDynamicLights(const std::vector<CLight>& lights);
     void SetWorldLightFadeLevel(float level);
 
+    void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
+                               const CModel* model, const CSkinnedModel* sModel);
+
     boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
+    boo::ITextureS* GetFogRampTex() {return x1b8_fogVolumeRamp;}
 
     void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}
@@ -254,7 +265,7 @@ public:
                                                              boo::SWindowRect(0, 0,
                                                                               m_ballShadowIdW,
                                                                               m_ballShadowIdH),
-                                                             false, true, false);
+                                                             false, 0, true, false);
     }
 
     void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;

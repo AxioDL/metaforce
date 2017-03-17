@@ -130,7 +130,7 @@ struct CTexturedQuadFilterD3DDataBindingFactory : TMultiBlendShader<CTexturedQua
         boo::ITexture* texs[] = {filter.m_booTex};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 1, texs);
+                                         nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
 
@@ -145,16 +145,16 @@ CTexturedQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_AlphaPipeline = ctx.newShaderPipeline(VSNoFlip, FS, nullptr, nullptr, nullptr,
                                             s_VtxFmt, boo::BlendFactor::SrcAlpha,
-                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
-                                            boo::CullMode::None);
+                                            boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_AddPipeline = ctx.newShaderPipeline(VSNoFlip, FS, nullptr, nullptr, nullptr,
                                           s_VtxFmt, boo::BlendFactor::SrcAlpha,
-                                          boo::BlendFactor::One, boo::Primitive::TriStrips, false, false,
-                                          boo::CullMode::None);
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                          boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_MultPipeline = ctx.newShaderPipeline(VSNoFlip, FS, nullptr, nullptr, nullptr,
                                            s_VtxFmt, boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false,
-                                           boo::CullMode::None);
+                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CTexturedQuadFilterD3DDataBindingFactory;
 }
 
@@ -190,7 +190,7 @@ struct CTexturedQuadFilterAlphaD3DDataBindingFactory : TMultiBlendShader<CTextur
         boo::ITexture* texs[] = {filter.m_booTex};
         return cctx.newShaderDataBinding(SelectAlphaPipeline(type), s_AVtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 1, texs);
+                                         nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
 
@@ -205,16 +205,16 @@ CTexturedQuadFilterAlpha::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_AVtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_AAlphaPipeline = ctx.newShaderPipeline(VSFlip, FSAlpha, nullptr, nullptr, nullptr,
                                              s_AVtxFmt, boo::BlendFactor::SrcAlpha,
-                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, false, false,
-                                             boo::CullMode::None);
+                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                             boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_AAddPipeline = ctx.newShaderPipeline(VSFlip, FSAlpha, nullptr, nullptr, nullptr,
                                            s_AVtxFmt, boo::BlendFactor::SrcAlpha,
-                                           boo::BlendFactor::One, boo::Primitive::TriStrips, false, false,
-                                           boo::CullMode::None);
+                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_AMultPipeline = ctx.newShaderPipeline(VSFlip, FSAlpha, nullptr, nullptr, nullptr,
                                             s_AVtxFmt, boo::BlendFactor::SrcColor,
-                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips, false, false,
-                                            boo::CullMode::None);
+                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CTexturedQuadFilterAlphaD3DDataBindingFactory;
 }
 

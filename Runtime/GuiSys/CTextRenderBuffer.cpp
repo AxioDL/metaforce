@@ -93,7 +93,7 @@ void CTextRenderBuffer::CommitResources()
             chs.m_dataBinding = ctx.newShaderDataBinding(CTextSupportShader::SelectTextPipeline(m_drawFlags),
                                                          vFmt, nullptr, iBufInfo.first, nullptr,
                                                          1, uniforms, unistages, unioffs,
-                                                         unisizes, 1, texs, 0, iBufInfo.second);
+                                                         unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
         }
 
         for (BooImage& img : m_images)
@@ -131,7 +131,7 @@ void CTextRenderBuffer::CommitResources()
                 img.m_dataBinding.push_back(ctx.newShaderDataBinding(CTextSupportShader::SelectImagePipeline(m_drawFlags),
                                                                      vFmt, nullptr, iBufInfo.first, nullptr,
                                                                      1, uniforms, unistages, unioffs,
-                                                                     unisizes, 1, texs, 0, iBufInfo.second));
+                                                                     unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
             }
         }
         return true;

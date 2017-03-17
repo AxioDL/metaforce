@@ -104,7 +104,7 @@ struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
                                                          nullptr, nullptr, 1, uniforms, nullptr,
-                                                         texCount, textures);
+                                                         texCount, textures, nullptr, nullptr);
     }
 };
 
@@ -126,21 +126,25 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
     m_texAlpha = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                           nullptr, m_texVtxFmt,
-                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                           boo::Primitive::TriStrips,false, true, boo::CullMode::None);
+                                       nullptr, m_texVtxFmt,
+                                       boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                       boo::Primitive::TriStrips, boo::ZTest::None,
+                                       true, true, false, boo::CullMode::None);
     m_texAdditive = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
-                                              nullptr, m_texVtxFmt,
-                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                              boo::Primitive::TriStrips,false, false, boo::CullMode::None);
+                                          nullptr, m_texVtxFmt,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                          boo::Primitive::TriStrips, boo::ZTest::None,
+                                          false, true, false, boo::CullMode::None);
     m_noTexAlpha = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                             nullptr, m_noTexVtxFmt,
-                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, false, true, boo::CullMode::None);
+                                         nullptr, m_noTexVtxFmt,
+                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                         boo::Primitive::TriStrips, boo::ZTest::None,
+                                         true, true, false, boo::CullMode::None);
     m_noTexAdditive = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
-                                                nullptr, m_noTexVtxFmt,
-                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                            nullptr, m_noTexVtxFmt,
+                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                            boo::Primitive::TriStrips, boo::ZTest::None,
+                                            false, true, false, boo::CullMode::None);
 
     return new struct HLSLLineDataBindingFactory;
 }

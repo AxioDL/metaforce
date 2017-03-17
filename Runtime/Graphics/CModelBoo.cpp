@@ -171,8 +171,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         /* Binding for each surface */
         newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
-        std::vector<boo::ITexture*> texs;
-        texs.resize(8);
+        boo::ITexture* texs[8] = {};
         boo::ITexture* mbShadowTexs[] = {g_Renderer->m_ballShadowId,
                                          g_Renderer->x220_sphereRamp,
                                          g_Renderer->m_ballFade};
@@ -188,11 +187,11 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         {
             const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
-            texs.clear();
+            u32 texCount = 0;
             for (atUint32 idx : mat.textureIdxs)
             {
                 TCachedToken<CTexture>& tex = x1c_textures[idx];
-                texs.push_back(tex.GetObj()->GetBooTexture());
+                texs[texCount++] = tex.GetObj()->GetBooTexture();
             }
             texs[7] = g_Renderer->x220_sphereRamp;
 
@@ -224,12 +223,12 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             {
                 size_t texCount;
                 boo::ITexture** ltexs;
-                if (idx == 2)
+                if (idx == EExtendedShader::Thermal)
                 {
                     texCount = 8;
-                    ltexs = texs.data();
+                    ltexs = texs;
                 }
-                else if (idx == 6)
+                else if (idx == EExtendedShader::MorphBallShadow)
                 {
                     texCount = 3;
                     ltexs = mbShadowTexs;
@@ -237,12 +236,12 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 else
                 {
                     texCount = mat.textureIdxs.size();
-                    ltexs = texs.data();
+                    ltexs = texs;
                 }
                 extendeds.push_back(
                             ctx.newShaderDataBinding(pipeline, m_vtxFmt,
                                                      x8_vbo, nullptr, xc_ibo, 3, bufs, stages,
-                                                     thisOffs, thisSizes, texCount, ltexs));
+                                                     thisOffs, thisSizes, texCount, ltexs, nullptr, nullptr));
                 ++idx;
             }
         }
@@ -681,7 +680,8 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
         thermalOut.mulColor = flags.color;
         thermalOut.addColor = flags.addColor;
     }
-    else if (flags.m_extendedShader == EExtendedShader::SolidColor) /* Solid color render */
+    else if (flags.m_extendedShader >= EExtendedShader::SolidColor &&
+             flags.m_extendedShader <= EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly) /* Solid color render */
     {
         CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
         solidOut.solidColor = flags.color;
