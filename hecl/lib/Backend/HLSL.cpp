@@ -322,7 +322,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                               boo::BlendFactor(m_backend.m_blendSrc),
                               boo::BlendFactor(m_backend.m_blendDst),
                               tag.getPrimType(),
-                              tag.getDepthTest(), tag.getDepthWrite(),
+                              tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None, tag.getDepthWrite(), true, false,
                               tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
@@ -415,7 +415,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                               ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                               tag.newVertexFormat(ctx),
                               blendSrc, blendDst, tag.getPrimType(),
-                              tag.getDepthTest(), tag.getDepthWrite(),
+                              tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None, tag.getDepthWrite(), true, false,
                               tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!ret)
             Log.report(logvisor::Fatal, "unable to build shader");
@@ -481,6 +481,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                   tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
+                                  !slot.noColorWrite, !slot.noAlphaWrite,
                                   slot.frontfaceCull ? boo::CullMode::Frontface :
                                   (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
             if (!ret)
@@ -600,6 +601,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                   tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
+                                  !slot.noColorWrite, !slot.noAlphaWrite,
                                   slot.frontfaceCull ? boo::CullMode::Frontface :
                                   (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
             if (!ret)

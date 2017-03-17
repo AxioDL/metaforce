@@ -48,6 +48,11 @@ static void UpdateFunctionHash(XXH64_state_t* st, const ShaderCacheExtensions::F
     if (func.m_entry)
         XXH64_update(st, func.m_entry, strlen(func.m_entry));
 }
+template<typename T>
+static void UpdateFieldHash(XXH64_state_t* st, T field)
+{
+    XXH64_update(st, &field, sizeof(field));
+}
 uint64_t ShaderCacheExtensions::hashExtensions() const
 {
     XXH64_state_t st;
@@ -56,6 +61,13 @@ uint64_t ShaderCacheExtensions::hashExtensions() const
     {
         UpdateFunctionHash(&st, slot.lighting);
         UpdateFunctionHash(&st, slot.post);
+        UpdateFieldHash(&st, slot.srcFactor);
+        UpdateFieldHash(&st, slot.dstFactor);
+        UpdateFieldHash(&st, slot.depthTest);
+        UpdateFieldHash(&st, slot.frontfaceCull);
+        UpdateFieldHash(&st, slot.noDepthWrite);
+        UpdateFieldHash(&st, slot.noColorWrite);
+        UpdateFieldHash(&st, slot.noAlphaWrite);
     }
     return XXH64_digest(&st);
 }
