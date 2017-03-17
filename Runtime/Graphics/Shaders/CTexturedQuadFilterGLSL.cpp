@@ -206,13 +206,13 @@ CTexturedQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_AlphaPipeline = ctx.newShaderPipeline(VSNoFlip, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                            boo::ZTest::None, false, boo::CullMode::None);
+                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_AddPipeline = ctx.newShaderPipeline(VSNoFlip, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
-                                          boo::ZTest::None, false, boo::CullMode::None);
+                                          boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_MultPipeline = ctx.newShaderPipeline(VSNoFlip, FS, s_VtxFmt, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
-                                           boo::ZTest::None, false, boo::CullMode::None);
+                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CTexturedQuadFilterVulkanDataBindingFactory;
 }
 #endif

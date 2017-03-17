@@ -350,8 +350,7 @@ void ProjectResourceFactoryBase::BackgroundIndexProc()
                         m_pathToTag[path.hash()] = pathTag;
                         WriteTag(cacheWriter, pathTag, path);
                     }
-                    fprintf(stderr, "\r %" PRISize " / %" PRISize, ++loadIdx,
-                            cacheReader.getRootNode()->m_mapChildren.size());
+                    fprintf(stderr, "\r %" PRISize " / %" PRISize, ++loadIdx, tagCount);
                 }
                 fprintf(stderr, "\n");
             }

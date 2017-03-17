@@ -83,7 +83,7 @@ struct CXRayBlurFilterD3DDataBindingFactory : TShader<CXRayBlurFilter>::IDataBin
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_booTex};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 2, texs);
+                                         nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 
@@ -97,8 +97,8 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS,  nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CXRayBlurFilterD3DDataBindingFactory;
 }
 

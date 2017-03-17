@@ -162,10 +162,10 @@ static const zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f,
                                       0.f, 0.f, 1.f, 1.f,
                                       0.f, 0.f, 0.f, 1.f);
 
-static const zeus::CMatrix4f PlusOneZFlip(1.f, 0.f, 0.f, 0.f,
-                                          0.f, -1.f, 0.f, 0.f,
-                                          0.f, 0.f, 0.5f, 0.5f,
-                                          0.f, 0.f, 0.f, 1.f);
+static const zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f,
+                                           0.f, -1.f, 0.f, 0.f,
+                                           0.f, 0.f, 0.5f, 0.5f,
+                                           0.f, 0.f, 0.f, 1.f);
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
                                                       float znear, float zfar,
@@ -221,7 +221,7 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
                              0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
                              0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
                              0.f, 0.f, -1.f, 0.f);
-        return PlusOneZFlip * mat2;
+        return VulkanCorrect * mat2;
     }
     }
 }
@@ -271,7 +271,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
                                  0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
                                  0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
                                  0.f, 0.f, -1.f, 0.f);
-            return PlusOneZFlip * mat2;
+            return VulkanCorrect * mat2;
         }
         }
     }
@@ -316,9 +316,9 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
         {
             zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml,
                                  0.f, 2.f / tmb, 0.f, -tpb / tmb,
-                                 0.f, 0.f, 1.f / fmn, g_Proj.x14_near / fmn,
+                                 0.f, 0.f, -2.f / fmn, -fpn / fmn,
                                  0.f, 0.f, 0.f, 1.f);
-            return PlusOneZFlip * mat2;
+            return VulkanCorrect * mat2;
         }
         }
     }

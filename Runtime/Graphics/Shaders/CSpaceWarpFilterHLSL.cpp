@@ -69,7 +69,7 @@ struct CSpaceWarpFilterD3DDataBindingFactory : TShader<CSpaceWarpFilter>::IDataB
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_warpTex};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 2, texs);
+                                         nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 
@@ -83,8 +83,8 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::One,
-                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips, false, false,
-                                       boo::CullMode::None);
+                                       boo::BlendFactor::Zero, boo::Primitive::TriStrips,
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CSpaceWarpFilterD3DDataBindingFactory;
 }
 

@@ -171,8 +171,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         /* Binding for each surface */
         newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
-        std::vector<boo::ITexture*> texs;
-        texs.resize(8);
+        boo::ITexture* texs[8] = {};
         boo::ITexture* mbShadowTexs[] = {g_Renderer->m_ballShadowId,
                                          g_Renderer->x220_sphereRamp,
                                          g_Renderer->m_ballFade};
@@ -188,11 +187,11 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         {
             const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
-            texs.clear();
+            u32 texCount = 0;
             for (atUint32 idx : mat.textureIdxs)
             {
                 TCachedToken<CTexture>& tex = x1c_textures[idx];
-                texs.push_back(tex.GetObj()->GetBooTexture());
+                texs[texCount++] = tex.GetObj()->GetBooTexture();
             }
             texs[7] = g_Renderer->x220_sphereRamp;
 
@@ -227,7 +226,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 if (idx == EExtendedShader::Thermal)
                 {
                     texCount = 8;
-                    ltexs = texs.data();
+                    ltexs = texs;
                 }
                 else if (idx == EExtendedShader::MorphBallShadow)
                 {
@@ -237,7 +236,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 else
                 {
                     texCount = mat.textureIdxs.size();
-                    ltexs = texs.data();
+                    ltexs = texs;
                 }
                 extendeds.push_back(
                             ctx.newShaderDataBinding(pipeline, m_vtxFmt,

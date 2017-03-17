@@ -68,7 +68,7 @@ struct CThermalHotFilterD3DDataBindingFactory : TShader<CThermalHotFilter>::IDat
         boo::ITexture* texs[] = {CGraphics::g_SpareTexture, g_Renderer->GetThermoPalette()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
                                          filter.m_vbo, nullptr, nullptr, 1, bufs,
-                                         nullptr, nullptr, nullptr, 2, texs);
+                                         nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
 
@@ -82,7 +82,8 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::DstAlpha, boo::BlendFactor::InvDstAlpha,
-                                       boo::Primitive::TriStrips, false, false, boo::CullMode::None);
+                                       boo::Primitive::TriStrips, boo::ZTest::None,
+                                       false, true, false, boo::CullMode::None);
     return new CThermalHotFilterD3DDataBindingFactory;
 }
 

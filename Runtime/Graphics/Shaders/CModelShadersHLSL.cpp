@@ -108,54 +108,64 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
     /* Normal lit shading */
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Original,
-                              hecl::Backend::BlendFactor::Original);
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Thermal Visor shading */
     ext.registerExtensionSlot({}, {ThermalPostHLSL, "ThermalPostFunc"}, 0, nullptr,
                               1, ThermalTextures, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::One);
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Forced alpha shading */
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha);
+                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Forced additive shading */
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::One);
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+                              false, false, false, true);
 
     /* Solid color */
     ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual, false, false);
-
-    /* Alpha-only Solid color backface cull, LEqual */
-    ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
-                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual, false, false);
-
-    /* Alpha-only Solid color backface cull, Always, No Z-write */
-    ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
-                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::None, false, true);
+                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
+                              false, false, false, false);
 
     /* Alpha-only Solid color frontface cull, LEqual */
     ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
-                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual, true, false);
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
+                              true, false, true, false);
 
-    /* Alpha-only Solid color frontface cull, Greater, No Z-write */
+    /* Alpha-only Solid color frontface cull, Always, No Z-write */
     ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
-                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Greater, true, true);
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::None,
+                              true, true, true, false);
+
+    /* Alpha-only Solid color backface cull, LEqual */
+    ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
+                              false, false, true, false);
+
+    /* Alpha-only Solid color backface cull, Greater, No Z-write */
+    ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::Greater,
+                              false, true, true, false);
 
     /* MorphBall shadow shading */
     ext.registerExtensionSlot({}, {MBShadowPostHLSL, "MBShadowPostFunc"},
                               0, nullptr, 3, BallFadeTextures,
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
-                              hecl::Backend::ZTest::Equal);
+                              hecl::Backend::ZTest::Equal,
+                              false, false, false, true);
 
     return ext;
 }

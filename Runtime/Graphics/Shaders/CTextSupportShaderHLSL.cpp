@@ -128,12 +128,12 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, nullptr,
                                                 s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
-                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false,
-                                                boo::CullMode::None);
+                                                boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, nullptr,
                                               s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
-                                              boo::BlendFactor::One, boo::Primitive::TriStrips, true, false,
-                                              boo::CullMode::None);
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                              boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -150,12 +150,12 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, nullptr,
                                                  s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
-                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips, true, false,
-                                                 boo::CullMode::None);
+                                                 boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                                 boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, nullptr,
                                                s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
-                                               boo::BlendFactor::One, boo::Primitive::TriStrips, true, false,
-                                               boo::CullMode::None);
+                                               boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                               boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     return nullptr;
 }

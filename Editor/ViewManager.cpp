@@ -89,7 +89,7 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
     urde::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
 }
 
-void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
+void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->clearTarget(true, true);
 
@@ -113,11 +113,11 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
         boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
         float aspect = windowRect.size[0] / float(windowRect.size[1]);
 
-        CGraphics::SetPerspective(55.0, aspect, 0.2f, 750.f);
+        CGraphics::SetPerspective(55.0, aspect, 0.2f, 50.f);
         //CGraphics::SetFog(ERglFogMode::PerspExp, 7.f, 15.f, zeus::CColor::skRed);
         //CGraphics::SetFog(ERglFogMode::PerspExp, 10.f + std::sin(m_theta) * 5.f, 15.f + std::sin(m_theta) * 5.f, zeus::CColor::skRed);
         zeus::CFrustum frustum;
-        frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.2f, 750.f));
+        frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.2f, 50.f));
         g_Renderer->SetClippingPlanes(frustum);
 
         std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.05f, 0.05f, 0.05f, 1.f}),
@@ -128,8 +128,7 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue *gfxQ)
         //g_Renderer->SetThermal(true, 1.f, zeus::CColor::skWhite);
         //g_Renderer->SetThermalColdScale(std::sin(m_theta) * 0.5f + 0.5f);
         //g_Renderer->DoThermalBlendCold();
-        //flags.m_extendedShaderIdx = 2;
-        //flags.m_extendedShader = EExtendedShader::Lighting;
+        flags.m_extendedShader = EExtendedShader::Lighting;
         //m_widescreen.draw(zeus::CColor::skBlack, std::sin(m_theta * 3.f) / 2.f + 0.5f);
         m_vm.m_modelTest->Draw(flags);
         g_Renderer->ReallyRenderFogVolume(zeus::CColor::skRed, m_vm.m_modelTest->GetAABB(),

@@ -336,7 +336,7 @@ void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, con
     for (int i=0 ; i<numVerts ; ++i)
     {
         int nextIdx = (i + 1) % numVerts;
-        int insidePair = outsidePlane[i] | (outsidePlane[nextIdx] << 1);
+        int insidePair = int(outsidePlane[i]) | (int(outsidePlane[nextIdx]) << 1);
         if (!(insidePair & 0x1))
             useVerts[numUseVerts++] = verts[i];
         if (insidePair == 1 || insidePair == 2)
