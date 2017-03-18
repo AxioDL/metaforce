@@ -349,6 +349,38 @@ CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics
     return wrapper;
 }
 
+CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, float vol,
+                                   bool useAcoustics, bool looped, s16 prio, s32 areaId)
+{
+    CAudioSys::C3DEmitterParmData parmData;
+    parmData.x0_pos = pos;
+    parmData.xc_dir = dir;
+    parmData.x18_maxDist = 150.f;
+    parmData.x1c_distComp = 0.1f;
+    parmData.x20_flags = 1;
+    parmData.x24_sfxId = id;
+    parmData.x26_maxVol = std::max(vol, 0.165f);
+    parmData.x28_ = 0;
+    parmData.x29_ = 0x7f;
+    return AddEmitter(parmData, useAcoustics, prio, looped, areaId);
+}
+
+CSfxHandle CSfxManager::AddEmitter(const CAudioSys::C3DEmitterParmData& parmData,
+                                   bool useAcoustics, s16 prio, bool looped, s32 areaId)
+{
+    if (m_muted || parmData.x24_sfxId == 0xffff)
+        return {};
+
+    CAudioSys::C3DEmitterParmData data = parmData;
+    if (looped)
+        data.x20_flags |= 0x6;
+    m_doUpdate = true;
+    CSfxHandle wrapper = std::make_shared<CSfxEmitterWrapper>(looped, prio, data, useAcoustics, areaId);
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+    chanObj.x48_handles.insert(wrapper);
+    return wrapper;
+}
+
 void CSfxManager::StopAndRemoveAllEmitters()
 {
     for (int i=0 ; i<4 ; ++i)

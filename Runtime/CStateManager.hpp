@@ -363,6 +363,7 @@ public:
     bool ShouldQuitGame() const { return xf94_25_quitGame; }
     void SetInSaveUI(bool b) { xf94_28_inSaveUI = b; }
     void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
+    bool GetInMapScreen() const { return xf94_27_inMapScreen; }
 
     const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
     CRandom16* GetActiveRandom() {return x900_activeRandom;}
@@ -400,6 +401,7 @@ public:
     bool GetIsGeneratingObject() const { return xf94_26_generatingObject; }
     void SetIsGeneratingObject(bool gen) { xf94_26_generatingObject = gen; }
     u32 GetParticleFlags() const { return xf34_particleFlags; }
+    const CFinalInput& GetFinalInput() const { return xb54_finalInput; }
 };
 }
 

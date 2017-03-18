@@ -23,7 +23,7 @@ class CCameraManager
     static float sThirdPersonFOV;
     TUniqueId x0_curCameraId;
     std::vector<TUniqueId> x4_cineCameras;
-    std::list<CCameraShakeData> x18_shakers;
+    std::list<CCameraShakeData> x14_shakers;
     u32 x2c_lastShakeId = 0;
     zeus::CVector3f x30_shakeOffset;
     CGameArea::CAreaFog x3c_fog;
@@ -32,7 +32,10 @@ class CCameraManager
     CFirstPersonCamera* x7c_fpCamera = nullptr;
     CBallCamera* x80_ballCamera = nullptr;
     s16 x84_rumbleId = -1;
-    float x94_;
+    float x90_ = 0.f;
+    float x94_ = 1.f;
+    float x98_ = 0.f;
+    float x9c_ = 1.f;
 
     union
     {
@@ -77,7 +80,7 @@ public:
     zeus::CVector3f GetGlobalCameraTranslation(const CStateManager& stateMgr) const;
     zeus::CTransform GetCurrentCameraTransform(const CStateManager& stateMgr) const;
     void RemoveCameraShaker(int id);
-    int AddCameraShaker(const CCameraShakeData& data);
+    int AddCameraShaker(const CCameraShakeData& data, bool sfx);
     void AddCinemaCamera(TUniqueId, CStateManager& stateMgr);
     void SetInsideFluid(bool, TUniqueId);
     void Update(float dt, CStateManager& stateMgr);

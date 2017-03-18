@@ -53,6 +53,7 @@
 #include "CWallCrawlerSwarm.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
+#include "CScriptCameraShaker.hpp"
 #include "CRepulsor.hpp"
 #include "CScriptCameraPitchVolume.hpp"
 #include "CScriptCameraHintTrigger.hpp"
@@ -67,6 +68,7 @@
 #include "CScriptStreamedMusic.hpp"
 #include "CScriptMidi.hpp"
 #include "CScriptRoomAcoustics.hpp"
+#include "CScriptControllerAction.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -423,7 +425,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
 
     CModelData data;
     if (animType == SBIG('ANCS'))
-        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
+        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
     else
         data = CStaticRes(staticId, head.x40_scale);
 
@@ -1154,7 +1156,14 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int prop
 
 CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 9, "CameraShaker"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    CCameraShakeData shakeData = CCameraShakeData::LoadCameraShakeData(in);
+    bool active = in.readBool();
+
+    return new CScriptCameraShaker(mgr.AllocateUniqueId(), name, info, active, shakeData);
 }
 
 CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1835,7 +1844,22 @@ CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in, int pr
 CEntity* ScriptLoader::LoadControllerAction(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "ControllerAction") || propCount > 6)
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    ControlMapper::ECommands w1 = ControlMapper::ECommands(in.readUint32Big());
+    bool b1 = false;
+    u32 w2 = 0;
+    if (propCount == 6)
+    {
+        b1 = in.readBool();
+        w2 = in.readUint32Big();
+    }
+    bool b2 = in.readBool();
+
+    return new CScriptControllerAction(mgr.AllocateUniqueId(), name, info, active, w1, b1, w2, b2);
 }
 
 CEntity* ScriptLoader::LoadSwitch(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2291,7 +2315,22 @@ CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream&
 
 CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 8, "NewCameraShaker"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+    bool active = in.readBool();
+    u32 flags = LoadParameterFlags(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    CCameraShakerComponent shaker1 = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
+    CCameraShakerComponent shaker2 = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
+    CCameraShakerComponent shaker3 = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
+
+    CCameraShakeData shakeData(f1, f2, flags, v1, shaker1, shaker2, shaker3);
+
+    return new CScriptCameraShaker(mgr.AllocateUniqueId(), name, info, active, shakeData);
 }
 
 CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

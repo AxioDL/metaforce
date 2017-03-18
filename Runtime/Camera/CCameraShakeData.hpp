@@ -8,22 +8,58 @@ namespace urde
 {
 class CRandom16;
 
+struct SCameraShakePoint
+{
+    friend class CCameraShakeData;
+    u32 x0_w1 = 0;
+    float x4_ = 0.f;
+    float x8_f4 = 0.f;
+    float xc_f1 = 0.f;
+    float x10_f2 = 0.f;
+    float x14_f3 = 0.f;
+    SCameraShakePoint() = default;
+    SCameraShakePoint(u32 w1, float f1, float f2, float f3, float f4)
+    : x0_w1(w1), x8_f4(f4), xc_f1(f1), x10_f2(f2), x14_f3(f3) {}
+    float GetSomething() const { return x0_w1 ? x8_f4 : x4_; }
+    static SCameraShakePoint LoadCameraShakePoint(CInputStream& in);
+};
+
+class CCameraShakerComponent
+{
+    friend class CCameraShakeData;
+    u32 x4_w1 = 0;
+    SCameraShakePoint x8_sp1, x20_sp2;
+    float x38_ = 0.f;
+public:
+    CCameraShakerComponent() = default;
+    CCameraShakerComponent(u32 w1, const SCameraShakePoint& sp1, const SCameraShakePoint& sp2)
+    : x4_w1(w1), x8_sp1(sp1), x20_sp2(sp2) {}
+    static CCameraShakerComponent LoadNewCameraShakerComponent(CInputStream& in);
+};
+
 class CCameraShakeData
 {
     friend class CCameraManager;
-    zeus::CVector3f x0_pointA;
-    zeus::CVector3f xc_pointB;
-    float x18_duration;
-    float x1c_curTime = 0.f;
-    u32 x20_shakerId = 0;
-    zeus::CVector3f x24_position;
-    zeus::CVector3f x30_velocity;
-    float x3c_cycleTimeLeft;
-    bool x40_shakeY;
+    float x0_duration;
+    float x4_ = 0.f;
+    CCameraShakerComponent x8_shaker1;
+    CCameraShakerComponent x44_shaker2;
+    CCameraShakerComponent x80_shaker3;
+    u32 xbc_shakerId = 0;
+    u32 xc0_flags; // 0x1: positional sfx
+    zeus::CVector3f xc4_sfxPos;
+    float xd0_f2;
+
 public:
-    CCameraShakeData(float xA, float xB, float yA, float yB,
-                     float zA, float zB, float duration, bool shakeY);
-    zeus::CVector3f GeneratePoint(float dt, CRandom16& r);
+    CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& v1,
+                     const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
+                     const CCameraShakerComponent& shaker3);
+    //zeus::CVector3f GeneratePoint(float dt, CRandom16& r);
+    float GetSomething() const;
+    float GetSomething2() const;
+    void SetShakerId(u32 id) { xbc_shakerId = id; }
+    u32 GetShakerId() const { return xbc_shakerId; }
+    static CCameraShakeData LoadCameraShakeData(CInputStream& in);
 };
 
 }

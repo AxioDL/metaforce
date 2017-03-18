@@ -13,9 +13,9 @@ struct ControllerAction : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<bool> unknown1;
-    Value<atUint32> unknown2;
-    Value<bool> unknown3;
+    Value<bool> active;
+    Value<atUint32> command;
+    Value<bool> deactivateOnClose;
 };
 }
 }

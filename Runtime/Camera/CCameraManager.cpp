@@ -46,18 +46,34 @@ zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& 
 
 void CCameraManager::RemoveCameraShaker(int id)
 {
-    for (auto it = x18_shakers.begin(); it != x18_shakers.end(); ++it)
-        if (it->x20_shakerId == id)
+    for (auto it = x14_shakers.begin(); it != x14_shakers.end(); ++it)
+        if (it->xbc_shakerId == id)
         {
-            x18_shakers.erase(it);
+            x14_shakers.erase(it);
             break;
         }
 }
 
-int CCameraManager::AddCameraShaker(const CCameraShakeData& data)
+int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx)
 {
-    x18_shakers.emplace_back(data);
-    x18_shakers.back().x20_shakerId = ++x2c_lastShakeId;
+    x14_shakers.emplace_back(data);
+    x14_shakers.back().xbc_shakerId = ++x2c_lastShakeId;
+    if (!xa0_24_)
+    {
+        xa0_24_ = true;
+        x90_ = 0.5f;
+    }
+    if (sfx && data.x0_duration > 0.f)
+    {
+        float vol =zeus::clamp(100.f, std::max(data.GetSomething(), data.GetSomething2()) * 9.f + 100.f, 127.f);
+        CSfxHandle sfxHandle;
+        if (data.xc0_flags & 0x1)
+            sfxHandle = CSfxManager::AddEmitter(1133, data.xc4_sfxPos, zeus::CVector3f::skZero,
+                                                vol / 127.f, false, false, 0x7f, kInvalidAreaId);
+        else
+            sfxHandle = CSfxManager::SfxStart(1133, vol / 127.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        sfxHandle->SetTimeRemaining(data.x0_duration);
+    }
     return x2c_lastShakeId;
 }
 

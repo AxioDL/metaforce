@@ -200,6 +200,10 @@ public:
     static u16 TranslateSFXID(u16);
     static void SfxStop(const CSfxHandle& handle);
     static CSfxHandle SfxStart(u16 id, float vol, float pan, bool useAcoustics, s16 prio, bool looped, s32 areaId);
+    static CSfxHandle AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, float vol,
+                                 bool useAcoustics, bool looped, s16 prio, s32 areaId);
+    static CSfxHandle AddEmitter(const CAudioSys::C3DEmitterParmData& parmData,
+                                 bool useAcoustics, s16 prio, bool looped, s32 areaId);
     static void StopAndRemoveAllEmitters();
     static void DisableAuxCallback();
     static void EnableAuxCallback();

@@ -52,7 +52,7 @@ public:
     ResId GetIceSkinRulesId() const {return xac_cskrOverlay;}
 
     const CParticleResData& GetParticleResData() const {return x44_partRes;}
-    u32 GetAnimationIndex(u32 idx) const { return xb0_animIdxs[idx]; }
+    u32 GetAnimationIndex(u32 idx) const { return xb0_animIdxs.at(idx); }
     const CPASDatabase& GetPASDatabase() const { return x30_pasDatabase; }
 };
 

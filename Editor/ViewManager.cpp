@@ -98,7 +98,7 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 
     if (m_vm.m_modelTest.IsLoaded())
     {
-#if 1
+#if 0
         CModelFlags flags;
 
         flags.m_extendedShader = EExtendedShader::Flat;
@@ -177,7 +177,7 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
         m_vm.m_moviePlayer->DrawFrame();
     }
 
-    //m_vm.m_projManager.mainDraw();
+    m_vm.m_projManager.mainDraw();
 
     ++m_frame;
 }
@@ -405,7 +405,7 @@ bool ViewManager::proc()
     if (m_rootSpaceView && m_editorFrames <= 30)
         m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, m_editorFrames / 30.0));
 
-    //m_projManager.mainUpdate();
+    m_projManager.mainUpdate();
 
     if (g_Renderer)
         g_Renderer->BeginScene();

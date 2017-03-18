@@ -7,6 +7,7 @@ set(WORLD_SOURCES
     CPlayerEnergyDrain.hpp CPlayerEnergyDrain.cpp
     CEnergyDrainSource.hpp CEnergyDrainSource.cpp
     CPlayerCameraBob.hpp CPlayerCameraBob.cpp
+    CScriptCameraShaker.hpp CScriptCameraShaker.cpp
     CMorphBall.hpp CMorphBall.cpp
     CMorphBallShadow.hpp CMorphBallShadow.cpp
     CActor.hpp CActor.cpp
@@ -89,6 +90,7 @@ set(WORLD_SOURCES
     CScriptShadowProjector.hpp CScriptShadowProjector.cpp
     CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
     CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
+    CScriptControllerAction.hpp CScriptControllerAction.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp
