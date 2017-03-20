@@ -95,6 +95,11 @@ class VertPool:
                 for ent in entries:
                     writebuf(struct.pack('If', ent[0], ent[1] / total_len))
 
+    def write_out_map(self, writebuf):
+        writebuf(struct.pack('I', len(self.pos)))
+        for p in sorted(self.pos.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('fff', p[0][0], p[0][1], p[0][2]))
+
     def get_pos_idx(self, vert):
         pf = vert.co.copy().freeze()
         return self.pos[pf]
@@ -159,6 +164,15 @@ class VertPool:
             writebuf(struct.pack('I', self.get_uv_idx(loop, ul)))
         sp = struct.pack('I', self.get_skin_idx(loop.vert))
         writebuf(sp)
+
+    def loop_out_map(self, writebuf, loop):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('I', self.get_pos_idx(loop.vert)))
+
+    def vert_out_map(self, writebuf, vert):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('I', self.get_pos_idx(vert)))
+
 
 def sort_faces_by_skin_group(dlay, faces):
     faces_out = []

@@ -146,6 +146,8 @@ def register():
     sact.register()
     srea.register()
     frme.register()
+    mapa.register()
+    mapu.register()
     bpy.utils.register_class(hecl_scene_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
     bpy.app.handlers.load_post.append(scene_loaded)

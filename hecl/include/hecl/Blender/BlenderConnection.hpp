@@ -715,6 +715,51 @@ public:
             Light(BlenderConnection& conn);
         };
 
+        /** Intermediate MapArea representation */
+        struct MapArea
+        {
+            std::vector<Vector3f> verts;
+            std::vector<Index> indices;
+            struct Surface
+            {
+                Vector3f normal;
+                Vector3f centerOfMass;
+                Index start;
+                Index count;
+                Index borderStart;
+                Index borderCount;
+                Surface(BlenderConnection& conn);
+            };
+            std::vector<Surface> surfaces;
+            struct POI
+            {
+                uint32_t type;
+                uint32_t unk;
+                uint32_t objid;
+                Matrix4f xf;
+                POI(BlenderConnection& conn);
+            };
+            std::vector<POI> pois;
+            MapArea(BlenderConnection& conn);
+        };
+
+        /** Intermediate MapUniverse representation */
+        struct MapUniverse
+        {
+            hecl::ProjectPath hexagonPath;
+            struct World
+            {
+                std::string name;
+                Matrix4f xf;
+                std::vector<Matrix4f> hexagons;
+                Vector4f color;
+                hecl::ProjectPath worldPath;
+                World(BlenderConnection& conn);
+            };
+            std::vector<World> worlds;
+            MapUniverse(BlenderConnection& conn);
+        };
+
         static const char* MeshOutputModeString(HMDLTopology topology)
         {
             static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
@@ -854,6 +899,9 @@ public:
 
         bool renderPvs(const std::string& path, const atVec3f& location);
         bool renderPvsLight(const std::string& path, const std::string& lightName);
+
+        MapArea compileMapArea();
+        MapUniverse compileMapUniverse();
     };
     DataStream beginData()
     {

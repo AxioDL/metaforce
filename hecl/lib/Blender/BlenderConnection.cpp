@@ -1094,6 +1094,104 @@ BlenderConnection::DataStream::Light::Light(BlenderConnection& conn)
     }
 }
 
+BlenderConnection::DataStream::MapArea::Surface::Surface(BlenderConnection& conn)
+{
+    centerOfMass.read(conn);
+    normal.read(conn);
+    conn._readBuf(&start, 16);
+}
+
+BlenderConnection::DataStream::MapArea::POI::POI(BlenderConnection& conn)
+{
+    conn._readBuf(&type, 12);
+    xf.read(conn);
+}
+
+BlenderConnection::DataStream::MapArea::MapArea(BlenderConnection& conn)
+{
+    uint32_t vertCount;
+    conn._readBuf(&vertCount, 4);
+    verts.reserve(vertCount);
+    for (int i=0 ; i<vertCount ; ++i)
+        verts.emplace_back(conn);
+
+    uint8_t isIdx;
+    conn._readBuf(&isIdx, 1);
+    while (isIdx)
+    {
+        indices.emplace_back(conn);
+        conn._readBuf(&isIdx, 1);
+    }
+
+    uint32_t surfCount;
+    conn._readBuf(&surfCount, 4);
+    surfaces.reserve(surfCount);
+    for (int i=0 ; i<surfCount ; ++i)
+        surfaces.emplace_back(conn);
+
+    uint32_t poiCount;
+    conn._readBuf(&poiCount, 4);
+    pois.reserve(poiCount);
+    for (int i=0 ; i<poiCount ; ++i)
+        pois.emplace_back(conn);
+}
+
+BlenderConnection::DataStream::MapUniverse::World::World(BlenderConnection& conn)
+{
+    uint32_t nameLen;
+    conn._readBuf(&nameLen, 4);
+    if (nameLen)
+    {
+        name.assign(nameLen, '\0');
+        conn._readBuf(&name[0], nameLen);
+    }
+
+    xf.read(conn);
+
+    uint32_t hexCount;
+    conn._readBuf(&hexCount, 4);
+    hexagons.reserve(hexCount);
+    for (int i=0 ; i<hexCount ; ++i)
+        hexagons.emplace_back(conn);
+
+    color.read(conn);
+
+    uint32_t pathLen;
+    conn._readBuf(&pathLen, 4);
+    if (pathLen)
+    {
+        std::string path;
+        path.assign(pathLen, '\0');
+        conn._readBuf(&path[0], pathLen);
+
+        SystemString pathRel =
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(path);
+        worldPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), pathRel);
+    }
+}
+
+BlenderConnection::DataStream::MapUniverse::MapUniverse(BlenderConnection& conn)
+{
+    uint32_t pathLen;
+    conn._readBuf(&pathLen, 4);
+    if (pathLen)
+    {
+        std::string path;
+        path.assign(pathLen, '\0');
+        conn._readBuf(&path[0], pathLen);
+
+        SystemString pathRel =
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(path);
+        hexagonPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), pathRel);
+    }
+
+    uint32_t worldCount;
+    conn._readBuf(&worldCount, 4);
+    worlds.reserve(worldCount);
+    for (int i=0 ; i<worldCount ; ++i)
+        worlds.emplace_back(conn);
+}
+
 BlenderConnection::DataStream::Actor::Actor(BlenderConnection& conn)
 {
     uint32_t armCount;
@@ -1673,7 +1771,7 @@ bool BlenderConnection::DataStream::renderPvs(const std::string& path, const atV
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
         BlenderLog.report(logvisor::Fatal, "unable to render PVS for: %s; %s",
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str(), readBuf);
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
 
     return true;
 }
@@ -1695,9 +1793,43 @@ bool BlenderConnection::DataStream::renderPvsLight(const std::string& path, cons
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
         BlenderLog.report(logvisor::Fatal, "unable to render PVS light %s for: %s; %s", lightName.c_str(),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str(), readBuf);
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
 
     return true;
+}
+
+BlenderConnection::DataStream::MapArea BlenderConnection::DataStream::compileMapArea()
+{
+    if (m_parent->m_loadedType != BlendType::MapArea)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not a MAPAREA blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeStr("MAPAREACOMPILE");
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile map area: %s; %s",
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
+
+    return {*m_parent};
+}
+
+BlenderConnection::DataStream::MapUniverse BlenderConnection::DataStream::compileMapUniverse()
+{
+    if (m_parent->m_loadedType != BlendType::MapUniverse)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not a MAPUNIVERSE blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    m_parent->_writeStr("MAPUNIVERSECOMPILE");
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to compile map universe: %s; %s",
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
+
+    return {*m_parent};
 }
 
 void BlenderConnection::quitBlender()

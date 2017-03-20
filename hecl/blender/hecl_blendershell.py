@@ -417,6 +417,21 @@ def dataout_loop():
             hecl.srea.render_pvs_light(pathOut, lightName)
             writepipestr(b'OK')
 
+        elif cmdargs[0] == 'MAPAREACOMPILE':
+            if 'MAP' not in bpy.data.objects:
+                writepipestr(('"MAP" object not in .blend').encode())
+                continue
+            map_obj = bpy.data.objects['MAP']
+            if map_obj.type != 'MESH':
+                writepipestr(('object "MAP" not a MESH').encode())
+                continue
+            writepipestr(b'OK')
+            hecl.mapa.cook(writepipebuf, map_obj)
+
+        elif cmdargs[0] == 'MAPUNIVERSECOMPILE':
+            writepipestr(b'OK')
+            hecl.mapu.cook(writepipebuf)
+
 loaded_blend = None
 
 # Main exception handling
