@@ -25,12 +25,12 @@ struct MAPA : BigDNA
     struct HeaderMP1 : IMAPAHeader
     {
         DECL_DNA
-        Value<atUint32> unknown1;
-        Value<atUint32> unknown2;
-        Value<atVec3f>  boundingBox[2];
-        Value<atUint32> moCount;
-        Value<atUint32> vtxCount;
-        Value<atUint32> surfCount;
+        Value<atUint32> unknown1 = 0;
+        Value<atUint32> unknown2 = 0;
+        Value<atVec3f>  boundingBox[2] = {};
+        Value<atUint32> moCount = 0;
+        Value<atUint32> vtxCount = 0;
+        Value<atUint32> surfCount = 0;
         virtual atUint32 mappableObjectCount() const { return moCount;}
         virtual atUint32 vertexCount() const  { return vtxCount; }
         virtual atUint32 surfaceCount() const { return surfCount; }
@@ -39,15 +39,15 @@ struct MAPA : BigDNA
     struct HeaderMP2 : IMAPAHeader
     {
         DECL_DNA
-        Value<atUint32> unknown1;
-        Value<atUint32> unknown2;
-        Value<atVec3f>  boundingBox[2];
-        Value<atUint32> unknown3;
-        Value<atUint32> unknown4;
-        Value<atUint32> unknown5;
-        Value<atUint32> moCount;
-        Value<atUint32> vtxCount;
-        Value<atUint32> surfCount;
+        Value<atUint32> unknown1 = 0;
+        Value<atUint32> unknown2 = 0;
+        Value<atVec3f>  boundingBox[2] = {};
+        Value<atUint32> unknown3 = 0;
+        Value<atUint32> unknown4 = 0;
+        Value<atUint32> unknown5 = 0;
+        Value<atUint32> moCount = 0;
+        Value<atUint32> vtxCount = 0;
+        Value<atUint32> surfCount = 0;
         atUint32 mappableObjectCount() const { return moCount;}
         atUint32 vertexCount() const  { return vtxCount; }
         atUint32 surfaceCount() const { return surfCount; }
@@ -56,18 +56,18 @@ struct MAPA : BigDNA
     struct HeaderMP3 : IMAPAHeader
     {
         DECL_DNA
-        Value<atUint32> unknown1;
-        Value<atUint32> unknown2;
-        Value<atVec3f>  boundingBox[2];
-        Value<atUint32> unknown3;
-        Value<atUint32> unknown4;
-        Value<atUint32> unknown5;
-        Value<atUint32> unknown6;
-        Value<atUint32> moCount;
-        Value<atUint32> vtxCount;
-        Value<atUint32> surfCount;
-        Value<atUint32> internalNameLength;
-        Value<atUint32> unknown7;
+        Value<atUint32> unknown1 = 0;
+        Value<atUint32> unknown2 = 0;
+        Value<atVec3f>  boundingBox[2] = {};
+        Value<atUint32> unknown3 = 0;
+        Value<atUint32> unknown4 = 0;
+        Value<atUint32> unknown5 = 0;
+        Value<atUint32> unknown6 = 0;
+        Value<atUint32> moCount = 0;
+        Value<atUint32> vtxCount = 0;
+        Value<atUint32> surfCount = 0;
+        Value<atUint32> internalNameLength = 0;
+        Value<atUint32> unknown7 = 0;
         String<DNA_COUNT(internalNameLength)> internalName;
         atUint32 mappableObjectCount() const { return moCount;}
         atUint32 vertexCount() const  { return vtxCount; }
@@ -118,9 +118,9 @@ struct MAPA : BigDNA
         Value<Type> type;
         Value<atUint32> unknown1;
         Value<atUint32> sclyId;
-        Seek<DNA_COUNT(4), athena::Current> seek1;
+        Value<atInt32> seek1 = -1;
         Value<atVec4f>  transformMtx[3];
-        Seek<DNA_COUNT(0x10), athena::Current> seek2;
+        Value<atInt32> seek2[4] = {-1, -1, -1, -1};
         virtual ~MappableObjectMP1_2()  {}
     };
 
@@ -131,9 +131,9 @@ struct MAPA : BigDNA
         Value<atUint32> unknown1;
         Value<atUint32> sclyId;
         Buffer<DNA_COUNT(0x10)> unknownHash;
-        Seek<DNA_COUNT(4), athena::Current> seek1;
+        Value<atInt32> seek1 = -1;
         Value<atVec4f>  transformMtx[3];
-        Seek<DNA_COUNT(0x10), athena::Current> seek2;
+        Value<atInt32> seek2[4] = {-1, -1, -1, -1};
         virtual ~MappableObjectMP3()  {}
     };
 

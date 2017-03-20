@@ -13,6 +13,8 @@ namespace DataSpec
 namespace DNAMAPA
 {
 
+static logvisor::Module Log("DNAMAPA");
+
 void MAPA::read(athena::io::IStreamReader& __dna_reader)
 {
     /* magic */
@@ -147,14 +149,14 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
     int moIdx = 0;
     for (const std::unique_ptr<MAPA::IMappableObject>& mo : mapa.mappableObjects)
     {
-        const MAPA::MappableObjectMP1_2* moMP12 = dynamic_cast<const MAPA::MappableObjectMP1_2*>(mo.get());
-        if (moMP12)
+        if (mapa.version < 5)
         {
+            const MAPA::MappableObjectMP1_2* moMP12 = static_cast<const MAPA::MappableObjectMP1_2*>(mo.get());
             os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.retro_mappable_type = %d\n"
                       "obj.retro_mappable_unk = %d\n"
-                      "obj.retro_mappable_sclyid = '%08X'\n"
+                      "obj.retro_mappable_sclyid = '0x%08X'\n"
                       "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                       "mtxd = mtx.decompose()\n"
                       "obj.rotation_mode = 'QUATERNION'\n"
@@ -168,14 +170,14 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
             ++moIdx;
             continue;
         }
-        const MAPA::MappableObjectMP3* moMP3 = dynamic_cast<const MAPA::MappableObjectMP3*>(mo.get());
-        if (moMP3)
+        else
         {
+            const MAPA::MappableObjectMP3* moMP3 = static_cast<const MAPA::MappableObjectMP3*>(mo.get());
             os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.retro_mappable_type = %d\n"
                       "obj.retro_mappable_unk = %d\n"
-                      "obj.retro_mappable_sclyid = '%08X'\n"
+                      "obj.retro_mappable_sclyid = '0x%08X'\n"
                       "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                       "mtxd = mtx.decompose()\n"
                       "obj.rotation_mode = 'QUATERNION'\n"
@@ -342,6 +344,13 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
 template <typename MAPAType>
 bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl::ProjectPath& out)
 {
+    if (mapaIn.verts.size() >= 256)
+    {
+        Log.report(logvisor::Error, _S("MAPA %s vertex range exceeded [%d/%d]"),
+                   out.getRelativePath().c_str(), mapaIn.verts.size(), 255);
+        return false;
+    }
+
     MAPAType mapa;
     mapa.magic = 0xDEADD00D;
     mapa.version = MAPAType::Version();
@@ -351,7 +360,6 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
         aabb.accumulateBounds(vert.val);
 
     mapa.header = std::make_unique<typename MAPAType::Header>();
-    memset((void*)mapa.header.get(), 0, sizeof(typename MAPAType::Header));
     typename MAPAType::Header& header = static_cast<typename MAPAType::Header&>(*mapa.header);
     header.unknown1 = 0;
     header.unknown2 = 1;
@@ -383,7 +391,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     for (const auto& mo : mapa.mappableObjects)
         offsetCur = mo->binarySize(offsetCur);
     offsetCur += mapa.vertices.size() * 12;
-    offsetCur += mapaIn.surfaces.size() * sizeof(DNAMAPA::MAPA::SurfaceHeader);
+    offsetCur += mapaIn.surfaces.size() * 32;
 
     mapa.surfaceHeaders.reserve(mapaIn.surfaces.size());
     mapa.surfaces.reserve(mapaIn.surfaces.size());
@@ -405,26 +413,36 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
         for (auto it = itBegin ; it != itEnd ; ++it)
             prim.indices.push_back(it->val);
 
-        surf.borderCount = 1;
-        surf.borders.emplace_back();
-        DNAMAPA::MAPA::Surface::Border& border = surf.borders.back();
-        border.indexCount = surfIn.borderCount;
-        border.indices.reserve(surfIn.borderCount);
-        auto it2Begin = mapaIn.indices.begin() + surfIn.borderStart.val;
-        auto it2End = itBegin + surfIn.borderCount;
-        for (auto it = it2Begin ; it != it2End ; ++it)
-            border.indices.push_back(it->val);
+        surf.borderCount = surfIn.borders.size();
+        surf.borders.reserve(surfIn.borders.size());
+        for (const auto& borderIn : surfIn.borders)
+        {
+            surf.borders.emplace_back();
+            DNAMAPA::MAPA::Surface::Border& border = surf.borders.back();
+            border.indexCount = borderIn.second.val;
+            border.indices.reserve(borderIn.second.val);
+            auto it2Begin = mapaIn.indices.begin() + borderIn.first.val;
+            auto it2End = it2Begin + borderIn.second.val;
+            for (auto it = it2Begin ; it != it2End ; ++it)
+                border.indices.push_back(it->val);
+        }
 
         surfHead.normal = surfIn.normal.val;
         surfHead.centroid = surfIn.centerOfMass;
         surfHead.polyOff = offsetCur;
         offsetCur = prim.binarySize(offsetCur + 4);
         surfHead.edgeOff = offsetCur;
-        offsetCur = border.binarySize(offsetCur + 4);
+        offsetCur += 4;
+        for (const auto& border : surf.borders)
+            offsetCur = border.binarySize(offsetCur);
     }
 
     athena::io::FileWriter f(out.getAbsolutePath());
     mapa.write(f);
+    int64_t rem = f.position() % 32;
+    if (rem)
+        for (int64_t i=0 ; i<32-rem ; ++i)
+            f.writeBytes((atInt8*)"\xff", 1);
     return true;
 }
 

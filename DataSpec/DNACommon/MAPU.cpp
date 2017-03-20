@@ -91,7 +91,8 @@ bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
 
     os.centerView();
     os.close();
-    return conn.saveBlend();
+    conn.saveBlend();
+    return true;
 }
 
 template bool ReadMAPUToBlender<PAKRouter<DNAMP1::PAKBridge>>
@@ -144,6 +145,10 @@ bool MAPU::Cook(const hecl::BlenderConnection::DataStream::MapUniverse& mapuIn, 
 
     athena::io::FileWriter f(out.getAbsolutePath());
     mapu.write(f);
+    int64_t rem = f.position() % 32;
+    if (rem)
+        for (int64_t i=0 ; i<32-rem ; ++i)
+            f.writeBytes((atInt8*)"\xff", 1);
     return true;
 }
 
