@@ -1098,7 +1098,17 @@ BlenderConnection::DataStream::MapArea::Surface::Surface(BlenderConnection& conn
 {
     centerOfMass.read(conn);
     normal.read(conn);
-    conn._readBuf(&start, 16);
+    conn._readBuf(&start, 8);
+
+    uint32_t borderCount;
+    conn._readBuf(&borderCount, 4);
+    borders.reserve(borderCount);
+    for (int i=0 ; i<borderCount ; ++i)
+    {
+        borders.emplace_back();
+        std::pair<Index, Index>& idx = borders.back();
+        conn._readBuf(&idx, 8);
+    }
 }
 
 BlenderConnection::DataStream::MapArea::POI::POI(BlenderConnection& conn)
@@ -1165,9 +1175,7 @@ BlenderConnection::DataStream::MapUniverse::World::World(BlenderConnection& conn
         conn._readBuf(&path[0], pathLen);
 
         hecl::SystemStringView sysPath(path);
-        SystemString pathRel =
-        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(sysPath.sys_str());
-        worldPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), pathRel);
+        worldPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), sysPath.sys_str());
     }
 }
 

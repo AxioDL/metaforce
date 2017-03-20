@@ -726,8 +726,7 @@ public:
                 Vector3f centerOfMass;
                 Index start;
                 Index count;
-                Index borderStart;
-                Index borderCount;
+                std::vector<std::pair<Index, Index>> borders;
                 Surface(BlenderConnection& conn);
             };
             std::vector<Surface> surfaces;

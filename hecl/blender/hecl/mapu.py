@@ -1,16 +1,22 @@
-import bpy
+import bpy, os, struct
 
 def cook(writebuf):
     found_lib = False
     for obj in bpy.context.scene.objects:
-        if obj.library:
-            path = os.path.normpath(bpy.path.abspath(obj.library.filepath))
+        if obj.data and obj.data.library:
+            path = os.path.normpath(bpy.path.abspath(obj.data.library.filepath))
             writebuf(struct.pack('I', len(path)))
             writebuf(path.encode())
             found_lib = True
             break
     if not found_lib:
         raise RuntimeError('No hexagon segments present')
+
+    world_count = 0
+    for obj in bpy.context.scene.objects:
+        if not obj.parent and obj.type == 'EMPTY':
+            world_count += 1
+    writebuf(struct.pack('I', world_count))
 
     for obj in bpy.context.scene.objects:
         if not obj.parent and obj.type == 'EMPTY':

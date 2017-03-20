@@ -1,7 +1,8 @@
-import bpy, struct
+import bpy, struct, bmesh
 from . import hmdl
 from mathutils import Vector
 VertPool = hmdl.HMDLMesh.VertPool
+strip_next_loop = hmdl.HMDLMesh.strip_next_loop
 
 def cook(writebuf, mesh_obj):
     if mesh_obj.type != 'MESH':
@@ -98,10 +99,14 @@ def cook(writebuf, mesh_obj):
                 if edge.seam:
                     edge_set.add(edge)
 
-        trace_edge = edge_set.pop()
+        if len(edge_set):
+            trace_edge = edge_set.pop()
+        else:
+            trace_edge = None
+        edge_ranges = []
         edge_iter = loop_iter + loop_count
-        edge_count = 0
-        if trace_edge:
+        while trace_edge:
+            edge_count = 0
             vert_pool.vert_out_map(writebuf, trace_edge.verts[0])
             vert_pool.vert_out_map(writebuf, trace_edge.verts[1])
             edge_count += 2
@@ -117,18 +122,24 @@ def cook(writebuf, mesh_obj):
                         edge_count += 1
                         found_edge = True
                         break
+            if len(edge_set):
+                trace_edge = edge_set.pop()
+            else:
+                trace_edge = None
+            edge_ranges.append((edge_iter, edge_count))
+            edge_iter += edge_count
 
         pos_avg = Vector()
         norm_avg = Vector()
         if len(loop_set):
             for loop in loop_set:
-                pos_avg += loop.co
-                norm_avg += loop.normal
+                pos_avg += loop.vert.co
+                norm_avg += loop.vert.normal
             pos_avg /= len(loop_set)
             norm_avg /= len(loop_set)
             norm_avg.normalize()
 
-        loop_ranges.append((loop_iter, loop_count, edge_iter, edge_count, pos_avg, norm_avg))
+        loop_ranges.append((loop_iter, loop_count, edge_ranges, pos_avg, norm_avg))
         loop_iter += loop_count + edge_count
 
     # No more surfaces
@@ -137,9 +148,12 @@ def cook(writebuf, mesh_obj):
     # Write out loop ranges and averages
     writebuf(struct.pack('I', len(loop_ranges)))
     for loop_range in loop_ranges:
+        writebuf(struct.pack('fff', loop_range[3][0], loop_range[3][1], loop_range[3][2]))
         writebuf(struct.pack('fff', loop_range[4][0], loop_range[4][1], loop_range[4][2]))
-        writebuf(struct.pack('fff', loop_range[5][0], loop_range[5][1], loop_range[5][2]))
-        writebuf(struct.pack('IIII', loop_range[0], loop_range[1], loop_range[2], loop_range[3]))
+        writebuf(struct.pack('II', loop_range[0], loop_range[1]))
+        writebuf(struct.pack('I', len(loop_range[2])))
+        for edge_range in loop_range[2]:
+            writebuf(struct.pack('II', edge_range[0], edge_range[1]))
 
     # Write out mappable objects
     poi_count = 0
@@ -151,7 +165,7 @@ def cook(writebuf, mesh_obj):
     for obj in bpy.context.scene.objects:
         if obj.retro_mappable_type != -1:
             writebuf(struct.pack('III',
-                                 obj.retro_mappable_type, obj.retro_mappable_unk, obj.retro_mappable_sclyid))
+                                 obj.retro_mappable_type, obj.retro_mappable_unk, int(obj.retro_mappable_sclyid, 0)))
             writebuf(struct.pack('ffffffffffffffff',
                                  obj.matrix_world[0][0], obj.matrix_world[0][1], obj.matrix_world[0][2], obj.matrix_world[0][3],
                                  obj.matrix_world[1][0], obj.matrix_world[1][1], obj.matrix_world[1][2], obj.matrix_world[1][3],
