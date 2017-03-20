@@ -12,13 +12,9 @@ u32 CMapWorld::GetNumAreas() const
     return x0_areas.size();
 }
 
-void CMapWorld::GetLoadedMapArea(s32) const
+const CMapArea* CMapWorld::GetMapArea(TAreaId aid) const
 {
-}
-
-void CMapWorld::GetMapArea(s32) const
-{
-
+    return x0_areas[aid].GetMapArea();
 }
 
 void CMapWorld::IsMapAreaInBFSInfoVector(const CMapWorld::CMapAreaData *, const std::vector<CMapWorld::CMapAreaBFSInfo> &) const

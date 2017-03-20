@@ -90,7 +90,7 @@ void UniqueIDBridge::setThreadProject(hecl::Database::Project& project)
 
 /** PAK 32-bit Unique ID */
 void UniqueID32::read(athena::io::IStreamReader& reader)
-{m_id = reader.readUint32Big();}
+{assign(reader.readUint32Big());}
 void UniqueID32::write(athena::io::IStreamWriter& writer) const
 {writer.writeUint32Big(m_id);}
 void UniqueID32::read(athena::io::YAMLDocReader& reader)
@@ -120,7 +120,7 @@ std::string UniqueID32::toString() const
 
 AuxiliaryID32& AuxiliaryID32::operator=(const hecl::ProjectPath& path)
 {
-    m_id = path.ensureAuxInfo(m_auxStr).hash().val32();
+    assign(path.ensureAuxInfo(m_auxStr).hash().val32());
     return *this;
 }
 
@@ -139,7 +139,7 @@ AuxiliaryID32& AuxiliaryID32::operator=(const UniqueID32& id)
 
 void AuxiliaryID32::read(athena::io::IStreamReader& reader)
 {
-    m_id = reader.readUint32Big();
+    assign(reader.readUint32Big());
     m_baseId = *this;
 }
 
@@ -172,7 +172,7 @@ void AuxiliaryID32::write(athena::io::YAMLDocWriter& writer) const
 
 /** PAK 64-bit Unique ID */
 void UniqueID64::read(athena::io::IStreamReader& reader)
-{m_id = reader.readUint64Big();}
+{assign(reader.readUint64Big());}
 void UniqueID64::write(athena::io::IStreamWriter& writer) const
 {writer.writeUint64Big(m_id);}
 void UniqueID64::read(athena::io::YAMLDocReader& reader)

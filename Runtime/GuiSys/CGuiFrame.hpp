@@ -5,6 +5,7 @@
 #include "CGuiHeadWidget.hpp"
 #include "CGuiWidgetIdDB.hpp"
 #include "IObj.hpp"
+#include <array>
 
 namespace urde
 {
@@ -30,6 +31,7 @@ private:
     CGuiWidgetIdDB x18_idDB;
     std::vector<std::shared_ptr<CGuiWidget>> x2c_widgets;
     std::vector<std::shared_ptr<CGuiLight>> x3c_lights;
+    std::vector<CGuiLight*> m_indexedLights;
     int x4c_a;
     int x50_b;
     int x54_c;
@@ -44,7 +46,7 @@ public:
 
     CGuiSys& GetGuiSys() {return x8_guiSys;}
 
-    CGuiLight* GetFrameLight(int idx) const { return x3c_lights[idx].get(); }
+    CGuiLight* GetFrameLight(int idx) const { return m_indexedLights[idx]; }
     CGuiCamera* GetFrameCamera() const { return x14_camera.get(); }
     CGuiWidget* FindWidget(const std::string& name) const;
     CGuiWidget* FindWidget(s16 id) const;
@@ -55,7 +57,8 @@ public:
     void EnableLights(u32 lights) const;
     void DisableLights() const;
     void RemoveLight(CGuiLight* light);
-    void AddLight(std::shared_ptr<CGuiLight>&& light);
+    void AddLight(CGuiLight* light);
+    void RegisterLight(std::shared_ptr<CGuiLight>&& light);
     bool GetIsFinishedLoading() const;
     void Touch() const;
     const zeus::CTransform& GetAspectTransform() const { return m_aspectTransform; }

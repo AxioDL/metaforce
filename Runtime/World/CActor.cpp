@@ -302,6 +302,17 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
+void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos,
+                            const zeus::CAABox& aabb) const
+{
+    if (x64_modelData)
+    {
+        x64_modelData->RenderUnsortedParts(x64_modelData->GetRenderingModel(stateMgr),
+                                           x34_transform, x90_actorLights.get(), xb4_drawFlags);
+    }
+    stateMgr.AddDrawableActor(*this, pos, aabb);
+}
+
 SAdvancementDeltas CActor::UpdateAnimation(float, CStateManager&, bool)
 {
     return {};
@@ -319,7 +330,7 @@ bool CActor::CanDrawStatic() const
         return false;
 
     if (x64_modelData && x64_modelData->HasNormalModel())
-        return xb4_ <= 4;
+        return xb4_drawFlags.x0_blendMode <= 4;
 
     return false;
 }

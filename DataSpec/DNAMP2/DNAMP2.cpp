@@ -6,6 +6,7 @@
 #include "ANCS.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
+#include "MAPU.hpp"
 #include "AFSM.hpp"
 #include "SAVW.hpp"
 #include "AGSC.hpp"
@@ -278,6 +279,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK& pak, const
         return {MREA::Extract, {_S(".blend")}, 4};
     case SBIG('MAPA'):
         return {MAPA::Extract, {_S(".blend")}, 4};
+    case SBIG('MAPU'):
+        return {MAPU::Extract, {_S(".blend")}, 5};
     case SBIG('FSM2'):
         return {DNAFSM2::ExtractFSM2<UniqueID32>, {_S(".yaml")}};
     case SBIG('FONT'):

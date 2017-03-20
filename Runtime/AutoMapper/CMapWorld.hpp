@@ -56,7 +56,7 @@ public:
         void Lock();
         void Unlock();
         bool IsLoaded() const;
-        void GetMapArea() const;
+        const CMapArea* GetMapArea() const { return x0_area.IsLoaded() ? x0_area.GetObj() : nullptr; }
         void GetNextMapAreaData() const;
         void GetContainingList() const;
         void NextMapAreaData();
@@ -88,8 +88,7 @@ private:
 public:
     CMapWorld(CInputStream&);
     u32 GetNumAreas() const;
-    void GetLoadedMapArea(s32) const;
-    void GetMapArea(s32) const;
+    const CMapArea* GetMapArea(TAreaId) const;
     void IsMapAreaInBFSInfoVector(const CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
     void SetWhichMapAreasLoaded(const IWorld&, int start, int count);
     bool IsMapAreasStreaming() const;

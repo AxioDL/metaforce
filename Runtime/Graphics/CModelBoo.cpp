@@ -677,21 +677,21 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
     if (flags.m_extendedShader == EExtendedShader::Thermal) /* Thermal Model (same as UV Mode 0) */
     {
         CModelShaders::ThermalUniform& thermalOut = *reinterpret_cast<CModelShaders::ThermalUniform*>(dataCur);
-        thermalOut.mulColor = flags.color;
+        thermalOut.mulColor = flags.x4_color;
         thermalOut.addColor = flags.addColor;
     }
     else if (flags.m_extendedShader >= EExtendedShader::SolidColor &&
              flags.m_extendedShader <= EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly) /* Solid color render */
     {
         CModelShaders::SolidUniform& solidOut = *reinterpret_cast<CModelShaders::SolidUniform*>(dataCur);
-        solidOut.solidColor = flags.color;
+        solidOut.solidColor = flags.x4_color;
     }
     else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
     {
         CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
         shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::CVector3f::skUp;
-        shadowOut.shadowUp.w = flags.color.a;
-        shadowOut.shadowId = flags.color.r;
+        shadowOut.shadowUp.w = flags.x4_color.a;
+        shadowOut.shadowId = flags.x4_color.r;
     }
     else
     {
@@ -700,7 +700,7 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
         lightingOut.colorRegs[0] = flags.regColors[0];
         lightingOut.colorRegs[1] = flags.regColors[1];
         lightingOut.colorRegs[2] = flags.regColors[2];
-        lightingOut.mulColor = flags.color;
+        lightingOut.mulColor = flags.x4_color;
         lightingOut.fog = CGraphics::g_Fog;
     }
 
@@ -863,19 +863,19 @@ void CBooModel::Touch(int shaderIdx) const
 
 void CModel::DrawSortedParts(const CModelFlags& flags) const
 {
-    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.m_matSetIdx);
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.x1_matSetIdx);
     x28_modelInst->DrawAlpha(flags, nullptr, nullptr);
 }
 
 void CModel::DrawUnsortedParts(const CModelFlags& flags) const
 {
-    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.m_matSetIdx);
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.x1_matSetIdx);
     x28_modelInst->DrawNormal(flags, nullptr, nullptr);
 }
 
 void CModel::Draw(const CModelFlags& flags) const
 {
-    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.m_matSetIdx);
+    const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(flags.x1_matSetIdx);
     x28_modelInst->Draw(flags, nullptr, nullptr);
 }
 

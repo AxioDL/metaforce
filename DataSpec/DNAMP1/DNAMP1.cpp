@@ -22,6 +22,7 @@
 #include "ANCS.hpp"
 #include "MREA.hpp"
 #include "MAPA.hpp"
+#include "MAPU.hpp"
 #include "FRME.hpp"
 #include "AGSC.hpp"
 #include "CSNG.hpp"
@@ -355,6 +356,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
         return {MREA::Extract, {_S(".blend")}, 4, MREA::Name};
     case SBIG('MAPA'):
         return {MAPA::Extract, {_S(".blend")}, 4};
+    case SBIG('MAPU'):
+        return {MAPU::Extract, {_S(".blend")}, 5};
     case SBIG('PART'):
         return {DNAParticle::ExtractGPSM<UniqueID32>, {_S(".gpsm.yaml")}};
     case SBIG('ELSC'):

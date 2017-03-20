@@ -1,15 +1,18 @@
-#ifndef __DNAMP2_MAPA_HPP__
-#define __DNAMP2_MAPA_HPP__
+#ifndef __DNAMP2_MAPU_HPP__
+#define __DNAMP2_MAPU_HPP__
+
+#include <vector>
 
 #include "../DNACommon/PAK.hpp"
-#include "../DNACommon/MAPA.hpp"
+#include "../DNACommon/MAPU.hpp"
 #include "DNAMP2.hpp"
 
 namespace DataSpec
 {
 namespace DNAMP2
 {
-struct MAPA : DNAMAPA::MAPA
+
+struct MAPU : DNAMAPU::MAPU
 {
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
@@ -20,22 +23,12 @@ struct MAPA : DNAMAPA::MAPA
                         hecl::BlenderToken& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        MAPA mapa;
-        mapa.read(rs);
+        MAPU mapu;
+        mapu.read(rs);
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        return DNAMAPA::ReadMAPAToBlender(conn, mapa, outPath, pakRouter, entry, force);
+        return DNAMAPU::ReadMAPUToBlender(conn, mapu, outPath, pakRouter, entry, force);
     }
-
-    static bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out)
-    {
-        return DNAMAPA::Cook<MAPA>(mapa, out);
-    }
-
-    static uint32_t Version() { return 3; }
-    using Header = DNAMAPA::MAPA::HeaderMP2;
-    using MappableObject = DNAMAPA::MAPA::MappableObjectMP1_2;
 };
-
 }
 }
 

@@ -285,7 +285,13 @@ void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, 
     }
 }
 
-bool CStateManager::RenderLast(TUniqueId) { return false; }
+bool CStateManager::RenderLast(TUniqueId uid)
+{
+    if (x86c_stateManagerContainer->xf39c_renderLast.size() == 20)
+        return false;
+    x86c_stateManagerContainer->xf39c_renderLast.push_back(uid);
+    return true;
+}
 
 void CStateManager::AddDrawableActorPlane(const CActor& actor, const zeus::CPlane& plane,
                                           const zeus::CAABox& aabb) const
@@ -632,10 +638,10 @@ void CStateManager::DrawWorld() const
 
     if (thermal)
     {
-        if (x86c_stateManagerContainer->xf39c_.size())
+        if (x86c_stateManagerContainer->xf39c_renderLast.size())
         {
             CGraphics::SetDepthRange(0.015625f, 0.03125f);
-            for (TUniqueId id : x86c_stateManagerContainer->xf39c_)
+            for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
                 if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
                     if (actor->xe6_27_ & 0x2)
                         actor->Render(*this);
@@ -703,10 +709,10 @@ void CStateManager::DrawWorld() const
     if (x84c_player)
         x84c_player->RenderGun(*this, x870_cameraManager->GetGlobalCameraTranslation(*this));
 
-    if (x86c_stateManagerContainer->xf39c_.size())
+    if (x86c_stateManagerContainer->xf39c_renderLast.size())
     {
         CGraphics::SetDepthRange(0.015625f, 0.03125f);
-        for (TUniqueId id : x86c_stateManagerContainer->xf39c_)
+        for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
                 if (actor->xe6_27_ & 0x4)
                     actor->Render(*this);
@@ -772,7 +778,7 @@ void CStateManager::PreRender()
     if (xf94_24_)
     {
         x86c_stateManagerContainer->xf370_.clear();
-        x86c_stateManagerContainer->xf39c_.clear();
+        x86c_stateManagerContainer->xf39c_renderLast.clear();
         xf7c_projectedShadow = nullptr;
         x850_world->PreRender();
         BuildDynamicLightListForWorld();

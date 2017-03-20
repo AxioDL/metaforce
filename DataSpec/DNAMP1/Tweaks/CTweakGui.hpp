@@ -11,7 +11,7 @@ struct CTweakGui : ITweakGui
 {
     DECL_YAML
     Value<bool> x4_;
-    Value<float> x8_;
+    Value<float> x8_mapAlphaInterp;
     Value<float> xc_;
     Value<float> x10_;
     Value<float> x14_;
@@ -195,6 +195,7 @@ struct CTweakGui : ITweakGui
     CTweakGui() = default;
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
 
+    float GetMapAlphaInterpolant() const { return x8_mapAlphaInterp; }
     EHudVisMode GetHudVisMode() const { return xf8_hudVisMode; }
     EHelmetVisMode GetHelmetVisMode() const { return xfc_helmetVisMode; }
     atUint32 GetEnableAutoMapper() const { return x100_enableAutoMapper; }

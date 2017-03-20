@@ -65,7 +65,7 @@ CEntity* CObjectList::operator[](size_t i)
 
 const CEntity* CObjectList::GetObjectById(TUniqueId uid) const
 {
-    if (!uid)
+    if (uid == kInvalidUniqueId)
         return nullptr;
     const SObjectListEntry& ent = x0_list[uid & 0x3ff];
     if (ent.entity->x30_26_scriptingBlocked)
@@ -75,7 +75,7 @@ const CEntity* CObjectList::GetObjectById(TUniqueId uid) const
 
 CEntity* CObjectList::GetObjectById(TUniqueId uid)
 {
-    if (!uid)
+    if (uid == kInvalidUniqueId)
         return nullptr;
     SObjectListEntry& ent = x0_list[uid & 0x3ff];
     if (ent.entity->x30_26_scriptingBlocked)

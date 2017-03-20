@@ -25,6 +25,15 @@ struct MAPA : DNAMAPA::MAPA
         hecl::BlenderConnection& conn = btok.getBlenderConnection();
         return DNAMAPA::ReadMAPAToBlender(conn, mapa, outPath, pakRouter, entry, force);
     }
+
+    static bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out)
+    {
+        return DNAMAPA::Cook<MAPA>(mapa, out);
+    }
+
+    static uint32_t Version() { return 5; }
+    using Header = DNAMAPA::MAPA::HeaderMP3;
+    using MappableObject = DNAMAPA::MAPA::MappableObjectMP3;
 };
 
 }

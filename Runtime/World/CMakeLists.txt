@@ -91,6 +91,7 @@ set(WORLD_SOURCES
     CScriptStreamedMusic.hpp CScriptStreamedMusic.cpp
     CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
     CScriptControllerAction.hpp CScriptControllerAction.cpp
+    CVisorFlare.hpp CVisorFlare.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

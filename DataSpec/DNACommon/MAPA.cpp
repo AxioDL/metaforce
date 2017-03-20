@@ -2,7 +2,11 @@
 #include "../DNAMP1/DNAMP1.hpp"
 #include "../DNAMP2/DNAMP2.hpp"
 #include "../DNAMP3/DNAMP3.hpp"
+#include "../DNAMP1/MAPA.hpp"
+#include "../DNAMP2/MAPA.hpp"
+#include "../DNAMP3/MAPA.hpp"
 #include "zeus/CTransform.hpp"
+#include "zeus/CAABox.hpp"
 
 namespace DataSpec
 {
@@ -334,6 +338,99 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
  bool force);
+
+template <typename MAPAType>
+bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl::ProjectPath& out)
+{
+    MAPAType mapa;
+    mapa.magic = 0xDEADD00D;
+    mapa.version = MAPAType::Version();
+
+    zeus::CAABox aabb;
+    for (const hecl::BlenderConnection::DataStream::Vector3f& vert : mapaIn.verts)
+        aabb.accumulateBounds(vert.val);
+
+    mapa.header = std::make_unique<typename MAPAType::Header>();
+    memset((void*)mapa.header.get(), 0, sizeof(typename MAPAType::Header));
+    typename MAPAType::Header& header = static_cast<typename MAPAType::Header&>(*mapa.header);
+    header.unknown1 = 0;
+    header.unknown2 = 1;
+    header.boundingBox[0] = aabb.min;
+    header.boundingBox[1] = aabb.max;
+    header.moCount = mapaIn.pois.size();
+    header.vtxCount = mapaIn.verts.size();
+    header.surfCount = mapaIn.surfaces.size();
+
+    mapa.mappableObjects.reserve(mapaIn.pois.size());
+    for (const hecl::BlenderConnection::DataStream::MapArea::POI& poi : mapaIn.pois)
+    {
+        mapa.mappableObjects.push_back(std::make_unique<typename MAPAType::MappableObject>());
+        typename MAPAType::MappableObject& mobj =
+            static_cast<typename MAPAType::MappableObject&>(*mapa.mappableObjects.back());
+        mobj.type = MAPA::IMappableObject::Type(poi.type);
+        mobj.unknown1 = poi.unk;
+        mobj.sclyId = poi.objid;
+        mobj.transformMtx[0] = poi.xf.val[0];
+        mobj.transformMtx[1] = poi.xf.val[1];
+        mobj.transformMtx[2] = poi.xf.val[2];
+    }
+
+    mapa.vertices.reserve(mapaIn.verts.size());
+    for (const hecl::BlenderConnection::DataStream::Vector3f& vert : mapaIn.verts)
+        mapa.vertices.push_back(vert.val);
+
+    size_t offsetCur = 0;
+    for (const auto& mo : mapa.mappableObjects)
+        offsetCur = mo->binarySize(offsetCur);
+    offsetCur += mapa.vertices.size() * 12;
+    offsetCur += mapaIn.surfaces.size() * sizeof(DNAMAPA::MAPA::SurfaceHeader);
+
+    mapa.surfaceHeaders.reserve(mapaIn.surfaces.size());
+    mapa.surfaces.reserve(mapaIn.surfaces.size());
+    for (const hecl::BlenderConnection::DataStream::MapArea::Surface& surfIn : mapaIn.surfaces)
+    {
+        mapa.surfaceHeaders.emplace_back();
+        DNAMAPA::MAPA::SurfaceHeader& surfHead = mapa.surfaceHeaders.back();
+        mapa.surfaces.emplace_back();
+        DNAMAPA::MAPA::Surface& surf = mapa.surfaces.back();
+
+        surf.primitiveCount = 1;
+        surf.primitives.emplace_back();
+        DNAMAPA::MAPA::Surface::Primitive& prim = surf.primitives.back();
+        prim.type = GX::TRIANGLESTRIP;
+        prim.indexCount = surfIn.count;
+        prim.indices.reserve(surfIn.count);
+        auto itBegin = mapaIn.indices.begin() + surfIn.start.val;
+        auto itEnd = itBegin + surfIn.count;
+        for (auto it = itBegin ; it != itEnd ; ++it)
+            prim.indices.push_back(it->val);
+
+        surf.borderCount = 1;
+        surf.borders.emplace_back();
+        DNAMAPA::MAPA::Surface::Border& border = surf.borders.back();
+        border.indexCount = surfIn.borderCount;
+        border.indices.reserve(surfIn.borderCount);
+        auto it2Begin = mapaIn.indices.begin() + surfIn.borderStart.val;
+        auto it2End = itBegin + surfIn.borderCount;
+        for (auto it = it2Begin ; it != it2End ; ++it)
+            border.indices.push_back(it->val);
+
+        surfHead.normal = surfIn.normal.val;
+        surfHead.centroid = surfIn.centerOfMass;
+        surfHead.polyOff = offsetCur;
+        offsetCur = prim.binarySize(offsetCur + 4);
+        surfHead.edgeOff = offsetCur;
+        offsetCur = border.binarySize(offsetCur + 4);
+    }
+
+    athena::io::FileWriter f(out.getAbsolutePath());
+    mapa.write(f);
+    return true;
+}
+
+template bool Cook<DNAMP1::MAPA>(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
+template bool Cook<DNAMP2::MAPA>(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
+template bool Cook<DNAMP3::MAPA>(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
 
 }
 }

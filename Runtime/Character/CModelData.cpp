@@ -317,7 +317,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
                                      const CActorLights* lights, const CModelFlags& drawFlags)
 {
     if ((x14_25_sortThermal && which == EWhichModel::Thermal) ||
-        x10_animData || !x1c_normalModel || drawFlags.m_blendMode > 2)
+        x10_animData || !x1c_normalModel || drawFlags.x0_blendMode > 2)
     {
         const_cast<CModelData*>(this)->x14_24_renderSorted = false;
         return;
@@ -342,7 +342,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
 {
     if (x14_25_sortThermal && which == EWhichModel::Thermal)
     {
-        zeus::CColor mul(drawFlags.color.a, drawFlags.color.a, drawFlags.color.a, drawFlags.color.a);
+        zeus::CColor mul(drawFlags.x4_color.a, drawFlags.x4_color.a, drawFlags.x4_color.a, drawFlags.x4_color.a);
         RenderThermal(xf, mul, {0.f, 0.f, 0.f, 0.25f});
     }
     else

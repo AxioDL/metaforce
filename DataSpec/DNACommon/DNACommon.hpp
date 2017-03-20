@@ -151,9 +151,10 @@ public:
     void read(athena::io::YAMLDocReader& reader);
     void write(athena::io::YAMLDocWriter& writer) const;
     size_t binarySize(size_t __isz) const;
+    void assign(uint32_t id) { m_id = id ? id : 0xffffffff; }
 
     UniqueID32& operator=(const hecl::ProjectPath& path)
-    {m_id = path.hash().val32(); return *this;}
+    {assign(path.hash().val32()); return *this;}
 
     bool operator!=(const UniqueID32& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID32& other) const {return m_id == other.m_id;}
@@ -164,7 +165,7 @@ public:
     void clear() {m_id = 0xffffffff;}
 
     UniqueID32() = default;
-    UniqueID32(uint32_t idin) : m_id(idin) {}
+    UniqueID32(uint32_t idin) {assign(idin);}
     UniqueID32(athena::io::IStreamReader& reader) {read(reader);}
     UniqueID32(const hecl::ProjectPath& path) {*this = path;}
     UniqueID32(const char* hexStr)
@@ -172,14 +173,14 @@ public:
         char copy[9];
         strncpy(copy, hexStr, 8);
         copy[8] = '\0';
-        m_id = strtoul(copy, nullptr, 16);
+        assign(strtoul(copy, nullptr, 16));
     }
     UniqueID32(const wchar_t* hexStr)
     {
         wchar_t copy[9];
         wcsncpy(copy, hexStr, 8);
         copy[8] = L'\0';
-        m_id = wcstoul(copy, nullptr, 16);
+        assign(wcstoul(copy, nullptr, 16));
     }
 
     static constexpr size_t BinarySize() {return 4;}
@@ -216,9 +217,10 @@ public:
     void read(athena::io::YAMLDocReader& reader);
     void write(athena::io::YAMLDocWriter& writer) const;
     size_t binarySize(size_t __isz) const;
+    void assign(uint64_t id) { m_id = id ? id : 0xffffffffffffffff; }
 
     UniqueID64& operator=(const hecl::ProjectPath& path)
-    {m_id = path.hash().val64(); return *this;}
+    {assign(path.hash().val64()); return *this;}
 
     bool operator!=(const UniqueID64& other) const {return m_id != other.m_id;}
     bool operator==(const UniqueID64& other) const {return m_id == other.m_id;}
@@ -228,7 +230,7 @@ public:
     void clear() {m_id = 0xffffffffffffffff;}
 
     UniqueID64() = default;
-    UniqueID64(uint64_t idin) : m_id(idin) {}
+    UniqueID64(uint64_t idin) {assign(idin);}
     UniqueID64(athena::io::IStreamReader& reader) {read(reader);}
     UniqueID64(const hecl::ProjectPath& path) {*this = path;}
     UniqueID64(const char* hexStr)
@@ -237,9 +239,9 @@ public:
         strncpy(copy, hexStr, 16);
         copy[16] = '\0';
 #if _WIN32
-        m_id = _strtoui64(copy, nullptr, 16);
+        assign(_strtoui64(copy, nullptr, 16));
 #else
-        m_id = strtouq(copy, nullptr, 16);
+        assign(strtouq(copy, nullptr, 16));
 #endif
     }
     UniqueID64(const wchar_t* hexStr)
@@ -248,9 +250,9 @@ public:
         wcsncpy(copy, hexStr, 16);
         copy[16] = L'\0';
 #if _WIN32
-        m_id = _wcstoui64(copy, nullptr, 16);
+        assign(_wcstoui64(copy, nullptr, 16));
 #else
-        m_id = wcstoull(copy, nullptr, 16);
+        assign(wcstoull(copy, nullptr, 16));
 #endif
     }
 

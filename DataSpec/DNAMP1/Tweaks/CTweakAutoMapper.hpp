@@ -45,20 +45,20 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> x78_;
     DNAColor x7c_;
     DNAColor x80_;
-    Value<float> x84_;
+    Value<float> x84_alphaSurfaceVisited;
     Value<float> x88_;
-    Value<float> x8c_;
+    Value<float> x8c_alphaOutlineVisited;
     Value<float> x90_;
-    Value<float> x94_;
+    Value<float> x94_alphaSurfaceUnvisited;
     Value<float> x98_;
-    Value<float> x9c_;
+    Value<float> x9c_alphaOutlineUnvisited;
     Value<float> xa0_;
     /* Originally 4 separate floats */
     Value<zeus::CVector3f> xa4_doorCenter;
     Value<float> xb0_;
     Value<float> xb4_;
-    Value<float> xb8_;
-    Value<float> xbc_;
+    Value<float> xb8_miniMapViewportWidth;
+    Value<float> xbc_miniMapViewportHeight;
     Value<float> xc0_;
     Value<float> xc4_;
     Value<float> xc8_;
@@ -84,6 +84,15 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     CTweakAutoMapper(athena::io::IStreamReader& r) { this->read(r); }
     const zeus::CVector3f& GetDoorCenter() const { return xa4_doorCenter; }
     float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
+    float GetX28() const { return x28_; }
+    float GetX2C() const { return x2c_; }
+    float GetX30() const { return x30_; }
+    float GetAlphaSurfaceVisited() const { return x84_alphaSurfaceVisited; }
+    float GetAlphaOutlineVisited() const { return x8c_alphaOutlineVisited; }
+    float GetAlphaSurfaceUnvisited() const { return x94_alphaSurfaceUnvisited; }
+    float GetAlphaOutlineUnvisited() const { return x9c_alphaOutlineUnvisited; }
+    float GetMiniMapViewportWidth() const { return xb8_miniMapViewportWidth; }
+    float GetMiniMapViewportHeight() const { return xbc_miniMapViewportHeight; }
 };
 }
 }

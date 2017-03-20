@@ -38,10 +38,7 @@ protected:
     std::unique_ptr<CSimpleShadow> x94_simpleShadow;
     std::unique_ptr<TToken<CScannableObjectInfo>> x98_scanObjectInfo;
     zeus::CAABox x9c_aabox;
-    u8 xb4_ = 0;
-    u8 xb5_ = 0;
-    u16 xb6_ = 3;
-    zeus::CColor xb8_ = zeus::CColor::skWhite;
+    CModelFlags xb4_drawFlags;
     float xbc_time = 0.f;
     s32 xc0_ = 0;
     TUniqueId xc4_fluidId = kInvalidUniqueId;
@@ -158,7 +155,7 @@ public:
     const CModelData* GetModelData() const { return x64_modelData.get(); }
     CModelData* ModelData() { return x64_modelData.get(); }
     void EnsureRendered(const CStateManager&);
-    void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CVector3f&);
+    void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CAABox&) const;
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
     void SetActorLights(std::unique_ptr<CActorLights>);
     bool CanDrawStatic() const;

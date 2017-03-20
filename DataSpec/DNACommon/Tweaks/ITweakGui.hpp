@@ -26,6 +26,7 @@ struct ITweakGui : ITweak
         Four
     };
 
+    virtual float GetMapAlphaInterpolant() const=0;
     virtual EHudVisMode GetHudVisMode() const=0;
     virtual EHelmetVisMode GetHelmetVisMode() const=0;
     virtual atUint32 GetEnableAutoMapper() const=0;

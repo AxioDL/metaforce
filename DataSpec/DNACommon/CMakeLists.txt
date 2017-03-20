@@ -1,6 +1,7 @@
 make_dnalist(liblist DNACommon
              CMDL
              MAPA
+             MAPU
              EGMC
              SAVWCommon
              ParticleCommon
@@ -14,6 +15,7 @@ set(DNACOMMON_SOURCES
     MLVL.hpp MLVL.cpp
     CMDL.cpp
     MAPA.cpp
+    MAPU.cpp
     STRG.hpp STRG.cpp
     TXTR.hpp TXTR.cpp
     ANCS.hpp

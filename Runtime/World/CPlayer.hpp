@@ -162,7 +162,7 @@ private:
     zeus::CVector3f x480_ = zeus::CVector3f::skZero;
     float x48c_ = 0.f;
     std::unique_ptr<CPlayerGun> x490_gun;
-    float x494_ = 1.f;
+    float x494_mapAlpha = 1.f;
     float x49c_; /* Value retrieved from TweakPlayerGun */
     // std::unqiue_ptr<> x4a0_;
     u32 x4a4_ = 0;
@@ -411,6 +411,7 @@ public:
     float GetDampedClampedVelocityWR() const;
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
     float Get74C() const { return x74c_; }
+    float GetMapAlpha() const { return x494_mapAlpha; }
     void UpdateCinematicState(CStateManager& mgr);
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }

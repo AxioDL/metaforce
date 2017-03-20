@@ -32,7 +32,6 @@ public:
         Eight
     };
 
-private:
     static float kCameraBobExtentX;
     static float kCameraBobExtentY;
     static float kCameraBobPeriod;
@@ -49,6 +48,7 @@ private:
     static float kHelmetBobMagnitude;
     static const float kLandingBobDamping;
 
+private:
     ECameraBobType x0_type;
     zeus::CVector2f x4_vec;
     float xc_;

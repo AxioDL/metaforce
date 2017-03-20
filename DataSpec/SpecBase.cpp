@@ -270,6 +270,18 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
             cookGuiFrame(cookedPath, path, ds, btok, progress);
             break;
         }
+        case hecl::BlenderConnection::BlendType::MapArea:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            cookMapArea(cookedPath, path, ds, btok, progress);
+            break;
+        }
+        case hecl::BlenderConnection::BlendType::MapUniverse:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            cookMapUniverse(cookedPath, path, ds, btok, progress);
+            break;
+        }
         default: break;
         }
     }

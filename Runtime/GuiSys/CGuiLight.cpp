@@ -48,7 +48,7 @@ CLight CGuiLight::BuildLight() const
 void CGuiLight::SetIsVisible(bool vis)
 {
     if (vis)
-        xb0_frame->AddLight(shared_from_this());
+        xb0_frame->AddLight(this);
     else
         xb0_frame->RemoveLight(this);
     CGuiWidget::SetIsVisible(vis);
@@ -100,7 +100,8 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
     }
 
     ret->ParseBaseInfo(frame, in, parms);
-    frame->AddLight(ret->shared_from_this());
+    frame->RegisterLight(ret->shared_from_this());
+    frame->AddLight(ret.get());
     return ret;
 }
 

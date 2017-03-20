@@ -23,18 +23,18 @@ class CModel;
 
 struct CModelFlags
 {
-    u8 m_blendMode = 0; /* Blend state 3/5 enable additive */
-    u8 m_matSetIdx = 0;
+    u8 x0_blendMode = 0; /* Blend state 3/5 enable additive */
+    u8 x1_matSetIdx = 0;
     EExtendedShader m_extendedShader = EExtendedShader::Flat;
-    u16 m_flags = 0; /* Flags */
-    zeus::CColor color; /* Set into kcolor slot specified by material */
+    u16 x2_flags = 0; /* Flags */
+    zeus::CColor x4_color; /* Set into kcolor slot specified by material */
     zeus::CColor addColor = zeus::CColor::skClear;
     zeus::CColor regColors[3];
     zeus::CAABox mbShadowBox;
 
     CModelFlags() = default;
     CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
-    : m_blendMode(blendMode), m_matSetIdx(shadIdx), m_flags(flags), color(col) {}
+    : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
 
     /* Flags
         0x4: render without texture lock

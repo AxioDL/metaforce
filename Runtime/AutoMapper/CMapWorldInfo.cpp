@@ -69,7 +69,7 @@ bool CMapWorldInfo::IsAreaVisted(TAreaId aid)
 {
     if (aid + 1 > x0_visitedAreasAllocated)
     {
-        x4_visitedAreas.resize((aid + 31) / 32);
+        x4_visitedAreas.resize((aid + 32) / 32);
         x0_visitedAreasAllocated = aid + 1;
     }
     return (x4_visitedAreas[aid / 32] >> (aid % 32)) & 0x1;
@@ -79,7 +79,7 @@ void CMapWorldInfo::SetAreaVisited(TAreaId aid, bool visited)
 {
     if (aid + 1 > x0_visitedAreasAllocated)
     {
-        x4_visitedAreas.resize((aid + 31) / 32);
+        x4_visitedAreas.resize((aid + 32) / 32);
         x0_visitedAreasAllocated = aid + 1;
     }
     if (visited)
@@ -92,7 +92,7 @@ bool CMapWorldInfo::IsMapped(TAreaId aid)
 {
     if (aid + 1 > x14_mappedAreasAllocated)
     {
-        x18_mappedAreas.resize((aid + 31) / 32);
+        x18_mappedAreas.resize((aid + 32) / 32);
         x14_mappedAreasAllocated = aid + 1;
     }
     return (x18_mappedAreas[aid / 32] >> (aid % 32)) & 0x1;
@@ -102,7 +102,7 @@ void CMapWorldInfo::SetIsMapped(TAreaId aid, bool mapped)
 {
     if (aid + 1 > x14_mappedAreasAllocated)
     {
-        x18_mappedAreas.resize((aid + 31) / 32);
+        x18_mappedAreas.resize((aid + 32) / 32);
         x14_mappedAreasAllocated = aid + 1;
     }
     if (mapped)

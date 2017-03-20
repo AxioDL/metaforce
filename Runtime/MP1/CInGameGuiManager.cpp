@@ -235,7 +235,7 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr,
 
     xc8_inGameGuiDGRPs.reserve(14);
     for (int i=0 ; i<14 ; ++i)
-        xc8_inGameGuiDGRPs.push_back(g_SimplePool->GetObj(PauseScreenDGRPs[i]));
+        xc8_inGameGuiDGRPs.push_back(g_SimplePool->GetObj(InGameGuiDGRPs[i]));
 }
 
 bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)

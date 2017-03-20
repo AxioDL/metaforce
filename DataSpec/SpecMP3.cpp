@@ -6,6 +6,7 @@
 
 #include "DNAMP3/MLVL.hpp"
 #include "DNAMP3/STRG.hpp"
+#include "DNAMP3/MAPA.hpp"
 #include "DNAMP2/STRG.hpp"
 
 #include "hecl/ClientProcess.hpp"
@@ -542,6 +543,22 @@ struct SpecMP3 : SpecBase
 
     void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                   FCookProgress progress)
+    {
+    }
+
+    void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                     BlendStream& ds, hecl::BlenderToken& btok,
+                     FCookProgress progress)
+    {
+        BlendStream::MapArea mapa = ds.compileMapArea();
+        ds.close();
+        DNAMP3::MAPA::Cook(mapa, out);
+        progress(_S("Done"));
+    }
+
+    void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                         BlendStream& ds, hecl::BlenderToken& btok,
+                         FCookProgress progress)
     {
     }
 };

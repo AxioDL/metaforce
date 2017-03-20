@@ -437,19 +437,19 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
         case 0:
         default:
             flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
-            flags.color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
+            flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
             break;
         case 1:
             flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullAlwaysAlphaOnly;
-            flags.color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
+            flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 1.f);
             break;
         case 2:
             flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-            flags.color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
+            flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
             break;
         case 3:
             flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullGreaterAlphaOnly;
-            flags.color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
+            flags.x4_color = zeus::CColor(1.f, 1.f, 1.f, 0.f);
             break;
         }
 
@@ -1004,7 +1004,7 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
 {
     CModelFlags flags;
     flags.m_extendedShader = EExtendedShader::Thermal;
-    flags.color = mulCol;
+    flags.x4_color = mulCol;
     flags.addColor = addCol;
     model.UpdateLastFrame();
     model.Draw(flags);
@@ -1206,7 +1206,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
                     if (alphaVal > 255)
                         return alphaVal;
 
-                    flags.color.a = alphaVal / 255.f;
+                    flags.x4_color.a = alphaVal / 255.f;
                     const CBooModel& model = *item.x10_models[wordModel + j];
                     const_cast<CBooModel&>(model).VerifyCurrentShader(0);
                     for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
@@ -1227,7 +1227,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
                                                     const zeus::CAABox& aabb, float alpha) const
 {
     CModelFlags flags;
-    flags.color.a = alpha;
+    flags.x4_color.a = alpha;
     flags.m_extendedShader = EExtendedShader::MorphBallShadow; // Do shadow draw
 
     u32 curWord = 0;
@@ -1249,7 +1249,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
                     if (alphaVal > 255)
                         return;
 
-                    flags.color.r = alphaVal / 255.f;
+                    flags.x4_color.r = alphaVal / 255.f;
                     const CBooModel& model = *item.x10_models[wordModel + j];
                     const_cast<CBooModel&>(model).VerifyCurrentShader(0);
                     for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)

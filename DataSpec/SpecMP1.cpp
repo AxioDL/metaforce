@@ -14,6 +14,7 @@
 #include "DNAMP1/ANCS.hpp"
 #include "DNAMP1/AGSC.hpp"
 #include "DNAMP1/CSNG.hpp"
+#include "DNAMP1/MAPA.hpp"
 #include "DNACommon/ATBL.hpp"
 #include "DNACommon/FONT.hpp"
 #include "DNACommon/PART.hpp"
@@ -23,6 +24,7 @@
 #include "DNACommon/CRSC.hpp"
 #include "DNACommon/DPSC.hpp"
 #include "DNACommon/DGRP.hpp"
+#include "DNACommon/MAPU.hpp"
 #include "DNACommon/Tweaks/TweakWriter.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerRes.hpp"
 #include "DNAMP1/Tweaks/CTweakGunRes.hpp"
@@ -1047,6 +1049,26 @@ struct SpecMP1 : SpecBase
     void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress)
     {
         DNAMP1::CSNG::Cook(in, out);
+        progress(_S("Done"));
+    }
+
+    void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                     BlendStream& ds, hecl::BlenderToken& btok,
+                     FCookProgress progress)
+    {
+        BlendStream::MapArea mapa = ds.compileMapArea();
+        ds.close();
+        DNAMP1::MAPA::Cook(mapa, out);
+        progress(_S("Done"));
+    }
+
+    void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                         BlendStream& ds, hecl::BlenderToken& btok,
+                         FCookProgress progress)
+    {
+        BlendStream::MapUniverse mapu = ds.compileMapUniverse();
+        ds.close();
+        DNAMAPU::MAPU::Cook(mapu, out);
         progress(_S("Done"));
     }
 };

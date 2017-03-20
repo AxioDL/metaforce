@@ -23,7 +23,12 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                 MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(mass), CActorParameters::None(), stepUp,
                 stepDown), x7d0_animRes(resId, 0, playerScale, 0, true)
 {
+    x490_gun.reset(new CPlayerGun(uid));
     x768_morphball.reset(new CMorphBall(*this, f4));
+    x76c_cameraBob.reset(new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
+                                              zeus::CVector2f{CPlayerCameraBob::kCameraBobExtentX,
+                                                              CPlayerCameraBob::kCameraBobExtentY},
+                                              CPlayerCameraBob::kCameraBobPeriod));
     x9c4_26_ = true;
     x9c4_27_ = true;
     x9c4_28_ = true;

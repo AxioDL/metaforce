@@ -51,7 +51,7 @@ public:
         zeus::CVector3f x64_ = zeus::CVector3f::skZero;
     public:
         CMapWorldData(CInputStream& in, u32 version);
-        ResId GetWorldAssetId() const;
+        ResId GetWorldAssetId() const { return x10_worldAssetId; }
         zeus::CVector3f GetWorldCenterPoint() const;
         std::string GetWorldLabel() const;
         zeus::CTransform GetWorldTransform() const;
@@ -70,8 +70,8 @@ private:
     zeus::CVector3f x20_ = zeus::CVector3f::skZero;
 public:
     CMapUniverse(CInputStream&, u32);
-    void GetMapWorldData(s32) const;
-    u32 GetNumMapWorldDatas() const;
+    const CMapWorldData& GetMapWorldData(s32 idx) const { return x10_worldDatas[idx]; }
+    u32 GetNumMapWorldDatas() const { return x10_worldDatas.size(); }
     float GetMapUniverseRadius() const;
     zeus::CVector3f GetMapUniverseCenterPoint() const;
     void Draw(const CMapUniverseDrawParms&, const zeus::CVector3f&, float, float) const;

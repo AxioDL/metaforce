@@ -188,6 +188,9 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const typename PAKRouter::EntryType& entry,
                        bool force);
 
+template <typename MAPAType>
+bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
+
 }
 }
 

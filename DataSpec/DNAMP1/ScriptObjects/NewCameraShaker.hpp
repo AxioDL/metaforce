@@ -14,18 +14,18 @@ struct NewCameraShaker : IScriptObject
     DECL_YAML
     String<-1> name;
     Value<atVec3f> location;
-    Value<bool> unknown1;
-    PlayerParameters playerParams;
-    Value<float> unknown3;
+    Value<bool> active;
+    PlayerParameters flags;
+    Value<float> duration;
     Value<float> unknown4;
     struct CameraShakerParameters : BigYAML
     {
         DECL_YAML
-        PlayerParameters playerParams;
+        PlayerParameters flags;
         struct ShakerInfo : BigYAML
         {
             DECL_YAML
-            PlayerParameters playerParams;
+            PlayerParameters flags;
             Value<float> unknown1;
             Value<float> unknown2;
             Value<float> unknown3;

@@ -6,7 +6,9 @@
 #include "DNAMP2/MLVL.hpp"
 #include "DNAMP2/STRG.hpp"
 #include "DNAMP2/AGSC.hpp"
+#include "DNAMP2/MAPA.hpp"
 #include "DNAMP1/CSNG.hpp"
+#include "DNACommon/MAPU.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -363,6 +365,26 @@ struct SpecMP2 : SpecBase
                   FCookProgress progress)
     {
         DNAMP1::CSNG::Cook(in, out);
+        progress(_S("Done"));
+    }
+
+    void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                     BlendStream& ds, hecl::BlenderToken& btok,
+                     FCookProgress progress)
+    {
+        BlendStream::MapArea mapa = ds.compileMapArea();
+        ds.close();
+        DNAMP2::MAPA::Cook(mapa, out);
+        progress(_S("Done"));
+    }
+
+    void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                         BlendStream& ds, hecl::BlenderToken& btok,
+                         FCookProgress progress)
+    {
+        BlendStream::MapUniverse mapu = ds.compileMapUniverse();
+        ds.close();
+        DNAMAPU::MAPU::Cook(mapu, out);
         progress(_S("Done"));
     }
 };

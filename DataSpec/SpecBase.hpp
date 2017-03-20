@@ -89,6 +89,12 @@ struct SpecBase : hecl::Database::IDataSpec
                                 FCookProgress progress)=0;
     virtual void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           FCookProgress progress)=0;
+    virtual void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                             BlendStream& ds, hecl::BlenderToken& btok,
+                             FCookProgress progress)=0;
+    virtual void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                                 BlendStream& ds, hecl::BlenderToken& btok,
+                                 FCookProgress progress)=0;
 
     /* Dependency flatteners */
     void flattenDependencies(const hecl::ProjectPath& in,

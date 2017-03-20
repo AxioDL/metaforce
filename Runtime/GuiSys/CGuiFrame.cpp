@@ -15,7 +15,8 @@ namespace urde
 CGuiFrame::CGuiFrame(ResId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp)
 : x0_id(id), x8_guiSys(sys), x4c_a(a), x50_b(b), x54_c(c), x58_24_loaded(false)
 {
-    x3c_lights.resize(8);
+    x3c_lights.reserve(8);
+    m_indexedLights.reserve(8);
     x10_rootWidget.reset(new CGuiWidget(
         CGuiWidget::CGuiWidgetParms(this, false, 0, 0, false, false, false, zeus::CColor::skWhite,
                                     CGuiWidget::EGuiModelDrawFlags::Alpha, false,
@@ -56,8 +57,14 @@ void CGuiFrame::EnableLights(u32 lights) const
     zeus::CColor accumColor(zeus::CColor::skBlack);
     ERglLight lightId = ERglLight::Zero;
     int idx = 0;
-    for (auto& light : x3c_lights)
+    for (auto& light : m_indexedLights)
     {
+        if (!light)
+        {
+            ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
+            ++idx;
+            continue;
+        }
         if ((lights & (1 << idx)) != 0)
         {
             // accumulate color
@@ -68,7 +75,7 @@ void CGuiFrame::EnableLights(u32 lights) const
         ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
         ++idx;
     }
-    if (x3c_lights.empty())
+    if (m_indexedLights.empty())
         CGraphics::SetAmbientColor(zeus::CColor::skWhite);
     else
         CGraphics::SetAmbientColor(accumColor);
@@ -81,12 +88,17 @@ void CGuiFrame::DisableLights() const
 
 void CGuiFrame::RemoveLight(CGuiLight* light)
 {
-    x3c_lights[light->GetLoadedIdx()].reset();
+    m_indexedLights[light->GetLoadedIdx()] = nullptr;
 }
 
-void CGuiFrame::AddLight(std::shared_ptr<CGuiLight>&& light)
+void CGuiFrame::AddLight(CGuiLight* light)
 {
-    x3c_lights[light->GetLoadedIdx()] = std::move(light);
+    m_indexedLights[light->GetLoadedIdx()] = light;
+}
+
+void CGuiFrame::RegisterLight(std::shared_ptr<CGuiLight>&& light)
+{
+    x3c_lights.push_back(std::move(light));
 }
 
 bool CGuiFrame::GetIsFinishedLoading() const

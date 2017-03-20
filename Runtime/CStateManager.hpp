@@ -109,7 +109,7 @@ class CStateManager
         CRumbleManager xf250_rumbleManager;
         u32 xf344_ = 0;
         rstl::reserved_vector<TUniqueId, 20> xf370_;
-        rstl::reserved_vector<TUniqueId, 20> xf39c_;
+        rstl::reserved_vector<TUniqueId, 20> xf39c_renderLast;
     };
     std::unique_ptr<CStateManagerContainer> x86c_stateManagerContainer;
     CCameraManager* x870_cameraManager = nullptr;

@@ -48,6 +48,7 @@ set(DNAMP1_SOURCES
     CMDL.hpp
     CMDLMaterials.cpp
     MAPA.hpp
+    MAPU.hpp
     MREA.cpp
     SCLY.hpp SCLY.cpp
     FRME.cpp

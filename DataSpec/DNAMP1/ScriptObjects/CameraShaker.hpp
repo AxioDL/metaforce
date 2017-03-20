@@ -20,7 +20,7 @@ struct CameraShaker : IScriptObject
     Value<float> zA;
     Value<float> zB;
     Value<float> duration;
-    Value<bool> shakeY;
+    Value<bool> active;
 };
 }
 }

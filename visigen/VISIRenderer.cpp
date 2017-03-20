@@ -551,12 +551,12 @@ void VISIRenderer::Run(FPercent updatePercent)
             Light& light = m_lights[i];
             light.point = r.readVec3fBig();
         }
+    }
 
-        if (!SetupVertexBuffersAndFormats())
-        {
-            m_return = 1;
-            return;
-        }
+    if (!SetupVertexBuffersAndFormats())
+    {
+        m_return = 1;
+        return;
     }
 
     VISIBuilder builder(*this);

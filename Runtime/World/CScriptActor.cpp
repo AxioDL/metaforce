@@ -135,37 +135,37 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
         zeus::CColor col(1.f, 1.f, x2dc_xrayAlpha);
         if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
         {
-            xb4_ = 5;
-            xb5_ = 0;
-            xb6_ = 3;
-            xb8_ = col;
+            xb4_drawFlags.x0_blendMode = 5;
+            xb4_drawFlags.x1_matSetIdx = 0;
+            xb4_drawFlags.x2_flags = 3;
+            xb4_drawFlags.x4_color = col;
             x2e2_28_ = true;
         }
-
-        if (x2e2_28_)
+        else if (x2e2_28_)
         {
             x2e2_28_ = false;
-            if (xb4_ != 5 && xb5_ != 0 && xb4_ != 3 && xb8_ != col)
+            if (xb4_drawFlags.x0_blendMode != 5 && xb4_drawFlags.x1_matSetIdx != 0 &&
+                xb4_drawFlags.x2_flags != 3 && xb4_drawFlags.x4_color != col)
             {
-                xb4_ = 5;
-                xb5_ = 0;
-                xb6_ = 3;
-                xb8_ = col;
+                xb4_drawFlags.x0_blendMode = 5;
+                xb4_drawFlags.x1_matSetIdx = 0;
+                xb4_drawFlags.x2_flags = 3;
+                xb4_drawFlags.x4_color = col;
             }
         }
 
         if (!x2e2_24_ && xe6_27_ == 2 &&
             mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
         {
-            xb6_ &= ~3;
+            xb4_drawFlags.x2_flags &= ~3;
         }
         else
         {
-            xb6_ |= 3;
+            xb4_drawFlags.x2_flags |= 3;
         }
 
         if (x2d8_ != 0)
-            xb5_ = 0;
+            xb4_drawFlags.x1_matSetIdx = 0;
     }
 
     if (mgr.GetObjectById(x2e0_triggerId) == nullptr)

@@ -96,10 +96,10 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
             flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             model->Draw(flags);
 
-            flags.m_blendMode = 5;
-            flags.m_matSetIdx = 0;
-            flags.m_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
-            flags.color = moduCol;
+            flags.x0_blendMode = 5;
+            flags.x1_matSetIdx = 0;
+            flags.x2_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
+            flags.x4_color = moduCol;
             flags.m_extendedShader = EExtendedShader::ForcedAdditive;
             model->Draw(flags);
             break;
