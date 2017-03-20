@@ -6,11 +6,11 @@
 #include "zeus/CColor.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CTransform.hpp"
+#include "CMapArea.hpp"
 
 namespace urde
 {
 class IWorld;
-class CMapArea;
 class CMapWorldInfo;
 class CStateManager;
 class CMapWorld

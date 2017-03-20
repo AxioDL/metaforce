@@ -3,6 +3,7 @@
 #include "TCastTo.hpp"
 #include "CStateManager.hpp"
 #include "CPlayer.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

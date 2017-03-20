@@ -7,11 +7,11 @@
 #include "zeus/CTransform.hpp"
 #include "IFactory.hpp"
 #include "CToken.hpp"
+#include "CMapArea.hpp"
 
 namespace urde
 {
 class CStateManager;
-class CMapArea;
 class CMapUniverse
 {
 public:

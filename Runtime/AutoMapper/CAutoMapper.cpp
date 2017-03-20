@@ -6,6 +6,7 @@
 #include "AutoMapper/CMapArea.hpp"
 #include "zeus/CEulerAngles.hpp"
 #include "World/CPlayer.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
@@ -118,8 +119,8 @@ zeus::CVector2i CAutoMapper::GetMiniMapViewportSize()
 {
     float scaleX = g_Viewport.x8_width / 640.f;
     float scaleY = g_Viewport.xc_height / 480.f;
-    return {scaleX * g_tweakAutoMapper->GetMiniMapViewportWidth(),
-            scaleY * g_tweakAutoMapper->GetMiniMapViewportHeight()};
+    return {int(scaleX * g_tweakAutoMapper->GetMiniMapViewportWidth()),
+            int(scaleY * g_tweakAutoMapper->GetMiniMapViewportHeight())};
 }
 
 float CAutoMapper::GetMapAreaMiniMapDrawAlphaSurfaceVisited(const CStateManager& stateMgr)
