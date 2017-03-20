@@ -1164,8 +1164,9 @@ BlenderConnection::DataStream::MapUniverse::World::World(BlenderConnection& conn
         path.assign(pathLen, '\0');
         conn._readBuf(&path[0], pathLen);
 
+        hecl::SystemStringView sysPath(path);
         SystemString pathRel =
-        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(path);
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(sysPath.sys_str());
         worldPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), pathRel);
     }
 }
@@ -1180,8 +1181,9 @@ BlenderConnection::DataStream::MapUniverse::MapUniverse(BlenderConnection& conn)
         path.assign(pathLen, '\0');
         conn._readBuf(&path[0], pathLen);
 
+        hecl::SystemStringView sysPath(path);
         SystemString pathRel =
-        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(path);
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(sysPath.sys_str());
         hexagonPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), pathRel);
     }
 
