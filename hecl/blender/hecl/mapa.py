@@ -173,7 +173,11 @@ def cook(writebuf, mesh_obj):
                                  obj.matrix_world[3][0], obj.matrix_world[3][1], obj.matrix_world[3][2], obj.matrix_world[3][3]))
 
 def draw(layout, context):
-    pass
+    obj = context.active_object
+    if obj and obj.retro_mappable_type != -1:
+        layout.prop(obj, 'retro_mappable_type', text='Type')
+        layout.prop(obj, 'retro_mappable_unk', text='Unk')
+        layout.prop(obj, 'retro_mappable_sclyid', text='Object ID')
 
 def register():
     bpy.types.Object.retro_mappable_type = bpy.props.IntProperty(name='Retro: MAPA object type', default=-1)
