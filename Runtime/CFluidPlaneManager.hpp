@@ -16,6 +16,7 @@ class CFluidPlaneManager
 public:
     void StartFrame(bool);
     void EndFrame() { x121_ = false; }
+    void Update(float dt);
 };
 
 }

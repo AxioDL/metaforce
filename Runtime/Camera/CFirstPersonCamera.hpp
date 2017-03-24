@@ -25,8 +25,10 @@ class CFirstPersonCamera : public CGameCamera
     float x1d4_ = 0.f;
 
 public:
-    CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float, float, float, float, float);
+    CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float,
+                       float fov, float nearplane, float farplane, float aspect);
 
+    void Accept(IVisitor& visitor);
     void PreThink(float, CStateManager&);
     void Think(float, CStateManager&);
     void ProcessInput(const CFinalInput&, CStateManager& mgr);

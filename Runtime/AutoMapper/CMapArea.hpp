@@ -49,6 +49,7 @@ public:
     zeus::CTransform GetAreaPostTransform(const CWorld& world, TAreaId aid) const;
 };
 
-CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&);
+CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,
+                                 CObjectReference*);
 }
 #endif // __URDE_CMAPAREA_HPP__

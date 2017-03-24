@@ -10,6 +10,7 @@ namespace urde
 
 class CFinalInput
 {
+    friend class CStateManager;
     float x0_dt;
     u32 x4_controllerIdx;
     float x8_anaLeftX;

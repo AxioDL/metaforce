@@ -9,6 +9,11 @@ CEnvFxManager::CEnvFxManager()
 
 }
 
+void CEnvFxManager::Update(float, const CStateManager&)
+{
+
+}
+
 void CEnvFxManager::Render(const CStateManager& mgr)
 {
 

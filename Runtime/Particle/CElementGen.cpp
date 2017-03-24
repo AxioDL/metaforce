@@ -17,6 +17,8 @@ static logvisor::Module Log("urde::CElementGen");
 
 static bool s_inCreateNewParticles = false;
 
+CRandom16 CElementGen::g_GlobalSeed = 99;
+
 int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
 s32 CElementGen::g_FreeIndex;

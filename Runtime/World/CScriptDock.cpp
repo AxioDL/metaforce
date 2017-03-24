@@ -90,7 +90,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 {
     switch (msg)
     {
-    case EScriptObjectMessage::InternalMessage11:
+    case EScriptObjectMessage::Registered:
     {
         CGameArea* area = mgr.WorldNC()->GetArea(x260_area);
         if (area->GetDockCount() <= x25c_dock)
@@ -103,7 +103,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     case EScriptObjectMessage::Deleted:
         CleanUp();
         break;
-    case EScriptObjectMessage::Constructed:
+    case EScriptObjectMessage::InitializedInArea:
         AreaLoaded(mgr);
         break;
     case EScriptObjectMessage::InternalMessage14:

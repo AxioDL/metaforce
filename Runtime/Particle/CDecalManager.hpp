@@ -33,6 +33,7 @@ public:
     static void Initialize();
     static void Shutdown();
     static void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr);
+    static void Update(float dt, CStateManager& mgr);
 };
 
 }

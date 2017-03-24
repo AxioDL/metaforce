@@ -13,7 +13,9 @@ class CElementGen;
 
 class CParticleElectric : public CParticleGen
 {
+    static CRandom16 g_GlobalSeed;
 public:
+    static void SetGlobalSeed(u16 seed) { g_GlobalSeed.SetSeed(seed); }
     struct CLineManager
     {
         std::unique_ptr<CParticleSwoosh> SSWH;

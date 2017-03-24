@@ -56,6 +56,15 @@ public:
         Unmorphing
     };
 
+    enum class EPlayerCameraState
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four
+    };
+
 private:
     struct CVisorSteam
     {
@@ -100,7 +109,7 @@ private:
     float x2d4_ = 0.f;
     zeus::CAABox x2d8_;
     float x2f0_ = 0.f;
-    u32 x2f4_cameraState = 0;
+    EPlayerCameraState x2f4_cameraState = EPlayerCameraState::Zero;
     EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
     u32 x2fc_ = 0;
     float x300_ = 0.f;
@@ -248,7 +257,7 @@ private:
             bool x9c6_26_ : 1;
             bool x9c6_27_ : 1;
             bool x9c6_28_ : 1;
-            bool x9c6_29_ : 1;
+            bool x9c6_29_disableInput : 1;
             bool x9c6_30_ : 1;
             bool x9c6_31_ : 1;
             bool x9c7_24_ : 1;
@@ -309,6 +318,7 @@ public:
     bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager& mgr);
+    void DoPreThink(float dt, CStateManager& mgr);
     void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
     void ValidateScanning(const CFinalInput& input, CStateManager& mgr);
     void SetScanningState(EPlayerScanState, CStateManager& mgr);
@@ -413,6 +423,7 @@ public:
     float Get74C() const { return x74c_; }
     float GetMapAlpha() const { return x494_mapAlpha; }
     void UpdateCinematicState(CStateManager& mgr);
+    void SetCameraState(EPlayerCameraState camState, CStateManager& stateMgr);
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
 

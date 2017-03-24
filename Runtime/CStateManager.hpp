@@ -83,6 +83,7 @@ class CStateManager
     s16 x0_nextFreeIndex = 0;
     TUniqueId x8_idArr[1024] = {};
 
+    /*
     std::unique_ptr<CObjectList> x80c_allObjs;
     std::unique_ptr<CActorList> x814_actorObjs;
     std::unique_ptr<CPhysicsActorList> x81c_physActorObjs;
@@ -91,12 +92,22 @@ class CStateManager
     std::unique_ptr<CListeningAiList> x834_listenAiObjs;
     std::unique_ptr<CAiWaypointList> x83c_aiWaypointObjs;
     std::unique_ptr<CPlatformAndDoorList> x844_platformAndDoorObjs;
+     */
+    std::unique_ptr<CObjectList> x808_objLists[8] =
+    {std::make_unique<CObjectList>(EGameObjectList::All),
+     std::make_unique<CActorList>(),
+     std::make_unique<CPhysicsActorList>(),
+     std::make_unique<CGameCameraList>(),
+     std::make_unique<CGameLightList>(),
+     std::make_unique<CListeningAiList>(),
+     std::make_unique<CAiWaypointList>(),
+     std::make_unique<CPlatformAndDoorList>()};
 
     std::unique_ptr<CPlayer> x84c_player;
     std::unique_ptr<CWorld> x850_world;
 
     /* Used to be a list of 32-element reserved_vectors */
-    std::vector<TUniqueId> x858_objectGraveyard;
+    std::vector<TUniqueId> x854_objectGraveyard;
 
     struct CStateManagerContainer
     {
@@ -132,8 +143,8 @@ class CStateManager
     TAreaId x8cc_nextAreaId = 0;
     TAreaId x8d0_prevAreaId = kInvalidAreaId;
     //u32 x8d0_extFrameIdx = 0;
-    //u32 x8d4_updateFrameIdx = 0;
-    //u32 x8d8_drawFrameIdx = 0;
+    u32 x8d4_inputFrameIdx = 0;
+    u32 x8d8_updateFrameIdx = 0;
     u32 x8dc_objectDrawToken = 0;
 
     std::vector<CLight> x8e0_dynamicLights;
@@ -183,11 +194,14 @@ class CStateManager
         u16 _dummy = 0;
     };
 
+    u32 xeec_hintIdx = -1;
+    u32 xef0_hintPeriods = 0;
+
     SOnScreenTex xef4_pendingScreenTex;
     ResId xf08_pauseHudMessage = -1;
     float xf0c_ = 0.f;
     float xf10_ = 0.f;
-    float xf14_ = 0.f;
+    float xf14_curTimeMod900 = 0.f;
     TUniqueId xf18_ = kInvalidUniqueId;
     float xf1c_ = 0.f;
     u32 xf20_ = 0;
@@ -315,10 +329,19 @@ public:
     void ProcessInput(const CFinalInput& input);
     void Update(float dt);
     void UpdateGameState();
+    void UpdateHintState(float dt);
+    void PreThinkEffects(float dt);
+    void MovePlatforms(float dt);
+    void MoveDoors(float dt);
+    void CrossTouchActors(float dt);
+    void ThinkEffectsAndActors(float dt);
+    void UpdatePlayer(float dt);
+    void ShowPausedHUDMemo(ResId strg, float time);
+    void BringOutYourDead();
     void FrameBegin(s32 frameCount);
     void InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId);
     void CreateStandardGameObjects();
-    const std::unique_ptr<CObjectList>& GetObjectList() const { return x80c_allObjs; }
+    const std::unique_ptr<CObjectList>& GetObjectList() const { return x808_objLists[0]; }
     CObjectList* ObjectListById(EGameObjectList type);
     const CObjectList* GetObjectListById(EGameObjectList type) const;
     void RemoveObject(TUniqueId);
@@ -342,7 +365,7 @@ public:
                        const zeus::CAABox&, const CMaterialFilter&, const CActor*) const;
     void UpdateActorInSortedLists(CActor&);
     void UpdateSortedLists();
-    zeus::CAABox CalculateObjectBounds(const CActor&);
+    std::experimental::optional<zeus::CAABox> CalculateObjectBounds(const CActor&);
     void AddObject(CEntity&);
     void AddObject(CEntity*);
     bool RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
@@ -384,14 +407,14 @@ public:
     CPlayer& GetPlayer() const { return *x84c_player; }
     CPlayer* Player() const { return x84c_player.get(); }
 
-    CObjectList& GetAllObjectList() const { return *x80c_allObjs; }
-    CActorList& GetActorObjectList() const { return *x814_actorObjs; }
-    CPhysicsActorList& GetPhysicsActorObjectList() const { return *x81c_physActorObjs; }
-    CGameCameraList& GetCameraObjectList() const { return *x824_cameraObjs; }
-    CGameLightList& GetLightObjectList() const { return *x82c_lightObjs; }
-    CListeningAiList& GetListeningAiObjectList() const { return *x834_listenAiObjs; }
-    CAiWaypointList& GetAiWaypointObjectList() const { return *x83c_aiWaypointObjs; }
-    CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return *x844_platformAndDoorObjs; }
+    CObjectList& GetAllObjectList() const { return *x808_objLists[0]; }
+    CActorList& GetActorObjectList() const { return static_cast<CActorList&>(*x808_objLists[1]); }
+    CPhysicsActorList& GetPhysicsActorObjectList() const { return static_cast<CPhysicsActorList&>(*x808_objLists[2]); }
+    CGameCameraList& GetCameraObjectList() const { return static_cast<CGameCameraList&>(*x808_objLists[3]); }
+    CGameLightList& GetLightObjectList() const { return static_cast<CGameLightList&>(*x808_objLists[4]); }
+    CListeningAiList& GetListeningAiObjectList() const { return static_cast<CListeningAiList&>(*x808_objLists[5]); }
+    CAiWaypointList& GetAiWaypointObjectList() const { return static_cast<CAiWaypointList&>(*x808_objLists[6]); }
+    CPlatformAndDoorList& GetPlatformAndDoorObjectList() const { return static_cast<CPlatformAndDoorList&>(*x808_objLists[7]); }
     std::pair<u32, u32> CalculateScanCompletionRate() const;
     void SetLastTriggerId(TUniqueId uid) { xf74_lastTrigger = uid; }
     TUniqueId GetLastTriggerId() const { return xf74_lastTrigger; }

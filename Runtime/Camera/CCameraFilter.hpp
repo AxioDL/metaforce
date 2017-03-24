@@ -42,6 +42,7 @@ private:
     static void DrawFilterShape(EFilterShape shape, const zeus::CColor& color,
                                 const CTexture* tex, float uvScale);
 public:
+    void Update(float dt);
     void SetFilter(EFilterType type, EFilterShape shape, float, const zeus::CColor& color, u32) {}
     void DisableFilter(float) {}
 
@@ -70,6 +71,7 @@ private:
     //bool x2d_noPersistentCopy = false;
     //u32 x30_persistentBuf = 0;
 
+public:
     void Draw();
     void Update(float dt);
     void SetBlur(EBlurType type, float amount, float duration);

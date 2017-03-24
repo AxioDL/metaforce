@@ -117,7 +117,8 @@ void CMapArea::CMapAreaSurface::PostConstruct(const void *)
 {
 }
 
-CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&)
+CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,
+                                 CObjectReference*)
 {
     u32 size = g_ResFactory->ResourceSize(objTag);
     return TToken<CMapArea>::GetIObjObjectFor(std::make_unique<CMapArea>(in, size));

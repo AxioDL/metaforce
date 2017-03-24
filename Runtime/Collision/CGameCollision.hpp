@@ -1,6 +1,8 @@
 #ifndef __URDE_CGAMECOLLISION_HPP__
 #define __URDE_CGAMECOLLISION_HPP__
 #include "zeus/CVector3f.hpp"
+#include "rstl.hpp"
+#include "RetroTypes.hpp"
 
 namespace urde
 {
@@ -14,6 +16,8 @@ class CCollisionInfo;
 class CCollisionInfoList;
 class CMaterialList;
 class CStateManager;
+class CPlayer;
+
 class CGameCollision
 {
 public:
@@ -24,6 +28,7 @@ public:
     static bool NullBooleanCollider(const CInternalCollisionStructure&) { return false; }
     static bool NullCollisionCollider(const CInternalCollisionStructure&, CCollisionInfoList&) { return false; }
     static void InitCollision();
+    static void Move(CStateManager& mgr, CPlayer& player, float dt, const rstl::reserved_vector<TUniqueId, 1024>*);
 
     static bool CanBlock(const CMaterialList&, const zeus::CVector3f&);
     static bool IsFloor(const CMaterialList&, const zeus::CVector3f&);

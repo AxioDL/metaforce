@@ -85,6 +85,7 @@ class CActorModelParticles
 public:
     CActorModelParticles();
     void AddStragglersToRenderer(const CStateManager& mgr);
+    void Update(float dt, CStateManager& mgr);
 };
 }
 

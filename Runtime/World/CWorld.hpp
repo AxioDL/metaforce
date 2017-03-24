@@ -188,6 +188,7 @@ public:
     static const CGameArea* GetAliveAreasEnd()  { return skGlobalEnd; }
     static CGameArea* AliveAreasEnd()  { return skGlobalNonConstEnd; }
 
+    void Update(float dt);
     void PreRender();
     void TouchSky();
     void DrawSky(const zeus::CTransform& xf) const;

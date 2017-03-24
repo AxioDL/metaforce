@@ -7,6 +7,11 @@
 namespace urde
 {
 
+void CCameraFilterPass::Update(float dt)
+{
+
+}
+
 void CCameraFilterPass::DrawFilter(EFilterType type, EFilterShape shape, const zeus::CColor& color,
                                    const CTexture* tex, float uvScale)
 {

@@ -7,6 +7,7 @@
 namespace urde
 {
 class CFinalInput;
+class CStateManager;
 
 /** Options presented in UI */
 enum class EGameOption
@@ -184,19 +185,19 @@ public:
     enum class EHintState
     {
         Zero,
-        One,
-        Two,
+        Waiting,
+        Displaying,
         Delayed
     };
     struct SHintState
     {
         EHintState x0_state = EHintState::Zero;
         float x4_time = 0.f;
-        bool x8_flag = false;
+        bool x8_dismissed = false;
 
         SHintState() = default;
         SHintState(EHintState state, float time, bool flag)
-        : x0_state(state), x4_time(time), x8_flag(flag) {}
+        : x0_state(state), x4_time(time), x8_dismissed(flag) {}
 
         bool CanContinue() const { return x4_time / 3.f <= 1.f; }
     };
@@ -213,6 +214,9 @@ public:
     void DelayHint(const char* name);
     void ActivateImmediateHintTimer(const char* name);
     void ActivateContinueDelayHintTimer(const char* name);
+    void DismissDisplayedHint();
+    u32 GetNextHintIdx() const;
+    void Update(float dt, const CStateManager& stateMgr);
 };
 
 }

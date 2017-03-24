@@ -152,4 +152,9 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr)
     }
 }
 
+void CActorModelParticles::Update(float dt, CStateManager& mgr)
+{
+
+}
+
 }

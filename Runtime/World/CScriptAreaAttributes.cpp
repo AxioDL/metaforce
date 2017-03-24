@@ -33,7 +33,7 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
     if (x4_areaId == kInvalidAreaId)
         return;
 
-    if (msg == EScriptObjectMessage::Constructed)
+    if (msg == EScriptObjectMessage::InitializedInArea)
     {
         CGameArea* area = stateMgr.WorldNC()->GetArea(x4_areaId);
         area->SetAreaAttributes(this);

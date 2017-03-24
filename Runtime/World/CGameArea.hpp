@@ -329,6 +329,8 @@ public:
     bool IsPostConstructed() const {return xf0_24_postConstructed;}
     const CPostConstructed* GetPostConstructed() const {return x12c_postConstructed.get();}
 
+    bool IsValidated() const { return xf0_28_validated; }
+
     void SetAreaAttributes(const CScriptAreaAttributes* areaAttributes);
     bool GetActive() const { return xf0_25_active; }
     void SetActive(bool active) { xf0_25_active = active; }

@@ -43,7 +43,8 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
     x64_ *= 1.0f / float(x44_areaData.size());
 }
 
-CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&)
+CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
+                                     CObjectReference*)
 {
     in.readUint32Big();
     u32 version = in.readUint32Big();

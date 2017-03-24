@@ -43,7 +43,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     case EScriptObjectMessage::Decrement:
         RemoveEmitter();
         break;
-    case EScriptObjectMessage::InternalMessage11: // 33
+    case EScriptObjectMessage::Registered: // 33
     {
         if (x98_scanObjectInfo)
             AddMaterial(EMaterialTypes::Scannable, mgr);
@@ -66,7 +66,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
 #endif
     }
     break;
-    case EScriptObjectMessage::Constructed: // 35
+    case EScriptObjectMessage::InitializedInArea: // 35
     {
         for (const SConnection& conn : x20_conns)
         {

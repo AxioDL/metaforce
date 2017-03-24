@@ -565,6 +565,11 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
         area->SetOcclusionState(CGameArea::EOcclusionState::NotOccluded);
 }
 
+void CWorld::Update(float dt)
+{
+
+}
+
 void CWorld::PreRender()
 {
     for (CGameArea* head = x4c_chainHeads[3] ;

@@ -10,6 +10,9 @@ class CFinalInput;
 
 class CGameCamera : public CActor
 {
+    friend class CStateManager;
+    friend class CCameraManager;
+
     TUniqueId xe8_watchedObject;
     zeus::CMatrix4f xec_perspectiveMatrix;
     zeus::CTransform x12c_;
@@ -17,7 +20,7 @@ class CGameCamera : public CActor
     float x160_znear;
     float x164_zfar;
     float x168_aspect;
-    u32 x16c_;
+    u32 x16c_controllerIdx;
     bool x170_24_perspDirty : 1;
     bool x170_25_disablesInput : 1;
     float x174_ = 0.f;
@@ -27,7 +30,7 @@ class CGameCamera : public CActor
     float x184_fov;
 public:
     CGameCamera(TUniqueId, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-                float fov, float nearz, float farz, float aspect, TUniqueId, bool, u32);
+                float fov, float nearz, float farz, float aspect, TUniqueId, bool, u32 controllerIdx);
 
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void SetActive(bool active);

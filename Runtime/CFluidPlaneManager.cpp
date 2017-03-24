@@ -16,4 +16,9 @@ void CFluidPlaneManager::StartFrame(bool b)
     sProfile.Clear();
 }
 
+void CFluidPlaneManager::Update(float dt)
+{
+
+}
+
 }

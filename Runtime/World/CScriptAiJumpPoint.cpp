@@ -32,7 +32,7 @@ void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId oth
 {
     AcceptScriptMsg(msg, other, mgr);
 
-    if (msg != EScriptObjectMessage::Constructed)
+    if (msg != EScriptObjectMessage::InitializedInArea)
         return;
 
     for (SConnection& conn : x20_conns)

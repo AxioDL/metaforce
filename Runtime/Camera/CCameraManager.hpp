@@ -13,6 +13,8 @@ class CStateManager;
 class CGameCamera;
 class CCameraShakeData;
 class CScriptWater;
+class CInterpolationCamera;
+class CFinalInput;
 
 class CCameraManager
 {
@@ -32,6 +34,7 @@ class CCameraManager
     CFirstPersonCamera* x7c_fpCamera = nullptr;
     CBallCamera* x80_ballCamera = nullptr;
     s16 x84_rumbleId = -1;
+    CInterpolationCamera* x88_interpCamera = nullptr;
     float x90_ = 0.f;
     float x94_ = 1.f;
     float x98_ = 0.f;
@@ -87,6 +90,7 @@ public:
     CGameCamera* GetCurrentCamera(CStateManager& stateMgr) const;
     const CGameCamera* GetCurrentCamera(const CStateManager& stateMgr) const;
     void SetCurrentCameraId(TUniqueId id, CStateManager& stateMgr) {x0_curCameraId = id;}
+    void CreateStandardCameras(CStateManager& stateMgr);
     TUniqueId GetCurrentCameraId() const
     {
         if (x4_cineCameras.size())
@@ -116,6 +120,8 @@ public:
     void UpdateListener(CStateManager&);
 
     float CalculateFogDensity(CStateManager&, const CScriptWater*);
+
+    void ProcessInput(const CFinalInput& input, CStateManager& stateMgr);
 };
 
 }

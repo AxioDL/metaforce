@@ -25,6 +25,8 @@
 #include "Runtime/Collision/CCollisionResponseData.hpp"
 #include "Runtime/CSaveWorld.hpp"
 #include "Runtime/AutoMapper/CMapWorld.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+#include "Runtime/AutoMapper/CMapUniverse.hpp"
 #include "Runtime/CScannableObjectInfo.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Audio/CSfxManager.hpp"
@@ -123,6 +125,8 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('ELSC'), FFactoryFunc(FParticleElectricDataFactory));
     m_factoryMgr.AddFactory(FOURCC('WPSC'), FFactoryFunc(FProjectileWeaponDataFactory));
     m_factoryMgr.AddFactory(FOURCC('DPSC'), FFactoryFunc(FDecalDataFactory));
+    m_factoryMgr.AddFactory(FOURCC('MAPA'), FFactoryFunc(FMapAreaFactory));
+    m_factoryMgr.AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp)

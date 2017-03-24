@@ -31,7 +31,12 @@
 #include "Collision/CMaterialFilter.hpp"
 #include "World/CScriptDock.hpp"
 #include "Particle/CDecalManager.hpp"
+#include "Particle/CParticleElectric.hpp"
 #include "World/CProjectedShadow.hpp"
+#include "Weapon/CProjectileWeapon.hpp"
+#include "World/CScriptEffect.hpp"
+#include "MP1/CSamusHud.hpp"
+#include "Collision/CGameCollision.hpp"
 
 #include <cmath>
 
@@ -42,15 +47,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
                              const std::weak_ptr<CWorldLayerState>& layerState)
-: x80c_allObjs(new CObjectList(EGameObjectList::All))
-, x814_actorObjs(new CActorList())
-, x81c_physActorObjs(new CPhysicsActorList())
-, x824_cameraObjs(new CGameCameraList())
-, x82c_lightObjs(new CGameLightList())
-, x834_listenAiObjs(new CListeningAiList())
-, x83c_aiWaypointObjs(new CAiWaypointList())
-, x844_platformAndDoorObjs(new CPlatformAndDoorList())
-, x8b8_playerState(playerState)
+: x8b8_playerState(playerState)
 , x8bc_relayTracker(relayTracker)
 , x8c0_mapWorldInfo(mwInfo)
 , x8c4_worldTransManager(wtMgr)
@@ -419,11 +416,11 @@ void CStateManager::BuildDynamicLightListForWorld()
         return;
     }
 
-    if (x82c_lightObjs->size() == 0)
+    if (GetLightObjectList().size() == 0)
         return;
 
     x8e0_dynamicLights.clear();
-    for (CEntity* ent : *x82c_lightObjs)
+    for (CEntity* ent : GetLightObjectList())
     {
         CGameLight& light = static_cast<CGameLight&>(*ent);
         if (light.GetActive())
@@ -480,7 +477,7 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
 
 void CStateManager::DrawWorld() const
 {
-    CTimeProvider timeProvider(xf14_);
+    CTimeProvider timeProvider(xf14_curTimeMod900);
     SViewport backupViewport = g_Viewport;
     zeus::CFrustum frustum = SetupViewForDraw(g_Viewport);
     zeus::CTransform backupViewMatrix = CGraphics::g_ViewMatrix;
@@ -920,7 +917,7 @@ void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMe
         for (auto it = search.first; it != search.second; ++it)
         {
             TUniqueId id = it->second;
-            CEntity* dobj = x80c_allObjs->GetObjectById(id);
+            CEntity* dobj = GetAllObjectList().GetObjectById(id);
             SendScriptMsg(dobj, src, msg);
         }
     }
@@ -959,7 +956,7 @@ void CStateManager::FreeScriptObject(TUniqueId id)
         return;
 
     ent->SetIsInGraveyard(true);
-    x858_objectGraveyard.push_back(id);
+    x854_objectGraveyard.push_back(id);
     ent->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
     ent->SetIsScriptingBlocked(true);
 
@@ -1090,7 +1087,7 @@ void CStateManager::InitScriptObjects(const std::vector<TEditorId>& ids)
         if (id == kInvalidEditorId)
             continue;
         TUniqueId uid = GetIdForScript(id);
-        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::Constructed);
+        SendScriptMsg(uid, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
     }
     MurderScriptInstanceNames();
 }
@@ -1155,17 +1152,265 @@ bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageIn
 
 void CStateManager::UpdateAreaSounds() {}
 
-void CStateManager::FrameEnd() {}
+void CStateManager::FrameEnd()
+{
+    g_SimplePool->Flush();
+}
 
-void CStateManager::ProcessPlayerInput() {}
+void CStateManager::ProcessPlayerInput()
+{
+    if (x84c_player)
+        x84c_player->ProcessInput(xb54_finalInput, *this);
+}
 
-void CStateManager::ProcessInput(const CFinalInput& input) {}
+static const CFinalInput s_DisabledFinalInput = {};
 
-void CStateManager::Update(float dt) {}
+void CStateManager::ProcessInput(const CFinalInput& input)
+{
+    if (input.ControllerIdx() == 0)
+    {
+        CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
+        bool disableInput = cam->x170_25_disablesInput;
+        if (x84c_player->x9c6_29_disableInput)
+            disableInput = true;
+        if (disableInput)
+        {
+            xb54_finalInput = s_DisabledFinalInput;
+            xb54_finalInput.x0_dt = input.DeltaTime();
+        }
+        else
+        {
+            xb54_finalInput = input;
+        }
+    }
+    x870_cameraManager->ProcessInput(input, *this);
+}
 
-void CStateManager::UpdateGameState() {}
+void CStateManager::Update(float dt)
+{
+    CElementGen::SetGlobalSeed(x8d8_updateFrameIdx);
+    CParticleElectric::SetGlobalSeed(x8d8_updateFrameIdx);
+    CDecal::SetGlobalSeed(x8d8_updateFrameIdx);
+    CProjectileWeapon::SetGlobalSeed(x8d8_updateFrameIdx);
 
-void CStateManager::FrameBegin(s32 frameCount) {}
+    xf14_curTimeMod900 += dt;
+    if (xf14_curTimeMod900 > 900.f)
+        xf14_curTimeMod900 -= 900.f;
+
+    xf08_pauseHudMessage = -1;
+
+    CScriptEffect::ResetParticleCounts();
+    UpdateThermalVisor();
+    UpdateGameState();
+
+    bool _9f4_gt0 = x84c_player->x9f4_ > 0.f;
+
+    if (x904_ == 0)
+    {
+        if (!TCastToPtr<CCinematicCamera>(x870_cameraManager->GetCurrentCamera(*this)))
+        {
+            g_GameState->SetTotalPlayTime(g_GameState->xa0_playTime + dt);
+            UpdateHintState(dt);
+        }
+
+        for (int i=0 ; i<9 ; ++i)
+        {
+            xb84_camFilterPasses[i].Update(dt);
+            xd14_camBlurPasses[i].Update(dt);
+        }
+    }
+
+    if (x904_ != 2)
+    {
+        PreThinkEffects(dt);
+        x87c_fluidPlaneManager->Update(dt);
+    }
+
+    if (x904_ == 0)
+    {
+        if (!_9f4_gt0)
+            CDecalManager::Update(dt, *this);
+        UpdateSortedLists();
+        if (!_9f4_gt0)
+        {
+            MovePlatforms(dt);
+            MoveDoors(dt);
+        }
+        ProcessPlayerInput();
+        if (x904_ != 1)
+            CGameCollision::Move(*this, *x84c_player, dt, nullptr);
+        UpdateSortedLists();
+        if (!_9f4_gt0)
+            CrossTouchActors(dt);
+    }
+    else
+    {
+        ProcessPlayerInput();
+    }
+
+    if (!_9f4_gt0 && x904_ == 0)
+        x884_actorModelParticles->Update(dt, *this);
+
+    if (x904_ == 0 || x904_ == 1)
+        ThinkEffectsAndActors(dt);
+
+    if (x904_ != 1)
+        x870_cameraManager->Update(dt, *this);
+
+    while (xf76_lastRelay != kInvalidUniqueId)
+    {
+        if (CEntity* ent = ObjectById(xf76_lastRelay))
+        {
+            ent->Think(dt, *this);
+        }
+        else
+        {
+            xf76_lastRelay = kInvalidUniqueId;
+            break;
+        }
+    }
+
+    if (x904_ != 2)
+        UpdatePlayer(dt);
+
+    if (xf84_ == xf80_hudMessageFrameCount)
+    {
+        ShowPausedHUDMemo(xf88_, xf8c_);
+        --xf84_;
+        xf88_ = -1;
+    }
+
+    if (!_9f4_gt0 && x904_ == 0 && !x870_cameraManager->IsInCinematicCamera())
+        UpdateEscapeSequenceTimer(dt);
+
+    x850_world->Update(dt);
+    x88c_rumbleManager->Update(dt);
+
+    if (!_9f4_gt0)
+        x880_envFxManager->Update(dt, *this);
+
+    UpdateAreaSounds();
+
+    xf94_24_ = true;
+
+    if (xf94_27_inMapScreen)
+    {
+        if (const CHintOptions::SHintState* hint = g_GameState->HintOptions().GetCurrentDisplayedHint())
+        {
+            if (hint->CanContinue())
+                g_GameState->HintOptions().DismissDisplayedHint();
+        }
+        xf94_27_inMapScreen = false;
+    }
+
+    g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
+    x850_world->TravelToArea(x8cc_nextAreaId, *this, false);
+
+    BringOutYourDead();
+    ++x8d8_updateFrameIdx;
+}
+
+void CStateManager::UpdateGameState()
+{
+    // Intentionally empty
+}
+
+void CStateManager::UpdateHintState(float dt)
+{
+    CHintOptions& ho = g_GameState->HintOptions();
+    ho.Update(dt, *this);
+    u32 nextHintIdx = -1;
+    u32 hintPeriods = -1;
+    if (const CHintOptions::SHintState* state = ho.GetCurrentDisplayedHint())
+    {
+        const CGameHintInfo::CGameHint& next = g_MemoryCardSys->GetHints()[ho.GetNextHintIdx()];
+        for (const CGameHintInfo::SHintLocation& loc : next.GetLocations())
+        {
+            const auto& mwInfo = g_GameState->StateForWorld(loc.x0_mlvlId).MapWorldInfo();
+            mwInfo->SetIsMapped(loc.x8_areaId, true);
+        }
+        if (state->x4_time < next.GetTextTime())
+        {
+            nextHintIdx = ho.GetNextHintIdx();
+            hintPeriods = state->x4_time / 3.f;
+        }
+    }
+
+    if (xeec_hintIdx != nextHintIdx || xef0_hintPeriods != hintPeriods)
+    {
+        if (nextHintIdx == -1)
+        {
+            SHudMemoInfo memoInfo = {0.f, true, true, true};
+            MP1::CSamusHud::DisplayHudMemo(u"", memoInfo);
+        }
+        else
+        {
+            const CGameHintInfo::CGameHint& data = g_MemoryCardSys->GetHints()[nextHintIdx];
+            SHudMemoInfo memoInfo = {0.f, true, false, true};
+            MP1::CSamusHud::DeferHintMemo(data.GetStringID(), hintPeriods, memoInfo);
+        }
+        xeec_hintIdx = nextHintIdx;
+        xef0_hintPeriods = hintPeriods;
+    }
+}
+
+void CStateManager::PreThinkEffects(float dt)
+{
+    if (x84c_player->x9f4_ > 0.f)
+    {
+        x84c_player->DoPreThink(dt, *this);
+        return;
+    }
+
+    if (x904_ == 1)
+        for (CEntity* ent : GetAllObjectList())
+            if (TCastToPtr<CScriptEffect> effect = ent)
+                effect->PreThink(dt, *this);
+
+    for (CEntity* ent : GetCameraObjectList())
+        if (ent && !GetCameraObjectList().GetObjectById(ent->GetUniqueId()))
+            ent->PreThink(dt, *this);
+}
+
+void CStateManager::MovePlatforms(float dt)
+{
+
+}
+
+void CStateManager::MoveDoors(float dt)
+{
+
+}
+
+void CStateManager::CrossTouchActors(float dt)
+{
+
+}
+
+void CStateManager::ThinkEffectsAndActors(float dt)
+{
+
+}
+
+void CStateManager::UpdatePlayer(float dt)
+{
+
+}
+
+void CStateManager::ShowPausedHUDMemo(ResId strg, float time)
+{
+
+}
+
+void CStateManager::BringOutYourDead()
+{
+
+}
+
+void CStateManager::FrameBegin(s32 frameCount)
+{
+    x8d4_inputFrameIdx = frameCount;
+}
 
 void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
 {
@@ -1202,10 +1447,10 @@ void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
     x850_world->TravelToArea(x8cc_nextAreaId, *this, true);
     UpdateRoomAcoustics(x8cc_nextAreaId);
 
-    for (CEntity* ent : *x80c_allObjs)
+    for (CEntity* ent : GetAllObjectList())
         SendScriptMsg(ent, kInvalidUniqueId, EScriptObjectMessage::InternalMessage14);
 
-    for (CEntity* ent : *x80c_allObjs)
+    for (CEntity* ent : GetAllObjectList())
     {
         CScriptSpawnPoint* sp = TCastToPtr<CScriptSpawnPoint>(ent);
         if (sp && sp->x30_24_active && sp->FirstSpawn())
@@ -1266,18 +1511,21 @@ void CStateManager::CreateStandardGameObjects()
         unk3, CMaterialList(EMaterialTypes::Player,
         EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
     AddObject(*x84c_player);
+    x870_cameraManager->CreateStandardCameras(*this);
 }
 
 CObjectList* CStateManager::ObjectListById(EGameObjectList type)
 {
-    std::unique_ptr<CObjectList>* lists = &x80c_allObjs;
-    return lists[int(type)].get();
+    if (type == EGameObjectList::Invalid)
+        return nullptr;
+    return x808_objLists[int(type)].get();
 }
 
 const CObjectList* CStateManager::GetObjectListById(EGameObjectList type) const
 {
-    const std::unique_ptr<CObjectList>* lists = &x80c_allObjs;
-    return lists[int(type)].get();
+    if (type == EGameObjectList::Invalid)
+        return nullptr;
+    return x808_objLists[int(type)].get();
 }
 
 void CStateManager::RemoveObject(TUniqueId) {}
@@ -1316,7 +1564,7 @@ void CStateManager::DeleteObjectRequest(TUniqueId id)
 
     entity->SetIsInGraveyard(true);
 
-    x858_objectGraveyard.push_back(entity->GetUniqueId());
+    x854_objectGraveyard.push_back(entity->GetUniqueId());
     entity->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
     entity->SetIsScriptingBlocked(true);
 
@@ -1327,8 +1575,8 @@ void CStateManager::DeleteObjectRequest(TUniqueId id)
     }
 }
 
-CEntity* CStateManager::ObjectById(TUniqueId uid) { return x80c_allObjs->GetObjectById(uid); }
-const CEntity* CStateManager::GetObjectById(TUniqueId uid) const { return x80c_allObjs->GetObjectById(uid); }
+CEntity* CStateManager::ObjectById(TUniqueId uid) { return GetAllObjectList().GetObjectById(uid); }
+const CEntity* CStateManager::GetObjectById(TUniqueId uid) const { return GetAllObjectList().GetObjectById(uid); }
 
 void CStateManager::AreaUnloaded(TAreaId) {}
 
@@ -1351,15 +1599,101 @@ void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOu
 {
 }
 
-void CStateManager::UpdateActorInSortedLists(CActor&) {}
+void CStateManager::UpdateActorInSortedLists(CActor& act)
+{
+    if (!act.GetUseInSortedLists() || !act.xe4_27_)
+        return;
 
-void CStateManager::UpdateSortedLists() {}
+    std::experimental::optional<zeus::CAABox> aabb = CalculateObjectBounds(act);
+    bool actorInLists = x874_sortedListManager->ActorInLists(&act);
+    if (actorInLists || aabb)
+    {
+        act.xe4_27_ = false;
+        if (actorInLists)
+        {
+            if (!act.GetActive() || !aabb)
+            {
+                x874_sortedListManager->Remove(&act);
+            }
+            else
+            {
+                x874_sortedListManager->Move(&act, *aabb);
+            }
+        }
+        else if (act.GetActive() && aabb)
+        {
+            x874_sortedListManager->Insert(&act, *aabb);
+        }
+    }
+}
 
-zeus::CAABox CStateManager::CalculateObjectBounds(const CActor&) { return {}; }
+void CStateManager::UpdateSortedLists()
+{
+    if (!x850_world)
+        return;
+    for (CEntity* actor : GetActorObjectList())
+        UpdateActorInSortedLists(static_cast<CActor&>(*actor));
+}
 
-void CStateManager::AddObject(CEntity&) {}
+std::experimental::optional<zeus::CAABox> CStateManager::CalculateObjectBounds(const CActor& actor)
+{
+    rstl::optional_object<zeus::CAABox> bounds = actor.GetTouchBounds();
+    if (bounds)
+    {
+        zeus::CAABox aabb;
+        aabb.accumulateBounds(bounds->min);
+        aabb.accumulateBounds(bounds->max);
+        if (TCastToConstPtr<CPhysicsActor> physAct = actor)
+        {
+            zeus::CAABox physAabb = physAct->GetBoundingBox();
+            aabb.accumulateBounds(physAabb.min);
+            aabb.accumulateBounds(physAabb.max);
+        }
+        return {aabb};
+    }
+    else
+    {
+        if (TCastToConstPtr<CPhysicsActor> physAct = actor)
+            return {physAct->GetBoundingBox()};
+    }
+    return {};
+}
 
-void CStateManager::AddObject(CEntity*) {}
+void CStateManager::AddObject(CEntity& ent)
+{
+    if (ent.GetEditorId() != kInvalidEditorId)
+        x890_scriptIdMap.insert(std::make_pair(ent.GetEditorId(), ent.GetUniqueId()));
+    for (auto& list : x808_objLists)
+        list->AddObject(ent);
+
+    if (ent.GetAreaIdAlways() == kInvalidAreaId && x84c_player &&
+        ent.GetUniqueId() != x84c_player->GetUniqueId())
+        ent.x4_areaId = x84c_player->GetAreaIdAlways();
+    if (ent.GetAreaIdAlways() != kInvalidAreaId)
+    {
+        CGameArea* area = x850_world->GetArea(ent.GetAreaIdAlways());
+        if (area->IsPostConstructed())
+            area->GetAreaObjects().AddObject(ent);
+    }
+
+    if (TCastToPtr<CActor> act = ent)
+        UpdateActorInSortedLists(*act.GetPtr());
+
+    ent.AcceptScriptMsg(EScriptObjectMessage::Registered, kInvalidUniqueId, *this);
+
+    if (ent.GetAreaIdAlways() != kInvalidAreaId && x850_world)
+    {
+        CGameArea* area = x850_world->GetArea(ent.GetAreaIdAlways());
+        if (area->IsValidated())
+            SendScriptMsg(&ent, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
+    }
+}
+
+void CStateManager::AddObject(CEntity* ent)
+{
+    if (ent)
+        AddObject(*ent);
+}
 
 bool CStateManager::RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
                                           const CMaterialFilter&) const
@@ -1387,7 +1721,7 @@ TUniqueId CStateManager::AllocateUniqueId()
         if (x0_nextFreeIndex == lastIndex)
             LogModule.report(logvisor::Fatal, "Object List Full!");
     }
-    while (x80c_allObjs->GetObjectByIndex(ourIndex) != nullptr);
+    while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 
     x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;
     if (((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF) == kInvalidUniqueId)

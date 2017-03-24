@@ -15,6 +15,8 @@
 #include "CObjectList.hpp"
 #include "TCastTo.hpp"
 #include "CCinematicCamera.hpp"
+#include "CBallCamera.hpp"
+#include "CInterpolationCamera.hpp"
 
 namespace urde
 {
@@ -170,6 +172,25 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
     return static_cast<const CGameCamera*>(camList->GetObjectById(GetCurrentCameraId()));
 }
 
+void CCameraManager::CreateStandardCameras(CStateManager& stateMgr)
+{
+    TUniqueId fpId = stateMgr.AllocateUniqueId();
+    x7c_fpCamera = new CFirstPersonCamera(fpId, zeus::CTransform::Identity(),
+                                          stateMgr.Player()->GetUniqueId(), g_tweakPlayer->GetX184(),
+                                          sFirstPersonFOV, sNearPlane, sFarPlane, sAspect);
+    stateMgr.AddObject(x7c_fpCamera);
+    stateMgr.Player()->SetCameraState(CPlayer::EPlayerCameraState::Zero, stateMgr);
+    SetCurrentCameraId(fpId, stateMgr);
+
+    x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(),
+                                     zeus::CTransform::Identity(), sThirdPersonFOV,
+                                     sNearPlane, sFarPlane, sAspect);
+    stateMgr.AddObject(x80_ballCamera);
+
+    x88_interpCamera = new CInterpolationCamera(stateMgr.AllocateUniqueId(), zeus::CTransform::Identity());
+    stateMgr.AddObject(x88_interpCamera);
+}
+
 void CCameraManager::SkipCinematic(CStateManager& stateMgr)
 {
     TUniqueId camId = GetCurrentCameraId();
@@ -262,5 +283,18 @@ void CCameraManager::SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball
 {
     x7c_fpCamera = &fp;
     x80_ballCamera = &ball;
+}
+
+void CCameraManager::ProcessInput(const CFinalInput& input, CStateManager& stateMgr)
+{
+    for (CEntity* ent : stateMgr.GetCameraObjectList())
+    {
+        if (!ent)
+            continue;
+        CGameCamera& cam = static_cast<CGameCamera&>(*ent);
+        if (input.ControllerIdx() != cam.x16c_controllerIdx)
+            continue;
+        cam.ProcessInput(input, stateMgr);
+    }
 }
 }

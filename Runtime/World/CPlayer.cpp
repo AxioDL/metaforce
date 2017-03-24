@@ -6,6 +6,9 @@
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Particle/CGenDescription.hpp"
+#include "Camera/CFirstPersonCamera.hpp"
+#include "Camera/CBallCamera.hpp"
+#include "Camera/CCinematicCamera.hpp"
 #include "TCastTo.hpp"
 
 namespace urde
@@ -93,6 +96,13 @@ bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const { return false;
 rstl::optional_object<zeus::CAABox> CPlayer::GetTouchBounds() const { return {}; }
 
 void CPlayer::Touch(CActor&, CStateManager& mgr) {}
+
+void CPlayer::DoPreThink(float dt, CStateManager& mgr)
+{
+    PreThink(dt, mgr);
+    if (CEntity* ent = mgr.ObjectById(xa00_))
+        ent->PreThink(dt, mgr);
+}
 
 void CPlayer::UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float) {}
 
@@ -325,6 +335,36 @@ void CPlayer::UpdateCinematicState(CStateManager& mgr)
         {
 
         }
+    }
+}
+
+void CPlayer::SetCameraState(EPlayerCameraState camState, CStateManager& stateMgr)
+{
+    if (x2f4_cameraState == camState)
+        return;
+    x2f4_cameraState = camState;
+    CCameraManager* camMgr = stateMgr.GetCameraManager();
+    switch (camState)
+    {
+    case EPlayerCameraState::Zero:
+        camMgr->SetCurrentCameraId(camMgr->GetFirstPersonCamera()->GetUniqueId(), stateMgr);
+        x768_morphball->SetBallLightActive(stateMgr, false);
+        break;
+    case EPlayerCameraState::One:
+    case EPlayerCameraState::Three:
+        camMgr->SetCurrentCameraId(camMgr->GetBallCamera()->GetUniqueId(), stateMgr);
+        x768_morphball->SetBallLightActive(stateMgr, true);
+        break;
+    case EPlayerCameraState::Two:
+        break;
+    case EPlayerCameraState::Four:
+    {
+        bool ballLight = false;
+        if (TCastToPtr<CCinematicCamera> cineCam = camMgr->GetCurrentCamera(stateMgr))
+            ballLight = x2f8_morphTransState == EPlayerMorphBallState::Morphed && cineCam->GetW1() & 0x40;
+        x768_morphball->SetBallLightActive(stateMgr, ballLight);
+        break;
+    }
     }
 }
 

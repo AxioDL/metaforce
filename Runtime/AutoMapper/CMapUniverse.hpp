@@ -77,7 +77,8 @@ public:
     void Draw(const CMapUniverseDrawParms&, const zeus::CVector3f&, float, float) const;
 };
 
-CFactoryFnReturn FMapUniverseFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms);
+CFactoryFnReturn FMapUniverseFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                     CObjectReference*);
 
 }
 #endif

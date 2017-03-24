@@ -10,6 +10,8 @@
 namespace urde
 {
 
+CRandom16 CParticleElectric::g_GlobalSeed = 99;
+
 void CParticleElectric::RenderSwooshes()
 {
 }

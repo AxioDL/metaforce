@@ -46,7 +46,7 @@ void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
     else if (msg == EScriptObjectMessage::Decrement)
     {
     }
-    else if (msg == EScriptObjectMessage::InternalMessage11)
+    else if (msg == EScriptObjectMessage::Registered)
     {
         x154_projectileId = mgr.AllocateUniqueId();
         mgr.AddObject(new CPlasmaProjectile(xe8_weaponDescription, x10_name + "-Projectile",

@@ -5,6 +5,8 @@ namespace urde
 namespace MP1
 {
 
+CSamusHud* CSamusHud::g_SamusHud = nullptr;
+
 CSamusHud::CSamusHud(CStateManager& stateMgr)
 {
 
@@ -21,6 +23,16 @@ void CSamusHud::OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateM
 }
 
 void CSamusHud::Touch()
+{
+
+}
+
+void CSamusHud::DisplayHudMemo(const std::u16string& text, const SHudMemoInfo& info)
+{
+
+}
+
+void CSamusHud::_DeferHintMemo(ResId strg, u32 timePeriods, const SHudMemoInfo& info)
 {
 
 }

@@ -1,4 +1,5 @@
 #include "CBallCamera.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -9,6 +10,11 @@ CBallCamera::CBallCamera(TUniqueId uid, TUniqueId id2, const zeus::CTransform& x
               CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList),
               xf, a, b, c, d, id2, 0, 0)
 {
+}
+
+void CBallCamera::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 
 void CBallCamera::ProcessInput(const CFinalInput&, CStateManager& mgr)

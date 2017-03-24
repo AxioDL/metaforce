@@ -10,6 +10,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "Graphics/CMoviePlayer.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -544,7 +545,7 @@ CHintOptions::CHintOptions(CBitStreamReader& stream)
 
         x0_hintStates.emplace_back(state, time, false);
 
-        if (x10_nextHintIdx == -1 && state == EHintState::Two)
+        if (x10_nextHintIdx == -1 && state == EHintState::Displaying)
             x10_nextHintIdx = hintIdx;
         ++hintIdx;
     }
@@ -589,7 +590,7 @@ const CHintOptions::SHintState* CHintOptions::GetCurrentDisplayedHint() const
     if (hintState.x4_time < 3.f)
         return &hintState;
 
-    if (!hintState.x8_flag)
+    if (!hintState.x8_dismissed)
         return &hintState;
 
     return nullptr;
@@ -619,7 +620,7 @@ void CHintOptions::ActivateImmediateHintTimer(const char* name)
     if (hintState.x0_state != EHintState::Zero)
         return;
 
-    hintState.x0_state = EHintState::One;
+    hintState.x0_state = EHintState::Waiting;
     hintState.x4_time = hint.GetImmediateTime();
 }
 
@@ -633,10 +634,69 @@ void CHintOptions::ActivateContinueDelayHintTimer(const char* name)
 
     SHintState& hintState = x0_hintStates[idx];
     const CGameHintInfo::CGameHint& hint = g_MemoryCardSys->GetHints()[idx];
-    if (hintState.x0_state != EHintState::Two)
+    if (hintState.x0_state != EHintState::Displaying)
         return;
 
     hintState.x4_time = hint.GetTextTime();
+}
+
+void CHintOptions::DismissDisplayedHint()
+{
+
+}
+
+u32 CHintOptions::GetNextHintIdx() const
+{
+    if (g_GameState->GameOptions().GetIsHintSystemEnabled())
+        return x10_nextHintIdx;
+    return -1;
+}
+
+void CHintOptions::Update(float dt, const CStateManager& stateMgr)
+{
+    x10_nextHintIdx = -1;
+    int idx = 0;
+    auto memIt = g_MemoryCardSys->GetHints().begin();
+    for (SHintState& state : x0_hintStates)
+    {
+        switch (state.x0_state)
+        {
+        case EHintState::Waiting:
+            state.x4_time -= dt;
+            if (state.x4_time <= 0.f)
+            {
+                state.x0_state = EHintState::Displaying;
+                state.x4_time = memIt->GetTextTime();
+            }
+            break;
+        case EHintState::Displaying:
+            if (x10_nextHintIdx == -1)
+                x10_nextHintIdx = idx;
+        default: break;
+        }
+        ++memIt;
+        ++idx;
+    }
+
+    if (x10_nextHintIdx == -1)
+        return;
+
+    SHintState& state = x0_hintStates[x10_nextHintIdx];
+    const CGameHintInfo::CGameHint& data = g_MemoryCardSys->GetHints()[x10_nextHintIdx];
+
+    state.x4_time = std::max(0.f, state.x4_time - dt);
+    if (state.x4_time < data.GetTextTime())
+    {
+        for (const CGameHintInfo::SHintLocation& loc : data.GetLocations())
+        {
+            if (loc.x0_mlvlId == stateMgr.GetWorld()->IGetWorldAssetId() &&
+                loc.x8_areaId == stateMgr.GetNextAreaId())
+            {
+                state.x4_time = data.GetNormalTime();
+                state.x8_dismissed = true;
+            }
+        }
+    }
 }
 
 }

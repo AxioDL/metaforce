@@ -53,7 +53,7 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
     switch (msg)
     {
-    case EScriptObjectMessage::InternalMessage11:
+    case EScriptObjectMessage::Registered:
     {
     }
     break;

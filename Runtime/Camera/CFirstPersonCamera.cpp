@@ -19,6 +19,11 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
 {
 }
 
+void CFirstPersonCamera::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 void CFirstPersonCamera::PreThink(float, CStateManager&) {}
 
 void CFirstPersonCamera::Think(float, CStateManager&)

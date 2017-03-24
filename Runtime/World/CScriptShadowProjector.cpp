@@ -64,7 +64,7 @@ void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 
         x110_25_shadowInvalidated = true;
     }
-    else if (msg == EScriptObjectMessage::Constructed)
+    else if (msg == EScriptObjectMessage::InitializedInArea)
     {
         for (const SConnection& conn : x20_conns)
         {

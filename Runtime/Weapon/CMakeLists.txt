@@ -23,6 +23,7 @@ set(WEAPON_SOURCES
     CBeamInfo.hpp CBeamInfo.cpp
     CPlasmaProjectile.hpp CPlasmaProjectile.cpp
     CEnergyProjectile.cpp CEnergyProjectile.cpp
+    CProjectileWeapon.hpp CProjectileWeapon.cpp
     CExplosion.hpp CExplosion.cpp
     CBomb.hpp CBomb.cpp
     CPowerBomb.hpp CPowerBomb.cpp)

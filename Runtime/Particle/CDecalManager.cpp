@@ -50,4 +50,9 @@ void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateMan
     }
 }
 
+void CDecalManager::Update(float dt, CStateManager& mgr)
+{
+
+}
+
 }

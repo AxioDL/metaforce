@@ -185,6 +185,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX278() const { return x278_; }
     float GetX27C() const { return x27c_playerBallHalfExtent; }
     float GetX124() const { return x134_; }
+    float GetX184() const { return x184_; }
     bool GetX228_24() const { return x228_24_; }
     float GetX288() const { return x288_; }
     float GetX28c() const { return x28c_; }
@@ -194,7 +195,6 @@ struct CTweakPlayer : ITweakPlayer
     float GetX29C() const { return x29c_; }
     float GetX280() const { return x280_; }
     float GetX2B0() const { return x2b0_; }
-    float GetX184() const { return x184_; }
     float GetX138() const { return x138_; }
     float GetX14C() const { return x14c_; }
     float GetLeftLogicalThreshold() const {return x150_leftDiv;}

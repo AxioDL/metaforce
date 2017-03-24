@@ -20,6 +20,7 @@ struct ITweakPlayer : ITweak
     virtual float GetX278() const=0; // x278
     virtual float GetX27C() const=0; // x27c
     virtual float GetX124() const=0; // x134
+    virtual float GetX184() const=0; // x184
     virtual float GetX288() const=0; // x288
     virtual float GetX28c() const=0; // x28c
     virtual float GetX290() const=0; // x290
@@ -28,7 +29,6 @@ struct ITweakPlayer : ITweak
     virtual float GetX29C() const=0; // x29c
     virtual float GetX280() const=0; // x280
     virtual float GetX2B0() const=0; // x2b0
-    virtual float GetX184() const=0; // x184
     virtual float GetX138() const=0; // x138
     virtual float GetX14C() const=0; // x14c
     virtual float GetLeftLogicalThreshold() const=0;

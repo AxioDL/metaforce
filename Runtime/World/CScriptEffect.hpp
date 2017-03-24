@@ -8,6 +8,8 @@ namespace urde
 
 class CScriptEffect : public CActor
 {
+    static u32 g_NumParticlesUpdating;
+    static u32 g_NumParticlesRendered;
 public:
     CScriptEffect(TUniqueId, const std::string& name, const CEntityInfo& info,
                   const zeus::CTransform& xf, const zeus::CVector3f& scale,
@@ -16,6 +18,12 @@ public:
                   bool, bool, bool, const CLightParameters& lParms, bool);
 
     void Accept(IVisitor& visitor);
+
+    static void ResetParticleCounts()
+    {
+        g_NumParticlesUpdating = 0;
+        g_NumParticlesRendered = 0;
+    }
 };
 
 }

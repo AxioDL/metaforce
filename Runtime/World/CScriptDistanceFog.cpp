@@ -41,7 +41,7 @@ void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
     if (x4_areaId == kInvalidAreaId || !GetActive())
         return;
 
-    if (msg == EScriptObjectMessage::Constructed)
+    if (msg == EScriptObjectMessage::InitializedInArea)
     {
         if (!x60_explicit)
             return;

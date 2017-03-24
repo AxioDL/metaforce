@@ -71,11 +71,11 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     {
     case EScriptObjectMessage::ToggleActive:
     case EScriptObjectMessage::Deleted:
-    case EScriptObjectMessage::Constructed:
+    case EScriptObjectMessage::InitializedInArea:
     break;
     case EScriptObjectMessage::Alert:
     case EScriptObjectMessage::InternalMessage10:
-    case EScriptObjectMessage::InternalMessage11:
+    case EScriptObjectMessage::Registered:
     {
         CEntity* ent = mgr.ObjectById(x25c_owner);
         if (ent)
