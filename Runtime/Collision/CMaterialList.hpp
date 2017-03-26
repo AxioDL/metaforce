@@ -109,6 +109,11 @@ public:
         x0_list |= (1ull << u32(type));
     }
 
+    void Add(const CMaterialList& l)
+    {
+        x0_list |= l.x0_list;
+    }
+
     void Remove(EMaterialTypes type)
     {
         x0_list &= ~(1ull << u32(type));

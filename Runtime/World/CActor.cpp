@@ -215,6 +215,11 @@ void CActor::AddMaterial(EMaterialTypes type, CStateManager& mgr)
     mgr.UpdateObjectInLists(*this);
 }
 
+void CActor::AddMaterial(const CMaterialList& l)
+{
+    x68_material.Add(l);
+}
+
 void CActor::CreateShadow(bool b)
 {
     if (b)

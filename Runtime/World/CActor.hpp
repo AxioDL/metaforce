@@ -133,6 +133,7 @@ public:
     void AddMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void AddMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
     void AddMaterial(EMaterialTypes, CStateManager&);
+    void AddMaterial(const CMaterialList& l);
 
     void CreateShadow(bool);
     void SetCallTouch(bool callTouch);
