@@ -134,6 +134,7 @@ std::string Metal::GenerateReflectionExpr(ReflectionType type) const
     switch (type)
     {
     case ReflectionType::None:
+    default:
         return "float3(0.0, 0.0, 0.0);\n";
     case ReflectionType::Simple:
         return "reflectionTex.sample(samp, vtf.reflectTcgs1).rgb * vtf.reflectAlpha;\n";

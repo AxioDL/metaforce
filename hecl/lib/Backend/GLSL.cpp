@@ -136,6 +136,7 @@ std::string GLSL::GenerateReflectionExpr(ReflectionType type) const
     switch (type)
     {
     case ReflectionType::None:
+    default:
         return "vec3(0.0, 0.0, 0.0);\n";
     case ReflectionType::Simple:
         return "texture(reflectionTex, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
@@ -637,10 +638,12 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert("#version 330",
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr,
+                           tag.getReflectionType());
 
         std::string fragSource = m_backend.makeFrag("#version 330",
-            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
+            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+            tag.getReflectionType());
 
         std::vector<unsigned int> vertBlob;
         std::vector<unsigned int> fragBlob;
@@ -762,11 +765,12 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             std::string vertSource =
             m_backend.makeVert("#version 330",
                                tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs);
+                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                               tag.getReflectionType());
 
             std::string fragSource = m_backend.makeFrag("#version 330",
                                                         tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                        slot.lighting, slot.post, slot.texCount, slot.texs);
+                                                        tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs);
             pipeBlobs.emplace_back();
             Blobs& pipeBlob = pipeBlobs.back();
             boo::IShaderPipeline* ret =

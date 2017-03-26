@@ -16,15 +16,15 @@ struct HLSL : ProgrammableCommon
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
                          const ShaderFunction& lighting=ShaderFunction()) const;
-    std::string makeFrag(bool alphaTest, const ShaderFunction& lighting,
-                         ReflectionType reflectionType,
+    std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
+                         const ShaderFunction& lighting,
                          const ShaderFunction& post, size_t extTexCount,
                          const TextureInfo* extTexs) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
-    std::string GenerateVertToFragStruct(size_t extTexCount, ReflectionType reflectionType) const;
-    std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, ReflectionType reflectionType) const;
+    std::string GenerateVertToFragStruct(size_t extTexCount, bool reflectionCoords) const;
+    std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, bool reflectionCoords) const;
     std::string GenerateAlphaTest() const;
     std::string GenerateReflectionExpr(ReflectionType type) const;
 

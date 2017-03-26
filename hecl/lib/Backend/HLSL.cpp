@@ -61,7 +61,7 @@ std::string HLSL::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) co
     return retval + "};\n";
 }
 
-std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, ReflectionType reflectionType) const
+std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCoords) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -82,7 +82,7 @@ std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, ReflectionType re
     return retval + "};\n";
 }
 
-std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, ReflectionType reflectionType) const
+std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, bool reflectionCoords) const
 {
     if (skinSlots == 0)
         skinSlots = 1;
@@ -129,6 +129,7 @@ std::string HLSL::GenerateReflectionExpr(ReflectionType type) const
     switch (type)
     {
     case ReflectionType::None:
+    default:
         return "float3(0.0, 0.0, 0.0);\n";
     case ReflectionType::Simple:
         return "reflectionTex.Sample(samp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
@@ -202,7 +203,7 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
                                    extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
     }
 
-    if (reflectionCoords)
+    if (reflectionType != ReflectionType::None)
         retval += "    vtf.reflectTcgs[0] = normalize(mul(indMtx, float4(v.posIn, 1.0)).xz) * float2(0.5, 0.5) + float2(0.5, 0.5);\n"
                   "    vtf.reflectTcgs[1] = mul(reflectMtx, float4(v.posIn, 1.0)).xy;\n"
                   "    vtf.reflectAlpha = reflectAlpha;\n";
@@ -358,9 +359,11 @@ struct HLSLBackendFactory : IShaderBackendFactory
 
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr,
+                           tag.getReflectionType());
 
-        std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
+        std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+                                                    tag.getReflectionType());
         ComPtr<ID3DBlob> vertBlob;
         ComPtr<ID3DBlob> fragBlob;
         ComPtr<ID3DBlob> pipelineBlob;
@@ -495,10 +498,11 @@ struct HLSLBackendFactory : IShaderBackendFactory
         {
             std::string vertSource =
             m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs);
+                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                               tag.getReflectionType());
 
             std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                        slot.lighting, slot.post, slot.texCount, slot.texs);
+                                                        tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs);
             pipeBlobs.emplace_back();
             Blobs& thisPipeBlobs = pipeBlobs.back();
 
