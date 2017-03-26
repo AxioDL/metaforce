@@ -285,7 +285,6 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 TCachedToken<CTexture>& tex = x1c_textures[idx];
                 texs[texCount++] = tex.GetObj()->GetBooTexture();
             }
-            texs[6] = g_Renderer->x14c_reflectionTex;
             texs[7] = g_Renderer->x220_sphereRamp;
 
             if (m_skinBankCount)
@@ -308,6 +307,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
             if (useReflection)
             {
+                texs[texCount] = g_Renderer->x14c_reflectionTex;
                 thisOffs[3] = curReflect;
                 curReflect += 256;
             }
@@ -340,7 +340,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 }
                 else if (useReflection)
                 {
-                    texCount = 7;
+                    texCount = mat.textureIdxs.size() + 1;
                     ltexs = texs;
                 }
                 else
