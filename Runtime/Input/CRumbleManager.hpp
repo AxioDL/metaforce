@@ -13,8 +13,8 @@ public:
     CRumbleManager() = default;
     void Update(float);
     void StopRumble(u16) {}
-    void Rumble(ERumbleFxId, CStateManager&, ERumblePriority priority) {}
-    void Rumble(ERumbleFxId, float, CStateManager&, ERumblePriority priority) {}
+    void Rumble(CStateManager&, ERumbleFxId, ERumblePriority priority) {}
+    void Rumble(CStateManager&, ERumbleFxId, float, ERumblePriority priority) {}
 };
 }
 

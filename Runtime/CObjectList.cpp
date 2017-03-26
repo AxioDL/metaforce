@@ -83,6 +83,30 @@ CEntity* CObjectList::GetObjectById(TUniqueId uid)
     return ent.entity;
 }
 
+const CEntity* CObjectList::GetValidObjectById(TUniqueId uid) const
+{
+    if (uid == kInvalidUniqueId)
+        return nullptr;
+    const SObjectListEntry& ent = x0_list[uid & 0x3ff];
+    if (!ent.entity)
+        return nullptr;
+    if (ent.entity->GetUniqueId() != uid)
+        return nullptr;
+    return ent.entity;
+}
+
+CEntity* CObjectList::GetValidObjectById(TUniqueId uid)
+{
+    if (uid == kInvalidUniqueId)
+        return nullptr;
+    SObjectListEntry& ent = x0_list[uid & 0x3ff];
+    if (!ent.entity)
+        return nullptr;
+    if (ent.entity->GetUniqueId() != uid)
+        return nullptr;
+    return ent.entity;
+}
+
 bool CObjectList::IsQualified(const CEntity&) {return true;}
 
 }

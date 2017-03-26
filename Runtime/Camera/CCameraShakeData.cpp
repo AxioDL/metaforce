@@ -29,6 +29,13 @@ CCameraShakeData::CCameraShakeData(float f1, float f2, u32 w1, const zeus::CVect
 : x0_duration(f1), x8_shaker1(shaker1), x44_shaker2(shaker2), x80_shaker3(shaker3), xc0_flags(w1), xc4_sfxPos(v1), xd0_f2(f2)
 {}
 
+CCameraShakeData::CCameraShakeData(float f1, float f2)
+: CCameraShakeData(f1, 100.f, 0, zeus::CVector3f::skZero, CCameraShakerComponent{}, CCameraShakerComponent{},
+                   CCameraShakerComponent{1,
+                   SCameraShakePoint{0, 0.25f * f1, 0.f, 0.75f * f1, f2},
+                   SCameraShakePoint{1, 0.f, 0.f, 0.5f * f1, 2.f}})
+{}
+
 float CCameraShakeData::GetSomething() const
 {
     float ret = 0.f;

@@ -25,8 +25,6 @@ class CScriptRoomAcoustics : public CEntity
     bool x7c_delay;
     amuse::EffectDelayInfo x80_delayInfo;
 
-    void EnableAuxCallbacks();
-
 public:
     CScriptRoomAcoustics(TUniqueId uid, const std::string& name,
                          const CEntityInfo& info, bool active, u32 volScale,
@@ -41,6 +39,7 @@ public:
     void Think(float dt, CStateManager& stateMgr);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
     void Accept(IVisitor& visitor);
+    void EnableAuxCallbacks();
 
     static void DisableAuxCallbacks();
 };

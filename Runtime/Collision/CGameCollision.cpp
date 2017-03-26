@@ -45,7 +45,7 @@ void CGameCollision::InitCollision()
     CCollisionPrimitive::InitEndColliders();
 }
 
-void CGameCollision::Move(CStateManager& mgr, CPlayer& player, float dt, const rstl::reserved_vector<TUniqueId, 1024>*)
+void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt, const rstl::reserved_vector<TUniqueId, 1024>*)
 {
 
 }

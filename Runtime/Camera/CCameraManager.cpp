@@ -94,7 +94,7 @@ void CCameraManager::SetInsideFluid(bool val, TUniqueId fluidId)
 
 void CCameraManager::Update(float dt, CStateManager& stateMgr)
 {
-    sub800097AC(dt, stateMgr);
+    UpdateCameraHints(dt, stateMgr);
     ThinkCameras(dt, stateMgr);
     UpdateListener(stateMgr);
     UpdateRumble(dt, stateMgr);
@@ -212,7 +212,7 @@ float CCameraManager::sub80009148() const
                           std::cos(zeus::degToRad(30.f))), 1.f);
 }
 
-void CCameraManager::sub800097AC(float, CStateManager& mgr)
+void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
 {
 }
 

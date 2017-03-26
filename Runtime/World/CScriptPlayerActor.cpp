@@ -55,4 +55,9 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const
 {
 
 }
+
+void CScriptPlayerActor::TouchModels()
+{
+
+}
 }

@@ -134,6 +134,7 @@ class CBooRenderer : public IRenderer
     std::list<CFogVolumeFilter> m_fogVolumeFilters;
     std::list<CFogVolumeFilter>::iterator m_nextFogVolumeFilter;
     std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
+    u32 x2dc_reflectionAge = 2;
     zeus::CColor x2e0_ = zeus::CColor::skWhite;
     zeus::CVector3f x2e4_ = {0.f, 1.f, 0.f};
 
@@ -231,7 +232,7 @@ public:
     void SetAmbientColor(const zeus::CColor&);
     void DrawString(const char*, int, int);
     u32 GetFPS();
-    //void CacheReflection(TReflectionCallback, void*, bool);
+    void CacheReflection(TReflectionCallback, void*, bool);
     void DrawSpaceWarp(const zeus::CVector3f&, float);
     void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol);
     void DrawXRayOutline(const zeus::CAABox&);

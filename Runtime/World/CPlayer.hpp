@@ -319,6 +319,7 @@ public:
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager& mgr);
     void DoPreThink(float dt, CStateManager& mgr);
+    void DoThink(float dt, CStateManager& mgr);
     void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
     void ValidateScanning(const CFinalInput& input, CStateManager& mgr);
     void SetScanningState(EPlayerScanState, CStateManager& mgr);

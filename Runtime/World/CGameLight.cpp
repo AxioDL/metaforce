@@ -29,7 +29,7 @@ void CGameLight::Think(float dt, CStateManager& mgr)
     x144_lifeTime -= dt;
 
     if (x144_lifeTime <= 0.f)
-        mgr.RemoveActor(GetUniqueId());
+        mgr.FreeScriptObject(GetUniqueId());
 }
 
 void CGameLight::SetLightPriorityAndId()

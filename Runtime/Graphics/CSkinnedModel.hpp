@@ -44,6 +44,15 @@ public:
                    const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                    const float* morphMagnitudes);
     void Draw(const CModelFlags& drawFlags) const;
+
+    typedef void(*FPointGenerator)(void* item, const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
+    static void SetPointGeneratorFunc(void* ctx, FPointGenerator func)
+    {
+        g_PointGenFunc = func;
+        g_PointGenCtx = ctx;
+    }
+    static FPointGenerator g_PointGenFunc;
+    static void* g_PointGenCtx;
 };
 
 class CMorphableSkinnedModel : public CSkinnedModel

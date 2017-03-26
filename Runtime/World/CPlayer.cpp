@@ -104,6 +104,13 @@ void CPlayer::DoPreThink(float dt, CStateManager& mgr)
         ent->PreThink(dt, mgr);
 }
 
+void CPlayer::DoThink(float dt, CStateManager& mgr)
+{
+    Think(dt, mgr);
+    if (CEntity* ent = mgr.ObjectById(xa00_))
+        ent->Think(dt, mgr);
+}
+
 void CPlayer::UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float) {}
 
 void CPlayer::ValidateScanning(const CFinalInput& input, CStateManager& mgr) {}

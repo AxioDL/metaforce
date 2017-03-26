@@ -642,7 +642,14 @@ void CHintOptions::ActivateContinueDelayHintTimer(const char* name)
 
 void CHintOptions::DismissDisplayedHint()
 {
-
+    if (x10_nextHintIdx == -1)
+        return;
+    const CGameHintInfo::CGameHint& hint = g_MemoryCardSys->GetHints()[x10_nextHintIdx];
+    SHintState& hintState = x0_hintStates[x10_nextHintIdx];
+    if (hintState.x4_time >= hint.GetTextTime())
+        return;
+    hintState.x4_time = hint.GetNormalTime();
+    hintState.x8_dismissed = true;
 }
 
 u32 CHintOptions::GetNextHintIdx() const

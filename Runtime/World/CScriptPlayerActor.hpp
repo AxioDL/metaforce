@@ -50,6 +50,7 @@ public:
     void PreRender(CStateManager &, const zeus::CFrustum &);
     void AddToRenderer(const zeus::CFrustum &, const CStateManager &) const;
     void Render(const CStateManager &mgr) const;
+    void TouchModels();
 
 };
 }

@@ -54,6 +54,7 @@ public:
     CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& v1,
                      const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                      const CCameraShakerComponent& shaker3);
+    CCameraShakeData(float f1, float f2);
     //zeus::CVector3f GeneratePoint(float dt, CRandom16& r);
     float GetSomething() const;
     float GetSomething2() const;

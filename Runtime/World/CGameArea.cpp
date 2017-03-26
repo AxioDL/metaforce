@@ -1050,7 +1050,7 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes)
 
 bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent)
 {
-    return (ent.GetAreaId() == x200c_areaIdx);
+    return (ent.GetAreaIdAlways() == x200c_areaIdx);
 }
 
 }

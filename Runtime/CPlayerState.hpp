@@ -170,6 +170,7 @@ public:
     u32 GetLogScans() const { return x180_logScans; }
     u32 GetTotalLogScans() const { return x184_totalLogScans; }
     bool IsPlayerAlive() const { return x0_24_alive; }
+    void SetPlayerAlive(bool alive) { x0_24_alive = alive; }
     void InitializeScanTimes();
     const rstl::reserved_vector<std::pair<ResId, float>, 846>& GetScanTimes() const { return x170_scanTimes; }
     CPlayerState();

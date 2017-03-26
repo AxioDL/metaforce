@@ -219,7 +219,8 @@ enum class EScriptObjectMessage
     InternalMessage17 = 39,
     InternalMessage18 = 40,
     InternalMessage19 = 41,
-    InternalMessage20 = 42
+    InternalMessage20 = 42,
+    InternalMessage26 = 48
 };
 
 }

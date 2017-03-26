@@ -16,7 +16,7 @@ class CCollisionInfo;
 class CCollisionInfoList;
 class CMaterialList;
 class CStateManager;
-class CPlayer;
+class CPhysicsActor;
 
 class CGameCollision
 {
@@ -28,7 +28,7 @@ public:
     static bool NullBooleanCollider(const CInternalCollisionStructure&) { return false; }
     static bool NullCollisionCollider(const CInternalCollisionStructure&, CCollisionInfoList&) { return false; }
     static void InitCollision();
-    static void Move(CStateManager& mgr, CPlayer& player, float dt, const rstl::reserved_vector<TUniqueId, 1024>*);
+    static void Move(CStateManager& mgr, CPhysicsActor& actor, float dt, const rstl::reserved_vector<TUniqueId, 1024>*);
 
     static bool CanBlock(const CMaterialList&, const zeus::CVector3f&);
     static bool IsFloor(const CMaterialList&, const zeus::CVector3f&);

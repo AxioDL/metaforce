@@ -867,6 +867,18 @@ void _ConstructMaterial(Stream& out,
         }
     }
 
+    /* Indirect texture node */
+    if (material.flags.samusReflectionIndirectTexture())
+    {
+        Material::AddTexture(out, GX::TexGenSrc::TG_POS, -1, material.indTexSlot[0]);
+        out << "# Indirect Texture\n"
+               "ind_out = new_nodetree.nodes.new('ShaderNodeOutput')\n"
+               "gridder.place_node(ind_out, 3)\n"
+               "ind_out.name = 'IndirectOutput'\n"
+               "ind_out.label = 'Indirect'\n"
+               "new_nodetree.links.new(tex_node.outputs['Color'], ind_out.inputs['Color'])\n";
+    }
+
     /* TEV-emulation combiner-node index context */
     unsigned c_combiner_idx = 0;
     unsigned a_combiner_idx = 0;

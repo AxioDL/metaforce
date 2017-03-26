@@ -9,6 +9,7 @@
 #include "Particle/CGenDescription.hpp"
 #include "World/CWorld.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "Graphics/CSkinnedModel.hpp"
 
 namespace urde
 {
@@ -17,6 +18,11 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
   xdc_ashy(parent.x48_ashy), x128_parent(parent)
 {
     x8_.resize(8);
+}
+
+void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1)
+{
+
 }
 
 static const char* ParticleDGRPs[] =
@@ -155,6 +161,27 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr)
 void CActorModelParticles::Update(float dt, CStateManager& mgr)
 {
 
+}
+
+void CActorModelParticles::PointGenerator(void* item, const zeus::CVector3f* v1,
+                                          const zeus::CVector3f* v2, int w1)
+{
+    reinterpret_cast<CItem*>(item)->GeneratePoints(v1, v2, w1);
+}
+
+void CActorModelParticles::SetupHook(TUniqueId uid)
+{
+    auto search = FindSystem(uid);
+    if (search != x0_items.cend())
+        CSkinnedModel::SetPointGeneratorFunc((void*)&*search, PointGenerator);
+}
+
+std::list<CActorModelParticles::CItem>::const_iterator CActorModelParticles::FindSystem(TUniqueId uid) const
+{
+    for (auto it = x0_items.cbegin() ; it != x0_items.cend() ; ++it)
+        if (it->x0_id == uid)
+            return it;
+    return x0_items.cend();
 }
 
 }

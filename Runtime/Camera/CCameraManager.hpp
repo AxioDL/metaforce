@@ -113,7 +113,7 @@ public:
 
     float sub80009148() const;
 
-    void sub800097AC(float, CStateManager&);
+    void UpdateCameraHints(float, CStateManager&);
     void ThinkCameras(float, CStateManager&);
     void UpdateFog(float, CStateManager&);
     void UpdateRumble(float, CStateManager&);

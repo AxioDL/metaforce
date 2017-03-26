@@ -18,6 +18,7 @@ class CParticleElectric;
 
 class CActorModelParticles
 {
+public:
     class CItem
     {
         friend class CActorModelParticles;
@@ -60,8 +61,10 @@ class CActorModelParticles
         u8 x134_bits = 0;
     public:
         CItem(const CEntity& ent, CActorModelParticles& parent);
+        void GeneratePoints(const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
     };
 
+private:
     std::list<CItem> x0_items;
     TToken<CGenDescription> x18_onFire;
     TToken<CGenDescription> x20_ash;
@@ -84,8 +87,11 @@ class CActorModelParticles
 
 public:
     CActorModelParticles();
+    static void PointGenerator(void* item, const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
     void AddStragglersToRenderer(const CStateManager& mgr);
     void Update(float dt, CStateManager& mgr);
+    void SetupHook(TUniqueId uid);
+    std::list<CItem>::const_iterator FindSystem(TUniqueId uid) const;
 };
 }
 

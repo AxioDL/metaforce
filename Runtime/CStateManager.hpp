@@ -158,14 +158,14 @@ class CStateManager
 
     bool xab0_worldLoaded = false;
 
-    std::set<std::string> xab4_uniqueInstanceNames;
-
     enum class EInitPhase
     {
         LoadWorld,
         LoadFirstArea,
         Done
     } xb3c_initPhase = EInitPhase::LoadWorld;
+
+    std::set<std::string> xb40_uniqueInstanceNames;
 
     CFinalInput xb54_finalInput;
     CCameraFilterPass xb84_camFilterPasses[9];
@@ -199,8 +199,8 @@ class CStateManager
 
     SOnScreenTex xef4_pendingScreenTex;
     ResId xf08_pauseHudMessage = -1;
-    float xf0c_ = 0.f;
-    float xf10_ = 0.f;
+    float xf0c_escapeTimer = 0.f;
+    float xf10_escapeTotalTime = 0.f;
     float xf14_curTimeMod900 = 0.f;
     TUniqueId xf18_ = kInvalidUniqueId;
     float xf1c_ = 0.f;
@@ -260,7 +260,7 @@ public:
     void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
     bool SpecialSkipCinematic();
     TAreaId GetVisAreaId() const;
-    void GetWeaponIdCount(TUniqueId, EWeaponType);
+    s32 GetWeaponIdCount(TUniqueId, EWeaponType);
     void RemoveWeaponId(TUniqueId, EWeaponType);
     void AddWeaponId(TUniqueId, EWeaponType);
     void UpdateEscapeSequenceTimer(float);
@@ -274,6 +274,7 @@ public:
     void TouchPlayerActor();
     void DrawSpaceWarp(const zeus::CVector3f&, float) const;
     void DrawReflection(const zeus::CVector3f&);
+    static void ReflectionDrawer(void*, const zeus::CVector3f&);
     void CacheReflection();
     bool CanCreateProjectile(TUniqueId, EWeaponType, int) const;
     const CGameLightList* GetDynamicLightList() const;
@@ -333,11 +334,11 @@ public:
     void PreThinkEffects(float dt);
     void MovePlatforms(float dt);
     void MoveDoors(float dt);
-    void CrossTouchActors(float dt);
+    void CrossTouchActors();
     void ThinkEffectsAndActors(float dt);
     void UpdatePlayer(float dt);
     void ShowPausedHUDMemo(ResId strg, float time);
-    void BringOutYourDead();
+    void ClearGraveyard();
     void FrameBegin(s32 frameCount);
     void InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId);
     void CreateStandardGameObjects();
@@ -345,11 +346,9 @@ public:
     CObjectList* ObjectListById(EGameObjectList type);
     const CObjectList* GetObjectListById(EGameObjectList type) const;
     void RemoveObject(TUniqueId);
-    void RemoveActor(TUniqueId);
     void UpdateRoomAcoustics(TAreaId);
     TAreaId GetNextAreaId() const { return x8cc_nextAreaId; }
     void SetCurrentAreaId(TAreaId);
-    void ClearGraveyard();
     void DeleteObjectRequest(TUniqueId);
     CEntity* ObjectById(TUniqueId uid);
     const CEntity* GetObjectById(TUniqueId uid) const;
@@ -425,6 +424,9 @@ public:
     void SetIsGeneratingObject(bool gen) { xf94_26_generatingObject = gen; }
     u32 GetParticleFlags() const { return xf34_particleFlags; }
     const CFinalInput& GetFinalInput() const { return xb54_finalInput; }
+
+    static float g_EscapeShakeCountdown;
+    static bool g_EscapeShakeCountdownInit;
 };
 }
 

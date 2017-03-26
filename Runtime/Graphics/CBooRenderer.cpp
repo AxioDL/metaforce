@@ -978,6 +978,14 @@ void CBooRenderer::BeginScene()
 void CBooRenderer::EndScene()
 {
     CGraphics::EndScene();
+    if (x2dc_reflectionAge >= 2)
+    {
+        // Delete reflection tex x14c_
+    }
+    else
+    {
+        ++x2dc_reflectionAge;
+    }
 }
 
 void CBooRenderer::SetAmbientColor(const zeus::CColor& color)
@@ -992,6 +1000,24 @@ void CBooRenderer::DrawString(const char*, int, int)
 u32 CBooRenderer::GetFPS()
 {
     return 0;
+}
+
+void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter)
+{
+    if (!x318_24_refectionDirty)
+        return;
+    x318_24_refectionDirty = false;
+    x2dc_reflectionAge = 0;
+
+    BindReflectionDrawTarget();
+    SViewport backupVp = g_Viewport;
+    SetViewport(0, 0, 256, 256);
+    CGraphics::g_BooMainCommandQueue->clearTarget();
+    cb(ctx, CBooModel::g_ReflectViewPos);
+    boo::SWindowRect rect(0, 0, 256, 256);
+    CGraphics::g_BooMainCommandQueue->resolveBindTexture(x14c_reflectionTex, rect, false, 0, true, false);
+    BindMainDrawTarget();
+    SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
 }
 
 void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength)

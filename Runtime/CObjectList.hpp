@@ -58,6 +58,8 @@ public:
     const CEntity* GetObjectById(TUniqueId uid) const;
     const CEntity* GetObjectByIndex(s32 index) const { return x0_list[index].entity; }
     CEntity* GetObjectById(TUniqueId uid);
+    const CEntity* GetValidObjectById(TUniqueId uid) const;
+    CEntity* GetValidObjectById(TUniqueId uid);
     TUniqueId GetFirstObjectIndex() const { return x2008_firstId; }
     TUniqueId GetNextObjectIndex(TUniqueId prev) const { return x0_list[prev & 0x3ff].next; }
     virtual bool IsQualified(const CEntity&);

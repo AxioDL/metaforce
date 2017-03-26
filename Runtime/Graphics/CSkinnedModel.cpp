@@ -51,4 +51,7 @@ CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, ResId model,
 {
 }
 
+CSkinnedModel::FPointGenerator CSkinnedModel::g_PointGenFunc = nullptr;
+void* CSkinnedModel::g_PointGenCtx = nullptr;
+
 }

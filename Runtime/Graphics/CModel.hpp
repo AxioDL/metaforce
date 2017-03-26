@@ -178,8 +178,11 @@ public:
     static void SetDrawingOccluders(bool occ) {g_DrawingOccluders = occ;}
 
     static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos);
-    static void KillCachedViewDepState();
 
+    static zeus::CVector3f g_ReflectViewPos;
+    static void KillCachedViewDepState();
+    static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
+                                         zeus::CMatrix4f*& mtxsOut, float& alphaOut);
 };
 
 class CModel
