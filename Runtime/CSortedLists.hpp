@@ -32,7 +32,7 @@ class CSortedListManager
     {
         const CActor* x0_actor = nullptr;
         zeus::CAABox x4_box = zeus::CAABox::skNullBox;
-        u16 x1c_selfIdxs[6] = {-1, -1, -1, -1, -1, -1};
+        s16 x1c_selfIdxs[6] = {-1, -1, -1, -1, -1, -1};
         TUniqueId x28_next = kInvalidUniqueId;
         bool x2a_populated = false;
         SNode() = default;
