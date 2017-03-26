@@ -55,6 +55,13 @@ struct TextureInfo
     bool normalize;
 };
 
+enum class ReflectionType
+{
+    None,
+    Simple,
+    Indirect
+};
+
 class IBackend
 {
 public:

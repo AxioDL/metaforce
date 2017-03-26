@@ -325,6 +325,17 @@ def recursive_alpha_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         raise RuntimeError("HMDL is unable to process '{0}' shader nodes in '{1}'".format(node.type, mat_obj.name))
 
 
+# Trace indirect node structure
+def indirect_trace(mat_obj, mesh_obj, tex_list, node):
+    if node.type == 'OUTPUT':
+        if node.inputs['Color'].is_linked:
+            tex_node = node.inputs['Color'].links[0].from_node
+            if tex_node.type != 'TEXTURE':
+                raise RuntimeError("HMDL *requires* that an indirect output node is directly connected to TEXTURE")
+            if not tex_node.texture or not hasattr(tex_node.texture, 'name'):
+                raise RuntimeError("HMDL texture nodes must specify a texture object")
+            get_texmap_idx(tex_list, tex_node.texture.name)
+
 
 def shader(mat_obj, mesh_obj):
 
@@ -341,6 +352,11 @@ def shader(mat_obj, mesh_obj):
     tex_list = []
     color_trace_result = recursive_color_trace(mat_obj, mesh_obj, tex_list, output_node)
     alpha_trace_result = recursive_alpha_trace(mat_obj, mesh_obj, tex_list, output_node)
+
+    # Trace indirect reflection texture
+    if 'IndirectOutput' in mat_obj.node_tree.nodes:
+        ind_out_node = mat_obj.node_tree.nodes['IndirectOutput']
+        indirect_trace(mat_obj, mesh_obj, tex_list, ind_out_node)
 
     # Resolve texture paths
     tex_paths = [get_texture_path(name) for name in tex_list]

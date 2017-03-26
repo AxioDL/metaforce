@@ -15,20 +15,22 @@ struct Metal : ProgrammableCommon
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
                          unsigned skinSlots, unsigned texMtxs, size_t extTexCount,
-                         const TextureInfo* extTexs) const;
+                         const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
+                         ReflectionType reflectionType,
                          const ShaderFunction& lighting=ShaderFunction()) const;
     std::string makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                         const ShaderFunction& lighting,
+                         ReflectionType reflectionType, const ShaderFunction& lighting,
                          const ShaderFunction& post, size_t extTexCount,
                          const TextureInfo* extTexs) const;
 
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
-    std::string GenerateVertToFragStruct(size_t extTexCount) const;
+    std::string GenerateVertToFragStruct(size_t extTexCount, bool reflectionCoords) const;
     std::string GenerateVertUniformStruct(unsigned skinSlots) const;
     std::string GenerateFragOutStruct() const;
     std::string GenerateAlphaTest() const;
+    std::string GenerateReflectionExpr(ReflectionType type) const;
 
     std::string EmitVec3(const atVec4f& vec) const
     {

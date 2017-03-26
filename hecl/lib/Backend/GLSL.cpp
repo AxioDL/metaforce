@@ -69,7 +69,7 @@ std::string GLSL::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) co
     return retval;
 }
 
-std::string GLSL::GenerateVertToFragStruct(size_t extTexCount) const
+std::string GLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCoords) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -82,10 +82,14 @@ std::string GLSL::GenerateVertToFragStruct(size_t extTexCount) const
     if (extTexCount)
         retval += hecl::Format("    vec2 extTcgs[%u];\n", unsigned(extTexCount));
 
+    if (reflectionCoords)
+        retval += "    vec2 reflectTcgs[2];\n"
+                  "    float reflectAlpha;\n";
+
     return retval + "};\n";
 }
 
-std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const
+std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, bool reflectionCoords) const
 {
     if (skinSlots == 0)
         skinSlots = 1;
@@ -97,7 +101,6 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "};\n",
                                       skinSlots, skinSlots);
     if (texMtxs)
-    {
         retval += hecl::Format("struct HECLTCGMatrix\n"
                                "{\n"
                                "    mat4 mtx;\n"
@@ -107,7 +110,15 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                "{\n"
                                "    HECLTCGMatrix texMtxs[%u];\n"
                                "};\n", texMtxs);
-    }
+
+    if (reflectionCoords)
+        retval += "UBINDING3 uniform HECLReflectMtx\n"
+                  "{\n"
+                  "    mat4 indMtx;\n"
+                  "    mat4 reflectMtx;\n"
+                  "    float reflectAlpha;\n"
+                  "};\n"
+                  "\n";
 
     return retval;
 }
@@ -120,6 +131,20 @@ std::string GLSL::GenerateAlphaTest() const
            "    }\n";
 }
 
+std::string GLSL::GenerateReflectionExpr(ReflectionType type) const
+{
+    switch (type)
+    {
+    case ReflectionType::None:
+        return "vec3(0.0, 0.0, 0.0);\n";
+    case ReflectionType::Simple:
+        return "texture(reflectionTex, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+    case ReflectionType::Indirect:
+        return "texture(reflectionTex, (texture(reflectionIndTex, vtf.reflectTcgs[0]).rg - "
+               "vec2(0.5, 0.5)) * vec2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+    }
+}
+
 void GLSL::reset(const IR& ir, Diagnostics& diag)
 {
     /* Common programmable interpretation */
@@ -128,13 +153,13 @@ void GLSL::reset(const IR& ir, Diagnostics& diag)
 
 std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
                            unsigned s, unsigned tm, size_t extTexCount,
-                           const TextureInfo* extTexs) const
+                           const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
     extTexCount = std::min(int(extTexCount), BOO_GLSL_MAX_TEXTURE_COUNT - int(m_tcgs.size()));
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertInStruct(col, uv, w) + "\n" +
-            GenerateVertToFragStruct(extTexCount) + "\n" +
-            GenerateVertUniformStruct(s, tm) +
+            GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
+            GenerateVertUniformStruct(s, tm, reflectionType != ReflectionType::None) +
             "SBINDING(0) out VertToFrag vtf;\n\n"
             "void main()\n{\n";
 
@@ -185,11 +210,16 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
                                    extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
     }
 
+    if (reflectionType != ReflectionType::None)
+        retval += "    vtf.reflectTcgs[0] = normalize((indMtx * vec4(v.posIn, 1.0)).xz) * vec2(0.5, 0.5) + vec2(0.5, 0.5);\n"
+                  "    vtf.reflectTcgs[1] = (reflectMtx * vec4(v.posIn, 1.0)).xy;\n"
+                  "    vtf.reflectAlpha = reflectAlpha;\n";
+
     return retval + "}\n";
 }
 
 std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
-                           const ShaderFunction& lighting) const
+                           ReflectionType reflectionType, const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -204,10 +234,17 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     std::string texMapDecl;
     for (unsigned i=0 ; i<m_texMapEnd ; ++i)
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
+    if (reflectionType == ReflectionType::Indirect)
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D reflectionIndTex;\n"
+                                   "TBINDING%u uniform sampler2D reflectionTex;\n",
+                                   m_texMapEnd, m_texMapEnd+1);
+    else if (reflectionType == ReflectionType::Simple)
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D reflectionTex;\n",
+                                   m_texMapEnd);
 
     std::string retval = std::string(glslVer) +
             "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
-            GenerateVertToFragStruct(0) +
+            GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) +
             (!alphaTest ?
             "#ifdef GL_ARB_shader_image_load_store\n"
             "layout(early_fragment_tests) in;\n"
@@ -232,15 +269,18 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
         retval += hecl::Format("    vec4 sampling%u = texture(tex%u, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
+
     if (m_alphaExpr.size())
-        retval += "    colorOut = vec4(" + m_colorExpr + ", " + m_alphaExpr + ") * mulColor;\n";
+        retval += "    colorOut = vec4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ") * mulColor;\n";
     else
-        retval += "    colorOut = vec4(" + m_colorExpr + ", 1.0) * mulColor;\n";
+        retval += "    colorOut = vec4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
 
 std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
+                           ReflectionType reflectionType,
                            const ShaderFunction& lighting,
                            const ShaderFunction& post,
                            size_t extTexCount, const TextureInfo* extTexs) const
@@ -266,6 +306,13 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     std::string texMapDecl;
     for (unsigned i=0 ; i<m_texMapEnd ; ++i)
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D tex%u;\n", i, i);
+    if (reflectionType == ReflectionType::Indirect)
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D reflectionIndTex;\n"
+                                   "TBINDING%u uniform sampler2D reflectionTex;\n",
+                                   m_texMapEnd, m_texMapEnd+1);
+    else if (reflectionType == ReflectionType::Simple)
+        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D reflectionTex;\n",
+                                   m_texMapEnd);
 
     for (int i=0 ; i<extTexCount ; ++i)
     {
@@ -276,7 +323,7 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
 
     std::string retval = std::string(glslVer) +
             "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
-            GenerateVertToFragStruct(extTexCount) +
+            GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) +
             (!alphaTest ?
             "\n#ifdef GL_ARB_shader_image_load_store\n"
             "layout(early_fragment_tests) in;\n"
@@ -301,10 +348,12 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
         retval += hecl::Format("    vec4 sampling%u = texture(tex%u, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
+
     if (m_alphaExpr.size())
-        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
+        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     else
-        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + ", 1.0)) * mulColor;\n";
+        retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
@@ -344,11 +393,12 @@ struct GLSLBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert("#version 330",
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr, tag.getReflectionType());
         cachedSz += vertSource.size() + 1;
 
         std::string fragSource = m_backend.makeFrag("#version 330",
-            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
+            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+            tag.getReflectionType());
         cachedSz += fragSource.size() + 1;
 
         if (m_backend.m_texMapEnd > 8)
@@ -437,10 +487,10 @@ struct GLSLBackendFactory : IShaderBackendFactory
             sources.emplace_back(m_backend.makeVert("#version 330",
                                                     tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                                     tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount,
-                                                    slot.texs),
+                                                    slot.texs, tag.getReflectionType()),
                                  m_backend.makeFrag("#version 330",
                                                     tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                    slot.lighting, slot.post, slot.texCount, slot.texs));
+                                                    tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs));
             cachedSz += sources.back().first.size() + 1;
             cachedSz += sources.back().second.size() + 1;
 

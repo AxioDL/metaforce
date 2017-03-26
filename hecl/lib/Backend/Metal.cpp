@@ -72,7 +72,7 @@ std::string Metal::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) c
     return retval + "};\n";
 }
 
-std::string Metal::GenerateVertToFragStruct(size_t extTexCount) const
+std::string Metal::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCoords) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -82,15 +82,16 @@ std::string Metal::GenerateVertToFragStruct(size_t extTexCount) const
     "    float4 mvNorm;\n";
 
     if (m_tcgs.size())
-    {
         for (size_t i=0 ; i<m_tcgs.size() ; ++i)
             retval += hecl::Format("    float2 tcgs%" PRISize ";\n", i);
-    }
     if (extTexCount)
-    {
         for (size_t i=0 ; i<extTexCount ; ++i)
             retval += hecl::Format("    float2 extTcgs%" PRISize ";\n", i);
-    }
+
+    if (reflectionCoords)
+        retval += "    float2 reflectTcgs0;\n"
+                  "    float2 reflectTcgs1;\n"
+                  "    float reflectAlpha;\n";
 
     return retval + "};\n";
 }
@@ -105,7 +106,8 @@ std::string Metal::GenerateVertUniformStruct(unsigned skinSlots) const
                                       "    float4x4 mvInv[%u];\n"
                                       "    float4x4 proj;\n"
                                       "};\n"
-                                      "struct TexMtxs {float4x4 mtx; float4x4 postMtx;};\n",
+                                      "struct TexMtxs {float4x4 mtx; float4x4 postMtx;};\n"
+                                      "struct ReflectTexMtxs {float4x4 indMtx; float4x4 reflectMtx; float reflectAlpha;};\n",
                                       skinSlots, skinSlots);
     return retval;
 }
@@ -127,6 +129,20 @@ std::string Metal::GenerateAlphaTest() const
            "    }\n";
 }
 
+std::string Metal::GenerateReflectionExpr(ReflectionType type) const
+{
+    switch (type)
+    {
+    case ReflectionType::None:
+        return "float3(0.0, 0.0, 0.0);\n";
+    case ReflectionType::Simple:
+        return "reflectionTex.sample(samp, vtf.reflectTcgs1).rgb * vtf.reflectAlpha;\n";
+    case ReflectionType::Indirect:
+        return "reflectionTex.sample(samp, (reflectionIndTex.sample(samp, vtf.reflectTcgs0).rg - "
+               "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs1).rgb * vtf.reflectAlpha;\n";
+    }
+}
+
 void Metal::reset(const IR& ir, Diagnostics& diag)
 {
     /* Common programmable interpretation */
@@ -135,14 +151,16 @@ void Metal::reset(const IR& ir, Diagnostics& diag)
 
 std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
                             unsigned s, unsigned tm, size_t extTexCount,
-                            const TextureInfo* extTexs) const
+                            const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
     std::string tmStr;
     if (tm)
         tmStr = hecl::Format(",\nconstant TexMtxs* texMtxs [[ buffer(3) ]]");
+    if (reflectionType != ReflectionType::None)
+        tmStr += ",\nconstant ReflectTexMtxs& reflectMtxs [[ buffer(5) ]]";
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
     GenerateVertInStruct(col, uv, w) + "\n" +
-    GenerateVertToFragStruct(extTexCount) + "\n" +
+    GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
     GenerateVertUniformStruct(s) +
     "\nvertex VertToFrag vmain(VertData v [[ stage_in ]],\n"
     "                          constant HECLVertUniform& vu [[ buffer(2) ]]" + tmStr + ")\n"
@@ -194,11 +212,16 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
                                    extTex.normalize ? "normalize" : "", extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
     }
 
+    if (reflectionType != ReflectionType::None)
+        retval += "    vtf.reflectTcgs0 = normalize((reflectMtxs.indMtx * float4(v.posIn, 1.0)).xz) * float2(0.5, 0.5) + float2(0.5, 0.5);\n"
+                  "    vtf.reflectTcgs1 = (reflectMtxs.reflectMtx * float4(v.posIn, 1.0)).xy;\n"
+                  "    vtf.reflectAlpha = reflectMtxs.reflectAlpha;\n";
+
     return retval + "    return vtf;\n}\n";
 }
 
 std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                            const ShaderFunction& lighting) const
+                            ReflectionType reflectionType, const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -206,10 +229,15 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 
     std::string texMapDecl;
     if (m_texMapEnd)
-    {
         for (int i=0 ; i<m_texMapEnd ; ++i)
             texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
-    }
+    if (reflectionType == ReflectionType::Indirect)
+        texMapDecl += hecl::Format(",\ntexture2d<float> reflectionIndTex [[ texture(%u) ]]\n"
+                                   ",\ntexture2d<float> reflectionTex [[ texture(%u) ]]\n",
+                                   m_texMapEnd, m_texMapEnd+1);
+    else if (reflectionType == ReflectionType::Simple)
+        texMapDecl += hecl::Format(",\ntexture2d<float> reflectionTex [[ texture(%u) ]]\n",
+                                   m_texMapEnd);
 
     std::string blockCall;
     for (size_t i=0 ; i<blockCount ; ++i)
@@ -222,7 +250,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
-    GenerateVertToFragStruct(0) + "\n" +
+    GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
     "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n"
@@ -257,10 +285,12 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         retval += hecl::Format("    float4 sampling%u = tex%u.sample(samp, vtf.tcgs%u);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
+
     if (m_alphaExpr.size())
-        retval += "    out.color = float4(" + m_colorExpr + ", " + m_alphaExpr + ") * mulColor;\n";
+        retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ") * mulColor;\n";
     else
-        retval += "    out.color = float4(" + m_colorExpr + ", 1.0) * mulColor;\n";
+        retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") +
            "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
@@ -269,7 +299,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 }
 
 std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                            const ShaderFunction& lighting,
+                            ReflectionType reflectionType, const ShaderFunction& lighting,
                             const ShaderFunction& post, size_t extTexCount,
                             const TextureInfo* extTexs) const
 {
@@ -294,11 +324,16 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 
     std::string texMapDecl;
     if (m_texMapEnd)
-    {
         for (int i=0 ; i<m_texMapEnd ; ++i)
             if (!(extTexBits & (1 << i)))
                 texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", i, i);
-    }
+    if (reflectionType == ReflectionType::Indirect)
+        texMapDecl += hecl::Format(",\ntexture2d<float> reflectionIndTex [[ texture(%u) ]]\n"
+                                   ",\ntexture2d<float> reflectionTex [[ texture(%u) ]]\n",
+                                   m_texMapEnd, m_texMapEnd+1);
+    else if (reflectionType == ReflectionType::Simple)
+        texMapDecl += hecl::Format(",\ntexture2d<float> reflectionTex [[ texture(%u) ]]\n",
+                                   m_texMapEnd);
 
     std::string extTexCall;
     for (int i=0 ; i<extTexCount ; ++i)
@@ -322,7 +357,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
     "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
-    GenerateVertToFragStruct(extTexCount) + "\n" +
+    GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
     postSrc + "\n" +
@@ -358,12 +393,14 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         retval += hecl::Format("    float4 sampling%u = tex%u.sample(samp, vtf.tcgs%u);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
+
     if (m_alphaExpr.size())
         retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
-                  "float4(" + m_colorExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
+                  "float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     else
         retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
-                  "float4(" + m_colorExpr + ", 1.0)) * mulColor;\n";
+                  "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") +
            "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
@@ -394,11 +431,12 @@ struct MetalBackendFactory : IShaderBackendFactory
 
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr);
+                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr, tag.getReflectionType());
         cachedSz += vertSource.size() + 1;
 
         std::string fragSource = m_backend.makeFrag(0, nullptr,
-            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha);
+            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+            tag.getReflectionType());
         cachedSz += fragSource.size() + 1;
         objOut =
         static_cast<boo::MetalDataFactory::Context&>(ctx).
@@ -470,10 +508,11 @@ struct MetalBackendFactory : IShaderBackendFactory
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
             sources.emplace_back(m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                                                    tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs),
+                                                    tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                                                    tag.getReflectionType()),
                                  m_backend.makeFrag(slot.blockCount, slot.blockNames,
                                                     tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                    slot.lighting, slot.post, slot.texCount, slot.texs));
+                                                    tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs));
             cachedSz += sources.back().first.size() + 1;
             cachedSz += sources.back().second.size() + 1;
 

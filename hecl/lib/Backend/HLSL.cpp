@@ -61,7 +61,7 @@ std::string HLSL::GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) co
     return retval + "};\n";
 }
 
-std::string HLSL::GenerateVertToFragStruct(size_t extTexCount) const
+std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, ReflectionType reflectionType) const
 {
     std::string retval =
     "struct VertToFrag\n"
@@ -75,10 +75,14 @@ std::string HLSL::GenerateVertToFragStruct(size_t extTexCount) const
     if (extTexCount)
         retval += hecl::Format("    float2 extTcgs[%u] : EXTUV;\n", unsigned(extTexCount));
 
+    if (reflectionCoords)
+        retval += "    float2 reflectTcgs[2] : REFLECTUV;\n"
+                  "    float reflectAlpha;\n";
+
     return retval + "};\n";
 }
 
-std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs) const
+std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, ReflectionType reflectionType) const
 {
     if (skinSlots == 0)
         skinSlots = 1;
@@ -90,7 +94,6 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "};\n",
                                       skinSlots, skinSlots);
     if (texMtxs)
-    {
         retval += hecl::Format("struct TCGMtx\n"
                                "{\n"
                                "    float4x4 mtx;\n"
@@ -100,7 +103,16 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                "{\n"
                                "    TCGMtx texMtxs[%u];\n"
                                "};\n", texMtxs);
-    }
+
+    if (reflectionCoords)
+        retval += "cbuffer HECLReflectMtx : register(b3)\n"
+                  "{\n"
+                  "    float4x4 indMtx;\n"
+                  "    float4x4 reflectMtx;\n"
+                  "    float reflectAlpha;\n"
+                  "};\n"
+                  "\n";
+
     return retval;
 }
 
@@ -112,6 +124,20 @@ std::string HLSL::GenerateAlphaTest() const
            "    }\n";
 }
 
+std::string HLSL::GenerateReflectionExpr(ReflectionType type) const
+{
+    switch (type)
+    {
+    case ReflectionType::None:
+        return "float3(0.0, 0.0, 0.0);\n";
+    case ReflectionType::Simple:
+        return "reflectionTex.Sample(samp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+    case ReflectionType::Indirect:
+        return "reflectionTex.Sample(samp, (reflectionIndTex.Sample(samp, vtf.reflectTcgs[0]).rg - "
+               "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+    }
+}
+
 void HLSL::reset(const IR& ir, Diagnostics& diag)
 {
     /* Common programmable interpretation */
@@ -120,12 +146,12 @@ void HLSL::reset(const IR& ir, Diagnostics& diag)
 
 std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
                            unsigned s, unsigned tm, size_t extTexCount,
-                           const TextureInfo* extTexs) const
+                           const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
     std::string retval =
             GenerateVertInStruct(col, uv, w) + "\n" +
-            GenerateVertToFragStruct(extTexCount) + "\n" +
-            GenerateVertUniformStruct(s, tm) + "\n" +
+            GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
+            GenerateVertUniformStruct(s, tm, reflectionType != ReflectionType::None) + "\n" +
             "VertToFrag main(in VertData v)\n"
             "{\n"
             "    VertToFrag vtf;\n";
@@ -176,11 +202,17 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
                                    extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
     }
 
+    if (reflectionCoords)
+        retval += "    vtf.reflectTcgs[0] = normalize(mul(indMtx, float4(v.posIn, 1.0)).xz) * float2(0.5, 0.5) + float2(0.5, 0.5);\n"
+                  "    vtf.reflectTcgs[1] = mul(reflectMtx, float4(v.posIn, 1.0)).xy;\n"
+                  "    vtf.reflectAlpha = reflectAlpha;\n";
+
     return retval + "    return vtf;\n"
                     "}\n";
 }
 
-std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
+std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
+                           const ShaderFunction& lighting) const
 {
     std::string lightingSrc;
     if (lighting.m_source)
@@ -194,10 +226,16 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
     std::string texMapDecl;
     if (m_texMapEnd)
         texMapDecl = hecl::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
-
+    if (reflectionType == ReflectionType::Indirect)
+        texMapDecl += hecl::Format("Texture2D reflectionIndTex : register(t%u);\n"
+                                   "Texture2D reflectionTex : register(t%u);\n",
+                                   m_texMapEnd, m_texMapEnd+1);
+    else if (reflectionType == ReflectionType::Simple)
+        texMapDecl += hecl::Format("Texture2D reflectionTex : register(t%u);\n",
+                                   m_texMapEnd);
     std::string retval =
             "SamplerState samp : register(s0);\n" +
-            GenerateVertToFragStruct(0) +
+            GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
             (!alphaTest ? "\n[earlydepthstencil]\n" : "\n") +
@@ -217,16 +255,19 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting) const
         retval += hecl::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
+
     retval += "    float4 colorOut;\n";
     if (m_alphaExpr.size())
-        retval += "    colorOut = float4(" + m_colorExpr + ", " + m_alphaExpr + ") * mulColor;\n";
+        retval += "    colorOut = float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ") * mulColor;\n";
     else
-        retval += "    colorOut = float4(" + m_colorExpr + ", 1.0) * mulColor;\n";
+        retval += "    colorOut = float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }
 
-std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
+std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
+                           const ShaderFunction& lighting,
                            const ShaderFunction& post, size_t extTexCount,
                            const TextureInfo* extTexs) const
 {
@@ -250,6 +291,13 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
     std::string texMapDecl;
     if (m_texMapEnd)
         texMapDecl = hecl::Format("Texture2D texs[%u] : register(t0);\n", m_texMapEnd);
+    if (reflectionType == ReflectionType::Indirect)
+        texMapDecl += hecl::Format("Texture2D reflectionIndTex : register(t%u);\n"
+                                   "Texture2D reflectionTex : register(t%u);\n",
+                                   m_texMapEnd, m_texMapEnd+1);
+    else if (reflectionType == ReflectionType::Simple)
+        texMapDecl += hecl::Format("Texture2D reflectionTex : register(t%u);\n",
+                                   m_texMapEnd);
 
     for (int i=0 ; i<extTexCount ; ++i)
     {
@@ -260,7 +308,7 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
 
     std::string retval =
             "SamplerState samp : register(s0);\n" +
-            GenerateVertToFragStruct(extTexCount) +
+            GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
             postSrc +
@@ -281,11 +329,13 @@ std::string HLSL::makeFrag(bool alphaTest, const ShaderFunction& lighting,
         retval += hecl::Format("    float4 sampling%u = texs[%u].Sample(samp, vtf.tcgs[%u]);\n",
                                sampIdx++, sampling.mapIdx, sampling.tcgIdx);
 
+    std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
+
     retval += "    float4 colorOut;\n";
     if (m_alphaExpr.size())
-        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
+        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     else
-        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + ", 1.0)) * mulColor;\n";
+        retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }
