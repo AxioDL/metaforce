@@ -7,6 +7,7 @@
 
 namespace urde
 {
+class CMaterialList;
 class CAnimData;
 class CCollisionActor;
 class CStateManager;
@@ -27,6 +28,7 @@ public:
     void Update(float, CStateManager&, EUpdateOptions) const;
     void Destroy(CStateManager&) const;
     void SetActive(CStateManager&, bool);
+    void AddMaterial(CStateManager&, const CMaterialList&);
 
     u32 GetNumCollisionActors() const;
     CJointCollisionDescription GetCollisionDescFromIndex(u32) const;

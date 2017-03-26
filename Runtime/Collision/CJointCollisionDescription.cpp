@@ -8,4 +8,6 @@ CJointCollisionDescription::CJointCollisionDescription(ECollisionType, CSegId, C
                                                        const std::string&, float)
 {
 }
+
+
 }
