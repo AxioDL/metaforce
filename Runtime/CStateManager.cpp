@@ -493,9 +493,17 @@ void CStateManager::CacheReflection()
     g_Renderer->CacheReflection(ReflectionDrawer, this, true);
 }
 
-bool CStateManager::CanCreateProjectile(TUniqueId, EWeaponType, int) const { return false; }
+bool CStateManager::CanCreateProjectile(TUniqueId uid, EWeaponType type, int test) const
+{
+    int num = x878_weaponManager->GetNumActive(uid, type);
+    int xorv = test ^ num;
+    return ((xorv >> 1) - xorv & test) >> 31;
+}
 
-const CGameLightList* CStateManager::GetDynamicLightList() const { return nullptr; }
+const std::vector<CLight>& CStateManager::GetDynamicLightList() const
+{
+    return x8e0_dynamicLights;
+}
 
 void CStateManager::BuildDynamicLightListForWorld()
 {
@@ -523,11 +531,49 @@ void CStateManager::BuildDynamicLightListForWorld()
 
 void CStateManager::DrawDebugStuff() const {}
 
-void CStateManager::RenderCamerasAndAreaLights() const {}
+void CStateManager::RenderCamerasAndAreaLights() const
+{
+    x870_cameraManager->RenderCameras(*this);
+    for (const CCameraFilterPass& filter : xb84_camFilterPasses)
+        filter.Draw();
+}
 
-void CStateManager::DrawE3DeathEffect() const {}
+void CStateManager::DrawE3DeathEffect() const
+{
+    CPlayer& player = *x84c_player;
+    if (player.x9f4_deathTime > 0.f)
+    {
+        if (player.x2f8_morphTransState != CPlayer::EPlayerMorphBallState::Unmorphed)
+        {
+            float blurAmt = zeus::clamp(0.f, (player.x9f4_deathTime - 1.f) / (6.f - 1.f), 1.f);
+            if (blurAmt > 0.f)
+            {
+                CCameraBlurPass blur;
+                blur.SetBlur(CCameraBlurPass::EBlurType::HiBlur, 7.f * blurAmt, 0.f);
+                blur.Draw();
+            }
+        }
+        float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
+        zeus::CColor color = zeus::CColor::skWhite;
+        color.a = whiteAmt;
+        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Add,
+                                      CCameraFilterPass::EFilterShape::Fullscreen,
+                                      color, nullptr, 1.f);
+    }
+}
 
-void CStateManager::DrawAdditionalFilters() const {}
+void CStateManager::DrawAdditionalFilters() const
+{
+    if (xf0c_escapeTimer < 1.f && xf0c_escapeTimer > 0.f &&
+        !x870_cameraManager->IsInCinematicCamera())
+    {
+        zeus::CColor color = zeus::CColor::skWhite;
+        color.a = 1.f - xf0c_escapeTimer;
+        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Add,
+                                      CCameraFilterPass::EFilterShape::Fullscreen,
+                                      color, nullptr, 1.f);
+    }
+}
 
 zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
 {
@@ -1176,8 +1222,19 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
         return {id, ent->GetUniqueId()};
 }
 
-std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId)
+std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId eid)
 {
+    std::pair<const SScriptObjectStream*, TEditorId> build = GetBuildForScript(eid);
+    if (build.first)
+    {
+        CGameArea* area = x850_world->GetArea(build.second.AreaNum());
+        if (area->IsPostConstructed())
+        {
+            std::pair<const u8*, u32> buf = area->GetLayerScriptBuffer(build.second.LayerNum());
+            CMemoryInStream stream(buf.first + build.first->x4_position, build.first->x8_length);
+            return LoadScriptObject(build.second.AreaNum(), build.first->x0_type, build.first->x8_length, stream);
+        }
+    }
     return {kInvalidEditorId, kInvalidUniqueId};
 }
 
@@ -1193,7 +1250,23 @@ void CStateManager::InitScriptObjects(const std::vector<TEditorId>& ids)
     MurderScriptInstanceNames();
 }
 
-void CStateManager::InformListeners(const zeus::CVector3f&, EListenNoiseType) {}
+void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType type)
+{
+    for (CEntity* ent : GetListeningAiObjectList())
+    {
+        if (TCastToPtr<CAi> ai = ent)
+        {
+            if (!ai->GetActive())
+                continue;
+            CGameArea* area = x850_world->GetArea(ai->GetAreaIdAlways());
+            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+            if (area->IsPostConstructed())
+                occState = area->GetPostConstructed()->x10dc_occlusionState;
+            if (occState != CGameArea::EOcclusionState::NotOccluded)
+                ai->Listen(pos, type);
+        }
+    }
+}
 
 bool CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability&,
                                    const zeus::CVector3f&, float)
@@ -1304,7 +1377,7 @@ void CStateManager::Update(float dt)
     UpdateThermalVisor();
     UpdateGameState();
 
-    bool _9f4_gt0 = x84c_player->x9f4_ > 0.f;
+    bool dying = x84c_player->x9f4_deathTime > 0.f;
 
     if (x904_ == 0)
     {
@@ -1329,10 +1402,10 @@ void CStateManager::Update(float dt)
 
     if (x904_ == 0)
     {
-        if (!_9f4_gt0)
+        if (!dying)
             CDecalManager::Update(dt, *this);
         UpdateSortedLists();
-        if (!_9f4_gt0)
+        if (!dying)
         {
             MovePlatforms(dt);
             MoveDoors(dt);
@@ -1341,7 +1414,7 @@ void CStateManager::Update(float dt)
         if (x904_ != 1)
             CGameCollision::Move(*this, *x84c_player, dt, nullptr);
         UpdateSortedLists();
-        if (!_9f4_gt0)
+        if (!dying)
             CrossTouchActors();
     }
     else
@@ -1349,7 +1422,7 @@ void CStateManager::Update(float dt)
         ProcessPlayerInput();
     }
 
-    if (!_9f4_gt0 && x904_ == 0)
+    if (!dying && x904_ == 0)
         x884_actorModelParticles->Update(dt, *this);
 
     if (x904_ == 0 || x904_ == 1)
@@ -1381,13 +1454,13 @@ void CStateManager::Update(float dt)
         xf88_ = -1;
     }
 
-    if (!_9f4_gt0 && x904_ == 0 && !x870_cameraManager->IsInCinematicCamera())
+    if (!dying && x904_ == 0 && !x870_cameraManager->IsInCinematicCamera())
         UpdateEscapeSequenceTimer(dt);
 
     x850_world->Update(dt);
     x88c_rumbleManager->Update(dt);
 
-    if (!_9f4_gt0)
+    if (!dying)
         x880_envFxManager->Update(dt, *this);
 
     UpdateAreaSounds();
@@ -1457,7 +1530,7 @@ void CStateManager::UpdateHintState(float dt)
 
 void CStateManager::PreThinkEffects(float dt)
 {
-    if (x84c_player->x9f4_ > 0.f)
+    if (x84c_player->x9f4_deathTime > 0.f)
     {
         x84c_player->DoPreThink(dt, *this);
         return;
@@ -1566,7 +1639,7 @@ void CStateManager::CrossTouchActors()
 
 void CStateManager::ThinkEffectsAndActors(float dt)
 {
-    if (x84c_player->x9f4_ > 0.f)
+    if (x84c_player->x9f4_deathTime > 0.f)
     {
         x84c_player->DoThink(dt, *this);
         return;

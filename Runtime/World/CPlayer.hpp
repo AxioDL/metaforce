@@ -275,7 +275,7 @@ private:
     float x9e0_ = 0.f;
     u32 x9e4_ = 0;
 
-    float x9f4_ = 0.f;
+    float x9f4_deathTime = 0.f;
     float x9f8_ = 0.f;
     float x9fc_ = 0.f;
     TUniqueId xa00_ = kInvalidUniqueId;

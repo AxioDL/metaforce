@@ -297,4 +297,10 @@ void CCameraManager::ProcessInput(const CFinalInput& input, CStateManager& state
         cam.ProcessInput(input, stateMgr);
     }
 }
+
+void CCameraManager::RenderCameras(const CStateManager& mgr)
+{
+    for (CEntity* cam : mgr.GetCameraObjectList())
+        static_cast<CGameCamera*>(cam)->Render(mgr);
+}
 }

@@ -36,16 +36,14 @@ public:
         RandomStatic,
         CookieCutterDepthRandomStatic
     };
-private:
     static void DrawFilter(EFilterType type, EFilterShape shape, const zeus::CColor& color,
                            const CTexture* tex, float uvScale);
     static void DrawFilterShape(EFilterShape shape, const zeus::CColor& color,
                                 const CTexture* tex, float uvScale);
-public:
     void Update(float dt);
     void SetFilter(EFilterType type, EFilterShape shape, float, const zeus::CColor& color, u32) {}
     void DisableFilter(float) {}
-
+    void Draw() const {}
 };
 
 class CCameraBlurPass

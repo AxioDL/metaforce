@@ -122,6 +122,8 @@ public:
     float CalculateFogDensity(CStateManager&, const CScriptWater*);
 
     void ProcessInput(const CFinalInput& input, CStateManager& stateMgr);
+
+    void RenderCameras(const CStateManager& mgr);
 };
 
 }

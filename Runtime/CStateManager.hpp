@@ -277,7 +277,7 @@ public:
     static void ReflectionDrawer(void*, const zeus::CVector3f&);
     void CacheReflection();
     bool CanCreateProjectile(TUniqueId, EWeaponType, int) const;
-    const CGameLightList* GetDynamicLightList() const;
+    const std::vector<CLight>& GetDynamicLightList() const;
     void BuildDynamicLightListForWorld();
     void DrawDebugStuff() const;
     void RenderCamerasAndAreaLights() const;
