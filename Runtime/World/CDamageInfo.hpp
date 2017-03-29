@@ -47,9 +47,9 @@ public:
     void SetRadius(float r) { x10_radius = r; }
     float GetKnockBackPower() const { return x14_knockback; }
     float GetDamage() const { return x8_damage; }
-    float GetDamage(const CDamageVulnerability& dVuln);
+    float GetDamage(const CDamageVulnerability& dVuln) const;
     float GetRadiusDamage() const { return xc_radiusDamage; }
-    float GetRadiusDamage(const CDamageVulnerability& dVuln);
+    float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
 };
 }
 

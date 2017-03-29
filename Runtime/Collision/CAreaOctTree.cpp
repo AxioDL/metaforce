@@ -3,6 +3,28 @@
 namespace urde
 {
 
+bool CAreaOctTree::Node::LineTestInternal(const zeus::CLineSeg&, const CMaterialFilter&,
+                                          float, float, float, const zeus::CVector3f&) const
+{
+    return false;
+}
+
+bool CAreaOctTree::Node::LineTestExInternal(const zeus::CLineSeg&, const CMaterialFilter&,
+                                            SRayResult&, float, float, float, const zeus::CVector3f&) const
+{
+    return false;
+}
+
+bool CAreaOctTree::Node::LineTest(const zeus::CLineSeg&, const CMaterialFilter&, float) const
+{
+    return false;
+}
+
+bool CAreaOctTree::Node::LineTestEx(const zeus::CLineSeg&, const CMaterialFilter&, SRayResult&, float) const
+{
+    return false;
+}
+
 CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
 {
     u16 flags = *reinterpret_cast<const u16*>(m_ptr);

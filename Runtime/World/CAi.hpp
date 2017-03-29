@@ -19,6 +19,12 @@ enum class EListenNoiseType
 {
 };
 
+enum class EKnockBackType
+{
+    Zero,
+    One
+};
+
 class CAiFuncMap;
 class CStateManager;
 class CAi : public CPhysicsActor
@@ -42,7 +48,7 @@ public:
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual CHealthInfo* HealthInfo() { return &x258_healthInfo; }
     virtual void Death(const zeus::CVector3f&, CStateManager&)=0;
-    virtual void KnockBack(const zeus::CVector3f&, CStateManager&)=0;
+    virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float)=0;
     virtual CDamageVulnerability GetDamageVulnerability()  { return x260_damageVulnerability; }
     virtual void TakeDamage(const zeus::CVector3f&, float) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }

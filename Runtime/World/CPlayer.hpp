@@ -336,6 +336,7 @@ public:
     void UpdateFreeLook(float dt);
     float GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const;
     void ProcessInput(const CFinalInput&, CStateManager&);
+    void Stop(CStateManager& stateMgr);
     bool GetFrozenState() const;
     void Think(float, CStateManager&);
     void PreThink(float, CStateManager&);
@@ -407,6 +408,7 @@ public:
     float GetStepUpHeight() const;
     float GetStepDownHeight() const;
     void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool);
+    void BombJump(const zeus::CVector3f& pos, CStateManager& mgr);
     zeus::CTransform CreateTransformFromMovementDirection() const;
     const CCollisionPrimitive* GetCollisionPrimitive() const;
     zeus::CTransform GetPrimitiveTransform() const;

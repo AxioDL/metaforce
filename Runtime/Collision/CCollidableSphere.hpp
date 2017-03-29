@@ -38,6 +38,7 @@ public:
                                    CCollisionInfo&);
     static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
                                     CCollisionInfo&);
+    static bool Sphere_AABox_Bool(const zeus::CSphere& sphere, const zeus::CAABox& aabb);
 };
 }
 

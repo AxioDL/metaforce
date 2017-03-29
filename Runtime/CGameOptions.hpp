@@ -59,7 +59,7 @@ class CPersistentOptions
     std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
     u32 xbc_ = 0;
     u32 xc0_ = 0;
-    u32 xc4_ = 0;
+    u32 xc4_freezeBreakCount = 0;
     u32 xc8_ = 0;
     u32 xcc_logScanCount = 0;
 
@@ -97,6 +97,8 @@ public:
     void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
     u32 GetLogScanCount() const { return xcc_logScanCount; }
     void SetLogScanCount(u32 v) { xcc_logScanCount = v; }
+    void IncrFreezeBreakCount() { xc4_freezeBreakCount = std::min(int(xc4_freezeBreakCount + 1), 3); }
+    bool GetShowFrozenMessage() const { return xc4_freezeBreakCount != 3; }
     void PutTo(CBitStreamWriter& w) const;
 
     u8* GetNESState() { return x0_; }

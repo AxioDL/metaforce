@@ -141,6 +141,11 @@ float CPlayer::GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const { 
 
 void CPlayer::ProcessInput(const CFinalInput&, CStateManager&) {}
 
+void CPlayer::Stop(CStateManager& stateMgr)
+{
+
+}
+
 bool CPlayer::GetFrozenState() const { return false; }
 
 void CPlayer::Think(float, CStateManager&) {}
@@ -307,6 +312,8 @@ float CPlayer::GetStepUpHeight() const { return 0.f; }
 float CPlayer::GetStepDownHeight() const { return 0.f; }
 
 void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool) {}
+
+void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {}
 
 zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const { return {}; }
 

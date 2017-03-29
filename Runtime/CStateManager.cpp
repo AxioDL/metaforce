@@ -39,6 +39,12 @@
 #include "Collision/CGameCollision.hpp"
 #include "World/CScriptPlatform.hpp"
 #include "World/CScriptRoomAcoustics.hpp"
+#include "Weapon/CWeapon.hpp"
+#include "World/CWallCrawlerSwarm.hpp"
+#include "World/CSnakeWeedSwarm.hpp"
+#include "Collision/CCollidableSphere.hpp"
+#include "zeus/CMRay.hpp"
+#include "Collision/CollisionUtil.hpp"
 
 #include <cmath>
 
@@ -46,7 +52,8 @@ namespace urde
 {
 logvisor::Module LogModule("urde::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
-                             const std::weak_ptr<CMapWorldInfo>& mwInfo, const std::weak_ptr<CPlayerState>& playerState,
+                             const std::weak_ptr<CMapWorldInfo>& mwInfo,
+                             const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
                              const std::weak_ptr<CWorldLayerState>& layerState)
 : x8b8_playerState(playerState)
@@ -1268,26 +1275,300 @@ void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType
     }
 }
 
-bool CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability&,
-                                   const zeus::CVector3f&, float)
+void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability& vuln,
+                                   const zeus::CVector3f& pos, float dampen)
+{
+    if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Reflect)
+        return;
+    CHealthInfo* hInfo = actor.HealthInfo();
+    if (!hInfo)
+        return;
+
+    float dampedPower = (1.f - dampen) * info.GetKnockBackPower();
+    if (TCastToPtr<CPlayer> player = actor)
+    {
+        KnockBackPlayer(*player, pos, dampedPower, hInfo->GetKnockbackResistance());
+        return;
+    }
+
+    TCastToPtr<CAi> ai = actor;
+    if (!ai && hInfo->GetHP() <= 0.f)
+    {
+        if (dampedPower > hInfo->GetKnockbackResistance())
+        {
+            if (TCastToPtr<CPhysicsActor> physActor = actor)
+            {
+                zeus::CVector3f kbVec = pos * (dampedPower - hInfo->GetKnockbackResistance()) * physActor->GetMass() * 1.5f;
+                if (physActor->GetMaterialList().HasMaterial(EMaterialTypes::Immovable) ||
+                    !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Grass))
+                    return;
+                physActor->ApplyImpulseWR(kbVec, zeus::CAxisAngle::sIdentity);
+                return;
+            }
+        }
+    }
+
+    if (ai)
+        ai->KnockBack(pos, *this, info, dampen == 0.f ? EKnockBackType::Zero : EKnockBackType::One, false, dampedPower);
+}
+
+void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos, float power, float resistance)
+{
+    if (player.GetMaterialList().HasMaterial(EMaterialTypes::Immovable))
+        return;
+
+    float usePower;
+    if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
+    {
+        usePower = power * 1000.f;
+        u32 something = player.x2b0_ == 2 ? player.x2ac_ : 4;
+        if (something != 0 && player.x304_ == 0)
+            usePower /= 7.f;
+    }
+    else
+    {
+        usePower = power * 500.f;
+    }
+
+    float minVel = player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 35.f : 70.f;
+    float playerVel = player.x138_velocity.magnitude();
+    float maxVel = std::max(playerVel, minVel);
+    zeus::CVector3f negVel = -player.x138_velocity;
+    usePower *= (1.f - 0.5f * zeus::CVector3f::getAngleDiff(pos, negVel) / M_PIF);
+    player.ApplyImpulseWR(pos * usePower, zeus::CAxisAngle::sIdentity);
+    player.UseCollisionImpulses();
+    player.x2d4_ = 0.25f;
+
+    float newVel = player.x138_velocity.magnitude();
+    if (newVel > maxVel)
+    {
+        zeus::CVector3f vel = (1.f / newVel) * player.x138_velocity * maxVel;
+        player.SetVelocityWR(vel);
+    }
+}
+
+void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, const zeus::CVector3f& pos,
+                                       const CDamageInfo& info, const CMaterialFilter& filter)
+{
+    zeus::CAABox aabb(pos - info.GetRadius(), pos + info.GetRadius());
+
+    bool bomb = false;
+    TCastToPtr<CWeapon> weapon = const_cast<CActor&>(actor);
+    if (weapon)
+        bomb = (weapon->GetAttribField() & (CWeapon::EProjectileAttrib::Bombs |
+        CWeapon::EProjectileAttrib::PowerBombs)) != CWeapon::EProjectileAttrib::None;
+
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    BuildNearList(nearList, aabb, filter, &actor);
+    for (TUniqueId id : nearList)
+    {
+        CEntity* ent = ObjectById(id);
+        if (!ent)
+            continue;
+
+        TCastToPtr<CPlayer> player = ent;
+        if (bomb && player)
+        {
+            if (player->GetFrozenState())
+            {
+                g_GameState->SystemOptions().IncrFreezeBreakCount();
+                SHudMemoInfo info = {0.f, true, true, true};
+                MP1::CSamusHud::DisplayHudMemo(u"", info);
+                player->Stop(*this);
+            }
+            else
+            {
+                if ((weapon->GetAttribField() & CWeapon::EProjectileAttrib::Bombs) != CWeapon::EProjectileAttrib::None)
+                    player->BombJump(pos, *this);
+            }
+        }
+        else if (ent->GetUniqueId() != damager)
+        {
+            TestBombHittingWater(actor, pos, static_cast<CActor&>(*ent));
+            if (TestRadiusDamage(pos, static_cast<CActor&>(*ent), nearList))
+                ApplyRadiusDamage(actor, pos, static_cast<CActor&>(*ent), info);
+        }
+
+        if (TCastToPtr<CWallCrawlerSwarm> swarm = ent)
+            swarm->ApplyRadiusDamage(pos, info, *this);
+
+        if (TCastToPtr<CSnakeWeedSwarm> swarm = ent)
+            swarm->ApplyRadiusDamage(pos, info, *this);
+    }
+}
+
+void CStateManager::ProcessRadiusDamage(const CActor& a1, CActor& a2, TUniqueId senderId, const CDamageInfo& info,
+                                        const CMaterialFilter& filter)
+{
+    zeus::CAABox aabb(a1.GetTranslation() - info.GetRadius(), a1.GetTranslation() + info.GetRadius());
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    BuildNearList(nearList, aabb, filter, nullptr);
+    for (TUniqueId id : nearList)
+    {
+        CEntity* ent = ObjectById(id);
+        if (!ent || ent->GetUniqueId() == a1.GetUniqueId() ||
+            ent->GetUniqueId() == senderId ||
+            ent->GetUniqueId() == a2.GetUniqueId())
+            continue;
+
+        TestBombHittingWater(a1, a1.GetTranslation(), static_cast<CActor&>(*ent));
+        if (TestRadiusDamage(a1.GetTranslation(), static_cast<CActor&>(*ent), nearList))
+            ApplyRadiusDamage(a1, a1.GetTranslation(), static_cast<CActor&>(*ent), info);
+    }
+}
+
+void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& pos,
+                                      CActor& a2, const CDamageInfo& info)
+{
+    zeus::CVector3f delta = a2.GetTranslation() - pos;
+    if (delta.magSquared() >= info.GetRadius() * info.GetRadius())
+    {
+        rstl::optional_object<zeus::CAABox> bounds = a2.GetTouchBounds();
+        if (!bounds)
+            return;
+        if (CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds))
+        {
+            float rad = info.GetRadius();
+            if (rad > FLT_EPSILON)
+                rad = delta.magnitude() / rad;
+            else
+                rad = 0.f;
+            if (rad > 0.f)
+                delta.normalize();
+
+            bool alive = false;
+            if (CHealthInfo* hInfo = a2.HealthInfo())
+                if (hInfo->GetHP() > 0.f)
+                    alive = true;
+
+            const CDamageVulnerability* vuln;
+            if (rad > 0.f)
+                vuln = a2.GetDamageVulnerability(pos, delta, info);
+            else
+                vuln = a2.GetDamageVulnerability();
+
+            if (vuln->WeaponHurts(info.GetWeaponMode(), true))
+            {
+                float dam = info.GetRadiusDamage(*vuln);
+                if (dam > 0.f)
+                    ApplyLocalDamage(pos, delta, a2, dam, info.GetWeaponMode());
+                a2.SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
+                SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InternalMessage19);
+            }
+            else
+            {
+                a2.SendScriptMsgs(EScriptObjectState::UNKS6, *this, EScriptObjectMessage::None);
+                SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InternalMessage20);
+            }
+
+            if (alive && info.GetKnockBackPower() > 0.f)
+                ApplyKnockBack(a2, info, *vuln, (a2.GetTranslation() - a1.GetTranslation()).normalized(), rad);
+        }
+    }
+}
+
+bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const CActor& damagee,
+                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList)
+{
+    const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo();
+    if (!hInfo)
+        return false;
+
+    static const CMaterialList incList(EMaterialTypes::Solid);
+    static const  CMaterialList exList(EMaterialTypes::ProjectilePassthrough,
+                                       EMaterialTypes::Player,
+                                       EMaterialTypes::Occluder,
+                                       EMaterialTypes::Character);
+    static const CMaterialFilter filter(incList, exList, CMaterialFilter::EFilterType::IncludeExclude);
+
+    rstl::optional_object<zeus::CAABox> bounds = damagee.GetTouchBounds();
+    if (!bounds)
+        return false;
+
+    zeus::CVector3f center = bounds->center();
+    zeus::CVector3f delta = center - pos;
+
+    if (!delta.canBeNormalized())
+        return true;
+    float origMag = delta.magnitude();
+    delta = delta * (1.f / origMag);
+
+    if (TestRadiusDamage(pos, center, nearList, filter, damagee))
+        return true;
+
+    zeus::CMRay ray(pos, delta, origMag);
+    if (!TestRadiusDamage(ray, filter))
+        return false;
+
+    float depth;
+    u32 count = CollisionUtil::RayAABoxIntersection(ray, *bounds, zeus::CVector3f::skZero, depth);
+    if (count == 0 || count == 1)
+        return true;
+
+    return TestRadiusDamage(pos, delta, filter, nearList, damagee, depth * origMag);
+}
+
+bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                     const CMaterialFilter& filter, const CActor& damagee)
 {
     return false;
 }
 
-bool CStateManager::ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&, const CDamageInfo& info,
-                                       const CMaterialFilter&)
+bool CStateManager::TestRadiusDamage(const zeus::CMRay& ray, const CMaterialFilter& filter)
+{
+    zeus::CVector3f crossed =
+    {
+        -ray.end.z * ray.end.z - ray.end.y * ray.end.x,
+        ray.end.x * ray.end.x - ray.end.z * ray.end.y,
+        ray.end.y * ray.end.y - ray.end.x * -ray.end.z
+    };
+
+    crossed.normalize();
+    zeus::CVector3f crossed2 = ray.end.cross(crossed) * 0.35355338f;
+    zeus::CVector3f negCrossed2 = -crossed2;
+    zeus::CVector3f rms = crossed * 0.35355338f;
+    zeus::CVector3f negRms = -rms;
+
+    for (int i=0 ; i<4 ; ++i)
+    {
+        zeus::CVector3f& useCrossed = (i & 2) ? negCrossed2 : crossed2;
+        zeus::CVector3f& useRms = (i & 1) ? rms : negRms;
+        if (TestRayDamage(ray.start + useCrossed + useRms, ray.end, ray.d, filter))
+            return true;
+    }
+
+    return false;
+}
+
+bool CStateManager::TestRayDamage(const zeus::CVector3f& start, const zeus::CVector3f& end, float d,
+                                  const CMaterialFilter& filter)
+{
+    if (d <= 0.f)
+        d = 100000.f;
+    zeus::CLineSeg seg(start, end);
+    for (CGameArea* area = x850_world->GetChainHead(EChain::Alive) ;
+         area != CWorld::GetAliveAreasEnd() ; area = area->GetNext())
+    {
+        CAreaOctTree& collision = *area->GetPostConstructed()->x0_collision;
+        CAreaOctTree::Node root = collision.GetRootNode();
+        if (!root.LineTest(seg, filter, d))
+            return false;
+    }
+
+    return true;
+}
+
+bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& normToDamagee,
+                                     const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                     const CActor& damagee, float mag)
 {
     return false;
 }
 
-void CStateManager::ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVector3f&, const CDamageInfo& info,
-                                        const CMaterialFilter&)
+void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee)
 {
-}
 
-bool CStateManager::ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&, const CDamageInfo& info)
-{
-    return false;
 }
 
 bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& actor, float dt,

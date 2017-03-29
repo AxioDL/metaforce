@@ -9,6 +9,8 @@ namespace urde
 
 class CInternalCollisionStructure
 {
+    zeus::CVector3f x0_pos;
+    float xc_radius;
 };
 
 class CActor;

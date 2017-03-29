@@ -25,7 +25,7 @@ CDamageInfo& CDamageInfo::operator=(const DataSpec::SShotParam& other)
     return *this;
 }
 
-float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln)
+float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln) const
 {
     EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
     if (vuln == EVulnerability::Reflect)
@@ -36,7 +36,7 @@ float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln)
     return x8_damage;
 }
 
-float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln)
+float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const
 {
     EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
     if (vuln == EVulnerability::Reflect)

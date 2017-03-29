@@ -310,14 +310,27 @@ public:
     std::pair<TEditorId, TUniqueId> GenerateObject(TEditorId);
     void InitScriptObjects(const std::vector<TEditorId>& ids);
     void InformListeners(const zeus::CVector3f&, EListenNoiseType);
-    bool ApplyKnockBack(CActor& actor, const CDamageInfo& info,
+    void ApplyKnockBack(CActor& actor, const CDamageInfo& info,
                         const CDamageVulnerability&, const zeus::CVector3f&, float);
-    bool ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
+    void KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos, float power, float resistance);
+    void ApplyDamageToWorld(TUniqueId, const CActor&, const zeus::CVector3f&,
                             const CDamageInfo& info, const CMaterialFilter&);
-    void ProcessRadiusDamage(const CActor&, CActor&, const zeus::CVector3f&,
+    void ProcessRadiusDamage(const CActor&, CActor&, TUniqueId senderId,
                              const CDamageInfo& info, const CMaterialFilter&);
-    bool ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
+    void ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
                            const CDamageInfo& info);
+    bool TestRadiusDamage(const zeus::CVector3f& pos, const CActor& damagee,
+                          const rstl::reserved_vector<TUniqueId, 1024>& nearList);
+    bool TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+                          const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                          const CMaterialFilter& filter, const CActor& damagee);
+    bool TestRadiusDamage(const zeus::CMRay& ray, const CMaterialFilter& filter);
+    bool TestRayDamage(const zeus::CVector3f& start, const zeus::CVector3f& end, float d,
+                       const CMaterialFilter& filter);
+    bool TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& normToDamagee,
+                          const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                          const CActor& damagee, float mag);
+    void TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee);
     bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);
     bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,

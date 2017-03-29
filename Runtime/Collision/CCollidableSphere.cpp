@@ -10,7 +10,10 @@ namespace Collide
 
 bool Sphere_AABox(const CInternalCollisionStructure&, CCollisionInfoList&) { return false; }
 
-bool Sphere_AABox_Bool(const CInternalCollisionStructure&) { return false; }
+bool Sphere_AABox_Bool(const CInternalCollisionStructure&)
+{
+    return false;
+}
 
 bool Sphere_Sphere(const CInternalCollisionStructure&, CCollisionInfoList&) { return false; }
 
@@ -53,5 +56,26 @@ bool CCollidableSphere::CollideMovingSphere(const CInternalCollisionStructure&, 
                                             CCollisionInfo&)
 {
     return false;
+}
+
+bool CCollidableSphere::Sphere_AABox_Bool(const zeus::CSphere& sphere, const zeus::CAABox& aabb)
+{
+    float mag = 0.f;
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (sphere.position[i] < aabb.min[i])
+        {
+            float tmp = sphere.position[i] - aabb.min[i];
+            mag += tmp * tmp;
+        }
+        else if (sphere.position[i] > aabb.max[i])
+        {
+            float tmp = sphere.position[i] - aabb.max[i];
+            mag += tmp * tmp;
+        }
+    }
+
+    return mag <= sphere.radius * sphere.radius;
 }
 }

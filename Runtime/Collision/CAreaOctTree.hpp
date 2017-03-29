@@ -4,10 +4,10 @@
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
 #include "Collision/CCollisionEdge.hpp"
+#include "Collision/CCollisionSurface.hpp"
 
 namespace urde
 {
-class CCollisionEdge;
 class CMaterialFilter;
 class CAreaOctTree
 {
@@ -15,6 +15,9 @@ class CAreaOctTree
 public:
     struct SRayResult
     {
+        zeus::CPlane x0_plane;
+        rstl::optional_object<CCollisionSurface> x10_surface;
+        float x3c_;
     };
 
     class TriListReference
@@ -49,17 +52,20 @@ public:
         const CAreaOctTree& m_owner;
         ETreeType m_nodeType;
 
+        bool LineTestInternal(const zeus::CLineSeg&, const CMaterialFilter&, float, float, float,
+                              const zeus::CVector3f&) const;
+        bool LineTestExInternal(const zeus::CLineSeg&, const CMaterialFilter&, SRayResult&, float, float, float,
+                                const zeus::CVector3f&) const;
+
     public:
         Node(const void* ptr, const zeus::CAABox& aabb,
              const CAreaOctTree& owner, ETreeType type)
         : m_ptr(reinterpret_cast<const u8*>(ptr)), m_aabb(aabb), m_owner(owner), m_nodeType(type)
         {
         }
-#if 0
-        void LineTestEx(const zeus::CLine&, const CMaterialFilter&, SRayResult&, float) const;
-        void LineTestExInternal(const zeus::CLine&, const CMaterialFilter&, SRayResult&, float, float, float,
-                                const zeus::CVector3f&) const;
-#endif
+
+        bool LineTest(const zeus::CLineSeg&, const CMaterialFilter&, float) const;
+        bool LineTestEx(const zeus::CLineSeg&, const CMaterialFilter&, SRayResult&, float) const;
 
         const CAreaOctTree& GetOwner() const
         {

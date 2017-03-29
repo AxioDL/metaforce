@@ -42,7 +42,7 @@ public:
                const CActorParameters& params, bool b1);
 
     virtual void Death(const zeus::CVector3f&, CStateManager&) {}
-    virtual void KnockBack(const zeus::CVector3f&, CStateManager&) {}
+    virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}
 };
 }
 

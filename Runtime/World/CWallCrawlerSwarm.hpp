@@ -57,6 +57,8 @@ public:
 
     void Accept(IVisitor &visitor);
     zeus::CVector3f GetLastKilledOffset() const { return x130_lastKilledOffset; }
+    void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info,
+                           CStateManager& stateMgr) {}
 };
 }
 

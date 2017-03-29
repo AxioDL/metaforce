@@ -8,6 +8,7 @@ set(COLLISION_SOURCES
     CCollisionEdge.hpp CCollisionEdge.cpp
     CCollisionSurface.hpp CCollisionSurface.cpp
     InternalColliders.hpp InternalColliders.cpp
+    CMetroidAreaCollider.hpp CMetroidAreaCollider.cpp
     COBBTree.hpp COBBTree.cpp
     CCollidableAABox.hpp CCollidableAABox.cpp
     CCollidableCollisionSurface.hpp CCollidableCollisionSurface.cpp
