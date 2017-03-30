@@ -15,35 +15,36 @@ public:
         Valid
     };
 private:
-    float x0_time;
+    float x0_t = 0.f;
     zeus::CVector3f x4_point;
     zeus::CPlane x10_plane;
     EInvalid x20_invalid = EInvalid::Invalid;
-    /*u32 x24_; */
-    CMaterialList x28_material;
+    CMaterialList x24_material;
 public:
     CRayCastResult() = default;
     CRayCastResult(const CRayCastResult& other, EInvalid invalid)
-        : x0_time(other.x0_time),
+        : x0_t(other.x0_t),
           x4_point(other.x4_point),
           x10_plane(other.x10_plane),
           x20_invalid(invalid),
-          x28_material(other.x28_material)
+          x24_material(other.x24_material)
     {
     }
 
-    CRayCastResult(float, const zeus::CVector3f&, const zeus::CPlane& plane, const CMaterialList& matList)
-        : x28_material(matList)
+    CRayCastResult(float t, const zeus::CVector3f& point,
+                   const zeus::CPlane& plane, const CMaterialList& matList)
+    : x0_t(t), x4_point(point), x10_plane(plane),
+      x20_invalid(EInvalid::Valid), x24_material(matList)
     {}
 
     void MakeInvalid();
 
-    bool IsInvalid() const;
+    bool IsInvalid() const { return x20_invalid == EInvalid::Invalid; }
+    float GetT() const { return x0_t; }
+    const zeus::CVector3f& GetPoint() const { return x4_point; }
+    const zeus::CPlane& GetPlane() const { return x10_plane; }
+    const CMaterialList& GetMaterial() const { return x24_material; }
 
-    float GetTime() const;
-    const zeus::CVector3f& GetPoint() const;
-    const zeus::CPlane& GetPlane() const;
-    const CMaterialList& GetMaterial() const;
     void Transform(const zeus::CTransform&);
 };
 }

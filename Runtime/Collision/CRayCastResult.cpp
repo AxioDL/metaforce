@@ -17,31 +17,6 @@ void CRayCastResult::MakeInvalid()
     x20_invalid = EInvalid::Invalid;
 }
 
-bool CRayCastResult::IsInvalid() const
-{
-    return x20_invalid == EInvalid::Invalid;
-}
-
-float CRayCastResult::GetTime() const
-{
-    return x0_time;
-}
-
-const zeus::CVector3f&CRayCastResult::GetPoint() const
-{
-    return x4_point;
-}
-
-const zeus::CPlane&CRayCastResult::GetPlane() const
-{
-    return x10_plane;
-}
-
-const CMaterialList&CRayCastResult::GetMaterial() const
-{
-    return x28_material;
-}
-
 void CRayCastResult::Transform(const zeus::CTransform& xf)
 {
     x4_point = xf * x4_point;

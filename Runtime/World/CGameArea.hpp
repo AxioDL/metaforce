@@ -125,6 +125,30 @@ class CGameArea : public IGameArea
 
 public:
 
+    class CChainIterator
+    {
+        CGameArea* m_area;
+    public:
+        CChainIterator(CGameArea* area) : m_area(area) {}
+        CGameArea& operator*() const { return *m_area; }
+        CGameArea* operator->() const { return m_area; }
+        CChainIterator& operator++() { m_area = m_area->GetNext(); return *this; }
+        bool operator!=(const CChainIterator& other) const { return m_area != other.m_area; }
+        bool operator==(const CChainIterator& other) const { return m_area == other.m_area; }
+    };
+
+    class CConstChainIterator
+    {
+        const CGameArea* m_area;
+    public:
+        CConstChainIterator(const CGameArea* area) : m_area(area) {}
+        const CGameArea& operator*() const { return *m_area; }
+        const CGameArea* operator->() const { return m_area; }
+        CConstChainIterator& operator++() { m_area = m_area->GetNext(); return *this; }
+        bool operator!=(const CConstChainIterator& other) const { return m_area != other.m_area; }
+        bool operator==(const CConstChainIterator& other) const { return m_area == other.m_area; }
+    };
+
     class CAreaObjectList : public CObjectList
     {
     private:

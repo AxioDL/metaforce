@@ -213,7 +213,7 @@ private:
     /* urde addition: these are simply initialized along with everything else */
     CGameGlobalObjects x128_globalObjects;
 
-    EFlowState x12c_flowState = EFlowState::Five;
+    EFlowState x12c_flowState = EFlowState::Default;
 
     u32 x130_[10] = { 1000000 };
 

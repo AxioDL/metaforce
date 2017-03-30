@@ -100,6 +100,7 @@ set(WORLD_SOURCES
     CAnimationParameters.hpp
     CDamageInfo.hpp CDamageInfo.cpp
     CDamageVulnerability.hpp CDamageVulnerability.cpp
+    CFluidPlaneManager.hpp CFluidPlaneManager.cpp
     CFluidUVMotion.hpp CFluidUVMotion.cpp
     CPatternedInfo.hpp CPatternedInfo.cpp
     CHealthInfo.hpp CHealthInfo.cpp

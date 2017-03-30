@@ -24,7 +24,7 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     else if (msgType == EArchMsgType::QuitGameplay)
     {
         if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
-            m->GetFlowState() != EFlowState::Zero)
+            m->GetFlowState() != EFlowState::None)
         {
             CSfxManager::SetChannel(CSfxManager::ESfxChannels::Default);
             CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);

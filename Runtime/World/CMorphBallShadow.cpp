@@ -12,15 +12,13 @@ namespace urde
 void CMorphBallShadow::GatherAreas(const CStateManager& mgr)
 {
     x18_areas.clear();
-    for (const CGameArea* area = mgr.GetWorld()->GetChainHead(EChain::Alive);
-         area != CWorld::GetAliveAreasEnd();
-         area = area->GetNext())
+    for (const CGameArea& area : *mgr.GetWorld())
     {
         CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
-        if (area->IsPostConstructed())
-            occState = area->GetPostConstructed()->x10dc_occlusionState;
+        if (area.IsPostConstructed())
+            occState = area.GetPostConstructed()->x10dc_occlusionState;
         if (occState == CGameArea::EOcclusionState::Occluded)
-            x18_areas.push_back(area->GetAreaId());
+            x18_areas.push_back(area.GetAreaId());
     }
 }
 
@@ -104,18 +102,16 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 bool CMorphBallShadow::AreasValid(const CStateManager& mgr) const
 {
     auto it = x18_areas.begin();
-    for (const CGameArea* area = mgr.GetWorld()->GetChainHead(EChain::Alive);
-         area != CWorld::GetAliveAreasEnd();
-         area = area->GetNext())
+    for (const CGameArea& area : *mgr.GetWorld())
     {
         CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
-        if (area->IsPostConstructed())
-            occState = area->GetPostConstructed()->x10dc_occlusionState;
+        if (area.IsPostConstructed())
+            occState = area.GetPostConstructed()->x10dc_occlusionState;
         if (occState != CGameArea::EOcclusionState::Occluded)
             continue;
         if (it == x18_areas.end())
             return false;
-        if (*it != area->GetAreaId())
+        if (*it != area.GetAreaId())
             return false;
         ++it;
     }

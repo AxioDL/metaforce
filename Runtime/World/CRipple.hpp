@@ -9,8 +9,8 @@ namespace urde
 class CRipple
 {
 private:
-    TUniqueId x0_;
-    float x4_ = 0.f;
+    TUniqueId x0_id;
+    float x4_time = 0.f;
     zeus::CVector3f x8_;
     float x14_ = 2.f;
     float x18_ = 12.f;
@@ -21,10 +21,10 @@ private:
 public:
     CRipple(TUniqueId, const zeus::CVector3f&, float);
 
-    void SetTime(float);
-    float GetTime() const;
+    void SetTime(float t) { x4_time = t; }
+    float GetTime() const { return x4_time; }
     float GetTimeFalloff() const;
-    TUniqueId GetUniqueId() const;
+    TUniqueId GetUniqueId() const { return x0_id; }
     float GetFequency() const;
     float GetAmplitude() const;
     float GetOODistanceFalloff() const;

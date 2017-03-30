@@ -5,6 +5,7 @@
 #include "zeus/CAABox.hpp"
 #include "Collision/CCollisionEdge.hpp"
 #include "Collision/CCollisionSurface.hpp"
+#include "zeus/CLine.hpp"
 
 namespace urde
 {
@@ -17,7 +18,7 @@ public:
     {
         zeus::CPlane x0_plane;
         rstl::optional_object<CCollisionSurface> x10_surface;
-        float x3c_;
+        float x3c_t;
     };
 
     class TriListReference
@@ -47,55 +48,55 @@ public:
         };
 
     private:
-        const u8* m_ptr;
-        zeus::CAABox m_aabb;
-        const CAreaOctTree& m_owner;
-        ETreeType m_nodeType;
+        zeus::CAABox x0_aabb;
+        const u8* x18_ptr;
+        const CAreaOctTree& x1c_owner;
+        ETreeType x20_nodeType;
 
-        bool LineTestInternal(const zeus::CLineSeg&, const CMaterialFilter&, float, float, float,
+        bool LineTestInternal(const zeus::CLine&, const CMaterialFilter&, float, float, float,
                               const zeus::CVector3f&) const;
-        bool LineTestExInternal(const zeus::CLineSeg&, const CMaterialFilter&, SRayResult&, float, float, float,
+        void LineTestExInternal(const zeus::CLine&, const CMaterialFilter&, SRayResult&, float, float, float,
                                 const zeus::CVector3f&) const;
 
     public:
         Node(const void* ptr, const zeus::CAABox& aabb,
              const CAreaOctTree& owner, ETreeType type)
-        : m_ptr(reinterpret_cast<const u8*>(ptr)), m_aabb(aabb), m_owner(owner), m_nodeType(type)
+        : x0_aabb(aabb), x18_ptr(reinterpret_cast<const u8*>(ptr)), x1c_owner(owner), x20_nodeType(type)
         {
         }
 
-        bool LineTest(const zeus::CLineSeg&, const CMaterialFilter&, float) const;
-        bool LineTestEx(const zeus::CLineSeg&, const CMaterialFilter&, SRayResult&, float) const;
+        bool LineTest(const zeus::CLine&, const CMaterialFilter&, float) const;
+        void LineTestEx(const zeus::CLine&, const CMaterialFilter&, SRayResult&, float) const;
 
         const CAreaOctTree& GetOwner() const
         {
-            return m_owner;
+            return x1c_owner;
         }
 
         const zeus::CAABox& GetBoundingBox() const
         {
-            return m_aabb;
+            return x0_aabb;
         }
 
         u16 GetChildFlags() const
         {
-            return *reinterpret_cast<const u16*>(m_ptr);
+            return *reinterpret_cast<const u16*>(x18_ptr);
         }
 
         Node GetChild(int idx) const;
 
         TriListReference GetTriangleArray() const
         {
-            return TriListReference(reinterpret_cast<const u16*>(m_ptr + 24));
+            return TriListReference(reinterpret_cast<const u16*>(x18_ptr + 24));
         }
 
         ETreeType GetChildType(int idx) const
         {
-            u16 flags = *reinterpret_cast<const u16*>(m_ptr);
+            u16 flags = *reinterpret_cast<const u16*>(x18_ptr);
             return ETreeType((flags << (2 * idx)) & 0x3);
         }
 
-        ETreeType GetTreeType() const { return m_nodeType; }
+        ETreeType GetTreeType() const { return x20_nodeType; }
     };
 
     zeus::CAABox x0_aabb;
@@ -135,7 +136,7 @@ public:
     u32 GetNumEdges() const { return x38_edgeCount; }
     u32 GetNumVerts() const { return x48_vertCount; }
     u32 GetNumTriangles() const { return x40_polyCount; }
-    const u16* GetMasterListTriangle(u16 idx) const;
+    CCollisionSurface GetMasterListTriangle(u16 idx) const;
     const u16* GetTriangleVertexIndices(u16 idx) const;
     const u16* GetTriangleEdgeIndices(u16 idx) const;
 

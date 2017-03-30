@@ -20,13 +20,13 @@ enum class EGameplayResult
 
 enum class EFlowState
 {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
+    None,
+    WinBad,
+    WinGood,
+    WinBest,
+    LoseGame,
+    Default,
+    StateSetter,
 };
 
 class IMain

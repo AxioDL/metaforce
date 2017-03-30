@@ -2,28 +2,43 @@
 #define __URDE_CPLAYMOVIE_HPP__
 
 #include "CPlayMovieBase.hpp"
+#include "RetroTypes.hpp"
 
 namespace urde
 {
 namespace MP1
 {
 
-extern const char* kMovies[];
-
 class CPlayMovie : public CPlayMovieBase
 {
 public:
     enum class EWhichMovie
     {
-        WinGame,
+        WinGameBad,
+        WinGameGood,
+        WinGameBest,
         LoseGame,
-        Two,
-        AfterCredits
+        TalonTest,
+        AfterCredits,
+        SpecialEnding,
+        CreditBG
     };
 private:
-    EWhichMovie x14_which;
+    EWhichMovie x18_which;
+    union
+    {
+        struct
+        {
+            bool x78_24_ : 1;
+            bool x78_25_ : 1;
+            bool x78_26_resultsScreen : 1;
+            bool x78_27_ : 1;
+        };
+        u16 _dummy = 0;
+    };
+    static bool IsResultsScreen(EWhichMovie which);
 public:
-    CPlayMovie(EWhichMovie which) : CPlayMovieBase("CPlayMovie", kMovies[int(which)]), x14_which(which) {}
+    CPlayMovie(EWhichMovie which);
 };
 
 }

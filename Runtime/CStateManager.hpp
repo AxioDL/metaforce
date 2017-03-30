@@ -16,7 +16,7 @@
 #include "World/ScriptLoader.hpp"
 #include "Input/CFinalInput.hpp"
 #include "CSortedLists.hpp"
-#include "CFluidPlaneManager.hpp"
+#include "World/CFluidPlaneManager.hpp"
 #include "World/CEnvFxManager.hpp"
 #include "World/CActorModelParticles.hpp"
 #include "Input/CRumbleManager.hpp"
@@ -319,17 +319,21 @@ public:
                              const CDamageInfo& info, const CMaterialFilter&);
     void ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
                            const CDamageInfo& info);
-    bool TestRadiusDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                          const rstl::reserved_vector<TUniqueId, 1024>& nearList);
-    bool TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
-                          const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                          const CMaterialFilter& filter, const CActor& damagee);
-    bool TestRadiusDamage(const zeus::CMRay& ray, const CMaterialFilter& filter);
-    bool TestRayDamage(const zeus::CVector3f& start, const zeus::CVector3f& end, float d,
-                       const CMaterialFilter& filter);
-    bool TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& normToDamagee,
+    bool TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
+                       const rstl::reserved_vector<TUniqueId, 1024>& nearList);
+    bool RayCollideWorld(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+                         const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                         const CMaterialFilter& filter, const CActor& damagee);
+    bool RayCollideWorldInternal(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+                                 const CMaterialFilter& filter,
+                                 const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                 const CActor* damagee);
+    bool MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter);
+    bool RayCollideStatic(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
+                          const CMaterialFilter& filter);
+    bool RayCollideDynamic(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                           const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                          const CActor& damagee, float mag);
+                          const CActor* damagee, float length);
     void TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee);
     bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);
@@ -380,11 +384,11 @@ public:
     std::experimental::optional<zeus::CAABox> CalculateObjectBounds(const CActor&);
     void AddObject(CEntity&);
     void AddObject(CEntity*);
-    bool RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
-                               const CMaterialFilter&) const;
-    bool RayWorldIntersection(TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&,
-                              float, const CMaterialFilter&,
-                              const rstl::reserved_vector<TUniqueId, 1024>& list) const;
+    CRayCastResult RayStaticIntersection(const zeus::CVector3f& pos, const zeus::CVector3f& dir, float length,
+                                         const CMaterialFilter& filter) const;
+    CRayCastResult RayWorldIntersection(TUniqueId& idOut, const zeus::CVector3f& pos,
+                                        const zeus::CVector3f& dir, float length, const CMaterialFilter& filter,
+                                        const rstl::reserved_vector<TUniqueId, 1024>& list) const;
     void UpdateObjectInLists(CEntity&);
     TUniqueId AllocateUniqueId();
     void DeferStateTransition(EStateManagerTransition t);

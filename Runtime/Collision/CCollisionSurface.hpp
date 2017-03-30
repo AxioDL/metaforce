@@ -19,7 +19,7 @@ public:
     zeus::CVector3f GetVert(s32) const;
     zeus::CVector3f GetPoint(s32) const;
     zeus::CPlane GetPlane() const;
-    u32 GetSurfaceFlags() const;
+    u32 GetSurfaceFlags() const { return x24_flags; }
 };
 }
 

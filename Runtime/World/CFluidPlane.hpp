@@ -6,6 +6,8 @@ namespace urde
 {
 class CFluidUVMotion;
 class CRippleManager;
+class CScriptWater;
+class CStateManager;
 class CFluidPlane
 {
 public:
@@ -29,6 +31,8 @@ private:
 public:
     CFluidPlane(u32, u32, u32, EFluidType, float, const CFluidUVMotion&, float);
 
+    virtual void Ripple(float mag, TUniqueId rippler, const zeus::CVector3f& pos,
+                        CScriptWater& water, CStateManager& mgr);
     virtual void Update();
     float GetAlpha() const;
     EFluidType GetFluidType() const;

@@ -35,8 +35,8 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
     case EClientFlowStates::GameExit:
     {
         MP1::CMain* main = static_cast<MP1::CMain*>(g_Main);
-        if (main->GetFlowState() != EFlowState::Zero &&
-            main->GetFlowState() != EFlowState::Six)
+        if (main->GetFlowState() != EFlowState::None &&
+            main->GetFlowState() != EFlowState::StateSetter)
             main->SetX30(true);
     }
     case EClientFlowStates::Unspecified:
@@ -56,15 +56,15 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
     {
         switch (main->GetFlowState())
         {
-        case EFlowState::One:
-        case EFlowState::Two:
-        case EFlowState::Three:
+        case EFlowState::WinBad:
+        case EFlowState::WinGood:
+        case EFlowState::WinBest:
             queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11,
                                                   std::make_shared<CCredits>()));
             break;
-        case EFlowState::Four:
+        case EFlowState::LoseGame:
             queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11,
-                                                  std::make_shared<CPlayMovie>(CPlayMovie::EWhichMovie::AfterCredits)));
+                                                  std::make_shared<CPlayMovie>(CPlayMovie::EWhichMovie::LoseGame)));
             break;
         default: break;
         }
@@ -72,7 +72,7 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
     }
     case EClientFlowStates::PreFrontEnd:
     {
-        if (main->GetFlowState() == EFlowState::Zero)
+        if (main->GetFlowState() == EFlowState::None)
             return;
         queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11,
                                               std::make_shared<CPreFrontEnd>()));
@@ -83,14 +83,14 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
         std::shared_ptr<CIOWin> nextIOWin;
         switch (main->GetFlowState())
         {
-        case EFlowState::Six:
+        case EFlowState::StateSetter:
             nextIOWin = std::make_shared<CStateSetterFlow>();
             break;
-        case EFlowState::One:
-        case EFlowState::Two:
-        case EFlowState::Three:
-        case EFlowState::Four:
-        case EFlowState::Five:
+        case EFlowState::WinBad:
+        case EFlowState::WinGood:
+        case EFlowState::WinBest:
+        case EFlowState::LoseGame:
+        case EFlowState::Default:
             nextIOWin = std::make_shared<CFrontEndUI>();
             break;
         default: return;
@@ -102,7 +102,7 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
     case EClientFlowStates::Game:
     {
         g_GameState->GameOptions().EnsureSettings();
-        main->SetFlowState(EFlowState::Five);
+        main->SetFlowState(EFlowState::Default);
         queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000,
                                               std::make_shared<CMFGameLoader>()));
         break;

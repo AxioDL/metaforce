@@ -47,9 +47,9 @@ void CPlayer::Update(float, CStateManager& mgr) {}
 bool CPlayer::IsPlayerDeadEnough() const
 {
     if (x2f8_morphTransState == CPlayer::EPlayerMorphBallState::Unmorphed)
-        return x9f4_deathTime < 2.5f;
+        return x9f4_deathTime > 2.5f;
     else if (x2f8_morphTransState == CPlayer::EPlayerMorphBallState::Morphed)
-        return x9f4_deathTime < 6.f;
+        return x9f4_deathTime > 6.f;
 
     return false;
 }

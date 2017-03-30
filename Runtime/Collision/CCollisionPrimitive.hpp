@@ -111,8 +111,8 @@ public:
     virtual FourCC GetPrimType() const = 0;
     virtual ~CCollisionPrimitive() {}
     virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const = 0;
-    CRayCastResult CastRay(const zeus::CVector3f&, const zeus::CVector3f&, float, const CMaterialFilter&,
-                           const zeus::CTransform&) const;
+    CRayCastResult CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
+                           const CMaterialFilter& filter, const zeus::CTransform& xf) const;
 
     static void InitBeginTypes();
     static void InitAddType(const Type& tp);

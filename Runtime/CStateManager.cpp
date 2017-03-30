@@ -5,7 +5,7 @@
 #include "World/CGameLight.hpp"
 #include "CSortedLists.hpp"
 #include "Weapon/CWeaponMgr.hpp"
-#include "CFluidPlaneManager.hpp"
+#include "World/CFluidPlaneManager.hpp"
 #include "World/CEnvFxManager.hpp"
 #include "World/CActorModelParticles.hpp"
 #include "World/CTeamAiTypes.hpp"
@@ -45,6 +45,7 @@
 #include "Collision/CCollidableSphere.hpp"
 #include "zeus/CMRay.hpp"
 #include "Collision/CollisionUtil.hpp"
+#include "World/CScriptWater.hpp"
 
 #include <cmath>
 
@@ -642,20 +643,20 @@ void CStateManager::DrawWorld() const
     x850_world->TouchSky();
 
     int areaCount = 0;
-    CGameArea* areaArr[10];
-    for (CGameArea* area = x850_world->GetChainHead(EChain::Alive);
-         area != CWorld::AliveAreasEnd() && areaCount != 10;
-         area = area->x130_next)
+    const CGameArea* areaArr[10];
+    for (const CGameArea& area : *x850_world)
     {
+        if (areaCount == 10)
+            break;
         CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
-        if (area->IsPostConstructed())
-            occState = area->GetOcclusionState();
+        if (area.IsPostConstructed())
+            occState = area.GetOcclusionState();
         if (occState == CGameArea::EOcclusionState::Occluded)
-            areaArr[areaCount++] = area;
+            areaArr[areaCount++] = &area;
     }
 
     std::sort(std::begin(areaArr), std::begin(areaArr) + areaCount,
-    [visAreaId](CGameArea* a, CGameArea* b) -> bool
+    [visAreaId](const CGameArea* a, const CGameArea* b) -> bool
     {
         if (a->x4_selfIdx == b->x4_selfIdx)
             return false;
@@ -669,11 +670,11 @@ void CStateManager::DrawWorld() const
 
     int pvsCount = 0;
     CPVSVisSet pvsArr[10];
-    for (CGameArea** area = areaArr;
+    for (const CGameArea** area = areaArr;
          area != areaArr + areaCount;
          ++area)
     {
-        CGameArea* areaPtr = *area;
+        const CGameArea* areaPtr = *area;
         CPVSVisSet& pvsSet = pvsArr[pvsCount++];
         pvsSet.Reset(EPVSVisSetState::OutOfBounds);
         GetVisSetForArea(areaPtr->x4_selfIdx, visAreaId, pvsSet);
@@ -701,7 +702,7 @@ void CStateManager::DrawWorld() const
 
     for (int i=areaCount-1 ; i>=0 ; --i)
     {
-        CGameArea& area = *areaArr[i];
+        const CGameArea& area = *areaArr[i];
         SetupFogForArea(area);
         g_Renderer->EnablePVS(&pvsArr[i], area.x4_selfIdx);
         g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
@@ -726,7 +727,7 @@ void CStateManager::DrawWorld() const
     CActor* thermalActorArr[1024];
     for (int i=0 ; i<areaCount ; ++i)
     {
-        CGameArea& area = *areaArr[i];
+        const CGameArea& area = *areaArr[i];
         CPVSVisSet& pvs = pvsArr[i];
         bool isVisArea = area.x4_selfIdx == visAreaId;
         SetupFogForArea(area);
@@ -807,7 +808,7 @@ void CStateManager::DrawWorld() const
 
         for (int i=areaCount-1 ; i>=0 ; --i)
         {
-            CGameArea& area = *areaArr[i];
+            const CGameArea& area = *areaArr[i];
             CPVSVisSet& pvs = pvsArr[i];
 
             g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
@@ -819,7 +820,7 @@ void CStateManager::DrawWorld() const
 
         for (int i=0 ; i<areaCount ; ++i)
         {
-            CGameArea& area = *areaArr[i];
+            const CGameArea& area = *areaArr[i];
             CPVSVisSet& pvs = pvsArr[i];
 
             for (int j=0 ; j<thermalActorCount ; ++j)
@@ -939,16 +940,14 @@ void CStateManager::PreRender()
         proj.setPersp(zeus::SProjPersp{zeus::degToRad(cam->GetFov()),
                                        cam->GetAspectRatio(), cam->GetNearClipDistance(), cam->GetFarClipDistance()});
         frustum.updatePlanes(x870_cameraManager->GetCurrentCameraTransform(*this), proj);
-        for (CGameArea* area = x850_world->GetChainHead(EChain::Alive);
-             area != CWorld::AliveAreasEnd();
-             area = area->x130_next)
+        for (const CGameArea& area : *x850_world)
         {
             CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
-            if (area->IsPostConstructed())
-                occState = area->GetOcclusionState();
+            if (area.IsPostConstructed())
+                occState = area.GetOcclusionState();
             if (occState == CGameArea::EOcclusionState::Occluded)
             {
-                for (CEntity* ent : *area->GetPostConstructed()->x10c0_areaObjs)
+                for (CEntity* ent : *area.GetPostConstructed()->x10c0_areaObjs)
                 {
                     if (TCastToPtr<CActor> act = ent)
                     {
@@ -1385,7 +1384,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
         else if (ent->GetUniqueId() != damager)
         {
             TestBombHittingWater(actor, pos, static_cast<CActor&>(*ent));
-            if (TestRadiusDamage(pos, static_cast<CActor&>(*ent), nearList))
+            if (TestRayDamage(pos, static_cast<CActor&>(*ent), nearList))
                 ApplyRadiusDamage(actor, pos, static_cast<CActor&>(*ent), info);
         }
 
@@ -1412,7 +1411,7 @@ void CStateManager::ProcessRadiusDamage(const CActor& a1, CActor& a2, TUniqueId 
             continue;
 
         TestBombHittingWater(a1, a1.GetTranslation(), static_cast<CActor&>(*ent));
-        if (TestRadiusDamage(a1.GetTranslation(), static_cast<CActor&>(*ent), nearList))
+        if (TestRayDamage(a1.GetTranslation(), static_cast<CActor&>(*ent), nearList))
             ApplyRadiusDamage(a1, a1.GetTranslation(), static_cast<CActor&>(*ent), info);
     }
 }
@@ -1467,8 +1466,8 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
     }
 }
 
-bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList)
+bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
+                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList)
 {
     const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo();
     if (!hInfo)
@@ -1486,18 +1485,18 @@ bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const CActor& d
         return false;
 
     zeus::CVector3f center = bounds->center();
-    zeus::CVector3f delta = center - pos;
+    zeus::CVector3f dir = center - pos;
 
-    if (!delta.canBeNormalized())
+    if (!dir.canBeNormalized())
         return true;
-    float origMag = delta.magnitude();
-    delta = delta * (1.f / origMag);
+    float origMag = dir.magnitude();
+    dir = dir * (1.f / origMag);
 
-    if (TestRadiusDamage(pos, center, nearList, filter, damagee))
+    if (RayCollideWorld(pos, center, nearList, filter, damagee))
         return true;
 
-    zeus::CMRay ray(pos, delta, origMag);
-    if (!TestRadiusDamage(ray, filter))
+    zeus::CMRay ray(pos, dir, origMag);
+    if (!MultiRayCollideWorld(ray, filter))
         return false;
 
     float depth;
@@ -1505,27 +1504,43 @@ bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const CActor& d
     if (count == 0 || count == 1)
         return true;
 
-    return TestRadiusDamage(pos, delta, filter, nearList, damagee, depth * origMag);
+    return RayCollideDynamic(pos, dir, filter, nearList, &damagee, depth * origMag);
 }
 
-bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
-                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                     const CMaterialFilter& filter, const CActor& damagee)
+bool CStateManager::RayCollideWorld(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+                                    const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                    const CMaterialFilter& filter, const CActor& damagee)
 {
-    return false;
+    return RayCollideWorldInternal(pos, damageeCenter, filter, nearList, &damagee);
 }
 
-bool CStateManager::TestRadiusDamage(const zeus::CMRay& ray, const CMaterialFilter& filter)
+bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+                                            const CMaterialFilter& filter,
+                                            const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                            const CActor* damagee)
+{
+    zeus::CVector3f vecToDamagee = damageeCenter - pos;
+    if (!vecToDamagee.canBeNormalized())
+        return true;
+
+    float mag = vecToDamagee.magnitude();
+    zeus::CVector3f dir = vecToDamagee * (1.f / mag);
+    if (!RayCollideStatic(pos, dir, mag, filter))
+        return false;
+    return RayCollideDynamic(pos, dir, filter, nearList, damagee, mag);
+}
+
+bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter)
 {
     zeus::CVector3f crossed =
     {
-        -ray.end.z * ray.end.z - ray.end.y * ray.end.x,
-        ray.end.x * ray.end.x - ray.end.z * ray.end.y,
-        ray.end.y * ray.end.y - ray.end.x * -ray.end.z
+        -ray.dir.z * ray.dir.z - ray.dir.y * ray.dir.x,
+        ray.dir.x * ray.dir.x - ray.dir.z * ray.dir.y,
+        ray.dir.y * ray.dir.y - ray.dir.x * -ray.dir.z
     };
 
     crossed.normalize();
-    zeus::CVector3f crossed2 = ray.end.cross(crossed) * 0.35355338f;
+    zeus::CVector3f crossed2 = ray.dir.cross(crossed) * 0.35355338f;
     zeus::CVector3f negCrossed2 = -crossed2;
     zeus::CVector3f rms = crossed * 0.35355338f;
     zeus::CVector3f negRms = -rms;
@@ -1534,41 +1549,103 @@ bool CStateManager::TestRadiusDamage(const zeus::CMRay& ray, const CMaterialFilt
     {
         zeus::CVector3f& useCrossed = (i & 2) ? negCrossed2 : crossed2;
         zeus::CVector3f& useRms = (i & 1) ? rms : negRms;
-        if (TestRayDamage(ray.start + useCrossed + useRms, ray.end, ray.d, filter))
+        if (RayCollideStatic(ray.start + useCrossed + useRms, ray.dir, ray.length, filter))
             return true;
     }
 
     return false;
 }
 
-bool CStateManager::TestRayDamage(const zeus::CVector3f& start, const zeus::CVector3f& end, float d,
-                                  const CMaterialFilter& filter)
+bool CStateManager::RayCollideStatic(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
+                                     const CMaterialFilter& filter)
 {
-    if (d <= 0.f)
-        d = 100000.f;
-    zeus::CLineSeg seg(start, end);
-    for (CGameArea* area = x850_world->GetChainHead(EChain::Alive) ;
-         area != CWorld::GetAliveAreasEnd() ; area = area->GetNext())
+    if (length <= 0.f)
+        length = 100000.f;
+    zeus::CLine line(start, dir);
+    for (const CGameArea& area : *x850_world)
     {
-        CAreaOctTree& collision = *area->GetPostConstructed()->x0_collision;
+        const CAreaOctTree& collision = *area.GetPostConstructed()->x0_collision;
         CAreaOctTree::Node root = collision.GetRootNode();
-        if (!root.LineTest(seg, filter, d))
+        if (!root.LineTest(line, filter, length))
             return false;
     }
 
     return true;
 }
 
-bool CStateManager::TestRadiusDamage(const zeus::CVector3f& pos, const zeus::CVector3f& normToDamagee,
-                                     const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                     const CActor& damagee, float mag)
+bool CStateManager::RayCollideDynamic(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                      const CMaterialFilter& filter,
+                                      const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                      const CActor* damagee, float length)
 {
-    return false;
+    if (length <= 0.f)
+        length = 100000.f;
+
+    for (TUniqueId id : nearList)
+    {
+        CEntity* ent = ObjectById(id);
+        if (TCastToPtr<CPhysicsActor> physActor = ent)
+        {
+            if (damagee && physActor->GetUniqueId() == damagee->GetUniqueId())
+                continue;
+            zeus::CTransform xf = physActor->GetPrimitiveTransform();
+            const CCollisionPrimitive* prim = physActor->GetCollisionPrimitive();
+            CRayCastResult res = prim->CastRay(pos, dir, length, filter, xf);
+            if (!res.IsInvalid())
+                return false;
+        }
+    }
+
+    return true;
 }
 
 void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee)
 {
-
+    if (TCastToPtr<CWeapon> wpn = const_cast<CActor&>(damager))
+    {
+        if ((wpn->GetAttribField() & (CWeapon::EProjectileAttrib::Bombs |
+            CWeapon::EProjectileAttrib::PowerBombs)) != CWeapon::EProjectileAttrib::None)
+        {
+            bool powerBomb = (wpn->GetAttribField() & CWeapon::EProjectileAttrib::Bombs) !=
+                             CWeapon::EProjectileAttrib::None;
+            if (TCastToPtr<CScriptWater> water = damagee)
+            {
+                zeus::CAABox bounds = water->GetTriggerBoundsWR();
+                zeus::CVector3f hitPos(pos.x, pos.y, bounds.max.z);
+                float bombRad = powerBomb ? 4.f : 2.f;
+                float delta = -(pos.dot(zeus::CVector3f::skUp) - bounds.max.z);
+                if (delta <= bombRad && delta > 0.f)
+                {
+                    // Below surface
+                    float rippleFactor = 1.f - delta / bombRad;
+                    if (x87c_fluidPlaneManager->GetLastRippleDeltaTime(damager.GetUniqueId()) >= 0.15f)
+                    {
+                        float bombMag = powerBomb ? 1.f : 0.75f;
+                        float mag = 0.6f * bombMag + 0.4f * bombMag * std::sin(2.f * M_PIF * rippleFactor * 0.25f);
+                        water->GetFluidPlane().Ripple(mag, damager.GetUniqueId(), hitPos, *water, *this);
+                    }
+                    if (!powerBomb)
+                        x87c_fluidPlaneManager->CreateSplash(damager.GetUniqueId(), *this, *water, hitPos, rippleFactor, true);
+                }
+                else
+                {
+                    // Above surface
+                    float bombMag = powerBomb ? 2.f : 1.f;
+                    if (delta <= -bombMag || delta >= 0.f)
+                        return;
+                    CRayCastResult res = RayStaticIntersection(pos, zeus::CVector3f::skDown, -delta,
+                                                               CMaterialFilter::skPassEverything);
+                    if (res.IsInvalid() &&
+                        x87c_fluidPlaneManager->GetLastRippleDeltaTime(damager.GetUniqueId()) >= 0.15f)
+                    {
+                        // Not blocked by static geometry
+                        float mag = 0.6f * bombMag + 0.4f * bombMag * std::sin(2.f * M_PIF * -delta / bombMag * 0.25f);
+                        water->GetFluidPlane().Ripple(mag, damager.GetUniqueId(), hitPos, *water, *this);
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& actor, float dt,
@@ -2313,17 +2390,17 @@ void CStateManager::AddObject(CEntity* ent)
         AddObject(*ent);
 }
 
-bool CStateManager::RayStaticIntersection(const zeus::CVector3f&, const zeus::CVector3f&, float,
-                                          const CMaterialFilter&) const
+CRayCastResult CStateManager::RayStaticIntersection(const zeus::CVector3f& pos, const zeus::CVector3f& dir, float length,
+                                                    const CMaterialFilter& filter) const
 {
-    return false;
+    return CGameCollision::RayStaticIntersection(*this, pos, dir, length, filter);
 }
 
-bool CStateManager::RayWorldIntersection(TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&, float,
-                                         const CMaterialFilter&,
-                                         const rstl::reserved_vector<TUniqueId, 1024>& list) const
+CRayCastResult CStateManager::RayWorldIntersection(TUniqueId& idOut, const zeus::CVector3f& pos,
+                                                   const zeus::CVector3f& dir, float length, const CMaterialFilter& filter,
+                                                   const rstl::reserved_vector<TUniqueId, 1024>& list) const
 {
-    return false;
+    return CGameCollision::RayWorldIntersection(*this, idOut, pos, dir, length, filter, list);
 }
 
 void CStateManager::UpdateObjectInLists(CEntity&) {}

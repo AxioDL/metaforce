@@ -105,7 +105,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
         {
             if (x14_stateManager->GetPlayer().IsPlayerDeadEnough())
             {
-                static_cast<CMain&>(*g_Main).SetFlowState(EFlowState::Four);
+                static_cast<CMain&>(*g_Main).SetFlowState(EFlowState::LoseGame);
                 queue.Push(MakeMsg::CreateQuitGameplay(EArchMsgTarget::Game));
             }
             else
@@ -285,8 +285,8 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
     CMain* m = static_cast<CMain*>(g_Main);
     switch (m->GetFlowState())
     {
-    case EFlowState::Five:
-    case EFlowState::Six:
+    case EFlowState::Default:
+    case EFlowState::StateSetter:
     {
         ResId mlvlId = g_GameState->CurrentWorldAssetId();
         if (g_MemoryCardSys->HasSaveWorldMemory(mlvlId))

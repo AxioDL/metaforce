@@ -14,7 +14,7 @@ class CScriptWater : public CScriptTrigger
 private:
     static const float kSplashScales[6];
     u32 x150_ = 0;
-    std::unique_ptr<CFluidPlaneCPU> x1b4_;
+    std::unique_ptr<CFluidPlaneCPU> x1b4_fluidPlane;
     zeus::CVector3f x1b8_;
     float x1f4_;
     float x1f8_ = 0.f;
@@ -73,6 +73,7 @@ public:
     zeus::CColor GetSplashColor() const;
     void SetFrustumPlanes(const zeus::CFrustum& frustum);
     const zeus::CFrustum& GetFrustumPlanes() const;
+    CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
 };
 }
 

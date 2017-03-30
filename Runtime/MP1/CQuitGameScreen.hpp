@@ -47,7 +47,7 @@ public:
     EQuitAction Update(float dt);
     void Draw();
     void ProcessUserInput(const CFinalInput& input);
-    CQuitGameScreen(EQuitType pos);
+    CQuitGameScreen(EQuitType type);
 };
 
 }

@@ -155,8 +155,12 @@ public:
     void MoveToChain(CGameArea* area, EChain chain);
     void MoveAreaToChain3(TAreaId aid);
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
-    CGameArea* GetChainHead(EChain chain) { return x4c_chainHeads[int(chain)]; }
-    const CGameArea* GetChainHead(EChain chain) const { return x4c_chainHeads[int(chain)]; }
+    CGameArea::CChainIterator GetChainHead(EChain chain) { return {x4c_chainHeads[int(chain)]}; }
+    CGameArea::CConstChainIterator GetChainHead(EChain chain) const { return {x4c_chainHeads[int(chain)]}; }
+    CGameArea::CChainIterator begin() { return GetChainHead(EChain::Alive); }
+    CGameArea::CChainIterator end() { return AliveAreasEnd(); }
+    CGameArea::CConstChainIterator begin() const { return GetChainHead(EChain::Alive); }
+    CGameArea::CConstChainIterator end() const { return GetAliveAreasEnd(); }
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
     void SetPauseState(bool paused);
@@ -185,8 +189,8 @@ public:
     int IGetAreaCount() const;
 
     static void PropogateAreaChain(CGameArea::EOcclusionState, CGameArea*, CWorld*);
-    static const CGameArea* GetAliveAreasEnd()  { return skGlobalEnd; }
-    static CGameArea* AliveAreasEnd()  { return skGlobalNonConstEnd; }
+    static CGameArea::CConstChainIterator GetAliveAreasEnd()  { return {skGlobalEnd}; }
+    static CGameArea::CChainIterator AliveAreasEnd()  { return {skGlobalNonConstEnd}; }
 
     void Update(float dt);
     void PreRender();

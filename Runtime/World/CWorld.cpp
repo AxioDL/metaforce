@@ -520,8 +520,8 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
 
 void CWorld::SetPauseState(bool paused)
 {
-    for (CGameArea* headArea = x4c_chainHeads[2] ; headArea != skGlobalEnd ; headArea = headArea->x130_next)
-        headArea->SetPauseState(paused);
+    for (auto it = GetChainHead(EChain::Two) ; it != AliveAreasEnd() ; ++it)
+        it->SetPauseState(paused);
     x70_25_paused = paused;
 }
 
@@ -541,24 +541,20 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
     if (occlusionState == CGameArea::EOcclusionState::Occluded)
         area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
 
-    for (CGameArea* areaItr = world->GetChainHead(EChain::Alive);
-         areaItr != skGlobalNonConstEnd;
-         areaItr = areaItr->x130_next)
+    for (CGameArea& areaItr : *world)
     {
-        if (areaItr == area)
+        if (&areaItr == area)
             continue;
-        if (areaItr->IsPostConstructed() && areaItr->GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
-            areaItr->PrepTokens();
+        if (areaItr.IsPostConstructed() && areaItr.GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
+            areaItr.PrepTokens();
     }
 
-    for (CGameArea* areaItr = world->GetChainHead(EChain::Alive);
-         areaItr != skGlobalNonConstEnd;
-         areaItr = areaItr->x130_next)
+    for (CGameArea& areaItr : *world)
     {
-        if (areaItr == area)
+        if (&areaItr == area)
             continue;
-        if (area->IsPostConstructed() && areaItr->GetOcclusionState() == CGameArea::EOcclusionState::NotOccluded)
-            areaItr->PrepTokens();
+        if (areaItr.IsPostConstructed() && areaItr.GetOcclusionState() == CGameArea::EOcclusionState::NotOccluded)
+            areaItr.PrepTokens();
     }
 
     if (occlusionState == CGameArea::EOcclusionState::NotOccluded)
