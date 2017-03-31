@@ -29,4 +29,10 @@ void CEnvFxManager::SetFxDensity(s32 val, float density)
     x38_ = val;
 }
 
+void CEnvFxManager::AreaLoaded()
+{
+    for (CEnvFxManagerGrid& grid : x50_grids)
+        grid.x0_24_ = true;
+}
+
 }

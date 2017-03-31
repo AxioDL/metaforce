@@ -46,10 +46,10 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
             if (x4_areaId != stateMgr.GetNextAreaId())
             {
                 CGameArea* area = stateMgr.WorldNC()->GetArea(x4_areaId);
-                if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::NotOccluded)
+                if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
                 {
                     /* while (!area->TryTakingOutOfARAM()) {} */
-                    CWorld::PropogateAreaChain(CGameArea::EOcclusionState::Occluded, area, stateMgr.WorldNC());
+                    CWorld::PropogateAreaChain(CGameArea::EOcclusionState::Visible, area, stateMgr.WorldNC());
                 }
 
                 stateMgr.SetCurrentAreaId(x4_areaId);
@@ -57,8 +57,8 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
                 player->Teleport(GetTransform(), stateMgr, true);
                 player->SetSpawnedMorphBallState(CPlayer::EPlayerMorphBallState(x10c_25_morphed), stateMgr);
 
-                if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
-                    CWorld::PropogateAreaChain(CGameArea::EOcclusionState::NotOccluded,
+                if (area->IsPostConstructed() && area->GetOcclusionState() == CGameArea::EOcclusionState::Visible)
+                    CWorld::PropogateAreaChain(CGameArea::EOcclusionState::Occluded,
                                                stateMgr.WorldNC()->GetArea(stateMgr.GetNextAreaId()),
                                                stateMgr.WorldNC());
             }

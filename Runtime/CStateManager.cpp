@@ -46,6 +46,7 @@
 #include "zeus/CMRay.hpp"
 #include "Collision/CollisionUtil.hpp"
 #include "World/CScriptWater.hpp"
+#include "World/CScriptDoor.hpp"
 
 #include <cmath>
 
@@ -234,7 +235,7 @@ void CStateManager::UpdateThermalVisor()
                     if (connArea->IsPostConstructed())
                     {
                         CGameArea::EOcclusionState occState = connArea->GetPostConstructed()->x10dc_occlusionState;
-                        if (occState == CGameArea::EOcclusionState::Occluded)
+                        if (occState == CGameArea::EOcclusionState::Visible)
                         {
                             closestDist = dist;
                             lastArea = connArea.get();
@@ -648,10 +649,10 @@ void CStateManager::DrawWorld() const
     {
         if (areaCount == 10)
             break;
-        CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+        CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
         if (area.IsPostConstructed())
             occState = area.GetOcclusionState();
-        if (occState == CGameArea::EOcclusionState::Occluded)
+        if (occState == CGameArea::EOcclusionState::Visible)
             areaArr[areaCount++] = &area;
     }
 
@@ -942,10 +943,10 @@ void CStateManager::PreRender()
         frustum.updatePlanes(x870_cameraManager->GetCurrentCameraTransform(*this), proj);
         for (const CGameArea& area : *x850_world)
         {
-            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
             if (area.IsPostConstructed())
                 occState = area.GetOcclusionState();
-            if (occState == CGameArea::EOcclusionState::Occluded)
+            if (occState == CGameArea::EOcclusionState::Visible)
             {
                 for (CEntity* ent : *area.GetPostConstructed()->x10c0_areaObjs)
                 {
@@ -1265,10 +1266,10 @@ void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType
             if (!ai->GetActive())
                 continue;
             CGameArea* area = x850_world->GetArea(ai->GetAreaIdAlways());
-            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
             if (area->IsPostConstructed())
                 occState = area->GetPostConstructed()->x10dc_occlusionState;
-            if (occState != CGameArea::EOcclusionState::NotOccluded)
+            if (occState != CGameArea::EOcclusionState::Occluded)
                 ai->Listen(pos, type);
         }
     }
@@ -1648,41 +1649,141 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
     }
 }
 
-bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& actor, float dt,
+bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& damagee, float dam,
                                      const CWeaponMode& weapMode)
 {
-    CHealthInfo* hInfo = actor.HealthInfo();
-    if (!hInfo || dt < 0.f)
+    CHealthInfo* hInfo = damagee.HealthInfo();
+    if (!hInfo || dam < 0.f)
         return false;
 
     if (hInfo->GetHP() <= 0.f)
         return true;
 
-    float f30 = dt;
+    float mulDam = dam;
 
-    CPlayer* player = TCastToPtr<CPlayer>(actor);
-    CAi* ai = TCastToPtr<CAi>(actor);
+    TCastToPtr<CPlayer> player = damagee;
+    TCastToPtr<CAi> ai = damagee;
 #if 0
-    CDestroyableRock* dRock = nullptr;
-    if (!ai)
-        TCastToPtr<CDestroyableRock>(actor);
+    if (TCastToPtr<CDestroyableRock>(damagee))
+        ai = damagee;
 #endif
 
     if (player)
     {
-        if (x870_cameraManager->IsInCinematicCamera())
-        {
-        }
+        if (x870_cameraManager->IsInCinematicCamera() ||
+            (weapMode.GetType() == EWeaponType::Phazon &&
+            x8b8_playerState->HasPowerUp(CPlayerState::EItemType::PhazonSuit)))
+            return false;
+
+        if (g_GameState->GetHardMode())
+            mulDam *= g_GameState->GetHardModeDamageMultiplier();
+
+        float damReduction = 0.f;
+        if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::VariaSuit))
+            damReduction = g_tweakPlayer->GetVariaDamageReduction();
+        if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::GravitySuit))
+            damReduction = std::max(g_tweakPlayer->GetGravityDamageReduction(), damReduction);
+        if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::PhazonSuit))
+            damReduction = std::max(g_tweakPlayer->GetPhazonDamageReduction(), damReduction);
+
+        mulDam = -(damReduction * mulDam - mulDam);
     }
-    return false;
+
+    float newHp = hInfo->GetHP() - mulDam;
+    bool significant = std::fabs(newHp - hInfo->GetHP()) >= 0.00001;
+
+    if (player)
+    {
+        player->TakeDamage(significant, vec1, mulDam, weapMode.GetType(), *this);
+        if (newHp <= 0.f)
+            x8b8_playerState->SetPlayerAlive(false);
+    }
+
+    if (ai)
+    {
+        if (significant)
+            ai->TakeDamage(vec2, mulDam);
+        if (newHp <= 0.f)
+            ai->Death(*this, vec2, EStateMsg::Twenty);
+    }
+
+    return significant;
 }
 
-bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info, const CMaterialFilter&)
+bool CStateManager::ApplyDamage(TUniqueId id0, TUniqueId id1, TUniqueId id2,
+                                const CDamageInfo& info, const CMaterialFilter& filter,
+                                const zeus::CVector3f& vec)
 {
+    CEntity* ent0 = ObjectById(id0);
+    CEntity* ent1 = ObjectById(id1);
+    TCastToPtr<CActor> act0 = ent0;
+    TCastToPtr<CActor> act1 = ent1;
+    bool isPlayer = TCastToPtr<CPlayer>(ent1);
+
+    if (act1)
+    {
+        if (CHealthInfo* hInfo = act1->HealthInfo())
+        {
+            zeus::CVector3f position;
+            zeus::CVector3f direction = zeus::CVector3f::skRight;
+            bool alive = hInfo->GetHP() > 0.f;
+            if (act0)
+            {
+                position = act0->GetTranslation();
+                direction = act0->GetTransform().basis[1];
+            }
+
+            const CDamageVulnerability* dVuln;
+            if (act0 || isPlayer)
+                dVuln = act1->GetDamageVulnerability(position, direction, info);
+            else
+                dVuln = act1->GetDamageVulnerability();
+
+            if (info.GetWeaponMode().GetType() == EWeaponType::None ||
+                dVuln->WeaponHurts(info.GetWeaponMode(), false))
+            {
+                if (info.GetDamage() > 0.f)
+                    ApplyLocalDamage(position, direction, *act1, info.GetDamage(), info.GetWeaponMode());
+                act1->SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
+                SendScriptMsg(act1.GetPtr(), id0, EScriptObjectMessage::InternalMessage19);
+            }
+            else
+            {
+                act1->SendScriptMsgs(EScriptObjectState::UNKS6, *this, EScriptObjectMessage::None);
+                SendScriptMsg(act1.GetPtr(), id0, EScriptObjectMessage::InternalMessage20);
+            }
+
+            if (alive && act0 && info.GetKnockBackPower() > 0.f)
+            {
+                zeus::CVector3f delta = vec.isZero() ? (act1->GetTranslation() - act0->GetTranslation()) : vec;
+                ApplyKnockBack(*act1, info, *dVuln, delta.normalized(), 0.f);
+            }
+        }
+
+        if (act0 && info.GetRadius() > 0.f)
+            ProcessRadiusDamage(*act0, *act1, id2, info, filter);
+
+        if (TCastToPtr<CWallCrawlerSwarm> swarm = ent1)
+            if (act0)
+                swarm->ApplyRadiusDamage(act0->GetTranslation(), info, *this);
+    }
+
     return false;
 }
 
-void CStateManager::UpdateAreaSounds() {}
+void CStateManager::UpdateAreaSounds()
+{
+    rstl::reserved_vector<TAreaId, 10> areas;
+    for (CGameArea& area : *x850_world)
+    {
+        CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
+        if (area.IsPostConstructed())
+            occState = area.GetOcclusionState();
+        if (occState == CGameArea::EOcclusionState::Visible)
+            areas.push_back(area.GetAreaId());
+    }
+    CSfxManager::SetActiveAreas(areas);
+}
 
 void CStateManager::FrameEnd()
 {
@@ -2269,11 +2370,27 @@ void CStateManager::DeleteObjectRequest(TUniqueId id)
 CEntity* CStateManager::ObjectById(TUniqueId uid) { return GetAllObjectList().GetObjectById(uid); }
 const CEntity* CStateManager::GetObjectById(TUniqueId uid) const { return GetAllObjectList().GetObjectById(uid); }
 
-void CStateManager::AreaUnloaded(TAreaId) {}
+void CStateManager::AreaUnloaded(TAreaId)
+{
+    // Intentionally empty
+}
 
-void CStateManager::PrepareAreaUnload(TAreaId) {}
+void CStateManager::PrepareAreaUnload(TAreaId aid)
+{
+    for (CEntity* ent : GetAllObjectList())
+    {
+        if (TCastToPtr<CScriptDoor> door = ent)
+            if (door->IsConnectedToArea(*this, aid))
+                door->ForceClosed(*this);
+    }
+    FreeScriptObjects(aid);
+}
 
-void CStateManager::AreaLoaded(TAreaId) {}
+void CStateManager::AreaLoaded(TAreaId aid)
+{
+    x8bc_relayTracker->SendMsgs(aid, *this);
+    x880_envFxManager->AreaLoaded();
+}
 
 void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOut, const zeus::CVector3f& v1,
                                   const zeus::CVector3f& v2, float f1, const CMaterialFilter& filter,
@@ -2403,7 +2520,17 @@ CRayCastResult CStateManager::RayWorldIntersection(TUniqueId& idOut, const zeus:
     return CGameCollision::RayWorldIntersection(*this, idOut, pos, dir, length, filter, list);
 }
 
-void CStateManager::UpdateObjectInLists(CEntity&) {}
+void CStateManager::UpdateObjectInLists(CEntity& ent)
+{
+    for (auto& list : x808_objLists)
+    {
+        if (list->GetValidObjectById(ent.GetUniqueId()))
+            if (!list->IsQualified(ent))
+                list->RemoveObject(ent.GetUniqueId());
+        if (!list->GetValidObjectById(ent.GetUniqueId()))
+            list->AddObject(ent);
+    }
+}
 
 TUniqueId CStateManager::AllocateUniqueId()
 {
@@ -2469,12 +2596,6 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
         }
     }
     return {num, denom};
-}
-
-bool CStateManager::ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info, const CMaterialFilter&,
-                                const zeus::CVector3f&)
-{
-    return false;
 }
 
 float CStateManager::g_EscapeShakeCountdown;

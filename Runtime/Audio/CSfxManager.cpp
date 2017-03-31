@@ -495,6 +495,34 @@ void CSfxManager::DisableAuxProcessing()
     m_auxProcessingEnabled = false;
 }
 
+void CSfxManager::SetActiveAreas(const rstl::reserved_vector<TAreaId, 10>& areas)
+{
+    CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+
+    for (const CSfxHandle& hnd : chanObj.x48_handles)
+    {
+        TAreaId sndArea = hnd->GetArea();
+        if (sndArea == kInvalidAreaId)
+        {
+            hnd->SetInArea(true);
+        }
+        else
+        {
+            bool inArea = false;
+            for (TAreaId id : areas)
+            {
+                if (sndArea == id)
+                {
+                    inArea = true;
+                    break;
+                }
+            }
+            m_doUpdate = true;
+            hnd->SetInArea(inArea);
+        }
+    }
+}
+
 void CSfxManager::Update(float dt)
 {
     CSfxChannel& chanObj = m_channels[int(m_currentChannel)];

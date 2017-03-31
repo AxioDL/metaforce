@@ -26,10 +26,10 @@ void CScriptCameraShaker::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ob
         if (GetActive() && aid != kInvalidAreaId)
         {
             const CGameArea* area = stateMgr.GetWorld()->GetAreaAlways(aid);
-            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::NotOccluded;
+            CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
             if (area->IsPostConstructed())
                 occState = area->GetPostConstructed()->x10dc_occlusionState;
-            if (occState == CGameArea::EOcclusionState::Occluded)
+            if (occState == CGameArea::EOcclusionState::Visible)
                 x34_shakeData.SetShakerId(stateMgr.GetCameraManager()->AddCameraShaker(x34_shakeData, false));
         }
         break;

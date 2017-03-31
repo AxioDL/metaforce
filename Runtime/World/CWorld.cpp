@@ -466,7 +466,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         x70_24_ = true;
     area->Validate(mgr);
     MoveToChain(area, EChain::Alive);
-    area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
+    area->SetOcclusionState(CGameArea::EOcclusionState::Visible);
 
     CGameArea* otherLoadArea = nullptr;
     if (!skipLoadOther)
@@ -538,8 +538,16 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
     if (!area->GetPostConstructed() || occlusionState == area->GetOcclusionState())
         return;
 
-    if (occlusionState == CGameArea::EOcclusionState::Occluded)
-        area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
+    if (occlusionState == CGameArea::EOcclusionState::Visible)
+        area->SetOcclusionState(CGameArea::EOcclusionState::Visible);
+
+    for (CGameArea& areaItr : *world)
+    {
+        if (&areaItr == area)
+            continue;
+        if (areaItr.IsPostConstructed() && areaItr.GetOcclusionState() == CGameArea::EOcclusionState::Visible)
+            areaItr.PrepTokens();
+    }
 
     for (CGameArea& areaItr : *world)
     {
@@ -549,16 +557,8 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
             areaItr.PrepTokens();
     }
 
-    for (CGameArea& areaItr : *world)
-    {
-        if (&areaItr == area)
-            continue;
-        if (areaItr.IsPostConstructed() && areaItr.GetOcclusionState() == CGameArea::EOcclusionState::NotOccluded)
-            areaItr.PrepTokens();
-    }
-
-    if (occlusionState == CGameArea::EOcclusionState::NotOccluded)
-        area->SetOcclusionState(CGameArea::EOcclusionState::NotOccluded);
+    if (occlusionState == CGameArea::EOcclusionState::Occluded)
+        area->SetOcclusionState(CGameArea::EOcclusionState::Occluded);
 }
 
 void CWorld::Update(float dt)

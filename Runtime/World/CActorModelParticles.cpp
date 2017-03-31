@@ -118,7 +118,7 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr)
             if (!area->IsPostConstructed())
                 continue;
             CGameArea::EOcclusionState occState = area->GetPostConstructed()->x10dc_occlusionState;
-            if (occState == CGameArea::EOcclusionState::NotOccluded)
+            if (occState == CGameArea::EOcclusionState::Occluded)
                 continue;
         }
         if (mgr.GetObjectById(item.x0_id) &&

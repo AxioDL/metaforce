@@ -338,8 +338,6 @@ public:
     bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);
     bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
-                     const CMaterialFilter&);
-    bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
                      const CMaterialFilter&, const zeus::CVector3f&);
     void UpdateAreaSounds();
     void FrameEnd();

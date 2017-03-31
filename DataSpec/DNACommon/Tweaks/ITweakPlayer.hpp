@@ -33,6 +33,9 @@ struct ITweakPlayer : ITweak
     virtual float GetX14C() const=0; // x14c
     virtual float GetLeftLogicalThreshold() const=0;
     virtual float GetRightLogicalThreshold() const=0;
+    virtual float GetVariaDamageReduction() const=0;
+    virtual float GetGravityDamageReduction() const=0;
+    virtual float GetPhazonDamageReduction() const=0;
 };
 
 }

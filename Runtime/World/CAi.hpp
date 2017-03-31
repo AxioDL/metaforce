@@ -37,7 +37,7 @@ public:
 
   CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
       CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo, const CDamageVulnerability&,
-      const CMaterialList& list, ResId, const CActorParameters&, float f1, float f2);
+      const CMaterialList& list, ResId fsm, const CActorParameters&, float f1, float f2);
 
     static void CreateFuncLookup(CAiFuncMap* funcMap);
     static CAiStateFunc GetStateFunc(const char* func);
@@ -47,7 +47,7 @@ public:
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual CHealthInfo* HealthInfo() { return &x258_healthInfo; }
-    virtual void Death(const zeus::CVector3f&, CStateManager&)=0;
+    virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg)=0;
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float)=0;
     virtual CDamageVulnerability GetDamageVulnerability()  { return x260_damageVulnerability; }
     virtual void TakeDamage(const zeus::CVector3f&, float) {}

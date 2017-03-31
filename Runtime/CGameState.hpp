@@ -109,6 +109,7 @@ public:
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
     ResId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
+    bool GetHardMode() const { return x228_24_hardMode; }
     void ReadPersistentOptions(CBitStreamReader& r);
     void SetPersistentOptions(const CPersistentOptions& opts) { xa8_systemOptions = opts; }
     void ImportPersistentOptions(const CPersistentOptions& opts);

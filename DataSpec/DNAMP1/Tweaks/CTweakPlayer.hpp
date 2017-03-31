@@ -172,9 +172,9 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool>  x2f4_;
     Value<float> x2f8_;
     Value<atUint32> x2fc_;
-    Value<float> x300_;
-    Value<float> x304_;
-    Value<float> x308_;
+    Value<float> x300_variaDamageReduction;
+    Value<float> x304_gravityDamageReduction;
+    Value<float> x308_phazonDamageReduction;
     float GetX50() const { return x44_[3]; }
     float GetX54() const { return x44_[4]; }
     float GetX58() const { return x44_[5]; }
@@ -197,8 +197,11 @@ struct CTweakPlayer : ITweakPlayer
     float GetX2B0() const { return x2b0_; }
     float GetX138() const { return x138_; }
     float GetX14C() const { return x14c_; }
-    float GetLeftLogicalThreshold() const {return x150_leftDiv;}
-    float GetRightLogicalThreshold() const {return x154_rightDiv;}
+    float GetLeftLogicalThreshold() const { return x150_leftDiv; }
+    float GetRightLogicalThreshold() const { return x154_rightDiv; }
+    float GetVariaDamageReduction() const { return x300_variaDamageReduction; }
+    float GetGravityDamageReduction() const { return x304_gravityDamageReduction; }
+    float GetPhazonDamageReduction() const { return x308_phazonDamageReduction; }
     CTweakPlayer() = default;
     CTweakPlayer(athena::io::IStreamReader& reader)
     {

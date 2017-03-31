@@ -438,11 +438,11 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x2fc_ */
     x2fc_ = __dna_reader.readUint32Big();
     /* x300_ */
-    x300_ = __dna_reader.readFloatBig();
+    x300_variaDamageReduction = __dna_reader.readFloatBig();
     /* x304_ */
-    x304_ = __dna_reader.readFloatBig();
+    x304_gravityDamageReduction = __dna_reader.readFloatBig();
     /* x308_ */
-    x308_ = __dna_reader.readFloatBig();
+    x308_phazonDamageReduction = __dna_reader.readFloatBig();
 }
 
 void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
@@ -878,11 +878,11 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x2fc_ */
     __dna_writer.writeUint32Big(x2fc_);
     /* x300_ */
-    __dna_writer.writeFloatBig(x300_);
+    __dna_writer.writeFloatBig(x300_variaDamageReduction);
     /* x304_ */
-    __dna_writer.writeFloatBig(x304_);
+    __dna_writer.writeFloatBig(x304_gravityDamageReduction);
     /* x308_ */
-    __dna_writer.writeFloatBig(x308_);
+    __dna_writer.writeFloatBig(x308_phazonDamageReduction);
 }
 
 void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
@@ -1393,11 +1393,11 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x2fc_ */
     x2fc_ = __dna_docin.readUint32("x2fc_");
     /* x300_ */
-    x300_ = __dna_docin.readFloat("x300_");
+    x300_variaDamageReduction = __dna_docin.readFloat("x300_");
     /* x304_ */
-    x304_ = __dna_docin.readFloat("x304_");
+    x304_gravityDamageReduction = __dna_docin.readFloat("x304_");
     /* x308_ */
-    x308_ = __dna_docin.readFloat("x308_");
+    x308_phazonDamageReduction = __dna_docin.readFloat("x308_");
 }
 
 void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
@@ -1893,11 +1893,11 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     /* x2fc_ */
     __dna_docout.writeUint32("x2fc_", x2fc_);
     /* x300_ */
-    __dna_docout.writeFloat("x300_", x300_);
+    __dna_docout.writeFloat("x300_", x300_variaDamageReduction);
     /* x304_ */
-    __dna_docout.writeFloat("x304_", x304_);
+    __dna_docout.writeFloat("x304_", x304_gravityDamageReduction);
     /* x308_ */
-    __dna_docout.writeFloat("x308_", x308_);
+    __dna_docout.writeFloat("x308_", x308_phazonDamageReduction);
 }
 
 void CTweakPlayer::FixupValues()

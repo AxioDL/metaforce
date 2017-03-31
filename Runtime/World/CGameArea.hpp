@@ -165,8 +165,8 @@ public:
 
     enum class EOcclusionState
     {
-        NotOccluded,
-        Occluded
+        Occluded,
+        Visible
     };
 
     class CAreaFog
@@ -217,7 +217,7 @@ public:
         u32 x10d0_sclySize = 0;
         u32 x10d4_ = 0;
         const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
-        EOcclusionState x10dc_occlusionState = EOcclusionState::NotOccluded;
+        EOcclusionState x10dc_occlusionState = EOcclusionState::Occluded;
         u32 x10e0_ = 0;
         float x10e4_ = 5.f;
         u32 x10e8_ = -1;

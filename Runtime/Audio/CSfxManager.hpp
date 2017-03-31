@@ -213,6 +213,8 @@ public:
     static void PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info);
     static void DisableAuxProcessing();
 
+    static void SetActiveAreas(const rstl::reserved_vector<TAreaId, 10>& areas);
+
     static void Update(float dt);
     static void Shutdown();
 };

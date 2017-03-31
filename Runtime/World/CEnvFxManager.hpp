@@ -4,6 +4,7 @@
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
 #include "zeus/CAABox.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
@@ -24,6 +25,28 @@ enum class EPhazonType
     Orange
 };
 
+class CVectorFixed8_8
+{
+    u16 x0_[3];
+};
+
+class CEnvFxManagerGrid
+{
+    friend class CEnvFxManager;
+    bool x0_24_ = true;
+    zeus::CVector2i x4_;
+    zeus::CVector2i xc_;
+    std::pair<bool, float> x14_ = {false, FLT_MAX};
+    std::vector<CVectorFixed8_8> x1c_;
+public:
+    CEnvFxManagerGrid(const zeus::CVector2i& a, const zeus::CVector2i& b,
+                      const std::vector<CVectorFixed8_8>& vec, int reserve)
+    : x4_(a), xc_(b), x1c_(vec)
+    {
+        x1c_.reserve(reserve);
+    }
+};
+
 class CEnvFxManager
 {
     zeus::CAABox x0_ = zeus::CAABox(-63.5, 63.5);
@@ -36,6 +59,11 @@ class CEnvFxManager
     float x38_ = 0.f;
     u8 x3c = 0;
 
+    rstl::reserved_vector<CEnvFxManagerGrid, 64> x50_grids;
+
+    TLockedToken<CGenDescription> xb58_envRainSplash;
+    bool xb64_ = true;
+
     void SetupSnowTevs();
     void SetupRainTevs();
 public:
@@ -47,7 +75,7 @@ public:
     void SetFxDensity(s32, float);
     void MoveWrapCells(s32, s32);
     void GetParticleBoundsToWorldScale() const;
-
+    void AreaLoaded();
 };
 
 }
