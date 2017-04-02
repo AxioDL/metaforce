@@ -111,7 +111,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     if (player->x304_ == 4 || player->x304_ == 1)
     {
-        const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(player->x310_grapplePointId));
+        const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(player->x310_hudPoiId));
         if (act && act->GetMaterialList().Intersection(CMaterialList(EMaterialTypes::Lava)) != 0)
         {
             zeus::CVector3f v = player->x318_ - eyePos;
@@ -173,7 +173,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, scaledDt * clampedAngle);
 
             const CScriptGrapplePoint* gPoint =
-                TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_grapplePointId));
+                TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_hudPoiId));
             if (gPoint && player->x29c_ > 0.f)
             {
                 gunFrontVec = x190_gunFollowXf.frontVector();

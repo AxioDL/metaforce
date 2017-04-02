@@ -71,4 +71,21 @@ void CScanDisplay::CDataDot::SetDestPosition(const zeus::CVector2f& pos)
     else
         x14_ = pos;
 }
+
+void CScanDisplay::ProcessInput(const CFinalInput& input)
+{
+
+}
+
+void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo, CGuiTextPane* message,
+                             CGuiTextPane* scrollMessage, CGuiWidget* textGroup, CGuiModel* xmark,
+                             CGuiModel* abutton, CGuiModel* dash, float scanTime)
+{
+
+}
+
+void CScanDisplay::StopScan()
+{
+
+}
 }

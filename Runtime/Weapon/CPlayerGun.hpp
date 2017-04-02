@@ -66,7 +66,7 @@ class CPlayerGun
     u32 x310_ = 0;
     u32 x314_ = 0;
     u32 x318_ = 0;
-    u32 x31c_ = 0;
+    u32 x31c_missilesActive = 0;
     u32 x320_ = 0;
     u32 x324_ = 4;
     u32 x328_ = 0x2000;

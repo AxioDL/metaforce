@@ -68,8 +68,8 @@ public:
     u16 GetWidth() const {return x4_w;}
     u16 GetHeight() const {return x6_h;}
     void Load(int slot, EClampMode clamp) const;
-    boo::ITexture* GetBooTexture() {return m_booTex;}
-    boo::ITexture* GetPaletteTexture() {return m_paletteTex;}
+    boo::ITexture* GetBooTexture() const {return m_booTex;}
+    boo::ITexture* GetPaletteTexture() const {return m_paletteTex;}
     std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
                                              std::unique_ptr<u8[]>& paletteOut) const;
     boo::ITexture* GetFontTexture(EFontType tp);

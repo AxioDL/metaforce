@@ -31,6 +31,9 @@ class CPlayer : public CPhysicsActor
 public:
     enum class EPlayerScanState
     {
+        Zero,
+        One,
+        Two
     };
     enum class EPlayerOrbitType
     {
@@ -116,7 +119,7 @@ private:
     u32 x304_ = 0;
     u32 x308_ = 0;
     u32 x30c_ = 0;
-    TUniqueId x310_grapplePointId = kInvalidUniqueId;
+    TUniqueId x310_hudPoiId = kInvalidUniqueId;
     float x314_ = 0.f;
     float x318_ = 0.f;
     float x31c_ = 0.f;
@@ -145,10 +148,10 @@ private:
     u8 x39c_ = 0;
     float x3a0_ = 0.5f;
     float x3a4_ = 0.449f;
-    u32 x3a8_ = 0;
-    float x3ac_ = 0.f;
+    EPlayerScanState x3a8_scanState = EPlayerScanState::Zero;
+    float x3ac_scanningTime = 0.f;
     float x3b0_ = 0.f;
-    TUniqueId x3b4_ = kInvalidUniqueId;
+    TUniqueId x3b4_scanningObject = kInvalidUniqueId;
     u32 x3b8_ = 0;
     float x3bc_ = 0.f;
     float x3c0_ = 1.0f;
@@ -258,7 +261,7 @@ private:
             bool x9c6_27_ : 1;
             bool x9c6_28_ : 1;
             bool x9c6_29_disableInput : 1;
-            bool x9c6_30_ : 1;
+            bool x9c6_30_newScanScanning : 1;
             bool x9c6_31_ : 1;
             bool x9c7_24_ : 1;
             bool x9c7_25_ : 1;
@@ -314,7 +317,7 @@ public:
     bool WasDamaged() const;
     void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
     void Accept(IVisitor& visitor);
-    CHealthInfo* HealthInfo(CStateManager& mgr);
+    static CHealthInfo* HealthInfo(const CStateManager& mgr);
     bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager& mgr);
@@ -354,7 +357,7 @@ public:
     void UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool);
     void DrawGun(CStateManager& mgr);
     void HolsterGun(CStateManager& mgr);
-    CPlayer::EPlayerMorphBallState GetMorphballTransitionState() const;
+    EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphTransState; }
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
     void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);
     bool ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr);
@@ -427,6 +430,13 @@ public:
     float GetMapAlpha() const { return x494_mapAlpha; }
     void UpdateCinematicState(CStateManager& mgr);
     void SetCameraState(EPlayerCameraState camState, CStateManager& stateMgr);
+    bool IsEnergyLow(const CStateManager& mgr) const;
+    EPlayerScanState GetScanningState() const { return x3a8_scanState; }
+    float GetScanningTime() const { return x3ac_scanningTime; }
+    TUniqueId GetHudPOIId() const { return x310_hudPoiId; }
+    TUniqueId GetScanningObjectId() const { return x3b4_scanningObject; }
+    bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }
+    bool ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const;
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
 

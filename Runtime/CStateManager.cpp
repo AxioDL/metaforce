@@ -1372,7 +1372,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
             if (player->GetFrozenState())
             {
                 g_GameState->SystemOptions().IncrFreezeBreakCount();
-                SHudMemoInfo info = {0.f, true, true, true};
+                CHUDMemoParms info = {0.f, true, true, true};
                 MP1::CSamusHud::DisplayHudMemo(u"", info);
                 player->Stop(*this);
             }
@@ -1973,13 +1973,13 @@ void CStateManager::UpdateHintState(float dt)
     {
         if (nextHintIdx == -1)
         {
-            SHudMemoInfo memoInfo = {0.f, true, true, true};
+            CHUDMemoParms memoInfo = {0.f, true, true, true};
             MP1::CSamusHud::DisplayHudMemo(u"", memoInfo);
         }
         else
         {
             const CGameHintInfo::CGameHint& data = g_MemoryCardSys->GetHints()[nextHintIdx];
-            SHudMemoInfo memoInfo = {0.f, true, false, true};
+            CHUDMemoParms memoInfo = {0.f, true, false, true};
             MP1::CSamusHud::DeferHintMemo(data.GetStringID(), hintPeriods, memoInfo);
         }
         xeec_hintIdx = nextHintIdx;

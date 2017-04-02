@@ -143,6 +143,7 @@ public:
     EBeamId GetCurrentBeam() const { return x8_currentBeam; }
     bool CanVisorSeeFog(const CStateManager& stateMgr) const;
     EPlayerVisor GetCurrentVisor() const { return x14_currentVisor; }
+    EPlayerVisor GetTransitioningVisor() const { return x18_transitioningVisor; }
     EPlayerVisor GetActiveVisor(const CStateManager& stateMgr) const;
     void UpdateStaticInterference(CStateManager& stateMgr, const float& dt);
     void IncreaseScanTime(u32 time, float val);

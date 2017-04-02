@@ -308,4 +308,13 @@ bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const
     return _GetIsTextSupportFinishedLoading();
 }
 
+void CGuiTextSupport::SetScanStates(const std::vector<CSaveWorld::SScanState>* scanStates)
+{
+    if (x14_props.xc_scanStates != scanStates)
+    {
+        x14_props.xc_scanStates = scanStates;
+        ClearRenderBuffer();
+    }
+}
+
 }

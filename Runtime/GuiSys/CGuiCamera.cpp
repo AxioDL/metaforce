@@ -10,18 +10,18 @@ CGuiCamera::CGuiCamera(const CGuiWidgetParms& parms,
                        float left, float right,
                        float top, float bottom,
                        float znear, float zfar)
-: CGuiWidget(parms), xf8_proj(EProjection::Orthographic),
-  xfc_left(left), x100_right(right),
-  x104_top(top), x108_bottom(bottom),
-  x10c_znear(znear), x110_zfar(zfar)
+: CGuiWidget(parms), xb8_proj(EProjection::Orthographic),
+  xbc_left(left), xc0_right(right),
+  xc4_top(top), xc8_bottom(bottom),
+  xcc_znear(znear), xd0_zfar(zfar)
 {}
 
 CGuiCamera::CGuiCamera(const CGuiWidgetParms& parms,
                        float fov, float aspect,
                        float znear, float zfar)
-: CGuiWidget(parms), xf8_proj(EProjection::Perspective),
-  xfc_fov(fov), x100_aspect(aspect),
-  x104_znear(znear), x108_zfar(zfar)
+: CGuiWidget(parms), xb8_proj(EProjection::Perspective),
+  xbc_fov(fov), xc0_aspect(aspect),
+  xc4_znear(znear), xc8_zfar(zfar)
 {}
 
 zeus::CVector3f CGuiCamera::ConvertToScreenSpace(const zeus::CVector3f& vec) const
@@ -30,18 +30,18 @@ zeus::CVector3f CGuiCamera::ConvertToScreenSpace(const zeus::CVector3f& vec) con
     if (local.isZero())
         return {-1.f, -1.f, 1.f};
 
-    zeus::CMatrix4f mat = CGraphics::CalculatePerspectiveMatrix(xfc_fov, x100_aspect,
-                                                                x104_znear, x108_zfar,
+    zeus::CMatrix4f mat = CGraphics::CalculatePerspectiveMatrix(xbc_fov, xc0_aspect,
+                                                                xc4_znear, xc8_zfar,
                                                                 false);
     return mat.multiplyOneOverW(local);
 }
 
 void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const
 {
-    if (xf8_proj == EProjection::Perspective)
-        CGraphics::SetPerspective(xfc_fov, x100_aspect, x104_znear, x108_zfar);
+    if (xb8_proj == EProjection::Perspective)
+        CGraphics::SetPerspective(xbc_fov, xc0_aspect, xc4_znear, xc8_zfar);
     else
-        CGraphics::SetOrtho(xfc_left, x100_right, x104_top, x108_bottom, x10c_znear, x110_zfar);
+        CGraphics::SetOrtho(xbc_left, xc0_right, xc4_top, xc8_bottom, xcc_znear, xd0_zfar);
     CGraphics::SetViewPointMatrix(GetGuiFrame()->GetAspectTransform() *
                                   zeus::CTransform::Translate(parms.x4_cameraOffset) * x34_worldXF);
     CGuiWidget::Draw(parms);

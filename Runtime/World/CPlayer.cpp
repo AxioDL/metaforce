@@ -89,7 +89,7 @@ void CPlayer::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
+CHealthInfo* CPlayer::HealthInfo(const CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
 
 bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const { return false; }
 
@@ -198,8 +198,6 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& m
 void CPlayer::DrawGun(CStateManager& mgr) {}
 
 void CPlayer::HolsterGun(CStateManager& mgr) {}
-
-CPlayer::EPlayerMorphBallState CPlayer::GetMorphballTransitionState() const { return x2f8_morphTransState; }
 
 void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float) {}
 
@@ -380,6 +378,24 @@ void CPlayer::SetCameraState(EPlayerCameraState camState, CStateManager& stateMg
         break;
     }
     }
+}
+
+bool CPlayer::IsEnergyLow(const CStateManager& mgr) const
+{
+    float lowThreshold = mgr.GetPlayerState()->GetItemCapacity(CPlayerState::EItemType::EnergyTanks) < 4 ? 30.f : 100.f;
+    return HealthInfo(mgr)->GetHP() < lowThreshold;
+}
+
+bool CPlayer::ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const
+{
+    const CEntity* ent = mgr.GetObjectById(id);
+    if (TCastToConstPtr<CActor> act = ent)
+    {
+        zeus::CVector3f delta = act->GetTranslation() - GetTranslation();
+        if (delta.canBeNormalized())
+            return delta.magnitude() < g_tweakPlayer->GetScanningRange();
+    }
+    return false;
 }
 
 void CPlayer::Touch() {}

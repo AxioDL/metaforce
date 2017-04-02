@@ -339,4 +339,16 @@ bool CActor::CanDrawStatic() const
 
     return false;
 }
+
+const CScannableObjectInfo* CActor::GetScannableObjectInfo() const
+{
+    if (!x98_scanObjectInfo)
+        return nullptr;
+
+    TToken<CScannableObjectInfo>& info = *x98_scanObjectInfo;
+    if (!info || !info.IsLoaded())
+        return nullptr;
+
+    return info.GetObj();
+}
 }

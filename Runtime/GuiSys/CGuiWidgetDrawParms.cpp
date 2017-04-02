@@ -2,5 +2,5 @@
 
 namespace urde
 {
-CGuiWidgetDrawParms CGuiWidgetDrawParms::Default;
+CGuiWidgetDrawParms CGuiWidgetDrawParms::Default = {};
 }

@@ -91,7 +91,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x20c_;
     Value<float> x210_;
     Value<float> x214_;
-    Value<float> x218_;
+    Value<float> x218_scanningRange;
     Value<bool> x21c_24_ : 1;
     Value<bool> x21c_25_ : 1;
     Value<bool> x21c_26_ : 1;
@@ -179,6 +179,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX54() const { return x44_[4]; }
     float GetX58() const { return x44_[5]; }
     float GetX5C() const { return x44_[6]; }
+    float GetScanningRange() const { return x218_scanningRange; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
     float GetX274() const { return x274_; }

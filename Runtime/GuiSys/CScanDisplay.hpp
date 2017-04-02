@@ -12,8 +12,11 @@ namespace urde
 {
 class CGuiTextPane;
 class CGuiWidget;
+class CGuiModel;
+class CFinalInput;
 class CScanDisplay
 {
+    friend class CHudDecoInterfaceScan;
 public:
     class CDataDot
     {
@@ -50,9 +53,17 @@ public:
     {
     };
 
+private:
+    u32 xc_;
+    TUniqueId x10_;
+    float x1a8_;
+
 public:
     CScanDisplay() = default;
-    void StartScan(TUniqueId, const CScannableObjectInfo&, CGuiTextPane*, CGuiWidget*, float);
+    void ProcessInput(const CFinalInput& input);
+    void StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo, CGuiTextPane* message,
+                   CGuiTextPane* scrollMessage, CGuiWidget* textGroup, CGuiModel* xmark,
+                   CGuiModel* abutton, CGuiModel* dash, float scanTime);
     void StopScan();
     void InitializeFrame(float);
     void Update(float, float);

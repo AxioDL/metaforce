@@ -6,6 +6,7 @@
 #include "CToken.hpp"
 #include "CTextRenderBuffer.hpp"
 #include "CGuiWidget.hpp"
+#include "CSaveWorld.hpp"
 #include "optional.hpp"
 #include <string>
 
@@ -66,12 +67,13 @@ class CGuiTextProperties
     bool x1_horizontal;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
-    u32 xc_;
+    const std::vector<CSaveWorld::SScanState>* xc_scanStates;
 public:
     CGuiTextProperties(bool wordWrap, bool horizontal, EJustification justification,
-                       EVerticalJustification vertJustification, u32 unk=0)
+                       EVerticalJustification vertJustification,
+                       const std::vector<CSaveWorld::SScanState>* scanStates=nullptr)
         : x0_wordWrap(wordWrap), x1_horizontal(horizontal), x4_justification(justification),
-          x8_vertJustification(vertJustification), xc_(unk) {}
+          x8_vertJustification(vertJustification), xc_scanStates(scanStates) {}
 };
 
 class CGuiTextSupport
@@ -136,6 +138,7 @@ public:
     void SetImageBaseline(bool b);
     bool GetIsTextSupportFinishedLoading() const;
     float GetCurTime() const { return x3c_curTime; }
+    void SetScanStates(const std::vector<CSaveWorld::SScanState>* scanStates);
 };
 
 }

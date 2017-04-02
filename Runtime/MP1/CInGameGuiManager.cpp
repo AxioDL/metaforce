@@ -280,13 +280,13 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)
             return false;
         x8_preLoadDeps.clear();
 
-        CGuiFrame& baseHud = *x34_samusHud->x274_loadedBaseHud;
+        CGuiFrame& baseHud = *x34_samusHud->x274_loadedFrmeBaseHud;
         x144_basewidget_automapper = baseHud.FindWidget("BaseWidget_AutoMapper");
         x148_model_automapper = static_cast<CGuiModel*>(baseHud.FindWidget("Model_AutoMapper"));
         x14c_basehud_camera = baseHud.GetFrameCamera();
         x150_basewidget_functional = baseHud.FindWidget("BaseWidget_Functional");
 
-        x154_automapperRotate = zeus::CQuaternion(x144_basewidget_automapper->GetLocalTransform().basis);
+        x154_automapperRotate = zeus::CQuaternion(x144_basewidget_automapper->GetWorldTransform().basis);
         x164_automapperOffset = x144_basewidget_automapper->GetLocalPosition();
         x170_camRotate = zeus::CQuaternion::skNoRotation;
         x180_camOffset = x14c_basehud_camera->GetLocalPosition() +

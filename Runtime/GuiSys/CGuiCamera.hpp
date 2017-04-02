@@ -16,24 +16,24 @@ public:
         Orthographic
     };
 private:
-    EProjection xf8_proj;
+    EProjection xb8_proj;
     union
     {
         struct
         {
-            float xfc_left;
-            float x100_right;
-            float x104_top;
-            float x108_bottom;
-            float x10c_znear;
-            float x110_zfar;
+            float xbc_left;
+            float xc0_right;
+            float xc4_top;
+            float xc8_bottom;
+            float xcc_znear;
+            float xd0_zfar;
         };
         struct
         {
-            float xfc_fov;
-            float x100_aspect;
-            float x104_znear;
-            float x108_zfar;
+            float xbc_fov;
+            float xc0_aspect;
+            float xc4_znear;
+            float xc8_zfar;
         };
     };
 public:
@@ -46,6 +46,7 @@ public:
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& vec) const;
+    void SetFov(float fov) { xbc_fov = fov; }
     void Draw(const CGuiWidgetDrawParms& parms) const;
 
     std::shared_ptr<CGuiCamera> shared_from_this()

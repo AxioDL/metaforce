@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "Audio/CAudioSys.hpp"
+#include "CSaveWorld.hpp"
 
 namespace urde
 {
@@ -131,9 +132,7 @@ class CGameOptions
         u16 _dummy = 0;
     };
 
-    u32 x70_ = 0;
-    u32 x74_ = 0;
-    u32 x78_ = 0;
+    std::vector<CSaveWorld::SScanState> x6c_scanStates;
 
 public:
     CGameOptions();
@@ -174,6 +173,7 @@ public:
     bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
     void SetControls(s32);
     void ResetControllerAssets();
+    std::vector<CSaveWorld::SScanState>& GetScanStates() { return x6c_scanStates; }
 
     static void TryRestoreDefaults(const CFinalInput& input, int category,
                                    int option, bool frontend, bool forceRestore);

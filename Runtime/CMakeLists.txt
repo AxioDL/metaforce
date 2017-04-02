@@ -74,7 +74,6 @@ add_library(RuntimeCommon
             CIOWinManager.hpp CIOWinManager.cpp
             CStateManager.hpp CStateManager.cpp
             CGameState.hpp CGameState.cpp
-            CScanDisplay.hpp CScanDisplay.cpp
             CRelayTracker.hpp CRelayTracker.cpp
             CPlayerState.hpp CPlayerState.cpp
             CRandom16.hpp CRandom16.cpp

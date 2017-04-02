@@ -123,13 +123,13 @@ struct CTweakGui : ITweakGui
     float x204_xrayBlurScaleLinear = 0.0014f;
     float x208_xrayBlurScaleQuadratic = 0.0000525f;
     Value<float> x20c_;
-    Value<float> x210_;
-    Value<float> x214_;
-    Value<float> x218_;
+    Value<float> x210_scanSidesAngle;
+    Value<float> x214_scanSidesXScale;
+    Value<float> x218_scanSidesPositionEnd;
     Value<float> x21c_;
-    Value<float> x220_;
-    Value<float> x224_;
-    float x228_;
+    Value<float> x220_scanSidesDuration;
+    Value<float> x224_scanSidesStartTime;
+    float x228_scanSidesEndTime;
     Value<float> x22c_;
     Value<float> x230_;
     Value<float> x234_;
@@ -147,7 +147,7 @@ struct CTweakGui : ITweakGui
     Value<float> x264_;
     Value<float> x268_;
     Value<float> x26c_;
-    Value<float> x270_;
+    Value<float> x270_scanSidesPositionStart;
     Value<bool> x274_;
     bool x275_ = true;
     Value<float> x278_wtMgrCharsPerSfx;
@@ -204,6 +204,13 @@ struct CTweakGui : ITweakGui
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
+    float GetScanSidesAngle() const { return x210_scanSidesAngle; }
+    float GetScanSidesXScale() const { return x214_scanSidesXScale; }
+    float GetScanSidesPositionEnd() const { return x218_scanSidesPositionEnd; }
+    float GetScanSidesDuration() const { return x220_scanSidesDuration; }
+    float GetScanSidesStartTime() const { return x224_scanSidesStartTime; }
+    float GetScanSidesEndTime() const { return x228_scanSidesEndTime; }
+    float GetScanSidesPositionStart() const { return x270_scanSidesPositionStart; }
     float GetWorldTransManagerCharsPerSfx() const { return x278_wtMgrCharsPerSfx; }
     atUint32 GetXRayFogMode() const { return x27c_xrayFogMode; }
     float GetXRayFogNearZ() const { return x280_xrayFogNearZ; }
@@ -228,8 +235,8 @@ struct CTweakGui : ITweakGui
         x204_xrayBlurScaleLinear = x1f8_ * 0.25f;
         x208_xrayBlurScaleQuadratic = x1fc_ * 0.25f;
 
-        x210_ = zeus::degToRad(x210_);
-        x228_ = x220_ + x224_;
+        x210_scanSidesAngle = zeus::degToRad(x210_scanSidesAngle);
+        x228_scanSidesEndTime = x220_scanSidesDuration + x224_scanSidesStartTime;
 
         if (x27c_xrayFogMode == 1)
             x27c_xrayFogMode = 2;

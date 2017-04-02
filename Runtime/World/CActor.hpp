@@ -161,6 +161,7 @@ public:
     void SetActorLights(std::unique_ptr<CActorLights>);
     bool CanDrawStatic() const;
     bool GetE7_29() const  { return xe7_29_; }
+    const CScannableObjectInfo* GetScannableObjectInfo() const;
 };
 }
 

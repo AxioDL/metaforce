@@ -350,7 +350,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x214_ */
     x214_ = __dna_reader.readFloatBig();
     /* x218_ */
-    x218_ = __dna_reader.readFloatBig();
+    x218_scanningRange = __dna_reader.readFloatBig();
     /* x21c_24_ */
     x21c_24_ = __dna_reader.readBool();
     /* x21c_25_ */
@@ -790,7 +790,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x214_ */
     __dna_writer.writeFloatBig(x214_);
     /* x218_ */
-    __dna_writer.writeFloatBig(x218_);
+    __dna_writer.writeFloatBig(x218_scanningRange);
     /* x21c_24_ */
     __dna_writer.writeBool(x21c_24_);
     /* x21c_25_ */
@@ -1304,8 +1304,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x210_ = __dna_docin.readFloat("x210_");
     /* x214_ */
     x214_ = __dna_docin.readFloat("x214_");
-    /* x218_ */
-    x218_ = __dna_docin.readFloat("x218_");
+    /* x218_scanningRange */
+    x218_scanningRange = __dna_docin.readFloat("x218_scanningRange");
     /* x21c_24_ */
     x21c_24_ = __dna_docin.readBool("x21c_24_");
     /* x21c_25_ */
@@ -1392,12 +1392,12 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2f8_ = __dna_docin.readFloat("x2f8_");
     /* x2fc_ */
     x2fc_ = __dna_docin.readUint32("x2fc_");
-    /* x300_ */
-    x300_variaDamageReduction = __dna_docin.readFloat("x300_");
-    /* x304_ */
-    x304_gravityDamageReduction = __dna_docin.readFloat("x304_");
-    /* x308_ */
-    x308_phazonDamageReduction = __dna_docin.readFloat("x308_");
+    /* x300_variaDamageReduction */
+    x300_variaDamageReduction = __dna_docin.readFloat("x300_variaDamageReduction");
+    /* x304_gravityDamageReduction */
+    x304_gravityDamageReduction = __dna_docin.readFloat("x304_gravityDamageReduction");
+    /* x308_phazonDamageReduction */
+    x308_phazonDamageReduction = __dna_docin.readFloat("x308_phazonDamageReduction");
 }
 
 void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
@@ -1804,8 +1804,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x210_", x210_);
     /* x214_ */
     __dna_docout.writeFloat("x214_", x214_);
-    /* x218_ */
-    __dna_docout.writeFloat("x218_", x218_);
+    /* x218_scanningRange */
+    __dna_docout.writeFloat("x218_scanningRange", x218_scanningRange);
     /* x21c_24_ */
     __dna_docout.writeBool("x21c_24_", x21c_24_);
     /* x21c_25_ */
@@ -1892,12 +1892,12 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x2f8_", x2f8_);
     /* x2fc_ */
     __dna_docout.writeUint32("x2fc_", x2fc_);
-    /* x300_ */
-    __dna_docout.writeFloat("x300_", x300_variaDamageReduction);
-    /* x304_ */
-    __dna_docout.writeFloat("x304_", x304_gravityDamageReduction);
-    /* x308_ */
-    __dna_docout.writeFloat("x308_", x308_phazonDamageReduction);
+    /* x300_variaDamageReduction */
+    __dna_docout.writeFloat("x300_variaDamageReduction", x300_variaDamageReduction);
+    /* x304_gravityDamageReduction */
+    __dna_docout.writeFloat("x304_gravityDamageReduction", x304_gravityDamageReduction);
+    /* x308_phazonDamageReduction */
+    __dna_docout.writeFloat("x308_phazonDamageReduction", x308_phazonDamageReduction);
 }
 
 void CTweakPlayer::FixupValues()

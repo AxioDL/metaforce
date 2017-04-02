@@ -37,6 +37,16 @@ set(GUISYS_SOURCES
     CStringTable.hpp CStringTable.cpp
     CTargetingManager.hpp CTargetingManager.cpp
     CCompoundTargetReticle.hpp CCompoundTargetReticle.cpp
-    COrbitPointMarker.hpp COrbitPointMarker.cpp)
+    COrbitPointMarker.hpp COrbitPointMarker.cpp
+    CHudEnergyInterface.hpp CHudEnergyInterface.cpp
+    CHudThreatInterface.hpp CHudThreatInterface.cpp
+    CHudMissileInterface.hpp CHudMissileInterface.cpp
+    CHudFreeLookInterface.hpp CHudFreeLookInterface.cpp
+    CHudDecoInterface.hpp CHudDecoInterface.cpp
+    CHudHelmetInterface.hpp CHudHelmetInterface.cpp
+    CHudVisorBeamMenu.hpp CHudVisorBeamMenu.cpp
+    CHudRadarInterface.hpp CHudRadarInterface.cpp
+    CHudBallInterface.hpp CHudBallInterface.cpp
+    CScanDisplay.hpp CScanDisplay.cpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)

@@ -14,9 +14,9 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x8_;
     DNAColor xc_;
     DNAColor x10_;
-    DNAColor x14_;
-    DNAColor x18_;
-    DNAColor x1c_;
+    DNAColor x14_hudMessageFill;
+    DNAColor x18_hudMessageOutline;
+    DNAColor x1c_hudFrameColor;
     DNAColor x20_;
     DNAColor x24_;
     DNAColor x28_;
@@ -43,7 +43,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x7c_;
     DNAColor x80_;
     DNAColor x84_;
-    DNAColor x88_;
+    DNAColor x88_tickDecoColor;
     DNAColor x8c_;
     DNAColor x90_;
     DNAColor x94_;
@@ -105,8 +105,8 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x174_;
     DNAColor x178_;
     DNAColor x17c_;
-    DNAColor x180_;
-    DNAColor x184_;
+    DNAColor x180_hudCounterFill;
+    DNAColor x184_hudCounterOutline;
     DNAColor x188_;
     DNAColor x18c_;
     DNAColor x190_;
@@ -138,6 +138,13 @@ struct CTweakGuiColors : public ITweakGuiColors
 
     CTweakGuiColors() = default;
     CTweakGuiColors(athena::io::IStreamReader& r) { this->read(r); }
+
+    zeus::CColor GetHudMessageFill() const { return x14_hudMessageFill; }
+    zeus::CColor GetHudMessageOutline() const { return x18_hudMessageOutline; }
+    zeus::CColor GetHudFrameColor() const { return x1c_hudFrameColor; }
+    zeus::CColor GetTickDecoColor() const { return x88_tickDecoColor; }
+    zeus::CColor GetHudCounterFill() const { return x180_hudCounterFill; }
+    zeus::CColor GetHudCounterOutline() const { return x184_hudCounterOutline; }
 };
 }
 }

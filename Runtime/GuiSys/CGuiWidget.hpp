@@ -129,6 +129,8 @@ public:
     CGuiWidget* FindWidget(s16 id);
     bool GetIsFinishedLoading() const;
     void DispatchInitialize();
+    void SetDepthTest(bool v) { xb6_31_depthTest = v; }
+    void SetDepthWrite(bool v) { xb7_24_depthWrite = v; }
 
     CGuiFrame* GetGuiFrame() const { return xb0_frame; }
 };

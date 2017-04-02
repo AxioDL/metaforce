@@ -36,6 +36,13 @@ struct ITweakGui : ITweak
     virtual float GetScanSpeed(int idx) const=0;
     virtual float GetXrayBlurScaleLinear() const=0;
     virtual float GetXrayBlurScaleQuadratic() const=0;
+    virtual float GetScanSidesAngle() const=0;
+    virtual float GetScanSidesXScale() const=0;
+    virtual float GetScanSidesPositionEnd() const=0;
+    virtual float GetScanSidesDuration() const=0;
+    virtual float GetScanSidesStartTime() const=0;
+    virtual float GetScanSidesEndTime() const=0;
+    virtual float GetScanSidesPositionStart() const=0;
     virtual float GetWorldTransManagerCharsPerSfx() const=0;
     virtual atUint32 GetXRayFogMode() const=0;
     virtual float GetXRayFogNearZ() const=0;

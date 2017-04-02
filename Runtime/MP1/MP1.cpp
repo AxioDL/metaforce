@@ -8,6 +8,7 @@
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
 #include "Graphics/Shaders/CTextSupportShader.hpp"
+#include "Graphics/Shaders/CEnergyBarShader.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -23,6 +24,7 @@ URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
 URDE_DECL_SPECIALIZE_SHADER(CFogVolumePlaneShader)
 URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
+URDE_DECL_SPECIALIZE_SHADER(CEnergyBarShader)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
@@ -213,6 +215,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TShader<CXRayBlurFilter>::Initialize();
     TShader<CFogVolumePlaneShader>::Initialize();
     TShader<CFogVolumeFilter>::Initialize();
+    TShader<CEnergyBarShader>::Initialize();
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
@@ -331,6 +334,7 @@ void CMain::Shutdown()
     TShader<CXRayBlurFilter>::Shutdown();
     TShader<CFogVolumePlaneShader>::Shutdown();
     TShader<CFogVolumeFilter>::Shutdown();
+    TShader<CEnergyBarShader>::Shutdown();
     TMultiBlendShader<CColoredQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();
