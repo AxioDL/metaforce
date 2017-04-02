@@ -10,6 +10,7 @@
 #include "Character/CActorLights.hpp"
 #include "Collision/CCollisionResponseData.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "CScannableObjectInfo.hpp"
 
 namespace urde
 {
@@ -20,7 +21,6 @@ class CHealthInfo;
 class CDamageInfo;
 class CDamageVulnerability;
 class CLightParameters;
-class CScannableObjectInfo;
 class CScriptWater;
 class CSimpleShadow;
 
