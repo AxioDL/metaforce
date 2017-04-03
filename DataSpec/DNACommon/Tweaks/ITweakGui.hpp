@@ -19,20 +19,25 @@ struct ITweakGui : ITweak
 
     enum class EHelmetVisMode : atUint32
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four
+        ReducedUpdate,
+        NotVisible,
+        Deco,
+        HelmetDeco,
+        GlowHelmetDeco,
+        HelmetOnly
     };
 
     virtual float GetMapAlphaInterpolant() const=0;
+    virtual atUint32 GetHudCamFovTweak() const=0;
+    virtual atUint32 GetHudCamYTweak() const=0;
+    virtual atUint32 GetHudCamZTweak() const=0;
     virtual EHudVisMode GetHudVisMode() const=0;
     virtual EHelmetVisMode GetHelmetVisMode() const=0;
     virtual atUint32 GetEnableAutoMapper() const=0;
     virtual atUint32 GetEnableTargetingManager() const=0;
     virtual atUint32 GetEnablePlayerVisor() const=0;
     virtual float GetScanAppearanceOffset() const=0;
+    virtual float GetBallViewportYReduction() const=0;
     virtual float GetScanSpeed(int idx) const=0;
     virtual float GetXrayBlurScaleLinear() const=0;
     virtual float GetXrayBlurScaleQuadratic() const=0;

@@ -9,4 +9,14 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame* baseHud, EHudVisorBeamMenu type,
 
 }
 
+void CHudVisorBeamMenu::Update(float dt, bool init)
+{
+
+}
+
+void CHudVisorBeamMenu::UpdateHudAlpha(float alpha)
+{
+
+}
+
 }

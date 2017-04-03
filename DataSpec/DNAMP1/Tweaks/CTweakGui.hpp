@@ -47,9 +47,9 @@ struct CTweakGui : ITweakGui
     Value<float> x9c_;
     Value<float> xa0_;
     Value<float> xa4_;
-    Value<atUint32> xa8_;
-    Value<atUint32> xac_;
-    Value<atUint32> xb0_;
+    Value<atUint32> xa8_hudCamFovTweak;
+    Value<atUint32> xac_hudCamYTweak;
+    Value<atUint32> xb0_hudCamZTweak;
     Value<float> xb4_;
     Value<float> xb8_;
     Value<float> xbc_;
@@ -140,7 +140,7 @@ struct CTweakGui : ITweakGui
     Value<float> x248_;
     Value<float> x24c_;
     Value<float> x250_;
-    Value<float> x254_;
+    Value<float> x254_ballViewportYReduction;
     Value<float> x258_;
     Value<float> x25c_;
     Value<float> x260_;
@@ -196,12 +196,16 @@ struct CTweakGui : ITweakGui
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
 
     float GetMapAlphaInterpolant() const { return x8_mapAlphaInterp; }
+    atUint32 GetHudCamFovTweak() const { return xa8_hudCamFovTweak; }
+    atUint32 GetHudCamYTweak() const { return xac_hudCamYTweak; }
+    atUint32 GetHudCamZTweak() const { return xb0_hudCamZTweak; }
     EHudVisMode GetHudVisMode() const { return xf8_hudVisMode; }
     EHelmetVisMode GetHelmetVisMode() const { return xfc_helmetVisMode; }
     atUint32 GetEnableAutoMapper() const { return x100_enableAutoMapper; }
     atUint32 GetEnableTargetingManager() const { return x108_enableTargetingManager; }
     atUint32 GetEnablePlayerVisor() const { return x10c_enablePlayerVisor; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
+    float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
     float GetScanSidesAngle() const { return x210_scanSidesAngle; }

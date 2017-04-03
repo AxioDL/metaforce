@@ -10,6 +10,7 @@ class CHudRadarInterface
 {
 public:
     CHudRadarInterface(CGuiFrame& selHud, CStateManager& stateMgr);
+    void Update(float dt, const CStateManager& mgr);
 };
 
 }

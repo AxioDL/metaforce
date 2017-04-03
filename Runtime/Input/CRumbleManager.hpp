@@ -9,8 +9,11 @@ class CStateManager;
 class CRumbleManager
 {
     CRumbleGenerator x0_rumbleGenerator;
+    bool xf0_24_disabled : 1;
 public:
-    CRumbleManager() = default;
+    CRumbleManager() { xf0_24_disabled = false; }
+    bool IsDisabled() const { return xf0_24_disabled; }
+    void SetDisabled(bool disabled);
     void Update(float);
     void StopRumble(u16) {}
     void Rumble(CStateManager&, ERumbleFxId, ERumblePriority priority) {}

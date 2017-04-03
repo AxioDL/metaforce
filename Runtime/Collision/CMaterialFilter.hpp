@@ -10,8 +10,8 @@ class CMaterialFilter
 public:
     enum class EFilterType
     {
+        Always,
         Include,
-        One,
         Exclude,
         IncludeExclude
     };
@@ -32,7 +32,7 @@ public:
 
     const CMaterialList& GetIncludeList() const { return x0_include; }
     const CMaterialList& GetExcludeList() const { return x8_exclude; }
-    bool Passes(const CMaterialList&) const { return false; }
+    bool Passes(const CMaterialList&) const;
 };
 }
 #endif // __CMATERIALFILTER_HPP__

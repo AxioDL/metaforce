@@ -6,7 +6,8 @@ namespace urde
 
 class CHudBallInterface
 {
-
+public:
+    void SetBallModeFactor(float t);
 };
 
 }

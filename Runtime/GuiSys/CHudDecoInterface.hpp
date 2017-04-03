@@ -26,15 +26,15 @@ public:
     virtual void SetHudRotation(const zeus::CQuaternion& rot)=0;
     virtual void SetHudOffset(const zeus::CVector3f& off)=0;
     virtual void SetReticuleTransform(const zeus::CMatrix3f& xf) {}
-    virtual void UpdateTransforms() {}
+    virtual void SetDecoRotation(float angle) {}
     virtual void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position)=0;
     virtual void SetFrameColorValue(float v);
     virtual void Update(float dt, const CStateManager& stateMgr)=0;
     virtual void Draw() const {}
     virtual void ProcessInput(const CFinalInput& input) {}
-    virtual void SetCameraParms(float fov, float y, float z)=0;
+    virtual void UpdateCameraDebugSettings(float fov, float y, float z)=0;
     virtual void UpdateHudAlpha()=0;
-    virtual float GetMessageTextAlpha() const { return 1.f; }
+    virtual float GetHudTextAlpha() const { return 1.f; }
     virtual ~IHudDecoInterface() = default;
 };
 
@@ -63,7 +63,7 @@ public:
     void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
     void SetFrameColorValue(float v);
     void Update(float dt, const CStateManager& stateMgr);
-    void SetCameraParms(float fov, float y, float z);
+    void UpdateCameraDebugSettings(float fov, float y, float z);
     void UpdateHudAlpha();
 };
 
@@ -75,7 +75,7 @@ class CHudDecoInterfaceScan : public IHudDecoInterface
     CScanDisplay x18_scanDisplay;
     TUniqueId x1d0_latestHudPoi = kInvalidUniqueId;
     TUniqueId x1d2_latestScanningObject = kInvalidUniqueId;
-    CPlayer::EPlayerScanState x1d4_latestScanState = CPlayer::EPlayerScanState::Zero;
+    CPlayer::EPlayerScanState x1d4_latestScanState = CPlayer::EPlayerScanState::NotScanning;
     float x1d8_scanningTime = 0.f;
     float x1dc_ = 0.f;
     float x1e0_ = 1.f;
@@ -120,13 +120,28 @@ public:
     void Update(float dt, const CStateManager& stateMgr);
     void Draw() const;
     void ProcessInput(const CFinalInput& input);
-    void SetCameraParms(float fov, float y, float z);
+    void UpdateCameraDebugSettings(float fov, float y, float z);
     void UpdateHudAlpha();
-    float GetMessageTextAlpha() const;
+    float GetHudTextAlpha() const;
 };
 
 class CHudDecoInterfaceXRay : public IHudDecoInterface
 {
+    float x4_seekerScale = 1.f;
+    zeus::CQuaternion x8_rotation;
+    zeus::CVector3f x18_pivotPosition;
+    zeus::CVector3f x24_offset;
+    zeus::CVector3f x30_camPos;
+    zeus::CMatrix3f x3c_reticuleXf;
+    zeus::CVector3f x60_seekerPosition;
+    zeus::CVector3f x6c_;
+    zeus::CMatrix3f x78_;
+    bool x9c_24_visDebug : 1;
+    bool x9c_25_visGame : 1;
+    CGuiCamera* xa0_camera;
+    CGuiWidget* xa4_basewidget_pivot;
+    CGuiWidget* xa8_basewidget_seeker;
+    CGuiWidget* xac_basewidget_rotate;
     void UpdateVisibility();
 public:
     CHudDecoInterfaceXRay(CGuiFrame& selHud);
@@ -135,16 +150,31 @@ public:
     void SetHudRotation(const zeus::CQuaternion& rot);
     void SetHudOffset(const zeus::CVector3f& off);
     void SetReticuleTransform(const zeus::CMatrix3f& xf);
-    void UpdateTransforms();
+    void SetDecoRotation(float angle);
     void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
     void SetFrameColorValue(float v);
     void Update(float dt, const CStateManager& stateMgr);
-    void SetCameraParms(float fov, float y, float z);
+    void UpdateCameraDebugSettings(float fov, float y, float z);
     void UpdateHudAlpha();
 };
 
 class CHudDecoInterfaceThermal : public IHudDecoInterface
 {
+    zeus::CQuaternion x4_rotation;
+    zeus::CVector3f x14_pivotPosition;
+    zeus::CVector3f x20_offset;
+    zeus::CVector3f x2c_camPos;
+    zeus::CMatrix3f x38_reticuleXf;
+    zeus::CVector3f x5c_reticulePosition;
+    float x68_lockonScale = 5.f;
+    float x6c_retflashTimer = 0.f;
+    bool x70_24_visDebug : 1;
+    bool x70_25_visGame : 1;
+    CGuiCamera* x74_camera;
+    CGuiWidget* x78_basewidget_pivot;
+    CGuiWidget* x7c_basewidget_reticle;
+    CGuiModel* x80_model_retflash;
+    std::vector<std::pair<CGuiWidget*, zeus::CTransform>> x84_lockonWidgets;
     void UpdateVisibility();
 public:
     CHudDecoInterfaceThermal(CGuiFrame& selHud);
@@ -155,7 +185,7 @@ public:
     void SetReticuleTransform(const zeus::CMatrix3f& xf);
     void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
     void Update(float dt, const CStateManager& stateMgr);
-    void SetCameraParms(float fov, float y, float z);
+    void UpdateCameraDebugSettings(float fov, float y, float z);
     void UpdateHudAlpha();
 };
 

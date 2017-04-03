@@ -22,10 +22,18 @@ class CGuiLight;
 
 struct CHUDMemoParms
 {
-    float x0_;
-    bool x4_;
-    bool x5_;
-    bool x6_;
+    float x0_ = 0.f;
+    bool x4_ = false;
+    bool x5_ = false;
+    bool x6_ = false;
+    CHUDMemoParms() = default;
+    CHUDMemoParms(float f1, bool b1, bool b2, bool b3)
+    : x0_(f1), x4_(b1), x5_(b2), x6_(b3) {}
+    CHUDMemoParms(CInputStream& in)
+    {
+        x0_ = in.readFloatBig();
+        x4_ = in.readBool();
+    }
 };
 
 enum class EHudState
@@ -45,13 +53,18 @@ class CSamusHud
 {
     enum class ELoadPhase
     {
-        Zero
-    };
-    enum class ETransitionState
-    {
         Zero,
         One,
-        Two
+        Two,
+        Three
+    };
+
+    enum class ETransitionState
+    {
+        NotTransitioning,
+        Countdown,
+        Loading,
+        Transitioning
     };
 
     struct SCachedHudLight
@@ -104,10 +117,10 @@ class CSamusHud
     std::unique_ptr<CHudBossEnergyInterface> x2b4_bossEnergyIntf;
     EHudState x2b8_curState = EHudState::None;
     EHudState x2bc_nextState = EHudState::None;
-    EHudState x2c0_otherState = EHudState::None;
-    ETransitionState x2c4_activeTransState = ETransitionState::Zero;
-    float x2c8_ = 1.f;
-    ETransitionState x2cc_curTransState = ETransitionState::Zero;
+    EHudState x2c0_setState = EHudState::None;
+    ETransitionState x2c4_activeTransState = ETransitionState::NotTransitioning;
+    float x2c8_transT = 1.f;
+    u32 x2cc_preLoadCountdown = 0;
     float x2d0_ = 0.f;
     u32 x2d4_totalEnergyTanks = 0;
     u32 x2d8_missileAmount = 0;
@@ -120,7 +133,7 @@ class CSamusHud
         {
             bool x2e0_24_ : 1;
             bool x2e0_25_ : 1;
-            bool x2e0_26_ : 1;
+            bool x2e0_26_latestFirstPerson : 1;
             bool x2e0_27_energyLow : 1;
         };
         u16 _dummy = 0;
@@ -129,7 +142,7 @@ class CSamusHud
     u32 x2e4_ = 0;
     u32 x2e8_ = 0;
     u32 x2ec_missilesActive = 0;
-    float x2f0_ = 1.f;
+    float x2f0_visorBeamMenuAlpha = 1.f;
     zeus::CVector3f x2f8_fpCamDir;
     zeus::CVector3f x304_basewidgetIdlePos;
     zeus::CVector3f x310_cameraPos;
@@ -159,14 +172,26 @@ class CSamusHud
     float x460_ = 0.f;
     float x464_ = 0.f;
     rstl::reserved_vector<zeus::CTransform, 3> x46c_;
-    float x500_ = 1.f;
-    float x504_ = 1.f;
+    zeus::CVector2f x500_viewportScale = {1.f, 1.f};
     u32 x508_ = 0;
     u32 x50c_ = 0;
     float x510_ = 0.f;
     float x514_ = 0.f;
     float x518_ = 0.f;
     CCameraFilterPass x51c_camFilter2;
+    CHUDMemoParms x548_hudMemoParms;
+    TLockedToken<CStringTable> x550_hudMemoString;
+    u32 x554_hudMemoIdx = 0;
+    float x558_messageTextAlpha = 0.f;
+    float x55c_lastSfxChars = 0.f;
+    float x560_messageTextScale = 0.f;
+    u32 x564_ = 0;
+    zeus::CVector3f x568_fpCamDir;
+    float x574_ = 1.f;
+    float x578_ = 0.f;
+    float x57c_energyLowTimer = 0.f;
+    float x580_energyLowPulse = 0.f;
+    float x584_abuttonPulse = 0.f;
     CGuiWidget* x588_base_basewidget_pivot;
     CGuiWidget* x58c_helmet_BaseWidget_Pivot;
     CGuiModel* x590_base_Model_AutoMapper;
@@ -176,9 +201,9 @@ class CSamusHud
     CGuiModel* x5a0_base_model_abutton;
     rstl::reserved_vector<SVideoBand, 4> x5a4_videoBands;
     rstl::reserved_vector<CGuiLight*, 4> x5d8_guiLights;
-    float x5ec_[16];
-    float x62c_[64];
-    float x72c_[32];
+    float x5ec_camFovTweaks[16];
+    float x62c_camYTweaks[64];
+    float x72c_camZTweaks[32];
     rstl::reserved_vector<SProfileInfo, 15> x7ac_;
 
     static CSamusHud* g_SamusHud;
@@ -186,13 +211,31 @@ class CSamusHud
     static rstl::prereserved_vector<bool, 4> BuildPlayerHasBeams(const CStateManager& mgr);
     void InitializeFrameGluePermanent(const CStateManager& mgr);
     void InitializeFrameGlueMutable(const CStateManager& mgr);
+    void UninitializeFrameGlueMutable();
     void UpdateEnergy(float dt, const CStateManager& mgr, bool init);
+    void UpdateFreeLook(float dt, const CStateManager& mgr);
     void UpdateMissile(float dt, const CStateManager& mgr, bool init);
+    void UpdateVideoBands(float dt, const CStateManager& mgr);
     void UpdateBallMode(const CStateManager& mgr, bool init);
+    void UpdateThreatAssessment(float dt, const CStateManager& mgr);
+    void UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr);
+    void UpdateCameraDebugSettings();
+    void UpdateEnergyLow(float dt, const CStateManager& mgr);
+    void UpdateHudLag(float dt, const CStateManager& mgr);
+    void UpdateHudDynamicLights(float dt, const CStateManager& mgr);
+    void UpdateHudDamage(float dt, const CStateManager& mgr,
+                         DataSpec::ITweakGui::EHelmetVisMode helmetVis);
+    void UpdateStaticInterference(float dt, const CStateManager& mgr);
+    void ShowDamage(const zeus::CVector3f& position, float dam, float prevDam, const CStateManager& mgr);
+    void EnterFirstPerson(const CStateManager& mgr);
+    void LeaveFirstPerson(const CStateManager& mgr);
     static EHudState GetDesiredHudState(const CStateManager& mgr);
 
 public:
     CSamusHud(CStateManager& stateMgr);
+    void Update(float dt, const CStateManager& mgr,
+                DataSpec::ITweakGui::EHelmetVisMode helmetVis,
+                bool hudVis, bool targetingManager);
     void UpdateStateTransition(float time, const CStateManager& mgr);
     bool CheckLoadComplete(CStateManager& stateMgr);
     void OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr);
@@ -201,13 +244,22 @@ public:
     static zeus::CTransform BuildFinalCameraTransform(const zeus::CQuaternion& rot,
                                                       const zeus::CVector3f& pos,
                                                       const zeus::CVector3f& camPos);
-    static void DisplayHudMemo(const std::u16string& text, const CHUDMemoParms& info);
+    static void DisplayHudMemo(const std::u16string& text, const CHUDMemoParms& info)
+    {
+        if (g_SamusHud)
+            g_SamusHud->InternalDisplayHudMemo(text, info);
+    }
+    void InternalDisplayHudMemo(const std::u16string& text, const CHUDMemoParms& info)
+    {
+        SetMessage(text, info);
+    }
+    void SetMessage(const std::u16string& text, const CHUDMemoParms& info);
     static void DeferHintMemo(ResId strg, u32 timePeriods, const CHUDMemoParms& info)
     {
         if (g_SamusHud)
-            g_SamusHud->_DeferHintMemo(strg, timePeriods, info);
+            g_SamusHud->InternalDeferHintMemo(strg, timePeriods, info);
     }
-    void _DeferHintMemo(ResId strg, u32 timePeriods, const CHUDMemoParms& info);
+    void InternalDeferHintMemo(ResId strg, u32 timePeriods, const CHUDMemoParms& info);
 };
 
 }

@@ -346,7 +346,7 @@ TAreaId CStateManager::GetVisAreaId() const
     camAABB.accumulateBounds(x84c_player->GetTranslation());
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     BuildNearList(nearList, camAABB, CMaterialFilter(EMaterialTypes::AIBlock, CMaterialList(),
-                                                     CMaterialFilter::EFilterType::One), nullptr);
+                                                     CMaterialFilter::EFilterType::Include), nullptr);
     for (TUniqueId id : nearList)
         if (TCastToConstPtr<CScriptDock> dock = GetObjectById(id))
             if (dock->GetDestinationAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation))
@@ -395,8 +395,6 @@ void CStateManager::UpdateEscapeSequenceTimer(float dt)
         g_EscapeShakeCountdown = -12.f * factor2 + 15.f;
     }
 }
-
-float CStateManager::GetEscapeSequenceTimer() const { return xf0c_escapeTimer; }
 
 void CStateManager::ResetEscapeSequenceTimer(float time)
 {
@@ -1322,7 +1320,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     {
         usePower = power * 1000.f;
         u32 something = player.x2b0_ == 2 ? player.x2ac_ : 4;
-        if (something != 0 && player.x304_ == 0)
+        if (something != 0 && player.GetOrbitState() == CPlayer::EPlayerOrbitState::Zero)
             usePower /= 7.f;
     }
     else
@@ -1796,6 +1794,30 @@ void CStateManager::ProcessPlayerInput()
         x84c_player->ProcessInput(xb54_finalInput, *this);
 }
 
+void CStateManager::SetGameState(EGameState state)
+{
+    if (x904_gameState == state)
+        return;
+
+    if (state == EGameState::SoftPaused)
+        x850_world->SetPauseState(false);
+
+    switch (state)
+    {
+    case EGameState::Running:
+        if (x88c_rumbleManager->IsDisabled())
+            x88c_rumbleManager->SetDisabled(false);
+        break;
+    case EGameState::SoftPaused:
+        if (!x88c_rumbleManager->IsDisabled())
+            x88c_rumbleManager->SetDisabled(true);
+        x850_world->SetPauseState(true);
+    default: break;
+    }
+
+    x904_gameState = state;
+}
+
 static const CFinalInput s_DisabledFinalInput = {};
 
 void CStateManager::ProcessInput(const CFinalInput& input)
@@ -1838,7 +1860,7 @@ void CStateManager::Update(float dt)
 
     bool dying = x84c_player->x9f4_deathTime > 0.f;
 
-    if (x904_ == 0)
+    if (x904_gameState == EGameState::Running)
     {
         if (!TCastToPtr<CCinematicCamera>(x870_cameraManager->GetCurrentCamera(*this)))
         {
@@ -1853,13 +1875,13 @@ void CStateManager::Update(float dt)
         }
     }
 
-    if (x904_ != 2)
+    if (x904_gameState != EGameState::Paused)
     {
         PreThinkEffects(dt);
         x87c_fluidPlaneManager->Update(dt);
     }
 
-    if (x904_ == 0)
+    if (x904_gameState == EGameState::Running)
     {
         if (!dying)
             CDecalManager::Update(dt, *this);
@@ -1870,7 +1892,7 @@ void CStateManager::Update(float dt)
             MoveDoors(dt);
         }
         ProcessPlayerInput();
-        if (x904_ != 1)
+        if (x904_gameState != EGameState::SoftPaused)
             CGameCollision::Move(*this, *x84c_player, dt, nullptr);
         UpdateSortedLists();
         if (!dying)
@@ -1881,13 +1903,13 @@ void CStateManager::Update(float dt)
         ProcessPlayerInput();
     }
 
-    if (!dying && x904_ == 0)
+    if (!dying && x904_gameState == EGameState::Running)
         x884_actorModelParticles->Update(dt, *this);
 
-    if (x904_ == 0 || x904_ == 1)
+    if (x904_gameState == EGameState::Running || x904_gameState == EGameState::SoftPaused)
         ThinkEffectsAndActors(dt);
 
-    if (x904_ != 1)
+    if (x904_gameState != EGameState::SoftPaused)
         x870_cameraManager->Update(dt, *this);
 
     while (xf76_lastRelay != kInvalidUniqueId)
@@ -1903,7 +1925,7 @@ void CStateManager::Update(float dt)
         }
     }
 
-    if (x904_ != 2)
+    if (x904_gameState != EGameState::Paused)
         UpdatePlayer(dt);
 
     if (xf84_ == xf80_hudMessageFrameCount)
@@ -1913,7 +1935,7 @@ void CStateManager::Update(float dt)
         xf88_ = -1;
     }
 
-    if (!dying && x904_ == 0 && !x870_cameraManager->IsInCinematicCamera())
+    if (!dying && x904_gameState == EGameState::Running && !x870_cameraManager->IsInCinematicCamera())
         UpdateEscapeSequenceTimer(dt);
 
     x850_world->Update(dt);
@@ -1995,7 +2017,7 @@ void CStateManager::PreThinkEffects(float dt)
         return;
     }
 
-    if (x904_ == 1)
+    if (x904_gameState == EGameState::SoftPaused)
         for (CEntity* ent : GetAllObjectList())
             if (TCastToPtr<CScriptEffect> effect = ent)
                 effect->PreThink(dt, *this);
@@ -2104,7 +2126,7 @@ void CStateManager::ThinkEffectsAndActors(float dt)
         return;
     }
 
-    if (x904_ == 1)
+    if (x904_gameState == EGameState::SoftPaused)
     {
         for (CEntity* ent : GetAllObjectList())
             if (TCastToPtr<CScriptEffect> effect = ent)

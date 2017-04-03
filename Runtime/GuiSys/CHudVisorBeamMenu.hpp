@@ -18,6 +18,8 @@ public:
 private:
 public:
     CHudVisorBeamMenu(CGuiFrame* baseHud, EHudVisorBeamMenu type, rstl::prereserved_vector<bool, 4> enables);
+    void Update(float dt, bool init);
+    void UpdateHudAlpha(float alpha);
 };
 
 }

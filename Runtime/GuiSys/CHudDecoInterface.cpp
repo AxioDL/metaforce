@@ -77,7 +77,7 @@ void CHudDecoInterfaceCombat::Update(float dt, const CStateManager& stateMgr)
                                 x4_rotation, x14_pivotPosition + x20_offset, x2c_camPos));
 }
 
-void CHudDecoInterfaceCombat::SetCameraParms(float fov, float y, float z)
+void CHudDecoInterfaceCombat::UpdateCameraDebugSettings(float fov, float y, float z)
 {
     x6c_camera->SetFov(fov);
     x2c_camPos.y = y;
@@ -223,7 +223,7 @@ void CHudDecoInterfaceScan::InitializeFlatFrame()
 
 const CScannableObjectInfo* CHudDecoInterfaceScan::GetCurrScanInfo(const CStateManager& stateMgr) const
 {
-    if (x1d4_latestScanState == CPlayer::EPlayerScanState::Zero)
+    if (x1d4_latestScanState == CPlayer::EPlayerScanState::NotScanning)
         return nullptr;
 
     if (TCastToConstPtr<CActor> act = stateMgr.GetObjectById(x1d2_latestScanningObject))
@@ -240,9 +240,9 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
     {
         if (player.IsNewScanScanning())
         {
-            if (scanState == CPlayer::EPlayerScanState::Two)
+            if (scanState == CPlayer::EPlayerScanState::ScanComplete)
             {
-                if (x1d4_latestScanState == CPlayer::EPlayerScanState::One)
+                if (x1d4_latestScanState == CPlayer::EPlayerScanState::Scanning)
                 {
                     // Scan complete
                     x254_flat_textpane_scanning->TextSupport()->SetText(g_MainStringTable->GetString(15));
@@ -250,7 +250,7 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
                     x238_scanningTextAlpha = 2.f;
                 }
             }
-            else if (scanState == CPlayer::EPlayerScanState::One)
+            else if (scanState == CPlayer::EPlayerScanState::Scanning)
             {
                 // Scanning
                 x254_flat_textpane_scanning->TextSupport()->SetText(g_MainStringTable->GetString(14));
@@ -264,9 +264,9 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
     if (player.GetScanningObjectId() != x1d2_latestScanningObject)
         x1d2_latestScanningObject = player.GetScanningObjectId();
 
-    if (player.GetHudPOIId() != x1d0_latestHudPoi)
+    if (player.GetLockonObjectId() != x1d0_latestHudPoi)
     {
-        x1d0_latestHudPoi = player.GetHudPOIId();
+        x1d0_latestHudPoi = player.GetLockonObjectId();
         if (x1d0_latestHudPoi != kInvalidUniqueId)
         {
             if (!player.ObjectInScanningRange(x1d0_latestHudPoi, stateMgr))
@@ -300,7 +300,7 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
                 x25c_flat_energybart01_scanbar->SetCurrEnergy(x1d8_scanningTime / actScan->GetTotalDownloadTime(),
                                                               CAuiEnergyBarT01::ESetMode::Normal);
 
-    if (x1d4_latestScanState != CPlayer::EPlayerScanState::One)
+    if (x1d4_latestScanState != CPlayer::EPlayerScanState::Scanning)
         if (x1d0_latestHudPoi == kInvalidUniqueId || player.ObjectInScanningRange(x1d0_latestHudPoi, stateMgr))
             x238_scanningTextAlpha = std::max(0.f, x238_scanningTextAlpha - dt);
 
@@ -338,10 +338,10 @@ void CHudDecoInterfaceScan::Update(float dt, const CStateManager& stateMgr)
 {
     CPlayer& player = stateMgr.GetPlayer();
     CPlayer::EPlayerScanState scanState = player.GetScanningState();
-    if (scanState != CPlayer::EPlayerScanState::Zero)
+    if (scanState != CPlayer::EPlayerScanState::NotScanning)
         x1d8_scanningTime = player.GetScanningTime();
 
-    if (scanState == CPlayer::EPlayerScanState::One || scanState == CPlayer::EPlayerScanState::Two)
+    if (scanState == CPlayer::EPlayerScanState::Scanning || scanState == CPlayer::EPlayerScanState::ScanComplete)
         x230_sidesTimer = std::min(x230_sidesTimer + dt, g_tweakGui->GetScanSidesEndTime());
     else
         x230_sidesTimer = std::max(0.f, x230_sidesTimer - dt);
@@ -386,7 +386,7 @@ void CHudDecoInterfaceScan::ProcessInput(const CFinalInput& input)
     x18_scanDisplay.ProcessInput(input);
 }
 
-void CHudDecoInterfaceScan::SetCameraParms(float fov, float y, float z)
+void CHudDecoInterfaceScan::UpdateCameraDebugSettings(float fov, float y, float z)
 {
     x244_camera->SetFov(fov);
     x20c_camPos.y = y;
@@ -400,131 +400,245 @@ void CHudDecoInterfaceScan::UpdateHudAlpha()
     x248_basewidget_pivot->SetColor(color);
 }
 
-float CHudDecoInterfaceScan::GetMessageTextAlpha() const
+float CHudDecoInterfaceScan::GetHudTextAlpha() const
 {
     return 1.f - std::max(std::min(x238_scanningTextAlpha, 1.f), x18_scanDisplay.x1a8_);
 }
 
 CHudDecoInterfaceXRay::CHudDecoInterfaceXRay(CGuiFrame& selHud)
 {
+    xa0_camera = selHud.GetFrameCamera();
+    x30_camPos = xa0_camera->GetLocalPosition();
 
+    x9c_24_visDebug = true;
+    x9c_25_visGame = true;
+
+    xa4_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
+    xa8_basewidget_seeker = selHud.FindWidget("basewidget_seeker");
+    xac_basewidget_rotate = selHud.FindWidget("basewidget_rotate");
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_energydeco"))
+        w->SetColor(g_tweakGuiColors->GetXRayEnergyDecoColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("model_frame"))
+        w->SetDepthWrite(true);
+    if (CGuiWidget* w = selHud.FindWidget("model_frame1"))
+        w->SetDepthWrite(true);
+    if (CGuiWidget* w = selHud.FindWidget("model_frame2"))
+        w->SetDepthWrite(true);
+    if (CGuiWidget* w = selHud.FindWidget("model_frame3"))
+        w->SetDepthWrite(true);
+    if (CGuiWidget* w = selHud.FindWidget("model_misslieslider"))
+        w->SetDepthWrite(true);
+    if (CGuiWidget* w = selHud.FindWidget("model_threatslider"))
+        w->SetDepthWrite(true);
+
+    UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceXRay::UpdateVisibility()
 {
-
+    // Empty
 }
 
 void CHudDecoInterfaceXRay::SetIsVisibleDebug(bool v)
 {
-
+    x9c_24_visDebug = v;
+    UpdateVisibility();
 }
 
 void CHudDecoInterfaceXRay::SetIsVisibleGame(bool v)
 {
-
+    x9c_25_visGame = v;
+    UpdateVisibility();
 }
 
 void CHudDecoInterfaceXRay::SetHudRotation(const zeus::CQuaternion& rot)
 {
-
+    x8_rotation = rot;
 }
 
 void CHudDecoInterfaceXRay::SetHudOffset(const zeus::CVector3f& off)
 {
-
+    x24_offset = off;
 }
 
 void CHudDecoInterfaceXRay::SetReticuleTransform(const zeus::CMatrix3f& xf)
 {
-
+    x3c_reticuleXf = xf;
 }
 
-void CHudDecoInterfaceXRay::UpdateTransforms()
+void CHudDecoInterfaceXRay::SetDecoRotation(float angle)
 {
-
+    xac_basewidget_rotate->SetLocalTransform(zeus::CTransform(zeus::CMatrix3f::RotateY(angle),
+                                             xac_basewidget_rotate->GetLocalPosition()));
 }
 
 void CHudDecoInterfaceXRay::SetDamageTransform(const zeus::CMatrix3f& rotation,
                                                const zeus::CVector3f& position)
 {
-
+    // Empty
 }
 
 void CHudDecoInterfaceXRay::SetFrameColorValue(float v)
 {
-
+    // Empty
 }
 
 void CHudDecoInterfaceXRay::Update(float dt, const CStateManager& stateMgr)
 {
+    if (stateMgr.GetPlayer().GetOrbitState() == CPlayer::EPlayerOrbitState::One)
+        x4_seekerScale = std::max(x4_seekerScale - 3.f * dt, 0.35f);
+    else
+        x4_seekerScale = std::min(3.f * dt + x4_seekerScale, 1.f);
 
+    xa0_camera->SetO2WTransform(
+    MP1::CSamusHud::BuildFinalCameraTransform(x8_rotation, x18_pivotPosition + x24_offset, x30_camPos));
+
+    xa8_basewidget_seeker->SetLocalTransform(
+    zeus::CTransform(zeus::CMatrix3f(x4_seekerScale) * x3c_reticuleXf, x60_seekerPosition));
 }
 
-void CHudDecoInterfaceXRay::SetCameraParms(float fov, float y, float z)
+void CHudDecoInterfaceXRay::UpdateCameraDebugSettings(float fov, float y, float z)
 {
-
+    xa0_camera->SetFov(fov);
+    x30_camPos.y = y;
+    x30_camPos.z = z;
 }
 
 void CHudDecoInterfaceXRay::UpdateHudAlpha()
 {
-
+    zeus::CColor color = zeus::CColor::skWhite;
+    color.a = g_GameState->GameOptions().GetHUDAlpha() / 255.f;
+    xa4_basewidget_pivot->SetColor(color);
 }
 
 CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud)
 {
+    x70_24_visDebug = true;
+    x70_25_visGame = true;
 
+    x74_camera = selHud.GetFrameCamera();
+    x2c_camPos = x74_camera->GetLocalPosition();
+
+    x78_basewidget_pivot = selHud.FindWidget("basewidget_pivot");
+    x7c_basewidget_reticle = selHud.FindWidget("basewidget_reticle");
+    x80_model_retflash = static_cast<CGuiModel*>(selHud.FindWidget("model_retflash"));
+
+    x14_pivotPosition = x78_basewidget_pivot->GetIdlePosition();
+    x5c_reticulePosition = x7c_basewidget_reticle->GetIdlePosition();
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_deco"))
+        w->SetColor(g_tweakGuiColors->GetThermalDecoColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_oultlinesa"))
+        w->SetColor(g_tweakGuiColors->GetThermalOutlinesColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_lock"))
+        w->SetColor(g_tweakGuiColors->GetThermalLockColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_reticle"))
+        w->SetColor(g_tweakGuiColors->GetThermalOutlinesColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_lockon"))
+        w->SetColor(g_tweakGuiColors->GetThermalOutlinesColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("model_threaticon"))
+        w->SetColor(g_tweakGuiColors->GetThermalOutlinesColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("model_missileicon"))
+        w->SetColor(g_tweakGuiColors->GetThermalOutlinesColor());
+
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_lock"))
+    {
+        for (CGuiWidget* c = static_cast<CGuiWidget*>(w->GetChildObject()); c;
+             c = static_cast<CGuiWidget*>(c->GetNextSibling()))
+        {
+            x84_lockonWidgets.push_back({c, c->GetLocalTransform()});
+            c->SetLocalTransform(c->GetLocalTransform() * zeus::CTransform::Scale(x68_lockonScale));
+        }
+    }
+
+    x14_pivotPosition = x78_basewidget_pivot->GetIdlePosition();
+    UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceThermal::UpdateVisibility()
 {
-
+    // Empty
 }
 
 void CHudDecoInterfaceThermal::SetIsVisibleDebug(bool v)
 {
-
+    x70_24_visDebug = v;
+    UpdateVisibility();
 }
 
 void CHudDecoInterfaceThermal::SetIsVisibleGame(bool v)
 {
-
+    x70_25_visGame = v;
+    UpdateVisibility();
 }
 
 void CHudDecoInterfaceThermal::SetHudRotation(const zeus::CQuaternion& rot)
 {
-
+    x4_rotation = rot;
 }
 
 void CHudDecoInterfaceThermal::SetHudOffset(const zeus::CVector3f& off)
 {
-
+    x20_offset = off;
 }
 
 void CHudDecoInterfaceThermal::SetReticuleTransform(const zeus::CMatrix3f& xf)
 {
-
+    x38_reticuleXf = xf;
 }
 
 void CHudDecoInterfaceThermal::SetDamageTransform(const zeus::CMatrix3f& rotation,
                                                   const zeus::CVector3f& position)
 {
-
+    // Empty
 }
 
 void CHudDecoInterfaceThermal::Update(float dt, const CStateManager& stateMgr)
 {
+    float oldLockonScale = x68_lockonScale;
+    if (stateMgr.GetPlayer().GetLockonObjectId() != kInvalidUniqueId)
+        x68_lockonScale = std::max(x68_lockonScale - 15.f * dt, 1.f);
+    else
+        x68_lockonScale = std::min(x68_lockonScale + 15.f * dt, 5.f);
 
+    if (oldLockonScale != x68_lockonScale)
+        for (auto& lockWidget : x84_lockonWidgets)
+            lockWidget.first->SetLocalTransform(lockWidget.second * zeus::CTransform::Scale(x68_lockonScale));
+
+    x6c_retflashTimer += dt;
+    if (x6c_retflashTimer > 1.f)
+        x6c_retflashTimer -= 2.f;
+
+    zeus::CColor flashColor = zeus::CColor::skWhite;
+    flashColor.a = std::fabs(x6c_retflashTimer) * 0.5f + 0.5f;
+    x80_model_retflash->SetColor(flashColor);
+
+    x74_camera->SetO2WTransform(
+    MP1::CSamusHud::BuildFinalCameraTransform(x4_rotation, x14_pivotPosition + x20_offset, x2c_camPos));
+
+    x7c_basewidget_reticle->SetLocalTransform(zeus::CTransform(x38_reticuleXf, x5c_reticulePosition));
 }
 
-void CHudDecoInterfaceThermal::SetCameraParms(float fov, float y, float z)
+void CHudDecoInterfaceThermal::UpdateCameraDebugSettings(float fov, float y, float z)
 {
-
+    x74_camera->SetFov(fov);
+    x2c_camPos.y = y;
+    x2c_camPos.z = z;
 }
 
 void CHudDecoInterfaceThermal::UpdateHudAlpha()
 {
-
+    zeus::CColor color = zeus::CColor::skWhite;
+    color.a = g_GameState->GameOptions().GetHUDAlpha() / 255.f;
+    x78_basewidget_pivot->SetColor(color);
 }
 
 }

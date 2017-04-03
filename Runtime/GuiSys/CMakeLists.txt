@@ -39,6 +39,7 @@ set(GUISYS_SOURCES
     CCompoundTargetReticle.hpp CCompoundTargetReticle.cpp
     COrbitPointMarker.hpp COrbitPointMarker.cpp
     CHudEnergyInterface.hpp CHudEnergyInterface.cpp
+    CHudBossEnergyInterface.hpp CHudBossEnergyInterface.cpp
     CHudThreatInterface.hpp CHudThreatInterface.cpp
     CHudMissileInterface.hpp CHudMissileInterface.cpp
     CHudFreeLookInterface.hpp CHudFreeLookInterface.cpp

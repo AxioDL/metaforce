@@ -354,7 +354,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x21c_24_ */
     x21c_24_ = __dna_reader.readBool();
     /* x21c_25_ */
-    x21c_25_ = __dna_reader.readBool();
+    x21c_25_scanFreezesGame = __dna_reader.readBool();
     /* x21c_26_ */
     x21c_26_ = __dna_reader.readBool();
     /* x220_ */
@@ -794,7 +794,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x21c_24_ */
     __dna_writer.writeBool(x21c_24_);
     /* x21c_25_ */
-    __dna_writer.writeBool(x21c_25_);
+    __dna_writer.writeBool(x21c_25_scanFreezesGame);
     /* x21c_26_ */
     __dna_writer.writeBool(x21c_26_);
     /* x220_ */
@@ -1309,7 +1309,7 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x21c_24_ */
     x21c_24_ = __dna_docin.readBool("x21c_24_");
     /* x21c_25_ */
-    x21c_25_ = __dna_docin.readBool("x21c_25_");
+    x21c_25_scanFreezesGame = __dna_docin.readBool("x21c_25_");
     /* x21c_26_ */
     x21c_26_ = __dna_docin.readBool("x21c_26_");
     /* x220_ */
@@ -1809,7 +1809,7 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     /* x21c_24_ */
     __dna_docout.writeBool("x21c_24_", x21c_24_);
     /* x21c_25_ */
-    __dna_docout.writeBool("x21c_25_", x21c_25_);
+    __dna_docout.writeBool("x21c_25_", x21c_25_scanFreezesGame);
     /* x21c_26_ */
     __dna_docout.writeBool("x21c_26_", x21c_26_);
     /* x220_ */

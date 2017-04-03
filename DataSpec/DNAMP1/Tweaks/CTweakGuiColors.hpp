@@ -73,7 +73,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xf4_;
     DNAColor xf8_;
     DNAColor xfc_;
-    DNAColor x100_;
+    DNAColor x100_xrayEnergyDecoColor;
     DNAColor x104_;
     DNAColor x108_;
     DNAColor x10c_;
@@ -116,10 +116,10 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x1a0_;
     DNAColor x1a4_;
     DNAColor x1a8_;
-    DNAColor x1ac_;
-    DNAColor x1b0_;
+    DNAColor x1ac_thermalDecoColor;
+    DNAColor x1b0_thermalOutlinesColor;
     DNAColor x1b4_;
-    DNAColor x1b8_;
+    DNAColor x1b8_thermalLockColor;
     DNAColor x1bc_;
     DNAColor x1c0_;
     struct UnkColors : BigYAML
@@ -143,8 +143,12 @@ struct CTweakGuiColors : public ITweakGuiColors
     zeus::CColor GetHudMessageOutline() const { return x18_hudMessageOutline; }
     zeus::CColor GetHudFrameColor() const { return x1c_hudFrameColor; }
     zeus::CColor GetTickDecoColor() const { return x88_tickDecoColor; }
+    zeus::CColor GetXRayEnergyDecoColor() const { return x100_xrayEnergyDecoColor; }
     zeus::CColor GetHudCounterFill() const { return x180_hudCounterFill; }
     zeus::CColor GetHudCounterOutline() const { return x184_hudCounterOutline; }
+    zeus::CColor GetThermalDecoColor() const { return x1ac_thermalDecoColor; }
+    zeus::CColor GetThermalOutlinesColor() const { return x1b0_thermalOutlinesColor; }
+    zeus::CColor GetThermalLockColor() const { return x1b8_thermalLockColor; }
 };
 }
 }

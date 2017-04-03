@@ -79,7 +79,15 @@ enum class EStateManagerTransition
 class CStateManager
 {
     friend class MP1::CMFGameLoader;
+public:
+    enum class EGameState
+    {
+        Running,
+        SoftPaused,
+        Paused
+    };
 
+private:
     s16 x0_nextFreeIndex = 0;
     TUniqueId x8_idArr[1024] = {};
 
@@ -152,7 +160,7 @@ class CStateManager
     TLockedToken<CTexture> x8f0_shadowTex; /* DefaultShadow in MiscData */
     CRandom16 x8fc_random;
     CRandom16* x900_activeRandom = nullptr;
-    u32 x904_ = 0;
+    EGameState x904_gameState = EGameState::Running;
     u32 x908_ = 0;
     FScriptLoader x90c_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
 
@@ -247,8 +255,6 @@ class CStateManager
     static void RendererDrawCallback(const void*, const void*, int);
 
 public:
-    /* TODO: Public for CFirstPersonCamera */
-    u32 Get904() const { return x904_; }
     CStateManager(const std::weak_ptr<CRelayTracker>&,
                   const std::weak_ptr<CMapWorldInfo>&,
                   const std::weak_ptr<CPlayerState>&,
@@ -264,7 +270,7 @@ public:
     void RemoveWeaponId(TUniqueId, EWeaponType);
     void AddWeaponId(TUniqueId, EWeaponType);
     void UpdateEscapeSequenceTimer(float);
-    float GetEscapeSequenceTimer() const;
+    float GetEscapeSequenceTimer() const { return xf0c_escapeTimer; }
     void ResetEscapeSequenceTimer(float);
     void SetupParticleHook(const CActor& actor) const;
     void MurderScriptInstanceNames();
@@ -342,6 +348,8 @@ public:
     void UpdateAreaSounds();
     void FrameEnd();
     void ProcessPlayerInput();
+    void SetGameState(EGameState state);
+    EGameState GetGameState() const { return x904_gameState; }
     void ProcessInput(const CFinalInput& input);
     void Update(float dt);
     void UpdateGameState();

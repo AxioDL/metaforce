@@ -11,8 +11,12 @@ struct ITweakGuiColors : BigYAML
     virtual zeus::CColor GetHudMessageOutline() const=0;
     virtual zeus::CColor GetHudFrameColor() const=0;
     virtual zeus::CColor GetTickDecoColor() const=0;
+    virtual zeus::CColor GetXRayEnergyDecoColor() const=0;
     virtual zeus::CColor GetHudCounterFill() const=0;
     virtual zeus::CColor GetHudCounterOutline() const=0;
+    virtual zeus::CColor GetThermalDecoColor() const=0;
+    virtual zeus::CColor GetThermalOutlinesColor() const=0;
+    virtual zeus::CColor GetThermalLockColor() const=0;
 };
 }
 

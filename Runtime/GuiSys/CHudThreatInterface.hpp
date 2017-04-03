@@ -9,12 +9,14 @@ class IHudThreatInterface
 {
 public:
     virtual ~IHudThreatInterface() = default;
+    virtual void Update(float dt)=0;
 };
 
 class CHudThreatInterfaceCombat : public IHudThreatInterface
 {
 public:
     CHudThreatInterfaceCombat(CGuiFrame& selHud, float);
+    void Update(float dt);
 };
 
 }

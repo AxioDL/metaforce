@@ -3,10 +3,12 @@
 
 namespace urde
 {
+class CStateManager;
 
 class CHudMissileInterfaceCombat
 {
-
+public:
+    void Update(float dt, const CStateManager& mgr);
 };
 
 }

@@ -109,9 +109,10 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform::Identity());
     }
 
-    if (player->x304_ == 4 || player->x304_ == 1)
+    if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Four ||
+        player->GetOrbitState() == CPlayer::EPlayerOrbitState::One)
     {
-        const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(player->x310_hudPoiId));
+        const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(player->x310_lockonObjectId));
         if (act && act->GetMaterialList().Intersection(CMaterialList(EMaterialTypes::Lava)) != 0)
         {
             zeus::CVector3f v = player->x318_ - eyePos;
@@ -121,7 +122,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             rVec = v;
         }
     }
-    else if (player->x304_ == 0 && player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
+    else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Zero &&
+             player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
              player->x3dc_ && x1c4_pitchId == kInvalidUniqueId)
     {
         if (player->x294_ > 0.f)
@@ -155,7 +157,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     if (player->x3dc_)
     {
-        if (player->x304_ == 4 || player->x304_ == 1)
+        if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Four ||
+            player->GetOrbitState() == CPlayer::EPlayerOrbitState::One)
         {
             zeus::CVector3f gunFrontVec = gunXf.frontVector();
 
@@ -173,7 +176,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, scaledDt * clampedAngle);
 
             const CScriptGrapplePoint* gPoint =
-                TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_hudPoiId));
+                TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_lockonObjectId));
             if (gPoint && player->x29c_ > 0.f)
             {
                 gunFrontVec = x190_gunFollowXf.frontVector();
@@ -203,12 +206,13 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             }
         }
-        else if (player->x304_ == 2 || player->x304_ == 3)
+        else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Two ||
+                 player->GetOrbitState() == CPlayer::EPlayerOrbitState::Three)
         {
             dt *= g_tweakPlayer->GetX184();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
-        else if (player->x304_ == 5)
+        else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Five)
         {
             dt *= g_tweakPlayer->GetX2B0();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
@@ -244,8 +248,10 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     }
     zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 
-    if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed || player->x304_ == 5 ||
-        player->x3b8_ == 0 || mgr.Get904() == 1 || mgr.GetCameraManager()->IsInCinematicCamera())
+    if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ||
+        player->GetOrbitState() == CPlayer::EPlayerOrbitState::Five ||
+        player->x3b8_ == 0 || mgr.GetGameState() == CStateManager::EGameState::SoftPaused ||
+        mgr.GetCameraManager()->IsInCinematicCamera())
     {
         bobXf = zeus::CTransform::Identity();
         player->GetCameraBob()->SetCameraBobTransform(bobXf);

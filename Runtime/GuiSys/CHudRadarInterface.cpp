@@ -8,4 +8,9 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& selHud, CStateManager& stateMg
 
 }
 
+void CHudRadarInterface::Update(float dt, const CStateManager& mgr)
+{
+
+}
+
 }

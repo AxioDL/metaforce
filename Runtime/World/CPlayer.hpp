@@ -31,15 +31,21 @@ class CPlayer : public CPhysicsActor
 public:
     enum class EPlayerScanState
     {
-        Zero,
-        One,
-        Two
+        NotScanning,
+        Scanning,
+        ScanComplete
     };
     enum class EPlayerOrbitType
     {
     };
     enum class EPlayerOrbitState
     {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five
     };
     enum class EPlayerZoneInfo
     {
@@ -116,10 +122,10 @@ private:
     EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
     u32 x2fc_ = 0;
     float x300_ = 0.f;
-    u32 x304_ = 0;
+    EPlayerOrbitState x304_orbitState = EPlayerOrbitState::Zero;
     u32 x308_ = 0;
     u32 x30c_ = 0;
-    TUniqueId x310_hudPoiId = kInvalidUniqueId;
+    TUniqueId x310_lockonObjectId = kInvalidUniqueId;
     float x314_ = 0.f;
     float x318_ = 0.f;
     float x31c_ = 0.f;
@@ -148,7 +154,7 @@ private:
     u8 x39c_ = 0;
     float x3a0_ = 0.5f;
     float x3a4_ = 0.449f;
-    EPlayerScanState x3a8_scanState = EPlayerScanState::Zero;
+    EPlayerScanState x3a8_scanState = EPlayerScanState::NotScanning;
     float x3ac_scanningTime = 0.f;
     float x3b0_ = 0.f;
     TUniqueId x3b4_scanningObject = kInvalidUniqueId;
@@ -431,12 +437,15 @@ public:
     void UpdateCinematicState(CStateManager& mgr);
     void SetCameraState(EPlayerCameraState camState, CStateManager& stateMgr);
     bool IsEnergyLow(const CStateManager& mgr) const;
+    EPlayerOrbitState GetOrbitState() const { return x304_orbitState; }
     EPlayerScanState GetScanningState() const { return x3a8_scanState; }
     float GetScanningTime() const { return x3ac_scanningTime; }
-    TUniqueId GetHudPOIId() const { return x310_hudPoiId; }
+    TUniqueId GetLockonObjectId() const { return x310_lockonObjectId; }
     TUniqueId GetScanningObjectId() const { return x3b4_scanningObject; }
     bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }
     bool ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const;
+    float GetMorphTime() const { return x574_morphTime; }
+    float GetMorphDuration() const { return x578_morphDuration; }
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
 

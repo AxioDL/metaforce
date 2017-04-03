@@ -6,7 +6,8 @@ namespace urde
 
 class CHudEnergyInterfaceBall
 {
-
+public:
+    void Update(float dt, float energyLowPulse);
 };
 
 }
