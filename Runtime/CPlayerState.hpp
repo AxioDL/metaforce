@@ -163,8 +163,8 @@ public:
     void DecrPickup(EItemType type, s32 amount);
     void IncrPickup(EItemType type, s32 amount);
     void ResetAndIncrPickUp(EItemType type, s32 amount);
-    float GetEnergyTankCapacity() const { return 100.f; }
-    float GetBaseHealthCapacity() const { return 99.f; }
+    static float GetEnergyTankCapacity() { return 100.f; }
+    static float GetBaseHealthCapacity() { return 99.f; }
     float CalculateHealth(u32 health);
     void ReInitalizePowerUp(EItemType type, u32 capacity);
     void InitializePowerUp(EItemType type, u32 capacity);

@@ -22,9 +22,9 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x28_;
     DNAColor x2c_;
     DNAColor x30_;
-    DNAColor x34_;
-    DNAColor x38_;
-    DNAColor x3c_;
+    DNAColor x34_energyBarFilledLowEnergy;
+    DNAColor x38_energyBarShadowLowEnergy;
+    DNAColor x3c_energyBarEmptyLowEnergy;
     DNAColor x40_;
     DNAColor x44_;
     DNAColor x48_;
@@ -32,7 +32,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x50_;
     DNAColor x54_;
     DNAColor x58_;
-    DNAColor x5c_;
+    DNAColor x5c_energyWarningFont;
     DNAColor x60_;
     DNAColor x64_;
     DNAColor x68_;
@@ -54,7 +54,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xa8_;
     DNAColor xac_;
     DNAColor xb0_;
-    DNAColor xb4_;
+    DNAColor xb4_energyWarningOutline;
     DNAColor xb8_;
     DNAColor xbc_;
     DNAColor xc0_;
@@ -67,7 +67,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xdc_;
     DNAColor xe0_;
     DNAColor xe4_;
-    DNAColor xe8_;
+    DNAColor xe8_energyBarFlashColor;
     DNAColor xec_;
     DNAColor xf0_;
     DNAColor xf4_;
@@ -122,19 +122,20 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x1b8_thermalLockColor;
     DNAColor x1bc_;
     DNAColor x1c0_;
-    struct UnkColors : BigYAML
+    struct PerVisorColors : BigYAML
     {
         DECL_YAML
-        DNAColor x0_;
-        DNAColor x4_;
-        DNAColor x8_;
-        DNAColor xc_;
-        DNAColor x10_;
-        DNAColor x14_;
-        DNAColor x18_;
+        DNAColor x0_energyBarFilled;
+        DNAColor x4_energyBarEmpty;
+        DNAColor x8_energyBarShadow;
+        DNAColor xc_energyTankFilled;
+        DNAColor x10_energyTankEmpty;
+        DNAColor x14_energyDigitsFont;
+        DNAColor x18_energyDigitsOutline;
     };
-    Value<atUint32> x1c4_count;
-    Vector<UnkColors, DNA_COUNT(x1c4_count)> x1c4_;
+    Value<atUint32> x1c4_perVisorCount;
+    /* Combat, Scan, XRay, Thermal, Ball */
+    Vector<PerVisorColors, DNA_COUNT(x1c4_perVisorCount)> x1c4_perVisorColors;
 
     CTweakGuiColors() = default;
     CTweakGuiColors(athena::io::IStreamReader& r) { this->read(r); }
@@ -142,13 +143,30 @@ struct CTweakGuiColors : public ITweakGuiColors
     zeus::CColor GetHudMessageFill() const { return x14_hudMessageFill; }
     zeus::CColor GetHudMessageOutline() const { return x18_hudMessageOutline; }
     zeus::CColor GetHudFrameColor() const { return x1c_hudFrameColor; }
+    zeus::CColor GetEnergyBarFilledLowEnergy() const { return x34_energyBarFilledLowEnergy; }
+    zeus::CColor GetEnergyBarShadowLowEnergy() const { return x38_energyBarShadowLowEnergy; }
+    zeus::CColor GetEnergyBarEmptyLowEnergy() const { return x3c_energyBarEmptyLowEnergy; }
+    zeus::CColor GetEnergyWarningFont() const { return x5c_energyWarningFont; }
     zeus::CColor GetTickDecoColor() const { return x88_tickDecoColor; }
+    zeus::CColor GetEnergyWarningOutline() const { return xb4_energyWarningOutline; }
+    zeus::CColor GetEnergyBarFlashColor() const { return xe8_energyBarFlashColor; }
     zeus::CColor GetXRayEnergyDecoColor() const { return x100_xrayEnergyDecoColor; }
     zeus::CColor GetHudCounterFill() const { return x180_hudCounterFill; }
     zeus::CColor GetHudCounterOutline() const { return x184_hudCounterOutline; }
     zeus::CColor GetThermalDecoColor() const { return x1ac_thermalDecoColor; }
     zeus::CColor GetThermalOutlinesColor() const { return x1b0_thermalOutlinesColor; }
     zeus::CColor GetThermalLockColor() const { return x1b8_thermalLockColor; }
+    VisorEnergyInitColors GetVisorEnergyInitColors(int idx) const
+    {
+        const PerVisorColors& colors = x1c4_perVisorColors[idx];
+        return {colors.xc_energyTankFilled, colors.x10_energyTankEmpty,
+                colors.x14_energyDigitsFont, colors.x18_energyDigitsOutline};
+    }
+    VisorEnergyBarColors GetVisorEnergyBarColors(int idx) const
+    {
+        const PerVisorColors& colors = x1c4_perVisorColors[idx];
+        return {colors.x0_energyBarFilled, colors.x4_energyBarEmpty, colors.x8_energyBarShadow};
+    }
 };
 }
 }

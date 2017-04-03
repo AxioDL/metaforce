@@ -22,10 +22,10 @@ struct CTweakGui : ITweakGui
     Value<float> x28_;
     atUint32 x2c_ = 0;
     Value<float> x30_;
-    Value<float> x34_;
-    Value<float> x38_;
-    Value<float> x3c_;
-    Value<bool> x40_;
+    Value<float> x34_energyBarFilledSpeed;
+    Value<float> x38_energyBarShadowSpeed;
+    Value<float> x3c_energyBarDrainDelay;
+    Value<bool> x40_energyBarAlwaysResetDelay;
     Value<float> x44_;
     Value<float> x48_;
     Value<float> x4c_;
@@ -196,6 +196,10 @@ struct CTweakGui : ITweakGui
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
 
     float GetMapAlphaInterpolant() const { return x8_mapAlphaInterp; }
+    float GetEnergyBarFilledSpeed() const { return x34_energyBarFilledSpeed; }
+    float GetEnergyBarShadowSpeed() const { return x38_energyBarShadowSpeed; }
+    float GetEnergyBarDrainDelay() const { return x3c_energyBarDrainDelay; }
+    bool GetEnergyBarAlwaysResetDelay() const { return x40_energyBarAlwaysResetDelay; }
     atUint32 GetHudCamFovTweak() const { return xa8_hudCamFovTweak; }
     atUint32 GetHudCamYTweak() const { return xac_hudCamYTweak; }
     atUint32 GetHudCamZTweak() const { return xb0_hudCamZTweak; }

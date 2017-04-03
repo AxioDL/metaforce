@@ -104,7 +104,7 @@ class CSamusHud
     CGuiFrame* x274_loadedFrmeBaseHud = nullptr;
     TLockedToken<CGuiFrame> x278_selectedHud; // used to be optional
     CGuiFrame* x288_loadedSelectedHud = nullptr;
-    std::unique_ptr<CHudEnergyInterfaceBall> x28c_ballEnergyIntf;
+    std::unique_ptr<CHudEnergyInterface> x28c_ballEnergyIntf;
     std::unique_ptr<IHudThreatInterface> x290_threatIntf;
     std::unique_ptr<CHudMissileInterfaceCombat> x294_missileIntf;
     std::unique_ptr<IFreeLookInterface> x298_freeLookIntf;
@@ -121,7 +121,7 @@ class CSamusHud
     ETransitionState x2c4_activeTransState = ETransitionState::NotTransitioning;
     float x2c8_transT = 1.f;
     u32 x2cc_preLoadCountdown = 0;
-    float x2d0_ = 0.f;
+    float x2d0_playerHealth = 0.f;
     u32 x2d4_totalEnergyTanks = 0;
     u32 x2d8_missileAmount = 0;
     u32 x2dc_missileCapacity = 0;

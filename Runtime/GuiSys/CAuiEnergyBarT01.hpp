@@ -47,6 +47,7 @@ public:
     void Update(float dt);
     void Draw(const CGuiWidgetDrawParms& drawParms) const;
     float GetActualFraction() const { return xe0_maxEnergy == 0.f ? 0.f : xf4_setEnergy / xe0_maxEnergy; }
+    float GetFilledEnergy() const { return xf8_filledEnergy; }
     void SetCurrEnergy(float e, ESetMode mode);
     void SetCoordFunc(FCoordFunc func) { xd8_coordFunc = func; }
     void SetEmptyColor(const zeus::CColor& c) { xcc_emptyColor = c; }

@@ -28,6 +28,10 @@ struct ITweakGui : ITweak
     };
 
     virtual float GetMapAlphaInterpolant() const=0;
+    virtual float GetEnergyBarFilledSpeed() const=0;
+    virtual float GetEnergyBarShadowSpeed() const=0;
+    virtual float GetEnergyBarDrainDelay() const=0;
+    virtual bool GetEnergyBarAlwaysResetDelay() const=0;
     virtual atUint32 GetHudCamFovTweak() const=0;
     virtual atUint32 GetHudCamYTweak() const=0;
     virtual atUint32 GetHudCamZTweak() const=0;
