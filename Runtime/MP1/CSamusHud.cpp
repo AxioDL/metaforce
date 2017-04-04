@@ -460,8 +460,8 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         int minutes = mgr.GetEscapeSequenceTimer() / 60.f;
         int seconds = std::fmod(mgr.GetEscapeSequenceTimer(), 60.f);
         int hundredths = std::fmod(mgr.GetEscapeSequenceTimer() * 100.f, 100.f);
-        std::u16string timeStr = hecl::UTF8ToChar16(hecl::Format("%02d:%02d:%02d",
-                                 int(minutes), int(seconds), int(hundredths)));
+        std::string timeStr = hecl::Format("%02d:%02d:%02d",
+                                 int(minutes), int(seconds), int(hundredths));
         x594_base_textpane_counter->TextSupport()->SetText(timeStr);
         x594_base_textpane_counter->SetIsVisible(true);
 

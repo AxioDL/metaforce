@@ -210,9 +210,9 @@ private:
     float xf0c_escapeTimer = 0.f;
     float xf10_escapeTotalTime = 0.f;
     float xf14_curTimeMod900 = 0.f;
-    TUniqueId xf18_ = kInvalidUniqueId;
-    float xf1c_ = 0.f;
-    u32 xf20_ = 0;
+    TUniqueId xf18_bossId = kInvalidUniqueId;
+    float xf1c_totalBossEnergy = 0.f;
+    u32 xf20_bossStringIdx = 0;
     float xf24_thermColdScale1 = 0.f;
     float xf28_thermColdScale2 = 0.f;
     zeus::CVector2f xf2c_viewportScale = {1.f, 1.f};
@@ -447,6 +447,7 @@ public:
     void SetIsGeneratingObject(bool gen) { xf94_26_generatingObject = gen; }
     u32 GetParticleFlags() const { return xf34_particleFlags; }
     const CFinalInput& GetFinalInput() const { return xb54_finalInput; }
+    void SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringIdx);
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

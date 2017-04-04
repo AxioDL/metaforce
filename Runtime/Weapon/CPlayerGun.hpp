@@ -24,6 +24,13 @@ namespace urde
 
 class CPlayerGun
 {
+public:
+    enum class EMissleMode
+    {
+        Inactive,
+        Active
+    };
+private:
     struct CGunMorph
     {
         float x0_ = 0.f;
@@ -66,7 +73,7 @@ class CPlayerGun
     u32 x310_ = 0;
     u32 x314_ = 0;
     u32 x318_ = 0;
-    u32 x31c_missilesActive = 0;
+    EMissleMode x31c_missileMode = EMissleMode::Inactive;
     u32 x320_ = 0;
     u32 x324_ = 4;
     u32 x328_ = 0x2000;
@@ -75,7 +82,7 @@ class CPlayerGun
     u32 x334_ = 0;
     u32 x338_ = 0;
     u32 x33c_ = 0;
-    float x340_chargeTime = 0.f;
+    float x340_chargeBeamFactor = 0.f;
     float x344_ = 0.f;
     float x348_ = 0.f;
     float x34c_ = 0.f;
@@ -175,7 +182,7 @@ class CPlayerGun
             bool x833_30_ : 1;
             bool x833_31_ : 1;
 
-            bool x834_24_ : 1;
+            bool x834_24_charging : 1;
             bool x834_25_ : 1;
             bool x834_26_ : 1;
             bool x834_27_ : 1;
@@ -201,6 +208,7 @@ public:
 
     void AsyncLoadSuit(CStateManager& mgr);
     void TouchModel(CStateManager& stateMgr);
+    EMissleMode GetMissleMode() const { return x31c_missileMode; }
 };
 
 }

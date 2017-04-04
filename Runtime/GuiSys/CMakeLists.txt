@@ -48,6 +48,7 @@ set(GUISYS_SOURCES
     CHudVisorBeamMenu.hpp CHudVisorBeamMenu.cpp
     CHudRadarInterface.hpp CHudRadarInterface.cpp
     CHudBallInterface.hpp CHudBallInterface.cpp
+    CHudInterface.hpp
     CScanDisplay.hpp CScanDisplay.cpp)
 
 runtime_add_list(GuiSys GUISYS_SOURCES)

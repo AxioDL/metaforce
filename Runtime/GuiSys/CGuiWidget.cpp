@@ -115,6 +115,12 @@ bool CGuiWidget::GetIsFinishedLoadingWidgetSpecific() const
     return true;
 }
 
+void CGuiWidget::SetTransform(const zeus::CTransform& xf)
+{
+    x74_transform = xf;
+    ReapplyXform();
+}
+
 void CGuiWidget::SetIdlePosition(const zeus::CVector3f& pos, bool reapply)
 {
     x74_transform.origin = pos;

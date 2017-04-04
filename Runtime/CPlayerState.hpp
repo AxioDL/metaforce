@@ -131,6 +131,7 @@ public:
 
     float sub_80091204() const;
     u32 GetMissileCostForAltAttack() const;
+    static float GetMissileComboChargeFactor() { return 1.8f; }
     u32 CalculateItemCollectionRate() const;
 
     CHealthInfo& HealthInfo();

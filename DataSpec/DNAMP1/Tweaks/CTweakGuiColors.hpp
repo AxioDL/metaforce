@@ -19,7 +19,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x1c_hudFrameColor;
     DNAColor x20_;
     DNAColor x24_;
-    DNAColor x28_;
+    DNAColor x28_missileIconColorActive;
     DNAColor x2c_;
     DNAColor x30_;
     DNAColor x34_energyBarFilledLowEnergy;
@@ -34,29 +34,29 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x58_;
     DNAColor x5c_energyWarningFont;
     DNAColor x60_;
-    DNAColor x64_;
+    DNAColor x64_missileWarningFont;
     DNAColor x68_;
     DNAColor x6c_;
     DNAColor x70_;
-    DNAColor x74_;
-    DNAColor x78_;
-    DNAColor x7c_;
+    DNAColor x74_missileBarFilled;
+    DNAColor x78_missileBarShadow;
+    DNAColor x7c_missileBarEmpty;
     DNAColor x80_;
     DNAColor x84_;
     DNAColor x88_tickDecoColor;
-    DNAColor x8c_;
+    DNAColor x8c_helmetLightColor;
     DNAColor x90_;
-    DNAColor x94_;
-    DNAColor x98_;
-    DNAColor x9c_;
-    DNAColor xa0_;
+    DNAColor x94_missileIconColorInactive;
+    DNAColor x98_missileIconColorChargedCanAlt;
+    DNAColor x9c_missileIconColorChargedNoAlt;
+    DNAColor xa0_missileIconColorDepleteAlt;
     DNAColor xa4_;
     DNAColor xa8_;
     DNAColor xac_;
     DNAColor xb0_;
     DNAColor xb4_energyWarningOutline;
     DNAColor xb8_;
-    DNAColor xbc_;
+    DNAColor xbc_missileWarningOutline;
     DNAColor xc0_;
     DNAColor xc4_;
     DNAColor xc8_;
@@ -114,8 +114,8 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x198_;
     DNAColor x19c_;
     DNAColor x1a0_;
-    DNAColor x1a4_;
-    DNAColor x1a8_;
+    DNAColor x1a4_missileDigitsFont;
+    DNAColor x1a8_missileDigitsOutline;
     DNAColor x1ac_thermalDecoColor;
     DNAColor x1b0_thermalOutlinesColor;
     DNAColor x1b4_;
@@ -143,16 +143,29 @@ struct CTweakGuiColors : public ITweakGuiColors
     zeus::CColor GetHudMessageFill() const { return x14_hudMessageFill; }
     zeus::CColor GetHudMessageOutline() const { return x18_hudMessageOutline; }
     zeus::CColor GetHudFrameColor() const { return x1c_hudFrameColor; }
+    zeus::CColor GetMissileIconColorActive() const { return x28_missileIconColorActive; }
     zeus::CColor GetEnergyBarFilledLowEnergy() const { return x34_energyBarFilledLowEnergy; }
     zeus::CColor GetEnergyBarShadowLowEnergy() const { return x38_energyBarShadowLowEnergy; }
     zeus::CColor GetEnergyBarEmptyLowEnergy() const { return x3c_energyBarEmptyLowEnergy; }
     zeus::CColor GetEnergyWarningFont() const { return x5c_energyWarningFont; }
+    zeus::CColor GetMissileWarningFont() const { return x64_missileWarningFont; }
+    zeus::CColor GetMissileBarFilled() const { return x74_missileBarFilled; }
+    zeus::CColor GetMissileBarShadow() const { return x78_missileBarShadow; }
+    zeus::CColor GetMissileBarEmpty() const { return x7c_missileBarEmpty; }
     zeus::CColor GetTickDecoColor() const { return x88_tickDecoColor; }
+    zeus::CColor GetHelmetLightColor() const { return x8c_helmetLightColor; }
+    zeus::CColor GetMissileIconColorInactive() const { return x94_missileIconColorInactive; }
+    zeus::CColor GetMissileIconColorChargedCanAlt() const { return x98_missileIconColorChargedCanAlt; }
+    zeus::CColor GetMissileIconColorChargedNoAlt() const { return x9c_missileIconColorChargedNoAlt; }
+    zeus::CColor GetMissileIconColorDepleteAlt() const { return xa0_missileIconColorDepleteAlt; }
     zeus::CColor GetEnergyWarningOutline() const { return xb4_energyWarningOutline; }
+    zeus::CColor GetMissileWarningOutline() const { return xbc_missileWarningOutline; }
     zeus::CColor GetEnergyBarFlashColor() const { return xe8_energyBarFlashColor; }
     zeus::CColor GetXRayEnergyDecoColor() const { return x100_xrayEnergyDecoColor; }
     zeus::CColor GetHudCounterFill() const { return x180_hudCounterFill; }
     zeus::CColor GetHudCounterOutline() const { return x184_hudCounterOutline; }
+    zeus::CColor GetMissileDigitsFont() const { return x1a4_missileDigitsFont; }
+    zeus::CColor GetMissileDigitsOutline() const { return x1a8_missileDigitsOutline; }
     zeus::CColor GetThermalDecoColor() const { return x1ac_thermalDecoColor; }
     zeus::CColor GetThermalOutlinesColor() const { return x1b0_thermalOutlinesColor; }
     zeus::CColor GetThermalLockColor() const { return x1b8_thermalLockColor; }

@@ -2620,6 +2620,13 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
     return {num, denom};
 }
 
+void CStateManager::SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringIdx)
+{
+    xf18_bossId = bossId;
+    xf1c_totalBossEnergy = maxEnergy;
+    xf20_bossStringIdx = stringIdx;
+}
+
 float CStateManager::g_EscapeShakeCountdown;
 bool CStateManager::g_EscapeShakeCountdownInit = false;
 }

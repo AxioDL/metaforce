@@ -21,12 +21,12 @@ static const CAuiEnergyBarT01::FCoordFunc CoordFuncs[] =
 
 static const float Tesselations[] =
 {
-    0.2f, 0.2f, 0.1f, 0.2f, 0.1f
+    0.2f, 0.2f, 0.1f, 0.2f, 1.f
 };
 
 CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, int totalEnergyTanks,
-                                         int numTanksFilled, bool energyLow, EBarType barType)
-: x0_barType(barType), xc_tankEnergy(tankEnergy), x10_totalEnergyTanks(totalEnergyTanks),
+                                         int numTanksFilled, bool energyLow, EHudType hudType)
+: x0_hudType(hudType), xc_tankEnergy(tankEnergy), x10_totalEnergyTanks(totalEnergyTanks),
   x14_numTanksFilled(numTanksFilled)
 {
     x1c_24_ = true;
@@ -39,11 +39,11 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, in
     x28_textpane_energywarning = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_energywarning"));
     x2c_energybart01_energybar = static_cast<CAuiEnergyBarT01*>(selHud.FindWidget("energybart01_energybar"));
 
-    x2c_energybart01_energybar->SetCoordFunc(CoordFuncs[int(barType)]);
-    x2c_energybart01_energybar->SetTesselation(Tesselations[int(barType)]);
+    x2c_energybart01_energybar->SetCoordFunc(CoordFuncs[int(hudType)]);
+    x2c_energybart01_energybar->SetTesselation(Tesselations[int(hudType)]);
 
-    ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(barType));
-    ITweakGuiColors::VisorEnergyInitColors initColors = g_tweakGuiColors->GetVisorEnergyInitColors(int(barType));
+    ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(hudType));
+    ITweakGuiColors::VisorEnergyInitColors initColors = g_tweakGuiColors->GetVisorEnergyInitColors(int(hudType));
 
     x20_textpane_energydigits->TextSupport()->SetFontColor(initColors.digitsFont);
     x20_textpane_energydigits->TextSupport()->SetOutlineColor(initColors.digitsOutline);
@@ -108,12 +108,12 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse)
     {
         x1c_26_barDirty = false;
         x18_cachedBarEnergy = x2c_energybart01_energybar->GetFilledEnergy();
-        std::u16string string = hecl::UTF8ToChar16(hecl::Format("%02d",
-            int(std::fmod(x18_cachedBarEnergy, CPlayerState::GetEnergyTankCapacity()))));
+        std::string string = hecl::Format("%02d",
+            int(std::fmod(x18_cachedBarEnergy, CPlayerState::GetEnergyTankCapacity())));
         x20_textpane_energydigits->TextSupport()->SetText(string);
     }
 
-    ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(x0_barType));
+    ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(x0_hudType));
     zeus::CColor emptyColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarEmptyLowEnergy() : barColors.empty;
     zeus::CColor filledColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarFilledLowEnergy() : barColors.filled;
     zeus::CColor shadowColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarShadowLowEnergy() : barColors.shadow;

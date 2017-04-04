@@ -2,6 +2,7 @@
 #define __URDE_CHUDENERGYINTERFACE_HPP__
 
 #include "RetroTypes.hpp"
+#include "CHudInterface.hpp"
 
 namespace urde
 {
@@ -13,17 +14,7 @@ class CAuiEnergyBarT01;
 
 class CHudEnergyInterface
 {
-public:
-    enum class EBarType
-    {
-        Combat,
-        Scan,
-        XRay,
-        Thermal,
-        Ball
-    };
-private:
-    EBarType x0_barType;
+    EHudType x0_hudType;
     float x4_energyLowFader = 0.f;
     float x8_flashMag = 0.f;
     float xc_tankEnergy;
@@ -47,7 +38,7 @@ private:
     CAuiEnergyBarT01* x2c_energybart01_energybar;
 public:
     CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, int totalEnergyTanks,
-                        int numTanksFilled, bool energyLow, EBarType barType);
+                        int numTanksFilled, bool energyLow, EHudType hudType);
     void Update(float dt, float energyLowPulse);
     void SetEnergyLow(bool energyLow);
     void SetFlashMagnitude(float mag);

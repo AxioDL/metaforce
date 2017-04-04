@@ -106,7 +106,7 @@ class CSamusHud
     CGuiFrame* x288_loadedSelectedHud = nullptr;
     std::unique_ptr<CHudEnergyInterface> x28c_ballEnergyIntf;
     std::unique_ptr<IHudThreatInterface> x290_threatIntf;
-    std::unique_ptr<CHudMissileInterfaceCombat> x294_missileIntf;
+    std::unique_ptr<CHudMissileInterface> x294_missileIntf;
     std::unique_ptr<IFreeLookInterface> x298_freeLookIntf;
     std::unique_ptr<IHudDecoInterface> x29c_decoIntf;
     std::unique_ptr<CHudHelmetInterface> x2a0_helmetIntf;

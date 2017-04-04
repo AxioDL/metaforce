@@ -66,7 +66,7 @@ struct CTweakGui : ITweakGui
     Value<float> xe8_;
     Value<float> xec_;
     Value<float> xf0_;
-    Value<float> xf4_;
+    Value<float> xf4_missileArrowVisTime;
     Value<EHudVisMode> xf8_hudVisMode;
     Value<EHelmetVisMode> xfc_helmetVisMode;
     Value<atUint32> x100_enableAutoMapper;
@@ -74,7 +74,7 @@ struct CTweakGui : ITweakGui
     Value<atUint32> x108_enableTargetingManager;
     Value<atUint32> x10c_enablePlayerVisor;
     Value<float> x110_;
-    Value<float> x114_;
+    Value<float> x114_missileWarningFraction;
     Value<float> x118_;
     Value<float> x11c_;
     Value<float> x120_;
@@ -94,7 +94,7 @@ struct CTweakGui : ITweakGui
     String<-1> x170_;
     String<-1> x180_;
     String<-1> x190_;
-    Value<float> x1a0_;
+    Value<float> x1a0_missileWarningPulseTime;
     Value<float> x1a4_;
     Value<float> x1a8_;
     Value<float> x1ac_;
@@ -203,11 +203,14 @@ struct CTweakGui : ITweakGui
     atUint32 GetHudCamFovTweak() const { return xa8_hudCamFovTweak; }
     atUint32 GetHudCamYTweak() const { return xac_hudCamYTweak; }
     atUint32 GetHudCamZTweak() const { return xb0_hudCamZTweak; }
+    float GetMissileArrowVisTime() const { return xf4_missileArrowVisTime; }
     EHudVisMode GetHudVisMode() const { return xf8_hudVisMode; }
     EHelmetVisMode GetHelmetVisMode() const { return xfc_helmetVisMode; }
     atUint32 GetEnableAutoMapper() const { return x100_enableAutoMapper; }
     atUint32 GetEnableTargetingManager() const { return x108_enableTargetingManager; }
     atUint32 GetEnablePlayerVisor() const { return x10c_enablePlayerVisor; }
+    float GetMissileWarningFraction() const { return x114_missileWarningFraction; }
+    float GetMissileWarningPulseTime() const { return x1a0_missileWarningPulseTime; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
