@@ -86,7 +86,7 @@ struct CRadarPaintShaderGLDataBindingFactory : TShader<CRadarPaintShader>::IData
 struct CRadarPaintShaderVulkanDataBindingFactory : TShader<CRadarPaintShader>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CEnergyBarShader& filter)
+                                                    CRadarPaintShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 

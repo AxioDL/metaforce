@@ -35,7 +35,7 @@ static const char* VS =
 "    constant VertData& v = va[instId];\n"
 "    vtf.color = v.colorIn;\n"
 "    vtf.uv = v.uvIn[vertId].xy;\n"
-"    vtf.position = rpu.xf * vec4(v.posIn[vertId].xyz, 1.0);\n"
+"    vtf.position = rpu.xf * float4(v.posIn[vertId].xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 
