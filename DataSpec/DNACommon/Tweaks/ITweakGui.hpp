@@ -28,6 +28,9 @@ struct ITweakGui : ITweak
     };
 
     virtual float GetMapAlphaInterpolant() const=0;
+    virtual float GetRadarXYRadius() const=0;
+    virtual float GetRadarZRadius() const=0;
+    virtual float GetRadarZCloseRadius() const=0;
     virtual float GetEnergyBarFilledSpeed() const=0;
     virtual float GetEnergyBarShadowSpeed() const=0;
     virtual float GetEnergyBarDrainDelay() const=0;
@@ -35,12 +38,17 @@ struct ITweakGui : ITweak
     virtual atUint32 GetHudCamFovTweak() const=0;
     virtual atUint32 GetHudCamYTweak() const=0;
     virtual atUint32 GetHudCamZTweak() const=0;
+    virtual float GetMaxThreatEnergy() const=0;
+    virtual float GetRadarScopeCoordRadius() const=0;
+    virtual float GetRadarPlayerPaintRadius() const=0;
+    virtual float GetRadarEnemyPaintRadius() const=0;
     virtual float GetMissileArrowVisTime() const=0;
     virtual EHudVisMode GetHudVisMode() const=0;
     virtual EHelmetVisMode GetHelmetVisMode() const=0;
     virtual atUint32 GetEnableAutoMapper() const=0;
     virtual atUint32 GetEnableTargetingManager() const=0;
     virtual atUint32 GetEnablePlayerVisor() const=0;
+    virtual float GetThreatWarningFraction() const=0;
     virtual float GetMissileWarningFraction() const=0;
     virtual float GetMissileWarningPulseTime() const=0;
     virtual float GetScanAppearanceOffset() const=0;

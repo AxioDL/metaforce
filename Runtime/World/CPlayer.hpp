@@ -167,9 +167,9 @@ private:
     float x3d0_ = 0.f;
     float x3d4_ = 0.f;
     float x3d8_ = 0.f;
-    bool x3dc_ = 0;
+    bool x3dc_inFreeLook = 0;
     bool x3dd_ = 0;
-    bool x3de_ = 0;
+    bool x3de_lookControlHeld = 0;
     float x3e4_ = 0.f;
     float x3e8_ = 0.f;
     float x3ec_ = 0.f;
@@ -268,7 +268,7 @@ private:
             bool x9c6_28_ : 1;
             bool x9c6_29_disableInput : 1;
             bool x9c6_30_newScanScanning : 1;
-            bool x9c6_31_ : 1;
+            bool x9c6_31_overrideRadarRadius : 1;
             bool x9c7_24_ : 1;
             bool x9c7_25_ : 1;
         };
@@ -295,8 +295,8 @@ private:
     float xa14_ = 0.f;
     float xa18_ = 0.f;
     float xa1c_ = 0.f;
-    float xa20_ = 1.f;
-    float xa24_ = 1.f;
+    float xa20_radarXYRadiusOverride = 1.f;
+    float xa24_radarZRadiusOverride = 1.f;
     float xa28_ = 0.f;
     u32 xa2c_ = 2;
     float xa30_ = 4.f;
@@ -443,9 +443,14 @@ public:
     TUniqueId GetLockonObjectId() const { return x310_lockonObjectId; }
     TUniqueId GetScanningObjectId() const { return x3b4_scanningObject; }
     bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }
+    bool IsOverrideRadarRadius() const { return x9c6_31_overrideRadarRadius; }
+    float GetRadarXYRadiusOverride() const { return xa20_radarXYRadiusOverride; }
+    float GetRadarZRadiusOverride() const { return xa24_radarZRadiusOverride; }
     bool ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const;
     float GetMorphTime() const { return x574_morphTime; }
     float GetMorphDuration() const { return x578_morphDuration; }
+    bool IsInFreeLook() const { return x3dc_inFreeLook; }
+    bool IsLookControlHeld() const { return x3de_lookControlHeld; }
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
 

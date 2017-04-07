@@ -36,7 +36,7 @@ public:
         {
             struct
             {
-                bool x80_24_ : 1;
+                bool x80_24_active : 1;
                 bool x80_25_ : 1;
                 bool x80_26_ : 1;
                 bool x80_27_ : 1;
@@ -44,10 +44,18 @@ public:
             };
             u32 x80_;
         };
+
+    public:
+        const zeus::CTransform& GetTransform() const { return x0_; }
+        const zeus::CVector3f& GetTranslation() const { return x0_.origin; }
+        bool GetActive() const { return x80_24_active; }
     };
 
+private:
     zeus::CAABox xe8_aabox = zeus::CAABox::skNullBox;
+    std::vector<CBoid> x108_boids;
     zeus::CVector3f x130_lastKilledOffset;
+
 public:
     CWallCrawlerSwarm(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CVector3f&,
                       const zeus::CTransform&, u32, const CAnimRes&, u32, u32, u32, u32, u32, u32, const CDamageInfo&,
@@ -59,6 +67,7 @@ public:
     zeus::CVector3f GetLastKilledOffset() const { return x130_lastKilledOffset; }
     void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info,
                            CStateManager& stateMgr) {}
+    const std::vector<CBoid>& GetBoids() const { return x108_boids; }
 };
 }
 

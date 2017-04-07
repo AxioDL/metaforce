@@ -105,7 +105,7 @@ class CSamusHud
     TLockedToken<CGuiFrame> x278_selectedHud; // used to be optional
     CGuiFrame* x288_loadedSelectedHud = nullptr;
     std::unique_ptr<CHudEnergyInterface> x28c_ballEnergyIntf;
-    std::unique_ptr<IHudThreatInterface> x290_threatIntf;
+    std::unique_ptr<CHudThreatInterface> x290_threatIntf;
     std::unique_ptr<CHudMissileInterface> x294_missileIntf;
     std::unique_ptr<IFreeLookInterface> x298_freeLookIntf;
     std::unique_ptr<IHudDecoInterface> x29c_decoIntf;
@@ -131,8 +131,8 @@ class CSamusHud
     {
         struct
         {
-            bool x2e0_24_ : 1;
-            bool x2e0_25_ : 1;
+            bool x2e0_24_inFreeLook : 1;
+            bool x2e0_25_lookControlHeld : 1;
             bool x2e0_26_latestFirstPerson : 1;
             bool x2e0_27_energyLow : 1;
         };

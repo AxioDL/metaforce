@@ -3,24 +3,56 @@
 namespace urde
 {
 
-CHudFreeLookInterfaceCombat::CHudFreeLookInterfaceCombat(CGuiFrame& selHud, bool, bool,
-                                                         bool, bool grapplePoint)
+CHudFreeLookInterface::CHudFreeLookInterface(CGuiFrame& selHud, EHudType hudType, bool inFreeLook,
+                                             bool lookControlHeld, bool lockedOnObj)
 {
 
 }
 
-void CHudFreeLookInterfaceCombat::Update(float dt)
+void CHudFreeLookInterface::Update(float dt)
 {
 
 }
 
-CHudFreeLookInterfaceXRay::CHudFreeLookInterfaceXRay(CGuiFrame& selHud, bool,
-                                                     bool, bool grapplePoint)
+void CHudFreeLookInterface::SetIsVisibleDebug(bool v)
+{
+
+}
+
+void CHudFreeLookInterface::SetIsVisibleGame(bool v)
+{
+
+}
+
+void CHudFreeLookInterface::SetFreeLookState(bool inFreeLook, bool lookControlHeld,
+                                             bool lockedOnObj, float vertLookAngle)
+{
+
+}
+
+CHudFreeLookInterfaceXRay::CHudFreeLookInterfaceXRay(CGuiFrame& selHud, bool inFreeLook,
+                                                     bool lookControlHeld, bool lockedOnObj)
 {
 
 }
 
 void CHudFreeLookInterfaceXRay::Update(float dt)
+{
+
+}
+
+void CHudFreeLookInterfaceXRay::SetIsVisibleDebug(bool v)
+{
+
+}
+
+void CHudFreeLookInterfaceXRay::SetIsVisibleGame(bool v)
+{
+
+}
+
+void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookControlHeld,
+                                                 bool lockedOnObj, float vertLookAngle)
 {
 
 }

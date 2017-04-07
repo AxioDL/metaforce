@@ -1,11 +1,115 @@
 #include "CHudBallInterface.hpp"
+#include "CGuiFrame.hpp"
+#include "CGuiGroup.hpp"
+#include "CGuiCamera.hpp"
+#include "CGuiTextPane.hpp"
+#include "CGuiModel.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
 
+CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int bombAmount, int bombCapacity,
+                                     int availableBombs, bool hasBombs, bool hasPb)
+: x40_bombAmount(bombAmount), x44_bombCapacity(bombCapacity),
+  x48_availableBombs(availableBombs), x4c_hasPb(hasPb)
+{
+    x0_camera = selHud.GetFrameCamera();
+    x4_basewidget_bombstuff = selHud.FindWidget("basewidget_bombstuff");
+    x8_basewidget_bombdeco = selHud.FindWidget("basewidget_bombdeco");
+    xc_model_bombicon = static_cast<CGuiModel*>(selHud.FindWidget("model_bombicon"));
+    x10_textpane_bombdigits = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_bombdigits"));
+    for (int i=0 ; i<3 ; ++i)
+    {
+        CGuiGroup* grp = static_cast<CGuiGroup*>(selHud.FindWidget(hecl::Format("group_bombcount%d", i).c_str()));
+        CGuiWidget* filled = grp->GetWorkerWidget(1);
+        CGuiWidget* empty = grp->GetWorkerWidget(0);
+        x14_group_bombfilled.push_back(filled);
+        x24_group_bombempty.push_back(empty);
+        if (filled)
+            filled->SetColor(g_tweakGuiColors->GetBallBombFilledColor());
+        if (empty)
+            empty->SetColor(g_tweakGuiColors->GetBallBombEmptyColor());
+    }
+    x8_basewidget_bombdeco->SetColor(g_tweakGuiColors->GetBallBombDecoColor());
+    x34_camPos = x0_camera->GetLocalPosition();
+    if (CGuiWidget* w = selHud.FindWidget("basewidget_energydeco"))
+        w->SetColor(g_tweakGuiColors->GetBallBombEnergyColor());
+    SetBombParams(bombAmount, bombCapacity, availableBombs, hasBombs, hasPb, true);
+}
+
+void CHudBallInterface::UpdatePowerBombReadoutColors()
+{
+    zeus::CColor fontColor;
+    zeus::CColor outlineColor;
+    if (x40_bombAmount > 0)
+    {
+        fontColor = g_tweakGuiColors->GetPowerBombDigitAvailableFont();
+        outlineColor = g_tweakGuiColors->GetPowerBombDigitAvailableOutline();
+    }
+    else if (x44_bombCapacity > 0)
+    {
+        fontColor = g_tweakGuiColors->GetPowerBombDigitDelpetedFont();
+        outlineColor = g_tweakGuiColors->GetPowerBombDigitDelpetedOutline();
+    }
+    else
+    {
+        fontColor = zeus::CColor::skClear;
+        outlineColor = zeus::CColor::skClear;
+    }
+    x10_textpane_bombdigits->TextSupport()->SetFontColor(fontColor);
+    x10_textpane_bombdigits->TextSupport()->SetOutlineColor(outlineColor);
+
+    zeus::CColor iconColor;
+    if (x40_bombAmount > 0 && x4c_hasPb)
+        iconColor = g_tweakGuiColors->GetPowerBombIconAvailableColor();
+    else if (x44_bombCapacity > 0)
+        iconColor = g_tweakGuiColors->GetPowerBombIconDepletedColor();
+    else
+        iconColor = zeus::CColor::skClear;
+
+    xc_model_bombicon->SetColor(iconColor);
+}
+
+void CHudBallInterface::SetBombParams(int bombAmount, int bombCapacity, int availableBombs,
+                                      bool hasBombs, bool hasPb, bool init)
+{
+    if (bombAmount != x40_bombAmount || init)
+    {
+        x10_textpane_bombdigits->TextSupport()->SetText(hecl::Format("%02d", bombAmount));
+        x40_bombAmount = bombAmount;
+        UpdatePowerBombReadoutColors();
+    }
+
+    if (x44_bombCapacity != bombCapacity || init)
+    {
+        x44_bombCapacity = bombCapacity;
+        UpdatePowerBombReadoutColors();
+    }
+
+    if (x4c_hasPb != hasPb)
+    {
+        x4c_hasPb = hasPb;
+        UpdatePowerBombReadoutColors();
+    }
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        bool lit = i < availableBombs;
+        x14_group_bombfilled[i]->SetVisibility(lit && hasBombs, ETraversalMode::Children);
+        x24_group_bombempty[i]->SetVisibility(!lit && hasBombs, ETraversalMode::Children);
+    }
+
+    x48_availableBombs = availableBombs;
+
+    x8_basewidget_bombdeco->SetVisibility(hasBombs && x44_bombCapacity > 0, ETraversalMode::Children);
+}
+
 void CHudBallInterface::SetBallModeFactor(float t)
 {
-
+    float tmp = 0.5f * 448.f * g_tweakGui->GetBallViewportYReduction();
+    x0_camera->SetLocalTransform(
+    zeus::CTransform::Translate(x34_camPos + zeus::CVector3f(0.f, 0.f, (t * tmp - tmp) * 0.01f)));
 }
 
 }

@@ -57,10 +57,12 @@ enum class EMaterialTypes
     AIBlock = 48,
     Platform = 49,
     NonSolidDamageable = 50,
+    RadarObject = 51,
     PlatformSlave = 52,
     Unknown54 = 54,
     Unknown55 = 55,
     ExcludeFromLineOfSightTest = 56,
+    ExcludeFromRadar = 57,
     SixtyThree = 63
 };
 

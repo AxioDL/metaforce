@@ -13,13 +13,13 @@ struct CTweakGui : ITweakGui
     Value<bool> x4_;
     Value<float> x8_mapAlphaInterp;
     Value<float> xc_;
-    Value<float> x10_;
+    Value<float> x10_radarXYRadius;
     Value<float> x14_;
     Value<float> x18_;
     Value<float> x1c_;
     Value<float> x20_;
-    Value<float> x24_;
-    Value<float> x28_;
+    Value<float> x24_radarZRadius;
+    Value<float> x28_radarZCloseRadius;
     atUint32 x2c_ = 0;
     Value<float> x30_;
     Value<float> x34_energyBarFilledSpeed;
@@ -62,10 +62,10 @@ struct CTweakGui : ITweakGui
     Value<float> xd8_;
     Value<float> xdc_;
     Value<float> xe0_;
-    Value<float> xe4_;
-    Value<float> xe8_;
-    Value<float> xec_;
-    Value<float> xf0_;
+    Value<float> xe4_maxThreatEnergy;
+    Value<float> xe8_radarScopeCoordRadius;
+    Value<float> xec_radarPlayerPaintRadius;
+    Value<float> xf0_radarEnemyPaintRadius;
     Value<float> xf4_missileArrowVisTime;
     Value<EHudVisMode> xf8_hudVisMode;
     Value<EHelmetVisMode> xfc_helmetVisMode;
@@ -73,7 +73,7 @@ struct CTweakGui : ITweakGui
     Value<atUint32> x104_;
     Value<atUint32> x108_enableTargetingManager;
     Value<atUint32> x10c_enablePlayerVisor;
-    Value<float> x110_;
+    Value<float> x110_threatWarningFraction;
     Value<float> x114_missileWarningFraction;
     Value<float> x118_;
     Value<float> x11c_;
@@ -196,6 +196,9 @@ struct CTweakGui : ITweakGui
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
 
     float GetMapAlphaInterpolant() const { return x8_mapAlphaInterp; }
+    float GetRadarXYRadius() const { return x10_radarXYRadius; }
+    float GetRadarZRadius() const { return x24_radarZRadius; }
+    float GetRadarZCloseRadius() const { return x28_radarZCloseRadius; }
     float GetEnergyBarFilledSpeed() const { return x34_energyBarFilledSpeed; }
     float GetEnergyBarShadowSpeed() const { return x38_energyBarShadowSpeed; }
     float GetEnergyBarDrainDelay() const { return x3c_energyBarDrainDelay; }
@@ -203,12 +206,17 @@ struct CTweakGui : ITweakGui
     atUint32 GetHudCamFovTweak() const { return xa8_hudCamFovTweak; }
     atUint32 GetHudCamYTweak() const { return xac_hudCamYTweak; }
     atUint32 GetHudCamZTweak() const { return xb0_hudCamZTweak; }
+    float GetMaxThreatEnergy() const { return xe4_maxThreatEnergy; }
+    float GetRadarScopeCoordRadius() const { return xe8_radarScopeCoordRadius; }
+    float GetRadarPlayerPaintRadius() const { return xec_radarPlayerPaintRadius; }
+    float GetRadarEnemyPaintRadius() const { return xf0_radarEnemyPaintRadius; }
     float GetMissileArrowVisTime() const { return xf4_missileArrowVisTime; }
     EHudVisMode GetHudVisMode() const { return xf8_hudVisMode; }
     EHelmetVisMode GetHelmetVisMode() const { return xfc_helmetVisMode; }
     atUint32 GetEnableAutoMapper() const { return x100_enableAutoMapper; }
     atUint32 GetEnableTargetingManager() const { return x108_enableTargetingManager; }
     atUint32 GetEnablePlayerVisor() const { return x10c_enablePlayerVisor; }
+    float GetThreatWarningFraction() const { return x110_threatWarningFraction; }
     float GetMissileWarningFraction() const { return x114_missileWarningFraction; }
     float GetMissileWarningPulseTime() const { return x1a0_missileWarningPulseTime; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
