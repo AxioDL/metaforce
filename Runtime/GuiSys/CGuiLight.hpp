@@ -10,16 +10,16 @@ class CSimplePool;
 
 class CGuiLight : public CGuiWidget
 {
-    ELightType xf8_type;
-    float xfc_spotCutoff;
-    float x100_distC;
-    float x104_distL;
-    float x108_distQ;
-    float x10c_angleC;
-    float x110_angleL;
-    float x114_angleQ;
-    u32 x118_loadedIdx;
-    zeus::CColor x11c_color = zeus::CColor::skBlack;
+    ELightType xb8_type;
+    float xbc_spotCutoff;
+    float xc0_distC;
+    float xc4_distL;
+    float xc8_distQ;
+    float xcc_angleC;
+    float xd0_angleL;
+    float xd4_angleQ;
+    u32 xd8_loadedIdx;
+    zeus::CColor xdc_color = zeus::CColor::skBlack;
 public:
     ~CGuiLight();
     CGuiLight(const CGuiWidgetParms& parms, const CLight& light);
@@ -27,8 +27,17 @@ public:
 
     CLight BuildLight() const;
     void SetIsVisible(bool vis);
-    u32 GetLoadedIdx() const {return x118_loadedIdx;}
-    const zeus::CColor& GetColor() const {return x11c_color;}
+    u32 GetLoadedIdx() const {return xd8_loadedIdx;}
+    const zeus::CColor& GetColor() const {return xdc_color;}
+    void SetSpotCutoff(float v) {xbc_spotCutoff = v;}
+    void SetDistC(float v) {xc0_distC = v;}
+    void SetDistL(float v) {xc4_distL = v;}
+    void SetDistQ(float v) {xc8_distQ = v;}
+    void SetAngleC(float v) {xcc_angleC = v;}
+    void SetAngleL(float v) {xd0_angleL = v;}
+    void SetAngleQ(float v) {xd4_angleQ = v;}
+    void SetLoadedIdx(u32 idx) {xd8_loadedIdx = idx;}
+    void SetColor(const zeus::CColor& color) {xdc_color = color;}
 
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 

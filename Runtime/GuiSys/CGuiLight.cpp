@@ -6,15 +6,15 @@ namespace urde
 
 CGuiLight::CGuiLight(const CGuiWidgetParms& parms, const CLight& light)
 : CGuiWidget(parms),
-  xf8_type(light.x1c_type),
-  xfc_spotCutoff(light.x20_spotCutoff),
-  x100_distC(light.x24_distC),
-  x104_distL(light.x28_distL),
-  x108_distQ(light.x2c_distQ),
-  x10c_angleC(light.x30_angleC),
-  x110_angleL(light.x34_angleL),
-  x114_angleQ(light.x38_angleQ),
-  x118_loadedIdx(light.x40_loadedIdx)
+  xb8_type(light.x1c_type),
+  xbc_spotCutoff(light.x20_spotCutoff),
+  xc0_distC(light.x24_distC),
+  xc4_distL(light.x28_distL),
+  xc8_distQ(light.x2c_distQ),
+  xcc_angleC(light.x30_angleC),
+  xd0_angleL(light.x34_angleL),
+  xd4_angleQ(light.x38_angleQ),
+  xd8_loadedIdx(light.x40_loadedIdx)
 {}
 
 CGuiLight::~CGuiLight()
@@ -26,10 +26,10 @@ CLight CGuiLight::BuildLight() const
 {
     CLight ret = CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skBlack);
 
-    switch (xf8_type)
+    switch (xb8_type)
     {
     case ELightType::Spot:
-        ret = CLight::BuildSpot(GetWorldPosition(), x34_worldXF.basis[1], xa4_color, xfc_spotCutoff);
+        ret = CLight::BuildSpot(GetWorldPosition(), x34_worldXF.basis[1], xa4_color, xbc_spotCutoff);
         break;
     case ELightType::Point:
         ret = CLight::BuildPoint(GetWorldPosition(), xa4_color);
@@ -40,8 +40,8 @@ CLight CGuiLight::BuildLight() const
     default: break;
     }
 
-    ret.SetAttenuation(x100_distC, x104_distL, x108_distQ);
-    ret.SetAngleAttenuation(x10c_angleC, x110_angleL, x114_angleQ);
+    ret.SetAttenuation(xc0_distC, xc4_distL, xc8_distQ);
+    ret.SetAngleAttenuation(xcc_angleC, xd0_angleL, xd4_angleQ);
     return ret;
 }
 

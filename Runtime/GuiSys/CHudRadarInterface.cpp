@@ -79,7 +79,7 @@ void CHudRadarInterface::Update(float dt, const CStateManager& mgr)
     float visorTransFactor = (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat) ?
                              playerState.GetVisorTransitionFactor() : 0.f;
     zeus::CColor color = g_tweakGuiColors->GetRadarStuffColor();
-    color.a *= g_GameState->GameOptions().GetHUDAlpha() * visorTransFactor;
+    color.a *= g_GameState->GameOptions().GetHUDAlpha() / 255.f * visorTransFactor;
     x40_BaseWidget_RadarStuff->SetColor(color);
     bool tweakVis = g_tweakGui->GetHudVisMode() >= ITweakGui::EHudVisMode::Three;
     if (tweakVis != x3c_25_visibleDebug)
@@ -92,7 +92,7 @@ void CHudRadarInterface::Update(float dt, const CStateManager& mgr)
 
 void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const
 {
-    alpha *= g_GameState->GameOptions().GetHUDAlpha();
+    alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
     if (g_tweakGui->GetHudVisMode() == ITweakGui::EHudVisMode::Zero || !x3c_24_visibleGame ||
         !x0_txtrRadarPaint || !x0_txtrRadarPaint.IsLoaded())
         return;

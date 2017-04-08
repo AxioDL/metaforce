@@ -88,4 +88,29 @@ void CScanDisplay::StopScan()
 {
 
 }
+
+void CScanDisplay::InitializeFrame(float)
+{
+
+}
+
+void CScanDisplay::Update(float, float)
+{
+
+}
+
+void CScanDisplay::SetBackgroundBucketOccluded(s32, float)
+{
+
+}
+
+bool CScanDisplay::PanelCoversBucketBackground(CScannableObjectInfo::EPanelType, s32)
+{
+    return false;
+}
+
+void CScanDisplay::Draw() const
+{
+
+}
 }

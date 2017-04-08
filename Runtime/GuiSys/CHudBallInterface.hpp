@@ -22,15 +22,15 @@ class CHudBallInterface
     rstl::reserved_vector<CGuiWidget*, 3> x14_group_bombfilled;
     rstl::reserved_vector<CGuiWidget*, 3> x24_group_bombempty;
     zeus::CVector3f x34_camPos;
-    int x40_bombAmount;
-    int x44_bombCapacity;
+    int x40_pbAmount;
+    int x44_pbCapacity;
     int x48_availableBombs;
     bool x4c_hasPb;
     void UpdatePowerBombReadoutColors();
 public:
-    CHudBallInterface(CGuiFrame& selHud, int bombAmount, int bombCapacity,
+    CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapacity,
                       int availableBombs, bool hasBombs, bool hasPb);
-    void SetBombParams(int bombAmount, int bombCapacity, int availableBombs,
+    void SetBombParams(int pbAmount, int pbCapacity, int availableBombs,
                        bool hasBombs, bool hasPb, bool init);
     void SetBallModeFactor(float t);
 };

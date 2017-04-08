@@ -13,6 +13,13 @@
 namespace urde
 {
 
+void IHudDecoInterface::SetReticuleTransform(const zeus::CMatrix3f& xf) {}
+void IHudDecoInterface::SetDecoRotation(float angle) {}
+void IHudDecoInterface::SetFrameColorValue(float v) {}
+void IHudDecoInterface::Draw() const {}
+void IHudDecoInterface::ProcessInput(const CFinalInput& input) {}
+float IHudDecoInterface::GetHudTextAlpha() const { return 1.f; }
+
 CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud)
 {
     x68_24_visDebug = true;

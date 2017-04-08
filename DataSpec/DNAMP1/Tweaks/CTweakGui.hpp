@@ -30,14 +30,14 @@ struct CTweakGui : ITweakGui
     Value<float> x48_;
     Value<float> x4c_;
     Value<float> x50_;
-    Value<float> x54_;
-    Value<float> x58_;
-    Value<float> x5c_;
-    Value<float> x60_;
-    Value<atVec3f> x64_;
-    Value<atVec3f> x70_;
-    Value<float> x7c_;
-    Value<float> x80_;
+    Value<float> x54_hudDamageLightSpotAngle;
+    Value<float> x58_damageLightAngleC;
+    Value<float> x5c_damageLightAngleL;
+    Value<float> x60_damageLightAngleQ;
+    Value<atVec3f> x64_damageLightPreTranslate;
+    Value<atVec3f> x70_damageLightCenterTranslate;
+    Value<float> x7c_damageLightXfXAngle;
+    Value<float> x80_damageLightXfZAngle;
     Value<float> x84_;
     Value<float> x88_;
     Value<float> x8c_;
@@ -53,10 +53,10 @@ struct CTweakGui : ITweakGui
     Value<float> xb4_;
     Value<float> xb8_;
     Value<float> xbc_;
-    Value<float> xc0_;
-    Value<float> xc4_;
-    Value<float> xc8_;
-    Value<float> xcc_;
+    Value<float> xc0_beamVisorMenuAnimTime;
+    Value<float> xc4_visorBeamMenuItemActiveScale;
+    Value<float> xc8_visorBeamMenuItemInactiveScale;
+    Value<float> xcc_visorBeamMenuItemTranslate;
     Value<float> xd0_;
     Value<atUint32> xd4_;
     Value<float> xd8_;
@@ -75,13 +75,13 @@ struct CTweakGui : ITweakGui
     Value<atUint32> x10c_enablePlayerVisor;
     Value<float> x110_threatWarningFraction;
     Value<float> x114_missileWarningFraction;
-    Value<float> x118_;
+    Value<float> x118_freeLookFadeTime;
     Value<float> x11c_;
     Value<float> x120_;
     Value<float> x124_;
     Value<float> x128_;
-    Value<float> x12c_;
-    Value<bool> x130_;
+    Value<float> x12c_freeLookSfxPitchScale;
+    Value<bool> x130_noAbsoluteFreeLookSfxPitch;
     Value<float> x134_;
     Value<float> x138_;
     Value<atUint32> x13c_;
@@ -203,9 +203,21 @@ struct CTweakGui : ITweakGui
     float GetEnergyBarShadowSpeed() const { return x38_energyBarShadowSpeed; }
     float GetEnergyBarDrainDelay() const { return x3c_energyBarDrainDelay; }
     bool GetEnergyBarAlwaysResetDelay() const { return x40_energyBarAlwaysResetDelay; }
+    float GetHudDamageLightSpotAngle() const { return x54_hudDamageLightSpotAngle; }
+    float GetDamageLightAngleC() const { return x58_damageLightAngleC; }
+    float GetDamageLightAngleL() const { return x5c_damageLightAngleL; }
+    float GetDamageLightAngleQ() const { return x60_damageLightAngleQ; }
+    atVec3f GetDamageLightPreTranslate() const { return x64_damageLightPreTranslate; }
+    atVec3f GetDamageLightCenterTranslate() const { return x70_damageLightCenterTranslate; }
+    float GetDamageLightXfXAngle() const { return x7c_damageLightXfXAngle; }
+    float GetDamageLightXfZAngle() const { return x80_damageLightXfZAngle; }
     atUint32 GetHudCamFovTweak() const { return xa8_hudCamFovTweak; }
     atUint32 GetHudCamYTweak() const { return xac_hudCamYTweak; }
     atUint32 GetHudCamZTweak() const { return xb0_hudCamZTweak; }
+    float GetBeamVisorMenuAnimTime() const { return xc0_beamVisorMenuAnimTime; }
+    float GetVisorBeamMenuItemActiveScale() const { return xc4_visorBeamMenuItemActiveScale; }
+    float GetVisorBeamMenuItemInactiveScale() const { return xc8_visorBeamMenuItemInactiveScale; }
+    float GetVisorBeamMenuItemTranslate() const { return xcc_visorBeamMenuItemTranslate; }
     float GetMaxThreatEnergy() const { return xe4_maxThreatEnergy; }
     float GetRadarScopeCoordRadius() const { return xe8_radarScopeCoordRadius; }
     float GetRadarPlayerPaintRadius() const { return xec_radarPlayerPaintRadius; }
@@ -218,6 +230,9 @@ struct CTweakGui : ITweakGui
     atUint32 GetEnablePlayerVisor() const { return x10c_enablePlayerVisor; }
     float GetThreatWarningFraction() const { return x110_threatWarningFraction; }
     float GetMissileWarningFraction() const { return x114_missileWarningFraction; }
+    float GetFreeLookFadeTime() const { return x118_freeLookFadeTime; }
+    float GetFreeLookSfxPitchScale() const { return x12c_freeLookSfxPitchScale; }
+    bool GetNoAbsoluteFreeLookSfxPitch() const { return x130_noAbsoluteFreeLookSfxPitch; }
     float GetMissileWarningPulseTime() const { return x1a0_missileWarningPulseTime; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }

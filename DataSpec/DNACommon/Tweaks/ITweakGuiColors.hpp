@@ -29,9 +29,16 @@ struct ITweakGuiColors : BigYAML
     virtual zeus::CColor GetHudMessageOutline() const=0;
     virtual zeus::CColor GetHudFrameColor() const=0;
     virtual zeus::CColor GetMissileIconColorActive() const=0;
+    virtual zeus::CColor GetVisorBeamMenuItemActive() const=0;
+    virtual zeus::CColor GetVisorBeamMenuItemInactive() const=0;
     virtual zeus::CColor GetEnergyBarFilledLowEnergy() const=0;
     virtual zeus::CColor GetEnergyBarShadowLowEnergy() const=0;
     virtual zeus::CColor GetEnergyBarEmptyLowEnergy() const=0;
+    virtual zeus::CColor GetHudDamageLightColor() const=0;
+    virtual zeus::CColor GetVisorMenuTextFont() const=0;
+    virtual zeus::CColor GetVisorMenuTextOutline() const=0;
+    virtual zeus::CColor GetBeamMenuTextFont() const=0;
+    virtual zeus::CColor GetBeamMenuTextOutline() const=0;
     virtual zeus::CColor GetEnergyWarningFont() const=0;
     virtual zeus::CColor GetThreatWarningFont() const=0;
     virtual zeus::CColor GetMissileWarningFont() const=0;
@@ -49,6 +56,7 @@ struct ITweakGuiColors : BigYAML
     virtual zeus::CColor GetMissileIconColorChargedCanAlt() const=0;
     virtual zeus::CColor GetMissileIconColorChargedNoAlt() const=0;
     virtual zeus::CColor GetMissileIconColorDepleteAlt() const=0;
+    virtual zeus::CColor GetVisorBeamMenuLozColor() const=0;
     virtual zeus::CColor GetEnergyWarningOutline() const=0;
     virtual zeus::CColor GetThreatWarningOutline() const=0;
     virtual zeus::CColor GetMissileWarningOutline() const=0;

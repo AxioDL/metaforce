@@ -104,7 +104,7 @@ class CSamusHud
     CGuiFrame* x274_loadedFrmeBaseHud = nullptr;
     TLockedToken<CGuiFrame> x278_selectedHud; // used to be optional
     CGuiFrame* x288_loadedSelectedHud = nullptr;
-    std::unique_ptr<CHudEnergyInterface> x28c_ballEnergyIntf;
+    std::unique_ptr<CHudEnergyInterface> x28c_energyIntf;
     std::unique_ptr<CHudThreatInterface> x290_threatIntf;
     std::unique_ptr<CHudMissileInterface> x294_missileIntf;
     std::unique_ptr<IFreeLookInterface> x298_freeLookIntf;
@@ -152,7 +152,7 @@ class CSamusHud
     rstl::reserved_vector<SCachedHudLight, 3> x340_hudLights;
     CSfxHandle x3a4_damageSfx;
     CCameraFilterPass x3a8_camFilter;
-    CGuiWidget* x3d4_selected_basewidget_pivot = nullptr;
+    CGuiLight* x3d4_damageLight = nullptr;
     std::vector<zeus::CTransform> x3d8_lightTransforms;
     float x3e8_ = 0.f;
     float x3ec_ = 0.f;
@@ -185,10 +185,10 @@ class CSamusHud
     float x558_messageTextAlpha = 0.f;
     float x55c_lastSfxChars = 0.f;
     float x560_messageTextScale = 0.f;
-    u32 x564_ = 0;
+    CSfxHandle x564_freeLookSfx;
     zeus::CVector3f x568_fpCamDir;
-    float x574_ = 1.f;
-    float x578_ = 0.f;
+    float x574_lookDeltaDot = 1.f;
+    float x578_freeLookSfxCycleTimer = 0.f;
     float x57c_energyLowTimer = 0.f;
     float x580_energyLowPulse = 0.f;
     float x584_abuttonPulse = 0.f;
@@ -212,6 +212,7 @@ class CSamusHud
     void InitializeFrameGluePermanent(const CStateManager& mgr);
     void InitializeFrameGlueMutable(const CStateManager& mgr);
     void UninitializeFrameGlueMutable();
+    void InitializeDamageLight();
     void UpdateEnergy(float dt, const CStateManager& mgr, bool init);
     void UpdateFreeLook(float dt, const CStateManager& mgr);
     void UpdateMissile(float dt, const CStateManager& mgr, bool init);
@@ -233,6 +234,7 @@ class CSamusHud
 
 public:
     CSamusHud(CStateManager& stateMgr);
+    ~CSamusHud();
     void Update(float dt, const CStateManager& mgr,
                 DataSpec::ITweakGui::EHelmetVisMode helmetVis,
                 bool hudVis, bool targetingManager);

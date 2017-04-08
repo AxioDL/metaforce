@@ -9,9 +9,9 @@
 namespace urde
 {
 
-CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int bombAmount, int bombCapacity,
+CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapacity,
                                      int availableBombs, bool hasBombs, bool hasPb)
-: x40_bombAmount(bombAmount), x44_bombCapacity(bombCapacity),
+: x40_pbAmount(pbAmount), x44_pbCapacity(pbCapacity),
   x48_availableBombs(availableBombs), x4c_hasPb(hasPb)
 {
     x0_camera = selHud.GetFrameCamera();
@@ -35,19 +35,19 @@ CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int bombAmount, int bomb
     x34_camPos = x0_camera->GetLocalPosition();
     if (CGuiWidget* w = selHud.FindWidget("basewidget_energydeco"))
         w->SetColor(g_tweakGuiColors->GetBallBombEnergyColor());
-    SetBombParams(bombAmount, bombCapacity, availableBombs, hasBombs, hasPb, true);
+    SetBombParams(pbAmount, pbCapacity, availableBombs, hasBombs, hasPb, true);
 }
 
 void CHudBallInterface::UpdatePowerBombReadoutColors()
 {
     zeus::CColor fontColor;
     zeus::CColor outlineColor;
-    if (x40_bombAmount > 0)
+    if (x40_pbAmount > 0)
     {
         fontColor = g_tweakGuiColors->GetPowerBombDigitAvailableFont();
         outlineColor = g_tweakGuiColors->GetPowerBombDigitAvailableOutline();
     }
-    else if (x44_bombCapacity > 0)
+    else if (x44_pbCapacity > 0)
     {
         fontColor = g_tweakGuiColors->GetPowerBombDigitDelpetedFont();
         outlineColor = g_tweakGuiColors->GetPowerBombDigitDelpetedOutline();
@@ -61,9 +61,9 @@ void CHudBallInterface::UpdatePowerBombReadoutColors()
     x10_textpane_bombdigits->TextSupport()->SetOutlineColor(outlineColor);
 
     zeus::CColor iconColor;
-    if (x40_bombAmount > 0 && x4c_hasPb)
+    if (x40_pbAmount > 0 && x4c_hasPb)
         iconColor = g_tweakGuiColors->GetPowerBombIconAvailableColor();
-    else if (x44_bombCapacity > 0)
+    else if (x44_pbCapacity > 0)
         iconColor = g_tweakGuiColors->GetPowerBombIconDepletedColor();
     else
         iconColor = zeus::CColor::skClear;
@@ -71,19 +71,19 @@ void CHudBallInterface::UpdatePowerBombReadoutColors()
     xc_model_bombicon->SetColor(iconColor);
 }
 
-void CHudBallInterface::SetBombParams(int bombAmount, int bombCapacity, int availableBombs,
+void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availableBombs,
                                       bool hasBombs, bool hasPb, bool init)
 {
-    if (bombAmount != x40_bombAmount || init)
+    if (pbAmount != x40_pbAmount || init)
     {
-        x10_textpane_bombdigits->TextSupport()->SetText(hecl::Format("%02d", bombAmount));
-        x40_bombAmount = bombAmount;
+        x10_textpane_bombdigits->TextSupport()->SetText(hecl::Format("%02d", pbAmount));
+        x40_pbAmount = pbAmount;
         UpdatePowerBombReadoutColors();
     }
 
-    if (x44_bombCapacity != bombCapacity || init)
+    if (x44_pbCapacity != pbCapacity || init)
     {
-        x44_bombCapacity = bombCapacity;
+        x44_pbCapacity = pbCapacity;
         UpdatePowerBombReadoutColors();
     }
 
@@ -102,7 +102,7 @@ void CHudBallInterface::SetBombParams(int bombAmount, int bombCapacity, int avai
 
     x48_availableBombs = availableBombs;
 
-    x8_basewidget_bombdeco->SetVisibility(hasBombs && x44_bombCapacity > 0, ETraversalMode::Children);
+    x8_basewidget_bombdeco->SetVisibility(hasBombs && x44_pbCapacity > 0, ETraversalMode::Children);
 }
 
 void CHudBallInterface::SetBallModeFactor(float t)

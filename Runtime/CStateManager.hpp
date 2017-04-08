@@ -448,6 +448,9 @@ public:
     u32 GetParticleFlags() const { return xf34_particleFlags; }
     const CFinalInput& GetFinalInput() const { return xb54_finalInput; }
     void SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringIdx);
+    TUniqueId GetBossId() const { return xf18_bossId; }
+    float GetTotalBossEnergy() const { return xf1c_totalBossEnergy; }
+    u32 GetBossStringIdx() const { return xf20_bossStringIdx; }
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

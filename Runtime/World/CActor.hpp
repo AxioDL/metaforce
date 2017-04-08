@@ -162,6 +162,7 @@ public:
     bool CanDrawStatic() const;
     bool GetE7_29() const  { return xe7_29_; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
+    const CHealthInfo* GetHealthInfo() const { return const_cast<CActor*>(this)->HealthInfo(); }
 };
 }
 

@@ -66,8 +66,8 @@ class CHudFreeLookInterfaceXRay : public IFreeLookInterface
     float x1c_freeLookInterp = 0.f;
     bool x20_inFreeLook;
     bool x21_lookControlHeld;
-    bool x22_24_inFreeLook : 1;
-    bool x22_25_lookControlHeld : 1;
+    bool x22_24_visibleDebug : 1;
+    bool x22_25_visibleGame : 1;
     CGuiWidget* x24_basewidget_freelook;
     CGuiModel* x28_model_shield;
     CGuiModel* x2c_model_freelookleft;

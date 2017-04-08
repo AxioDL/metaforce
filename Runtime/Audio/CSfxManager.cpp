@@ -305,6 +305,17 @@ float CSfxManager::GetReverbAmount()
     return m_reverbAmount;
 }
 
+void CSfxManager::PitchBend(const CSfxHandle& handle, float pitch)
+{
+    if (!handle->IsPlaying())
+        CSfxManager::Update(0.f);
+    if (handle->IsPlaying())
+    {
+        m_doUpdate = true;
+        handle->GetVoice()->setPitchWheel(pitch);
+    }
+}
+
 u16 CSfxManager::TranslateSFXID(u16 id)
 {
     if (mpSfxTranslationTable == nullptr)

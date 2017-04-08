@@ -25,16 +25,16 @@ public:
     virtual void SetIsVisibleGame(bool v)=0;
     virtual void SetHudRotation(const zeus::CQuaternion& rot)=0;
     virtual void SetHudOffset(const zeus::CVector3f& off)=0;
-    virtual void SetReticuleTransform(const zeus::CMatrix3f& xf) {}
-    virtual void SetDecoRotation(float angle) {}
+    virtual void SetReticuleTransform(const zeus::CMatrix3f& xf);
+    virtual void SetDecoRotation(float angle);
     virtual void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position)=0;
     virtual void SetFrameColorValue(float v);
     virtual void Update(float dt, const CStateManager& stateMgr)=0;
-    virtual void Draw() const {}
-    virtual void ProcessInput(const CFinalInput& input) {}
+    virtual void Draw() const;
+    virtual void ProcessInput(const CFinalInput& input);
     virtual void UpdateCameraDebugSettings(float fov, float y, float z)=0;
     virtual void UpdateHudAlpha()=0;
-    virtual float GetHudTextAlpha() const { return 1.f; }
+    virtual float GetHudTextAlpha() const;
     virtual ~IHudDecoInterface() = default;
 };
 

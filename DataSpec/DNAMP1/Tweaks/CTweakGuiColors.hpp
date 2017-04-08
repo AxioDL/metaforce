@@ -20,18 +20,18 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x20_;
     DNAColor x24_;
     DNAColor x28_missileIconColorActive;
-    DNAColor x2c_;
-    DNAColor x30_;
+    DNAColor x2c_visorBeamMenuItemActive;
+    DNAColor x30_visorBeamMenuColorInactive;
     DNAColor x34_energyBarFilledLowEnergy;
     DNAColor x38_energyBarShadowLowEnergy;
     DNAColor x3c_energyBarEmptyLowEnergy;
-    DNAColor x40_;
+    DNAColor x40_hudDamageLightColor;
     DNAColor x44_;
     DNAColor x48_;
-    DNAColor x4c_;
-    DNAColor x50_;
-    DNAColor x54_;
-    DNAColor x58_;
+    DNAColor x4c_visorMenuTextFont;
+    DNAColor x50_visorMenuTextOutline;
+    DNAColor x54_beamMenuTextFont;
+    DNAColor x58_beamMenuTextOutline;
     DNAColor x5c_energyWarningFont;
     DNAColor x60_threatWarningFont;
     DNAColor x64_missileWarningFont;
@@ -53,7 +53,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xa4_;
     DNAColor xa8_;
     DNAColor xac_;
-    DNAColor xb0_;
+    DNAColor xb0_visorBeamMenuLozColor;
     DNAColor xb4_energyWarningOutline;
     DNAColor xb8_threatWarningOutline;
     DNAColor xbc_missileWarningOutline;
@@ -147,9 +147,16 @@ struct CTweakGuiColors : public ITweakGuiColors
     zeus::CColor GetHudMessageOutline() const { return x18_hudMessageOutline; }
     zeus::CColor GetHudFrameColor() const { return x1c_hudFrameColor; }
     zeus::CColor GetMissileIconColorActive() const { return x28_missileIconColorActive; }
+    zeus::CColor GetVisorBeamMenuItemActive() const { return x2c_visorBeamMenuItemActive; }
+    zeus::CColor GetVisorBeamMenuItemInactive() const { return x30_visorBeamMenuColorInactive; }
     zeus::CColor GetEnergyBarFilledLowEnergy() const { return x34_energyBarFilledLowEnergy; }
     zeus::CColor GetEnergyBarShadowLowEnergy() const { return x38_energyBarShadowLowEnergy; }
     zeus::CColor GetEnergyBarEmptyLowEnergy() const { return x3c_energyBarEmptyLowEnergy; }
+    zeus::CColor GetHudDamageLightColor() const { return x40_hudDamageLightColor; }
+    zeus::CColor GetVisorMenuTextFont() const { return x4c_visorMenuTextFont; }
+    zeus::CColor GetVisorMenuTextOutline() const { return x50_visorMenuTextOutline; }
+    zeus::CColor GetBeamMenuTextFont() const { return x54_beamMenuTextFont; }
+    zeus::CColor GetBeamMenuTextOutline() const { return x58_beamMenuTextOutline; }
     zeus::CColor GetEnergyWarningFont() const { return x5c_energyWarningFont; }
     zeus::CColor GetThreatWarningFont() const { return x60_threatWarningFont; }
     zeus::CColor GetMissileWarningFont() const { return x64_missileWarningFont; }
@@ -167,6 +174,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     zeus::CColor GetMissileIconColorChargedCanAlt() const { return x98_missileIconColorChargedCanAlt; }
     zeus::CColor GetMissileIconColorChargedNoAlt() const { return x9c_missileIconColorChargedNoAlt; }
     zeus::CColor GetMissileIconColorDepleteAlt() const { return xa0_missileIconColorDepleteAlt; }
+    zeus::CColor GetVisorBeamMenuLozColor() const { return xb0_visorBeamMenuLozColor; }
     zeus::CColor GetEnergyWarningOutline() const { return xb4_energyWarningOutline; }
     zeus::CColor GetThreatWarningOutline() const { return xb8_threatWarningOutline; }
     zeus::CColor GetMissileWarningOutline() const { return xbc_missileWarningOutline; }

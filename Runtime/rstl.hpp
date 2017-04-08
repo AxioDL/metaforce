@@ -42,6 +42,7 @@ public:
     T& back() const { x4_data[(x0_size == 0) ? 0 : x0_size - 1]; }
     T& front() const { return x4_data[0]; }
     T& operator[](size_t idx) { return x4_data[idx]; }
+    const T& operator[](size_t idx) const { return x4_data[idx]; }
 };
 }
 

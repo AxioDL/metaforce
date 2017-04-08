@@ -195,8 +195,8 @@ private:
             bool x835_25_ : 1;
             bool x835_26_ : 1;
             bool x835_27_ : 1;
-            bool x835_28_ : 1;
-            bool x835_29_ : 1;
+            bool x835_28_bombReady : 1;
+            bool x835_29_powerBombReady : 1;
             bool x835_30_ : 1;
             bool x835_31_ : 1;
         };
@@ -209,6 +209,11 @@ public:
     void AsyncLoadSuit(CStateManager& mgr);
     void TouchModel(CStateManager& stateMgr);
     EMissleMode GetMissleMode() const { return x31c_missileMode; }
+    bool IsCharging() const { return x834_24_charging; }
+    float GetChargeBeamFactor() const { return x340_chargeBeamFactor; }
+    bool IsBombReady() const { return x835_28_bombReady; }
+    u32 GetBombCount() const { return x308_bombCount; }
+    bool IsPowerBombReady() const { return x835_29_powerBombReady; }
 };
 
 }
