@@ -294,7 +294,7 @@ private:
     u32 xa10_ = 0;
     float xa14_ = 0.f;
     float xa18_ = 0.f;
-    float xa1c_ = 0.f;
+    float xa1c_threatOverride = 0.f;
     float xa20_radarXYRadiusOverride = 1.f;
     float xa24_radarZRadiusOverride = 1.f;
     float xa28_ = 0.f;
@@ -443,6 +443,7 @@ public:
     TUniqueId GetLockonObjectId() const { return x310_lockonObjectId; }
     TUniqueId GetScanningObjectId() const { return x3b4_scanningObject; }
     bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }
+    float GetThreatOverride() const { return xa1c_threatOverride; }
     bool IsOverrideRadarRadius() const { return x9c6_31_overrideRadarRadius; }
     float GetRadarXYRadiusOverride() const { return xa20_radarXYRadiusOverride; }
     float GetRadarZRadiusOverride() const { return xa24_radarZRadiusOverride; }
@@ -453,9 +454,9 @@ public:
     bool IsLookControlHeld() const { return x3de_lookControlHeld; }
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
+    CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }
 
     void Touch();
-    const std::unique_ptr<CPlayerCameraBob>& GetCameraBob() const { return x76c_cameraBob; }
 
     void DecrementPhazon();
     void IncrementPhazon();

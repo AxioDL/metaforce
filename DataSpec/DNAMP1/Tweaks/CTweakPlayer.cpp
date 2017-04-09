@@ -162,7 +162,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x134_ */
     x134_ = __dna_reader.readFloatBig();
     /* x138_ */
-    x138_ = __dna_reader.readFloatBig();
+    x138_hudLagAmount = __dna_reader.readFloatBig();
     /* x13c_ */
     x13c_ = __dna_reader.readFloatBig();
     /* x140_ */
@@ -602,7 +602,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x134_ */
     __dna_writer.writeFloatBig(x134_);
     /* x138_ */
-    __dna_writer.writeFloatBig(x138_);
+    __dna_writer.writeFloatBig(x138_hudLagAmount);
     /* x13c_ */
     __dna_writer.writeFloatBig(x13c_);
     /* x140_ */
@@ -1072,7 +1072,7 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x134_ */
     x134_ = __dna_docin.readFloat("x134_");
     /* x138_ */
-    x138_ = __dna_docin.readFloat("x138_");
+    x138_hudLagAmount = __dna_docin.readFloat("x138_");
     /* x13c_ */
     x13c_ = __dna_docin.readFloat("x13c_");
     /* x140_ */
@@ -1581,7 +1581,7 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     /* x134_ */
     __dna_docout.writeFloat("x134_", x134_);
     /* x138_ */
-    __dna_docout.writeFloat("x138_", x138_);
+    __dna_docout.writeFloat("x138_", x138_hudLagAmount);
     /* x13c_ */
     __dna_docout.writeFloat("x13c_", x13c_);
     /* x140_ */
@@ -1904,7 +1904,7 @@ void CTweakPlayer::FixupValues()
 {
     x130_ = zeus::degToRad(x130_);
     x134_ = zeus::degToRad(x134_);
-    x138_ = zeus::degToRad(x138_);
+    x138_hudLagAmount = zeus::degToRad(x138_hudLagAmount);
     x13c_ = zeus::degToRad(x13c_);
     x140_ = zeus::degToRad(x140_);
     x144_ = zeus::degToRad(x144_);

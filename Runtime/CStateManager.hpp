@@ -246,7 +246,7 @@ private:
             bool xf94_27_inMapScreen : 1;
             bool xf94_28_inSaveUI : 1;
             bool xf94_29_ : 1;
-            bool xf94_30_ : 1;
+            bool xf94_30_fullThreat : 1;
         };
         u32 xf94_ = 0;
     };
@@ -409,6 +409,7 @@ public:
     void SetInSaveUI(bool b) { xf94_28_inSaveUI = b; }
     void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
     bool GetInMapScreen() const { return xf94_27_inMapScreen; }
+    bool IsFullThreat() const { return xf94_30_fullThreat; }
 
     const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
     CRandom16* GetActiveRandom() {return x900_activeRandom;}

@@ -70,8 +70,8 @@ private:
     u32 x304_ = 0;
     u32 x308_bombCount = 3;
     u32 x30c_ = 0;
-    u32 x310_ = 0;
-    u32 x314_ = 0;
+    u32 x310_selectedBeam = 0;
+    u32 x314_pendingSelectedBeam = 0;
     u32 x318_ = 0;
     EMissleMode x31c_missileMode = EMissleMode::Inactive;
     u32 x320_ = 0;
@@ -214,6 +214,9 @@ public:
     bool IsBombReady() const { return x835_28_bombReady; }
     u32 GetBombCount() const { return x308_bombCount; }
     bool IsPowerBombReady() const { return x835_29_powerBombReady; }
+    u32 GetSelectedBeam() const { return x310_selectedBeam; }
+    u32 GetPendingSelectedBeam() const { return x314_pendingSelectedBeam; }
+    const CGunMorph& GetGunMorph() const { return x678_morph; }
 };
 
 }

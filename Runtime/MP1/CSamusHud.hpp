@@ -141,13 +141,13 @@ class CSamusHud
 
     u32 x2e4_ = 0;
     u32 x2e8_ = 0;
-    u32 x2ec_missilesActive = 0;
+    CPlayerGun::EMissleMode x2ec_missileMode = CPlayerGun::EMissleMode::Inactive;
     float x2f0_visorBeamMenuAlpha = 1.f;
     zeus::CVector3f x2f8_fpCamDir;
     zeus::CVector3f x304_basewidgetIdlePos;
     zeus::CVector3f x310_cameraPos;
-    zeus::CQuaternion x31c_;
-    zeus::CQuaternion x32c_;
+    zeus::CQuaternion x31c_hudLag;
+    zeus::CQuaternion x32c_invHudLag;
     std::unique_ptr<CActorLights> x33c_lights;
     rstl::reserved_vector<SCachedHudLight, 3> x340_hudLights;
     CSfxHandle x3a4_damageSfx;
@@ -173,11 +173,11 @@ class CSamusHud
     float x464_ = 0.f;
     rstl::reserved_vector<zeus::CTransform, 3> x46c_;
     zeus::CVector2f x500_viewportScale = {1.f, 1.f};
-    u32 x508_ = 0;
-    u32 x50c_ = 0;
-    float x510_ = 0.f;
-    float x514_ = 0.f;
-    float x518_ = 0.f;
+    CSfxHandle x508_staticSfxHi;
+    CSfxHandle x50c_staticSfxLo;
+    float x510_staticInterp = 0.f;
+    float x514_staticCycleTimerHi = 0.f;
+    float x518_staticCycleTimerLo = 0.f;
     CCameraFilterPass x51c_camFilter2;
     CHUDMemoParms x548_hudMemoParms;
     TLockedToken<CStringTable> x550_hudMemoString;
@@ -222,10 +222,14 @@ class CSamusHud
     void UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr);
     void UpdateCameraDebugSettings();
     void UpdateEnergyLow(float dt, const CStateManager& mgr);
+    void ApplyClassicLag(const zeus::CUnitVector3f& lookDir, zeus::CQuaternion& rot,
+                         const CStateManager& mgr, float dt, bool invert);
     void UpdateHudLag(float dt, const CStateManager& mgr);
     void UpdateHudDynamicLights(float dt, const CStateManager& mgr);
     void UpdateHudDamage(float dt, const CStateManager& mgr,
                          DataSpec::ITweakGui::EHelmetVisMode helmetVis);
+    void UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, u16 sfxId, float dt,
+                         float oldStaticInterp, float staticThreshold);
     void UpdateStaticInterference(float dt, const CStateManager& mgr);
     void ShowDamage(const zeus::CVector3f& position, float dam, float prevDam, const CStateManager& mgr);
     void EnterFirstPerson(const CStateManager& mgr);

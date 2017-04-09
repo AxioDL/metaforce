@@ -13,6 +13,7 @@ struct ITweakPlayer : ITweak
     virtual float GetX54() const=0;
     virtual float GetX58() const=0;
     virtual float GetX5C() const=0;
+    virtual float GetHudLagAmount() const=0;
     virtual float GetScanningRange() const=0; // x218
     virtual bool GetScanFreezesGame() const=0; // x21c_25
     virtual float GetPlayerHeight() const=0; // x26c

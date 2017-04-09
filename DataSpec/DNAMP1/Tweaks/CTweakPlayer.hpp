@@ -46,7 +46,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x12c_;
     Value<float> x130_;
     Value<float> x134_;
-    Value<float> x138_;
+    Value<float> x138_hudLagAmount;
     Value<float> x13c_;
     Value<float> x140_;
     Value<float> x144_;
@@ -179,6 +179,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX54() const { return x44_[4]; }
     float GetX58() const { return x44_[5]; }
     float GetX5C() const { return x44_[6]; }
+    float GetHudLagAmount() const { return x138_hudLagAmount; }
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
@@ -197,7 +198,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX29C() const { return x29c_; }
     float GetX280() const { return x280_; }
     float GetX2B0() const { return x2b0_; }
-    float GetX138() const { return x138_; }
+    float GetX138() const { return x138_hudLagAmount; }
     float GetX14C() const { return x14c_; }
     float GetLeftLogicalThreshold() const { return x150_leftDiv; }
     float GetRightLogicalThreshold() const { return x154_rightDiv; }

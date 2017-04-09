@@ -2,6 +2,7 @@
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "World/CPlayer.hpp"
+#include "World/CScriptTrigger.hpp"
 #include "GuiSys/CGuiFrame.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
 #include "GuiSys/CGuiLight.hpp"
@@ -511,27 +512,125 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr)
 
 void CSamusHud::UpdateMissile(float dt, const CStateManager& mgr, bool init)
 {
+    CPlayerGun& gun = *mgr.GetPlayer().GetPlayerGun();
+    CPlayerState& playerState = *mgr.GetPlayerState();
 
+    u32 numMissles = playerState.GetItemAmount(CPlayerState::EItemType::Missiles);
+    u32 missileCap = playerState.GetItemCapacity(CPlayerState::EItemType::Missiles);
+    CPlayerGun::EMissleMode missileMode = gun.GetMissleMode();
+    float chargeFactor = gun.IsCharging() ? gun.GetChargeBeamFactor() : 0.f;
+
+    if (x294_missileIntf)
+        x294_missileIntf->SetChargeBeamFactor(chargeFactor);
+
+    if (init || numMissles != x2d8_missileAmount || missileMode != x2ec_missileMode ||
+        missileCap != x2dc_missileCapacity)
+    {
+        if (x294_missileIntf)
+        {
+            if (missileCap != x2dc_missileCapacity)
+                x294_missileIntf->SetMissileCapacity(missileCap);
+            if (numMissles != x2d8_missileAmount)
+                x294_missileIntf->SetNumMissiles(numMissles, mgr);
+            if (missileMode != x2ec_missileMode)
+                x294_missileIntf->SetIsMissilesActive(missileMode == CPlayerGun::EMissleMode::Active);
+        }
+        x2d8_missileAmount = numMissles;
+        x2ec_missileMode = missileMode;
+        x2dc_missileCapacity = missileCap;
+    }
 }
 
 void CSamusHud::UpdateVideoBands(float dt, const CStateManager& mgr)
 {
-
+    for (int i=0 ; i<4 ; ++i)
+        if (x5a4_videoBands[i].x0_videoband)
+            x5a4_videoBands[i].x0_videoband->SetIsVisible(false);
 }
 
 void CSamusHud::UpdateBallMode(const CStateManager& mgr, bool init)
 {
+    if (!x2b0_ballIntf)
+        return;
 
+    CPlayer& player = mgr.GetPlayer();
+    CPlayerGun& gun = *player.GetPlayerGun();
+    CPlayerState& playerState = *mgr.GetPlayerState();
+    u32 numPbs = playerState.GetItemAmount(CPlayerState::EItemType::PowerBombs);
+    u32 pbCap = playerState.GetItemCapacity(CPlayerState::EItemType::PowerBombs);
+    u32 bombCount = gun.IsBombReady() ? gun.GetBombCount() : 0;
+    bool hasBombs = playerState.HasPowerUp(CPlayerState::EItemType::MorphBallBombs);
+    bool pbReady = gun.IsPowerBombReady() &&
+        player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed;
+
+    x2b0_ballIntf->SetBombParams(numPbs, pbCap, bombCount, hasBombs, pbReady, false);
 }
 
 void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr)
 {
+    CMaterialFilter filter(CMaterialList(EMaterialTypes::Trigger), CMaterialList(),
+                           CMaterialFilter::EFilterType::Include);
 
+    CPlayer& player = mgr.GetPlayer();
+    zeus::CAABox playerAABB = zeus::CAABox::skNullBox;
+    if (rstl::optional_object<zeus::CAABox> aabb = player.GetTouchBounds())
+        playerAABB = *aabb;
+
+    zeus::CAABox aabb;
+    aabb.accumulateBounds(player.GetTranslation() - g_tweakGui->GetThreatRange());
+    aabb.accumulateBounds(player.GetTranslation() + g_tweakGui->GetThreatRange());
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildNearList(nearList, aabb, filter, nullptr);
+
+    float threatDist = 9999.f;
+    for (TUniqueId id : nearList)
+    {
+        const CEntity* ent = mgr.GetObjectById(id);
+        if (TCastToConstPtr<CScriptTrigger> trigger = ent)
+        {
+            if (!bool(trigger->GetTriggerFlags() & ETriggerFlags::DetectPlayer))
+                continue;
+            if (trigger->GetDamageInfo().GetDamage() == 0.f)
+                continue;
+            if (rstl::optional_object<zeus::CAABox> aabb = trigger->GetTouchBounds())
+            {
+                float dist = playerAABB.distanceBetween(*aabb);
+                if (dist < threatDist)
+                    threatDist = dist;
+            }
+        }
+    }
+
+    if (player.GetThreatOverride() > 0.f)
+        threatDist = std::min((1.f - player.GetThreatOverride()) * g_tweakGui->GetThreatRange(), threatDist);
+
+    if (mgr.IsFullThreat())
+        threatDist = 0.f;
+    if (x290_threatIntf)
+        x290_threatIntf->SetThreatDistance(threatDist);
 }
 
 void CSamusHud::UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr)
 {
+    CPlayer& player = mgr.GetPlayer();
+    CPlayerGun& gun = *player.GetPlayerGun();
+    CPlayerState& playerState = *mgr.GetPlayerState();
 
+    float beamInterp = zeus::clamp(0.f, gun.GetGunMorph().x18_, 1.f);
+    float visorInterp = playerState.GetVisorTransitionFactor();
+
+    if (x2a8_beamMenu)
+    {
+        x2a8_beamMenu->SetSelection(gun.GetSelectedBeam(), gun.GetPendingSelectedBeam(), beamInterp);
+        x2a8_beamMenu->SetPlayerHas(BuildPlayerHasBeams(mgr));
+    }
+
+    if (x2a4_visorMenu)
+    {
+        x2a4_visorMenu->SetSelection(int(playerState.GetCurrentVisor()),
+                                     int(playerState.GetTransitioningVisor()), visorInterp);
+        x2a4_visorMenu->SetPlayerHas(BuildPlayerHasVisors(mgr));
+    }
 }
 
 void CSamusHud::UpdateCameraDebugSettings()
@@ -563,14 +662,105 @@ void CSamusHud::UpdateEnergyLow(float dt, const CStateManager& mgr)
         CSfxManager::SfxStart(1405, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
+void CSamusHud::ApplyClassicLag(const zeus::CUnitVector3f& lookDir, zeus::CQuaternion& rot,
+                                const CStateManager& mgr, float dt, bool invert)
+{
+    zeus::CQuaternion lookRot = zeus::CQuaternion::lookAt(lookDir, zeus::CVector3f::skForward, 2.f * M_PIF);
+    zeus::CQuaternion lookRot2;
+    if (invert)
+    {
+        zeus::CUnitVector3f v1(lookRot.transform(x2f8_fpCamDir));
+        lookRot2 = zeus::CQuaternion::lookAt(v1, zeus::CVector3f::skForward, 2.f * M_PIF);
+    }
+    else
+    {
+        zeus::CUnitVector3f v1(lookRot.transform(x2f8_fpCamDir));
+        lookRot2 = zeus::CQuaternion::lookAt(zeus::CVector3f::skForward, v1, 2.f * M_PIF);
+    }
+
+    zeus::CQuaternion doubleRot = lookRot2 * lookRot2;
+    float dot = doubleRot.toTransform().basis[1].dot(rot.toTransform().basis[1]);
+    if (std::fabs(dot) > 1.f)
+        dot = (dot >= 0.f) ? 1.f : -1.f;
+
+    float angle = std::acos(dot);
+    float tmp = 0.f;
+    if (angle > 0.f)
+        tmp = 0.5f * dt * g_tweakPlayer->GetHudLagAmount() / angle;
+
+    float t = zeus::clamp(0.f, 18.f * dt * tmp, 1.f);
+    rot = zeus::CQuaternion::slerp(rot, doubleRot, t);
+}
+
 void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr)
 {
+    CPlayer& player = mgr.GetPlayer();
 
+    if (x29c_decoIntf)
+        x29c_decoIntf->SetDecoRotation(player.GetYaw());
+
+    if (!g_GameState->GameOptions().GetHUDLag())
+    {
+        if (x2a0_helmetIntf)
+        {
+            x2a0_helmetIntf->SetHudLagRotation(zeus::CMatrix3f::skIdentityMatrix3f);
+            x2a0_helmetIntf->SetHudLagOffset(zeus::CVector3f::skZero);
+        }
+        if (x29c_decoIntf)
+        {
+            x29c_decoIntf->SetReticuleTransform(zeus::CMatrix3f::skIdentityMatrix3f);
+            x29c_decoIntf->SetHudRotation(zeus::CQuaternion::skNoRotation);
+            x29c_decoIntf->SetHudOffset(zeus::CVector3f::skZero);
+        }
+        x588_base_basewidget_pivot->SetTransform(
+            zeus::CTransform::Translate(x588_base_basewidget_pivot->GetWorldPosition()));
+        x274_loadedFrmeBaseHud->GetFrameCamera()->SetO2WTransform(
+            BuildFinalCameraTransform(zeus::CQuaternion::skNoRotation, x304_basewidgetIdlePos, x310_cameraPos));
+        x8_targetingMgr.SetRotation(zeus::CQuaternion::skNoRotation);
+    }
+    else
+    {
+        zeus::CVector3f fpCamDir = x2f8_fpCamDir;
+        if (TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
+            fpCamDir = fpCam->GetTransform().buildMatrix3f()[1];
+
+        ApplyClassicLag(fpCamDir, x31c_hudLag, mgr, dt, false);
+        ApplyClassicLag(fpCamDir, x32c_invHudLag, mgr, dt, true);
+
+        zeus::CQuaternion rot = zeus::CQuaternion::lookAt(zeus::CUnitVector3f(x2f8_fpCamDir), fpCamDir, 2.f * M_PIF);
+        rot *= rot;
+        rot *= rot;
+        x8_targetingMgr.SetRotation(rot);
+
+        zeus::CVector3f bobTranslation = player.GetCameraBob()->GetHelmetBobTranslation();
+
+        zeus::CQuaternion lagRot = x44c_ * x31c_hudLag;
+        zeus::CVector3f lagOff = x41c_ * g_tweakGui->GetHudLagOffsetScale();
+        lagOff.z += bobTranslation.z;
+        if (x2a0_helmetIntf)
+        {
+            x2a0_helmetIntf->SetHudLagRotation(lagRot);
+            x2a0_helmetIntf->SetHudLagOffset(lagOff);
+        }
+        if (x29c_decoIntf)
+        {
+            x29c_decoIntf->SetReticuleTransform(x32c_invHudLag);
+            x29c_decoIntf->SetHudRotation(lagRot);
+            x29c_decoIntf->SetHudOffset(lagOff);
+        }
+
+        x274_loadedFrmeBaseHud->GetFrameCamera()->SetO2WTransform(
+            BuildFinalCameraTransform(lagRot, x304_basewidgetIdlePos + lagOff, x310_cameraPos));
+        x2f8_fpCamDir = fpCamDir;
+    }
 }
 
 void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
 {
+    if (TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
+    {
 
+    }
 }
 
 void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
@@ -579,9 +769,57 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
 
 }
 
+void CSamusHud::UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, u16 sfxId, float dt,
+                                float oldStaticInterp, float staticThreshold)
+{
+    if ((oldStaticInterp > staticThreshold && x510_staticInterp <= staticThreshold) ||
+        (oldStaticInterp <= staticThreshold && x510_staticInterp > staticThreshold))
+    {
+        cycleTimer = 0.f;
+    }
+    else
+    {
+        if (cycleTimer < 0.1f)
+            cycleTimer = std::min(cycleTimer + dt, 0.1f);
+        if (cycleTimer == 0.1f)
+        {
+            if (x510_staticInterp > staticThreshold)
+            {
+                if (!handle)
+                    handle = CSfxManager::SfxStart(sfxId, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+            }
+            else
+            {
+                CSfxManager::SfxStop(handle);
+                handle.reset();
+            }
+        }
+    }
+}
+
 void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr)
 {
+    float intf = mgr.GetPlayerState()->GetStaticInterference().GetTotalInterference();
+    float oldStaticInterp = x510_staticInterp;
+    if (x510_staticInterp < intf)
+        x510_staticInterp = std::min(x510_staticInterp + dt, intf);
+    else
+        x510_staticInterp = std::max(intf, x510_staticInterp - dt);
 
+    UpdateStaticSfx(x508_staticSfxHi, x514_staticCycleTimerHi, 1402, dt, oldStaticInterp, 0.1f);
+    UpdateStaticSfx(x50c_staticSfxLo, x518_staticCycleTimerLo, 1403, dt, oldStaticInterp, 0.5f);
+
+    if (x510_staticInterp > 0.f)
+    {
+        zeus::CColor color = zeus::CColor::skWhite;
+        color.a = x510_staticInterp;
+        x51c_camFilter2.SetFilter(CCameraFilterPass::EFilterType::Blend,
+                                  CCameraFilterPass::EFilterShape::RandomStatic, 0.f, color, -1);
+    }
+    else
+    {
+        x51c_camFilter2.DisableFilter(0.f);
+    }
 }
 
 void CSamusHud::ShowDamage(const zeus::CVector3f& position, float dam, float prevDam,
@@ -592,12 +830,14 @@ void CSamusHud::ShowDamage(const zeus::CVector3f& position, float dam, float pre
 
 void CSamusHud::EnterFirstPerson(const CStateManager& mgr)
 {
-
+    CSfxManager::SfxVolume(x508_staticSfxHi, 1.f);
+    CSfxManager::SfxVolume(x50c_staticSfxLo, 1.f);
 }
 
 void CSamusHud::LeaveFirstPerson(const CStateManager& mgr)
 {
-
+    CSfxManager::SfxVolume(x508_staticSfxHi, 0.f);
+    CSfxManager::SfxVolume(x50c_staticSfxLo, 0.f);
 }
 
 EHudState CSamusHud::GetDesiredHudState(const CStateManager& mgr)

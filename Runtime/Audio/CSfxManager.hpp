@@ -71,6 +71,8 @@ public:
         bool x14_27_inArea:1;
         bool x14_28_available:1;
         bool x14_29_useAcoustics:1;
+    protected:
+        bool m_isEmitter:1;
     public:
         virtual ~CBaseSfxWrapper() = default;
         virtual void SetActive(bool v) { x14_24_isActive = v; }
@@ -95,6 +97,7 @@ public:
         virtual void UpdateEmitterSilent()=0;
         virtual void UpdateEmitter()=0;
         virtual void SetReverb(float rev)=0;
+        bool IsEmitter() const { return m_isEmitter; }
 
         void Release() { x14_28_available = true; x4_timeRemaining = 15.f; }
         bool Available() const { return x14_28_available; }
@@ -130,7 +133,10 @@ public:
 
         CSfxEmitterWrapper(bool looped, s16 prio, const CAudioSys::C3DEmitterParmData& data,
                            /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-        : CBaseSfxWrapper(looped, prio, /*handle,*/ useAcoustics, area), x24_parmData(data) {}
+        : CBaseSfxWrapper(looped, prio, /*handle,*/ useAcoustics, area), x24_parmData(data)
+        {
+            m_isEmitter = true;
+        }
     };
 
     class CSfxWrapper : public CBaseSfxWrapper
@@ -151,13 +157,15 @@ public:
         void UpdateEmitterSilent();
         void UpdateEmitter();
         void SetReverb(float rev);
-
-        void SetVolume(s16 vol) { x20_vol = vol; }
+        void SetVolume(float vol) { x20_vol = vol; }
 
         CSfxWrapper(bool looped, s16 prio, u16 sfxId, float vol, float pan,
                     /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
         : CBaseSfxWrapper(looped, prio, /*handle,*/ useAcoustics, area),
-          x18_sfxId(sfxId), x20_vol(vol), x22_pan(pan) {}
+          x18_sfxId(sfxId), x20_vol(vol), x22_pan(pan)
+        {
+            m_isEmitter = false;
+        }
     };
 
     static CSfxChannel m_channels[4];
@@ -197,6 +205,7 @@ public:
     static float GetReverbAmount();
     static void RemoveEmitter(const CSfxHandle&) {}
     static void PitchBend(const CSfxHandle& handle, float pitch);
+    static void SfxVolume(const CSfxHandle& handle, float vol);
     static u16 TranslateSFXID(u16);
     static void SfxStop(const CSfxHandle& handle);
     static CSfxHandle SfxStart(u16 id, float vol, float pan, bool useAcoustics, s16 prio, bool looped, s32 areaId);

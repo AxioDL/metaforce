@@ -30,7 +30,7 @@ enum class ETriggerFlags : u32
     DetectUnmorphedPlayer = (1 << 16),
     BlockEnvironmentalEffects = (1 << 17)
 };
-ENABLE_BITWISE_ENUM(ETriggerFlags);
+ENABLE_BITWISE_ENUM(ETriggerFlags)
 
 class CScriptTrigger : public CActor
 {
@@ -85,6 +85,8 @@ public:
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor &, CStateManager &);
     zeus::CAABox GetTriggerBoundsWR() const;
+    const CDamageInfo& GetDamageInfo() const { return x100_damageInfo; }
+    ETriggerFlags GetTriggerFlags() const { return x12c_flags; }
 };
 }
 

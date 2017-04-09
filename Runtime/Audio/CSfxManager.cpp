@@ -316,6 +316,17 @@ void CSfxManager::PitchBend(const CSfxHandle& handle, float pitch)
     }
 }
 
+void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol)
+{
+    if (handle->IsEmitter())
+    {
+        CSfxWrapper& wrapper = static_cast<CSfxWrapper&>(*handle);
+        wrapper.SetVolume(vol);
+    }
+    if (handle->IsPlaying())
+        handle->GetVoice()->setVolume(vol);
+}
+
 u16 CSfxManager::TranslateSFXID(u16 id)
 {
     if (mpSfxTranslationTable == nullptr)

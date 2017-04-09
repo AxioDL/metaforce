@@ -62,7 +62,7 @@ struct CTweakGui : ITweakGui
     Value<float> xd8_;
     Value<float> xdc_;
     Value<float> xe0_;
-    Value<float> xe4_maxThreatEnergy;
+    Value<float> xe4_threatRange;
     Value<float> xe8_radarScopeCoordRadius;
     Value<float> xec_radarPlayerPaintRadius;
     Value<float> xf0_radarEnemyPaintRadius;
@@ -110,7 +110,7 @@ struct CTweakGui : ITweakGui
     Value<float> x1d0_;
     Value<float> x1d4_;
     Value<float> x1d8_;
-    Value<float> x1dc_;
+    Value<float> x1dc_hudLagOffsetScale;
     Value<float> x1e0_;
     Value<float> x1e4_;
     Value<float> x1e8_;
@@ -218,7 +218,7 @@ struct CTweakGui : ITweakGui
     float GetVisorBeamMenuItemActiveScale() const { return xc4_visorBeamMenuItemActiveScale; }
     float GetVisorBeamMenuItemInactiveScale() const { return xc8_visorBeamMenuItemInactiveScale; }
     float GetVisorBeamMenuItemTranslate() const { return xcc_visorBeamMenuItemTranslate; }
-    float GetMaxThreatEnergy() const { return xe4_maxThreatEnergy; }
+    float GetThreatRange() const { return xe4_threatRange; }
     float GetRadarScopeCoordRadius() const { return xe8_radarScopeCoordRadius; }
     float GetRadarPlayerPaintRadius() const { return xec_radarPlayerPaintRadius; }
     float GetRadarEnemyPaintRadius() const { return xf0_radarEnemyPaintRadius; }
@@ -234,6 +234,7 @@ struct CTweakGui : ITweakGui
     float GetFreeLookSfxPitchScale() const { return x12c_freeLookSfxPitchScale; }
     bool GetNoAbsoluteFreeLookSfxPitch() const { return x130_noAbsoluteFreeLookSfxPitch; }
     float GetMissileWarningPulseTime() const { return x1a0_missileWarningPulseTime; }
+    float GetHudLagOffsetScale() const { return x1dc_hudLagOffsetScale; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }

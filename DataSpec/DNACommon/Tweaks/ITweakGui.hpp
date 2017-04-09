@@ -50,7 +50,7 @@ struct ITweakGui : ITweak
     virtual float GetVisorBeamMenuItemActiveScale() const=0;
     virtual float GetVisorBeamMenuItemInactiveScale() const=0;
     virtual float GetVisorBeamMenuItemTranslate() const=0;
-    virtual float GetMaxThreatEnergy() const=0;
+    virtual float GetThreatRange() const=0;
     virtual float GetRadarScopeCoordRadius() const=0;
     virtual float GetRadarPlayerPaintRadius() const=0;
     virtual float GetRadarEnemyPaintRadius() const=0;
@@ -66,6 +66,7 @@ struct ITweakGui : ITweak
     virtual float GetFreeLookSfxPitchScale() const=0;
     virtual bool GetNoAbsoluteFreeLookSfxPitch() const=0;
     virtual float GetMissileWarningPulseTime() const=0;
+    virtual float GetHudLagOffsetScale() const=0;
     virtual float GetScanAppearanceOffset() const=0;
     virtual float GetBallViewportYReduction() const=0;
     virtual float GetScanSpeed(int idx) const=0;

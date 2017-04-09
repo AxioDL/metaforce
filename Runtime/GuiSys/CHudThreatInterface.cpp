@@ -54,7 +54,7 @@ CHudThreatInterface::CHudThreatInterface(CGuiFrame& selHud, EHudType hudType, fl
     x6c_energybart01_threatbar->SetEmptyColor(g_tweakGuiColors->GetThreatBarEmpty());
     x6c_energybart01_threatbar->SetCoordFunc(CoordFuncs[int(hudType)]);
     x6c_energybart01_threatbar->SetTesselation(hudType == EHudType::Combat ? 1.f : 0.1f);
-    x6c_energybart01_threatbar->SetMaxEnergy(g_tweakGui->GetMaxThreatEnergy());
+    x6c_energybart01_threatbar->SetMaxEnergy(g_tweakGui->GetThreatRange());
     x6c_energybart01_threatbar->SetFilledDrainSpeed(9999.f);
     x6c_energybart01_threatbar->SetShadowDrainSpeed(9999.f);
     x6c_energybart01_threatbar->SetShadowDrainDelay(0.f);
@@ -98,7 +98,7 @@ void CHudThreatInterface::Update(float dt)
                                                    g_tweakGuiColors->GetThreatIconWarningColor(),
                                                    x50_warningColorLerp);
 
-    float maxThreatEnergy = g_tweakGui->GetMaxThreatEnergy();
+    float maxThreatEnergy = g_tweakGui->GetThreatRange();
     if (x70_textpane_threatdigits)
     {
         if (x10_threatDist < maxThreatEnergy)
