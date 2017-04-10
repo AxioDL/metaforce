@@ -116,6 +116,7 @@ public:
 
     float GetIntensity() const;
     const zeus::CColor& GetColor() const { return x18_color; }
+    zeus::CColor GetNormalIndependentLightingAtPoint(const zeus::CVector3f& point) const;
 
     static CLight BuildDirectional(const zeus::CVector3f& dir, const zeus::CColor& color);
     static CLight BuildSpot(const zeus::CVector3f& pos, const zeus::CVector3f& dir,

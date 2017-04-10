@@ -20,6 +20,7 @@ class CMaterialList;
 class CStateManager;
 class CPhysicsActor;
 class CMaterialFilter;
+class CGameArea;
 
 class CGameCollision
 {
@@ -44,6 +45,8 @@ public:
     static CRayCastResult RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut, const zeus::CVector3f& pos,
                                                const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
                                                const rstl::reserved_vector<TUniqueId, 1024>& nearList);
+    static bool TestLightRayIntersection(const CGameArea& area, const zeus::CVector3f& pos,
+                                         const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter);
 };
 }
 

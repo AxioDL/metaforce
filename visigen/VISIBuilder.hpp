@@ -122,6 +122,7 @@ struct VISIBuilder
                                size_t modelCount,
                                const std::vector<VISIRenderer::Entity>& entities,
                                const std::vector<VISIRenderer::Light>& lights,
+                               size_t layer2LightCount,
                                FPercent updatePercent);
 
     VISIBuilder(VISIRenderer& renderer) : renderCache(renderer) {}

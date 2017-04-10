@@ -237,15 +237,15 @@ struct LightParameters : BigYAML
     Value<atUint32> shadowTesselation;
     Value<float>    unknown3;
     Value<float>    unknown4;
-    Value<atVec4f>  unknown5; // CColor
-    Value<bool>     unknown6;
+    Value<atVec4f>  noLightsAmbient; // CColor
+    Value<bool>     makeLights;
     Value<atUint32> worldLightingOptions;
     Value<atUint32> lightRecalculationOptions;
-    Value<atVec3f>  unknown7;
-    Value<atUint32> unknown8;
-    Value<atUint32> unknown9;
-    Value<bool>     unknown10;
-    Value<atUint32> unknown11;
+    Value<atVec3f>  actorPosBias;
+    Value<atUint32> maxDynamicLights;
+    Value<atUint32> maxAreaLights;
+    Value<bool>     ambientChannelOverflow;
+    Value<atUint32> layerIndex;
 };
 
 struct PatternedInfo : BigYAML

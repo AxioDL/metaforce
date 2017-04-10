@@ -86,6 +86,15 @@ CLight::CLight(ELightType type,
     }
 }
 
+zeus::CColor CLight::GetNormalIndependentLightingAtPoint(const zeus::CVector3f& point) const
+{
+    if (x1c_type == ELightType::LocalAmbient)
+        return x18_color;
+
+    float dist = std::max((x0_pos - point).magnitude(), FLT_EPSILON);
+    return x18_color * (1.f / (x2c_distQ * dist * dist + x28_distL * dist + x24_distC));
+}
+
 CLight CLight::BuildDirectional(const zeus::CVector3f& dir, const zeus::CColor& color)
 {
     return CLight(ELightType::Directional, kDefaultPosition, dir, color, 180.f);

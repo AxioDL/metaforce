@@ -306,6 +306,7 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
                                         size_t modelCount,
                                         const std::vector<VISIRenderer::Entity>& entities,
                                         const std::vector<VISIRenderer::Light>& lights,
+                                        size_t layer2LightCount,
                                         FPercent updatePercent)
 {
     Log.report(logvisor::Info, "Started!");
@@ -338,7 +339,7 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
     w.writeBool(true);
     w.writeUint32Big(featureCount);
     w.writeUint32Big(lights.size());
-    w.writeUint32Big(0);
+    w.writeUint32Big(layer2LightCount);
     w.writeUint32Big(entities.size());
     w.writeUint32Big(leafBytesCount);
     w.writeUint32Big(lights.size());

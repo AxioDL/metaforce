@@ -11,7 +11,7 @@ class CPVSAreaSet
 {
     u32 x0_numFeatures;
     u32 x4_numLights;
-    u32 x8_c;
+    u32 x8_num2ndLights;
     u32 xc_numActors;
     u32 x10_leafSize;
     u32 x14_lightIndexCount;
@@ -23,8 +23,11 @@ public:
     CPVSAreaSet(const u8* data, u32 len);
     u32 GetNumFeatures() const { return x0_numFeatures; }
     u32 GetNumActors() const { return xc_numActors; }
+    u32 Get1stLightIndex(u32 lightIdx) const { return x0_numFeatures + x8_num2ndLights + lightIdx; }
+    u32 Get2ndLightIndex(u32 lightIdx) const { return x0_numFeatures + lightIdx; }
+    bool Has2ndLayerLights() const { return x8_num2ndLights != 0; }
     u32 GetEntityIdByIndex(int idx) const { return x18_entityIndex[idx]; }
-    const CPVSVisOctree& GetVisOctree() { return x20_octree; }
+    const CPVSVisOctree& GetVisOctree() const { return x20_octree; }
 };
 
 }

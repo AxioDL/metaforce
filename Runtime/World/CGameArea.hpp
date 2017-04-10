@@ -340,6 +340,11 @@ public:
     MREAHeader VerifyHeader() const;
     TUniqueId LookupPVSUniqueID(TUniqueId id) const;
     s16 LookupPVSID(TUniqueId id) const;
+    const CPVSAreaSet* GetAreaVisSet() const { return GetPostConstructed()->xa0_pvs.get(); }
+    u32 Get1stPVSLightFeature(u32 lightIdx) const
+    { return GetAreaVisSet() ? GetAreaVisSet()->Get1stLightIndex(lightIdx) : -1; }
+    u32 Get2ndPVSLightFeature(u32 lightIdx) const
+    { return GetAreaVisSet() ? GetAreaVisSet()->Get2ndLightIndex(lightIdx) : -1; }
 
     const zeus::CTransform& GetTransform() const {return xc_transform;}
     const zeus::CTransform& GetInverseTransform() const {return x3c_invTransform;}

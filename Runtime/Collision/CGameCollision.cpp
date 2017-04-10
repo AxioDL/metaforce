@@ -158,4 +158,14 @@ CGameCollision::RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut,
     else
         return staticRes;
 }
+
+bool CGameCollision::TestLightRayIntersection(const CGameArea& area, const zeus::CVector3f& pos,
+                                              const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter)
+{
+    if (mag <= 0.f)
+        mag = 100000.f;
+    CAreaOctTree::Node node = area.GetPostConstructed()->x0_collision->GetRootNode();
+    zeus::CLine line(pos, dir);
+    return node.LineTest(line, filter, mag);
+}
 }

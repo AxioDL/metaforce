@@ -25,45 +25,53 @@ class CActorLights
     {
         struct
         {
-            bool x298_24_ : 1;
-            bool x298_25_ : 1;
-            bool x298_26_ : 1;
-            bool x298_27_ : 1;
+            bool x298_24_dirty : 1;
+            bool x298_25_castShadows : 1;
+            bool x298_26_hasAreaLights : 1;
+            bool x298_27_findShadowLight : 1;
             bool x298_28_inArea : 1;
-            bool x298_29_ : 1;
-            bool x298_30_ : 1;
-            bool x298_31_ : 1;
-            bool x299_24_ : 1;
+            bool x298_29_ambientChannelOverflow : 1;
+            bool x298_30_layer2 : 1;
+            bool x298_31_disableWorldLights : 1;
+            bool x299_24_inBrightLight : 1;
             bool x299_25_overrideFirstDist : 1;
             bool x299_26_ : 1;
         };
         u16 _dummy = 0;
     };
     bool x29a_ = false;
-    u32 x29c_ = -1;
-    u32 x2a0_ = -1;
-    u32 x2a4_ = 0;
-    u32 x2a8_;
-    zeus::CVector3f x2ac_;
-    int x2b8_b;
-    int x2bc_a;
-    zeus::CVector3f x2c0_;
-    float x2cc_;
-    float x2d0_ = 0.f;
-    float x2d4_ = 1.f;
-    u32 x2d8_ = -1;
+    u32 x29c_shadowLightValIdx = -1;
+    u32 x2a0_shadowLightIdx = -1;
+    u32 x2a4_lastUpdateFrame = 0;
+    u32 x2a8_areaUpdateFramePeriod;
+    zeus::CVector3f x2ac_actorPosBias;
+    int x2b8_maxAreaLights;
+    int x2bc_maxDynamicLights;
+    zeus::CVector3f x2c0_lastActorPos;
+    float x2cc_actorPositionDeltaUpdateThreshold;
+    float x2d0_shadowDynamicRangeThreshold = 0.f;
+    float x2d4_worldLightingLevel = 1.f;
+    u32 x2d8_brightLightIdx = -1;
     u32 x2dc_overrideDist = 0;
 
+    static void MergeOverflowLight(CLight& out, zeus::CColor& color, const CLight& in, float colorMag);
+    void AddOverflowToLights(const CLight& light, const zeus::CColor& color, float mag);
+    void MoveAmbienceToLights(const zeus::CColor& color);
+    void MultiplyLightingLevels(float level);
+
 public:
-    CActorLights(u32, const zeus::CVector3f& vec, int, int, bool, int, int, float);
+    CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& actorPosBias,
+                 int maxDynamicLights, int maxAreaLights, bool ambientChannelOverflow,
+                 bool layer2, bool disableWorldLights, float positionUpdateThreshold);
 
     void BuildConstantAmbientLighting();
     void BuildConstantAmbientLighting(const zeus::CColor& color);
     void BuildFakeLightList(const std::vector<CLight>& lights, const zeus::CColor& color);
     void BuildFaceLightList(CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
+    bool BuildAreaLightList(CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
     void BuildDynamicLightList(CStateManager& mgr, const zeus::CAABox& aabb);
-    void MoveAmbienceToLights(const zeus::CVector3f& vec);
     void ActivateLights(CBooModel& model) const;
+    void SetCastShadows(bool v) { x298_25_castShadows = v; }
 
     void SetAmbientColor(const zeus::CColor& color) { x288_ambientColor = color; }
     const CLight& GetLight(u32 idx) const;

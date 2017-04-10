@@ -759,7 +759,10 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
 {
     if (TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
     {
-
+        zeus::CAABox camAABB(fpCam->GetTranslation() - 0.125f, fpCam->GetTranslation() + 0.125f);
+        if (mgr.GetPlayer().GetAreaIdAlways() == kInvalidAreaId)
+            return;
+        //x33c_lights->
     }
 }
 

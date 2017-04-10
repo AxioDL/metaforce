@@ -167,12 +167,15 @@ bool MREA::Extract(const SpecBase& dataSpec,
     rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Dump VISI entities */
+    auto visiPos = rs.position();
     if (head.secSizes[curSec] && rs.readUint32Big() == 'VISI')
     {
         athena::io::YAMLDocWriter visiWriter("VISI");
+        uint32_t unkCount = 0;
         if (auto __vec = visiWriter.enterSubVector("entities"))
         {
-            rs.seek(18, athena::Current);
+            rs.seek(14, athena::Current);
+            unkCount = rs.readUint32Big();
             uint32_t entityCount = rs.readUint32Big();
             rs.seek(8, athena::Current);
             for (int i=0 ; i<entityCount ; ++i)
@@ -184,6 +187,14 @@ bool MREA::Extract(const SpecBase& dataSpec,
         hecl::ProjectPath visiMetadataPath(outPath.getParentPath(), _S("!visi.yaml"));
         athena::io::FileWriter visiMetadata(visiMetadataPath.getAbsolutePath());
         visiWriter.finish(&visiMetadata);
+
+        if (unkCount)
+        {
+            rs.seek(visiPos, athena::Begin);
+            auto bytes = rs.readUBytes(head.secSizes[curSec]);
+            athena::io::FileWriter fw(std::string("/Users/jacko/Desktop/") + pakRouter.getBestEntryName(entry, false).c_str() + ".visi");
+            fw.writeUBytes(bytes.get(), head.secSizes[curSec]);
+        }
     }
 
     /* Origins to center of mass */
@@ -398,15 +409,16 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     }
 
     /* Lights */
-    std::vector<atVec3f> lightsVisi;
+    std::vector<atVec3f> lightsVisi[2];
     {
-        int actualCount = 0;
+        int actualCounts[2] = {};
         for (const Light& l : lights)
             if (l.layer == 0 || l.layer == 1)
-                ++actualCount;
-        lightsVisi.reserve(actualCount);
+                ++actualCounts[l.layer];
+        lightsVisi[0].reserve(actualCounts[0]);
+        lightsVisi[1].reserve(actualCounts[1]);
 
-        secs.emplace_back(12 + 65 * actualCount, 0);
+        secs.emplace_back(12 + 65 * (actualCounts[0] + actualCounts[1]), 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
         w.writeUint32Big(0xBABEDEAD);
 
@@ -426,7 +438,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                     BabeDeadLight light = {};
                     WriteBabeDeadLightFromBlender(light, l);
                     light.write(w);
-                    lightsVisi.push_back(light.position);
+                    lightsVisi[l.layer].push_back(light.position);
                 }
             }
         }
@@ -495,8 +507,11 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                 w.writeVec3fBig(ent.second.max);
             }
 
-            w.writeUint32Big(lightsVisi.size());
-            for (const auto& light : lightsVisi)
+            w.writeUint32Big(lightsVisi[0].size() + lightsVisi[1].size());
+            w.writeUint32Big(lightsVisi[1].size());
+            for (const auto& light : lightsVisi[1])
+                w.writeVec3fBig(light);
+            for (const auto& light : lightsVisi[0])
                 w.writeVec3fBig(light);
 
             w.close();

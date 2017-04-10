@@ -261,6 +261,7 @@ public:
                   const std::weak_ptr<CWorldTransManager>&,
                   const std::weak_ptr<CWorldLayerState>&);
 
+    u32 GetInputFrameIdx() const { return x8d4_inputFrameIdx; }
     bool RenderLast(TUniqueId);
     void AddDrawableActorPlane(const CActor& actor, const zeus::CPlane&, const zeus::CAABox& aabb) const;
     void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;

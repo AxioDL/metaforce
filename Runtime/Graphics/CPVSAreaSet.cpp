@@ -8,7 +8,7 @@ CPVSAreaSet::CPVSAreaSet(const u8* data, u32 len)
     CMemoryInStream r(data, len);
     x0_numFeatures = r.readUint32Big();
     x4_numLights = r.readUint32Big();
-    x8_c = r.readUint32Big();
+    x8_num2ndLights = r.readUint32Big();
     xc_numActors = r.readUint32Big();
     x10_leafSize = r.readUint32Big();
     x14_lightIndexCount = r.readUint32Big();

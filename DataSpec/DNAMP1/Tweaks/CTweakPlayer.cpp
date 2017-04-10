@@ -1071,8 +1071,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x130_ = __dna_docin.readFloat("x130_");
     /* x134_ */
     x134_ = __dna_docin.readFloat("x134_");
-    /* x138_ */
-    x138_hudLagAmount = __dna_docin.readFloat("x138_");
+    /* x138_hudLagAmount */
+    x138_hudLagAmount = __dna_docin.readFloat("x138_hudLagAmount");
     /* x13c_ */
     x13c_ = __dna_docin.readFloat("x13c_");
     /* x140_ */
@@ -1580,8 +1580,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x130_", x130_);
     /* x134_ */
     __dna_docout.writeFloat("x134_", x134_);
-    /* x138_ */
-    __dna_docout.writeFloat("x138_", x138_hudLagAmount);
+    /* x138_hudLagAmount */
+    __dna_docout.writeFloat("x138_hudLagAmount", x138_hudLagAmount);
     /* x13c_ */
     __dna_docout.writeFloat("x13c_", x13c_);
     /* x140_ */

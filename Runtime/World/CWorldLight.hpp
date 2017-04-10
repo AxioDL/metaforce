@@ -36,7 +36,7 @@ public:
     ELightType GetLightType() const;
     const zeus::CVector3f& GetDirection() const;
     const zeus::CVector3f& GetPosition() const;
-    bool DoesCastShadows() const;
+    bool DoesCastShadows() const { return x34_castShadows; }
 
     CLight GetAsCGraphicsLight() const;
 };

@@ -281,34 +281,35 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
         float d = in.readFloatBig();
         float e = in.readFloatBig();
 
-        zeus::CColor col;
-        col.readRGBABig(in);
+        zeus::CColor noLightsAmbient;
+        noLightsAmbient.readRGBABig(in);
 
-        bool f = in.readBool();
+        bool makeLights = in.readBool();
         CLightParameters::EWorldLightingOptions lightOpts = CLightParameters::EWorldLightingOptions(in.readUint32Big());
         CLightParameters::ELightRecalculationOptions recalcOpts =
             CLightParameters::ELightRecalculationOptions(in.readUint32Big());
 
-        zeus::CVector3f vec;
-        vec.readBig(in);
+        zeus::CVector3f actorPosBias;
+        actorPosBias.readBig(in);
 
-        s32 w1 = -1;
-        s32 w2 = -1;
+        s32 maxDynamicLights = -1;
+        s32 maxAreaLights = -1;
         if (propCount >= 12)
         {
-            w1 = in.readUint32Big();
-            w2 = in.readUint32Big();
+            maxDynamicLights = in.readUint32Big();
+            maxAreaLights = in.readUint32Big();
         }
 
-        bool b1 = false;
+        bool ambientChannelOverflow = false;
         if (propCount >= 13)
-            b1 = in.readBool();
+            ambientChannelOverflow = in.readBool();
 
-        s32 w3 = 0;
+        s32 layerIdx = 0;
         if (propCount >= 14)
-            w3 = in.readUint32Big();
+            layerIdx = in.readUint32Big();
 
-        return CLightParameters(a, b, shadowTess, d, e, col, f, lightOpts, recalcOpts, vec, w1, w2, b1, w3);
+        return CLightParameters(a, b, shadowTess, d, e, noLightsAmbient, makeLights, lightOpts, recalcOpts, actorPosBias,
+                                maxDynamicLights, maxAreaLights, ambientChannelOverflow, layerIdx);
     }
     return CLightParameters::None();
 }

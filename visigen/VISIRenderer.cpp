@@ -488,6 +488,7 @@ void VISIRenderer::Run(FPercent updatePercent)
         return;
     }
 
+    uint32_t layer2LightCount = 0;
     {
         athena::io::FileReader r(m_argv[1]);
         if (r.hasError())
@@ -545,6 +546,7 @@ void VISIRenderer::Run(FPercent updatePercent)
         }
 
         uint32_t lightCount = r.readUint32Big();
+        layer2LightCount = r.readUint32Big();
         m_lights.resize(lightCount);
         for (uint32_t i=0 ; i<lightCount ; ++i)
         {
@@ -561,7 +563,8 @@ void VISIRenderer::Run(FPercent updatePercent)
 
     VISIBuilder builder(*this);
     std::vector<uint8_t> dataOut = builder.build(m_totalAABB, m_models.size(),
-                                                 m_entities, m_lights, m_updatePercent);
+                                                 m_entities, m_lights, layer2LightCount,
+                                                 m_updatePercent);
     if (dataOut.empty())
     {
         m_return = 1;
