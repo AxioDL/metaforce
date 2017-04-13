@@ -10,6 +10,7 @@ namespace urde
 
 CGraphics::CProjectionState CGraphics::g_Proj;
 CGraphics::CFogState CGraphics::g_Fog;
+zeus::CColor CGraphics::g_ColorRegs[3] = {};
 float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
 u32 CGraphics::g_NumBreakpointsWaiting = 0;

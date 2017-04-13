@@ -807,9 +807,9 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
     {
         CModelShaders::LightingUniform& lightingOut = *reinterpret_cast<CModelShaders::LightingUniform*>(dataCur);
         lightingOut = m_lightingData;
-        lightingOut.colorRegs[0] = flags.regColors[0];
-        lightingOut.colorRegs[1] = flags.regColors[1];
-        lightingOut.colorRegs[2] = flags.regColors[2];
+        lightingOut.colorRegs[0] = CGraphics::g_ColorRegs[0];
+        lightingOut.colorRegs[1] = CGraphics::g_ColorRegs[1];
+        lightingOut.colorRegs[2] = CGraphics::g_ColorRegs[2];
         lightingOut.mulColor = flags.x4_color;
         lightingOut.fog = CGraphics::g_Fog;
     }

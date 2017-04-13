@@ -371,6 +371,27 @@ CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics
     return wrapper;
 }
 
+void CSfxManager::RemoveEmitter(const CSfxHandle& handle)
+{
+    StopSound(handle);
+}
+
+void CSfxManager::UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f& pos,
+                                const zeus::CVector3f& dir, float maxVol)
+{
+    if (!handle || !handle->IsEmitter() || !handle->IsPlaying())
+        return;
+    m_doUpdate = true;
+    CSfxEmitterWrapper& emitter = static_cast<CSfxEmitterWrapper&>(*handle);
+    emitter.GetEmitterData().x0_pos = pos;
+    emitter.GetEmitterData().xc_dir = dir;
+    emitter.GetEmitterData().x26_maxVol = maxVol;
+    amuse::Emitter& h = *emitter.GetHandle();
+    h.setPos(pos.v);
+    h.setDir(dir.v);
+    h.setMaxVol(maxVol);
+}
+
 CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, float vol,
                                    bool useAcoustics, bool looped, s16 prio, s32 areaId)
 {

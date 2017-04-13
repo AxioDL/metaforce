@@ -8,6 +8,7 @@
 #include "Input/CFinalInput.hpp"
 #include "zeus/CColor.hpp"
 #include "CSimplePool.hpp"
+#include "Graphics/CModel.hpp"
 
 namespace urde
 {
@@ -51,15 +52,18 @@ void CGuiFrame::SortDrawOrder()
     });
 }
 
-void CGuiFrame::EnableLights(u32 lights) const
+void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const
 {
+    std::vector<CLight> lightsOut;
+    lightsOut.reserve(m_indexedLights.size() + 1);
     CGraphics::DisableAllLights();
-    zeus::CColor accumColor(zeus::CColor::skBlack);
+
+    zeus::CColor ambColor(zeus::CColor::skBlack);
     ERglLight lightId = ERglLight::Zero;
     int idx = 0;
-    for (auto& light : m_indexedLights)
+    for (CGuiLight* light : m_indexedLights)
     {
-        if (!light)
+        if (!light || !light->GetIsVisible())
         {
             ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
             ++idx;
@@ -67,18 +71,31 @@ void CGuiFrame::EnableLights(u32 lights) const
         }
         if ((lights & (1 << idx)) != 0)
         {
-            // accumulate color
-            accumColor += light->GetColor();
-            CGraphics::LoadLight(lightId, light->BuildLight());
-            CGraphics::EnableLight(lightId);
+            const zeus::CColor& geomCol = light->GetGeometryColor();
+            if (geomCol.r || geomCol.g || geomCol.b)
+            {
+                //CGraphics::LoadLight(lightId, light->BuildLight());
+                lightsOut.push_back(light->BuildLight());
+                CGraphics::EnableLight(lightId);
+            }
+            // accumulate ambient color
+            ambColor += light->GetAmbientLightColor();
         }
         ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
         ++idx;
     }
     if (m_indexedLights.empty())
-        CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+    {
+        //CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+        lightsOut.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skWhite));
+    }
     else
-        CGraphics::SetAmbientColor(accumColor);
+    {
+        //CGraphics::SetAmbientColor(ambColor);
+        lightsOut.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
+    }
+
+    model.ActivateLights(lightsOut);
 }
 
 void CGuiFrame::DisableLights() const

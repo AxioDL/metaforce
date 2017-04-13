@@ -10,6 +10,7 @@
 #include "GuiSys/CGuiCamera.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
 #include "TCastTo.hpp"
+#include "World/CGameLight.hpp"
 
 namespace urde
 {
@@ -323,7 +324,7 @@ void CSamusHud::InitializeDamageLight()
     lightColor.g *= lightColor.a;
     lightColor.b *= lightColor.a;
     lightColor.a = 1.f;
-    x3d4_damageLight->SetColor(lightColor);
+    x3d4_damageLight->SetAmbientLightColor(lightColor);
 
     x3d4_damageLight->SetDistC(1.f);
     x3d4_damageLight->SetDistL(0.f);
@@ -734,8 +735,8 @@ void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr)
 
         zeus::CVector3f bobTranslation = player.GetCameraBob()->GetHelmetBobTranslation();
 
-        zeus::CQuaternion lagRot = x44c_ * x31c_hudLag;
-        zeus::CVector3f lagOff = x41c_ * g_tweakGui->GetHudLagOffsetScale();
+        zeus::CQuaternion lagRot = x44c_hudLagShakeRot * x31c_hudLag;
+        zeus::CVector3f lagOff = x41c_decoShakeTranslate * g_tweakGui->GetHudLagOffsetScale();
         lagOff.z += bobTranslation.z;
         if (x2a0_helmetIntf)
         {
@@ -755,21 +756,316 @@ void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr)
     }
 }
 
+bool CSamusHud::IsCachedLightInAreaLights(const SCachedHudLight& light, const CActorLights& areaLights) const
+{
+    for (const CLight& l : areaLights.GetAreaLights())
+    {
+        if (l.GetColor() != light.xc_color || l.GetPosition() != light.x0_pos)
+            continue;
+        return true;
+    }
+    return false;
+}
+
+bool CSamusHud::IsAreaLightInCachedLights(const CLight& light) const
+{
+    for (const SCachedHudLight& l : x340_hudLights)
+    {
+        if (l.x1c_fader == 0.f)
+            continue;
+        if (l.xc_color != light.GetColor() || l.x0_pos != light.GetPosition())
+            continue;
+        return true;
+    }
+    return false;
+}
+
+int CSamusHud::FindEmptyHudLightSlot(const CLight& light) const
+{
+    for (int i=0 ; i<3 ; ++i)
+        if (x340_hudLights[i].x1c_fader == 0.f)
+            return i;
+    return -1;
+}
+
+zeus::CColor CSamusHud::GetVisorHudLightColor(const zeus::CColor& color, const CStateManager& mgr) const
+{
+    zeus::CColor ret = color;
+    const CPlayerState& playerState = *mgr.GetPlayerState();
+    float t = playerState.GetVisorTransitionFactor();
+    switch (playerState.GetCurrentVisor())
+    {
+    case CPlayerState::EPlayerVisor::Scan:
+        ret *= zeus::CColor::lerp(zeus::CColor::skWhite, g_tweakGuiColors->GetScanVisorHudLightMultiply(), t);
+        break;
+    case CPlayerState::EPlayerVisor::Thermal:
+        ret *= g_tweakGuiColors->GetThermalVisorHudLightMultiply();
+        break;
+    case CPlayerState::EPlayerVisor::XRay:
+        ret = zeus::CColor(zeus::CColor(0.3f, 0.6f, 0.1f).rgbDot(ret));
+        break;
+    default: break;
+    }
+    return ret;
+}
+
 void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
 {
     if (TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
     {
+        zeus::CVector3f lookDir = fpCam->GetTransform().basis[1];
         zeus::CAABox camAABB(fpCam->GetTranslation() - 0.125f, fpCam->GetTranslation() + 0.125f);
-        if (mgr.GetPlayer().GetAreaIdAlways() == kInvalidAreaId)
+        TAreaId playerArea = mgr.GetPlayer().GetAreaIdAlways();
+        if (playerArea == kInvalidAreaId)
             return;
-        //x33c_lights->
+        x33c_lights->BuildAreaLightList(mgr, *mgr.GetWorld()->GetAreaAlways(playerArea), camAABB);
+        for (SCachedHudLight& light : x340_hudLights)
+            if ((light.x0_pos - fpCam->GetTranslation()).normalized().dot(lookDir) > 0.15707964f)
+                if (!IsCachedLightInAreaLights(light, *x33c_lights))
+                    light.x1c_fader *= -1.f;
+        int negCount = 0;
+        for (SCachedHudLight& light : x340_hudLights)
+            if (light.x1c_fader <= 0.f)
+                ++negCount;
+        --negCount;
+        for (const CLight& light : x33c_lights->GetAreaLights())
+        {
+            if (IsAreaLightInCachedLights(light))
+                continue;
+            if ((light.GetPosition() - fpCam->GetTranslation()).normalized().dot(lookDir) > 0.15707964f)
+            {
+                int slot = FindEmptyHudLightSlot(light);
+                if (slot == -1)
+                    continue;
+                SCachedHudLight& cachedLight = x340_hudLights[slot];
+                cachedLight.x0_pos = light.GetPosition();
+                cachedLight.xc_color = light.GetColor();
+                cachedLight.x10_distC = light.GetAttenuationConstant();
+                cachedLight.x14_distL = light.GetAttenuationLinear();
+                cachedLight.x18_distQ = light.GetAttenuationQuadratic();
+                cachedLight.x1c_fader = 0.001f;
+            }
+        }
+
+        float dt2 = 2.f * dt;
+        for (SCachedHudLight& light : x340_hudLights)
+        {
+            if (light.x1c_fader < 0.f)
+                light.x1c_fader = std::max(0.f, light.x1c_fader + dt2);
+            else if (light.x1c_fader < 1.f && light.x1c_fader != 0)
+                light.x1c_fader = std::min(light.x1c_fader + dt2, 1.f);
+        }
+
+        CPlayerState& playerState = *mgr.GetPlayerState();
+        CPlayerState::EPlayerVisor visor = playerState.GetCurrentVisor();
+        float visorT = playerState.GetVisorTransitionFactor();
+        zeus::CColor lightAdd =
+            zeus::CColor::lerp(g_tweakGui->GetVisorHudLightAdd(0),
+                               g_tweakGui->GetVisorHudLightAdd(int(visor)),
+                               visorT);
+        zeus::CColor lightMul =
+            zeus::CColor::lerp(g_tweakGui->GetVisorHudLightMultiply(0),
+                               g_tweakGui->GetVisorHudLightMultiply(int(visor)),
+                               visorT);
+
+        auto lightIt = x5d8_guiLights.begin();
+        float maxIntensity = 0.f;
+        int maxIntensityIdx = 0;
+        for (int i=0 ; i<3 ; ++i)
+        {
+            SCachedHudLight& light = x340_hudLights[i];
+            CGuiLight* lightWidget = *lightIt;
+            zeus::CVector3f lightToCam = fpCam->GetTranslation() - light.x0_pos;
+            zeus::CVector3f lightNormal = fpCam->GetTransform().buildMatrix3f() * lightToCam.normalized();
+            float dist = std::max(lightToCam.magnitude(), FLT_EPSILON);
+            float falloffMul = 1.f /
+            (dist * dist * light.x18_distQ * g_tweakGui->GetHudLightAttMulQuadratic() +
+            dist * light.x14_distL * g_tweakGui->GetHudLightAttMulLinear() +
+            light.x10_distC * g_tweakGui->GetHudLightAttMulConstant());
+            falloffMul = std::min(falloffMul, 1.f);
+            lightWidget->SetO2WTransform(zeus::lookAt(zeus::CVector3f::skZero, lightNormal));
+            float fadedFalloff = falloffMul * std::fabs(light.x1c_fader);
+            zeus::CColor lightColor = GetVisorHudLightColor(light.xc_color * zeus::CColor(fadedFalloff), mgr);
+            lightWidget->SetColor(lightColor);
+            lightAdd += lightColor * lightMul;
+            float greyscale = fadedFalloff * zeus::CVector3f::skForward.dot(-lightNormal) *
+                              lightAdd.rgbDot(zeus::CColor(0.3f, 0.6f, 0.1f));
+            if (greyscale > maxIntensity)
+            {
+                maxIntensity = greyscale;
+                maxIntensityIdx = i;
+            }
+        }
+
+        CLight brightestGameLight = CLight::BuildPoint(zeus::CVector3f::skZero, zeus::CColor::skBlack);
+        for (CEntity* ent : mgr.GetLightObjectList())
+        {
+            if (!ent || !ent->GetActive())
+                continue;
+            CGameLight& gameLight = static_cast<CGameLight&>(*ent);
+            if (TCastToConstPtr<CGameProjectile>(mgr.GetObjectById(gameLight.GetParentId())))
+                continue;
+            CLight thisLight = gameLight.GetLight();
+            if (thisLight.GetIntensity() > brightestGameLight.GetIntensity())
+            {
+                zeus::CSphere sphere(thisLight.GetPosition(), thisLight.GetRadius());
+                if (camAABB.intersects(sphere))
+                    brightestGameLight = thisLight;
+            }
+        }
+
+        if (brightestGameLight.GetIntensity() > FLT_EPSILON)
+        {
+            zeus::CVector3f lightToCam = fpCam->GetTranslation() - brightestGameLight.GetPosition();
+            float dist = std::max(lightToCam.magnitude(), FLT_EPSILON);
+            float falloffMul = 1.f /
+            (dist * dist * brightestGameLight.GetAttenuationQuadratic() * g_tweakGui->GetHudLightAttMulQuadratic() +
+            dist * brightestGameLight.GetAttenuationLinear() * g_tweakGui->GetHudLightAttMulLinear() +
+            brightestGameLight.GetAttenuationConstant() * g_tweakGui->GetHudLightAttMulConstant());
+            falloffMul = std::min(falloffMul, 1.f);
+            zeus::CColor falloffColor = brightestGameLight.GetColor() * zeus::CColor(falloffMul);
+            falloffColor = GetVisorHudLightColor(falloffColor, mgr);
+            if (brightestGameLight.GetType() == ELightType::Spot)
+            {
+                float quarterCicleFactor = zeus::clamp(0.f, std::asin(std::max(0.f, fpCam->GetTransform().basis[1].
+                                           dot(brightestGameLight.GetDirection()))) * (M_PIF / 2.f), 1.f);
+                falloffColor *= zeus::CColor(quarterCicleFactor);
+            }
+            lightAdd += falloffColor;
+        }
+
+        const CGuiLight& brightestLight = *x5d8_guiLights[maxIntensityIdx];
+        lightAdd += x33c_lights->GetAmbientColor() * zeus::CColor(0.25f, 1.f);
+        zeus::CVector3f revDir = -brightestLight.GetWorldTransform().basis[1];
+        float foreDot = revDir.dot(zeus::CVector3f::skForward);
+        x5d8_guiLights[3]->SetO2WTransform(
+            zeus::lookAt(zeus::CVector3f::skZero, zeus::CVector3f::skForward * 2.f * foreDot - revDir));
+        x5d8_guiLights[3]->SetColor(g_tweakGui->GetHudReflectivityLightColor() * brightestLight.GetIntermediateColor());
+        x5d8_guiLights[3]->SetAmbientLightColor(lightAdd);
     }
 }
 
 void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
                                 DataSpec::ITweakGui::EHelmetVisMode helmetVis)
 {
+    CPlayer& player = mgr.GetPlayer();
+    if (player.WasDamaged() && mgr.GetGameState() == CStateManager::EGameState::Running)
+        x3e8_damageTIme += dt;
+    else
+        x3e8_damageTIme = 0.f;
 
+    float pulseDur = g_tweakGui->GetHudDamagePulseDuration();
+    float pulseTime = std::fabs(std::fmod(x3e8_damageTIme, pulseDur));
+    if (pulseTime < 0.5f * pulseDur)
+        x3ec_damageLightPulser = pulseTime / (0.5f * pulseDur);
+    else
+        x3ec_damageLightPulser = (pulseDur - pulseTime) / (0.5f * pulseDur);
+
+    x3ec_damageLightPulser = zeus::clamp(0.f, g_tweakGui->GetHudDamageColorGain() * x3ec_damageLightPulser * std::min(0.5f, player.GetDamageAmount()), 1.f);
+    zeus::CColor damageAmbColor = g_tweakGuiColors->GetHudFrameColor();
+    damageAmbColor.r *= damageAmbColor.a;
+    damageAmbColor.g *= damageAmbColor.a;
+    damageAmbColor.b *= damageAmbColor.a;
+    damageAmbColor += zeus::CColor(x3ec_damageLightPulser);
+    damageAmbColor.a = 1.f;
+
+    if (x3d4_damageLight)
+        x3d4_damageLight->SetAmbientLightColor(damageAmbColor);
+
+    if (x3f4_damageFilterAmt > 0.f)
+    {
+        x3f4_damageFilterAmt = std::max(0.f, x3f4_damageFilterAmt - dt);
+        if (x3f4_damageFilterAmt == 0.f)
+        {
+            CSfxManager::RemoveEmitter(x3a4_damageSfx);
+            x3a4_damageSfx.reset();
+        }
+    }
+
+    float tmp = x3f0_damageFilterAmtInit * g_tweakGui->GetHudDamagePeakFactor();
+    float colorGain;
+    if (x3f4_damageFilterAmt > tmp)
+        colorGain = (x3f0_damageFilterAmtInit - x3f4_damageFilterAmt) / (x3f0_damageFilterAmtInit - tmp);
+    else
+        colorGain = x3f4_damageFilterAmt / tmp;
+
+    colorGain = zeus::clamp(0.f, colorGain * x3f8_damageFilterAmtGain, 1.f);
+    zeus::CColor color0 = g_tweakGuiColors->GetDamageAmbientColor();
+    color0.a *= colorGain;
+
+    zeus::CColor color1 = g_tweakGuiColors->GetDamageAmbientPulseColor();
+    color1.a *= x3ec_damageLightPulser;
+    zeus::CColor color2 = color0 + color1;
+
+    if (color2.a)
+    {
+        if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed)
+            color2.a *= 0.75f;
+        x3a8_camFilter.SetFilter(CCameraFilterPass::EFilterType::Add, CCameraFilterPass::EFilterShape::Fullscreen,
+                                 0.f, color2, -1);
+    }
+    else
+    {
+        x3a8_camFilter.DisableFilter(0.f);
+    }
+
+    if (x3a4_damageSfx)
+        CSfxManager::UpdateEmitter(x3a4_damageSfx, player.GetTranslation(), player.GetTransform().basis[1], 1.f);
+
+    if (x400_hudDamagePracticals > 0.f)
+    {
+        x400_hudDamagePracticals = std::max(0.f, x400_hudDamagePracticals - dt);
+        float practicals = x400_hudDamagePracticals / x3fc_hudDamagePracticalsInit;
+        if (x28c_energyIntf)
+            x28c_energyIntf->SetFlashMagnitude(practicals);
+        practicals = std::min(practicals * x404_hudDamagePracticalsGain, 1.f);
+        x2a0_helmetIntf->AddHelmetLightValue(practicals);
+        if (x29c_decoIntf)
+            x29c_decoIntf->SetFrameColorValue(practicals);
+        if (practicals > 0.f)
+        {
+            x3d4_damageLight->SetColor(g_tweakGuiColors->GetHudDamageLightColor() * zeus::CColor(practicals));
+            x3d4_damageLight->SetIsVisible(true);
+        }
+        else
+        {
+            x3d4_damageLight->SetIsVisible(false);
+        }
+    }
+
+    bool transformUpdate = false;
+    if (x414_decoShakeTranslateAmt > 0.f)
+    {
+        x418_decoShakeTranslateAmtVel -= g_tweakGui->GetDecoDamageShakeDeceleration() * 60.f * dt;
+        x414_decoShakeTranslateAmt = std::max(0.f, x414_decoShakeTranslateAmt + x418_decoShakeTranslateAmtVel);
+        transformUpdate = true;
+    }
+    if (x460_decoShakeAmt > 0.f)
+    {
+        x460_decoShakeAmt = std::max(0.f, x460_decoShakeAmt - dt);
+        x44c_hudLagShakeRot = zeus::CQuaternion::skNoRotation;
+        float rotMul = std::min(g_tweakGui->GetMaxDecoDamageShakeRotate(),
+                                x460_decoShakeAmt / x45c_decoShakeAmtInit * x464_decoShakeAmtGain);
+        float rotAng = rotMul * (2.f * M_PIF / 10.f);
+        x44c_hudLagShakeRot.rotateX(rand() / float(RAND_MAX) * rotAng);
+        x44c_hudLagShakeRot.rotateZ(rand() / float(RAND_MAX) * rotAng);
+        zeus::CVector3f vecs[] = {zeus::CVector3f::skRight,
+                                  zeus::CVector3f::skForward,
+                                  zeus::CVector3f::skUp};
+        for (int i=0 ; i<4 ; ++i)
+            vecs[int(rand() / float(RAND_MAX) * 4.f) & 0x3] += (rand() / float(RAND_MAX) - dt) * rotMul;
+        x428_decoShakeRotate = zeus::CMatrix3f(vecs[0], vecs[1], vecs[2]).transposed();
+        transformUpdate = true;
+    }
+
+    if (transformUpdate)
+    {
+        x41c_decoShakeTranslate = x408_damagerToPlayerNorm * std::min(g_tweakGui->GetMaxDecoDamageShakeTranslate(),
+                                                                      x414_decoShakeTranslateAmt);
+        if (x29c_decoIntf)
+            x29c_decoIntf->SetDamageTransform(x428_decoShakeRotate, x41c_decoShakeTranslate *
+                                              g_tweakGui->GetHudDecoShakeTranslateGain());
+    }
 }
 
 void CSamusHud::UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, u16 sfxId, float dt,
@@ -825,10 +1121,76 @@ void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr)
     }
 }
 
+int CSamusHud::GetRelativeDirection(const zeus::CVector3f& position, const CStateManager& mgr)
+{
+    TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    if (!fpCam)
+        return 0;
+    zeus::CVector3f camToPosLocal = fpCam->GetTransform().transposeRotate(position - fpCam->GetTranslation());
+    if (camToPosLocal == position)
+        return 0;
+    float y = std::cos(2.f * M_PIF * 0.0027777778f * 0.5f * fpCam->GetFov());
+    float x = std::cos(2.f * M_PIF * 0.0027777778f * 0.5f * fpCam->GetFov() * fpCam->GetAspectRatio());
+    zeus::CVector2f camToPosXY = zeus::CVector2f(camToPosLocal.x, camToPosLocal.y).normalized();
+    zeus::CVector2f camToPosYZ = zeus::CVector2f(camToPosLocal.y, camToPosLocal.z).normalized();
+    if (camToPosXY.dot(zeus::CVector2f(0.f, 1.f)) > x && camToPosYZ.dot(zeus::CVector2f(1.f, 0.f)) > y)
+        return 0;
+    if (camToPosXY.dot(zeus::CVector2f(0.f, -1.f)) > x && camToPosYZ.dot(zeus::CVector2f(-1.f, 0.f)) > y)
+        return 1;
+    zeus::CVector3f camToPosNorm = camToPosLocal.normalized();
+    zeus::CQuaternion quat;
+    quat.rotateY(2.f * M_PIF / 8.f);
+    zeus::CVector3f vec = zeus::CVector3f::skUp;
+    float maxDot = -1.f;
+    int ret = -1;
+    for (int i=0 ; i<8 ; ++i)
+    {
+        float dot = camToPosNorm.dot(vec);
+        if (dot > maxDot)
+        {
+            maxDot = dot;
+            ret = i + 2;
+        }
+        vec = quat.transform(vec);
+    }
+    return ret;
+}
+
 void CSamusHud::ShowDamage(const zeus::CVector3f& position, float dam, float prevDam,
                            const CStateManager& mgr)
 {
-
+    CPlayer& player = mgr.GetPlayer();
+    int dir = GetRelativeDirection(position, mgr);
+    TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    x404_hudDamagePracticalsGain = g_tweakGui->GetHudDamagePracticalsGainLinear() * dam +
+                                   g_tweakGui->GetHudDamagePracticalsGainConstant();
+    x3fc_hudDamagePracticalsInit = std::max(FLT_EPSILON, g_tweakGui->GetHudDamagePracticalsInitLinear() * dam +
+                                                         g_tweakGui->GetHudDamagePracticalsInitConstant());
+    x400_hudDamagePracticals = x3fc_hudDamagePracticalsInit;
+    if (x3d4_damageLight)
+        x3d4_damageLight->SetLocalTransform(x3d8_lightTransforms[dir]);
+    x3f8_damageFilterAmtGain = g_tweakGui->GetHudDamageFilterGainLinear() * dam +
+                               g_tweakGui->GetHudDamageFilterGainConstant();
+    x3f0_damageFilterAmtInit = g_tweakGui->GetHudDamageFilterInitLinear() * dam +
+                               g_tweakGui->GetHudDamageFilterInitConstant();
+    x3f4_damageFilterAmt = x3f0_damageFilterAmtInit;
+    if (!x3a4_damageSfx)
+    {
+        x3a4_damageSfx = CSfxManager::AddEmitter(1385, player.GetTranslation(), player.GetTransform().basis[1],
+                                                 0.f, false, true, 0xff, kInvalidAreaId);
+    }
+    if (fpCam)
+    {
+        x418_decoShakeTranslateAmtVel = g_tweakGui->GetHudDecoShakeTranslateVelLinear() * prevDam +
+                                        g_tweakGui->GetHudDecoShakeTranslateVelConstant();
+        x414_decoShakeTranslateAmt = x418_decoShakeTranslateAmtVel;
+        x408_damagerToPlayerNorm = -(fpCam->GetTransform().inverse() * position).normalized();
+        x464_decoShakeAmtGain = g_tweakGui->GetDecoShakeGainLinear() * prevDam +
+                                g_tweakGui->GetDecoShakeGainConstant();
+        x45c_decoShakeAmtInit = g_tweakGui->GetDecoShakeInitLinear() * prevDam +
+                                g_tweakGui->GetDecoShakeInitConstant();
+        x460_decoShakeAmt = x45c_decoShakeAmtInit;
+    }
 }
 
 void CSamusHud::EnterFirstPerson(const CStateManager& mgr)
@@ -1293,12 +1655,59 @@ zeus::CTransform CSamusHud::BuildFinalCameraTransform(const zeus::CQuaternion& r
 
 void CSamusHud::SetMessage(const std::u16string& text, const CHUDMemoParms& info)
 {
+    bool isWidgetVisible = x598_base_basewidget_message->GetIsVisible();
+    if (!isWidgetVisible || info.x6_hintMemo)
+    {
+        if (info.x5_hintDismissSound)
+        {
+            if (!info.x6_hintMemo || !isWidgetVisible)
+                return;
+            CSfxManager::SfxStart(1449, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            return;
+        }
+        x598_base_basewidget_message->SetColor(zeus::CColor::skWhite);
+        x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);
+        CGuiWidget* pane = info.x6_hintMemo ? x598_base_basewidget_message : x59c_base_textpane_message;
+        pane->SetVisibility(true, ETraversalMode::Children);
+        x59c_base_textpane_message->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, 40.f);
+        if (info.x4_initializeMemo)
+        {
+            x55c_lastSfxChars = 0.f;
+            x59c_base_textpane_message->TextSupport()->SetCurTime(0.f);
+            x59c_base_textpane_message->TextSupport()->SetText(text);
+        }
+        else if (x59c_base_textpane_message->TextSupport()->GetString().empty())
+        {
+            x55c_lastSfxChars = 0.f;
+            x59c_base_textpane_message->TextSupport()->AddText(text);
+        }
+        else
+        {
+            x59c_base_textpane_message->TextSupport()->AddText(std::u16string(u"\n") + text);
+        }
 
+        x59c_base_textpane_message->SetColor(zeus::CColor::skWhite);
+        x598_base_basewidget_message->SetColor(zeus::CColor::skWhite);
+        x558_messageTextAlpha = info.x0_alpha;
+        if (info.x6_hintMemo)
+        {
+            if (!isWidgetVisible)
+            {
+                CSfxManager::SfxStart(1443, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            }
+        }
+        else
+        {
+            x598_base_basewidget_message->SetLocalTransform(x598_base_basewidget_message->GetTransform());
+        }
+    }
 }
 
-void CSamusHud::InternalDeferHintMemo(ResId strg, u32 timePeriods, const CHUDMemoParms& info)
+void CSamusHud::InternalDeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info)
 {
-
+    x548_hudMemoParms = info;
+    x550_hudMemoString = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), strg});
+    x554_hudMemoIdx = strgIdx;
 }
 
 }

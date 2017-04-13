@@ -22,7 +22,7 @@ public:
     void SetLightPriorityAndId();
     void SetLight(const CLight&);
     CLight GetLight() const;
-    TUniqueId GetParentId() const;
+    TUniqueId GetParentId() const { return xe8_parentId; }
 };
 }
 #endif // __URDE_CGAMELIGHT_HPP__

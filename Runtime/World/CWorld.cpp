@@ -186,7 +186,7 @@ int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
 : x8_mlvlId(mlvlId), x60_objectStore(objStore), x64_resFactory(resFactory)
 {
-    x70_24_ = true;
+    x70_24_currentAreaNeedsAllocation = true;
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     static_cast<ProjectResourceFactoryBase&>(resFactory).LoadResourceAsync(tag, x40_loadBuf);
 }
@@ -301,7 +301,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         }
 
         for (std::unique_ptr<CGameArea>& area : x18_areas)
-            MoveToChain(area.get(), EChain::One);
+            MoveToChain(area.get(), EChain::Deallocated);
 
         x24_mapwId = r.readUint32Big();
         x28_mapWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('MAPW'), x24_mapwId});
@@ -412,16 +412,16 @@ bool CWorld::ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr)
 {
     if (!area->xf0_24_postConstructed)
     {
-        MoveToChain(area, EChain::Two);
+        MoveToChain(area, EChain::Loading);
         return true;
     }
     else
     {
         if (area->x138_curChain != EChain::Alive)
         {
-            if (area->x138_curChain != EChain::Four)
+            if (area->x138_curChain != EChain::AliveJudgement)
             {
-                x70_24_ = true;
+                x70_24_currentAreaNeedsAllocation = true;
             }
             MoveToChain(area, EChain::Alive);
         }
@@ -433,37 +433,37 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
 {
     if (aid < 0 || aid >= x18_areas.size())
         return;
-    x70_24_ = false;
+    x70_24_currentAreaNeedsAllocation = false;
     x68_curAreaId = aid;
 
-    CGameArea* chain0 = x4c_chainHeads[0];
-    while (chain0)
+    CGameArea* toDeallocateAreas = x4c_chainHeads[0];
+    while (toDeallocateAreas)
     {
-        if (chain0->Invalidate(mgr))
+        if (toDeallocateAreas->Invalidate(mgr))
         {
-            MoveToChain(chain0, EChain::One);
+            MoveToChain(toDeallocateAreas, EChain::Deallocated);
             break;
         }
-        chain0 = chain0->x130_next;
+        toDeallocateAreas = toDeallocateAreas->x130_next;
     }
 
-    CGameArea* chain3 = x4c_chainHeads[3];
-    while (chain3)
+    CGameArea* aliveAreas = x4c_chainHeads[3];
+    while (aliveAreas)
     {
-        MoveToChain(chain3, EChain::Four);
-        chain3 = chain3->x130_next;
+        MoveToChain(aliveAreas, EChain::AliveJudgement);
+        aliveAreas = aliveAreas->x130_next;
     }
 
-    CGameArea* chain2 = x4c_chainHeads[2];
-    while (chain2)
+    CGameArea* loadingAreas = x4c_chainHeads[2];
+    while (loadingAreas)
     {
-        MoveToChain(chain2, EChain::Zero);
-        chain2 = chain2->x130_next;
+        MoveToChain(loadingAreas, EChain::ToDeallocate);
+        loadingAreas = loadingAreas->x130_next;
     }
 
     CGameArea* area = x18_areas[aid].get();
-    if (area->x138_curChain != EChain::Four)
-        x70_24_ = true;
+    if (area->x138_curChain != EChain::AliveJudgement)
+        x70_24_currentAreaNeedsAllocation = true;
     area->Validate(mgr);
     MoveToChain(area, EChain::Alive);
     area->SetOcclusionState(CGameArea::EOcclusionState::Visible);
@@ -496,19 +496,19 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         }
     }
 
-    CGameArea* chain4 = x4c_chainHeads[4];
-    while (chain4)
+    CGameArea* judgementArea = x4c_chainHeads[4];
+    while (judgementArea)
     {
-        MoveToChain(chain4, EChain::Zero);
-        chain4 = chain4->x130_next;
+        MoveToChain(judgementArea, EChain::ToDeallocate);
+        judgementArea = judgementArea->x130_next;
     }
 
     size_t toStreamCount = 0;
-    chain0 = x4c_chainHeads[0];
-    while (chain0)
+    toDeallocateAreas = x4c_chainHeads[0];
+    while (toDeallocateAreas)
     {
-        chain0->RemoveStaticGeometry();
-        chain0 = chain0->x130_next;
+        toDeallocateAreas->RemoveStaticGeometry();
+        toDeallocateAreas = toDeallocateAreas->x130_next;
         ++toStreamCount;
     }
 
@@ -520,7 +520,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
 
 void CWorld::SetPauseState(bool paused)
 {
-    for (auto it = GetChainHead(EChain::Two) ; it != AliveAreasEnd() ; ++it)
+    for (auto it = GetChainHead(EChain::Loading) ; it != AliveAreasEnd() ; ++it)
         it->SetPauseState(paused);
     x70_25_paused = paused;
 }

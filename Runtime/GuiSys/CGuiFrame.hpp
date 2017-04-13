@@ -17,6 +17,7 @@ class CGuiLight;
 class CVParamTransfer;
 class CObjectReference;
 class CSimplePool;
+class CBooModel;
 
 class CGuiFrame
 {
@@ -54,7 +55,7 @@ public:
     void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }
     CGuiHeadWidget* GetHeadWidget() const { return xc_headWidget.get(); }
     void SortDrawOrder();
-    void EnableLights(u32 lights) const;
+    void EnableLights(u32 lights, CBooModel& model) const;
     void DisableLights() const;
     void RemoveLight(CGuiLight* light);
     void AddLight(CGuiLight* light);

@@ -26,10 +26,10 @@ struct CTweakGui : ITweakGui
     Value<float> x38_energyBarShadowSpeed;
     Value<float> x3c_energyBarDrainDelay;
     Value<bool> x40_energyBarAlwaysResetDelay;
-    Value<float> x44_;
-    Value<float> x48_;
-    Value<float> x4c_;
-    Value<float> x50_;
+    Value<float> x44_hudDamagePracticalsGainConstant;
+    Value<float> x48_hudDamagePracticalsGainLinear;
+    Value<float> x4c_hudDamagePracticalsInitConstant;
+    Value<float> x50_hudDamagePracticalsInitLinear;
     Value<float> x54_hudDamageLightSpotAngle;
     Value<float> x58_damageLightAngleC;
     Value<float> x5c_damageLightAngleL;
@@ -38,15 +38,15 @@ struct CTweakGui : ITweakGui
     Value<atVec3f> x70_damageLightCenterTranslate;
     Value<float> x7c_damageLightXfXAngle;
     Value<float> x80_damageLightXfZAngle;
-    Value<float> x84_;
-    Value<float> x88_;
-    Value<float> x8c_;
-    Value<float> x90_;
-    Value<float> x94_;
-    Value<float> x98_;
-    Value<float> x9c_;
-    Value<float> xa0_;
-    Value<float> xa4_;
+    Value<float> x84_hudDecoShakeTranslateVelConstant;
+    Value<float> x88_hudDecoShakeTranslateVelLinear;
+    Value<float> x8c_maxDecoDamageShakeTranslate;
+    Value<float> x90_decoDamageShakeDeceleration;
+    Value<float> x94_decoShakeGainConstant;
+    Value<float> x98_decoShakeGainLinear;
+    Value<float> x9c_decoShakeInitConstant;
+    Value<float> xa0_decoShakeInitLinear;
+    Value<float> xa4_maxDecoDamageShakeRotate;
     Value<atUint32> xa8_hudCamFovTweak;
     Value<atUint32> xac_hudCamYTweak;
     Value<atUint32> xb0_hudCamZTweak;
@@ -86,8 +86,8 @@ struct CTweakGui : ITweakGui
     Value<float> x138_;
     Value<atUint32> x13c_;
     Value<atUint32> x140_;
-    Value<atUint32> x144_;
-    Value<atUint32> x148_;
+    Value<atUint32> x144_faceReflectionDistance;
+    Value<atUint32> x148_faceReflectionHeight;
     Value<atUint32> x14c_;
     String<-1> x150_;
     String<-1> x160_;
@@ -95,21 +95,21 @@ struct CTweakGui : ITweakGui
     String<-1> x180_;
     String<-1> x190_;
     Value<float> x1a0_missileWarningPulseTime;
-    Value<float> x1a4_;
-    Value<float> x1a8_;
-    Value<float> x1ac_;
+    Value<float> x1a4_explosionLightFalloffMultConstant;
+    Value<float> x1a8_explosionLightFalloffMultLinear;
+    Value<float> x1ac_explosionLightFalloffMultQuadratic;
     Value<float> x1b0_;
-    Value<float> x1b4_;
-    Value<float> x1b8_;
-    Value<float> x1bc_;
-    Value<float> x1c0_;
-    Value<float> x1c4_;
+    Value<float> x1b4_hudDamagePeakFactor;
+    Value<float> x1b8_hudDamageFilterGainConstant;
+    Value<float> x1bc_hudDamageFilterGainLinear;
+    Value<float> x1c0_hudDamageFilterInitConstant;
+    Value<float> x1c4_hudDamageFilterInitLinear;
     Value<float> x1c8_;
     Value<bool> x1cc_;
     Value<bool> x1cd_;
-    Value<float> x1d0_;
-    Value<float> x1d4_;
-    Value<float> x1d8_;
+    Value<float> x1d0_hudDamagePulseDuration;
+    Value<float> x1d4_hudDamageColorGain;
+    Value<float> x1d8_hudDecoShakeTranslateGain;
     Value<float> x1dc_hudLagOffsetScale;
     Value<float> x1e0_;
     Value<float> x1e4_;
@@ -157,18 +157,12 @@ struct CTweakGui : ITweakGui
     DNAColor x288_xrayFogColor;
     Value<float> x28c_thermalVisorLevel;
     DNAColor x290_thermalVisorColor;
-    DNAColor x294_;
-    DNAColor x298_;
-    DNAColor x29c_;
-    DNAColor x2a0_;
-    DNAColor x2a4_;
-    DNAColor x2a8_;
-    DNAColor x2ac_;
-    DNAColor x2b0_;
-    DNAColor x2b4_;
-    Value<float> x2b8_;
-    Value<float> x2bc_;
-    Value<float> x2c0_;
+    DNAColor x294_hudLightAddPerVisor[4];
+    DNAColor x2a4_hudLightMultiplyPerVisor[4];
+    DNAColor x2b4_hudReflectivityLightColor;
+    Value<float> x2b8_hudLightAttMulConstant;
+    Value<float> x2bc_hudLightAttMulLinear;
+    Value<float> x2c0_hudLightAttMulQuadratic;
     Value<atUint32> m_scanSpeedsCount;
     Vector<float, DNA_COUNT(m_scanSpeedsCount)> x2c4_scanSpeeds;
     String<-1> x2d0_;
@@ -203,6 +197,10 @@ struct CTweakGui : ITweakGui
     float GetEnergyBarShadowSpeed() const { return x38_energyBarShadowSpeed; }
     float GetEnergyBarDrainDelay() const { return x3c_energyBarDrainDelay; }
     bool GetEnergyBarAlwaysResetDelay() const { return x40_energyBarAlwaysResetDelay; }
+    float GetHudDamagePracticalsGainConstant() const { return x44_hudDamagePracticalsGainConstant; }
+    float GetHudDamagePracticalsGainLinear() const { return x48_hudDamagePracticalsGainLinear; }
+    float GetHudDamagePracticalsInitConstant() const { return x4c_hudDamagePracticalsInitConstant; }
+    float GetHudDamagePracticalsInitLinear() const { return x50_hudDamagePracticalsInitLinear; }
     float GetHudDamageLightSpotAngle() const { return x54_hudDamageLightSpotAngle; }
     float GetDamageLightAngleC() const { return x58_damageLightAngleC; }
     float GetDamageLightAngleL() const { return x5c_damageLightAngleL; }
@@ -211,6 +209,15 @@ struct CTweakGui : ITweakGui
     atVec3f GetDamageLightCenterTranslate() const { return x70_damageLightCenterTranslate; }
     float GetDamageLightXfXAngle() const { return x7c_damageLightXfXAngle; }
     float GetDamageLightXfZAngle() const { return x80_damageLightXfZAngle; }
+    float GetHudDecoShakeTranslateVelConstant() const { return x84_hudDecoShakeTranslateVelConstant; }
+    float GetHudDecoShakeTranslateVelLinear() const { return x88_hudDecoShakeTranslateVelLinear; }
+    float GetMaxDecoDamageShakeTranslate() const { return x8c_maxDecoDamageShakeTranslate; }
+    float GetDecoDamageShakeDeceleration() const { return x90_decoDamageShakeDeceleration; }
+    float GetDecoShakeGainConstant() const { return x94_decoShakeGainConstant; }
+    float GetDecoShakeGainLinear() const { return x98_decoShakeGainLinear; }
+    float GetDecoShakeInitConstant() const { return x9c_decoShakeInitConstant; }
+    float GetDecoShakeInitLinear() const { return xa0_decoShakeInitLinear; }
+    float GetMaxDecoDamageShakeRotate() const { return xa4_maxDecoDamageShakeRotate; }
     atUint32 GetHudCamFovTweak() const { return xa8_hudCamFovTweak; }
     atUint32 GetHudCamYTweak() const { return xac_hudCamYTweak; }
     atUint32 GetHudCamZTweak() const { return xb0_hudCamZTweak; }
@@ -233,7 +240,20 @@ struct CTweakGui : ITweakGui
     float GetFreeLookFadeTime() const { return x118_freeLookFadeTime; }
     float GetFreeLookSfxPitchScale() const { return x12c_freeLookSfxPitchScale; }
     bool GetNoAbsoluteFreeLookSfxPitch() const { return x130_noAbsoluteFreeLookSfxPitch; }
+    float GetFaceReflectionDistance() const { return x144_faceReflectionDistance; }
+    float GetFaceReflectionHeight() const { return x148_faceReflectionHeight; }
     float GetMissileWarningPulseTime() const { return x1a0_missileWarningPulseTime; }
+    float GetExplosionLightFalloffMultConstant() const { return x1a4_explosionLightFalloffMultConstant; }
+    float GetExplosionLightFalloffMultLinear() const { return x1a8_explosionLightFalloffMultLinear; }
+    float GetExplosionLightFalloffMultQuadratic() const { return x1ac_explosionLightFalloffMultQuadratic; }
+    float GetHudDamagePeakFactor() const { return x1b4_hudDamagePeakFactor; }
+    float GetHudDamageFilterGainConstant() const { return x1b8_hudDamageFilterGainConstant; }
+    float GetHudDamageFilterGainLinear() const { return x1bc_hudDamageFilterGainLinear; }
+    float GetHudDamageFilterInitConstant() const { return x1c0_hudDamageFilterInitConstant; }
+    float GetHudDamageFilterInitLinear() const { return x1c4_hudDamageFilterInitLinear; }
+    float GetHudDamagePulseDuration() const { return x1d0_hudDamagePulseDuration; }
+    float GetHudDamageColorGain() const { return x1d4_hudDamageColorGain; }
+    float GetHudDecoShakeTranslateGain() const { return x1d8_hudDecoShakeTranslateGain; }
     float GetHudLagOffsetScale() const { return x1dc_hudLagOffsetScale; }
     float GetScanAppearanceOffset() const { return x244_scanAppearanceOffset; }
     float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
@@ -253,6 +273,12 @@ struct CTweakGui : ITweakGui
     const zeus::CColor& GetXRayFogColor() const { return x288_xrayFogColor; }
     float GetThermalVisorLevel() const { return x28c_thermalVisorLevel; }
     const zeus::CColor& GetThermalVisorColor() const { return x290_thermalVisorColor; }
+    const zeus::CColor& GetVisorHudLightAdd(int v) const { return x294_hudLightAddPerVisor[v]; }
+    const zeus::CColor& GetVisorHudLightMultiply(int v) const { return x2a4_hudLightMultiplyPerVisor[v]; }
+    const zeus::CColor& GetHudReflectivityLightColor() const { return x2b4_hudReflectivityLightColor; }
+    float GetHudLightAttMulConstant() const { return x2b8_hudLightAttMulConstant; }
+    float GetHudLightAttMulLinear() const { return x2bc_hudLightAttMulLinear; }
+    float GetHudLightAttMulQuadratic() const { return x2c0_hudLightAttMulQuadratic; }
 
     float GetScanSpeed(int idx) const
     {
@@ -282,7 +308,7 @@ struct CTweakGui : ITweakGui
         else
             x27c_xrayFogMode = 0;
 
-        x84_ *= 2.0f;
+        x84_hudDecoShakeTranslateVelConstant *= 2.0f;
     }
 };
 

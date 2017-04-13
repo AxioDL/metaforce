@@ -237,6 +237,7 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item)
             }
             case EDrawableType::WorldSurface:
             {
+                SetupRendererStates();
                 CBooSurface* surf = static_cast<CBooSurface*>((void*)drawable->GetData());
                 CBooModel* model = surf->m_parent;
                 if (model)
@@ -463,6 +464,12 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
             model->Draw(flags);
         }
     }
+}
+
+void CBooRenderer::SetupRendererStates() const
+{
+    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    CGraphics::g_ColorRegs[1] = x2fc_tevReg1Color;
 }
 
 void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
@@ -708,6 +715,7 @@ void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>
 void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
 {
     x318_30_inAreaDraw = true;
+    SetupRendererStates();
     CModelFlags flags;
 
     for (CAreaListItem& item : x1c_areaListItems)
@@ -745,7 +753,7 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
 
 void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 {
-    //SetupRendererStates(true);
+    SetupRendererStates();
 
     CAreaListItem* lastOctreeItem = nullptr;
 
@@ -823,7 +831,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 
 void CBooRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask)
 {
-    //SetupRendererStates(true);
+    SetupRendererStates();
 
     CAreaListItem* lastOctreeItem = nullptr;
 
@@ -1157,6 +1165,11 @@ void CBooRenderer::PrepareDynamicLights(const std::vector<CLight>& lights)
     }
 }
 
+void CBooRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color)
+{
+    CGraphics::g_ColorRegs[1] = color;
+}
+
 void CBooRenderer::SetWorldLightFadeLevel(float level)
 {
     x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f);
@@ -1210,6 +1223,8 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
 int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
                                                const zeus::CAABox& aabb) const
 {
+    SetupRendererStates();
+
     CModelFlags flags;
     flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
 

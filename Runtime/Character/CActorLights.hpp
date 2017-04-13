@@ -34,7 +34,7 @@ class CActorLights
             bool x298_30_layer2 : 1;
             bool x298_31_disableWorldLights : 1;
             bool x299_24_inBrightLight : 1;
-            bool x299_25_overrideFirstDist : 1;
+            bool x299_25_useBrightLightLag : 1;
             bool x299_26_ : 1;
         };
         u16 _dummy = 0;
@@ -52,12 +52,13 @@ class CActorLights
     float x2d0_shadowDynamicRangeThreshold = 0.f;
     float x2d4_worldLightingLevel = 1.f;
     u32 x2d8_brightLightIdx = -1;
-    u32 x2dc_overrideDist = 0;
+    u32 x2dc_brightLightLag = 0;
 
     static void MergeOverflowLight(CLight& out, zeus::CColor& color, const CLight& in, float colorMag);
     void AddOverflowToLights(const CLight& light, const zeus::CColor& color, float mag);
     void MoveAmbienceToLights(const zeus::CColor& color);
     void MultiplyLightingLevels(float level);
+    void UpdateBrightLight();
 
 public:
     CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& actorPosBias,
@@ -67,15 +68,18 @@ public:
     void BuildConstantAmbientLighting();
     void BuildConstantAmbientLighting(const zeus::CColor& color);
     void BuildFakeLightList(const std::vector<CLight>& lights, const zeus::CColor& color);
-    void BuildFaceLightList(CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
-    bool BuildAreaLightList(CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
-    void BuildDynamicLightList(CStateManager& mgr, const zeus::CAABox& aabb);
+    void BuildFaceLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
+    bool BuildAreaLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
+    void BuildDynamicLightList(const CStateManager& mgr, const zeus::CAABox& aabb);
     void ActivateLights(CBooModel& model) const;
     void SetCastShadows(bool v) { x298_25_castShadows = v; }
 
     void SetAmbientColor(const zeus::CColor& color) { x288_ambientColor = color; }
+    const zeus::CColor& GetAmbientColor() const { return x288_ambientColor; }
     const CLight& GetLight(u32 idx) const;
     u32 GetActiveLightCount() const;
+    const std::vector<CLight>& GetAreaLights() const { return x0_areaLights; }
+    const std::vector<CLight>& GetDynamicLights() const { return x144_dynamicLights; }
 };
 
 }

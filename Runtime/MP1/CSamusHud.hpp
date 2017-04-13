@@ -22,17 +22,18 @@ class CGuiLight;
 
 struct CHUDMemoParms
 {
-    float x0_ = 0.f;
-    bool x4_ = false;
-    bool x5_ = false;
-    bool x6_ = false;
+    float x0_alpha = 0.f;
+    bool x4_initializeMemo = false;
+    bool x5_hintDismissSound = false;
+    bool x6_hintMemo = false;
     CHUDMemoParms() = default;
-    CHUDMemoParms(float f1, bool b1, bool b2, bool b3)
-    : x0_(f1), x4_(b1), x5_(b2), x6_(b3) {}
+    CHUDMemoParms(float alpha, bool initializeMemo, bool hintDismissSound, bool hintMemo)
+    : x0_alpha(alpha), x4_initializeMemo(initializeMemo),
+      x5_hintDismissSound(hintDismissSound), x6_hintMemo(hintMemo) {}
     CHUDMemoParms(CInputStream& in)
     {
-        x0_ = in.readFloatBig();
-        x4_ = in.readBool();
+        x0_alpha = in.readFloatBig();
+        x4_initializeMemo = in.readBool();
     }
 };
 
@@ -71,13 +72,13 @@ class CSamusHud
     {
         zeus::CVector3f x0_pos;
         zeus::CColor xc_color;
-        float x10_ = 0.f;
-        float x14_ = 0.f;
-        float x18_ = 0.f;
-        float x1c_ = 0.f;
+        float x10_distC = 0.f;
+        float x14_distL = 0.f;
+        float x18_distQ = 0.f;
+        float x1c_fader = 0.f;
         SCachedHudLight(const zeus::CVector3f& pos, const zeus::CColor& color,
                         float f1, float f2, float f3, float f4)
-        : x0_pos(pos), xc_color(color), x10_(f1), x14_(f2), x18_(f3), x1c_(f4) {}
+        : x0_pos(pos), xc_color(color), x10_distC(f1), x14_distL(f2), x18_distQ(f3), x1c_fader(f4) {}
     };
 
     struct SVideoBand
@@ -154,23 +155,23 @@ class CSamusHud
     CCameraFilterPass x3a8_camFilter;
     CGuiLight* x3d4_damageLight = nullptr;
     std::vector<zeus::CTransform> x3d8_lightTransforms;
-    float x3e8_ = 0.f;
-    float x3ec_ = 0.f;
-    float x3f0_ = 1.f;
-    float x3f4_ = 0.f;
-    float x3f8_ = 0.f;
-    float x3fc_ = 0.f;
-    float x400_ = 0.f;
-    float x404_ = 0.f;
-    zeus::CVector3f x408_;
-    float x414_ = 0.f;
-    float x418_ = 0.f;
-    zeus::CVector3f x41c_;
-    zeus::CMatrix3f x428_;
-    zeus::CQuaternion x44c_;
-    float x45c_ = 0.f;
-    float x460_ = 0.f;
-    float x464_ = 0.f;
+    float x3e8_damageTIme = 0.f;
+    float x3ec_damageLightPulser = 0.f;
+    float x3f0_damageFilterAmtInit = 1.f;
+    float x3f4_damageFilterAmt = 0.f;
+    float x3f8_damageFilterAmtGain = 0.f;
+    float x3fc_hudDamagePracticalsInit = 0.f;
+    float x400_hudDamagePracticals = 0.f;
+    float x404_hudDamagePracticalsGain = 0.f;
+    zeus::CVector3f x408_damagerToPlayerNorm;
+    float x414_decoShakeTranslateAmt = 0.f;
+    float x418_decoShakeTranslateAmtVel = 0.f;
+    zeus::CVector3f x41c_decoShakeTranslate;
+    zeus::CMatrix3f x428_decoShakeRotate;
+    zeus::CQuaternion x44c_hudLagShakeRot;
+    float x45c_decoShakeAmtInit = 0.f;
+    float x460_decoShakeAmt = 0.f;
+    float x464_decoShakeAmtGain = 0.f;
     rstl::reserved_vector<zeus::CTransform, 3> x46c_;
     zeus::CVector2f x500_viewportScale = {1.f, 1.f};
     CSfxHandle x508_staticSfxHi;
@@ -225,12 +226,17 @@ class CSamusHud
     void ApplyClassicLag(const zeus::CUnitVector3f& lookDir, zeus::CQuaternion& rot,
                          const CStateManager& mgr, float dt, bool invert);
     void UpdateHudLag(float dt, const CStateManager& mgr);
+    bool IsCachedLightInAreaLights(const SCachedHudLight& light, const CActorLights& areaLights) const;
+    bool IsAreaLightInCachedLights(const CLight& light) const;
+    int FindEmptyHudLightSlot(const CLight& light) const;
+    zeus::CColor GetVisorHudLightColor(const zeus::CColor& color, const CStateManager& mgr) const;
     void UpdateHudDynamicLights(float dt, const CStateManager& mgr);
     void UpdateHudDamage(float dt, const CStateManager& mgr,
                          DataSpec::ITweakGui::EHelmetVisMode helmetVis);
     void UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, u16 sfxId, float dt,
                          float oldStaticInterp, float staticThreshold);
     void UpdateStaticInterference(float dt, const CStateManager& mgr);
+    int GetRelativeDirection(const zeus::CVector3f& position, const CStateManager& mgr);
     void ShowDamage(const zeus::CVector3f& position, float dam, float prevDam, const CStateManager& mgr);
     void EnterFirstPerson(const CStateManager& mgr);
     void LeaveFirstPerson(const CStateManager& mgr);
@@ -260,12 +266,12 @@ public:
         SetMessage(text, info);
     }
     void SetMessage(const std::u16string& text, const CHUDMemoParms& info);
-    static void DeferHintMemo(ResId strg, u32 timePeriods, const CHUDMemoParms& info)
+    static void DeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info)
     {
         if (g_SamusHud)
-            g_SamusHud->InternalDeferHintMemo(strg, timePeriods, info);
+            g_SamusHud->InternalDeferHintMemo(strg, strgIdx, info);
     }
-    void InternalDeferHintMemo(ResId strg, u32 timePeriods, const CHUDMemoParms& info);
+    void InternalDeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info);
 };
 
 }

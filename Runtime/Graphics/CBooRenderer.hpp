@@ -180,6 +180,7 @@ class CBooRenderer : public IRenderer
     static void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelMtx,
                                      const zeus::CTransform& viewMtx, const CSkinnedModel* sModel, int pass,
                                      CFogVolumePlaneShader* fvs);
+    void SetupRendererStates() const;
 
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
@@ -245,6 +246,7 @@ public:
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
     void PrepareDynamicLights(const std::vector<CLight>& lights);
+    void SetWorldLightMultiplyColor(const zeus::CColor& color);
     void SetWorldLightFadeLevel(float level);
 
     void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,

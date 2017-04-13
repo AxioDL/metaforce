@@ -167,15 +167,12 @@ bool MREA::Extract(const SpecBase& dataSpec,
     rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Dump VISI entities */
-    auto visiPos = rs.position();
     if (head.secSizes[curSec] && rs.readUint32Big() == 'VISI')
     {
         athena::io::YAMLDocWriter visiWriter("VISI");
-        uint32_t unkCount = 0;
         if (auto __vec = visiWriter.enterSubVector("entities"))
         {
-            rs.seek(14, athena::Current);
-            unkCount = rs.readUint32Big();
+            rs.seek(18, athena::Current);
             uint32_t entityCount = rs.readUint32Big();
             rs.seek(8, athena::Current);
             for (int i=0 ; i<entityCount ; ++i)
@@ -187,14 +184,6 @@ bool MREA::Extract(const SpecBase& dataSpec,
         hecl::ProjectPath visiMetadataPath(outPath.getParentPath(), _S("!visi.yaml"));
         athena::io::FileWriter visiMetadata(visiMetadataPath.getAbsolutePath());
         visiWriter.finish(&visiMetadata);
-
-        if (unkCount)
-        {
-            rs.seek(visiPos, athena::Begin);
-            auto bytes = rs.readUBytes(head.secSizes[curSec]);
-            athena::io::FileWriter fw(std::string("/Users/jacko/Desktop/") + pakRouter.getBestEntryName(entry, false).c_str() + ".visi");
-            fw.writeUBytes(bytes.get(), head.secSizes[curSec]);
-        }
     }
 
     /* Origins to center of mass */

@@ -128,6 +128,7 @@ public:
         void UpdateEmitterSilent();
         void UpdateEmitter();
         void SetReverb(float rev);
+        CAudioSys::C3DEmitterParmData& GetEmitterData() { return x24_parmData; }
 
         const std::shared_ptr<amuse::Emitter>& GetHandle() const { return x50_emitterHandle; }
 
@@ -203,12 +204,14 @@ public:
     static s16 GetRank(CBaseSfxWrapper* sfx);
     static void ApplyReverb();
     static float GetReverbAmount();
-    static void RemoveEmitter(const CSfxHandle&) {}
     static void PitchBend(const CSfxHandle& handle, float pitch);
     static void SfxVolume(const CSfxHandle& handle, float vol);
     static u16 TranslateSFXID(u16);
     static void SfxStop(const CSfxHandle& handle);
     static CSfxHandle SfxStart(u16 id, float vol, float pan, bool useAcoustics, s16 prio, bool looped, s32 areaId);
+    static void RemoveEmitter(const CSfxHandle& handle);
+    static void UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                              float maxVol);
     static CSfxHandle AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, float vol,
                                  bool useAcoustics, bool looped, s16 prio, s32 areaId);
     static CSfxHandle AddEmitter(const CAudioSys::C3DEmitterParmData& parmData,

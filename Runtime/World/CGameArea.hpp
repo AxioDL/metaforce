@@ -259,7 +259,7 @@ private:
 
     CGameArea* x130_next = nullptr;
     CGameArea* x134_prev = nullptr;
-    EChain x138_curChain = EChain::Zero;
+    EChain x138_curChain = EChain::ToDeallocate;
 
     void UpdateFog(float dt);
     void UpdateThermalVisor(float dt);

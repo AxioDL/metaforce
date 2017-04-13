@@ -56,7 +56,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
     {
         zeus::CColor moduCol = xa8_color2;
         moduCol.a *= parms.x0_alphaMod;
-        xb0_frame->EnableLights(x10c_lightMask);
+        xb0_frame->EnableLights(x10c_lightMask, const_cast<CBooModel&>(model->GetInstance()));
         if (xb6_29_cullFaces)
             CGraphics::SetCullMode(ERglCullMode::Front);
 

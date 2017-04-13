@@ -35,6 +35,10 @@ struct ITweakGui : ITweak
     virtual float GetEnergyBarShadowSpeed() const=0;
     virtual float GetEnergyBarDrainDelay() const=0;
     virtual bool GetEnergyBarAlwaysResetDelay() const=0;
+    virtual float GetHudDamagePracticalsGainConstant() const=0;
+    virtual float GetHudDamagePracticalsGainLinear() const=0;
+    virtual float GetHudDamagePracticalsInitConstant() const=0;
+    virtual float GetHudDamagePracticalsInitLinear() const=0;
     virtual float GetHudDamageLightSpotAngle() const=0;
     virtual float GetDamageLightAngleC() const=0;
     virtual float GetDamageLightAngleL() const=0;
@@ -43,6 +47,15 @@ struct ITweakGui : ITweak
     virtual atVec3f GetDamageLightCenterTranslate() const=0;
     virtual float GetDamageLightXfXAngle() const=0;
     virtual float GetDamageLightXfZAngle() const=0;
+    virtual float GetHudDecoShakeTranslateVelConstant() const=0;
+    virtual float GetHudDecoShakeTranslateVelLinear() const=0;
+    virtual float GetMaxDecoDamageShakeTranslate() const=0;
+    virtual float GetDecoDamageShakeDeceleration() const=0;
+    virtual float GetDecoShakeGainConstant() const=0;
+    virtual float GetDecoShakeGainLinear() const=0;
+    virtual float GetDecoShakeInitConstant() const=0;
+    virtual float GetDecoShakeInitLinear() const=0;
+    virtual float GetMaxDecoDamageShakeRotate() const=0;
     virtual atUint32 GetHudCamFovTweak() const=0;
     virtual atUint32 GetHudCamYTweak() const=0;
     virtual atUint32 GetHudCamZTweak() const=0;
@@ -65,7 +78,20 @@ struct ITweakGui : ITweak
     virtual float GetFreeLookFadeTime() const=0;
     virtual float GetFreeLookSfxPitchScale() const=0;
     virtual bool GetNoAbsoluteFreeLookSfxPitch() const=0;
+    virtual float GetFaceReflectionDistance() const=0;
+    virtual float GetFaceReflectionHeight() const=0;
     virtual float GetMissileWarningPulseTime() const=0;
+    virtual float GetExplosionLightFalloffMultConstant() const=0;
+    virtual float GetExplosionLightFalloffMultLinear() const=0;
+    virtual float GetExplosionLightFalloffMultQuadratic() const=0;
+    virtual float GetHudDamagePeakFactor() const=0;
+    virtual float GetHudDamageFilterGainConstant() const=0;
+    virtual float GetHudDamageFilterGainLinear() const=0;
+    virtual float GetHudDamageFilterInitConstant() const=0;
+    virtual float GetHudDamageFilterInitLinear() const=0;
+    virtual float GetHudDamagePulseDuration() const=0;
+    virtual float GetHudDamageColorGain() const=0;
+    virtual float GetHudDecoShakeTranslateGain() const=0;
     virtual float GetHudLagOffsetScale() const=0;
     virtual float GetScanAppearanceOffset() const=0;
     virtual float GetBallViewportYReduction() const=0;
@@ -86,6 +112,15 @@ struct ITweakGui : ITweak
     virtual const zeus::CColor& GetXRayFogColor() const=0;
     virtual float GetThermalVisorLevel() const=0;
     virtual const zeus::CColor& GetThermalVisorColor() const=0;
+    virtual const zeus::CColor& GetVisorHudLightAdd(int v) const=0;
+    virtual const zeus::CColor& GetVisorHudLightMultiply(int v) const=0;
+    virtual const zeus::CColor& GetHudReflectivityLightColor() const=0;
+    virtual float GetHudLightAttMulConstant() const=0;
+    virtual float GetHudLightAttMulLinear() const=0;
+    virtual float GetHudLightAttMulQuadratic() const=0;
+
+    static float FaceReflectionDistanceDebugValueToActualValue(float v) { return 0.015f * v + 0.2f; }
+    static float FaceReflectionHeightDebugValueToActualValue(float v) { return 0.005f * v - 0.05f; }
 };
 
 }

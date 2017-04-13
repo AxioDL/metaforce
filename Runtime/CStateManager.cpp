@@ -507,11 +507,6 @@ bool CStateManager::CanCreateProjectile(TUniqueId uid, EWeaponType type, int tes
     return ((xorv >> 1) - xorv & test) >> 31;
 }
 
-const std::vector<CLight>& CStateManager::GetDynamicLightList() const
-{
-    return x8e0_dynamicLights;
-}
-
 void CStateManager::BuildDynamicLightListForWorld()
 {
     if (x8b8_playerState->GetActiveVisor(*this) == CPlayerState::EPlayerVisor::Thermal)
@@ -1975,7 +1970,7 @@ void CStateManager::UpdateHintState(float dt)
     CHintOptions& ho = g_GameState->HintOptions();
     ho.Update(dt, *this);
     u32 nextHintIdx = -1;
-    u32 hintPeriods = -1;
+    u32 pageIdx = -1;
     if (const CHintOptions::SHintState* state = ho.GetCurrentDisplayedHint())
     {
         const CGameHintInfo::CGameHint& next = g_MemoryCardSys->GetHints()[ho.GetNextHintIdx()];
@@ -1987,11 +1982,11 @@ void CStateManager::UpdateHintState(float dt)
         if (state->x4_time < next.GetTextTime())
         {
             nextHintIdx = ho.GetNextHintIdx();
-            hintPeriods = state->x4_time / 3.f;
+            pageIdx = state->x4_time / 3.f;
         }
     }
 
-    if (xeec_hintIdx != nextHintIdx || xef0_hintPeriods != hintPeriods)
+    if (xeec_hintIdx != nextHintIdx || xef0_hintPeriods != pageIdx)
     {
         if (nextHintIdx == -1)
         {
@@ -2002,10 +1997,10 @@ void CStateManager::UpdateHintState(float dt)
         {
             const CGameHintInfo::CGameHint& data = g_MemoryCardSys->GetHints()[nextHintIdx];
             CHUDMemoParms memoInfo = {0.f, true, false, true};
-            MP1::CSamusHud::DeferHintMemo(data.GetStringID(), hintPeriods, memoInfo);
+            MP1::CSamusHud::DeferHintMemo(data.GetStringID(), pageIdx, memoInfo);
         }
         xeec_hintIdx = nextHintIdx;
-        xef0_hintPeriods = hintPeriods;
+        xef0_hintPeriods = pageIdx;
     }
 }
 

@@ -55,11 +55,11 @@ public:
 enum class EChain
 {
     Invalid = -1,
-    Zero,
-    One,
-    Two,
+    ToDeallocate,
+    Deallocated,
+    Loading,
     Alive,
-    Four
+    AliveJudgement
 };
 
 }

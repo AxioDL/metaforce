@@ -56,9 +56,4 @@ CLight CGameLight::GetLight() const
 
     return ret;
 }
-
-TUniqueId CGameLight::GetParentId() const
-{
-    return xe8_parentId;
-}
 }

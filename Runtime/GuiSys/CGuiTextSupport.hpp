@@ -138,6 +138,8 @@ public:
     void SetImageBaseline(bool b);
     bool GetIsTextSupportFinishedLoading() const;
     float GetCurTime() const { return x3c_curTime; }
+    void SetCurTime(float t) { x3c_curTime = t; }
+    const std::u16string& GetString() const { return x0_string; }
     void SetScanStates(const std::vector<CSaveWorld::SScanState>* scanStates);
 };
 

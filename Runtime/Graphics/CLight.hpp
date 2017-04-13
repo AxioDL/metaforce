@@ -92,6 +92,9 @@ public:
         x4c_24_intensityDirty = true;
         x4c_25_radiusDirty = true;
     }
+    float GetAttenuationConstant() const { return x24_distC; }
+    float GetAttenuationLinear() const { return x28_distL; }
+    float GetAttenuationQuadratic() const { return x2c_distQ; }
 
     void SetAngleAttenuation(float constant, float linear, float quadratic)
     {
@@ -101,6 +104,9 @@ public:
         x4c_24_intensityDirty = true;
         x4c_25_radiusDirty = true;
     }
+    float GetAngleAttenuationConstant() const { return x30_angleC; }
+    float GetAngleAttenuationLinear() const { return x34_angleL; }
+    float GetAngleAttenuationQuadratic() const { return x38_angleQ; }
 
     float GetRadius() const
     {

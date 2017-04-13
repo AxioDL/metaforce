@@ -114,6 +114,7 @@ public:
     zeus::CTransform& GetTransform() {return x74_transform;}
     const zeus::CVector3f& GetIdlePosition() const {return x74_transform.origin;}
     void SetTransform(const zeus::CTransform& xf);
+    const zeus::CColor& GetIntermediateColor() const { return xa4_color; }
     const zeus::CColor& GetGeometryColor() const { return xa8_color2; }
     void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);
     void ReapplyXform();

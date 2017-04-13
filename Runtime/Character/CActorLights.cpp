@@ -3,6 +3,12 @@
 #include "World/CGameArea.hpp"
 #include "CStateManager.hpp"
 #include "Collision/CGameCollision.hpp"
+#include "Camera/CFirstPersonCamera.hpp"
+#include "World/CGameLight.hpp"
+#include "TCastTo.hpp"
+#include "GameGlobalObjects.hpp"
+#include "World/CExplosion.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -50,11 +56,59 @@ void CActorLights::BuildConstantAmbientLighting(const zeus::CColor& color)
 void CActorLights::BuildFakeLightList(const std::vector<CLight>& lights, const zeus::CColor& color)
 {
     BuildConstantAmbientLighting(color);
+    x0_areaLights.clear();
     x144_dynamicLights = lights;
 }
 
-void CActorLights::BuildFaceLightList(CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb)
+void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb)
 {
+    zeus::CTransform fpTransform = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
+    x288_ambientColor = zeus::CColor::skBlack;
+    x144_dynamicLights.clear();
+    zeus::CColor accumColor = zeus::CColor::skBlack;
+    for (CEntity* light : mgr.GetLightObjectList())
+    {
+        if (!light || !light->GetActive())
+            continue;
+        CGameLight* castLight = static_cast<CGameLight*>(light);
+        if (TCastToConstPtr<CExplosion> explosion = mgr.GetObjectById(castLight->GetParentId()))
+        {
+            CLight originalLight = castLight->GetLight();
+            CLight explosionLight = originalLight;
+            explosionLight.SetAttenuation(explosionLight.GetAttenuationConstant() * g_tweakGui->GetExplosionLightFalloffMultConstant(),
+                                          explosionLight.GetAttenuationLinear() * g_tweakGui->GetExplosionLightFalloffMultLinear(),
+                                          explosionLight.GetAttenuationQuadratic() * g_tweakGui->GetExplosionLightFalloffMultQuadratic());
+            zeus::CVector3f camToExplo = explosion->GetTranslation() - fpTransform.origin;
+            if (fpTransform.transposeRotate(camToExplo).dot(zeus::CVector3f::skForward) >= 0.f)
+            {
+                camToExplo.y = -camToExplo.y + ITweakGui::FaceReflectionDistanceDebugValueToActualValue(
+                                               g_tweakGui->GetFaceReflectionDistance());
+                camToExplo.z = -camToExplo.z + ITweakGui::FaceReflectionHeightDebugValueToActualValue(
+                                               g_tweakGui->GetFaceReflectionHeight());
+                explosionLight.SetPosition(fpTransform * camToExplo);
+                zeus::CSphere sphere(originalLight.GetPosition(), originalLight.GetRadius());
+                if (aabb.intersects(sphere))
+                {
+                    accumColor += explosionLight.GetNormalIndependentLightingAtPoint(fpTransform.origin);
+                    if (originalLight.GetIntensity() > FLT_EPSILON && originalLight.GetRadius() > FLT_EPSILON)
+                        x144_dynamicLights.push_back(explosionLight);
+                }
+            }
+        }
+    }
+
+    float greyscale = accumColor.rgbDot(zeus::CColor(0.3f, 0.6f, 0.1f));
+    if (greyscale < 0.012f)
+        x144_dynamicLights.clear();
+
+    if (greyscale > 0.03f)
+    {
+        float attMul = 1.f / (0.03f / greyscale);
+        for (CLight& light : x144_dynamicLights)
+            light.SetAttenuation(light.GetAttenuationConstant() * attMul,
+                                 light.GetAttenuationLinear() * attMul,
+                                 light.GetAttenuationQuadratic() * attMul);
+    }
 }
 
 struct SLightValue
@@ -68,25 +122,73 @@ struct SLightValue
 
 void CActorLights::MergeOverflowLight(CLight& out, zeus::CColor& color, const CLight& in, float colorMag)
 {
-
+    color += in.GetColor() * colorMag;
+    out.SetAngleAttenuation(in.GetAngleAttenuationConstant() * colorMag + out.GetAngleAttenuationConstant(),
+                            in.GetAngleAttenuationLinear() * colorMag + out.GetAngleAttenuationLinear(),
+                            in.GetAngleAttenuationQuadratic() * colorMag + out.GetAngleAttenuationQuadratic());
+    out.SetAttenuation(in.GetAttenuationConstant() * colorMag + out.GetAttenuationConstant(),
+                       in.GetAttenuationLinear() * colorMag + out.GetAttenuationLinear(),
+                       in.GetAttenuationQuadratic() * colorMag + out.GetAttenuationQuadratic());
+    out.SetPosition(in.GetPosition() * colorMag + out.GetPosition());
+    out.SetDirection(in.GetDirection() * colorMag + out.GetDirection());
 }
 
 void CActorLights::AddOverflowToLights(const CLight& light, const zeus::CColor& color, float mag)
 {
+    if (mag < 0.001f || x2b8_maxAreaLights < 1)
+        return;
 
+    mag = 1.f / mag;
+    zeus::CColor useColor = color * mag;
+    useColor.a = 1.f;
+    x0_areaLights.push_back(CLight::BuildCustom(light.GetPosition() * mag, light.GetDirection() * mag, useColor,
+                                                light.GetAttenuationConstant() * mag,
+                                                light.GetAttenuationLinear() * mag,
+                                                light.GetAttenuationQuadratic() * mag,
+                                                light.GetAngleAttenuationConstant() * mag,
+                                                light.GetAngleAttenuationLinear() * mag,
+                                                light.GetAngleAttenuationQuadratic() * mag));
 }
 
 void CActorLights::MoveAmbienceToLights(const zeus::CColor& color)
 {
+    if (x298_29_ambientChannelOverflow)
+    {
+        x288_ambientColor += color * 0.333333f;
+        x288_ambientColor.a = 1.f;
+        return;
+    }
 
+    zeus::CColor useColor = x0_areaLights[0].GetColor() + color;
+    float maxComponent = std::max(useColor.r, std::max(useColor.g, useColor.b));
+    if (maxComponent > FLT_EPSILON)
+        useColor *= (1.f / maxComponent);
+    useColor.a = 1.f;
+    x0_areaLights[0].SetColor(useColor);
 }
 
 void CActorLights::MultiplyLightingLevels(float level)
 {
-
+    x288_ambientColor *= level;
+    for (CLight& light : x0_areaLights)
+    {
+        zeus::CColor color = light.GetColor();
+        color *= level;
+        color.a = 1.f;
+        light.SetColor(color);
+    }
 }
 
-bool CActorLights::BuildAreaLightList(CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb)
+void CActorLights::UpdateBrightLight()
+{
+    if (x2dc_brightLightLag > 0 && x299_24_inBrightLight)
+        --x2dc_brightLightLag;
+    else if (x2dc_brightLightLag < 15 && !x299_24_inBrightLight)
+        ++x2dc_brightLightLag;
+    x299_25_useBrightLightLag = true;
+}
+
+bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb)
 {
     const std::vector<CWorldLight>& lightList = x298_30_layer2 ? area.GetPostConstructed()->x80_lightsB :
                                                                  area.GetPostConstructed()->x60_lightsA;
@@ -294,10 +396,10 @@ bool CActorLights::BuildAreaLightList(CStateManager& mgr, const CGameArea& area,
                         x299_24_inBrightLight = actorToLightContact;
                         if (x2d8_brightLightIdx != value.x0_areaLightIdx)
                         {
-                            x2dc_overrideDist = actorToLightContact ? 0 : 15;
+                            x2dc_brightLightLag = actorToLightContact ? 0 : 15;
                             x2d8_brightLightIdx = value.x0_areaLightIdx;
                         }
-                        x299_25_overrideFirstDist = false;
+                        x299_25_useBrightLightLag = false;
                         actorToLightContact = true;
                     }
                 }
@@ -349,8 +451,56 @@ bool CActorLights::BuildAreaLightList(CStateManager& mgr, const CGameArea& area,
     return true;
 }
 
-void CActorLights::BuildDynamicLightList(CStateManager& mgr, const zeus::CAABox& aabb)
+void CActorLights::BuildDynamicLightList(const CStateManager& mgr, const zeus::CAABox& aabb)
 {
+    UpdateBrightLight();
+    x299_26_ = false;
+    x144_dynamicLights.clear();
+
+    if (!x29a_)
+    {
+        for (const CLight& light : mgr.GetDynamicLightList())
+        {
+            zeus::CSphere sphere(light.GetPosition(), light.GetRadius());
+            if (aabb.intersects(sphere))
+                x144_dynamicLights.push_back(light);
+            if (x144_dynamicLights.size() >= x2bc_maxDynamicLights)
+                break;
+        }
+    }
+    else
+    {
+        const CLight* addedLights[8] = {};
+        for (int i=0 ; i<x2bc_maxDynamicLights && i<8 ; ++i)
+        {
+            float minRad = FLT_MAX;
+            for (const CLight& light : mgr.GetDynamicLightList())
+            {
+                zeus::CSphere sphere(light.GetPosition(), light.GetRadius());
+                float intRadius = aabb.intersectionRadius(sphere);
+                if (intRadius >= 0.f && intRadius < minRad)
+                {
+                    bool alreadyIn = false;
+                    for (int j=0 ; j<i ; ++j)
+                    {
+                        if (&light == addedLights[j])
+                        {
+                            alreadyIn = true;
+                            break;
+                        }
+                    }
+                    if (alreadyIn)
+                        continue;
+                    addedLights[i] = &light;
+                    minRad = intRadius;
+                }
+            }
+            if (addedLights[i])
+                x144_dynamicLights.push_back(*addedLights[i]);
+            if (x144_dynamicLights.size() >= x2bc_maxDynamicLights)
+                break;
+        }
+    }
 }
 
 void CActorLights::ActivateLights(CBooModel& model) const
@@ -360,8 +510,9 @@ void CActorLights::ActivateLights(CBooModel& model) const
     {
         if (!x298_26_hasAreaLights || !x299_26_)
         {
+            g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
             model.ActivateLights(lights);
-            //return;
+            return;
         }
     }
 
@@ -369,10 +520,10 @@ void CActorLights::ActivateLights(CBooModel& model) const
 
     if (x0_areaLights.size())
     {
-        if (x2dc_overrideDist && x299_25_overrideFirstDist)
+        if (x2dc_brightLightLag && x299_25_useBrightLightLag)
         {
             CLight overrideLight = x0_areaLights[0];
-            overrideLight.SetColor(overrideLight.GetColor() * (1.f - x2dc_overrideDist / 15.f));
+            overrideLight.SetColor(overrideLight.GetColor() * (1.f - x2dc_brightLightLag / 15.f));
             lights.push_back(overrideLight);
         }
         else
@@ -388,6 +539,12 @@ void CActorLights::ActivateLights(CBooModel& model) const
         lights.push_back(light);
 
     model.ActivateLights(lights);
+
+    if (x298_31_disableWorldLights)
+    {
+        zeus::CColor color(x2d4_worldLightingLevel);
+        g_Renderer->SetWorldLightMultiplyColor(color);
+    }
 }
 
 const CLight& CActorLights::GetLight(u32 idx) const

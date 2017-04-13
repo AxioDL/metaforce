@@ -29,7 +29,6 @@ struct CModelFlags
     u16 x2_flags = 0; /* Flags */
     zeus::CColor x4_color; /* Set into kcolor slot specified by material */
     zeus::CColor addColor = zeus::CColor::skClear;
-    zeus::CColor regColors[3];
     zeus::CAABox mbShadowBox;
 
     CModelFlags() = default;

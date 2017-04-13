@@ -184,7 +184,6 @@ void CScriptDock::Touch(CActor& act, CStateManager&)
 zeus::CPlane CScriptDock::GetPlane(const CStateManager& mgr) const
 {
     const IGameArea::Dock* dock = mgr.GetWorld()->GetAreaAlways(x260_area)->GetDock(x25c_dock);
-
     return zeus::CPlane(dock->GetPoint(0), dock->GetPoint(1), dock->GetPoint(2));
 }
 
@@ -237,7 +236,6 @@ void CScriptDock::UpdateAreaActivateFlags(CStateManager& mgr)
 bool CScriptDock::HasPointCrossedDock(const CStateManager& mgr, const zeus::CVector3f& point) const
 {
     const zeus::CPlane plane = GetPlane(mgr);
-
     return (plane.vec.dot(point) >= plane.d);
 }
 
