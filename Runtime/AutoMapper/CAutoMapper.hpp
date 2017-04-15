@@ -28,14 +28,24 @@ public:
     };
     enum class EAutoMapperState
     {
-        Zero
+        MiniMap,
+        MapScreen,
+        MapScreenUniverse
     };
     struct SAutoMapperRenderState
     {
+        enum class Ease
+        {
+            None,
+            Linear,
+            Out,
+            In,
+            InOut
+        };
         zeus::CVector2i x0_viewportSize;
         zeus::CQuaternion x8_camOrientation;
-        float x18_f1;
-        float x1c_f2;
+        float x18_camDist;
+        float x1c_camAngle;
         zeus::CVector3f x20_areaPoint;
         float x2c_drawDepth1;
         float x30_drawDepth2;
@@ -43,21 +53,82 @@ public:
         float x38_alphaOutlineVisited;
         float x3c_alphaSurfaceUnvisited;
         float x40_alphaOutlineUnvisited;
-        u32 x44_;
-        u32 x48_;
-        u32 x4c_;
-        u32 x50_;
-        u32 x54_;
-        u32 x58_;
+        Ease x44_viewportEase;
+        Ease x48_camEase;
+        Ease x4c_pointEase;
+        Ease x50_depth1Ease;
+        Ease x54_depth2Ease;
+        Ease x58_alphaEase;
         SAutoMapperRenderState() = default;
         SAutoMapperRenderState(const zeus::CVector2i& v1, const zeus::CQuaternion& rot,
                                float f1, float f2, const zeus::CVector3f& v2, float f3, float f4,
                                float f5, float f6, float f7, float f8)
-        : x0_viewportSize(v1), x8_camOrientation(rot), x18_f1(f1), x1c_f2(f2),
+        : x0_viewportSize(v1), x8_camOrientation(rot), x18_camDist(f1), x1c_camAngle(f2),
           x20_areaPoint(v2), x2c_drawDepth1(f3), x30_drawDepth2(f4),
           x34_alphaSurfaceVisited(f5), x38_alphaOutlineVisited(f6),
           x3c_alphaSurfaceUnvisited(f7), x40_alphaOutlineUnvisited(f8),
-          x44_(0), x48_(0), x4c_(0), x50_(0), x54_(0), x58_(0) {}
+          x44_viewportEase(Ease::None), x48_camEase(Ease::None), x4c_pointEase(Ease::None),
+          x50_depth1Ease(Ease::None), x54_depth2Ease(Ease::None), x58_alphaEase(Ease::None) {}
+
+        static void InterpolateWithClamp(const SAutoMapperRenderState& a,
+                                         SAutoMapperRenderState& out,
+                                         const SAutoMapperRenderState& b,
+                                         float t);
+        void ResetInterpolation()
+        {
+            x44_viewportEase = Ease::None;
+            x48_camEase = Ease::None;
+            x4c_pointEase = Ease::None;
+            x50_depth1Ease = Ease::None;
+            x54_depth2Ease = Ease::None;
+            x58_alphaEase = Ease::None;
+        }
+    };
+
+    struct SAutoMapperHintStep
+    {
+        enum class Type
+        {
+            PanToArea,
+            PanToWorld,
+            SwitchToUniverse,
+            SwitchToWorld,
+            ShowBeacon,
+            PulseTargetArea,
+            PulseCurrentArea
+        };
+        struct PanToArea {};
+        struct PanToWorld {};
+        struct SwitchToUniverse {};
+        struct SwitchToWorld {};
+        struct ShowBeacon {};
+        struct PulseTargetArea {};
+        struct PulseCurrentArea {};
+
+        Type x0_type;
+        union
+        {
+            ResId x4_worldId;
+            TAreaId x4_areaId;
+            float x4_float;
+        };
+        bool x8_ = false;
+
+        SAutoMapperHintStep(PanToArea, TAreaId areaId) : x0_type(Type::PanToArea), x4_areaId(areaId) {}
+        SAutoMapperHintStep(PanToWorld, ResId worldId) : x0_type(Type::PanToWorld), x4_worldId(worldId) {}
+        SAutoMapperHintStep(SwitchToUniverse) : x0_type(Type::SwitchToUniverse), x4_worldId(0) {}
+        SAutoMapperHintStep(SwitchToWorld, ResId worldId) : x0_type(Type::SwitchToWorld), x4_worldId(worldId) {}
+        SAutoMapperHintStep(ShowBeacon, float val) : x0_type(Type::ShowBeacon), x4_float(val) {}
+        SAutoMapperHintStep(PulseTargetArea) : x0_type(Type::PulseTargetArea), x4_worldId(0) {}
+        SAutoMapperHintStep(PulseCurrentArea) : x0_type(Type::PulseCurrentArea), x4_worldId(0) {}
+    };
+
+    struct SAutoMapperHintLocation
+    {
+        u32 x0_;
+        float x4_;
+        ResId x8_worldId;
+        TAreaId xc_areaId;
     };
 
     class CAudioMenu
@@ -86,11 +157,18 @@ public:
     };
 
 private:
+    enum class EZoomState
+    {
+        None,
+        In,
+        Out
+    };
+
     ELoadPhase x4_loadPhase = ELoadPhase::LoadResources;
     TLockedToken<CMapUniverse> x8_mapu;
     std::vector<std::unique_ptr<IWorld>> x14_dummyWorlds;
-    CWorld& x24_world;
-    u32 x28_ = 0;
+    const CWorld* x24_world;
+    TLockedToken<CModel> x28_frmeMapScreen; // Used to be ptr
     u32 x2c_ = 0;
     TLockedToken<CModel> x30_miniMapSamus;
     TLockedToken<CTexture> x3c_hintBeacon;
@@ -102,27 +180,25 @@ private:
     u32 x9c_worldIdx = 0;
     TAreaId xa0_curAreaId;
     TAreaId xa4_otherAreaId;
-    SAutoMapperRenderState xa8_[3]; // xa8, x104, x160
-    EAutoMapperState x1bc_state = EAutoMapperState::Zero;
-    EAutoMapperState x1c0_nextState = EAutoMapperState::Zero;
+    SAutoMapperRenderState xa8_renderStates[3]; // xa8, x104, x160; current, prev, next
+    EAutoMapperState x1bc_state = EAutoMapperState::MiniMap;
+    EAutoMapperState x1c0_nextState = EAutoMapperState::MiniMap;
     float x1c4_ = 0.f;
     float x1c8_ = 0.f;
-    u32 x1cc_ = 0;
-    u32 x1d0_ = 0;
-    u32 x1d4_ = 0;
+    CSfxHandle x1cc_panningSfx;
+    CSfxHandle x1d0_rotatingSfx;
+    CSfxHandle x1d4_zoomingSfx;
     float x1d8_ = 0.f;
     float x1dc_ = 0.f;
-    std::list<u32> x1e0_;
-    u32 x1f4_ = 0;
-    std::list<u32> x1f8_;
-    u32 x20c_ = 0;
+    std::list<SAutoMapperHintStep> x1e0_hintSteps;
+    std::list<SAutoMapperHintLocation> x1f8_hintLocations;
     rstl::reserved_vector<TLockedToken<CTexture>, 9> x210_lstick;
     rstl::reserved_vector<TLockedToken<CTexture>, 9> x25c_cstick;
     rstl::reserved_vector<TLockedToken<CTexture>, 2> x2a8_ltrigger;
     rstl::reserved_vector<TLockedToken<CTexture>, 2> x2bc_rtrigger;
     rstl::reserved_vector<TLockedToken<CTexture>, 2> x2d0_abutton;
-    u32 x2e4_ = 0;
-    u32 x2e8_ = 0;
+    u32 x2e4_lStickPos = 0;
+    u32 x2e8_rStickPos = 0;
     u32 x2ec_ = 0;
     u32 x2f0_ = 0;
     u32 x2f4_ = 0;
@@ -137,14 +213,51 @@ private:
     float x318_ = 0.f;
     float x31c_ = 0.f;
     float x320_ = 0.f;
-    u32 x324_ = 0;
+    EZoomState x324_zoomState = EZoomState::None;
     u32 x328_ = 0;
-    u32 x32c_ = 0;
+    bool x32c_loadingDummyWorld = false;
+
+    template <class T>
+    static void SetResLockState(T& list, bool lock)
+    {
+        for (auto& res : list)
+            if (lock)
+                res.Lock();
+            else
+                res.Unlock();
+    }
+    bool NotHintNavigating() const;
+    bool CanLeaveMapScreenInternal(const CStateManager& mgr) const;
+    bool HasCurrentMapUniverseWorld() const;
+    bool CheckDummyWorldLoad(const CStateManager& mgr);
+    void UpdateHintNavigation(float dt, const CStateManager& mgr);
+    static zeus::CVector2i GetMiniMapViewportSize();
+    static zeus::CVector2i GetMapScreenViewportSize();
+    static float GetMapAreaMiniMapDrawDepth() { return 2.f; }
+    float GetMapAreaMaxDrawDepth(const CStateManager&, TAreaId) const;
+    static float GetMapAreaMiniMapDrawAlphaSurfaceVisited(const CStateManager&);
+    static float GetMapAreaMiniMapDrawAlphaOutlineVisited(const CStateManager&);
+    static float GetMapAreaMiniMapDrawAlphaSurfaceUnvisited(const CStateManager&);
+    static float GetMapAreaMiniMapDrawAlphaOutlineUnvisited(const CStateManager&);
+    static void GetDesiredMiniMapCameraDistance(const CStateManager&);
+    static float GetBaseMapScreenCameraMoveSpeed();
+    float GetClampedMapScreenCameraDistance(float);
+    float GetFinalMapScreenCameraMoveSpeed() const;
+    void ProcessMapRotateInput(const CFinalInput& input, const CStateManager& mgr);
+    void ProcessMapZoomInput(const CFinalInput& input, const CStateManager& mgr);
+    void ProcessMapPanInput(const CFinalInput& input, const CStateManager& mgr);
+    void SetShouldPanningSoundBePlaying(bool);
+    void SetShouldZoomingSoundBePlaying(bool);
+    void SetShouldRotatingSoundBePlaying(bool);
+    void TransformRenderStatesWorldToUniverse();
+    void TransformRenderStatesUniverseToWorld();
+    void TransformRenderStateWorldToUniverse(SAutoMapperRenderState&);
+    void SetupHintNavigation();
 
 public:
     CAutoMapper(CStateManager& stateMgr);
     bool CheckLoadComplete();
-    bool CanLeaveMapScrean(const CStateManager&) const;
+    bool CanLeaveMapScreen(const CStateManager&) const;
     float GetMapRotationX() const;
     float GetMapRotationZ() const;
     u32 GetFocusAreaIndex() const;
@@ -162,40 +275,29 @@ public:
     void CompleteMapperStateTransition();
     void ResetInterpolationTimer(float);
     SAutoMapperRenderState BuildMiniMapWorldRenderState(const CStateManager&, const zeus::CQuaternion&, TAreaId) const;
-    SAutoMapperRenderState BuildMapScreenWorldRenderState(const CStateManager&, const zeus::CQuaternion&, TAreaId) const;
+    SAutoMapperRenderState BuildMapScreenWorldRenderState(const CStateManager&, const zeus::CQuaternion&, TAreaId, bool) const;
     SAutoMapperRenderState BuildMapScreenUniverseRenderState(const CStateManager&, const zeus::CQuaternion&, TAreaId) const;
-    void SetShouldPanningSoundBePlaying(bool);
-    void SetShouldZoomingSoundBePlaying(bool);
-    void SetShouldRotatingSoundBePlaying(bool);
     void LeaveMapScreenState();
+    void ProcessMapScreenInput(const CFinalInput& input, const CStateManager& mgr);
     zeus::CQuaternion GetMiniMapCameraOrientation(const CStateManager&) const;
     zeus::CVector3f GetAreaPointOfInterest(const CStateManager&, TAreaId) const;
-    void FindClosestVisibleArea(const zeus::CVector3f&, const zeus::CUnitVector3f&, const CStateManager&,
-                           const IWorld&, const CMapWorldInfo&) const;
-    void FindClosestVisibleWorld(const zeus::CVector3f&, const zeus::CUnitVector3f&, const CStateManager&) const;
-
-    static zeus::CVector2i GetMiniMapViewportSize();
-    static void GetMapScreenViewportSize();
-    static float GetMapAreaMiniMapDrawDepth() { return 2.f; }
-    static float GetMapAreaMaxDrawDepth();
-    static float GetMapAreaMiniMapDrawAlphaSurfaceVisited(const CStateManager&);
-    static float GetMapAreaMiniMapDrawAlphaOutlineVisited(const CStateManager&);
-    static float GetMapAreaMiniMapDrawAlphaSurfaceUnvisited(const CStateManager&);
-    static float GetMapAreaMiniMapDrawAlphaOutlineUnvisited(const CStateManager&);
-    static void GetClampedMapScreenCameraDistance(float);
-    static void GetDesiredMiniMapCameraDistance(const CStateManager&);
-    static float GetBaseCameraMoveSpeed();
-    static float GetFinalCameraMoveSpeed();
+    TAreaId FindClosestVisibleArea(const zeus::CVector3f&, const zeus::CUnitVector3f&, const CStateManager&,
+                                   const IWorld&, const CMapWorldInfo&) const;
+    std::pair<TAreaId, int>
+    FindClosestVisibleWorld(const zeus::CVector3f&, const zeus::CUnitVector3f&, const CStateManager&) const;
 
     bool IsInMapperState(EAutoMapperState state) const
     {
         return state == x1bc_state && state == x1c0_nextState;
     }
-    bool IsInMapperTransition() const;
-    bool IsRenderStateInterpolating() const;
-    void TransformRenderStatesWorldToUniverse();
-    void TransformRenderStatesUniverseToWorld();
-    void TransformRenderStateWorldToUniverse(SAutoMapperRenderState&);
+    bool IsInMapperStateTransition() const
+    {
+        return x1c0_nextState != x1bc_state;
+    }
+    bool IsRenderStateInterpolating() const
+    {
+        return x1c8_ < x1c4_;
+    }
     void UpdateOptionsMenu(const CTweakValue::Audio&);
     void UpdateAudioMusicMenu();
     void UpdateAudioEvents();

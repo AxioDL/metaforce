@@ -218,6 +218,7 @@ public:
     void ActivateContinueDelayHintTimer(const char* name);
     void DismissDisplayedHint();
     u32 GetNextHintIdx() const;
+    const std::vector<SHintState>& GetHintStates() const { return x0_hintStates; }
     void Update(float dt, const CStateManager& stateMgr);
 };
 

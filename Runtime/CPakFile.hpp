@@ -26,7 +26,7 @@ private:
     {
         struct
         {
-            bool x28_24_samusPak;
+            bool x28_24_buildDepList;
             bool x28_25_aramFile;
             bool x28_26_worldPak;
             bool x28_27_worldPakInitialized;
@@ -40,13 +40,17 @@ private:
         DataLoad = 2,
         Loaded = 3
     } x2c_asyncLoadPhase;
-    IDvdRequest* x34_dvdReq;
-    std::vector<std::pair<std::string, SObjectTag>> x4c_nameList;
-    std::vector<u32> x5c_depList;
-    std::vector<std::pair<u32, SResInfo>> x6c_resList;
+    std::shared_ptr<IDvdRequest> x30_dvdReq; // Used to be auto_ptr
+    std::vector<u8> x38_headerData;
+    u32 x48_resTableOffset = 0;
+    u32 x4c_resTableCount = 0;
+    int x50_ = -1;
+    std::vector<std::pair<std::string, SObjectTag>> x54_nameList;
+    std::vector<ResId> x64_depList;
+    std::vector<std::pair<u32, SResInfo>> x74_resList;
 public:
-    CPakFile(const std::string& filename, bool samusPak, bool worldPak);
-    const std::vector<u32>& GetDepList() const { return x5c_depList; }
+    CPakFile(const std::string& filename, bool buildDepList, bool worldPak);
+    const std::vector<ResId>& GetDepList() const { return x64_depList; }
     const SObjectTag* GetResIdByName(const char* name) const;
     const SResInfo* GetResInfoForLoad(u32 id) { return nullptr; }
     const SResInfo* GetResInfo(u32 id) const { return nullptr; }

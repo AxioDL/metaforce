@@ -4,7 +4,7 @@
 namespace urde
 {
 
-const std::vector<u32>* CResLoader::GetTagListForFile(const std::string& name) const
+const std::vector<ResId>* CResLoader::GetTagListForFile(const std::string& name) const
 {
     std::string namePak = name + ".pak";
     for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList)

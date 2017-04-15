@@ -23,5 +23,10 @@ CInventoryScreen::CInventoryScreen(u32 w1,
     CSfxManager::SfxStart(1435, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
+void CInventoryScreen::ProcessControllerInput(const CStateManager& mgr, const CFinalInput& input)
+{
+
+}
+
 }
 }

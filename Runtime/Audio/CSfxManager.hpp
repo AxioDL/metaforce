@@ -187,7 +187,7 @@ public:
     static bool LoadTranslationTable(CSimplePool* pool, const SObjectTag* tag);
     static bool IsAuxProcessingEnabled() { return m_auxProcessingEnabled; }
     static void SetChannel(ESfxChannels);
-    static void KillAll(ESfxChannels) {}
+    static void KillAll(ESfxChannels);
     static void TurnOnChannel(ESfxChannels);
     static void TurnOffChannel(ESfxChannels);
     static ESfxChannels GetCurrentChannel() {return m_currentChannel;}

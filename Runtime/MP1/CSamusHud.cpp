@@ -1510,6 +1510,12 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         x29c_decoIntf->Update(dt, mgr);
 }
 
+void CSamusHud::ProcessControllerInput(const CFinalInput& input)
+{
+    if (x29c_decoIntf)
+        x29c_decoIntf->ProcessInput(input);
+}
+
 void CSamusHud::UpdateStateTransition(float dt, const CStateManager& mgr)
 {
     if (x2cc_preLoadCountdown == 0)

@@ -23,10 +23,15 @@ public:
 
     class CMapAreaBFSInfo
     {
+        s32 x0_areaIdx;
+        s32 x4_depth;
+        float x8_;
+        float xc_;
     public:
-        CMapAreaBFSInfo(s32, s32, float, float);
-        u32 GetAreaIndex() const;
-        float GetDepth();
+        CMapAreaBFSInfo(s32 areaIdx, s32 depth, float a, float b)
+        : x0_areaIdx(areaIdx), x4_depth(depth), x8_(a), xc_(b) {}
+        s32 GetAreaIndex() const { return x0_areaIdx; }
+        s32 GetDepth() const { return x4_depth; }
         float GetOutlineDrawDepth() const;
         float GetSurfaceDrawDepth() const;
     };
@@ -87,20 +92,20 @@ private:
     std::vector<CMapAreaData> x0_areas;
 public:
     CMapWorld(CInputStream&);
-    u32 GetNumAreas() const;
-    const CMapArea* GetMapArea(TAreaId) const;
+    u32 GetNumAreas() const { return x0_areas.size(); }
+    const CMapArea* GetMapArea(TAreaId aid) const { return x0_areas[aid].GetMapArea(); }
     void IsMapAreaInBFSInfoVector(const CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
     void SetWhichMapAreasLoaded(const IWorld&, int start, int count);
     bool IsMapAreasStreaming() const;
     void MoveMapAreaToList(CMapAreaData*, EMapAreaList);
-    void GetCurrentMapAreaDepth(const IWorld&, int) const;
+    s32 GetCurrentMapAreaDepth(const IWorld&, TAreaId) const;
     void GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
     void Draw(const CMapWorldDrawParms&, int, int, float, float, bool) const;
-    void DoBFS(const IWorld&, int, int, float, float, bool, std::vector<CMapAreaBFSInfo>&) const;
+    void DoBFS(const IWorld&, TAreaId, int, float, float, bool, std::vector<CMapAreaBFSInfo>&) const;
     bool IsMapAreaValid(const IWorld&, int, bool) const;
     void DrawAreas(const CMapWorldDrawParms&, int, const std::vector<CMapAreaBFSInfo>&, bool) const;
     void RecalculateWorldSphere(const CMapWorldInfo&, const IWorld&) const;
-    void ConstrainToWorldVolume(const zeus::CVector3f&, const zeus::CVector3f&) const;
+    zeus::CVector3f ConstrainToWorldVolume(const zeus::CVector3f&, const zeus::CVector3f&) const;
     void ClearTraversedFlags() const;
 };
 

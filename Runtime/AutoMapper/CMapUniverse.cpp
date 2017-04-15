@@ -21,11 +21,11 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
 {
     x14_transform.read34RowMajor(in);
     u32 worldCount = in.readUint32Big();
-    x44_areaData.reserve(worldCount);
+    x44_hexagonXfs.reserve(worldCount);
     for (u32 i = 0 ; i<worldCount ; ++i)
     {
-        x44_areaData.emplace_back();
-        x44_areaData.back().read34RowMajor(in);
+        x44_hexagonXfs.emplace_back();
+        x44_hexagonXfs.back().read34RowMajor(in);
     }
 
     if (version != 0)
@@ -37,10 +37,10 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
     x5c_ = zeus::CColor::lerp(zeus::CColor::skBlack, x54_, 0.5f);
     x60_ = zeus::CColor::lerp(zeus::CColor::skWhite, x5c_, 0.5f);
 
-    for (const zeus::CTransform& xf : x44_areaData)
-        x64_ += xf.origin;
+    for (const zeus::CTransform& xf : x44_hexagonXfs)
+        x64_centerPoint += xf.origin;
 
-    x64_ *= 1.0f / float(x44_areaData.size());
+    x64_centerPoint *= 1.0f / float(x44_hexagonXfs.size());
 }
 
 CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&,

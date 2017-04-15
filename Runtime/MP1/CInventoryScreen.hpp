@@ -35,6 +35,7 @@ class CInventoryScreen
 
 public:
     CInventoryScreen(u32 w1, const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
+    void ProcessControllerInput(const CStateManager& mgr, const CFinalInput& input);
 };
 
 }

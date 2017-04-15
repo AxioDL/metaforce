@@ -313,10 +313,57 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
     EnsureStates(stateMgr);
 }
 
+bool CInGameGuiManager::IsInGameStateNotTransitioning() const
+{
+    return (x1bc_prevState >= EInGameGuiState::Zero && x1bc_prevState <= EInGameGuiState::InGame &&
+            x1c0_nextState >= EInGameGuiState::Zero && x1c0_nextState <= EInGameGuiState::InGame);
+}
+
+bool CInGameGuiManager::IsInPausedStateNotTransitioning() const
+{
+    return (x1bc_prevState >= EInGameGuiState::MapScreen && x1bc_prevState <= EInGameGuiState::PauseHUDMessage &&
+            x1c0_nextState >= EInGameGuiState::MapScreen && x1c0_nextState <= EInGameGuiState::PauseHUDMessage);
+}
+
 void CInGameGuiManager::ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input,
                                                CArchitectureQueue& archQueue)
 {
-
+    if (input.ControllerIdx() == 0)
+    {
+        if (!IsInGameStateNotTransitioning())
+        {
+            if (IsInPausedStateNotTransitioning())
+            {
+                if (x1bc_prevState == EInGameGuiState::MapScreen)
+                {
+                    if (x38_autoMapper->IsInMapperState(CAutoMapper::EAutoMapperState::MapScreen) ||
+                        x38_autoMapper->IsInMapperState(CAutoMapper::EAutoMapperState::MapScreenUniverse))
+                    {
+                        x38_autoMapper->ProcessControllerInput(input, stateMgr);
+                        if (x38_autoMapper->CanLeaveMapScreen(stateMgr))
+                            BeginStateTransition(EInGameGuiState::InGame, stateMgr);
+                    }
+                    return;
+                }
+                if (x1bc_prevState == EInGameGuiState::PauseSaveGame)
+                {
+                    x4c_saveUI->ProcessUserInput(input);
+                    return;
+                }
+                if (x1bc_prevState == EInGameGuiState::PauseHUDMessage)
+                {
+                    x44_messageScreen->ProcessControllerInput(input);
+                    return;
+                }
+                if (x48_inventoryScreen)
+                    x48_inventoryScreen->ProcessControllerInput(stateMgr, input);
+            }
+        }
+        else
+        {
+            x34_samusHud->ProcessControllerInput(input);
+        }
+    }
 }
 
 void CInGameGuiManager::PreDraw(CStateManager& stateMgr)

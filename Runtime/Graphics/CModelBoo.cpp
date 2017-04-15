@@ -57,7 +57,7 @@ static const zeus::CMatrix4f ReflectBaseMtx =
 };
 
 void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
-                                         zeus::CMatrix4f*& mtxsOut, float& alphaOut)
+                                         zeus::CMatrix4f* mtxsOut, float& alphaOut)
 {
     zeus::CVector3f modelToPlayer = g_PlayerPosition - CGraphics::g_GXModelMatrix.origin;
     zeus::CVector3f modelToPlayerLocal = CGraphics::g_GXModelMatrix.transposeRotate(modelToPlayer);

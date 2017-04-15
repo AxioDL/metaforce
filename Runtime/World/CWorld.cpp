@@ -515,7 +515,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
     if (!toStreamCount && otherLoadArea && !x70_25_paused)
         otherLoadArea->StartStreamIn(mgr);
 
-    GetMapWorld()->SetWhichMapAreasLoaded(*this, aid, 3);
+    x28_mapWorld->SetWhichMapAreasLoaded(*this, aid, 3);
 }
 
 void CWorld::SetPauseState(bool paused)

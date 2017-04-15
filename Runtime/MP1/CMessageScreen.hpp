@@ -5,6 +5,8 @@
 
 namespace urde
 {
+class CFinalInput;
+
 namespace MP1
 {
 
@@ -12,6 +14,7 @@ class CMessageScreen
 {
 public:
     CMessageScreen(ResId msg, float time);
+    void ProcessControllerInput(const CFinalInput& input);
 };
 
 }

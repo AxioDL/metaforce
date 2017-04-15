@@ -22,7 +22,7 @@ class CResLoader
     u32 x4c_cachedResId = -1;
     const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
 public:
-    const std::vector<u32>* GetTagListForFile(const std::string& name) const;
+    const std::vector<ResId>* GetTagListForFile(const std::string& name) const;
     void AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak);
     void AddPakFile(const std::string& name, bool samusPak, bool worldPak);
     CInputStream* LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf);

@@ -261,6 +261,16 @@ bool CMain::LoadAudio()
     return true;
 }
 
+void CMain::EnsureWorldPaksReady()
+{
+
+}
+
+void CMain::EnsureWorldPakReady(ResId mlvl)
+{
+    /* TODO: Schedule resource list load for World Pak containing mlvl */
+}
+
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 {
     bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();

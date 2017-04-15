@@ -10,5 +10,10 @@ CMessageScreen::CMessageScreen(ResId msg, float time)
 
 }
 
+void CMessageScreen::ProcessControllerInput(const CFinalInput& input)
+{
+
+}
+
 }
 }

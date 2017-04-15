@@ -119,6 +119,8 @@ class CInGameGuiManager
     void DoStateTransition(CStateManager& stateMgr);
     void DestroyAreaTextures(CStateManager& stateMgr);
     void TryReloadAreaTextures();
+    bool IsInGameStateNotTransitioning() const;
+    bool IsInPausedStateNotTransitioning() const;
 
 public:
     CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue& archQueue);

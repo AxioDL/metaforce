@@ -93,8 +93,6 @@ class CGameState
         u8 _dummy = 0;
     };
 
-    static void EnsureWorldPakReady(ResId mlvl);
-
 public:
     CGameState();
     CGameState(CBitStreamReader& stream, u32 saveIdx);

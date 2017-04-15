@@ -205,6 +205,19 @@ void CSfxManager::SetChannel(ESfxChannels chan)
     m_currentChannel = chan;
 }
 
+void CSfxManager::KillAll(ESfxChannels chan)
+{
+    CSfxChannel& chanObj = m_channels[int(chan)];
+    for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
+    {
+        const CSfxHandle& handle = *it;
+        if (handle->IsPlaying())
+            handle->Stop();
+        handle->Release();
+        it = chanObj.x48_handles.erase(it);
+    }
+}
+
 void CSfxManager::TurnOnChannel(ESfxChannels chan)
 {
     CSfxChannel& chanObj = m_channels[int(chan)];

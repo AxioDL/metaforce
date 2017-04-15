@@ -181,7 +181,7 @@ public:
     static zeus::CVector3f g_ReflectViewPos;
     static void KillCachedViewDepState();
     static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
-                                         zeus::CMatrix4f*& mtxsOut, float& alphaOut);
+                                         zeus::CMatrix4f* mtxsOut, float& alphaOut);
 };
 
 class CModel

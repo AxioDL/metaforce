@@ -5,6 +5,7 @@
 #include "CMemoryCardSys.hpp"
 #include "CSimplePool.hpp"
 #include "CSaveWorld.hpp"
+#include "MP1/MP1.hpp"
 
 namespace urde
 {
@@ -164,7 +165,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
     x228_24_hardMode = stream.ReadEncoded(1);
     x228_25_deferPowerupInit = stream.ReadEncoded(1);
     x84_mlvlId = g_ResFactory->TranslateOriginalToNew(stream.ReadEncoded(32));
-    EnsureWorldPakReady(x84_mlvlId);
+    MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 
     BitsToDouble conv;
     conv.low = stream.ReadEncoded(32);
@@ -256,16 +257,11 @@ void CGameState::PutTo(CBitStreamWriter& writer) const
     }
 }
 
-void CGameState::EnsureWorldPakReady(ResId mlvl)
-{
-    /* TODO: Schedule resource list load for World Pak containing mlvl */
-}
-
 void CGameState::SetCurrentWorldId(ResId id)
 {
     StateForWorld(id);
     x84_mlvlId = id;
-    EnsureWorldPakReady(x84_mlvlId);
+    MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 }
 
 void CGameState::SetTotalPlayTime(float time)

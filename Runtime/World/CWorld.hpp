@@ -169,7 +169,7 @@ public:
     bool DoesAreaExist(TAreaId area) const;
     std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() {return x18_areas;}
 
-    CMapWorld* GetMapWorld() {return x28_mapWorld.GetObj();}
+    const CMapWorld* GetMapWorld() const { return x28_mapWorld.GetObj(); }
     u32 GetRelayCount() const { return x2c_relays.size(); }
     CRelay GetRelay(u32 idx) const { return x2c_relays[idx]; }
 

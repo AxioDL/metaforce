@@ -248,6 +248,7 @@ public:
     void Update(float dt, const CStateManager& mgr,
                 DataSpec::ITweakGui::EHelmetVisMode helmetVis,
                 bool hudVis, bool targetingManager);
+    void ProcessControllerInput(const CFinalInput& input);
     void UpdateStateTransition(float time, const CStateManager& mgr);
     bool CheckLoadComplete(CStateManager& stateMgr);
     void OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr);

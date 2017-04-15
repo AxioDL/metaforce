@@ -290,6 +290,8 @@ public:
     bool GetCardBusy() const { return x160_31_cardBusy; }
     void SetCardBusy(bool v) { x160_31_cardBusy = v; }
     void SetGameFrameDrawn() { x161_24_gameFrameDrawn = true; }
+    static void EnsureWorldPaksReady();
+    static void EnsureWorldPakReady(ResId mlvl);
 
     EFlowState GetFlowState() const { return x12c_flowState; }
     void SetFlowState(EFlowState s) { x12c_flowState = s; }
