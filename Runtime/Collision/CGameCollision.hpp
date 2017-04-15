@@ -39,14 +39,22 @@ public:
     void SendMaterialMessage(CStateManager&, const CMaterialList&, CActor&);
     static CRayCastResult RayStaticIntersection(const CStateManager& mgr, const zeus::CVector3f& pos,
                                                 const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter);
+    static bool RayStaticIntersectionBool(const CStateManager& mgr, const zeus::CVector3f& start,
+                                          const zeus::CVector3f& dir, float length,
+                                          const CMaterialFilter& filter);
     static CRayCastResult RayDynamicIntersection(const CStateManager& mgr, TUniqueId& idOut, const zeus::CVector3f& pos,
                                                  const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
                                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList);
+    static bool RayDynamicIntersectionBool(const CStateManager& mgr,
+                                           const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                           const CMaterialFilter& filter,
+                                           const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                           const CActor* damagee, float length);
     static CRayCastResult RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut, const zeus::CVector3f& pos,
                                                const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
                                                const rstl::reserved_vector<TUniqueId, 1024>& nearList);
-    static bool TestLightRayIntersection(const CGameArea& area, const zeus::CVector3f& pos,
-                                         const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter);
+    static bool RayStaticIntersectionArea(const CGameArea& area, const zeus::CVector3f& pos,
+                                          const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter);
 };
 }
 

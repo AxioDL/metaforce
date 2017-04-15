@@ -336,11 +336,6 @@ public:
                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                  const CActor* damagee);
     bool MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter);
-    bool RayCollideStatic(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
-                          const CMaterialFilter& filter);
-    bool RayCollideDynamic(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
-                          const CMaterialFilter& filter, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                          const CActor* damagee, float length);
     void TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee);
     bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);

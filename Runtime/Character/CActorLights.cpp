@@ -390,7 +390,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
                 {
                     /* Note brightest light contact */
                     delta = delta * 1.f / deltaMag;
-                    actorToLightContact = CGameCollision::TestLightRayIntersection(area, vec, delta, deltaMag, filter);
+                    actorToLightContact = CGameCollision::RayStaticIntersectionArea(area, vec, delta, deltaMag, filter);
                     if (i == 0)
                     {
                         x299_24_inBrightLight = actorToLightContact;

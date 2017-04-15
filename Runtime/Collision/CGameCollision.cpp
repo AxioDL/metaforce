@@ -113,6 +113,24 @@ CGameCollision::RayStaticIntersection(const CStateManager& mgr, const zeus::CVec
     return ret;
 }
 
+bool CGameCollision::RayStaticIntersectionBool(const CStateManager& mgr, const zeus::CVector3f& start,
+                                               const zeus::CVector3f& dir, float length,
+                                               const CMaterialFilter& filter)
+{
+    if (length <= 0.f)
+        length = 100000.f;
+    zeus::CLine line(start, dir);
+    for (const CGameArea& area : *mgr.GetWorld())
+    {
+        const CAreaOctTree& collision = *area.GetPostConstructed()->x0_collision;
+        CAreaOctTree::Node root = collision.GetRootNode();
+        if (!root.LineTest(line, filter, length))
+            return false;
+    }
+
+    return true;
+}
+
 CRayCastResult
 CGameCollision::RayDynamicIntersection(const CStateManager& mgr, TUniqueId& idOut, const zeus::CVector3f& pos,
                                        const zeus::CVector3f& dir, float length, const CMaterialFilter& filter,
@@ -143,6 +161,33 @@ CGameCollision::RayDynamicIntersection(const CStateManager& mgr, TUniqueId& idOu
     return ret;
 }
 
+bool CGameCollision::RayDynamicIntersectionBool(const CStateManager& mgr,
+                                                const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                                const CMaterialFilter& filter,
+                                                const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                                const CActor* damagee, float length)
+{
+    if (length <= 0.f)
+        length = 100000.f;
+
+    for (TUniqueId id : nearList)
+    {
+        const CEntity* ent = mgr.GetObjectById(id);
+        if (TCastToConstPtr<CPhysicsActor> physActor = ent)
+        {
+            if (damagee && physActor->GetUniqueId() == damagee->GetUniqueId())
+                continue;
+            zeus::CTransform xf = physActor->GetPrimitiveTransform();
+            const CCollisionPrimitive* prim = physActor->GetCollisionPrimitive();
+            CRayCastResult res = prim->CastRay(pos, dir, length, filter, xf);
+            if (!res.IsInvalid())
+                return false;
+        }
+    }
+
+    return true;
+}
+
 CRayCastResult
 CGameCollision::RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut, const zeus::CVector3f& pos,
                                      const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
@@ -159,8 +204,8 @@ CGameCollision::RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut,
         return staticRes;
 }
 
-bool CGameCollision::TestLightRayIntersection(const CGameArea& area, const zeus::CVector3f& pos,
-                                              const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter)
+bool CGameCollision::RayStaticIntersectionArea(const CGameArea& area, const zeus::CVector3f& pos,
+                                               const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter)
 {
     if (mag <= 0.f)
         mag = 100000.f;

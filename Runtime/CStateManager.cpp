@@ -1498,7 +1498,7 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
     if (count == 0 || count == 1)
         return true;
 
-    return RayCollideDynamic(pos, dir, filter, nearList, &damagee, depth * origMag);
+    return CGameCollision::RayDynamicIntersectionBool(*this, pos, dir, filter, nearList, &damagee, depth * origMag);
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
@@ -1519,9 +1519,9 @@ bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& pos, const ze
 
     float mag = vecToDamagee.magnitude();
     zeus::CVector3f dir = vecToDamagee * (1.f / mag);
-    if (!RayCollideStatic(pos, dir, mag, filter))
+    if (!CGameCollision::RayStaticIntersectionBool(*this, pos, dir, mag, filter))
         return false;
-    return RayCollideDynamic(pos, dir, filter, nearList, damagee, mag);
+    return CGameCollision::RayDynamicIntersectionBool(*this, pos, dir, filter, nearList, damagee, mag);
 }
 
 bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter)
@@ -1543,54 +1543,12 @@ bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterial
     {
         zeus::CVector3f& useCrossed = (i & 2) ? negCrossed2 : crossed2;
         zeus::CVector3f& useRms = (i & 1) ? rms : negRms;
-        if (RayCollideStatic(ray.start + useCrossed + useRms, ray.dir, ray.length, filter))
+        if (CGameCollision::RayStaticIntersectionBool(*this, ray.start + useCrossed + useRms,
+                                                      ray.dir, ray.length, filter))
             return true;
     }
 
     return false;
-}
-
-bool CStateManager::RayCollideStatic(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
-                                     const CMaterialFilter& filter)
-{
-    if (length <= 0.f)
-        length = 100000.f;
-    zeus::CLine line(start, dir);
-    for (const CGameArea& area : *x850_world)
-    {
-        const CAreaOctTree& collision = *area.GetPostConstructed()->x0_collision;
-        CAreaOctTree::Node root = collision.GetRootNode();
-        if (!root.LineTest(line, filter, length))
-            return false;
-    }
-
-    return true;
-}
-
-bool CStateManager::RayCollideDynamic(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
-                                      const CMaterialFilter& filter,
-                                      const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                      const CActor* damagee, float length)
-{
-    if (length <= 0.f)
-        length = 100000.f;
-
-    for (TUniqueId id : nearList)
-    {
-        CEntity* ent = ObjectById(id);
-        if (TCastToPtr<CPhysicsActor> physActor = ent)
-        {
-            if (damagee && physActor->GetUniqueId() == damagee->GetUniqueId())
-                continue;
-            zeus::CTransform xf = physActor->GetPrimitiveTransform();
-            const CCollisionPrimitive* prim = physActor->GetCollisionPrimitive();
-            CRayCastResult res = prim->CastRay(pos, dir, length, filter, xf);
-            if (!res.IsInvalid())
-                return false;
-        }
-    }
-
-    return true;
 }
 
 void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee)
