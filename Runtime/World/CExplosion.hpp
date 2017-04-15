@@ -3,6 +3,7 @@
 
 #include "CEffect.hpp"
 #include "Particle/CElementGen.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

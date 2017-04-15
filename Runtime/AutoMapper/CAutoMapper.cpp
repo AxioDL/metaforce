@@ -29,7 +29,7 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
     else
         easeInOut = zeus::clamp(0.f, 1.f - (0.5f * std::sqrt(2.f * omt - 1.f) + 0.5f), 1.f);
 
-    float eases[] = {};
+    float eases[5] = {};
     eases[1] = t;
     eases[2] = easeOut;
     eases[3] = easeIn;
@@ -766,7 +766,7 @@ zeus::CVector2i CAutoMapper::GetMiniMapViewportSize()
 
 zeus::CVector2i CAutoMapper::GetMapScreenViewportSize()
 {
-    return {g_Viewport.x8_width, g_Viewport.xc_height};
+    return {int(g_Viewport.x8_width), int(g_Viewport.xc_height)};
 }
 
 float CAutoMapper::GetMapAreaMaxDrawDepth(const CStateManager&, TAreaId aid) const

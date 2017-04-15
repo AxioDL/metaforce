@@ -105,7 +105,7 @@ set(WORLD_SOURCES
     CPatternedInfo.hpp CPatternedInfo.cpp
     CHealthInfo.hpp CHealthInfo.cpp
     CPatterned.hpp CPatterned.cpp
-    CHUDMemoParms.hpp CHUDMemoParms.cpp
+    CHUDMemoParms.hpp
     CWorldShadow.hpp CWorldShadow.cpp
     CProjectedShadow.hpp CProjectedShadow.cpp
     CGameLight.hpp CGameLight.cpp

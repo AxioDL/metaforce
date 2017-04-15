@@ -17,7 +17,7 @@ CENTITY_TYPES = (
     ('CDestroyableRock', 'World/CDestroyableRock.hpp'),
     ('CEnergyProjectile', 'Weapon/CEnergyProjectile.hpp'),
     ('CEntity', 'World/CEntity.hpp'),
-    ('CExplosion', 'Weapon/CExplosion.hpp'),
+    ('CExplosion', 'World/CExplosion.hpp'),
     ('CFirstPersonCamera', 'Camera/CFirstPersonCamera.hpp'),
     ('CFishCloud', 'World/CFishCloud.hpp'),
     ('CGameCamera', 'Camera/CGameCamera.hpp'),

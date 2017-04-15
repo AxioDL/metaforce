@@ -49,7 +49,7 @@ if(APPLE)
 endif()
 
 add_library(RuntimeCommon
-            RetroTypes.hpp RetroTypes.cpp
+            RetroTypes.hpp
             ${CLIENT_SOURCES}
             ${MP1_SOURCES}
             ${AUDIO_SOURCES}
@@ -109,7 +109,7 @@ add_library(RuntimeCommon
             CPlayMovieBase.hpp
             CGameDebug.hpp CGameDebug.cpp
             CGameHintInfo.hpp CGameHintInfo.cpp
-            rstl.hpp rstl.cpp
+            rstl.hpp
             GameGlobalObjects.hpp GameGlobalObjects.cpp
             MkCastTo.py
             TCastTo.hpp TCastTo.cpp
