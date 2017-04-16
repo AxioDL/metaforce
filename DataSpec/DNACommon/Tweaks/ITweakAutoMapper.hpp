@@ -36,6 +36,8 @@ struct ITweakAutoMapper : public ITweak
     virtual float GetMiniMapViewportWidth() const=0;
     virtual float GetMiniMapViewportHeight() const=0;
     virtual float GetMiniMapCamDistScale() const=0;
+    virtual float GetMapPlaneScaleX() const=0;
+    virtual float GetMapPlaneScaleZ() const=0;
     virtual float GetUniverseCamDist() const=0;
     virtual float GetMinUniverseCamDist() const=0;
     virtual float GetMaxUniverseCamDist() const=0;

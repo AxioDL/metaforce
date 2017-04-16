@@ -71,21 +71,57 @@ public:
 
     class CMapWorldDrawParms
     {
+        float x0_alphaSurfVisited;
+        float x4_alphaOlVisited;
+        float x8_alphaSurfUnvisited;
+        float xc_alphaOlUnvisited;
+        float x10_alpha;
+        float x14_outlineWidthScale;
+        const CStateManager& x18_mgr;
+        const zeus::CTransform& x1c_modelXf;
+        const zeus::CTransform& x20_viewXf;
+        const IWorld& x24_wld;
+        const CMapWorldInfo& x28_mwInfo;
+        float x2c_flashPulse;
+        float x30_flashIntensity;
+        float x34_objectScale;
+        bool x38_sortDoorSurfs;
     public:
-        CMapWorldDrawParms(float, float, float, float, float, const CStateManager&, const zeus::CTransform&,
-                           const zeus::CTransform&, const IWorld&, const CMapWorldInfo&, float, bool);
-        void GetWorld() const;
-        float GetOutlineWidthScale() const;
-        void GetPlaneProjectionTransform() const;
-        void GetPlayerAreaFlashIntensity() const;
-        void GetCameraTransform() const;
-        void GetAlphaOutlineUnvisited() const;
-        void GetAlphaSurfaceUnvisited() const;
-        void GetAlphaOutlineVisited() const;
-        void GetAlphaSurfaceVisited() const;
-        void GetMapWorldInfo() const;
-        void GetStateManager() const;
-        bool GetIsSortDoorSurfaces() const;
+        CMapWorldDrawParms(float alphaSurfVisited, float alphaOlVisited,
+                           float alphaSurfUnvisited, float alphaOlUnvisited,
+                           float alpha, float outlineWidthScale, const CStateManager& mgr,
+                           const zeus::CTransform& modelXf, const zeus::CTransform& viewXf,
+                           const IWorld& wld, const CMapWorldInfo& mwInfo, float flashPulse,
+                           float flashIntensity, float objectScale, bool sortDoorSurfs)
+        : x0_alphaSurfVisited(alphaSurfVisited),
+          x4_alphaOlVisited(alphaOlVisited),
+          x8_alphaSurfUnvisited(alphaSurfUnvisited),
+          xc_alphaOlUnvisited(alphaOlUnvisited),
+          x10_alpha(alpha),
+          x14_outlineWidthScale(outlineWidthScale),
+          x18_mgr(mgr),
+          x1c_modelXf(modelXf),
+          x20_viewXf(viewXf),
+          x24_wld(wld),
+          x28_mwInfo(mwInfo),
+          x2c_flashPulse(flashPulse),
+          x30_flashIntensity(flashIntensity),
+          x34_objectScale(objectScale),
+          x38_sortDoorSurfs(sortDoorSurfs)
+        {}
+        const IWorld& GetWorld() const { return x24_wld; }
+        float GetOutlineWidthScale() const { return x14_outlineWidthScale; }
+        const zeus::CTransform& GetPlaneProjectionTransform() const { return x1c_modelXf; }
+        float GetPlayerAreaFlashIntensity() const { return x30_flashIntensity; }
+        float GetPlayerAreaFlashPulse() const { return x2c_flashPulse; }
+        const zeus::CTransform& GetCameraTransform() const { return x20_viewXf; }
+        float GetAlphaOutlineUnvisited() const { return xc_alphaOlUnvisited; }
+        float GetAlphaSurfaceUnvisited() const { return x8_alphaSurfUnvisited; }
+        float GetAlphaOutlineVisited() const { return x4_alphaOlVisited; }
+        float GetAlphaSurfaceVisited() const { return x0_alphaSurfVisited; }
+        const CMapWorldInfo& GetMapWorldInfo() const { return x28_mwInfo; }
+        const CStateManager& GetStateManager() const { return x18_mgr; }
+        bool GetIsSortDoorSurfaces() const { return x38_sortDoorSurfs; }
     };
 
 private:

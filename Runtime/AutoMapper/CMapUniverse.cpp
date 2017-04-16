@@ -43,6 +43,11 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
     x64_centerPoint *= 1.0f / float(x44_hexagonXfs.size());
 }
 
+void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3f&, float, float) const
+{
+
+}
+
 CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
                                      CObjectReference*)
 {

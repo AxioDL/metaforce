@@ -176,8 +176,8 @@ private:
     ResId x74_areaHintDescId = -1;
     TLockedToken<CStringTable> x78_areaHintDesc;
     u32 x84_ = 0;
-    ResId x88_ = -1;
-    u32 x98_ = 0;
+    ResId x88_mapAreaStringId = -1;
+    TLockedToken<CStringTable> x8c_mapAreaString; // Used to be optional
     u32 x9c_worldIdx = 0;
     TAreaId xa0_curAreaId;
     TAreaId xa4_otherAreaId;
@@ -189,8 +189,8 @@ private:
     CSfxHandle x1cc_panningSfx;
     CSfxHandle x1d0_rotatingSfx;
     CSfxHandle x1d4_zoomingSfx;
-    float x1d8_ = 0.f;
-    float x1dc_ = 0.f;
+    float x1d8_flashTimer = 0.f;
+    float x1dc_flashPulse = 0.f;
     std::list<SAutoMapperHintStep> x1e0_hintSteps;
     std::list<SAutoMapperHintLocation> x1f8_hintLocations;
     rstl::reserved_vector<TLockedToken<CTexture>, 9> x210_lstick;
@@ -256,6 +256,7 @@ private:
     void TransformRenderStatesUniverseToWorld();
     void TransformRenderStateWorldToUniverse(SAutoMapperRenderState&);
     void SetupHintNavigation();
+    ResId GetAreaHintDescriptionString(ResId mreaId);
 
 public:
     CAutoMapper(CStateManager& stateMgr);

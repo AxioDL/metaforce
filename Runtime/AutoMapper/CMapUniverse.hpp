@@ -17,13 +17,31 @@ class CMapUniverse
 public:
     class CMapUniverseDrawParms
     {
+        float x0_alpha;
+        int x4_wldIdx;
+        ResId x8_wldRes;
+        int xc_closestHex;
+        float x10_flashPulse;
+        const CStateManager& x14_mgr;
+        const zeus::CTransform& x18_model;
+        const zeus::CTransform& x1c_view;
     public:
-        CMapUniverseDrawParms(float, int, const CStateManager&,
-                              const zeus::CTransform&, const zeus::CTransform&);
-        s32 GetFocusWorldIndex() const;
-        zeus::CTransform GetCameraTransform() const;
-        zeus::CTransform GetPaneProjectionTransform() const;
-        float GetAlpha() const;
+        CMapUniverseDrawParms(float alpha, int wldIdx, ResId wldRes, int closestHex,
+                              float flashPulse, const CStateManager& mgr,
+                              const zeus::CTransform& model, const zeus::CTransform& view)
+        : x0_alpha(alpha),
+          x4_wldIdx(wldIdx),
+          x8_wldRes(wldRes),
+          xc_closestHex(closestHex),
+          x10_flashPulse(flashPulse),
+          x14_mgr(mgr),
+          x18_model(model),
+          x1c_view(view)
+        {}
+        int GetFocusWorldIndex() const { return x4_wldIdx; }
+        const zeus::CTransform& GetCameraTransform() const { return x1c_view; }
+        const zeus::CTransform& GetPaneProjectionTransform() const { return x18_model; }
+        float GetAlpha() const { return x0_alpha; }
     };
 
     class CMapObjectSortInfo

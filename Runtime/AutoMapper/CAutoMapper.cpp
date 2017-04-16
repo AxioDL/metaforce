@@ -87,7 +87,7 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
 }
 
 CAutoMapper::CAutoMapper(CStateManager& stateMgr)
-: x24_world(stateMgr.WorldNC())
+: x24_world(stateMgr.GetWorld())
 {
     x8_mapu = g_SimplePool->GetObj("MAPU_MapUniverse");
     x30_miniMapSamus = g_SimplePool->GetObj("CMDL_MiniMapSamus");
@@ -1180,8 +1180,8 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
 {
     if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
     {
-        x1d8_ = std::fmod(x1d8_ + dt, 0.75f);
-        x1dc_ = x1d8_ < 0.375f ? x1d8_ / 0.375f : (0.75f - x1d8_) / 0.375f;
+        x1d8_flashTimer = std::fmod(x1d8_flashTimer + dt, 0.75f);
+        x1dc_flashPulse = x1d8_flashTimer < 0.375f ? x1d8_flashTimer / 0.375f : (0.75f - x1d8_flashTimer) / 0.375f;
     }
 
     if (!m_frmeInitialized && x28_frmeMapScreen.IsLoaded())
@@ -1336,17 +1336,239 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         CompleteMapperStateTransition(mgr);
     }
 
+    ResId stringId = x88_mapAreaStringId;
     if (IsInMapperState(EAutoMapperState::MapScreenUniverse))
     {
-        if (IWorld* wld = x14_dummyWorlds[x9c_worldIdx].get())
+        IWorld* wld = x14_dummyWorlds[x9c_worldIdx].get();
+        if (wld && wld->ICheckWorldComplete())
+            stringId = wld->IGetStringTableAssetId();
+        else if (x24_world)
+            stringId = x24_world->IGetStringTableAssetId();
+    }
+    else if (x24_world)
+    {
+        const IGameArea* area = x24_world->IGetAreaAlways(xa0_curAreaId);
+        const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
+        if (mwInfo.IsMapped(xa0_curAreaId) || mwInfo.IsAreaVisted(xa0_curAreaId))
+            stringId = area->IGetStringTableAssetId();
+        else
+            stringId = -1;
+    }
+
+    if (x88_mapAreaStringId != stringId)
+    {
+        x88_mapAreaStringId = stringId;
+        if (x88_mapAreaStringId != -1)
+            x8c_mapAreaString = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), x88_mapAreaStringId});
+        else
+            x8c_mapAreaString = TLockedToken<CStringTable>();
+    }
+
+    if (x2f8_textpane_areaname)
+    {
+        if (x8c_mapAreaString)
         {
-            /* TODO: Finish */
+            if (x8c_mapAreaString.IsLoaded())
+                x2f8_textpane_areaname->TextSupport()->SetText(x8c_mapAreaString->GetString(0));
         }
+        else
+        {
+            x2f8_textpane_areaname->TextSupport()->SetText(u"");
+        }
+    }
+
+    if (IsInMapperState(EAutoMapperState::MapScreen))
+    {
+        ResId hintDesc = GetAreaHintDescriptionString(x24_world->IGetAreaAlways(xa0_curAreaId)->IGetAreaAssetId());
+        if (hintDesc != x74_areaHintDescId)
+        {
+            x74_areaHintDescId = hintDesc;
+            if (x74_areaHintDescId != -1)
+                x78_areaHintDesc = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), x74_areaHintDescId});
+            else
+                x78_areaHintDesc = TLockedToken<CStringTable>();
+        }
+    }
+
+    for (auto& wld : x14_dummyWorlds)
+        if (wld)
+           wld->ICheckWorldComplete();
+}
+
+void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) const
+{
+    alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
+    // Blend mode alpha
+    // Backface cull
+    float alphaInterp;
+    if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
+    {
+        alphaInterp = 1.f;
+    }
+    else if (IsInMapperState(EAutoMapperState::MiniMap))
+    {
+        alphaInterp = alpha;
+    }
+    else if (x1c0_nextState == EAutoMapperState::MiniMap)
+    {
+        float t = 0.f;
+        if (x1c4_interpDur > 0.f)
+            t = x1c8_interpTime / x1c4_interpDur;
+        alphaInterp = alpha * t + (1.f - t);
+    }
+    else if (x1bc_state == EAutoMapperState::MiniMap)
+    {
+        float t = 0.f;
+        if (x1c4_interpDur > 0.f)
+            t = x1c8_interpTime / x1c4_interpDur;
+        alphaInterp = alpha * (1.f - t) + t;
     }
     else
     {
-
+        alphaInterp = 1.f;
     }
+
+    float aspect = xa8_renderStates[0].x0_viewportSize.x / float(xa8_renderStates[0].x0_viewportSize.y);
+    float yScale = xa8_renderStates[0].x18_camDist /
+        std::tan(M_PIF / 2.f - 0.5f * 2.f * M_PIF * (xa8_renderStates[0].x1c_camAngle / 360.f));
+    float xScale = yScale * aspect;
+    zeus::CTransform camXf(xa8_renderStates[0].x8_camOrientation, xa8_renderStates[0].x20_areaPoint);
+    zeus::CTransform distScale = zeus::CTransform::Scale(1.f / xScale, 0.001f, 1.f / yScale);
+    zeus::CTransform tweakScale = zeus::CTransform::Scale(g_tweakAutoMapper->GetMapPlaneScaleX(), 0.f,
+                                                          g_tweakAutoMapper->GetMapPlaneScaleZ());
+    zeus::CTransform planeXf = xf * tweakScale * distScale * camXf.inverse();
+
+    float universeInterp = 0.f;
+    if (x1c0_nextState == EAutoMapperState::MapScreenUniverse)
+    {
+        if (x1bc_state == EAutoMapperState::MapScreenUniverse)
+        {
+            universeInterp = 1.f;
+        }
+        else
+        {
+            if (x1c4_interpDur > 0.f)
+                universeInterp = x1c8_interpTime / x1c4_interpDur;
+            else
+                universeInterp = 0.f;
+        }
+    }
+    else if (x1bc_state == EAutoMapperState::MapScreenUniverse)
+    {
+        if (x1c4_interpDur > 0.f)
+            universeInterp = x1c8_interpTime / x1c4_interpDur;
+        else
+            universeInterp = 0.f;
+        universeInterp = 1.f - universeInterp;
+    }
+
+    zeus::CTransform preXf;
+    if (x1bc_state == EAutoMapperState::MapScreenUniverse || x1c0_nextState == EAutoMapperState::MapScreenUniverse)
+        preXf = x8_mapu->GetMapWorldData(x9c_worldIdx).GetWorldTransform();
+
+    float objectScale = xa8_renderStates[0].x18_camDist / g_tweakAutoMapper->GetMinCamDist();
+    float mapAlpha = alphaInterp * (1.f - universeInterp);
+
+    if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
+    {
+        if (universeInterp < 1.f && x24_world)
+        {
+            const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
+            const CMapWorld* mw = x24_world->IGetMapWorld();
+            float flashIntensity = 0.f;
+            if (x1e0_hintSteps.size() && x1e0_hintSteps.front().x0_type == SAutoMapperHintStep::Type::ShowBeacon)
+            {
+                if (xa0_curAreaId == mgr.GetNextAreaId() && x24_world == mgr.GetWorld())
+                {
+                    float pulseTime = std::fmod(x1e0_hintSteps.front().x4_float * 8.f, 1.f);
+                    flashIntensity = 2.f * (pulseTime < 0.5f ? pulseTime : 1.f - pulseTime);
+                }
+                else
+                {
+                    for (const SAutoMapperHintLocation& loc : x1f8_hintLocations)
+                    {
+                        if (x24_world->IGetWorldAssetId() != loc.x8_worldId)
+                            continue;
+                        if (xa0_curAreaId != loc.xc_areaId)
+                            continue;
+                        float pulseTime = std::fmod((1.f - std::max(0.f, (x1e0_hintSteps.front().x4_float - 0.5f) / 0.5f)) * 4.f, 1.f);
+                        flashIntensity = 2.f * (pulseTime < 0.5f ? pulseTime : 1.f - pulseTime);
+                        break;
+                    }
+                }
+            }
+            CMapWorld::CMapWorldDrawParms parms(
+                xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+                xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+                xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+                xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp,
+                mapAlpha, 2.f, mgr, planeXf * preXf, camXf, *x24_world,
+                mwInfo, x1dc_flashPulse, flashIntensity, objectScale, true);
+            mw->Draw(parms, xa0_curAreaId, xa0_curAreaId,
+                     xa8_renderStates[0].x2c_drawDepth1,
+                     xa8_renderStates[0].x30_drawDepth2, true);
+        }
+    }
+    else if (IsInMapperState(EAutoMapperState::MiniMap))
+    {
+        const CMapWorld* mw = x24_world->IGetMapWorld();
+        const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
+        CMapWorld::CMapWorldDrawParms parms(
+            xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+            xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+            xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+            xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp,
+            mapAlpha, 1.f, mgr, planeXf, camXf, *x24_world,
+            mwInfo, 0.f, 0.f, objectScale, false);
+        mw->Draw(parms, xa0_curAreaId, xa4_otherAreaId,
+                 xa8_renderStates[0].x2c_drawDepth1,
+                 xa8_renderStates[0].x30_drawDepth2, false);
+    }
+    else
+    {
+        const CMapWorld* mw = x24_world->IGetMapWorld();
+        const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
+        CMapWorld::CMapWorldDrawParms parms(
+            xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
+            xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
+            xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
+            xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp,
+            mapAlpha, 2.f, mgr, planeXf * preXf, camXf, *x24_world,
+            mwInfo, 0.f, 0.f, objectScale, true);
+        mw->Draw(parms, xa0_curAreaId, xa0_curAreaId,
+                 xa8_renderStates[0].x2c_drawDepth1,
+                 xa8_renderStates[0].x30_drawDepth2, false);
+    }
+
+    if (universeInterp > 0.f)
+    {
+        zeus::CTransform areaXf = mgr.GetWorld()->GetMapWorld()->GetMapArea(mgr.GetNextAreaId())->
+            GetAreaPostTransform(*mgr.GetWorld(), mgr.GetNextAreaId());
+        const CMapUniverse::CMapWorldData& mwData =
+            x8_mapu->GetMapWorldDataByWorldId(g_GameState->CurrentWorldAssetId());
+        zeus::CTransform universeAreaXf = mwData.GetWorldTransform() * areaXf;
+        float minMag = FLT_MAX;
+        int hexIdx = -1;
+        for (int i=0 ; i<mwData.GetNumMapAreaDatas() ; ++i)
+        {
+            float mag = (universeAreaXf.origin - mwData.GetMapAreaData(i).origin).magnitude();
+            if (mag < minMag)
+            {
+                hexIdx = i;
+                minMag = mag;
+            }
+        }
+
+        CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(),
+                                                  hexIdx, x1dc_flashPulse, mgr, planeXf, camXf);
+        x8_mapu->Draw(parms, zeus::CVector3f::skZero, 0.f, 0.f);
+    }
+
+    if (!IsInMapperState(EAutoMapperState::MapScreenUniverse))
+    {
+        /* TODO: Finish */
+    }
+
 }
 
 void CAutoMapper::TransformRenderStatesWorldToUniverse()
@@ -1425,6 +1647,31 @@ void CAutoMapper::SetupHintNavigation()
         for (const CGameHintInfo::SHintLocation& loc : hint.GetLocations())
             x1f8_hintLocations.push_back({1, 1.f, loc.x0_mlvlId, loc.x8_areaId});
     }
+}
+
+ResId CAutoMapper::GetAreaHintDescriptionString(ResId mreaId)
+{
+    const CHintOptions& hintOpts = g_GameState->HintOptions();
+    for (int i=0 ; i<hintOpts.GetHintStates().size() ; ++i)
+    {
+        const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
+        if (state.x0_state != CHintOptions::EHintState::Displaying)
+            continue;
+        const CGameHintInfo::CGameHint& memHint = g_MemoryCardSys->GetHints()[i];
+        for (const CGameHintInfo::SHintLocation& loc : memHint.GetLocations())
+        {
+            if (loc.x4_mreaId != mreaId)
+                continue;
+            for (const SAutoMapperHintLocation& hintLoc : x1f8_hintLocations)
+            {
+                if (hintLoc.xc_areaId != loc.x8_areaId)
+                    continue;
+                if (hintLoc.x4_ > 0.f)
+                    return loc.xc_stringId;
+            }
+        }
+    }
+    return -1;
 }
 
 void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr)

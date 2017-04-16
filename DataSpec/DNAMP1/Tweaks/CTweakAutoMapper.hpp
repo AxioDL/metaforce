@@ -60,8 +60,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> xb8_miniMapViewportWidth;
     Value<float> xbc_miniMapViewportHeight;
     Value<float> xc0_miniMapCamDistScale;
-    Value<float> xc4_;
-    Value<float> xc8_;
+    Value<float> xc4_mapPlaneScaleX;
+    Value<float> xc8_mapPlaneScaleZ;
     Value<bool> xcc_;
     Value<float> xd0_universeCamDist;
     Value<float> xd4_minUniverseCamDist;
@@ -111,6 +111,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetMiniMapViewportWidth() const { return xb8_miniMapViewportWidth; }
     float GetMiniMapViewportHeight() const { return xbc_miniMapViewportHeight; }
     float GetMiniMapCamDistScale() const { return xc0_miniMapCamDistScale; }
+    float GetMapPlaneScaleX() const { return xc4_mapPlaneScaleX; }
+    float GetMapPlaneScaleZ() const { return xc8_mapPlaneScaleZ; }
     float GetUniverseCamDist() const { return xd0_universeCamDist; }
     float GetMinUniverseCamDist() const { return xd4_minUniverseCamDist; }
     float GetMaxUniverseCamDist() const { return xd8_maxUniverseCamDist; }
