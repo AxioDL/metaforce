@@ -75,7 +75,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     xd0_27_fusionBeat = stream.ReadEncoded(1);
     xd0_28_fusionSuitActive = stream.ReadEncoded(1);
     xd0_29_allItemsCollected = stream.ReadEncoded(1);
-    xbc_ = stream.ReadEncoded(2);
+    xbc_autoMapperKeyState = stream.ReadEncoded(2);
 
     auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
     size_t cinematicCount = 0;
@@ -121,7 +121,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     w.WriteEncoded(xd0_27_fusionBeat, 1);
     w.WriteEncoded(xd0_28_fusionSuitActive, 1);
     w.WriteEncoded(xd0_29_allItemsCollected, 1);
-    w.WriteEncoded(xbc_, 2);
+    w.WriteEncoded(xbc_autoMapperKeyState, 2);
 
     auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
     for (const auto& world : memWorlds)

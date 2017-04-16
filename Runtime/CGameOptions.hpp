@@ -58,7 +58,7 @@ class CPersistentOptions
     u8 x0_[98] = {};
     bool x68_[64] = {};
     std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
-    u32 xbc_ = 0;
+    u32 xbc_autoMapperKeyState = 0;
     u32 xc0_ = 0;
     u32 xc4_freezeBreakCount = 0;
     u32 xc8_ = 0;
@@ -84,6 +84,8 @@ public:
 
     bool GetCinematicState(ResId mlvlId, TEditorId cineId) const;
     void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
+    u32 GetAutoMapperKeyState() const { return xbc_autoMapperKeyState; }
+    void SetAutoMapperKeyState(u32 s) { xbc_autoMapperKeyState = s; }
     bool GetPlayerLinkedFusion() const { return xd0_24_fusionLinked; }
     void SetPlayerLinkedFusion(bool v) { xd0_24_fusionLinked = v; }
     bool GetPlayerBeatNormalMode() const { return xd0_25_normalModeBeat; }

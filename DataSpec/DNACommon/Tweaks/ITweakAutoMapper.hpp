@@ -7,6 +7,7 @@ namespace DataSpec
 {
 struct ITweakAutoMapper : public ITweak
 {
+    virtual bool GetShowOneMiniMapArea() const=0;
     virtual bool GetScaleMoveSpeedWithCamDist() const=0;
     virtual float GetCamDist() const=0;
     virtual float GetMinCamDist() const=0;
@@ -19,6 +20,7 @@ struct ITweakAutoMapper : public ITweak
     virtual float GetMiniCamAngle() const=0;
     virtual float GetOpenMapScreenTime() const=0;
     virtual float GetCloseMapScreenTime() const=0;
+    virtual float GetHintPanTime() const=0;
     virtual float GetCamZoomUnitsPerFrame() const=0;
     virtual float GetCamRotateDegreesPerFrame() const=0;
     virtual float GetBaseMapScreenCameraMoveSpeed() const=0;
@@ -33,6 +35,7 @@ struct ITweakAutoMapper : public ITweak
     virtual const zeus::CVector3f& GetDoorCenter() const=0;
     virtual float GetMiniMapViewportWidth() const=0;
     virtual float GetMiniMapViewportHeight() const=0;
+    virtual float GetMiniMapCamDistScale() const=0;
     virtual float GetUniverseCamDist() const=0;
     virtual float GetMinUniverseCamDist() const=0;
     virtual float GetMaxUniverseCamDist() const=0;

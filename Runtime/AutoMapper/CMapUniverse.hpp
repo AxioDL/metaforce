@@ -56,11 +56,11 @@ public:
         const std::string& GetWorldLabel() const { return x0_label; }
         const zeus::CTransform& GetWorldTransform() const { return x14_transform; }
         const zeus::CTransform& GetMapAreaData(s32 idx) const { return x44_hexagonXfs[idx]; }
+        u32 GetNumMapAreaDatas() const { return x44_hexagonXfs.size(); }
         zeus::CColor GetOutlineColorUnselected() const;
         zeus::CColor GetOutlineColorSelected() const;
         zeus::CColor GetSurfaceColorUnselected() const;
         zeus::CColor GetSurfaceColorSelected() const;
-        u32 GetNumMapAreaDatas() const;
     };
 
 private:
@@ -72,6 +72,13 @@ private:
 public:
     CMapUniverse(CInputStream&, u32);
     const CMapWorldData& GetMapWorldData(s32 idx) const { return x10_worldDatas[idx]; }
+    const CMapWorldData& GetMapWorldDataByWorldId(ResId id) const
+    {
+        for (const CMapWorldData& data : x10_worldDatas)
+            if (data.GetWorldAssetId() == id)
+                return data;
+        return x10_worldDatas.front();
+    }
     u32 GetNumMapWorldDatas() const { return x10_worldDatas.size(); }
     float GetMapUniverseRadius() const { return x2c_universeRadius; }
     const zeus::CVector3f& GetMapUniverseCenterPoint() const { return x20_universeCenter; }

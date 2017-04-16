@@ -183,6 +183,7 @@ public:
     s32 GetNumAreas() const { return x18_areas.size(); }
     const IGameArea* IGetAreaAlways(TAreaId id) const;
     TAreaId IGetCurrentAreaId() const;
+    TAreaId GetCurrentAreaId() const { return x68_curAreaId; }
     TAreaId IGetAreaId(ResId id) const;
     bool ICheckWorldComplete();
     std::string IGetDefaultAudioTrack() const;

@@ -47,6 +47,23 @@ void CMapArea::PostConstruct()
         (reinterpret_cast<CMapAreaSurface*>(x40_surfaceStart + j))->PostConstruct(x44_buf.get());
 }
 
+bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const
+{
+    switch (xc_)
+    {
+    case 0:
+        return true;
+    case 1:
+        return worldVis || areaVis;
+    case 2:
+        return areaVis;
+    case 3:
+        return false;
+    default:
+        return true;
+    }
+}
+
 static const zeus::CVector3f MinesPostTransforms[3] =
 {
     {0.f, 0.f, 200.f},
@@ -99,7 +116,7 @@ static const u8 MinesPostTransformIndices[] =
     2, // 41 Fungal Hall A
 };
 
-zeus::CTransform CMapArea::GetAreaPostTransform(const CWorld& world, TAreaId aid) const
+zeus::CTransform CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid) const
 {
     if (world.IGetWorldAssetId() == g_ResFactory->TranslateOriginalToNew(0xB1AC4D65)) // Phazon Mines
     {

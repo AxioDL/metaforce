@@ -19,13 +19,15 @@ public:
     CMapWorldInfo()=default;
     CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, ResId mlvlId);
     void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResId mlvlId) const;
-    bool IsMapped(TAreaId);
+    bool IsMapped(TAreaId) const;
     void SetIsMapped(TAreaId, bool);
     void SetDoorVisited(TEditorId eid, bool val);
     bool IsDoorVisited(TEditorId eid) const;
-    bool IsAreaVisted(TAreaId);
+    bool IsAreaVisted(TAreaId) const;
     void SetAreaVisited(TAreaId, bool);
-    bool IsWorldVisible(TAreaId);
+    bool IsWorldVisible(TAreaId) const;
+    bool IsAreaVisible(TAreaId) const;
+    bool IsAnythingSet() const;
 };
 }
 

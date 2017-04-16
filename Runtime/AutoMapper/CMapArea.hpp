@@ -8,7 +8,7 @@
 
 namespace urde
 {
-class CWorld;
+class IWorld;
 class CMapArea
 {
 public:
@@ -40,13 +40,13 @@ public:
     void PostConstruct();
     bool GetIsVisibleToAutoMapper(bool, bool) const;
     zeus::CVector3f GetAreaCenterPoint() const { return x10_box.center(); }
-    zeus::CAABox GetBoundingBox() const;
+    const zeus::CAABox& GetBoundingBox() const { return x10_box; }
     const zeus::CVector3f& GetVertices() const;
     void GetMappableObject(s32) const;
     void GetSurface(s32) const;
     u32 GetNumMappableObjects() const;
     u32 GetNumSurfaces() const;
-    zeus::CTransform GetAreaPostTransform(const CWorld& world, TAreaId aid) const;
+    zeus::CTransform GetAreaPostTransform(const IWorld& world, TAreaId aid) const;
 };
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,

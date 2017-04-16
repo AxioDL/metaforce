@@ -99,7 +99,7 @@ public:
     bool IsMapAreasStreaming() const;
     void MoveMapAreaToList(CMapAreaData*, EMapAreaList);
     s32 GetCurrentMapAreaDepth(const IWorld&, TAreaId) const;
-    void GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
+    std::vector<TAreaId> GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
     void Draw(const CMapWorldDrawParms&, int, int, float, float, bool) const;
     void DoBFS(const IWorld&, TAreaId, int, float, float, bool, std::vector<CMapAreaBFSInfo>&) const;
     bool IsMapAreaValid(const IWorld&, int, bool) const;

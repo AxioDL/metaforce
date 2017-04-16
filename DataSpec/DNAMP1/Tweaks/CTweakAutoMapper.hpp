@@ -11,7 +11,7 @@ namespace DNAMP1
 struct CTweakAutoMapper : public ITweakAutoMapper
 {
     DECL_YAML
-    Value<bool> x4_24_ : 1;
+    Value<bool> x4_24_showOneMiniMapArea : 1;
     Value<bool> x4_25_ : 1;
     Value<bool> x4_26_scaleMoveSpeedWithCamDist : 1;
     Value<float> x8_camDist;
@@ -39,7 +39,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float x60_ = 0.4f;
     Value<float> x64_openMapScreenTime;
     Value<float> x68_closeMapScreenTime;
-    Value<float> x6c_;
+    Value<float> x6c_hintPanTime;
     Value<float> x70_zoomUnitsPerFrame;
     Value<float> x74_rotateDegPerFrame;
     Value<float> x78_baseMapScreenCameraMoveSpeed;
@@ -59,7 +59,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> xb4_;
     Value<float> xb8_miniMapViewportWidth;
     Value<float> xbc_miniMapViewportHeight;
-    Value<float> xc0_;
+    Value<float> xc0_miniMapCamDistScale;
     Value<float> xc4_;
     Value<float> xc8_;
     Value<bool> xcc_;
@@ -82,6 +82,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
 
     CTweakAutoMapper() = default;
     CTweakAutoMapper(athena::io::IStreamReader& r) { this->read(r); }
+    bool GetShowOneMiniMapArea() const { return x4_24_showOneMiniMapArea; }
     bool GetScaleMoveSpeedWithCamDist() const { return x4_26_scaleMoveSpeedWithCamDist; }
     float GetCamDist() const { return x8_camDist; }
     float GetMinCamDist() const { return xc_minCamDist; }
@@ -94,6 +95,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetMiniCamAngle() const { return x30_miniCamAngle; }
     float GetOpenMapScreenTime() const { return x64_openMapScreenTime; }
     float GetCloseMapScreenTime() const { return x68_closeMapScreenTime; }
+    float GetHintPanTime() const { return x6c_hintPanTime; }
     float GetCamZoomUnitsPerFrame() const { return x70_zoomUnitsPerFrame; }
     float GetCamRotateDegreesPerFrame() const { return x74_rotateDegPerFrame; }
     float GetBaseMapScreenCameraMoveSpeed() const { return x78_baseMapScreenCameraMoveSpeed; }
@@ -108,6 +110,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     const zeus::CVector3f& GetDoorCenter() const { return xa4_doorCenter; }
     float GetMiniMapViewportWidth() const { return xb8_miniMapViewportWidth; }
     float GetMiniMapViewportHeight() const { return xbc_miniMapViewportHeight; }
+    float GetMiniMapCamDistScale() const { return xc0_miniMapCamDistScale; }
     float GetUniverseCamDist() const { return xd0_universeCamDist; }
     float GetMinUniverseCamDist() const { return xd4_minUniverseCamDist; }
     float GetMaxUniverseCamDist() const { return xd8_maxUniverseCamDist; }

@@ -1,4 +1,5 @@
 #include "CMapWorld.hpp"
+#include "CMapWorldInfo.hpp"
 
 namespace urde
 {
@@ -38,9 +39,21 @@ s32 CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, TAreaId aid) const
     return info.back().GetDepth();
 }
 
-void CMapWorld::GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const
+std::vector<TAreaId> CMapWorld::GetVisibleAreas(const IWorld& wld, const CMapWorldInfo& mwInfo) const
 {
-
+    std::vector<TAreaId> ret;
+    ret.reserve(x0_areas.size());
+    for (int i=0 ; i<x0_areas.size() ; ++i)
+    {
+        if (!IsMapAreaValid(wld, i, true))
+            continue;
+        const CMapArea* area = GetMapArea(i);
+        bool areaVis = mwInfo.IsAreaVisible(i);
+        bool worldVis = mwInfo.IsWorldVisible(i);
+        if (area->GetIsVisibleToAutoMapper(worldVis, areaVis))
+            ret.push_back(i);
+    }
+    return ret;
 }
 
 void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms&, int, int, float, float, bool) const
