@@ -71,7 +71,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> xe4_;
     Value<float> xe8_;
     Value<float> xec_camVerticalOffset;
-    DNAColor xf0_;
+    DNAColor xf0_miniMapSamusModColor;
     DNAColor xf4_;
     DNAColor xf8_;
     DNAColor xfc_;
@@ -119,6 +119,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetSwitchToFromUniverseTime() const { return xdc_switchToFromUniverseTime; }
     float GetCamPanUnitsPerFrame() const { return xe0_camPanUnitsPerFrame; }
     float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
+    const zeus::CColor& GetMiniMapSamusModColor() const { return xf0_miniMapSamusModColor; }
 };
 }
 }

@@ -12,7 +12,7 @@ CMapArea::CMapArea(CInputStream& in, u32 size)
     : x0_magic(in.readUint32()),
       x4_version(in.readUint32Big()),
       x8_(in.readUint32Big()),
-      xc_(in.readUint32Big()),
+      xc_visibilityMode(EVisMode(in.readUint32Big())),
       x10_box(zeus::CAABox::ReadBoundingBoxBig(in)),
       x28_mappableObjCount(in.readUint32Big()),
       x2c_vertexCount(in.readUint32Big()),
@@ -36,8 +36,8 @@ void CMapArea::PostConstruct()
     u8* tmp = x3c_vertexStart;
     for (u32 i = 0 ; i<(x2c_vertexCount*3) ; ++i)
     {
-        u32* fl = reinterpret_cast<u32*>(tmp);
-        *fl = SBIG(*fl);
+        float* fl = reinterpret_cast<float*>(tmp);
+        *fl = hecl::SBig(*fl);
         tmp += 4;
     }
 #endif
@@ -49,15 +49,15 @@ void CMapArea::PostConstruct()
 
 bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const
 {
-    switch (xc_)
+    switch (xc_visibilityMode)
     {
-    case 0:
+    case EVisMode::Always:
         return true;
-    case 1:
+    case EVisMode::MapStationOrVisit:
         return worldVis || areaVis;
-    case 2:
+    case EVisMode::Visit:
         return areaVis;
-    case 3:
+    case EVisMode::Never:
         return false;
     default:
         return true;
@@ -128,6 +128,14 @@ zeus::CTransform CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid
     {
         return world.IGetAreaAlways(aid)->IGetTM();
     }
+}
+
+const zeus::CVector3f& CMapArea::GetAreaPostTranslate(const IWorld& world, TAreaId aid)
+{
+    if (world.IGetWorldAssetId() == g_ResFactory->TranslateOriginalToNew(0xB1AC4D65)) // Phazon Mines
+        return MinesPostTransforms[MinesPostTransformIndices[aid]];
+    else
+        return zeus::CVector3f::skZero;
 }
 
 void CMapArea::CMapAreaSurface::PostConstruct(const void *)

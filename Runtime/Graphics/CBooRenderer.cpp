@@ -686,7 +686,7 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
             int instIdx = 0;
             for (const CMetroidModelInstance& inst : *geometry)
             {
-                models.push_back(inst.m_instance);
+                models.push_back(inst.m_instance.get());
                 models.back()->x44_areaInstanceIdx = instIdx++;
             }
         }

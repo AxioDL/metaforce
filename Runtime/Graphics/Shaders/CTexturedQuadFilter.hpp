@@ -19,17 +19,10 @@ class CTexturedQuadFilter
     friend struct CTexturedQuadFilterD3DDataBindingFactory;
 
 protected:
-    struct Vert
-    {
-        zeus::CVector2f m_pos;
-        zeus::CVector2f m_uv;
-    };
-
     struct Uniform
     {
         zeus::CMatrix4f m_matrix;
         zeus::CColor m_color;
-        float m_uvScale;
     };
     TLockedToken<CTexture> m_tex;
     boo::ITexture* m_booTex;
@@ -40,12 +33,24 @@ protected:
     Uniform m_uniform;
 
     CTexturedQuadFilter(boo::ITexture* tex);
+
 public:
+    struct Vert
+    {
+        zeus::CVector3f m_pos;
+        zeus::CVector2f m_uv;
+    };
+
     static const zeus::CRectangle DefaultRect;
     CTexturedQuadFilter(CCameraFilterPass::EFilterType type, TLockedToken<CTexture> tex);
     CTexturedQuadFilter(CCameraFilterPass::EFilterType type, boo::ITexture* tex);
+    CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
+    CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
+    CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
+    CTexturedQuadFilter& operator=(CTexturedQuadFilter&&) = default;
     void draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect=DefaultRect);
     void drawCropped(const zeus::CColor& color, float uvScale);
+    void drawVerts(const zeus::CColor& color, const Vert verts[4]);
     const TLockedToken<CTexture>& GetTex() const { return m_tex; }
 
     using _CLS = CTexturedQuadFilter;

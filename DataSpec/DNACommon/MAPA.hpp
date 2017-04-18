@@ -17,6 +17,7 @@ struct MAPA : BigDNA
     struct IMAPAHeader : BigDNA
     {
         Delete _d;
+        virtual atUint32 visMode() const=0;
         virtual atUint32 mappableObjectCount() const=0;
         virtual atUint32 vertexCount() const=0;
         virtual atUint32 surfaceCount() const=0;
@@ -26,21 +27,22 @@ struct MAPA : BigDNA
     {
         DECL_DNA
         Value<atUint32> unknown1 = 0;
-        Value<atUint32> unknown2 = 0;
+        Value<atUint32> mapVisMode = 0;
         Value<atVec3f>  boundingBox[2] = {};
         Value<atUint32> moCount = 0;
         Value<atUint32> vtxCount = 0;
         Value<atUint32> surfCount = 0;
-        virtual atUint32 mappableObjectCount() const { return moCount;}
-        virtual atUint32 vertexCount() const  { return vtxCount; }
-        virtual atUint32 surfaceCount() const { return surfCount; }
+        atUint32 visMode() const { return mapVisMode; }
+        atUint32 mappableObjectCount() const { return moCount;}
+        atUint32 vertexCount() const  { return vtxCount; }
+        atUint32 surfaceCount() const { return surfCount; }
     };
 
     struct HeaderMP2 : IMAPAHeader
     {
         DECL_DNA
         Value<atUint32> unknown1 = 0;
-        Value<atUint32> unknown2 = 0;
+        Value<atUint32> mapVisMode = 0;
         Value<atVec3f>  boundingBox[2] = {};
         Value<atUint32> unknown3 = 0;
         Value<atUint32> unknown4 = 0;
@@ -48,6 +50,7 @@ struct MAPA : BigDNA
         Value<atUint32> moCount = 0;
         Value<atUint32> vtxCount = 0;
         Value<atUint32> surfCount = 0;
+        atUint32 visMode() const { return mapVisMode; }
         atUint32 mappableObjectCount() const { return moCount;}
         atUint32 vertexCount() const  { return vtxCount; }
         atUint32 surfaceCount() const { return surfCount; }
@@ -57,7 +60,7 @@ struct MAPA : BigDNA
     {
         DECL_DNA
         Value<atUint32> unknown1 = 0;
-        Value<atUint32> unknown2 = 0;
+        Value<atUint32> mapVisMode = 0;
         Value<atVec3f>  boundingBox[2] = {};
         Value<atUint32> unknown3 = 0;
         Value<atUint32> unknown4 = 0;
@@ -69,6 +72,7 @@ struct MAPA : BigDNA
         Value<atUint32> internalNameLength = 0;
         Value<atUint32> unknown7 = 0;
         String<DNA_COUNT(internalNameLength)> internalName;
+        atUint32 visMode() const { return mapVisMode; }
         atUint32 mappableObjectCount() const { return moCount;}
         atUint32 vertexCount() const  { return vtxCount; }
         atUint32 surfaceCount() const { return surfCount; }

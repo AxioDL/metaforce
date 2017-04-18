@@ -125,8 +125,8 @@ public:
 
     struct SAutoMapperHintLocation
     {
-        u32 x0_;
-        float x4_;
+        u32 x0_showBeacon;
+        float x4_beaconAlpha;
         ResId x8_worldId;
         TAreaId xc_areaId;
     };
@@ -172,6 +172,7 @@ private:
     bool m_frmeInitialized = false;
     TLockedToken<CModel> x30_miniMapSamus;
     TLockedToken<CTexture> x3c_hintBeacon;
+    std::vector<CTexturedQuadFilter> m_hintBeaconFilters;
     rstl::reserved_vector<TLockedToken<CTexture>, 5> x48_mapIcons;
     ResId x74_areaHintDescId = -1;
     TLockedToken<CStringTable> x78_areaHintDesc;

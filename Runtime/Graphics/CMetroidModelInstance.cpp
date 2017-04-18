@@ -4,6 +4,7 @@
 namespace urde
 {
 
+#if 0
 CMetroidModelInstance::CMetroidModelInstance(CBooModel* inst)
 : x0_visorFlags(0), m_instance(inst)
 {
@@ -20,5 +21,6 @@ CMetroidModelInstance::CMetroidModelInstance
 }
 
 CMetroidModelInstance::~CMetroidModelInstance() {}
+#endif
 
 }

@@ -44,6 +44,7 @@ struct ITweakAutoMapper : public ITweak
     virtual float GetSwitchToFromUniverseTime() const=0;
     virtual float GetCamPanUnitsPerFrame() const=0;
     virtual float GetCamVerticalOffset() const=0;
+    virtual const zeus::CColor& GetMiniMapSamusModColor() const=0;
 };
 }
 

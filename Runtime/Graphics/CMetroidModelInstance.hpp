@@ -9,19 +9,22 @@
 namespace urde
 {
 class CBooModel;
+class CBooSurface;
 
 class CMetroidModelInstance
 {
     friend class CBooRenderer;
+    friend class CGameArea;
 
     int x0_visorFlags;
     zeus::CTransform x4_xf;
     zeus::CAABox x34_aabb;
-    CBooModel* m_instance;
+    std::vector<CBooSurface> m_surfaces;
+    std::unique_ptr<CBooModel> m_instance;
 public:
-    CMetroidModelInstance(CBooModel* inst);
-    CMetroidModelInstance(const void* modelHeader, CBooModel* inst);
-    ~CMetroidModelInstance();
+    //CMetroidModelInstance(CBooModel* inst);
+    //CMetroidModelInstance(const void* modelHeader, CBooModel* inst);
+    //~CMetroidModelInstance();
 };
 
 }

@@ -15,7 +15,6 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    mat4 mtx;\n"
 "    vec4 color;\n"
-"    float uvScale;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -28,7 +27,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = color;\n"
-"    vtf.uv = uvIn.xy * uvScale;\n"
+"    vtf.uv = uvIn.xy;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
@@ -43,7 +42,6 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    mat4 mtx;\n"
 "    vec4 color;\n"
-"    float uvScale;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -56,7 +54,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = color;\n"
-"    vtf.uv = -uvIn.xy * uvScale;\n"
+"    vtf.uv = -uvIn.xy;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";

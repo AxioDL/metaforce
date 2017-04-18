@@ -681,7 +681,7 @@ void CStateManager::DrawWorld() const
     if (thermal)
     {
         const_cast<CStateManager&>(*this).xf34_particleFlags = 1;
-        mask = 52;
+        mask = 0x34;
         targetMask = 0;
     }
     else

@@ -5,6 +5,7 @@
 #include "CStateManager.hpp"
 #include "World/CScriptAreaAttributes.hpp"
 #include "CGameState.hpp"
+#include "DataSpec/DNAMP1/MREA.hpp"
 
 namespace urde
 {
@@ -566,7 +567,7 @@ void CGameArea::AddStaticGeometry()
     {
         x12c_postConstructed->x10e0_ = 0;
         x12c_postConstructed->x10dc_occlusionState = EOcclusionState::Visible;
-        if (!x12c_postConstructed->x1108_25_)
+        if (!x12c_postConstructed->x1108_25_modelsConstructed)
             FillInStaticGeometry();
         g_Renderer->AddStaticGeometry(&x12c_postConstructed->x4c_insts,
                                       x12c_postConstructed->xc_octTree ?
@@ -825,6 +826,7 @@ void CGameArea::PostConstructArea()
     u32 sec = 3;
 
     /* Models */
+    x12c_postConstructed->x4c_insts.reserve(header.modelCount);
     for (u32 i=0 ; i<header.modelCount ; ++i)
     {
         u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>((secIt+4)->first));
@@ -947,6 +949,71 @@ void CGameArea::FillInStaticGeometry()
 {
     x12c_postConstructed->x4c_insts.clear();
 
+    /* Materials */
+    auto secIt = m_resolvedBufs.begin() + 2;
+    {
+        athena::io::MemoryReader r(secIt->first, secIt->second);
+        x12c_postConstructed->m_materialSet.m_matSet.read(r);
+        ++secIt;
+    }
+
+    x12c_postConstructed->m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        /* Models */
+        for (u32 i=0 ; i<x12c_postConstructed->x4c_insts.capacity() ; ++i)
+        {
+            x12c_postConstructed->x4c_insts.emplace_back();
+            CMetroidModelInstance& inst = x12c_postConstructed->x4c_insts.back();
+
+            {
+                DataSpec::DNAMP1::MREA::MeshHeader header;
+                athena::io::MemoryReader r(secIt->first, secIt->second);
+                header.read(r);
+                inst.x0_visorFlags = header.visorFlags.flags;
+                inst.x4_xf = header.xfMtx;
+                inst.x34_aabb = zeus::CAABox(header.aabb[0], header.aabb[1]);
+                ++secIt;
+            }
+
+            hecl::HMDLMeta hmdlMeta;
+            {
+                athena::io::MemoryReader r(secIt->first, secIt->second);
+                hmdlMeta.read(r);
+            }
+            ++secIt;
+
+            boo::IGraphicsBufferS* vbo;
+            boo::IGraphicsBufferS* ibo;
+            boo::IVertexFormat* vtxFmt;
+            vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, hmdlMeta.vertStride, hmdlMeta.vertCount);
+            ++secIt;
+            ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, hmdlMeta.indexCount);
+            ++secIt;
+            vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, vbo, ibo);
+
+            u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
+            inst.m_surfaces.reserve(surfCount);
+            ++secIt;
+            for (u32 i=0 ; i<surfCount ; ++i)
+            {
+                inst.m_surfaces.emplace_back();
+                CBooSurface& surf = inst.m_surfaces.back();
+                surf.selfIdx = i;
+                athena::io::MemoryReader r(secIt->first, secIt->second);
+                surf.m_data.read(r);
+                ++secIt;
+            }
+
+            TToken<CModel> nullModel;
+            inst.m_instance = std::make_unique<CBooModel>
+                (nullModel, &inst.m_surfaces, x12c_postConstructed->m_materialSet, vtxFmt, vbo, ibo,
+                 hmdlMeta.weightCount, hmdlMeta.bankCount, inst.x34_aabb, inst.x0_visorFlags, 1);
+        }
+
+        return true;
+    });
+
+    x12c_postConstructed->x1108_25_modelsConstructed = true;
 }
 
 void CGameArea::VerifyTokenList(CStateManager& stateMgr)

@@ -99,7 +99,7 @@ private:
     CBooSurface* x3c_firstSortedSurface = nullptr;
     bool x40_24_texturesLoaded : 1;
     bool x40_25_modelVisible : 1;
-    u8 x41_mask = 0;
+    u8 x41_mask;
     u32 x44_areaInstanceIdx = -1;
 
     struct UVAnimationBuffer
@@ -137,7 +137,8 @@ public:
     ~CBooModel();
     CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, int numInsts);
+              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 renderMask,
+              int numInsts);
 
     static void MakeTexturesFromMats(const MaterialSet& matSet,
                                      std::vector<TCachedToken<CTexture>>& toksOut,
@@ -191,6 +192,7 @@ class CModel
     //u32 x4_dataLen;
     TToken<CModel> m_selfToken; /* DO NOT LOCK! */
     zeus::CAABox m_aabb;
+    u32 m_flags;
     std::vector<CBooSurface> x8_surfaces;
     std::vector<CBooModel::SShader> x18_matSets;
     std::unique_ptr<CBooModel> x28_modelInst;

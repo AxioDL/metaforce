@@ -26,7 +26,7 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, R
     for (TEditorId doorId : savw.GetDoors())
         SetDoorVisited(doorId, reader.ReadEncoded(1));
 
-    x38_worldVisited = reader.ReadEncoded(1);
+    x38_mapStationUsed = reader.ReadEncoded(1);
 }
 
 void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResId mlvlId) const
@@ -52,7 +52,7 @@ void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResI
     for (TEditorId doorId : savw.GetDoors())
         writer.WriteEncoded(IsDoorVisited(doorId), 1);
 
-    writer.WriteEncoded(x38_worldVisited, 1);
+    writer.WriteEncoded(x38_mapStationUsed, 1);
 }
 
 void CMapWorldInfo::SetDoorVisited(TEditorId eid, bool visited)
@@ -113,7 +113,7 @@ void CMapWorldInfo::SetIsMapped(TAreaId aid, bool mapped)
 
 bool CMapWorldInfo::IsWorldVisible(TAreaId aid) const
 {
-    return x38_worldVisited || IsMapped(aid);
+    return x38_mapStationUsed || IsMapped(aid);
 }
 
 bool CMapWorldInfo::IsAreaVisible(TAreaId aid) const
@@ -131,7 +131,7 @@ bool CMapWorldInfo::IsAnythingSet() const
     for (int i=0 ; i<x14_mappedAreasAllocated ; ++i)
         if (x18_mappedAreas[i / 32] & (1 << (i % 32)))
             return true;
-    return x38_worldVisited;
+    return x38_mapStationUsed;
 }
 
 }

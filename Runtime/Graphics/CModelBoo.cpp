@@ -135,11 +135,12 @@ CBooModel::~CBooModel()
 
 CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, int instCount)
+                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 renderMask,
+                     int instCount)
 : m_model(token), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_matSetIdx(shader.m_matSetIdx),
   m_pipelines(&shader.m_shaders), m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
   m_skinBankCount(skinBankCount), x1c_textures(shader.x0_textures), x20_aabb(aabb),
-  x40_24_texturesLoaded(false), x40_25_modelVisible(0)
+  x40_24_texturesLoaded(false), x40_25_modelVisible(0), x41_mask(renderMask)
 {
     if (!g_FirstModel)
         g_FirstModel = this;
@@ -888,7 +889,8 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts)
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
-                                       m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount, m_aabb, subInsts);
+                                       m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount,
+                                       m_aabb, (m_flags & 0x2) != 0, subInsts);
 }
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
@@ -898,7 +900,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     std::unique_ptr<u8[]> data = std::move(in);
 
     u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));
-    u32 flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
+    m_flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
     if (version != 0x10002)
         Log.report(logvisor::Fatal, "invalid CMDL for loading with boo");
 
@@ -988,7 +990,7 @@ void CBooModel::SShader::UnlockTextures()
 
 void CBooModel::VerifyCurrentShader(int shaderIdx)
 {
-    if (shaderIdx != m_matSetIdx)
+    if (shaderIdx != m_matSetIdx && m_model)
         RemapMaterialData(m_model->x18_matSets[shaderIdx]);
 }
 

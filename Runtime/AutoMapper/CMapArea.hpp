@@ -20,12 +20,19 @@ public:
         const zeus::CVector3f& GetNormal() const;
         const zeus::CVector3f& GetCenterPosition() const;
     };
+    enum class EVisMode
+    {
+        Always,
+        MapStationOrVisit,
+        Visit,
+        Never
+    };
 
 private:
     u32 x0_magic;
     u32 x4_version;
     u32 x8_;
-    u32 xc_;
+    EVisMode xc_visibilityMode;
     zeus::CAABox x10_box;
     u32 x28_mappableObjCount;
     u32 x2c_vertexCount;
@@ -47,6 +54,7 @@ public:
     u32 GetNumMappableObjects() const;
     u32 GetNumSurfaces() const;
     zeus::CTransform GetAreaPostTransform(const IWorld& world, TAreaId aid) const;
+    static const zeus::CVector3f& GetAreaPostTranslate(const IWorld& world, TAreaId aid);
 };
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,

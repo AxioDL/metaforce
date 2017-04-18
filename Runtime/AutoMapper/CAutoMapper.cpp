@@ -11,6 +11,7 @@
 #include "Input/ControlMapper.hpp"
 #include "GuiSys/CGuiFrame.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
+#include "GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde
 {
@@ -1566,9 +1567,111 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
 
     if (!IsInMapperState(EAutoMapperState::MapScreenUniverse))
     {
-        /* TODO: Finish */
+        zeus::CTransform mapXf = planeXf * preXf;
+        if (x24_world == mgr.GetWorld())
+        {
+            float func = zeus::clamp(0.f, 0.5f * (1.f + std::sin(5.f * CGraphics::GetSecondsMod900() - (M_PIF / 2.f))), 1.f);
+            float scale = std::min(0.6f * g_tweakAutoMapper->GetMaxCamDist() / g_tweakAutoMapper->GetMinCamDist(), objectScale);
+            zeus::CEulerAngles eulers(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr));
+            float angle = eulers.z - std::floor(eulers.z / (2.f * M_PIF)) * 2.f * M_PIF;
+            if (angle < 0.f)
+                angle += 2.f * M_PIF;
+            zeus::CTransform playerXf(zeus::CMatrix3f::RotateZ(angle),
+            CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) + mgr.GetPlayer().GetTranslation());
+            CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform::Scale(scale * (0.25f * func + 0.75f)));
+            float alpha;
+            if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
+                alpha = 1.f;
+            else
+                alpha = xa8_renderStates[0].x34_alphaSurfaceVisited;
+            alpha *= mapAlpha;
+            zeus::CColor modColor = g_tweakAutoMapper->GetMiniMapSamusModColor();
+            modColor.a *= alpha;
+            CModelFlags flags(5, 0, 3 | 8 | 1, modColor);
+            x30_miniMapSamus->Draw(flags);
+        }
+        if (IsInMapperState(EAutoMapperState::MapScreen))
+        {
+            ResId wldMlvl = x24_world->IGetWorldAssetId();
+            const CMapWorld* mw = x24_world->IGetMapWorld();
+            std::vector<CTexturedQuadFilter>& hintBeaconFilters = const_cast<CAutoMapper&>(*this).m_hintBeaconFilters;
+            if (hintBeaconFilters.size() < x1f8_hintLocations.size())
+            {
+                hintBeaconFilters.reserve(x1f8_hintLocations.size());
+                for (int i=hintBeaconFilters.size() ; i<x1f8_hintLocations.size() ; ++i)
+                    hintBeaconFilters.emplace_back(CCameraFilterPass::EFilterType::Add, x3c_hintBeacon);
+            }
+            auto locIt = x1f8_hintLocations.cbegin();
+            auto filterIt = hintBeaconFilters.begin();
+            for (; locIt != x1f8_hintLocations.cend() ; ++locIt, ++filterIt)
+            {
+                const SAutoMapperHintLocation& loc = *locIt;
+                CTexturedQuadFilter& filter = *filterIt;
+                if (loc.x8_worldId != wldMlvl)
+                    continue;
+                const CMapArea* mapa = mw->GetMapArea(loc.xc_areaId);
+                if (!mapa)
+                    continue;
+                zeus::CTransform camRot(camXf.buildMatrix3f(), zeus::CVector3f::skZero);
+                CGraphics::SetModelMatrix(mapXf *
+                    zeus::CTransform::Translate(mapa->GetAreaPostTransform(*x24_world, loc.xc_areaId).origin) *
+                    zeus::CTransform::Translate(mapa->GetAreaCenterPoint()) *
+                    zeus::CTransform::Scale(objectScale) * camRot);
+                float beaconAlpha = 0.f;
+                if (loc.x0_showBeacon == 1)
+                    beaconAlpha = loc.x4_beaconAlpha;
+                if (beaconAlpha > 0.f)
+                {
+                    CTexturedQuadFilter::Vert verts[4] =
+                    {
+                        {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
+                        {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
+                        {{4.f, -8.f, 8.f}, {1.f, 1.f}},
+                        {{4.f, -8.f, 0.f}, {1.f, 0.f}}
+                    };
+                    float alpha = beaconAlpha;
+                    if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
+                    {}
+                    else
+                        alpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
+                    alpha *= mapAlpha;
+                    zeus::CColor color = zeus::CColor::skWhite;
+                    color.a = alpha;
+                    filter.drawVerts(color, verts);
+                }
+            }
+        }
     }
 
+    // No zread, no zwrite
+    // Ambient color white
+    // Disable all lights
+    if (m_frmeInitialized)
+    {
+        float frmeAlpha = 0.f;
+        if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
+        {
+            frmeAlpha = 1.f;
+        }
+        else
+        {
+            if (x1c0_nextState != EAutoMapperState::MiniMap)
+            {
+                if (x1c4_interpDur > 0.f)
+                   frmeAlpha =  x1c8_interpTime / x1c4_interpDur;
+            }
+            else
+            {
+                if (x1c4_interpDur > 0.f)
+                    frmeAlpha =  x1c8_interpTime / x1c4_interpDur;
+                frmeAlpha = 1.f - frmeAlpha;
+            }
+        }
+        CGraphics::SetDepthRange(0.f, 0.f);
+        CGuiWidgetDrawParms parms(frmeAlpha, zeus::CVector3f::skZero);
+        x28_frmeMapScreen->Draw(parms);
+        CGraphics::SetDepthRange(0.f, 1.f / 512.f);
+    }
 }
 
 void CAutoMapper::TransformRenderStatesWorldToUniverse()
@@ -1666,7 +1769,7 @@ ResId CAutoMapper::GetAreaHintDescriptionString(ResId mreaId)
             {
                 if (hintLoc.xc_areaId != loc.x8_areaId)
                     continue;
-                if (hintLoc.x4_ > 0.f)
+                if (hintLoc.x4_beaconAlpha > 0.f)
                     return loc.xc_stringId;
             }
         }

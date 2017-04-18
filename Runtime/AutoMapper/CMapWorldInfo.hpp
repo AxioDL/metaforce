@@ -14,7 +14,7 @@ class CMapWorldInfo
     u32 x14_mappedAreasAllocated = 0;
     std::vector<u32> x18_mappedAreas;
     std::map<TEditorId, bool> x28_visitedDoors;
-    bool x38_worldVisited = false;
+    bool x38_mapStationUsed = false;
 public:
     CMapWorldInfo()=default;
     CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, ResId mlvlId);

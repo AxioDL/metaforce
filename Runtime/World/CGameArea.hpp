@@ -14,6 +14,7 @@
 #include "CWorldLight.hpp"
 #include "Graphics/CPVSAreaSet.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "Graphics/CModel.hpp"
 #include "CPathFindArea.hpp"
 #include "Editor/ProjectResourceFactoryBase.hpp"
 
@@ -195,6 +196,8 @@ public:
         u32 x8_collisionSize = 0;
         std::experimental::optional<CAreaRenderOctTree> xc_octTree;
         std::vector<CMetroidModelInstance> x4c_insts;
+        CBooModel::SShader m_materialSet = {0};
+        boo::GraphicsDataToken m_gfxToken;
         //std::unique_ptr<from unknown, pointless MREA section> x5c_;
         std::vector<CWorldLight> x60_lightsA;
         std::vector<CLight> x70_gfxLightsA;
@@ -230,14 +233,14 @@ public:
             struct
             {
                 bool x1108_24_ : 1;
-                bool x1108_25_ : 1;
+                bool x1108_25_modelsConstructed : 1;
                 bool x1108_26_ : 1;
                 bool x1108_27_ : 1;
                 bool x1108_28_ : 1;
                 bool x1108_29_ : 1;
                 bool x1108_30_ : 1;
             };
-            u8 _dummy = 0;
+            u32 _dummy = 0;
         };
         std::vector<std::pair<const u8*, u32>> x110c_layerPtrs;
         float x111c_thermalCurrent = 0.f;

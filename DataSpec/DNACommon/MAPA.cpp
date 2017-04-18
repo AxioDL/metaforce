@@ -91,6 +91,14 @@ size_t MAPA::binarySize(size_t __isz) const
     return __isz + 8;
 }
 
+static const char* RetroMapVisModes[] =
+{
+    "ALWAYS",
+    "MAPSTATIONORVISIT",
+    "VISIT",
+    "NEVER"
+};
+
 template <typename PAKRouter>
 bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const MAPA& mapa,
@@ -112,6 +120,11 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
           "bpy.types.Object.retro_mappable_type = bpy.props.IntProperty(name='Retro: MAPA object type', default=-1)\n"
           "bpy.types.Object.retro_mappable_unk = bpy.props.IntProperty(name='Retro: MAPA object unk')\n"
           "bpy.types.Object.retro_mappable_sclyid = bpy.props.StringProperty(name='Retro: MAPA object SCLY ID')\n"
+          "bpy.types.Scene.retro_map_vis_mode = bpy.props.EnumProperty(items=[('ALWAYS', 'Always', 'Always Visible', 0),"
+                                                                              "('MAPSTATIONORVISIT', 'Map Station or Visit', 'Visible after Map Station or Visit', 1),"
+                                                                              "('VISIT', 'Visit', 'Visible after Visit', 2),"
+                                                                              "('NEVER', 'Never', 'Never Visible', 3)],"
+                                                                              "name='Retro: Map Visibility Mode')\n"
           "\n"
           "for ar in bpy.context.screen.areas:\n"
           "    for sp in ar.spaces:\n"
@@ -142,8 +155,10 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
           "    edge.seam = True\n"
           "\n";
 
-    os.format("bpy.context.scene.name = 'MAPA_%s'\n",
-              entry.id.toString().c_str());
+    os.format("bpy.context.scene.name = 'MAPA_%s'\n"
+              "bpy.context.scene.retro_map_vis_mode = '%s'\n",
+              entry.id.toString().c_str(),
+              RetroMapVisModes[mapa.header->visMode()]);
 
     /* Add empties representing MappableObjects */
     int moIdx = 0;
@@ -362,7 +377,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     mapa.header = std::make_unique<typename MAPAType::Header>();
     typename MAPAType::Header& header = static_cast<typename MAPAType::Header&>(*mapa.header);
     header.unknown1 = 0;
-    header.unknown2 = 1;
+    header.mapVisMode = mapaIn.visType.val;
     header.boundingBox[0] = aabb.min;
     header.boundingBox[1] = aabb.max;
     header.moCount = mapaIn.pois.size();
