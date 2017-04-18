@@ -8,6 +8,10 @@ def cook(writebuf, mesh_obj):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
 
+    # Write out visibility type
+    vis_types = dict((i[0], i[3]) for i in bpy.types.Scene.retro_map_vis_mode[1]['items'])
+    writebuf(struct.pack('I', vis_types[bpy.context.scene.retro_map_vis_mode]))
+
     # Copy mesh (and apply mesh modifiers with triangulation)
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
@@ -174,6 +178,7 @@ def cook(writebuf, mesh_obj):
 
 def draw(layout, context):
     obj = context.active_object
+    layout.prop(context.scene, 'retro_map_vis_mode', text='Visibility Mode')
     if obj and obj.retro_mappable_type != -1:
         layout.prop(obj, 'retro_mappable_type', text='Type')
         layout.prop(obj, 'retro_mappable_unk', text='Unk')
@@ -183,3 +188,8 @@ def register():
     bpy.types.Object.retro_mappable_type = bpy.props.IntProperty(name='Retro: MAPA object type', default=-1)
     bpy.types.Object.retro_mappable_unk = bpy.props.IntProperty(name='Retro: MAPA object unk')
     bpy.types.Object.retro_mappable_sclyid = bpy.props.StringProperty(name='Retro: MAPA object SCLY ID')
+    bpy.types.Scene.retro_map_vis_mode = bpy.props.EnumProperty(items=[('ALWAYS', 'Always', 'Always Visible', 0),
+    ('MAPSTATIONORVISIT', 'Map Station or Visit', 'Visible after Map Station or Visit', 1),
+    ('VISIT', 'Visit', 'Visible after Visit', 2),
+    ('NEVER', 'Never', 'Never Visible', 3)],
+    name='Retro: Map Visibility Mode')

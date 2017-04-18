@@ -1119,6 +1119,8 @@ BlenderConnection::DataStream::MapArea::POI::POI(BlenderConnection& conn)
 
 BlenderConnection::DataStream::MapArea::MapArea(BlenderConnection& conn)
 {
+    visType.read(conn);
+
     uint32_t vertCount;
     conn._readBuf(&vertCount, 4);
     verts.reserve(vertCount);

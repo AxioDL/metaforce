@@ -718,6 +718,7 @@ public:
         /** Intermediate MapArea representation */
         struct MapArea
         {
+            Index visType;
             std::vector<Vector3f> verts;
             std::vector<Index> indices;
             struct Surface
