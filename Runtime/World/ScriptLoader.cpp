@@ -511,16 +511,13 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
 
     std::string name = mgr.HashInstanceName(in);
 
-    zeus::CVector3f position;
-    position.readBig(in);
+    zeus::CVector3f position = zeus::CVector3f::ReadBig(in);
 
-    zeus::CVector3f extent;
-    extent.readBig(in);
+    zeus::CVector3f extent = zeus::CVector3f::ReadBig(in);
 
     CDamageInfo dInfo(in);
 
-    zeus::CVector3f forceVec;
-    forceVec.readBig(in);
+    zeus::CVector3f forceVec = zeus::CVector3f::ReadBig(in);
 
     ETriggerFlags flags = ETriggerFlags(in.readUint32Big());
     bool active = in.readBool();

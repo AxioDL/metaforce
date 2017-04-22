@@ -34,6 +34,9 @@ public:
     {
     };
 private:
+    float x34_steeringSpeedMin;
+    float x38_steeringSpeedMax;
+    rstl::reserved_vector<CBodyStateCmd, 28> x44_;
 public:
     CBodyStateCmdMgr() = default;
     void DeliverCmd(EBodyStateCmd);

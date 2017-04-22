@@ -15,8 +15,8 @@ namespace urde
 
 CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
-                               const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active, bool b2,
-                               bool b3)
+                               const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active, bool deactivateOnEntered,
+                               bool deactivateOnExited)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Trigger), CActorParameters::None(), kInvalidUniqueId)
 , x100_damageInfo(dInfo)
@@ -25,8 +25,8 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEn
 , x12c_flags(triggerFlags)
 , x130_bounds(bounds)
 {
-    x148_26_deactivateOnEntered = b2;
-    x148_27_deactivateOnExited = b3;
+    x148_26_deactivateOnEntered = deactivateOnEntered;
+    x148_27_deactivateOnExited = deactivateOnExited;
 }
 
 void CScriptTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
