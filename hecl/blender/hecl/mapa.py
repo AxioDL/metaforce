@@ -8,6 +8,8 @@ def cook(writebuf, mesh_obj):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
 
+    obj_vismodes = dict((i[0], i[3]) for i in bpy.types.Object.retro_mapobj_vis_mode[1]['items'])
+
     # Write out visibility type
     vis_types = dict((i[0], i[3]) for i in bpy.types.Scene.retro_map_vis_mode[1]['items'])
     writebuf(struct.pack('I', vis_types[bpy.context.scene.retro_map_vis_mode]))
@@ -169,7 +171,7 @@ def cook(writebuf, mesh_obj):
     for obj in bpy.context.scene.objects:
         if obj.retro_mappable_type != -1:
             writebuf(struct.pack('III',
-                                 obj.retro_mappable_type, obj.retro_mappable_unk, int(obj.retro_mappable_sclyid, 0)))
+                                 obj.retro_mappable_type, obj_vismodes[obj.retro_mapobj_vis_mode], int(obj.retro_mappable_sclyid, 0)))
             writebuf(struct.pack('ffffffffffffffff',
                                  obj.matrix_world[0][0], obj.matrix_world[0][1], obj.matrix_world[0][2], obj.matrix_world[0][3],
                                  obj.matrix_world[1][0], obj.matrix_world[1][1], obj.matrix_world[1][2], obj.matrix_world[1][3],
@@ -180,16 +182,21 @@ def draw(layout, context):
     obj = context.active_object
     layout.prop(context.scene, 'retro_map_vis_mode', text='Visibility Mode')
     if obj and obj.retro_mappable_type != -1:
-        layout.prop(obj, 'retro_mappable_type', text='Type')
-        layout.prop(obj, 'retro_mappable_unk', text='Unk')
+        layout.prop(obj, 'retro_mappable_type', text='Object Type')
+        layout.prop(obj, 'retro_mapobj_vis_mode', text='Object Visibility Mode')
         layout.prop(obj, 'retro_mappable_sclyid', text='Object ID')
 
 def register():
     bpy.types.Object.retro_mappable_type = bpy.props.IntProperty(name='Retro: MAPA object type', default=-1)
-    bpy.types.Object.retro_mappable_unk = bpy.props.IntProperty(name='Retro: MAPA object unk')
     bpy.types.Object.retro_mappable_sclyid = bpy.props.StringProperty(name='Retro: MAPA object SCLY ID')
     bpy.types.Scene.retro_map_vis_mode = bpy.props.EnumProperty(items=[('ALWAYS', 'Always', 'Always Visible', 0),
     ('MAPSTATIONORVISIT', 'Map Station or Visit', 'Visible after Map Station or Visit', 1),
     ('VISIT', 'Visit', 'Visible after Visit', 2),
     ('NEVER', 'Never', 'Never Visible', 3)],
     name='Retro: Map Visibility Mode')
+    bpy.types.Object.retro_mapobj_vis_mode = bpy.props.EnumProperty(items=[('ALWAYS', 'Always', 'Always Visible', 0),
+    ('MAPSTATIONORVISIT', 'Map Station or Visit', 'Visible after Map Station or Visit', 1),
+    ('VISIT', 'Visit', 'Visible after Door Visit', 2),
+    ('NEVER', 'Never', 'Never Visible', 3),
+    ('MAPSTATIONORVISIT2', 'Map Station or Visit 2', 'Visible after Map Station or Visit', 4)],
+    name='Retro: Map Object Visibility Mode')

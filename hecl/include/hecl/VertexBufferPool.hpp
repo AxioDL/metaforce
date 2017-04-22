@@ -21,12 +21,14 @@ namespace hecl
 template <typename VertStruct>
 class VertexBufferPool
 {
+public:
     /* Resolve div_t type using ssize_t as basis */
 #if _WIN32
     using IndexTp = SSIZE_T;
 #else
     using IndexTp = ssize_t;
 #endif
+private:
     struct InvalidTp {};
     using DivTp = std::conditional_t<std::is_same<IndexTp, long long>::value, std::lldiv_t,
                   std::conditional_t<std::is_same<IndexTp, long>::value, std::ldiv_t,

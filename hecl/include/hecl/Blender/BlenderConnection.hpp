@@ -734,7 +734,7 @@ public:
             struct POI
             {
                 uint32_t type;
-                uint32_t unk;
+                uint32_t visMode;
                 uint32_t objid;
                 Matrix4f xf;
                 POI(BlenderConnection& conn);
