@@ -22,9 +22,8 @@ class CMetroidModelInstance
     std::vector<CBooSurface> m_surfaces;
     std::unique_ptr<CBooModel> m_instance;
 public:
-    //CMetroidModelInstance(CBooModel* inst);
-    //CMetroidModelInstance(const void* modelHeader, CBooModel* inst);
-    //~CMetroidModelInstance();
+    CMetroidModelInstance() = default;
+    CMetroidModelInstance(CMetroidModelInstance&&) = default;
 };
 
 }

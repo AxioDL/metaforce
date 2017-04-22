@@ -19,54 +19,70 @@ public:
     /* skDrawProfileItemNames; */
     enum class EMapAreaList
     {
+        Loaded,
+        Loading,
+        Unloaded
     };
 
     class CMapAreaBFSInfo
     {
-        s32 x0_areaIdx;
-        s32 x4_depth;
-        float x8_;
-        float xc_;
+        int x0_areaIdx;
+        int x4_depth;
+        float x8_surfDrawDepth;
+        float xc_outlineDrawDepth;
     public:
-        CMapAreaBFSInfo(s32 areaIdx, s32 depth, float a, float b)
-        : x0_areaIdx(areaIdx), x4_depth(depth), x8_(a), xc_(b) {}
-        s32 GetAreaIndex() const { return x0_areaIdx; }
-        s32 GetDepth() const { return x4_depth; }
-        float GetOutlineDrawDepth() const;
-        float GetSurfaceDrawDepth() const;
+        CMapAreaBFSInfo(int areaIdx, int depth, float a, float b)
+        : x0_areaIdx(areaIdx), x4_depth(depth), x8_surfDrawDepth(a), xc_outlineDrawDepth(b) {}
+        int GetAreaIndex() const { return x0_areaIdx; }
+        int GetDepth() const { return x4_depth; }
+        float GetOutlineDrawDepth() const { return x8_surfDrawDepth; }
+        float GetSurfaceDrawDepth() const { return xc_outlineDrawDepth; }
     };
 
     class CMapObjectSortInfo
     {
+        float x0_zDist;
+        int x4_areaIdx;
+        int x8_typeAndIdx;
+        zeus::CColor xc_surfColor;
+        zeus::CColor x10_outlineColor;
     public:
         enum class EObjectCode
         {
+            One = 1 << 16,
+            Door = 2 << 16,
+            Three = 3 << 16,
+            Four = 4 << 16
         };
-    private:
-    public:
-        CMapObjectSortInfo(float, int, EObjectCode, int, const zeus::CColor&, const zeus::CColor& );
-        const zeus::CColor& GetOutlineColor() const;
-        const zeus::CColor& GetSurfaceColor() const;
-        u32 GetLocalObjectIndex();
-        EObjectCode GetObjectCode() const;
-        u32 GetAreaIndex() const;
-        float GetZDistance() const;
+
+        CMapObjectSortInfo(float zDist, int areaIdx, EObjectCode type, int idx,
+                           const zeus::CColor& surfColor, const zeus::CColor& outlineColor)
+        : x0_zDist(zDist), x4_areaIdx(areaIdx), x8_typeAndIdx(int(type) | idx),
+          xc_surfColor(surfColor), x10_outlineColor(outlineColor) {}
+        const zeus::CColor& GetOutlineColor() const { return x10_outlineColor; }
+        const zeus::CColor& GetSurfaceColor() const { return xc_surfColor; }
+        u32 GetLocalObjectIndex() const { return x8_typeAndIdx & 0xffff; }
+        EObjectCode GetObjectCode() const { return EObjectCode(x8_typeAndIdx & 0xffff0000); }
+        u32 GetAreaIndex() const { return x4_areaIdx; }
+        float GetZDistance() const { return x0_zDist; }
     };
 
     class CMapAreaData
     {
         TCachedToken<CMapArea> x0_area;
+        EMapAreaList x10_list;
+        CMapAreaData* x14_next;
     public:
-        CMapAreaData(u32, EMapAreaList, CMapAreaData*);
-        void Lock();
-        void Unlock();
-        bool IsLoaded() const;
+        CMapAreaData(ResId areaRes, EMapAreaList list, CMapAreaData* next);
+        void Lock() { x0_area.Lock(); }
+        void Unlock() { x0_area.Unlock(); }
+        bool IsLoaded() const { return x0_area.IsLoaded(); }
         const CMapArea* GetMapArea() const { return x0_area.IsLoaded() ? x0_area.GetObj() : nullptr; }
-        void GetNextMapAreaData() const;
-        void GetContainingList() const;
-        void NextMapAreaData();
-        void SetContainingList(EMapAreaList);
-        void SetNextMapArea(CMapAreaData*);
+        const CMapAreaData* GetNextMapAreaData() const { return x14_next; }
+        EMapAreaList GetContainingList() const { return x10_list; }
+        CMapAreaData* NextMapAreaData() { return x14_next; }
+        void SetContainingList(EMapAreaList list) { x10_list = list; }
+        void SetNextMapArea(CMapAreaData* next) { x14_next = next; }
     };
 
     class CMapWorldDrawParms
@@ -126,18 +142,23 @@ public:
 
 private:
     std::vector<CMapAreaData> x0_areas;
+    rstl::reserved_vector<CMapAreaData*, 3> x10_listHeads;
+    std::vector<bool> x20_traversed;
+    zeus::CVector3f x30_;
+    float x3c_ = 0.f;
+    float x40_ = 0.f;
 public:
     CMapWorld(CInputStream&);
     u32 GetNumAreas() const { return x0_areas.size(); }
-    const CMapArea* GetMapArea(TAreaId aid) const { return x0_areas[aid].GetMapArea(); }
-    void IsMapAreaInBFSInfoVector(const CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
+    const CMapArea* GetMapArea(int aid) const { return x0_areas[aid].GetMapArea(); }
+    bool IsMapAreaInBFSInfoVector(const CMapAreaData*, const std::vector<CMapAreaBFSInfo>&) const;
     void SetWhichMapAreasLoaded(const IWorld&, int start, int count);
     bool IsMapAreasStreaming() const;
     void MoveMapAreaToList(CMapAreaData*, EMapAreaList);
-    s32 GetCurrentMapAreaDepth(const IWorld&, TAreaId) const;
-    std::vector<TAreaId> GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
+    s32 GetCurrentMapAreaDepth(const IWorld&, int areaIdx) const;
+    std::vector<int> GetVisibleAreas(const IWorld&, const CMapWorldInfo&) const;
     void Draw(const CMapWorldDrawParms&, int, int, float, float, bool) const;
-    void DoBFS(const IWorld&, TAreaId, int, float, float, bool, std::vector<CMapAreaBFSInfo>&) const;
+    void DoBFS(const IWorld&, int, int, float, float, bool, std::vector<CMapAreaBFSInfo>&) const;
     bool IsMapAreaValid(const IWorld&, int, bool) const;
     void DrawAreas(const CMapWorldDrawParms&, int, const std::vector<CMapAreaBFSInfo>&, bool) const;
     void RecalculateWorldSphere(const CMapWorldInfo&, const IWorld&) const;

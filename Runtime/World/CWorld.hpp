@@ -25,7 +25,7 @@ public:
     virtual ResId IGetSaveWorldAssetId() const=0;
     virtual const CMapWorld* IGetMapWorld() const=0;
     virtual CMapWorld* IMapWorld()=0;
-    virtual const  IGameArea* IGetAreaAlways(TAreaId id) const=0;
+    virtual const IGameArea* IGetAreaAlways(TAreaId id) const=0;
     virtual TAreaId IGetCurrentAreaId() const=0;
     virtual TAreaId IGetAreaId(ResId id) const=0;
     virtual bool ICheckWorldComplete()=0;

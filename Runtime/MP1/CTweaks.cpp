@@ -86,6 +86,7 @@ void CTweaks::RegisterTweaks()
     tag = factory.GetResourceIdByName("AutoMapper");
     strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
     g_tweakAutoMapper = new DataSpec::DNAMP1::CTweakAutoMapper(*strm);
+    CMappableObject::ReadAutoMapperTweaks(*g_tweakAutoMapper);
 
     /* Gui */
     tag = factory.GetResourceIdByName("Gui");

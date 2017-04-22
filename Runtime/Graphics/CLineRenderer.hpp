@@ -44,7 +44,10 @@ public:
     boo::IGraphicsBufferD* m_uniformBuf;
     boo::IShaderDataBinding* m_shaderBind = nullptr;
 
+    CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
+                  EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive);
     CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive);
+    CLineRenderer(CLineRenderer&&) = default;
 
     void Reset();
     void AddVertex(const zeus::CVector3f& position, const zeus::CColor& color, float width,

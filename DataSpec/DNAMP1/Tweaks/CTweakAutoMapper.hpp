@@ -120,6 +120,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetCamPanUnitsPerFrame() const { return xe0_camPanUnitsPerFrame; }
     float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
     const zeus::CColor& GetMiniMapSamusModColor() const { return xf0_miniMapSamusModColor; }
+    const zeus::CColor& GetDoorColor(int idx) const { return x104_doorColors[idx]; }
+    const zeus::CColor& GetOpenDoorColor() const { return x11c_openDoorColor; }
 };
 }
 }

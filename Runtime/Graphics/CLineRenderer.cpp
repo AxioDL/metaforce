@@ -33,6 +33,38 @@ struct SDrawUniform
     zeus::CColor moduColor;
 };
 
+CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
+                             EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive)
+: m_mode(mode), m_maxVerts(maxVerts)
+{
+    if (maxVerts < 2)
+    {
+        LineRendererLog.report(logvisor::Fatal, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
+        return;
+    }
+    m_textured = texture != nullptr;
+
+    u32 maxTriVerts;
+    switch (mode)
+    {
+    case EPrimitiveMode::Lines:
+        maxTriVerts = maxVerts * 3;
+        break;
+    case EPrimitiveMode::LineStrip:
+        maxTriVerts = maxVerts * 2;
+        break;
+    case EPrimitiveMode::LineLoop:
+        maxTriVerts = maxVerts * 2 + 2;
+        break;
+    }
+
+    m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
+                                     texture ? sizeof(SDrawVertTex) : sizeof(SDrawVertNoTex),
+                                     maxTriVerts);
+    m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SDrawUniform), 1);
+    CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive);
+}
+
 CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive)
 : m_mode(mode), m_maxVerts(maxVerts)
 {

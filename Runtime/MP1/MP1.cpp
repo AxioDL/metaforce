@@ -10,6 +10,7 @@
 #include "Graphics/Shaders/CTextSupportShader.hpp"
 #include "Graphics/Shaders/CEnergyBarShader.hpp"
 #include "Graphics/Shaders/CRadarPaintShader.hpp"
+#include "Graphics/Shaders/CMapSurfaceShader.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -27,6 +28,7 @@ URDE_DECL_SPECIALIZE_SHADER(CFogVolumePlaneShader)
 URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
 URDE_DECL_SPECIALIZE_SHADER(CEnergyBarShader)
 URDE_DECL_SPECIALIZE_SHADER(CRadarPaintShader)
+URDE_DECL_SPECIALIZE_SHADER(CMapSurfaceShader)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
@@ -219,6 +221,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TShader<CFogVolumeFilter>::Initialize();
     TShader<CEnergyBarShader>::Initialize();
     TShader<CRadarPaintShader>::Initialize();
+    TShader<CMapSurfaceShader>::Initialize();
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
@@ -334,6 +337,7 @@ void CMain::ShutdownSubsystems()
     CAnimData::FreeCache();
     CMemoryCardSys::Shutdown();
     CModelShaders::Shutdown();
+    CMappableObject::Shutdown();
 }
 
 void CMain::Shutdown()
@@ -349,6 +353,7 @@ void CMain::Shutdown()
     TShader<CFogVolumeFilter>::Shutdown();
     TShader<CEnergyBarShader>::Shutdown();
     TShader<CRadarPaintShader>::Shutdown();
+    TShader<CMapSurfaceShader>::Shutdown();
     TMultiBlendShader<CColoredQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();

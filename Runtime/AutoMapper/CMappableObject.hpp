@@ -5,12 +5,22 @@
 #include "zeus/CAABox.hpp"
 #include "zeus/CTransform.hpp"
 #include "GameGlobalObjects.hpp"
+#include "Graphics/Shaders/CMapSurfaceShader.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/CLineRenderer.hpp"
 
 namespace urde
 {
 class CStateManager;
+class CMapWorldInfo;
+
 class CMappableObject
 {
+    friend class CMapArea;
+    static boo::GraphicsDataToken g_gfxToken;
+    static boo::IGraphicsBufferS* g_doorVbo;
+    static boo::IGraphicsBufferS* g_doorIbo;
+
 public:
     enum class EMappableObjectType
     {
@@ -29,7 +39,7 @@ public:
         PlasmaDoorFloor  = 12,
         IceDoorFloor2    = 13,
         WaveDoorFloor2   = 14,
-        Fifteen          = 15,
+        PlasmaDoorFloor2 = 15,
         DownArrowYellow  = 27, /* Maintenance Tunnel */
         UpArrowYellow    = 28, /* Phazon Processing Center */
         DownArrowGreen   = 29, /* Elevator A */
@@ -46,25 +56,44 @@ private:
 
     EMappableObjectType x0_type;
     u32 x4_;
-    TEditorId x8_;
+    TEditorId x8_objId;
     u32 xc_;
     zeus::CTransform x10_transform;
+
+    struct DoorSurface
+    {
+        CMapSurfaceShader m_surface;
+        CLineRenderer m_outline;
+        DoorSurface(boo::IGraphicsDataFactory::Context& ctx)
+        : m_surface(ctx, g_doorVbo, g_doorIbo),
+          m_outline(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 5, nullptr, false)
+        {}
+    };
+    std::experimental::optional<DoorSurface> m_doorSurface;
+    std::experimental::optional<CTexturedQuadFilter> m_texQuadFilter;
+
     zeus::CTransform AdjustTransformForType();
+    std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
 public:
+    CMappableObject(const void* buf);
+    CMappableObject(CMappableObject&&) = default;
     void PostConstruct(const void*);
-    const zeus::CTransform& GetTransform() const;
-    EMappableObjectType GetType() const;
-    void Draw(int, const CStateManager&, float, bool) const;
-    void DrawDoorSurface(int, const CStateManager&, float, int, bool) const;
-    zeus::CVector3f BuildSurfaceCenterPoint(s32) const;
-    bool IsDoorConnectedToArea(s32, const CStateManager&) const;
+    const zeus::CTransform& GetTransform() const { return x10_transform; }
+    EMappableObjectType GetType() const { return x0_type; }
+    void Draw(int, const CMapWorldInfo&, float, bool) const;
+    void DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha,
+                         int surfIdx, bool needsVtxLoad) const;
+    zeus::CVector3f BuildSurfaceCenterPoint(int surfIdx) const;
+    bool IsDoorConnectedToArea(int idx, const CStateManager&) const;
     bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
     bool GetIsVisibleToAutoMapper(bool) const;
     bool GetIsSeen() const;
 
-    void ReadAutoMapperTweaks(const ITweakAutoMapper&);
+    static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
     static bool GetTweakIsMapVisibilityCheat();
-    static bool IsDoorType(EMappableObjectType);
+    static bool IsDoorType(EMappableObjectType type) { return type >= EMappableObjectType::BlueDoor &&
+                                                              type <= EMappableObjectType::PlasmaDoorFloor2; }
+    static void Shutdown();
 };
 }
 #endif // __URDE_CMAPPABLEOBJECT_HPP__
