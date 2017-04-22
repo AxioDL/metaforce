@@ -27,12 +27,12 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> x30_miniCamAngle;
     Value<float> x34_;
     DNAColor x38_;
-    DNAColor x3c_;
-    DNAColor x40_;
-    DNAColor x44_;
-    DNAColor x48_;
-    DNAColor x4c_;
-    DNAColor x50_;
+    DNAColor x3c_surfColorVisited;
+    DNAColor x40_outlineColorVisited;
+    DNAColor x44_surfColorUnvisited;
+    DNAColor x48_outlineColorUnvisited;
+    DNAColor x4c_surfaceSelectColorVisited;
+    DNAColor x50_outlineSelectColorVisited;
     Value<float> x54_;
     Value<float> x58_;
     Value<float> x5c_;
@@ -43,8 +43,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> x70_zoomUnitsPerFrame;
     Value<float> x74_rotateDegPerFrame;
     Value<float> x78_baseMapScreenCameraMoveSpeed;
-    DNAColor x7c_;
-    DNAColor x80_;
+    DNAColor x7c_surfaceSelectColorUnvisited;
+    DNAColor x80_outlineSelectColorUnvisited;
     Value<float> x84_miniAlphaSurfaceVisited;
     Value<float> x88_alphaSurfaceVisited;
     Value<float> x8c_miniAlphaOutlineVisited;
@@ -72,7 +72,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> xe8_;
     Value<float> xec_camVerticalOffset;
     DNAColor xf0_miniMapSamusModColor;
-    DNAColor xf4_;
+    DNAColor xf4_areaFlashPulseColor;
     DNAColor xf8_;
     DNAColor xfc_;
     Value<atUint32> x100_doorColorCount;
@@ -93,12 +93,20 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetMiniCamDist() const { return x28_miniCamDist; }
     float GetMiniCamXAngle() const { return x2c_miniCamXAngle; }
     float GetMiniCamAngle() const { return x30_miniCamAngle; }
+    const zeus::CColor& GetSurfaceVisitedColor() const { return x3c_surfColorVisited; }
+    const zeus::CColor& GetOutlineVisitedColor() const { return x40_outlineColorVisited; }
+    const zeus::CColor& GetSurfaceUnvisitedColor() const { return x44_surfColorUnvisited; }
+    const zeus::CColor& GetOutlineUnvisitedColor() const { return x48_outlineColorUnvisited; }
+    const zeus::CColor& GetSurfaceSelectVisitedColor() const { return x4c_surfaceSelectColorVisited; }
+    const zeus::CColor& GetOutlineSelectVisitedColor() const { return x50_outlineSelectColorVisited; }
     float GetOpenMapScreenTime() const { return x64_openMapScreenTime; }
     float GetCloseMapScreenTime() const { return x68_closeMapScreenTime; }
     float GetHintPanTime() const { return x6c_hintPanTime; }
     float GetCamZoomUnitsPerFrame() const { return x70_zoomUnitsPerFrame; }
     float GetCamRotateDegreesPerFrame() const { return x74_rotateDegPerFrame; }
     float GetBaseMapScreenCameraMoveSpeed() const { return x78_baseMapScreenCameraMoveSpeed; }
+    const zeus::CColor& GetSurfaceSelectUnvisitedColor() const { return x7c_surfaceSelectColorUnvisited; }
+    const zeus::CColor& GetOutlineSelectUnvisitedColor() const { return x80_outlineSelectColorUnvisited; }
     float GetMiniAlphaSurfaceVisited() const { return x84_miniAlphaSurfaceVisited; }
     float GetAlphaSurfaceVisited() const { return x88_alphaSurfaceVisited; }
     float GetMiniAlphaOutlineVisited() const { return x8c_miniAlphaOutlineVisited; }
@@ -120,6 +128,7 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetCamPanUnitsPerFrame() const { return xe0_camPanUnitsPerFrame; }
     float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
     const zeus::CColor& GetMiniMapSamusModColor() const { return xf0_miniMapSamusModColor; }
+    const zeus::CColor& GetAreaFlashPulseColor() const { return xf4_areaFlashPulseColor; }
     const zeus::CColor& GetDoorColor(int idx) const { return x104_doorColors[idx]; }
     const zeus::CColor& GetOpenDoorColor() const { return x11c_openDoorColor; }
 };

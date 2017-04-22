@@ -4,6 +4,7 @@
 #include "CTimeProvider.hpp"
 #include "Shaders/CTextSupportShader.hpp"
 #include "GuiSys/CGuiSys.hpp"
+#include "CLineRenderer.hpp"
 
 namespace urde
 {
@@ -108,7 +109,7 @@ void CGraphics::EndScene()
     /* GXCopyDisp to g_CurrenFrameBuf with clear enabled */
     /* Register next breakpoint with GP FIFO */
 
-    /* Yup, GX had fences long before D3D12 and Vulkan
+    /* Yup, GX effectively had fences long before D3D12 and Vulkan
      * (same functionality implemented in boo's execute method) */
 
     /* This usually comes from VI register during interrupt;
@@ -119,6 +120,9 @@ void CGraphics::EndScene()
 
     /* Flush text instance buffers just before GPU command list submission */
     CTextSupportShader::UpdateBuffers();
+
+    /* Same with line renderer */
+    CLineRenderer::UpdateBuffers();
 
     ++g_FrameCounter;
 }

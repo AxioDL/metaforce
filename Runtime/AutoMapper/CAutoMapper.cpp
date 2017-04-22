@@ -1182,7 +1182,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
     if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
     {
         x1d8_flashTimer = std::fmod(x1d8_flashTimer + dt, 0.75f);
-        x1dc_flashPulse = x1d8_flashTimer < 0.375f ? x1d8_flashTimer / 0.375f : (0.75f - x1d8_flashTimer) / 0.375f;
+        x1dc_playerFlashPulse = x1d8_flashTimer < 0.375f ? x1d8_flashTimer / 0.375f : (0.75f - x1d8_flashTimer) / 0.375f;
     }
 
     if (!m_frmeInitialized && x28_frmeMapScreen.IsLoaded())
@@ -1476,13 +1476,13 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         {
             const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
             const CMapWorld* mw = x24_world->IGetMapWorld();
-            float flashIntensity = 0.f;
+            float hintFlash = 0.f;
             if (x1e0_hintSteps.size() && x1e0_hintSteps.front().x0_type == SAutoMapperHintStep::Type::ShowBeacon)
             {
                 if (xa0_curAreaId == mgr.GetNextAreaId() && x24_world == mgr.GetWorld())
                 {
                     float pulseTime = std::fmod(x1e0_hintSteps.front().x4_float * 8.f, 1.f);
-                    flashIntensity = 2.f * (pulseTime < 0.5f ? pulseTime : 1.f - pulseTime);
+                    hintFlash = 2.f * (pulseTime < 0.5f ? pulseTime : 1.f - pulseTime);
                 }
                 else
                 {
@@ -1493,7 +1493,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                         if (xa0_curAreaId != loc.xc_areaId)
                             continue;
                         float pulseTime = std::fmod((1.f - std::max(0.f, (x1e0_hintSteps.front().x4_float - 0.5f) / 0.5f)) * 4.f, 1.f);
-                        flashIntensity = 2.f * (pulseTime < 0.5f ? pulseTime : 1.f - pulseTime);
+                        hintFlash = 2.f * (pulseTime < 0.5f ? pulseTime : 1.f - pulseTime);
                         break;
                     }
                 }
@@ -1504,7 +1504,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                 xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
                 xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp,
                 mapAlpha, 2.f, mgr, planeXf * preXf, camXf, *x24_world,
-                mwInfo, x1dc_flashPulse, flashIntensity, objectScale, true);
+                mwInfo, x1dc_playerFlashPulse, hintFlash, objectScale, true);
             mw->Draw(parms, xa0_curAreaId, xa0_curAreaId,
                      xa8_renderStates[0].x2c_drawDepth1,
                      xa8_renderStates[0].x30_drawDepth2, true);
@@ -1561,7 +1561,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         }
 
         CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(),
-                                                  hexIdx, x1dc_flashPulse, mgr, planeXf, camXf);
+                                                  hexIdx, x1dc_playerFlashPulse, mgr, planeXf, camXf);
         x8_mapu->Draw(parms, zeus::CVector3f::skZero, 0.f, 0.f);
     }
 

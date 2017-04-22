@@ -109,17 +109,29 @@ struct MetalLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
         int texCount = 0;
         boo::ITexture* textures[1];
 
+        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+            renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
+            vbufInfo = renderer.m_vertBufTex.getBufferInfo();
             textures[0] = texture;
             texCount = 1;
         }
+        else
+        {
+            vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
+        }
 
-        boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
+        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        size_t ubufOffs[] = {ubufInfo.second};
+        size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
-                                                         nullptr, nullptr, 1, uniforms, nullptr,
-                                                         texCount, textures, nullptr, nullptr);
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first,
+                                                         nullptr, nullptr, 1, uniforms, stages,
+                                                         ubufOffs, ubufSizes, texCount, textures,
+                                                         nullptr, nullptr, vbufInfo.second);
     }
 };
 

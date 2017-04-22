@@ -120,7 +120,7 @@ struct MAPA : BigDNA
     {
         DECL_DNA
         Value<Type> type;
-        Value<atUint32> unknown1;
+        Value<atUint32> visMode;
         Value<atUint32> sclyId;
         Value<atInt32> seek1 = -1;
         Value<atVec4f>  transformMtx[3];
@@ -132,7 +132,7 @@ struct MAPA : BigDNA
     {
         DECL_DNA
         Value<Type> type;
-        Value<atUint32> unknown1;
+        Value<atUint32> visMode;
         Value<atUint32> sclyId;
         Buffer<DNA_COUNT(0x10)> unknownHash;
         Value<atInt32> seek1 = -1;

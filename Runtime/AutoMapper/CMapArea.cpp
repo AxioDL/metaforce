@@ -267,18 +267,24 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
         std::vector<CLineRenderer>& linePrims = const_cast<std::vector<CLineRenderer>&>(m_linePrims);
         if (linePrims.size() < totalPrims)
         {
+            linePrims.clear();
             linePrims.reserve(totalPrims);
-            for (u32 j=0 ; j<=draw2 ; ++j)
+            const_cast<CMapAreaSurface*>(this)->m_lineToken =
+            CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
             {
-                r.seek(4, athena::SeekOrigin::Begin);
-                for (u32 i=0 ; i<outlineCount ; ++i)
+                for (u32 j=0 ; j<=draw2 ; ++j)
                 {
-                    u32 count = r.readUint32Big();
-                    r.seek(count);
-                    r.seekAlign4();
-                    linePrims.emplace_back(CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false);
+                    r.seek(4, athena::SeekOrigin::Begin);
+                    for (u32 i=0 ; i<outlineCount ; ++i)
+                    {
+                        u32 count = r.readUint32Big();
+                        r.seek(count);
+                        r.seekAlign4();
+                        linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false);
+                    }
                 }
-            }
+                return true;
+            });
         }
 
         zeus::CColor color = lineColor;

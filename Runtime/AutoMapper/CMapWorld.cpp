@@ -3,6 +3,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "World/CWorld.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -215,10 +216,148 @@ bool CMapWorld::IsMapAreaValid(const IWorld& wld, int areaIdx, bool checkLoad) c
     return true;
 }
 
-void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms&, int,
-                          const std::vector<CMapWorld::CMapAreaBFSInfo>&, bool) const
+void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selArea,
+                          const std::vector<CMapAreaBFSInfo>& bfsInfos, bool inMapScreen) const
 {
+    // Alpha blend
+    // Line width 1
 
+    int surfCount = 0;
+    int objCount = 0;
+    for (const CMapAreaBFSInfo& bfsInfo : bfsInfos)
+    {
+        const CMapArea* mapa = GetMapArea(bfsInfo.GetAreaIndex());
+        surfCount += mapa->GetNumSurfaces();
+        objCount += mapa->GetNumMappableObjects();
+    }
+
+    std::vector<CMapObjectSortInfo> sortInfos;
+    sortInfos.reserve(surfCount + objCount + (parms.GetIsSortDoorSurfaces() ? objCount * 6 : 0));
+
+    int playerArea = parms.GetStateManager().GetNextAreaId();
+    const CMapWorldInfo& mwInfo = parms.GetMapWorldInfo();
+    for (const CMapAreaBFSInfo& bfsInfo : bfsInfos)
+    {
+        int thisArea = bfsInfo.GetAreaIndex();
+        const CMapArea* mapa = GetMapArea(thisArea);
+        if (!mapa->GetIsVisibleToAutoMapper(mwInfo.IsWorldVisible(thisArea), mwInfo.IsAreaVisible(thisArea)))
+            continue;
+
+        float surfDepth = bfsInfo.GetSurfaceDrawDepth();
+        float outlineDepth = bfsInfo.GetOutlineDrawDepth();
+
+        if (surfDepth >= 1.f)
+            surfDepth = 1.f;
+        else if (surfDepth < 0.f)
+            surfDepth = 0.f;
+        else
+            surfDepth -= std::floor(surfDepth);
+
+        if (outlineDepth >= 1.f)
+            outlineDepth = 1.f;
+        else if (outlineDepth < 0.f)
+            outlineDepth = 0.f;
+        else
+            outlineDepth -= std::floor(outlineDepth);
+
+        float alphaSurf;
+        float alphaOutline;
+        const zeus::CColor* surfaceColor;
+        const zeus::CColor* outlineColor;
+        const zeus::CColor* surfacePlayerColor;
+        const zeus::CColor* outlinePlayerColor;
+        if (mwInfo.IsAreaVisted(thisArea))
+        {
+            alphaSurf = parms.GetAlphaSurfaceVisited();
+            alphaOutline = parms.GetAlphaOutlineVisited();
+            surfaceColor = &g_tweakAutoMapper->GetSurfaceVisitedColor();
+            outlineColor = &g_tweakAutoMapper->GetOutlineVisitedColor();
+            surfacePlayerColor = &g_tweakAutoMapper->GetSurfaceSelectVisitedColor();
+            outlinePlayerColor = &g_tweakAutoMapper->GetOutlineSelectVisitedColor();
+        }
+        else
+        {
+            alphaSurf = parms.GetAlphaSurfaceUnvisited();
+            alphaOutline = parms.GetAlphaOutlineUnvisited();
+            surfaceColor = &g_tweakAutoMapper->GetSurfaceUnvisitedColor();
+            outlineColor = &g_tweakAutoMapper->GetOutlineUnvisitedColor();
+            surfacePlayerColor = &g_tweakAutoMapper->GetSurfaceSelectUnvisitedColor();
+            outlinePlayerColor = &g_tweakAutoMapper->GetOutlineSelectUnvisitedColor();
+        }
+
+        zeus::CColor hintFlashColor =
+        zeus::CColor::lerp(zeus::CColor::skClear, zeus::CColor{1.f, 1.f, 1.f, 0.f}, parms.GetHintAreaFlashIntensity());
+
+        zeus::CColor finalSurfColor, finalOutlineColor;
+        if (thisArea == selArea && inMapScreen)
+        {
+            finalSurfColor = *surfacePlayerColor + hintFlashColor;
+            finalOutlineColor = *outlinePlayerColor + hintFlashColor;
+        }
+        else
+        {
+            finalSurfColor = *surfaceColor;
+            finalSurfColor.a = surfDepth * alphaSurf;
+            finalOutlineColor = *outlineColor;
+            finalOutlineColor.a = outlineDepth * alphaOutline;
+        }
+
+        if ((selArea != playerArea || parms.GetHintAreaFlashIntensity() == 0.f) &&
+            playerArea == thisArea && this == parms.GetStateManager().GetWorld()->GetMapWorld())
+        {
+            float pulse = parms.GetPlayerAreaFlashIntensity();
+            const zeus::CColor& flashCol = g_tweakAutoMapper->GetAreaFlashPulseColor();
+            finalSurfColor = zeus::CColor::lerp(finalSurfColor, flashCol, pulse);
+            finalOutlineColor = zeus::CColor::lerp(finalOutlineColor, flashCol, pulse);
+        }
+
+        zeus::CTransform modelView = parms.GetCameraTransform().inverse() *
+                                     mapa->GetAreaPostTransform(parms.GetWorld(), thisArea);
+        for (int i=0 ; i<mapa->GetNumSurfaces() ; ++i)
+        {
+            const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(i);
+            zeus::CVector3f pos = modelView * surf.GetCenterPosition();
+            sortInfos.emplace_back(pos.y, thisArea, CMapObjectSortInfo::EObjectCode::Surface, i,
+                                   finalSurfColor, finalOutlineColor);
+        }
+
+        int i = 0;
+        int si = 0;
+        for (; i<mapa->GetNumMappableObjects() ; ++i, si+=6)
+        {
+            const CMappableObject& obj = mapa->GetMappableObject(i);
+            if (!obj.IsVisibleToAutoMapper(mwInfo.IsWorldVisible(thisArea), mwInfo))
+                continue;
+
+            bool doorType = CMappableObject::IsDoorType(obj.GetType());
+            if (doorType)
+            {
+                if (!mwInfo.IsAreaVisible(thisArea))
+                    continue;
+                if (parms.GetIsSortDoorSurfaces())
+                {
+                    for (int s=0 ; s<6 ; ++s)
+                    {
+                        zeus::CVector3f center = obj.BuildSurfaceCenterPoint(s);
+                        zeus::CVector3f pos = modelView * (CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea) + center);
+                        sortInfos.emplace_back(pos.y, thisArea, CMapObjectSortInfo::EObjectCode::DoorSurface, si+s,
+                                               zeus::CColor{1.f, 0.f, 1.f, 1.f}, zeus::CColor{1.f, 0.f, 1.f, 1.f});
+                    }
+                    continue;
+                }
+            }
+
+            zeus::CVector3f pos = modelView * (obj.GetTransform().origin + CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea));
+            sortInfos.emplace_back(pos.y, thisArea, doorType ? CMapObjectSortInfo::EObjectCode::Door :
+                                                               CMapObjectSortInfo::EObjectCode::Object,
+                                   i, zeus::CColor{1.f, 0.f, 1.f, 1.f}, zeus::CColor{1.f, 0.f, 1.f, 1.f});
+        }
+    }
+
+    if (sortInfos.empty())
+        return;
+
+    /* TODO: Finish */
 }
 
 struct Support

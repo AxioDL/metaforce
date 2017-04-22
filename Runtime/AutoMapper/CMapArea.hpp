@@ -27,6 +27,7 @@ public:
         u32 m_primCount;
         std::experimental::optional<CMapSurfaceShader> m_surfacePrims;
         std::vector<CLineRenderer> m_linePrims;
+        boo::GraphicsDataToken m_lineToken;
     public:
         CMapAreaSurface(const void* surfBuf);
         CMapAreaSurface(CMapAreaSurface&&) = default;

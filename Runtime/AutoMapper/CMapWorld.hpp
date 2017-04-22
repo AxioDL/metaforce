@@ -49,10 +49,10 @@ public:
     public:
         enum class EObjectCode
         {
-            One = 1 << 16,
-            Door = 2 << 16,
-            Three = 3 << 16,
-            Four = 4 << 16
+            Object = 1 << 16,
+            DoorSurface = 2 << 16,
+            Door = 3 << 16,
+            Surface = 4 << 16
         };
 
         CMapObjectSortInfo(float zDist, int areaIdx, EObjectCode type, int idx,
@@ -98,8 +98,8 @@ public:
         const zeus::CTransform& x20_viewXf;
         const IWorld& x24_wld;
         const CMapWorldInfo& x28_mwInfo;
-        float x2c_flashPulse;
-        float x30_flashIntensity;
+        float x2c_playerFlashIntensity;
+        float x30_hintFlashIntensity;
         float x34_objectScale;
         bool x38_sortDoorSurfs;
     public:
@@ -107,8 +107,8 @@ public:
                            float alphaSurfUnvisited, float alphaOlUnvisited,
                            float alpha, float outlineWidthScale, const CStateManager& mgr,
                            const zeus::CTransform& modelXf, const zeus::CTransform& viewXf,
-                           const IWorld& wld, const CMapWorldInfo& mwInfo, float flashPulse,
-                           float flashIntensity, float objectScale, bool sortDoorSurfs)
+                           const IWorld& wld, const CMapWorldInfo& mwInfo, float playerFlash,
+                           float hintFlash, float objectScale, bool sortDoorSurfs)
         : x0_alphaSurfVisited(alphaSurfVisited),
           x4_alphaOlVisited(alphaOlVisited),
           x8_alphaSurfUnvisited(alphaSurfUnvisited),
@@ -120,16 +120,16 @@ public:
           x20_viewXf(viewXf),
           x24_wld(wld),
           x28_mwInfo(mwInfo),
-          x2c_flashPulse(flashPulse),
-          x30_flashIntensity(flashIntensity),
+          x2c_playerFlashIntensity(playerFlash),
+          x30_hintFlashIntensity(hintFlash),
           x34_objectScale(objectScale),
           x38_sortDoorSurfs(sortDoorSurfs)
         {}
         const IWorld& GetWorld() const { return x24_wld; }
         float GetOutlineWidthScale() const { return x14_outlineWidthScale; }
         const zeus::CTransform& GetPlaneProjectionTransform() const { return x1c_modelXf; }
-        float GetPlayerAreaFlashIntensity() const { return x30_flashIntensity; }
-        float GetPlayerAreaFlashPulse() const { return x2c_flashPulse; }
+        float GetHintAreaFlashIntensity() const { return x30_hintFlashIntensity; }
+        float GetPlayerAreaFlashIntensity() const { return x2c_playerFlashIntensity; }
         const zeus::CTransform& GetCameraTransform() const { return x20_viewXf; }
         float GetAlphaOutlineUnvisited() const { return xc_alphaOlUnvisited; }
         float GetAlphaSurfaceUnvisited() const { return x8_alphaSurfUnvisited; }

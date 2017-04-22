@@ -13,25 +13,14 @@ void CLineRenderer::Initialize()
 void CLineRenderer::Shutdown()
 {
     CLineRendererShaders::Shutdown();
+    s_vertPoolTex.doDestroy();
+    s_vertPoolNoTex.doDestroy();
+    s_uniformPool.doDestroy();
 }
 
-struct SDrawVertTex
-{
-    zeus::CVector4f pos;
-    zeus::CColor color;
-    zeus::CVector2f uv;
-};
-
-struct SDrawVertNoTex
-{
-    zeus::CVector4f pos;
-    zeus::CColor color;
-};
-
-struct SDrawUniform
-{
-    zeus::CColor moduColor;
-};
+hecl::VertexBufferPool<CLineRenderer::SDrawVertTex> CLineRenderer::s_vertPoolTex = {};
+hecl::VertexBufferPool<CLineRenderer::SDrawVertNoTex> CLineRenderer::s_vertPoolNoTex = {};
+hecl::UniformBufferPool<CLineRenderer::SDrawUniform> CLineRenderer::s_uniformPool = {};
 
 CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
                              EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive)
@@ -58,10 +47,13 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
         break;
     }
 
-    m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
-                                     texture ? sizeof(SDrawVertTex) : sizeof(SDrawVertNoTex),
-                                     maxTriVerts);
-    m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SDrawUniform), 1);
+    if (texture)
+        m_vertBufTex = s_vertPoolTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
+    else
+        m_vertBufNoTex = s_vertPoolNoTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
+
+    m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
+
     CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive);
 }
 
@@ -89,19 +81,22 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
         break;
     }
 
+    if (texture)
+        m_vertBufTex = s_vertPoolTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
+    else
+        m_vertBufNoTex = s_vertPoolNoTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
+
+    m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
+
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
-                                         texture ? sizeof(SDrawVertTex) : sizeof(SDrawVertNoTex),
-                                         maxTriVerts);
-        m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SDrawUniform), 1);
         CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive);
         return true;
     });
 }
 
-static rstl::reserved_vector<SDrawVertTex, 256> g_StaticLineVertsTex;
-static rstl::reserved_vector<SDrawVertNoTex, 256> g_StaticLineVertsNoTex;
+rstl::reserved_vector<CLineRenderer::SDrawVertTex, 256> CLineRenderer::g_StaticLineVertsTex = {};
+rstl::reserved_vector<CLineRenderer::SDrawVertNoTex, 256> CLineRenderer::g_StaticLineVertsNoTex = {};
 
 static zeus::CVector2f IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa2,
                                       const zeus::CVector2f& pb1, const zeus::CVector2f& pb2)
@@ -357,17 +352,16 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
         m_final = true;
     }
 
-    SDrawUniform uniformData = {moduColor};
-    m_uniformBuf->load(&uniformData, sizeof(SDrawUniform));
+    m_uniformBuf.access() = SDrawUniform{moduColor};
     if (m_textured)
     {
-        m_vertBuf->load(g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
+        memmove(m_vertBufTex.access(), g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
         CGraphics::SetShaderDataBinding(m_shaderBind);
         CGraphics::DrawArray(0, g_StaticLineVertsTex.size());
     }
     else
     {
-        m_vertBuf->load(g_StaticLineVertsNoTex.data(), sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
+        memmove(m_vertBufNoTex.access(), g_StaticLineVertsNoTex.data(), sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
         CGraphics::SetShaderDataBinding(m_shaderBind);
         CGraphics::DrawArray(0, g_StaticLineVertsNoTex.size());
     }

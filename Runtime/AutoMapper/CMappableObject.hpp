@@ -51,11 +51,20 @@ public:
         MissileStation   = 37
     };
 
+    enum class EVisMode
+    {
+        Always,
+        MapStationOrVisit,
+        Visit,
+        Never,
+        MapStationOrVisit2
+    };
+
 private:
     static const zeus::CVector3f skDoorVerts[8];
 
     EMappableObjectType x0_type;
-    u32 x4_;
+    EVisMode x4_visibilityMode;
     TEditorId x8_objId;
     u32 xc_;
     zeus::CTransform x10_transform;
@@ -86,7 +95,7 @@ public:
     zeus::CVector3f BuildSurfaceCenterPoint(int surfIdx) const;
     bool IsDoorConnectedToArea(int idx, const CStateManager&) const;
     bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
-    bool GetIsVisibleToAutoMapper(bool) const;
+    bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
     bool GetIsSeen() const;
 
     static void ReadAutoMapperTweaks(const ITweakAutoMapper&);

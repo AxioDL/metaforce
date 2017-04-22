@@ -1,5 +1,6 @@
 #include "CLineRendererShaders.hpp"
 #include "Graphics/CLineRenderer.hpp"
+#include "hecl/VertexBufferPool.hpp"
 
 namespace urde
 {
@@ -94,33 +95,42 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
         int texCount = 0;
         boo::ITexture* textures[1];
 
+        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+            renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
+            vbufInfo = renderer.m_vertBufTex.getBufferInfo();
             textures[0] = texture;
             texCount = 1;
             const boo::VertexElementDescriptor TexFmtTex[] =
             {
-                {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Position4},
-                {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Color},
-                {renderer.m_vertBuf, nullptr, boo::VertexSemantic::UV4}
+                {vbufInfo.first, nullptr, boo::VertexSemantic::Position4},
+                {vbufInfo.first, nullptr, boo::VertexSemantic::Color},
+                {vbufInfo.first, nullptr, boo::VertexSemantic::UV4}
             };
             vtxFmt = ctx.newVertexFormat(3, TexFmtTex);
         }
         else
         {
+            vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
             const boo::VertexElementDescriptor TexFmtNoTex[] =
             {
-                {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Position4},
-                {renderer.m_vertBuf, nullptr, boo::VertexSemantic::Color}
+                {vbufInfo.first, nullptr, boo::VertexSemantic::Position4},
+                {vbufInfo.first, nullptr, boo::VertexSemantic::Color}
             };
             vtxFmt = ctx.newVertexFormat(2, TexFmtNoTex);
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
+        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        size_t ubufOffs[] = {ubufInfo.second};
+        size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, renderer.m_vertBuf,
-                                                         nullptr, nullptr, 1, uniforms, nullptr,
-                                                         texCount, textures, nullptr, nullptr);
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, vbufInfo.first,
+                                                         nullptr, nullptr, 1, uniforms, stages,
+                                                         ubufOffs, ubufSizes, texCount, textures,
+                                                         nullptr, nullptr, vbufInfo.second);
     }
 };
 
@@ -158,18 +168,29 @@ struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
         int texCount = 0;
         boo::ITexture* textures[1];
 
+        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+            renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
+            vbufInfo = renderer.m_vertBufTex.getBufferInfo();
             textures[0] = texture;
             texCount = 1;
         }
+        else
+        {
+            vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
+        }
 
-        boo::IGraphicsBuffer* uniforms[] = {renderer.m_uniformBuf};
+        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        size_t ubufOffs[] = {ubufInfo.second};
+        size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, renderer.m_vertBuf,
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first,
                                                          nullptr, nullptr, 1, uniforms,
-                                                         nullptr, texCount, textures,
-                                                         nullptr, nullptr);
+                                                         stages, ubufOffs, ubufSizes, texCount, textures,
+                                                         nullptr, nullptr, vbufInfo.second);
     }
 };
 

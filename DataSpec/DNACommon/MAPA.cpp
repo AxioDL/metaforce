@@ -99,6 +99,15 @@ static const char* RetroMapVisModes[] =
     "NEVER"
 };
 
+static const char* RetroMapObjVisModes[] =
+{
+    "ALWAYS",
+    "MAPSTATIONORVISIT",
+    "VISIT",
+    "NEVER",
+    "MAPSTATIONORVISIT2"
+};
+
 template <typename PAKRouter>
 bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        const MAPA& mapa,
@@ -118,13 +127,18 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
           "from mathutils import Matrix\n"
           "\n"
           "bpy.types.Object.retro_mappable_type = bpy.props.IntProperty(name='Retro: MAPA object type', default=-1)\n"
-          "bpy.types.Object.retro_mappable_unk = bpy.props.IntProperty(name='Retro: MAPA object unk')\n"
           "bpy.types.Object.retro_mappable_sclyid = bpy.props.StringProperty(name='Retro: MAPA object SCLY ID')\n"
           "bpy.types.Scene.retro_map_vis_mode = bpy.props.EnumProperty(items=[('ALWAYS', 'Always', 'Always Visible', 0),"
                                                                               "('MAPSTATIONORVISIT', 'Map Station or Visit', 'Visible after Map Station or Visit', 1),"
                                                                               "('VISIT', 'Visit', 'Visible after Visit', 2),"
                                                                               "('NEVER', 'Never', 'Never Visible', 3)],"
                                                                               "name='Retro: Map Visibility Mode')\n"
+          "bpy.types.Object.retro_mapobj_vis_mode = bpy.props.EnumProperty(items=[('ALWAYS', 'Always', 'Always Visible', 0),"
+                                                                                  "('MAPSTATIONORVISIT', 'Map Station or Visit', 'Visible after Map Station or Visit', 1),"
+                                                                                  "('VISIT', 'Visit', 'Visible after Door Visit', 2),"
+                                                                                  "('NEVER', 'Never', 'Never Visible', 3),"
+                                                                                  "('MAPSTATIONORVISIT2', 'Map Station or Visit 2', 'Visible after Map Station or Visit', 4)],"
+                                                                                  "name='Retro: Map Object Visibility Mode')\n"
           "\n"
           "for ar in bpy.context.screen.areas:\n"
           "    for sp in ar.spaces:\n"
@@ -170,7 +184,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
             os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.retro_mappable_type = %d\n"
-                      "obj.retro_mappable_unk = %d\n"
+                      "obj.retro_mapobj_vis_mode = '%s'\n"
                       "obj.retro_mappable_sclyid = '0x%08X'\n"
                       "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                       "mtxd = mtx.decompose()\n"
@@ -178,7 +192,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                       "obj.location = mtxd[0]\n"
                       "obj.rotation_quaternion = mtxd[1]\n"
                       "obj.scale = mtxd[2]\n",
-                      moIdx, moMP12->type, moMP12->unknown1, moMP12->sclyId,
+                      moIdx, moMP12->type, RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId,
                       moMP12->transformMtx[0].vec[0], moMP12->transformMtx[0].vec[1], moMP12->transformMtx[0].vec[2], moMP12->transformMtx[0].vec[3],
                       moMP12->transformMtx[1].vec[0], moMP12->transformMtx[1].vec[1], moMP12->transformMtx[1].vec[2], moMP12->transformMtx[1].vec[3],
                       moMP12->transformMtx[2].vec[0], moMP12->transformMtx[2].vec[1], moMP12->transformMtx[2].vec[2], moMP12->transformMtx[2].vec[3]);
@@ -191,7 +205,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
             os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.retro_mappable_type = %d\n"
-                      "obj.retro_mappable_unk = %d\n"
+                      "obj.retro_mapobj_vis_mode = '%s'\n"
                       "obj.retro_mappable_sclyid = '0x%08X'\n"
                       "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                       "mtxd = mtx.decompose()\n"
@@ -199,7 +213,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                       "obj.location = mtxd[0]\n"
                       "obj.rotation_quaternion = mtxd[1]\n"
                       "obj.scale = mtxd[2]\n",
-                      moIdx, moMP3->type, moMP3->unknown1, moMP3->sclyId,
+                      moIdx, moMP3->type, RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId,
                       moMP3->transformMtx[0].vec[0], moMP3->transformMtx[0].vec[1], moMP3->transformMtx[0].vec[2], moMP3->transformMtx[0].vec[3],
                       moMP3->transformMtx[1].vec[0], moMP3->transformMtx[1].vec[1], moMP3->transformMtx[1].vec[2], moMP3->transformMtx[1].vec[3],
                       moMP3->transformMtx[2].vec[0], moMP3->transformMtx[2].vec[1], moMP3->transformMtx[2].vec[2], moMP3->transformMtx[2].vec[3]);
@@ -391,7 +405,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
         typename MAPAType::MappableObject& mobj =
             static_cast<typename MAPAType::MappableObject&>(*mapa.mappableObjects.back());
         mobj.type = MAPA::IMappableObject::Type(poi.type);
-        mobj.unknown1 = poi.unk;
+        mobj.visMode = poi.visMode;
         mobj.sclyId = poi.objid;
         mobj.transformMtx[0] = poi.xf.val[0];
         mobj.transformMtx[1] = poi.xf.val[1];

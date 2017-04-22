@@ -23,7 +23,7 @@ CMappableObject::CMappableObject(const void* buf)
 {
     athena::io::MemoryReader r(buf, 64);
     x0_type = EMappableObjectType(r.readUint32Big());
-    x4_ = r.readUint32Big();
+    x4_visibilityMode = EVisMode(r.readUint32Big());
     x8_objId = r.readUint32Big();
     xc_ = r.readUint32Big();
     x10_transform.read34RowMajor(r);
@@ -256,6 +256,26 @@ zeus::CVector3f CMappableObject::BuildSurfaceCenterPoint(int surfIdx) const
     }
 
     return {};
+}
+
+bool CMappableObject::IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const
+{
+    bool areaVis = mwInfo.IsAreaVisible(x8_objId.AreaNum());
+    switch (x4_visibilityMode)
+    {
+    case EVisMode::Always:
+    default:
+        return true;
+    case EVisMode::MapStationOrVisit:
+    case EVisMode::MapStationOrVisit2:
+        return worldVis || areaVis;
+    case EVisMode::Visit:
+        if (IsDoorType(x0_type))
+            return mwInfo.IsDoorVisited(x8_objId);
+        return areaVis;
+    case EVisMode::Never:
+        return false;
+    }
 }
 
 boo::GraphicsDataToken CMappableObject::g_gfxToken = {};

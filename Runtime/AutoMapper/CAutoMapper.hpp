@@ -191,7 +191,7 @@ private:
     CSfxHandle x1d0_rotatingSfx;
     CSfxHandle x1d4_zoomingSfx;
     float x1d8_flashTimer = 0.f;
-    float x1dc_flashPulse = 0.f;
+    float x1dc_playerFlashPulse = 0.f;
     std::list<SAutoMapperHintStep> x1e0_hintSteps;
     std::list<SAutoMapperHintLocation> x1f8_hintLocations;
     rstl::reserved_vector<TLockedToken<CTexture>, 9> x210_lstick;
