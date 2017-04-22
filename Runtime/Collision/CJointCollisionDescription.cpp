@@ -28,7 +28,7 @@ CJointCollisionDescription CJointCollisionDescription::SphereSubdivideCollision(
                                       zeus::CVector3f::skZero, f1, f2, orientType, name, f3);
 }
 
-CJointCollisionDescription CJointCollisionDescription::SphereCollision(CSegId, float f1, const std::string&, float f2)
+CJointCollisionDescription CJointCollisionDescription::SphereCollision(CSegId segId, float f1, const std::string& name, float f2)
 {
     return CJointCollisionDescription(ECollisionType::Sphere, segId, -1, zeus::CVector3f::skZero,
                                       zeus::CVector3f::skZero, f1, 0.f, EOrientationType::Zero, name, f2);
