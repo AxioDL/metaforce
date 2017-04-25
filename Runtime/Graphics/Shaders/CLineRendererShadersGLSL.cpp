@@ -124,7 +124,7 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        size_t ubufOffs[] = {ubufInfo.second};
+        size_t ubufOffs[] = {size_t(ubufInfo.second)};
         size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, vbufInfo.first,
@@ -184,7 +184,7 @@ struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        size_t ubufOffs[] = {ubufInfo.second};
+        size_t ubufOffs[] = {size_t(ubufInfo.second)};
         size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
         renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first,

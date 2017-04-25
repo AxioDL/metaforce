@@ -9,7 +9,7 @@
 namespace urde
 {
 class CBooModel;
-class CBooSurface;
+struct CBooSurface;
 
 class CMetroidModelInstance
 {
