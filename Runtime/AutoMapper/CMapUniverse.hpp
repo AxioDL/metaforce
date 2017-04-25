@@ -42,18 +42,30 @@ public:
         const zeus::CTransform& GetCameraTransform() const { return x1c_view; }
         const zeus::CTransform& GetPaneProjectionTransform() const { return x18_model; }
         float GetAlpha() const { return x0_alpha; }
+        ResId GetWorldAssetId() const { return x8_wldRes; }
+        int GetClosestArea() const { return xc_closestHex; }
+        float GetFlashPulse() const { return x10_flashPulse; }
     };
 
     class CMapObjectSortInfo
     {
+        float x0_zDist;
+        int x4_wldIdx;
+        int x8_hexIdx;
+        int xc_surfIdx;
+        zeus::CColor x10_surfColor;
+        zeus::CColor x14_outlineColor;
     public:
-        CMapObjectSortInfo(float, int, int, int, const zeus::CColor&, const zeus::CColor&);
-        zeus::CColor GetOutlineColor() const;
-        zeus::CColor GetSurfaceColor() const;
-        s32 GetObjectIndex() const;
-        s32 GetAreaIndex() const;
-        s32 GetWorldIndex() const;
-        float GetZDistance() const;
+        CMapObjectSortInfo(float zDist, int wldIdx, int hexIdx, int surfIdx,
+                           const zeus::CColor& surf, const zeus::CColor& outline)
+        : x0_zDist(zDist), x4_wldIdx(wldIdx), x8_hexIdx(hexIdx), xc_surfIdx(surfIdx),
+          x10_surfColor(surf), x14_outlineColor(outline) {}
+        const zeus::CColor& GetOutlineColor() const { return x14_outlineColor; }
+        const zeus::CColor& GetSurfaceColor() const { return x10_surfColor; }
+        int GetObjectIndex() const { return xc_surfIdx; }
+        int GetAreaIndex() const { return x8_hexIdx; }
+        int GetWorldIndex() const { return x4_wldIdx; }
+        float GetZDistance() const { return x0_zDist; }
     };
 
     class CMapWorldData
@@ -62,10 +74,10 @@ public:
         ResId x10_worldAssetId;
         zeus::CTransform x14_transform;
         std::vector<zeus::CTransform> x44_hexagonXfs;
-        zeus::CColor x54_;
-        zeus::CColor x58_ = zeus::CColor(1.0f, 0.0f, 1.0f);
-        zeus::CColor x5c_ = zeus::CColor(1.0f, 0.0f, 1.0f);
-        zeus::CColor x60_ = zeus::CColor(1.0f, 0.0f, 1.0f);
+        zeus::CColor x54_surfColorSelected;
+        zeus::CColor x58_outlineColorSelected = zeus::CColor(1.0f, 0.0f, 1.0f);
+        zeus::CColor x5c_surfColorUnselected = zeus::CColor(1.0f, 0.0f, 1.0f);
+        zeus::CColor x60_outlineColorUnselected = zeus::CColor(1.0f, 0.0f, 1.0f);
         zeus::CVector3f x64_centerPoint = zeus::CVector3f::skZero;
     public:
         CMapWorldData(CInputStream& in, u32 version);
@@ -75,10 +87,10 @@ public:
         const zeus::CTransform& GetWorldTransform() const { return x14_transform; }
         const zeus::CTransform& GetMapAreaData(s32 idx) const { return x44_hexagonXfs[idx]; }
         u32 GetNumMapAreaDatas() const { return x44_hexagonXfs.size(); }
-        zeus::CColor GetOutlineColorUnselected() const;
-        zeus::CColor GetOutlineColorSelected() const;
-        zeus::CColor GetSurfaceColorUnselected() const;
-        zeus::CColor GetSurfaceColorSelected() const;
+        const zeus::CColor& GetOutlineColorUnselected() const { return x60_outlineColorUnselected; }
+        const zeus::CColor& GetOutlineColorSelected() const { return x58_outlineColorSelected; }
+        const zeus::CColor& GetSurfaceColorUnselected() const { return x5c_surfColorUnselected; }
+        const zeus::CColor& GetSurfaceColorSelected() const { return x54_surfColorSelected; }
     };
 
 private:

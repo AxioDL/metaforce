@@ -49,6 +49,7 @@ public:
     public:
         enum class EObjectCode
         {
+            Invalid = -1,
             Object = 1 << 16,
             DoorSurface = 2 << 16,
             Door = 3 << 16,
@@ -135,18 +136,20 @@ public:
         float GetAlphaSurfaceUnvisited() const { return x8_alphaSurfUnvisited; }
         float GetAlphaOutlineVisited() const { return x4_alphaOlVisited; }
         float GetAlphaSurfaceVisited() const { return x0_alphaSurfVisited; }
+        float GetAlpha() const { return x10_alpha; }
         const CMapWorldInfo& GetMapWorldInfo() const { return x28_mwInfo; }
         const CStateManager& GetStateManager() const { return x18_mgr; }
         bool GetIsSortDoorSurfaces() const { return x38_sortDoorSurfs; }
+        float GetObjectScale() const { return x34_objectScale; }
     };
 
 private:
     std::vector<CMapAreaData> x0_areas;
     rstl::reserved_vector<CMapAreaData*, 3> x10_listHeads;
     std::vector<bool> x20_traversed;
-    zeus::CVector3f x30_;
-    float x3c_ = 0.f;
-    float x40_ = 0.f;
+    zeus::CVector3f x30_worldSpherePoint;
+    float x3c_worldSphereRadius = 0.f;
+    float x40_worldSphereHalfDepth = 0.f;
 public:
     CMapWorld(CInputStream&);
     u32 GetNumAreas() const { return x0_areas.size(); }

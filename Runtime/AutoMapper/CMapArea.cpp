@@ -38,11 +38,12 @@ void CMapArea::PostConstruct()
     }
 
     u8* tmp = x3c_vertexStart;
-    for (u32 i = 0 ; i<(x2c_vertexCount*3) ; ++i)
+    m_verts.reserve(x2c_vertexCount);
+    for (u32 i = 0 ; i<x2c_vertexCount ; ++i)
     {
         float* fl = reinterpret_cast<float*>(tmp);
-        *fl = hecl::SBig(*fl);
-        tmp += 4;
+        m_verts.emplace_back(hecl::SBig(fl[0]), hecl::SBig(fl[1]), hecl::SBig(fl[2]));
+        tmp += 12;
     }
 
     std::vector<u32> index;
@@ -57,8 +58,38 @@ void CMapArea::PostConstruct()
     {
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, x3c_vertexStart, 12, x2c_vertexCount);
         m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
+
+        /* Only the map universe specifies Always; it draws a maximum of 133 instances */
+        size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 133 : 1;
+
         for (u32 i = 0 ; i<x30_surfaceCount ; ++i)
-            m_surfaces[i].m_surfacePrims.emplace(ctx, m_vbo, m_ibo);
+        {
+            CMapAreaSurface& surf = m_surfaces[i];
+            surf.m_instances.reserve(instCount);
+            for (u32 inst = 0 ; inst < instCount ; ++inst)
+            {
+                surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
+                CMapAreaSurface::Instance& instance = surf.m_instances.back();
+
+                athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
+                u32 outlineCount = r.readUint32Big();
+
+                std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
+                linePrims.reserve(outlineCount * 2);
+                for (u32 j=0 ; j<2 ; ++j)
+                {
+                    r.seek(4, athena::SeekOrigin::Begin);
+                    for (u32 i=0 ; i<outlineCount ; ++i)
+                    {
+                        u32 count = r.readUint32Big();
+                        r.seek(count);
+                        r.seekAlign4();
+                        linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false);
+                    }
+                }
+            }
+        }
+
         for (u32 i = 0 ; i<x28_mappableObjCount ; ++i)
         {
             CMappableObject& mapObj = m_mappableObjects[i];
@@ -251,42 +282,20 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
 }
 
 void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor,
-                                     const zeus::CColor& lineColor, float lineWidth) const
+                                     const zeus::CColor& lineColor, float lineWidth, int instIdx) const
 {
+    Instance& instance = const_cast<Instance&>(m_instances[instIdx]);
+
     if (surfColor.a)
-        const_cast<CMapSurfaceShader&>(*m_surfacePrims).draw(surfColor, m_primStart, m_primCount);
+        instance.m_surfacePrims.draw(surfColor, m_primStart, m_primCount);
 
     if (lineColor.a)
     {
         bool draw2 = lineWidth > 1.f;
-        int totalPrims = draw2 + 1;
         athena::io::MemoryReader r(x1c_outlineOffset, INT_MAX);
         u32 outlineCount = r.readUint32Big();
-        totalPrims *= outlineCount;
 
-        std::vector<CLineRenderer>& linePrims = const_cast<std::vector<CLineRenderer>&>(m_linePrims);
-        if (linePrims.size() < totalPrims)
-        {
-            linePrims.clear();
-            linePrims.reserve(totalPrims);
-            const_cast<CMapAreaSurface*>(this)->m_lineToken =
-            CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
-            {
-                for (u32 j=0 ; j<=draw2 ; ++j)
-                {
-                    r.seek(4, athena::SeekOrigin::Begin);
-                    for (u32 i=0 ; i<outlineCount ; ++i)
-                    {
-                        u32 count = r.readUint32Big();
-                        r.seek(count);
-                        r.seekAlign4();
-                        linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false);
-                    }
-                }
-                return true;
-            });
-        }
-
+        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
         zeus::CColor color = lineColor;
         if (draw2)
             color.a *= 0.5f;

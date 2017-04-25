@@ -33,8 +33,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     DNAColor x48_outlineColorUnvisited;
     DNAColor x4c_surfaceSelectColorVisited;
     DNAColor x50_outlineSelectColorVisited;
-    Value<float> x54_;
-    Value<float> x58_;
+    Value<float> x54_mapSurfaceNormColorLinear;
+    Value<float> x58_mapSurfaceNormColorConstant;
     Value<float> x5c_;
     float x60_ = 0.4f;
     Value<float> x64_openMapScreenTime;
@@ -99,6 +99,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     const zeus::CColor& GetOutlineUnvisitedColor() const { return x48_outlineColorUnvisited; }
     const zeus::CColor& GetSurfaceSelectVisitedColor() const { return x4c_surfaceSelectColorVisited; }
     const zeus::CColor& GetOutlineSelectVisitedColor() const { return x50_outlineSelectColorVisited; }
+    float GetMapSurfaceNormColorLinear() const { return x54_mapSurfaceNormColorLinear; }
+    float GetMapSurfaceNormColorConstant() const { return x58_mapSurfaceNormColorConstant; }
     float GetOpenMapScreenTime() const { return x64_openMapScreenTime; }
     float GetCloseMapScreenTime() const { return x68_closeMapScreenTime; }
     float GetHintPanTime() const { return x6c_hintPanTime; }

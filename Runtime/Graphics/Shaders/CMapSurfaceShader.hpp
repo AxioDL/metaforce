@@ -19,7 +19,6 @@ class CMapSurfaceShader
         zeus::CColor color;
     };
 
-    Uniform m_uniform;
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IGraphicsBufferS* m_vbo;
     boo::IGraphicsBufferS* m_ibo;

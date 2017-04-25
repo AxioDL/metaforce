@@ -23,7 +23,8 @@ CMapWorld::CMapWorld(CInputStream& in)
     for (u32 i=0 ; i<areaCount ; ++i)
     {
         ResId mapaId = in.readUint32Big();
-        x0_areas.emplace_back(mapaId, EMapAreaList::Unloaded, x0_areas.empty() ? nullptr : &x0_areas.back());
+        x0_areas.emplace_back(mapaId, EMapAreaList::Unloaded,
+                              x0_areas.empty() ? nullptr : &x0_areas.back());
     }
     x10_listHeads[2] = &x0_areas.back();
 }
@@ -174,7 +175,8 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
     DrawAreas(parms, curArea, bfsInfos, inMapScreen);
 }
 
-void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float surfDepth, float outlineDepth,
+void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount,
+                      float surfDepth, float outlineDepth,
                       bool checkLoad, std::vector<CMapAreaBFSInfo>& bfsInfos) const
 {
     if (areaCount <= 0 || !IsMapAreaValid(wld, startArea, checkLoad))
@@ -240,7 +242,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
     {
         int thisArea = bfsInfo.GetAreaIndex();
         const CMapArea* mapa = GetMapArea(thisArea);
-        if (!mapa->GetIsVisibleToAutoMapper(mwInfo.IsWorldVisible(thisArea), mwInfo.IsAreaVisible(thisArea)))
+        if (!mapa->GetIsVisibleToAutoMapper(mwInfo.IsWorldVisible(thisArea),
+                                            mwInfo.IsAreaVisible(thisArea)))
             continue;
 
         float surfDepth = bfsInfo.GetSurfaceDrawDepth();
@@ -286,7 +289,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
         }
 
         zeus::CColor hintFlashColor =
-        zeus::CColor::lerp(zeus::CColor::skClear, zeus::CColor{1.f, 1.f, 1.f, 0.f}, parms.GetHintAreaFlashIntensity());
+        zeus::CColor::lerp(zeus::CColor::skClear, zeus::CColor{1.f, 1.f, 1.f, 0.f},
+                           parms.GetHintAreaFlashIntensity());
 
         zeus::CColor finalSurfColor, finalOutlineColor;
         if (thisArea == selArea && inMapScreen)
@@ -339,7 +343,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
                     for (int s=0 ; s<6 ; ++s)
                     {
                         zeus::CVector3f center = obj.BuildSurfaceCenterPoint(s);
-                        zeus::CVector3f pos = modelView * (CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea) + center);
+                        zeus::CVector3f pos = modelView *
+                            (CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea) + center);
                         sortInfos.emplace_back(pos.y, thisArea, CMapObjectSortInfo::EObjectCode::DoorSurface, si+s,
                                                zeus::CColor{1.f, 0.f, 1.f, 1.f}, zeus::CColor{1.f, 0.f, 1.f, 1.f});
                     }
@@ -347,17 +352,69 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
                 }
             }
 
-            zeus::CVector3f pos = modelView * (obj.GetTransform().origin + CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea));
+            zeus::CVector3f pos = modelView * (obj.GetTransform().origin +
+                                               CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea));
             sortInfos.emplace_back(pos.y, thisArea, doorType ? CMapObjectSortInfo::EObjectCode::Door :
                                                                CMapObjectSortInfo::EObjectCode::Object,
                                    i, zeus::CColor{1.f, 0.f, 1.f, 1.f}, zeus::CColor{1.f, 0.f, 1.f, 1.f});
         }
     }
 
-    if (sortInfos.empty())
-        return;
+    std::sort(sortInfos.begin(), sortInfos.end(),
+    [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b)
+    {
+        return a.GetZDistance() < b.GetZDistance();
+    });
 
-    /* TODO: Finish */
+    int lastAreaIdx = -1;
+    CMapObjectSortInfo::EObjectCode lastType = CMapObjectSortInfo::EObjectCode::Invalid;
+    for (const CMapObjectSortInfo& info : sortInfos)
+    {
+        const CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+        zeus::CTransform areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
+        if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Surface)
+        {
+            const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
+            zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(
+                areaPostXf.rotate(surf.GetNormal()))) * g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
+                g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
+            color *= info.GetSurfaceColor();
+            if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface)
+                CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * areaPostXf);
+            surf.Draw(mapa->GetVertices(), color, info.GetOutlineColor(), parms.GetOutlineWidthScale());
+        }
+        else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
+                 info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object)
+        {
+            const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
+            zeus::CTransform objXf =
+                zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
+                mapObj.GetTransform();
+            if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door)
+            {
+                CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * objXf);
+            }
+            else
+            {
+                CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * objXf *
+                    zeus::CTransform(parms.GetCameraTransform().buildMatrix3f() *
+                    zeus::CMatrix3f(parms.GetObjectScale())));
+            }
+            mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
+        }
+        else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface)
+        {
+            const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
+            zeus::CTransform objXf = parms.GetPlaneProjectionTransform() *
+                                     zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(
+                                     parms.GetWorld(), info.GetAreaIndex())) * mapObj.GetTransform();
+            CGraphics::SetModelMatrix(objXf);
+            mapObj.DrawDoorSurface(selArea, mwInfo, parms.GetAlpha(), info.GetLocalObjectIndex() % 6,
+                                   lastType != info.GetObjectCode());
+        }
+        lastAreaIdx = info.GetAreaIndex();
+        lastType = info.GetObjectCode();
+    }
 }
 
 struct Support
@@ -696,14 +753,40 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
     }
 
     Circle circle = MinCircle(coords);
-    const_cast<CMapWorld*>(this)->x3c_ = circle.x8_radius;
-    const_cast<CMapWorld*>(this)->x30_ = zeus::CVector3f(circle.x0_point.x, circle.x0_point.y, (zMin + zMax) * 0.5f);
-    const_cast<CMapWorld*>(this)->x40_ = (zMax - zMin) * 0.5f;
+    const_cast<CMapWorld*>(this)->x3c_worldSphereRadius = circle.x8_radius;
+    const_cast<CMapWorld*>(this)->x30_worldSpherePoint =
+        zeus::CVector3f(circle.x0_point.x, circle.x0_point.y, (zMin + zMax) * 0.5f);
+    const_cast<CMapWorld*>(this)->x40_worldSphereHalfDepth = (zMax - zMin) * 0.5f;
 }
 
-zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f&, const zeus::CVector3f&) const
+zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, const zeus::CVector3f& lookVec) const
 {
-    return {};
+    zeus::CVector3f ret = point;
+    if (std::fabs(lookVec.z) > FLT_EPSILON)
+    {
+        float f2 = point.z - (x40_worldSphereHalfDepth + x30_worldSpherePoint.z);
+        float f1 = point.z - (x30_worldSpherePoint.z - x40_worldSphereHalfDepth);
+        if (f2 > 0.f)
+            ret = point + lookVec * (-f2 / lookVec.z);
+        else if (f1 < 0.f)
+            ret = point + lookVec * (-f1 / lookVec.z);
+    }
+    else
+    {
+        ret.z = zeus::clamp(x30_worldSpherePoint.z - x40_worldSphereHalfDepth, ret.z,
+                            x40_worldSphereHalfDepth + x30_worldSpherePoint.z);
+    }
+
+    zeus::CVector2f tmp(x30_worldSpherePoint.x, x30_worldSpherePoint.y);
+    zeus::CVector2f vec2 = zeus::CVector2f(point.x, point.y) - tmp;
+    if (vec2.magnitude() > x3c_worldSphereRadius)
+    {
+        tmp += vec2.normalized() * x3c_worldSphereRadius;
+        ret.x = tmp.x;
+        ret.y = tmp.y;
+    }
+
+    return ret;
 }
 
 void CMapWorld::ClearTraversedFlags() const

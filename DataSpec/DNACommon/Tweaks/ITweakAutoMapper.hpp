@@ -24,6 +24,8 @@ struct ITweakAutoMapper : public ITweak
     virtual const zeus::CColor& GetOutlineUnvisitedColor() const=0;
     virtual const zeus::CColor& GetSurfaceSelectVisitedColor() const=0;
     virtual const zeus::CColor& GetOutlineSelectVisitedColor() const=0;
+    virtual float GetMapSurfaceNormColorLinear() const=0;
+    virtual float GetMapSurfaceNormColorConstant() const=0;
     virtual float GetOpenMapScreenTime() const=0;
     virtual float GetCloseMapScreenTime() const=0;
     virtual float GetHintPanTime() const=0;
