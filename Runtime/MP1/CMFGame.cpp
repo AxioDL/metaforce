@@ -226,7 +226,7 @@ void CMFGame::Draw() const
         x14_stateManager->GetPlayer().IsPlayerDeadEnough();
     }
 
-    x18_guiManager->PreDraw(*x14_stateManager);
+    x18_guiManager->PreDraw(*x14_stateManager, IsCameraActiveFlow());
     x18_guiManager->Draw(*x14_stateManager);
 
     if (x1c_flowState == EGameFlowState::CinematicSkip)

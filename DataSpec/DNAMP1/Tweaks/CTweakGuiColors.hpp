@@ -120,8 +120,8 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x1b0_thermalOutlinesColor;
     DNAColor x1b4_;
     DNAColor x1b8_thermalLockColor;
-    DNAColor x1bc_;
-    DNAColor x1c0_;
+    DNAColor x1bc_pauseItemAmber;
+    DNAColor x1c0_pauseItemBlue;
     struct PerVisorColors : BigYAML
     {
         DECL_YAML
@@ -204,6 +204,9 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetThermalDecoColor() const { return x1ac_thermalDecoColor; }
     const zeus::CColor& GetThermalOutlinesColor() const { return x1b0_thermalOutlinesColor; }
     const zeus::CColor& GetThermalLockColor() const { return x1b8_thermalLockColor; }
+    const zeus::CColor& GetPauseItemAmberColor() const { return x1bc_pauseItemAmber; }
+    const zeus::CColor& GetPauseItemBlueColor() const { return x1c0_pauseItemBlue; }
+
     VisorEnergyInitColors GetVisorEnergyInitColors(int idx) const
     {
         const PerVisorColors& colors = x1c4_perVisorColors[idx];

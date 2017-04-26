@@ -28,12 +28,18 @@ set(MP1_SOURCES
     CStateSetterFlow.hpp CStateSetterFlow.cpp
     CAudioStateWin.hpp CAudioStateWin.cpp
     CInGameGuiManager.hpp CInGameGuiManager.cpp
+    CInGameGuiManagerCommon.hpp
     CSamusFaceReflection.hpp CSamusFaceReflection.cpp
     CPlayerVisor.hpp CPlayerVisor.cpp
     CSamusHud.hpp CSamusHud.cpp
+    CPauseScreenBlur.hpp CPauseScreenBlur.cpp
     CPauseScreen.hpp CPauseScreen.cpp
+    CPauseScreenBase.hpp CPauseScreenBase.cpp
     CFaceplateDecoration.hpp CFaceplateDecoration.cpp
     CInventoryScreen.hpp CInventoryScreen.cpp
+    CLogBookScreen.hpp CLogBookScreen.cpp
+    COptionsScreen.hpp COptionsScreen.cpp
+    CSamusDoll.hpp CSamusDoll.cpp
     MP1.hpp MP1.cpp
     ${MP1_PLAT_SOURCES}
     ${MP1_WORLD_SOURCES})

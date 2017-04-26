@@ -86,6 +86,8 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetThermalDecoColor() const=0;
     virtual const zeus::CColor& GetThermalOutlinesColor() const=0;
     virtual const zeus::CColor& GetThermalLockColor() const=0;
+    virtual const zeus::CColor& GetPauseItemAmberColor() const=0;
+    virtual const zeus::CColor& GetPauseItemBlueColor() const=0;
     virtual VisorEnergyInitColors GetVisorEnergyInitColors(int idx) const=0;
     virtual VisorEnergyBarColors GetVisorEnergyBarColors(int idx) const=0;
 };

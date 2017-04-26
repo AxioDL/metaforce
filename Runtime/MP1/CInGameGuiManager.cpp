@@ -10,10 +10,7 @@
 #include "AutoMapper/CAutoMapper.hpp"
 #include "Particle/CGenDescription.hpp"
 #include "Audio/CSfxManager.hpp"
-#include "CPauseScreen.hpp"
 #include "CSamusHud.hpp"
-#include "CInventoryScreen.hpp"
-#include "CPauseScreen.hpp"
 #include "Input/CInputGenerator.hpp"
 
 namespace urde
@@ -111,7 +108,7 @@ void CInGameGuiManager::BeginStateTransition(EInGameGuiState state, CStateManage
     }
     }
 
-    x3c_pauseScreen->OnNewInGameGuiState(state, stateMgr);
+    x3c_pauseScreenBlur->OnNewInGameGuiState(state, stateMgr);
     if (!x1f8_26_deferTransition)
         DoStateTransition(stateMgr);
 
@@ -121,7 +118,7 @@ void CInGameGuiManager::EnsureStates(CStateManager& stateMgr)
 {
     if (x1f8_26_deferTransition)
     {
-        if (!x3c_pauseScreen->GetX50_25())
+        if (!x3c_pauseScreenBlur->GetX50_25())
         {
             DestroyAreaTextures(stateMgr);
             x1f8_26_deferTransition = false;
@@ -140,7 +137,7 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr)
     {
     case EInGameGuiState::PauseGame:
     case EInGameGuiState::PauseLogBook:
-        if (!x48_inventoryScreen)
+        if (!x48_pauseScreen)
         {
             auto pState = stateMgr.GetPlayerState();
             CPlayerState::EPlayerSuit suit = pState->GetCurrentSuitRaw();
@@ -184,7 +181,7 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr)
 
             int w1 = x1c0_nextState == EInGameGuiState::PauseLogBook ? 0 : 2;
             CDependencyGroup* suitGrp = x5c_pauseScreenDGRPs[suitResIdx].GetObj();
-            x48_inventoryScreen = std::make_unique<CInventoryScreen>(w1, *suitGrp, *suitGrp);
+            x48_pauseScreen = std::make_unique<CPauseScreen>(w1, *suitGrp, *suitGrp);
         }
 
     case EInGameGuiState::MapScreen:
@@ -265,7 +262,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)
         x30_playerVisor = std::make_unique<CPlayerVisor>(stateMgr);
         x34_samusHud = std::make_unique<CSamusHud>(stateMgr);
         x38_autoMapper = std::make_unique<CAutoMapper>(stateMgr);
-        x3c_pauseScreen = std::make_unique<CPauseScreen>();
+        x3c_pauseScreenBlur = std::make_unique<CPauseScreenBlur>();
         x40_samusReflection = std::make_unique<CSamusFaceReflection>(stateMgr);
     }
     case ELoadPhase::LoadDeps:
@@ -355,8 +352,8 @@ void CInGameGuiManager::ProcessControllerInput(CStateManager& stateMgr, const CF
                     x44_messageScreen->ProcessControllerInput(input);
                     return;
                 }
-                if (x48_inventoryScreen)
-                    x48_inventoryScreen->ProcessControllerInput(stateMgr, input);
+                if (x48_pauseScreen)
+                    x48_pauseScreen->ProcessControllerInput(stateMgr, input);
             }
         }
         else
@@ -366,9 +363,12 @@ void CInGameGuiManager::ProcessControllerInput(CStateManager& stateMgr, const CF
     }
 }
 
-void CInGameGuiManager::PreDraw(CStateManager& stateMgr)
+void CInGameGuiManager::PreDraw(CStateManager& stateMgr, bool cameraActive)
 {
-
+    if (x48_pauseScreen)
+        x48_pauseScreen->PreDraw();
+    if (cameraActive)
+        x40_samusReflection->PreDraw(stateMgr);
 }
 
 void CInGameGuiManager::Draw(CStateManager& stateMgr)
@@ -397,7 +397,7 @@ void CInGameGuiManager::StartFadeIn()
 
 bool CInGameGuiManager::GetIsGameDraw() const
 {
-    return x3c_pauseScreen->GetX50_25();
+    return x3c_pauseScreenBlur->GetX50_25();
 }
 
 std::string CInGameGuiManager::GetIdentifierForMidiEvent(ResId world, ResId area,

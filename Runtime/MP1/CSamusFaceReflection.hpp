@@ -19,6 +19,7 @@ class CSamusFaceReflection
     bool x70_ = true;
 public:
     CSamusFaceReflection(CStateManager& stateMgr);
+    void PreDraw(const CStateManager& stateMgr);
 };
 
 }

@@ -16,5 +16,10 @@ CSamusFaceReflection::CSamusFaceReflection(CStateManager& stateMgr)
     x0_modelData.AnimationData()->SetAnimation(parms, false);
 }
 
+void CSamusFaceReflection::PreDraw(const CStateManager& stateMgr)
+{
+
+}
+
 }
 }

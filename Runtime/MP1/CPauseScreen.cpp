@@ -1,21 +1,21 @@
-#include "CPauseScreen.hpp"
+#include "CPauseScreenBlur.hpp"
 
 namespace urde
 {
 namespace MP1
 {
 
-CPauseScreen::CPauseScreen()
+CPauseScreenBlur::CPauseScreenBlur()
 {
 
 }
 
-bool CPauseScreen::CheckLoadComplete()
+bool CPauseScreenBlur::CheckLoadComplete()
 {
     return false;
 }
 
-void CPauseScreen::OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr)
+void CPauseScreenBlur::OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr)
 {
 
 }

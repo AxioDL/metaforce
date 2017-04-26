@@ -12,6 +12,9 @@
 #include "CStateManager.hpp"
 #include "DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
 #include "CInventoryScreen.hpp"
+#include "CPauseScreen.hpp"
+#include "CPauseScreenBlur.hpp"
+#include "CInGameGuiManagerCommon.hpp"
 
 namespace urde
 {
@@ -26,20 +29,9 @@ class CAutoMapper;
 
 namespace MP1
 {
-class CPauseScreen;
+class CPauseScreenBlur;
 class CSamusHud;
-class CInventoryScreen;
-
-enum class EInGameGuiState
-{
-    Zero,
-    InGame,
-    MapScreen,
-    PauseGame,
-    PauseLogBook,
-    PauseSaveGame,
-    PauseHUDMessage
-};
+class CPauseScreen;
 
 class CInGameGuiManager
 {
@@ -64,10 +56,10 @@ class CInGameGuiManager
     std::unique_ptr<CPlayerVisor> x30_playerVisor;
     std::unique_ptr<CSamusHud> x34_samusHud;
     std::unique_ptr<CAutoMapper> x38_autoMapper;
-    std::unique_ptr<CPauseScreen> x3c_pauseScreen;
+    std::unique_ptr<CPauseScreenBlur> x3c_pauseScreenBlur;
     std::unique_ptr<CSamusFaceReflection> x40_samusReflection;
     std::unique_ptr<CMessageScreen> x44_messageScreen;
-    std::unique_ptr<CInventoryScreen> x48_inventoryScreen;
+    std::unique_ptr<CPauseScreen> x48_pauseScreen;
     std::unique_ptr<CSaveGameScreen> x4c_saveUI;
     TLockedToken<CTexture> x50_deathDot;
     std::vector<TLockedToken<CDependencyGroup>> x5c_pauseScreenDGRPs;
@@ -128,7 +120,7 @@ public:
     void Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool);
     void ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input,
                                 CArchitectureQueue& archQueue);
-    void PreDraw(CStateManager& stateMgr);
+    void PreDraw(CStateManager& stateMgr, bool cameraActive);
     void Draw(CStateManager& stateMgr);
     void ShowPauseGameHudMessage(CStateManager& stateMgr, ResId pauseMsg, float time);
     void PauseGame(CStateManager& stateMgr, EInGameGuiState state);
