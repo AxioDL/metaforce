@@ -16,8 +16,12 @@ class CInventoryScreen : public CPauseScreenBase
 {
     std::unique_ptr<CSamusDoll> x19c_samusDoll;
 public:
-    CInventoryScreen(const CStateManager& mgr, const CGuiFrame& frame, const CStringTable& pauseStrg,
+    CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                      const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
+
+    bool VReady() const;
+    void VActivate() const;
+    u32 GetRightTableCount() const;
 };
 
 }

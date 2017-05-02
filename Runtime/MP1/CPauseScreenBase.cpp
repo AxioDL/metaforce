@@ -5,6 +5,7 @@
 #include "GuiSys/CGuiModel.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
 #include "GuiSys/CAuiImagePane.hpp"
+#include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "GameGlobalObjects.hpp"
 
 namespace urde
@@ -12,7 +13,7 @@ namespace urde
 namespace MP1
 {
 
-CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, const CGuiFrame& frame, const CStringTable& pauseStrg)
+CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
 : x4_mgr(mgr), x8_frame(frame), xc_pauseStrg(pauseStrg)
 {
     InitializeFrameGlue();
@@ -67,6 +68,87 @@ void CPauseScreenBase::InitializeFrameGlue()
     x74_basewidget_leftguages->SetVisibility(false, ETraversalMode::Children);
     x88_basewidget_rightguages->SetVisibility(false, ETraversalMode::Children);
     x6c_basewidget_leftlog->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+}
+
+bool CPauseScreenBase::IsReady()
+{
+    if (x198_24_ready)
+        return true;
+    x198_24_ready = VReady();
+    if (x198_24_ready)
+    {
+        VActivate();
+        Activate(EMode::Zero);
+        UpdateSideTable(x70_tablegroup_leftlog);
+        UpdateRightTable();
+        return true;
+    }
+    return false;
+}
+
+void CPauseScreenBase::Activate(EMode mode)
+{
+
+}
+
+void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
+{
+
+}
+
+void CPauseScreenBase::Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue)
+{
+    x198_27_canDraw = true;
+    x8_frame.Update(dt);
+    x14_alpha = std::min(2.f * dt + x14_alpha, 1.f);
+
+    u32 rightCount = GetRightTableCount();
+    bool pulseRightUp = x10_mode == EMode::One && x18_ > 0;
+    bool pulseRightDown = x10_mode == EMode::One && x18_ + 5 < rightCount;
+    float rightUpT = pulseRightUp ? CGraphics::GetSecondsMod900() : 0.f;
+    float rightDownT = pulseRightDown ? CGraphics::GetSecondsMod900() : 0.f;
+
+    zeus::CColor lowC = g_tweakGuiColors->GetPauseItemAmberColor();
+    lowC.a = 0.2f;
+    xa0_model_scrollrightup->SetColor(
+    zeus::CColor::lerp(lowC, g_tweakGuiColors->GetPauseItemAmberColor(),
+                       zeus::clamp(0.f, (std::sin(5.f * rightUpT - M_PIF / 2.f) + 1.f) * 0.5f, 1.f)));
+    xa4_model_scrollrightdown->SetColor(
+    zeus::CColor::lerp(lowC, g_tweakGuiColors->GetPauseItemAmberColor(),
+                       zeus::clamp(0.f, (std::sin(5.f * rightDownT - M_PIF / 2.f) + 1.f) * 0.5f, 1.f)));
+
+    float textUpT = x198_28_pulseTextArrowTop ? CGraphics::GetSecondsMod900() : 0.f;
+    float textDownT = x198_29_pulseTextArrowBottom ? CGraphics::GetSecondsMod900() : 0.f;
+
+    x90_model_textarrowtop->SetColor(
+    zeus::CColor::lerp(lowC, g_tweakGuiColors->GetPauseItemAmberColor(),
+                       zeus::clamp(0.f, (std::sin(5.f * textUpT - M_PIF / 2.f) + 1.f) * 0.5f, 1.f)));
+    x94_model_textarrowbottom->SetColor(
+    zeus::CColor::lerp(lowC, g_tweakGuiColors->GetPauseItemAmberColor(),
+                       zeus::clamp(0.f, (std::sin(5.f * textDownT - M_PIF / 2.f) + 1.f) * 0.5f, 1.f)));
+}
+
+void CPauseScreenBase::ProcessControllerInput(const CFinalInput& input)
+{
+    x198_25_handledInput = false;
+    x8_frame.ProcessUserInput(input);
+}
+
+void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff)
+{
+    zeus::CColor color = zeus::CColor::skWhite;
+    color.a = mainAlpha * x14_alpha;
+    x60_basewidget_pivot->SetColor(color);
+    color.a = frameAlpha;
+    x64_basewidget_bgframe->SetColor(color);
+
+    CGuiWidgetDrawParms parms(1.f, zeus::CVector3f{0.f, 15.f * yOff, 0.f});
+    x8_frame.Draw(parms);
+}
+
+void CPauseScreenBase::UpdateRightTable()
+{
+
 }
 
 static const char* PaneSuffixes[] =

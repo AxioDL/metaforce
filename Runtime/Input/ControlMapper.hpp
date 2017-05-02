@@ -68,6 +68,8 @@ public:
         VisorDown,
         UseSheild=0x3B,
         ScanItem=0x3C,
+        PreviousPauseScreen=0x41,
+        NextPauseScreen=0x42,
         UNKNOWN,
         None,
         MAX

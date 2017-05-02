@@ -24,11 +24,11 @@ public:
     };
 
 private:
-    u32 x0_w1;
+    ESubScreen x0_initialSubScreen;
     u32 x4_ = 2;
-    ESubScreen x8_ = ESubScreen::Invalid;
-    ESubScreen xc_ = ESubScreen::Invalid;
-    float x10_ = 0.f;
+    ESubScreen x8_curSubscreen = ESubScreen::Invalid;
+    ESubScreen xc_nextSubscreen = ESubScreen::Invalid;
+    float x10_interp = 0.f;
     TLockedToken<CStringTable> x14_strgPauseScreen;
     const CDependencyGroup& x20_suitDgrp;
     const CDependencyGroup& x24_ballDgrp;
@@ -37,6 +37,7 @@ private:
     CGuiTextPane* x38_textpane_l1 = nullptr;
     CGuiTextPane* x3c_textpane_r = nullptr;
     CGuiTextPane* x40_textpane_a = nullptr;
+    CGuiTextPane* x44_textpane_b = nullptr;
     CGuiTextPane* x48_textpane_return = nullptr;
     CGuiTextPane* x4c_textpane_next = nullptr;
     CGuiTextPane* x50_textpane_back = nullptr;
@@ -44,17 +45,29 @@ private:
     u32 x58_frmePauseScreenBufSz;
     std::unique_ptr<u8[]> x5c_frmePauseScreenBuf;
     std::shared_ptr<ProjectResourceFactoryBase::AsyncTask> x60_loadTok;
-    rstl::reserved_vector<std::unique_ptr<CGuiFrame>, 2> x64_frames;
+    rstl::reserved_vector<std::unique_ptr<CGuiFrame>, 2> x64_frameInsts;
     u32 x78_activeIdx = 0;
     rstl::reserved_vector<std::unique_ptr<CPauseScreenBase>, 2> x7c_screens;
     bool x90_resourcesLoaded = false;
-    bool x91_inPauseScreen = true;
+    bool x91_initialTransition = true;
 
+    std::unique_ptr<CPauseScreenBase> BuildPauseSubScreen(ESubScreen subscreen,
+                                                          const CStateManager& mgr,
+                                                          CGuiFrame& frame) const;
+    void StartTransition(float time, const CStateManager& mgr, ESubScreen subscreen, int);
+    bool CheckLoadComplete(const CStateManager& mgr);
+    void InitializeFrameGlue();
+    bool InputEnabled() const;
+    static ESubScreen GetPreviousSubscreen(ESubScreen screen);
+    static ESubScreen GetNextSubscreen(ESubScreen screen);
+    void TransitionComplete();
 public:
-    CPauseScreen(u32 w1, const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
+    CPauseScreen(ESubScreen subscreen, const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
     void ProcessControllerInput(const CStateManager& mgr, const CFinalInput& input);
-    void Update(float dt, CRandom16& rand, const CStateManager& mgr);
+    void Update(float dt, const CStateManager& mgr, CRandom16& rand, CArchitectureQueue& archQueue);
     void PreDraw();
+    void Draw();
+    bool IsLoaded() const { return x90_resourcesLoaded; }
 };
 
 }

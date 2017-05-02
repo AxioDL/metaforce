@@ -179,9 +179,10 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr)
                 }
             }
 
-            int w1 = x1c0_nextState == EInGameGuiState::PauseLogBook ? 0 : 2;
+            CPauseScreen::ESubScreen screen = x1c0_nextState == EInGameGuiState::PauseLogBook ?
+                        CPauseScreen::ESubScreen::LogBook : CPauseScreen::ESubScreen::Inventory;
             CDependencyGroup* suitGrp = x5c_pauseScreenDGRPs[suitResIdx].GetObj();
-            x48_pauseScreen = std::make_unique<CPauseScreen>(w1, *suitGrp, *suitGrp);
+            x48_pauseScreen = std::make_unique<CPauseScreen>(screen, *suitGrp, *suitGrp);
         }
 
     case EInGameGuiState::MapScreen:
