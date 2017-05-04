@@ -177,7 +177,7 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
     bool bExits = false;
     if (std::unique_ptr<CPauseScreenBase>& curScreen = x7c_screens[x78_activeIdx])
     {
-        if (curScreen->GetMode() == CPauseScreenBase::EMode::Zero)
+        if (curScreen->GetMode() == CPauseScreenBase::EMode::LeftTable)
             bExits = true;
         curScreen->ProcessControllerInput(input);
     }
@@ -233,12 +233,12 @@ void CPauseScreen::Update(float dt, const CStateManager& mgr, CRandom16& rand, C
 
     if (x8_curSubscreen != xc_nextSubscreen)
     {
-        x10_interp = std::max(0.f, x10_interp - dt);
+        x10_alphaInterp = std::max(0.f, x10_alphaInterp - dt);
         if (!curScreen || !curScreen->InputDisabled())
         {
             if (!otherScreen || otherScreen->IsReady())
             {
-                if (x10_interp == 0.f)
+                if (x10_alphaInterp == 0.f)
                     TransitionComplete();
             }
         }
@@ -248,7 +248,7 @@ void CPauseScreen::Update(float dt, const CStateManager& mgr, CRandom16& rand, C
     {
         curScreen->Update(dt, rand, archQueue);
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = std::min(curScreen->GetAlpha(), x8_curSubscreen != xc_nextSubscreen ? x10_interp / 0.5f : 1.f);
+        color.a = std::min(curScreen->GetAlpha(), x8_curSubscreen != xc_nextSubscreen ? x10_alphaInterp / 0.5f : 1.f);
         x40_textpane_a->SetColor(color);
         x44_textpane_b->SetColor(color);
     }
@@ -273,7 +273,7 @@ void CPauseScreen::Draw()
     std::unique_ptr<CPauseScreenBase>& curScreen = x7c_screens[x78_activeIdx];
     if (curScreen && curScreen->CanDraw())
     {
-        float useInterp = x10_interp == 0.f ? 1.f : x10_interp / 0.5f;
+        float useInterp = x10_alphaInterp == 0.f ? 1.f : x10_alphaInterp / 0.5f;
         float initInterp = std::min(curScreen->GetAlpha(), useInterp);
         if (xc_nextSubscreen == ESubScreen::Invalid)
             totalAlpha = useInterp;

@@ -206,6 +206,7 @@ public:
     void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
     void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
     void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
+    const TCachedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
     static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
                                  const CModelFlags& drawFlags,

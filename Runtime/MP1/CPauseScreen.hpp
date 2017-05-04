@@ -28,7 +28,7 @@ private:
     u32 x4_ = 2;
     ESubScreen x8_curSubscreen = ESubScreen::Invalid;
     ESubScreen xc_nextSubscreen = ESubScreen::Invalid;
-    float x10_interp = 0.f;
+    float x10_alphaInterp = 0.f;
     TLockedToken<CStringTable> x14_strgPauseScreen;
     const CDependencyGroup& x20_suitDgrp;
     const CDependencyGroup& x24_ballDgrp;

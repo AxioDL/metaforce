@@ -27,11 +27,11 @@ public:
     enum class EMode
     {
         Invalid = -1,
-        Zero = 0,
-        One = 1,
-        Two = 2
+        LeftTable = 0,
+        RightTable = 1,
+        TextScroll = 2
     };
-private:
+protected:
     const CStateManager& x4_mgr;
     CGuiFrame& x8_frame;
     const CStringTable& xc_pauseStrg;
@@ -93,8 +93,7 @@ private:
     };
     void InitializeFrameGlue();
     static std::string GetImagePaneName(u32 i);
-protected:
-    void Activate(EMode mode);
+    void ChangeMode(EMode mode);
     void UpdateSideTable(CGuiTableGroup* table);
 public:
     CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
@@ -115,8 +114,12 @@ public:
     virtual float GetCameraYBias() const { return 0.f; }
     virtual bool VReady() const=0;
     virtual void VActivate() const=0;
+    virtual void ChangedMode() {}
     virtual void UpdateRightTable();
     virtual u32 GetRightTableCount() const=0;
+    virtual bool IsRightLogDynamic() const { return false; }
+    virtual void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, zeus::CColor& inactiveColor) {}
+    virtual void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor, zeus::CColor& inactiveColor) {}
 };
 
 }

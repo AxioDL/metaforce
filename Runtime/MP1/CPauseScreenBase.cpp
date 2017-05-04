@@ -7,6 +7,7 @@
 #include "GuiSys/CAuiImagePane.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "GameGlobalObjects.hpp"
+#include "Audio/CSfxManager.hpp"
 
 namespace urde
 {
@@ -78,7 +79,7 @@ bool CPauseScreenBase::IsReady()
     if (x198_24_ready)
     {
         VActivate();
-        Activate(EMode::Zero);
+        ChangeMode(EMode::LeftTable);
         UpdateSideTable(x70_tablegroup_leftlog);
         UpdateRightTable();
         return true;
@@ -86,14 +87,113 @@ bool CPauseScreenBase::IsReady()
     return false;
 }
 
-void CPauseScreenBase::Activate(EMode mode)
+void CPauseScreenBase::ChangeMode(EMode mode)
 {
+    if (x10_mode == mode)
+        return;
 
+    EMode oldMode = x10_mode;
+    zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
+    zeus::CColor colorDim = color;
+    colorDim.a = 0.5f;
+
+    switch (x10_mode)
+    {
+    case EMode::LeftTable:
+        x6c_basewidget_leftlog->SetColor(colorDim);
+        x70_tablegroup_leftlog->SetIsActive(false);
+        break;
+    case EMode::Invalid:
+    case EMode::RightTable:
+        if (IsRightLogDynamic())
+            UpdateRightLogColors(false, color, colorDim);
+        else
+            x80_basewidget_rightlog->SetColor(colorDim);
+        x84_tablegroup_rightlog->SetIsActive(false);
+        break;
+    case EMode::TextScroll:
+        CSfxManager::SfxStart(1431, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        break;
+    default: break;
+    }
+
+    x10_mode = mode;
+
+    switch (x10_mode)
+    {
+    case EMode::LeftTable:
+        if (oldMode == EMode::RightTable)
+            CSfxManager::SfxStart(1431, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        x6c_basewidget_leftlog->SetColor(color);
+        x70_tablegroup_leftlog->SetIsActive(true);
+        UpdateSideTable(x70_tablegroup_leftlog);
+        x18_ = 0;
+        x1c_ = 0;
+        x84_tablegroup_rightlog->SetUserSelection(1);
+        UpdateSideTable(x84_tablegroup_rightlog);
+        break;
+    case EMode::RightTable:
+        if (IsRightLogDynamic())
+            UpdateRightLogColors(true, color, colorDim);
+        else
+            x80_basewidget_rightlog->SetColor(colorDim);
+        x84_tablegroup_rightlog->SetIsActive(true);
+        UpdateSideTable(x84_tablegroup_rightlog);
+        break;
+    case EMode::TextScroll:
+        x6c_basewidget_leftlog->SetColor(colorDim);
+        if (IsRightLogDynamic())
+            UpdateRightLogColors(true, color, colorDim);
+        else
+            x80_basewidget_rightlog->SetColor(colorDim);
+        x70_tablegroup_leftlog->SetIsActive(false);
+        x84_tablegroup_rightlog->SetIsActive(false);
+        break;
+    default: break;
+    }
+
+    ChangedMode();
 }
 
 void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
 {
+    if (!table)
+        return;
 
+    zeus::CColor selColor = zeus::CColor::skWhite;
+    zeus::CColor deselColor = {1.f, 1.f, 1.f, 0.5f};
+
+    bool tableActive = true;
+    if (table == x84_tablegroup_rightlog && x10_mode != EMode::RightTable)
+        tableActive = false;
+
+    table->SetColors(selColor, deselColor);
+
+    if (table == x84_tablegroup_rightlog)
+    {
+        int sel = x1c_ - x18_;
+        x8c_model_righthighlight->SetLocalTransform(
+            x8c_model_righthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_ * sel));
+        x8c_model_righthighlight->SetVisibility(x10_mode == EMode::RightTable, ETraversalMode::Children);
+        int selInView = x1c_ % 5;
+        if (IsRightLogDynamic())
+        {
+            UpdateRightLogHighlight(tableActive, selInView, selColor, deselColor);
+        }
+        else
+        {
+            for (int i=0 ; i<x144_model_titles.size() ; ++i)
+                x144_model_titles[i]->SetColor((i == selInView && tableActive) ? selColor : deselColor);
+        }
+    }
+    else
+    {
+        int sel = x70_tablegroup_leftlog->GetUserSelection();
+        x78_model_lefthighlight->SetLocalTransform(
+            x78_model_lefthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_ * sel));
+        for (int i=0 ; i<xc0_model_categories.size() ; ++i)
+            xc0_model_categories[i]->SetColor(i == sel ? selColor : deselColor);
+    }
 }
 
 void CPauseScreenBase::Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue)
@@ -103,8 +203,8 @@ void CPauseScreenBase::Update(float dt, CRandom16& rand, CArchitectureQueue& arc
     x14_alpha = std::min(2.f * dt + x14_alpha, 1.f);
 
     u32 rightCount = GetRightTableCount();
-    bool pulseRightUp = x10_mode == EMode::One && x18_ > 0;
-    bool pulseRightDown = x10_mode == EMode::One && x18_ + 5 < rightCount;
+    bool pulseRightUp = x10_mode == EMode::RightTable && x18_ > 0;
+    bool pulseRightDown = x10_mode == EMode::RightTable && x18_ + 5 < rightCount;
     float rightUpT = pulseRightUp ? CGraphics::GetSecondsMod900() : 0.f;
     float rightDownT = pulseRightDown ? CGraphics::GetSecondsMod900() : 0.f;
 
@@ -148,7 +248,10 @@ void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff)
 
 void CPauseScreenBase::UpdateRightTable()
 {
-
+    x18_ = 0;
+    x1c_ = 0;
+    x84_tablegroup_rightlog->SetUserSelection(1);
+    UpdateSideTable(x84_tablegroup_rightlog);
 }
 
 static const char* PaneSuffixes[] =

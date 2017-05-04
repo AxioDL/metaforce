@@ -584,36 +584,22 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
         float deltaFrames = input.DeltaTime() * 60.f;
         SetShouldRotatingSoundBePlaying(true);
         zeus::CEulerAngles eulers(xa8_renderStates[0].x8_camOrientation);
-        float angX = eulers.x - std::floor(eulers.x / (2.f * M_PIF)) * 2.f * M_PIF;
-        if (angX < 0.f)
-            angX += 2.f * M_PIF;
-        float angZ = eulers.z - std::floor(eulers.z / (2.f * M_PIF)) * 2.f * M_PIF;
-        if (angZ < 0.f)
-            angZ += 2.f * M_PIF;
+        zeus::CRelAngle angX(eulers.x);
+        zeus::CRelAngle angZ(eulers.z);
 
         float dt = deltaFrames * g_tweakAutoMapper->GetCamRotateDegreesPerFrame();
 
         angZ -= zeus::degToRad(dt * dirs[2]);
-        if (angZ - std::floor(angZ / (2.f * M_PIF)) * 2.f * M_PIF < 0.f)
-            angZ += 2.f * M_PIF;
         angZ += zeus::degToRad(dt * dirs[3]);
-        if (angZ - std::floor(angZ / (2.f * M_PIF)) * 2.f * M_PIF < 0.f)
-            angZ += 2.f * M_PIF;
 
         angX -= zeus::degToRad(dt * dirs[0]);
-        if (angX - std::floor(angX / (2.f * M_PIF)) * 2.f * M_PIF < 0.f)
-            angX += 2.f * M_PIF;
         angX += zeus::degToRad(dt * dirs[1]);
-        if (angX - std::floor(angX / (2.f * M_PIF)) * 2.f * M_PIF < 0.f)
-            angX += 2.f * M_PIF;
 
-        angX = zeus::radToDeg(angX);
-        if (angX > 180.f)
-            angX -= 360.f;
-        angX = zeus::degToRad(zeus::clamp(g_tweakAutoMapper->GetMinCamRotateX(), angX,
+        float angXDeg = angX.asDegrees();
+        if (angXDeg > 180.f)
+            angXDeg -= 360.f;
+        angX = zeus::degToRad(zeus::clamp(g_tweakAutoMapper->GetMinCamRotateX(), angXDeg,
                                           g_tweakAutoMapper->GetMaxCamRotateX()));
-        if (angX - std::floor(angX / (2.f * M_PIF)) * 2.f * M_PIF < 0.f)
-            angX += 2.f * M_PIF;
 
         zeus::CQuaternion quat;
         quat.rotateZ(angZ);
@@ -1573,9 +1559,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             float func = zeus::clamp(0.f, 0.5f * (1.f + std::sin(5.f * CGraphics::GetSecondsMod900() - (M_PIF / 2.f))), 1.f);
             float scale = std::min(0.6f * g_tweakAutoMapper->GetMaxCamDist() / g_tweakAutoMapper->GetMinCamDist(), objectScale);
             zeus::CEulerAngles eulers(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr));
-            float angle = eulers.z - std::floor(eulers.z / (2.f * M_PIF)) * 2.f * M_PIF;
-            if (angle < 0.f)
-                angle += 2.f * M_PIF;
+            zeus::CRelAngle angle(eulers.z);
             zeus::CTransform playerXf(zeus::CMatrix3f::RotateZ(angle),
             CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) + mgr.GetPlayer().GetTranslation());
             CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform::Scale(scale * (0.25f * func + 0.75f)));
