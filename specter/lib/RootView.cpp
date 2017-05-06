@@ -16,7 +16,7 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
     {
         buildResources(ctx, res);
         m_splitMenuSystem.emplace(*this, ctx);
-        m_renderTex = ctx.newRenderTexture(rect.size[0], rect.size[1], 1, 2);
+        m_renderTex = ctx.newRenderTexture(rect.size[0], rect.size[1], 1, 3);
         return true;
     });
     resized(rect, rect);
