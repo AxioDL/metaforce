@@ -78,8 +78,8 @@ private:
     friend class CElementGenShaders;
     TLockedToken<CGenDescription> x1c_genDesc;
     EModelOrientationType x28_orientType;
-    std::vector<CParticleListItem> x2c_particleLists;
-    std::vector<zeus::CMatrix3f> x3c_parentMatrices;
+    std::vector<CParticleListItem> x30_particleLists;
+    std::vector<zeus::CMatrix3f> x60_parentMatrices;
     u32 x4c_internalStartFrame = 0;
     u32 x50_curFrame = 0;
     double x58_curSeconds = 0.f;
@@ -87,12 +87,12 @@ private:
     u32 x64_prevFrame = -1;
     bool x68_particleEmission = true;
     float x6c_generatorRemainder = 0.f;
-    int x70_MAXP = 0;
-    u16 x74_randomSeed = 99;
+    int x90_MAXP = 0;
+    u16 x94_randomSeed = 99;
     float x78_generatorRate = 1.f;
     zeus::CVector3f x7c_translation;
     zeus::CVector3f x88_globalTranslation;
-    zeus::CVector3f x94_POFS;
+    zeus::CVector3f xf4_POFS;
     zeus::CVector3f xa0_globalScale = {1.f, 1.f, 1.f};
     zeus::CTransform xac_globalScaleTransform = zeus::CTransform::Identity();
     zeus::CTransform xdc_globalScaleTransformInverse = zeus::CTransform::Identity();
@@ -105,7 +105,7 @@ private:
     u32 x208_activeParticleCount = 0;
     u32 x20c_recursiveParticleCount = 0;
     u32 x210_curEmitterFrame = 0;
-    int x214_PSLT = 90;//0x7fffff;
+    int x268_PSLT = 90;//0x7fffff;
     zeus::CVector3f x218_PSIV;
     bool x224_24_translationDirty = false;
     bool x224_25_LIT_;
@@ -117,38 +117,48 @@ private:
     bool x224_31_VMD2;
     bool x225_24_VMD3;
     bool x225_25_VMD4;
-    bool x225_26_LINE;
-    bool x225_27_FXLL;
     bool x225_28_warmedUp = false;
     bool x225_29_modelsUseLights = false;
     bool x226_enableOPTS;
     int x228_MBSP = 0; int m_maxMBSP = 0;
+
+    union
+    {
+        struct
+        {
+            bool x26c_24_ : 1;
+            bool x26c_31_LINE : 1;
+            bool x26d_24_FXLL : 1;
+        };
+        u32 _dummy = 0;
+    };
+
     ERglLightBits x22c_backupLightActive = ERglLightBits::None;
-    CRandom16 x230_randState;
-    std::vector<std::unique_ptr<CElementGen>> x234_activePartChildren;
-    int x244_CSSD = 0;
+    CRandom16 x27c_randState;
+    std::vector<std::unique_ptr<CElementGen>> x290_activePartChildren;
+    int x2a0_CSSD = 0;
     std::vector<std::unique_ptr<CElementGen>> x248_finishPartChildren;
-    int x258_SISY = 16;
-    int x25c_PISY = 16;
+    int x2a4_SISY = 16;
+    int x2a8_PISY = 16;
     u32 x260_cumulativeParticles = 0; /* Retail */
     std::vector<std::unique_ptr<CParticleSwoosh>> x260_swhcChildren;
-    int x270_SSSD = 0;
-    zeus::CVector3f x274_SSPO;
+    int x2ac_SSSD = 0;
+    zeus::CVector3f x2b0_SSPO;
     std::vector<std::unique_ptr<CParticleElectric>> x280_elscChildren;
-    int x290_SESD = 0;
-    zeus::CVector3f x294_SEPO;
+    int x2bc_SESD = 0;
+    zeus::CVector3f x2c0_SEPO;
     float x2a0 = 0.f;
     float x2a4 = 0.f;
     zeus::CVector3f x2a8_aabbMin;
     zeus::CVector3f x2b4_aabbMax;
     float x2c0_maxSize = 0.f;
     zeus::CAABox x2c4_systemBounds = zeus::CAABox::skInvertedBox;
-    LightType x2dc_lightType;
+    LightType x308_lightType;
     zeus::CColor x2e0_LCLR = zeus::CColor::skWhite;
     float x2e4_LINT = 1.f;
     zeus::CVector3f x2e8_LOFF;
     zeus::CVector3f x2f4_LDIR = {1.f, 0.f, 0.f};
-    EFalloffType x300_falloffType = EFalloffType::Linear;
+    EFalloffType x32c_falloffType = EFalloffType::Linear;
     float x304_LFOR = 1.f;
     float x308_LSLA = 45.f;
     zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
@@ -185,7 +195,7 @@ public:
         else
             x78_generatorRate = 0.0f;
 
-        for (std::unique_ptr<CElementGen>& child : x234_activePartChildren)
+        for (std::unique_ptr<CElementGen>& child : x290_activePartChildren)
             child->SetGeneratorRateScalar(x78_generatorRate);
 
         for (std::unique_ptr<CElementGen>& child : x248_finishPartChildren)
@@ -241,6 +251,8 @@ public:
     bool GetParticleEmission() const;
     void DestroyParticles();
     void Reset();
+    size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
+    CElementGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
 
     static void SetMoveRedToAlphaBuffer(bool);
 };

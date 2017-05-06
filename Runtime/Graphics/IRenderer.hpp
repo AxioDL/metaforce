@@ -21,6 +21,7 @@ class CModel;
 class CSkinnedModel;
 class CPVSVisSet;
 struct CAreaRenderOctTree;
+class CModelFlags;
 
 class IRenderer
 {
@@ -51,6 +52,7 @@ public:
     virtual void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)=0;
     virtual void DrawSortedGeometry(int areaIdx, int mask, int targetMask)=0;
     virtual void DrawStaticGeometry(int areaIdx, int mask, int targetMask)=0;
+    virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly)=0;
     virtual void PostRenderFogs()=0;
     virtual void AddParticleGen(const CParticleGen&)=0;
     virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)=0;

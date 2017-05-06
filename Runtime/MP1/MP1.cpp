@@ -11,6 +11,7 @@
 #include "Graphics/Shaders/CEnergyBarShader.hpp"
 #include "Graphics/Shaders/CRadarPaintShader.hpp"
 #include "Graphics/Shaders/CMapSurfaceShader.hpp"
+#include "Graphics/Shaders/CPhazonSuitFilter.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -29,6 +30,7 @@ URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
 URDE_DECL_SPECIALIZE_SHADER(CEnergyBarShader)
 URDE_DECL_SPECIALIZE_SHADER(CRadarPaintShader)
 URDE_DECL_SPECIALIZE_SHADER(CMapSurfaceShader)
+URDE_DECL_SPECIALIZE_SHADER(CPhazonSuitFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
@@ -222,6 +224,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TShader<CEnergyBarShader>::Initialize();
     TShader<CRadarPaintShader>::Initialize();
     TShader<CMapSurfaceShader>::Initialize();
+    TShader<CPhazonSuitFilter>::Initialize();
     TMultiBlendShader<CColoredQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
@@ -354,6 +357,7 @@ void CMain::Shutdown()
     TShader<CEnergyBarShader>::Shutdown();
     TShader<CRadarPaintShader>::Shutdown();
     TShader<CMapSurfaceShader>::Shutdown();
+    TShader<CPhazonSuitFilter>::Shutdown();
     TMultiBlendShader<CColoredQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();

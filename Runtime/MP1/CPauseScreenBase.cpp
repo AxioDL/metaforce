@@ -128,7 +128,7 @@ void CPauseScreenBase::ChangeMode(EMode mode)
         x70_tablegroup_leftlog->SetIsActive(true);
         UpdateSideTable(x70_tablegroup_leftlog);
         x18_ = 0;
-        x1c_ = 0;
+        x1c_rightSel = 0;
         x84_tablegroup_rightlog->SetUserSelection(1);
         UpdateSideTable(x84_tablegroup_rightlog);
         break;
@@ -171,11 +171,11 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
 
     if (table == x84_tablegroup_rightlog)
     {
-        int sel = x1c_ - x18_;
+        int sel = x1c_rightSel - x18_;
         x8c_model_righthighlight->SetLocalTransform(
             x8c_model_righthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_ * sel));
         x8c_model_righthighlight->SetVisibility(x10_mode == EMode::RightTable, ETraversalMode::Children);
-        int selInView = x1c_ % 5;
+        int selInView = x1c_rightSel % 5;
         if (IsRightLogDynamic())
         {
             UpdateRightLogHighlight(tableActive, selInView, selColor, deselColor);
@@ -249,7 +249,7 @@ void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff)
 void CPauseScreenBase::UpdateRightTable()
 {
     x18_ = 0;
-    x1c_ = 0;
+    x1c_rightSel = 0;
     x84_tablegroup_rightlog->SetUserSelection(1);
     UpdateSideTable(x84_tablegroup_rightlog);
 }

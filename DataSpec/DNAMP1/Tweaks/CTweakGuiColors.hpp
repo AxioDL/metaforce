@@ -10,7 +10,7 @@ namespace DNAMP1
 struct CTweakGuiColors : public ITweakGuiColors
 {
     DECL_YAML
-    DNAColor x4_;
+    DNAColor x4_invPhazonSuitFilterMod;
     DNAColor x8_radarStuffColor;
     DNAColor xc_radarPlayerPaintColor;
     DNAColor x10_radarEnemyPaintColor;
@@ -140,6 +140,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     CTweakGuiColors() = default;
     CTweakGuiColors(athena::io::IStreamReader& r) { this->read(r); }
 
+    const zeus::CColor& GetInvPhazonSuitFilterMod() const { return x4_invPhazonSuitFilterMod; }
     const zeus::CColor& GetRadarStuffColor() const { return x8_radarStuffColor; }
     const zeus::CColor& GetRadarPlayerPaintColor() const { return xc_radarPlayerPaintColor; }
     const zeus::CColor& GetRadarEnemyPaintColor() const { return x10_radarEnemyPaintColor; }

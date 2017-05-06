@@ -139,6 +139,9 @@ public:
     void Render(EWhichModel, const zeus::CTransform& xf,
                 const CActorLights* lights, const CModelFlags& drawFlags);
 
+    void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                           const zeus::CColor& color0, const zeus::CColor& color1);
+
     CAnimData* AnimationData() { return x10_animData.get(); }
     const CAnimData* GetAnimationData() const { return x10_animData.get(); }
     const TLockedToken<CModel>& GetNormalModel() const { return x1c_normalModel; }

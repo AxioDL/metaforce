@@ -813,4 +813,10 @@ zeus::CAABox CAnimData::GetBoundingBox() const
     return search->second;
 }
 
+void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model)
+{
+    xd8_modelData = model;
+    x108_aabb = xd8_modelData->GetModel()->GetAABB();
+}
+
 }

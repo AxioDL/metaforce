@@ -18,34 +18,33 @@ namespace MP1
 class CSamusDoll
 {
     std::vector<CToken> x0_depToks;
-    zeus::CTransform x10_;
-    float x40_ = 0.f;
+    zeus::CTransform x10_xf;
+    float x40_alphaIn = 0.f;
     CPlayerState::EPlayerSuit x44_suit;
     CPlayerState::EBeamId x48_beam;
-    bool x4c_intoBallComplete = false;
-    bool x4d_morphballComplete = false;
-    float x50_ = 1.f;
-    float x54_ = 0.f;
-    float x58_ = 0.f;
-    float x5c_ = 0.f;
-    float x60_ = 0.f;
-    float x64_ = 0.f;
-    float x68_ = 0.f;
-    float x6c_ = 0.f;
-    zeus::CQuaternion x70_;
-    float x80_ = -3.6f;
+    bool x4c_completedMorphball = false;
+    bool x4d_selectedMorphball = false;
+    float x50_totalTransitionTime = 1.f;
+    float x54_remTransitionTime = 0.f;
+    float x58_suitPulseFactor = 0.f;
+    float x5c_beamPulseFactor = 0.f;
+    float x60_grapplePulseFactor = 0.f;
+    float x64_bootsPulseFactor = 0.f;
+    float x68_visorPulseFactor = 0.f;
+    float x6c_ballPulseFactor = 0.f;
+    zeus::CQuaternion x70_fixedRot;
+    float x80_fixedZoom = -3.6f;
     zeus::CVector3f x84_interpStartOffset = skInitialOffset;
-    zeus::CQuaternion x90_interpStartRot;
-    float xa0_interpStartZoom = -3.6f;
+    zeus::CQuaternion x90_userInterpRot;
+    float xa0_userInterpZoom = -3.6f;
     zeus::CVector3f xa4_offset = skInitialOffset;
-    zeus::CQuaternion xb0_rot;
-    float xc0_zoom = -3.6f;
+    zeus::CQuaternion xb0_userRot;
+    float xc0_userZoom = -3.6f;
     float xc4_viewInterp = 0.f;
-    std::experimental::optional<CModelData> xc8_suitModel1;
+    std::experimental::optional<CModelData> xc8_suitModel0;
     rstl::reserved_vector<TCachedToken<CSkinnedModel>, 2> x118_suitModel1and2;
     std::experimental::optional<CModelData> x134_suitModelBoots;
     std::experimental::optional<CModelData> x184_ballModelData;
-    bool x1d0_ = false;
     TLockedToken<CModel> x1d4_spiderBallGlass;
     u32 x1e0_ballMatIdx;
     u32 x1e4_glassMatIdx;
@@ -58,10 +57,11 @@ class CSamusDoll
     TLockedToken<CGenDescription> x224_ballInnerGlow;
     std::unique_ptr<CElementGen> x22c_ballInnerGlowGen;
     TLockedToken<CGenDescription> x230_ballTransitionFlash;
+    std::unique_ptr<CElementGen> x238_ballTransitionFlashGen;
     std::vector<CLight> x23c_lights;
     std::unique_ptr<CActorLights> x24c_actorLights;
-    bool x25c_ = false;
-    float x260_ = 0.f;
+    TLockedToken<CTexture> x250_phazonIndirectTexture; // Used to be optional
+    zeus::CRelAngle x260_phazonOffsetAngle;
     CSfxHandle x264_offsetSfx;
     CSfxHandle x268_rotateSfx;
     CSfxHandle x26c_zoomSfx;
@@ -71,11 +71,11 @@ class CSamusDoll
         {
             bool x270_24_hasSpiderBall : 1;
             bool x270_25_hasGrappleBeam : 1;
-            bool x270_26_ : 1;
-            bool x270_27_ : 1;
-            bool x270_28_ : 1;
-            bool x270_29_ : 1;
-            bool x270_30_ : 1;
+            bool x270_26_pulseSuit : 1;
+            bool x270_27_pulseBeam : 1;
+            bool x270_28_pulseGrapple : 1;
+            bool x270_29_pulseBoots : 1;
+            bool x270_30_pulseVisor : 1;
             bool x270_31_loaded : 1;
         };
         u32 _dummy = 0;
@@ -98,10 +98,15 @@ public:
     void Update(float dt, CRandom16& rand);
     void Draw(const CStateManager& mgr, float alpha);
     void Touch();
-    void CheckTransition(bool morphballComplete);
+    void SetInMorphball(bool morphballComplete);
     void SetRotation(float xDelta, float zDelta, float);
     void SetOffset(const zeus::CVector3f& offset, float sfxThreshold);
     void BeginViewInterpolate(bool zoomOut);
+    void SetPulseSuit(bool b) { x270_26_pulseSuit = b; }
+    void SetPulseVisor(bool b) { x270_30_pulseVisor = b; }
+    void SetPulseBoots(bool b) { x270_29_pulseBoots = b; }
+    void SetPulseGrapple(bool b) { x270_28_pulseGrapple = b; }
+    void SetPulseBeam(bool b) { x270_27_pulseBeam = b; }
 };
 
 }

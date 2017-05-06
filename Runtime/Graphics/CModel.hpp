@@ -23,7 +23,7 @@ class CModel;
 
 struct CModelFlags
 {
-    u8 x0_blendMode = 0; /* Blend state 3/5 enable additive */
+    u8 x0_blendMode = 0; /* >6: additive, >4: blend, else opaque */
     u8 x1_matSetIdx = 0;
     EExtendedShader m_extendedShader = EExtendedShader::Flat;
     u16 x2_flags = 0; /* Flags */
@@ -36,6 +36,8 @@ struct CModelFlags
     : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
 
     /* Flags
+        0x1: depth equal
+        0x2: depth update
         0x4: render without texture lock
         0x8: depth greater
         0x10: depth non-inclusive
@@ -77,6 +79,13 @@ public:
         int m_matSetIdx;
         SShader(int idx) : m_matSetIdx(idx) {}
         void UnlockTextures();
+    };
+
+    enum class ESurfaceSelection
+    {
+        UnsortedOnly,
+        SortedOnly,
+        All
     };
 
 private:
@@ -148,6 +157,7 @@ public:
 
     bool IsOpaque() const {return x3c_firstSortedSurface == nullptr;}
     void ActivateLights(const std::vector<CLight>& lights);
+    void DisableAllLights();
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
     void UnlockTextures() const;
@@ -165,6 +175,8 @@ public:
     void Draw(const CModelFlags& flags,
               const CSkinRules* cskr,
               const CPoseAsTransforms* pose) const;
+    void DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const;
+
 
     const MaterialSet::Material& GetMaterialByIndex(int idx) const
     {
@@ -217,6 +229,7 @@ public:
     void DrawUnsortedParts(const CModelFlags& flags) const;
     void Draw(const CModelFlags& flags) const;
     bool IsLoaded(int shaderIdx) const;
+    void Touch(int shaderIdx) { x28_modelInst->Touch(shaderIdx); }
 
     const zeus::CAABox& GetAABB() const {return m_aabb;}
     CBooModel& GetInstance() {return *x28_modelInst;}

@@ -14,7 +14,8 @@ if(WIN32)
       Shaders/CFogVolumeFilterHLSL.cpp
       Shaders/CEnergyBarShaderHLSL.cpp
       Shaders/CRadarPaintShaderHLSL.cpp
-      Shaders/CMapSurfaceShaderHLSL.cpp)
+      Shaders/CMapSurfaceShaderHLSL.cpp
+      Shaders/CPhazonSuitFilterHLSL.cpp)
 elseif(BOO_HAS_METAL)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
@@ -31,7 +32,8 @@ elseif(BOO_HAS_METAL)
       Shaders/CFogVolumeFilterMetal.cpp
       Shaders/CEnergyBarShaderMetal.cpp
       Shaders/CRadarPaintShaderMetal.cpp
-      Shaders/CMapSurfaceShaderMetal.cpp)
+      Shaders/CMapSurfaceShaderMetal.cpp
+      Shaders/CPhazonSuitFilterMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -70,6 +72,7 @@ set(GRAPHICS_SOURCES
     Shaders/CEnergyBarShader.hpp Shaders/CEnergyBarShader.cpp Shaders/CEnergyBarShaderGLSL.cpp
     Shaders/CRadarPaintShader.hpp Shaders/CRadarPaintShader.cpp Shaders/CRadarPaintShaderGLSL.cpp
     Shaders/CMapSurfaceShader.hpp Shaders/CMapSurfaceShader.cpp Shaders/CMapSurfaceShaderGLSL.cpp
+    Shaders/CPhazonSuitFilter.hpp Shaders/CPhazonSuitFilter.cpp Shaders/CPhazonSuitFilterGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

@@ -865,6 +865,14 @@ void CBooRenderer::DrawStaticGeometry(int modelCount, int mask, int targetMask)
     DrawSortedGeometry(modelCount, mask, targetMask);
 }
 
+void CBooRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly)
+{
+    model.GetInstance().DrawFlat(unsortedOnly ?
+                                     CBooModel::ESurfaceSelection::UnsortedOnly :
+                                     CBooModel::ESurfaceSelection::All,
+                                 flags.m_extendedShader);
+}
+
 void CBooRenderer::PostRenderFogs()
 {
     for (const auto& warp : x2c4_spaceWarps)
@@ -974,6 +982,14 @@ void CBooRenderer::BeginScene()
     CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
     CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+#if 0
+    if (x310_phazonSuitMaskCountdown != 0)
+    {
+        --x310_phazonSuitMaskCountdown;
+        if (x310_phazonSuitMaskCountdown == 0)
+            x314_phazonSuitMask.reset();
+    }
+#endif
     x318_27_currentRGBA6 = x318_26_requestRGBA6;
     if (!x318_31_persistRGBA6)
         x318_26_requestRGBA6 = false;
@@ -1173,6 +1189,53 @@ void CBooRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color)
 void CBooRenderer::SetWorldLightFadeLevel(float level)
 {
     x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f);
+}
+
+void CBooRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, /*const CTexture& maskTex,*/
+                                                      const CTexture& indTex, const zeus::CColor& modColor,
+                                                      float scale, float offX, float offY)
+{
+    m_phazonSuitFilter.draw(modColor, scale, offX * scale, offY * scale);
+}
+
+void CBooRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor /*, const CTexture& maskTex*/)
+{
+    m_phazonSuitFilter.draw(modColor, 0.f, 0.f, 0.f);
+}
+
+void CBooRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius /*, float f2*/, const TLockedToken<CTexture>& indTex)
+{
+    m_phazonSuitFilter.drawBlurPasses(blurRadius, indTex.IsLoaded() ? indTex.GetObj() : nullptr);
+}
+
+void CBooRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod, const TLockedToken<CTexture>& indTex,
+                                                const zeus::CColor& indirectMod, float blurRadius,
+                                                float scale, float offX, float offY)
+{
+    /* Indirect background already in binding 0 */
+
+    /* Resolve alpha channel of just-drawn phazon suit into binding 1 */
+    SClipScreenRect rect;
+    rect.x4_left = g_Viewport.x0_left;
+    rect.x8_top = g_Viewport.x4_top;
+    rect.xc_width = g_Viewport.x8_width;
+    rect.x10_height = g_Viewport.xc_height;
+    CGraphics::ResolveSpareTexture(rect, 1);
+
+    /* Perform blur filter and resolve into binding 2 */
+    DoPhazonSuitIndirectAlphaBlur(blurRadius, indTex);
+
+    /* Draw effect; subtracting binding 1 from binding 2 for the filter 'cutout' */
+    if (indTex && indTex.IsLoaded())
+        ReallyDrawPhazonSuitIndirectEffect(zeus::CColor::skWhite, *indTex, indirectMod, scale, offX, offY);
+    else
+        ReallyDrawPhazonSuitEffect(nonIndirectMod);
+}
+
+void CBooRenderer::AllocatePhazonSuitMaskTexture()
+{
+    x318_26_requestRGBA6 = true;
+    x310_phazonSuitMaskCountdown = 2;
 }
 
 void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const

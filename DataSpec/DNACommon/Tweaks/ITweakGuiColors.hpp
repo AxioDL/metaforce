@@ -22,6 +22,7 @@ struct ITweakGuiColors : BigYAML
         const zeus::CColor& shadow;
     };
 
+    virtual const zeus::CColor& GetInvPhazonSuitFilterMod() const=0;
     virtual const zeus::CColor& GetRadarStuffColor() const=0;
     virtual const zeus::CColor& GetRadarPlayerPaintColor() const=0;
     virtual const zeus::CColor& GetRadarEnemyPaintColor() const=0;

@@ -10,6 +10,7 @@
 #include "Shaders/CSpaceWarpFilter.hpp"
 #include "Shaders/CFogVolumePlaneShader.hpp"
 #include "Shaders/CFogVolumeFilter.hpp"
+#include "Shaders/CPhazonSuitFilter.hpp"
 #include "CRandom16.hpp"
 #include "CPVSVisSet.hpp"
 #include "zeus/CRectangle.hpp"
@@ -149,6 +150,10 @@ class CBooRenderer : public IRenderer
 
     std::vector<CLight> x300_dynamicLights;
 
+    u32 x310_phazonSuitMaskCountdown = 0;
+    //std::unique_ptr<CTexture> x314_phazonSuitMask;
+    CPhazonSuitFilter m_phazonSuitFilter;
+
     union
     {
         struct
@@ -182,6 +187,12 @@ class CBooRenderer : public IRenderer
                                      CFogVolumePlaneShader* fvs);
     void SetupRendererStates() const;
 
+    void ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, /*const CTexture& maskTex,*/
+                                            const CTexture& indTex, const zeus::CColor& modColor,
+                                            float scale, float offX, float offY);
+    void ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor /*, const CTexture& maskTex*/);
+    void DoPhazonSuitIndirectAlphaBlur(float blurRadius /*, float f2*/, const TLockedToken<CTexture>& indTex);
+
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
 
@@ -196,6 +207,7 @@ public:
     void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask);
     void DrawSortedGeometry(int areaIdx, int mask, int targetMask);
     void DrawStaticGeometry(int areaIdx, int mask, int targetMask);
+    void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly);
     void PostRenderFogs();
     void AddParticleGen(const CParticleGen&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);
@@ -248,6 +260,10 @@ public:
     void PrepareDynamicLights(const std::vector<CLight>& lights);
     void SetWorldLightMultiplyColor(const zeus::CColor& color);
     void SetWorldLightFadeLevel(float level);
+    void DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod, const TLockedToken<CTexture>& indTex,
+                                      const zeus::CColor& indirectMod, float blurRadius,
+                                      float indScale, float indOffX, float indOffY);
+    void AllocatePhazonSuitMaskTexture();
 
     void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                const CModel* model, const CSkinnedModel* sModel);

@@ -425,6 +425,19 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights)
     }
 }
 
+void CBooModel::DisableAllLights()
+{
+    m_lightingData.ambient = zeus::CColor::skBlack;
+
+    for (size_t curLight = 0 ; curLight<URDE_MAX_LIGHTS ; ++curLight)
+    {
+        CModelShaders::Light& lightOut = m_lightingData.lights[curLight];
+        lightOut.color = zeus::CColor::skClear;
+        lightOut.linAtt[0] = 1.f;
+        lightOut.angAtt[0] = 1.f;
+    }
+}
+
 void CBooModel::RemapMaterialData(SShader& shader)
 {
     x4_matSet = &shader.m_matSet;
@@ -459,6 +472,33 @@ void CBooModel::UnlockTextures() const
     for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
         tex.Unlock();
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
+}
+
+void CBooModel::DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const
+{
+    const CBooSurface* surf;
+    CModelFlags flags = {};
+    flags.m_extendedShader = extendedIdx;
+
+    if (sel != ESurfaceSelection::SortedOnly)
+    {
+        surf = x38_firstUnsortedSurface;
+        while (surf)
+        {
+            DrawSurface(*surf, flags);
+            surf = surf->m_next;
+        }
+    }
+
+    if (sel != ESurfaceSelection::UnsortedOnly)
+    {
+        surf = x3c_firstSortedSurface;
+        while (surf)
+        {
+            DrawSurface(*surf, flags);
+            surf = surf->m_next;
+        }
+    }
 }
 
 void CBooModel::DrawAlphaSurfaces(const CModelFlags& flags) const

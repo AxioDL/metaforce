@@ -38,7 +38,7 @@ protected:
     EMode x10_mode = EMode::Invalid;
     float x14_alpha = 0.f;
     u32 x18_ = 0;
-    u32 x1c_ = 0;
+    u32 x1c_rightSel = 0;
     zeus::CVector3f x20_;
     zeus::CVector3f x2c_;
     float x38_ = 0.f;

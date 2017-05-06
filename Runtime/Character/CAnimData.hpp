@@ -10,6 +10,7 @@
 #include "CAdditiveAnimPlayback.hpp"
 #include "CCharLayoutInfo.hpp"
 #include "CAnimPlaybackParms.hpp"
+#include "IAnimReader.hpp"
 #include <set>
 
 enum class EUserEventType
@@ -219,6 +220,7 @@ public:
     CSegId GetLocatorSegId(const std::string& name) const;
     zeus::CAABox GetBoundingBox(const zeus::CTransform& xf) const;
     zeus::CAABox GetBoundingBox() const;
+    void SubstituteModelData(const TCachedToken<CSkinnedModel>& model);
     static void FreeCache();
     static void InitializeCache();
     const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }

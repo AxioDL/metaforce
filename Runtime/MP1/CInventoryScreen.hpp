@@ -38,6 +38,7 @@ public:
     bool IsRightLogDynamic() const;
     void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
     void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
+    void UpdateSamusDollPulses();
 };
 
 }
