@@ -99,14 +99,15 @@ public:
     void Draw(const CStateManager& mgr, float alpha);
     void Touch();
     void SetInMorphball(bool morphballComplete);
-    void SetRotation(float xDelta, float zDelta, float);
-    void SetOffset(const zeus::CVector3f& offset, float sfxThreshold);
+    void SetRotation(float xDelta, float zDelta, float dt);
+    void SetOffset(const zeus::CVector3f& offset, float dt);
     void BeginViewInterpolate(bool zoomOut);
     void SetPulseSuit(bool b) { x270_26_pulseSuit = b; }
     void SetPulseVisor(bool b) { x270_30_pulseVisor = b; }
     void SetPulseBoots(bool b) { x270_29_pulseBoots = b; }
     void SetPulseGrapple(bool b) { x270_28_pulseGrapple = b; }
     void SetPulseBeam(bool b) { x270_27_pulseBeam = b; }
+    float GetViewInterpolation() const { return xc4_viewInterp; }
 };
 
 }

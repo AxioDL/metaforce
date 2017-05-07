@@ -101,8 +101,7 @@ class CGuiTextSupport
     std::pair<zeus::CVector2i, zeus::CVector2i> x2dc_oneBufBounds;
 
     std::list<CTextRenderBuffer> x2ec_renderBufferPages;
-    u32 x300_ = 0;
-    u32 x304_pageCounter = 0;
+    int x304_pageCounter = 0;
     bool x308_multipageFlag = false;
 
     CTextRenderBuffer* GetCurrentPageRenderBuffer() const;
@@ -141,6 +140,9 @@ public:
     void SetCurTime(float t) { x3c_curTime = t; }
     const std::u16string& GetString() const { return x0_string; }
     void SetScanStates(const std::vector<CSaveWorld::SScanState>* scanStates);
+    int GetPageCounter() const { return x304_pageCounter; }
+    int GetTotalPageCount();
+    void SetPage(int page);
 };
 
 }

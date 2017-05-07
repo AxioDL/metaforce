@@ -92,6 +92,8 @@ public:
         xc4_userSelection = sel;
     }
 
+    int GetElementCount() const { return xc0_elementCount; }
+
     int GetUserSelection() const { return xc4_userSelection; }
 
     void ProcessUserInput(const CFinalInput& input);

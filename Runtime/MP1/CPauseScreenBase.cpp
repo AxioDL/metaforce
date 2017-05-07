@@ -53,11 +53,11 @@ void CPauseScreenBase::InitializeFrameGlue()
 
     for (int i=0 ; i<5 ; ++i)
     {
-        xd8_textpane_titles.push_back(static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("xd8_textpane_title%d", i + 1))));
-        x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("x144_model_title%d", i + 1))));
-        x15c_model_righttitledecos.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("x15c_model_righttitledeco%d", i + 1))));
-        xa8_textpane_categories.push_back(static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("xa8_textpane_category%d", i))));
-        xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("xc0_model_category%d", i))));
+        xd8_textpane_titles.push_back(static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_title%d", i + 1))));
+        x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_title%d", i + 1))));
+        x15c_model_righttitledecos.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_righttitledeco%d", i + 1))));
+        xa8_textpane_categories.push_back(static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_category%d", i))));
+        xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_category%d", i))));
     }
 
     for (int i=0 ; i<20 ; ++i)

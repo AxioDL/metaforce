@@ -752,7 +752,7 @@ void CSamusDoll::SetZoomSfxPlaying(bool playing)
     }
 }
 
-void CSamusDoll::SetRotation(float xDelta, float zDelta, float f3)
+void CSamusDoll::SetRotation(float xDelta, float zDelta, float dt)
 {
     if (xc4_viewInterp != 0.f && xc4_viewInterp != 1.f)
         return;
@@ -781,17 +781,17 @@ void CSamusDoll::SetRotation(float xDelta, float zDelta, float f3)
     xb0_userRot = quat;
 }
 
-void CSamusDoll::SetOffset(const zeus::CVector3f& offset, float sfxThreshold)
+void CSamusDoll::SetOffset(const zeus::CVector3f& offset, float dt)
 {
     if (xc4_viewInterp != 0.f && xc4_viewInterp != 1.f)
         return;
     zeus::CVector3f oldOffset = xa4_offset;
     zeus::CMatrix3f rotMtx = xb0_userRot.toTransform().basis;
     xa4_offset += rotMtx * zeus::CVector3f(offset.x, 0.f, offset.z);
-    SetOffsetSfxPlaying((oldOffset - xa4_offset).magnitude() > sfxThreshold);
+    SetOffsetSfxPlaying((oldOffset - xa4_offset).magnitude() > dt);
     float oldZoom = xc0_userZoom;
     xc0_userZoom = zeus::clamp(-4.f, xc0_userZoom + offset.y, -2.2f);
-    bool zoomSfx = std::fabs(xc0_userZoom - oldZoom) > sfxThreshold;
+    bool zoomSfx = std::fabs(xc0_userZoom - oldZoom) > dt;
     float zoomDelta = offset.y - (xc0_userZoom - oldZoom);
     zeus::CVector3f newOffset = rotMtx[1] * zoomDelta + xa4_offset;
     zeus::CVector3f delta = newOffset - xa4_offset;
@@ -813,7 +813,7 @@ void CSamusDoll::SetOffset(const zeus::CVector3f& offset, float sfxThreshold)
             xa4_offset = newOffset;
         }
     }
-    if ((oldOffset - xa4_offset).magnitude() > sfxThreshold)
+    if ((oldOffset - xa4_offset).magnitude() > dt)
         zoomSfx = true;
     SetZoomSfxPlaying(zoomSfx);
     delta = xa4_offset - skInitialOffset;

@@ -1,5 +1,8 @@
 #include "CInventoryScreen.hpp"
 #include "GuiSys/CGuiTableGroup.hpp"
+#include "GuiSys/CGuiTextPane.hpp"
+#include "Input/ControlMapper.hpp"
+#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
@@ -81,67 +84,336 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, c
 
 bool CInventoryScreen::InputDisabled() const
 {
-    return false;
+    return std::fabs(x19c_samusDoll->GetViewInterpolation()) > 0 || x1a8_ == 1;
 }
 
 void CInventoryScreen::TransitioningAway()
 {
-
+    x1a8_ = 1;
 }
 
 void CInventoryScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue)
 {
+    CPauseScreenBase::Update(dt, rand, archQueue);
+    x19c_samusDoll->Update(dt, rand);
 
+    if (x10_mode == EMode::TextScroll)
+    {
+        if (x1ad_textBodyVisible)
+            x1a4_textBodyAlpha = std::min(4.f * dt + x1a4_textBodyAlpha, 1.f);
+        else
+            x1a4_textBodyAlpha = std::max(0.f, x1a4_textBodyAlpha - 4.f * dt);
+        x174_textpane_body->SetColor(zeus::CColor(1.f, x1a4_textBodyAlpha));
+        x180_basewidget_yicon->SetColor(zeus::CColor(1.f, 1.f - x1a4_textBodyAlpha));
+        if (x1a4_textBodyAlpha == 0.f && x1a8_ == 0)
+            ChangeMode(EMode::RightTable);
+    }
+
+    x19c_samusDoll->SetInMorphball(
+        x70_tablegroup_leftlog->GetUserSelection() == 1 && x10_mode != EMode::LeftTable);
+    UpdateSamusDollPulses();
+    if (x1a8_ == 1 && x1a4_textBodyAlpha == 0.f)
+        x1a8_ = 2;
 }
 
 void CInventoryScreen::Touch()
 {
-
+    CPauseScreenBase::Touch();
+    x19c_samusDoll->Touch();
 }
 
 void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
 {
+    float viewInterp = x19c_samusDoll->GetViewInterpolation();
+    if (x1a8_ == 2 || (viewInterp != 0.f && viewInterp != 1.f))
+        return;
 
+    float absViewInterp = std::fabs(viewInterp);
+    if (input.PY() && x19c_samusDoll->IsLoaded() && (absViewInterp > 0.f || x10_mode != EMode::TextScroll))
+        x19c_samusDoll->BeginViewInterpolate(absViewInterp == 0.f);
+
+    if (absViewInterp == 1.f)
+    {
+        if (input.PStart())
+        {
+            x19c_samusDoll->BeginViewInterpolate(false);
+            x198_26_exitPauseScreen = true;
+        }
+        else if (input.PB())
+        {
+            x19c_samusDoll->BeginViewInterpolate(false);
+        }
+    }
+
+    if (std::fabs(x19c_samusDoll->GetViewInterpolation()) > 0.f)
+    {
+        float motionAmt = input.DeltaTime() * 6.f;
+        float circleUp = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleUp, input);
+        float circleDown = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
+        float circleLeft = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
+        float circleRight = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
+        float moveForward = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveForward, input);
+        float moveBack = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveBack, input);
+        float moveLeft = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveLeft, input);
+        float moveRight = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveRight, input);
+        float zoomIn = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapZoomIn, input);
+        float zoomOut = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapZoomOut, input);
+
+        zeus::CVector3f moveVec = {(moveRight - moveLeft) * 0.25f * motionAmt,
+                                   (zoomIn - zoomOut) * 0.5f * motionAmt,
+                                   (moveForward - moveBack) * 0.25f * motionAmt};
+        x19c_samusDoll->SetOffset(moveVec, input.DeltaTime());
+        x19c_samusDoll->SetRotation(0.5f * motionAmt * (circleDown - circleUp),
+                                    0.5f * motionAmt * (circleRight - circleLeft),
+                                    input.DeltaTime());
+    }
+    else
+    {
+        x1ad_textBodyVisible = false;
+        if (x10_mode == EMode::TextScroll)
+        {
+            int oldPage = x174_textpane_body->TextSupport()->GetPageCounter();
+            int newPage = oldPage;
+            int totalCount = x174_textpane_body->TextSupport()->GetTotalPageCount();
+            bool lastPage = totalCount - 1 == oldPage;
+            if (totalCount != -1)
+            {
+                if (input.PLAUp())
+                    newPage = std::max(oldPage - 1, 0);
+                else if (input.PLADown() || (input.PA() && !lastPage))
+                    newPage = std::min(oldPage + 1, totalCount - 1);
+                x174_textpane_body->TextSupport()->SetPage(newPage);
+                if (oldPage != newPage)
+                    CSfxManager::SfxStart(1444, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                x198_28_pulseTextArrowTop = newPage > 1;
+                x198_29_pulseTextArrowBottom = !lastPage;
+            }
+            else
+            {
+                x198_29_pulseTextArrowBottom = false;
+                x198_28_pulseTextArrowTop = false;
+            }
+        }
+        else
+        {
+            x198_29_pulseTextArrowBottom = false;
+            x198_28_pulseTextArrowTop = false;
+        }
+
+        if (x1a8_)
+            x1ad_textBodyVisible = false;
+
+        CPauseScreenBase::ProcessControllerInput(input);
+    }
 }
 
 void CInventoryScreen::Draw(float transInterp, float totalAlpha, float yOff)
 {
-
+    CPauseScreenBase::Draw(transInterp, totalAlpha, std::fabs(x19c_samusDoll->GetViewInterpolation()));
+    x19c_samusDoll->Draw(x4_mgr, transInterp * (1.f - x1a4_textBodyAlpha));
 }
 
 float CInventoryScreen::GetCameraYBias() const
 {
-    return 0.f;
+    return std::fabs(x19c_samusDoll->GetViewInterpolation());
 }
 
 bool CInventoryScreen::VReady() const
 {
-    return false;
+    return true;
+}
+
+bool CInventoryScreen::HasLeftInventoryItem(int idx) const
+{
+    CPlayerState& playerState = *x4_mgr.GetPlayerState();
+    switch (idx)
+    {
+    case 0: // Arm Cannon
+        return true;
+    case 1: // Morphball
+        return playerState.HasPowerUp(CPlayerState::EItemType::MorphBall);
+    case 2: // Suit
+        return true;
+    case 3: // Visor
+        return true;
+    case 4: // Secondary
+        return playerState.HasPowerUp(CPlayerState::EItemType::SpaceJumpBoots) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::GrappleBeam) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Missiles) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::ChargeBeam) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower);
+    default:
+        return false;
+    }
 }
 
 void CInventoryScreen::VActivate() const
 {
+    for (int i=0 ; i<5 ; ++i)
+    {
+        if (HasLeftInventoryItem(i))
+        {
+            xa8_textpane_categories[i]->TextSupport()->SetText(xc_pauseStrg.GetString(i + 10));
+        }
+        else
+        {
+            xa8_textpane_categories[i]->TextSupport()->SetText(u"??????");
+            x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+        }
+    }
 
+    x178_textpane_title->TextSupport()->SetText(xc_pauseStrg.GetString(9));
+    x180_basewidget_yicon->SetVisibility(true, ETraversalMode::Children);
+}
+
+void CInventoryScreen::UpdateTextBody()
+{
+    const SInventoryItem& sel = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].second[x1c_rightSel];
+    std::u16string entryText = xc_pauseStrg.GetString(sel.entryStrIdx);
+
+    if (sel.idx == 23) // Beam combo
+    {
+        CPlayerState& playerState = *x4_mgr.GetPlayerState();
+        entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ? 71 : 65);
+        entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ? 73 : 65);
+        entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ? 75 : 65);
+        entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower) ? 77 : 65);
+    }
+
+    x174_textpane_body->TextSupport()->SetText(entryText, true);
+    x174_textpane_body->TextSupport()->SetPage(0);
 }
 
 void CInventoryScreen::ChangedMode()
+{
+    if (x10_mode == EMode::TextScroll)
+    {
+        x1ad_textBodyVisible = true;
+        UpdateTextBody();
+    }
+}
+
+bool CInventoryScreen::HasRightInventoryItem(int idx) const
+{
+    CPlayerState& playerState = *x4_mgr.GetPlayerState();
+    switch (idx)
+    {
+    case 0: // Power Beam
+        return true;
+    case 1: // Ice Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::IceBeam);
+    case 2: // Wave Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::WaveBeam);
+    case 3: // Plasma Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::PlasmaBeam);
+    case 4: // Phazon Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::PhazonSuit);
+    case 5: // Morph Ball
+        return playerState.HasPowerUp(CPlayerState::EItemType::MorphBall);
+    case 6: // Boost Ball
+        return playerState.HasPowerUp(CPlayerState::EItemType::BoostBall);
+    case 7: // Spider Ball
+        return playerState.HasPowerUp(CPlayerState::EItemType::SpiderBall);
+    case 8: // Morph Ball Bomb
+        return playerState.HasPowerUp(CPlayerState::EItemType::MorphBallBombs);
+    case 9: // Power Bomb
+        return playerState.HasPowerUp(CPlayerState::EItemType::PowerBombs);
+    case 10: // Power Suit
+        return true;
+    case 11: // Varia Suit
+        return playerState.HasPowerUp(CPlayerState::EItemType::VariaSuit);
+    case 12: // Gravity Suit
+        return playerState.HasPowerUp(CPlayerState::EItemType::GravitySuit);
+    case 13: // Phazon Suit
+        return playerState.HasPowerUp(CPlayerState::EItemType::PhazonSuit);
+    case 14: // Energy Tank
+        return playerState.HasPowerUp(CPlayerState::EItemType::EnergyTanks);
+    case 15: // Combat Visor
+        return true;
+    case 16: // Scan Visor
+        return playerState.HasPowerUp(CPlayerState::EItemType::ScanVisor);
+    case 17: // X-Ray Visor
+        return playerState.HasPowerUp(CPlayerState::EItemType::XRayVisor);
+    case 18: // Thermal Visor
+        return playerState.HasPowerUp(CPlayerState::EItemType::ThermalVisor);
+    case 19: // Space Jump Boots
+        return playerState.HasPowerUp(CPlayerState::EItemType::SpaceJumpBoots);
+    case 20: // Grapple Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::GrappleBeam);
+    case 21: // Missile Launcher
+        return playerState.HasPowerUp(CPlayerState::EItemType::Missiles);
+    case 22: // Charge Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::ChargeBeam);
+    case 23: // Beam Combo
+        return playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower);
+    default:
+        return false;
+    }
+}
+
+void CInventoryScreen::SetRightTableScroll(int, int)
 {
 
 }
 
 void CInventoryScreen::UpdateRightTable()
 {
+    CPauseScreenBase::UpdateRightTable();
+    const std::pair<u32, const SInventoryItem*>& category =
+        InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
 
+    int minSel = INT_MAX;
+    for (int i=0 ; i<5 ; ++i)
+    {
+        CGuiTextPane* title = xd8_textpane_titles[i];
+        if (i < category.first)
+        {
+            if (HasRightInventoryItem(category.second[i].idx))
+            {
+                title->TextSupport()->SetText(xc_pauseStrg.GetString(category.second[i].nameStrIdx));
+                x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
+                if (i < minSel)
+                    minSel = i;
+            }
+            else
+            {
+                title->TextSupport()->SetText(u"??????");
+                x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(false);
+            }
+        }
+        else
+        {
+            title->TextSupport()->SetText(u"??????");
+        }
+    }
+
+    if (minSel != INT_MAX)
+    {
+        x1c_rightSel = minSel;
+        SetRightTableScroll(x1c_rightSel, x1c_rightSel);
+    }
+
+    x84_tablegroup_rightlog->GetWorkerWidget(0)->SetIsSelectable(false);
+    x84_tablegroup_rightlog->GetWorkerWidget(x84_tablegroup_rightlog->GetElementCount() - 1)->SetIsSelectable(false);
+    zeus::CColor inactiveColor = g_tweakGuiColors->GetPauseItemAmberColor();
+    inactiveColor.a = 0.5f;
+    UpdateRightLogColors(false, g_tweakGuiColors->GetPauseItemAmberColor(), inactiveColor);
 }
 
 u32 CInventoryScreen::GetRightTableCount() const
 {
-    return 0;
+    return InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].first;
 }
 
 bool CInventoryScreen::IsRightLogDynamic() const
 {
-    return false;
+    return true;
 }
 
 void CInventoryScreen::UpdateRightLogColors(bool active, const zeus::CColor& activeColor,

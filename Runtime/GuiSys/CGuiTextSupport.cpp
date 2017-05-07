@@ -26,7 +26,7 @@ CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() const
 {
     if (x60_renderBuf && !x308_multipageFlag)
         return const_cast<CTextRenderBuffer*>(&*x60_renderBuf);
-    if (!x308_multipageFlag || x300_ <= x304_pageCounter)
+    if (!x308_multipageFlag || x2ec_renderBufferPages.size() <= x304_pageCounter)
         return nullptr;
     int idx = 0;
     for (const CTextRenderBuffer& buf : x2ec_renderBufferPages)
@@ -156,7 +156,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
 bool CGuiTextSupport::CheckAndRebuildRenderBuffer()
 {
     if (x308_multipageFlag || x60_renderBuf)
-        if (!x308_multipageFlag || x300_)
+        if (!x308_multipageFlag || x2ec_renderBufferPages.size())
             return true;
 
     CheckAndRebuildTextBuffer();
@@ -315,6 +315,20 @@ void CGuiTextSupport::SetScanStates(const std::vector<CSaveWorld::SScanState>* s
         x14_props.xc_scanStates = scanStates;
         ClearRenderBuffer();
     }
+}
+
+int CGuiTextSupport::GetTotalPageCount()
+{
+    if (CheckAndRebuildRenderBuffer())
+        return x2ec_renderBufferPages.size();
+    return -1;
+}
+
+void CGuiTextSupport::SetPage(int page)
+{
+    x304_pageCounter = page;
+    x40_primStartTimes.clear();
+    x3c_curTime = 0.f;
 }
 
 }

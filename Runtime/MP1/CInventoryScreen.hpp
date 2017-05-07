@@ -16,9 +16,10 @@ class CInventoryScreen : public CPauseScreenBase
 {
     std::unique_ptr<CSamusDoll> x19c_samusDoll;
     float x1a0_ = 0.f;
-    float x1a4_ = 0.f;
+    float x1a4_textBodyAlpha = 0.f;
     u32 x1a8_ = 0;
     bool x1ac_ = false;
+    bool x1ad_textBodyVisible;
 public:
     CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                      const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
@@ -39,6 +40,10 @@ public:
     void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
     void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
     void UpdateSamusDollPulses();
+    bool HasLeftInventoryItem(int idx) const;
+    bool HasRightInventoryItem(int idx) const;
+    void UpdateTextBody();
+    void SetRightTableScroll(int, int);
 };
 
 }
