@@ -52,7 +52,7 @@ public:
     zeus::CVector3f GetPivotPoint() const;
     float GetRadius() const;
     void SetCollisionActorId(TUniqueId);
-    EOrientationType GetOrientationType() const;
+    EOrientationType GetOrientationType() const { return x4_orientType; }
     float GetMass() const;
     zeus::CAABox GetBounds() const;
     void GetType() const;

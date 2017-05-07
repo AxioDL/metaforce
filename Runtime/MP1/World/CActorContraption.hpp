@@ -18,6 +18,8 @@ public:
     CActorContraption(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                       const zeus::CAABox&, const CMaterialList&, float, float, const CHealthInfo&,
                       const CDamageVulnerability&, const CActorParameters&, ResId, const CDamageInfo&, bool);
+
+    void Accept(IVisitor &visitor);
 };
 }
 }

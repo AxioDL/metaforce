@@ -21,7 +21,7 @@ public:
 private:
     std::vector<CJointCollisionDescription> x0_jointDescriptions;
     TUniqueId x10_;
-
+    bool x13_ = false;
 public:
     CCollisionActorManager(CStateManager&, TUniqueId, TAreaId, const std::vector<CJointCollisionDescription>&, bool);
 
