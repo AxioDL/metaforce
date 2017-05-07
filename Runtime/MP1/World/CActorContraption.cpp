@@ -1,4 +1,5 @@
 #include "MP1/World/CActorContraption.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -11,5 +12,10 @@ MP1::CActorContraption::CActorContraption(TUniqueId uid, const std::string& name
 : CScriptActor(uid, name, info, xf, std::move(mData), aabox, f1, f2, matList, hInfo, dVuln, aParams, false, active, 0,
                0.f, false, false, false, false)
 {
+}
+
+void MP1::CActorContraption::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
 }
 }

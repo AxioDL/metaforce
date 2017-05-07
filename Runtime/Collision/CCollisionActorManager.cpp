@@ -8,8 +8,17 @@ namespace urde
 {
 
 CCollisionActorManager::CCollisionActorManager(CStateManager&, TUniqueId, TAreaId,
-                                               const std::vector<CJointCollisionDescription>&, bool)
+                                               const std::vector<CJointCollisionDescription>& descs, bool)
+    : x0_jointDescriptions(descs)
 {
+}
+
+void CCollisionActorManager::Destroy(CStateManager& mgr) const
+{
+    for (const CJointCollisionDescription& desc : x0_jointDescriptions)
+        mgr.DeleteObjectRequest(desc.GetCollisionActorId());
+
+    const_cast<CCollisionActorManager&>(*this).x13_ = true;
 }
 
 void CCollisionActorManager::SetActive(CStateManager&, bool)

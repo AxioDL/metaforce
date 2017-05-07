@@ -48,4 +48,12 @@ CJointCollisionDescription CJointCollisionDescription::OBBCollision(CSegId segId
     return CJointCollisionDescription(ECollisionType::OBB, segId, -1, v1, v2, 0.f, 0.f, EOrientationType::Zero, name,
                                       f1);
 }
+
+void CJointCollisionDescription::ScaleAllBounds(const zeus::CVector3f& scale)
+{
+    xc_ *= scale;
+    x24_ *= scale.x;
+    x28_ *= scale.x;
+    x18_ *= scale;
+}
 }
