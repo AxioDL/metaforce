@@ -981,7 +981,7 @@ float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) con
     const IGameArea* area = x24_world->IGetAreaAlways(xa0_curAreaId);
     const CMapArea* mapa = mw->GetMapArea(xa0_curAreaId);
     bool oneMiniMapArea = g_tweakAutoMapper->GetShowOneMiniMapArea();
-    for (int i = -1 ; i < oneMiniMapArea ? 0 : area->IGetNumAttachedAreas() ; ++i)
+    for (int i = -1 ; i < (oneMiniMapArea ? 0 : area->IGetNumAttachedAreas()) ; ++i)
     {
         TAreaId aid = i == -1 ? xa0_curAreaId : area->IGetAttachedAreaId(i);
         const CMapArea* attMapa = mw->GetMapArea(aid);

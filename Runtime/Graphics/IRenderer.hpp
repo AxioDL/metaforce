@@ -21,7 +21,7 @@ class CModel;
 class CSkinnedModel;
 class CPVSVisSet;
 struct CAreaRenderOctTree;
-class CModelFlags;
+struct CModelFlags;
 
 class IRenderer
 {
