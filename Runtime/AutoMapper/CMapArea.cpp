@@ -302,7 +302,7 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
         float width = lineWidth;
 
         auto primIt = linePrims.begin();
-        for (u32 j=0 ; j<=draw2 ; ++j)
+        for (u32 j=0 ; j<=u32(draw2) ; ++j)
         {
             r.seek(4, athena::SeekOrigin::Begin);
             for (u32 i=0 ; i<outlineCount ; ++i)

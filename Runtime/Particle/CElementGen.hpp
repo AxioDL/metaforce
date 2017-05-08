@@ -13,6 +13,7 @@
 #include "CParticleGen.hpp"
 #include "CElementGenShaders.hpp"
 #include "Graphics/CLineRenderer.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {

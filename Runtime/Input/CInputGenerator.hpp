@@ -172,20 +172,20 @@ public:
      * using the relevant OS API. This thread blocks in a loop until an event is
      * received. Device pointers should only be manipulated by this thread using
      * the deviceConnected() and deviceDisconnected() callbacks. */
-    std::unique_ptr<boo::DolphinSmashAdapter> smashAdapter = NULL;
+    std::shared_ptr<boo::DolphinSmashAdapter> smashAdapter;
     void deviceConnected(boo::DeviceToken& tok)
     {
         /* Device listener thread */
         if (!smashAdapter)
         {
-            smashAdapter.reset(dynamic_cast<boo::DolphinSmashAdapter*>(tok.openAndGetDevice()));
+            smashAdapter = std::dynamic_pointer_cast<boo::DolphinSmashAdapter>(tok.openAndGetDevice());
             smashAdapter->setCallback(&m_dolphinCb);
         }
     }
     void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device)
     {
         if (smashAdapter.get() == device)
-            smashAdapter.reset(nullptr);
+            smashAdapter.reset();
     }
     void SetMotorState(EIOPort port, EMotorState state)
     {
