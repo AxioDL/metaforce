@@ -37,14 +37,14 @@ protected:
     const CStringTable& xc_pauseStrg;
     EMode x10_mode = EMode::Invalid;
     float x14_alpha = 0.f;
-    u32 x18_ = 0;
-    u32 x1c_rightSel = 0;
+    int x18_firstViewRightSel = 0;
+    int x1c_rightSel = 0;
     zeus::CVector3f x20_;
-    zeus::CVector3f x2c_;
-    float x38_ = 0.f;
-    zeus::CVector3f x3c_;
-    zeus::CVector3f x48_;
-    zeus::CVector3f x54_;
+    zeus::CVector3f x2c_rightTableStart;
+    float x38_hightlightPitch = 0.f;
+    zeus::CVector3f x3c_sliderStart;
+    zeus::CVector3f x48_tableDoubleStart;
+    zeus::CVector3f x54_tableTripleStart;
     CGuiWidget* x60_basewidget_pivot;
     CGuiWidget* x64_basewidget_bgframe;
     CGuiWidget* x68_basewidget_leftside = nullptr;
@@ -95,6 +95,13 @@ protected:
     static std::string GetImagePaneName(u32 i);
     void ChangeMode(EMode mode);
     void UpdateSideTable(CGuiTableGroup* table);
+    void SetRightTableSelection(int selBegin, int selEnd);
+
+    void OnLeftTableAdvance(CGuiTableGroup* caller);
+    void OnRightTableAdvance(CGuiTableGroup* caller);
+    void OnTableSelectionChange(CGuiTableGroup* caller, int sel);
+    void OnRightTableCancel(CGuiTableGroup* caller);
+
 public:
     CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
 
@@ -114,8 +121,11 @@ public:
     virtual float GetCameraYBias() const { return 0.f; }
     virtual bool VReady() const=0;
     virtual void VActivate() const=0;
+    virtual void RightTableSelectionChanged(int selBegin, int selEnd) {}
     virtual void ChangedMode() {}
     virtual void UpdateRightTable();
+    virtual bool ShouldLeftTableAdvance() const { return true; }
+    virtual bool ShouldRightTableAdvance() const { return true; }
     virtual u32 GetRightTableCount() const=0;
     virtual bool IsRightLogDynamic() const { return false; }
     virtual void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, zeus::CColor& inactiveColor) {}

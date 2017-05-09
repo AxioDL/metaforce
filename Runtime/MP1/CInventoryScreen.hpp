@@ -20,6 +20,12 @@ class CInventoryScreen : public CPauseScreenBase
     u32 x1a8_ = 0;
     bool x1ac_ = false;
     bool x1ad_textBodyVisible;
+
+    void UpdateSamusDollPulses();
+    bool HasLeftInventoryItem(int idx) const;
+    bool HasRightInventoryItem(int idx) const;
+    bool IsRightInventoryItemEquipped(int idx) const;
+    void UpdateTextBody();
 public:
     CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                      const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
@@ -33,17 +39,15 @@ public:
     float GetCameraYBias() const;
     bool VReady() const;
     void VActivate() const;
+    void RightTableSelectionChanged(int selBegin, int selEnd);
     void ChangedMode();
     void UpdateRightTable();
+    bool ShouldLeftTableAdvance() const;
+    bool ShouldRightTableAdvance() const;
     u32 GetRightTableCount() const;
     bool IsRightLogDynamic() const;
     void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
     void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
-    void UpdateSamusDollPulses();
-    bool HasLeftInventoryItem(int idx) const;
-    bool HasRightInventoryItem(int idx) const;
-    void UpdateTextBody();
-    void SetRightTableScroll(int, int);
 };
 
 }

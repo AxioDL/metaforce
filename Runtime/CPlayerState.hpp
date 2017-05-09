@@ -92,7 +92,7 @@ public:
         Ice,
         Plasma,
         Wave,
-        Phazon
+        Phazon = 27
     };
 
     enum class EChargeState : u32

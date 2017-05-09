@@ -1,6 +1,7 @@
 #include "CInventoryScreen.hpp"
 #include "GuiSys/CGuiTableGroup.hpp"
 #include "GuiSys/CGuiTextPane.hpp"
+#include "GuiSys/CGuiModel.hpp"
 #include "Input/ControlMapper.hpp"
 #include "GameGlobalObjects.hpp"
 
@@ -269,6 +270,8 @@ void CInventoryScreen::VActivate() const
     x180_basewidget_yicon->SetVisibility(true, ETraversalMode::Children);
 }
 
+void CInventoryScreen::RightTableSelectionChanged(int selBegin, int selEnd) {}
+
 void CInventoryScreen::UpdateTextBody()
 {
     const SInventoryItem& sel = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].second[x1c_rightSel];
@@ -357,9 +360,65 @@ bool CInventoryScreen::HasRightInventoryItem(int idx) const
     }
 }
 
-void CInventoryScreen::SetRightTableScroll(int, int)
+bool CInventoryScreen::IsRightInventoryItemEquipped(int idx) const
 {
-
+    CPlayerState& playerState = *x4_mgr.GetPlayerState();
+    switch (idx)
+    {
+    case 0: // Power Beam
+        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Power;
+    case 1: // Ice Beam
+        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Ice;
+    case 2: // Wave Beam
+        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Wave;
+    case 3: // Plasma Beam
+        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Plasma;
+    case 4: // Phazon Beam
+        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Phazon;
+    case 5: // Morph Ball
+        return playerState.HasPowerUp(CPlayerState::EItemType::MorphBall);
+    case 6: // Boost Ball
+        return playerState.HasPowerUp(CPlayerState::EItemType::BoostBall);
+    case 7: // Spider Ball
+        return playerState.HasPowerUp(CPlayerState::EItemType::SpiderBall);
+    case 8: // Morph Ball Bomb
+        return playerState.HasPowerUp(CPlayerState::EItemType::MorphBallBombs);
+    case 9: // Power Bomb
+        return playerState.HasPowerUp(CPlayerState::EItemType::PowerBombs);
+    case 10: // Power Suit
+        return playerState.GetCurrentSuit() == CPlayerState::EPlayerSuit::Power;
+    case 11: // Varia Suit
+        return playerState.GetCurrentSuit() == CPlayerState::EPlayerSuit::Varia;
+    case 12: // Gravity Suit
+        return playerState.GetCurrentSuit() == CPlayerState::EPlayerSuit::Gravity;
+    case 13: // Phazon Suit
+        return playerState.GetCurrentSuit() == CPlayerState::EPlayerSuit::Phazon;
+    case 14: // Energy Tank
+        return playerState.HasPowerUp(CPlayerState::EItemType::EnergyTanks);
+    case 15: // Combat Visor
+        return playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat;
+    case 16: // Scan Visor
+        return playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
+    case 17: // X-Ray Visor
+        return playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay;
+    case 18: // Thermal Visor
+        return playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal;
+    case 19: // Space Jump Boots
+        return playerState.HasPowerUp(CPlayerState::EItemType::SpaceJumpBoots);
+    case 20: // Grapple Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::GrappleBeam);
+    case 21: // Missile Launcher
+        return playerState.HasPowerUp(CPlayerState::EItemType::Missiles);
+    case 22: // Charge Beam
+        return playerState.HasPowerUp(CPlayerState::EItemType::ChargeBeam);
+    case 23: // Beam Combo
+        return playerState.HasPowerUp(CPlayerState::EItemType::SuperMissile) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::IceSpreader) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Wavebuster) ||
+               playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower);
+    default:
+        return false;
+    }
 }
 
 void CInventoryScreen::UpdateRightTable()
@@ -396,7 +455,7 @@ void CInventoryScreen::UpdateRightTable()
     if (minSel != INT_MAX)
     {
         x1c_rightSel = minSel;
-        SetRightTableScroll(x1c_rightSel, x1c_rightSel);
+        SetRightTableSelection(x1c_rightSel, x1c_rightSel);
     }
 
     x84_tablegroup_rightlog->GetWorkerWidget(0)->SetIsSelectable(false);
@@ -404,6 +463,16 @@ void CInventoryScreen::UpdateRightTable()
     zeus::CColor inactiveColor = g_tweakGuiColors->GetPauseItemAmberColor();
     inactiveColor.a = 0.5f;
     UpdateRightLogColors(false, g_tweakGuiColors->GetPauseItemAmberColor(), inactiveColor);
+}
+
+bool CInventoryScreen::ShouldLeftTableAdvance() const
+{
+    return x19c_samusDoll->IsLoaded();
+}
+
+bool CInventoryScreen::ShouldRightTableAdvance() const
+{
+    return std::fabs(x19c_samusDoll->GetViewInterpolation()) == 0.f;
 }
 
 u32 CInventoryScreen::GetRightTableCount() const
@@ -419,14 +488,42 @@ bool CInventoryScreen::IsRightLogDynamic() const
 void CInventoryScreen::UpdateRightLogColors(bool active, const zeus::CColor& activeColor,
                                             const zeus::CColor& inactiveColor)
 {
-
+    x80_basewidget_rightlog->SetColor(active ? zeus::CColor::skWhite : zeus::CColor(1.f, 0.71f));
+    const std::pair<u32, const SInventoryItem*>& cat =
+        InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
+    for (u32 i=0 ; i<5 ; ++i)
+    {
+        if (i < cat.first && IsRightInventoryItemEquipped(cat.second[i].idx))
+        {
+            x15c_model_righttitledecos[i]->SetColor(g_tweakGuiColors->GetPauseItemBlueColor());
+            xd8_textpane_titles[i]->TextSupport()->SetFontColor(g_tweakGuiColors->GetPauseItemBlueColor());
+        }
+        else
+        {
+            x15c_model_righttitledecos[i]->SetColor(activeColor);
+            xd8_textpane_titles[i]->TextSupport()->SetFontColor(activeColor);
+        }
+    }
 }
 
 void CInventoryScreen::UpdateRightLogHighlight(bool active, int idx,
                                                const zeus::CColor& activeColor,
                                                const zeus::CColor& inactiveColor)
 {
+    zeus::CColor actColor = g_tweakGuiColors->GetPauseItemAmberColor() * activeColor;
+    zeus::CColor inactColor = g_tweakGuiColors->GetPauseItemAmberColor() * inactiveColor;
 
+    const std::pair<u32, const SInventoryItem*>& cat =
+        InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
+    for (u32 i=0 ; i<5 ; ++i)
+    {
+        bool act = i == idx && active;
+        if (i < cat.first && IsRightInventoryItemEquipped(cat.second[i].idx) && act)
+            x8c_model_righthighlight->SetColor(g_tweakGuiColors->GetPauseItemBlueColor());
+        else if (act)
+            x8c_model_righthighlight->SetColor(actColor);
+        x144_model_titles[i]->SetColor(act ? actColor : inactColor);
+    }
 }
 
 void CInventoryScreen::UpdateSamusDollPulses()

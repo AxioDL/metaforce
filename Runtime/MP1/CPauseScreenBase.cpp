@@ -51,6 +51,12 @@ void CPauseScreenBase::InitializeFrameGlue()
     x190_tablegroup_double = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_double"));
     x194_tablegroup_triple = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_triple"));
 
+    x2c_rightTableStart = x84_tablegroup_rightlog->GetWorkerWidget(0)->GetIdlePosition();
+    x38_hightlightPitch = x84_tablegroup_rightlog->GetWorkerWidget(1)->GetIdlePosition().z - x2c_rightTableStart.z;
+    x3c_sliderStart = x18c_slidergroup_slider->GetIdlePosition();
+    x48_tableDoubleStart = x190_tablegroup_double->GetIdlePosition();
+    x54_tableTripleStart = x194_tablegroup_triple->GetIdlePosition();
+
     for (int i=0 ; i<5 ; ++i)
     {
         xd8_textpane_titles.push_back(static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_title%d", i + 1))));
@@ -69,6 +75,59 @@ void CPauseScreenBase::InitializeFrameGlue()
     x74_basewidget_leftguages->SetVisibility(false, ETraversalMode::Children);
     x88_basewidget_rightguages->SetVisibility(false, ETraversalMode::Children);
     x6c_basewidget_leftlog->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+
+    if (IsRightLogDynamic())
+    {
+        zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
+        color.a = 0.5f;
+        UpdateRightLogColors(false, g_tweakGuiColors->GetPauseItemAmberColor(), color);
+    }
+    else
+    {
+        x80_basewidget_rightlog->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+    }
+
+    for (CGuiObject* obj = x64_basewidget_bgframe->GetChildObject() ; obj ; obj = obj->GetNextSibling())
+        static_cast<CGuiWidget*>(obj)->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+
+    zeus::CColor dimColor = g_tweakGuiColors->GetPauseItemAmberColor();
+    dimColor.a = 0.2f;
+    x98_model_scrollleftup->SetColor(dimColor);
+    x9c_model_scrollleftdown->SetColor(dimColor);
+    xa0_model_scrollrightup->SetColor(dimColor);
+    xa4_model_scrollrightdown->SetColor(dimColor);
+    x90_model_textarrowtop->SetColor(dimColor);
+    x94_model_textarrowbottom->SetColor(dimColor);
+
+    x18c_slidergroup_slider->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+    x190_tablegroup_double->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+    x194_tablegroup_triple->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
+
+    UpdateSideTable(x190_tablegroup_double);
+    UpdateSideTable(x194_tablegroup_triple);
+    UpdateSideTable(x70_tablegroup_leftlog);
+    UpdateSideTable(x84_tablegroup_rightlog);
+
+    x18c_slidergroup_slider->SetVisibility(false, ETraversalMode::Children);
+
+    x190_tablegroup_double->SetIsVisible(false);
+    x194_tablegroup_triple->SetIsVisible(false);
+    x190_tablegroup_double->SetVertical(false);
+    x194_tablegroup_triple->SetVertical(false);
+
+    x70_tablegroup_leftlog->SetMenuAdvanceCallback(
+        std::bind(&CPauseScreenBase::OnLeftTableAdvance, this, std::placeholders::_1));
+    x70_tablegroup_leftlog->SetMenuSelectionChangeCallback(
+        std::bind(&CPauseScreenBase::OnTableSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+    x84_tablegroup_rightlog->SetMenuAdvanceCallback(
+        std::bind(&CPauseScreenBase::OnRightTableAdvance, this, std::placeholders::_1));
+    x84_tablegroup_rightlog->SetMenuSelectionChangeCallback(
+        std::bind(&CPauseScreenBase::OnTableSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+    x84_tablegroup_rightlog->SetMenuCancelCallback(
+        std::bind(&CPauseScreenBase::OnRightTableCancel, this, std::placeholders::_1));
+    x18c_slidergroup_slider->SetSelectionChangedCallback({});
+    x190_tablegroup_double->SetMenuSelectionChangeCallback({});
+    x194_tablegroup_triple->SetMenuSelectionChangeCallback({});
 }
 
 bool CPauseScreenBase::IsReady()
@@ -127,7 +186,7 @@ void CPauseScreenBase::ChangeMode(EMode mode)
         x6c_basewidget_leftlog->SetColor(color);
         x70_tablegroup_leftlog->SetIsActive(true);
         UpdateSideTable(x70_tablegroup_leftlog);
-        x18_ = 0;
+        x18_firstViewRightSel = 0;
         x1c_rightSel = 0;
         x84_tablegroup_rightlog->SetUserSelection(1);
         UpdateSideTable(x84_tablegroup_rightlog);
@@ -171,9 +230,9 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
 
     if (table == x84_tablegroup_rightlog)
     {
-        int sel = x1c_rightSel - x18_;
+        int sel = x1c_rightSel - x18_firstViewRightSel;
         x8c_model_righthighlight->SetLocalTransform(
-            x8c_model_righthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_ * sel));
+            x8c_model_righthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_hightlightPitch * sel));
         x8c_model_righthighlight->SetVisibility(x10_mode == EMode::RightTable, ETraversalMode::Children);
         int selInView = x1c_rightSel % 5;
         if (IsRightLogDynamic())
@@ -190,7 +249,7 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
     {
         int sel = x70_tablegroup_leftlog->GetUserSelection();
         x78_model_lefthighlight->SetLocalTransform(
-            x78_model_lefthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_ * sel));
+            x78_model_lefthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_hightlightPitch * sel));
         for (int i=0 ; i<xc0_model_categories.size() ; ++i)
             xc0_model_categories[i]->SetColor(i == sel ? selColor : deselColor);
     }
@@ -203,8 +262,8 @@ void CPauseScreenBase::Update(float dt, CRandom16& rand, CArchitectureQueue& arc
     x14_alpha = std::min(2.f * dt + x14_alpha, 1.f);
 
     u32 rightCount = GetRightTableCount();
-    bool pulseRightUp = x10_mode == EMode::RightTable && x18_ > 0;
-    bool pulseRightDown = x10_mode == EMode::RightTable && x18_ + 5 < rightCount;
+    bool pulseRightUp = x10_mode == EMode::RightTable && x18_firstViewRightSel > 0;
+    bool pulseRightDown = x10_mode == EMode::RightTable && x18_firstViewRightSel + 5 < rightCount;
     float rightUpT = pulseRightUp ? CGraphics::GetSecondsMod900() : 0.f;
     float rightDownT = pulseRightDown ? CGraphics::GetSecondsMod900() : 0.f;
 
@@ -248,10 +307,65 @@ void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff)
 
 void CPauseScreenBase::UpdateRightTable()
 {
-    x18_ = 0;
+    x18_firstViewRightSel = 0;
     x1c_rightSel = 0;
     x84_tablegroup_rightlog->SetUserSelection(1);
     UpdateSideTable(x84_tablegroup_rightlog);
+}
+
+void CPauseScreenBase::SetRightTableSelection(int begin, int end)
+{
+    int oldRightSel = x1c_rightSel;
+    x1c_rightSel = zeus::clamp(end, x1c_rightSel + (end - begin), int(GetRightTableCount()) - 1);
+    if (oldRightSel != x1c_rightSel)
+        CSfxManager::SfxStart(1436, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+
+    if (x1c_rightSel < x18_firstViewRightSel)
+        x18_firstViewRightSel = x1c_rightSel;
+    else if (x1c_rightSel >= x18_firstViewRightSel + 5)
+        x18_firstViewRightSel = x1c_rightSel - 4;
+
+    x84_tablegroup_rightlog->SetUserSelection(x1c_rightSel + 1 - x18_firstViewRightSel);
+    UpdateSideTable(x84_tablegroup_rightlog);
+    RightTableSelectionChanged(begin, end);
+}
+
+void CPauseScreenBase::OnLeftTableAdvance(CGuiTableGroup* caller)
+{
+    if (ShouldLeftTableAdvance())
+    {
+        ChangeMode(EMode::RightTable);
+        x198_25_handledInput = true;
+        CSfxManager::SfxStart(1432, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
+}
+
+void CPauseScreenBase::OnRightTableAdvance(CGuiTableGroup* caller)
+{
+    if (ShouldRightTableAdvance() && !x198_25_handledInput)
+    {
+        ChangeMode(EMode::TextScroll);
+        CSfxManager::SfxStart(1432, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    }
+}
+
+void CPauseScreenBase::OnTableSelectionChange(CGuiTableGroup* caller, int sel)
+{
+    UpdateSideTable(caller);
+    if (x70_tablegroup_leftlog == caller)
+    {
+        CSfxManager::SfxStart(1436, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        UpdateRightTable();
+    }
+    else
+    {
+        SetRightTableSelection(sel, x84_tablegroup_rightlog->GetUserSelection());
+    }
+}
+
+void CPauseScreenBase::OnRightTableCancel(CGuiTableGroup* caller)
+{
+    ChangeMode(EMode::LeftTable);
 }
 
 static const char* PaneSuffixes[] =
