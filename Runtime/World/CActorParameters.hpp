@@ -16,28 +16,35 @@ class CActorParameters
     std::pair<ResId, ResId> x44_xrayAssets = {};
     std::pair<ResId, ResId> x4c_thermalAssets = {};
     CVisorParameters x54_visorParms;
-    bool b1 : 1;
-    bool b2 : 1;
-    bool b3 : 1;
-    bool b4 : 1;
+    union
+    {
+        struct
+        {
+            bool x58_24_ : 1;
+            bool x58_25_thermalHeat : 1;
+            bool x58_26_ : 1;
+            bool x58_27_ : 1;
+        };
+        u32 _dummy = 0;
+    };
     float x5c_ = 0.f;
     float x60_ = 0.f;
     float x64_ = 0.f;
 
 public:
-    CActorParameters() : b1(true), b2(false), b3(false), b4(false) {}
+    CActorParameters() : x58_24_(true), x58_25_thermalHeat(false), x58_26_(false), x58_27_(false) {}
     CActorParameters(const CLightParameters& lightParms, const CScannableParameters& scanParms,
                      const std::pair<ResId, ResId>& xrayAssets, const std::pair<ResId, ResId>& thermalAssets,
-                     const CVisorParameters& visorParms, bool a, bool b, bool c, bool d)
+                     const CVisorParameters& visorParms, bool b1, bool thermalHeat, bool c, bool d)
     : x0_lightParms(lightParms)
     , x40_scanParms(scanParms)
     , x44_xrayAssets(xrayAssets)
     , x4c_thermalAssets(thermalAssets)
     , x54_visorParms(visorParms)
-    , b1(a)
-    , b2(b)
-    , b3(c)
-    , b4(d)
+    , x58_24_(b1)
+    , x58_25_thermalHeat(thermalHeat)
+    , x58_26_(c)
+    , x58_27_(d)
     {
     }
     CActorParameters Scannable(const CScannableParameters& sParms) const

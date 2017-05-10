@@ -216,9 +216,9 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (propCount > 6)
             vParms = LoadVisorParameters(in);
 
-        bool b2 = false;
+        bool thermalHeat = false;
         if (propCount > 10)
-            b2 = in.readBool();
+            thermalHeat = in.readBool();
 
         bool b3 = false;
         if (propCount > 11)
@@ -240,7 +240,7 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (g_ResFactory->GetResourceTypeById(infraModel))
             infra = {infraModel, infraSkin};
 
-        return CActorParameters(lParms, sParams, xray, infra, vParms, b1, b2, b3, b4);
+        return CActorParameters(lParms, sParams, xray, infra, vParms, b1, thermalHeat, b3, b4);
     }
     return CActorParameters::None();
 }

@@ -7,13 +7,13 @@ namespace urde
 {
 class CFlameInfo
 {
-    ResId x4_flameFxId;
+    ResId x8_flameFxId;
 public:
     CFlameInfo(s32, u32, s32, s32, float, float, float);
 
     void GetAttributes() const;
     void GetLength() const;
-    ResId GetFlameFxId() const { x4_flameFxId; }
+    ResId GetFlameFxId() const { return x8_flameFxId; }
 };
 }
 #endif // __URDE_CFLAMEINFO_HPP__
