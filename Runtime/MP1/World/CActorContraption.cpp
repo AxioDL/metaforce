@@ -36,7 +36,7 @@ void MP1::CActorContraption::Think(float dt, CStateManager& mgr)
 
         if (act && act->GetActive())
         {
-            act->SetTransform(act->GetScaledLocatorTransform(uid.second));
+            act->SetTransform(x34_transform * act->GetScaledLocatorTransform(uid.second));
         }
     }
 }

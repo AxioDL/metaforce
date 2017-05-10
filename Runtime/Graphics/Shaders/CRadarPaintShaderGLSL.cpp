@@ -126,7 +126,7 @@ CRadarPaintShader::Initialize(boo::VulkanDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_VtxFmt = ctx.newVertexFormat(9, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
