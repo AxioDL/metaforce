@@ -179,7 +179,8 @@ public:
         if (!smashAdapter)
         {
             smashAdapter = std::dynamic_pointer_cast<boo::DolphinSmashAdapter>(tok.openAndGetDevice());
-            smashAdapter->setCallback(&m_dolphinCb);
+            if (smashAdapter)
+                smashAdapter->setCallback(&m_dolphinCb);
         }
     }
     void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device)
