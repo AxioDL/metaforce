@@ -14,7 +14,7 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, const std:
 : CGameProjectile(false, wDesc, name, wType, xf, matType, dInfo, owner, aId, uid, kInvalidUniqueId, w1, false,
                   zeus::CVector3f(1.f), {}, -1, false)
 , x2e8_(xf)
-, x33c_flameDesc(g_SimplePool->GetObj({flameInfo.GetFlameFxId(), SBIG('PART')}))
+, x33c_flameDesc(g_SimplePool->GetObj({FOURCC('PART'), flameInfo.GetFlameFxId()}))
 , x348_flameGen(new CElementGen(x33c_flameDesc, CElementGen::EModelOrientationType::Normal,
                                 CElementGen::EOptionalSystemFlags::One))
 {
