@@ -91,7 +91,7 @@ CRadarPaintShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4, 3},
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
-    s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
+    s_VtxFmt = ctx.newVertexFormat(9, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
