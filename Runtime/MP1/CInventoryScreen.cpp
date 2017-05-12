@@ -251,7 +251,7 @@ bool CInventoryScreen::HasLeftInventoryItem(int idx) const
     }
 }
 
-void CInventoryScreen::VActivate() const
+void CInventoryScreen::VActivate()
 {
     for (int i=0 ; i<5 ; ++i)
     {

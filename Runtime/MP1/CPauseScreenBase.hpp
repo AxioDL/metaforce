@@ -120,7 +120,7 @@ public:
     virtual void Draw(float transInterp, float totalAlpha, float yOff);
     virtual float GetCameraYBias() const { return 0.f; }
     virtual bool VReady() const=0;
-    virtual void VActivate() const=0;
+    virtual void VActivate()=0;
     virtual void RightTableSelectionChanged(int selBegin, int selEnd) {}
     virtual void ChangedMode() {}
     virtual void UpdateRightTable();

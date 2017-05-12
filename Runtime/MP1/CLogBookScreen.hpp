@@ -15,7 +15,7 @@ public:
     CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
 
     bool VReady() const;
-    void VActivate() const;
+    void VActivate();
     u32 GetRightTableCount() const;
 };
 

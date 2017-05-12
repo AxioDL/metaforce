@@ -38,7 +38,7 @@ public:
     void Draw(float transInterp, float totalAlpha, float yOff);
     float GetCameraYBias() const;
     bool VReady() const;
-    void VActivate() const;
+    void VActivate();
     void RightTableSelectionChanged(int selBegin, int selEnd);
     void ChangedMode();
     void UpdateRightTable();

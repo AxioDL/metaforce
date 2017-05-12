@@ -40,6 +40,8 @@ set(MP1_SOURCES
     CLogBookScreen.hpp CLogBookScreen.cpp
     COptionsScreen.hpp COptionsScreen.cpp
     CSamusDoll.hpp CSamusDoll.cpp
+    CGameCubeDoll.hpp CGameCubeDoll.cpp
+    CArtifactDoll.hpp CArtifactDoll.cpp
     MP1.hpp MP1.cpp
     ${MP1_PLAT_SOURCES}
     ${MP1_WORLD_SOURCES})

@@ -17,7 +17,7 @@ bool CLogBookScreen::VReady() const
     return true;
 }
 
-void CLogBookScreen::VActivate() const
+void CLogBookScreen::VActivate()
 {
 
 }
