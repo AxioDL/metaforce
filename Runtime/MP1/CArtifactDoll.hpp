@@ -4,6 +4,7 @@
 #include "RetroTypes.hpp"
 #include "Character/CActorLights.hpp"
 #include "CToken.hpp"
+#include "CPlayerState.hpp"
 
 namespace urde
 {
@@ -20,13 +21,16 @@ class CArtifactDoll
     bool x28_24_loaded : 1;
     void UpdateActorLights();
 public:
-    CGameCubeDoll();
-    void Update(float dt);
-    void Draw(float alpha);
+    CArtifactDoll();
+    static int GetArtifactHeadScanIndex(ResId scanId);
+    static ResId GetArtifactHeadScanFromItemType(CPlayerState::EItemType item);
+    static void UpdateArtifactHeadScan(const CStateManager& mgr, float delta);
+    static void CompleteArtifactHeadScan(const CStateManager& mgr);
+    void Draw(float alpha, const CStateManager& mgr, bool inArtifactCategory, int selectedArtifact);
+    void Update(float dt, const CStateManager& mgr);
     void Touch();
     bool CheckLoadComplete();
-    bool IsLoaded() const { return x20_24_loaded; }
-
+    bool IsLoaded() const { return x28_24_loaded; }
 };
 
 }

@@ -32,7 +32,7 @@ void COptionsScreen::UpdateOptionView()
     if (category.first == 0)
         return;
 
-    float zOff = x38_hightlightPitch * x1c_rightSel;
+    float zOff = x38_highlightPitch * x1c_rightSel;
     const SGameOption& opt = category.second[x1c_rightSel];
     switch (opt.type)
     {

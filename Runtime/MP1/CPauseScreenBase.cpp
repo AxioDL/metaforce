@@ -52,7 +52,7 @@ void CPauseScreenBase::InitializeFrameGlue()
     x194_tablegroup_triple = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_triple"));
 
     x2c_rightTableStart = x84_tablegroup_rightlog->GetWorkerWidget(0)->GetIdlePosition();
-    x38_hightlightPitch = x84_tablegroup_rightlog->GetWorkerWidget(1)->GetIdlePosition().z - x2c_rightTableStart.z;
+    x38_highlightPitch = x84_tablegroup_rightlog->GetWorkerWidget(1)->GetIdlePosition().z - x2c_rightTableStart.z;
     x3c_sliderStart = x18c_slidergroup_slider->GetIdlePosition();
     x48_tableDoubleStart = x190_tablegroup_double->GetIdlePosition();
     x54_tableTripleStart = x194_tablegroup_triple->GetIdlePosition();
@@ -232,7 +232,7 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
     {
         int sel = x1c_rightSel - x18_firstViewRightSel;
         x8c_model_righthighlight->SetLocalTransform(
-            x8c_model_righthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_hightlightPitch * sel));
+            x8c_model_righthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_highlightPitch * sel));
         x8c_model_righthighlight->SetVisibility(x10_mode == EMode::RightTable, ETraversalMode::Children);
         int selInView = x1c_rightSel % 5;
         if (IsRightLogDynamic())
@@ -249,7 +249,7 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)
     {
         int sel = x70_tablegroup_leftlog->GetUserSelection();
         x78_model_lefthighlight->SetLocalTransform(
-            x78_model_lefthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_hightlightPitch * sel));
+            x78_model_lefthighlight->GetTransform() * zeus::CTransform::Translate(0.f, 0.f, x38_highlightPitch * sel));
         for (int i=0 ; i<xc0_model_categories.size() ; ++i)
             xc0_model_categories[i]->SetColor(i == sel ? selColor : deselColor);
     }

@@ -148,7 +148,7 @@ public:
     EPlayerVisor GetActiveVisor(const CStateManager& stateMgr) const;
     void UpdateStaticInterference(CStateManager& stateMgr, const float& dt);
     void IncreaseScanTime(u32 time, float val);
-    void SetScanTime(ResId time, float val);
+    void SetScanTime(ResId res, float time);
     float GetScanTime(ResId time) const;
     bool GetIsVisorTransitioning() const;
     float GetVisorTransitionFactor() const;

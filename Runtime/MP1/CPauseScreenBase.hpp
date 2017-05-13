@@ -41,7 +41,7 @@ protected:
     int x1c_rightSel = 0;
     zeus::CVector3f x20_;
     zeus::CVector3f x2c_rightTableStart;
-    float x38_hightlightPitch = 0.f;
+    float x38_highlightPitch = 0.f;
     zeus::CVector3f x3c_sliderStart;
     zeus::CVector3f x48_tableDoubleStart;
     zeus::CVector3f x54_tableTripleStart;
