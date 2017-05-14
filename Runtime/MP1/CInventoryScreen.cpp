@@ -290,7 +290,7 @@ void CInventoryScreen::UpdateTextBody()
     x174_textpane_body->TextSupport()->SetPage(0);
 }
 
-void CInventoryScreen::ChangedMode()
+void CInventoryScreen::ChangedMode(EMode oldMode)
 {
     if (x10_mode == EMode::TextScroll)
     {

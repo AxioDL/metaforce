@@ -40,7 +40,7 @@ public:
     bool VReady() const;
     void VActivate();
     void RightTableSelectionChanged(int selBegin, int selEnd);
-    void ChangedMode();
+    void ChangedMode(EMode oldMode);
     void UpdateRightTable();
     bool ShouldLeftTableAdvance() const;
     bool ShouldRightTableAdvance() const;

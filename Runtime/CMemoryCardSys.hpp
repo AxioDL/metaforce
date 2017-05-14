@@ -64,6 +64,7 @@ class CMemoryCardSys
     std::vector<std::pair<ResId, CSaveWorldMemory>> xc_memoryWorlds; /* MLVL as key */
     std::experimental::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
     std::vector<std::pair<ResId, CSaveWorld::EScanCategory>> x20_scanStates;
+    rstl::reserved_vector<u32, 6> x30_scanCategoryCounts;
 
 public:
     static kabufuda::SystemString ResolveDolphinCardPath(kabufuda::ECardSlot slot);
@@ -91,6 +92,7 @@ public:
     const std::vector<CGameHintInfo::CGameHint>& GetHints() const { return x0_hints->GetHints(); }
     const std::vector<std::pair<ResId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
     const std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
+    u32 GetScanCategoryCount(CSaveWorld::EScanCategory cat) const { return x30_scanCategoryCounts[int(cat)]; }
 
     bool HasSaveWorldMemory(ResId wldId) const;
     const CSaveWorldMemory& GetSaveWorldMemory(ResId wldId) const;

@@ -211,7 +211,7 @@ void CPauseScreenBase::ChangeMode(EMode mode)
     default: break;
     }
 
-    ChangedMode();
+    ChangedMode(oldMode);
 }
 
 void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table)

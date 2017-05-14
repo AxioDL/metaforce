@@ -232,7 +232,7 @@ void COptionsScreen::RightTableSelectionChanged(int selBegin, int selEnd)
     UpdateOptionView();
 }
 
-void COptionsScreen::ChangedMode()
+void COptionsScreen::ChangedMode(EMode oldMode)
 {
     if (x10_mode == EMode::RightTable)
     {

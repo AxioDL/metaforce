@@ -106,6 +106,8 @@ CMemoryCardSys::CMemoryCardSys()
             x1c_worldInter->emplace_back(mlvl.second, -1);
         }
     }
+
+    x30_scanCategoryCounts.resize(6);
 }
 
 bool CMemoryCardSys::InitializePump()
@@ -154,7 +156,10 @@ bool CMemoryCardSys::InitializePump()
                     std::find_if(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& test)
                     { return test.first == scan.x0_id && test.second == scan.x4_category; });
                 if (existingSearch == x20_scanStates.end())
+                {
                     x20_scanStates.emplace_back(scan.x0_id, scan.x4_category);
+                    ++x30_scanCategoryCounts[int(scan.x4_category)];
+                }
             }
 
             wldMemOut.x3c_saveWorld = std::move(world.x34_saveWorld);

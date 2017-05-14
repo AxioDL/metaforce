@@ -1,14 +1,17 @@
 #include "CAuiImagePane.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
 
-CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, ResId, ResId,
+CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, ResId tex0, ResId tex1,
                              rstl::reserved_vector<zeus::CVector3f, 4>&& coords,
-                             rstl::reserved_vector<zeus::CVector2f, 4>&& uvs, bool)
-: CGuiWidget(parms)
+                             rstl::reserved_vector<zeus::CVector2f, 4>&& uvs, bool initTex)
+: CGuiWidget(parms), xc8_tex0(tex0), xcc_tex1(tex1), xe0_coords(std::move(coords)),
+  x114_uvs(std::move(uvs))
 {
-
+    if (initTex)
+        SetTextureID0(tex0, sp);
 }
 
 std::shared_ptr<CGuiWidget> CAuiImagePane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
@@ -29,6 +32,25 @@ std::shared_ptr<CGuiWidget> CAuiImagePane::Create(CGuiFrame* frame, CInputStream
                                                                       std::move(coords), std::move(uvs), true);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;
+}
+
+void CAuiImagePane::SetTextureID0(ResId tex, CSimplePool* sp)
+{
+    xc8_tex0 = tex;
+    if (!sp)
+        return;
+    if (xc8_tex0 != -1)
+        xb8_tex0Tok = sp->GetObj({FOURCC('TXTR'), xc8_tex0});
+    else
+        xb8_tex0Tok = TLockedToken<CTexture>();
+}
+
+void CAuiImagePane::SetAnimationParms(const zeus::CVector2f& vec, float interval, float duration)
+{
+    x138_ = vec;
+    x140_interval = interval;
+    x144_ = 0.f;
+    x148_duration = duration;
 }
 
 }

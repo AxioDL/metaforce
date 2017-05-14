@@ -95,6 +95,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr,
     if (!IsLoaded())
         return;
 
+    alpha *= x24_fader;
     g_Renderer->SetPerspective(55.f, g_Viewport.x8_width, g_Viewport.xc_height, 0.2f, 4096.f);
     CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -10.f, 0.f));
 
@@ -139,6 +140,8 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr,
         x20_actorLights->ActivateLights(model->GetInstance());
         model->Draw(flags);
 
+        flags.x4_color = color;
+        flags.x4_color.a *= alpha;
         flags.m_extendedShader = EExtendedShader::ForcedAdditive;
         model->Draw(flags);
     }

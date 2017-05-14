@@ -122,7 +122,7 @@ public:
     virtual bool VReady() const=0;
     virtual void VActivate()=0;
     virtual void RightTableSelectionChanged(int selBegin, int selEnd) {}
-    virtual void ChangedMode() {}
+    virtual void ChangedMode(EMode oldMode) {}
     virtual void UpdateRightTable();
     virtual bool ShouldLeftTableAdvance() const { return true; }
     virtual bool ShouldRightTableAdvance() const { return true; }

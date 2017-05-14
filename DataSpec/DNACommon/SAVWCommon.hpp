@@ -13,7 +13,8 @@ enum class EScanCategory
     Data,
     Lore,
     Creature,
-    Research
+    Research,
+    Artifact
 };
 
 struct Header : BigYAML

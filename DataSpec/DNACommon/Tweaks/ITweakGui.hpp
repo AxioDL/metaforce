@@ -105,6 +105,7 @@ struct ITweakGui : ITweak
     virtual float GetScanSidesStartTime() const=0;
     virtual float GetScanSidesEndTime() const=0;
     virtual float GetScanSidesPositionStart() const=0;
+    virtual bool GetLatchArticleText() const=0;
     virtual float GetWorldTransManagerCharsPerSfx() const=0;
     virtual atUint32 GetXRayFogMode() const=0;
     virtual float GetXRayFogNearZ() const=0;

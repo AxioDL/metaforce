@@ -149,7 +149,7 @@ struct CTweakGui : ITweakGui
     Value<float> x26c_;
     Value<float> x270_scanSidesPositionStart;
     Value<bool> x274_;
-    bool x275_ = true;
+    bool x275_latchArticleText = true;
     Value<float> x278_wtMgrCharsPerSfx;
     Value<atUint32> x27c_xrayFogMode;
     Value<float> x280_xrayFogNearZ;
@@ -266,6 +266,7 @@ struct CTweakGui : ITweakGui
     float GetScanSidesStartTime() const { return x224_scanSidesStartTime; }
     float GetScanSidesEndTime() const { return x228_scanSidesEndTime; }
     float GetScanSidesPositionStart() const { return x270_scanSidesPositionStart; }
+    bool GetLatchArticleText() const { return x275_latchArticleText; }
     float GetWorldTransManagerCharsPerSfx() const { return x278_wtMgrCharsPerSfx; }
     atUint32 GetXRayFogMode() const { return x27c_xrayFogMode; }
     float GetXRayFogNearZ() const { return x280_xrayFogNearZ; }

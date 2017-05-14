@@ -18,6 +18,7 @@ public:
     void LoadStringTable(CInputStream& in);
 
     const char16_t* GetString(s32) const;
+    u32 GetStringCount() const { return x0_stringCount; }
     static void SetLanguage(s32);
 };
 
