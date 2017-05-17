@@ -1,116 +1,493 @@
 #include "CScanDisplay.hpp"
 #include "zeus/CTransform.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CSimplePool.hpp"
+#include "GuiSys/CGuiWidget.hpp"
+#include "GuiSys/CGuiTextPane.hpp"
+#include "GuiSys/CGuiModel.hpp"
+#include "GuiSys/CAuiImagePane.hpp"
+#include "GuiSys/CGuiCamera.hpp"
+#include "MP1/CPauseScreenBase.hpp"
+#include "CStringTable.hpp"
+#include "Audio/CSfxManager.hpp"
+#include "Input/CFinalInput.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
 void CScanDisplay::CDataDot::Update(float dt)
 {
-    if (x20_ > 0.f)
+    if (x20_remTime > 0.f)
     {
-        float diff = x20_ - dt;
-        if (diff < 0.f)
-            x20_ = 0.f;
-        else
-            x20_ = diff;
-        float d = x20_ / x1c_;
-        xc_ = (x14_ * (x4_ * d)) + (1.f - x1c_ > 0.f ? d : 0.f);
+        x20_remTime = std::max(0.f, x20_remTime - dt);
+        float d = x20_remTime / x1c_transDur;
+        xc_curPos = (x14_targetPos * (x4_startPos * d)) + (1.f - x1c_transDur > 0.f ? d : 0.f);
     }
 
-    if (x24_ > x28_)
+    if (x24_alpha > x28_desiredAlpha)
     {
-        float tmp = -((2.0f * x24_) - dt);
-        x24_ = (tmp >= x28_ ? x28_ : tmp);
+        float tmp = x24_alpha - 2.f * dt;
+        x24_alpha = std::max(tmp, x28_desiredAlpha);
     }
-    else if (x24_ < x28_)
+    else if (x24_alpha < x28_desiredAlpha)
     {
-        float tmp = (2.0 * x24_) + x28_;
-        x24_ = (tmp >= x28_ ? x28_ : tmp);
+        float tmp = 2.0 * dt + x24_alpha;
+        x24_alpha = std::min(tmp, x28_desiredAlpha);
     }
 }
 
-void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float f1) const
+void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) const
 {
-    if (x24_ == 0.f)
+    if (x24_alpha == 0.f)
        return;
 
-    if (x0_ == EDotState::One)
+    if (x0_dotState != EDotState::Hidden)
     {
-        zeus::CTransform xf = zeus::CTransform::Translate(xc_.x, 0.f, xc_.y);
-#if 0
-        g_Renderer->SetModelMatrix(xf);
-        CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
-        zeus::Comp8 r, g, b, a;
-        col.toRGBA8(r, g, b, a);
-        CGraphics::StreamColor({col.r, col.g, col.b, x24_ * float(a)});
-        CGraphics::StreamTexCoord(0.f, 1.f);
-        CGraphics::StreamVertex(zeus::CVector3f{-f1, 0, f1});
-        CGraphics::StreamTexCoord(0.f, 0.f);
-        CGraphics::StreamVertex(zeus::CVector3f{-f1, 0, -f1});
-        CGraphics::StreamTexCoord(1.f, 1.f);
-        CGraphics::StreamVertex(zeus::CVector3f{f1, 0, f1});
-        CGraphics::StreamTexCoord(1.f, 0.f);
-        CGraphics::StreamVertex(zeus::CVector3f{f1, 0, -f1});
-        CGraphics::StreamEnd();
-#endif
+        zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x, 0.f, xc_curPos.y);
+        CGraphics::SetModelMatrix(xf);
+        zeus::CColor useColor = col;
+        useColor.a *= x24_alpha;
+        CTexturedQuadFilter::Vert verts[4] =
+        {
+            {{-radius, 0.f, radius}, {0.f, 1.f}},
+            {{-radius, 0.f, -radius}, {0.f, 0.f}},
+            {{radius, 0.f, radius}, {1.f, 1.f}},
+            {{radius, 0.f, -radius}, {1.f, 0.f}}
+        };
+        const_cast<CTexturedQuadFilter&>(m_quad).drawVerts(useColor, verts);
     }
 }
 
-void CScanDisplay::CDataDot::StartTransitionTo(const zeus::CVector2f& vec, float f1)
+void CScanDisplay::CDataDot::StartTransitionTo(const zeus::CVector2f& vec, float dur)
 {
-    x20_ = f1;
-    x1c_ = f1;
-    x4_ = xc_;
-    x14_ = vec;
+    x20_remTime = dur;
+    x1c_transDur = dur;
+    x4_startPos = xc_curPos;
+    x14_targetPos = vec;
 }
 
 void CScanDisplay::CDataDot::SetDestPosition(const zeus::CVector2f& pos)
 {
-    if (x20_ <= 0.f)
-        xc_ = pos;
+    if (x20_remTime <= 0.f)
+        xc_curPos = pos;
     else
-        x14_ = pos;
+        x14_targetPos = pos;
+}
+
+CScanDisplay::CScanDisplay(const CGuiFrame& selHud)
+: xa0_selHud(selHud)
+{
+    x0_dataDot = g_SimplePool->GetObj("TXTR_DataDot");
 }
 
 void CScanDisplay::ProcessInput(const CFinalInput& input)
 {
+    if (xc_state == EScanState::Inactive || xc_state == EScanState::Done)
+        return;
 
+    if (xc_state == EScanState::DownloadComplete && x1a4_xAlpha == 0.f)
+    {
+        if (input.PA())
+        {
+            if (xa8_message->TextSupport()->GetCurTime() < xa8_message->TextSupport()->GetTotalAnimationTime())
+            {
+                xa8_message->TextSupport()->SetCurTime(xa8_message->TextSupport()->GetTotalAnimationTime());
+            }
+            else
+            {
+                xc_state = EScanState::ViewingScan;
+                CSfxManager::SfxStart(1439, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            }
+        }
+    }
+    else if (xc_state == EScanState::ViewingScan)
+    {
+        int oldCounter = x1ac_pageCounter;
+        int totalPages = xac_scrollMessage->TextSupport()->GetTotalPageCount();
+        if (input.PA() && totalPages != -1)
+        {
+            CGuiTextSupport* supp = !x1ac_pageCounter ? xa8_message->TextSupport() : xac_scrollMessage->TextSupport();
+            if (supp->GetCurTime() < supp->GetTotalAnimationTime())
+            {
+                supp->SetCurTime(supp->GetTotalAnimationTime());
+            }
+            else
+            {
+                x1ac_pageCounter = std::min(totalPages, x1ac_pageCounter + 1);
+            }
+        }
+        if (x1ac_pageCounter != oldCounter)
+        {
+            CSfxManager::SfxStart(1439, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            if (x1ac_pageCounter == 0)
+            {
+                xa8_message->SetIsVisible(true);
+                xac_scrollMessage->SetIsVisible(false);
+            }
+            else
+            {
+                if (oldCounter == 0)
+                {
+                    xa8_message->SetIsVisible(false);
+                    xac_scrollMessage->SetIsVisible(true);
+                }
+                xac_scrollMessage->TextSupport()->SetPage(x1ac_pageCounter - 1);
+                SetScanMessageTypeEffect(xac_scrollMessage, !x1b4_scanComplete);
+            }
+        }
+    }
+
+    float xAlpha = 0.f;
+    float aAlpha = 0.f;
+    float dashAlpha = 0.f;
+    if (xc_state == EScanState::DownloadComplete)
+    {
+        xAlpha = std::min(2.f * x1a4_xAlpha, 1.f);
+        aAlpha = (1.f - xAlpha) * std::fabs(x1b0_aPulse);
+    }
+    else if (xc_state == EScanState::ViewingScan)
+    {
+        if (x1ac_pageCounter < xac_scrollMessage->TextSupport()->GetTotalPageCount())
+            aAlpha = std::fabs(x1b0_aPulse);
+        else
+            dashAlpha = 1.f;
+    }
+
+    xb0_xmark->SetVisibility(xAlpha > 0.f, ETraversalMode::Children);
+    xb4_abutton->SetVisibility(aAlpha > 0.f, ETraversalMode::Children);
+    xb8_dash->SetVisibility(dashAlpha > 0.f, ETraversalMode::Children);
+
+    xb0_xmark->SetColor(zeus::CColor(1.f, xAlpha));
+    xb4_abutton->SetColor(zeus::CColor(1.f, aAlpha));
+    xb8_dash->SetColor(zeus::CColor(0.53f, 0.84f, 1.f, dashAlpha));
+}
+
+float CScanDisplay::GetDownloadStartTime(int idx) const
+{
+    if (!x14_scannableInfo)
+        return 0.f;
+    float nTime = x14_scannableInfo->GetBucket(idx).x4_appearanceRange;
+    float maxTime = 0.f;
+    for (int i=0 ; i<4 ; ++i)
+    {
+        float iTime = x14_scannableInfo->GetBucket(i).x4_appearanceRange;
+        if (iTime < nTime)
+            maxTime = std::max(iTime, maxTime);
+    }
+    return maxTime + g_tweakGui->GetScanAppearanceDuration();
+}
+
+float CScanDisplay::GetDownloadFraction(int idx, float scanningTime) const
+{
+    if (!x14_scannableInfo)
+        return 0.f;
+    float appearTime = GetDownloadStartTime(idx);
+    float appearRange = x14_scannableInfo->GetBucket(idx).x4_appearanceRange;
+    if (appearTime == appearRange)
+        return 1.f;
+    return zeus::clamp(0.f, (scanningTime - appearTime) / (appearRange - appearTime), 1.f);
 }
 
 void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo, CGuiTextPane* message,
                              CGuiTextPane* scrollMessage, CGuiWidget* textGroup, CGuiModel* xmark,
                              CGuiModel* abutton, CGuiModel* dash, float scanTime)
 {
+    x1b4_scanComplete = scanTime >= scanInfo.GetTotalDownloadTime();
+    x14_scannableInfo.emplace(scanInfo);
+    x10_objId = id;
+    xc_state = EScanState::Downloading;
+    x1ac_pageCounter = 0;
+    x1a4_xAlpha = 0.f;
+    xa8_message = message;
+    xac_scrollMessage = scrollMessage;
+    xa4_textGroup = textGroup;
+    xb0_xmark = xmark;
+    xb4_abutton = abutton;
+    xb8_dash = dash;
+    xa4_textGroup->SetVisibility(true, ETraversalMode::Children);
+    xa4_textGroup->SetColor(zeus::CColor(1.f, 0.f));
 
+    for (int i=0 ; i<20 ; ++i)
+    {
+        CAuiImagePane* pane = static_cast<CAuiImagePane*>(
+            xa0_selHud.FindWidget(MP1::CPauseScreenBase::GetImagePaneName(i)));
+        zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
+        color.a = 0.f;
+        pane->SetColor(color);
+        pane->SetTextureID0(-1, g_SimplePool);
+        pane->SetAnimationParms(zeus::CVector2f::skZero, 0.f, 0.f);
+        int pos = -1;
+        for (int j=0 ; j<4 ; ++j)
+        {
+            if (x14_scannableInfo->GetBucket(j).x8_imagePos == i)
+            {
+                pos = j;
+                break;
+            }
+        }
+        if (pos >= 0)
+            x170_paneStates[pos].second = pane;
+    }
+
+    for (int i=0 ; i<x170_paneStates.size() ; ++i)
+    {
+        std::pair<float, CAuiImagePane*>& state = x170_paneStates[i];
+        if (state.second)
+        {
+            const CScannableObjectInfo::SBucket& bucket = x14_scannableInfo->GetBucket(i);
+            if (bucket.x14_interval > 0.f)
+            {
+                state.second->SetAnimationParms(zeus::CVector2f(bucket.xc_size.x, bucket.xc_size.y),
+                                                bucket.x14_interval, bucket.x18_fadeDuration);
+            }
+            state.second->SetTextureID0(bucket.x0_texture, g_SimplePool);
+            state.second->SetAlpha(0.f);
+            if (scanTime >= GetDownloadStartTime(i))
+                x170_paneStates[i].first = 0.f;
+            else
+                x170_paneStates[i].first = -1.f;
+        }
+    }
+
+    ResId strId = x14_scannableInfo->GetStringTableId();
+    if (strId != -1)
+        x194_scanStr = g_SimplePool->GetObj({FOURCC('STRG'), strId});
+
+    for (int i=0 ; i<4 ; ++i)
+    {
+        int pos = x14_scannableInfo->GetBucket(i).x8_imagePos;
+        CDataDot& dot = xbc_dataDots[i];
+        if (pos != -1)
+        {
+            if (GetDownloadStartTime(i) - g_tweakGui->GetScanAppearanceDuration() < scanTime)
+            {
+                dot.SetAlpha(0.f);
+                dot.SetDotState(CDataDot::EDotState::Done);
+            }
+            else
+            {
+                dot.SetDesiredAlpha(1.f);
+                dot.SetDotState(CDataDot::EDotState::Seek);
+                dot.StartTransitionTo(zeus::CVector2f::skZero, FLT_EPSILON);
+                dot.Update(FLT_EPSILON);
+            }
+        }
+        else
+        {
+            dot.SetDotState(CDataDot::EDotState::Hidden);
+        }
+    }
 }
 
 void CScanDisplay::StopScan()
 {
+    if (xc_state == EScanState::Done || xc_state == EScanState::Inactive)
+        return;
 
+    xc_state = EScanState::Done;
+    for (int i=0 ; i<4 ; ++i)
+        xbc_dataDots[i].SetDesiredAlpha(0.f);
 }
 
-void CScanDisplay::InitializeFrame(float)
+void CScanDisplay::SetScanMessageTypeEffect(CGuiTextPane* pane, bool type)
 {
-
+    if (type)
+        pane->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, 60.f);
+    else
+        pane->TextSupport()->SetTypeWriteEffectOptions(false, 0.f, 0.f);
 }
 
-void CScanDisplay::Update(float, float)
+void CScanDisplay::Update(float dt, float scanningTime)
 {
+    if (xc_state == EScanState::Inactive)
+    {
+        x0_dataDot.Unlock();
+        return;
+    }
 
-}
+    x0_dataDot.Lock();
 
-void CScanDisplay::SetBackgroundBucketOccluded(s32, float)
-{
+    bool active = false;
+    if (xc_state == EScanState::Done)
+    {
+        x1a8_bodyAlpha = std::max(0.f, x1a8_bodyAlpha - 2.f * dt);
+        if (x1a8_bodyAlpha > 0.f)
+            active = true;
+    }
+    else
+    {
+        active = true;
+        x1a8_bodyAlpha = std::min(x1a8_bodyAlpha + 2.f * dt, 1.f);
+        if (xc_state == EScanState::DownloadComplete)
+        {
+            if (xac_scrollMessage->TextSupport()->GetIsTextSupportFinishedLoading())
+                x1a4_xAlpha = std::max(0.f, x1a4_xAlpha - dt);
+            if (x1a4_xAlpha < 0.5f)
+            {
+                x1b0_aPulse += 2.f * dt;
+                if (x1b0_aPulse > 1.f)
+                    x1b0_aPulse -= 2.f;
+            }
+        }
+        else if (xc_state == EScanState::ViewingScan)
+        {
+            x1b0_aPulse += 2.f * dt;
+            if (x1b0_aPulse > 1.f)
+                x1b0_aPulse -= 2.f;
+            if (x1a4_xAlpha == 1.f)
+            {
+                xa8_message->TextSupport()->SetText(x194_scanStr->GetString(0));
+                SetScanMessageTypeEffect(xa8_message, !x1b4_scanComplete);
+            }
+        }
+        else if (xc_state == EScanState::Downloading && scanningTime >= x14_scannableInfo->GetTotalDownloadTime() &&
+                 x194_scanStr.IsLoaded())
+        {
+            if (x1b4_scanComplete || x14_scannableInfo->GetCategory() == 0)
+            {
+                xc_state = EScanState::ViewingScan;
+                CSfxManager::SfxStart(1417, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            }
+            else
+            {
+                xa8_message->TextSupport()->SetText(std::u16string(g_MainStringTable->GetString(29)) +
+                g_MainStringTable->GetString(x14_scannableInfo->GetCategory() + 30) +
+                g_MainStringTable->GetString(30));
+                SetScanMessageTypeEffect(xa8_message, true);
+                CSfxManager::SfxStart(1425, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            }
 
-}
+            if (x194_scanStr->GetStringCount() > 2)
+            {
+                xac_scrollMessage->TextSupport()->SetText(x194_scanStr->GetString(2), true);
+                SetScanMessageTypeEffect(xac_scrollMessage, !x1b4_scanComplete);
+            }
+            xac_scrollMessage->SetIsVisible(false);
+        }
+    }
 
-bool CScanDisplay::PanelCoversBucketBackground(CScannableObjectInfo::EPanelType, s32)
-{
-    return false;
+    for (int i=0 ; i<4 ; ++i)
+    {
+        if (x170_paneStates[i].second == 0)
+            continue;
+        if (x170_paneStates[i].first > 0.f)
+        {
+            x170_paneStates[i].first = std::max(0.f, x170_paneStates[i].first - dt);
+            float tmp;
+            if (x170_paneStates[i].first > g_tweakGui->GetScanPaneFadeOutTime())
+                tmp = 1.f - (x170_paneStates[i].first - g_tweakGui->GetScanPaneFadeOutTime()) / g_tweakGui->GetScanPaneFadeInTime();
+            else
+                tmp = x170_paneStates[i].first / g_tweakGui->GetScanPaneFadeOutTime();
+            x170_paneStates[i].second->SetAlpha(tmp * g_tweakGui->GetScanPaneFadeAlpha() * x1a8_bodyAlpha);
+        }
+        float alphaMul = ((xc_state == EScanState::Downloading) ? GetDownloadFraction(i, scanningTime) : 1.f) * x1a8_bodyAlpha;
+        zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
+        color.a *= alphaMul;
+        x170_paneStates[i].second->SetColor(color);
+        x170_paneStates[i].second->SetDeResFactor(1.f - alphaMul);
+        if (GetDownloadStartTime(i) - g_tweakGui->GetScanAppearanceDuration() < scanningTime)
+        {
+            CDataDot& dot = xbc_dataDots[i];
+            switch (dot.GetDotState())
+            {
+            case CDataDot::EDotState::Seek:
+            case CDataDot::EDotState::Hold:
+                dot.SetDotState(CDataDot::EDotState::RevealPane);
+                dot.StartTransitionTo(zeus::CVector2f::skZero, g_tweakGui->GetScanAppearanceDuration());
+                break;
+            case CDataDot::EDotState::RevealPane:
+            {
+                float tmp = dot.GetTransitionFactor();
+                if (tmp == 0.f)
+                {
+                    dot.SetDotState(CDataDot::EDotState::Done);
+                    CSfxManager::SfxStart(1414, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    x170_paneStates[i].first = g_tweakGui->GetScanPaneFadeOutTime() + g_tweakGui->GetScanPaneFadeInTime();
+                }
+                break;
+            }
+            default: break;
+            }
+        }
+    }
+
+    for (int i=0 ; i<4 ; ++i)
+    {
+        CDataDot& dot = xbc_dataDots[i];
+        switch (dot.GetDotState())
+        {
+        case CDataDot::EDotState::Hidden:
+            continue;
+        case CDataDot::EDotState::Seek:
+        case CDataDot::EDotState::Hold:
+        {
+            float tmp = dot.GetTransitionFactor();
+            if (tmp == 0.f)
+            {
+                float posRand = g_tweakGui->GetScanDataDotPosRandMagnitude();
+                float durMin = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotDuration2Min() : g_tweakGui->GetScanDataDotDuration1Min();
+                float durMax = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotDuration2Max() : g_tweakGui->GetScanDataDotDuration1Max();
+                zeus::CVector2f vec(dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().x : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand),
+                                    dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().y : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand));
+                dot.StartTransitionTo(vec, (durMax - durMin) * (rand() / float(RAND_MAX)) + durMin);
+                dot.SetDotState(dot.GetDotState() == CDataDot::EDotState::Hold ? CDataDot::EDotState::Seek : CDataDot::EDotState::Hold);
+            }
+            break;
+        }
+        case CDataDot::EDotState::RevealPane:
+        case CDataDot::EDotState::Done:
+        {
+            zeus::CVector3f screenPos = xa0_selHud.GetFrameCamera()->ConvertToScreenSpace(x170_paneStates[i].second->GetWorldPosition());
+            zeus::CVector2f viewportCoords(screenPos.x * g_Viewport.x8_width * 0.5f,
+                                           screenPos.y * g_Viewport.xc_height * 0.5f);
+            dot.SetDestPosition(viewportCoords);
+            break;
+        }
+        default: break;
+        }
+        dot.Update(dt);
+    }
+
+    if (!active)
+    {
+        xc_state = EScanState::Inactive;
+        x10_objId = kInvalidUniqueId;
+        x14_scannableInfo = std::experimental::nullopt;
+        xa8_message->TextSupport()->SetText(u"");
+        xac_scrollMessage->TextSupport()->SetText(u"");
+        xa4_textGroup->SetVisibility(false, ETraversalMode::Children);
+        xb0_xmark->SetVisibility(false, ETraversalMode::Children);
+        xb4_abutton->SetVisibility(false, ETraversalMode::Children);
+        xb8_dash->SetVisibility(false, ETraversalMode::Children);
+        xa8_message = nullptr;
+        xac_scrollMessage = nullptr;
+        xa4_textGroup = nullptr;
+        xb0_xmark = nullptr;
+        xb4_abutton = nullptr;
+        xb8_dash = nullptr;
+        x170_paneStates.clear();
+        x170_paneStates.resize(4);
+        x194_scanStr = TLockedToken<CStringTable>();
+        x1ac_pageCounter = 0;
+        x1b4_scanComplete = false;
+    }
+    else
+    {
+        xa4_textGroup->SetColor(zeus::CColor(1.f, x1a8_bodyAlpha));
+    }
 }
 
 void CScanDisplay::Draw() const
 {
+    if (!x0_dataDot.IsLoaded())
+        return;
 
+    // No Z-test or write
+    g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+    // Additive alpha
+
+    for (const CDataDot& dot : xbc_dataDots)
+        dot.Draw(g_tweakGuiColors->GetScanDataDotColor(), g_tweakGui->GetScanDataDotRadius());
 }
 }

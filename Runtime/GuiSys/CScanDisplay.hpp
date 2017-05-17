@@ -7,6 +7,7 @@
 #include "zeus/CQuaternion.hpp"
 #include "CScannableObjectInfo.hpp"
 #include "Graphics/CTexture.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace urde
 {
@@ -14,6 +15,10 @@ class CGuiTextPane;
 class CGuiWidget;
 class CGuiModel;
 class CFinalInput;
+class CGuiFrame;
+class CAuiImagePane;
+class CStringTable;
+
 class CScanDisplay
 {
     friend class CHudDecoInterfaceScan;
@@ -23,60 +28,83 @@ public:
     public:
         enum class EDotState
         {
-            Zero,
-            One
+            Hidden,
+            Seek,
+            Hold,
+            RevealPane,
+            Done
         };
     private:
-        EDotState x0_ = EDotState::Zero;
-        zeus::CVector2f x4_;
-        zeus::CVector2f xc_;
-        zeus::CVector2f x14_;
-        float x1c_ = 0.f;
-        float x20_ = 0.f;
-        float x24_ = 0.f;
-        float x28_ = 0.f;
+        EDotState x0_dotState = EDotState::Hidden;
+        zeus::CVector2f x4_startPos;
+        zeus::CVector2f xc_curPos;
+        zeus::CVector2f x14_targetPos;
+        float x1c_transDur = 0.f;
+        float x20_remTime = 0.f;
+        float x24_alpha = 0.f;
+        float x28_desiredAlpha = 0.f;
+        CTexturedQuadFilter m_quad;
     public:
-        CDataDot() = default;
-        void Update(float);
-        void Draw(const zeus::CColor&, float) const;
-        float GetTransitionFactor() const;
+        CDataDot(const TLockedToken<CTexture>& dataDotTex)
+        : m_quad(CCameraFilterPass::EFilterType::Add, dataDotTex) {}
+        void Update(float dt);
+        void Draw(const zeus::CColor& color, float radius) const;
+        float GetTransitionFactor() const { return x1c_transDur > 0.f ? x20_remTime / x1c_transDur : 0.f; }
         void StartTransitionTo(const zeus::CVector2f&, float);
         void SetDestPosition(const zeus::CVector2f&);
-        void SetDesiredAlpha(float);
-        void SetDotState(EDotState);
-        void SetAlpha(float);
-        zeus::CVector2f GetCurrPosition() const;
-        EDotState GetDotState() const;
+        void SetDesiredAlpha(float a) { x28_desiredAlpha = a; }
+        void SetDotState(EDotState s) { x0_dotState = s; }
+        void SetAlpha(float a) { x24_alpha = a; }
+        const zeus::CVector2f& GetCurrPosition() const { return xc_curPos; }
+        EDotState GetDotState() const { return x0_dotState; }
     };
 
-    struct SBucketBackground
+    enum class EScanState
     {
+        Inactive,
+        Downloading,
+        DownloadComplete,
+        ViewingScan,
+        Done
     };
 
 private:
-    u32 xc_;
-    TUniqueId x10_;
-    float x1a8_;
+    TLockedToken<CTexture> x0_dataDot;
+    EScanState xc_state = EScanState::Inactive;
+    TUniqueId x10_objId = kInvalidUniqueId;
+    std::experimental::optional<CScannableObjectInfo> x14_scannableInfo;
+    const CGuiFrame& xa0_selHud;
+    CGuiWidget* xa4_textGroup = nullptr;
+    CGuiTextPane* xa8_message = nullptr;
+    CGuiTextPane* xac_scrollMessage = nullptr;
+    CGuiModel* xb0_xmark = nullptr;
+    CGuiModel* xb4_abutton = nullptr;
+    CGuiModel* xb8_dash = nullptr;
+    rstl::reserved_vector<CDataDot, 4> xbc_dataDots;
+    rstl::reserved_vector<std::pair<float, CAuiImagePane*>, 4> x170_paneStates;
+    TLockedToken<CStringTable> x194_scanStr; // Used to be optional
+    float x1a4_xAlpha = 0.f;
+    float x1a8_bodyAlpha = 0.f;
+    int x1ac_pageCounter = 0;
+    float x1b0_aPulse = 1.f;
+    bool x1b4_scanComplete = false;
+
+    float GetDownloadStartTime(int idx) const;
+    float GetDownloadFraction(int idx, float scanningTime) const;
+    static void SetScanMessageTypeEffect(CGuiTextPane* pane, bool type);
 
 public:
-    CScanDisplay() = default;
+    CScanDisplay(const CGuiFrame& selHud);
     void ProcessInput(const CFinalInput& input);
     void StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo, CGuiTextPane* message,
                    CGuiTextPane* scrollMessage, CGuiWidget* textGroup, CGuiModel* xmark,
                    CGuiModel* abutton, CGuiModel* dash, float scanTime);
     void StopScan();
-    void InitializeFrame(float);
-    void Update(float, float);
-    void SetBackgroundBucketOccluded(s32, float);
-    bool PanelCoversBucketBackground(CScannableObjectInfo::EPanelType, s32);
+    void Update(float dt, float scanningTime);
     void Draw() const;
-    void SetBaseOrientation(const zeus::CQuaternion&);
-    void SetDebugCameraOptions(float, float, float);
-    void SetPanelTranslationX(float);
-    void GetDownloadStartTime(s32) const;
-    void GetDownloadFraction(s32, float) const;
-    void GetScanState() const;
-    void ScanTarget() const;
+    EScanState GetScanState() const { return xc_state; }
+    TUniqueId ScanTarget() const { return x10_objId; }
 };
+
 }
 #endif // __URDE_CSCANDISPLAY_HPP__

@@ -22,8 +22,8 @@ class CAuiImagePane : public CGuiWidget
     float x140_interval = 0.f;
     float x144_ = 0.f;
     float x148_duration = 0.f;
-    float x14c_invAlpha = 0.f;
-    float x150_interp = 0.f;
+    float x14c_deResFactor = 0.f;
+    float x150_alpha = 0.f;
 public:
     CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, ResId, ResId,
                   rstl::reserved_vector<zeus::CVector3f, 4>&& coords,
@@ -33,8 +33,8 @@ public:
 
     void SetTextureID0(ResId tex, CSimplePool* sp);
     void SetAnimationParms(const zeus::CVector2f& vec, float interval, float duration);
-    void SetInverseAlpha(float a) { x14c_invAlpha = a; }
-    void ResetInterp() { x150_interp = 0.f; }
+    void SetDeResFactor(float d) { x14c_deResFactor = d; }
+    void SetAlpha(float t) { x150_alpha = t; }
 };
 }
 

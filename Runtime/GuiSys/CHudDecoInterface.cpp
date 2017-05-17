@@ -99,7 +99,7 @@ void CHudDecoInterfaceCombat::UpdateHudAlpha()
 }
 
 CHudDecoInterfaceScan::CHudDecoInterfaceScan(CGuiFrame& selHud)
-: x14_selHud(selHud)
+: x14_selHud(selHud), x18_scanDisplay(selHud)
 {
     x4_scanHudFlat = g_SimplePool->GetObj("FRME_ScanHudFlat");
     x234_sidesPositioner = g_tweakGui->GetScanSidesPositionStart();
@@ -287,10 +287,10 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
     }
 
     const CScannableObjectInfo* scanInfo = GetCurrScanInfo(stateMgr);
-    if (x1d2_latestScanningObject != x18_scanDisplay.x10_ || !scanInfo)
+    if (x1d2_latestScanningObject != x18_scanDisplay.x10_objId || !scanInfo)
     {
         x18_scanDisplay.StopScan();
-        if (!x18_scanDisplay.xc_ && scanInfo)
+        if (x18_scanDisplay.xc_state == CScanDisplay::EScanState::Inactive && scanInfo)
         {
             x18_scanDisplay.StartScan(x1d2_latestScanningObject, *scanInfo, x264_flat_textpane_message,
                                       x268_flat_textpane_scrollmessage, x260_flat_basewidget_textgroup,
@@ -409,7 +409,7 @@ void CHudDecoInterfaceScan::UpdateHudAlpha()
 
 float CHudDecoInterfaceScan::GetHudTextAlpha() const
 {
-    return 1.f - std::max(std::min(x238_scanningTextAlpha, 1.f), x18_scanDisplay.x1a8_);
+    return 1.f - std::max(std::min(x238_scanningTextAlpha, 1.f), x18_scanDisplay.x1a8_bodyAlpha);
 }
 
 CHudDecoInterfaceXRay::CHudDecoInterfaceXRay(CGuiFrame& selHud)

@@ -244,7 +244,7 @@ void CLogBookScreen::UpdateBodyImagesAndText()
                                     bucket.x14_interval, bucket.x18_fadeDuration);
         }
         pane->SetTextureID0(bucket.x0_texture, g_SimplePool);
-        pane->ResetInterp();
+        pane->SetAlpha(0.f);
     }
 
     x260_26_exitTextScroll = false;
@@ -327,7 +327,7 @@ void CLogBookScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
         x174_textpane_body->SetColor(invColor);
 
         for (CAuiImagePane* pane : xf0_imagePanes)
-            pane->SetInverseAlpha(1.f - x254_viewInterp);
+            pane->SetDeResFactor(1.f - x254_viewInterp);
 
         if (x254_viewInterp == 0.f && x25c_leavePauseState == ELeavePauseState::InPause)
             ChangeMode(EMode::RightTable);

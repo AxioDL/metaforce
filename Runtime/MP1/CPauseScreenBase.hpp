@@ -92,7 +92,6 @@ protected:
         u32 _dummy = 0;
     };
     void InitializeFrameGlue();
-    static std::string GetImagePaneName(u32 i);
     void ChangeMode(EMode mode);
     void UpdateSideTable(CGuiTableGroup* table);
     void SetRightTableSelection(int selBegin, int selEnd);
@@ -103,6 +102,8 @@ protected:
     void OnRightTableCancel(CGuiTableGroup* caller);
 
 public:
+    static std::string GetImagePaneName(u32 i);
+
     CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
 
     bool ShouldExitPauseScreen() const { return x198_26_exitPauseScreen; }

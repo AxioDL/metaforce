@@ -67,6 +67,7 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetDamageAmbientPulseColor() const=0;
     virtual const zeus::CColor& GetEnergyBarFlashColor() const=0;
     virtual const zeus::CColor& GetXRayEnergyDecoColor() const=0;
+    virtual const zeus::CColor& GetScanDataDotColor() const=0;
     virtual const zeus::CColor& GetPowerBombDigitAvailableFont() const=0;
     virtual const zeus::CColor& GetPowerBombDigitAvailableOutline() const=0;
     virtual const zeus::CColor& GetBallBombFilledColor() const=0;
@@ -77,6 +78,7 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetPowerBombDigitDelpetedFont() const=0;
     virtual const zeus::CColor& GetPowerBombDigitDelpetedOutline() const=0;
     virtual const zeus::CColor& GetPowerBombIconDepletedColor() const=0;
+    virtual const zeus::CColor& GetScanDisplayImagePaneColor() const=0;
     virtual const zeus::CColor& GetThreatIconWarningColor() const=0;
     virtual const zeus::CColor& GetHudCounterFill() const=0;
     virtual const zeus::CColor& GetHudCounterOutline() const=0;

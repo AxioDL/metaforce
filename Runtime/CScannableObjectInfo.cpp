@@ -8,7 +8,7 @@ CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, ResId resId) : x0_s
     u32 version = in.readUint32Big();
     Load(in, version);
 
-    float appearanceOffset = g_tweakGui->GetScanAppearanceOffset();
+    float appearanceOffset = g_tweakGui->GetScanAppearanceDuration();
     for (u32 i = 0 ; i < x14_buckets.size(); ++i)
     {
         if (x14_buckets[i].x8_imagePos != -1)
@@ -28,14 +28,6 @@ CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, ResId resId) : x0_s
         }
     }
 }
-
-ResId CScannableObjectInfo::GetScannableObjectId() const { return x0_scannableObjectId; }
-
-ResId CScannableObjectInfo::GetStringTableId() const { return x4_stringId; }
-
-float CScannableObjectInfo::GetTotalDownloadTime() const { return x8_totalDownloadTime; }
-
-const CScannableObjectInfo::SBucket& CScannableObjectInfo::GetBucket(s32 idx) const { return x14_buckets[idx]; }
 
 void CScannableObjectInfo::Load(CInputStream& in, u32 version)
 {

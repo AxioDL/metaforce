@@ -37,11 +37,12 @@ private:
 
 public:
     CScannableObjectInfo(CInputStream&, ResId);
-    ResId GetStringTableId() const;
-    ResId GetScannableObjectId() const;
-    float GetTotalDownloadTime() const;
-    const SBucket& GetBucket(s32) const;
-    bool IsImportant() const;
+    ResId GetScannableObjectId() const { return x0_scannableObjectId; }
+    ResId GetStringTableId() const { return x4_stringId; }
+    float GetTotalDownloadTime() const { return x8_totalDownloadTime; }
+    const SBucket& GetBucket(s32 idx) const { return x14_buckets[idx]; }
+    u32 GetCategory() const { return xc_category; }
+    bool IsImportant() const { return x10_important; }
 };
 
 CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,

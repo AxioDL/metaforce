@@ -87,7 +87,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x12c_;
     DNAColor x130_;
     DNAColor x134_;
-    DNAColor x138_;
+    DNAColor x138_scanDataDotColor;
     DNAColor x13c_powerBombDigitAvailableFont;
     DNAColor x140_powerBombDigitAvailableOutline;
     DNAColor x144_;
@@ -102,7 +102,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x168_powerBombIconUnavailable;
     DNAColor x16c_;
     DNAColor x170_;
-    DNAColor x174_;
+    DNAColor x174_scanDisplayImagePaneColor;
     DNAColor x178_;
     DNAColor x17c_threatIconWarningColor;
     DNAColor x180_hudCounterFill;
@@ -185,6 +185,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetDamageAmbientPulseColor() const { return xe4_damageAmbientPulseColor; }
     const zeus::CColor& GetEnergyBarFlashColor() const { return xe8_energyBarFlashColor; }
     const zeus::CColor& GetXRayEnergyDecoColor() const { return x100_xrayEnergyDecoColor; }
+    const zeus::CColor& GetScanDataDotColor() const { return x138_scanDataDotColor; }
     const zeus::CColor& GetPowerBombDigitAvailableFont() const { return x13c_powerBombDigitAvailableFont; }
     const zeus::CColor& GetPowerBombDigitAvailableOutline() const { return x140_powerBombDigitAvailableOutline; }
     const zeus::CColor& GetBallBombFilledColor() const { return x148_ballBombFilled; }
@@ -195,6 +196,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetPowerBombDigitDelpetedFont() const { return x160_powerBombDigitDepletedFont; }
     const zeus::CColor& GetPowerBombDigitDelpetedOutline() const { return x164_powerBombDigitDepletedOutline; }
     const zeus::CColor& GetPowerBombIconDepletedColor() const { return x168_powerBombIconUnavailable; }
+    const zeus::CColor& GetScanDisplayImagePaneColor() const { return x174_scanDisplayImagePaneColor; }
     const zeus::CColor& GetThreatIconWarningColor() const { return x17c_threatIconWarningColor; }
     const zeus::CColor& GetHudCounterFill() const { return x180_hudCounterFill; }
     const zeus::CColor& GetHudCounterOutline() const { return x184_hudCounterOutline; }
