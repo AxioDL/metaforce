@@ -41,7 +41,7 @@ class CLight
     float x30_angleC;
     float x34_angleL;
     float x38_angleQ;
-    u32 x3c_ = 0;
+    u32 x3c_priority = 0;
     u32 x40_loadedIdx = 0;
     float x44_cachedRadius;
     float x48_cachedIntensity;

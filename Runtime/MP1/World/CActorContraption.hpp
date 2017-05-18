@@ -6,12 +6,13 @@
 
 namespace urde
 {
+class CFlameThrower;
 namespace MP1
 {
 class CActorContraption : public CScriptActor
 {
     /* AKA Why Zoid?!?!?!? */
-    std::vector<std::pair<TUniqueId, std::string>> x2ec_children;
+    std::vector<std::pair<TUniqueId, std::string>> x2e4_children;
     TToken<CGenDescription> x300_flameThrowerGen;
     ResId x308_partId;
     CDamageInfo x30c_dInfo;
@@ -23,6 +24,8 @@ public:
     void Accept(IVisitor &visitor);
 
     void Think(float, CStateManager &);
+    void DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType);
+    CFlameThrower* CreateFlameThrower(const std::string&, CStateManager&);
 };
 }
 }

@@ -9,8 +9,8 @@ class CGameLight : public CActor
 {
     TUniqueId xe8_parentId;
     CLight xec_light;
-    u32 x13c_;
-    u32 x140_;
+    u32 x13c_loadedIdx;
+    u32 x140_priority;
     float x144_lifeTime;
 
 public:

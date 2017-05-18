@@ -23,4 +23,13 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, const std:
 void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CFlameThrower::SetTransform(const zeus::CTransform& xf) { x2e8_ = xf; }
+
+void CFlameThrower::Reset(CStateManager&, bool)
+{
+}
+
+void CFlameThrower::Fire(const zeus::CTransform&, CStateManager&, bool)
+{
+
+}
 }
