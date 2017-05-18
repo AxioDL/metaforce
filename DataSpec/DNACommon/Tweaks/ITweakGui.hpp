@@ -94,7 +94,7 @@ struct ITweakGui : ITweak
     virtual float GetHudDecoShakeTranslateGain() const=0;
     virtual float GetHudLagOffsetScale() const=0;
     virtual float GetScanAppearanceDuration() const=0;
-    virtual float GetScanPaneFadeAlpha() const=0;
+    virtual float GetScanPaneFlashFactor() const=0;
     virtual float GetScanPaneFadeInTime() const=0;
     virtual float GetScanPaneFadeOutTime() const=0;
     virtual float GetBallViewportYReduction() const=0;
@@ -109,10 +109,10 @@ struct ITweakGui : ITweak
     virtual float GetScanSidesEndTime() const=0;
     virtual float GetScanDataDotRadius() const=0;
     virtual float GetScanDataDotPosRandMagnitude() const=0;
-    virtual float GetScanDataDotDuration1Min() const=0;
-    virtual float GetScanDataDotDuration1Max() const=0;
-    virtual float GetScanDataDotDuration2Min() const=0;
-    virtual float GetScanDataDotDuration2Max() const=0;
+    virtual float GetScanDataDotSeekDurationMin() const=0;
+    virtual float GetScanDataDotSeekDurationMax() const=0;
+    virtual float GetScanDataDotHoldDurationMin() const=0;
+    virtual float GetScanDataDotHoldDurationMax() const=0;
     virtual float GetScanSidesPositionStart() const=0;
     virtual bool GetLatchArticleText() const=0;
     virtual float GetWorldTransManagerCharsPerSfx() const=0;

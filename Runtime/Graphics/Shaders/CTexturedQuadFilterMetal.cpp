@@ -18,6 +18,7 @@ static const char* VSFlip =
 "{\n"
 "    float4x4 mat;\n"
 "    float4 color;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -25,6 +26,7 @@ static const char* VSFlip =
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
 "    float2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant TexuredQuadUniform& tqu [[ buffer(2) ]])\n"
@@ -32,6 +34,7 @@ static const char* VSFlip =
 "    VertToFrag vtf;\n"
 "    vtf.color = tqu.color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
+"    vtf.lod = tqu.lod;\n"
 "    vtf.position = tqu.mat * float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
@@ -49,6 +52,7 @@ static const char* VSNoFlip =
 "{\n"
 "    float4x4 mat;\n"
 "    float4 color;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -56,6 +60,7 @@ static const char* VSNoFlip =
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
 "    float2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant TexuredQuadUniform& tqu [[ buffer(2) ]])\n"
@@ -64,6 +69,7 @@ static const char* VSNoFlip =
 "    vtf.color = tqu.color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
 "    vtf.uv.y = -vtf.uv.y;\n"
+"    vtf.lod = tqu.lod;\n"
 "    vtf.position = tqu.mat * float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
@@ -78,11 +84,12 @@ static const char* FS =
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
 "    float2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    return vtf.color * float4(tex.sample(samp, vtf.uv).rgb, 1.0);\n"
+"    return vtf.color * float4(tex.sample(samp, vtf.uv, level(vtf.lod)).rgb, 1.0);\n"
 "}\n";
 
 static const char* FSAlpha =
@@ -94,11 +101,12 @@ static const char* FSAlpha =
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
 "    float2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    return vtf.color * tex.sample(samp, vtf.uv);\n"
+"    return vtf.color * tex.sample(samp, vtf.uv, level(vtf.lod));\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

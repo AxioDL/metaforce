@@ -23,6 +23,7 @@ protected:
     {
         zeus::CMatrix4f m_matrix;
         zeus::CColor m_color;
+        float m_lod = 0.f;
     };
     TLockedToken<CTexture> m_tex;
     boo::ITexture* m_booTex;
@@ -50,7 +51,7 @@ public:
     CTexturedQuadFilter& operator=(CTexturedQuadFilter&&) = default;
     void draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect=DefaultRect);
     void drawCropped(const zeus::CColor& color, float uvScale);
-    void drawVerts(const zeus::CColor& color, const Vert verts[4]);
+    void drawVerts(const zeus::CColor& color, const Vert verts[4], float lod=0.f);
     const TLockedToken<CTexture>& GetTex() const { return m_tex; }
 
     using _CLS = CTexturedQuadFilter;

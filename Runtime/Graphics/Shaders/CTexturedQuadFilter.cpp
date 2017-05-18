@@ -73,12 +73,13 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale)
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
-void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[4])
+void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[4], float lod)
 {
     m_vbo->load(verts, sizeof(Vert) * 4);
 
     m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
     m_uniform.m_color = color;
+    m_uniform.m_lod = lod;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
     CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);

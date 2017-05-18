@@ -79,6 +79,8 @@ CScanDisplay::CScanDisplay(const CGuiFrame& selHud)
 : xa0_selHud(selHud)
 {
     x0_dataDot = g_SimplePool->GetObj("TXTR_DataDot");
+    for (int i=0 ; i<4 ; ++i)
+        xbc_dataDots.emplace_back(x0_dataDot);
 }
 
 void CScanDisplay::ProcessInput(const CFinalInput& input)
@@ -242,7 +244,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
                                                 bucket.x14_interval, bucket.x18_fadeDuration);
             }
             state.second->SetTextureID0(bucket.x0_texture, g_SimplePool);
-            state.second->SetAlpha(0.f);
+            state.second->SetFlashFactor(0.f);
             if (scanTime >= GetDownloadStartTime(i))
                 x170_paneStates[i].first = 0.f;
             else
@@ -301,12 +303,7 @@ void CScanDisplay::SetScanMessageTypeEffect(CGuiTextPane* pane, bool type)
 void CScanDisplay::Update(float dt, float scanningTime)
 {
     if (xc_state == EScanState::Inactive)
-    {
-        x0_dataDot.Unlock();
         return;
-    }
-
-    x0_dataDot.Lock();
 
     bool active = false;
     if (xc_state == EScanState::Done)
@@ -379,7 +376,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
                 tmp = 1.f - (x170_paneStates[i].first - g_tweakGui->GetScanPaneFadeOutTime()) / g_tweakGui->GetScanPaneFadeInTime();
             else
                 tmp = x170_paneStates[i].first / g_tweakGui->GetScanPaneFadeOutTime();
-            x170_paneStates[i].second->SetAlpha(tmp * g_tweakGui->GetScanPaneFadeAlpha() * x1a8_bodyAlpha);
+            x170_paneStates[i].second->SetFlashFactor(tmp * g_tweakGui->GetScanPaneFlashFactor() * x1a8_bodyAlpha);
         }
         float alphaMul = ((xc_state == EScanState::Downloading) ? GetDownloadFraction(i, scanningTime) : 1.f) * x1a8_bodyAlpha;
         zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
@@ -426,8 +423,8 @@ void CScanDisplay::Update(float dt, float scanningTime)
             if (tmp == 0.f)
             {
                 float posRand = g_tweakGui->GetScanDataDotPosRandMagnitude();
-                float durMin = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotDuration2Min() : g_tweakGui->GetScanDataDotDuration1Min();
-                float durMax = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotDuration2Max() : g_tweakGui->GetScanDataDotDuration1Max();
+                float durMin = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMin() : g_tweakGui->GetScanDataDotSeekDurationMin();
+                float durMax = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMax() : g_tweakGui->GetScanDataDotSeekDurationMax();
                 zeus::CVector2f vec(dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().x : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand),
                                     dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().y : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand));
                 dot.StartTransitionTo(vec, (durMax - durMin) * (rand() / float(RAND_MAX)) + durMin);

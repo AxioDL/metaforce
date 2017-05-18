@@ -15,12 +15,14 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    mat4 mtx;\n"
 "    vec4 color;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
 "    vec2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "SBINDING(0) out VertToFrag vtf;\n"
@@ -28,6 +30,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vtf.color = color;\n"
 "    vtf.uv = uvIn.xy;\n"
+"    vtf.lod = lod;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
@@ -42,12 +45,14 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    mat4 mtx;\n"
 "    vec4 color;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
 "{\n"
 "    vec4 color;\n"
 "    vec2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "SBINDING(0) out VertToFrag vtf;\n"
@@ -55,6 +60,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vtf.color = color;\n"
 "    vtf.uv = -uvIn.xy;\n"
+"    vtf.lod = lod;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
@@ -66,6 +72,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vec4 color;\n"
 "    vec2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
@@ -73,7 +80,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * vec4(texture(tex, vtf.uv).rgb, 1.0);\n"
+"    colorOut = vtf.color * vec4(textureLod(tex, vtf.uv, lod).rgb, 1.0);\n"
 "}\n";
 
 static const char* FSAlpha =
@@ -83,6 +90,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vec4 color;\n"
 "    vec2 uv;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
@@ -90,7 +98,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
+"    colorOut = vtf.color * textureLod(tex, vtf.uv, lod);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

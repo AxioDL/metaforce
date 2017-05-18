@@ -16,6 +16,7 @@ static const char* VSFlip =
 "{\n"
 "    float4x4 mat;\n"
 "    float4 color;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -23,6 +24,7 @@ static const char* VSFlip =
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
 "    float2 uv : UV;\n"
+"    float lod : LOD;\n"
 "};\n"
 "\n"
 "VertToFrag main(in VertData v)\n"
@@ -30,6 +32,7 @@ static const char* VSFlip =
 "    VertToFrag vtf;\n"
 "    vtf.color = color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
+"    vtf.lod = lod;\n"
 "    vtf.position = mul(mat, float4(v.posIn.xyz, 1.0));\n"
 "    return vtf;\n"
 "}\n";
@@ -45,6 +48,7 @@ static const char* VSNoFlip =
 "{\n"
 "    float4x4 mat;\n"
 "    float4 color;\n"
+"    float lod;\n"
 "};\n"
 "\n"
 "struct VertToFrag\n"
@@ -52,6 +56,7 @@ static const char* VSNoFlip =
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
 "    float2 uv : UV;\n"
+"    float lod : LOD;\n"
 "};\n"
 "\n"
 "VertToFrag main(in VertData v)\n"
@@ -60,6 +65,7 @@ static const char* VSNoFlip =
 "    vtf.color = color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
 "    vtf.uv.y = -vtf.uv.y;\n"
+"    vtf.lod = lod;\n"
 "    vtf.position = mul(mat, float4(v.posIn.xyz, 1.0));\n"
 "    return vtf;\n"
 "}\n";
@@ -70,6 +76,7 @@ static const char* FS =
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
 "    float2 uv : UV;\n"
+"    float lod : LOD;\n"
 "};\n"
 "\n"
 "Texture2D tex : register(t0);\n"
@@ -77,7 +84,7 @@ static const char* FS =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return vtf.color * float4(tex.Sample(samp, vtf.uv).rgb, 1.0);\n"
+"    return vtf.color * float4(tex.SampleLevel(samp, vtf.uv, vtf.lod).rgb, 1.0);\n"
 "}\n";
 
 static const char* FSAlpha =
@@ -86,6 +93,7 @@ static const char* FSAlpha =
 "    float4 position : SV_Position;\n"
 "    float4 color : COLOR;\n"
 "    float2 uv : UV;\n"
+"    float lod : LOD;\n"
 "};\n"
 "\n"
 "Texture2D tex : register(t0);\n"
@@ -93,7 +101,7 @@ static const char* FSAlpha =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return vtf.color * tex.Sample(samp, vtf.uv);\n"
+"    return vtf.color * tex.SampleLevel(samp, vtf.uv, vtf.lod);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

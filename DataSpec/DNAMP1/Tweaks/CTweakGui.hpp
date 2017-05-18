@@ -132,12 +132,12 @@ struct CTweakGui : ITweakGui
     float x228_scanSidesEndTime;
     Value<float> x22c_scanDataDotRadius;
     Value<float> x230_scanDataDotPosRandMag;
-    Value<float> x234_scanDataDotDuration1Min;
-    Value<float> x238_scanDataDotDuration1Max;
-    Value<float> x23c_scanDataDotDuration2Min;
-    Value<float> x240_scanDataDotDuration2Max;
+    Value<float> x234_scanDataDotSeekDurationMin;
+    Value<float> x238_scanDataDotSeekDurationMax;
+    Value<float> x23c_scanDataDotHoldDurationMin;
+    Value<float> x240_scanDataDotHoldDurationMax;
     Value<float> x244_scanAppearanceDuration;
-    Value<float> x248_scanPaneFadeAlpha;
+    Value<float> x248_scanPaneFlashFactor;
     Value<float> x24c_scanPaneFadeInTime;
     Value<float> x250_scanPaneFadeOutTime;
     Value<float> x254_ballViewportYReduction;
@@ -255,11 +255,6 @@ struct CTweakGui : ITweakGui
     float GetHudDamageColorGain() const { return x1d4_hudDamageColorGain; }
     float GetHudDecoShakeTranslateGain() const { return x1d8_hudDecoShakeTranslateGain; }
     float GetHudLagOffsetScale() const { return x1dc_hudLagOffsetScale; }
-    float GetScanAppearanceDuration() const { return x244_scanAppearanceDuration; }
-    float GetScanPaneFadeAlpha() const { return x248_scanPaneFadeAlpha; }
-    float GetScanPaneFadeInTime() const { return x24c_scanPaneFadeInTime; }
-    float GetScanPaneFadeOutTime() const { return x250_scanPaneFadeOutTime; }
-    float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
     float GetXrayBlurScaleLinear() const { return x204_xrayBlurScaleLinear; }
     float GetXrayBlurScaleQuadratic() const { return x208_xrayBlurScaleQuadratic; }
     float GetScanSidesAngle() const { return x210_scanSidesAngle; }
@@ -270,10 +265,15 @@ struct CTweakGui : ITweakGui
     float GetScanSidesEndTime() const { return x228_scanSidesEndTime; }
     float GetScanDataDotRadius() const { return x22c_scanDataDotRadius; }
     float GetScanDataDotPosRandMagnitude() const { return x230_scanDataDotPosRandMag; }
-    float GetScanDataDotDuration1Min() const { return x234_scanDataDotDuration1Min; }
-    float GetScanDataDotDuration1Max() const { return x238_scanDataDotDuration1Max; }
-    float GetScanDataDotDuration2Min() const { return x23c_scanDataDotDuration2Min; }
-    float GetScanDataDotDuration2Max() const { return x240_scanDataDotDuration2Max; }
+    float GetScanDataDotSeekDurationMin() const { return x234_scanDataDotSeekDurationMin; }
+    float GetScanDataDotSeekDurationMax() const { return x238_scanDataDotSeekDurationMax; }
+    float GetScanDataDotHoldDurationMin() const { return x23c_scanDataDotHoldDurationMin; }
+    float GetScanDataDotHoldDurationMax() const { return x240_scanDataDotHoldDurationMax; }
+    float GetScanAppearanceDuration() const { return x244_scanAppearanceDuration; }
+    float GetScanPaneFlashFactor() const { return x248_scanPaneFlashFactor; }
+    float GetScanPaneFadeInTime() const { return x24c_scanPaneFadeInTime; }
+    float GetScanPaneFadeOutTime() const { return x250_scanPaneFadeOutTime; }
+    float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
     float GetScanSidesPositionStart() const { return x270_scanSidesPositionStart; }
     bool GetLatchArticleText() const { return x275_latchArticleText; }
     float GetWorldTransManagerCharsPerSfx() const { return x278_wtMgrCharsPerSfx; }

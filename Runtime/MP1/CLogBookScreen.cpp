@@ -244,7 +244,7 @@ void CLogBookScreen::UpdateBodyImagesAndText()
                                     bucket.x14_interval, bucket.x18_fadeDuration);
         }
         pane->SetTextureID0(bucket.x0_texture, g_SimplePool);
-        pane->SetAlpha(0.f);
+        pane->SetFlashFactor(0.f);
     }
 
     x260_26_exitTextScroll = false;

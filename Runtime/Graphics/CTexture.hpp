@@ -67,6 +67,7 @@ public:
     {return x0_fmt == ETexelFormat::C8PC ? ETexelFormat::C8 : ETexelFormat::RGB5A3;}
     u16 GetWidth() const {return x4_w;}
     u16 GetHeight() const {return x6_h;}
+    u32 GetNumMips() const {return x8_mips;}
     void Load(int slot, EClampMode clamp) const;
     boo::ITexture* GetBooTexture() const {return m_booTex;}
     boo::ITexture* GetPaletteTexture() const {return m_paletteTex;}
