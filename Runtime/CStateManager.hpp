@@ -448,6 +448,8 @@ public:
     TUniqueId GetBossId() const { return xf18_bossId; }
     float GetTotalBossEnergy() const { return xf1c_totalBossEnergy; }
     u32 GetBossStringIdx() const { return xf20_bossStringIdx; }
+    const SOnScreenTex& GetPendingScreenTex() const { return xef4_pendingScreenTex; }
+    void SetViewportScale(const zeus::CVector2f& scale) { xf2c_viewportScale = scale; }
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

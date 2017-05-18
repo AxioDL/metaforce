@@ -147,7 +147,7 @@ CPauseScreen::ESubScreen CPauseScreen::GetPreviousSubscreen(ESubScreen screen)
     case ESubScreen::LogBook:
         return ESubScreen::Inventory;
     default:
-        return ESubScreen::Invalid;
+        return ESubScreen::ToGame;
     }
 }
 
@@ -162,7 +162,7 @@ CPauseScreen::ESubScreen CPauseScreen::GetNextSubscreen(ESubScreen screen)
     case ESubScreen::LogBook:
         return ESubScreen::Options;
     default:
-        return ESubScreen::Invalid;
+        return ESubScreen::ToGame;
     }
 }
 
@@ -171,7 +171,7 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
     if (!IsLoaded())
         return;
 
-    if (x8_curSubscreen == ESubScreen::Invalid)
+    if (x8_curSubscreen == ESubScreen::ToGame)
         return;
 
     bool bExits = false;
@@ -184,12 +184,12 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
 
     if (InputEnabled())
     {
-        bool invalid = x8_curSubscreen == ESubScreen::Invalid;
+        bool invalid = x8_curSubscreen == ESubScreen::ToGame;
         if (input.PStart() || (input.PB() && bExits) ||
             (x7c_screens[x78_activeIdx] && x7c_screens[x78_activeIdx]->ShouldExitPauseScreen()))
         {
             CSfxManager::SfxStart(1434, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-            StartTransition(0.5f, mgr, ESubScreen::Invalid, 2);
+            StartTransition(0.5f, mgr, ESubScreen::ToGame, 2);
         }
         else
         {
@@ -275,7 +275,7 @@ void CPauseScreen::Draw()
     {
         float useInterp = x10_alphaInterp == 0.f ? 1.f : x10_alphaInterp / 0.5f;
         float initInterp = std::min(curScreen->GetAlpha(), useInterp);
-        if (xc_nextSubscreen == ESubScreen::Invalid)
+        if (xc_nextSubscreen == ESubScreen::ToGame)
             totalAlpha = useInterp;
         else if (x91_initialTransition)
             totalAlpha = initInterp;
@@ -288,6 +288,16 @@ void CPauseScreen::Draw()
 
     CGuiWidgetDrawParms parms(totalAlpha, zeus::CVector3f{0.f, 15.f * yOff, 0.f});
     x34_loadedPauseScreenInstructions->Draw(parms);
+}
+
+bool CPauseScreen::ShouldSwitchToMapScreen() const
+{
+    return IsLoaded() && x8_curSubscreen == ESubScreen::ToMap && xc_nextSubscreen == ESubScreen::ToMap;
+}
+
+bool CPauseScreen::ShouldSwitchToInGame() const
+{
+    return IsLoaded() && x8_curSubscreen == ESubScreen::ToGame && xc_nextSubscreen == ESubScreen::ToGame;
 }
 
 }

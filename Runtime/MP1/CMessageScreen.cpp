@@ -15,5 +15,10 @@ void CMessageScreen::ProcessControllerInput(const CFinalInput& input)
 
 }
 
+bool CMessageScreen::Update(float dt, float blurAmt)
+{
+    return false;
+}
+
 }
 }

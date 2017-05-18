@@ -84,7 +84,7 @@ static const char* FS =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return vtf.color * float4(tex.SampleLevel(samp, vtf.uv, vtf.lod).rgb, 1.0);\n"
+"    return vtf.color * float4(tex.SampleBias(samp, vtf.uv, vtf.lod).rgb, 1.0);\n"
 "}\n";
 
 static const char* FSAlpha =
@@ -101,7 +101,7 @@ static const char* FSAlpha =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return vtf.color * tex.SampleLevel(samp, vtf.uv, vtf.lod);\n"
+"    return vtf.color * tex.SampleBias(samp, vtf.uv, vtf.lod);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

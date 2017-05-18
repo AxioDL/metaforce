@@ -246,7 +246,7 @@ public:
     CSamusHud(CStateManager& stateMgr);
     ~CSamusHud();
     void Update(float dt, const CStateManager& mgr,
-                DataSpec::ITweakGui::EHelmetVisMode helmetVis,
+                CInGameGuiManager::EHelmetVisMode helmetVis,
                 bool hudVis, bool targetingManager);
     void ProcessControllerInput(const CFinalInput& input);
     void UpdateStateTransition(float time, const CStateManager& mgr);
@@ -254,6 +254,8 @@ public:
     void OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr);
     void RefreshHudOptions();
     void Touch();
+    CTargetingManager& GetTargetingManager() { return x8_targetingMgr; }
+    const zeus::CVector2f& GetViewportScale() const { return x500_viewportScale; }
     static zeus::CTransform BuildFinalCameraTransform(const zeus::CQuaternion& rot,
                                                       const zeus::CVector3f& pos,
                                                       const zeus::CVector3f& camPos);

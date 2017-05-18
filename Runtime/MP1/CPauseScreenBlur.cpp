@@ -20,5 +20,10 @@ void CPauseScreenBlur::OnNewInGameGuiState(EInGameGuiState state, CStateManager&
 
 }
 
+void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool)
+{
+
+}
+
 }
 }

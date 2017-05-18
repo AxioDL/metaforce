@@ -21,5 +21,10 @@ void CSamusFaceReflection::PreDraw(const CStateManager& stateMgr)
 
 }
 
+void CSamusFaceReflection::Update(float dt, const CStateManager& stateMgr, CRandom16& rand)
+{
+
+}
+
 }
 }

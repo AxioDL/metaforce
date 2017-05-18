@@ -11,10 +11,10 @@ class CTargetingManager
 {
     zeus::CQuaternion x0_rot;
 public:
-    CTargetingManager(const CStateManager&);
+    CTargetingManager(const CStateManager& stateMgr);
     bool CheckLoadComplete();
-    void Update(float, const CStateManager&);
-    void Draw(const CStateManager&) const;
+    void Update(float, const CStateManager& stateMgr);
+    void Draw(const CStateManager& stateMgr) const;
     void Touch() const;
     void SetRotation(const zeus::CQuaternion& rot) { x0_rot = rot; }
 };

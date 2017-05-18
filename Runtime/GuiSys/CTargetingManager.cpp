@@ -18,4 +18,14 @@ void CTargetingManager::Update(float dt, const CStateManager& stateMgr)
 
 }
 
+void CTargetingManager::Draw(const CStateManager& stateMgr) const
+{
+
+}
+
+void CTargetingManager::Touch() const
+{
+
+}
+
 }

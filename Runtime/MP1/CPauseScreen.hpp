@@ -20,14 +20,15 @@ public:
         LogBook,
         Options,
         Inventory,
-        Invalid
+        ToGame,
+        ToMap
     };
 
 private:
     ESubScreen x0_initialSubScreen;
     u32 x4_ = 2;
-    ESubScreen x8_curSubscreen = ESubScreen::Invalid;
-    ESubScreen xc_nextSubscreen = ESubScreen::Invalid;
+    ESubScreen x8_curSubscreen = ESubScreen::ToGame;
+    ESubScreen xc_nextSubscreen = ESubScreen::ToGame;
     float x10_alphaInterp = 0.f;
     TLockedToken<CStringTable> x14_strgPauseScreen;
     const CDependencyGroup& x20_suitDgrp;
@@ -68,6 +69,8 @@ public:
     void PreDraw();
     void Draw();
     bool IsLoaded() const { return x90_resourcesLoaded; }
+    bool ShouldSwitchToMapScreen() const;
+    bool ShouldSwitchToInGame() const;
 };
 
 }

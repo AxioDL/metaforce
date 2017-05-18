@@ -1227,7 +1227,7 @@ EHudState CSamusHud::GetDesiredHudState(const CStateManager& mgr)
 }
 
 void CSamusHud::Update(float dt, const CStateManager& mgr,
-                       DataSpec::ITweakGui::EHelmetVisMode helmetVis,
+                       CInGameGuiManager::EHelmetVisMode helmetVis,
                        bool hudVis, bool targetingManager)
 {
     CPlayer& player = mgr.GetPlayer();
@@ -1274,14 +1274,14 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     {
         switch (helmetVis)
         {
-        case DataSpec::ITweakGui::EHelmetVisMode::HelmetOnly:
+        case CInGameGuiManager::EHelmetVisMode::HelmetOnly:
             helmetVisible = true;
             break;
-        case DataSpec::ITweakGui::EHelmetVisMode::GlowHelmetDeco:
+        case CInGameGuiManager::EHelmetVisMode::GlowHelmetDeco:
             glowVisible = true;
-        case DataSpec::ITweakGui::EHelmetVisMode::HelmetDeco:
+        case CInGameGuiManager::EHelmetVisMode::HelmetDeco:
             helmetVisible = true;
-        case DataSpec::ITweakGui::EHelmetVisMode::Deco:
+        case CInGameGuiManager::EHelmetVisMode::Deco:
             decoVisible = true;
         default: break;
         }

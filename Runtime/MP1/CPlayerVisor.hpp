@@ -12,6 +12,10 @@ class CPlayerVisor
 {
 public:
     CPlayerVisor(CStateManager& stateMgr);
+    void Update(float dt, const CStateManager& stateMgr);
+    void Touch();
+    float GetDesiredViewportScaleX(const CStateManager& stateMgr) const;
+    float GetDesiredViewportScaleY(const CStateManager& stateMgr) const;
 };
 
 }

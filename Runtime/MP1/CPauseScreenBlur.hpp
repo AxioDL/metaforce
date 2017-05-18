@@ -11,6 +11,9 @@ namespace MP1
 
 class CPauseScreenBlur
 {
+    u32 x10_ = 0;
+    u32 x14_ = 0;
+    float x18_blurAmt = 0.f;
     union
     {
         struct
@@ -25,6 +28,9 @@ public:
     bool CheckLoadComplete();
     void OnNewInGameGuiState(EInGameGuiState state, CStateManager& stateMgr);
     bool GetX50_25() const { return x50_25_; }
+    void Update(float dt, const CStateManager& stateMgr, bool);
+    float GetBlurAmt() const { return std::fabs(x18_blurAmt); }
+    bool IsNotTransitioning() const { return x10_ == x14_; }
 };
 
 }

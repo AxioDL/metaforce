@@ -206,7 +206,7 @@ private:
     float x740_ = 0.f;
     float x744_ = 0.f;
     float x748_ = 0.f;
-    float x74c_ = 1.f;
+    float x74c_visorStaticAlpha = 1.f;
     float x750_ = 0.f;
     u32 x754_ = 0;
     float x758_ = 0.f;
@@ -432,7 +432,7 @@ public:
     float GetWeight() const;
     float GetDampedClampedVelocityWR() const;
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
-    float Get74C() const { return x74c_; }
+    float GetVisorStaticAlpha() const { return x74c_visorStaticAlpha; }
     float GetMapAlpha() const { return x494_mapAlpha; }
     void UpdateCinematicState(CStateManager& mgr);
     void SetCameraState(EPlayerCameraState camState, CStateManager& stateMgr);

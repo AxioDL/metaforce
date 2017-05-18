@@ -35,6 +35,11 @@ class CPauseScreen;
 
 class CInGameGuiManager
 {
+public:
+    using EHelmetVisMode = DataSpec::ITweakGui::EHelmetVisMode;
+    using EHudVisMode = DataSpec::ITweakGui::EHudVisMode;
+
+private:
     enum class ELoadPhase
     {
         LoadDepsGroup = 0,
@@ -83,23 +88,23 @@ class CInGameGuiManager
     EInGameGuiState x1bc_prevState = EInGameGuiState::Zero;
     EInGameGuiState x1c0_nextState = EInGameGuiState::Zero;
     SOnScreenTex x1c4_onScreenTex;
-    float x1d8_ = 0.f;
+    float x1d8_onScreenTexAlpha = 0.f;
     TLockedToken<CTexture> x1dc_onScreenTexTok; // Used to be heap-allocated
-    DataSpec::ITweakGui::EHelmetVisMode x1e0_helmetVisMode;
+    EHelmetVisMode x1e0_helmetVisMode;
     bool x1e4_enableTargetingManager;
     bool x1e8_enableAutoMapper;
-    DataSpec::ITweakGui::EHudVisMode x1ec_hudVisMode;
+    EHudVisMode x1ec_hudVisMode;
     u32 x1f0_enablePlayerVisor;
-    float x1f4_player74c;
+    float x1f4_visorStaticAlpha;
 
     union
     {
         struct
         {
             bool x1f8_24_ : 1;
-            bool x1f8_25_ : 1;
+            bool x1f8_25_playerAlive : 1;
             bool x1f8_26_deferTransition : 1;
-            bool x1f8_27_inSaveUI : 1;
+            bool x1f8_27_exitSaveUI : 1;
         };
         u32 _dummy = 0;
     };
@@ -113,11 +118,13 @@ class CInGameGuiManager
     void TryReloadAreaTextures();
     bool IsInGameStateNotTransitioning() const;
     bool IsInPausedStateNotTransitioning() const;
+    void UpdateAutoMapper(float dt, const CStateManager& stateMgr);
+    void OnNewPauseScreenState(CArchitectureQueue& archQueue);
 
 public:
     CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue& archQueue);
     bool CheckLoadComplete(CStateManager& stateMgr);
-    void Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool);
+    void Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool useHud);
     void ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input,
                                 CArchitectureQueue& archQueue);
     void PreDraw(CStateManager& stateMgr, bool cameraActive);
@@ -127,7 +134,7 @@ public:
     void StartFadeIn();
     bool WasInGame() const { return x1bc_prevState >= EInGameGuiState::Zero && x1bc_prevState <= EInGameGuiState::InGame; }
     bool IsInGame() const { return x1c0_nextState >= EInGameGuiState::Zero && x1c0_nextState <= EInGameGuiState::InGame; }
-    bool IsInSaveUI() const { return x1f8_27_inSaveUI; }
+    bool IsInSaveUI() const { return x1f8_27_exitSaveUI; }
     bool GetIsGameDraw() const;
     static std::string GetIdentifierForMidiEvent(ResId world, ResId area, const std::string& midiObj);
 };

@@ -12,6 +12,8 @@
 #include "Audio/CSfxManager.hpp"
 #include "CSamusHud.hpp"
 #include "Input/CInputGenerator.hpp"
+#include "TCastTo.hpp"
+#include "Camera/CFirstPersonCamera.hpp"
 
 namespace urde
 {
@@ -226,10 +228,10 @@ CInGameGuiManager::CInGameGuiManager(CStateManager& stateMgr,
     x1ec_hudVisMode = g_tweakGui->GetHudVisMode();
     x1f0_enablePlayerVisor = g_tweakGui->GetEnablePlayerVisor();
 
-    x1f4_player74c = stateMgr.GetPlayer().Get74C();
+    x1f4_visorStaticAlpha = stateMgr.GetPlayer().GetVisorStaticAlpha();
 
-    x1f8_25_ = true;
-    x1f8_27_inSaveUI = true;
+    x1f8_25_playerAlive = true;
+    x1f8_27_exitSaveUI = true;
 
     xc8_inGameGuiDGRPs.reserve(14);
     for (int i=0 ; i<14 ; ++i)
@@ -306,9 +308,136 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)
     }
 }
 
-void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool)
+void CInGameGuiManager::OnNewPauseScreenState(CArchitectureQueue& archQueue)
+{
+
+}
+
+void CInGameGuiManager::UpdateAutoMapper(float dt, const CStateManager& stateMgr)
+{
+
+}
+
+void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool useHud)
 {
     EnsureStates(stateMgr);
+
+    if (x1d8_onScreenTexAlpha == 0.f)
+        x1dc_onScreenTexTok = TLockedToken<CTexture>();
+
+    if (x1c4_onScreenTex.x0_id != stateMgr.GetPendingScreenTex().x0_id)
+    {
+        if (!x1dc_onScreenTexTok)
+        {
+            x1c4_onScreenTex = stateMgr.GetPendingScreenTex();
+            if (x1c4_onScreenTex.x0_id != -1)
+            {
+                x1dc_onScreenTexTok = g_SimplePool->GetObj({FOURCC('TXTR'), x1c4_onScreenTex.x0_id});
+                x1d8_onScreenTexAlpha = FLT_EPSILON;
+            }
+        }
+        else
+        {
+            if (stateMgr.GetPendingScreenTex().x0_id == -1 &&
+                stateMgr.GetPendingScreenTex().x4_origin == zeus::CVector2i(0, 0))
+            {
+                x1c4_onScreenTex.x4_origin = stateMgr.GetPendingScreenTex().x4_origin;
+                x1c4_onScreenTex.x0_id = -1;
+                x1d8_onScreenTexAlpha = 0.f;
+            }
+            else
+            {
+                x1d8_onScreenTexAlpha = std::max(0.f, x1d8_onScreenTexAlpha - dt);
+            }
+        }
+    }
+    else if (x1c4_onScreenTex.x0_id != -1 && x1dc_onScreenTexTok.IsLoaded())
+    {
+        x1d8_onScreenTexAlpha = std::min(x1d8_onScreenTexAlpha + dt, 1.f);
+    }
+
+    if (useHud)
+    {
+        if (stateMgr.GetPlayer().GetVisorStaticAlpha() != x1f4_visorStaticAlpha)
+        {
+            if (TCastToPtr<CFirstPersonCamera> fpCam = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr))
+            {
+                if (std::fabs(stateMgr.GetPlayer().GetVisorStaticAlpha() - x1f4_visorStaticAlpha) < 0.5f)
+                {
+                    if (x1f4_visorStaticAlpha == 0.f)
+                        CSfxManager::SfxStart(1401, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    else if (x1f4_visorStaticAlpha == 1.f)
+                        CSfxManager::SfxStart(1400, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                }
+            }
+        }
+        x1f4_visorStaticAlpha = stateMgr.GetPlayer().GetVisorStaticAlpha();
+        x20_faceplateDecor.Update(dt, stateMgr);
+        x40_samusReflection->Update(dt, stateMgr, x1c_rand);
+        if (x1f0_enablePlayerVisor)
+            x30_playerVisor->Update(dt, stateMgr);
+        if (x1f8_25_playerAlive)
+            x34_samusHud->Update(dt, stateMgr, x1e0_helmetVisMode, x1ec_hudVisMode != EHudVisMode::Zero, x1e4_enableTargetingManager);
+    }
+
+    if (x1e8_enableAutoMapper)
+        UpdateAutoMapper(dt, stateMgr);
+
+    x3c_pauseScreenBlur->Update(dt, stateMgr, !x140_);
+
+    if (x4c_saveUI)
+    {
+        CIOWin::EMessageReturn ret = x4c_saveUI->Update(dt);
+        if (ret != CIOWin::EMessageReturn::Normal)
+        {
+            x1f8_27_exitSaveUI = ret == CIOWin::EMessageReturn::Exit;
+            BeginStateTransition(EInGameGuiState::InGame, stateMgr);
+        }
+    }
+    else if (x44_messageScreen)
+    {
+        if (!x44_messageScreen->Update(dt, x3c_pauseScreenBlur->GetBlurAmt()))
+            BeginStateTransition(EInGameGuiState::InGame, stateMgr);
+    }
+
+    if (x48_pauseScreen)
+    {
+        x48_pauseScreen->Update(dt, stateMgr, x1c_rand, archQueue);
+        if (x1bc_prevState == x1c0_nextState)
+        {
+            if (x48_pauseScreen->ShouldSwitchToMapScreen())
+                BeginStateTransition(EInGameGuiState::MapScreen, stateMgr);
+            else if (x48_pauseScreen->ShouldSwitchToInGame())
+                BeginStateTransition(EInGameGuiState::InGame, stateMgr);
+        }
+    }
+
+    x34_samusHud->Touch();
+    x30_playerVisor->Touch();
+    x34_samusHud->GetTargetingManager().Touch();
+
+    if (x1bc_prevState != x1c0_nextState)
+    {
+        if (x1c0_nextState == EInGameGuiState::Zero || x1c0_nextState == EInGameGuiState::InGame)
+            TryReloadAreaTextures();
+        if ((x1bc_prevState == x1c0_nextState || !x1e8_enableAutoMapper) &&
+            x3c_pauseScreenBlur->IsNotTransitioning())
+            OnNewPauseScreenState(archQueue);
+    }
+
+    xf8_camFilter.Update(dt);
+    if (stateMgr.GetCameraManager()->IsInCinematicCamera())
+    {
+        stateMgr.SetViewportScale(zeus::CVector2f(1.f, 1.f));
+    }
+    else
+    {
+        stateMgr.SetViewportScale(zeus::CVector2f(
+            std::min(x30_playerVisor->GetDesiredViewportScaleX(stateMgr), x34_samusHud->GetViewportScale().x),
+            std::min(x30_playerVisor->GetDesiredViewportScaleY(stateMgr), x34_samusHud->GetViewportScale().y)));
+    }
+
+    x1f8_25_playerAlive = stateMgr.GetPlayerState()->IsPlayerAlive();
 }
 
 bool CInGameGuiManager::IsInGameStateNotTransitioning() const

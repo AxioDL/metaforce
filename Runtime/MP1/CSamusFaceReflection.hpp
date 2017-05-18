@@ -20,6 +20,7 @@ class CSamusFaceReflection
 public:
     CSamusFaceReflection(CStateManager& stateMgr);
     void PreDraw(const CStateManager& stateMgr);
+    void Update(float dt, const CStateManager& stateMgr, CRandom16& rand);
 };
 
 }

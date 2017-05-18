@@ -89,7 +89,7 @@ static const char* FS =
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    return vtf.color * float4(tex.sample(samp, vtf.uv, level(vtf.lod)).rgb, 1.0);\n"
+"    return vtf.color * float4(tex.sample(samp, vtf.uv, bias(vtf.lod)).rgb, 1.0);\n"
 "}\n";
 
 static const char* FSAlpha =
@@ -106,7 +106,7 @@ static const char* FSAlpha =
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    return vtf.color * tex.sample(samp, vtf.uv, level(vtf.lod));\n"
+"    return vtf.color * tex.sample(samp, vtf.uv, bias(vtf.lod));\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)

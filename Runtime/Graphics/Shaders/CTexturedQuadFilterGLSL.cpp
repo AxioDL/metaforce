@@ -80,7 +80,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * vec4(textureLod(tex, vtf.uv, lod).rgb, 1.0);\n"
+"    colorOut = vtf.color * vec4(texture(tex, vtf.uv, lod).rgb, 1.0);\n"
 "}\n";
 
 static const char* FSAlpha =
@@ -98,7 +98,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * textureLod(tex, vtf.uv, lod);\n"
+"    colorOut = vtf.color * texture(tex, vtf.uv, lod);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
