@@ -3,6 +3,7 @@
 
 #include "World/CActor.hpp"
 #include "Weapon/WeaponCommon.hpp"
+#include "World/CDamageInfo.hpp"
 #include "Collision/CMaterialFilter.hpp"
 
 namespace urde
@@ -24,6 +25,17 @@ public:
 
 private:
     EProjectileAttrib xe8_projectileAttribs;
+    TUniqueId xec_uid;
+    EWeaponType xf0_weaponType;
+    u32 xf4_;
+    CMaterialFilter xf8_;
+    u32 x10c_;
+    CDamageInfo x110_;
+    CDamageInfo x12c_;
+    float x148_;
+    float x14c_;
+    float x150_;
+    float x154_;
 public:
     CWeapon(TUniqueId, TAreaId, bool, TUniqueId, EWeaponType, const std::string&, const zeus::CTransform&,
             const CMaterialFilter&, const CMaterialList&, const CDamageInfo&, EProjectileAttrib, CModelData&&);

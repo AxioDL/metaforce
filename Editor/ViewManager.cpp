@@ -27,7 +27,7 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
+//    m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
 #if 0
     SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.*"));
     SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));

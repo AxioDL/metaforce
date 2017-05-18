@@ -10,7 +10,7 @@ CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, const std::strin
                        TUniqueId parentId, const CLight& light, u32 w1, u32 w2, float f1)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(), kInvalidUniqueId),
-  xe8_parentId(parentId), xec_light(light), x13c_(w1), x140_(w2), x144_lifeTime(f1)
+  xe8_parentId(parentId), xec_light(light), x13c_loadedIdx(w1), x140_priority(w2), x144_lifeTime(f1)
 {
     xec_light.GetRadius();
     xec_light.GetIntensity();
@@ -34,8 +34,8 @@ void CGameLight::Think(float dt, CStateManager& mgr)
 
 void CGameLight::SetLightPriorityAndId()
 {
-    xec_light.x3c_ = x140_;
-    xec_light.x40_loadedIdx = x13c_;
+    xec_light.x3c_priority = x140_priority;
+    xec_light.x40_loadedIdx = x13c_loadedIdx;
 }
 
 void CGameLight::SetLight(const CLight& light)

@@ -1,5 +1,6 @@
 #include "MP1/World/CActorContraption.hpp"
 #include "Weapon/CFlameThrower.hpp"
+#include "Character/CInt32POINode.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
@@ -30,14 +31,38 @@ void MP1::CActorContraption::Think(float dt, CStateManager& mgr)
 {
     CScriptActor::Think(dt, mgr);
 
-    for (const std::pair<TUniqueId, std::string>& uid : x2ec_children)
+    for (const std::pair<TUniqueId, std::string>& uid : x2e4_children)
     {
         CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
 
         if (act && act->GetActive())
-        {
             act->SetTransform(x34_transform * act->GetScaledLocatorTransform(uid.second));
+    }
+}
+
+void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType evType)
+{
+    if (evType == EUserEventType::DamageOff)
+    {
+        for (const std::pair<TUniqueId, std::string>& uid : x2e4_children)
+        {
+            CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
+            if (act && act->GetX400_25())
+                act->Reset(mgr, false);
         }
     }
+    else if (evType == EUserEventType::DamageOn)
+    {
+        CFlameThrower* fl = CreateFlameThrower(node.GetLocatorName(), mgr);
+        if (fl && fl->GetX400_25())
+            fl->Fire(GetTransform(), mgr, false);
+    }
+    else
+        CActor::DoUserAnimEvent(mgr, node, evType);
+}
+
+CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string&, CStateManager&)
+{
+    return nullptr;
 }
 }
