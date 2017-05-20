@@ -1,5 +1,6 @@
 #include "MP1/World/CActorContraption.hpp"
 #include "Weapon/CFlameThrower.hpp"
+#include "Weapon/CFlameInfo.hpp"
 #include "Character/CInt32POINode.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
@@ -17,21 +18,33 @@ MP1::CActorContraption::CActorContraption(TUniqueId uid, const std::string& name
 : CScriptActor(uid, name, info, xf, std::move(mData), aabox, f1, f2, matList, hInfo, dVuln, aParams, false, active, 0,
                1.f, false, false, false, false)
 , x300_flameThrowerGen(g_SimplePool->GetObj("FlameThrower"))
-, x308_partId(part)
+, x308_flameFxId(part)
 , x30c_dInfo(dInfo)
 {
 }
 
-void MP1::CActorContraption::Accept(IVisitor& visitor)
+void MP1::CActorContraption::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+void MP1::CActorContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    visitor.Visit(this);
+    bool curActive = GetActive();
+    if (msg == EScriptObjectMessage::Registered)
+        AddMaterial(EMaterialTypes::ScanPassthrough, mgr);
+    else if (msg == EScriptObjectMessage::SetToZero)
+        ResetFlameThrowers(mgr);
+
+    AcceptScriptMsg(msg, uid, mgr);
+    if (curActive == GetActive() || !GetActive())
+        return;
+
+    ResetFlameThrowers(mgr);
 }
 
 void MP1::CActorContraption::Think(float dt, CStateManager& mgr)
 {
     CScriptActor::Think(dt, mgr);
 
-    for (const std::pair<TUniqueId, std::string>& uid : x2e4_children)
+    for (const std::pair<TUniqueId, std::string>& uid : x2e8_children)
     {
         CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
 
@@ -40,16 +53,21 @@ void MP1::CActorContraption::Think(float dt, CStateManager& mgr)
     }
 }
 
+void MP1::CActorContraption::ResetFlameThrowers(CStateManager& mgr)
+{
+    for (const std::pair<TUniqueId, std::string>& uid : x2e8_children)
+    {
+        CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
+        if (act && !act->GetX400_25())
+            act->Reset(mgr, false);
+    }
+}
+
 void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType evType)
 {
     if (evType == EUserEventType::DamageOff)
     {
-        for (const std::pair<TUniqueId, std::string>& uid : x2e4_children)
-        {
-            CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
-            if (act && act->GetX400_25())
-                act->Reset(mgr, false);
-        }
+        ResetFlameThrowers(mgr);
     }
     else if (evType == EUserEventType::DamageOn)
     {
@@ -61,8 +79,24 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& 
         CActor::DoUserAnimEvent(mgr, node, evType);
 }
 
-CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string&, CStateManager&)
+CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string& name, CStateManager& mgr)
 {
+    auto it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
+                           [&name](const std::pair<TUniqueId, std::string>& p) { return p.second == name; });
+
+    if (it == x2e8_children.end())
+    {
+        TUniqueId id = mgr.AllocateUniqueId();
+        CFlameInfo flameInfo(6, 6, x308_flameFxId, 20, 0.5f, 1.f, 1.f);
+        CFlameThrower* ret = new CFlameThrower(x300_flameThrowerGen, name, EWeaponType::Missile, flameInfo,
+                                               zeus::CTransform::Identity(), EMaterialTypes::CollisionActor, x30c_dInfo,
+                                               id, GetAreaId(), GetUniqueId(), 0, -1, -1, -1);
+
+        x2e8_children.emplace_back(id, name);
+
+        mgr.AddObject(ret);
+        return ret;
+    }
     return nullptr;
 }
 }
