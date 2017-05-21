@@ -334,7 +334,7 @@ struct SpecMP3 : SpecBase
         size_t nodeCount = 0;
         int prog = 0;
         nod::ExtractionContext ctx = {true, force,
-        [&](const std::string& name)
+        [&](const std::string& name, float)
         {
             hecl::SystemStringView nameView(name);
             progress(currentTarget.c_str(), nameView.c_str(), compIdx, prog / (float)nodeCount);
