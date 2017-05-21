@@ -308,8 +308,8 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
         if (propCount >= 14)
             layerIdx = in.readUint32Big();
 
-        return CLightParameters(a, b, shadowTess, d, e, noLightsAmbient, makeLights, lightOpts, recalcOpts, actorPosBias,
-                                maxDynamicLights, maxAreaLights, ambientChannelOverflow, layerIdx);
+        return CLightParameters(a, b, shadowTess, d, e, noLightsAmbient, makeLights, lightOpts, recalcOpts,
+                                actorPosBias, maxDynamicLights, maxAreaLights, ambientChannelOverflow, layerIdx);
     }
     return CLightParameters::None();
 }
@@ -431,7 +431,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     else
         data = CStaticRes(staticId, head.x40_scale);
 
-    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f)|| collisionExtent.isZero())
+    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, f1,
@@ -1677,12 +1677,11 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
     if (g_ResFactory->GetResourceTypeById(model))
         modelData = CModelData(CStaticRes(model, aHead.x40_scale));
 
-    return new CScriptDebris(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
-                             std::move(modelData), aParam, f1, f2, f3, f4, f5, f6, f7, f8, f9,
-                             c1, c2, f10, aHead.x40_scale, v1, f11, f12, v2,
-                             particle1, particle1Scale, particle1B1, particle1B2, particle1W,
-                             particle2, particle2Scale, particle2B1, particle2B2, particle2W,
-                             particle3, particle3Scale, particle3W, b1, b2, b3, b4);
+    return new CScriptDebris(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(modelData),
+                             aParam, f1, f2, f3, f4, f5, f6, f7, f8, f9, c1, c2, f10, aHead.x40_scale, v1, f11, f12, v2,
+                             particle1, particle1Scale, particle1B1, particle1B2, particle1W, particle2, particle2Scale,
+                             particle2B1, particle2B2, particle2W, particle3, particle3Scale, particle3W, b1, b2, b3,
+                             b4);
 }
 
 CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1710,8 +1709,7 @@ CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propC
 
     zeus::CAABox aabb(-v2 * 0.5f, v2 * 0.5f);
 
-    return new CScriptSteam(mgr.AllocateUniqueId(), name, info, v1, aabb, dInfo,
-                            v3, w1, b1, w2, f1, f2, f3, f4, b2);
+    return new CScriptSteam(mgr.AllocateUniqueId(), name, info, v1, aabb, dInfo, v3, w1, b1, w2, f1, f2, f3, f4, b2);
 }
 
 CEntity* ScriptLoader::LoadRipple(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1778,8 +1776,9 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
 
     return new CScriptPlayerActor(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
                                   CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
-                                           animParms.GetInitialAnimation(), loop), CModelData::CModelDataNull(),
-                                  aabox, true, list, mass, zMomentum, hInfo, dVuln, actParms, loop, active, flags, w1);
+                                           animParms.GetInitialAnimation(), loop),
+                                  CModelData::CModelDataNull(), aabox, true, list, mass, zMomentum, hInfo, dVuln,
+                                  actParms, loop, active, flags, w1);
 }
 
 CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1836,7 +1835,7 @@ CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int 
     u32 w2 = in.readUint32Big();
     std::vector<CVisorFlare::CFlareDef> flares;
     flares.reserve(5);
-    for (int i=0 ; i<5 ; ++i)
+    for (int i = 0; i < 5; ++i)
         if (auto flare = CVisorFlare::LoadFlareDef(in))
             flares.push_back(*flare);
 
@@ -2170,8 +2169,38 @@ CEntity* ScriptLoader::Load(CStateManager& mgr, CInputStream& in, int propCount,
 CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 15, "ActorContraption"))
+        return nullptr;
 
-    return nullptr;
+    SScaledActorHead head = LoadScaledActorHead(in, mgr);
+    zeus::CVector3f collisionExtent = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f collisionOrigin = zeus::CVector3f::ReadBig(in);
+    float mass = in.readFloatBig();
+    float zMomentum = in.readFloatBig();
+    CHealthInfo hInfo(in);
+    CDamageVulnerability dVuln(in);
+    CAnimationParameters animParams(in);
+    CActorParameters actParams = LoadActorParameters(in);
+    ResId flameFxId = in.readUint32Big();
+    CDamageInfo dInfo(in);
+    bool active = in.readBool();
+
+    if (!g_ResFactory->GetResourceTypeById(animParams.GetACSFile()))
+        return nullptr;
+
+    zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOrigin);
+    CMaterialList list;
+    list.Add(EMaterialTypes::Immovable);
+    list.Add(EMaterialTypes::Solid);
+
+    CModelData data(CAnimRes(animParams.GetACSFile(), animParams.GetCharacter(), head.x40_scale,
+                             animParams.GetInitialAnimation(), true));
+
+    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
+        aabb = data.GetBounds(head.x10_transform.getRotation());
+
+    return new MP1::CActorContraption(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
+                                      aabb, list, mass, zMomentum, hInfo, dVuln, actParams, flameFxId, dInfo, active);
 }
 
 CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

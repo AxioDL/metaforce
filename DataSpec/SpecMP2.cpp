@@ -229,7 +229,7 @@ struct SpecMP2 : SpecBase
         mp2OutPath.makeDir();
         progress(_S("MP2 Root"), _S(""), 3, 0.0);
         int prog = 0;
-        ctx.progressCB = [&](const std::string& name) {
+        ctx.progressCB = [&](const std::string& name, float) {
             hecl::SystemStringView nameView(name);
             progress(_S("MP2 Root"), nameView.c_str(), 3, prog / (float)m_nonPaks.size());
         };

@@ -22,7 +22,7 @@ EPVSVisSetState CPVSVisSet::GetVisible(u32 idx) const
     if (idx < numFeatures)
     {
         /* This is a feature lookup */
-        if (!x10_ptr[idx / 8] & (1 << (idx & 0x7)))
+        if (!(x10_ptr[idx / 8] & (1 << (idx & 0x7))))
             return EPVSVisSetState::EndOfTree;
         return EPVSVisSetState::OutOfBounds;
     }

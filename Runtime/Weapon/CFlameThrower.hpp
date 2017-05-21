@@ -23,12 +23,14 @@ class CFlameThrower : public CGameProjectile
         };
         u32 _dummy = 0;
     };
+
 public:
     CFlameThrower(const TToken<CWeaponDescription>& wDesc, const std::string& name, EWeaponType wType,
                   const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
-                  const CDamageInfo& dInfo, TUniqueId owner, TAreaId aId, TUniqueId uid, u32 w1);
+                  const CDamageInfo& dInfo, TUniqueId owner, TAreaId aId, TUniqueId uid, u32 w1, u32 w2, s16 sId,
+                  u32 w3);
 
-    void Accept(IVisitor &visitor);
+    void Accept(IVisitor& visitor);
     void SetTransform(const zeus::CTransform& xf);
     void Reset(CStateManager&, bool);
     void Fire(const zeus::CTransform&, CStateManager&, bool);
