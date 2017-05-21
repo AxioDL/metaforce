@@ -8,6 +8,7 @@
 #include "GuiSys/CGuiLight.hpp"
 #include "GuiSys/CGuiModel.hpp"
 #include "GuiSys/CGuiCamera.hpp"
+#include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
 #include "TCastTo.hpp"
 #include "World/CGameLight.hpp"
@@ -1508,6 +1509,124 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
 
     if (x29c_decoIntf)
         x29c_decoIntf->Update(dt, mgr);
+}
+
+void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) const
+{
+    float drainTime = mgr.GetPlayer().GetEnergyDrain().GetEnergyDrainTime();
+    if (drainTime <= 0.f)
+        return;
+
+    float modPeriod = g_tweakGui->GetEnergyDrainModPeriod();
+    float alpha;
+    if (g_tweakGui->GetEnergyDrainSinusoidalPulse())
+    {
+        alpha = (std::sin(-0.25f * modPeriod + 2.f * M_PIF * drainTime / modPeriod) + 1.f) * 0.5f;
+    }
+    else
+    {
+        float halfModPeriod = 0.5 * modPeriod;
+        float tmp = std::fabs(std::fmod(drainTime, modPeriod));
+        if (tmp < halfModPeriod)
+            alpha = tmp / halfModPeriod;
+        else
+            alpha = (modPeriod - tmp) / halfModPeriod;
+    }
+
+    zeus::CColor filterColor = g_tweakGuiColors->GetEnergyDrainFilterColor();
+    filterColor.a *= alpha;
+    CCameraFilterPass::DrawFilter(g_tweakGui->GetEnergyDrainFilterAdditive() ?
+                                  CCameraFilterPass::EFilterType::Add : CCameraFilterPass::EFilterType::Blend,
+                                  CCameraFilterPass::EFilterShape::Fullscreen, filterColor,
+                                  nullptr, 1.f);
+}
+
+void CSamusHud::Draw(const CStateManager& mgr, float alpha,
+                     CInGameGuiManager::EHelmetVisMode helmetVis,
+                     bool hudVis, bool targetingManager) const
+{
+    if (x2bc_nextState == EHudState::None)
+        return;
+    if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)
+    {
+        DrawAttachedEnemyEffect(mgr);
+        x51c_camFilter2.Draw();
+        if (targetingManager)
+            x8_targetingMgr.Draw(mgr, false);
+    }
+
+    if (helmetVis != CInGameGuiManager::EHelmetVisMode::ReducedUpdate &&
+        helmetVis < CInGameGuiManager::EHelmetVisMode::HelmetOnly)
+    {
+        if (alpha < 1.f)
+        {
+            CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::NoColor,
+                                          CCameraFilterPass::EFilterShape::CookieCutterDepthRandomStatic,
+                                          zeus::CColor::skWhite, nullptr, 1.f - alpha);
+        }
+
+        if (x288_loadedSelectedHud)
+        {
+            if (mgr.GetPlayer().GetDeathTime() > 0.f)
+            {
+                if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed)
+                {
+                    CGuiWidgetDrawParms parms(
+                        x2c8_transT * zeus::clamp(0.f, 1.f - mgr.GetPlayer().GetDeathTime() / 6.f, 1.f),
+                        zeus::CVector3f::skZero);
+                    x288_loadedSelectedHud->Draw(parms);
+                }
+                else
+                {
+                    CGuiWidgetDrawParms parms(x2c8_transT, zeus::CVector3f::skZero);
+                    x288_loadedSelectedHud->Draw(parms);
+                }
+            }
+            else
+            {
+                CGuiWidgetDrawParms parms(x2c8_transT, zeus::CVector3f::skZero);
+                x288_loadedSelectedHud->Draw(parms);
+            }
+        }
+
+        if (x274_loadedFrmeBaseHud)
+            x274_loadedFrmeBaseHud->Draw(CGuiWidgetDrawParms::Default);
+    }
+
+    if (x29c_decoIntf && !x2cc_preLoadCountdown)
+        x29c_decoIntf->Draw();
+
+    if (x2bc_nextState >= EHudState::Combat && x2bc_nextState <= EHudState::Scan)
+    {
+        if (hudVis &&
+            helmetVis != CInGameGuiManager::EHelmetVisMode::ReducedUpdate &&
+            helmetVis < CInGameGuiManager::EHelmetVisMode::HelmetOnly)
+        {
+            float t;
+            if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat)
+                t = mgr.GetPlayerState()->GetVisorTransitionFactor();
+            else
+                t = 0.f;
+            x2ac_radarIntf->Draw(mgr, t * alpha);
+        }
+        // Depth read/write enable
+    }
+}
+
+void CSamusHud::DrawHelmet(const CStateManager& mgr, float camYOff) const
+{
+    if (!x264_loadedFrmeHelmet ||
+        mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed ||
+        x2bc_nextState == EHudState::Ball)
+        return;
+
+    float t;
+    if (x2c4_activeTransState == ETransitionState::Transitioning && x2b8_curState == EHudState::Ball)
+        t = x2c8_transT;
+    else
+        t = 1.f;
+
+    x264_loadedFrmeHelmet->Draw(CGuiWidgetDrawParms(t, zeus::CVector3f(0.f, 15.f * camYOff, 0.f)));
 }
 
 void CSamusHud::ProcessControllerInput(const CFinalInput& input)

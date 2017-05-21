@@ -64,6 +64,7 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetDamageAmbientColor() const=0;
     virtual const zeus::CColor& GetScanVisorHudLightMultiply() const=0;
     virtual const zeus::CColor& GetThermalVisorHudLightMultiply() const=0;
+    virtual const zeus::CColor& GetEnergyDrainFilterColor() const=0;
     virtual const zeus::CColor& GetDamageAmbientPulseColor() const=0;
     virtual const zeus::CColor& GetEnergyBarFlashColor() const=0;
     virtual const zeus::CColor& GetXRayEnergyDecoColor() const=0;

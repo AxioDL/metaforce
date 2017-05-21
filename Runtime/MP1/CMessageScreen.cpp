@@ -20,5 +20,10 @@ bool CMessageScreen::Update(float dt, float blurAmt)
     return false;
 }
 
+void CMessageScreen::Draw() const
+{
+
+}
+
 }
 }

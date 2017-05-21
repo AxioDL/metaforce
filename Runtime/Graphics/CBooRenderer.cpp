@@ -1215,11 +1215,7 @@ void CBooRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectM
     /* Indirect background already in binding 0 */
 
     /* Resolve alpha channel of just-drawn phazon suit into binding 1 */
-    SClipScreenRect rect;
-    rect.x4_left = g_Viewport.x0_left;
-    rect.x8_top = g_Viewport.x4_top;
-    rect.xc_width = g_Viewport.x8_width;
-    rect.x10_height = g_Viewport.xc_height;
+    SClipScreenRect rect(g_Viewport);
     CGraphics::ResolveSpareTexture(rect, 1);
 
     /* Perform blur filter and resolve into binding 2 */

@@ -25,5 +25,10 @@ void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool)
 
 }
 
+void CPauseScreenBlur::Draw(const CStateManager& stateMgr) const
+{
+
+}
+
 }
 }

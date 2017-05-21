@@ -30,9 +30,9 @@ void CScriptMidi::Stop(CStateManager& mgr, float fadeTime)
 {
     const CWorld* wld = mgr.GetWorld();
     const CGameArea* area = wld->GetAreaAlways(x4_areaId);
-    std::string twkName = MP1::CInGameGuiManager::GetIdentifierForMidiEvent(wld->IGetWorldAssetId(),
-                                                                            area->GetAreaAssetId(),
-                                                                            x10_name);
+    std::string twkName = CInGameTweakManagerBase::GetIdentifierForMidiEvent(wld->IGetWorldAssetId(),
+                                                                             area->GetAreaAssetId(),
+                                                                             x10_name);
     if (g_TweakManager->HasTweakValue(twkName))
     {
         const CTweakValue::Audio& audio = g_TweakManager->GetTweakValue(twkName)->GetAudio();
@@ -47,9 +47,9 @@ void CScriptMidi::Play(CStateManager& mgr, float fadeTime)
     u32 volume = x48_volume;
     const CWorld* wld = mgr.GetWorld();
     const CGameArea* area = wld->GetAreaAlways(x4_areaId);
-    std::string twkName = MP1::CInGameGuiManager::GetIdentifierForMidiEvent(wld->IGetWorldAssetId(),
-                                                                            area->GetAreaAssetId(),
-                                                                            x10_name);
+    std::string twkName = CInGameTweakManagerBase::GetIdentifierForMidiEvent(wld->IGetWorldAssetId(),
+                                                                             area->GetAreaAssetId(),
+                                                                             x10_name);
     if (g_TweakManager->HasTweakValue(twkName))
     {
         const CTweakValue::Audio& audio = g_TweakManager->GetTweakValue(twkName)->GetAudio();

@@ -15,6 +15,11 @@ void CPlayerVisor::Update(float dt, const CStateManager& stateMgr)
 
 }
 
+void CPlayerVisor::Draw(const CStateManager& stateMgr, const CTargetingManager* tgtManager) const
+{
+
+}
+
 void CPlayerVisor::Touch()
 {
 

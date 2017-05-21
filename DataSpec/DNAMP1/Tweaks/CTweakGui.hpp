@@ -104,9 +104,9 @@ struct CTweakGui : ITweakGui
     Value<float> x1bc_hudDamageFilterGainLinear;
     Value<float> x1c0_hudDamageFilterInitConstant;
     Value<float> x1c4_hudDamageFilterInitLinear;
-    Value<float> x1c8_;
-    Value<bool> x1cc_;
-    Value<bool> x1cd_;
+    Value<float> x1c8_energyDrainModPeriod;
+    Value<bool> x1cc_energyDrainSinusoidalPulse;
+    Value<bool> x1cd_energyDrainFilterAdditive;
     Value<float> x1d0_hudDamagePulseDuration;
     Value<float> x1d4_hudDamageColorGain;
     Value<float> x1d8_hudDecoShakeTranslateGain;
@@ -148,7 +148,7 @@ struct CTweakGui : ITweakGui
     Value<float> x268_;
     Value<float> x26c_;
     Value<float> x270_scanSidesPositionStart;
-    Value<bool> x274_;
+    Value<bool> x274_showAutomapperInMorphball;
     bool x275_latchArticleText = true;
     Value<float> x278_wtMgrCharsPerSfx;
     Value<atUint32> x27c_xrayFogMode;
@@ -251,6 +251,9 @@ struct CTweakGui : ITweakGui
     float GetHudDamageFilterGainLinear() const { return x1bc_hudDamageFilterGainLinear; }
     float GetHudDamageFilterInitConstant() const { return x1c0_hudDamageFilterInitConstant; }
     float GetHudDamageFilterInitLinear() const { return x1c4_hudDamageFilterInitLinear; }
+    float GetEnergyDrainModPeriod() const { return x1c8_energyDrainModPeriod; }
+    bool GetEnergyDrainSinusoidalPulse() const { return x1cc_energyDrainSinusoidalPulse; }
+    bool GetEnergyDrainFilterAdditive() const { return x1cd_energyDrainFilterAdditive; }
     float GetHudDamagePulseDuration() const { return x1d0_hudDamagePulseDuration; }
     float GetHudDamageColorGain() const { return x1d4_hudDamageColorGain; }
     float GetHudDecoShakeTranslateGain() const { return x1d8_hudDecoShakeTranslateGain; }
@@ -275,6 +278,7 @@ struct CTweakGui : ITweakGui
     float GetScanPaneFadeOutTime() const { return x250_scanPaneFadeOutTime; }
     float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
     float GetScanSidesPositionStart() const { return x270_scanSidesPositionStart; }
+    bool GetShowAutomapperInMorphball() const { return x274_showAutomapperInMorphball; }
     bool GetLatchArticleText() const { return x275_latchArticleText; }
     float GetWorldTransManagerCharsPerSfx() const { return x278_wtMgrCharsPerSfx; }
     atUint32 GetXRayFogMode() const { return x27c_xrayFogMode; }

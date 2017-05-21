@@ -15,9 +15,11 @@ struct ITweakAutoMapper : public ITweak
     virtual float GetMinCamRotateX() const=0;
     virtual float GetMaxCamRotateX() const=0;
     virtual float GetCamAngle() const=0;
+    virtual const zeus::CColor& GetAutomapperWidgetColor() const=0;
     virtual float GetMiniCamDist() const=0;
     virtual float GetMiniCamXAngle() const=0;
     virtual float GetMiniCamAngle() const=0;
+    virtual const zeus::CColor& GetAutomapperWidgetMiniColor() const=0;
     virtual const zeus::CColor& GetSurfaceVisitedColor() const=0;
     virtual const zeus::CColor& GetOutlineVisitedColor() const=0;
     virtual const zeus::CColor& GetSurfaceUnvisitedColor() const=0;
@@ -53,6 +55,8 @@ struct ITweakAutoMapper : public ITweak
     virtual float GetMaxUniverseCamDist() const=0;
     virtual float GetSwitchToFromUniverseTime() const=0;
     virtual float GetCamPanUnitsPerFrame() const=0;
+    virtual float GetAutomapperScaleX() const=0;
+    virtual float GetAutomapperScaleZ() const=0;
     virtual float GetCamVerticalOffset() const=0;
     virtual const zeus::CColor& GetMiniMapSamusModColor() const=0;
     virtual const zeus::CColor& GetAreaFlashPulseColor() const=0;

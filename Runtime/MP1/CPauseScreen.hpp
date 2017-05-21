@@ -71,6 +71,8 @@ public:
     bool IsLoaded() const { return x90_resourcesLoaded; }
     bool ShouldSwitchToMapScreen() const;
     bool ShouldSwitchToInGame() const;
+    bool IsTransitioning() const { return x8_curSubscreen != xc_nextSubscreen; }
+    float GetHelmetCamYOff() const;
 };
 
 }

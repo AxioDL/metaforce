@@ -178,6 +178,14 @@ struct SClipScreenRect
         x10_height = rect.size[1];
         x14_dstWidth = rect.size[0];
     }
+
+    SClipScreenRect(const SViewport& vp)
+    {
+        x4_left = vp.x0_left;
+        x8_top = vp.x4_top;
+        xc_width = vp.x8_width;
+        x10_height = vp.xc_height;
+    }
 };
 
 enum class ETexelFormat

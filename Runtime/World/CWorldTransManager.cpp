@@ -278,9 +278,7 @@ void CWorldTransManager::DrawEnabled()
     {
         float t = zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime) / 2.f, 1.f);
         DrawFirstPass();
-        SClipScreenRect rect = {};
-        rect.xc_width = g_Viewport.x8_width;
-        rect.x10_height = g_Viewport.xc_height;
+        SClipScreenRect rect(g_Viewport);
         CGraphics::ResolveSpareTexture(rect);
         CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
         DrawSecondPass();

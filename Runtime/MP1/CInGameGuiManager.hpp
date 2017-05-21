@@ -90,12 +90,16 @@ private:
     SOnScreenTex x1c4_onScreenTex;
     float x1d8_onScreenTexAlpha = 0.f;
     TLockedToken<CTexture> x1dc_onScreenTexTok; // Used to be heap-allocated
+    std::experimental::optional<CTexturedQuadFilterAlpha> m_onScreenQuad;
     EHelmetVisMode x1e0_helmetVisMode;
     bool x1e4_enableTargetingManager;
     bool x1e8_enableAutoMapper;
     EHudVisMode x1ec_hudVisMode;
     u32 x1f0_enablePlayerVisor;
     float x1f4_visorStaticAlpha;
+
+    std::experimental::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
+    std::experimental::optional<CTexturedQuadFilter> m_deathDotQuad;
 
     union
     {
@@ -120,6 +124,7 @@ private:
     bool IsInPausedStateNotTransitioning() const;
     void UpdateAutoMapper(float dt, const CStateManager& stateMgr);
     void OnNewPauseScreenState(CArchitectureQueue& archQueue);
+    void RefreshHudOptions();
 
 public:
     CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue& archQueue);
@@ -136,7 +141,6 @@ public:
     bool IsInGame() const { return x1c0_nextState >= EInGameGuiState::Zero && x1c0_nextState <= EInGameGuiState::InGame; }
     bool IsInSaveUI() const { return x1f8_27_exitSaveUI; }
     bool GetIsGameDraw() const;
-    static std::string GetIdentifierForMidiEvent(ResId world, ResId area, const std::string& midiObj);
 };
 
 }

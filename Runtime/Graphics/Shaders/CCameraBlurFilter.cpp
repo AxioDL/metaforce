@@ -20,9 +20,7 @@ void CCameraBlurFilter::draw(float amount)
     if (amount <= 0.f)
         return;
 
-    SClipScreenRect clipRect = {};
-    clipRect.xc_width = g_Viewport.x8_width;
-    clipRect.x10_height = g_Viewport.xc_height;
+    SClipScreenRect clipRect(g_Viewport);
     CGraphics::ResolveSpareTexture(clipRect);
     float aspect = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_CroppedViewport.x10_height);
     

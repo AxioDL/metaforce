@@ -21,12 +21,12 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> x18_maxCamRotateX;
     Value<float> x1c_camAngle;
     Value<float> x20_;
-    DNAColor x24_;
+    DNAColor x24_automapperWidgetColor;
     Value<float> x28_miniCamDist;
     Value<float> x2c_miniCamXAngle;
     Value<float> x30_miniCamAngle;
     Value<float> x34_;
-    DNAColor x38_;
+    DNAColor x38_automapperWidgetMiniColor;
     DNAColor x3c_surfColorVisited;
     DNAColor x40_outlineColorVisited;
     DNAColor x44_surfColorUnvisited;
@@ -68,8 +68,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     Value<float> xd8_maxUniverseCamDist;
     Value<float> xdc_switchToFromUniverseTime;
     Value<float> xe0_camPanUnitsPerFrame;
-    Value<float> xe4_;
-    Value<float> xe8_;
+    Value<float> xe4_automapperScaleX;
+    Value<float> xe8_automapperScaleZ;
     Value<float> xec_camVerticalOffset;
     DNAColor xf0_miniMapSamusModColor;
     DNAColor xf4_areaFlashPulseColor;
@@ -90,9 +90,11 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetMinCamRotateX() const { return x14_minCamRotateX; }
     float GetMaxCamRotateX() const { return x18_maxCamRotateX; }
     float GetCamAngle() const { return x1c_camAngle; }
+    const zeus::CColor& GetAutomapperWidgetColor() const { return x24_automapperWidgetColor; }
     float GetMiniCamDist() const { return x28_miniCamDist; }
     float GetMiniCamXAngle() const { return x2c_miniCamXAngle; }
     float GetMiniCamAngle() const { return x30_miniCamAngle; }
+    const zeus::CColor& GetAutomapperWidgetMiniColor() const { return x38_automapperWidgetMiniColor; }
     const zeus::CColor& GetSurfaceVisitedColor() const { return x3c_surfColorVisited; }
     const zeus::CColor& GetOutlineVisitedColor() const { return x40_outlineColorVisited; }
     const zeus::CColor& GetSurfaceUnvisitedColor() const { return x44_surfColorUnvisited; }
@@ -128,6 +130,8 @@ struct CTweakAutoMapper : public ITweakAutoMapper
     float GetMaxUniverseCamDist() const { return xd8_maxUniverseCamDist; }
     float GetSwitchToFromUniverseTime() const { return xdc_switchToFromUniverseTime; }
     float GetCamPanUnitsPerFrame() const { return xe0_camPanUnitsPerFrame; }
+    float GetAutomapperScaleX() const { return xe4_automapperScaleX; }
+    float GetAutomapperScaleZ() const { return xe8_automapperScaleZ; }
     float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
     const zeus::CColor& GetMiniMapSamusModColor() const { return xf0_miniMapSamusModColor; }
     const zeus::CColor& GetAreaFlashPulseColor() const { return xf4_areaFlashPulseColor; }

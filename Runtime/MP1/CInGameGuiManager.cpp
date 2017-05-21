@@ -14,6 +14,8 @@
 #include "Input/CInputGenerator.hpp"
 #include "TCastTo.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde
 {
@@ -308,14 +310,73 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr)
     }
 }
 
+void CInGameGuiManager::RefreshHudOptions()
+{
+    x34_samusHud->RefreshHudOptions();
+}
+
 void CInGameGuiManager::OnNewPauseScreenState(CArchitectureQueue& archQueue)
 {
+    if (x1c0_nextState != EInGameGuiState::PauseGame && x1c0_nextState != EInGameGuiState::PauseLogBook)
+    {
+        if (x48_pauseScreen->IsTransitioning())
+            return;
+        x48_pauseScreen.reset();
+    }
 
+    if (x1c0_nextState >= EInGameGuiState::Zero && x1c0_nextState <= EInGameGuiState::InGame)
+    {
+        if (x44_messageScreen)
+            x44_messageScreen.reset();
+        RefreshHudOptions();
+    }
+    x1bc_prevState = x1c0_nextState;
 }
 
 void CInGameGuiManager::UpdateAutoMapper(float dt, const CStateManager& stateMgr)
 {
+    x38_autoMapper->Update(dt, stateMgr);
+    zeus::CTransform xf = x148_model_automapper->GetParent()->GetWorldTransform() *
+                          x144_basewidget_automapper->GetTransform();
+    x154_automapperRotate = zeus::CQuaternion(xf.basis);
+    x164_automapperOffset = xf.origin;
 
+    x170_camRotate = zeus::CQuaternion(x14c_basehud_camera->GetWorldTransform().basis);
+    x180_camOffset = x14c_basehud_camera->GetWorldTransform().basis[1] * 2.f +
+        x14c_basehud_camera->GetWorldPosition() +
+        x14c_basehud_camera->GetWorldTransform().basis[2] * g_tweakAutoMapper->GetCamVerticalOffset();
+
+    float frameLength = std::tan(zeus::degToRad(x14c_basehud_camera->GetProjection().xbc_fov) / 2.f) / 0.7f;
+    float scaleX = frameLength * g_tweakAutoMapper->GetAutomapperScaleX();
+    float scaleZ = frameLength * g_tweakAutoMapper->GetAutomapperScaleZ();
+    if (x38_autoMapper->IsFullyOutOfMiniMapState())
+    {
+        x148_model_automapper->SetO2WTransform(
+            zeus::CTransform(x170_camRotate, x180_camOffset) * zeus::CTransform::Scale(scaleX, 1.f, scaleZ));
+        x18c_camXf = zeus::CTransform(x170_camRotate, x180_camOffset) *
+                     zeus::CTransform::Scale(frameLength, 1.f, frameLength);
+        x148_model_automapper->SetColor(g_tweakAutoMapper->GetAutomapperWidgetColor());
+    }
+    else if (x38_autoMapper->IsFullyInMiniMapState())
+    {
+        x148_model_automapper->SetO2WTransform(zeus::CTransform(x154_automapperRotate, x164_automapperOffset));
+        x18c_camXf = x148_model_automapper->GetWorldTransform();
+        x148_model_automapper->SetColor(g_tweakAutoMapper->GetAutomapperWidgetMiniColor());
+    }
+    else
+    {
+        float t;
+        if (x38_autoMapper->GetNextState() != CAutoMapper::EAutoMapperState::MiniMap)
+            t = x38_autoMapper->GetInterp();
+        else
+            t = 1.f - x38_autoMapper->GetInterp();
+        float st = t * (frameLength - 1.f) + 1.f;
+        x148_model_automapper->SetO2WTransform(zeus::CTransform(
+            zeus::CQuaternion::slerp(x154_automapperRotate, x170_camRotate, t),
+            x164_automapperOffset * (1.f - t) + x180_camOffset * t) * zeus::CTransform::Scale(st, 1.f, st));
+        x148_model_automapper->SetColor(zeus::CColor::lerp(g_tweakAutoMapper->GetAutomapperWidgetMiniColor(),
+                                                           g_tweakAutoMapper->GetAutomapperWidgetColor(), t));
+    }
 }
 
 void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool useHud)
@@ -503,7 +564,170 @@ void CInGameGuiManager::PreDraw(CStateManager& stateMgr, bool cameraActive)
 
 void CInGameGuiManager::Draw(CStateManager& stateMgr)
 {
+    //if (!GetIsGameDraw())
+    //    g_Renderer->x318_26_requestRGBA6 = true;
+    if (x1d8_onScreenTexAlpha > 0.f && x1dc_onScreenTexTok.IsLoaded())
+    {
+        if (!m_onScreenQuad || m_onScreenQuad->GetTex().GetObj() != x1dc_onScreenTexTok.GetObj())
+            m_onScreenQuad.emplace(CCameraFilterPass::EFilterType::Blend, x1dc_onScreenTexTok);
 
+        // No depth read/write
+        // Alpha blend
+        int w = (g_Viewport.x0_left + (x1c4_onScreenTex.x4_origin.x - g_Viewport.x8_width) / 2 + x1c4_onScreenTex.xc_extent.x) -
+                x1c4_onScreenTex.x4_origin.x;
+        int h = (g_Viewport.x4_top + (x1c4_onScreenTex.x4_origin.y - g_Viewport.xc_height) / 2 - x1c4_onScreenTex.xc_extent.y) -
+                x1c4_onScreenTex.x4_origin.y;
+        zeus::CRectangle rect(x1c4_onScreenTex.x4_origin.x / float(g_Viewport.x8_width),
+                              x1c4_onScreenTex.x4_origin.y / float(g_Viewport.xc_height),
+                              w / float(g_Viewport.x8_width), h / float(g_Viewport.xc_height));
+        m_onScreenQuad->draw(zeus::CColor(1.f, x1d8_onScreenTexAlpha), 1.f, rect);
+    }
+
+    float staticAlpha = 0.f;
+    if (stateMgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
+        stateMgr.GetPlayer().GetDeathTime() > 0.f)
+        staticAlpha = zeus::clamp(0.f, stateMgr.GetPlayer().GetDeathTime() / (0.3f * 2.5f), 1.f);
+
+    bool notInCine = !stateMgr.GetCameraManager()->IsInCinematicCamera();
+    bool drawVisor = false;
+    if (notInCine && (x1bc_prevState == EInGameGuiState::InGame || x1c0_nextState == EInGameGuiState::InGame))
+        drawVisor = true;
+
+    if (x3c_pauseScreenBlur->GetX50_25())
+    {
+        x34_samusHud->GetTargetingManager().Draw(stateMgr, true);
+        CGraphics::SetDepthRange(0.015625f, 0.03125f);
+        bool scanVisor = stateMgr.GetPlayerState()->GetActiveVisor(stateMgr) == CPlayerState::EPlayerVisor::Scan;
+        if (drawVisor && x1f0_enablePlayerVisor)
+        {
+            if (stateMgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::Zero)
+                x20_faceplateDecor.Draw(stateMgr);
+            CTargetingManager* tgtMgr = nullptr;
+            if (scanVisor && x1e4_enableTargetingManager)
+                tgtMgr = &x34_samusHud->GetTargetingManager();
+            x30_playerVisor->Draw(stateMgr, tgtMgr);
+        }
+        x40_samusReflection->Draw(stateMgr);
+        if (drawVisor)
+        {
+            CGraphics::SetDepthRange(0.001953125f, 0.015625f);
+            if (staticAlpha > 0.f)
+            {
+                CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Blend,
+                                              CCameraFilterPass::EFilterShape::RandomStatic,
+                                              zeus::CColor(1.f, staticAlpha), nullptr, 1.f);
+            }
+            x34_samusHud->Draw(stateMgr, x1f4_visorStaticAlpha * (1.f - staticAlpha),
+                               x1e0_helmetVisMode, x1ec_hudVisMode != EHudVisMode::Zero,
+                               x1e4_enableTargetingManager && !scanVisor);
+        }
+    }
+
+    float preDrawBlur = true;
+    if (x1bc_prevState >= EInGameGuiState::Zero && x1bc_prevState <= EInGameGuiState::InGame)
+        if (x1bc_prevState != EInGameGuiState::MapScreen && x1c0_nextState != EInGameGuiState::MapScreen)
+            preDrawBlur = false;
+    if (preDrawBlur)
+        x3c_pauseScreenBlur->Draw(stateMgr);
+
+    if (notInCine && x1e8_enableAutoMapper &&
+        (x3c_pauseScreenBlur->GetX50_25() || x1bc_prevState == EInGameGuiState::MapScreen ||
+         x1c0_nextState == EInGameGuiState::MapScreen))
+    {
+        float t;
+        if (stateMgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat)
+            t = stateMgr.GetPlayerState()->GetVisorTransitionFactor();
+        else
+            t = 0.f;
+
+        float mapAlpha;
+        if (g_tweakGui->GetShowAutomapperInMorphball())
+            mapAlpha = 1.f;
+        else if (stateMgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)
+            mapAlpha = 1.f;
+        else
+            mapAlpha = 0.f;
+
+        x34_samusHud->GetBaseHudFrame()->GetFrameCamera()->Draw(CGuiWidgetDrawParms(0.f, zeus::CVector3f::skZero));
+        CGraphics::SetDepthRange(0.f, 0.001953125f);
+        x148_model_automapper->SetIsVisible(true);
+        x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, zeus::CVector3f::skZero));
+        // ZTest no write
+        x38_autoMapper->Draw(stateMgr, zeus::CTransform::Translate(0.f, 0.02f, 0.f) * x18c_camXf, mapAlpha * x1f4_visorStaticAlpha * t);
+        // Zest and write
+        x148_model_automapper->SetIsVisible(false);
+    }
+
+    if (!preDrawBlur)
+        x3c_pauseScreenBlur->Draw(stateMgr);
+
+    if (x1e0_helmetVisMode != EHelmetVisMode::ReducedUpdate && notInCine)
+    {
+        float camYOff;
+        if (!x48_pauseScreen)
+            camYOff = 0.f;
+        else
+            camYOff = x48_pauseScreen->GetHelmetCamYOff();
+        x34_samusHud->DrawHelmet(stateMgr, camYOff);
+    }
+
+    if (x4c_saveUI)
+        x4c_saveUI->Draw();
+
+    if (x44_messageScreen)
+        x44_messageScreen->Draw();
+
+    if (x48_pauseScreen)
+        x48_pauseScreen->Draw();
+
+    xf8_camFilter.Draw();
+
+    if (stateMgr.GetPlayer().GetDeathTime() > 0.f)
+    {
+        float dieDur;
+        if (stateMgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)
+            dieDur = 2.5f;
+        else
+            dieDur = 6.f;
+
+        float alpha = zeus::clamp(0.f, stateMgr.GetPlayer().GetDeathTime() / dieDur, 1.f);
+        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Blend,
+                                      CCameraFilterPass::EFilterShape::Fullscreen,
+                                      zeus::CColor(1.f, alpha), nullptr, 1.f);
+
+        float zStart = dieDur - 0.5f - 0.5f - 1.f;
+        float xStart = 0.5f - zStart;
+        float colStart = 0.5f - xStart;
+        if (stateMgr.GetPlayer().GetDeathTime() > zStart)
+        {
+            float zT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - zStart) / 0.5f, 1.f);
+            float xT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - xStart) / 0.5f, 1.f);
+            float colT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - colStart) / 0.5f, 1.f);
+            SClipScreenRect rect(g_Viewport);
+            CGraphics::ResolveSpareTexture(rect);
+            CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Blend,
+                                          CCameraFilterPass::EFilterShape::Fullscreen,
+                                          zeus::CColor::skBlack, nullptr, 1.f);
+            float z = 0.5f * (zT * zT * zT * zT * zT * (g_Viewport.xc_height - 12.f) + 12.f);
+            float x = 0.5f * (xT * (g_Viewport.x8_width - 12.f) + 12.f);
+
+            CTexturedQuadFilter::Vert verts[] =
+            {
+                {{-x, 0.f, z}, {0.f, 0.f}},
+                {{-x, 0.f, -z}, {0.f, 1.f}},
+                {{x, 0.f, z}, {1.f, 0.f}},
+                {{x, 0.f, -z}, {1.f, 1.f}}
+            };
+
+            if (!m_deathRenderTexQuad)
+                m_deathRenderTexQuad.emplace(CCameraFilterPass::EFilterType::Blend, CGraphics::g_SpareTexture);
+            m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
+
+            if (!m_deathDotQuad)
+                m_deathDotQuad.emplace(CCameraFilterPass::EFilterType::Multiply, x50_deathDot);
+            m_deathDotQuad->drawVerts(zeus::CColor(1.f, colT), verts);
+        }
+    }
 }
 
 void CInGameGuiManager::ShowPauseGameHudMessage(CStateManager& stateMgr, ResId pauseMsg, float time)
@@ -522,19 +746,15 @@ void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state
 
 void CInGameGuiManager::StartFadeIn()
 {
-
+    xf8_camFilter.SetFilter(CCameraFilterPass::EFilterType::Multiply,
+                            CCameraFilterPass::EFilterShape::Fullscreen,
+                            0.f, zeus::CColor::skBlack, -1);
+    xf8_camFilter.DisableFilter(0.5f);
 }
 
 bool CInGameGuiManager::GetIsGameDraw() const
 {
     return x3c_pauseScreenBlur->GetX50_25();
-}
-
-std::string CInGameGuiManager::GetIdentifierForMidiEvent(ResId world, ResId area,
-                                                         const std::string& midiObj)
-{
-    return hecl::Format("World %8.8x Area %8.8x MidiObject: %s",
-                        u32(world), u32(area), midiObj.c_str());
 }
 
 }

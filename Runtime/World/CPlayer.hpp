@@ -101,7 +101,7 @@ private:
     u32 x258_jumpState = 0;
     TUniqueId x26c_ = kInvalidUniqueId;
     float x270_ = 0.f;
-    CPlayerEnergyDrain x274_ = CPlayerEnergyDrain(4);
+    CPlayerEnergyDrain x274_energyDrain = CPlayerEnergyDrain(4);
     float x288_ = 0.f;
     float x28c_sjTimer = 0.f;
     float x290_ = 0.f;
@@ -363,6 +363,7 @@ public:
     void UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool);
     void DrawGun(CStateManager& mgr);
     void HolsterGun(CStateManager& mgr);
+    EPlayerCameraState GetCameraState() const { return x2f4_cameraState; }
     EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphTransState; }
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
     void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);
@@ -455,6 +456,8 @@ public:
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
     CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }
+    float GetDeathTime() const { return x9f4_deathTime; }
+    const CPlayerEnergyDrain& GetEnergyDrain() const { return x274_energyDrain; }
 
     void Touch();
 

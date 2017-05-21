@@ -1398,16 +1398,12 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     }
     else if (x1c0_nextState == EAutoMapperState::MiniMap)
     {
-        float t = 0.f;
-        if (x1c4_interpDur > 0.f)
-            t = x1c8_interpTime / x1c4_interpDur;
+        float t = GetInterp();
         alphaInterp = alpha * t + (1.f - t);
     }
     else if (x1bc_state == EAutoMapperState::MiniMap)
     {
-        float t = 0.f;
-        if (x1c4_interpDur > 0.f)
-            t = x1c8_interpTime / x1c4_interpDur;
+        float t = GetInterp();
         alphaInterp = alpha * (1.f - t) + t;
     }
     else
@@ -1429,24 +1425,13 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     if (x1c0_nextState == EAutoMapperState::MapScreenUniverse)
     {
         if (x1bc_state == EAutoMapperState::MapScreenUniverse)
-        {
             universeInterp = 1.f;
-        }
         else
-        {
-            if (x1c4_interpDur > 0.f)
-                universeInterp = x1c8_interpTime / x1c4_interpDur;
-            else
-                universeInterp = 0.f;
-        }
+            universeInterp = GetInterp();
     }
     else if (x1bc_state == EAutoMapperState::MapScreenUniverse)
     {
-        if (x1c4_interpDur > 0.f)
-            universeInterp = x1c8_interpTime / x1c4_interpDur;
-        else
-            universeInterp = 0.f;
-        universeInterp = 1.f - universeInterp;
+        universeInterp = 1.f - GetInterp();
     }
 
     zeus::CTransform preXf;
@@ -1642,7 +1627,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             if (x1c0_nextState != EAutoMapperState::MiniMap)
             {
                 if (x1c4_interpDur > 0.f)
-                   frmeAlpha =  x1c8_interpTime / x1c4_interpDur;
+                   frmeAlpha = x1c8_interpTime / x1c4_interpDur;
             }
             else
             {

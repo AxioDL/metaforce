@@ -92,8 +92,7 @@ class CSamusHud
     {
         u32 x0_ = 0;
         u32 x4_ = 0;
-        u32 x8_ = 0;
-        u32 xc_ = 0;
+        u64 x8_profUsec = 0;
     };
 
     friend class CInGameGuiManager;
@@ -240,6 +239,7 @@ class CSamusHud
     void ShowDamage(const zeus::CVector3f& position, float dam, float prevDam, const CStateManager& mgr);
     void EnterFirstPerson(const CStateManager& mgr);
     void LeaveFirstPerson(const CStateManager& mgr);
+    void DrawAttachedEnemyEffect(const CStateManager& mgr) const;
     static EHudState GetDesiredHudState(const CStateManager& mgr);
 
 public:
@@ -248,6 +248,10 @@ public:
     void Update(float dt, const CStateManager& mgr,
                 CInGameGuiManager::EHelmetVisMode helmetVis,
                 bool hudVis, bool targetingManager);
+    void Draw(const CStateManager& mgr, float alpha,
+              CInGameGuiManager::EHelmetVisMode helmetVis,
+              bool hudVis, bool targetingManager) const;
+    void DrawHelmet(const CStateManager& mgr, float camYOff) const;
     void ProcessControllerInput(const CFinalInput& input);
     void UpdateStateTransition(float time, const CStateManager& mgr);
     bool CheckLoadComplete(CStateManager& stateMgr);
@@ -275,6 +279,7 @@ public:
             g_SamusHud->InternalDeferHintMemo(strg, strgIdx, info);
     }
     void InternalDeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info);
+    CGuiFrame* GetBaseHudFrame() const { return x274_loadedFrmeBaseHud; }
 };
 
 }

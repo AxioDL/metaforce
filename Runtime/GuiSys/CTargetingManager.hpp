@@ -14,7 +14,7 @@ public:
     CTargetingManager(const CStateManager& stateMgr);
     bool CheckLoadComplete();
     void Update(float, const CStateManager& stateMgr);
-    void Draw(const CStateManager& stateMgr) const;
+    void Draw(const CStateManager& stateMgr, bool hideLockon) const;
     void Touch() const;
     void SetRotation(const zeus::CQuaternion& rot) { x0_rot = rot; }
 };

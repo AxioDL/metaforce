@@ -300,5 +300,12 @@ bool CPauseScreen::ShouldSwitchToInGame() const
     return IsLoaded() && x8_curSubscreen == ESubScreen::ToGame && xc_nextSubscreen == ESubScreen::ToGame;
 }
 
+float CPauseScreen::GetHelmetCamYOff() const
+{
+    if (CPauseScreenBase* screen = x7c_screens[x78_activeIdx].get())
+        return screen->GetCameraYBias();
+    return 0.f;
+}
+
 }
 }

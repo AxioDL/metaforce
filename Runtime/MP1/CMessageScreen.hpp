@@ -16,6 +16,7 @@ public:
     CMessageScreen(ResId msg, float time);
     void ProcessControllerInput(const CFinalInput& input);
     bool Update(float dt, float blurAmt);
+    void Draw() const;
 };
 
 }

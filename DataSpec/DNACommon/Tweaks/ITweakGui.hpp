@@ -89,6 +89,9 @@ struct ITweakGui : ITweak
     virtual float GetHudDamageFilterGainLinear() const=0;
     virtual float GetHudDamageFilterInitConstant() const=0;
     virtual float GetHudDamageFilterInitLinear() const=0;
+    virtual float GetEnergyDrainModPeriod() const=0;
+    virtual bool GetEnergyDrainSinusoidalPulse() const=0;
+    virtual bool GetEnergyDrainFilterAdditive() const=0;
     virtual float GetHudDamagePulseDuration() const=0;
     virtual float GetHudDamageColorGain() const=0;
     virtual float GetHudDecoShakeTranslateGain() const=0;
@@ -114,6 +117,7 @@ struct ITweakGui : ITweak
     virtual float GetScanDataDotHoldDurationMin() const=0;
     virtual float GetScanDataDotHoldDurationMax() const=0;
     virtual float GetScanSidesPositionStart() const=0;
+    virtual bool GetShowAutomapperInMorphball() const=0;
     virtual bool GetLatchArticleText() const=0;
     virtual float GetWorldTransManagerCharsPerSfx() const=0;
     virtual atUint32 GetXRayFogMode() const=0;

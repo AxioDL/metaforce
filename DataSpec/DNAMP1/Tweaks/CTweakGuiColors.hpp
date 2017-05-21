@@ -65,7 +65,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xd4_scanVisorHudLightMultiply;
     DNAColor xd8_;
     DNAColor xdc_thermalVisorHudLightMultiply;
-    DNAColor xe0_;
+    DNAColor xe0_energyDrainFilterColor;
     DNAColor xe4_damageAmbientPulseColor;
     DNAColor xe8_energyBarFlashColor;
     DNAColor xec_;
@@ -182,6 +182,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetDamageAmbientColor() const { return xc4_damageAmbientColor; }
     const zeus::CColor& GetScanVisorHudLightMultiply() const { return xd4_scanVisorHudLightMultiply; }
     const zeus::CColor& GetThermalVisorHudLightMultiply() const { return xdc_thermalVisorHudLightMultiply; }
+    const zeus::CColor& GetEnergyDrainFilterColor() const { return xe0_energyDrainFilterColor; }
     const zeus::CColor& GetDamageAmbientPulseColor() const { return xe4_damageAmbientPulseColor; }
     const zeus::CColor& GetEnergyBarFlashColor() const { return xe8_energyBarFlashColor; }
     const zeus::CColor& GetXRayEnergyDecoColor() const { return x100_xrayEnergyDecoColor; }

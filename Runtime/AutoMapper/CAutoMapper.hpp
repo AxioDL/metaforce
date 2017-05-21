@@ -292,6 +292,7 @@ public:
     std::pair<int, int>
     FindClosestVisibleWorld(const zeus::CVector3f&, const zeus::CUnitVector3f&, const CStateManager&) const;
 
+    EAutoMapperState GetNextState() const { return x1c0_nextState; }
     bool IsInMapperState(EAutoMapperState state) const
     {
         return state == x1bc_state && state == x1c0_nextState;
@@ -304,20 +305,17 @@ public:
     {
         return x1c8_interpTime < x1c4_interpDur;
     }
-    void UpdateOptionsMenu(const CTweakValue::Audio&);
-    void UpdateAudioMusicMenu();
-    void UpdateAudioEvents();
-    void UpdateAudioEventMenu();
-    void GetCurrentAudioInfo() const;
-    void PresentAudioMenuInput(const CFinalInput&);
-    void SetFocusAudioMenu(CAudioMenu::EMenu);
-    bool IsStateTransitioning() const;
-    bool IsFullyInMiniMapState() const;
-    static bool IsDrawState(EAutoMapperState);
-
+    bool IsStateTransitioning() const { return x1bc_state != x1c0_nextState; }
+    bool IsFullyInMiniMapState() const { return IsInMapperState(EAutoMapperState::MiniMap); }
+    bool IsFullyOutOfMiniMapState() const { return x1bc_state != EAutoMapperState::MiniMap &&
+                                                   x1c0_nextState != EAutoMapperState::MiniMap; }
     void OnNewInGameGuiState(EInGameGuiState, const CStateManager&);
-    void OnChangeAudioMusicSelection();
-
+    float GetInterp() const
+    {
+        if (x1c4_interpDur > 0.f)
+            return x1c8_interpTime / x1c4_interpDur;
+        return 0.f;
+    }
 };
 }
 
