@@ -12,10 +12,10 @@ namespace urde
 
 MP1::CActorContraption::CActorContraption(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                                           const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabox,
-                                          const CMaterialList& matList, float f1, float f2, const CHealthInfo& hInfo,
+                                          const CMaterialList& matList, float mass, float zMomentum, const CHealthInfo& hInfo,
                                           const CDamageVulnerability& dVuln, const CActorParameters& aParams,
                                           ResId part, const CDamageInfo& dInfo, bool active)
-: CScriptActor(uid, name, info, xf, std::move(mData), aabox, f1, f2, matList, hInfo, dVuln, aParams, false, active, 0,
+: CScriptActor(uid, name, info, xf, std::move(mData), aabox, mass, zMomentum, matList, hInfo, dVuln, aParams, false, active, 0,
                1.f, false, false, false, false)
 , x300_flameThrowerGen(g_SimplePool->GetObj("FlameThrower"))
 , x308_flameFxId(part)
@@ -81,7 +81,7 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& 
 
 CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string& name, CStateManager& mgr)
 {
-    auto it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
+    const auto& it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
                            [&name](const std::pair<TUniqueId, std::string>& p) { return p.second == name; });
 
     if (it == x2e8_children.end())
@@ -97,6 +97,6 @@ CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string& nam
         mgr.AddObject(ret);
         return ret;
     }
-    return nullptr;
+    return static_cast<CFlameThrower*>(mgr.ObjectById(it->first));
 }
 }
