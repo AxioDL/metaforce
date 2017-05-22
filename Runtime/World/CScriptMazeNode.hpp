@@ -5,7 +5,7 @@
 
 namespace urde
 {
-class CScriptMazeNode : CActor
+class CScriptMazeNode : public CActor
 {
     static u32 sMazeSeeds[300];
     s32 xe8_;
@@ -36,7 +36,8 @@ public:
     CScriptMazeNode(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool, s32, s32, s32,
                     const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&);
 
-    void LoadSeeds();
+    void Accept(IVisitor &visitor);
+    static void LoadMazeSeeds();
 };
 }
 

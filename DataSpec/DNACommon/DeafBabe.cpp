@@ -2,13 +2,14 @@
 #include "AROTBuilder.hpp"
 #include "DataSpec/DNAMP1/DeafBabe.hpp"
 #include "DataSpec/DNAMP2/DeafBabe.hpp"
+#include "DataSpec/DNAMP1/DCLN.hpp"
 #include <inttypes.h>
 
 namespace DataSpec
 {
 
 template<class DEAFBABE>
-void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFBABE& db)
+void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFBABE& db, bool isDcln, atInt32 idx)
 {
     os << "material_index = []\n"
           "col_bm = bmesh.new()\n";
@@ -50,8 +51,12 @@ void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFB
 
     db.insertNoClimb(os);
 
-    os << "col_mesh = bpy.data.meshes.new('CMESH')\n"
-          "col_bm.to_mesh(col_mesh)\n"
+    if (isDcln)
+        os.format("col_mesh = bpy.data.meshes.new('CMESH_%i')\n", idx);
+    else
+        os << "col_mesh = bpy.data.meshes.new('CMESH')\n";
+
+    os << "col_bm.to_mesh(col_mesh)\n"
           "col_mesh_obj = bpy.data.objects.new(col_mesh.name, col_mesh)\n"
           "\n"
           "for mat_name in material_index:\n"
@@ -61,18 +66,22 @@ void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFB
           "bpy.context.scene.objects.link(col_mesh_obj)\n"
           "bpy.context.scene.objects.active = col_mesh_obj\n"
           "bpy.ops.object.mode_set(mode='EDIT')\n"
-          "bpy.ops.mesh.tris_convert_to_quads(materials=True)\n"
+          "bpy.ops.mesh.tris_convert_to_quads()\n"
           "bpy.ops.object.mode_set(mode='OBJECT')\n"
-          "bpy.context.scene.objects.active = None\n"
-          "col_mesh_obj.layers[1] = True\n"
-          "col_mesh_obj.layers[0] = False\n"
-          "col_mesh_obj.draw_type = 'SOLID'\n"
+          "bpy.context.scene.objects.active = None\n";
+    if (!isDcln)
+        os << "col_mesh_obj.layers[1] = True\n"
+              "col_mesh_obj.layers[0] = False\n";
+
+
+    os << "col_mesh_obj.draw_type = 'SOLID'\n"
           "col_mesh_obj.game.physics_type = 'STATIC'\n"
           "\n";
 }
 
-template void DeafBabeSendToBlender<DNAMP1::DeafBabe>(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::DeafBabe& db);
-template void DeafBabeSendToBlender<DNAMP2::DeafBabe>(hecl::BlenderConnection::PyOutStream& os, const DNAMP2::DeafBabe& db);
+template void DeafBabeSendToBlender<DNAMP1::DeafBabe>(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::DeafBabe& db, bool isDcln, atInt32 idx);
+template void DeafBabeSendToBlender<DNAMP2::DeafBabe>(hecl::BlenderConnection::PyOutStream& os, const DNAMP2::DeafBabe& db, bool isDcln, atInt32 idx);
+template void DeafBabeSendToBlender<DNAMP1::DCLN::Collision>(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::DCLN::Collision& db, bool isDcln, atInt32 idx);
 
 template<class DEAFBABE>
 void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh)

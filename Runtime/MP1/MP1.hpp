@@ -36,6 +36,7 @@
 #include "GuiSys/CTextExecuteBuffer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
+#include "World/CScriptMazeNode.hpp"
 
 namespace urde
 {
@@ -90,6 +91,7 @@ public:
     {
         LoadStringTable();
         m_renderer.reset(AllocateRenderer(xcc_simplePool, x4_resFactory));
+        CScriptMazeNode::LoadMazeSeeds();
     }
 
     void ResetGameState()

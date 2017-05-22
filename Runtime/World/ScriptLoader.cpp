@@ -59,6 +59,7 @@
 #include "CScriptCameraHintTrigger.hpp"
 #include "CScriptVisorFlare.hpp"
 #include "CScriptBeam.hpp"
+#include "CScriptMazeNode.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "MP1/World/CNewIntroBoss.hpp"
 #include "MP1/World/CBeetle.hpp"
@@ -2340,7 +2341,20 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& 
 
 CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 10, "MazeNode"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    u32 w1 = in.readUint32Big();
+    u32 w2 = in.readUint32Big();
+    u32 w3 = in.readUint32Big();
+    zeus::CVector3f vec1 = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f vec2 = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f vec3 = zeus::CVector3f::ReadBig(in);
+
+    return new CScriptMazeNode(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, w1, w2, w3,
+                               vec1, vec2, vec3);
 }
 
 CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

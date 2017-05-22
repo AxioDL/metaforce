@@ -2,9 +2,12 @@
 #include "Character/CModelData.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
+
+atUint32 CScriptMazeNode::sMazeSeeds[300] = {0};
 
 CScriptMazeNode::CScriptMazeNode(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, bool active, s32 w1, s32 w2, s32 w3,
@@ -21,7 +24,12 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, const std::string& name, const C
     x13c_24_ = true;
 }
 
-void CScriptMazeNode::LoadSeeds()
+void CScriptMazeNode::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
+void CScriptMazeNode::LoadMazeSeeds()
 {
     const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_MazeSeeds");
     u32 resSize = g_ResFactory->ResourceSize(*tag);

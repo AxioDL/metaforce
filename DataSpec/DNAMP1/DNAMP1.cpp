@@ -26,6 +26,7 @@
 #include "FRME.hpp"
 #include "AGSC.hpp"
 #include "CSNG.hpp"
+#include "DCLN.hpp"
 
 #include "../DNACommon/Tweaks/TweakWriter.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
@@ -42,6 +43,8 @@
 #include "Tweaks/CTweakParticle.hpp"
 #include "Tweaks/CTweakGuiColors.hpp"
 #include "Tweaks/CTweakPlayerGun.hpp"
+#include "MazeSeeds.hpp"
+#include "SnowForces.hpp"
 
 namespace DataSpec
 {
@@ -348,6 +351,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
         return {FRME::Extract, {_S(".blend")}, 2};
     case SBIG('CMDL'):
         return {CMDL::Extract, {_S(".blend")}, 1, CMDL::Name};
+    case SBIG('DCLN'):
+        return {DCLN::Extract, {_S(".blend")}};
     case SBIG('ANCS'):
         return {ANCS::Extract, {_S(".yaml"), _S(".blend")}, 2};
     case SBIG('MLVL'):
@@ -381,6 +386,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     case SBIG('ATBL'):
         return {DNAAudio::ATBL::Extract, {_S(".yaml")}};
     case SBIG('CTWK'):
+    case SBIG('DUMB'):
     {
         bool named;
         std::string name = pak.bestEntryName(entry, named);
@@ -414,6 +420,10 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
                 return {ExtractTweak<CTweakGuiColors>, {_S(".yaml")}};
             if (!name.compare("PlayerGun"))
                 return {ExtractTweak<CTweakPlayerGun>, {_S(".yaml")}};
+            if (!name.compare("DUMB_MazeSeeds"))
+                return {ExtractTweak<MazeSeeds>, {_S(".yaml")}};
+            if (!name.compare("DUMB_SnowForces"))
+                return {ExtractTweak<SnowForces>, {_S(".yaml")}};
         }
         break;
     }
