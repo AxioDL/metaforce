@@ -130,12 +130,12 @@ std::string HLSL::GenerateReflectionExpr(ReflectionType type) const
     {
     case ReflectionType::None:
     default:
-        return "float3(0.0, 0.0, 0.0);\n";
+        return "float3(0.0, 0.0, 0.0)";
     case ReflectionType::Simple:
-        return "reflectionTex.Sample(samp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+        return "reflectionTex.Sample(samp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
     case ReflectionType::Indirect:
         return "reflectionTex.Sample(samp, (reflectionIndTex.Sample(samp, vtf.reflectTcgs[0]).rg - "
-               "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+               "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
     }
 }
 
