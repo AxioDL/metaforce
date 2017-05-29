@@ -142,19 +142,16 @@ size_t COBBTree::CNode::GetMemoryUsage() const
 {
     size_t ret = 0;
     if (x3c_isLeaf)
-        ret = x48_leaf->GetMemoryUsage() + 80;
+        ret = x48_leaf->GetMemoryUsage() + /*sizeof(CNode)*/ 80;
     else
     {
         if (x40_left)
-            ret = x40_left->GetMemoryUsage() + 80;
+            ret = x40_left->GetMemoryUsage() + /*sizeof(CNode)*/ 80;
         if (x44_right)
             ret += x44_right->GetMemoryUsage();
     }
 
-    if (!(ret & 3))
-        return ret;
-
-    return ret + ((ret & 3) - 4);
+    return (ret + 3) & ~3;
 }
 
 COBBTree::CLeafData::CLeafData(const std::vector<u16>& surface)
@@ -169,10 +166,8 @@ const std::vector<u16>& COBBTree::CLeafData::GetSurfaceVector() const
 
 size_t COBBTree::CLeafData::GetMemoryUsage() const
 {
-    size_t ret = (x0_surface.size() * 2) + 16;
-    if (!(ret & 3))
-        return ret;
-    return ret + ((ret & 3) - 4);
+    size_t ret = (x0_surface.size() * 2) + /*sizeof(CLeafData)*/ 16;
+    return (ret + 3) & ~3;
 }
 
 COBBTree::CLeafData::CLeafData(CInputStream& in)

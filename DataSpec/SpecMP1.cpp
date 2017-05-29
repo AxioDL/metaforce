@@ -40,6 +40,8 @@
 #include "DNAMP1/Tweaks/CTweakParticle.hpp"
 #include "DNAMP1/Tweaks/CTweakGuiColors.hpp"
 #include "DNAMP1/Tweaks/CTweakPlayerGun.hpp"
+#include "DNAMP1/MazeSeeds.hpp"
+#include "DNAMP1/SnowForces.hpp"
 
 #include "hecl/ClientProcess.hpp"
 
@@ -468,6 +470,10 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, DNAMP1::EVNT::DNAType()))
                 return true;
+            else if (!strcmp(classType, DNAMP1::MazeSeeds::DNAType()))
+                return true;
+            else if (!strcmp(classType, DNAMP1::SnowForces::DNAType()))
+                return true;
             else if (!strcmp(classType, "ATBL"))
                 return true;
             else if (!strcmp(classType, "MP1OriginalIDs"))
@@ -639,6 +645,12 @@ struct SpecMP1 : SpecBase
                          !strcmp(className, DataSpec::DNAMP1::CTweakPlayerGun::DNAType()))
                 {
                     resTag.type = SBIG('CTWK');
+                    return true;
+                }
+                else if (!strcmp(className, DataSpec::DNAMP1::MazeSeeds::DNAType()) ||
+                         !strcmp(className, DataSpec::DNAMP1::SnowForces::DNAType()))
+                {
+                    resTag.type = SBIG('DUMB');
                     return true;
                 }
                 else if (!strcmp(className, DataSpec::DNAMP1::HINT::DNAType()))
@@ -947,6 +959,18 @@ struct SpecMP1 : SpecBase
                 DNAMP1::CTweakPlayerControl pControl;
                 pControl.read(reader);
                 WriteTweak(pControl, out);
+            }
+            else if (!classStr.compare(DNAMP1::MazeSeeds::DNAType()))
+            {
+                DNAMP1::MazeSeeds mSeeds;
+                mSeeds.read(reader);
+                WriteTweak(mSeeds, out);
+            }
+            else if (!classStr.compare(DNAMP1::MazeSeeds::DNAType()))
+            {
+                DNAMP1::SnowForces sForces;
+                sForces.read(reader);
+                WriteTweak(sForces, out);
             }
             else if (!classStr.compare(DNAMP1::HINT::DNAType()))
             {

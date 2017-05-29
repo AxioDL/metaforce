@@ -15,7 +15,7 @@ enum class BspNodeType : atUint32
 };
 
 template<class DEAFBABE>
-void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFBABE& db);
+void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFBABE& db, bool isDcln = false, atInt32 idx = -1);
 
 template<class DEAFBABE>
 void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);

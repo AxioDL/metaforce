@@ -19,6 +19,9 @@ make_dnalist(liblist DNAMP1
              FRME
              SAVW
              HINT
+             MazeSeeds
+             SnowForces
+             DCLN
              Tweaks/CTweakGame
              Tweaks/CTweakParticle
              Tweaks/CTweakPlayer
