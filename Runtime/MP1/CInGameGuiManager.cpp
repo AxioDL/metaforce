@@ -122,7 +122,7 @@ void CInGameGuiManager::EnsureStates(CStateManager& stateMgr)
 {
     if (x1f8_26_deferTransition)
     {
-        if (!x3c_pauseScreenBlur->GetX50_25())
+        if (!x3c_pauseScreenBlur->IsGameDraw())
         {
             DestroyAreaTextures(stateMgr);
             x1f8_26_deferTransition = false;
@@ -593,7 +593,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
     if (notInCine && (x1bc_prevState == EInGameGuiState::InGame || x1c0_nextState == EInGameGuiState::InGame))
         drawVisor = true;
 
-    if (x3c_pauseScreenBlur->GetX50_25())
+    if (x3c_pauseScreenBlur->IsGameDraw())
     {
         x34_samusHud->GetTargetingManager().Draw(stateMgr, true);
         CGraphics::SetDepthRange(0.015625f, 0.03125f);
@@ -631,7 +631,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
         x3c_pauseScreenBlur->Draw(stateMgr);
 
     if (notInCine && x1e8_enableAutoMapper &&
-        (x3c_pauseScreenBlur->GetX50_25() || x1bc_prevState == EInGameGuiState::MapScreen ||
+        (x3c_pauseScreenBlur->IsGameDraw() || x1bc_prevState == EInGameGuiState::MapScreen ||
          x1c0_nextState == EInGameGuiState::MapScreen))
     {
         float t;
@@ -754,7 +754,7 @@ void CInGameGuiManager::StartFadeIn()
 
 bool CInGameGuiManager::GetIsGameDraw() const
 {
-    return x3c_pauseScreenBlur->GetX50_25();
+    return x3c_pauseScreenBlur->IsGameDraw();
 }
 
 }

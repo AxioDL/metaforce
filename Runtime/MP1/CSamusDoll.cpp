@@ -580,7 +580,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
             {
                 float radius = zeus::clamp(0.2f, (10.f - (xc0_userZoom >= 0.f ? xc0_userZoom : -xc0_userZoom)) / 20.f, 1.f);
                 float offset = std::sin(x260_phazonOffsetAngle);
-                zeus::CColor color = g_tweakGuiColors->GetInvPhazonSuitFilterMod();
+                zeus::CColor color = g_tweakGuiColors->GetPauseBlurFilterColor();
                 color.a = alpha;
                 g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, alpha), x250_phazonIndirectTexture,
                                                          color, radius, 0.1f, offset, offset);

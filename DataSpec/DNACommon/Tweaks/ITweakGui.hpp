@@ -28,6 +28,7 @@ struct ITweakGui : ITweak
     };
 
     virtual float GetMapAlphaInterpolant() const=0;
+    virtual float GetPauseBlurFactor() const=0;
     virtual float GetRadarXYRadius() const=0;
     virtual float GetRadarZRadius() const=0;
     virtual float GetRadarZCloseRadius() const=0;
@@ -101,6 +102,11 @@ struct ITweakGui : ITweak
     virtual float GetScanPaneFadeInTime() const=0;
     virtual float GetScanPaneFadeOutTime() const=0;
     virtual float GetBallViewportYReduction() const=0;
+    virtual float GetScanWindowIdleWidth() const=0;
+    virtual float GetScanWindowIdleHeight() const=0;
+    virtual float GetScanWindowActiveWidth() const=0;
+    virtual float GetScanWindowActiveHeight() const=0;
+    virtual float GetScanWindowMagnification() const=0;
     virtual float GetScanSpeed(int idx) const=0;
     virtual float GetXrayBlurScaleLinear() const=0;
     virtual float GetXrayBlurScaleQuadratic() const=0;

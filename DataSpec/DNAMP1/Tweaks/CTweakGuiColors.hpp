@@ -10,7 +10,7 @@ namespace DNAMP1
 struct CTweakGuiColors : public ITweakGuiColors
 {
     DECL_YAML
-    DNAColor x4_invPhazonSuitFilterMod;
+    DNAColor x4_pauseBlurFilterColor;
     DNAColor x8_radarStuffColor;
     DNAColor xc_radarPlayerPaintColor;
     DNAColor x10_radarEnemyPaintColor;
@@ -63,7 +63,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xcc_;
     DNAColor xd0_;
     DNAColor xd4_scanVisorHudLightMultiply;
-    DNAColor xd8_;
+    DNAColor xd8_scanVisorScreenDimColor;
     DNAColor xdc_thermalVisorHudLightMultiply;
     DNAColor xe0_energyDrainFilterColor;
     DNAColor xe4_damageAmbientPulseColor;
@@ -140,7 +140,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     CTweakGuiColors() = default;
     CTweakGuiColors(athena::io::IStreamReader& r) { this->read(r); }
 
-    const zeus::CColor& GetInvPhazonSuitFilterMod() const { return x4_invPhazonSuitFilterMod; }
+    const zeus::CColor& GetPauseBlurFilterColor() const { return x4_pauseBlurFilterColor; }
     const zeus::CColor& GetRadarStuffColor() const { return x8_radarStuffColor; }
     const zeus::CColor& GetRadarPlayerPaintColor() const { return xc_radarPlayerPaintColor; }
     const zeus::CColor& GetRadarEnemyPaintColor() const { return x10_radarEnemyPaintColor; }
@@ -181,6 +181,7 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetMissileWarningOutline() const { return xbc_missileWarningOutline; }
     const zeus::CColor& GetDamageAmbientColor() const { return xc4_damageAmbientColor; }
     const zeus::CColor& GetScanVisorHudLightMultiply() const { return xd4_scanVisorHudLightMultiply; }
+    const zeus::CColor& GetScanVisorScreenDimColor() const { return xd8_scanVisorScreenDimColor; }
     const zeus::CColor& GetThermalVisorHudLightMultiply() const { return xdc_thermalVisorHudLightMultiply; }
     const zeus::CColor& GetEnergyDrainFilterColor() const { return xe0_energyDrainFilterColor; }
     const zeus::CColor& GetDamageAmbientPulseColor() const { return xe4_damageAmbientPulseColor; }

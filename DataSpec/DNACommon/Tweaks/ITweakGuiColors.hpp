@@ -22,7 +22,7 @@ struct ITweakGuiColors : BigYAML
         const zeus::CColor& shadow;
     };
 
-    virtual const zeus::CColor& GetInvPhazonSuitFilterMod() const=0;
+    virtual const zeus::CColor& GetPauseBlurFilterColor() const=0;
     virtual const zeus::CColor& GetRadarStuffColor() const=0;
     virtual const zeus::CColor& GetRadarPlayerPaintColor() const=0;
     virtual const zeus::CColor& GetRadarEnemyPaintColor() const=0;
@@ -63,6 +63,7 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetMissileWarningOutline() const=0;
     virtual const zeus::CColor& GetDamageAmbientColor() const=0;
     virtual const zeus::CColor& GetScanVisorHudLightMultiply() const=0;
+    virtual const zeus::CColor& GetScanVisorScreenDimColor() const=0;
     virtual const zeus::CColor& GetThermalVisorHudLightMultiply() const=0;
     virtual const zeus::CColor& GetEnergyDrainFilterColor() const=0;
     virtual const zeus::CColor& GetDamageAmbientPulseColor() const=0;

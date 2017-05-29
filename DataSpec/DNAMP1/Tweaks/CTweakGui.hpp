@@ -12,7 +12,7 @@ struct CTweakGui : ITweakGui
     DECL_YAML
     Value<bool> x4_;
     Value<float> x8_mapAlphaInterp;
-    Value<float> xc_;
+    Value<float> xc_pauseBlurFactor;
     Value<float> x10_radarXYRadius;
     Value<float> x14_;
     Value<float> x18_;
@@ -141,11 +141,11 @@ struct CTweakGui : ITweakGui
     Value<float> x24c_scanPaneFadeInTime;
     Value<float> x250_scanPaneFadeOutTime;
     Value<float> x254_ballViewportYReduction;
-    Value<float> x258_;
-    Value<float> x25c_;
-    Value<float> x260_;
-    Value<float> x264_;
-    Value<float> x268_;
+    Value<float> x258_scanWindowIdleW;
+    Value<float> x25c_scanWindowIdleH;
+    Value<float> x260_scanWindowActiveW;
+    Value<float> x264_scanWindowActiveH;
+    Value<float> x268_scanWindowMagnification;
     Value<float> x26c_;
     Value<float> x270_scanSidesPositionStart;
     Value<bool> x274_showAutomapperInMorphball;
@@ -190,6 +190,7 @@ struct CTweakGui : ITweakGui
     CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
 
     float GetMapAlphaInterpolant() const { return x8_mapAlphaInterp; }
+    float GetPauseBlurFactor() const { return xc_pauseBlurFactor; }
     float GetRadarXYRadius() const { return x10_radarXYRadius; }
     float GetRadarZRadius() const { return x24_radarZRadius; }
     float GetRadarZCloseRadius() const { return x28_radarZCloseRadius; }
@@ -277,6 +278,11 @@ struct CTweakGui : ITweakGui
     float GetScanPaneFadeInTime() const { return x24c_scanPaneFadeInTime; }
     float GetScanPaneFadeOutTime() const { return x250_scanPaneFadeOutTime; }
     float GetBallViewportYReduction() const { return x254_ballViewportYReduction; }
+    float GetScanWindowIdleWidth() const { return x258_scanWindowIdleW; }
+    float GetScanWindowIdleHeight() const { return x25c_scanWindowIdleH; }
+    float GetScanWindowActiveWidth() const { return x260_scanWindowActiveW; }
+    float GetScanWindowActiveHeight() const { return x264_scanWindowActiveH; }
+    float GetScanWindowMagnification() const { return x268_scanWindowMagnification; }
     float GetScanSidesPositionStart() const { return x270_scanSidesPositionStart; }
     bool GetShowAutomapperInMorphball() const { return x274_showAutomapperInMorphball; }
     bool GetLatchArticleText() const { return x275_latchArticleText; }

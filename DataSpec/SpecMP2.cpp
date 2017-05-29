@@ -231,7 +231,7 @@ struct SpecMP2 : SpecBase
         int prog = 0;
         ctx.progressCB = [&](const std::string& name, float) {
             hecl::SystemStringView nameView(name);
-            progress(_S("MP2 Root"), nameView.c_str(), 3, prog / (float)m_nonPaks.size());
+            progress(_S("MP2 Root"), nameView.c_str(), 3, prog);
         };
         for (const nod::Node* node : m_nonPaks)
         {

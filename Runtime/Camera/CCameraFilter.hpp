@@ -74,6 +74,7 @@ public:
     void Update(float dt);
     void SetBlur(EBlurType type, float amount, float duration);
     void DisableBlur(float duration);
+    EBlurType GetCurrType() const { return x10_curType; }
 };
 
 }
