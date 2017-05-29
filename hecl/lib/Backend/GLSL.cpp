@@ -137,12 +137,12 @@ std::string GLSL::GenerateReflectionExpr(ReflectionType type) const
     {
     case ReflectionType::None:
     default:
-        return "vec3(0.0, 0.0, 0.0);\n";
+        return "vec3(0.0, 0.0, 0.0)";
     case ReflectionType::Simple:
-        return "texture(reflectionTex, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+        return "texture(reflectionTex, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
     case ReflectionType::Indirect:
         return "texture(reflectionTex, (texture(reflectionIndTex, vtf.reflectTcgs[0]).rg - "
-               "vec2(0.5, 0.5)) * vec2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha;\n";
+               "vec2(0.5, 0.5)) * vec2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
     }
 }
 
