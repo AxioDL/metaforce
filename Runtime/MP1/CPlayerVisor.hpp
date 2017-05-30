@@ -21,9 +21,9 @@ class CPlayerVisor
     struct SScanTarget
     {
         TUniqueId x0_objId = kInvalidUniqueId;
-        float x4_ = 0.f;
-        float x8_ = 0.f;
-        bool xc_ = false;
+        float x4_timer = 0.f;
+        float x8_inRangeTimer = 0.f;
+        bool xc_inBox = false;
     };
 
     enum class EScanWindowState
@@ -41,38 +41,39 @@ class CPlayerVisor
     bool x25_25_ : 1;
     float x28_ = 0.f;
     float x2c_scanDimInterp = 1.f;
-    u32 x30_ = 0;
-    u32 x34_ = 0;
-    float x38_ = 0.f;
-    float x3c_ = 0.f;
-    zeus::CVector2f x40_;
-    zeus::CVector2f x48_;
-    zeus::CVector2f x50_;
+    EScanWindowState x30_prevState = EScanWindowState::NotInScanVisor;
+    EScanWindowState x34_nextState = EScanWindowState::NotInScanVisor;
+    float x38_windowInterpDuration = 0.f;
+    float x3c_windowInterpTimer = 0.f;
+    zeus::CVector2f x40_prevWindowDims;
+    zeus::CVector2f x48_interpWindowDims;
+    zeus::CVector2f x50_nextWindowDims;
     float x58_scanMagInterp = 1.f;
     CSfxHandle x5c_visorLoopSfx;
-    CSfxHandle x60_;
+    CSfxHandle x60_scanningLoopSfx;
     CCameraFilterPass x64_scanDim;
     CCameraBlurPass x90_xrayBlur;
     float xc4_vpScaleX = 1.f;
     float xc8_vpScaleY = 1.f;
-    TLockedToken<CModel> xcc_scanFrameCorner;
-    TLockedToken<CModel> xd8_scanFrameCenterSide;
-    TLockedToken<CModel> xe4_scanFrameCenterTop;
-    TLockedToken<CModel> xf0_scanFrameStretchSide;
-    TLockedToken<CModel> xfc_scanFrameStretchTop;
-    TLockedToken<CModel> x108_newScanPane;
-    TLockedToken<CModel> x114_scanShield;
-    TLockedToken<CModel> x124_scanIconNoncritical;
-    TLockedToken<CModel> x130_scanIconCritical;
+    TCachedToken<CModel> xcc_scanFrameCorner;
+    TCachedToken<CModel> xd8_scanFrameCenterSide;
+    TCachedToken<CModel> xe4_scanFrameCenterTop;
+    TCachedToken<CModel> xf0_scanFrameStretchSide;
+    TCachedToken<CModel> xfc_scanFrameStretchTop;
+    TCachedToken<CModel> x108_newScanPane;
+    TCachedToken<CModel> x114_scanShield;
+    int x120_assetLockCountdown = 0;
+    TCachedToken<CModel> x124_scanIconNoncritical;
+    TCachedToken<CModel> x130_scanIconCritical;
     rstl::reserved_vector<SScanTarget, 64> x13c_scanTargets;
     TLockedToken<CTexture> x540_xrayPalette;
-    float x54c_ = 0.f;
-    float x550_ = 0.f;
+    float x54c_frameColorInterp = 0.f;
+    float x550_frameColorImpulseInterp = 0.f;
 
     int FindEmptyInactiveScanTarget() const;
     int FindCachedInactiveScanTarget(TUniqueId uid) const;
-    void DrawScanObjectIndicators(const CStateManager& mgr) const;
-    void UpdateScanObjectIndicators(const CStateManager& mgr);
+    bool DrawScanObjectIndicators(const CStateManager& mgr) const;
+    void UpdateScanObjectIndicators(const CStateManager& mgr, float dt);
     void UpdateScanWindow(float dt, const CStateManager& mgr);
     EScanWindowState GetDesiredScanWindowState(const CStateManager& mgr) const;
     void LockUnlockAssets();

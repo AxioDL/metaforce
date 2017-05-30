@@ -62,6 +62,9 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetThreatWarningOutline() const=0;
     virtual const zeus::CColor& GetMissileWarningOutline() const=0;
     virtual const zeus::CColor& GetDamageAmbientColor() const=0;
+    virtual const zeus::CColor& GetScanFrameInactiveColor() const=0;
+    virtual const zeus::CColor& GetScanFrameActiveColor() const=0;
+    virtual const zeus::CColor& GetScanFrameImpulseColor() const=0;
     virtual const zeus::CColor& GetScanVisorHudLightMultiply() const=0;
     virtual const zeus::CColor& GetScanVisorScreenDimColor() const=0;
     virtual const zeus::CColor& GetThermalVisorHudLightMultiply() const=0;
@@ -84,6 +87,10 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetThreatIconWarningColor() const=0;
     virtual const zeus::CColor& GetHudCounterFill() const=0;
     virtual const zeus::CColor& GetHudCounterOutline() const=0;
+    virtual const zeus::CColor& GetScanIconCriticalColor() const=0;
+    virtual const zeus::CColor& GetScanIconCriticalDimColor() const=0;
+    virtual const zeus::CColor& GetScanIconNoncriticalColor() const=0;
+    virtual const zeus::CColor& GetScanIconNoncriticalDimColor() const=0;
     virtual const zeus::CColor& GetThreatDigitsFont() const=0;
     virtual const zeus::CColor& GetThreatDigitsOutline() const=0;
     virtual const zeus::CColor& GetMissileDigitsFont() const=0;

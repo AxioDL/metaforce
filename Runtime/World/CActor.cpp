@@ -119,7 +119,7 @@ zeus::CVector3f CActor::GetAimPosition(const CStateManager&, float) const { retu
 
 zeus::CVector3f CActor::GetHomingPosition(const CStateManager& mgr, float f) const { return GetAimPosition(mgr, f); }
 
-zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager&) { return {}; }
+zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager&) const { return {}; }
 
 void CActor::RemoveEmitter()
 {

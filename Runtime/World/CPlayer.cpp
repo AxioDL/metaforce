@@ -10,6 +10,7 @@
 #include "Camera/CBallCamera.hpp"
 #include "Camera/CCinematicCamera.hpp"
 #include "TCastTo.hpp"
+#include "CScriptGrapplePoint.hpp"
 
 namespace urde
 {
@@ -195,6 +196,23 @@ CFirstPersonCamera& CPlayer::GetFirstPersonCamera(CStateManager& mgr)
 
 void CPlayer::UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool) {}
 
+void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr)
+{
+
+}
+
+void CPlayer::UpdateAimTargetPrediction(const zeus::CTransform& xf, const CStateManager& mgr)
+{
+
+}
+
+void CPlayer::ResetAimTargetPrediction(TUniqueId target)
+{
+    if (target == kInvalidUniqueId || x3f4_aimTarget != target)
+        x404_aimTargetAverage.Clear();
+    x3f4_aimTarget = target;
+}
+
 void CPlayer::DrawGun(CStateManager& mgr) {}
 
 void CPlayer::HolsterGun(CStateManager& mgr) {}
@@ -223,7 +241,7 @@ zeus::CVector3f CPlayer::GetHUDOrbitTargetPosition() const { return {}; }
 
 void CPlayer::SetOrbitState(EPlayerOrbitState, CStateManager& mgr) {}
 
-void CPlayer::SetOrbitTargetId(TUniqueId) {}
+void CPlayer::SetOrbitTargetId(TUniqueId, CStateManager& mgr) {}
 
 void CPlayer::UpdateOrbitPosition(float, CStateManager& mgr) {}
 
@@ -243,6 +261,11 @@ bool CPlayer::ValidateObjectForMode(TUniqueId, CStateManager& mgr) const { retur
 
 TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) { return {}; }
 
+const zeus::CTransform& CPlayer::GetFirstPersonCameraTransform(const CStateManager& mgr) const
+{
+    return mgr.GetCameraManager()->GetFirstPersonCamera()->GetGunFollowTransform();
+}
+
 TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, EPlayerZoneInfo, EPlayerZoneType,
                                                 CStateManager& mgr) const
 {
@@ -251,29 +274,160 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, E
 
 TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) { return {}; }
 
-void CPlayer::UpdateOrbitableObjects(CStateManager& mgr) {}
+static zeus::CAABox BuildNearListBox(bool cropBottom, const zeus::CTransform& xf, float x, float z, float y)
+{
+    zeus::CAABox aabb(-x, cropBottom ? 0.f : -y, -z, x, y, z);
+    return aabb.getTransformedAABox(xf);
+}
+
+void CPlayer::UpdateOrbitableObjects(CStateManager& mgr)
+{
+    x354_onScreenOrbitObjects.clear();
+    x344_nearbyOrbitObjects.clear();
+    x354_onScreenOrbitObjects.clear();
+
+    if (CheckOrbitDisableSourceList(mgr))
+        return;
+
+    float dist = GetOrbitMaxTargetDistance(mgr);
+    if (x9c6_24_)
+        dist *= 5.f;
+    zeus::CAABox nearAABB =
+        BuildNearListBox(true, GetFirstPersonCameraTransform(mgr),
+                         g_tweakPlayer->GetOrbitNearX(), g_tweakPlayer->GetOrbitNearZ(), dist);
+
+    CMaterialFilter filter = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan ?
+    CMaterialFilter::MakeInclude({EMaterialTypes::Scannable}) : CMaterialFilter::MakeInclude({EMaterialTypes::Orbit});
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildNearList(nearList, nearAABB, filter, nullptr);
+
+    FindOrbitableObjects(nearList, x344_nearbyOrbitObjects, x330_orbitZone, EPlayerZoneType::Always, mgr, true);
+    FindOrbitableObjects(nearList, x354_onScreenOrbitObjects, x330_orbitZone, x334_orbitType, mgr, true);
+    FindOrbitableObjects(nearList, x364_offScreenOrbitObjects, x330_orbitZone, x334_orbitType, mgr, false);
+}
 
 TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const
 {
+    zeus::CVector3f eyePos = GetEyePosition();
+    zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
+    /* TODO: Finish */
     return {};
 }
 
-void CPlayer::FindOrbitableObjects(const std::vector<TUniqueId>&, std::vector<TUniqueId>&, EPlayerZoneInfo,
-                                   EPlayerZoneType, CStateManager& mgr, bool) const
+void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>& nearObjects,
+                                   std::vector<TUniqueId>& listOut, EPlayerZoneInfo zone,
+                                   EPlayerZoneType type, CStateManager& mgr, bool onScreenTest) const
 {
+    CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
+    zeus::CVector3f eyePos = GetEyePosition();
+
+    for (TUniqueId id : nearObjects)
+    {
+        if (TCastToConstPtr<CActor> act = mgr.GetObjectById(id))
+        {
+            if (GetUniqueId() == act->GetUniqueId())
+                continue;
+            if (ValidateOrbitTargetId(act->GetUniqueId(), mgr))
+                continue;
+            zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
+            zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(orbitPos);
+            screenPos.x = g_Viewport.x8_width * screenPos.x / 2.f + g_Viewport.x8_width / 2.f;
+            screenPos.y = g_Viewport.xc_height * screenPos.y / 2.f + g_Viewport.xc_height / 2.f;
+
+            bool pass = false;
+            if (onScreenTest)
+            {
+                if (WithinOrbitScreenBox(screenPos, zone, type))
+                    pass = true;
+            }
+            else
+            {
+                if (!WithinOrbitScreenBox(screenPos, zone, type))
+                    pass = true;
+            }
+
+            if (pass && (!act->GetDoTargetDistanceTest() || (orbitPos - eyePos).magnitude() <= GetOrbitMaxTargetDistance(mgr)))
+                listOut.push_back(id);
+        }
+    }
 }
 
-bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f&, EPlayerZoneInfo, EPlayerZoneType) const { return false; }
+bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone, EPlayerZoneType type) const
+{
+    if (screenCoords.z >= 1.f)
+        return false;
 
-bool CPlayer::WithinOrbitScreenEllipse(const zeus::CVector3f&, EPlayerZoneInfo) const { return false; }
+    switch (type)
+    {
+    case EPlayerZoneType::Box:
+        return std::fabs(screenCoords.x - g_tweakPlayer->GetOrbitScreenBoxCenterX(int(zone))) <
+                   g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(int(zone)) &&
+               std::fabs(screenCoords.y - g_tweakPlayer->GetOrbitScreenBoxCenterY(int(zone))) <
+                   g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(int(zone)) &&
+               screenCoords.z < 1.f;
+        break;
+    case EPlayerZoneType::Ellipse:
+        return WithinOrbitScreenEllipse(screenCoords, zone);
+    default:
+        return true;
+    }
 
-void CPlayer::CheckOrbitDisableSourceList(CStateManager& mgr) {}
+    return false;
+}
 
-void CPlayer::CheckOrbitDisableSourceList() const {}
+bool CPlayer::WithinOrbitScreenEllipse(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone) const
+{
+    if (screenCoords.z >= 1.f)
+        return false;
 
-void CPlayer::RemoveOrbitDisableSource(TUniqueId) {}
+    float heYSq = g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(int(zone));
+    heYSq *= heYSq;
+    float heXSq = g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(int(zone));
+    heXSq *= heXSq;
+    float tmpY = std::fabs(screenCoords.y - g_tweakPlayer->GetOrbitScreenBoxCenterY(int(zone)));
+    float tmpX = std::fabs(screenCoords.x - g_tweakPlayer->GetOrbitScreenBoxCenterX(int(zone)));
+    return tmpX * tmpX <= (1.f - tmpY * tmpY / heYSq) * heXSq;
+}
 
-void CPlayer::AddOrbitDisableSource(CStateManager& mgr, TUniqueId) {}
+bool CPlayer::CheckOrbitDisableSourceList(CStateManager& mgr)
+{
+    for (auto it = x9e4_orbitDisableList.begin() ; it != x9e4_orbitDisableList.end() ;)
+    {
+        if (!mgr.GetObjectById(*it))
+        {
+            it = x9e4_orbitDisableList.erase(it);
+            continue;
+        }
+        ++it;
+    }
+    return x9e4_orbitDisableList.size() != 0;
+}
+
+void CPlayer::RemoveOrbitDisableSource(TUniqueId uid)
+{
+    for (auto it = x9e4_orbitDisableList.begin() ; it != x9e4_orbitDisableList.end() ;)
+    {
+        if (*it == uid)
+        {
+            it = x9e4_orbitDisableList.erase(it);
+            return;
+        }
+        ++it;
+    }
+}
+
+void CPlayer::AddOrbitDisableSource(CStateManager& mgr, TUniqueId addId)
+{
+    if (x9e4_orbitDisableList.size() >= 5)
+        return;
+    for (TUniqueId uid : x9e4_orbitDisableList)
+        if (uid == addId)
+            return;
+    x9e4_orbitDisableList.push_back(addId);
+    ResetAimTargetPrediction(kInvalidUniqueId);
+    if (!TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(x310_lockonObjectId)))
+        SetOrbitTargetId(kInvalidUniqueId, mgr);
+}
 
 void CPlayer::UpdateOrbitPreventionTimer(float) {}
 

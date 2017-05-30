@@ -66,7 +66,7 @@ protected:
             u8 xe6_27_ : 3;
             bool xe6_30_enablePitchBend : 1;
             bool xe7_29_ : 1;
-            bool xe7_30_ : 1;
+            bool xe7_30_doTargetDistanceTest : 1;
             bool xe7_31_ : 1;
         };
         u32 dummy = 0;
@@ -111,7 +111,7 @@ public:
     virtual zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
     virtual zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
     virtual zeus::CVector3f GetHomingPosition(const CStateManager&, float) const;
-    virtual zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&);
+    virtual zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&) const;
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                    CWeaponMode&, int);
     virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
@@ -163,6 +163,7 @@ public:
     bool GetE7_29() const  { return xe7_29_; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
     const CHealthInfo* GetHealthInfo() const { return const_cast<CActor*>(this)->HealthInfo(); }
+    bool GetDoTargetDistanceTest() const { return xe7_30_doTargetDistanceTest; }
 };
 }
 

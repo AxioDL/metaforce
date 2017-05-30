@@ -41,8 +41,6 @@ void CFirstPersonCamera::SkipCinematic()
     x1d4_ = 0.f;
 }
 
-zeus::CTransform CFirstPersonCamera::GetGunFollowTransform() { return x190_gunFollowXf; }
-
 void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransform& gunXf, zeus::CQuaternion& gunQ,
                                                                    float dt, zeus::CVector3f& rVec)
 {

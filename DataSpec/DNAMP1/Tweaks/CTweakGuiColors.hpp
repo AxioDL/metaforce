@@ -59,9 +59,9 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor xbc_missileWarningOutline;
     DNAColor xc0_;
     DNAColor xc4_damageAmbientColor;
-    DNAColor xc8_;
-    DNAColor xcc_;
-    DNAColor xd0_;
+    DNAColor xc8_scanFrameInactiveColor;
+    DNAColor xcc_scanFrameActiveColor;
+    DNAColor xd0_scanFrameImpulseColor;
     DNAColor xd4_scanVisorHudLightMultiply;
     DNAColor xd8_scanVisorScreenDimColor;
     DNAColor xdc_thermalVisorHudLightMultiply;
@@ -107,10 +107,10 @@ struct CTweakGuiColors : public ITweakGuiColors
     DNAColor x17c_threatIconWarningColor;
     DNAColor x180_hudCounterFill;
     DNAColor x184_hudCounterOutline;
-    DNAColor x188_;
-    DNAColor x18c_;
-    DNAColor x190_;
-    DNAColor x194_;
+    DNAColor x188_scanIconCriticalColor;
+    DNAColor x18c_scanIconCriticalDimColor;
+    DNAColor x190_scanIconNoncriticalColor;
+    DNAColor x194_scanIconNoncriticalDimColor;
     DNAColor x198_;
     DNAColor x19c_threatDigitsFont;
     DNAColor x1a0_threatDigitsOutline;
@@ -180,6 +180,9 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetThreatWarningOutline() const { return xb8_threatWarningOutline; }
     const zeus::CColor& GetMissileWarningOutline() const { return xbc_missileWarningOutline; }
     const zeus::CColor& GetDamageAmbientColor() const { return xc4_damageAmbientColor; }
+    const zeus::CColor& GetScanFrameInactiveColor() const { return xc8_scanFrameInactiveColor; }
+    const zeus::CColor& GetScanFrameActiveColor() const { return xcc_scanFrameActiveColor; }
+    const zeus::CColor& GetScanFrameImpulseColor() const { return xd0_scanFrameImpulseColor; }
     const zeus::CColor& GetScanVisorHudLightMultiply() const { return xd4_scanVisorHudLightMultiply; }
     const zeus::CColor& GetScanVisorScreenDimColor() const { return xd8_scanVisorScreenDimColor; }
     const zeus::CColor& GetThermalVisorHudLightMultiply() const { return xdc_thermalVisorHudLightMultiply; }
@@ -202,6 +205,10 @@ struct CTweakGuiColors : public ITweakGuiColors
     const zeus::CColor& GetThreatIconWarningColor() const { return x17c_threatIconWarningColor; }
     const zeus::CColor& GetHudCounterFill() const { return x180_hudCounterFill; }
     const zeus::CColor& GetHudCounterOutline() const { return x184_hudCounterOutline; }
+    const zeus::CColor& GetScanIconCriticalColor() const { return x188_scanIconCriticalColor; }
+    const zeus::CColor& GetScanIconCriticalDimColor() const { return x18c_scanIconCriticalDimColor; }
+    const zeus::CColor& GetScanIconNoncriticalColor() const { return x190_scanIconNoncriticalColor; }
+    const zeus::CColor& GetScanIconNoncriticalDimColor() const { return x194_scanIconNoncriticalDimColor; }
     const zeus::CColor& GetThreatDigitsFont() const { return x19c_threatDigitsFont; }
     const zeus::CColor& GetThreatDigitsOutline() const { return x1a0_threatDigitsOutline; }
     const zeus::CColor& GetMissileDigitsFont() const { return x1a4_missileDigitsFont; }

@@ -4,11 +4,11 @@
 #include "CInGameGuiManagerCommon.hpp"
 #include "CToken.hpp"
 #include "Camera/CCameraFilter.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
 class CStateManager;
-class CTexture;
 
 namespace MP1
 {

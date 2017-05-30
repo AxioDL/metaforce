@@ -68,14 +68,14 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x19c_;
     Value<float> x1a0_;
     Value<float> x1a4_;
-    Value<atUint32> x1a8_[2];
-    Value<atUint32> x1b0_[2];
-    Value<atUint32> x1b8_[2];
-    Value<atUint32> x1c0_[2];
-    Value<atUint32> x1c8_[2];
-    Value<atUint32> x1d0_[2];
-    Value<float> x1d8_;
-    Value<float> x1dc_;
+    Value<atUint32> x1a8_orbitScreenBoxHalfExtentX[2];
+    Value<atUint32> x1b0_orbitScreenBoxHalfExtentY[2];
+    Value<atUint32> x1b8_orbitScreenBoxCenterX[2];
+    Value<atUint32> x1c0_orbitScreenBoxCenterY[2];
+    Value<atUint32> x1c8_enemyScreenBoxCenterX[2];
+    Value<atUint32> x1d0_enemyScreenBoxCenterY[2];
+    Value<float> x1d8_orbitNearX;
+    Value<float> x1dc_orbitNearZ;
     Value<float> x1e0_;
     Value<float> x1e4_;
     Value<float> x1e8_;
@@ -96,7 +96,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x21c_25_scanFreezesGame : 1;
     Value<bool> x21c_26_ : 1;
     Value<float> x220_;
-    Value<float> x224_;
+    Value<float> x224_scanningFrameSenseRange;
     Value<bool> x228_24_ : 1;
     Value<bool> x228_25_ : 1;
     Value<bool> x228_26_ : 1;
@@ -180,8 +180,17 @@ struct CTweakPlayer : ITweakPlayer
     float GetX58() const { return x44_[5]; }
     float GetX5C() const { return x44_[6]; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
+    uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
+    uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
+    uint32_t GetOrbitScreenBoxCenterX(int zone) const { return x1b8_orbitScreenBoxCenterX[zone]; }
+    uint32_t GetOrbitScreenBoxCenterY(int zone) const { return x1c0_orbitScreenBoxCenterY[zone]; }
+    uint32_t GetEnemyScreenBoxCenterX(int zone) const { return x1c8_enemyScreenBoxCenterX[zone]; }
+    uint32_t GetEnemyScreenBoxCenterY(int zone) const { return x1d0_enemyScreenBoxCenterY[zone]; }
+    float GetOrbitNearX() const { return x1d8_orbitNearX; }
+    float GetOrbitNearZ() const { return x1dc_orbitNearZ; }
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
+    float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
     float GetX274() const { return x274_; }

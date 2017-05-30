@@ -35,7 +35,7 @@ public:
     void Reset(const zeus::CTransform&, CStateManager& mgr);
 
     void SkipCinematic();
-    zeus::CTransform GetGunFollowTransform();
+    const zeus::CTransform& GetGunFollowTransform() const { return x190_gunFollowXf; }
     void UpdateTransform(CStateManager&, float dt);
     void UpdateElevation(CStateManager&);
     void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);

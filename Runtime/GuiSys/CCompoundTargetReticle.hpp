@@ -148,7 +148,7 @@ public:
     zeus::CVector3f CalculatePositionWorld(const CActor&, const CStateManager&) const;
     zeus::CVector3f CalculateOrbitZoneReticlePosition(const CStateManager&) const;
     bool IsGrappleTarget(TUniqueId, const CStateManager&) const;
-    void CalculateClampedScale(const zeus::CVector3f&, float, float, float, const CStateManager&);
+    static float CalculateClampedScale(const zeus::CVector3f&, float, float, float, const CStateManager&);
     void Touch() const;
 };
 }

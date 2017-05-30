@@ -49,9 +49,14 @@ public:
     };
     enum class EPlayerZoneInfo
     {
+        Zero,
+        One
     };
     enum class EPlayerZoneType
     {
+        Always = -1,
+        Box = 0,
+        Ellipse
     };
     enum class EPlayerMovementState
     {
@@ -133,14 +138,14 @@ private:
     float x324_ = 0.f;
     float x328_ = 0.f;
     float x32c_ = 0.f;
-    u32 x330_ = 0;
-    u32 x334_ = 1;
+    EPlayerZoneInfo x330_orbitZone = EPlayerZoneInfo::Zero;
+    EPlayerZoneType x334_orbitType = EPlayerZoneType::Ellipse;
     u32 x338_ = 1;
     TUniqueId x33c_ = kInvalidUniqueId;
     float x340_ = 0.f;
-    // std::vector<> x344_;
-    // std::vector<> x354_;
-    // std::vector<> x364_;
+    std::vector<TUniqueId> x344_nearbyOrbitObjects;
+    std::vector<TUniqueId> x354_onScreenOrbitObjects;
+    std::vector<TUniqueId> x364_offScreenOrbitObjects;
     bool x374_ = false;
     float x378_ = 0.f;
     u8 x37c_ = 0;
@@ -174,10 +179,10 @@ private:
     float x3e8_ = 0.f;
     float x3ec_ = 0.f;
     float x3f0_ = 0.f;
-    TUniqueId x3f4_ = kInvalidUniqueId;
-    zeus::CVector3f x3f8_ = zeus::CVector3f::skZero;
-    TReservedAverage<zeus::CVector3f, 20> x404_;
-    zeus::CVector3f x480_ = zeus::CVector3f::skZero;
+    TUniqueId x3f4_aimTarget = kInvalidUniqueId;
+    zeus::CVector3f x3f8_targetAimPosition = zeus::CVector3f::skZero;
+    TReservedAverage<zeus::CVector3f, 20> x404_aimTargetAverage;
+    zeus::CVector3f x480_assistedTargetAim = zeus::CVector3f::skZero;
     float x48c_ = 0.f;
     std::unique_ptr<CPlayerGun> x490_gun;
     float x494_mapAlpha = 1.f;
@@ -264,7 +269,7 @@ private:
             bool x9c6_24_ : 1;
             bool x9c6_25_ : 1;
             bool x9c6_26_ : 1;
-            bool x9c6_27_ : 1;
+            bool x9c6_27_aimingAtProjectile : 1;
             bool x9c6_28_ : 1;
             bool x9c6_29_disableInput : 1;
             bool x9c6_30_newScanScanning : 1;
@@ -282,7 +287,7 @@ private:
     float x9d8_ = 0.f;
     float x9dc_ = 1.f;
     float x9e0_ = 0.f;
-    u32 x9e4_ = 0;
+    rstl::reserved_vector<TUniqueId, 5> x9e4_orbitDisableList;
 
     float x9f4_deathTime = 0.f;
     float x9f8_ = 0.f;
@@ -361,6 +366,9 @@ public:
     void UpdateDebugCamera(CStateManager& mgr);
     CFirstPersonCamera& GetFirstPersonCamera(CStateManager& mgr);
     void UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool);
+    void UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr);
+    void UpdateAimTargetPrediction(const zeus::CTransform& xf, const CStateManager& mgr);
+    void ResetAimTargetPrediction(TUniqueId target);
     void DrawGun(CStateManager& mgr);
     void HolsterGun(CStateManager& mgr);
     EPlayerCameraState GetCameraState() const { return x2f4_cameraState; }
@@ -377,7 +385,7 @@ public:
     void OrbitPoint(EPlayerOrbitType, CStateManager& mgr);
     zeus::CVector3f GetHUDOrbitTargetPosition() const;
     void SetOrbitState(EPlayerOrbitState, CStateManager& mgr);
-    void SetOrbitTargetId(TUniqueId);
+    void SetOrbitTargetId(TUniqueId, CStateManager& mgr);
     void UpdateOrbitPosition(float, CStateManager& mgr);
     void UpdateOrbitZPosition();
     void UpdateOrbitFixedPosition();
@@ -392,12 +400,12 @@ public:
     TUniqueId FindOrbitTargetId(CStateManager& mgr);
     void UpdateOrbitableObjects(CStateManager& mgr);
     TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const;
-    void FindOrbitableObjects(const std::vector<TUniqueId>&, std::vector<TUniqueId>&, EPlayerZoneInfo, EPlayerZoneType,
-                              CStateManager& mgr, bool) const;
+    void FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&, std::vector<TUniqueId>&,
+                              EPlayerZoneInfo, EPlayerZoneType, CStateManager& mgr, bool) const;
     bool WithinOrbitScreenBox(const zeus::CVector3f&, EPlayerZoneInfo, EPlayerZoneType) const;
     bool WithinOrbitScreenEllipse(const zeus::CVector3f&, EPlayerZoneInfo) const;
-    void CheckOrbitDisableSourceList(CStateManager& mgr);
-    void CheckOrbitDisableSourceList() const;
+    bool CheckOrbitDisableSourceList(CStateManager& mgr);
+    bool CheckOrbitDisableSourceList() const { return x9e4_orbitDisableList.size() != 0; }
     void RemoveOrbitDisableSource(TUniqueId);
     void AddOrbitDisableSource(CStateManager& mgr, TUniqueId);
     void UpdateOrbitPreventionTimer(float);
@@ -458,6 +466,12 @@ public:
     CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }
     float GetDeathTime() const { return x9f4_deathTime; }
     const CPlayerEnergyDrain& GetEnergyDrain() const { return x274_energyDrain; }
+    EPlayerZoneInfo GetOrbitZone() const { return x330_orbitZone; }
+    EPlayerZoneType GetOrbitType() const { return x334_orbitType; }
+    const zeus::CTransform& GetFirstPersonCameraTransform(const CStateManager& mgr) const;
+    const std::vector<TUniqueId>& GetNearbyOrbitObjects() const { return x344_nearbyOrbitObjects; }
+    const std::vector<TUniqueId>& GetOnScreenOrbitObjects() const { return x354_onScreenOrbitObjects; }
+    const std::vector<TUniqueId>& GetOffScreenOrbitObjects() const { return x364_offScreenOrbitObjects; }
 
     void Touch();
 

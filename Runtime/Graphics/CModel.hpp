@@ -33,7 +33,15 @@ struct CModelFlags
 
     CModelFlags() = default;
     CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
-    : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
+    : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col)
+    {
+        if (blendMode > 6)
+            m_extendedShader = EExtendedShader::ForcedAdditive;
+        else if (blendMode > 4)
+            m_extendedShader = EExtendedShader::ForcedAlpha;
+        else
+            m_extendedShader = EExtendedShader::Lighting;
+    }
 
     /* Flags
         0x1: depth equal

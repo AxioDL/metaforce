@@ -134,8 +134,8 @@ struct CTweakTargeting : public ITweakTargeting
     Value<float> x210_;
     Value<atVec4f> x214_;
     Value<float> x218_;
-    Value<float> x21c_;
-    Value<float> x220_;
+    Value<float> x21c_scanTargetClampMin;
+    Value<float> x220_scanTargetClampMax;
     Value<float> x224_;
 
     CTweakTargeting() = default;
@@ -150,6 +150,8 @@ struct CTweakTargeting : public ITweakTargeting
 
     float GetOvershootOffset() const { return xe8_overshootOffset; }
     float GetXD0() const { return xd0_; }
+    float GetScanTargetClampMin() const { return x21c_scanTargetClampMin; }
+    float GetScanTargetClampMax() const { return x220_scanTargetClampMax; }
 };
 }
 }

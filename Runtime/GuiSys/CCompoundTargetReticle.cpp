@@ -56,4 +56,17 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 }
 
 zeus::CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const CStateManager&) const { return {}; }
+
+float CCompoundTargetReticle::CalculateClampedScale(const zeus::CVector3f& pos, float scale,
+                                                    float clampMin, float clampMax,
+                                                    const CStateManager& mgr)
+{
+    const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+    zeus::CVector3f viewPos = cam->GetTransform().transposeRotate(pos - cam->GetTransform().origin);
+    float unclampedX = (cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos + zeus::CVector3f(scale, 0.f, 0.f)).x -
+                        cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos).x) * 640.f;
+    return zeus::clamp(clampMin, unclampedX, clampMax) / unclampedX * scale;
+}
+
 }
