@@ -83,7 +83,7 @@ protected:
     bool xb6_27_isSelectable : 1;
     bool xb6_28_eventLock : 1;
     bool xb6_29_cullFaces : 1;
-    bool xb6_30_ : 1;
+    bool xb6_30_depthGreater : 1;
     bool xb6_31_depthTest : 1;
     bool xb7_24_depthWrite : 1;
     bool xb7_25_ : 1;
@@ -132,6 +132,7 @@ public:
     CGuiWidget* FindWidget(s16 id);
     bool GetIsFinishedLoading() const;
     void DispatchInitialize();
+    void SetDepthGreater(bool v) { xb6_30_depthGreater = v; }
     void SetDepthTest(bool v) { xb6_31_depthTest = v; }
     void SetDepthWrite(bool v) { xb7_24_depthWrite = v; }
 

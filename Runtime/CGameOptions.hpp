@@ -134,7 +134,7 @@ class CGameOptions
         u16 _dummy = 0;
     };
 
-    std::vector<CSaveWorld::SScanState> x6c_scanStates;
+    std::vector<std::pair<ResId, ResId>> x6c_controlTxtrMap;
 
 public:
     CGameOptions();
@@ -173,9 +173,9 @@ public:
     bool GetSwapBeamControls() const { return x68_27_swapBeamsControls; }
     void SetIsHintSystemEnabled(bool);
     bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
-    void SetControls(s32);
-    void ResetControllerAssets();
-    std::vector<CSaveWorld::SScanState>& GetScanStates() { return x6c_scanStates; }
+    void SetControls(int controls);
+    void ResetControllerAssets(int controls);
+    const std::vector<std::pair<ResId, ResId>>& GetControlTXTRMap() const { return x6c_controlTxtrMap; }
 
     static void TryRestoreDefaults(const CFinalInput& input, int category,
                                    int option, bool frontend, bool forceRestore);

@@ -211,8 +211,8 @@ void CHudDecoInterfaceScan::InitializeFlatFrame()
     x274_flat_model_dash = static_cast<CGuiModel*>(x10_loadedScanHudFlat->FindWidget("model_dash"));
     x260_flat_basewidget_textgroup->SetVisibility(false, ETraversalMode::Children);
     x254_flat_textpane_scanning->SetIsVisible(false);
-    x254_flat_textpane_scanning->TextSupport()->SetFontColor(g_tweakGuiColors->GetHudMessageFill());
-    x254_flat_textpane_scanning->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetHudMessageOutline());
+    x254_flat_textpane_scanning->TextSupport().SetFontColor(g_tweakGuiColors->GetHudMessageFill());
+    x254_flat_textpane_scanning->TextSupport().SetOutlineColor(g_tweakGuiColors->GetHudMessageOutline());
     x25c_flat_energybart01_scanbar->SetCoordFunc(CAuiEnergyBarT01::DownloadBarCoordFunc);
     x25c_flat_energybart01_scanbar->ResetMaxEnergy();
     x25c_flat_energybart01_scanbar->SetFilledColor(zeus::CColor(0.4f, 0.68f, 0.88f, 1.f));
@@ -252,16 +252,16 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
                 if (x1d4_latestScanState == CPlayer::EPlayerScanState::Scanning)
                 {
                     // Scan complete
-                    x254_flat_textpane_scanning->TextSupport()->SetText(g_MainStringTable->GetString(15));
-                    x254_flat_textpane_scanning->TextSupport()->SetTypeWriteEffectOptions(false, 0.f, 40.f);
+                    x254_flat_textpane_scanning->TextSupport().SetText(g_MainStringTable->GetString(15));
+                    x254_flat_textpane_scanning->TextSupport().SetTypeWriteEffectOptions(false, 0.f, 40.f);
                     x238_scanningTextAlpha = 2.f;
                 }
             }
             else if (scanState == CPlayer::EPlayerScanState::Scanning)
             {
                 // Scanning
-                x254_flat_textpane_scanning->TextSupport()->SetText(g_MainStringTable->GetString(14));
-                x254_flat_textpane_scanning->TextSupport()->SetTypeWriteEffectOptions(false, 0.f, 40.f);
+                x254_flat_textpane_scanning->TextSupport().SetText(g_MainStringTable->GetString(14));
+                x254_flat_textpane_scanning->TextSupport().SetTypeWriteEffectOptions(false, 0.f, 40.f);
                 x238_scanningTextAlpha = 2.f;
             }
         }
@@ -279,8 +279,8 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
             if (!player.ObjectInScanningRange(x1d0_latestHudPoi, stateMgr))
             {
                 // Object out of scanning range
-                x254_flat_textpane_scanning->TextSupport()->SetText(g_MainStringTable->GetString(16));
-                x254_flat_textpane_scanning->TextSupport()->SetTypeWriteEffectOptions(true, 0.f, 40.f);
+                x254_flat_textpane_scanning->TextSupport().SetText(g_MainStringTable->GetString(16));
+                x254_flat_textpane_scanning->TextSupport().SetTypeWriteEffectOptions(true, 0.f, 40.f);
                 x238_scanningTextAlpha = 1.f;
             }
         }

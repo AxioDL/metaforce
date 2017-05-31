@@ -46,12 +46,12 @@ void CQuitGameScreen::FinishedLoading()
     x14_tablegroup_quitgame->SetMenuSelectionChangeCallback(
         std::bind(&CQuitGameScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
 
-    static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_title"))->TextSupport()->
+    static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_title"))->TextSupport().
         SetText(g_MainStringTable->GetString(Titles[int(x0_type)]));
 
-    static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_yes"))->TextSupport()->
+    static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_yes"))->TextSupport().
         SetText(g_MainStringTable->GetString(22));
-    static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_no"))->TextSupport()->
+    static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_no"))->TextSupport().
         SetText(g_MainStringTable->GetString(23));
 
     x14_tablegroup_quitgame->SetUserSelection(DefaultSelections[int(x0_type)]);

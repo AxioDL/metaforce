@@ -47,8 +47,8 @@ CHudMissileInterface::CHudMissileInterface(CGuiFrame& selHud, int missileCapacit
 
     x10_missleIconXf = x74_basewidget_missileicon->GetLocalTransform();
 
-    x60_textpane_missiledigits->TextSupport()->SetFontColor(g_tweakGuiColors->GetMissileDigitsFont());
-    x60_textpane_missiledigits->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetMissileDigitsOutline());
+    x60_textpane_missiledigits->TextSupport().SetFontColor(g_tweakGuiColors->GetMissileDigitsFont());
+    x60_textpane_missiledigits->TextSupport().SetOutlineColor(g_tweakGuiColors->GetMissileDigitsOutline());
     x74_basewidget_missileicon->SetColor(g_tweakGuiColors->GetMissileIconColorInactive());
     x64_energybart01_missilebar->SetEmptyColor(g_tweakGuiColors->GetMissileBarEmpty());
     x64_energybart01_missilebar->SetFilledColor(g_tweakGuiColors->GetMissileBarFilled());
@@ -63,8 +63,8 @@ CHudMissileInterface::CHudMissileInterface(CGuiFrame& selHud, int missileCapacit
 
     if (x68_textpane_missilewarning)
     {
-        x68_textpane_missilewarning->TextSupport()->SetFontColor(g_tweakGuiColors->GetMissileWarningFont());
-        x68_textpane_missilewarning->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetMissileWarningOutline());
+        x68_textpane_missilewarning->TextSupport().SetFontColor(g_tweakGuiColors->GetMissileWarningFont());
+        x68_textpane_missilewarning->TextSupport().SetOutlineColor(g_tweakGuiColors->GetMissileWarningOutline());
     }
 
     SetNumMissiles(x8_numMissles, mgr);
@@ -184,7 +184,7 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr)
                 string = g_MainStringTable->GetString(13); // Depleted
             default: break;
             }
-            x68_textpane_missilewarning->TextSupport()->SetText(string);
+            x68_textpane_missilewarning->TextSupport().SetText(string);
 
             if (x44_latestStatus == EInventoryStatus::Normal && curStatus == EInventoryStatus::Warning)
             {
@@ -250,7 +250,7 @@ void CHudMissileInterface::SetNumMissiles(int numMissiles, const CStateManager& 
 {
     numMissiles = zeus::clamp(0, numMissiles, 999);
 
-    x60_textpane_missiledigits->TextSupport()->SetText(hecl::Format("%3d", numMissiles));
+    x60_textpane_missiledigits->TextSupport().SetText(hecl::Format("%3d", numMissiles));
 
     if (x8_numMissles < numMissiles)
     {

@@ -103,7 +103,7 @@ void CLogBookScreen::UpdateRightTitles()
             if (string.empty())
                 string = u"........";
         }
-        xd8_textpane_titles[i]->TextSupport()->SetText(string);
+        xd8_textpane_titles[i]->TextSupport().SetText(string);
     }
 
     int rightSelMod = x18_firstViewRightSel % 5;
@@ -198,7 +198,7 @@ void CLogBookScreen::UpdateBodyText()
 {
     if (x10_mode != EMode::TextScroll)
     {
-        x174_textpane_body->TextSupport()->SetText(u"");
+        x174_textpane_body->TextSupport().SetText(u"");
         return;
     }
 
@@ -219,7 +219,7 @@ void CLogBookScreen::UpdateBodyText()
                  accumStr = std::u16string(u"\n\n\n\n\n\n") + g_MainStringTable->GetString(105);
         }
 
-        x174_textpane_body->TextSupport()->SetText(accumStr, true);
+        x174_textpane_body->TextSupport().SetText(accumStr, true);
     }
 }
 
@@ -351,9 +351,9 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input)
 
     if (x10_mode == EMode::TextScroll)
     {
-        int oldPage = x174_textpane_body->TextSupport()->GetPageCounter();
+        int oldPage = x174_textpane_body->TextSupport().GetPageCounter();
         int newPage = oldPage;
-        int pageCount = x174_textpane_body->TextSupport()->GetTotalPageCount();
+        int pageCount = x174_textpane_body->TextSupport().GetTotalPageCount();
         bool lastPage = (pageCount - 1) == oldPage;
         if (pageCount != -1)
         {
@@ -361,7 +361,7 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input)
                 newPage = std::max(oldPage - 1, 0);
             else if (input.PLADown() || (input.PA() && !lastPage))
                 newPage = std::min(oldPage + 1, pageCount - 1);
-            x174_textpane_body->TextSupport()->SetPage(newPage);
+            x174_textpane_body->TextSupport().SetPage(newPage);
             if (oldPage != newPage)
                 CSfxManager::SfxStart(1444, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             x198_28_pulseTextArrowTop = newPage > 1;
@@ -412,16 +412,16 @@ void CLogBookScreen::VActivate()
     {
         if (IsScanCategoryReady(CSaveWorld::EScanCategory(i + 1)))
         {
-            xa8_textpane_categories[i]->TextSupport()->SetText(xc_pauseStrg.GetString(i + 1));
+            xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 1));
         }
         else
         {
-            xa8_textpane_categories[i]->TextSupport()->SetText(u"??????");
+            xa8_textpane_categories[i]->TextSupport().SetText(u"??????");
             x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
         }
     }
 
-    x178_textpane_title->TextSupport()->SetText(xc_pauseStrg.GetString(0));
+    x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(0));
 
     for (int i=0 ; i<5 ; ++i)
         x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
@@ -439,7 +439,7 @@ void CLogBookScreen::ChangedMode(EMode oldMode)
         x74_basewidget_leftguages->SetVisibility(false, ETraversalMode::Children);
         x88_basewidget_rightguages->SetVisibility(false, ETraversalMode::Children);
         UpdateBodyText();
-        x174_textpane_body->TextSupport()->SetPage(0);
+        x174_textpane_body->TextSupport().SetPage(0);
     }
     else if (x10_mode == EMode::TextScroll)
     {

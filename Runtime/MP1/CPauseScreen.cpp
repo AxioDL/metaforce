@@ -57,10 +57,10 @@ void CPauseScreen::InitializeFrameGlue()
     x4c_textpane_next = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_next"));
     x50_textpane_back = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_back"));
 
-    x40_textpane_a->TextSupport()->SetText(x14_strgPauseScreen->GetString(7)); // OPTIONS
-    x40_textpane_a->TextSupport()->SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
-    x44_textpane_b->TextSupport()->SetText(x14_strgPauseScreen->GetString(6)); // LOG BOOK
-    x44_textpane_b->TextSupport()->SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
+    x40_textpane_a->TextSupport().SetText(x14_strgPauseScreen->GetString(7)); // OPTIONS
+    x40_textpane_a->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
+    x44_textpane_b->TextSupport().SetText(x14_strgPauseScreen->GetString(6)); // LOG BOOK
+    x44_textpane_b->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
     x40_textpane_a->SetColor(zeus::CColor::skClear);
     x44_textpane_b->SetColor(zeus::CColor::skClear);
 
@@ -206,11 +206,11 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
         }
     }
 
-    x38_textpane_l1->TextSupport()->SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[input.DLTrigger()])));
-    x3c_textpane_r->TextSupport()->SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[input.DRTrigger()])));
-    x48_textpane_return->TextSupport()->SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[input.DStart()])));
-    x50_textpane_back->TextSupport()->SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[input.DA()])));
-    x4c_textpane_next->TextSupport()->SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xa4_bButton[input.DB()])));
+    x38_textpane_l1->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[input.DLTrigger()])));
+    x3c_textpane_r->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[input.DRTrigger()])));
+    x48_textpane_return->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[input.DStart()])));
+    x50_textpane_back->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[input.DA()])));
+    x4c_textpane_next->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xa4_bButton[input.DB()])));
 }
 
 void CPauseScreen::TransitionComplete()
@@ -219,8 +219,8 @@ void CPauseScreen::TransitionComplete()
     curScreen.reset();
     x78_activeIdx = 1 - x78_activeIdx;
     x8_curSubscreen = xc_nextSubscreen;
-    x40_textpane_a->TextSupport()->SetText(x14_strgPauseScreen->GetString(int(GetPreviousSubscreen(x8_curSubscreen)) + 6));
-    x44_textpane_b->TextSupport()->SetText(x14_strgPauseScreen->GetString(int(GetNextSubscreen(x8_curSubscreen)) + 6));
+    x40_textpane_a->TextSupport().SetText(x14_strgPauseScreen->GetString(int(GetPreviousSubscreen(x8_curSubscreen)) + 6));
+    x44_textpane_b->TextSupport().SetText(x14_strgPauseScreen->GetString(int(GetNextSubscreen(x8_curSubscreen)) + 6));
 }
 
 void CPauseScreen::Update(float dt, const CStateManager& mgr, CRandom16& rand, CArchitectureQueue& archQueue)

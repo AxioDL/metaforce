@@ -100,7 +100,7 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading()
     FindAndSetPairText(x1c_loadedFrame, "textpane_title", g_MainStringTable->GetString(97));
     CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_proceed"));
     if (proceed)
-        proceed->TextSupport()->SetText(g_MainStringTable->GetString(85));
+        proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
     x40_tablegroup_popup->SetIsVisible(false);
     x40_tablegroup_popup->SetIsActive(false);
     x40_tablegroup_popup->SetVertical(false);
@@ -153,9 +153,9 @@ bool CFrontEndUI::SNewFileSelectFrame::IsTextDoneAnimating() const
         return false;
     if (x64_fileSelections[2].x28_curField != 4)
         return false;
-    if (!x28_textpane_erase.x0_panes[0]->GetTextSupport()->IsAnimationDone())
+    if (!x28_textpane_erase.x0_panes[0]->GetTextSupport().IsAnimationDone())
         return false;
-    return x38_textpane_gba.x0_panes[0]->GetTextSupport()->IsAnimationDone();
+    return x38_textpane_gba.x0_panes[0]->GetTextSupport().IsAnimationDone();
 }
 
 void CFrontEndUI::SNewFileSelectFrame::Update(float dt)
@@ -373,7 +373,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivateNewGamePopup()
 
     x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].
         x0_base->SetColor(zeus::CColor::skWhite);
-    x60_textpane_cancel->TextSupport()->SetText(u"");
+    x60_textpane_cancel->TextSupport().SetText(u"");
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
@@ -409,7 +409,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup()
         x50_textpane_popupcancel.SetPairText(g_MainStringTable->GetString(94));
         x44_model_dash7->SetVisibility(false, ETraversalMode::Children);
     }
-    x60_textpane_cancel->TextSupport()->SetText(g_MainStringTable->GetString(82));
+    x60_textpane_cancel->TextSupport().SetText(g_MainStringTable->GetString(82));
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ResetFrame()
@@ -417,16 +417,16 @@ void CFrontEndUI::SNewFileSelectFrame::ResetFrame()
     x8_subMenu = ESubMenu::Root;
 
     x38_textpane_gba.x0_panes[0]->SetIsSelectable(true);
-    x38_textpane_gba.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    x38_textpane_gba.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
 
     x30_textpane_cheats.x0_panes[0]->SetIsSelectable(true);
-    x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
 
     ClearFrameContents();
 
     for (int i=2 ; i>=0 ; --i)
         x20_tablegroup_fileselect->GetWorkerWidget(i)->SetIsSelectable(true);
-    x60_textpane_cancel->TextSupport()->SetText(u"");
+    x60_textpane_cancel->TextSupport().SetText(u"");
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
@@ -435,9 +435,9 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
     x28_textpane_erase.x0_panes[0]->SetIsSelectable(false);
     zeus::CColor color = zeus::CColor::skGrey;
     color.a = 0.5f;
-    x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(color);
-    x38_textpane_gba.x0_panes[0]->TextSupport()->SetFontColor(color);
-    x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(color);
+    x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(color);
+    x38_textpane_gba.x0_panes[0]->TextSupport().SetFontColor(color);
+    x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(color);
     x38_textpane_gba.x0_panes[0]->SetIsSelectable(false);
     x30_textpane_cheats.x0_panes[0]->SetIsSelectable(false);
 
@@ -455,7 +455,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateErase()
         }
     }
 
-    x60_textpane_cancel->TextSupport()->SetText(g_MainStringTable->GetString(82));
+    x60_textpane_cancel->TextSupport().SetText(g_MainStringTable->GetString(82));
     HandleActiveChange(x20_tablegroup_fileselect);
 }
 
@@ -485,14 +485,14 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
     if (hasSave)
     {
         x28_textpane_erase.x0_panes[0]->SetIsSelectable(true);
-        x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+        x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
     }
     else
     {
         x28_textpane_erase.x0_panes[0]->SetIsSelectable(false);
         zeus::CColor color = zeus::CColor::skGrey;
         color.a = 0.5f;
-        x28_textpane_erase.x0_panes[0]->TextSupport()->SetFontColor(color);
+        x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(color);
     }
 
     x20_tablegroup_fileselect->SetUserSelection(0);
@@ -500,14 +500,14 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents()
     if (CSlideShow::SlideShowGalleryFlags())
     {
         cheats->SetIsSelectable(true);
-        x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+        x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
     }
     else
     {
         cheats->SetIsSelectable(false);
         zeus::CColor color = zeus::CColor::skGrey;
         color.a = 0.5f;
-        x30_textpane_cheats.x0_panes[0]->TextSupport()->SetFontColor(color);
+        x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(color);
     }
 
     HandleActiveChange(x20_tablegroup_fileselect);
@@ -522,8 +522,8 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents()
             continue;
         SGuiTextPair* pair = (option.x28_curField == -1) ? nullptr : &option.x4_textpanes[option.x28_curField];
         if (!pair ||
-            pair->x0_panes[0]->GetTextSupport()->GetNumCharsPrinted() >=
-            pair->x0_panes[0]->GetTextSupport()->GetNumCharsTotal())
+            pair->x0_panes[0]->GetTextSupport().GetNumCharsPrinted() >=
+            pair->x0_panes[0]->GetTextSupport().GetNumCharsTotal())
         {
             if (++option.x28_curField < 4)
             {
@@ -706,8 +706,8 @@ CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOpt
 
 void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, const std::u16string& str, float chRate)
 {
-    text->TextSupport()->SetText(str);
-    text->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, chRate);
+    text->TextSupport().SetText(str);
+    text->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, chRate);
 }
 
 CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame(CFrontEndUITouchBar& touchBar)
@@ -809,12 +809,12 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp)
     std::u16string yesStr;
     if (yes != -1)
         yesStr = g_MainStringTable->GetString(yes);
-    x14_textpane_yes->TextSupport()->SetText(yesStr);
+    x14_textpane_yes->TextSupport().SetText(yesStr);
 
     std::u16string noStr;
     if (no != -1)
         noStr = g_MainStringTable->GetString(no);
-    x18_textpane_no->TextSupport()->SetText(noStr);
+    x18_textpane_no->TextSupport().SetText(noStr);
 
     x1c_model_gc->SetVisibility(true, ETraversalMode::Children);
     x20_model_gba->SetVisibility(true, ETraversalMode::Children);
@@ -978,9 +978,9 @@ void CFrontEndUI::SFusionBonusFrame::FinishedLoading()
     FindAndSetPairText(x24_loadedFrame, "textpane_title", g_MainStringTable->GetString(100));
 
     static_cast<CGuiTextPane*>(x24_loadedFrame->FindWidget("textpane_proceed"))->
-        TextSupport()->SetText(g_MainStringTable->GetString(85));
+        TextSupport().SetText(g_MainStringTable->GetString(85));
     static_cast<CGuiTextPane*>(x24_loadedFrame->FindWidget("textpane_cancel"))->
-        TextSupport()->SetText(g_MainStringTable->GetString(82));
+        TextSupport().SetText(g_MainStringTable->GetString(82));
 
     x2c_tablegroup_fusionsuit->SetIsActive(false);
     x2c_tablegroup_fusionsuit->SetIsVisible(false);
@@ -1046,7 +1046,7 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI)
     x24_loadedFrame->FindWidget("textpane_proceed")->SetIsVisible(showFusionSuitProceed);
 
     std::u16string instructionStr;
-    x30_textpane_instructions.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+    x30_textpane_instructions.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
     if (x28_tablegroup_options->GetUserSelection() == 1)
     {
         /* Fusion Suit */
@@ -1065,7 +1065,7 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI)
         else
         {
             instructionStr = u"NES Emulator currently unsupported";
-            x30_textpane_instructions.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skYellow);
+            x30_textpane_instructions.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skYellow);
         }
     }
 
@@ -1241,8 +1241,8 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
 
 void CFrontEndUI::SGuiTextPair::SetPairText(const std::u16string& str)
 {
-    x0_panes[0]->TextSupport()->SetText(str);
-    x0_panes[1]->TextSupport()->SetText(str);
+    x0_panes[0]->TextSupport().SetText(str);
+    x0_panes[1]->TextSupport().SetText(str);
 }
 
 CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, const char* name)
@@ -1256,9 +1256,9 @@ CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, const 
 void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, const std::u16string& str)
 {
     CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
-    w1->TextSupport()->SetText(str);
+    w1->TextSupport().SetText(str);
     CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(hecl::Format("%sb", name).c_str()));
-    w2->TextSupport()->SetText(str);
+    w2->TextSupport().SetText(str);
 }
 
 void CFrontEndUI::SFrontEndFrame::FinishedLoading()
@@ -1277,7 +1277,7 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading()
 
     CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x14_loadedFrme->FindWidget("textpane_proceed"));
     if (proceed)
-        proceed->TextSupport()->SetText(g_MainStringTable->GetString(85));
+        proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
 
     x18_tablegroup_mainmenu->SetMenuAdvanceCallback(
         std::bind(&SFrontEndFrame::DoAdvance, this, std::placeholders::_1));
@@ -1316,14 +1316,14 @@ void CFrontEndUI::SFrontEndFrame::Update(float dt)
     if (CSlideShow::SlideShowGalleryFlags())
     {
         imageGallery->SetIsSelectable(true);
-        x24_cheatPair.x0_panes[0]->TextSupport()->SetFontColor(zeus::CColor::skWhite);
+        x24_cheatPair.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
     }
     else
     {
         imageGallery->SetIsSelectable(false);
         zeus::CColor color = zeus::CColor::skGrey;
         color.a = 0.5f;
-        x24_cheatPair.x0_panes[0]->TextSupport()->SetFontColor(color);
+        x24_cheatPair.x0_panes[0]->TextSupport().SetFontColor(color);
     }
 
     x14_loadedFrme->Update(dt);
@@ -1798,10 +1798,10 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading()
     FindTextPanePair(x1c_loadedFrame, "textpane_title").SetPairText(g_MainStringTable->GetString(99)); // OPTIONS
 
     if (CGuiTextPane* proceed = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_proceed")))
-        proceed->TextSupport()->SetText(g_MainStringTable->GetString(85));
+        proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
 
     if (CGuiTextPane* cancel = static_cast<CGuiTextPane*>(x1c_loadedFrame->FindWidget("textpane_cancel")))
-        cancel->TextSupport()->SetText(g_MainStringTable->GetString(82));
+        cancel->TextSupport().SetText(g_MainStringTable->GetString(82));
 
     // Visor, Display, Sound, Controller
     for (int i=0 ; i<4 ;++i)

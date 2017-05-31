@@ -148,7 +148,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
         initStr = hecl::Char16Format(L"&font=%08X;", u32(x5c_fontId));
     initStr += x0_string;
 
-    g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size());
+    g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size(), x14_props.xc_txtrMap);
 
     g_TextExecuteBuf->EndBlock();
 }
@@ -308,11 +308,11 @@ bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const
     return _GetIsTextSupportFinishedLoading();
 }
 
-void CGuiTextSupport::SetScanStates(const std::vector<CSaveWorld::SScanState>* scanStates)
+void CGuiTextSupport::SetControlTXTRMap(const std::vector<std::pair<ResId, ResId>>* txtrMap)
 {
-    if (x14_props.xc_scanStates != scanStates)
+    if (x14_props.xc_txtrMap != txtrMap)
     {
-        x14_props.xc_scanStates = scanStates;
+        x14_props.xc_txtrMap = txtrMap;
         ClearRenderBuffer();
     }
 }

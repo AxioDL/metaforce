@@ -86,20 +86,20 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
 
     if (x4_type == EHudVisorBeamMenu::Visor)
     {
-        x20_textpane_menu->TextSupport()->SetFontColor(g_tweakGuiColors->GetVisorMenuTextFont());
-        x20_textpane_menu->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetVisorMenuTextOutline());
+        x20_textpane_menu->TextSupport().SetFontColor(g_tweakGuiColors->GetVisorMenuTextFont());
+        x20_textpane_menu->TextSupport().SetOutlineColor(g_tweakGuiColors->GetVisorMenuTextOutline());
     }
     else
     {
-        x20_textpane_menu->TextSupport()->SetFontColor(g_tweakGuiColors->GetBeamMenuTextFont());
-        x20_textpane_menu->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetBeamMenuTextOutline());
+        x20_textpane_menu->TextSupport().SetFontColor(g_tweakGuiColors->GetBeamMenuTextFont());
+        x20_textpane_menu->TextSupport().SetOutlineColor(g_tweakGuiColors->GetBeamMenuTextOutline());
     }
 
     zeus::CColor titleColor = zeus::CColor::skWhite;
     titleColor.a = 0.f;
     x1c_basewidget_menutitle->SetColor(titleColor);
 
-    x20_textpane_menu->TextSupport()->SetText(g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
+    x20_textpane_menu->TextSupport().SetText(g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
 
     for (int i=0 ; i<4 ; ++i)
     {
@@ -320,8 +320,8 @@ void CHudVisorBeamMenu::SetSelection(int selection, int pending, float interp)
     else if (interp < 1.f)
     {
         x6c_animPhase = EAnimPhase::Animate;
-        x20_textpane_menu->TextSupport()->SetText(g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
-        x20_textpane_menu->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, 16.f);
+        x20_textpane_menu->TextSupport().SetText(g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
+        x20_textpane_menu->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 16.f);
     }
     else
     {

@@ -51,7 +51,7 @@ void CHudBossEnergyInterface::SetBossParams(bool visible, const std::u16string& 
         x18_energybart01_bossbar->SetFilledDrainSpeed(maxEnergy);
         x18_energybart01_bossbar->SetCurrEnergy(curEnergy, CAuiEnergyBarT01::ESetMode::Normal);
         x18_energybart01_bossbar->SetMaxEnergy(maxEnergy);
-        x1c_textpane_boss->TextSupport()->SetText(name);
+        x1c_textpane_boss->TextSupport().SetText(name);
     }
     x8_curEnergy = curEnergy;
     xc_maxEnergy = maxEnergy;

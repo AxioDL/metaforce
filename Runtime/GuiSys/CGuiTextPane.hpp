@@ -16,8 +16,8 @@ public:
                  const zeus::CColor& col1, const zeus::CColor& col2, s32 padX, s32 padY);
     FourCC GetWidgetTypeID() const { return FOURCC('TXPN'); }
 
-    CGuiTextSupport* TextSupport() { return &xd4_textSupport; }
-    const CGuiTextSupport* GetTextSupport() const { return &xd4_textSupport; }
+    CGuiTextSupport& TextSupport() { return xd4_textSupport; }
+    const CGuiTextSupport& GetTextSupport() const { return xd4_textSupport; }
     void Update(float dt);
     bool GetIsFinishedLoadingWidgetSpecific() const;
     std::vector<ResId> GetFontAssets() const { return {xd4_textSupport.x5c_fontId}; }

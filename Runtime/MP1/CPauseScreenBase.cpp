@@ -8,6 +8,8 @@
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "CGameState.hpp"
+#include "GuiSys/CStringTable.hpp"
 
 namespace urde
 {
@@ -42,11 +44,24 @@ void CPauseScreenBase::InitializeFrameGlue()
     xa4_model_scrollrightdown = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollrightdown"));
     x94_model_textarrowbottom = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textarrowbottom"));
     x178_textpane_title = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_title"));
+    x178_textpane_title->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
     x174_textpane_body = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_body"));
+    x174_textpane_body->SetIsVisible(true);
+    x174_textpane_body->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
+    x174_textpane_body->TextSupport().SetPage(0);
+    x174_textpane_body->TextSupport().SetText(u"");
+    x174_textpane_body->TextSupport().SetJustification(EJustification::Left);
+    x174_textpane_body->TextSupport().SetVerticalJustification(EVerticalJustification::Top);
+    x174_textpane_body->TextSupport().SetControlTXTRMap(&g_GameState->GameOptions().GetControlTXTRMap());
     x180_basewidget_yicon = x8_frame.FindWidget("basewidget_yicon");
+    x180_basewidget_yicon->SetVisibility(false, ETraversalMode::Children);
     x17c_model_textalpha = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textalpha"));
     x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
     x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
+    x184_textpane_yicon->TextSupport().SetText(hecl::UTF8ToChar16(hecl::Format("&image=%8.8X;",
+                                                                   u32(g_tweakPlayerRes->xbc_yButton[0]))));
+    x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString(99));
+    x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
     x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));
     x190_tablegroup_double = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_double"));
     x194_tablegroup_triple = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_triple"));

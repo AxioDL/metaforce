@@ -45,8 +45,8 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, in
     ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(hudType));
     ITweakGuiColors::VisorEnergyInitColors initColors = g_tweakGuiColors->GetVisorEnergyInitColors(int(hudType));
 
-    x20_textpane_energydigits->TextSupport()->SetFontColor(initColors.digitsFont);
-    x20_textpane_energydigits->TextSupport()->SetOutlineColor(initColors.digitsOutline);
+    x20_textpane_energydigits->TextSupport().SetFontColor(initColors.digitsFont);
+    x20_textpane_energydigits->TextSupport().SetOutlineColor(initColors.digitsOutline);
 
     x2c_energybart01_energybar->SetMaxEnergy(CPlayerState::GetBaseHealthCapacity());
     x2c_energybart01_energybar->SetFilledColor(barColors.filled);
@@ -61,12 +61,12 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, in
 
     if (x28_textpane_energywarning)
     {
-        x28_textpane_energywarning->TextSupport()->SetFontColor(g_tweakGuiColors->GetEnergyWarningFont());
-        x28_textpane_energywarning->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetEnergyWarningOutline());
+        x28_textpane_energywarning->TextSupport().SetFontColor(g_tweakGuiColors->GetEnergyWarningFont());
+        x28_textpane_energywarning->TextSupport().SetOutlineColor(g_tweakGuiColors->GetEnergyWarningOutline());
         if (x1c_27_energyLow)
-            x28_textpane_energywarning->TextSupport()->SetText(g_MainStringTable->GetString(9));
+            x28_textpane_energywarning->TextSupport().SetText(g_MainStringTable->GetString(9));
         else
-            x28_textpane_energywarning->TextSupport()->SetText(u"");
+            x28_textpane_energywarning->TextSupport().SetText(u"");
     }
 
     for (int i=0 ; i<14 ; ++i)
@@ -110,7 +110,7 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse)
         x18_cachedBarEnergy = x2c_energybart01_energybar->GetFilledEnergy();
         std::string string = hecl::Format("%02d",
             int(std::fmod(x18_cachedBarEnergy, CPlayerState::GetEnergyTankCapacity())));
-        x20_textpane_energydigits->TextSupport()->SetText(string);
+        x20_textpane_energydigits->TextSupport().SetText(string);
     }
 
     ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(x0_hudType));
@@ -134,7 +134,7 @@ void CHudEnergyInterface::SetEnergyLow(bool energyLow)
         string = g_MainStringTable->GetString(9);
 
     if (x28_textpane_energywarning)
-        x28_textpane_energywarning->TextSupport()->SetText(string);
+        x28_textpane_energywarning->TextSupport().SetText(string);
 
     if (energyLow)
         CSfxManager::SfxStart(1405, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

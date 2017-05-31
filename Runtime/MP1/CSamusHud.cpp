@@ -100,8 +100,8 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr)
     x58c_helmet_BaseWidget_Pivot = x264_loadedFrmeHelmet->FindWidget("BaseWidget_Pivot");
     x590_base_Model_AutoMapper = static_cast<CGuiModel*>(x274_loadedFrmeBaseHud->FindWidget("Model_AutoMapper"));
     x594_base_textpane_counter = static_cast<CGuiTextPane*>(x274_loadedFrmeBaseHud->FindWidget("textpane_counter"));
-    x594_base_textpane_counter->TextSupport()->SetFontColor(g_tweakGuiColors->GetHudCounterFill());
-    x594_base_textpane_counter->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetHudCounterOutline());
+    x594_base_textpane_counter->TextSupport().SetFontColor(g_tweakGuiColors->GetHudCounterFill());
+    x594_base_textpane_counter->TextSupport().SetOutlineColor(g_tweakGuiColors->GetHudCounterOutline());
     x598_base_basewidget_message = x274_loadedFrmeBaseHud->FindWidget("basewidget_message");
     for (CGuiWidget* child = static_cast<CGuiWidget*>(x598_base_basewidget_message->GetChildObject());
          child ; child = static_cast<CGuiWidget*>(child->GetNextSibling()))
@@ -120,9 +120,9 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr)
     }
     x59c_base_textpane_message->SetDepthTest(false);
     x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);
-    x59c_base_textpane_message->TextSupport()->SetFontColor(g_tweakGuiColors->GetHudMessageFill());
-    x59c_base_textpane_message->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetHudMessageOutline());
-    x59c_base_textpane_message->TextSupport()->SetScanStates(&g_GameState->GameOptions().GetScanStates());
+    x59c_base_textpane_message->TextSupport().SetFontColor(g_tweakGuiColors->GetHudMessageFill());
+    x59c_base_textpane_message->TextSupport().SetOutlineColor(g_tweakGuiColors->GetHudMessageOutline());
+    x59c_base_textpane_message->TextSupport().SetControlTXTRMap(&g_GameState->GameOptions().GetControlTXTRMap());
     x590_base_Model_AutoMapper->SetDepthWrite(true);
     x304_basewidgetIdlePos = x588_base_basewidget_pivot->GetIdlePosition();
     x310_cameraPos = x274_loadedFrmeBaseHud->GetFrameCamera()->GetLocalPosition();
@@ -1386,7 +1386,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         x558_messageTextAlpha = std::max(0.f, x558_messageTextAlpha - dt);
         if (x558_messageTextAlpha == 0.f)
         {
-            x59c_base_textpane_message->TextSupport()->SetTypeWriteEffectOptions(false, 0.f, 1.f);
+            x59c_base_textpane_message->TextSupport().SetTypeWriteEffectOptions(false, 0.f, 1.f);
             x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);
         }
     }
@@ -1425,7 +1425,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     }
 
     float nextSfxChars = x55c_lastSfxChars + g_tweakGui->GetWorldTransManagerCharsPerSfx();
-    if (x59c_base_textpane_message->TextSupport()->GetNumCharsPrinted() >= nextSfxChars)
+    if (x59c_base_textpane_message->TextSupport().GetNumCharsPrinted() >= nextSfxChars)
     {
         x55c_lastSfxChars = nextSfxChars;
         if (!x598_base_basewidget_message->GetIsVisible() || textScale == 1.f)
@@ -1439,7 +1439,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         int hundredths = std::fmod(mgr.GetEscapeSequenceTimer() * 100.f, 100.f);
         std::string timeStr = hecl::Format("%02d:%02d:%02d",
                                  int(minutes), int(seconds), int(hundredths));
-        x594_base_textpane_counter->TextSupport()->SetText(timeStr);
+        x594_base_textpane_counter->TextSupport().SetText(timeStr);
         x594_base_textpane_counter->SetIsVisible(true);
 
         zeus::CColor counterColor = zeus::CColor::skWhite;
@@ -1794,21 +1794,21 @@ void CSamusHud::SetMessage(const std::u16string& text, const CHUDMemoParms& info
         x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);
         CGuiWidget* pane = info.x6_hintMemo ? x598_base_basewidget_message : x59c_base_textpane_message;
         pane->SetVisibility(true, ETraversalMode::Children);
-        x59c_base_textpane_message->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, 40.f);
+        x59c_base_textpane_message->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 40.f);
         if (info.x4_initializeMemo)
         {
             x55c_lastSfxChars = 0.f;
-            x59c_base_textpane_message->TextSupport()->SetCurTime(0.f);
-            x59c_base_textpane_message->TextSupport()->SetText(text);
+            x59c_base_textpane_message->TextSupport().SetCurTime(0.f);
+            x59c_base_textpane_message->TextSupport().SetText(text);
         }
-        else if (x59c_base_textpane_message->TextSupport()->GetString().empty())
+        else if (x59c_base_textpane_message->TextSupport().GetString().empty())
         {
             x55c_lastSfxChars = 0.f;
-            x59c_base_textpane_message->TextSupport()->AddText(text);
+            x59c_base_textpane_message->TextSupport().AddText(text);
         }
         else
         {
-            x59c_base_textpane_message->TextSupport()->AddText(std::u16string(u"\n") + text);
+            x59c_base_textpane_message->TextSupport().AddText(std::u16string(u"\n") + text);
         }
 
         x59c_base_textpane_message->SetColor(zeus::CColor::skWhite);

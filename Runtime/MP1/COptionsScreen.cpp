@@ -197,27 +197,27 @@ bool COptionsScreen::VReady() const
 void COptionsScreen::VActivate()
 {
     for (int i=0 ; i<5 ; ++i)
-        xa8_textpane_categories[i]->TextSupport()->SetText(xc_pauseStrg.GetString(i + 16));
+        xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 16));
 
-    x178_textpane_title->TextSupport()->SetText(xc_pauseStrg.GetString(15));
+    x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(15));
 
     for (int i=0 ; i<5 ; ++i)
         x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
 
-    x174_textpane_body->TextSupport()->SetJustification(EJustification::Center);
-    x174_textpane_body->TextSupport()->SetVerticalJustification(EVerticalJustification::Bottom);
+    x174_textpane_body->TextSupport().SetJustification(EJustification::Center);
+    x174_textpane_body->TextSupport().SetVerticalJustification(EVerticalJustification::Bottom);
 
     static_cast<CGuiTextPane*>(x190_tablegroup_double->GetWorkerWidget(0))->
-        TextSupport()->SetText(xc_pauseStrg.GetString(95));
+        TextSupport().SetText(xc_pauseStrg.GetString(95));
     static_cast<CGuiTextPane*>(x190_tablegroup_double->GetWorkerWidget(1))->
-        TextSupport()->SetText(xc_pauseStrg.GetString(94));
+        TextSupport().SetText(xc_pauseStrg.GetString(94));
 
     static_cast<CGuiTextPane*>(x194_tablegroup_triple->GetWorkerWidget(0))->
-        TextSupport()->SetText(xc_pauseStrg.GetString(96));
+        TextSupport().SetText(xc_pauseStrg.GetString(96));
     static_cast<CGuiTextPane*>(x194_tablegroup_triple->GetWorkerWidget(1))->
-        TextSupport()->SetText(xc_pauseStrg.GetString(97));
+        TextSupport().SetText(xc_pauseStrg.GetString(97));
     static_cast<CGuiTextPane*>(x194_tablegroup_triple->GetWorkerWidget(2))->
-        TextSupport()->SetText(xc_pauseStrg.GetString(98));
+        TextSupport().SetText(xc_pauseStrg.GetString(98));
 
     x18c_slidergroup_slider->SetSelectionChangedCallback(
         std::bind(&COptionsScreen::OnSliderChanged, this, std::placeholders::_1, std::placeholders::_2));
@@ -254,9 +254,9 @@ void COptionsScreen::UpdateRightTable()
     for (int i=0 ; i<5 ; ++i)
     {
         if (i < category.first)
-            xd8_textpane_titles[i]->TextSupport()->SetText(xc_pauseStrg.GetString(category.second[i].stringId));
+            xd8_textpane_titles[i]->TextSupport().SetText(xc_pauseStrg.GetString(category.second[i].stringId));
         else
-            xd8_textpane_titles[i]->TextSupport()->SetText(u"");
+            xd8_textpane_titles[i]->TextSupport().SetText(u"");
     }
 }
 

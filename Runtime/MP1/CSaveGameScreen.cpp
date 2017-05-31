@@ -322,21 +322,21 @@ void CSaveGameScreen::SetUIText()
         msgAStr = x38_strgMemoryCard->GetString(msgA);
     if (msgB > -1)
         msgBStr = x38_strgMemoryCard->GetString(msgB);
-    x54_textpane_message->TextSupport()->SetText(msgAStr + msgBStr);
+    x54_textpane_message->TextSupport().SetText(msgAStr + msgBStr);
 
     if (opt0 > -1)
         opt0Str = x38_strgMemoryCard->GetString(opt0);
-    x5c_textpane_choice0->TextSupport()->SetText(opt0Str);
+    x5c_textpane_choice0->TextSupport().SetText(opt0Str);
 
     if (opt1 > -1)
         opt1Str = x38_strgMemoryCard->GetString(opt1);
-    x60_textpane_choice1->TextSupport()->SetText(opt1Str);
+    x60_textpane_choice1->TextSupport().SetText(opt1Str);
 
     if (opt2 > -1)
         opt2Str = x38_strgMemoryCard->GetString(opt2);
-    x64_textpane_choice2->TextSupport()->SetText(opt2Str);
+    x64_textpane_choice2->TextSupport().SetText(opt2Str);
 
-    x68_textpane_choice3->TextSupport()->SetText(opt3Str);
+    x68_textpane_choice3->TextSupport().SetText(opt3Str);
 
     m_touchBar->SetUIOpts(opt0Str, opt1Str, opt2Str);
 

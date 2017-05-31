@@ -39,8 +39,8 @@ CHudThreatInterface::CHudThreatInterface(CGuiFrame& selHud, EHudType hudType, fl
 
     if (x70_textpane_threatdigits)
     {
-        x70_textpane_threatdigits->TextSupport()->SetFontColor(g_tweakGuiColors->GetThreatDigitsFont());
-        x70_textpane_threatdigits->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetThreatDigitsOutline());
+        x70_textpane_threatdigits->TextSupport().SetFontColor(g_tweakGuiColors->GetThreatDigitsFont());
+        x70_textpane_threatdigits->TextSupport().SetOutlineColor(g_tweakGuiColors->GetThreatDigitsOutline());
     }
 
     x54_26_hasArrows = x60_model_threatarrowup && x64_model_threatarrowdown;
@@ -62,8 +62,8 @@ CHudThreatInterface::CHudThreatInterface(CGuiFrame& selHud, EHudType hudType, fl
 
     if (x68_textpane_threatwarning)
     {
-        x68_textpane_threatwarning->TextSupport()->SetFontColor(g_tweakGuiColors->GetThreatWarningFont());
-        x68_textpane_threatwarning->TextSupport()->SetOutlineColor(g_tweakGuiColors->GetThreatWarningOutline());
+        x68_textpane_threatwarning->TextSupport().SetFontColor(g_tweakGuiColors->GetThreatWarningFont());
+        x68_textpane_threatwarning->TextSupport().SetOutlineColor(g_tweakGuiColors->GetThreatWarningOutline());
     }
 }
 
@@ -104,7 +104,7 @@ void CHudThreatInterface::Update(float dt)
         if (x10_threatDist < maxThreatEnergy)
         {
             x70_textpane_threatdigits->SetIsVisible(true);
-            x70_textpane_threatdigits->TextSupport()->SetText(
+            x70_textpane_threatdigits->TextSupport().SetText(
                 hecl::Format("%01.1f", std::max(0.f, x10_threatDist)));
         }
         else
@@ -194,7 +194,7 @@ void CHudThreatInterface::Update(float dt)
             else if (newStatus == EThreatStatus::Damage)
                 string = g_MainStringTable->GetString(11);
 
-            x68_textpane_threatwarning->TextSupport()->SetText(string);
+            x68_textpane_threatwarning->TextSupport().SetText(string);
 
             if (x4c_threatStatus == EThreatStatus::Normal && newStatus == EThreatStatus::Warning)
                 CSfxManager::SfxStart(1396, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

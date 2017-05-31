@@ -91,7 +91,8 @@ bool CTextParser::BeginsWith(const char16_t* str, int len, const char16_t* other
     return true;
 }
 
-void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len)
+void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len,
+                           const std::vector<std::pair<ResId, ResId>>* txtrMap)
 {
     if (BeginsWith(str, len, u"font="))
     {
@@ -100,7 +101,7 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
     }
     else if (BeginsWith(str, len, u"image="))
     {
-        CFontImageDef image = GetImage(str + 6, len - 6);
+        CFontImageDef image = GetImage(str + 6, len - 6, txtrMap);
         out.AddImage(image);
     }
     else if (BeginsWith(str, len, u"fg-color="))
@@ -196,7 +197,8 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
     }
 }
 
-CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
+CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
+                                    const std::vector<std::pair<ResId, ResId>>* txtrMap)
 {
     int commaCount = 0;
     for (int i=0 ; i<len ; ++i)
@@ -238,7 +240,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
             {
                 AdvanceCommaPos();
                 texs.push_back(x0_store.GetObj({SBIG('TXTR'),
-                    GetAssetIdFromString(&iterable[tokenPos])}));
+                    GetAssetIdFromString(&iterable[tokenPos], txtrMap)}));
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
@@ -265,7 +267,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
             {
                 AdvanceCommaPos();
                 texs.push_back(x0_store.GetObj({SBIG('TXTR'),
-                    GetAssetIdFromString(&iterable[tokenPos])}));
+                    GetAssetIdFromString(&iterable[tokenPos], txtrMap)}));
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
@@ -284,32 +286,44 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len)
 
             AdvanceCommaPos();
             TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'),
-                GetAssetIdFromString(&iterable[tokenPos])});
+                GetAssetIdFromString(&iterable[tokenPos], txtrMap)});
             AdvanceTokenPos();
 
             return CFontImageDef(tex, zeus::CVector2f(cropX, cropY));
         }
     }
 
-    TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(str)});
+    TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(str, txtrMap)});
     return CFontImageDef(tex, zeus::CVector2f(1.f, 1.f));
 }
 
-ResId CTextParser::GetAssetIdFromString(const char16_t* str)
+ResId CTextParser::GetAssetIdFromString(const char16_t* str,
+                                        const std::vector<std::pair<ResId, ResId>>* txtrMap)
 {
     u8 r = GetColorValue(str);
     u8 g = GetColorValue(str + 2);
     u8 b = GetColorValue(str + 4);
     u8 a = GetColorValue(str + 6);
-    return ((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff;
+    ResId id = ((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff;
+
+    if (txtrMap)
+    {
+        auto search = std::lower_bound(txtrMap->begin(), txtrMap->end(), id,
+        [](const std::pair<ResId, ResId>& a, ResId test) { return a.first < test; });
+        if (search != txtrMap->end() && search->first == id)
+            id = search->second;
+    }
+
+    return id;
 }
 
 TToken<CRasterFont> CTextParser::GetFont(const char16_t* str, int len)
 {
-    return x0_store.GetObj({SBIG('FONT'), GetAssetIdFromString(str)});
+    return x0_store.GetObj({SBIG('FONT'), GetAssetIdFromString(str, nullptr)});
 }
 
-void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int len)
+void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int len,
+                            const std::vector<std::pair<ResId, ResId>>* txtrMap)
 {
     int b=0, e=0;
     for (b=0, e=0 ; str[e] && (len == -1 || e < len) ;)
@@ -328,7 +342,7 @@ void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int le
             while (str[e] && (len == -1 || e < len) && str[e] != u';')
                 ++e;
 
-            ParseTag(out, str + b, e - b);
+            ParseTag(out, str + b, e - b, txtrMap);
             b = e + 1;
         }
         else

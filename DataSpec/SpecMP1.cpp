@@ -53,15 +53,37 @@ extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
+static const std::unordered_set<uint32_t> IndividualOrigIDs =
+{
+    0xB7BBD0B4,
+    0x1F9DA858,
+    0x2A13C23E,
+    0xF13452F8,
+    0xA91A7703,
+    0xC042EC91,
+    0x12A12131,
+    0x5F556002,
+    0xA9798329,
+    0xB306E26F,
+    0xCD7B1ACA,
+    0x8ADA8184,
+    0x1A29C0E6,
+    0x5D9F9796,
+    0x951546A8,
+    0x7946C4C5,
+    0x409AA72E,
+};
+
 struct OriginalIDs
 {
     static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project)
     {
         std::unordered_set<UniqueID32> addedIDs;
         std::vector<UniqueID32> originalIDs;
+
         pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool {
             if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN') ||
-                ent->id.toUint32() == 0xB7BBD0B4 || ent->id.toUint32() == 0x1F9DA858)
+                IndividualOrigIDs.find(ent->id.toUint32()) != IndividualOrigIDs.end())
             {
                 if (addedIDs.find(ent->id) == addedIDs.cend())
                 {

@@ -57,8 +57,8 @@ void CHudBallInterface::UpdatePowerBombReadoutColors()
         fontColor = zeus::CColor::skClear;
         outlineColor = zeus::CColor::skClear;
     }
-    x10_textpane_bombdigits->TextSupport()->SetFontColor(fontColor);
-    x10_textpane_bombdigits->TextSupport()->SetOutlineColor(outlineColor);
+    x10_textpane_bombdigits->TextSupport().SetFontColor(fontColor);
+    x10_textpane_bombdigits->TextSupport().SetOutlineColor(outlineColor);
 
     zeus::CColor iconColor;
     if (x40_pbAmount > 0 && x4c_hasPb)
@@ -76,7 +76,7 @@ void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availabl
 {
     if (pbAmount != x40_pbAmount || init)
     {
-        x10_textpane_bombdigits->TextSupport()->SetText(hecl::Format("%02d", pbAmount));
+        x10_textpane_bombdigits->TextSupport().SetText(hecl::Format("%02d", pbAmount));
         x40_pbAmount = pbAmount;
         UpdatePowerBombReadoutColors();
     }

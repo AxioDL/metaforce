@@ -173,9 +173,9 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
         x1ad_textBodyVisible = false;
         if (x10_mode == EMode::TextScroll)
         {
-            int oldPage = x174_textpane_body->TextSupport()->GetPageCounter();
+            int oldPage = x174_textpane_body->TextSupport().GetPageCounter();
             int newPage = oldPage;
-            int totalCount = x174_textpane_body->TextSupport()->GetTotalPageCount();
+            int totalCount = x174_textpane_body->TextSupport().GetTotalPageCount();
             bool lastPage = totalCount - 1 == oldPage;
             if (totalCount != -1)
             {
@@ -183,7 +183,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
                     newPage = std::max(oldPage - 1, 0);
                 else if (input.PLADown() || (input.PA() && !lastPage))
                     newPage = std::min(oldPage + 1, totalCount - 1);
-                x174_textpane_body->TextSupport()->SetPage(newPage);
+                x174_textpane_body->TextSupport().SetPage(newPage);
                 if (oldPage != newPage)
                     CSfxManager::SfxStart(1444, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 x198_28_pulseTextArrowTop = newPage > 1;
@@ -257,16 +257,16 @@ void CInventoryScreen::VActivate()
     {
         if (HasLeftInventoryItem(i))
         {
-            xa8_textpane_categories[i]->TextSupport()->SetText(xc_pauseStrg.GetString(i + 10));
+            xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 10));
         }
         else
         {
-            xa8_textpane_categories[i]->TextSupport()->SetText(u"??????");
+            xa8_textpane_categories[i]->TextSupport().SetText(u"??????");
             x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
         }
     }
 
-    x178_textpane_title->TextSupport()->SetText(xc_pauseStrg.GetString(9));
+    x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(9));
     x180_basewidget_yicon->SetVisibility(true, ETraversalMode::Children);
 }
 
@@ -286,8 +286,8 @@ void CInventoryScreen::UpdateTextBody()
         entryText += xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::EItemType::Flamethrower) ? 77 : 65);
     }
 
-    x174_textpane_body->TextSupport()->SetText(entryText, true);
-    x174_textpane_body->TextSupport()->SetPage(0);
+    x174_textpane_body->TextSupport().SetText(entryText, true);
+    x174_textpane_body->TextSupport().SetPage(0);
 }
 
 void CInventoryScreen::ChangedMode(EMode oldMode)
@@ -435,20 +435,20 @@ void CInventoryScreen::UpdateRightTable()
         {
             if (HasRightInventoryItem(category.second[i].idx))
             {
-                title->TextSupport()->SetText(xc_pauseStrg.GetString(category.second[i].nameStrIdx));
+                title->TextSupport().SetText(xc_pauseStrg.GetString(category.second[i].nameStrIdx));
                 x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
                 if (i < minSel)
                     minSel = i;
             }
             else
             {
-                title->TextSupport()->SetText(u"??????");
+                title->TextSupport().SetText(u"??????");
                 x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(false);
             }
         }
         else
         {
-            title->TextSupport()->SetText(u"??????");
+            title->TextSupport().SetText(u"??????");
         }
     }
 
@@ -496,12 +496,12 @@ void CInventoryScreen::UpdateRightLogColors(bool active, const zeus::CColor& act
         if (i < cat.first && IsRightInventoryItemEquipped(cat.second[i].idx))
         {
             x15c_model_righttitledecos[i]->SetColor(g_tweakGuiColors->GetPauseItemBlueColor());
-            xd8_textpane_titles[i]->TextSupport()->SetFontColor(g_tweakGuiColors->GetPauseItemBlueColor());
+            xd8_textpane_titles[i]->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemBlueColor());
         }
         else
         {
             x15c_model_righttitledecos[i]->SetColor(activeColor);
-            xd8_textpane_titles[i]->TextSupport()->SetFontColor(activeColor);
+            xd8_textpane_titles[i]->TextSupport().SetFontColor(activeColor);
         }
     }
 }

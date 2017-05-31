@@ -351,18 +351,64 @@ void CGameOptions::SetIsHintSystemEnabled(bool hints)
     x68_28_hintSystem = hints;
 }
 
-void CGameOptions::SetControls(s32 controls)
+void CGameOptions::SetControls(int controls)
 {
     if (controls == 0)
         g_currentPlayerControl = g_tweakPlayerControl;
     else
         g_currentPlayerControl = g_tweakPlayerControlAlt;
 
-    ResetControllerAssets();
+    ResetControllerAssets(controls);
 }
 
-void CGameOptions::ResetControllerAssets()
+static const std::pair<ResId, ResId> CStickToDPadRemap[] =
 {
+    {0x2A13C23E, 0xF13452F8},
+    {0xA91A7703, 0xC042EC91},
+    {0x12A12131, 0x5F556002},
+    {0xA9798329, 0xB306E26F},
+    {0xCD7B1ACA, 0x8ADA8184},
+};
+
+static const std::pair<ResId, ResId> CStickOutlineToDPadRemap[] =
+{
+    {0x1A29C0E6, 0xF13452F8},
+    {0x5D9F9796, 0xC042EC91},
+    {0x951546A8, 0x5F556002},
+    {0x7946C4C5, 0xB306E26F},
+    {0x409AA72E, 0x8ADA8184},
+};
+
+static std::pair<ResId, ResId> TranslatePairToNew(const std::pair<ResId, ResId>& p)
+{
+    return {g_ResFactory->TranslateOriginalToNew(p.first),
+            g_ResFactory->TranslateOriginalToNew(p.second)};
+}
+
+void CGameOptions::ResetControllerAssets(int controls)
+{
+    if (controls != 1)
+    {
+        x6c_controlTxtrMap.clear();
+    }
+    else if (x6c_controlTxtrMap.empty())
+    {
+        x6c_controlTxtrMap.reserve(15);
+
+        for (int i=0 ; i<5 ; ++i)
+        {
+            x6c_controlTxtrMap.push_back(TranslatePairToNew(CStickToDPadRemap[i]));
+            x6c_controlTxtrMap.push_back({x6c_controlTxtrMap.back().second,
+                                          x6c_controlTxtrMap.back().first});
+        }
+
+        for (int i=0 ; i<5 ; ++i)
+            x6c_controlTxtrMap.push_back(TranslatePairToNew(CStickOutlineToDPadRemap[i]));
+
+        std::sort(x6c_controlTxtrMap.begin(), x6c_controlTxtrMap.end(),
+        [](const std::pair<ResId, ResId>& a, const std::pair<ResId, ResId>& b)
+        { return a.first < b.first; });
+    }
 }
 
 void CGameOptions::EnsureSettings()

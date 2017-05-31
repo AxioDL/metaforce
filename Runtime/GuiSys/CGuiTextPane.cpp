@@ -123,7 +123,7 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
                                        fontCol, outlineCol, extentX, extentY);
     ret->ParseBaseInfo(frame, in, parms);
     ret->InitializeBuffers();
-    ret->TextSupport()->SetText(u"");
+    ret->TextSupport().SetText(u"");
     return ret;
 }
 

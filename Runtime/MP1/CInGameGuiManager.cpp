@@ -421,7 +421,7 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
     {
         if (stateMgr.GetPlayer().GetVisorStaticAlpha() != x1f4_visorStaticAlpha)
         {
-            if (TCastToPtr<CFirstPersonCamera> fpCam = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr))
+            if (TCastToPtr<CFirstPersonCamera>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr)))
             {
                 if (std::fabs(stateMgr.GetPlayer().GetVisorStaticAlpha() - x1f4_visorStaticAlpha) < 0.5f)
                 {

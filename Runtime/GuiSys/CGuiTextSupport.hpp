@@ -67,13 +67,13 @@ class CGuiTextProperties
     bool x1_horizontal;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
-    const std::vector<CSaveWorld::SScanState>* xc_scanStates;
+    const std::vector<std::pair<ResId, ResId>>* xc_txtrMap;
 public:
     CGuiTextProperties(bool wordWrap, bool horizontal, EJustification justification,
                        EVerticalJustification vertJustification,
-                       const std::vector<CSaveWorld::SScanState>* scanStates=nullptr)
+                       const std::vector<std::pair<ResId, ResId>>* txtrMap=nullptr)
         : x0_wordWrap(wordWrap), x1_horizontal(horizontal), x4_justification(justification),
-          x8_vertJustification(vertJustification), xc_scanStates(scanStates) {}
+          x8_vertJustification(vertJustification), xc_txtrMap(txtrMap) {}
 };
 
 class CGuiTextSupport
@@ -139,7 +139,7 @@ public:
     float GetCurTime() const { return x3c_curTime; }
     void SetCurTime(float t) { x3c_curTime = t; }
     const std::u16string& GetString() const { return x0_string; }
-    void SetScanStates(const std::vector<CSaveWorld::SScanState>* scanStates);
+    void SetControlTXTRMap(const std::vector<std::pair<ResId, ResId>>* txtrMap);
     int GetPageCounter() const { return x304_pageCounter; }
     int GetTotalPageCount();
     void SetPage(int page);

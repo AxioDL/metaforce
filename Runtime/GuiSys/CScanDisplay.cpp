@@ -92,9 +92,9 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
     {
         if (input.PA())
         {
-            if (xa8_message->TextSupport()->GetCurTime() < xa8_message->TextSupport()->GetTotalAnimationTime())
+            if (xa8_message->TextSupport().GetCurTime() < xa8_message->TextSupport().GetTotalAnimationTime())
             {
-                xa8_message->TextSupport()->SetCurTime(xa8_message->TextSupport()->GetTotalAnimationTime());
+                xa8_message->TextSupport().SetCurTime(xa8_message->TextSupport().GetTotalAnimationTime());
             }
             else
             {
@@ -106,18 +106,14 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
     else if (xc_state == EScanState::ViewingScan)
     {
         int oldCounter = x1ac_pageCounter;
-        int totalPages = xac_scrollMessage->TextSupport()->GetTotalPageCount();
+        int totalPages = xac_scrollMessage->TextSupport().GetTotalPageCount();
         if (input.PA() && totalPages != -1)
         {
-            CGuiTextSupport* supp = !x1ac_pageCounter ? xa8_message->TextSupport() : xac_scrollMessage->TextSupport();
-            if (supp->GetCurTime() < supp->GetTotalAnimationTime())
-            {
-                supp->SetCurTime(supp->GetTotalAnimationTime());
-            }
+            CGuiTextSupport& supp = !x1ac_pageCounter ? xa8_message->TextSupport() : xac_scrollMessage->TextSupport();
+            if (supp.GetCurTime() < supp.GetTotalAnimationTime())
+                supp.SetCurTime(supp.GetTotalAnimationTime());
             else
-            {
                 x1ac_pageCounter = std::min(totalPages, x1ac_pageCounter + 1);
-            }
         }
         if (x1ac_pageCounter != oldCounter)
         {
@@ -134,7 +130,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
                     xa8_message->SetIsVisible(false);
                     xac_scrollMessage->SetIsVisible(true);
                 }
-                xac_scrollMessage->TextSupport()->SetPage(x1ac_pageCounter - 1);
+                xac_scrollMessage->TextSupport().SetPage(x1ac_pageCounter - 1);
                 SetScanMessageTypeEffect(xac_scrollMessage, !x1b4_scanComplete);
             }
         }
@@ -150,7 +146,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
     }
     else if (xc_state == EScanState::ViewingScan)
     {
-        if (x1ac_pageCounter < xac_scrollMessage->TextSupport()->GetTotalPageCount())
+        if (x1ac_pageCounter < xac_scrollMessage->TextSupport().GetTotalPageCount())
             aAlpha = std::fabs(x1b0_aPulse);
         else
             dashAlpha = 1.f;
@@ -295,9 +291,9 @@ void CScanDisplay::StopScan()
 void CScanDisplay::SetScanMessageTypeEffect(CGuiTextPane* pane, bool type)
 {
     if (type)
-        pane->TextSupport()->SetTypeWriteEffectOptions(true, 0.1f, 60.f);
+        pane->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 60.f);
     else
-        pane->TextSupport()->SetTypeWriteEffectOptions(false, 0.f, 0.f);
+        pane->TextSupport().SetTypeWriteEffectOptions(false, 0.f, 0.f);
 }
 
 void CScanDisplay::Update(float dt, float scanningTime)
@@ -318,7 +314,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
         x1a8_bodyAlpha = std::min(x1a8_bodyAlpha + 2.f * dt, 1.f);
         if (xc_state == EScanState::DownloadComplete)
         {
-            if (xac_scrollMessage->TextSupport()->GetIsTextSupportFinishedLoading())
+            if (xac_scrollMessage->TextSupport().GetIsTextSupportFinishedLoading())
                 x1a4_xAlpha = std::max(0.f, x1a4_xAlpha - dt);
             if (x1a4_xAlpha < 0.5f)
             {
@@ -334,7 +330,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
                 x1b0_aPulse -= 2.f;
             if (x1a4_xAlpha == 1.f)
             {
-                xa8_message->TextSupport()->SetText(x194_scanStr->GetString(0));
+                xa8_message->TextSupport().SetText(x194_scanStr->GetString(0));
                 SetScanMessageTypeEffect(xa8_message, !x1b4_scanComplete);
             }
         }
@@ -348,7 +344,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
             }
             else
             {
-                xa8_message->TextSupport()->SetText(std::u16string(g_MainStringTable->GetString(29)) +
+                xa8_message->TextSupport().SetText(std::u16string(g_MainStringTable->GetString(29)) +
                 g_MainStringTable->GetString(x14_scannableInfo->GetCategory() + 30) +
                 g_MainStringTable->GetString(30));
                 SetScanMessageTypeEffect(xa8_message, true);
@@ -357,7 +353,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
 
             if (x194_scanStr->GetStringCount() > 2)
             {
-                xac_scrollMessage->TextSupport()->SetText(x194_scanStr->GetString(2), true);
+                xac_scrollMessage->TextSupport().SetText(x194_scanStr->GetString(2), true);
                 SetScanMessageTypeEffect(xac_scrollMessage, !x1b4_scanComplete);
             }
             xac_scrollMessage->SetIsVisible(false);
@@ -451,8 +447,8 @@ void CScanDisplay::Update(float dt, float scanningTime)
         xc_state = EScanState::Inactive;
         x10_objId = kInvalidUniqueId;
         x14_scannableInfo = std::experimental::nullopt;
-        xa8_message->TextSupport()->SetText(u"");
-        xac_scrollMessage->TextSupport()->SetText(u"");
+        xa8_message->TextSupport().SetText(u"");
+        xac_scrollMessage->TextSupport().SetText(u"");
         xa4_textGroup->SetVisibility(false, ETraversalMode::Children);
         xb0_xmark->SetVisibility(false, ETraversalMode::Children);
         xb4_abutton->SetVisibility(false, ETraversalMode::Children);

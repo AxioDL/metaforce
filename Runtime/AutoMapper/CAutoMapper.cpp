@@ -1101,28 +1101,28 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
         {
             if (x78_areaHintDesc.IsLoaded())
             {
-                x2fc_textpane_hint->TextSupport()->SetText(x78_areaHintDesc->GetString(0));
-                x304_textpane_instructions1->TextSupport()->SetText(u"");
-                x300_textpane_instructions->TextSupport()->SetText(u"");
-                x308_textpane_instructions2->TextSupport()->SetText(u"");
+                x2fc_textpane_hint->TextSupport().SetText(x78_areaHintDesc->GetString(0));
+                x304_textpane_instructions1->TextSupport().SetText(u"");
+                x300_textpane_instructions->TextSupport().SetText(u"");
+                x308_textpane_instructions2->TextSupport().SetText(u"");
             }
             else
             {
-                x2fc_textpane_hint->TextSupport()->SetText(u"");
+                x2fc_textpane_hint->TextSupport().SetText(u"");
                 std::u16string str = hecl::UTF8ToChar16(
                     hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x24_lStick[x2e4_lStickPos])));
                 str += g_MainStringTable->GetString(46); // Rotate
-                x300_textpane_instructions->TextSupport()->SetText(str);
+                x300_textpane_instructions->TextSupport().SetText(str);
                 str = hecl::UTF8ToChar16(
                     hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos])));
                 str += g_MainStringTable->GetString(47); // Move
-                x304_textpane_instructions1->TextSupport()->SetText(str);
+                x304_textpane_instructions1->TextSupport().SetText(str);
                 str = hecl::UTF8ToChar16(
                     hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos])));
                 str += g_MainStringTable->GetString(48); // Zoom
                 str += hecl::UTF8ToChar16(
                     hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos])));
-                x308_textpane_instructions2->TextSupport()->SetText(str);
+                x308_textpane_instructions2->TextSupport().SetText(str);
             }
         }
     }
@@ -1174,18 +1174,18 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
     if (!m_frmeInitialized && x28_frmeMapScreen.IsLoaded())
     {
         m_frmeInitialized = true;
-        static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_left"))->TextSupport()->
+        static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_left"))->TextSupport().
             SetText(g_MainStringTable->GetString(42));
-        static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_yicon"))->TextSupport()->
+        static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_yicon"))->TextSupport().
             SetText(g_MainStringTable->GetString(43));
         x2fc_textpane_hint = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_hint"));
         x300_textpane_instructions = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_instructions"));
         x304_textpane_instructions1 = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_instructions1"));
         x308_textpane_instructions2 = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_instructions2"));
         CGuiTextPane* mapLegend = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_mapLegend"));
-        mapLegend->TextSupport()->ClearRenderBuffer();
-        mapLegend->TextSupport()->SetImageBaseline(true);
-        mapLegend->TextSupport()->SetText(g_MainStringTable->GetString(49));
+        mapLegend->TextSupport().ClearRenderBuffer();
+        mapLegend->TextSupport().SetImageBaseline(true);
+        mapLegend->TextSupport().SetText(g_MainStringTable->GetString(49));
         x30c_basewidget_leftPane = x28_frmeMapScreen->FindWidget("basewidget_leftPane");
         x310_basewidget_yButtonPane = x28_frmeMapScreen->FindWidget("basewidget_yButtonPane");
         x314_basewidget_bottomPane = x28_frmeMapScreen->FindWidget("basewidget_bottomPane");
@@ -1201,13 +1201,13 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         if (x1bc_state == EAutoMapperState::MapScreenUniverse ||
             (x1bc_state == EAutoMapperState::MapScreen && HasCurrentMapUniverseWorld()))
             string = hecl::UTF8ToChar16(hecl::Format("image=%8.8X", u32(g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos])));
-        right1->TextSupport()->SetText(string);
+        right1->TextSupport().SetText(string);
         CGuiTextPane* right = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_right"));
         if (x1bc_state == EAutoMapperState::MapScreenUniverse)
             string = g_MainStringTable->GetString(45);
         else if (x1bc_state == EAutoMapperState::MapScreen)
             string = g_MainStringTable->GetString(44);
-        right->TextSupport()->SetText(string);
+        right->TextSupport().SetText(string);
     }
 
     float dt2 = 2.f * dt;
@@ -1356,11 +1356,11 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         if (x8c_mapAreaString)
         {
             if (x8c_mapAreaString.IsLoaded())
-                x2f8_textpane_areaname->TextSupport()->SetText(x8c_mapAreaString->GetString(0));
+                x2f8_textpane_areaname->TextSupport().SetText(x8c_mapAreaString->GetString(0));
         }
         else
         {
-            x2f8_textpane_areaname->TextSupport()->SetText(u"");
+            x2f8_textpane_areaname->TextSupport().SetText(u"");
         }
     }
 
