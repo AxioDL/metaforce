@@ -79,8 +79,11 @@ struct ITweakGui : ITweak
     virtual float GetFreeLookFadeTime() const=0;
     virtual float GetFreeLookSfxPitchScale() const=0;
     virtual bool GetNoAbsoluteFreeLookSfxPitch() const=0;
+    virtual float GetFaceReflectionOrthoWidth() const=0;
+    virtual float GetFaceReflectionOrthoHeight() const=0;
     virtual float GetFaceReflectionDistance() const=0;
     virtual float GetFaceReflectionHeight() const=0;
+    virtual float GetFaceReflectionAspect() const=0;
     virtual float GetMissileWarningPulseTime() const=0;
     virtual float GetExplosionLightFalloffMultConstant() const=0;
     virtual float GetExplosionLightFalloffMultLinear() const=0;
@@ -107,6 +110,7 @@ struct ITweakGui : ITweak
     virtual float GetScanWindowActiveWidth() const=0;
     virtual float GetScanWindowActiveHeight() const=0;
     virtual float GetScanWindowMagnification() const=0;
+    virtual float GetScanWindowScanningAspect() const=0;
     virtual float GetScanSpeed(int idx) const=0;
     virtual float GetXrayBlurScaleLinear() const=0;
     virtual float GetXrayBlurScaleQuadratic() const=0;
@@ -141,6 +145,9 @@ struct ITweakGui : ITweak
 
     static float FaceReflectionDistanceDebugValueToActualValue(float v) { return 0.015f * v + 0.2f; }
     static float FaceReflectionHeightDebugValueToActualValue(float v) { return 0.005f * v - 0.05f; }
+    static float FaceReflectionAspectDebugValueToActualValue(float v) { return 0.05f * v + 1.f; }
+    static float FaceReflectionOrthoWidthDebugValueToActualValue(float v) { return 0.007f * v + 0.02f; }
+    static float FaceReflectionOrthoHeightDebugValueToActualValue(float v) { return 0.007f * v + 0.02f; }
 };
 
 }

@@ -84,11 +84,11 @@ struct CTweakGui : ITweakGui
     Value<bool> x130_noAbsoluteFreeLookSfxPitch;
     Value<float> x134_;
     Value<float> x138_;
-    Value<atUint32> x13c_;
-    Value<atUint32> x140_;
+    Value<atUint32> x13c_faceReflectionOrthoWidth;
+    Value<atUint32> x140_faceReflectionOrthoHeight;
     Value<atUint32> x144_faceReflectionDistance;
     Value<atUint32> x148_faceReflectionHeight;
-    Value<atUint32> x14c_;
+    Value<atUint32> x14c_faceReflectionAspect;
     String<-1> x150_;
     String<-1> x160_;
     String<-1> x170_;
@@ -146,7 +146,7 @@ struct CTweakGui : ITweakGui
     Value<float> x260_scanWindowActiveW;
     Value<float> x264_scanWindowActiveH;
     Value<float> x268_scanWindowMagnification;
-    Value<float> x26c_;
+    Value<float> x26c_scanWindowScanningAspect;
     Value<float> x270_scanSidesPositionStart;
     Value<bool> x274_showAutomapperInMorphball;
     bool x275_latchArticleText = true;
@@ -241,8 +241,11 @@ struct CTweakGui : ITweakGui
     float GetFreeLookFadeTime() const { return x118_freeLookFadeTime; }
     float GetFreeLookSfxPitchScale() const { return x12c_freeLookSfxPitchScale; }
     bool GetNoAbsoluteFreeLookSfxPitch() const { return x130_noAbsoluteFreeLookSfxPitch; }
+    float GetFaceReflectionOrthoWidth() const { return x13c_faceReflectionOrthoWidth; }
+    float GetFaceReflectionOrthoHeight() const { return x140_faceReflectionOrthoHeight; }
     float GetFaceReflectionDistance() const { return x144_faceReflectionDistance; }
     float GetFaceReflectionHeight() const { return x148_faceReflectionHeight; }
+    float GetFaceReflectionAspect() const { return x14c_faceReflectionAspect; }
     float GetMissileWarningPulseTime() const { return x1a0_missileWarningPulseTime; }
     float GetExplosionLightFalloffMultConstant() const { return x1a4_explosionLightFalloffMultConstant; }
     float GetExplosionLightFalloffMultLinear() const { return x1a8_explosionLightFalloffMultLinear; }
@@ -283,6 +286,7 @@ struct CTweakGui : ITweakGui
     float GetScanWindowActiveWidth() const { return x260_scanWindowActiveW; }
     float GetScanWindowActiveHeight() const { return x264_scanWindowActiveH; }
     float GetScanWindowMagnification() const { return x268_scanWindowMagnification; }
+    float GetScanWindowScanningAspect() const { return x26c_scanWindowScanningAspect; }
     float GetScanSidesPositionStart() const { return x270_scanSidesPositionStart; }
     bool GetShowAutomapperInMorphball() const { return x274_showAutomapperInMorphball; }
     bool GetLatchArticleText() const { return x275_latchArticleText; }

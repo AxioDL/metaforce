@@ -6,12 +6,12 @@
 #include "zeus/CVector2f.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "CPlayerState.hpp"
+#include "Graphics/CModel.hpp"
 
 namespace urde
 {
 class CStateManager;
 class CTargetingManager;
-class CModel;
 
 namespace MP1
 {
@@ -69,6 +69,8 @@ class CPlayerVisor
     TLockedToken<CTexture> x540_xrayPalette;
     float x54c_frameColorInterp = 0.f;
     float x550_frameColorImpulseInterp = 0.f;
+
+    std::unique_ptr<CBooModel> m_newScanPaneInst;
 
     int FindEmptyInactiveScanTarget() const;
     int FindCachedInactiveScanTarget(TUniqueId uid) const;

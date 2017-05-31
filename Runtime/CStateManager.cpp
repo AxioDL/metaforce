@@ -214,7 +214,7 @@ void CStateManager::UpdateThermalVisor()
     CPlayerState::EPlayerVisor visor = x8b8_playerState->GetActiveVisor(*this);
     if (visor == CPlayerState::EPlayerVisor::Thermal && x8cc_nextAreaId != kInvalidAreaId)
     {
-        std::unique_ptr<CGameArea>& area = x850_world->GetGameAreas()[x8cc_nextAreaId];
+        CGameArea* area = x850_world->GetArea(x8cc_nextAreaId);
         const zeus::CTransform& playerXf = x84c_player->GetTransform();
         zeus::CVector3f playerXYPos(playerXf.origin.x, playerXf.origin.y, 0.f);
         CGameArea* lastArea = nullptr;
@@ -231,14 +231,14 @@ void CStateManager::UpdateThermalVisor()
                 TAreaId connAreaId = dock.GetConnectedAreaId(0);
                 if (connAreaId != kInvalidAreaId)
                 {
-                    std::unique_ptr<CGameArea>& connArea = x850_world->GetGameAreas()[x8cc_nextAreaId];
+                    CGameArea* connArea = x850_world->GetArea(x8cc_nextAreaId);
                     if (connArea->IsPostConstructed())
                     {
                         CGameArea::EOcclusionState occState = connArea->GetPostConstructed()->x10dc_occlusionState;
                         if (occState == CGameArea::EOcclusionState::Visible)
                         {
                             closestDist = dist;
-                            lastArea = connArea.get();
+                            lastArea = connArea;
                         }
                     }
                 }

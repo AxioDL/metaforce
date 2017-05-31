@@ -138,6 +138,8 @@ private:
     };
     std::vector<ModelInstance> m_instances;
 
+    boo::ITexture* m_txtrOverrides[8] = {};
+
     ModelInstance* PushNewModelInstance();
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
@@ -155,7 +157,7 @@ public:
     CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
               size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 renderMask,
-              int numInsts);
+              int numInsts, boo::ITexture* txtrOverrides[8]);
 
     static void MakeTexturesFromMats(const MaterialSet& matSet,
                                      std::vector<TCachedToken<CTexture>>& toksOut,
@@ -242,7 +244,7 @@ public:
     const zeus::CAABox& GetAABB() const {return m_aabb;}
     CBooModel& GetInstance() {return *x28_modelInst;}
     const CBooModel& GetInstance() const {return *x28_modelInst;}
-    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts);
+    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts, boo::ITexture* txtrOverrides[8] = nullptr);
     void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
 };
 

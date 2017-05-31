@@ -167,7 +167,7 @@ public:
 
     CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId);
     bool DoesAreaExist(TAreaId area) const;
-    std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() {return x18_areas;}
+    const std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() const { return x18_areas; }
 
     const CMapWorld* GetMapWorld() const { return x28_mapWorld.GetObj(); }
     u32 GetRelayCount() const { return x2c_relays.size(); }

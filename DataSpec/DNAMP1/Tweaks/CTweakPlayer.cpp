@@ -1216,64 +1216,64 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x1a0_ = __dna_docin.readFloat("x1a0_");
     /* x1a4_ */
     x1a4_ = __dna_docin.readFloat("x1a4_");
-    /* x1a8_ */
+    /* x1a8_orbitScreenBoxHalfExtentX */
     size_t __x1a8_Count;
-    if (auto v = __dna_docin.enterSubVector("x1a8_", __x1a8_Count))
+    if (auto v = __dna_docin.enterSubVector("x1a8_orbitScreenBoxHalfExtentX", __x1a8_Count))
     {
-    /* x1a8_[0] */
-    x1a8_orbitScreenBoxHalfExtentX[0] = __dna_docin.readUint32("x1a8_");
-    /* x1a8_[1] */
-    x1a8_orbitScreenBoxHalfExtentX[1] = __dna_docin.readUint32("x1a8_");
+    /* x1a8_orbitScreenBoxHalfExtentX[0] */
+    x1a8_orbitScreenBoxHalfExtentX[0] = __dna_docin.readUint32("x1a8_orbitScreenBoxHalfExtentX");
+    /* x1a8_orbitScreenBoxHalfExtentX[1] */
+    x1a8_orbitScreenBoxHalfExtentX[1] = __dna_docin.readUint32("x1a8_orbitScreenBoxHalfExtentX");
     }
-    /* x1b0_ */
+    /* x1b0_orbitScreenBoxHalfExtentY */
     size_t __x1b0_Count;
-    if (auto v = __dna_docin.enterSubVector("x1b0_", __x1b0_Count))
+    if (auto v = __dna_docin.enterSubVector("x1b0_orbitScreenBoxHalfExtentY", __x1b0_Count))
     {
-    /* x1b0_[0] */
-    x1b0_orbitScreenBoxHalfExtentY[0] = __dna_docin.readUint32("x1b0_");
-    /* x1b0_[1] */
-    x1b0_orbitScreenBoxHalfExtentY[1] = __dna_docin.readUint32("x1b0_");
+    /* x1b0_orbitScreenBoxHalfExtentY[0] */
+    x1b0_orbitScreenBoxHalfExtentY[0] = __dna_docin.readUint32("x1b0_orbitScreenBoxHalfExtentY");
+    /* x1b0_orbitScreenBoxHalfExtentY[1] */
+    x1b0_orbitScreenBoxHalfExtentY[1] = __dna_docin.readUint32("x1b0_orbitScreenBoxHalfExtentY");
     }
-    /* x1b8_ */
+    /* x1b8_orbitScreenBoxCenterX */
     size_t __x1b8_Count;
-    if (auto v = __dna_docin.enterSubVector("x1b8_", __x1b8_Count))
+    if (auto v = __dna_docin.enterSubVector("x1b8_orbitScreenBoxCenterX", __x1b8_Count))
     {
-    /* x1b8_[0] */
-    x1b8_orbitScreenBoxCenterX[0] = __dna_docin.readUint32("x1b8_");
-    /* x1b8_[1] */
-    x1b8_orbitScreenBoxCenterX[1] = __dna_docin.readUint32("x1b8_");
+    /* x1b8_orbitScreenBoxCenterX[0] */
+    x1b8_orbitScreenBoxCenterX[0] = __dna_docin.readUint32("x1b8_orbitScreenBoxCenterX");
+    /* x1b8_orbitScreenBoxCenterX[1] */
+    x1b8_orbitScreenBoxCenterX[1] = __dna_docin.readUint32("x1b8_orbitScreenBoxCenterX");
     }
-    /* x1c0_ */
+    /* x1c0_orbitScreenBoxCenterY */
     size_t __x1c0_Count;
-    if (auto v = __dna_docin.enterSubVector("x1c0_", __x1c0_Count))
+    if (auto v = __dna_docin.enterSubVector("x1c0_orbitScreenBoxCenterY", __x1c0_Count))
     {
-    /* x1c0_[0] */
-    x1c0_orbitScreenBoxCenterY[0] = __dna_docin.readUint32("x1c0_");
-    /* x1c0_[1] */
-    x1c0_orbitScreenBoxCenterY[1] = __dna_docin.readUint32("x1c0_");
+    /* x1c0_orbitScreenBoxCenterY[0] */
+    x1c0_orbitScreenBoxCenterY[0] = __dna_docin.readUint32("x1c0_orbitScreenBoxCenterY");
+    /* x1c0_orbitScreenBoxCenterY[1] */
+    x1c0_orbitScreenBoxCenterY[1] = __dna_docin.readUint32("x1c0_orbitScreenBoxCenterY");
     }
-    /* x1c8_ */
+    /* x1c8_enemyScreenBoxCenterX */
     size_t __x1c8_Count;
-    if (auto v = __dna_docin.enterSubVector("x1c8_", __x1c8_Count))
+    if (auto v = __dna_docin.enterSubVector("x1c8_enemyScreenBoxCenterX", __x1c8_Count))
     {
-    /* x1c8_[0] */
-    x1c8_enemyScreenBoxCenterX[0] = __dna_docin.readUint32("x1c8_");
-    /* x1c8_[1] */
-    x1c8_enemyScreenBoxCenterX[1] = __dna_docin.readUint32("x1c8_");
+    /* x1c8_enemyScreenBoxCenterX[0] */
+    x1c8_enemyScreenBoxCenterX[0] = __dna_docin.readUint32("x1c8_enemyScreenBoxCenterX");
+    /* x1c8_enemyScreenBoxCenterX[1] */
+    x1c8_enemyScreenBoxCenterX[1] = __dna_docin.readUint32("x1c8_enemyScreenBoxCenterX");
     }
-    /* x1d0_ */
+    /* x1d0_enemyScreenBoxCenterY */
     size_t __x1d0_Count;
-    if (auto v = __dna_docin.enterSubVector("x1d0_", __x1d0_Count))
+    if (auto v = __dna_docin.enterSubVector("x1d0_enemyScreenBoxCenterY", __x1d0_Count))
     {
-    /* x1d0_[0] */
-    x1d0_enemyScreenBoxCenterY[0] = __dna_docin.readUint32("x1d0_");
-    /* x1d0_[1] */
-    x1d0_enemyScreenBoxCenterY[1] = __dna_docin.readUint32("x1d0_");
+    /* x1d0_enemyScreenBoxCenterY[0] */
+    x1d0_enemyScreenBoxCenterY[0] = __dna_docin.readUint32("x1d0_enemyScreenBoxCenterY");
+    /* x1d0_enemyScreenBoxCenterY[1] */
+    x1d0_enemyScreenBoxCenterY[1] = __dna_docin.readUint32("x1d0_enemyScreenBoxCenterY");
     }
-    /* x1d8_ */
-    x1d8_orbitNearX = __dna_docin.readFloat("x1d8_");
-    /* x1dc_ */
-    x1dc_orbitNearZ = __dna_docin.readFloat("x1dc_");
+    /* x1d8_orbitNearX */
+    x1d8_orbitNearX = __dna_docin.readFloat("x1d8_orbitNearX");
+    /* x1dc_orbitNearZ */
+    x1dc_orbitNearZ = __dna_docin.readFloat("x1dc_orbitNearZ");
     /* x1e0_ */
     x1e0_ = __dna_docin.readFloat("x1e0_");
     /* x1e4_ */
@@ -1308,14 +1308,14 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x218_scanningRange = __dna_docin.readFloat("x218_scanningRange");
     /* x21c_24_ */
     x21c_24_ = __dna_docin.readBool("x21c_24_");
-    /* x21c_25_ */
-    x21c_25_scanFreezesGame = __dna_docin.readBool("x21c_25_");
+    /* x21c_25_scanFreezesGame */
+    x21c_25_scanFreezesGame = __dna_docin.readBool("x21c_25_scanFreezesGame");
     /* x21c_26_ */
     x21c_26_ = __dna_docin.readBool("x21c_26_");
     /* x220_ */
     x220_ = __dna_docin.readFloat("x220_");
-    /* x224_ */
-    x224_scanningFrameSenseRange = __dna_docin.readFloat("x224_");
+    /* x224_scanningFrameSenseRange */
+    x224_scanningFrameSenseRange = __dna_docin.readFloat("x224_scanningFrameSenseRange");
     /* x2a0_ */
     x2a0_ = __dna_docin.readFloat("x2a0_");
     /* x2a4_ */
@@ -1722,58 +1722,58 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x1a0_", x1a0_);
     /* x1a4_ */
     __dna_docout.writeFloat("x1a4_", x1a4_);
-    /* x1a8_ */
-    if (auto v = __dna_docout.enterSubVector("x1a8_"))
+    /* x1a8_orbitScreenBoxHalfExtentX */
+    if (auto v = __dna_docout.enterSubVector("x1a8_orbitScreenBoxHalfExtentX"))
     {
-    /* x1a8_[0] */
-    __dna_docout.writeUint32("x1a8_", x1a8_orbitScreenBoxHalfExtentX[0]);
-    /* x1a8_[1] */
-    __dna_docout.writeUint32("x1a8_", x1a8_orbitScreenBoxHalfExtentX[1]);
+    /* x1a8_orbitScreenBoxHalfExtentX[0] */
+    __dna_docout.writeUint32("x1a8_orbitScreenBoxHalfExtentX", x1a8_orbitScreenBoxHalfExtentX[0]);
+    /* x1a8_orbitScreenBoxHalfExtentX[1] */
+    __dna_docout.writeUint32("x1a8_orbitScreenBoxHalfExtentX", x1a8_orbitScreenBoxHalfExtentX[1]);
     }
-    /* x1b0_ */
-    if (auto v = __dna_docout.enterSubVector("x1b0_"))
+    /* x1b0_orbitScreenBoxHalfExtentY */
+    if (auto v = __dna_docout.enterSubVector("x1b0_orbitScreenBoxHalfExtentY"))
     {
-    /* x1b0_[0] */
-    __dna_docout.writeUint32("x1b0_", x1b0_orbitScreenBoxHalfExtentY[0]);
-    /* x1b0_[1] */
-    __dna_docout.writeUint32("x1b0_", x1b0_orbitScreenBoxHalfExtentY[1]);
+    /* x1b0_orbitScreenBoxHalfExtentY[0] */
+    __dna_docout.writeUint32("x1b0_orbitScreenBoxHalfExtentY", x1b0_orbitScreenBoxHalfExtentY[0]);
+    /* x1b0_orbitScreenBoxHalfExtentY[1] */
+    __dna_docout.writeUint32("x1b0_orbitScreenBoxHalfExtentY", x1b0_orbitScreenBoxHalfExtentY[1]);
     }
-    /* x1b8_ */
-    if (auto v = __dna_docout.enterSubVector("x1b8_"))
+    /* x1b8_orbitScreenBoxCenterX */
+    if (auto v = __dna_docout.enterSubVector("x1b8_orbitScreenBoxCenterX"))
     {
-    /* x1b8_[0] */
-    __dna_docout.writeUint32("x1b8_", x1b8_orbitScreenBoxCenterX[0]);
-    /* x1b8_[1] */
-    __dna_docout.writeUint32("x1b8_", x1b8_orbitScreenBoxCenterX[1]);
+    /* x1b8_orbitScreenBoxCenterX[0] */
+    __dna_docout.writeUint32("x1b8_orbitScreenBoxCenterX", x1b8_orbitScreenBoxCenterX[0]);
+    /* x1b8_orbitScreenBoxCenterX[1] */
+    __dna_docout.writeUint32("x1b8_orbitScreenBoxCenterX", x1b8_orbitScreenBoxCenterX[1]);
     }
-    /* x1c0_ */
-    if (auto v = __dna_docout.enterSubVector("x1c0_"))
+    /* x1c0_orbitScreenBoxCenterY */
+    if (auto v = __dna_docout.enterSubVector("x1c0_orbitScreenBoxCenterY"))
     {
-    /* x1c0_[0] */
-    __dna_docout.writeUint32("x1c0_", x1c0_orbitScreenBoxCenterY[0]);
-    /* x1c0_[1] */
-    __dna_docout.writeUint32("x1c0_", x1c0_orbitScreenBoxCenterY[1]);
+    /* x1c0_orbitScreenBoxCenterY[0] */
+    __dna_docout.writeUint32("x1c0_orbitScreenBoxCenterY", x1c0_orbitScreenBoxCenterY[0]);
+    /* x1c0_orbitScreenBoxCenterY[1] */
+    __dna_docout.writeUint32("x1c0_orbitScreenBoxCenterY", x1c0_orbitScreenBoxCenterY[1]);
     }
-    /* x1c8_ */
-    if (auto v = __dna_docout.enterSubVector("x1c8_"))
+    /* x1c8_enemyScreenBoxCenterX */
+    if (auto v = __dna_docout.enterSubVector("x1c8_enemyScreenBoxCenterX"))
     {
-    /* x1c8_[0] */
-    __dna_docout.writeUint32("x1c8_", x1c8_enemyScreenBoxCenterX[0]);
-    /* x1c8_[1] */
-    __dna_docout.writeUint32("x1c8_", x1c8_enemyScreenBoxCenterX[1]);
+    /* x1c8_enemyScreenBoxCenterX[0] */
+    __dna_docout.writeUint32("x1c8_enemyScreenBoxCenterX", x1c8_enemyScreenBoxCenterX[0]);
+    /* x1c8_enemyScreenBoxCenterX[1] */
+    __dna_docout.writeUint32("x1c8_enemyScreenBoxCenterX", x1c8_enemyScreenBoxCenterX[1]);
     }
-    /* x1d0_ */
-    if (auto v = __dna_docout.enterSubVector("x1d0_"))
+    /* x1d0_enemyScreenBoxCenterY */
+    if (auto v = __dna_docout.enterSubVector("x1d0_enemyScreenBoxCenterY"))
     {
-    /* x1d0_[0] */
-    __dna_docout.writeUint32("x1d0_", x1d0_enemyScreenBoxCenterY[0]);
-    /* x1d0_[1] */
-    __dna_docout.writeUint32("x1d0_", x1d0_enemyScreenBoxCenterY[1]);
+    /* x1d0_enemyScreenBoxCenterY[0] */
+    __dna_docout.writeUint32("x1d0_enemyScreenBoxCenterY", x1d0_enemyScreenBoxCenterY[0]);
+    /* x1d0_enemyScreenBoxCenterY[1] */
+    __dna_docout.writeUint32("x1d0_enemyScreenBoxCenterY", x1d0_enemyScreenBoxCenterY[1]);
     }
     /* x1d8_ */
-    __dna_docout.writeFloat("x1d8_", x1d8_orbitNearX);
+    __dna_docout.writeFloat("x1d8_orbitNearX", x1d8_orbitNearX);
     /* x1dc_ */
-    __dna_docout.writeFloat("x1dc_", x1dc_orbitNearZ);
+    __dna_docout.writeFloat("x1dc_orbitNearZ", x1dc_orbitNearZ);
     /* x1e0_ */
     __dna_docout.writeFloat("x1e0_", x1e0_);
     /* x1e4_ */
@@ -1808,14 +1808,14 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x218_scanningRange", x218_scanningRange);
     /* x21c_24_ */
     __dna_docout.writeBool("x21c_24_", x21c_24_);
-    /* x21c_25_ */
-    __dna_docout.writeBool("x21c_25_", x21c_25_scanFreezesGame);
+    /* x21c_25_scanFreezesGame */
+    __dna_docout.writeBool("x21c_25_scanFreezesGame", x21c_25_scanFreezesGame);
     /* x21c_26_ */
     __dna_docout.writeBool("x21c_26_", x21c_26_);
     /* x220_ */
     __dna_docout.writeFloat("x220_", x220_);
-    /* x224_ */
-    __dna_docout.writeFloat("x224_", x224_scanningFrameSenseRange);
+    /* x224_scanningFrameSenseRange */
+    __dna_docout.writeFloat("x224_scanningFrameSenseRange", x224_scanningFrameSenseRange);
     /* x2a0_ */
     __dna_docout.writeFloat("x2a0_", x2a0_);
     /* x2a4_ */

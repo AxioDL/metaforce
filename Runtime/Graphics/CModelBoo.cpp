@@ -136,12 +136,16 @@ CBooModel::~CBooModel()
 CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
                      size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 renderMask,
-                     int instCount)
+                     int instCount, boo::ITexture* txtrOverrides[8])
 : m_model(token), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_matSetIdx(shader.m_matSetIdx),
   m_pipelines(&shader.m_shaders), m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
   m_skinBankCount(skinBankCount), x1c_textures(shader.x0_textures), x20_aabb(aabb),
   x40_24_texturesLoaded(false), x40_25_modelVisible(0), x41_mask(renderMask)
 {
+    if (txtrOverrides)
+        for (int i=0 ; i<8 ; ++i)
+            m_txtrOverrides[i] = txtrOverrides[i];
+
     if (!g_FirstModel)
         g_FirstModel = this;
     else
@@ -283,8 +287,15 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             u32 texCount = 0;
             for (atUint32 idx : mat.textureIdxs)
             {
-                TCachedToken<CTexture>& tex = x1c_textures[idx];
-                texs[texCount++] = tex.GetObj()->GetBooTexture();
+                if (boo::ITexture* overtex = m_txtrOverrides[texCount])
+                {
+                    texs[texCount++] = overtex;
+                }
+                else
+                {
+                    TCachedToken<CTexture>& tex = x1c_textures[idx];
+                    texs[texCount++] = tex.GetObj()->GetBooTexture();
+                }
             }
             texs[7] = g_Renderer->x220_sphereRamp;
 
@@ -924,13 +935,13 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const s32*& secSizeCur)
     return ret;
 }
 
-std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts)
+std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, boo::ITexture* txtrOverrides[8])
 {
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
                                        m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount,
-                                       m_aabb, (m_flags & 0x2) != 0, subInsts);
+                                       m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
 }
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)

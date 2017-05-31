@@ -73,6 +73,7 @@ public:
     void BuildDynamicLightList(const CStateManager& mgr, const zeus::CAABox& aabb);
     void ActivateLights(CBooModel& model) const;
     void SetCastShadows(bool v) { x298_25_castShadows = v; }
+    void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }
 
     void SetAmbientColor(const zeus::CColor& color) { x288_ambientColor = color; }
     const zeus::CColor& GetAmbientColor() const { return x288_ambientColor; }

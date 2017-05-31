@@ -8,6 +8,7 @@
 #include "Camera/CGameCamera.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "GuiSys/CCompoundTargetReticle.hpp"
+#include "GuiSys/CTargetingManager.hpp"
 
 namespace urde
 {
@@ -357,8 +358,137 @@ void CPlayerVisor::LockUnlockAssets()
 
 void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingManager* tgtMgr) const
 {
-    DrawScanObjectIndicators(mgr);
-    /* TODO: Finish */
+    bool indicatorsDrawn = DrawScanObjectIndicators(mgr);
+    if (tgtMgr && indicatorsDrawn)
+    {
+        CGraphics::SetDepthRange(0.12500012f, 0.12500012f);
+        tgtMgr->Draw(mgr, false);
+        CGraphics::SetDepthRange(0.015625f, 0.03125f);
+    }
+
+    float transFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
+    float scanSidesDuration = g_tweakGui->GetScanSidesDuration();
+    float scanSidesStart = g_tweakGui->GetScanSidesStartTime();
+
+    float t;
+    if (x34_nextState == EScanWindowState::Scan)
+        t = 1.f - ((x3c_windowInterpTimer < scanSidesDuration) ? 0.f : (x3c_windowInterpTimer - scanSidesDuration) / scanSidesStart);
+    else
+        t = (x3c_windowInterpTimer > scanSidesStart) ? 1.f : x3c_windowInterpTimer / scanSidesStart;
+
+    float divisor = (transFactor * ((1.f - t) * x58_scanMagInterp + t * g_tweakGui->GetScanWindowScanningAspect()) + (1.f - transFactor));
+    float vpW = 169.218f * x48_interpWindowDims.x / divisor;
+    vpW = zeus::clamp(0.f, vpW, 640.f) * g_Viewport.x8_width / 640.f;
+    float vpH = 152.218f * x48_interpWindowDims.y / divisor;
+    vpH = zeus::clamp(0.f, vpH, 448.f) * g_Viewport.xc_height / 448.f;
+
+    SClipScreenRect rect;
+    rect.x4_left = (g_Viewport.x8_width - vpW) / 2.f;
+    rect.x8_top = (g_Viewport.xc_height - vpH) / 2.f;
+    rect.xc_width = vpW;
+    rect.x10_height = vpH;
+    CGraphics::ResolveSpareTexture(rect);
+
+    x64_scanDim.Draw();
+
+    g_Renderer->SetViewportOrtho(true, -1.f, 1.f);
+
+    zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x, 1.f, x48_interpWindowDims.y);
+    zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f, 1.f, 17.f);
+    CGraphics::SetModelMatrix(seventeenScale * windowScale);
+
+    if (x108_newScanPane.IsLoaded())
+    {
+        if (!m_newScanPaneInst)
+        {
+            CPlayerVisor* ncThis = const_cast<CPlayerVisor*>(this);
+            boo::ITexture* texs[8] = {CGraphics::g_SpareTexture};
+            ncThis->m_newScanPaneInst = ncThis->x108_newScanPane->MakeNewInstance(0, 1, texs);
+            ncThis->m_newScanPaneInst->VerifyCurrentShader(0);
+        }
+        m_newScanPaneInst->Draw(CModelFlags(5, 0, 3 | 4, zeus::CColor(1.f, transFactor)), nullptr, nullptr);
+    }
+
+    // No cull faces
+
+    zeus::CColor frameColor = zeus::CColor::lerp(
+        g_tweakGuiColors->GetScanFrameInactiveColor(),
+        g_tweakGuiColors->GetScanFrameActiveColor(),
+        x54c_frameColorInterp);
+    frameColor.a = transFactor;
+
+    CModelFlags flags(5, 0, 0,
+        frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
+            zeus::CColor(x550_frameColorImpulseInterp, x550_frameColorImpulseInterp));
+
+    zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
+    zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);
+
+    if (xe4_scanFrameCenterTop.IsLoaded())
+    {
+        zeus::CTransform modelXf =
+            seventeenScale * zeus::CTransform::Translate(windowScale * zeus::CVector3f(0.f, 0.f, 4.553f));
+        CGraphics::SetModelMatrix(modelXf);
+        xe4_scanFrameCenterTop->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * modelXf);
+        xe4_scanFrameCenterTop->Draw(flags);
+    }
+
+    if (xd8_scanFrameCenterSide.IsLoaded())
+    {
+        zeus::CTransform modelXf =
+            seventeenScale * zeus::CTransform::Translate(windowScale * zeus::CVector3f(-5.f, 0.f, 0.f));
+        CGraphics::SetModelMatrix(modelXf);
+        xd8_scanFrameCenterSide->Draw(flags);
+        CGraphics::SetModelMatrix(horizontalFlip * modelXf);
+        xd8_scanFrameCenterSide->Draw(flags);
+    }
+
+    if (xcc_scanFrameCorner.IsLoaded())
+    {
+        zeus::CTransform modelXf =
+            seventeenScale * zeus::CTransform::Translate(windowScale * zeus::CVector3f(-5.f, 0.f, 4.553f));
+        CGraphics::SetModelMatrix(modelXf);
+        xcc_scanFrameCorner->Draw(flags);
+        CGraphics::SetModelMatrix(horizontalFlip * modelXf);
+        xcc_scanFrameCorner->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * modelXf);
+        xcc_scanFrameCorner->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * horizontalFlip * modelXf);
+        xcc_scanFrameCorner->Draw(flags);
+    }
+
+    if (xfc_scanFrameStretchTop.IsLoaded())
+    {
+        zeus::CTransform modelXf =
+            seventeenScale * zeus::CTransform::Translate(-1.f, 0.f, 4.553f * windowScale.basis[2][2]) *
+            zeus::CTransform::Scale(5.f * windowScale.basis[0][0] - 1.f - 1.884f, 1.f, 1.f);
+        CGraphics::SetModelMatrix(modelXf);
+        xfc_scanFrameStretchTop->Draw(flags);
+        CGraphics::SetModelMatrix(horizontalFlip * modelXf);
+        xfc_scanFrameStretchTop->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * modelXf);
+        xfc_scanFrameStretchTop->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * horizontalFlip * modelXf);
+        xfc_scanFrameStretchTop->Draw(flags);
+    }
+
+    if (xf0_scanFrameStretchSide.IsLoaded())
+    {
+        zeus::CTransform modelXf =
+            seventeenScale * zeus::CTransform::Translate(-5.f * windowScale.basis[0][0], 0.f, 1.f) *
+            zeus::CTransform::Scale(1.f, 1.f, 4.553f * windowScale.basis[2][2] - 1.f - 1.886f);
+        CGraphics::SetModelMatrix(modelXf);
+        xf0_scanFrameStretchSide->Draw(flags);
+        CGraphics::SetModelMatrix(horizontalFlip * modelXf);
+        xf0_scanFrameStretchSide->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * modelXf);
+        xf0_scanFrameStretchSide->Draw(flags);
+        CGraphics::SetModelMatrix(verticalFlip * horizontalFlip * modelXf);
+        xf0_scanFrameStretchSide->Draw(flags);
+    }
+
+    // cull faces
 }
 
 void CPlayerVisor::DrawXRayEffect(const CStateManager&) const
@@ -576,7 +706,21 @@ void CPlayerVisor::Update(float dt, const CStateManager& mgr)
 
 void CPlayerVisor::Draw(const CStateManager& mgr, const CTargetingManager* tgtManager) const
 {
-
+    CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+    CGraphics::DisableAllLights();
+    switch (mgr.GetPlayerState()->GetActiveVisor(mgr))
+    {
+    case CPlayerState::EPlayerVisor::XRay:
+        DrawXRayEffect(mgr);
+        break;
+    case CPlayerState::EPlayerVisor::Thermal:
+        DrawThermalEffect(mgr);
+        break;
+    case CPlayerState::EPlayerVisor::Scan:
+        DrawScanEffect(mgr, tgtManager);
+        break;
+    default: break;
+    }
 }
 
 void CPlayerVisor::Touch()

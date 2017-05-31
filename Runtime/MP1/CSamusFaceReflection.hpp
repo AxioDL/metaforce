@@ -13,10 +13,10 @@ class CSamusFaceReflection
 {
     CModelData x0_modelData;
     std::unique_ptr<CActorLights> x4c_lights;
-    zeus::CQuaternion x50_;
-    zeus::CVector3f x60_;
+    zeus::CQuaternion x50_lookRot;
+    zeus::CVector3f x60_lookDir;
     u32 x6c_ = 0;
-    bool x70_ = true;
+    bool x70_hidden = true;
 public:
     CSamusFaceReflection(CStateManager& stateMgr);
     void PreDraw(const CStateManager& stateMgr);
