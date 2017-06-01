@@ -32,7 +32,7 @@ class CPauseScreenBlur
     float x18_blurAmt = 0.f;
     CCameraBlurPass x1c_camBlur;
     CTexturedQuadFilter m_quarterFilter = { EFilterType::Multiply, x4_mapLightQuarter };
-    CScanLinesFilter m_linesFilter = { EFilterType::Multiply };
+    CScanLinesFilterEven m_linesFilter = { EFilterType::Multiply };
 
     union
     {

@@ -156,8 +156,10 @@ void CCameraFilterPassPoly::SetFilter(EFilterType type, EFilterShape shape,
             m_filter = std::make_unique<CCameraFilterPass<CWideScreenFilter>>();
             break;
         case EFilterShape::ScanLinesEven:
+            m_filter = std::make_unique<CCameraFilterPass<CScanLinesFilterEven>>();
+            break;
         case EFilterShape::ScanLinesOdd:
-            m_filter = std::make_unique<CCameraFilterPass<CScanLinesFilter>>();
+            m_filter = std::make_unique<CCameraFilterPass<CScanLinesFilterOdd>>();
             break;
         case EFilterShape::RandomStatic:
             m_filter = std::make_unique<CCameraFilterPass<CRandomStaticFilter>>();

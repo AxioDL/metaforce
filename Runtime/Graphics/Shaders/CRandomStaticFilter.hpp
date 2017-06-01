@@ -19,8 +19,9 @@ class CRandomStaticFilter
 
     struct Uniform
     {
-        zeus::CMatrix4f m_matrix;
-        zeus::CColor m_color;
+        zeus::CColor color;
+        float randOff;
+        float discardThres;
     };
     boo::GraphicsDataToken m_token;
     boo::IGraphicsBufferS* m_vbo;
@@ -43,8 +44,8 @@ public:
 class CCookieCutterDepthRandomStaticFilter : public CRandomStaticFilter
 {
 public:
-    CCookieCutterDepthRandomStaticFilter(EFilterType type) :
-    CRandomStaticFilter(type, true) {}
+    CCookieCutterDepthRandomStaticFilter(EFilterType type)
+    : CRandomStaticFilter(type, true) {}
     CCookieCutterDepthRandomStaticFilter(EFilterType type, const TLockedToken<CTexture>&)
     : CCookieCutterDepthRandomStaticFilter(type) {}
 };

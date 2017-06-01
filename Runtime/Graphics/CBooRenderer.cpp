@@ -1,7 +1,6 @@
 #include "boo/System.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CBooRenderer.hpp"
-#include "CTexture.hpp"
 #include "CModel.hpp"
 #include "Particle/CParticleGen.hpp"
 #include "Particle/CGenDescription.hpp"
@@ -611,6 +610,44 @@ void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx
                                            SPHERE_RAMP_RES * SPHERE_RAMP_RES);
 }
 
+void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
+{
+    std::vector<zeus::CVector3f> verts;
+    verts.reserve(670);
+
+    for (int i=0 ; i<112 ; ++i)
+    {
+        if (i != 0)
+            verts.push_back(verts.back());
+        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f));
+        if (i != 111)
+            verts.push_back(verts.back());
+    }
+
+    m_scanLinesEvenVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(),
+                                             sizeof(zeus::CVector3f), verts.size());
+
+    verts.clear();
+
+    for (int i=0 ; i<112 ; ++i)
+    {
+        if (i != 0)
+            verts.push_back(verts.back());
+        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
+        if (i != 111)
+            verts.push_back(verts.back());
+    }
+
+    m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(),
+                                            sizeof(zeus::CVector3f), verts.size());
+}
+
 void CBooRenderer::LoadThermoPalette()
 {
     m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
@@ -633,11 +670,14 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
     g_Renderer = this;
     xee_24_ = true;
 
+    m_staticEntropy = store.GetObj("RandomStaticEntropy");
+
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
         m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, true, false);
+        GenerateScanLinesVBO(ctx);
         return true;
     });
     LoadThermoPalette();

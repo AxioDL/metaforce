@@ -109,7 +109,7 @@ void CPauseScreenBlur::Draw(const CStateManager&) const
         const_cast<CTexturedQuadFilter&>(m_quarterFilter).DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
         zeus::CColor scanLinesColor =
             zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(0.75f, 1.f), t);
-        const_cast<CScanLinesFilter&>(m_linesFilter).DrawFilter(EFilterShape::ScanLinesEven, scanLinesColor, t);
+        const_cast<CScanLinesFilterEven&>(m_linesFilter).draw(scanLinesColor);
     }
 
     if (x50_24_blurring /*&& x1c_camBlur.x2d_noPersistentCopy*/)

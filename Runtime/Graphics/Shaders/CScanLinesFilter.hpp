@@ -19,23 +19,39 @@ class CScanLinesFilter
 
     struct Uniform
     {
-        zeus::CMatrix4f m_matrix;
-        zeus::CColor m_color;
+        zeus::CColor color;
     };
     boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IShaderDataBinding* m_dataBind = nullptr;
     Uniform m_uniform;
+    bool m_even;
 
 public:
-    CScanLinesFilter(EFilterType type);
-    CScanLinesFilter(EFilterType type, const TLockedToken<CTexture>&)
-    : CScanLinesFilter(type) {}
-    void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
+    CScanLinesFilter(EFilterType type, bool even);
+    void draw(const zeus::CColor& color);
+    void DrawFilter(EFilterShape, const zeus::CColor& color, float) { draw(color); }
 
     using _CLS = CScanLinesFilter;
 #include "TMultiBlendShaderDecl.hpp"
+};
+
+class CScanLinesFilterEven : public CScanLinesFilter
+{
+public:
+    CScanLinesFilterEven(EFilterType type)
+    : CScanLinesFilter(type, true) {}
+    CScanLinesFilterEven(EFilterType type, const TLockedToken<CTexture>&)
+    : CScanLinesFilterEven(type) {}
+};
+
+class CScanLinesFilterOdd : public CScanLinesFilter
+{
+public:
+    CScanLinesFilterOdd(EFilterType type)
+    : CScanLinesFilter(type, false) {}
+    CScanLinesFilterOdd(EFilterType type, const TLockedToken<CTexture>&)
+    : CScanLinesFilterOdd(type) {}
 };
 
 }

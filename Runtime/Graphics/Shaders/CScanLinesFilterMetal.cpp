@@ -1,5 +1,7 @@
 #include "CScanLinesFilter.hpp"
 #include "TMultiBlendShader.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -12,9 +14,8 @@ static const char* VS =
 "    float4 posIn [[ attribute(0) ]];\n"
 "};\n"
 "\n"
-"struct ColoredQuadUniform\n"
+"struct ScanLinesUniform\n"
 "{\n"
-"    float4x4 xf;\n"
 "    float4 color;\n"
 "};\n"
 "\n"
@@ -24,11 +25,11 @@ static const char* VS =
 "    float4 color;\n"
 "};\n"
 "\n"
-"vertex VertToFrag vmain(VertData v [[ stage_in ]], constant ColoredQuadUniform& cqu [[ buffer(2) ]])\n"
+"vertex VertToFrag vmain(VertData v [[ stage_in ]], constant ScanLinesUniform& cqu [[ buffer(2) ]])\n"
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.color = cqu.color;\n"
-"    vtf.position = cqu.xf * float4(v.posIn.xyz, 1.0);\n"
+"    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 
@@ -76,9 +77,11 @@ struct CScanLinesFilterMetalDataBindingFactory : TMultiBlendShader<CScanLinesFil
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
+        boo::IGraphicsBuffer* vbo = filter.m_even ?
+            g_Renderer->GetScanLinesEvenVBO() : g_Renderer->GetScanLinesOddVBO();
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };

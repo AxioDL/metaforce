@@ -11,6 +11,7 @@
 #include "Shaders/CFogVolumePlaneShader.hpp"
 #include "Shaders/CFogVolumeFilter.hpp"
 #include "Shaders/CPhazonSuitFilter.hpp"
+#include "CTexture.hpp"
 #include "CRandom16.hpp"
 #include "CPVSVisSet.hpp"
 #include "zeus/CRectangle.hpp"
@@ -93,6 +94,7 @@ class CBooRenderer : public IRenderer
 
     IFactory& x8_factory;
     IObjectStore& xc_store;
+    TLockedToken<CTexture> m_staticEntropy;
     boo::GraphicsDataToken m_gfxToken;
     // CFont x10_fnt;
     u32 x18_ = 0;
@@ -125,6 +127,8 @@ class CBooRenderer : public IRenderer
     TLockedToken<CTexture> m_ballFadeTex;
     boo::ITexture* m_ballFade = nullptr;
     boo::ITextureR* m_ballShadowId = nullptr;
+    boo::IGraphicsBufferS* m_scanLinesEvenVBO = nullptr;
+    boo::IGraphicsBufferS* m_scanLinesOddVBO = nullptr;
     int m_ballShadowIdW = 64;
     int m_ballShadowIdH = 64;
 
@@ -172,6 +176,7 @@ class CBooRenderer : public IRenderer
 
     void GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx);
     void GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx);
+    void GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx);
     void LoadThermoPalette();
     void LoadBallFade();
 
@@ -270,6 +275,9 @@ public:
 
     boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
     boo::ITextureS* GetFogRampTex() {return x1b8_fogVolumeRamp;}
+    boo::ITexture* GetRandomStaticEntropyTex() const {return m_staticEntropy->GetBooTexture();}
+    boo::IGraphicsBuffer* GetScanLinesEvenVBO() const {return m_scanLinesEvenVBO;}
+    boo::IGraphicsBuffer* GetScanLinesOddVBO() const {return m_scanLinesOddVBO;}
 
     void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}

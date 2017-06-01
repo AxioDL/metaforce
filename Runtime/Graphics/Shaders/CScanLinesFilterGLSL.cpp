@@ -1,5 +1,7 @@
 #include "CScanLinesFilter.hpp"
 #include "TMultiBlendShader.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -9,9 +11,8 @@ static const char* VS =
 BOO_GLSL_BINDING_HEAD
 "layout(location=0) in vec4 posIn;\n"
 "\n"
-"UBINDING0 uniform ColoredQuadUniform\n"
+"UBINDING0 uniform ScanLinesUniform\n"
 "{\n"
-"    mat4 xf;\n"
 "    vec4 color;\n"
 "};\n"
 "\n"
@@ -24,7 +25,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = color;\n"
-"    gl_Position = xf * vec4(posIn.xyz, 1.0);\n"
+"    gl_Position = vec4(posIn.xyz, 1.0);\n"
 "}\n";
 
 static const char* FS =
@@ -72,14 +73,16 @@ struct CScanLinesFilterGLDataBindingFactory : TMultiBlendShader<CScanLinesFilter
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
+        boo::IGraphicsBuffer* vbo = filter.m_even ?
+            g_Renderer->GetScanLinesEvenVBO() : g_Renderer->GetScanLinesOddVBO();
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4}
+            {vbo, nullptr, boo::VertexSemantic::Position4}
         };
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         return cctx.newShaderDataBinding(SelectPipeline(type),
-                                         ctx.newVertexFormat(1, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(1, VtxVmt), vbo, nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -93,9 +96,11 @@ struct CScanLinesFilterVulkanDataBindingFactory : TMultiBlendShader<CScanLinesFi
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
+        boo::IGraphicsBuffer* vbo = filter.m_even ?
+            g_Renderer->GetScanLinesEvenVBO() : g_Renderer->GetScanLinesOddVBO();
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -104,7 +109,7 @@ struct CScanLinesFilterVulkanDataBindingFactory : TMultiBlendShader<CScanLinesFi
 TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory*
 CScanLinesFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
-    const char* uniNames[] = {"ColoredQuadUniform"};
+    const char* uniNames[] = {"ScanLinesUniform"};
     s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::None, false, true, false, boo::CullMode::None);
