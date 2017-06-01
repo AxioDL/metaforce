@@ -536,7 +536,7 @@ void CStateManager::DrawDebugStuff() const {}
 void CStateManager::RenderCamerasAndAreaLights() const
 {
     x870_cameraManager->RenderCameras(*this);
-    for (const CCameraFilterPass& filter : xb84_camFilterPasses)
+    for (const CCameraFilterPassPoly& filter : xb84_camFilterPasses)
         filter.Draw();
 }
 
@@ -551,16 +551,14 @@ void CStateManager::DrawE3DeathEffect() const
             if (blurAmt > 0.f)
             {
                 CCameraBlurPass blur;
-                blur.SetBlur(CCameraBlurPass::EBlurType::HiBlur, 7.f * blurAmt, 0.f);
+                blur.SetBlur(EBlurType::HiBlur, 7.f * blurAmt, 0.f);
                 blur.Draw();
             }
         }
         float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
         zeus::CColor color = zeus::CColor::skWhite;
         color.a = whiteAmt;
-        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Add,
-                                      CCameraFilterPass::EFilterShape::Fullscreen,
-                                      color, nullptr, 1.f);
+        const_cast<CColoredQuadFilter&>(m_deathWhiteout).draw(color);
     }
 }
 
@@ -571,9 +569,7 @@ void CStateManager::DrawAdditionalFilters() const
     {
         zeus::CColor color = zeus::CColor::skWhite;
         color.a = 1.f - xf0c_escapeTimer;
-        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Add,
-                                      CCameraFilterPass::EFilterShape::Fullscreen,
-                                      color, nullptr, 1.f);
+        const_cast<CColoredQuadFilter&>(m_escapeWhiteout).draw(color);
     }
 }
 

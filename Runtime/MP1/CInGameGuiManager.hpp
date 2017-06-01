@@ -15,6 +15,7 @@
 #include "CPauseScreen.hpp"
 #include "CPauseScreenBlur.hpp"
 #include "CInGameGuiManagerCommon.hpp"
+#include "Graphics/Shaders/CRandomStaticFilter.hpp"
 
 namespace urde
 {
@@ -71,7 +72,7 @@ private:
     std::vector<TLockedToken<CDependencyGroup>> xc8_inGameGuiDGRPs;
     std::vector<u32> xd8_;
     std::vector<CToken> xe8_pauseResources;
-    CCameraFilterPass xf8_camFilter;
+    CCameraFilterPass<CColoredQuadFilter> xf8_camFilter;
     ResId x124_pauseGameHudMessage = -1;
     float x128_pauseGameHudTime = 0.f;
     std::list<CToken> x12c_;
@@ -100,6 +101,9 @@ private:
 
     std::experimental::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
     std::experimental::optional<CTexturedQuadFilter> m_deathDotQuad;
+    CRandomStaticFilter m_randomStatic = { EFilterType::Blend };
+    CColoredQuadFilter m_deathWhiteout = { EFilterType::Blend };
+    CColoredQuadFilter m_deathBlackout = { EFilterType::Blend };
 
     union
     {

@@ -3,37 +3,173 @@
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "CSimplePool.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/Shaders/CScanLinesFilter.hpp"
+#include "Graphics/Shaders/CRandomStaticFilter.hpp"
 
 namespace urde
 {
 
-void CCameraFilterPass::Update(float dt)
+template <class S>
+void CCameraFilterPass<S>::Update(float dt)
 {
+    if (x10_remTime <= 0.f)
+        return;
 
-}
+    EFilterType origType = x0_curType;
 
-void CCameraFilterPass::DrawFilter(EFilterType type, EFilterShape shape, const zeus::CColor& color,
-                                   const CTexture* tex, float uvScale)
-{
-    switch (type)
+    x10_remTime = std::max(0.f, x10_remTime - dt);
+    x18_curColor = zeus::CColor::lerp(x1c_nextColor, x14_prevColor, x10_remTime / xc_duration);
+
+    if (x10_remTime == 0.f)
     {
-    case EFilterType::Multiply:
-    case EFilterType::Invert:
-    case EFilterType::Add:
-    case EFilterType::Subtract:
-    case EFilterType::Blend:
-    case EFilterType::SceneAdd:
-    case EFilterType::NoColor:
-    case EFilterType::Passthru:
-    case EFilterType::Widescreen:
-    default: return;
+        x0_curType = x4_nextType;
+        if (x0_curType == EFilterType::Passthru)
+        {
+            x24_texObj = TLockedToken<CTexture>();
+            x20_nextTxtr = -1;
+        }
     }
-    DrawFilterShape(shape, color, tex, uvScale);
+
+    if (x0_curType == EFilterType::Passthru)
+        m_shader = std::experimental::nullopt;
+    else if (x0_curType != origType)
+        m_shader.emplace(x0_curType, x24_texObj);
 }
 
-void CCameraFilterPass::DrawFilterShape(EFilterShape shape, const zeus::CColor& color,
-                                        const CTexture* tex, float uvScale)
+template <class S>
+void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
+                                     float time, const zeus::CColor& color, ResId txtr)
 {
+    if (time == 0.f)
+    {
+        xc_duration = 0.f;
+        x10_remTime = 0.f;
+
+        if (txtr != -1)
+            x24_texObj = g_SimplePool->GetObj({FOURCC('TXTR'), txtr});
+        if (type == EFilterType::Passthru)
+            m_shader = std::experimental::nullopt;
+        else if (x0_curType != type || (x20_nextTxtr != txtr && txtr != -1))
+            m_shader.emplace(type, x24_texObj);
+
+        x4_nextType = type;
+        x0_curType = type;
+        x8_shape = shape;
+        x1c_nextColor = color;
+        x18_curColor = color;
+        x14_prevColor = color;
+        x20_nextTxtr = txtr;
+    }
+    else
+    {
+        EFilterType origType = x0_curType;
+        ResId origTxtr = x20_nextTxtr;
+
+        x1c_nextColor = color;
+        x14_prevColor = x18_curColor;
+        x8_shape = shape;
+        x20_nextTxtr = txtr;
+        if (txtr != -1)
+            x24_texObj = g_SimplePool->GetObj({FOURCC('TXTR'), txtr});
+        x10_remTime = time;
+        xc_duration = time;
+        x0_curType = x4_nextType;
+        x4_nextType = type;
+        if (type == EFilterType::Passthru)
+        {
+            if (x0_curType == EFilterType::Multiply)
+                x1c_nextColor = zeus::CColor::skWhite;
+            else if (x0_curType == EFilterType::Add || x0_curType == EFilterType::Blend)
+                x1c_nextColor.a = 0.f;
+        }
+        else
+        {
+            if (x0_curType == EFilterType::Passthru)
+            {
+                if (type == EFilterType::Multiply)
+                {
+                    x18_curColor = zeus::CColor::skWhite;
+                }
+                else if (type == EFilterType::Add || type == EFilterType::Blend)
+                {
+                    x18_curColor = x1c_nextColor;
+                    x18_curColor.a = 0.f;
+                    x14_prevColor = x18_curColor;
+                }
+            }
+            x0_curType = x4_nextType;
+        }
+
+        if (x0_curType == EFilterType::Passthru)
+            m_shader = std::experimental::nullopt;
+        else if (x0_curType != origType || (x20_nextTxtr != origTxtr && x20_nextTxtr != -1))
+            m_shader.emplace(x0_curType, x24_texObj);
+    }
+}
+
+template <class S>
+void CCameraFilterPass<S>::DisableFilter(float time)
+{
+    SetFilter(EFilterType::Passthru, x8_shape, time, zeus::CColor::skWhite, -1);
+}
+
+template <class S>
+void CCameraFilterPass<S>::Draw() const
+{
+    if (m_shader)
+        const_cast<S&>(*m_shader).DrawFilter(x8_shape, x18_curColor,
+                                             GetT(x4_nextType == EFilterType::Passthru));
+}
+
+float CCameraFilterPassBase::GetT(bool invert) const
+{
+    float tmp;
+    if (xc_duration == 0.f)
+        tmp = 1.f;
+    else
+        tmp = 1.f - x10_remTime / xc_duration;
+    if (invert)
+        return 1.f - tmp;
+    return tmp;
+}
+
+void CCameraFilterPassPoly::SetFilter(EFilterType type, EFilterShape shape,
+                                      float time, const zeus::CColor& color, ResId txtr)
+{
+    if (!m_filter || m_shape != shape)
+    {
+        m_shape = shape;
+        switch (shape)
+        {
+        case EFilterShape::Fullscreen:
+        case EFilterShape::FullscreenHalvesLeftRight:
+        case EFilterShape::FullscreenHalvesTopBottom:
+        case EFilterShape::FullscreenQuarters:
+            if (txtr != -1)
+                m_filter = std::make_unique<CCameraFilterPass<CTexturedQuadFilterAlpha>>();
+            else
+                m_filter = std::make_unique<CCameraFilterPass<CColoredQuadFilter>>();
+            break;
+        case EFilterShape::CinemaBars:
+            m_filter = std::make_unique<CCameraFilterPass<CWideScreenFilter>>();
+            break;
+        case EFilterShape::ScanLinesEven:
+        case EFilterShape::ScanLinesOdd:
+            m_filter = std::make_unique<CCameraFilterPass<CScanLinesFilter>>();
+            break;
+        case EFilterShape::RandomStatic:
+            m_filter = std::make_unique<CCameraFilterPass<CRandomStaticFilter>>();
+            break;
+        case EFilterShape::CookieCutterDepthRandomStatic:
+            m_filter = std::make_unique<CCameraFilterPass<CCookieCutterDepthRandomStaticFilter>>();
+            break;
+        default: break;
+        }
+    }
+    if (m_filter)
+        m_filter->SetFilter(type, shape, time, color, txtr);
 }
 
 void CCameraBlurPass::Draw()

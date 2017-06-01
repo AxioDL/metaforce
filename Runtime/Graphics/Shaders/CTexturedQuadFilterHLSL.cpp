@@ -111,15 +111,15 @@ static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AddPipeline = nullptr;
 static boo::IShaderPipeline* s_MultPipeline = nullptr;
 
-static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
+static boo::IShaderPipeline* SelectPipeline(EFilterType type)
 {
     switch (type)
     {
-    case CCameraFilterPass::EFilterType::Blend:
+    case EFilterType::Blend:
         return s_AlphaPipeline;
-    case CCameraFilterPass::EFilterType::Add:
+    case EFilterType::Add:
         return s_AddPipeline;
-    case CCameraFilterPass::EFilterType::Multiply:
+    case EFilterType::Multiply:
         return s_MultPipeline;
     default:
         return nullptr;
@@ -129,7 +129,7 @@ static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
 struct CTexturedQuadFilterD3DDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
@@ -171,15 +171,15 @@ static boo::IShaderPipeline* s_AAlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AAddPipeline = nullptr;
 static boo::IShaderPipeline* s_AMultPipeline = nullptr;
 
-static boo::IShaderPipeline* SelectAlphaPipeline(CCameraFilterPass::EFilterType type)
+static boo::IShaderPipeline* SelectAlphaPipeline(EFilterType type)
 {
     switch (type)
     {
-    case CCameraFilterPass::EFilterType::Blend:
+    case EFilterType::Blend:
         return s_AAlphaPipeline;
-    case CCameraFilterPass::EFilterType::Add:
+    case EFilterType::Add:
         return s_AAddPipeline;
-    case CCameraFilterPass::EFilterType::Multiply:
+    case EFilterType::Multiply:
         return s_AMultPipeline;
     default:
         return nullptr;
@@ -189,7 +189,7 @@ static boo::IShaderPipeline* SelectAlphaPipeline(CCameraFilterPass::EFilterType 
 struct CTexturedQuadFilterAlphaD3DDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilterAlpha& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);

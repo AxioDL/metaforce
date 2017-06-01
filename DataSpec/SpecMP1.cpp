@@ -169,6 +169,8 @@ struct SpecMP1 : SpecBase
     hecl::ProjectPath m_cookPath;
     PAKRouter<DNAMP1::PAKBridge> m_pakRouter;
 
+    std::unique_ptr<uint8_t[]> m_dolBuf;
+
     SpecMP1(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
     : SpecBase(specEntry, project, pc)
     , m_workPath(project.getProjectWorkingPath(), _S("MP1"))
@@ -257,8 +259,8 @@ struct SpecMP1 : SpecBase
                                  const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps)
     {
         nod::Partition* partition = disc.getDataPartition();
-        std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
-        const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
+        m_dolBuf = partition->getDOLBuf();
+        const char* buildInfo = (char*)memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
 
         if (!buildInfo)
             return false;
@@ -318,8 +320,8 @@ struct SpecMP1 : SpecBase
         if (dolIt == root.end())
             return false;
 
-        std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
-        const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
+        m_dolBuf = dolIt->getBuf();
+        const char* buildInfo = (char*)memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
 
         /* Root Report */
         reps.emplace_back();
@@ -342,7 +344,7 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(nod::DiscBase&, bool force, FProgress progress)
+    bool extractFromDisc(nod::DiscBase& disc, bool force, FProgress progress)
     {
         m_project.enableDataSpecs({_S("MP1-PC")});
 
@@ -418,6 +420,10 @@ struct SpecMP1 : SpecBase
         }
 
         process.waitUntilComplete();
+
+        /* Extract part of .dol for RandomStatic entropy */
+        hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _S("MP1/NoARAM"));
+        ExtractRandomStaticEntropy(m_dolBuf.get() + 0x4f60, noAramPath);
 
         return true;
     }

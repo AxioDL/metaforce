@@ -9,54 +9,88 @@ namespace urde
 {
 class CTexture;
 
-class CCameraFilterPass
+enum class EFilterType
 {
+    Passthru,
+    Multiply,
+    Invert,
+    Add,
+    Subtract,
+    Blend,
+    Widescreen,
+    SceneAdd,
+    NoColor
+};
+
+enum class EFilterShape
+{
+    Fullscreen,
+    FullscreenHalvesLeftRight,
+    FullscreenHalvesTopBottom,
+    FullscreenQuarters,
+    CinemaBars,
+    ScanLinesEven,
+    ScanLinesOdd,
+    RandomStatic,
+    CookieCutterDepthRandomStatic
+};
+
+class CCameraFilterPassBase
+{
+protected:
+    EFilterType x0_curType = EFilterType::Passthru;
+    EFilterType x4_nextType = EFilterType::Passthru;
+    EFilterShape x8_shape = EFilterShape::Fullscreen;
+    float xc_duration = 0.f;
+    float x10_remTime = 0.f;
+    zeus::CColor x14_prevColor;
+    zeus::CColor x18_curColor;
+    zeus::CColor x1c_nextColor;
+    ResId x20_nextTxtr = -1;
+    TLockedToken<CTexture> x24_texObj; // Used to be auto_ptr
+    float GetT(bool invert) const;
 public:
-    enum class EFilterType
-    {
-        Passthru,
-        Multiply,
-        Invert,
-        Add,
-        Subtract,
-        Blend,
-        Widescreen,
-        SceneAdd,
-        NoColor
-    };
-    enum class EFilterShape
-    {
-        Fullscreen,
-        FullscreenHalvesLeftRight,
-        FullscreenHalvesTopBottom,
-        FullscreenQuarters,
-        CinemaBars,
-        ScanLinesEven,
-        ScanLinesOdd,
-        RandomStatic,
-        CookieCutterDepthRandomStatic
-    };
-    static void DrawFilter(EFilterType type, EFilterShape shape, const zeus::CColor& color,
-                           const CTexture* tex, float uvScale);
-    static void DrawFilterShape(EFilterShape shape, const zeus::CColor& color,
-                                const CTexture* tex, float uvScale);
+    virtual void Update(float dt)=0;
+    virtual void SetFilter(EFilterType type, EFilterShape shape,
+                           float time, const zeus::CColor& color, ResId txtr)=0;
+    virtual void DisableFilter(float time)=0;
+    virtual void Draw() const=0;
+};
+
+template <class S>
+class CCameraFilterPass final : public CCameraFilterPassBase
+{
+    std::experimental::optional<S> m_shader;
+public:
     void Update(float dt);
-    void SetFilter(EFilterType type, EFilterShape shape, float, const zeus::CColor& color, u32) {}
-    void DisableFilter(float) {}
-    void Draw() const {}
+    void SetFilter(EFilterType type, EFilterShape shape,
+                   float time, const zeus::CColor& color, ResId txtr);
+    void DisableFilter(float time);
+    void Draw() const;
+};
+
+class CCameraFilterPassPoly
+{
+    EFilterShape m_shape;
+    std::unique_ptr<CCameraFilterPassBase> m_filter;
+public:
+    void Update(float dt) { if (m_filter) m_filter->Update(dt); }
+    void SetFilter(EFilterType type, EFilterShape shape,
+                   float time, const zeus::CColor& color, ResId txtr);
+    void DisableFilter(float time) { if (m_filter) m_filter->DisableFilter(time); }
+    void Draw() const { if (m_filter) m_filter->Draw(); }
+};
+
+enum class EBlurType
+{
+    NoBlur,
+    LoBlur,
+    HiBlur,
+    Xray
 };
 
 class CCameraBlurPass
 {
-public:
-    enum class EBlurType
-    {
-        NoBlur,
-        LoBlur,
-        HiBlur,
-        Xray
-    };
-private:
     TLockedToken<CTexture> x0_paletteTex;
     EBlurType x10_curType = EBlurType::NoBlur;
     EBlurType x14_endType = EBlurType::NoBlur;

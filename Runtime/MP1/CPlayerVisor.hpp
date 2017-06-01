@@ -7,6 +7,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "CPlayerState.hpp"
 #include "Graphics/CModel.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
 
 namespace urde
 {
@@ -51,7 +52,7 @@ class CPlayerVisor
     float x58_scanMagInterp = 1.f;
     CSfxHandle x5c_visorLoopSfx;
     CSfxHandle x60_scanningLoopSfx;
-    CCameraFilterPass x64_scanDim;
+    CCameraFilterPass<CColoredQuadFilter> x64_scanDim;
     CCameraBlurPass x90_xrayBlur;
     float xc4_vpScaleX = 1.f;
     float xc8_vpScaleY = 1.f;

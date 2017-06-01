@@ -30,8 +30,11 @@ class CColoredQuadFilter
 
 public:
     static const zeus::CRectangle DefaultRect;
-    CColoredQuadFilter(CCameraFilterPass::EFilterType type);
+    CColoredQuadFilter(EFilterType type);
+    CColoredQuadFilter(EFilterType type, const TLockedToken<CTexture>&)
+    : CColoredQuadFilter(type) {}
     void draw(const zeus::CColor& color, const zeus::CRectangle& rect=DefaultRect);
+    void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
 
     using _CLS = CColoredQuadFilter;
 #include "TMultiBlendShaderDecl.hpp"
@@ -42,9 +45,13 @@ class CWideScreenFilter
     CColoredQuadFilter m_top;
     CColoredQuadFilter m_bottom;
 public:
-    CWideScreenFilter(CCameraFilterPass::EFilterType type)
+    CWideScreenFilter(EFilterType type)
     : m_top(type), m_bottom(type) {}
+    CWideScreenFilter(EFilterType type, const TLockedToken<CTexture>&)
+    : CWideScreenFilter(type) {}
     void draw(const zeus::CColor& color, float t);
+    void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
+
     static float SetViewportToMatch(float t);
     static void SetViewportToFull();
 };

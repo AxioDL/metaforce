@@ -108,15 +108,15 @@ static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AddPipeline = nullptr;
 static boo::IShaderPipeline* s_MultPipeline = nullptr;
 
-static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
+static boo::IShaderPipeline* SelectPipeline(EFilterType type)
 {
     switch (type)
     {
-    case CCameraFilterPass::EFilterType::Blend:
+    case EFilterType::Blend:
         return s_AlphaPipeline;
-    case CCameraFilterPass::EFilterType::Add:
+    case EFilterType::Add:
         return s_AddPipeline;
-    case CCameraFilterPass::EFilterType::Multiply:
+    case EFilterType::Multiply:
         return s_MultPipeline;
     default:
         return nullptr;
@@ -128,15 +128,15 @@ static boo::IShaderPipeline* s_AAlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AAddPipeline = nullptr;
 static boo::IShaderPipeline* s_AMultPipeline = nullptr;
 
-static boo::IShaderPipeline* SelectAlphaPipeline(CCameraFilterPass::EFilterType type)
+static boo::IShaderPipeline* SelectAlphaPipeline(EFilterType type)
 {
     switch (type)
     {
-    case CCameraFilterPass::EFilterType::Blend:
+    case EFilterType::Blend:
         return s_AAlphaPipeline;
-    case CCameraFilterPass::EFilterType::Add:
+    case EFilterType::Add:
         return s_AAddPipeline;
-    case CCameraFilterPass::EFilterType::Multiply:
+    case EFilterType::Multiply:
         return s_AMultPipeline;
     default:
         return nullptr;
@@ -146,7 +146,7 @@ static boo::IShaderPipeline* SelectAlphaPipeline(CCameraFilterPass::EFilterType 
 struct CTexturedQuadFilterGLDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
@@ -169,7 +169,7 @@ struct CTexturedQuadFilterGLDataBindingFactory : TMultiBlendShader<CTexturedQuad
 struct CTexturedQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
@@ -228,7 +228,7 @@ URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 struct CTexturedQuadFilterAlphaGLDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilterAlpha& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
@@ -251,7 +251,7 @@ struct CTexturedQuadFilterAlphaGLDataBindingFactory : TMultiBlendShader<CTexture
 struct CTexturedQuadFilterAlphaVulkanDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilterAlpha& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);

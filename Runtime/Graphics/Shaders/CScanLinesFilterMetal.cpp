@@ -1,17 +1,18 @@
-#include "CColoredQuadFilter.hpp"
+#include "CScanLinesFilter.hpp"
 #include "TMultiBlendShader.hpp"
-#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
 
 static const char* VS =
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
 "struct VertData\n"
 "{\n"
-"    float4 posIn : POSITION;\n"
+"    float4 posIn [[ attribute(0) ]];\n"
 "};\n"
 "\n"
-"cbuffer ColoredQuadUniform : register(b0)\n"
+"struct ColoredQuadUniform\n"
 "{\n"
 "    float4x4 xf;\n"
 "    float4 color;\n"
@@ -19,31 +20,33 @@ static const char* VS =
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    float4 position : SV_Position;\n"
-"    float4 color : COLOR;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
 "};\n"
 "\n"
-"VertToFrag main(in VertData v)\n"
+"vertex VertToFrag vmain(VertData v [[ stage_in ]], constant ColoredQuadUniform& cqu [[ buffer(2) ]])\n"
 "{\n"
 "    VertToFrag vtf;\n"
-"    vtf.color = color;\n"
-"    vtf.position = mul(xf, float4(v.posIn.xyz, 1.0));\n"
+"    vtf.color = cqu.color;\n"
+"    vtf.position = cqu.xf * float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 
 static const char* FS =
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
 "struct VertToFrag\n"
 "{\n"
-"    float4 position : SV_Position;\n"
-"    float4 color : COLOR;\n"
+"    float4 position [[ position ]];\n"
+"    float4 color;\n"
 "};\n"
 "\n"
-"float4 main(in VertToFrag vtf) : SV_Target0\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]])\n"
 "{\n"
 "    return vtf.color;\n"
 "}\n";
 
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CScanLinesFilter)
 
 static boo::IVertexFormat* s_VtxFmt = nullptr;
 static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
@@ -65,13 +68,13 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type)
     }
 }
 
-struct CColoredQuadFilterD3DDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
+struct CScanLinesFilterMetalDataBindingFactory : TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                     EFilterType type,
-                                                    CColoredQuadFilter& filter)
+                                                    CScanLinesFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
@@ -80,27 +83,24 @@ struct CColoredQuadFilterD3DDataBindingFactory : TMultiBlendShader<CColoredQuadF
     }
 };
 
-TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory*
-CColoredQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory*
+CScanLinesFilter::Initialize(boo::MetalDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
-    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
-                                            s_VtxFmt, boo::BlendFactor::SrcAlpha,
+    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_AddPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
-                                          s_VtxFmt, boo::BlendFactor::SrcAlpha,
+                                            boo::ZTest::None, false, true, true, boo::CullMode::None);
+    s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
-                                          boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
-                                           s_VtxFmt, boo::BlendFactor::SrcColor,
+                                          boo::ZTest::None, false, true, true, boo::CullMode::None);
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
-                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    return new CColoredQuadFilterD3DDataBindingFactory;
+                                           boo::ZTest::None, false, true, true, boo::CullMode::None);
+    return new CScanLinesFilterMetalDataBindingFactory;
 }
 
 }

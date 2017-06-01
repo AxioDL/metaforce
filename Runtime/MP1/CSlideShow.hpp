@@ -44,7 +44,7 @@ public:
 
         void SetTexture(const TLockedToken<CTexture>& tex)
         {
-            m_texQuad.emplace(CCameraFilterPass::EFilterType::Blend, tex);
+            m_texQuad.emplace(EFilterType::Blend, tex);
         }
         bool IsLoaded() const
         {

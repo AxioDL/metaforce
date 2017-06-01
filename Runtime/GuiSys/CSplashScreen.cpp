@@ -16,7 +16,7 @@ static const char* SplashTextures[]
 
 CSplashScreen::CSplashScreen(ESplashScreen which)
 : CIOWin("SplashScreen"), x14_which(which),
-  m_quad(CCameraFilterPass::EFilterType::Blend,
+  m_quad(EFilterType::Blend,
          g_SimplePool->GetObj(SplashTextures[int(which)]))
 {
 }

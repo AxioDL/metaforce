@@ -1,6 +1,5 @@
-#include "CColoredQuadFilter.hpp"
+#include "CRandomStaticFilter.hpp"
 #include "TMultiBlendShader.hpp"
-#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
@@ -47,12 +46,13 @@ static const char* FS =
 "    return vtf.color;\n"
 "}\n";
 
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CRandomStaticFilter)
 
 static boo::IVertexFormat* s_VtxFmt = nullptr;
 static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AddPipeline = nullptr;
 static boo::IShaderPipeline* s_MultPipeline = nullptr;
+static boo::IShaderPipeline* s_CookieCutterPipeline = nullptr;
 
 static boo::IShaderPipeline* SelectPipeline(EFilterType type)
 {
@@ -69,23 +69,23 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type)
     }
 }
 
-struct CColoredQuadFilterMetalDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
+struct CRandomStaticFilterMetalDataBindingFactory : TMultiBlendShader<CRandomStaticFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                     EFilterType type,
-                                                    CColoredQuadFilter& filter)
+                                                    CRandomStaticFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+        return cctx.newShaderDataBinding(filter.m_cookieCutter ? s_CookieCutterPipeline : SelectPipeline(type),
+                                         s_VtxFmt, filter.m_vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
 
-TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory*
-CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
+TMultiBlendShader<CRandomStaticFilter>::IDataBindingFactory*
+CRandomStaticFilter::Initialize(boo::MetalDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -101,7 +101,7 @@ CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, true, boo::CullMode::None);
-    return new CColoredQuadFilterMetalDataBindingFactory;
+    return new CRandomStaticFilterMetalDataBindingFactory;
 }
 
 }

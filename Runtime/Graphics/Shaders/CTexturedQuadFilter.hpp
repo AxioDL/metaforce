@@ -43,8 +43,8 @@ public:
     };
 
     static const zeus::CRectangle DefaultRect;
-    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, TLockedToken<CTexture> tex);
-    CTexturedQuadFilter(CCameraFilterPass::EFilterType type, boo::ITexture* tex);
+    CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex);
+    CTexturedQuadFilter(EFilterType type, boo::ITexture* tex);
     CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
@@ -52,6 +52,7 @@ public:
     void draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect=DefaultRect);
     void drawCropped(const zeus::CColor& color, float uvScale);
     void drawVerts(const zeus::CColor& color, const Vert verts[4], float lod=0.f);
+    void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
     const TLockedToken<CTexture>& GetTex() const { return m_tex; }
 
     using _CLS = CTexturedQuadFilter;
@@ -66,8 +67,8 @@ class CTexturedQuadFilterAlpha : public CTexturedQuadFilter
     friend struct CTexturedQuadFilterAlphaD3DDataBindingFactory;
 
 public:
-    CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterType type, TLockedToken<CTexture> tex);
-    CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterType type, boo::ITexture* tex);
+    CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex);
+    CTexturedQuadFilterAlpha(EFilterType type, boo::ITexture* tex);
     using _CLS = CTexturedQuadFilterAlpha;
 #include "TMultiBlendShaderDecl.hpp"
 };

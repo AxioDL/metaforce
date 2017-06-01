@@ -421,7 +421,7 @@ private:
     std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
     CStaticAudioPlayer* xf4_curAudio = nullptr;
 
-    CColoredQuadFilter m_fadeToBlack = {CCameraFilterPass::EFilterType::Blend};
+    CColoredQuadFilter m_fadeToBlack = {EFilterType::Blend};
     std::experimental::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
 
     std::unique_ptr<CFrontEndUITouchBar> m_touchBar;

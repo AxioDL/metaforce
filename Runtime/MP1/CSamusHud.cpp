@@ -23,7 +23,9 @@ CSamusHud* CSamusHud::g_SamusHud = nullptr;
 CSamusHud::CSamusHud(CStateManager& stateMgr)
 : x8_targetingMgr(stateMgr),
   x258_frmeHelmet(g_SimplePool->GetObj("FRME_Helmet")),
-  x268_frmeBaseHud(g_SimplePool->GetObj("FRME_BaseHud"))
+  x268_frmeBaseHud(g_SimplePool->GetObj("FRME_BaseHud")),
+  m_energyDrainFilter(g_tweakGui->GetEnergyDrainFilterAdditive() ?
+                      EFilterType::Add : EFilterType::Blend)
 {
     x2e0_26_latestFirstPerson = true;
     x2e0_27_energyLow = stateMgr.GetPlayer().IsEnergyLow(stateMgr);
@@ -1002,7 +1004,7 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
     {
         if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed)
             color2.a *= 0.75f;
-        x3a8_camFilter.SetFilter(CCameraFilterPass::EFilterType::Add, CCameraFilterPass::EFilterShape::Fullscreen,
+        x3a8_camFilter.SetFilter(EFilterType::Add, EFilterShape::Fullscreen,
                                  0.f, color2, -1);
     }
     else
@@ -1113,8 +1115,8 @@ void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr)
     {
         zeus::CColor color = zeus::CColor::skWhite;
         color.a = x510_staticInterp;
-        x51c_camFilter2.SetFilter(CCameraFilterPass::EFilterType::Blend,
-                                  CCameraFilterPass::EFilterShape::RandomStatic, 0.f, color, -1);
+        x51c_camFilter2.SetFilter(EFilterType::Blend,
+                                  EFilterShape::RandomStatic, 0.f, color, -1);
     }
     else
     {
@@ -1535,10 +1537,7 @@ void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) const
 
     zeus::CColor filterColor = g_tweakGuiColors->GetEnergyDrainFilterColor();
     filterColor.a *= alpha;
-    CCameraFilterPass::DrawFilter(g_tweakGui->GetEnergyDrainFilterAdditive() ?
-                                  CCameraFilterPass::EFilterType::Add : CCameraFilterPass::EFilterType::Blend,
-                                  CCameraFilterPass::EFilterShape::Fullscreen, filterColor,
-                                  nullptr, 1.f);
+    const_cast<CColoredQuadFilter&>(m_energyDrainFilter).draw(filterColor);
 }
 
 void CSamusHud::Draw(const CStateManager& mgr, float alpha,
@@ -1559,11 +1558,8 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha,
         helmetVis < CInGameGuiManager::EHelmetVisMode::HelmetOnly)
     {
         if (alpha < 1.f)
-        {
-            CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::NoColor,
-                                          CCameraFilterPass::EFilterShape::CookieCutterDepthRandomStatic,
-                                          zeus::CColor::skWhite, nullptr, 1.f - alpha);
-        }
+            const_cast<CCookieCutterDepthRandomStaticFilter&>(m_cookieCutterStatic).
+                draw(zeus::CColor::skWhite, 1.f - alpha);
 
         if (x288_loadedSelectedHud)
         {

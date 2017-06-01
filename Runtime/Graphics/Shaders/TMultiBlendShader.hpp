@@ -18,8 +18,7 @@ public:
     struct IDataBindingFactory
     {
         virtual boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                                CCameraFilterPass::EFilterType type,
-                                                                ShaderImp& filter)=0;
+                                                                EFilterType type, ShaderImp& filter)=0;
     };
 
     static std::unique_ptr<IDataBindingFactory> m_bindFactory;
@@ -67,8 +66,7 @@ public:
     }
 
     static boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                           CCameraFilterPass::EFilterType type,
-                                                           ShaderImp& filter)
+                                                           EFilterType type, ShaderImp& filter)
     {
         return m_bindFactory->BuildShaderDataBinding(ctx, type, filter);
     }

@@ -113,7 +113,7 @@ CQuitGameScreen::CQuitGameScreen(EQuitType tp)
 {
     x4_frame = g_SimplePool->GetObj("FRME_QuitScreen");
     if (tp == EQuitType::QuitGame)
-        m_blackScreen.emplace(CCameraFilterPass::EFilterType::Blend);
+        m_blackScreen.emplace(EFilterType::Blend);
 }
 
 }

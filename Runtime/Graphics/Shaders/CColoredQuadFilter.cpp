@@ -3,7 +3,7 @@
 namespace urde
 {
 
-CColoredQuadFilter::CColoredQuadFilter(CCameraFilterPass::EFilterType type)
+CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
@@ -37,6 +37,11 @@ void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle&
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CColoredQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t)
+{
+
+}
+
 void CWideScreenFilter::draw(const zeus::CColor& color, float t)
 {
     float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
@@ -50,6 +55,11 @@ void CWideScreenFilter::draw(const zeus::CColor& color, float t)
         rect.position.y = 1.f - delta;
         m_top.draw(color, rect);
     }
+}
+
+void CWideScreenFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t)
+{
+
 }
     
 float CWideScreenFilter::SetViewportToMatch(float t)

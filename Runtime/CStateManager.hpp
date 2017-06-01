@@ -21,6 +21,7 @@
 #include "World/CActorModelParticles.hpp"
 #include "Input/CRumbleManager.hpp"
 #include "Camera/CCameraShakeData.hpp"
+#include "Graphics/Shaders/CColoredQuadFilter.hpp"
 
 namespace urde
 {
@@ -176,7 +177,7 @@ private:
     std::set<std::string> xb40_uniqueInstanceNames;
 
     CFinalInput xb54_finalInput;
-    CCameraFilterPass xb84_camFilterPasses[9];
+    CCameraFilterPassPoly xb84_camFilterPasses[9];
     CCameraBlurPass xd14_camBlurPasses[9];
 
     s32 xe60_ = -1;
@@ -250,6 +251,9 @@ private:
         };
         u32 xf94_ = 0;
     };
+
+    CColoredQuadFilter m_deathWhiteout = { EFilterType::Add };
+    CColoredQuadFilter m_escapeWhiteout = { EFilterType::Add };
 
     void UpdateThermalVisor();
     static void RendererDrawCallback(const void*, const void*, int);
@@ -412,7 +416,7 @@ public:
     void SetActiveRandomToDefault() { x900_activeRandom = &x8fc_random; }
     void ClearActiveRandom() { x900_activeRandom = nullptr; }
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
-    CCameraFilterPass& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
+    CCameraFilterPassPoly& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
 
     CEnvFxManager* GetEnvFxManager() { return x880_envFxManager; }
     CWorld* WorldNC() {return x850_world.get();}

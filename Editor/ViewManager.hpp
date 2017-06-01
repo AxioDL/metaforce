@@ -54,7 +54,7 @@ class ViewManager : public specter::IViewManager
     {
         ViewManager& m_vm;
         CSpaceWarpFilter m_spaceWarpFilter;
-        CWideScreenFilter m_widescreen = { CCameraFilterPass::EFilterType::Blend };
+        CWideScreenFilter m_widescreen = { EFilterType::Blend };
         CXRayBlurFilter m_xrayBlur;
         CCameraBlurFilter m_camBlur;
         CRandom16 m_random;

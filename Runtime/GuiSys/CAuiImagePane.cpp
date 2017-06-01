@@ -50,10 +50,10 @@ void CAuiImagePane::Update(float dt)
 }
 
 CAuiImagePane::Filters::Filters(TLockedToken<CTexture>& tex)
-: m_darkenerQuad(CCameraFilterPass::EFilterType::Blend, tex),
-  m_flashQuad{{CCameraFilterPass::EFilterType::Add, tex}, {CCameraFilterPass::EFilterType::Add, tex}},
-  m_alphaQuad{{CCameraFilterPass::EFilterType::Blend, tex}, {CCameraFilterPass::EFilterType::Blend, tex}},
-  m_addQuad{{CCameraFilterPass::EFilterType::Add, tex}, {CCameraFilterPass::EFilterType::Add, tex}}
+: m_darkenerQuad(EFilterType::Blend, tex),
+  m_flashQuad{{EFilterType::Add, tex}, {EFilterType::Add, tex}},
+  m_alphaQuad{{EFilterType::Blend, tex}, {EFilterType::Blend, tex}},
+  m_addQuad{{EFilterType::Add, tex}, {EFilterType::Add, tex}}
 {
 }
 

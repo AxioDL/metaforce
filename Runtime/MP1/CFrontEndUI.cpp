@@ -2320,7 +2320,7 @@ bool CFrontEndUI::PumpLoad()
         return false;
 
     /* Ready to construct texture quads */
-    m_pressStartQuad.emplace(CCameraFilterPass::EFilterType::Add, x38_pressStart);
+    m_pressStartQuad.emplace(EFilterType::Add, x38_pressStart);
 
     return true;
 }

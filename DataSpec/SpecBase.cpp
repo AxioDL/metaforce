@@ -10,6 +10,7 @@
 #include "DNACommon/TXTR.hpp"
 
 #include <time.h>
+#include <png.h>
 
 namespace DataSpec
 {
@@ -400,6 +401,72 @@ bool SpecBase::canPackage(const PackagePassInfo& info)
 
 void SpecBase::doPackage(const PackagePassInfo& info)
 {
+}
+
+static void PNGErr(png_structp png, png_const_charp msg)
+{
+    Log.report(logvisor::Error, msg);
+}
+
+static void PNGWarn(png_structp png, png_const_charp msg)
+{
+    Log.report(logvisor::Warning, msg);
+}
+
+static inline uint8_t Convert4To8(uint8_t v)
+{
+    /* Swizzle bits: 00001234 -> 12341234 */
+    return (v << 4) | v;
+}
+
+void SpecBase::ExtractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath)
+{
+    hecl::ProjectPath entropyPath(noAramPath, _S("RandomStaticEntropy.png"));
+    hecl::ProjectPath catalogPath(noAramPath, _S("!catalog.yaml"));
+
+    if (FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().c_str(), _S("a")))
+    {
+        fprintf(fp, "RandomStaticEntropy: %s\n", entropyPath.getRelativePathUTF8().c_str());
+        fclose(fp);
+    }
+
+    FILE* fp = hecl::Fopen(entropyPath.getAbsolutePath().c_str(), _S("wb"));
+    if (!fp)
+    {
+        Log.report(logvisor::Error,
+                   _S("Unable to open '%s' for writing"),
+                   entropyPath.getAbsolutePath().c_str());
+        return;
+    }
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
+    png_init_io(png, fp);
+    png_infop info = png_create_info_struct(png);
+
+    png_text textStruct = {};
+    textStruct.key = png_charp("urde_nomip");
+    png_set_text(png, info, &textStruct, 1);
+
+    png_set_IHDR(png, info, 1024, 512, 8,
+                 PNG_COLOR_TYPE_GRAY_ALPHA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_write_info(png, info);
+
+    std::unique_ptr<uint8_t[]> rowbuf(new uint8_t[1024*2]);
+    for (int y=0 ; y<512 ; ++y)
+    {
+        for (int x=0 ; x<1024 ; ++x)
+        {
+            uint8_t texel = buf[y*1024+x];
+            rowbuf[x*2] = Convert4To8(texel >> 4 & 0xf);
+            rowbuf[x*2+1] = Convert4To8(texel & 0xf);
+        }
+        png_write_row(png, rowbuf.get());
+    }
+
+    png_write_end(png, info);
+    png_write_flush(png);
+    png_destroy_write_struct(&png, &info);
+    fclose(fp);
 }
 
 }

@@ -46,7 +46,7 @@ public:
         CTexturedQuadFilter m_quad;
     public:
         CDataDot(const TLockedToken<CTexture>& dataDotTex)
-        : m_quad(CCameraFilterPass::EFilterType::Add, dataDotTex) {}
+        : m_quad(EFilterType::Add, dataDotTex) {}
         void Update(float dt);
         void Draw(const zeus::CColor& color, float radius) const;
         float GetTransitionFactor() const { return x1c_transDur > 0.f ? x20_remTime / x1c_transDur : 0.f; }

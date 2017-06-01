@@ -9,7 +9,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(boo::ITexture* tex)
 {
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type, boo::ITexture* tex)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, boo::ITexture* tex)
 : m_booTex(tex)
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
@@ -21,7 +21,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type, bo
     });
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(CCameraFilterPass::EFilterType type,
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type,
                                          TLockedToken<CTexture> tex)
 : CTexturedQuadFilter(type, (tex ? tex->GetBooTexture() : nullptr))
 {
@@ -86,13 +86,18 @@ void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[
     CGraphics::g_BooMainCommandQueue->draw(0, 4);
 }
 
+void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t)
+{
+
+}
+
 const zeus::CRectangle CTexturedQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
 
 void CTexturedQuadFilter::Shutdown() {}
 
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
-CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterType type, boo::ITexture* tex)
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, boo::ITexture* tex)
 : CTexturedQuadFilter(tex)
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
@@ -104,7 +109,7 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterTyp
     });
 }
 
-CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(CCameraFilterPass::EFilterType type,
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type,
                                                    TLockedToken<CTexture> tex)
 : CTexturedQuadFilterAlpha(type, (tex ? tex->GetBooTexture() : nullptr))
 {

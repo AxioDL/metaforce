@@ -1,6 +1,5 @@
-#include "CColoredQuadFilter.hpp"
+#include "CScanLinesFilter.hpp"
 #include "TMultiBlendShader.hpp"
-#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
@@ -43,7 +42,7 @@ BOO_GLSL_BINDING_HEAD
 "    colorOut = vtf.color;\n"
 "}\n";
 
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CScanLinesFilter)
 
 static boo::IVertexFormat* s_VtxFmt = nullptr;
 static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
@@ -65,11 +64,11 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type)
     }
 }
 
-struct CColoredQuadFilterGLDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
+struct CScanLinesFilterGLDataBindingFactory : TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                     EFilterType type,
-                                                    CColoredQuadFilter& filter)
+                                                    CScanLinesFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
@@ -86,11 +85,11 @@ struct CColoredQuadFilterGLDataBindingFactory : TMultiBlendShader<CColoredQuadFi
 };
 
 #if BOO_HAS_VULKAN
-struct CColoredQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
+struct CScanLinesFilterVulkanDataBindingFactory : TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                     EFilterType type,
-                                                    CColoredQuadFilter& filter)
+                                                    CScanLinesFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
@@ -102,8 +101,8 @@ struct CColoredQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CColoredQu
 };
 #endif
 
-TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory*
-CColoredQuadFilter::Initialize(boo::GLDataFactory::Context& ctx)
+TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory*
+CScanLinesFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
     const char* uniNames[] = {"ColoredQuadUniform"};
     s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames, boo::BlendFactor::SrcAlpha,
@@ -115,12 +114,12 @@ CColoredQuadFilter::Initialize(boo::GLDataFactory::Context& ctx)
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
-    return new CColoredQuadFilterGLDataBindingFactory;
+    return new CScanLinesFilterGLDataBindingFactory;
 }
 
 #if BOO_HAS_VULKAN
-TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory*
-CColoredQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
+TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory*
+CScanLinesFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -136,7 +135,7 @@ CColoredQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
-    return new CColoredQuadFilterVulkanDataBindingFactory;
+    return new CScanLinesFilterVulkanDataBindingFactory;
 }
 #endif
 

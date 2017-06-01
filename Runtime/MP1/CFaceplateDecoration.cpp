@@ -37,7 +37,7 @@ void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr)
     }
 
     if (!m_texFilter && x4_tex.IsLoaded())
-        m_texFilter.emplace(CCameraFilterPass::EFilterType::Blend, x4_tex);
+        m_texFilter.emplace(EFilterType::Blend, x4_tex);
 }
 
 void CFaceplateDecoration::Draw(CStateManager& stateMgr)

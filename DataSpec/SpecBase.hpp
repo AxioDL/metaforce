@@ -113,6 +113,9 @@ struct SpecBase : hecl::Database::IDataSpec
     /* Project accessor */
     hecl::Database::Project& getProject() const {return m_project;}
 
+    /* Extract RandomStatic entropy */
+    void ExtractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath);
+
     SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc);
 protected:
     hecl::Database::Project& m_project;

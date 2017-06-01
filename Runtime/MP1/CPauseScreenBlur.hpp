@@ -5,6 +5,8 @@
 #include "CToken.hpp"
 #include "Camera/CCameraFilter.hpp"
 #include "Graphics/CTexture.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/Shaders/CScanLinesFilter.hpp"
 
 namespace urde
 {
@@ -29,6 +31,8 @@ class CPauseScreenBlur
     EState x14_nextState = EState::InGame;
     float x18_blurAmt = 0.f;
     CCameraBlurPass x1c_camBlur;
+    CTexturedQuadFilter m_quarterFilter = { EFilterType::Multiply, x4_mapLightQuarter };
+    CScanLinesFilter m_linesFilter = { EFilterType::Multiply };
 
     union
     {

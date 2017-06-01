@@ -12,6 +12,8 @@
 #include "Graphics/Shaders/CRadarPaintShader.hpp"
 #include "Graphics/Shaders/CMapSurfaceShader.hpp"
 #include "Graphics/Shaders/CPhazonSuitFilter.hpp"
+#include "Graphics/Shaders/CScanLinesFilter.hpp"
+#include "Graphics/Shaders/CRandomStaticFilter.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -35,6 +37,8 @@ URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTextSupportShader)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CScanLinesFilter)
+URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CRandomStaticFilter)
 
 namespace MP1
 {
@@ -229,6 +233,8 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TMultiBlendShader<CTexturedQuadFilter>::Initialize();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
     TMultiBlendShader<CTextSupportShader>::Initialize();
+    TMultiBlendShader<CScanLinesFilter>::Initialize();
+    TMultiBlendShader<CRandomStaticFilter>::Initialize();
 }
 
 void CMain::RegisterResourceTweaks()
@@ -362,6 +368,8 @@ void CMain::Shutdown()
     TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
     TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();
     TMultiBlendShader<CTextSupportShader>::Shutdown();
+    TMultiBlendShader<CScanLinesFilter>::Shutdown();
+    TMultiBlendShader<CRandomStaticFilter>::Shutdown();
 }
 
 boo::IWindow* CMain::GetMainWindow() const

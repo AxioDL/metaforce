@@ -92,7 +92,7 @@ void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool b)
     }
     else
     {
-        x1c_camBlur.SetBlur(CCameraBlurPass::EBlurType::HiBlur,
+        x1c_camBlur.SetBlur(EBlurType::HiBlur,
                             g_tweakGui->GetPauseBlurFactor() * std::fabs(x18_blurAmt), 0.f);
         x50_24_blurring = true;
     }
@@ -102,18 +102,14 @@ void CPauseScreenBlur::Draw(const CStateManager&) const
 {
     const_cast<CCameraBlurPass&>(x1c_camBlur).Draw();
     float t = std::fabs(x18_blurAmt);
-    if (x1c_camBlur.GetCurrType() != CCameraBlurPass::EBlurType::NoBlur)
+    if (x1c_camBlur.GetCurrType() != EBlurType::NoBlur)
     {
         zeus::CColor filterColor =
             zeus::CColor::lerp(zeus::CColor::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
-        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Multiply,
-                                      CCameraFilterPass::EFilterShape::FullscreenQuarters,
-                                      filterColor, x4_mapLightQuarter.GetObj(), t);
+        const_cast<CTexturedQuadFilter&>(m_quarterFilter).DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
         zeus::CColor scanLinesColor =
             zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(0.75f, 1.f), t);
-        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Multiply,
-                                      CCameraFilterPass::EFilterShape::ScanLinesEven,
-                                      scanLinesColor, nullptr, t);
+        const_cast<CScanLinesFilter&>(m_linesFilter).DrawFilter(EFilterShape::ScanLinesEven, scanLinesColor, t);
     }
 
     if (x50_24_blurring /*&& x1c_camBlur.x2d_noPersistentCopy*/)

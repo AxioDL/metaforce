@@ -61,7 +61,7 @@ public:
     virtual void SetWorldViewpoint(const zeus::CTransform&)=0;
     virtual void SetPerspective(float, float, float, float, float)=0;
     virtual void SetPerspective(float, float, float, float)=0;
-    virtual zeus::CRectangle SetViewportOrtho(bool, float, float)=0;
+    virtual std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool, float, float)=0;
     virtual void SetClippingPlanes(const zeus::CFrustum&)=0;
     virtual void SetViewport(int, int, int, int)=0;
     //virtual void SetDepthReadWrite(bool, bool)=0;

@@ -116,15 +116,15 @@ static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
 static boo::IShaderPipeline* s_AddPipeline = nullptr;
 static boo::IShaderPipeline* s_MultPipeline = nullptr;
 
-static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
+static boo::IShaderPipeline* SelectPipeline(EFilterType type)
 {
     switch (type)
     {
-    case CCameraFilterPass::EFilterType::Blend:
+    case EFilterType::Blend:
         return s_AlphaPipeline;
-    case CCameraFilterPass::EFilterType::Add:
+    case EFilterType::Add:
         return s_AddPipeline;
-    case CCameraFilterPass::EFilterType::Multiply:
+    case EFilterType::Multiply:
         return s_MultPipeline;
     default:
         return nullptr;
@@ -134,7 +134,7 @@ static boo::IShaderPipeline* SelectPipeline(CCameraFilterPass::EFilterType type)
 struct CTexturedQuadFilterMetalDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
@@ -171,7 +171,7 @@ CTexturedQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
 struct CTexturedQuadFilterAlphaMetalDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
     boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraFilterPass::EFilterType type,
+                                                    EFilterType type,
                                                     CTexturedQuadFilterAlpha& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);

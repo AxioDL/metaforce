@@ -569,7 +569,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
     if (x1d8_onScreenTexAlpha > 0.f && x1dc_onScreenTexTok.IsLoaded())
     {
         if (!m_onScreenQuad || m_onScreenQuad->GetTex().GetObj() != x1dc_onScreenTexTok.GetObj())
-            m_onScreenQuad.emplace(CCameraFilterPass::EFilterType::Blend, x1dc_onScreenTexTok);
+            m_onScreenQuad.emplace(EFilterType::Blend, x1dc_onScreenTexTok);
 
         // No depth read/write
         // Alpha blend
@@ -612,11 +612,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
         {
             CGraphics::SetDepthRange(0.001953125f, 0.015625f);
             if (staticAlpha > 0.f)
-            {
-                CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Blend,
-                                              CCameraFilterPass::EFilterShape::RandomStatic,
-                                              zeus::CColor(1.f, staticAlpha), nullptr, 1.f);
-            }
+                m_randomStatic.draw(zeus::CColor(1.f, staticAlpha), 1.f);
             x34_samusHud->Draw(stateMgr, x1f4_visorStaticAlpha * (1.f - staticAlpha),
                                x1e0_helmetVisMode, x1ec_hudVisMode != EHudVisMode::Zero,
                                x1e4_enableTargetingManager && !scanVisor);
@@ -691,9 +687,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
             dieDur = 6.f;
 
         float alpha = zeus::clamp(0.f, stateMgr.GetPlayer().GetDeathTime() / dieDur, 1.f);
-        CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Blend,
-                                      CCameraFilterPass::EFilterShape::Fullscreen,
-                                      zeus::CColor(1.f, alpha), nullptr, 1.f);
+        m_deathWhiteout.draw(zeus::CColor(1.f, alpha));
 
         float zStart = dieDur - 0.5f - 0.5f - 1.f;
         float xStart = 0.5f - zStart;
@@ -705,9 +699,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
             float colT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - colStart) / 0.5f, 1.f);
             SClipScreenRect rect(g_Viewport);
             CGraphics::ResolveSpareTexture(rect);
-            CCameraFilterPass::DrawFilter(CCameraFilterPass::EFilterType::Blend,
-                                          CCameraFilterPass::EFilterShape::Fullscreen,
-                                          zeus::CColor::skBlack, nullptr, 1.f);
+            m_deathBlackout.draw(zeus::CColor::skBlack);
             float z = 0.5f * (zT * zT * zT * zT * zT * (g_Viewport.xc_height - 12.f) + 12.f);
             float x = 0.5f * (xT * (g_Viewport.x8_width - 12.f) + 12.f);
 
@@ -720,11 +712,11 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
             };
 
             if (!m_deathRenderTexQuad)
-                m_deathRenderTexQuad.emplace(CCameraFilterPass::EFilterType::Blend, CGraphics::g_SpareTexture);
+                m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture);
             m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
 
             if (!m_deathDotQuad)
-                m_deathDotQuad.emplace(CCameraFilterPass::EFilterType::Multiply, x50_deathDot);
+                m_deathDotQuad.emplace(EFilterType::Multiply, x50_deathDot);
             m_deathDotQuad->drawVerts(zeus::CColor(1.f, colT), verts);
         }
     }
@@ -746,8 +738,8 @@ void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state
 
 void CInGameGuiManager::StartFadeIn()
 {
-    xf8_camFilter.SetFilter(CCameraFilterPass::EFilterType::Multiply,
-                            CCameraFilterPass::EFilterShape::Fullscreen,
+    xf8_camFilter.SetFilter(EFilterType::Multiply,
+                            EFilterShape::Fullscreen,
                             0.f, zeus::CColor::skBlack, -1);
     xf8_camFilter.DisableFilter(0.5f);
 }

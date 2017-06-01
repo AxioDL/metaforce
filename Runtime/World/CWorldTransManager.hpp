@@ -82,10 +82,10 @@ private:
         u8 dummy = 0;
     };
 
-    CColoredQuadFilter m_fadeToBlack = { CCameraFilterPass::EFilterType::Blend };
-    CTexturedQuadFilter m_dissolve = { CCameraFilterPass::EFilterType::Blend,
+    CColoredQuadFilter m_fadeToBlack = { EFilterType::Blend };
+    CTexturedQuadFilter m_dissolve = { EFilterType::Blend,
                                        CGraphics::g_SpareTexture };
-    CWideScreenFilter m_widescreen = { CCameraFilterPass::EFilterType::Blend };
+    CWideScreenFilter m_widescreen = { EFilterType::Blend };
     CCameraBlurFilter m_camblur;
 
     static int GetSuitCharIdx();

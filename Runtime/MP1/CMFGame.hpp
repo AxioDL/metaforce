@@ -40,7 +40,7 @@ class CMFGame : public CMFGameBase
         u8 _dummy = 0;
     };
 
-    CColoredQuadFilter m_fadeToBlack = {CCameraFilterPass::EFilterType::Multiply};
+    CColoredQuadFilter m_fadeToBlack = {EFilterType::Multiply};
 
     bool IsCameraActiveFlow() const
     {

@@ -506,15 +506,13 @@ void CPlayerVisor::UpdateCurrentVisor(float transFactor)
     switch (x1c_curVisor)
     {
     case CPlayerState::EPlayerVisor::XRay:
-        x90_xrayBlur.SetBlur(CCameraBlurPass::EBlurType::Xray, 36.f * transFactor, 0.f);
+        x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f * transFactor, 0.f);
         break;
     case CPlayerState::EPlayerVisor::Scan:
     {
         zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorHudLightMultiply(),
                                                    zeus::CColor::skWhite, 1.f - transFactor);
-        x64_scanDim.SetFilter(CCameraFilterPass::EFilterType::Multiply,
-                              CCameraFilterPass::EFilterShape::Fullscreen,
-                              0.f, dimColor, -1);
+        x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
         break;
     }
     default: break;
@@ -529,7 +527,7 @@ void CPlayerVisor::FinishTransitionIn()
         x90_xrayBlur.DisableBlur(0.f);
         break;
     case CPlayerState::EPlayerVisor::XRay:
-        x90_xrayBlur.SetBlur(CCameraBlurPass::EBlurType::Xray, 36.f, 0.f);
+        x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f, 0.f);
         if (!x5c_visorLoopSfx)
             x5c_visorLoopSfx = CSfxManager::SfxStart(1384, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
         break;
@@ -538,9 +536,7 @@ void CPlayerVisor::FinishTransitionIn()
         zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorScreenDimColor(),
                                                    g_tweakGuiColors->GetScanVisorHudLightMultiply(),
                                                    x2c_scanDimInterp);
-        x64_scanDim.SetFilter(CCameraFilterPass::EFilterType::Multiply,
-                              CCameraFilterPass::EFilterShape::Fullscreen,
-                              0.f, dimColor, -1);
+        x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
         if (!x5c_visorLoopSfx)
             x5c_visorLoopSfx = CSfxManager::SfxStart(1404, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
         break;
@@ -558,16 +554,14 @@ void CPlayerVisor::BeginTransitionIn(const CStateManager&)
     switch (x1c_curVisor)
     {
     case CPlayerState::EPlayerVisor::XRay:
-        x90_xrayBlur.SetBlur(CCameraBlurPass::EBlurType::Xray, 0.f, 0.f);
+        x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f);
         xc4_vpScaleX = 0.9f;
         xc8_vpScaleY = 0.9f;
         CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     case CPlayerState::EPlayerVisor::Scan:
         CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
-        x64_scanDim.SetFilter(CCameraFilterPass::EFilterType::Multiply,
-                              CCameraFilterPass::EFilterShape::Fullscreen,
-                              0.f, zeus::CColor::skWhite, -1);
+        x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::CColor::skWhite, -1);
         break;
     case CPlayerState::EPlayerVisor::Thermal:
         CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -670,9 +664,7 @@ void CPlayerVisor::Update(float dt, const CStateManager& mgr)
             zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorScreenDimColor(),
                                                        g_tweakGuiColors->GetScanVisorHudLightMultiply(),
                                                        x2c_scanDimInterp);
-            x64_scanDim.SetFilter(CCameraFilterPass::EFilterType::Multiply,
-                                  CCameraFilterPass::EFilterShape::Fullscreen,
-                                  0.f, dimColor, -1);
+            x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
         }
     }
 

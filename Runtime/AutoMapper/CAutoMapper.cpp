@@ -1568,7 +1568,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             {
                 hintBeaconFilters.reserve(x1f8_hintLocations.size());
                 for (int i=hintBeaconFilters.size() ; i<x1f8_hintLocations.size() ; ++i)
-                    hintBeaconFilters.emplace_back(CCameraFilterPass::EFilterType::Add, x3c_hintBeacon);
+                    hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
             }
             auto locIt = x1f8_hintLocations.cbegin();
             auto filterIt = hintBeaconFilters.begin();
