@@ -3,24 +3,28 @@
 
 #include "CEntity.hpp"
 #include "zeus/CColor.hpp"
+#include "Camera/CCameraFilter.hpp"
 
 namespace urde
 {
 class CScriptCameraFilterKeyframe : public CEntity
 {
-    u32 x34_;
-    u32 x38_;
-    u32 x3c_;
+    EFilterType x34_type;
+    EFilterShape x38_shape;
+    u32 x3c_filterIdx;
     u32 x40_;
-    zeus::CColor x44_;
-    float x48_;
-    float x4c_;
-    u32 x50_;
+    zeus::CColor x44_color;
+    float x48_timeIn;
+    float x4c_timeOut;
+    ResId x50_txtr;
 
 public:
-    CScriptCameraFilterKeyframe(TUniqueId, const std::string&, const CEntityInfo&, u32, u32, u32, u32,
-                                const zeus::CColor&, float, float, u32, bool);
+    CScriptCameraFilterKeyframe(TUniqueId uid, const std::string& name,
+                                const CEntityInfo& info, EFilterType type, EFilterShape shape,
+                                u32 filterIdx, u32 unk, const zeus::CColor& color,
+                                float timeIn, float timeOut, ResId txtr, bool active);
 
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
     void Accept(IVisitor& visitor);
 };
 }

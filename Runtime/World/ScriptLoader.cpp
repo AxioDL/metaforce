@@ -1032,18 +1032,18 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
         return nullptr;
     std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
-    u32 w1 = in.readUint32Big();
-    u32 w2 = in.readUint32Big();
-    u32 w3 = in.readUint32Big();
-    u32 w4 = in.readUint32Big();
+    EFilterType type = EFilterType(in.readUint32Big());
+    EFilterShape shape = EFilterShape(in.readUint32Big());
+    u32 filterIdx = in.readUint32Big();
+    u32 unk = in.readUint32Big();
     zeus::CColor color;
     color.readRGBABig(in);
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    u32 w5 = in.readUint32Big();
+    float timeIn = in.readFloatBig();
+    float timeOut = in.readFloatBig();
+    ResId txtr = in.readUint32Big();
 
-    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, w1, w2, w3, w4, color, f1, f2, w5,
-                                           active);
+    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, type, shape, filterIdx, unk,
+                                           color, timeIn, timeOut, txtr, active);
 }
 
 CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1054,13 +1054,14 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
 
     std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
-    u32 w1 = in.readUint32Big();
-    float f1 = in.readFloatBig();
-    u32 w2 = in.readUint32Big();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
+    EBlurType type = EBlurType(in.readUint32Big());
+    float amount = in.readFloatBig();
+    u32 unk = in.readUint32Big();
+    float timeIn = in.readFloatBig();
+    float timeOut = in.readFloatBig();
 
-    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), name, info, w1, f1, w2, f2, f3, active);
+    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), name, info, type, amount,
+                                         unk, timeIn, timeOut, active);
 }
 
 u32 ClassifyVector(const zeus::CVector3f& dir)

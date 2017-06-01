@@ -13,14 +13,14 @@ struct CameraFilterKeyframe : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<bool> unknown1;
-    Value<atUint32> unkown2;
-    Value<atUint32> unkown3;
-    Value<atUint32> unkown4;
-    Value<atUint32> unkown5;
-    Value<atVec4f> unknown6; //CColor
-    Value<float> unknown7;
-    Value<float> unknown8;
+    Value<bool> active;
+    Value<atUint32> type;
+    Value<atUint32> shape;
+    Value<atUint32> filterIdx;
+    Value<atUint32> unk;
+    DNAColor color;
+    Value<float> timeIn;
+    Value<float> timeOut;
     UniqueID32 texture;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const

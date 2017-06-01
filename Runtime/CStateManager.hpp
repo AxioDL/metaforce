@@ -417,6 +417,7 @@ public:
     void ClearActiveRandom() { x900_activeRandom = nullptr; }
     CRumbleManager& GetRumbleManager() {return *x88c_rumbleManager;}
     CCameraFilterPassPoly& GetCameraFilterPass(int idx) {return xb84_camFilterPasses[idx];}
+    CCameraBlurPass& GetCameraBlurPass(int idx) {return xd14_camBlurPasses[idx];}
 
     CEnvFxManager* GetEnvFxManager() { return x880_envFxManager; }
     CWorld* WorldNC() {return x850_world.get();}

@@ -13,12 +13,12 @@ struct CameraBlurKeyframe : IScriptObject
 {
     DECL_YAML
     String<-1> name;
-    Value<bool> unknown1;
-    Value<atUint32> unknown2;
-    Value<float> unknown3;
-    Value<atUint32> unknown4;
-    Value<float> unknown5;
-    Value<float> unknown6;
+    Value<bool> active;
+    Value<atUint32> type;
+    Value<float> amount;
+    Value<atUint32> unk;
+    Value<float> timeIn;
+    Value<float> timeOut;
 };
 }
 }
