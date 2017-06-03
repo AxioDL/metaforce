@@ -413,11 +413,11 @@ CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeu
     parmData.xc_dir = dir;
     parmData.x18_maxDist = 150.f;
     parmData.x1c_distComp = 0.1f;
-    parmData.x20_flags = 1;
+    parmData.x20_flags = 1; // Continuous parameter update
     parmData.x24_sfxId = id;
     parmData.x26_maxVol = std::max(vol, 0.165f);
-    parmData.x28_ = 0;
-    parmData.x29_ = 0x7f;
+    parmData.x28_important = false;
+    parmData.x29_prio = 0x7f;
     return AddEmitter(parmData, useAcoustics, prio, looped, areaId);
 }
 
@@ -429,7 +429,7 @@ CSfxHandle CSfxManager::AddEmitter(const CAudioSys::C3DEmitterParmData& parmData
 
     CAudioSys::C3DEmitterParmData data = parmData;
     if (looped)
-        data.x20_flags |= 0x6;
+        data.x20_flags |= 0x6; // Pausable/restartable when inaudible
     m_doUpdate = true;
     CSfxHandle wrapper = std::make_shared<CSfxEmitterWrapper>(looped, prio, data, useAcoustics, areaId);
     CSfxChannel& chanObj = m_channels[int(m_currentChannel)];

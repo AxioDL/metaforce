@@ -14,7 +14,7 @@ CGuiLight::CGuiLight(const CGuiWidgetParms& parms, const CLight& light)
   xcc_angleC(light.x30_angleC),
   xd0_angleL(light.x34_angleL),
   xd4_angleQ(light.x38_angleQ),
-  xd8_loadedIdx(light.x40_loadedIdx)
+  xd8_lightId(light.x40_lightId)
 {}
 
 CGuiLight::~CGuiLight()
@@ -65,7 +65,7 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
     float angC = in.readFloatBig();
     float angL = in.readFloatBig();
     float angQ = in.readFloatBig();
-    u32 loadedIdx = in.readUint32Big();
+    u32 lightId = in.readUint32Big();
 
     std::shared_ptr<CGuiLight> ret = {};
     switch (tp)
@@ -77,7 +77,7 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
                                       parms.x10_color, cutoff);
         lt.SetAttenuation(distC, distL, distQ);
         lt.SetAngleAttenuation(angC, angL, angQ);
-        lt.x40_loadedIdx = loadedIdx;
+        lt.x40_lightId = lightId;
         ret = std::make_shared<CGuiLight>(parms, lt);
         break;
     }
@@ -85,14 +85,14 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
     {
         CLight lt = CLight::BuildPoint(zeus::CVector3f::skZero, parms.x10_color);
         lt.SetAttenuation(distC, distL, distQ);
-        lt.x40_loadedIdx = loadedIdx;
+        lt.x40_lightId = lightId;
         ret = std::make_shared<CGuiLight>(parms, lt);
         break;
     }
     case ELightType::Directional:
     {
         CLight lt = CLight::BuildDirectional(zeus::CVector3f::skZero, parms.x10_color);
-        lt.x40_loadedIdx = loadedIdx;
+        lt.x40_lightId = lightId;
         ret = std::make_shared<CGuiLight>(parms, lt);
         break;
     }

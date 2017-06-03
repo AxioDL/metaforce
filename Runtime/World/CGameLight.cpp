@@ -35,7 +35,7 @@ void CGameLight::Think(float dt, CStateManager& mgr)
 void CGameLight::SetLightPriorityAndId()
 {
     xec_light.x3c_priority = x140_priority;
-    xec_light.x40_loadedIdx = x13c_loadedIdx;
+    xec_light.x40_lightId = x13c_loadedIdx;
 }
 
 void CGameLight::SetLight(const CLight& light)

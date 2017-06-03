@@ -6,6 +6,7 @@
 #include "TCastTo.hpp"
 #include "Character/IAnimReader.hpp"
 #include "Character/CActorLights.hpp"
+#include "Camera/CGameCamera.hpp"
 
 namespace urde
 {
@@ -28,6 +29,7 @@ CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntit
 {
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
+    xd8_nonLoopingSfxHandles.resize(2);
 }
 
 void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
@@ -123,11 +125,11 @@ zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager&) con
 
 void CActor::RemoveEmitter()
 {
-    if (x8c_sfxHandle)
+    if (x8c_loopingSfxHandle)
     {
-        CSfxManager::RemoveEmitter(*x8c_sfxHandle.get());
+        CSfxManager::RemoveEmitter(x8c_loopingSfxHandle);
         x88_sfxId = -1;
-        x8c_sfxHandle.reset();
+        x8c_loopingSfxHandle.reset();
     }
 }
 
@@ -161,7 +163,7 @@ void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
 
 zeus::CAABox CActor::GetSortingBounds(const CStateManager&) const { return x9c_aabox; }
 
-void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType) {}
+void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt) {}
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4,
                             CStateManager& mgr)
@@ -265,16 +267,14 @@ void CActor::SetInFluid(bool in, TUniqueId uid)
 
 bool CActor::HasModelData() const { return bool(x64_modelData); }
 
-const CSfxHandle* CActor::GetSfxHandle() const { return x8c_sfxHandle.get(); }
-
-void CActor::SetSfxPitchBend(s32 val)
+void CActor::SetSoundEventPitchBend(s32 val)
 {
     xe6_30_enablePitchBend = true;
-    xc0_ = val;
-    if (x8c_sfxHandle == 0)
+    xc0_pitchBend = val / 8192.f;
+    if (!x8c_loopingSfxHandle)
         return;
 
-    CSfxManager::PitchBend(*x8c_sfxHandle.get(), val);
+    CSfxManager::PitchBend(x8c_loopingSfxHandle, val);
 }
 
 void CActor::SetRotation(const zeus::CQuaternion &q)
@@ -318,9 +318,154 @@ void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f
     stateMgr.AddDrawableActor(*this, pos, aabb);
 }
 
-SAdvancementDeltas CActor::UpdateAnimation(float, CStateManager&, bool)
+void CActor::UpdateSfxEmitters()
 {
-    return {};
+    for (CSfxHandle& sfx : xd8_nonLoopingSfxHandles)
+        CSfxManager::UpdateEmitter(sfx, x34_transform.origin, zeus::CVector3f::skZero, xd4_maxVol);
+}
+
+void CActor::ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff, float maxDist,
+                               float minVol, float maxVol, const zeus::CVector3f& toListener,
+                               const zeus::CVector3f& position, TAreaId aid, CStateManager& mgr,
+                               bool translateId)
+{
+    if (toListener.magSquared() >= maxDist * maxDist)
+        return;
+    u16 id = translateId ? CSfxManager::TranslateSFXID(sfxId) : sfxId;
+
+    u32 musyxFlags = 0x1; // Continuous parameter update
+    if (flags & 0x8)
+        musyxFlags |= 0x8; // Doppler FX
+
+    CAudioSys::C3DEmitterParmData parms;
+    parms.x0_pos = position;
+    parms.xc_dir = zeus::CVector3f::skZero;
+    parms.x18_maxDist = maxDist;
+    parms.x1c_distComp = falloff;
+    parms.x20_flags = musyxFlags;
+    parms.x24_sfxId = id;
+    parms.x26_maxVol = maxVol;
+    parms.x27_minVol = minVol;
+    parms.x28_important = false;
+    parms.x29_prio = 0x7f;
+
+    bool useAcoustics = (flags & 0x80) == 0;
+    bool looping = (sfxId & 0x80000000) != 0;
+    bool nonEmitter = (sfxId & 0x40000000) != 0;
+    bool continuousUpdate = (sfxId & 0x20000000) != 0;
+
+    if (mgr.GetActiveRandom()->Float() > weight)
+        return;
+
+    if (looping)
+    {
+        u16 curId = x88_sfxId;
+        if (!x8c_loopingSfxHandle)
+        {
+            CSfxHandle handle;
+            if (nonEmitter)
+                handle = CSfxManager::SfxStart(id, 1.f, 0.f, true, 0x7f, true, aid);
+            else
+                handle = CSfxManager::AddEmitter(parms, useAcoustics, 0x7f, true, aid);
+            if (handle)
+            {
+                x88_sfxId = id;
+                x8c_loopingSfxHandle = handle;
+                if (xe6_30_enablePitchBend)
+                    CSfxManager::PitchBend(handle, xc0_pitchBend);
+            }
+        }
+        else if (curId == id)
+        {
+            CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, position, zeus::CVector3f::skZero, maxVol);
+        }
+        else if (flags & 0x4)
+        {
+            CSfxManager::RemoveEmitter(x8c_loopingSfxHandle);
+            CSfxHandle handle = CSfxManager::AddEmitter(parms, useAcoustics, 0x7f, true, aid);
+            if (handle)
+            {
+                x88_sfxId = id;
+                x8c_loopingSfxHandle = handle;
+                if (xe6_30_enablePitchBend)
+                    CSfxManager::PitchBend(handle, xc0_pitchBend);
+            }
+        }
+    }
+    else
+    {
+        CSfxHandle handle;
+        if (nonEmitter)
+            handle = CSfxManager::SfxStart(id, 1.f, 0.f, useAcoustics, 0x7f, false, aid);
+        else
+            handle = CSfxManager::AddEmitter(parms, useAcoustics, 0x7f, false, aid);
+
+        if (continuousUpdate)
+        {
+            xd8_nonLoopingSfxHandles[xe4_24_nextNonLoopingSfxHandle] = handle;
+            xe4_24_nextNonLoopingSfxHandle = (xe4_24_nextNonLoopingSfxHandle + 1) % xd8_nonLoopingSfxHandles.size();
+        }
+
+        if (xe6_30_enablePitchBend)
+            CSfxManager::PitchBend(handle, xc0_pitchBend);
+    }
+}
+
+SAdvancementDeltas CActor::UpdateAnimation(float dt, CStateManager& mgr, bool advTree)
+{
+    SAdvancementDeltas deltas = x64_modelData->AdvanceAnimation(dt, mgr, GetAreaId(), advTree);
+    x64_modelData->AdvanceParticles(x34_transform, dt, mgr);
+    UpdateSfxEmitters();
+    if (x64_modelData && x64_modelData->HasAnimData())
+    {
+        zeus::CVector3f toCamera =
+            mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation() - x34_transform.origin;
+
+        for (int i=0 ; i<x64_modelData->GetAnimationData()->GetPassedSoundPOICount() ; ++i)
+        {
+            CSoundPOINode& poi = CAnimData::g_SoundPOINodes[i];
+            if (poi.GetPoiType() != EPOIType::Sound)
+                continue;
+            if (xe5_26_muted)
+                continue;
+            if (poi.GetCharacterIndex() != -1 &&
+                x64_modelData->GetAnimationData()->GetCharacterIndex() != poi.GetCharacterIndex())
+                continue;
+            ProcessSoundEvent(poi.GetSfxId(), poi.GetWeight(), poi.GetFlags(), poi.GetFalloff(),
+                              poi.GetMaxDist(), 0.16f, xd4_maxVol, toCamera, x34_transform.origin, x4_areaId,
+                              mgr, true);
+        }
+
+        for (int i=0 ; i<x64_modelData->GetAnimationData()->GetPassedIntPOICount() ; ++i)
+        {
+            CInt32POINode& poi = CAnimData::g_Int32POINodes[i];
+            if (poi.GetPoiType() == EPOIType::SoundInt32)
+            {
+                if (xe5_26_muted)
+                    continue;
+                if (poi.GetCharacterIndex() != -1 &&
+                    x64_modelData->GetAnimationData()->GetCharacterIndex() != poi.GetCharacterIndex())
+                    continue;
+                ProcessSoundEvent(poi.GetValue(), poi.GetWeight(), poi.GetFlags(), 0.1f,
+                                  150.f, 0.16f, xd4_maxVol, toCamera, x34_transform.origin, x4_areaId,
+                                  mgr, true);
+            }
+            else if (poi.GetPoiType() == EPOIType::UserEvent)
+            {
+                DoUserAnimEvent(mgr, poi, EUserEventType(poi.GetValue()), dt);
+            }
+        }
+
+        for (int i=0 ; i<x64_modelData->GetAnimationData()->GetPassedParticlePOICount() ; ++i)
+        {
+            CParticlePOINode& poi = CAnimData::g_ParticlePOINodes[i];
+            if (poi.GetCharacterIndex() != -1 &&
+                x64_modelData->GetAnimationData()->GetCharacterIndex() != poi.GetCharacterIndex())
+                continue;
+            x64_modelData->AnimationData()->GetParticleDB().SetParticleEffectState(poi.GetString(), true, mgr);
+        }
+    }
+    return deltas;
 }
 
 void CActor::SetActorLights(std::unique_ptr<CActorLights> lights)

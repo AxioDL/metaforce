@@ -3,6 +3,7 @@
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
+#include "CParticleData.hpp"
 
 namespace urde
 {
@@ -13,18 +14,18 @@ class CEffectComponent
     SObjectTag x10_tag;
     std::string x18_boneName;
     float x28_scale;
-    u32 x2c_parentedMode;
+    CParticleData::EParentedMode x2c_parentedMode;
     u32 x30_flags;
     static SObjectTag GetSObjectTagFromStream(CInputStream& in);
 public:
     CEffectComponent(CInputStream& in);
 
-    const std::string& GetComponentName() const;
-    const SObjectTag& GetParticleTag() const;
-    const std::string& GetSegmentName() const;
-    float GetScale() const;
-    u32 GetParentedMode() const;
-    u32 GetFlags() const;
+    const std::string& GetComponentName() const { return x0_name; }
+    const SObjectTag& GetParticleTag() const { return x10_tag; }
+    const std::string& GetSegmentName() const { return x18_boneName; }
+    float GetScale() const { return x28_scale; }
+    CParticleData::EParentedMode GetParentedMode() const { return x2c_parentedMode; }
+    u32 GetFlags() const { return x30_flags; }
 };
 
 }

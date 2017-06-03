@@ -44,8 +44,8 @@ public:
         u16 x24_sfxId;
         float x26_maxVol;
         float x27_minVol;
-        u8 x28_;
-        u8 x29_;
+        bool x28_important; // Can't be allocated over, regardless of priority
+        u8 x29_prio;
     };
     CAudioSys(boo::IAudioVoiceEngine* voiceEngine,
               amuse::IBackendVoiceAllocator& backend, u8,u8,u8,u8,u32)

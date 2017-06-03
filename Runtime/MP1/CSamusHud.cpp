@@ -334,7 +334,7 @@ void CSamusHud::InitializeDamageLight()
     x3d4_damageLight->SetAngleC(g_tweakGui->GetDamageLightAngleC());
     x3d4_damageLight->SetAngleL(g_tweakGui->GetDamageLightAngleL());
     x3d4_damageLight->SetAngleQ(g_tweakGui->GetDamageLightAngleQ());
-    x3d4_damageLight->SetLoadedIdx(4);
+    x3d4_damageLight->SetLightId(4);
 
     x3d4_damageLight->SetLocalTransform(zeus::CTransform::Identity());
 

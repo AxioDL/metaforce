@@ -554,9 +554,9 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
     x220_29_animationJustStarted = true;
 }
 
-SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, bool advTree)
+SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& suspendParticles, CRandom16& random, bool advTree)
 {
-    b1 = false;
+    suspendParticles = false;
 
     zeus::CVector3f offsetPre, offsetPost;
     zeus::CQuaternion quatPre, quatPost;
@@ -572,14 +572,14 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, b
 
     if (!x220_24_animating)
     {
-        b1 = true;
+        suspendParticles = true;
         return {};
     }
 
     if (x220_29_animationJustStarted)
     {
         x220_29_animationJustStarted = false;
-        b1 = true;
+        suspendParticles = true;
     }
 
     if (advTree && x1f8_animRoot)
@@ -629,25 +629,27 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& b1, CRandom16& random, b
 SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
                                       CStateManager& stateMgr, TAreaId aid, bool advTree)
 {
-    bool b2;
-    return DoAdvance(dt, b2, *stateMgr.GetActiveRandom(), advTree);
-    if (b2)
+    bool suspendParticles;
+    SAdvancementDeltas deltas = DoAdvance(dt, suspendParticles, *stateMgr.GetActiveRandom(), advTree);
+    if (suspendParticles)
         x120_particleDB.SuspendAllActiveEffects(stateMgr);
 
     for (CParticlePOINode& node : g_ParticlePOINodes)
     {
         if (node.GetCharacterIndex() == -1 || node.GetCharacterIndex() == x204_charIdx)
         {
-            x120_particleDB.StartEffect(node.GetString(), node.GetFlags(), node.GetParticleData(),
-                                        scale, stateMgr, aid, x21c_);
+            x120_particleDB.AddParticleEffect(node.GetString(), node.GetFlags(), node.GetParticleData(),
+                                              scale, stateMgr, aid, false, x21c_particleLightIdx);
         }
     }
+
+    return deltas;
 }
 
 SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random, bool advTree)
 {
-    bool b2;
-    return DoAdvance(dt, b2, random, advTree);
+    bool suspendParticles;
+    return DoAdvance(dt, suspendParticles, random, advTree);
 }
 
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat)
@@ -817,6 +819,14 @@ void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model)
 {
     xd8_modelData = model;
     x108_aabb = xd8_modelData->GetModel()->GetAABB();
+}
+
+void CAnimData::SetParticleCEXTValue(const std::string& name, int idx, float value)
+{
+    auto search = std::find_if(xc_charInfo.x98_effects.begin(), xc_charInfo.x98_effects.end(),
+    [&name](const auto& v) { return v.first == name; });
+    if (search != xc_charInfo.x98_effects.end() && search->second.size())
+        x120_particleDB.SetCEXTValue(search->second.front().GetComponentName(), idx, value);
 }
 
 }

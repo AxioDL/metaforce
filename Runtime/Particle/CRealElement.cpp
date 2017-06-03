@@ -339,7 +339,7 @@ bool CRECEXT::GetValue(int frame, float& valOut) const
     int a;
     x4_a->GetValue(frame, a);
     int cv = std::max(0, a);
-    /* TODO: Figure out how value table is generated/stored in 0-00 */
+    valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetCEXTValue(cv & 0xf);
     return false;
 }
 

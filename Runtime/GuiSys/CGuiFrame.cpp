@@ -105,12 +105,12 @@ void CGuiFrame::DisableLights() const
 
 void CGuiFrame::RemoveLight(CGuiLight* light)
 {
-    m_indexedLights[light->GetLoadedIdx()] = nullptr;
+    m_indexedLights[light->GetLightId()] = nullptr;
 }
 
 void CGuiFrame::AddLight(CGuiLight* light)
 {
-    m_indexedLights[light->GetLoadedIdx()] = light;
+    m_indexedLights[light->GetLightId()] = light;
 }
 
 void CGuiFrame::RegisterLight(std::shared_ptr<CGuiLight>&& light)

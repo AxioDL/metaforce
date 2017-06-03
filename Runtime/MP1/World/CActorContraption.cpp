@@ -63,7 +63,7 @@ void MP1::CActorContraption::ResetFlameThrowers(CStateManager& mgr)
     }
 }
 
-void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType evType)
+void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType evType, float dt)
 {
     if (evType == EUserEventType::DamageOff)
     {
@@ -76,7 +76,7 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& 
             fl->Fire(GetTransform(), mgr, false);
     }
     else
-        CActor::DoUserAnimEvent(mgr, node, evType);
+        CActor::DoUserAnimEvent(mgr, node, evType, dt);
 }
 
 CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string& name, CStateManager& mgr)

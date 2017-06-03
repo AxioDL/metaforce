@@ -90,6 +90,7 @@ private:
     float x6c_generatorRemainder = 0.f;
     int x90_MAXP = 0;
     u16 x94_randomSeed = 99;
+    float x9c_cextValues[16] = {};
     float x78_generatorRate = 1.f;
     zeus::CVector3f x7c_translation;
     zeus::CVector3f x88_globalTranslation;
@@ -221,6 +222,8 @@ public:
     u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
     void EndLifetime();
     void ForceParticleCreation(int amount);
+    float GetCEXTValue(int i) const { return x9c_cextValues[i]; }
+    void SetCEXTValue(int i, float v) { x9c_cextValues[i] = v; }
 
     bool InternalUpdate(double);
     void RenderModels();

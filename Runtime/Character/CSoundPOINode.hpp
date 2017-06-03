@@ -22,6 +22,9 @@ public:
 
     static CSoundPOINode CopyNodeMinusStartTime(const CSoundPOINode& node,
                                                 const CCharAnimTime& startTime);
+    u32 GetSfxId() const { return x38_sfxId; }
+    float GetFalloff() const { return x3c_falloff; }
+    float GetMaxDist() const { return x40_maxDist; }
 };
 
 }

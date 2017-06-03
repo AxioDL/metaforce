@@ -18,7 +18,7 @@ class CGuiLight : public CGuiWidget
     float xcc_angleC;
     float xd0_angleL;
     float xd4_angleQ;
-    u32 xd8_loadedIdx;
+    u32 xd8_lightId;
     zeus::CColor xdc_ambColor = zeus::CColor::skBlack;
 public:
     ~CGuiLight();
@@ -27,7 +27,7 @@ public:
 
     CLight BuildLight() const;
     void SetIsVisible(bool vis);
-    u32 GetLoadedIdx() const {return xd8_loadedIdx;}
+    u32 GetLightId() const {return xd8_lightId;}
     const zeus::CColor& GetAmbientLightColor() const {return xdc_ambColor;}
     void SetSpotCutoff(float v) {xbc_spotCutoff = v;}
     void SetDistC(float v) {xc0_distC = v;}
@@ -36,7 +36,7 @@ public:
     void SetAngleC(float v) {xcc_angleC = v;}
     void SetAngleL(float v) {xd0_angleL = v;}
     void SetAngleQ(float v) {xd4_angleQ = v;}
-    void SetLoadedIdx(u32 idx) {xd8_loadedIdx = idx;}
+    void SetLightId(u32 idx) {xd8_lightId = idx;}
     void SetAmbientLightColor(const zeus::CColor& color) {xdc_ambColor = color;}
 
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);

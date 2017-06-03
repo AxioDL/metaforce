@@ -24,7 +24,7 @@ public:
     void Accept(IVisitor &visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void Think(float, CStateManager &);
-    void DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType);
+    void DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType, float dt);
     CFlameThrower* CreateFlameThrower(const std::string&, CStateManager&);
     void ResetFlameThrowers(CStateManager& mgr);
 };

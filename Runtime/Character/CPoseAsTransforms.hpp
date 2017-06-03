@@ -32,6 +32,7 @@ public:
     const zeus::CTransform& GetRestToAccumTransform(const CSegId& id) const;
     const zeus::CVector3f& GetOffset(const CSegId& id) const;
     const zeus::CMatrix3f& GetRotation(const CSegId& id) const;
+    const zeus::CMatrix3f& GetTransformMinusOffset(const CSegId& id) const { return GetRotation(id); }
     void Insert(const CSegId& id,
                 const zeus::CMatrix3f& rotation,
                 const zeus::CVector3f& offset,

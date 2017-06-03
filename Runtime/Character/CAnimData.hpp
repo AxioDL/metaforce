@@ -84,6 +84,8 @@ struct SAdvancementResults;
 class CAnimData
 {
     friend class CModelData;
+    friend class CActor;
+
     TLockedToken<CCharacterFactory> x0_charFactory;
     CCharacterInfo xc_charInfo;
     TLockedToken<CCharLayoutInfo> xcc_layoutData;
@@ -109,7 +111,7 @@ class CAnimData
     u32 x210_passedIntCount = 0;
     u32 x214_passedParticleCount = 0;
     u32 x218_passedSoundCount = 0;
-    u32 x21c_ = 0;
+    u32 x21c_particleLightIdx = 0;
 
     union
     {
@@ -201,7 +203,7 @@ public:
                                           std::vector<CToken>& tokensOut, bool preLock);
     void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
     void SetAnimation(const CAnimPlaybackParms& parms, bool);
-    SAdvancementDeltas DoAdvance(float, bool&, CRandom16&, bool advTree);
+    SAdvancementDeltas DoAdvance(float, bool& suspendParticles, CRandom16&, bool advTree);
     SAdvancementDeltas Advance(float, const zeus::CVector3f&, CStateManager& stateMgr, TAreaId aid, bool advTree);
     SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool advTree);
     void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
@@ -225,6 +227,15 @@ public:
     static void InitializeCache();
     const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }
     const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
+    CParticleDatabase& GetParticleDB() { return x120_particleDB; }
+    void SetParticleCEXTValue(const std::string& name, int idx, float value);
+
+    u32 GetPassedBoolPOICount() const { return x20c_passedBoolCount; }
+    u32 GetPassedIntPOICount() const { return x210_passedIntCount; }
+    u32 GetPassedParticlePOICount() const { return x214_passedParticleCount; }
+    u32 GetPassedSoundPOICount() const { return x218_passedSoundCount; }
+
+    u32 GetCharacterIndex() const { return x204_charIdx; }
 };
 
 }

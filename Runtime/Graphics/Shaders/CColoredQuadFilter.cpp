@@ -33,13 +33,8 @@ void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle&
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
-}
-
-void CColoredQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t)
-{
-
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
 
 void CWideScreenFilter::draw(const zeus::CColor& color, float t)

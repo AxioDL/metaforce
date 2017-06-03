@@ -42,7 +42,7 @@ class CLight
     float x34_angleL;
     float x38_angleQ;
     u32 x3c_priority = 0;
-    u32 x40_loadedIdx = 0;
+    u32 x40_lightId = 0; // Serves as unique key
     float x44_cachedRadius;
     float x48_cachedIntensity;
     bool x4c_24_intensityDirty : 1;

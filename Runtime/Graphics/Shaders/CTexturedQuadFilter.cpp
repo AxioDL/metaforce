@@ -14,7 +14,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, boo::ITexture* tex)
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
+        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 16);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CTexturedQuadFilter>::BuildShaderDataBinding(ctx, type, *this);
         return true;
@@ -46,8 +46,8 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
 
 void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale)
@@ -69,8 +69,8 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale)
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
 
 void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[4], float lod)
@@ -82,13 +82,58 @@ void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[
     m_uniform.m_lod = lod;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
 
 void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t)
 {
+    m_uniform.m_matrix = zeus::CMatrix4f::skIdentityMatrix4f;
+    m_uniform.m_lod = 0.f;
+    m_uniform.m_color = color;
+    m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
+    CGraphics::SetShaderDataBinding(m_dataBind);
+
+    if (shape == EFilterShape::FullscreenQuarters)
+    {
+        Vert QuadVerts[] =
+        {
+            {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
+            {{-1.f,  0.f, 0.f}, {0.f, t}},
+            {{ 0.f, -1.f, 0.f}, {t,   0.f}},
+            {{ 0.f,  0.f, 0.f}, {t,   t}},
+            {{-1.f,  1.f, 0.f}, {0.f, 0.f}},
+            {{-1.f,  0.f, 0.f}, {0.f, t}},
+            {{ 0.f,  1.f, 0.f}, {t,   0.f}},
+            {{ 0.f,  0.f, 0.f}, {t,   t}},
+            {{ 1.f, -1.f, 0.f}, {0.f, 0.f}},
+            {{ 1.f,  0.f, 0.f}, {0.f, t}},
+            {{ 0.f, -1.f, 0.f}, {t,   0.f}},
+            {{ 0.f,  0.f, 0.f}, {t,   t}},
+            {{ 1.f,  1.f, 0.f}, {0.f, 0.f}},
+            {{ 1.f,  0.f, 0.f}, {0.f, t}},
+            {{ 0.f,  1.f, 0.f}, {t,   0.f}},
+            {{ 0.f,  0.f, 0.f}, {t,   t}},
+        };
+        m_vbo->load(QuadVerts, sizeof(Vert) * 16);
+        CGraphics::DrawArray(0, 4);
+        CGraphics::DrawArray(4, 4);
+        CGraphics::DrawArray(8, 4);
+        CGraphics::DrawArray(12, 4);
+    }
+    else
+    {
+        Vert FullscreenVerts[] =
+        {
+            {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
+            {{-1.f,  1.f, 0.f}, {0.f, t}},
+            {{ 1.f, -1.f, 0.f}, {t,   0.f}},
+            {{ 1.f,  1.f, 0.f}, {t,   t}},
+        };
+        m_vbo->load(FullscreenVerts, sizeof(Vert) * 4);
+        CGraphics::DrawArray(0, 4);
+    }
 }
 
 const zeus::CRectangle CTexturedQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};

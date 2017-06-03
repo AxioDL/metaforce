@@ -13,6 +13,7 @@ enum class EPOIType : u16
     Loop = 0,
     EmptyBool = 1,
     EmptyInt32 = 2,
+    SoundInt32 = 4,
     Particle = 5,
     UserEvent = 6,
     RandRate = 7,

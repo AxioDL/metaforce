@@ -34,7 +34,7 @@ public:
     CColoredQuadFilter(EFilterType type, const TLockedToken<CTexture>&)
     : CColoredQuadFilter(type) {}
     void draw(const zeus::CColor& color, const zeus::CRectangle& rect=DefaultRect);
-    void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
+    void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) { draw(color); }
 
     using _CLS = CColoredQuadFilter;
 #include "TMultiBlendShaderDecl.hpp"

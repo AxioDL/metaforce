@@ -33,25 +33,26 @@ protected:
     CMaterialList x68_material;
     CMaterialFilter x70_materialFilter;
     s16 x88_sfxId = -1;
-    std::unique_ptr<CSfxHandle> x8c_sfxHandle;
+    CSfxHandle x8c_loopingSfxHandle;
     std::unique_ptr<CActorLights> x90_actorLights;
     std::unique_ptr<CSimpleShadow> x94_simpleShadow;
     std::unique_ptr<TToken<CScannableObjectInfo>> x98_scanObjectInfo;
     zeus::CAABox x9c_aabox;
     CModelFlags xb4_drawFlags;
     float xbc_time = 0.f;
-    s32 xc0_ = 0;
+    float xc0_pitchBend = 0.f;
     TUniqueId xc4_fluidId = kInvalidUniqueId;
     TUniqueId xc6_nextDrawNode = kInvalidUniqueId;
     u32 xc8_drawnToken = -1;
     u32 xcc_addedToken = -1;
     float xd0_;
-    u8 xd4_ = 0x7F;
-    u32 xd8_ = 2;
+    float xd4_maxVol = 1.f;
+    rstl::reserved_vector<CSfxHandle, 2> xd8_nonLoopingSfxHandles;
     union
     {
         struct
         {
+            u8 xe4_24_nextNonLoopingSfxHandle : 3;
             bool xe4_27_ : 1;
             bool xe4_28_ : 1;
             bool xe4_29_ : 1;
@@ -72,6 +73,7 @@ protected:
         u32 dummy = 0;
     };
     void _CreateShadow();
+    void UpdateSfxEmitters();
 
 public:
     enum class EFluidState
@@ -117,7 +119,7 @@ public:
     virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
     virtual void OnScanStateChanged(EScanState, CStateManager&);
     virtual zeus::CAABox GetSortingBounds(const CStateManager&) const;
-    virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType);
+    virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt);
 
     void RemoveEmitter();
     const zeus::CTransform& GetTransform() const { return x34_transform; }
@@ -145,8 +147,8 @@ public:
     const CMaterialList& GetMaterialList() const { return x68_material; }
     void SetInFluid(bool in, TUniqueId uid);
     bool HasModelData() const;
-    const CSfxHandle* GetSfxHandle() const;
-    void SetSfxPitchBend(s32);
+    const CSfxHandle& GetSfxHandle() const { return x8c_loopingSfxHandle; }
+    void SetSoundEventPitchBend(s32);
     void SetRotation(const zeus::CQuaternion& q);
     void SetTranslation(const zeus::CVector3f& tr);
     void SetTransform(const zeus::CTransform& tr);
@@ -157,6 +159,10 @@ public:
     CModelData* ModelData() { return x64_modelData.get(); }
     void EnsureRendered(const CStateManager&);
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CAABox&) const;
+    void ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff, float maxDist,
+                           float minVol, float maxVol, const zeus::CVector3f& toListener,
+                           const zeus::CVector3f& position, TAreaId aid, CStateManager& mgr,
+                           bool translateId);
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
     void SetActorLights(std::unique_ptr<CActorLights>);
     bool CanDrawStatic() const;

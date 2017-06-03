@@ -11,14 +11,15 @@ namespace urde
 {
 
 CParticleGenInfo::CParticleGenInfo(const SObjectTag& part, int frameCount, const std::string& boneName,
-                                   const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode, int a, int b)
+                                   const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
+                                   int flags, EParticleGenState state)
 : x4_part(part)
 , xc_seconds(frameCount / 60.f)
 , x10_boneName(boneName)
 , x28_parentMode(parentMode)
-, x2c_a(a)
+, x2c_flags(flags)
 , x30_particleScale(scale)
-, x80_(b)
+, x80_state(state)
 {
 }
 
@@ -41,8 +42,9 @@ static TUniqueId _initializeLight(const std::weak_ptr<CParticleGen>& system, CSt
 CParticleGenInfoGeneric::CParticleGenInfoGeneric(const SObjectTag& part, const std::weak_ptr<CParticleGen>& system,
                                                  int frameCount, const std::string& boneName,
                                                  const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
-                                                 int a, CStateManager& stateMgr, TAreaId areaId, int lightId, int b)
-: CParticleGenInfo(part, frameCount, boneName, scale, parentMode, a, b), x84_system(system)
+                                                 int flags, CStateManager& stateMgr, TAreaId areaId, int lightId,
+                                                 EParticleGenState state)
+: CParticleGenInfo(part, frameCount, boneName, scale, parentMode, flags, state), x84_system(system)
 {
     if (lightId == -1)
         x88_lightId = kInvalidUniqueId;
@@ -141,7 +143,10 @@ TUniqueId CParticleGenInfoGeneric::GetLightId() const { return x88_lightId; }
 void CParticleGenInfoGeneric::DeleteLight(CStateManager& mgr)
 {
     if (x88_lightId != kInvalidUniqueId)
-        mgr.DeleteObjectRequest(x88_lightId);
+    {
+        mgr.FreeScriptObject(x88_lightId);
+        x88_lightId = kInvalidUniqueId;
+    }
 }
 
 void CParticleGenInfoGeneric::SetModulationColor(const zeus::CColor& color) { x84_system->SetModulationColor(color); }

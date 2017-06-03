@@ -11,6 +11,7 @@ namespace urde
 
 class CCharacterInfo
 {
+    friend class CAnimData;
 public:
     struct CParticleResData
     {

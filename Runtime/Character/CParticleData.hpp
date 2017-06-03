@@ -25,7 +25,16 @@ private:
 public:
     CParticleData() = default;
     CParticleData(CInputStream& in);
-    EParentedMode GetParentedMode() const {return x20_parentMode;}
+    u32 GetDuration() const { return x0_duration; }
+    const SObjectTag& GetTag() const { return x4_particle; }
+    const std::string& GetSegmentName() const { return xc_boneName; }
+    float GetScale() const { return x1c_scale; }
+    EParentedMode GetParentedMode() const { return x20_parentMode; }
+};
+
+class CAuxiliaryParticleData
+{
+public:
 };
 
 }
