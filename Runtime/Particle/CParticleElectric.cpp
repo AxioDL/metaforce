@@ -96,8 +96,9 @@ void CParticleElectric::RenderLines()
     CGraphics::SetViewPointMatrix(viewXfrm);
 }
 
-void CParticleElectric::Update(double)
+bool CParticleElectric::Update(double)
 {
+    return false;
 }
 
 void CParticleElectric::Render()

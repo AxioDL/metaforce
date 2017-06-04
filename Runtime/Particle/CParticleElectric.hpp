@@ -79,7 +79,7 @@ public:
     CParticleElectric(const TToken<CElectricDescription>& desc);
 
     void SetupLineGXMaterial();
-    void Update(double);
+    bool Update(double);
     void RenderLines();
     void RenderSwooshes();
     void Render();

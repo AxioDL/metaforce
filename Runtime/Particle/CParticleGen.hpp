@@ -19,7 +19,7 @@ class CParticleGen
 public:
     virtual ~CParticleGen() = default;
 
-    virtual void Update(double)=0;
+    virtual bool Update(double)=0;
     virtual void Render()=0;
     virtual void SetOrientation(const zeus::CTransform&)=0;
     virtual void SetTranslation(const zeus::CVector3f&)=0;

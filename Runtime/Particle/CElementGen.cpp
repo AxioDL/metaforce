@@ -453,7 +453,7 @@ CElementGen::~CElementGen()
     g_ParticleAliveCount -= x30_particles.size();
 }
 
-void CElementGen::Update(double t)
+bool CElementGen::Update(double t)
 {
     CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
     CParticleGlobals::SParticleSystem thisSystem { FOURCC('PART'), this };
@@ -470,8 +470,9 @@ void CElementGen::Update(double t)
         InternalUpdate(pswt / 60.0);
         x26d_25_warmedUp = true;
     }
-    InternalUpdate(t);
+    bool ret = InternalUpdate(t);
     CParticleGlobals::g_currentParticleSystem = prevSystem;
+    return ret;
 }
 
 bool CElementGen::InternalUpdate(double dt)

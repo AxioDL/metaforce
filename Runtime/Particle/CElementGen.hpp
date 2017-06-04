@@ -209,7 +209,7 @@ public:
     void RenderParticles();
     void RenderParticlesIndirectTexture();
 
-    void Update(double);
+    bool Update(double);
     void Render();
     void SetOrientation(const zeus::CTransform&);
     void SetTranslation(const zeus::CVector3f&);
