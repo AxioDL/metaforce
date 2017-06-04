@@ -54,14 +54,7 @@ public:
         zeus::CVector3f x4_viewPoint;
     public:
         CParticleListItem(s16 idx)
-        : x0_partIdx(idx)
-        {
-            ++g_ParticleAliveCount;
-        }
-        ~CParticleListItem()
-        {
-            --g_ParticleAliveCount;
-        }
+        : x0_partIdx(idx) {}
     };
     struct CParticle
     {
@@ -78,92 +71,94 @@ public:
 private:
     friend class CElementGenShaders;
     TLockedToken<CGenDescription> x1c_genDesc;
-    EModelOrientationType x28_orientType;
-    std::vector<CParticleListItem> x30_particleLists;
-    std::vector<zeus::CMatrix3f> x60_parentMatrices;
-    u32 x4c_internalStartFrame = 0;
-    u32 x50_curFrame = 0;
-    double x58_curSeconds = 0.f;
-    float x60_timeDeltaScale;
-    u32 x64_prevFrame = -1;
-    bool x68_particleEmission = true;
-    float x6c_generatorRemainder = 0.f;
+    CGenDescription* x28_loadedGenDesc;
+    EModelOrientationType x2c_orientType;
+    std::vector<CParticle> x30_particles;
+    std::vector<u32> x40;
+    std::vector<zeus::CMatrix3f> x50_parentMatrices;
+    std::vector<std::array<float, 8>> x60_advValues;
+
+    u32 x70_internalStartFrame = 0;
+    u32 x74_curFrame = 0;
+    double x78_curSeconds = 0.f;
+    float x80_timeDeltaScale;
+    u32 x84_prevFrame = -1;
+    bool x88_particleEmission = true;
+    float x8c_generatorRemainder = 0.f;
     int x90_MAXP = 0;
     u16 x94_randomSeed = 99;
+    float x98_generatorRate = 1.f;
     float x9c_cextValues[16] = {};
-    float x78_generatorRate = 1.f;
-    zeus::CVector3f x7c_translation;
-    zeus::CVector3f x88_globalTranslation;
+
+    zeus::CVector3f xdc_translation;
+    zeus::CVector3f xe8_globalTranslation;
     zeus::CVector3f xf4_POFS;
-    zeus::CVector3f xa0_globalScale = {1.f, 1.f, 1.f};
-    zeus::CTransform xac_globalScaleTransform = zeus::CTransform::Identity();
-    zeus::CTransform xdc_globalScaleTransformInverse = zeus::CTransform::Identity();
-    zeus::CVector3f x10c_localScale = {1.f, 1.f, 1.f};
-    zeus::CTransform x118_localScaleTransform = zeus::CTransform::Identity();
-    zeus::CTransform x148_localScaleTransformInverse = zeus::CTransform::Identity();
-    zeus::CTransform x178_orientation = zeus::CTransform::Identity();
-    zeus::CTransform x1a8_orientationInverse = zeus::CTransform::Identity();
-    zeus::CTransform x1d8_globalOrientation = zeus::CTransform::Identity();
-    u32 x208_activeParticleCount = 0;
-    u32 x20c_recursiveParticleCount = 0;
-    u32 x210_curEmitterFrame = 0;
-    int x268_PSLT = 90;//0x7fffff;
-    zeus::CVector3f x218_PSIV;
-    bool x224_24_translationDirty = false;
-    bool x224_25_LIT_;
-    bool x224_26_AAPH;
-    bool x224_27_ZBUF;
-    bool x224_28_zTest = false;
-    bool x224_29_MBLR;
-    bool x224_30_VMD1;
-    bool x224_31_VMD2;
-    bool x225_24_VMD3;
-    bool x225_25_VMD4;
-    bool x225_28_warmedUp = false;
-    bool x225_29_modelsUseLights = false;
-    bool x226_enableOPTS;
-    int x228_MBSP = 0; int m_maxMBSP = 0;
+    zeus::CVector3f x100_globalScale = {1.f, 1.f, 1.f};
+    zeus::CTransform x10c_globalScaleTransform = zeus::CTransform::Identity();
+    zeus::CTransform x13c_globalScaleTransformInverse = zeus::CTransform::Identity();
+    zeus::CVector3f x16c_localScale = {1.f, 1.f, 1.f};
+    zeus::CTransform x178_localScaleTransform = zeus::CTransform::Identity();
+    zeus::CTransform x1a8_localScaleTransformInverse = zeus::CTransform::Identity();
+    zeus::CTransform x1d8_orientation = zeus::CTransform::Identity();
+    zeus::CTransform x208_orientationInverse = zeus::CTransform::Identity();
+    zeus::CTransform x22c_globalOrientation = zeus::CTransform::Identity();
+
+    u32 x25c_activeParticleCount = 0;
+    u32 x260_cumulativeParticles = 0;
+    u32 x264_recursiveParticleCount = 0;
+    int x268_PSLT;
 
     union
     {
         struct
         {
-            bool x26c_24_ : 1;
+            bool x26c_24_translationDirty : 1;
+            bool x26c_25_LIT_ : 1;
+            bool x26c_26_AAPH : 1;
+            bool x26c_27_ZBUF : 1;
+            bool x26c_28_zTest : 1;
+            bool x26c_29_ORNT : 1;
+            bool x26c_30_MBLR : 1;
             bool x26c_31_LINE : 1;
             bool x26d_24_FXLL : 1;
+            bool x26d_25_warmedUp : 1;
+            bool x26d_26_modelsUseLights : 1;
+            bool x26d_27_enableOPTS : 1;
+            bool x26d_28_enableADV : 1;
         };
         u32 _dummy = 0;
     };
 
-    ERglLightBits x22c_backupLightActive = ERglLightBits::None;
+    int x270_MBSP = 0;
+    int m_maxMBSP = 0;
+    ERglLightBits x274_backupLightActive = ERglLightBits::None;
+    bool x278_hasVMD[4] = {};
     CRandom16 x27c_randState;
-    std::vector<std::unique_ptr<CElementGen>> x290_activePartChildren;
+    CModVectorElement* x280_VELSources[4] = {};
+
+    std::vector<std::unique_ptr<CParticleGen>> x290_activePartChildren;
     int x2a0_CSSD = 0;
-    std::vector<std::unique_ptr<CElementGen>> x248_finishPartChildren;
     int x2a4_SISY = 16;
     int x2a8_PISY = 16;
-    u32 x260_cumulativeParticles = 0; /* Retail */
-    std::vector<std::unique_ptr<CParticleSwoosh>> x260_swhcChildren;
     int x2ac_SSSD = 0;
     zeus::CVector3f x2b0_SSPO;
-    std::vector<std::unique_ptr<CParticleElectric>> x280_elscChildren;
     int x2bc_SESD = 0;
     zeus::CVector3f x2c0_SEPO;
-    float x2a0 = 0.f;
-    float x2a4 = 0.f;
-    zeus::CVector3f x2a8_aabbMin;
-    zeus::CVector3f x2b4_aabbMax;
-    float x2c0_maxSize = 0.f;
-    zeus::CAABox x2c4_systemBounds = zeus::CAABox::skInvertedBox;
+    float x2cc = 0.f;
+    float x2d0 = 0.f;
+    zeus::CVector3f x2d4_aabbMin;
+    zeus::CVector3f x2e0_aabbMax;
+    float x2ec_maxSize = 0.f;
+    zeus::CAABox x2f0_systemBounds = zeus::CAABox::skInvertedBox;
     LightType x308_lightType;
-    zeus::CColor x2e0_LCLR = zeus::CColor::skWhite;
-    float x2e4_LINT = 1.f;
-    zeus::CVector3f x2e8_LOFF;
-    zeus::CVector3f x2f4_LDIR = {1.f, 0.f, 0.f};
+    zeus::CColor x30c_LCLR = zeus::CColor::skWhite;
+    float x310_LINT = 1.f;
+    zeus::CVector3f x314_LOFF;
+    zeus::CVector3f x320_LDIR = {1.f, 0.f, 0.f};
     EFalloffType x32c_falloffType = EFalloffType::Linear;
-    float x304_LFOR = 1.f;
-    float x308_LSLA = 45.f;
-    zeus::CColor x30c_moduColor = {1.f, 1.f, 1.f, 1.f};
+    float x330_LFOR = 1.f;
+    float x334_LSLA = 45.f;
+    zeus::CColor x338_moduColor = {1.f, 1.f, 1.f, 1.f};
 
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     CElementGenShaders::EShaderClass m_shaderClass;
@@ -182,44 +177,27 @@ public:
 
     CGenDescription* GetDesc() {return x1c_genDesc.GetObj();}
 
-    static s32 g_FreeIndex;
-    static bool g_StaticListInitialized;
+    static bool g_ParticleSystemInitialized;
     static int g_ParticleAliveCount;
     static int g_ParticleSystemAliveCount;
     static bool sMoveRedToAlphaBuffer;
     static void Initialize();
     static void Shutdown();
 
-    void SetGeneratorRateScalar(float scalar)
-    {
-        if (scalar >= 0.0f)
-            x78_generatorRate = scalar;
-        else
-            x78_generatorRate = 0.0f;
-
-        for (std::unique_ptr<CElementGen>& child : x290_activePartChildren)
-            child->SetGeneratorRateScalar(x78_generatorRate);
-
-        for (std::unique_ptr<CElementGen>& child : x248_finishPartChildren)
-            child->SetGeneratorRateScalar(x78_generatorRate);
-    }
-
+    void UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame);
+    bool UpdateVelocitySource(u32 idx, u32 particleFrame, CParticle& particle);
     void UpdateExistingParticles();
     void CreateNewParticles(int);
     void UpdatePSTranslationAndOrientation();
     void UpdateChildParticleSystems(double);
-    CElementGen* ConstructChildParticleSystem(const TToken<CGenDescription>&);
+    std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>&);
     void UpdateLightParameters();
     void BuildParticleSystemBounds();
-    u32 GetEmitterTime() const
-    {
-        /* Game returns x74, guessing x50 is what it's asking for */
-        return x50_curFrame;
-    }
+    u32 GetEmitterTime() const { return x74_curFrame; }
     u32 GetSystemCount();
     u32 GetCumulativeParticleCount() const { return x260_cumulativeParticles; }
     u32 GetParticleCountAllInternal() const;
-    u32 GetParticleCountAll() const {return x20c_recursiveParticleCount;}
+    u32 GetParticleCountAll() const { return x264_recursiveParticleCount; }
     void EndLifetime();
     void ForceParticleCreation(int amount);
     float GetCEXTValue(int i) const { return x9c_cextValues[i]; }
@@ -239,14 +217,17 @@ public:
     void SetGlobalTranslation(const zeus::CVector3f&);
     void SetGlobalScale(const zeus::CVector3f&);
     void SetLocalScale(const zeus::CVector3f&);
+    void SetGlobalOrientAndTrans(const zeus::CTransform& xf);
     void SetParticleEmission(bool);
     void SetModulationColor(const zeus::CColor&);
+    void SetGeneratorRate(float rate);
     const zeus::CTransform& GetOrientation() const;
     const zeus::CVector3f& GetTranslation() const;
     const zeus::CTransform& GetGlobalOrientation() const;
     const zeus::CVector3f& GetGlobalTranslation() const;
     const zeus::CVector3f& GetGlobalScale() const;
     const zeus::CColor& GetModulationColor() const;
+    float GetGeneratorRate() const { return x98_generatorRate; }
     bool IsSystemDeletable() const;
     rstl::optional_object<zeus::CAABox> GetBounds() const;
     u32 GetParticleCount() const;
@@ -255,8 +236,9 @@ public:
     bool GetParticleEmission() const;
     void DestroyParticles();
     void Reset();
+    FourCC Get4CharId() const { return FOURCC('PART'); }
     size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
-    CElementGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
+    CParticleGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
 
     static void SetMoveRedToAlphaBuffer(bool);
 };

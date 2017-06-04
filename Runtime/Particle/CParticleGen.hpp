@@ -15,7 +15,7 @@ namespace urde
 
 class CParticleGen
 {
-    std::list<CWarp*> x8_modifierList;
+    std::list<CWarp*> x4_modifierList;
 public:
     virtual ~CParticleGen() = default;
 
@@ -29,12 +29,14 @@ public:
     virtual void SetLocalScale(const zeus::CVector3f&)=0;
     virtual void SetParticleEmission(bool)=0;
     virtual void SetModulationColor(const zeus::CColor&)=0;
+    virtual void SetGeneratorRate(float rate) {}
     virtual const zeus::CTransform& GetOrientation() const=0;
     virtual const zeus::CVector3f& GetTranslation() const=0;
     virtual const zeus::CTransform& GetGlobalOrientation() const=0;
     virtual const zeus::CVector3f& GetGlobalTranslation() const=0;
     virtual const zeus::CVector3f& GetGlobalScale() const=0;
     virtual const zeus::CColor& GetModulationColor() const=0;
+    virtual float GetGeneratorRate() const { return 1.f; }
     virtual bool IsSystemDeletable() const=0;
     virtual rstl::optional_object<zeus::CAABox> GetBounds() const=0;
     virtual u32 GetParticleCount() const=0;
@@ -43,6 +45,7 @@ public:
     virtual bool GetParticleEmission() const=0;
     virtual void DestroyParticles()=0;
     virtual void Reset()=0;
+    virtual FourCC Get4CharId() const=0;
 
     virtual void AddModifier(CWarp* mod);
 };

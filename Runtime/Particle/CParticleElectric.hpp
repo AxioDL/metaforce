@@ -107,6 +107,7 @@ public:
     bool GetParticleEmission() const;
     void DestroyParticles();
     void Reset() {}
+    FourCC Get4CharId() const { return FOURCC('ELSC'); }
 };
 
 }

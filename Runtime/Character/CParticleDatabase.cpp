@@ -363,9 +363,49 @@ static int _getGraphicLightId(const T& system, const U& desc)
 }
 
 void CParticleDatabase::AddAuxiliaryParticleEffect(const std::string& name, int flags, const CAuxiliaryParticleData& data,
-                                                   const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, int lightIdx)
+                                                   const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, int lightId)
 {
+    if (CParticleGenInfo* info = GetParticleEffect(name))
+    {
+        if (!info->GetIsActive())
+        {
+            info->SetParticleEmission(true, mgr);
+            info->SetIsActive(true);
+            info->SetIsGrabInitialData(true);
+            info->SetFlags(flags);
+        }
+        return;
+    }
 
+    zeus::CVector3f scaleVec;
+    if (flags & 0x2)
+        scaleVec.splat(data.GetScale());
+    else
+        scaleVec = scale * data.GetScale();
+
+    std::unique_ptr<CParticleGenInfo> newGen;
+    switch (data.GetTag().type)
+    {
+    case SBIG('PART'):
+    {
+        auto search = x0_particleDescs.find(data.GetTag().id);
+        if (search != x0_particleDescs.end())
+        {
+            auto sys = std::make_shared<CElementGen>(*search->second, CElementGen::EModelOrientationType::Normal,
+                                                     CElementGen::EOptionalSystemFlags::One);
+            newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), "NOT_A_VALID_LOCATOR",
+                                                               scaleVec, CParticleData::EParentedMode::Initial, flags, mgr, aid,
+                                                               lightId + _getGraphicLightId(sys, *search->second),
+                                                               EParticleGenState::Started);
+
+            newGen->SetGlobalTranslation(data.GetTranslation(), mgr);
+            newGen->SetIsGrabInitialData(false);
+            InsertParticleGen(false, flags, name, std::move(newGen));
+        }
+        break;
+    }
+    default: break;
+    }
 }
 
 void CParticleDatabase::AddParticleEffect(const std::string& name, int flags, const CParticleData& data,

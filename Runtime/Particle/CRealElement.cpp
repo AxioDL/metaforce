@@ -235,49 +235,49 @@ bool CRECompareEquals::GetValue(int frame, float& valOut) const
 
 bool CREParticleAccessParam1::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[0];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[0];
     return false;
 }
 
 bool CREParticleAccessParam2::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[1];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[1];
     return false;
 }
 
 bool CREParticleAccessParam3::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[2];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[2];
     return false;
 }
 
 bool CREParticleAccessParam4::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[3];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[3];
     return false;
 }
 
 bool CREParticleAccessParam5::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[4];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[4];
     return false;
 }
 
 bool CREParticleAccessParam6::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[5];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[5];
     return false;
 }
 
 bool CREParticleAccessParam7::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[6];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[6];
     return false;
 }
 
 bool CREParticleAccessParam8::GetValue(int /*frame*/, float& valOut) const
 {
-    valOut = CParticleGlobals::g_papValues[7];
+    valOut = (*CParticleGlobals::g_particleAccessParameters)[7];
     return false;
 }
 

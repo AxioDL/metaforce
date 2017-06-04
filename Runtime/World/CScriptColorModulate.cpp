@@ -74,7 +74,7 @@ void CScriptColorModulate::End(CStateManager& stateMgr)
 
     CEntity::SendScriptMsgs(EScriptObjectState::MaxReached, stateMgr, EScriptObjectMessage::None);
 
-    if (!x54_31_)
-        stateMgr.DeleteObjectRequest(x8_uid);
+    if (x54_31_)
+        stateMgr.FreeScriptObject(x8_uid);
 }
 }

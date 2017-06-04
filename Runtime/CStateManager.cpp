@@ -2316,28 +2316,6 @@ void CStateManager::SetCurrentAreaId(TAreaId aid)
     x850_world->GetMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
 }
 
-void CStateManager::DeleteObjectRequest(TUniqueId id)
-{
-    CEntity* entity = ObjectById(id);
-    if (!entity)
-        return;
-
-    if (entity->IsInGraveyard())
-        return;
-
-    entity->SetIsInGraveyard(true);
-
-    x854_objectGraveyard.push_back(entity->GetUniqueId());
-    entity->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
-    entity->SetIsScriptingBlocked(true);
-
-    if (TCastToPtr<CActor> actor = entity)
-    {
-        x874_sortedListManager->Remove(actor);
-        actor->SetUseInSortedLists(false);
-    }
-}
-
 CEntity* CStateManager::ObjectById(TUniqueId uid) { return GetAllObjectList().GetObjectById(uid); }
 const CEntity* CStateManager::GetObjectById(TUniqueId uid) const { return GetAllObjectList().GetObjectById(uid); }
 

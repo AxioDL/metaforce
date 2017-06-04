@@ -372,7 +372,6 @@ public:
     void UpdateRoomAcoustics(TAreaId);
     TAreaId GetNextAreaId() const { return x8cc_nextAreaId; }
     void SetCurrentAreaId(TAreaId);
-    void DeleteObjectRequest(TUniqueId);
     CEntity* ObjectById(TUniqueId uid);
     const CEntity* GetObjectById(TUniqueId uid) const;
     void AreaUnloaded(TAreaId);

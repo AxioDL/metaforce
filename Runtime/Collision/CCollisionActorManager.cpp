@@ -16,7 +16,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager&, TUniqueId, TAreaI
 void CCollisionActorManager::Destroy(CStateManager& mgr) const
 {
     for (const CJointCollisionDescription& desc : x0_jointDescriptions)
-        mgr.DeleteObjectRequest(desc.GetCollisionActorId());
+        mgr.FreeScriptObject(desc.GetCollisionActorId());
 
     const_cast<CCollisionActorManager&>(*this).x13_ = true;
 }

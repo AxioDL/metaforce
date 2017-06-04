@@ -4,6 +4,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
+#include <array>
 
 namespace urde
 {
@@ -38,7 +39,7 @@ public:
         g_ParticleLifetimePercentageRemainder = g_ParticleLifetimePercentageReal - g_ParticleLifetimePercentage;
     }
 
-    static float g_papValues[8];
+    static const std::array<float, 8>* g_particleAccessParameters;
 
     struct SParticleSystem
     {

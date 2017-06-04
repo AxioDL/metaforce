@@ -63,9 +63,9 @@ public:
     void SetParticleEffectState(const std::string& name, bool active, CStateManager& mgr);
     void SetCEXTValue(const std::string& name, int idx, float value);
     void AddAuxiliaryParticleEffect(const std::string& name, int flags, const CAuxiliaryParticleData& data,
-                                    const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, int lightIdx);
+                                    const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, int lightId);
     void AddParticleEffect(const std::string& name, int flags, const CParticleData& data,
-                           const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, bool oneShot, int lightIdx);
+                           const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, bool oneShot, int lightId);
     void InsertParticleGen(bool oneShot, int flags, const std::string& name,
                            std::unique_ptr<CParticleGenInfo>&& gen);
 };
