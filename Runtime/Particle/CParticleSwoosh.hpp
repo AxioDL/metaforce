@@ -4,6 +4,9 @@
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
 #include "CRandom16.hpp"
+#include "Graphics/CTexture.hpp"
+#include "CUVElement.hpp"
+#include "DataSpec/DNACommon/GX.hpp"
 
 namespace urde
 {
@@ -14,24 +17,25 @@ class CParticleSwoosh : public CParticleGen
     struct SSwooshData
     {
         bool x0_active;
-        float x4_;
-        float x8_;
-        zeus::CVector3f xc_translation;
-        zeus::CVector3f x18_offset;
-        zeus::CVector3f x24_;
-        float x30_irot;
-        float x34_;
-        zeus::CTransform x38_orientation;
-        int x68_frame;
-        zeus::CColor x6c_color;
-        int x70_;
+        float x4_leftRad;
+        float x8_rightRad;
+        zeus::CVector3f xc_translation; // Updated by system's velocity sources or user code
+        zeus::CVector3f x18_offset; // Updated by POFS once per system update (also resets x24_useOffset)
+        zeus::CVector3f x24_useOffset; // Combination of POFS and NPOS, once per particle instance
+        float x30_irot; // Rotation bias once per system update
+        float x34_rotm; // Rotation bias once per particle instance
+        zeus::CTransform x38_orientation; // Updated by user code
+        int x68_frame; // Frame index of evaluated data
+        zeus::CColor x6c_color; // Updated by COLR
+        int x70_startFrame;
         zeus::CVector3f x74_velocity;
 
-        SSwooshData(const zeus::CVector3f& translation, const zeus::CVector3f& offset, float irot, float f2, int w, bool active,
-                    const zeus::CTransform& orient, const zeus::CVector3f& vel, float f3, float f4,
-                    const zeus::CColor& color)
-        : x0_active(active), x4_(f3), x8_(f4), xc_translation(translation), x18_offset(offset), x24_(offset),
-          x30_irot(irot), x34_(f2), x38_orientation(orient), x6c_color(color), x70_(w), x74_velocity(vel) {}
+        SSwooshData(const zeus::CVector3f& translation, const zeus::CVector3f& offset, float irot, float rotm,
+                    int startFrame, bool active, const zeus::CTransform& orient, const zeus::CVector3f& vel,
+                    float leftRad, float rightRad, const zeus::CColor& color)
+        : x0_active(active), x4_leftRad(leftRad), x8_rightRad(rightRad), xc_translation(translation),
+          x18_offset(offset), x24_useOffset(offset), x30_irot(irot), x34_rotm(rotm), x38_orientation(orient),
+          x6c_color(color), x70_startFrame(startFrame), x74_velocity(vel) {}
     };
 
     TLockedToken<CSwooshDescription> x1c_desc;
@@ -49,14 +53,15 @@ class CParticleSwoosh : public CParticleGen
     zeus::CVector3f x14c_localScale = {1.f, 1.f, 1.f};
     u32 x158_curParticle = 0;
     std::vector<SSwooshData> x15c_swooshes;
-    std::vector<zeus::CVector3f> x16c_;
-    std::vector<zeus::CVector3f> x17c_;
-    std::vector<zeus::CVector3f> x18c_;
-    std::vector<zeus::CVector3f> x19c_;
+    std::vector<zeus::CVector3f> x16c_p0;
+    std::vector<zeus::CVector3f> x17c_p1;
+    std::vector<zeus::CVector3f> x18c_p2;
+    std::vector<zeus::CVector3f> x19c_p3;
     u32 x1ac_particleCount = 0;
     int x1b0_SPLN = 0;
     int x1b4_LENG = 0;
     int x1b8_SIDE = 0;
+    GX::Primitive x1bc_prim;
     CRandom16 x1c0_rand;
     float x1c4_ = 0.f;
     float x1c8_ = 0.f;
@@ -68,26 +73,23 @@ class CParticleSwoosh : public CParticleGen
         {
             bool x1d0_24_emitting : 1;
             bool x1d0_25_AALP : 1;
-            bool x1d0_26_ : 1;
-            bool x1d0_27_ : 1;
+            bool x1d0_26_disableUpdate : 1;
+            bool x1d0_27_renderGaps : 1;
             bool x1d0_28_LLRD : 1;
             bool x1d0_29_VLS1 : 1;
             bool x1d0_30_VLS2 : 1;
-            bool x1d0_31_ : 1;
-            bool x1d1_24_ : 1;
+            bool x1d0_31_constantTex : 1;
+            bool x1d1_24_constantUv : 1;
         };
         u32 _dummy = 0;
     };
 
-    float x1d4_ = 0.f;
-    float x1d8_ = 0.f;
-    float x1dc_ = 0.f;
-    float x1e0_ = 0.f;
-    u32 x1e4_ = 0;
-    float x1e8_ = 1.f;
-    u32 x1ec_ = 0;
-    zeus::CVector3f x1f0_;
-    zeus::CVector3f x1fc_;
+    SUVElementSet x1d4_uvs = {};
+    CTexture* x1e4_tex = nullptr;
+    float x1e8_uvSpan = 1.f;
+    int x1ec_TSPN = 0;
+    zeus::CVector3f x1f0_aabbMin;
+    zeus::CVector3f x1fc_aabbMax;
     float x208_maxRadius = 0.f;
     zeus::CColor x20c_moduColor = zeus::CColor::skWhite;
 
@@ -95,11 +97,15 @@ class CParticleSwoosh : public CParticleGen
 
     bool IsValid() const { return x1b4_LENG >= 2 && x1b8_SIDE >= 2; }
     void UpdateMaxRadius(float r);
+    void UpdateBounds(const zeus::CVector3f& pos);
     float GetLeftRadius(int i) const;
     float GetRightRadius(int i) const;
     void UpdateSwooshTranslation(const zeus::CVector3f& translation);
     void UpdateTranslationAndOrientation();
 
+    static zeus::CVector3f GetSplinePoint(const zeus::CVector3f& p0, const zeus::CVector3f& p1,
+                                          const zeus::CVector3f& p2, const zeus::CVector3f& p3, float t);
+    int WrapIndex(int i) const;
     void RenderNSidedSpline();
     void RenderNSidedNoSpline();
     void Render3SidedSolidSpline();
