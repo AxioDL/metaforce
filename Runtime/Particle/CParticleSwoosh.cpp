@@ -558,43 +558,45 @@ void CParticleSwoosh::Render3SidedSolidSpline()
             curUvSpan += x1e8_uvSpan;
             if (i > 1)
             {
-                int vertCount = (x1b0_SPLN + 1) * 12;
-                float curUvX = 0.f;
+                //int vertCount = (x1b0_SPLN + 1) * 12;
+                float uv1 = 0.f;
                 // begin quads
                 zeus::CColor useColor1 = prevColor1;
+                zeus::CVector3f v01 = zeus::CVector3f::skZero;
+                zeus::CVector3f v11 = zeus::CVector3f::skZero;
+                zeus::CVector3f v21 = zeus::CVector3f::skZero;
+                zeus::CColor c1 = zeus::CColor::skClear;
                 float uvDelta = prevUvSpan - curUvSpan;
                 for (int j=0 ; j<x1b0_SPLN+1 ; ++j)
                 {
-                    float prevUvX = curUvX;
+                    float uv0 = uv1;
                     float t1 = (j+1) / float(x1b0_SPLN+1);
-                    zeus::CVector3f init0 = zeus::CVector3f::skZero;
-                    zeus::CVector3f init1 = zeus::CVector3f::skZero;
-                    zeus::CVector3f init2 = zeus::CVector3f::skZero;
-                    zeus::CColor initColor = zeus::CColor::skClear;
+                    zeus::CVector3f v00 = v01;
+                    zeus::CVector3f v10 = v11;
+                    zeus::CVector3f v20 = v21;
+                    zeus::CColor c0 = c1;
 
                     if (j == 0)
                     {
                         float t0 = j / float(x1b0_SPLN+1);
-                        init0 = GetSplinePoint(x16c_p0[0], x17c_p1[0], x18c_p2[0], x19c_p3[0], t0);
-                        init1 = GetSplinePoint(x16c_p0[1], x17c_p1[1], x18c_p2[1], x19c_p3[1], t0);
-                        init2 = GetSplinePoint(x16c_p0[2], x17c_p1[2], x18c_p2[2], x19c_p3[2], t0);
-                        initColor = zeus::CColor::lerp(useColor0, useColor1, t0);
-                        prevUvX = t0 * uvDelta + curUvSpan;
+                        v00 = GetSplinePoint(x16c_p0[0], x17c_p1[0], x18c_p2[0], x19c_p3[0], t0);
+                        v10 = GetSplinePoint(x16c_p0[1], x17c_p1[1], x18c_p2[1], x19c_p3[1], t0);
+                        v20 = GetSplinePoint(x16c_p0[2], x17c_p1[2], x18c_p2[2], x19c_p3[2], t0);
+                        c0 = zeus::CColor::lerp(useColor0, useColor1, t0);
+                        uv0 = t0 * uvDelta + curUvSpan;
                     }
 
-                    zeus::CVector3f v0 = GetSplinePoint(x16c_p0[0], x17c_p1[0], x18c_p2[0], x19c_p3[0], t1);
-                    zeus::CVector3f v1 = GetSplinePoint(x16c_p0[1], x17c_p1[1], x18c_p2[1], x19c_p3[1], t1);
-                    zeus::CVector3f v2 = GetSplinePoint(x16c_p0[2], x17c_p1[2], x18c_p2[2], x19c_p3[2], t1);
+                    v01 = GetSplinePoint(x16c_p0[0], x17c_p1[0], x18c_p2[0], x19c_p3[0], t1);
+                    v11 = GetSplinePoint(x16c_p0[1], x17c_p1[1], x18c_p2[1], x19c_p3[1], t1);
+                    v21 = GetSplinePoint(x16c_p0[2], x17c_p1[2], x18c_p2[2], x19c_p3[2], t1);
+                    c1 = zeus::CColor::lerp(useColor0, useColor1, t1);
+                    uv1 = t1 * uvDelta + curUvSpan;
 
-                    zeus::CColor color = zeus::CColor::lerp(useColor0, useColor1, t1);
-
-                    curUvX = t1 * uvDelta + curUvSpan;
-
-                    // Draw: init0, init1, v1, v0, init1, init2, v2, v1, init2, init0, v0, v2
-                    // Color: init, init, color, color, init, init, color, color, init, init, color, color
-                    // UVs: (prev, yMin), (prev, yMax), (cur, yMax), (cur, yMin),
-                    //      (prev, yMin), (prev, yMax), (cur, yMax), (cur, yMin),
-                    //      (prev, yMin), (prev, yMax), (cur, yMax), (cur, yMin),
+                    // Draw: v00, v10, v11, v01, v10, v20, v21, v11, v20, v00, v01, v21
+                    // Color: c0, c0, c1, c1, c0, c0, c1, c1, c0, c0, c1, c1
+                    // UVs: (uv0, yMin), (uv0, yMax), (uv1, yMax), (uv1, yMin),
+                    //      (uv0, yMin), (uv0, yMax), (uv1, yMax), (uv1, yMin),
+                    //      (uv0, yMin), (uv0, yMax), (uv1, yMax), (uv1, yMin),
                 }
                 // End
             }
@@ -604,7 +606,76 @@ void CParticleSwoosh::Render3SidedSolidSpline()
 
 void CParticleSwoosh::Render3SidedSolidNoSplineNoGaps()
 {
+    if (x15c_swooshes.size() < 2)
+        return;
 
+    zeus::CVector3f p0[2];
+    zeus::CVector3f p1[2];
+    zeus::CVector3f p2[2];
+
+    int curIdx = x158_curParticle;
+    bool lastActive = false;
+    zeus::CColor c0 = zeus::CColor::skClear;
+    for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+    {
+        SSwooshData& swoosh = x15c_swooshes[curIdx];
+
+        curIdx -= 1;
+        if (curIdx < 0)
+            curIdx = x15c_swooshes.size() - 1;
+
+        float ang1 = zeus::degToRad(swoosh.x30_irot + swoosh.x34_rotm);
+        if (std::fabs(ang1) > M_PIF)
+        {
+            ang1 -= std::floor(ang1 / (2.f * M_PIF)) * 2.f * M_PIF;
+            if (ang1 > M_PIF)
+                ang1 -= 2.f * M_PIF;
+            else if (ang1 < -M_PIF)
+                ang1 += 2.f * M_PIF;
+        }
+
+        zeus::CVector3f ang1Vec(std::sin(ang1) * swoosh.x4_leftRad, 0.f, std::cos(ang1) * swoosh.x4_leftRad);
+
+        float ang2 = ang1 + 2.0943952f; // +120 degrees
+        if (ang2 > M_PIF)
+            ang2 -= 2.f * M_PIF;
+
+        zeus::CVector3f ang2Vec(std::sin(ang2) * swoosh.x4_leftRad, 0.f, std::cos(ang2) * swoosh.x4_leftRad);
+
+        float ang3 = ang2 + 2.0943952f; // +120 degrees
+        if (ang3 > M_PIF)
+            ang3 -= 2.f * M_PIF;
+
+        zeus::CVector3f ang3Vec(std::sin(ang3) * swoosh.x4_leftRad, 0.f, std::cos(ang3) * swoosh.x4_leftRad);
+
+        zeus::CVector3f useOffset = swoosh.xc_translation + swoosh.x24_useOffset;
+        p0[i&1] = swoosh.x38_orientation * ang1Vec + useOffset;
+        p1[i&1] = swoosh.x38_orientation * ang2Vec + useOffset;
+        p2[i&1] = swoosh.x38_orientation * ang3Vec + useOffset;
+
+        if (!swoosh.x0_active)
+        {
+            lastActive = false;
+            continue;
+        }
+
+        if (!lastActive)
+        {
+            lastActive = true;
+            continue;
+        }
+
+        lastActive = true;
+        zeus::CColor c1 = c0;
+        c0 = swoosh.x6c_color * x20c_moduColor;
+
+        // Begin quads, 12 verts
+        // p0[i&1], p1[i&1], p1[!(i&1)], p0[!(i&1)]
+        // p1[i&1], p2[i&1], p2[!(i&1)], p1[!(i&1)]
+        // p2[i&1], p0[i&1], p0[!(i&1)], p2[!(i&1)]
+        // UVs: (f31, yMin), (f31, yMax), (f30, yMax), (f30, yMin)
+        // Colors: c0, c0, c1, c1
+    }
 }
 
 void CParticleSwoosh::Render2SidedSpline()
@@ -678,7 +749,163 @@ void CParticleSwoosh::Render2SidedNoSplineGaps()
 
 void CParticleSwoosh::Render2SidedNoSplineNoGaps()
 {
+    // StreamBegin(TRISTRIPS);
+    int curIdx = x158_curParticle;
+    int particleCount = x1ac_particleCount;
+    float uvOffset = 0.f;
+    if (x1c_desc->x3c_TEXR)
+    {
+        if (x1c_desc->x45_25_ORNT)
+        {
+            zeus::CVector3f camToParticle =
+                ((zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf).inverse() * CGraphics::g_ViewMatrix).origin;
+            zeus::CVector3f dotVec = zeus::CVector3f::skZero;
 
+            for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+            {
+                SSwooshData& swoosh = x15c_swooshes[curIdx];
+
+                curIdx -= 1;
+                if (curIdx < 0)
+                    curIdx = x15c_swooshes.size() - 1;
+
+                if (swoosh.x0_active)
+                {
+                    particleCount -= 1;
+                    int otherIdx = curIdx - 1;
+                    if (otherIdx < 0)
+                        otherIdx = x15c_swooshes.size() - 1;
+
+                    SSwooshData& otherSwoosh = x15c_swooshes[otherIdx];
+
+                    zeus::CVector3f delta = otherSwoosh.xc_translation - swoosh.xc_translation;
+                    if (otherIdx == x158_curParticle)
+                        delta = swoosh.xc_translation - x15c_swooshes[(curIdx + 1) % x15c_swooshes.size()].xc_translation;
+
+                    if (delta.canBeNormalized())
+                    {
+                        zeus::CVector3f deltaCross = delta.cross(camToParticle - swoosh.xc_translation);
+                        if (deltaCross.canBeNormalized())
+                        {
+                            deltaCross.normalize();
+                            dotVec = (deltaCross.dot(dotVec) < 0.f ? -1.f : 1.f) * deltaCross;
+                            zeus::CVector3f useOffset = swoosh.xc_translation + swoosh.x24_useOffset;
+                            zeus::CVector3f v0 = dotVec * swoosh.x4_leftRad + useOffset;
+                            zeus::CVector3f v1 = dotVec * -swoosh.x8_rightRad + useOffset;
+
+                            zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
+
+                            // Draw: (v1, v2)
+                            // UVs: (uvOffset, yMin), (uvOffset, yMax)
+                            if (uvOffset >= 1.f && particleCount)
+                            {
+                                // StreamEnd();
+                                // StreamBegin(TRISTRIPS);
+                                uvOffset -= 1.f;
+                                // Draw: (v1, v2)
+                                // UVs: (uvOffset, yMin), (uvOffset, yMax)
+                            }
+
+                            if (x1ec_TSPN > 0)
+                                uvOffset += x1e8_uvSpan;
+                            else
+                                uvOffset = i * x1e8_uvSpan;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+            {
+                SSwooshData& swoosh = x15c_swooshes[curIdx];
+
+                curIdx -= 1;
+                if (curIdx < 0)
+                    curIdx = x15c_swooshes.size() - 1;
+
+                if (swoosh.x0_active)
+                {
+                    particleCount -= 1;
+
+                    float ang = zeus::degToRad(swoosh.x30_irot + swoosh.x34_rotm);
+                    if (std::fabs(ang) > M_PIF)
+                    {
+                        ang -= std::floor(ang / (2.f * M_PIF)) * 2.f * M_PIF;
+                        if (ang > M_PIF)
+                            ang -= 2.f * M_PIF;
+                        else if (ang < -M_PIF)
+                            ang += 2.f * M_PIF;
+                    }
+
+                    float sinAng = std::sin(ang);
+                    float cosAng = std::cos(ang);
+
+                    zeus::CVector3f useOffset = swoosh.xc_translation + swoosh.x24_useOffset;
+                    zeus::CVector3f v0 = swoosh.x38_orientation *
+                        zeus::CVector3f(cosAng * swoosh.x4_leftRad, 0.f, sinAng * swoosh.x4_leftRad) + useOffset;
+                    zeus::CVector3f v1 = swoosh.x38_orientation *
+                        zeus::CVector3f(-cosAng * swoosh.x8_rightRad, 0.f, -sinAng * swoosh.x8_rightRad) + useOffset;
+
+                    zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
+
+                    // Draw: (v1, v2)
+                    // UVs: (uvOffset, yMin), (uvOffset, yMax)
+                    if (uvOffset >= 1.f && particleCount)
+                    {
+                        // StreamEnd();
+                        // StreamBegin(TRISTRIPS);
+                        uvOffset -= 1.f;
+                        // Draw: (v1, v2)
+                        // UVs: (uvOffset, yMin), (uvOffset, yMax)
+                    }
+
+                    if (x1ec_TSPN > 0)
+                        uvOffset += x1e8_uvSpan;
+                    else
+                        uvOffset = i * x1e8_uvSpan;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+        {
+            SSwooshData& swoosh = x15c_swooshes[curIdx];
+
+            curIdx -= 1;
+            if (curIdx < 0)
+                curIdx = x15c_swooshes.size() - 1;
+
+            if (swoosh.x0_active)
+            {
+                float ang = zeus::degToRad(swoosh.x30_irot + swoosh.x34_rotm);
+                if (std::fabs(ang) > M_PIF)
+                {
+                    ang -= std::floor(ang / (2.f * M_PIF)) * 2.f * M_PIF;
+                    if (ang > M_PIF)
+                        ang -= 2.f * M_PIF;
+                    else if (ang < -M_PIF)
+                        ang += 2.f * M_PIF;
+                }
+
+                float sinAng = std::sin(ang);
+                float cosAng = std::cos(ang);
+
+                zeus::CVector3f useOffset = swoosh.xc_translation + swoosh.x24_useOffset;
+                zeus::CVector3f v0 = swoosh.x38_orientation *
+                    zeus::CVector3f(cosAng * swoosh.x4_leftRad, 0.f, sinAng * swoosh.x4_leftRad) + useOffset;
+                zeus::CVector3f v1 = swoosh.x38_orientation *
+                    zeus::CVector3f(-cosAng * swoosh.x8_rightRad, 0.f, -sinAng * swoosh.x8_rightRad) + useOffset;
+
+                zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
+                // Draw: (v1, v2)
+            }
+        }
+    }
+    // StreamEnd();
 }
 
 void CParticleSwoosh::Render()
