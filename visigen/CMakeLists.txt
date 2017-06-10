@@ -19,7 +19,8 @@ endif()
 
 add_executable(visigen ${PLAT_SRCS}
                VISIRenderer.cpp VISIRenderer.hpp
-               VISIBuilder.cpp VISIBuilder.hpp)
+               VISIBuilder.cpp VISIBuilder.hpp
+               ../hecl/lib/hecl.cpp)
 target_link_libraries(visigen logvisor athena-core zeus glew xxhash ${BOO_SYS_LIBS})
 
 add_custom_command(TARGET visigen POST_BUILD
