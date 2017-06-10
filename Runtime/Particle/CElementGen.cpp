@@ -7,13 +7,15 @@
 #include "CParticleElectric.hpp"
 #include "Graphics/CModel.hpp"
 
-#include "CElementGenShaders.hpp"
+#include "Graphics/Shaders/CElementGenShaders.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
 
 namespace urde
 {
 static logvisor::Module Log("urde::CElementGen");
+
+URDE_DECL_SPECIALIZE_SHADER(CElementGenShaders)
 
 CRandom16 CElementGen::g_GlobalSeed = 99;
 
@@ -22,190 +24,6 @@ int CElementGen::g_ParticleSystemAliveCount;
 bool CElementGen::g_ParticleSystemInitialized = false;
 bool CElementGen::sMoveRedToAlphaBuffer = false;
 CElementGen::CParticle* CElementGen::g_currentParticle = nullptr;
-
-boo::IShaderPipeline* CElementGenShaders::m_texZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texNoZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texNoZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texAdditiveZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texAdditiveNoZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaNoZTest = nullptr;
-
-boo::IShaderPipeline* CElementGenShaders::m_indTexZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_indTexNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_indTexAdditive = nullptr;
-
-boo::IShaderPipeline* CElementGenShaders::m_cindTexZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_cindTexNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_cindTexAdditive = nullptr;
-
-boo::IShaderPipeline* CElementGenShaders::m_noTexZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexNoZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexNoZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexAdditiveZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexAdditiveNoZTest = nullptr;
-
-boo::IVertexFormat* CElementGenShaders::m_vtxFormatTex = nullptr;
-boo::IVertexFormat* CElementGenShaders::m_vtxFormatIndTex = nullptr;
-boo::IVertexFormat* CElementGenShaders::m_vtxFormatNoTex = nullptr;
-
-std::unique_ptr<CElementGenShaders::IDataBindingFactory> CElementGenShaders::m_bindFactory;
-boo::GraphicsDataToken CElementGenShaders::m_gfxToken;
-
-CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen& gen)
-{
-    CGenDescription* desc = gen.x1c_genDesc.GetObj();
-
-    if (desc->x54_x40_TEXR)
-    {
-        if (desc->x58_x44_TIND)
-            return EShaderClass::IndTex;
-        else
-            return EShaderClass::Tex;
-    }
-    else
-        return EShaderClass::NoTex;
-}
-
-void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen)
-{
-    CGenDescription* desc = gen.x1c_genDesc.GetObj();
-    boo::IShaderPipeline* regPipeline = nullptr;
-    boo::IShaderPipeline* redToAlphaPipeline = nullptr;
-
-    if (desc->x54_x40_TEXR)
-    {
-        if (desc->x58_x44_TIND)
-        {
-            if (desc->x45_30_x32_24_CIND)
-            {
-                if (gen.x26c_26_AAPH)
-                    regPipeline = m_cindTexAdditive;
-                else
-                {
-                    if (gen.x26c_27_ZBUF)
-                        regPipeline = m_cindTexZWrite;
-                    else
-                        regPipeline = m_cindTexNoZWrite;
-                }
-            }
-            else
-            {
-                if (gen.x26c_26_AAPH)
-                    regPipeline = m_indTexAdditive;
-                else
-                {
-                    if (gen.x26c_27_ZBUF)
-                        regPipeline = m_indTexZWrite;
-                    else
-                        regPipeline = m_indTexNoZWrite;
-                }
-            }
-        }
-        else
-        {
-            if (gen.x26c_28_zTest)
-                redToAlphaPipeline = m_texRedToAlphaZTest;
-            else
-                redToAlphaPipeline = m_texRedToAlphaNoZTest;
-
-            if (gen.x26c_26_AAPH)
-            {
-                if (gen.x26c_28_zTest)
-                    regPipeline = m_texAdditiveZTest;
-                else
-                    regPipeline = m_texAdditiveNoZTest;
-            }
-            else
-            {
-                if (gen.x26c_28_zTest)
-                {
-                    if (gen.x26c_27_ZBUF)
-                        regPipeline = m_texZTestZWrite;
-                    else
-                        regPipeline = m_texZTestNoZWrite;
-                }
-                else
-                {
-                    if (gen.x26c_27_ZBUF)
-                        regPipeline = m_texNoZTestZWrite;
-                    else
-                        regPipeline = m_texNoZTestNoZWrite;
-                }
-            }
-        }
-    }
-    else
-    {
-        if (gen.x26c_26_AAPH)
-        {
-            if (gen.x26c_28_zTest)
-                regPipeline = m_noTexAdditiveZTest;
-            else
-                regPipeline = m_noTexAdditiveNoZTest;
-        }
-        else
-        {
-            if (gen.x26c_28_zTest)
-            {
-                if (gen.x26c_27_ZBUF)
-                    regPipeline = m_noTexZTestZWrite;
-                else
-                    regPipeline = m_noTexZTestNoZWrite;
-            }
-            else
-            {
-                if (gen.x26c_27_ZBUF)
-                    regPipeline = m_noTexNoZTestZWrite;
-                else
-                    regPipeline = m_noTexNoZTestNoZWrite;
-            }
-        }
-    }
-
-    m_bindFactory->BuildShaderDataBinding(ctx, gen, regPipeline, redToAlphaPipeline);
-}
-
-void CElementGenShaders::Initialize()
-{
-    if (!CGraphics::g_BooFactory)
-        return;
-
-    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
-    {
-        switch (ctx.platform())
-        {
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            m_bindFactory.reset(Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
-            break;
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            m_bindFactory.reset(Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            m_bindFactory.reset(Initialize(static_cast<boo::MetalDataFactory::Context&>(ctx)));
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            m_bindFactory.reset(Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx)));
-            break;
-#endif
-        default: break;
-        }
-        return true;
-    });
-}
-
-void CElementGenShaders::Shutdown()
-{
-    m_gfxToken.doDestroy();
-}
 
 struct SParticleInstanceTex
 {
@@ -247,12 +65,12 @@ void CElementGen::Initialize()
     g_ParticleSystemInitialized = true;
 
     /* Compile shaders */
-    CElementGenShaders::Initialize();
+    TShader<CElementGenShaders>::Initialize();
 }
 
 void CElementGen::Shutdown()
 {
-    CElementGenShaders::Shutdown();
+    TShader<CElementGenShaders>::Shutdown();
 }
 
 static const size_t ShadClsSizes[] =

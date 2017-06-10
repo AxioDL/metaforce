@@ -1,8 +1,8 @@
 #include "CElementGenShaders.hpp"
-#include "CElementGen.hpp"
-#include "CGenDescription.hpp"
-#include "CElectricDescription.hpp"
-#include "CSwooshDescription.hpp"
+#include "Particle/CElementGen.hpp"
+#include "Particle/CGenDescription.hpp"
+#include "Particle/CElectricDescription.hpp"
+#include "Particle/CSwooshDescription.hpp"
 #include "Graphics/CModel.hpp"
 
 namespace urde
@@ -188,13 +188,12 @@ static const char* FS_HLSL_NOTEX =
 "    return vtf.color;\n"
 "}\n";
 
-struct D3DElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct D3DElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingFactory
 {
-    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                CElementGen& gen,
-                                boo::IShaderPipeline* regPipeline,
-                                boo::IShaderPipeline* redToAlphaPipeline)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    CElementGenShaders& shaders)
     {
+        CElementGen& gen = shaders.m_gen;
         CGenDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x54_x40_TEXR.get();
@@ -216,20 +215,22 @@ struct D3DElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
-        if (regPipeline)
-            gen.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, nullptr, nullptr,
+        if (shaders.m_regPipeline)
+            gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, nullptr, nullptr,
                                                             gen.m_instBuf, nullptr, 1, uniforms,
                                                             nullptr, texCount, textures,
                                                             nullptr, nullptr);
-        if (redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, nullptr,
+        if (shaders.m_redToAlphaPipeline)
+            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures,
                                                                 nullptr, nullptr);
+
+        return nullptr;
     }
 };
 
-CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor TexFmtTex[] =
     {

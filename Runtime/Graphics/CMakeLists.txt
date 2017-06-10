@@ -17,7 +17,9 @@ if(WIN32)
       Shaders/CMapSurfaceShaderHLSL.cpp
       Shaders/CPhazonSuitFilterHLSL.cpp
       Shaders/CScanLinesFilterHLSL.cpp
-      Shaders/CRandomStaticFilterHLSL.cpp)
+      Shaders/CRandomStaticFilterHLSL.cpp
+      Shaders/CElementGenShadersHLSL.cpp
+      Shaders/CParticleSwooshShadersHLSL.cpp)
 elseif(BOO_HAS_METAL)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
@@ -37,7 +39,9 @@ elseif(BOO_HAS_METAL)
       Shaders/CMapSurfaceShaderMetal.cpp
       Shaders/CPhazonSuitFilterMetal.cpp
       Shaders/CScanLinesFilterMetal.cpp
-      Shaders/CRandomStaticFilterMetal.cpp)
+      Shaders/CRandomStaticFilterMetal.cpp
+      Shaders/CElementGenShadersMetal.cpp
+      Shaders/CParticleSwooshShadersMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -79,6 +83,8 @@ set(GRAPHICS_SOURCES
     Shaders/CPhazonSuitFilter.hpp Shaders/CPhazonSuitFilter.cpp Shaders/CPhazonSuitFilterGLSL.cpp
     Shaders/CScanLinesFilter.hpp Shaders/CScanLinesFilter.cpp Shaders/CScanLinesFilterGLSL.cpp
     Shaders/CRandomStaticFilter.hpp Shaders/CRandomStaticFilter.cpp Shaders/CRandomStaticFilterGLSL.cpp
+    Shaders/CElementGenShaders.hpp Shaders/CElementGenShaders.cpp Shaders/CElementGenShadersGLSL.cpp
+    Shaders/CParticleSwooshShaders.hpp Shaders/CParticleSwooshShaders.cpp Shaders/CParticleSwooshShadersGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

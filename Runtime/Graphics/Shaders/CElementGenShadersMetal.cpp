@@ -1,7 +1,6 @@
 #include "CElementGenShaders.hpp"
-#if BOO_HAS_METAL
-#include "CElementGen.hpp"
-#include "CGenDescription.hpp"
+#include "Particle/CElementGen.hpp"
+#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
@@ -210,13 +209,12 @@ static const char* FS_METAL_NOTEX =
 "    return vtf.color;\n"
 "}\n";
 
-struct MetalElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct MetalElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingFactory
 {
-    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                CElementGen& gen,
-                                boo::IShaderPipeline* regPipeline,
-                                boo::IShaderPipeline* redToAlphaPipeline)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    CElementGenShaders& shader)
     {
+        CElementGen& gen = shader.m_gen;
         CGenDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x54_x40_TEXR.get();
@@ -238,18 +236,20 @@ struct MetalElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
-        if (regPipeline)
-            gen.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, nullptr, nullptr,
+        if (shader.m_regPipeline)
+            gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipeline, nullptr, nullptr,
                                                             gen.m_instBuf, nullptr, 1, uniforms,
                                                             nullptr, texCount, textures, nullptr, nullptr);
-        if (redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, nullptr,
+        if (shader.m_redToAlphaPipeline)
+            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+
+        return nullptr;
     }
 };
 
-CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::MetalDataFactory::Context& ctx)
+TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize(boo::MetalDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor TexFmtTex[] =
     {
@@ -381,4 +381,3 @@ CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::Met
 }
 
 }
-#endif

@@ -5,8 +5,10 @@
 #include "CToken.hpp"
 #include "CRandom16.hpp"
 #include "Graphics/CTexture.hpp"
+#include "Graphics/CLineRenderer.hpp"
 #include "CUVElement.hpp"
 #include "DataSpec/DNACommon/GX.hpp"
+#include "Graphics/Shaders/CParticleSwooshShaders.hpp"
 
 namespace urde
 {
@@ -14,6 +16,11 @@ class CSwooshDescription;
 
 class CParticleSwoosh : public CParticleGen
 {
+    friend struct OGLParticleSwooshDataBindingFactory;
+    friend struct VulkanParticleSwooshDataBindingFactory;
+    friend struct D3DParticleSwooshDataBindingFactory;
+    friend struct MetalParticleSwooshDataBindingFactory;
+
     struct SSwooshData
     {
         bool x0_active;
@@ -93,6 +100,13 @@ class CParticleSwoosh : public CParticleGen
     float x208_maxRadius = 0.f;
     zeus::CColor x20c_moduColor = zeus::CColor::skWhite;
 
+    boo::GraphicsDataToken m_gfxToken;
+    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::IGraphicsBufferD* m_vertBuf = nullptr;
+    boo::IGraphicsBufferD* m_uniformBuf = nullptr;
+    std::unique_ptr<CLineRenderer> m_lineRenderer;
+    std::vector<CParticleSwooshShaders::Vert> m_cachedVerts;
+
     static int g_ParticleSystemAliveCount;
 
     bool IsValid() const { return x1b4_LENG >= 2 && x1b8_SIDE >= 2; }
@@ -117,6 +131,8 @@ class CParticleSwoosh : public CParticleGen
 public:
     CParticleSwoosh(const TToken<CSwooshDescription>& desc, int);
     ~CParticleSwoosh();
+
+    CSwooshDescription* GetDesc() { return x1c_desc.GetObj(); }
 
     bool Update(double);
     void Render();

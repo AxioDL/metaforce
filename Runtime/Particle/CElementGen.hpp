@@ -11,7 +11,7 @@
 #include "Graphics/CGraphics.hpp"
 #include "CRandom16.hpp"
 #include "CParticleGen.hpp"
-#include "CElementGenShaders.hpp"
+#include "Graphics/Shaders/CElementGenShaders.hpp"
 #include "Graphics/CLineRenderer.hpp"
 #include "Particle/CGenDescription.hpp"
 

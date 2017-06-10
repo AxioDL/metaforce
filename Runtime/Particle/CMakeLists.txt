@@ -1,9 +1,3 @@
-if(WIN32)
-  set(PLAT_SRCS CElementGenShadersHLSL.cpp)
-elseif(BOO_HAS_METAL)
-  set(PLAT_SRCS CElementGenShadersMetal.cpp)
-endif()
-
 set(PARTICLE_SOURCES
     IElement.hpp
     CGenDescription.hpp
@@ -33,8 +27,6 @@ set(PARTICLE_SOURCES
     CWarp.hpp CWarp.cpp
     CFlameWarp.hpp CFlameWarp.cpp
     CParticleGlobals.hpp CParticleGlobals.cpp
-    CElementGenShaders.hpp
-    CElementGenShadersGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Particle PARTICLE_SOURCES)

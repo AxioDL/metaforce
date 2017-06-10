@@ -1,6 +1,7 @@
 #ifndef __URDE_CELEMENTGENSHADERS_HPP__
 #define __URDE_CELEMENTGENSHADERS_HPP__
 
+#include "TShader.hpp"
 #include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/GL.hpp"
 #include "boo/graphicsdev/D3D.hpp"
@@ -13,15 +14,11 @@ class CElementGen;
 
 class CElementGenShaders
 {
+    friend struct OGLElementDataBindingFactory;
+    friend struct VulkanElementDataBindingFactory;
+    friend struct D3DElementDataBindingFactory;
+    friend struct MetalElementDataBindingFactory;
 public:
-    struct IDataBindingFactory
-    {
-        virtual void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                            CElementGen& gen,
-                                            boo::IShaderPipeline* regPipeline,
-                                            boo::IShaderPipeline* redToAlphaPipeline)=0;
-    };
-
     enum class EShaderClass
     {
         Tex,
@@ -58,25 +55,19 @@ private:
     static boo::IVertexFormat* m_vtxFormatIndTex; /* No OpenGL */
     static boo::IVertexFormat* m_vtxFormatNoTex; /* No OpenGL */
 
-    static std::unique_ptr<IDataBindingFactory> m_bindFactory;
-    static boo::GraphicsDataToken m_gfxToken;
+    CElementGen& m_gen;
+    boo::IShaderPipeline* m_regPipeline;
+    boo::IShaderPipeline* m_redToAlphaPipeline;
+    CElementGenShaders(CElementGen& gen, boo::IShaderPipeline* regPipeline,
+                       boo::IShaderPipeline* redToAlphaPipeline)
+    : m_gen(gen), m_regPipeline(regPipeline), m_redToAlphaPipeline(redToAlphaPipeline) {}
 
 public:
-    static IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
-#if _WIN32
-    static IDataBindingFactory* Initialize(boo::ID3DDataFactory::Context& ctx);
-#endif
-#if BOO_HAS_METAL
-    static IDataBindingFactory* Initialize(boo::MetalDataFactory::Context& ctx);
-#endif
-#if BOO_HAS_VULKAN
-    static IDataBindingFactory* Initialize(boo::VulkanDataFactory::Context& ctx);
-#endif
-
-    static void Initialize();
-    static void Shutdown();
     static EShaderClass GetShaderClass(CElementGen& gen);
     static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen);
+
+    using _CLS = CElementGenShaders;
+#include "TShaderDecl.hpp"
 };
 
 }
