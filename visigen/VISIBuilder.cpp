@@ -1,4 +1,5 @@
 #include "VISIBuilder.hpp"
+#include <logvisor/logvisor.hpp>
 
 #define VISI_MAX_LEVEL 10
 #define VISI_MIN_LENGTH 8.0

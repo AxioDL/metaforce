@@ -3,6 +3,7 @@
 #include "zeus/CAABox.hpp"
 #include "VISIBuilder.hpp"
 #include "zeus/CFrustum.hpp"
+#include <logvisor/logvisor.hpp>
 
 static logvisor::Module Log("visigen");
 

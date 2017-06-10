@@ -2,7 +2,7 @@
 #define VISIRENDERER_HPP
 
 #include "boo/graphicsdev/glew.h"
-#include "hecl/hecl.hpp"
+#include "hecl/SystemChar.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CAABox.hpp"

@@ -4,7 +4,6 @@
 #include <thread>
 #include <queue>
 #include "optional.hpp"
-#include "hecl/hecl.hpp"
 #include "jbus/Endpoint.hpp"
 #include "jbus/Listener.hpp"
 

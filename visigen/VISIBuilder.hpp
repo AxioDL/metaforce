@@ -5,7 +5,6 @@
 #include "zeus/CAABox.hpp"
 #include "hecl/extern/boo/xxhash/xxhash.h"
 #include "athena/MemoryWriter.hpp"
-#include "hecl/hecl.hpp"
 #include <unordered_map>
 
 namespace std
