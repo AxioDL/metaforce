@@ -5,13 +5,15 @@
 #include "CRandom16.hpp"
 #include "CToken.hpp"
 #include "zeus/CVector3f.hpp"
-#include "Particle/CParticleSwoosh.hpp"
 #include "Particle/CElementGen.hpp"
+#include "Particle/CParticleSwoosh.hpp"
+#include "Particle/CGenDescription.hpp"
+#include "Particle/CSwooshDescription.hpp"
+#include "Particle/CWeaponDescription.hpp"
 
 namespace urde
 {
 class CModel;
-class CWeaponDescription;
 class CProjectileWeapon
 {
     static CRandom16 g_GlobalSeed;

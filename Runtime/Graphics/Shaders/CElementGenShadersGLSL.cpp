@@ -370,13 +370,12 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
 }
 
 #if BOO_HAS_VULKAN
-struct VulkanElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
+struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingFactory
 {
-    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                CElementGen& gen,
-                                boo::IShaderPipeline* regPipeline,
-                                boo::IShaderPipeline* redToAlphaPipeline)
+    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                    CElementGenShaders& shaders)
     {
+        CElementGen& gen = shaders.m_gen;
         CGenDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x54_x40_TEXR.get();
@@ -398,18 +397,20 @@ struct VulkanElementDataBindingFactory : CElementGenShaders::IDataBindingFactory
 
         boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
-        if (regPipeline)
-            gen.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, nullptr, nullptr,
+        if (shaders.m_regPipeline)
+            gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, nullptr, nullptr,
                                                             gen.m_instBuf, nullptr, 1, uniforms,
                                                             nullptr, texCount, textures, nullptr, nullptr);
-        if (redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, nullptr,
+        if (shaders.m_redToAlphaPipeline)
+            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+
+        return nullptr;
     }
 };
 
-CElementGenShaders::IDataBindingFactory* CElementGenShaders::Initialize(boo::VulkanDataFactory::Context& ctx)
+TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize(boo::VulkanDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor TexFmtTex[] =
     {

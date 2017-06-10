@@ -27,7 +27,6 @@ static const char* VS =
 "    float2 uv;\n"
 "};\n"
 "\n"
-"SBINDING(0) out VertToFrag vtf;\n"
 "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant SwooshUniform& su [[ buffer(2) ]])\n"
 "{\n"
 "    VertToFrag vtf;\n"
@@ -111,9 +110,9 @@ TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::In
                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                                 true, false, boo::CullMode::None);
     m_texAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, m_vtxFormat, CGraphics::g_ViewportSamples,
-                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
-                                                 true, false, boo::CullMode::None);
+                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                  true, false, boo::CullMode::None);
 
     m_noTexZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, m_vtxFormat, CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
@@ -128,9 +127,9 @@ TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::In
                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                                   true, false, boo::CullMode::None);
     m_noTexAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, m_vtxFormat, CGraphics::g_ViewportSamples,
-                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
-                                                   true, false, boo::CullMode::None);
+                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                                    boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                    true, false, boo::CullMode::None);
 
     return new struct MetalParticleSwooshDataBindingFactory;
 }

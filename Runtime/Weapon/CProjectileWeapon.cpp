@@ -1,5 +1,4 @@
 #include "CProjectileWeapon.hpp"
-#include "Particle/CWeaponDescription.hpp"
 
 namespace urde
 {

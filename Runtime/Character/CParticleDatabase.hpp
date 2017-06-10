@@ -5,15 +5,15 @@
 #include "CParticleGenInfo.hpp"
 #include "zeus/CFrustum.hpp"
 #include "CToken.hpp"
+#include "Particle/CGenDescription.hpp"
+#include "Particle/CSwooshDescription.hpp"
+#include "Particle/CElectricDescription.hpp"
 #include <map>
 
 namespace urde
 {
 class CPoseAsTransforms;
 class CCharLayoutInfo;
-class CGenDescription;
-class CSwooshDescription;
-class CElectricDescription;
 
 class CParticleDatabase
 {
