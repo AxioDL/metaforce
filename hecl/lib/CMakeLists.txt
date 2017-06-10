@@ -51,6 +51,7 @@ add_library(hecl-common
             ../include/hecl/Database.hpp
             ../include/hecl/Runtime.hpp
             ../include/hecl/ClientProcess.hpp
+            ../include/hecl/SystemChar.hpp
             ../include/hecl/BitVector.hpp
             ../include/hecl/MathExtras.hpp
             ../include/hecl/UniformBufferPool.hpp
