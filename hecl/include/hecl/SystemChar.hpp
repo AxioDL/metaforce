@@ -14,6 +14,8 @@
 #include <wchar.h>
 #endif
 #include <string>
+#include <string.h>
+#include <algorithm>
 
 namespace hecl
 {
