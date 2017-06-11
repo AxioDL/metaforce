@@ -17,7 +17,7 @@ static logvisor::Module Log("urde::CElementGen");
 
 URDE_DECL_SPECIALIZE_SHADER(CElementGenShaders)
 
-CRandom16 CElementGen::g_GlobalSeed = 99;
+u16 CElementGen::g_GlobalSeed = 99;
 
 int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
@@ -691,8 +691,8 @@ void CElementGen::UpdateChildParticleSystems(double dt)
     CSpawnSystemKeyframeData* kssm = desc->xd0_xbc_KSSM.get();
     if (kssm && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT)
     {
-        CRandom16 backupSeed = g_GlobalSeed;
-        CRandom16 incSeed = backupSeed;
+        u16 backupSeed = g_GlobalSeed;
+        u16 incSeed = backupSeed;
 
         std::vector<CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo>& systems =
         kssm->GetSpawnedSystemsAtFrame(x74_curFrame);
@@ -706,7 +706,7 @@ void CElementGen::UpdateChildParticleSystems(double dt)
                 std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(token);
                 x290_activePartChildren.emplace_back(std::move(chGen));
             }
-            incSeed.SetSeed(incSeed.GetSeed() + 1);
+            incSeed += 1;
         }
 
         g_GlobalSeed = backupSeed;

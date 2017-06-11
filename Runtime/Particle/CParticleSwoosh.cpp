@@ -227,7 +227,7 @@ bool CParticleSwoosh::Update(double dt)
     CParticleGlobals::UpdateParticleLifetimeTweenValues(0);
     CGlobalRandom gr(x1c0_rand);
 
-    float evalTime = x28_curFrame * (1.f / 60.f);
+    double evalTime = x28_curFrame / 60.0;
     float time = 1.f;
     if (CRealElement* timeElem = x1c_desc->x4_TIME.get())
         timeElem->GetValue(x28_curFrame, time);
@@ -290,7 +290,7 @@ bool CParticleSwoosh::Update(double dt)
 
         UpdateTranslationAndOrientation();
 
-        evalTime += (1.f / 60.f);
+        evalTime += (1.0 / 60.0);
         x28_curFrame += 1;
     }
 

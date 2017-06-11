@@ -26,9 +26,9 @@ class CParticleElectric;
 
 class CElementGen : public CParticleGen
 {
-    static CRandom16 g_GlobalSeed;
+    static u16 g_GlobalSeed;
 public:
-    static void SetGlobalSeed(u16 seed) { g_GlobalSeed.SetSeed(seed); }
+    static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
     enum class EModelOrientationType
     {
         Normal,

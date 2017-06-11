@@ -159,6 +159,25 @@ public:
     void DestroyParticles();
     void Reset() {}
     FourCC Get4CharId() const { return FOURCC('SWHC'); }
+
+    void DoElectricWarmup()
+    {
+        for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+        {
+            x1d0_26_disableUpdate = true;
+            Update(0.0);
+        }
+    }
+
+    void DoElectricCreate(const std::vector<zeus::CVector3f>& offsets)
+    {
+        int curIdx = x158_curParticle;
+        for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+        {
+            curIdx = (curIdx + 1) % x15c_swooshes.size();
+            x15c_swooshes[curIdx].xc_translation = offsets[i];
+        }
+    }
 };
 
 }

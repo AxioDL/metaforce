@@ -16,7 +16,7 @@ namespace urde
 class CModel;
 class CProjectileWeapon
 {
-    static CRandom16 g_GlobalSeed;
+    static u16 g_GlobalSeed;
     TLockedToken<CWeaponDescription> x4_weaponDesc;
     CRandom16 x10_random;
     zeus::CTransform x14_;
@@ -68,7 +68,7 @@ public:
     void Update(float);
     void UpdateParticleFx();
     void UpdateChildParticleSystems(float);
-    static void SetGlobalSeed(u16 seed) { g_GlobalSeed.SetSeed(seed); }
+    static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
 };
 }
 

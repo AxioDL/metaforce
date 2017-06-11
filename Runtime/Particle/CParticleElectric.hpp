@@ -4,6 +4,7 @@
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
 #include "CRandom16.hpp"
+#include "Graphics/CLineRenderer.hpp"
 
 namespace urde
 {
@@ -13,78 +14,100 @@ class CElementGen;
 
 class CParticleElectric : public CParticleGen
 {
-    static CRandom16 g_GlobalSeed;
+    static u16 g_GlobalSeed;
 public:
-    static void SetGlobalSeed(u16 seed) { g_GlobalSeed.SetSeed(seed); }
-    struct CLineManager
+    static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
+    class CLineManager
     {
-        std::unique_ptr<CParticleSwoosh> SSWH;
-        std::unique_ptr<CElementGen> GPSM;
-        std::unique_ptr<CElementGen> EPSM;
+        friend class CParticleElectric;
+        std::vector<zeus::CVector3f> x0_verts;
+        float x10_widths[3] = {1.f, 2.f, 3.f};
+        zeus::CColor x1c_colors[3];
+        zeus::CAABox x28_aabb = zeus::CAABox::skInvertedBox;
+    };
+
+    class CParticleElectricManager
+    {
+        friend class CParticleElectric;
+        u32 x0_idx;
+        u32 x4_slif;
+        u32 x8_startFrame;
+        u32 xc_endFrame;
+        int x10_gpsmIdx = -1;
+        int x14_epsmIdx = -1;
+    public:
+        CParticleElectricManager(u32 idx, u32 slif, u32 startFrame)
+        : x0_idx(idx), x4_slif(slif), x8_startFrame(startFrame), xc_endFrame(startFrame + slif) {}
     };
 
 private:
     TLockedToken<CElectricDescription> x1c_elecDesc;
     int              x28_currentFrame = 0;
-    int              x2c_LIFE = 0x7FFFFF;
-    double           x30 = 0.0;
+    int              x2c_LIFE;
+    double           x30_curTime = 0.0;
     zeus::CVector3f  x38_translation;
     zeus::CTransform x44_orientation;
+    zeus::CTransform x74_invOrientation;
     zeus::CVector3f  xa4_globalTranslation;
     zeus::CTransform xb0_globalOrientation;
     zeus::CVector3f  xe0_globalScale;
     zeus::CVector3f  xec_localScale;
+    zeus::CTransform xf8_cachedXf;
     float            x128 = 0.f;
     float            x12c = 0.f;
-    zeus::CVector3f  x130;
-    zeus::CVector3f  x13c;
+    zeus::CAABox     x130_buildBounds = zeus::CAABox::skInvertedBox;
     CRandom16        x14c_randState;
     int              x150_SSEG = 8;
     int              x154_SCNT = 1;
     int              x158 = 0;
-    float            x15c = 0.f;
+    float            x15c_genRem = 0.f;
     zeus::CAABox     x160_systemBounds = zeus::CAABox::skInvertedBox;
-    bool             x184 = false;
-    bool             x194 = false;
-    bool             x1b4 = false;
+    std::experimental::optional<zeus::CVector3f> x178_overrideIPos;
+    std::experimental::optional<zeus::CVector3f> x188_overrideIVel;
+    std::experimental::optional<zeus::CVector3f> x198_overrideFPos;
+    std::experimental::optional<zeus::CVector3f> x1a8_overrideFVel;
     zeus::CColor     x1b8_moduColor;
-    rstl::reserved_vector<bool,32> x1c0_;
-    rstl::reserved_vector<CLineManager, 32> x1e0_lineManagers;
-    int              x414 = 0;
-    int              x418 = 0;
-    int              x41c = 0;
-    int              x424 = 0;
-    int              x428 = 0;
-    int              x42c = 0;
-    int              x434 = 0;
-    int              x438 = 0;
-    int              x43c = 0;
-    int              x444 = 0;
-    int              x448 = 0; // retail
-    int              x44c = 0; // retail
+    rstl::reserved_vector<bool, 32> x1bc_allocated;
+    rstl::reserved_vector<std::unique_ptr<CParticleSwoosh>, 32> x1e0_swooshGenerators;
+    rstl::reserved_vector<std::unique_ptr<CLineManager>, 32> x2e4_lineManagers;
+    std::list<CParticleElectricManager> x3e8_electricManagers;
+    std::vector<std::unique_ptr<CElementGen>> x400_gpsmGenerators;
+    std::vector<std::unique_ptr<CElementGen>> x410_epsmGenerators;
+    std::vector<zeus::CVector3f> x420_calculatedVerts;
+    std::vector<float> x430_fractalMags;
+    std::vector<zeus::CVector3f> x440_fractalOffsets;
+
+    size_t m_nextLineRenderer = 0;
+    std::vector<std::unique_ptr<CLineRenderer>> m_lineRenderers;
 
     union
     {
         struct
         {
-            bool x450_24 : 1; bool x450_25_HaveGPSM : 1; bool x450_26_HaveEPSM : 1;
-            bool x450_27_HaveSSWH : 1; bool x450_28: 1; bool x450_29 : 1;
+            bool x450_24_emitting : 1; bool x450_25_haveGPSM : 1; bool x450_26_haveEPSM : 1;
+            bool x450_27_haveSSWH : 1; bool x450_28_haveLWD: 1; bool x450_29_transformDirty : 1;
         };
-        u8 dummy = 0;
+        u32 dummy = 0;
     };
 
-public:
-
-
-    CParticleElectric(const TToken<CElectricDescription>& desc);
-
     void SetupLineGXMaterial();
-    bool Update(double);
+    void DrawLineStrip(const std::vector<zeus::CVector3f>& verts, float width, const zeus::CColor& color);
     void RenderLines();
     void RenderSwooshes();
-    void Render();
-    void CalculateFractal(s32, s32, float, float);
+    void UpdateCachedTransform();
+    void UpdateLine(int idx, int frame);
+    void UpdateElectricalEffects();
+    void CalculateFractal(int start, int end, float ampl, float ampd);
     void CalculatePoints();
+    void CreateNewParticles(int count);
+    void AddElectricalEffects();
+    void BuildBounds();
+
+public:
+    CParticleElectric(const TToken<CElectricDescription>& desc);
+
+    bool Update(double);
+    void Render();
     void SetOrientation(const zeus::CTransform&);
     void SetTranslation(const zeus::CVector3f&);
     void SetGlobalOrientation(const zeus::CTransform&);

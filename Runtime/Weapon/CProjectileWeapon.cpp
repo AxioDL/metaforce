@@ -3,7 +3,7 @@
 namespace urde
 {
 
-CRandom16 CProjectileWeapon::g_GlobalSeed = 99;
+u16 CProjectileWeapon::g_GlobalSeed = 99;
 
 CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, const zeus::CVector3f&, const zeus::CTransform&,
                                      const zeus::CVector3f&, s32)
