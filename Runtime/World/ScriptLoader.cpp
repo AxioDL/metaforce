@@ -644,7 +644,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
 
     FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
-    rstl::optional_object<TLockedToken<CCollidableOBBTreeGroup>> dclnToken;
+    rstl::optional_object<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
     if (dclnType)
     {
         dclnToken.emplace(g_SimplePool->GetObj({SBIG('DCLN'), dclnId}));

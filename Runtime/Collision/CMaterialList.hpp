@@ -27,6 +27,7 @@ enum class EMaterialTypes
     Sand = 17,
     ProjectilePassthrough = 18,
     Solid = 19,
+    Twenty = 20,
     CameraPassthrough = 21,
     Wood = 22,
     Organic = 23,

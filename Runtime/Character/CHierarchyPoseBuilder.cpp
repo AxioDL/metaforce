@@ -15,9 +15,9 @@ void CHierarchyPoseBuilder::BuildIntoHierarchy(const CCharLayoutInfo& layout,
         {
             xcec_rootId = boneId;
             xcf0_hasRoot = true;
-            //zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
-            //CTreeNode& node = x38_treeMap[boneId];
-            //node.x14_offset = origin;
+            zeus::CVector3f origin = layout.GetFromParentUnrotated(boneId);
+            CTreeNode& node = x38_treeMap[boneId];
+            node.x14_offset = origin;
         }
         else
         {

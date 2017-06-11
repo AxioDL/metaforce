@@ -42,6 +42,17 @@ public:
     class CBaseSfxWrapper;
     using CSfxHandle = std::shared_ptr<CBaseSfxWrapper>;
 
+    /* Original imp, kept for reference
+    class CSfxHandle
+    {
+        static u32 mRefCount;
+        u32 x0_idx;
+    public:
+        CSfxHandle(u32 id)
+            : x0_idx(++mRefCount << 14 | (id & 0xFFFF)) {}
+    };
+    */
+
     class CSfxChannel
     {
         friend class CSfxManager;
