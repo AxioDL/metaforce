@@ -7,6 +7,9 @@
 #include "jbus/Endpoint.hpp"
 #include "jbus/Listener.hpp"
 
+#undef min
+#undef max
+
 class CGBASupport
 {
 public:
