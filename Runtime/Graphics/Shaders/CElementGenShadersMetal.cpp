@@ -234,16 +234,34 @@ struct MetalElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindin
             }
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
+        if (gen.m_instBuf)
+        {
+            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
-        if (shader.m_regPipeline)
-            gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipeline, nullptr, nullptr,
-                                                            gen.m_instBuf, nullptr, 1, uniforms,
-                                                            nullptr, texCount, textures, nullptr, nullptr);
-        if (shader.m_redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipeline, nullptr, nullptr,
+            if (shader.m_regPipeline)
+                gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipeline)
+                gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipeline, nullptr, nullptr,
+                                                                    gen.m_instBuf, nullptr, 1, uniforms,
+                                                                    nullptr, texCount, textures, nullptr, nullptr);
+        }
+
+        if (gen.m_instBufPmus)
+        {
+            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBufPmus};
+            texCount = std::min(texCount, 1);
+
+            if (shader.m_regPipelinePmus)
+                gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipelinePmus, nullptr, nullptr,
+                                                                gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipelinePmus)
+                gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipelinePmus, nullptr, nullptr,
+                                                                    gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                    nullptr, texCount, textures, nullptr, nullptr);
+        }
 
         return nullptr;
     }

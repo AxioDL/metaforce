@@ -58,9 +58,15 @@ private:
     CElementGen& m_gen;
     boo::IShaderPipeline* m_regPipeline;
     boo::IShaderPipeline* m_redToAlphaPipeline;
-    CElementGenShaders(CElementGen& gen, boo::IShaderPipeline* regPipeline,
-                       boo::IShaderPipeline* redToAlphaPipeline)
-    : m_gen(gen), m_regPipeline(regPipeline), m_redToAlphaPipeline(redToAlphaPipeline) {}
+    boo::IShaderPipeline* m_regPipelinePmus;
+    boo::IShaderPipeline* m_redToAlphaPipelinePmus;
+    CElementGenShaders(CElementGen& gen,
+                       boo::IShaderPipeline* regPipeline,
+                       boo::IShaderPipeline* redToAlphaPipeline,
+                       boo::IShaderPipeline* regPipelinePmus,
+                       boo::IShaderPipeline* redToAlphaPipelinePmus)
+    : m_gen(gen), m_regPipeline(regPipeline), m_redToAlphaPipeline(redToAlphaPipeline),
+      m_regPipelinePmus(regPipelinePmus), m_redToAlphaPipelinePmus(redToAlphaPipelinePmus) {}
 
 public:
     static EShaderClass GetShaderClass(CElementGen& gen);

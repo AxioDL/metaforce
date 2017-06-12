@@ -199,6 +199,7 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
         CGenDescription* desc = gen.GetDesc();
 
         boo::IVertexFormat* vtxFmt = nullptr;
+        boo::IVertexFormat* vtxFmtPmus = nullptr;
         CUVElement* texr = desc->x54_x40_TEXR.get();
         CUVElement* tind = desc->x58_x44_TIND.get();
         int texCount = 0;
@@ -208,67 +209,120 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
         {
             textures[0] = texr->GetValueTexture(0).GetObj()->GetBooTexture();
             texCount = 1;
-            if (tind)
+            if (gen.m_instBuf)
             {
-                textures[1] = CGraphics::g_SpareTexture;
-                textures[2] = tind->GetValueTexture(0).GetObj()->GetBooTexture();
-                texCount = 3;
-
-                const boo::VertexElementDescriptor TexFmtIndTex[] =
+                if (tind)
                 {
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
-                };
-                vtxFmt = ctx.newVertexFormat(10, TexFmtIndTex);
+                    textures[1] = CGraphics::g_SpareTexture;
+                    textures[2] = tind->GetValueTexture(0).GetObj()->GetBooTexture();
+                    texCount = 3;
+
+                    const boo::VertexElementDescriptor TexFmtIndTex[] =
+                    {
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
+                    };
+                    vtxFmt = ctx.newVertexFormat(10, TexFmtIndTex);
+                }
+                else
+                {
+                    const boo::VertexElementDescriptor TexFmtTex[] =
+                    {
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
+                    };
+                    vtxFmt = ctx.newVertexFormat(9, TexFmtTex);
+                }
             }
-            else
+            if (gen.m_instBufPmus)
             {
                 const boo::VertexElementDescriptor TexFmtTex[] =
                 {
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
                 };
-                vtxFmt = ctx.newVertexFormat(9, TexFmtTex);
+                vtxFmtPmus = ctx.newVertexFormat(9, TexFmtTex);
             }
         }
         else
         {
-            const boo::VertexElementDescriptor TexFmtNoTex[] =
+            if (gen.m_instBuf)
             {
-                {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
-            };
-            vtxFmt = ctx.newVertexFormat(5, TexFmtNoTex);
+                const boo::VertexElementDescriptor TexFmtNoTex[] =
+                {
+                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                };
+                vtxFmt = ctx.newVertexFormat(5, TexFmtNoTex);
+            }
+            if (gen.m_instBufPmus)
+            {
+                const boo::VertexElementDescriptor TexFmtNoTex[] =
+                {
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                };
+                vtxFmtPmus = ctx.newVertexFormat(5, TexFmtNoTex);
+            }
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
+        if (gen.m_instBuf)
+        {
+            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
-        if (shader.m_regPipeline)
-            gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipeline, vtxFmt, nullptr,
-                                                            gen.m_instBuf, nullptr, 1, uniforms,
-                                                            nullptr, texCount, textures, nullptr, nullptr);
-        if (shader.m_redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipeline, vtxFmt, nullptr,
+            if (shader.m_regPipeline)
+                gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipeline, vtxFmt, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipeline)
+                gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipeline, vtxFmt, nullptr,
+                                                                    gen.m_instBuf, nullptr, 1, uniforms,
+                                                                    nullptr, texCount, textures, nullptr, nullptr);
+        }
+
+        if (gen.m_instBufPmus)
+        {
+            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBufPmus};
+            texCount = std::min(texCount, 1);
+
+            if (shader.m_regPipelinePmus)
+                gen.m_normalDataBindPmus = ctx.newShaderDataBinding(shader.m_regPipelinePmus, vtxFmtPmus, nullptr,
+                                                                    gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                    nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipelinePmus)
+                gen.m_redToAlphaDataBindPmus = ctx.newShaderDataBinding(shader.m_redToAlphaPipelinePmus, vtxFmtPmus, nullptr,
+                                                                        gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                        nullptr, texCount, textures, nullptr, nullptr);
+        }
+
         return nullptr;
     }
 };
@@ -395,16 +449,34 @@ struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindi
             }
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
+        if (gen.m_instBufPmus)
+        {
+            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
 
-        if (shaders.m_regPipeline)
-            gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, nullptr, nullptr,
-                                                            gen.m_instBuf, nullptr, 1, uniforms,
-                                                            nullptr, texCount, textures, nullptr, nullptr);
-        if (shaders.m_redToAlphaPipeline)
-            gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, nullptr, nullptr,
+            if (shaders.m_regPipeline)
+                gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+            if (shaders.m_redToAlphaPipeline)
+                gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, nullptr, nullptr,
+                                                                    gen.m_instBuf, nullptr, 1, uniforms,
+                                                                    nullptr, texCount, textures, nullptr, nullptr);
+        }
+
+        if (gen.m_instBufPmus)
+        {
+            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBufPmus};
+            texCount = std::min(texCount, 1);
+
+            if (shader.m_regPipelinePmus)
+                gen.m_normalDataBindPmus = ctx.newShaderDataBinding(shader.m_regPipelinePmus, nullptr, nullptr,
+                                                                    gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                    nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipelinePmus)
+                gen.m_redToAlphaDataBindPmus = ctx.newShaderDataBinding(shader.m_redToAlphaPipelinePmus, nullptr, nullptr,
+                                                                        gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                        nullptr, texCount, textures, nullptr, nullptr);
+        }
 
         return nullptr;
     }

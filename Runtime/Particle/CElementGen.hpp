@@ -170,10 +170,16 @@ public:
     ~CElementGen();
 
     boo::GraphicsDataToken m_gfxToken;
+
     boo::IShaderDataBinding* m_normalDataBind = nullptr;
     boo::IShaderDataBinding* m_redToAlphaDataBind = nullptr;
     boo::IGraphicsBufferD* m_instBuf = nullptr;
     boo::IGraphicsBufferD* m_uniformBuf = nullptr;
+
+    boo::IShaderDataBinding* m_normalDataBindPmus = nullptr;
+    boo::IShaderDataBinding* m_redToAlphaDataBindPmus = nullptr;
+    boo::IGraphicsBufferD* m_instBufPmus = nullptr;
+    boo::IGraphicsBufferD* m_uniformBufPmus = nullptr;
 
     CGenDescription* GetDesc() {return x1c_genDesc.GetObj();}
 

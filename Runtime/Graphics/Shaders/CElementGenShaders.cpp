@@ -52,6 +52,8 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
     CGenDescription* desc = gen.x1c_genDesc.GetObj();
     boo::IShaderPipeline* regPipeline = nullptr;
     boo::IShaderPipeline* redToAlphaPipeline = nullptr;
+    boo::IShaderPipeline* regPipelinePmus = nullptr;
+    boo::IShaderPipeline* redToAlphaPipelinePmus = nullptr;
 
     if (desc->x54_x40_TEXR)
     {
@@ -143,7 +145,27 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
         }
     }
 
-    CElementGenShaders shad(gen, regPipeline, redToAlphaPipeline);
+    if (desc->x45_24_x31_26_PMUS)
+    {
+        if (desc->x54_x40_TEXR)
+        {
+            redToAlphaPipelinePmus = m_texRedToAlphaZTest;
+            if (desc->x44_31_x31_25_PMAB)
+                regPipelinePmus = m_texAdditiveZTest;
+            else
+                regPipelinePmus = m_texZTestZWrite;
+        }
+        else
+        {
+            if (desc->x44_31_x31_25_PMAB)
+                regPipelinePmus = m_noTexAdditiveZTest;
+            else
+                regPipelinePmus = m_noTexZTestZWrite;
+        }
+    }
+
+    CElementGenShaders shad(gen, regPipeline, redToAlphaPipeline,
+                            regPipelinePmus, redToAlphaPipelinePmus);
     TShader<CElementGenShaders>::BuildShaderDataBinding(ctx, shad);
 }
 

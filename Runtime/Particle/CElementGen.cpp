@@ -253,16 +253,26 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     else
     {
         m_shaderClass = CElementGenShaders::GetShaderClass(*this);
-        size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * x90_MAXP) : x90_MAXP;
-        maxInsts = (maxInsts == 0 ? 256 : maxInsts);
-        m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    }
+
+    size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * x90_MAXP) : x90_MAXP;
+    maxInsts = (maxInsts == 0 ? 256 : maxInsts);
+
+    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        if (!x26c_31_LINE)
         {
             m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
             m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-            CElementGenShaders::BuildShaderDataBinding(ctx, *this);
-            return true;
-        });
-    }
+        }
+        if (desc->x45_24_x31_26_PMUS)
+        {
+            m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[int(m_shaderClass)], maxInsts);
+            m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+        }
+        CElementGenShaders::BuildShaderDataBinding(ctx, *this);
+        return true;
+    });
 }
 
 CElementGen::~CElementGen()
@@ -973,6 +983,34 @@ void CElementGen::RenderModels()
             texConst = texr->HasConstantTexture();
             texr->GetValueUV(partFrame, uvs);
         }
+
+        switch (m_shaderClass)
+        {
+        case CElementGenShaders::EShaderClass::Tex:
+            g_instTexData.clear();
+            g_instTexData.reserve(x30_particles.size());
+            break;
+        case CElementGenShaders::EShaderClass::NoTex:
+            g_instNoTexData.clear();
+            g_instNoTexData.reserve(x30_particles.size());
+            break;
+        default:
+            Log.report(logvisor::Fatal, "unexpected particle shader class");
+            break;
+        }
+
+        SParticleUniforms uniformData =
+        {
+            CGraphics::GetPerspectiveProjectionMatrix(true),
+            {1.f, 1.f, 1.f, 1.f}
+        };
+
+        m_uniformBufPmus->load(&uniformData, sizeof(SParticleUniforms));
+
+        if (moveRedToAlphaBuffer)
+            CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus);
+        else
+            CGraphics::SetShaderDataBinding(m_normalDataBindPmus);
     }
 
     zeus::CTransform orient = zeus::CTransform::Identity();
@@ -1080,11 +1118,36 @@ void CElementGen::RenderModels()
                 }
             }
 
-            /* Draw: */
-            /* Pos: {0.5, 0.0, 0.5}  Color: <col-variable>  UV0: {uv[2], uv[3]} */
-            /* Pos: {-0.5, 0.0, 0.5}  Color: <col-variable>  UV0: {uv[0], uv[3]} */
-            /* Pos: {-0.5, 0.0, -0.5}  Color: <col-variable>  UV0: {uv[0], uv[1]} */
-            /* Pos: {0.5, 0.0, -0.5}  Color: <col-variable>  UV0: {uv[2], uv[1]} */
+            switch (m_shaderClass)
+            {
+            case CElementGenShaders::EShaderClass::Tex:
+            {
+                g_instTexData.emplace_back();
+                SParticleInstanceTex& inst = g_instTexData.back();
+                inst.pos[0] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, 0.5f};
+                inst.pos[1] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, 0.5f};
+                inst.pos[2] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, -0.5f};
+                inst.pos[3] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, -0.5f};
+                inst.color = col;
+                inst.uvs[0] = {uvs.xMax, uvs.yMax};
+                inst.uvs[1] = {uvs.xMin, uvs.yMax};
+                inst.uvs[2] = {uvs.xMax, uvs.yMin};
+                inst.uvs[3] = {uvs.xMin, uvs.yMin};
+                break;
+            }
+            case CElementGenShaders::EShaderClass::NoTex:
+            {
+                g_instNoTexData.emplace_back();
+                SParticleInstanceNoTex& inst = g_instNoTexData.back();
+                inst.pos[0] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, 0.5f};
+                inst.pos[1] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, 0.5f};
+                inst.pos[2] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, -0.5f};
+                inst.pos[3] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, -0.5f};
+                inst.color = col;
+                break;
+            }
+            default: break;
+            }
         }
         else
         {
@@ -1103,6 +1166,22 @@ void CElementGen::RenderModels()
         }
 
         ++matrixIt;
+    }
+
+    if (desc->x45_24_x31_26_PMUS)
+    {
+        switch (m_shaderClass)
+        {
+        case CElementGenShaders::EShaderClass::Tex:
+            m_instBufPmus->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+            CGraphics::DrawInstances(0, 4, g_instTexData.size());
+            break;
+        case CElementGenShaders::EShaderClass::NoTex:
+            m_instBufPmus->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+            CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+            break;
+        default: break;
+        }
     }
 
     if (x26d_26_modelsUseLights)
