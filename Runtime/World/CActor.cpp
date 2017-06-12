@@ -81,10 +81,10 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         }
     }
     break;
-    case EScriptObjectMessage::InternalMessage15: // 37
+    case EScriptObjectMessage::UpdateSplashInhabitant: // 37
         SetInFluid(true, uid);
         break;
-    case EScriptObjectMessage::InternalMessage17: // 39
+    case EScriptObjectMessage::RemoveSplashInhabitant: // 39
         SetInFluid(false, kInvalidUniqueId);
         break;
     default:
@@ -251,16 +251,16 @@ void CActor::SetInFluid(bool in, TUniqueId uid)
 {
     if (in)
     {
-        xe6_26_inFluid = false;
+        xe6_24_fluidCounter += 1;
         xc4_fluidId = uid;
     }
     else
     {
-        if (!xe6_26_inFluid)
+        if (!xe6_24_fluidCounter)
             return;
 
-        xe6_26_inFluid = true;
-        if (xe6_26_inFluid == 0)
+        xe6_24_fluidCounter -= 1;
+        if (xe6_24_fluidCounter == 0)
             xc4_fluidId = kInvalidUniqueId;
     }
 }

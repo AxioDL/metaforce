@@ -75,11 +75,11 @@ void CGameCollision::SendMaterialMessage(CStateManager& mgr, const CMaterialList
 {
     EScriptObjectMessage msg;
     if (mat.HasMaterial(EMaterialTypes::Ice))
-        msg = EScriptObjectMessage::InternalMessage05;
+        msg = EScriptObjectMessage::OnIceSurface;
     else if (mat.HasMaterial(EMaterialTypes::MudSlow))
-        msg = EScriptObjectMessage::InternalMessage06;
+        msg = EScriptObjectMessage::OnMudSlowSurface;
     else
-        msg = EScriptObjectMessage::InternalMessage07;
+        msg = EScriptObjectMessage::OnNormalSurface;
 
     mgr.SendScriptMsg(&act, kInvalidUniqueId, msg);
 }

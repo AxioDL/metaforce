@@ -23,7 +23,7 @@ void CGameProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
 
 void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*/, CStateManager& mgr)
 {
-    if (msg == EScriptObjectMessage::InternalMessage15)
+    if (msg == EScriptObjectMessage::UpdateSplashInhabitant)
     {
         if (!x2e4_27_)
         {
@@ -31,12 +31,12 @@ void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*
             x2e4_26_ = true;
         }
     }
-    else if (msg == EScriptObjectMessage::InternalMessage16)
+    else if (msg == EScriptObjectMessage::UpdateSplashInhabitant)
     {
         if (!x2e4_26_)
             x2e4_26_ = true;
     }
-    else if (msg == EScriptObjectMessage::InternalMessage17)
+    else if (msg == EScriptObjectMessage::RemoveSplashInhabitant)
     {
         if (x2e4_26_)
         {

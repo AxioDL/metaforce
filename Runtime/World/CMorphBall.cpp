@@ -11,6 +11,11 @@ CMorphBall::CMorphBall(CPlayer& player, float)
 {
 }
 
+void CMorphBall::AcceptScriptMessage(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr)
+{
+
+}
+
 void CMorphBall::DrawBallShadow(const CStateManager& mgr)
 {
     if (!x1e50_shadow)

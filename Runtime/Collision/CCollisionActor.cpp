@@ -74,7 +74,7 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     case EScriptObjectMessage::InitializedInArea:
     break;
     case EScriptObjectMessage::Alert:
-    case EScriptObjectMessage::InternalMessage10:
+    case EScriptObjectMessage::LandOnNotFloor:
     case EScriptObjectMessage::Registered:
     {
         CEntity* ent = mgr.ObjectById(x25c_owner);

@@ -40,6 +40,7 @@ struct ITweakPlayerGun : ITweak
     virtual float GetX30() const = 0; // x30
     virtual float GetX34() const = 0; // x34
     virtual float GetX38() const = 0; // x38
+    virtual float GetGunNotFiringTime() const=0;
     virtual float GetRichochetDamage(atUint32) const = 0;
 };
 }

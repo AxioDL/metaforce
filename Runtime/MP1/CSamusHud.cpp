@@ -141,7 +141,7 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr)
     CPlayerGun& gun = *player.GetPlayerGun();
     float chargeFactor = gun.IsCharging() ? gun.GetChargeBeamFactor() : 0.f;
     bool missilesActive = gun.GetMissleMode() == CPlayerGun::EMissleMode::Active;
-    bool lockedOnObj = player.GetLockonObjectId() != kInvalidUniqueId;
+    bool lockedOnObj = player.GetOrbitTargetId() != kInvalidUniqueId;
 
     switch (x2bc_nextState)
     {
@@ -501,7 +501,7 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr)
 
         if (x298_freeLookIntf)
             x298_freeLookIntf->SetFreeLookState(inFreeLook, lookControlHeld,
-                                                player.GetLockonObjectId() != kInvalidUniqueId,
+                                                player.GetOrbitTargetId() != kInvalidUniqueId,
                                                 offHorizonAngle);
 
         if (x564_freeLookSfx)

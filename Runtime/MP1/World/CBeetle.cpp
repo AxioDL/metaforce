@@ -12,7 +12,7 @@ CBeetle::CBeetle(TUniqueId uid, const std::string& name, const CEntityInfo& info
                  const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CBeetle::EEntranceType, const CDamageInfo&,
                  const CDamageVulnerability&, const zeus::CVector3f&, float, float, float, const CDamageVulnerability&,
                  const CActorParameters& aParams, const rstl::optional_object<CStaticRes>)
-    : CPatterned(EUnknown::Three, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
+    : CPatterned(ECharacter::Beetle, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
                  EColliderType::One, EBodyType::One, aParams, bool(flavor))
 {
 

@@ -36,6 +36,28 @@ CCameraShakeData::CCameraShakeData(float f1, float f2)
                    SCameraShakePoint{1, 0.f, 0.f, 0.5f * f1, 2.f}})
 {}
 
+CCameraShakeData CCameraShakeData::BuildLandingCameraShakeData(float f1, float f2)
+{
+    return CCameraShakeData(f1, 100.f, 0, zeus::CVector3f::skZero,
+                            CCameraShakerComponent(1,
+                            SCameraShakePoint(0, 0.15f * f1, 0.f, 0.85f * f1, f2),
+                            SCameraShakePoint(1, 0.f, 0.f, 0.4f * f1, 1.5f)),
+                            CCameraShakerComponent(),
+                            CCameraShakerComponent(1,
+                            SCameraShakePoint(0, 0.25f * f1, 0.f, 0.75f * f1, f2),
+                            SCameraShakePoint(1, 0.f, 0.f, 0.5f * f1, 2.f)));
+}
+
+CCameraShakeData CCameraShakeData::BuildProjectileCameraShake(float f1, float f2)
+{
+    return CCameraShakeData(f1, 100.f, 0, zeus::CVector3f::skZero,
+                            CCameraShakerComponent(1,
+                            SCameraShakePoint(0, 0.f, 0.f, f1, f2),
+                            SCameraShakePoint(1, 0.f, 0.f, 0.5f * f1, 3.f)),
+                            CCameraShakerComponent(),
+                            CCameraShakerComponent());
+}
+
 float CCameraShakeData::GetSomething() const
 {
     float ret = 0.f;

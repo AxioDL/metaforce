@@ -384,6 +384,13 @@ CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics
     return wrapper;
 }
 
+bool CSfxManager::IsPlaying(const CSfxHandle& handle)
+{
+    if (!handle)
+        return false;
+    return handle->IsPlaying();
+}
+
 void CSfxManager::RemoveEmitter(const CSfxHandle& handle)
 {
     StopSound(handle);

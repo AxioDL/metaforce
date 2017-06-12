@@ -26,7 +26,7 @@ private:
     u32 x8_;
     u32 xc_;
     float x40_;
-    EFluidType x44_;
+    EFluidType x44_fluidType;
     float x48_;
 public:
     CFluidPlane(u32, u32, u32, EFluidType, float, const CFluidUVMotion&, float);
@@ -35,7 +35,7 @@ public:
                         CScriptWater& water, CStateManager& mgr);
     virtual void Update();
     float GetAlpha() const;
-    EFluidType GetFluidType() const;
+    EFluidType GetFluidType() const { return x44_fluidType; }
     const CFluidUVMotion& GetUVMotion() const;
     void GetColorTexture() const;
     bool HasColorTexture() const;

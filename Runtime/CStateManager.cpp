@@ -1310,8 +1310,10 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     {
         usePower = power * 1000.f;
-        u32 something = player.x2b0_ == 2 ? player.x2ac_ : 4;
-        if (something != 0 && player.GetOrbitState() == CPlayer::EPlayerOrbitState::Zero)
+        CPlayer::EPlayerMovementSurface surface =
+            player.x2b0_ == 2 ? player.x2ac_movementSurface : CPlayer::EPlayerMovementSurface::Four;
+        if (surface != CPlayer::EPlayerMovementSurface::Normal &&
+            player.GetOrbitState() == CPlayer::EPlayerOrbitState::Zero)
             usePower /= 7.f;
     }
     else
@@ -1442,7 +1444,7 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
                 if (dam > 0.f)
                     ApplyLocalDamage(pos, delta, a2, dam, info.GetWeaponMode());
                 a2.SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
-                SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InternalMessage19);
+                SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::Damage);
             }
             else
             {
@@ -1692,7 +1694,7 @@ bool CStateManager::ApplyDamage(TUniqueId id0, TUniqueId id1, TUniqueId id2,
                 if (info.GetDamage() > 0.f)
                     ApplyLocalDamage(position, direction, *act1, info.GetDamage(), info.GetWeaponMode());
                 act1->SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
-                SendScriptMsg(act1.GetPtr(), id0, EScriptObjectMessage::InternalMessage19);
+                SendScriptMsg(act1.GetPtr(), id0, EScriptObjectMessage::Damage);
             }
             else
             {
@@ -2225,7 +2227,7 @@ void CStateManager::CreateStandardGameObjects()
     float xyHe = g_tweakPlayer->GetPlayerXYHalfExtent();
     float unk1 = g_tweakPlayer->GetX274();
     float unk2 = g_tweakPlayer->GetX278();
-    float unk3 = g_tweakPlayer->GetX27C();
+    float unk3 = g_tweakPlayer->GetPlayerBallHalfExtent();
     zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
     auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
     x84c_player.reset(new CPlayer(

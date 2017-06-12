@@ -21,6 +21,7 @@ public:
         Unknown1 = (1 << 7),
         Bombs = (1 << 8),
         PowerBombs = (1 << 9),
+        StaticInterference = (1 << 14),
     };
 
 private:
@@ -35,7 +36,7 @@ private:
     float x148_;
     float x14c_;
     float x150_;
-    float x154_;
+    float x154_interferenceDuration;
 public:
     CWeapon(TUniqueId, TAreaId, bool, TUniqueId, EWeaponType, const std::string&, const zeus::CTransform&,
             const CMaterialFilter&, const CMaterialList&, const CDamageInfo&, EProjectileAttrib, CModelData&&);
@@ -51,6 +52,7 @@ public:
     const CDamageInfo& GetDamageInfo() const;
     CDamageInfo& DamageInfo();
     void SetDamageInfo(const CDamageInfo&);
+    float GetInterferenceDuration() const { return x154_interferenceDuration; }
 
     void Think(float, CStateManager &) {}
     void Render(const CStateManager&) const {}

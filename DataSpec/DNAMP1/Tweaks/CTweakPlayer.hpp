@@ -17,7 +17,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x64_[8];
     Value<float> x84_[8];
     Value<float> xa4_[8];
-    Value<float> xc4_;
+    Value<float> xc4_hardLandingVelocityThreshold;
     Value<float> xc8_;
     Value<float> xcc_;
     Value<float> xd0_;
@@ -79,7 +79,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x1e0_;
     Value<float> x1e4_;
     Value<float> x1e8_;
-    Value<float> x1ec_;
+    Value<float> x1ec_orbitZRange;
     Value<float> x1f0_;
     Value<float> x1f4_;
     Value<float> x1f8_;
@@ -179,6 +179,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX54() const { return x44_[4]; }
     float GetX58() const { return x44_[5]; }
     float GetX5C() const { return x44_[6]; }
+    float GetHardLandingVelocityThreshold() const { return xc4_hardLandingVelocityThreshold; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
     uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
     uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
@@ -188,6 +189,7 @@ struct CTweakPlayer : ITweakPlayer
     uint32_t GetEnemyScreenBoxCenterY(int zone) const { return x1d0_enemyScreenBoxCenterY[zone]; }
     float GetOrbitNearX() const { return x1d8_orbitNearX; }
     float GetOrbitNearZ() const { return x1dc_orbitNearZ; }
+    float GetOrbitZRange() const { return x1ec_orbitZRange; }
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
     float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
@@ -195,9 +197,10 @@ struct CTweakPlayer : ITweakPlayer
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
     float GetX274() const { return x274_; }
     float GetX278() const { return x278_; }
-    float GetX27C() const { return x27c_playerBallHalfExtent; }
+    float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
     float GetX124() const { return x134_; }
     float GetX184() const { return x184_; }
+    float GetX1fc() const { return x1fc_; }
     bool GetX228_24() const { return x228_24_; }
     float GetX288() const { return x288_; }
     float GetX28c() const { return x28c_; }
@@ -211,6 +214,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX14C() const { return x14c_; }
     float GetLeftLogicalThreshold() const { return x150_leftDiv; }
     float GetRightLogicalThreshold() const { return x154_rightDiv; }
+    float GetX164(int type) const { return x164_[type]; }
     float GetVariaDamageReduction() const { return x300_variaDamageReduction; }
     float GetGravityDamageReduction() const { return x304_gravityDamageReduction; }
     float GetPhazonDamageReduction() const { return x308_phazonDamageReduction; }

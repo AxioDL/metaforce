@@ -13,6 +13,7 @@ struct ITweakPlayer : ITweak
     virtual float GetX54() const=0;
     virtual float GetX58() const=0;
     virtual float GetX5C() const=0;
+    virtual float GetHardLandingVelocityThreshold() const=0;
     virtual float GetHudLagAmount() const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const=0;
@@ -22,6 +23,7 @@ struct ITweakPlayer : ITweak
     virtual uint32_t GetEnemyScreenBoxCenterY(int zone) const=0;
     virtual float GetOrbitNearX() const=0;
     virtual float GetOrbitNearZ() const=0;
+    virtual float GetOrbitZRange() const=0;
     virtual float GetScanningRange() const=0; // x218
     virtual bool GetScanFreezesGame() const=0; // x21c_25
     virtual float GetScanningFrameSenseRange() const=0;
@@ -30,9 +32,10 @@ struct ITweakPlayer : ITweak
     virtual bool GetX228_24() const=0; // x228_24
     virtual float GetX274() const=0; // x274
     virtual float GetX278() const=0; // x278
-    virtual float GetX27C() const=0; // x27c
+    virtual float GetPlayerBallHalfExtent() const=0; // x27c
     virtual float GetX124() const=0; // x134
     virtual float GetX184() const=0; // x184
+    virtual float GetX1fc() const=0;
     virtual float GetX288() const=0; // x288
     virtual float GetX28c() const=0; // x28c
     virtual float GetX290() const=0; // x290
@@ -45,6 +48,7 @@ struct ITweakPlayer : ITweak
     virtual float GetX14C() const=0; // x14c
     virtual float GetLeftLogicalThreshold() const=0;
     virtual float GetRightLogicalThreshold() const=0;
+    virtual float GetX164(int type) const=0;
     virtual float GetVariaDamageReduction() const=0;
     virtual float GetGravityDamageReduction() const=0;
     virtual float GetPhazonDamageReduction() const=0;

@@ -40,6 +40,7 @@ public:
     void MakeInvalid();
 
     bool IsInvalid() const { return x20_invalid == EInvalid::Invalid; }
+    bool IsValid() const { return x20_invalid == EInvalid::Valid; }
     float GetT() const { return x0_t; }
     const zeus::CVector3f& GetPoint() const { return x4_point; }
     const zeus::CPlane& GetPlane() const { return x10_plane; }

@@ -63,7 +63,7 @@ protected:
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
-            bool xe6_26_inFluid : 1;
+            u8 xe6_24_fluidCounter : 3;
             u8 xe6_27_ : 3;
             bool xe6_30_enablePitchBend : 1;
             bool xe7_29_ : 1;

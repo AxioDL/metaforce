@@ -46,21 +46,32 @@ class CPhysicsState
     zeus::CAxisAngle x64_angularImpulse;
 
 public:
-    CPhysicsState(const zeus::CVector3f&, const zeus::CQuaternion&, const zeus::CVector3f&, const zeus::CAxisAngle&,
-                  const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CAxisAngle&,
-                  const zeus::CAxisAngle&);
+    CPhysicsState(const zeus::CVector3f& translation, const zeus::CQuaternion& orient,
+                  const zeus::CVector3f& v2, const zeus::CAxisAngle& a1, const zeus::CVector3f& v3,
+                  const zeus::CVector3f& v4, const zeus::CVector3f& v5, const zeus::CAxisAngle& a2,
+                  const zeus::CAxisAngle& a3)
+    : x0_translation(translation)
+    , xc_orientation(orient)
+    , x1c_constantForce(v2)
+    , x28_angularMomentum(a1)
+    , x34_momentum(v3)
+    , x40_force(v4)
+    , x4c_impulse(v5)
+    , x58_torque(a2)
+    , x64_angularImpulse(a3)
+    {}
 
-    void SetOrientation(const zeus::CQuaternion&);
-    const zeus::CQuaternion& GetOrientation() const;
-    void SetTranslation(const zeus::CVector3f&);
-    const zeus::CVector3f& GetTranslation() const;
-    const zeus::CVector3f& GetConstantForceWR() const;
-    const zeus::CAxisAngle& GetAngularMomentumWR() const;
-    const zeus::CVector3f& GetMomentumWR() const;
-    const zeus::CVector3f& GetForceWR() const;
-    const zeus::CVector3f& GetImpulseWR() const;
-    const zeus::CAxisAngle& GetTorque() const;
-    const zeus::CAxisAngle& GetAngularImpulseWR() const;
+    void SetTranslation(const zeus::CVector3f& tr) { x0_translation = tr; }
+    void SetOrientation(const zeus::CQuaternion& orient) { xc_orientation = orient; }
+    const zeus::CQuaternion& GetOrientation() const { return xc_orientation; }
+    const zeus::CVector3f& GetTranslation() const { return x0_translation; }
+    const zeus::CVector3f& GetConstantForceWR() const { return x1c_constantForce; }
+    const zeus::CAxisAngle& GetAngularMomentumWR() const { return x28_angularMomentum; }
+    const zeus::CVector3f& GetMomentumWR() const { return x34_momentum; }
+    const zeus::CVector3f& GetForceWR() const { return x40_force; }
+    const zeus::CVector3f& GetImpulseWR() const { return x4c_impulse; }
+    const zeus::CAxisAngle& GetTorque() const { return x58_torque; }
+    const zeus::CAxisAngle& GetAngularImpulseWR() const { return x64_angularImpulse; }
 };
 
 class CPhysicsActor : public CActor

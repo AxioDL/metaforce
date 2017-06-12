@@ -18,6 +18,7 @@
 #include "Particle/CElementGen.hpp"
 #include "Character/CModelData.hpp"
 #include "World/CWorldShadow.hpp"
+#include "World/ScriptObjectSupport.hpp"
 
 namespace urde
 {
@@ -206,6 +207,7 @@ private:
 public:
     CPlayerGun(TUniqueId id);
 
+    void AcceptScriptMessage(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AsyncLoadSuit(CStateManager& mgr);
     void TouchModel(CStateManager& stateMgr);
     EMissleMode GetMissleMode() const { return x31c_missileMode; }

@@ -11,7 +11,7 @@ CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::Character, EMaterial
 CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
                                            EMaterialTypes::Orbit, EMaterialTypes::Target);
 
-CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatterned::EFlavorType flavor,
+CPatterned::CPatterned(ECharacter character, TUniqueId uid, const std::string& name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
                        const CPatternedInfo& pInfo, CPatterned::EMovementType moveType, CPatterned::EColliderType,
                        EBodyType, const CActorParameters& actorParms, bool)
@@ -21,7 +21,8 @@ CPatterned::CPatterned(EUnknown, TUniqueId uid, const std::string& name, CPatter
                        zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, pInfo.xc8_height}),
       pInfo.x0_mass, pInfo.x54_healthInfo, pInfo.x5c_damageVulnerability,
       moveType == EMovementType::Flyer ? gkPatternedFlyerMaterialList : gkPatternedGroundMaterialList,
-      pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f)
+      pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f),
+  x34c_character(character)
 {
 }
 

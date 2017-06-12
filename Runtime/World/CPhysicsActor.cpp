@@ -103,8 +103,8 @@ const zeus::CAABox& CPhysicsActor::GetBaseBoundingBox() const { return x1a4_base
 void CPhysicsActor::AddMotionState(const CMotionState& mst)
 {
     zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
-    // TODO: Jack please verify this assignment: 8011B514
-    x34_transform = zeus::CTransform::Translate(x34_transform.origin) * zeus::CMatrix3f(q);
+    q += mst.xc_orientation;
+    x34_transform = zeus::CTransform(q, x34_transform.origin);
 
     xe4_27_ = true;
     xe4_28_ = true;
@@ -124,7 +124,7 @@ CMotionState CPhysicsActor::GetMotionState() const
 
 void CPhysicsActor::SetMotionState(const CMotionState& mst)
 {
-    x34_transform = zeus::CTransform::Translate(x34_transform.origin) * zeus::CMatrix3f(mst.xc_orientation);
+    x34_transform = zeus::CTransform(mst.xc_orientation, x34_transform.origin);
 
     xe4_27_ = true;
     xe4_28_ = true;
@@ -275,7 +275,7 @@ bool CPhysicsActor::WillMove(const CStateManager&)
 void CPhysicsActor::SetPhysicsState(const CPhysicsState& state)
 {
     SetTranslation(state.GetTranslation());
-    x34_transform = zeus::CTransform::Translate(x34_transform.origin) * zeus::CMatrix3f(state.GetOrientation());
+    x34_transform = zeus::CTransform(state.GetOrientation(), x34_transform.origin);
     xe4_27_ = true;
     xe4_28_ = true;
     xe4_29_ = true;
@@ -368,41 +368,4 @@ void CPhysicsActor::UseCollisionImpulses()
     ComputeDerivedQuantities();
 }
 
-CPhysicsState::CPhysicsState(const zeus::CVector3f& translation, const zeus::CQuaternion& orient,
-                             const zeus::CVector3f& v2, const zeus::CAxisAngle& a1, const zeus::CVector3f& v3,
-                             const zeus::CVector3f& v4, const zeus::CVector3f& v5, const zeus::CAxisAngle& a2,
-                             const zeus::CAxisAngle& a3)
-: x0_translation(translation)
-, xc_orientation(orient)
-, x1c_constantForce(v2)
-, x28_angularMomentum(a1)
-, x34_momentum(v3)
-, x40_force(v4)
-, x4c_impulse(v5)
-, x58_torque(a2)
-, x64_angularImpulse(a3)
-{
-}
-
-void CPhysicsState::SetTranslation(const zeus::CVector3f& tr) { x0_translation = tr; }
-
-void CPhysicsState::SetOrientation(const zeus::CQuaternion& orient) { xc_orientation = orient; }
-
-const zeus::CQuaternion& CPhysicsState::GetOrientation() const { return xc_orientation; }
-
-const zeus::CVector3f& CPhysicsState::GetTranslation() const { return x0_translation; }
-
-const zeus::CVector3f& CPhysicsState::GetConstantForceWR() const { return x1c_constantForce; }
-
-const zeus::CAxisAngle& CPhysicsState::GetAngularMomentumWR() const { return x28_angularMomentum; }
-
-const zeus::CVector3f& CPhysicsState::GetMomentumWR() const { return x34_momentum; }
-
-const zeus::CVector3f& CPhysicsState::GetForceWR() const { return x40_force; }
-
-const zeus::CVector3f& CPhysicsState::GetImpulseWR() const { return x4c_impulse; }
-
-const zeus::CAxisAngle& CPhysicsState::GetTorque() const { return x58_torque; }
-
-const zeus::CAxisAngle& CPhysicsState::GetAngularImpulseWR() const { return x64_angularImpulse; }
 }

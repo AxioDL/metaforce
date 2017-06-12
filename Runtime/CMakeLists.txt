@@ -86,7 +86,7 @@ add_library(RuntimeCommon
             CSimplePool.hpp CSimplePool.cpp
             CGameOptions.hpp CGameOptions.cpp
             CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
-            CStaticInterference.hpp
+            CStaticInterference.hpp CStaticInterference.cpp
             CCRC32.hpp CCRC32.cpp
             IFactory.hpp
             IObjFactory.hpp

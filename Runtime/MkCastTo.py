@@ -30,6 +30,7 @@ CENTITY_TYPES = (
     EndNamespace(),
     ('CPathCamera', 'Camera/CPathCamera.hpp'),
     ('CAi', 'World/CAi.hpp'),
+    ('CPatterned', 'World/CPatterned.hpp'),
     ('CPhysicsActor', 'World/CPhysicsActor.hpp'),
     ('CPlayer', 'World/CPhysicsActor.hpp'),
     ('CRepulsor', 'World/CRepulsor.hpp'),

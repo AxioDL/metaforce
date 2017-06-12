@@ -103,8 +103,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     xa4_[6] = __dna_reader.readFloatBig();
     /* xa4_[7] */
     xa4_[7] = __dna_reader.readFloatBig();
-    /* xc4_ */
-    xc4_ = __dna_reader.readFloatBig();
+    /* xc4_hardLandingVelocityThreshold */
+    xc4_hardLandingVelocityThreshold = __dna_reader.readFloatBig();
     /* xc8_ */
     xc8_ = __dna_reader.readFloatBig();
     /* xcc_ */
@@ -325,8 +325,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x1e4_ = __dna_reader.readFloatBig();
     /* x1e8_ */
     x1e8_ = __dna_reader.readFloatBig();
-    /* x1ec_ */
-    x1ec_ = __dna_reader.readFloatBig();
+    /* x1ec_orbitZRange */
+    x1ec_orbitZRange = __dna_reader.readFloatBig();
     /* x1f0_ */
     x1f0_ = __dna_reader.readFloatBig();
     /* x1f4_ */
@@ -543,8 +543,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(xa4_[6]);
     /* xa4_[7] */
     __dna_writer.writeFloatBig(xa4_[7]);
-    /* xc4_ */
-    __dna_writer.writeFloatBig(xc4_);
+    /* xc4_hardLandingVelocityThreshold */
+    __dna_writer.writeFloatBig(xc4_hardLandingVelocityThreshold);
     /* xc8_ */
     __dna_writer.writeFloatBig(xc8_);
     /* xcc_ */
@@ -765,8 +765,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x1e4_);
     /* x1e8_ */
     __dna_writer.writeFloatBig(x1e8_);
-    /* x1ec_ */
-    __dna_writer.writeFloatBig(x1ec_);
+    /* x1ec_orbitZRange */
+    __dna_writer.writeFloatBig(x1ec_orbitZRange);
     /* x1f0_ */
     __dna_writer.writeFloatBig(x1f0_);
     /* x1f4_ */
@@ -1013,8 +1013,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* xa4_[7] */
     xa4_[7] = __dna_docin.readFloat("xa4_");
     }
-    /* xc4_ */
-    xc4_ = __dna_docin.readFloat("xc4_");
+    /* xc4_hardLandingVelocityThreshold */
+    xc4_hardLandingVelocityThreshold = __dna_docin.readFloat("xc4_hardLandingVelocityThreshold");
     /* xc8_ */
     xc8_ = __dna_docin.readFloat("xc8_");
     /* xcc_ */
@@ -1280,8 +1280,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x1e4_ = __dna_docin.readFloat("x1e4_");
     /* x1e8_ */
     x1e8_ = __dna_docin.readFloat("x1e8_");
-    /* x1ec_ */
-    x1ec_ = __dna_docin.readFloat("x1ec_");
+    /* x1ec_orbitZRange */
+    x1ec_orbitZRange = __dna_docin.readFloat("x1ec_orbitZRange");
     /* x1f0_ */
     x1f0_ = __dna_docin.readFloat("x1f0_");
     /* x1f4_ */
@@ -1522,8 +1522,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     /* xa4_[7] */
     __dna_docout.writeFloat("xa4_", xa4_[7]);
     }
-    /* xc4_ */
-    __dna_docout.writeFloat("xc4_", xc4_);
+    /* xc4_hardLandingVelocityThreshold */
+    __dna_docout.writeFloat("xc4_hardLandingVelocityThreshold", xc4_hardLandingVelocityThreshold);
     /* xc8_ */
     __dna_docout.writeFloat("xc8_", xc8_);
     /* xcc_ */
@@ -1780,8 +1780,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x1e4_", x1e4_);
     /* x1e8_ */
     __dna_docout.writeFloat("x1e8_", x1e8_);
-    /* x1ec_ */
-    __dna_docout.writeFloat("x1ec_", x1ec_);
+    /* x1ec_orbitZRange */
+    __dna_docout.writeFloat("x1ec_orbitZRange", x1ec_orbitZRange);
     /* x1f0_ */
     __dna_docout.writeFloat("x1f0_", x1f0_);
     /* x1f4_ */

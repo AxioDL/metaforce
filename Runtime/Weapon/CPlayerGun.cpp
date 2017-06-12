@@ -24,6 +24,11 @@ CPlayerGun::CPlayerGun(TUniqueId id)
     /* TODO: Finish */
 }
 
+void CPlayerGun::AcceptScriptMessage(EScriptObjectMessage, TUniqueId, CStateManager&)
+{
+
+}
+
 void CPlayerGun::AsyncLoadSuit(CStateManager& mgr)
 {
     x72c_currentBeam->AsyncLoadSuitArm(mgr);

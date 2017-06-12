@@ -26,7 +26,7 @@ struct CTweakPlayerGun : ITweakPlayerGun
     Value<float> x34_;
     Value<float> x38_;
     Value<float> x3c_;
-    Value<float> x40_;
+    Value<float> x40_gunNotFiringTime;
     Value<float> x44_;
     Value<float> x48_;
     Value<zeus::CVector3f> x4c_;
@@ -59,6 +59,7 @@ struct CTweakPlayerGun : ITweakPlayerGun
     float GetX30() const { return x30_; }
     float GetX34() const { return x34_; }
     float GetX38() const { return x38_; }
+    float GetGunNotFiringTime() const { return x40_gunNotFiringTime; }
     float GetRichochetDamage(atUint32 type) const
     {
         switch (type)

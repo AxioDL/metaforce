@@ -19,7 +19,7 @@ private:
     float x1f4_;
     float x1f8_ = 0.f;
     zeus::CVector3f x1d4_;
-    std::vector<std::pair<TUniqueId, bool>> x200_waterInhabitants;
+    std::list<std::pair<TUniqueId, bool>> x1fc_waterInhabitants;
     u32 x210_;
     float x214_;
     float x218_;

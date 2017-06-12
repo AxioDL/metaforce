@@ -135,7 +135,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
             else
             {
                 float tmp = 1.f;
-                if (mgr.GetPlayer().GetLockonObjectId() == tgt.x0_objId)
+                if (mgr.GetPlayer().GetOrbitTargetId() == tgt.x0_objId)
                     tmp = 0.75f * x2c_scanDimInterp + 0.25f;
                 iconAlpha = tgt.x4_timer * tmp;
             }

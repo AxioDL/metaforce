@@ -8,7 +8,8 @@ namespace urde
 enum class ERumbleFxId
 {
     Seven = 7,
-    Eleven = 11
+    Eleven = 11,
+    Fifteen = 15
 };
 enum class ERumblePriority
 {

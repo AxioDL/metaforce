@@ -271,9 +271,9 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
     if (player.GetScanningObjectId() != x1d2_latestScanningObject)
         x1d2_latestScanningObject = player.GetScanningObjectId();
 
-    if (player.GetLockonObjectId() != x1d0_latestHudPoi)
+    if (player.GetOrbitTargetId() != x1d0_latestHudPoi)
     {
-        x1d0_latestHudPoi = player.GetLockonObjectId();
+        x1d0_latestHudPoi = player.GetOrbitTargetId();
         if (x1d0_latestHudPoi != kInvalidUniqueId)
         {
             if (!player.ObjectInScanningRange(x1d0_latestHudPoi, stateMgr))
@@ -611,7 +611,7 @@ void CHudDecoInterfaceThermal::SetDamageTransform(const zeus::CMatrix3f& rotatio
 void CHudDecoInterfaceThermal::Update(float dt, const CStateManager& stateMgr)
 {
     float oldLockonScale = x68_lockonScale;
-    if (stateMgr.GetPlayer().GetLockonObjectId() != kInvalidUniqueId)
+    if (stateMgr.GetPlayer().GetOrbitTargetId() != kInvalidUniqueId)
         x68_lockonScale = std::max(x68_lockonScale - 15.f * dt, 1.f);
     else
         x68_lockonScale = std::min(x68_lockonScale + 15.f * dt, 5.f);

@@ -31,11 +31,13 @@ public:
     };
 private:
     CPlayer& x0_player;
+    u32 x187c_ = 0;
     float x1DE8_boostTime = 0.f;
     CMorphBallShadow* x1e50_shadow = nullptr;
 
 public:
     CMorphBall(CPlayer& player, float);
+    void AcceptScriptMessage(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
     ESpiderBallState GetSpiderBallState() const { return ESpiderBallState::Zero; }
     bool InSpiderBallMode() const { return false; }
     zeus::CVector3f GetBallContactSurfaceNormal() const { return {}; }
@@ -49,7 +51,7 @@ public:
     float GetBallRadius() const { return 0.f; }
     float GetBallTouchRadius() const { return 0.f; }
     void ForwardInput(const CFinalInput&) const {}
-    void ComputBallMovement(const CFinalInput&, CStateManager&, float) {}
+    void ComputeBallMovement(const CFinalInput&, CStateManager&, float) {}
     bool IsMovementAllowed() const { return false; }
     void UpdateSpiderBall(const CFinalInput&, CStateManager&, float) {}
     void ApplySpiderBallSwingingForces(const CFinalInput&, CStateManager&, float) {}
@@ -101,7 +103,7 @@ public:
     void IsMorphBallTransitionFlashValid() const {}
     void RenderDamageEffects(const CStateManager&, const zeus::CTransform&) const {}
     void UpdateHalfPipeStatus(CStateManager&, float) {}
-    void GetIsInHalfPipeMode() const {}
+    bool GetIsInHalfPipeMode() const { return false; }
     void SetIsInHalfPipeMode(bool) {}
     void GetIsInHalfPipeModeInAir() const {}
     void SetIsInHalfPipeModeInAir(bool) {}
@@ -132,6 +134,8 @@ public:
     void LoadAnimationTokens(const std::string&) {}
     void TakeDamage(float) {}
     void DrawBallShadow(const CStateManager& mgr);
+    void StartLandingSfx() {}
+    bool GetX187c() const { return x187c_; }
 };
 
 }
