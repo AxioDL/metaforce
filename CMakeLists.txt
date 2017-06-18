@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR) # because of CMAKE_CXX_STANDARD
+
 cmake_policy(SET CMP0054 NEW)
 project(urde)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(MSVC)
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
     set(VS_DEFINES "/MP")
@@ -22,7 +27,7 @@ if(MSVC)
 
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-  -std=c++14 -Wno-multichar -fno-exceptions -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
+  -Wno-multichar -fno-exceptions -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
 
   if(APPLE)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto=thin")
