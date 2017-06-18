@@ -12,12 +12,11 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, const std::string& name
 , xec_massRecip(moverData.x30_mass <= 0.f ? 1.f : 1.f / moverData.x30_mass)
 , x150_momentum(moverData.x18_momentum)
 , x1c0_collisionPrimitive(box, matList)
-, x1f4_translation(xf.origin)
-, x200_orientation(xf.buildMatrix3f())
+, x1f4_lastNonCollidingState(xf.origin, xf.buildMatrix3f())
 , x23c_stepUpHeight(stepUp)
 , x240_stepDownHeight(stepDown)
 {
-    xf8_24_ = true;
+    xf8_24_movable = true;
     SetMass(moverData.x30_mass);
     MoveCollisionPrimitive(zeus::CVector3f::skZero);
     SetVelocityOR(moverData.x0_velocity);
@@ -37,7 +36,7 @@ zeus::CVector3f CPhysicsActor::GetAimPosition(const CStateManager&, float dt) co
     return GetBoundingBox().center() + trans;
 }
 
-void CPhysicsActor::CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&) {}
+void CPhysicsActor::CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&) {}
 
 const CCollisionPrimitive* CPhysicsActor::GetCollisionPrimitive() const { return &x1c0_collisionPrimitive; }
 
@@ -52,9 +51,9 @@ float CPhysicsActor::GetStepDownHeight() const { return x240_stepDownHeight; }
 
 float CPhysicsActor::GetWeight() const { return 24.525002f * xe8_mass; }
 
-void CPhysicsActor::sub_8011A4C(float f) { x238_ = f; }
+void CPhysicsActor::sub_8011A4C(float f) { x238_maximumCollisionVelocity = f; }
 
-float CPhysicsActor::sub_8011A4B8() const { return x238_; }
+float CPhysicsActor::sub_8011A4B8() const { return x238_maximumCollisionVelocity; }
 
 void CPhysicsActor::SetPrimitiveOffset(const zeus::CVector2f& offset) { x1e8_primitiveOffset = offset; }
 
@@ -142,11 +141,6 @@ void CPhysicsActor::SetInertiaTensorScalar(float tensor)
         tensor = 1.0f;
     xf0_inertiaTensor = tensor;
     xf4_inertiaTensorRecip = 1.0f / tensor;
-}
-
-void CPhysicsActor::SetCoefficientOfRestitutionModifier(float mod)
-{
-    x244_restitutionCoefModifier = mod;
 }
 
 void CPhysicsActor::SetMass(float mass)
@@ -302,7 +296,7 @@ CPhysicsState CPhysicsActor::GetPhysicsState() const
 
 CMotionState CPhysicsActor::PredictMotion_Internal(float dt) const
 {
-    if (xf8_25_)
+    if (xf8_25_angularEnabled)
         return PredictMotion(dt);
 
     CMotionState msl = PredictLinearMotion(dt);

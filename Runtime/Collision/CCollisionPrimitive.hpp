@@ -9,33 +9,60 @@
 
 namespace urde
 {
+class CCollisionPrimitive;
+class CMaterialFilter;
+
+class CInternalCollisionStructure
+{
+public:
+    class CPrimDesc
+    {
+        const CCollisionPrimitive& x0_prim;
+        const CMaterialFilter& x4_filter;
+        zeus::CTransform x8_xf;
+    public:
+        CPrimDesc(const CCollisionPrimitive& prim, const CMaterialFilter& filter,
+                  const zeus::CTransform& xf)
+        : x0_prim(prim), x4_filter(filter), x8_xf(xf) {}
+        const CCollisionPrimitive& GetPrim() const { return x0_prim; }
+        const CMaterialFilter& GetFilter() const { return x4_filter; }
+        const zeus::CTransform& GetTransform() const { return x8_xf; }
+    };
+private:
+    CPrimDesc x0_p0;
+    CPrimDesc x38_p1;
+public:
+    CInternalCollisionStructure(const CPrimDesc& p0, const CPrimDesc& p1)
+    : x0_p0(p0), x38_p1(p1) {}
+    const CPrimDesc& GetLeft() const { return x0_p0; }
+    const CPrimDesc& GetRight() const { return x38_p1; }
+};
 
 class COBBTree;
-class CInternalCollisionStructure;
 class CCollisionInfo;
 class CCollisionInfoList;
 class CInternalRayCastStructure;
-class CMaterialFilter;
-using ComparisonFunc = std::function<bool(const CInternalCollisionStructure&, CCollisionInfoList&)>;
-using MovingComparisonFunc =
-    std::function<bool(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&)>;
-using BooleanComparisonFunc = std::function<bool(const CInternalCollisionStructure&)>;
+typedef bool(*ComparisonFunc)(const CInternalCollisionStructure&, CCollisionInfoList&);
+typedef bool(*MovingComparisonFunc)(const CInternalCollisionStructure&, const zeus::CVector3f&,
+                                    double&, CCollisionInfo&);
+typedef bool(*BooleanComparisonFunc)(const CInternalCollisionStructure&);
+typedef void(*PrimitiveSetter)(u32);
 
 class CCollisionPrimitive
 {
 public:
     class Type
     {
-        std::function<void(u32)> x0_setter;
+        PrimitiveSetter x0_setter;
         const char* x4_info;
 
     public:
         Type() = default;
-        Type(const std::function<void(u32)>& setter, const char* info);
+        Type(PrimitiveSetter setter, const char* info)
+        : x0_setter(setter), x4_info(info) {}
 
-        const char* GetInfo() const;
-
-        std::function<void(u32)> GetSetter() const;
+        const char* GetInfo() const { return x4_info; }
+        PrimitiveSetter GetSetter() const { return x0_setter; }
     };
 
     class Comparison
@@ -45,12 +72,12 @@ public:
         const char* x8_type2;
 
     public:
-        Comparison(const ComparisonFunc& collider, const char* type1, const char* type2)
+        Comparison(ComparisonFunc collider, const char* type1, const char* type2)
         : x0_collider(collider), x4_type1(type1), x8_type2(type2)
         {
         }
 
-        const ComparisonFunc& GetCollider() const { return x0_collider; }
+        ComparisonFunc GetCollider() const { return x0_collider; }
         const char* GetType1() const { return x4_type1; }
         const char* GetType2() const { return x8_type2; }
     };
@@ -62,12 +89,12 @@ public:
         const char* x8_type2;
 
     public:
-        MovingComparison(const MovingComparisonFunc& collider, const char* type1, const char* type2)
+        MovingComparison(MovingComparisonFunc collider, const char* type1, const char* type2)
         : x0_collider(collider), x4_type1(type1), x8_type2(type2)
         {
         }
 
-        const MovingComparisonFunc& GetCollider() const { return x0_collider; }
+        MovingComparisonFunc GetCollider() const { return x0_collider; }
         const char* GetType1() const { return x4_type1; }
         const char* GetType2() const { return x8_type2; }
     };
@@ -79,26 +106,33 @@ public:
         const char* x8_type2;
 
     public:
-        BooleanComparison(const BooleanComparisonFunc& collider, const char* type1, const char* type2)
+        BooleanComparison(BooleanComparisonFunc collider, const char* type1, const char* type2)
         : x0_collider(collider), x4_type1(type1), x8_type2(type2)
         {
         }
 
-        const BooleanComparisonFunc& GetCollider() const { return x0_collider; }
+        BooleanComparisonFunc GetCollider() const { return x0_collider; }
         const char* GetType1() const { return x4_type1; }
         const char* GetType2() const { return x8_type2; }
     };
 private:
     CMaterialList x8_material;
-    static std::unique_ptr<std::vector<Type>> sCollisionTypeList;
-    static std::unique_ptr<std::vector<ComparisonFunc>> sTableOfCollidables;
-    static std::unique_ptr<std::vector<BooleanComparisonFunc>> sTableOfBooleanCollidables;
-    static std::unique_ptr<std::vector<MovingComparisonFunc>> sTableOfMovingCollidables;
     static s32 sNumTypes;
+    static bool sInitComplete;
     static bool sTypesAdded;
     static bool sTypesAdding;
     static bool sCollidersAdded;
     static bool sCollidersAdding;
+    static std::unique_ptr<std::vector<Type>> sCollisionTypeList;
+    static std::unique_ptr<std::vector<ComparisonFunc>> sTableOfCollidables;
+    static std::unique_ptr<std::vector<BooleanComparisonFunc>> sTableOfBooleanCollidables;
+    static std::unique_ptr<std::vector<MovingComparisonFunc>> sTableOfMovingCollidables;
+    static ComparisonFunc sNullCollider;
+    static BooleanComparisonFunc sNullBooleanCollider;
+    static MovingComparisonFunc sNullMovingCollider;
+
+    static bool InternalCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list);
+    static bool InternalCollideBoolean(const CInternalCollisionStructure& collision);
 
 public:
     CCollisionPrimitive() = default;
@@ -114,20 +148,26 @@ public:
     CRayCastResult CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
                            const CMaterialFilter& filter, const zeus::CTransform& xf) const;
 
+    static bool Collide(CInternalCollisionStructure::CPrimDesc& prim0,
+                        CInternalCollisionStructure::CPrimDesc& prim1,
+                        CCollisionInfoList& list);
+    static bool CollideBoolean(CInternalCollisionStructure::CPrimDesc& prim0,
+                               CInternalCollisionStructure::CPrimDesc& prim1);
+
     static void InitBeginTypes();
     static void InitAddType(const Type& tp);
     static void InitEndTypes();
 
     static void InitBeginColliders();
     static void InitAddBooleanCollider(const BooleanComparison& cmp);
-    static void InitAddBooleanCollider(const BooleanComparisonFunc&, const char*, const char*);
+    static void InitAddBooleanCollider(BooleanComparisonFunc, const char*, const char*);
     static void InitAddMovingCollider(const MovingComparison& cmp);
-    static void InitAddMovingCollider(const MovingComparisonFunc&, const char*, const char*);
+    static void InitAddMovingCollider(MovingComparisonFunc, const char*, const char*);
     static void InitAddCollider(const Comparison& cmp);
-    static void InitAddCollider(const ComparisonFunc&, const char*, const char*);
+    static void InitAddCollider(ComparisonFunc, const char*, const char*);
     static void InitEndColliders();
 
-    static void Unitialize();
+    static void Uninitialize();
 };
 }
 

@@ -65,6 +65,7 @@ public:
 
     void Accept(IVisitor& visitor);
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    bool IsRider(TUniqueId id) const;
 };
 }
 

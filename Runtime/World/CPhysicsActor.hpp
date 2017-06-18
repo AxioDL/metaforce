@@ -29,8 +29,10 @@ struct CMotionState
     CMotionState(const zeus::CVector3f& origin, const zeus::CNUQuaternion& orientation, const zeus::CVector3f& velocity,
                  const zeus::CAxisAngle& angle)
     : x0_translation(origin), xc_orientation(orientation), x1c_velocity(velocity), x28_angularMomentum(angle)
-    {
-    }
+    {}
+    CMotionState(const zeus::CVector3f& origin, const zeus::CNUQuaternion& orientation)
+    : x0_translation(origin), xc_orientation(orientation)
+    {}
 };
 
 class CPhysicsState
@@ -84,12 +86,12 @@ protected:
     union {
         struct
         {
-            bool xf8_24_ : 1;
-            bool xf8_25_ : 1;
+            bool xf8_24_movable : 1;
+            bool xf8_25_angularEnabled : 1;
         };
         u8 _dummy = 0;
     };
-    bool xf9_ = false;
+    bool xf9_standardCollider = false;
     zeus::CVector3f xfc_constantForce;
     zeus::CAxisAngle x108_angularMomentum;
     zeus::CMatrix3f x114_;
@@ -105,18 +107,15 @@ protected:
     zeus::CAABox x1a4_baseBoundingBox;
     CCollidableAABox x1c0_collisionPrimitive;
     zeus::CVector3f x1e8_primitiveOffset;
-    zeus::CVector3f x1f4_translation;
-    zeus::CNUQuaternion x200_orientation;
-    zeus::CAxisAngle x210_;
-    zeus::CAxisAngle x21c_;
+    CMotionState x1f4_lastNonCollidingState;
     bool x234_ = false;
-    float x238_ = 1000000.0f;
+    float x238_maximumCollisionVelocity = 1000000.0f;
     float x23c_stepUpHeight;
     float x240_stepDownHeight;
     float x244_restitutionCoefModifier = 0.f;
     float x248_collisionAccuracyModifier = 1.f;
-    u32 x24c_;
-    u32 x250_;
+    u32 x24c_numTicksStuck;
+    u32 x250_numTicksPartialUpdate;
 
 public:
     CPhysicsActor(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
@@ -127,7 +126,7 @@ public:
     zeus::CVector3f GetAimPosition(const CStateManager&, float val) const;
     virtual const CCollisionPrimitive* GetCollisionPrimitive() const;
     virtual zeus::CTransform GetPrimitiveTransform() const;
-    virtual void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&);
+    virtual void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);
     virtual float GetStepUpHeight() const;
     virtual float GetStepDownHeight() const;
     virtual float GetWeight() const;
@@ -145,15 +144,19 @@ public:
     const zeus::CAABox& GetBaseBoundingBox() const;
     void AddMotionState(const CMotionState& mst);
     CMotionState GetMotionState() const;
+    const CMotionState& GetLastNonCollidingState() const { return x1f4_lastNonCollidingState; }
+    void SetLastNonCollidingState(const CMotionState& mst) { x1f4_lastNonCollidingState = mst; }
     void SetMotionState(const CMotionState& mst);
+    float GetMaximumCollisionVelocity() const { return x238_maximumCollisionVelocity; }
+    void SetMaximumCollisionVelocity(float v) { x238_maximumCollisionVelocity = v; }
     void SetInertiaTensorScalar(float tensor);
-    void SetCoefficientOfRestitutionModifier(float);
     void SetMass(float mass);
     void SetAngularVelocityOR(const zeus::CAxisAngle& angVel);
     zeus::CAxisAngle GetAngularVelocityOR() const;
     void SetAngularVelocityWR(const zeus::CAxisAngle& angVel);
     void SetVelocityWR(const zeus::CVector3f& vel);
     void SetVelocityOR(const zeus::CVector3f& vel);
+    const zeus::CVector3f& GetVelocity() const { return x138_velocity; }
     zeus::CVector3f GetTotalForcesWR() const;
     void RotateInOneFrameOR(const zeus::CQuaternion& q, float d);
     void MoveInOneFrameOR(const zeus::CVector3f& trans, float d);
@@ -170,6 +173,19 @@ public:
     bool WillMove(const CStateManager&);
     void SetPhysicsState(const CPhysicsState& state);
     CPhysicsState GetPhysicsState() const;
+    bool IsMovable() const { return xf8_24_movable; }
+    void SetMovable(bool m) { xf8_24_movable = m; }
+    bool IsAngularEnabled() const { return xf8_25_angularEnabled; }
+    void SetAngularEnabled(bool e) { xf8_25_angularEnabled = e; }
+    float GetCollisionAccuracyModifier() const { return x248_collisionAccuracyModifier; }
+    void SetCollisionAccuracyModifier(float m) { x248_collisionAccuracyModifier = m; }
+    float GetCoefficientOfRestitutionModifier() const { return x244_restitutionCoefModifier; }
+    void SetCoefficientOfRestitutionModifier(float m) { x244_restitutionCoefModifier = m; }
+    bool IsUseStandardCollider() const { return xf9_standardCollider; }
+    u32 GetNumTicksPartialUpdate() const { return x250_numTicksPartialUpdate; }
+    void SetNumTicksPartialUpdate(u32 t) { x250_numTicksPartialUpdate = t; }
+    u32 GetNumTicksStuck() const { return x24c_numTicksStuck; }
+    void SetNumTicksStuck(u32 t) { x24c_numTicksStuck = t; }
 
     CMotionState PredictMotion_Internal(float) const;
     CMotionState PredictMotion(float dt) const;

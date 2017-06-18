@@ -11,10 +11,11 @@ namespace urde
 class CGrappleArm
 {
     CModelData x0_modelData;
-
+    zeus::CTransform x220_;
 public:
     CGrappleArm(const zeus::CVector3f& vec);
     void AsyncLoadSuit(CStateManager& mgr);
+    void SetX220(const zeus::CTransform& xf) { x220_ = xf; }
 };
 
 }

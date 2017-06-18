@@ -496,4 +496,12 @@ const CScannableObjectInfo* CActor::GetScannableObjectInfo() const
 
     return info.GetObj();
 }
+
+void CActor::SetCalculateLighting(bool c)
+{
+    if (!x90_actorLights)
+        x90_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero,
+                                                         4, 4, false, false, false, 0.1f);
+    xe4_31_lightsDirty = c;
+}
 }

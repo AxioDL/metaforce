@@ -219,6 +219,8 @@ public:
     u32 GetSelectedBeam() const { return x310_selectedBeam; }
     u32 GetPendingSelectedBeam() const { return x314_pendingSelectedBeam; }
     const CGunMorph& GetGunMorph() const { return x678_morph; }
+    void SetX3e8(const zeus::CTransform& xf) { x3e8_ = xf; }
+    CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
 };
 
 }

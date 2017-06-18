@@ -178,11 +178,11 @@ private:
     float x2a8_ = 1000.f;
     EPlayerMovementSurface x2ac_movementSurface = EPlayerMovementSurface::Normal;
     u32 x2b0_ = 2;
-    u32 x2b4_ = 0;
+    rstl::reserved_vector<float, 6> x2b4_;
     u32 x2d0_ = 3;
     float x2d4_ = 0.f;
     zeus::CAABox x2d8_;
-    float x2f0_ = 0.f;
+    float x2f0_ballTransHeight = 0.f;
     EPlayerCameraState x2f4_cameraState = EPlayerCameraState::Zero;
     EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
     u32 x2fc_ = 0;
@@ -247,7 +247,14 @@ private:
     u32 x4a4_ = 0;
     float x4f8_ = 0.f;
     float x4fc_ = 0.f;
-    float x53c_ = 0.f;
+    zeus::CVector3f x500_ = x34_transform.basis[1];
+    zeus::CVector3f x50c_ = x34_transform.basis[1];
+    zeus::CVector3f x518_ = x34_transform.basis[1];
+    zeus::CVector3f x524_ = x34_transform.basis[1];
+    zeus::CVector3f x530_ = x34_transform.basis[1];
+    zeus::CVector3f x53c_ = x34_transform.basis[1];
+    zeus::CVector3f x548_ = x34_transform.basis[1];
+    float x554_ = x34_transform.basis[1].x;
     bool x558_ = false;
     float x55c_ = 0.f;
     float x560_ = 0.f;
@@ -287,7 +294,7 @@ private:
     CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, -1);
     ResId x7cc_ = -1;
     CAnimRes x7d0_animRes;
-    CPlayerState::EBeamId x7ec_ = CPlayerState::EBeamId::Power;
+    CPlayerState::EBeamId x7ec_beam = CPlayerState::EBeamId::Power;
     std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
     zeus::CTransform x7f4_;
     float x824_ = 0.f;
@@ -365,9 +372,10 @@ private:
     void ProcessFrozenInput(float dt, CStateManager& mgr);
     bool CheckSubmerged() const;
     void UpdateSubmerged(CStateManager& mgr);
+    void InitializeBallTransition();
 
 public:
-    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, unsigned int w1, const zeus::CVector3f&, float, float,
+    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, ResId w1, const zeus::CVector3f&, float, float,
             float, float, const CMaterialList&);
 
     bool IsTransparent() const;
@@ -493,7 +501,7 @@ public:
     zeus::CTransform CreateTransformFromMovementDirection() const;
     const CCollisionPrimitive* GetCollisionPrimitive() const;
     zeus::CTransform GetPrimitiveTransform() const;
-    bool CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
+    void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
     float GetActualFirstPersonMaxVelocity() const;
     void SetMoveState(EPlayerMovementState, CStateManager& mgr);
     float JumpInput(const CFinalInput& input, CStateManager& mgr);

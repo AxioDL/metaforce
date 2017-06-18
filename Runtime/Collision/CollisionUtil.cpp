@@ -1,8 +1,12 @@
 #include "CollisionUtil.hpp"
+#include "CCollisionInfo.hpp"
+#include "CCollisionInfoList.hpp"
+
 namespace urde
 {
 namespace CollisionUtil
 {
+
 bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float& d)
 {
     const zeus::CVector3f transXf = obb.transform.toMatrix4f().vec[0].toVec3f();
@@ -40,6 +44,57 @@ bool RaySphereIntersection(const zeus::CSphere& sphere, const zeus::CVector3f& p
         return true;
     }
     return false;
+}
+
+void FilterOutBackfaces(const zeus::CVector3f& vec, const CCollisionInfoList& in, CCollisionInfoList& out)
+{
+    if (vec.canBeNormalized())
+    {
+        zeus::CVector3f norm = vec.normalized();
+        for (const CCollisionInfo& info : in)
+        {
+            if (info.GetNormalLeft().dot(norm) < 0.001f)
+                out.Add(info, false);
+        }
+    }
+    else
+    {
+        out = in;
+    }
+}
+
+static const zeus::CVector3f AABBNormalTable[] =
+{
+    {-1.f, 0.f, 0.f},
+    {1.f, 0.f, 0.f},
+    {0.f, -1.f, 0.f},
+    {0.f, 1.f, 0.f},
+    {0.f, 0.f, -1.f},
+    {0.f, 0.f, 1.f}
+};
+
+bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list0,
+                            const zeus::CAABox& aabb1, const CMaterialList& list1,
+                            CCollisionInfoList& infoList)
+{
+    zeus::CAABox boolAABB = aabb0.booleanIntersection(aabb1);
+    if (boolAABB.invalid())
+        return false;
+
+    /* TODO: Finish */
+
+    if (!infoList.GetCount())
+    {
+        infoList.Add(CCollisionInfo(boolAABB, list0, list1, AABBNormalTable[4], -AABBNormalTable[4]), false);
+        infoList.Add(CCollisionInfo(boolAABB, list0, list1, AABBNormalTable[5], -AABBNormalTable[5]), false);
+    }
+
+    return true;
+}
+
+bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1)
+{
+    return aabb0.intersects(aabb1);
 }
 
 }

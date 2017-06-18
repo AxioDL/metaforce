@@ -200,7 +200,7 @@ enum class EScriptObjectMessage
     Play              = 20,
     Alert             = 21,
     InternalMessage00 = 22,
-    OnGround          = 23,
+    OnFloor           = 23,
     InternalMessage02 = 24,
     InternalMessage03 = 25,
     Falling           = 26,

@@ -45,4 +45,12 @@ rstl::optional_object<zeus::CAABox> CScriptPlatform::GetTouchBounds() const
 
     return {CPhysicsActor::GetBoundingBox()};
 }
+
+bool CScriptPlatform::IsRider(TUniqueId id) const
+{
+    for (const SRiders& rider : x318_riders)
+        if (rider.x0_uid == id)
+            return true;
+    return false;
+}
 }

@@ -1,4 +1,5 @@
 #include "CCollidableAABox.hpp"
+#include "CollisionUtil.hpp"
 
 namespace urde
 {
@@ -68,14 +69,26 @@ bool CCollidableAABox::CollideMovingSphere(const CInternalCollisionStructure &, 
 namespace Collide
 {
 
-bool AABox_AABox(const CInternalCollisionStructure &, CCollisionInfoList &)
+bool AABox_AABox(const CInternalCollisionStructure& collision, CCollisionInfoList& list)
 {
-    return false;
+    const CCollidableAABox& box0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableAABox& box1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
+
+    zeus::CAABox aabb0 = box0.Transform(collision.GetLeft().GetTransform());
+    zeus::CAABox aabb1 = box1.Transform(collision.GetRight().GetTransform());
+
+    return CollisionUtil::AABoxAABoxIntersection(aabb0, box0.GetMaterial(), aabb1, box1.GetMaterial(), list);
 }
 
-bool AABox_AABox_Bool(const CInternalCollisionStructure &)
+bool AABox_AABox_Bool(const CInternalCollisionStructure& collision)
 {
-    return false;
+    const CCollidableAABox& box0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableAABox& box1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
+
+    zeus::CAABox aabb0 = box0.Transform(collision.GetLeft().GetTransform());
+    zeus::CAABox aabb1 = box1.Transform(collision.GetRight().GetTransform());
+
+    return CollisionUtil::AABoxAABoxIntersection(aabb0, aabb1);
 }
 
 }

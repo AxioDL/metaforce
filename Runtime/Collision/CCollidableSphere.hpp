@@ -25,6 +25,7 @@ public:
 
     const zeus::CSphere& GetSphere() const;
     void SetSphereCenter(const zeus::CVector3f&);
+    zeus::CSphere Transform(const zeus::CTransform& xf) const;
 
     virtual u32 GetTableIndex() const;
     virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;

@@ -24,7 +24,7 @@ static CModelData MakePlayerAnimRes(ResId resId, const zeus::CVector3f& scale)
     return {CAnimRes(resId, 0, scale, 0, true), 1};
 }
 
-CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, unsigned int resId,
+CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, ResId resId,
                  const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float f4,
                  const CMaterialList& ml)
 : CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf,
@@ -34,7 +34,6 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
     x490_gun.reset(new CPlayerGun(uid));
     x49c_gunNotFiringTimeout = g_tweakPlayerGun->GetGunNotFiringTime();
     x4a0_inputFilter.reset(new CInputFilter());
-    x768_morphball.reset(new CMorphBall(*this, f4));
     x76c_cameraBob.reset(new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
                                               zeus::CVector2f{CPlayerCameraBob::kCameraBobExtentX,
                                                               CPlayerCameraBob::kCameraBobExtentY},
@@ -43,8 +42,43 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
     x9c4_27_ = true;
     x9c4_28_ = true;
     x9c5_31_ = true;
-    ResId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_);
+    ResId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam);
     x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(CStaticRes(beamId, playerScale));
+    x730_.reserve(3);
+    x768_morphball.reset(new CMorphBall(*this, f4));
+
+    SetInertiaTensorScalar(xe8_mass);
+    x1f4_lastNonCollidingState = GetMotionState();
+    x490_gun->SetX3e8(x34_transform);
+    x490_gun->GetGrappleArm().SetX220(x34_transform);
+
+    InitializeBallTransition();
+    zeus::CAABox ballTransAABB = x64_modelData->GetBounds();
+    x2f0_ballTransHeight = ballTransAABB.max.z - ballTransAABB.min.z;
+
+    SetCalculateLighting(true);
+
+    x90_actorLights->SetCastShadows(true);
+    x50c_.z = 0.f;
+    if (x50c_.canBeNormalized())
+        x50c_.normalize();
+    x2b4_.push_back(20.f);
+    x2b4_.push_back(80.f);
+    x2b4_.push_back(80.f);
+    x2b4_.push_back(270.f);
+    SetMaximumCollisionVelocity(25.f);
+    x354_onScreenOrbitObjects.reserve(64);
+    x344_nearbyOrbitObjects.reserve(64);
+    x364_offScreenOrbitObjects.reserve(64);
+    x64_modelData->SetScale(playerScale);
+    x7f0_ballTransitionBeamModel->SetScale(playerScale);
+    LoadAnimationTokens();
+}
+
+void CPlayer::InitializeBallTransition()
+{
+    if (x64_modelData && x64_modelData->HasAnimData())
+        x64_modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
 }
 
 bool CPlayer::IsTransparent() const { return x588_alpha < 1.f; }
@@ -246,7 +280,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
 {
     switch (msg)
     {
-    case EScriptObjectMessage::OnGround:
+    case EScriptObjectMessage::OnFloor:
         if (x258_movementState != EPlayerMovementState::OnGround &&
             x2f8_morphTransState != EPlayerMorphBallState::Morphed &&
             x300_fallingTime > 0.3f)
@@ -834,7 +868,7 @@ const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const { return CPhys
 
 zeus::CTransform CPlayer::GetPrimitiveTransform() const { return {}; }
 
-bool CPlayer::CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) { return false; }
+void CPlayer::CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) {}
 
 float CPlayer::GetActualFirstPersonMaxVelocity() const { return 0.f; }
 

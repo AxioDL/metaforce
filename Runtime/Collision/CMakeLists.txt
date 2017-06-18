@@ -22,6 +22,9 @@ set(COLLISION_SOURCES
     CRayCastResult.hpp CRayCastResult.cpp
     CCollisionActor.hpp CCollisionActor.cpp
     CCollisionActorManager.hpp CCollisionActorManager.cpp
-    CJointCollisionDescription.hpp CJointCollisionDescription.cpp)
+    CJointCollisionDescription.hpp CJointCollisionDescription.cpp
+    CAABoxFilter.hpp CAABoxFilter.cpp
+    CBallFilter.hpp CBallFilter.cpp
+    ICollisionFilter.hpp)
 
 runtime_add_list(Collision COLLISION_SOURCES)

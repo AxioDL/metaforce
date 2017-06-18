@@ -32,6 +32,11 @@ void CCollidableSphere::SetSphereCenter(const zeus::CVector3f&)
 
 }
 
+zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform& xf) const
+{
+    return zeus::CSphere(xf * x10_sphere.position, x10_sphere.radius);
+}
+
 u32 CCollidableSphere::GetTableIndex() const { return sTableIndex; }
 
 zeus::CAABox CCollidableSphere::CalculateAABox(const zeus::CTransform&) const { return {}; }

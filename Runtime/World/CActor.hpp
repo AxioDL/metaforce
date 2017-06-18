@@ -170,6 +170,7 @@ public:
     const CScannableObjectInfo* GetScannableObjectInfo() const;
     const CHealthInfo* GetHealthInfo() const { return const_cast<CActor*>(this)->HealthInfo(); }
     bool GetDoTargetDistanceTest() const { return xe7_30_doTargetDistanceTest; }
+    void SetCalculateLighting(bool c);
 };
 }
 
