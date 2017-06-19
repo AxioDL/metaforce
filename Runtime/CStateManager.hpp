@@ -332,10 +332,10 @@ public:
                            const CDamageInfo& info);
     bool TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
                        const rstl::reserved_vector<TUniqueId, 1024>& nearList);
-    bool RayCollideWorld(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+    bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
                          const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                          const CMaterialFilter& filter, const CActor& damagee);
-    bool RayCollideWorldInternal(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+    bool RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                  const CMaterialFilter& filter,
                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                  const CActor* damagee);

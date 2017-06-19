@@ -27,6 +27,7 @@ class CPlayer : public CPhysicsActor
     friend class CFirstPersonCamera;
     friend class CPlayerCameraBob;
     friend class CMorphBall;
+    friend class CGroundMovement;
 
 public:
     enum class EPlayerScanState
@@ -318,13 +319,13 @@ private:
             bool x9c4_28_ : 1;
             bool x9c4_29_ : 1;
             bool x9c4_30_ : 1;
-            bool x9c4_31_ : 1;
+            bool x9c4_31_dampUnderwaterMotion : 1;
             bool x9c5_24_ : 1;
             bool x9c5_25_splashUpdated : 1;
             bool x9c5_26_ : 1;
             bool x9c5_27_ : 1;
-            bool x9c5_28_ : 1;
-            bool x9c5_29_ : 1;
+            bool x9c5_28_slidingOnWall : 1;
+            bool x9c5_29_hitWall : 1;
             bool x9c5_30_ : 1;
             bool x9c5_31_ : 1;
             bool x9c6_24_ : 1;
@@ -543,6 +544,7 @@ public:
     const std::vector<TUniqueId>& GetNearbyOrbitObjects() const { return x344_nearbyOrbitObjects; }
     const std::vector<TUniqueId>& GetOnScreenOrbitObjects() const { return x354_onScreenOrbitObjects; }
     const std::vector<TUniqueId>& GetOffScreenOrbitObjects() const { return x364_offScreenOrbitObjects; }
+    void SetPlayerHitWallDuringMove();
 
     void Touch();
 

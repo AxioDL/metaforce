@@ -63,6 +63,26 @@ void FilterOutBackfaces(const zeus::CVector3f& vec, const CCollisionInfoList& in
     }
 }
 
+void FilterByClosestNormal(const zeus::CVector3f& norm, const CCollisionInfoList& in, CCollisionInfoList& out)
+{
+    float maxDot = -1.1f;
+    int idx = -1;
+    int i=0;
+    for (const CCollisionInfo& info : in)
+    {
+        float dot = info.GetNormalLeft().dot(norm);
+        if (dot > maxDot)
+        {
+            maxDot = dot;
+            idx = i;
+        }
+        ++i;
+    }
+
+    if (idx != -1)
+        out.Add(in.GetItem(i), false);
+}
+
 static const zeus::CVector3f AABBNormalTable[] =
 {
     {-1.f, 0.f, 0.f},

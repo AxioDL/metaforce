@@ -147,6 +147,11 @@ public:
     {
         return other.x0_list & x0_list;
     }
+
+    u64 XOR(const CMaterialList& other) const
+    {
+        return x0_list ^ other.x0_list;
+    }
 };
 
 }

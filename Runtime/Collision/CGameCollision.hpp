@@ -25,10 +25,6 @@ class CGameCollision
 {
     static void MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float dt,
                            const rstl::reserved_vector<TUniqueId, 1024>* colliderList);
-    static void MoveGroundCollider(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                   const rstl::reserved_vector<TUniqueId, 1024>* colliderList);
-    static void MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                       const rstl::reserved_vector<TUniqueId, 1024>* colliderList);
     static void MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, float dt, const ICollisionFilter& filter,
                                const rstl::reserved_vector<TUniqueId, 1024>* colliderList);
     static zeus::CVector3f GetActorRelativeVelocities(const CPhysicsActor& act0, const CPhysicsActor* act1);
@@ -84,6 +80,12 @@ public:
                                        const CMaterialFilter& filter,
                                        const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                        TUniqueId& idOut, CCollisionInfoList& infoList);
+    static bool DetectCollision_Cached_Moving(CStateManager& mgr, CAreaCollisionCache& cache,
+                                              const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                              const CMaterialFilter& filter,
+                                              const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                              const zeus::CVector3f& vec,
+                                              TUniqueId& idOut, CCollisionInfo& infoOut, double&);
     static bool DetectStaticCollision(CStateManager& mgr, const CCollisionPrimitive& prim,
                                       const zeus::CTransform& xf, const CMaterialFilter& filter,
                                       CCollisionInfoList& list);
@@ -105,6 +107,10 @@ public:
                                   CPhysicsActor& actor, const CCollisionPrimitive& prim,
                                   const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                   float, u32 failsafeTicks);
+    static std::experimental::optional<zeus::CVector3f>
+    FindNonIntersectingVector(CStateManager& mgr, CAreaCollisionCache& cache,
+                              CPhysicsActor& actor, const CCollisionPrimitive& prim,
+                              const rstl::reserved_vector<TUniqueId, 1024>& nearList);
 };
 }
 

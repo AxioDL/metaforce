@@ -12,6 +12,7 @@
 #include "CollisionUtil.hpp"
 #include "World/CScriptPlatform.hpp"
 #include "CCollidableSphere.hpp"
+#include "Character/CGroundMovement.hpp"
 
 namespace urde
 {
@@ -21,9 +22,9 @@ static float CollisionImpulseFiniteVsInfinite(float mass, float velNormDot, floa
     return mass * ((1.f / restitution) * velNormDot);
 }
 
-static float CollisionImpulseFiniteVsFinite(float mass, float velNormDot, float restitution, float f4)
+static float CollisionImpulseFiniteVsFinite(float mass0, float mass1, float velNormDot, float restitution)
 {
-    return (-(1.f + f4) * restitution) / ((1.f / mass) + (1.f / velNormDot));
+    return (-(1.f + restitution) * velNormDot) / ((1.f / mass0) + (1.f / mass1));
 }
 
 void CGameCollision::InitCollision()
@@ -68,34 +69,11 @@ void CGameCollision::MovePlayer(CStateManager& mgr, CPhysicsActor& actor, float 
     else
     {
         if (actor.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider))
-            MoveGroundCollider_New(mgr, actor, dt, colliderList);
+            CGroundMovement::MoveGroundCollider_New(mgr, actor, dt, colliderList);
         else
             MoveAndCollide(mgr, actor, dt, CBallFilter(actor), colliderList);
     }
     actor.SetAngularEnabled(false);
-}
-
-void CGameCollision::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                        const rstl::reserved_vector<TUniqueId, 1024>* colliderList)
-{
-    CMotionState oldState = actor.GetMotionState();
-    CMotionState newState = actor.PredictMotion_Internal(dt);
-    newState.x0_translation.magnitude();
-    actor.GetMaterialFilter();
-    zeus::CAABox motionVol = actor.GetMotionVolume(dt);
-    rstl::reserved_vector<TUniqueId, 1024> augmentedColliderList;
-    if (colliderList)
-        augmentedColliderList = *colliderList;
-    mgr.BuildColliderList(augmentedColliderList, actor, motionVol);
-    CAreaCollisionCache cache(motionVol);
-    actor.GetCollisionPrimitive()->GetPrimType();
-    // TODO: finish
-}
-
-void CGameCollision::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& actor, float dt,
-                                            const rstl::reserved_vector<TUniqueId, 1024>* colliderList)
-{
-    // TODO: finish
 }
 
 void CGameCollision::MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, float dt, const ICollisionFilter& filter,
@@ -246,7 +224,7 @@ void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
             if (actor.GetMaterialList().HasMaterial(EMaterialTypes::Player))
                 MovePlayer(mgr, actor, dt, colliderList);
             else if (actor.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider))
-                MoveGroundCollider(mgr, actor, dt, colliderList);
+                CGroundMovement::MoveGroundCollider(mgr, actor, dt, colliderList);
             else
                 MoveAndCollide(mgr, actor, dt, CAABoxFilter(actor), colliderList);
         }
@@ -587,6 +565,17 @@ bool CGameCollision::DetectCollision_Cached(CStateManager& mgr, CAreaCollisionCa
     return ret;
 }
 
+bool CGameCollision::DetectCollision_Cached_Moving(CStateManager& mgr, CAreaCollisionCache& cache,
+                                                   const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                   const CMaterialFilter& filter,
+                                                   const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                                   const zeus::CVector3f& vec,
+                                                   TUniqueId& idOut, CCollisionInfo& infoOut, double&)
+{
+    // TODO: Finish
+    return false;
+}
+
 bool CGameCollision::DetectStaticCollision(CStateManager& mgr, const CCollisionPrimitive& prim,
                                            const zeus::CTransform& xf, const CMaterialFilter& filter,
                                            CCollisionInfoList& list)
@@ -777,16 +766,80 @@ void CGameCollision::ResolveCollisions(CPhysicsActor& a0, CPhysicsActor* a1, con
 }
 
 void CGameCollision::CollideWithDynamicBodyNoRot(CPhysicsActor& a0, CPhysicsActor& a1,
-                                                 const CCollisionInfo& info, float restitution, bool)
+                                                 const CCollisionInfo& info, float restitution, bool zeroZ)
 {
-    /* TODO: Finish */
+    zeus::CVector3f normal = info.GetNormalLeft();
+    if (zeroZ)
+        normal.z = 0.f;
+
+    zeus::CVector3f relVel = GetActorRelativeVelocities(a0, &a1);
+    float velNormDot = relVel.dot(normal);
+
+    float a0MaxCollisionVel = std::max(a0.GetVelocity().magnitude(), a0.GetMaximumCollisionVelocity());
+    float a1MaxCollisionVel = std::max(a1.GetVelocity().magnitude(), a1.GetMaximumCollisionVelocity());
+
+    bool a0Move = !a0.GetMaterialList().HasMaterial(EMaterialTypes::Immovable) && a0.GetMass() != 0.f;
+    bool a1Move = !a1.GetMaterialList().HasMaterial(EMaterialTypes::Immovable) && a1.GetMass() != 0.f;
+
+    if (velNormDot < -0.0001f)
+    {
+        if (a0Move)
+        {
+            if (a1Move)
+            {
+                float impulse = CollisionImpulseFiniteVsFinite(a0.GetMass(), a1.GetMass(), velNormDot, restitution);
+                a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+                a1.ApplyImpulseWR(normal * -impulse, zeus::CAxisAngle::sIdentity);
+            }
+            else
+            {
+                float impulse = CollisionImpulseFiniteVsInfinite(a0.GetMass(), velNormDot, restitution);
+                a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+            }
+        }
+        else
+        {
+            if (a1Move)
+            {
+                float impulse = CollisionImpulseFiniteVsInfinite(a1.GetMass(), velNormDot, restitution);
+                a1.ApplyImpulseWR(normal * -impulse, zeus::CAxisAngle::sIdentity);
+            }
+            else
+            {
+                a0.SetVelocityWR(zeus::CVector3f::skZero);
+                a1.SetVelocityWR(zeus::CVector3f::skZero);
+            }
+        }
+        a0.UseCollisionImpulses();
+        a1.UseCollisionImpulses();
+    }
+    else if (velNormDot < 0.1f)
+    {
+        if (a0Move)
+        {
+            float impulse = 0.05f * a0.GetMass();
+            a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+            a0.UseCollisionImpulses();
+        }
+        if (a1Move)
+        {
+            float impulse = -0.05f * a1.GetMass();
+            a1.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+            a1.UseCollisionImpulses();
+        }
+    }
+
+    if (a0.GetVelocity().magnitude() > a0MaxCollisionVel)
+        a0.SetVelocityWR(a0.GetVelocity().normalized() * a0MaxCollisionVel);
+    if (a1.GetVelocity().magnitude() > a1MaxCollisionVel)
+        a1.SetVelocityWR(a1.GetVelocity().normalized() * a1MaxCollisionVel);
 }
 
 void CGameCollision::CollideWithStaticBodyNoRot(CPhysicsActor& a0, const CMaterialList& m0, const CMaterialList& m1,
-                                                const zeus::CUnitVector3f& normal, float restitution, bool b)
+                                                const zeus::CUnitVector3f& normal, float restitution, bool zeroZ)
 {
     zeus::CUnitVector3f useNorm = normal;
-    if (b && m0.HasMaterial(EMaterialTypes::Player) && !m1.HasMaterial(EMaterialTypes::Floor))
+    if (zeroZ && m0.HasMaterial(EMaterialTypes::Player) && !m1.HasMaterial(EMaterialTypes::Floor))
         useNorm.z = 0.f;
 
     if (useNorm.canBeNormalized())
@@ -825,12 +878,155 @@ void CGameCollision::CollisionFailsafe(CStateManager& mgr, CAreaCollisionCache& 
         actor.SetNumTicksStuck(actor.GetNumTicksStuck() + 1);
         if (actor.GetNumTicksStuck() < failsafeTicks)
             return;
-        /* TODO: Finish */
+
+        CMotionState oldMState = actor.GetMotionState();
+        CMotionState lastNonCollide = actor.GetLastNonCollidingState();
+        actor.SetMotionState(lastNonCollide);
+        if (!DetectCollisionBoolean_Cached(mgr, cache, prim, actor.GetPrimitiveTransform(),
+                                           actor.GetMaterialFilter(), nearList))
+        {
+            lastNonCollide.x1c_velocity *= 0.5f;
+            lastNonCollide.x28_angularMomentum *= 0.5f;
+            actor.SetLastNonCollidingState(lastNonCollide);
+            //++gDebugPrintCount;
+            actor.SetNumTicksStuck(0);
+        }
+        else
+        {
+            actor.SetMotionState(oldMState);
+            if (auto nonIntersectVec = FindNonIntersectingVector(mgr, cache, actor, prim, nearList))
+            {
+                oldMState.x0_translation += *nonIntersectVec;
+                actor.SetMotionState(oldMState);
+                actor.SetLastNonCollidingState(actor.GetMotionState());
+                //++gDebugPrintCount;
+            }
+            else
+            {
+                //++gDebugPrintCount;
+                lastNonCollide.x1c_velocity *= 0.5f;
+                lastNonCollide.x28_angularMomentum *= 0.5f;
+                actor.SetLastNonCollidingState(lastNonCollide);
+            }
+        }
     }
     else
     {
         actor.SetLastNonCollidingState(actor.GetMotionState());
         actor.SetNumTicksStuck(0);
     }
+}
+
+std::experimental::optional<zeus::CVector3f>
+CGameCollision::FindNonIntersectingVector(CStateManager& mgr, CAreaCollisionCache& cache,
+                                          CPhysicsActor& actor, const CCollisionPrimitive& prim,
+                                          const rstl::reserved_vector<TUniqueId, 1024>& nearList)
+{
+    zeus::CTransform xf = actor.GetPrimitiveTransform();
+    zeus::CVector3f center = prim.CalculateAABox(xf).center();
+    for (int i=2 ; i<1000 ; i+=(i/2))
+    {
+        float pos = i * 0.005f;
+        float neg = -pos;
+        for (int j=0 ; j<26 ; ++j)
+        {
+            zeus::CVector3f vec;
+            switch (j)
+            {
+            case 0:
+                vec = {0.f, pos, 0.f};
+                break;
+            case 1:
+                vec = {0.f, neg, 0.f};
+                break;
+            case 2:
+                vec = {pos, 0.f, 0.f};
+                break;
+            case 3:
+                vec = {neg, 0.f, 0.f};
+                break;
+            case 4:
+                vec = {0.f, 0.f, pos};
+                break;
+            case 5:
+                vec = {0.f, 0.f, neg};
+                break;
+            case 6:
+                vec = {0.f, pos, pos};
+                break;
+            case 7:
+                vec = {0.f, neg, neg};
+                break;
+            case 8:
+                vec = {0.f, neg, pos};
+                break;
+            case 9:
+                vec = {0.f, pos, neg};
+                break;
+            case 10:
+                vec = {pos, 0.f, pos};
+                break;
+            case 11:
+                vec = {neg, 0.f, neg};
+                break;
+            case 12:
+                vec = {neg, 0.f, pos};
+                break;
+            case 13:
+                vec = {pos, 0.f, neg};
+                break;
+            case 14:
+                vec = {pos, pos, 0.f};
+                break;
+            case 15:
+                vec = {neg, neg, 0.f};
+                break;
+            case 16:
+                vec = {neg, pos, 0.f};
+                break;
+            case 17:
+                vec = {pos, neg, 0.f};
+                break;
+            case 18:
+                vec = {pos, pos, pos};
+                break;
+            case 19:
+                vec = {neg, pos, pos};
+                break;
+            case 20:
+                vec = {pos, neg, pos};
+                break;
+            case 21:
+                vec = {neg, neg, pos};
+                break;
+            case 22:
+                vec = {pos, pos, neg};
+                break;
+            case 23:
+                vec = {neg, pos, neg};
+                break;
+            case 24:
+                vec = {pos, neg, neg};
+                break;
+            case 25:
+                vec = {neg, neg, neg};
+                break;
+            default: break;
+            }
+
+            zeus::CVector3f worldPoint = vec + xf.origin;
+            if (mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().pointInside(worldPoint))
+            {
+                if (mgr.RayCollideWorld(center, center + vec, nearList,
+                                        CMaterialFilter::skPassEverything, actor))
+                {
+                    if (!DetectCollisionBoolean_Cached(mgr, cache, prim, xf, actor.GetMaterialFilter(), nearList))
+                        return {vec};
+                }
+            }
+        }
+    }
+
+    return {};
 }
 }

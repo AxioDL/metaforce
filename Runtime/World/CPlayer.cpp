@@ -947,6 +947,12 @@ bool CPlayer::ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) cons
     return false;
 }
 
+void CPlayer::SetPlayerHitWallDuringMove()
+{
+    x9c5_29_hitWall = true;
+    x2d0_ = 1;
+}
+
 void CPlayer::Touch() {}
 
 void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId d, bool e)

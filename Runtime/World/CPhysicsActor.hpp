@@ -78,6 +78,7 @@ public:
 
 class CPhysicsActor : public CActor
 {
+    friend class CGroundMovement;
 protected:
     float xe8_mass;
     float xec_massRecip;
@@ -108,7 +109,7 @@ protected:
     CCollidableAABox x1c0_collisionPrimitive;
     zeus::CVector3f x1e8_primitiveOffset;
     CMotionState x1f4_lastNonCollidingState;
-    bool x234_ = false;
+    std::experimental::optional<zeus::CVector3f> x228_lastFloorPlaneNormal;
     float x238_maximumCollisionVelocity = 1000000.0f;
     float x23c_stepUpHeight;
     float x240_stepDownHeight;
@@ -138,7 +139,7 @@ public:
     zeus::CVector3f GetPrimitiveOffset();
     void MoveCollisionPrimitive(const zeus::CVector3f& offset);
     void SetBoundingBox(const zeus::CAABox& box);
-    zeus::CAABox GetMotionVolume(float f31) const;
+    zeus::CAABox GetMotionVolume(float dt) const;
     zeus::CVector3f CalculateNewVelocityWR_UsingImpulses() const;
     zeus::CAABox GetBoundingBox() const;
     const zeus::CAABox& GetBaseBoundingBox() const;
@@ -153,9 +154,12 @@ public:
     void SetMass(float mass);
     void SetAngularVelocityOR(const zeus::CAxisAngle& angVel);
     zeus::CAxisAngle GetAngularVelocityOR() const;
+    const zeus::CAxisAngle& GetAngularVelocityWR() const { return x144_angularVelocity; }
     void SetAngularVelocityWR(const zeus::CAxisAngle& angVel);
     void SetVelocityWR(const zeus::CVector3f& vel);
     void SetVelocityOR(const zeus::CVector3f& vel);
+    void SetMomentumWR(const zeus::CVector3f& m) { x150_momentum = m; }
+    const zeus::CVector3f& GetMomentum() const { return x150_momentum; }
     const zeus::CVector3f& GetVelocity() const { return x138_velocity; }
     zeus::CVector3f GetTotalForcesWR() const;
     void RotateInOneFrameOR(const zeus::CQuaternion& q, float d);
@@ -186,6 +190,8 @@ public:
     void SetNumTicksPartialUpdate(u32 t) { x250_numTicksPartialUpdate = t; }
     u32 GetNumTicksStuck() const { return x24c_numTicksStuck; }
     void SetNumTicksStuck(u32 t) { x24c_numTicksStuck = t; }
+    const std::experimental::optional<zeus::CVector3f>& GetLastFloorPlaneNormal() const { return x228_lastFloorPlaneNormal; }
+    void SetLastFloorPlaneNormal(const std::experimental::optional<zeus::CVector3f>& n) { x228_lastFloorPlaneNormal = n; }
 
     CMotionState PredictMotion_Internal(float) const;
     CMotionState PredictMotion(float dt) const;

@@ -114,6 +114,7 @@ class TCastToPtr : public IVisitor
 protected:
     T* ptr = nullptr;
 public:
+    TCastToPtr() = default;
     TCastToPtr(CEntity* p);
     TCastToPtr(CEntity& p);
 
@@ -134,6 +135,7 @@ template <class T>
 class TCastToConstPtr : TCastToPtr<T>
 {
 public:
+    TCastToConstPtr() = default;
     TCastToConstPtr(const CEntity* p) : TCastToPtr<T>(const_cast<CEntity*>(p)) {}
     TCastToConstPtr(const CEntity& p) : TCastToPtr<T>(const_cast<CEntity&>(p)) {}
     const T* GetPtr() const { return TCastToPtr<T>::ptr; }

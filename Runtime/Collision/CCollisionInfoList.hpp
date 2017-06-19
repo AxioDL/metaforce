@@ -28,6 +28,8 @@ public:
             x0_list.push_back(info.GetSwapped());
     }
     void Clear() { x0_list.clear(); }
+    const CCollisionInfo& Front() const { return x0_list.front(); }
+    const CCollisionInfo& GetItem(int i) const { return x0_list[i]; }
     rstl::reserved_vector<CCollisionInfo, 32>::iterator end() { return x0_list.end(); }
     rstl::reserved_vector<CCollisionInfo, 32>::const_iterator end() const { return x0_list.end(); }
     rstl::reserved_vector<CCollisionInfo, 32>::iterator begin() { return x0_list.begin(); }

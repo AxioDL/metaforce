@@ -1499,27 +1499,27 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
     return CGameCollision::RayDynamicIntersectionBool(*this, pos, dir, filter, nearList, &damagee, depth * origMag);
 }
 
-bool CStateManager::RayCollideWorld(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                     const CMaterialFilter& filter, const CActor& damagee)
 {
-    return RayCollideWorldInternal(pos, damageeCenter, filter, nearList, &damagee);
+    return RayCollideWorldInternal(start, end, filter, nearList, &damagee);
 }
 
-bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& pos, const zeus::CVector3f& damageeCenter,
+bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                             const CMaterialFilter& filter,
                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                             const CActor* damagee)
 {
-    zeus::CVector3f vecToDamagee = damageeCenter - pos;
-    if (!vecToDamagee.canBeNormalized())
+    zeus::CVector3f delta = end - start;
+    if (!delta.canBeNormalized())
         return true;
 
-    float mag = vecToDamagee.magnitude();
-    zeus::CVector3f dir = vecToDamagee * (1.f / mag);
-    if (!CGameCollision::RayStaticIntersectionBool(*this, pos, dir, mag, filter))
+    float mag = delta.magnitude();
+    zeus::CVector3f dir = delta * (1.f / mag);
+    if (!CGameCollision::RayStaticIntersectionBool(*this, start, dir, mag, filter))
         return false;
-    return CGameCollision::RayDynamicIntersectionBool(*this, pos, dir, filter, nearList, damagee, mag);
+    return CGameCollision::RayDynamicIntersectionBool(*this, start, dir, filter, nearList, damagee, mag);
 }
 
 bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter)

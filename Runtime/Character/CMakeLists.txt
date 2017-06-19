@@ -88,6 +88,7 @@ set(CHARACTER_SOURCES
     CAnimSysContext.hpp
     CBodyState.hpp CBodyState.cpp
     CBodyStateCmdMgr.hpp CBodyStateCmdMgr.cpp
-    CBodyController.hpp CBodyController.cpp)
+    CBodyController.hpp CBodyController.cpp
+    CGroundMovement.hpp CGroundMovement.cpp)
 
 runtime_add_list(Character CHARACTER_SOURCES)
