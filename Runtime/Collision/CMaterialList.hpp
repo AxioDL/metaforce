@@ -61,9 +61,10 @@ enum class EMaterialTypes
     RadarObject = 51,
     PlatformSlave = 52,
     Unknown54 = 54,
-    Unknown55 = 55,
+    SolidCharacter = 55,
     ExcludeFromLineOfSightTest = 56,
     ExcludeFromRadar = 57,
+    NoPlayerCollision = 58,
     SixtyThree = 63
 };
 

@@ -363,10 +363,12 @@ void CGroundMovement::MoveGroundColliderXY(CAreaCollisionCache& cache, CStateMan
     actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
 }
 
-void CGroundMovement::CollisionDamping(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&,
-                                       float, float)
+zeus::CVector3f CGroundMovement::CollisionDamping(const zeus::CVector3f& vel, const zeus::CVector3f& dir,
+                                                  const zeus::CVector3f& cNorm, float normCoeff, float deltaCoeff)
 {
-
+    zeus::CVector3f dampedDir = (cNorm * -2.f * cNorm.dot(dir) + dir).normalized();
+    zeus::CVector3f dampedNorm = cNorm * cNorm.dot(dampedDir);
+    return (dampedDir - dampedNorm) * vel.magnitude() * deltaCoeff + normCoeff * vel.magnitude() * dampedNorm;
 }
 
 void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& actor, float dt,
@@ -386,10 +388,8 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     bool startingJump = player.x258_movementState == CPlayer::EPlayerMovementState::StartingJump;
     bool dampUnderwater = false;
     if (player.x9c4_31_dampUnderwaterMotion)
-    {
         if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
             dampUnderwater = true;
-    }
 
     bool noJump = (player.x258_movementState != CPlayer::EPlayerMovementState::StartingJump &&
                    player.x258_movementState != CPlayer::EPlayerMovementState::Jump);
@@ -397,31 +397,31 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     float stepDown = player.GetStepDownHeight();
     float stepUp = player.GetStepUpHeight();
 
-    bool x108 = true;
+    bool doStepDown = true;
     CMaterialList material(EMaterialTypes::Unknown);
     SMoveObjectResult result;
 
     if (!startingJump)
     {
         SMovementOptions opts;
-        opts.x0_ = false;
-        opts.x4_ = 0.f;
-        opts.x8_ = 0.f;
-        opts.xc_ = 0.37f;
-        opts.x10_ = 0.25f;
-        opts.x14_ = 0.f;
-        opts.x18_ = true;
-        opts.x19_ = false;
-        opts.x1a_ = noJump;
-        opts.x1c_ = 4;
-        opts.x20_ = 0.002f;
-        opts.x24_ = 0.f;
-        opts.x28_ = 1.f;
-        opts.x2c_ = 0.f;
-        opts.x30_ = 0.02f;
-        opts.x3c_ = player.GetLastFloorPlaneNormal();
-        opts.x34_ = 0.2f;
-        opts.x38_ = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
+        opts.x0_setWaterLandingForce = false;
+        opts.x4_waterLandingForceCoefficient = 0.f;
+        opts.x8_minimumWaterLandingForce = 0.f;
+        opts.xc_anyZThreshold = 0.37f;
+        opts.x10_downwardZThreshold = 0.25f;
+        opts.x14_waterLandingVelocityReduction = 0.f;
+        opts.x18_dampForceAndMomentum = true;
+        opts.x19_alwaysClip = false;
+        opts.x1a_disableClipForFloorOnly = noJump;
+        opts.x1c_maxCollisionCycles = 4;
+        opts.x20_minimumTranslationDelta = 0.002f;
+        opts.x24_dampedNormalCoefficient = 0.f;
+        opts.x28_dampedDeltaCoefficient = 1.f;
+        opts.x2c_floorElasticForce = 0.f;
+        opts.x30_wallElasticConstant = 0.02f;
+        opts.x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal();
+        opts.x34_wallElasticLinear = 0.2f;
+        opts.x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
 
         if (noJump)
         {
@@ -441,11 +441,11 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
         {
             SMovementOptions optsCopy = opts;
             zeus::CVector3f postToPre = physStatePre.GetTranslation() - physStatePost.GetTranslation();
-            float f27 = postToPre.magSquared();
-            optsCopy.x19_ = noJump;
+            float postToPreMag = postToPre.magSquared();
+            optsCopy.x19_alwaysClip = noJump;
             float quarterStepUp = 0.25f * stepUp;
             rstl::reserved_vector<CPhysicsState, 2> physStateList;
-            rstl::reserved_vector<float, 2> floatList;
+            rstl::reserved_vector<float, 2> stepDeltaList;
             rstl::reserved_vector<CCollisionInfo, 2> collisionInfoList;
             rstl::reserved_vector<TUniqueId, 2> uniqueIdList;
             rstl::reserved_vector<CMaterialList, 2> materialListList;
@@ -462,7 +462,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
                                                               useStepUp);
                 if (collisionInfo.IsValid())
                 {
-                    useStepUp = std::max(0.0, useStepUp - optsCopy.x20_);
+                    useStepUp = std::max(0.0, useStepUp - optsCopy.x20_minimumTranslationDelta);
                     done = true;
                 }
 
@@ -489,16 +489,16 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
 
                     float minStep = std::min(useStepUp, useStepDown);
                     zeus::CVector3f offsetStep = actor.GetTranslation() - zeus::CVector3f(0.f, 0.f, minStep);
-                    bool canBlock = (collisionInfo.IsValid() &&
-                                     CGameCollision::CanBlock(collisionInfo.GetMaterialLeft(), collisionInfo.GetNormalLeft()));
+                    bool floor = (collisionInfo.IsValid() &&
+                        CGameCollision::CanBlock(collisionInfo.GetMaterialLeft(), collisionInfo.GetNormalLeft()));
                     zeus::CVector3f postToPre = physStatePre.GetTranslation() - offsetStep;
-                    float f26 = postToPre.magSquared();
-                    if (canBlock && f27 < f26)
+                    float stepDelta = postToPre.magSquared();
+                    if (floor && postToPreMag < stepDelta)
                     {
                         useStepDown = std::max(0.0, useStepDown - 0.0005);
                         actor.SetTranslation(actor.GetTranslation() - zeus::CVector3f(0.f, 0.f, useStepDown));
                         physStateList.push_back(actor.GetPhysicsState());
-                        floatList.push_back(f26);
+                        stepDeltaList.push_back(stepDelta);
                         collisionInfoList.push_back(collisionInfo);
                         uniqueIdList.push_back(id);
                         materialListList.push_back(material);
@@ -516,9 +516,9 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
                 int maxIdx = -1;
                 for (int i=0 ; i<physStateList.size() ; ++i)
                 {
-                    if (maxFloat < floatList[i])
+                    if (maxFloat < stepDeltaList[i])
                     {
-                        maxFloat = floatList[i];
+                        maxFloat = stepDeltaList[i];
                         maxIdx = i;
                     }
                 }
@@ -529,13 +529,13 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
                 {
                     result.x0_id.emplace(uniqueIdList[maxIdx]);
                     result.x8_collision.emplace(collisionInfoList[maxIdx]);
-                    if (TCastToPtr<CScriptPlatform> plat = ent)
+                    if (TCastToPtr<CScriptPlatform>(ent))
                         mgr.SendScriptMsg(ent, actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
                 }
 
                 CCollisionInfo& cInfo = collisionInfoList[maxIdx];
                 CGameCollision::SendMaterialMessage(mgr, cInfo.GetMaterialLeft(), actor);
-                x108 = false;
+                doStepDown = false;
                 actor.SetLastFloorPlaneNormal({cInfo.GetNormalLeft()});
             }
         }
@@ -543,30 +543,81 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     else
     {
         SMovementOptions opts;
-        opts.x0_ = true;
-        opts.x4_ = dampUnderwater ? 35.f : 1.f;
-        opts.x8_ = dampUnderwater ? 5.f : 0.f;
-        opts.xc_ = dampUnderwater ? 0.05f : 0.37f;
-        opts.x10_ = dampUnderwater ? 0.01f : 0.25f;
-        opts.x14_ = dampUnderwater ? 0.2f : 0.f;
-        opts.x18_ = false;
-        opts.x19_ = false;
-        opts.x1a_ = false;
-        opts.x1c_ = 4;
-        opts.x20_ = 0.002f;
-        opts.x24_ = 0.f;
-        opts.x28_ = 1.f;
-        opts.x2c_ = 0.1f;
-        opts.x30_ = dampUnderwater ? 0.2f : 0.2f;
-        opts.x3c_ = player.GetLastFloorPlaneNormal();
-        opts.x38_ = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
+        opts.x0_setWaterLandingForce = true;
+        opts.x4_waterLandingForceCoefficient = dampUnderwater ? 35.f : 1.f;
+        opts.x8_minimumWaterLandingForce = dampUnderwater ? 5.f : 0.f;
+        opts.xc_anyZThreshold = dampUnderwater ? 0.05f : 0.37f;
+        opts.x10_downwardZThreshold = dampUnderwater ? 0.01f : 0.25f;
+        opts.x14_waterLandingVelocityReduction = dampUnderwater ? 0.2f : 0.f;
+        opts.x18_dampForceAndMomentum = false;
+        opts.x19_alwaysClip = false;
+        opts.x1a_disableClipForFloorOnly = false;
+        opts.x1c_maxCollisionCycles = 4;
+        opts.x20_minimumTranslationDelta = 0.002f;
+        opts.x24_dampedNormalCoefficient = 0.f;
+        opts.x28_dampedDeltaCoefficient = 1.f;
+        opts.x2c_floorElasticForce = 0.1f;
+        opts.x30_wallElasticConstant = dampUnderwater ? 0.2f : 0.2f;
+        opts.x3c_floorPlaneNormal = player.GetLastFloorPlaneNormal();
+        opts.x38_maxPositiveVerticalVelocity = player.GetMaximumPlayerPositiveVerticalVelocity(mgr);
 
         material = MoveObjectAnalytical(mgr, actor, dt, useNearList, cache, opts, result);
     }
 
-    if (x108)
+    if (doStepDown)
     {
-        // TODO: Finish
+        CCollisionInfo collisionInfo;
+        double stepDown = actor.GetStepDownHeight();
+        float zOffset = 0.f;
+        TUniqueId id = kInvalidUniqueId;
+        if (stepDown > FLT_EPSILON)
+        {
+            zeus::CTransform xf = actor.GetTransform();
+            xf.origin += zeus::CVector3f(0.f, 0.f, 0.0005f);
+            if (!CGameCollision::DetectCollisionBoolean_Cached(mgr, cache, *actor.GetCollisionPrimitive(),
+                                                               xf, actor.GetMaterialFilter(), useNearList))
+            {
+                actor.SetTranslation(xf.origin);
+                zOffset = 0.0005f;
+                stepDown += 0.0005;
+            }
+
+            CGameCollision::DetectCollision_Cached_Moving(mgr, cache, *actor.GetCollisionPrimitive(),
+                                                          actor.GetTransform(), actor.GetMaterialFilter(),
+                                                          useNearList, {0.f, 0.f, -1.f}, id, collisionInfo,
+                                                          stepDown);
+        }
+
+        if (id != kInvalidUniqueId)
+        {
+            result.x0_id.emplace(id);
+            result.x8_collision.emplace(collisionInfo);
+        }
+
+        if (!result.x8_collision->IsValid() ||
+            !CGameCollision::CanBlock(result.x8_collision->GetMaterialLeft(), result.x8_collision->GetNormalLeft()))
+        {
+            if (zOffset > 0.f)
+            {
+                zeus::CTransform xf = actor.GetTransform();
+                xf.origin -= zeus::CVector3f(0.f, 0.f, zOffset);
+            }
+
+            if (result.x8_collision->IsValid())
+                player.x9c5_28_slidingOnWall = true;
+            CheckFalling(actor, mgr, dt);
+            player.SetLastFloorPlaneNormal({});
+        }
+        else
+        {
+            mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
+            stepDown = std::max(0.0, stepDown - 0.0005);
+            actor.SetTranslation(actor.GetTranslation() - zeus::CVector3f(0.f, 0.f, stepDown));
+            if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(id))
+                mgr.SendScriptMsg(plat.GetPtr(), actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
+            CGameCollision::SendMaterialMessage(mgr, result.x8_collision->GetMaterialLeft(), actor);
+            actor.SetLastFloorPlaneNormal({result.x8_collision->GetNormalLeft()});
+        }
     }
 
     actor.ClearForcesAndTorques();
@@ -585,35 +636,218 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     mState.x1c_velocity = actor.GetLastNonCollidingState().x1c_velocity;
     actor.SetLastNonCollidingState(mState);
 
-    const CCollisionPrimitive* prim = actor.GetCollisionPrimitive();
-    if (prim->GetPrimType() == FOURCC('AABX'))
+    const CCollisionPrimitive* usePrim = actor.GetCollisionPrimitive();
+    std::unique_ptr<CCollisionPrimitive> prim;
+    if (usePrim->GetPrimType() == FOURCC('AABX'))
     {
-        // TODO: Finish
+        const CCollidableAABox& existingAABB = static_cast<const CCollidableAABox&>(*usePrim);
+        prim.reset(new CCollidableAABox(zeus::CAABox(existingAABB.GetAABB().min + 0.0001f,
+                                                     existingAABB.GetAABB().max - 0.0001f),
+                                        usePrim->GetMaterial()));
+        usePrim = prim.get();
     }
-    else if (prim->GetPrimType() == FOURCC('SPHR'))
+    else if (usePrim->GetPrimType() == FOURCC('SPHR'))
     {
-        // TODO: Finish
+        const CCollidableSphere& existingSphere = static_cast<const CCollidableSphere&>(*usePrim);
+        prim.reset(new CCollidableSphere(zeus::CSphere(existingSphere.GetSphere().position,
+                                                       existingSphere.GetSphere().radius - 0.0001f),
+                                        usePrim->GetMaterial()));
+        usePrim = prim.get();
     }
 
-    CGameCollision::CollisionFailsafe(mgr, cache, actor, *prim, useNearList, 0.f, 1);
+    CGameCollision::CollisionFailsafe(mgr, cache, actor, *usePrim, useNearList, 0.f, 1);
 }
 
-void CGroundMovement::RemoveNormalComponent(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&, float&)
+bool CGroundMovement::RemoveNormalComponent(const zeus::CVector3f& a, const zeus::CVector3f& b,
+                                            zeus::CVector3f& c, float& d)
 {
-
+    float dot = a.dot(c);
+    if (std::fabs(dot) > 0.99f)
+        return false;
+    float dot2 = b.dot(c);
+    float dot3 = b.dot((c - a * dot).normalized());
+    if (dot2 > 0.f && dot3 < 0.f)
+        return false;
+    if (std::fabs(dot2) > 0.01f && std::fabs(dot3 / dot2) > 4.f)
+        return false;
+    c -= dot * a;
+    d = dot;
+    return true;
 }
 
-void CGroundMovement::RemoveNormalComponent(const zeus::CVector3f&, const zeus::CVector3f&)
+bool CGroundMovement::RemoveNormalComponent(const zeus::CVector3f& a, zeus::CVector3f& b)
 {
-
+    float dot = a.dot(b);
+    if (std::fabs(dot) > 0.99f)
+        return false;
+    b -= a * dot;
+    return true;
 }
 
-CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysicsActor& actor, float,
+static bool RemovePositiveZComponentFromNormal(zeus::CVector3f& vec)
+{
+    if (vec.z > 0.f && vec.z < 0.99f)
+    {
+        vec.z = 0.f;
+        vec.normalize();
+        return true;
+    }
+    return false;
+}
+
+CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysicsActor& actor, float dt,
                                                     rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                                     CAreaCollisionCache& cache, const SMovementOptions& opts,
                                                     SMoveObjectResult& result)
 {
-    return {};
+    result.x6c_processedCollisions = 0;
+    CMaterialList ret;
+    zeus::CVector3f floorPlaneNormal = opts.x3c_floorPlaneNormal ?
+        *opts.x3c_floorPlaneNormal : zeus::CVector3f::skZero;
+    bool floorCollision = opts.x3c_floorPlaneNormal.operator bool();
+    float remDt = dt;
+    for (int i=0 ; remDt > 0.f ; ++i)
+    {
+        float collideDt = remDt;
+
+        CMotionState mState = actor.PredictMotion_Internal(remDt);
+        double mag = mState.x0_translation.magnitude();
+        zeus::CVector3f normTrans = (1.f / ((float(mag) > FLT_EPSILON) ? float(mag) : 1.f)) * mState.x0_translation;
+        TUniqueId id = kInvalidUniqueId;
+        CCollisionInfo collisionInfo;
+
+        if (mag > opts.x20_minimumTranslationDelta)
+        {
+            double oldMag = mag;
+            CGameCollision::DetectCollision_Cached_Moving(mgr, cache, *actor.GetCollisionPrimitive(),
+                                                          actor.GetPrimitiveTransform(), actor.GetMaterialFilter(),
+                                                          nearList, normTrans, id, collisionInfo, mag);
+            if (id != kInvalidUniqueId)
+            {
+                result.x0_id.emplace(id);
+                result.x8_collision.emplace(collisionInfo);
+            }
+            collideDt = mag / oldMag * remDt;
+        }
+
+        mag = std::max(0.f, float(mag) - opts.x20_minimumTranslationDelta);
+
+        zeus::CVector3f collisionNorm = collisionInfo.GetNormalLeft();
+        bool floor = CGameCollision::CanBlock(collisionInfo.GetMaterialLeft(), collisionNorm);
+        bool clipCollision = true;
+        if (!opts.x19_alwaysClip)
+        {
+            if (!opts.x1a_disableClipForFloorOnly || floor)
+                clipCollision = false;
+        }
+
+        float collisionFloorDot = 0.f;
+
+        if (collisionInfo.IsValid())
+        {
+            result.x6c_processedCollisions += 1;
+            if (floor)
+            {
+                ret.Add(EMaterialTypes::Floor);
+                floorPlaneNormal = collisionInfo.GetNormalLeft();
+                floorCollision = true;
+            }
+            else
+            {
+                ret.Add(EMaterialTypes::Wall);
+            }
+
+            if (clipCollision)
+            {
+                if (floorCollision)
+                {
+                    if (!CGroundMovement::RemoveNormalComponent(floorPlaneNormal, normTrans,
+                                                                collisionNorm, collisionFloorDot))
+                        RemovePositiveZComponentFromNormal(collisionNorm);
+                    else
+                        collisionNorm.normalize();
+                }
+                else
+                {
+                    RemovePositiveZComponentFromNormal(collisionNorm);
+                }
+            }
+
+            mState = actor.PredictMotion_Internal(collideDt);
+        }
+
+        mState.x0_translation = normTrans * mag;
+        actor.AddMotionState(mState);
+
+        if (collisionInfo.IsValid())
+        {
+            zeus::CVector3f vel = actor.GetVelocity().canBeNormalized() ?
+                CGroundMovement::CollisionDamping(actor.GetVelocity(), actor.GetVelocity().normalized(),
+                                                  collisionNorm, opts.x24_dampedNormalCoefficient,
+                                                  opts.x28_dampedDeltaCoefficient) :
+                zeus::CVector3f::skZero;
+            float elasticForce = floor ? opts.x2c_floorElasticForce :
+                opts.x34_wallElasticLinear * collisionFloorDot + opts.x30_wallElasticConstant;
+            float dot = collisionNorm.dot(vel);
+            if (dot < elasticForce)
+                vel += (elasticForce - dot) * collisionNorm;
+            if (clipCollision && floorCollision)
+                if (!CGroundMovement::RemoveNormalComponent(floorPlaneNormal, vel))
+                    vel.z = 0.f;
+            if (vel.z > opts.x38_maxPositiveVerticalVelocity)
+                vel *= (opts.x38_maxPositiveVerticalVelocity / vel.z);
+
+            if (opts.x18_dampForceAndMomentum)
+            {
+                if (actor.x15c_force.canBeNormalized())
+                {
+                    actor.x15c_force = CGroundMovement::CollisionDamping(actor.x15c_force,
+                                                                         actor.x15c_force.normalized(),
+                                                                         collisionNorm, 0.f, 1.f);
+                }
+                if (actor.x150_momentum.canBeNormalized())
+                {
+                    actor.x150_momentum = CGroundMovement::CollisionDamping(actor.x150_momentum,
+                                                                            actor.x150_momentum.normalized(),
+                                                                            collisionNorm, 0.f, 1.f);
+                }
+            }
+
+            if (opts.x0_setWaterLandingForce && !floor)
+            {
+                if (collisionInfo.GetNormalLeft().z < -0.1f && vel.z > 0.f)
+                    vel.z *= 0.5f;
+
+                float zNormAbs = std::fabs(collisionInfo.GetNormalLeft().z);
+                if ((zNormAbs > opts.x10_downwardZThreshold && vel.z < 0.f) || zNormAbs > opts.xc_anyZThreshold)
+                {
+                    actor.x15c_force = zeus::CVector3f(0.f, 0.f,
+                        -(1.f + std::max(opts.x4_waterLandingForceCoefficient * zNormAbs,
+                                         opts.x8_minimumWaterLandingForce)) * actor.GetWeight());
+                    vel *= (1.f - opts.x14_waterLandingVelocityReduction);
+                }
+            }
+
+            actor.SetVelocityWR(vel);
+        }
+        else
+        {
+            zeus::CVector3f vel = actor.x138_velocity;
+            if (actor.x138_velocity.z > opts.x38_maxPositiveVerticalVelocity)
+                vel *= (opts.x38_maxPositiveVerticalVelocity / vel.z);
+
+            actor.SetVelocityWR(vel);
+        }
+
+        actor.ClearImpulses();
+
+        remDt -= collideDt;
+        if (i >= opts.x1c_maxCollisionCycles)
+            break;
+    }
+
+    result.x70_processedDt = dt - remDt;
+    return ret;
 }
 
 }

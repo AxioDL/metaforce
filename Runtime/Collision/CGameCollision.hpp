@@ -92,9 +92,17 @@ public:
     static bool DetectStaticCollision_Cached(CStateManager& mgr, CAreaCollisionCache& cache,
                                              const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                              const CMaterialFilter& filter, CCollisionInfoList& list);
+    static bool DetectStaticCollision_Cached_Moving(CStateManager& mgr, CAreaCollisionCache& cache,
+                                                    const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                    const CMaterialFilter& filter, const zeus::CVector3f& vec,
+                                                    CCollisionInfo& infoOut, double d);
     static bool DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                        const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                        TUniqueId& idOut, CCollisionInfoList& list, CStateManager& mgr);
+    static bool DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                             const zeus::CVector3f& vec, TUniqueId& idOut,
+                                             CCollisionInfo& infoOut, double& d, CStateManager& mgr);
     static void MakeCollisionCallbacks(CStateManager& mgr, CPhysicsActor& actor, TUniqueId id,
                                        const CCollisionInfoList& list);
     static void SendScriptMessages(CStateManager& mgr, CActor& a0, CActor* a1, const CCollisionInfoList& list);

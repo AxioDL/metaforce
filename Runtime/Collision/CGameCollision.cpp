@@ -239,11 +239,11 @@ void CGameCollision::Move(CStateManager& mgr, CPhysicsActor& actor, float dt,
 
 bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CVector3f& v)
 {
-    if ((mat.HasMaterial(EMaterialTypes::Character) && !mat.HasMaterial(EMaterialTypes::Scannable)) ||
-        mat.HasMaterial(EMaterialTypes::Occluder))
+    if ((mat.HasMaterial(EMaterialTypes::Character) && !mat.HasMaterial(EMaterialTypes::SolidCharacter)) ||
+        mat.HasMaterial(EMaterialTypes::NoPlayerCollision))
         return false;
 
-    if (mat.HasMaterial(EMaterialTypes::Occluder) || mat.HasMaterial(EMaterialTypes::Floor))
+    if (mat.HasMaterial(EMaterialTypes::Floor))
         return true;
 
     return (v.z > 0.85f);
@@ -550,6 +550,7 @@ bool CGameCollision::DetectCollision_Cached(CStateManager& mgr, CAreaCollisionCa
                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                             TUniqueId& idOut, CCollisionInfoList& infoList)
 {
+    idOut = kInvalidUniqueId;
     bool ret = false;
     if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::ThirtyEight))
         if (DetectStaticCollision_Cached(mgr, cache, prim, xf, filter, infoList))
@@ -570,10 +571,16 @@ bool CGameCollision::DetectCollision_Cached_Moving(CStateManager& mgr, CAreaColl
                                                    const CMaterialFilter& filter,
                                                    const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                                    const zeus::CVector3f& vec,
-                                                   TUniqueId& idOut, CCollisionInfo& infoOut, double&)
+                                                   TUniqueId& idOut, CCollisionInfo& infoOut, double& d)
 {
-    // TODO: Finish
-    return false;
+    idOut = kInvalidUniqueId;
+    if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::ThirtyEight))
+    {
+        if (CGameCollision::DetectStaticCollision_Cached_Moving(mgr, cache, prim, xf, filter, vec, infoOut, d))
+            return true;
+    }
+
+    return CGameCollision::DetectDynamicCollisionMoving(prim, xf, nearList, vec, idOut, infoOut, d, mgr);
 }
 
 bool CGameCollision::DetectStaticCollision(CStateManager& mgr, const CCollisionPrimitive& prim,
@@ -658,6 +665,15 @@ bool CGameCollision::DetectStaticCollision_Cached(CStateManager& mgr, CAreaColli
     return false;
 }
 
+bool CGameCollision::DetectStaticCollision_Cached_Moving(CStateManager& mgr, CAreaCollisionCache& cache,
+                                                         const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                         const CMaterialFilter& filter, const zeus::CVector3f& vec,
+                                                         CCollisionInfo& infoOut, double d)
+{
+    // TODO: Finish
+    return false;
+}
+
 bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                             TUniqueId& idOut, CCollisionInfoList& list, CStateManager& mgr)
@@ -678,6 +694,15 @@ bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, con
         }
     }
 
+    return false;
+}
+
+bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                                  const zeus::CVector3f& vec, TUniqueId& idOut,
+                                                  CCollisionInfo& infoOut, double& d, CStateManager& mgr)
+{
+    // TODO: Finish
     return false;
 }
 
