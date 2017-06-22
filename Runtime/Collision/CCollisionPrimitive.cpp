@@ -144,6 +144,16 @@ bool CCollisionPrimitive::CollideBoolean(CInternalCollisionStructure::CPrimDesc&
     return InternalCollideBoolean({prim0, prim1});
 }
 
+bool CCollisionPrimitive::CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
+                                        CInternalCollisionStructure::CPrimDesc& prim1,
+                                        const zeus::CVector3f& vec,
+                                        double& dOut,
+                                        CCollisionInfo& infoOut)
+{
+    // TODO: Finish
+    return false;
+}
+
 void CCollisionPrimitive::InitBeginTypes()
 {
     sCollisionTypeList.reset(new std::vector<CCollisionPrimitive::Type>());

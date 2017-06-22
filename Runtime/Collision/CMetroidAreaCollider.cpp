@@ -92,6 +92,23 @@ bool CMetroidAreaCollider::SphereCollisionCheck(const CAreaOctTree& octTree, con
     return false;
 }
 
+bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
+                                                            const CMaterialFilter& filter, const CMaterialList& matList,
+                                                            const zeus::CVector3f& vec, float mag, CCollisionInfo& infoOut,
+                                                            double& dOut)
+{
+    return false;
+}
+
+bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
+                                                             const zeus::CSphere& sphere,
+                                                             const CMaterialFilter& filter, const CMaterialList& matList,
+                                                             const zeus::CVector3f& vec, float mag, CCollisionInfo& infoOut,
+                                                             double& dOut)
+{
+    return false;
+}
+
 void CAreaCollisionCache::ClearCache()
 {
     x18_leafCaches.clear();

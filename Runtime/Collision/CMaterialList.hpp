@@ -45,7 +45,7 @@ enum class EMaterialTypes
     Projectile = 35,
     Bomb = 36,
     GroundCollider = 37,
-    ThirtyEight = 38,
+    StaticCollision = 38,
     Scannable = 39,
     Target = 40,
     Orbit = 41,

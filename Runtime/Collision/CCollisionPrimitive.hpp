@@ -153,6 +153,11 @@ public:
                         CCollisionInfoList& list);
     static bool CollideBoolean(CInternalCollisionStructure::CPrimDesc& prim0,
                                CInternalCollisionStructure::CPrimDesc& prim1);
+    static bool CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
+                              CInternalCollisionStructure::CPrimDesc& prim1,
+                              const zeus::CVector3f& vec,
+                              double& dOut,
+                              CCollisionInfo& infoOut);
 
     static void InitBeginTypes();
     static void InitAddType(const Type& tp);

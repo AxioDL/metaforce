@@ -95,7 +95,7 @@ public:
     static bool DetectStaticCollision_Cached_Moving(CStateManager& mgr, CAreaCollisionCache& cache,
                                                     const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                                     const CMaterialFilter& filter, const zeus::CVector3f& vec,
-                                                    CCollisionInfo& infoOut, double d);
+                                                    CCollisionInfo& infoOut, double& d);
     static bool DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                        const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                        TUniqueId& idOut, CCollisionInfoList& list, CStateManager& mgr);

@@ -31,7 +31,7 @@ CScriptPlatform::CScriptPlatform(TUniqueId uid, const std::string& name, const C
 {
     CActor::SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
         CMaterialList(EMaterialTypes::Solid),
-        CMaterialList(EMaterialTypes::ThirtyEight, EMaterialTypes::Twenty, EMaterialTypes::Platform)));
+        CMaterialList(EMaterialTypes::StaticCollision, EMaterialTypes::Twenty, EMaterialTypes::Platform)));
     if (x304_treeGroupContainer)
         x314_treeGroup = std::make_unique<CCollidableOBBTreeGroup>(x304_treeGroupContainer->GetObj(), x68_material);
 }

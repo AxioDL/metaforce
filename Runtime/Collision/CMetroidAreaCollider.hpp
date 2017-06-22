@@ -8,6 +8,7 @@
 namespace urde
 {
 class CCollisionInfoList;
+class CCollisionInfo;
 class CMaterialList;
 
 class CMetroidAreaCollider
@@ -47,6 +48,15 @@ public:
     static bool SphereCollisionCheck(const CAreaOctTree& octTree, const zeus::CAABox& aabb,
                                      const zeus::CSphere& sphere, const CMaterialList& matList,
                                      const CMaterialFilter& filter, CCollisionInfoList& list);
+    static bool MovingAABoxCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
+                                                 const CMaterialFilter& filter, const CMaterialList& matList,
+                                                 const zeus::CVector3f& vec, float mag, CCollisionInfo& infoOut,
+                                                 double& dOut);
+    static bool MovingSphereCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
+                                                  const zeus::CSphere& sphere,
+                                                  const CMaterialFilter& filter, const CMaterialList& matList,
+                                                  const zeus::CVector3f& vec, float mag, CCollisionInfo& infoOut,
+                                                  double& dOut);
 };
 
 class CAreaCollisionCache
