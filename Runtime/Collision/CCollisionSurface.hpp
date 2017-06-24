@@ -16,7 +16,7 @@ public:
     CCollisionSurface(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&, u32);
 
     zeus::CVector3f GetNormal() const;
-    zeus::CVector3f GetVert(s32) const;
+    const zeus::CVector3f& GetVert(s32 idx) const { return (&x0_a)[idx]; }
     zeus::CVector3f GetPoint(s32) const;
     zeus::CPlane GetPlane() const;
     u32 GetSurfaceFlags() const { return x24_flags; }

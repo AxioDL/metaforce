@@ -16,13 +16,6 @@ zeus::CVector3f CCollisionSurface::GetNormal() const
     return zeus::CUnitVector3f({v1.y, v1.z, v1.x}, true);
 }
 
-zeus::CVector3f CCollisionSurface::GetVert(s32 idx) const
-{
-    if (idx < 0 || idx > 3)
-        return zeus::CVector3f::skZero;
-    return (&x0_a)[idx];
-}
-
 zeus::CPlane CCollisionSurface::GetPlane() const
 {
     zeus::CVector3f norm = GetNormal();

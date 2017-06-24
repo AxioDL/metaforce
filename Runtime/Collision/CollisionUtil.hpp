@@ -21,6 +21,9 @@ bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list
                             const zeus::CAABox& aabb1, const CMaterialList& list1,
                             CCollisionInfoList& infoList);
 bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1);
+bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxhalfsize,
+                   const zeus::CVector3f& trivert0, const zeus::CVector3f& trivert1,
+                   const zeus::CVector3f& trivert2);
 }
 }
 #endif // __URDE_COLLISIONUTIL_HPP__

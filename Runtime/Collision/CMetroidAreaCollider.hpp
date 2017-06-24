@@ -11,8 +11,22 @@ class CCollisionInfoList;
 class CCollisionInfo;
 class CMaterialList;
 
+class CBooleanAABoxAreaCache
+{
+    friend class CMetroidAreaCollider;
+    const zeus::CAABox& x0_aabb;
+    const CMaterialFilter& x4_filter;
+    zeus::CVector3f x8_center;
+    zeus::CVector3f x14_halfExtent;
+public:
+    CBooleanAABoxAreaCache(const zeus::CAABox& aabb, const CMaterialFilter& filter);
+};
+
 class CMetroidAreaCollider
 {
+    static u32 g_TrianglesProcessed;
+    static bool AABoxCollisionCheckBoolean_Internal(const CAreaOctTree::Node& node,
+                                                    const CBooleanAABoxAreaCache& cache);
 public:
     class COctreeLeafCache
     {
