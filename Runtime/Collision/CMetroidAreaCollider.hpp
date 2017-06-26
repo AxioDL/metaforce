@@ -11,6 +11,21 @@ class CCollisionInfoList;
 class CCollisionInfo;
 class CMaterialList;
 
+class CAABoxAreaCache
+{
+    friend class CMetroidAreaCollider;
+    const zeus::CAABox& x0_aabb;
+    const zeus::CPlane* x4_planes;
+    const CMaterialFilter& x8_filter;
+    const CMaterialList& xc_material;
+    CCollisionInfoList& x10_collisionList;
+    zeus::CVector3f x14_center;
+    zeus::CVector3f x20_halfExtent;
+public:
+    CAABoxAreaCache(const zeus::CAABox& aabb, const zeus::CPlane* pl, const CMaterialFilter& filter,
+                    const CMaterialList& material, CCollisionInfoList& collisionList);
+};
+
 class CBooleanAABoxAreaCache
 {
     friend class CMetroidAreaCollider;
@@ -22,14 +37,56 @@ public:
     CBooleanAABoxAreaCache(const zeus::CAABox& aabb, const CMaterialFilter& filter);
 };
 
+struct SBoxEdge
+{
+    zeus::CLineSeg x0_seg;
+    zeus::CVector3d x28_dir;
+    zeus::CVector3d x40_end;
+    zeus::CVector3d x58_start;
+    zeus::CVector3d x70_coDir;
+    double x88_dirCoDirDot;
+    SBoxEdge(const zeus::CAABox& aabb, int idx, const zeus::CVector3f& dir);
+};
+
+class CMovingAABoxComponents
+{
+    friend class CMetroidAreaCollider;
+    rstl::reserved_vector<SBoxEdge, 12> x0_edges;
+    rstl::reserved_vector<u32, 8> x6c4_vertIdxs;
+    zeus::CAABox x6e8_aabb;
+public:
+    CMovingAABoxComponents(const zeus::CAABox& aabb, const zeus::CVector3f& dir);
+};
+
 class CMetroidAreaCollider
 {
+    static u32 g_CalledClip;
+    static u32 g_RejectedByClip;
     static u32 g_TrianglesProcessed;
+    static u32 g_DupTrianglesProcessed;
+    static s16 g_DupPrimitiveCheckCount;
+    static u16 g_DupVertexList[0x5000];
+    static u16 g_DupEdgeList[0xC000];
+    static u16 g_DupTriangleList[0x4000];
     static bool AABoxCollisionCheckBoolean_Internal(const CAreaOctTree::Node& node,
                                                     const CBooleanAABoxAreaCache& cache);
+    static bool AABoxCollisionCheck_Internal(const CAreaOctTree::Node& node,
+                                             const CAABoxAreaCache& cache);
+    static bool MovingAABoxCollisionCheck_BoxVertexTri(const CCollisionSurface& surf, const zeus::CAABox& aabb,
+                                                       const rstl::reserved_vector<u32, 8>& vertIndices,
+                                                       const zeus::CVector3f& dir, double& d,
+                                                       zeus::CVector3f& normal, zeus::CVector3f& point);
+    static bool MovingAABoxCollisionCheck_TriVertexBox(const zeus::CVector3f& vert, const zeus::CAABox& aabb,
+                                                       const zeus::CVector3f& dir, double& d,
+                                                       zeus::CVector3f& normal, zeus::CVector3f& point);
+    static bool MovingAABoxCollisionCheck_Edge(const zeus::CVector3f& ev0, const zeus::CVector3f& ev1,
+                                               const rstl::reserved_vector<SBoxEdge, 12>& edges,
+                                               const zeus::CVector3f& dir, double& d,
+                                               zeus::CVector3f& normal, zeus::CVector3f& point);
 public:
     class COctreeLeafCache
     {
+        friend class CMetroidAreaCollider;
         const CAreaOctTree& x0_octTree;
         rstl::reserved_vector<CAreaOctTree::Node, 64> x4_nodeCache;
         bool x908_24_overflow : 1;
@@ -41,6 +98,8 @@ public:
     };
     static void BuildOctreeLeafCache(const CAreaOctTree::Node& root, const zeus::CAABox& aabb,
                                      CMetroidAreaCollider::COctreeLeafCache& cache);
+    static bool ConvexPolyCollision(const zeus::CPlane* planes, const zeus::CVector3f* verts,
+                                    zeus::CAABox& aabb);
     static bool AABoxCollisionCheckBoolean_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                   const CMaterialFilter& filter);
     static bool AABoxCollisionCheckBoolean(const CAreaOctTree& octTree, const zeus::CAABox& aabb,
@@ -64,13 +123,14 @@ public:
                                      const CMaterialFilter& filter, CCollisionInfoList& list);
     static bool MovingAABoxCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                  const CMaterialFilter& filter, const CMaterialList& matList,
-                                                 const zeus::CVector3f& vec, float mag, CCollisionInfo& infoOut,
+                                                 const zeus::CVector3f& dir, float mag, CCollisionInfo& infoOut,
                                                  double& dOut);
     static bool MovingSphereCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                   const zeus::CSphere& sphere,
                                                   const CMaterialFilter& filter, const CMaterialList& matList,
-                                                  const zeus::CVector3f& vec, float mag, CCollisionInfo& infoOut,
+                                                  const zeus::CVector3f& dir, float mag, CCollisionInfo& infoOut,
                                                   double& dOut);
+    static void ResetInternalCounters();
 };
 
 class CAreaCollisionCache

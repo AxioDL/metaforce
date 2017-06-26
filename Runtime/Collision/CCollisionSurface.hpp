@@ -17,6 +17,7 @@ public:
 
     zeus::CVector3f GetNormal() const;
     const zeus::CVector3f& GetVert(s32 idx) const { return (&x0_a)[idx]; }
+    const zeus::CVector3f* GetVerts() const { return &x0_a; }
     zeus::CVector3f GetPoint(s32) const;
     zeus::CPlane GetPlane() const;
     u32 GetSurfaceFlags() const { return x24_flags; }

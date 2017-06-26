@@ -146,7 +146,7 @@ bool CCollisionPrimitive::CollideBoolean(CInternalCollisionStructure::CPrimDesc&
 
 bool CCollisionPrimitive::CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
                                         CInternalCollisionStructure::CPrimDesc& prim1,
-                                        const zeus::CVector3f& vec,
+                                        const zeus::CVector3f& dir,
                                         double& dOut,
                                         CCollisionInfo& infoOut)
 {

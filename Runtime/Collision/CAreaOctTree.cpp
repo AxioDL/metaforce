@@ -662,4 +662,25 @@ CCollisionSurface CAreaOctTree::GetMasterListTriangle(u16 idx) const
                                  GetVert(vert2), material);
 }
 
+void CAreaOctTree::GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const
+{
+    const CCollisionEdge& e0 = x3c_edges[x44_polyEdges[idx*3]];
+    const CCollisionEdge& e1 = x3c_edges[x44_polyEdges[idx*3+1]];
+    indicesOut[2] =
+        (e1.GetVertIndex1() != e0.GetVertIndex1() && e1.GetVertIndex1() != e0.GetVertIndex2()) ?
+        e1.GetVertIndex1() : e1.GetVertIndex2();
+
+    u32 material = x28_materials[x34_polyMats[idx]];
+    if (material & 0x2000000)
+    {
+        indicesOut[0] = e0.GetVertIndex2();
+        indicesOut[1] = e0.GetVertIndex1();
+    }
+    else
+    {
+        indicesOut[0] = e0.GetVertIndex1();
+        indicesOut[1] = e0.GetVertIndex2();
+    }
+}
+
 }

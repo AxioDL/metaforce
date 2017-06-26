@@ -123,6 +123,7 @@ public:
                  u32 edgeCount, const CCollisionEdge* edges, u32 polyCount, const u16* polyEdges,
                  u32 vertCount, const float* verts);
 
+    const zeus::CAABox& GetAABB() const { return x0_aabb; }
     Node GetRootNode() const { return Node(x20_treeBuf, x0_aabb, *this, x18_treeType); }
     const u8* GetTreeMemory() const { return x20_treeBuf; }
     zeus::CVector3f GetVert(int idx) const
@@ -131,14 +132,15 @@ public:
         return zeus::CVector3f(vert[0], vert[1], vert[2]);
     }
     const CCollisionEdge& GetEdge(int idx) const { return x3c_edges[idx]; }
+    u32 GetVertMaterial(int idx) const { return x28_materials[x2c_vertMats[idx]]; }
     u32 GetEdgeMaterial(int idx) const { return x28_materials[x30_edgeMats[idx]]; }
     u32 GetTriangleMaterial(int idx) const { return x28_materials[x34_polyMats[idx]]; }
     u32 GetNumEdges() const { return x38_edgeCount; }
     u32 GetNumVerts() const { return x48_vertCount; }
     u32 GetNumTriangles() const { return x40_polyCount; }
     CCollisionSurface GetMasterListTriangle(u16 idx) const;
-    const u16* GetTriangleVertexIndices(u16 idx) const;
-    const u16* GetTriangleEdgeIndices(u16 idx) const;
+    void GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const;
+    const u16* GetTriangleEdgeIndices(u16 idx) const { return &x44_polyEdges[idx * 6]; }
 
     static std::unique_ptr<CAreaOctTree> MakeFromMemory(const u8* buf, unsigned int size);
 };

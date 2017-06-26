@@ -9,15 +9,207 @@ namespace CollisionUtil
 
 bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float& d)
 {
-    const zeus::CVector3f transXf = obb.transform.toMatrix4f().vec[0].toVec3f();
+    zeus::CVector3f norm;
     return RayAABoxIntersection(ray.getInvUnscaledTransformRay(obb.transform), {-obb.extents, obb.extents},
-                                transXf, d);
+                                norm, d);
 }
 
-u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& box, const zeus::CVector3f&, float& d)
+u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb,
+                         zeus::CVector3f& norm, float& d)
 {
+    int sign[] = {2, 2, 2};
+    bool bad = true;
+    zeus::CVector3f rayStart = ray.start;
+    zeus::CVector3f rayDelta = ray.delta;
+    zeus::CVector3f aabbMin = aabb.min;
+    zeus::CVector3f aabbMax = aabb.max;
 
-    return 0;
+    zeus::CVector3f vec0 = {-1.f, -1.f, -1.f};
+    zeus::CVector3f vec1;
+
+    if (rayDelta.x != 0.f && rayDelta.y != 0.f && rayDelta.z != 0.f)
+    {
+        for (int i=0 ; i<3 ; ++i)
+        {
+            if (rayStart[i] < aabbMin[i])
+            {
+                sign[i] = 1;
+                bad = false;
+                vec0[i] = (aabbMin[i] - rayStart[i]) / rayDelta[i];
+            }
+            else if (rayStart[i] > aabbMax[i])
+            {
+                sign[i] = 0;
+                bad = false;
+                vec0[i] = (aabbMax[i] - rayStart[i]) / rayDelta[i];
+            }
+        }
+
+        if (bad)
+        {
+            d = 0.f;
+            return 1;
+        }
+    }
+    else
+    {
+        zeus::CVector3f end;
+        for (int i=0 ; i<3 ; ++i)
+        {
+            if (rayStart[i] < aabbMin[i])
+            {
+                sign[i] = 1;
+                bad = false;
+                end[i] = aabbMin[i];
+            }
+            else if (rayStart[i] > aabbMax[i])
+            {
+                sign[i] = 0;
+                bad = false;
+                end[i] = aabbMax[i];
+            }
+        }
+
+        if (bad)
+        {
+            d = 0.f;
+            return 1;
+        }
+
+        for (int i=0 ; i<3 ; ++i)
+            if (sign[i] != 2 && rayDelta[i] != 0.f)
+                vec0[i] = (end[i] - rayStart[i]) / rayDelta[i];
+    }
+
+    float maxComp = vec0.x;
+    int maxCompIdx = 0;
+    if (maxComp < vec0.y)
+    {
+        maxComp = vec0.y;
+        maxCompIdx = 1;
+    }
+    if (maxComp < vec0.z)
+    {
+        maxComp = vec0.z;
+        maxCompIdx = 2;
+    }
+
+    if (maxComp < 0.f || maxComp > 1.f)
+        return 0;
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (maxCompIdx != i)
+        {
+            vec1[i] = maxComp * rayDelta[i] + rayStart[i];
+            if (vec1[i] > aabbMax[i])
+                return 0;
+        }
+    }
+
+    d = maxComp;
+    norm = zeus::CVector3f::skZero;
+    norm[maxCompIdx] = (sign[maxCompIdx] == 1) ? -1.f : 1.f;
+    return 2;
+}
+
+u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb,
+                                zeus::CVector3f& norm, double& d)
+{
+    int sign[] = {2, 2, 2};
+    bool bad = true;
+    zeus::CVector3d rayStart = ray.start;
+    zeus::CVector3d rayDelta = ray.delta;
+    zeus::CVector3d aabbMin = aabb.min;
+    zeus::CVector3d aabbMax = aabb.max;
+
+    zeus::CVector3d vec0 = {-1.0, -1.0, -1.0};
+    zeus::CVector3d vec1;
+
+    if (rayDelta.x != 0.0 && rayDelta.y != 0.0 && rayDelta.z != 0.0)
+    {
+        for (int i=0 ; i<3 ; ++i)
+        {
+            if (rayStart[i] < aabbMin[i])
+            {
+                sign[i] = 1;
+                bad = false;
+                vec0[i] = (aabbMin[i] - rayStart[i]) / rayDelta[i];
+            }
+            else if (rayStart[i] > aabbMax[i])
+            {
+                sign[i] = 0;
+                bad = false;
+                vec0[i] = (aabbMax[i] - rayStart[i]) / rayDelta[i];
+            }
+        }
+
+        if (bad)
+        {
+            d = 0.0;
+            return 1;
+        }
+    }
+    else
+    {
+        zeus::CVector3d end;
+        for (int i=0 ; i<3 ; ++i)
+        {
+            if (rayStart[i] < aabbMin[i])
+            {
+                sign[i] = 1;
+                bad = false;
+                end[i] = aabbMin[i];
+            }
+            else if (rayStart[i] > aabbMax[i])
+            {
+                sign[i] = 0;
+                bad = false;
+                end[i] = aabbMax[i];
+            }
+        }
+
+        if (bad)
+        {
+            d = 0.0;
+            return 1;
+        }
+
+        for (int i=0 ; i<3 ; ++i)
+            if (sign[i] != 2 && rayDelta[i] != 0.0)
+                vec0[i] = (end[i] - rayStart[i]) / rayDelta[i];
+    }
+
+    double maxComp = vec0.x;
+    int maxCompIdx = 0;
+    if (maxComp < vec0.y)
+    {
+        maxComp = vec0.y;
+        maxCompIdx = 1;
+    }
+    if (maxComp < vec0.z)
+    {
+        maxComp = vec0.z;
+        maxCompIdx = 2;
+    }
+
+    if (maxComp < 0.0 || maxComp > 1.0)
+        return 0;
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (maxCompIdx != i)
+        {
+            vec1[i] = maxComp * rayDelta[i] + rayStart[i];
+            if (vec1[i] > aabbMax[i])
+                return 0;
+        }
+    }
+
+    d = maxComp;
+    norm = zeus::CVector3f::skZero;
+    norm[maxCompIdx] = (sign[maxCompIdx] == 1) ? -1.0 : 1.0;
+    return 2;
 }
 
 u32 RaySphereIntersection_Double(const zeus::CSphere&, const zeus::CVector3f &, const zeus::CVector3f &, double &)
@@ -44,6 +236,30 @@ bool RaySphereIntersection(const zeus::CSphere& sphere, const zeus::CVector3f& p
         return true;
     }
     return false;
+}
+
+bool RayTriangleIntersection_Double(const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                                    const zeus::CVector3f* verts, double& d)
+{
+    zeus::CVector3d v0tov1 = verts[1] - verts[0];
+    zeus::CVector3d v0tov2 = verts[2] - verts[0];
+    zeus::CVector3d cross0 = zeus::CVector3d(dir).cross(v0tov2);
+    double dot0 = v0tov1.dot(cross0);
+    if (dot0 < DBL_EPSILON)
+        return false;
+    zeus::CVector3d v0toPoint = point - verts[0];
+    double dot1 = v0toPoint.dot(cross0);
+    if (dot1 < 0.0 || dot1 > dot0)
+        return false;
+    zeus::CVector3d cross1 = v0toPoint.cross(v0tov1);
+    double dot2 = cross1.dot(dir);
+    if (dot2 < 0.0 || dot1 + dot2 > dot0)
+        return false;
+    double final = 1.0 / dot0 * cross1.dot(v0tov2);
+    if (final < 0.0 || final >= d)
+        return false;
+    d = final;
+    return true;
 }
 
 void FilterOutBackfaces(const zeus::CVector3f& vec, const CCollisionInfoList& in, CCollisionInfoList& out)

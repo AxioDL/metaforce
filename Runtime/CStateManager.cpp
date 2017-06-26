@@ -1492,7 +1492,8 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
         return false;
 
     float depth;
-    u32 count = CollisionUtil::RayAABoxIntersection(ray, *bounds, zeus::CVector3f::skZero, depth);
+    zeus::CVector3f norm;
+    u32 count = CollisionUtil::RayAABoxIntersection(ray, *bounds, norm, depth);
     if (count == 0 || count == 1)
         return true;
 

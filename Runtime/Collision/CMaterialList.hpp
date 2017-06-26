@@ -100,6 +100,8 @@ public:
     {
     }
 
+    u64 GetValue() const { return x0_list; }
+
     static s32 BitPosition(u64 flag)
     {
         for (u32 i = 0; i < 63; ++i)
