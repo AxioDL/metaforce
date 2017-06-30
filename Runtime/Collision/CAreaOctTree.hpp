@@ -140,7 +140,7 @@ public:
     u32 GetNumTriangles() const { return x40_polyCount; }
     CCollisionSurface GetMasterListTriangle(u16 idx) const;
     void GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const;
-    const u16* GetTriangleEdgeIndices(u16 idx) const { return &x44_polyEdges[idx * 6]; }
+    const u16* GetTriangleEdgeIndices(u16 idx) const { return &x44_polyEdges[idx * 3]; }
 
     static std::unique_ptr<CAreaOctTree> MakeFromMemory(const u8* buf, unsigned int size);
 };

@@ -1829,7 +1829,7 @@ void CStateManager::Update(float dt)
 
     if (x904_gameState != EGameState::Paused)
     {
-        PreThinkEffects(dt);
+        PreThinkObjects(dt);
         x87c_fluidPlaneManager->Update(dt);
     }
 
@@ -1961,7 +1961,7 @@ void CStateManager::UpdateHintState(float dt)
     }
 }
 
-void CStateManager::PreThinkEffects(float dt)
+void CStateManager::PreThinkObjects(float dt)
 {
     if (x84c_player->x9f4_deathTime > 0.f)
     {
@@ -1974,7 +1974,7 @@ void CStateManager::PreThinkEffects(float dt)
             if (TCastToPtr<CScriptEffect> effect = ent)
                 effect->PreThink(dt, *this);
 
-    for (CEntity* ent : GetCameraObjectList())
+    for (CEntity* ent : GetAllObjectList())
         if (ent && !GetCameraObjectList().GetObjectById(ent->GetUniqueId()))
             ent->PreThink(dt, *this);
 }

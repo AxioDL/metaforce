@@ -212,9 +212,24 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
     return 2;
 }
 
-u32 RaySphereIntersection_Double(const zeus::CSphere&, const zeus::CVector3f &, const zeus::CVector3f &, double &)
+bool RaySphereIntersection_Double(const zeus::CSphere& sphere, const zeus::CVector3f& pos,
+                                  const zeus::CVector3f& dir, double& T)
 {
-    return 0;
+    zeus::CVector3d sPosD = sphere.position;
+    zeus::CVector3d posD = pos;
+    zeus::CVector3d sphereToPos = posD - sPosD;
+    double f30 = sphereToPos.dot(zeus::CVector3d(dir)) * 2.0;
+    double f1 = f30 * f30 - 4.0 * (sphereToPos.magSquared() - sphere.radius * sphere.radius);
+    if (f1 >= 0.0)
+    {
+        double intersectT = 0.5 * (-f30 - std::sqrt(f1));
+        if (T == 0 || intersectT < T)
+        {
+            T = intersectT;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool RaySphereIntersection(const zeus::CSphere& sphere, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
@@ -500,6 +515,265 @@ bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxh
     if (!planeBoxOverlap(normal, d, boxhalfsize)) return false;
 
     return true;   /* box and triangle overlaps */
+}
+
+double TriPointSqrDist(const zeus::CVector3f& point,
+                       const zeus::CVector3f& trivert0, const zeus::CVector3f& trivert1,
+                       const zeus::CVector3f& trivert2, float* baryX, float* baryY)
+{
+    zeus::CVector3d A = trivert0 - point;
+    zeus::CVector3d B = trivert1 - trivert0;
+    zeus::CVector3d C = trivert2 - trivert0;
+
+    double bMag = B.magSquared();
+    double cMag = C.magSquared();
+    double bDotC = B.dot(C);
+    double aDotB = A.dot(B);
+    double aDotC = A.dot(C);
+    double ret = A.magSquared();
+
+    double rej = std::fabs(bMag * cMag - bDotC * bDotC);
+    double retB = bDotC * aDotC - cMag * aDotB;
+    double retA = bDotC * aDotB - bMag * aDotC;
+
+    if (retB + retA <= rej)
+    {
+        if (retB < 0.0)
+        {
+            if (retA < 0.0)
+            {
+                if (aDotB < 0.0)
+                {
+                    retA = 0.0;
+                    if (-aDotB >= bMag)
+                    {
+                        retB = 1.0;
+                        ret += 2.0 * aDotB + bMag;
+                    }
+                    else
+                    {
+                        retB = -aDotB / bMag;
+                        ret += aDotB * retB;
+                    }
+                }
+                else
+                {
+                    retB = 0.0;
+                    if (aDotC >= 0.0)
+                    {
+                        retA = 0.0;
+                    }
+                    else if (-aDotC >= cMag)
+                    {
+                        retA = 1.0;
+                        ret += 2.0 * aDotC + cMag;
+                    }
+                    else
+                    {
+                        retA = -aDotC / cMag;
+                        ret += aDotC * retA;
+                    }
+                }
+            }
+            else
+            {
+                retB = 0.0;
+                if (aDotC >= 0.0)
+                {
+                    retA = 0.0;
+                }
+                else if (-aDotC >= cMag)
+                {
+                    retA = 1.0;
+                    ret += 2.0 * aDotC + cMag;
+                }
+                else
+                {
+                    retA = -aDotC / cMag;
+                    ret += aDotC * retA;
+                }
+            }
+        }
+        else if (retA < 0.0)
+        {
+            retA = 0.0;
+            if (aDotB >= 0.0)
+            {
+                retB = 0.0;
+            }
+            else if (-aDotB >= bMag)
+            {
+                retB = 1.0;
+                ret += 2.0 * aDotB + bMag;
+            }
+            else
+            {
+                retB = -aDotB / bMag;
+                ret += aDotB * retB;
+            }
+        }
+        else
+        {
+            float f3 = 1.0 / rej;
+            retA *= f3;
+            retB *= f3;
+            ret += retB * (2.0 * aDotB + (bMag * retB + bDotC * retA)) +
+                   retA * (2.0 * aDotC + (bDotC * retB + cMag * retA));
+        }
+    }
+    else if (retB < 0.0)
+    {
+        retB = bDotC + aDotB;
+        retA = cMag + aDotC;
+        if (retA > retB)
+        {
+            retA -= retB;
+            retB = bMag - 2.0 * bDotC;
+            retB += cMag;
+            if (retA >= retB)
+            {
+                retB = 1.0;
+                retA = 0.0;
+                ret += 2.0 * aDotB + bMag;
+            }
+            else
+            {
+                retB = retA / retB;
+                retA = 1.0 - retB;
+                ret += retB * (2.0 * aDotB + (bMag * retB + bDotC * retA)) +
+                       retA * (2.0 * aDotC + (bDotC * retB + cMag * retA));
+            }
+        }
+        else
+        {
+            retB = 0.0;
+            if (retA <= 0.0)
+            {
+                retA = 1.0;
+                ret += 2.0 * aDotC + cMag;
+            }
+            else if (aDotC >= 0.0)
+            {
+                retA = 0.0;
+            }
+            else
+            {
+                retA = -aDotC / cMag;
+                ret += aDotC * retA;
+            }
+        }
+    }
+    else
+    {
+        if (retA < 0.0)
+        {
+            retB = bDotC + aDotC;
+            retA = bMag + aDotB;
+            if (retA > retB)
+            {
+                retA -= retB;
+                retB = bMag - 2.0 * bDotC;
+                retB += cMag;
+                if (retA >= retB)
+                {
+                    retA = 1.0;
+                    retB = 0.0;
+                    ret += 2.0 * aDotC + cMag;
+                }
+                else
+                {
+                    retA /= retB;
+                    retB = 1.0 - retA;
+                    ret += retB * (2.0 * aDotB + (bMag * retB + bDotC * retA)) +
+                           retA * (2.0 * aDotC + (bDotC * retB + cMag * retA));
+                }
+            }
+            else
+            {
+                retA = 0.0;
+                if (retA <= 0.0)
+                {
+                    retB = 1.0;
+                    ret += 2.0 * aDotB + bMag;
+                }
+                else if (aDotB >= 0.0)
+                {
+                    retB = 0.0;
+                }
+                else
+                {
+                    retB = -aDotB / bMag;
+                    ret += aDotB * retB;
+                }
+            }
+        }
+        else
+        {
+            retB = cMag + aDotC;
+            retB -= bDotC;
+            retA = retB - aDotB;
+            if (retA <= 0.0)
+            {
+                retB = 0.0;
+                retA = 1.0;
+                ret += 2.0 * aDotC + cMag;
+            }
+            else
+            {
+                retB = bMag - 2.0 * bDotC;
+                retB += cMag;
+                if (retA >= retB)
+                {
+                    retB = 1.0;
+                    retA = 0.0;
+                    ret += 2.0 * aDotB + bMag;
+                }
+                else
+                {
+                    retB = retA / retB;
+                    retA = 1.0 - retB;
+                    ret += retB * (2.0 * aDotB + (bMag * retB + bDotC * retA)) +
+                           retA * (2.0 * aDotC + (bDotC * retB + cMag * retA));
+                }
+            }
+        }
+    }
+
+    if (baryX)
+        *baryX = retA;
+    if (baryY)
+        *baryY = retB;
+
+    return ret;
+}
+
+bool TriSphereOverlap(const zeus::CSphere& sphere,
+                      const zeus::CVector3f& trivert0, const zeus::CVector3f& trivert1,
+                      const zeus::CVector3f& trivert2)
+{
+    return TriPointSqrDist(sphere.position, trivert0, trivert1, trivert2, nullptr, nullptr) <=
+           sphere.radius * sphere.radius;
+}
+
+bool TriSphereIntersection(const zeus::CSphere& sphere,
+                           const zeus::CVector3f& trivert0, const zeus::CVector3f& trivert1,
+                           const zeus::CVector3f& trivert2, zeus::CVector3f& point, zeus::CVector3f& normal)
+{
+    float baryX, baryY;
+    if (TriPointSqrDist(sphere.position, trivert0, trivert1, trivert2, &baryX, &baryY) >
+        sphere.radius * sphere.radius)
+        return false;
+
+    zeus::CVector3f barys(baryX, baryY, 1.f - (baryX + baryY));
+    point = zeus::baryToWorld(trivert2, trivert1, trivert0, barys);
+
+    if (baryX == 0.f || baryX == 1.f || baryY == 0.f || baryY == 1.f ||
+        barys.z == 0.f || barys.z == 1.f)
+        normal = -sphere.getSurfaceNormal(point);
+    else
+        normal = (trivert1 - trivert0).cross(trivert2 - trivert0).normalized();
+
+    return true;
 }
 
 }

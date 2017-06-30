@@ -10,7 +10,7 @@ u32 CMetroidAreaCollider::g_CalledClip = 0;
 u32 CMetroidAreaCollider::g_RejectedByClip = 0;
 u32 CMetroidAreaCollider::g_TrianglesProcessed = 0;
 u32 CMetroidAreaCollider::g_DupTrianglesProcessed = 0;
-s16 CMetroidAreaCollider::g_DupPrimitiveCheckCount = 0;
+u16 CMetroidAreaCollider::g_DupPrimitiveCheckCount = 0;
 u16 CMetroidAreaCollider::g_DupVertexList[0x5000] = {};
 u16 CMetroidAreaCollider::g_DupEdgeList[0xC000] = {};
 u16 CMetroidAreaCollider::g_DupTriangleList[0x4000] = {};
@@ -23,6 +23,16 @@ CAABoxAreaCache::CAABoxAreaCache(const zeus::CAABox& aabb, const zeus::CPlane* p
 
 CBooleanAABoxAreaCache::CBooleanAABoxAreaCache(const zeus::CAABox& aabb, const CMaterialFilter& filter)
 : x0_aabb(aabb), x4_filter(filter), x8_center(aabb.center()), x14_halfExtent(aabb.extents())
+{}
+
+CSphereAreaCache::CSphereAreaCache(const zeus::CAABox& aabb, const zeus::CSphere& sphere, const CMaterialFilter& filter,
+                                   const CMaterialList& material, CCollisionInfoList& collisionList)
+: x0_aabb(aabb), x4_sphere(sphere), x8_filter(filter), xc_material(material), x10_collisionList(collisionList)
+{}
+
+CBooleanSphereAreaCache::CBooleanSphereAreaCache(const zeus::CAABox& aabb, const zeus::CSphere& sphere,
+                                                 const CMaterialFilter& filter)
+: x0_aabb(aabb), x4_sphere(sphere), x8_filter(filter)
 {}
 
 SBoxEdge::SBoxEdge(const zeus::CAABox& aabb, int idx, const zeus::CVector3f& dir)
@@ -202,6 +212,9 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
 {
     rstl::reserved_vector<zeus::CVector3f, 20> vecs[2];
 
+    g_CalledClip += 1;
+    g_RejectedByClip -= 1;
+
     vecs[0].push_back(verts[0]);
     vecs[0].push_back(verts[1]);
     vecs[0].push_back(verts[2]);
@@ -313,13 +326,73 @@ bool CMetroidAreaCollider::AABoxCollisionCheckBoolean(const CAreaOctTree& octTre
 bool CMetroidAreaCollider::SphereCollisionCheckBoolean_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                               const zeus::CSphere& sphere, const CMaterialFilter& filter)
 {
+    CBooleanSphereAreaCache cache(aabb, sphere, filter);
+
+    for (const CAreaOctTree::Node& node : leafCache.x4_nodeCache)
+    {
+        if (cache.x0_aabb.intersects(node.GetBoundingBox()))
+        {
+            CAreaOctTree::TriListReference list = node.GetTriangleArray();
+            for (int j=0 ; j<list.GetSize() ; ++j)
+            {
+                ++g_TrianglesProcessed;
+                CCollisionSurface surf = node.GetOwner().GetMasterListTriangle(list.GetAt(j));
+                if (cache.x8_filter.Passes(CMaterialList(surf.GetSurfaceFlags())))
+                {
+                    if (CollisionUtil::TriSphereOverlap(cache.x4_sphere,
+                                                        surf.GetVert(0), surf.GetVert(1), surf.GetVert(2)))
+                        return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool CMetroidAreaCollider::SphereCollisionCheckBoolean_Internal(const CAreaOctTree::Node& node,
+                                                                const CBooleanSphereAreaCache& cache)
+{
+    for (int i=0 ; i<8 ; ++i)
+    {
+        CAreaOctTree::Node::ETreeType type = node.GetChildType(i);
+        if (type != CAreaOctTree::Node::ETreeType::Invalid)
+        {
+            CAreaOctTree::Node ch = node.GetChild(i);
+            if (cache.x0_aabb.intersects(ch.GetBoundingBox()))
+            {
+                if (type == CAreaOctTree::Node::ETreeType::Leaf)
+                {
+                    CAreaOctTree::TriListReference list = ch.GetTriangleArray();
+                    for (int j=0 ; j<list.GetSize() ; ++j)
+                    {
+                        ++g_TrianglesProcessed;
+                        CCollisionSurface surf = ch.GetOwner().GetMasterListTriangle(list.GetAt(j));
+                        if (cache.x8_filter.Passes(CMaterialList(surf.GetSurfaceFlags())))
+                        {
+                            if (CollisionUtil::TriSphereOverlap(cache.x4_sphere,
+                                                                surf.GetVert(0), surf.GetVert(1), surf.GetVert(2)))
+                                return true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (SphereCollisionCheckBoolean_Internal(ch, cache))
+                        return true;
+                }
+            }
+        }
+    }
     return false;
 }
 
 bool CMetroidAreaCollider::SphereCollisionCheckBoolean(const CAreaOctTree& octTree, const zeus::CAABox& aabb,
                                                        const zeus::CSphere& sphere, const CMaterialFilter& filter)
 {
-    return false;
+    CAreaOctTree::Node node = octTree.GetRootNode();
+    CBooleanSphereAreaCache cache(aabb, sphere, filter);
+    return SphereCollisionCheckBoolean_Internal(node, cache);
 }
 
 bool CMetroidAreaCollider::AABoxCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
@@ -467,16 +540,114 @@ bool CMetroidAreaCollider::AABoxCollisionCheck(const CAreaOctTree& octTree, cons
 
 bool CMetroidAreaCollider::SphereCollisionCheck_Cached(const COctreeLeafCache& leafCache, const zeus::CAABox& aabb,
                                                        const zeus::CSphere& sphere, const CMaterialList& matList,
-                                                       const CMaterialFilter& filter, CCollisionInfoList& list)
+                                                       const CMaterialFilter& filter, CCollisionInfoList& clist)
 {
-    return false;
+    ResetInternalCounters();
+
+    bool ret = false;
+    zeus::CVector3f point, normal;
+
+    for (const CAreaOctTree::Node& node : leafCache.x4_nodeCache)
+    {
+        if (aabb.intersects(node.GetBoundingBox()))
+        {
+            CAreaOctTree::TriListReference list = node.GetTriangleArray();
+            for (int j=0 ; j<list.GetSize() ; ++j)
+            {
+                ++g_TrianglesProcessed;
+                u16 triIdx = list.GetAt(j);
+                if (g_DupPrimitiveCheckCount == g_DupTriangleList[triIdx])
+                {
+                    g_DupTrianglesProcessed += 1;
+                }
+                else
+                {
+                    g_DupTriangleList[triIdx] = g_DupPrimitiveCheckCount;
+                    CCollisionSurface surf = node.GetOwner().GetMasterListTriangle(triIdx);
+                    CMaterialList material(surf.GetSurfaceFlags());
+                    if (filter.Passes(material))
+                    {
+                        if (CollisionUtil::TriSphereIntersection(sphere,
+                                                                 surf.GetVert(0), surf.GetVert(1), surf.GetVert(2),
+                                                                 point, normal))
+                        {
+                            CCollisionInfo collision(point, matList, material, normal);
+                            clist.Add(collision, false);
+                            ret = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+bool CMetroidAreaCollider::SphereCollisionCheck_Internal(const CAreaOctTree::Node& node,
+                                                         const CSphereAreaCache& cache)
+{
+    bool ret = false;
+    zeus::CVector3f point, normal;
+
+    for (int i=0 ; i<8 ; ++i)
+    {
+        CAreaOctTree::Node::ETreeType chTp = node.GetChildType(i);
+        if (chTp != CAreaOctTree::Node::ETreeType::Invalid)
+        {
+            CAreaOctTree::Node ch = node.GetChild(i);
+            if (cache.x0_aabb.intersects(ch.GetBoundingBox()))
+            {
+                if (chTp == CAreaOctTree::Node::ETreeType::Leaf)
+                {
+                    CAreaOctTree::TriListReference list = ch.GetTriangleArray();
+                    for (int j=0 ; j<list.GetSize() ; ++j)
+                    {
+                        ++g_TrianglesProcessed;
+                        u16 triIdx = list.GetAt(j);
+                        if (g_DupPrimitiveCheckCount == g_DupTriangleList[triIdx])
+                        {
+                            g_DupTrianglesProcessed += 1;
+                        }
+                        else
+                        {
+                            g_DupTriangleList[triIdx] = g_DupPrimitiveCheckCount;
+                            CCollisionSurface surf = ch.GetOwner().GetMasterListTriangle(triIdx);
+                            CMaterialList material(surf.GetSurfaceFlags());
+                            if (cache.x8_filter.Passes(material))
+                            {
+                                if (CollisionUtil::TriSphereIntersection(cache.x4_sphere,
+                                                                         surf.GetVert(0), surf.GetVert(1), surf.GetVert(2),
+                                                                         point, normal))
+                                {
+                                    CCollisionInfo collision(point, cache.xc_material, material, normal);
+                                    cache.x10_collisionList.Add(collision, false);
+                                    ret = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (SphereCollisionCheck_Internal(ch, cache))
+                        ret = true;
+                }
+            }
+        }
+    }
+
+    return ret;
 }
 
 bool CMetroidAreaCollider::SphereCollisionCheck(const CAreaOctTree& octTree, const zeus::CAABox& aabb,
                                                 const zeus::CSphere& sphere, const CMaterialList& matList,
                                                 const CMaterialFilter& filter, CCollisionInfoList& list)
 {
-    return false;
+    CSphereAreaCache cache(aabb, sphere, filter, matList, list);
+    ResetInternalCounters();
+    CAreaOctTree::Node node = octTree.GetRootNode();
+    return SphereCollisionCheck_Internal(node, cache);
 }
 
 bool CMetroidAreaCollider::MovingAABoxCollisionCheck_BoxVertexTri(const CCollisionSurface& surf, const zeus::CAABox& aabb,
@@ -730,7 +901,185 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                                                              const zeus::CVector3f& dir, float mag, CCollisionInfo& infoOut,
                                                              double& dOut)
 {
-    return false;
+    bool ret = false;
+    ResetInternalCounters();
+    dOut = mag;
+
+    zeus::CAABox movedAABB = aabb;
+    zeus::CVector3f moveVec = mag * dir;
+    movedAABB.accumulateBounds(aabb.min + moveVec);
+    movedAABB.accumulateBounds(aabb.max + moveVec);
+
+    zeus::CVector3f center = movedAABB.center();
+    zeus::CVector3f extent = movedAABB.extents();
+
+    for (const CAreaOctTree::Node& node : leafCache.x4_nodeCache)
+    {
+        if (movedAABB.intersects(node.GetBoundingBox()))
+        {
+            CAreaOctTree::TriListReference list = node.GetTriangleArray();
+            for (int j=0 ; j<list.GetSize() ; ++j)
+            {
+                u16 triIdx = list.GetAt(j);
+                if (g_DupPrimitiveCheckCount != g_DupTriangleList[triIdx])
+                {
+                    g_TrianglesProcessed += 1;
+                    g_DupTriangleList[triIdx] = g_DupPrimitiveCheckCount;
+                    CMaterialList triMat(node.GetOwner().GetTriangleMaterial(triIdx));
+                    if (filter.Passes(triMat))
+                    {
+                        u16 vertIndices[3];
+                        node.GetOwner().GetTriangleVertexIndices(triIdx, vertIndices);
+                        CCollisionSurface surf(node.GetOwner().GetVert(vertIndices[0]),
+                                               node.GetOwner().GetVert(vertIndices[1]),
+                                               node.GetOwner().GetVert(vertIndices[2]),
+                                               triMat.GetValue());
+
+                        if (CollisionUtil::TriBoxOverlap(center, extent,
+                                                         surf.GetVert(0), surf.GetVert(1), surf.GetVert(2)))
+                        {
+                            zeus::CVector3f surfNormal = surf.GetNormal();
+                            if ((sphere.position + moveVec - surf.GetVert(0)).dot(surfNormal) <= sphere.radius)
+                            {
+                                bool triRet = false;
+
+                                float mag = (sphere.radius - (sphere.position - surf.GetVert(0)).dot(surfNormal)) / dir.dot(surfNormal);
+                                zeus::CVector3f intersectPoint = sphere.position + mag * dir;
+
+                                bool outsideEdges[] =
+                                {(intersectPoint - surf.GetVert(0)).dot((surf.GetVert(1) - surf.GetVert(0)).cross(surfNormal)) < 0.f,
+                                 (intersectPoint - surf.GetVert(1)).dot((surf.GetVert(2) - surf.GetVert(1)).cross(surfNormal)) < 0.f,
+                                 (intersectPoint - surf.GetVert(2)).dot((surf.GetVert(0) - surf.GetVert(2)).cross(surfNormal)) < 0.f};
+
+                                if (mag >= 0.f && !outsideEdges[0] && !outsideEdges[1] && !outsideEdges[2] && mag < dOut)
+                                {
+                                    infoOut = CCollisionInfo(intersectPoint - sphere.radius * surfNormal, matList, triMat, surfNormal);
+                                    dOut = mag;
+                                    triRet = true;
+                                    ret = true;
+                                }
+
+                                bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
+                                bool x49c[] = {true, true, true};
+                                const u16* edgeIndices = node.GetOwner().GetTriangleEdgeIndices(triIdx);
+                                for (int k=0 ; k<3 ; ++k)
+                                {
+                                    if (intersects || outsideEdges[k])
+                                    {
+                                        u16 edgeIdx = edgeIndices[k];
+                                        if (g_DupPrimitiveCheckCount != g_DupEdgeList[edgeIdx])
+                                        {
+                                            g_DupEdgeList[edgeIdx] = g_DupPrimitiveCheckCount;
+                                            CMaterialList edgeMat(node.GetOwner().GetEdgeMaterial(edgeIdx));
+                                            if (!edgeMat.HasMaterial(EMaterialTypes::TwentyFour))
+                                            {
+                                                int nextIdx = (k + 1) % 3;
+                                                zeus::CVector3f edgeVec = surf.GetVert(nextIdx) - surf.GetVert(k);
+                                                float edgeVecMag = edgeVec.magnitude();
+                                                edgeVec *= (1.f / edgeVecMag);
+                                                float dirDotEdge = dir.dot(edgeVec);
+                                                zeus::CVector3f edgeRej = dir - dirDotEdge * edgeVec;
+                                                float edgeRejMagSq = edgeRej.magSquared();
+                                                zeus::CVector3f vertToSphere = sphere.position - surf.GetVert(k);
+                                                float vtsDotEdge = vertToSphere.dot(edgeVec);
+                                                zeus::CVector3f vtsRej = vertToSphere - vtsDotEdge * edgeVec;
+                                                if (edgeRejMagSq > 0.f)
+                                                {
+                                                    float tmp = 2.f * vtsRej.dot(edgeRej);
+                                                    float tmp2 = 4.f * edgeRejMagSq *
+                                                        (vtsRej.magSquared() - sphere.radius * sphere.radius) - tmp * tmp;
+                                                    if (tmp2 >= 0.f)
+                                                    {
+                                                        float mag = 0.5f / edgeRejMagSq * (-tmp - std::sqrt(tmp2));
+                                                        if (mag >= 0.f)
+                                                        {
+                                                            float t = mag * dirDotEdge + vtsDotEdge;
+                                                            if (t >= 0.f && t <= edgeVecMag && mag < dOut)
+                                                            {
+                                                                zeus::CVector3f point = surf.GetVert(k) + t * edgeVec;
+                                                                infoOut = CCollisionInfo(point, matList, edgeMat,
+                                                                                         (sphere.position + mag * dir - point).normalized());
+                                                                dOut = mag;
+                                                                triRet = true;
+                                                                ret = true;
+                                                                x49c[k] = false;
+                                                                x49c[nextIdx] = false;
+                                                            }
+                                                            else if (t < -sphere.radius && dirDotEdge <= 0.f)
+                                                            {
+                                                                x49c[k] = false;
+                                                            }
+                                                            else if (t > edgeVecMag + sphere.radius && dirDotEdge >= 0.0)
+                                                            {
+                                                                x49c[nextIdx] = false;
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        x49c[k] = false;
+                                                        x49c[nextIdx] = false;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                for (int k=0 ; k<3 ; ++k)
+                                {
+                                    u16 vertIdx = vertIndices[k];
+                                    if (x49c[k])
+                                    {
+                                        if (g_DupPrimitiveCheckCount != g_DupVertexList[vertIdx])
+                                        {
+                                            g_DupVertexList[vertIdx] = g_DupPrimitiveCheckCount;
+                                            double d = dOut;
+                                            if (CollisionUtil::RaySphereIntersection_Double(zeus::CSphere(surf.GetVert(k), sphere.radius),
+                                                                                            sphere.position, dir, d) && d >= 0.0)
+                                            {
+                                                infoOut = CCollisionInfo(surf.GetVert(k), matList, node.GetOwner().GetVertMaterial(vertIdx),
+                                                                         (sphere.position + dir * d - surf.GetVert(k)).normalized());
+                                                dOut = d;
+                                                triRet = true;
+                                                ret = true;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        g_DupVertexList[vertIdx] = g_DupPrimitiveCheckCount;
+                                    }
+                                }
+
+                                if (triRet)
+                                {
+                                    moveVec = float(dOut) * dir;
+                                    movedAABB = aabb;
+                                    movedAABB.accumulateBounds(aabb.min + moveVec);
+                                    movedAABB.accumulateBounds(aabb.max + moveVec);
+                                    center = movedAABB.center();
+                                    extent = movedAABB.extents();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            const u16* edgeIndices = node.GetOwner().GetTriangleEdgeIndices(triIdx);
+                            g_DupEdgeList[edgeIndices[0]] = g_DupPrimitiveCheckCount;
+                            g_DupEdgeList[edgeIndices[1]] = g_DupPrimitiveCheckCount;
+                            g_DupEdgeList[edgeIndices[2]] = g_DupPrimitiveCheckCount;
+                            g_DupVertexList[vertIndices[0]] = g_DupPrimitiveCheckCount;
+                            g_DupVertexList[vertIndices[1]] = g_DupPrimitiveCheckCount;
+                            g_DupVertexList[vertIndices[2]] = g_DupPrimitiveCheckCount;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return ret;
 }
 
 void CMetroidAreaCollider::ResetInternalCounters()
@@ -739,7 +1088,7 @@ void CMetroidAreaCollider::ResetInternalCounters()
     g_RejectedByClip = 0;
     g_TrianglesProcessed = 0;
     g_DupTrianglesProcessed = 0;
-    if (g_DupPrimitiveCheckCount == -1)
+    if (g_DupPrimitiveCheckCount == 0xffff)
     {
         memset(g_DupVertexList, 0, 0x5000);
         memset(g_DupEdgeList, 0, 0xC000);

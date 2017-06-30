@@ -354,7 +354,7 @@ public:
     void Update(float dt);
     void UpdateGameState();
     void UpdateHintState(float dt);
-    void PreThinkEffects(float dt);
+    void PreThinkObjects(float dt);
     void MovePlatforms(float dt);
     void MoveDoors(float dt);
     void CrossTouchActors();
