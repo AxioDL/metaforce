@@ -212,7 +212,7 @@ struct SpecMP2 : SpecBase
 
     bool extractFromDisc(nod::DiscBase&, bool force, FProgress progress)
     {
-        nod::ExtractionContext ctx = {true, force, nullptr};
+        nod::ExtractionContext ctx = {force, nullptr};
 
         m_workPath.makeDir();
 

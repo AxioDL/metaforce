@@ -108,7 +108,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
         /* Extract root files for repacking later */
         hecl::ProjectPath outDir(m_project.getProjectWorkingPath(), _S("out"));
         outDir.makeDirChain(true);
-        nod::ExtractionContext ctx = {true, info.force, nullptr};
+        nod::ExtractionContext ctx = {info.force, nullptr};
 
         if (!m_standalone)
         {

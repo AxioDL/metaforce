@@ -333,7 +333,7 @@ struct SpecMP3 : SpecBase
         hecl::SystemString currentTarget = _S("");
         size_t nodeCount = 0;
         int prog = 0;
-        nod::ExtractionContext ctx = {true, force,
+        nod::ExtractionContext ctx = {force,
         [&](const std::string& name, float)
         {
             hecl::SystemStringView nameView(name);

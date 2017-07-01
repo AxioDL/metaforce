@@ -348,7 +348,7 @@ struct SpecMP1 : SpecBase
     {
         m_project.enableDataSpecs({_S("MP1-PC")});
 
-        nod::ExtractionContext ctx = {true, force, nullptr};
+        nod::ExtractionContext ctx = {force, nullptr};
 
         m_workPath.makeDir();
 
