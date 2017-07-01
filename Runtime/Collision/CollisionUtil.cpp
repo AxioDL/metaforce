@@ -328,16 +328,65 @@ bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list
                             const zeus::CAABox& aabb1, const CMaterialList& list1,
                             CCollisionInfoList& infoList)
 {
-    zeus::CAABox boolAABB = aabb0.booleanIntersection(aabb1);
-    if (boolAABB.invalid())
+    zeus::CVector3f maxOfMin(std::max(aabb0.min.x, aabb1.min.x),
+                             std::max(aabb0.min.y, aabb1.min.y),
+                             std::max(aabb0.min.z, aabb1.min.z));
+    zeus::CVector3f minOfMax(std::min(aabb0.max.x, aabb1.max.x),
+                             std::min(aabb0.max.y, aabb1.max.y),
+                             std::min(aabb0.max.z, aabb1.max.z));
+
+    if (maxOfMin.x >= minOfMax.x || maxOfMin.y >= minOfMax.y || maxOfMin.z >= minOfMax.z)
         return false;
 
-    /* TODO: Finish */
+    zeus::CAABox boolAABB(maxOfMin, minOfMax);
 
-    if (!infoList.GetCount())
+    int ineqFlags[] =
     {
-        infoList.Add(CCollisionInfo(boolAABB, list0, list1, AABBNormalTable[4], -AABBNormalTable[4]), false);
-        infoList.Add(CCollisionInfo(boolAABB, list0, list1, AABBNormalTable[5], -AABBNormalTable[5]), false);
+        (aabb0.min.x <= aabb1.min.x ? 1 << 0 : 0) |
+        (aabb0.min.x <= aabb1.max.x ? 1 << 1 : 0) |
+        (aabb0.max.x <= aabb1.min.x ? 1 << 2 : 0) |
+        (aabb0.max.x <= aabb1.max.x ? 1 << 3 : 0),
+        (aabb0.min.y <= aabb1.min.y ? 1 << 0 : 0) |
+        (aabb0.min.y <= aabb1.max.y ? 1 << 1 : 0) |
+        (aabb0.max.y <= aabb1.min.y ? 1 << 2 : 0) |
+        (aabb0.max.y <= aabb1.max.y ? 1 << 3 : 0),
+        (aabb0.min.z <= aabb1.min.z ? 1 << 0 : 0) |
+        (aabb0.min.z <= aabb1.max.z ? 1 << 1 : 0) |
+        (aabb0.max.z <= aabb1.min.z ? 1 << 2 : 0) |
+        (aabb0.max.z <= aabb1.max.z ? 1 << 3 : 0),
+    };
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        switch (ineqFlags[i])
+        {
+        case 0x2: // aabb0.min <= aabb1.max
+        {
+            CCollisionInfo info(boolAABB, list0, list1, AABBNormalTable[i*2+1], -AABBNormalTable[i*2+1]);
+            infoList.Add(info, false);
+            break;
+        }
+        case 0xB: // aabb0.min <= aabb1.min && aabb0.max <= aabb1.min && aabb0.max <= aabb1.max
+        {
+            CCollisionInfo info(boolAABB, list0, list1, AABBNormalTable[i*2], -AABBNormalTable[i*2]);
+            infoList.Add(info, false);
+            break;
+        }
+        default: break;
+        }
+    }
+
+    if (infoList.GetCount())
+        return true;
+
+    {
+        CCollisionInfo info(boolAABB, list0, list1, AABBNormalTable[4], -AABBNormalTable[4]);
+        infoList.Add(info, false);
+    }
+
+    {
+        CCollisionInfo info(boolAABB, list0, list1, AABBNormalTable[5], -AABBNormalTable[5]);
+        infoList.Add(info, false);
     }
 
     return true;
@@ -773,6 +822,355 @@ bool TriSphereIntersection(const zeus::CSphere& sphere,
     else
         normal = (trivert1 - trivert0).cross(trivert2 - trivert0).normalized();
 
+    return true;
+}
+
+bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                 float& tMin, float& tMax, int& axis, bool& sign)
+{
+    tMin = -999999.f;
+    tMax = 999999.f;
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (dir[i] == 0.f)
+            if (point[i] < aabb.min[i] || point[i] > aabb.max[i])
+                return false;
+
+        float dirRecip = 1.f / dir[i];
+        float tmpMin, tmpMax;
+        if (dir[i] < 0.f)
+        {
+            tmpMin = (aabb.max[i] - point[i]) * dirRecip;
+            tmpMax = (aabb.min[i] - point[i]) * dirRecip;
+        }
+        else
+        {
+            tmpMin = (aabb.min[i] - point[i]) * dirRecip;
+            tmpMax = (aabb.max[i] - point[i]) * dirRecip;
+        }
+
+        if (tmpMin > tMin)
+        {
+            sign = dir[i] < 0.f;
+            axis = i;
+            tMin = tmpMin;
+        }
+
+        if (tmpMax < tMax)
+            tMax = tmpMax;
+    }
+
+    return tMin <= tMax;
+}
+
+bool LineCircleIntersection2d(const zeus::CVector3f& point, const zeus::CVector3f& dir, const zeus::CSphere& sphere,
+                              int axis1, int axis2, float& d)
+{
+    zeus::CVector3f delta = sphere.position - point;
+    zeus::CVector2f deltaVec(delta[axis1], delta[axis2]);
+    zeus::CVector2f dirVec(dir[axis1], dir[axis2]);
+
+    float dirVecMag = dirVec.magnitude();
+    if (dirVecMag < FLT_EPSILON)
+        return false;
+
+    float deltaVecDot = deltaVec.dot(dirVec / dirVecMag);
+    float deltaVecMagSq = deltaVec.magSquared();
+
+    float sphereRadSq = sphere.radius * sphere.radius;
+    if (deltaVecDot < 0.f && deltaVecMagSq > sphereRadSq)
+        return false;
+
+    float tSq = sphereRadSq - (deltaVecMagSq - deltaVecDot * deltaVecDot);
+    if (tSq < 0.f)
+        return false;
+
+    float t = std::sqrt(tSq);
+
+    d = (deltaVecMagSq > sphereRadSq) ? deltaVecDot - t : deltaVecDot + t;
+    d /= dirVecMag;
+
+    return true;
+}
+
+bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, const zeus::CVector3f& dir,
+                       double& dOut, zeus::CVector3f& point, zeus::CVector3f& normal)
+{
+    zeus::CAABox expAABB(aabb.min - sphere.radius, aabb.max + sphere.radius);
+    float tMin, tMax;
+    int axis;
+    bool sign;
+    if (!BoxLineTest(expAABB, sphere.position, dir, tMin, tMax, axis, sign))
+        return false;
+
+    point = sphere.position + tMin * dir;
+
+    int nextAxis1 = (axis+1) % 3; // r0
+    int nextAxis2 = (axis+2) % 3; // r5
+
+    bool inMin1 = point[nextAxis1] >= aabb.min[nextAxis1]; // r6
+    bool inMax1 = point[nextAxis1] <= aabb.max[nextAxis1]; // r8
+    bool inBounds1 = inMin1 && inMax1; // r9
+    bool inMin2 = point[nextAxis2] >= aabb.min[nextAxis2]; // r7
+    bool inMax2 = point[nextAxis2] <= aabb.max[nextAxis2]; // r4
+    bool inBounds2 = inMin2 && inMax2; // r8
+
+    if (inBounds1 && inBounds2)
+    {
+        if (tMin < 0.f || tMin > dOut)
+            return false;
+        normal[axis] = sign ? 1.f : -1.f;
+        dOut = tMin;
+        point -= normal * sphere.radius;
+        return true;
+    }
+    else if (!inBounds1 && !inBounds2)
+    {
+        int pointFlags = (1 << axis) * sign | (1 << nextAxis1) * inMin1 | (1 << nextAxis2) * inMin2;
+        zeus::CVector3f aabbPoint = aabb.getPoint(pointFlags);
+        float d;
+        if (CollisionUtil::RaySphereIntersection(zeus::CSphere(aabbPoint, sphere.radius),
+                                                 sphere.position, dir, dOut, d, point))
+        {
+            int useAxis = -1;
+            for (int i=0 ; i<3 ; ++i)
+            {
+                if ((pointFlags & (1 << i)) ? aabbPoint[i] > point[i] : aabbPoint[i] < point[i])
+                {
+                    useAxis = i;
+                    break;
+                }
+            }
+
+            if (useAxis == -1)
+            {
+                normal = (point - aabbPoint).normalized();
+                point -= sphere.radius * normal;
+                return true;
+            }
+
+            int useAxisNext1 = (useAxis+1) % 3;
+            int useAxisNext2 = (useAxis+2) % 3;
+
+            float d;
+            if (CollisionUtil::LineCircleIntersection2d(sphere.position, dir, zeus::CSphere(aabbPoint, sphere.radius),
+                                                        useAxisNext1, useAxisNext2, d) && d > 0.f && d < dOut)
+            {
+                if (point[useAxis] > aabb.max[useAxis])
+                {
+                    int useAxisBit = 1 << useAxis;
+                    if (pointFlags & useAxisBit)
+                        return false;
+
+                    zeus::CVector3f aabbPoint1 = aabb.getPoint(pointFlags | useAxisBit);
+                    if (CollisionUtil::RaySphereIntersection(zeus::CSphere(aabbPoint1, sphere.radius),
+                                                             sphere.position, dir, dOut, d, point))
+                    {
+                        dOut = d;
+                        normal = (point - aabbPoint1).normalized();
+                        point -= normal * sphere.radius;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (point[useAxis] < aabb.min[useAxis])
+                {
+                    int useAxisBit = 1 << useAxis;
+                    if (!(pointFlags & useAxisBit))
+                        return false;
+
+                    zeus::CVector3f aabbPoint1 = aabb.getPoint(pointFlags ^ useAxisBit);
+                    if (CollisionUtil::RaySphereIntersection(zeus::CSphere(aabbPoint1, sphere.radius),
+                                                             sphere.position, dir, dOut, d, point))
+                    {
+                        dOut = d;
+                        normal = (point - aabbPoint1).normalized();
+                        point -= normal * sphere.radius;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    normal = point - aabbPoint;
+                    normal.normalize();
+                    point -= normal * sphere.radius;
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            int reverseCount = 0;
+            float dMin = 1.0e10f;
+            int minAxis = 0;
+            for (int i=0 ; i<3 ; ++i)
+            {
+                if (std::fabs(dir[i]) > FLT_EPSILON)
+                {
+                    bool pointMax = pointFlags & (1 << i);
+                    if (pointMax != dir[i] > 0.f)
+                    {
+                        ++reverseCount;
+                        float d = 1.f / dir[i] * ((pointMax ? aabb.max[i] : aabb.min[i]) - sphere.position[i]);
+                        if (d < 0.f)
+                            return false;
+                        if (d < dMin)
+                        {
+                            dMin = d;
+                            minAxis = i;
+                        }
+                    }
+                }
+            }
+
+            if (reverseCount < 2)
+                return false;
+
+            int useAxisNext1 = (minAxis+1) % 3;
+            int useAxisNext2 = (minAxis+2) % 3;
+            float d;
+            if (CollisionUtil::LineCircleIntersection2d(sphere.position, dir, zeus::CSphere(aabbPoint, sphere.radius),
+                                                        useAxisNext1, useAxisNext2, d) && d > 0.f && d < dOut)
+            {
+                point = sphere.position + d * dir;
+                if (point[minAxis] > aabb.max[minAxis])
+                    return false;
+                if (point[minAxis] < aabb.min[minAxis])
+                    return false;
+
+                dOut = d;
+                normal = point - aabbPoint;
+                normal.normalize();
+                point -= sphere.radius * normal;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    bool useNextAxis1 = inBounds1 ? nextAxis2 : nextAxis1;
+    bool useNextAxis2 = inBounds1 ? nextAxis1 : nextAxis2;
+
+    int pointFlags = ((1 << useNextAxis1) * (inBounds1 ? inMin2 : inMin1)) | ((1 << axis) * sign);
+    zeus::CVector3f aabbPoint2 = aabb.getPoint(pointFlags);
+    float d;
+    if (LineCircleIntersection2d(sphere.position, dir, zeus::CSphere(aabbPoint2, sphere.radius),
+                                 axis, useNextAxis1, d) && d > 0.f && d < dOut)
+    {
+        point = sphere.position + d * dir;
+        if (point[useNextAxis2] > aabb.max[useNextAxis2])
+        {
+            zeus::CVector3f aabbPoint3 = aabb.getPoint(pointFlags | (1 << useNextAxis2));
+            if (point[useNextAxis2] < expAABB.max[useNextAxis2])
+            {
+                if (RaySphereIntersection(zeus::CSphere(aabbPoint3, sphere.radius),
+                                          sphere.position, dir, dOut, d, point))
+                {
+                    dOut = d;
+                    normal = (point - aabbPoint3).normalized();
+                    point -= sphere.radius * normal;
+                    return true;
+                }
+            }
+            return false;
+        }
+        else if (point[useNextAxis2] < aabb.min[useNextAxis2])
+        {
+            if (point[useNextAxis2] > expAABB.min[useNextAxis2])
+            {
+                if (RaySphereIntersection(zeus::CSphere(aabbPoint2, sphere.radius),
+                                          sphere.position, dir, dOut, d, point))
+                {
+                    dOut = d;
+                    normal = (point - aabbPoint2).normalized();
+                    point -= sphere.radius * normal;
+                    return true;
+                }
+            }
+            return false;
+        }
+        else
+        {
+            dOut = d;
+            normal = point - aabbPoint2;
+            normal.normalize();
+            point -= sphere.radius * normal;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, const zeus::CVector3f& dir,
+                        double& d, zeus::CVector3f& point, zeus::CVector3f& normal)
+{
+    zeus::CVector3d vecMin(DBL_MIN);
+    zeus::CVector3d vecMax(DBL_MAX);
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (std::fabs(dir[i]) < FLT_EPSILON)
+        {
+            if (aabb0.min[i] >= aabb1.min[i] && aabb0.min[i] <= aabb1.max[i])
+                continue;
+            if (aabb0.max[i] >= aabb1.min[i] && aabb0.max[i] <= aabb1.max[i])
+                continue;
+            if (aabb0.min[i] < aabb1.min[i] && aabb0.max[i] > aabb1.max[i])
+                continue;
+            return false;
+        }
+        else
+        {
+            if (aabb0.max[i] < aabb1.min[i] && dir[i] > 0.f)
+                vecMin[i] = (aabb1.min[i] - aabb0.max[i]) / dir[i];
+            else if (aabb1.max[i] < aabb0.min[i] && dir[i] < 0.f)
+                vecMin[i] = (aabb1.max[i] - aabb0.min[i]) / dir[i];
+            else if (aabb1.max[i] > aabb0.min[i] && dir[i] < 0.f)
+                vecMin[i] = (aabb1.max[i] - aabb0.min[i]) / dir[i];
+            else if (aabb0.max[i] > aabb1.min[i] && dir[i] > 0.f)
+                vecMin[i] = (aabb1.min[i] - aabb0.max[i]) / dir[i];
+
+            if (aabb1.max[i] > aabb0.min[i] && dir[i] > 0.f)
+                vecMax[i] = (aabb1.max[i] - aabb0.min[i]) / dir[i];
+            else if (aabb0.max[i] > aabb1.min[i] && dir[i] < 0.f)
+                vecMax[i] = (aabb1.min[i] - aabb0.max[i]) / dir[i];
+            else if (aabb0.max[i] < aabb1.min[i] && dir[i] < 0.f)
+                vecMax[i] = (aabb1.min[i] - aabb0.max[i]) / dir[i];
+            else if (aabb1.max[i] < aabb0.min[i] && dir[i] > 0.f)
+                vecMax[i] = (aabb1.max[i] - aabb0.min[i]) / dir[i];
+        }
+    }
+
+    int maxAxis = 0;
+    if (vecMin[1] > vecMin[0])
+        maxAxis = 1;
+    if (vecMin[2] > vecMin[maxAxis])
+        maxAxis = 2;
+
+    float minMax = std::min(std::min(vecMax[2], vecMax[1]), vecMax[0]);
+    if (vecMin[maxAxis] > minMax)
+        return false;
+    d = minMax;
+
+    normal = zeus::CVector3f::skZero;
+    normal[maxAxis] = dir[maxAxis] > 0.f ? -1.f : 1.f;
+
+    for (int i=0 ; i<3 ; ++i)
+        point[i] = dir[i] > 0.f ? aabb0.max[i] : aabb0.min[i];
+
+    point += float(d) * dir;
     return true;
 }
 

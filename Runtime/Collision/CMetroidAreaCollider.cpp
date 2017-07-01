@@ -960,7 +960,7 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                                 }
 
                                 bool intersects = (sphere.position - surf.GetVert(0)).dot(surfNormal) <= sphere.radius;
-                                bool x49c[] = {true, true, true};
+                                bool testVert[] = {true, true, true};
                                 const u16* edgeIndices = node.GetOwner().GetTriangleEdgeIndices(triIdx);
                                 for (int k=0 ; k<3 ; ++k)
                                 {
@@ -1002,23 +1002,23 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                                                                 dOut = mag;
                                                                 triRet = true;
                                                                 ret = true;
-                                                                x49c[k] = false;
-                                                                x49c[nextIdx] = false;
+                                                                testVert[k] = false;
+                                                                testVert[nextIdx] = false;
                                                             }
                                                             else if (t < -sphere.radius && dirDotEdge <= 0.f)
                                                             {
-                                                                x49c[k] = false;
+                                                                testVert[k] = false;
                                                             }
                                                             else if (t > edgeVecMag + sphere.radius && dirDotEdge >= 0.0)
                                                             {
-                                                                x49c[nextIdx] = false;
+                                                                testVert[nextIdx] = false;
                                                             }
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        x49c[k] = false;
-                                                        x49c[nextIdx] = false;
+                                                        testVert[k] = false;
+                                                        testVert[nextIdx] = false;
                                                     }
                                                 }
                                             }
@@ -1029,7 +1029,7 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                                 for (int k=0 ; k<3 ; ++k)
                                 {
                                     u16 vertIdx = vertIndices[k];
-                                    if (x49c[k])
+                                    if (testVert[k])
                                     {
                                         if (g_DupPrimitiveCheckCount != g_DupVertexList[vertIdx])
                                         {

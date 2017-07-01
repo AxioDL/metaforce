@@ -1,5 +1,7 @@
 #include "CCollidableAABox.hpp"
 #include "CollisionUtil.hpp"
+#include "CCollidableSphere.hpp"
+#include "CCollisionInfo.hpp"
 
 namespace urde
 {
@@ -56,13 +58,46 @@ void CCollidableAABox::SetStaticTableIndex(u32 index)
     sTableIndex = index;
 }
 
-bool CCollidableAABox::CollideMovingAABox(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+bool CCollidableAABox::CollideMovingAABox(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
+                                          double& dOut, CCollisionInfo& infoOut)
 {
+    const CCollidableAABox& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableAABox& p1 = static_cast<const CCollidableAABox&>(collision.GetRight().GetPrim());
+
+    zeus::CAABox b0 = p0.Transform(collision.GetLeft().GetTransform());
+    zeus::CAABox b1 = p1.Transform(collision.GetRight().GetTransform());
+
+    double d;
+    zeus::CVector3f point, normal;
+    if (CollisionUtil::AABox_AABox_Moving(b0, b1, dir, d, point, normal) && d > 0.0 && d < dOut)
+    {
+        dOut = d;
+        infoOut = CCollisionInfo(point, p0.GetMaterial(), p1.GetMaterial(), normal, -normal);
+        return true;
+    }
+
     return false;
 }
 
-bool CCollidableAABox::CollideMovingSphere(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+bool CCollidableAABox::CollideMovingSphere(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
+                                           double& dOut, CCollisionInfo& infoOut)
 {
+    const CCollidableAABox& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableSphere& p1 = static_cast<const CCollidableSphere&>(collision.GetRight().GetPrim());
+
+    zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
+    zeus::CSphere s1 = p1.Transform(collision.GetRight().GetTransform());
+
+    double d = dOut;
+    zeus::CVector3f point, normal;
+    if (CollisionUtil::MovingSphereAABox(s1, b0, -dir, d, point, normal) && d < dOut)
+    {
+        point = s1.position - s1.radius * normal;
+        dOut = d;
+        infoOut = CCollisionInfo(point, p0.GetMaterial(), p1.GetMaterial(), -normal);
+        return true;
+    }
+
     return false;
 }
 

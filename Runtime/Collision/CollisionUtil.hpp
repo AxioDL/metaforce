@@ -36,6 +36,14 @@ bool TriSphereOverlap(const zeus::CSphere& sphere,
 bool TriSphereIntersection(const zeus::CSphere& sphere,
                            const zeus::CVector3f& trivert0, const zeus::CVector3f& trivert1,
                            const zeus::CVector3f& trivert2, zeus::CVector3f& point, zeus::CVector3f& normal);
+bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                 float& tMin, float& tMax, int& axis, bool& sign);
+bool LineCircleIntersection2d(const zeus::CVector3f& point, const zeus::CVector3f& dir, const zeus::CSphere& sphere,
+                              int axis1, int axis2, float& d);
+bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, const zeus::CVector3f& dir,
+                       double& d, zeus::CVector3f& point, zeus::CVector3f& normal);
+bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, const zeus::CVector3f& dir,
+                        double& d, zeus::CVector3f& point, zeus::CVector3f& normal);
 }
 }
 #endif // __URDE_COLLISIONUTIL_HPP__
