@@ -1062,7 +1062,7 @@ bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, co
     bool useNextAxis1 = inBounds1 ? nextAxis2 : nextAxis1;
     bool useNextAxis2 = inBounds1 ? nextAxis1 : nextAxis2;
 
-    int pointFlags = ((1 << useNextAxis1) * (inBounds1 ? inMin2 : inMin1)) | ((1 << axis) * sign);
+    int pointFlags = ((1 << int(useNextAxis1)) * (inBounds1 ? inMin2 : inMin1)) | ((1 << axis) * sign);
     zeus::CVector3f aabbPoint2 = aabb.getPoint(pointFlags);
     float d;
     if (LineCircleIntersection2d(sphere.position, dir, zeus::CSphere(aabbPoint2, sphere.radius),
@@ -1071,7 +1071,7 @@ bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, co
         point = sphere.position + d * dir;
         if (point[useNextAxis2] > aabb.max[useNextAxis2])
         {
-            zeus::CVector3f aabbPoint3 = aabb.getPoint(pointFlags | (1 << useNextAxis2));
+            zeus::CVector3f aabbPoint3 = aabb.getPoint(pointFlags | (1 << int(useNextAxis2)));
             if (point[useNextAxis2] < expAABB.max[useNextAxis2])
             {
                 if (RaySphereIntersection(zeus::CSphere(aabbPoint3, sphere.radius),
