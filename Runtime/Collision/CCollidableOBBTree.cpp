@@ -3,11 +3,15 @@
 namespace urde
 {
 
+u32 CCollidableOBBTree::sTableIndex = 0;
+
 CCollidableOBBTree::CCollidableOBBTree(const COBBTree* tree, const urde::CMaterialList& material)
     : CCollisionPrimitive(material),
-      x10_tree((COBBTree*)tree)
-{
+      x10_tree((COBBTree*)tree) {}
 
+bool CCollidableOBBTree::LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRayCastInfo& info) const
+{
+    return false;
 }
 
 FourCC CCollidableOBBTree::GetPrimType() const
