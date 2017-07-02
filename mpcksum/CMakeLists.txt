@@ -4,4 +4,4 @@ add_executable(mpcksum
         main.cpp)
 
 target_link_libraries(mpcksum
-    athena-core z lzo2)
+    athena-core athena-libyaml z lzo2)

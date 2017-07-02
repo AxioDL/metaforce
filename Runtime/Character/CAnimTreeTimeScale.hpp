@@ -2,14 +2,14 @@
 #define __URDE_CANIMTREETIMESCALE_HPP__
 
 #include "CAnimTreeSingleChild.hpp"
-#include "CConstantAnimationTimeScale.hpp"
+#include "CTimeScaleFunctions.hpp"
 
 namespace urde
 {
 
 class CAnimTreeTimeScale : public CAnimTreeSingleChild
 {
-    std::unique_ptr<CConstantAnimationTimeScale> x18_timeScale;
+    std::shared_ptr<CConstantAnimationTimeScale> x18_timeScale;
     CCharAnimTime x20_;
     CCharAnimTime x28_;
 public:

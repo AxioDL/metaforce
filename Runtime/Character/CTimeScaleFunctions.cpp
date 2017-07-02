@@ -9,41 +9,39 @@ std::shared_ptr<IVaryingAnimationTimeScale> IVaryingAnimationTimeScale::Clone() 
     return VClone();
 }
 
-void CConstantAnimationTimeScale::VTimeScaleIntegral(const float&, const float&) const
-{
-}
-
-void CConstantAnimationTimeScale::VFindUpperLimit(const float&, const float&) const
-{
-}
+float CConstantAnimationTimeScale::VTimeScaleIntegral(const float& a, const float& b) const { return (b - a) * x4_; }
+float CConstantAnimationTimeScale::VFindUpperLimit(const float& a, const float& b) const { return (b / x4_) + a; }
 
 std::shared_ptr<IVaryingAnimationTimeScale> CConstantAnimationTimeScale::VClone() const
 {
-    return {};
+    CConstantAnimationTimeScale* ret = new CConstantAnimationTimeScale(x4_);
+    return std::shared_ptr<IVaryingAnimationTimeScale>(ret);
 }
 
-std::shared_ptr<IVaryingAnimationTimeScale>
-CConstantAnimationTimeScale::VGetFunctionMirrored(const float&) const
+std::shared_ptr<IVaryingAnimationTimeScale> CConstantAnimationTimeScale::VGetFunctionMirrored(const float&) const
 {
-    return {};
+    return Clone();
 }
-
-void CLinearAnimationTimeScale::VTimeScaleIntegral(const float&, const float&) const
+float CLinearAnimationTimeScale::VTimeScaleIntegral(const float&, const float&) const
 {
+    return 0.f;
 }
 
-void CLinearAnimationTimeScale::TimeScaleIntegralWithSortedLimits(const CFunctionDescription& desc,
+float CLinearAnimationTimeScale::TimeScaleIntegralWithSortedLimits(const CFunctionDescription& desc,
                                                                   const float&, const float&)
 {
+    return 0.f;
 }
 
-void CLinearAnimationTimeScale::VFindUpperLimit(const float&, const float&) const
+float CLinearAnimationTimeScale::VFindUpperLimit(const float&, const float&) const
 {
+    return 0.f;
 }
 
-void CLinearAnimationTimeScale::FindUpperLimitFromRoot(const CFunctionDescription& desc,
+float CLinearAnimationTimeScale::FindUpperLimitFromRoot(const CFunctionDescription& desc,
                                                        const float&, const float&)
 {
+    return 0.f;
 }
 
 std::shared_ptr<IVaryingAnimationTimeScale> CLinearAnimationTimeScale::VClone() const
