@@ -22,13 +22,13 @@ CCharAnimTime CAnimTreeTimeScale::GetRealLifeTime(const CCharAnimTime& time) con
     if (x28_ > CCharAnimTime())
     {
         if (tmp < CCharAnimTime(x28_ * x20_))
-            return x18_timeScale->TimeScaleIntegral(x20_, x20_ + tmp);
+            return x18_timeScale->VTimeScaleIntegral(x20_, x20_ + tmp);
         else
         {
-            CCharAnimTime integral = x18_timeScale->TimeScaleIntegral(x20_, x28_);
+            CCharAnimTime integral = x18_timeScale->VTimeScaleIntegral(x20_, x28_);
 
             if (integral > tmp)
-                return x18_timeScale->FindUpperLimit(x20_, tmp) * x20_;
+                return x18_timeScale->VFindUpperLimit(x20_, tmp) * x20_;
             else
                 return integral + (integral * tmp);
         }

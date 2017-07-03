@@ -8,8 +8,6 @@ set(CHARACTER_SOURCES
     IMetaAnim.hpp IMetaAnim.cpp
     IMetaTrans.hpp
     IVaryingAnimationTimeScale.hpp
-    CLinearAnimationTimeScale.hpp CLinearAnimationTimeScale.cpp
-    CConstantAnimationTimeScale.hpp CConstantAnimationTimeScale.cpp
     CAnimationDatabase.hpp
     CAnimationDatabaseGame.hpp CAnimationDatabaseGame.cpp
     CTransitionDatabase.hpp

@@ -51,7 +51,7 @@ public:
 
     s32 GetNumTriggers() const;
     CAiTrigger& GetTrig(s32) const;
-    const char* GetName() const;
+    const char* GetName() const { return x4_name; }
     void SetTriggers(CAiTrigger* triggers);
     void SetNumTriggers(s32 numTriggers) { x2c_numTriggers = numTriggers; }
     void CallFunc(CStateManager& mgr, CAi& ai, EStateMsg msg, float delta) const

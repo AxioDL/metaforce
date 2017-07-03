@@ -9,7 +9,7 @@ class IWeaponRenderer
 {
 public:
     virtual ~IWeaponRenderer() = default;
-    virtual void AddParticleGen(const CParticleGen&);
+    virtual void AddParticleGen(const CParticleGen&)=0;
 };
 
 class CDefaultWeaponRenderer : public IWeaponRenderer

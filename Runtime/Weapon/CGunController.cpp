@@ -6,6 +6,56 @@
 namespace urde
 {
 
+void CGunController::UnLoadFidget()
+{
+
+}
+
+void CGunController::LoadFidgetAnimAsync(CStateManager &, s32, s32, s32)
+{
+
+}
+
+void CGunController::GetFreeLookSetId() const
+{
+
+}
+
+bool CGunController::IsFidgetLoaded() const
+{
+    return false;
+}
+
+bool CGunController::IsComboOver() const
+{
+    return true;
+}
+
+void CGunController::EnterFreeLook(CStateManager &, s32, s32)
+{
+
+}
+
+void CGunController::EnterComboFire(CStateManager &, s32)
+{
+
+}
+
+void CGunController::EnterFidget(CStateManager &, s32, s32, s32)
+{
+
+}
+
+void CGunController::EnterStruck(CStateManager &, float)
+{
+
+}
+
+void CGunController::EnterIdle(CStateManager &)
+{
+
+}
+
 bool CGunController::Update(float dt, CStateManager& mgr)
 {
     CAnimData& animData = *x0_modelData.AnimationData();
@@ -49,6 +99,11 @@ bool CGunController::Update(float dt, CStateManager& mgr)
     x58_25_ = false;
 
     return true;
+}
+
+void CGunController::ReturnToDefault(CStateManager &, float)
+{
+
 }
 
 void CGunController::ReturnToBasePosition(CStateManager& mgr, float)

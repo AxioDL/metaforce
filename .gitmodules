@@ -16,3 +16,6 @@
 [submodule "jbus"]
 	path = jbus
 	url = https://github.com/AxioDL/jbus.git
+[submodule "assetnameparser/tinyxml2"]
+	path = assetnameparser/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
