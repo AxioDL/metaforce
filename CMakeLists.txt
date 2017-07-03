@@ -5,8 +5,8 @@ project(urde)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(BUILD_SHARED_LIBS OFF)
-set(BUILD_STATIC_LIBS ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
+set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
 if(MSVC)
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
