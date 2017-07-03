@@ -1,5 +1,9 @@
 #include "CCollidableOBBTreeGroup.hpp"
 #include "CCollidableOBBTree.hpp"
+#include "CCollidableAABox.hpp"
+#include "CCollidableSphere.hpp"
+#include "CInternalRayCastStructure.hpp"
+#include "CollisionUtil.hpp"
 #include "CToken.hpp"
 
 namespace urde
@@ -37,7 +41,7 @@ CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupCo
 
 void CCollidableOBBTreeGroup::ResetTestStats() const
 {
-
+    /* Remove me? */
 }
 
 u32 CCollidableOBBTreeGroup::GetTableIndex() const
@@ -60,9 +64,35 @@ FourCC CCollidableOBBTreeGroup::GetPrimType() const
     return SBIG('OBTG');
 }
 
-CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastStructure&) const
+CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastStructure& rayCast) const
 {
-    return {};
+    CRayCastResult ret;
+
+    zeus::CMRay xfRay = rayCast.GetRay().getInvUnscaledTransformRay(rayCast.GetTransform());
+    auto aabbIt = x10_container->x10_aabbs.cbegin();
+    float mag = rayCast.GetMaxTime();
+    for (const std::unique_ptr<COBBTree>& tree : x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), GetMaterial());
+        float tMin = 0.f;
+        float tMax = 0.f;
+        if (CollisionUtil::RayAABoxIntersection(xfRay, *aabbIt++, tMin, tMax))
+        {
+            CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag,
+                                                zeus::CTransform::Identity(), rayCast.GetFilter());
+            CRayCastResult localResult = obbTree.CastRayInternal(localCast);
+            if (localResult.IsValid())
+            {
+                if (ret.IsInvalid() || localResult.GetT() < ret.GetT())
+                {
+                    ret = localResult;
+                    mag = localResult.GetT();
+                }
+            }
+        }
+    }
+
+    return ret;
 }
 
 const CCollisionPrimitive::Type& CCollidableOBBTreeGroup::GetType()
@@ -75,34 +105,163 @@ void CCollidableOBBTreeGroup::SetStaticTableIndex(u32 index)
     sTableIndex = index;
 }
 
-bool CCollidableOBBTreeGroup::SphereCollide(const CInternalCollisionStructure &, CCollisionInfoList &)
+bool CCollidableOBBTreeGroup::SphereCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list)
 {
+    bool ret = false;
+    const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+    const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
+
+    zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
+    zeus::COBBox obb1 = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(),
+    collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+
+    for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
+        if (obbTree.SphereCollision(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(),
+                                    s0, obb1, p0.GetMaterial(), collision.GetLeft().GetFilter(), list))
+            ret = true;
+    }
+
+    return ret;
+}
+
+bool CCollidableOBBTreeGroup::SphereCollideBoolean(const CInternalCollisionStructure& collision)
+{
+    const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+    const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
+
+    zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
+    zeus::COBBox obb1 = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(),
+    collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+
+    for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
+        if (obbTree.SphereCollisionBoolean(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(),
+                                           s0, obb1, collision.GetLeft().GetFilter()))
+            return true;
+    }
+
     return false;
 }
 
-bool CCollidableOBBTreeGroup::SphereCollideBoolean(const CInternalCollisionStructure &)
+bool CCollidableOBBTreeGroup::CollideMovingSphere(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
+                                                  double& mag, CCollisionInfo& info)
 {
+    bool ret = false;
+    const CCollidableSphere& p0 = static_cast<const CCollidableSphere&>(collision.GetLeft().GetPrim());
+    const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
+
+    zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
+
+    zeus::CAABox movedAABB = p0.CalculateLocalAABox();
+    zeus::CVector3f moveVec = float(mag) * dir;
+    movedAABB.accumulateBounds(movedAABB.min + moveVec);
+    movedAABB.accumulateBounds(movedAABB.max + moveVec);
+
+    zeus::COBBox p0Obb =
+    zeus::COBBox::FromAABox(movedAABB,
+                            collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+
+    for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
+        CMetroidAreaCollider::ResetInternalCounters();
+        if (obbTree.SphereCollisionMoving(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(),
+                                          s0, p0Obb, p0.GetMaterial(), collision.GetLeft().GetFilter(),
+                                          dir, mag, info))
+            ret = true;
+    }
+
+    return ret;
+}
+
+bool CCollidableOBBTreeGroup::AABoxCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list)
+{
+    bool ret = false;
+    const CCollidableAABox& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
+
+    zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
+    zeus::COBBox p0Obb =
+    zeus::COBBox::FromAABox(p0.CalculateLocalAABox(),
+                            collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+
+    zeus::CPlane planes[] =
+    {
+        {zeus::CVector3f::skRight, b0.min.dot(zeus::CVector3f::skRight)},
+        {zeus::CVector3f::skLeft, b0.max.dot(zeus::CVector3f::skLeft)},
+        {zeus::CVector3f::skForward, b0.min.dot(zeus::CVector3f::skForward)},
+        {zeus::CVector3f::skBack, b0.max.dot(zeus::CVector3f::skBack)},
+        {zeus::CVector3f::skUp, b0.min.dot(zeus::CVector3f::skUp)},
+        {zeus::CVector3f::skDown, b0.max.dot(zeus::CVector3f::skDown)}
+    };
+
+    for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
+        if (obbTree.AABoxCollision(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(),
+                                   b0, p0Obb, p0.GetMaterial(), collision.GetLeft().GetFilter(),
+                                   planes, list))
+            ret = true;
+    }
+
+    return ret;
+}
+
+bool CCollidableOBBTreeGroup::AABoxCollideBoolean(const CInternalCollisionStructure& collision)
+{
+    const CCollidableAABox& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
+
+    zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
+    zeus::COBBox p0Obb =
+    zeus::COBBox::FromAABox(p0.CalculateLocalAABox(),
+                            collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+
+    for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
+        if (obbTree.AABoxCollisionBoolean(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(),
+                                          b0, p0Obb, collision.GetLeft().GetFilter()))
+            return true;
+    }
+
     return false;
 }
 
-bool CCollidableOBBTreeGroup::CollideMovingSphere(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
+bool CCollidableOBBTreeGroup::CollideMovingAABox(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
+                                                 double& mag, CCollisionInfo& info)
 {
-    return false;
-}
+    bool ret = false;
+    const CCollidableAABox& p0 = static_cast<const CCollidableAABox&>(collision.GetLeft().GetPrim());
+    const CCollidableOBBTreeGroup& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
 
-bool CCollidableOBBTreeGroup::AABoxCollide(const CInternalCollisionStructure &, CCollisionInfoList &)
-{
-    return false;
-}
+    zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
 
-bool CCollidableOBBTreeGroup::AABoxCollideBoolean(const CInternalCollisionStructure &)
-{
-    return false;
-}
+    CMovingAABoxComponents components(b0, dir);
 
-bool CCollidableOBBTreeGroup::CollideMovingAABox(const CInternalCollisionStructure &, const zeus::CVector3f &, double &, CCollisionInfo &)
-{
-    return false;
+    zeus::CAABox movedAABB = p0.CalculateLocalAABox();
+    zeus::CVector3f moveVec = float(mag) * dir;
+    movedAABB.accumulateBounds(movedAABB.min + moveVec);
+    movedAABB.accumulateBounds(movedAABB.max + moveVec);
+
+    zeus::COBBox p0Obb =
+    zeus::COBBox::FromAABox(movedAABB,
+                            collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+
+    for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees)
+    {
+        CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());
+        CMetroidAreaCollider::ResetInternalCounters();
+        if (obbTree.AABoxCollisionMoving(obbTree.x10_tree->GetRoot(), collision.GetRight().GetTransform(),
+                                         b0, p0Obb, p0.GetMaterial(), collision.GetLeft().GetFilter(),
+                                         components, dir, mag, info))
+            ret = true;
+    }
+
+    return ret;
 }
 
 CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag &tag, CInputStream& in,

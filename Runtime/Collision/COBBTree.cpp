@@ -1,4 +1,5 @@
 #include "COBBTree.hpp"
+#include "CCollidableOBBTreeGroup.hpp"
 
 namespace urde
 {
@@ -29,6 +30,12 @@ COBBTree::COBBTree(CInputStream& in)
 {
 }
 
+std::unique_ptr<CCollidableOBBTreeGroupContainer>
+COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVector3f& a, const zeus::CVector3f& b)
+{
+    return std::make_unique<CCollidableOBBTreeGroupContainer>(a, b);
+}
+
 CCollisionSurface COBBTree::GetSurface(u16 idx) const
 {
     u32 surfIdx = idx * 3;
@@ -50,6 +57,50 @@ CCollisionSurface COBBTree::GetSurface(u16 idx) const
     }
     return CCollisionSurface(x18_indexData.x60_vertices[vert1], x18_indexData.x60_vertices[vert2],
                              x18_indexData.x60_vertices[vert3], mat);
+}
+
+void COBBTree::GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const
+{
+    const CCollisionEdge& e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[idx*3]];
+    const CCollisionEdge& e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[idx*3+1]];
+    indicesOut[2] =
+        (e1.GetVertIndex1() != e0.GetVertIndex1() && e1.GetVertIndex1() != e0.GetVertIndex2()) ?
+        e1.GetVertIndex1() : e1.GetVertIndex2();
+
+    u32 material = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
+    if (material & 0x2000000)
+    {
+        indicesOut[0] = e0.GetVertIndex2();
+        indicesOut[1] = e0.GetVertIndex1();
+    }
+    else
+    {
+        indicesOut[0] = e0.GetVertIndex1();
+        indicesOut[1] = e0.GetVertIndex2();
+    }
+}
+
+CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransform& xf) const
+{
+    u32 surfIdx = idx * 3;
+    CCollisionEdge edge1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
+    CCollisionEdge edge2 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
+    u16 vert1 = edge2.GetVertIndex1();
+    u16 vert2 = edge2.GetVertIndex2();
+    u16 vert3 = edge1.GetVertIndex1();
+
+    if (vert3 == vert1 || vert3 == edge2.GetVertIndex2())
+        vert3 = edge1.GetVertIndex2();
+
+    u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
+
+    if ((mat & 0x2000000) != 0)
+    {
+        return CCollisionSurface(xf * x18_indexData.x60_vertices[vert2], xf * x18_indexData.x60_vertices[vert1],
+                                 xf * x18_indexData.x60_vertices[vert3], mat);
+    }
+    return CCollisionSurface(xf * x18_indexData.x60_vertices[vert1], xf * x18_indexData.x60_vertices[vert2],
+                             xf * x18_indexData.x60_vertices[vert3], mat);
 }
 
 zeus::CAABox COBBTree::CalculateLocalAABox() const
@@ -116,26 +167,6 @@ COBBTree::CNode::CNode(CInputStream& in)
         x40_left.reset(new CNode(in));
         x44_right.reset(new CNode(in));
     }
-}
-
-COBBTree::CNode* COBBTree::CNode::GetLeft() const
-{
-    return x40_left.get();
-}
-
-COBBTree::CNode*COBBTree::CNode::GetRight() const
-{
-    return x44_right.get();
-}
-
-COBBTree::CLeafData*COBBTree::CNode::GetLeafData() const
-{
-    return x48_leaf.get();
-}
-
-const zeus::COBBox& COBBTree::CNode::GetOBB() const
-{
-    return x0_obb;
 }
 
 size_t COBBTree::CNode::GetMemoryUsage() const

@@ -820,14 +820,14 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(const COctreeLeafCac
                             for (int k=0 ; k<3 ; ++k)
                             {
                                 u16 vertIdx = vertIndices[k];
-                                zeus::CVector3f point = node.GetOwner().GetVert(vertIdx);
+                                zeus::CVector3f vtx = node.GetOwner().GetVert(vertIdx);
                                 if (g_DupPrimitiveCheckCount != g_DupVertexList[vertIdx])
                                 {
                                     g_DupVertexList[vertIdx] = g_DupPrimitiveCheckCount;
-                                    if (movedAABB.pointInside(point))
+                                    if (movedAABB.pointInside(vtx))
                                     {
                                         d = dOut;
-                                        if (MovingAABoxCollisionCheck_TriVertexBox(point, aabb, dir, d,
+                                        if (MovingAABoxCollisionCheck_TriVertexBox(vtx, aabb, dir, d,
                                                                                    normal, point) && d < dOut)
                                         {
                                             CMaterialList vertMat(node.GetOwner().GetVertMaterial(vertIdx));

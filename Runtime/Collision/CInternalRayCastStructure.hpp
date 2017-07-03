@@ -11,11 +11,12 @@ class CInternalRayCastStructure
     zeus::CMRay x0_ray;
     float x38_maxTime;
     zeus::CTransform x3c_xf;
-    CMaterialFilter x6c_filter;
+    const CMaterialFilter& x6c_filter;
 public:
     CInternalRayCastStructure(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
                               const zeus::CTransform& xf, const CMaterialFilter& filter)
         : x0_ray(start, dir, length),
+          x38_maxTime(length),
           x3c_xf(xf),
           x6c_filter(filter)
     {

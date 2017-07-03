@@ -75,6 +75,7 @@ struct SBoxEdge
 class CMovingAABoxComponents
 {
     friend class CMetroidAreaCollider;
+    friend class CCollidableOBBTree;
     rstl::reserved_vector<SBoxEdge, 12> x0_edges;
     rstl::reserved_vector<u32, 8> x6c4_vertIdxs;
     zeus::CAABox x6e8_aabb;
@@ -84,6 +85,7 @@ public:
 
 class CMetroidAreaCollider
 {
+    friend class CCollidableOBBTree;
     static u32 g_CalledClip;
     static u32 g_RejectedByClip;
     static u32 g_TrianglesProcessed;

@@ -11,6 +11,7 @@ class CCollisionInfoList;
 namespace CollisionUtil
 {
 bool LineIntersectsOBBox(const zeus::COBBox&, const zeus::CMRay&, float&);
+u32 RayAABoxIntersection(const zeus::CMRay&, const zeus::CAABox&, float&, float&);
 u32 RayAABoxIntersection(const zeus::CMRay&, const zeus::CAABox&, zeus::CVector3f&, float&);
 u32 RayAABoxIntersection_Double(const zeus::CMRay&, const zeus::CAABox&, zeus::CVector3f&, double&);
 bool RaySphereIntersection_Double(const zeus::CSphere&, const zeus::CVector3f&, const zeus::CVector3f&, double&);
@@ -18,6 +19,8 @@ bool RaySphereIntersection(const zeus::CSphere& sphere, const zeus::CVector3f& p
                            float mag, float& T, zeus::CVector3f& point);
 bool RayTriangleIntersection_Double(const zeus::CVector3f& point, const zeus::CVector3f& dir,
                                     const zeus::CVector3f* verts, double& d);
+bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                             const zeus::CVector3f* verts, float& d);
 void FilterOutBackfaces(const zeus::CVector3f& vec, const CCollisionInfoList& in, CCollisionInfoList& out);
 void FilterByClosestNormal(const zeus::CVector3f& norm, const CCollisionInfoList& in, CCollisionInfoList& out);
 bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list0,

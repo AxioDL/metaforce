@@ -14,6 +14,46 @@ bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float&
                                 norm, d);
 }
 
+u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, float& tMin, float& tMax)
+{
+    tMin = -999999.f;
+    tMax = 999999.f;
+
+    for (int i=0 ; i<3 ; ++i)
+    {
+        if (std::fabs(ray.dir[i]) < 0.00001f)
+        {
+            if (ray.start[i] < aabb.min[i] || ray.start[i] > aabb.max[i])
+                return 0;
+        }
+        else
+        {
+            if (ray.dir[i] < 0.f)
+            {
+                float startToMax = aabb.max[i] - ray.start[i];
+                float startToMin = aabb.min[i] - ray.start[i];
+                float dirRecip = 1.f / ray.dir[i];
+                if (startToMax < tMin * ray.dir[i])
+                    tMin = startToMax * dirRecip;
+                if (startToMin > tMax * ray.dir[i])
+                    tMax = startToMin * dirRecip;
+            }
+            else
+            {
+                float startToMin = aabb.min[i] - ray.start[i];
+                float startToMax = aabb.max[i] - ray.start[i];
+                float dirRecip = 1.f / ray.dir[i];
+                if (startToMin > tMin * ray.dir[i])
+                    tMin = startToMin * dirRecip;
+                if (startToMax < tMax * ray.dir[i])
+                    tMax = startToMax * dirRecip;
+            }
+        }
+    }
+
+    return tMin <= tMax ? 2 : 0;
+}
+
 u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb,
                          zeus::CVector3f& norm, float& d)
 {
@@ -271,6 +311,30 @@ bool RayTriangleIntersection_Double(const zeus::CVector3f& point, const zeus::CV
     if (dot2 < 0.0 || dot1 + dot2 > dot0)
         return false;
     double final = 1.0 / dot0 * cross1.dot(v0tov2);
+    if (final < 0.0 || final >= d)
+        return false;
+    d = final;
+    return true;
+}
+
+bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f& dir,
+                             const zeus::CVector3f* verts, float& d)
+{
+    zeus::CVector3f v0tov1 = verts[1] - verts[0];
+    zeus::CVector3f v0tov2 = verts[2] - verts[0];
+    zeus::CVector3f cross0 = dir.cross(v0tov2);
+    float dot0 = v0tov1.dot(cross0);
+    if (dot0 < DBL_EPSILON)
+        return false;
+    zeus::CVector3f v0toPoint = point - verts[0];
+    float dot1 = v0toPoint.dot(cross0);
+    if (dot1 < 0.0 || dot1 > dot0)
+        return false;
+    zeus::CVector3f cross1 = v0toPoint.cross(v0tov1);
+    float dot2 = cross1.dot(dir);
+    if (dot2 < 0.0 || dot1 + dot2 > dot0)
+        return false;
+    float final = 1.0 / dot0 * cross1.dot(v0tov2);
     if (final < 0.0 || final >= d)
         return false;
     d = final;
