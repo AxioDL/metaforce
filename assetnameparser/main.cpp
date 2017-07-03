@@ -23,7 +23,6 @@
 #endif
 #include <Windows.h>
 #include <wchar.h>
-#include "winsupport.hpp"
 #if UNICODE
 #define IS_UCS2 1
 #endif
