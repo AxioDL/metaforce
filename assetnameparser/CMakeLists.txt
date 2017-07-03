@@ -12,4 +12,4 @@ if (UNIX)
 endif()
 
 
-target_link_libraries(assetnameparser tinyxml2 logvisor ${AN_PARSER_LIBS})
+target_link_libraries(assetnameparser tinyxml2_static logvisor ${AN_PARSER_LIBS})
