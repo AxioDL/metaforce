@@ -2,6 +2,7 @@
 #include "CCollisionInfoList.hpp"
 #include "CCollidableAABox.hpp"
 #include "CollisionUtil.hpp"
+#include "CInternalRayCastStructure.hpp"
 
 namespace urde
 {
@@ -211,7 +212,7 @@ const zeus::CSphere& CCollidableSphere::GetSphere() const { return x10_sphere; }
 
 void CCollidableSphere::SetSphereCenter(const zeus::CVector3f&)
 {
-
+    /* Remove me? */
 }
 
 zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform& xf) const
@@ -221,13 +222,40 @@ zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform& xf) const
 
 u32 CCollidableSphere::GetTableIndex() const { return sTableIndex; }
 
-zeus::CAABox CCollidableSphere::CalculateAABox(const zeus::CTransform&) const { return {}; }
+zeus::CAABox CCollidableSphere::CalculateAABox(const zeus::CTransform& xf) const
+{
+    zeus::CVector3f xfPos = xf * x10_sphere.position;
+    return {xfPos - x10_sphere.radius, xfPos + x10_sphere.radius};
+}
 
-zeus::CAABox CCollidableSphere::CalculateLocalAABox() const { return {}; }
+zeus::CAABox CCollidableSphere::CalculateLocalAABox() const
+{
+    return {x10_sphere.position - x10_sphere.radius, x10_sphere.position + x10_sphere.radius};
+}
 
 FourCC CCollidableSphere::GetPrimType() const { return SBIG('SPHR'); }
 
-CRayCastResult CCollidableSphere::CastRayInternal(const CInternalRayCastStructure&) const { return {}; }
+CRayCastResult CCollidableSphere::CastRayInternal(const CInternalRayCastStructure& rayCast) const
+{
+    if (!rayCast.GetFilter().Passes(GetMaterial()))
+        return {};
+
+    zeus::CSphere xfSphere = Transform(rayCast.GetTransform());
+    float t = 0.f;
+    zeus::CVector3f point;
+    if (CollisionUtil::RaySphereIntersection(xfSphere, rayCast.GetRay().start, rayCast.GetRay().dir,
+                                             rayCast.GetMaxTime(), t, point))
+    {
+        zeus::CVector3f delta = point - xfSphere.position;
+        float deltaMag = delta.magnitude();
+        zeus::CUnitVector3f planeNormal =
+            (deltaMag > 0.01f) ? delta * (1.f / deltaMag) : rayCast.GetRay().dir;
+        float planeD = point.dot(planeNormal);
+        return CRayCastResult(t, point, zeus::CPlane(planeNormal, planeD), GetMaterial());
+    }
+
+    return {};
+}
 
 const CCollisionPrimitive::Type& CCollidableSphere::GetType() { return sType; }
 

@@ -144,14 +144,42 @@ bool CCollisionPrimitive::CollideBoolean(CInternalCollisionStructure::CPrimDesc&
     return InternalCollideBoolean({prim0, prim1});
 }
 
+bool CCollisionPrimitive::InternalCollideMoving(const CInternalCollisionStructure& collision,
+                                                const zeus::CVector3f& dir,
+                                                double& dOut, CCollisionInfo& infoOut)
+{
+    u32 idx0 = collision.GetLeft().GetPrim().GetTableIndex();
+    u32 idx1 = collision.GetRight().GetPrim().GetTableIndex();
+
+    MovingComparisonFunc func;
+    if (idx0 == -1 || idx1 == -1)
+    {
+        sNullMovingCollider = nullptr;
+        func = sNullMovingCollider;
+    }
+    else
+    {
+        func = (*sTableOfMovingCollidables)[sNumTypes * idx1 + idx0];
+    }
+
+    if (func)
+    {
+        if (!collision.GetLeft().GetFilter().Passes(collision.GetRight().GetPrim().GetMaterial()) ||
+            !collision.GetRight().GetFilter().Passes(collision.GetLeft().GetPrim().GetMaterial()))
+            return false;
+        return func(collision, dir, dOut, infoOut);
+    }
+
+    return false;
+}
+
 bool CCollisionPrimitive::CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
                                         CInternalCollisionStructure::CPrimDesc& prim1,
                                         const zeus::CVector3f& dir,
                                         double& dOut,
                                         CCollisionInfo& infoOut)
 {
-    // TODO: Finish
-    return false;
+    return InternalCollideMoving({prim0, prim1}, dir, dOut, infoOut);
 }
 
 void CCollisionPrimitive::InitBeginTypes()

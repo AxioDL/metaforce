@@ -26,7 +26,7 @@ bool CCollidableOBBTree::LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRa
             if (CollisionUtil::RayTriangleIntersection(info.GetRay().start, info.GetRay().dir,
                                                        surface.GetVerts(), info.Magnitude()))
             {
-                intersectIdx = i;
+                intersectIdx = surfIdx;
                 ret = true;
             }
         }

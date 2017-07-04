@@ -2,6 +2,7 @@
 #include "CollisionUtil.hpp"
 #include "CCollidableSphere.hpp"
 #include "CCollisionInfo.hpp"
+#include "CInternalRayCastStructure.hpp"
 
 namespace urde
 {
@@ -43,9 +44,26 @@ FourCC CCollidableAABox::GetPrimType() const
     return SBIG('AABX');
 }
 
-CRayCastResult CCollidableAABox::CastRayInternal(const CInternalRayCastStructure &) const
+CRayCastResult CCollidableAABox::CastRayInternal(const CInternalRayCastStructure& rayCast) const
 {
-    return {};
+    if (!rayCast.GetFilter().Passes(GetMaterial()))
+        return {};
+    zeus::CTransform rayCastXfInv = rayCast.GetTransform().inverse();
+    zeus::CVector3f localRayStart = rayCastXfInv * rayCast.GetRay().start;
+    zeus::CVector3f localRayDir = rayCastXfInv.rotate(rayCast.GetRay().dir);
+    float tMin, tMax;
+    int axis;
+    bool sign;
+    if (!CollisionUtil::BoxLineTest(x10_aabox, localRayStart, localRayDir, tMin, tMax, axis, sign) ||
+        tMin < 0.f || (rayCast.GetMaxTime() > 0.f && tMin > rayCast.GetMaxTime()))
+        return {};
+
+    zeus::CVector3f planeNormal;
+    planeNormal[axis] = sign ? 1.f : -1.f;
+    float planeD = axis ? x10_aabox.min[axis] : -x10_aabox.max[axis];
+    CRayCastResult result(tMin, localRayStart + tMin * localRayDir, zeus::CPlane(planeNormal, planeD), GetMaterial());
+    result.Transform(rayCast.GetTransform());
+    return result;
 }
 
 const CCollisionPrimitive::Type& CCollidableAABox::GetType()

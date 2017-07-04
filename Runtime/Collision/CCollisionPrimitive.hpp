@@ -133,6 +133,8 @@ private:
 
     static bool InternalCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list);
     static bool InternalCollideBoolean(const CInternalCollisionStructure& collision);
+    static bool InternalCollideMoving(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
+                                      double& dOut, CCollisionInfo& infoOut);
 
 public:
     CCollisionPrimitive() = default;
@@ -155,7 +157,7 @@ public:
                                CInternalCollisionStructure::CPrimDesc& prim1);
     static bool CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
                               CInternalCollisionStructure::CPrimDesc& prim1,
-                              const zeus::CVector3f& vec,
+                              const zeus::CVector3f& dir,
                               double& dOut,
                               CCollisionInfo& infoOut);
 
