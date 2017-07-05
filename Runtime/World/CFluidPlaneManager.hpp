@@ -25,6 +25,7 @@ public:
     void EndFrame() { x121_ = false; }
     void Update(float dt);
     float GetLastRippleDeltaTime(TUniqueId rippler) const;
+    float GetLastSplashDeltaTime(TUniqueId splasher) const;
     void CreateSplash(TUniqueId splasher, CStateManager& mgr, const CScriptWater& water,
                       const zeus::CVector3f& pos, float factor, bool);
 };

@@ -6,6 +6,8 @@ set(MP1_WORLD_SOURCES
     CBabygoth.hpp CBabygoth.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CActorContraption.hpp CActorContraption.cpp
-    CThardusRockProjectile.hpp CThardusRockProjectile.cpp)
+    CThardusRockProjectile.hpp CThardusRockProjectile.cpp
+    CMetroidBeta.hpp CMetroidBeta.cpp
+    CMetroid.hpp CMetroid.cpp)
 
 runtime_add_list(World MP1_WORLD_SOURCES)

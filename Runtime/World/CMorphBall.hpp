@@ -32,6 +32,7 @@ public:
 private:
     CPlayer& x0_player;
     u32 x187c_ = 0;
+    float x191c_damageTimer = 0.f;
     float x1DE8_boostTime = 0.f;
     CMorphBallShadow* x1e50_shadow = nullptr;
 
@@ -136,6 +137,7 @@ public:
     void DrawBallShadow(const CStateManager& mgr);
     void StartLandingSfx() {}
     bool GetX187c() const { return x187c_; }
+    void SetDamageTimer(float t) { x191c_damageTimer = t; }
 };
 
 }

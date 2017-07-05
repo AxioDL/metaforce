@@ -87,6 +87,7 @@ set(CHARACTER_SOURCES
     CBodyState.hpp CBodyState.cpp
     CBodyStateCmdMgr.hpp CBodyStateCmdMgr.cpp
     CBodyController.hpp CBodyController.cpp
-    CGroundMovement.hpp CGroundMovement.cpp)
+    CGroundMovement.hpp CGroundMovement.cpp
+    CSteeringBehaviors.hpp CSteeringBehaviors.cpp)
 
 runtime_add_list(Character CHARACTER_SOURCES)

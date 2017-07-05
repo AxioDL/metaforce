@@ -61,6 +61,7 @@ class CEnvFxManager
 
     rstl::reserved_vector<CEnvFxManagerGrid, 64> x50_grids;
 
+    float xb54_;
     TLockedToken<CGenDescription> xb58_envRainSplash;
     bool xb64_ = true;
 
@@ -76,6 +77,7 @@ public:
     void MoveWrapCells(s32, s32);
     void GetParticleBoundsToWorldScale() const;
     void AreaLoaded();
+    void SetXB54(float f) { xb54_ = f; }
 };
 
 }

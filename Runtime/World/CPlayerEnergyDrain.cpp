@@ -25,8 +25,6 @@ float CPlayerEnergyDrain::GetEnergyDrainIntensity() const
     return intensity;
 }
 
-float CPlayerEnergyDrain::GetEnergyDrainTime() const { return x10_energyDrainTime; }
-
 void CPlayerEnergyDrain::ProcessEnergyDrain(const CStateManager& mgr, float dt)
 {
     auto it = x0_sources.begin();

@@ -40,4 +40,10 @@ void CPlayerGun::TouchModel(CStateManager& stateMgr)
 
 }
 
+void CPlayerGun::DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr)
+{
+    x398_damageAmt = damage;
+    x3dc_damageLocation = location;
+}
+
 }

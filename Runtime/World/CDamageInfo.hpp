@@ -50,6 +50,7 @@ public:
     float GetDamage(const CDamageVulnerability& dVuln) const;
     float GetRadiusDamage() const { return xc_radiusDamage; }
     float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
+    bool GetX18() const { return x18_; }
 };
 }
 

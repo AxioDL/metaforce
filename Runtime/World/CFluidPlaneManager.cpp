@@ -32,6 +32,11 @@ float CFluidPlaneManager::GetLastRippleDeltaTime(TUniqueId rippler) const
     return x0_rippleManager.GetLastRippleDeltaTime(rippler);
 }
 
+float CFluidPlaneManager::GetLastSplashDeltaTime(TUniqueId splasher) const
+{
+    return 0.f;
+}
+
 void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr, const CScriptWater& water,
                                       const zeus::CVector3f& pos, float factor, bool)
 {

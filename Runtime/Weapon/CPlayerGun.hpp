@@ -105,11 +105,11 @@ private:
     float x38c_ = 0.f;
     float x390_ = 0.f;
     float x394_ = 0.f;
-    float x398_ = 0.f;
+    float x398_damageAmt = 0.f;
     float x39c_ = 0.f;
     float x3a0_ = 0.f;
     CFidget x3a4_fidget;
-    zeus::CVector3f x3dc_;
+    zeus::CVector3f x3dc_damageLocation;
     zeus::CTransform x3e8_;
     zeus::CTransform x418_;
     zeus::CTransform x448_;
@@ -221,6 +221,7 @@ public:
     const CGunMorph& GetGunMorph() const { return x678_morph; }
     void SetX3e8(const zeus::CTransform& xf) { x3e8_ = xf; }
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
+    void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
 };
 
 }

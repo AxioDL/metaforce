@@ -75,7 +75,7 @@ public:
     CPatterned(ECharacter character, TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
                CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
-               const CActorParameters& params, bool b1);
+               const CActorParameters& params, int variant);
 
     virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg) {}
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}

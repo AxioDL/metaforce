@@ -78,6 +78,9 @@ protected:
 public:
     enum class EFluidState
     {
+        Zero,
+        One,
+        Two
     };
 
     enum class EScanState

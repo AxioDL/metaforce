@@ -14,11 +14,11 @@ class CPlayerEnergyDrain
 
 public:
     CPlayerEnergyDrain(u32);
-    const std::vector<CEnergyDrainSource>& GetEnergyDrainSources() const;
+    const std::vector<CEnergyDrainSource>& GetEnergyDrainSources() const { return x0_sources; }
     void AddEnergyDrainSource(TUniqueId, float);
     void RemoveEnergyDrainSource(TUniqueId id);
     float GetEnergyDrainIntensity() const;
-    float GetEnergyDrainTime() const;
+    float GetEnergyDrainTime() const { return x10_energyDrainTime; }
     void ProcessEnergyDrain(const CStateManager&, float);
 };
 }

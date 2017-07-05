@@ -28,7 +28,7 @@ enum class EFallState
 
 enum class EReactionType
 {
-
+    Invalid = -1
 };
 
 enum class EAdditiveReactionType
@@ -38,52 +38,52 @@ enum class EAdditiveReactionType
 
 enum class EJumpType
 {
-
+    Zero
 };
 
 enum class EStepDirection
 {
-
+    Invalid = -1
 };
 
 enum class EStepType
 {
-
+    Zero
 };
 
 enum class ESeverity
 {
-
+    Invalid = -1
 };
 
 enum class EGetupType
 {
-
+    Invalid = -1
 };
 
 enum class ELoopAttackType
 {
-
+    Invalid = -1
 };
 
 enum class EGenerateType
 {
-
+    Invalid = -1
 };
 
 enum class ESlideType
 {
-
+    Invalid = -1
 };
 
 enum class ETauntType
 {
-
+    Invalid = -1
 };
 
 enum class ECoverDirection
 {
-
+    Invalid = -1
 };
 }
 
@@ -94,9 +94,37 @@ enum class EBodyType
     Two,
     Three
 };
+
 enum class EBodyStateCmd
 {
-
+    Getup,
+    Step,
+    Two,
+    KnockDown,
+    KnockBack,
+    MeleeAttack,
+    ProjectileAttack,
+    LoopAttack,
+    LoopReaction,
+    LoopHitReaction,
+    Ten,
+    Eleven,
+    Twelve,
+    Thirteen,
+    Generate,
+    Hurled,
+    Jump,
+    Slide,
+    Taunt,
+    Scripted,
+    Cover,
+    WallHang,
+    TwentyTwo,
+    TwentyThree,
+    AdditiveAim,
+    AdditiveFlinch,
+    AdditiveReaction,
+    TwentySeven
 };
 
 }

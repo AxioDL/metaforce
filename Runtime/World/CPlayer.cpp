@@ -13,8 +13,11 @@
 #include "CScriptGrapplePoint.hpp"
 #include "CPatterned.hpp"
 #include "CScriptWater.hpp"
+#include "CDependencyGroup.hpp"
+#include "Character/CSteeringBehaviors.hpp"
 #include "Weapon/CEnergyProjectile.hpp"
 #include "MP1/World/CThardusRockProjectile.hpp"
+#include "MP1/World/CMetroidBeta.hpp"
 
 namespace urde
 {
@@ -122,33 +125,248 @@ bool CPlayer::IsPlayerDeadEnough() const
 
 void CPlayer::AsyncLoadSuit(CStateManager& mgr) { x490_gun->AsyncLoadSuit(mgr); }
 
-void CPlayer::LoadAnimationTokens() {}
+void CPlayer::LoadAnimationTokens()
+{
+    TLockedToken<CDependencyGroup> transGroup = g_SimplePool->GetObj("BallTransition_DGRP");
+    CDependencyGroup& group = *transGroup;
+    x25c_ballTransitionsRes.reserve(group.GetObjectTagVector().size());
+    for (const SObjectTag& tag : group.GetObjectTagVector())
+    {
+        if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('CSKR') || tag.type == FOURCC('TXTR'))
+            continue;
+        x25c_ballTransitionsRes.push_back(g_SimplePool->GetObj(tag));
+    }
+}
+
+bool CPlayer::HasTransitionBeamModel() const
+{
+    return x7f0_ballTransitionBeamModel && !x7f0_ballTransitionBeamModel->IsNull();
+}
 
 bool CPlayer::CanRenderUnsorted(CStateManager& mgr) const { return false; }
 
 const CDamageVulnerability* CPlayer::GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
                                                             const CDamageInfo& info) const
 {
-    return nullptr;
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphed && x570_ > 0.f && !info.GetX18())
+        return &CDamageVulnerability::ImmuneVulnerabilty();
+    return &CDamageVulnerability::NormalVulnerabilty();
 }
 
-const CDamageVulnerability* CPlayer::GetDamageVulnerability() const { return nullptr; }
+const CDamageVulnerability* CPlayer::GetDamageVulnerability() const
+{
+    CDamageInfo info(CWeaponMode(EWeaponType::Power, false, false, false), 0.f, 0.f, 0.f);
+    return GetDamageVulnerability(zeus::CVector3f::skZero, zeus::CVector3f::skUp, info);
+}
 
-zeus::CVector3f CPlayer::GetHomingPosition(CStateManager& mgr, float) const { return {}; }
+zeus::CVector3f CPlayer::GetHomingPosition(CStateManager& mgr, float dt) const
+{
+    if (dt > 0.f)
+        return x34_transform.origin + PredictMotion(dt).x0_translation;
+    return x34_transform.origin;
+}
 
-zeus::CVector3f CPlayer::GetAimPosition(CStateManager& mgr, float) const { return {}; }
+zeus::CVector3f CPlayer::GetAimPosition(CStateManager& mgr, float dt) const
+{
+    zeus::CVector3f ret = x34_transform.origin;
+    if (dt > 0.f)
+    {
+        if (x304_orbitState == EPlayerOrbitState::Zero)
+            ret += PredictMotion(dt).x0_translation;
+        else
+            ret = CSteeringBehaviors::ProjectOrbitalPosition(ret, x138_velocity, x314_orbitPoint, dt);
+    }
 
-void CPlayer::FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr) {}
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
+        ret.z += g_tweakPlayer->GetPlayerBallHalfExtent();
+    else
+        ret.z += GetEyeHeight();
 
-zeus::CVector3f CPlayer::GetDamageLocationWR() const { return {}; }
+    return ret;
+}
 
-float CPlayer::GetPrevDamageAmount() const { return 0.f; }
+void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr)
+{
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
+    {
+        x768_morphball->FluidFXThink(state, water, mgr);
+        if (state == EFluidState::One)
+            x9c5_30_ = true;
+    }
+    else if (x2f8_morphTransState != EPlayerMorphBallState::Unmorphed)
+    {
+        if (mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(x8_uid) >= 0.2f)
+        {
+            zeus::CVector3f position(x34_transform.origin);
+            position.z = water.GetTriggerBoundsWR().max.z;
+            mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.1f,
+                                                     state == EFluidState::Zero);
+        }
+    }
+    else
+    {
+        if (mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(x8_uid) >= 0.2f)
+        {
+            zeus::CVector3f posOffset = x50c_;
+            if (posOffset.canBeNormalized())
+                posOffset = posOffset.normalized() * zeus::CVector3f(1.2f, 1.2f, 0.f);
+            switch (state)
+            {
+            case EFluidState::Zero:
+            {
+                bool doSplash = true;
+                if (x4fc_ > 12.5f)
+                {
+                    zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
+                    zeus::CVector3f dcVel = GetDampedClampedVelocityWR();
+                    dcVel.z = 0.f;
+                    if (lookDir.dot(dcVel.normalized()) > 0.75f)
+                        doSplash = false;
+                }
+                if (doSplash)
+                {
+                    zeus::CVector3f position = x34_transform.origin + posOffset;
+                    position.z = water.GetTriggerBoundsWR().max.z;
+                    mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.3f, true);
+                    if (water.GetFluidPlane().GetFluidType() == CFluidPlane::EFluidType::Zero)
+                    {
+                        float velMag = mgr.GetPlayer().GetVelocity().magnitude() / 10.f;
+                        mgr.GetEnvFxManager()->SetXB54(10.f * std::max(1.f, velMag));
+                    }
+                }
+                break;
+            }
+            case EFluidState::One:
+            {
+                if (x138_velocity.magnitude() > 1.f &&
+                    mgr.GetFluidPlaneManager()->GetLastRippleDeltaTime(x8_uid) >= 0.2f)
+                {
+                    zeus::CVector3f position(x34_transform.origin);
+                    position.z = water.GetTriggerBoundsWR().max.z;
+                    water.GetFluidPlane().Ripple(0.5f, x8_uid, position, water, mgr);
+                }
+                break;
+            }
+            case EFluidState::Two:
+            {
+                zeus::CVector3f position = x34_transform.origin + posOffset;
+                position.z = water.GetTriggerBoundsWR().max.z;
+                mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.15f, true);
+                break;
+            }
+            default: break;
+            }
+        }
+    }
+}
 
-float CPlayer::GetDamageAmount() const { return 0.f; }
+void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
+                         float dam, EWeaponType type, CStateManager& mgr)
+{
+    if (!significant)
+        return;
+    if (dam >= 0.f)
+    {
+        x570_ = 0.5f;
+        x55c_damageAmt = dam;
+        x560_prevDamageAmt = (type == EWeaponType::AI && dam == 0.00002f) ? 10.f : dam;
+        x564_damageLocation = location;
+        x558_wasDamaged = true;
 
-bool CPlayer::WasDamaged() const { return false; }
+        bool doRumble = false;
+        u16 suitDamageSfx = 0, damageLoopSfx = 0, damageSamusVoiceSfx = 0;
 
-void CPlayer::TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr) {}
+        switch (type)
+        {
+        case EWeaponType::Phazon:
+        case EWeaponType::Unused2:
+            damageLoopSfx = 3114;
+            damageSamusVoiceSfx = 1653;
+            break;
+        case EWeaponType::PoisonWater:
+            damageLoopSfx = 1486;
+            damageSamusVoiceSfx = 1633;
+            break;
+        case EWeaponType::Lava:
+            damageLoopSfx = 657;
+        case EWeaponType::Hot:
+            damageSamusVoiceSfx = 1656;
+            break;
+        default:
+            if (x2f8_morphTransState == EPlayerMorphBallState::Unmorphed)
+            {
+                if (dam > 30.f)
+                    damageSamusVoiceSfx = 1512;
+                else if (dam > 15.f)
+                    damageSamusVoiceSfx = 1511;
+                else
+                    damageSamusVoiceSfx = 1489;
+                suitDamageSfx = 1467;
+            }
+            else
+            {
+                if (dam > 30.f)
+                    suitDamageSfx = 1514;
+                else if (dam > 15.f)
+                    suitDamageSfx = 1513;
+                else
+                    suitDamageSfx = 1491;
+            }
+            break;
+        }
+
+        if (damageSamusVoiceSfx && x774_samusVoiceTimeout <= 0.f)
+        {
+            StartSamusVoiceSfx(damageSamusVoiceSfx, 1.f, 8);
+            x774_samusVoiceTimeout = mgr.GetActiveRandom()->Range(3.f, 4.f);
+            doRumble = true;
+        }
+
+        if (damageLoopSfx && !x9c7_24_ && x2ac_movementSurface >= EPlayerMovementSurface::Ice)
+        {
+            if (!x770_damageLoopSfx || x788_damageLoopSfxId != damageLoopSfx)
+            {
+                if (x770_damageLoopSfx && x788_damageLoopSfxId != damageLoopSfx)
+                    CSfxManager::SfxStop(x770_damageLoopSfx);
+                x770_damageLoopSfx = CSfxManager::SfxStart(damageLoopSfx, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+                x788_damageLoopSfxId = damageLoopSfx;
+            }
+            x784_ = 0.5f;
+        }
+
+        if (suitDamageSfx)
+        {
+            if (x770_damageLoopSfx)
+            {
+                CSfxManager::SfxStop(x770_damageLoopSfx);
+                x770_damageLoopSfx.reset();
+            }
+            x770_damageLoopSfx = CSfxManager::SfxStart(suitDamageSfx, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x788_damageLoopSfxId = suitDamageSfx;
+            xa2c_ = 0;
+            doRumble = true;
+        }
+
+        if (doRumble)
+        {
+            if (x2f8_morphTransState == EPlayerMorphBallState::Unmorphed)
+                x490_gun->DamageRumble(location, dam, mgr);
+            float tmp = x55c_damageAmt / 25.f;
+            if (std::fabs(tmp) > 1.f)
+                tmp = tmp > 0.f ? 1.f : -1.f;
+            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Eleven, ERumblePriority::One);
+        }
+
+        if (x2f8_morphTransState != EPlayerMorphBallState::Unmorphed)
+        {
+            x768_morphball->TakeDamage(x55c_damageAmt);
+            x768_morphball->SetDamageTimer(0.4f);
+        }
+    }
+
+    if (x3b8_)
+        BreakGrapple(EPlayerOrbitRequest::Eleven, mgr);
+}
 
 void CPlayer::Accept(IVisitor& visitor)
 {
@@ -157,7 +375,16 @@ void CPlayer::Accept(IVisitor& visitor)
 
 CHealthInfo* CPlayer::HealthInfo(const CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
 
-bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const { return false; }
+bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const
+{
+    if (x274_energyDrain.GetEnergyDrainIntensity() > 0.f)
+    {
+        for (const CEnergyDrainSource& source : x274_energyDrain.GetEnergyDrainSources())
+            if (CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId())))
+                return true;
+    }
+    return false;
+}
 
 rstl::optional_object<zeus::CAABox> CPlayer::GetTouchBounds() const { return {}; }
 
@@ -252,10 +479,10 @@ void CPlayer::Think(float, CStateManager&) {}
 
 void CPlayer::PreThink(float dt, CStateManager& mgr)
 {
-    x558_ = false;
-    x55c_ = 0.f;
-    x560_ = 0.f;
-    x564_ = zeus::CVector3f::skZero;
+    x558_wasDamaged = false;
+    x55c_damageAmt = 0.f;
+    x560_prevDamageAmt = 0.f;
+    x564_damageLocation = zeus::CVector3f::skZero;
     xa04_ = dt;
 }
 
@@ -299,10 +526,10 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                 {
                     landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxHard, 24, 0xffff);
                     StartSamusVoiceSfx(1550, 1.f, 5);
-                    x55c_ = 0.f;
-                    x560_ = 10.f;
-                    x564_ = x34_transform.origin;
-                    x558_ = true;
+                    x55c_damageAmt = 0.f;
+                    x560_prevDamageAmt = 10.f;
+                    x564_damageLocation = x34_transform.origin;
+                    x558_wasDamaged = true;
                     mgr.GetCameraManager()->AddCameraShaker(
                         CCameraShakeData::BuildLandingCameraShakeData(0.3f, 1.25f), false);
                     StartLandingControlFreeze();
@@ -533,7 +760,7 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr) {}
 
 void CPlayer::BeginGrapple(zeus::CVector3f&, CStateManager& mgr) {}
 
-void CPlayer::BreakGrapple(CStateManager& mgr) {}
+void CPlayer::BreakGrapple(EPlayerOrbitRequest, CStateManager& mgr) {}
 
 void CPlayer::SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr)
 {
@@ -886,7 +1113,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
 
 float CPlayer::GetWeight() const { return 0.f; }
 
-float CPlayer::GetDampedClampedVelocityWR() const { return 0.f; }
+zeus::CVector3f CPlayer::GetDampedClampedVelocityWR() const { return {}; }
 
 void CPlayer::UpdateCinematicState(CStateManager& mgr)
 {

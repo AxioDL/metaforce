@@ -14,7 +14,7 @@ CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialT
 CPatterned::CPatterned(ECharacter character, TUniqueId uid, const std::string& name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
                        const CPatternedInfo& pInfo, CPatterned::EMovementType moveType, CPatterned::EColliderType,
-                       EBodyType, const CActorParameters& actorParms, bool)
+                       EBodyType, const CActorParameters& actorParms, int variant)
 : CAi(uid, pInfo.xf8_active, name, info, xf, std::move(mData),
       zeus::CAABox(pInfo.xcc_bodyOrigin - zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, 0.f},
                    pInfo.xcc_bodyOrigin +

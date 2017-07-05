@@ -65,7 +65,8 @@ public:
         Seven,
         Eight,
         Nine,
-        Ten
+        Ten,
+        Eleven
     };
 
     enum class EPlayerZoneInfo
@@ -164,7 +165,7 @@ private:
     };
 
     EPlayerMovementState x258_movementState = EPlayerMovementState::OnGround;
-    std::vector<u32> x25c_;
+    std::vector<CToken> x25c_ballTransitionsRes;
     TUniqueId x26c_ = kInvalidUniqueId;
     float x270_ = 0.f;
     CPlayerEnergyDrain x274_energyDrain = CPlayerEnergyDrain(4);
@@ -256,10 +257,10 @@ private:
     zeus::CVector3f x53c_ = x34_transform.basis[1];
     zeus::CVector3f x548_ = x34_transform.basis[1];
     float x554_ = x34_transform.basis[1].x;
-    bool x558_ = false;
-    float x55c_ = 0.f;
-    float x560_ = 0.f;
-    zeus::CVector3f x564_;
+    bool x558_wasDamaged = false;
+    float x55c_damageAmt = 0.f;
+    float x560_prevDamageAmt = 0.f;
+    zeus::CVector3f x564_damageLocation;
     float x570_ = 0.f;
     float x574_morphTime = 0.f;
     float x578_morphDuration = 0.f;
@@ -282,13 +283,13 @@ private:
     float x764_controlsFrozenTimeout = 0.f;
     std::unique_ptr<CMorphBall> x768_morphball;
     std::unique_ptr<CPlayerCameraBob> x76c_cameraBob;
-    CSfxHandle x770_;
-    float x774_ = 0.f;
+    CSfxHandle x770_damageLoopSfx;
+    float x774_samusVoiceTimeout = 0.f;
     u32 x778_ = 0;
     CSfxHandle x77c_samusVoiceSfx;
     int x780_samusVoicePriority = 0;
     float x784_ = 0.f;
-    u16 x788_ = 0;
+    u16 x788_damageLoopSfxId = 0;
     float x78c_ = 0.f;
     u32 x790_ = 0;
     zeus::CVector3f x794_;
@@ -385,6 +386,7 @@ public:
     bool IsPlayerDeadEnough() const;
     void AsyncLoadSuit(CStateManager& mgr);
     void LoadAnimationTokens();
+    bool HasTransitionBeamModel() const;
     virtual bool CanRenderUnsorted(CStateManager& mgr) const;
     virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
                                                                const CDamageInfo& info) const;
@@ -392,10 +394,10 @@ public:
     virtual zeus::CVector3f GetHomingPosition(CStateManager& mgr, float) const;
     zeus::CVector3f GetAimPosition(CStateManager& mgr, float) const;
     virtual void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
-    zeus::CVector3f GetDamageLocationWR() const;
-    float GetPrevDamageAmount() const;
-    float GetDamageAmount() const;
-    bool WasDamaged() const;
+    zeus::CVector3f GetDamageLocationWR() const { return x564_damageLocation; }
+    float GetPrevDamageAmount() const { return x560_prevDamageAmt; }
+    float GetDamageAmount() const { return x55c_damageAmt; }
+    bool WasDamaged() const { return x558_wasDamaged; }
     void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
     void Accept(IVisitor& visitor);
     static CHealthInfo* HealthInfo(const CStateManager& mgr);
@@ -449,7 +451,7 @@ public:
     void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);
     void ApplyGrappleJump(CStateManager& mgr);
     void BeginGrapple(zeus::CVector3f&, CStateManager& mgr);
-    void BreakGrapple(CStateManager& mgr);
+    void BreakGrapple(EPlayerOrbitRequest, CStateManager& mgr);
     void SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr);
     void PreventFallingCameraPitch();
     void OrbitCarcass(CStateManager&);
@@ -511,7 +513,7 @@ public:
     float ForwardInput(const CFinalInput& input, float) const;
     void ComputeMovement(const CFinalInput& input, CStateManager& mgr, float);
     float GetWeight() const;
-    float GetDampedClampedVelocityWR() const;
+    zeus::CVector3f GetDampedClampedVelocityWR() const;
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
     float GetVisorStaticAlpha() const { return x74c_visorStaticAlpha; }
     float GetMapAlpha() const { return x494_mapAlpha; }
