@@ -42,7 +42,7 @@ public:
 class CBCStepCmd : public CBodyStateCmd
 {
     pas::EStepDirection x8_dir = pas::EStepDirection::Invalid;
-    pas::EStepType xc_type = pas::EStepType::Zero;
+    pas::EStepType xc_type = pas::EStepType::Normal;
 public:
     CBCStepCmd() : CBodyStateCmd(EBodyStateCmd::Step) {}
     CBCStepCmd(pas::EStepDirection dir, pas::EStepType type)

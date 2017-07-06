@@ -29,21 +29,22 @@ CPASDatabase::CPASDatabase(CInputStream& in)
         SetDefaultState(defaultState);
 }
 
-std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& data, s32 id) const
+std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& data, s32 ignoreAnim) const
 {
     CRandom16 rnd(4660);
-    return FindBestAnimation(data, rnd, id);
+    return FindBestAnimation(data, rnd, ignoreAnim);
 }
 
-std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& data, CRandom16& rand, s32 id) const
+std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& data, CRandom16& rand, s32 ignoreAnim) const
 {
-    auto it = std::lower_bound(x0_states.cbegin(), x0_states.cend(), id,
-    [](const CPASAnimState& item, const int& test) -> bool {return item.GetStateId() < test;});
+    CPASAnimState key(data.GetStateId());
+    auto it = std::lower_bound(x0_states.cbegin(), x0_states.cend(), key,
+    [](const CPASAnimState& item, const CPASAnimState& test) -> bool {return item.GetStateId() < test.GetStateId();});
 
-    if (it == x0_states.cend())
+    if (it->GetStateId() < key.GetStateId() || it == x0_states.cend())
         return {0.f, -1};
 
-    return (*it).FindBestAnimation(data.GetAnimParmData(), rand, id);
+    return (*it).FindBestAnimation(data.GetAnimParmData(), rand, ignoreAnim);
 }
 
 }

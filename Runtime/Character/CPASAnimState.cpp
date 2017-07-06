@@ -56,6 +56,10 @@ CPASAnimState::CPASAnimState(CInputStream& in)
     }
 }
 
+CPASAnimState::CPASAnimState(int stateId)
+: x0_id(stateId)
+{}
+
 CPASAnimParm CPASAnimState::GetAnimParmData(s32 idx, u32 id) const
 {
     auto search = std::lower_bound(x14_anims.begin(), x14_anims.end(), id,
@@ -86,79 +90,83 @@ s32 CPASAnimState::PickRandomAnimation(CRandom16& rand) const
 }
 
 std::pair<float, s32> CPASAnimState::FindBestAnimation(const rstl::reserved_vector<CPASAnimParm, 8>& parms,
-                                                       CRandom16& rand, s32 anim) const
+                                                       CRandom16& rand, s32 ignoreAnim) const
 {
     const_cast<std::vector<s32>*>(&x24_selectionCache)->clear();
     float weight = -1.f;
 
-    if (x14_anims.size() != 0)
+    for (const CPASAnimInfo& info : x14_anims)
     {
-        for (const CPASAnimInfo& info : x14_anims)
+        if (info.GetAnimId() == ignoreAnim)
+            continue;
+
+        float calcWeight = 1.f;
+        if (x4_parms.size() > 0)
+            calcWeight = 0.f;
+
+        u32 unweightedCount = 0;
+
+        for (u32 i=0 ; i<x4_parms.size() ; ++i)
         {
-            float calcWeight = 1.f;
-            if (x4_parms.size() > 0)
-                calcWeight = 0.f;
+            CPASAnimParm::UParmValue val = info.GetAnimParmValue(i);
+            const CPASParmInfo& parmInfo = x4_parms[i];
+            float parmWeight = parmInfo.GetParameterWeight();
 
-            u32 unweightedCount = 0 ;
-            u32 i = 0;
-
-            for (; i<x4_parms.size() ; ++i)
+            float computedWeight = 0.f;
+            switch (parmInfo.GetWeightFunction())
             {
-                CPASAnimParm::UParmValue val = info.GetAnimParmValue(i);
-                const CPASParmInfo& parmInfo = x4_parms[i];
-                float parmWeight = parmInfo.GetParameterWeight();
-
-                float computedWeight;
-                if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::AngularPercent)
-                    computedWeight = ComputeAngularPercentErrorWeight(i, parms[i], val);
-                else if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::ExactMatch)
-                    computedWeight = ComputeExactMatchWeight(i, parms[i], val);
-                else if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::PercentError)
-                    computedWeight = ComputePercentErrorWeight(i, parms[i], val);
-                else if (parmInfo.GetWeightFunction() == CPASParmInfo::EWeightFunction::NoWeight)
-                    unweightedCount++;
-
-                calcWeight = parmWeight * calcWeight + computedWeight;
+            case CPASParmInfo::EWeightFunction::AngularPercent:
+                computedWeight = ComputeAngularPercentErrorWeight(i, parms[i], val);
+                break;
+            case CPASParmInfo::EWeightFunction::ExactMatch:
+                computedWeight = ComputeExactMatchWeight(i, parms[i], val);
+                break;
+            case CPASParmInfo::EWeightFunction::PercentError:
+                computedWeight = ComputePercentErrorWeight(i, parms[i], val);
+                break;
+            case CPASParmInfo::EWeightFunction::NoWeight:
+                unweightedCount++;
+                break;
+            default: break;
             }
 
-            if (unweightedCount == x4_parms.size())
-                calcWeight = 1.0f;
+            calcWeight += parmWeight * computedWeight;
+        }
 
-            if (calcWeight < weight)
-                continue;
+        if (unweightedCount == x4_parms.size())
+            calcWeight = 1.0f;
 
-            auto search = std::find(x24_selectionCache.cbegin(), x24_selectionCache.cend(),
-                                    info.GetAnimId());
-
-            if (search == x24_selectionCache.cend())
-                const_cast<std::vector<s32>*>(&x24_selectionCache)->push_back(info.GetAnimId());
+        if (calcWeight > weight)
+        {
+            const_cast<std::vector<s32>*>(&x24_selectionCache)->clear();
+            const_cast<std::vector<s32>*>(&x24_selectionCache)->push_back(info.GetAnimId());
+            weight = calcWeight;
+        }
+        else if (weight == calcWeight)
+        {
+            const_cast<std::vector<s32>*>(&x24_selectionCache)->push_back(info.GetAnimId());
             weight = calcWeight;
         }
     }
+
     return {weight, PickRandomAnimation(rand)};
 }
 
 float CPASAnimState::ComputeExactMatchWeight(u32, const CPASAnimParm& parm, CPASAnimParm::UParmValue parmVal) const
 {
-    if (parm.GetParameterType() == CPASAnimParm::EParmType::Int32)
+    switch (parm.GetParameterType())
     {
+    case CPASAnimParm::EParmType::Int32:
         return (parm.GetInt32Value() == parmVal.m_int ? 1.f : 0.f);
-    }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::UInt32)
-    {
+    case CPASAnimParm::EParmType::UInt32:
         return (parm.GetUint32Value() == parmVal.m_uint ? 1.f : 0.f);
-    }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Float)
-    {
+    case CPASAnimParm::EParmType::Float:
         return ((parmVal.m_float - parm.GetReal32Value()) < FLT_EPSILON ? 1.f : 0.f);
-    }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Bool)
-    {
+    case CPASAnimParm::EParmType::Bool:
         return (parm.GetBoolValue() == parmVal.m_bool ? 1.f : 0.f);
-    }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Enum)
-    {
+    case CPASAnimParm::EParmType::Enum:
         return (parm.GetEnumValue() == parmVal.m_int ? 1.f : 0.f);
+    default: break;
     }
 
     return 0.f;
@@ -169,33 +177,42 @@ float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm
     float range = 0.f;
     float val = 0.f;
 
-    if (parm.GetParameterType() == CPASAnimParm::EParmType::Int32)
+    switch (parm.GetParameterType())
+    {
+    case CPASAnimParm::EParmType::Int32:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_int - info.GetWeightMaxValue().m_int);
-        val = float(std::abs(parmVal.m_int - parm.GetInt32Value()));
+        range = info.GetWeightMaxValue().m_int - info.GetWeightMinValue().m_int;
+        val = std::fabs(parm.GetInt32Value() - parmVal.m_int);
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::UInt32)
+    case CPASAnimParm::EParmType::UInt32:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_uint - info.GetWeightMaxValue().m_uint);
-        val = float(std::abs(int(parmVal.m_uint) - int(parm.GetUint32Value())));
+        range = info.GetWeightMaxValue().m_uint - info.GetWeightMinValue().m_uint;
+        val = std::fabs(int(parmVal.m_uint) - int(parm.GetUint32Value()));
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Float)
+    case CPASAnimParm::EParmType::Float:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
+        range = info.GetWeightMaxValue().m_float - info.GetWeightMinValue().m_float;
+        val = std::fabs(parm.GetReal32Value() - parmVal.m_float);
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Bool)
+    case CPASAnimParm::EParmType::Bool:
     {
-        val = parm.GetBoolValue() ? 1.f : 0.f;
+        val = parm.GetBoolValue() == parmVal.m_bool ? 0.f : 1.f;
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Enum)
+    case CPASAnimParm::EParmType::Enum:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
+        range = info.GetWeightMaxValue().m_float - info.GetWeightMinValue().m_float;
+        val = std::fabs(parm.GetEnumValue() - parmVal.m_int);
+        break;
+    }
+    default: break;
     }
 
     if (range > FLT_EPSILON)
@@ -209,33 +226,42 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(u32 idx, const CPASAnimPar
     float range = 0.f;
     float val = 0.f;
 
-    if (parm.GetParameterType() == CPASAnimParm::EParmType::Int32)
+    switch (parm.GetParameterType())
+    {
+    case CPASAnimParm::EParmType::Int32:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_int - info.GetWeightMaxValue().m_int);
-        val = float(std::abs(parmVal.m_int - parm.GetInt32Value()));
+        range = info.GetWeightMaxValue().m_int - info.GetWeightMinValue().m_int;
+        val = std::fabs(parmVal.m_int - parm.GetInt32Value());
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::UInt32)
+    case CPASAnimParm::EParmType::UInt32:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_uint - info.GetWeightMaxValue().m_uint);
-        val = float(std::abs(int(parmVal.m_uint) - int(parm.GetUint32Value())));
+        range = info.GetWeightMaxValue().m_uint - info.GetWeightMinValue().m_uint;
+        val = std::fabs(int(parmVal.m_uint) - int(parm.GetUint32Value()));
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Float)
+    case CPASAnimParm::EParmType::Float:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
+        range = info.GetWeightMaxValue().m_float - info.GetWeightMinValue().m_float;
+        val = std::fabs(parm.GetReal32Value() - parmVal.m_float);
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Bool)
+    case CPASAnimParm::EParmType::Bool:
     {
-        val = parm.GetBoolValue() ? 1.f : 0.f;
+        val = parm.GetBoolValue() == parmVal.m_bool ? 0.f : 1.f;
+        break;
     }
-    else if (parm.GetParameterType() == CPASAnimParm::EParmType::Enum)
+    case CPASAnimParm::EParmType::Enum:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = float(info.GetWeightMinValue().m_float - info.GetWeightMaxValue().m_float);
-        val = float(std::fabs(parmVal.m_float - parm.GetReal32Value()));
+        range = info.GetWeightMaxValue().m_int - info.GetWeightMinValue().m_int + 1;
+        val = std::fabs(parm.GetEnumValue() - parmVal.m_int);
+        break;
+    }
+    default: break;
     }
 
     if (range > FLT_EPSILON)
