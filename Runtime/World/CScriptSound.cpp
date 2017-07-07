@@ -97,7 +97,7 @@ void CScriptSound::StopSound(CStateManager& mgr)
     }
     else if (xec_sfxHandle)
     {
-        CSfxManager::RemoveEmitter(xec_sfxHandle);
+        CSfxManager::RemoveEmitter(*xec_sfxHandle.get());
         xec_sfxHandle.reset();
     }
 }
