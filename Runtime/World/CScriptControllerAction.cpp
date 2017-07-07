@@ -8,11 +8,11 @@ namespace urde
 
 CScriptControllerAction::CScriptControllerAction(TUniqueId uid, const std::string& name,
                                                  const CEntityInfo& info, bool active,
-                                                 ControlMapper::ECommands command, bool b1, u32 w1, bool b2)
+                                                 ControlMapper::ECommands command, bool mapScreenResponse, u32 w1, bool deactivateOnClose)
 : CEntity(uid, info, active, name), x34_command(command), x38_mapScreenSubaction(w1)
 {
-    x3c_24_mapScreenResponse = b1;
-    x3c_25_deactivateOnClose = b2;
+    x3c_24_mapScreenResponse = mapScreenResponse;
+    x3c_25_deactivateOnClose = deactivateOnClose;
 }
 
 void CScriptControllerAction::Accept(IVisitor& visitor)
@@ -22,7 +22,7 @@ void CScriptControllerAction::Accept(IVisitor& visitor)
 
 void CScriptControllerAction::Think(float dt, CStateManager& stateMgr)
 {
-    bool old26 = x3c_26_pressed;
+    bool oldPressed = x3c_26_pressed;
     if (x3c_24_mapScreenResponse)
     {
         if (x38_mapScreenSubaction == 0)
@@ -33,7 +33,7 @@ void CScriptControllerAction::Think(float dt, CStateManager& stateMgr)
         x3c_26_pressed = ControlMapper::GetDigitalInput(x34_command, stateMgr.GetFinalInput());
     }
 
-    if (GetActive() && x3c_26_pressed != old26)
+    if (GetActive() && x3c_26_pressed != oldPressed)
     {
         if (x3c_26_pressed)
         {

@@ -1,6 +1,8 @@
 #include "CScriptSound.hpp"
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
+#include "CStateManager.hpp"
+#include "CWorld.hpp"
 #include "CActorParameters.hpp"
 #include "TCastTo.hpp"
 
@@ -45,7 +47,9 @@ void CScriptSound::PreThink(float dt, CStateManager& mgr)
     x11d_25_ = false;
 }
 
-void CScriptSound::Think(float, CStateManager&) {}
+void CScriptSound::Think(float dt, CStateManager& mgr)
+{
+}
 
 void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
@@ -83,7 +87,18 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
 void CScriptSound::PlaySound(CStateManager&) {}
 
-void CScriptSound::StopSound()
+void CScriptSound::StopSound(CStateManager& mgr)
 {
+    x11c_24_playing = false;
+    if (x11c_30_ && x11c_26_)
+    {
+        mgr.WorldNC()->StopSound(x100_soundId);
+        xec_sfxHandle.reset();
+    }
+    else if (xec_sfxHandle)
+    {
+        CSfxManager::RemoveEmitter(xec_sfxHandle);
+        xec_sfxHandle.reset();
+    }
 }
 }

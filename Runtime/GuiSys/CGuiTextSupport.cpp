@@ -144,7 +144,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
     g_TextExecuteBuf->AddColor(EColorType::Outline, x28_outlineColor);
 
     std::u16string initStr;
-    if (x5c_fontId != 0xffffffff)
+    if (x5c_fontId != kInvalidResId)
         initStr = hecl::Char16Format(L"&font=%08X;", u32(x5c_fontId));
     initStr += x0_string;
 

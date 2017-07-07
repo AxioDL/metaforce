@@ -30,7 +30,7 @@ class CScriptSound : public CActor
     {
         struct
         {
-            bool x11c_24_ : 1;
+            bool x11c_24_playing : 1;
             bool x11c_25_ : 1;
             bool x11c_26_ : 1;
             bool x11c_27_ : 1;
@@ -55,7 +55,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void GetOccludedVolumeAmount(const zeus::CVector3f&, const CStateManager&);
     void PlaySound(CStateManager&);
-    void StopSound();
+    void StopSound(CStateManager&);
 };
 }
 

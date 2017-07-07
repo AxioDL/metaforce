@@ -50,8 +50,9 @@ void CScriptColorModulate::FadeOutHelper(CStateManager &, TUniqueId, float)
 {
 }
 
-void CScriptColorModulate::FadeInHelper(CStateManager &, TUniqueId, float)
+void CScriptColorModulate::FadeInHelper(CStateManager& mgr, TUniqueId uid, float f1)
 {
+
 }
 
 void CScriptColorModulate::End(CStateManager& stateMgr)

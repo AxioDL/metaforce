@@ -26,6 +26,11 @@ public:
     public:
         CFlareDef(const TToken<CTexture>& tex, float f1, float f2, const zeus::CColor& color)
         : x0_tex(tex), x8_f1(f1), xc_f2(f2), x10_color(color) { x0_tex.Lock(); }
+
+        TToken<CTexture> GetTexture() const;
+        zeus::CColor GetColor() { return x10_color; }
+        float GetScale() const;
+        float GetPosition() const;
     };
 private:
     EBlendMode x0_blendMode;
