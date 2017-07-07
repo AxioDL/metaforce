@@ -17,6 +17,7 @@ class CPASAnimState
     std::vector<s32> x24_selectionCache;
 public:
     CPASAnimState(CInputStream& in);
+    CPASAnimState(int stateId);
     s32 GetStateId() const {return x0_id;}
     s32 GetNumAnims() const { return x14_anims.size(); }
     CPASAnimParm GetAnimParmData(s32, u32) const;

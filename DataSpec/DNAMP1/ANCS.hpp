@@ -89,9 +89,9 @@ struct ANCS : BigYAML
                         };
 
                         atUint32 parmType;
-                        atUint32 unk1;
-                        float unk2;
-                        Parm parmVals[2];
+                        atUint32 weightFunction;
+                        float weight;
+                        Parm range[2];
                     };
                     std::vector<ParmInfo> parmInfos;
 

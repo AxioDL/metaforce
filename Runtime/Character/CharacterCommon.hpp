@@ -43,12 +43,17 @@ enum class EJumpType
 
 enum class EStepDirection
 {
-    Invalid = -1
+    Invalid = -1,
+    Up = 0,
+    Down = 1,
+    Left = 2,
+    Right = 3
 };
 
 enum class EStepType
 {
-    Zero
+    Normal = 0,
+    Dodge = 1
 };
 
 enum class ESeverity

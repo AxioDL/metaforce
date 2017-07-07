@@ -11,26 +11,26 @@ namespace DNAMP1
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(athena::io::IStreamReader& reader)
 {
     parmType = reader.readUint32Big();
-    unk1 = reader.readUint32Big();
-    unk2 = reader.readFloatBig();
+    weightFunction = reader.readUint32Big();
+    weight = reader.readFloatBig();
     switch (DataType(parmType))
     {
     case DataType::Int32:
-        parmVals[0].int32 = reader.readInt32Big();
-        parmVals[1].int32 = reader.readInt32Big();
+        range[0].int32 = reader.readInt32Big();
+        range[1].int32 = reader.readInt32Big();
         break;
     case DataType::UInt32:
     case DataType::Enum:
-        parmVals[0].uint32 = reader.readUint32Big();
-        parmVals[1].uint32 = reader.readUint32Big();
+        range[0].uint32 = reader.readUint32Big();
+        range[1].uint32 = reader.readUint32Big();
         break;
     case DataType::Float:
-        parmVals[0].float32 = reader.readFloatBig();
-        parmVals[1].float32 = reader.readFloatBig();
+        range[0].float32 = reader.readFloatBig();
+        range[1].float32 = reader.readFloatBig();
         break;
     case DataType::Bool:
-        parmVals[0].bool1 = reader.readBool();
-        parmVals[1].bool1 = reader.readBool();
+        range[0].bool1 = reader.readBool();
+        range[1].bool1 = reader.readBool();
         break;
     }
 }
@@ -38,26 +38,26 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(a
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(athena::io::IStreamWriter& writer) const
 {
     writer.writeUint32Big(parmType);
-    writer.writeUint32Big(unk1);
-    writer.writeFloatBig(unk2);
+    writer.writeUint32Big(weightFunction);
+    writer.writeFloatBig(weight);
     switch (DataType(parmType))
     {
     case DataType::Int32:
-        writer.writeInt32Big(parmVals[0].int32);
-        writer.writeInt32Big(parmVals[1].int32);
+        writer.writeInt32Big(range[0].int32);
+        writer.writeInt32Big(range[1].int32);
         break;
     case DataType::UInt32:
     case DataType::Enum:
-        writer.writeUint32Big(parmVals[0].uint32);
-        writer.writeUint32Big(parmVals[0].uint32);
+        writer.writeUint32Big(range[0].uint32);
+        writer.writeUint32Big(range[0].uint32);
         break;
     case DataType::Float:
-        writer.writeFloatBig(parmVals[0].float32);
-        writer.writeFloatBig(parmVals[0].float32);
+        writer.writeFloatBig(range[0].float32);
+        writer.writeFloatBig(range[0].float32);
         break;
     case DataType::Bool:
-        writer.writeBool(parmVals[0].bool1);
-        writer.writeBool(parmVals[0].bool1);
+        writer.writeBool(range[0].bool1);
+        writer.writeBool(range[0].bool1);
         break;
     }
 }
@@ -83,29 +83,29 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::bina
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(athena::io::YAMLDocReader& reader)
 {
     parmType = reader.readUint32("parmType");
-    unk1 = reader.readUint32("unk1");
-    unk2 = reader.readFloat("unk2");
+    weightFunction = reader.readUint32("weightFunction");
+    weight = reader.readFloat("weight");
     size_t parmValCount;
-    if (auto v = reader.enterSubVector("parmVals", parmValCount))
+    if (auto v = reader.enterSubVector("range", parmValCount))
     {
         switch (DataType(parmType))
         {
         case DataType::Int32:
-            parmVals[0].int32 = reader.readInt32(nullptr);
-            parmVals[1].int32 = reader.readInt32(nullptr);
+            range[0].int32 = reader.readInt32(nullptr);
+            range[1].int32 = reader.readInt32(nullptr);
             break;
         case DataType::UInt32:
         case DataType::Enum:
-            parmVals[0].uint32 = reader.readUint32(nullptr);
-            parmVals[1].uint32 = reader.readUint32(nullptr);
+            range[0].uint32 = reader.readUint32(nullptr);
+            range[1].uint32 = reader.readUint32(nullptr);
             break;
         case DataType::Float:
-            parmVals[0].float32 = reader.readFloat(nullptr);
-            parmVals[1].float32 = reader.readFloat(nullptr);
+            range[0].float32 = reader.readFloat(nullptr);
+            range[1].float32 = reader.readFloat(nullptr);
             break;
         case DataType::Bool:
-            parmVals[0].bool1 = reader.readBool(nullptr);
-            parmVals[1].bool1 = reader.readBool(nullptr);
+            range[0].bool1 = reader.readBool(nullptr);
+            range[1].bool1 = reader.readBool(nullptr);
             break;
         default: break;
         }
@@ -115,28 +115,28 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(a
 void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(athena::io::YAMLDocWriter& writer) const
 {
     writer.writeUint32("parmType", parmType);
-    writer.writeUint32("unk1", unk1);
-    writer.writeFloat("unk2", unk2);
-    if (auto v = writer.enterSubVector("parmVals"))
+    writer.writeUint32("weightFunction", weightFunction);
+    writer.writeFloat("weight", weight);
+    if (auto v = writer.enterSubVector("range"))
     {
         switch (DataType(parmType))
         {
         case DataType::Int32:
-            writer.writeInt32(nullptr, parmVals[0].int32);
-            writer.writeInt32(nullptr, parmVals[1].int32);
+            writer.writeInt32(nullptr, range[0].int32);
+            writer.writeInt32(nullptr, range[1].int32);
             break;
         case DataType::UInt32:
         case DataType::Enum:
-            writer.writeUint32(nullptr, parmVals[0].uint32);
-            writer.writeUint32(nullptr, parmVals[0].uint32);
+            writer.writeUint32(nullptr, range[0].uint32);
+            writer.writeUint32(nullptr, range[0].uint32);
             break;
         case DataType::Float:
-            writer.writeFloat(nullptr, parmVals[0].float32);
-            writer.writeFloat(nullptr, parmVals[0].float32);
+            writer.writeFloat(nullptr, range[0].float32);
+            writer.writeFloat(nullptr, range[0].float32);
             break;
         case DataType::Bool:
-            writer.writeBool(nullptr, parmVals[0].bool1);
-            writer.writeBool(nullptr, parmVals[0].bool1);
+            writer.writeBool(nullptr, range[0].bool1);
+            writer.writeBool(nullptr, range[0].bool1);
             break;
         }
     }
