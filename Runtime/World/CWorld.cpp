@@ -610,7 +610,7 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const
     CGraphics::SetDepthRange(0.125f, 1.f);
 }
 
-void CWorld::RemoveEmitter(s16)
+void CWorld::StopSound(s16)
 {
 }
 }

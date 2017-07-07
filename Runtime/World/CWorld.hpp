@@ -199,7 +199,7 @@ public:
     void PreRender();
     void TouchSky();
     void DrawSky(const zeus::CTransform& xf) const;
-    void RemoveEmitter(s16);
+    void StopSound(s16);
 };
 
 struct CWorldLayers
