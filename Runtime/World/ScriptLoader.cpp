@@ -386,28 +386,28 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     zeus::CVector3f centroid;
     centroid.readBig(in);
 
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
+    float mass = in.readFloatBig();
+    float zMomentum = in.readFloatBig();
 
     CHealthInfo hInfo(in);
 
-    CDamageVulnerability dInfo(in);
+    CDamageVulnerability dVuln(in);
 
     ResId staticId = in.readUint32Big();
     CAnimationParameters aParms = LoadAnimationParameters(in);
 
     CActorParameters actParms = LoadActorParameters(in);
 
-    bool b1 = in.readBool();
+    bool looping = in.readBool();
     bool snow = in.readBool();
     bool solid = in.readBool();
     bool cameraPassthrough = in.readBool();
-    bool b5 = in.readBool();
+    bool active = in.readBool();
     u32 w2 = in.readUint32Big();
     float f3 = in.readFloatBig();
     bool b6 = in.readBool();
-    bool b7 = in.readBool();
-    bool b8 = in.readBool();
+    bool castsShadow = in.readBool();
+    bool xposeRotate = in.readBool();
     bool b9 = in.readBool();
 
     FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
@@ -435,8 +435,8 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
-    return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, f1,
-                            f2, list, hInfo, dInfo, actParms, b1, b5, w2, f3, b6, b7, b8, b9);
+    return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, mass,
+                            zMomentum, list, hInfo, dVuln, actParms, looping, active, w2, f3, b6, castsShadow, xposeRotate, b9);
 }
 
 CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
