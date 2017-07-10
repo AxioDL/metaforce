@@ -13,7 +13,7 @@ CBeetle::CBeetle(TUniqueId uid, const std::string& name, const CEntityInfo& info
                  const CDamageVulnerability&, const zeus::CVector3f&, float, float, float, const CDamageVulnerability&,
                  const CActorParameters& aParams, const rstl::optional_object<CStaticRes>)
     : CPatterned(ECharacter::Beetle, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
-                 EColliderType::One, EBodyType::One, aParams, bool(flavor))
+                 EColliderType::One, EBodyType::BiPedal, aParams, bool(flavor))
 {
 
 }

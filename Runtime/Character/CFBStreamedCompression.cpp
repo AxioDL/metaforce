@@ -280,7 +280,7 @@ float CFBStreamedCompression::CalculateAverageVelocity(const u8* chans)
         transCompA = transCompB;
     }
 
-    return accumMag / GetAnimationDuration();
+    return accumMag / GetAnimationDuration().GetSeconds();
 }
 
 }

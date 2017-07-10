@@ -17,6 +17,6 @@ std::shared_ptr<CAnimTreeNode> CMetaTransTrans::VGetTransitionTree(const std::we
                                                                    const CAnimSysContext& animSys) const
 {
     return std::make_shared<CAnimTreeTransition>(xc_, a, b, x4_animTime, xd_, x10_,
-                                           CAnimTreeTransition::CreatePrimitiveName(a, b, x4_animTime));
+        CAnimTreeTransition::CreatePrimitiveName(a, b, x4_animTime.GetSeconds()));
 }
 }

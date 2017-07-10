@@ -70,6 +70,17 @@ public:
     };
 
 private:
+    union
+    {
+        struct
+        {
+            bool x328_24_ : 1;
+            bool x328_25_ : 1;
+            bool x328_26_ : 1;
+            bool x328_27_onGround : 1;
+        };
+        u32 _dummy = 0;
+    };
     ECharacter x34c_character;
 public:
     CPatterned(ECharacter character, TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
@@ -97,6 +108,11 @@ public:
                 return static_cast<const T*>(patterned.GetPtr());
         return nullptr;
     }
+
+    bool GetX328_26() const { return x328_26_; }
+
+    virtual bool IsOnGround() const { return x328_27_onGround; }
+    virtual float GetGravityConstant() const { return 24.525002f; }
 };
 }
 

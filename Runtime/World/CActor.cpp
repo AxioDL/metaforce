@@ -504,4 +504,11 @@ void CActor::SetCalculateLighting(bool c)
                                                          4, 4, false, false, false, 0.1f);
     xe4_31_lightsDirty = c;
 }
+
+float CActor::GetAverageAnimVelocity(int anim) const
+{
+    if (HasModelData() && GetModelData()->HasAnimData())
+        return GetModelData()->GetAnimationData()->GetAverageVelocity(anim);
+    return 0.f;
+}
 }

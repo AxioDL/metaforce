@@ -53,7 +53,7 @@ CCharAnimTime CAnimTreeSequence::VGetTimeRemaining() const
 {
     if (x38_curIdx == x28_.size() - 1)
         return x14_child->VGetTimeRemaining();
-    return x3c_fundamentals.GetSteadyStateAnimInfo().GetDuration() - x94_curTime;
+    return x3c_fundamentals.GetSteadyStateAnimInfo().GetDuration() - x94_curTime.GetSeconds();
 }
 
 CSteadyStateAnimInfo CAnimTreeSequence::VGetSteadyStateAnimInfo() const

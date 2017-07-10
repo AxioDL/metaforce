@@ -60,16 +60,17 @@ CPASAnimState::CPASAnimState(int stateId)
 : x0_id(stateId)
 {}
 
-CPASAnimParm CPASAnimState::GetAnimParmData(s32 idx, u32 id) const
+CPASAnimParm CPASAnimState::GetAnimParmData(s32 animId, u32 parmIdx) const
 {
-    auto search = std::lower_bound(x14_anims.begin(), x14_anims.end(), id,
-                                   [](const CPASAnimInfo& item, const u32& testId) ->
-                                   bool {return item.GetAnimId() < testId;});
-    if (search == x14_anims.end())
+    CPASAnimInfo key(animId);
+    auto search = std::lower_bound(x14_anims.begin(), x14_anims.end(), key,
+                                   [](const CPASAnimInfo& item, const CPASAnimInfo& testId) ->
+                                   bool {return item.GetAnimId() < testId.GetAnimId();});
+    if (search == x14_anims.end() || search->GetAnimId() > animId)
         return CPASAnimParm::NoParameter();
 
-    CPASParmInfo parm = x4_parms.at(idx);
-    return (*search).GetAnimParmData(idx, parm.GetParameterType());
+    CPASParmInfo parm = x4_parms.at(parmIdx);
+    return (*search).GetAnimParmData(parmIdx, parm.GetParameterType());
 }
 
 s32 CPASAnimState::PickRandomAnimation(CRandom16& rand) const
@@ -208,7 +209,7 @@ float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm
     case CPASAnimParm::EParmType::Enum:
     {
         const CPASParmInfo& info = x4_parms[idx];
-        range = info.GetWeightMaxValue().m_float - info.GetWeightMinValue().m_float;
+        range = info.GetWeightMaxValue().m_int - info.GetWeightMinValue().m_int;
         val = std::fabs(parm.GetEnumValue() - parmVal.m_int);
         break;
     }

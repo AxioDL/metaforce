@@ -35,4 +35,63 @@ CBodyStateCmdMgr::CBodyStateCmdMgr()
     x40_commandTable.push_back(&x298_);
 }
 
+void CBodyStateCmdMgr::DeliverCmd(const CBCLocomotionCmd& cmd)
+{
+    if (cmd.GetWeight() <= FLT_EPSILON)
+        return;
+    x3c_steeringSpeed += cmd.GetWeight();
+    x0_move += cmd.GetMoveVector() * cmd.GetWeight();
+    xc_face += cmd.GetFaceVector() * cmd.GetWeight();
+}
+
+void CBodyStateCmdMgr::BlendSteeringCmds()
+{
+    if (x3c_steeringSpeed > FLT_EPSILON)
+    {
+        float stepMul = 1.f / x3c_steeringSpeed;
+        xc_face *= stepMul;
+
+        switch (x30_steeringMode)
+        {
+        case ESteeringBlendMode::Normal:
+            x0_move *= stepMul;
+            break;
+        case ESteeringBlendMode::FullSpeed:
+            if (!zeus::close_enough(x0_move, zeus::CVector3f::skZero, 0.0001f))
+            {
+                x0_move.normalize();
+                x0_move *= x38_steeringSpeedMax;
+            }
+            break;
+        case ESteeringBlendMode::Clamped:
+            x0_move *= stepMul;
+            if (!zeus::close_enough(x0_move, zeus::CVector3f::skZero, 0.0001f))
+            {
+                if (x0_move.magnitude() < x34_steeringSpeedMin)
+                    x0_move = x0_move.normalized() * x34_steeringSpeedMin;
+                else if (x0_move.magnitude() > x38_steeringSpeedMax)
+                    x0_move = x0_move.normalized() * x38_steeringSpeedMax;
+            }
+            break;
+        default: break;
+        }
+    }
+}
+
+void CBodyStateCmdMgr::Reset()
+{
+    x0_move = zeus::CVector3f::skZero;
+    xc_face = zeus::CVector3f::skZero;
+    x18_target = zeus::CVector3f::skZero;
+    x3c_steeringSpeed = 0.f;
+    xb4_deliveredCmdMask = 0;
+}
+
+void CBodyStateCmdMgr::ClearLocomotionCmds()
+{
+    x0_move = zeus::CVector3f::skZero;
+    xc_face = zeus::CVector3f::skZero;
+    x3c_steeringSpeed = 0.f;
+}
+
 }

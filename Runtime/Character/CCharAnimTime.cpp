@@ -80,7 +80,7 @@ bool CCharAnimTime::operator !=(const CCharAnimTime& other) const
     return !(*this == other);
 }
 
-bool CCharAnimTime::operator>=(const CCharAnimTime& other)
+bool CCharAnimTime::operator>=(const CCharAnimTime& other) const
 {
     if (*this == other)
         return true;
@@ -88,7 +88,7 @@ bool CCharAnimTime::operator>=(const CCharAnimTime& other)
     return (*this > other);
 }
 
-bool CCharAnimTime::operator<=(const CCharAnimTime& other)
+bool CCharAnimTime::operator<=(const CCharAnimTime& other) const
 {
     if (*this == other)
         return true;
@@ -162,7 +162,7 @@ CCharAnimTime& CCharAnimTime::operator+=(const CCharAnimTime& other)
     return *this;
 }
 
-CCharAnimTime CCharAnimTime::operator+(const CCharAnimTime& other)
+CCharAnimTime CCharAnimTime::operator+(const CCharAnimTime& other) const
 {
     if (x4_type == EType::Infinity && other.x4_type == EType::Infinity)
     {
@@ -216,7 +216,7 @@ CCharAnimTime& CCharAnimTime::operator-=(const CCharAnimTime& other)
     return *this;
 }
 
-CCharAnimTime CCharAnimTime::operator-(const CCharAnimTime& other)
+CCharAnimTime CCharAnimTime::operator-(const CCharAnimTime& other) const
 {
     if (x4_type == EType::Infinity && other.x4_type == EType::Infinity)
     {
@@ -266,7 +266,7 @@ CCharAnimTime CCharAnimTime::operator-(const CCharAnimTime& other)
     return ret;
 }
 
-CCharAnimTime CCharAnimTime::operator*(const CCharAnimTime& other)
+CCharAnimTime CCharAnimTime::operator*(const CCharAnimTime& other) const
 {
     if (x4_type == EType::Infinity && other.x4_type == EType::Infinity)
     {
@@ -313,7 +313,7 @@ CCharAnimTime CCharAnimTime::operator*(const CCharAnimTime& other)
     return ret;
 }
 
-CCharAnimTime CCharAnimTime::operator*(const float& other)
+CCharAnimTime CCharAnimTime::operator*(const float& other) const
 {
     CCharAnimTime ret;
     if (other == 0.f)
@@ -331,7 +331,7 @@ CCharAnimTime CCharAnimTime::operator*(const float& other)
     return ret;
 }
 
-float CCharAnimTime::operator/(const CCharAnimTime& other)
+float CCharAnimTime::operator/(const CCharAnimTime& other) const
 {
     if (other.EqualsZero())
         return 0.f;

@@ -8,6 +8,7 @@ namespace urde
 
 class CScriptWaypoint : public CActor
 {
+    u16 xfa_jumpFlags;
 public:
     CScriptWaypoint(TUniqueId, const std::string&, const CEntityInfo&,
                     const zeus::CTransform&, bool, float, float,

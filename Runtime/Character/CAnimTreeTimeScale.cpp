@@ -3,13 +3,15 @@
 namespace urde
 {
 
-CAnimTreeTimeScale::CAnimTreeTimeScale(const std::weak_ptr<CAnimTreeNode>& node, float scale, const std::string& name)
+CAnimTreeTimeScale::CAnimTreeTimeScale(const std::weak_ptr<CAnimTreeNode>& node, float scale,
+                                       const std::string& name)
     : CAnimTreeSingleChild(node, name)
     , x18_timeScale(new CConstantAnimationTimeScale(scale))
 {
 }
 
-std::string CAnimTreeTimeScale::CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&, float, const CCharAnimTime&, float)
+std::string CAnimTreeTimeScale::CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&, float,
+                                                    const CCharAnimTime&, float)
 {
     return {};
 }
@@ -22,13 +24,16 @@ CCharAnimTime CAnimTreeTimeScale::GetRealLifeTime(const CCharAnimTime& time) con
     if (x28_ > CCharAnimTime())
     {
         if (tmp < CCharAnimTime(x28_ * x20_))
-            return x18_timeScale->VTimeScaleIntegral(x20_, x20_ + tmp);
+            return x18_timeScale->VTimeScaleIntegral(x20_.GetSeconds(),
+                                                     (x20_ + tmp).GetSeconds());
         else
         {
-            CCharAnimTime integral = x18_timeScale->VTimeScaleIntegral(x20_, x28_);
+            CCharAnimTime integral =
+                x18_timeScale->VTimeScaleIntegral(x20_.GetSeconds(), x28_.GetSeconds());
 
             if (integral > tmp)
-                return x18_timeScale->VFindUpperLimit(x20_, tmp) * x20_;
+                return x18_timeScale->VFindUpperLimit(x20_.GetSeconds(), tmp.GetSeconds()) *
+                       x20_.GetSeconds();
             else
                 return integral + (integral * tmp);
         }

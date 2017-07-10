@@ -13,9 +13,15 @@ class CPASAnimParmData
 public:
     CPASAnimParmData() = default;
 
-    CPASAnimParmData(s32 stateId, const CPASAnimParm& parm1, const CPASAnimParm& parm2, const CPASAnimParm& parm3,
-                     const CPASAnimParm& parm4, const CPASAnimParm& parm5, const CPASAnimParm& parm6,
-                     const CPASAnimParm& parm7, const CPASAnimParm& parm8);
+    CPASAnimParmData(s32 stateId,
+                     const CPASAnimParm& parm1 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm2 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm3 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm4 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm5 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm6 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm7 = CPASAnimParm::NoParameter(),
+                     const CPASAnimParm& parm8 = CPASAnimParm::NoParameter());
 
     s32 GetStateId() const { return x0_stateId; }
     const rstl::reserved_vector<CPASAnimParm, 8>& GetAnimParmData() const { return x4_parms; }

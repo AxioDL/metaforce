@@ -85,9 +85,11 @@ set(CHARACTER_SOURCES
     CActorLights.hpp CActorLights.cpp
     CAnimSysContext.hpp
     CBodyState.hpp CBodyState.cpp
+    CAdditiveBodyState.hpp CAdditiveBodyState.cpp
     CBodyStateCmdMgr.hpp CBodyStateCmdMgr.cpp
     CBodyController.hpp CBodyController.cpp
     CGroundMovement.hpp CGroundMovement.cpp
-    CSteeringBehaviors.hpp CSteeringBehaviors.cpp)
+    CSteeringBehaviors.hpp CSteeringBehaviors.cpp
+    CBodyStateInfo.hpp CBodyStateInfo.cpp)
 
 runtime_add_list(Character CHARACTER_SOURCES)

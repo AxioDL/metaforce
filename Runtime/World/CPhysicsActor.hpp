@@ -159,6 +159,8 @@ public:
     void SetVelocityWR(const zeus::CVector3f& vel);
     void SetVelocityOR(const zeus::CVector3f& vel);
     void SetMomentumWR(const zeus::CVector3f& m) { x150_momentum = m; }
+    void SetConstantForce(const zeus::CVector3f& f) { xfc_constantForce = f; }
+    void SetAngularMomentum(const zeus::CAxisAngle& m) { x108_angularMomentum = m; }
     const zeus::CVector3f& GetMomentum() const { return x150_momentum; }
     const zeus::CVector3f& GetVelocity() const { return x138_velocity; }
     zeus::CVector3f GetTotalForcesWR() const;

@@ -26,7 +26,7 @@ CMetroid::CMetroid(TUniqueId uid, const std::string& name, EFlavorType flavor, c
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                    const CActorParameters& aParms, const CMetroidData& metroidData)
 : CPatterned(ECharacter::Metroid, uid, name, flavor, info, xf, std::move(mData), pInfo,
-             EMovementType::Flyer, EColliderType::One, EBodyType::Three, aParms, true)
+             EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, true)
 {
 }
 

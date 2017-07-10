@@ -12,7 +12,7 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, const std::string& name, const CEnti
                              const CActorParameters& actParms, float, u32, const CDamageInfo& dInfo,
                              u32, u32, u32, u32)
 : CPatterned(ECharacter::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-             EMovementType::Flyer, EColliderType::One, EBodyType::Two, actParms, true)
+             EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, true)
 {
 }
 

@@ -51,10 +51,10 @@ std::shared_ptr<IVaryingAnimationTimeScale> CLinearAnimationTimeScale::VClone() 
 
     CLinearAnimationTimeScale* ret = new CLinearAnimationTimeScale();
     float f30 = x4_ * xc_ + x8_;
-    ret->x4_ = (x4_ * x10_ + x8_ - f30) / timeB;
-    ret->x8_ = -((x4_ * x10_ + x8_ - f30) / (timeA - timeB) * timeB - f30);
-    ret->xc_ = timeB;
-    ret->x10_ = timeA;
+    ret->x4_ = (x4_ * x10_ + x8_ - f30) / timeB.GetSeconds();
+    ret->x8_ = -((x4_ * x10_ + x8_ - f30) / (timeA - timeB).GetSeconds() * timeB.GetSeconds() - f30);
+    ret->xc_ = timeB.GetSeconds();
+    ret->x10_ = timeA.GetSeconds();
 
     return std::shared_ptr<IVaryingAnimationTimeScale>(ret);
 }
@@ -68,10 +68,11 @@ CLinearAnimationTimeScale::VGetFunctionMirrored(const float& parm) const
     CCharAnimTime timeB(2.f * parm - x10_);
 
     CLinearAnimationTimeScale* ret = new CLinearAnimationTimeScale();
-    ret->x4_ = (-x4_ * 2.f * parm - xc_ + f27 - f31) / (timeA - timeB);
-    ret->x8_ = -(((-x4_ * 2.f * parm - xc_ + f27 - f31) / (timeA - timeB)) * timeB - f31);
-    ret->xc_ = timeB;
-    ret->x10_ = timeA;
+    ret->x4_ = (-x4_ * 2.f * parm - xc_ + f27 - f31) / (timeA - timeB).GetSeconds();
+    ret->x8_ = -(((-x4_ * 2.f * parm - xc_ + f27 - f31) /
+               (timeA - timeB).GetSeconds()) * timeB.GetSeconds() - f31);
+    ret->xc_ = timeB.GetSeconds();
+    ret->x10_ = timeA.GetSeconds();
 
     return std::shared_ptr<IVaryingAnimationTimeScale>(ret);
 }

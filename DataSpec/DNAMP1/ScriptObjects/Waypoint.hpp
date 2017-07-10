@@ -23,7 +23,7 @@ struct Waypoint : IScriptObject
     Value<atUint32> unknown6;
     Value<atUint32> unknown7;
     Value<atUint32> unknown8;
-    Value<atUint32> unknown9;
+    Value<atUint32> jumpFlags; // 0x2: single, 0x4: double
     Value<atUint32> unknown10;
 };
 }

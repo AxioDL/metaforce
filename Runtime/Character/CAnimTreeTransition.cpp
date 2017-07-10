@@ -71,7 +71,7 @@ void CAnimTreeTransition::SetBlendingWeight(float w)
 float CAnimTreeTransition::VGetBlendingWeight() const
 {
     if (x24_.GreaterThanZero())
-        return (1.f / x24_) * x2c_;
+        return (1.f / x24_.GetSeconds()) * x2c_.GetSeconds();
     return 0.f;
 }
 }

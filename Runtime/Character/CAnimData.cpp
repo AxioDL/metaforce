@@ -30,6 +30,7 @@ rstl::reserved_vector<CBoolPOINode, 8>CAnimData::g_BoolPOINodes;
 rstl::reserved_vector<CInt32POINode, 16> CAnimData::g_Int32POINodes;
 rstl::reserved_vector<CParticlePOINode, 20> CAnimData::g_ParticlePOINodes;
 rstl::reserved_vector<CSoundPOINode, 20> CAnimData::g_SoundPOINodes;
+rstl::reserved_vector<CInt32POINode, 16> CAnimData::g_TransientInt32POINodes;
 
 void CAnimData::FreeCache()
 {
@@ -73,6 +74,7 @@ CAnimData::CAnimData(ResId id,
     g_Int32POINodes.resize(16);
     g_ParticlePOINodes.resize(20);
     g_SoundPOINodes.resize(20);
+    g_TransientInt32POINodes.resize(16);
 
     x108_aabb = xd8_modelData->GetModel()->GetAABB();
     x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
@@ -127,7 +129,7 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt)
         std::shared_ptr<CAnimTreeNode>& anim = additive.second.GetAnim();
         if (additive.second.IsActive())
         {
-            while (time.GreaterThanZero() && std::fabs(time) >= 0.00001f)
+            while (time.GreaterThanZero() && std::fabs(time.GetSeconds()) >= 0.00001f)
             {
                 x210_passedIntCount += anim->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
                 x20c_passedBoolCount += anim->GetBoolPOIList(time, g_BoolPOINodes.data(), 8, x20c_passedBoolCount, 0);
@@ -143,7 +145,7 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt)
         else
         {
             CCharAnimTime remTime = anim->VGetTimeRemaining();
-            while (remTime.GreaterThanZero() && std::fabs(remTime) >= 0.00001f)
+            while (remTime.GreaterThanZero() && std::fabs(remTime.GetSeconds()) >= 0.00001f)
             {
                 x210_passedIntCount += anim->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
                 x20c_passedBoolCount += anim->GetBoolPOIList(time, g_BoolPOINodes.data(), 8, x20c_passedBoolCount, 0);
@@ -276,9 +278,25 @@ SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a,
     return x1f8_animRoot->VGetAdvancementResults(a, b).x8_deltas;
 }
 
-CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType, const CCharAnimTime& time) const
+CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time) const
 {
-    return {};
+    u32 count = x1f8_animRoot->GetInt32POIList(time, g_TransientInt32POINodes.data(), 16, 0, 64);
+    for (int i=0 ; i<count ; ++i)
+    {
+        CInt32POINode& poi = g_TransientInt32POINodes[i];
+        if (poi.GetPoiType() == EPOIType::UserEvent &&
+            EUserEventType(poi.GetValue()) == type)
+        {
+            for (; i<count ; ++i)
+                g_TransientInt32POINodes[i] = CInt32POINode();
+            return poi.GetTime();
+        }
+        else
+        {
+            poi = CInt32POINode();
+        }
+    }
+    return CCharAnimTime::Infinity();
 }
 
 void CAnimData::MultiplyPlaybackRate(float mul)
@@ -291,13 +309,193 @@ void CAnimData::SetPlaybackRate(float set)
     x200_speedScale = set;
 }
 
-void CAnimData::SetRandomPlaybackRate(CRandom16&)
+void CAnimData::SetRandomPlaybackRate(CRandom16& r)
 {
+    for (int i=0 ; i<x210_passedIntCount ; ++i)
+    {
+        CInt32POINode& poi = g_Int32POINodes[i];
+        if (poi.GetPoiType() == EPOIType::RandRate)
+        {
+            float tmp = (r.Next() % poi.GetValue()) / 100.f;
+            if ((r.Next() % 100) < 50)
+                x200_speedScale = 1.f + tmp;
+            else
+                x200_speedScale = 1.f - tmp;
+            break;
+        }
+    }
 }
 
 void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
                                            const std::shared_ptr<CAnimTreeNode>& node)
 {
+    zeus::CQuaternion orient;
+    x1e8_alignRot = zeus::CQuaternion::skNoRotation;
+
+    x220_27_ = false;
+    if (parms.GetDeltaOrient() && parms.GetObjectXform())
+    {
+        ResetPOILists();
+        x210_passedIntCount += node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(),
+                                                     16, x210_passedIntCount, 64);
+        for (int i=0 ; i<x210_passedIntCount ; ++i)
+        {
+            CInt32POINode& poi = g_Int32POINodes[i];
+            if (poi.GetPoiType() == EPOIType::UserEvent &&
+                EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetRot)
+            {
+                SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
+                orient = zeus::CQuaternion::slerp(zeus::CQuaternion::skNoRotation,
+                    *parms.GetDeltaOrient() *
+                    zeus::CQuaternion(parms.GetObjectXform()->buildMatrix3f().inverted()) *
+                    res.x8_deltas.xc_rotDelta.inverse(),
+                    1.f / (60.f * poi.GetTime().GetSeconds()));
+                x1e8_alignRot = orient;
+                x220_27_ = true;
+            }
+        }
+    }
+
+    if (!x220_27_)
+    {
+        bool didAlign = false;
+        bool didStart = false;
+        zeus::CVector3f posStart, posAlign;
+        CCharAnimTime timeStart, timeAlign;
+        if (parms.GetTargetPos() && parms.GetObjectXform())
+        {
+            ResetPOILists();
+            x210_passedIntCount += node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(),
+                                                         16, x210_passedIntCount, 64);
+            for (int i=0 ; i<x210_passedIntCount ; ++i)
+            {
+                CInt32POINode& poi = g_Int32POINodes[i];
+                if (poi.GetPoiType() == EPOIType::UserEvent)
+                {
+                    if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPosStart)
+                    {
+                        didStart = true;
+                        SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
+                        posStart = res.x8_deltas.x0_posDelta;
+                        timeStart = poi.GetTime();
+
+                        if (parms.GetIsUseLocator())
+                            posStart += GetLocatorTransform(poi.GetLocatorName(), &poi.GetTime()).origin;
+
+                        if (didAlign)
+                            break;
+                    }
+                    else if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPos)
+                    {
+                        didAlign = true;
+                        SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
+                        posAlign = res.x8_deltas.x0_posDelta;
+                        timeAlign = poi.GetTime();
+
+                        if (parms.GetIsUseLocator())
+                            posAlign += GetLocatorTransform(poi.GetLocatorName(), &poi.GetTime()).origin;
+
+                        if (didStart)
+                            break;
+                    }
+                }
+            }
+
+            if (didAlign && didStart)
+            {
+                zeus::CVector3f scaleStart = *parms.GetObjectScale() * posStart;
+                zeus::CVector3f scaleAlign = *parms.GetObjectScale() * posAlign;
+                x1dc_alignPos = (parms.GetObjectXform()->inverse() * *parms.GetTargetPos() - scaleStart -
+                (scaleAlign - scaleStart)) / *parms.GetObjectScale() *
+                (1.f / (timeAlign.GetSeconds() - timeStart.GetSeconds()));
+                x220_28_ = true;
+                x220_26_ = false;
+            }
+            else
+            {
+                x1dc_alignPos = zeus::CVector3f::skZero;
+                x220_28_ = false;
+                x220_26_ = false;
+            }
+        }
+    }
+    else
+    {
+        bool didStart = false;
+        bool didAlign = false;
+        CCharAnimTime timeStart, timeAlign;
+        zeus::CVector3f startPos;
+        if (parms.GetTargetPos() && parms.GetObjectXform())
+        {
+            ResetPOILists();
+            x210_passedIntCount += node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(),
+                                                         16, x210_passedIntCount, 64);
+            for (int i=0 ; i<x210_passedIntCount ; ++i)
+            {
+                CInt32POINode& poi = g_Int32POINodes[i];
+                if (poi.GetPoiType() == EPOIType::UserEvent)
+                {
+                    if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPosStart)
+                    {
+                        didStart = true;
+                        timeStart = poi.GetTime();
+                        if (didAlign)
+                            break;
+                    }
+                    else if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPos)
+                    {
+                        didAlign = true;
+                        timeAlign = poi.GetTime();
+                        if (didStart)
+                            break;
+                    }
+                }
+            }
+
+            if (didAlign && didStart)
+            {
+                CCharAnimTime frameInterval(1.f / 60.f);
+                orient = zeus::CQuaternion::skNoRotation;
+                x1e8_alignRot = zeus::CQuaternion::skNoRotation;
+                x220_27_ = true;
+                CCharAnimTime time;
+                zeus::CVector3f pos;
+                zeus::CQuaternion quat;
+                bool foundStartPos = false;
+                while (time < timeAlign)
+                {
+                    SAdvancementResults res = node->VGetAdvancementResults(frameInterval, time);
+                    pos += quat.toTransform() * res.x8_deltas.x0_posDelta;
+                    quat *= (res.x8_deltas.xc_rotDelta * orient);
+                    if (!foundStartPos && time >= timeStart)
+                    {
+                        startPos = pos;
+                        foundStartPos = true;
+                    }
+                    time += frameInterval;
+                }
+                zeus::CVector3f scaleStart = startPos * *parms.GetObjectScale();
+                zeus::CVector3f scaleAlign = pos * *parms.GetObjectScale();
+                x1dc_alignPos = (parms.GetObjectXform()->inverse() * *parms.GetTargetPos() - scaleStart -
+                (scaleAlign - scaleStart)) / *parms.GetObjectScale() *
+                (1.f / (timeAlign.GetSeconds() - timeStart.GetSeconds()));
+                x220_28_ = true;
+                x220_26_ = false;
+            }
+            else
+            {
+                x1dc_alignPos = zeus::CVector3f::skZero;
+                x220_28_ = false;
+                x220_26_ = false;
+            }
+        }
+        else
+        {
+            x1dc_alignPos = zeus::CVector3f::skZero;
+            x220_28_ = false;
+            x220_26_ = false;
+        }
+    }
 }
 
 zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* time) const
@@ -330,12 +528,12 @@ bool CAnimData::IsAnimTimeRemaining(float rem, const std::string& name) const
 {
     if (!x1f8_animRoot)
         return false;
-    return float(x1f8_animRoot->VGetTimeRemaining()) <= rem;
+    return x1f8_animRoot->VGetTimeRemaining().GetSeconds() <= rem;
 }
 
 float CAnimData::GetAnimTimeRemaining(const std::string& name) const
 {
-    float rem = x1f8_animRoot->VGetTimeRemaining();
+    float rem = x1f8_animRoot->VGetTimeRemaining().GetSeconds();
     if (x200_speedScale)
         return rem / x200_speedScale;
     return rem;
@@ -373,7 +571,7 @@ float CAnimData::GetAnimationDuration(int animIn) const
         }
         }
 
-        durAccum += dur;
+        durAccum += dur.GetSeconds();
     }
 
     if (anim->GetType() == EMetaAnimType::Random)
@@ -491,52 +689,52 @@ void CAnimData::PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet,
 void CAnimData::GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const
 {
     std::shared_ptr<IMetaAnim> animA =
-        x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x0_animA));
+        x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.GetAnimationId()));
     animA->GetUniquePrimitives(primsOut);
 
-    if (parms.x4_animB != -1)
+    if (parms.GetSecondAnimationId() != -1)
     {
         std::shared_ptr<IMetaAnim> animB =
-            x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.x4_animB));
+            x100_animMgr->GetMetaAnimation(xc_charInfo.GetAnimationIndex(parms.GetSecondAnimationId()));
         animB->GetUniquePrimitives(primsOut);
     }
 }
 
 void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
 {
-    if (parms.x0_animA == x40c_playbackParms.x0_animA ||
-        (parms.x4_animB == x40c_playbackParms.x4_animB &&
-         parms.x8_blendWeight == x40c_playbackParms.x8_blendWeight &&
-         parms.x8_blendWeight != 1.f) ||
-        parms.x4_animB == -1)
+    if (parms.GetAnimationId() == x40c_playbackParms.GetAnimationId() ||
+        (parms.GetSecondAnimationId() == x40c_playbackParms.GetSecondAnimationId() &&
+         parms.GetBlendFactor() == x40c_playbackParms.GetBlendFactor() &&
+         parms.GetBlendFactor() != 1.f) ||
+        parms.GetSecondAnimationId() == -1)
     {
         if (x220_29_animationJustStarted)
             return;
     }
 
-    x40c_playbackParms.x0_animA = parms.x0_animA;
-    x40c_playbackParms.x4_animB = parms.x4_animB;
-    x40c_playbackParms.x8_blendWeight = parms.x8_blendWeight;
+    x40c_playbackParms.SetAnimationId(parms.GetAnimationId());
+    x40c_playbackParms.SetSecondAnimationId(parms.GetSecondAnimationId());
+    x40c_playbackParms.SetBlendFactor(parms.GetBlendFactor());
     x200_speedScale = 1.f;
-    x208_defaultAnim = parms.x0_animA;
+    x208_defaultAnim = parms.GetAnimationId();
 
-    u32 animIdxA = xc_charInfo.GetAnimationIndex(parms.x0_animA);
+    u32 animIdxA = xc_charInfo.GetAnimationIndex(parms.GetAnimationId());
 
     ResetPOILists();
 
     std::shared_ptr<CAnimTreeNode> blendNode;
-    if (parms.x4_animB != -1)
+    if (parms.GetSecondAnimationId() != -1)
     {
-        u32 animIdxB = xc_charInfo.GetAnimationIndex(parms.x4_animB);
+        u32 animIdxB = xc_charInfo.GetAnimationIndex(parms.GetSecondAnimationId());
 
         std::shared_ptr<CAnimTreeNode> treeA =
             x100_animMgr->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());
         std::shared_ptr<CAnimTreeNode> treeB =
             x100_animMgr->GetAnimationTree(animIdxB, CMetaAnimTreeBuildOrders::NoSpecialOrders());
 
-        blendNode = std::make_shared<CAnimTreeBlend>(false, treeA, treeB, parms.x8_blendWeight,
+        blendNode = std::make_shared<CAnimTreeBlend>(false, treeA, treeB, parms.GetBlendFactor(),
                                                      CAnimTreeBlend::CreatePrimitiveName(treeA, treeB,
-                                                                                         parms.x8_blendWeight));
+                                                                                         parms.GetBlendFactor()));
     }
     else
     {
@@ -548,7 +746,7 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
     else
         x1f8_animRoot = blendNode;
 
-    x220_24_animating = parms.xc_animating;
+    x220_24_animating = parms.GetIsPlayAnimation();
     CalcPlaybackAlignmentParms(parms, blendNode);
     ResetPOILists();
     x220_29_animationJustStarted = true;
@@ -608,7 +806,7 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& suspendParticles, CRando
                 x218_passedSoundCount += x1f8_animRoot->GetSoundPOIList(time, g_SoundPOINodes.data(), 16, x218_passedSoundCount, 0);
                 AdvanceAnim(time, offsetPost, quatPost);
                 remTime = x1f8_animRoot->VGetTimeRemaining();
-                time = std::max(0.f, std::min(float(remTime), float(time)));
+                time = std::max(0.f, std::min(remTime.GetSeconds(), time.GetSeconds()));
                 if (remTime.EpsilonZero())
                 {
                     x220_24_animating = false;
@@ -703,7 +901,7 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 
     offset += results.x8_deltas.x0_posDelta;
     if (x220_26_)
-        offset += x1dc_alignPos * time;
+        offset += x1dc_alignPos * time.GetSeconds();
 
     zeus::CQuaternion rot = results.x8_deltas.xc_rotDelta * x1e8_alignRot;
     quat = quat * rot;
@@ -771,8 +969,8 @@ float CAnimData::GetAverageVelocity(int animIn) const
         }
         }
 
-        velAccum += dur * avgVel;
-        durAccum += dur;
+        velAccum += dur.GetSeconds() * avgVel;
+        durAccum += dur.GetSeconds();
     }
 
     if (durAccum > 0.f)

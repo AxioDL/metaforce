@@ -120,7 +120,7 @@ void CAnimSource::CalcAverageVelocity()
         if (frameVel > 0.00001f)
             accum += frameVel;
     }
-    x60_averageVelocity = accum / x0_duration;
+    x60_averageVelocity = accum / x0_duration.GetSeconds();
 }
 
 CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
@@ -146,10 +146,10 @@ void CAnimSource::GetSegStatementSet(const CSegIdList& list,
                                      const CCharAnimTime& time) const
 {
     u32 frameIdx = unsigned(time / x8_interval);
-    float remTime = time - frameIdx * x8_interval;
+    float remTime = time.GetSeconds() - frameIdx * x8_interval.GetSeconds();
     if (std::fabs(remTime) < 0.00001f)
         remTime = 0.f;
-    float t = ClampZeroToOne(remTime / x8_interval);
+    float t = ClampZeroToOne(remTime / x8_interval.GetSeconds());
     const u32 floatsPerFrame = x40_data.x10_transPerFrame * 3 + x40_data.xc_rotPerFrame * 4;
     const u32 rotFloatsPerFrame = x40_data.xc_rotPerFrame * 4;
 
@@ -209,10 +209,10 @@ zeus::CQuaternion CAnimSource::GetRotation(const CSegId& seg, const CCharAnimTim
     if (rotIdx != 0xff)
     {
         u32 frameIdx = unsigned(time / x8_interval);
-        float remTime = time - frameIdx * x8_interval;
+        float remTime = time.GetSeconds() - frameIdx * x8_interval.GetSeconds();
         if (std::fabs(remTime) < 0.00001f)
             remTime = 0.f;
-        float t = ClampZeroToOne(remTime / x8_interval);
+        float t = ClampZeroToOne(remTime / x8_interval.GetSeconds());
 
         const u32 floatsPerFrame = x40_data.x10_transPerFrame * 3 + x40_data.xc_rotPerFrame * 4;
         const float* frameDataA =
@@ -240,10 +240,10 @@ zeus::CVector3f CAnimSource::GetOffset(const CSegId& seg, const CCharAnimTime& t
             return {};
 
         u32 frameIdx = unsigned(time / x8_interval);
-        float remTime = time - frameIdx * x8_interval;
+        float remTime = time.GetSeconds() - frameIdx * x8_interval.GetSeconds();
         if (std::fabs(remTime) < 0.00001f)
             remTime = 0.f;
-        float t = ClampZeroToOne(remTime / x8_interval);
+        float t = ClampZeroToOne(remTime / x8_interval.GetSeconds());
 
         const u32 floatsPerFrame = x40_data.x10_transPerFrame * 3 + x40_data.xc_rotPerFrame * 4;
         const u32 rotFloatsPerFrame = x40_data.xc_rotPerFrame * 4;

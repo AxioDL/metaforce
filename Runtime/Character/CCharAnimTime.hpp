@@ -36,25 +36,26 @@ public:
     }
 
     static CCharAnimTime Infinity();
-    operator float() const {return x0_time;}
+    float GetSeconds() const { return x0_time; }
 
     bool EqualsZero() const;
     bool EpsilonZero() const;
     bool GreaterThanZero() const;
     bool operator ==(const CCharAnimTime& other) const;
     bool operator !=(const CCharAnimTime& other) const;
-    bool operator>=(const CCharAnimTime& other);
-    bool operator<=(const CCharAnimTime& other);
+    bool operator>=(const CCharAnimTime& other) const;
+    bool operator<=(const CCharAnimTime& other) const;
     bool operator >(const CCharAnimTime& other) const;
     bool operator <(const CCharAnimTime& other) const;
     CCharAnimTime& operator*=(const CCharAnimTime& other);
     CCharAnimTime& operator+=(const CCharAnimTime& other);
-    CCharAnimTime operator+(const CCharAnimTime& other);
+    CCharAnimTime operator+(const CCharAnimTime& other) const;
     CCharAnimTime& operator-=(const CCharAnimTime& other);
-    CCharAnimTime operator-(const CCharAnimTime& other);
-    CCharAnimTime operator*(const CCharAnimTime& other);
-    CCharAnimTime operator*(const float& other);
-    float operator/(const CCharAnimTime& other);
+    CCharAnimTime operator-(const CCharAnimTime& other) const;
+    CCharAnimTime operator*(const CCharAnimTime& other) const;
+    CCharAnimTime operator*(const float& other) const;
+    float operator/(const CCharAnimTime& other) const;
+
 };
 }
 

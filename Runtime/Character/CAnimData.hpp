@@ -139,6 +139,7 @@ class CAnimData
     static rstl::reserved_vector<CInt32POINode, 16> g_Int32POINodes;
     static rstl::reserved_vector<CParticlePOINode, 20> g_ParticlePOINodes;
     static rstl::reserved_vector<CSoundPOINode, 20> g_SoundPOINodes;
+    static rstl::reserved_vector<CInt32POINode, 16> g_TransientInt32POINodes;
 
     int m_drawInstCount;
 
@@ -184,6 +185,7 @@ public:
     float GetAnimationDuration(int) const;
     bool GetIsLoop() const {return x220_25_loop;}
     void EnableLooping(bool val) {x220_25_loop = val; x220_24_animating = true;}
+    void EnableAnimation(bool val) {x220_24_animating = val;}
     bool IsAnimating() const {return x220_24_animating;}
     std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
     std::shared_ptr<CAnimationManager> GetAnimationManager() const;

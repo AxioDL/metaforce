@@ -11,7 +11,7 @@ CWarWasp::CWarWasp(TUniqueId uid, const std::string& name, const CEntityInfo& in
                    CPatterned::EColliderType collider, const CDamageInfo& dInfo1, const CActorParameters& actorParms,
                    ResId weapon, const CDamageInfo& dInfo2, ResId particle, u32 w3)
 : CPatterned(ECharacter::WarWasp, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer, collider,
-             EBodyType::Three, actorParms, false)
+             EBodyType::Flyer, actorParms, false)
 {
 }
 

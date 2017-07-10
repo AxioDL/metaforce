@@ -298,7 +298,7 @@ SAdvancementResults CAnimSourceReader::VGetAdvancementResults(const CCharAnimTim
 
 void CAnimSourceReader::VSetPhase(float phase)
 {
-    xc_curTime = phase * x54_source->GetDuration();
+    xc_curTime = phase * x54_source->GetDuration().GetSeconds();
     if (x54_source->GetPOIData())
     {
         UpdatePOIStates();
