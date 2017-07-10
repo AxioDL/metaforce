@@ -16,7 +16,7 @@ class CTextParser
     static u8 GetColorValue(const char16_t* str);
     static u32 FromHex(char16_t ch);
     static s32 ParseInt(const char16_t* str, int len, bool signVal);
-    static ResId GetAssetIdFromString(const char16_t* str,
+    static ResId GetAssetIdFromString(const char16_t* str, int len,
                                       const std::vector<std::pair<ResId, ResId>>* txtrMap);
     static bool Equals(const char16_t* str, int len, const char16_t* other);
     static bool BeginsWith(const char16_t* str, int len, const char16_t* other);

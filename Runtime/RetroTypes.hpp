@@ -57,6 +57,7 @@ using TAreaId = s32;
 #define kInvalidEditorId TEditorId()
 #define kInvalidUniqueId TUniqueId(-1)
 #define kInvalidAreaId TAreaId(-1)
+#define kInvalidResId ResId(-1)
 }
 
 #if 0

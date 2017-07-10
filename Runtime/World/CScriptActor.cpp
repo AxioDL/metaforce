@@ -25,7 +25,7 @@ CScriptActor::CScriptActor(TUniqueId uid, const std::string& name, const CEntity
 , x2e2_24_(b2)
 , x2e2_25_dead(false)
 , x2e2_26_animating(true)
-, x2e2_27_(std::fabs(f3 - 1.f) > 0.00001)
+, x2e2_27_(std::fabs(1.f - f3) > 0.00001)
 , x2e2_28_(false)
 , x2e2_29_((x2e2_24_ && x2e2_25_dead && x2d8_ != 0))
 , x2e2_30_transposeRotate(b4)

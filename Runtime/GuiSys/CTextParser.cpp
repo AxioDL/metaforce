@@ -240,7 +240,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
             {
                 AdvanceCommaPos();
                 texs.push_back(x0_store.GetObj({SBIG('TXTR'),
-                    GetAssetIdFromString(&iterable[tokenPos], txtrMap)}));
+                    GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)}));
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
@@ -267,7 +267,7 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
             {
                 AdvanceCommaPos();
                 texs.push_back(x0_store.GetObj({SBIG('TXTR'),
-                    GetAssetIdFromString(&iterable[tokenPos], txtrMap)}));
+                    GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)}));
                 AdvanceTokenPos();
             } while (commaPos != iterable.size());
 
@@ -286,18 +286,18 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
 
             AdvanceCommaPos();
             TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'),
-                GetAssetIdFromString(&iterable[tokenPos], txtrMap)});
+                GetAssetIdFromString(&iterable[tokenPos], len, txtrMap)});
             AdvanceTokenPos();
 
             return CFontImageDef(tex, zeus::CVector2f(cropX, cropY));
         }
     }
 
-    TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(str, txtrMap)});
+    TToken<CTexture> tex = x0_store.GetObj({SBIG('TXTR'), GetAssetIdFromString(str, len, txtrMap)});
     return CFontImageDef(tex, zeus::CVector2f(1.f, 1.f));
 }
 
-ResId CTextParser::GetAssetIdFromString(const char16_t* str,
+ResId CTextParser::GetAssetIdFromString(const char16_t* str, int len,
                                         const std::vector<std::pair<ResId, ResId>>* txtrMap)
 {
     u8 r = GetColorValue(str);
@@ -305,6 +305,15 @@ ResId CTextParser::GetAssetIdFromString(const char16_t* str,
     u8 b = GetColorValue(str + 4);
     u8 a = GetColorValue(str + 6);
     ResId id = ((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff;
+
+    if (len == 16)
+    {
+        r = GetColorValue(str + 8);
+        g = GetColorValue(str + 10);
+        b = GetColorValue(str + 12);
+        a = GetColorValue(str + 14);
+        id = (id << 32) | (((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff);
+    }
 
     if (txtrMap)
     {
@@ -319,7 +328,7 @@ ResId CTextParser::GetAssetIdFromString(const char16_t* str,
 
 TToken<CRasterFont> CTextParser::GetFont(const char16_t* str, int len)
 {
-    return x0_store.GetObj({SBIG('FONT'), GetAssetIdFromString(str, nullptr)});
+    return x0_store.GetObj({SBIG('FONT'), GetAssetIdFromString(str, len, nullptr)});
 }
 
 void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int len,

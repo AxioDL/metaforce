@@ -5,6 +5,7 @@
 #include "ScriptObjectSupport.hpp"
 #include "CGameArea.hpp"
 #include "Graphics/CModel.hpp"
+#include "Audio/CSfxManager.hpp"
 #include "AutoMapper/CMapWorld.hpp"
 
 
@@ -146,6 +147,7 @@ private:
     TLockedToken<CModel> x94_skybox;
     TLockedToken<CModel> xa4_skyboxB;
     TLockedToken<CModel> xb4_skyboxC;
+    std::vector<CSfxHandle> xc4_sfxHandles;
 
     void LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data);
     void LoadSoundGroups();
@@ -197,6 +199,7 @@ public:
     void PreRender();
     void TouchSky();
     void DrawSky(const zeus::CTransform& xf) const;
+    void StopSound(s16);
 };
 
 struct CWorldLayers
