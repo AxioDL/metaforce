@@ -61,7 +61,11 @@ enum class EAnimationState
     Scripted,
     ProjectileAttack,
     Cover,
-    WallHang
+    WallHang,
+    AdditiveIdle,
+    AdditiveAim,
+    AdditiveFlinch,
+    AdditiveReaction
 };
 
 enum class EHurledState
@@ -85,7 +89,11 @@ enum class EFallState
 
 enum class EReactionType
 {
-    Invalid = -1
+    Invalid = -1,
+    Zero,
+    One,
+    Two,
+    Three
 };
 
 enum class EAdditiveReactionType
@@ -242,7 +250,7 @@ enum class EBodyStateCmd
     Cover,
     WallHang,
     Locomotion,
-    TwentyThree,
+    AdditiveIdle,
     AdditiveAim,
     AdditiveFlinch,
     AdditiveReaction,

@@ -37,11 +37,10 @@ std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& da
 
 std::pair<float, s32> CPASDatabase::FindBestAnimation(const CPASAnimParmData& data, CRandom16& rand, s32 ignoreAnim) const
 {
-    CPASAnimState key(data.GetStateId());
-    auto it = std::lower_bound(x0_states.cbegin(), x0_states.cend(), key,
-    [](const CPASAnimState& item, const CPASAnimState& test) -> bool {return item.GetStateId() < test.GetStateId();});
+    auto it = rstl::binary_find(x0_states.cbegin(), x0_states.cend(), data.GetStateId(),
+    [](const CPASAnimState& item) {return item.GetStateId();});
 
-    if (it == x0_states.cend() || it->GetStateId() > key.GetStateId())
+    if (it == x0_states.cend())
         return {0.f, -1};
 
     return (*it).FindBestAnimation(data.GetAnimParmData(), rand, ignoreAnim);

@@ -11,11 +11,9 @@ class CEnergyDrainSource
     float x4_intensity;
 public:
     CEnergyDrainSource(TUniqueId src, float intensity);
-    TUniqueId GetEnergyDrainSourceId() const;
-    void SetEnergyDrainIntensity(float);
-    float GetEnergyDrainIntensity() const;
-
-    bool operator<(const CEnergyDrainSource& other) const;
+    TUniqueId GetEnergyDrainSourceId() const { return x0_source; }
+    void SetEnergyDrainIntensity(float in) { x4_intensity = in; }
+    float GetEnergyDrainIntensity() const { return x4_intensity; }
 };
 }
 #endif // __URDE_CENERGYDRAINSOURCE_HPP__

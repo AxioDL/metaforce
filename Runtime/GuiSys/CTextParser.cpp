@@ -317,9 +317,9 @@ ResId CTextParser::GetAssetIdFromString(const char16_t* str, int len,
 
     if (txtrMap)
     {
-        auto search = std::lower_bound(txtrMap->begin(), txtrMap->end(), id,
-        [](const std::pair<ResId, ResId>& a, ResId test) { return a.first < test; });
-        if (search != txtrMap->end() && search->first == id)
+        auto search = rstl::binary_find(txtrMap->begin(), txtrMap->end(), id,
+        [](const std::pair<ResId, ResId>& a) { return a.first; });
+        if (search != txtrMap->end())
             id = search->second;
     }
 

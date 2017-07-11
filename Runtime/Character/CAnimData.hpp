@@ -162,10 +162,12 @@ public:
     SAdvancementDeltas AdvanceAdditiveAnims(float);
     SAdvancementDeltas UpdateAdditiveAnims(float);
     bool IsAdditiveAnimation(u32) const;
-    std::shared_ptr<CAnimTreeNode> GetAdditiveAnimationTree(u32) const;
+    bool IsAdditiveAnimationAdded(u32) const;
+    const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(u32) const;
     bool IsAdditiveAnimationActive(u32) const;
     void DelAdditiveAnimation(u32);
     void AddAdditiveAnimation(u32, float, bool, bool);
+    float GetAdditiveAnimationWeight(u32 idx) const;
     std::shared_ptr<CAnimationManager> GetAnimationManager();
     const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }
     const CCharLayoutInfo& GetCharLayoutInfo() const { return *xcc_layoutData.GetObj(); }

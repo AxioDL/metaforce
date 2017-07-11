@@ -150,12 +150,22 @@ ResId CCharacterFactory::GetEventResourceIdForAnimResourceId(ResId id) const
 
 const CAdditiveAnimationInfo& CCharacterFactory::FindAdditiveInfo(u32 idx) const
 {
-    auto search = std::lower_bound(x40_additiveInfo.cbegin(), x40_additiveInfo.cend(), idx,
-    [](const auto& anim, u32 test) -> bool { return anim.first < test; });
+    auto search = rstl::binary_find(x40_additiveInfo.cbegin(), x40_additiveInfo.cend(), idx,
+    [](const auto& anim) { return anim.first; });
 
-    if (search == x40_additiveInfo.cend() || idx != search->first)
+    if (search == x40_additiveInfo.cend())
         return x50_defaultAdditiveInfo;
     return search->second;
+}
+
+bool CCharacterFactory::HasAdditiveInfo(u32 idx) const
+{
+    auto search = rstl::binary_find(x40_additiveInfo.cbegin(), x40_additiveInfo.cend(), idx,
+    [](const auto& anim) { return anim.first; });
+
+    if (search == x40_additiveInfo.cend())
+        return false;
+    return true;
 }
 
 std::vector<CCharacterInfo>

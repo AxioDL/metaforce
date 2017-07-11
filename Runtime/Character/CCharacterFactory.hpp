@@ -72,6 +72,7 @@ public:
 
     const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }
     const CAdditiveAnimationInfo& FindAdditiveInfo(u32 idx) const;
+    bool HasAdditiveInfo(u32 idx) const;
 };
 
 }

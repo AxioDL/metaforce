@@ -169,8 +169,8 @@ static const CCharacterIdentifier gCantEndChars[] =
 
 int CWordBreakTables::GetBeginRank(wchar_t ch)
 {
-    auto search = std::lower_bound(std::cbegin(gCantBeginChars), std::cend(gCantBeginChars), ch,
-    [](const CCharacterIdentifier& item, const wchar_t& test) -> bool {return item.chr < test;});
+    auto search = rstl::binary_find(std::cbegin(gCantBeginChars), std::cend(gCantBeginChars), ch,
+    [](const CCharacterIdentifier& item) {return item.chr;});
     if (search == std::cend(gCantBeginChars))
         return 5;
     return search->rank;
@@ -178,8 +178,8 @@ int CWordBreakTables::GetBeginRank(wchar_t ch)
 
 int CWordBreakTables::GetEndRank(wchar_t ch)
 {
-    auto search = std::lower_bound(std::cbegin(gCantEndChars), std::cend(gCantEndChars), ch,
-    [](const CCharacterIdentifier& item, const wchar_t& test) -> bool {return item.chr < test;});
+    auto search = rstl::binary_find(std::cbegin(gCantEndChars), std::cend(gCantEndChars), ch,
+    [](const CCharacterIdentifier& item) {return item.chr;});
     if (search == std::cend(gCantEndChars))
         return 5;
     return search->rank;

@@ -72,18 +72,18 @@ public:
 
     ResId TranslateOriginalToNew(ResId id) const
     {
-        auto search = std::lower_bound(m_origToNew.cbegin(), m_origToNew.cend(), id,
-        [](const auto& id, ResId test) -> bool { return id.first < test; });
-        if (search == m_origToNew.cend() || search->first != id)
+        auto search = rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id,
+        [](const auto& id) { return id.first; });
+        if (search == m_origToNew.cend())
             return -1;
         return search->second;
     }
 
     ResId TranslateNewToOriginal(ResId id) const
     {
-        auto search = std::lower_bound(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
-        [](const auto& id, ResId test) -> bool { return id.first < test; });
-        if (search == m_newToOrig.cend() || search->first != id)
+        auto search = rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
+        [](const auto& id) { return id.first; });
+        if (search == m_newToOrig.cend())
             return -1;
         return search->second;
     }

@@ -188,6 +188,12 @@ SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt)
 
 bool CAnimData::IsAdditiveAnimation(u32 idx) const
 {
+    u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+    return x0_charFactory->HasAdditiveInfo(animIdx);
+}
+
+bool CAnimData::IsAdditiveAnimationAdded(u32 idx) const
+{
     auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
                                [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool {
         return pair.first == idx;
@@ -197,14 +203,12 @@ bool CAnimData::IsAdditiveAnimation(u32 idx) const
     return true;
 }
 
-std::shared_ptr<CAnimTreeNode> CAnimData::GetAdditiveAnimationTree(u32 idx) const
+const std::shared_ptr<CAnimTreeNode>& CAnimData::GetAdditiveAnimationTree(u32 idx) const
 {
     auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
                                [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool {
         return pair.first == idx;
     });
-    if (search == x434_additiveAnims.cend())
-        return {};
     return search->second.GetAnim();
 }
 
@@ -215,7 +219,7 @@ bool CAnimData::IsAdditiveAnimationActive(u32 idx) const
         return pair.first == idx;
     });
     if (search == x434_additiveAnims.cend())
-        return {};
+        return false;
     return search->second.IsActive();
 }
 
@@ -255,6 +259,17 @@ void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool b)
 
     const CAdditiveAnimationInfo& info = x0_charFactory->FindAdditiveInfo(animIdx);
     x434_additiveAnims.emplace_back(std::make_pair(idx, CAdditiveAnimPlayback(node, weight, active, info, b)));
+}
+
+float CAnimData::GetAdditiveAnimationWeight(u32 idx) const
+{
+    u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+    for (const std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims)
+    {
+        if (anim.first == animIdx)
+            return anim.second.GetTargetWeight();
+    }
+    return 0.f;
 }
 
 std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager()

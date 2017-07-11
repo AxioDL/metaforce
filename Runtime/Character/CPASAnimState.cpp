@@ -62,11 +62,9 @@ CPASAnimState::CPASAnimState(int stateId)
 
 CPASAnimParm CPASAnimState::GetAnimParmData(s32 animId, u32 parmIdx) const
 {
-    CPASAnimInfo key(animId);
-    auto search = std::lower_bound(x14_anims.begin(), x14_anims.end(), key,
-                                   [](const CPASAnimInfo& item, const CPASAnimInfo& testId) ->
-                                   bool {return item.GetAnimId() < testId.GetAnimId();});
-    if (search == x14_anims.end() || search->GetAnimId() > animId)
+    auto search = rstl::binary_find(x14_anims.begin(), x14_anims.end(), animId,
+        [](const CPASAnimInfo& item) {return item.GetAnimId();});
+    if (search == x14_anims.end())
         return CPASAnimParm::NoParameter();
 
     CPASParmInfo parm = x4_parms.at(parmIdx);

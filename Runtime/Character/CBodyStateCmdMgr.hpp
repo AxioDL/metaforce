@@ -233,21 +233,25 @@ public:
 
 class CBCAdditiveFlinchCmd : public CBodyStateCmd
 {
-    float x8_ = 1.f;
+    float x8_weight = 1.f;
 public:
     CBCAdditiveFlinchCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch) {}
-    CBCAdditiveFlinchCmd(float f) : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch), x8_(f) {}
+    CBCAdditiveFlinchCmd(float f) : CBodyStateCmd(EBodyStateCmd::AdditiveFlinch), x8_weight(f) {}
+    float GetWeight() const { return x8_weight; }
 };
 
 class CBCAdditiveReactionCmd : public CBodyStateCmd
 {
-    float x8_ = 1.f;
+    float x8_weight = 1.f;
     pas::EReactionType xc_type = pas::EReactionType::Invalid;
-    bool x10_ = false;
+    bool x10_active = false;
 public:
     CBCAdditiveReactionCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveReaction) {}
     CBCAdditiveReactionCmd(pas::EReactionType type, float f)
-    : CBodyStateCmd(EBodyStateCmd::AdditiveReaction), x8_(f), xc_type(type) {}
+    : CBodyStateCmd(EBodyStateCmd::AdditiveReaction), x8_weight(f), xc_type(type) {}
+    pas::EReactionType GetType() const { return xc_type; }
+    float GetWeight() const { return x8_weight; }
+    bool GetIsActive() const { return x10_active; }
 };
 
 class CBCLoopAttackCmd : public CBodyStateCmd
@@ -327,7 +331,7 @@ class CBodyStateCmdMgr
     CBCCoverCmd x230_cover;
     CBCWallHangCmd x254_wallHang;
     CBodyStateCmd x260_ = {EBodyStateCmd::Locomotion};
-    CBodyStateCmd x268_ = {EBodyStateCmd::TwentyThree};
+    CBodyStateCmd x268_ = {EBodyStateCmd::AdditiveIdle};
     CBCAdditiveAimCmd x270_additiveAim;
     CBCAdditiveFlinchCmd x278_additiveFlinch;
     CBCAdditiveReactionCmd x284_additiveReaction;

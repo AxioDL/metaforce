@@ -44,6 +44,21 @@ public:
     T& operator[](size_t idx) { return x4_data[idx]; }
     const T& operator[](size_t idx) const { return x4_data[idx]; }
 };
+
+template<class ForwardIt, class T>
+ForwardIt binary_find(ForwardIt first, ForwardIt last, const T& value)
+{
+    first = std::lower_bound(first, last, value);
+    return (!(first == last) && !(value < *first)) ? first : last;
+}
+
+template<class ForwardIt, class T, class GetKey>
+ForwardIt binary_find(ForwardIt first, ForwardIt last, const T& value, GetKey getkey)
+{
+    auto comp = [&](const auto& left, const T& right) { return getkey(left) < right; };
+    first = std::lower_bound(first, last, value, comp);
+    return (!(first == last) && !(value < getkey(*first))) ? first : last;
+}
 }
 
 #endif // __RSTL_HPP__

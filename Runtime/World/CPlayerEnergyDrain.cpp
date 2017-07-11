@@ -10,7 +10,8 @@ void CPlayerEnergyDrain::AddEnergyDrainSource(TUniqueId id, float intensity) { x
 
 void CPlayerEnergyDrain::RemoveEnergyDrainSource(TUniqueId id)
 {
-    auto it = std::lower_bound(x0_sources.begin(), x0_sources.end(), CEnergyDrainSource(id, 0.f));
+    auto it = rstl::binary_find(x0_sources.begin(), x0_sources.end(), id,
+        [](const CEnergyDrainSource& item) {return item.GetEnergyDrainSourceId();});
     if (it != x0_sources.end())
         x0_sources.erase(it);
 }
