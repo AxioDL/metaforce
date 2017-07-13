@@ -41,6 +41,20 @@ include(DNAMP3/CMakeLists.txt)
 # Embed master shader script
 bintoc(RetroMasterShader.c Blender/RetroMasterShader.py RETRO_MASTER_SHADER)
 
+if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin")
+    message(STATUS "Downloading 32bit ID map to '${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin'")
+    file(DOWNLOAD "https://www.dropbox.com/s/8rzkxstfap6hgi3/AssetNameMap32.dat"
+         ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin SHOW_PROGRESS)
+endif()
+bintoc(AssetNameMap32.c ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin ASSET_NAME_MP32)
+
+if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin")
+    message(STATUS "Downloading 64bit ID map to '${CMAKE_CURRENT_BINARY_DIR}/DNAMP3/AssetNameMap64.bin'")
+    file(DOWNLOAD "https://www.dropbox.com/s/o1pp3ctu5dyhfwx/AssetNameMap64.dat"
+    ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin SHOW_PROGRESS)
+endif()
+bintoc(AssetNameMap64.c ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin ASSET_NAME_MP64)
+
 # Each game's DataSpec implementation
 add_library(RetroDataSpec
             SpecBase.cpp
@@ -55,4 +69,8 @@ add_library(RetroDataSpec
             Blender/BlenderSupport.hpp
             Blender/BlenderSupport.cpp
             Blender/RetroMasterShader.py
+            AssetNameMap.hpp
+            AssetNameMap.cpp
+            AssetNameMap32.bin AssetNameMap32.c
+            AssetNameMap64.bin AssetNameMap64.c
             RetroMasterShader.c)

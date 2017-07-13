@@ -8,6 +8,7 @@
 #include "hecl/Blender/BlenderConnection.hpp"
 #include "DNACommon/DNACommon.hpp"
 #include "DNACommon/TXTR.hpp"
+#include "AssetNameMap.hpp"
 
 #include <time.h>
 #include <png.h>
@@ -38,6 +39,7 @@ SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Databas
 : hecl::Database::IDataSpec(specEntry), m_project(project), m_pc(pc),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend")
 {
+    AssetNameMap::InitAssetNameMap();
     DataSpec::UniqueIDBridge::setThreadProject(m_project);
 }
 
