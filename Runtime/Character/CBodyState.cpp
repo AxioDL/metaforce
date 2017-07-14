@@ -3,7 +3,6 @@
 #include "World/CActor.hpp"
 #include "CStateManager.hpp"
 #include "TCastTo.hpp"
-#include "World/CPhysicsActor.hpp"
 #include "CPASAnimParmData.hpp"
 #include "World/CPatterned.hpp"
 

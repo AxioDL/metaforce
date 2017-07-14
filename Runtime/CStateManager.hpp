@@ -424,6 +424,7 @@ public:
     CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
     CCameraManager* GetCameraManager() const { return x870_cameraManager; }
     CFluidPlaneManager* GetFluidPlaneManager() const { return x87c_fluidPlaneManager; }
+    CActorModelParticles* GetActorModelParticles() const { return x884_actorModelParticles; }
 
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
     const std::shared_ptr<CWorldLayerState>& LayerState() const { return x8c8_worldLayerState; }

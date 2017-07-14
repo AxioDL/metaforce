@@ -156,9 +156,7 @@ struct SpecMP1 : SpecBase
 {
     bool checkStandaloneID(const char* id) const
     {
-        if (!memcmp(id, "GM8", 3))
-            return true;
-        return false;
+        return !memcmp(id, "GM8", 3);
     }
 
     std::vector<const nod::Node*> m_nonPaks;

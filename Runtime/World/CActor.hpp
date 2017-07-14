@@ -125,6 +125,7 @@ public:
     virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt);
 
     void RemoveEmitter();
+    void SetVolume(float vol);
     const zeus::CTransform& GetTransform() const { return x34_transform; }
     const zeus::CVector3f& GetTranslation() const { return x34_transform.origin; }
     const zeus::CTransform GetScaledLocatorTransform(const std::string& segName) const;

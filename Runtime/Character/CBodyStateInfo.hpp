@@ -13,11 +13,11 @@ class CActor;
 class CBodyStateInfo
 {
     friend class CBodyController;
-    std::map<int, std::unique_ptr<CBodyState>> x0_stateMap;
-    int x14_ = -1;
+    std::map<pas::EAnimationState, std::unique_ptr<CBodyState>> x0_stateMap;
+    pas::EAnimationState x14_state = pas::EAnimationState::Invalid;
     CBodyController* x18_bodyController = nullptr;
-    std::vector<std::pair<int, std::unique_ptr<CAdditiveBodyState>>> x1c_additiveStates;
-    u32 x2c_ = 0x15;
+    std::vector<std::pair<pas::EAnimationState, std::unique_ptr<CAdditiveBodyState>>> x1c_additiveStates;
+    pas::EAnimationState x2c_additiveState = pas::EAnimationState::AdditiveIdle;
     float x30_maxPitch = 0.f;
     bool x34_24_changeLocoAtEndOfAnimOnly;
     std::unique_ptr<CBodyState> SetupRestrictedFlyerBodyStates(int stateId, CActor& actor);
@@ -34,6 +34,14 @@ public:
     float GetMaximumPitch() const { return x30_maxPitch; }
     bool GetLocoAnimChangeAtEndOfAnimOnly() const { return x34_24_changeLocoAtEndOfAnimOnly; }
     void SetLocoAnimChangeAtEndOfAnimOnly(bool s) { x34_24_changeLocoAtEndOfAnimOnly = s; }
+    CBodyState* GetCurrentState();
+    const CBodyState* GetCurrentState() const;
+    pas::EAnimationState GetCurrentStateId() const { return x14_state; }
+    void SetState(pas::EAnimationState s);
+    CAdditiveBodyState* GetCurrentAdditiveState();
+    pas::EAnimationState GetCurrentAdditiveStateId() const { return x2c_additiveState; }
+    void SetAdditiveState(pas::EAnimationState s);
+    bool ApplyHeadTracking() const;
 };
 
 }

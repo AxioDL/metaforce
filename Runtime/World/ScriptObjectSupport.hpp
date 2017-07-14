@@ -168,7 +168,7 @@ enum class EScriptObjectState
     ScanStart,
     ScanProcessing,
     ScanDone,
-    UNKS9,
+    UnFrozen,
     DFST,
     ReflectedDamage,
     InheritBounds

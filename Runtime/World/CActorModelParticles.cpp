@@ -184,4 +184,9 @@ std::list<CActorModelParticles::CItem>::const_iterator CActorModelParticles::Fin
     return x0_items.cend();
 }
 
+void CActorModelParticles::StartIce(CActor& actor, CStateManager& mgr)
+{
+
+}
+
 }

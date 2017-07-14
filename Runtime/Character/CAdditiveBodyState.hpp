@@ -61,7 +61,7 @@ class CABSReaction : public CAdditiveBodyState
 {
     float x4_weight = 1.f;
     s32 x8_anim = -1;
-    pas::EReactionType xc_type = pas::EReactionType::Invalid;
+    pas::EAdditiveReactionType xc_type = pas::EAdditiveReactionType::Invalid;
     bool x10_active = false;
     pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
     void StopAnimation(CBodyController& bc);

@@ -243,13 +243,14 @@ public:
 class CBCAdditiveReactionCmd : public CBodyStateCmd
 {
     float x8_weight = 1.f;
-    pas::EReactionType xc_type = pas::EReactionType::Invalid;
+    pas::EAdditiveReactionType xc_type = pas::EAdditiveReactionType::Invalid;
     bool x10_active = false;
 public:
     CBCAdditiveReactionCmd() : CBodyStateCmd(EBodyStateCmd::AdditiveReaction) {}
-    CBCAdditiveReactionCmd(pas::EReactionType type, float f)
-    : CBodyStateCmd(EBodyStateCmd::AdditiveReaction), x8_weight(f), xc_type(type) {}
-    pas::EReactionType GetType() const { return xc_type; }
+    CBCAdditiveReactionCmd(pas::EAdditiveReactionType type, float f, bool active)
+    : CBodyStateCmd(EBodyStateCmd::AdditiveReaction), x8_weight(f),
+      xc_type(type), x10_active(active) {}
+    pas::EAdditiveReactionType GetType() const { return xc_type; }
     float GetWeight() const { return x8_weight; }
     bool GetIsActive() const { return x10_active; }
 };
@@ -335,7 +336,7 @@ class CBodyStateCmdMgr
     CBCAdditiveAimCmd x270_additiveAim;
     CBCAdditiveFlinchCmd x278_additiveFlinch;
     CBCAdditiveReactionCmd x284_additiveReaction;
-    CBodyStateCmd x298_ = {EBodyStateCmd::TwentySeven};
+    CBodyStateCmd x298_ = {EBodyStateCmd::StopReaction};
     void DeliverCmd(EBodyStateCmd cmd) { xb4_deliveredCmdMask |= (1 << int(cmd)); }
 public:
     CBodyStateCmdMgr();

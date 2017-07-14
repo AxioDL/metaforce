@@ -133,6 +133,12 @@ void CActor::RemoveEmitter()
     }
 }
 
+void CActor::SetVolume(float vol)
+{
+    if (x8c_loopingSfxHandle)
+        CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, GetTranslation(), zeus::CVector3f::skZero, vol);
+}
+
 const zeus::CTransform CActor::GetScaledLocatorTransform(const std::string& segName) const
 {
     return x64_modelData->GetScaledLocatorTransform(segName);

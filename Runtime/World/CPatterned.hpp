@@ -82,6 +82,17 @@ private:
         u32 _dummy = 0;
     };
     ECharacter x34c_character;
+
+    union
+    {
+        struct
+        {
+            bool x4e1_24_ : 1;
+            bool x4e1_25_ : 1;
+            bool x4e1_26_ : 1;
+        };
+        u32 _dummy2 = 0;
+    };
 public:
     CPatterned(ECharacter character, TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,

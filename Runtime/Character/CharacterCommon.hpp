@@ -98,7 +98,11 @@ enum class EReactionType
 
 enum class EAdditiveReactionType
 {
-
+    Invalid = -1,
+    Electrocution,
+    One,
+    Two,
+    IceBreakout
 };
 
 enum class EJumpType
@@ -254,7 +258,7 @@ enum class EBodyStateCmd
     AdditiveAim,
     AdditiveFlinch,
     AdditiveReaction,
-    TwentySeven
+    StopReaction
 };
 
 }

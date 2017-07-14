@@ -42,14 +42,14 @@ CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type)
         }
 
         if (bs)
-            x0_stateMap[state->GetStateId()] = std::move(bs);
+            x0_stateMap[pas::EAnimationState(state->GetStateId())] = std::move(bs);
     }
 
     x1c_additiveStates.reserve(4);
-    x1c_additiveStates.push_back({21, std::make_unique<CABSIdle>()});
-    x1c_additiveStates.push_back({22, std::make_unique<CABSAim>()});
-    x1c_additiveStates.push_back({23, std::make_unique<CABSFlinch>()});
-    x1c_additiveStates.push_back({24, std::make_unique<CABSReaction>()});
+    x1c_additiveStates.push_back({pas::EAnimationState::AdditiveIdle, std::make_unique<CABSIdle>()});
+    x1c_additiveStates.push_back({pas::EAnimationState::AdditiveAim, std::make_unique<CABSAim>()});
+    x1c_additiveStates.push_back({pas::EAnimationState::AdditiveFlinch, std::make_unique<CABSFlinch>()});
+    x1c_additiveStates.push_back({pas::EAnimationState::AdditiveReaction, std::make_unique<CABSReaction>()});
 }
 
 std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(int stateId, CActor& actor)
@@ -389,7 +389,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupBiPedalBodyStates(int stateId, 
 
 float CBodyStateInfo::GetLocomotionSpeed(pas::ELocomotionAnim anim) const
 {
-    auto search = x0_stateMap.find(5);
+    auto search = x0_stateMap.find(pas::EAnimationState::Locomotion);
     if (search != x0_stateMap.cend() && search->second && x18_bodyController)
     {
         const CBSLocomotion& bs = static_cast<const CBSLocomotion&>(*search->second);
@@ -411,6 +411,59 @@ float CBodyStateInfo::GetMaxSpeed() const
         }
     }
     return ret;
+}
+
+CBodyState* CBodyStateInfo::GetCurrentState()
+{
+    auto search = x0_stateMap.find(x14_state);
+    if (search == x0_stateMap.end())
+        return nullptr;
+    return search->second.get();
+}
+
+const CBodyState* CBodyStateInfo::GetCurrentState() const
+{
+    auto search = x0_stateMap.find(x14_state);
+    if (search == x0_stateMap.end())
+        return nullptr;
+    return search->second.get();
+}
+
+void CBodyStateInfo::SetState(pas::EAnimationState s)
+{
+    auto search = x0_stateMap.find(s);
+    if (search == x0_stateMap.end())
+        return;
+    x14_state = s;
+}
+
+CAdditiveBodyState* CBodyStateInfo::GetCurrentAdditiveState()
+{
+    for (auto& state : x1c_additiveStates)
+    {
+        if (x2c_additiveState == state.first)
+            return state.second.get();
+    }
+    return nullptr;
+}
+
+void CBodyStateInfo::SetAdditiveState(pas::EAnimationState s)
+{
+    for (auto& state : x1c_additiveStates)
+    {
+        if (s == state.first)
+        {
+            x2c_additiveState = s;
+            return;
+        }
+    }
+}
+
+bool CBodyStateInfo::ApplyHeadTracking() const
+{
+    if (x14_state == pas::EAnimationState::Invalid)
+        return false;
+    return GetCurrentState()->ApplyHeadTracking();
 }
 
 }

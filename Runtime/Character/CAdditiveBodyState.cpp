@@ -175,7 +175,7 @@ void CABSReaction::Start(CBodyController& bc, CStateManager& mgr)
 pas::EAnimationState CABSReaction::GetBodyStateTransition(float dt, CBodyController& bc)
 {
     if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveReaction) &&
-        xc_type == pas::EReactionType::Three)
+        xc_type == pas::EAdditiveReactionType::IceBreakout)
         return pas::EAnimationState::AdditiveReaction;
     return pas::EAnimationState::Invalid;
 }
@@ -191,7 +191,7 @@ pas::EAnimationState CABSReaction::UpdateBody(float dt, CBodyController& bc, CSt
         CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
         if (x10_active)
         {
-            if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::TwentySeven))
+            if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::StopReaction))
             {
                 StopAnimation(bc);
                 bc.GetOwner().RemoveEmitter();

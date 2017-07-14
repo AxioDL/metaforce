@@ -15,6 +15,7 @@ class CTexture;
 class CElectricDescription;
 class CGenDescription;
 class CParticleElectric;
+class CActor;
 
 class CActorModelParticles
 {
@@ -92,6 +93,7 @@ public:
     void Update(float dt, CStateManager& mgr);
     void SetupHook(TUniqueId uid);
     std::list<CItem>::const_iterator FindSystem(TUniqueId uid) const;
+    void StartIce(CActor& actor, CStateManager& mgr);
 };
 }
 
