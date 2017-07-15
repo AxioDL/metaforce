@@ -19,7 +19,7 @@ void CDependencyGroup::ReadFromStream(CInputStream& in)
 CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& /*tag*/, CInputStream& in, const CVParamTransfer& /*param*/,
                                          CObjectReference* selfRef)
 {
-    return TToken<CDependencyGroup>::GetIObjObjectFor(std::unique_ptr<CDependencyGroup>(new CDependencyGroup(in)));
+    return TToken<CDependencyGroup>::GetIObjObjectFor(std::make_unique<CDependencyGroup>(in));
 }
 
 }
