@@ -22,6 +22,7 @@
 
 namespace urde
 {
+class CFinalInput;
 
 class CPlayerGun
 {
@@ -222,6 +223,7 @@ public:
     void SetX3e8(const zeus::CTransform& xf) { x3e8_ = xf; }
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
     void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
+    void ProcessInput(const CFinalInput& input, CStateManager& mgr);
 };
 
 }

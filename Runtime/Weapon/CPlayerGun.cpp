@@ -46,4 +46,9 @@ void CPlayerGun::DamageRumble(const zeus::CVector3f& location, float damage, con
     x3dc_damageLocation = location;
 }
 
+void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr)
+{
+
+}
+
 }

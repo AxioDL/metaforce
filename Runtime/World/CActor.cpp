@@ -276,11 +276,11 @@ bool CActor::HasModelData() const { return bool(x64_modelData); }
 void CActor::SetSoundEventPitchBend(s32 val)
 {
     xe6_30_enablePitchBend = true;
-    xc0_pitchBend = val / 8192.f;
+    xc0_pitchBend = val / 8192.f - 1.f;
     if (!x8c_loopingSfxHandle)
         return;
 
-    CSfxManager::PitchBend(x8c_loopingSfxHandle, val);
+    CSfxManager::PitchBend(x8c_loopingSfxHandle, xc0_pitchBend);
 }
 
 void CActor::SetRotation(const zeus::CQuaternion &q)

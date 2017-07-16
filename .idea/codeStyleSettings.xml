@@ -5,6 +5,9 @@
       <value>
         <Objective-C>
           <option name="INDENT_NAMESPACE_MEMBERS" value="0" />
+          <option name="NAMESPACE_BRACE_PLACEMENT" value="5" />
+          <option name="FUNCTION_BRACE_PLACEMENT" value="5" />
+          <option name="BLOCK_BRACE_PLACEMENT" value="5" />
           <option name="SPACE_WITHIN_TEMPLATE_DOUBLE_GT" value="false" />
           <option name="SPACE_BEFORE_POINTER_IN_DECLARATION" value="false" />
           <option name="SPACE_AFTER_POINTER_IN_DECLARATION" value="true" />
@@ -37,6 +40,9 @@
           </extensions>
         </Objective-C-extensions>
         <codeStyleSettings language="ObjectiveC">
+          <option name="BRACE_STYLE" value="5" />
+          <option name="CLASS_BRACE_STYLE" value="5" />
+          <option name="INDENT_CASE_FROM_SWITCH" value="false" />
           <indentOptions>
             <option name="CONTINUATION_INDENT_SIZE" value="4" />
           </indentOptions>

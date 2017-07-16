@@ -171,7 +171,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x2f0_;
     Value<bool>  x2f4_;
     Value<float> x2f8_;
-    Value<atUint32> x2fc_;
+    Value<atUint32> x2fc_iceBreakPressCount;
     Value<float> x300_variaDamageReduction;
     Value<float> x304_gravityDamageReduction;
     Value<float> x308_phazonDamageReduction;
@@ -215,6 +215,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetLeftLogicalThreshold() const { return x150_leftDiv; }
     float GetRightLogicalThreshold() const { return x154_rightDiv; }
     float GetX164(int type) const { return x164_[type]; }
+    uint32_t GetIceBreakPressCount() const { return x2fc_iceBreakPressCount; }
     float GetVariaDamageReduction() const { return x300_variaDamageReduction; }
     float GetGravityDamageReduction() const { return x304_gravityDamageReduction; }
     float GetPhazonDamageReduction() const { return x308_phazonDamageReduction; }

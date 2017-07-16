@@ -245,4 +245,14 @@ CFinalInput& CFinalInput::operator|=(const CFinalInput& other)
     x2e_b31_PStart |= other.x2e_b31_PStart;
     return *this;
 }
+
+CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) const
+{
+    CFinalInput ret = *this;
+    ret.x8_anaLeftX = zeus::clamp(-1.f, x8_anaLeftX / leftDiv, 1.f);
+    ret.xc_anaLeftY = zeus::clamp(-1.f, xc_anaLeftY / leftDiv, 1.f);
+    ret.x10_anaRightX = zeus::clamp(-1.f, x10_anaRightX / rightDiv, 1.f);
+    ret.x14_anaRightY = zeus::clamp(-1.f, x14_anaRightY / rightDiv, 1.f);
+    return ret;
+}
 }

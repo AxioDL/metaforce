@@ -151,6 +151,8 @@ public:
     float ARightY() const {return x14_anaRightY;}
     float ALeftTrigger() const {return x18_anaLeftTrigger;}
     float ARightTrigger() const {return x1c_anaRightTrigger;}
+
+    CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
 };
 
 }

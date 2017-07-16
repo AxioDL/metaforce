@@ -20,6 +20,7 @@ class IVisitor;
 class CFinalInput;
 class CPlayerCameraBob;
 class CFirstPersonCamera;
+class CCollidableSphere;
 
 class CPlayer : public CPhysicsActor
 {
@@ -130,7 +131,7 @@ private:
         float x10_ = 0.f;
         float x14_ = 0.f;
         float x18_ = 0.f;
-        ResId x1c_ = -1;
+        ResId x1c_ = kInvalidResId;
         float x20_alpha = 0.f;
         float x24_ = 0.f;
         bool x28_ = false;
@@ -143,7 +144,7 @@ private:
         float GetAlpha() const { return x20_alpha; }
     };
 
-    class CInputFilter
+    class CFailsafeTest
     {
     public:
         enum class EInputState
@@ -244,19 +245,20 @@ private:
     float x48c_ = 0.f;
     std::unique_ptr<CPlayerGun> x490_gun;
     float x494_mapAlpha = 1.f;
+    u32 x498_ = 2;
     float x49c_gunNotFiringTimeout;
-    std::unique_ptr<CInputFilter> x4a0_inputFilter;
+    std::unique_ptr<CFailsafeTest> x4a0_failsafeTest;
     u32 x4a4_ = 0;
     float x4f8_ = 0.f;
     float x4fc_ = 0.f;
     zeus::CVector3f x500_ = x34_transform.basis[1];
     zeus::CVector3f x50c_ = x34_transform.basis[1];
-    zeus::CVector3f x518_ = x34_transform.basis[1];
+    zeus::CVector3f x518_leaveMorphDir = x34_transform.basis[1];
     zeus::CVector3f x524_ = x34_transform.basis[1];
     zeus::CVector3f x530_ = x34_transform.basis[1];
-    zeus::CVector3f x53c_ = x34_transform.basis[1];
-    zeus::CVector3f x548_ = x34_transform.basis[1];
-    float x554_ = x34_transform.basis[1].x;
+    float x53c_ = 0.f;
+    zeus::CVector3f x540_ = x34_transform.basis[1];
+    zeus::CVector3f x54c_ = x34_transform.basis[1];
     bool x558_wasDamaged = false;
     float x55c_damageAmt = 0.f;
     float x560_prevDamageAmt = 0.f;
@@ -275,8 +277,8 @@ private:
     float x744_ = 0.f;
     float x748_ = 0.f;
     float x74c_visorStaticAlpha = 1.f;
-    float x750_ = 0.f;
-    u32 x754_ = 0;
+    float x750_frozenTimeout = 0.f;
+    u32 x754_iceBreakPresses = 0;
     float x758_ = 0.f;
     u32 x75c_ = 0;
     bool x760_controlsFrozen = false;
@@ -347,9 +349,7 @@ private:
     float x9cc_ = 0.f;
     u32 x9d0_ = 0;
     u32 x9d4_ = 0;
-    float x9d8_ = 0.f;
-    float x9dc_ = 1.f;
-    float x9e0_ = 0.f;
+    zeus::CVector3f x9d8_ = zeus::CVector3f::skForward;
     rstl::reserved_vector<TUniqueId, 5> x9e4_orbitDisableList;
 
     float x9f4_deathTime = 0.f;
@@ -419,23 +419,33 @@ public:
     void CalculateRenderBounds();
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&);
     void ComputeFreeLook(const CFinalInput& input);
+    void UpdateFreeLookState(const CFinalInput&, float dt, CStateManager&);
     void UpdateFreeLook(float dt);
     float GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const;
     void ProcessInput(const CFinalInput&, CStateManager&);
+    bool ShouldSampleFailsafe(CStateManager& mgr) const;
+    void CalculateLeaveMorphBallDirection(const CFinalInput& input);
+    void CalculatePlayerControlDirection(CStateManager& mgr);
+    void CalculatePlayerMovementDirection(float dt);
     void Stop(CStateManager& stateMgr);
     bool GetFrozenState() const;
+    void UpdateFrozenState(const CFinalInput& input, CStateManager& mgr);
     void Think(float, CStateManager&);
     void PreThink(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-    void SetVisorSteam(float, float, float, u32, bool);
-    void UpdateFootstepBounds(const CFinalInput& input, CStateManager&, float);
+    void SetVisorSteam(float, float, float, ResId, bool);
+    void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
     u16 GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, u32, u16);
     u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
     void UpdateCrosshairsState(const CFinalInput&);
     void UpdateVisorTransition(float, CStateManager& mgr);
     void UpdateVisorState(const CFinalInput&, float, CStateManager& mgr);
+    void UpdateGunState(const CFinalInput&, CStateManager& mgr);
     void ForceGunOrientation(const zeus::CTransform&, CStateManager& mgr);
+    void UpdateCameraState(CStateManager& mgr);
     void UpdateDebugCamera(CStateManager& mgr);
+    void UpdateCameraTimers(const CFinalInput& input);
+    void UpdateMorphBallState(const CFinalInput&, CStateManager& mgr);
     CFirstPersonCamera& GetFirstPersonCamera(CStateManager& mgr);
     void UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool);
     void UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr);
@@ -503,6 +513,7 @@ public:
     void BombJump(const zeus::CVector3f& pos, CStateManager& mgr);
     zeus::CTransform CreateTransformFromMovementDirection() const;
     const CCollisionPrimitive* GetCollisionPrimitive() const;
+    const CCollidableSphere* GetCollidableSphere() const;
     zeus::CTransform GetPrimitiveTransform() const;
     void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
     float GetActualFirstPersonMaxVelocity() const;

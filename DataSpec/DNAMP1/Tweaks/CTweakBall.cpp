@@ -192,15 +192,15 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     /* x1cc_ */
     x1cc_ = __dna_reader.readFloatBig();
     /* x1d0_ */
-    x1d0_ = __dna_reader.readFloatBig();
+    x1d0_ballCameraControlDistance = __dna_reader.readFloatBig();
     /* x1d4_ */
     x1d4_ = __dna_reader.readFloatBig();
     /* x1d8_ */
     x1d8_ = __dna_reader.readFloatBig();
     /* x1e4_ */
-    x1e4_ = __dna_reader.readFloatBig();
+    x1e4_leftStickDivisor = __dna_reader.readFloatBig();
     /* x1e8_ */
-    x1e8_ = __dna_reader.readFloatBig();
+    x1e8_rightStickDivisor = __dna_reader.readFloatBig();
     /* x200_ */
     x200_ = __dna_reader.readFloatBig();
     /* x204_ */
@@ -412,15 +412,15 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     /* x1cc_ */
     __dna_writer.writeFloatBig(x1cc_);
     /* x1d0_ */
-    __dna_writer.writeFloatBig(x1d0_);
+    __dna_writer.writeFloatBig(x1d0_ballCameraControlDistance);
     /* x1d4_ */
     __dna_writer.writeFloatBig(x1d4_);
     /* x1d8_ */
     __dna_writer.writeFloatBig(x1d8_);
     /* x1e4_ */
-    __dna_writer.writeFloatBig(x1e4_);
+    __dna_writer.writeFloatBig(x1e4_leftStickDivisor);
     /* x1e8_ */
-    __dna_writer.writeFloatBig(x1e8_);
+    __dna_writer.writeFloatBig(x1e8_rightStickDivisor);
     /* x200_ */
     __dna_writer.writeFloatBig(x200_);
     /* x204_ */
@@ -652,15 +652,15 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     /* x1cc_ */
     x1cc_ = __dna_docin.readFloat("x1cc_");
     /* x1d0_ */
-    x1d0_ = __dna_docin.readFloat("x1d0_");
+    x1d0_ballCameraControlDistance = __dna_docin.readFloat("x1d0_");
     /* x1d4_ */
     x1d4_ = __dna_docin.readFloat("x1d4_");
     /* x1d8_ */
     x1d8_ = __dna_docin.readFloat("x1d8_");
     /* x1e4_ */
-    x1e4_ = __dna_docin.readFloat("x1e4_");
+    x1e4_leftStickDivisor = __dna_docin.readFloat("x1e4_");
     /* x1e8_ */
-    x1e8_ = __dna_docin.readFloat("x1e8_");
+    x1e8_rightStickDivisor = __dna_docin.readFloat("x1e8_");
     /* x200_ */
     x200_ = __dna_docin.readFloat("x200_");
     /* x204_ */
@@ -888,15 +888,15 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x1cc_ */
     __dna_docout.writeFloat("x1cc_", x1cc_);
     /* x1d0_ */
-    __dna_docout.writeFloat("x1d0_", x1d0_);
+    __dna_docout.writeFloat("x1d0_", x1d0_ballCameraControlDistance);
     /* x1d4_ */
     __dna_docout.writeFloat("x1d4_", x1d4_);
     /* x1d8_ */
     __dna_docout.writeFloat("x1d8_", x1d8_);
     /* x1e4_ */
-    __dna_docout.writeFloat("x1e4_", x1e4_);
+    __dna_docout.writeFloat("x1e4_", x1e4_leftStickDivisor);
     /* x1e8_ */
-    __dna_docout.writeFloat("x1e8_", x1e8_);
+    __dna_docout.writeFloat("x1e8_", x1e8_rightStickDivisor);
     /* x200_ */
     __dna_docout.writeFloat("x200_", x200_);
     /* x204_ */

@@ -49,6 +49,7 @@ struct ITweakPlayer : ITweak
     virtual float GetLeftLogicalThreshold() const=0;
     virtual float GetRightLogicalThreshold() const=0;
     virtual float GetX164(int type) const=0;
+    virtual uint32_t GetIceBreakPressCount() const=0;
     virtual float GetVariaDamageReduction() const=0;
     virtual float GetGravityDamageReduction() const=0;
     virtual float GetPhazonDamageReduction() const=0;

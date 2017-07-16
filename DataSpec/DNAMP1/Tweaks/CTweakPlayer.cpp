@@ -436,7 +436,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x2f8_ */
     x2f8_ = __dna_reader.readFloatBig();
     /* x2fc_ */
-    x2fc_ = __dna_reader.readUint32Big();
+    x2fc_iceBreakPressCount = __dna_reader.readUint32Big();
     /* x300_variaDamageReduction */
     x300_variaDamageReduction = __dna_reader.readFloatBig();
     /* x304_gravityDamageReduction */
@@ -876,7 +876,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x2f8_ */
     __dna_writer.writeFloatBig(x2f8_);
     /* x2fc_ */
-    __dna_writer.writeUint32Big(x2fc_);
+    __dna_writer.writeUint32Big(x2fc_iceBreakPressCount);
     /* x300_variaDamageReduction */
     __dna_writer.writeFloatBig(x300_variaDamageReduction);
     /* x304_gravityDamageReduction */
@@ -1390,8 +1390,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2f4_ = __dna_docin.readBool("x2f4_");
     /* x2f8_ */
     x2f8_ = __dna_docin.readFloat("x2f8_");
-    /* x2fc_ */
-    x2fc_ = __dna_docin.readUint32("x2fc_");
+    /* x2fc_iceBreakPressCount */
+    x2fc_iceBreakPressCount = __dna_docin.readUint32("x2fc_iceBreakPressCount");
     /* x300_variaDamageReduction */
     x300_variaDamageReduction = __dna_docin.readFloat("x300_variaDamageReduction");
     /* x304_gravityDamageReduction */
@@ -1890,8 +1890,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeBool("x2f4_", x2f4_);
     /* x2f8_ */
     __dna_docout.writeFloat("x2f8_", x2f8_);
-    /* x2fc_ */
-    __dna_docout.writeUint32("x2fc_", x2fc_);
+    /* x2fc_iceBreakPressCount */
+    __dna_docout.writeUint32("x2fc_iceBreakPressCount", x2fc_iceBreakPressCount);
     /* x300_variaDamageReduction */
     __dna_docout.writeFloat("x300_variaDamageReduction", x300_variaDamageReduction);
     /* x304_gravityDamageReduction */

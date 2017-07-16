@@ -93,7 +93,7 @@ struct CTweakBall : public ITweakBall
     Value<float> x1c4_;
     Value<float> x1c8_;
     Value<float> x1cc_;
-    Value<float> x1d0_;
+    Value<float> x1d0_ballCameraControlDistance;
     Value<float> x1d4_;
     Value<float> x1d8_;
     Value<float> x1dc_;
@@ -103,8 +103,8 @@ struct CTweakBall : public ITweakBall
     Value<float> x1f4_;
     Value<float> x1f8_;
     Value<float> x1fc_;
-    Value<float> x1e4_;
-    Value<float> x1e8_;
+    Value<float> x1e4_leftStickDivisor;
+    Value<float> x1e8_rightStickDivisor;
     Value<float> x200_;
     Value<float> x204_;
     float x208_;
@@ -136,6 +136,10 @@ struct CTweakBall : public ITweakBall
         x1b4_ = zeus::degToRad(x1b4_);
         x1ec_ = zeus::degToRad(x1ec_);
     }
+
+    float GetBallCameraControlDistance() const { return x1d0_ballCameraControlDistance; }
+    float GetLeftStickDivisor() const { return x1e4_leftStickDivisor; }
+    float GetRightStickDivisor() const { return x1e8_rightStickDivisor; }
 };
 }
 }

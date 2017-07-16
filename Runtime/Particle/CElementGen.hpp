@@ -245,6 +245,7 @@ public:
     FourCC Get4CharId() const { return FOURCC('PART'); }
     size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
     CParticleGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
+    bool IsIndirectTextured() const { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }
 
     static void SetMoveRedToAlphaBuffer(bool);
 };
