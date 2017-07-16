@@ -2,6 +2,7 @@
 #define __RSTL_HPP__
 
 #include <vector>
+#include <algorithm>
 #include <stdlib.h>
 #include "optional.hpp"
 

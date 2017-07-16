@@ -125,8 +125,8 @@ CCharacterFactory::CreateCharacter(int charIdx, bool loop,
             ({FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
 
     rstl::optional_object<TToken<CMorphableSkinnedModel>> iceModel;
-    if (charInfo.GetIceModelId() != 0xffffffff &&
-        charInfo.GetIceSkinRulesId() != 0xffffffff)
+    if (charInfo.GetIceModelId() != kInvalidResId &&
+        charInfo.GetIceSkinRulesId() != kInvalidResId)
         iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj
             ({FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));
 
@@ -144,7 +144,7 @@ ResId CCharacterFactory::GetEventResourceIdForAnimResourceId(ResId id) const
         return id == elem.first;
     });
     if (search == x58_animResources.cend())
-        return -1;
+        return kInvalidResId;
     return search->second;
 }
 
@@ -162,10 +162,7 @@ bool CCharacterFactory::HasAdditiveInfo(u32 idx) const
 {
     auto search = rstl::binary_find(x40_additiveInfo.cbegin(), x40_additiveInfo.cend(), idx,
     [](const auto& anim) { return anim.first; });
-
-    if (search == x40_additiveInfo.cend())
-        return false;
-    return true;
+    return search != x40_additiveInfo.cend();
 }
 
 std::vector<CCharacterInfo>
