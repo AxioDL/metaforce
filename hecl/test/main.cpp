@@ -37,7 +37,7 @@ struct HECLWindowCallback : boo::IWindowCallback
 struct HECLApplicationCallback : boo::IApplicationCallback
 {
     HECLWindowCallback m_windowCb;
-    boo::IWindow* m_mainWindow = nullptr;
+    std::shared_ptr<boo::IWindow> m_mainWindow;
     bool m_running = true;
 
     int appMain(boo::IApplication* app)
