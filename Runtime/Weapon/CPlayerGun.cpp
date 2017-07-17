@@ -51,4 +51,14 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr)
 
 }
 
+void CPlayerGun::ResetIdle(CStateManager& mgr)
+{
+
+}
+
+void CPlayerGun::CancelFiring(CStateManager& mgr)
+{
+
+}
+
 }

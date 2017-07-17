@@ -41,7 +41,8 @@ public:
     enum class EPlayerOrbitType
     {
         Zero,
-        One
+        One,
+        Two
     };
 
     enum class EPlayerOrbitState
@@ -68,6 +69,17 @@ public:
         Nine,
         Ten,
         Eleven
+    };
+
+    enum class EOrbitObjectType
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six
     };
 
     enum class EPlayerZoneInfo
@@ -121,6 +133,31 @@ public:
         SnakeWeed
     };
 
+    enum class EFootstepSfx
+    {
+        None,
+        Left,
+        Right
+    };
+
+    enum class EGrappleState
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five
+    };
+
+    enum class EGunHolsterState
+    {
+        Holstered,
+        Drawing,
+        Drawn,
+        Holstering
+    };
+
 private:
     struct CVisorSteam
     {
@@ -170,14 +207,14 @@ private:
     TUniqueId x26c_ = kInvalidUniqueId;
     float x270_ = 0.f;
     CPlayerEnergyDrain x274_energyDrain = CPlayerEnergyDrain(4);
-    float x288_ = 0.f;
+    float x288_startingJumpTimeout = 0.f;
     float x28c_sjTimer = 0.f;
     float x290_ = 0.f;
-    float x294_ = 0.f;
-    u32 x298_ = 0;
-    float x29c_ = 0.f;
+    float x294_jumpCameraPitchTimer = 0.f;
+    u32 x298_jumpPresses = 0;
+    float x29c_spaceJumpCameraPitchTimer = 0.f;
     float x2a0_ = 0.f;
-    u8 x2a4_ = 0;
+    bool x2a4_cancelCameraPitch = false;
     float x2a8_ = 1000.f;
     EPlayerMovementSurface x2ac_movementSurface = EPlayerMovementSurface::Normal;
     u32 x2b0_ = 2;
@@ -196,7 +233,7 @@ private:
     TUniqueId x310_orbitTargetId = kInvalidUniqueId;
     zeus::CVector3f x314_orbitPoint;
     zeus::CVector3f x320_orbitVector;
-    float x32c_ = 0.f;
+    float x32c_orbitDistance = 0.f;
     EPlayerZoneInfo x330_orbitZone = EPlayerZoneInfo::Zero;
     EPlayerZoneType x334_orbitType = EPlayerZoneType::Ellipse;
     u32 x338_ = 1;
@@ -207,36 +244,34 @@ private:
     std::vector<TUniqueId> x364_offScreenOrbitObjects;
     bool x374_ = false;
     float x378_ = 0.f;
-    u8 x37c_ = 0;
+    bool x37c_ = false;
     float x380_ = 0.f;
     float x384_ = 0.f;
     float x388_ = 0.f;
     bool x38c_ = false;
     u32 x390_orbitSource = 2;
-    u8 x394_ = 0;
+    bool x394_orbitingEnemy = false;
     float x398_ = 1.5f;
-    u8 x39c_ = 0;
+    bool x39c_ = false;
     float x3a0_ = 0.5f;
     float x3a4_ = 0.449f;
     EPlayerScanState x3a8_scanState = EPlayerScanState::NotScanning;
     float x3ac_scanningTime = 0.f;
     float x3b0_ = 0.f;
     TUniqueId x3b4_scanningObject = kInvalidUniqueId;
-    u32 x3b8_ = 0;
-    float x3bc_ = 0.f;
-    float x3c0_ = 1.0f;
-    float x3c4_ = 0.f;
-    float x3c8_ = 0.f;
+    EGrappleState x3b8_grappleState = EGrappleState::Zero;
+    float x3bc_grappleSwingTimer = 0.f;
+    zeus::CVector3f x3c0_grappleSwingAxis = zeus::CVector3f::skRight;
     float x3cc_ = 0.f;
     float x3d0_ = 0.f;
     float x3d4_ = 0.f;
-    float x3d8_ = 0.f;
-    bool x3dc_inFreeLook = 0;
-    bool x3dd_ = 0;
-    bool x3de_lookControlHeld = 0;
+    float x3d8_grappleJumpTimeout = 0.f;
+    bool x3dc_inFreeLook = false;
+    bool x3dd_freeLookPitchAngleCalculated = false;
+    bool x3de_lookControlHeld = false;
     float x3e4_ = 0.f;
     float x3e8_ = 0.f;
-    float x3ec_ = 0.f;
+    float x3ec_freeLookPitchAngle = 0.f;
     float x3f0_ = 0.f;
     TUniqueId x3f4_aimTarget = kInvalidUniqueId;
     zeus::CVector3f x3f8_targetAimPosition = zeus::CVector3f::skZero;
@@ -245,7 +280,7 @@ private:
     float x48c_ = 0.f;
     std::unique_ptr<CPlayerGun> x490_gun;
     float x494_mapAlpha = 1.f;
-    u32 x498_ = 2;
+    EGunHolsterState x498_gunHolsterState = EGunHolsterState::Drawn;
     float x49c_gunNotFiringTimeout;
     std::unique_ptr<CFailsafeTest> x4a0_failsafeTest;
     u32 x4a4_ = 0;
@@ -278,9 +313,9 @@ private:
     float x748_ = 0.f;
     float x74c_visorStaticAlpha = 1.f;
     float x750_frozenTimeout = 0.f;
-    u32 x754_iceBreakPresses = 0;
-    float x758_ = 0.f;
-    u32 x75c_ = 0;
+    s32 x754_iceBreakJumps = 0;
+    float x758_frozenTimeoutBias = 0.f;
+    s32 x75c_additionalIceBreakJumps = 0;
     bool x760_controlsFrozen = false;
     float x764_controlsFrozenTimeout = 0.f;
     std::unique_ptr<CMorphBall> x768_morphball;
@@ -292,18 +327,18 @@ private:
     int x780_samusVoicePriority = 0;
     float x784_ = 0.f;
     u16 x788_damageLoopSfxId = 0;
-    float x78c_ = 0.f;
-    u32 x790_ = 0;
+    float x78c_footstepSfxTimer = 0.f;
+    EFootstepSfx x790_footstepSfxSel = EFootstepSfx::None;
     zeus::CVector3f x794_;
-    CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, -1);
-    ResId x7cc_ = -1;
+    CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, kInvalidResId);
+    ResId x7cc_ = kInvalidResId;
     CAnimRes x7d0_animRes;
     CPlayerState::EBeamId x7ec_beam = CPlayerState::EBeamId::Power;
     std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
     zeus::CTransform x7f4_;
     float x824_ = 0.f;
     float x828_waterLevelOnPlayer = 0.f;
-    bool x82c_ = false;
+    bool x82c_inLava = false;
     TUniqueId x82e_ridingPlatform = kInvalidUniqueId;
     TUniqueId x830_ = kInvalidUniqueId;
     u32 x834_ = 1000;
@@ -357,8 +392,8 @@ private:
     float x9fc_ = 0.f;
     TUniqueId xa00_ = kInvalidUniqueId;
     float xa04_ = 0.f;
-    ResId xa08_steamTextureId = -1;
-    ResId xa0c_;
+    ResId xa08_steamTextureId = kInvalidResId;
+    ResId xa0c_iceTextureId;
     u32 xa10_phazonCounter = 0;
     float xa14_ = 0.f;
     float xa18_ = 0.f;
@@ -428,6 +463,7 @@ public:
     void CalculatePlayerControlDirection(CStateManager& mgr);
     void CalculatePlayerMovementDirection(float dt);
     void Stop(CStateManager& stateMgr);
+    void Freeze(CStateManager& stateMgr, ResId steamTxtr, u16 sfx, ResId iceTxtr);
     bool GetFrozenState() const;
     void UpdateFrozenState(const CFinalInput& input, CStateManager& mgr);
     void Think(float, CStateManager&);
@@ -444,7 +480,7 @@ public:
     void ForceGunOrientation(const zeus::CTransform&, CStateManager& mgr);
     void UpdateCameraState(CStateManager& mgr);
     void UpdateDebugCamera(CStateManager& mgr);
-    void UpdateCameraTimers(const CFinalInput& input);
+    void UpdateCameraTimers(float dt, const CFinalInput& input);
     void UpdateMorphBallState(const CFinalInput&, CStateManager& mgr);
     CFirstPersonCamera& GetFirstPersonCamera(CStateManager& mgr);
     void UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool);
@@ -463,6 +499,7 @@ public:
     void BeginGrapple(zeus::CVector3f&, CStateManager& mgr);
     void BreakGrapple(EPlayerOrbitRequest, CStateManager& mgr);
     void SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr);
+    bool InGrappleJumpCooldown() const;
     void PreventFallingCameraPitch();
     void OrbitCarcass(CStateManager&);
     void OrbitPoint(EPlayerOrbitType, CStateManager& mgr);
@@ -501,8 +538,8 @@ public:
     void UpdateOrbitTarget(CStateManager& mgr);
     float GetOrbitMaxLockDistance(CStateManager& mgr) const;
     float GetOrbitMaxTargetDistance(CStateManager& mgr) const;
-    bool ValidateOrbitTargetId(TUniqueId, CStateManager& mgr) const;
-    bool ValidateCurrentOrbitTargetId(CStateManager& mgr);
+    EOrbitObjectType ValidateOrbitTargetId(TUniqueId uid, CStateManager& mgr) const;
+    EOrbitObjectType ValidateCurrentOrbitTargetId(CStateManager& mgr);
     bool ValidateOrbitTargetIdAndPointer(TUniqueId, CStateManager& mgr) const;
     zeus::CVector3f GetBallPosition() const;
     zeus::CVector3f GetEyePosition() const;
@@ -536,6 +573,7 @@ public:
     float GetScanningTime() const { return x3ac_scanningTime; }
     TUniqueId GetOrbitTargetId() const { return x310_orbitTargetId; }
     TUniqueId GetScanningObjectId() const { return x3b4_scanningObject; }
+    EGrappleState GetGrappleState() const { return x3b8_grappleState; }
     bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }
     float GetThreatOverride() const { return xa1c_threatOverride; }
     bool IsOverrideRadarRadius() const { return x9c6_31_overrideRadarRadius; }

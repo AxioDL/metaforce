@@ -11,4 +11,9 @@ void CGrappleArm::AsyncLoadSuit(CStateManager& mgr)
 {
 }
 
+void CGrappleArm::SetAnimState(EArmState state)
+{
+
+}
+
 }

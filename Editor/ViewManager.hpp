@@ -30,7 +30,7 @@ class ViewManager : public specter::IViewManager
     friend class RootSpace;
     friend class SplitSpace;
 
-    std::unique_ptr<boo::IWindow> m_mainWindow;
+    std::shared_ptr<boo::IWindow> m_mainWindow;
     hecl::Runtime::FileStoreManager& m_fileStoreManager;
     hecl::CVarManager& m_cvarManager;
     ProjectManager m_projManager;

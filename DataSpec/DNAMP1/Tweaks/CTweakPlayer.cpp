@@ -214,7 +214,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x22a_25_ */
     x22a_25_ = __dna_reader.readBool();
     /* x22a_26_ */
-    x22a_26_ = __dna_reader.readBool();
+    x22a_26_firingCancelsCameraPitch = __dna_reader.readBool();
     /* x22a_27_ */
     x22a_27_ = __dna_reader.readBool();
     /* x22a_28_ */
@@ -272,7 +272,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     /* x17c_ */
     x17c_ = __dna_reader.readFloatBig();
     /* x180_ */
-    x180_ = __dna_reader.readFloatBig();
+    x180_orbitNormalDistance = __dna_reader.readFloatBig();
     /* x184_ */
     x184_ = __dna_reader.readFloatBig();
     /* x188_ */
@@ -365,8 +365,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x2a0_ = __dna_reader.readFloatBig();
     /* x2a4_ */
     x2a4_ = __dna_reader.readFloatBig();
-    /* x2a8_ */
-    x2a8_ = __dna_reader.readFloatBig();
+    /* x2a8_grappleSwingPeriod */
+    x2a8_grappleSwingPeriod = __dna_reader.readFloatBig();
     /* x2ac_ */
     x2ac_ = __dna_reader.readFloatBig();
     /* x2b0_ */
@@ -381,12 +381,12 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x2c0_ = __dna_reader.readFloatBig();
     /* x2c4_ */
     x2c4_ = __dna_reader.readFloatBig();
-    /* x2c8_ */
-    x2c8_ = __dna_reader.readFloatBig();
+    /* x2c8_grappleJumpForce */
+    x2c8_grappleJumpForce = __dna_reader.readFloatBig();
     /* x2cc_ */
     x2cc_ = __dna_reader.readFloatBig();
-    /* x2d0_ */
-    x2d0_ = __dna_reader.readUint32Big();
+    /* x2d0_grappleJumpMode */
+    x2d0_grappleJumpMode = __dna_reader.readUint32Big();
     /* x2d4_ */
     x2d4_ = __dna_reader.readBool();
     /* x2d5_ */
@@ -433,10 +433,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x2f0_ = __dna_reader.readFloatBig();
     /* x2f4_ */
     x2f4_ = __dna_reader.readBool();
-    /* x2f8_ */
-    x2f8_ = __dna_reader.readFloatBig();
-    /* x2fc_ */
-    x2fc_iceBreakPressCount = __dna_reader.readUint32Big();
+    /* x2f8_frozenTimeout */
+    x2f8_frozenTimeout = __dna_reader.readFloatBig();
+    /* x2fc_iceBreakJumpCount */
+    x2fc_iceBreakJumpCount = __dna_reader.readUint32Big();
     /* x300_variaDamageReduction */
     x300_variaDamageReduction = __dna_reader.readFloatBig();
     /* x304_gravityDamageReduction */
@@ -654,7 +654,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x22a_25_ */
     __dna_writer.writeBool(x22a_25_);
     /* x22a_26_ */
-    __dna_writer.writeBool(x22a_26_);
+    __dna_writer.writeBool(x22a_26_firingCancelsCameraPitch);
     /* x22a_27_ */
     __dna_writer.writeBool(x22a_27_);
     /* x22a_28_ */
@@ -712,7 +712,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     /* x17c_ */
     __dna_writer.writeFloatBig(x17c_);
     /* x180_ */
-    __dna_writer.writeFloatBig(x180_);
+    __dna_writer.writeFloatBig(x180_orbitNormalDistance);
     /* x184_ */
     __dna_writer.writeFloatBig(x184_);
     /* x188_ */
@@ -805,8 +805,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x2a0_);
     /* x2a4_ */
     __dna_writer.writeFloatBig(x2a4_);
-    /* x2a8_ */
-    __dna_writer.writeFloatBig(x2a8_);
+    /* x2a8_grappleSwingPeriod */
+    __dna_writer.writeFloatBig(x2a8_grappleSwingPeriod);
     /* x2ac_ */
     __dna_writer.writeFloatBig(x2ac_);
     /* x2b0_ */
@@ -821,12 +821,12 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x2c0_);
     /* x2c4_ */
     __dna_writer.writeFloatBig(x2c4_);
-    /* x2c8_ */
-    __dna_writer.writeFloatBig(x2c8_);
+    /* x2c8_grappleJumpForce */
+    __dna_writer.writeFloatBig(x2c8_grappleJumpForce);
     /* x2cc_ */
     __dna_writer.writeFloatBig(x2cc_);
-    /* x2d0_ */
-    __dna_writer.writeUint32Big(x2d0_);
+    /* x2d0_grappleJumpMode */
+    __dna_writer.writeUint32Big(x2d0_grappleJumpMode);
     /* x2d4_ */
     __dna_writer.writeBool(x2d4_);
     /* x2d5_ */
@@ -873,10 +873,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x2f0_);
     /* x2f4_ */
     __dna_writer.writeBool(x2f4_);
-    /* x2f8_ */
-    __dna_writer.writeFloatBig(x2f8_);
-    /* x2fc_ */
-    __dna_writer.writeUint32Big(x2fc_iceBreakPressCount);
+    /* x2f8_frozenTimeout */
+    __dna_writer.writeFloatBig(x2f8_frozenTimeout);
+    /* x2fc_iceBreakJumpCount */
+    __dna_writer.writeUint32Big(x2fc_iceBreakJumpCount);
     /* x300_variaDamageReduction */
     __dna_writer.writeFloatBig(x300_variaDamageReduction);
     /* x304_gravityDamageReduction */
@@ -1123,8 +1123,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x22a_24_ = __dna_docin.readBool("x22a_24_");
     /* x22a_25_ */
     x22a_25_ = __dna_docin.readBool("x22a_25_");
-    /* x22a_26_ */
-    x22a_26_ = __dna_docin.readBool("x22a_26_");
+    /* x22a_26_firingCancelsCameraPitch */
+    x22a_26_firingCancelsCameraPitch = __dna_docin.readBool("x22a_26_firingCancelsCameraPitch");
     /* x22a_27_ */
     x22a_27_ = __dna_docin.readBool("x22a_27_");
     /* x22a_28_ */
@@ -1196,8 +1196,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     }
     /* x17c_ */
     x17c_ = __dna_docin.readFloat("x17c_");
-    /* x180_ */
-    x180_ = __dna_docin.readFloat("x180_");
+    /* x180_orbitNormalDistance */
+    x180_orbitNormalDistance = __dna_docin.readFloat("x180_orbitNormalDistance");
     /* x184_ */
     x184_ = __dna_docin.readFloat("x184_");
     /* x188_ */
@@ -1320,8 +1320,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2a0_ = __dna_docin.readFloat("x2a0_");
     /* x2a4_ */
     x2a4_ = __dna_docin.readFloat("x2a4_");
-    /* x2a8_ */
-    x2a8_ = __dna_docin.readFloat("x2a8_");
+    /* x2a8_grappleSwingPeriod */
+    x2a8_grappleSwingPeriod = __dna_docin.readFloat("x2a8_grappleSwingPeriod");
     /* x2ac_ */
     x2ac_ = __dna_docin.readFloat("x2ac_");
     /* x2b0_ */
@@ -1336,12 +1336,12 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2c0_ = __dna_docin.readFloat("x2c0_");
     /* x2c4_ */
     x2c4_ = __dna_docin.readFloat("x2c4_");
-    /* x2c8_ */
-    x2c8_ = __dna_docin.readFloat("x2c8_");
+    /* x2c8_grappleJumpForce */
+    x2c8_grappleJumpForce = __dna_docin.readFloat("x2c8_grappleJumpForce");
     /* x2cc_ */
     x2cc_ = __dna_docin.readFloat("x2cc_");
-    /* x2d0_ */
-    x2d0_ = __dna_docin.readUint32("x2d0_");
+    /* x2d0_grappleJumpMode */
+    x2d0_grappleJumpMode = __dna_docin.readUint32("x2d0_grappleJumpMode");
     /* x2d4_ */
     x2d4_ = __dna_docin.readBool("x2d4_");
     /* x2d5_ */
@@ -1388,10 +1388,10 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2f0_ = __dna_docin.readFloat("x2f0_");
     /* x2f4_ */
     x2f4_ = __dna_docin.readBool("x2f4_");
-    /* x2f8_ */
-    x2f8_ = __dna_docin.readFloat("x2f8_");
-    /* x2fc_iceBreakPressCount */
-    x2fc_iceBreakPressCount = __dna_docin.readUint32("x2fc_iceBreakPressCount");
+    /* x2f8_frozenTimeout */
+    x2f8_frozenTimeout = __dna_docin.readFloat("x2f8_frozenTimeout");
+    /* x2fc_iceBreakJumpCount */
+    x2fc_iceBreakJumpCount = __dna_docin.readUint32("x2fc_iceBreakJumpCount");
     /* x300_variaDamageReduction */
     x300_variaDamageReduction = __dna_docin.readFloat("x300_variaDamageReduction");
     /* x304_gravityDamageReduction */
@@ -1400,7 +1400,7 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x308_phazonDamageReduction = __dna_docin.readFloat("x308_phazonDamageReduction");
 }
 
-void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
+void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
 {
     /* x4_ */
     if (auto v = __dna_docout.enterSubVector("x4_"))
@@ -1632,8 +1632,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeBool("x22a_24_", x22a_24_);
     /* x22a_25_ */
     __dna_docout.writeBool("x22a_25_", x22a_25_);
-    /* x22a_26_ */
-    __dna_docout.writeBool("x22a_26_", x22a_26_);
+    /* x22a_26_firingCancelsCameraPitch */
+    __dna_docout.writeBool("x22a_26_firingCancelsCameraPitch", x22a_26_firingCancelsCameraPitch);
     /* x22a_27_ */
     __dna_docout.writeBool("x22a_27_", x22a_27_);
     /* x22a_28_ */
@@ -1702,8 +1702,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     }
     /* x17c_ */
     __dna_docout.writeFloat("x17c_", x17c_);
-    /* x180_ */
-    __dna_docout.writeFloat("x180_", x180_);
+    /* x180_orbitNormalDistance */
+    __dna_docout.writeFloat("x180_orbitNormalDistance", x180_orbitNormalDistance);
     /* x184_ */
     __dna_docout.writeFloat("x184_", x184_);
     /* x188_ */
@@ -1820,8 +1820,8 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x2a0_", x2a0_);
     /* x2a4_ */
     __dna_docout.writeFloat("x2a4_", x2a4_);
-    /* x2a8_ */
-    __dna_docout.writeFloat("x2a8_", x2a8_);
+    /* x2a8_grappleSwingPeriod */
+    __dna_docout.writeFloat("x2a8_grappleSwingPeriod", x2a8_grappleSwingPeriod);
     /* x2ac_ */
     __dna_docout.writeFloat("x2ac_", x2ac_);
     /* x2b0_ */
@@ -1836,12 +1836,12 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x2c0_", x2c0_);
     /* x2c4_ */
     __dna_docout.writeFloat("x2c4_", x2c4_);
-    /* x2c8_ */
-    __dna_docout.writeFloat("x2c8_", x2c8_);
+    /* x2c8_grappleJumpForce */
+    __dna_docout.writeFloat("x2c8_grappleJumpForce", x2c8_grappleJumpForce);
     /* x2cc_ */
     __dna_docout.writeFloat("x2cc_", x2cc_);
-    /* x2d0_ */
-    __dna_docout.writeUint32("x2d0_", x2d0_);
+    /* x2d0_grappleJumpMode */
+    __dna_docout.writeUint32("x2d0_grappleJumpMode", x2d0_grappleJumpMode);
     /* x2d4_ */
     __dna_docout.writeBool("x2d4_", x2d4_);
     /* x2d4_ */
@@ -1888,10 +1888,10 @@ void CTweakPlayer::CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) 
     __dna_docout.writeFloat("x2f0_", x2f0_);
     /* x2f4_ */
     __dna_docout.writeBool("x2f4_", x2f4_);
-    /* x2f8_ */
-    __dna_docout.writeFloat("x2f8_", x2f8_);
-    /* x2fc_iceBreakPressCount */
-    __dna_docout.writeUint32("x2fc_iceBreakPressCount", x2fc_iceBreakPressCount);
+    /* x2f8_frozenTimeout */
+    __dna_docout.writeFloat("x2f8_frozenTimeout", x2f8_frozenTimeout);
+    /* x2fc_iceBreakJumpCount */
+    __dna_docout.writeUint32("x2fc_iceBreakJumpCount", x2fc_iceBreakJumpCount);
     /* x300_variaDamageReduction */
     __dna_docout.writeFloat("x300_variaDamageReduction", x300_variaDamageReduction);
     /* x304_gravityDamageReduction */

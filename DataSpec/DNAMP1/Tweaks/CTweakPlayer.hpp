@@ -58,7 +58,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x164_[3];
     Value<float> x170_[3];
     Value<float> x17c_;
-    Value<float> x180_;
+    Value<float> x180_orbitNormalDistance;
     Value<float> x184_;
     Value<float> x188_;
     Value<float> x18c_;
@@ -115,7 +115,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x229_31_ : 1;
     Value<bool> x22a_24_ : 1;
     Value<bool> x22a_25_ : 1;
-    Value<bool> x22a_26_ : 1;
+    Value<bool> x22a_26_firingCancelsCameraPitch : 1;
     Value<bool> x22a_27_ : 1;
     Value<bool> x22a_28_ : 1;
     Value<float> x22c_;
@@ -149,7 +149,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x29c_;
     Value<float> x2a0_;
     Value<float> x2a4_;
-    Value<float> x2a8_;
+    Value<float> x2a8_grappleSwingPeriod;
     Value<float> x2ac_;
     Value<float> x2b0_;
     Value<float> x2b4_;
@@ -157,9 +157,9 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x2bc_;
     Value<float> x2c0_;
     Value<float> x2c4_;
-    Value<float> x2c8_;
+    Value<float> x2c8_grappleJumpForce;
     Value<float> x2cc_;
-    Value<atUint32> x2d0_;
+    Value<atUint32> x2d0_grappleJumpMode;
     Value<bool> x2d4_;
     Value<bool> x2d5_;
     Value<float> x2d8_;
@@ -170,8 +170,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x2ec_;
     Value<float> x2f0_;
     Value<bool>  x2f4_;
-    Value<float> x2f8_;
-    Value<atUint32> x2fc_iceBreakPressCount;
+    Value<float> x2f8_frozenTimeout;
+    Value<atUint32> x2fc_iceBreakJumpCount;
     Value<float> x300_variaDamageReduction;
     Value<float> x304_gravityDamageReduction;
     Value<float> x308_phazonDamageReduction;
@@ -181,6 +181,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX5C() const { return x44_[6]; }
     float GetHardLandingVelocityThreshold() const { return xc4_hardLandingVelocityThreshold; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
+    float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
     uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
     uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
     uint32_t GetOrbitScreenBoxCenterX(int zone) const { return x1b8_orbitScreenBoxCenterX[zone]; }
@@ -193,11 +194,15 @@ struct CTweakPlayer : ITweakPlayer
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
     float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
+    bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
     float GetX274() const { return x274_; }
     float GetX278() const { return x278_; }
     float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
+    float GetGrappleSwingPeriod() const { return x2a8_grappleSwingPeriod; }
+    float GetGrappleJumpForce() const { return x2c8_grappleJumpForce; }
+    uint32_t GetGrappleJumpMode() const { return x2d0_grappleJumpMode; }
     float GetX124() const { return x134_; }
     float GetX184() const { return x184_; }
     float GetX1fc() const { return x1fc_; }
@@ -215,7 +220,8 @@ struct CTweakPlayer : ITweakPlayer
     float GetLeftLogicalThreshold() const { return x150_leftDiv; }
     float GetRightLogicalThreshold() const { return x154_rightDiv; }
     float GetX164(int type) const { return x164_[type]; }
-    uint32_t GetIceBreakPressCount() const { return x2fc_iceBreakPressCount; }
+    float GetFrozenTimeout() const { return x2f8_frozenTimeout; }
+    uint32_t GetIceBreakJumpCount() const { return x2fc_iceBreakJumpCount; }
     float GetVariaDamageReduction() const { return x300_variaDamageReduction; }
     float GetGravityDamageReduction() const { return x304_gravityDamageReduction; }
     float GetPhazonDamageReduction() const { return x308_phazonDamageReduction; }

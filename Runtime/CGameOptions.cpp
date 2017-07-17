@@ -65,8 +65,8 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     for (int b=0 ; b<64 ; ++b)
         x68_[b] = stream.ReadEncoded(1);
 
-    xc0_freezeBreakCount = stream.ReadEncoded(2);
-    xc4_frozenCount = stream.ReadEncoded(2);
+    xc0_frozenFpsCount = stream.ReadEncoded(2);
+    xc4_frozenBallCount = stream.ReadEncoded(2);
     xc8_ = stream.ReadEncoded(1);
     xcc_logScanCount = stream.ReadEncoded(7);
     xd0_24_fusionLinked = stream.ReadEncoded(1);
@@ -111,8 +111,8 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     for (int b=0 ; b<64 ; ++b)
         w.WriteEncoded(x68_[b], 1);
 
-    w.WriteEncoded(xc0_freezeBreakCount, 2);
-    w.WriteEncoded(xc4_frozenCount, 2);
+    w.WriteEncoded(xc0_frozenFpsCount, 2);
+    w.WriteEncoded(xc4_frozenBallCount, 2);
     w.WriteEncoded(xc8_, 1);
     w.WriteEncoded(xcc_logScanCount, 7);
     w.WriteEncoded(xd0_24_fusionLinked, 1);

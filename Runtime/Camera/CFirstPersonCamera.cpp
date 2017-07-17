@@ -86,9 +86,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         playerXf.rotate({0.f, std::min(std::fabs(std::cos(x1c0_)), 1.0f), std::min(std::fabs(std::sin(x1c0_)), 1.0f)});
     if (player->x3dc_inFreeLook)
     {
-        float angle = player->x3ec_;
-        if (std::fabs(player->x3ec_) > (g_tweakPlayer->GetX124() - std::fabs(x1c0_)))
-            angle = (player->x3ec_ > -0.f ? -1.f : 1.f);
+        float angle = player->x3ec_freeLookPitchAngle;
+        if (std::fabs(player->x3ec_freeLookPitchAngle) > (g_tweakPlayer->GetX124() - std::fabs(x1c0_)))
+            angle = (player->x3ec_freeLookPitchAngle > -0.f ? -1.f : 1.f);
         zeus::CVector3f vec;
         vec.z = std::sin(angle);
         vec.y = std::cos(-player->x3e4_) * std::cos(angle);
@@ -124,9 +124,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
              player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
              player->x3dc_inFreeLook && x1c4_pitchId == kInvalidUniqueId)
     {
-        if (player->x294_ > 0.f)
+        if (player->x294_jumpCameraPitchTimer > 0.f)
         {
-            float angle = zeus::clamp(0.f, (player->x294_ - g_tweakPlayer->GetX288()) / g_tweakPlayer->GetX28c(), 1.f) *
+            float angle = zeus::clamp(0.f, (player->x294_jumpCameraPitchTimer - g_tweakPlayer->GetX288()) / g_tweakPlayer->GetX28c(), 1.f) *
                           g_tweakPlayer->GetX290();
             angle += x1c0_;
             rVec.x = 0.f;
@@ -135,9 +135,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
             rVec = playerXf.rotate(rVec);
         }
-        else if (player->x29c_ > 0.f)
+        else if (player->x29c_spaceJumpCameraPitchTimer > 0.f)
         {
-            float angle = zeus::clamp(0.f, (player->x29c_ - g_tweakPlayer->GetX294()) / g_tweakPlayer->GetX298(), 1.f) *
+            float angle = zeus::clamp(0.f, (player->x29c_spaceJumpCameraPitchTimer - g_tweakPlayer->GetX294()) / g_tweakPlayer->GetX298(), 1.f) *
                           g_tweakPlayer->GetX29C();
             rVec.x = 0.f;
             rVec.y = std::cos(angle);
@@ -175,7 +175,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
             const CScriptGrapplePoint* gPoint =
                 TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_orbitTargetId));
-            if (gPoint && player->x29c_ > 0.f)
+            if (gPoint && player->x29c_spaceJumpCameraPitchTimer > 0.f)
             {
                 gunFrontVec = x190_gunFollowXf.frontVector();
                 if (gunFrontVec.canBeNormalized())
@@ -248,7 +248,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ||
         player->GetOrbitState() == CPlayer::EPlayerOrbitState::Five ||
-        player->x3b8_ == 0 || mgr.GetGameState() == CStateManager::EGameState::SoftPaused ||
+        player->GetGrappleState() == CPlayer::EGrappleState::Zero ||
+        mgr.GetGameState() == CStateManager::EGameState::SoftPaused ||
         mgr.GetCameraManager()->IsInCinematicCamera())
     {
         bobXf = zeus::CTransform::Identity();

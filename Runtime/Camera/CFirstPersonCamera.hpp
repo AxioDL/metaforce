@@ -9,10 +9,10 @@ namespace urde
 class CFirstPersonCamera : public CGameCamera
 {
     float x188_;
-    u8 x18c_;
+    bool x18c_ = false;
     zeus::CTransform x190_gunFollowXf;
-    float x1c0_;
-    TUniqueId x1c4_pitchId;
+    float x1c0_ = 0.f;
+    TUniqueId x1c4_pitchId = kInvalidUniqueId;
     union {
         struct
         {
@@ -40,6 +40,7 @@ public:
     void UpdateElevation(CStateManager&);
     void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);
     void SetScriptPitchId(TUniqueId uid) { x1c4_pitchId = uid; }
+    void SetX18C(bool v) { x18c_ = v; }
 };
 }
 

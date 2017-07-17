@@ -59,8 +59,8 @@ class CPersistentOptions
     bool x68_[64] = {};
     std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
     u32 xbc_autoMapperKeyState = 0;
-    u32 xc0_freezeBreakCount = 0;
-    u32 xc4_frozenCount = 0;
+    u32 xc0_frozenFpsCount = 0;
+    u32 xc4_frozenBallCount = 0;
     u32 xc8_ = 0;
     u32 xcc_logScanCount = 0;
 
@@ -100,10 +100,10 @@ public:
     void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
     u32 GetLogScanCount() const { return xcc_logScanCount; }
     void SetLogScanCount(u32 v) { xcc_logScanCount = v; }
-    void IncrFreezeBreakCount() { xc0_freezeBreakCount = std::min(int(xc0_freezeBreakCount + 1), 3); }
-    bool GetShowBreakMessage() const { return xc0_freezeBreakCount != 3; }
-    void IncrFrozenCount() { xc4_frozenCount = std::min(int(xc4_frozenCount + 1), 3); }
-    bool GetShowFrozenMessage() const { return xc4_frozenCount != 3; }
+    void IncrementFrozenFpsCount() { xc0_frozenFpsCount = std::min(int(xc0_frozenFpsCount + 1), 3); }
+    bool GetShowFrozenFpsMessage() const { return xc0_frozenFpsCount != 3; }
+    void IncrementFrozenBallCount() { xc4_frozenBallCount = std::min(int(xc4_frozenBallCount + 1), 3); }
+    bool GetShowFrozenBallMessage() const { return xc4_frozenBallCount != 3; }
     void PutTo(CBitStreamWriter& w) const;
 
     u8* GetNESState() { return x0_; }

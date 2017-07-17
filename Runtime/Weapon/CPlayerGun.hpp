@@ -224,6 +224,8 @@ public:
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
     void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
     void ProcessInput(const CFinalInput& input, CStateManager& mgr);
+    void ResetIdle(CStateManager& mgr);
+    void CancelFiring(CStateManager& mgr);
 };
 
 }
