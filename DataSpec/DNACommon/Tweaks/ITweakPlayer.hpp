@@ -37,6 +37,7 @@ struct ITweakPlayer : ITweak
     virtual float GetPlayerBallHalfExtent() const=0; // x27c
     virtual float GetGrappleSwingPeriod() const=0;
     virtual float GetGrappleJumpForce() const=0;
+    virtual float GetGrappleReleaseTime() const=0;
     virtual uint32_t GetGrappleJumpMode() const=0;
     virtual float GetX124() const=0; // x134
     virtual float GetX184() const=0; // x184

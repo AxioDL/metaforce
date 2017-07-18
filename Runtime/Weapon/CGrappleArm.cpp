@@ -16,4 +16,19 @@ void CGrappleArm::SetAnimState(EArmState state)
 
 }
 
+void CGrappleArm::Activate(bool)
+{
+
+}
+
+void CGrappleArm::GrappleBeamDisconnected()
+{
+
+}
+
+void CGrappleArm::GrappleBeamConnected()
+{
+
+}
+
 }

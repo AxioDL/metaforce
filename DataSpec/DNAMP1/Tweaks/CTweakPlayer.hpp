@@ -158,7 +158,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x2c0_;
     Value<float> x2c4_;
     Value<float> x2c8_grappleJumpForce;
-    Value<float> x2cc_;
+    Value<float> x2cc_grappleReleaseTime;
     Value<atUint32> x2d0_grappleJumpMode;
     Value<bool> x2d4_;
     Value<bool> x2d5_;
@@ -202,6 +202,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
     float GetGrappleSwingPeriod() const { return x2a8_grappleSwingPeriod; }
     float GetGrappleJumpForce() const { return x2c8_grappleJumpForce; }
+    float GetGrappleReleaseTime() const { return x2cc_grappleReleaseTime; }
     uint32_t GetGrappleJumpMode() const { return x2d0_grappleJumpMode; }
     float GetX124() const { return x134_; }
     float GetX184() const { return x184_; }

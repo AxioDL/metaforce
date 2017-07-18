@@ -68,7 +68,8 @@ public:
         Eight,
         Nine,
         Ten,
-        Eleven
+        Eleven,
+        Twelve
     };
 
     enum class EOrbitObjectType

@@ -28,6 +28,15 @@
 namespace urde
 {
 
+static const CMaterialFilter SolidMaterialFilter =
+    CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
+
+static const CMaterialFilter TargetingFilter =
+    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
+                                        {EMaterialTypes::ProjectilePassthrough,
+                                         EMaterialTypes::ScanPassthrough,
+                                         EMaterialTypes::Player});
+
 static CModelData MakePlayerAnimRes(ResId resId, const zeus::CVector3f& scale)
 {
     return {CAnimRes(resId, 0, scale, 0, true), 1};
@@ -948,9 +957,6 @@ static const u16 skPlayerLandSfxHard[] =
     0x064B, 0x064F, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0652, 0x064D
 };
 
-static const CMaterialFilter SolidMaterialFilter =
-    CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
-
 void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr)
 {
     switch (msg)
@@ -1379,7 +1385,221 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
 
 bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr) { return false; }
 
-void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {}
+void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
+{
+    if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam) ||
+        x2f8_morphTransState == EPlayerMorphBallState::Morphed ||
+        mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan ||
+        mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::EPlayerVisor::Scan)
+        return;
+
+    if (x310_orbitTargetId == kInvalidUniqueId)
+    {
+        x3b8_grappleState = EGrappleState::Zero;
+        AddMaterial(EMaterialTypes::GroundCollider, mgr);
+        return;
+    }
+
+    TCastToPtr<CScriptGrapplePoint> point = mgr.ObjectById(x310_orbitTargetId);
+    if (point)
+    {
+        zeus::CVector3f eyePosition = GetEyePosition();
+        zeus::CVector3f playerToPoint = point->GetTranslation() - eyePosition;
+        zeus::CVector3f playerToPointFlat = playerToPoint;
+        playerToPointFlat.z = 0.f;
+        if (playerToPoint.canBeNormalized() && playerToPointFlat.canBeNormalized() &&
+            playerToPointFlat.magnitude() > 2.f)
+        {
+            switch (x304_orbitState)
+            {
+            case EPlayerOrbitState::Five:
+                switch (g_tweakPlayer->GetGrappleJumpMode())
+                {
+                case 0:
+                case 1:
+                    if (ControlMapper::GetPressInput(ControlMapper::ECommands::FireOrBomb, input))
+                    {
+                        if (TCastToPtr<CScriptGrapplePoint> point2 = mgr.ObjectById(x33c_))
+                        {
+                            playerToPoint = point2->GetTranslation() - eyePosition;
+                            playerToPoint.z = 0.f;
+                            if (playerToPoint.canBeNormalized())
+                            {
+                                x490_gun->GetGrappleArm().GrappleBeamDisconnected();
+                                x3c0_grappleSwingAxis.x = playerToPoint.y;
+                                x3c0_grappleSwingAxis.y = -playerToPoint.x;
+                                x3c0_grappleSwingAxis.normalize();
+                                x3bc_grappleSwingTimer = 0.f;
+                                SetOrbitTargetId(x33c_, mgr);
+                                x3b8_grappleState = EGrappleState::Two;
+                                x33c_ = kInvalidUniqueId;
+                                x490_gun->GetGrappleArm().GrappleBeamConnected();
+                            }
+                        }
+                        else
+                        {
+                            if (!g_tweakPlayer->GetGrappleJumpMode() && x3d8_grappleJumpTimeout <= 0.f)
+                                ApplyGrappleJump(mgr);
+                            BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+                break;
+            case EPlayerOrbitState::One:
+                if (playerToPoint.canBeNormalized())
+                {
+                    CRayCastResult result =
+                    mgr.RayStaticIntersection(eyePosition, playerToPoint.normalized(), playerToPoint.magnitude(),
+                                              TargetingFilter);
+                    if (result.IsInvalid())
+                    {
+                        HolsterGun(mgr);
+                        switch (x3b8_grappleState)
+                        {
+                        case EGrappleState::One:
+                        case EGrappleState::Three:
+                            switch (g_tweakPlayer->GetGrappleJumpMode())
+                            {
+                            case 0:
+                                switch (x490_gun->GetGrappleArm().GetAnimState())
+                                {
+                                case CGrappleArm::EArmState::One:
+                                    if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
+                                        x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Two);
+                                    break;
+                                case CGrappleArm::EArmState::Six:
+                                    BeginGrapple(playerToPoint, mgr);
+                                }
+                                break;
+                            case 1:
+                                if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
+                                {
+                                    switch (x490_gun->GetGrappleArm().GetAnimState())
+                                    {
+                                    case CGrappleArm::EArmState::One:
+                                        x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Two);
+                                        break;
+                                    case CGrappleArm::EArmState::Six:
+                                        BeginGrapple(playerToPoint, mgr);
+                                    }
+                                    break;
+                                }
+                                break;
+                            case 2:
+                                switch (x490_gun->GetGrappleArm().GetAnimState())
+                                {
+                                case CGrappleArm::EArmState::One:
+                                    x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Two);
+                                    break;
+                                case CGrappleArm::EArmState::Six:
+                                    BeginGrapple(playerToPoint, mgr);
+                                }
+                                break;
+                            }
+                        case EGrappleState::Zero:
+                            x3b8_grappleState = EGrappleState::One;
+                            x490_gun->GetGrappleArm().Activate(true);
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    if (x304_orbitState != EPlayerOrbitState::Five)
+    {
+        if (x304_orbitState >= EPlayerOrbitState::Five)
+            return;
+        if (x304_orbitState != EPlayerOrbitState::One)
+            return;
+    }
+    else
+    {
+        if (!point)
+        {
+            BreakGrapple(EPlayerOrbitRequest::Three, mgr);
+            return;
+        }
+
+        switch (g_tweakPlayer->GetGrappleJumpMode())
+        {
+        case 0:
+            if (x3b8_grappleState == EGrappleState::Four)
+            {
+                x3d8_grappleJumpTimeout -= input.DeltaTime();
+                if (x3d8_grappleJumpTimeout <= 0.f)
+                {
+                    BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                    SetMoveState(EPlayerMovementState::StartingJump, mgr);
+                    ComputeMovement(input, mgr, input.DeltaTime());
+                    PreventFallingCameraPitch();
+                }
+            }
+            break;
+        case 1:
+            switch (x3b8_grappleState)
+            {
+            case EGrappleState::Three:
+                if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) &&
+                    x3d8_grappleJumpTimeout <= 0.f)
+                {
+                    x3d8_grappleJumpTimeout = g_tweakPlayer->GetGrappleReleaseTime();
+                    x3b8_grappleState = EGrappleState::Four;
+                    ApplyGrappleJump(mgr);
+                }
+                break;
+            case EGrappleState::Four:
+                x3d8_grappleJumpTimeout -= input.DeltaTime();
+                if (x3d8_grappleJumpTimeout <= 0.f)
+                {
+                    SetMoveState(EPlayerMovementState::StartingJump, mgr);
+                    ComputeMovement(input, mgr, input.DeltaTime());
+                    BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                    PreventFallingCameraPitch();
+                }
+                break;
+            case EGrappleState::One:
+            case EGrappleState::Two:
+                if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
+                    BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                break;
+            default:
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+
+        zeus::CVector3f eyePos = GetEyePosition();
+        zeus::CVector3f playerToPoint = point->GetTranslation() - eyePos;
+        if (playerToPoint.canBeNormalized())
+        {
+            CRayCastResult result =
+            mgr.RayStaticIntersection(eyePos, playerToPoint.normalized(), playerToPoint.magnitude(),
+                                      TargetingFilter);
+            if (result.IsValid())
+            {
+                BreakGrapple(EPlayerOrbitRequest::Twelve, mgr);
+            }
+        }
+        return;
+    }
+
+    if (x490_gun->GetGrappleArm().BeamActive() && g_tweakPlayer->GetGrappleJumpMode() == 1 &&
+        !ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
+        BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+}
 
 void CPlayer::ApplyGrappleJump(CStateManager& mgr)
 {

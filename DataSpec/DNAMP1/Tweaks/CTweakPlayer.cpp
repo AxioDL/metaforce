@@ -383,8 +383,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x2c4_ = __dna_reader.readFloatBig();
     /* x2c8_grappleJumpForce */
     x2c8_grappleJumpForce = __dna_reader.readFloatBig();
-    /* x2cc_ */
-    x2cc_ = __dna_reader.readFloatBig();
+    /* x2cc_grappleReleaseTime */
+    x2cc_grappleReleaseTime = __dna_reader.readFloatBig();
     /* x2d0_grappleJumpMode */
     x2d0_grappleJumpMode = __dna_reader.readUint32Big();
     /* x2d4_ */
@@ -823,8 +823,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x2c4_);
     /* x2c8_grappleJumpForce */
     __dna_writer.writeFloatBig(x2c8_grappleJumpForce);
-    /* x2cc_ */
-    __dna_writer.writeFloatBig(x2cc_);
+    /* x2cc_grappleReleaseTime */
+    __dna_writer.writeFloatBig(x2cc_grappleReleaseTime);
     /* x2d0_grappleJumpMode */
     __dna_writer.writeUint32Big(x2d0_grappleJumpMode);
     /* x2d4_ */
@@ -1338,8 +1338,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2c4_ = __dna_docin.readFloat("x2c4_");
     /* x2c8_grappleJumpForce */
     x2c8_grappleJumpForce = __dna_docin.readFloat("x2c8_grappleJumpForce");
-    /* x2cc_ */
-    x2cc_ = __dna_docin.readFloat("x2cc_");
+    /* x2cc_grappleReleaseTime */
+    x2cc_grappleReleaseTime = __dna_docin.readFloat("x2cc_grappleReleaseTime");
     /* x2d0_grappleJumpMode */
     x2d0_grappleJumpMode = __dna_docin.readUint32("x2d0_grappleJumpMode");
     /* x2d4_ */
@@ -1838,8 +1838,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x2c4_", x2c4_);
     /* x2c8_grappleJumpForce */
     __dna_docout.writeFloat("x2c8_grappleJumpForce", x2c8_grappleJumpForce);
-    /* x2cc_ */
-    __dna_docout.writeFloat("x2cc_", x2cc_);
+    /* x2cc_grappleReleaseTime */
+    __dna_docout.writeFloat("x2cc_grappleReleaseTime", x2cc_grappleReleaseTime);
     /* x2d0_grappleJumpMode */
     __dna_docout.writeUint32("x2d0_grappleJumpMode", x2d0_grappleJumpMode);
     /* x2d4_ */
