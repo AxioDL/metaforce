@@ -42,6 +42,9 @@ struct ITweakPlayerGun : ITweak
     virtual float GetX38() const = 0; // x38
     virtual float GetGunHolsterTime() const=0;
     virtual float GetGunNotFiringTime() const=0;
+    virtual float GetFixedVerticalAim() const=0;
+    virtual const zeus::CVector3f& GetGunPosition() const=0;
+    virtual const zeus::CVector3f& GetGrapplingArmPosition() const=0;
     virtual float GetRichochetDamage(atUint32) const = 0;
 };
 }

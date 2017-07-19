@@ -32,6 +32,7 @@ private:
         struct
         {
             bool x3b2_25_beamActive : 1;
+            bool x3b2_27_armMoving : 1;
         };
         u32 _dummy = 0;
     };
@@ -43,6 +44,7 @@ public:
     void SetAnimState(EArmState state);
     EArmState GetAnimState() const { return x334_animState; }
     bool BeamActive() const { return x3b2_25_beamActive; }
+    bool IsArmMoving() const { return x3b2_27_armMoving; }
     void Activate(bool);
     void GrappleBeamDisconnected();
     void GrappleBeamConnected();

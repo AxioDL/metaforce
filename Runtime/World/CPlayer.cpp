@@ -67,7 +67,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
 
     SetInertiaTensorScalar(xe8_mass);
     x1f4_lastNonCollidingState = GetMotionState();
-    x490_gun->SetX3e8(x34_transform);
+    x490_gun->SetTransform(x34_transform);
     x490_gun->GetGrappleArm().SetX220(x34_transform);
 
     InitializeBallTransition();
@@ -1204,7 +1204,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
     if (x790_footstepSfxSel != EFootstepSfx::None && x78c_footstepSfxTimer > sfxDelay)
     {
         static float EarHeight = GetEyeHeight() - 0.1f;
-        if (xe6_24_fluidCounter &&  x828_waterLevelOnPlayer > 0.f && x828_waterLevelOnPlayer < EarHeight)
+        if (xe6_24_fluidCounter != 0 &&  x828_waterLevelOnPlayer > 0.f && x828_waterLevelOnPlayer < EarHeight)
         {
             if (x82c_inLava)
             {
@@ -1289,11 +1289,52 @@ void CPlayer::UpdateGunState(const CFinalInput&, CStateManager& mgr)
 {
 }
 
-void CPlayer::ForceGunOrientation(const zeus::CTransform&, CStateManager& mgr) {}
+void CPlayer::ResetGun(CStateManager& mgr)
+{
+    x498_gunHolsterState = EGunHolsterState::Holstered;
+    x49c_gunNotFiringTimeout = 0.f;
+    x490_gun->CancelFiring(mgr);
+    ResetAimTargetPrediction(kInvalidUniqueId);
+}
 
-void CPlayer::UpdateCameraState(CStateManager& mgr) {}
+void CPlayer::UpdateArmAndGunTransforms(float dt, CStateManager& mgr)
+{
+    zeus::CVector3f grappleOffset;
+    zeus::CVector3f gunOffset;
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
+    {
+        gunOffset = {0.f, 0.f, 0.6f};
+    }
+    else
+    {
+        gunOffset = g_tweakPlayerGun->GetGunPosition();
+        grappleOffset = x490_gun->GetGrappleArm().IsArmMoving() ?
+                        zeus::CVector3f::skZero : g_tweakPlayerGun->GetGrapplingArmPosition();
+        gunOffset.z += GetEyeHeight();
+        grappleOffset.z += GetEyeHeight();
+    }
 
-void CPlayer::UpdateDebugCamera(CStateManager& mgr) {}
+    UpdateGunTransform(gunOffset + x76c_cameraBob->GetGunBobTransformation().origin, mgr);
+    UpdateGrappleArmTransform(grappleOffset, mgr, dt);
+}
+
+void CPlayer::ForceGunOrientation(const zeus::CTransform& xf, CStateManager& mgr)
+{
+    ResetGun(mgr);
+    x530_ = xf.basis[1];
+    x490_gun->SetTransform(xf);
+    UpdateArmAndGunTransforms(0.01f, mgr);
+}
+
+void CPlayer::UpdateCameraState(CStateManager& mgr)
+{
+    UpdateCinematicState(mgr);
+}
+
+void CPlayer::UpdateDebugCamera(CStateManager& mgr)
+{
+    // Empty
+}
 
 void CPlayer::UpdateCameraTimers(float dt, const CFinalInput& input)
 {
@@ -1335,7 +1376,65 @@ CFirstPersonCamera& CPlayer::GetFirstPersonCamera(CStateManager& mgr)
     return *mgr.GetCameraManager()->GetFirstPersonCamera();
 }
 
-void CPlayer::UpdateGunTransform(const zeus::CVector3f&, float, CStateManager& mgr, bool) {}
+void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& mgr)
+{
+    float eyeHeight = GetEyeHeight();
+    zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+    zeus::CTransform gunXf = camXf;
+
+    zeus::CVector3f viewGunPos;
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphing)
+        viewGunPos = camXf * (gunPos - zeus::CVector3f(0.f, 0.f, eyeHeight));
+    else
+        viewGunPos = camXf.rotate(gunPos - zeus::CVector3f(0.f, 0.f, eyeHeight)) + GetEyePosition();
+
+    zeus::CUnitVector3f rightDir(gunXf.basis[0]);
+    gunXf.origin = viewGunPos;
+
+    switch (x498_gunHolsterState)
+    {
+    case EGunHolsterState::Drawing:
+    {
+        float liftAngle = zeus::clamp(-1.f, x49c_gunNotFiringTimeout / 0.45f, 1.f);
+        if (liftAngle > 0.01f)
+        {
+            gunXf = zeus::CQuaternion::fromAxisAngle(rightDir, -liftAngle *
+                g_tweakPlayerGun->GetFixedVerticalAim()).toTransform() *
+                    camXf.getRotation();
+            gunXf.origin = viewGunPos;
+        }
+        break;
+    }
+    case EGunHolsterState::Holstered:
+    {
+        gunXf = zeus::CQuaternion::fromAxisAngle(rightDir, -g_tweakPlayerGun->GetFixedVerticalAim()).toTransform() *
+                camXf.getRotation();
+        gunXf.origin = viewGunPos;
+        break;
+    }
+    case EGunHolsterState::Holstering:
+    {
+        float liftAngle = 1.f -
+            zeus::clamp(-1.f, x49c_gunNotFiringTimeout / g_tweakPlayerGun->GetGunHolsterTime(), 1.f);
+        if (x2f8_morphTransState == EPlayerMorphBallState::Morphing)
+            liftAngle = 1.f - zeus::clamp(-1.f, x49c_gunNotFiringTimeout / 0.1f, 1.f);
+        if (liftAngle > 0.01f)
+        {
+            gunXf = zeus::CQuaternion::fromAxisAngle(rightDir, -liftAngle *
+                g_tweakPlayerGun->GetFixedVerticalAim()).toTransform() *
+                    camXf.getRotation();
+            gunXf.origin = viewGunPos;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    x490_gun->SetTransform(gunXf);
+    UpdateAimTargetPrediction(gunXf, mgr);
+    UpdateAssistedAiming(gunXf, mgr);
+}
 
 void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr)
 {

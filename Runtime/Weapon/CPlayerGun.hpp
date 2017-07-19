@@ -111,7 +111,7 @@ private:
     float x3a0_ = 0.f;
     CFidget x3a4_fidget;
     zeus::CVector3f x3dc_damageLocation;
-    zeus::CTransform x3e8_;
+    zeus::CTransform x3e8_xf;
     zeus::CTransform x418_;
     zeus::CTransform x448_;
     zeus::CTransform x478_;
@@ -220,7 +220,7 @@ public:
     u32 GetSelectedBeam() const { return x310_selectedBeam; }
     u32 GetPendingSelectedBeam() const { return x314_pendingSelectedBeam; }
     const CGunMorph& GetGunMorph() const { return x678_morph; }
-    void SetX3e8(const zeus::CTransform& xf) { x3e8_ = xf; }
+    void SetTransform(const zeus::CTransform& xf) { x3e8_xf = xf; }
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
     void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
     void ProcessInput(const CFinalInput& input, CStateManager& mgr);

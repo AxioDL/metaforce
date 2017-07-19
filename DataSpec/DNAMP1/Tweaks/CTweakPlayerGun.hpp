@@ -27,11 +27,11 @@ struct CTweakPlayerGun : ITweakPlayerGun
     Value<float> x38_;
     Value<float> x3c_gunHolsterTime;
     Value<float> x40_gunNotFiringTime;
-    Value<float> x44_;
+    Value<float> x44_fixedVerticalAim;
     Value<float> x48_;
-    Value<zeus::CVector3f> x4c_;
+    Value<zeus::CVector3f> x4c_gunPosition;
     Value<zeus::CVector3f> x58_;
-    Value<zeus::CVector3f> x64_;
+    Value<zeus::CVector3f> x64_grapplingArmPosition;
     SShotParam x70_bomb;
     SShotParam x8c_powerBomb;
     SShotParam x1d4_missile;
@@ -50,7 +50,7 @@ struct CTweakPlayerGun : ITweakPlayerGun
     CTweakPlayerGun(athena::io::IStreamReader& r)
     {
         this->read(r);
-        x44_ = zeus::degToRad(x44_);
+        x44_fixedVerticalAim = zeus::degToRad(x44_fixedVerticalAim);
     }
 
     float GetX24() const { return x24_; }
@@ -61,6 +61,9 @@ struct CTweakPlayerGun : ITweakPlayerGun
     float GetX38() const { return x38_; }
     float GetGunHolsterTime() const { return x3c_gunHolsterTime; }
     float GetGunNotFiringTime() const { return x40_gunNotFiringTime; }
+    float GetFixedVerticalAim() const { return x44_fixedVerticalAim; }
+    const zeus::CVector3f& GetGunPosition() const { return x4c_gunPosition; }
+    const zeus::CVector3f& GetGrapplingArmPosition() const { return x64_grapplingArmPosition; }
     float GetRichochetDamage(atUint32 type) const
     {
         switch (type)
