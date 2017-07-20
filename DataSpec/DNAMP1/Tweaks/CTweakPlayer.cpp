@@ -205,10 +205,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x229_28_ = __dna_reader.readBool();
     /* x229_29_ */
     x229_29_ = __dna_reader.readBool();
-    /* x229_30_ */
-    x229_30_ = __dna_reader.readBool();
-    /* x229_31_ */
-    x229_31_ = __dna_reader.readBool();
+    /* x229_30_gunButtonTogglesHolster */
+    x229_30_gunButtonTogglesHolster = __dna_reader.readBool();
+    /* x229_31_gunNotFiringHolstersGun */
+    x229_31_gunNotFiringHolstersGun = __dna_reader.readBool();
     /* x22a_24_ */
     x22a_24_ = __dna_reader.readBool();
     /* x22a_25_ */
@@ -645,10 +645,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeBool(x229_28_);
     /* x229_29_ */
     __dna_writer.writeBool(x229_29_);
-    /* x229_30_ */
-    __dna_writer.writeBool(x229_30_);
-    /* x229_31_ */
-    __dna_writer.writeBool(x229_31_);
+    /* x229_30_gunButtonTogglesHolster */
+    __dna_writer.writeBool(x229_30_gunButtonTogglesHolster);
+    /* x229_31_gunNotFiringHolstersGun */
+    __dna_writer.writeBool(x229_31_gunNotFiringHolstersGun);
     /* x22a_24_ */
     __dna_writer.writeBool(x22a_24_);
     /* x22a_25_ */
@@ -1115,10 +1115,10 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x229_28_ = __dna_docin.readBool("x229_28_");
     /* x229_29_ */
     x229_29_ = __dna_docin.readBool("x229_29_");
-    /* x229_30_ */
-    x229_30_ = __dna_docin.readBool("x229_30_");
-    /* x229_31_ */
-    x229_31_ = __dna_docin.readBool("x229_31_");
+    /* x229_30_gunButtonTogglesHolster */
+    x229_30_gunButtonTogglesHolster = __dna_docin.readBool("x229_30_gunButtonTogglesHolster");
+    /* x229_31_gunNotFiringHolstersGun */
+    x229_31_gunNotFiringHolstersGun = __dna_docin.readBool("x229_31_gunNotFiringHolstersGun");
     /* x22a_24_ */
     x22a_24_ = __dna_docin.readBool("x22a_24_");
     /* x22a_25_ */
@@ -1624,10 +1624,10 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeBool("x229_28_", x229_28_);
     /* x229_29_ */
     __dna_docout.writeBool("x229_29_", x229_29_);
-    /* x229_30_ */
-    __dna_docout.writeBool("x229_30_", x229_30_);
-    /* x229_31_ */
-    __dna_docout.writeBool("x229_31_", x229_31_);
+    /* x229_30_gunButtonTogglesHolster */
+    __dna_docout.writeBool("x229_30_gunButtonTogglesHolster", x229_30_gunButtonTogglesHolster);
+    /* x229_31_gunNotFiringHolstersGun */
+    __dna_docout.writeBool("x229_31_gunNotFiringHolstersGun", x229_31_gunNotFiringHolstersGun);
     /* x22a_24_ */
     __dna_docout.writeBool("x22a_24_", x22a_24_);
     /* x22a_25_ */

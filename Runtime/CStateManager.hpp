@@ -456,6 +456,8 @@ public:
     u32 GetBossStringIdx() const { return xf20_bossStringIdx; }
     const SOnScreenTex& GetPendingScreenTex() const { return xef4_pendingScreenTex; }
     void SetViewportScale(const zeus::CVector2f& scale) { xf2c_viewportScale = scale; }
+    float GetThermalColdScale2() const { return xf28_thermColdScale2; }
+    void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

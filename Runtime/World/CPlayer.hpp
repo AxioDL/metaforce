@@ -169,17 +169,18 @@ private:
         float x10_ = 0.f;
         float x14_ = 0.f;
         float x18_ = 0.f;
-        ResId x1c_ = kInvalidResId;
+        ResId x1c_txtr = kInvalidResId;
         float x20_alpha = 0.f;
         float x24_ = 0.f;
-        bool x28_ = false;
+        bool x28_affectsThermal = false;
 
     public:
         CVisorSteam(float a, float b, float c, ResId tex) : x0_(a), x4_(b), x8_(c), xc_tex(tex) {}
         ResId GetTextureId() const;
-        void SetSteam(float a, float b, float c, ResId d, bool e);
+        void SetSteam(float a, float b, float c, ResId txtr, bool affectsThermal);
         void Update(float dt);
         float GetAlpha() const { return x20_alpha; }
+        bool AffectsThermal() const { return x28_affectsThermal; }
     };
 
     class CFailsafeTest
@@ -282,7 +283,7 @@ private:
     std::unique_ptr<CPlayerGun> x490_gun;
     float x494_mapAlpha = 1.f;
     EGunHolsterState x498_gunHolsterState = EGunHolsterState::Drawn;
-    float x49c_gunNotFiringTimeout;
+    float x49c_gunHolsterRemTime;
     std::unique_ptr<CFailsafeTest> x4a0_failsafeTest;
     u32 x4a4_ = 0;
     float x4f8_ = 0.f;
@@ -351,8 +352,8 @@ private:
     {
         struct
         {
-            bool x9c4_24_ : 1;
-            bool x9c4_25_ : 1;
+            bool x9c4_24_visorChangeRequested : 1;
+            bool x9c4_25_showCrosshairs : 1;
             bool x9c4_26_ : 1;
             bool x9c4_27_ : 1;
             bool x9c4_28_ : 1;
@@ -439,7 +440,7 @@ public:
     static CHealthInfo* HealthInfo(const CStateManager& mgr);
     bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
-    void Touch(CActor&, CStateManager& mgr);
+    void Touch(CActor& actor, CStateManager& mgr);
     void DoPreThink(float dt, CStateManager& mgr);
     void DoThink(float dt, CStateManager& mgr);
     void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
@@ -599,8 +600,6 @@ public:
     const std::vector<TUniqueId>& GetOnScreenOrbitObjects() const { return x354_onScreenOrbitObjects; }
     const std::vector<TUniqueId>& GetOffScreenOrbitObjects() const { return x364_offScreenOrbitObjects; }
     void SetPlayerHitWallDuringMove();
-
-    void Touch();
 
     void DecrementPhazon();
     void IncrementPhazon();

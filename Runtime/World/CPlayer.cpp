@@ -50,7 +50,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                 stepDown), x7d0_animRes(resId, 0, playerScale, 0, true)
 {
     x490_gun.reset(new CPlayerGun(uid));
-    x49c_gunNotFiringTimeout = g_tweakPlayerGun->GetGunNotFiringTime();
+    x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
     x4a0_failsafeTest.reset(new CFailsafeTest());
     x76c_cameraBob.reset(new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
                                               zeus::CVector2f{CPlayerCameraBob::kCameraBobExtentX,
@@ -401,9 +401,20 @@ bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const
     return false;
 }
 
-rstl::optional_object<zeus::CAABox> CPlayer::GetTouchBounds() const { return {}; }
-
-void CPlayer::Touch(CActor&, CStateManager& mgr) {}
+rstl::optional_object<zeus::CAABox> CPlayer::GetTouchBounds() const
+{
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
+    {
+        float ballTouchRad = x768_morphball->GetBallTouchRadius();
+        zeus::CVector3f ballCenter =
+            GetTranslation() + zeus::CVector3f(0.f, 0.f, x768_morphball->GetBallRadius());
+        return zeus::CAABox(ballCenter - ballTouchRad, ballCenter + ballTouchRad);
+    }
+    else
+    {
+        return GetBoundingBox();
+    }
+}
 
 void CPlayer::DoPreThink(float dt, CStateManager& mgr)
 {
@@ -1133,7 +1144,10 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CPlayer::SetVisorSteam(float, float, float, ResId, bool) {}
+void CPlayer::SetVisorSteam(float f1, float f2, float f3, ResId txtr, bool affectsThermal)
+{
+    x7a0_visorSteam.SetSteam(f1, f2, f3, txtr, affectsThermal);
+}
 
 static const u16 skLeftStepSounds[] =
 {
@@ -1279,20 +1293,149 @@ u16 CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, u32 
     return id;
 }
 
-void CPlayer::UpdateCrosshairsState(const CFinalInput&) {}
-
-void CPlayer::UpdateVisorTransition(float, CStateManager& mgr) {}
-
-void CPlayer::UpdateVisorState(const CFinalInput&, float, CStateManager& mgr) {}
-
-void CPlayer::UpdateGunState(const CFinalInput&, CStateManager& mgr)
+void CPlayer::UpdateCrosshairsState(const CFinalInput& input)
 {
+    x9c4_25_showCrosshairs = ControlMapper::GetDigitalInput(ControlMapper::ECommands::ShowCrosshairs, input);
+}
+
+void CPlayer::UpdateVisorTransition(float dt, CStateManager& mgr)
+{
+    if (mgr.GetPlayerState()->GetIsVisorTransitioning())
+        mgr.GetPlayerState()->UpdateVisorTransition(dt);
+}
+
+static const std::pair<CPlayerState::EItemType, ControlMapper::ECommands> skVisorToItemMapping[] =
+{
+    {CPlayerState::EItemType::CombatVisor, ControlMapper::ECommands::NoVisor},
+    {CPlayerState::EItemType::XRayVisor, ControlMapper::ECommands::XrayVisor},
+    {CPlayerState::EItemType::ScanVisor, ControlMapper::ECommands::InviroVisor},
+    {CPlayerState::EItemType::ThermalVisor, ControlMapper::ECommands::ThermoVisor}
+};
+
+void CPlayer::UpdateVisorState(const CFinalInput& input, float dt, CStateManager& mgr)
+{
+    x7a0_visorSteam.Update(dt);
+    if (x7a0_visorSteam.AffectsThermal())
+        mgr.SetThermalColdScale2(mgr.GetThermalColdScale2() + x7a0_visorSteam.GetAlpha());
+
+    if (x304_orbitState == EPlayerOrbitState::Five ||
+        TCastToPtr<CScriptGrapplePoint>(mgr.ObjectById(x310_orbitTargetId)) ||
+        x2f8_morphTransState != EPlayerMorphBallState::Unmorphed ||
+        mgr.GetPlayerState()->GetIsVisorTransitioning() ||
+        x3a8_scanState != EPlayerScanState::NotScanning)
+        return;
+
+    if (mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::EPlayerVisor::Scan &&
+        (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) ||
+         ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input)) &&
+        mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::CombatVisor))
+    {
+        mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::Combat);
+        DrawGun(mgr);
+    }
+
+    for (int i=0 ; i<4 ; ++i)
+    {
+        if (mgr.GetPlayerState()->HasPowerUp(skVisorToItemMapping[i].first) &&
+            ControlMapper::GetPressInput(skVisorToItemMapping[i].second, input))
+        {
+            x9c4_24_visorChangeRequested = true;
+            CPlayerState::EPlayerVisor visor = CPlayerState::EPlayerVisor(i);
+            if (mgr.GetPlayerState()->GetTransitioningVisor() != visor)
+            {
+                mgr.GetPlayerState()->StartVisorTransition(visor);
+                if (visor == CPlayerState::EPlayerVisor::Scan)
+                    HolsterGun(mgr);
+                else
+                    DrawGun(mgr);
+            }
+        }
+    }
+}
+
+void CPlayer::UpdateGunState(const CFinalInput& input, CStateManager& mgr)
+{
+    switch (x498_gunHolsterState)
+    {
+    case EGunHolsterState::Drawn:
+    {
+        bool needsHolster = false;
+        if (g_tweakPlayer->GetGunButtonTogglesHolster())
+        {
+            if (ControlMapper::GetPressInput(ControlMapper::ECommands::ToggleHolster, input))
+                needsHolster = true;
+            if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) &&
+                !ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input) &&
+                g_tweakPlayer->GetGunNotFiringHolstersGun())
+            {
+                x49c_gunHolsterRemTime -= input.DeltaTime();
+                if (x49c_gunHolsterRemTime <= 0.f)
+                    needsHolster = true;
+            }
+        }
+        else
+        {
+            if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) &&
+                !ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input) &&
+                x490_gun->IsFidgeting())
+            {
+                if (g_tweakPlayer->GetGunNotFiringHolstersGun())
+                    x49c_gunHolsterRemTime -= input.DeltaTime();
+            }
+            else
+            {
+                x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
+            }
+        }
+
+        if (needsHolster)
+            HolsterGun(mgr);
+        break;
+    }
+    case EGunHolsterState::Drawing:
+    {
+        if (x49c_gunHolsterRemTime > 0.f)
+        {
+            x49c_gunHolsterRemTime -= input.DeltaTime();
+        } else
+        {
+            x498_gunHolsterState = EGunHolsterState::Drawn;
+            x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
+        }
+        break;
+    }
+    case EGunHolsterState::Holstered:
+    {
+        bool needsDraw = false;
+        if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) ||
+            ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input) ||
+            x3b8_grappleState == EGrappleState::Zero ||
+            (g_tweakPlayer->GetGunButtonTogglesHolster() &&
+             ControlMapper::GetPressInput(ControlMapper::ECommands::ToggleHolster, input)))
+            needsDraw = true;
+
+        if (x3b8_grappleState == EGrappleState::Zero &&
+            (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan ||
+             mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::EPlayerVisor::Scan ))
+            needsDraw = false;
+
+        if (needsDraw)
+            DrawGun(mgr);
+        break;
+    }
+    case EGunHolsterState::Holstering:
+        if (x49c_gunHolsterRemTime > 0.f)
+            x49c_gunHolsterRemTime -= input.DeltaTime();
+        else
+            x498_gunHolsterState = EGunHolsterState::Holstered;
+        break;
+    }
 }
 
 void CPlayer::ResetGun(CStateManager& mgr)
 {
     x498_gunHolsterState = EGunHolsterState::Holstered;
-    x49c_gunNotFiringTimeout = 0.f;
+    x49c_gunHolsterRemTime = 0.f;
     x490_gun->CancelFiring(mgr);
     ResetAimTargetPrediction(kInvalidUniqueId);
 }
@@ -1395,7 +1538,7 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& m
     {
     case EGunHolsterState::Drawing:
     {
-        float liftAngle = zeus::clamp(-1.f, x49c_gunNotFiringTimeout / 0.45f, 1.f);
+        float liftAngle = zeus::clamp(-1.f, x49c_gunHolsterRemTime / 0.45f, 1.f);
         if (liftAngle > 0.01f)
         {
             gunXf = zeus::CQuaternion::fromAxisAngle(rightDir, -liftAngle *
@@ -1415,9 +1558,9 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& m
     case EGunHolsterState::Holstering:
     {
         float liftAngle = 1.f -
-            zeus::clamp(-1.f, x49c_gunNotFiringTimeout / g_tweakPlayerGun->GetGunHolsterTime(), 1.f);
+            zeus::clamp(-1.f, x49c_gunHolsterRemTime / g_tweakPlayerGun->GetGunHolsterTime(), 1.f);
         if (x2f8_morphTransState == EPlayerMorphBallState::Morphing)
-            liftAngle = 1.f - zeus::clamp(-1.f, x49c_gunNotFiringTimeout / 0.1f, 1.f);
+            liftAngle = 1.f - zeus::clamp(-1.f, x49c_gunHolsterRemTime / 0.1f, 1.f);
         if (liftAngle > 0.01f)
         {
             gunXf = zeus::CQuaternion::fromAxisAngle(rightDir, -liftAngle *
@@ -1458,7 +1601,7 @@ void CPlayer::DrawGun(CStateManager& mgr)
     if (x498_gunHolsterState != EGunHolsterState::Holstered || InGrappleJumpCooldown())
         return;
     x498_gunHolsterState = EGunHolsterState::Drawing;
-    x49c_gunNotFiringTimeout = 0.45f;
+    x49c_gunHolsterRemTime = 0.45f;
     x490_gun->ResetIdle(mgr);
 }
 
@@ -1470,9 +1613,9 @@ void CPlayer::HolsterGun(CStateManager& mgr)
     float time = x2f8_morphTransState == EPlayerMorphBallState::Morphing ? 0.1f :
                  g_tweakPlayerGun->GetGunHolsterTime();
     if (x498_gunHolsterState == EGunHolsterState::Drawing)
-        x49c_gunNotFiringTimeout = time * (1.f - x49c_gunNotFiringTimeout / 0.45f);
+        x49c_gunHolsterRemTime = time * (1.f - x49c_gunHolsterRemTime / 0.45f);
     else
-        x49c_gunNotFiringTimeout = time;
+        x49c_gunHolsterRemTime = time;
     x498_gunHolsterState = EGunHolsterState::Holstering;
     x490_gun->CancelFiring(mgr);
     ResetAimTargetPrediction(kInvalidUniqueId);
@@ -2249,35 +2392,39 @@ void CPlayer::SetPlayerHitWallDuringMove()
     x2d0_ = 1;
 }
 
-void CPlayer::Touch() {}
-
-void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId d, bool e)
+void CPlayer::Touch(CActor& actor, CStateManager& mgr)
 {
-    if (x1c_ == kInvalidResId || a > x10_)
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
+        x768_morphball->Touch(actor, mgr);
+}
+
+void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId txtr, bool affectsThermal)
+{
+    if (x1c_txtr == kInvalidResId || a > x10_)
     {
         x10_ = a;
         x14_ = b;
         x18_ = c;
-        x1c_ = d;
+        x1c_txtr = txtr;
     }
-    x28_ = e;
+    x28_affectsThermal = affectsThermal;
 }
 
 ResId CPlayer::CVisorSteam::GetTextureId() const { return xc_tex; }
 
 void CPlayer::CVisorSteam::Update(float dt)
 {
-    if (x1c_ == kInvalidResId)
+    if (x1c_txtr == kInvalidResId)
         x0_ = 0.f;
     else
     {
         x0_ = x10_;
         x4_ = x14_;
         x8_ = x18_;
-        xc_tex = x1c_;
+        xc_tex = x1c_txtr;
     }
 
-    x1c_ = kInvalidResId;
+    x1c_txtr = kInvalidResId;
     if ((x20_alpha - x0_) < 0.000009999f || std::fabs(x20_alpha) > 0.000009999f)
         return;
 

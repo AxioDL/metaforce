@@ -29,6 +29,8 @@ struct ITweakPlayer : ITweak
     virtual bool GetScanFreezesGame() const=0; // x21c_25
     virtual bool GetFiringCancelsCameraPitch() const=0;
     virtual float GetScanningFrameSenseRange() const=0;
+    virtual bool GetGunButtonTogglesHolster() const=0;
+    virtual bool GetGunNotFiringHolstersGun() const=0;
     virtual float GetPlayerHeight() const=0; // x26c
     virtual float GetPlayerXYHalfExtent() const=0; // x270
     virtual bool GetX228_24() const=0; // x228_24

@@ -17,7 +17,7 @@ CPlayerGun::CPlayerGun(TUniqueId id)
     x66c_ = g_tweakPlayerGun->GetX28();
 
     x832_31_ = true;
-    x833_24_ = true;
+    x833_24_isFidgeting = true;
     x833_30_ = true;
     x6e0_.SetSortThermal(true);
 

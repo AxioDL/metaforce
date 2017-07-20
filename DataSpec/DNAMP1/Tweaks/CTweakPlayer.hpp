@@ -111,8 +111,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x229_27_ : 1;
     Value<bool> x229_28_ : 1;
     Value<bool> x229_29_ : 1;
-    Value<bool> x229_30_ : 1;
-    Value<bool> x229_31_ : 1;
+    Value<bool> x229_30_gunButtonTogglesHolster : 1;
+    Value<bool> x229_31_gunNotFiringHolstersGun : 1;
     Value<bool> x22a_24_ : 1;
     Value<bool> x22a_25_ : 1;
     Value<bool> x22a_26_firingCancelsCameraPitch : 1;
@@ -194,6 +194,8 @@ struct CTweakPlayer : ITweakPlayer
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
     float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
+    bool GetGunButtonTogglesHolster() const { return x229_30_gunButtonTogglesHolster; }
+    bool GetGunNotFiringHolstersGun() const { return x229_31_gunNotFiringHolstersGun; }
     bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }

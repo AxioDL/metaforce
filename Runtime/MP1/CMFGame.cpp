@@ -417,11 +417,5 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 
 void CMFGameLoader::Draw() const { g_GameState->GetWorldTransitionManager()->Draw(); }
 
-void CMFGameLoader::Touch()
-{
-    x14_stateMgr->TouchSky();
-    x14_stateMgr->TouchPlayerActor();
-    x14_stateMgr->Player()->Touch();
-}
 }
 }
