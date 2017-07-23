@@ -15,6 +15,7 @@
 #include <hecl/Database.hpp>
 #include "logvisor/logvisor.hpp"
 #include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/SteamFinder.hpp"
 
 #if _WIN32
 #include <io.h>
@@ -231,6 +232,12 @@ void BlenderConnection::_blenderDied()
 
 static std::atomic_bool BlenderFirstInit(false);
 
+static bool RegFileExists(const hecl::SystemChar* path)
+{
+    hecl::Sstat theStat;
+    return !hecl::Stat(path, &theStat) && S_ISREG(theStat.st_mode);
+}
+
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
@@ -299,21 +306,37 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
         /* User-specified blender path */
 #if _WIN32
         wchar_t BLENDER_BIN_BUF[2048];
-        wchar_t* blenderBin = _wgetenv(L"BLENDER_BIN");
+        const wchar_t* blenderBin = _wgetenv(L"BLENDER_BIN");
 #else
-        char* blenderBin = getenv("BLENDER_BIN");
+        const char* blenderBin = getenv("BLENDER_BIN");
 #endif
+
+        /* Steam blender */
+        hecl::SystemString steamBlender;
 
         /* Child process of blender */
 #if _WIN32
-        if (!blenderBin)
+        if (!blenderBin || !RegFileExists(blenderBin))
         {
-            /* Environment not set; use default */
-            wchar_t progFiles[256];
-            if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
-                BlenderLog.report(logvisor::Fatal, L"unable to determine 'Program Files' path");
-            _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender\\blender.exe", progFiles);
-            blenderBin = BLENDER_BIN_BUF;
+            /* Environment not set; try steam */
+            steamBlender = hecl::FindCommonSteamApp(_S("Blender"));
+            if (steamBlender.size())
+            {
+                steamBlender += _S("\\blender.exe");
+                blenderBin = steamBlender.c_str();
+            }
+
+            if (!RegFileExists(blenderBin))
+            {
+                /* No steam; try default */
+                wchar_t progFiles[256];
+                if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
+                    BlenderLog.report(logvisor::Fatal, L"unable to determine 'Program Files' path");
+                _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender\\blender.exe", progFiles);
+                blenderBin = BLENDER_BIN_BUF;
+                if (!RegFileExists(blenderBin))
+                    BlenderLog.report(logvisor::Fatal, L"unable to find blender.exe");
+            }
         }
 
         wchar_t cmdLine[2048];

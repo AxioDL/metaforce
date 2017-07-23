@@ -94,6 +94,7 @@ if ackbytes != b'ACK':
     quitblender()
 
 # slerp branch check
+bpy.ops.mesh.primitive_cube_add()
 orig_rot = bpy.context.object.rotation_mode
 try:
     bpy.context.object.rotation_mode = 'QUATERNION_SLERP'

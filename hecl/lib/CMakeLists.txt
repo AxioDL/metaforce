@@ -47,6 +47,7 @@ add_library(hecl-common
             ../include/hecl/Backend/HLSL.hpp
             ../include/hecl/Backend/Metal.hpp
             ../include/hecl/Blender/BlenderConnection.hpp
+            ../include/hecl/SteamFinder.hpp
             ../include/hecl/Frontend.hpp
             ../include/hecl/Database.hpp
             ../include/hecl/Runtime.hpp
@@ -56,6 +57,7 @@ add_library(hecl-common
             ../include/hecl/MathExtras.hpp
             ../include/hecl/UniformBufferPool.hpp
             ../include/hecl/VertexBufferPool.hpp
+            SteamFinder.cpp
             ClientProcess.cpp
             atdna_HMDLMeta.cpp
             atdna_Frontend.cpp
