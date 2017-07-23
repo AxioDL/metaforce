@@ -27,7 +27,7 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
     SetCoefficientOfRestitutionModifier(0.5f);
     SetCallTouch(false);
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
-        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::StaticCollision}));
+        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::NoStaticCollision}));
 }
 
 CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& boxSize,
@@ -39,12 +39,12 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 , x25c_owner(uid2)
 , x260_boxSize(boxSize)
 , x280_aaboxPrimitive(new CCollidableAABox(zeus::CAABox(-0.5f * boxSize, 0.5f * boxSize),
-                                           CMaterialList(EMaterialTypes::Solid, EMaterialTypes::StaticCollision)))
+                                           CMaterialList(EMaterialTypes::Solid, EMaterialTypes::NoStaticCollision)))
 {
     SetCoefficientOfRestitutionModifier(0.5f);
     SetCallTouch(false);
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
-        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::StaticCollision}));
+        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::NoStaticCollision}));
 }
 
 CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float radius, float mass)
@@ -54,13 +54,13 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bo
 , x258_primitiveType(EPrimitiveType::Sphere)
 , x25c_owner(uid2)
 , x284_spherePrimitive(new CCollidableSphere(zeus::CSphere(zeus::CVector3f::skZero, radius),
-                                             CMaterialList(EMaterialTypes::StaticCollision, EMaterialTypes::Solid)))
+                                             CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::Solid)))
 , x288_sphereRadius(radius)
 {
     SetCoefficientOfRestitutionModifier(0.5f);
     SetCallTouch(false);
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
-        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::StaticCollision}));
+        {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::NoStaticCollision}));
 }
 
 void CCollisionActor::Accept(IVisitor& visitor) { visitor.Visit(this); }

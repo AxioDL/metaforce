@@ -80,7 +80,7 @@ private:
     u32 x324_ = 4;
     u32 x328_ = 0x2000;
     u32 x32c_ = 0;
-    u32 x330_ = 0;
+    u32 x330_chargeWeaponIdx = 0;
     u32 x334_ = 0;
     u32 x338_ = 0;
     u32 x33c_ = 0;
@@ -114,7 +114,7 @@ private:
     zeus::CTransform x3e8_xf;
     zeus::CTransform x418_;
     zeus::CTransform x448_;
-    zeus::CTransform x478_;
+    zeus::CTransform x478_assistAimXf;
     zeus::CTransform x4a8_;
     zeus::CTransform x4d8_;
     zeus::CTransform x508_;
@@ -222,11 +222,13 @@ public:
     u32 GetPendingSelectedBeam() const { return x314_pendingSelectedBeam; }
     const CGunMorph& GetGunMorph() const { return x678_morph; }
     void SetTransform(const zeus::CTransform& xf) { x3e8_xf = xf; }
+    void SetAssistAimTransform(const zeus::CTransform& xf) { x478_assistAimXf = xf; }
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
     void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
     void ProcessInput(const CFinalInput& input, CStateManager& mgr);
     void ResetIdle(CStateManager& mgr);
     void CancelFiring(CStateManager& mgr);
+    float GetBeamVelocity() const;
 };
 
 }

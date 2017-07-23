@@ -63,6 +63,9 @@ public:
                                           const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter);
     static void BuildAreaCollisionCache(CStateManager& mgr, CAreaCollisionCache& cache);
     static float GetMinExtentForCollisionPrimitive(const CCollisionPrimitive& prim);
+    static bool DetectCollisionBoolean(CStateManager& mgr, const CCollisionPrimitive& prim,
+                                       const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                       const rstl::reserved_vector<TUniqueId, 1024>& nearList);
     static bool DetectCollisionBoolean_Cached(CStateManager& mgr, CAreaCollisionCache& cache,
                                               const CCollisionPrimitive& prim, const zeus::CTransform& xf,
                                               const CMaterialFilter& filter,

@@ -17,8 +17,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x64_[8];
     Value<float> x84_[8];
     Value<float> xa4_[8];
-    Value<float> xc4_hardLandingVelocityThreshold;
-    Value<float> xc8_;
+    Value<float> xc4_normalGravAccel;
+    Value<float> xc8_fluidGravAccel;
     Value<float> xcc_;
     Value<float> xd0_;
     Value<float> xd4_;
@@ -116,8 +116,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x22a_24_ : 1;
     Value<bool> x22a_25_ : 1;
     Value<bool> x22a_26_firingCancelsCameraPitch : 1;
-    Value<bool> x22a_27_ : 1;
-    Value<bool> x22a_28_ : 1;
+    Value<bool> x22a_27_assistedAimingIgnoreHorizontal : 1;
+    Value<bool> x22a_28_assistedAimingIgnoreVertical : 1;
     Value<float> x22c_;
     Value<float> x230_;
     Value<float> x234_;
@@ -132,8 +132,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x258_;
     Value<float> x25c_;
     Value<float> x260_;
-    Value<float> x264_;
-    Value<float> x268_;
+    Value<float> x264_aimAssistHorizontalAngle;
+    Value<float> x268_aimAssistVerticalAngle;
     Value<float> x26c_playerHeight;
     Value<float> x270_playerXYHalfExtent;
     Value<float> x274_;
@@ -148,20 +148,20 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x298_;
     Value<float> x29c_;
     Value<float> x2a0_;
-    Value<float> x2a4_;
+    Value<float> x2a4_grappleSwingLength;
     Value<float> x2a8_grappleSwingPeriod;
-    Value<float> x2ac_;
+    Value<float> x2ac_grapplePullSpeedMin;
     Value<float> x2b0_;
-    Value<float> x2b4_;
-    Value<float> x2b8_;
-    Value<float> x2bc_;
-    Value<float> x2c0_;
-    Value<float> x2c4_;
+    Value<float> x2b4_maxGrappleLockedTurnAlignDistance;
+    Value<float> x2b8_grapplePullSpeedProportion;
+    Value<float> x2bc_grapplePullSpeedMax;
+    Value<float> x2c0_grappleLookCenterSpeed;
+    Value<float> x2c4_maxGrappleTurnSpeed;
     Value<float> x2c8_grappleJumpForce;
     Value<float> x2cc_grappleReleaseTime;
     Value<atUint32> x2d0_grappleJumpMode;
     Value<bool> x2d4_;
-    Value<bool> x2d5_;
+    Value<bool> x2d5_invertGrappleTurn;
     Value<float> x2d8_;
     Value<float> x2dc_;
     Value<float> x2e0_;
@@ -179,7 +179,8 @@ struct CTweakPlayer : ITweakPlayer
     float GetX54() const { return x44_[4]; }
     float GetX58() const { return x44_[5]; }
     float GetX5C() const { return x44_[6]; }
-    float GetHardLandingVelocityThreshold() const { return xc4_hardLandingVelocityThreshold; }
+    float GetNormalGravAccel() const { return xc4_normalGravAccel; }
+    float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
     float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
     uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
@@ -197,15 +198,27 @@ struct CTweakPlayer : ITweakPlayer
     bool GetGunButtonTogglesHolster() const { return x229_30_gunButtonTogglesHolster; }
     bool GetGunNotFiringHolstersGun() const { return x229_31_gunNotFiringHolstersGun; }
     bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
+    bool GetAssistedAimingIgnoreHorizontal() const { return x22a_27_assistedAimingIgnoreHorizontal; }
+    bool GetAssistedAimingIgnoreVertical() const { return x22a_28_assistedAimingIgnoreVertical; }
+    float GetAimAssistHorizontalAngle() const { return x264_aimAssistHorizontalAngle; }
+    float GetAimAssistVerticalAngle() const { return x268_aimAssistVerticalAngle; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
     float GetX274() const { return x274_; }
     float GetX278() const { return x278_; }
     float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
+    float GetGrappleSwingLength() const { return x2a4_grappleSwingLength; }
     float GetGrappleSwingPeriod() const { return x2a8_grappleSwingPeriod; }
+    float GetGrapplePullSpeedMin() const { return x2ac_grapplePullSpeedMin; }
+    float GetMaxGrappleLockedTurnAlignDistance() const { return x2b4_maxGrappleLockedTurnAlignDistance; }
+    float GetGrapplePullSpeedProportion() const { return x2b8_grapplePullSpeedProportion; }
+    float GetGrapplePullSpeedMax() const { return x2bc_grapplePullSpeedMax; }
+    float GetGrappleLookCenterSpeed() const { return x2c0_grappleLookCenterSpeed; }
+    float GetMaxGrappleTurnSpeed() const { return x2c4_maxGrappleTurnSpeed; }
     float GetGrappleJumpForce() const { return x2c8_grappleJumpForce; }
     float GetGrappleReleaseTime() const { return x2cc_grappleReleaseTime; }
     uint32_t GetGrappleJumpMode() const { return x2d0_grappleJumpMode; }
+    bool InvertGrappleTurn() const { return x2d5_invertGrappleTurn; }
     float GetX124() const { return x134_; }
     float GetX184() const { return x184_; }
     float GetX1fc() const { return x1fc_; }

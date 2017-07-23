@@ -248,7 +248,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ||
         player->GetOrbitState() == CPlayer::EPlayerOrbitState::Five ||
-        player->GetGrappleState() == CPlayer::EGrappleState::Zero ||
+        player->GetGrappleState() == CPlayer::EGrappleState::None ||
         mgr.GetGameState() == CStateManager::EGameState::SoftPaused ||
         mgr.GetCameraManager()->IsInCinematicCamera())
     {

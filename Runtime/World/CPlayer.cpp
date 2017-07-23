@@ -68,7 +68,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
     SetInertiaTensorScalar(xe8_mass);
     x1f4_lastNonCollidingState = GetMotionState();
     x490_gun->SetTransform(x34_transform);
-    x490_gun->GetGrappleArm().SetX220(x34_transform);
+    x490_gun->GetGrappleArm().SetTransform(x34_transform);
 
     InitializeBallTransition();
     zeus::CAABox ballTransAABB = x64_modelData->GetBounds();
@@ -379,7 +379,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
         }
     }
 
-    if (x3b8_grappleState != EGrappleState::Zero)
+    if (x3b8_grappleState != EGrappleState::None)
         BreakGrapple(EPlayerOrbitRequest::Eleven, mgr);
 }
 
@@ -878,7 +878,7 @@ void CPlayer::Freeze(CStateManager& stateMgr, ResId steamTxtr, u16 sfx, ResId ic
 
     CPhysicsActor::Stop();
     ClearForcesAndTorques();
-    if (x3b8_grappleState != EGrappleState::Zero)
+    if (x3b8_grappleState != EGrappleState::None)
         BreakGrapple(EPlayerOrbitRequest::Ten, stateMgr);
     else
         SetOrbitRequest(EPlayerOrbitRequest::Ten, stateMgr);
@@ -979,7 +979,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         {
             if (x258_movementState != EPlayerMovementState::Falling)
             {
-                float hardThres = 30.f * 2.f * -g_tweakPlayer->GetHardLandingVelocityThreshold();
+                float hardThres = 30.f * 2.f * -g_tweakPlayer->GetNormalGravAccel();
                 hardThres = (hardThres != 0.f) ? hardThres * std::sqrt(hardThres) : 0.f;
                 float landVol = zeus::clamp(95.f, 1.6f * -x794_.z + 95.f, 127.f) / 127.f;
                 u16 landSfx;
@@ -1409,12 +1409,12 @@ void CPlayer::UpdateGunState(const CFinalInput& input, CStateManager& mgr)
         bool needsDraw = false;
         if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) ||
             ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input) ||
-            x3b8_grappleState == EGrappleState::Zero ||
+            x3b8_grappleState == EGrappleState::None ||
             (g_tweakPlayer->GetGunButtonTogglesHolster() &&
              ControlMapper::GetPressInput(ControlMapper::ECommands::ToggleHolster, input)))
             needsDraw = true;
 
-        if (x3b8_grappleState == EGrappleState::Zero &&
+        if (x3b8_grappleState == EGrappleState::None &&
             (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan ||
              mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::EPlayerVisor::Scan ))
             needsDraw = false;
@@ -1581,12 +1581,96 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& m
 
 void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr)
 {
+    zeus::CTransform assistXf = xf;
+    if (TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget))
+    {
+        zeus::CVector3f gunToTarget = x480_assistedTargetAim - xf.origin;
+        zeus::CVector3f gunToTargetFlat = gunToTarget;
+        gunToTargetFlat.z = 0.f;
+        float gunToTargetFlatMag = gunToTargetFlat.magnitude();
+        zeus::CVector3f gunDirFlat = xf.basis[1];
+        gunDirFlat.z = 0.f;
+        float gunDirFlatMag = gunDirFlat.magnitude();
+        if (gunToTargetFlat.canBeNormalized() && gunDirFlat.canBeNormalized())
+        {
+            gunToTargetFlat = gunToTargetFlat / gunToTargetFlatMag;
+            gunDirFlat = gunDirFlat / gunDirFlatMag;
+            float vAngleDelta = std::atan2(gunToTarget.z, gunToTargetFlatMag) -
+                std::atan2(xf.basis[1].z, gunDirFlatMag);
+            bool hasVAngleDelta = true;
+            if (!x9c6_27_aimingAtProjectile && std::fabs(vAngleDelta) > g_tweakPlayer->GetAimAssistVerticalAngle())
+            {
+                if (g_tweakPlayer->GetAssistedAimingIgnoreVertical())
+                {
+                    vAngleDelta = 0.f;
+                    hasVAngleDelta = false;
+                }
+                else if (vAngleDelta > 0.f)
+                {
+                    vAngleDelta = g_tweakPlayer->GetAimAssistVerticalAngle();
+                }
+                else
+                {
+                    vAngleDelta = -g_tweakPlayer->GetAimAssistVerticalAngle();
+                }
+            }
 
+            bool targetToLeft = gunDirFlat.cross(gunToTargetFlat).z > 0.f;
+            float hAngleDelta = std::acos(zeus::clamp(-1.f, gunDirFlat.dot(gunToTargetFlat), 1.f));
+            bool hasHAngleDelta = true;
+            if (!x9c6_27_aimingAtProjectile && std::fabs(hAngleDelta) > g_tweakPlayer->GetAimAssistHorizontalAngle())
+            {
+                hAngleDelta = g_tweakPlayer->GetAimAssistHorizontalAngle();
+                if (g_tweakPlayer->GetAssistedAimingIgnoreHorizontal())
+                {
+                    hAngleDelta = 0.f;
+                    hasHAngleDelta = false;
+                }
+            }
+
+            if (targetToLeft)
+                hAngleDelta = -hAngleDelta;
+
+            if (!hasVAngleDelta || !hasHAngleDelta)
+            {
+                vAngleDelta = 0.f;
+                hAngleDelta = 0.f;
+            }
+
+            gunToTarget.x = std::sin(hAngleDelta) * std::cos(vAngleDelta);
+            gunToTarget.y = std::cos(hAngleDelta) * std::cos(vAngleDelta);
+            gunToTarget.z = std::sin(vAngleDelta);
+            gunToTarget = xf.rotate(gunToTarget);
+            assistXf = zeus::lookAt(zeus::CVector3f::skZero, gunToTarget, zeus::CVector3f::skUp);
+        }
+    }
+
+    x490_gun->SetAssistAimTransform(assistXf);
 }
 
 void CPlayer::UpdateAimTargetPrediction(const zeus::CTransform& xf, const CStateManager& mgr)
 {
-
+    if (x3f4_aimTarget != kInvalidUniqueId)
+    {
+        if (TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget))
+        {
+            x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target);
+            zeus::CVector3f instantTarget = target->GetAimPosition(mgr, 0.f);
+            zeus::CVector3f gunToTarget = instantTarget - xf.origin;
+            float timeToTarget = gunToTarget.magnitude() / x490_gun->GetBeamVelocity();
+            zeus::CVector3f predictTarget = target->GetAimPosition(mgr, timeToTarget);
+            zeus::CVector3f predictOffset = predictTarget - instantTarget;
+            x3f8_targetAimPosition = instantTarget;
+            if (predictOffset.magnitude() < 0.1f)
+                x404_aimTargetAverage.AddValue(zeus::CVector3f::skZero);
+            else
+                x404_aimTargetAverage.AddValue(predictOffset);
+            if (auto avg = x404_aimTargetAverage.GetAverage())
+                x480_assistedTargetAim = instantTarget + *avg;
+            else
+                x480_assistedTargetAim = predictTarget;
+        }
+    }
 }
 
 void CPlayer::ResetAimTargetPrediction(TUniqueId target)
@@ -1621,11 +1705,268 @@ void CPlayer::HolsterGun(CStateManager& mgr)
     ResetAimTargetPrediction(kInvalidUniqueId);
 }
 
-void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float) {}
+void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f& offset, CStateManager& mgr, float dt)
+{
+    zeus::CTransform armXf = x34_transform;
+    zeus::CVector3f armPosition = x34_transform.rotate(offset) + x34_transform.origin;
+    armXf.origin = armPosition;
+    if (x2f8_morphTransState != EPlayerMorphBallState::Unmorphed)
+    {
+        x490_gun->GetGrappleArm().SetTransform(armXf);
+    }
+    else if (!x490_gun->GetGrappleArm().IsArmMoving())
+    {
+        zeus::CVector3f lookDir = x34_transform.basis[1];
+        zeus::CVector3f armToTarget = x490_gun->GetGrappleArm().GetTransform().basis[1];
+        if (lookDir.canBeNormalized())
+        {
+            lookDir.normalize();
+            if (x3b8_grappleState != EGrappleState::None)
+            {
+                if (TCastToPtr<CActor> target = mgr.ObjectById(x310_orbitTargetId))
+                {
+                    armToTarget = target->GetTranslation() - armPosition;
+                    zeus::CVector3f armToTargetFlat = armToTarget;
+                    armToTargetFlat.z = 0.f;
+                    if (armToTarget.canBeNormalized())
+                        armToTarget.normalize();
+                    if (armToTargetFlat.canBeNormalized() && x3b8_grappleState != EGrappleState::Firing)
+                    {
+                        zeus::CQuaternion adjRot =
+                            zeus::CQuaternion::lookAt(armToTargetFlat.normalized(), lookDir, 2.f * M_PIF);
+                        armToTarget = adjRot.transform(armToTarget);
+                        if (x3bc_grappleSwingTimer >= 0.25f * g_tweakPlayer->GetGrappleSwingPeriod() &&
+                            x3bc_grappleSwingTimer < 0.75f * g_tweakPlayer->GetGrappleSwingPeriod())
+                            armToTarget = x490_gun->GetGrappleArm().GetTransform().basis[1];
+                    }
+                }
+            }
+            armXf = zeus::lookAt(zeus::CVector3f::skZero, armToTarget, zeus::CVector3f::skUp);
+            armXf.origin = armPosition;
+            x490_gun->GetGrappleArm().SetTransform(armXf);
+        }
+    }
+}
 
-void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float) {}
+float CPlayer::GetGravity() const
+{
+    if (!g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit) &&
+        CheckSubmerged())
+        return g_tweakPlayer->GetFluidGravAccel();
+    if (x37c_sidewaysDashing)
+        return -100.f;
+    return g_tweakPlayer->GetNormalGravAccel();
+}
 
-bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr) { return false; }
+void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float dt)
+{
+    if (TCastToPtr<CScriptGrapplePoint> point = mgr.ObjectById(x310_orbitTargetId))
+    {
+        switch (x3b8_grappleState)
+        {
+        case EGrappleState::Pull:
+        {
+            zeus::CVector3f playerToPoint = point->GetTranslation() - GetTranslation();
+            if (playerToPoint.canBeNormalized())
+            {
+                zeus::CVector3f playerToSwingLow = point->GetTranslation() +
+                    zeus::CVector3f(0.f, 0.f, -g_tweakPlayer->GetGrappleSwingLength()) - GetTranslation();
+                if (playerToSwingLow.canBeNormalized())
+                {
+                    float distToSwingLow = playerToSwingLow.magnitude();
+                    playerToSwingLow.normalize();
+                    float timeToLow =
+                        zeus::clamp(-1.f, distToSwingLow / g_tweakPlayer->GetGrapplePullSpeedProportion(), 1.f);
+                    float pullSpeed = timeToLow * (g_tweakPlayer->GetGrapplePullSpeedMax() -
+                        g_tweakPlayer->GetGrapplePullSpeedMin()) + g_tweakPlayer->GetGrapplePullSpeedMin();
+                    SetVelocityWR(playerToSwingLow * pullSpeed);
+
+                    if (distToSwingLow < g_tweakPlayer->GetMaxGrappleLockedTurnAlignDistance())
+                    {
+                        x3b8_grappleState = EGrappleState::Swinging;
+                        x3bc_grappleSwingTimer = 0.25f * g_tweakPlayer->GetGrappleSwingPeriod();
+                        x3d8_grappleJumpTimeout = 0.f;
+                        x9c6_28_aligningGrappleSwingTurn = point->GetGrappleParameters().GetLockSwingTurn();
+                    }
+                    else
+                    {
+                        CMotionState mState = PredictMotion(dt);
+                        zeus::CVector3f lookDirFlat = x34_transform.basis[1];
+                        lookDirFlat.z = 0.f;
+                        zeus::CVector3f newPlayerToPointFlat =
+                            point->GetTranslation() - (GetTranslation() + mState.x0_translation);
+                        newPlayerToPointFlat.z = 0.f;
+                        if (lookDirFlat.canBeNormalized())
+                            lookDirFlat.normalize();
+                        if (newPlayerToPointFlat.canBeNormalized())
+                            newPlayerToPointFlat.normalize();
+                        float lookToPointAngle =
+                            std::acos(zeus::clamp(-1.f, lookDirFlat.dot(newPlayerToPointFlat), 1.f));
+                        if (lookToPointAngle > 0.001f)
+                        {
+                            float deltaAngle = dt * g_tweakPlayer->GetGrappleLookCenterSpeed();
+                            if (lookToPointAngle >= deltaAngle)
+                            {
+                                zeus::CVector3f leftDirFlat(lookDirFlat.y, -lookDirFlat.x, 0.f);
+                                if (leftDirFlat.canBeNormalized())
+                                    leftDirFlat.normalize();
+                                if (newPlayerToPointFlat.dot(leftDirFlat) >= 0.f)
+                                    deltaAngle = -deltaAngle;
+                                RotateToOR(zeus::CQuaternion::fromAxisAngle(zeus::CVector3f::skUp, deltaAngle), dt);
+                            }
+                            else if (std::fabs(lookToPointAngle - M_PIF) > 0.001f)
+                            {
+                                RotateToOR(zeus::CQuaternion::shortestRotationArc(lookDirFlat,
+                                                                                  newPlayerToPointFlat), dt);
+                            }
+                        }
+                        else
+                        {
+                            SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+                            x174_torque = zeus::CAxisAngle::sIdentity;
+                        }
+                    }
+                }
+                else
+                {
+                    x3b8_grappleState = EGrappleState::Swinging;
+                    x3bc_grappleSwingTimer = 0.25f * g_tweakPlayer->GetGrappleSwingPeriod();
+                    x3d8_grappleJumpTimeout = 0.f;
+                }
+            }
+            break;
+        }
+        case EGrappleState::Swinging:
+        {
+            float turnAngleSpeed = zeus::degToRad(g_tweakPlayer->GetMaxGrappleTurnSpeed());
+            if (g_tweakPlayer->InvertGrappleTurn())
+                turnAngleSpeed *= -1.f;
+            zeus::CVector3f pointToPlayer = GetTranslation() - point->GetTranslation();
+            float pointToPlayerZProj =
+                zeus::clamp(-1.f, std::fabs(pointToPlayer.z / pointToPlayer.magnitude()), 1.f);
+
+            bool enableTurn = false;
+            if (!point->GetGrappleParameters().GetLockSwingTurn())
+            {
+                if (ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnLeft, input) > 0.05f)
+                {
+                    enableTurn = true;
+                    turnAngleSpeed *= -ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnLeft, input);
+                }
+                if (ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnRight, input) > 0.05f)
+                {
+                    enableTurn = true;
+                    turnAngleSpeed *= ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnRight, input);
+                }
+            }
+            else if (x9c6_28_aligningGrappleSwingTurn)
+            {
+                enableTurn = true;
+            }
+
+            x3bc_grappleSwingTimer += dt;
+            if (x3bc_grappleSwingTimer > g_tweakPlayer->GetGrappleSwingPeriod())
+                x3bc_grappleSwingTimer -= g_tweakPlayer->GetGrappleSwingPeriod();
+
+            zeus::CVector3f swingAxis = x3c0_grappleSwingAxis;
+            if (x3bc_grappleSwingTimer < 0.5f * g_tweakPlayer->GetGrappleSwingPeriod())
+                swingAxis *= zeus::CVector3f::skNegOne;
+
+            float pullSpeed = std::fabs(zeus::clamp(-1.f,
+                        std::cos(2.f * M_PIF * (x3bc_grappleSwingTimer / g_tweakPlayer->GetGrappleSwingPeriod()) +
+                                     (M_PIF / 2.f)), 1.f)) * g_tweakPlayer->GetGrapplePullSpeedMin();
+            zeus::CVector3f pullVec = pointToPlayer.normalized().cross(swingAxis) * pullSpeed;
+            pullVec += pointToPlayer * zeus::clamp(-1.f, (pointToPlayer.magnitude() -
+                g_tweakPlayer->GetGrappleSwingLength()) /
+                g_tweakPlayer->GetGrappleSwingLength(), 1.f) * -32.f * pointToPlayerZProj;
+            zeus::CVector3f backupVel = x138_velocity;
+            SetVelocityWR(pullVec);
+
+            zeus::CTransform backupXf = x34_transform;
+            CMotionState predMotion = PredictMotion(dt);
+            zeus::CVector3f newPos = x34_transform.origin + predMotion.x0_translation;
+            if (ValidateFPPosition(newPos, mgr))
+            {
+                if (enableTurn)
+                {
+                    zeus::CQuaternion turnRot;
+                    turnRot.rotateZ(turnAngleSpeed * dt);
+                    if (point->GetGrappleParameters().GetLockSwingTurn() && x9c6_28_aligningGrappleSwingTurn)
+                    {
+                        zeus::CVector3f pointDir = point->GetTransform().basis[1].normalized();
+                        zeus::CVector3f playerDir = x34_transform.basis[1].normalized();
+                        float playerPointProj = zeus::clamp(-1.f, playerDir.dot(pointDir), 1.f);
+                        if (std::fabs(playerPointProj) == 1.f)
+                            x9c6_28_aligningGrappleSwingTurn = false;
+                        if (playerPointProj < 0.f)
+                        {
+                            playerPointProj = -playerPointProj;
+                            pointDir = -pointDir;
+                        }
+                        float turnAngleAdj = std::acos(playerPointProj) * dt;
+                        turnRot = zeus::CQuaternion::lookAt(playerDir, pointDir, turnAngleAdj);
+                    }
+                    if (pointToPlayer.magSquared() > 0.04f)
+                    {
+                        zeus::CVector3f pointToPlayerFlat = pointToPlayer;
+                        pointToPlayerFlat.z = 0.f;
+                        zeus::CVector3f playerToGrapplePlane =
+                            point->GetTranslation() + turnRot.transform(pointToPlayerFlat) - GetTranslation();
+                        if (playerToGrapplePlane.canBeNormalized())
+                            pullVec += playerToGrapplePlane / dt;
+                    }
+                    zeus::CVector3f swingAxisBackup = x3c0_grappleSwingAxis;
+                    x3c0_grappleSwingAxis = turnRot.transform(x3c0_grappleSwingAxis);
+                    x3c0_grappleSwingAxis.normalize();
+                    zeus::CVector3f swingForward(-x3c0_grappleSwingAxis.y, x3c0_grappleSwingAxis.x, 0.f);
+                    x34_transform =
+                        zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::CVector3f::skUp, GetTranslation());
+                    xe4_27_ = true;
+                    xe4_28_ = true;
+                    xe4_29_ = true;
+                    SetVelocityWR(pullVec);
+
+                    if (!ValidateFPPosition(GetTranslation(), mgr))
+                    {
+                        x3c0_grappleSwingAxis = swingAxisBackup;
+                        x34_transform = backupXf;
+                        xe4_27_ = true;
+                        xe4_28_ = true;
+                        xe4_29_ = true;
+                        SetVelocityWR(backupVel);
+                    }
+                }
+            }
+            else
+            {
+                BreakGrapple(EPlayerOrbitRequest::Six, mgr);
+            }
+            break;
+        }
+        case EGrappleState::JumpOff:
+        {
+            zeus::CVector3f gravForce = {0.f, 0.f, GetGravity() * xe8_mass};
+            ApplyForceOR(gravForce, zeus::CAxisAngle::sIdentity);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    zeus::CVector3f newAngVel = {0.f, 0.f, 0.9f * GetAngularVelocityOR().getVector().z};
+    SetAngularVelocityOR(newAngVel);
+}
+
+bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr)
+{
+    CMaterialFilter solidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
+    zeus::CAABox aabb(x2d8_.min - 1.f + pos, x2d8_.max + 1.f + pos);
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildColliderList(nearList, *this, aabb);
+    CCollidableAABox colAABB({GetBaseBoundingBox().min + pos, GetBaseBoundingBox().max + pos}, {});
+    return !CGameCollision::DetectCollisionBoolean(mgr, colAABB, zeus::CTransform::Identity(), solidFilter, nearList);
+}
 
 void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
 {
@@ -1637,7 +1978,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
 
     if (x310_orbitTargetId == kInvalidUniqueId)
     {
-        x3b8_grappleState = EGrappleState::Zero;
+        x3b8_grappleState = EGrappleState::None;
         AddMaterial(EMaterialTypes::GroundCollider, mgr);
         return;
     }
@@ -1673,7 +2014,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                                 x3c0_grappleSwingAxis.normalize();
                                 x3bc_grappleSwingTimer = 0.f;
                                 SetOrbitTargetId(x33c_, mgr);
-                                x3b8_grappleState = EGrappleState::Two;
+                                x3b8_grappleState = EGrappleState::Pull;
                                 x33c_ = kInvalidUniqueId;
                                 x490_gun->GetGrappleArm().GrappleBeamConnected();
                             }
@@ -1702,8 +2043,8 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                         HolsterGun(mgr);
                         switch (x3b8_grappleState)
                         {
-                        case EGrappleState::One:
-                        case EGrappleState::Three:
+                        case EGrappleState::Firing:
+                        case EGrappleState::Swinging:
                             switch (g_tweakPlayer->GetGrappleJumpMode())
                             {
                             case 0:
@@ -1742,8 +2083,8 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                                 }
                                 break;
                             }
-                        case EGrappleState::Zero:
-                            x3b8_grappleState = EGrappleState::One;
+                        case EGrappleState::None:
+                            x3b8_grappleState = EGrappleState::Firing;
                             x490_gun->GetGrappleArm().Activate(true);
                             break;
                         default:
@@ -1776,7 +2117,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
         switch (g_tweakPlayer->GetGrappleJumpMode())
         {
         case 0:
-            if (x3b8_grappleState == EGrappleState::Four)
+            if (x3b8_grappleState == EGrappleState::JumpOff)
             {
                 x3d8_grappleJumpTimeout -= input.DeltaTime();
                 if (x3d8_grappleJumpTimeout <= 0.f)
@@ -1791,16 +2132,16 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
         case 1:
             switch (x3b8_grappleState)
             {
-            case EGrappleState::Three:
+            case EGrappleState::Swinging:
                 if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) &&
                     x3d8_grappleJumpTimeout <= 0.f)
                 {
                     x3d8_grappleJumpTimeout = g_tweakPlayer->GetGrappleReleaseTime();
-                    x3b8_grappleState = EGrappleState::Four;
+                    x3b8_grappleState = EGrappleState::JumpOff;
                     ApplyGrappleJump(mgr);
                 }
                 break;
-            case EGrappleState::Four:
+            case EGrappleState::JumpOff:
                 x3d8_grappleJumpTimeout -= input.DeltaTime();
                 if (x3d8_grappleJumpTimeout <= 0.f)
                 {
@@ -1810,8 +2151,8 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                     PreventFallingCameraPitch();
                 }
                 break;
-            case EGrappleState::One:
-            case EGrappleState::Two:
+            case EGrappleState::Firing:
+            case EGrappleState::Pull:
                 if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
                     BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
                 break;
@@ -1870,7 +2211,7 @@ void CPlayer::BeginGrapple(zeus::CVector3f& vec, CStateManager& mgr)
         x3c0_grappleSwingAxis.normalize();
         x3bc_grappleSwingTimer = 0.f;
         SetOrbitState(EPlayerOrbitState::Five, mgr);
-        x3b8_grappleState = EGrappleState::Two;
+        x3b8_grappleState = EGrappleState::Pull;
         RemoveMaterial(EMaterialTypes::GroundCollider, mgr);
     }
 }
@@ -1879,17 +2220,17 @@ void CPlayer::BreakGrapple(EPlayerOrbitRequest req, CStateManager& mgr)
 {
     x294_jumpCameraPitchTimer = 0.f;
     x29c_spaceJumpCameraPitchTimer = 0.f;
-    if (g_tweakPlayer->GetGrappleJumpMode() == 2 && x3b8_grappleState == EGrappleState::Three)
+    if (g_tweakPlayer->GetGrappleJumpMode() == 2 && x3b8_grappleState == EGrappleState::Swinging)
     {
         ApplyGrappleJump(mgr);
         PreventFallingCameraPitch();
     }
 
     SetOrbitRequest(req, mgr);
-    x3b8_grappleState = EGrappleState::Zero;
+    x3b8_grappleState = EGrappleState::None;
     AddMaterial(EMaterialTypes::GroundCollider, mgr);
     x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Eight);
-    if (!InGrappleJumpCooldown() && x3b8_grappleState != EGrappleState::Four)
+    if (!InGrappleJumpCooldown() && x3b8_grappleState != EGrappleState::JumpOff)
         DrawGun(mgr);
 }
 
@@ -2517,7 +2858,7 @@ bool CPlayer::CFailsafeTest::Passes() const
     if (posMag >= 1.f / 30.f && posMag >= minVelMag / 30.f)
         test1 = false;
 
-    if (!notEqualStates && x0_stateSamples[0] == EInputState::StartingJump)
+    if (notEqualStates == 0 && x0_stateSamples[0] == EInputState::StartingJump)
     {
         float inputMag = (inputAABB.max - inputAABB.min).magnitude();
         zeus::CAABox inputFrom0AABB(inputAABB);
@@ -2552,7 +2893,7 @@ void CPlayer::IncrementPhazon()
 
 bool CPlayer::CheckSubmerged() const
 {
-    if (!xe6_24_fluidCounter)
+    if (xe6_24_fluidCounter == 0)
         return false;
 
     return x828_waterLevelOnPlayer >= (x2f8_morphTransState == EPlayerMorphBallState::Morphed ?
@@ -2563,7 +2904,7 @@ void CPlayer::UpdateSubmerged(CStateManager& mgr)
 {
     x82c_inLava = false;
     x828_waterLevelOnPlayer = 0.f;
-    if (xe6_24_fluidCounter)
+    if (xe6_24_fluidCounter != 0)
     {
         if (TCastToPtr<CScriptWater> water = mgr.ObjectById(xc4_fluidId))
         {

@@ -143,12 +143,11 @@ public:
 
     enum class EGrappleState
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five
+        None,
+        Firing,
+        Pull,
+        Swinging,
+        JumpOff
     };
 
     enum class EGunHolsterState
@@ -246,7 +245,7 @@ private:
     std::vector<TUniqueId> x364_offScreenOrbitObjects;
     bool x374_ = false;
     float x378_ = 0.f;
-    bool x37c_ = false;
+    bool x37c_sidewaysDashing = false;
     float x380_ = 0.f;
     float x384_ = 0.f;
     float x388_ = 0.f;
@@ -261,7 +260,7 @@ private:
     float x3ac_scanningTime = 0.f;
     float x3b0_ = 0.f;
     TUniqueId x3b4_scanningObject = kInvalidUniqueId;
-    EGrappleState x3b8_grappleState = EGrappleState::Zero;
+    EGrappleState x3b8_grappleState = EGrappleState::None;
     float x3bc_grappleSwingTimer = 0.f;
     zeus::CVector3f x3c0_grappleSwingAxis = zeus::CVector3f::skRight;
     float x3cc_ = 0.f;
@@ -372,7 +371,7 @@ private:
             bool x9c6_25_ : 1;
             bool x9c6_26_ : 1;
             bool x9c6_27_aimingAtProjectile : 1;
-            bool x9c6_28_ : 1;
+            bool x9c6_28_aligningGrappleSwingTurn : 1;
             bool x9c6_29_disableInput : 1;
             bool x9c6_30_newScanScanning : 1;
             bool x9c6_31_overrideRadarRadius : 1;
@@ -496,6 +495,7 @@ public:
     EPlayerCameraState GetCameraState() const { return x2f4_cameraState; }
     EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphTransState; }
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
+    float GetGravity() const;
     void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);
     bool ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr);
     void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);

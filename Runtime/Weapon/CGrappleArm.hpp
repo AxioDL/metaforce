@@ -25,7 +25,7 @@ public:
     };
 private:
     CModelData x0_modelData;
-    zeus::CTransform x220_;
+    zeus::CTransform x220_xf;
     EArmState x334_animState;
     union
     {
@@ -38,9 +38,10 @@ private:
     };
 
 public:
-    CGrappleArm(const zeus::CVector3f& vec);
+    explicit CGrappleArm(const zeus::CVector3f& vec);
     void AsyncLoadSuit(CStateManager& mgr);
-    void SetX220(const zeus::CTransform& xf) { x220_ = xf; }
+    void SetTransform(const zeus::CTransform& xf) { x220_xf = xf; }
+    const zeus::CTransform& GetTransform() const { return x220_xf; }
     void SetAnimState(EArmState state);
     EArmState GetAnimState() const { return x334_animState; }
     bool BeamActive() const { return x3b2_25_beamActive; }

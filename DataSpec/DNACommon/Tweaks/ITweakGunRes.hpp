@@ -14,8 +14,8 @@ struct ITweakGunRes : ITweak
     {
         Power,
         Ice,
-        Plasma,
         Wave,
+        Plasma,
         Phazon
     };
 
@@ -49,23 +49,30 @@ struct ITweakGunRes : ITweak
 
     ResId GetBeamModel(EBeamId beam) const
     {
-        int b = int(beam);
+        auto b = int(beam);
         if (b < 0 || b > 4)
             b = 0;
         switch (EBeamId(b))
         {
         case EBeamId::Power:
-        default:
             return x10_powerBeam;
         case EBeamId::Ice:
             return x14_iceBeam;
-        case EBeamId::Plasma:
-            return x1c_plasmaBeam;
         case EBeamId::Wave:
             return x18_waveBeam;
+        case EBeamId::Plasma:
+            return x1c_plasmaBeam;
         case EBeamId::Phazon:
             return x20_phazonBeam;
         }
+    }
+
+    const ResId* GetWeaponPair(EBeamId beam) const
+    {
+        auto b = int(beam);
+        if (b < 0 || b > 4)
+            return x34_weapons[0];
+        return x34_weapons[b];
     }
 
     void ResolveResources(const urde::IFactory& factory)

@@ -23,6 +23,18 @@ class CActorLights;
 class CGunController;
 struct CModelFlags;
 class CStateManager;
+class CWeaponDescription;
+
+class CVelocityInfo
+{
+    friend class CGunWeapon;
+    rstl::reserved_vector<zeus::CVector3f, 2> x0_vel;
+    rstl::reserved_vector<bool, 2> x1c_;
+    rstl::reserved_vector<float, 2> x24_;
+public:
+    const zeus::CVector3f& GetVelocity(int i) const { return x0_vel[i]; }
+};
+
 class CGunWeapon
 {
 public:
@@ -37,9 +49,14 @@ protected:
     zeus::CVector3f x4_;
     TToken<CAnimCharacterSet> x104_gunCharacter;
     TToken<CAnimCharacterSet> x13c_armCharacter;
+    rstl::reserved_vector<TCachedToken<CWeaponDescription>, 2> x144_weapons;
+    TToken<CGenDescription> x160_xferEffect;
+    rstl::reserved_vector<TCachedToken<CGenDescription>, 2> x16c_muzzleEffects;
+    rstl::reserved_vector<TCachedToken<CGenDescription>, 2> x188_secondaryEffects;
     EWeaponType x1c0_weaponType;
     TUniqueId x1c4_uid;
     EMaterialTypes x1c8_matType;
+    CVelocityInfo x1d0_velInfo;
     CPlayerState::EBeamId x200_beamId;
 public:
     CGunWeapon(ResId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes, const zeus::CVector3f& vec);
@@ -61,6 +78,7 @@ public:
     virtual void Load(bool) {}
     virtual void Unload(CStateManager&) {}
     virtual bool IsLoaded() const {return false;}
+    const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
 };
 }
 

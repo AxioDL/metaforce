@@ -101,7 +101,14 @@ public:
     void AddValue(const T& t)
     {
         if (this->size() < N)
+        {
             this->push_back(t);
+        }
+        else
+        {
+            this->pop_back();
+            this->insert(this->begin(), t);
+        }
     }
 
     rstl::optional_object<T> GetAverage() const

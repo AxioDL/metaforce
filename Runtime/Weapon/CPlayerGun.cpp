@@ -61,4 +61,11 @@ void CPlayerGun::CancelFiring(CStateManager& mgr)
 
 }
 
+float CPlayerGun::GetBeamVelocity() const
+{
+    if (x72c_currentBeam->IsLoaded())
+        return x72c_currentBeam->GetVelocityInfo().GetVelocity(x330_chargeWeaponIdx).y;
+    return 10.f;
+}
+
 }

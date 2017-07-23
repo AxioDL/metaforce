@@ -15,6 +15,7 @@ public:
                         bool active, const CGrappleParameters& params);
 
     void Accept(IVisitor& visitor);
+    const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };
 }
 
