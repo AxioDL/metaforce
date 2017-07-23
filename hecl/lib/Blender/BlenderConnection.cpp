@@ -440,6 +440,27 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
                 }
             }
 
+            /* Try steam */
+            steamBlender = hecl::FindCommonSteamApp(_S("Blender"));
+            if (steamBlender.size())
+            {
+#ifdef __APPLE__
+                steamBlender += "/blender.app/Contents/MacOS/blender";
+#else
+                steamBlender += "/blender";
+#endif
+                blenderBin = steamBlender.c_str();
+                execlp(blenderBin, blenderBin,
+                       "--background", "-P", blenderShellPath.c_str(),
+                       "--", readfds, writefds, vLevel, blenderAddonPath.c_str(), NULL);
+                if (errno != ENOENT)
+                {
+                    snprintf(errbuf, 256, "NOLAUNCH %s", strerror(errno));
+                    _writeStr(errbuf, strlen(errbuf), m_readpipe[1]);
+                    exit(1);
+                }
+            }
+
             /* Otherwise default blender */
             execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN,
                 "--background", "-P", blenderShellPath.c_str(),

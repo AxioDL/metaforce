@@ -11,7 +11,7 @@ namespace hecl
 {
 
 /* Used to extract alternate steam install directories from libraryfolders.vdf */
-static const std::regex regSteamPath("^\\s+\\\"[0-9]+\\\"\\s+\\\"(.*)\\\"",
+static const std::regex regSteamPath(R"(^\s+\"[0-9]+\"\s+\"(.*)\")",
                                      std::regex::ECMAScript|std::regex::optimize);
 
 hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name)
