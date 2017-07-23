@@ -18,33 +18,38 @@ struct SAsset
     std::string directory;
     hecl::FourCC type;
     SAsset() = default;
-    SAsset(athena::io::IStreamReader& in)
+    SAsset(const hecl::FourCC& typeIn, athena::io::IStreamReader& in)
+    : type(typeIn)
     {
         uint32_t nameLen = in.readUint32Big();
         name = in.readString(nameLen);
         uint32_t dirLen = in.readUint32Big();
         directory = in.readString(dirLen);
-        type = in.readUint32Big();
     }
 };
 
 static std::unordered_map<uint64_t, SAsset> g_AssetNameMap;
 static bool g_AssetNameMapInit = false;
 
-void LoadAssetMap(athena::io::MemoryReader ar)
+void LoadAssetMap(athena::io::MemoryReader& ar)
 {
     if (!ar.hasError())
     {
-        hecl::FourCC magic = ar.readUint32Big();
+        hecl::FourCC magic;
+        if (ar.length() >= 4)
+            ar.readBytesToBuf(&magic, 4);
         if (magic != FOURCC('AIDM'))
-            Log.report(logvisor::Error, _S("Unable to load asset map; Assets will not have proper filenames for most files."));
+            Log.report(logvisor::Warning, _S("Unable to load asset map; Assets will not have proper filenames for most files."));
         else
         {
             uint32_t assetCount = ar.readUint32Big();
+            g_AssetNameMap.reserve(assetCount);
             for (uint32_t i = 0 ; i<assetCount ; ++i)
             {
+                hecl::FourCC type;
+                ar.readBytesToBuf(&type, 4);
                 uint64_t id = ar.readUint64Big();
-                g_AssetNameMap[id] = SAsset(ar);
+                g_AssetNameMap[id] = SAsset(type, ar);
             }
         }
     }
@@ -54,6 +59,8 @@ void InitAssetNameMap()
 {
     if (g_AssetNameMapInit)
         return;
+
+    Log.report(logvisor::Info, "Initializing asset name database...");
 
     /* First load the 32bit map for MP1/2 */
     {
