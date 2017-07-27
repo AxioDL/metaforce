@@ -67,7 +67,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x198_;
     Value<float> x19c_;
     Value<float> x1a0_;
-    Value<float> x1a4_;
+    Value<float> x1a4_orbitDistanceCompareSignificance;
     Value<atUint32> x1a8_orbitScreenBoxHalfExtentX[2];
     Value<atUint32> x1b0_orbitScreenBoxHalfExtentY[2];
     Value<atUint32> x1b8_orbitScreenBoxCenterX[2];
@@ -147,7 +147,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x294_;
     Value<float> x298_;
     Value<float> x29c_;
-    Value<float> x2a0_;
+    Value<float> x2a0_orbitDistanceThreshold;
     Value<float> x2a4_grappleSwingLength;
     Value<float> x2a8_grappleSwingPeriod;
     Value<float> x2ac_grapplePullSpeedMin;
@@ -183,6 +183,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
     float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
+    float GetOrbitDistanceCompareSignificance() const { return x1a4_orbitDistanceCompareSignificance; }
     uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
     uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
     uint32_t GetOrbitScreenBoxCenterX(int zone) const { return x1b8_orbitScreenBoxCenterX[zone]; }
@@ -207,6 +208,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX274() const { return x274_; }
     float GetX278() const { return x278_; }
     float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
+    float GetOrbitDistanceThreshold() const { return x2a0_orbitDistanceThreshold; }
     float GetGrappleSwingLength() const { return x2a4_grappleSwingLength; }
     float GetGrappleSwingPeriod() const { return x2a8_grappleSwingPeriod; }
     float GetGrapplePullSpeedMin() const { return x2ac_grapplePullSpeedMin; }

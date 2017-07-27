@@ -52,7 +52,7 @@ class CWorldState
     std::shared_ptr<CWorldLayerState> x14_layerState;
 
 public:
-    CWorldState(ResId id);
+    explicit CWorldState(ResId id);
     CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld);
     ResId GetWorldAssetId() const { return x0_mlvlId; }
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }

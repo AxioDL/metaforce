@@ -31,11 +31,15 @@ namespace urde
 static const CMaterialFilter SolidMaterialFilter =
     CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
 
-static const CMaterialFilter TargetingFilter =
+static const CMaterialFilter LineOfSightFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
                                         {EMaterialTypes::ProjectilePassthrough,
                                          EMaterialTypes::ScanPassthrough,
                                          EMaterialTypes::Player});
+
+static const CMaterialFilter OccluderFilter =
+    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Occluder},
+        {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough, EMaterialTypes::Player});
 
 static CModelData MakePlayerAnimRes(ResId resId, const zeus::CVector3f& scale)
 {
@@ -2037,7 +2041,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                 {
                     CRayCastResult result =
                     mgr.RayStaticIntersection(eyePosition, playerToPoint.normalized(), playerToPoint.magnitude(),
-                                              TargetingFilter);
+                                              LineOfSightFilter);
                     if (result.IsInvalid())
                     {
                         HolsterGun(mgr);
@@ -2170,7 +2174,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
         {
             CRayCastResult result =
             mgr.RayStaticIntersection(eyePos, playerToPoint.normalized(), playerToPoint.magnitude(),
-                                      TargetingFilter);
+                                      LineOfSightFilter);
             if (result.IsValid())
             {
                 BreakGrapple(EPlayerOrbitRequest::Twelve, mgr);
@@ -2442,12 +2446,189 @@ void CPlayer::UpdateOrbitableObjects(CStateManager& mgr)
     FindOrbitableObjects(nearList, x364_offScreenOrbitObjects, x330_orbitZone, x334_orbitType, mgr, false);
 }
 
-TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const
+TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
+                                           EPlayerZoneInfo info, CStateManager& mgr) const
 {
     zeus::CVector3f eyePos = GetEyePosition();
     zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
-    /* TODO: Finish */
-    return {};
+    float minEyeToOrbitMag = 10000.f;
+    float minPosInBoxMagSq = 10000.f;
+    TUniqueId bestId = kInvalidUniqueId;
+    int vpWidthHalf = g_Viewport.x8_width / 2;
+    int vpHeightHalf = g_Viewport.xc_height / 2;
+    float boxLeft = (g_tweakPlayer->GetEnemyScreenBoxCenterX(int(info)) *
+                         g_Viewport.x8_width / 640 - vpWidthHalf) / vpWidthHalf;
+    float boxTop = (g_tweakPlayer->GetEnemyScreenBoxCenterY(int(info)) *
+                        g_Viewport.xc_height / 448 - vpHeightHalf) / vpHeightHalf;
+
+    CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
+
+    for (TUniqueId id : ids)
+    {
+        if (TCastToPtr<CActor> act = mgr.ObjectById(id))
+        {
+            zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
+            zeus::CVector3f eyeToOrbit = orbitPos - eyePos;
+            float eyeToOrbitMag = eyeToOrbit.magnitude();
+            zeus::CVector3f orbitPosScreen = fpCam->ConvertToScreenSpace(orbitPos);
+            if (orbitPosScreen.z >= 0.f)
+            {
+                if (x310_orbitTargetId != id)
+                {
+                    if (TCastToPtr<CScriptGrapplePoint> point = act.GetPtr())
+                    {
+                        if (x310_orbitTargetId != point->GetUniqueId())
+                        {
+                            if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GrappleBeam) &&
+                                eyeToOrbitMag < minEyeToOrbitMag &&
+                                eyeToOrbitMag < g_tweakPlayer->GetOrbitDistanceThreshold())
+                            {
+                                rstl::reserved_vector<TUniqueId, 1024> nearList;
+                                TUniqueId intersectId = kInvalidUniqueId;
+                                eyeToOrbit.normalize();
+                                mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                                  OccluderFilter, act.GetPtr());
+                                eyeToOrbit.normalize();
+                                CRayCastResult result =
+                                mgr.RayWorldIntersection(intersectId, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                                         LineOfSightFilter, nearList);
+                                if (result.IsInvalid())
+                                {
+                                    if (point->GetGrappleParameters().GetLockSwingTurn())
+                                    {
+                                        zeus::CVector3f pointToPlayer =
+                                            GetTranslation() - point->GetTranslation();
+                                        if (pointToPlayer.canBeNormalized())
+                                        {
+                                            pointToPlayer.z = 0.f;
+                                            if (std::fabs(point->GetTransform().basis[1].normalized().
+                                                dot(pointToPlayer.normalized())) <= M_SQRT1_2F)
+                                                continue;
+                                        }
+                                    }
+
+                                    bestId = act->GetUniqueId();
+                                    float posInBoxLeft = orbitPosScreen.x - boxLeft;
+                                    float posInBoxTop = orbitPosScreen.y - boxTop;
+                                    minEyeToOrbitMag = eyeToOrbitMag;
+                                    minPosInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
+                                }
+                            }
+                            continue;
+                        }
+                    }
+
+                    if (minEyeToOrbitMag - eyeToOrbitMag > g_tweakPlayer->GetOrbitDistanceCompareSignificance() &&
+                        mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan)
+                    {
+                        rstl::reserved_vector<TUniqueId, 1024> nearList;
+                        TUniqueId bestId = kInvalidUniqueId;
+                        eyeToOrbit.normalize();
+                        mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                          OccluderFilter, act.GetPtr());
+                        for (auto it = nearList.begin() ; it != nearList.end() ;)
+                        {
+                            if (CEntity* obj = mgr.ObjectById(*it))
+                            {
+                                if (obj->GetAreaIdAlways() != kInvalidAreaId)
+                                {
+                                    if (mgr.GetNextAreaId() != obj->GetAreaIdAlways())
+                                    {
+                                        const CGameArea* area = mgr.GetWorld()->GetAreaAlways(obj->GetAreaIdAlways());
+                                        CGameArea::EOcclusionState state =
+                                            area->IsPostConstructed() ? area->GetOcclusionState() :
+                                            CGameArea::EOcclusionState::Occluded;
+                                        if (state == CGameArea::EOcclusionState::Occluded)
+                                        {
+                                            it = nearList.erase(it);
+                                            continue;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    it = nearList.erase(it);
+                                    continue;
+                                }
+                            }
+                            ++it;
+                        }
+
+                        eyeToOrbit.normalize();
+                        CRayCastResult result =
+                        mgr.RayWorldIntersection(bestId, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                                 LineOfSightFilter, nearList);
+                        if (result.IsInvalid())
+                        {
+                            bestId = act->GetUniqueId();
+                            float posInBoxLeft = orbitPosScreen.x - boxLeft;
+                            float posInBoxTop = orbitPosScreen.y - boxTop;
+                            minEyeToOrbitMag = eyeToOrbitMag;
+                            minPosInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
+                        }
+                    }
+
+                    if (std::fabs(eyeToOrbitMag - minEyeToOrbitMag) <
+                            g_tweakPlayer->GetOrbitDistanceCompareSignificance() ||
+                        mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan)
+                    {
+                        float posInBoxLeft = orbitPosScreen.x - boxLeft;
+                        float posInBoxTop = orbitPosScreen.y - boxTop;
+                        float posInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
+                        if (posInBoxMagSq < minPosInBoxMagSq)
+                        {
+                            rstl::reserved_vector<TUniqueId, 1024> nearList;
+                            TUniqueId bestId = kInvalidUniqueId;
+                            eyeToOrbit.normalize();
+                            mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                              OccluderFilter, act.GetPtr());
+                            for (auto it = nearList.begin() ; it != nearList.end() ;)
+                            {
+                                if (CEntity* obj = mgr.ObjectById(*it))
+                                {
+                                    if (obj->GetAreaIdAlways() != kInvalidAreaId)
+                                    {
+                                        if (mgr.GetNextAreaId() != obj->GetAreaIdAlways())
+                                        {
+                                            const CGameArea* area =
+                                                mgr.GetWorld()->GetAreaAlways(obj->GetAreaIdAlways());
+                                            CGameArea::EOcclusionState state =
+                                                area->IsPostConstructed() ? area->GetOcclusionState() :
+                                                CGameArea::EOcclusionState::Occluded;
+                                            if (state == CGameArea::EOcclusionState::Occluded)
+                                            {
+                                                it = nearList.erase(it);
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        it = nearList.erase(it);
+                                        continue;
+                                    }
+                                }
+                                ++it;
+                            }
+
+                            eyeToOrbit.normalize();
+                            CRayCastResult result =
+                                mgr.RayWorldIntersection(bestId, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                                         LineOfSightFilter, nearList);
+                            if (result.IsInvalid())
+                            {
+                                bestId = act->GetUniqueId();
+                                minPosInBoxMagSq = posInBoxMagSq;
+                                minEyeToOrbitMag = eyeToOrbitMag;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return bestId;
 }
 
 void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>& nearObjects,
@@ -2482,13 +2663,15 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&
                     pass = true;
             }
 
-            if (pass && (!act->GetDoTargetDistanceTest() || (orbitPos - eyePos).magnitude() <= GetOrbitMaxTargetDistance(mgr)))
+            if (pass && (!act->GetDoTargetDistanceTest() ||
+                (orbitPos - eyePos).magnitude() <= GetOrbitMaxTargetDistance(mgr)))
                 listOut.push_back(id);
         }
     }
 }
 
-bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone, EPlayerZoneType type) const
+bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone,
+                                   EPlayerZoneType type) const
 {
     if (screenCoords.z >= 1.f)
         return false;

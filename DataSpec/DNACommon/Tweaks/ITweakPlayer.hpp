@@ -17,6 +17,7 @@ struct ITweakPlayer : ITweak
     virtual float GetFluidGravAccel() const=0;
     virtual float GetHudLagAmount() const=0;
     virtual float GetOrbitNormalDistance() const=0;
+    virtual float GetOrbitDistanceCompareSignificance() const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxCenterX(int zone) const=0;
@@ -42,6 +43,7 @@ struct ITweakPlayer : ITweak
     virtual float GetX274() const=0; // x274
     virtual float GetX278() const=0; // x278
     virtual float GetPlayerBallHalfExtent() const=0; // x27c
+    virtual float GetOrbitDistanceThreshold() const=0;
     virtual float GetGrappleSwingLength() const=0;
     virtual float GetGrappleSwingPeriod() const=0;
     virtual float GetGrapplePullSpeedMin() const=0;
