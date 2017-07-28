@@ -223,8 +223,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x22c_ = __dna_reader.readFloatBig();
     /* x230_ */
     x230_ = __dna_reader.readFloatBig();
-    /* x234_ */
-    x234_ = __dna_reader.readFloatBig();
+    /* x234_aimMaxDistance */
+    x234_aimMaxDistance = __dna_reader.readFloatBig();
     /* x238_ */
     x238_ = __dna_reader.readFloatBig();
     /* x23c_ */
@@ -235,16 +235,16 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x244_ = __dna_reader.readFloatBig();
     /* x248_ */
     x248_ = __dna_reader.readFloatBig();
-    /* x24c_ */
-    x24c_ = __dna_reader.readFloatBig();
+    /* x24c_aimThresholdDistance */
+    x24c_aimThresholdDistance = __dna_reader.readFloatBig();
     /* x250_ */
     x250_ = __dna_reader.readFloatBig();
     /* x254_ */
     x254_ = __dna_reader.readFloatBig();
-    /* x258_ */
-    x258_ = __dna_reader.readFloatBig();
-    /* x25c_ */
-    x25c_ = __dna_reader.readFloatBig();
+    /* x258_aimBoxWidth */
+    x258_aimBoxWidth = __dna_reader.readFloatBig();
+    /* x25c_aimBoxHeight */
+    x25c_aimBoxHeight = __dna_reader.readFloatBig();
     /* x260_ */
     x260_ = __dna_reader.readFloatBig();
     /* x264_aimAssistHorizontalAngle */
@@ -289,8 +289,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x19c_ = __dna_reader.readFloatBig();
     /* x1a0_ */
     x1a0_ = __dna_reader.readFloatBig();
-    /* x1a4_ */
-    x1a4_orbitDistanceCompareSignificance = __dna_reader.readFloatBig();
+    /* x1a4_orbitDistanceThreshold */
+    x1a4_orbitDistanceThreshold = __dna_reader.readFloatBig();
     /* x1a8_orbitScreenBoxHalfExtentX[0] */
     x1a8_orbitScreenBoxHalfExtentX[0] = __dna_reader.readUint32Big();
     /* x1b0_orbitScreenBoxHalfExtentY[0] */
@@ -299,10 +299,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x1b8_orbitScreenBoxCenterX[0] = __dna_reader.readUint32Big();
     /* x1c0_orbitScreenBoxCenterY[0] */
     x1c0_orbitScreenBoxCenterY[0] = __dna_reader.readUint32Big();
-    /* x1c8_enemyScreenBoxCenterX[0] */
-    x1c8_enemyScreenBoxCenterX[0] = __dna_reader.readUint32Big();
-    /* x1d0_enemyScreenBoxCenterY[0] */
-    x1d0_enemyScreenBoxCenterY[0] = __dna_reader.readUint32Big();
+    /* x1c8_orbitZoneIdealX[0] */
+    x1c8_orbitZoneIdealX[0] = __dna_reader.readUint32Big();
+    /* x1d0_orbitZoneIdealY[0] */
+    x1d0_orbitZoneIdealY[0] = __dna_reader.readUint32Big();
     /* x1a8_orbitScreenBoxHalfExtentX[1] */
     x1a8_orbitScreenBoxHalfExtentX[1] = __dna_reader.readUint32Big();
     /* x1b0_orbitScreenBoxHalfExtentY[1] */
@@ -311,10 +311,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x1b8_orbitScreenBoxCenterX[1] = __dna_reader.readUint32Big();
     /* x1c0_orbitScreenBoxCenterY[1] */
     x1c0_orbitScreenBoxCenterY[1] = __dna_reader.readUint32Big();
-    /* x1c8_enemyScreenBoxCenterX[1] */
-    x1c8_enemyScreenBoxCenterX[1] = __dna_reader.readUint32Big();
-    /* x1d0_enemyScreenBoxCenterY[1] */
-    x1d0_enemyScreenBoxCenterY[1] = __dna_reader.readUint32Big();
+    /* x1c8_orbitZoneIdealX[1] */
+    x1c8_orbitZoneIdealX[1] = __dna_reader.readUint32Big();
+    /* x1d0_orbitZoneIdealY[1] */
+    x1d0_orbitZoneIdealY[1] = __dna_reader.readUint32Big();
     /* x1d8_orbitNearX */
     x1d8_orbitNearX = __dna_reader.readFloatBig();
     /* x1dc_orbitNearZ */
@@ -361,8 +361,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x220_ = __dna_reader.readFloatBig();
     /* x224_scanningFrameSenseRange */
     x224_scanningFrameSenseRange = __dna_reader.readFloatBig();
-    /* x2a0_orbitDistanceThreshold */
-    x2a0_orbitDistanceThreshold = __dna_reader.readFloatBig();
+    /* x2a0_orbitDistanceMax */
+    x2a0_orbitDistanceMax = __dna_reader.readFloatBig();
     /* x2a4_grappleSwingLength */
     x2a4_grappleSwingLength = __dna_reader.readFloatBig();
     /* x2a8_grappleSwingPeriod */
@@ -663,8 +663,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x22c_);
     /* x230_ */
     __dna_writer.writeFloatBig(x230_);
-    /* x234_ */
-    __dna_writer.writeFloatBig(x234_);
+    /* x234_aimMaxDistance */
+    __dna_writer.writeFloatBig(x234_aimMaxDistance);
     /* x238_ */
     __dna_writer.writeFloatBig(x238_);
     /* x23c_ */
@@ -675,16 +675,16 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x244_);
     /* x248_ */
     __dna_writer.writeFloatBig(x248_);
-    /* x24c_ */
-    __dna_writer.writeFloatBig(x24c_);
+    /* x24c_aimThresholdDistance */
+    __dna_writer.writeFloatBig(x24c_aimThresholdDistance);
     /* x250_ */
     __dna_writer.writeFloatBig(x250_);
     /* x254_ */
     __dna_writer.writeFloatBig(x254_);
-    /* x258_ */
-    __dna_writer.writeFloatBig(x258_);
-    /* x25c_ */
-    __dna_writer.writeFloatBig(x25c_);
+    /* x258_aimBoxWidth */
+    __dna_writer.writeFloatBig(x258_aimBoxWidth);
+    /* x25c_aimBoxHeight */
+    __dna_writer.writeFloatBig(x25c_aimBoxHeight);
     /* x260_ */
     __dna_writer.writeFloatBig(x260_);
     /* x264_aimAssistHorizontalAngle */
@@ -729,8 +729,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x19c_);
     /* x1a0_ */
     __dna_writer.writeFloatBig(x1a0_);
-    /* x1a4_ */
-    __dna_writer.writeFloatBig(x1a4_orbitDistanceCompareSignificance);
+    /* x1a4_orbitDistanceThreshold */
+    __dna_writer.writeFloatBig(x1a4_orbitDistanceThreshold);
     /* x1a8_orbitScreenBoxHalfExtentX[0] */
     __dna_writer.writeUint32Big(x1a8_orbitScreenBoxHalfExtentX[0]);
     /* x1b0_orbitScreenBoxHalfExtentY[0] */
@@ -739,10 +739,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeUint32Big(x1b8_orbitScreenBoxCenterX[0]);
     /* x1c0_orbitScreenBoxCenterY[0] */
     __dna_writer.writeUint32Big(x1c0_orbitScreenBoxCenterY[0]);
-    /* x1c8_enemyScreenBoxCenterX[0] */
-    __dna_writer.writeUint32Big(x1c8_enemyScreenBoxCenterX[0]);
-    /* x1d0_enemyScreenBoxCenterY[0] */
-    __dna_writer.writeUint32Big(x1d0_enemyScreenBoxCenterY[0]);
+    /* x1c8_orbitZoneIdealX[0] */
+    __dna_writer.writeUint32Big(x1c8_orbitZoneIdealX[0]);
+    /* x1d0_orbitZoneIdealY[0] */
+    __dna_writer.writeUint32Big(x1d0_orbitZoneIdealY[0]);
     /* x1a8_orbitScreenBoxHalfExtentX[1] */
     __dna_writer.writeUint32Big(x1a8_orbitScreenBoxHalfExtentX[1]);
     /* x1b0_orbitScreenBoxHalfExtentY[1] */
@@ -751,10 +751,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeUint32Big(x1b8_orbitScreenBoxCenterX[1]);
     /* x1c0_orbitScreenBoxCenterY[1] */
     __dna_writer.writeUint32Big(x1c0_orbitScreenBoxCenterY[1]);
-    /* x1c8_enemyScreenBoxCenterX[1] */
-    __dna_writer.writeUint32Big(x1c8_enemyScreenBoxCenterX[1]);
-    /* x1d0_enemyScreenBoxCenterY[1] */
-    __dna_writer.writeUint32Big(x1d0_enemyScreenBoxCenterY[1]);
+    /* x1c8_orbitZoneIdealX[1] */
+    __dna_writer.writeUint32Big(x1c8_orbitZoneIdealX[1]);
+    /* x1d0_orbitZoneIdealY[1] */
+    __dna_writer.writeUint32Big(x1d0_orbitZoneIdealY[1]);
     /* x1d8_orbitNearX */
     __dna_writer.writeFloatBig(x1d8_orbitNearX);
     /* x1dc_orbitNearZ */
@@ -801,8 +801,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x220_);
     /* x224_scanningFrameSenseRange */
     __dna_writer.writeFloatBig(x224_scanningFrameSenseRange);
-    /* x2a0_orbitDistanceThreshold */
-    __dna_writer.writeFloatBig(x2a0_orbitDistanceThreshold);
+    /* x2a0_orbitDistanceMax */
+    __dna_writer.writeFloatBig(x2a0_orbitDistanceMax);
     /* x2a4_grappleSwingLength */
     __dna_writer.writeFloatBig(x2a4_grappleSwingLength);
     /* x2a8_grappleSwingPeriod */
@@ -1133,8 +1133,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x22c_ = __dna_docin.readFloat("x22c_");
     /* x230_ */
     x230_ = __dna_docin.readFloat("x230_");
-    /* x234_ */
-    x234_ = __dna_docin.readFloat("x234_");
+    /* x234_aimMaxDistance */
+    x234_aimMaxDistance = __dna_docin.readFloat("x234_aimMaxDistance");
     /* x238_ */
     x238_ = __dna_docin.readFloat("x238_");
     /* x23c_ */
@@ -1145,16 +1145,16 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x244_ = __dna_docin.readFloat("x244_");
     /* x248_ */
     x248_ = __dna_docin.readFloat("x248_");
-    /* x24c_ */
-    x24c_ = __dna_docin.readFloat("x24c_");
+    /* x24c_aimThresholdDistance */
+    x24c_aimThresholdDistance = __dna_docin.readFloat("x24c_aimThresholdDistance");
     /* x250_ */
     x250_ = __dna_docin.readFloat("x250_");
     /* x254_ */
     x254_ = __dna_docin.readFloat("x254_");
-    /* x258_ */
-    x258_ = __dna_docin.readFloat("x258_");
-    /* x25c_ */
-    x25c_ = __dna_docin.readFloat("x25c_");
+    /* x258_aimBoxWidth */
+    x258_aimBoxWidth = __dna_docin.readFloat("x258_aimBoxWidth");
+    /* x25c_aimBoxHeight */
+    x25c_aimBoxHeight = __dna_docin.readFloat("x25c_aimBoxHeight");
     /* x260_ */
     x260_ = __dna_docin.readFloat("x260_");
     /* x264_aimAssistHorizontalAngle */
@@ -1214,8 +1214,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x19c_ = __dna_docin.readFloat("x19c_");
     /* x1a0_ */
     x1a0_ = __dna_docin.readFloat("x1a0_");
-    /* x1a4_ */
-    x1a4_orbitDistanceCompareSignificance = __dna_docin.readFloat("x1a4_");
+    /* x1a4_orbitDistanceThreshold */
+    x1a4_orbitDistanceThreshold = __dna_docin.readFloat("x1a4_orbitDistanceThreshold");
     /* x1a8_orbitScreenBoxHalfExtentX */
     size_t __x1a8_Count;
     if (auto v = __dna_docin.enterSubVector("x1a8_orbitScreenBoxHalfExtentX", __x1a8_Count))
@@ -1252,23 +1252,23 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x1c0_orbitScreenBoxCenterY[1] */
     x1c0_orbitScreenBoxCenterY[1] = __dna_docin.readUint32("x1c0_orbitScreenBoxCenterY");
     }
-    /* x1c8_enemyScreenBoxCenterX */
+    /* x1c8_orbitZoneIdealX */
     size_t __x1c8_Count;
-    if (auto v = __dna_docin.enterSubVector("x1c8_enemyScreenBoxCenterX", __x1c8_Count))
+    if (auto v = __dna_docin.enterSubVector("x1c8_orbitZoneIdealX", __x1c8_Count))
     {
-    /* x1c8_enemyScreenBoxCenterX[0] */
-    x1c8_enemyScreenBoxCenterX[0] = __dna_docin.readUint32("x1c8_enemyScreenBoxCenterX");
-    /* x1c8_enemyScreenBoxCenterX[1] */
-    x1c8_enemyScreenBoxCenterX[1] = __dna_docin.readUint32("x1c8_enemyScreenBoxCenterX");
+    /* x1c8_orbitZoneIdealX[0] */
+    x1c8_orbitZoneIdealX[0] = __dna_docin.readUint32("x1c8_orbitZoneIdealX");
+    /* x1c8_orbitZoneIdealX[1] */
+    x1c8_orbitZoneIdealX[1] = __dna_docin.readUint32("x1c8_orbitZoneIdealX");
     }
-    /* x1d0_enemyScreenBoxCenterY */
+    /* x1d0_orbitZoneIdealY */
     size_t __x1d0_Count;
-    if (auto v = __dna_docin.enterSubVector("x1d0_enemyScreenBoxCenterY", __x1d0_Count))
+    if (auto v = __dna_docin.enterSubVector("x1d0_orbitZoneIdealY", __x1d0_Count))
     {
-    /* x1d0_enemyScreenBoxCenterY[0] */
-    x1d0_enemyScreenBoxCenterY[0] = __dna_docin.readUint32("x1d0_enemyScreenBoxCenterY");
-    /* x1d0_enemyScreenBoxCenterY[1] */
-    x1d0_enemyScreenBoxCenterY[1] = __dna_docin.readUint32("x1d0_enemyScreenBoxCenterY");
+    /* x1d0_orbitZoneIdealY[0] */
+    x1d0_orbitZoneIdealY[0] = __dna_docin.readUint32("x1d0_orbitZoneIdealY");
+    /* x1d0_orbitZoneIdealY[1] */
+    x1d0_orbitZoneIdealY[1] = __dna_docin.readUint32("x1d0_orbitZoneIdealY");
     }
     /* x1d8_orbitNearX */
     x1d8_orbitNearX = __dna_docin.readFloat("x1d8_orbitNearX");
@@ -1316,8 +1316,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x220_ = __dna_docin.readFloat("x220_");
     /* x224_scanningFrameSenseRange */
     x224_scanningFrameSenseRange = __dna_docin.readFloat("x224_scanningFrameSenseRange");
-    /* x2a0_orbitDistanceThreshold */
-    x2a0_orbitDistanceThreshold = __dna_docin.readFloat("x2a0_orbitDistanceThreshold");
+    /* x2a0_orbitDistanceMax */
+    x2a0_orbitDistanceMax = __dna_docin.readFloat("x2a0_orbitDistanceMax");
     /* x2a4_grappleSwingLength */
     x2a4_grappleSwingLength = __dna_docin.readFloat("x2a4_grappleSwingLength");
     /* x2a8_grappleSwingPeriod */
@@ -1642,8 +1642,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x22c_", x22c_);
     /* x230_ */
     __dna_docout.writeFloat("x230_", x230_);
-    /* x234_ */
-    __dna_docout.writeFloat("x234_", x234_);
+    /* x234_aimMaxDistance */
+    __dna_docout.writeFloat("x234_aimMaxDistance", x234_aimMaxDistance);
     /* x238_ */
     __dna_docout.writeFloat("x238_", x238_);
     /* x23c_ */
@@ -1654,16 +1654,16 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x244_", x244_);
     /* x248_ */
     __dna_docout.writeFloat("x248_", x248_);
-    /* x24c_ */
-    __dna_docout.writeFloat("x24c_", x24c_);
+    /* x24c_aimThresholdDistance */
+    __dna_docout.writeFloat("x24c_aimThresholdDistance", x24c_aimThresholdDistance);
     /* x250_ */
     __dna_docout.writeFloat("x250_", x250_);
     /* x254_ */
     __dna_docout.writeFloat("x254_", x254_);
-    /* x258_ */
-    __dna_docout.writeFloat("x258_", x258_);
-    /* x25c_ */
-    __dna_docout.writeFloat("x25c_", x25c_);
+    /* x258_aimBoxWidth */
+    __dna_docout.writeFloat("x258_aimBoxWidth", x258_aimBoxWidth);
+    /* x25c_aimBoxHeight */
+    __dna_docout.writeFloat("x25c_aimBoxHeight", x25c_aimBoxHeight);
     /* x260_ */
     __dna_docout.writeFloat("x260_", x260_);
     /* x264_aimAssistHorizontalAngle */
@@ -1720,8 +1720,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x19c_", x19c_);
     /* x1a0_ */
     __dna_docout.writeFloat("x1a0_", x1a0_);
-    /* x1a4_ */
-    __dna_docout.writeFloat("x1a4_", x1a4_orbitDistanceCompareSignificance);
+    /* x1a4_orbitDistanceThreshold */
+    __dna_docout.writeFloat("x1a4_orbitDistanceThreshold", x1a4_orbitDistanceThreshold);
     /* x1a8_orbitScreenBoxHalfExtentX */
     if (auto v = __dna_docout.enterSubVector("x1a8_orbitScreenBoxHalfExtentX"))
     {
@@ -1754,21 +1754,21 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x1c0_orbitScreenBoxCenterY[1] */
     __dna_docout.writeUint32("x1c0_orbitScreenBoxCenterY", x1c0_orbitScreenBoxCenterY[1]);
     }
-    /* x1c8_enemyScreenBoxCenterX */
-    if (auto v = __dna_docout.enterSubVector("x1c8_enemyScreenBoxCenterX"))
+    /* x1c8_orbitZoneIdealX */
+    if (auto v = __dna_docout.enterSubVector("x1c8_orbitZoneIdealX"))
     {
-    /* x1c8_enemyScreenBoxCenterX[0] */
-    __dna_docout.writeUint32("x1c8_enemyScreenBoxCenterX", x1c8_enemyScreenBoxCenterX[0]);
-    /* x1c8_enemyScreenBoxCenterX[1] */
-    __dna_docout.writeUint32("x1c8_enemyScreenBoxCenterX", x1c8_enemyScreenBoxCenterX[1]);
+    /* x1c8_orbitZoneIdealX[0] */
+    __dna_docout.writeUint32("x1c8_orbitZoneIdealX", x1c8_orbitZoneIdealX[0]);
+    /* x1c8_orbitZoneIdealX[1] */
+    __dna_docout.writeUint32("x1c8_orbitZoneIdealX", x1c8_orbitZoneIdealX[1]);
     }
-    /* x1d0_enemyScreenBoxCenterY */
-    if (auto v = __dna_docout.enterSubVector("x1d0_enemyScreenBoxCenterY"))
+    /* x1d0_orbitZoneIdealY */
+    if (auto v = __dna_docout.enterSubVector("x1d0_orbitZoneIdealY"))
     {
-    /* x1d0_enemyScreenBoxCenterY[0] */
-    __dna_docout.writeUint32("x1d0_enemyScreenBoxCenterY", x1d0_enemyScreenBoxCenterY[0]);
-    /* x1d0_enemyScreenBoxCenterY[1] */
-    __dna_docout.writeUint32("x1d0_enemyScreenBoxCenterY", x1d0_enemyScreenBoxCenterY[1]);
+    /* x1d0_orbitZoneIdealY[0] */
+    __dna_docout.writeUint32("x1d0_orbitZoneIdealY", x1d0_orbitZoneIdealY[0]);
+    /* x1d0_orbitZoneIdealY[1] */
+    __dna_docout.writeUint32("x1d0_orbitZoneIdealY", x1d0_orbitZoneIdealY[1]);
     }
     /* x1d8_ */
     __dna_docout.writeFloat("x1d8_orbitNearX", x1d8_orbitNearX);
@@ -1816,8 +1816,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x220_", x220_);
     /* x224_scanningFrameSenseRange */
     __dna_docout.writeFloat("x224_scanningFrameSenseRange", x224_scanningFrameSenseRange);
-    /* x2a0_orbitDistanceThreshold */
-    __dna_docout.writeFloat("x2a0_orbitDistanceThreshold", x2a0_orbitDistanceThreshold);
+    /* x2a0_orbitDistanceMax */
+    __dna_docout.writeFloat("x2a0_orbitDistanceMax", x2a0_orbitDistanceMax);
     /* x2a4_grappleSwingLength */
     __dna_docout.writeFloat("x2a4_grappleSwingLength", x2a4_grappleSwingLength);
     /* x2a8_grappleSwingPeriod */

@@ -17,13 +17,13 @@ struct ITweakPlayer : ITweak
     virtual float GetFluidGravAccel() const=0;
     virtual float GetHudLagAmount() const=0;
     virtual float GetOrbitNormalDistance() const=0;
-    virtual float GetOrbitDistanceCompareSignificance() const=0;
+    virtual float GetOrbitDistanceThreshold() const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxCenterX(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxCenterY(int zone) const=0;
-    virtual uint32_t GetEnemyScreenBoxCenterX(int zone) const=0;
-    virtual uint32_t GetEnemyScreenBoxCenterY(int zone) const=0;
+    virtual uint32_t GetOrbitZoneIdealX(int zone) const=0;
+    virtual uint32_t GetOrbitZoneIdealY(int zone) const=0;
     virtual float GetOrbitNearX() const=0;
     virtual float GetOrbitNearZ() const=0;
     virtual float GetOrbitZRange() const=0;
@@ -32,6 +32,10 @@ struct ITweakPlayer : ITweak
     virtual bool GetFiringCancelsCameraPitch() const=0;
     virtual bool GetAssistedAimingIgnoreHorizontal() const=0;
     virtual bool GetAssistedAimingIgnoreVertical() const=0;
+    virtual float GetAimMaxDistance() const=0;
+    virtual float GetAimThresholdDistance() const=0;
+    virtual float GetAimBoxWidth() const=0;
+    virtual float GetAimBoxHeight() const=0;
     virtual float GetAimAssistHorizontalAngle() const=0;
     virtual float GetAimAssistVerticalAngle() const=0;
     virtual float GetScanningFrameSenseRange() const=0;
@@ -43,7 +47,7 @@ struct ITweakPlayer : ITweak
     virtual float GetX274() const=0; // x274
     virtual float GetX278() const=0; // x278
     virtual float GetPlayerBallHalfExtent() const=0; // x27c
-    virtual float GetOrbitDistanceThreshold() const=0;
+    virtual float GetOrbitDistanceMax() const=0;
     virtual float GetGrappleSwingLength() const=0;
     virtual float GetGrappleSwingPeriod() const=0;
     virtual float GetGrapplePullSpeedMin() const=0;

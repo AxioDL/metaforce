@@ -67,13 +67,13 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x198_;
     Value<float> x19c_;
     Value<float> x1a0_;
-    Value<float> x1a4_orbitDistanceCompareSignificance;
+    Value<float> x1a4_orbitDistanceThreshold;
     Value<atUint32> x1a8_orbitScreenBoxHalfExtentX[2];
     Value<atUint32> x1b0_orbitScreenBoxHalfExtentY[2];
     Value<atUint32> x1b8_orbitScreenBoxCenterX[2];
     Value<atUint32> x1c0_orbitScreenBoxCenterY[2];
-    Value<atUint32> x1c8_enemyScreenBoxCenterX[2];
-    Value<atUint32> x1d0_enemyScreenBoxCenterY[2];
+    Value<atUint32> x1c8_orbitZoneIdealX[2];
+    Value<atUint32> x1d0_orbitZoneIdealY[2];
     Value<float> x1d8_orbitNearX;
     Value<float> x1dc_orbitNearZ;
     Value<float> x1e0_;
@@ -120,17 +120,17 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x22a_28_assistedAimingIgnoreVertical : 1;
     Value<float> x22c_;
     Value<float> x230_;
-    Value<float> x234_;
+    Value<float> x234_aimMaxDistance;
     Value<float> x238_;
     Value<float> x23c_;
     Value<float> x240_;
     Value<float> x244_;
     Value<float> x248_;
-    Value<float> x24c_;
+    Value<float> x24c_aimThresholdDistance;
     Value<float> x250_;
     Value<float> x254_;
-    Value<float> x258_;
-    Value<float> x25c_;
+    Value<float> x258_aimBoxWidth;
+    Value<float> x25c_aimBoxHeight;
     Value<float> x260_;
     Value<float> x264_aimAssistHorizontalAngle;
     Value<float> x268_aimAssistVerticalAngle;
@@ -147,7 +147,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x294_;
     Value<float> x298_;
     Value<float> x29c_;
-    Value<float> x2a0_orbitDistanceThreshold;
+    Value<float> x2a0_orbitDistanceMax;
     Value<float> x2a4_grappleSwingLength;
     Value<float> x2a8_grappleSwingPeriod;
     Value<float> x2ac_grapplePullSpeedMin;
@@ -183,13 +183,13 @@ struct CTweakPlayer : ITweakPlayer
     float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
     float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
-    float GetOrbitDistanceCompareSignificance() const { return x1a4_orbitDistanceCompareSignificance; }
+    float GetOrbitDistanceThreshold() const { return x1a4_orbitDistanceThreshold; }
     uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
     uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
     uint32_t GetOrbitScreenBoxCenterX(int zone) const { return x1b8_orbitScreenBoxCenterX[zone]; }
     uint32_t GetOrbitScreenBoxCenterY(int zone) const { return x1c0_orbitScreenBoxCenterY[zone]; }
-    uint32_t GetEnemyScreenBoxCenterX(int zone) const { return x1c8_enemyScreenBoxCenterX[zone]; }
-    uint32_t GetEnemyScreenBoxCenterY(int zone) const { return x1d0_enemyScreenBoxCenterY[zone]; }
+    uint32_t GetOrbitZoneIdealX(int zone) const { return x1c8_orbitZoneIdealX[zone]; }
+    uint32_t GetOrbitZoneIdealY(int zone) const { return x1d0_orbitZoneIdealY[zone]; }
     float GetOrbitNearX() const { return x1d8_orbitNearX; }
     float GetOrbitNearZ() const { return x1dc_orbitNearZ; }
     float GetOrbitZRange() const { return x1ec_orbitZRange; }
@@ -201,6 +201,10 @@ struct CTweakPlayer : ITweakPlayer
     bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
     bool GetAssistedAimingIgnoreHorizontal() const { return x22a_27_assistedAimingIgnoreHorizontal; }
     bool GetAssistedAimingIgnoreVertical() const { return x22a_28_assistedAimingIgnoreVertical; }
+    float GetAimMaxDistance() const { return x234_aimMaxDistance; }
+    float GetAimThresholdDistance() const { return x24c_aimThresholdDistance; }
+    float GetAimBoxWidth() const { return x258_aimBoxWidth; }
+    float GetAimBoxHeight() const { return x25c_aimBoxHeight; }
     float GetAimAssistHorizontalAngle() const { return x264_aimAssistHorizontalAngle; }
     float GetAimAssistVerticalAngle() const { return x268_aimAssistVerticalAngle; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
@@ -208,7 +212,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetX274() const { return x274_; }
     float GetX278() const { return x278_; }
     float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
-    float GetOrbitDistanceThreshold() const { return x2a0_orbitDistanceThreshold; }
+    float GetOrbitDistanceMax() const { return x2a0_orbitDistanceMax; }
     float GetGrappleSwingLength() const { return x2a4_grappleSwingLength; }
     float GetGrappleSwingPeriod() const { return x2a8_grappleSwingPeriod; }
     float GetGrapplePullSpeedMin() const { return x2ac_grapplePullSpeedMin; }

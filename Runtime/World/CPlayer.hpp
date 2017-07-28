@@ -367,7 +367,7 @@ private:
             bool x9c5_29_hitWall : 1;
             bool x9c5_30_ : 1;
             bool x9c5_31_ : 1;
-            bool x9c6_24_ : 1;
+            bool x9c6_24_extendTargetDistance : 1;
             bool x9c6_25_ : 1;
             bool x9c6_26_ : 1;
             bool x9c6_27_aimingAtProjectile : 1;

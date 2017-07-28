@@ -330,7 +330,7 @@ struct PlayerHintParameters : BigYAML
     Value<atUint32> propertyCount;
     Value<bool>     unknown1;
     Value<bool>     unknown2;
-    Value<bool>     unknown3;
+    Value<bool>     extendTargetDistance;
     Value<bool>     unknown4;
     Value<bool>     unknown5;
     Value<bool>     unknown6;
