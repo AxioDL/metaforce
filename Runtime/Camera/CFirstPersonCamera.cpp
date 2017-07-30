@@ -168,7 +168,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             if (std::fabs(angle) > 1.f)
                 angle = (angle > -0.f ? -1.f : 1.f);
             float clampedAngle = zeus::clamp(0.f, std::acos(angle) / scaledDt, 1.f);
-            if (angle > 0.999f && x18c_ && !player->x374_)
+            if (angle > 0.999f && x18c_ && !player->x374_orbitLockEstablished)
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             else
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, scaledDt * clampedAngle);

@@ -23,7 +23,7 @@ void CScriptPointOfInterest::Accept(IVisitor& visitor)
 
 void CScriptPointOfInterest::Think(float dt, CStateManager& mgr)
 {
-    xe7_31_ = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
+    xe7_31_targetable = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
     CEntity::Think(dt, mgr);
 }
 

@@ -151,8 +151,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x11c_ = __dna_reader.readFloatBig();
     /* x120_ */
     x120_ = __dna_reader.readFloatBig();
-    /* x124_ */
-    x124_ = __dna_reader.readFloatBig();
+    /* x124_eyeOffset */
+    x124_eyeOffset = __dna_reader.readFloatBig();
     /* x128_ */
     x128_ = __dna_reader.readFloatBig();
     /* x12c_ */
@@ -195,8 +195,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x228_31_ = __dna_reader.readBool();
     /* x229_24_ */
     x229_24_ = __dna_reader.readBool();
-    /* x229_25_ */
-    x229_25_ = __dna_reader.readBool();
+    /* x229_25_aimWhenOrbitingPoint */
+    x229_25_aimWhenOrbitingPoint = __dna_reader.readBool();
     /* x229_26_ */
     x229_26_ = __dna_reader.readBool();
     /* x229_27_ */
@@ -245,8 +245,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x258_aimBoxWidth = __dna_reader.readFloatBig();
     /* x25c_aimBoxHeight */
     x25c_aimBoxHeight = __dna_reader.readFloatBig();
-    /* x260_ */
-    x260_ = __dna_reader.readFloatBig();
+    /* x260_aimTargetTimer */
+    x260_aimTargetTimer = __dna_reader.readFloatBig();
     /* x264_aimAssistHorizontalAngle */
     x264_aimAssistHorizontalAngle = __dna_reader.readFloatBig();
     /* x268_aimAssistVerticalAngle */
@@ -275,12 +275,12 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x180_orbitNormalDistance = __dna_reader.readFloatBig();
     /* x184_ */
     x184_ = __dna_reader.readFloatBig();
-    /* x188_ */
-    x188_ = __dna_reader.readFloatBig();
-    /* x18c_ */
-    x18c_ = __dna_reader.readFloatBig();
-    /* x190_ */
-    x190_ = __dna_reader.readFloatBig();
+    /* x188_maxUpwardOrbitLookAngle */
+    x188_maxUpwardOrbitLookAngle = __dna_reader.readFloatBig();
+    /* x18c_maxDownwardOrbitLookAngle */
+    x18c_maxDownwardOrbitLookAngle = __dna_reader.readFloatBig();
+    /* x190_orbitHorizAngle */
+    x190_orbitHorizAngle = __dna_reader.readFloatBig();
     /* x194_ */
     x194_ = __dna_reader.readFloatBig();
     /* x198_ */
@@ -355,8 +355,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x21c_24_ = __dna_reader.readBool();
     /* x21c_25_scanFreezesGame */
     x21c_25_scanFreezesGame = __dna_reader.readBool();
-    /* x21c_26_ */
-    x21c_26_ = __dna_reader.readBool();
+    /* x21c_26_orbitWhileScanning */
+    x21c_26_orbitWhileScanning = __dna_reader.readBool();
     /* x220_ */
     x220_ = __dna_reader.readFloatBig();
     /* x224_scanningFrameSenseRange */
@@ -591,8 +591,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x11c_);
     /* x120_ */
     __dna_writer.writeFloatBig(x120_);
-    /* x124_ */
-    __dna_writer.writeFloatBig(x124_);
+    /* x124_eyeOffset */
+    __dna_writer.writeFloatBig(x124_eyeOffset);
     /* x128_ */
     __dna_writer.writeFloatBig(x128_);
     /* x12c_ */
@@ -635,8 +635,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeBool(x228_31_);
     /* x229_24_ */
     __dna_writer.writeBool(x229_24_);
-    /* x229_25_ */
-    __dna_writer.writeBool(x229_25_);
+    /* x229_25_aimWhenOrbitingPoint */
+    __dna_writer.writeBool(x229_25_aimWhenOrbitingPoint);
     /* x229_26_ */
     __dna_writer.writeBool(x229_26_);
     /* x229_27_ */
@@ -685,8 +685,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x258_aimBoxWidth);
     /* x25c_aimBoxHeight */
     __dna_writer.writeFloatBig(x25c_aimBoxHeight);
-    /* x260_ */
-    __dna_writer.writeFloatBig(x260_);
+    /* x260_aimTargetTimer */
+    __dna_writer.writeFloatBig(x260_aimTargetTimer);
     /* x264_aimAssistHorizontalAngle */
     __dna_writer.writeFloatBig(x264_aimAssistHorizontalAngle);
     /* x268_aimAssistVerticalAngle */
@@ -715,12 +715,12 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x180_orbitNormalDistance);
     /* x184_ */
     __dna_writer.writeFloatBig(x184_);
-    /* x188_ */
-    __dna_writer.writeFloatBig(x188_);
-    /* x18c_ */
-    __dna_writer.writeFloatBig(x18c_);
-    /* x190_ */
-    __dna_writer.writeFloatBig(x190_);
+    /* x188_maxUpwardOrbitLookAngle */
+    __dna_writer.writeFloatBig(x188_maxUpwardOrbitLookAngle);
+    /* x18c_maxDownwardOrbitLookAngle */
+    __dna_writer.writeFloatBig(x18c_maxDownwardOrbitLookAngle);
+    /* x190_orbitHorizAngle */
+    __dna_writer.writeFloatBig(x190_orbitHorizAngle);
     /* x194_ */
     __dna_writer.writeFloatBig(x194_);
     /* x198_ */
@@ -795,8 +795,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeBool(x21c_24_);
     /* x21c_25_scanFreezesGame */
     __dna_writer.writeBool(x21c_25_scanFreezesGame);
-    /* x21c_26_ */
-    __dna_writer.writeBool(x21c_26_);
+    /* x21c_26_orbitWhileScanning */
+    __dna_writer.writeBool(x21c_26_orbitWhileScanning);
     /* x220_ */
     __dna_writer.writeFloatBig(x220_);
     /* x224_scanningFrameSenseRange */
@@ -1061,8 +1061,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x11c_ = __dna_docin.readFloat("x11c_");
     /* x120_ */
     x120_ = __dna_docin.readFloat("x120_");
-    /* x124_ */
-    x124_ = __dna_docin.readFloat("x124_");
+    /* x124_eyeOffset */
+    x124_eyeOffset = __dna_docin.readFloat("x124_eyeOffset");
     /* x128_ */
     x128_ = __dna_docin.readFloat("x128_");
     /* x12c_ */
@@ -1105,8 +1105,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x228_31_ = __dna_docin.readBool("x228_31_");
     /* x229_24_ */
     x229_24_ = __dna_docin.readBool("x229_24_");
-    /* x229_25_ */
-    x229_25_ = __dna_docin.readBool("x229_25_");
+    /* x229_25_aimWhenOrbitingPoint */
+    x229_25_aimWhenOrbitingPoint = __dna_docin.readBool("x229_25_aimWhenOrbitingPoint");
     /* x229_26_ */
     x229_26_ = __dna_docin.readBool("x229_26_");
     /* x229_27_ */
@@ -1155,8 +1155,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x258_aimBoxWidth = __dna_docin.readFloat("x258_aimBoxWidth");
     /* x25c_aimBoxHeight */
     x25c_aimBoxHeight = __dna_docin.readFloat("x25c_aimBoxHeight");
-    /* x260_ */
-    x260_ = __dna_docin.readFloat("x260_");
+    /* x260_aimTargetTimer */
+    x260_aimTargetTimer = __dna_docin.readFloat("x260_aimTargetTimer");
     /* x264_aimAssistHorizontalAngle */
     x264_aimAssistHorizontalAngle = __dna_docin.readFloat("x264_aimAssistHorizontalAngle");
     /* x268_aimAssistVerticalAngle */
@@ -1200,12 +1200,12 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x180_orbitNormalDistance = __dna_docin.readFloat("x180_orbitNormalDistance");
     /* x184_ */
     x184_ = __dna_docin.readFloat("x184_");
-    /* x188_ */
-    x188_ = __dna_docin.readFloat("x188_");
-    /* x18c_ */
-    x18c_ = __dna_docin.readFloat("x18c_");
-    /* x190_ */
-    x190_ = __dna_docin.readFloat("x190_");
+    /* x188_maxUpwardOrbitLookAngle */
+    x188_maxUpwardOrbitLookAngle = __dna_docin.readFloat("x188_maxUpwardOrbitLookAngle");
+    /* x18c_maxDownwardOrbitLookAngle */
+    x18c_maxDownwardOrbitLookAngle = __dna_docin.readFloat("x18c_maxDownwardOrbitLookAngle");
+    /* x190_orbitHorizAngle */
+    x190_orbitHorizAngle = __dna_docin.readFloat("x190_orbitHorizAngle");
     /* x194_ */
     x194_ = __dna_docin.readFloat("x194_");
     /* x198_ */
@@ -1310,8 +1310,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x21c_24_ = __dna_docin.readBool("x21c_24_");
     /* x21c_25_scanFreezesGame */
     x21c_25_scanFreezesGame = __dna_docin.readBool("x21c_25_scanFreezesGame");
-    /* x21c_26_ */
-    x21c_26_ = __dna_docin.readBool("x21c_26_");
+    /* x21c_26_orbitWhileScanning */
+    x21c_26_orbitWhileScanning = __dna_docin.readBool("x21c_26_orbitWhileScanning");
     /* x220_ */
     x220_ = __dna_docin.readFloat("x220_");
     /* x224_scanningFrameSenseRange */
@@ -1570,8 +1570,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x11c_", x11c_);
     /* x120_ */
     __dna_docout.writeFloat("x120_", x120_);
-    /* x124_ */
-    __dna_docout.writeFloat("x124_", x124_);
+    /* x124_eyeOffset */
+    __dna_docout.writeFloat("x124_eyeOffset", x124_eyeOffset);
     /* x128_ */
     __dna_docout.writeFloat("x128_", x128_);
     /* x12c_ */
@@ -1614,8 +1614,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeBool("x228_31_", x228_31_);
     /* x229_24_ */
     __dna_docout.writeBool("x229_24_", x229_24_);
-    /* x229_25_ */
-    __dna_docout.writeBool("x229_25_", x229_25_);
+    /* x229_25_aimWhenOrbitingPoint */
+    __dna_docout.writeBool("x229_25_aimWhenOrbitingPoint", x229_25_aimWhenOrbitingPoint);
     /* x229_26_ */
     __dna_docout.writeBool("x229_26_", x229_26_);
     /* x229_27_ */
@@ -1664,8 +1664,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x258_aimBoxWidth", x258_aimBoxWidth);
     /* x25c_aimBoxHeight */
     __dna_docout.writeFloat("x25c_aimBoxHeight", x25c_aimBoxHeight);
-    /* x260_ */
-    __dna_docout.writeFloat("x260_", x260_);
+    /* x260_aimTargetTimer */
+    __dna_docout.writeFloat("x260_aimTargetTimer", x260_aimTargetTimer);
     /* x264_aimAssistHorizontalAngle */
     __dna_docout.writeFloat("x264_aimAssistHorizontalAngle", x264_aimAssistHorizontalAngle);
     /* x268_aimAssistVerticalAngle */
@@ -1706,12 +1706,12 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x180_orbitNormalDistance", x180_orbitNormalDistance);
     /* x184_ */
     __dna_docout.writeFloat("x184_", x184_);
-    /* x188_ */
-    __dna_docout.writeFloat("x188_", x188_);
-    /* x18c_ */
-    __dna_docout.writeFloat("x18c_", x18c_);
-    /* x190_ */
-    __dna_docout.writeFloat("x190_", x190_);
+    /* x188_maxUpwardOrbitLookAngle */
+    __dna_docout.writeFloat("x188_maxUpwardOrbitLookAngle", x188_maxUpwardOrbitLookAngle);
+    /* x18c_maxDownwardOrbitLookAngle */
+    __dna_docout.writeFloat("x18c_maxDownwardOrbitLookAngle", x18c_maxDownwardOrbitLookAngle);
+    /* x190_orbitHorizAngle */
+    __dna_docout.writeFloat("x190_orbitHorizAngle", x190_orbitHorizAngle);
     /* x194_ */
     __dna_docout.writeFloat("x194_", x194_);
     /* x198_ */
@@ -1810,8 +1810,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeBool("x21c_24_", x21c_24_);
     /* x21c_25_scanFreezesGame */
     __dna_docout.writeBool("x21c_25_scanFreezesGame", x21c_25_scanFreezesGame);
-    /* x21c_26_ */
-    __dna_docout.writeBool("x21c_26_", x21c_26_);
+    /* x21c_26_orbitWhileScanning */
+    __dna_docout.writeBool("x21c_26_orbitWhileScanning", x21c_26_orbitWhileScanning);
     /* x220_ */
     __dna_docout.writeFloat("x220_", x220_);
     /* x224_scanningFrameSenseRange */
@@ -1917,9 +1917,9 @@ void CTweakPlayer::FixupValues()
     x268_aimAssistVerticalAngle = zeus::degToRad(x268_aimAssistVerticalAngle);
     x17c_ = zeus::degToRad(x17c_);
     x184_ = zeus::degToRad(x184_);
-    x188_ = zeus::degToRad(x188_);
-    x18c_ = zeus::degToRad(x18c_);
-    x190_ = zeus::degToRad(x190_);
+    x188_maxUpwardOrbitLookAngle = zeus::degToRad(x188_maxUpwardOrbitLookAngle);
+    x18c_maxDownwardOrbitLookAngle = zeus::degToRad(x18c_maxDownwardOrbitLookAngle);
+    x190_orbitHorizAngle = zeus::degToRad(x190_orbitHorizAngle);
     x194_ = zeus::degToRad(x194_);
     x198_ = zeus::degToRad(x198_);
     x1f0_ = zeus::degToRad(x1f0_);

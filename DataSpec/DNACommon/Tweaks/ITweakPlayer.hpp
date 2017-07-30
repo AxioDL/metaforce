@@ -15,8 +15,12 @@ struct ITweakPlayer : ITweak
     virtual float GetX5C() const=0;
     virtual float GetNormalGravAccel() const=0;
     virtual float GetFluidGravAccel() const=0;
+    virtual float GetEyeOffset() const=0;
     virtual float GetHudLagAmount() const=0;
     virtual float GetOrbitNormalDistance() const=0;
+    virtual float GetMaxUpwardOrbitLookAngle() const=0;
+    virtual float GetMaxDownwardOrbitLookAngle() const=0;
+    virtual float GetOrbitHorizAngle() const=0;
     virtual float GetOrbitDistanceThreshold() const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const=0;
     virtual uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const=0;
@@ -29,6 +33,7 @@ struct ITweakPlayer : ITweak
     virtual float GetOrbitZRange() const=0;
     virtual float GetScanningRange() const=0; // x218
     virtual bool GetScanFreezesGame() const=0; // x21c_25
+    virtual bool GetOrbitWhileScanning() const=0;
     virtual bool GetFiringCancelsCameraPitch() const=0;
     virtual bool GetAssistedAimingIgnoreHorizontal() const=0;
     virtual bool GetAssistedAimingIgnoreVertical() const=0;
@@ -36,9 +41,11 @@ struct ITweakPlayer : ITweak
     virtual float GetAimThresholdDistance() const=0;
     virtual float GetAimBoxWidth() const=0;
     virtual float GetAimBoxHeight() const=0;
+    virtual float GetAimTargetTimer() const=0;
     virtual float GetAimAssistHorizontalAngle() const=0;
     virtual float GetAimAssistVerticalAngle() const=0;
     virtual float GetScanningFrameSenseRange() const=0;
+    virtual bool GetAimWhenOrbitingPoint() const=0;
     virtual bool GetGunButtonTogglesHolster() const=0;
     virtual bool GetGunNotFiringHolstersGun() const=0;
     virtual float GetPlayerHeight() const=0; // x26c

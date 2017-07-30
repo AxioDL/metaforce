@@ -72,15 +72,15 @@ public:
         Twelve
     };
 
-    enum class EOrbitObjectType
+    enum class EOrbitValidationResult
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six
+        OK,
+        InvalidTarget,
+        PlayerNotReadyToTarget,
+        NonTargetableTarget,
+        ExtremeHorizonAngle,
+        BrokenLookAngle,
+        TargetingThroughDoor
     };
 
     enum class EPlayerZoneInfo
@@ -222,7 +222,7 @@ private:
     rstl::reserved_vector<float, 6> x2b4_;
     u32 x2d0_ = 3;
     float x2d4_ = 0.f;
-    zeus::CAABox x2d8_;
+    zeus::CAABox x2d8_fpBounds;
     float x2f0_ballTransHeight = 0.f;
     EPlayerCameraState x2f4_cameraState = EPlayerCameraState::Zero;
     EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
@@ -243,7 +243,7 @@ private:
     std::vector<TUniqueId> x344_nearbyOrbitObjects;
     std::vector<TUniqueId> x354_onScreenOrbitObjects;
     std::vector<TUniqueId> x364_offScreenOrbitObjects;
-    bool x374_ = false;
+    bool x374_orbitLockEstablished = false;
     float x378_ = 0.f;
     bool x37c_sidewaysDashing = false;
     float x380_ = 0.f;
@@ -278,7 +278,7 @@ private:
     zeus::CVector3f x3f8_targetAimPosition = zeus::CVector3f::skZero;
     TReservedAverage<zeus::CVector3f, 20> x404_aimTargetAverage;
     zeus::CVector3f x480_assistedTargetAim = zeus::CVector3f::skZero;
-    float x48c_ = 0.f;
+    float x48c_aimTargetTimer = 0.f;
     std::unique_ptr<CPlayerGun> x490_gun;
     float x494_mapAlpha = 1.f;
     EGunHolsterState x498_gunHolsterState = EGunHolsterState::Drawn;
@@ -288,7 +288,7 @@ private:
     float x4f8_ = 0.f;
     float x4fc_ = 0.f;
     zeus::CVector3f x500_ = x34_transform.basis[1];
-    zeus::CVector3f x50c_ = x34_transform.basis[1];
+    zeus::CVector3f x50c_moveDir = x34_transform.basis[1];
     zeus::CVector3f x518_leaveMorphDir = x34_transform.basis[1];
     zeus::CVector3f x524_ = x34_transform.basis[1];
     zeus::CVector3f x530_ = x34_transform.basis[1];
@@ -381,7 +381,7 @@ private:
         u32 _dummy = 0;
     };
 
-    float x9c8_ = 0.f;
+    float x9c8_eyeZBias = 0.f;
     float x9cc_ = 0.f;
     u32 x9d0_ = 0;
     u32 x9d4_ = 0;
@@ -396,8 +396,8 @@ private:
     ResId xa08_steamTextureId = kInvalidResId;
     ResId xa0c_iceTextureId;
     u32 xa10_phazonCounter = 0;
-    float xa14_ = 0.f;
-    float xa18_ = 0.f;
+    float xa14_phazonCameraShakeTimer = 0.f;
+    float xa18_phazonDamageLag = 0.f;
     float xa1c_threatOverride = 0.f;
     float xa20_radarXYRadiusOverride = 1.f;
     float xa24_radarZRadiusOverride = 1.f;
@@ -542,8 +542,8 @@ public:
     void UpdateOrbitTarget(CStateManager& mgr);
     float GetOrbitMaxLockDistance(CStateManager& mgr) const;
     float GetOrbitMaxTargetDistance(CStateManager& mgr) const;
-    EOrbitObjectType ValidateOrbitTargetId(TUniqueId uid, CStateManager& mgr) const;
-    EOrbitObjectType ValidateCurrentOrbitTargetId(CStateManager& mgr);
+    EOrbitValidationResult ValidateOrbitTargetId(TUniqueId uid, CStateManager& mgr) const;
+    EOrbitValidationResult ValidateCurrentOrbitTargetId(CStateManager& mgr);
     bool ValidateOrbitTargetIdAndPointer(TUniqueId, CStateManager& mgr) const;
     zeus::CVector3f GetBallPosition() const;
     zeus::CVector3f GetEyePosition() const;

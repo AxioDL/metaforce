@@ -13,14 +13,14 @@ struct SCameraShakePoint
     friend class CCameraShakeData;
     u32 x0_w1 = 0;
     float x4_ = 0.f;
-    float x8_f4 = 0.f;
+    float x8_magnitude = 0.f;
     float xc_f1 = 0.f;
     float x10_f2 = 0.f;
-    float x14_f3 = 0.f;
+    float x14_duration = 0.f;
     SCameraShakePoint() = default;
-    SCameraShakePoint(u32 w1, float f1, float f2, float f3, float f4)
-    : x0_w1(w1), x8_f4(f4), xc_f1(f1), x10_f2(f2), x14_f3(f3) {}
-    float GetSomething() const { return x0_w1 ? x8_f4 : x4_; }
+    SCameraShakePoint(u32 w1, float f1, float f2, float duration, float magnitude)
+    : x0_w1(w1), x8_magnitude(magnitude), xc_f1(f1), x10_f2(f2), x14_duration(duration) {}
+    float GetSomething() const { return x0_w1 ? x8_magnitude : x4_; }
     static SCameraShakePoint LoadCameraShakePoint(CInputStream& in);
 };
 
@@ -51,12 +51,13 @@ class CCameraShakeData
     float xd0_f2;
 
 public:
-    CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& v1,
+    CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& sfxPos,
                      const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                      const CCameraShakerComponent& shaker3);
-    CCameraShakeData(float f1, float f2);
-    static CCameraShakeData BuildLandingCameraShakeData(float f1, float f2);
-    static CCameraShakeData BuildProjectileCameraShake(float f1, float f2);
+    CCameraShakeData(float duration, float magnitude);
+    static CCameraShakeData BuildLandingCameraShakeData(float duration, float magnitude);
+    static CCameraShakeData BuildProjectileCameraShake(float duration, float magnitude);
+    static CCameraShakeData BuildPhazonCameraShakeData(float duration, float magnitude);
     //zeus::CVector3f GeneratePoint(float dt, CRandom16& r);
     float GetSomething() const;
     float GetSomething2() const;

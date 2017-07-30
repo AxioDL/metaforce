@@ -66,9 +66,10 @@ protected:
             u8 xe6_24_fluidCounter : 3;
             u8 xe6_27_ : 3;
             bool xe6_30_enablePitchBend : 1;
+            u8 xe6_31_targetableVisorFlags : 4;
             bool xe7_29_ : 1;
             bool xe7_30_doTargetDistanceTest : 1;
-            bool xe7_31_ : 1;
+            bool xe7_31_targetable : 1;
         };
         u32 dummy = 0;
     };
@@ -176,6 +177,8 @@ public:
     bool GetDoTargetDistanceTest() const { return xe7_30_doTargetDistanceTest; }
     void SetCalculateLighting(bool c);
     float GetAverageAnimVelocity(int anim) const;
+    u8 GetTargetableVisorFlags() const { return xe6_31_targetableVisorFlags; }
+    bool GetIsTargetable() const { return xe7_31_targetable; }
 };
 }
 

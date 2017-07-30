@@ -81,9 +81,9 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
     SetCalculateLighting(true);
 
     x90_actorLights->SetCastShadows(true);
-    x50c_.z = 0.f;
-    if (x50c_.canBeNormalized())
-        x50c_.normalize();
+    x50c_moveDir.z = 0.f;
+    if (x50c_moveDir.canBeNormalized())
+        x50c_moveDir.normalize();
     x2b4_.push_back(20.f);
     x2b4_.push_back(80.f);
     x2b4_.push_back(80.f);
@@ -226,7 +226,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     {
         if (mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(x8_uid) >= 0.2f)
         {
-            zeus::CVector3f posOffset = x50c_;
+            zeus::CVector3f posOffset = x50c_moveDir;
             if (posOffset.canBeNormalized())
                 posOffset = posOffset.normalized() * zeus::CVector3f(1.2f, 1.2f, 0.f);
             switch (state)
@@ -440,9 +440,29 @@ void CPlayer::ValidateScanning(const CFinalInput& input, CStateManager& mgr) {}
 
 void CPlayer::SetScanningState(EPlayerScanState, CStateManager& mgr) {}
 
-bool CPlayer::GetExplorationMode() const { return false; }
+bool CPlayer::GetExplorationMode() const
+{
+    switch (x498_gunHolsterState)
+    {
+    case EGunHolsterState::Holstering:
+    case EGunHolsterState::Holstered:
+        return true;
+    default:
+        return false;
+    }
+}
 
-bool CPlayer::GetCombatMode() const { return false; }
+bool CPlayer::GetCombatMode() const
+{
+    switch (x498_gunHolsterState)
+    {
+    case EGunHolsterState::Drawing:
+    case EGunHolsterState::Drawn:
+        return true;
+    default:
+        return false;
+    }
+}
 
 void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f&) const {}
 
@@ -658,7 +678,7 @@ void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input)
 {
     if (x2f8_morphTransState != EPlayerMorphBallState::Morphed)
     {
-        x518_leaveMorphDir = x50c_;
+        x518_leaveMorphDir = x50c_moveDir;
     }
     else
     {
@@ -668,7 +688,7 @@ void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input)
             ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnRight, input) > 0.3f)
         {
             if (x138_velocity.magnitude() > 0.5f)
-                x518_leaveMorphDir = x50c_;
+                x518_leaveMorphDir = x50c_moveDir;
         }
     }
 }
@@ -773,17 +793,17 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
             {
             case EPlayerMorphBallState::Morphed:
                 if (x4fc_ > 0.25f)
-                    x50c_ = flatDelta;
-                x530_ = x50c_;
+                    x50c_moveDir = flatDelta;
+                x530_ = x50c_moveDir;
                 x524_ = GetTranslation();
                 break;
             default:
                 x500_ = GetTransform().basis[1];
-                x50c_ = x500_;
-                x50c_.z = 0.f;
-                if (x50c_.canBeNormalized())
-                    x50c_.normalize();
-                x530_ = x50c_;
+                x50c_moveDir = x500_;
+                x50c_moveDir.z = 0.f;
+                if (x50c_moveDir.canBeNormalized())
+                    x50c_moveDir.normalize();
+                x530_ = x50c_moveDir;
                 x524_ = GetTranslation();
                 break;
             }
@@ -793,11 +813,11 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
             if (x2f8_morphTransState != EPlayerMorphBallState::Morphed)
             {
                 x500_ = GetTransform().basis[1];
-                x50c_ = x500_;
-                x50c_.z = 0.f;
-                if (x50c_.canBeNormalized())
-                    x50c_.normalize();
-                x530_ = x50c_;
+                x50c_moveDir = x500_;
+                x50c_moveDir.z = 0.f;
+                if (x50c_moveDir.canBeNormalized())
+                    x50c_moveDir.normalize();
+                x530_ = x50c_moveDir;
                 x524_ = GetTranslation();
             }
             x4fc_ = 0.f;
@@ -811,15 +831,15 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         case EPlayerMorphBallState::Morphed:
         case EPlayerMorphBallState::Morphing:
         case EPlayerMorphBallState::Unmorphing:
-            x500_ = x50c_;
+            x500_ = x50c_moveDir;
             break;
         default:
             x500_ = GetTransform().basis[1];
-            x50c_ = x500_;
-            x50c_.z = 0.f;
-            if (x50c_.canBeNormalized())
-                x50c_.normalize();
-            x530_ = x50c_;
+            x50c_moveDir = x500_;
+            x50c_moveDir.z = 0.f;
+            if (x50c_moveDir.canBeNormalized())
+                x50c_moveDir.normalize();
+            x530_ = x50c_moveDir;
             x524_ = GetTranslation();
             break;
         }
@@ -827,8 +847,8 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         x4fc_ = 0.f;
     }
 
-    x50c_.z = 0.f;
-    if (x50c_.canBeNormalized())
+    x50c_moveDir.z = 0.f;
+    if (x50c_moveDir.canBeNormalized())
         x500_.normalize();
 }
 
@@ -947,7 +967,10 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr)
     }
 }
 
-void CPlayer::Think(float, CStateManager&) {}
+void CPlayer::Think(float dt, CStateManager& mgr)
+{
+
+}
 
 void CPlayer::PreThink(float dt, CStateManager& mgr)
 {
@@ -1965,7 +1988,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
 bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr)
 {
     CMaterialFilter solidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
-    zeus::CAABox aabb(x2d8_.min - 1.f + pos, x2d8_.max + 1.f + pos);
+    zeus::CAABox aabb(x2d8_fpBounds.min - 1.f + pos, x2d8_fpBounds.max + 1.f + pos);
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildColliderList(nearList, *this, aabb);
     CCollidableAABox colAABB({GetBaseBoundingBox().min + pos, GetBaseBoundingBox().max + pos}, {});
@@ -2339,7 +2362,7 @@ void CPlayer::SetOrbitTargetId(TUniqueId id, CStateManager& mgr)
 
     x310_orbitTargetId = id;
     if (x310_orbitTargetId == kInvalidUniqueId)
-        x374_ = false;
+        x374_orbitLockEstablished = false;
 }
 
 void CPlayer::UpdateOrbitPosition(float pos, CStateManager& mgr)
@@ -2388,13 +2411,201 @@ void CPlayer::SetOrbitPosition(float pos, CStateManager& mgr)
     x320_orbitVector = zeus::CVector3f(0.f, pos, x314_orbitPoint.z - camXf.origin.z);
 }
 
-void CPlayer::UpdateAimTarget(CStateManager& mgr) {}
+void CPlayer::UpdateAimTarget(CStateManager& mgr)
+{
+    if (!ValidateAimTargetId(x3f4_aimTarget, mgr))
+        ResetAimTargetPrediction(kInvalidUniqueId);
 
-void CPlayer::UpdateAimTargetTimer(float) {}
+    if (!GetCombatMode())
+    {
+        ResetAimTargetPrediction(kInvalidUniqueId);
+        x48c_aimTargetTimer = 0.f;
+        return;
+    }
 
-bool CPlayer::ValidateAimTargetId(TUniqueId, CStateManager& mgr) { return false; }
+#if 0
+    if (!0 && 0)
+    {
+        ResetAimTargetPrediction(kInvalidUniqueId);
+        x48c_aimTargetTimer = 0.f;
+        if (x304_orbitState == EPlayerOrbitState::One ||
+            x304_orbitState == EPlayerOrbitState::Four)
+            if (!ValidateOrbitTargetId(x310_orbitTargetId, mgr))
+                ResetAimTargetPrediction(x310_orbitTargetId);
+        return;
+    }
+#endif
 
-bool CPlayer::ValidateObjectForMode(TUniqueId, CStateManager& mgr) const { return false; }
+    bool needsReset = false;
+    TCastToPtr<CActor> act = mgr.ObjectById(x3f4_aimTarget);
+    CActor* actp = act.GetPtr();
+    if (act)
+        if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Target))
+            actp = nullptr;
+
+    if (g_tweakPlayer->GetAimWhenOrbitingPoint())
+    {
+        if (x304_orbitState == EPlayerOrbitState::One ||
+            x304_orbitState == EPlayerOrbitState::Four)
+        {
+            if (ValidateOrbitTargetId(x310_orbitTargetId, mgr) == EOrbitValidationResult::OK)
+                ResetAimTargetPrediction(x310_orbitTargetId);
+            else
+                needsReset = true;
+        }
+        else
+        {
+            needsReset = true;
+        }
+    }
+    else
+    {
+        if (x304_orbitState == EPlayerOrbitState::Zero)
+            needsReset = true;
+    }
+
+    if (needsReset)
+    {
+        if (actp && ValidateObjectForMode(x3f4_aimTarget, mgr))
+            ResetAimTargetPrediction(kInvalidUniqueId);
+        else
+            ResetAimTargetPrediction(FindAimTargetId(mgr));
+    }
+}
+
+void CPlayer::UpdateAimTargetTimer(float dt)
+{
+    if (x3f4_aimTarget == kInvalidUniqueId)
+        return;
+    if (x48c_aimTargetTimer <= 0.f)
+        return;
+    x48c_aimTargetTimer -= dt;
+}
+
+bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr)
+{
+    if (uid == kInvalidUniqueId)
+    {
+        x404_aimTargetAverage.Clear();
+        x48c_aimTargetTimer = 0.f;
+        return false;
+    }
+
+    TCastToPtr<CActor> act = mgr.ObjectById(uid);
+    if (!act || !act->GetMaterialList().HasMaterial(EMaterialTypes::Target) || !act->GetIsTargetable())
+        return false;
+
+    if (x304_orbitState == EPlayerOrbitState::One ||
+        x304_orbitState == EPlayerOrbitState::Four)
+    {
+        if (ValidateOrbitTargetId(x310_orbitTargetId, mgr) != EOrbitValidationResult::OK)
+        {
+            ResetAimTargetPrediction(kInvalidUniqueId);
+            x48c_aimTargetTimer = 0.f;
+            return false;
+        }
+        return true;
+    }
+
+    if (act->GetMaterialList().HasMaterial(EMaterialTypes::Target) && uid != kInvalidUniqueId &&
+        ValidateObjectForMode(uid, mgr))
+    {
+        float vpWHalf = g_Viewport.x8_width / 2;
+        float vpHHalf = g_Viewport.xc_height / 2;
+        zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
+        zeus::CVector3f eyePos = GetEyePosition();
+        zeus::CVector3f eyeToAim = aimPos - eyePos;
+        zeus::CVector3f screenPos = mgr.GetCameraManager()->GetFirstPersonCamera()->ConvertToScreenSpace(aimPos);
+        zeus::CVector3f posInBox(vpWHalf + screenPos.x * vpWHalf,
+                                 vpHHalf + screenPos.y * vpHHalf,
+                                 screenPos.z);
+        if (WithinOrbitScreenBox(posInBox, x330_orbitZone, x334_orbitType) ||
+            (x330_orbitZone != EPlayerZoneInfo::Zero &&
+             WithinOrbitScreenBox(posInBox, EPlayerZoneInfo::Zero, x334_orbitType)))
+        {
+            float eyeToAimMag = eyeToAim.magnitude();
+            if (eyeToAimMag <= g_tweakPlayer->GetAimMaxDistance())
+            {
+                rstl::reserved_vector<TUniqueId, 1024> nearList;
+                TUniqueId intersectId = kInvalidUniqueId;
+                eyeToAim.normalize();
+                mgr.BuildNearList(nearList, eyePos, eyeToAim, eyeToAimMag,
+                                  OccluderFilter, act);
+                eyeToAim.normalize();
+                CRayCastResult result =
+                    mgr.RayWorldIntersection(intersectId, eyePos, eyeToAim, eyeToAimMag,
+                                             LineOfSightFilter, nearList);
+                if (result.IsInvalid())
+                {
+                    x48c_aimTargetTimer = g_tweakPlayer->GetAimTargetTimer();
+                    return true;
+                }
+            }
+        }
+
+        if (x48c_aimTargetTimer > 0.f)
+            return true;
+    }
+
+    ResetAimTargetPrediction(kInvalidUniqueId);
+    x48c_aimTargetTimer = 0.f;
+    return false;
+}
+
+bool CPlayer::ValidateObjectForMode(TUniqueId uid, CStateManager& mgr) const
+{
+    TCastToPtr<CActor> act = mgr.ObjectById(uid);
+    if (!act || uid == kInvalidUniqueId)
+        return false;
+
+    if (TCastToPtr<CScriptDoor>(mgr.ObjectById(uid)))
+        return true;
+
+    if (GetCombatMode())
+    {
+        if (CHealthInfo* hInfo = act->HealthInfo())
+        {
+            if (hInfo->GetHP() > 0.f)
+                return true;
+        }
+        else
+        {
+            if (act->GetMaterialList().HasMaterial(EMaterialTypes::Projectile) ||
+                act->GetMaterialList().HasMaterial(EMaterialTypes::Scannable))
+                return true;
+
+            if (TCastToPtr<CScriptGrapplePoint> point = mgr.ObjectById(uid))
+            {
+                zeus::CVector3f playerToPoint = point->GetTranslation() - GetTranslation();
+                if (playerToPoint.canBeNormalized() && playerToPoint.magnitude() < g_tweakPlayer->GetOrbitDistanceMax())
+                    return true;
+            }
+        }
+    }
+
+    if (GetExplorationMode())
+    {
+        if (!act->HealthInfo())
+        {
+            if (TCastToPtr<CScriptGrapplePoint> point = mgr.ObjectById(uid))
+            {
+                zeus::CVector3f playerToPoint = point->GetTranslation() - GetTranslation();
+                if (playerToPoint.canBeNormalized() && playerToPoint.magnitude() < g_tweakPlayer->GetOrbitDistanceMax())
+                    return true;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 static zeus::CAABox BuildNearListBox(bool cropBottom, const zeus::CTransform& xf, float x, float z, float y)
 {
@@ -2733,7 +2944,7 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&
         {
             if (GetUniqueId() == act->GetUniqueId())
                 continue;
-            if (ValidateOrbitTargetId(act->GetUniqueId(), mgr) != EOrbitObjectType::Zero)
+            if (ValidateOrbitTargetId(act->GetUniqueId(), mgr) != EOrbitValidationResult::OK)
                 continue;
             zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
             zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(orbitPos);
@@ -2874,33 +3085,194 @@ float CPlayer::GetOrbitMaxLockDistance(CStateManager& mgr) const { return 0.f; }
 
 float CPlayer::GetOrbitMaxTargetDistance(CStateManager& mgr) const { return 0.f; }
 
-CPlayer::EOrbitObjectType CPlayer::ValidateOrbitTargetId(TUniqueId, CStateManager& mgr) const
+CPlayer::EOrbitValidationResult CPlayer::ValidateOrbitTargetId(TUniqueId uid, CStateManager& mgr) const
 {
-    return EOrbitObjectType::Zero;
+    if (uid == kInvalidUniqueId)
+        return EOrbitValidationResult::InvalidTarget;
+
+    TCastToConstPtr<CActor> act = mgr.GetObjectById(x310_orbitTargetId);
+    if (!act || !act->GetIsTargetable() || !act->GetActive())
+        return EOrbitValidationResult::InvalidTarget;
+
+    if (x740_ != 0.f)
+        EOrbitValidationResult::PlayerNotReadyToTarget;
+
+    zeus::CVector3f eyePos = GetEyePosition();
+    zeus::CVector3f eyeToOrbit = act->GetOrbitPosition(mgr) - eyePos;
+    zeus::CVector3f eyeToOrbitFlat = eyeToOrbit;
+    eyeToOrbitFlat.z = 0.f;
+
+    if (eyeToOrbitFlat.canBeNormalized() && eyeToOrbitFlat.magnitude() > 1.f)
+    {
+        float angleFromHorizon =
+            std::asin(zeus::clamp(-1.f, std::fabs(eyeToOrbit.z) / eyeToOrbit.magnitude(), 1.f));
+        if ((eyeToOrbit.z >= 0.f && angleFromHorizon >= g_tweakPlayer->GetMaxUpwardOrbitLookAngle()) ||
+            (eyeToOrbit.z < 0.f && angleFromHorizon >= g_tweakPlayer->GetMaxDownwardOrbitLookAngle()))
+            return EOrbitValidationResult::ExtremeHorizonAngle;
+    }
+    else
+    {
+        return EOrbitValidationResult::ExtremeHorizonAngle;
+    }
+
+    CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetCurrentVisor();
+    u8 flags = act->GetTargetableVisorFlags();
+    if (visor == CPlayerState::EPlayerVisor::Combat && (flags & 1) == 0)
+        return EOrbitValidationResult::PlayerNotReadyToTarget;
+    if (visor == CPlayerState::EPlayerVisor::Scan && (flags & 2) == 0)
+        return EOrbitValidationResult::PlayerNotReadyToTarget;
+    if (visor == CPlayerState::EPlayerVisor::Thermal && (flags & 4) == 0)
+        return EOrbitValidationResult::PlayerNotReadyToTarget;
+    if (visor == CPlayerState::EPlayerVisor::XRay && (flags & 8) == 0)
+        return EOrbitValidationResult::PlayerNotReadyToTarget;
+
+    if (visor == CPlayerState::EPlayerVisor::Scan && act->GetAreaIdAlways() != GetAreaIdAlways())
+        return EOrbitValidationResult::TargetingThroughDoor;
+
+    return EOrbitValidationResult::OK;
 }
 
-CPlayer::EOrbitObjectType CPlayer::ValidateCurrentOrbitTargetId(CStateManager& mgr)
+CPlayer::EOrbitValidationResult CPlayer::ValidateCurrentOrbitTargetId(CStateManager& mgr)
 {
-    return EOrbitObjectType::Zero;
+    TCastToConstPtr<CActor> act = mgr.GetObjectById(x310_orbitTargetId);
+    if (!act || !act->GetIsTargetable() || !act->GetActive())
+        return EOrbitValidationResult::InvalidTarget;
+
+    if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Orbit))
+    {
+        if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Scannable))
+            return EOrbitValidationResult::NonTargetableTarget;
+        if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan)
+            return EOrbitValidationResult::NonTargetableTarget;
+    }
+
+    EOrbitValidationResult type = ValidateOrbitTargetId(x310_orbitTargetId, mgr);
+    if (type != EOrbitValidationResult::OK)
+        return type;
+
+    if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan &&
+        act->GetAreaIdAlways() != GetAreaIdAlways())
+        return EOrbitValidationResult::TargetingThroughDoor;
+
+    TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId);
+    if ((mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan &&
+        g_tweakPlayer->GetOrbitWhileScanning()) || point || act->GetAreaIdAlways() != GetAreaIdAlways())
+    {
+        zeus::CVector3f eyePos = GetEyePosition();
+        TUniqueId bestId = kInvalidUniqueId;
+        zeus::CVector3f eyeToOrbit = act->GetOrbitPosition(mgr) - eyePos;
+        if (eyeToOrbit.canBeNormalized())
+        {
+            rstl::reserved_vector<TUniqueId, 1024> nearList;
+            mgr.BuildNearList(nearList, eyePos, eyeToOrbit.normalized(), eyeToOrbit.magnitude(), OccluderFilter,
+                              act.GetPtr());
+            for (auto it = nearList.begin() ; it != nearList.end() ;)
+            {
+                if (const CEntity* ent = mgr.GetObjectById(*it))
+                {
+                    if (ent->GetAreaIdAlways() != mgr.GetNextAreaId())
+                    {
+                        const CGameArea* area = mgr.GetWorld()->GetAreaAlways(ent->GetAreaIdAlways());
+                        CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
+                        if (area->IsPostConstructed())
+                            occState = area->GetOcclusionState();
+                        if (occState == CGameArea::EOcclusionState::Occluded)
+                        {
+                            it = nearList.erase(it);
+                            continue;
+                        }
+                    }
+                }
+                ++it;
+            }
+
+            CRayCastResult result =
+            mgr.RayWorldIntersection(bestId, eyePos, eyeToOrbit.normalized(), eyeToOrbit.magnitude(),
+                                     LineOfSightFilter, nearList);
+            if (result.IsValid())
+                if (TCastToPtr<CScriptDoor>(mgr.ObjectById(bestId)) || point)
+                    return EOrbitValidationResult::TargetingThroughDoor;
+        }
+
+        zeus::CVector3f eyeToOrbitFlat = eyeToOrbit;
+        eyeToOrbitFlat.z = 0.f;
+        if (eyeToOrbitFlat.canBeNormalized())
+        {
+            float lookToOrbitAngle =
+                std::acos(zeus::clamp(-1.f, eyeToOrbitFlat.normalized().dot(GetTransform().basis[1]), 1.f));
+            if (x374_orbitLockEstablished)
+            {
+                if (lookToOrbitAngle >= g_tweakPlayer->GetOrbitHorizAngle())
+                    return EOrbitValidationResult::BrokenLookAngle;
+            }
+            else
+            {
+                if (lookToOrbitAngle <= M_PIF / 180.f)
+                    x374_orbitLockEstablished = true;
+            }
+        }
+        else
+        {
+            return EOrbitValidationResult::BrokenLookAngle;
+        }
+    }
+
+    return EOrbitValidationResult::OK;
 }
 
-bool CPlayer::ValidateOrbitTargetIdAndPointer(TUniqueId, CStateManager& mgr) const { return false; }
+bool CPlayer::ValidateOrbitTargetIdAndPointer(TUniqueId uid, CStateManager& mgr) const
+{
+    if (uid == kInvalidUniqueId)
+        return false;
+    return TCastToConstPtr<CActor>(mgr.GetObjectById(uid));
+}
 
-zeus::CVector3f CPlayer::GetBallPosition() const { return {}; }
+zeus::CVector3f CPlayer::GetBallPosition() const
+{
+    return GetTranslation() + zeus::CVector3f(0.f, 0.f, g_tweakPlayer->GetPlayerBallHalfExtent());
+}
 
-zeus::CVector3f CPlayer::GetEyePosition() const { return {}; }
+zeus::CVector3f CPlayer::GetEyePosition() const
+{
+    return GetTranslation() + zeus::CVector3f(0.f, 0.f, GetEyeHeight());
+}
 
-float CPlayer::GetEyeHeight() const { return 0.f; }
+float CPlayer::GetEyeHeight() const
+{
+    return x9c8_eyeZBias + (x2d8_fpBounds.max.z - g_tweakPlayer->GetEyeOffset());
+}
 
-float CPlayer::GetStepUpHeight() const { return 0.f; }
+float CPlayer::GetStepUpHeight() const
+{
+    if (x258_movementState == EPlayerMovementState::Jump ||
+        x258_movementState == EPlayerMovementState::StartingJump)
+        return 0.3f;
+    return CPhysicsActor::GetStepUpHeight();
+}
 
-float CPlayer::GetStepDownHeight() const { return 0.f; }
+float CPlayer::GetStepDownHeight() const
+{
+    if (x258_movementState == EPlayerMovementState::Jump)
+        return -1.f;
+    if (x258_movementState == EPlayerMovementState::StartingJump)
+        return 0.1f;
+    return CPhysicsActor::GetStepDownHeight();
+}
 
 void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool) {}
 
 void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {}
 
-zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const { return {}; }
+zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const
+{
+    zeus::CVector3f moveDir = x50c_moveDir;
+    if (moveDir.canBeNormalized())
+        moveDir.normalize();
+    else
+        moveDir = zeus::CVector3f::skForward;
+
+    return {zeus::CVector3f(moveDir.y, -moveDir.x, 0.f), moveDir, zeus::CVector3f::skUp, GetTranslation()};
+}
 
 const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const
 {
@@ -3160,7 +3532,7 @@ void CPlayer::IncrementPhazon()
     if (xa10_phazonCounter != 0)
         xa10_phazonCounter++;
     else
-        xa14_ = 0.f;
+        xa14_phazonCameraShakeTimer = 0.f;
 }
 
 bool CPlayer::CheckSubmerged() const

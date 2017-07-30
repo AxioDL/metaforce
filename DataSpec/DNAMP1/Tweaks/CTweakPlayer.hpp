@@ -41,7 +41,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x118_;
     Value<float> x11c_;
     Value<float> x120_;
-    Value<float> x124_;
+    Value<float> x124_eyeOffset;
     Value<float> x128_;
     Value<float> x12c_;
     Value<float> x130_;
@@ -60,9 +60,9 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x17c_;
     Value<float> x180_orbitNormalDistance;
     Value<float> x184_;
-    Value<float> x188_;
-    Value<float> x18c_;
-    Value<float> x190_;
+    Value<float> x188_maxUpwardOrbitLookAngle;
+    Value<float> x18c_maxDownwardOrbitLookAngle;
+    Value<float> x190_orbitHorizAngle;
     Value<float> x194_;
     Value<float> x198_;
     Value<float> x19c_;
@@ -94,7 +94,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x218_scanningRange;
     Value<bool> x21c_24_ : 1;
     Value<bool> x21c_25_scanFreezesGame : 1;
-    Value<bool> x21c_26_ : 1;
+    Value<bool> x21c_26_orbitWhileScanning : 1;
     Value<float> x220_;
     Value<float> x224_scanningFrameSenseRange;
     Value<bool> x228_24_ : 1;
@@ -106,7 +106,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x228_30_ : 1;
     Value<bool> x228_31_ : 1;
     Value<bool> x229_24_ : 1;
-    Value<bool> x229_25_ : 1;
+    Value<bool> x229_25_aimWhenOrbitingPoint : 1;
     Value<bool> x229_26_ : 1;
     Value<bool> x229_27_ : 1;
     Value<bool> x229_28_ : 1;
@@ -131,7 +131,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x254_;
     Value<float> x258_aimBoxWidth;
     Value<float> x25c_aimBoxHeight;
-    Value<float> x260_;
+    Value<float> x260_aimTargetTimer;
     Value<float> x264_aimAssistHorizontalAngle;
     Value<float> x268_aimAssistVerticalAngle;
     Value<float> x26c_playerHeight;
@@ -181,8 +181,12 @@ struct CTweakPlayer : ITweakPlayer
     float GetX5C() const { return x44_[6]; }
     float GetNormalGravAccel() const { return xc4_normalGravAccel; }
     float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
+    float GetEyeOffset() const { return x124_eyeOffset; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
     float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
+    float GetMaxUpwardOrbitLookAngle() const { return x188_maxUpwardOrbitLookAngle; }
+    float GetMaxDownwardOrbitLookAngle() const { return x18c_maxDownwardOrbitLookAngle; }
+    float GetOrbitHorizAngle() const { return x190_orbitHorizAngle; }
     float GetOrbitDistanceThreshold() const { return x1a4_orbitDistanceThreshold; }
     uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
     uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
@@ -195,7 +199,9 @@ struct CTweakPlayer : ITweakPlayer
     float GetOrbitZRange() const { return x1ec_orbitZRange; }
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
+    bool GetOrbitWhileScanning() const { return x21c_26_orbitWhileScanning; }
     float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
+    bool GetAimWhenOrbitingPoint() const { return x229_25_aimWhenOrbitingPoint; }
     bool GetGunButtonTogglesHolster() const { return x229_30_gunButtonTogglesHolster; }
     bool GetGunNotFiringHolstersGun() const { return x229_31_gunNotFiringHolstersGun; }
     bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
@@ -205,6 +211,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetAimThresholdDistance() const { return x24c_aimThresholdDistance; }
     float GetAimBoxWidth() const { return x258_aimBoxWidth; }
     float GetAimBoxHeight() const { return x25c_aimBoxHeight; }
+    float GetAimTargetTimer() const { return x260_aimTargetTimer; }
     float GetAimAssistHorizontalAngle() const { return x264_aimAssistHorizontalAngle; }
     float GetAimAssistVerticalAngle() const { return x268_aimAssistVerticalAngle; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
