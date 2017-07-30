@@ -14,12 +14,13 @@ namespace urde
 
 using FourCC = hecl::FourCC;
 using ResId = u64;
+#define kInvalidResId ResId(-1)
 
 struct SObjectTag
 {
     FourCC type;
-    ResId id = -1;
-    operator bool() const { return (id & 0xffffffff) != 0xffffffff; }
+    ResId id = kInvalidResId;
+    operator bool() const { return (id != kInvalidResId); }
     bool operator!=(const SObjectTag& other) const { return id != other.id; }
     bool operator==(const SObjectTag& other) const { return id == other.id; }
     bool operator<(const SObjectTag& other) const { return id < other.id; }
@@ -41,10 +42,10 @@ struct TEditorId
 {
     TEditorId() = default;
     TEditorId(u32 idin) : id(idin) {}
-    u32 id = -1;
-    u8 LayerNum() const { return (id >> 26) & 0x3f; }
-    u16 AreaNum() const { return (id >> 16) & 0x3ff; }
-    u16 Id() const { return id & 0xffff; }
+    u32 id = u32(-1);
+    u8 LayerNum() const { return u8((id >> 26) & 0x3f); }
+    u16 AreaNum() const { return u16((id >> 16) & 0x3ff); }
+    u16 Id() const { return u16(id & 0xffff); }
 
     bool operator<(const TEditorId& other) const { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
     bool operator!=(const TEditorId& other) const { return (id & 0x3ffffff) != (other.id & 0x3ffffff); }
@@ -57,7 +58,6 @@ using TAreaId = s32;
 #define kInvalidEditorId TEditorId()
 #define kInvalidUniqueId TUniqueId(-1)
 #define kInvalidAreaId TAreaId(-1)
-#define kInvalidResId ResId(-1)
 }
 
 #if 0

@@ -29,6 +29,7 @@ private:
     EFluidType x44_fluidType;
     float x48_;
 public:
+    CFluidPlane() = default;
     CFluidPlane(u32, u32, u32, EFluidType, float, const CFluidUVMotion&, float);
 
     virtual void Ripple(float mag, TUniqueId rippler, const zeus::CVector3f& pos,

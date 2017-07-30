@@ -71,7 +71,7 @@ class CGameState
 
     bool x0_[128] = {};
     u32 x80_;
-    ResId x84_mlvlId = -1;
+    ResId x84_mlvlId = kInvalidResId;
     std::vector<CWorldState> x88_worldStates;
     std::shared_ptr<CPlayerState> x98_playerState;
     std::shared_ptr<CWorldTransManager> x9c_transManager;

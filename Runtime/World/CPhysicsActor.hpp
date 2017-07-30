@@ -133,8 +133,6 @@ public:
     virtual float GetWeight() const;
 
     float GetMass() const { return xe8_mass; }
-    void sub_8011A4C(float f);
-    float sub_8011A4B8() const;
     void SetPrimitiveOffset(const zeus::CVector2f& offset);
     zeus::CVector3f GetPrimitiveOffset();
     void MoveCollisionPrimitive(const zeus::CVector3f& offset);

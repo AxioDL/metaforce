@@ -1,7 +1,8 @@
 #include "CPathFindOpenList.hpp"
 namespace urde
 {
-CPFOpenList::CPFOpenList() {}
+CPFOpenList::CPFOpenList()
+{}
 
 void CPFOpenList::Clear() {}
 }
