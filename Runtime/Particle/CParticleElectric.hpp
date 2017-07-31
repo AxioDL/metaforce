@@ -116,6 +116,10 @@ public:
     void SetLocalScale(const zeus::CVector3f&);
     void SetParticleEmission(bool);
     void SetModulationColor(const zeus::CColor&);
+    void SetOverrideIPos(const zeus::CVector3f& vec) { x178_overrideIPos = vec; }
+    void SetOverrideIVel(const zeus::CVector3f& vec) { x188_overrideIVel = vec; }
+    void SetOverrideFPos(const zeus::CVector3f& vec) { x198_overrideFPos = vec; }
+    void SetOverrideFVel(const zeus::CVector3f& vec) { x1a8_overrideFVel = vec; }
     const zeus::CTransform& GetOrientation() const;
     const zeus::CVector3f& GetTranslation() const;
     const zeus::CTransform& GetGlobalOrientation() const;

@@ -64,7 +64,8 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
             if (v.canBeNormalized())
             {
                 v.normalize();
-                x78_->SetOrientation(zeus::CTransform{zeus::CVector3f::skUp.cross(v), v, zeus::CVector3f::skUp, zeus::CVector3f::skZero});
+                x78_->SetOrientation(zeus::CTransform{zeus::CVector3f::skUp.cross(v), v, zeus::CVector3f::skUp,
+                                                      zeus::CVector3f::skZero});
             }
             x78_->ForceParticleCreation(1);
         }
@@ -83,7 +84,38 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
         iceGen->SetTranslation(xec_ * v1[next]);
 
         iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(v2[next])));
+        if (x8c_ == 4)
+            xb0_ = -1;
     }
+// TODO: Verify behavior
+    if (xc0_particleElectric && xc0_particleElectric->GetParticleEmission())
+    {
+        CRandom16 rnd(xcc_seed3);
+        u32 end = 1;
+#if 0
+        if (4 < 1)
+            end = 4;
+#endif
+        u32 lastRnd;
+        for (u32 i = 0; i < end; ++i)
+        {
+            xc0_particleElectric->SetOverrideIPos(v1[u32(rnd.Range(0, w1 - 1))] * xec_);
+            lastRnd = u32(rnd.Range(0, w1 - 1));
+            xc0_particleElectric->SetOverrideIPos(v1[lastRnd] * xec_);
+            xc0_particleElectric->ForceParticleCreation(1);
+        }
+
+        xcc_seed3 = rnd.GetSeed();
+        xc8_ = lastRnd;
+    }
+
+    // TODO: Finish
+#if 0
+    if (xd4_)
+    {
+        xd4_->sub_8026A5E0(v1, v2, w1);
+    }
+#endif
 }
 
 void CActorModelParticles::CItem::Update(float, CStateManager&)
