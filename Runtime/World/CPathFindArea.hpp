@@ -20,6 +20,16 @@ public:
     void Rmv(s32);
 };
 
+class CPFNode
+{
+    zeus::CVector3f x0_position;
+    zeus::CVector3f xc_normal;
+public:
+    const zeus::CVector3f& GetPos() const { return x0_position; }
+    const zeus::CVector3f& GetNormal() const { return xc_normal; }
+};
+
+class CPFAreaOctree;
 class CPFArea
 {
     float x0_ = FLT_MAX;
@@ -49,15 +59,9 @@ class CPFArea
     u32 x74_ = 0;
     CPFOpenList x78_;
     u32 x138_;
-    u8* x13c_ = nullptr;
-    u32 x140_ = 0;
-    u8* x144_ = nullptr;
-    u32 x148_ = 0;
-    u8* x14c_ = nullptr;
-    u32 x150_ = 0;
-    u8* x154_ = nullptr;
-    u32 x158_ = 0;
-    u32 x15c_ = 0;
+    std::unique_ptr<u8[]> x13c_data = nullptr;
+    std::vector<CPFNode> x140_nodes;
+    /*std::vector<> x150_;*/
     u32 x160_ = 0;
     u32 x164_ = 0;
     u32 x168_ = 0;
@@ -65,9 +69,25 @@ class CPFArea
     u32 x170_ = 0;
     u32 x174_ = 0;
     std::vector<CPFRegionData> x178_;
-    zeus::CTransform x188_;
+    zeus::CTransform x188_transform;
 public:
     CPFArea(const std::unique_ptr<u8[]>&& buf, int len);
+
+    void SetTransform(const zeus::CTransform& xf) { x188_transform = xf; }
+    const zeus::CTransform& GetTransform() const { return x188_transform; }
+    CPFRegion* GetRegion(s32) const { return nullptr; }
+    void GetClosestPoint() const;
+    void OpenList();
+    void ClosedSet();
+    CPFRegionData* GetRegionData() const;
+    CPFLink* GetLink(s32);
+    CPFNode* GetNode(s32) const;
+    CPFAreaOctree* GetOctree(s32);
+    void GetOctreeRegionPtrs(s32);
+    void GetOctreeRegionList(const zeus::CVector3f&);
+    void FindRegions(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32);
+    void FindClosestRegion(const zeus::CVector3f&, u32, float);
+    void FindClosestReachablePoint(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32);
 };
 
 

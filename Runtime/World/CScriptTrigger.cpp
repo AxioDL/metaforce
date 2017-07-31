@@ -266,7 +266,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
 
             if (pl)
             {
-                if (x148_28_ == false)
+                if (!x148_28_)
                 {
                     x148_28_ = true;
                     if (x148_29_didPhazonDamage)

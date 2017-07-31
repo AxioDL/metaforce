@@ -50,6 +50,7 @@ set(WORLD_SOURCES
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
     CFishCloud.hpp CFishCloud.cpp
     CScriptVisorFlare.hpp CScriptVisorFlare.cpp
+    CScriptWorldTeleporter.hpp CScriptWorldTeleporter.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
     CScriptCoverPoint.hpp CScriptCoverPoint.cpp
     CScriptSpawnPoint.hpp CScriptSpawnPoint.cpp
@@ -69,6 +70,7 @@ set(WORLD_SOURCES
     CScriptActorRotate.hpp CScriptActorRotate.cpp
     CScriptSpecialFunction.hpp CScriptSpecialFunction.cpp
     CScriptPlayerHint.hpp CScriptPlayerHint.cpp
+    CScriptPlayerStateChange.hpp CScriptPlayerStateChange.cpp
     CScriptTargetingPoint.hpp CScriptTargetingPoint.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CScriptSwitch.hpp CScriptSwitch.cpp

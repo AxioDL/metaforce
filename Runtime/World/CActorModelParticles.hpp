@@ -27,15 +27,15 @@ public:
         TAreaId x4_areaId;
         rstl::reserved_vector<std::pair<std::unique_ptr<CElementGen>, u32>, 8> x8_;
         float x6c_ = 0.f;
-        CSfxHandle x74_sfx;
         bool x70_ = false;
+        CSfxHandle x74_sfx;
         std::unique_ptr<CElementGen> x78_;
         u32 x80_ = 0;
         u32 x84_ = -1;
-        u32 x88_ = 99;
+        u32 x88_seed1 = 99;
         rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x8c_;
         u32 xb0_ = -1;
-        u32 xb4_ = 99;
+        u32 xb4_seed2 = 99;
         std::unique_ptr<CElementGen> xb8_;
         std::unique_ptr<CElementGen> xc0_;
         u32 xc8_ = 0;
@@ -44,9 +44,7 @@ public:
         std::unique_ptr<u32> xd4_;
         TToken<CTexture> xdc_ashy;
         std::unique_ptr<CElementGen> xe4_;
-        float xec_ = 1.f;
-        float xf0_ = 1.f;
-        float xf4_ = 1.f;
+        zeus::CVector3f xec_ = zeus::CVector3f::skOne;
         zeus::CTransform xf8_;
         CActorModelParticles& x128_parent;
         union
@@ -63,6 +61,7 @@ public:
     public:
         CItem(const CEntity& ent, CActorModelParticles& parent);
         void GeneratePoints(const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
+        void Update(float, CStateManager&);
     };
 
 private:

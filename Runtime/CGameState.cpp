@@ -129,16 +129,16 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
     if (origMLVL == 0x158EFE17)
         itemPercent = 0;
     else
-        itemPercent = std::ceil(playerState.CalculateItemCollectionRate() * 100.f / playerState.GetPickupTotal());
+        itemPercent = u32(std::ceil(playerState.CalculateItemCollectionRate() * 100.f / playerState.GetPickupTotal()));
 
     ret.x18_itemPercent = itemPercent;
 
-    float somePercent;
+    float scanPercent;
     if (playerState.GetTotalLogScans() == 0)
-        somePercent = 0.f;
+        scanPercent = 0.f;
     else
-        somePercent = 100.f * playerState.GetLogScans() / float(playerState.GetTotalLogScans());
-    ret.x1c_scanPercent = somePercent;
+        scanPercent = 100.f * playerState.GetLogScans() / float(playerState.GetTotalLogScans());
+    ret.x1c_scanPercent = scanPercent;
 
     return ret;
 }

@@ -20,7 +20,73 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
     x8_.resize(8);
 }
 
+u32 GetNextBestPt(s32 start, const zeus::CVector3f* vecPtr, s32 vecCount, CRandom16& rnd)
+{
+    const zeus::CVector3f& startVec = vecPtr[start];
+    u32 ret;
+    float lastMag = 0.f;
+    for (s32 i = 0; i < 10; ++i)
+    {
+        u32 idx = u32(rnd.Range(0, vecCount - 1));
+        const zeus::CVector3f& rndVec = vecPtr[idx];
+        float mag = (startVec - rndVec).magSquared();
+        if (mag > lastMag)
+        {
+            ret = idx;
+            lastMag = mag;
+        }
+    }
+    return ret;
+}
 void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1)
+{
+    for (std::pair<std::unique_ptr<CElementGen>, u32>& pair: x8_)
+    {
+        if (pair.first)
+        {
+            CRandom16 rnd(pair.second);
+            zeus::CVector3f vec = v1[u32(rnd.Float() * (w1 - 1))];
+            pair.first->SetTranslation(xec_ * vec);
+        }
+    }
+
+    if (x84_ > 0)
+    {
+        CRandom16 rnd(x88_seed1);
+        u32 count = (x84_ >= 16 ? 16 : x84_);
+        zeus::CVector3f uVec = zeus::CVector3f::skUp;
+        u32 idx = x80_;
+        for (u32 i = 0; i < count; ++i)
+        {
+            idx = GetNextBestPt(idx, v1, w1, rnd);
+            x78_->SetTranslation(xec_ * v1[idx]);
+            zeus::CVector3f v = v2[idx];
+            if (v.canBeNormalized())
+            {
+                v.normalize();
+                x78_->SetOrientation(zeus::CTransform{zeus::CVector3f::skUp.cross(v), v, zeus::CVector3f::skUp, zeus::CVector3f::skZero});
+            }
+            x78_->ForceParticleCreation(1);
+        }
+        x84_ -= count;
+        x88_seed1 = rnd.GetSeed();
+    }
+
+    if (xb0_ != -1)
+    {
+        CRandom16 rnd(xb4_seed2);
+
+        std::unique_ptr<CElementGen> iceGen = x128_parent.MakeIceGen();
+        iceGen->SetGlobalOrientAndTrans(xf8_);
+
+        u32 next = GetNextBestPt(xb0_, v1, w1, rnd);
+        iceGen->SetTranslation(xec_ * v1[next]);
+
+        iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(v2[next])));
+    }
+}
+
+void CActorModelParticles::CItem::Update(float, CStateManager&)
 {
 
 }

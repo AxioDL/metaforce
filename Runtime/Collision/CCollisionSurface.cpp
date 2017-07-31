@@ -12,7 +12,7 @@ CCollisionSurface::CCollisionSurface(const zeus::CVector3f& a, const zeus::CVect
 
 zeus::CVector3f CCollisionSurface::GetNormal() const
 {
-    zeus::CVector3f v1 = ((xc_b - x0_a) * ((x18_c - x0_a) * (xc_b - x0_a))) - (x18_c - x0_a);
+    zeus::CVector3f v1 = xc_b.cross(x0_a);
     return zeus::CUnitVector3f({v1.y, v1.z, v1.x}, true);
 }
 

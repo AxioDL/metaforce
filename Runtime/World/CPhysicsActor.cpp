@@ -51,10 +51,6 @@ float CPhysicsActor::GetStepDownHeight() const { return x240_stepDownHeight; }
 
 float CPhysicsActor::GetWeight() const { return 24.525002f * xe8_mass; }
 
-void CPhysicsActor::sub_8011A4C(float f) { x238_maximumCollisionVelocity = f; }
-
-float CPhysicsActor::sub_8011A4B8() const { return x238_maximumCollisionVelocity; }
-
 void CPhysicsActor::SetPrimitiveOffset(const zeus::CVector2f& offset) { x1e8_primitiveOffset = offset; }
 
 zeus::CVector3f CPhysicsActor::GetPrimitiveOffset() { return x1e8_primitiveOffset; }

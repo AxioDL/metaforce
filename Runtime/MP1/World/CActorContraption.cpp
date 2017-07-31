@@ -33,7 +33,7 @@ void MP1::CActorContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     else if (msg == EScriptObjectMessage::SetToZero)
         ResetFlameThrowers(mgr);
 
-    AcceptScriptMsg(msg, uid, mgr);
+    CScriptActor::AcceptScriptMsg(msg, uid, mgr);
     if (curActive == GetActive() || !GetActive())
         return;
 

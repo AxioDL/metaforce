@@ -50,6 +50,7 @@
 #include "CScriptActorRotate.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "CScriptSwitch.hpp"
+#include "CScriptPlayerStateChange.hpp"
 #include "CWallCrawlerSwarm.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptColorModulate.hpp"
@@ -1896,7 +1897,19 @@ CEntity* ScriptLoader::LoadSwitch(CStateManager& mgr, CInputStream& in, int prop
 CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "PlayerStateChange"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    s32 itemType = in.readUint32Big();
+    s32 itemCount = in.readInt32Big();
+    s32 itemCapacity = in.readInt32Big();
+    CScriptPlayerStateChange::EControl ctrl = CScriptPlayerStateChange::EControl(in.readUint32Big());
+    CScriptPlayerStateChange::EControlCommandOption ctrlCmdOpt =
+        CScriptPlayerStateChange::EControlCommandOption(in.readUint32Big());
+    return new CScriptPlayerStateChange(mgr.AllocateUniqueId(), name, info, active, itemType, itemCount, itemCapacity,
+                                        ctrl, ctrlCmdOpt);
 }
 
 CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

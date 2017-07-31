@@ -22,7 +22,6 @@ class CPFRegion
     zeus::CVector3f x28_;
     zeus::CAABox x34_;
     u32 x4c_;
-
 public:
     CPFRegion() = default;
     void SetData(CPFRegionData*) {}
@@ -35,7 +34,7 @@ public:
     void GetLink(s32) const;
     void SetCentroid(const zeus::CVector3f&);
     zeus::CVector3f GetCentroid() const;
-    void Fixup(CPFArea&, s32);
+    void Fixup(CPFArea&, s32&);
     bool IsPointInside(const zeus::CVector3f&);
     zeus::CVector3f GetNormal();
     s32 GetNumNodes() const;

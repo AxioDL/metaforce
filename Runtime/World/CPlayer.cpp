@@ -2242,7 +2242,7 @@ void CPlayer::UpdateAimTargetPrediction(const zeus::CTransform& xf, const CState
     {
         if (TCastToConstPtr<CActor> target = mgr.GetObjectById(x3f4_aimTarget))
         {
-            x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target);
+            x9c6_27_aimingAtProjectile = TCastToConstPtr<CGameProjectile>(target.GetPtr());
             zeus::CVector3f instantTarget = target->GetAimPosition(mgr, 0.f);
             zeus::CVector3f gunToTarget = instantTarget - xf.origin;
             float timeToTarget = gunToTarget.magnitude() / x490_gun->GetBeamVelocity();
