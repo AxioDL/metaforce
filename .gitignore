@@ -4,3 +4,5 @@ version.h
 .DS_Store
 *.autosave
 docs/*
+.idea/dictionaries
+.idea/workspace.xml

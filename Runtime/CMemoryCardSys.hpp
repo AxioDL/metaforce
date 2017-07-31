@@ -94,6 +94,13 @@ public:
     const std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
     u32 GetScanCategoryCount(CSaveWorld::EScanCategory cat) const { return x30_scanCategoryCounts[int(cat)]; }
 
+    std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>::const_iterator LookupScanState(ResId id) const
+    {
+        return
+        rstl::binary_find(x20_scanStates.cbegin(), x20_scanStates.cend(), id,
+                          [](const std::pair<ResId, CSaveWorld::EScanCategory>& p) { return p.first; });
+    }
+
     bool HasSaveWorldMemory(ResId wldId) const;
     const CSaveWorldMemory& GetSaveWorldMemory(ResId wldId) const;
 

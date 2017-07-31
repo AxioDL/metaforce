@@ -40,4 +40,19 @@ void CMorphBall::DrawBallShadow(const CStateManager& mgr)
     x1e50_shadow->Render(mgr, alpha);
 }
 
+void CMorphBall::DeleteBallShadow()
+{
+
+}
+
+void CMorphBall::CreateBallShadow()
+{
+
+}
+
+void CMorphBall::RenderToShadowTex(CStateManager& mgr)
+{
+
+}
+
 }

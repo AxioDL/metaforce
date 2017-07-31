@@ -35,7 +35,7 @@ void CPlayerGun::AsyncLoadSuit(CStateManager& mgr)
     x740_grappleArm->AsyncLoadSuit(mgr);
 }
 
-void CPlayerGun::TouchModel(CStateManager& stateMgr)
+void CPlayerGun::TouchModel(const CStateManager& stateMgr)
 {
 
 }
@@ -66,6 +66,21 @@ float CPlayerGun::GetBeamVelocity() const
     if (x72c_currentBeam->IsLoaded())
         return x72c_currentBeam->GetVelocityInfo().GetVelocity(x330_chargeWeaponIdx).y;
     return 10.f;
+}
+
+void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos)
+{
+
+}
+
+void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const
+{
+
+}
+
+void CPlayerGun::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const
+{
+
 }
 
 }

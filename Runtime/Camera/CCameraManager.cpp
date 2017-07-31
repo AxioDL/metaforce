@@ -34,6 +34,11 @@ CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCamera
     sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
 }
 
+bool CCameraManager::IsInFirstPersonCamera() const
+{
+    return x7c_fpCamera->GetUniqueId() == x0_curCameraId;
+}
+
 zeus::CVector3f CCameraManager::GetGlobalCameraTranslation(const CStateManager& stateMgr) const
 {
     TCastToConstPtr<CGameCamera> camera(GetCurrentCamera(stateMgr));

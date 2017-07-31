@@ -110,7 +110,7 @@ public:
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Render(const CStateManager& stateMgr, const zeus::CTransform& xf,
                 const CActorLights* lights, const CModelFlags& drawFlags);
-    EWhichModel GetRenderingModel(const CStateManager& stateMgr) const;
+    static EWhichModel GetRenderingModel(const CStateManager& stateMgr);
     CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
     const std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which) const;
     void SetXRayModel(const std::pair<ResId, ResId>& modelSkin);

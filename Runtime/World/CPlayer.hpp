@@ -258,7 +258,7 @@ private:
     float x3a4_ = 0.449f;
     EPlayerScanState x3a8_scanState = EPlayerScanState::NotScanning;
     float x3ac_scanningTime = 0.f;
-    float x3b0_ = 0.f;
+    float x3b0_curScanTime = 0.f;
     TUniqueId x3b4_scanningObject = kInvalidUniqueId;
     EGrappleState x3b8_grappleState = EGrappleState::None;
     float x3bc_grappleSwingTimer = 0.f;
@@ -270,10 +270,11 @@ private:
     bool x3dc_inFreeLook = false;
     bool x3dd_freeLookPitchAngleCalculated = false;
     bool x3de_lookControlHeld = false;
+    float x3e0_curFreeLookCenteredTime = 0.f;
     float x3e4_ = 0.f;
-    float x3e8_ = 0.f;
+    float x3e8_horizFreeLookAngleVel = 0.f;
     float x3ec_freeLookPitchAngle = 0.f;
-    float x3f0_ = 0.f;
+    float x3f0_vertFreeLookAngleVel = 0.f;
     TUniqueId x3f4_aimTarget = kInvalidUniqueId;
     zeus::CVector3f x3f8_targetAimPosition = zeus::CVector3f::skZero;
     TReservedAverage<zeus::CVector3f, 20> x404_aimTargetAverage;
@@ -305,10 +306,10 @@ private:
     u32 x57c_ = 0;
     u32 x580_ = 0;
     float x588_alpha = 1.f;
-    u32 x594_ = 0;
-    u32 x658_ = 0;
-    u32 x71c_ = 0;
-    std::vector<std::unique_ptr<CModelData>> x730_;
+    TReservedAverage<zeus::CTransform, 4> x594_transisionBeamXfs;
+    TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
+    TReservedAverage<float, 4> x71c_transitionModelAlphas;
+    std::vector<std::unique_ptr<CModelData>> x730_transitionModels;
     float x740_ = 0.f;
     float x744_ = 0.f;
     float x748_ = 0.f;
@@ -443,17 +444,18 @@ public:
     void DoPreThink(float dt, CStateManager& mgr);
     void DoThink(float dt, CStateManager& mgr);
     void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
-    void ValidateScanning(const CFinalInput& input, CStateManager& mgr);
+    bool ValidateScanning(const CFinalInput& input, CStateManager& mgr);
+    void FinishNewScan(CStateManager& mgr);
     void SetScanningState(EPlayerScanState, CStateManager& mgr);
     void SetSpawnedMorphBallState(EPlayerMorphBallState, CStateManager&);
     bool GetExplorationMode() const;
     bool GetCombatMode() const;
     void RenderGun(const CStateManager& mgr, const zeus::CVector3f&) const;
     void Render(const CStateManager& mgr) const;
-    void RenderReflectedPlayer(CStateManager& mgr) const;
+    void RenderReflectedPlayer(CStateManager& mgr);
     void PreRender(CStateManager& mgr, const zeus::CFrustum&);
     void CalculateRenderBounds();
-    void AddToRenderer(const zeus::CFrustum&, const CStateManager&);
+    void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
     void ComputeFreeLook(const CFinalInput& input);
     void UpdateFreeLookState(const CFinalInput&, float dt, CStateManager&);
     void UpdateFreeLook(float dt);
@@ -494,6 +496,7 @@ public:
     void HolsterGun(CStateManager& mgr);
     EPlayerCameraState GetCameraState() const { return x2f4_cameraState; }
     EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphTransState; }
+    bool IsMorphBallTransitioning() const;
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
     float GetGravity() const;
     void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);

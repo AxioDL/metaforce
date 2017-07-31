@@ -119,6 +119,13 @@ public:
         return {::GetAverage<T>(this->data(), this->size())};
     }
 
+    rstl::optional_object<T> GetEntry(int i) const
+    {
+        if (i >= this->size())
+            return {};
+        return this->operator[](i);
+    }
+
     void Clear() { this->clear(); }
 };
 

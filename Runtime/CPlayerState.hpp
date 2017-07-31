@@ -124,8 +124,7 @@ private:
     EPlayerSuit x20_currentSuit = EPlayerSuit::Power;
     rstl::reserved_vector<CPowerUp, 41> x24_powerups;
     rstl::reserved_vector<std::pair<ResId, float>, 846> x170_scanTimes;
-    u32 x180_logScans = 0;
-    u32 x184_totalLogScans = 0;
+    std::pair<u32, u32> x180_scanCompletionRate = {};
     CStaticInterference x188_staticIntf;
 public:
 
@@ -169,8 +168,9 @@ public:
     float CalculateHealth(u32 health);
     void ReInitalizePowerUp(EItemType type, u32 capacity);
     void InitializePowerUp(EItemType type, u32 capacity);
-    u32 GetLogScans() const { return x180_logScans; }
-    u32 GetTotalLogScans() const { return x184_totalLogScans; }
+    u32 GetLogScans() const { return x180_scanCompletionRate.first; }
+    u32 GetTotalLogScans() const { return x180_scanCompletionRate.second; }
+    void SetScanCompletionRate(const std::pair<u32, u32>& p) { x180_scanCompletionRate = p; }
     bool IsPlayerAlive() const { return x0_24_alive; }
     void SetPlayerAlive(bool alive) { x0_24_alive = alive; }
     void InitializeScanTimes();

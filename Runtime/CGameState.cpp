@@ -204,7 +204,7 @@ void CGameState::ImportPersistentOptions(const CPersistentOptions& opts)
         xa8_systemOptions.xd0_27_fusionBeat = true;
     if (&opts != &xa8_systemOptions)
         memcpy(xa8_systemOptions.x0_, opts.x0_, 98);
-    xa8_systemOptions.SetLogScanCount(opts.GetLogScanCount());
+    xa8_systemOptions.SetLogScanPercent(opts.GetLogScanPercent());
     xa8_systemOptions.SetAllItemsCollected(opts.GetAllItemsCollected());
     xa8_systemOptions.SetPlayerBeatNormalMode(opts.GetPlayerBeatNormalMode());
     xa8_systemOptions.SetPlayerBeatHardMode(opts.GetPlayerBeatHardMode());

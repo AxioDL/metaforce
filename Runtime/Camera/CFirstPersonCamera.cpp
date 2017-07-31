@@ -87,7 +87,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     if (player->x3dc_inFreeLook)
     {
         float angle = player->x3ec_freeLookPitchAngle;
-        if (std::fabs(player->x3ec_freeLookPitchAngle) > (g_tweakPlayer->GetX124() - std::fabs(x1c0_)))
+        if (std::fabs(player->x3ec_freeLookPitchAngle) > (g_tweakPlayer->GetVerticalFreeLookAngleVel() - std::fabs(x1c0_)))
             angle = (player->x3ec_freeLookPitchAngle > -0.f ? -1.f : 1.f);
         zeus::CVector3f vec;
         vec.z = std::sin(angle);

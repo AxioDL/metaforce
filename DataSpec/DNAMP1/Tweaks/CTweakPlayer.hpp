@@ -44,13 +44,13 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x124_eyeOffset;
     Value<float> x128_;
     Value<float> x12c_;
-    Value<float> x130_;
-    Value<float> x134_;
+    Value<float> x130_horizontalFreeLookAngleVel;
+    Value<float> x134_verticalFreeLookAngleVel;
     Value<float> x138_hudLagAmount;
     Value<float> x13c_;
     Value<float> x140_;
-    Value<float> x144_;
-    Value<float> x148_;
+    Value<float> x144_freeLookCenteredThresholdAngle;
+    Value<float> x148_freeLookCenteredTime;
     Value<float> x14c_;
     Value<float> x150_leftDiv;
     Value<float> x154_rightDiv;
@@ -92,7 +92,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x210_;
     Value<float> x214_;
     Value<float> x218_scanningRange;
-    Value<bool> x21c_24_ : 1;
+    Value<bool> x21c_24_scanRetention : 1;
     Value<bool> x21c_25_scanFreezesGame : 1;
     Value<bool> x21c_26_orbitWhileScanning : 1;
     Value<float> x220_;
@@ -101,13 +101,13 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x228_25_ : 1;
     Value<bool> x228_26_ : 1;
     Value<bool> x228_27_ : 1;
-    Value<bool> x228_28_ : 1;
-    Value<bool> x228_29_ : 1;
+    Value<bool> x228_28_enableFreeLook : 1;
+    Value<bool> x228_29_twoButtonsForFreeLook : 1;
     Value<bool> x228_30_ : 1;
     Value<bool> x228_31_ : 1;
     Value<bool> x229_24_ : 1;
     Value<bool> x229_25_aimWhenOrbitingPoint : 1;
-    Value<bool> x229_26_ : 1;
+    Value<bool> x229_26_stayInFreeLookWhileFiring : 1;
     Value<bool> x229_27_ : 1;
     Value<bool> x229_28_ : 1;
     Value<bool> x229_29_ : 1;
@@ -183,6 +183,8 @@ struct CTweakPlayer : ITweakPlayer
     float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
     float GetEyeOffset() const { return x124_eyeOffset; }
     float GetHudLagAmount() const { return x138_hudLagAmount; }
+    float GetFreeLookCenteredThresholdAngle() const { return x144_freeLookCenteredThresholdAngle; }
+    float GetFreeLookCenteredTime() const { return x148_freeLookCenteredTime; }
     float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
     float GetMaxUpwardOrbitLookAngle() const { return x188_maxUpwardOrbitLookAngle; }
     float GetMaxDownwardOrbitLookAngle() const { return x18c_maxDownwardOrbitLookAngle; }
@@ -198,10 +200,14 @@ struct CTweakPlayer : ITweakPlayer
     float GetOrbitNearZ() const { return x1dc_orbitNearZ; }
     float GetOrbitZRange() const { return x1ec_orbitZRange; }
     float GetScanningRange() const { return x218_scanningRange; }
+    bool GetScanRetention() const { return x21c_24_scanRetention; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
     bool GetOrbitWhileScanning() const { return x21c_26_orbitWhileScanning; }
     float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
+    bool GetEnableFreeLook() const { return x228_28_enableFreeLook; }
+    bool GetTwoButtonsForFreeLook() const { return x228_29_twoButtonsForFreeLook; }
     bool GetAimWhenOrbitingPoint() const { return x229_25_aimWhenOrbitingPoint; }
+    bool GetStayInFreeLookWhileFiring() const { return x229_26_stayInFreeLookWhileFiring; }
     bool GetGunButtonTogglesHolster() const { return x229_30_gunButtonTogglesHolster; }
     bool GetGunNotFiringHolstersGun() const { return x229_31_gunNotFiringHolstersGun; }
     bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
@@ -232,7 +238,8 @@ struct CTweakPlayer : ITweakPlayer
     float GetGrappleReleaseTime() const { return x2cc_grappleReleaseTime; }
     uint32_t GetGrappleJumpMode() const { return x2d0_grappleJumpMode; }
     bool InvertGrappleTurn() const { return x2d5_invertGrappleTurn; }
-    float GetX124() const { return x134_; }
+    float GetHorizontalFreeLookAngleVel() const { return x130_horizontalFreeLookAngleVel; }
+    float GetVerticalFreeLookAngleVel() const { return x134_verticalFreeLookAngleVel; }
     float GetX184() const { return x184_; }
     float GetX1fc() const { return x1fc_; }
     bool GetX228_24() const { return x228_24_; }

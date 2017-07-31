@@ -80,6 +80,7 @@ public:
     void ResetCameras(CStateManager& mgr);
     void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball);
     bool IsInCinematicCamera() const {return x4_cineCameras.size() != 0;}
+    bool IsInFirstPersonCamera() const;
     zeus::CVector3f GetGlobalCameraTranslation(const CStateManager& stateMgr) const;
     zeus::CTransform GetCurrentCameraTransform(const CStateManager& stateMgr) const;
     void RemoveCameraShaker(int id);

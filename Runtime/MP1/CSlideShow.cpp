@@ -172,9 +172,9 @@ u32 CSlideShow::SlideShowGalleryFlags()
     u32 ret = 0;
     if (!g_GameState)
         return ret;
-    if (g_GameState->SystemOptions().GetLogScanCount() >= 50)
+    if (g_GameState->SystemOptions().GetLogScanPercent() >= 50)
         ret |= 1;
-    if (g_GameState->SystemOptions().GetLogScanCount() == 100)
+    if (g_GameState->SystemOptions().GetLogScanPercent() == 100)
         ret |= 2;
     if (g_GameState->SystemOptions().GetPlayerBeatHardMode())
         ret |= 4;

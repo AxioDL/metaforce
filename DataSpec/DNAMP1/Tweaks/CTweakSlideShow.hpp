@@ -17,7 +17,7 @@ struct CTweakSlideShow : ITweakSlideShow
     String<-1> x14_fontAssetName;
     DNAColor x24_fontColor;
     DNAColor x28_outlineColor;
-    Value<float> x2c_;
+    Value<float> x2c_scanPercentInterval;
     Value<float> x30_;
     Value<float> x34_;
     Value<float> x38_;
@@ -36,6 +36,7 @@ struct CTweakSlideShow : ITweakSlideShow
     const std::string& GetFont() const { return x14_fontAssetName; }
     const zeus::CColor& GetFontColor() const { return x24_fontColor; }
     const zeus::CColor& GetOutlineColor() const { return x28_outlineColor; }
+    float GetScanPercentInterval() const { return x2c_scanPercentInterval; }
     float GetX54() const { return x54_; }
 };
 

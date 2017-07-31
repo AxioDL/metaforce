@@ -210,7 +210,7 @@ public:
 
     void AcceptScriptMessage(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AsyncLoadSuit(CStateManager& mgr);
-    void TouchModel(CStateManager& stateMgr);
+    void TouchModel(const CStateManager& stateMgr);
     EMissleMode GetMissleMode() const { return x31c_missileMode; }
     bool IsFidgeting() const { return x833_24_isFidgeting; }
     bool IsCharging() const { return x834_24_charging; }
@@ -229,6 +229,9 @@ public:
     void ResetIdle(CStateManager& mgr);
     void CancelFiring(CStateManager& mgr);
     float GetBeamVelocity() const;
+    void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
+    void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
+    void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
 };
 
 }

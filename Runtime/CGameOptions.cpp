@@ -68,7 +68,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     xc0_frozenFpsCount = stream.ReadEncoded(2);
     xc4_frozenBallCount = stream.ReadEncoded(2);
     xc8_ = stream.ReadEncoded(1);
-    xcc_logScanCount = stream.ReadEncoded(7);
+    xcc_logScanPercent = stream.ReadEncoded(7);
     xd0_24_fusionLinked = stream.ReadEncoded(1);
     xd0_25_normalModeBeat = stream.ReadEncoded(1);
     xd0_26_hardModeBeat = stream.ReadEncoded(1);
@@ -114,7 +114,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     w.WriteEncoded(xc0_frozenFpsCount, 2);
     w.WriteEncoded(xc4_frozenBallCount, 2);
     w.WriteEncoded(xc8_, 1);
-    w.WriteEncoded(xcc_logScanCount, 7);
+    w.WriteEncoded(xcc_logScanPercent, 7);
     w.WriteEncoded(xd0_24_fusionLinked, 1);
     w.WriteEncoded(xd0_25_normalModeBeat, 1);
     w.WriteEncoded(xd0_26_hardModeBeat, 1);

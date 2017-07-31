@@ -54,7 +54,7 @@ void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform& x
     Render(GetRenderingModel(stateMgr), xf, lights, drawFlags);
 }
 
-CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& stateMgr) const
+CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& stateMgr)
 {
     switch (stateMgr.GetPlayerState()->GetActiveVisor(stateMgr))
     {

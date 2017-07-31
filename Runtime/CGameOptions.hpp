@@ -62,7 +62,7 @@ class CPersistentOptions
     u32 xc0_frozenFpsCount = 0;
     u32 xc4_frozenBallCount = 0;
     u32 xc8_ = 0;
-    u32 xcc_logScanCount = 0;
+    u32 xcc_logScanPercent = 0;
 
     union
     {
@@ -98,8 +98,8 @@ public:
     void SetPlayerFusionSuitActive(bool v) { xd0_28_fusionSuitActive = v; }
     bool GetAllItemsCollected() const { return xd0_29_allItemsCollected; }
     void SetAllItemsCollected(bool v) { xd0_29_allItemsCollected = v; }
-    u32 GetLogScanCount() const { return xcc_logScanCount; }
-    void SetLogScanCount(u32 v) { xcc_logScanCount = v; }
+    u32 GetLogScanPercent() const { return xcc_logScanPercent; }
+    void SetLogScanPercent(u32 v) { xcc_logScanPercent = v; }
     void IncrementFrozenFpsCount() { xc0_frozenFpsCount = std::min(int(xc0_frozenFpsCount + 1), 3); }
     bool GetShowFrozenFpsMessage() const { return xc0_frozenFpsCount != 3; }
     void IncrementFrozenBallCount() { xc4_frozenBallCount = std::min(int(xc4_frozenBallCount + 1), 3); }

@@ -93,11 +93,11 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
         x170_scanTimes.emplace_back(state.first, time);
     }
 
-    x180_logScans = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
-    x184_totalLogScans = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
+    x180_scanCompletionRate.first = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
+    x180_scanCompletionRate.second = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
 }
 
-void CPlayerState::PutTo(CBitStreamWriter &stream)
+void CPlayerState::PutTo(CBitStreamWriter& stream)
 {
     stream.WriteEncoded(x4_, 32);
     float hp = xc_health.GetHP();
@@ -119,8 +119,8 @@ void CPlayerState::PutTo(CBitStreamWriter &stream)
             stream.WriteEncoded(false, 1);
     }
 
-    stream.WriteEncoded(x180_logScans, CBitStreamWriter::GetBitCount(0x100));
-    stream.WriteEncoded(x184_totalLogScans, CBitStreamWriter::GetBitCount(0x100));
+    stream.WriteEncoded(x180_scanCompletionRate.first, CBitStreamWriter::GetBitCount(0x100));
+    stream.WriteEncoded(x180_scanCompletionRate.second, CBitStreamWriter::GetBitCount(0x100));
 }
 
 static const float unk[]

@@ -72,6 +72,8 @@ void CScriptCounter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, 
         if (GetActive())
             x38_current = x34_initial;
         break;
+    default:
+        break;
     }
 
     CEntity::AcceptScriptMsg(msg, objId, stateMgr);

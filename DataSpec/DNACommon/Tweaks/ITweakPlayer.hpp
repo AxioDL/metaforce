@@ -17,6 +17,8 @@ struct ITweakPlayer : ITweak
     virtual float GetFluidGravAccel() const=0;
     virtual float GetEyeOffset() const=0;
     virtual float GetHudLagAmount() const=0;
+    virtual float GetFreeLookCenteredThresholdAngle() const=0;
+    virtual float GetFreeLookCenteredTime() const=0;
     virtual float GetOrbitNormalDistance() const=0;
     virtual float GetMaxUpwardOrbitLookAngle() const=0;
     virtual float GetMaxDownwardOrbitLookAngle() const=0;
@@ -32,6 +34,7 @@ struct ITweakPlayer : ITweak
     virtual float GetOrbitNearZ() const=0;
     virtual float GetOrbitZRange() const=0;
     virtual float GetScanningRange() const=0; // x218
+    virtual bool GetScanRetention() const=0;
     virtual bool GetScanFreezesGame() const=0; // x21c_25
     virtual bool GetOrbitWhileScanning() const=0;
     virtual bool GetFiringCancelsCameraPitch() const=0;
@@ -45,7 +48,10 @@ struct ITweakPlayer : ITweak
     virtual float GetAimAssistHorizontalAngle() const=0;
     virtual float GetAimAssistVerticalAngle() const=0;
     virtual float GetScanningFrameSenseRange() const=0;
+    virtual bool GetEnableFreeLook() const=0;
+    virtual bool GetTwoButtonsForFreeLook() const=0;
     virtual bool GetAimWhenOrbitingPoint() const=0;
+    virtual bool GetStayInFreeLookWhileFiring() const=0;
     virtual bool GetGunButtonTogglesHolster() const=0;
     virtual bool GetGunNotFiringHolstersGun() const=0;
     virtual float GetPlayerHeight() const=0; // x26c
@@ -67,7 +73,8 @@ struct ITweakPlayer : ITweak
     virtual float GetGrappleReleaseTime() const=0;
     virtual uint32_t GetGrappleJumpMode() const=0;
     virtual bool InvertGrappleTurn() const=0;
-    virtual float GetX124() const=0; // x134
+    virtual float GetHorizontalFreeLookAngleVel() const=0;
+    virtual float GetVerticalFreeLookAngleVel() const=0; // x134
     virtual float GetX184() const=0; // x184
     virtual float GetX1fc() const=0;
     virtual float GetX288() const=0; // x288

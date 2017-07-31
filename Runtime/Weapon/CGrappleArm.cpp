@@ -31,4 +31,9 @@ void CGrappleArm::GrappleBeamConnected()
 
 }
 
+void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos)
+{
+
+}
+
 }

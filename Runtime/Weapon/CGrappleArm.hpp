@@ -22,6 +22,8 @@ public:
         Six,
         Seven,
         Eight,
+        Nine,
+        Ten
     };
 private:
     CModelData x0_modelData;
@@ -31,6 +33,7 @@ private:
     {
         struct
         {
+            bool x3b2_24_inGrappleCycle : 1;
             bool x3b2_25_beamActive : 1;
             bool x3b2_27_armMoving : 1;
         };
@@ -44,11 +47,13 @@ public:
     const zeus::CTransform& GetTransform() const { return x220_xf; }
     void SetAnimState(EArmState state);
     EArmState GetAnimState() const { return x334_animState; }
+    bool InGrappleCycle() const { return x3b2_24_inGrappleCycle; }
     bool BeamActive() const { return x3b2_25_beamActive; }
     bool IsArmMoving() const { return x3b2_27_armMoving; }
     void Activate(bool);
     void GrappleBeamDisconnected();
     void GrappleBeamConnected();
+    void RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos);
 };
 
 }

@@ -31,6 +31,14 @@ public:
     };
 private:
     CPlayer& x0_player;
+    std::unique_ptr<CModelData> x58_ballModel;
+    u32 x5c_ballModelShader = 0;
+    std::unique_ptr<CModelData> x60_spiderBallGlassModel;
+    u32 x64_spiderBallGlassModelShader = 0;
+    std::unique_ptr<CModelData> x68_lowPolyBallModel;
+    u32 x6c_lowPolyBallModelShader = 0;
+    std::unique_ptr<CModelData> x70_frozenBallModel;
+    u32 x74_frozenBallModelShader = 0;
     u32 x187c_ = 0;
     float x191c_damageTimer = 0.f;
     float x1DE8_boostTime = 0.f;
@@ -72,7 +80,7 @@ public:
     void ComputeMarioMovement(const CFinalInput&, CStateManager&, float) {}
     void SetSpiderBallState(ESpiderBallState) {}
     void GetSwooshToWorld() const {}
-    void GetBallToWorld() const {}
+    zeus::CTransform GetBallToWorld() const { return {}; }
     void CalculateSurfaceToWorld(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&) const {}
     void CalculateBallContactInfo(zeus::CVector3f&, zeus::CVector3f&) const {}
     void BallTurnInput(const CFinalInput&) const {}
@@ -96,7 +104,7 @@ public:
     zeus::CTransform GetPrimitiveTransform() const { return {}; }
     void DrawCollisionPrimitive() const {}
     void GetMinimumAlignmentSpeed() const {}
-    void PreRender(CStateManager&, const zeus::CFrustum&);
+    void PreRender(CStateManager&, const zeus::CFrustum&) {}
     void Render(const CStateManager&, const CActorLights*) const {}
     void ResetMorphBallTransitionFlash() {}
     void UpdateMorphBallTransitionFlash(float) {}
@@ -113,14 +121,14 @@ public:
     void DisableHalfPipeStatus() {}
     void BallCloseToCollision(const CStateManager&, float) const {}
     void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&) {}
-    void IsInFrustum(const zeus::CFrustum&) const {}
+    bool IsInFrustum(const zeus::CFrustum&) const { return false; }
     void ComputeLiftForces(const zeus::CVector3f&, const zeus::CVector3f&, const CStateManager&) {}
     void CalculateSurfaceFriction() const {}
     void ApplyGravity(CStateManager&) {}
     void SpinToSpeed(float, zeus::CVector3f, float) {}
     void ComputeMaxSpeed() const {}
     void Touch(CActor&, CStateManager&) {}
-    bool IsClimable(const CCollisionInfo&) const { return false; }
+    bool IsClimbable(const CCollisionInfo&) const { return false; }
     void FluidFXThink(CActor::EFluidState, CScriptWater&, CStateManager&) {}
     void GetMorphBallModel(const std::string&, float) {}
     void AddSpiderBallElectricalEffect() {}
@@ -135,10 +143,16 @@ public:
     void LoadAnimationTokens(const std::string&) {}
     void TakeDamage(float) {}
     void DrawBallShadow(const CStateManager& mgr);
+    void DeleteBallShadow();
+    void CreateBallShadow();
+    void RenderToShadowTex(CStateManager& mgr);
     void StartLandingSfx() {}
     bool GetX187c() const { return x187c_; }
     void SetDamageTimer(float t) { x191c_damageTimer = t; }
     void Stop() {}
+
+    CModelData& GetMorphballModelData() const { return *x58_ballModel; }
+    u32 GetMorphballModelShader() const { return x5c_ballModelShader; }
 };
 
 }
