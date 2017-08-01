@@ -681,8 +681,8 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
                                                               const urde::CVParamTransfer& paramXfer,
                                                               CObjectReference* selfRef)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
-        Log.report(logvisor::Fatal, "attempted to access null id");
+    if (tag.id == kInvalidResId || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id on type '%s'", tag.type.toString().c_str());
 
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
@@ -748,16 +748,16 @@ void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
                                             urde::IObj** objOut,
                                             CObjectReference* selfRef)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
-        Log.report(logvisor::Fatal, "attempted to access null id");
+    if (tag.id == kInvalidResId || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id on type '%s'", tag.type.toString().c_str());
 
     BuildAsyncInternal(tag, paramXfer, objOut, selfRef);
 }
 
 u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
-        Log.report(logvisor::Fatal, "attempted to access null id");
+    if (tag.id == kInvalidResId || !tag.id)
+        Log.report(logvisor::Fatal, "attempted to access null id on type '%s'", tag.type.toString().c_str());
 
     /* Ensure resource at requested path is indexed and not cooking */
     const hecl::ProjectPath* resPath = nullptr;
