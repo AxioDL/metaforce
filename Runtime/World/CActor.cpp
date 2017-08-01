@@ -72,7 +72,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     {
         for (const SConnection& conn : x20_conns)
         {
-            if (conn.x0_state != EScriptObjectState::DFST)
+            if (conn.x0_state != EScriptObjectState::Default)
                 continue;
 
             const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));

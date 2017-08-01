@@ -5,7 +5,6 @@
 #include "CDependencyGroup.hpp"
 #include "Particle/CElementGen.hpp"
 #include "Particle/CParticleElectric.hpp"
-#include "Particle/CParticleSwoosh.hpp"
 #include "Particle/CGenDescription.hpp"
 #include "World/CWorld.hpp"
 #include "Graphics/CBooRenderer.hpp"
@@ -84,8 +83,9 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
         iceGen->SetTranslation(xec_ * v1[next]);
 
         iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(v2[next])));
-        if (x8c_ == 4)
-            xb0_ = -1;
+
+        x8c_.push_back(std::move(iceGen));
+        xb0_ = (x8c_.size() == 4 ? -1 : next);
     }
 // TODO: Verify behavior
     if (xc0_particleElectric && xc0_particleElectric->GetParticleEmission())
@@ -101,7 +101,7 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
         {
             xc0_particleElectric->SetOverrideIPos(v1[u32(rnd.Range(0, w1 - 1))] * xec_);
             lastRnd = u32(rnd.Range(0, w1 - 1));
-            xc0_particleElectric->SetOverrideIPos(v1[lastRnd] * xec_);
+            xc0_particleElectric->SetOverrideFPos(v1[lastRnd] * xec_);
             xc0_particleElectric->ForceParticleCreation(1);
         }
 
@@ -238,8 +238,8 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr)
                 g_Renderer->AddParticleGen(*item.x78_);
             if (item.xb8_)
                 g_Renderer->AddParticleGen(*item.xb8_);
-            if (item.xc0_)
-                g_Renderer->AddParticleGen(*item.xc0_);
+            if (item.xc0_particleElectric)
+                g_Renderer->AddParticleGen(*item.xc0_particleElectric);
         }
         if (isNotZero)
         {
