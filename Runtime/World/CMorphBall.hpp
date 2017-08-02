@@ -40,7 +40,15 @@ private:
     std::unique_ptr<CModelData> x70_frozenBallModel;
     u32 x74_frozenBallModelShader = 0;
     u32 x187c_ = 0;
+    float x1914_ = 0.f;
+    float x1918_ = 0.f;
     float x191c_damageTimer = 0.f;
+    bool x1920_ = false;
+    zeus::CTransform x1924_;
+    bool x1954_isProjectile = false;
+    u32 x195c_ = false;
+    u32 x1960_ = false;
+    u32 x1964_ = false;
     float x1DE8_boostTime = 0.f;
     CMorphBallShadow* x1e50_shadow = nullptr;
 
@@ -52,7 +60,7 @@ public:
     zeus::CVector3f GetBallContactSurfaceNormal() const { return {}; }
     void GetModel() const {}
     const CCollidableSphere* GetCollidableSphere() const { return nullptr; }
-    bool IsProjectile() const { return false; }
+    bool IsProjectile() const { return x1954_isProjectile; }
     void GetBallContactMeterials() const {}
     void GetWallBumpCounter() const {}
     void GetBoostChargeTimer() const {}
@@ -131,6 +139,7 @@ public:
     bool IsClimbable(const CCollisionInfo&) const { return false; }
     void FluidFXThink(CActor::EFluidState, CScriptWater&, CStateManager&) {}
     void GetMorphBallModel(const std::string&, float) {}
+    void LoadMorphBallModel(CStateManager& mgr) {}
     void AddSpiderBallElectricalEffect() {}
     void UpdateSpiderBallElectricalEffect() {}
     void RenderSpiderBallElectricalEffect() const {}

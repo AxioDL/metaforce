@@ -359,7 +359,7 @@ public:
     void MoveDoors(float dt);
     void CrossTouchActors();
     void ThinkEffectsAndActors(float dt);
-    void UpdatePlayer(float dt);
+    void PostUpdatePlayer(float dt);
     void ShowPausedHUDMemo(ResId strg, float time);
     void ClearGraveyard();
     void FrameBegin(s32 frameCount);

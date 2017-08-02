@@ -25,4 +25,9 @@ void CBallCamera::Reset(const zeus::CTransform&, CStateManager& mgr)
 {
 }
 
+void CBallCamera::SetState(EBallCameraState state, CStateManager& mgr)
+{
+
+}
+
 }

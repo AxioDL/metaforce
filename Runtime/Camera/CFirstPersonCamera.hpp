@@ -41,6 +41,7 @@ public:
     void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);
     void SetScriptPitchId(TUniqueId uid) { x1c4_pitchId = uid; }
     void SetX18C(bool v) { x18c_ = v; }
+    void SetX1C6_24(bool v) { x1c6_24_ = v; }
 };
 }
 

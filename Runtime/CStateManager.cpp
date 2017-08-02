@@ -1878,7 +1878,7 @@ void CStateManager::Update(float dt)
     }
 
     if (x904_gameState != EGameState::Paused)
-        UpdatePlayer(dt);
+        PostUpdatePlayer(dt);
 
     if (xf84_ == xf80_hudMessageFrameCount)
     {
@@ -2110,9 +2110,9 @@ void CStateManager::ThinkEffectsAndActors(float dt)
     }
 }
 
-void CStateManager::UpdatePlayer(float dt)
+void CStateManager::PostUpdatePlayer(float dt)
 {
-    x84c_player->Update(dt, *this);
+    x84c_player->PostUpdate(dt, *this);
 }
 
 void CStateManager::ShowPausedHUDMemo(ResId strg, float time)

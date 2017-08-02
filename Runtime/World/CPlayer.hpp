@@ -226,7 +226,7 @@ private:
     float x2f0_ballTransHeight = 0.f;
     EPlayerCameraState x2f4_cameraState = EPlayerCameraState::Zero;
     EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
-    u32 x2fc_ = 0;
+    EPlayerMorphBallState x2fc_cinematicMorphTransState = EPlayerMorphBallState::Unmorphed;
     float x300_fallingTime = 0.f;
     EPlayerOrbitState x304_orbitState = EPlayerOrbitState::Zero;
     EPlayerOrbitType x308_orbitType = EPlayerOrbitType::Zero;
@@ -306,6 +306,8 @@ private:
     u32 x57c_ = 0;
     u32 x580_ = 0;
     float x588_alpha = 1.f;
+    float x58c_ = 0.f;
+    bool x590_ = true;
     TReservedAverage<zeus::CTransform, 4> x594_transisionBeamXfs;
     TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
     TReservedAverage<float, 4> x71c_transitionModelAlphas;
@@ -355,8 +357,8 @@ private:
             bool x9c4_24_visorChangeRequested : 1;
             bool x9c4_25_showCrosshairs : 1;
             bool x9c4_26_ : 1;
-            bool x9c4_27_ : 1;
-            bool x9c4_28_ : 1;
+            bool x9c4_27_canEnterMorphBall : 1;
+            bool x9c4_28_canLeaveMorphBall : 1;
             bool x9c4_29_ : 1;
             bool x9c4_30_ : 1;
             bool x9c4_31_dampUnderwaterMotion : 1;
@@ -419,6 +421,7 @@ public:
 
     bool IsTransparent() const;
     void Update(float, CStateManager& mgr);
+    void PostUpdate(float, CStateManager& mgr);
     bool StartSamusVoiceSfx(u16 sfx, float vol, int prio);
     bool IsPlayerDeadEnough() const;
     void AsyncLoadSuit(CStateManager& mgr);
@@ -572,6 +575,15 @@ public:
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
     float GetVisorStaticAlpha() const { return x74c_visorStaticAlpha; }
     float GetMapAlpha() const { return x494_mapAlpha; }
+    const CScriptWater* GetVisorRunoffEffect(const CStateManager& mgr) const;
+    void SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr);
+    bool CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) const;
+    void SetHudDisable(float f1, float f2, float f3);
+    void SetIntoBallReadyAnimation(CStateManager& mgr);
+    void LeaveMorphBallState(CStateManager& mgr);
+    bool CanEnterMorphBallState(CStateManager& mgr, float f1) const;
+    void EnterMorphBallState(CStateManager& mgr);
+    void ActivateMorphBallCamera(CStateManager& mgr);
     void UpdateCinematicState(CStateManager& mgr);
     void SetCameraState(EPlayerCameraState camState, CStateManager& stateMgr);
     bool IsEnergyLow(const CStateManager& mgr) const;

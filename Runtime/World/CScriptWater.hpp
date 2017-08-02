@@ -33,12 +33,12 @@ private:
     u32 x238_;
     u32 x248_;
     u32 x24c_;
-    bool x25c_;
-    s16 x260_;
-    s16 x262_;
+    std::experimental::optional<TLockedToken<CGenDescription>> x250_visorRunoffEffect;
+    u16 x260_;
+    u16 x262_visorRunoffSfx;
     u32 x264_ = 0;
     TLockedToken<CParticleGen> x268_splashEffects[5];
-    s16 x29c_splashSounds[5];
+    u16 x29c_splashSounds[5];
 public:
     CScriptWater(CStateManager&, TUniqueId, const std::string& name, const CEntityInfo&, const zeus::CVector3f&,
                  const zeus::CAABox&, CDamageInfo const&, zeus::CVector3f&, ETriggerFlags, bool, bool, ResId, ResId, ResId, ResId,
@@ -74,6 +74,9 @@ public:
     void SetFrustumPlanes(const zeus::CFrustum& frustum);
     const zeus::CFrustum& GetFrustumPlanes() const;
     CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
+    const std::experimental::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const
+    { return x250_visorRunoffEffect; }
+    u16 GetVisorRunoffSfx() const { return x262_visorRunoffSfx; }
 };
 }
 

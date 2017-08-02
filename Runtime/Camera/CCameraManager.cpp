@@ -308,4 +308,14 @@ void CCameraManager::RenderCameras(const CStateManager& mgr)
     for (CEntity* cam : mgr.GetCameraObjectList())
         static_cast<CGameCamera*>(cam)->Render(mgr);
 }
+
+void CCameraManager::SetupBallCamera(CStateManager& mgr)
+{
+
+}
+
+void CCameraManager::LeaveBallCamera(CStateManager& mgr, TUniqueId newCamId)
+{
+
+}
 }
