@@ -30,6 +30,30 @@ class prereserved_vector
     T x4_data[N];
 
 public:
+    class iterator
+    {
+        T* m_val;
+    public:
+        iterator(T* val) : m_val(val) {}
+        T& operator*() const { return *m_val; }
+        T* operator->() const { return m_val; }
+        iterator& operator++() { ++m_val; return *this; }
+        bool operator!=(const iterator& other) const { return m_val != other.m_val; }
+        bool operator==(const iterator& other) const { return m_val == other.m_val; }
+    };
+
+    class const_iterator
+    {
+        T* m_val;
+    public:
+        const_iterator(const T* val) : m_val(val) {}
+        const T& operator*() const { return *m_val; }
+        const T* operator->() const { return m_val; }
+        const_iterator& operator++() { ++m_val; return *this; }
+        bool operator!=(const const_iterator& other) const { return m_val != other.m_val; }
+        bool operator==(const const_iterator& other) const { return m_val == other.m_val; }
+    };
+
     void set_size(size_t n)
     {
         if (n <= N)
@@ -42,8 +66,24 @@ public:
 
     T& back() const { return x4_data[(x0_size == 0) ? 0 : x0_size - 1]; }
     T& front() const { return x4_data[0]; }
+    const_iterator cbegin() const { return const_iterator(&x4_data[0]); }
+    const_iterator cend() const { return const_iterator(&x4_data[x0_size - 1]); }
+    iterator begin() { return iterator(&x4_data[0]); }
+    iterator end() { return iterator(&x4_data[x0_size - 1]); }
+
     T& operator[](size_t idx) { return x4_data[idx]; }
     const T& operator[](size_t idx) const { return x4_data[idx]; }
+    void push_back(const T& d)
+    {
+        x4_data[x0_size] = d;
+        ++x0_size;
+    }
+
+    void push_back(T&& d)
+    {
+        x4_data[x0_size] = std::move(d);
+        ++x0_size;
+    }
 };
 
 template<class ForwardIt, class T>

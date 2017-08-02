@@ -5,6 +5,8 @@
 #include "Audio/CSfxManager.hpp"
 #include "CToken.hpp"
 #include "zeus/CTransform.hpp"
+#include "Particle/CParticleElectric.hpp"
+#include "Particle/CParticleSwoosh.hpp"
 
 namespace urde
 {
@@ -12,9 +14,7 @@ class CStateManager;
 class CEntity;
 class CElementGen;
 class CTexture;
-class CElectricDescription;
 class CGenDescription;
-class CParticleElectric;
 class CActor;
 
 class CActorModelParticles
@@ -33,13 +33,13 @@ public:
         u32 x80_ = 0;
         u32 x84_ = -1;
         u32 x88_seed1 = 99;
-        rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x8c_;
-        u32 xb0_ = -1;
+        rstl::prereserved_vector<std::unique_ptr<CElementGen>, 4> x8c_;
+        s32 xb0_ = -1;
         u32 xb4_seed2 = 99;
         std::unique_ptr<CElementGen> xb8_;
-        std::unique_ptr<CElementGen> xc0_;
+        std::unique_ptr<CParticleElectric> xc0_particleElectric;
         u32 xc8_ = 0;
-        u32 xcc_ = 99;
+        u32 xcc_seed3 = 99;
         zeus::CColor xd0_;
         std::unique_ptr<u32> xd4_;
         TToken<CTexture> xdc_ashy;
