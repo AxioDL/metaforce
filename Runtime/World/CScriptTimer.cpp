@@ -65,7 +65,7 @@ void CScriptTimer::StartTiming(bool isTiming) { x42_isTiming = isTiming; }
 void CScriptTimer::Reset(CStateManager& mgr)
 {
     float rDt = mgr.GetActiveRandom()->Float();
-    x34_time = (x3c_maxRandDelay + x38_startTime) * rDt;
+    x34_time = (x3c_maxRandDelay * rDt) + x38_startTime;
 }
 
 void CScriptTimer::ApplyTime(float dt, CStateManager& mgr)

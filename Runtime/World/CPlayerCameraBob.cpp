@@ -141,7 +141,7 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr)
 
 void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
 {
-    x1c_bobTime = (dt * x1c_bobTime) + x18_bobTimeScale;
+    x1c_bobTime = (dt * x18_bobTimeScale) + x1c_bobTime;
     float landSpring = kLandingBobSpringConstant;
     float landDampen = kLandingBobDamping;
     if (x28_applyLandingTrans)
@@ -150,10 +150,11 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
         landSpring = 40.f;
     }
 
-    x6c_ = dt * x6c_ + -(landSpring * -(landDampen * x6c_) - x28_applyLandingTrans);
-    x70_landingTranslation = x6c_ * x70_landingTranslation + dt;
-    x74_ = dt * x74_ + -(80.f * -((6.f * zeus::sqrtF(80.f)) * x74_) - x78_);
-    x78_ = x74_ * x78_ + dt;
+    x6c_ = (dt * -((landSpring * x70_landingTranslation) + -(landDampen * x6c_))) + x6c_;
+    x70_landingTranslation = x6c_ * dt + x70_landingTranslation;
+    x74_ = dt * (-(80.f * x78_) + -((6.f * zeus::sqrtF(80.f)) * x74_)) + x74_;
+    x78_ = x74_ * dt + x78_;
+
     if (std::fabs(x6c_) < 0.0049f && std::fabs(x70_landingTranslation) < 0.0049f && std::fabs(x78_) < 0.0049f)
     {
         x28_applyLandingTrans = false;
@@ -177,10 +178,10 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
         x104_ *= 0.4f;
     }
 
-    x100_ = kTargetMagnitudeTrackingRate * x100_ + (x104_ - x100_);
+    x100_ = kTargetMagnitudeTrackingRate * (x104_ - x100_) + x100_;
     x100_ = std::max(x100_, 0.f);
     float tmp = x14_;
-    x14_ = kTargetMagnitudeTrackingRate * tmp + (x10_bobMagnitude - tmp);
+    x14_ = kTargetMagnitudeTrackingRate * (x10_bobMagnitude - x14_) + x14_;
     UpdateViewWander(dt, mgr);
     x78_ = tmp;
 
@@ -205,8 +206,8 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& y) const
     if (x0_type == ECameraBobType::Zero)
     {
         double c = ((M_PIF * 2.f) * std::fmod(x1c_bobTime, 2.0f * xc_) / xc_);
-        x = (x14_ * x4_vec.x) * std::sin(c);
-        y = (x14_ * x4_vec.y) * (std::fabs(std::cos(c * .5)) * std::cos(c * .5));
+        x = (x14_ * x4_vec.x) * float(std::sin(c));
+        y = (x14_ * x4_vec.y) * float(std::fabs(std::cos(c * .5)) * std::cos(c * .5));
     }
     else if (x0_type == ECameraBobType::One)
     {
@@ -216,8 +217,8 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& y) const
         else
             x = ((fX / xc_)) * (x14_ * x4_vec.x);
 
-        float sY = std::sin(std::fmod((M_PI * fX) / xc_, M_PI));
-        y = (((1.f - sY) * (x14_ * x4_vec.y)) * (0.5f * (-((sY * 1.f) - sY) * (x14_ * x4_vec.y)))) + 0.5f;
+        float sY = float(std::sin(std::fmod((M_PI * fX) / xc_, M_PI)));
+        y = (1.f - sY) * (x14_ * x4_vec.y) * 0.5f + (0.5f * -((sY * sY) - 1.f) * (x14_ * x4_vec.y));
     }
 }
 

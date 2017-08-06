@@ -275,7 +275,6 @@ bool CMain::LoadAudio()
 
 void CMain::EnsureWorldPaksReady()
 {
-
 }
 
 void CMain::EnsureWorldPakReady(ResId mlvl)
