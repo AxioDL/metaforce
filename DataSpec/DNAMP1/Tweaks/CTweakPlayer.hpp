@@ -11,12 +11,12 @@ namespace DNAMP1
 struct CTweakPlayer : ITweakPlayer
 {
     Delete _d;
-    Value<float> x4_[8];
+    Value<float> x4_maxTranslationalAcceleration[8];
     Value<float> x24_[8];
-    Value<float> x44_[8];
+    Value<float> x44_translationFriction[8];
     Value<float> x64_[8];
     Value<float> x84_[8];
-    Value<float> xa4_[8];
+    Value<float> xa4_translationMaxSpeed[8];
     Value<float> xc4_normalGravAccel;
     Value<float> xc8_fluidGravAccel;
     Value<float> xcc_;
@@ -46,8 +46,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x12c_;
     Value<float> x130_horizontalFreeLookAngleVel;
     Value<float> x134_verticalFreeLookAngleVel;
-    Value<float> x138_hudLagAmount;
-    Value<float> x13c_;
+    Value<float> x138_freeLookSpeed;
+    Value<float> x13c_freeLookSnapSpeed;
     Value<float> x140_;
     Value<float> x144_freeLookCenteredThresholdAngle;
     Value<float> x148_freeLookCenteredTime;
@@ -97,7 +97,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x21c_26_orbitWhileScanning : 1;
     Value<float> x220_;
     Value<float> x224_scanningFrameSenseRange;
-    Value<bool> x228_24_ : 1;
+    Value<bool> x228_24_freelookTurnsPlayer : 1;
     Value<bool> x228_25_ : 1;
     Value<bool> x228_26_ : 1;
     Value<bool> x228_27_ : 1;
@@ -175,14 +175,14 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x300_variaDamageReduction;
     Value<float> x304_gravityDamageReduction;
     Value<float> x308_phazonDamageReduction;
-    float GetX50() const { return x44_[3]; }
-    float GetX54() const { return x44_[4]; }
-    float GetX58() const { return x44_[5]; }
-    float GetX5C() const { return x44_[6]; }
+    float GetMaxTranslationalAcceleration(int s) const { return x4_maxTranslationalAcceleration[s]; }
+    float GetPlayerTranslationFriction(int s) const { return x44_translationFriction[s]; }
+    float GetPlayerTranslationMaxSpeed(int s) const { return xa4_translationMaxSpeed[s]; }
     float GetNormalGravAccel() const { return xc4_normalGravAccel; }
     float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
     float GetEyeOffset() const { return x124_eyeOffset; }
-    float GetHudLagAmount() const { return x138_hudLagAmount; }
+    float GetFreeLookSpeed() const { return x138_freeLookSpeed; }
+    float GetFreeLookSnapSpeed() const { return x13c_freeLookSnapSpeed; }
     float GetFreeLookCenteredThresholdAngle() const { return x144_freeLookCenteredThresholdAngle; }
     float GetFreeLookCenteredTime() const { return x148_freeLookCenteredTime; }
     float GetOrbitNormalDistance() const { return x180_orbitNormalDistance; }
@@ -242,7 +242,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetVerticalFreeLookAngleVel() const { return x134_verticalFreeLookAngleVel; }
     float GetX184() const { return x184_; }
     float GetX1fc() const { return x1fc_; }
-    bool GetX228_24() const { return x228_24_; }
+    bool GetFreeLookTurnsPlayer() const { return x228_24_freelookTurnsPlayer; }
     float GetX288() const { return x288_; }
     float GetX28c() const { return x28c_; }
     float GetX290() const { return x290_; }
@@ -251,7 +251,6 @@ struct CTweakPlayer : ITweakPlayer
     float GetX29C() const { return x29c_; }
     float GetX280() const { return x280_; }
     float GetX2B0() const { return x2b0_; }
-    float GetX138() const { return x138_hudLagAmount; }
     float GetX14C() const { return x14c_; }
     float GetLeftLogicalThreshold() const { return x150_leftDiv; }
     float GetRightLogicalThreshold() const { return x154_rightDiv; }

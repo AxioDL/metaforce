@@ -1310,9 +1310,9 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     {
         usePower = power * 1000.f;
-        CPlayer::EPlayerMovementSurface surface =
-            player.x2b0_ == 2 ? player.x2ac_movementSurface : CPlayer::EPlayerMovementSurface::Four;
-        if (surface != CPlayer::EPlayerMovementSurface::Normal &&
+        CPlayer::ESurfaceRestraints surface =
+            player.x2b0_ == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Four;
+        if (surface != CPlayer::ESurfaceRestraints::Normal &&
             player.GetOrbitState() == CPlayer::EPlayerOrbitState::Zero)
             usePower /= 7.f;
     }

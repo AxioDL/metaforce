@@ -7,22 +7,22 @@ namespace DNAMP1
 {
 void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
 {
-    /* x4_[0] */
-    x4_[0] = __dna_reader.readFloatBig();
-    /* x4_[1] */
-    x4_[1] = __dna_reader.readFloatBig();
-    /* x4_[2] */
-    x4_[2] = __dna_reader.readFloatBig();
-    /* x4_[3] */
-    x4_[3] = __dna_reader.readFloatBig();
-    /* x4_[4] */
-    x4_[4] = __dna_reader.readFloatBig();
-    /* x4_[5] */
-    x4_[5] = __dna_reader.readFloatBig();
-    /* x4_[6] */
-    x4_[6] = __dna_reader.readFloatBig();
-    /* x4_[7] */
-    x4_[7] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[0] */
+    x4_maxTranslationalAcceleration[0] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[1] */
+    x4_maxTranslationalAcceleration[1] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[2] */
+    x4_maxTranslationalAcceleration[2] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[3] */
+    x4_maxTranslationalAcceleration[3] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[4] */
+    x4_maxTranslationalAcceleration[4] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[5] */
+    x4_maxTranslationalAcceleration[5] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[6] */
+    x4_maxTranslationalAcceleration[6] = __dna_reader.readFloatBig();
+    /* x4_maxTranslationalAcceleration[7] */
+    x4_maxTranslationalAcceleration[7] = __dna_reader.readFloatBig();
     /* x24_[0] */
     x24_[0] = __dna_reader.readFloatBig();
     /* x24_[1] */
@@ -39,22 +39,22 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x24_[6] = __dna_reader.readFloatBig();
     /* x24_[7] */
     x24_[7] = __dna_reader.readFloatBig();
-    /* x44_[0] */
-    x44_[0] = __dna_reader.readFloatBig();
-    /* x44_[1] */
-    x44_[1] = __dna_reader.readFloatBig();
-    /* x44_[2] */
-    x44_[2] = __dna_reader.readFloatBig();
-    /* x44_[3] */
-    x44_[3] = __dna_reader.readFloatBig();
-    /* x44_[4] */
-    x44_[4] = __dna_reader.readFloatBig();
-    /* x44_[5] */
-    x44_[5] = __dna_reader.readFloatBig();
-    /* x44_[6] */
-    x44_[6] = __dna_reader.readFloatBig();
-    /* x44_[7] */
-    x44_[7] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[0] */
+    x44_translationFriction[0] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[1] */
+    x44_translationFriction[1] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[2] */
+    x44_translationFriction[2] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[3] */
+    x44_translationFriction[3] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[4] */
+    x44_translationFriction[4] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[5] */
+    x44_translationFriction[5] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[6] */
+    x44_translationFriction[6] = __dna_reader.readFloatBig();
+    /* x44_translationFriction[7] */
+    x44_translationFriction[7] = __dna_reader.readFloatBig();
     /* x64_[0] */
     x64_[0] = __dna_reader.readFloatBig();
     /* x64_[1] */
@@ -87,22 +87,22 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x84_[6] = __dna_reader.readFloatBig();
     /* x84_[7] */
     x84_[7] = __dna_reader.readFloatBig();
-    /* xa4_[0] */
-    xa4_[0] = __dna_reader.readFloatBig();
-    /* xa4_[1] */
-    xa4_[1] = __dna_reader.readFloatBig();
-    /* xa4_[2] */
-    xa4_[2] = __dna_reader.readFloatBig();
-    /* xa4_[3] */
-    xa4_[3] = __dna_reader.readFloatBig();
-    /* xa4_[4] */
-    xa4_[4] = __dna_reader.readFloatBig();
-    /* xa4_[5] */
-    xa4_[5] = __dna_reader.readFloatBig();
-    /* xa4_[6] */
-    xa4_[6] = __dna_reader.readFloatBig();
-    /* xa4_[7] */
-    xa4_[7] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[0] */
+    xa4_translationMaxSpeed[0] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[1] */
+    xa4_translationMaxSpeed[1] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[2] */
+    xa4_translationMaxSpeed[2] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[3] */
+    xa4_translationMaxSpeed[3] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[4] */
+    xa4_translationMaxSpeed[4] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[5] */
+    xa4_translationMaxSpeed[5] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[6] */
+    xa4_translationMaxSpeed[6] = __dna_reader.readFloatBig();
+    /* xa4_translationMaxSpeed[7] */
+    xa4_translationMaxSpeed[7] = __dna_reader.readFloatBig();
     /* xc4_normalGravAccel */
     xc4_normalGravAccel = __dna_reader.readFloatBig();
     /* xc8_fluidGravAccel */
@@ -161,10 +161,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x130_horizontalFreeLookAngleVel = __dna_reader.readFloatBig();
     /* x134_verticalFreeLookAngleVel */
     x134_verticalFreeLookAngleVel = __dna_reader.readFloatBig();
-    /* x138_hudLagAmount */
-    x138_hudLagAmount = __dna_reader.readFloatBig();
-    /* x13c_ */
-    x13c_ = __dna_reader.readFloatBig();
+    /* x138_freeLookSpeed */
+    x138_freeLookSpeed = __dna_reader.readFloatBig();
+    /* x13c_freeLookSnapSpeed */
+    x13c_freeLookSnapSpeed = __dna_reader.readFloatBig();
     /* x140_ */
     x140_ = __dna_reader.readFloatBig();
     /* x144_freeLookCenteredThresholdAngle */
@@ -177,8 +177,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x150_leftDiv = __dna_reader.readFloatBig();
     /* x154_rightDiv */
     x154_rightDiv = __dna_reader.readFloatBig();
-    /* x228_24_ */
-    x228_24_ = __dna_reader.readBool();
+    /* x228_24_freelookTurnsPlayer */
+    x228_24_freelookTurnsPlayer = __dna_reader.readBool();
     /* x228_25_ */
     x228_25_ = __dna_reader.readBool();
     /* x228_26_ */
@@ -447,22 +447,22 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
 
 void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
 {
-    /* x4_[0] */
-    __dna_writer.writeFloatBig(x4_[0]);
-    /* x4_[1] */
-    __dna_writer.writeFloatBig(x4_[1]);
-    /* x4_[2] */
-    __dna_writer.writeFloatBig(x4_[2]);
-    /* x4_[3] */
-    __dna_writer.writeFloatBig(x4_[3]);
-    /* x4_[4] */
-    __dna_writer.writeFloatBig(x4_[4]);
-    /* x4_[5] */
-    __dna_writer.writeFloatBig(x4_[5]);
-    /* x4_[6] */
-    __dna_writer.writeFloatBig(x4_[6]);
-    /* x4_[7] */
-    __dna_writer.writeFloatBig(x4_[7]);
+    /* x4_maxTranslationalAcceleration[0] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[0]);
+    /* x4_maxTranslationalAcceleration[1] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[1]);
+    /* x4_maxTranslationalAcceleration[2] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[2]);
+    /* x4_maxTranslationalAcceleration[3] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[3]);
+    /* x4_maxTranslationalAcceleration[4] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[4]);
+    /* x4_maxTranslationalAcceleration[5] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[5]);
+    /* x4_maxTranslationalAcceleration[6] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[6]);
+    /* x4_maxTranslationalAcceleration[7] */
+    __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[7]);
     /* x24_[0] */
     __dna_writer.writeFloatBig(x24_[0]);
     /* x24_[1] */
@@ -479,22 +479,22 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x24_[6]);
     /* x24_[7] */
     __dna_writer.writeFloatBig(x24_[7]);
-    /* x44_[0] */
-    __dna_writer.writeFloatBig(x44_[0]);
-    /* x44_[1] */
-    __dna_writer.writeFloatBig(x44_[1]);
-    /* x44_[2] */
-    __dna_writer.writeFloatBig(x44_[2]);
-    /* x44_[3] */
-    __dna_writer.writeFloatBig(x44_[3]);
-    /* x44_[4] */
-    __dna_writer.writeFloatBig(x44_[4]);
-    /* x44_[5] */
-    __dna_writer.writeFloatBig(x44_[5]);
-    /* x44_[6] */
-    __dna_writer.writeFloatBig(x44_[6]);
-    /* x44_[7] */
-    __dna_writer.writeFloatBig(x44_[7]);
+    /* x44_translationFriction[0] */
+    __dna_writer.writeFloatBig(x44_translationFriction[0]);
+    /* x44_translationFriction[1] */
+    __dna_writer.writeFloatBig(x44_translationFriction[1]);
+    /* x44_translationFriction[2] */
+    __dna_writer.writeFloatBig(x44_translationFriction[2]);
+    /* x44_translationFriction[3] */
+    __dna_writer.writeFloatBig(x44_translationFriction[3]);
+    /* x44_translationFriction[4] */
+    __dna_writer.writeFloatBig(x44_translationFriction[4]);
+    /* x44_translationFriction[5] */
+    __dna_writer.writeFloatBig(x44_translationFriction[5]);
+    /* x44_translationFriction[6] */
+    __dna_writer.writeFloatBig(x44_translationFriction[6]);
+    /* x44_translationFriction[7] */
+    __dna_writer.writeFloatBig(x44_translationFriction[7]);
     /* x64_[0] */
     __dna_writer.writeFloatBig(x64_[0]);
     /* x64_[1] */
@@ -527,22 +527,22 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x84_[6]);
     /* x84_[7] */
     __dna_writer.writeFloatBig(x84_[7]);
-    /* xa4_[0] */
-    __dna_writer.writeFloatBig(xa4_[0]);
-    /* xa4_[1] */
-    __dna_writer.writeFloatBig(xa4_[1]);
-    /* xa4_[2] */
-    __dna_writer.writeFloatBig(xa4_[2]);
-    /* xa4_[3] */
-    __dna_writer.writeFloatBig(xa4_[3]);
-    /* xa4_[4] */
-    __dna_writer.writeFloatBig(xa4_[4]);
-    /* xa4_[5] */
-    __dna_writer.writeFloatBig(xa4_[5]);
-    /* xa4_[6] */
-    __dna_writer.writeFloatBig(xa4_[6]);
-    /* xa4_[7] */
-    __dna_writer.writeFloatBig(xa4_[7]);
+    /* xa4_translationMaxSpeed[0] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[0]);
+    /* xa4_translationMaxSpeed[1] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[1]);
+    /* xa4_translationMaxSpeed[2] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[2]);
+    /* xa4_translationMaxSpeed[3] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[3]);
+    /* xa4_translationMaxSpeed[4] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[4]);
+    /* xa4_translationMaxSpeed[5] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[5]);
+    /* xa4_translationMaxSpeed[6] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[6]);
+    /* xa4_translationMaxSpeed[7] */
+    __dna_writer.writeFloatBig(xa4_translationMaxSpeed[7]);
     /* xc4_normalGravAccel */
     __dna_writer.writeFloatBig(xc4_normalGravAccel);
     /* xc8_fluidGravAccel */
@@ -601,10 +601,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x130_horizontalFreeLookAngleVel);
     /* x134_verticalFreeLookAngleVel */
     __dna_writer.writeFloatBig(x134_verticalFreeLookAngleVel);
-    /* x138_ */
-    __dna_writer.writeFloatBig(x138_hudLagAmount);
-    /* x13c_ */
-    __dna_writer.writeFloatBig(x13c_);
+    /* x138_freeLookSpeed */
+    __dna_writer.writeFloatBig(x138_freeLookSpeed);
+    /* x13c_freeLookSnapSpeed */
+    __dna_writer.writeFloatBig(x13c_freeLookSnapSpeed);
     /* x140_ */
     __dna_writer.writeFloatBig(x140_);
     /* x144_freeLookCenteredThresholdAngle */
@@ -617,8 +617,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x150_leftDiv);
     /* x154_rightDiv */
     __dna_writer.writeFloatBig(x154_rightDiv);
-    /* x228_24_ */
-    __dna_writer.writeBool(x228_24_);
+    /* x228_24_freelookTurnsPlayer */
+    __dna_writer.writeBool(x228_24_freelookTurnsPlayer);
     /* x228_25_ */
     __dna_writer.writeBool(x228_25_);
     /* x228_26_ */
@@ -887,26 +887,26 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
 
 void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
 {
-    /* x4_ */
+    /* x4_maxTranslationalAcceleration */
     size_t __x4_Count;
-    if (auto v = __dna_docin.enterSubVector("x4_", __x4_Count))
+    if (auto v = __dna_docin.enterSubVector("x4_maxTranslationalAcceleration", __x4_Count))
     {
-    /* x4_[0] */
-    x4_[0] = __dna_docin.readFloat("x4_");
-    /* x4_[1] */
-    x4_[1] = __dna_docin.readFloat("x4_");
-    /* x4_[2] */
-    x4_[2] = __dna_docin.readFloat("x4_");
-    /* x4_[3] */
-    x4_[3] = __dna_docin.readFloat("x4_");
-    /* x4_[4] */
-    x4_[4] = __dna_docin.readFloat("x4_");
-    /* x4_[5] */
-    x4_[5] = __dna_docin.readFloat("x4_");
-    /* x4_[6] */
-    x4_[6] = __dna_docin.readFloat("x4_");
-    /* x4_[7] */
-    x4_[7] = __dna_docin.readFloat("x4_");
+    /* x4_maxTranslationalAcceleration[0] */
+    x4_maxTranslationalAcceleration[0] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[1] */
+    x4_maxTranslationalAcceleration[1] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[2] */
+    x4_maxTranslationalAcceleration[2] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[3] */
+    x4_maxTranslationalAcceleration[3] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[4] */
+    x4_maxTranslationalAcceleration[4] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[5] */
+    x4_maxTranslationalAcceleration[5] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[6] */
+    x4_maxTranslationalAcceleration[6] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
+    /* x4_maxTranslationalAcceleration[7] */
+    x4_maxTranslationalAcceleration[7] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
     }
     /* x24_ */
     size_t __x24_Count;
@@ -929,26 +929,26 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x24_[7] */
     x24_[7] = __dna_docin.readFloat("x24_");
     }
-    /* x44_ */
+    /* x44_translationFriction */
     size_t __x44_Count;
-    if (auto v = __dna_docin.enterSubVector("x44_", __x44_Count))
+    if (auto v = __dna_docin.enterSubVector("x44_translationFriction", __x44_Count))
     {
-    /* x44_[0] */
-    x44_[0] = __dna_docin.readFloat("x44_");
-    /* x44_[1] */
-    x44_[1] = __dna_docin.readFloat("x44_");
-    /* x44_[2] */
-    x44_[2] = __dna_docin.readFloat("x44_");
-    /* x44_[3] */
-    x44_[3] = __dna_docin.readFloat("x44_");
-    /* x44_[4] */
-    x44_[4] = __dna_docin.readFloat("x44_");
-    /* x44_[5] */
-    x44_[5] = __dna_docin.readFloat("x44_");
-    /* x44_[6] */
-    x44_[6] = __dna_docin.readFloat("x44_");
-    /* x44_[7] */
-    x44_[7] = __dna_docin.readFloat("x44_");
+    /* x44_translationFriction[0] */
+    x44_translationFriction[0] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[1] */
+    x44_translationFriction[1] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[2] */
+    x44_translationFriction[2] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[3] */
+    x44_translationFriction[3] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[4] */
+    x44_translationFriction[4] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[5] */
+    x44_translationFriction[5] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[6] */
+    x44_translationFriction[6] = __dna_docin.readFloat("x44_translationFriction");
+    /* x44_translationFriction[7] */
+    x44_translationFriction[7] = __dna_docin.readFloat("x44_translationFriction");
     }
     /* x64_ */
     size_t __x64_Count;
@@ -992,26 +992,26 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x84_[7] */
     x84_[7] = __dna_docin.readFloat("x84_");
     }
-    /* xa4_ */
+    /* xa4_translationMaxSpeed */
     size_t __xa4_Count;
-    if (auto v = __dna_docin.enterSubVector("xa4_", __xa4_Count))
+    if (auto v = __dna_docin.enterSubVector("xa4_translationMaxSpeed", __xa4_Count))
     {
-    /* xa4_[0] */
-    xa4_[0] = __dna_docin.readFloat("xa4_");
-    /* xa4_[1] */
-    xa4_[1] = __dna_docin.readFloat("xa4_");
-    /* xa4_[2] */
-    xa4_[2] = __dna_docin.readFloat("xa4_");
-    /* xa4_[3] */
-    xa4_[3] = __dna_docin.readFloat("xa4_");
-    /* xa4_[4] */
-    xa4_[4] = __dna_docin.readFloat("xa4_");
-    /* xa4_[5] */
-    xa4_[5] = __dna_docin.readFloat("xa4_");
-    /* xa4_[6] */
-    xa4_[6] = __dna_docin.readFloat("xa4_");
-    /* xa4_[7] */
-    xa4_[7] = __dna_docin.readFloat("xa4_");
+    /* xa4_translationMaxSpeed[0] */
+    xa4_translationMaxSpeed[0] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[1] */
+    xa4_translationMaxSpeed[1] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[2] */
+    xa4_translationMaxSpeed[2] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[3] */
+    xa4_translationMaxSpeed[3] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[4] */
+    xa4_translationMaxSpeed[4] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[5] */
+    xa4_translationMaxSpeed[5] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[6] */
+    xa4_translationMaxSpeed[6] = __dna_docin.readFloat("xa4_translationMaxSpeed");
+    /* xa4_translationMaxSpeed[7] */
+    xa4_translationMaxSpeed[7] = __dna_docin.readFloat("xa4_translationMaxSpeed");
     }
     /* xc4_normalGravAccel */
     xc4_normalGravAccel = __dna_docin.readFloat("xc4_normalGravAccel");
@@ -1071,10 +1071,10 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x130_horizontalFreeLookAngleVel = __dna_docin.readFloat("x130_horizontalFreeLookAngleVel");
     /* x134_verticalFreeLookAngleVel */
     x134_verticalFreeLookAngleVel = __dna_docin.readFloat("x134_verticalFreeLookAngleVel");
-    /* x138_hudLagAmount */
-    x138_hudLagAmount = __dna_docin.readFloat("x138_hudLagAmount");
-    /* x13c_ */
-    x13c_ = __dna_docin.readFloat("x13c_");
+    /* x138_freeLookSpeed */
+    x138_freeLookSpeed = __dna_docin.readFloat("x138_freeLookSpeed");
+    /* x13c_freeLookSnapSpeed */
+    x13c_freeLookSnapSpeed = __dna_docin.readFloat("x13c_freeLookSnapSpeed");
     /* x140_ */
     x140_ = __dna_docin.readFloat("x140_");
     /* x144_freeLookCenteredThresholdAngle */
@@ -1087,8 +1087,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x150_leftDiv = __dna_docin.readFloat("x150_leftDiv");
     /* x154_rightDiv */
     x154_rightDiv = __dna_docin.readFloat("x154_rightDiv");
-    /* x228_24_ */
-    x228_24_ = __dna_docin.readBool("x228_24_");
+    /* x228_24_freelookTurnsPlayer */
+    x228_24_freelookTurnsPlayer = __dna_docin.readBool("x228_24_freelookTurnsPlayer");
     /* x228_25_ */
     x228_25_ = __dna_docin.readBool("x228_25_");
     /* x228_26_ */
@@ -1402,25 +1402,25 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
 
 void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
 {
-    /* x4_ */
-    if (auto v = __dna_docout.enterSubVector("x4_"))
+    /* x4_maxTranslationalAcceleration */
+    if (auto v = __dna_docout.enterSubVector("x4_maxTranslationalAcceleration"))
     {
-    /* x4_[0] */
-    __dna_docout.writeFloat("x4_", x4_[0]);
-    /* x4_[1] */
-    __dna_docout.writeFloat("x4_", x4_[1]);
-    /* x4_[2] */
-    __dna_docout.writeFloat("x4_", x4_[2]);
-    /* x4_[3] */
-    __dna_docout.writeFloat("x4_", x4_[3]);
-    /* x4_[4] */
-    __dna_docout.writeFloat("x4_", x4_[4]);
-    /* x4_[5] */
-    __dna_docout.writeFloat("x4_", x4_[5]);
-    /* x4_[6] */
-    __dna_docout.writeFloat("x4_", x4_[6]);
-    /* x4_[7] */
-    __dna_docout.writeFloat("x4_", x4_[7]);
+    /* x4_maxTranslationalAcceleration[0] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[0]);
+    /* x4_maxTranslationalAcceleration[1] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[1]);
+    /* x4_maxTranslationalAcceleration[2] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[2]);
+    /* x4_maxTranslationalAcceleration[3] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[3]);
+    /* x4_maxTranslationalAcceleration[4] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[4]);
+    /* x4_maxTranslationalAcceleration[5] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[5]);
+    /* x4_maxTranslationalAcceleration[6] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[6]);
+    /* x4_maxTranslationalAcceleration[7] */
+    __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[7]);
     }
     /* x24_ */
     if (auto v = __dna_docout.enterSubVector("x24_"))
@@ -1442,25 +1442,25 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x24_[7] */
     __dna_docout.writeFloat("x24_", x24_[7]);
     }
-    /* x44_ */
-    if (auto v = __dna_docout.enterSubVector("x44_"))
+    /* x44_translationFriction */
+    if (auto v = __dna_docout.enterSubVector("x44_translationFriction"))
     {
-    /* x44_[0] */
-    __dna_docout.writeFloat("x44_", x44_[0]);
-    /* x44_[1] */
-    __dna_docout.writeFloat("x44_", x44_[1]);
-    /* x44_[2] */
-    __dna_docout.writeFloat("x44_", x44_[2]);
-    /* x44_[3] */
-    __dna_docout.writeFloat("x44_", x44_[3]);
-    /* x44_[4] */
-    __dna_docout.writeFloat("x44_", x44_[4]);
-    /* x44_[5] */
-    __dna_docout.writeFloat("x44_", x44_[5]);
-    /* x44_[6] */
-    __dna_docout.writeFloat("x44_", x44_[6]);
-    /* x44_[7] */
-    __dna_docout.writeFloat("x44_", x44_[7]);
+    /* x44_translationFriction[0] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[0]);
+    /* x44_translationFriction[1] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[1]);
+    /* x44_translationFriction[2] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[2]);
+    /* x44_translationFriction[3] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[3]);
+    /* x44_translationFriction[4] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[4]);
+    /* x44_translationFriction[5] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[5]);
+    /* x44_translationFriction[6] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[6]);
+    /* x44_translationFriction[7] */
+    __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[7]);
     }
     /* x64_ */
     if (auto v = __dna_docout.enterSubVector("x64_"))
@@ -1502,25 +1502,25 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x84_[7] */
     __dna_docout.writeFloat("x84_", x84_[7]);
     }
-    /* xa4_ */
-    if (auto v = __dna_docout.enterSubVector("xa4_"))
+    /* xa4_translationMaxSpeed */
+    if (auto v = __dna_docout.enterSubVector("xa4_translationMaxSpeed"))
     {
-    /* xa4_[0] */
-    __dna_docout.writeFloat("xa4_", xa4_[0]);
-    /* xa4_[1] */
-    __dna_docout.writeFloat("xa4_", xa4_[1]);
-    /* xa4_[2] */
-    __dna_docout.writeFloat("xa4_", xa4_[2]);
-    /* xa4_[3] */
-    __dna_docout.writeFloat("xa4_", xa4_[3]);
-    /* xa4_[4] */
-    __dna_docout.writeFloat("xa4_", xa4_[4]);
-    /* xa4_[5] */
-    __dna_docout.writeFloat("xa4_", xa4_[5]);
-    /* xa4_[6] */
-    __dna_docout.writeFloat("xa4_", xa4_[6]);
-    /* xa4_[7] */
-    __dna_docout.writeFloat("xa4_", xa4_[7]);
+    /* xa4_translationMaxSpeed[0] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[0]);
+    /* xa4_translationMaxSpeed[1] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[1]);
+    /* xa4_translationMaxSpeed[2] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[2]);
+    /* xa4_translationMaxSpeed[3] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[3]);
+    /* xa4_translationMaxSpeed[4] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[4]);
+    /* xa4_translationMaxSpeed[5] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[5]);
+    /* xa4_translationMaxSpeed[6] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[6]);
+    /* xa4_translationMaxSpeed[7] */
+    __dna_docout.writeFloat("xa4_translationMaxSpeed", xa4_translationMaxSpeed[7]);
     }
     /* xc4_normalGravAccel */
     __dna_docout.writeFloat("xc4_normalGravAccel", xc4_normalGravAccel);
@@ -1580,10 +1580,10 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x130_horizontalFreeLookAngleVel", x130_horizontalFreeLookAngleVel);
     /* x134_verticalFreeLookAngleVel */
     __dna_docout.writeFloat("x134_verticalFreeLookAngleVel", x134_verticalFreeLookAngleVel);
-    /* x138_hudLagAmount */
-    __dna_docout.writeFloat("x138_hudLagAmount", x138_hudLagAmount);
-    /* x13c_ */
-    __dna_docout.writeFloat("x13c_", x13c_);
+    /* x138_freeLookSpeed */
+    __dna_docout.writeFloat("x138_freeLookSpeed", x138_freeLookSpeed);
+    /* x13c_freeLookSnapSpeed */
+    __dna_docout.writeFloat("x13c_freeLookSnapSpeed", x13c_freeLookSnapSpeed);
     /* x140_ */
     __dna_docout.writeFloat("x140_", x140_);
     /* x144_freeLookCenteredThresholdAngle */
@@ -1596,8 +1596,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x150_leftDiv", x150_leftDiv);
     /* x154_rightDiv */
     __dna_docout.writeFloat("x154_rightDiv", x154_rightDiv);
-    /* x228_24_ */
-    __dna_docout.writeBool("x228_24_", x228_24_);
+    /* x228_24_freelookTurnsPlayer */
+    __dna_docout.writeBool("x228_24_freelookTurnsPlayer", x228_24_freelookTurnsPlayer);
     /* x228_25_ */
     __dna_docout.writeBool("x228_25_", x228_25_);
     /* x228_26_ */
@@ -1904,8 +1904,8 @@ void CTweakPlayer::FixupValues()
 {
     x130_horizontalFreeLookAngleVel = zeus::degToRad(x130_horizontalFreeLookAngleVel);
     x134_verticalFreeLookAngleVel = zeus::degToRad(x134_verticalFreeLookAngleVel);
-    x138_hudLagAmount = zeus::degToRad(x138_hudLagAmount);
-    x13c_ = zeus::degToRad(x13c_);
+    x138_freeLookSpeed = zeus::degToRad(x138_freeLookSpeed);
+    x13c_freeLookSnapSpeed = zeus::degToRad(x13c_freeLookSnapSpeed);
     x140_ = zeus::degToRad(x140_);
     x144_freeLookCenteredThresholdAngle = zeus::degToRad(x144_freeLookCenteredThresholdAngle);
     x23c_ = zeus::degToRad(x23c_);

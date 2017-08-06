@@ -346,7 +346,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
             doRumble = true;
         }
 
-        if (damageLoopSfx && !x9c7_24_ && x2ac_movementSurface >= EPlayerMovementSurface::Ice)
+        if (damageLoopSfx && !x9c7_24_ && x2ac_surfaceRestraint >= ESurfaceRestraints::Ice)
         {
             if (!x770_damageLoopSfx || x788_damageLoopSfxId != damageLoopSfx)
             {
@@ -987,7 +987,7 @@ void CPlayer::UpdateFreeLookState(const CFinalInput& input, float dt, CStateMana
                 zeus::CVector3f lookDir = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis[1];
                 zeus::CVector3f lookDirFlat = lookDir;
                 lookDirFlat.z = 0.f;
-                x3e4_ = 0.f;
+                x3e4_freeLookYawAngle = 0.f;
                 if (lookDirFlat.canBeNormalized())
                 {
                     lookDirFlat.normalize();
@@ -1022,7 +1022,7 @@ void CPlayer::UpdateFreeLookState(const CFinalInput& input, float dt, CStateMana
              ControlMapper::GetAnalogInput(ControlMapper::ECommands::LookDown, input) >= 0.1f ||
              ControlMapper::GetAnalogInput(ControlMapper::ECommands::LookUp, input) >= 0.1f);
         x3dd_freeLookPitchAngleCalculated = false;
-        if (std::fabs(x3e4_) < g_tweakPlayer->GetFreeLookCenteredThresholdAngle() &&
+        if (std::fabs(x3e4_freeLookYawAngle) < g_tweakPlayer->GetFreeLookCenteredThresholdAngle() &&
             std::fabs(x3ec_freeLookPitchAngle) < g_tweakPlayer->GetFreeLookCenteredThresholdAngle())
         {
             if (x3e0_curFreeLookCenteredTime > g_tweakPlayer->GetFreeLookCenteredTime())
@@ -1046,9 +1046,34 @@ void CPlayer::UpdateFreeLookState(const CFinalInput& input, float dt, CStateMana
     UpdateCrosshairsState(input);
 }
 
-void CPlayer::UpdateFreeLook(float dt) {}
+void CPlayer::UpdateFreeLook(float dt)
+{
+    if (GetFrozenState())
+        return;
+    float lookDeltaAngle = dt * g_tweakPlayer->GetFreeLookSpeed();
+    if (!x3de_lookControlHeld)
+        lookDeltaAngle = dt * g_tweakPlayer->GetFreeLookSnapSpeed();
+    float angleVelP = x3f0_vertFreeLookAngleVel - x3ec_freeLookPitchAngle;
+    float vertLookDamp = zeus::clamp(0.f, std::fabs(angleVelP / 1.0471976f), 1.f);
+    float dx = lookDeltaAngle * (2.f * vertLookDamp - std::sin((M_PIF / 2.f) * vertLookDamp));
+    if (0.f <= angleVelP)
+        x3ec_freeLookPitchAngle += dx;
+    else
+        x3ec_freeLookPitchAngle -= dx;
+    angleVelP = x3e8_horizFreeLookAngleVel - x3e4_freeLookYawAngle;
+    dx = lookDeltaAngle * zeus::clamp(0.f, std::fabs(angleVelP / g_tweakPlayer->GetHorizontalFreeLookAngleVel()), 1.f);
+    if (0.f <= angleVelP)
+        x3e4_freeLookYawAngle += dx;
+    else
+        x3e4_freeLookYawAngle -= dx;
+    if (g_tweakPlayer->GetFreeLookTurnsPlayer())
+        x3e4_freeLookYawAngle = 0.f;
+}
 
-float CPlayer::GetMaximumPlayerPositiveVerticalVelocity(CStateManager&) const { return 0.f; }
+float CPlayer::GetMaximumPlayerPositiveVerticalVelocity(CStateManager& mgr) const
+{
+    return mgr.GetPlayerState()->GetItemAmount(CPlayerState::EItemType::SpaceJumpBoots) ? 14.f : 11.666666f;
+}
 
 void CPlayer::StartLandingControlFreeze()
 {
@@ -1652,16 +1677,16 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
             SetMoveState(EPlayerMovementState::StartingJump, mgr);
         break;
     case EScriptObjectMessage::OnIceSurface:
-        x2ac_movementSurface = EPlayerMovementSurface::Ice;
+        x2ac_surfaceRestraint = ESurfaceRestraints::Ice;
         break;
     case EScriptObjectMessage::OnMudSlowSurface:
-        x2ac_movementSurface = EPlayerMovementSurface::MudSlow;
+        x2ac_surfaceRestraint = ESurfaceRestraints::MudSlow;
         break;
     case EScriptObjectMessage::OnNormalSurface:
-        x2ac_movementSurface = EPlayerMovementSurface::Normal;
+        x2ac_surfaceRestraint = ESurfaceRestraints::Normal;
         break;
     case EScriptObjectMessage::InSnakeWeed:
-        x2ac_movementSurface = EPlayerMovementSurface::SnakeWeed;
+        x2ac_surfaceRestraint = ESurfaceRestraints::SnakeWeed;
         break;
     case EScriptObjectMessage::AddSplashInhabitant:
     {
@@ -1690,13 +1715,13 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                     break;
                 case CFluidPlane::EFluidType::Two:
                 case CFluidPlane::EFluidType::Five:
-                    x2ac_movementSurface = EPlayerMovementSurface::Fluid2Or5;
+                    x2ac_surfaceRestraint = ESurfaceRestraints::Fluid2Or5;
                     break;
                 case CFluidPlane::EFluidType::One:
                     x2b0_ = 0;
                     break;
                 case CFluidPlane::EFluidType::Three:
-                    x2ac_movementSurface = EPlayerMovementSurface::Fluid3;
+                    x2ac_surfaceRestraint = ESurfaceRestraints::Fluid3;
                     break;
                 default: break;
                 }
@@ -1775,7 +1800,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
     float sfxDelay = 0.f;
     if (forward > 0.05f || x304_orbitState != EPlayerOrbitState::Zero)
     {
-        float vel = std::min(1.f, x138_velocity.magnitude() / GetActualFirstPersonMaxVelocity());
+        float vel = std::min(1.f, x138_velocity.magnitude() / GetActualFirstPersonMaxVelocity(dt));
         if (vel > 0.05f)
         {
             sfxDelay = -0.475f * vel + 0.85f;
@@ -3830,6 +3855,11 @@ float CPlayer::GetEyeHeight() const
     return x9c8_eyeZBias + (x2d8_fpBounds.max.z - g_tweakPlayer->GetEyeOffset());
 }
 
+float CPlayer::GetUnbiasedEyeHeight() const
+{
+    return x2d8_fpBounds.max.z - g_tweakPlayer->GetEyeOffset();
+}
+
 float CPlayer::GetStepUpHeight() const
 {
     if (x258_movementState == EPlayerMovementState::Jump ||
@@ -3878,11 +3908,34 @@ const CCollidableSphere* CPlayer::GetCollidableSphere() const
     return x768_morphball->GetCollidableSphere();
 }
 
-zeus::CTransform CPlayer::GetPrimitiveTransform() const { return {}; }
+zeus::CTransform CPlayer::GetPrimitiveTransform() const
+{
+    return CPhysicsActor::GetPrimitiveTransform();
+}
 
-void CPlayer::CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) {}
+void CPlayer::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr)
+{
+    if (x2f8_morphTransState != EPlayerMorphBallState::Unmorphed)
+        x768_morphball->CollidedWith(id, list, mgr);
+}
 
-float CPlayer::GetActualFirstPersonMaxVelocity() const { return 0.f; }
+float CPlayer::GetActualBallMaxVelocity(float dt) const
+{
+    ESurfaceRestraints surf = x2b0_ == 2 ? x2ac_surfaceRestraint : ESurfaceRestraints::Four;
+    float friction = g_tweakBall->GetBallTranslationFriction(int(surf));
+    float maxSpeed = g_tweakBall->GetBallTranslationMaxSpeed(int(surf));
+    float acceleration = g_tweakBall->GetMaxBallTranslationAcceleration(int(surf));
+    return -(friction * xe8_mass * maxSpeed / (acceleration * dt) - maxSpeed - friction);
+}
+
+float CPlayer::GetActualFirstPersonMaxVelocity(float dt) const
+{
+    ESurfaceRestraints surf = x2b0_ == 2 ? x2ac_surfaceRestraint : ESurfaceRestraints::Four;
+    float friction = g_tweakPlayer->GetPlayerTranslationFriction(int(surf));
+    float maxSpeed = g_tweakPlayer->GetPlayerTranslationMaxSpeed(int(surf));
+    float acceleration = g_tweakPlayer->GetMaxTranslationalAcceleration(int(surf));
+    return -(friction * xe8_mass * maxSpeed / (acceleration * dt) - maxSpeed - friction);
+}
 
 void CPlayer::SetMoveState(EPlayerMovementState, CStateManager& mgr) {}
 
@@ -4004,7 +4057,7 @@ void CPlayer::LeaveMorphBallState(CStateManager& mgr)
     SetHudDisable(FLT_EPSILON, 0.f, 2.f);
     SetIntoBallReadyAnimation(mgr);
     CPhysicsActor::Stop();
-    x3e4_ = 0.f;
+    x3e4_freeLookYawAngle = 0.f;
     x3e8_horizFreeLookAngleVel = 0.f;
     x3ec_freeLookPitchAngle = 0.f;
     x3f0_vertFreeLookAngleVel = 0.f;

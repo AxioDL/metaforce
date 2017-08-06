@@ -122,7 +122,7 @@ public:
         Four
     };
 
-    enum class EPlayerMovementSurface
+    enum class ESurfaceRestraints
     {
         Normal,
         One,
@@ -217,7 +217,7 @@ private:
     float x2a0_ = 0.f;
     bool x2a4_cancelCameraPitch = false;
     float x2a8_ = 1000.f;
-    EPlayerMovementSurface x2ac_movementSurface = EPlayerMovementSurface::Normal;
+    ESurfaceRestraints x2ac_surfaceRestraint = ESurfaceRestraints::Normal;
     u32 x2b0_ = 2;
     rstl::reserved_vector<float, 6> x2b4_;
     u32 x2d0_ = 3;
@@ -271,7 +271,7 @@ private:
     bool x3dd_freeLookPitchAngleCalculated = false;
     bool x3de_lookControlHeld = false;
     float x3e0_curFreeLookCenteredTime = 0.f;
-    float x3e4_ = 0.f;
+    float x3e4_freeLookYawAngle = 0.f;
     float x3e8_horizFreeLookAngleVel = 0.f;
     float x3ec_freeLookPitchAngle = 0.f;
     float x3f0_vertFreeLookAngleVel = 0.f;
@@ -554,6 +554,7 @@ public:
     zeus::CVector3f GetBallPosition() const;
     zeus::CVector3f GetEyePosition() const;
     float GetEyeHeight() const;
+    float GetUnbiasedEyeHeight() const;
     float GetStepUpHeight() const;
     float GetStepDownHeight() const;
     void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool);
@@ -563,7 +564,8 @@ public:
     const CCollidableSphere* GetCollidableSphere() const;
     zeus::CTransform GetPrimitiveTransform() const;
     void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
-    float GetActualFirstPersonMaxVelocity() const;
+    float GetActualBallMaxVelocity(float dt) const;
+    float GetActualFirstPersonMaxVelocity(float dt) const;
     void SetMoveState(EPlayerMovementState, CStateManager& mgr);
     float JumpInput(const CFinalInput& input, CStateManager& mgr);
     float TurnInput(const CFinalInput& input) const;

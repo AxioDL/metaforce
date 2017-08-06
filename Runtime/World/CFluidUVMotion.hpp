@@ -23,11 +23,11 @@ public:
         float x8_b = 0.f;
         float xc_c = 1.f;
         float x10_d = 5.f;
-        float x14_e = 0.2f;
+        float x14_envNormalScale = 0.2f;
 
         SFluidLayerMotion() = default;
         SFluidLayerMotion(EFluidUVMotion motion, float a, float b, float c, float d)
-            : x0_motion(motion), x4_a(1.f / a), x8_b(b), xc_c(c), x10_d(d), x14_e(1.f / d)
+            : x0_motion(motion), x4_a(1.f / a), x8_b(b), xc_c(c), x10_d(d), x14_envNormalScale(1.f / d)
         {
         }
     };

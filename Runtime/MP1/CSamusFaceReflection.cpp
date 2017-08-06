@@ -110,7 +110,7 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
             lookDot = lookDot > 0.f ? 1.f : -1.f;
         float lookAng = std::acos(lookDot);
         x50_lookRot = zeus::CQuaternion::slerp(x50_lookRot, xfLook2,
-            zeus::clamp(0.f, 18.f * dt * ((lookAng > 0.f) ? 0.5f * dt * g_tweakPlayer->GetHudLagAmount() / lookAng : 0.f), 1.f));
+            zeus::clamp(0.f, 18.f * dt * ((lookAng > 0.f) ? 0.5f * dt * g_tweakPlayer->GetFreeLookSpeed() / lookAng : 0.f), 1.f));
         x60_lookDir = lookDir;
     }
 }

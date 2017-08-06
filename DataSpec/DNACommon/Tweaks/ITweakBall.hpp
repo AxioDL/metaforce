@@ -7,6 +7,9 @@ namespace DataSpec
 {
 struct ITweakBall : ITweak
 {
+    virtual float GetMaxBallTranslationAcceleration(int s) const=0;
+    virtual float GetBallTranslationFriction(int s) const=0;
+    virtual float GetBallTranslationMaxSpeed(int s) const=0;
     virtual float GetBallCameraControlDistance() const=0;
     virtual float GetLeftStickDivisor() const=0;
     virtual float GetRightStickDivisor() const=0;

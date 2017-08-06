@@ -12,9 +12,9 @@ struct CTweakBall : public ITweakBall
 {
     DECL_YAML
     Delete __d;
-    Value<float> x4_[8];
-    Value<float> x24_[8];
-    Value<float> x44_[8];
+    Value<float> x4_maxTranslationAcceleration[8];
+    Value<float> x24_translationFriction[8];
+    Value<float> x44_translationMaxSpeed[8];
     Value<float> x64_;
     Value<float> x68_;
     Value<float> x6c_;
@@ -137,6 +137,9 @@ struct CTweakBall : public ITweakBall
         x1ec_ = zeus::degToRad(x1ec_);
     }
 
+    float GetMaxBallTranslationAcceleration(int s) const { return x4_maxTranslationAcceleration[s]; }
+    float GetBallTranslationFriction(int s) const { return x24_translationFriction[s]; }
+    float GetBallTranslationMaxSpeed(int s) const { return x44_translationMaxSpeed[s]; }
     float GetBallCameraControlDistance() const { return x1d0_ballCameraControlDistance; }
     float GetLeftStickDivisor() const { return x1e4_leftStickDivisor; }
     float GetRightStickDivisor() const { return x1e8_rightStickDivisor; }
