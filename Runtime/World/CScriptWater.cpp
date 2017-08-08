@@ -1,5 +1,6 @@
 #include "CScriptWater.hpp"
 #include "CStateManager.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -86,5 +87,19 @@ u32 CScriptWater::GetSplashIndex(float dt) const
 {
     u32 idx = dt * 3.f;
     return (idx < 3 ? idx : idx - 1);
+}
+
+const CScriptWater* CScriptWater::GetNextConnectedWater(const CStateManager& mgr) const
+{
+    for (const SConnection& conn : x20_conns)
+    {
+        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate)
+            continue;
+        auto its = mgr.GetIdListForScript(conn.x8_objId);
+        if (its.first != mgr.GetIdListEnd())
+            if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(its.first->second))
+                return water.GetPtr();
+    }
+    return nullptr;
 }
 }

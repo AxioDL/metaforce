@@ -9,14 +9,14 @@ namespace DataSpec
 
 struct ITweakPlayer : ITweak
 {
-    virtual float GetX50() const=0;
-    virtual float GetX54() const=0;
-    virtual float GetX58() const=0;
-    virtual float GetX5C() const=0;
+    virtual float GetMaxTranslationalAcceleration(int s) const=0;
+    virtual float GetPlayerTranslationFriction(int s) const=0;
+    virtual float GetPlayerTranslationMaxSpeed(int s) const=0;
     virtual float GetNormalGravAccel() const=0;
     virtual float GetFluidGravAccel() const=0;
     virtual float GetEyeOffset() const=0;
-    virtual float GetHudLagAmount() const=0;
+    virtual float GetFreeLookSpeed() const=0;
+    virtual float GetFreeLookSnapSpeed() const=0;
     virtual float GetFreeLookCenteredThresholdAngle() const=0;
     virtual float GetFreeLookCenteredTime() const=0;
     virtual float GetOrbitNormalDistance() const=0;
@@ -56,7 +56,7 @@ struct ITweakPlayer : ITweak
     virtual bool GetGunNotFiringHolstersGun() const=0;
     virtual float GetPlayerHeight() const=0; // x26c
     virtual float GetPlayerXYHalfExtent() const=0; // x270
-    virtual bool GetX228_24() const=0; // x228_24
+    virtual bool GetFreeLookTurnsPlayer() const=0; // x228_24
     virtual float GetX274() const=0; // x274
     virtual float GetX278() const=0; // x278
     virtual float GetPlayerBallHalfExtent() const=0; // x27c
@@ -85,7 +85,6 @@ struct ITweakPlayer : ITweak
     virtual float GetX29C() const=0; // x29c
     virtual float GetX280() const=0; // x280
     virtual float GetX2B0() const=0; // x2b0
-    virtual float GetX138() const=0; // x138
     virtual float GetX14C() const=0; // x14c
     virtual float GetLeftLogicalThreshold() const=0;
     virtual float GetRightLogicalThreshold() const=0;

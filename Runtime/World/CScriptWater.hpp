@@ -17,7 +17,7 @@ private:
     std::unique_ptr<CFluidPlaneCPU> x1b4_fluidPlane;
     zeus::CVector3f x1b8_;
     float x1f4_;
-    float x1f8_ = 0.f;
+    float x1f8_lightmapDoubleBlendFactor = 0.f;
     zeus::CVector3f x1d4_;
     std::list<std::pair<TUniqueId, bool>> x1fc_waterInhabitants;
     u32 x210_;
@@ -39,6 +39,26 @@ private:
     u32 x264_ = 0;
     TLockedToken<CParticleGen> x268_splashEffects[5];
     u16 x29c_splashSounds[5];
+    u32 x2c0_tesselationSize;
+    u32 x2c4_gridDimX = 0;
+    u32 x2c8_gridDimY = 0;
+    u32 x2cc_gridCellCount = 0;
+    std::unique_ptr<bool[]> x2d8_gridFlags;
+    std::unique_ptr<bool[]> x2e0_;
+    u32 x2e4_gridCellCount2 = 0;
+    union
+    {
+        struct
+        {
+            bool x2e8_24 : 1;
+            bool x2e8_25 : 1;
+            bool x2e8_26 : 1;
+            bool x2e8_27 : 1;
+            bool x2e8_28 : 1;
+        };
+        u32 _dummy = 0;
+    };
+    void SetupGrid(bool b);
 public:
     CScriptWater(CStateManager&, TUniqueId, const std::string& name, const CEntityInfo&, const zeus::CVector3f&,
                  const zeus::CAABox&, CDamageInfo const&, zeus::CVector3f&, ETriggerFlags, bool, bool, ResId, ResId, ResId, ResId,
@@ -77,6 +97,8 @@ public:
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const
     { return x250_visorRunoffEffect; }
     u16 GetVisorRunoffSfx() const { return x262_visorRunoffSfx; }
+    const CScriptWater* GetNextConnectedWater(const CStateManager& mgr) const;
+    float GetLightmapDoubleBlendFactor() const { return x1f8_lightmapDoubleBlendFactor; }
 };
 }
 

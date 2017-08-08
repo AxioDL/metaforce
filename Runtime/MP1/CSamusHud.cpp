@@ -690,7 +690,7 @@ void CSamusHud::ApplyClassicLag(const zeus::CUnitVector3f& lookDir, zeus::CQuate
     float angle = std::acos(dot);
     float tmp = 0.f;
     if (angle > 0.f)
-        tmp = 0.5f * dt * g_tweakPlayer->GetHudLagAmount() / angle;
+        tmp = 0.5f * dt * g_tweakPlayer->GetFreeLookSpeed() / angle;
 
     float t = zeus::clamp(0.f, 18.f * dt * tmp, 1.f);
     rot = zeus::CQuaternion::slerp(rot, doubleRot, t);

@@ -26,7 +26,7 @@ struct CTweakGame : ITweakGame
     Value<float> x40_unknown10;
     Value<float> x44_unknown11;
     Value<float> x48_unknown12;
-    Value<float> x4c_unknown13;
+    Value<float> x4c_fluidEnvBumpScale;
     Value<float> x50_unknown14;
     Value<float> x54_unknown15;
     Value<float> x58_unknown16;
@@ -38,6 +38,7 @@ struct CTweakGame : ITweakGame
     virtual bool GetSplashScreensDisabled() const { return x2b_splashScreensDisabled; }
     virtual float GetFirstPersonFOV() const { return x24_fov; }
     virtual float GetPressStartDelay() const { return x30_presStartDelay; }
+    virtual float GetFluidEnvBumpScale() const { return x4c_fluidEnvBumpScale; }
     virtual float GetHardModeDamageMultiplier() const { return x60_hardmodeDamageMult; }
     virtual float GetHardModeWeaponMultiplier() const { return x64_hardmodeWeaponMult; }
     CTweakGame() = default;

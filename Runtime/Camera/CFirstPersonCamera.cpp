@@ -91,9 +91,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             angle = (player->x3ec_freeLookPitchAngle > -0.f ? -1.f : 1.f);
         zeus::CVector3f vec;
         vec.z = std::sin(angle);
-        vec.y = std::cos(-player->x3e4_) * std::cos(angle);
-        vec.x = std::sin(-player->x3e4_) * std::cos(angle);
-        if (g_tweakPlayer->GetX228_24() && !zeus::close_enough(vec, zeus::CVector3f::skZero))
+        vec.y = std::cos(-player->x3e4_freeLookYawAngle) * std::cos(angle);
+        vec.x = std::sin(-player->x3e4_freeLookYawAngle) * std::cos(angle);
+        if (g_tweakPlayer->GetFreeLookTurnsPlayer() && !zeus::close_enough(vec, zeus::CVector3f::skZero))
             vec.normalize();
 
         rVec = zeus::CQuaternion::lookAt({0.f, 1.f, 0.f}, rVec, zeus::CRelAngle::FromDegrees(360.f)).transform(vec);
@@ -240,7 +240,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         float angle = gunFront.dot(rVec);
         if (std::fabs(angle) > 1.f)
             angle = (angle > -0.f ? -1.f : 1.f);
-        float sdt = dt * g_tweakPlayer->GetX138();
+        float sdt = dt * g_tweakPlayer->GetFreeLookSpeed();
         qGun = zeus::CQuaternion::lookAt(
             rVec, gunFront, sdt * zeus::clamp(0.f, g_tweakPlayer->GetX14C() * (std::acos(angle) / sdt), 1.f));
     }

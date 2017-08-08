@@ -2,6 +2,12 @@
 #define __URDE_CFLUIDPLANE_HPP__
 
 #include "RetroTypes.hpp"
+#include "CToken.hpp"
+#include "Graphics/CTexture.hpp"
+#include "CFluidUVMotion.hpp"
+#include "zeus/CAABox.hpp"
+#include "zeus/CFrustum.hpp"
+
 namespace urde
 {
 class CFluidUVMotion;
@@ -13,37 +19,45 @@ class CFluidPlane
 public:
     enum class EFluidType
     {
-        Zero,
-        One,
-        Two,
+        NormalWater,
+        PoisonWater,
+        Lava,
         Three,
         Four,
         Five
     };
 
-private:
-    u32 x4_;
-    u32 x8_;
-    u32 xc_;
-    float x40_;
+protected:
+    ResId x4_texPattern1Id;
+    ResId x8_texPattern2Id;
+    ResId xc_texColorId;
+    std::experimental::optional<TLockedToken<CTexture>> x10_texPattern1;
+    std::experimental::optional<TLockedToken<CTexture>> x20_texPattern2;
+    std::experimental::optional<TLockedToken<CTexture>> x30_texColor;
+    float x40_alpha;
     EFluidType x44_fluidType;
-    float x48_;
+    float x48_f2;
+    CFluidUVMotion x4c_uvMotion;
 public:
-    CFluidPlane() = default;
-    CFluidPlane(u32, u32, u32, EFluidType, float, const CFluidUVMotion&, float);
+    CFluidPlane(ResId texPattern1, ResId texPattern2, ResId texColor, float alpha, EFluidType fluidType,
+                float f2, const CFluidUVMotion& motion);
 
     virtual void Ripple(float mag, TUniqueId rippler, const zeus::CVector3f& pos,
                         CScriptWater& water, CStateManager& mgr);
     virtual void Update();
-    float GetAlpha() const;
+    virtual void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
+                        const zeus::CTransform& areaXf, bool noSubdiv, const zeus::CFrustum& frustum,
+                        const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
+                        const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const {}
+    float GetAlpha() const { return x40_alpha; }
     EFluidType GetFluidType() const { return x44_fluidType; }
-    const CFluidUVMotion& GetUVMotion() const;
-    void GetColorTexture() const;
-    bool HasColorTexture() const;
-    void GetTexturePattern1() const;
-    bool HasTexturePattern1() const;
-    void GetTexturePattern2() const;
-    bool HasTexturePattern2() const;
+    const CFluidUVMotion& GetUVMotion() const { return x4c_uvMotion; }
+    const CTexture& GetColorTexture() const { return **x30_texColor; }
+    bool HasColorTexture() const { return x30_texColor.operator bool(); }
+    const CTexture& GetTexturePattern1() const { return **x10_texPattern1; }
+    bool HasTexturePattern1() const { return x10_texPattern1.operator bool(); }
+    const CTexture& GetTexturePattern2() const { return **x20_texPattern2; }
+    bool HasTexturePattern2() const { return x20_texPattern2.operator bool(); }
 };
 }
 

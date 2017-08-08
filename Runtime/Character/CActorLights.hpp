@@ -71,6 +71,7 @@ public:
     void BuildFaceLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
     bool BuildAreaLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb);
     void BuildDynamicLightList(const CStateManager& mgr, const zeus::CAABox& aabb);
+    std::vector<CLight> BuildLightVector() const;
     void ActivateLights(CBooModel& model) const;
     void SetCastShadows(bool v) { x298_25_castShadows = v; }
     void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }

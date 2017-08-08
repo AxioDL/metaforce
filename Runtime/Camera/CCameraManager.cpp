@@ -262,12 +262,12 @@ void CCameraManager::UpdateListener(CStateManager& mgr)
 
 float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water)
 {
-    float f31 = 1.f /* 1.f - water->x1b4_->x40_; */;
+    float f31 = water->GetFluidPlane().GetAlpha();
     float f1 = 0;
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
-        f1 = (g_tweakPlayer->GetX54() * g_tweakPlayer->GetX50()) + f31;
+        f1 = (g_tweakPlayer->GetPlayerTranslationFriction(4) * g_tweakPlayer->GetPlayerTranslationFriction(3)) + f31;
     else
-        f1 = (g_tweakPlayer->GetX5C() * g_tweakPlayer->GetX58()) + f31;
+        f1 = (g_tweakPlayer->GetPlayerTranslationFriction(6) * g_tweakPlayer->GetPlayerTranslationFriction(5)) + f31;
 
     return f1 * x94_;
 }

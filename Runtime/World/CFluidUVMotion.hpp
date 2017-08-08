@@ -22,14 +22,16 @@ public:
         float x4_a = 0.16666667f;
         float x8_b = 0.f;
         float xc_c = 1.f;
-        float x10_d = 5.f;
-        float x14_e = 0.2f;
+        float x10_uvMul = 5.f;
+        float x14_uvScale = 0.2f;
 
         SFluidLayerMotion() = default;
-        SFluidLayerMotion(EFluidUVMotion motion, float a, float b, float c, float d)
-            : x0_motion(motion), x4_a(1.f / a), x8_b(b), xc_c(c), x10_d(d), x14_e(1.f / d)
+        SFluidLayerMotion(EFluidUVMotion motion, float a, float b, float c, float uvMul)
+            : x0_motion(motion), x4_a(1.f / a), x8_b(b), xc_c(c), x10_uvMul(uvMul), x14_uvScale(1.f / uvMul)
         {
         }
+
+        float GetUVScale() const { return x14_uvScale; }
     };
 
 private:
@@ -43,7 +45,7 @@ public:
     const rstl::reserved_vector<SFluidLayerMotion, 3>& GetFluidLayers() const { return x0_fluidLayers; }
     void GetOrientation() const;
     void GetOOTimeToWrapTexPage() const;
-    void CalculateFluidTextureOffset(float, float[3][2]);
+    void CalculateFluidTextureOffset(float, float[3][2]) const;
 };
 }
 #endif // __URDE_CFLUIDUVMOTION_HPP__

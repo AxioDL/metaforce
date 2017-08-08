@@ -8,53 +8,53 @@ namespace DNAMP1
 void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
 {
     /* x4_[0] */
-    x4_[0] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[0] = __dna_reader.readFloatBig();
     /* x4_[1] */
-    x4_[1] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[1] = __dna_reader.readFloatBig();
     /* x4_[2] */
-    x4_[2] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[2] = __dna_reader.readFloatBig();
     /* x4_[3] */
-    x4_[3] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[3] = __dna_reader.readFloatBig();
     /* x4_[4] */
-    x4_[4] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[4] = __dna_reader.readFloatBig();
     /* x4_[5] */
-    x4_[5] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[5] = __dna_reader.readFloatBig();
     /* x4_[6] */
-    x4_[6] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[6] = __dna_reader.readFloatBig();
     /* x4_[7] */
-    x4_[7] = __dna_reader.readFloatBig();
+    x4_maxTranslationAcceleration[7] = __dna_reader.readFloatBig();
     /* x24_[0] */
-    x24_[0] = __dna_reader.readFloatBig();
+    x24_translationFriction[0] = __dna_reader.readFloatBig();
     /* x24_[1] */
-    x24_[1] = __dna_reader.readFloatBig();
+    x24_translationFriction[1] = __dna_reader.readFloatBig();
     /* x24_[2] */
-    x24_[2] = __dna_reader.readFloatBig();
+    x24_translationFriction[2] = __dna_reader.readFloatBig();
     /* x24_[3] */
-    x24_[3] = __dna_reader.readFloatBig();
+    x24_translationFriction[3] = __dna_reader.readFloatBig();
     /* x24_[4] */
-    x24_[4] = __dna_reader.readFloatBig();
+    x24_translationFriction[4] = __dna_reader.readFloatBig();
     /* x24_[5] */
-    x24_[5] = __dna_reader.readFloatBig();
+    x24_translationFriction[5] = __dna_reader.readFloatBig();
     /* x24_[6] */
-    x24_[6] = __dna_reader.readFloatBig();
+    x24_translationFriction[6] = __dna_reader.readFloatBig();
     /* x24_[7] */
-    x24_[7] = __dna_reader.readFloatBig();
+    x24_translationFriction[7] = __dna_reader.readFloatBig();
     /* x44_[0] */
-    x44_[0] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[0] = __dna_reader.readFloatBig();
     /* x44_[1] */
-    x44_[1] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[1] = __dna_reader.readFloatBig();
     /* x44_[2] */
-    x44_[2] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[2] = __dna_reader.readFloatBig();
     /* x44_[3] */
-    x44_[3] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[3] = __dna_reader.readFloatBig();
     /* x44_[4] */
-    x44_[4] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[4] = __dna_reader.readFloatBig();
     /* x44_[5] */
-    x44_[5] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[5] = __dna_reader.readFloatBig();
     /* x44_[6] */
-    x44_[6] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[6] = __dna_reader.readFloatBig();
     /* x44_[7] */
-    x44_[7] = __dna_reader.readFloatBig();
+    x44_translationMaxSpeed[7] = __dna_reader.readFloatBig();
     /* x64_ */
     x64_ = __dna_reader.readFloatBig();
     /* x68_ */
@@ -228,53 +228,53 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
 void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
 {
     /* x4_[0] */
-    __dna_writer.writeFloatBig(x4_[0]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[0]);
     /* x4_[1] */
-    __dna_writer.writeFloatBig(x4_[1]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[1]);
     /* x4_[2] */
-    __dna_writer.writeFloatBig(x4_[2]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[2]);
     /* x4_[3] */
-    __dna_writer.writeFloatBig(x4_[3]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[3]);
     /* x4_[4] */
-    __dna_writer.writeFloatBig(x4_[4]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[4]);
     /* x4_[5] */
-    __dna_writer.writeFloatBig(x4_[5]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[5]);
     /* x4_[6] */
-    __dna_writer.writeFloatBig(x4_[6]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[6]);
     /* x4_[7] */
-    __dna_writer.writeFloatBig(x4_[7]);
+    __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[7]);
     /* x24_[0] */
-    __dna_writer.writeFloatBig(x24_[0]);
+    __dna_writer.writeFloatBig(x24_translationFriction[0]);
     /* x24_[1] */
-    __dna_writer.writeFloatBig(x24_[1]);
+    __dna_writer.writeFloatBig(x24_translationFriction[1]);
     /* x24_[2] */
-    __dna_writer.writeFloatBig(x24_[2]);
+    __dna_writer.writeFloatBig(x24_translationFriction[2]);
     /* x24_[3] */
-    __dna_writer.writeFloatBig(x24_[3]);
+    __dna_writer.writeFloatBig(x24_translationFriction[3]);
     /* x24_[4] */
-    __dna_writer.writeFloatBig(x24_[4]);
+    __dna_writer.writeFloatBig(x24_translationFriction[4]);
     /* x24_[5] */
-    __dna_writer.writeFloatBig(x24_[5]);
+    __dna_writer.writeFloatBig(x24_translationFriction[5]);
     /* x24_[6] */
-    __dna_writer.writeFloatBig(x24_[6]);
+    __dna_writer.writeFloatBig(x24_translationFriction[6]);
     /* x24_[7] */
-    __dna_writer.writeFloatBig(x24_[7]);
+    __dna_writer.writeFloatBig(x24_translationFriction[7]);
     /* x44_[0] */
-    __dna_writer.writeFloatBig(x44_[0]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[0]);
     /* x44_[1] */
-    __dna_writer.writeFloatBig(x44_[1]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[1]);
     /* x44_[2] */
-    __dna_writer.writeFloatBig(x44_[2]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[2]);
     /* x44_[3] */
-    __dna_writer.writeFloatBig(x44_[3]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[3]);
     /* x44_[4] */
-    __dna_writer.writeFloatBig(x44_[4]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[4]);
     /* x44_[5] */
-    __dna_writer.writeFloatBig(x44_[5]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[5]);
     /* x44_[6] */
-    __dna_writer.writeFloatBig(x44_[6]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[6]);
     /* x44_[7] */
-    __dna_writer.writeFloatBig(x44_[7]);
+    __dna_writer.writeFloatBig(x44_translationMaxSpeed[7]);
     /* x64_ */
     __dna_writer.writeFloatBig(x64_);
     /* x68_ */
@@ -452,63 +452,63 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     if (auto v = __dna_docin.enterSubVector("x4_", __x4_Count))
     {
     /* x4_[0] */
-    x4_[0] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[0] = __dna_docin.readFloat("x4_");
     /* x4_[1] */
-    x4_[1] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[1] = __dna_docin.readFloat("x4_");
     /* x4_[2] */
-    x4_[2] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[2] = __dna_docin.readFloat("x4_");
     /* x4_[3] */
-    x4_[3] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[3] = __dna_docin.readFloat("x4_");
     /* x4_[4] */
-    x4_[4] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[4] = __dna_docin.readFloat("x4_");
     /* x4_[5] */
-    x4_[5] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[5] = __dna_docin.readFloat("x4_");
     /* x4_[6] */
-    x4_[6] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[6] = __dna_docin.readFloat("x4_");
     /* x4_[7] */
-    x4_[7] = __dna_docin.readFloat("x4_");
+    x4_maxTranslationAcceleration[7] = __dna_docin.readFloat("x4_");
     }
     /* x24_ */
     size_t __x24_Count;
     if (auto v = __dna_docin.enterSubVector("x24_", __x24_Count))
     {
     /* x24_[0] */
-    x24_[0] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[0] = __dna_docin.readFloat("x24_");
     /* x24_[1] */
-    x24_[1] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[1] = __dna_docin.readFloat("x24_");
     /* x24_[2] */
-    x24_[2] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[2] = __dna_docin.readFloat("x24_");
     /* x24_[3] */
-    x24_[3] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[3] = __dna_docin.readFloat("x24_");
     /* x24_[4] */
-    x24_[4] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[4] = __dna_docin.readFloat("x24_");
     /* x24_[5] */
-    x24_[5] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[5] = __dna_docin.readFloat("x24_");
     /* x24_[6] */
-    x24_[6] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[6] = __dna_docin.readFloat("x24_");
     /* x24_[7] */
-    x24_[7] = __dna_docin.readFloat("x24_");
+    x24_translationFriction[7] = __dna_docin.readFloat("x24_");
     }
     /* x44_ */
     size_t __x44_Count;
     if (auto v = __dna_docin.enterSubVector("x44_", __x44_Count))
     {
     /* x44_[0] */
-    x44_[0] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[0] = __dna_docin.readFloat("x44_");
     /* x44_[1] */
-    x44_[1] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[1] = __dna_docin.readFloat("x44_");
     /* x44_[2] */
-    x44_[2] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[2] = __dna_docin.readFloat("x44_");
     /* x44_[3] */
-    x44_[3] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[3] = __dna_docin.readFloat("x44_");
     /* x44_[4] */
-    x44_[4] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[4] = __dna_docin.readFloat("x44_");
     /* x44_[5] */
-    x44_[5] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[5] = __dna_docin.readFloat("x44_");
     /* x44_[6] */
-    x44_[6] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[6] = __dna_docin.readFloat("x44_");
     /* x44_[7] */
-    x44_[7] = __dna_docin.readFloat("x44_");
+    x44_translationMaxSpeed[7] = __dna_docin.readFloat("x44_");
     }
     /* x64_ */
     x64_ = __dna_docin.readFloat("x64_");
@@ -691,61 +691,61 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     if (auto v = __dna_docout.enterSubVector("x4_"))
     {
     /* x4_[0] */
-    __dna_docout.writeFloat("x4_", x4_[0]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[0]);
     /* x4_[1] */
-    __dna_docout.writeFloat("x4_", x4_[1]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[1]);
     /* x4_[2] */
-    __dna_docout.writeFloat("x4_", x4_[2]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[2]);
     /* x4_[3] */
-    __dna_docout.writeFloat("x4_", x4_[3]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[3]);
     /* x4_[4] */
-    __dna_docout.writeFloat("x4_", x4_[4]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[4]);
     /* x4_[5] */
-    __dna_docout.writeFloat("x4_", x4_[5]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[5]);
     /* x4_[6] */
-    __dna_docout.writeFloat("x4_", x4_[6]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[6]);
     /* x4_[7] */
-    __dna_docout.writeFloat("x4_", x4_[7]);
+    __dna_docout.writeFloat("x4_", x4_maxTranslationAcceleration[7]);
     }
     /* x24_ */
     if (auto v = __dna_docout.enterSubVector("x24_"))
     {
     /* x24_[0] */
-    __dna_docout.writeFloat("x24_", x24_[0]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[0]);
     /* x24_[1] */
-    __dna_docout.writeFloat("x24_", x24_[1]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[1]);
     /* x24_[2] */
-    __dna_docout.writeFloat("x24_", x24_[2]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[2]);
     /* x24_[3] */
-    __dna_docout.writeFloat("x24_", x24_[3]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[3]);
     /* x24_[4] */
-    __dna_docout.writeFloat("x24_", x24_[4]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[4]);
     /* x24_[5] */
-    __dna_docout.writeFloat("x24_", x24_[5]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[5]);
     /* x24_[6] */
-    __dna_docout.writeFloat("x24_", x24_[6]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[6]);
     /* x24_[7] */
-    __dna_docout.writeFloat("x24_", x24_[7]);
+    __dna_docout.writeFloat("x24_", x24_translationFriction[7]);
     }
     /* x44_ */
     if (auto v = __dna_docout.enterSubVector("x44_"))
     {
     /* x44_[0] */
-    __dna_docout.writeFloat("x44_", x44_[0]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[0]);
     /* x44_[1] */
-    __dna_docout.writeFloat("x44_", x44_[1]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[1]);
     /* x44_[2] */
-    __dna_docout.writeFloat("x44_", x44_[2]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[2]);
     /* x44_[3] */
-    __dna_docout.writeFloat("x44_", x44_[3]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[3]);
     /* x44_[4] */
-    __dna_docout.writeFloat("x44_", x44_[4]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[4]);
     /* x44_[5] */
-    __dna_docout.writeFloat("x44_", x44_[5]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[5]);
     /* x44_[6] */
-    __dna_docout.writeFloat("x44_", x44_[6]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[6]);
     /* x44_[7] */
-    __dna_docout.writeFloat("x44_", x44_[7]);
+    __dna_docout.writeFloat("x44_", x44_translationMaxSpeed[7]);
     }
     /* x64_ */
     __dna_docout.writeFloat("x64_", x64_);

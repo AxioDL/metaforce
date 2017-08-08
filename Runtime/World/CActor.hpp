@@ -170,6 +170,7 @@ public:
                            bool translateId);
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
     void SetActorLights(std::unique_ptr<CActorLights>);
+    const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
     bool CanDrawStatic() const;
     bool GetE7_29() const  { return xe7_29_; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
