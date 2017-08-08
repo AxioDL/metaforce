@@ -390,50 +390,7 @@ void CBooModel::MakeTexturesFromMats(std::vector<TCachedToken<CTexture>>& toksOu
 
 void CBooModel::ActivateLights(const std::vector<CLight>& lights)
 {
-    m_lightingData.ambient = zeus::CColor::skBlack;
-    size_t curLight = 0;
-
-    for (const CLight& light : lights)
-    {
-        switch (light.x1c_type)
-        {
-        case ELightType::LocalAmbient:
-            m_lightingData.ambient += light.x18_color;
-        break;
-        case ELightType::Point:
-        case ELightType::Spot:
-        case ELightType::Custom:
-        case ELightType::Directional:
-        {
-            if (curLight >= URDE_MAX_LIGHTS)
-                continue;
-            CModelShaders::Light& lightOut = m_lightingData.lights[curLight++];
-            lightOut.pos = CGraphics::g_CameraMatrix * light.x0_pos;
-            lightOut.dir = CGraphics::g_CameraMatrix.basis * light.xc_dir;
-            lightOut.dir.normalize();
-            lightOut.color = light.x18_color;
-            lightOut.linAtt[0] = light.x24_distC;
-            lightOut.linAtt[1] = light.x28_distL;
-            lightOut.linAtt[2] = light.x2c_distQ;
-            lightOut.angAtt[0] = light.x30_angleC;
-            lightOut.angAtt[1] = light.x34_angleL;
-            lightOut.angAtt[2] = light.x38_angleQ;
-
-            if (light.x1c_type == ELightType::Directional)
-                lightOut.pos = (-lightOut.dir) * 1048576.f;
-            break;
-        }
-        default: break;
-        }
-    }
-
-    for (; curLight<URDE_MAX_LIGHTS ; ++curLight)
-    {
-        CModelShaders::Light& lightOut = m_lightingData.lights[curLight];
-        lightOut.color = zeus::CColor::skClear;
-        lightOut.linAtt[0] = 1.f;
-        lightOut.angAtt[0] = 1.f;
-    }
+    m_lightingData.ActivateLights(lights);
 }
 
 void CBooModel::DisableAllLights()

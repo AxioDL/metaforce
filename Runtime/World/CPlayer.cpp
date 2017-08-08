@@ -252,7 +252,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
                     zeus::CVector3f position = x34_transform.origin + posOffset;
                     position.z = water.GetTriggerBoundsWR().max.z;
                     mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.3f, true);
-                    if (water.GetFluidPlane().GetFluidType() == CFluidPlane::EFluidType::Zero)
+                    if (water.GetFluidPlane().GetFluidType() == CFluidPlane::EFluidType::NormalWater)
                     {
                         float velMag = mgr.GetPlayer().GetVelocity().magnitude() / 10.f;
                         mgr.GetEnvFxManager()->SetXB54(10.f * std::max(1.f, velMag));
@@ -1710,14 +1710,14 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
             {
                 switch (water->GetFluidPlane().GetFluidType())
                 {
-                case CFluidPlane::EFluidType::Zero:
+                case CFluidPlane::EFluidType::NormalWater:
                     x2b0_ = 0;
                     break;
-                case CFluidPlane::EFluidType::Two:
+                case CFluidPlane::EFluidType::Lava:
                 case CFluidPlane::EFluidType::Five:
                     x2ac_surfaceRestraint = ESurfaceRestraints::Fluid2Or5;
                     break;
-                case CFluidPlane::EFluidType::One:
+                case CFluidPlane::EFluidType::PoisonWater:
                     x2b0_ = 0;
                     break;
                 case CFluidPlane::EFluidType::Three:
@@ -4399,7 +4399,7 @@ void CPlayer::UpdateSubmerged(CStateManager& mgr)
             x828_waterLevelOnPlayer =
                 -(zeus::CVector3f::skUp.dot(x34_transform.origin) - water->GetTriggerBoundsWR().max.z);
             CFluidPlane::EFluidType fluidType = water->GetFluidPlane().GetFluidType();
-            x82c_inLava = (fluidType == CFluidPlane::EFluidType::Two || fluidType == CFluidPlane::EFluidType::Five);
+            x82c_inLava = (fluidType == CFluidPlane::EFluidType::Lava || fluidType == CFluidPlane::EFluidType::Five);
             CheckSubmerged();
         }
     }

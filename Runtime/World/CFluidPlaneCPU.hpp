@@ -3,6 +3,7 @@
 
 #include "CFluidPlane.hpp"
 #include "CRipple.hpp"
+#include "Graphics/Shaders/CFluidPlaneShader.hpp"
 
 namespace urde
 {
@@ -41,7 +42,7 @@ class CFluidPlaneCPU : public CFluidPlane
     std::experimental::optional<TLockedToken<CTexture>> xb0_bumpMap;
     std::experimental::optional<TLockedToken<CTexture>> xc0_envMap;
     std::experimental::optional<TLockedToken<CTexture>> xd0_envBumpMap;
-    std::experimental::optional<TLockedToken<CTexture>> xe0_tex4;
+    std::experimental::optional<TLockedToken<CTexture>> xe0_lightmap;
     zeus::CVector3f xf0_bumpLightDir;
     float xfc_bumpScale;
     float x100_tileSize;
@@ -51,19 +52,32 @@ class CFluidPlaneCPU : public CFluidPlane
     float x110_specularMax;
     float x114_reflectionBlend;
     float x118_reflectionSize;
-    float x11c_f1;
+    float x11c_unitsPerLightmapTexel;
     CTurbulence x120_turbulence;
+    mutable std::experimental::optional<CFluidPlaneShader> m_shader;
+
+    struct RenderSetupInfo
+    {
+        zeus::CMatrix4f texMtxs[6];
+        zeus::CMatrix4f normMtx;
+        float indScale = 1.f;
+        zeus::CColor kColors[4];
+        std::vector<CLight> lights;
+    };
 public:
     CFluidPlaneCPU(ResId texPattern1, ResId texPattern2, ResId texColor, ResId bumpMap, ResId envMap, ResId envBumpMap,
-                   ResId unkMap, float f1, float tileSize, u32 tileSubdivisions, EFluidType fluidType, float alpha,
+                   ResId unkMap, float unitsPerLightmapTexel, float tileSize, u32 tileSubdivisions, EFluidType fluidType, float alpha,
                    const zeus::CVector3f& bumpLightDir, float bumpScale, const CFluidUVMotion& mot, float turbSpeed,
                    float turbDistance, float turbFreqMax, float turbFreqMin, float turbPhaseMax, float turbPhaseMin,
                    float turbAmplitudeMax, float turbAmplitudeMin, float specularMin, float specularMax,
                    float reflectionBlend, float reflectionSize, float fluidPlaneF2);
     void CreateRipple(const CRipple& ripple, CStateManager& mgr);
-    void RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf, const zeus::CTransform& areaXf,
-                     const zeus::CAABox& aabb, CScriptWater* water) const;
-    void Render(const CStateManager& mgr, const zeus::CAABox& aabb, const zeus::CTransform& xf,
+    void CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf,
+                                 const zeus::CAABox& aabb, zeus::CMatrix4f& mtxOut) const;
+    RenderSetupInfo RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf,
+                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
+                                const CScriptWater* water) const;
+    void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                 const zeus::CTransform& areaXf, bool noSubdiv, const zeus::CFrustum& frustum,
                 const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                 const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const;
@@ -79,6 +93,8 @@ public:
     const CTexture& GetEnvMap() const { return **xc0_envMap; }
     bool HasEnvBumpMap() const { return xd0_envBumpMap.operator bool(); }
     const CTexture& GetEnvBumpMap() const { return **xd0_envBumpMap; }
+    bool HasLightMap() const { return xe0_lightmap.operator bool(); }
+    const CTexture& GetLightMap() const { return **xe0_lightmap; }
     const zeus::CVector3f& GetBumpLightDir() const { return xf0_bumpLightDir; }
     float GetTileSize() const { return x100_tileSize; }
     u32 GetTileSubdivisions() const { return x104_tileSubdivisions; }

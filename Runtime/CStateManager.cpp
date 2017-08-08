@@ -1055,7 +1055,7 @@ void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMe
 {
     CEntity* ent = ObjectById(src);
     auto search = GetIdListForScript(dest);
-    if (ent && search.first != x890_scriptIdMap.cend() && search.second != x890_scriptIdMap.cend())
+    if (ent && search.first != x890_scriptIdMap.cend())
     {
         for (auto it = search.first; it != search.second; ++it)
         {
@@ -1137,7 +1137,10 @@ TUniqueId CStateManager::GetIdForScript(TEditorId id) const
 std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator, std::multimap<TEditorId, TUniqueId>::const_iterator>
 CStateManager::GetIdListForScript(TEditorId id) const
 {
-    return x890_scriptIdMap.equal_range(id);
+    auto ret = x890_scriptIdMap.equal_range(id);
+    if (ret.first->first != id)
+        ret.first = x890_scriptIdMap.cend();
+    return ret;
 }
 
 void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut)

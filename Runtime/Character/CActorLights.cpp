@@ -503,19 +503,9 @@ void CActorLights::BuildDynamicLightList(const CStateManager& mgr, const zeus::C
     }
 }
 
-void CActorLights::ActivateLights(CBooModel& model) const
+std::vector<CLight> CActorLights::BuildLightVector() const
 {
     std::vector<CLight> lights;
-    if (x298_28_inArea)
-    {
-        if (!x298_26_hasAreaLights || !x299_26_)
-        {
-            g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
-            model.ActivateLights(lights);
-            return;
-        }
-    }
-
     lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x288_ambientColor));
 
     if (x0_areaLights.size())
@@ -538,6 +528,24 @@ void CActorLights::ActivateLights(CBooModel& model) const
     for (const CLight& light : x144_dynamicLights)
         lights.push_back(light);
 
+    return lights;
+}
+
+void CActorLights::ActivateLights(CBooModel& model) const
+{
+    std::vector<CLight> lights;
+
+    if (x298_28_inArea)
+    {
+        if (!x298_26_hasAreaLights || !x299_26_)
+        {
+            g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+            model.ActivateLights(lights);
+            return;
+        }
+    }
+
+    lights = BuildLightVector();
     model.ActivateLights(lights);
 
     if (x298_31_disableWorldLights)

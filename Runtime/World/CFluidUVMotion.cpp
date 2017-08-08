@@ -18,7 +18,7 @@ CFluidUVMotion::CFluidUVMotion(float a, float b, const CFluidUVMotion::SFluidLay
 CFluidUVMotion::CFluidUVMotion(float, float)
 {}
 
-void CFluidUVMotion::CalculateFluidTextureOffset(float f31, float offsets[3][2])
+void CFluidUVMotion::CalculateFluidTextureOffset(float f31, float offsets[3][2]) const
 {
     float f28 = (f31 * x4c_) * zeus::fastCosF(x50_);
     float f29 = (f31 * x4c_) / zeus::fastSinF(x50_);

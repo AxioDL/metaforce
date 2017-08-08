@@ -7,7 +7,7 @@
 #include "zeus/CColor.hpp"
 #include "Graphics/CGraphics.hpp"
 
-#define URDE_MAX_LIGHTS 16
+#define URDE_MAX_LIGHTS 8
 
 namespace urde
 {
@@ -55,6 +55,8 @@ public:
         zeus::CColor colorRegs[3];
         zeus::CColor mulColor;
         CGraphics::CFogState fog;
+
+        void ActivateLights(const std::vector<CLight>& lts);
     };
 
     struct ThermalUniform

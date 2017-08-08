@@ -17,7 +17,7 @@ private:
     std::unique_ptr<CFluidPlaneCPU> x1b4_fluidPlane;
     zeus::CVector3f x1b8_;
     float x1f4_;
-    float x1f8_ = 0.f;
+    float x1f8_lightmapDoubleBlendFactor = 0.f;
     zeus::CVector3f x1d4_;
     std::list<std::pair<TUniqueId, bool>> x1fc_waterInhabitants;
     u32 x210_;
@@ -97,6 +97,8 @@ public:
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const
     { return x250_visorRunoffEffect; }
     u16 GetVisorRunoffSfx() const { return x262_visorRunoffSfx; }
+    const CScriptWater* GetNextConnectedWater(const CStateManager& mgr) const;
+    float GetLightmapDoubleBlendFactor() const { return x1f8_lightmapDoubleBlendFactor; }
 };
 }
 
