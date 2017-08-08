@@ -55,7 +55,7 @@ void CFluidUVMotion::CalculateFluidTextureOffset(float f31, float offsets[3][2])
         float y = f27 * zeus::fastSinF(layer.x8_b) + (f26 * zeus::fastCosF(layer.x8_b) + f28);
 
         offsets[i][0] = float(x - floor(x));
-            offsets[i][1] = float(y - floor(y));
+        offsets[i][1] = float(y - floor(y));
     }
 }
 }

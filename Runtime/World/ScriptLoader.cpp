@@ -59,6 +59,7 @@
 #include "CScriptCameraPitchVolume.hpp"
 #include "CScriptCameraHintTrigger.hpp"
 #include "CScriptVisorFlare.hpp"
+#include "CScriptWorldTeleporter.hpp"
 #include "CScriptBeam.hpp"
 #include "CScriptMazeNode.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -1847,7 +1848,48 @@ CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (propCount < 4 || propCount > 21)
+    {
+        Log.report(logvisor::Warning, "Incorrect number of props for WorldTeleporter");
+        return nullptr;
+    }
+
+    std::string name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    ResId worldId = in.readUint32Big();
+    ResId areaId = in.readUint32Big();
+
+    if (propCount == 4)
+        return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId);
+
+    CAnimationParameters animParms = LoadAnimationParameters(in);
+    zeus::CVector3f playerScale = zeus::CVector3f::ReadBig(in);
+    ResId platformModel = in.readUint32Big();
+    zeus::CVector3f platformScale = zeus::CVector3f::ReadBig(in);
+    ResId backgroundModel = in.readUint32Big();
+    zeus::CVector3f backgroundScale = zeus::CVector3f::ReadBig(in);
+    bool upElevator = in.readBool();
+
+    s16 elevatorSound = (propCount < 12 ? s16(-1) : s16(in.readUint32Big()));
+    u8 volume = (propCount < 13 ? u8(127) : u8(in.readUint32Big()));
+    u8 panning = (propCount < 14 ? u8(64) : u8(in.readUint32Big()));
+    bool showText = (propCount < 15 ? false : in.readBool());
+    ResId fontId = (propCount < 16 ? kInvalidResId : in.readUint32Big());
+    ResId stringId = (propCount < 17 ? kInvalidResId : in.readUint32Big());
+    bool fadeWhite = (propCount < 18 ? false : in.readBool());
+    float charFadeInTime = (propCount < 19 ? 0.1f : in.readFloatBig());
+    float charsPerSecond = (propCount < 20 ? 16.f : in.readFloatBig());
+    float showDelay = (propCount < 21 ? 0.f : in.readFloatBig());
+
+    if (showText)
+        return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId, elevatorSound,
+                                          volume, panning, fontId, stringId, fadeWhite, charFadeInTime, charsPerSecond,
+                                          showDelay);
+
+    return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId,
+                                      animParms.GetACSFile(), animParms.GetCharacter(),
+                                      animParms.GetInitialAnimation(), playerScale, platformModel, platformScale,
+                                      backgroundModel, backgroundScale, upElevator, elevatorSound, volume, panning);
 }
 
 CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

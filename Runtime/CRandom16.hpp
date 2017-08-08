@@ -33,7 +33,7 @@ public:
 
     inline float Float()
     {
-        return Next() * 0.000015259022;
+        return Next() * 0.000015259022f;
     }
 
     inline float Range(float min, float max)
@@ -43,9 +43,7 @@ public:
 
     inline s32 Range(s32 min, s32 max)
     {
-        s32 rnd = Next();
-        s32 diff = (max - min) + 1;
-        return min + (rnd - ((rnd / diff) * diff));
+        return min + (Next() % ((max - min) + 1));
     }
 
     static CRandom16* GetRandomNumber() {return g_randomNumber;}
