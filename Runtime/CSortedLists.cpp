@@ -16,7 +16,7 @@ void CSortedListManager::Reset()
         xb000_sortedLists[i].Reset();
 }
 
-void CSortedListManager::AddToLinkedList(TUniqueId nodeId, TUniqueId& headId, TUniqueId& tailId) const
+void CSortedListManager::AddToLinkedList(s16 nodeId, s16& headId, s16& tailId) const
 {
     if (headId == -1)
     {
@@ -100,7 +100,7 @@ void CSortedListManager::InsertInList(ESortedList list, SNode& node)
     }
 
     /* Do insert */
-    sl.x0_ids[insIdx] = node.x0_actor->GetUniqueId();
+    sl.x0_ids[insIdx] = node.x0_actor->GetUniqueId().Value();
     node.x1c_selfIdxs[int(list)] = insIdx;
     ++sl.x800_size;
 }
@@ -149,7 +149,7 @@ s16 CSortedListManager::FindInListLower(ESortedList list, float val) const
     return idx;
 }
 
-TUniqueId CSortedListManager::ConstructIntersectionArray(const zeus::CAABox& aabb)
+s16 CSortedListManager::ConstructIntersectionArray(const zeus::CAABox& aabb)
 {
     int minXa = FindInListLower(ESortedList::MinX, aabb.min.x);
     int maxXa = FindInListUpper(ESortedList::MinX, aabb.max.x);
@@ -186,12 +186,12 @@ TUniqueId CSortedListManager::ConstructIntersectionArray(const zeus::CAABox& aab
     }
 }
 
-TUniqueId CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s16 a, s16 b, s16 c, s16 d,
+s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s16 a, s16 b, s16 c, s16 d,
                                                      ESortedList slA, ESortedList slB, ESortedList slC, ESortedList slD,
                                                      const zeus::CAABox& aabb)
 {
-    TUniqueId headId = kInvalidUniqueId;
-    TUniqueId tailId = kInvalidUniqueId;
+    s16 headId = -1;
+    s16 tailId = -1;
     for (int i=a ; i<b ; ++i)
         AddToLinkedList(xb000_sortedLists[int(la)].x0_ids[i], headId, tailId);
     for (int i=c ; i<d ; ++i)
@@ -201,7 +201,7 @@ TUniqueId CSortedListManager::CalculateIntersections(ESortedList la, ESortedList
     {
         for (int i=0 ; i<a ; ++i)
         {
-            TUniqueId id = xb000_sortedLists[int(la)].x0_ids[i];
+            s16 id = xb000_sortedLists[int(la)].x0_ids[i];
             if (x0_nodes[id].x1c_selfIdxs[lb] > aabb[int(lb)])
                 AddToLinkedList(id, headId, tailId);
         }
@@ -210,13 +210,13 @@ TUniqueId CSortedListManager::CalculateIntersections(ESortedList la, ESortedList
     {
         for (int i=d ; i<xb000_sortedLists[int(lb)].x800_size ; ++i)
         {
-            TUniqueId id = xb000_sortedLists[int(lb)].x0_ids[i];
+            s16 id = xb000_sortedLists[int(lb)].x0_ids[i];
             if (x0_nodes[id].x1c_selfIdxs[la] < aabb[int(la)])
                 AddToLinkedList(id, headId, tailId);
         }
     }
 
-    for (TUniqueId* id = &headId ; *id != kInvalidUniqueId ;)
+    for (s16* id = &headId ; *id != -1 ;)
     {
         SNode& node = x0_nodes[*id];
         if (node.x4_box[int(slA)] > aabb[int(slB)] ||
@@ -226,7 +226,7 @@ TUniqueId CSortedListManager::CalculateIntersections(ESortedList la, ESortedList
         {
             /* Not intersecting; remove from chain */
             *id = node.x28_next;
-            node.x28_next = kInvalidUniqueId;
+            node.x28_next = -1;
             continue;
         }
         id = &node.x28_next;
@@ -252,8 +252,8 @@ void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& o
                                        const zeus::CAABox& aabb) const
 {
     const CMaterialFilter& filter = actor.GetMaterialFilter();
-    TUniqueId id = const_cast<CSortedListManager&>(*this).ConstructIntersectionArray(aabb);
-    while (id != kInvalidUniqueId)
+    s16 id = const_cast<CSortedListManager&>(*this).ConstructIntersectionArray(aabb);
+    while (id != -1)
     {
         const SNode& node = x0_nodes[id];
         if (&actor != node.x0_actor && filter.Passes(node.x0_actor->GetMaterialList()) &&
@@ -261,29 +261,29 @@ void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& o
             out.push_back(node.x0_actor->GetUniqueId());
 
         id = node.x28_next;
-        const_cast<SNode&>(node).x28_next = kInvalidUniqueId;
+        const_cast<SNode&>(node).x28_next = -1;
     }
 }
 
 void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CAABox& aabb,
                                        const CMaterialFilter& filter, const CActor* actor) const
 {
-    TUniqueId id = const_cast<CSortedListManager&>(*this).ConstructIntersectionArray(aabb);
-    while (id != kInvalidUniqueId)
+    s16 id = const_cast<CSortedListManager&>(*this).ConstructIntersectionArray(aabb);
+    while (id != -1)
     {
         const SNode& node = x0_nodes[id];
         if (actor != node.x0_actor && filter.Passes(node.x0_actor->GetMaterialList()))
             out.push_back(node.x0_actor->GetUniqueId());
 
         id = node.x28_next;
-        const_cast<SNode&>(node).x28_next = kInvalidUniqueId;
+        const_cast<SNode&>(node).x28_next = -1;
     }
 }
 
 void CSortedListManager::Remove(const CActor* act)
 {
-    SNode& node = x0_nodes[act->GetUniqueId() & 0x3ff];
-    if (node.x2a_populated == false)
+    SNode& node = x0_nodes[act->GetUniqueId().Value()];
+    if (!node.x2a_populated)
         return;
 
     RemoveFromList(ESortedList::MinX, node.x1c_selfIdxs[0]);
@@ -297,7 +297,7 @@ void CSortedListManager::Remove(const CActor* act)
 
 void CSortedListManager::Move(const CActor* act, const zeus::CAABox& aabb)
 {
-    SNode& node = x0_nodes[act->GetUniqueId() & 0x3ff];
+    SNode& node = x0_nodes[act->GetUniqueId().Value()];
     node.x4_box = aabb;
 
     MoveInList(ESortedList::MinX, node.x1c_selfIdxs[0]);
@@ -310,7 +310,7 @@ void CSortedListManager::Move(const CActor* act, const zeus::CAABox& aabb)
 
 void CSortedListManager::Insert(const CActor* act, const zeus::CAABox& aabb)
 {
-    SNode& node = x0_nodes[act->GetUniqueId() & 0x3ff];
+    SNode& node = x0_nodes[act->GetUniqueId().Value()];
     if (node.x2a_populated)
     {
         Move(act, aabb);
@@ -331,7 +331,7 @@ bool CSortedListManager::ActorInLists(const CActor* act) const
 {
     if (!act)
         return false;
-    const SNode& node = x0_nodes[act->GetUniqueId() & 0x3ff];
+    const SNode& node = x0_nodes[act->GetUniqueId().Value()];
     return node.x2a_populated;
 }
 

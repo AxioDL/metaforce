@@ -19,9 +19,9 @@ enum ESortedList
 
 struct SSortedList
 {
-    TUniqueId x0_ids[1024];
+    s16 x0_ids[1024];
     u32 x800_size;
-    void Reset() {std::fill(std::begin(x0_ids), std::end(x0_ids), kInvalidUniqueId);}
+    void Reset() {std::fill(std::begin(x0_ids), std::end(x0_ids), -1);}
     SSortedList() {Reset();}
 };
 
@@ -33,7 +33,7 @@ class CSortedListManager
         const CActor* x0_actor = nullptr;
         zeus::CAABox x4_box = zeus::CAABox::skNullBox;
         s16 x1c_selfIdxs[6] = {-1, -1, -1, -1, -1, -1};
-        TUniqueId x28_next = kInvalidUniqueId;
+        s16 x28_next = -1;
         bool x2a_populated = false;
         SNode() = default;
         SNode(const CActor* act, const zeus::CAABox& aabb)
@@ -42,14 +42,14 @@ class CSortedListManager
     SNode x0_nodes[1024];
     SSortedList xb000_sortedLists[6];
     void Reset();
-    void AddToLinkedList(TUniqueId a, TUniqueId& b, TUniqueId& c) const;
+    void AddToLinkedList(s16 a, s16& b, s16& c) const;
     void RemoveFromList(ESortedList, s16);
     void MoveInList(ESortedList, s16);
     void InsertInList(ESortedList, SNode& node);
     s16 FindInListUpper(ESortedList, float) const;
     s16 FindInListLower(ESortedList, float) const;
-    TUniqueId ConstructIntersectionArray(const zeus::CAABox&);
-    TUniqueId CalculateIntersections(ESortedList, ESortedList, s16, s16, s16, s16,
+    s16 ConstructIntersectionArray(const zeus::CAABox&);
+    s16 CalculateIntersections(ESortedList, ESortedList, s16, s16, s16, s16,
                                      ESortedList, ESortedList, ESortedList, ESortedList, const zeus::CAABox&);
 public:
     CSortedListManager();
