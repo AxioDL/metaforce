@@ -45,7 +45,7 @@ void CScriptPointOfInterest::CalculateRenderBounds()
     if (xe8_pointSize == 0.f)
         CActor::CalculateRenderBounds();
     else
-        x9c_aabox = zeus::CAABox(x34_transform.origin - xe8_pointSize, x34_transform.origin + xe8_pointSize);
+        x9c_renderBounds = zeus::CAABox(x34_transform.origin - xe8_pointSize, x34_transform.origin + xe8_pointSize);
 }
 
 rstl::optional_object<zeus::CAABox> CScriptPointOfInterest::GetTouchBounds() const

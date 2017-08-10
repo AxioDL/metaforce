@@ -37,7 +37,7 @@ protected:
     std::unique_ptr<CActorLights> x90_actorLights;
     std::unique_ptr<CSimpleShadow> x94_simpleShadow;
     std::unique_ptr<TToken<CScannableObjectInfo>> x98_scanObjectInfo;
-    zeus::CAABox x9c_aabox;
+    zeus::CAABox x9c_renderBounds;
     CModelFlags xb4_drawFlags;
     float xbc_time = 0.f;
     float xc0_pitchBend = 0.f;

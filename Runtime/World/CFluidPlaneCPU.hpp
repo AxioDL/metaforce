@@ -66,11 +66,12 @@ class CFluidPlaneCPU : public CFluidPlane
     };
 public:
     CFluidPlaneCPU(ResId texPattern1, ResId texPattern2, ResId texColor, ResId bumpMap, ResId envMap, ResId envBumpMap,
-                   ResId unkMap, float unitsPerLightmapTexel, float tileSize, u32 tileSubdivisions, EFluidType fluidType, float alpha,
-                   const zeus::CVector3f& bumpLightDir, float bumpScale, const CFluidUVMotion& mot, float turbSpeed,
-                   float turbDistance, float turbFreqMax, float turbFreqMin, float turbPhaseMax, float turbPhaseMin,
-                   float turbAmplitudeMax, float turbAmplitudeMin, float specularMin, float specularMax,
-                   float reflectionBlend, float reflectionSize, float fluidPlaneF2);
+                   ResId lightMap, float unitsPerLightmapTexel, float tileSize, u32 tileSubdivisions,
+                   EFluidType fluidType, float alpha, const zeus::CVector3f& bumpLightDir, float bumpScale,
+                   const CFluidUVMotion& mot, float turbSpeed, float turbDistance, float turbFreqMax,
+                   float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
+                   float turbAmplitudeMin, float specularMin, float specularMax, float reflectionBlend,
+                   float reflectionSize, float fluidPlaneF2);
     void CreateRipple(const CRipple& ripple, CStateManager& mgr);
     void CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf,
                                  const zeus::CAABox& aabb, zeus::CMatrix4f& mtxOut) const;

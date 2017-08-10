@@ -19,10 +19,10 @@ struct CTweakGame : ITweakGame
     Value<bool> x2a_unknown3;
     Value<bool> x2b_splashScreensDisabled;
     Value<float> x2c_unknown5;
-    Value<float> x30_presStartDelay;
-    Value<float> x34_unknown7;
-    Value<float> x38_unknown8;
-    Value<float> x3c_unknown9;
+    Value<float> x30_pressStartDelay;
+    Value<float> x34_rippleSideLenNormal;
+    Value<float> x38_rippleSideLenPoison;
+    Value<float> x3c_rippleSideLenLava;
     Value<float> x40_unknown10;
     Value<float> x44_unknown11;
     Value<float> x48_unknown12;
@@ -34,13 +34,16 @@ struct CTweakGame : ITweakGame
     Value<float> x60_hardmodeDamageMult;
     Value<float> x64_hardmodeWeaponMult;
 
-    virtual const std::string& GetWorldPrefix() const { return x4_worldPrefix; }
-    virtual bool GetSplashScreensDisabled() const { return x2b_splashScreensDisabled; }
-    virtual float GetFirstPersonFOV() const { return x24_fov; }
-    virtual float GetPressStartDelay() const { return x30_presStartDelay; }
-    virtual float GetFluidEnvBumpScale() const { return x4c_fluidEnvBumpScale; }
-    virtual float GetHardModeDamageMultiplier() const { return x60_hardmodeDamageMult; }
-    virtual float GetHardModeWeaponMultiplier() const { return x64_hardmodeWeaponMult; }
+    const std::string& GetWorldPrefix() const { return x4_worldPrefix; }
+    bool GetSplashScreensDisabled() const { return x2b_splashScreensDisabled; }
+    float GetFirstPersonFOV() const { return x24_fov; }
+    float GetPressStartDelay() const { return x30_pressStartDelay; }
+    float GetRippleSideLengthNormal() const { return x34_rippleSideLenNormal; }
+    float GetRippleSideLengthPoison() const { return x38_rippleSideLenPoison; }
+    float GetRippleSideLengthLava() const { return x3c_rippleSideLenLava; }
+    float GetFluidEnvBumpScale() const { return x4c_fluidEnvBumpScale; }
+    float GetHardModeDamageMultiplier() const { return x60_hardmodeDamageMult; }
+    float GetHardModeWeaponMultiplier() const { return x64_hardmodeWeaponMult; }
     CTweakGame() = default;
     CTweakGame(athena::io::IStreamReader& in)
     {

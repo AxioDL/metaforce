@@ -96,9 +96,9 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
 void CActor::CalculateRenderBounds()
 {
     if (x64_modelData && (x64_modelData->AnimationData() || x64_modelData->GetNormalModel()))
-        x9c_aabox = x64_modelData->GetBounds(x34_transform);
+        x9c_renderBounds = x64_modelData->GetBounds(x34_transform);
     else
-        x9c_aabox = zeus::CAABox(x34_transform.origin, x34_transform.origin);
+        x9c_renderBounds = zeus::CAABox(x34_transform.origin, x34_transform.origin);
 }
 
 CHealthInfo* CActor::HealthInfo() { return nullptr; }
@@ -167,7 +167,7 @@ void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
         SendScriptMsgs(EScriptObjectState::ScanDone, mgr, EScriptObjectMessage::None);
 }
 
-zeus::CAABox CActor::GetSortingBounds(const CStateManager&) const { return x9c_aabox; }
+zeus::CAABox CActor::GetSortingBounds(const CStateManager&) const { return x9c_renderBounds; }
 
 void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt) {}
 

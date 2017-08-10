@@ -21,16 +21,6 @@ void CRippleManager::SetTime(float)
 
 }
 
-void CRippleManager::Ripples()
-{
-
-}
-
-void CRippleManager::GetRipples() const
-{
-
-}
-
 void CRippleManager::Update(float dt)
 {
 

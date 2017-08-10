@@ -1271,7 +1271,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     u32 w22 = in.readUint32Big();
     bool b5 = in.readBool();
 
-    u32* bitset = nullptr;
+    std::unique_ptr<u32[]> bitset;
     u32 bitVal0 = 0;
     u32 bitVal1 = 0;
 
@@ -1280,8 +1280,8 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
         bitVal0 = in.readUint16Big();
         bitVal1 = in.readUint16Big();
         u32 len = ((bitVal0 * bitVal1) + 31) / 31;
-        bitset = new u32[len];
-        in.readBytesToBuf(&bitset, len * 4);
+        bitset.reset(new u32[len]);
+        in.readBytesToBuf(bitset.get(), len * 4);
     }
 
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
@@ -1299,7 +1299,8 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
         textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2, f3, active,
         fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle, partId2, partId3,
         partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5, f13, w19, f14, f15, f16, f17, f18, f19,
-        heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24, w21, w22, b5, bitVal0, bitVal1, bitset);
+        heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24, w21, w22, b5, bitVal0, bitVal1,
+        std::move(bitset));
 }
 
 CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

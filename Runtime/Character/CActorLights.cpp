@@ -457,7 +457,7 @@ void CActorLights::BuildDynamicLightList(const CStateManager& mgr, const zeus::C
     x299_26_ = false;
     x144_dynamicLights.clear();
 
-    if (!x29a_)
+    if (!x29a_findNearestDynamicLights)
     {
         for (const CLight& light : mgr.GetDynamicLightList())
         {
@@ -553,6 +553,13 @@ void CActorLights::ActivateLights(CBooModel& model) const
         zeus::CColor color(x2d4_worldLightingLevel);
         g_Renderer->SetWorldLightMultiplyColor(color);
     }
+}
+
+void CActorLights::DisableAreaLights()
+{
+    x2b8_maxAreaLights = 0;
+    x298_26_hasAreaLights = false;
+    x298_28_inArea = false;
 }
 
 const CLight& CActorLights::GetLight(u32 idx) const
