@@ -100,9 +100,9 @@ void CScriptWater::SetupGrid(bool b)
         for (int j=0 ; j<x2c4_gridDimX ; ++j)
             x2d8_gridFlags[i * x2c4_gridDimX + j] = true;
     if (!x2e0_patchFlags || x2d0_patchDimX != 0 || x2d4_patchDimY != 0)
-        x2e0_patchFlags.reset(new bool[32]);
+        x2e0_patchFlags.reset(new u8[32]);
     for (int i=0 ; i<32 ; ++i)
-        x2e0_patchFlags[i] = true;
+        x2e0_patchFlags[i] = 1;
     x2d4_patchDimY = 0;
     x2d0_patchDimX = 0;
     x2e8_28 = b;

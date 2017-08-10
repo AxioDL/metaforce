@@ -281,12 +281,12 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
 class CFluidPlaneCPURender
 {
 public:
-    enum class RenderMode
+    enum class NormalMode
     {
         None,
-        Normal,
-        Subdivided,
-        BumpMapped
+        NoNormals,
+        Normals,
+        NBT
     };
 
     static int numTilesInHField;
@@ -297,52 +297,52 @@ public:
     {
         u8 x0_xSubdivs, x1_ySubdivs;
         zeus::CVector2f x4_localMin, xc_globalMin;
-        float x14_rippleSideLen;
+        float x14_tileSize;
         float x18_rippleResolution;
-        float x1c_rippleHypRadius;
-        float x20_ooRippleSideLen;
+        float x1c_tileHypRadius;
+        float x20_ooTileSize;
         float x24_ooRippleResolution;
         u16 x28_tileX;
         u16 x2a_gridDimX;
         u16 x2c_gridDimY;
         u16 x2e_tileY;
         const bool* x30_gridFlags;
-        bool x34_r14;
-        u8 x35_r22;
-        u8 x36_r23;
-        RenderMode x37_renderMode;
-        float x38_tileSize;
+        u8 x34_redShift;
+        u8 x35_greenShift;
+        u8 x36_blueShift;
+        NormalMode x37_normalMode;
+        float x38_wavecapIntensityScale;
     public:
         SPatchInfo(const zeus::CVector3f& localMin, const zeus::CVector3f& localMax, const zeus::CVector3f& pos,
-                   float rippleResolution, float rippleSideLen, float tileSize, int numSubdivisionsInHField,
-                   RenderMode renderMode, bool r14, int r22, int r23, u32 tileX, u32 gridDimX, u32 gridDimY,
-                   u32 tileY, const bool* gridFlags)
+                   float rippleResolution, float tileSize, float wavecapIntensityScale, int numSubdivisionsInHField,
+                   NormalMode normalMode, int redShift, int greenShift, int blueShift, u32 tileX, u32 gridDimX,
+                   u32 gridDimY, u32 tileY, const bool* gridFlags)
         {
             x0_xSubdivs = std::min(s16((localMax.x - localMin.x) / rippleResolution + 1.f - FLT_EPSILON) + 2,
                                    numSubdivisionsInHField + 2);
             x1_ySubdivs = std::min(s16((localMax.y - localMin.y) / rippleResolution + 1.f - FLT_EPSILON) + 2,
                                    numSubdivisionsInHField + 2);
-            float rippleHypRadius = rippleSideLen * rippleSideLen * 2 * 0.25f;
+            float tileHypRadius = tileSize * tileSize * 2 * 0.25f;
             x4_localMin.x = localMin.x;
             x4_localMin.y = localMin.y;
             xc_globalMin = x4_localMin + zeus::CVector2f(pos.x, pos.y);
-            x14_rippleSideLen = rippleSideLen;
+            x14_tileSize = tileSize;
             x18_rippleResolution = rippleResolution;
-            if (rippleHypRadius != 0.f)
-                rippleHypRadius = std::sqrt(rippleHypRadius);
-            x1c_rippleHypRadius = rippleHypRadius;
-            x20_ooRippleSideLen = 1.f / x14_rippleSideLen;
+            if (tileHypRadius != 0.f)
+                tileHypRadius = std::sqrt(tileHypRadius);
+            x1c_tileHypRadius = tileHypRadius;
+            x20_ooTileSize = 1.f / x14_tileSize;
             x24_ooRippleResolution = 1.f / x18_rippleResolution;
             x28_tileX = u16(tileX);
             x2a_gridDimX = u16(gridDimX);
             x2c_gridDimY = u16(gridDimY);
             x2e_tileY = u16(tileY);
             x30_gridFlags = gridFlags;
-            x34_r14 = r14;
-            x35_r22 = u8(r22);
-            x36_r23 = u8(r23);
-            x37_renderMode = renderMode;
-            x38_tileSize = tileSize;
+            x34_redShift = u8(redShift);
+            x35_greenShift = u8(greenShift);
+            x36_blueShift = u8(blueShift);
+            x37_normalMode = normalMode;
+            x38_wavecapIntensityScale = wavecapIntensityScale;
         }
     };
 
@@ -364,8 +364,11 @@ public:
 
     struct SHFieldSample
     {
-        float f1;
-        u8 f2;
+        float height;
+        s8 nx;
+        s8 ny;
+        s8 nz;
+        u8 wavecapIntensity;
     };
 };
 
@@ -424,7 +427,7 @@ static void ApplyTurbulence(float t, CFluidPlaneCPURender::SHFieldSample (&heigh
             float distFac = curX * curX + curYSq;
             if (distFac != 0.f)
                 distFac = std::sqrt(distFac);
-            heights[i][j].f1 = fluidPane.GetTurbulenceHeight(fluidPane.GetOOTurbulenceDistance() * distFac + scaledT);
+            heights[i][j].height = fluidPane.GetTurbulenceHeight(fluidPane.GetOOTurbulenceDistance() * distFac + scaledT);
             curX += info.x18_rippleResolution;
         }
         curY += info.x18_rippleResolution;
@@ -457,27 +460,27 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
         CFluidPlaneCPURender::numSubdivisionsInTile;
 
     float curY = rippleInfo.x0_ripple.GetCenter().y - info.xc_globalMin.y -
-        (0.5f * info.x14_rippleSideLen + (fromY - 1) * info.x14_rippleSideLen);
+        (0.5f * info.x14_tileSize + (fromY - 1) * info.x14_tileSize);
     int curGridY = info.x2a_gridDimX * (info.x2e_tileY + fromY - 1);
     int startGridX = (info.x28_tileX + fromX - 1);
     int gridCells = info.x2a_gridDimX * info.x2c_gridDimY;
     float f11 = 64.f * rippleInfo.x0_ripple.GetOODistanceFalloff();
     int curYDiv = rippleInfo.xc_fromY;
 
-    for (int i=fromY ; i<=toY ; ++i, curY -= info.x14_rippleSideLen)
+    for (int i=fromY ; i<=toY ; ++i, curY -= info.x14_tileSize)
     {
         int nextYDiv = (i+1) * CFluidPlaneCPURender::numSubdivisionsInTile;
         float curYSq = curY * curY;
         int curGridX = startGridX;
         int curXDiv = rippleInfo.x4_fromX;
         float curX = rippleInfo.x0_ripple.GetCenter().x - info.xc_globalMin.x -
-            (0.5f * info.x14_rippleSideLen + (fromX - 1) * info.x14_rippleSideLen);
-        for (int j=fromX ; j<=toX ; ++j, curX -= info.x14_rippleSideLen, ++curGridX)
+            (0.5f * info.x14_tileSize + (fromX - 1) * info.x14_tileSize);
+        for (int j=fromX ; j<=toX ; ++j, curX -= info.x14_tileSize, ++curGridX)
         {
             float dist = curX * curX + curYSq;
             if (dist != 0.f)
                 dist = std::sqrt(dist);
-            if (maxDist < dist - info.x1c_rippleHypRadius || minDist > dist + info.x1c_rippleHypRadius)
+            if (maxDist < dist - info.x1c_tileHypRadius || minDist > dist + info.x1c_tileHypRadius)
                 continue;
 
             bool addedRipple = false;
@@ -504,12 +507,12 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
                         float divDist = (divDistSq != 0.f) ? std::sqrt(divDistSq) : 0.f;
                         if (u8 val = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * f11)])
                         {
-                            heights[k][l].f1 += val * rippleInfo.x0_ripple.GetAmplitude() *
+                            heights[k][l].height += val * rippleInfo.x0_ripple.GetAmplitude() *
                                 sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT)];
                         }
                         else
                         {
-                            heights[k][l].f1 += 0.f;
+                            heights[k][l].height += 0.f;
                         }
                         addedRipple = true;
                     }
@@ -557,12 +560,12 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
                             float divDist = (divDistSq != 0.f) ? std::sqrt(divDistSq) : 0.f;
                             if (u8 val = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * f11)])
                             {
-                                heights[k][l].f1 += val * rippleInfo.x0_ripple.GetAmplitude() *
+                                heights[k][l].height += val * rippleInfo.x0_ripple.GetAmplitude() *
                                                     sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT)];
                             }
                             else
                             {
-                                heights[k][l].f1 += 0.f;
+                                heights[k][l].height += 0.f;
                             }
                             addedRipple = true;
                         }
@@ -597,8 +600,8 @@ static void ApplyRipples(const rstl::reserved_vector<CFluidPlaneCPURender::SRipp
         flags[CFluidPlaneCPURender::numTilesInHField+1][i+1] |= 2;
 }
 
-static void UpdatePatchNormal(CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], const u8 (&flags)[9][9],
-                              const CFluidPlaneCPURender::SPatchInfo& info)
+static void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (& heights)[45][45], const u8 (& flags)[9][9],
+                                 const CFluidPlaneCPURender::SPatchInfo& info)
 {
     for (int i=1 ; i <= (info.x1_ySubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
          CFluidPlaneCPURender::numSubdivisionsInTile ; ++i)
@@ -619,35 +622,38 @@ static void UpdatePatchNormal(CFluidPlaneCPURender::SHFieldSample (&heights)[45]
                     for (int l=r11 ; l<x28 ; ++l)
                     {
                         CFluidPlaneCPURender::SHFieldSample& sample = heights[k][l];
-                        if (sample.f1 > 0.f)
-                            sample.f2 = u8(std::min(255, int(info.x38_tileSize * sample.f1)));
+                        if (sample.height > 0.f)
+                            sample.wavecapIntensity =
+                                u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
                         else
-                            sample.f2 = 0;
+                            sample.wavecapIntensity = 0;
                     }
                 }
             }
             else
             {
                 if (i > 0 && i < CFluidPlaneCPURender::numTilesInHField + 1 &&
-                    r10 > 0 && r10 < CFluidPlaneCPURender::numTilesInHField + 1)
+                    j > 0 && j < CFluidPlaneCPURender::numTilesInHField + 1)
                 {
                     int halfSubdivs = CFluidPlaneCPURender::numSubdivisionsInTile / 2;
                     CFluidPlaneCPURender::SHFieldSample& sample = heights[halfSubdivs + r9][halfSubdivs + r11];
-                    if (sample.f1 > 0.f)
-                        sample.f2 = u8(std::min(255, int(info.x38_tileSize * sample.f1)));
+                    if (sample.height > 0.f)
+                        sample.wavecapIntensity =
+                            u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
                     else
-                        sample.f2 = 0;
+                        sample.wavecapIntensity = 0;
                 }
 
                 if (i != 0)
                 {
-                    for (int k=r11 ; k<x28 ; ++k)
+                    for (int l=r11 ; l<x28 ; ++l)
                     {
-                        CFluidPlaneCPURender::SHFieldSample& sample = heights[i][k];
-                        if (sample.f1 > 0.f)
-                            sample.f2 = u8(std::min(255, int(info.x38_tileSize * sample.f1)));
+                        CFluidPlaneCPURender::SHFieldSample& sample = heights[r9][l];
+                        if (sample.height > 0.f)
+                            sample.wavecapIntensity =
+                                u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
                         else
-                            sample.f2 = 0;
+                            sample.wavecapIntensity = 0;
                     }
                 }
 
@@ -656,10 +662,11 @@ static void UpdatePatchNormal(CFluidPlaneCPURender::SHFieldSample (&heights)[45]
                     for (int k=r9+1 ; k<x24 ; ++k)
                     {
                         CFluidPlaneCPURender::SHFieldSample& sample = heights[k][r11];
-                        if (sample.f1 > 0.f)
-                            sample.f2 = u8(std::min(255, int(info.x38_tileSize * sample.f1)));
+                        if (sample.height > 0.f)
+                            sample.wavecapIntensity =
+                                u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
                         else
-                            sample.f2 = 0;
+                            sample.wavecapIntensity = 0;
                     }
                 }
             }
@@ -667,14 +674,166 @@ static void UpdatePatchNormal(CFluidPlaneCPURender::SHFieldSample (&heights)[45]
     }
 }
 
-static void UpdatePatchSubdivided(const CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], const u8 (&flags)[9][9],
-                                  const CFluidPlaneCPURender::SPatchInfo& info)
+static void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (& heights)[45][45], const u8 (& flags)[9][9],
+                                   const CFluidPlaneCPURender::SPatchInfo& info)
 {
+    float normalScale = -(2.f * info.x18_rippleResolution);
+    float nz = 0.25f * 2.f * info.x18_rippleResolution;
+    int curGridY = info.x2e_tileY * info.x2a_gridDimX - 1 + info.x28_tileX;
+    for (int i=1 ; i <= (info.x1_ySubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
+         CFluidPlaneCPURender::numSubdivisionsInTile ; ++i, curGridY += info.x2a_gridDimX)
+    {
+        int r11 = i * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+        int r9 = std::max(0, r11 - CFluidPlaneCPURender::numSubdivisionsInTile);
+        int x38 = std::min(r11, info.x1_ySubdivs + 1);
+        for (int j=1 ; j <= (info.x0_xSubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
+                            CFluidPlaneCPURender::numSubdivisionsInTile ; ++j)
+        {
+            int r12 = j * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+            int x3c = std::min(r12, info.x0_xSubdivs + 1);
+            r12 -= CFluidPlaneCPURender::numSubdivisionsInTile;
+            if ((flags[i][j] & 0x1f) == 0x1f)
+            {
+                for (int k=r9 ; k<x38 ; ++k)
+                {
+                    for (int l=r12 ; l<x3c ; ++l)
+                    {
+                        CFluidPlaneCPURender::SHFieldSample& sample = heights[k][l];
+                        CFluidPlaneCPURender::SHFieldSample& up = heights[k+1][l];
+                        CFluidPlaneCPURender::SHFieldSample& down = heights[k-1][l];
+                        CFluidPlaneCPURender::SHFieldSample& right = heights[k][l+1];
+                        CFluidPlaneCPURender::SHFieldSample& left = heights[k][l-1];
+                        float nx = (right.height - left.height) * normalScale;
+                        float ny = (up.height - down.height) * normalScale;
+                        float normalizer = ny * ny + nx * nx + nz * nz;
+                        if (normalizer != 0.f)
+                            normalizer = std::sqrt(normalizer);
+                        normalizer = 63.f / normalizer;
+                        sample.nx = s8(nx * normalizer);
+                        sample.ny = s8(ny * normalizer);
+                        sample.nz = s8(nz * normalizer);
+                        if (sample.height > 0.f)
+                            sample.wavecapIntensity =
+                                u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                        else
+                            sample.wavecapIntensity = 0;
+                    }
+                }
+            }
+            else
+            {
+                if (!info.x30_gridFlags || info.x30_gridFlags[curGridY+j])
+                {
+                    if (i > 0 && i < CFluidPlaneCPURender::numTilesInHField + 1 &&
+                        j > 0 && j < CFluidPlaneCPURender::numTilesInHField + 1)
+                    {
+                        int halfSubdivs = CFluidPlaneCPURender::numSubdivisionsInTile / 2;
+                        int k = halfSubdivs + r9;
+                        int l = halfSubdivs + r12;
+                        CFluidPlaneCPURender::SHFieldSample& sample = heights[k][l];
+                        CFluidPlaneCPURender::SHFieldSample& up = heights[k+1][l];
+                        CFluidPlaneCPURender::SHFieldSample& down = heights[k-1][l];
+                        CFluidPlaneCPURender::SHFieldSample& right = heights[k][l+1];
+                        CFluidPlaneCPURender::SHFieldSample& left = heights[k][l-1];
+                        float nx = (right.height - left.height) * normalScale;
+                        float ny = (up.height - down.height) * normalScale;
+                        float normalizer = ny * ny + nx * nx + nz * nz;
+                        if (normalizer != 0.f)
+                            normalizer = std::sqrt(normalizer);
+                        normalizer = 63.f / normalizer;
+                        sample.nx = s8(nx * normalizer);
+                        sample.ny = s8(ny * normalizer);
+                        sample.nz = s8(nz * normalizer);
+                        if (sample.height > 0.f)
+                            sample.wavecapIntensity =
+                                u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                        else
+                            sample.wavecapIntensity = 0;
+                    }
+                }
 
+                if (j != 0 && i != 0)
+                {
+                    if ((flags[i][j] & 2) != 0 || (flags[i-1][j] & 1) != 0 ||
+                        (flags[i][j] & 4) != 0 || (flags[i][j-1] & 8) != 0)
+                    {
+                        for (int l=r12 ; l<x3c ; ++l)
+                        {
+                            CFluidPlaneCPURender::SHFieldSample& sample = heights[r9][l];
+                            CFluidPlaneCPURender::SHFieldSample& up = heights[r9+1][l];
+                            CFluidPlaneCPURender::SHFieldSample& down = heights[r9-1][l];
+                            CFluidPlaneCPURender::SHFieldSample& right = heights[r9][l+1];
+                            CFluidPlaneCPURender::SHFieldSample& left = heights[r9][l-1];
+                            float nx = (right.height - left.height) * normalScale;
+                            float ny = (up.height - down.height) * normalScale;
+                            float normalizer = ny * ny + nx * nx + nz * nz;
+                            if (normalizer != 0.f)
+                                normalizer = std::sqrt(normalizer);
+                            normalizer = 63.f / normalizer;
+                            sample.nx = s8(nx * normalizer);
+                            sample.ny = s8(ny * normalizer);
+                            sample.nz = s8(nz * normalizer);
+                            if (sample.height > 0.f)
+                                sample.wavecapIntensity =
+                                    u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                            else
+                                sample.wavecapIntensity = 0;
+                        }
+
+                        for (int k=r9 ; k<x38 ; ++k)
+                        {
+                            CFluidPlaneCPURender::SHFieldSample& sample = heights[k][r12];
+                            CFluidPlaneCPURender::SHFieldSample& up = heights[k+1][r12];
+                            CFluidPlaneCPURender::SHFieldSample& down = heights[k-1][r12];
+                            CFluidPlaneCPURender::SHFieldSample& right = heights[k][r12+1];
+                            CFluidPlaneCPURender::SHFieldSample& left = heights[k][r12-1];
+                            float nx = (right.height - left.height) * normalScale;
+                            float ny = (up.height - down.height) * normalScale;
+                            float normalizer = ny * ny + nx * nx + nz * nz;
+                            if (normalizer != 0.f)
+                                normalizer = std::sqrt(normalizer);
+                            normalizer = 63.f / normalizer;
+                            sample.nx = s8(nx * normalizer);
+                            sample.ny = s8(ny * normalizer);
+                            sample.nz = s8(nz * normalizer);
+                            if (sample.height > 0.f)
+                                sample.wavecapIntensity =
+                                    u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                            else
+                                sample.wavecapIntensity = 0;
+                        }
+                    }
+                    else
+                    {
+                        CFluidPlaneCPURender::SHFieldSample& sample = heights[r9][r12];
+                        CFluidPlaneCPURender::SHFieldSample& up = heights[r9+1][r12];
+                        CFluidPlaneCPURender::SHFieldSample& down = heights[r9-1][r12];
+                        CFluidPlaneCPURender::SHFieldSample& right = heights[r9][r12+1];
+                        CFluidPlaneCPURender::SHFieldSample& left = heights[r9][r12-1];
+                        float nx = (right.height - left.height) * normalScale;
+                        float ny = (up.height - down.height) * normalScale;
+                        float normalizer = ny * ny + nx * nx + nz * nz;
+                        if (normalizer != 0.f)
+                            normalizer = std::sqrt(normalizer);
+                        normalizer = 63.f / normalizer;
+                        sample.nx = s8(nx * normalizer);
+                        sample.ny = s8(ny * normalizer);
+                        sample.nz = s8(nz * normalizer);
+                        if (sample.height > 0.f)
+                            sample.wavecapIntensity =
+                                u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                        else
+                            sample.wavecapIntensity = 0;
+                    }
+                }
+            }
+        }
+    }
 }
 
-static bool UpdatePatch(float time, const CFluidPlaneCPURender::SPatchInfo& info, const CFluidPlaneCPU& fluidPane,
-                        const zeus::CVector3f& areaCenter,
+static bool UpdatePatch(float time, const CFluidPlaneCPURender::SPatchInfo& info,
+                        CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], u8 (&flags)[9][9],
+                        const CFluidPlaneCPU& fluidPane, const zeus::CVector3f& areaCenter,
                         const std::experimental::optional<CRippleManager>& rippleManager,
                         int fromX, int toX, int fromY, int toY)
 {
@@ -694,47 +853,246 @@ static bool UpdatePatch(float time, const CFluidPlaneCPURender::SPatchInfo& info
     if (rippleInfos.empty())
         return true;
 
-    CFluidPlaneCPURender::SHFieldSample heights[45][45];
-    u8 flags[9][9] = {};
     ApplyTurbulence(time, heights, flags, sGlobalSineWave, info, fluidPane, areaCenter);
     ApplyRipples(rippleInfos, heights, flags, sGlobalSineWave, info);
-    if (info.x37_renderMode == CFluidPlaneCPURender::RenderMode::Normal)
-        UpdatePatchNormal(heights, flags, info);
+    if (info.x37_normalMode == CFluidPlaneCPURender::NormalMode::NoNormals)
+        UpdatePatchNoNormals(heights, flags, info);
     else
-        UpdatePatchSubdivided(heights, flags, info);
+        UpdatePatchWithNormals(heights, flags, info);
 
     return false;
 }
 
-static void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info, bool updateResult)
+static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFieldSample (&heights)[45][45],
+                                   const u8 (&flags)[9][9], int startYDiv,
+                                   const CFluidPlaneCPURender::SPatchInfo& info,
+                                   std::vector<CFluidPlaneShader::Vertex>& vOut)
 {
 
 }
 
+static void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
+                        const CFluidPlaneCPURender::SHFieldSample (&heights)[45][45],
+                        const u8 (&flags)[9][9], bool noRipples, bool flagIs1,
+                        std::vector<CFluidPlaneShader::Vertex>& vOut)
+{
+    if (noRipples)
+    {
+        float xMin = info.x4_localMin.x;
+        float yMin = info.x4_localMin.y;
+        float xMax = info.x18_rippleResolution * (info.x0_xSubdivs - 2) + xMin;
+        float yMax = info.x18_rippleResolution * (info.x1_ySubdivs - 2) + yMin;
+
+        switch (info.x37_normalMode)
+        {
+        case CFluidPlaneCPURender::NormalMode::None:
+            vOut.emplace_back(zeus::CVector3f(xMin, yMin, 0.f));
+            vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f));
+            vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f));
+            vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f));
+            break;
+        case CFluidPlaneCPURender::NormalMode::NoNormals:
+            vOut.emplace_back(zeus::CVector3f(xMin, yMin, 0.f), zeus::CColor::skBlack);
+            vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f), zeus::CColor::skBlack);
+            vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::CColor::skBlack);
+            vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::CColor::skBlack);
+            break;
+        case CFluidPlaneCPURender::NormalMode::Normals:
+        {
+            int yTiles = (info.x1_ySubdivs - 3) / CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+            int xTiles = (info.x0_xSubdivs - 3) / CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+            int xTileStart = info.x28_tileX + info.x2e_tileY * info.x2a_gridDimX;
+            for (int curYTile=yTiles ; curYTile>0 ; --curYTile,
+                 yMax += info.x14_tileSize, xTileStart += info.x2a_gridDimX)
+            {
+                xMax = xMin;
+                int nextXTile;
+                for (int curXTile=0 ; curXTile<xTiles ; curXTile=nextXTile)
+                {
+                    if (!info.x30_gridFlags || info.x30_gridFlags[xTileStart+curXTile])
+                    {
+                        if (curYTile == yTiles || curYTile == 1 || curXTile == 0 || xTiles - 1 == curXTile)
+                        {
+                            vOut.emplace_back(zeus::CVector3f(xMax + 0.5f * info.x14_tileSize,
+                                                              yMax + 0.5f * info.x14_tileSize, 0.f),
+                                              zeus::CVector3f::skUp, zeus::CColor::skBlack);
+
+                            float tmp = xMax;
+                            for (int v=0 ; v<((curYTile == 1) ?
+                                              CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                            {
+                                vOut.emplace_back(zeus::CVector3f(tmp, yMax + info.x14_tileSize, 0.f),
+                                                  zeus::CVector3f::skUp, zeus::CColor::skBlack);
+                                tmp += info.x18_rippleResolution;
+                            }
+
+                            tmp = yMax + info.x14_tileSize;
+                            for (int v=0 ; v<((xTiles - 1 == curXTile) ?
+                                              CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                            {
+                                vOut.emplace_back(zeus::CVector3f(xMax + info.x14_tileSize, tmp, 0.f),
+                                                  zeus::CVector3f::skUp, zeus::CColor::skBlack);
+                                tmp -= info.x18_rippleResolution;
+                            }
+
+                            tmp = xMax + info.x14_tileSize;
+                            for (int v=0 ; v<((curYTile == yTiles) ?
+                                              CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                            {
+                                vOut.emplace_back(zeus::CVector3f(tmp, yMax, 0.f),
+                                                  zeus::CVector3f::skUp, zeus::CColor::skBlack);
+                                tmp -= info.x18_rippleResolution;
+                            }
+
+                            tmp = yMax;
+                            for (int v=0 ; v<((curXTile == 0) ?
+                                              CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                            {
+                                vOut.emplace_back(zeus::CVector3f(xMax, tmp, 0.f),
+                                                  zeus::CVector3f::skUp, zeus::CColor::skBlack);
+                                tmp += info.x18_rippleResolution;
+                            }
+
+                            vOut.emplace_back(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f),
+                                              zeus::CVector3f::skUp, zeus::CColor::skBlack);
+
+                            nextXTile = curXTile + 1;
+                            xMax += info.x14_tileSize;
+                        }
+                        else
+                        {
+                            nextXTile = curXTile + 1;
+                            while (nextXTile < xTiles - 1 &&
+                                (!info.x30_gridFlags || info.x30_gridFlags[xTileStart+nextXTile]))
+                                ++nextXTile;
+
+                            for (int v = 0 ; v < nextXTile - curXTile + 1 ; ++v)
+                            {
+                                vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::CColor::skBlack);
+                                vOut.emplace_back(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f),
+                                                  zeus::CColor::skBlack);
+                                xMax += info.x14_tileSize;
+                            }
+
+                            ++nextXTile;
+                            if (nextXTile == xTiles)
+                            {
+                                --nextXTile;
+                                xMax -= info.x14_tileSize;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        nextXTile = curXTile + 1;
+                        xMax += info.x14_tileSize;
+                        while (nextXTile < xTiles && !info.x30_gridFlags[xTileStart+nextXTile])
+                        {
+                            xMax += info.x14_tileSize;
+                            ++nextXTile;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case CFluidPlaneCPURender::NormalMode::NBT:
+        {
+            if (flagIs1 || !info.x30_gridFlags)
+            {
+                vOut.emplace_back(zeus::CVector3f(xMin, yMin, 0.f), zeus::CVector3f::skUp,
+                                  zeus::CVector3f::skForward, zeus::CVector3f::skRight, zeus::CColor::skBlack);
+                vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f), zeus::CVector3f::skUp,
+                                  zeus::CVector3f::skForward, zeus::CVector3f::skRight, zeus::CColor::skBlack);
+                vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::CVector3f::skUp,
+                                  zeus::CVector3f::skForward, zeus::CVector3f::skRight, zeus::CColor::skBlack);
+                vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::CVector3f::skUp,
+                                  zeus::CVector3f::skForward, zeus::CVector3f::skRight, zeus::CColor::skBlack);
+            }
+            else
+            {
+                int xTiles = (info.x0_xSubdivs - 3) / CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+                int yTiles = (info.x1_ySubdivs - 3) / CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+                int xTileStart = info.x28_tileX + info.x2e_tileY * info.x2a_gridDimX;
+                for (; yTiles>0 ; --yTiles, yMin += info.x14_tileSize, xTileStart += info.x2a_gridDimX)
+                {
+                    xMax = xMin;
+                    int nextXTile;
+                    for (int curXTile=0 ; curXTile<xTiles ; curXTile=nextXTile)
+                    {
+                        if (info.x30_gridFlags[xTileStart+curXTile])
+                        {
+                            nextXTile = curXTile + 1;
+                            int tile = xTileStart + nextXTile;
+                            while (nextXTile < xTiles && info.x30_gridFlags[tile])
+                            {
+                                ++nextXTile;
+                                ++tile;
+                            }
+
+                            for (int v = 0 ; v < nextXTile - curXTile + 1 ; ++v)
+                            {
+                                vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::CVector3f::skUp,
+                                                  zeus::CVector3f::skForward, zeus::CVector3f::skRight,
+                                                  zeus::CColor::skBlack);
+                                vOut.emplace_back(zeus::CVector3f(xMax, yMin + info.x14_tileSize, 0.f),
+                                                  zeus::CVector3f::skUp, zeus::CVector3f::skForward,
+                                                  zeus::CVector3f::skRight, zeus::CColor::skBlack);
+                                xMax += info.x14_tileSize;
+                            }
+                        }
+                        else
+                        {
+                            nextXTile = curXTile + 1;
+                            xMax += info.x14_tileSize;
+                            int tile = xTileStart + nextXTile;
+                            while (nextXTile < xTiles && !info.x30_gridFlags[tile])
+                            {
+                                xMax += info.x14_tileSize;
+                                ++nextXTile;
+                                ++tile;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        }
+    }
+    else
+    {
+        float curY = info.x4_localMin.y;
+        for (int startYDiv=1 ; startYDiv<info.x1_ySubdivs-2 ;
+             startYDiv += CFluidPlaneCPURender::numSubdivisionsInTile, curY += info.x14_tileSize)
+            RenderStripWithRipples(curY, heights, flags, startYDiv, info, vOut);
+    }
+}
+
 void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
-                            const zeus::CTransform& areaXf, bool noSubdiv, const zeus::CFrustum& frustum,
+                            const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                             const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const
 {
     TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
     RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
 
-    CFluidPlaneCPURender::RenderMode renderMode;
+    CFluidPlaneCPURender::NormalMode normalMode;
     if (xb0_bumpMap && kEnableWaterBumpMaps)
-        renderMode = CFluidPlaneCPURender::RenderMode::BumpMapped;
-    else if (!noSubdiv)
-        renderMode = CFluidPlaneCPURender::RenderMode::Subdivided;
+        normalMode = CFluidPlaneCPURender::NormalMode::NBT;
+    else if (!noNormals)
+        normalMode = CFluidPlaneCPURender::NormalMode::Normals;
     else
-        renderMode = CFluidPlaneCPURender::RenderMode::Normal;
+        normalMode = CFluidPlaneCPURender::NormalMode::NoNormals;
 
     // Set Position and color format
 
-    switch (renderMode)
+    switch (normalMode)
     {
-    case CFluidPlaneCPURender::RenderMode::BumpMapped:
+    case CFluidPlaneCPURender::NormalMode::NBT:
         // Set NBT format
         break;
-    case CFluidPlaneCPURender::RenderMode::Subdivided:
+    case CFluidPlaneCPURender::NormalMode::Normals:
         // Set Normal format
         break;
     default:
@@ -751,22 +1109,23 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     zeus::CVector2f center2D(aabbCenter.x, aabbCenter.y);
     zeus::CVector2f ripplePitch(x108_rippleResolution * CFluidPlaneCPURender::numSubdivisionsInHField);
 
-    bool r14 = false;
-    int r22 = 0;
-    int r23 = 0;
-    float rippleSideLen = g_tweakGame->GetRippleSideLengthNormal();
+    // Amount to shift intensity values right (for added wavecap color)
+    int redShift = 0;
+    int greenShift = 0;
+    int blueShift = 0;
+    float wavecapIntensityScale = g_tweakGame->GetWavecapIntensityNormal();
     switch (x44_fluidType)
     {
     case EFluidType::PoisonWater:
-        rippleSideLen = g_tweakGame->GetRippleSideLengthPoison();
-        r14 = true;
-        r23 = 1;
+        wavecapIntensityScale = g_tweakGame->GetWavecapIntensityPoison();
+        redShift = 1;
+        blueShift = 1;
         break;
     case EFluidType::Lava:
     case EFluidType::Five:
-        rippleSideLen = g_tweakGame->GetRippleSideLengthLava();
-        r23 = 8;
-        r22 = 8;
+        wavecapIntensityScale = g_tweakGame->GetWavecapIntensityLava();
+        blueShift = 8;
+        greenShift = 8;
         break;
     default:
         break;
@@ -777,11 +1136,13 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
         float cameraPenetration =
             mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation().dot(zeus::CVector3f::skUp) -
             water->GetTriggerBoundsWR().max.z;
-        rippleSideLen *= (cameraPenetration >= 0.5f || cameraPenetration < 0.f) ? 1.f : 2.f * cameraPenetration;
+        wavecapIntensityScale *= (cameraPenetration >= 0.5f || cameraPenetration < 0.f) ? 1.f : 2.f * cameraPenetration;
     }
 
     u32 patchDimX = (water && water->GetPatchDimensionX()) ? water->GetPatchDimensionX() : 128;
     u32 patchDimY = (water && water->GetPatchDimensionY()) ? water->GetPatchDimensionY() : 128;
+
+    m_verts.clear();
 
     u32 tileY = 0;
     float curY = aabb.min.y;
@@ -792,7 +1153,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
         float _remDivsY = (aabb.max.y - curY) * rippleResolutionRecip;
         for (int j=0 ; curX < aabb.max.x && j<patchDimX ; ++j)
         {
-            if (water->CanRenderPatch(j, i))
+            if (u8 renderFlags = water->GetPatchRenderFlags(j, i))
             {
                 s16 remDivsX = std::min(s16((aabb.max.x - curX) * rippleResolutionRecip),
                                         s16(CFluidPlaneCPURender::numSubdivisionsInHField));
@@ -804,9 +1165,10 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                 if (frustum.aabbFrustumTest(testaabb))
                 {
                     CFluidPlaneCPURender::SPatchInfo info(localMin, localMax, xf.origin, x108_rippleResolution,
-                                                          rippleSideLen, x100_tileSize,
-                                                          CFluidPlaneCPURender::numSubdivisionsInHField, renderMode,
-                                                          r14, r22, r23, tileX, gridDimX, gridDimY, tileY, gridFlags);
+                                                          x100_tileSize, wavecapIntensityScale,
+                                                          CFluidPlaneCPURender::numSubdivisionsInHField, normalMode,
+                                                          redShift, greenShift, blueShift, tileX, gridDimX, gridDimY,
+                                                          tileY, gridFlags);
 
                     int fromX = tileX != 0 ? (2 - CFluidPlaneCPURender::numSubdivisionsInTile) : 0;
                     int toX;
@@ -822,9 +1184,12 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                     else
                         toY = info.x1_ySubdivs;
 
-                    bool result = UpdatePatch(mgr.GetFluidPlaneManager()->GetUVT(), info, *this, areaCenter,
-                                              rippleManager, fromX, toX, fromY, toY);
-                    RenderPatch(info, result);
+                    CFluidPlaneCPURender::SHFieldSample heights[45][45];
+                    u8 flags[9][9] = {};
+
+                    bool noRipples = UpdatePatch(mgr.GetFluidPlaneManager()->GetUVT(), info, heights, flags,
+                                                 *this, areaCenter, rippleManager, fromX, toX, fromY, toY);
+                    RenderPatch(info, heights, flags, noRipples, renderFlags == 1, m_verts);
                 }
             }
             curX += ripplePitch.x;
@@ -834,7 +1199,8 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
         tileY += CFluidPlaneCPURender::numTilesInHField;
     }
 
-    //m_shader->draw(setupInfo.texMtxs, setupInfo.normMtx, setupInfo.indScale, setupInfo.lights, setupInfo.kColors);
+    m_shader->draw(setupInfo.texMtxs, setupInfo.normMtx, setupInfo.indScale,
+                   setupInfo.lights, setupInfo.kColors, m_verts);
 }
 
 void CFluidPlaneCPU::RenderCleanup() const

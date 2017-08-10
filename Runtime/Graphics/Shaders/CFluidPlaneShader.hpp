@@ -37,6 +37,29 @@ struct SFluidPlaneShaderInfo
 
 class CFluidPlaneShader
 {
+public:
+    struct Vertex
+    {
+        zeus::CVector3f m_pos;
+        zeus::CVector3f m_norm;
+        zeus::CVector3f m_binorm;
+        zeus::CVector3f m_tangent;
+        zeus::CColor m_color;
+
+        Vertex() = default;
+        Vertex(const zeus::CVector3f& position) : m_pos(position) {}
+        Vertex(const zeus::CVector3f& position, const zeus::CColor& color)
+        : m_pos(position), m_color(color) {}
+        Vertex(const zeus::CVector3f& position, const zeus::CVector3f& normal,
+               const zeus::CColor& color)
+        : m_pos(position), m_norm(normal), m_color(color) {}
+        Vertex(const zeus::CVector3f& position, const zeus::CVector3f& normal,
+               const zeus::CVector3f& binormal, const zeus::CVector3f& tangent,
+               const zeus::CColor& color)
+        : m_pos(position), m_norm(normal), m_binorm(binormal), m_tangent(tangent), m_color(color) {}
+    };
+
+private:
     class Cache
     {
         std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*> m_cache[1024] = {};
@@ -45,15 +68,6 @@ class CFluidPlaneShader
         boo::IShaderPipeline* GetOrBuildShader(const SFluidPlaneShaderInfo& info);
     };
     static Cache _cache;
-
-    struct Vertex
-    {
-        zeus::CVector3f m_pos;
-        zeus::CVector3f m_norm;
-        zeus::CVector3f m_binorm;
-        zeus::CVector3f m_tangent;
-        zeus::CColor m_color;
-    };
 
     struct Uniform
     {
@@ -102,7 +116,8 @@ public:
                       const std::experimental::optional<TLockedToken<CTexture>>& lightmap,
                       bool doubleLightmapBlend, bool additive);
     void draw(const zeus::CMatrix4f texMtxs[6], const zeus::CMatrix4f& normMtx, float indScale,
-              const std::vector<CLight>& lights, const zeus::CColor kColors[4]);
+              const std::vector<CLight>& lights, const zeus::CColor kColors[4],
+              const std::vector<Vertex>& verts);
 };
 
 }

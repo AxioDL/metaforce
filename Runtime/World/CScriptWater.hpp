@@ -58,7 +58,7 @@ private:
     u32 x2d4_patchDimY = 0;
     std::unique_ptr<bool[]> x2d8_gridFlags;
     std::unique_ptr<bool[]> x2dc_;
-    std::unique_ptr<bool[]> x2e0_patchFlags;
+    std::unique_ptr<u8[]> x2e0_patchFlags;
     u32 x2e4_gridCellCount2 = 0;
     union
     {
@@ -123,7 +123,7 @@ public:
     u16 GetVisorRunoffSfx() const { return x262_visorRunoffSfx; }
     const CScriptWater* GetNextConnectedWater(const CStateManager& mgr) const;
     float GetLightmapDoubleBlendFactor() const { return x1f8_lightmapDoubleBlendFactor; }
-    bool CanRenderPatch(int x, int y) const { return x2e0_patchFlags[y * x2d0_patchDimX + x]; }
+    u8 GetPatchRenderFlags(int x, int y) const { return x2e0_patchFlags[y * x2d0_patchDimX + x]; }
     u32 GetPatchDimensionX() const { return x2d0_patchDimX; }
     u32 GetPatchDimensionY() const { return x2d4_patchDimY; }
 };

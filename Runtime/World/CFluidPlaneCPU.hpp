@@ -54,6 +54,8 @@ class CFluidPlaneCPU : public CFluidPlane
     float x118_reflectionSize;
     float x11c_unitsPerLightmapTexel;
     CTurbulence x120_turbulence;
+
+    mutable std::vector<CFluidPlaneShader::Vertex> m_verts;
     mutable std::experimental::optional<CFluidPlaneShader> m_shader;
 
     struct RenderSetupInfo
@@ -79,7 +81,7 @@ public:
                                 const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
                                 const CScriptWater* water) const;
     void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
-                const zeus::CTransform& areaXf, bool noSubdiv, const zeus::CFrustum& frustum,
+                const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                 const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                 const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const;
     void RenderCleanup() const;
