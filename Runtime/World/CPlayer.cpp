@@ -878,7 +878,7 @@ void CPlayer::CalculateRenderBounds()
     if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
     {
         float rad = x768_morphball->GetBallRadius();
-        x9c_aabox = zeus::CAABox(GetTranslation() - zeus::CVector3f(rad, rad, 0.f),
+        x9c_renderBounds = zeus::CAABox(GetTranslation() - zeus::CVector3f(rad, rad, 0.f),
                                  GetTranslation() + zeus::CVector3f(rad, rad, rad * 2.f));
     }
     else

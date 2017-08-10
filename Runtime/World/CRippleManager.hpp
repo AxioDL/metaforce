@@ -16,8 +16,8 @@ public:
     CRippleManager(int maxRipples, float);
     void Init(int maxRipples);
     void SetTime(float);
-    void Ripples();
-    void GetRipples() const;
+    std::vector<CRipple>& Ripples() { return x4_ripples; }
+    const std::vector<CRipple>& GetRipples() const { return x4_ripples; }
     void Update(float dt);
     float GetLastRippleDeltaTime(TUniqueId rippler) const;
     void AddRipple(const CRipple& ripple);
@@ -26,5 +26,5 @@ public:
 };
 
 }
-
+;
 #endif // __URDE_CRIPPLEMANAGER_HPP__

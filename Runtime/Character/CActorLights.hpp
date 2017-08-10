@@ -39,7 +39,7 @@ class CActorLights
         };
         u16 _dummy = 0;
     };
-    bool x29a_ = false;
+    bool x29a_findNearestDynamicLights = false;
     u32 x29c_shadowLightValIdx = -1;
     u32 x2a0_shadowLightIdx = -1;
     u32 x2a4_lastUpdateFrame = 0;
@@ -75,6 +75,10 @@ public:
     void ActivateLights(CBooModel& model) const;
     void SetCastShadows(bool v) { x298_25_castShadows = v; }
     void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }
+    void SetAmbientChannelOverflow(bool v) { x298_29_ambientChannelOverflow = v; }
+    void DisableAreaLights();
+    void SetMaxDynamicLights(int l) { x2bc_maxDynamicLights = l; }
+    void SetFindNearestDynamicLights(bool v) { x29a_findNearestDynamicLights = v; }
 
     void SetAmbientColor(const zeus::CColor& color) { x288_ambientColor = color; }
     const zeus::CColor& GetAmbientColor() const { return x288_ambientColor; }
