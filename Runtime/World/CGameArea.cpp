@@ -779,7 +779,7 @@ void CGameArea::Validate(CStateManager& mgr)
             TUniqueId id = mgr.GetIdForScript(entId);
             if (id != kInvalidUniqueId)
             {
-                CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id & 0x3ff];
+                CPostConstructed::MapEntry& ent = x12c_postConstructed->xa8_pvsEntityMap[id.Value()];
                 ent.x0_id = i + (pvs->GetNumFeatures() - pvs->GetNumActors());
                 ent.x4_uid = id;
             }
@@ -1097,12 +1097,12 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
 
 TUniqueId CGameArea::LookupPVSUniqueID(TUniqueId id) const
 {
-    return x12c_postConstructed->xa8_pvsEntityMap[id & 0x3ff].x4_uid;
+    return x12c_postConstructed->xa8_pvsEntityMap[id.Value()].x4_uid;
 }
 
 s16 CGameArea::LookupPVSID(TUniqueId id) const
 {
-    return x12c_postConstructed->xa8_pvsEntityMap[id & 0x3ff].x0_id;
+    return x12c_postConstructed->xa8_pvsEntityMap[id.Value()].x0_id;
 }
 
 void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes)

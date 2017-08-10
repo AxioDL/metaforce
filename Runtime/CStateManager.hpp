@@ -90,7 +90,7 @@ public:
 
 private:
     s16 x0_nextFreeIndex = 0;
-    TUniqueId x8_idArr[1024] = {};
+    u16 x8_idArr[1024] = {};
 
     /*
     std::unique_ptr<CObjectList> x80c_allObjs;

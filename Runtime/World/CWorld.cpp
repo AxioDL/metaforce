@@ -1,11 +1,8 @@
 #include "CWorld.hpp"
-#include "CGameArea.hpp"
-#include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "CInGameTweakManagerBase.hpp"
 #include "Audio/CAudioGroupSet.hpp"
-#include "Editor/ProjectResourceFactoryBase.hpp"
 #include "CGameState.hpp"
 #include "Graphics/CBooRenderer.hpp"
 

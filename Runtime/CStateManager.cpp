@@ -924,7 +924,7 @@ void CStateManager::PreRender()
         xf7c_projectedShadow = nullptr;
         x850_world->PreRender();
         BuildDynamicLightListForWorld();
-        CGameCamera* cam = static_cast<CGameCamera*>(x870_cameraManager->GetCurrentCamera(*this));
+        CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
         zeus::CFrustum frustum;
         zeus::CProjection proj;
         proj.setPersp(zeus::SProjPersp{zeus::degToRad(cam->GetFov()),
@@ -2059,7 +2059,7 @@ void CStateManager::CrossTouchActors()
             if (!ent2->GetActive() || touchAABB2)
                 continue;
 
-            if (visits[ent2->GetUniqueId() & 0x3ff])
+            if (visits[ent2->GetUniqueId().Value()])
                 continue;
 
             if (touchAABB->intersects(*touchAABB2))
@@ -2068,7 +2068,7 @@ void CStateManager::CrossTouchActors()
                 ent2->Touch(actor, *this);
             }
 
-            visits[ent2->GetUniqueId() & 0x3ff] = true;
+            visits[ent2->GetUniqueId().Value()] = true;
         }
     }
 }
@@ -2501,10 +2501,10 @@ TUniqueId CStateManager::AllocateUniqueId()
     while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 
     x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;
-    if (((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF) == kInvalidUniqueId)
-        x8_idArr[0] = 0;
+    if (TUniqueId(ourIndex, x8_idArr[ourIndex]) == kInvalidUniqueId)
+        x8_idArr[ourIndex] = 0;
 
-    return ((ourIndex | ((x8_idArr[ourIndex]) << 10)) & 0xFFFF);
+    return TUniqueId(ourIndex, x8_idArr[ourIndex]);
 }
 
 void CStateManager::DeferStateTransition(EStateManagerTransition t)
