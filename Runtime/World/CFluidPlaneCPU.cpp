@@ -132,38 +132,14 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
         // Build 50% grey directional light with xf0_bumpLightDir and load into LIGHT_3
         // Light 3 in channel 1
         // Vertex colors in channel 0
+        out.lights.resize(4);
+        out.lights[3] = CLight::BuildDirectional(xf0_bumpLightDir, zeus::CColor::skGrey);
     }
     else
     {
         // Normal light mask in channel 1
         // Vertex colors in channel 0
-    }
-
-    if (x10_texPattern1)
-    {
-        // Load into 0
-    }
-    else
-    {
-        // Load black tex into 0
-    }
-
-    if (x20_texPattern2)
-    {
-        // Load into 1
-    }
-    else
-    {
-        // Load black tex into 1
-    }
-
-    if (x30_texColor)
-    {
-        // Load into 2
-    }
-    else
-    {
-        // Load black tex into 2
+        out.lights = water->GetActorLights()->BuildLightVector();
     }
 
     int curTex = 3;
@@ -298,7 +274,6 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
         m_shader.emplace(x44_fluidType,
                          x10_texPattern1, x20_texPattern2, x30_texColor, xb0_bumpMap, xc0_envMap, xd0_envBumpMap,
                          xe0_lightmap, doubleLightmapBlend, mgr.GetParticleFlags() == 0);
-    out.lights = water->GetActorLights()->BuildLightVector();
 
     return out;
 }

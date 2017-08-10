@@ -31,26 +31,32 @@ class CLight
     friend class CGameLight;
 
     zeus::CVector3f x0_pos;
-    zeus::CVector3f xc_dir;
-    zeus::CColor x18_color;
-    ELightType x1c_type;
-    float x20_spotCutoff;
-    float x24_distC;
-    float x28_distL;
-    float x2c_distQ;
-    float x30_angleC;
-    float x34_angleL;
-    float x38_angleQ;
+    zeus::CVector3f xc_dir = zeus::CVector3f::skDown;
+    zeus::CColor x18_color = zeus::CColor::skClear;
+    ELightType x1c_type = ELightType::Custom;
+    float x20_spotCutoff = 0.f;
+    float x24_distC = 1.f;
+    float x28_distL = 0.f;
+    float x2c_distQ = 0.f;
+    float x30_angleC = 1.f;
+    float x34_angleL = 0.f;
+    float x38_angleQ = 0.f;
     u32 x3c_priority = 0;
     u32 x40_lightId = 0; // Serves as unique key
-    float x44_cachedRadius;
-    float x48_cachedIntensity;
+    float x44_cachedRadius = 0.f;
+    float x48_cachedIntensity = 0.f;
     bool x4c_24_intensityDirty : 1;
     bool x4c_25_radiusDirty : 1;
 
     float CalculateLightRadius() const;
 
 public:
+    CLight()
+    {
+        x4c_24_intensityDirty = true;
+        x4c_25_radiusDirty = true;
+    }
+
     CLight(const zeus::CVector3f& pos,
            const zeus::CVector3f& dir,
            const zeus::CColor& color,
