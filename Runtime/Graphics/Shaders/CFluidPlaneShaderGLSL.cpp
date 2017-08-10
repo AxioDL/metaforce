@@ -480,8 +480,7 @@ CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFlui
     const char* texNames[7] = {};
     std::string finalVS, finalFS;
     _BuildShader(finalVS, finalFS, nextTex, texNames, info);
-    const char* uniNames[] = {"FluidPlaneUniform", "FluidPlaneUniform", "LightingUniform"};
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), size_t(nextTex), texNames, 3, uniNames,
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), s_vtxFmt,
                                  info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
                                  info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,

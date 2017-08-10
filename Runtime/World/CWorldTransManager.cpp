@@ -487,4 +487,19 @@ bool CWorldTransManager::WaitForModelsAndTextures()
     return true;
 }
 
+void CWorldTransManager::SfxStop()
+{
+    if (x28_sfxHandle)
+    {
+        CSfxManager::SfxStop(x28_sfxHandle);
+        x28_sfxHandle.reset();
+    }
+}
+
+void CWorldTransManager::SfxStart()
+{
+    if (!x28_sfxHandle && x24_sfx != 0xFFFF)
+        x28_sfxHandle = CSfxManager::SfxStart(x24_sfx, x2c_volume, x2d_panning, false, 127, true, -1);
+}
+
 }

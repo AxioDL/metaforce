@@ -49,6 +49,20 @@ public:
     iterator begin() { return iterator(*this, x2008_firstId); }
     iterator end() { return iterator(*this, kInvalidUniqueId); }
 
+    class const_iterator
+    {
+        friend class CObjectList;
+        const CObjectList& m_list;
+        TUniqueId m_id;
+        const_iterator(const CObjectList& list, TUniqueId id) : m_list(list), m_id(id) {}
+    public:
+        const_iterator& operator++() { m_id = m_list.GetNextObjectIndex(m_id); return *this; }
+        bool operator!=(const iterator& other) const { return m_id != other.m_id; }
+        const CEntity* operator*() const { return m_list.GetObjectById(m_id); }
+    };
+    const_iterator cbegin() const { return const_iterator(*this, x2008_firstId); }
+    const_iterator cend() const { return const_iterator(*this, kInvalidUniqueId); }
+
     CObjectList(EGameObjectList listEnum);
 
     void AddObject(CEntity& entity);

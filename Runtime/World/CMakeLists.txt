@@ -53,6 +53,7 @@ set(WORLD_SOURCES
     CScriptWorldTeleporter.hpp CScriptWorldTeleporter.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
     CScriptCoverPoint.hpp CScriptCoverPoint.cpp
+    CScriptSpiderBallWaypoint.hpp CScriptSpiderBallWaypoint.cpp
     CScriptSpawnPoint.hpp CScriptSpawnPoint.cpp
     CScriptCameraHint.hpp CScriptCameraHint.cpp
     CScriptPickup.hpp CScriptPickup.cpp

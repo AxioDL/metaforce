@@ -406,6 +406,7 @@ public:
     ResId GetPauseHUDMessage() const { return xf08_pauseHudMessage; }
     void IncrementHUDMessageFrameCounter() { ++xf80_hudMessageFrameCount; }
     bool ShouldQuitGame() const { return xf94_25_quitGame; }
+    void SetShouldQuitGame(bool should) { xf94_25_quitGame = should; }
     void SetInSaveUI(bool b) { xf94_28_inSaveUI = b; }
     void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
     bool GetInMapScreen() const { return xf94_27_inMapScreen; }
@@ -428,6 +429,7 @@ public:
     CActorModelParticles* GetActorModelParticles() const { return x884_actorModelParticles; }
 
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
+    const std::shared_ptr<CWorldTransManager>& WorldTransManager() const { return x8c4_worldTransManager; }
     const std::shared_ptr<CWorldLayerState>& LayerState() const { return x8c8_worldLayerState; }
 
     CPlayer& GetPlayer() const { return *x84c_player; }

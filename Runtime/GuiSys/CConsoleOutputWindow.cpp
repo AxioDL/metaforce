@@ -1,4 +1,5 @@
 #include "CConsoleOutputWindow.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde
 {

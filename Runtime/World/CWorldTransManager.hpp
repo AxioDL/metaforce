@@ -9,6 +9,7 @@
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
+#include "Audio/CSfxManager.hpp"
 
 namespace urde
 {
@@ -60,10 +61,10 @@ private:
     float x18_bgOffset;
     float x1c_bgHeight;
     CRandom16 x20_random = CRandom16(99);
-    u16 x24_ = 1189;
-    u32 x28_ = 0;
-    u8 x2c_ = 127;
-    u8 x2d_ = 64;
+    u16 x24_sfx = 1189;
+    CSfxHandle x28_sfxHandle;
+    u8 x2c_volume = 127;
+    u8 x2d_panning = 64;
     ETransType x30_type = ETransType::Disabled;
     float x34_stopTime;
     float x38_textStartTime = 0.f;
@@ -121,6 +122,14 @@ public:
     void DisableTransition();
     void TouchModels();
     ETransType GetTransType() { return x30_type; }
+    void SetSfx(u16 sfx, u8 volume, u8 panning)
+    {
+        x24_sfx = sfx;
+        x2c_volume = volume;
+        x2d_panning = panning;
+    }
+    void SfxStart();
+    void SfxStop();
 
     static bool WaitForModelsAndTextures();
 };

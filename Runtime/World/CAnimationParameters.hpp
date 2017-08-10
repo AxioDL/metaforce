@@ -20,7 +20,7 @@ public:
       x4_charIdx(in.readUint32Big()),
       x8_defaultAnim(in.readUint32Big()) {}
 
-    u32 GetACSFile() const { return x0_ancs; }
+    ResId GetACSFile() const { return x0_ancs; }
     u32 GetCharacter() const { return x4_charIdx; }
     u32 GetInitialAnimation() const { return x8_defaultAnim; }
     void SetCharacter(u32 charIdx) { x4_charIdx = charIdx; }

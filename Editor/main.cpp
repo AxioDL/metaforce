@@ -32,7 +32,7 @@ struct Application : boo::IApplicationCallback
         m_fileMgr(_S("urde")),
         m_cvarManager(m_fileMgr)
     {
-        m_viewManager.reset(new ViewManager(m_fileMgr, m_cvarManager));
+        m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
     }
 
     virtual ~Application() = default;
@@ -74,7 +74,7 @@ struct Application : boo::IApplicationCallback
         zeus::detectCPU();
         for (const boo::SystemString& arg : app->getArgs())
         {
-            if (arg.find(_S("--verbosity=")) == 0)
+            if (arg.find(_S("--verbosity=")) == 0 || arg.find(_S("-v=")) == 0)
             {
                 hecl::SystemUTF8View utf8Arg(arg.substr(arg.find_last_of('=') + 1));
                 hecl::VerbosityLevel = atoi(utf8Arg.c_str());
