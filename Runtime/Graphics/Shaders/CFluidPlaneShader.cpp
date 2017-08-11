@@ -177,9 +177,8 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
     });
 }
 
-void CFluidPlaneShader::draw(const zeus::CMatrix4f texMtxs[6], const zeus::CMatrix4f& normMtx, float indScale,
-                             const std::vector<CLight>& lights, const zeus::CColor kColors[4],
-                             const std::vector<Vertex>& verts)
+void CFluidPlaneShader::prepareDraw(const zeus::CMatrix4f* texMtxs, const zeus::CMatrix4f& normMtx, float indScale,
+                                    const std::vector<CLight>& lights, const zeus::CColor* kColors)
 {
     Uniform& uni = *reinterpret_cast<Uniform*>(m_uniBuf->map(sizeof(Uniform)));
     uni.m_mv = CGraphics::g_GXModelView.toMatrix4f();
@@ -193,11 +192,12 @@ void CFluidPlaneShader::draw(const zeus::CMatrix4f texMtxs[6], const zeus::CMatr
     uni.m_lighting.mulColor = kColors[3];
     uni.m_lighting.fog.m_rangeScale = indScale;
     m_uniBuf->unmap();
-
-    m_vbo->load(verts.data(), verts.size() * sizeof(Vertex));
-
     CGraphics::SetShaderDataBinding(m_dataBind);
-    CGraphics::DrawArray(0, verts.size());
+}
+
+void CFluidPlaneShader::loadVerts(const std::vector<Vertex>& verts)
+{
+    m_vbo->load(verts.data(), verts.size() * sizeof(Vertex));
 }
 
 }

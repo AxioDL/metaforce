@@ -350,6 +350,47 @@ public:
     }
 };
 
+template<class VTX>
+class TriFanToStrip
+{
+    std::vector<VTX>& m_vec;
+    size_t m_start;
+    size_t m_added = 0;
+public:
+    explicit TriFanToStrip(std::vector<VTX>& vec) : m_vec(vec), m_start(vec.size()) {}
+
+    void AddVert(const VTX& vert)
+    {
+        ++m_added;
+        if (m_added > 3)
+        {
+            const VTX& last = m_vec.back();
+            m_vec.reserve(m_vec.size() + 4);
+            m_vec.push_back(m_vec[m_start]);
+            m_vec.push_back(m_vec[m_start]);
+            m_vec.push_back(last);
+        }
+        m_vec.push_back(vert);
+    }
+
+    template<class... _Args>
+    void EmplaceVert(_Args&&... args)
+    {
+        ++m_added;
+        if (m_added > 3)
+        {
+            const VTX& last = m_vec.back();
+            m_vec.reserve(m_vec.size() + 4);
+            m_vec.push_back(m_vec[m_start]);
+            m_vec.push_back(m_vec[m_start]);
+            m_vec.push_back(last);
+        }
+        m_vec.emplace_back(std::forward<_Args>(args)...);
+    }
+
+    void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
+};
+
 }
 
 #endif // __URDE_CGRAPHICS_HPP__
