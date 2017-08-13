@@ -198,10 +198,10 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (propCount > 5)
             sParams = LoadScannableParameters(in);
 
-        ResId xrayModel = in.readUint32Big();
-        ResId xraySkin = in.readUint32Big();
-        ResId infraModel = in.readUint32Big();
-        ResId infraSkin = in.readUint32Big();
+        CAssetId xrayModel = in.readUint32Big();
+        CAssetId xraySkin = in.readUint32Big();
+        CAssetId infraModel = in.readUint32Big();
+        CAssetId infraSkin = in.readUint32Big();
 
         bool b1 = true;
         if (propCount > 7)
@@ -235,11 +235,11 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (propCount > 13)
             f3 = in.readFloatBig();
 
-        std::pair<ResId, ResId> xray = {};
+        std::pair<CAssetId, CAssetId> xray = {};
         if (g_ResFactory->GetResourceTypeById(xrayModel))
             xray = {xrayModel, xraySkin};
 
-        std::pair<ResId, ResId> infra = {};
+        std::pair<CAssetId, CAssetId> infra = {};
         if (g_ResFactory->GetResourceTypeById(infraModel))
             infra = {infraModel, infraSkin};
 
@@ -319,7 +319,7 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in)
 
 CAnimationParameters ScriptLoader::LoadAnimationParameters(CInputStream& in)
 {
-    ResId ancs = in.readUint32Big();
+    CAssetId ancs = in.readUint32Big();
     s32 charIdx = in.readUint32Big();
     u32 defaultAnim = in.readUint32Big();
     return CAnimationParameters(ancs, charIdx, defaultAnim);
@@ -395,7 +395,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
 
     CDamageVulnerability dVuln(in);
 
-    ResId staticId = in.readUint32Big();
+    CAssetId staticId = in.readUint32Big();
     CAnimationParameters aParms = LoadAnimationParameters(in);
 
     CActorParameters actParms = LoadActorParameters(in);
@@ -574,8 +574,8 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int prop
 
     SScaledActorHead head = LoadScaledActorHead(in, mgr);
 
-    ResId partId = in.readUint32Big();
-    ResId elscId = in.readUint32Big();
+    CAssetId partId = in.readUint32Big();
+    CAssetId elscId = in.readUint32Big();
     bool b1 = in.readBool();
     bool b2 = in.readBool();
     bool b3 = in.readBool();
@@ -620,14 +620,14 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
     zeus::CVector3f centroid;
     centroid.readBig(in);
 
-    ResId staticId = in.readUint32Big();
+    CAssetId staticId = in.readUint32Big();
     CAnimationParameters aParms = LoadAnimationParameters(in);
 
     CActorParameters actParms = LoadActorParameters(in);
 
     float f1 = in.readFloatBig();
     bool b1 = in.readBool();
-    ResId dclnId = in.readUint32Big();
+    CAssetId dclnId = in.readUint32Big();
 
     CHealthInfo hInfo(in);
 
@@ -904,7 +904,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
     float f1 = in.readFloatBig();
     float f2 = in.readFloatBig();
     float f3 = in.readFloatBig();
-    ResId staticModel = in.readUint32Big();
+    CAssetId staticModel = in.readUint32Big();
     CAnimationParameters animParms = LoadAnimationParameters(in);
     CActorParameters actorParms = LoadActorParameters(in);
     bool active = in.readBool();
@@ -992,7 +992,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
     float f1 = in.readFloatBig();
     CDamageVulnerability dVuln1(in);
     CDamageVulnerability dVuln2(in);
-    ResId abdomen = in.readUint32Big();
+    CAssetId abdomen = in.readUint32Big();
     MP1::CBeetle::EEntranceType entrance = MP1::CBeetle::EEntranceType(in.readUint32Big());
     float f2 = in.readFloatBig();
     float f3 = in.readFloatBig();
@@ -1021,7 +1021,7 @@ CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int pro
     CScriptHUDMemo::EDisplayType displayType = CScriptHUDMemo::EDisplayType::MessageBox;
     if (propCount == 6)
         displayType = CScriptHUDMemo::EDisplayType(in.readUint32Big());
-    ResId message = in.readUint32Big();
+    CAssetId message = in.readUint32Big();
     bool active = in.readBool();
 
     return new CScriptHUDMemo(mgr.AllocateUniqueId(), name, info, hParms, displayType, message, active);
@@ -1042,7 +1042,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
     color.readRGBABig(in);
     float timeIn = in.readFloatBig();
     float timeOut = in.readFloatBig();
-    ResId txtr = in.readUint32Big();
+    CAssetId txtr = in.readUint32Big();
 
     return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, type, shape, filterIdx, unk,
                                            color, timeIn, timeOut, txtr, active);
@@ -1118,9 +1118,9 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
     CDamageVulnerability dVuln(in);
     u32 triggerFlags = in.readUint32Big();
     triggerFlags = TransformDamagableTriggerFlags(mgr, info.GetAreaId(), triggerFlags);
-    ResId w1 = in.readUint32Big();
-    ResId w2 = in.readUint32Big();
-    ResId w3 = in.readUint32Big();
+    CAssetId w1 = in.readUint32Big();
+    CAssetId w2 = in.readUint32Big();
+    CAssetId w3 = in.readUint32Big();
     CScriptDamageableTrigger::ECanOrbit canOrbit = CScriptDamageableTrigger::ECanOrbit(in.readBool());
     bool active = in.readBool();
     CVisorParameters vParms = LoadVisorParameters(in);
@@ -1143,9 +1143,9 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int prop
     float f4 = in.readFloatBig();
     CScriptDebris::EScaleType scaleType = CScriptDebris::EScaleType(in.readUint32Big());
     bool b1 = in.readBool();
-    ResId model = in.readUint32Big();
+    CAssetId model = in.readUint32Big();
     CActorParameters aParams = LoadActorParameters(in);
-    ResId w3 = in.readUint32Big();
+    CAssetId w3 = in.readUint32Big();
     zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
     bool b2 = in.readBool();
     bool b3 = in.readBool();
@@ -1208,12 +1208,12 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
                                  ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
     bool b1 = in.readBool();
     bool displaySurface = in.readBool();
-    ResId textureId1 = in.readUint32Big();
-    ResId textureId2 = in.readUint32Big();
-    ResId textureId3 = in.readUint32Big();
-    ResId textureId4 = in.readUint32Big();
-    ResId textureId5 = in.readUint32Big();
-    ResId textureId6 = in.readUint32Big();
+    CAssetId textureId1 = in.readUint32Big();
+    CAssetId textureId2 = in.readUint32Big();
+    CAssetId textureId3 = in.readUint32Big();
+    CAssetId textureId4 = in.readUint32Big();
+    CAssetId textureId5 = in.readUint32Big();
+    CAssetId textureId6 = in.readUint32Big();
     zeus::CVector3f v2;
     v2.readBig(in);
 
@@ -1242,11 +1242,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     c1.readRGBABig(in);
     zeus::CColor c2;
     c2.readRGBABig(in);
-    ResId enterParticle = in.readUint32Big();
-    ResId partId2 = in.readUint32Big();
-    ResId partId3 = in.readUint32Big();
-    ResId partId4 = in.readUint32Big();
-    ResId partId5 = in.readUint32Big();
+    CAssetId enterParticle = in.readUint32Big();
+    CAssetId partId2 = in.readUint32Big();
+    CAssetId partId3 = in.readUint32Big();
+    CAssetId partId4 = in.readUint32Big();
+    CAssetId partId5 = in.readUint32Big();
     u32 soundId1 = in.readUint32Big();
     u32 soundId2 = in.readUint32Big();
     u32 soundId3 = in.readUint32Big();
@@ -1264,7 +1264,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     float heatWaveSpeed = in.readFloatBig();
     zeus::CColor heatWaveColor;
     heatWaveColor.readRGBABig(in);
-    ResId lightmap = in.readUint32Big();
+    CAssetId lightmap = in.readUint32Big();
     float f22 = in.readFloatBig();
     float f23 = in.readFloatBig();
     float f24 = in.readFloatBig();
@@ -1287,11 +1287,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
 
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
-    ResId realTextureId6 = -1;
+    CAssetId realTextureId6 = -1;
     if (textureId4 == -1)
         realTextureId6 = textureId6;
 
-    ResId realTextureId5 = -1;
+    CAssetId realTextureId5 = -1;
     if (textureId4 == -1)
         realTextureId5 = textureId5;
 
@@ -1323,9 +1323,9 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
     CActorParameters actorParms = LoadActorParameters(in);
     CPatterned::EColliderType collider = CPatterned::EColliderType(in.readBool());
     CDamageInfo damageInfo1(in);
-    ResId weaponDesc = in.readUint32Big();
+    CAssetId weaponDesc = in.readUint32Big();
     CDamageInfo damageInfo2(in);
-    ResId particle = in.readUint32Big();
+    CAssetId particle = in.readUint32Big();
     u32 w1 = in.readUint32Big();
 
     const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
@@ -1653,23 +1653,23 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
 
     zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
 
-    ResId model = in.readUint32Big();
+    CAssetId model = in.readUint32Big();
 
     CActorParameters aParam = LoadActorParameters(in);
 
-    ResId particle1 = in.readUint32Big();
+    CAssetId particle1 = in.readUint32Big();
     zeus::CVector3f particle1Scale = zeus::CVector3f::ReadBig(in);
     bool particle1B1 = in.readBool();
     bool particle1B2 = in.readBool();
     CScriptDebris::EOrientationType particle1W = CScriptDebris::EOrientationType(in.readUint32Big());
 
-    ResId particle2 = in.readUint32Big();
+    CAssetId particle2 = in.readUint32Big();
     zeus::CVector3f particle2Scale = zeus::CVector3f::ReadBig(in);
     bool particle2B1 = in.readBool();
     bool particle2B2 = in.readBool();
     CScriptDebris::EOrientationType particle2W = CScriptDebris::EOrientationType(in.readUint32Big());
 
-    ResId particle3 = in.readUint32Big();
+    CAssetId particle3 = in.readUint32Big();
     zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in);
     CScriptDebris::EOrientationType particle3W = CScriptDebris::EOrientationType(in.readUint32Big());
 
@@ -1806,7 +1806,7 @@ CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in, 
     float thermalHeat = in.readFloatBig();
     float xrayFogDistance = in.readFloatBig();
     float worldLightingLevel = in.readFloatBig();
-    ResId skybox = in.readUint32Big();
+    CAssetId skybox = in.readUint32Big();
     EPhazonType phazonType = EPhazonType(in.readUint32Big());
 
     return new CScriptAreaAttributes(mgr.AllocateUniqueId(), info, showSkybox, fxType, envFxDensity, thermalHeat,
@@ -1857,17 +1857,17 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
 
     std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
-    ResId worldId = in.readUint32Big();
-    ResId areaId = in.readUint32Big();
+    CAssetId worldId = in.readUint32Big();
+    CAssetId areaId = in.readUint32Big();
 
     if (propCount == 4)
         return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId);
 
     CAnimationParameters animParms = LoadAnimationParameters(in);
     zeus::CVector3f playerScale = zeus::CVector3f::ReadBig(in);
-    ResId platformModel = in.readUint32Big();
+    CAssetId platformModel = in.readUint32Big();
     zeus::CVector3f platformScale = zeus::CVector3f::ReadBig(in);
-    ResId backgroundModel = in.readUint32Big();
+    CAssetId backgroundModel = in.readUint32Big();
     zeus::CVector3f backgroundScale = zeus::CVector3f::ReadBig(in);
     bool upElevator = in.readBool();
 
@@ -1875,8 +1875,8 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
     u8 volume = (propCount < 13 ? u8(127) : u8(in.readUint32Big()));
     u8 panning = (propCount < 14 ? u8(64) : u8(in.readUint32Big()));
     bool showText = (propCount < 15 ? false : in.readBool());
-    ResId fontId = (propCount < 16 ? kInvalidResId : in.readUint32Big());
-    ResId stringId = (propCount < 17 ? kInvalidResId : in.readUint32Big());
+    CAssetId fontId = (propCount < 16 ? CAssetId() : in.readUint32Big());
+    CAssetId stringId = (propCount < 17 ? CAssetId() : in.readUint32Big());
     bool fadeWhite = (propCount < 18 ? false : in.readBool());
     float charFadeInTime = (propCount < 19 ? 0.1f : in.readFloatBig());
     float charsPerSecond = (propCount < 20 ? 16.f : in.readFloatBig());
@@ -2239,7 +2239,7 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
     CDamageVulnerability dVuln(in);
     CAnimationParameters animParams(in);
     CActorParameters actParams = LoadActorParameters(in);
-    ResId flameFxId = in.readUint32Big();
+    CAssetId flameFxId = in.readUint32Big();
     CDamageInfo dInfo(in);
     bool active = in.readBool();
 

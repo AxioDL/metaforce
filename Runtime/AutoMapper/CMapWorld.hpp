@@ -74,7 +74,7 @@ public:
         EMapAreaList x10_list;
         CMapAreaData* x14_next;
     public:
-        CMapAreaData(ResId areaRes, EMapAreaList list, CMapAreaData* next);
+        CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapAreaData* next);
         void Lock() { x0_area.Lock(); }
         void Unlock() { x0_area.Unlock(); }
         bool IsLoaded() const { return x0_area.IsLoaded(); }

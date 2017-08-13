@@ -148,8 +148,8 @@ void CMemoryCardDriver::SGameFileSlot::LoadGameState(u32 idx)
 CMemoryCardDriver::SFileInfo::SFileInfo(kabufuda::ECardSlot port, const std::string& name)
 : x0_fileInfo(port), x14_name(name) {}
 
-CMemoryCardDriver::CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
-                                     ResId saveIcon0, ResId saveIcon1, bool importPersistent)
+CMemoryCardDriver::CMemoryCardDriver(kabufuda::ECardSlot cardPort, CAssetId saveBanner,
+                                     CAssetId saveIcon0, CAssetId saveIcon1, bool importPersistent)
 : x0_cardPort(cardPort), x4_saveBanner(saveBanner),
   x8_saveIcon0(saveIcon0), xc_saveIcon1(saveIcon1), x19d_importPersistent(importPersistent)
 {

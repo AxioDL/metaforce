@@ -18,17 +18,17 @@ class CSimplePool;
 class CSaveWorldMemory
 {
     friend class CMemoryCardSys;
-    ResId x0_strgId = -1;
-    ResId x4_savwId = -1;
+    CAssetId x0_strgId = -1;
+    CAssetId x4_savwId = -1;
     u32 x8_areaCount;
-    std::vector<ResId> xc_areaIds;
+    std::vector<CAssetId> xc_areaIds;
     std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
     TLockedToken<CStringTable> x2c_worldName; /* used to be optional */
     TLockedToken<CSaveWorld> x3c_saveWorld; /* used to be optional */
 
 public:
-    ResId GetWorldNameId() const { return x0_strgId; }
-    ResId GetSaveWorldAssetId() const { return x4_savwId; }
+    CAssetId GetWorldNameId() const { return x0_strgId; }
+    CAssetId GetSaveWorldAssetId() const { return x4_savwId; }
     u32 GetAreaCount() const { return x8_areaCount; }
     const std::vector<CWorldLayers::Area>& GetDefaultLayerStates() const { return x1c_defaultLayerStates; }
     const TLockedToken<CStringTable>& GetWorldName() const { return x2c_worldName; }
@@ -44,16 +44,16 @@ public:
 class CSaveWorldIntermediate
 {
     friend class CMemoryCardSys;
-    ResId x0_mlvlId;
-    ResId x4_strgId;
-    ResId x8_savwId;
-    std::vector<ResId> xc_areaIds;
+    CAssetId x0_mlvlId;
+    CAssetId x4_strgId;
+    CAssetId x8_savwId;
+    std::vector<CAssetId> xc_areaIds;
     std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
     std::unique_ptr<CDummyWorld> x2c_dummyWorld;
     TLockedToken<CSaveWorld> x34_saveWorld; /* Used to be auto_ptr */
 
 public:
-    CSaveWorldIntermediate(ResId mlvl, ResId savw);
+    CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw);
 
     bool InitializePump();
 };
@@ -61,9 +61,9 @@ public:
 class CMemoryCardSys
 {
     TLockedToken<CGameHintInfo> x0_hints;
-    std::vector<std::pair<ResId, CSaveWorldMemory>> xc_memoryWorlds; /* MLVL as key */
+    std::vector<std::pair<CAssetId, CSaveWorldMemory>> xc_memoryWorlds; /* MLVL as key */
     std::experimental::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
-    std::vector<std::pair<ResId, CSaveWorld::EScanCategory>> x20_scanStates;
+    std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>> x20_scanStates;
     rstl::reserved_vector<u32, 6> x30_scanCategoryCounts;
 
 public:
@@ -90,19 +90,19 @@ public:
 
     using CardStat = kabufuda::CardStat;
     const std::vector<CGameHintInfo::CGameHint>& GetHints() const { return x0_hints->GetHints(); }
-    const std::vector<std::pair<ResId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
-    const std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
+    const std::vector<std::pair<CAssetId, CSaveWorldMemory>>& GetMemoryWorlds() const { return xc_memoryWorlds; }
+    const std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>>& GetScanStates() const { return x20_scanStates; }
     u32 GetScanCategoryCount(CSaveWorld::EScanCategory cat) const { return x30_scanCategoryCounts[int(cat)]; }
 
-    std::vector<std::pair<ResId, CSaveWorld::EScanCategory>>::const_iterator LookupScanState(ResId id) const
+    std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>>::const_iterator LookupScanState(CAssetId id) const
     {
         return
         rstl::binary_find(x20_scanStates.cbegin(), x20_scanStates.cend(), id,
-                          [](const std::pair<ResId, CSaveWorld::EScanCategory>& p) { return p.first; });
+                          [](const std::pair<CAssetId, CSaveWorld::EScanCategory>& p) { return p.first; });
     }
 
-    bool HasSaveWorldMemory(ResId wldId) const;
-    const CSaveWorldMemory& GetSaveWorldMemory(ResId wldId) const;
+    bool HasSaveWorldMemory(CAssetId wldId) const;
+    const CSaveWorldMemory& GetSaveWorldMemory(CAssetId wldId) const;
 
     CMemoryCardSys();
     bool InitializePump();
@@ -111,10 +111,10 @@ public:
     {
         struct Icon
         {
-            ResId x0_id;
+            CAssetId x0_id;
             kabufuda::EAnimationSpeed x4_speed;
             TLockedToken<CTexture> x8_tex;
-            Icon(ResId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp, const CVParamTransfer& cv);
+            Icon(CAssetId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp, const CVParamTransfer& cv);
         };
 
         enum class EStatus
@@ -129,7 +129,7 @@ public:
         CardFileHandle m_handle;
         std::string x18_fileName;
         std::string x28_comment;
-        ResId x3c_bannerTex = -1;
+        CAssetId x3c_bannerTex = -1;
         std::experimental::optional<TLockedToken<CTexture>> x40_bannerTok;
         rstl::reserved_vector<Icon, 8> x50_iconToks;
         std::vector<u8> xf4_saveBuffer;
@@ -140,8 +140,8 @@ public:
         CCardFileInfo(kabufuda::ECardSlot port, const std::string& name)
         : m_handle(port), x18_fileName(name) {}
 
-        void LockBannerToken(ResId bannerTxtr, CSimplePool& sp);
-        void LockIconToken(ResId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp);
+        void LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp);
+        void LockIconToken(CAssetId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp);
 
         kabufuda::ECardSlot GetCardPort() const { return m_handle.slot; }
         int GetFileNo() const { return m_handle.getFileNo(); }

@@ -11,7 +11,7 @@
 namespace urde
 {
 
-CGuiTextSupport::CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
+CGuiTextSupport::CGuiTextSupport(CAssetId fontId, const CGuiTextProperties& props,
                                  const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                                  const zeus::CColor& geomCol, s32 padX, s32 padY, CSimplePool* store,
                                  CGuiWidget::EGuiModelDrawFlags drawFlags)
@@ -144,8 +144,8 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer()
     g_TextExecuteBuf->AddColor(EColorType::Outline, x28_outlineColor);
 
     std::u16string initStr;
-    if (x5c_fontId != kInvalidResId)
-        initStr = hecl::Char16Format(L"&font=%08X;", u32(x5c_fontId));
+    if (x5c_fontId.IsValid())
+        initStr = hecl::Char16Format(L"&font=%08X;", u32(x5c_fontId.Value()));
     initStr += x0_string;
 
     g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size(), x14_props.xc_txtrMap);
@@ -308,7 +308,7 @@ bool CGuiTextSupport::GetIsTextSupportFinishedLoading() const
     return _GetIsTextSupportFinishedLoading();
 }
 
-void CGuiTextSupport::SetControlTXTRMap(const std::vector<std::pair<ResId, ResId>>* txtrMap)
+void CGuiTextSupport::SetControlTXTRMap(const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap)
 {
     if (x14_props.xc_txtrMap != txtrMap)
     {

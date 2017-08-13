@@ -3,7 +3,7 @@
 
 namespace urde
 {
-CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, ResId resId) : x0_scannableObjectId(resId)
+CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x0_scannableObjectId(resId)
 {
     u32 version = in.readUint32Big();
     Load(in, version);

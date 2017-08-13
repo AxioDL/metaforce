@@ -32,7 +32,7 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
     if (version != 0)
         x54_surfColorSelected.readRGBABig(in);
     else
-        x54_surfColorSelected.fromRGBA32(255 | (x10_worldAssetId & 0xFFFFFF00));
+        x54_surfColorSelected.fromRGBA32(255 | (u32(x10_worldAssetId.Value()) & 0xFFFFFF00));
 
     x58_outlineColorSelected = zeus::CColor::lerp(zeus::CColor::skWhite, x54_surfColorSelected, 0.5f);
     x5c_surfColorUnselected = zeus::CColor::lerp(zeus::CColor::skBlack, x54_surfColorSelected, 0.5f);

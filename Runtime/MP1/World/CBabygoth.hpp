@@ -36,15 +36,15 @@ class CBabygothData
     u32 x174_;
 public:
     CBabygothData(CInputStream&);
-    ResId GetShellModelResId() const;
+    CAssetId GetShellModelResId() const;
     void GetFireballDamage() const;
-    ResId GetFireballResID() const;
+    CAssetId GetFireballResID() const;
     const CDamageVulnerability& GetShellDamageVulnerability() const;
     void GetSHellHitPoints() const;
     void GetFireballAttackVariance() const;
     void GetFireballAttackTime() const;
     void GetFireBreathDamage() const;
-    ResId GetFireBreathResId() const;
+    CAssetId GetFireBreathResId() const;
 };
 
 }

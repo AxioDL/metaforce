@@ -17,8 +17,8 @@ class CScriptWorldTeleporter : public CEntity
         Text
     };
 
-    ResId x34_worldId;
-    ResId x38_areaId;
+    CAssetId x34_worldId;
+    CAssetId x38_areaId;
     ETeleporterType x3c_type = ETeleporterType::NoTransition;
     union
     {
@@ -36,21 +36,21 @@ class CScriptWorldTeleporter : public CEntity
     float x4c_showDelay = 0.0f;
     CAnimationParameters x50_playerAnim;
     zeus::CVector3f x5c_playerScale;
-    ResId x68_platformModel = kInvalidResId;
+    CAssetId x68_platformModel;
     zeus::CVector3f x6c_platformScale;
-    ResId x78_backgroundModel = kInvalidResId;
+    CAssetId x78_backgroundModel;
     zeus::CVector3f x7c_backgroundScale;
     u16 x88_soundId = -1;
     u8 x8a_volume = 0;
     u8 x8b_panning = 0;
-    ResId x8c_fontId;
-    ResId x90_stringId;
+    CAssetId x8c_fontId;
+    CAssetId x90_stringId;
 public:
-    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, ResId, ResId);
-    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, ResId, ResId, u16, u8, u8, ResId,
-                           ResId, bool, float, float, float);
-    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, ResId, ResId, ResId, u32, u32,
-                           const zeus::CVector3f&, ResId, const zeus::CVector3f&, ResId, const zeus::CVector3f&, bool,
+    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, CAssetId, CAssetId);
+    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, CAssetId, CAssetId, u16, u8, u8, CAssetId,
+                           CAssetId, bool, float, float, float);
+    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, CAssetId, CAssetId, CAssetId, u32, u32,
+                           const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, bool,
                            u16, u8, u8);
 
     void Accept(IVisitor&);

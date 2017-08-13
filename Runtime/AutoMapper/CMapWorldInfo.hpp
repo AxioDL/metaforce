@@ -17,8 +17,8 @@ class CMapWorldInfo
     bool x38_mapStationUsed = false;
 public:
     CMapWorldInfo()=default;
-    CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, ResId mlvlId);
-    void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResId mlvlId) const;
+    CMapWorldInfo(CBitStreamReader&, const CSaveWorld& saveWorld, CAssetId mlvlId);
+    void PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const;
     bool IsMapped(TAreaId) const;
     void SetIsMapped(TAreaId, bool);
     void SetDoorVisited(TEditorId eid, bool val);

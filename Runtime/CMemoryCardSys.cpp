@@ -15,7 +15,7 @@ static kabufuda::SystemString g_CardImagePaths[2] = {};
 static kabufuda::Card g_CardStates[2] = {};
 static kabufuda::ECardResult g_OpResults[2] = {};
 
-CSaveWorldIntermediate::CSaveWorldIntermediate(ResId mlvl, ResId savw)
+CSaveWorldIntermediate::CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw)
 : x0_mlvlId(mlvl), x8_savwId(savw)
 {
     if (savw == -1)
@@ -43,7 +43,7 @@ bool CSaveWorldIntermediate::InitializePump()
             xc_areaIds.push_back(area->IGetAreaId());
         }
 
-        ResId mlvlId = wld.IGetWorldAssetId();
+        CAssetId mlvlId = wld.IGetWorldAssetId();
         CWorldState& mlvlState = g_GameState->StateForWorld(mlvlId);
         x1c_defaultLayerStates = mlvlState.GetLayerState()->x0_areaLayers;
 
@@ -61,7 +61,7 @@ bool CSaveWorldIntermediate::InitializePump()
     return false;
 }
 
-bool CMemoryCardSys::HasSaveWorldMemory(ResId wldId) const
+bool CMemoryCardSys::HasSaveWorldMemory(CAssetId wldId) const
 {
     auto existingSearch =
         std::find_if(xc_memoryWorlds.cbegin(), xc_memoryWorlds.cend(), [&](const auto& wld)
@@ -69,7 +69,7 @@ bool CMemoryCardSys::HasSaveWorldMemory(ResId wldId) const
     return existingSearch != xc_memoryWorlds.cend();
 }
 
-const CSaveWorldMemory& CMemoryCardSys::GetSaveWorldMemory(ResId wldId) const
+const CSaveWorldMemory& CMemoryCardSys::GetSaveWorldMemory(CAssetId wldId) const
 {
     auto existingSearch =
         std::find_if(xc_memoryWorlds.cbegin(), xc_memoryWorlds.cend(), [&](const auto& wld)
@@ -84,13 +84,13 @@ CMemoryCardSys::CMemoryCardSys()
     x1c_worldInter.emplace();
     x1c_worldInter->reserve(16);
 
-    std::vector<std::pair<ResId, ResId>> orderedMLVLs;
+    std::vector<std::pair<CAssetId, CAssetId>> orderedMLVLs;
     orderedMLVLs.reserve(16);
     g_ResFactory->EnumerateNamedResources([&](const std::string& name, const SObjectTag& tag) -> bool
     {
         if (tag.type == FOURCC('MLVL'))
         {
-            ResId origId = g_ResFactory->TranslateNewToOriginal(tag.id);
+            CAssetId origId = g_ResFactory->TranslateNewToOriginal(tag.id);
             orderedMLVLs.emplace_back(origId, tag.id);
         }
         return true;
@@ -180,17 +180,17 @@ bool CMemoryCardSys::InitializePump()
     return false;
 }
 
-void CMemoryCardSys::CCardFileInfo::LockBannerToken(ResId bannerTxtr, CSimplePool& sp)
+void CMemoryCardSys::CCardFileInfo::LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp)
 {
     x3c_bannerTex = bannerTxtr;
     x40_bannerTok.emplace(sp.GetObj({FOURCC('TXTR'), bannerTxtr}, m_texParam));
 }
 
-CMemoryCardSys::CCardFileInfo::Icon::Icon(ResId id, kabufuda::EAnimationSpeed speed,
+CMemoryCardSys::CCardFileInfo::Icon::Icon(CAssetId id, kabufuda::EAnimationSpeed speed,
                                           CSimplePool& sp, const CVParamTransfer& cv)
 : x0_id(id), x4_speed(speed), x8_tex(sp.GetObj({FOURCC('TXTR'), id}, cv)) {}
 
-void CMemoryCardSys::CCardFileInfo::LockIconToken(ResId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp)
+void CMemoryCardSys::CCardFileInfo::LockIconToken(CAssetId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp)
 {
     x50_iconToks.emplace_back(iconTxtr, speed, sp, m_texParam);
 }

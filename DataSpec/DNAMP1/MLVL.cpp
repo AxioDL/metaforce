@@ -270,8 +270,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     {
                         addedPaths.insert(path.hash());
                         urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
-                        if (tag.id != -1)
-                            areaOut.deps.emplace_back(tag.id, tag.type);
+                        if (tag.id.IsValid())
+                            areaOut.deps.emplace_back(tag.id.Value(), tag.type);
                     }
                 }
             }
@@ -309,14 +309,14 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 {
                     addedPaths.insert(path.hash());
                     urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
-                    if (tag.id != -1)
-                        areaOut.deps.emplace_back(tag.id, tag.type);
+                    if (tag.id.IsValid())
+                        areaOut.deps.emplace_back(tag.id.Value(), tag.type);
                 }
             }
 
             urde::SObjectTag tag = g_curSpec->BuildTagFromPath(areaPath, btok);
-            if (tag.id != -1)
-                areaOut.deps.emplace_back(tag.id, tag.type);
+            if (tag.id.IsValid())
+                areaOut.deps.emplace_back(tag.id.Value(), tag.type);
         }
 
         ++areaIdx;
@@ -369,7 +369,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath,
         fo.writeUint32Big(1);
         fo.writeUint32Big(mapaTags.size());
         for (const urde::SObjectTag& mapa : mapaTags)
-            fo.writeUint32Big(mapa.id);
+            fo.writeUint32Big(u32(mapa.id.Value()));
         int64_t rem = fo.position() % 32;
         if (rem)
             for (int64_t i=0 ; i<32-rem ; ++i)

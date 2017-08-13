@@ -75,7 +75,7 @@ void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Are
     x10_saveLayers.clear();
 }
 
-CWorldState::CWorldState(ResId id)
+CWorldState::CWorldState(CAssetId id)
 : x0_mlvlId(id), x4_areaId(0)
 {
     x8_relayTracker = std::make_shared<CRelayTracker>();
@@ -84,7 +84,7 @@ CWorldState::CWorldState(ResId id)
     x14_layerState = std::make_shared<CWorldLayerState>();
 }
 
-CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld)
+CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld)
 : x0_mlvlId(mlvlId)
 {
     x4_areaId = reader.ReadEncoded(32);
@@ -97,7 +97,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorl
 void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const
 {
     writer.WriteEncoded(x4_areaId, 32);
-    writer.WriteEncoded(x10_desiredAreaAssetId, 32);
+    writer.WriteEncoded(x10_desiredAreaAssetId.Value(), 32);
     x8_relayTracker->PutTo(writer, savw);
     xc_mapWorldInfo->PutTo(writer, savw, x0_mlvlId);
     x14_layerState->PutTo(writer);
@@ -114,7 +114,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data)
 
     ret.x20_hardMode = stream.ReadEncoded(1);
     stream.ReadEncoded(1);
-    ResId origMLVL = stream.ReadEncoded(32);
+    CAssetId origMLVL = stream.ReadEncoded(32);
     ret.x8_mlvlId = g_ResFactory->TranslateOriginalToNew(origMLVL);
 
     BitsToDouble conv;
@@ -236,7 +236,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const
     writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
     writer.WriteEncoded(x228_24_hardMode, 1);
     writer.WriteEncoded(x228_25_deferPowerupInit, 1);
-    writer.WriteEncoded(g_ResFactory->TranslateNewToOriginal(x84_mlvlId), 32);
+    writer.WriteEncoded(g_ResFactory->TranslateNewToOriginal(x84_mlvlId).Value(), 32);
 
     BitsToDouble conv;
     conv.doub = xa0_playTime;
@@ -257,7 +257,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const
     }
 }
 
-void CGameState::SetCurrentWorldId(ResId id)
+void CGameState::SetCurrentWorldId(CAssetId id)
 {
     StateForWorld(id);
     x84_mlvlId = id;
@@ -269,7 +269,7 @@ void CGameState::SetTotalPlayTime(float time)
     xa0_playTime = zeus::clamp<double>(0.0, time, 359999.0);
 }
 
-CWorldState& CGameState::StateForWorld(ResId mlvlId)
+CWorldState& CGameState::StateForWorld(CAssetId mlvlId)
 {
     auto it = x88_worldStates.begin();
     for (; it != x88_worldStates.end() ; ++it)

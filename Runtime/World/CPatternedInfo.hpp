@@ -41,18 +41,18 @@ class CPatternedInfo
     u16 xe8_deathSfx;
     CAnimationParameters xec_animParams;
     bool xf8_active;
-    ResId xfc_stateMachineId;
+    CAssetId xfc_stateMachineId;
     float x100_;
     float x104_;
     float x108_;
 
     u32 x10c_particle1Frames;
     zeus::CVector3f x110_particle1Scale;
-    ResId x11c_particle1;
+    CAssetId x11c_particle1;
 
     u32 x120_particle2Frames;
     zeus::CVector3f x124_particle2Scale;
-    ResId x130_particle2 = -1;
+    CAssetId x130_particle2 = -1;
 
     u16 x134_iceShatterSfx = -1;
 

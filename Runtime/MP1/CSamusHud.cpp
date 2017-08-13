@@ -1824,7 +1824,7 @@ void CSamusHud::SetMessage(const std::u16string& text, const CHUDMemoParms& info
     }
 }
 
-void CSamusHud::InternalDeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info)
+void CSamusHud::InternalDeferHintMemo(CAssetId strg, u32 strgIdx, const CHUDMemoParms& info)
 {
     x548_hudMemoParms = info;
     x550_hudMemoString = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), strg});

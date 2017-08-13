@@ -40,6 +40,9 @@ public:
     void DeleteProjectileLight(CStateManager&);
     void CreateProjectileLight(const std::string&, const CLight&, CStateManager&);
     void Chase(float, CStateManager&);
+    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                           const CWeaponMode&, int) const
+    { return EWeaponCollisionResponseTypes::Projectile; }
 };
 }
 

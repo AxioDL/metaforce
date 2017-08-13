@@ -134,10 +134,10 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     }
 }
 
-bool CPersistentOptions::GetCinematicState(ResId mlvlId, TEditorId cineId) const
+bool CPersistentOptions::GetCinematicState(CAssetId mlvlId, TEditorId cineId) const
 {
     auto existing = std::find_if(xac_cinematicStates.cbegin(), xac_cinematicStates.cend(),
-                                 [&](const std::pair<ResId, TEditorId>& pair) -> bool
+                                 [&](const std::pair<CAssetId, TEditorId>& pair) -> bool
     {
         return pair.first == mlvlId && pair.second == cineId;
     });
@@ -145,10 +145,10 @@ bool CPersistentOptions::GetCinematicState(ResId mlvlId, TEditorId cineId) const
     return existing != xac_cinematicStates.cend();
 }
 
-void CPersistentOptions::SetCinematicState(ResId mlvlId, TEditorId cineId, bool state)
+void CPersistentOptions::SetCinematicState(CAssetId mlvlId, TEditorId cineId, bool state)
 {
     auto existing = std::find_if(xac_cinematicStates.cbegin(), xac_cinematicStates.cend(),
-                                 [&](const std::pair<ResId, TEditorId>& pair) -> bool
+                                 [&](const std::pair<CAssetId, TEditorId>& pair) -> bool
     {
         return pair.first == mlvlId && pair.second == cineId;
     });
@@ -361,7 +361,7 @@ void CGameOptions::SetControls(int controls)
     ResetControllerAssets(controls);
 }
 
-static const std::pair<ResId, ResId> CStickToDPadRemap[] =
+static const std::pair<CAssetId, CAssetId> CStickToDPadRemap[] =
 {
     {0x2A13C23E, 0xF13452F8},
     {0xA91A7703, 0xC042EC91},
@@ -370,7 +370,7 @@ static const std::pair<ResId, ResId> CStickToDPadRemap[] =
     {0xCD7B1ACA, 0x8ADA8184},
 };
 
-static const std::pair<ResId, ResId> CStickOutlineToDPadRemap[] =
+static const std::pair<CAssetId, CAssetId> CStickOutlineToDPadRemap[] =
 {
     {0x1A29C0E6, 0xF13452F8},
     {0x5D9F9796, 0xC042EC91},
@@ -379,7 +379,7 @@ static const std::pair<ResId, ResId> CStickOutlineToDPadRemap[] =
     {0x409AA72E, 0x8ADA8184},
 };
 
-static std::pair<ResId, ResId> TranslatePairToNew(const std::pair<ResId, ResId>& p)
+static std::pair<CAssetId, CAssetId> TranslatePairToNew(const std::pair<CAssetId, CAssetId>& p)
 {
     return {g_ResFactory->TranslateOriginalToNew(p.first),
             g_ResFactory->TranslateOriginalToNew(p.second)};
@@ -406,7 +406,7 @@ void CGameOptions::ResetControllerAssets(int controls)
             x6c_controlTxtrMap.push_back(TranslatePairToNew(CStickOutlineToDPadRemap[i]));
 
         std::sort(x6c_controlTxtrMap.begin(), x6c_controlTxtrMap.end(),
-        [](const std::pair<ResId, ResId>& a, const std::pair<ResId, ResId>& b)
+        [](const std::pair<CAssetId, CAssetId>& a, const std::pair<CAssetId, CAssetId>& b)
         { return a.first < b.first; });
     }
 }

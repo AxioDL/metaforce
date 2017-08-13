@@ -293,7 +293,7 @@ public:
     void SetCardBusy(bool v) { x160_31_cardBusy = v; }
     void SetGameFrameDrawn() { x161_24_gameFrameDrawn = true; }
     static void EnsureWorldPaksReady();
-    static void EnsureWorldPakReady(ResId mlvl);
+    static void EnsureWorldPakReady(CAssetId mlvl);
 
     EFlowState GetFlowState() const { return x12c_flowState; }
     void SetFlowState(EFlowState s) { x12c_flowState = s; }
@@ -301,6 +301,8 @@ public:
     void SetX30(bool v) { x160_30_ = v; }
 
     CGameArchitectureSupport* GetArchSupport() const { return x164_archSupport.get(); }
+
+    size_t GetExpectedIdSize() const { return sizeof(u32); }
 };
 
 }

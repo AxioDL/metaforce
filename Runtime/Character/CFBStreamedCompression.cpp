@@ -12,7 +12,7 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& o
 
     xc_rotsAndOffs = GetRotationsAndOffsets(x0_scratchSize / 4 + 1, in);
 
-    if (x4_evnt)
+    if (x4_evnt.IsValid())
         x8_evntToken = objStore.GetObj(SObjectTag{FOURCC('EVNT'), x4_evnt});
 
     x10_averageVelocity = CalculateAverageVelocity(GetPerChannelHeaders());

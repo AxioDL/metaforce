@@ -35,7 +35,7 @@ void CScriptStreamedMusic::TweakOverride(CStateManager& mgr)
     const CWorld* wld = mgr.GetWorld();
     const CGameArea* area = wld->GetAreaAlways(x4_areaId);
     std::string twkName = hecl::Format("Area %8.8x MusicObject: %s",
-                                       unsigned(area->GetAreaAssetId()), x10_name.c_str());
+                                       u32(area->GetAreaAssetId().Value()), x10_name.c_str());
     if (g_TweakManager->HasTweakValue(twkName))
     {
         const CTweakValue::Audio& audio = g_TweakManager->GetTweakValue(twkName)->GetAudio();

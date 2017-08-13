@@ -383,8 +383,8 @@ void CWorldTransManager::TouchModels()
 }
 
 void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
-                                          ResId platRes, const zeus::CVector3f& platScale,
-                                          ResId bgRes, const zeus::CVector3f& bgScale, bool goingUp)
+                                          CAssetId platRes, const zeus::CVector3f& platScale,
+                                          CAssetId bgRes, const zeus::CVector3f& bgScale, bool goingUp)
 {
     x44_25_stopSoon = false;
     x44_26_goingUp = goingUp;
@@ -394,7 +394,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     x8_textData.reset();
     x20_random.SetSeed(99);
 
-    ResId beamModelId = g_tweakPlayerRes->GetBeamCineModel(
+    CAssetId beamModelId = g_tweakPlayerRes->GetBeamCineModel(
         DataSpec::ITweakPlayerRes::EBeamId(g_GameState->GetPlayerState()->GetCurrentBeam()));
 
     x4_modelData->x14c_beamModel = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), beamModelId});
@@ -428,7 +428,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     TouchModels();
 }
 
-void CWorldTransManager::EnableTransition(ResId fontId, ResId stringId, u32 strIdx, bool fadeWhite,
+void CWorldTransManager::EnableTransition(CAssetId fontId, CAssetId stringId, u32 strIdx, bool fadeWhite,
                                           float chFadeTime, float chFadeRate, float textStartTime)
 {
     x40_strIdx = strIdx;

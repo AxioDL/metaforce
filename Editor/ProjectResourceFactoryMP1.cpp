@@ -47,8 +47,8 @@ namespace urde
 
 class MP1OriginalIDs
 {
-    std::vector<std::pair<ResId, ResId>> m_origToNew;
-    std::vector<std::pair<ResId, ResId>> m_newToOrig;
+    std::vector<std::pair<CAssetId, CAssetId>> m_origToNew;
+    std::vector<std::pair<CAssetId, CAssetId>> m_newToOrig;
 
 public:
     MP1OriginalIDs(CInputStream& in)
@@ -57,20 +57,20 @@ public:
         m_origToNew.reserve(count);
         for (u32 i=0 ; i<count ; ++i)
         {
-            ResId a = in.readUint32Big();
-            ResId b = in.readUint32Big();
+            CAssetId a = in.readUint32Big();
+            CAssetId b = in.readUint32Big();
             m_origToNew.push_back(std::make_pair(a, b));
         }
         m_newToOrig.reserve(count);
         for (u32 i=0 ; i<count ; ++i)
         {
-            ResId a = in.readUint32Big();
-            ResId b = in.readUint32Big();
+            CAssetId a = in.readUint32Big();
+            CAssetId b = in.readUint32Big();
             m_newToOrig.push_back(std::make_pair(a, b));
         }
     }
 
-    ResId TranslateOriginalToNew(ResId id) const
+    CAssetId TranslateOriginalToNew(CAssetId id) const
     {
         auto search = rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id,
         [](const auto& id) { return id.first; });
@@ -79,7 +79,7 @@ public:
         return search->second;
     }
 
-    ResId TranslateNewToOriginal(ResId id) const
+    CAssetId TranslateNewToOriginal(CAssetId id) const
     {
         auto search = rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
         [](const auto& id) { return id.first; });
@@ -154,12 +154,12 @@ void ProjectResourceFactoryMP1::Shutdown()
     ProjectResourceFactoryBase::Shutdown();
 }
 
-ResId ProjectResourceFactoryMP1::TranslateOriginalToNew(ResId id) const
+CAssetId ProjectResourceFactoryMP1::TranslateOriginalToNew(CAssetId id) const
 {
     return m_origIds->TranslateOriginalToNew(id);
 }
 
-ResId ProjectResourceFactoryMP1::TranslateNewToOriginal(ResId id) const
+CAssetId ProjectResourceFactoryMP1::TranslateNewToOriginal(CAssetId id) const
 {
     return m_origIds->TranslateNewToOriginal(id);
 }

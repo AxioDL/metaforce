@@ -41,7 +41,7 @@ s32 GetWeaponIndex(EWeaponType type)
     return 0;
 }
 
-CGunWeapon::CGunWeapon(ResId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes mType, const zeus::CVector3f& vec)
+CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes mType, const zeus::CVector3f& vec)
     : x4_(vec),
       x104_gunCharacter(g_SimplePool->GetObj(SObjectTag{FOURCC('ANCS'), ancsId})),
       x13c_armCharacter(g_SimplePool->GetObj(skSuitArmNames[0])),

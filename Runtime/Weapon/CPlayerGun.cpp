@@ -24,7 +24,7 @@ CPlayerGun::CPlayerGun(TUniqueId id)
     /* TODO: Finish */
 }
 
-void CPlayerGun::AcceptScriptMessage(EScriptObjectMessage, TUniqueId, CStateManager&)
+void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
 {
 
 }

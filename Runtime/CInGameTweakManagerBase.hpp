@@ -16,14 +16,14 @@ public:
     {
         float x0_fadeIn, x4_fadeOut, x8_volume;
         std::string xc_fileName;
-        ResId x1c_res;
+        CAssetId x1c_res;
         Audio(float fadeIn, float fadeOut, float vol, const std::string& fileName, u32 handle)
         : x0_fadeIn(fadeIn), x4_fadeOut(fadeOut), x8_volume(vol), xc_fileName(fileName), x1c_res(handle) {}
         float GetFadeIn() const { return x0_fadeIn; }
         float GetFadeOut() const { return x4_fadeOut; }
         float GetVolume() const { return x8_volume; }
         const std::string& GetFileName() const { return xc_fileName; }
-        ResId GetResId() const { return x1c_res; }
+        CAssetId GetResId() const { return x1c_res; }
         static Audio None() { return Audio{0.f, 0.f, 0.f, "", 0}; }
     };
     enum class EType
@@ -77,11 +77,11 @@ public:
         return true;
     }
 
-    static std::string GetIdentifierForMidiEvent(ResId world, ResId area,
+    static std::string GetIdentifierForMidiEvent(CAssetId world, CAssetId area,
                                                  const std::string& midiObj)
     {
         return hecl::Format("World %8.8x Area %8.8x MidiObject: %s",
-                            u32(world), u32(area), midiObj.c_str());
+                            u32(world.Value()), u32(area.Value()), midiObj.c_str());
     }
 };
 

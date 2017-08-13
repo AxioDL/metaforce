@@ -248,7 +248,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
         }
     }
 
-    ResId strId = x14_scannableInfo->GetStringTableId();
+    CAssetId strId = x14_scannableInfo->GetStringTableId();
     if (strId != -1)
         x194_scanStr = g_SimplePool->GetObj({FOURCC('STRG'), strId});
 

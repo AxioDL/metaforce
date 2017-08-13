@@ -13,8 +13,8 @@ class CActorParameters
     friend class ScriptLoader;
     CLightParameters x0_lightParms;
     CScannableParameters x40_scanParms;
-    std::pair<ResId, ResId> x44_xrayAssets = {};
-    std::pair<ResId, ResId> x4c_thermalAssets = {};
+    std::pair<CAssetId, CAssetId> x44_xrayAssets = {};
+    std::pair<CAssetId, CAssetId> x4c_thermalAssets = {};
     CVisorParameters x54_visorParms;
     union
     {
@@ -34,7 +34,7 @@ class CActorParameters
 public:
     CActorParameters() : x58_24_(true), x58_25_thermalHeat(false), x58_26_(false), x58_27_(false) {}
     CActorParameters(const CLightParameters& lightParms, const CScannableParameters& scanParms,
-                     const std::pair<ResId, ResId>& xrayAssets, const std::pair<ResId, ResId>& thermalAssets,
+                     const std::pair<CAssetId, CAssetId>& xrayAssets, const std::pair<CAssetId, CAssetId>& thermalAssets,
                      const CVisorParameters& visorParms, bool b1, bool thermalHeat, bool c, bool d)
     : x0_lightParms(lightParms)
     , x40_scanParms(scanParms)

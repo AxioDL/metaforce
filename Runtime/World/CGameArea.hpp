@@ -27,9 +27,9 @@ class CDummyGameArea : public IGameArea
     friend class CDummyWorld;
 
     int x4_mlvlVersion;
-    ResId x8_nameSTRG;
-    ResId xc_mrea;
-    ResId x10_areaId;
+    CAssetId x8_nameSTRG;
+    CAssetId xc_mrea;
+    TAreaId x10_areaId;
     zeus::CTransform x14_transform;
     std::vector<u16> x44_attachedAreaIndices;
     std::vector<Dock> x54_docks;
@@ -39,11 +39,11 @@ public:
 
     bool IGetScriptingMemoryAlways() const;
     TAreaId IGetAreaId() const;
-    ResId IGetAreaAssetId() const;
+    CAssetId IGetAreaAssetId() const;
     bool IIsActive() const;
     TAreaId IGetAttachedAreaId(int) const;
     u32 IGetNumAttachedAreas() const;
-    ResId IGetStringTableAssetId() const;
+    CAssetId IGetStringTableAssetId() const;
     const zeus::CTransform& IGetTM() const;
 };
 
@@ -84,11 +84,11 @@ class CGameArea : public IGameArea
     friend class CStateManager;
 
     int x4_selfIdx;
-    ResId x8_nameSTRG;
+    CAssetId x8_nameSTRG;
     zeus::CTransform xc_transform;
     zeus::CTransform x3c_invTransform;
     zeus::CAABox x6c_aabb;
-    ResId x84_mrea;
+    CAssetId x84_mrea;
     u32 x88_areaId;
     std::vector<u16> x8c_attachedAreaIndices;
     std::vector<SObjectTag> x9c_deps1;
@@ -295,17 +295,17 @@ public:
     bool IGetScriptingMemoryAlways() const;
     TAreaId GetAreaId() const { return x4_selfIdx; }
     TAreaId IGetAreaId() const { return x4_selfIdx; }
-    ResId IGetAreaAssetId() const { return x84_mrea; }
+    CAssetId IGetAreaAssetId() const { return x84_mrea; }
     bool IIsActive() const;
     TAreaId IGetAttachedAreaId(int) const;
     u32 IGetNumAttachedAreas() const;
-    ResId IGetStringTableAssetId() const;
+    CAssetId IGetStringTableAssetId() const;
     const zeus::CTransform& IGetTM() const;
 
     void SetXRaySpeedAndTarget(float f1, float f2);
     void SetThermalSpeedAndTarget(float f1, float f2);
 
-    ResId GetAreaAssetId() const { return x84_mrea; }
+    CAssetId GetAreaAssetId() const { return x84_mrea; }
     const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
     CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
     float GetXRayFogDistance() const;

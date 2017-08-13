@@ -43,8 +43,8 @@ CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freq
     }
 }
 
-CFluidPlaneCPU::CFluidPlaneCPU(ResId texPattern1, ResId texPattern2, ResId texColor, ResId bumpMap, ResId envMap,
-                               ResId envBumpMap, ResId lightMap, float unitsPerLightmapTexel, float tileSize,
+CFluidPlaneCPU::CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, CAssetId bumpMap, CAssetId envMap,
+                               CAssetId envBumpMap, CAssetId lightMap, float unitsPerLightmapTexel, float tileSize,
                                u32 tileSubdivisions, EFluidType fluidType, float alpha,
                                const zeus::CVector3f& bumpLightDir, float bumpScale, const CFluidUVMotion& mot,
                                float turbSpeed, float turbDistance, float turbFreqMax, float turbFreqMin,

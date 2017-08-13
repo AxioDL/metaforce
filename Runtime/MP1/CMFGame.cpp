@@ -288,13 +288,13 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
     case EFlowState::Default:
     case EFlowState::StateSetter:
     {
-        ResId mlvlId = g_GameState->CurrentWorldAssetId();
+        CAssetId mlvlId = g_GameState->CurrentWorldAssetId();
         if (g_MemoryCardSys->HasSaveWorldMemory(mlvlId))
         {
             const CSaveWorldMemory& savwMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
             if (savwMem.GetWorldNameId() != -1)
             {
-                ResId wtMgrFont = g_ResFactory->TranslateOriginalToNew(0xB7BBD0B4);
+                CAssetId wtMgrFont = g_ResFactory->TranslateOriginalToNew(0xB7BBD0B4);
                 g_GameState->GetWorldTransitionManager()->EnableTransition(wtMgrFont,
                                                                            savwMem.GetWorldNameId(),
                                                                            1, false, 0.1f, 16.f, 1.f);

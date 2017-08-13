@@ -23,7 +23,7 @@ CMaterialList MakeDamageableTriggerMaterial(CScriptDamageableTrigger::ECanOrbit 
 
 CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                                                    const zeus::CVector3f& position, const zeus::CVector3f& extent, const CHealthInfo&,
-                                                   const CDamageVulnerability&, u32, ResId, ResId, ResId,
+                                                   const CDamageVulnerability&, u32, CAssetId, CAssetId, CAssetId,
                                                    CScriptDamageableTrigger::ECanOrbit canOrbit, bool active, const CVisorParameters& vParams)
     : CActor(uid, active, name, info, zeus::CTransform::Translate(position), CModelData::CModelDataNull(),
              MakeDamageableTriggerMaterial(canOrbit), MakeDamageableTriggerActorParms(CActorParameters::None(), vParams),

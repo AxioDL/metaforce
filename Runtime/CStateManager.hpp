@@ -62,7 +62,7 @@ struct SScriptObjectStream
 
 struct SOnScreenTex
 {
-    ResId x0_id = -1;
+    CAssetId x0_id = -1;
     zeus::CVector2i x4_origin;
     zeus::CVector2i xc_extent;
 };
@@ -207,7 +207,7 @@ private:
     u32 xef0_hintPeriods = 0;
 
     SOnScreenTex xef4_pendingScreenTex;
-    ResId xf08_pauseHudMessage = -1;
+    CAssetId xf08_pauseHudMessage = -1;
     float xf0c_escapeTimer = 0.f;
     float xf10_escapeTotalTime = 0.f;
     float xf14_curTimeMod900 = 0.f;
@@ -232,8 +232,8 @@ private:
     float xf78_hudMessageTime = 0.f;
     CProjectedShadow* xf7c_projectedShadow = nullptr;
     u32 xf80_hudMessageFrameCount = 0;
-    ResId xf84_ = -1;
-    ResId xf88_ = -1;
+    s32 xf84_ = -1;
+    CAssetId xf88_ = -1;
     float xf8c_ = 0.f;
     EStateManagerTransition xf90_deferredTransition = EStateManagerTransition::InGame;
 
@@ -361,10 +361,10 @@ public:
     void CrossTouchActors();
     void ThinkEffectsAndActors(float dt);
     void PostUpdatePlayer(float dt);
-    void ShowPausedHUDMemo(ResId strg, float time);
+    void ShowPausedHUDMemo(CAssetId strg, float time);
     void ClearGraveyard();
     void FrameBegin(s32 frameCount);
-    void InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId);
+    void InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaId);
     void CreateStandardGameObjects();
     const std::unique_ptr<CObjectList>& GetObjectList() const { return x808_objLists[0]; }
     CObjectList* ObjectListById(EGameObjectList type);
@@ -403,7 +403,7 @@ public:
     TUniqueId GetSkipCinematicSpecialFunction() const { return xf38_skipCineSpecialFunc; }
     void SetSkipCinematicSpecialFunction(TUniqueId id) { xf38_skipCineSpecialFunc = id; }
     float GetHUDMessageTime() const { return xf78_hudMessageTime; }
-    ResId GetPauseHUDMessage() const { return xf08_pauseHudMessage; }
+    CAssetId GetPauseHUDMessage() const { return xf08_pauseHudMessage; }
     void IncrementHUDMessageFrameCounter() { ++xf80_hudMessageFrameCount; }
     bool ShouldQuitGame() const { return xf94_25_quitGame; }
     void SetShouldQuitGame(bool should) { xf94_25_quitGame = should; }

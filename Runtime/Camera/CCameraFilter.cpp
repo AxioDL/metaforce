@@ -40,7 +40,7 @@ void CCameraFilterPass<S>::Update(float dt)
 
 template <class S>
 void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
-                                     float time, const zeus::CColor& color, ResId txtr)
+                                     float time, const zeus::CColor& color, CAssetId txtr)
 {
     if (time == 0.f)
     {
@@ -65,7 +65,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
     else
     {
         EFilterType origType = x0_curType;
-        ResId origTxtr = x20_nextTxtr;
+        CAssetId origTxtr = x20_nextTxtr;
 
         x1c_nextColor = color;
         x14_prevColor = x18_curColor;
@@ -136,7 +136,7 @@ float CCameraFilterPassBase::GetT(bool invert) const
 }
 
 void CCameraFilterPassPoly::SetFilter(EFilterType type, EFilterShape shape,
-                                      float time, const zeus::CColor& color, ResId txtr)
+                                      float time, const zeus::CColor& color, CAssetId txtr)
 {
     if (!m_filter || m_shape != shape)
     {

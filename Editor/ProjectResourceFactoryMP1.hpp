@@ -18,8 +18,8 @@ public:
     void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const;
     void Shutdown();
 
-    ResId TranslateOriginalToNew(ResId id) const;
-    ResId TranslateNewToOriginal(ResId id) const;
+    CAssetId TranslateOriginalToNew(CAssetId id) const;
+    CAssetId TranslateNewToOriginal(CAssetId id) const;
 };
 
 }

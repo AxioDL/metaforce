@@ -14,7 +14,7 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, const std::string&
                                                const zeus::CTransform& xf, ESpecialFunction func,
                                                const std::string& lcName, float radius, float f2, float f3, float f4,
                                                const zeus::CVector3f& vec, const zeus::CColor& col, bool active,
-                                               const CDamageInfo& dInfo, ResId aId1, ResId aId2, ResId aId3, s16 sId1,
+                                               const CDamageInfo& dInfo, CAssetId aId1, CAssetId aId2, CAssetId aId3, s16 sId1,
                                                s16 sId2, s16 sId3)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
          kInvalidUniqueId)

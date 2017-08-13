@@ -98,7 +98,7 @@ class CAnimData
     u32 x104_ = 0;
     zeus::CAABox x108_aabb;
     CParticleDatabase x120_particleDB;
-    ResId x1d8_selfId;
+    CAssetId x1d8_selfId;
     zeus::CVector3f x1dc_alignPos;
     zeus::CQuaternion x1e8_alignRot;
     std::shared_ptr<CAnimTreeNode> x1f8_animRoot;
@@ -144,7 +144,7 @@ class CAnimData
     int m_drawInstCount;
 
 public:
-    CAnimData(ResId,
+    CAnimData(CAssetId,
               const CCharacterInfo& character,
               int defaultAnim, int charIdx, bool loop,
               const TLockedToken<CCharLayoutInfo>& layout,
@@ -156,7 +156,7 @@ public:
               const TLockedToken<CCharacterFactory>& charFactory,
               int drawInstCount);
 
-    ResId GetEventResourceIdForAnimResourceId(ResId) const;
+    CAssetId GetEventResourceIdForAnimResourceId(CAssetId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);
     static SAdvancementResults AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time);
     SAdvancementDeltas AdvanceAdditiveAnims(float);

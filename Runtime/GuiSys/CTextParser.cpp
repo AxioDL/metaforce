@@ -92,7 +92,7 @@ bool CTextParser::BeginsWith(const char16_t* str, int len, const char16_t* other
 }
 
 void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len,
-                           const std::vector<std::pair<ResId, ResId>>* txtrMap)
+                           const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap)
 {
     if (BeginsWith(str, len, u"font="))
     {
@@ -198,7 +198,7 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
 }
 
 CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
-                                    const std::vector<std::pair<ResId, ResId>>* txtrMap)
+                                    const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap)
 {
     int commaCount = 0;
     for (int i=0 ; i<len ; ++i)
@@ -297,14 +297,14 @@ CFontImageDef CTextParser::GetImage(const char16_t* str, int len,
     return CFontImageDef(tex, zeus::CVector2f(1.f, 1.f));
 }
 
-ResId CTextParser::GetAssetIdFromString(const char16_t* str, int len,
-                                        const std::vector<std::pair<ResId, ResId>>* txtrMap)
+CAssetId CTextParser::GetAssetIdFromString(const char16_t* str, int len,
+                                        const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap)
 {
     u8 r = GetColorValue(str);
     u8 g = GetColorValue(str + 2);
     u8 b = GetColorValue(str + 4);
     u8 a = GetColorValue(str + 6);
-    ResId id = ((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff;
+    CAssetId id = ((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff;
 
     if (len == 16)
     {
@@ -312,13 +312,13 @@ ResId CTextParser::GetAssetIdFromString(const char16_t* str, int len,
         g = GetColorValue(str + 10);
         b = GetColorValue(str + 12);
         a = GetColorValue(str + 14);
-        id = (id << 32) | (((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff);
+        id = (id.Value() << 32) | (((r << 24) | (g << 16) | (b << 8) | a) & 0xffffffff);
     }
 
     if (txtrMap)
     {
         auto search = rstl::binary_find(txtrMap->begin(), txtrMap->end(), id,
-        [](const std::pair<ResId, ResId>& a) { return a.first; });
+        [](const std::pair<CAssetId, CAssetId>& a) { return a.first; });
         if (search != txtrMap->end())
             id = search->second;
     }
@@ -332,7 +332,7 @@ TToken<CRasterFont> CTextParser::GetFont(const char16_t* str, int len)
 }
 
 void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int len,
-                            const std::vector<std::pair<ResId, ResId>>* txtrMap)
+                            const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap)
 {
     int b=0, e=0;
     for (b=0, e=0 ; str[e] && (len == -1 || e < len) ;)

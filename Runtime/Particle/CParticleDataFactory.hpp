@@ -76,8 +76,8 @@ class CParticleDataFactory
     friend class CProjectileWeaponDataFactory;
 
     static SParticleModel GetModel(CInputStream& in, CSimplePool* resPool);
-    static SChildGeneratorDesc GetChildGeneratorDesc(ResId res, CSimplePool* resPool, const std::vector<ResId>& tracker);
-    static SChildGeneratorDesc GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<ResId>& tracker);
+    static SChildGeneratorDesc GetChildGeneratorDesc(CAssetId res, CSimplePool* resPool, const std::vector<CAssetId>& tracker);
+    static SChildGeneratorDesc GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<CAssetId>& tracker);
     static SSwooshGeneratorDesc GetSwooshGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static SElectricGeneratorDesc GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static CUVElement* GetTextureElement(CInputStream& in, CSimplePool* resPool);
@@ -89,13 +89,13 @@ class CParticleDataFactory
     static CIntElement* GetIntElement(CInputStream& in);
 
     static float GetReal(CInputStream& in);
-    static int32_t GetInt(CInputStream& in);
+    static s32 GetInt(CInputStream& in);
     static bool GetBool(CInputStream& in);
     static FourCC GetClassID(CInputStream& in);
-    static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<ResId>& tracker,
-                                                       ResId resId, CSimplePool* resPool);
+    static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<CAssetId>& tracker,
+                                                       CAssetId resId, CSimplePool* resPool);
     static bool CreateGPSM(CGenDescription* fillDesc, CInputStream& in,
-                           std::vector<ResId>& tracker, CSimplePool* resPool);
+                           std::vector<CAssetId>& tracker, CSimplePool* resPool);
     static void LoadGPSMTokens(CGenDescription* desc);
 public:
     static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);

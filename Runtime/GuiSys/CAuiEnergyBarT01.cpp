@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CAuiEnergyBarT01::CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, ResId txtrId)
+CAuiEnergyBarT01::CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId)
 : CGuiWidget(parms), xb8_txtrId(txtrId)
 {
     if (g_GuiSys->GetUsageMode() != CGuiSys::EUsageMode::Two)
@@ -166,7 +166,7 @@ void CAuiEnergyBarT01::SetMaxEnergy(float maxEnergy)
 std::shared_ptr<CGuiWidget> CAuiEnergyBarT01::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-    ResId tex = in.readUint32Big();
+    CAssetId tex = in.readUint32Big();
     std::shared_ptr<CGuiWidget> ret = std::make_shared<CAuiEnergyBarT01>(parms, sp, tex);
     ret->ParseBaseInfo(frame, in, parms);
     return ret;

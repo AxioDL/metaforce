@@ -5,7 +5,7 @@
 namespace urde
 {
 
-CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, ResId mlvlId)
+CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, CAssetId mlvlId)
 {
     const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
@@ -29,7 +29,7 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, R
     x38_mapStationUsed = reader.ReadEncoded(1);
 }
 
-void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, ResId mlvlId) const
+void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const
 {
     const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 

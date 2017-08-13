@@ -14,7 +14,7 @@ MP1::CActorContraption::CActorContraption(TUniqueId uid, const std::string& name
                                           const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabox,
                                           const CMaterialList& matList, float mass, float zMomentum, const CHealthInfo& hInfo,
                                           const CDamageVulnerability& dVuln, const CActorParameters& aParams,
-                                          ResId part, const CDamageInfo& dInfo, bool active)
+                                          CAssetId part, const CDamageInfo& dInfo, bool active)
 : CScriptActor(uid, name, info, xf, std::move(mData), aabox, mass, zMomentum, matList, hInfo, dVuln, aParams, false, active, 0,
                1.f, false, false, false, false)
 , x300_flameThrowerGen(g_SimplePool->GetObj("FlameThrower"))

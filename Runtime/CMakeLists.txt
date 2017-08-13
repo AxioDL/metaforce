@@ -49,7 +49,7 @@ if(APPLE)
 endif()
 
 add_library(RuntimeCommon
-            RetroTypes.hpp
+            RetroTypes.hpp RetroTypes.cpp
             ${CLIENT_SOURCES}
             ${MP1_SOURCES}
             ${AUDIO_SOURCES}

@@ -19,14 +19,14 @@ public:
     {
         float x0_alpha;
         int x4_wldIdx;
-        ResId x8_wldRes;
+        CAssetId x8_wldRes;
         int xc_closestHex;
         float x10_flashPulse;
         const CStateManager& x14_mgr;
         const zeus::CTransform& x18_model;
         const zeus::CTransform& x1c_view;
     public:
-        CMapUniverseDrawParms(float alpha, int wldIdx, ResId wldRes, int closestHex,
+        CMapUniverseDrawParms(float alpha, int wldIdx, CAssetId wldRes, int closestHex,
                               float flashPulse, const CStateManager& mgr,
                               const zeus::CTransform& model, const zeus::CTransform& view)
         : x0_alpha(alpha),
@@ -42,7 +42,7 @@ public:
         const zeus::CTransform& GetCameraTransform() const { return x1c_view; }
         const zeus::CTransform& GetPaneProjectionTransform() const { return x18_model; }
         float GetAlpha() const { return x0_alpha; }
-        ResId GetWorldAssetId() const { return x8_wldRes; }
+        CAssetId GetWorldAssetId() const { return x8_wldRes; }
         int GetClosestArea() const { return xc_closestHex; }
         float GetFlashPulse() const { return x10_flashPulse; }
     };
@@ -71,7 +71,7 @@ public:
     class CMapWorldData
     {
         std::string x0_label;
-        ResId x10_worldAssetId;
+        CAssetId x10_worldAssetId;
         zeus::CTransform x14_transform;
         std::vector<zeus::CTransform> x44_hexagonXfs;
         zeus::CColor x54_surfColorSelected;
@@ -81,7 +81,7 @@ public:
         zeus::CVector3f x64_centerPoint = zeus::CVector3f::skZero;
     public:
         CMapWorldData(CInputStream& in, u32 version);
-        ResId GetWorldAssetId() const { return x10_worldAssetId; }
+        CAssetId GetWorldAssetId() const { return x10_worldAssetId; }
         const zeus::CVector3f& GetWorldCenterPoint() const { return x64_centerPoint; }
         const std::string& GetWorldLabel() const { return x0_label; }
         const zeus::CTransform& GetWorldTransform() const { return x14_transform; }
@@ -94,7 +94,7 @@ public:
     };
 
 private:
-    ResId x0_hexagonId;
+    CAssetId x0_hexagonId;
     TLockedToken<CMapArea> x4_hexagonToken;
     std::vector<CMapWorldData> x10_worldDatas;
     zeus::CVector3f x20_universeCenter = zeus::CVector3f::skZero;
@@ -102,7 +102,7 @@ private:
 public:
     CMapUniverse(CInputStream&, u32);
     const CMapWorldData& GetMapWorldData(s32 idx) const { return x10_worldDatas[idx]; }
-    const CMapWorldData& GetMapWorldDataByWorldId(ResId id) const
+    const CMapWorldData& GetMapWorldDataByWorldId(CAssetId id) const
     {
         for (const CMapWorldData& data : x10_worldDatas)
             if (data.GetWorldAssetId() == id)

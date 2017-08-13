@@ -21,14 +21,14 @@ class IWorld
 {
 public:
     virtual ~IWorld() = default;
-    virtual ResId IGetWorldAssetId() const=0;
-    virtual ResId IGetStringTableAssetId() const=0;
-    virtual ResId IGetSaveWorldAssetId() const=0;
+    virtual CAssetId IGetWorldAssetId() const=0;
+    virtual CAssetId IGetStringTableAssetId() const=0;
+    virtual CAssetId IGetSaveWorldAssetId() const=0;
     virtual const CMapWorld* IGetMapWorld() const=0;
     virtual CMapWorld* IMapWorld()=0;
     virtual const IGameArea* IGetAreaAlways(TAreaId id) const=0;
     virtual TAreaId IGetCurrentAreaId() const=0;
-    virtual TAreaId IGetAreaId(ResId id) const=0;
+    virtual TAreaId IGetAreaId(CAssetId id) const=0;
     virtual bool ICheckWorldComplete()=0;
     virtual std::string IGetDefaultAudioTrack() const=0;
     virtual int IGetAreaCount() const=0;
@@ -44,26 +44,26 @@ class CDummyWorld : public IWorld
         LoadingMapAreas,
         Done,
     } x8_phase = Phase::Loading;
-    ResId xc_mlvlId;
-    ResId x10_strgId;
-    ResId x14_savwId = -1;
+    CAssetId xc_mlvlId;
+    CAssetId x10_strgId;
+    CAssetId x14_savwId = -1;
     std::vector<CDummyGameArea> x18_areas;
-    ResId x28_mapWorldId = -1;
+    CAssetId x28_mapWorldId = -1;
     TLockedToken<CMapWorld> x2c_mapWorld;
     //AsyncTask x30_loadToken;
     std::unique_ptr<uint8_t[]> x34_loadBuf;
     //u32 x38_bufSz;
     TAreaId x3c_curAreaId = kInvalidAreaId;
 public:
-    CDummyWorld(ResId mlvlId, bool loadMap);
-    ResId IGetWorldAssetId() const;
-    ResId IGetStringTableAssetId() const;
-    ResId IGetSaveWorldAssetId() const;
+    CDummyWorld(CAssetId mlvlId, bool loadMap);
+    CAssetId IGetWorldAssetId() const;
+    CAssetId IGetStringTableAssetId() const;
+    CAssetId IGetSaveWorldAssetId() const;
     const CMapWorld* IGetMapWorld() const;
     CMapWorld* IMapWorld();
     const IGameArea* IGetAreaAlways(TAreaId id) const;
     TAreaId IGetCurrentAreaId() const;
-    TAreaId IGetAreaId(ResId id) const;
+    TAreaId IGetAreaId(CAssetId id) const;
     bool ICheckWorldComplete();
     std::string IGetDefaultAudioTrack() const;
     int IGetAreaCount() const;
@@ -94,11 +94,11 @@ public:
     struct CSoundGroupData
     {
         int x0_groupId;
-        ResId x4_agscId;
+        CAssetId x4_agscId;
         std::string xc_name;
         TCachedToken<CAudioGroupSet> x1c_groupData;
     public:
-        CSoundGroupData(int grpId, ResId agsc);
+        CSoundGroupData(int grpId, CAssetId agsc);
     };
 
 private:
@@ -113,11 +113,11 @@ private:
         LoadingSoundGroups,
         Done,
     } x4_phase = Phase::Loading;
-    ResId x8_mlvlId = -1;
-    ResId xc_strgId = -1;
-    ResId x10_savwId = -1;
+    CAssetId x8_mlvlId = -1;
+    CAssetId xc_strgId = -1;
+    CAssetId x10_savwId = -1;
     std::vector<std::unique_ptr<CGameArea>> x18_areas;
-    ResId x24_mapwId = -1;
+    CAssetId x24_mapwId = -1;
     TLockedToken<CMapWorld> x28_mapWorld;
     std::vector<CRelay> x2c_relays;
     //AsyncTask x3c_loadToken;
@@ -149,14 +149,14 @@ private:
     TLockedToken<CModel> xb4_skyboxC;
     std::vector<CSfxHandle> xc4_sfxHandles;
 
-    void LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data);
+    void LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data);
     void LoadSoundGroups();
 
 public:
 
     void MoveToChain(CGameArea* area, EChain chain);
     void MoveAreaToChain3(TAreaId aid);
-    bool CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId);
+    bool CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId);
     CGameArea::CChainIterator GetChainHead(EChain chain) { return {x4c_chainHeads[int(chain)]}; }
     CGameArea::CConstChainIterator GetChainHead(EChain chain) const { return {x4c_chainHeads[int(chain)]}; }
     CGameArea::CChainIterator begin() { return GetChainHead(EChain::Alive); }
@@ -167,7 +167,7 @@ public:
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
     void SetPauseState(bool paused);
 
-    CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId);
+    CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId);
     bool DoesAreaExist(TAreaId area) const;
     const std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() const { return x18_areas; }
 
@@ -175,9 +175,9 @@ public:
     u32 GetRelayCount() const { return x2c_relays.size(); }
     CRelay GetRelay(u32 idx) const { return x2c_relays[idx]; }
 
-    ResId IGetWorldAssetId() const;
-    ResId IGetStringTableAssetId() const;
-    ResId IGetSaveWorldAssetId() const;
+    CAssetId IGetWorldAssetId() const;
+    CAssetId IGetStringTableAssetId() const;
+    CAssetId IGetSaveWorldAssetId() const;
     const CMapWorld* IGetMapWorld() const;
     CMapWorld* IMapWorld();
     const CGameArea* GetAreaAlways(TAreaId) const;
@@ -186,7 +186,7 @@ public:
     const IGameArea* IGetAreaAlways(TAreaId id) const;
     TAreaId IGetCurrentAreaId() const;
     TAreaId GetCurrentAreaId() const { return x68_curAreaId; }
-    TAreaId IGetAreaId(ResId id) const;
+    TAreaId IGetAreaId(CAssetId id) const;
     bool ICheckWorldComplete();
     std::string IGetDefaultAudioTrack() const;
     int IGetAreaCount() const;
@@ -212,7 +212,7 @@ struct CWorldLayers
     };
     std::vector<Area> m_areas;
     std::vector<std::string> m_names;
-    static void ReadWorldLayers(athena::io::MemoryReader& r, int version, ResId mlvlId);
+    static void ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId);
 };
 
 }

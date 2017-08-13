@@ -16,17 +16,17 @@ const float CScriptWater::kSplashScales[6] =
 CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
                            const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
                            zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool b1, bool b2,
-                           ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap, ResId envMap,
-                           ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
+                           CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap, CAssetId bumpMap, CAssetId envMap,
+                           CAssetId envBumpMap, CAssetId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
                            float f2, float f3, bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
                            const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
                            float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
-                           float turbAmplitudeMin, const zeus::CColor& c1, const zeus::CColor& c2, ResId splashParticle1,
-                           ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5, s32 i1,
+                           float turbAmplitudeMin, const zeus::CColor& c1, const zeus::CColor& c2, CAssetId splashParticle1,
+                           CAssetId splashParticle2, CAssetId splashParticle3, CAssetId particle4, CAssetId particle5, s32 i1,
                            s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
                            u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
                            float fluidPlaneF2, float reflectionBlend, float slF6, float slF7, float slF8,
-                           const zeus::CColor& c3, ResId lightmapId, float unitsPerLightmapTexel, float lF2, float lF3,
+                           const zeus::CColor& c3, CAssetId lightmapId, float unitsPerLightmapTexel, float lF2, float lF3,
                            u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr)
 : CScriptTrigger(uid, name, info, pos, box, dInfo, orientedForce, triggerFlags, active, false, false),
   x1b8_position(pos), x1c4_extent(box.max - box.min), x1d0_f2(f2), x1d4_position2(pos), x1e0_extent2(box.max - box.min),
@@ -53,21 +53,21 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string&
                                                        specularMax, reflectionBlend, reflectionSize, fluidPlaneF2);
     u32Arr.reset();
     x264_splashEffects.resize(3);
-    if (x22c_splashParticle1Id != kInvalidResId)
+    if (x22c_splashParticle1Id.IsValid())
         x264_splashEffects[0].emplace(g_SimplePool->GetObj({FOURCC('PART'), x22c_splashParticle1Id}));
-    if (x230_splashParticle2Id != kInvalidResId)
+    if (x230_splashParticle2Id.IsValid())
         x264_splashEffects[1].emplace(g_SimplePool->GetObj({FOURCC('PART'), x230_splashParticle2Id}));
-    if (x234_splashParticle3Id != kInvalidResId)
+    if (x234_splashParticle3Id.IsValid())
         x264_splashEffects[2].emplace(g_SimplePool->GetObj({FOURCC('PART'), x234_splashParticle3Id}));
-    if (x238_particle4Id != kInvalidResId)
+    if (x238_particle4Id.IsValid())
         x23c_.emplace(g_SimplePool->GetObj({FOURCC('PART'), x238_particle4Id}));
-    if (x24c_particle5Id != kInvalidResId)
+    if (x24c_particle5Id.IsValid())
         x250_visorRunoffEffect.emplace(g_SimplePool->GetObj({FOURCC('PART'), x24c_particle5Id}));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx1));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx2));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx3));
     SetCalculateLighting(true);
-    if (lightmapId != kInvalidResId)
+    if (lightmapId.IsValid())
         x90_actorLights->DisableAreaLights();
     x90_actorLights->SetMaxDynamicLights(4);
     x90_actorLights->SetCastShadows(false);
@@ -148,7 +148,8 @@ zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager&) const
     return {};
 }
 
-EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int)
+EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                     const CWeaponMode&, int) const
 {
     return EWeaponCollisionResponseTypes::Water;
 }

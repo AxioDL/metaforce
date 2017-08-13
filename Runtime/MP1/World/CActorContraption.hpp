@@ -14,12 +14,12 @@ class CActorContraption : public CScriptActor
     /* AKA Why Zoid?!?!?!? */
     std::vector<std::pair<TUniqueId, std::string>> x2e8_children;
     TToken<CGenDescription> x300_flameThrowerGen;
-    ResId x308_flameFxId;
+    CAssetId x308_flameFxId;
     CDamageInfo x30c_dInfo;
 public:
     CActorContraption(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                       const zeus::CAABox&, const CMaterialList&, float, float, const CHealthInfo&,
-                      const CDamageVulnerability&, const CActorParameters&, ResId, const CDamageInfo&, bool);
+                      const CDamageVulnerability&, const CActorParameters&, CAssetId, const CDamageInfo&, bool);
 
     void Accept(IVisitor &visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);

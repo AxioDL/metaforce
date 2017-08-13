@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, ResId tex0, ResId tex1,
+CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId tex0, CAssetId tex1,
                              rstl::reserved_vector<zeus::CVector3f, 4>&& coords,
                              rstl::reserved_vector<zeus::CVector2f, 4>&& uvs, bool initTex)
 : CGuiWidget(parms), xc8_tex0(tex0), xcc_tex1(tex1), xe0_coords(std::move(coords)),
@@ -190,7 +190,7 @@ bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() const
     return xb8_tex0Tok.IsLoaded();
 }
 
-void CAuiImagePane::SetTextureID0(ResId tex, CSimplePool* sp)
+void CAuiImagePane::SetTextureID0(CAssetId tex, CSimplePool* sp)
 {
     xc8_tex0 = tex;
     if (!sp)

@@ -26,8 +26,7 @@ void CScriptBeam::Accept(IVisitor& visitor)
 
 void CScriptBeam::Think(float dt, CStateManager& mgr)
 {
-#if 0
-    TCastToPtr<CGameProjectile> proj{mgr.GetObjectById(x154_projectileId)};
+    CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x154_projectileId));
     if (proj)
     {
         if (proj->GetActive())
@@ -35,7 +34,6 @@ void CScriptBeam::Think(float dt, CStateManager& mgr)
     }
     else
         x154_projectileId = kInvalidUniqueId;
-#endif
 }
 
 void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr)

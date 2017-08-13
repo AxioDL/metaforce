@@ -208,7 +208,7 @@ private:
 public:
     CPlayerGun(TUniqueId id);
 
-    void AcceptScriptMessage(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AsyncLoadSuit(CStateManager& mgr);
     void TouchModel(const CStateManager& stateMgr);
     EMissleMode GetMissleMode() const { return x31c_missileMode; }

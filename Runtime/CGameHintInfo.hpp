@@ -11,10 +11,10 @@ class CGameHintInfo
 public:
     struct SHintLocation
     {
-        ResId x0_mlvlId = -1;
-        ResId x4_mreaId = -1;
+        CAssetId x0_mlvlId = -1;
+        CAssetId x4_mreaId = -1;
         TAreaId x8_areaId = kInvalidAreaId;
-        ResId xc_stringId = -1;
+        CAssetId xc_stringId = -1;
         SHintLocation(CInputStream&, s32);
     };
 
@@ -23,7 +23,7 @@ public:
         std::string x0_name;
         float x10_immediateTime;
         float x14_normalTime;
-        ResId x18_stringId;
+        CAssetId x18_stringId;
         float x1c_textTime;
         std::vector<SHintLocation> x20_locations;
     public:
@@ -33,7 +33,7 @@ public:
         float GetImmediateTime() const { return x10_immediateTime; }
         float GetTextTime() const { return x1c_textTime; }
         const std::string& GetName() const { return x0_name; }
-        ResId GetStringID() const { return x18_stringId; }
+        CAssetId GetStringID() const { return x18_stringId; }
         const std::vector<SHintLocation>& GetLocations() const { return x20_locations; }
     };
 

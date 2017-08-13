@@ -32,12 +32,12 @@ private:
     float x220_;
     float x224_;
     zeus::CColor x228_;
-    ResId x22c_splashParticle1Id;
-    ResId x230_splashParticle2Id;
-    ResId x234_splashParticle3Id;
-    ResId x238_particle4Id;
+    CAssetId x22c_splashParticle1Id;
+    CAssetId x230_splashParticle2Id;
+    CAssetId x234_splashParticle3Id;
+    CAssetId x238_particle4Id;
     std::experimental::optional<TLockedToken<CGenDescription>> x23c_;
-    ResId x24c_particle5Id;
+    CAssetId x24c_particle5Id;
     std::experimental::optional<TLockedToken<CGenDescription>> x250_visorRunoffEffect;
     u16 x260_;
     u16 x262_visorRunoffSfx;
@@ -79,17 +79,17 @@ public:
     CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
                  const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
                  zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool b1, bool b2,
-                 ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap, ResId envMap,
-                 ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
+                 CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap, CAssetId bumpMap, CAssetId envMap,
+                 CAssetId envBumpMap, CAssetId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
                  float f2, float f3, bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
                  const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
                  float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
-                 float turbAmplitudeMin, const zeus::CColor& c1, const zeus::CColor& c2, ResId splashParticle1,
-                 ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5, s32 i1,
+                 float turbAmplitudeMin, const zeus::CColor& c1, const zeus::CColor& c2, CAssetId splashParticle1,
+                 CAssetId splashParticle2, CAssetId splashParticle3, CAssetId particle4, CAssetId particle5, s32 i1,
                  s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
                  u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
                  float fluidPlaneF2, float reflectionBlend, float slF6, float slF7, float slF8,
-                 const zeus::CColor& c3, ResId lightmapId, float unitsPerLightmapTexel, float lF2, float lF3,
+                 const zeus::CColor& c3, CAssetId lightmapId, float unitsPerLightmapTexel, float lF2, float lF3,
                  u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
 
     void Think(float, CStateManager&);
@@ -101,8 +101,8 @@ public:
     void CalculateRenderBounds();
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
     void RenderSurface();
-    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&,
-                                                           int);
+    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, const CWeaponMode&,
+                                                           int) const;
 
     void UpdateSplashInhabitants(CStateManager&);
     s16 GetSplashSound(float) const;

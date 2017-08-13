@@ -69,7 +69,7 @@ const SObjectTag* CCharacterFactory::CDummyFactory::GetResourceIdByName(const ch
     return nullptr;
 }
 
-FourCC CCharacterFactory::CDummyFactory::GetResourceTypeById(ResId id) const
+FourCC CCharacterFactory::CDummyFactory::GetResourceTypeById(CAssetId id) const
 {
     return {};
 }
@@ -125,8 +125,8 @@ CCharacterFactory::CreateCharacter(int charIdx, bool loop,
             ({FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
 
     rstl::optional_object<TToken<CMorphableSkinnedModel>> iceModel;
-    if (charInfo.GetIceModelId() != kInvalidResId &&
-        charInfo.GetIceSkinRulesId() != kInvalidResId)
+    if (charInfo.GetIceModelId().IsValid() &&
+        charInfo.GetIceSkinRulesId().IsValid())
         iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj
             ({FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));
 
@@ -136,15 +136,15 @@ CCharacterFactory::CreateCharacter(int charIdx, bool loop,
                                        factory, drawInsts);
 }
 
-ResId CCharacterFactory::GetEventResourceIdForAnimResourceId(ResId id) const
+CAssetId CCharacterFactory::GetEventResourceIdForAnimResourceId(CAssetId id) const
 {
     auto search = std::find_if(x58_animResources.cbegin(), x58_animResources.cend(),
-    [&](const std::pair<ResId, ResId>& elem) -> bool
+    [&](const std::pair<CAssetId, CAssetId>& elem) -> bool
     {
         return id == elem.first;
     });
     if (search == x58_animResources.cend())
-        return kInvalidResId;
+        return CAssetId();
     return search->second;
 }
 
@@ -189,7 +189,7 @@ CCharacterFactory::GetCharLayoutInfoDB(CSimplePool& store,
 
 CCharacterFactory::CCharacterFactory(CSimplePool& store,
                                      const CAnimCharacterSet& ancs,
-                                     ResId selfId)
+                                     CAssetId selfId)
 : x4_charInfoDB(GetCharacterInfoDB(ancs)),
   x14_charLayoutInfoDB(GetCharLayoutInfoDB(store, x4_charInfoDB)),
   x24_sysContext(std::make_shared<CAnimSysContext>(

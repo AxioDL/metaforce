@@ -20,7 +20,7 @@ class CScriptMidi : public CEntity
 
 public:
     CScriptMidi(TUniqueId id, const CEntityInfo& info, const std::string& name,
-                bool active, ResId csng, float, float, s32);
+                bool active, CAssetId csng, float, float, s32);
 
     void Stop(CStateManager& mgr, float fadeTime);
     void Play(CStateManager& mgr, float fadeTime);

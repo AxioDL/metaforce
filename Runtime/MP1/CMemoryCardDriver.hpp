@@ -124,9 +124,9 @@ private:
     };
 
     kabufuda::ECardSlot x0_cardPort;
-    ResId x4_saveBanner;
-    ResId x8_saveIcon0;
-    ResId xc_saveIcon1;
+    CAssetId x4_saveBanner;
+    CAssetId x8_saveIcon0;
+    CAssetId xc_saveIcon1;
     EState x10_state = EState::Initial;
     EError x14_error = EError::OK;
     s32 x18_cardFreeBytes = 0;
@@ -142,8 +142,8 @@ private:
     bool x19d_importPersistent;
 
 public:
-    CMemoryCardDriver(kabufuda::ECardSlot cardPort, ResId saveBanner,
-                      ResId saveIcon0, ResId saveIcon1, bool importPersistent);
+    CMemoryCardDriver(kabufuda::ECardSlot cardPort, CAssetId saveBanner,
+                      CAssetId saveIcon0, CAssetId saveIcon1, bool importPersistent);
 
     void NoCardFound();
     const CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx);

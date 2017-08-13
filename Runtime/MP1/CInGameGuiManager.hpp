@@ -73,7 +73,7 @@ private:
     std::vector<u32> xd8_;
     std::vector<CToken> xe8_pauseResources;
     CCameraFilterPass<CColoredQuadFilter> xf8_camFilter;
-    ResId x124_pauseGameHudMessage = -1;
+    CAssetId x124_pauseGameHudMessage = -1;
     float x128_pauseGameHudTime = 0.f;
     std::list<CToken> x12c_;
     u32 x140_ = 0;
@@ -138,7 +138,7 @@ public:
                                 CArchitectureQueue& archQueue);
     void PreDraw(CStateManager& stateMgr, bool cameraActive);
     void Draw(CStateManager& stateMgr);
-    void ShowPauseGameHudMessage(CStateManager& stateMgr, ResId pauseMsg, float time);
+    void ShowPauseGameHudMessage(CStateManager& stateMgr, CAssetId pauseMsg, float time);
     void PauseGame(CStateManager& stateMgr, EInGameGuiState state);
     void StartFadeIn();
     bool WasInGame() const { return x1bc_prevState >= EInGameGuiState::Zero && x1bc_prevState <= EInGameGuiState::InGame; }

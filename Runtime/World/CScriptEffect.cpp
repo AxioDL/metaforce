@@ -12,7 +12,7 @@ u32 CScriptEffect::g_NumParticlesRendered = 0;
 
 CScriptEffect::CScriptEffect(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                              const zeus::CTransform& xf, const zeus::CVector3f& scale,
-                             ResId partId, ResId elscId, bool, bool, bool, bool active,
+                             CAssetId partId, CAssetId elscId, bool, bool, bool, bool active,
                              bool, float, float, float, float, bool, float, float, float,
                              bool, bool, bool, const CLightParameters& lParms, bool)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),

@@ -206,11 +206,11 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
         }
     }
 
-    x38_textpane_l1->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[input.DLTrigger()])));
-    x3c_textpane_r->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[input.DRTrigger()])));
-    x48_textpane_return->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[input.DStart()])));
-    x50_textpane_back->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[input.DA()])));
-    x4c_textpane_next->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xa4_bButton[input.DB()])));
+    x38_textpane_l1->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[input.DLTrigger()].Value())));
+    x3c_textpane_r->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[input.DRTrigger()].Value())));
+    x48_textpane_return->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[input.DStart()].Value())));
+    x50_textpane_back->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[input.DA()].Value())));
+    x4c_textpane_next->TextSupport().SetText(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xa4_bButton[input.DB()].Value())));
 }
 
 void CPauseScreen::TransitionComplete()

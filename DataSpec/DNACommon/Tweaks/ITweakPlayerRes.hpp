@@ -10,7 +10,7 @@ namespace DataSpec
 
 struct ITweakPlayerRes : ITweak
 {
-    using ResId = uint64_t;
+    using ResId = urde::CAssetId;
     using EBeamId = urde::CPlayerState::EBeamId;
 
     ResId x4_saveStationIcon;

@@ -115,15 +115,15 @@ private:
         u32 dummy = 0;
     };
 
-    u32 x4_ = 0;
+    u32 x4_enabledItems = 0;
     EBeamId x8_currentBeam = EBeamId::Power;
     CHealthInfo xc_health = {99.f, 50.f};
     EPlayerVisor x14_currentVisor = EPlayerVisor::Combat;
     EPlayerVisor x18_transitioningVisor = x14_currentVisor;
     float x1c_visorTransitionFactor = 0.2f;
     EPlayerSuit x20_currentSuit = EPlayerSuit::Power;
-    rstl::reserved_vector<CPowerUp, 41> x24_powerups;
-    rstl::reserved_vector<std::pair<ResId, float>, 846> x170_scanTimes;
+    rstl::prereserved_vector<CPowerUp, 41> x24_powerups;
+    rstl::reserved_vector<std::pair<CAssetId, float>, 846> x170_scanTimes;
     std::pair<u32, u32> x180_scanCompletionRate = {};
     CStaticInterference x188_staticIntf;
 public:
@@ -147,8 +147,8 @@ public:
     EPlayerVisor GetActiveVisor(const CStateManager& stateMgr) const;
     void UpdateStaticInterference(CStateManager& stateMgr, const float& dt);
     void IncreaseScanTime(u32 time, float val);
-    void SetScanTime(ResId res, float time);
-    float GetScanTime(ResId time) const;
+    void SetScanTime(CAssetId res, float time);
+    float GetScanTime(CAssetId time) const;
     bool GetIsVisorTransitioning() const;
     float GetVisorTransitionFactor() const;
     void UpdateVisorTransition(float dt);
@@ -175,7 +175,7 @@ public:
     void SetPlayerAlive(bool alive) { x0_24_alive = alive; }
     void InitializeScanTimes();
     CStaticInterference& GetStaticInterference() { return x188_staticIntf; }
-    const rstl::reserved_vector<std::pair<ResId, float>, 846>& GetScanTimes() const { return x170_scanTimes; }
+    const rstl::reserved_vector<std::pair<CAssetId, float>, 846>& GetScanTimes() const { return x170_scanTimes; }
     CPlayerState();
     CPlayerState(CBitStreamReader& stream);
     void PutTo(CBitStreamWriter& stream);

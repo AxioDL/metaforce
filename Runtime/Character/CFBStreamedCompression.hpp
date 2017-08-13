@@ -55,7 +55,7 @@ public:
 private:
     bool m_pc;
     u32 x0_scratchSize;
-    ResId x4_evnt;
+    CAssetId x4_evnt;
     TLockedToken<CAnimPOIData> x8_evntToken;
     std::unique_ptr<u32[]> xc_rotsAndOffs;
     float x10_averageVelocity;

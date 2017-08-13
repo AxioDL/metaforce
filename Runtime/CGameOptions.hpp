@@ -57,7 +57,7 @@ class CPersistentOptions
     friend class CGameState;
     u8 x0_[98] = {};
     bool x68_[64] = {};
-    std::vector<std::pair<ResId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
+    std::vector<std::pair<CAssetId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
     u32 xbc_autoMapperKeyState = 0;
     u32 xc0_frozenFpsCount = 0;
     u32 xc4_frozenBallCount = 0;
@@ -82,8 +82,8 @@ public:
     CPersistentOptions() = default;
     CPersistentOptions(CBitStreamReader& stream);
 
-    bool GetCinematicState(ResId mlvlId, TEditorId cineId) const;
-    void SetCinematicState(ResId mlvlId, TEditorId cineId, bool state);
+    bool GetCinematicState(CAssetId mlvlId, TEditorId cineId) const;
+    void SetCinematicState(CAssetId mlvlId, TEditorId cineId, bool state);
     u32 GetAutoMapperKeyState() const { return xbc_autoMapperKeyState; }
     void SetAutoMapperKeyState(u32 s) { xbc_autoMapperKeyState = s; }
     bool GetPlayerLinkedFusion() const { return xd0_24_fusionLinked; }
@@ -136,7 +136,7 @@ class CGameOptions
         u16 _dummy = 0;
     };
 
-    std::vector<std::pair<ResId, ResId>> x6c_controlTxtrMap;
+    std::vector<std::pair<CAssetId, CAssetId>> x6c_controlTxtrMap;
 
 public:
     CGameOptions();
@@ -177,7 +177,7 @@ public:
     bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
     void SetControls(int controls);
     void ResetControllerAssets(int controls);
-    const std::vector<std::pair<ResId, ResId>>& GetControlTXTRMap() const { return x6c_controlTxtrMap; }
+    const std::vector<std::pair<CAssetId, CAssetId>>& GetControlTXTRMap() const { return x6c_controlTxtrMap; }
 
     static void TryRestoreDefaults(const CFinalInput& input, int category,
                                    int option, bool frontend, bool forceRestore);

@@ -7,7 +7,7 @@ namespace urde
 
 CAudioSys* CAudioSys::g_SharedSys = nullptr;
 static std::unordered_map<std::string, TLockedToken<CAudioGroupSet>> mpGroupSetDB;
-static std::unordered_map<ResId, std::string> mpGroupSetResNameDB;
+static std::unordered_map<CAssetId, std::string> mpGroupSetResNameDB;
 static const std::string mpDefaultInvalidString = "NULL";
 
 TLockedToken<CAudioGroupSet> CAudioSys::FindGroupSet(const std::string& name)
@@ -18,7 +18,7 @@ TLockedToken<CAudioGroupSet> CAudioSys::FindGroupSet(const std::string& name)
     return search->second;
 }
 
-const std::string& CAudioSys::SysGetGroupSetName(ResId id)
+const std::string& CAudioSys::SysGetGroupSetName(CAssetId id)
 {
     auto search = mpGroupSetResNameDB.find(id);
     if (search == mpGroupSetResNameDB.cend())
@@ -26,7 +26,7 @@ const std::string& CAudioSys::SysGetGroupSetName(ResId id)
     return search->second;
 }
 
-bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, ResId id)
+bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, CAssetId id)
 {
     if (!FindGroupSet(SysGetGroupSetName(id)))
     {
@@ -41,7 +41,7 @@ bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, ResId id)
     }
 }
 
-bool CAudioSys::SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, ResId id)
+bool CAudioSys::SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, CAssetId id)
 {
     if (!FindGroupSet(name))
     {

@@ -5,7 +5,7 @@ namespace urde
 {
 
 CScriptHUDMemo::CScriptHUDMemo(TUniqueId uid, const std::string& name, const CEntityInfo& info, const CHUDMemoParms&,
-                               CScriptHUDMemo::EDisplayType, ResId, bool active)
+                               CScriptHUDMemo::EDisplayType, CAssetId, bool active)
     : CEntity(uid, info, active, name)
 {
 }
