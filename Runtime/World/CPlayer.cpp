@@ -2554,7 +2554,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                         zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::CVector3f::skUp, GetTranslation());
                     xe4_27_ = true;
                     xe4_28_ = true;
-                    xe4_29_ = true;
+                    xe4_29_actorLightsDirty = true;
                     SetVelocityWR(pullVec);
 
                     if (!ValidateFPPosition(GetTranslation(), mgr))
@@ -2563,7 +2563,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                         x34_transform = backupXf;
                         xe4_27_ = true;
                         xe4_28_ = true;
-                        xe4_29_ = true;
+                        xe4_29_actorLightsDirty = true;
                         SetVelocityWR(backupVel);
                     }
                 }

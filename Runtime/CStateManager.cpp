@@ -709,7 +709,7 @@ void CStateManager::DrawWorld() const
 
     for (TUniqueId id : x86c_stateManagerContainer->xf370_)
         if (const CActor* ent = static_cast<const CActor*>(GetObjectById(id)))
-            if (!thermal || ent->xe6_27_ & 0x2)
+            if (!thermal || ent->xe6_27_renderVisorFlags & 0x2)
                 ent->Render(*this);
 
     bool morphingPlayerVisible = false;
@@ -747,9 +747,9 @@ void CStateManager::DrawWorld() const
                         continue;
                     }
                 }
-                if (!thermal || actor->xe6_27_ & 0x2)
+                if (!thermal || actor->xe6_27_renderVisorFlags & 0x2)
                     actor->AddToRenderer(frustum, *this);
-                if (thermal && actor->xe6_27_ & 0x4)
+                if (thermal && actor->xe6_27_renderVisorFlags & 0x4)
                     thermalActorArr[thermalActorCount++] = actor.GetPtr();
             }
         }
@@ -785,7 +785,7 @@ void CStateManager::DrawWorld() const
             CGraphics::SetDepthRange(0.015625f, 0.03125f);
             for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
                 if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                    if (actor->xe6_27_ & 0x2)
+                    if (actor->xe6_27_renderVisorFlags & 0x2)
                         actor->Render(*this);
             CGraphics::SetDepthRange(0.125f, 1.f);
         }
@@ -793,7 +793,7 @@ void CStateManager::DrawWorld() const
 
         for (TUniqueId id : x86c_stateManagerContainer->xf370_)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_ & 0x4)
+                if (actor->xe6_27_renderVisorFlags & 0x4)
                     actor->Render(*this);
 
         for (int i=areaCount-1 ; i>=0 ; --i)
@@ -856,7 +856,7 @@ void CStateManager::DrawWorld() const
         CGraphics::SetDepthRange(0.015625f, 0.03125f);
         for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_ & 0x4)
+                if (actor->xe6_27_renderVisorFlags & 0x4)
                     actor->Render(*this);
         CGraphics::SetDepthRange(0.125f, 1.f);
     }
@@ -2558,6 +2558,13 @@ void CStateManager::SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringI
     xf18_bossId = bossId;
     xf1c_totalBossEnergy = maxEnergy;
     xf20_bossStringIdx = stringIdx;
+}
+
+float CStateManager::IntegrateVisorFog(float f) const
+{
+    if (x8b8_playerState->GetActiveVisor(*this) == CPlayerState::EPlayerVisor::Scan)
+        return (1.f - x8b8_playerState->GetVisorTransitionFactor()) * f;
+    return f;
 }
 
 float CStateManager::g_EscapeShakeCountdown;

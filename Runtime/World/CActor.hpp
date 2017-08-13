@@ -55,8 +55,8 @@ protected:
             u8 xe4_24_nextNonLoopingSfxHandle : 3;
             bool xe4_27_ : 1;
             bool xe4_28_ : 1;
-            bool xe4_29_ : 1;
-            bool xe4_30_ : 1;
+            bool xe4_29_actorLightsDirty : 1;
+            bool xe4_30_outOfFrustum : 1;
             bool xe4_31_lightsDirty : 1;
             bool xe5_24_ : 1;
             bool xe5_25_ : 1;
@@ -64,7 +64,7 @@ protected:
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
             u8 xe6_24_fluidCounter : 3;
-            u8 xe6_27_ : 3;
+            u8 xe6_27_renderVisorFlags : 3; // 2: thermal cold, 4: thermal hot
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;
             bool xe7_29_ : 1;
@@ -99,7 +99,7 @@ public:
     {
         xe4_27_ = true;
         xe4_28_ = true;
-        xe4_29_ = true;
+        xe4_29_actorLightsDirty = true;
         xe7_29_ = true;
         CEntity::SetActive(active);
     }

@@ -103,7 +103,7 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst)
 
     xe4_27_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
 
     SetTranslation(x34_transform.origin + mst.x0_translation);
 
@@ -123,7 +123,7 @@ void CPhysicsActor::SetMotionState(const CMotionState& mst)
 
     xe4_27_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
     SetTranslation(mst.x0_translation);
 
     xfc_constantForce = mst.x1c_velocity;
@@ -268,7 +268,7 @@ void CPhysicsActor::SetPhysicsState(const CPhysicsState& state)
     x34_transform = zeus::CTransform(state.GetOrientation(), x34_transform.origin);
     xe4_27_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
 
     xfc_constantForce = state.GetConstantForceWR();
     x108_angularMomentum = state.GetAngularMomentumWR();

@@ -16,7 +16,7 @@ CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, const std::string& name, con
          CMaterialList(EMaterialTypes::Unknown), CActorParameters::None(), kInvalidUniqueId),
   xe8_flare(blendMode, b1, f1, f2, f3, w1, w2, flares)
 {
-    xe6_27_ = 2;
+    xe6_27_renderVisorFlags = 2;
 }
 
 void CScriptVisorFlare::Accept(IVisitor& visitor)

@@ -127,10 +127,10 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 {
     CActor::PreRender(mgr, frustum);
 
-    if (xe4_30_ && TCastToPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)))
-        xe4_30_ = false;
+    if (xe4_30_outOfFrustum && TCastToPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)))
+        xe4_30_outOfFrustum = false;
 
-    if (xe4_30_ && !x2e2_29_ && !x2e2_27_)
+    if (xe4_30_outOfFrustum && !x2e2_29_ && !x2e2_27_)
     {
         zeus::CColor col(1.f, 1.f, x2dc_xrayAlpha);
         if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
@@ -154,7 +154,7 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
             }
         }
 
-        if (!x2e2_24_ && xe6_27_ == 2 &&
+        if (!x2e2_24_ && xe6_27_renderVisorFlags == 2 &&
             mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
         {
             xb4_drawFlags.x2_flags &= ~3;

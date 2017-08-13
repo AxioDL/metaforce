@@ -114,7 +114,7 @@ public:
                       const std::experimental::optional<TLockedToken<CTexture>>& envMap,
                       const std::experimental::optional<TLockedToken<CTexture>>& envBumpMap,
                       const std::experimental::optional<TLockedToken<CTexture>>& lightmap,
-                      bool doubleLightmapBlend, bool additive);
+                      bool doubleLightmapBlend, bool additive, u32 maxVertCount);
     void prepareDraw(const zeus::CMatrix4f* texMtxs, const zeus::CMatrix4f& normMtx, float indScale,
                      const std::vector<CLight>& lights, const zeus::CColor* kColors);
     void loadVerts(const std::vector<Vertex>& verts);

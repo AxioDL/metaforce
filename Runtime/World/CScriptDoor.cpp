@@ -79,7 +79,7 @@ void CScriptDoor::Think(float dt, CStateManager& mgr)
 
 void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager &mgr)
 {
-    if (!xe4_30_)
+    if (!xe4_30_outOfFrustum)
         CPhysicsActor::Render(mgr);
 }
 

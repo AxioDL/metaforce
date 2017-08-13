@@ -1146,8 +1146,11 @@ void CBooRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const
     CGraphics::SetFog(mode, startz, endz, color);
 }
 
-void CBooRenderer::RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*)
+void CBooRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
+                                   const TLockedToken<CModel>* model, const CSkinnedModel* sModel)
 {
+    if (!x318_28_disableFog)
+        x2ac_fogVolumes.emplace_back(CGraphics::g_GXModelMatrix, color, aabb, model, sModel);
 }
 
 void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& color)

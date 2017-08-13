@@ -36,11 +36,11 @@ protected:
     std::experimental::optional<TLockedToken<CTexture>> x30_texColor;
     float x40_alpha;
     EFluidType x44_fluidType;
-    float x48_f2;
+    float x48_rippleIntensity;
     CFluidUVMotion x4c_uvMotion;
 public:
     CFluidPlane(ResId texPattern1, ResId texPattern2, ResId texColor, float alpha, EFluidType fluidType,
-                float f2, const CFluidUVMotion& motion);
+                float rippleIntensity, const CFluidUVMotion& motion);
 
     virtual void Ripple(float mag, TUniqueId rippler, const zeus::CVector3f& pos,
                         CScriptWater& water, CStateManager& mgr);

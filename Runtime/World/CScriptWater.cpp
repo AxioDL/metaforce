@@ -3,6 +3,9 @@
 #include "TCastTo.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "World/CWorld.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "Camera/CGameCamera.hpp"
 
 namespace urde
 {
@@ -15,42 +18,49 @@ const float CScriptWater::kSplashScales[6] =
 
 CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
                            const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
-                           zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool b1, bool b2,
-                           ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap, ResId envMap,
-                           ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
-                           float f2, float f3, bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
-                           const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
-                           float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
-                           float turbAmplitudeMin, const zeus::CColor& c1, const zeus::CColor& c2, ResId splashParticle1,
-                           ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5, s32 i1,
+                           zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold,
+                           bool allowRender, ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap,
+                           ResId envMap, ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir,
+                           float bumpScale, float morphInTime, float morphOutTime, bool active,
+                           CFluidPlane::EFluidType fluidType, bool b4, float alpha, const CFluidUVMotion& uvMot,
+                           float turbSpeed, float turbDistance, float turbFreqMax, float turbFreqMin,
+                           float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax, float turbAmplitudeMin,
+                           const zeus::CColor& splashColor, const zeus::CColor& unkColor, ResId splashParticle1,
+                           ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5, s32 unkSfx,
                            s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
                            u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
-                           float fluidPlaneF2, float reflectionBlend, float slF6, float slF7, float slF8,
-                           const zeus::CColor& c3, ResId lightmapId, float unitsPerLightmapTexel, float lF2, float lF3,
-                           u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr)
+                           float rippleIntensity, float reflectionBlend, float fogBias, float fogMagnitude,
+                           float fogSpeed, const zeus::CColor& fogColor, ResId lightmapId, float unitsPerLightmapTexel,
+                           float alphaInTime, float alphaOutTime, u32, u32, bool, s32, s32,
+                           std::unique_ptr<u32[]>&& u32Arr)
 : CScriptTrigger(uid, name, info, pos, box, dInfo, orientedForce, triggerFlags, active, false, false),
-  x1b8_position(pos), x1c4_extent(box.max - box.min), x1d0_f2(f2), x1d4_position2(pos), x1e0_extent2(box.max - box.min),
-  x1ec_damage(dInfo.GetDamage()), x1f0_damage2(dInfo.GetDamage()), x1f4_(f3), x214_(slF6), x218_(slF7), x21c_(slF6),
-  x220_(slF7), x224_(slF8), x228_(c3), x22c_splashParticle1Id(splashParticle1), x230_splashParticle2Id(splashParticle2),
+  x1b8_positionMorphed(pos), x1c4_extentMorphed(box.max - box.min), x1d0_morphInTime(morphInTime), x1d4_positionOrig(pos),
+  x1e0_extentOrig(box.max - box.min), x1ec_damageOrig(dInfo.GetDamage()), x1f0_damageMorphed(dInfo.GetDamage()),
+  x1f4_morphOutTime(morphOutTime), x214_fogBias(fogBias), x218_fogMagnitude(fogMagnitude), x21c_origFogBias(fogBias),
+  x220_origFogMagnitude(fogMagnitude), x224_fogSpeed(fogSpeed), x228_fogColor(fogColor),
+  x22c_splashParticle1Id(splashParticle1), x230_splashParticle2Id(splashParticle2),
   x234_splashParticle3Id(splashParticle3), x238_particle4Id(particle4), x24c_particle5Id(particle5),
-  x260_(CSfxManager::TranslateSFXID(i1)), x262_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx)),
-  x2a4_c1(c1), x2a8_c2(c2), x2ac_lf2(lF2), x2b0_lf3(lF3), x2b4_((lF2 != 0.f) ? 1.f / lF2 : 0.f),
-  x2b8_((lF3 != 0.f) ? 1.f / lF3 : 0.f), x2bc_alpha(alpha), x2c0_tileSize(tileSize)
+  x260_unkSfx(CSfxManager::TranslateSFXID(unkSfx)), x262_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx)),
+  x2a4_splashColor(splashColor), x2a8_unkColor(unkColor), x2ac_alphaInTime(alphaInTime), x2b0_alphaOutTime(alphaOutTime),
+  x2b4_alphaInRecip((alphaInTime != 0.f) ? 1.f / alphaInTime : 0.f),
+  x2b8_alphaOutRecip((alphaOutTime != 0.f) ? 1.f / alphaOutTime : 0.f), x2bc_alpha(alpha), x2c0_tileSize(tileSize)
 {
     zeus::CAABox triggerAABB = GetTriggerBoundsWR();
     x2c4_gridDimX = u32((x2c0_tileSize + triggerAABB.max.x - triggerAABB.min.x - 0.01f) / x2c0_tileSize);
     x2c8_gridDimY = u32((x2c0_tileSize + triggerAABB.max.y - triggerAABB.min.y - 0.01f) / x2c0_tileSize);
     x2cc_gridCellCount = (x2c4_gridDimX + 1) * (x2c8_gridDimY + 1);
     x2e8_24_b4 = b4;
-    x2e8_27_b2 = b2;
-    x2e8_28 = true;
+    x2e8_27_allowRender = allowRender;
+    x2e8_28_recomputeClipping = true;
 
     x1b4_fluidPlane = std::make_unique<CFluidPlaneCPU>(patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap,
                                                        lightmapId, unitsPerLightmapTexel, tileSize, tileSubdivisions,
                                                        fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot,
                                                        turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
                                                        turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin,
-                                                       specularMax, reflectionBlend, reflectionSize, fluidPlaneF2);
+                                                       specularMax, reflectionBlend, reflectionSize, rippleIntensity,
+                                                       x2cc_gridCellCount *
+                                                           ((std::max(u32(2), tileSubdivisions) * 4 + 2) * 4));
     u32Arr.reset();
     x264_splashEffects.resize(3);
     if (x22c_splashParticle1Id != kInvalidResId)
@@ -75,61 +85,410 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string&
     x90_actorLights->SetFindNearestDynamicLights(true);
     x148_24_playerInside = true;
     CalculateRenderBounds();
-    xe6_27_ = u8(b1 ? 2 : 1);
+    xe6_27_renderVisorFlags = u8(thermalCold ? 2 : 1);
     if (!x30_24_active)
     {
         x2bc_alpha = 0.f;
-        x214_ = 0.f;
-        x218_ = 0.f;
+        x214_fogBias = 0.f;
+        x218_fogMagnitude = 0.f;
     }
     SetupGrid(true);
 }
 
-void CScriptWater::SetupGrid(bool b)
+void CScriptWater::SetupGrid(bool recomputeClipping)
 {
     zeus::CAABox triggerAABB = GetTriggerBoundsWR();
     auto dimX = u32((triggerAABB.max.x - triggerAABB.min.x + x2c0_tileSize) / x2c0_tileSize);
     auto dimY = u32((triggerAABB.max.y - triggerAABB.min.y + x2c0_tileSize) / x2c0_tileSize);
     x2e4_gridCellCount2 = x2cc_gridCellCount = (dimX + 1) * (dimY + 1);
-    x2dc_.reset();
-    if (!x2d8_gridFlags || dimX != x2c4_gridDimX || dimY != x2c8_gridDimY)
-        x2d8_gridFlags.reset(new bool[dimX * dimY]);
+    x2dc_vertIntersects.reset();
+    if (!x2d8_tileIntersects || dimX != x2c4_gridDimX || dimY != x2c8_gridDimY)
+        x2d8_tileIntersects.reset(new bool[dimX * dimY]);
     x2c4_gridDimX = dimX;
     x2c8_gridDimY = dimY;
     for (int i=0 ; i<x2c8_gridDimY ; ++i)
         for (int j=0 ; j<x2c4_gridDimX ; ++j)
-            x2d8_gridFlags[i * x2c4_gridDimX + j] = true;
-    if (!x2e0_patchFlags || x2d0_patchDimX != 0 || x2d4_patchDimY != 0)
-        x2e0_patchFlags.reset(new u8[32]);
+            x2d8_tileIntersects[i * x2c4_gridDimX + j] = true;
+    if (!x2e0_patchIntersects || x2d0_patchDimX != 0 || x2d4_patchDimY != 0)
+        x2e0_patchIntersects.reset(new u8[32]);
     for (int i=0 ; i<32 ; ++i)
-        x2e0_patchFlags[i] = 1;
+        x2e0_patchIntersects[i] = 1;
     x2d4_patchDimY = 0;
     x2d0_patchDimX = 0;
-    x2e8_28 = b;
+    x2e8_28_recomputeClipping = recomputeClipping;
 }
 
-void CScriptWater::Think(float dt, CStateManager& mgr) { CScriptTrigger::Think(dt, mgr); }
+static const CMaterialFilter SolidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
+
+void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts)
+{
+    if (x2e8_28_recomputeClipping)
+    {
+        x2e4_gridCellCount2 = 0;
+        x2dc_vertIntersects.reset();
+        x2e8_28_recomputeClipping = false;
+    }
+
+    if (x2e4_gridCellCount2 >= x2cc_gridCellCount)
+        return;
+
+    if (!x2dc_vertIntersects)
+        x2dc_vertIntersects.reset(new bool[(x2c4_gridDimX + 1) * (x2c8_gridDimY + 1)]);
+    zeus::CAABox triggerBounds = GetTriggerBoundsWR();
+    zeus::CVector3f basePos = triggerBounds.min;
+    basePos.z = triggerBounds.max.z + 0.8f;
+    auto gridDiv = std::div(int(x2e4_gridCellCount2), int(x2c4_gridDimX + 1));
+    float yOffset = x2c0_tileSize * gridDiv.quot;
+    float xOffset = x2c0_tileSize * gridDiv.rem;
+    float mag = std::min(120.f, 2.f * (x130_bounds.max.z - x130_bounds.min.z) + 0.8f);
+    for (int i = x2e4_gridCellCount2; i < std::min(x2e4_gridCellCount2 + computeVerts, x2cc_gridCellCount); ++i)
+    {
+        zeus::CVector3f pos = basePos;
+        pos.x += xOffset;
+        pos.y += yOffset;
+        x2dc_vertIntersects[i] = mgr.RayStaticIntersection(pos, zeus::CVector3f::skDown, mag, SolidFilter).IsValid();
+        gridDiv.rem += 1;
+        xOffset += x2c0_tileSize;
+        if (gridDiv.rem > x2c4_gridDimX)
+        {
+            yOffset += x2c0_tileSize;
+            xOffset = 0.f;
+            gridDiv.rem = 0;
+        }
+    }
+    x2e4_gridCellCount2 += computeVerts;
+    if (x2e4_gridCellCount2 < x2cc_gridCellCount)
+        return;
+
+    x2e4_gridCellCount2 = x2cc_gridCellCount;
+    x2d8_tileIntersects.reset(new bool[x2c4_gridDimX * x2c8_gridDimY]);
+
+    for (int i = 0; i < x2c8_gridDimY; ++i)
+    {
+        int rowBase = x2c4_gridDimX * i;
+        int nextRowBase = (x2c4_gridDimX + 1) * i;
+        for (int j = 0; j < x2c4_gridDimX; ++j)
+        {
+            x2d8_tileIntersects[rowBase + j] =
+                x2dc_vertIntersects[nextRowBase + j] ||
+                x2dc_vertIntersects[nextRowBase + j + 1] ||
+                x2dc_vertIntersects[nextRowBase + j + x2c4_gridDimX + 1] ||
+                x2dc_vertIntersects[nextRowBase + j + x2c4_gridDimX + 2];
+        }
+    }
+
+    int tilesPerPatch = std::min(42 / x1b4_fluidPlane->GetTileSubdivisions(), 7);
+    x2d0_patchDimX = (tilesPerPatch + x2c4_gridDimX - 1) / tilesPerPatch;
+    x2d4_patchDimY = (tilesPerPatch + x2c8_gridDimY - 1) / tilesPerPatch;
+    x2e0_patchIntersects.reset(new u8[x2d0_patchDimX * x2d4_patchDimY]);
+    int curTileY = 0;
+    int nextTileY;
+    for (int i=0 ; i<x2d4_patchDimY ; ++i, curTileY = nextTileY)
+    {
+        nextTileY = curTileY + tilesPerPatch;
+        int curTileX = 0;
+        int rowBase = x2d0_patchDimX * i;
+        for (int j=0 ; j<x2d0_patchDimX ; ++j)
+        {
+            int nextTileX = curTileX + tilesPerPatch;
+            bool allClear = true;
+            bool allIntersections = true;
+            for (int k=curTileY ; k<std::min(nextTileY, x2c8_gridDimY) ; ++k)
+            {
+                if (!allClear && !allIntersections)
+                    break;
+                for (int l=curTileX ; l<std::min(nextTileX, x2c4_gridDimX) ; ++l)
+                {
+                    if (x2d8_tileIntersects[k * x2c4_gridDimX + l])
+                    {
+                        allClear = false;
+                        if (!allIntersections)
+                            break;
+                    }
+                    else
+                    {
+                        allIntersections = false;
+                        if (!allClear)
+                            break;
+                    }
+                }
+            }
+
+            u8 flag;
+            if (allIntersections)
+                flag = 1;
+            else if (allClear)
+                flag = 0;
+            else
+                flag = 2;
+            x2e0_patchIntersects[rowBase + j] = flag;
+            curTileX += tilesPerPatch;
+        }
+    }
+
+    x2dc_vertIntersects.reset();
+}
+
+void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr)
+{
+    // TODO: Do
+}
+
+void CScriptWater::Think(float dt, CStateManager& mgr)
+{
+    if (!x30_24_active)
+        return;
+
+    bool oldCamSubmerged = x148_25_camSubmerged;
+    CScriptTrigger::Think(dt, mgr);
+
+    CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    if (x148_25_camSubmerged && !oldCamSubmerged)
+        mgr.SendScriptMsg(curCam, x8_uid, EScriptObjectMessage::AddSplashInhabitant);
+    else if (!x148_25_camSubmerged && oldCamSubmerged)
+        mgr.SendScriptMsg(curCam, x8_uid, EScriptObjectMessage::RemoveSplashInhabitant);
+
+    UpdateSplashInhabitants(mgr);
+
+    if (x2e8_30_alphaOut)
+    {
+        x2bc_alpha -= x2b8_alphaOutRecip * dt * x1b4_fluidPlane->GetAlpha();
+        x214_fogBias -= x2b8_alphaOutRecip * dt * x21c_origFogBias;
+        x218_fogMagnitude -= x2b8_alphaOutRecip * dt * x220_origFogMagnitude;
+        if (x2bc_alpha <= 0.f)
+        {
+            x218_fogMagnitude = 0.f;
+            x214_fogBias = 0.f;
+            x2bc_alpha = 0.f;
+            x2e8_30_alphaOut = false;
+        }
+    }
+    else if (x2e8_29_alphaIn)
+    {
+        x2bc_alpha += x2b4_alphaInRecip * dt * x1b4_fluidPlane->GetAlpha();
+        x214_fogBias -= x2b4_alphaInRecip * dt * x21c_origFogBias;
+        x218_fogMagnitude -= x2b4_alphaInRecip * dt * x220_origFogMagnitude;
+        if (x2bc_alpha > x1b4_fluidPlane->GetAlpha())
+        {
+            x2bc_alpha = x1b4_fluidPlane->GetAlpha();
+            x214_fogBias = x21c_origFogBias;
+            x218_fogMagnitude = x220_origFogMagnitude;
+            x2e8_29_alphaIn = false;
+        }
+    }
+
+    if (x2e8_26_morphing)
+    {
+        bool stillMorphing = true;
+        if (x2e8_25_morphIn)
+        {
+            x1f8_morphFactor += dt / x1d0_morphInTime;
+            if (x1f8_morphFactor > 1.f)
+            {
+                x1f8_morphFactor = 1.f;
+                stillMorphing = false;
+            }
+        }
+        else
+        {
+            x1f8_morphFactor -= dt / x1f4_morphOutTime;
+            if (x1f8_morphFactor < 0.f)
+            {
+                x1f8_morphFactor = 0.f;
+                stillMorphing = false;
+            }
+        }
+
+        SetTranslation(zeus::CVector3f::lerp(x1d4_positionOrig, x1b8_positionMorphed, x1f8_morphFactor));
+        zeus::CVector3f lerpExtent = zeus::CVector3f::lerp(x1e0_extentOrig, x1c4_extentMorphed, x1f8_morphFactor);
+        x130_bounds = zeus::CAABox(lerpExtent * -0.5f, lerpExtent * 0.5f);
+        CalculateRenderBounds();
+
+        if (!stillMorphing)
+            SetMorphing(false);
+        else
+            SetupGrid(false);
+    }
+
+    SetupGridClipping(mgr, 4);
+}
 
 void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr)
 {
+    switch (msg)
+    {
+    case EScriptObjectMessage::Next:
+        if (!x30_24_active)
+            break;
+        x2e8_25_morphIn = !x2e8_25_morphIn;
+        if (x2e8_25_morphIn)
+        {
+            for (const SConnection& conn : x20_conns)
+            {
+                if (conn.x0_state != EScriptObjectState::Play ||
+                    conn.x4_msg != EScriptObjectMessage::Activate)
+                    continue;
+                auto list = mgr.GetIdListForScript(conn.x8_objId);
+                if (list.first == mgr.GetIdListEnd())
+                    continue;
+                if (TCastToConstPtr<CScriptTrigger> trig = mgr.GetObjectById(list.first->second))
+                {
+                    x1b8_positionMorphed = trig->GetTranslation();
+                    x1c4_extentMorphed = trig->GetTriggerBoundsOR().max - trig->GetTriggerBoundsOR().min;
+                    x1f0_damageMorphed = trig->GetDamageInfo().GetDamage();
+                    x1d4_positionOrig = GetTranslation();
+                    x1e0_extentOrig = x130_bounds.max - x130_bounds.min;
+                    x1ec_damageOrig = x100_damageInfo.GetDamage();
+                    break;
+                }
+            }
+        }
+        SetMorphing(true);
+        break;
+    case EScriptObjectMessage::Activate:
+        x2e8_30_alphaOut = false;
+        if (std::fabs(x2ac_alphaInTime) < 0.00001f)
+        {
+            x2bc_alpha = x1b4_fluidPlane->GetAlpha();
+            x214_fogBias = x21c_origFogBias;
+            x218_fogMagnitude = x220_origFogMagnitude;
+        }
+        else
+        {
+            x2e8_29_alphaIn = true;
+        }
+        break;
+    case EScriptObjectMessage::Action:
+        x2e8_29_alphaIn = false;
+        if (std::fabs(x2b0_alphaOutTime) < 0.00001f)
+        {
+            x2bc_alpha = 0.f;
+            x214_fogBias = 0.f;
+            x218_fogMagnitude = 0.f;
+        }
+        else
+        {
+            x2e8_30_alphaOut = true;
+        }
+        break;
+    default:
+        break;
+    }
+
     CScriptTrigger::AcceptScriptMsg(msg, other, mgr);
 }
 
-void CScriptWater::PreRender(CStateManager &, const zeus::CFrustum &) {}
+void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
+{
+    if (x2e8_27_allowRender)
+    {
+        zeus::CAABox aabb = GetSortingBounds(mgr);
+        xe4_30_outOfFrustum = !frustum.aabbFrustumTest(aabb);
+        if (!xe4_30_outOfFrustum)
+        {
+            if (x4_areaId != kInvalidAreaId)
+            {
+                if (x90_actorLights->GetMaxAreaLights() &&
+                    (xe4_29_actorLightsDirty || x90_actorLights->GetIsDirty()))
+                {
+                    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
+                    if (area->IsPostConstructed())
+                    {
+                        x90_actorLights->BuildAreaLightList(mgr, *area, GetTriggerBoundsWR());
+                        xe4_29_actorLightsDirty = false;
+                    }
+                }
+                x90_actorLights->BuildDynamicLightList(mgr, GetTriggerBoundsWR());
+            }
+            x150_frustum = frustum;
+        }
+    }
+    else
+    {
+        xe4_30_outOfFrustum = true;
+    }
+}
 
 void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const
 {
-    zeus::CPlane plane;
-    plane.vec = x34_transform.origin.normalized();
-    plane.d = x34_transform.origin.z + x130_bounds.max.z;
-    zeus::CAABox renderBounds = GetSortingBounds(mgr);
-    mgr.AddDrawableActorPlane(*this, plane, renderBounds);
+    if (!xe4_30_outOfFrustum)
+    {
+        zeus::CPlane plane;
+        plane.vec = x34_transform.origin.normalized();
+        plane.d = x34_transform.origin.z + x130_bounds.max.z;
+        zeus::CAABox renderBounds = GetSortingBounds(mgr);
+        mgr.AddDrawableActorPlane(*this, plane, renderBounds);
+    }
 }
 
-void CScriptWater::Render(const CStateManager&) const {}
-
-void CScriptWater::Touch(CActor&, CStateManager&)
+void CScriptWater::Render(const CStateManager& mgr) const
 {
+    if (x30_24_active && !xe4_30_outOfFrustum)
+    {
+        float zOffset = 0.5f * (x9c_renderBounds.max.z + x9c_renderBounds.min.z) - x34_transform.origin.z;
+        zeus::CAABox aabb = x9c_renderBounds.getTransformedAABox(
+        zeus::CTransform::Translate(-x34_transform.origin.x, -x34_transform.origin.y,
+                                    -x34_transform.origin.z - zOffset));
+        zeus::CTransform xf = x34_transform;
+        xf.origin.z += zOffset;
+        zeus::CVector3f areaCenter = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().center();
+        std::experimental::optional<CRippleManager> rippleMan(mgr.GetFluidPlaneManager()->GetRippleManager());
+        x1b4_fluidPlane->Render(mgr, x2bc_alpha, aabb, xf,
+                                mgr.GetWorld()->GetAreaAlways(x4_areaId)->GetTransform(), false,
+                                x150_frustum, rippleMan, x8_uid, x2d8_tileIntersects.get(),
+                                x2c4_gridDimX, x2c8_gridDimY, areaCenter);
+        if (x214_fogBias != 0.f)
+        {
+            if (mgr.GetPlayerState()->CanVisorSeeFog(mgr))
+            {
+                float fogLevel = mgr.IntegrateVisorFog(x218_fogMagnitude *
+                                                       std::sin(x224_fogSpeed * CGraphics::GetSecondsMod900()) +
+                                                       x214_fogBias);
+                if (fogLevel > 0.f)
+                {
+                    zeus::CAABox fogBox = GetTriggerBoundsWR();
+                    fogBox.min.z = fogBox.max.z;
+                    fogBox.max.z += fogLevel;
+                    zeus::CTransform modelXf = zeus::CTransform::Translate(fogBox.center()) *
+                        zeus::CTransform::Scale((fogBox.max - fogBox.min) * 0.5f);
+                    zeus::CAABox renderAABB(zeus::CVector3f::skNegOne, zeus::CVector3f::skOne);
+                    CGraphics::SetModelMatrix(modelXf);
+                    g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+                    g_Renderer->RenderFogVolume(x228_fogColor, renderAABB, nullptr, nullptr);
+                }
+            }
+        }
+        CGraphics::DisableAllLights();
+    }
+    CActor::Render(mgr);
+}
+
+void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr)
+{
+    if (!x30_24_active)
+        return;
+
+    CScriptTrigger::Touch(otherAct, mgr);
+    if (otherAct.GetMaterialList().HasMaterial(EMaterialTypes::Trigger))
+        return;
+
+    for (auto& inhab : x1fc_waterInhabitants)
+        if (inhab.first == otherAct.GetUniqueId())
+        {
+            inhab.second = true;
+            return;
+        }
+
+    auto touchBounds = otherAct.GetTouchBounds();
+    if (!touchBounds)
+        return;
+
+    x1fc_waterInhabitants.emplace_back(otherAct.GetUniqueId(), true);
+    float triggerMaxZ = GetTriggerBoundsWR().max.z;
+    if (touchBounds->min.z <= triggerMaxZ && touchBounds->max.z >= triggerMaxZ)
+        otherAct.FluidFXThink(EFluidState::Zero, *this, mgr);
+
+    mgr.SendScriptMsg(&otherAct, x8_uid, EScriptObjectMessage::AddSplashInhabitant);
 }
 
 void CScriptWater::CalculateRenderBounds()
@@ -143,12 +502,15 @@ void CScriptWater::CalculateRenderBounds()
     x9c_renderBounds = zeus::CAABox(transAABBMin, transAABBMax);
 }
 
-zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager&) const
+zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager& mgr) const
 {
-    return {};
+    zeus::CVector3f max = x9c_renderBounds.max;
+    max.z = std::max(max.z, x9c_renderBounds.max.z - 1.f + x214_fogBias + x218_fogMagnitude);
+    return {x9c_renderBounds.min, max};
 }
 
-EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&, int)
+EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                     CWeaponMode&, int)
 {
     return EWeaponCollisionResponseTypes::Water;
 }
@@ -175,8 +537,16 @@ float CScriptWater::GetSplashEffectScale(float dt) const
 
 u32 CScriptWater::GetSplashIndex(float dt) const
 {
-    u32 idx = dt * 3.f;
+    auto idx = u32(dt * 3.f);
     return (idx < 3 ? idx : idx - 1);
+}
+
+void CScriptWater::SetMorphing(bool m)
+{
+    if (m == x2e8_26_morphing)
+        return;
+    x2e8_26_morphing = m;
+    SetupGrid(!m);
 }
 
 const CScriptWater* CScriptWater::GetNextConnectedWater(const CStateManager& mgr) const

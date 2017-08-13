@@ -46,7 +46,7 @@ class CFluidPlaneCPU : public CFluidPlane
     zeus::CVector3f xf0_bumpLightDir;
     float xfc_bumpScale;
     float x100_tileSize;
-    u32 x104_tileSubdivisions;
+    int x104_tileSubdivisions;
     float x108_rippleResolution;
     float x10c_specularMin;
     float x110_specularMax;
@@ -55,8 +55,12 @@ class CFluidPlaneCPU : public CFluidPlane
     float x11c_unitsPerLightmapTexel;
     CTurbulence x120_turbulence;
 
+    u32 m_maxVertCount;
+
     mutable std::vector<CFluidPlaneShader::Vertex> m_verts;
     mutable std::experimental::optional<CFluidPlaneShader> m_shader;
+    mutable bool m_cachedDoubleLightmapBlend;
+    mutable bool m_cachedAdditive;
 
     struct RenderSetupInfo
     {
@@ -73,7 +77,7 @@ public:
                    const CFluidUVMotion& mot, float turbSpeed, float turbDistance, float turbFreqMax,
                    float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
                    float turbAmplitudeMin, float specularMin, float specularMax, float reflectionBlend,
-                   float reflectionSize, float fluidPlaneF2);
+                   float reflectionSize, float rippleIntensity, u32 maxVertCount);
     void CreateRipple(const CRipple& ripple, CStateManager& mgr);
     void CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf,
                                  const zeus::CAABox& aabb, zeus::CMatrix4f& mtxOut) const;
@@ -100,7 +104,7 @@ public:
     const CTexture& GetLightMap() const { return **xe0_lightmap; }
     const zeus::CVector3f& GetBumpLightDir() const { return xf0_bumpLightDir; }
     float GetTileSize() const { return x100_tileSize; }
-    u32 GetTileSubdivisions() const { return x104_tileSubdivisions; }
+    int GetTileSubdivisions() const { return x104_tileSubdivisions; }
     float GetRippleResolution() const { return x108_rippleResolution; }
     float GetTurbulenceHeight(float sel) const { return x120_turbulence.GetHeight(sel); }
     float GetOOTurbulenceDistance() const { return x120_turbulence.GetOODistance(); }

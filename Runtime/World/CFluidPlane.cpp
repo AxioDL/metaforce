@@ -6,9 +6,9 @@ namespace urde
 {
 
 CFluidPlane::CFluidPlane(ResId texPattern1, ResId texPattern2, ResId texColor, float alpha, EFluidType fluidType,
-                         float f2, const CFluidUVMotion& motion)
+                         float rippleIntensity, const CFluidUVMotion& motion)
 : x4_texPattern1Id(texPattern1), x8_texPattern2Id(texPattern2), xc_texColorId(texColor), x40_alpha(alpha),
-  x44_fluidType(fluidType), x48_f2(f2), x4c_uvMotion(motion)
+  x44_fluidType(fluidType), x48_rippleIntensity(rippleIntensity), x4c_uvMotion(motion)
 {
     if (g_ResFactory->GetResourceTypeById(texPattern1) == FOURCC('TXTR'))
         x10_texPattern1.emplace(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), texPattern1}));

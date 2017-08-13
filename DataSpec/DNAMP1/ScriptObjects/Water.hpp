@@ -16,134 +16,151 @@ struct Water : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> volume;
     DamageInfo damageInfo;
-    Value<atVec3f> unknown1;
-    Value<atUint32> unknown2;
-    Value<bool> unknown3;
-    Value<bool> unknown4;
-    UniqueID32 texture1;
-    UniqueID32 texture2;
-    UniqueID32 texture3;
-    UniqueID32 texture4;
-    UniqueID32 texture5;
-    UniqueID32 texture6;
-    Value<atVec3f> unknown5;
-    Value<float> unknown6;
-    Value<float> unknown7;
-    Value<float> unknown8;
-    Value<bool> unknown9;
-    Value<atUint32> unknown10;
-    Value<bool> unknown11;
-    Value<float> unknown12;
+    Value<atVec3f> orientedForce;
+    Value<atUint32> triggerFlags;
+    Value<bool> thermalCold;
+    Value<bool> displaySurface;
+    UniqueID32 patternMap1;
+    UniqueID32 patternMap2;
+    UniqueID32 colorMap;
+    UniqueID32 bumpMap;
+    UniqueID32 envMap;
+    UniqueID32 envBumpMap;
+    Value<atVec3f> bumpLightDir;
+    Value<float> bumpScale;
+    Value<float> morphInTime;
+    Value<float> morphOutTime;
+    Value<bool> active;
+    Value<atUint32> fluidType;
+    Value<bool> unknownBool;
+    Value<float> alpha;
     struct FluidUVMotion : BigYAML
     {
         DECL_YAML
         struct FluidLayerMotion : BigYAML
         {
             DECL_YAML
-            Value<atUint32> unknown1;
-            Value<float> unknown2;
-            Value<float> unknown3;
-            Value<float> unknown4;
-            Value<float> unknown5;
+            Value<atUint32> motionType;
+            Value<float> timeToWrap;
+            Value<float> orientation;
+            Value<float> magnitude;
+            Value<float> uvMul;
         };
 
-        /* BIG FAT WARNING: Do NOT re-order these, even if they seem incorrect */
-        FluidLayerMotion layer2;
-        FluidLayerMotion layer3;
-        FluidLayerMotion layer1;
-        Value<float> unknown1;
-        Value<float> unknown2;
+        FluidLayerMotion pattern1Layer;
+        FluidLayerMotion pattern2Layer;
+        FluidLayerMotion colorLayer;
+        Value<float> timeToWrap;
+        Value<float> orientation;
     } fluidUVMotion;
 
-    Value<float> unknown13;
-    Value<float> unknown14;
-    Value<float> unknown15;
-    Value<float> unknown16;
-    Value<float> unknown17;
-    Value<float> unknown18;
-    Value<float> unknown19;
-    Value<float> unknown20;
-    Value<atVec4f> unknown21;
-    Value<atVec4f> unknown22;
-    UniqueID32 particle1;
-    UniqueID32 particle2;
-    UniqueID32 particle3;
+    Value<float> turbulenceSpeed;
+    Value<float> turbulenceDistance;
+    Value<float> turbulenceFrequencyMax;
+    Value<float> turbulenceFrequencyMin;
+    Value<float> turbulencePhaseMax;
+    Value<float> turbulencePhaseMin;
+    Value<float> turbulenceAmplitudeMax;
+    Value<float> turbulenceAmplitudeMin;
+    Value<atVec4f> splashColor;
+    Value<atVec4f> unkColor;
+    UniqueID32 splashParticle1;
+    UniqueID32 splashParticle2;
+    UniqueID32 splashParticle3;
     UniqueID32 particle4;
     UniqueID32 particle5;
-    Value<atUint32> soundID1; // needs verification
-    Value<atUint32> soundID2; // needs verification
-    Value<atUint32> soundID3; // needs verification
-    Value<atUint32> soundID4; // needs verification
-    Value<atUint32> soundID5; // needs verification
-    Value<float> unknown23;
-    Value<atUint32> unknown24;
-    Value<float> unknown25;
-    Value<float> unknown26;
-    Value<float> unknown27;
-    Value<float> unknown28;
-    Value<float> unknown29;
-    Value<float> unknown30;
-    Value<float> unknown31;
-    Value<float> unknown32;
-    Value<atVec4f> unknown33; // CColor
-    UniqueID32 texture34;
-    Value<float> unknown35;
-    Value<float> unknown36;
-    Value<float> unknown37;
-    Value<atUint32> unknown38;
-    Value<atUint32> unknown39;
-    Value<bool> unknown40;
+    Value<atUint32> unkSfx;
+    Value<atUint32> visorRunoffSfx;
+    Value<atUint32> splashSfx1;
+    Value<atUint32> splashSfx2;
+    Value<atUint32> splashSfx3;
+    Value<float> tileSize;
+    Value<atUint32> tileSubdivisions;
+    Value<float> specularMin;
+    Value<float> specularMax;
+    Value<float> reflectionSize;
+    Value<float> rippleIntensity;
+    Value<float> reflectionBlend;
+    Value<float> fogBias;
+    Value<float> fogMagnitude;
+    Value<float> fogSpeed;
+    Value<atVec4f> fogColor; // CColor
+    UniqueID32 lightmap;
+    Value<float> unitsPerLightmapTexel;
+    Value<float> alphaInTime;
+    Value<float> alphaOutTime;
+    Value<atUint32> unusedInt1;
+    Value<atUint32> unusedInt2;
+
+    struct UnusedBitset : BigYAML
+    {
+        Delete _d;
+        void read(athena::io::IStreamReader& in)
+        {
+            if (in.readBool())
+            {
+                atUint32 bitVal0 = in.readUint16Big();
+                atUint32 bitVal1 = in.readUint16Big();
+                atUint32 len = ((bitVal0 * bitVal1) + 31) / 31;
+                in.seek(len * 4);
+            }
+        }
+        void write(athena::io::IStreamWriter& out) const { out.writeBool(false); }
+        void read(athena::io::YAMLDocReader& reader) {}
+        void write(athena::io::YAMLDocWriter& writer) const {}
+        size_t binarySize(size_t __isz) const { return __isz + 1; }
+    } unusedBitset;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {
-        if (texture1)
+        if (patternMap1)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap1);
             ent->name = name + "_tex1";
         }
-        if (texture2)
+        if (patternMap2)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap2);
             ent->name = name + "_tex2";
         }
-        if (texture3)
+        if (colorMap)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture3);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(colorMap);
             ent->name = name + "_tex3";
         }
-        if (texture4)
+        if (bumpMap)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture4);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(bumpMap);
             ent->name = name + "_tex4";
         }
-        if (texture5)
+        if (envMap)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture5);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(envMap);
             ent->name = name + "_tex5";
         }
-        if (texture6)
+        if (envBumpMap)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture6);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(envBumpMap);
             ent->name = name + "_tex6";
         }
-        if (texture34)
+        if (lightmap)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture34);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(lightmap);
             ent->name = name + "_tex34";
         }
-        if (particle1)
+        if (splashParticle1)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle1);
             ent->name = name + "_part1";
         }
-        if (particle2)
+        if (splashParticle2)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle2);
             ent->name = name + "_part2";
         }
-        if (particle3)
+        if (splashParticle3)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle3);
             ent->name = name + "_part3";
         }
         if (particle4)
@@ -160,16 +177,16 @@ struct Water : IScriptObject
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
-        g_curSpec->flattenDependencies(texture1, pathsOut);
-        g_curSpec->flattenDependencies(texture2, pathsOut);
-        g_curSpec->flattenDependencies(texture3, pathsOut);
-        g_curSpec->flattenDependencies(texture4, pathsOut);
-        g_curSpec->flattenDependencies(texture5, pathsOut);
-        g_curSpec->flattenDependencies(texture6, pathsOut);
-        g_curSpec->flattenDependencies(texture34, pathsOut);
-        g_curSpec->flattenDependencies(particle1, pathsOut);
-        g_curSpec->flattenDependencies(particle2, pathsOut);
-        g_curSpec->flattenDependencies(particle3, pathsOut);
+        g_curSpec->flattenDependencies(patternMap1, pathsOut);
+        g_curSpec->flattenDependencies(patternMap2, pathsOut);
+        g_curSpec->flattenDependencies(colorMap, pathsOut);
+        g_curSpec->flattenDependencies(bumpMap, pathsOut);
+        g_curSpec->flattenDependencies(envMap, pathsOut);
+        g_curSpec->flattenDependencies(envBumpMap, pathsOut);
+        g_curSpec->flattenDependencies(lightmap, pathsOut);
+        g_curSpec->flattenDependencies(splashParticle1, pathsOut);
+        g_curSpec->flattenDependencies(splashParticle2, pathsOut);
+        g_curSpec->flattenDependencies(splashParticle3, pathsOut);
         g_curSpec->flattenDependencies(particle4, pathsOut);
         g_curSpec->flattenDependencies(particle5, pathsOut);
     }

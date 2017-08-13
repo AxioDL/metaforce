@@ -124,7 +124,7 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
                                      const std::experimental::optional<TLockedToken<CTexture>>& envMap,
                                      const std::experimental::optional<TLockedToken<CTexture>>& envBumpMap,
                                      const std::experimental::optional<TLockedToken<CTexture>>& lightmap,
-                                     bool doubleLightmapBlend, bool additive)
+                                     bool doubleLightmapBlend, bool additive, u32 maxVertCount)
 : m_patternTex1(patternTex1),
   m_patternTex2(patternTex2),
   m_colorTex(colorTex),
@@ -147,7 +147,7 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
     m_gfxTok = CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
-        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), 999); // TODO: Figure out how many
+        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, 1024, 1);
 
         switch (ctx.platform())

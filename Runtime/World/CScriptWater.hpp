@@ -15,23 +15,22 @@ private:
     static const float kSplashScales[6];
     zeus::CFrustum x150_frustum;
     std::unique_ptr<CFluidPlaneCPU> x1b4_fluidPlane;
-    zeus::CVector3f x1b8_position;
-    zeus::CVector3f x1c4_extent;
-    float x1d0_f2;
-    zeus::CVector3f x1d4_position2;
-    zeus::CVector3f x1e0_extent2;
-    float x1ec_damage;
-    float x1f0_damage2;
-    float x1f4_;
-    float x1f8_lightmapDoubleBlendFactor = 0.f;
+    zeus::CVector3f x1b8_positionMorphed;
+    zeus::CVector3f x1c4_extentMorphed;
+    float x1d0_morphInTime;
+    zeus::CVector3f x1d4_positionOrig;
+    zeus::CVector3f x1e0_extentOrig;
+    float x1ec_damageOrig;
+    float x1f0_damageMorphed;
+    float x1f4_morphOutTime;
+    float x1f8_morphFactor = 0.f;
     std::list<std::pair<TUniqueId, bool>> x1fc_waterInhabitants;
-    u32 x210_;
-    float x214_;
-    float x218_;
-    float x21c_;
-    float x220_;
-    float x224_;
-    zeus::CColor x228_;
+    float x214_fogBias;
+    float x218_fogMagnitude;
+    float x21c_origFogBias;
+    float x220_origFogMagnitude;
+    float x224_fogSpeed;
+    zeus::CColor x228_fogColor;
     ResId x22c_splashParticle1Id;
     ResId x230_splashParticle2Id;
     ResId x234_splashParticle3Id;
@@ -39,58 +38,60 @@ private:
     std::experimental::optional<TLockedToken<CGenDescription>> x23c_;
     ResId x24c_particle5Id;
     std::experimental::optional<TLockedToken<CGenDescription>> x250_visorRunoffEffect;
-    u16 x260_;
+    u16 x260_unkSfx;
     u16 x262_visorRunoffSfx;
     rstl::reserved_vector<std::experimental::optional<TLockedToken<CGenDescription>>, 3> x264_splashEffects;
     rstl::reserved_vector<u16, 3> x298_splashSounds;
-    zeus::CColor x2a4_c1;
-    zeus::CColor x2a8_c2;
-    float x2ac_lf2;
-    float x2b0_lf3;
-    float x2b4_;
-    float x2b8_;
+    zeus::CColor x2a4_splashColor;
+    zeus::CColor x2a8_unkColor;
+    float x2ac_alphaInTime;
+    float x2b0_alphaOutTime;
+    float x2b4_alphaInRecip;
+    float x2b8_alphaOutRecip;
     float x2bc_alpha;
     float x2c0_tileSize;
-    u32 x2c4_gridDimX = 0;
-    u32 x2c8_gridDimY = 0;
-    u32 x2cc_gridCellCount = 0;
-    u32 x2d0_patchDimX = 0;
-    u32 x2d4_patchDimY = 0;
-    std::unique_ptr<bool[]> x2d8_gridFlags;
-    std::unique_ptr<bool[]> x2dc_;
-    std::unique_ptr<u8[]> x2e0_patchFlags;
-    u32 x2e4_gridCellCount2 = 0;
+    int x2c4_gridDimX = 0;
+    int x2c8_gridDimY = 0;
+    int x2cc_gridCellCount = 0;
+    int x2d0_patchDimX = 0;
+    int x2d4_patchDimY = 0;
+    std::unique_ptr<bool[]> x2d8_tileIntersects;
+    std::unique_ptr<bool[]> x2dc_vertIntersects;
+    std::unique_ptr<u8[]> x2e0_patchIntersects; // 0: all clear, 1: all intersect, 2: partial intersect
+    int x2e4_gridCellCount2 = 0;
     union
     {
         struct
         {
             bool x2e8_24_b4 : 1;
-            bool x2e8_25 : 1;
-            bool x2e8_26 : 1;
-            bool x2e8_27_b2 : 1;
-            bool x2e8_28 : 1;
-            bool x2e8_29 : 1;
-            bool x2e8_30 : 1;
+            bool x2e8_25_morphIn : 1;
+            bool x2e8_26_morphing : 1;
+            bool x2e8_27_allowRender : 1;
+            bool x2e8_28_recomputeClipping : 1;
+            bool x2e8_29_alphaIn : 1;
+            bool x2e8_30_alphaOut : 1;
         };
         u32 _dummy = 0;
     };
-    void SetupGrid(bool b);
+    void SetupGrid(bool recomputeClipping);
+    void SetupGridClipping(CStateManager& mgr, int computeVerts);
+    void UpdateSplashInhabitants(CStateManager& mgr);
 public:
     CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
                  const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
-                 zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool b1, bool b2,
+                 zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold, bool allowRender,
                  ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap, ResId envMap,
                  ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
-                 float f2, float f3, bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
-                 const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
+                 float morphInTime, float morphOutTime, bool active, CFluidPlane::EFluidType fluidType, bool b4,
+                 float alpha, const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
                  float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
-                 float turbAmplitudeMin, const zeus::CColor& c1, const zeus::CColor& c2, ResId splashParticle1,
-                 ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5, s32 i1,
-                 s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
+                 float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
+                 ResId splashParticle1, ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5,
+                 s32 unkSfx, s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
                  u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
-                 float fluidPlaneF2, float reflectionBlend, float slF6, float slF7, float slF8,
-                 const zeus::CColor& c3, ResId lightmapId, float unitsPerLightmapTexel, float lF2, float lF3,
-                 u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
+                 float rippleIntensity, float reflectionBlend, float fogBias, float fogMagnitude, float fogSpeed,
+                 const zeus::CColor& fogColor, ResId lightmapId, float unitsPerLightmapTexel, float alphaInTime,
+                 float alphaOutTime, u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
 
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
@@ -100,32 +101,30 @@ public:
     void Touch(CActor &, CStateManager &);
     void CalculateRenderBounds();
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
-    void RenderSurface();
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&,
                                                            int);
 
-    void UpdateSplashInhabitants(CStateManager&);
     s16 GetSplashSound(float) const;
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;
     float GetSplashEffectScale(float) const;
     u32 GetSplashIndex(float) const;
-    void FluidPlane();
+    CFluidPlaneCPU& FluidPlane() { return *x1b4_fluidPlane; }
     zeus::CPlane GetWRSurfacePlane() const;
     float GetSurfaceZ() const;
-    bool IsMorphing() const;
+    bool IsMorphing() const { return x2e8_26_morphing; }
     void SetMorphing(bool);
-    zeus::CColor GetSplashColor() const;
-    void SetFrustumPlanes(const zeus::CFrustum& frustum);
-    const zeus::CFrustum& GetFrustumPlanes() const;
+    float GetMorphFactor() const { return x1f8_morphFactor; }
+    zeus::CColor GetSplashColor() const { return x2a4_splashColor; }
+    void SetFrustumPlanes(const zeus::CFrustum& frustum) { x150_frustum = frustum; }
+    const zeus::CFrustum& GetFrustumPlanes() const { return x150_frustum; }
     CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const
     { return x250_visorRunoffEffect; }
     u16 GetVisorRunoffSfx() const { return x262_visorRunoffSfx; }
     const CScriptWater* GetNextConnectedWater(const CStateManager& mgr) const;
-    float GetLightmapDoubleBlendFactor() const { return x1f8_lightmapDoubleBlendFactor; }
-    u8 GetPatchRenderFlags(int x, int y) const { return x2e0_patchFlags[y * x2d0_patchDimX + x]; }
-    u32 GetPatchDimensionX() const { return x2d0_patchDimX; }
-    u32 GetPatchDimensionY() const { return x2d4_patchDimY; }
+    u8 GetPatchRenderFlags(int x, int y) const { return x2e0_patchIntersects[y * x2d0_patchDimX + x]; }
+    int GetPatchDimensionX() const { return x2d0_patchDimX; }
+    int GetPatchDimensionY() const { return x2d4_patchDimY; }
 };
 }
 

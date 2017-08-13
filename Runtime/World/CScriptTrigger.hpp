@@ -58,7 +58,7 @@ protected:
         struct
         {
             bool x148_24_playerInside : 1;
-            bool x148_25_ : 1;
+            bool x148_25_camSubmerged : 1;
             bool x148_26_deactivateOnEntered : 1;
             bool x148_27_deactivateOnExited : 1;
             bool x148_28_ : 1;
@@ -84,6 +84,7 @@ public:
     std::list<CObjectTracker>& GetInhabitants();
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor &, CStateManager &);
+    const zeus::CAABox& GetTriggerBoundsOR() const { return x130_bounds; }
     zeus::CAABox GetTriggerBoundsWR() const;
     const CDamageInfo& GetDamageInfo() const { return x100_damageInfo; }
     ETriggerFlags GetTriggerFlags() const { return x12c_flags; }

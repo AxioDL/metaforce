@@ -77,7 +77,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         x34_transform = zeus::CTransform::Identity();
         xe4_27_ = true;
         xe4_28_ = true;
-        xe4_29_ = true;
+        xe4_29_actorLightsDirty = true;
         return;
     }
 
@@ -262,7 +262,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     xe4_27_ = true;
     xe4_28_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
 
     CActor::SetTranslation(x190_gunFollowXf.origin + player->GetTransform().rotate(bobXf.origin));
     x190_gunFollowXf.orthonormalize();

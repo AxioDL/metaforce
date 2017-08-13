@@ -288,7 +288,7 @@ void CActor::SetRotation(const zeus::CQuaternion &q)
     x34_transform = q.toTransform(x34_transform.origin);
     xe4_27_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
 }
 
 void CActor::SetTranslation(const zeus::CVector3f& tr)
@@ -296,7 +296,7 @@ void CActor::SetTranslation(const zeus::CVector3f& tr)
     x34_transform.origin = tr;
     xe4_27_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
 }
 
 void CActor::SetTransform(const zeus::CTransform& tr)
@@ -304,7 +304,7 @@ void CActor::SetTransform(const zeus::CTransform& tr)
     x34_transform = tr;
     xe4_27_ = true;
     xe4_28_ = true;
-    xe4_29_ = true;
+    xe4_29_actorLightsDirty = true;
 }
 
 void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }

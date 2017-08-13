@@ -84,8 +84,10 @@ public:
     const zeus::CColor& GetAmbientColor() const { return x288_ambientColor; }
     const CLight& GetLight(u32 idx) const;
     u32 GetActiveLightCount() const;
+    int GetMaxAreaLights() const { return x2b8_maxAreaLights; }
     const std::vector<CLight>& GetAreaLights() const { return x0_areaLights; }
     const std::vector<CLight>& GetDynamicLights() const { return x144_dynamicLights; }
+    bool GetIsDirty() const { return x298_24_dirty; }
 };
 
 }

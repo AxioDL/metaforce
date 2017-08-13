@@ -327,20 +327,13 @@ CAnimationParameters ScriptLoader::LoadAnimationParameters(CInputStream& in)
 
 CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
 {
-    /* NOTE: DO NOT RE-ORDER THIS FUNCTION
-     * For some inexplicable reason Retro stores the layers in this order.
-     * Changing it will change the behavior of CFluidUVMotion,
-     * which is something we don't want.
-     * - Phil
-     * P.S: If you do change it, I'll hunt you down and put pink lipstick on your dog.
-     */
-    CFluidUVMotion::EFluidUVMotion motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
+    auto motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     float a = in.readFloatBig();
     float b = in.readFloatBig();
     b = zeus::degToRad(b) - M_PIF;
     float c = in.readFloatBig();
     float d = in.readFloatBig();
-    CFluidUVMotion::SFluidLayerMotion layerMotion2(motion, a, b, c, d);
+    CFluidUVMotion::SFluidLayerMotion pattern1Layer(motion, a, b, c, d);
 
     motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     a = in.readFloatBig();
@@ -348,7 +341,7 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     b = zeus::degToRad(b) - M_PIF;
     c = in.readFloatBig();
     d = in.readFloatBig();
-    CFluidUVMotion::SFluidLayerMotion layerMotion3(motion, a, b, c, d);
+    CFluidUVMotion::SFluidLayerMotion pattern2Layer(motion, a, b, c, d);
 
     motion = CFluidUVMotion::EFluidUVMotion(in.readUint32Big());
     a = in.readFloatBig();
@@ -356,14 +349,14 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
     b = zeus::degToRad(b) - M_PIF;
     c = in.readFloatBig();
     d = in.readFloatBig();
-    CFluidUVMotion::SFluidLayerMotion layerMotion1(motion, a, b, c, d);
+    CFluidUVMotion::SFluidLayerMotion colorLayer(motion, a, b, c, d);
 
     a = in.readFloatBig();
     b = in.readFloatBig();
 
     b = zeus::degToRad(b) - M_PIF;
 
-    return CFluidUVMotion(a, b, layerMotion1, layerMotion2, layerMotion3);
+    return CFluidUVMotion(a, b, colorLayer, pattern1Layer, pattern2Layer);
 }
 
 zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
@@ -1206,68 +1199,68 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
                                  ETriggerFlags::DetectProjectiles4 | ETriggerFlags::DetectBombs |
                                  ETriggerFlags::DetectPowerBombs | ETriggerFlags::DetectProjectiles5 |
                                  ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
-    bool b1 = in.readBool();
+    bool thermalCold = in.readBool();
     bool displaySurface = in.readBool();
-    ResId textureId1 = in.readUint32Big();
-    ResId textureId2 = in.readUint32Big();
-    ResId textureId3 = in.readUint32Big();
-    ResId textureId4 = in.readUint32Big();
-    ResId textureId5 = in.readUint32Big();
-    ResId textureId6 = in.readUint32Big();
-    zeus::CVector3f v2;
-    v2.readBig(in);
+    ResId patternMap1 = in.readUint32Big();
+    ResId patternMap2 = in.readUint32Big();
+    ResId colorMap = in.readUint32Big();
+    ResId bumpMap = in.readUint32Big();
+    ResId _envMap = in.readUint32Big();
+    ResId _envBumpMap = in.readUint32Big();
+    zeus::CVector3f _bumpLightDir;
+    _bumpLightDir.readBig(in);
 
-    zeus::CVector3f otherV2 = v2;
-    if (otherV2.canBeNormalized())
-        otherV2.assign(0.f, 0.f, -1.f);
+    zeus::CVector3f bumpLightDir = _bumpLightDir;
+    if (!bumpLightDir.canBeNormalized())
+        bumpLightDir.assign(0.f, 0.f, -1.f);
 
-    float f1 = 1.f / in.readFloatBig();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
+    float bumpScale = 1.f / in.readFloatBig();
+    float morphInTime = in.readFloatBig();
+    float morphOutTime = in.readFloatBig();
     bool active = in.readBool();
-    CFluidPlane::EFluidType fluidType = CFluidPlane::EFluidType(in.readUint32Big());
+    auto fluidType = CFluidPlane::EFluidType(in.readUint32Big());
     bool b4 = in.readBool();
-    float f4 = in.readFloatBig();
-    CFluidUVMotion fluidMotion = LoadFluidUVMotion(in);
+    float alpha = in.readFloatBig();
+    CFluidUVMotion uvMotion = LoadFluidUVMotion(in);
 
-    float f5 = in.readFloatBig();
-    float f6 = in.readFloatBig();
-    float f7 = in.readFloatBig();
-    float f8 = in.readFloatBig();
-    float f9 = zeus::degToRad(in.readFloatBig());
-    float f10 = zeus::degToRad(in.readFloatBig());
-    float f11 = in.readFloatBig();
-    float f12 = in.readFloatBig();
-    zeus::CColor c1;
-    c1.readRGBABig(in);
-    zeus::CColor c2;
-    c2.readRGBABig(in);
-    ResId enterParticle = in.readUint32Big();
-    ResId partId2 = in.readUint32Big();
-    ResId partId3 = in.readUint32Big();
-    ResId partId4 = in.readUint32Big();
-    ResId partId5 = in.readUint32Big();
-    u32 soundId1 = in.readUint32Big();
-    u32 soundId2 = in.readUint32Big();
-    u32 soundId3 = in.readUint32Big();
-    u32 soundId4 = in.readUint32Big();
-    u32 soundId5 = in.readUint32Big();
-    float f13 = in.readFloatBig();
-    u32 w19 = in.readUint32Big();
-    float f14 = in.readFloatBig();
-    float f15 = in.readFloatBig();
-    float f16 = in.readFloatBig();
-    float f17 = in.readFloatBig();
-    float f18 = in.readFloatBig();
-    float f19 = in.readFloatBig();
-    float heatWaveHeight = in.readFloatBig();
-    float heatWaveSpeed = in.readFloatBig();
-    zeus::CColor heatWaveColor;
-    heatWaveColor.readRGBABig(in);
+    float turbSpeed = in.readFloatBig();
+    float turbDistance = in.readFloatBig();
+    float turbFreqMax = in.readFloatBig();
+    float turbFreqMin = in.readFloatBig();
+    float turbPhaseMax = zeus::degToRad(in.readFloatBig());
+    float turbPhaseMin = zeus::degToRad(in.readFloatBig());
+    float turbAmplitudeMax = in.readFloatBig();
+    float turbAmplitudeMin = in.readFloatBig();
+    zeus::CColor splashColor;
+    splashColor.readRGBABig(in);
+    zeus::CColor unkColor;
+    unkColor.readRGBABig(in);
+    ResId splashParticle1 = in.readUint32Big();
+    ResId splashParticle2 = in.readUint32Big();
+    ResId splashParticle3 = in.readUint32Big();
+    ResId particle4 = in.readUint32Big();
+    ResId particle5 = in.readUint32Big();
+    u32 unkSfx = in.readUint32Big();
+    u32 visorRunoffSfx = in.readUint32Big();
+    u32 splashSfx1 = in.readUint32Big();
+    u32 splashSfx2 = in.readUint32Big();
+    u32 splashSfx3 = in.readUint32Big();
+    float tileSize = in.readFloatBig();
+    u32 tileSubdivisions = in.readUint32Big();
+    float specularMin = in.readFloatBig();
+    float specularMax = in.readFloatBig();
+    float reflectionSize = in.readFloatBig();
+    float rippleIntensity = in.readFloatBig();
+    float reflectionBlend = in.readFloatBig();
+    float fogBias = in.readFloatBig();
+    float fogMagnitude = in.readFloatBig();
+    float fogSpeed = in.readFloatBig();
+    zeus::CColor fogColor;
+    fogColor.readRGBABig(in);
     ResId lightmap = in.readUint32Big();
-    float f22 = in.readFloatBig();
-    float f23 = in.readFloatBig();
-    float f24 = in.readFloatBig();
+    float unitsPerLightmapTexel = in.readFloatBig();
+    float alphaInTime = in.readFloatBig();
+    float alphaOutTime = in.readFloatBig();
     u32 w21 = in.readUint32Big();
     u32 w22 = in.readUint32Big();
     bool b5 = in.readBool();
@@ -1287,21 +1280,23 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
 
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
-    ResId realTextureId6 = -1;
-    if (textureId4 == -1)
-        realTextureId6 = textureId6;
+    ResId envBumpMap = -1;
+    if (bumpMap == -1)
+        envBumpMap = _envBumpMap;
 
-    ResId realTextureId5 = -1;
-    if (textureId4 == -1)
-        realTextureId5 = textureId5;
+    ResId envMap = -1;
+    if (bumpMap == -1)
+        envMap = _envMap;
 
     return new CScriptWater(
-        mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, b1, displaySurface,
-        textureId1, textureId2, textureId3, textureId4, realTextureId5, realTextureId6, -1, otherV2, f1, f2, f3, active,
-        fluidType, b4, f4, fluidMotion, f5, f6, f7, f8, f9, f10, f11, f12, c1, c2, enterParticle, partId2, partId3,
-        partId4, partId5, soundId1, soundId2, soundId3, soundId4, soundId5, f13, w19, f14, f15, f16, f17, f18, f19,
-        heatWaveHeight, heatWaveSpeed, heatWaveColor, lightmap, f22, f23, f24, w21, w22, b5, bitVal0, bitVal1,
-        std::move(bitset));
+        mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, thermalCold,
+        displaySurface, patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, -1, bumpLightDir, bumpScale,
+        morphInTime, morphOutTime, active, fluidType, b4, alpha, uvMotion, turbSpeed, turbDistance, turbFreqMax,
+        turbFreqMin, turbPhaseMax, turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, splashColor, unkColor,
+        splashParticle1, splashParticle2, splashParticle3, particle4, particle5, unkSfx, visorRunoffSfx, splashSfx1,
+        splashSfx2, splashSfx3, tileSize, tileSubdivisions, specularMin, specularMax, reflectionSize, rippleIntensity,
+        reflectionBlend, fogBias, fogMagnitude, fogSpeed, fogColor, lightmap, unitsPerLightmapTexel, alphaInTime,
+        alphaOutTime, w21, w22, b5, bitVal0, bitVal1, std::move(bitset));
 }
 
 CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

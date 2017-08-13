@@ -461,6 +461,7 @@ public:
     void SetViewportScale(const zeus::CVector2f& scale) { xf2c_viewportScale = scale; }
     float GetThermalColdScale2() const { return xf28_thermColdScale2; }
     void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
+    float IntegrateVisorFog(float f) const;
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

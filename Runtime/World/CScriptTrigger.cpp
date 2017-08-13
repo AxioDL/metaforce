@@ -44,7 +44,7 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
         if (msg == EScriptObjectMessage::Deactivate)
         {
             xe8_inhabitants.clear();
-            x148_25_ = false;
+            x148_25_camSubmerged = false;
         }
 
         if (x148_28_)

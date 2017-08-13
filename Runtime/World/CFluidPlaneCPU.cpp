@@ -50,8 +50,8 @@ CFluidPlaneCPU::CFluidPlaneCPU(ResId texPattern1, ResId texPattern2, ResId texCo
                                float turbSpeed, float turbDistance, float turbFreqMax, float turbFreqMin,
                                float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax, float turbAmplitudeMin,
                                float specularMin, float specularMax, float reflectionBlend, float reflectionSize,
-                               float fluidPlaneF2)
-: CFluidPlane(texPattern1, texPattern2, texColor, alpha, fluidType, fluidPlaneF2, mot),
+                               float rippleIntensity, u32 maxVertCount)
+: CFluidPlane(texPattern1, texPattern2, texColor, alpha, fluidType, rippleIntensity, mot),
   xa0_texIdBumpMap(bumpMap), xa4_texIdEnvMap(envMap), xa8_texIdEnvBumpMap(envBumpMap), xac_texId4(lightMap),
   xf0_bumpLightDir(bumpLightDir), xfc_bumpScale(bumpScale), x100_tileSize(tileSize),
   x104_tileSubdivisions(tileSubdivisions & ~0x1),
@@ -59,7 +59,8 @@ CFluidPlaneCPU::CFluidPlaneCPU(ResId texPattern1, ResId texPattern2, ResId texCo
   x10c_specularMin(specularMin), x110_specularMax(specularMax), x114_reflectionBlend(reflectionBlend),
   x118_reflectionSize(reflectionSize), x11c_unitsPerLightmapTexel(unitsPerLightmapTexel),
   x120_turbulence(turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
-                  turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin)
+                  turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin),
+  m_maxVertCount(maxVertCount)
 {
     if (g_ResFactory->GetResourceTypeById(xa0_texIdBumpMap) == FOURCC('TXTR'))
         xb0_bumpMap.emplace(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), xa0_texIdBumpMap}));
@@ -223,7 +224,7 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
         const CGameArea* area = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId());
         float lightLevel = area->GetPostConstructed()->x1128_worldLightingLevel;
         const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
-        if (std::fabs(water->GetLightmapDoubleBlendFactor()) < 0.00001f || !nextWater ||
+        if (std::fabs(water->GetMorphFactor()) < 0.00001f || !nextWater ||
                       !nextWater->GetFluidPlane().HasLightMap())
         {
             lightmapId = curTex;
@@ -233,7 +234,7 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
         }
         else if (nextWater && nextWater->GetFluidPlane().HasLightMap())
         {
-            if (std::fabs(water->GetLightmapDoubleBlendFactor() - 1.f) < 0.00001f)
+            if (std::fabs(water->GetMorphFactor() - 1.f) < 0.00001f)
             {
                 lightmapId = curTex;
                 // Load lightmap
@@ -250,9 +251,9 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
                 CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
                 // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
 
-                float lum = lightLevel * water->GetLightmapDoubleBlendFactor();
+                float lum = lightLevel * water->GetMorphFactor();
                 out.kColors[3] = zeus::CColor(lum, 1.f);
-                lowLightBlend = (1.f - water->GetLightmapDoubleBlendFactor()) / (1.f - lum);
+                lowLightBlend = (1.f - water->GetMorphFactor()) / (1.f - lum);
                 doubleLightmapBlend = true;
             }
         }
@@ -269,11 +270,15 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
         zeus::CColor((1.f - waterPlaneOrthoDot) * (x110_specularMax - x10c_specularMin) + x10c_specularMin, alpha);
     out.kColors[1] = zeus::CColor(x114_reflectionBlend, 1.f);
 
-    // TODO: Detect parameter changes and rebuild if needed
-    if (!m_shader)
+    if (!m_shader || m_cachedDoubleLightmapBlend != doubleLightmapBlend ||
+        m_cachedAdditive != (mgr.GetParticleFlags() == 0))
+    {
+        m_cachedDoubleLightmapBlend = doubleLightmapBlend;
+        m_cachedAdditive = mgr.GetParticleFlags() == 0;
         m_shader.emplace(x44_fluidType,
                          x10_texPattern1, x20_texPattern2, x30_texColor, xb0_bumpMap, xc0_envMap, xd0_envBumpMap,
-                         xe0_lightmap, doubleLightmapBlend, mgr.GetParticleFlags() == 0);
+                         xe0_lightmap, m_cachedDoubleLightmapBlend, m_cachedAdditive, m_maxVertCount);
+    }
 
     return out;
 }
@@ -369,6 +374,16 @@ public:
         s8 ny;
         s8 nz;
         u8 wavecapIntensity;
+
+        zeus::CVector3f MakeNormal() const { return {nx / 63.f, ny / 63.f, nz / 63.f}; }
+        zeus::CVector3f MakeBinormal() const { return {nx / 63.f, nz / 63.f, -ny / 63.f}; }
+        zeus::CVector3f MakeTangent() const { return {nz / 63.f, ny / 63.f, -nx / 63.f}; }
+        zeus::CColor MakeColor(const CFluidPlaneCPURender::SPatchInfo& info) const
+        {
+            return {(wavecapIntensity >> info.x34_redShift) / 255.f,
+                    (wavecapIntensity >> info.x35_greenShift) / 255.f,
+                    (wavecapIntensity >> info.x36_blueShift) / 255.f};
+        }
     };
 };
 
@@ -427,7 +442,8 @@ static void ApplyTurbulence(float t, CFluidPlaneCPURender::SHFieldSample (&heigh
             float distFac = curX * curX + curYSq;
             if (distFac != 0.f)
                 distFac = std::sqrt(distFac);
-            heights[i][j].height = fluidPane.GetTurbulenceHeight(fluidPane.GetOOTurbulenceDistance() * distFac + scaledT);
+            heights[i][j].height =
+                fluidPane.GetTurbulenceHeight(fluidPane.GetOOTurbulenceDistance() * distFac + scaledT);
             curX += info.x18_rippleResolution;
         }
         curY += info.x18_rippleResolution;
@@ -561,7 +577,8 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
                             if (u8 val = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * f11)])
                             {
                                 heights[k][l].height += val * rippleInfo.x0_ripple.GetAmplitude() *
-                                                    sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT)];
+                                                    sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() +
+                                                                     lookupT)];
                             }
                             else
                             {
@@ -581,7 +598,6 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
         curYDiv = nextYDiv;
         curGridY += info.x2a_gridDimX;
     }
-
 }
 
 static void ApplyRipples(const rstl::reserved_vector<CFluidPlaneCPURender::SRippleInfo, 32>& rippleInfos,
@@ -600,7 +616,7 @@ static void ApplyRipples(const rstl::reserved_vector<CFluidPlaneCPURender::SRipp
         flags[CFluidPlaneCPURender::numTilesInHField+1][i+1] |= 2;
 }
 
-static void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (& heights)[45][45], const u8 (& flags)[9][9],
+static void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], const u8 (&flags)[9][9],
                                  const CFluidPlaneCPURender::SPatchInfo& info)
 {
     for (int i=1 ; i <= (info.x1_ySubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
@@ -868,7 +884,265 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
                                    const CFluidPlaneCPURender::SPatchInfo& info,
                                    std::vector<CFluidPlaneShader::Vertex>& vOut)
 {
+    int yTile = (startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
+        CFluidPlaneCPURender::numSubdivisionsInTile;
+    int endXTile = (info.x0_xSubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 4) /
+        CFluidPlaneCPURender::numSubdivisionsInTile;
 
+    int midDiv = CFluidPlaneCPURender::numSubdivisionsInTile / 2;
+    float tileMid = info.x18_rippleResolution * midDiv;
+    float yMin = curY;
+    float yMid = curY + tileMid;
+    float xMin = info.x4_localMin.x;
+
+    float curX = info.x4_localMin.x;
+    int gridCell = info.x28_tileX + info.x2a_gridDimX * (info.x2e_tileY + yTile - 1);
+    int xTile = 1;
+    int tileSpan;
+    for (int i = 1 ; i < info.x0_xSubdivs - 2 ;
+         i += CFluidPlaneCPURender::numSubdivisionsInTile * tileSpan, gridCell += tileSpan,
+         xTile += tileSpan, curX += info.x14_tileSize * tileSpan)
+    {
+        tileSpan = 1;
+        if (info.x30_gridFlags && !info.x30_gridFlags[gridCell])
+            continue;
+
+        if ((flags[yTile][xTile] & 0x1f) == 0x1f)
+        {
+            for (; xTile+tileSpan<=endXTile ; ++tileSpan)
+            {
+                if ((flags[yTile][xTile+tileSpan] & 0x1f) != 0x1f)
+                    break;
+                if (info.x30_gridFlags && !info.x30_gridFlags[gridCell+tileSpan])
+                    break;
+            }
+
+            int stripDivCount = tileSpan * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
+            int remSubdivs = CFluidPlaneCPURender::numSubdivisionsInTile;
+            std::function<void(float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)> func;
+
+            switch (info.x37_normalMode)
+            {
+            case CFluidPlaneCPURender::NormalMode::None:
+                func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                {
+                    vOut.emplace_back(zeus::CVector3f(x, y, samp.height));
+                };
+                break;
+            case CFluidPlaneCPURender::NormalMode::NoNormals:
+                func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                {
+                    vOut.emplace_back(zeus::CVector3f(x, y, samp.height), samp.MakeColor(info));
+                };
+                break;
+            case CFluidPlaneCPURender::NormalMode::Normals:
+                func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                {
+                    vOut.emplace_back(zeus::CVector3f(x, y, samp.height), samp.MakeNormal(),
+                                      samp.MakeColor(info));
+                };
+                break;
+            case CFluidPlaneCPURender::NormalMode::NBT:
+                func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                {
+                    vOut.emplace_back(zeus::CVector3f(x, y, samp.height), samp.MakeNormal(),
+                                      samp.MakeBinormal(), samp.MakeTangent(), samp.MakeColor(info));
+                };
+                break;
+            }
+
+            float curTileY = yMin;
+            int curYDiv = startYDiv;
+            for (; remSubdivs>0 ; --remSubdivs, ++curYDiv, curTileY+=info.x18_rippleResolution)
+            {
+                size_t start = vOut.size();
+                float curTileX = xMin;
+                for (int v=0 ; v<stripDivCount ; ++v)
+                {
+                    func(curTileX, curTileY, heights[curYDiv][i+v]);
+                    func(curTileX, curTileY + info.x18_rippleResolution, heights[curYDiv+1][i+v]);
+                    curTileX += info.x18_rippleResolution;
+                }
+                CGraphics::DrawArray(start, 4);
+            }
+        }
+        else
+        {
+            bool r19 = (flags[yTile+1][xTile] & 0x2) != 0;
+            bool r16 = (flags[yTile][xTile-1] & 0x8) != 0;
+            bool r18 = (flags[yTile][xTile+1] & 0x4) != 0;
+            bool r17 = (flags[yTile-1][xTile] & 0x1) != 0;
+
+            int r6 = (r19 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) + 2;
+            r6 += r18 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1;
+            r6 += r17 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1;
+            r6 += r16 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1;
+
+            if (r6 == 6 && (info.x37_normalMode == CFluidPlaneCPURender::NormalMode::Normals ||
+                info.x37_normalMode == CFluidPlaneCPURender::NormalMode::NBT))
+            {
+                for (; xTile+tileSpan<=endXTile ; ++tileSpan)
+                {
+                    if ((flags[yTile][xTile+tileSpan] & 0x1f) == 0x1f)
+                        break;
+                    if (info.x30_gridFlags && !info.x30_gridFlags[gridCell+tileSpan])
+                        break;
+                    if ((flags[yTile+1][xTile+tileSpan] & 0x2) != 0x0)
+                        break;
+                    if ((flags[yTile][xTile+tileSpan+1] & 0x4) != 0x0)
+                        break;
+                    if ((flags[yTile-1][xTile+tileSpan] & 0x1) != 0x0)
+                        break;
+                }
+
+                int stripDivCount = tileSpan + 1;
+                size_t start = vOut.size();
+                switch (info.x37_normalMode)
+                {
+                case CFluidPlaneCPURender::NormalMode::Normals:
+                {
+                    int curYDiv0 = startYDiv;
+                    int curYDiv1 = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
+                    float curTileX = xMin;
+                    for (int v=0 ; v<stripDivCount ; ++v)
+                    {
+                        int curXDiv = v * CFluidPlaneCPURender::numSubdivisionsInTile + i;
+                        const CFluidPlaneCPURender::SHFieldSample& samp0 = heights[curYDiv0][curXDiv];
+                        const CFluidPlaneCPURender::SHFieldSample& samp1 = heights[curYDiv1][curXDiv];
+                        vOut.emplace_back(zeus::CVector3f(curTileX, yMin, samp0.height),
+                                          samp0.MakeNormal(), samp0.MakeColor(info));
+                        vOut.emplace_back(zeus::CVector3f(curTileX, yMin + info.x14_tileSize, samp1.height),
+                                          samp1.MakeNormal(), samp1.MakeColor(info));
+                        curTileX += info.x18_rippleResolution;
+                    }
+                    break;
+                }
+                case CFluidPlaneCPURender::NormalMode::NBT:
+                {
+                    int curYDiv0 = startYDiv;
+                    int curYDiv1 = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
+                    float curTileX = xMin;
+                    for (int v=0 ; v<stripDivCount ; ++v)
+                    {
+                        int curXDiv = v * CFluidPlaneCPURender::numSubdivisionsInTile + i;
+                        const CFluidPlaneCPURender::SHFieldSample& samp0 = heights[curYDiv0][curXDiv];
+                        const CFluidPlaneCPURender::SHFieldSample& samp1 = heights[curYDiv1][curXDiv];
+                        vOut.emplace_back(zeus::CVector3f(curTileX, yMin, samp0.height),
+                                          samp0.MakeNormal(), samp0.MakeBinormal(), samp0.MakeTangent(),
+                                          samp0.MakeColor(info));
+                        vOut.emplace_back(zeus::CVector3f(curTileX, yMin + info.x14_tileSize, samp1.height),
+                                          samp1.MakeNormal(), samp1.MakeBinormal(), samp1.MakeTangent(),
+                                          samp1.MakeColor(info));
+                        curTileX += info.x18_rippleResolution;
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+                CGraphics::DrawArray(start, 4);
+            }
+            else
+            {
+                TriFanToStrip<CFluidPlaneShader::Vertex> toStrip(vOut);
+                std::function<void(float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)> func;
+
+                switch (info.x37_normalMode)
+                {
+                case CFluidPlaneCPURender::NormalMode::None:
+                    func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                    {
+                        toStrip.EmplaceVert(zeus::CVector3f(x, y, samp.height));
+                    };
+                    break;
+                case CFluidPlaneCPURender::NormalMode::NoNormals:
+                    func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                    {
+                        toStrip.EmplaceVert(zeus::CVector3f(x, y, samp.height), samp.MakeColor(info));
+                    };
+                    break;
+                case CFluidPlaneCPURender::NormalMode::Normals:
+                    func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                    {
+                        toStrip.EmplaceVert(zeus::CVector3f(x, y, samp.height), samp.MakeNormal(),
+                                            samp.MakeColor(info));
+                    };
+                    break;
+                case CFluidPlaneCPURender::NormalMode::NBT:
+                    func = [&](float x, float y, const CFluidPlaneCPURender::SHFieldSample& samp)
+                    {
+                        toStrip.EmplaceVert(zeus::CVector3f(x, y, samp.height), samp.MakeNormal(),
+                                            samp.MakeBinormal(), samp.MakeTangent(), samp.MakeColor(info));
+                    };
+                    break;
+                }
+
+                func(tileMid + xMin, yMid, heights[startYDiv+midDiv][i+midDiv]);
+
+                int curXDiv = i;
+                int curYDiv = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
+                float curTileX = xMin;
+                float curTileY = yMin + info.x14_tileSize;
+                for (int v=0 ; v<(r19 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                {
+                    const CFluidPlaneCPURender::SHFieldSample& samp = heights[curYDiv][curXDiv+v];
+                    func(curTileX, curTileY, samp);
+                    curTileX += info.x18_rippleResolution;
+                }
+
+                curXDiv = i + CFluidPlaneCPURender::numSubdivisionsInTile;
+                curYDiv = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
+                curTileX = xMin + info.x14_tileSize;
+                curTileY = yMin + info.x14_tileSize;
+                for (int v=0 ; v<(r18 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                {
+                    const CFluidPlaneCPURender::SHFieldSample& samp = heights[curYDiv-v][curXDiv];
+                    func(curTileX, curTileY, samp);
+                    curTileY -= info.x18_rippleResolution;
+                }
+
+                curXDiv = i + CFluidPlaneCPURender::numSubdivisionsInTile;
+                curYDiv = startYDiv;
+                curTileX = xMin + info.x14_tileSize;
+                curTileY = yMin;
+                for (int v=0 ; v<(r17 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
+                {
+                    const CFluidPlaneCPURender::SHFieldSample& samp = heights[curYDiv][curXDiv-v];
+                    func(curTileX, curTileY, samp);
+                    curTileX -= info.x18_rippleResolution;
+                }
+
+                curXDiv = i;
+                curYDiv = startYDiv;
+                curTileX = xMin;
+                curTileY = yMin;
+                if (r16)
+                {
+                    for (int v=0 ; v<CFluidPlaneCPURender::numSubdivisionsInTile ; ++v)
+                    {
+                        const CFluidPlaneCPURender::SHFieldSample& samp = heights[curYDiv+v][curXDiv];
+                        func(curTileX, curTileY, samp);
+                        curTileY += info.x18_rippleResolution;
+                    }
+                }
+                else
+                {
+                    {
+                        const CFluidPlaneCPURender::SHFieldSample& samp = heights[curYDiv][curXDiv];
+                        func(curTileX, curTileY, samp);
+                    }
+                    curTileY += info.x14_tileSize;
+                    {
+                        const CFluidPlaneCPURender::SHFieldSample& samp =
+                            heights[curYDiv+CFluidPlaneCPURender::numSubdivisionsInTile][curXDiv];
+                        func(curTileX, curTileY, samp);
+                    }
+                }
+
+                toStrip.Draw();
+            }
+        }
+    }
 }
 
 static void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
