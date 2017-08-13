@@ -40,7 +40,7 @@ void CAnimData::InitializeCache()
 {
 }
 
-CAnimData::CAnimData(ResId id,
+CAnimData::CAnimData(CAssetId id,
                      const CCharacterInfo& character,
                      int defaultAnim, int charIdx, bool loop,
                      const TLockedToken<CCharLayoutInfo>& layout,
@@ -97,7 +97,7 @@ CAnimData::CAnimData(ResId id,
         x1f8_animRoot = treeNode;
 }
 
-ResId CAnimData::GetEventResourceIdForAnimResourceId(ResId id) const
+CAssetId CAnimData::GetEventResourceIdForAnimResourceId(CAssetId id) const
 {
     return x0_charFactory->GetEventResourceIdForAnimResourceId(id);
 }

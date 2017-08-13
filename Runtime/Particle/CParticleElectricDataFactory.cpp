@@ -95,14 +95,14 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
             break;
         case SBIG('GPSM'):
         {
-            std::vector<ResId> tracker;
+            std::vector<CAssetId> tracker;
             tracker.reserve(8);
             desc->x50_GPSM = CPF::GetChildGeneratorDesc(in, resPool, tracker);
             break;
         }
         case SBIG('EPSM'):
         {
-            std::vector<ResId> tracker;
+            std::vector<CAssetId> tracker;
             tracker.reserve(8);
             desc->x60_EPSM = CPF::GetChildGeneratorDesc(in, resPool, tracker);
             break;

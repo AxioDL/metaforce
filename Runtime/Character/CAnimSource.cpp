@@ -133,7 +133,7 @@ CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
   x40_data(RotationAndOffsetStorage::CRotationAndOffsetVectors(in), x10_frameCount),
   x54_evntId(in.readUint32Big())
 {
-    if (x54_evntId)
+    if (x54_evntId.IsValid())
     {
         x58_evntData = store.GetObj({SBIG('EVNT'), x54_evntId});
         x58_evntData.GetObj();

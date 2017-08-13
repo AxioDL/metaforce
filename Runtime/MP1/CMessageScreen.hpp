@@ -40,7 +40,7 @@ class CMessageScreen
     float x74_delayTime;
     bool x78_24_exit : 1;
 public:
-    CMessageScreen(ResId msg, float time);
+    CMessageScreen(CAssetId msg, float time);
     void ProcessControllerInput(const CFinalInput& input);
     bool Update(float dt, float blurAmt);
     void Draw() const;

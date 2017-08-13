@@ -99,13 +99,13 @@ const std::unique_ptr<CBooModel>& CModelData::PickStaticModel(EWhichModel which)
     return m_normalModelInst;
 }
 
-void CModelData::SetXRayModel(const std::pair<ResId, ResId>& modelSkin)
+void CModelData::SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin)
 {
-    if (modelSkin.first)
+    if (modelSkin.first.IsValid())
     {
         if (g_ResFactory->GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
         {
-            if (x10_animData && modelSkin.second &&
+            if (x10_animData && modelSkin.second.IsValid() &&
                 g_ResFactory->GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
             {
                 x10_animData->SetXRayModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),
@@ -122,13 +122,13 @@ void CModelData::SetXRayModel(const std::pair<ResId, ResId>& modelSkin)
     }
 }
 
-void CModelData::SetInfraModel(const std::pair<ResId, ResId>& modelSkin)
+void CModelData::SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin)
 {
-    if (modelSkin.first)
+    if (modelSkin.first.IsValid())
     {
         if (g_ResFactory->GetResourceTypeById(modelSkin.first) == SBIG('CMDL'))
         {
-            if (x10_animData && modelSkin.second &&
+            if (x10_animData && modelSkin.second.IsValid() &&
                 g_ResFactory->GetResourceTypeById(modelSkin.second) == SBIG('CSKR'))
             {
                 x10_animData->SetInfraModel(g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first}),

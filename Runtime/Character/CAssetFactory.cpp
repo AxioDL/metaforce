@@ -40,7 +40,7 @@ const SObjectTag* CCharacterFactoryBuilder::CDummyFactory::GetResourceIdByName(c
     return nullptr;
 }
 
-FourCC CCharacterFactoryBuilder::CDummyFactory::GetResourceTypeById(ResId id) const
+FourCC CCharacterFactoryBuilder::CDummyFactory::GetResourceTypeById(CAssetId id) const
 {
     return {};
 }

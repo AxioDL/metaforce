@@ -14,7 +14,7 @@ public:
     using EScanCategory = DataSpec::SAVWCommon::EScanCategory;
     struct SScanState
     {
-        ResId x0_id;
+        CAssetId x0_id;
         EScanCategory x4_category;
     };
 

@@ -35,10 +35,10 @@ class CFluidPlaneCPU : public CFluidPlane
         bool HasTurbulence() const { return x34_hasTurbulence; }
     };
 
-    ResId xa0_texIdBumpMap;
-    ResId xa4_texIdEnvMap;
-    ResId xa8_texIdEnvBumpMap;
-    ResId xac_texId4;
+    CAssetId xa0_texIdBumpMap;
+    CAssetId xa4_texIdEnvMap;
+    CAssetId xa8_texIdEnvBumpMap;
+    CAssetId xac_texId4;
     std::experimental::optional<TLockedToken<CTexture>> xb0_bumpMap;
     std::experimental::optional<TLockedToken<CTexture>> xc0_envMap;
     std::experimental::optional<TLockedToken<CTexture>> xd0_envBumpMap;
@@ -71,8 +71,8 @@ class CFluidPlaneCPU : public CFluidPlane
         std::vector<CLight> lights;
     };
 public:
-    CFluidPlaneCPU(ResId texPattern1, ResId texPattern2, ResId texColor, ResId bumpMap, ResId envMap, ResId envBumpMap,
-                   ResId lightMap, float unitsPerLightmapTexel, float tileSize, u32 tileSubdivisions,
+    CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, CAssetId bumpMap, CAssetId envMap, CAssetId envBumpMap,
+                   CAssetId lightMap, float unitsPerLightmapTexel, float tileSize, u32 tileSubdivisions,
                    EFluidType fluidType, float alpha, const zeus::CVector3f& bumpLightDir, float bumpScale,
                    const CFluidUVMotion& mot, float turbSpeed, float turbDistance, float turbFreqMax,
                    float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,

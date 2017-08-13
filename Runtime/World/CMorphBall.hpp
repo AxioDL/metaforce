@@ -54,7 +54,7 @@ private:
 
 public:
     CMorphBall(CPlayer& player, float);
-    void AcceptScriptMessage(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
     ESpiderBallState GetSpiderBallState() const { return ESpiderBallState::Zero; }
     bool InSpiderBallMode() const { return false; }
     zeus::CVector3f GetBallContactSurfaceNormal() const { return {}; }

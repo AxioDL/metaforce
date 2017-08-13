@@ -23,22 +23,22 @@ struct SAdvancementDeltas;
 
 class CStaticRes
 {
-    ResId x0_cmdlId = 0;
+    CAssetId x0_cmdlId = 0;
     zeus::CVector3f x4_scale;
 public:
-    CStaticRes(ResId id, const zeus::CVector3f& scale)
+    CStaticRes(CAssetId id, const zeus::CVector3f& scale)
         : x0_cmdlId(id),
           x4_scale(scale)
     {}
 
-    ResId GetId() const { return x0_cmdlId; }
+    CAssetId GetId() const { return x0_cmdlId; }
     const zeus::CVector3f& GetScale() const { return x4_scale; }
     operator bool() const { return x0_cmdlId != 0; }
 };
 
 class CAnimRes
 {
-    ResId x0_ancsId = -1;
+    CAssetId x0_ancsId = -1;
     s32 x4_charIdx = -1;
     zeus::CVector3f x8_scale;
     bool x14_canLoop = false;
@@ -46,7 +46,7 @@ class CAnimRes
     s32 x18_defaultAnim = -1; /* NOTE: used to be x1c in demo */
 public:
     CAnimRes() = default;
-    CAnimRes(ResId ancs, s32 charIdx, const zeus::CVector3f& scale, const s32 defaultAnim, bool loop)
+    CAnimRes(CAssetId ancs, s32 charIdx, const zeus::CVector3f& scale, const s32 defaultAnim, bool loop)
         : x0_ancsId(ancs),
           x4_charIdx(charIdx),
           x8_scale(scale),
@@ -55,7 +55,7 @@ public:
     {
     }
 
-    ResId GetId() const { return x0_ancsId; }
+    CAssetId GetId() const { return x0_ancsId; }
     s32 GetCharacterNodeId() const { return x4_charIdx; }
     const zeus::CVector3f& GetScale() const { return x8_scale; }
     bool CanLoop() const { return x14_canLoop; }
@@ -113,8 +113,8 @@ public:
     static EWhichModel GetRenderingModel(const CStateManager& stateMgr);
     CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
     const std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which) const;
-    void SetXRayModel(const std::pair<ResId, ResId>& modelSkin);
-    void SetInfraModel(const std::pair<ResId, ResId>& modelSkin);
+    void SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin);
+    void SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin);
     bool IsDefinitelyOpaque(EWhichModel);
     bool GetIsLoop() const;
     float GetAnimationDuration(int) const;

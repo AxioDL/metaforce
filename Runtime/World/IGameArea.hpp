@@ -44,11 +44,11 @@ public:
 
     virtual bool IGetScriptingMemoryAlways() const=0;
     virtual TAreaId IGetAreaId() const=0;
-    virtual ResId IGetAreaAssetId() const=0;
+    virtual CAssetId IGetAreaAssetId() const=0;
     virtual bool IIsActive() const=0;
     virtual TAreaId IGetAttachedAreaId(int) const=0;
     virtual u32 IGetNumAttachedAreas() const=0;
-    virtual ResId IGetStringTableAssetId() const=0;
+    virtual CAssetId IGetStringTableAssetId() const=0;
     virtual const zeus::CTransform& IGetTM() const=0;
 };
 

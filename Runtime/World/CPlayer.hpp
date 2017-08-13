@@ -164,19 +164,19 @@ private:
         float x0_;
         float x4_;
         float x8_;
-        ResId xc_tex;
+        CAssetId xc_tex;
         float x10_ = 0.f;
         float x14_ = 0.f;
         float x18_ = 0.f;
-        ResId x1c_txtr = kInvalidResId;
+        CAssetId x1c_txtr;
         float x20_alpha = 0.f;
         float x24_ = 0.f;
         bool x28_affectsThermal = false;
 
     public:
-        CVisorSteam(float a, float b, float c, ResId tex) : x0_(a), x4_(b), x8_(c), xc_tex(tex) {}
-        ResId GetTextureId() const;
-        void SetSteam(float a, float b, float c, ResId txtr, bool affectsThermal);
+        CVisorSteam(float a, float b, float c, CAssetId tex) : x0_(a), x4_(b), x8_(c), xc_tex(tex) {}
+        CAssetId GetTextureId() const;
+        void SetSteam(float a, float b, float c, CAssetId txtr, bool affectsThermal);
         void Update(float dt);
         float GetAlpha() const { return x20_alpha; }
         bool AffectsThermal() const { return x28_affectsThermal; }
@@ -334,8 +334,8 @@ private:
     float x78c_footstepSfxTimer = 0.f;
     EFootstepSfx x790_footstepSfxSel = EFootstepSfx::None;
     zeus::CVector3f x794_;
-    CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, kInvalidResId);
-    ResId x7cc_ = kInvalidResId;
+    CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, CAssetId()/*kInvalidAssetId*/);
+    CAssetId x7cc_;
     CAnimRes x7d0_animRes;
     CPlayerState::EBeamId x7ec_beam = CPlayerState::EBeamId::Power;
     std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
@@ -396,8 +396,8 @@ private:
     float x9fc_ = 0.f;
     TUniqueId xa00_ = kInvalidUniqueId;
     float xa04_ = 0.f;
-    ResId xa08_steamTextureId = kInvalidResId;
-    ResId xa0c_iceTextureId;
+    CAssetId xa08_steamTextureId;
+    CAssetId xa0c_iceTextureId;
     u32 xa10_phazonCounter = 0;
     float xa14_phazonCameraShakeTimer = 0.f;
     float xa18_phazonDamageLag = 0.f;
@@ -416,7 +416,7 @@ private:
     void InitializeBallTransition();
 
 public:
-    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, ResId w1, const zeus::CVector3f&, float, float,
+    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, CAssetId w1, const zeus::CVector3f&, float, float,
             float, float, const CMaterialList&);
 
     bool IsTransparent() const;
@@ -469,13 +469,13 @@ public:
     void CalculatePlayerControlDirection(CStateManager& mgr);
     void CalculatePlayerMovementDirection(float dt);
     void Stop(CStateManager& stateMgr);
-    void Freeze(CStateManager& stateMgr, ResId steamTxtr, u16 sfx, ResId iceTxtr);
+    void Freeze(CStateManager& stateMgr, CAssetId steamTxtr, u16 sfx, CAssetId iceTxtr);
     bool GetFrozenState() const;
     void UpdateFrozenState(const CFinalInput& input, CStateManager& mgr);
     void Think(float, CStateManager&);
     void PreThink(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-    void SetVisorSteam(float, float, float, ResId, bool);
+    void SetVisorSteam(float, float, float, CAssetId, bool);
     void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
     u16 GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, u32, u16);
     u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);

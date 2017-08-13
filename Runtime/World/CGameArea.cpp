@@ -333,7 +333,7 @@ TAreaId CDummyGameArea::IGetAreaId() const
     return x10_areaId;
 }
 
-ResId CDummyGameArea::IGetAreaAssetId() const
+CAssetId CDummyGameArea::IGetAreaAssetId() const
 {
     return xc_mrea;
 }
@@ -353,7 +353,7 @@ u32 CDummyGameArea::IGetNumAttachedAreas() const
     return x44_attachedAreaIndices.size();
 }
 
-ResId CDummyGameArea::IGetStringTableAssetId() const
+CAssetId CDummyGameArea::IGetStringTableAssetId() const
 {
     return x8_nameSTRG;
 }
@@ -430,7 +430,7 @@ u32 CGameArea::IGetNumAttachedAreas() const
     return x8c_attachedAreaIndices.size();
 }
 
-ResId CGameArea::IGetStringTableAssetId() const
+CAssetId CGameArea::IGetStringTableAssetId() const
 {
     return x8_nameSTRG;
 }
@@ -913,7 +913,7 @@ void CGameArea::PostConstructArea()
     if (header.version > 9)
     {
         athena::io::MemoryReader r(secIt->first, secIt->second);
-        ResId pathId = r.readUint32Big();
+        CAssetId pathId = r.readUint32Big();
         x12c_postConstructed->x10ac_path = g_SimplePool->GetObj(SObjectTag{FOURCC('PATH'), pathId});
         ++secIt;
     }

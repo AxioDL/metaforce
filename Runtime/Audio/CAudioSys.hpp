@@ -79,9 +79,9 @@ public:
 
     }
     static TLockedToken<CAudioGroupSet> FindGroupSet(const std::string& name);
-    static const std::string& SysGetGroupSetName(ResId id);
-    static bool SysLoadGroupSet(CSimplePool* pool, ResId id);
-    static bool SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, ResId id);
+    static const std::string& SysGetGroupSetName(CAssetId id);
+    static bool SysLoadGroupSet(CSimplePool* pool, CAssetId id);
+    static bool SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, CAssetId id);
     static void SysUnloadAudioGroupSet(const std::string& name);
     static bool SysIsGroupSetLoaded(const std::string& name);
     static void SysAddGroupIntoAmuse(const std::string& name);

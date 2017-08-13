@@ -21,7 +21,7 @@ public:
         Insta
     };
 private:
-    ResId xb8_txtrId;
+    CAssetId xb8_txtrId;
     TLockedToken<CTexture> xbc_tex; // Used to be optional
     zeus::CColor xcc_emptyColor;
     zeus::CColor xd0_filledColor;
@@ -41,7 +41,7 @@ private:
     CEnergyBarShader m_energyBarShader;
     std::vector<CEnergyBarShader::Vertex> m_verts[3];
 public:
-    CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, ResId txtrId);
+    CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId);
     FourCC GetWidgetTypeID() const { return FOURCC('ENRG'); }
     static std::pair<zeus::CVector3f, zeus::CVector3f> DownloadBarCoordFunc(float t);
     void Update(float dt);

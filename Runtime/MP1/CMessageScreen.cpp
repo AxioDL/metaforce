@@ -13,7 +13,7 @@ namespace urde
 namespace MP1
 {
 
-CMessageScreen::CMessageScreen(ResId msg, float delayTime)
+CMessageScreen::CMessageScreen(CAssetId msg, float delayTime)
 : x74_delayTime(delayTime)
 {
     x78_24_exit = false;

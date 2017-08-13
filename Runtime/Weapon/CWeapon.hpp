@@ -56,8 +56,8 @@ public:
 
     void Think(float, CStateManager &) {}
     void Render(const CStateManager&) const {}
-    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&,
-                                                           int)
+    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                           const CWeaponMode&, int) const
     {
         return EWeaponCollisionResponseTypes::Default;
     }

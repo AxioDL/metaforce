@@ -722,7 +722,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
     }
 }
 
-void CInGameGuiManager::ShowPauseGameHudMessage(CStateManager& stateMgr, ResId pauseMsg, float time)
+void CInGameGuiManager::ShowPauseGameHudMessage(CStateManager& stateMgr, CAssetId pauseMsg, float time)
 {
     x124_pauseGameHudMessage = pauseMsg;
     x128_pauseGameHudTime = time;

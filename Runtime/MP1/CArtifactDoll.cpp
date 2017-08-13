@@ -25,7 +25,7 @@ static const char* ArtifactPieceModels[] =
     "CMDL_Piece12" // Newborn
 };
 
-static const ResId ArtifactHeadScans[] =
+static const CAssetId ArtifactHeadScans[] =
 {
     0x32C9DDCE, // Truth
     0xB45DAF60, // Strength
@@ -55,16 +55,16 @@ CArtifactDoll::CArtifactDoll()
         x0_models.push_back(g_SimplePool->GetObj(ArtifactPieceModels[i]));
 }
 
-int CArtifactDoll::GetArtifactHeadScanIndex(ResId scanId)
+int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId)
 {
-    ResId orig = g_ResFactory->TranslateNewToOriginal(scanId);
+    CAssetId orig = g_ResFactory->TranslateNewToOriginal(scanId);
     for (int i=0 ; i<12 ; ++i)
         if (ArtifactHeadScans[i] == orig)
             return i;
     return -1;
 }
 
-ResId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item)
+CAssetId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item)
 {
     if (item < CPlayerState::EItemType::ArtifactOfTruth || item > CPlayerState::EItemType::ArtifactOfNewborn)
         return -1;
@@ -78,7 +78,7 @@ void CArtifactDoll::UpdateArtifactHeadScan(const CStateManager& mgr, float delta
     {
         if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType(i + 29)))
         {
-            ResId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
+            CAssetId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
             playerState.SetScanTime(newId, std::min(playerState.GetScanTime(newId) + delta, 1.f));
         }
     }
@@ -115,7 +115,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr,
         {
             if (ArtifactHeadScans[i] != -1)
             {
-                ResId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
+                CAssetId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
                 float interp = (playerState.GetScanTime(newId) - 0.5f) * 2.f;
                 if (interp < 0.5f)
                     color = zeus::CColor::lerp(ArtifactPreColor, zeus::CColor::skWhite, 2.f * interp);

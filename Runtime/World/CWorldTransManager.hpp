@@ -108,9 +108,9 @@ public:
     void Draw();
 
     void EnableTransition(const CAnimRes& samusRes,
-                          ResId platRes, const zeus::CVector3f& platScale,
-                          ResId bgRes, const zeus::CVector3f& bgScale, bool goingUp);
-    void EnableTransition(ResId fontId, ResId stringId, u32 strIdx, bool fadeWhite,
+                          CAssetId platRes, const zeus::CVector3f& platScale,
+                          CAssetId bgRes, const zeus::CVector3f& bgScale, bool goingUp);
+    void EnableTransition(CAssetId fontId, CAssetId stringId, u32 strIdx, bool fadeWhite,
                           float chFadeTime, float chFadeRate, float textStartTime);
 
     void StartTransition();

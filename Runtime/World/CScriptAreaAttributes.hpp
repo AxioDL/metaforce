@@ -14,13 +14,13 @@ class CScriptAreaAttributes : public CEntity
     float x40_thermalHeat;
     float x44_xrayFogDistance;
     float x48_worldLightingLevel;
-    ResId x4c_skybox;
+    CAssetId x4c_skybox;
     EPhazonType x50_phazon;
 
 public:
     CScriptAreaAttributes(TUniqueId uid, const CEntityInfo& info, bool showSkybox, EEnvFxType fxType,
                           float envFxDensity, float thermalHeat, float xrayFogDistance, float worldLightingLevel,
-                          ResId skybox, EPhazonType phazonType);
+                          CAssetId skybox, EPhazonType phazonType);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);

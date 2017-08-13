@@ -11,7 +11,7 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
                      const SObjectTag& pathTag, const hecl::ProjectPath& path)
 {
     char idStr[9];
-    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
+    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
     if (auto v = cacheWriter.enterSubVector(idStr))
     {
         cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
@@ -26,7 +26,7 @@ static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter,
                          const std::string& name)
 {
     char idStr[9];
-    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id));
+    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
     nameWriter.writeString(name.c_str(), idStr);
 }
 
@@ -137,7 +137,7 @@ void ProjectResourceFactoryBase::BackgroundIndexRecursiveCatalogs(const hecl::Pr
 static void DumpCacheAdd(const SObjectTag& pathTag, const hecl::ProjectPath& path)
 {
     fprintf(stderr, "%s %08X %s\n",
-            pathTag.type.toString().c_str(), uint32_t(pathTag.id),
+            pathTag.type.toString().c_str(), uint32_t(pathTag.id.Value()),
             path.getRelativePathUTF8().c_str());
 }
 #endif
@@ -466,13 +466,13 @@ CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
         CFactoryFnReturn ret =
             m_factoryMgr.MakeObjectFromMemory(tag, std::move(memBuf), length, false, paramXfer, selfRef);
         Log.report(logvisor::Info, "sync-built %.4s %08X",
-                   tag.type.toString().c_str(), u32(tag.id));
+                   tag.type.toString().c_str(), u32(tag.id.Value()));
         return ret;
     }
 
     CFactoryFnReturn ret = m_factoryMgr.MakeObject(tag, *fr, paramXfer, selfRef);
     Log.report(logvisor::Info, "sync-built %.4s %08X",
-               tag.type.toString().c_str(), u32(tag.id));
+               tag.type.toString().c_str(), u32(tag.id.Value()));
     return ret;
 }
 
@@ -681,7 +681,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
                                                               const urde::CVParamTransfer& paramXfer,
                                                               CObjectReference* selfRef)
 {
-    if (tag.id == kInvalidResId || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id on type '%s'", tag.type.toString().c_str());
 
     const hecl::ProjectPath* resPath = nullptr;
@@ -715,14 +715,14 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
             *task.xc_targetObjPtr = newObj.get();
             Log.report(logvisor::Warning, "spin-built %.4s %08X",
                        task.x0_tag.type.toString().c_str(),
-                       u32(task.x0_tag.id));
+                       u32(task.x0_tag.id.Value()));
 
             m_asyncLoadList.erase(asyncSearch);
             return newObj;
         }
         Log.report(logvisor::Error, "unable to spin-build %.4s %08X",
                    task.x0_tag.type.toString().c_str(),
-                   u32(task.x0_tag.id));
+                   u32(task.x0_tag.id.Value()));
         m_asyncLoadList.erase(asyncSearch);
         return {};
     }
@@ -748,7 +748,7 @@ void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
                                             urde::IObj** objOut,
                                             CObjectReference* selfRef)
 {
-    if (tag.id == kInvalidResId || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id on type '%s'", tag.type.toString().c_str());
 
     BuildAsyncInternal(tag, paramXfer, objOut, selfRef);
@@ -756,7 +756,7 @@ void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
 
 u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
 {
-    if (tag.id == kInvalidResId || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id on type '%s'", tag.type.toString().c_str());
 
     /* Ensure resource at requested path is indexed and not cooking */
@@ -776,7 +776,7 @@ std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
 ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
                                               std::unique_ptr<u8[]>& target)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
@@ -789,7 +789,7 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
                                                   u32 size, u32 off,
                                                   std::unique_ptr<u8[]>& target)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
@@ -800,7 +800,7 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
 std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
 ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, u8* target)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
         return {};
@@ -810,7 +810,7 @@ ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag, u
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
 
     /* Ensure resource at requested path is indexed and not cooking */
@@ -829,7 +829,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::S
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourcePartSync(const urde::SObjectTag& tag,
                                                                        u32 size, u32 off)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
 
     /* Ensure resource at requested path is indexed and not cooking */
@@ -854,7 +854,7 @@ void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag)
 
 bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
 {
-    if ((tag.id & 0xffffffff) == 0xffffffff || !tag.id)
+    if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
 
     const hecl::ProjectPath* resPath = nullptr;
@@ -896,9 +896,9 @@ const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const ch
     return &search->second;
 }
 
-FourCC ProjectResourceFactoryBase::GetResourceTypeById(ResId id) const
+FourCC ProjectResourceFactoryBase::GetResourceTypeById(CAssetId id) const
 {
-    if ((id & 0xffffffff) == 0xffffffff || !id)
+    if (!id.IsValid())
         return {};
 
     std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
@@ -1006,7 +1006,7 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(
                 *task.xc_targetObjPtr = newObj.release();
                 Log.report(logvisor::Info, "async-built %.4s %08X",
                            task.x0_tag.type.toString().c_str(),
-                           u32(task.x0_tag.id));
+                           u32(task.x0_tag.id.Value()));
             }
             else if (task.xc_targetDataPtr)
             {
@@ -1014,14 +1014,14 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(
                 *task.xc_targetDataPtr = std::move(task.x10_loadBuffer);
                 Log.report(logvisor::Info, "async-loaded %.4s %08X",
                            task.x0_tag.type.toString().c_str(),
-                           u32(task.x0_tag.id));
+                           u32(task.x0_tag.id.Value()));
             }
             else if (task.xc_targetDataRawPtr)
             {
                 /* Buffer only raw */
                 Log.report(logvisor::Info, "async-loaded %.4s %08X",
                            task.x0_tag.type.toString().c_str(),
-                           u32(task.x0_tag.id));
+                           u32(task.x0_tag.id.Value()));
             }
         }
 

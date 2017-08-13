@@ -4,7 +4,7 @@
 namespace urde
 {
 
-const std::vector<ResId>* CResLoader::GetTagListForFile(const std::string& name) const
+const std::vector<CAssetId>* CResLoader::GetTagListForFile(const std::string& name) const
 {
     std::string namePak = name + ".pak";
     for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList)
@@ -110,7 +110,7 @@ bool CResLoader::ResourceExists(const SObjectTag& tag)
     return FindResource(tag.id);
 }
 
-FourCC CResLoader::GetResourceTypeById(u32 id) const
+FourCC CResLoader::GetResourceTypeById(CAssetId id) const
 {
     if (FindResource(id))
         return x50_cachedResInfo->x0_type;
@@ -149,7 +149,7 @@ void CResLoader::AsyncIdlePakLoading()
     }
 }
 
-bool CResLoader::FindResource(u32 id) const
+bool CResLoader::FindResource(CAssetId id) const
 {
     for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
         if (const_cast<CResLoader*>(this)->CacheFromPak(*file, id))
@@ -157,7 +157,7 @@ bool CResLoader::FindResource(u32 id) const
     return false;
 }
 
-CPakFile* CResLoader::FindResourceForLoad(u32 id)
+CPakFile* CResLoader::FindResourceForLoad(CAssetId id)
 {
     for (std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
         if (CacheFromPakForLoad(*file, id))
@@ -170,7 +170,7 @@ CPakFile* CResLoader::FindResourceForLoad(const SObjectTag& tag)
     return FindResourceForLoad(tag.id);
 }
 
-bool CResLoader::CacheFromPakForLoad(CPakFile& file, u32 id)
+bool CResLoader::CacheFromPakForLoad(CPakFile& file, CAssetId id)
 {
     const CPakFile::SResInfo* info = file.GetResInfoForLoad(id);
     if (info)
@@ -182,7 +182,7 @@ bool CResLoader::CacheFromPakForLoad(CPakFile& file, u32 id)
     return false;
 }
 
-bool CResLoader::CacheFromPak(const CPakFile& file, u32 id)
+bool CResLoader::CacheFromPak(const CPakFile& file, CAssetId id)
 {
     const CPakFile::SResInfo* info = file.GetResInfo(id);
     if (info)

@@ -46,13 +46,13 @@ protected:
     zeus::CColor x14_prevColor;
     zeus::CColor x18_curColor;
     zeus::CColor x1c_nextColor;
-    ResId x20_nextTxtr = -1;
+    CAssetId x20_nextTxtr = -1;
     TLockedToken<CTexture> x24_texObj; // Used to be auto_ptr
     float GetT(bool invert) const;
 public:
     virtual void Update(float dt)=0;
     virtual void SetFilter(EFilterType type, EFilterShape shape,
-                           float time, const zeus::CColor& color, ResId txtr)=0;
+                           float time, const zeus::CColor& color, CAssetId txtr)=0;
     virtual void DisableFilter(float time)=0;
     virtual void Draw() const=0;
 };
@@ -64,7 +64,7 @@ class CCameraFilterPass final : public CCameraFilterPassBase
 public:
     void Update(float dt);
     void SetFilter(EFilterType type, EFilterShape shape,
-                   float time, const zeus::CColor& color, ResId txtr);
+                   float time, const zeus::CColor& color, CAssetId txtr);
     void DisableFilter(float time);
     void Draw() const;
 };
@@ -76,7 +76,7 @@ class CCameraFilterPassPoly
 public:
     void Update(float dt) { if (m_filter) m_filter->Update(dt); }
     void SetFilter(EFilterType type, EFilterShape shape,
-                   float time, const zeus::CColor& color, ResId txtr);
+                   float time, const zeus::CColor& color, CAssetId txtr);
     void DisableFilter(float time) { if (m_filter) m_filter->DisableFilter(time); }
     void Draw() const { if (m_filter) m_filter->Draw(); }
 };

@@ -25,6 +25,7 @@ private:
     float x1f4_morphOutTime;
     float x1f8_morphFactor = 0.f;
     std::list<std::pair<TUniqueId, bool>> x1fc_waterInhabitants;
+<<<<<<< HEAD
     float x214_fogBias;
     float x218_fogMagnitude;
     float x21c_origFogBias;
@@ -35,8 +36,21 @@ private:
     ResId x230_splashParticle2Id;
     ResId x234_splashParticle3Id;
     ResId x238_particle4Id;
+=======
+    u32 x210_;
+    float x214_;
+    float x218_;
+    float x21c_;
+    float x220_;
+    float x224_;
+    zeus::CColor x228_;
+    CAssetId x22c_splashParticle1Id;
+    CAssetId x230_splashParticle2Id;
+    CAssetId x234_splashParticle3Id;
+    CAssetId x238_particle4Id;
+>>>>>>> 11d4aad746973443508adbff80b9da9eb0b4c60c
     std::experimental::optional<TLockedToken<CGenDescription>> x23c_;
-    ResId x24c_particle5Id;
+    CAssetId x24c_particle5Id;
     std::experimental::optional<TLockedToken<CGenDescription>> x250_visorRunoffEffect;
     u16 x260_unkSfx;
     u16 x262_visorRunoffSfx;
@@ -79,19 +93,21 @@ private:
 public:
     CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
                  const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
-                 zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold, bool allowRender,
-                 ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap, ResId envMap,
-                 ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir, float bumpScale,
-                 float morphInTime, float morphOutTime, bool active, CFluidPlane::EFluidType fluidType, bool b4,
-                 float alpha, const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
+                 zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold,
+                 bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap,
+                 CAssetId bumpMap, CAssetId envMap, CAssetId envBumpMap, CAssetId unusedMap,
+                 const zeus::CVector3f& bumpLightDir, float bumpScale, float morphInTime, float morphOutTime,
+                 bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
+                 const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
                  float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
                  float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
-                 ResId splashParticle1, ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5,
-                 s32 unkSfx, s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
-                 u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
-                 float rippleIntensity, float reflectionBlend, float fogBias, float fogMagnitude, float fogSpeed,
-                 const zeus::CColor& fogColor, ResId lightmapId, float unitsPerLightmapTexel, float alphaInTime,
-                 float alphaOutTime, u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
+                 CAssetId splashParticle1, CAssetId splashParticle2, CAssetId splashParticle3,
+                 CAssetId particle4, CAssetId particle5, s32 unkSfx, s32 visorRunoffSfx, s32 splashSfx1,
+                 s32 splashSfx2, s32 splashSfx3, float tileSize, u32 tileSubdivisions, float specularMin,
+                 float specularMax, float reflectionSize, float rippleIntensity, float reflectionBlend,
+                 float fogBias, float fogMagnitude, float fogSpeed, const zeus::CColor& fogColor,
+                 CAssetId lightmapId, float unitsPerLightmapTexel, float alphaInTime, float alphaOutTime,
+                 u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
 
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

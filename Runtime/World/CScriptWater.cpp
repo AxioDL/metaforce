@@ -19,20 +19,20 @@ const float CScriptWater::kSplashScales[6] =
 CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
                            const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
                            zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold,
-                           bool allowRender, ResId patternMap1, ResId patternMap2, ResId colorMap, ResId bumpMap,
-                           ResId envMap, ResId envBumpMap, ResId unusedMap, const zeus::CVector3f& bumpLightDir,
-                           float bumpScale, float morphInTime, float morphOutTime, bool active,
-                           CFluidPlane::EFluidType fluidType, bool b4, float alpha, const CFluidUVMotion& uvMot,
-                           float turbSpeed, float turbDistance, float turbFreqMax, float turbFreqMin,
-                           float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax, float turbAmplitudeMin,
-                           const zeus::CColor& splashColor, const zeus::CColor& unkColor, ResId splashParticle1,
-                           ResId splashParticle2, ResId splashParticle3, ResId particle4, ResId particle5, s32 unkSfx,
-                           s32 visorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
-                           u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
-                           float rippleIntensity, float reflectionBlend, float fogBias, float fogMagnitude,
-                           float fogSpeed, const zeus::CColor& fogColor, ResId lightmapId, float unitsPerLightmapTexel,
-                           float alphaInTime, float alphaOutTime, u32, u32, bool, s32, s32,
-                           std::unique_ptr<u32[]>&& u32Arr)
+                           bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap,
+                           CAssetId bumpMap, CAssetId envMap, CAssetId envBumpMap, CAssetId unusedMap,
+                           const zeus::CVector3f& bumpLightDir, float bumpScale, float morphInTime, float morphOutTime,
+                           bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
+                           const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
+                           float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
+                           float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
+                           CAssetId splashParticle1, CAssetId splashParticle2, CAssetId splashParticle3,
+                           CAssetId particle4, CAssetId particle5, s32 unkSfx, s32 visorRunoffSfx, s32 splashSfx1,
+                           s32 splashSfx2, s32 splashSfx3, float tileSize, u32 tileSubdivisions, float specularMin,
+                           float specularMax, float reflectionSize, float rippleIntensity, float reflectionBlend,
+                           float fogBias, float fogMagnitude, float fogSpeed, const zeus::CColor& fogColor,
+                           CAssetId lightmapId, float unitsPerLightmapTexel, float alphaInTime, float alphaOutTime,
+                           u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr)
 : CScriptTrigger(uid, name, info, pos, box, dInfo, orientedForce, triggerFlags, active, false, false),
   x1b8_positionMorphed(pos), x1c4_extentMorphed(box.max - box.min), x1d0_morphInTime(morphInTime), x1d4_positionOrig(pos),
   x1e0_extentOrig(box.max - box.min), x1ec_damageOrig(dInfo.GetDamage()), x1f0_damageMorphed(dInfo.GetDamage()),
@@ -63,21 +63,21 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string&
                                                            ((std::max(u32(2), tileSubdivisions) * 4 + 2) * 4));
     u32Arr.reset();
     x264_splashEffects.resize(3);
-    if (x22c_splashParticle1Id != kInvalidResId)
+    if (x22c_splashParticle1Id.IsValid())
         x264_splashEffects[0].emplace(g_SimplePool->GetObj({FOURCC('PART'), x22c_splashParticle1Id}));
-    if (x230_splashParticle2Id != kInvalidResId)
+    if (x230_splashParticle2Id.IsValid())
         x264_splashEffects[1].emplace(g_SimplePool->GetObj({FOURCC('PART'), x230_splashParticle2Id}));
-    if (x234_splashParticle3Id != kInvalidResId)
+    if (x234_splashParticle3Id.IsValid())
         x264_splashEffects[2].emplace(g_SimplePool->GetObj({FOURCC('PART'), x234_splashParticle3Id}));
-    if (x238_particle4Id != kInvalidResId)
+    if (x238_particle4Id.IsValid())
         x23c_.emplace(g_SimplePool->GetObj({FOURCC('PART'), x238_particle4Id}));
-    if (x24c_particle5Id != kInvalidResId)
+    if (x24c_particle5Id.IsValid())
         x250_visorRunoffEffect.emplace(g_SimplePool->GetObj({FOURCC('PART'), x24c_particle5Id}));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx1));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx2));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx3));
     SetCalculateLighting(true);
-    if (lightmapId != kInvalidResId)
+    if (lightmapId.IsValid())
         x90_actorLights->DisableAreaLights();
     x90_actorLights->SetMaxDynamicLights(4);
     x90_actorLights->SetCastShadows(false);
@@ -510,7 +510,11 @@ zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager& mgr) const
 }
 
 EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+<<<<<<< HEAD
                                                                      CWeaponMode&, int)
+=======
+                                                                     const CWeaponMode&, int) const
+>>>>>>> 11d4aad746973443508adbff80b9da9eb0b4c60c
 {
     return EWeaponCollisionResponseTypes::Water;
 }

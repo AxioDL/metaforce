@@ -70,7 +70,7 @@ void CCollisionResponseData::AddParticleSystemToResponse(EWeaponCollisionRespons
                                                          CSimplePool* resPool)
 {
     int i = int(type);
-    std::vector<ResId> tracker;
+    std::vector<CAssetId> tracker;
     tracker.resize(8);
     x0_generators[i].emplace(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token);
 }
@@ -86,8 +86,8 @@ bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStre
             if (cls == SBIG('NONE'))
                 return true;
 
-            ResId id = CPF::GetInt(in);
-            if (!id)
+            CAssetId id = u64(CPF::GetInt(in));
+            if (!id.IsValid())
                 return true;
 
             x20_decals[i].emplace(resPool->GetObj({FOURCC('DPSC'), id}));

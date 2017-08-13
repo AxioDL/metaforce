@@ -30,7 +30,7 @@ public:
     virtual void CancelBuild(const SObjectTag&)=0;
     virtual bool CanBuild(const SObjectTag&)=0;
     virtual const SObjectTag* GetResourceIdByName(const char*) const=0;
-    virtual FourCC GetResourceTypeById(ResId id) const=0;
+    virtual FourCC GetResourceTypeById(CAssetId id) const=0;
     virtual void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const=0;
     virtual void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const=0;
 
@@ -43,8 +43,8 @@ public:
 
     virtual void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {}
 
-    virtual ResId TranslateOriginalToNew(ResId id) const { return -1; }
-    virtual ResId TranslateNewToOriginal(ResId id) const { return -1; }
+    virtual CAssetId TranslateOriginalToNew(CAssetId id) const { return -1; }
+    virtual CAssetId TranslateNewToOriginal(CAssetId id) const { return -1; }
 };
 
 }

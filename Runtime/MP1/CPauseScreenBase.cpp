@@ -59,7 +59,7 @@ void CPauseScreenBase::InitializeFrameGlue()
     x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
     x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
     x184_textpane_yicon->TextSupport().SetText(hecl::UTF8ToChar16(hecl::Format("&image=%8.8X;",
-                                                                   u32(g_tweakPlayerRes->xbc_yButton[0]))));
+                                                                   u32(g_tweakPlayerRes->xbc_yButton[0].Value()))));
     x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString(99));
     x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
     x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));

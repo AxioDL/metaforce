@@ -8,7 +8,7 @@
 namespace urde
 {
 
-CMapWorld::CMapAreaData::CMapAreaData(ResId areaRes, EMapAreaList list, CMapAreaData* next)
+CMapWorld::CMapAreaData::CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapAreaData* next)
 : x0_area(g_SimplePool->GetObj(SObjectTag{FOURCC('MAPA'), areaRes})), x10_list(list), x14_next(next)
 {}
 
@@ -22,7 +22,7 @@ CMapWorld::CMapWorld(CInputStream& in)
     x20_traversed.resize(areaCount);
     for (u32 i=0 ; i<areaCount ; ++i)
     {
-        ResId mapaId = in.readUint32Big();
+        CAssetId mapaId = in.readUint32Big();
         x0_areas.emplace_back(mapaId, EMapAreaList::Unloaded,
                               x0_areas.empty() ? nullptr : &x0_areas.back());
     }

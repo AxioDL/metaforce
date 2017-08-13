@@ -18,21 +18,21 @@ CParticleDatabase::CParticleDatabase()
 
 void CParticleDatabase::CacheParticleDesc(const CCharacterInfo::CParticleResData& desc)
 {
-    for (ResId id : desc.x0_part)
+    for (CAssetId id : desc.x0_part)
     {
         auto search = x0_particleDescs.find(id);
         if (search == x0_particleDescs.cend())
             x0_particleDescs[id] = std::make_shared<TLockedToken<CGenDescription>>(
                 g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), id}));
     }
-    for (ResId id : desc.x10_swhc)
+    for (CAssetId id : desc.x10_swhc)
     {
         auto search = x14_swooshDescs.find(id);
         if (search == x14_swooshDescs.cend())
             x14_swooshDescs[id] = std::make_shared<TLockedToken<CSwooshDescription>>(
                 g_SimplePool->GetObj(SObjectTag{FOURCC('SWHC'), id}));
     }
-    for (ResId id : desc.x20_elsc)
+    for (CAssetId id : desc.x20_elsc)
     {
         auto search = x28_electricDescs.find(id);
         if (search == x28_electricDescs.cend())
@@ -355,10 +355,10 @@ void CParticleDatabase::SetCEXTValue(const std::string& name, int idx, float val
 }
 
 template <class T, class U>
-static int _getGraphicLightId(const T& system, const U& desc)
+static s32 _getGraphicLightId(const T& system, const U& desc)
 {
     if (system->SystemHasLight())
-        return desc.GetObjectTag()->id;
+        return s32(desc.GetObjectTag()->id.Value());
     return -1;
 }
 

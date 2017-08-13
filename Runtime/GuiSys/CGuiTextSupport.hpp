@@ -67,11 +67,11 @@ class CGuiTextProperties
     bool x1_horizontal;
     EJustification x4_justification;
     EVerticalJustification x8_vertJustification;
-    const std::vector<std::pair<ResId, ResId>>* xc_txtrMap;
+    const std::vector<std::pair<CAssetId, CAssetId>>* xc_txtrMap;
 public:
     CGuiTextProperties(bool wordWrap, bool horizontal, EJustification justification,
                        EVerticalJustification vertJustification,
-                       const std::vector<std::pair<ResId, ResId>>* txtrMap=nullptr)
+                       const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap=nullptr)
         : x0_wordWrap(wordWrap), x1_horizontal(horizontal), x4_justification(justification),
           x8_vertJustification(vertJustification), xc_txtrMap(txtrMap) {}
 };
@@ -93,7 +93,7 @@ class CGuiTextSupport
     bool x50_typeEnable = false;
     float x54_chFadeTime = 0.1f;
     float x58_chRate = 10.0f;
-    ResId x5c_fontId = kInvalidResId;
+    CAssetId x5c_fontId;
     CGuiWidget::EGuiModelDrawFlags m_drawFlags;
     std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
     std::vector<CToken> x2bc_assets;
@@ -108,7 +108,7 @@ class CGuiTextSupport
     bool _GetIsTextSupportFinishedLoading() const;
 
 public:
-    CGuiTextSupport(ResId fontId, const CGuiTextProperties& props,
+    CGuiTextSupport(CAssetId fontId, const CGuiTextProperties& props,
                     const zeus::CColor& fontCol, const zeus::CColor& outlineCol,
                     const zeus::CColor& geomCol, s32 extX, s32 extY, CSimplePool* store,
                     CGuiWidget::EGuiModelDrawFlags drawFlags);
@@ -139,7 +139,7 @@ public:
     float GetCurTime() const { return x3c_curTime; }
     void SetCurTime(float t) { x3c_curTime = t; }
     const std::u16string& GetString() const { return x0_string; }
-    void SetControlTXTRMap(const std::vector<std::pair<ResId, ResId>>* txtrMap);
+    void SetControlTXTRMap(const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap);
     int GetPageCounter() const { return x304_pageCounter; }
     int GetTotalPageCount();
     void SetPage(int page);

@@ -199,7 +199,7 @@ void CAutoMapper::SetupMiniMapWorld(const CStateManager& mgr)
 
 bool CAutoMapper::HasCurrentMapUniverseWorld() const
 {
-    ResId mlvlId = x24_world->IGetWorldAssetId();
+    CAssetId mlvlId = x24_world->IGetWorldAssetId();
     for (const CMapUniverse::CMapWorldData& wld : *x8_mapu)
         if (wld.GetWorldAssetId() == mlvlId)
             return true;
@@ -340,7 +340,7 @@ bool CAutoMapper::CanLeaveMapScreen(const CStateManager& mgr) const
     return x328_ == 3 && CanLeaveMapScreenInternal(mgr);
 }
 
-void CAutoMapper::SetCurWorldAssetId(ResId mlvlId)
+void CAutoMapper::SetCurWorldAssetId(CAssetId mlvlId)
 {
     int numWorlds = x8_mapu->GetNumMapWorldDatas();
     for (int i=0 ; i<numWorlds ; ++i)
@@ -1076,7 +1076,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
 
         if (x9c_worldIdx != oldWldIdx)
         {
-            ResId curMlvl = g_GameState->CurrentWorldAssetId();
+            CAssetId curMlvl = g_GameState->CurrentWorldAssetId();
             for (int i=0 ; i<x14_dummyWorlds.size() ; ++i)
             {
                 auto& wld = x14_dummyWorlds[i];
@@ -1110,18 +1110,18 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
             {
                 x2fc_textpane_hint->TextSupport().SetText(u"");
                 std::u16string str = hecl::UTF8ToChar16(
-                    hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x24_lStick[x2e4_lStickPos])));
+                    hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x24_lStick[x2e4_lStickPos].Value())));
                 str += g_MainStringTable->GetString(46); // Rotate
                 x300_textpane_instructions->TextSupport().SetText(str);
                 str = hecl::UTF8ToChar16(
-                    hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos])));
+                    hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos].Value())));
                 str += g_MainStringTable->GetString(47); // Move
                 x304_textpane_instructions1->TextSupport().SetText(str);
                 str = hecl::UTF8ToChar16(
-                    hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos])));
+                    hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos].Value())));
                 str += g_MainStringTable->GetString(48); // Zoom
                 str += hecl::UTF8ToChar16(
-                    hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos])));
+                    hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos].Value())));
                 x308_textpane_instructions2->TextSupport().SetText(str);
             }
         }
@@ -1200,7 +1200,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         std::u16string string;
         if (x1bc_state == EAutoMapperState::MapScreenUniverse ||
             (x1bc_state == EAutoMapperState::MapScreen && HasCurrentMapUniverseWorld()))
-            string = hecl::UTF8ToChar16(hecl::Format("image=%8.8X", u32(g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos])));
+            string = hecl::UTF8ToChar16(hecl::Format("image=%8.8X", u32(g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos].Value())));
         right1->TextSupport().SetText(string);
         CGuiTextPane* right = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_right"));
         if (x1bc_state == EAutoMapperState::MapScreenUniverse)
@@ -1323,7 +1323,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         CompleteMapperStateTransition(mgr);
     }
 
-    ResId stringId = x88_mapAreaStringId;
+    CAssetId stringId = x88_mapAreaStringId;
     if (IsInMapperState(EAutoMapperState::MapScreenUniverse))
     {
         IWorld* wld = x14_dummyWorlds[x9c_worldIdx].get();
@@ -1366,7 +1366,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
 
     if (IsInMapperState(EAutoMapperState::MapScreen))
     {
-        ResId hintDesc = GetAreaHintDescriptionString(x24_world->IGetAreaAlways(xa0_curAreaId)->IGetAreaAssetId());
+        CAssetId hintDesc = GetAreaHintDescriptionString(x24_world->IGetAreaAlways(xa0_curAreaId)->IGetAreaAssetId());
         if (hintDesc != x74_areaHintDescId)
         {
             x74_areaHintDescId = hintDesc;
@@ -1561,7 +1561,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         }
         if (IsInMapperState(EAutoMapperState::MapScreen))
         {
-            ResId wldMlvl = x24_world->IGetWorldAssetId();
+            CAssetId wldMlvl = x24_world->IGetWorldAssetId();
             const CMapWorld* mw = x24_world->IGetMapWorld();
             std::vector<CTexturedQuadFilter>& hintBeaconFilters = const_cast<CAutoMapper&>(*this).m_hintBeaconFilters;
             if (hintBeaconFilters.size() < x1f8_hintLocations.size())
@@ -1688,7 +1688,7 @@ void CAutoMapper::SetupHintNavigation()
         navigating = true;
         x1e0_hintSteps.push_back({SAutoMapperHintStep::ShowBeacon{}, 0.75f});
         const CGameHintInfo::CGameHint& nextHint = g_MemoryCardSys->GetHints()[hintOpts.GetNextHintIdx()];
-        ResId curMlvl = x24_world->IGetWorldAssetId();
+        CAssetId curMlvl = x24_world->IGetWorldAssetId();
         for (const CGameHintInfo::SHintLocation& loc : nextHint.GetLocations())
         {
             if (loc.x0_mlvlId != curMlvl)
@@ -1721,7 +1721,7 @@ void CAutoMapper::SetupHintNavigation()
     }
 }
 
-ResId CAutoMapper::GetAreaHintDescriptionString(ResId mreaId)
+CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId)
 {
     const CHintOptions& hintOpts = g_GameState->HintOptions();
     for (int i=0 ; i<hintOpts.GetHintStates().size() ; ++i)

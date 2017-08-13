@@ -19,10 +19,10 @@ class CResLoader
     std::list<std::unique_ptr<CPakFile>> x18_pakLoadedList;
     std::list<std::unique_ptr<CPakFile>> x30_pakLoadingList;
     u32 x44_pakLoadingCount = 0;
-    u32 x4c_cachedResId = -1;
+    CAssetId x4c_cachedResId;
     const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
 public:
-    const std::vector<ResId>* GetTagListForFile(const std::string& name) const;
+    const std::vector<CAssetId>* GetTagListForFile(const std::string& name) const;
     void AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak);
     void AddPakFile(const std::string& name, bool samusPak, bool worldPak);
     CInputStream* LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf);
@@ -34,15 +34,15 @@ public:
     bool GetResourceCompression(const SObjectTag& tag);
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);
-    FourCC GetResourceTypeById(u32 id) const;
+    FourCC GetResourceTypeById(CAssetId id) const;
     const SObjectTag* GetResourceIdByName(const char* name) const;
     bool AreAllPaksLoaded() const;
     void AsyncIdlePakLoading();
-    bool FindResource(u32 id) const;
-    CPakFile* FindResourceForLoad(u32 id);
+    bool FindResource(CAssetId id) const;
+    CPakFile* FindResourceForLoad(CAssetId id);
     CPakFile* FindResourceForLoad(const SObjectTag& tag);
-    bool CacheFromPakForLoad(CPakFile& file, u32 id);
-    bool CacheFromPak(const CPakFile& file, u32 id);
+    bool CacheFromPakForLoad(CPakFile& file, CAssetId id);
+    bool CacheFromPak(const CPakFile& file, CAssetId id);
     void MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file);
 };
 

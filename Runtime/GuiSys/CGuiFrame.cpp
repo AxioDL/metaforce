@@ -13,7 +13,7 @@
 namespace urde
 {
 
-CGuiFrame::CGuiFrame(ResId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp)
+CGuiFrame::CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp)
 : x0_id(id), x8_guiSys(sys), x4c_a(a), x50_b(b), x54_c(c), x58_24_loaded(false)
 {
     x3c_lights.reserve(8);
@@ -208,7 +208,7 @@ void CGuiFrame::ProcessUserInput(const CFinalInput& input) const
     }
 }
 
-std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp)
+std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp)
 {
     in.readInt32Big();
     int a = in.readInt32Big();

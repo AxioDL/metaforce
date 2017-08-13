@@ -42,7 +42,7 @@ private:
     CGuiTextPane* x48_textpane_return = nullptr;
     CGuiTextPane* x4c_textpane_next = nullptr;
     CGuiTextPane* x50_textpane_back = nullptr;
-    ResId x54_frmePauseScreenId;
+    CAssetId x54_frmePauseScreenId;
     u32 x58_frmePauseScreenBufSz;
     std::unique_ptr<u8[]> x5c_frmePauseScreenBuf;
     std::shared_ptr<ProjectResourceFactoryBase::AsyncTask> x60_loadTok;

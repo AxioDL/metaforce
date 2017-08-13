@@ -7,7 +7,7 @@ namespace urde
 CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, const std::string& name,
                                                          const CEntityInfo& info, EFilterType type, EFilterShape shape,
                                                          u32 filterIdx, u32 unk, const zeus::CColor& color,
-                                                         float timeIn, float timeOut, ResId txtr, bool active)
+                                                         float timeIn, float timeOut, CAssetId txtr, bool active)
 : CEntity(uid, info, active, name), x34_type(type), x38_shape(shape), x3c_filterIdx(filterIdx), x40_(unk),
   x44_color(color), x48_timeIn(timeIn), x4c_timeOut(timeOut), x50_txtr(txtr)
 {

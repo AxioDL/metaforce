@@ -22,8 +22,8 @@ class CArtifactDoll
     void UpdateActorLights();
 public:
     CArtifactDoll();
-    static int GetArtifactHeadScanIndex(ResId scanId);
-    static ResId GetArtifactHeadScanFromItemType(CPlayerState::EItemType item);
+    static int GetArtifactHeadScanIndex(CAssetId scanId);
+    static CAssetId GetArtifactHeadScanFromItemType(CPlayerState::EItemType item);
     static void UpdateArtifactHeadScan(const CStateManager& mgr, float delta);
     static void CompleteArtifactHeadScan(const CStateManager& mgr);
     void Draw(float alpha, const CStateManager& mgr, bool inArtifactCategory, int selectedArtifact);

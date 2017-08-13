@@ -28,9 +28,9 @@ public:
     };
 
 protected:
-    ResId x4_texPattern1Id;
-    ResId x8_texPattern2Id;
-    ResId xc_texColorId;
+    CAssetId x4_texPattern1Id;
+    CAssetId x8_texPattern2Id;
+    CAssetId xc_texColorId;
     std::experimental::optional<TLockedToken<CTexture>> x10_texPattern1;
     std::experimental::optional<TLockedToken<CTexture>> x20_texPattern2;
     std::experimental::optional<TLockedToken<CTexture>> x30_texColor;
@@ -39,8 +39,8 @@ protected:
     float x48_rippleIntensity;
     CFluidUVMotion x4c_uvMotion;
 public:
-    CFluidPlane(ResId texPattern1, ResId texPattern2, ResId texColor, float alpha, EFluidType fluidType,
-                float rippleIntensity, const CFluidUVMotion& motion);
+    CFluidPlane(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, float alpha,
+                EFluidType fluidType, float rippleIntensity, const CFluidUVMotion& motion);
 
     virtual void Ripple(float mag, TUniqueId rippler, const zeus::CVector3f& pos,
                         CScriptWater& water, CStateManager& mgr);

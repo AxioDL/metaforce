@@ -20,8 +20,8 @@ CSkinnedModel::CSkinnedModel(TLockedToken<CModel> model,
     m_modelInst = model->MakeNewInstance(shaderIdx, drawInsts);
 }
 
-CSkinnedModel::CSkinnedModel(IObjectStore& store, ResId model,
-                             ResId skinRules, ResId layoutInfo,
+CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model,
+                             CAssetId skinRules, CAssetId layoutInfo,
                              int shaderIdx, int drawInsts)
 : CSkinnedModel(store.GetObj(SObjectTag{FOURCC('CMDL'), model}),
                 store.GetObj(SObjectTag{FOURCC('CSKR'), skinRules}),
@@ -44,8 +44,8 @@ void CSkinnedModel::Draw(const CModelFlags& drawFlags) const
         m_modelInst->DrawSurfaces(drawFlags);
 }
 
-CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, ResId model,
-                                               ResId skinRules, ResId layoutInfo,
+CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, CAssetId model,
+                                               CAssetId skinRules, CAssetId layoutInfo,
                                                int shaderIdx, int drawInsts)
 : CSkinnedModel(store, model, skinRules, layoutInfo, shaderIdx, drawInsts)
 {

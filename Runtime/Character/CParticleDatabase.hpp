@@ -17,9 +17,9 @@ class CCharLayoutInfo;
 
 class CParticleDatabase
 {
-    std::map<ResId, std::shared_ptr<TLockedToken<CGenDescription>>> x0_particleDescs;
-    std::map<ResId, std::shared_ptr<TLockedToken<CSwooshDescription>>> x14_swooshDescs;
-    std::map<ResId, std::shared_ptr<TLockedToken<CElectricDescription>>> x28_electricDescs;
+    std::map<CAssetId, std::shared_ptr<TLockedToken<CGenDescription>>> x0_particleDescs;
+    std::map<CAssetId, std::shared_ptr<TLockedToken<CSwooshDescription>>> x14_swooshDescs;
+    std::map<CAssetId, std::shared_ptr<TLockedToken<CElectricDescription>>> x28_electricDescs;
     std::map<std::string, std::unique_ptr<CParticleGenInfo>> x3c_rendererDrawLoop;
     std::map<std::string, std::unique_ptr<CParticleGenInfo>> x50_firstDrawLoop;
     std::map<std::string, std::unique_ptr<CParticleGenInfo>> x64_lastDrawLoop;

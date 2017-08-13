@@ -9,22 +9,22 @@
 namespace urde
 {
 
-CWorld::CSoundGroupData::CSoundGroupData(int grpId, ResId agsc) : x0_groupId(grpId), x4_agscId(agsc)
+CWorld::CSoundGroupData::CSoundGroupData(int grpId, CAssetId agsc) : x0_groupId(grpId), x4_agscId(agsc)
 {
     x1c_groupData = g_SimplePool->GetObj(SObjectTag{FOURCC('AGSC'), agsc});
 }
 
-CDummyWorld::CDummyWorld(ResId mlvlId, bool loadMap) : x4_loadMap(loadMap), xc_mlvlId(mlvlId)
+CDummyWorld::CDummyWorld(CAssetId mlvlId, bool loadMap) : x4_loadMap(loadMap), xc_mlvlId(mlvlId)
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->LoadResourceAsync(tag, x34_loadBuf);
 }
 
-ResId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
+CAssetId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
 
-ResId CDummyWorld::IGetStringTableAssetId() const { return x10_strgId; }
+CAssetId CDummyWorld::IGetStringTableAssetId() const { return x10_strgId; }
 
-ResId CDummyWorld::IGetSaveWorldAssetId() const { return x14_savwId; }
+CAssetId CDummyWorld::IGetSaveWorldAssetId() const { return x14_savwId; }
 
 const CMapWorld* CDummyWorld::IGetMapWorld() const { return x2c_mapWorld.GetObj(); }
 
@@ -34,7 +34,7 @@ const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const { return &x18_are
 
 TAreaId CDummyWorld::IGetCurrentAreaId() const { return x3c_curAreaId; }
 
-TAreaId CDummyWorld::IGetAreaId(ResId id) const
+TAreaId CDummyWorld::IGetAreaId(CAssetId id) const
 {
     int ret = 0;
     if (id == -1)
@@ -66,7 +66,7 @@ std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryR
     return ret;
 }
 
-void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, ResId mlvlId)
+void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId)
 {
     if (version <= 14)
         return;
@@ -180,7 +180,7 @@ std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
 
 int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
 
-CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
+CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
 : x8_mlvlId(mlvlId), x60_objectStore(objStore), x64_resFactory(resFactory)
 {
     x70_24_currentAreaNeedsAllocation = true;
@@ -188,11 +188,11 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, ResId mlvlId)
     static_cast<ProjectResourceFactoryBase&>(resFactory).LoadResourceAsync(tag, x40_loadBuf);
 }
 
-ResId CWorld::IGetWorldAssetId() const { return x8_mlvlId; }
+CAssetId CWorld::IGetWorldAssetId() const { return x8_mlvlId; }
 
-ResId CWorld::IGetStringTableAssetId() const { return xc_strgId; }
+CAssetId CWorld::IGetStringTableAssetId() const { return xc_strgId; }
 
-ResId CWorld::IGetSaveWorldAssetId() const { return x10_savwId; }
+CAssetId CWorld::IGetSaveWorldAssetId() const { return x10_savwId; }
 
 const CMapWorld* CWorld::IGetMapWorld() const { return const_cast<CWorld*>(this)->GetMapWorld(); }
 
@@ -206,7 +206,7 @@ const IGameArea* CWorld::IGetAreaAlways(TAreaId id) const { return GetAreaAlways
 
 TAreaId CWorld::IGetCurrentAreaId() const { return x68_curAreaId; }
 
-TAreaId CWorld::IGetAreaId(ResId id) const
+TAreaId CWorld::IGetAreaId(CAssetId id) const
 {
     int ret = 0;
     if (id == -1)
@@ -238,11 +238,11 @@ void CWorld::MoveAreaToChain3(TAreaId aid)
     MoveToChain(x18_areas[aid].get(), EChain::Alive);
 }
 
-void CWorld::LoadSoundGroup(int groupId, ResId agscId, CSoundGroupData& data) {}
+void CWorld::LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data) {}
 
 void CWorld::LoadSoundGroups() {}
 
-bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
+bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 {
     if (mreaId != -1)
     {
@@ -276,7 +276,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
             x10_savwId = r.readUint32Big();
         if (version >= 12)
         {
-            ResId skyboxId = r.readUint32Big();
+            CAssetId skyboxId = r.readUint32Big();
             if (skyboxId != -1 && mgr)
                 x94_skybox = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
         }
@@ -317,7 +317,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
             for (u32 i = 0; i < audioGroupCount; ++i)
             {
                 int grpId = r.readUint32Big();
-                ResId agscId = r.readUint32Big();
+                CAssetId agscId = r.readUint32Big();
                 x74_soundGroupData.emplace_back(grpId, agscId);
             }
         }
@@ -325,7 +325,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, ResId mreaId)
         if (version > 12)
         {
             x84_defAudioTrack = r.readString();
-            std::string trackKey = hecl::Format("WorldDefault: %8.8x", u32(x8_mlvlId));
+            std::string trackKey = hecl::Format("WorldDefault: %8.8x", u32(x8_mlvlId.Value()));
             if (g_TweakManager->HasTweakValue(trackKey))
                 x84_defAudioTrack = g_TweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();
         }

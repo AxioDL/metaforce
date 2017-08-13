@@ -108,16 +108,16 @@ public:
         Type x0_type;
         union
         {
-            ResId x4_worldId;
+            CAssetId x4_worldId;
             TAreaId x4_areaId;
             float x4_float;
         };
         bool x8_processing = false;
 
         SAutoMapperHintStep(PanToArea, TAreaId areaId) : x0_type(Type::PanToArea), x4_areaId(areaId) {}
-        SAutoMapperHintStep(PanToWorld, ResId worldId) : x0_type(Type::PanToWorld), x4_worldId(worldId) {}
+        SAutoMapperHintStep(PanToWorld, CAssetId worldId) : x0_type(Type::PanToWorld), x4_worldId(worldId) {}
         SAutoMapperHintStep(SwitchToUniverse) : x0_type(Type::SwitchToUniverse), x4_worldId(0) {}
-        SAutoMapperHintStep(SwitchToWorld, ResId worldId) : x0_type(Type::SwitchToWorld), x4_worldId(worldId) {}
+        SAutoMapperHintStep(SwitchToWorld, CAssetId worldId) : x0_type(Type::SwitchToWorld), x4_worldId(worldId) {}
         SAutoMapperHintStep(ShowBeacon, float val) : x0_type(Type::ShowBeacon), x4_float(val) {}
         SAutoMapperHintStep(ZoomIn) : x0_type(Type::ZoomIn), x4_worldId(0) {}
         SAutoMapperHintStep(ZoomOut) : x0_type(Type::ZoomOut), x4_worldId(0) {}
@@ -127,7 +127,7 @@ public:
     {
         u32 x0_showBeacon;
         float x4_beaconAlpha;
-        ResId x8_worldId;
+        CAssetId x8_worldId;
         TAreaId xc_areaId;
     };
 
@@ -174,10 +174,10 @@ private:
     TLockedToken<CTexture> x3c_hintBeacon;
     std::vector<CTexturedQuadFilter> m_hintBeaconFilters;
     rstl::reserved_vector<TLockedToken<CTexture>, 5> x48_mapIcons;
-    ResId x74_areaHintDescId = -1;
+    CAssetId x74_areaHintDescId = -1;
     TLockedToken<CStringTable> x78_areaHintDesc;
     u32 x84_ = 0;
-    ResId x88_mapAreaStringId = -1;
+    CAssetId x88_mapAreaStringId = -1;
     TLockedToken<CStringTable> x8c_mapAreaString; // Used to be optional
     u32 x9c_worldIdx = 0;
     TAreaId xa0_curAreaId;
@@ -257,7 +257,7 @@ private:
     void TransformRenderStatesUniverseToWorld();
     void TransformRenderStateWorldToUniverse(SAutoMapperRenderState&);
     void SetupHintNavigation();
-    ResId GetAreaHintDescriptionString(ResId mreaId);
+    CAssetId GetAreaHintDescriptionString(CAssetId mreaId);
 
 public:
     CAutoMapper(CStateManager& stateMgr);
@@ -266,8 +266,8 @@ public:
     float GetMapRotationX() const;
     float GetMapRotationZ() const;
     u32 GetFocusAreaIndex() const;
-    ResId GetCurrWorldAssetId() const;
-    void SetCurWorldAssetId(ResId mlvlId);
+    CAssetId GetCurrWorldAssetId() const;
+    void SetCurWorldAssetId(CAssetId mlvlId);
     void MuteAllLoopedSounds();
     void UnmuteAllLoopedSounds();
     void ProcessControllerInput(const CFinalInput&, CStateManager&);

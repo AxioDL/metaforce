@@ -12,7 +12,7 @@ namespace MP1
 
 class CLogBookScreen : public CPauseScreenBase
 {
-    rstl::reserved_vector<std::vector<std::pair<ResId, bool>>, 5> x19c_scanCompletes;
+    rstl::reserved_vector<std::vector<std::pair<CAssetId, bool>>, 5> x19c_scanCompletes;
     std::vector<std::pair<TCachedToken<CScannableObjectInfo>,
                           TCachedToken<CStringTable>>> x1f0_curViewScans;
     rstl::reserved_vector<std::vector<std::pair<TLockedToken<CScannableObjectInfo>,
@@ -48,7 +48,7 @@ class CLogBookScreen : public CPauseScreenBase
     int NextSurroundingArticleIndex(int cur) const;
     bool IsArtifactCategorySelected() const;
     int GetSelectedArtifactHeadScanIndex() const;
-    static bool IsScanComplete(CSaveWorld::EScanCategory category, ResId scan, const CPlayerState& playerState);
+    static bool IsScanComplete(CSaveWorld::EScanCategory category, CAssetId scan, const CPlayerState& playerState);
 
 public:
     CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);

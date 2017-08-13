@@ -31,8 +31,8 @@ public:
                   TLockedToken<CSkinRules> skinRules,
                   TLockedToken<CCharLayoutInfo> layoutInfo,
                   int shaderIdx, int drawInsts);
-    CSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
-                  ResId layoutInfo, int shaderIdx, int drawInsts);
+    CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules,
+                  CAssetId layoutInfo, int shaderIdx, int drawInsts);
 
     const TLockedToken<CModel>& GetModel() const {return x4_model;}
     const std::unique_ptr<CBooModel>& GetModelInst() const {return m_modelInst;}
@@ -58,8 +58,8 @@ public:
 class CMorphableSkinnedModel : public CSkinnedModel
 {
 public:
-    CMorphableSkinnedModel(IObjectStore& store, ResId model, ResId skinRules,
-                           ResId layoutInfo, int shaderIdx, int drawInsts);
+    CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules,
+                           CAssetId layoutInfo, int shaderIdx, int drawInsts);
 };
 
 }

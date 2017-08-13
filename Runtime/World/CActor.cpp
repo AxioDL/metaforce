@@ -150,7 +150,7 @@ const zeus::CTransform CActor::GetLocatorTransform(const std::string& segName) c
 }
 
 EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                               CWeaponMode&, s32)
+                                                               const CWeaponMode&, s32) const
 {
     return EWeaponCollisionResponseTypes::Unknown13;
 }

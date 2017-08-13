@@ -17,7 +17,7 @@ public:
 
     struct SBucket
     {
-        ResId x0_texture = -1;
+        CAssetId x0_texture = -1;
         float x4_appearanceRange = 0.f;
         u32 x8_imagePos = 0;
         zeus::CVector2i xc_size;
@@ -28,7 +28,7 @@ public:
 
 private:
     void Load(CInputStream&, u32);
-    ResId x0_scannableObjectId;
+    CAssetId x0_scannableObjectId;
     u32 x4_stringId = -1;
     float x8_totalDownloadTime = 0.f;
     u32 xc_category = 0;
@@ -36,9 +36,9 @@ private:
     rstl::reserved_vector<SBucket, 4> x14_buckets;
 
 public:
-    CScannableObjectInfo(CInputStream&, ResId);
-    ResId GetScannableObjectId() const { return x0_scannableObjectId; }
-    ResId GetStringTableId() const { return x4_stringId; }
+    CScannableObjectInfo(CInputStream&, CAssetId);
+    CAssetId GetScannableObjectId() const { return x0_scannableObjectId; }
+    CAssetId GetStringTableId() const { return x4_stringId; }
     float GetTotalDownloadTime() const { return x8_totalDownloadTime; }
     const SBucket& GetBucket(s32 idx) const { return x14_buckets[idx]; }
     u32 GetCategory() const { return xc_category; }

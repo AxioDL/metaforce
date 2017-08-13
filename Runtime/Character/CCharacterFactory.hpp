@@ -31,7 +31,7 @@ public:
         void CancelBuild(const SObjectTag&);
         bool CanBuild(const SObjectTag&);
         const SObjectTag* GetResourceIdByName(const char*) const;
-        FourCC GetResourceTypeById(ResId id) const;
+        FourCC GetResourceTypeById(CAssetId id) const;
 
         void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
         void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
@@ -52,8 +52,8 @@ private:
     std::vector<TCachedToken<CAllFormatsAnimSource>> x30_animSourceDB;
     std::vector<std::pair<u32, CAdditiveAnimationInfo>> x40_additiveInfo;
     CAdditiveAnimationInfo x50_defaultAdditiveInfo;
-    std::vector<std::pair<ResId, ResId>> x58_animResources;
-    ResId x68_selfId;
+    std::vector<std::pair<CAssetId, CAssetId>> x58_animResources;
+    CAssetId x68_selfId;
     CDummyFactory x6c_dummyFactory;
     CSimplePool x70_cacheResPool;
 
@@ -63,12 +63,12 @@ private:
                         const std::vector<CCharacterInfo>& chars);
 
 public:
-    CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, ResId);
+    CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, CAssetId);
 
     std::unique_ptr<CAnimData> CreateCharacter(int charIdx, bool loop,
                                                const TLockedToken<CCharacterFactory>& factory,
                                                int defaultAnim, int drawInsts) const;
-    ResId GetEventResourceIdForAnimResourceId(ResId animId) const;
+    CAssetId GetEventResourceIdForAnimResourceId(CAssetId animId) const;
 
     const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }
     const CAdditiveAnimationInfo& FindAdditiveInfo(u32 idx) const;

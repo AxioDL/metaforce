@@ -277,7 +277,7 @@ void CMain::EnsureWorldPaksReady()
 {
 }
 
-void CMain::EnsureWorldPakReady(ResId mlvl)
+void CMain::EnsureWorldPakReady(CAssetId mlvl)
 {
     /* TODO: Schedule resource list load for World Pak containing mlvl */
 }

@@ -8,11 +8,11 @@ namespace urde
 
 class CScannableParameters
 {
-    ResId x0_scanId = -1;
+    CAssetId x0_scanId = -1;
 
 public:
     CScannableParameters() = default;
-    CScannableParameters(ResId id) : x0_scanId(id) {}
+    CScannableParameters(CAssetId id) : x0_scanId(id) {}
 };
 }
 

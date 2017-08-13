@@ -63,18 +63,18 @@ CPlayerState::CPlayerState()
 : x188_staticIntf(5)
 {
     x0_24_alive = true;
-    x24_powerups.resize(41);
+    x24_powerups.set_size(41);
 }
 
 CPlayerState::CPlayerState(CBitStreamReader& stream)
 : x188_staticIntf(5)
 {
-    x4_ = stream.ReadEncoded(0x20);
+    x4_enabledItems = stream.ReadEncoded(0x20);
     u32 tmp = stream.ReadEncoded(0x20);
     xc_health.SetHP(*reinterpret_cast<float*>(&tmp));
     x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
     x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
-    x24_powerups.resize(41);
+    x24_powerups.set_size(41);
     for (u32 i = 0; i < x24_powerups.size(); ++i)
     {
         if (PowerUpMaxValues[i] == 0)
@@ -99,7 +99,7 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
 
 void CPlayerState::PutTo(CBitStreamWriter& stream)
 {
-    stream.WriteEncoded(x4_, 32);
+    stream.WriteEncoded(x4_enabledItems, 32);
     float hp = xc_health.GetHP();
     stream.WriteEncoded(*reinterpret_cast<u32*>(&hp), 32);
     stream.WriteEncoded(u32(x8_currentBeam), CBitStreamWriter::GetBitCount(5));
@@ -222,7 +222,7 @@ void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, const float
     x188_staticIntf.Update(stateMgr, dt);
 }
 
-void CPlayerState::SetScanTime(ResId res, float time)
+void CPlayerState::SetScanTime(CAssetId res, float time)
 {
     auto it = std::find_if(x170_scanTimes.begin(), x170_scanTimes.end(), [&](const auto& test) -> bool{
         return test.first == res;
@@ -232,7 +232,7 @@ void CPlayerState::SetScanTime(ResId res, float time)
         it->second = time;
 }
 
-float CPlayerState::GetScanTime(ResId res) const
+float CPlayerState::GetScanTime(CAssetId res) const
 {
     const auto it = std::find_if(x170_scanTimes.cbegin(), x170_scanTimes.cend(), [&](const auto& test) -> bool{
         return test.first == res;
@@ -296,8 +296,20 @@ void CPlayerState::ResetVisor()
 bool CPlayerState::ItemEnabled(CPlayerState::EItemType type)
 {
     if (HasPowerUp(type))
-        return x24_powerups[u32(type)].x4_capacity != 0;
+        return (x4_enabledItems & (1 << u32(type)));
     return false;
+}
+
+void CPlayerState::EnableItem(CPlayerState::EItemType type)
+{
+    if (HasPowerUp(type))
+        x4_enabledItems |= (1 << u32(type));
+}
+
+void CPlayerState::DisableItem(CPlayerState::EItemType type)
+{
+    if (HasPowerUp(type))
+        x4_enabledItems &= ~(1 << u32(type));
 }
 
 bool CPlayerState::HasPowerUp(CPlayerState::EItemType type)

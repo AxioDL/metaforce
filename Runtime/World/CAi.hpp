@@ -37,7 +37,7 @@ public:
 
   CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
       CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo, const CDamageVulnerability&,
-      const CMaterialList& list, ResId fsm, const CActorParameters&, float f1, float f2);
+      const CMaterialList& list, CAssetId fsm, const CActorParameters&, float f1, float f2);
 
     static void CreateFuncLookup(CAiFuncMap* funcMap);
     static CAiStateFunc GetStateFunc(const char* func);

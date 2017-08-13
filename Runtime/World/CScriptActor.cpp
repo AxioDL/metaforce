@@ -185,7 +185,8 @@ zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const
 }
 
 EWeaponCollisionResponseTypes
-CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2, CWeaponMode& wMode, s32 w)
+CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const
+                                        CWeaponMode& wMode, int w) const
 {
     const CDamageVulnerability* dVuln = GetDamageVulnerability();
     if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Reflect)

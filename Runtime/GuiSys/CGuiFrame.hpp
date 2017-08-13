@@ -23,7 +23,7 @@ class CGuiFrame
 {
     friend class CGuiSys;
 private:
-    ResId x0_id;
+    CAssetId x0_id;
     u32 x4_ = 0;
     CGuiSys& x8_guiSys;
     std::shared_ptr<CGuiHeadWidget> xc_headWidget;
@@ -42,7 +42,7 @@ private:
     float m_aspectConstraint = -1.f;
 
 public:
-    CGuiFrame(ResId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
+    CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
     ~CGuiFrame();
 
     CGuiSys& GetGuiSys() {return x8_guiSys;}
@@ -73,7 +73,7 @@ public:
 
     CGuiWidgetIdDB& GetWidgetIdDB() {return x18_idDB;}
 
-    static std::unique_ptr<CGuiFrame> CreateFrame(ResId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp);
+    static std::unique_ptr<CGuiFrame> CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp);
 };
 
 std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream& in,

@@ -685,7 +685,7 @@ CSaveGameScreen::CSaveGameScreen(ESaveContext saveCtx, u64 serial)
     x93_inGame = bool(saveCtx);
 
     x70_saveWorlds.reserve(g_MemoryCardSys->GetMemoryWorlds().size());
-    for (const std::pair<ResId, CSaveWorldMemory>& wld : g_MemoryCardSys->GetMemoryWorlds())
+    for (const std::pair<CAssetId, CSaveWorldMemory>& wld : g_MemoryCardSys->GetMemoryWorlds())
     {
         x70_saveWorlds.push_back(
             g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), wld.second.GetSaveWorldAssetId()}));

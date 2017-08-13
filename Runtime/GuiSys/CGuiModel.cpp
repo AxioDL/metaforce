@@ -8,7 +8,7 @@
 namespace urde
 {
 
-CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, ResId modelId, u32 lightMask, bool flag)
+CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag)
 : CGuiWidget(parms), x108_modelId(modelId), x10c_lightMask(lightMask)
 {
     if (!flag || modelId == 0xffffffff ||
@@ -18,7 +18,7 @@ CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, ResId modelI
     xf8_model = sp->GetObj({SBIG('CMDL'), modelId});
 }
 
-std::vector<ResId> CGuiModel::GetModelAssets() const
+std::vector<CAssetId> CGuiModel::GetModelAssets() const
 {
     return {x108_modelId};
 }
@@ -119,7 +119,7 @@ std::shared_ptr<CGuiWidget> CGuiModel::Create(CGuiFrame* frame, CInputStream& in
 {
     CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
-    ResId model = in.readUint32Big();
+    CAssetId model = in.readUint32Big();
     in.readUint32Big();
     u32 lightMask = in.readUint32Big();
 

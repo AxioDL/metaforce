@@ -46,14 +46,14 @@ private:
     u32 x4c_resTableCount = 0;
     int x50_ = -1;
     std::vector<std::pair<std::string, SObjectTag>> x54_nameList;
-    std::vector<ResId> x64_depList;
-    std::vector<std::pair<u32, SResInfo>> x74_resList;
+    std::vector<CAssetId> x64_depList;
+    std::vector<std::pair<CAssetId, SResInfo>> x74_resList;
 public:
     CPakFile(const std::string& filename, bool buildDepList, bool worldPak);
-    const std::vector<ResId>& GetDepList() const { return x64_depList; }
+    const std::vector<CAssetId>& GetDepList() const { return x64_depList; }
     const SObjectTag* GetResIdByName(const char* name) const;
-    const SResInfo* GetResInfoForLoad(u32 id) { return nullptr; }
-    const SResInfo* GetResInfo(u32 id) const { return nullptr; }
+    const SResInfo* GetResInfoForLoad(CAssetId id) { return nullptr; }
+    const SResInfo* GetResInfo(CAssetId id) const { return nullptr; }
     u32 GetFakeStaticSize() const { return 0; }
     void DataLoad() {}
     void InitialHeaderLoad() {}

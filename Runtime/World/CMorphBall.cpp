@@ -11,7 +11,7 @@ CMorphBall::CMorphBall(CPlayer& player, float)
 {
 }
 
-void CMorphBall::AcceptScriptMessage(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr)
+void CMorphBall::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr)
 {
 
 }

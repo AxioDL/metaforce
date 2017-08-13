@@ -9,7 +9,7 @@
 namespace urde
 {
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
-                                               bool active, ResId worldId, ResId areaId)
+                                               bool active, CAssetId worldId, CAssetId areaId)
 : CEntity(uid, info, active, name)
 , x34_worldId(worldId)
 , x38_areaId(areaId)
@@ -21,10 +21,10 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string&
 }
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
-                                               bool active, ResId worldId, ResId areaId,
-                                               ResId playerAncs, u32 charIdx, u32 defaultAnim,
-                                               const zeus::CVector3f& playerScale, ResId platformModel,
-                                               const zeus::CVector3f& platformScale, ResId backgroundModel,
+                                               bool active, CAssetId worldId, CAssetId areaId,
+                                               CAssetId playerAncs, u32 charIdx, u32 defaultAnim,
+                                               const zeus::CVector3f& playerScale, CAssetId platformModel,
+                                               const zeus::CVector3f& platformScale, CAssetId backgroundModel,
                                                const zeus::CVector3f& backgroundScale, bool upElevator, u16 soundId,
                                                u8 volume, u8 panning)
 : CEntity(uid, info, active, name)
@@ -47,8 +47,8 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string&
 }
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
-                                               bool active, ResId worldId, ResId areaId, u16 soundId, u8 volume,
-                                               u8 panning, ResId fontId, ResId stringId, bool fadeWhite,
+                                               bool active, CAssetId worldId, CAssetId areaId, u16 soundId, u8 volume,
+                                               u8 panning, CAssetId fontId, CAssetId stringId, bool fadeWhite,
                                                float charFadeIn, float charsPerSecond, float showDelay)
 : CEntity(uid, info, active, name)
 , x34_worldId(worldId)
@@ -94,7 +94,7 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         {
             const auto& world = mgr.WorldNC();
             world->SetPauseState(true);
-            ResId currentWorld = g_GameState->CurrentWorldAssetId();
+            CAssetId currentWorld = g_GameState->CurrentWorldAssetId();
 
             if (g_ResFactory->GetResourceTypeById(currentWorld) == SBIG('MLVL'))
             {
@@ -130,7 +130,7 @@ void CScriptWorldTeleporter::StartTransition(CStateManager& mgr)
             transMgr->DisableTransition();
             break;
         case ETeleporterType::Elevator:
-            if (x50_playerAnim.GetACSFile() != kInvalidResId && x50_playerAnim.GetCharacter() != -1)
+            if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != -1)
             {
                 transMgr->EnableTransition(CAnimRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetCharacter(),
                                                     x5c_playerScale, x50_playerAnim.GetInitialAnimation(),true),

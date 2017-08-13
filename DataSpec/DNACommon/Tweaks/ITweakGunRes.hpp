@@ -9,7 +9,7 @@ namespace DataSpec
 
 struct ITweakGunRes : ITweak
 {
-    using ResId = int64_t;
+    using ResId = urde::CAssetId;
     enum class EBeamId
     {
         Power,

@@ -26,7 +26,7 @@ class CDecalManager
     static s32   m_FreeIndex;
     static float m_DeltaTimeSinceLastDecalCreation;
     static s32   m_LastDecalCreatedIndex;
-    static ResId m_LastDecalCreatedAssetId;
+    static CAssetId m_LastDecalCreatedAssetId;
     static rstl::reserved_vector<SDecal, 64> m_DecalPool;
     static rstl::reserved_vector<s32, 64> m_ActiveIndexList;
 public:

@@ -119,7 +119,7 @@ public:
     virtual zeus::CVector3f GetHomingPosition(const CStateManager&, float) const;
     virtual zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&) const;
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                                   CWeaponMode&, int);
+                                                                   const CWeaponMode&, int) const;
     virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
     virtual void OnScanStateChanged(EScanState, CStateManager&);
     virtual zeus::CAABox GetSortingBounds(const CStateManager&) const;

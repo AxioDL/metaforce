@@ -13,27 +13,46 @@ namespace urde
 {
 
 using FourCC = hecl::FourCC;
-using ResId = u64;
-#define kInvalidResId ResId(-1)
+
+class CAssetId
+{
+private:
+    u64 id = UINT64_MAX;
+public:
+    CAssetId() = default;
+    CAssetId(u64 v) { Assign(v); }
+    explicit CAssetId(CInputStream& in);
+    bool IsValid() const { return id != UINT64_MAX; }
+    u64 Value() const { return id; }
+    void Assign(u64 v) {  id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
+    void Reset() { id = UINT64_MAX; }
+    void PutTo(COutputStream& out);
+
+    bool operator==(const CAssetId& other) const { return id == other.id; }
+    bool operator!=(const CAssetId& other) const { return id != other.id; }
+    bool operator<(const CAssetId& other) const { return id < other.id; }
+};
+
+//#define kInvalidAssetId CAssetId()
 
 struct SObjectTag
 {
     FourCC type;
-    ResId id = kInvalidResId;
-    operator bool() const { return (id != kInvalidResId); }
+    CAssetId id;
+    operator bool() const { return id.IsValid(); }
     bool operator!=(const SObjectTag& other) const { return id != other.id; }
     bool operator==(const SObjectTag& other) const { return id == other.id; }
     bool operator<(const SObjectTag& other) const { return id < other.id; }
     SObjectTag() = default;
-    SObjectTag(FourCC tp, ResId rid) : type(tp), id(rid) {}
-    SObjectTag(CInputStream& in)
+    SObjectTag(FourCC tp, CAssetId rid) : type(tp), id(rid) {}
+    SObjectTag(CInputStream& in, bool _64bit = false)
     {
         in.readBytesToBuf(&type, 4);
-        id = in.readUint32Big();
+        id = (_64bit ? in.readUint64Big() : in.readUint32Big());
     }
-    void readMLVL(CInputStream& in)
+    void readMLVL(CInputStream& in, bool _64bit = false)
     {
-        id = in.readUint32Big();
+        id = (_64bit ? in.readUint64Big() : in.readUint32Big());
         in.readBytesToBuf(&type, 4);
     }
 };
@@ -51,6 +70,7 @@ struct TEditorId
     bool operator!=(const TEditorId& other) const { return (id & 0x3ffffff) != (other.id & 0x3ffffff); }
     bool operator==(const TEditorId& other) const { return (id & 0x3ffffff) == (other.id & 0x3ffffff); }
 };
+#define kInvalidEditorId TEditorId()
 
 struct TUniqueId
 {
@@ -65,10 +85,10 @@ struct TUniqueId
     bool operator==(const TUniqueId& other) const { return (id == other.id); }
 };
 
+#define kInvalidUniqueId TUniqueId()
+
 using TAreaId = s32;
 
-#define kInvalidEditorId TEditorId()
-#define kInvalidUniqueId TUniqueId()
 #define kInvalidAreaId TAreaId(-1)
 }
 
@@ -146,7 +166,13 @@ namespace std
 template <>
 struct hash<urde::SObjectTag>
 {
-    inline size_t operator()(const urde::SObjectTag& tag) const { return tag.id; }
+    inline size_t operator()(const urde::SObjectTag& tag) const { return tag.id.Value(); }
+};
+
+template <>
+struct hash<urde::CAssetId>
+{
+    inline size_t operator()(const urde::CAssetId& id) const { return id.Value(); }
 };
 }
 

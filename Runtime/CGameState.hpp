@@ -44,21 +44,21 @@ public:
 
 class CWorldState
 {
-    ResId x0_mlvlId;
+    CAssetId x0_mlvlId;
     TAreaId x4_areaId = kInvalidAreaId;
     std::shared_ptr<CRelayTracker> x8_relayTracker;
     std::shared_ptr<CMapWorldInfo> xc_mapWorldInfo;
-    ResId x10_desiredAreaAssetId;
+    CAssetId x10_desiredAreaAssetId;
     std::shared_ptr<CWorldLayerState> x14_layerState;
 
 public:
-    explicit CWorldState(ResId id);
-    CWorldState(CBitStreamReader& reader, ResId mlvlId, const CSaveWorld& saveWorld);
-    ResId GetWorldAssetId() const { return x0_mlvlId; }
+    explicit CWorldState(CAssetId id);
+    CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld);
+    CAssetId GetWorldAssetId() const { return x0_mlvlId; }
     void SetAreaId(TAreaId aid) { x4_areaId = aid; }
     TAreaId GetCurrentAreaId() const { return x4_areaId; }
-    ResId GetDesiredAreaAssetId() const { return x10_desiredAreaAssetId; }
-    void SetDesiredAreaAssetId(ResId id) { x10_desiredAreaAssetId = id; }
+    CAssetId GetDesiredAreaAssetId() const { return x10_desiredAreaAssetId; }
+    void SetDesiredAreaAssetId(CAssetId id) { x10_desiredAreaAssetId = id; }
     const std::shared_ptr<CRelayTracker>& RelayTracker() const { return x8_relayTracker; }
     const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
     const std::shared_ptr<CWorldLayerState>& GetLayerState() const { return x14_layerState; }
@@ -71,7 +71,7 @@ class CGameState
 
     bool x0_[128] = {};
     u32 x80_;
-    ResId x84_mlvlId = kInvalidResId;
+    CAssetId x84_mlvlId;
     std::vector<CWorldState> x88_worldStates;
     std::shared_ptr<CPlayerState> x98_playerState;
     std::shared_ptr<CWorldTransManager> x9c_transManager;
@@ -96,16 +96,16 @@ class CGameState
 public:
     CGameState();
     CGameState(CBitStreamReader& stream, u32 saveIdx);
-    void SetCurrentWorldId(ResId id);
+    void SetCurrentWorldId(CAssetId id);
     std::shared_ptr<CPlayerState> GetPlayerState() { return x98_playerState; }
     std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() { return x9c_transManager; }
     void SetTotalPlayTime(float time);
     CPersistentOptions& SystemOptions() { return xa8_systemOptions; }
     CGameOptions& GameOptions() { return x17c_gameOptions; }
     CHintOptions& HintOptions() { return x1f8_hintOptions; }
-    CWorldState& StateForWorld(ResId mlvlId);
+    CWorldState& StateForWorld(CAssetId mlvlId);
     CWorldState& CurrentWorldState() { return StateForWorld(x84_mlvlId); }
-    ResId CurrentWorldAssetId() const { return x84_mlvlId; }
+    CAssetId CurrentWorldAssetId() const { return x84_mlvlId; }
     void SetHardMode(bool v) { x228_24_hardMode = v; }
     bool GetHardMode() const { return x228_24_hardMode; }
     void ReadPersistentOptions(CBitStreamReader& r);
@@ -127,7 +127,7 @@ public:
     struct GameFileStateInfo
     {
         double x0_playTime;
-        u32 x8_mlvlId;
+        CAssetId x8_mlvlId;
         float xc_health;
         u32 x10_energyTanks;
         u32 x14_timestamp;

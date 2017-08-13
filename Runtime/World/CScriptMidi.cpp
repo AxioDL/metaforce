@@ -10,7 +10,7 @@ namespace urde
 {
 
 CScriptMidi::CScriptMidi(TUniqueId id, const CEntityInfo& info, const std::string& name,
-                         bool active, ResId csng, float fadeIn, float fadeOut, s32 volume)
+                         bool active, CAssetId csng, float fadeIn, float fadeOut, s32 volume)
 : CEntity(id, info, active, name), x40_fadeInTime(fadeIn), x44_fadeOutTime(fadeOut),
   x48_volume(volume)
 {

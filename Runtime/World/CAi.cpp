@@ -16,7 +16,7 @@ static CMaterialList MakeAiMaterialList(const CMaterialList& in)
 
 CAi::CAi(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
          CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo,
-         const CDamageVulnerability& dmgVuln, const CMaterialList& list, ResId fsm, const CActorParameters& actorParams,
+         const CDamageVulnerability& dmgVuln, const CMaterialList& list, CAssetId fsm, const CActorParameters& actorParams,
          float stepUp, float stepDown)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeAiMaterialList(list), box, SMoverData(mass),
                 actorParams, stepUp, stepDown)

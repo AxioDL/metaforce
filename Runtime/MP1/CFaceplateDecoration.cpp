@@ -14,7 +14,7 @@ CFaceplateDecoration::CFaceplateDecoration(CStateManager& stateMgr) {}
 
 void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr)
 {
-    ResId txtrId = stateMgr.GetPlayer().GetVisorSteam().GetTextureId();
+    CAssetId txtrId = stateMgr.GetPlayer().GetVisorSteam().GetTextureId();
     if (txtrId == -1)
     {
         if (xc_ready)

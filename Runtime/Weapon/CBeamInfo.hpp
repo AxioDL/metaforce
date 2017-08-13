@@ -11,10 +11,10 @@ struct CBeamInfo
 {
     u32 x0_;
     u32 x4_;
-    ResId x8_;
-    ResId xc_;
-    ResId x10_;
-    ResId x14_;
+    CAssetId x8_;
+    CAssetId xc_;
+    CAssetId x10_;
+    CAssetId x14_;
     u32 x18_;
     float x1c_;
     float x20_;

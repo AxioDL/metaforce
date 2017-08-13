@@ -1887,7 +1887,7 @@ void CStateManager::Update(float dt)
     {
         ShowPausedHUDMemo(xf88_, xf8c_);
         --xf84_;
-        xf88_ = -1;
+        xf88_.Reset();
     }
 
     if (!dying && x904_gameState == EGameState::Running && !x870_cameraManager->IsInCinematicCamera())
@@ -2118,7 +2118,7 @@ void CStateManager::PostUpdatePlayer(float dt)
     x84c_player->PostUpdate(dt, *this);
 }
 
-void CStateManager::ShowPausedHUDMemo(ResId strg, float time)
+void CStateManager::ShowPausedHUDMemo(CAssetId strg, float time)
 {
     xf78_hudMessageTime = time;
     xf08_pauseHudMessage = strg;
@@ -2142,7 +2142,7 @@ void CStateManager::FrameBegin(s32 frameCount)
     x8d4_inputFrameIdx = frameCount;
 }
 
-void CStateManager::InitializeState(ResId mlvlId, TAreaId aid, ResId mreaId)
+void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaId)
 {
     bool hadRandom = x900_activeRandom != nullptr;
     SetActiveRandomToDefault();
@@ -2540,7 +2540,7 @@ std::pair<u32, u32> CStateManager::CalculateScanCompletionRate() const
     u32 num = 0;
     u32 denom = 0;
     int idx = 0;
-    for (const std::pair<u32, float>& scan : x8b8_playerState->GetScanTimes())
+    for (const std::pair<CAssetId, float>& scan : x8b8_playerState->GetScanTimes())
     {
         CSaveWorld::EScanCategory category = g_MemoryCardSys->GetScanStates()[idx++].second;
         if (category != CSaveWorld::EScanCategory::None && category != CSaveWorld::EScanCategory::Research)

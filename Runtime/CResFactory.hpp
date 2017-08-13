@@ -46,7 +46,7 @@ public:
         return x4_loader.GetResourceIdByName(name);
     }
 
-    FourCC GetResourceTypeById(ResId id) const
+    FourCC GetResourceTypeById(CAssetId id) const
     {
         return x4_loader.GetResourceTypeById(id);
     }

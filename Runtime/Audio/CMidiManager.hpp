@@ -13,12 +13,12 @@ public:
     {
         u16 x0_setupId;
         u16 x2_groupId;
-        ResId x4_agscId;
+        CAssetId x4_agscId;
         std::unique_ptr<u8[]> x8_arrData;
     public:
         u16 GetSetupId() const { return x0_setupId; }
         u16 GetGroupId() const { return x2_groupId; }
-        ResId GetAGSCAssetId() const { return x4_agscId; }
+        CAssetId GetAGSCAssetId() const { return x4_agscId; }
         const u8* GetArrData() const { return x8_arrData.get(); }
         CMidiData(CInputStream& in);
     };

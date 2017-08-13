@@ -22,7 +22,7 @@ public:
         void CancelBuild(const SObjectTag&);
         bool CanBuild(const SObjectTag&);
         const SObjectTag* GetResourceIdByName(const char*) const;
-        FourCC GetResourceTypeById(ResId id) const;
+        FourCC GetResourceTypeById(CAssetId id) const;
 
         void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
         void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;

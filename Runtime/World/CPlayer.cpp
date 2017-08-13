@@ -41,12 +41,12 @@ static const CMaterialFilter OccluderFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Occluder},
         {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough, EMaterialTypes::Player});
 
-static CModelData MakePlayerAnimRes(ResId resId, const zeus::CVector3f& scale)
+static CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale)
 {
     return {CAnimRes(resId, 0, scale, 0, true), 1};
 }
 
-CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, ResId resId,
+CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
                  const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float f4,
                  const CMaterialList& ml)
 : CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf,
@@ -64,7 +64,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
     x9c4_27_canEnterMorphBall = true;
     x9c4_28_canLeaveMorphBall = true;
     x9c5_31_ = true;
-    ResId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam);
+    CAssetId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam);
     x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(CStaticRes(beamId, playerScale));
     x730_transitionModels.reserve(3);
     x768_morphball.reset(new CMorphBall(*this, f4));
@@ -528,7 +528,7 @@ bool CPlayer::ValidateScanning(const CFinalInput& input, CStateManager& mgr)
     return false;
 }
 
-static bool IsDataLoreResearchScan(ResId id)
+static bool IsDataLoreResearchScan(CAssetId id)
 {
     auto it = g_MemoryCardSys->LookupScanState(id);
     if (it == g_MemoryCardSys->GetScanStates().cend())
@@ -550,7 +550,7 @@ static const char* UnlockMessageResBases[] =
     "STRG_SlideShow_Unlock2_"
 };
 
-static ResId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 totalLogScans)
+static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 totalLogScans)
 {
     if (prevLogScans == logScans)
         return -1;
@@ -586,7 +586,7 @@ void CPlayer::FinishNewScan(CStateManager& mgr)
                     if (IsDataLoreResearchScan(scanInfo->GetScannableObjectId()))
                     {
                         auto scanCompletion = mgr.CalculateScanCompletionRate();
-                        ResId message = UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(),
+                        CAssetId message = UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(),
                                                                     scanCompletion.first, scanCompletion.second);
                         if (message != -1)
                             mgr.ShowPausedHUDMemo(message, 0.f);
@@ -1453,7 +1453,7 @@ void CPlayer::Stop(CStateManager& stateMgr)
         CPhysicsActor::Stop();
         ClearForcesAndTorques();
         RemoveMaterial(EMaterialTypes::Immovable, stateMgr);
-        if (!stateMgr.GetCameraManager()->IsInCinematicCamera() && xa0c_iceTextureId != kInvalidResId)
+        if (!stateMgr.GetCameraManager()->IsInCinematicCamera() && xa0c_iceTextureId.IsValid())
         {
             std::experimental::optional<TToken<CGenDescription>> gpsm;
             gpsm.emplace(g_SimplePool->GetObj(SObjectTag(FOURCC('PART'), xa0c_iceTextureId)));
@@ -1470,7 +1470,7 @@ void CPlayer::Stop(CStateManager& stateMgr)
     }
 }
 
-void CPlayer::Freeze(CStateManager& stateMgr, ResId steamTxtr, u16 sfx, ResId iceTxtr)
+void CPlayer::Freeze(CStateManager& stateMgr, CAssetId steamTxtr, u16 sfx, CAssetId iceTxtr)
 {
     if (stateMgr.GetCameraManager()->IsInCinematicCamera() || GetFrozenState())
         return;
@@ -1758,12 +1758,12 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     default: break;
     }
 
-    x490_gun->AcceptScriptMessage(msg, sender, mgr);
-    x768_morphball->AcceptScriptMessage(msg, sender, mgr);
+    x490_gun->AcceptScriptMsg(msg, sender, mgr);
+    x768_morphball->AcceptScriptMsg(msg, sender, mgr);
     CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CPlayer::SetVisorSteam(float f1, float f2, float f3, ResId txtr, bool affectsThermal)
+void CPlayer::SetVisorSteam(float f1, float f2, float f3, CAssetId txtr, bool affectsThermal)
 {
     x7a0_visorSteam.SetSteam(f1, f2, f3, txtr, affectsThermal);
 }
@@ -4227,9 +4227,9 @@ void CPlayer::Touch(CActor& actor, CStateManager& mgr)
         x768_morphball->Touch(actor, mgr);
 }
 
-void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId txtr, bool affectsThermal)
+void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, CAssetId txtr, bool affectsThermal)
 {
-    if (x1c_txtr == kInvalidResId || a > x10_)
+    if (x1c_txtr.IsValid() || a > x10_)
     {
         x10_ = a;
         x14_ = b;
@@ -4239,11 +4239,11 @@ void CPlayer::CVisorSteam::SetSteam(float a, float b, float c, ResId txtr, bool 
     x28_affectsThermal = affectsThermal;
 }
 
-ResId CPlayer::CVisorSteam::GetTextureId() const { return xc_tex; }
+CAssetId CPlayer::CVisorSteam::GetTextureId() const { return xc_tex; }
 
 void CPlayer::CVisorSteam::Update(float dt)
 {
-    if (x1c_txtr == kInvalidResId)
+    if (!x1c_txtr.IsValid())
         x0_ = 0.f;
     else
     {
@@ -4253,7 +4253,7 @@ void CPlayer::CVisorSteam::Update(float dt)
         xc_tex = x1c_txtr;
     }
 
-    x1c_txtr = kInvalidResId;
+    x1c_txtr.Reset();
     if ((x20_alpha - x0_) < 0.000009999f || std::fabs(x20_alpha) > 0.000009999f)
         return;
 

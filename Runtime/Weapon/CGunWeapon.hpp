@@ -59,7 +59,7 @@ protected:
     CVelocityInfo x1d0_velInfo;
     CPlayerState::EBeamId x200_beamId;
 public:
-    CGunWeapon(ResId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes, const zeus::CVector3f& vec);
+    CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes, const zeus::CVector3f& vec);
     void AsyncLoadSuitArm(CStateManager& mgr);
     void AllocResPools(CPlayerState::EBeamId);
 

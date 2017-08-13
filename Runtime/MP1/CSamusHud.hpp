@@ -277,12 +277,12 @@ public:
         SetMessage(text, info);
     }
     void SetMessage(const std::u16string& text, const CHUDMemoParms& info);
-    static void DeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info)
+    static void DeferHintMemo(CAssetId strg, u32 strgIdx, const CHUDMemoParms& info)
     {
         if (g_SamusHud)
             g_SamusHud->InternalDeferHintMemo(strg, strgIdx, info);
     }
-    void InternalDeferHintMemo(ResId strg, u32 strgIdx, const CHUDMemoParms& info);
+    void InternalDeferHintMemo(CAssetId strg, u32 strgIdx, const CHUDMemoParms& info);
     CGuiFrame* GetBaseHudFrame() const { return x274_loadedFrmeBaseHud; }
 };
 

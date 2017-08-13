@@ -12,13 +12,13 @@ class CSimplePool;
 class CGuiModel : public CGuiWidget
 {
     TLockedToken<CModel> xf8_model;
-    ResId x108_modelId;
+    CAssetId x108_modelId;
     u32 x10c_lightMask;
 public:
-    CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, ResId modelId, u32 lightMask, bool flag);
+    CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag);
     FourCC GetWidgetTypeID() const { return FOURCC('MODL'); }
 
-    std::vector<ResId> GetModelAssets() const;
+    std::vector<CAssetId> GetModelAssets() const;
     bool GetIsFinishedLoadingWidgetSpecific() const;
     void Touch() const;
     void Draw(const CGuiWidgetDrawParms& parms) const;

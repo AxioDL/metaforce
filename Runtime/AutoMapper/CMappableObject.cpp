@@ -162,7 +162,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo,
     }
     else
     {
-        ResId iconRes;
+        CAssetId iconRes;
         zeus::CColor iconColor = zeus::CColor::skWhite;
         switch (x0_type)
         {
