@@ -25,30 +25,16 @@ private:
     float x1f4_morphOutTime;
     float x1f8_morphFactor = 0.f;
     std::list<std::pair<TUniqueId, bool>> x1fc_waterInhabitants;
-<<<<<<< HEAD
     float x214_fogBias;
     float x218_fogMagnitude;
     float x21c_origFogBias;
     float x220_origFogMagnitude;
     float x224_fogSpeed;
     zeus::CColor x228_fogColor;
-    ResId x22c_splashParticle1Id;
-    ResId x230_splashParticle2Id;
-    ResId x234_splashParticle3Id;
-    ResId x238_particle4Id;
-=======
-    u32 x210_;
-    float x214_;
-    float x218_;
-    float x21c_;
-    float x220_;
-    float x224_;
-    zeus::CColor x228_;
     CAssetId x22c_splashParticle1Id;
     CAssetId x230_splashParticle2Id;
     CAssetId x234_splashParticle3Id;
     CAssetId x238_particle4Id;
->>>>>>> 11d4aad746973443508adbff80b9da9eb0b4c60c
     std::experimental::optional<TLockedToken<CGenDescription>> x23c_;
     CAssetId x24c_particle5Id;
     std::experimental::optional<TLockedToken<CGenDescription>> x250_visorRunoffEffect;
@@ -117,8 +103,8 @@ public:
     void Touch(CActor &, CStateManager &);
     void CalculateRenderBounds();
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
-    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&, CWeaponMode&,
-                                                           int);
+    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                           const CWeaponMode&, int) const;
 
     s16 GetSplashSound(float) const;
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;
@@ -141,6 +127,7 @@ public:
     u8 GetPatchRenderFlags(int x, int y) const { return x2e0_patchIntersects[y * x2d0_patchDimX + x]; }
     int GetPatchDimensionX() const { return x2d0_patchDimX; }
     int GetPatchDimensionY() const { return x2d4_patchDimY; }
+    bool CanRippleAtPoint(const zeus::CVector3f& point) const;
 };
 }
 

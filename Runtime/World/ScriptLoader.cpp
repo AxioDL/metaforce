@@ -1111,14 +1111,14 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
     CDamageVulnerability dVuln(in);
     u32 triggerFlags = in.readUint32Big();
     triggerFlags = TransformDamagableTriggerFlags(mgr, info.GetAreaId(), triggerFlags);
-    CAssetId w1 = in.readUint32Big();
-    CAssetId w2 = in.readUint32Big();
-    CAssetId w3 = in.readUint32Big();
+    CAssetId patternTex1 = in.readUint32Big();
+    CAssetId patternTex2 = in.readUint32Big();
+    CAssetId colorTex = in.readUint32Big();
     CScriptDamageableTrigger::ECanOrbit canOrbit = CScriptDamageableTrigger::ECanOrbit(in.readBool());
     bool active = in.readBool();
     CVisorParameters vParms = LoadVisorParameters(in);
     return new CScriptDamageableTrigger(mgr.AllocateUniqueId(), name, info, position, volume, hInfo, dVuln,
-                                        triggerFlags, w1, w2, w3, canOrbit, active, vParms);
+                                        triggerFlags, patternTex1, patternTex2, colorTex, canOrbit, active, vParms);
 }
 
 CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

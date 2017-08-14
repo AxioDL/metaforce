@@ -214,7 +214,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     if (x2f8_morphTransState == EPlayerMorphBallState::Morphed)
     {
         x768_morphball->FluidFXThink(state, water, mgr);
-        if (state == EFluidState::One)
+        if (state == EFluidState::InFluid)
             x9c5_30_ = true;
     }
     else if (x2f8_morphTransState != EPlayerMorphBallState::Unmorphed)
@@ -224,7 +224,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
             zeus::CVector3f position(x34_transform.origin);
             position.z = water.GetTriggerBoundsWR().max.z;
             mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.1f,
-                                                     state == EFluidState::Zero);
+                                                     state == EFluidState::EnteredFluid);
         }
     }
     else
@@ -236,7 +236,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
                 posOffset = posOffset.normalized() * zeus::CVector3f(1.2f, 1.2f, 0.f);
             switch (state)
             {
-            case EFluidState::Zero:
+            case EFluidState::EnteredFluid:
             {
                 bool doSplash = true;
                 if (x4fc_ > 12.5f)
@@ -260,18 +260,18 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
                 }
                 break;
             }
-            case EFluidState::One:
+            case EFluidState::InFluid:
             {
                 if (x138_velocity.magnitude() > 1.f &&
                     mgr.GetFluidPlaneManager()->GetLastRippleDeltaTime(x8_uid) >= 0.2f)
                 {
                     zeus::CVector3f position(x34_transform.origin);
                     position.z = water.GetTriggerBoundsWR().max.z;
-                    water.GetFluidPlane().Ripple(0.5f, x8_uid, position, water, mgr);
+                    water.GetFluidPlane().AddRipple(0.5f, x8_uid, position, water, mgr);
                 }
                 break;
             }
-            case EFluidState::Two:
+            case EFluidState::LeftFluid:
             {
                 zeus::CVector3f position = x34_transform.origin + posOffset;
                 position.z = water.GetTriggerBoundsWR().max.z;

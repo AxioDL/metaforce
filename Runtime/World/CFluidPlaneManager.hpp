@@ -49,6 +49,7 @@ public:
                       const zeus::CVector3f& pos, float factor, bool);
     rstl::reserved_vector<CSplashRecord, 32>& SplashRecords() { return x18_splashes; }
     const CRippleManager& GetRippleManager() const { return x0_rippleManager; }
+    CRippleManager& RippleManager() { return x0_rippleManager; }
 };
 
 }

@@ -23,9 +23,9 @@ struct CTweakGame : ITweakGame
     Value<float> x34_wavecapIntensityNormal;
     Value<float> x38_wavecapIntensityPoison;
     Value<float> x3c_wavecapIntensityLava;
-    Value<float> x40_unknown10;
-    Value<float> x44_unknown11;
-    Value<float> x48_unknown12;
+    Value<float> x40_rippleIntensityNormal;
+    Value<float> x44_rippleIntentityPoison;
+    Value<float> x48_rippleIntensityLava;
     Value<float> x4c_fluidEnvBumpScale;
     Value<float> x50_unknown14;
     Value<float> x54_unknown15;
@@ -41,6 +41,9 @@ struct CTweakGame : ITweakGame
     float GetWavecapIntensityNormal() const { return x34_wavecapIntensityNormal; }
     float GetWavecapIntensityPoison() const { return x38_wavecapIntensityPoison; }
     float GetWavecapIntensityLava() const { return x3c_wavecapIntensityLava; }
+    float GetRippleIntensityNormal() const { return x40_rippleIntensityNormal; }
+    float GetRippleIntensityPoison() const { return x44_rippleIntentityPoison; }
+    float GetRippleIntensityLava() const { return x48_rippleIntensityLava; }
     float GetFluidEnvBumpScale() const { return x4c_fluidEnvBumpScale; }
     float GetHardModeDamageMultiplier() const { return x60_hardmodeDamageMult; }
     float GetHardModeWeaponMultiplier() const { return x64_hardmodeWeaponMult; }

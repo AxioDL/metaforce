@@ -231,7 +231,41 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts)
 
 void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr)
 {
-    // TODO: Do
+    for (auto it = x1fc_waterInhabitants.begin() ; it != x1fc_waterInhabitants.end() ;)
+    {
+        auto& inhab = *it;
+        TCastToPtr<CActor> act = mgr.ObjectById(inhab.first);
+        bool intersects = false;
+        if (act)
+        {
+            if (auto tb = act->GetTouchBounds())
+            {
+                zeus::CAABox thisTb = GetTriggerBoundsWR();
+                if (tb->min.z <= thisTb.max.z && tb->max.z >= thisTb.max.z)
+                    intersects = true;
+            }
+        }
+
+        if (act && inhab.second)
+        {
+            if (intersects)
+                act->FluidFXThink(EFluidState::InFluid, *this, mgr);
+            mgr.SendScriptMsg(act.GetPtr(), GetUniqueId(), EScriptObjectMessage::UpdateSplashInhabitant);
+            inhab.second = false;
+        }
+        else
+        {
+            it = x1fc_waterInhabitants.erase(it);
+            if (act)
+            {
+                if (intersects)
+                    act->FluidFXThink(EFluidState::LeftFluid, *this, mgr);
+                mgr.SendScriptMsg(act.GetPtr(), GetUniqueId(), EScriptObjectMessage::RemoveSplashInhabitant);
+            }
+            continue;
+        }
+        ++it;
+    }
 }
 
 void CScriptWater::Think(float dt, CStateManager& mgr)
@@ -486,7 +520,7 @@ void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr)
     x1fc_waterInhabitants.emplace_back(otherAct.GetUniqueId(), true);
     float triggerMaxZ = GetTriggerBoundsWR().max.z;
     if (touchBounds->min.z <= triggerMaxZ && touchBounds->max.z >= triggerMaxZ)
-        otherAct.FluidFXThink(EFluidState::Zero, *this, mgr);
+        otherAct.FluidFXThink(EFluidState::EnteredFluid, *this, mgr);
 
     mgr.SendScriptMsg(&otherAct, x8_uid, EScriptObjectMessage::AddSplashInhabitant);
 }
@@ -510,11 +544,7 @@ zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager& mgr) const
 }
 
 EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-<<<<<<< HEAD
-                                                                     CWeaponMode&, int)
-=======
                                                                      const CWeaponMode&, int) const
->>>>>>> 11d4aad746973443508adbff80b9da9eb0b4c60c
 {
     return EWeaponCollisionResponseTypes::Water;
 }
@@ -565,5 +595,21 @@ const CScriptWater* CScriptWater::GetNextConnectedWater(const CStateManager& mgr
                 return water.GetPtr();
     }
     return nullptr;
+}
+
+bool CScriptWater::CanRippleAtPoint(const zeus::CVector3f& point) const
+{
+    if (!x2d8_tileIntersects)
+        return true;
+
+    auto xTile = int((point.x - GetTriggerBoundsOR().min.x) / x2c0_tileSize);
+    if (xTile < 0 || xTile >= x2c4_gridDimX)
+        return false;
+
+    auto yTile = int((point.y - GetTriggerBoundsOR().min.y) / x2c0_tileSize);
+    if (xTile < 0 || xTile >= x2c8_gridDimY)
+        return false;
+
+    return x2d8_tileIntersects[yTile * x2c4_gridDimX + xTile];
 }
 }

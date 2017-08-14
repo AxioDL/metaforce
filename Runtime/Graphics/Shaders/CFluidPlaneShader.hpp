@@ -35,6 +35,17 @@ struct SFluidPlaneShaderInfo
       {}
 };
 
+struct SFluidPlaneDoorShaderInfo
+{
+    bool m_hasPatternTex1;
+    bool m_hasPatternTex2;
+    bool m_hasColorTex;
+
+    SFluidPlaneDoorShaderInfo(bool hasPatternTex1, bool hasPatternTex2, bool hasColorTex)
+    : m_hasPatternTex1(hasPatternTex1), m_hasPatternTex2(hasPatternTex2), m_hasColorTex(hasColorTex)
+    {}
+};
+
 class CFluidPlaneShader
 {
 public:
@@ -59,13 +70,30 @@ public:
         : m_pos(position), m_norm(normal), m_binorm(binormal), m_tangent(tangent), m_color(color) {}
     };
 
+    struct RenderSetupInfo
+    {
+        zeus::CMatrix4f texMtxs[6];
+        zeus::CMatrix4f normMtx;
+        float indScale = 1.f;
+        zeus::CColor kColors[4];
+        std::vector<CLight> lights;
+    };
+
 private:
     class Cache
     {
         std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*> m_cache[1024] = {};
+        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*> m_doorCache[8] = {};
+        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*>&
+        CacheSlot(const SFluidPlaneShaderInfo& info, int i) { return m_cache[i]; }
+        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*>&
+        CacheSlot(const SFluidPlaneDoorShaderInfo& info, int i) { return m_doorCache[i]; }
         static u16 MakeCacheKey(const SFluidPlaneShaderInfo& info);
+        static u16 MakeCacheKey(const SFluidPlaneDoorShaderInfo& info);
     public:
-        boo::IShaderPipeline* GetOrBuildShader(const SFluidPlaneShaderInfo& info);
+        template<class T>
+        boo::IShaderPipeline* GetOrBuildShader(const T& info);
+        void Clear();
     };
     static Cache _cache;
 
@@ -91,20 +119,25 @@ private:
     boo::IShaderDataBinding* m_dataBind;
 
     static boo::IShaderPipeline* BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::GLDataFactory::Context& ctx, boo::IShaderPipeline* pipeline);
+    static boo::IShaderPipeline* BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
+    boo::IShaderDataBinding* BuildBinding(boo::GLDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
 #if _WIN32
     static boo::IShaderPipeline* BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::ID3DDataFactory::Context& ctx, boo::IShaderPipeline* pipeline);
+    static boo::IShaderPipeline* BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
+    boo::IShaderDataBinding* BuildBinding(boo::ID3DDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
 #endif
 #if BOO_HAS_METAL
     static boo::IShaderPipeline* BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::MetalDataFactory::Context& ctx, boo::IShaderPipeline* pipeline);
+    static boo::IShaderPipeline* BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
+    boo::IShaderDataBinding* BuildBinding(boo::MetalDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
 #endif
 #if BOO_HAS_VULKAN
     static boo::IShaderPipeline* BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::VulkanDataFactory::Context& ctx, boo::IShaderPipeline* pipeline);
+    static boo::IShaderPipeline* BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
+    boo::IShaderDataBinding* BuildBinding(boo::VulkanDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
 #endif
 
+    void PrepareBinding(boo::IShaderPipeline* pipeline, u32 maxVertCount, bool door);
 public:
     CFluidPlaneShader(CFluidPlane::EFluidType type,
                       const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
@@ -115,9 +148,14 @@ public:
                       const std::experimental::optional<TLockedToken<CTexture>>& envBumpMap,
                       const std::experimental::optional<TLockedToken<CTexture>>& lightmap,
                       bool doubleLightmapBlend, bool additive, u32 maxVertCount);
-    void prepareDraw(const zeus::CMatrix4f* texMtxs, const zeus::CMatrix4f& normMtx, float indScale,
-                     const std::vector<CLight>& lights, const zeus::CColor* kColors);
+    CFluidPlaneShader(const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
+                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
+                      const std::experimental::optional<TLockedToken<CTexture>>& colorTex,
+                      u32 maxVertCount);
+    void prepareDraw(const RenderSetupInfo& info);
     void loadVerts(const std::vector<Vertex>& verts);
+
+    static void Shutdown() { _cache.Clear(); }
 };
 
 }

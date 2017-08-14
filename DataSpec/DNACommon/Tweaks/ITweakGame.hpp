@@ -15,6 +15,9 @@ struct ITweakGame : ITweak
     virtual float GetWavecapIntensityNormal() const = 0;
     virtual float GetWavecapIntensityPoison() const = 0;
     virtual float GetWavecapIntensityLava() const = 0;
+    virtual float GetRippleIntensityNormal() const = 0;
+    virtual float GetRippleIntensityPoison() const = 0;
+    virtual float GetRippleIntensityLava() const = 0;
     virtual float GetFluidEnvBumpScale() const = 0;
     virtual float GetHardModeDamageMultiplier() const = 0;
     virtual float GetHardModeWeaponMultiplier() const = 0;

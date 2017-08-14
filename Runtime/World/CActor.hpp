@@ -79,9 +79,9 @@ protected:
 public:
     enum class EFluidState
     {
-        Zero,
-        One,
-        Two
+        EnteredFluid,
+        InFluid,
+        LeftFluid
     };
 
     enum class EScanState
@@ -180,6 +180,7 @@ public:
     float GetAverageAnimVelocity(int anim) const;
     u8 GetTargetableVisorFlags() const { return xe6_31_targetableVisorFlags; }
     bool GetIsTargetable() const { return xe7_31_targetable; }
+    void SetDrawFlags(const CModelFlags& flags) { xb4_drawFlags = flags; }
 };
 }
 

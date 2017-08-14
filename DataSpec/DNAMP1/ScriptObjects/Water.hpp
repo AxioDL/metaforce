@@ -84,7 +84,7 @@ struct Water : IScriptObject
     Value<float> fogBias;
     Value<float> fogMagnitude;
     Value<float> fogSpeed;
-    Value<atVec4f> fogColor; // CColor
+    Value<atVec4f> fogColor;
     UniqueID32 lightmap;
     Value<float> unitsPerLightmapTexel;
     Value<float> alphaInTime;
@@ -116,52 +116,52 @@ struct Water : IScriptObject
         if (patternMap1)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap1);
-            ent->name = name + "_tex1";
+            ent->name = name + "_patternMap1";
         }
         if (patternMap2)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap2);
-            ent->name = name + "_tex2";
+            ent->name = name + "_patternMap2";
         }
         if (colorMap)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(colorMap);
-            ent->name = name + "_tex3";
+            ent->name = name + "_colorMap";
         }
         if (bumpMap)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(bumpMap);
-            ent->name = name + "_tex4";
+            ent->name = name + "_bumpMap";
         }
         if (envMap)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(envMap);
-            ent->name = name + "_tex5";
+            ent->name = name + "_envMap";
         }
         if (envBumpMap)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(envBumpMap);
-            ent->name = name + "_tex6";
+            ent->name = name + "_envBumpMap";
         }
         if (lightmap)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(lightmap);
-            ent->name = name + "_tex34";
+            ent->name = name + "_lightmap";
         }
         if (splashParticle1)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle1);
-            ent->name = name + "_part1";
+            ent->name = name + "_splashParticle1";
         }
         if (splashParticle2)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle2);
-            ent->name = name + "_part2";
+            ent->name = name + "_splashParticle2";
         }
         if (splashParticle3)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle3);
-            ent->name = name + "_part3";
+            ent->name = name + "_splashParticle3";
         }
         if (particle4)
         {

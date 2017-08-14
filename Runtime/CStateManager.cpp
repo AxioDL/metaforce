@@ -1576,7 +1576,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
                     {
                         float bombMag = powerBomb ? 1.f : 0.75f;
                         float mag = 0.6f * bombMag + 0.4f * bombMag * std::sin(2.f * M_PIF * rippleFactor * 0.25f);
-                        water->GetFluidPlane().Ripple(mag, damager.GetUniqueId(), hitPos, *water, *this);
+                        water->GetFluidPlane().AddRipple(mag, damager.GetUniqueId(), hitPos, *water, *this);
                     }
                     if (!powerBomb)
                         x87c_fluidPlaneManager->CreateSplash(damager.GetUniqueId(), *this, *water, hitPos, rippleFactor, true);
@@ -1594,7 +1594,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
                     {
                         // Not blocked by static geometry
                         float mag = 0.6f * bombMag + 0.4f * bombMag * std::sin(2.f * M_PIF * -delta / bombMag * 0.25f);
-                        water->GetFluidPlane().Ripple(mag, damager.GetUniqueId(), hitPos, *water, *this);
+                        water->GetFluidPlane().AddRipple(mag, damager.GetUniqueId(), hitPos, *water, *this);
                     }
                 }
             }

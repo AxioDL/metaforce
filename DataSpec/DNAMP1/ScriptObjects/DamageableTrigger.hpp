@@ -17,38 +17,38 @@ struct DamageableTrigger : IScriptObject
     Value<atVec3f> volume;
     HealthInfo healthInfo;
     DamageVulnerability damageVulnerabilty;
-    Value<atUint32> unknown1;
-    UniqueID32 texture1;
-    UniqueID32 texture2;
-    UniqueID32 texture3;
+    Value<atUint32> faceFlag;
+    UniqueID32 patternTex1;
+    UniqueID32 patternTex2;
+    UniqueID32 colorTex;
     Value<bool> lockOn;
     Value<bool> active;
     VisorParameters visorParameters;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {
-        if (texture1)
+        if (patternTex1)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
-            ent->name = name + "_texture1";
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternTex1);
+            ent->name = name + "_patternTex1";
         }
-        if (texture2)
+        if (patternTex2)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
-            ent->name = name + "_texture2";
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternTex2);
+            ent->name = name + "_patternTex2";
         }
-        if (texture3)
+        if (colorTex)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture3);
-            ent->name = name + "_texture3";
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(colorTex);
+            ent->name = name + "_colorTex";
         }
     }
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
-        g_curSpec->flattenDependencies(texture1, pathsOut);
-        g_curSpec->flattenDependencies(texture2, pathsOut);
-        g_curSpec->flattenDependencies(texture3, pathsOut);
+        g_curSpec->flattenDependencies(patternTex1, pathsOut);
+        g_curSpec->flattenDependencies(patternTex2, pathsOut);
+        g_curSpec->flattenDependencies(colorTex, pathsOut);
     }
 
     zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const

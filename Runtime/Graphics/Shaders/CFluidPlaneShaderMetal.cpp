@@ -125,6 +125,29 @@ static const char* FS =
 "    return colorOut;\n"
 "}\n";
 
+static const char* FSDoor =
+"#include <metal_stdlib>\n"
+"using namespace metal;\n"
+"constexpr sampler samp(address::repeat, filter::linear);\n"
+"\n"
+"struct VertToFrag\n"
+"{\n"
+"    float4 pos : [[ position ]];\n"
+"    float4 mvPos;\n"
+"    float4 mvNorm;\n"
+"    float4 mvBinorm;\n"
+"    float4 mvTangent;\n"
+"    float4 color;\n"
+"    float2 uvs[7];\n"
+"};\n"
+"\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]]%s)\n" // Textures here
+"{\n"
+"    float4 colorOut;\n"
+"%s" // Combiner expression here
+"    return colorOut;\n"
+"}\n";
+
 boo::IShaderPipeline*
 CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
@@ -451,8 +474,63 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
                                  boo::CullMode::None);
 }
 
+boo::IShaderPipeline*
+CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
+{
+    if (s_vtxFmt == nullptr)
+    {
+        boo::VertexElementDescriptor elements[] =
+        {
+            {nullptr, nullptr, boo::VertexSemantic::Position4},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 0},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 1},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 2},
+            {nullptr, nullptr, boo::VertexSemantic::Color}
+        };
+        s_vtxFmt = ctx.newVertexFormat(5, elements);
+    }
+
+    std::string additionalTCGs;
+    std::string textures;
+    std::string combiner;
+    int nextTex = 0;
+
+    if (info.m_hasPatternTex1)
+        textures += hecl::Format(",\ntexture2d<float> patternTex1 [[ texture(%d) ]]", nextTex++);
+    if (info.m_hasPatternTex2)
+        textures += hecl::Format(",\ntexture2d<float> patternTex2 [[ texture(%d) ]]", nextTex++);
+    if (info.m_hasColorTex)
+        textures += hecl::Format(",\ntexture2d<float> colorTex [[ texture(%d) ]]", nextTex++);
+
+    // Tex0 * kColor0 * Tex1 + Tex2
+    if (info.m_hasPatternTex1 && info.m_hasPatternTex2)
+    {
+        combiner += "    colorOut = patternTex1.sample(samp, vtf.uvs[0]) * lu.kColor0 *\n"
+                    "               patternTex2.sample(samp, vtf.uvs[1]);\n";
+    }
+    else
+    {
+        combiner += "    colorOut = float4(0.0);\n";
+    }
+
+    if (info.m_hasColorTex)
+    {
+        combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]);\n";
+    }
+
+    combiner += "    colorOut.a = kColor0.a;\n";
+
+    std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
+    std::string finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
+
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), s_vtxFmt, CGraphics::g_ViewportSamples,
+                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                 boo::CullMode::None);
+}
+
 boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline)
+                                                         boo::IShaderPipeline* pipeline, bool door)
 {
     boo::IGraphicsBuffer* ubufs[] = { m_uniBuf, m_uniBuf, m_uniBuf };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
@@ -475,8 +553,8 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, 1, ubufs, ubufStages, ubufOffs,
-                                    ubufSizes, texCount, texs, nullptr, nullptr);
+    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+                                    ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 
 }

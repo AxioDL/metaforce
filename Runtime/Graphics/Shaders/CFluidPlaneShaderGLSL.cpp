@@ -115,6 +115,28 @@ BOO_GLSL_BINDING_HEAD
 "%s" // Combiner expression here
 "}\n";
 
+static const char* FSDoor =
+"#version 330\n"
+BOO_GLSL_BINDING_HEAD
+"\n"
+"struct VertToFrag\n"
+"{\n"
+"    vec4 mvPos;\n"
+"    vec4 mvNorm;\n"
+"    vec4 mvBinorm;\n"
+"    vec4 mvTangent;\n"
+"    vec4 color;\n"
+"    vec2 uvs[7];\n"
+"};\n"
+"\n"
+"SBINDING(0) in VertToFrag vtf;\n"
+"layout(location=0) out vec4 colorOut;\n"
+"%s" // Textures here
+"void main()\n"
+"{\n"
+"%s" // Combiner expression here
+"}\n";
+
 static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTex, const char* texNames[7],
                          const SFluidPlaneShaderInfo& info)
 {
@@ -442,6 +464,51 @@ static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTe
     finalFS = hecl::Format(FS, textures.c_str(), combiner.c_str());
 }
 
+static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTex, const char* texNames[3],
+                         const SFluidPlaneDoorShaderInfo& info)
+{
+    std::string additionalTCGs;
+    std::string textures;
+    std::string combiner;
+
+    if (info.m_hasPatternTex1)
+    {
+        texNames[nextTex] = "patternTex1";
+        textures += hecl::Format("TBINDING%d uniform sampler2D patternTex1;\n", nextTex++);
+    }
+    if (info.m_hasPatternTex2)
+    {
+        texNames[nextTex] = "patternTex2";
+        textures += hecl::Format("TBINDING%d uniform sampler2D patternTex2;\n", nextTex++);
+    }
+    if (info.m_hasColorTex)
+    {
+        texNames[nextTex] = "colorTex";
+        textures += hecl::Format("TBINDING%d uniform sampler2D colorTex;\n", nextTex++);
+    }
+
+    // Tex0 * kColor0 * Tex1 + Tex2
+    if (info.m_hasPatternTex1 && info.m_hasPatternTex2)
+    {
+        combiner += "    colorOut = texture(patternTex1, vtf.uvs[0]) * kColor0 *\n"
+                    "               texture(patternTex2, vtf.uvs[1]);\n";
+    }
+    else
+    {
+        combiner += "    colorOut = vec4(0.0);\n";
+    }
+
+    if (info.m_hasColorTex)
+    {
+        combiner += "    colorOut += texture(colorTex, vtf.uvs[2]);\n";
+    }
+
+    combiner += "    colorOut.a = kColor0.a;\n";
+
+    finalVS = hecl::Format(VS, additionalTCGs.c_str());
+    finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
+}
+
 boo::IShaderPipeline*
 CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
@@ -453,6 +520,20 @@ CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPla
     return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), size_t(nextTex), texNames, 3, uniNames,
                                  info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
                                  info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
+                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                 boo::CullMode::None);
+}
+
+boo::IShaderPipeline*
+CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
+{
+    int nextTex = 0;
+    const char* texNames[3] = {};
+    std::string finalVS, finalFS;
+    _BuildShader(finalVS, finalFS, nextTex, texNames, info);
+    const char* uniNames[] = {"FluidPlaneUniform"};
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), size_t(nextTex), texNames, 1, uniNames,
+                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                  boo::CullMode::None);
 }
@@ -486,10 +567,36 @@ CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFlui
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                  boo::CullMode::None);
 }
+
+boo::IShaderPipeline*
+CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
+{
+    if (s_vtxFmt == nullptr)
+    {
+        boo::VertexElementDescriptor elements[] =
+        {
+            {nullptr, nullptr, boo::VertexSemantic::Position4},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 0},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 1},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 2},
+            {nullptr, nullptr, boo::VertexSemantic::Color}
+        };
+        s_vtxFmt = ctx.newVertexFormat(5, elements);
+    }
+
+    int nextTex = 0;
+    const char* texNames[3] = {};
+    std::string finalVS, finalFS;
+    _BuildShader(finalVS, finalFS, nextTex, texNames, info);
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), s_vtxFmt,
+                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                 boo::CullMode::None);
+}
 #endif
 
 boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline)
+                                                         boo::IShaderPipeline* pipeline, bool door)
 {
     boo::VertexElementDescriptor elements[] =
     {
@@ -521,13 +628,13 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Con
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, vtxFmt, m_vbo, nullptr, nullptr, 1, ubufs, ubufStages, ubufOffs,
-                                    ubufSizes, texCount, texs, nullptr, nullptr);
+    return ctx.newShaderDataBinding(pipeline, vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+                                    ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 
 #if BOO_HAS_VULKAN
 boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline)
+                                                         boo::IShaderPipeline* pipeline, bool door)
 {
     boo::IGraphicsBuffer* ubufs[] = { m_uniBuf, m_uniBuf, m_uniBuf };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
@@ -550,8 +657,8 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory:
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, 1, ubufs, ubufStages, ubufOffs,
-                                    ubufSizes, texCount, texs, nullptr, nullptr);
+    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+                                    ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 #endif
 

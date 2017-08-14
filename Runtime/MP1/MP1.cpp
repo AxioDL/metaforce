@@ -14,6 +14,7 @@
 #include "Graphics/Shaders/CPhazonSuitFilter.hpp"
 #include "Graphics/Shaders/CScanLinesFilter.hpp"
 #include "Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Graphics/Shaders/CFluidPlaneShader.hpp"
 #include "Character/CCharLayoutInfo.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -369,6 +370,7 @@ void CMain::Shutdown()
     TMultiBlendShader<CTextSupportShader>::Shutdown();
     TMultiBlendShader<CScanLinesFilter>::Shutdown();
     TMultiBlendShader<CRandomStaticFilter>::Shutdown();
+    CFluidPlaneShader::Shutdown();
 }
 
 boo::IWindow* CMain::GetMainWindow() const

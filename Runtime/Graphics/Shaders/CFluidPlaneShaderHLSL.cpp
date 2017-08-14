@@ -119,6 +119,27 @@ static const char* FS =
 "    return colorOut;\n"
 "}\n";
 
+static const char* FSDoor =
+"struct VertToFrag\n"
+"{\n"
+"    float4 pos : SV_Position;\n"
+"    float4 mvPos : POSITION;\n"
+"    float4 mvNorm : NORMAL;\n"
+"    float4 mvBinorm : BINORMAL;\n"
+"    float4 mvTangent : TANGENT;\n"
+"    float4 color : COLOR;\n"
+"    float2 uvs[7] : UV;\n"
+"};\n"
+"\n"
+"SamplerState samp : register(s0);\n"
+"%s" // Textures here
+"float4 main(in VertToFrag vtf)\n"
+"{\n"
+"    float4 colorOut;\n"
+"%s" // Combiner expression here
+"    return colorOut;\n"
+"}\n";
+
 boo::IShaderPipeline*
 CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
@@ -198,12 +219,12 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
                 // Output reg 2
                 // KColor 3
                 // Tex * K2 + Lighting
-                combiner += "    lighting += mix(lightMapTexel * lu.kColor2, lightMapTexel, lu.kColor3);\n";
+                combiner += "    lighting += mix(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
             }
             else
             {
                 // mix(Tex * K2, Tex, K3) + Lighting
-                combiner += "    lighting += lightMapTexel * lu.kColor2;\n";
+                combiner += "    lighting += lightMapTexel * kColor2;\n";
             }
         }
 
@@ -224,7 +245,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * lu.kColor0 + lighting) *\n"
+                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + lighting) *\n"
                             "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
             else
                 combiner += "    colorOut = lighting * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
@@ -239,7 +260,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
         {
             // Make previous stage indirect, mtx0
             combiner += hecl::Format("    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
-                                     "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
+                                     "        float2(fog.indScale, -fog.indScale);", envBumpMapUv);
             combiner += "    colorOut += colorTex.Sample(samp, indUvs + vtf.uvs[2]) * lighting;\n";
         }
         else if (info.m_hasEnvMap)
@@ -253,8 +274,8 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
             if (info.m_hasColorTex)
                 combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;\n";
             combiner += hecl::Format("    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
-                                     "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
-            combiner += hecl::Format("    colorOut = mix(colorOut, envMap.Sample(samp, indUvs + vtf.uvs[%d]), lu.kColor1);\n",
+                                     "        float2(fog.indScale, -fog.indScale);", envBumpMapUv);
+            combiner += hecl::Format("    colorOut = mix(colorOut, envMap.Sample(samp, indUvs + vtf.uvs[%d]), kColor1);\n",
                                      envMapUv);
         }
         else if (info.m_hasColorTex)
@@ -279,12 +300,12 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
                 // Output reg 2
                 // KColor 3
                 // Tex * K2 + Lighting
-                combiner += "    lighting += mix(lightMapTexel * lu.kColor2, lightMapTexel, lu.kColor3);\n";
+                combiner += "    lighting += mix(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
             }
             else
             {
                 // mix(Tex * K2, Tex, K3) + Lighting
-                combiner += "    lighting += lightMapTexel * lu.kColor2;\n";
+                combiner += "    lighting += lightMapTexel * kColor2;\n";
             }
         }
 
@@ -305,7 +326,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * lu.kColor0 + lighting) *\n"
+                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + lighting) *\n"
                             "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
             else
                 combiner += "    colorOut = lighting * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
@@ -321,7 +342,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
             {
                 // Make previous stage indirect, mtx0
                 combiner += hecl::Format("    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
-                                         "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
+                                         "        float2(fog.indScale, -fog.indScale);", envBumpMapUv);
                 combiner += "    colorOut += colorTex.Sample(samp, indUvs + vtf.uvs[2]) * lighting;\n";
             }
             else
@@ -350,7 +371,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * lu.kColor0 + vtf.color) *\n"
+                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + vtf.color) *\n"
                             "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
             else
                 combiner += "    colorOut = vtf.color * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
@@ -408,7 +429,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * lu.kColor0 + vtf.color) *\n"
+                combiner += "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + vtf.color) *\n"
                             "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
             else
                 combiner += "    colorOut = vtf.color * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
@@ -445,8 +466,63 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
                                  boo::CullMode::None);
 }
 
+boo::IShaderPipeline*
+CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
+{
+    if (s_vtxFmt == nullptr)
+    {
+        boo::VertexElementDescriptor elements[] =
+        {
+            {nullptr, nullptr, boo::VertexSemantic::Position4},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 0},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 1},
+            {nullptr, nullptr, boo::VertexSemantic::Normal4, 2},
+            {nullptr, nullptr, boo::VertexSemantic::Color}
+        };
+        s_vtxFmt = ctx.newVertexFormat(5, elements);
+    }
+
+    std::string additionalTCGs;
+    std::string textures;
+    std::string combiner;
+    int nextTex = 0;
+
+    if (info.m_hasPatternTex1)
+        textures += hecl::Format("Texture2D patternTex1 : register(t%d)\n", nextTex++);
+    if (info.m_hasPatternTex2)
+        textures += hecl::Format("Texture2D patternTex2 : register(t%d)\n", nextTex++);
+    if (info.m_hasColorTex)
+        textures += hecl::Format("Texture2D colorTex : register(t%d)\n", nextTex++);
+
+    // Tex0 * kColor0 * Tex1 + Tex2
+    if (info.m_hasPatternTex1 && info.m_hasPatternTex2)
+    {
+        combiner += "    colorOut = patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 *\n"
+                    "               patternTex2.Sample(samp, vtf.uvs[1]);\n";
+    }
+    else
+    {
+        combiner += "    colorOut = float4(0.0);\n";
+    }
+
+    if (info.m_hasColorTex)
+    {
+        combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]);\n";
+    }
+
+    combiner += "    colorOut.a = kColor0.a;\n";
+
+    std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
+    std::string finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
+
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr, nullptr, s_vtxFmt,
+                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                 boo::CullMode::None);
+}
+
 boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::ID3DDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline)
+                                                         boo::IShaderPipeline* pipeline, bool door)
 {
     boo::IGraphicsBuffer* ubufs[] = { m_uniBuf, m_uniBuf, m_uniBuf };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
@@ -469,8 +545,8 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::ID3DDataFactory::C
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, 1, ubufs, ubufStages, ubufOffs,
-                                    ubufSizes, texCount, texs, nullptr, nullptr);
+    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+                                    ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 
 }

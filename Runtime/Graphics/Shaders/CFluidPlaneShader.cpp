@@ -74,10 +74,25 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
     return ret;
 }
 
-boo::IShaderPipeline* CFluidPlaneShader::Cache::GetOrBuildShader(const SFluidPlaneShaderInfo& info)
+u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneDoorShaderInfo& info)
+{
+    u16 ret = 0;
+
+    if (info.m_hasPatternTex1)
+        ret |= 1 << 0;
+    if (info.m_hasPatternTex2)
+        ret |= 1 << 1;
+    if (info.m_hasColorTex)
+        ret |= 1 << 2;
+
+    return ret;
+}
+
+template<class T>
+boo::IShaderPipeline* CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
 {
     u16 key = MakeCacheKey(info);
-    auto& slot = m_cache[key];
+    auto& slot = CacheSlot(info, key);
     if (slot.second != nullptr)
         return slot.second;
 
@@ -116,6 +131,60 @@ boo::IShaderPipeline* CFluidPlaneShader::Cache::GetOrBuildShader(const SFluidPla
     return slot.second;
 }
 
+template boo::IShaderPipeline*
+CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info);
+template boo::IShaderPipeline*
+CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info);
+
+void CFluidPlaneShader::Cache::Clear()
+{
+    for (auto& p : m_cache)
+    {
+        p.first.doDestroy();
+        p.second = nullptr;
+    }
+    for (auto& p : m_doorCache)
+    {
+        p.first.doDestroy();
+        p.second = nullptr;
+    }
+}
+
+void CFluidPlaneShader::PrepareBinding(boo::IShaderPipeline* pipeline, u32 maxVertCount, bool door)
+{
+    m_gfxTok = CGraphics::CommitResources(
+    [&](boo::IGraphicsDataFactory::Context& ctx)
+    {
+        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
+        m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, 1024, 1);
+
+        switch (ctx.platform())
+        {
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
+            m_dataBind = BuildBinding(static_cast<boo::GLDataFactory::Context&>(ctx), pipeline, door);
+            break;
+#if _WIN32
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+            m_dataBind = BuildBinding(static_cast<boo::ID3DDataFactory::Context&>(ctx), pipeline, door);
+            break;
+#endif
+#if BOO_HAS_METAL
+        case boo::IGraphicsDataFactory::Platform::Metal:
+            m_dataBind = BuildBinding(static_cast<boo::MetalDataFactory::Context&>(ctx), pipeline, door);
+            break;
+#endif
+#if BOO_HAS_VULKAN
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+            m_dataBind = BuildBinding(static_cast<boo::VulkanDataFactory::Context&>(ctx), pipeline, door);
+            break;
+#endif
+        default: break;
+        }
+        return true;
+    });
+}
+
 CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
                                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
                                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
@@ -143,54 +212,37 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
                                      m_lightmap.operator bool(),
                                      doubleLightmapBlend, additive);
     boo::IShaderPipeline* pipeline = _cache.GetOrBuildShader(shaderInfo);
-
-    m_gfxTok = CGraphics::CommitResources(
-    [&](boo::IGraphicsDataFactory::Context& ctx)
-    {
-        m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
-        m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, 1024, 1);
-
-        switch (ctx.platform())
-        {
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            m_dataBind = BuildBinding(static_cast<boo::GLDataFactory::Context&>(ctx), pipeline);
-            break;
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            m_dataBind = BuildBinding(static_cast<boo::ID3DDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            m_dataBind = BuildBinding(static_cast<boo::MetalDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            m_dataBind = BuildBinding(static_cast<boo::VulkanDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-        default: break;
-        }
-        return true;
-    });
+    PrepareBinding(pipeline, maxVertCount, false);
 }
 
-void CFluidPlaneShader::prepareDraw(const zeus::CMatrix4f* texMtxs, const zeus::CMatrix4f& normMtx, float indScale,
-                                    const std::vector<CLight>& lights, const zeus::CColor* kColors)
+CFluidPlaneShader::CFluidPlaneShader(const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
+                                     const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
+                                     const std::experimental::optional<TLockedToken<CTexture>>& colorTex,
+                                     u32 maxVertCount)
+: m_patternTex1(patternTex1),
+  m_patternTex2(patternTex2),
+  m_colorTex(colorTex)
+{
+    SFluidPlaneDoorShaderInfo shaderInfo(m_patternTex1.operator bool(),
+                                         m_patternTex2.operator bool(),
+                                         m_colorTex.operator bool());
+    boo::IShaderPipeline* pipeline = _cache.GetOrBuildShader(shaderInfo);
+    PrepareBinding(pipeline, maxVertCount, true);
+}
+
+void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info)
 {
     Uniform& uni = *reinterpret_cast<Uniform*>(m_uniBuf->map(sizeof(Uniform)));
     uni.m_mv = CGraphics::g_GXModelView.toMatrix4f();
-    uni.m_mvNorm = normMtx;
+    uni.m_mvNorm = info.normMtx;
     uni.m_proj = CGraphics::GetPerspectiveProjectionMatrix(true);
     for (int i=0 ; i<6 ; ++i)
-        uni.m_texMtxs[i] = texMtxs[i];
-    uni.m_lighting.ActivateLights(lights);
+        uni.m_texMtxs[i] = info.texMtxs[i];
+    uni.m_lighting.ActivateLights(info.lights);
     for (int i=0 ; i<3 ; ++i)
-        uni.m_lighting.colorRegs[i] = kColors[i];
-    uni.m_lighting.mulColor = kColors[3];
-    uni.m_lighting.fog.m_rangeScale = indScale;
+        uni.m_lighting.colorRegs[i] = info.kColors[i];
+    uni.m_lighting.mulColor = info.kColors[3];
+    uni.m_lighting.fog.m_rangeScale = info.indScale;
     m_uniBuf->unmap();
     CGraphics::SetShaderDataBinding(m_dataBind);
 }
