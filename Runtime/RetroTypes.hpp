@@ -134,7 +134,7 @@ public:
     {
         if (this->size() < N)
         {
-            this->push_back(t);
+            this->insert(this->begin(), t);
         }
         else
         {

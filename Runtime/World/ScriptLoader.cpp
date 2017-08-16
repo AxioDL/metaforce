@@ -1238,10 +1238,10 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     CAssetId splashParticle1 = in.readUint32Big();
     CAssetId splashParticle2 = in.readUint32Big();
     CAssetId splashParticle3 = in.readUint32Big();
-    CAssetId particle4 = in.readUint32Big();
-    CAssetId particle5 = in.readUint32Big();
-    u32 unkSfx = in.readUint32Big();
+    CAssetId visorRunoffParticle = in.readUint32Big();
+    CAssetId unmorphVisorRunoffParticle = in.readUint32Big();
     u32 visorRunoffSfx = in.readUint32Big();
+    u32 unmorphVisorRunoffSfx = in.readUint32Big();
     u32 splashSfx1 = in.readUint32Big();
     u32 splashSfx2 = in.readUint32Big();
     u32 splashSfx3 = in.readUint32Big();
@@ -1293,10 +1293,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
         displaySurface, patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, {}, bumpLightDir, bumpScale,
         morphInTime, morphOutTime, active, fluidType, b4, alpha, uvMotion, turbSpeed, turbDistance, turbFreqMax,
         turbFreqMin, turbPhaseMax, turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, splashColor, unkColor,
-        splashParticle1, splashParticle2, splashParticle3, particle4, particle5, unkSfx, visorRunoffSfx, splashSfx1,
-        splashSfx2, splashSfx3, tileSize, tileSubdivisions, specularMin, specularMax, reflectionSize, rippleIntensity,
-        reflectionBlend, fogBias, fogMagnitude, fogSpeed, fogColor, lightmap, unitsPerLightmapTexel, alphaInTime,
-        alphaOutTime, w21, w22, b5, bitVal0, bitVal1, std::move(bitset));
+        splashParticle1, splashParticle2, splashParticle3, visorRunoffParticle, unmorphVisorRunoffParticle,
+        visorRunoffSfx, unmorphVisorRunoffSfx, splashSfx1, splashSfx2, splashSfx3, tileSize, tileSubdivisions,
+        specularMin, specularMax, reflectionSize, rippleIntensity, reflectionBlend, fogBias, fogMagnitude, fogSpeed,
+        fogColor, lightmap, unitsPerLightmapTexel, alphaInTime, alphaOutTime, w21, w22, b5, bitVal0, bitVal1,
+        std::move(bitset));
 }
 
 CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

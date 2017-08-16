@@ -241,7 +241,7 @@ void CCameraManager::ThinkCameras(float dt, CStateManager& mgr)
     TUniqueId camId = GetLastCameraId();
     const CGameCamera* cam = TCastToConstPtr<CGameCamera>(mgr.GetObjectById(camId));
 
-    if (cam)
+    if (cam != nullptr)
         x3bc_curFov = cam->GetFov();
 }
 
@@ -294,9 +294,9 @@ void CCameraManager::ProcessInput(const CFinalInput& input, CStateManager& state
 {
     for (CEntity* ent : stateMgr.GetCameraObjectList())
     {
-        if (!ent)
+        if (ent == nullptr)
             continue;
-        CGameCamera& cam = static_cast<CGameCamera&>(*ent);
+        auto& cam = static_cast<CGameCamera&>(*ent);
         if (input.ControllerIdx() != cam.x16c_controllerIdx)
             continue;
         cam.ProcessInput(input, stateMgr);
@@ -317,5 +317,12 @@ void CCameraManager::SetupBallCamera(CStateManager& mgr)
 void CCameraManager::LeaveBallCamera(CStateManager& mgr, TUniqueId newCamId)
 {
 
+}
+
+float CCameraManager::GetCameraBobMagnitude() const
+{
+    return 1.f - zeus::clamp(-1.f, zeus::clamp(-1.f,
+        x7c_fpCamera->GetTransform().basis[1].dot(zeus::CVector3f::skUp), 1.f) /
+        std::cos(2.f * M_PIF / 12.f), 1.f);
 }
 }

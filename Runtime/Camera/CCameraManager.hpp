@@ -128,6 +128,7 @@ public:
     void SetupBallCamera(CStateManager& mgr);
     void LeaveBallCamera(CStateManager& mgr, TUniqueId newCamId);
     int GetFluidCounter() const { return x74_fluidCounter; }
+    float GetCameraBobMagnitude() const;
 };
 
 }

@@ -159,6 +159,7 @@ public:
     bool GetX187c() const { return x187c_; }
     void SetDamageTimer(float t) { x191c_damageTimer = t; }
     void Stop() {}
+    void StopSounds() {}
 
     CModelData& GetMorphballModelData() const { return *x58_ballModel; }
     u32 GetMorphballModelShader() const { return x5c_ballModelShader; }

@@ -23,9 +23,9 @@ public:
         NormalWater,
         PoisonWater,
         Lava,
-        Three,
+        PhazonFluid,
         Four,
-        Five
+        ThickLava
     };
 
 protected:

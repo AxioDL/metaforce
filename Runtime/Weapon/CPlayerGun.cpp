@@ -68,6 +68,11 @@ float CPlayerGun::GetBeamVelocity() const
     return 10.f;
 }
 
+void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr)
+{
+
+}
+
 void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos)
 {
 
@@ -81,6 +86,11 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
 void CPlayerGun::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const
 {
 
+}
+
+TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr)
+{
+    return {};
 }
 
 }

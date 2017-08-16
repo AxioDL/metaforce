@@ -1310,7 +1310,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
         blueShift = 1;
         break;
     case EFluidType::Lava:
-    case EFluidType::Five:
+    case EFluidType::ThickLava:
         wavecapIntensityScale = g_tweakGame->GetWavecapIntensityLava();
         blueShift = 8;
         greenShift = 8;

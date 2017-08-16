@@ -217,7 +217,7 @@ CPlayerState::EPlayerVisor CPlayerState::GetActiveVisor(const CStateManager& sta
     return (cam ? x14_currentVisor : EPlayerVisor::Combat);
 }
 
-void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, const float& dt)
+void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, float dt)
 {
     x188_staticIntf.Update(stateMgr, dt);
 }

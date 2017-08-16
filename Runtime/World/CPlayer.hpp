@@ -125,12 +125,12 @@ public:
     enum class ESurfaceRestraints
     {
         Normal,
-        One,
+        InAir,
         Ice,
         MudSlow,
-        Four,
-        Fluid2Or5,
-        Fluid3,
+        Water,
+        Lava,
+        PhazonFluid,
         SnakeWeed
     };
 
@@ -210,18 +210,18 @@ private:
     CPlayerEnergyDrain x274_energyDrain = CPlayerEnergyDrain(4);
     float x288_startingJumpTimeout = 0.f;
     float x28c_sjTimer = 0.f;
-    float x290_ = 0.f;
+    float x290_minJumpTimeout = 0.f;
     float x294_jumpCameraPitchTimer = 0.f;
     u32 x298_jumpPresses = 0;
     float x29c_spaceJumpCameraPitchTimer = 0.f;
     float x2a0_ = 0.f;
     bool x2a4_cancelCameraPitch = false;
-    float x2a8_ = 1000.f;
+    float x2a8_timeSinceJump = 1000.f;
     ESurfaceRestraints x2ac_surfaceRestraint = ESurfaceRestraints::Normal;
-    u32 x2b0_ = 2;
-    rstl::reserved_vector<float, 6> x2b4_;
-    u32 x2d0_ = 3;
-    float x2d4_ = 0.f;
+    u32 x2b0_outOfWaterTicks = 2;
+    rstl::reserved_vector<float, 6> x2b4_accelerationTable;
+    u32 x2d0_curAcceleration = 3;
+    float x2d4_accelerationChangeTimer = 0.f;
     zeus::CAABox x2d8_fpBounds;
     float x2f0_ballTransHeight = 0.f;
     EPlayerCameraState x2f4_cameraState = EPlayerCameraState::Zero;
@@ -246,16 +246,16 @@ private:
     bool x374_orbitLockEstablished = false;
     float x378_ = 0.f;
     bool x37c_sidewaysDashing = false;
-    float x380_ = 0.f;
-    float x384_ = 0.f;
-    float x388_ = 0.f;
-    bool x38c_ = false;
+    float x380_strafeInputAtDash = 0.f;
+    float x384_dashTimer = 0.f;
+    float x388_dashButtonHoldTime = 0.f;
+    bool x38c_doneSidewaysDashing = false;
     u32 x390_orbitSource = 2;
     bool x394_orbitingEnemy = false;
-    float x398_ = 1.5f;
-    bool x39c_ = false;
-    float x3a0_ = 0.5f;
-    float x3a4_ = 0.449f;
+    float x398_dashSpeedMultiplier = 1.5f;
+    bool x39c_noStrafeDashBlend = false;
+    float x3a0_dashDuration = 0.5f;
+    float x3a4_strafeDashBlendDuration = 0.449f;
     EPlayerScanState x3a8_scanState = EPlayerScanState::NotScanning;
     float x3ac_scanningTime = 0.f;
     float x3b0_curScanTime = 0.f;
@@ -268,8 +268,8 @@ private:
     float x3d4_ = 0.f;
     float x3d8_grappleJumpTimeout = 0.f;
     bool x3dc_inFreeLook = false;
-    bool x3dd_freeLookPitchAngleCalculated = false;
-    bool x3de_lookControlHeld = false;
+    bool x3dd_lookButtonHeld = false;
+    bool x3de_lookAnalogHeld = false;
     float x3e0_curFreeLookCenteredTime = 0.f;
     float x3e4_freeLookYawAngle = 0.f;
     float x3e8_horizFreeLookAngleVel = 0.f;
@@ -285,7 +285,7 @@ private:
     EGunHolsterState x498_gunHolsterState = EGunHolsterState::Drawn;
     float x49c_gunHolsterRemTime;
     std::unique_ptr<CFailsafeTest> x4a0_failsafeTest;
-    u32 x4a4_ = 0;
+    TReservedAverage<float, 20> x4a4_;
     float x4f8_ = 0.f;
     float x4fc_ = 0.f;
     zeus::CVector3f x500_ = x34_transform.basis[1];
@@ -305,6 +305,7 @@ private:
     float x578_morphDuration = 0.f;
     u32 x57c_ = 0;
     u32 x580_ = 0;
+    int x584_ = -1;
     float x588_alpha = 1.f;
     float x58c_ = 0.f;
     bool x590_ = true;
@@ -312,9 +313,9 @@ private:
     TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
     TReservedAverage<float, 4> x71c_transitionModelAlphas;
     std::vector<std::unique_ptr<CModelData>> x730_transitionModels;
-    float x740_ = 0.f;
-    float x744_ = 0.f;
-    float x748_ = 0.f;
+    float x740_staticOutTimer = 0.f;
+    float x744_staticOutSpeed = 0.f;
+    float x748_staticInSpeed = 0.f;
     float x74c_visorStaticAlpha = 1.f;
     float x750_frozenTimeout = 0.f;
     s32 x754_iceBreakJumps = 0;
@@ -326,20 +327,23 @@ private:
     std::unique_ptr<CPlayerCameraBob> x76c_cameraBob;
     CSfxHandle x770_damageLoopSfx;
     float x774_samusVoiceTimeout = 0.f;
-    u32 x778_ = 0;
+    CSfxHandle x778_dashSfx;
     CSfxHandle x77c_samusVoiceSfx;
     int x780_samusVoicePriority = 0;
     float x784_ = 0.f;
     u16 x788_damageLoopSfxId = 0;
     float x78c_footstepSfxTimer = 0.f;
     EFootstepSfx x790_footstepSfxSel = EFootstepSfx::None;
-    zeus::CVector3f x794_;
+    zeus::CVector3f x794_lastVelocity;
     CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, CAssetId()/*kInvalidAssetId*/);
     CAssetId x7cc_;
     CAnimRes x7d0_animRes;
+    zeus::CVector3f x7d8_beamScale;
+    bool x7e4_ = true;
+    u32 x7e8_ = 0;
     CPlayerState::EBeamId x7ec_beam = CPlayerState::EBeamId::Power;
     std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
-    zeus::CTransform x7f4_;
+    zeus::CTransform x7f4_gunWorldXf;
     float x824_ = 0.f;
     float x828_waterLevelOnPlayer = 0.f;
     bool x82c_inLava = false;
@@ -365,7 +369,7 @@ private:
             bool x9c5_24_ : 1;
             bool x9c5_25_splashUpdated : 1;
             bool x9c5_26_ : 1;
-            bool x9c5_27_ : 1;
+            bool x9c5_27_camSubmerged : 1;
             bool x9c5_28_slidingOnWall : 1;
             bool x9c5_29_hitWall : 1;
             bool x9c5_30_ : 1;
@@ -394,7 +398,7 @@ private:
     float x9f4_deathTime = 0.f;
     float x9f8_ = 0.f;
     float x9fc_ = 0.f;
-    TUniqueId xa00_ = kInvalidUniqueId;
+    TUniqueId xa00_deathPowerBomb = kInvalidUniqueId;
     float xa04_ = 0.f;
     CAssetId xa08_steamTextureId;
     CAssetId xa0c_iceTextureId;
@@ -406,7 +410,7 @@ private:
     float xa24_radarZRadiusOverride = 1.f;
     float xa28_ = 0.f;
     u32 xa2c_ = 2;
-    float xa30_ = 4.f;
+    float xa30_samusExhaustedVoiceTimer = 4.f;
 
     void StartLandingControlFreeze();
     void EndLandingControlFreeze();
@@ -414,12 +418,17 @@ private:
     bool CheckSubmerged() const;
     void UpdateSubmerged(CStateManager& mgr);
     void InitializeBallTransition();
+    float UpdateCameraBob(float dt, CStateManager& mgr);
+    float GetAcceleration() const;
 
 public:
     CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, CAssetId w1, const zeus::CVector3f&, float, float,
             float, float, const CMaterialList&);
 
     bool IsTransparent() const;
+    void UpdateMorphBallTransition(float dt, CStateManager& mgr);
+    void UpdateGunAlpha();
+    void UpdatePlayerSounds();
     void Update(float, CStateManager& mgr);
     void PostUpdate(float, CStateManager& mgr);
     bool StartSamusVoiceSfx(u16 sfx, float vol, int prio);
@@ -472,6 +481,14 @@ public:
     void Freeze(CStateManager& stateMgr, CAssetId steamTxtr, u16 sfx, CAssetId iceTxtr);
     bool GetFrozenState() const;
     void UpdateFrozenState(const CFinalInput& input, CStateManager& mgr);
+    void UpdateStepCameraZBias(float dt);
+    void UpdateWaterSurfaceCameraBias(CStateManager& mgr);
+    void UpdatePhazonCameraShake(float dt, CStateManager& mgr);
+    void UpdatePhazonDamage(float dt, CStateManager& mgr);
+    void UpdatePlayerHints(CStateManager& mgr);
+    void UpdateBombJumpStuff();
+    void UpdateTransitionFilter(float dt, CStateManager& mgr);
+    void UpdatePlayerControlDirection(float dt, CStateManager& mgr);
     void Think(float, CStateManager&);
     void PreThink(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
@@ -571,7 +588,12 @@ public:
     float TurnInput(const CFinalInput& input) const;
     float StrafeInput(const CFinalInput& input) const;
     float ForwardInput(const CFinalInput& input, float) const;
-    void ComputeMovement(const CFinalInput& input, CStateManager& mgr, float);
+    zeus::CVector3f CalculateLeftStickEdgePosition(float strafeInput, float forwardInput) const;
+    bool SidewaysDashAllowed(float strafeInput, float forwardInput,
+                             const CFinalInput& input, CStateManager& mgr) const;
+    void FinishSidewaysDash();
+    void ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr);
+    void ComputeMovement(const CFinalInput& input, CStateManager& mgr, float dt);
     float GetWeight() const;
     zeus::CVector3f GetDampedClampedVelocityWR() const;
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
@@ -604,7 +626,7 @@ public:
     float GetMorphTime() const { return x574_morphTime; }
     float GetMorphDuration() const { return x578_morphDuration; }
     bool IsInFreeLook() const { return x3dc_inFreeLook; }
-    bool IsLookControlHeld() const { return x3de_lookControlHeld; }
+    bool IsLookControlHeld() const { return x3de_lookAnalogHeld; }
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
     CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }

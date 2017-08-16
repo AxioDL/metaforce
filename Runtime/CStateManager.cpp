@@ -1314,7 +1314,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     {
         usePower = power * 1000.f;
         CPlayer::ESurfaceRestraints surface =
-            player.x2b0_ == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Four;
+            player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
         if (surface != CPlayer::ESurfaceRestraints::Normal &&
             player.GetOrbitState() == CPlayer::EPlayerOrbitState::Zero)
             usePower /= 7.f;
@@ -1331,7 +1331,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
     usePower *= (1.f - 0.5f * zeus::CVector3f::getAngleDiff(pos, negVel) / M_PIF);
     player.ApplyImpulseWR(pos * usePower, zeus::CAxisAngle::sIdentity);
     player.UseCollisionImpulses();
-    player.x2d4_ = 0.25f;
+    player.x2d4_accelerationChangeTimer = 0.25f;
 
     float newVel = player.x138_velocity.magnitude();
     if (newVel > maxVel)
@@ -2229,16 +2229,16 @@ void CStateManager::CreateStandardGameObjects()
 {
     float height = g_tweakPlayer->GetPlayerHeight();
     float xyHe = g_tweakPlayer->GetPlayerXYHalfExtent();
-    float unk1 = g_tweakPlayer->GetX274();
-    float unk2 = g_tweakPlayer->GetX278();
-    float unk3 = g_tweakPlayer->GetPlayerBallHalfExtent();
+    float stepUp = g_tweakPlayer->GetStepUpHeight();
+    float stepDown = g_tweakPlayer->GetStepDownHeight();
+    float ballRadius = g_tweakPlayer->GetPlayerBallHalfExtent();
     zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
     auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
     x84c_player.reset(new CPlayer(
         AllocateUniqueId(), zeus::CTransform(q), pBounds,
         g_tweakPlayerRes->xc4_ballTransitionsANCS,
-        zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, unk1, unk2,
-        unk3, CMaterialList(EMaterialTypes::Player,
+        zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, stepUp, stepDown,
+        ballRadius, CMaterialList(EMaterialTypes::Player,
         EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
     AddObject(*x84c_player);
     x870_cameraManager->CreateStandardCameras(*this);

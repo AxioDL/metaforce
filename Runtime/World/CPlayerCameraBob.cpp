@@ -158,7 +158,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
     if (std::fabs(x6c_) < 0.0049f && std::fabs(x70_landingTranslation) < 0.0049f && std::fabs(x78_) < 0.0049f)
     {
         x28_applyLandingTrans = false;
-        x28_applyLandingTrans = 0.f;
+        x70_landingTranslation = 0.f;
         x78_ = 0.f;
     }
 
@@ -171,7 +171,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
     x70_landingTranslation *= f1;
     x78_ *= f1;
     x104_ *= f1;
-    if (mgr.GetPlayer().x38c_)
+    if (mgr.GetPlayer().x38c_doneSidewaysDashing)
     {
         x70_landingTranslation *= 0.2f;
         x78_ *= 0.2f;
@@ -217,7 +217,7 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& y) const
         else
             x = ((fX / xc_)) * (x14_ * x4_vec.x);
 
-        float sY = float(std::sin(std::fmod((M_PI * fX) / xc_, M_PI)));
+        auto sY = float(std::sin(std::fmod((M_PI * fX) / xc_, M_PI)));
         y = (1.f - sY) * (x14_ * x4_vec.y) * 0.5f + (0.5f * -((sY * sY) - 1.f) * (x14_ * x4_vec.y));
     }
 }

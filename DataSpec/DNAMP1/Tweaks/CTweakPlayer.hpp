@@ -12,38 +12,38 @@ struct CTweakPlayer : ITweakPlayer
 {
     Delete _d;
     Value<float> x4_maxTranslationalAcceleration[8];
-    Value<float> x24_[8];
+    Value<float> x24_maxRotationalAcceleration[8];
     Value<float> x44_translationFriction[8];
-    Value<float> x64_[8];
-    Value<float> x84_[8];
+    Value<float> x64_rotationFriction[8];
+    Value<float> x84_rotationMaxSpeed[8];
     Value<float> xa4_translationMaxSpeed[8];
     Value<float> xc4_normalGravAccel;
     Value<float> xc8_fluidGravAccel;
-    Value<float> xcc_;
-    Value<float> xd0_;
-    Value<float> xd4_;
-    Value<float> xd8_;
-    Value<float> xdc_;
+    Value<float> xcc_verticalJumpAccel;
+    Value<float> xd0_horizontalJumpAccel;
+    Value<float> xd4_verticalDoubleJumpAccel;
+    Value<float> xd8_horizontalDoubleJumpAccel;
+    Value<float> xdc_waterJumpFactor;
     Value<float> xe0_;
-    Value<float> xe4_;
+    Value<float> xe4_lavaJumpFactor;
     Value<float> xe8_;
-    Value<float> xec_;
+    Value<float> xec_phazonJumpFactor;
     Value<float> xf0_;
-    Value<float> xf4_;
-    Value<float> xf8_;
-    Value<float> xfc_;
-    Value<float> x100_;
+    Value<float> xf4_allowedJumpTime;
+    Value<float> xf8_allowedDoubleJumpTime;
+    Value<float> xfc_minDoubleJumpWindow;
+    Value<float> x100_maxDoubleJumpWindow;
     Value<float> x104_;
-    Value<float> x108_;
-    Value<float> x10c_;
-    Value<float> x110_;
-    Value<float> x114_;
-    Value<float> x118_;
+    Value<float> x108_minJumpTime;
+    Value<float> x10c_minDoubleJumpTime;
+    Value<float> x110_allowedLedgeTime;
+    Value<float> x114_doubleJumpImpulse;
+    Value<float> x118_backwardsForceMultiplier;
     Value<float> x11c_;
     Value<float> x120_;
     Value<float> x124_eyeOffset;
-    Value<float> x128_;
-    Value<float> x12c_;
+    Value<float> x128_turnSpeedMultiplier;
+    Value<float> x12c_freeLookTurnSpeedMultiplier;
     Value<float> x130_horizontalFreeLookAngleVel;
     Value<float> x134_verticalFreeLookAngleVel;
     Value<float> x138_freeLookSpeed;
@@ -84,13 +84,13 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x1f4_;
     Value<float> x1f8_;
     Value<float> x1fc_;
-    Value<bool> x200_24_ : 1;
-    Value<bool> x200_25_ : 1;
-    Value<float> x204_;
-    Value<float> x208_;
-    Value<float> x20c_;
-    Value<float> x210_;
-    Value<float> x214_;
+    Value<bool> x200_24_dashEnabled : 1;
+    Value<bool> x200_25_dashOnButtonRelease : 1;
+    Value<float> x204_dashButtonHoldCancelTime;
+    Value<float> x208_dashStrafeInputThreshold;
+    Value<float> x20c_sidewaysDoubleJumpImpulse;
+    Value<float> x210_sidewaysVerticalDoubleJumpAccel;
+    Value<float> x214_sidewaysHorizontalDoubleJumpAccel;
     Value<float> x218_scanningRange;
     Value<bool> x21c_24_scanRetention : 1;
     Value<bool> x21c_25_scanFreezesGame : 1;
@@ -100,8 +100,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x228_24_freelookTurnsPlayer : 1;
     Value<bool> x228_25_ : 1;
     Value<bool> x228_26_ : 1;
-    Value<bool> x228_27_ : 1;
-    Value<bool> x228_28_enableFreeLook : 1;
+    Value<bool> x228_27_moveDuringFreeLook : 1;
+    Value<bool> x228_28_holdButtonsForFreeLook : 1;
     Value<bool> x228_29_twoButtonsForFreeLook : 1;
     Value<bool> x228_30_ : 1;
     Value<bool> x228_31_ : 1;
@@ -113,8 +113,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<bool> x229_29_ : 1;
     Value<bool> x229_30_gunButtonTogglesHolster : 1;
     Value<bool> x229_31_gunNotFiringHolstersGun : 1;
-    Value<bool> x22a_24_ : 1;
-    Value<bool> x22a_25_ : 1;
+    Value<bool> x22a_24_fallingDoubleJump : 1;
+    Value<bool> x22a_25_impulseDoubleJump : 1;
     Value<bool> x22a_26_firingCancelsCameraPitch : 1;
     Value<bool> x22a_27_assistedAimingIgnoreHorizontal : 1;
     Value<bool> x22a_28_assistedAimingIgnoreVertical : 1;
@@ -136,8 +136,8 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x268_aimAssistVerticalAngle;
     Value<float> x26c_playerHeight;
     Value<float> x270_playerXYHalfExtent;
-    Value<float> x274_;
-    Value<float> x278_;
+    Value<float> x274_stepUpHeight;
+    Value<float> x278_stepDownHeight;
     Value<float> x27c_playerBallHalfExtent;
     Value<float> x280_;
     Value<float> x284_;
@@ -176,11 +176,32 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x304_gravityDamageReduction;
     Value<float> x308_phazonDamageReduction;
     float GetMaxTranslationalAcceleration(int s) const { return x4_maxTranslationalAcceleration[s]; }
+    float GetMaxRotationalAcceleration(int s) const { return x24_maxRotationalAcceleration[s]; }
     float GetPlayerTranslationFriction(int s) const { return x44_translationFriction[s]; }
+    float GetPlayerRotationFriction(int s) const { return x64_rotationFriction[s]; }
+    float GetPlayerRotationMaxSpeed(int s) const { return x84_rotationMaxSpeed[s]; }
     float GetPlayerTranslationMaxSpeed(int s) const { return xa4_translationMaxSpeed[s]; }
     float GetNormalGravAccel() const { return xc4_normalGravAccel; }
     float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
+    float GetVerticalJumpAccel() const { return xcc_verticalJumpAccel; }
+    float GetHorizontalJumpAccel() const { return xd0_horizontalJumpAccel; }
+    float GetVerticalDoubleJumpAccel() const { return xd4_verticalDoubleJumpAccel; }
+    float GetHorizontalDoubleJumpAccel() const { return xd8_horizontalDoubleJumpAccel; }
+    float GetWaterJumpFactor() const { return xdc_waterJumpFactor; }
+    float GetLavaJumpFactor() const { return xe4_lavaJumpFactor; }
+    float GetPhazonJumpFactor() const { return xec_phazonJumpFactor; }
+    float GetAllowedJumpTime() const { return xf4_allowedJumpTime; }
+    float GetAllowedDoubleJumpTime() const { return xf8_allowedDoubleJumpTime; }
+    float GetMinDoubleJumpWindow() const { return xfc_minDoubleJumpWindow; }
+    float GetMaxDoubleJumpWindow() const { return x100_maxDoubleJumpWindow; }
+    float GetMinJumpTime() const { return x108_minJumpTime; }
+    float GetMinDoubleJumpTime() const { return x10c_minDoubleJumpTime; }
+    float GetAllowedLedgeTime() const { return x110_allowedLedgeTime; }
+    float GetDoubleJumpImpulse() const { return x114_doubleJumpImpulse; }
+    float GetBackwardsForceMultiplier() const { return x118_backwardsForceMultiplier; }
     float GetEyeOffset() const { return x124_eyeOffset; }
+    float GetTurnSpeedMultiplier() const { return x128_turnSpeedMultiplier; }
+    float GetFreeLookTurnSpeedMultiplier() const { return x12c_freeLookTurnSpeedMultiplier; }
     float GetFreeLookSpeed() const { return x138_freeLookSpeed; }
     float GetFreeLookSnapSpeed() const { return x13c_freeLookSnapSpeed; }
     float GetFreeLookCenteredThresholdAngle() const { return x144_freeLookCenteredThresholdAngle; }
@@ -199,17 +220,27 @@ struct CTweakPlayer : ITweakPlayer
     float GetOrbitNearX() const { return x1d8_orbitNearX; }
     float GetOrbitNearZ() const { return x1dc_orbitNearZ; }
     float GetOrbitZRange() const { return x1ec_orbitZRange; }
+    bool GetDashEnabled() const { return x200_24_dashEnabled; }
+    bool GetDashOnButtonRelease() const { return x200_25_dashOnButtonRelease; }
+    float GetDashButtonHoldCancelTime() const { return x204_dashButtonHoldCancelTime; }
+    float GetDashStrafeInputThreshold() const { return x208_dashStrafeInputThreshold; }
+    float GetSidewaysDoubleJumpImpulse() const { return x20c_sidewaysDoubleJumpImpulse; }
+    float GetSidewaysVerticalDoubleJumpAccel() const { return x210_sidewaysVerticalDoubleJumpAccel; }
+    float GetSidewaysHorizontalDoubleJumpAccel() const { return x214_sidewaysHorizontalDoubleJumpAccel; }
     float GetScanningRange() const { return x218_scanningRange; }
     bool GetScanRetention() const { return x21c_24_scanRetention; }
     bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
     bool GetOrbitWhileScanning() const { return x21c_26_orbitWhileScanning; }
     float GetScanningFrameSenseRange() const { return x224_scanningFrameSenseRange; }
-    bool GetEnableFreeLook() const { return x228_28_enableFreeLook; }
+    bool GetMoveDuringFreeLook() const { return x228_27_moveDuringFreeLook; }
+    bool GetHoldButtonsForFreeLook() const { return x228_28_holdButtonsForFreeLook; }
     bool GetTwoButtonsForFreeLook() const { return x228_29_twoButtonsForFreeLook; }
     bool GetAimWhenOrbitingPoint() const { return x229_25_aimWhenOrbitingPoint; }
     bool GetStayInFreeLookWhileFiring() const { return x229_26_stayInFreeLookWhileFiring; }
     bool GetGunButtonTogglesHolster() const { return x229_30_gunButtonTogglesHolster; }
     bool GetGunNotFiringHolstersGun() const { return x229_31_gunNotFiringHolstersGun; }
+    bool GetFallingDoubleJump() const { return x22a_24_fallingDoubleJump; }
+    bool GetImpulseDoubleJump() const { return x22a_25_impulseDoubleJump; }
     bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
     bool GetAssistedAimingIgnoreHorizontal() const { return x22a_27_assistedAimingIgnoreHorizontal; }
     bool GetAssistedAimingIgnoreVertical() const { return x22a_28_assistedAimingIgnoreVertical; }
@@ -222,8 +253,8 @@ struct CTweakPlayer : ITweakPlayer
     float GetAimAssistVerticalAngle() const { return x268_aimAssistVerticalAngle; }
     float GetPlayerHeight() const { return x26c_playerHeight; }
     float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
-    float GetX274() const { return x274_; }
-    float GetX278() const { return x278_; }
+    float GetStepUpHeight() const { return x274_stepUpHeight; }
+    float GetStepDownHeight() const { return x278_stepDownHeight; }
     float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
     float GetOrbitDistanceMax() const { return x2a0_orbitDistanceMax; }
     float GetGrappleSwingLength() const { return x2a4_grappleSwingLength; }

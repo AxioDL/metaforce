@@ -211,7 +211,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     switch (info.m_type)
     {
     case CFluidPlane::EFluidType::NormalWater:
-    case CFluidPlane::EFluidType::Three:
+    case CFluidPlane::EFluidType::PhazonFluid:
     case CFluidPlane::EFluidType::Four:
         if (info.m_hasLightmap)
         {
@@ -419,7 +419,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
 
         break;
 
-    case CFluidPlane::EFluidType::Five:
+    case CFluidPlane::EFluidType::ThickLava:
         // 0: Tex0TCG, Tex0, GX_COLOR0A0
         // ZERO, TEX, KONST, RAS
         // Output reg prev

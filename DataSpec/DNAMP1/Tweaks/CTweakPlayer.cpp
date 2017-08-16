@@ -23,22 +23,22 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x4_maxTranslationalAcceleration[6] = __dna_reader.readFloatBig();
     /* x4_maxTranslationalAcceleration[7] */
     x4_maxTranslationalAcceleration[7] = __dna_reader.readFloatBig();
-    /* x24_[0] */
-    x24_[0] = __dna_reader.readFloatBig();
-    /* x24_[1] */
-    x24_[1] = __dna_reader.readFloatBig();
-    /* x24_[2] */
-    x24_[2] = __dna_reader.readFloatBig();
-    /* x24_[3] */
-    x24_[3] = __dna_reader.readFloatBig();
-    /* x24_[4] */
-    x24_[4] = __dna_reader.readFloatBig();
-    /* x24_[5] */
-    x24_[5] = __dna_reader.readFloatBig();
-    /* x24_[6] */
-    x24_[6] = __dna_reader.readFloatBig();
-    /* x24_[7] */
-    x24_[7] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[0] */
+    x24_maxRotationalAcceleration[0] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[1] */
+    x24_maxRotationalAcceleration[1] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[2] */
+    x24_maxRotationalAcceleration[2] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[3] */
+    x24_maxRotationalAcceleration[3] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[4] */
+    x24_maxRotationalAcceleration[4] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[5] */
+    x24_maxRotationalAcceleration[5] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[6] */
+    x24_maxRotationalAcceleration[6] = __dna_reader.readFloatBig();
+    /* x24_maxRotationalAcceleration[7] */
+    x24_maxRotationalAcceleration[7] = __dna_reader.readFloatBig();
     /* x44_translationFriction[0] */
     x44_translationFriction[0] = __dna_reader.readFloatBig();
     /* x44_translationFriction[1] */
@@ -55,38 +55,38 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x44_translationFriction[6] = __dna_reader.readFloatBig();
     /* x44_translationFriction[7] */
     x44_translationFriction[7] = __dna_reader.readFloatBig();
-    /* x64_[0] */
-    x64_[0] = __dna_reader.readFloatBig();
-    /* x64_[1] */
-    x64_[1] = __dna_reader.readFloatBig();
-    /* x64_[2] */
-    x64_[2] = __dna_reader.readFloatBig();
-    /* x64_[3] */
-    x64_[3] = __dna_reader.readFloatBig();
-    /* x64_[4] */
-    x64_[4] = __dna_reader.readFloatBig();
-    /* x64_[5] */
-    x64_[5] = __dna_reader.readFloatBig();
-    /* x64_[6] */
-    x64_[6] = __dna_reader.readFloatBig();
-    /* x64_[7] */
-    x64_[7] = __dna_reader.readFloatBig();
-    /* x84_[0] */
-    x84_[0] = __dna_reader.readFloatBig();
-    /* x84_[1] */
-    x84_[1] = __dna_reader.readFloatBig();
-    /* x84_[2] */
-    x84_[2] = __dna_reader.readFloatBig();
-    /* x84_[3] */
-    x84_[3] = __dna_reader.readFloatBig();
-    /* x84_[4] */
-    x84_[4] = __dna_reader.readFloatBig();
-    /* x84_[5] */
-    x84_[5] = __dna_reader.readFloatBig();
-    /* x84_[6] */
-    x84_[6] = __dna_reader.readFloatBig();
-    /* x84_[7] */
-    x84_[7] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[0] */
+    x64_rotationFriction[0] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[1] */
+    x64_rotationFriction[1] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[2] */
+    x64_rotationFriction[2] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[3] */
+    x64_rotationFriction[3] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[4] */
+    x64_rotationFriction[4] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[5] */
+    x64_rotationFriction[5] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[6] */
+    x64_rotationFriction[6] = __dna_reader.readFloatBig();
+    /* x64_rotationFriction[7] */
+    x64_rotationFriction[7] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[0] */
+    x84_rotationMaxSpeed[0] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[1] */
+    x84_rotationMaxSpeed[1] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[2] */
+    x84_rotationMaxSpeed[2] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[3] */
+    x84_rotationMaxSpeed[3] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[4] */
+    x84_rotationMaxSpeed[4] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[5] */
+    x84_rotationMaxSpeed[5] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[6] */
+    x84_rotationMaxSpeed[6] = __dna_reader.readFloatBig();
+    /* x84_rotationMaxSpeed[7] */
+    x84_rotationMaxSpeed[7] = __dna_reader.readFloatBig();
     /* xa4_translationMaxSpeed[0] */
     xa4_translationMaxSpeed[0] = __dna_reader.readFloatBig();
     /* xa4_translationMaxSpeed[1] */
@@ -107,56 +107,56 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     xc4_normalGravAccel = __dna_reader.readFloatBig();
     /* xc8_fluidGravAccel */
     xc8_fluidGravAccel = __dna_reader.readFloatBig();
-    /* xcc_ */
-    xcc_ = __dna_reader.readFloatBig();
-    /* xd0_ */
-    xd0_ = __dna_reader.readFloatBig();
-    /* xd4_ */
-    xd4_ = __dna_reader.readFloatBig();
-    /* xd8_ */
-    xd8_ = __dna_reader.readFloatBig();
-    /* xdc_ */
-    xdc_ = __dna_reader.readFloatBig();
+    /* xcc_verticalJumpAccel */
+    xcc_verticalJumpAccel = __dna_reader.readFloatBig();
+    /* xd0_horizontalJumpAccel */
+    xd0_horizontalJumpAccel = __dna_reader.readFloatBig();
+    /* xd4_verticalDoubleJumpAccel */
+    xd4_verticalDoubleJumpAccel = __dna_reader.readFloatBig();
+    /* xd8_horizontalDoubleJumpAccel */
+    xd8_horizontalDoubleJumpAccel = __dna_reader.readFloatBig();
+    /* xdc_waterJumpFactor */
+    xdc_waterJumpFactor = __dna_reader.readFloatBig();
     /* xe0_ */
     xe0_ = __dna_reader.readFloatBig();
-    /* xe4_ */
-    xe4_ = __dna_reader.readFloatBig();
+    /* xe4_lavaJumpFactor */
+    xe4_lavaJumpFactor = __dna_reader.readFloatBig();
     /* xe8_ */
     xe8_ = __dna_reader.readFloatBig();
-    /* xec_ */
-    xec_ = __dna_reader.readFloatBig();
+    /* xec_phazonJumpFactor */
+    xec_phazonJumpFactor = __dna_reader.readFloatBig();
     /* xf0_ */
     xf0_ = __dna_reader.readFloatBig();
-    /* xf4_ */
-    xf4_ = __dna_reader.readFloatBig();
-    /* xf8_ */
-    xf8_ = __dna_reader.readFloatBig();
-    /* xfc_ */
-    xfc_ = __dna_reader.readFloatBig();
-    /* x100_ */
-    x100_ = __dna_reader.readFloatBig();
+    /* xf4_allowedJumpTime */
+    xf4_allowedJumpTime = __dna_reader.readFloatBig();
+    /* xf8_allowedDoubleJumpTime */
+    xf8_allowedDoubleJumpTime = __dna_reader.readFloatBig();
+    /* xfc_minDoubleJumpWindow */
+    xfc_minDoubleJumpWindow = __dna_reader.readFloatBig();
+    /* x100_maxDoubleJumpWindow */
+    x100_maxDoubleJumpWindow = __dna_reader.readFloatBig();
     /* x104_ */
     x104_ = __dna_reader.readFloatBig();
-    /* x108_ */
-    x108_ = __dna_reader.readFloatBig();
-    /* x10c_ */
-    x10c_ = __dna_reader.readFloatBig();
-    /* x110_ */
-    x110_ = __dna_reader.readFloatBig();
-    /* x114_ */
-    x114_ = __dna_reader.readFloatBig();
-    /* x118_ */
-    x118_ = __dna_reader.readFloatBig();
+    /* x108_minJumpTime */
+    x108_minJumpTime = __dna_reader.readFloatBig();
+    /* x10c_minDoubleJumpTime */
+    x10c_minDoubleJumpTime = __dna_reader.readFloatBig();
+    /* x110_allowedLedgeTime */
+    x110_allowedLedgeTime = __dna_reader.readFloatBig();
+    /* x114_doubleJumpImpulse */
+    x114_doubleJumpImpulse = __dna_reader.readFloatBig();
+    /* x118_backwardsForceMultiplier */
+    x118_backwardsForceMultiplier = __dna_reader.readFloatBig();
     /* x11c_ */
     x11c_ = __dna_reader.readFloatBig();
     /* x120_ */
     x120_ = __dna_reader.readFloatBig();
     /* x124_eyeOffset */
     x124_eyeOffset = __dna_reader.readFloatBig();
-    /* x128_ */
-    x128_ = __dna_reader.readFloatBig();
-    /* x12c_ */
-    x12c_ = __dna_reader.readFloatBig();
+    /* x128_turnSpeedMultiplier */
+    x128_turnSpeedMultiplier = __dna_reader.readFloatBig();
+    /* x12c_freeLookTurnSpeedMultiplier */
+    x12c_freeLookTurnSpeedMultiplier = __dna_reader.readFloatBig();
     /* x130_horizontalFreeLookAngleVel */
     x130_horizontalFreeLookAngleVel = __dna_reader.readFloatBig();
     /* x134_verticalFreeLookAngleVel */
@@ -183,10 +183,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x228_25_ = __dna_reader.readBool();
     /* x228_26_ */
     x228_26_ = __dna_reader.readBool();
-    /* x228_27_ */
-    x228_27_ = __dna_reader.readBool();
-    /* x228_28_enableFreeLook */
-    x228_28_enableFreeLook = __dna_reader.readBool();
+    /* x228_27_moveDuringFreeLook */
+    x228_27_moveDuringFreeLook = __dna_reader.readBool();
+    /* x228_28_holdButtonsForFreeLook */
+    x228_28_holdButtonsForFreeLook = __dna_reader.readBool();
     /* x228_29_twoButtonsForFreeLook */
     x228_29_twoButtonsForFreeLook = __dna_reader.readBool();
     /* x228_30_ */
@@ -209,11 +209,11 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x229_30_gunButtonTogglesHolster = __dna_reader.readBool();
     /* x229_31_gunNotFiringHolstersGun */
     x229_31_gunNotFiringHolstersGun = __dna_reader.readBool();
-    /* x22a_24_ */
-    x22a_24_ = __dna_reader.readBool();
-    /* x22a_25_ */
-    x22a_25_ = __dna_reader.readBool();
-    /* x22a_26_ */
+    /* x22a_24_fallingDoubleJump */
+    x22a_24_fallingDoubleJump = __dna_reader.readBool();
+    /* x22a_25_impulseDoubleJump */
+    x22a_25_impulseDoubleJump = __dna_reader.readBool();
+    /* x22a_26_firingCancelsCameraPitch */
     x22a_26_firingCancelsCameraPitch = __dna_reader.readBool();
     /* x22a_27_assistedAimingIgnoreHorizontal */
     x22a_27_assistedAimingIgnoreHorizontal = __dna_reader.readBool();
@@ -335,20 +335,20 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x1f8_ = __dna_reader.readFloatBig();
     /* x1fc_ */
     x1fc_ = __dna_reader.readFloatBig();
-    /* x200_24_ */
-    x200_24_ = __dna_reader.readBool();
-    /* x200_25_ */
-    x200_25_ = __dna_reader.readBool();
-    /* x204_ */
-    x204_ = __dna_reader.readFloatBig();
-    /* x208_ */
-    x208_ = __dna_reader.readFloatBig();
-    /* x20c_ */
-    x20c_ = __dna_reader.readFloatBig();
-    /* x210_ */
-    x210_ = __dna_reader.readFloatBig();
-    /* x214_ */
-    x214_ = __dna_reader.readFloatBig();
+    /* x200_24_dashEnabled */
+    x200_24_dashEnabled = __dna_reader.readBool();
+    /* x200_25_dashOnButtonRelease */
+    x200_25_dashOnButtonRelease = __dna_reader.readBool();
+    /* x204_dashButtonHoldCancelTime */
+    x204_dashButtonHoldCancelTime = __dna_reader.readFloatBig();
+    /* x208_dashStrafeInputThreshold */
+    x208_dashStrafeInputThreshold = __dna_reader.readFloatBig();
+    /* x20c_sidewaysDoubleJumpImpulse */
+    x20c_sidewaysDoubleJumpImpulse = __dna_reader.readFloatBig();
+    /* x210_sidewaysVerticalDoubleJumpAccel */
+    x210_sidewaysVerticalDoubleJumpAccel = __dna_reader.readFloatBig();
+    /* x214_sidewaysHorizontalDoubleJumpAccel */
+    x214_sidewaysHorizontalDoubleJumpAccel = __dna_reader.readFloatBig();
     /* x218_scanningRange */
     x218_scanningRange = __dna_reader.readFloatBig();
     /* x21c_24_scanRetention */
@@ -403,10 +403,10 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x26c_playerHeight = __dna_reader.readFloatBig();
     /* x270_playerXYHalfExtent */
     x270_playerXYHalfExtent = __dna_reader.readFloatBig();
-    /* x274_ */
-    x274_ = __dna_reader.readFloatBig();
-    /* x278_ */
-    x278_ = __dna_reader.readFloatBig();
+    /* x274_stepUpHeight */
+    x274_stepUpHeight = __dna_reader.readFloatBig();
+    /* x278_stepDownHeight */
+    x278_stepDownHeight = __dna_reader.readFloatBig();
     /* x27c_playerBallHalfExtent */
     x27c_playerBallHalfExtent = __dna_reader.readFloatBig();
     /* x280_ */
@@ -463,22 +463,22 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[6]);
     /* x4_maxTranslationalAcceleration[7] */
     __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[7]);
-    /* x24_[0] */
-    __dna_writer.writeFloatBig(x24_[0]);
-    /* x24_[1] */
-    __dna_writer.writeFloatBig(x24_[1]);
-    /* x24_[2] */
-    __dna_writer.writeFloatBig(x24_[2]);
-    /* x24_[3] */
-    __dna_writer.writeFloatBig(x24_[3]);
-    /* x24_[4] */
-    __dna_writer.writeFloatBig(x24_[4]);
-    /* x24_[5] */
-    __dna_writer.writeFloatBig(x24_[5]);
-    /* x24_[6] */
-    __dna_writer.writeFloatBig(x24_[6]);
-    /* x24_[7] */
-    __dna_writer.writeFloatBig(x24_[7]);
+    /* x24_maxRotationalAcceleration[0] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[0]);
+    /* x24_maxRotationalAcceleration[1] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[1]);
+    /* x24_maxRotationalAcceleration[2] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[2]);
+    /* x24_maxRotationalAcceleration[3] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[3]);
+    /* x24_maxRotationalAcceleration[4] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[4]);
+    /* x24_maxRotationalAcceleration[5] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[5]);
+    /* x24_maxRotationalAcceleration[6] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[6]);
+    /* x24_maxRotationalAcceleration[7] */
+    __dna_writer.writeFloatBig(x24_maxRotationalAcceleration[7]);
     /* x44_translationFriction[0] */
     __dna_writer.writeFloatBig(x44_translationFriction[0]);
     /* x44_translationFriction[1] */
@@ -495,38 +495,38 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x44_translationFriction[6]);
     /* x44_translationFriction[7] */
     __dna_writer.writeFloatBig(x44_translationFriction[7]);
-    /* x64_[0] */
-    __dna_writer.writeFloatBig(x64_[0]);
-    /* x64_[1] */
-    __dna_writer.writeFloatBig(x64_[1]);
-    /* x64_[2] */
-    __dna_writer.writeFloatBig(x64_[2]);
-    /* x64_[3] */
-    __dna_writer.writeFloatBig(x64_[3]);
-    /* x64_[4] */
-    __dna_writer.writeFloatBig(x64_[4]);
-    /* x64_[5] */
-    __dna_writer.writeFloatBig(x64_[5]);
-    /* x64_[6] */
-    __dna_writer.writeFloatBig(x64_[6]);
-    /* x64_[7] */
-    __dna_writer.writeFloatBig(x64_[7]);
-    /* x84_[0] */
-    __dna_writer.writeFloatBig(x84_[0]);
-    /* x84_[1] */
-    __dna_writer.writeFloatBig(x84_[1]);
-    /* x84_[2] */
-    __dna_writer.writeFloatBig(x84_[2]);
-    /* x84_[3] */
-    __dna_writer.writeFloatBig(x84_[3]);
-    /* x84_[4] */
-    __dna_writer.writeFloatBig(x84_[4]);
-    /* x84_[5] */
-    __dna_writer.writeFloatBig(x84_[5]);
-    /* x84_[6] */
-    __dna_writer.writeFloatBig(x84_[6]);
-    /* x84_[7] */
-    __dna_writer.writeFloatBig(x84_[7]);
+    /* x64_rotationFriction[0] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[0]);
+    /* x64_rotationFriction[1] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[1]);
+    /* x64_rotationFriction[2] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[2]);
+    /* x64_rotationFriction[3] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[3]);
+    /* x64_rotationFriction[4] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[4]);
+    /* x64_rotationFriction[5] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[5]);
+    /* x64_rotationFriction[6] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[6]);
+    /* x64_rotationFriction[7] */
+    __dna_writer.writeFloatBig(x64_rotationFriction[7]);
+    /* x84_rotationMaxSpeed[0] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[0]);
+    /* x84_rotationMaxSpeed[1] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[1]);
+    /* x84_rotationMaxSpeed[2] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[2]);
+    /* x84_rotationMaxSpeed[3] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[3]);
+    /* x84_rotationMaxSpeed[4] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[4]);
+    /* x84_rotationMaxSpeed[5] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[5]);
+    /* x84_rotationMaxSpeed[6] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[6]);
+    /* x84_rotationMaxSpeed[7] */
+    __dna_writer.writeFloatBig(x84_rotationMaxSpeed[7]);
     /* xa4_translationMaxSpeed[0] */
     __dna_writer.writeFloatBig(xa4_translationMaxSpeed[0]);
     /* xa4_translationMaxSpeed[1] */
@@ -547,56 +547,56 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(xc4_normalGravAccel);
     /* xc8_fluidGravAccel */
     __dna_writer.writeFloatBig(xc8_fluidGravAccel);
-    /* xcc_ */
-    __dna_writer.writeFloatBig(xcc_);
-    /* xd0_ */
-    __dna_writer.writeFloatBig(xd0_);
-    /* xd4_ */
-    __dna_writer.writeFloatBig(xd4_);
-    /* xd8_ */
-    __dna_writer.writeFloatBig(xd8_);
-    /* xdc_ */
-    __dna_writer.writeFloatBig(xdc_);
+    /* xcc_verticalJumpAccel */
+    __dna_writer.writeFloatBig(xcc_verticalJumpAccel);
+    /* xd0_horizontalJumpAccel */
+    __dna_writer.writeFloatBig(xd0_horizontalJumpAccel);
+    /* xd4_verticalDoubleJumpAccel */
+    __dna_writer.writeFloatBig(xd4_verticalDoubleJumpAccel);
+    /* xd8_horizontalDoubleJumpAccel */
+    __dna_writer.writeFloatBig(xd8_horizontalDoubleJumpAccel);
+    /* xdc_waterJumpFactor */
+    __dna_writer.writeFloatBig(xdc_waterJumpFactor);
     /* xe0_ */
     __dna_writer.writeFloatBig(xe0_);
-    /* xe4_ */
-    __dna_writer.writeFloatBig(xe4_);
+    /* xe4_lavaJumpFactor */
+    __dna_writer.writeFloatBig(xe4_lavaJumpFactor);
     /* xe8_ */
     __dna_writer.writeFloatBig(xe8_);
-    /* xec_ */
-    __dna_writer.writeFloatBig(xec_);
+    /* xec_phazonJumpFactor */
+    __dna_writer.writeFloatBig(xec_phazonJumpFactor);
     /* xf0_ */
     __dna_writer.writeFloatBig(xf0_);
-    /* xf4_ */
-    __dna_writer.writeFloatBig(xf4_);
-    /* xf8_ */
-    __dna_writer.writeFloatBig(xf8_);
-    /* xfc_ */
-    __dna_writer.writeFloatBig(xfc_);
-    /* x100_ */
-    __dna_writer.writeFloatBig(x100_);
+    /* xf4_allowedJumpTime */
+    __dna_writer.writeFloatBig(xf4_allowedJumpTime);
+    /* xf8_allowedDoubleJumpTime */
+    __dna_writer.writeFloatBig(xf8_allowedDoubleJumpTime);
+    /* xfc_minDoubleJumpWindow */
+    __dna_writer.writeFloatBig(xfc_minDoubleJumpWindow);
+    /* x100_maxDoubleJumpWindow */
+    __dna_writer.writeFloatBig(x100_maxDoubleJumpWindow);
     /* x104_ */
     __dna_writer.writeFloatBig(x104_);
-    /* x108_ */
-    __dna_writer.writeFloatBig(x108_);
-    /* x10c_ */
-    __dna_writer.writeFloatBig(x10c_);
-    /* x110_ */
-    __dna_writer.writeFloatBig(x110_);
-    /* x114_ */
-    __dna_writer.writeFloatBig(x114_);
-    /* x118_ */
-    __dna_writer.writeFloatBig(x118_);
+    /* x108_minJumpTime */
+    __dna_writer.writeFloatBig(x108_minJumpTime);
+    /* x10c_minDoubleJumpTime */
+    __dna_writer.writeFloatBig(x10c_minDoubleJumpTime);
+    /* x110_allowedLedgeTime */
+    __dna_writer.writeFloatBig(x110_allowedLedgeTime);
+    /* x114_doubleJumpImpulse */
+    __dna_writer.writeFloatBig(x114_doubleJumpImpulse);
+    /* x118_backwardsForceMultiplier */
+    __dna_writer.writeFloatBig(x118_backwardsForceMultiplier);
     /* x11c_ */
     __dna_writer.writeFloatBig(x11c_);
     /* x120_ */
     __dna_writer.writeFloatBig(x120_);
     /* x124_eyeOffset */
     __dna_writer.writeFloatBig(x124_eyeOffset);
-    /* x128_ */
-    __dna_writer.writeFloatBig(x128_);
-    /* x12c_ */
-    __dna_writer.writeFloatBig(x12c_);
+    /* x128_turnSpeedMultiplier */
+    __dna_writer.writeFloatBig(x128_turnSpeedMultiplier);
+    /* x12c_freeLookTurnSpeedMultiplier */
+    __dna_writer.writeFloatBig(x12c_freeLookTurnSpeedMultiplier);
     /* x130_horizontalFreeLookAngleVel */
     __dna_writer.writeFloatBig(x130_horizontalFreeLookAngleVel);
     /* x134_verticalFreeLookAngleVel */
@@ -623,10 +623,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeBool(x228_25_);
     /* x228_26_ */
     __dna_writer.writeBool(x228_26_);
-    /* x228_27_ */
-    __dna_writer.writeBool(x228_27_);
-    /* x228_28_enableFreeLook */
-    __dna_writer.writeBool(x228_28_enableFreeLook);
+    /* x228_27_moveDuringFreeLook */
+    __dna_writer.writeBool(x228_27_moveDuringFreeLook);
+    /* x228_28_holdButtonsForFreeLook */
+    __dna_writer.writeBool(x228_28_holdButtonsForFreeLook);
     /* x228_29_twoButtonsForFreeLook */
     __dna_writer.writeBool(x228_29_twoButtonsForFreeLook);
     /* x228_30_ */
@@ -649,11 +649,11 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeBool(x229_30_gunButtonTogglesHolster);
     /* x229_31_gunNotFiringHolstersGun */
     __dna_writer.writeBool(x229_31_gunNotFiringHolstersGun);
-    /* x22a_24_ */
-    __dna_writer.writeBool(x22a_24_);
-    /* x22a_25_ */
-    __dna_writer.writeBool(x22a_25_);
-    /* x22a_26_ */
+    /* x22a_24_fallingDoubleJump */
+    __dna_writer.writeBool(x22a_24_fallingDoubleJump);
+    /* x22a_25_impulseDoubleJump */
+    __dna_writer.writeBool(x22a_25_impulseDoubleJump);
+    /* x22a_26_firingCancelsCameraPitch */
     __dna_writer.writeBool(x22a_26_firingCancelsCameraPitch);
     /* x22a_27_assistedAimingIgnoreHorizontal */
     __dna_writer.writeBool(x22a_27_assistedAimingIgnoreHorizontal);
@@ -775,20 +775,20 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x1f8_);
     /* x1fc_ */
     __dna_writer.writeFloatBig(x1fc_);
-    /* x200_24_ */
-    __dna_writer.writeBool(x200_24_);
-    /* x200_25_ */
-    __dna_writer.writeBool(x200_25_);
-    /* x204_ */
-    __dna_writer.writeFloatBig(x204_);
-    /* x208_ */
-    __dna_writer.writeFloatBig(x208_);
-    /* x20c_ */
-    __dna_writer.writeFloatBig(x20c_);
-    /* x210_ */
-    __dna_writer.writeFloatBig(x210_);
-    /* x214_ */
-    __dna_writer.writeFloatBig(x214_);
+    /* x200_24_dashEnabled */
+    __dna_writer.writeBool(x200_24_dashEnabled);
+    /* x200_25_dashOnButtonRelease */
+    __dna_writer.writeBool(x200_25_dashOnButtonRelease);
+    /* x204_dashButtonHoldCancelTime */
+    __dna_writer.writeFloatBig(x204_dashButtonHoldCancelTime);
+    /* x208_dashStrafeInputThreshold */
+    __dna_writer.writeFloatBig(x208_dashStrafeInputThreshold);
+    /* x20c_sidewaysDoubleJumpImpulse */
+    __dna_writer.writeFloatBig(x20c_sidewaysDoubleJumpImpulse);
+    /* x210_sidewaysVerticalDoubleJumpAccel */
+    __dna_writer.writeFloatBig(x210_sidewaysVerticalDoubleJumpAccel);
+    /* x214_sidewaysHorizontalDoubleJumpAccel */
+    __dna_writer.writeFloatBig(x214_sidewaysHorizontalDoubleJumpAccel);
     /* x218_scanningRange */
     __dna_writer.writeFloatBig(x218_scanningRange);
     /* x21c_24_scanRetention */
@@ -843,10 +843,10 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x26c_playerHeight);
     /* x270_playerXYHalfExtent */
     __dna_writer.writeFloatBig(x270_playerXYHalfExtent);
-    /* x274_ */
-    __dna_writer.writeFloatBig(x274_);
-    /* x278_ */
-    __dna_writer.writeFloatBig(x278_);
+    /* x274_stepUpHeight */
+    __dna_writer.writeFloatBig(x274_stepUpHeight);
+    /* x278_stepDownHeight */
+    __dna_writer.writeFloatBig(x278_stepDownHeight);
     /* x27c_playerBallHalfExtent */
     __dna_writer.writeFloatBig(x27c_playerBallHalfExtent);
     /* x280_ */
@@ -908,26 +908,26 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x4_maxTranslationalAcceleration[7] */
     x4_maxTranslationalAcceleration[7] = __dna_docin.readFloat("x4_maxTranslationalAcceleration");
     }
-    /* x24_ */
+    /* x24_maxRotationalAcceleration */
     size_t __x24_Count;
-    if (auto v = __dna_docin.enterSubVector("x24_", __x24_Count))
+    if (auto v = __dna_docin.enterSubVector("x24_maxRotationalAcceleration", __x24_Count))
     {
-    /* x24_[0] */
-    x24_[0] = __dna_docin.readFloat("x24_");
-    /* x24_[1] */
-    x24_[1] = __dna_docin.readFloat("x24_");
-    /* x24_[2] */
-    x24_[2] = __dna_docin.readFloat("x24_");
-    /* x24_[3] */
-    x24_[3] = __dna_docin.readFloat("x24_");
-    /* x24_[4] */
-    x24_[4] = __dna_docin.readFloat("x24_");
-    /* x24_[5] */
-    x24_[5] = __dna_docin.readFloat("x24_");
-    /* x24_[6] */
-    x24_[6] = __dna_docin.readFloat("x24_");
-    /* x24_[7] */
-    x24_[7] = __dna_docin.readFloat("x24_");
+    /* x24_maxRotationalAcceleration[0] */
+    x24_maxRotationalAcceleration[0] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[1] */
+    x24_maxRotationalAcceleration[1] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[2] */
+    x24_maxRotationalAcceleration[2] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[3] */
+    x24_maxRotationalAcceleration[3] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[4] */
+    x24_maxRotationalAcceleration[4] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[5] */
+    x24_maxRotationalAcceleration[5] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[6] */
+    x24_maxRotationalAcceleration[6] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
+    /* x24_maxRotationalAcceleration[7] */
+    x24_maxRotationalAcceleration[7] = __dna_docin.readFloat("x24_maxRotationalAcceleration");
     }
     /* x44_translationFriction */
     size_t __x44_Count;
@@ -950,47 +950,47 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     /* x44_translationFriction[7] */
     x44_translationFriction[7] = __dna_docin.readFloat("x44_translationFriction");
     }
-    /* x64_ */
+    /* x64_rotationFriction */
     size_t __x64_Count;
-    if (auto v = __dna_docin.enterSubVector("x64_", __x64_Count))
+    if (auto v = __dna_docin.enterSubVector("x64_rotationFriction", __x64_Count))
     {
-    /* x64_[0] */
-    x64_[0] = __dna_docin.readFloat("x64_");
-    /* x64_[1] */
-    x64_[1] = __dna_docin.readFloat("x64_");
-    /* x64_[2] */
-    x64_[2] = __dna_docin.readFloat("x64_");
-    /* x64_[3] */
-    x64_[3] = __dna_docin.readFloat("x64_");
-    /* x64_[4] */
-    x64_[4] = __dna_docin.readFloat("x64_");
-    /* x64_[5] */
-    x64_[5] = __dna_docin.readFloat("x64_");
-    /* x64_[6] */
-    x64_[6] = __dna_docin.readFloat("x64_");
-    /* x64_[7] */
-    x64_[7] = __dna_docin.readFloat("x64_");
+    /* x64_rotationFriction[0] */
+    x64_rotationFriction[0] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[1] */
+    x64_rotationFriction[1] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[2] */
+    x64_rotationFriction[2] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[3] */
+    x64_rotationFriction[3] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[4] */
+    x64_rotationFriction[4] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[5] */
+    x64_rotationFriction[5] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[6] */
+    x64_rotationFriction[6] = __dna_docin.readFloat("x64_rotationFriction");
+    /* x64_rotationFriction[7] */
+    x64_rotationFriction[7] = __dna_docin.readFloat("x64_rotationFriction");
     }
-    /* x84_ */
+    /* x84_rotationMaxSpeed */
     size_t __x84_Count;
-    if (auto v = __dna_docin.enterSubVector("x84_", __x84_Count))
+    if (auto v = __dna_docin.enterSubVector("x84_rotationMaxSpeed", __x84_Count))
     {
-    /* x84_[0] */
-    x84_[0] = __dna_docin.readFloat("x84_");
-    /* x84_[1] */
-    x84_[1] = __dna_docin.readFloat("x84_");
-    /* x84_[2] */
-    x84_[2] = __dna_docin.readFloat("x84_");
-    /* x84_[3] */
-    x84_[3] = __dna_docin.readFloat("x84_");
-    /* x84_[4] */
-    x84_[4] = __dna_docin.readFloat("x84_");
-    /* x84_[5] */
-    x84_[5] = __dna_docin.readFloat("x84_");
-    /* x84_[6] */
-    x84_[6] = __dna_docin.readFloat("x84_");
-    /* x84_[7] */
-    x84_[7] = __dna_docin.readFloat("x84_");
+    /* x84_rotationMaxSpeed[0] */
+    x84_rotationMaxSpeed[0] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[1] */
+    x84_rotationMaxSpeed[1] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[2] */
+    x84_rotationMaxSpeed[2] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[3] */
+    x84_rotationMaxSpeed[3] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[4] */
+    x84_rotationMaxSpeed[4] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[5] */
+    x84_rotationMaxSpeed[5] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[6] */
+    x84_rotationMaxSpeed[6] = __dna_docin.readFloat("x84_rotationMaxSpeed");
+    /* x84_rotationMaxSpeed[7] */
+    x84_rotationMaxSpeed[7] = __dna_docin.readFloat("x84_rotationMaxSpeed");
     }
     /* xa4_translationMaxSpeed */
     size_t __xa4_Count;
@@ -1017,56 +1017,56 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     xc4_normalGravAccel = __dna_docin.readFloat("xc4_normalGravAccel");
     /* xc8_fluidGravAccel */
     xc8_fluidGravAccel = __dna_docin.readFloat("xc8_fluidGravAccel");
-    /* xcc_ */
-    xcc_ = __dna_docin.readFloat("xcc_");
-    /* xd0_ */
-    xd0_ = __dna_docin.readFloat("xd0_");
-    /* xd4_ */
-    xd4_ = __dna_docin.readFloat("xd4_");
-    /* xd8_ */
-    xd8_ = __dna_docin.readFloat("xd8_");
-    /* xdc_ */
-    xdc_ = __dna_docin.readFloat("xdc_");
+    /* xcc_verticalJumpAccel */
+    xcc_verticalJumpAccel = __dna_docin.readFloat("xcc_verticalJumpAccel");
+    /* xd0_horizontalJumpAccel */
+    xd0_horizontalJumpAccel = __dna_docin.readFloat("xd0_horizontalJumpAccel");
+    /* xd4_verticalDoubleJumpAccel */
+    xd4_verticalDoubleJumpAccel = __dna_docin.readFloat("xd4_verticalDoubleJumpAccel");
+    /* xd8_horizontalDoubleJumpAccel */
+    xd8_horizontalDoubleJumpAccel = __dna_docin.readFloat("xd8_horizontalDoubleJumpAccel");
+    /* xdc_waterJumpFactor */
+    xdc_waterJumpFactor = __dna_docin.readFloat("xdc_waterJumpFactor");
     /* xe0_ */
     xe0_ = __dna_docin.readFloat("xe0_");
-    /* xe4_ */
-    xe4_ = __dna_docin.readFloat("xe4_");
+    /* xe4_lavaJumpFactor */
+    xe4_lavaJumpFactor = __dna_docin.readFloat("xe4_lavaJumpFactor");
     /* xe8_ */
     xe8_ = __dna_docin.readFloat("xe8_");
-    /* xec_ */
-    xec_ = __dna_docin.readFloat("xec_");
+    /* xec_phazonJumpFactor */
+    xec_phazonJumpFactor = __dna_docin.readFloat("xec_phazonJumpFactor");
     /* xf0_ */
     xf0_ = __dna_docin.readFloat("xf0_");
-    /* xf4_ */
-    xf4_ = __dna_docin.readFloat("xf4_");
-    /* xf8_ */
-    xf8_ = __dna_docin.readFloat("xf8_");
-    /* xfc_ */
-    xfc_ = __dna_docin.readFloat("xfc_");
-    /* x100_ */
-    x100_ = __dna_docin.readFloat("x100_");
+    /* xf4_allowedJumpTime */
+    xf4_allowedJumpTime = __dna_docin.readFloat("xf4_allowedJumpTime");
+    /* xf8_allowedDoubleJumpTime */
+    xf8_allowedDoubleJumpTime = __dna_docin.readFloat("xf8_allowedDoubleJumpTime");
+    /* xfc_minDoubleJumpWindow */
+    xfc_minDoubleJumpWindow = __dna_docin.readFloat("xfc_minDoubleJumpWindow");
+    /* x100_maxDoubleJumpWindow */
+    x100_maxDoubleJumpWindow = __dna_docin.readFloat("x100_maxDoubleJumpWindow");
     /* x104_ */
     x104_ = __dna_docin.readFloat("x104_");
-    /* x108_ */
-    x108_ = __dna_docin.readFloat("x108_");
-    /* x10c_ */
-    x10c_ = __dna_docin.readFloat("x10c_");
-    /* x110_ */
-    x110_ = __dna_docin.readFloat("x110_");
-    /* x114_ */
-    x114_ = __dna_docin.readFloat("x114_");
-    /* x118_ */
-    x118_ = __dna_docin.readFloat("x118_");
+    /* x108_minJumpTime */
+    x108_minJumpTime = __dna_docin.readFloat("x108_minJumpTime");
+    /* x10c_minDoubleJumpTime */
+    x10c_minDoubleJumpTime = __dna_docin.readFloat("x10c_minDoubleJumpTime");
+    /* x110_allowedLedgeTime */
+    x110_allowedLedgeTime = __dna_docin.readFloat("x110_allowedLedgeTime");
+    /* x114_doubleJumpImpulse */
+    x114_doubleJumpImpulse = __dna_docin.readFloat("x114_doubleJumpImpulse");
+    /* x118_backwardsForceMultiplier */
+    x118_backwardsForceMultiplier = __dna_docin.readFloat("x118_backwardsForceMultiplier");
     /* x11c_ */
     x11c_ = __dna_docin.readFloat("x11c_");
     /* x120_ */
     x120_ = __dna_docin.readFloat("x120_");
     /* x124_eyeOffset */
     x124_eyeOffset = __dna_docin.readFloat("x124_eyeOffset");
-    /* x128_ */
-    x128_ = __dna_docin.readFloat("x128_");
-    /* x12c_ */
-    x12c_ = __dna_docin.readFloat("x12c_");
+    /* x128_turnSpeedMultiplier */
+    x128_turnSpeedMultiplier = __dna_docin.readFloat("x128_turnSpeedMultiplier");
+    /* x12c_freeLookTurnSpeedMultiplier */
+    x12c_freeLookTurnSpeedMultiplier = __dna_docin.readFloat("x12c_freeLookTurnSpeedMultiplier");
     /* x130_horizontalFreeLookAngleVel */
     x130_horizontalFreeLookAngleVel = __dna_docin.readFloat("x130_horizontalFreeLookAngleVel");
     /* x134_verticalFreeLookAngleVel */
@@ -1093,10 +1093,10 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x228_25_ = __dna_docin.readBool("x228_25_");
     /* x228_26_ */
     x228_26_ = __dna_docin.readBool("x228_26_");
-    /* x228_27_ */
-    x228_27_ = __dna_docin.readBool("x228_27_");
-    /* x228_28_enableFreeLook */
-    x228_28_enableFreeLook = __dna_docin.readBool("x228_28_enableFreeLook");
+    /* x228_27_moveDuringFreeLook */
+    x228_27_moveDuringFreeLook = __dna_docin.readBool("x228_27_moveDuringFreeLook");
+    /* x228_28_holdButtonsForFreeLook */
+    x228_28_holdButtonsForFreeLook = __dna_docin.readBool("x228_28_holdButtonsForFreeLook");
     /* x228_29_twoButtonsForFreeLook */
     x228_29_twoButtonsForFreeLook = __dna_docin.readBool("x228_29_twoButtonsForFreeLook");
     /* x228_30_ */
@@ -1119,10 +1119,10 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x229_30_gunButtonTogglesHolster = __dna_docin.readBool("x229_30_gunButtonTogglesHolster");
     /* x229_31_gunNotFiringHolstersGun */
     x229_31_gunNotFiringHolstersGun = __dna_docin.readBool("x229_31_gunNotFiringHolstersGun");
-    /* x22a_24_ */
-    x22a_24_ = __dna_docin.readBool("x22a_24_");
-    /* x22a_25_ */
-    x22a_25_ = __dna_docin.readBool("x22a_25_");
+    /* x22a_24_fallingDoubleJump */
+    x22a_24_fallingDoubleJump = __dna_docin.readBool("x22a_24_fallingDoubleJump");
+    /* x22a_25_impulseDoubleJump */
+    x22a_25_impulseDoubleJump = __dna_docin.readBool("x22a_25_impulseDoubleJump");
     /* x22a_26_firingCancelsCameraPitch */
     x22a_26_firingCancelsCameraPitch = __dna_docin.readBool("x22a_26_firingCancelsCameraPitch");
     /* x22a_27_assistedAimingIgnoreHorizontal */
@@ -1290,20 +1290,20 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x1f8_ = __dna_docin.readFloat("x1f8_");
     /* x1fc_ */
     x1fc_ = __dna_docin.readFloat("x1fc_");
-    /* x200_24_ */
-    x200_24_ = __dna_docin.readBool("x200_24_");
-    /* x200_25_ */
-    x200_25_ = __dna_docin.readBool("x200_25_");
-    /* x204_ */
-    x204_ = __dna_docin.readFloat("x204_");
-    /* x208_ */
-    x208_ = __dna_docin.readFloat("x208_");
-    /* x20c_ */
-    x20c_ = __dna_docin.readFloat("x20c_");
-    /* x210_ */
-    x210_ = __dna_docin.readFloat("x210_");
-    /* x214_ */
-    x214_ = __dna_docin.readFloat("x214_");
+    /* x200_24_dashEnabled */
+    x200_24_dashEnabled = __dna_docin.readBool("x200_24_dashEnabled");
+    /* x200_25_dashOnButtonRelease */
+    x200_25_dashOnButtonRelease = __dna_docin.readBool("x200_25_dashOnButtonRelease");
+    /* x204_dashButtonHoldCancelTime */
+    x204_dashButtonHoldCancelTime = __dna_docin.readFloat("x204_dashButtonHoldCancelTime");
+    /* x208_dashStrafeInputThreshold */
+    x208_dashStrafeInputThreshold = __dna_docin.readFloat("x208_dashStrafeInputThreshold");
+    /* x20c_sidewaysDoubleJumpImpulse */
+    x20c_sidewaysDoubleJumpImpulse = __dna_docin.readFloat("x20c_sidewaysDoubleJumpImpulse");
+    /* x210_sidewaysVerticalDoubleJumpAccel */
+    x210_sidewaysVerticalDoubleJumpAccel = __dna_docin.readFloat("x210_sidewaysVerticalDoubleJumpAccel");
+    /* x214_sidewaysHorizontalDoubleJumpAccel */
+    x214_sidewaysHorizontalDoubleJumpAccel = __dna_docin.readFloat("x214_sidewaysHorizontalDoubleJumpAccel");
     /* x218_scanningRange */
     x218_scanningRange = __dna_docin.readFloat("x218_scanningRange");
     /* x21c_24_scanRetention */
@@ -1358,10 +1358,10 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x26c_playerHeight = __dna_docin.readFloat("x26c_playerHeight");
     /* x270_playerXYHalfExtent */
     x270_playerXYHalfExtent = __dna_docin.readFloat("x270_playerXYHalfExtent");
-    /* x274_ */
-    x274_ = __dna_docin.readFloat("x274_");
-    /* x278_ */
-    x278_ = __dna_docin.readFloat("x278_");
+    /* x274_stepUpHeight */
+    x274_stepUpHeight = __dna_docin.readFloat("x274_stepUpHeight");
+    /* x278_stepDownHeight */
+    x278_stepDownHeight = __dna_docin.readFloat("x278_stepDownHeight");
     /* x27c_playerBallHalfExtent */
     x27c_playerBallHalfExtent = __dna_docin.readFloat("x27c_playerBallHalfExtent");
     /* x280_ */
@@ -1422,25 +1422,25 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x4_maxTranslationalAcceleration[7] */
     __dna_docout.writeFloat("x4_maxTranslationalAcceleration", x4_maxTranslationalAcceleration[7]);
     }
-    /* x24_ */
-    if (auto v = __dna_docout.enterSubVector("x24_"))
+    /* x24_maxRotationalAcceleration */
+    if (auto v = __dna_docout.enterSubVector("x24_maxRotationalAcceleration"))
     {
-    /* x24_[0] */
-    __dna_docout.writeFloat("x24_", x24_[0]);
-    /* x24_[1] */
-    __dna_docout.writeFloat("x24_", x24_[1]);
-    /* x24_[2] */
-    __dna_docout.writeFloat("x24_", x24_[2]);
-    /* x24_[3] */
-    __dna_docout.writeFloat("x24_", x24_[3]);
-    /* x24_[4] */
-    __dna_docout.writeFloat("x24_", x24_[4]);
-    /* x24_[5] */
-    __dna_docout.writeFloat("x24_", x24_[5]);
-    /* x24_[6] */
-    __dna_docout.writeFloat("x24_", x24_[6]);
-    /* x24_[7] */
-    __dna_docout.writeFloat("x24_", x24_[7]);
+    /* x24_maxRotationalAcceleration[0] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[0]);
+    /* x24_maxRotationalAcceleration[1] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[1]);
+    /* x24_maxRotationalAcceleration[2] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[2]);
+    /* x24_maxRotationalAcceleration[3] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[3]);
+    /* x24_maxRotationalAcceleration[4] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[4]);
+    /* x24_maxRotationalAcceleration[5] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[5]);
+    /* x24_maxRotationalAcceleration[6] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[6]);
+    /* x24_maxRotationalAcceleration[7] */
+    __dna_docout.writeFloat("x24_maxRotationalAcceleration", x24_maxRotationalAcceleration[7]);
     }
     /* x44_translationFriction */
     if (auto v = __dna_docout.enterSubVector("x44_translationFriction"))
@@ -1462,45 +1462,45 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x44_translationFriction[7] */
     __dna_docout.writeFloat("x44_translationFriction", x44_translationFriction[7]);
     }
-    /* x64_ */
-    if (auto v = __dna_docout.enterSubVector("x64_"))
+    /* x64_rotationFriction */
+    if (auto v = __dna_docout.enterSubVector("x64_rotationFriction"))
     {
-    /* x64_[0] */
-    __dna_docout.writeFloat("x64_", x64_[0]);
-    /* x64_[1] */
-    __dna_docout.writeFloat("x64_", x64_[1]);
-    /* x64_[2] */
-    __dna_docout.writeFloat("x64_", x64_[2]);
-    /* x64_[3] */
-    __dna_docout.writeFloat("x64_", x64_[3]);
-    /* x64_[4] */
-    __dna_docout.writeFloat("x64_", x64_[4]);
-    /* x64_[5] */
-    __dna_docout.writeFloat("x64_", x64_[5]);
-    /* x64_[6] */
-    __dna_docout.writeFloat("x64_", x64_[6]);
-    /* x64_[7] */
-    __dna_docout.writeFloat("x64_", x64_[7]);
+    /* x64_rotationFriction[0] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[0]);
+    /* x64_rotationFriction[1] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[1]);
+    /* x64_rotationFriction[2] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[2]);
+    /* x64_rotationFriction[3] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[3]);
+    /* x64_rotationFriction[4] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[4]);
+    /* x64_rotationFriction[5] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[5]);
+    /* x64_rotationFriction[6] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[6]);
+    /* x64_rotationFriction[7] */
+    __dna_docout.writeFloat("x64_rotationFriction", x64_rotationFriction[7]);
     }
-    /* x84_ */
-    if (auto v = __dna_docout.enterSubVector("x84_"))
+    /* x84_rotationMaxSpeed */
+    if (auto v = __dna_docout.enterSubVector("x84_rotationMaxSpeed"))
     {
-    /* x84_[0] */
-    __dna_docout.writeFloat("x84_", x84_[0]);
-    /* x84_[1] */
-    __dna_docout.writeFloat("x84_", x84_[1]);
-    /* x84_[2] */
-    __dna_docout.writeFloat("x84_", x84_[2]);
-    /* x84_[3] */
-    __dna_docout.writeFloat("x84_", x84_[3]);
-    /* x84_[4] */
-    __dna_docout.writeFloat("x84_", x84_[4]);
-    /* x84_[5] */
-    __dna_docout.writeFloat("x84_", x84_[5]);
-    /* x84_[6] */
-    __dna_docout.writeFloat("x84_", x84_[6]);
-    /* x84_[7] */
-    __dna_docout.writeFloat("x84_", x84_[7]);
+    /* x84_rotationMaxSpeed[0] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[0]);
+    /* x84_rotationMaxSpeed[1] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[1]);
+    /* x84_rotationMaxSpeed[2] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[2]);
+    /* x84_rotationMaxSpeed[3] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[3]);
+    /* x84_rotationMaxSpeed[4] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[4]);
+    /* x84_rotationMaxSpeed[5] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[5]);
+    /* x84_rotationMaxSpeed[6] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[6]);
+    /* x84_rotationMaxSpeed[7] */
+    __dna_docout.writeFloat("x84_rotationMaxSpeed", x84_rotationMaxSpeed[7]);
     }
     /* xa4_translationMaxSpeed */
     if (auto v = __dna_docout.enterSubVector("xa4_translationMaxSpeed"))
@@ -1526,56 +1526,56 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("xc4_normalGravAccel", xc4_normalGravAccel);
     /* xc8_fluidGravAccel */
     __dna_docout.writeFloat("xc8_fluidGravAccel", xc8_fluidGravAccel);
-    /* xcc_ */
-    __dna_docout.writeFloat("xcc_", xcc_);
-    /* xd0_ */
-    __dna_docout.writeFloat("xd0_", xd0_);
-    /* xd4_ */
-    __dna_docout.writeFloat("xd4_", xd4_);
-    /* xd8_ */
-    __dna_docout.writeFloat("xd8_", xd8_);
-    /* xdc_ */
-    __dna_docout.writeFloat("xdc_", xdc_);
+    /* xcc_verticalJumpAccel */
+    __dna_docout.writeFloat("xcc_verticalJumpAccel", xcc_verticalJumpAccel);
+    /* xd0_horizontalJumpAccel */
+    __dna_docout.writeFloat("xd0_horizontalJumpAccel", xd0_horizontalJumpAccel);
+    /* xd4_verticalDoubleJumpAccel */
+    __dna_docout.writeFloat("xd4_verticalDoubleJumpAccel", xd4_verticalDoubleJumpAccel);
+    /* xd8_horizontalDoubleJumpAccel */
+    __dna_docout.writeFloat("xd8_horizontalDoubleJumpAccel", xd8_horizontalDoubleJumpAccel);
+    /* xdc_waterJumpFactor */
+    __dna_docout.writeFloat("xdc_waterJumpFactor", xdc_waterJumpFactor);
     /* xe0_ */
     __dna_docout.writeFloat("xe0_", xe0_);
-    /* xe4_ */
-    __dna_docout.writeFloat("xe4_", xe4_);
+    /* xe4_lavaJumpFactor */
+    __dna_docout.writeFloat("xe4_lavaJumpFactor", xe4_lavaJumpFactor);
     /* xe8_ */
     __dna_docout.writeFloat("xe8_", xe8_);
-    /* xec_ */
-    __dna_docout.writeFloat("xec_", xec_);
+    /* xec_phazonJumpFactor */
+    __dna_docout.writeFloat("xec_phazonJumpFactor", xec_phazonJumpFactor);
     /* xf0_ */
     __dna_docout.writeFloat("xf0_", xf0_);
-    /* xf4_ */
-    __dna_docout.writeFloat("xf4_", xf4_);
-    /* xf8_ */
-    __dna_docout.writeFloat("xf8_", xf8_);
-    /* xfc_ */
-    __dna_docout.writeFloat("xfc_", xfc_);
-    /* x100_ */
-    __dna_docout.writeFloat("x100_", x100_);
+    /* xf4_allowedJumpTime */
+    __dna_docout.writeFloat("xf4_allowedJumpTime", xf4_allowedJumpTime);
+    /* xf8_allowedDoubleJumpTime */
+    __dna_docout.writeFloat("xf8_allowedDoubleJumpTime", xf8_allowedDoubleJumpTime);
+    /* xfc_minDoubleJumpWindow */
+    __dna_docout.writeFloat("xfc_minDoubleJumpWindow", xfc_minDoubleJumpWindow);
+    /* x100_maxDoubleJumpWindow */
+    __dna_docout.writeFloat("x100_maxDoubleJumpWindow", x100_maxDoubleJumpWindow);
     /* x104_ */
     __dna_docout.writeFloat("x104_", x104_);
-    /* x108_ */
-    __dna_docout.writeFloat("x108_", x108_);
-    /* x10c_ */
-    __dna_docout.writeFloat("x10c_", x10c_);
-    /* x110_ */
-    __dna_docout.writeFloat("x110_", x110_);
-    /* x114_ */
-    __dna_docout.writeFloat("x114_", x114_);
-    /* x118_ */
-    __dna_docout.writeFloat("x118_", x118_);
+    /* x108_minJumpTime */
+    __dna_docout.writeFloat("x108_minJumpTime", x108_minJumpTime);
+    /* x10c_minDoubleJumpTime */
+    __dna_docout.writeFloat("x10c_minDoubleJumpTime", x10c_minDoubleJumpTime);
+    /* x110_allowedLedgeTime */
+    __dna_docout.writeFloat("x110_allowedLedgeTime", x110_allowedLedgeTime);
+    /* x114_doubleJumpImpulse */
+    __dna_docout.writeFloat("x114_doubleJumpImpulse", x114_doubleJumpImpulse);
+    /* x118_backwardsForceMultiplier */
+    __dna_docout.writeFloat("x118_backwardsForceMultiplier", x118_backwardsForceMultiplier);
     /* x11c_ */
     __dna_docout.writeFloat("x11c_", x11c_);
     /* x120_ */
     __dna_docout.writeFloat("x120_", x120_);
     /* x124_eyeOffset */
     __dna_docout.writeFloat("x124_eyeOffset", x124_eyeOffset);
-    /* x128_ */
-    __dna_docout.writeFloat("x128_", x128_);
-    /* x12c_ */
-    __dna_docout.writeFloat("x12c_", x12c_);
+    /* x128_turnSpeedMultiplier */
+    __dna_docout.writeFloat("x128_turnSpeedMultiplier", x128_turnSpeedMultiplier);
+    /* x12c_freeLookTurnSpeedMultiplier */
+    __dna_docout.writeFloat("x12c_freeLookTurnSpeedMultiplier", x12c_freeLookTurnSpeedMultiplier);
     /* x130_horizontalFreeLookAngleVel */
     __dna_docout.writeFloat("x130_horizontalFreeLookAngleVel", x130_horizontalFreeLookAngleVel);
     /* x134_verticalFreeLookAngleVel */
@@ -1602,10 +1602,10 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeBool("x228_25_", x228_25_);
     /* x228_26_ */
     __dna_docout.writeBool("x228_26_", x228_26_);
-    /* x228_27_ */
-    __dna_docout.writeBool("x228_27_", x228_27_);
-    /* x228_28_enableFreeLook */
-    __dna_docout.writeBool("x228_28_enableFreeLook", x228_28_enableFreeLook);
+    /* x228_27_moveDuringFreeLook */
+    __dna_docout.writeBool("x228_27_moveDuringFreeLook", x228_27_moveDuringFreeLook);
+    /* x228_28_holdButtonsForFreeLook */
+    __dna_docout.writeBool("x228_28_holdButtonsForFreeLook", x228_28_holdButtonsForFreeLook);
     /* x228_29_twoButtonsForFreeLook */
     __dna_docout.writeBool("x228_29_twoButtonsForFreeLook", x228_29_twoButtonsForFreeLook);
     /* x228_30_ */
@@ -1628,10 +1628,10 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeBool("x229_30_gunButtonTogglesHolster", x229_30_gunButtonTogglesHolster);
     /* x229_31_gunNotFiringHolstersGun */
     __dna_docout.writeBool("x229_31_gunNotFiringHolstersGun", x229_31_gunNotFiringHolstersGun);
-    /* x22a_24_ */
-    __dna_docout.writeBool("x22a_24_", x22a_24_);
-    /* x22a_25_ */
-    __dna_docout.writeBool("x22a_25_", x22a_25_);
+    /* x22a_24_fallingDoubleJump */
+    __dna_docout.writeBool("x22a_24_fallingDoubleJump", x22a_24_fallingDoubleJump);
+    /* x22a_25_impulseDoubleJump */
+    __dna_docout.writeBool("x22a_25_impulseDoubleJump", x22a_25_impulseDoubleJump);
     /* x22a_26_firingCancelsCameraPitch */
     __dna_docout.writeBool("x22a_26_firingCancelsCameraPitch", x22a_26_firingCancelsCameraPitch);
     /* x22a_27_assistedAimingIgnoreHorizontal */
@@ -1770,9 +1770,9 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x1d0_orbitZoneIdealY[1] */
     __dna_docout.writeUint32("x1d0_orbitZoneIdealY", x1d0_orbitZoneIdealY[1]);
     }
-    /* x1d8_ */
+    /* x1d8_orbitNearX */
     __dna_docout.writeFloat("x1d8_orbitNearX", x1d8_orbitNearX);
-    /* x1dc_ */
+    /* x1dc_orbitNearZ */
     __dna_docout.writeFloat("x1dc_orbitNearZ", x1dc_orbitNearZ);
     /* x1e0_ */
     __dna_docout.writeFloat("x1e0_", x1e0_);
@@ -1790,20 +1790,20 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x1f8_", x1f8_);
     /* x1fc_ */
     __dna_docout.writeFloat("x1fc_", x1fc_);
-    /* x200_24_ */
-    __dna_docout.writeBool("x200_24_", x200_24_);
-    /* x200_25_ */
-    __dna_docout.writeBool("x200_25_", x200_25_);
-    /* x204_ */
-    __dna_docout.writeFloat("x204_", x204_);
-    /* x208_ */
-    __dna_docout.writeFloat("x208_", x208_);
-    /* x20c_ */
-    __dna_docout.writeFloat("x20c_", x20c_);
-    /* x210_ */
-    __dna_docout.writeFloat("x210_", x210_);
-    /* x214_ */
-    __dna_docout.writeFloat("x214_", x214_);
+    /* x200_24_dashEnabled */
+    __dna_docout.writeBool("x200_24_dashEnabled", x200_24_dashEnabled);
+    /* x200_25_dashOnButtonRelease */
+    __dna_docout.writeBool("x200_25_dashOnButtonRelease", x200_25_dashOnButtonRelease);
+    /* x204_dashButtonHoldCancelTime */
+    __dna_docout.writeFloat("x204_dashButtonHoldCancelTime", x204_dashButtonHoldCancelTime);
+    /* x208_dashStrafeInputThreshold */
+    __dna_docout.writeFloat("x208_dashStrafeInputThreshold", x208_dashStrafeInputThreshold);
+    /* x20c_sidewaysDoubleJumpImpulse */
+    __dna_docout.writeFloat("x20c_sidewaysDoubleJumpImpulse", x20c_sidewaysDoubleJumpImpulse);
+    /* x210_sidewaysVerticalDoubleJumpAccel */
+    __dna_docout.writeFloat("x210_sidewaysVerticalDoubleJumpAccel", x210_sidewaysVerticalDoubleJumpAccel);
+    /* x214_sidewaysHorizontalDoubleJumpAccel */
+    __dna_docout.writeFloat("x214_sidewaysHorizontalDoubleJumpAccel", x214_sidewaysHorizontalDoubleJumpAccel);
     /* x218_scanningRange */
     __dna_docout.writeFloat("x218_scanningRange", x218_scanningRange);
     /* x21c_24_scanRetention */
@@ -1858,10 +1858,10 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x26c_playerHeight", x26c_playerHeight);
     /* x270_playerXYHalfExtent */
     __dna_docout.writeFloat("x270_playerXYHalfExtent", x270_playerXYHalfExtent);
-    /* x274_ */
-    __dna_docout.writeFloat("x274_", x274_);
-    /* x278_ */
-    __dna_docout.writeFloat("x278_", x278_);
+    /* x274_stepUpHeight */
+    __dna_docout.writeFloat("x274_stepUpHeight", x274_stepUpHeight);
+    /* x278_stepDownHeight */
+    __dna_docout.writeFloat("x278_stepDownHeight", x278_stepDownHeight);
     /* x27c_playerBallHalfExtent */
     __dna_docout.writeFloat("x27c_playerBallHalfExtent", x27c_playerBallHalfExtent);
     /* x280_ */

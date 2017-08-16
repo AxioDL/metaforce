@@ -67,10 +67,10 @@ struct Water : IScriptObject
     UniqueID32 splashParticle1;
     UniqueID32 splashParticle2;
     UniqueID32 splashParticle3;
-    UniqueID32 particle4;
-    UniqueID32 particle5;
-    Value<atUint32> unkSfx;
+    UniqueID32 visorRunoffParticle;
+    UniqueID32 unmorphVisorRunoffParticle;
     Value<atUint32> visorRunoffSfx;
+    Value<atUint32> unmorphVisorRunoffSfx;
     Value<atUint32> splashSfx1;
     Value<atUint32> splashSfx2;
     Value<atUint32> splashSfx3;
@@ -163,15 +163,15 @@ struct Water : IScriptObject
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle3);
             ent->name = name + "_splashParticle3";
         }
-        if (particle4)
+        if (visorRunoffParticle)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
-            ent->name = name + "_part4";
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(visorRunoffParticle);
+            ent->name = name + "_visorRunoffParticle";
         }
-        if (particle5)
+        if (unmorphVisorRunoffParticle)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
-            ent->name = name + "_part5";
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unmorphVisorRunoffParticle);
+            ent->name = name + "_unmorphVisorRunoffParticle";
         }
     }
 
@@ -187,8 +187,8 @@ struct Water : IScriptObject
         g_curSpec->flattenDependencies(splashParticle1, pathsOut);
         g_curSpec->flattenDependencies(splashParticle2, pathsOut);
         g_curSpec->flattenDependencies(splashParticle3, pathsOut);
-        g_curSpec->flattenDependencies(particle4, pathsOut);
-        g_curSpec->flattenDependencies(particle5, pathsOut);
+        g_curSpec->flattenDependencies(visorRunoffParticle, pathsOut);
+        g_curSpec->flattenDependencies(unmorphVisorRunoffParticle, pathsOut);
     }
 
     zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const

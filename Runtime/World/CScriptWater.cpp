@@ -27,20 +27,23 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string&
                            float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
                            float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
                            CAssetId splashParticle1, CAssetId splashParticle2, CAssetId splashParticle3,
-                           CAssetId particle4, CAssetId particle5, s32 unkSfx, s32 visorRunoffSfx, s32 splashSfx1,
-                           s32 splashSfx2, s32 splashSfx3, float tileSize, u32 tileSubdivisions, float specularMin,
-                           float specularMax, float reflectionSize, float rippleIntensity, float reflectionBlend,
-                           float fogBias, float fogMagnitude, float fogSpeed, const zeus::CColor& fogColor,
-                           CAssetId lightmapId, float unitsPerLightmapTexel, float alphaInTime, float alphaOutTime,
-                           u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr)
+                           CAssetId visorRunoffParticle, CAssetId unmorphVisorRunoffparticle, s32 visorRunoffSfx,
+                           s32 unmorphVisorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
+                           u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
+                           float rippleIntensity, float reflectionBlend, float fogBias, float fogMagnitude,
+                           float fogSpeed, const zeus::CColor& fogColor, CAssetId lightmapId,
+                           float unitsPerLightmapTexel, float alphaInTime, float alphaOutTime, u32, u32, bool, s32,
+                           s32, std::unique_ptr<u32[]>&& u32Arr)
 : CScriptTrigger(uid, name, info, pos, box, dInfo, orientedForce, triggerFlags, active, false, false),
   x1b8_positionMorphed(pos), x1c4_extentMorphed(box.max - box.min), x1d0_morphInTime(morphInTime), x1d4_positionOrig(pos),
   x1e0_extentOrig(box.max - box.min), x1ec_damageOrig(dInfo.GetDamage()), x1f0_damageMorphed(dInfo.GetDamage()),
   x1f4_morphOutTime(morphOutTime), x214_fogBias(fogBias), x218_fogMagnitude(fogMagnitude), x21c_origFogBias(fogBias),
   x220_origFogMagnitude(fogMagnitude), x224_fogSpeed(fogSpeed), x228_fogColor(fogColor),
   x22c_splashParticle1Id(splashParticle1), x230_splashParticle2Id(splashParticle2),
-  x234_splashParticle3Id(splashParticle3), x238_particle4Id(particle4), x24c_particle5Id(particle5),
-  x260_unkSfx(CSfxManager::TranslateSFXID(unkSfx)), x262_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx)),
+  x234_splashParticle3Id(splashParticle3), x238_visorRunoffParticleId(visorRunoffParticle),
+  x24c_unmorphVisorRunoffParticleId(unmorphVisorRunoffparticle),
+  x260_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx)),
+  x262_unmorphVisorRunoffSfx(CSfxManager::TranslateSFXID(unmorphVisorRunoffSfx)),
   x2a4_splashColor(splashColor), x2a8_unkColor(unkColor), x2ac_alphaInTime(alphaInTime), x2b0_alphaOutTime(alphaOutTime),
   x2b4_alphaInRecip((alphaInTime != 0.f) ? 1.f / alphaInTime : 0.f),
   x2b8_alphaOutRecip((alphaOutTime != 0.f) ? 1.f / alphaOutTime : 0.f), x2bc_alpha(alpha), x2c0_tileSize(tileSize)
@@ -69,10 +72,10 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string&
         x264_splashEffects[1].emplace(g_SimplePool->GetObj({FOURCC('PART'), x230_splashParticle2Id}));
     if (x234_splashParticle3Id.IsValid())
         x264_splashEffects[2].emplace(g_SimplePool->GetObj({FOURCC('PART'), x234_splashParticle3Id}));
-    if (x238_particle4Id.IsValid())
-        x23c_.emplace(g_SimplePool->GetObj({FOURCC('PART'), x238_particle4Id}));
-    if (x24c_particle5Id.IsValid())
-        x250_visorRunoffEffect.emplace(g_SimplePool->GetObj({FOURCC('PART'), x24c_particle5Id}));
+    if (x238_visorRunoffParticleId.IsValid())
+        x23c_visorRunoffEffect.emplace(g_SimplePool->GetObj({FOURCC('PART'), x238_visorRunoffParticleId}));
+    if (x24c_unmorphVisorRunoffParticleId.IsValid())
+        x250_unmorphVisorRunoffEffect.emplace(g_SimplePool->GetObj({FOURCC('PART'), x24c_unmorphVisorRunoffParticleId}));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx1));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx2));
     x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx3));

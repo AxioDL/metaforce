@@ -620,7 +620,7 @@ void CSamusHud::UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr)
     CPlayerGun& gun = *player.GetPlayerGun();
     CPlayerState& playerState = *mgr.GetPlayerState();
 
-    float beamInterp = zeus::clamp(0.f, gun.GetGunMorph().x18_, 1.f);
+    float beamInterp = zeus::clamp(0.f, gun.GetHoloTransitionFactor(), 1.f);
     float visorInterp = playerState.GetVisorTransitionFactor();
 
     if (x2a8_beamMenu)

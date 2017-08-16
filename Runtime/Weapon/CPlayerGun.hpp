@@ -32,8 +32,12 @@ public:
         Inactive,
         Active
     };
+    enum class EBWeapon
+    {
+
+    };
 private:
-    struct CGunMorph
+    class CGunMorph
     {
         float x0_ = 0.f;
         float x4_;
@@ -41,7 +45,7 @@ private:
         float xc_ = 0.1f;
         float x10_;
         float x14_ = 2.f;
-        float x18_ = 1.f;
+        float x18_transitionFactor = 1.f;
         u32 x1c_ = 2;
         u32 x20_ = 1;
 
@@ -52,18 +56,25 @@ private:
                 bool x24_24_ : 1;
                 bool x24_25_ : 1;
             };
-            u8 _dummy = 0;
+            u32 _dummy = 0;
         };
 
+    public:
         CGunMorph(float a, float b)
         : x4_(a), x10_(std::fabs(b)) {}
+        float GetTransitionFactor() const { return x18_transitionFactor; }
+    };
+
+    class CMotionState
+    {
+        static const float kGunExtendDistance;
     };
 
     CActorLights x0_lights;
     u32 x2e0_ = 0;
     u32 x2e4_ = 0;
     u32 x2e8_ = 0;
-    u32 x2ec_ = 0;
+    u32 x2ec_firing = 0;
     u32 x2f0_ = 0;
     u32 x2f4_ = 0;
     u32 x2f8_ = 1;
@@ -221,6 +232,7 @@ public:
     u32 GetSelectedBeam() const { return x310_selectedBeam; }
     u32 GetPendingSelectedBeam() const { return x314_pendingSelectedBeam; }
     const CGunMorph& GetGunMorph() const { return x678_morph; }
+    float GetHoloTransitionFactor() const { return x678_morph.GetTransitionFactor(); }
     void SetTransform(const zeus::CTransform& xf) { x3e8_xf = xf; }
     void SetAssistAimTransform(const zeus::CTransform& xf) { x478_assistAimXf = xf; }
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
@@ -229,9 +241,12 @@ public:
     void ResetIdle(CStateManager& mgr);
     void CancelFiring(CStateManager& mgr);
     float GetBeamVelocity() const;
+    void Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr);
     void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
     void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
     void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
+    bool GetFiring() const { return x2ec_firing != 0; }
+    TUniqueId DropPowerBomb(CStateManager& mgr);
 };
 
 }

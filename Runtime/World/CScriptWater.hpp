@@ -34,12 +34,12 @@ private:
     CAssetId x22c_splashParticle1Id;
     CAssetId x230_splashParticle2Id;
     CAssetId x234_splashParticle3Id;
-    CAssetId x238_particle4Id;
-    std::experimental::optional<TLockedToken<CGenDescription>> x23c_;
-    CAssetId x24c_particle5Id;
-    std::experimental::optional<TLockedToken<CGenDescription>> x250_visorRunoffEffect;
-    u16 x260_unkSfx;
-    u16 x262_visorRunoffSfx;
+    CAssetId x238_visorRunoffParticleId;
+    std::experimental::optional<TLockedToken<CGenDescription>> x23c_visorRunoffEffect;
+    CAssetId x24c_unmorphVisorRunoffParticleId;
+    std::experimental::optional<TLockedToken<CGenDescription>> x250_unmorphVisorRunoffEffect;
+    u16 x260_visorRunoffSfx;
+    u16 x262_unmorphVisorRunoffSfx;
     rstl::reserved_vector<std::experimental::optional<TLockedToken<CGenDescription>>, 3> x264_splashEffects;
     rstl::reserved_vector<u16, 3> x298_splashSounds;
     zeus::CColor x2a4_splashColor;
@@ -88,12 +88,12 @@ public:
                  float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
                  float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
                  CAssetId splashParticle1, CAssetId splashParticle2, CAssetId splashParticle3,
-                 CAssetId particle4, CAssetId particle5, s32 unkSfx, s32 visorRunoffSfx, s32 splashSfx1,
-                 s32 splashSfx2, s32 splashSfx3, float tileSize, u32 tileSubdivisions, float specularMin,
-                 float specularMax, float reflectionSize, float rippleIntensity, float reflectionBlend,
-                 float fogBias, float fogMagnitude, float fogSpeed, const zeus::CColor& fogColor,
-                 CAssetId lightmapId, float unitsPerLightmapTexel, float alphaInTime, float alphaOutTime,
-                 u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
+                 CAssetId visorRunoffParticle, CAssetId unmorphVisorRunoffparticle, s32 visorRunoffSfx,
+                 s32 unmorphVisorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
+                 u32 tileSubdivisions, float specularMin, float specularMax, float reflectionSize,
+                 float rippleIntensity, float reflectionBlend, float fogBias, float fogMagnitude, float fogSpeed,
+                 const zeus::CColor& fogColor, CAssetId lightmapId, float unitsPerLightmapTexel, float alphaInTime,
+                 float alphaOutTime, u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
 
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
@@ -121,8 +121,11 @@ public:
     const zeus::CFrustum& GetFrustumPlanes() const { return x150_frustum; }
     CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const
-    { return x250_visorRunoffEffect; }
-    u16 GetVisorRunoffSfx() const { return x262_visorRunoffSfx; }
+    { return x23c_visorRunoffEffect; }
+    u16 GetVisorRunoffSfx() const { return x260_visorRunoffSfx; }
+    const std::experimental::optional<TLockedToken<CGenDescription>>& GetUnmorphVisorRunoffEffect() const
+    { return x250_unmorphVisorRunoffEffect; }
+    u16 GetUnmorphVisorRunoffSfx() const { return x262_unmorphVisorRunoffSfx; }
     const CScriptWater* GetNextConnectedWater(const CStateManager& mgr) const;
     u8 GetPatchRenderFlags(int x, int y) const { return x2e0_patchIntersects[y * x2d0_patchDimX + x]; }
     int GetPatchDimensionX() const { return x2d0_patchDimX; }

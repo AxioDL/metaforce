@@ -12,7 +12,7 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
     switch (info.m_type)
     {
     case CFluidPlane::EFluidType::NormalWater:
-    case CFluidPlane::EFluidType::Three:
+    case CFluidPlane::EFluidType::PhazonFluid:
     case CFluidPlane::EFluidType::Four:
         if (info.m_hasLightmap)
         {
@@ -52,7 +52,7 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
 
         break;
 
-    case CFluidPlane::EFluidType::Five:
+    case CFluidPlane::EFluidType::ThickLava:
         ret |= 3;
 
         if (info.m_hasBumpMap)

@@ -45,11 +45,11 @@ float CFluidPlane::CalculateRippleIntensity(float baseI) const
     case EFluidType::Lava:
         mul = g_tweakGame->GetRippleIntensityLava();
         break;
-    case EFluidType::Three:
+    case EFluidType::PhazonFluid:
     case EFluidType::Four:
         mul = 0.8f;
         break;
-    case EFluidType::Five:
+    case EFluidType::ThickLava:
         mul = 1.f;
         break;
     }
