@@ -316,7 +316,11 @@ struct SpecMP1 : SpecBase
         nod::Node& root = partition->getFSTRoot();
         nod::Node::DirectoryIterator dolIt = root.find("rs5mp1_p.dol");
         if (dolIt == root.end())
-            return false;
+        {
+            dolIt = root.find("rs5mp1jpn_p.dol");
+            if (dolIt == root.end())
+                return false;
+        }
 
         m_dolBuf = dolIt->getBuf();
         const char* buildInfo = (char*)memmem(m_dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
