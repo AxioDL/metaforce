@@ -99,11 +99,7 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst)
 {
     zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
     q += mst.xc_orientation;
-    x34_transform = zeus::CTransform(q, x34_transform.origin);
-
-    xe4_27_ = true;
-    xe4_28_ = true;
-    xe4_29_actorLightsDirty = true;
+    SetTransform(zeus::CTransform(q, x34_transform.origin));
 
     SetTranslation(x34_transform.origin + mst.x0_translation);
 
@@ -119,11 +115,7 @@ CMotionState CPhysicsActor::GetMotionState() const
 
 void CPhysicsActor::SetMotionState(const CMotionState& mst)
 {
-    x34_transform = zeus::CTransform(mst.xc_orientation, x34_transform.origin);
-
-    xe4_27_ = true;
-    xe4_28_ = true;
-    xe4_29_actorLightsDirty = true;
+    SetTransform(zeus::CTransform(mst.xc_orientation, x34_transform.origin));
     SetTranslation(mst.x0_translation);
 
     xfc_constantForce = mst.x1c_velocity;
@@ -265,10 +257,7 @@ bool CPhysicsActor::WillMove(const CStateManager&)
 void CPhysicsActor::SetPhysicsState(const CPhysicsState& state)
 {
     SetTranslation(state.GetTranslation());
-    x34_transform = zeus::CTransform(state.GetOrientation(), x34_transform.origin);
-    xe4_27_ = true;
-    xe4_28_ = true;
-    xe4_29_actorLightsDirty = true;
+    SetTransform(zeus::CTransform(state.GetOrientation(), x34_transform.origin));
 
     xfc_constantForce = state.GetConstantForceWR();
     x108_angularMomentum = state.GetAngularMomentumWR();

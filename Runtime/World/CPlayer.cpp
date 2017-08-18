@@ -1,12 +1,8 @@
-#include <Runtime/Audio/CStreamAudioManager.hpp>
 #include "CPlayer.hpp"
 #include "CActorParameters.hpp"
-#include "CMorphBall.hpp"
-#include "Weapon/CPlayerGun.hpp"
 #include "CStateManager.hpp"
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
-#include "Particle/CGenDescription.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
 #include "Camera/CBallCamera.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -25,7 +21,8 @@
 #include "CGameState.hpp"
 #include "MP1/CSamusHud.hpp"
 #include "CHUDBillboardEffect.hpp"
-#include "CPlayerCameraBob.hpp"
+#include "Audio/CStreamAudioManager.hpp"
+#include "CScriptPlayerHint.hpp"
 
 namespace urde
 {
@@ -65,7 +62,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
     x9c4_26_ = true;
     x9c4_27_canEnterMorphBall = true;
     x9c4_28_canLeaveMorphBall = true;
-    x9c5_31_ = true;
+    x9c5_31_stepCameraZBiasDirty = true;
     CAssetId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam);
     x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(CStaticRes(beamId, playerScale));
     x730_transitionModels.reserve(3);
@@ -107,19 +104,418 @@ void CPlayer::InitializeBallTransition()
 
 bool CPlayer::IsTransparent() const { return x588_alpha < 1.f; }
 
+float CPlayer::GetTransitionAlpha(const zeus::CVector3f& camPos, float zNear) const
+{
+    float zLimit = (x2d8_fpBounds.max.x - x2d8_fpBounds.min.x) * 0.5f + zNear;
+    float zStart = 1.f + zLimit;
+    float dist = (camPos - GetEyePosition()).magnitude();
+    if (dist >= zLimit && dist <= zStart)
+        return (dist - zLimit) / (zStart - zLimit);
+    else if (dist > zStart)
+        return 1.f;
+    else
+        return 0.f;
+}
+
+static const CMaterialFilter BallTransitionCollide =
+    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
+                                        {EMaterialTypes::ProjectilePassthrough,
+                                         EMaterialTypes::Player,
+                                         EMaterialTypes::Character,
+                                         EMaterialTypes::CameraPassthrough});
+
+s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const
+{
+    if (x258_movementState == EPlayerMovementState::StartingJump)
+        return 3; // B_airposetoball_samus
+    zeus::CVector3f localVel = x34_transform.transposeRotate(x138_velocity);
+    zeus::CVector3f localVelFlat = localVel;
+    localVelFlat.z = 0.f;
+    float localVelFlatMag = localVelFlat.magnitude();
+    if (localVelFlatMag > 1.f)
+    {
+        zeus::CRelAngle velAng = std::atan2(localVelFlat.x, localVelFlat.y);
+        float velDeg = velAng.asDegrees();
+        if (velDeg < 45.f || velDeg > 315.f)
+        {
+            if (localVelFlatMag < 0.5f * GetActualFirstPersonMaxVelocity(dt))
+                return 0; // B_forwardtoballforward_samus
+            else
+                return 4; // B_runtoballfoward_samus
+        }
+        else
+        {
+            return 1; // B_readytostationarybackwards_samus
+        }
+    }
+    else
+    {
+        return 2; // B_readytoball_samus
+    }
+}
+
+void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr)
+{
+    x584_ballTransitionAnim = ChooseTransitionToAnimation(dt, mgr);
+    x58c_transitionVel = x138_velocity.magnitude();
+    if (x64_modelData && x64_modelData->HasAnimData())
+    {
+        CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
+        x64_modelData->AnimationData()->SetAnimation(parms, false);
+        x64_modelData->AnimationData()->SetAnimDir(CAnimData::EAnimDir::Forward);
+
+    }
+    x64_modelData->EnableLooping(false);
+    x64_modelData->Touch(mgr, 0);
+    x150_momentum = zeus::CVector3f::skZero;
+    CPhysicsActor::Stop();
+    SetMorphBallState(EPlayerMorphBallState::Morphing, mgr);
+    SetCameraState(EPlayerCameraState::Three, mgr);
+    x500_lookDir = x34_transform.basis[1];
+    x50c_moveDir = x500_lookDir;
+    x50c_moveDir.z = 0.f;
+    if (x50c_moveDir.canBeNormalized())
+    {
+        x50c_moveDir.normalize();
+    }
+    else
+    {
+        x500_lookDir = zeus::CVector3f::skForward;
+        x50c_moveDir = zeus::CVector3f::skForward;
+    }
+    CBallCamera* ballCam = mgr.GetCameraManager()->GetBallCamera();
+    mgr.GetCameraManager()->SetPlayerCamera(mgr, ballCam->GetUniqueId());
+    if (!mgr.GetCameraManager()->HasBallCameraInitialPositionHint(mgr))
+    {
+        mgr.GetCameraManager()->SetupBallCamera(mgr);
+        ballCam->SetState(CBallCamera::EBallCameraState::Four, mgr);
+    }
+    else
+    {
+        ballCam->SetState(CBallCamera::EBallCameraState::Zero, mgr);
+        SetCameraState(EPlayerCameraState::One, mgr);
+        zeus::CTransform newXf = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
+        ballCam->SetTransform(newXf);
+        ballCam->TeleportCamera(newXf.origin, mgr);
+        mgr.GetCameraManager()->SetupBallCamera(mgr);
+        ballCam->SetFovInterpolation(mgr.GetCameraManager()->GetFirstPersonCamera()->GetFov(),
+                                     CCameraManager::ThirdPersonFOV(), 1.f, 0.f);
+    }
+    SetOrbitRequest(EPlayerOrbitRequest::Two, mgr);
+    x490_gun->CancelFiring(mgr);
+    HolsterGun(mgr);
+}
+
+void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
+{
+    x584_ballTransitionAnim = 14; // B_ball_unfurl
+    x58c_transitionVel = zeus::CVector2f(x138_velocity.x, x138_velocity.y).magnitude();
+    if (x58c_transitionVel < 1.f)
+        x584_ballTransitionAnim = 5; // ballstationarytoready_random
+    if (x258_movementState != EPlayerMovementState::OnGround)
+    {
+        zeus::CVector3f ballPos = GetBallPosition();
+        if (mgr.RayCollideWorld(ballPos, ballPos + zeus::CVector3f(0.f, 0.f, -7.f), BallTransitionCollide, *this))
+            x584_ballTransitionAnim = 7; // B_balljumptoairpose
+    }
+
+    if (x64_modelData && x64_modelData->HasAnimData())
+    {
+        CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
+        x64_modelData->AnimationData()->SetAnimation(parms, false);
+        x64_modelData->AnimationData()->SetAnimDir(CAnimData::EAnimDir::Forward);
+    }
+
+    x64_modelData->EnableLooping(false);
+    x64_modelData->Touch(mgr, 0);
+    SetMorphBallState(EPlayerMorphBallState::Unmorphing, mgr);
+    x768_morphball->LeaveMorphBallState(mgr);
+    mgr.GetCameraManager()->SetPlayerCamera(mgr, mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId());
+    zeus::CVector3f camToPlayer = GetTranslation() - mgr.GetCameraManager()->GetBallCamera()->GetTranslation();
+    if (camToPlayer.canBeNormalized())
+    {
+        camToPlayer.normalize();
+        zeus::CVector3f vecFlat = x500_lookDir;
+        vecFlat.z = 0.f;
+        zeus::CVector3f f31 =
+            vecFlat.canBeNormalized() && vecFlat.magnitude() >= 0.1f ? x518_leaveMorphDir : camToPlayer;
+        if (x9c6_26_outOfBallLookAtHint)
+        {
+            if (TCastToConstPtr<CScriptPlayerHint> hint = mgr.GetObjectById(x830_playerHint))
+            {
+                zeus::CVector3f deltaFlat = hint->GetTranslation() - GetTranslation();
+                deltaFlat.z = 0.f;
+                if (deltaFlat.canBeNormalized())
+                    f31 = deltaFlat.normalized();
+            }
+        }
+        if (x9c7_25_outOfBallLookAtHintActor)
+        {
+            if (TCastToConstPtr<CScriptPlayerHint> hint = mgr.GetObjectById(x830_playerHint))
+            {
+                if (TCastToConstPtr<CActor> act = mgr.GetObjectById(hint->GetActorId()))
+                {
+                    zeus::CVector3f deltaFlat = act->GetOrbitPosition(mgr) - GetTranslation();
+                    deltaFlat.z = 0.f;
+                    if (deltaFlat.canBeNormalized())
+                        f31 = deltaFlat.normalized();
+                }
+            }
+        }
+        if (std::acos(zeus::clamp(-1.f, camToPlayer.dot(f31), 1.f)) < M_PIF / 1.2f || x9c7_25_outOfBallLookAtHintActor)
+        {
+            SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() + f31));
+        }
+        else
+        {
+            SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() + camToPlayer));
+            UpdateArmAndGunTransforms(0.01f, mgr);
+        }
+    }
+    else
+    {
+        SetTransform(CreateTransformFromMovementDirection());
+    }
+
+    CBallCamera* ballCam = mgr.GetCameraManager()->GetBallCamera();
+    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(ballCam->GetX3DC()))
+    {
+        if (ballCam->GetX3E0() < 20.f && ballCam->GetX3E0() > 1.f)
+        {
+            zeus::CVector3f deltaFlat = act->GetTranslation() - GetTranslation();
+            deltaFlat.z = 0.f;
+            zeus::CVector3f deltaFlat2 = act->GetTranslation() - ballCam->GetTranslation();
+            deltaFlat2.z = 0.f;
+            if (deltaFlat.canBeNormalized() && deltaFlat2.canBeNormalized())
+            {
+                deltaFlat.normalize();
+                zeus::CVector3f camLookFlat = ballCam->GetTransform().basis[1];
+                camLookFlat.z = 0.f;
+                camLookFlat.normalize();
+                deltaFlat2.normalize();
+                if (deltaFlat.dot(deltaFlat2) >= 0.3f && deltaFlat2.dot(camLookFlat) >= 0.7f)
+                {
+                    SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() + deltaFlat));
+                }
+            }
+        }
+    }
+
+    ForceGunOrientation(x34_transform, mgr);
+    DrawGun(mgr);
+    ballCam->SetState(CBallCamera::EBallCameraState::Five, mgr);
+    ClearForcesAndTorques();
+    SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+    AddMaterial(EMaterialTypes::GroundCollider, mgr);
+    x150_momentum = zeus::CVector3f::skZero;
+    SetCameraState(EPlayerCameraState::Three, mgr);
+    x824_ = 0.01f;
+    x57c_ = 0;
+    x580_ = 0;
+    if (!ballCam->TransitionFromMorphBallState(mgr))
+    {
+        x824_ = 0.95f;
+        LeaveMorphBallState(mgr);
+    }
+}
+
+s32 CPlayer::GetNextBallTransitionAnim(float dt, bool& loopOut, CStateManager& mgr)
+{
+    loopOut = false;
+    zeus::CVector2f vel(x138_velocity.x, x138_velocity.y);
+    if (!vel.canBeNormalized())
+        return 12; // B_ball_ready_samus
+    float velMag = vel.magnitude();
+    float maxVel = GetActualFirstPersonMaxVelocity(dt);
+    if (velMag <= 0.2f * maxVel)
+        return 12; // B_ball_ready_samus
+    loopOut = true;
+    s32 ret = velMag >= maxVel ? 13 : 15; // B_ball_runloop_samus : B_ball_walkloop_samus
+    if (x50c_moveDir.dot(mgr.GetCameraManager()->GetBallCamera()->GetTransform().basis[1]) < -0.5f)
+        return 12; // B_ball_ready_samus
+    return ret;
+}
+
 void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr)
 {
+    switch (x2f8_morphTransState)
+    {
+    case EPlayerMorphBallState::Unmorphed:
+    case EPlayerMorphBallState::Morphed:
+    {
+        CPlayerState::EPlayerSuit suit = mgr.GetPlayerState()->GetCurrentSuit();
+        if (mgr.GetPlayerState()->IsFusionEnabled())
+            suit = CPlayerState::EPlayerSuit(int(suit) + 4);
+        if (x7cc_transitionSuit != suit)
+        {
+            x7cc_transitionSuit = suit;
+            CAnimRes useRes = x7d0_animRes;
+            useRes.SetCharacterNodeId(s32(x7cc_transitionSuit));
+            SetModelData(std::make_unique<CModelData>(x7d0_animRes));
+            SetIntoBallReadyAnimation(mgr);
+        }
+        return;
+    }
+    case EPlayerMorphBallState::Unmorphing:
+        if (x584_ballTransitionAnim == 14) // B_ball_unfurl
+        {
+            float dur = x64_modelData->GetAnimationData()->GetAnimationDuration(x584_ballTransitionAnim);
+            float facRemaining = x64_modelData->GetAnimationData()->GetAnimTimeRemaining("Whole Body") / dur;
+            if (facRemaining < 0.5f)
+            {
+                bool loop = false;
+                x584_ballTransitionAnim = GetNextBallTransitionAnim(dt, loop, mgr);
+                if (x64_modelData && x64_modelData->HasAnimData())
+                {
+                    CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
+                    x64_modelData->AnimationData()->SetAnimation(parms, false);
+                    x64_modelData->AnimationData()->EnableLooping(loop);
+                }
+            }
+        }
+        else if (x584_ballTransitionAnim != 5 && x584_ballTransitionAnim != 7)
+        // ballstationarytoready_random, B_balljumptoairpose
+        {
+            float velMag = zeus::CVector2f(x138_velocity.x, x138_velocity.y).magnitude();
+            if (std::fabs(x58c_transitionVel - velMag) > 0.04f * GetActualFirstPersonMaxVelocity(dt) || velMag < 1.f)
+            {
+                bool loop = false;
+                s32 nextAnim = GetNextBallTransitionAnim(dt, loop, mgr);
+                if (x64_modelData && x64_modelData->HasAnimData() &&
+                    x584_ballTransitionAnim != nextAnim && x584_ballTransitionAnim != 7)
+                {
+                    x584_ballTransitionAnim = nextAnim;
+                    CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
+                    x64_modelData->AnimationData()->SetAnimation(parms, false);
+                    x64_modelData->AnimationData()->EnableLooping(loop);
+                    x58c_transitionVel = velMag;
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
 
+    SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
+    MoveInOneFrameOR(deltas.x0_posDelta, dt);
+    RotateInOneFrameOR(deltas.xc_rotDelta, dt);
+    x574_morphTime = std::min(x574_morphTime + dt, x578_morphDuration);
+    float morphT = x574_morphTime / x578_morphDuration;
+    if ((morphT >= 0.7f || x574_morphTime <= 2.f * dt) && x730_transitionModels.size() != 0)
+        x730_transitionModels.erase(x730_transitionModels.begin());
+
+    for (auto& m : x730_transitionModels)
+        m->AdvanceAnimation(dt, mgr, kInvalidAreaId, true);
+
+    CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    x588_alpha = GetTransitionAlpha(cam->GetTranslation(), cam->GetNearClipDistance());
+
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphing && morphT > 0.93f)
+    {
+        x588_alpha *= std::min(1.f, 1.f - (morphT - 0.93f) / 0.07f + 0.2f);
+        xb4_drawFlags = CModelFlags(5, 0, 1, zeus::CColor(1.f, x588_alpha));
+    }
+    else if (x2f8_morphTransState == EPlayerMorphBallState::Unmorphing && x588_alpha < 1.f)
+    {
+        if (x588_alpha > 0.05f)
+            xb4_drawFlags = CModelFlags(5, 0, 0x21, zeus::CColor(1.f, x588_alpha));
+        else
+            xb4_drawFlags = CModelFlags(5, 0, 1, zeus::CColor(1.f, x588_alpha));
+    }
+    else
+    {
+        xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, x588_alpha));
+    }
+
+    x594_transisionBeamXfs.AddValue(x7f4_gunWorldXf);
+    x658_transitionModelXfs.AddValue(x34_transform);
+    x71c_transitionModelAlphas.AddValue(x588_alpha);
+
+    switch (x2f8_morphTransState)
+    {
+    case EPlayerMorphBallState::Unmorphing:
+        GetCollisionPrimitive()->CalculateAABox(GetPrimitiveTransform()).center();
+        ClearForcesAndTorques();
+        SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+        if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera())
+        {
+            x824_ = std::max(x824_, 0.95f);
+            zeus::CVector3f pos;
+            if (CanLeaveMorphBallState(mgr, pos))
+            {
+                SetTranslation(GetTranslation() + pos);
+                LeaveMorphBallState(mgr);
+                xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+            }
+            else
+            {
+                x574_morphTime = x578_morphDuration - x574_morphTime;
+                TransitionToMorphBallState(dt, mgr);
+            }
+        }
+        break;
+    case EPlayerMorphBallState::Morphing:
+        ClearForcesAndTorques();
+        ClearForcesAndTorques();
+        SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+        if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera())
+        {
+            if (CanEnterMorphBallState(mgr, 1.f))
+            {
+                ActivateMorphBallCamera(mgr);
+                EnterMorphBallState(mgr);
+                xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+            } else
+            {
+                x574_morphTime = x578_morphDuration - x574_morphTime;
+                TransitionFromMorphBallState(mgr);
+            }
+        }
+        if (x578_morphDuration != 0.f)
+        {
+            if (zeus::clamp(0.f, x574_morphTime, 1.f) >= 0.5f)
+            {
+                if (!x768_morphball->IsMorphBallTransitionFlashValid())
+                    x768_morphball->ResetMorphBallTransitionFlash();
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 void CPlayer::UpdateGunAlpha()
 {
-
+    switch (x498_gunHolsterState)
+    {
+    case EGunHolsterState::Holstered:
+        x494_gunAlpha = 0.f;
+        break;
+    case EGunHolsterState::Holstering:
+        x494_gunAlpha = zeus::clamp(0.f, x49c_gunHolsterRemTime / g_tweakPlayerGun->GetGunHolsterTime(), 1.f);
+        break;
+    case EGunHolsterState::Drawing:
+        x494_gunAlpha = 1.f - zeus::clamp(0.f, x49c_gunHolsterRemTime / 0.45f, 1.f);
+        break;
+    case EGunHolsterState::Drawn:
+        x494_gunAlpha = 1.f;
+        break;
+    }
 }
 
-void CPlayer::UpdatePlayerSounds()
+void CPlayer::UpdatePlayerSounds(float dt)
 {
-
+    if (x784_damageSfxTimer > 0.f)
+    {
+        x784_damageSfxTimer -= dt;
+        if (x784_damageSfxTimer <= 0.f)
+        {
+            CSfxManager::SfxStop(x770_damageLoopSfx);
+            x770_damageLoopSfx.reset();
+        }
+    }
 }
 
 void CPlayer::Update(float dt, CStateManager& mgr)
@@ -189,7 +585,7 @@ void CPlayer::Update(float dt, CStateManager& mgr)
     UpdateDebugCamera(mgr);
     UpdateVisorTransition(dt, mgr);
     mgr.SetActorAreaId(*this, mgr.GetWorld()->GetCurrentAreaId());
-    UpdatePlayerSounds();
+    UpdatePlayerSounds(dt);
     if (x26c_ != kInvalidUniqueId)
         x270_ += dt;
 
@@ -599,7 +995,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
                 x770_damageLoopSfx = CSfxManager::SfxStart(damageLoopSfx, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
                 x788_damageLoopSfxId = damageLoopSfx;
             }
-            x784_ = 0.5f;
+            x784_damageSfxTimer = 0.5f;
         }
 
         if (suitDamageSfx)
@@ -797,7 +1193,7 @@ static const char* UnlockMessageResBases[] =
 static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 totalLogScans)
 {
     if (prevLogScans == logScans)
-        return -1;
+        return {};
 
     float scanPercent = logScans / float(totalLogScans) * 100.f;
     float prevScanPercent = prevLogScans / float(totalLogScans) * 100.f;
@@ -814,11 +1210,11 @@ static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 
         auto message =
             std::string(UnlockMessageResBases[zeus::clamp(0, scanPercentProgStep - 1, 1)]) + (firstTime ? '1' : '2');
         auto id = g_ResFactory->GetResourceIdByName(message.c_str());
-        if (id)
+        if (id != nullptr)
             return id->id;
     }
 
-    return -1;
+    return {};
 }
 
 void CPlayer::FinishNewScan(CStateManager& mgr)
@@ -918,7 +1314,7 @@ void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) co
         (x2f8_morphTransState == EPlayerMorphBallState::Morphing &&
             x498_gunHolsterState == EGunHolsterState::Holstering))
     {
-        CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x494_mapAlpha));
+        CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x494_gunAlpha));
         x490_gun->Render(mgr, pos, flags);
     }
 }
@@ -1619,7 +2015,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
     {
         x53c_ += dt;
         x4f8_ = std::fabs(delta.magnitude() / dt);
-        x500_ = delta.normalized();
+        x500_lookDir = delta.normalized();
         zeus::CVector3f flatDelta(delta.x, delta.y, 0.f);
         if (flatDelta.canBeNormalized())
         {
@@ -1634,8 +2030,8 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
                 x524_ = GetTranslation();
                 break;
             default:
-                x500_ = GetTransform().basis[1];
-                x50c_moveDir = x500_;
+                x500_lookDir = GetTransform().basis[1];
+                x50c_moveDir = x500_lookDir;
                 x50c_moveDir.z = 0.f;
                 if (x50c_moveDir.canBeNormalized())
                     x50c_moveDir.normalize();
@@ -1648,8 +2044,8 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         {
             if (x2f8_morphTransState != EPlayerMorphBallState::Morphed)
             {
-                x500_ = GetTransform().basis[1];
-                x50c_moveDir = x500_;
+                x500_lookDir = GetTransform().basis[1];
+                x50c_moveDir = x500_lookDir;
                 x50c_moveDir.z = 0.f;
                 if (x50c_moveDir.canBeNormalized())
                     x50c_moveDir.normalize();
@@ -1667,11 +2063,11 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         case EPlayerMorphBallState::Morphed:
         case EPlayerMorphBallState::Morphing:
         case EPlayerMorphBallState::Unmorphing:
-            x500_ = x50c_moveDir;
+            x500_lookDir = x50c_moveDir;
             break;
         default:
-            x500_ = GetTransform().basis[1];
-            x50c_moveDir = x500_;
+            x500_lookDir = GetTransform().basis[1];
+            x50c_moveDir = x500_lookDir;
             x50c_moveDir.z = 0.f;
             if (x50c_moveDir.canBeNormalized())
                 x50c_moveDir.normalize();
@@ -1685,7 +2081,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
 
     x50c_moveDir.z = 0.f;
     if (x50c_moveDir.canBeNormalized())
-        x500_.normalize();
+        x500_lookDir.normalize();
 }
 
 void CPlayer::Stop(CStateManager& stateMgr)
@@ -1805,12 +2201,55 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr)
 
 void CPlayer::UpdateStepCameraZBias(float dt)
 {
-
+    float newBias = GetTranslation().z + GetUnbiasedEyeHeight();
+    if (x258_movementState == EPlayerMovementState::OnGround && !IsMorphBallTransitioning())
+    {
+        float oldBias = newBias;
+        if (!x9c5_31_stepCameraZBiasDirty)
+        {
+            float delta = newBias - x9cc_stepCameraZBias;
+            float newDelta = 5.f * dt;
+            if (delta > 0.f)
+            {
+                if (delta > dt * x138_velocity.z && delta > newDelta)
+                {
+                    if (delta > GetStepUpHeight())
+                        newDelta += delta - GetStepUpHeight();
+                    newBias = x9cc_stepCameraZBias + newDelta;
+                }
+            }
+            else
+            {
+                if (delta < dt * x138_velocity.z && delta < -newDelta)
+                {
+                    if (delta < -GetStepDownHeight())
+                        newDelta += -delta - GetStepDownHeight();
+                    newBias = x9cc_stepCameraZBias + newDelta;
+                }
+            }
+        }
+        x9c8_eyeZBias = newBias - oldBias;
+    }
+    else
+    {
+        x9c8_eyeZBias = 0.f;
+    }
+    x9cc_stepCameraZBias = newBias;
+    x9c5_31_stepCameraZBiasDirty = false;
 }
 
 void CPlayer::UpdateWaterSurfaceCameraBias(CStateManager& mgr)
 {
-
+    if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(xc4_fluidId))
+    {
+        float waterZ = water->GetTriggerBoundsWR().max.z;
+        float biasToEyeDelta = GetEyePosition().z - x9c8_eyeZBias;
+        float waterToDeltaDelta = biasToEyeDelta - waterZ;
+        if (biasToEyeDelta >= waterZ && waterToDeltaDelta <= 0.25f)
+            x9c8_eyeZBias += waterZ + 0.25f - biasToEyeDelta;
+        else if (biasToEyeDelta < waterZ && waterToDeltaDelta >= -0.2f)
+            x9c8_eyeZBias += waterZ - 0.2f - biasToEyeDelta;
+    }
 }
 
 void CPlayer::UpdatePhazonCameraShake(float dt, CStateManager& mgr)
@@ -1924,17 +2363,11 @@ void CPlayer::Think(float dt, CStateManager& mgr)
             zeus::CVector3f lookDirFlat(x34_transform.basis[1].x, x34_transform.basis[1].y, 0.f);
             if (lookDirFlat.canBeNormalized())
             {
-                x34_transform = zeus::lookAt(zeus::CVector3f::skZero, lookDirFlat.normalized());
-                xe4_27_ = true;
-                xe4_28_ = true;
-                xe4_29_actorLightsDirty = true;
+                SetTransform(zeus::lookAt(zeus::CVector3f::skZero, lookDirFlat.normalized()));
             }
             else
             {
-                x34_transform = zeus::CTransform::Identity();
-                xe4_27_ = true;
-                xe4_28_ = true;
-                xe4_29_actorLightsDirty = true;
+                SetTransform(zeus::CTransform::Identity());
             }
             SetTranslation(backupTranslation);
         }
@@ -2930,20 +3363,14 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                     x3c0_grappleSwingAxis = turnRot.transform(x3c0_grappleSwingAxis);
                     x3c0_grappleSwingAxis.normalize();
                     zeus::CVector3f swingForward(-x3c0_grappleSwingAxis.y, x3c0_grappleSwingAxis.x, 0.f);
-                    x34_transform =
-                        zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::CVector3f::skUp, GetTranslation());
-                    xe4_27_ = true;
-                    xe4_28_ = true;
-                    xe4_29_actorLightsDirty = true;
+                    SetTransform(
+                        zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::CVector3f::skUp, GetTranslation()));
                     SetVelocityWR(pullVec);
 
                     if (!ValidateFPPosition(GetTranslation(), mgr))
                     {
                         x3c0_grappleSwingAxis = swingAxisBackup;
-                        x34_transform = backupXf;
-                        xe4_27_ = true;
-                        xe4_28_ = true;
-                        xe4_29_actorLightsDirty = true;
+                        SetTransform(backupXf);
                         SetVelocityWR(backupVel);
                     }
                 }
@@ -4544,9 +4971,9 @@ float CPlayer::ForwardInput(const CFinalInput& input, float turnInput) const
     float backwards = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input);
     if (x2f8_morphTransState != EPlayerMorphBallState::Unmorphed || InGrappleJumpCooldown())
         backwards = 0.f;
-    if (x2f8_morphTransState == EPlayerMorphBallState::Morphing && x584_ == 2)
+    if (x2f8_morphTransState == EPlayerMorphBallState::Morphing && x584_ballTransitionAnim == 2)
         forwards = 0.f;
-    if (x2f8_morphTransState == EPlayerMorphBallState::Unmorphing && x584_ == 5)
+    if (x2f8_morphTransState == EPlayerMorphBallState::Unmorphing && x584_ballTransitionAnim == 5)
         forwards = 0.f;
     if (forwards >= 0.001f)
     {
@@ -4953,7 +5380,7 @@ void CPlayer::LeaveMorphBallState(CStateManager& mgr)
     x3ec_freeLookPitchAngle = 0.f;
     x3f0_vertFreeLookAngleVel = 0.f;
     x768_morphball->LeaveMorphBallState(mgr);
-    mgr.GetCameraManager()->LeaveBallCamera(mgr, mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId());
+    mgr.GetCameraManager()->SetPlayerCamera(mgr, mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId());
     mgr.GetCameraManager()->GetBallCamera()->SetState(CBallCamera::EBallCameraState::Zero, mgr);
     SetCameraState(EPlayerCameraState::Zero, mgr);
     mgr.GetCameraManager()->GetFirstPersonCamera()->SetX1C6_24(true);

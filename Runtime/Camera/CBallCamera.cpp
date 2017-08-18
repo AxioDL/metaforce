@@ -30,4 +30,14 @@ void CBallCamera::SetState(EBallCameraState state, CStateManager& mgr)
 
 }
 
+bool CBallCamera::TransitionFromMorphBallState(CStateManager& mgr)
+{
+    return false;
+}
+
+void CBallCamera::TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr)
+{
+
+}
+
 }

@@ -126,9 +126,10 @@ public:
 
     void RenderCameras(const CStateManager& mgr);
     void SetupBallCamera(CStateManager& mgr);
-    void LeaveBallCamera(CStateManager& mgr, TUniqueId newCamId);
+    void SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId);
     int GetFluidCounter() const { return x74_fluidCounter; }
     float GetCameraBobMagnitude() const;
+    bool HasBallCameraInitialPositionHint(CStateManager& mgr) const;
 };
 
 }

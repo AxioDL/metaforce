@@ -870,7 +870,7 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
     SAdvancementResults results;
     std::pair<std::unique_ptr<IAnimReader>, bool> simplified = {};
 
-    if (!x104_)
+    if (x104_animDir == EAnimDir::Forward)
     {
         results = x1f8_animRoot->VAdvanceView(time);
         simplified = x1f8_animRoot->Simplified();

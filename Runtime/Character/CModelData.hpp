@@ -38,7 +38,7 @@ public:
 
 class CAnimRes
 {
-    CAssetId x0_ancsId = -1;
+    CAssetId x0_ancsId;
     s32 x4_charIdx = -1;
     zeus::CVector3f x8_scale;
     bool x14_canLoop = false;
@@ -57,6 +57,7 @@ public:
 
     CAssetId GetId() const { return x0_ancsId; }
     s32 GetCharacterNodeId() const { return x4_charIdx; }
+    void SetCharacterNodeId(s32 id) { x4_charIdx = id; }
     const zeus::CVector3f& GetScale() const { return x8_scale; }
     bool CanLoop() const { return x14_canLoop; }
     s32 GetDefaultAnim() const { return x18_defaultAnim; }
@@ -147,7 +148,7 @@ public:
     const TLockedToken<CModel>& GetNormalModel() const { return x1c_normalModel; }
     const TLockedToken<CModel>& GetXRayModel() const { return x2c_xrayModel; }
     const TLockedToken<CModel>& GetThermalModel() const { return x3c_infraModel; }
-    bool IsNull() { return !x10_animData && !x1c_normalModel; }
+    bool IsNull() const { return !x10_animData && !x1c_normalModel; }
 
     const zeus::CVector3f& GetScale() const { return x0_scale; }
     void SetScale(const zeus::CVector3f& scale) { x0_scale = scale; }

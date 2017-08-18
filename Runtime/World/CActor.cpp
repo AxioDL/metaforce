@@ -313,6 +313,12 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
+void CActor::EnsureRendered(const CStateManager& mgr)
+{
+    zeus::CAABox aabb = GetSortingBounds(mgr);
+    EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.origin), aabb);
+}
+
 void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos,
                             const zeus::CAABox& aabb) const
 {
@@ -516,5 +522,13 @@ float CActor::GetAverageAnimVelocity(int anim) const
     if (HasModelData() && GetModelData()->HasAnimData())
         return GetModelData()->GetAnimationData()->GetAverageVelocity(anim);
     return 0.f;
+}
+
+void CActor::SetModelData(std::unique_ptr<CModelData>&& mData)
+{
+    if (mData->IsNull())
+        x64_modelData.reset();
+    else
+        x64_modelData = std::move(mData);
 }
 }

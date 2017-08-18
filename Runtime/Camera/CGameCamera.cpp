@@ -125,9 +125,9 @@ void CGameCamera::UpdatePerspective(float dt)
     }
 }
 
-void CGameCamera::sub8005AF18(float f1, float fov, float f3, float f4)
+void CGameCamera::SetFovInterpolation(float start, float fov, float time, float f4)
 {
-    if (f3 < 0.f)
+    if (time < 0.f)
     {
         x15c_currentFov = fov;
         x170_24_perspDirty = true;
@@ -137,11 +137,11 @@ void CGameCamera::sub8005AF18(float f1, float fov, float f3, float f4)
     else
     {
         x174_ = std::max(0.f, f4);
-        x17c_ = f3;
-        x178_ = f3;
-        x180_ = f1;
+        x17c_ = time;
+        x178_ = time;
+        x180_ = start;
         x184_fov = fov;
-        x15c_currentFov = f1;
+        x15c_currentFov = start;
         x170_24_perspDirty = true;
     }
 }

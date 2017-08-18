@@ -9,8 +9,6 @@
 #include "CFluidUVMotion.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CWorld.hpp"
-#include "Character/CModelData.hpp"
-#include "Collision/CMaterialList.hpp"
 #include "Particle/CWeaponDescription.hpp"
 #include "CDamageInfo.hpp"
 #include "CScriptActor.hpp"
@@ -73,11 +71,11 @@
 #include "CScriptMidi.hpp"
 #include "CScriptRoomAcoustics.hpp"
 #include "CScriptControllerAction.hpp"
+#include "CScriptPlayerHint.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
-#include "logvisor/logvisor.hpp"
 
 namespace urde
 {
@@ -1571,7 +1569,15 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 6, "PlayerHint"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    u32 w2 = LoadParameterFlags(in);
+    u32 w1 = in.readUint32Big();
+
+    return new CScriptPlayerHint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, w1, w2);
 }
 
 CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

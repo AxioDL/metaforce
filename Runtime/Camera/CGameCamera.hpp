@@ -49,7 +49,7 @@ public:
     void GetControllerNumber() const;
     bool DisablesInput() const;
     void UpdatePerspective(float);
-    void sub8005AF18(float, float, float, float);
+    void SetFovInterpolation(float start, float end, float time, float f4);
     void sub8005AF88();
 };
 }

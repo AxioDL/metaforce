@@ -314,7 +314,7 @@ void CCameraManager::SetupBallCamera(CStateManager& mgr)
 
 }
 
-void CCameraManager::LeaveBallCamera(CStateManager& mgr, TUniqueId newCamId)
+void CCameraManager::SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId)
 {
 
 }
@@ -324,5 +324,10 @@ float CCameraManager::GetCameraBobMagnitude() const
     return 1.f - zeus::clamp(-1.f, zeus::clamp(-1.f,
         x7c_fpCamera->GetTransform().basis[1].dot(zeus::CVector3f::skUp), 1.f) /
         std::cos(2.f * M_PIF / 12.f), 1.f);
+}
+
+bool CCameraManager::HasBallCameraInitialPositionHint(CStateManager& mgr) const
+{
+    return false;
 }
 }

@@ -949,28 +949,28 @@ float CAutoMapper::GetMapAreaMiniMapDrawAlphaSurfaceVisited(const CStateManager&
 {
     float mapAlphaInterp = g_tweakGui->GetMapAlphaInterpolant();
     return g_tweakAutoMapper->GetMiniAlphaSurfaceVisited() * (1.f - mapAlphaInterp) *
-           stateMgr.Player()->GetMapAlpha() + mapAlphaInterp;
+               stateMgr.Player()->GetGunAlpha() + mapAlphaInterp;
 }
 
 float CAutoMapper::GetMapAreaMiniMapDrawAlphaOutlineVisited(const CStateManager& stateMgr)
 {
     float mapAlphaInterp = g_tweakGui->GetMapAlphaInterpolant();
     return g_tweakAutoMapper->GetMiniAlphaOutlineVisited() * (1.f - mapAlphaInterp) *
-           stateMgr.Player()->GetMapAlpha() + mapAlphaInterp;
+               stateMgr.Player()->GetGunAlpha() + mapAlphaInterp;
 }
 
 float CAutoMapper::GetMapAreaMiniMapDrawAlphaSurfaceUnvisited(const CStateManager& stateMgr)
 {
     float mapAlphaInterp = g_tweakGui->GetMapAlphaInterpolant();
     return g_tweakAutoMapper->GetMiniAlphaSurfaceUnvisited() * (1.f - mapAlphaInterp) *
-           stateMgr.Player()->GetMapAlpha() + mapAlphaInterp;
+               stateMgr.Player()->GetGunAlpha() + mapAlphaInterp;
 }
 
 float CAutoMapper::GetMapAreaMiniMapDrawAlphaOutlineUnvisited(const CStateManager& stateMgr)
 {
     float mapAlphaInterp = g_tweakGui->GetMapAlphaInterpolant();
     return g_tweakAutoMapper->GetMiniAlphaOutlineUnvisited() * (1.f - mapAlphaInterp) *
-           stateMgr.Player()->GetMapAlpha() + mapAlphaInterp;
+               stateMgr.Player()->GetGunAlpha() + mapAlphaInterp;
 }
 
 float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) const

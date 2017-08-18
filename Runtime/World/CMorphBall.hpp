@@ -49,6 +49,7 @@ private:
     u32 x195c_ = false;
     u32 x1960_ = false;
     u32 x1964_ = false;
+    u32 x19dc_ = false;
     float x1DE8_boostTime = 0.f;
     CMorphBallShadow* x1e50_shadow = nullptr;
 
@@ -117,7 +118,7 @@ public:
     void ResetMorphBallTransitionFlash() {}
     void UpdateMorphBallTransitionFlash(float) {}
     void RenderMorphBallTransitionFlash(const CStateManager&) const {}
-    void IsMorphBallTransitionFlashValid() const {}
+    bool IsMorphBallTransitionFlashValid() const { return x19dc_ != 0; }
     void RenderDamageEffects(const CStateManager&, const zeus::CTransform&) const {}
     void UpdateHalfPipeStatus(CStateManager&, float) {}
     bool GetIsInHalfPipeMode() const { return false; }
@@ -156,7 +157,7 @@ public:
     void CreateBallShadow();
     void RenderToShadowTex(CStateManager& mgr);
     void StartLandingSfx() {}
-    bool GetX187c() const { return x187c_; }
+    bool GetX187c() const { return x187c_ != 0; }
     void SetDamageTimer(float t) { x191c_damageTimer = t; }
     void Stop() {}
     void StopSounds() {}

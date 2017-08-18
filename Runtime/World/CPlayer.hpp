@@ -281,14 +281,14 @@ private:
     zeus::CVector3f x480_assistedTargetAim = zeus::CVector3f::skZero;
     float x48c_aimTargetTimer = 0.f;
     std::unique_ptr<CPlayerGun> x490_gun;
-    float x494_mapAlpha = 1.f;
+    float x494_gunAlpha = 1.f;
     EGunHolsterState x498_gunHolsterState = EGunHolsterState::Drawn;
     float x49c_gunHolsterRemTime;
     std::unique_ptr<CFailsafeTest> x4a0_failsafeTest;
     TReservedAverage<float, 20> x4a4_;
     float x4f8_ = 0.f;
     float x4fc_ = 0.f;
-    zeus::CVector3f x500_ = x34_transform.basis[1];
+    zeus::CVector3f x500_lookDir = x34_transform.basis[1];
     zeus::CVector3f x50c_moveDir = x34_transform.basis[1];
     zeus::CVector3f x518_leaveMorphDir = x34_transform.basis[1];
     zeus::CVector3f x524_ = x34_transform.basis[1];
@@ -305,9 +305,9 @@ private:
     float x578_morphDuration = 0.f;
     u32 x57c_ = 0;
     u32 x580_ = 0;
-    int x584_ = -1;
+    int x584_ballTransitionAnim = -1;
     float x588_alpha = 1.f;
-    float x58c_ = 0.f;
+    float x58c_transitionVel = 0.f;
     bool x590_ = true;
     TReservedAverage<zeus::CTransform, 4> x594_transisionBeamXfs;
     TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
@@ -330,13 +330,13 @@ private:
     CSfxHandle x778_dashSfx;
     CSfxHandle x77c_samusVoiceSfx;
     int x780_samusVoicePriority = 0;
-    float x784_ = 0.f;
+    float x784_damageSfxTimer = 0.f;
     u16 x788_damageLoopSfxId = 0;
     float x78c_footstepSfxTimer = 0.f;
     EFootstepSfx x790_footstepSfxSel = EFootstepSfx::None;
     zeus::CVector3f x794_lastVelocity;
     CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, CAssetId()/*kInvalidAssetId*/);
-    CAssetId x7cc_;
+    CPlayerState::EPlayerSuit x7cc_transitionSuit;
     CAnimRes x7d0_animRes;
     zeus::CVector3f x7d8_beamScale;
     bool x7e4_ = true;
@@ -348,7 +348,7 @@ private:
     float x828_waterLevelOnPlayer = 0.f;
     bool x82c_inLava = false;
     TUniqueId x82e_ridingPlatform = kInvalidUniqueId;
-    TUniqueId x830_ = kInvalidUniqueId;
+    TUniqueId x830_playerHint = kInvalidUniqueId;
     u32 x834_ = 1000;
     u32 x838_ = 0;
     u32 x93c_ = 0;
@@ -373,23 +373,23 @@ private:
             bool x9c5_28_slidingOnWall : 1;
             bool x9c5_29_hitWall : 1;
             bool x9c5_30_ : 1;
-            bool x9c5_31_ : 1;
+            bool x9c5_31_stepCameraZBiasDirty : 1;
             bool x9c6_24_extendTargetDistance : 1;
             bool x9c6_25_ : 1;
-            bool x9c6_26_ : 1;
+            bool x9c6_26_outOfBallLookAtHint : 1;
             bool x9c6_27_aimingAtProjectile : 1;
             bool x9c6_28_aligningGrappleSwingTurn : 1;
             bool x9c6_29_disableInput : 1;
             bool x9c6_30_newScanScanning : 1;
             bool x9c6_31_overrideRadarRadius : 1;
             bool x9c7_24_ : 1;
-            bool x9c7_25_ : 1;
+            bool x9c7_25_outOfBallLookAtHintActor : 1;
         };
         u32 _dummy = 0;
     };
 
     float x9c8_eyeZBias = 0.f;
-    float x9cc_ = 0.f;
+    float x9cc_stepCameraZBias = 0.f;
     u32 x9d0_ = 0;
     u32 x9d4_ = 0;
     zeus::CVector3f x9d8_ = zeus::CVector3f::skForward;
@@ -426,9 +426,14 @@ public:
             float, float, const CMaterialList&);
 
     bool IsTransparent() const;
+    float GetTransitionAlpha(const zeus::CVector3f& camPos, float zNear) const;
+    s32 ChooseTransitionToAnimation(float dt, CStateManager& mgr) const;
+    void TransitionToMorphBallState(float dt, CStateManager& mgr);
+    void TransitionFromMorphBallState(CStateManager& mgr);
+    s32 GetNextBallTransitionAnim(float dt, bool& loopOut, CStateManager& mgr);
     void UpdateMorphBallTransition(float dt, CStateManager& mgr);
     void UpdateGunAlpha();
-    void UpdatePlayerSounds();
+    void UpdatePlayerSounds(float dt);
     void Update(float, CStateManager& mgr);
     void PostUpdate(float, CStateManager& mgr);
     bool StartSamusVoiceSfx(u16 sfx, float vol, int prio);
@@ -598,7 +603,7 @@ public:
     zeus::CVector3f GetDampedClampedVelocityWR() const;
     const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
     float GetVisorStaticAlpha() const { return x74c_visorStaticAlpha; }
-    float GetMapAlpha() const { return x494_mapAlpha; }
+    float GetGunAlpha() const { return x494_gunAlpha; }
     const CScriptWater* GetVisorRunoffEffect(const CStateManager& mgr) const;
     void SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr);
     bool CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) const;

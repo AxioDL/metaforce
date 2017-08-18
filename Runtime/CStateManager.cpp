@@ -1504,6 +1504,17 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
+                                    const CMaterialFilter& filter, const CActor& damagee)
+{
+    zeus::CVector3f delta = end - start;
+    float mag = delta.magnitude();
+    delta = delta / mag;
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    BuildNearList(nearList, start, delta, mag, filter, &damagee);
+    return RayCollideWorldInternal(start, end, filter, nearList, &damagee);
+}
+
+bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                     const CMaterialFilter& filter, const CActor& damagee)
 {

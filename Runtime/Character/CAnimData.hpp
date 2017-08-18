@@ -85,6 +85,13 @@ class CAnimData
 {
     friend class CModelData;
     friend class CActor;
+public:
+    enum class EAnimDir
+    {
+        Forward,
+        Backward
+    };
+private:
 
     TLockedToken<CCharacterFactory> x0_charFactory;
     CCharacterInfo xc_charInfo;
@@ -95,7 +102,7 @@ class CAnimData
     std::shared_ptr<CSkinnedModel> xf8_infraModel;
     std::shared_ptr<CAnimSysContext> xfc_animCtx;
     std::shared_ptr<CAnimationManager> x100_animMgr;
-    u32 x104_ = 0;
+    EAnimDir x104_animDir = EAnimDir::Forward;
     zeus::CAABox x108_aabb;
     CParticleDatabase x120_particleDB;
     CAssetId x1d8_selfId;
@@ -189,6 +196,7 @@ public:
     void EnableLooping(bool val) {x220_25_loop = val; x220_24_animating = true;}
     void EnableAnimation(bool val) {x220_24_animating = val;}
     bool IsAnimating() const {return x220_24_animating;}
+    void SetAnimDir(EAnimDir dir) { x104_animDir = dir; }
     std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
     std::shared_ptr<CAnimationManager> GetAnimationManager() const;
     void RecalcPoseBuilder(const CCharAnimTime*);

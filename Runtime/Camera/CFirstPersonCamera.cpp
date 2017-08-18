@@ -74,10 +74,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     TCastToPtr<CPlayer> player(mgr.ObjectById(GetWatchedObject()));
     if (!player)
     {
-        x34_transform = zeus::CTransform::Identity();
-        xe4_27_ = true;
-        xe4_28_ = true;
-        xe4_29_actorLightsDirty = true;
+        SetTransform(zeus::CTransform::Identity());
         return;
     }
 
@@ -257,12 +254,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     }
 
     x190_gunFollowXf = qGun.toTransform() * gunXf;
-    x34_transform = x190_gunFollowXf * bobXf.getRotation();
-
-    xe4_27_ = true;
-    xe4_28_ = true;
-    xe4_28_ = true;
-    xe4_29_actorLightsDirty = true;
+    SetTransform(x190_gunFollowXf * bobXf.getRotation());
 
     CActor::SetTranslation(x190_gunFollowXf.origin + player->GetTransform().rotate(bobXf.origin));
     x190_gunFollowXf.orthonormalize();
