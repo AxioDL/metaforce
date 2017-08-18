@@ -234,6 +234,8 @@ static std::atomic_bool BlenderFirstInit(false);
 
 static bool RegFileExists(const hecl::SystemChar* path)
 {
+    if (!path)
+        return false;
     hecl::Sstat theStat;
     return !hecl::Stat(path, &theStat) && S_ISREG(theStat.st_mode);
 }
