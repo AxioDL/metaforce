@@ -204,7 +204,11 @@ struct SpecMP2 : SpecBase
         /* Iterate PAKs and build level options */
         nod::Node::DirectoryIterator mp2It = root.find("MP2");
         if (mp2It == root.end())
-            return false;
+        {
+            mp2It = root.find("MP2JPN");
+            if (mp2It == root.end())
+                return false;
+        }
         buildPaks(*mp2It, mp2args, rep);
 
         return true;

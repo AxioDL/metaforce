@@ -261,21 +261,30 @@ struct SpecMP3 : SpecBase
         nod::Node& root = partition->getFSTRoot();
 
         /* MP3 extract */
-        if (doMP3)
+        while (doMP3)
         {
             nod::Node::DirectoryIterator dolIt = root.find("rs5mp3_p.dol");
             if (dolIt == root.end())
-                return false;
+            {
+                doMP3 = false;
+                break;
+            }
 
             std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
             const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
 
             if (!buildInfo)
-                return false;
+            {
+                doMP3 = false;
+                break;
+            }
 
             /* We don't want no stinking demo dammit */
             if (!strcmp(buildInfo, "Build v3.068 3/2/2006 14:55:13"))
-                return false;
+            {
+                doMP3 = false;
+                break;
+            }
 
             /* Root Report */
             reps.emplace_back();
@@ -291,16 +300,23 @@ struct SpecMP3 : SpecBase
             /* Iterate PAKs and build level options */
             nod::Node::DirectoryIterator mp3It = root.find("MP3");
             if (mp3It == root.end())
-                return false;
+            {
+                doMP3 = false;
+                break;
+            }
             buildPaks(*mp3It, mp3args, rep, false);
+            break;
         }
 
         /* MPT Frontend extract */
-        if (doMPTFE)
+        while (doMPTFE)
         {
             nod::Node::DirectoryIterator dolIt = root.find("rs5fe_p.dol");
             if (dolIt == root.end())
-                return false;
+            {
+                doMPTFE = false;
+                break;
+            }
 
             std::unique_ptr<uint8_t[]> dolBuf = dolIt->getBuf();
             const char* buildInfo = (char*)memmem(dolBuf.get(), dolIt->size(), "MetroidBuildInfo", 16) + 19;
@@ -320,11 +336,15 @@ struct SpecMP3 : SpecBase
             /* Iterate PAKs and build level options */
             nod::Node::DirectoryIterator feIt = root.find("fe");
             if (feIt == root.end())
-                return false;
+            {
+                doMPTFE = false;
+                break;
+            }
             buildPaks(*feIt, feargs, rep, true);
+            break;
         }
 
-        return true;
+        return doMP3 || doMPTFE;
     }
 
     bool extractFromDisc(nod::DiscBase&, bool force, FProgress progress)

@@ -73,7 +73,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
     }
 
     m_standalone = true;
-    if (m_isWii && !memcmp(gameID, "R3M", 3))
+    if (m_isWii && (!memcmp(gameID, "R3M", 3) || !memcmp(gameID, "R3I", 3) || !memcmp(gameID, "R32", 3)))
         m_standalone = false;
 
     if (m_standalone && !checkStandaloneID(gameID))

@@ -336,7 +336,11 @@ struct SpecMP1 : SpecBase
         /* Iterate PAKs and build level options */
         nod::Node::DirectoryIterator mp1It = root.find("MP1");
         if (mp1It == root.end())
-            return false;
+        {
+            mp1It = root.find("MP1JPN");
+            if (mp1It == root.end())
+                return false;
+        }
         buildPaks(*mp1It, mp1args, rep);
 
         return true;
