@@ -25,19 +25,17 @@ void CScriptActorRotate::Accept(IVisitor& visitor)
 
 void CScriptActorRotate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    bool acceptCalled = false;
     if (msg == EScriptObjectMessage::Activate)
     {
         CEntity::AcceptScriptMsg(msg, uid, mgr);
-        acceptCalled = true;
+        return;
     }
 
     if (msg == EScriptObjectMessage::Action || msg == EScriptObjectMessage::Next
         || (msg == EScriptObjectMessage::Registered && x58_27_updateOnCreation))
         UpdateActors(msg == EScriptObjectMessage::Next, mgr);
 
-    if (!acceptCalled)
-        CEntity::AcceptScriptMsg(msg, uid, mgr);
+    CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
 void CScriptActorRotate::Think(float dt, CStateManager& mgr)
