@@ -211,7 +211,7 @@ private:
             bool x835_28_bombReady : 1;
             bool x835_29_powerBombReady : 1;
             bool x835_30_ : 1;
-            bool x835_31_ : 1;
+            bool x835_31_actorAttached : 1;
         };
         u32 _dummy = 0;
     };
@@ -247,6 +247,7 @@ public:
     void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
     bool GetFiring() const { return x2ec_firing != 0; }
     TUniqueId DropPowerBomb(CStateManager& mgr);
+    void SetActorAttached(bool b) { x835_31_actorAttached = b; }
 };
 
 }

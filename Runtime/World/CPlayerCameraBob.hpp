@@ -21,15 +21,15 @@ public:
 
     enum class ECameraBobState
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight
+        Walk,
+        Orbit,
+        InAir,
+        WalkNoBob,
+        GunFireNoBob,
+        TurningNoBob,
+        FreeLookNoBob,
+        GrappleNoBob,
+        Unspecified
     };
 
     static float kCameraBobExtentX;
@@ -56,8 +56,8 @@ private:
     float x14_ = 0.f;
     float x18_bobTimeScale = 0.f;
     float x1c_bobTime = 0.f;
-    ECameraBobState x20_oldState = ECameraBobState::Eight;
-    ECameraBobState x24_curState = ECameraBobState::Eight;
+    ECameraBobState x20_oldState = ECameraBobState::Unspecified;
+    ECameraBobState x24_curState = ECameraBobState::Unspecified;
     bool x28_applyLandingTrans = false;
     bool x29_ = false;
     zeus::CTransform x2c_cameraBobTransform;

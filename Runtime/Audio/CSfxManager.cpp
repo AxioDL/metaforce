@@ -412,6 +412,23 @@ void CSfxManager::UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f&
     h.setMaxVol(maxVol);
 }
 
+CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                   bool useAcoustics, bool looped, s16 prio, s32 areaId)
+{
+    CAudioSys::C3DEmitterParmData parmData;
+    parmData.x0_pos = pos;
+    parmData.xc_dir = dir;
+    parmData.x18_maxDist = 150.f;
+    parmData.x1c_distComp = 0.1f;
+    parmData.x20_flags = 1; // Continuous parameter update
+    parmData.x24_sfxId = id;
+    parmData.x26_maxVol = 1.f;
+    parmData.x27_minVol = 0.165f;
+    parmData.x28_important = false;
+    parmData.x29_prio = 0x7f;
+    return AddEmitter(parmData, useAcoustics, prio, looped, areaId);
+}
+
 CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, float vol,
                                    bool useAcoustics, bool looped, s16 prio, s32 areaId)
 {
@@ -423,6 +440,7 @@ CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeu
     parmData.x20_flags = 1; // Continuous parameter update
     parmData.x24_sfxId = id;
     parmData.x26_maxVol = std::max(vol, 0.165f);
+    parmData.x27_minVol = 0.165f;
     parmData.x28_important = false;
     parmData.x29_prio = 0x7f;
     return AddEmitter(parmData, useAcoustics, prio, looped, areaId);

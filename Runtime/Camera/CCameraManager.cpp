@@ -181,10 +181,10 @@ void CCameraManager::CreateStandardCameras(CStateManager& stateMgr)
 {
     TUniqueId fpId = stateMgr.AllocateUniqueId();
     x7c_fpCamera = new CFirstPersonCamera(fpId, zeus::CTransform::Identity(),
-                                          stateMgr.Player()->GetUniqueId(), g_tweakPlayer->GetX184(),
+                                          stateMgr.Player()->GetUniqueId(), g_tweakPlayer->GetOrbitCameraSpeed(),
                                           sFirstPersonFOV, sNearPlane, sFarPlane, sAspect);
     stateMgr.AddObject(x7c_fpCamera);
-    stateMgr.Player()->SetCameraState(CPlayer::EPlayerCameraState::Zero, stateMgr);
+    stateMgr.Player()->SetCameraState(CPlayer::EPlayerCameraState::FirstPerson, stateMgr);
     SetCurrentCameraId(fpId, stateMgr);
 
     x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(),

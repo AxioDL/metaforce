@@ -8,8 +8,8 @@ namespace urde
 
 class CFirstPersonCamera : public CGameCamera
 {
-    float x188_;
-    bool x18c_ = false;
+    float x188_orbitCameraSpeed;
+    bool x18c_lockCamera = false;
     zeus::CTransform x190_gunFollowXf;
     float x1c0_ = 0.f;
     TUniqueId x1c4_pitchId = kInvalidUniqueId;
@@ -25,7 +25,7 @@ class CFirstPersonCamera : public CGameCamera
     float x1d4_ = 0.f;
 
 public:
-    CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float,
+    CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float orbitCameraSpeed,
                        float fov, float nearplane, float farplane, float aspect);
 
     void Accept(IVisitor& visitor);
@@ -40,7 +40,7 @@ public:
     void UpdateElevation(CStateManager&);
     void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);
     void SetScriptPitchId(TUniqueId uid) { x1c4_pitchId = uid; }
-    void SetX18C(bool v) { x18c_ = v; }
+    void SetLockCamera(bool v) { x18c_lockCamera = v; }
     void SetX1C6_24(bool v) { x1c6_24_ = v; }
 };
 }

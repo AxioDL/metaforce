@@ -29,6 +29,12 @@ public:
     {
         Zero
     };
+
+    enum class EBombJumpState
+    {
+        Zero,
+        One
+    };
 private:
     CPlayer& x0_player;
     std::unique_ptr<CModelData> x58_ballModel;
@@ -50,14 +56,23 @@ private:
     u32 x1960_ = false;
     u32 x1964_ = false;
     u32 x19dc_ = false;
+    union
+    {
+        struct
+        {
+            bool x1de4_25 : 1;
+        };
+        u32 _dummy = 0;
+    };
     float x1DE8_boostTime = 0.f;
+    EBombJumpState x1e40_bombJumpState = EBombJumpState::Zero;
     CMorphBallShadow* x1e50_shadow = nullptr;
 
 public:
     CMorphBall(CPlayer& player, float);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
     ESpiderBallState GetSpiderBallState() const { return ESpiderBallState::Zero; }
-    bool InSpiderBallMode() const { return false; }
+    bool InSpiderMode() const { return false; }
     zeus::CVector3f GetBallContactSurfaceNormal() const { return {}; }
     void GetModel() const {}
     const CCollidableSphere* GetCollidableSphere() const { return nullptr; }
@@ -149,7 +164,7 @@ public:
     void SetAsProjectile(const CDamageInfo&, const CDamageInfo&) {}
     EBallBoostState GetBallBoostState() const { return EBallBoostState::Zero; }
     void SetBallBoostState(EBallBoostState) {}
-    void GetBombJumpState() const {}
+    EBombJumpState GetBombJumpState() const { return x1e40_bombJumpState; }
     void LoadAnimationTokens(const std::string&) {}
     void TakeDamage(float) {}
     void DrawBallShadow(const CStateManager& mgr);
@@ -161,9 +176,11 @@ public:
     void SetDamageTimer(float t) { x191c_damageTimer = t; }
     void Stop() {}
     void StopSounds() {}
-
+    void ActorAttached() {}
     CModelData& GetMorphballModelData() const { return *x58_ballModel; }
     u32 GetMorphballModelShader() const { return x5c_ballModelShader; }
+    bool GetX1DE4_25() const { return x1de4_25; }
+    void SetX1DE4_25(bool b) { x1de4_25 = b; }
 };
 
 }

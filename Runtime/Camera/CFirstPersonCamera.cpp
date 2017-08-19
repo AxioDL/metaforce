@@ -12,10 +12,10 @@
 namespace urde
 {
 
-CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj, float f1,
-                                       float fov, float nearz, float farz, float aspect)
+CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj,
+                                       float orbitCameraSpeed, float fov, float nearz, float farz, float aspect)
 : CGameCamera(uid, true, "First Person Camera", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf, fov,
-              nearz, farz, aspect, watchedObj, false, 0)
+              nearz, farz, aspect, watchedObj, false, 0), x188_orbitCameraSpeed(orbitCameraSpeed)
 {
 }
 
@@ -84,8 +84,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     if (player->x3dc_inFreeLook)
     {
         float angle = player->x3ec_freeLookPitchAngle;
-        if (std::fabs(player->x3ec_freeLookPitchAngle) > (g_tweakPlayer->GetVerticalFreeLookAngleVel() - std::fabs(x1c0_)))
-            angle = (player->x3ec_freeLookPitchAngle > -0.f ? -1.f : 1.f);
+        float angleClamp = g_tweakPlayer->GetVerticalFreeLookAngleVel() - std::fabs(x1c0_);
+        angle = zeus::clamp(-angleClamp, angle, angleClamp);
         zeus::CVector3f vec;
         vec.z = std::sin(angle);
         vec.y = std::cos(-player->x3e4_freeLookYawAngle) * std::cos(angle);
@@ -117,14 +117,15 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             rVec = v;
         }
     }
-    else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Zero &&
+    else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit &&
              player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
-             player->x3dc_inFreeLook && x1c4_pitchId == kInvalidUniqueId)
+             !player->x3dc_inFreeLook && x1c4_pitchId == kInvalidUniqueId)
     {
-        if (player->x294_jumpCameraPitchTimer > 0.f)
+        if (player->x294_jumpCameraTimer > 0.f)
         {
-            float angle = zeus::clamp(0.f, (player->x294_jumpCameraPitchTimer - g_tweakPlayer->GetX288()) / g_tweakPlayer->GetX28c(), 1.f) *
-                          g_tweakPlayer->GetX290();
+            float angle = zeus::clamp(0.f, (player->x294_jumpCameraTimer - g_tweakPlayer->GetJumpCameraPitchDownStart()) /
+                g_tweakPlayer->GetJumpCameraPitchDownFull(), 1.f) *
+                g_tweakPlayer->GetJumpCameraPitchDownAngle();
             angle += x1c0_;
             rVec.x = 0.f;
             rVec.y = std::cos(angle);
@@ -132,10 +133,11 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
             rVec = playerXf.rotate(rVec);
         }
-        else if (player->x29c_spaceJumpCameraPitchTimer > 0.f)
+        else if (player->x29c_fallCameraTimer > 0.f)
         {
-            float angle = zeus::clamp(0.f, (player->x29c_spaceJumpCameraPitchTimer - g_tweakPlayer->GetX294()) / g_tweakPlayer->GetX298(), 1.f) *
-                          g_tweakPlayer->GetX29C();
+            float angle = zeus::clamp(0.f, (player->x29c_fallCameraTimer - g_tweakPlayer->GetFallCameraPitchDownStart()) /
+                g_tweakPlayer->GetFallCameraPitchDownFull(), 1.f) *
+                g_tweakPlayer->GetFallCameraPitchDownAngle();
             rVec.x = 0.f;
             rVec.y = std::cos(angle);
             rVec.z = -std::sin(angle);
@@ -160,19 +162,18 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             if (gunFrontVec.canBeNormalized())
                 gunFrontVec.normalize();
 
-            float scaledDt = (dt * g_tweakPlayer->GetX184());
+            float scaledDt = (dt * g_tweakPlayer->GetOrbitCameraSpeed());
             float angle = gunFrontVec.dot(rVec);
-            if (std::fabs(angle) > 1.f)
-                angle = (angle > -0.f ? -1.f : 1.f);
+            angle = zeus::clamp(-1.f, angle, 1.f);
             float clampedAngle = zeus::clamp(0.f, std::acos(angle) / scaledDt, 1.f);
-            if (angle > 0.999f && x18c_ && !player->x374_orbitLockEstablished)
+            if (angle > 0.999f && x18c_lockCamera && !player->x374_orbitLockEstablished)
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             else
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, scaledDt * clampedAngle);
 
             const CScriptGrapplePoint* gPoint =
                 TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_orbitTargetId));
-            if (gPoint && player->x29c_spaceJumpCameraPitchTimer > 0.f)
+            if (gPoint && player->x29c_fallCameraTimer > 0.f)
             {
                 gunFrontVec = x190_gunFollowXf.frontVector();
                 if (gunFrontVec.canBeNormalized())
@@ -192,11 +193,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
                 /* BUG: This is exactly what the runtime is doing, should we restore the intended behavior? */
                 float angle = gunFrontVec.dot(rVec);
-                float sdt = dt * g_tweakPlayer->GetX2B0();
+                float sdt = dt * g_tweakPlayer->GetGrappleCameraSpeed();
 
-                if (std::fabs(angle) > 1.0f)
-                    angle = (angle > -0.f ? -1.f : 1.f);
-
+                angle = zeus::clamp(-1.f, angle, 1.f);
                 angle = zeus::clamp(0.f, std::acos(angle) / sdt, 1.f);
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             }
@@ -204,17 +203,17 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Two ||
                  player->GetOrbitState() == CPlayer::EPlayerOrbitState::Three)
         {
-            dt *= g_tweakPlayer->GetX184();
+            dt *= g_tweakPlayer->GetOrbitCameraSpeed();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
-        else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Five)
+        else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Grapple)
         {
-            dt *= g_tweakPlayer->GetX2B0();
+            dt *= g_tweakPlayer->GetGrappleCameraSpeed();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
         else
         {
-            dt *= g_tweakPlayer->GetX280();
+            dt *= g_tweakPlayer->GetFirstPersonCameraSpeed();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);
         }
     }
@@ -235,16 +234,16 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             gunFront.normalize();
 
         float angle = gunFront.dot(rVec);
-        if (std::fabs(angle) > 1.f)
-            angle = (angle > -0.f ? -1.f : 1.f);
+        angle = zeus::clamp(-1.f, angle, 1.f);
         float sdt = dt * g_tweakPlayer->GetFreeLookSpeed();
         qGun = zeus::CQuaternion::lookAt(
-            rVec, gunFront, sdt * zeus::clamp(0.f, g_tweakPlayer->GetX14C() * (std::acos(angle) / sdt), 1.f));
+            rVec, gunFront, sdt * zeus::clamp(0.f, g_tweakPlayer->GetFreeLookDampenFactor() *
+                (std::acos(angle) / sdt), 1.f));
     }
     zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 
     if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ||
-        player->GetOrbitState() == CPlayer::EPlayerOrbitState::Five ||
+        player->GetOrbitState() == CPlayer::EPlayerOrbitState::Grapple ||
         player->GetGrappleState() == CPlayer::EGrappleState::None ||
         mgr.GetGameState() == CStateManager::EGameState::SoftPaused ||
         mgr.GetCameraManager()->IsInCinematicCamera())

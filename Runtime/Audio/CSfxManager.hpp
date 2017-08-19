@@ -224,6 +224,8 @@ public:
     static void RemoveEmitter(const CSfxHandle& handle);
     static void UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                               float maxVol);
+    static CSfxHandle AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                 bool useAcoustics, bool looped, s16 prio, s32 areaId);
     static CSfxHandle AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, float vol,
                                  bool useAcoustics, bool looped, s16 prio, s32 areaId);
     static CSfxHandle AddEmitter(const CAudioSys::C3DEmitterParmData& parmData,

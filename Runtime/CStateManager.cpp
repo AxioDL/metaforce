@@ -545,7 +545,7 @@ void CStateManager::DrawE3DeathEffect() const
     CPlayer& player = *x84c_player;
     if (player.x9f4_deathTime > 0.f)
     {
-        if (player.x2f8_morphTransState != CPlayer::EPlayerMorphBallState::Unmorphed)
+        if (player.x2f8_morphBallState != CPlayer::EPlayerMorphBallState::Unmorphed)
         {
             float blurAmt = zeus::clamp(0.f, (player.x9f4_deathTime - 1.f) / (6.f - 1.f), 1.f);
             if (blurAmt > 0.f)
@@ -1316,7 +1316,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
         CPlayer::ESurfaceRestraints surface =
             player.x2b0_outOfWaterTicks == 2 ? player.x2ac_surfaceRestraint : CPlayer::ESurfaceRestraints::Water;
         if (surface != CPlayer::ESurfaceRestraints::Normal &&
-            player.GetOrbitState() == CPlayer::EPlayerOrbitState::Zero)
+            player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit)
             usePower /= 7.f;
     }
     else

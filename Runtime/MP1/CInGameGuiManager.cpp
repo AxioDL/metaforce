@@ -600,7 +600,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
         bool scanVisor = stateMgr.GetPlayerState()->GetActiveVisor(stateMgr) == CPlayerState::EPlayerVisor::Scan;
         if (drawVisor && x1f0_enablePlayerVisor)
         {
-            if (stateMgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::Zero)
+            if (stateMgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson)
                 x20_faceplateDecor.Draw(stateMgr);
             CTargetingManager* tgtMgr = nullptr;
             if (scanVisor && x1e4_enableTargetingManager)

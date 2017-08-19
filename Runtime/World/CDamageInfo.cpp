@@ -21,7 +21,7 @@ CDamageInfo& CDamageInfo::operator=(const DataSpec::SShotParam& other)
     xc_radiusDamage = x8_damage;
     x10_radius = other.radius;
     x14_knockback = other.knockback;
-    x18_ = false;
+    x18_noImmunity = false;
     return *this;
 }
 

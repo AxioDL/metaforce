@@ -119,7 +119,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
             zeus::CTransform xf(zeus::CMatrix3f(scale), scanPos);
 
             float scanRange = g_tweakPlayer->GetScanningRange();
-            float farRange = g_tweakPlayer->GetScanningFrameSenseRange() - scanRange;
+            float farRange = g_tweakPlayer->GetScanMaxLockDistance() - scanRange;
             float farT;
             if (farRange <= 0.f)
                 farT = 1.f;

@@ -177,37 +177,13 @@ private:
     std::set<std::string> xb40_uniqueInstanceNames;
 
     CFinalInput xb54_finalInput;
-    CCameraFilterPassPoly xb84_camFilterPasses[9];
-    CCameraBlurPass xd14_camBlurPasses[9];
+    CCameraFilterPassPoly xb84_camFilterPasses[9]; // size: 0x2c
+    CCameraBlurPass xd14_camBlurPasses[9]; // size: 0x34
 
-    s32 xe60_ = -1;
-    zeus::CVector3f xe64_;
-
-    TUniqueId xe70_ = kInvalidUniqueId;
-    zeus::CVector3f xe74_ = {0.f, 1.f, 1.f};
-
-    s32 xe80_ = 2;
-    TUniqueId xe84_ = kInvalidUniqueId;
-
-    union
-    {
-        struct
-        {
-            bool xe86_24_ : 1;
-            bool xe86_25_ : 1;
-            bool xe86_26_ : 1;
-            bool xe86_27_ : 1;
-            bool xe86_28_ : 1;
-            bool xe86_29_ : 1;
-        };
-        u16 _dummy = 0;
-    };
-
-    u32 xeec_hintIdx = -1;
+    s32 xeec_hintIdx = -1;
     u32 xef0_hintPeriods = 0;
-
     SOnScreenTex xef4_pendingScreenTex;
-    CAssetId xf08_pauseHudMessage = -1;
+    CAssetId xf08_pauseHudMessage;
     float xf0c_escapeTimer = 0.f;
     float xf10_escapeTotalTime = 0.f;
     float xf14_curTimeMod900 = 0.f;
@@ -220,9 +196,7 @@ private:
     u32 xf34_particleFlags = 2;
     TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
     std::list<u32> xf3c_;
-    u32 xf50_ = 0;
     std::list<u32> xf54_;
-    u32 xf68_ = 0;
     TUniqueId xf6c_playerActor = kInvalidUniqueId;
     u32 xf70_ = 0;
 
@@ -233,7 +207,7 @@ private:
     CProjectedShadow* xf7c_projectedShadow = nullptr;
     u32 xf80_hudMessageFrameCount = 0;
     s32 xf84_ = -1;
-    CAssetId xf88_ = -1;
+    CAssetId xf88_;
     float xf8c_ = 0.f;
     EStateManagerTransition xf90_deferredTransition = EStateManagerTransition::InGame;
 

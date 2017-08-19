@@ -22,7 +22,7 @@ void CMorphBall::DrawBallShadow(const CStateManager& mgr)
         return;
 
     float alpha = 1.f;
-    switch (x0_player.x2f8_morphTransState)
+    switch (x0_player.x2f8_morphBallState)
     {
     case CPlayer::EPlayerMorphBallState::Unmorphed:
         return;

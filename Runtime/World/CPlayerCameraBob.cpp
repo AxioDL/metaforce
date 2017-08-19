@@ -77,7 +77,7 @@ void CPlayerCameraBob::SetState(CPlayerCameraBob::ECameraBobState state, CStateM
 
     x20_oldState = x24_curState;
     x24_curState = state;
-    if (x20_oldState == ECameraBobState::Two)
+    if (x20_oldState == ECameraBobState::InAir)
     {
         x28_applyLandingTrans = true;
         x68_ = std::min(x68_, -35.f);
@@ -91,7 +91,7 @@ void CPlayerCameraBob::SetState(CPlayerCameraBob::ECameraBobState state, CStateM
         }
     }
 
-    if (x24_curState == ECameraBobState::Three && x100_ != 0.f)
+    if (x24_curState == ECameraBobState::WalkNoBob && x100_ != 0.f)
         InitViewWander(mgr);
 }
 
@@ -162,7 +162,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
         x78_ = 0.f;
     }
 
-    if (x24_curState == ECameraBobState::Three)
+    if (x24_curState == ECameraBobState::WalkNoBob)
         x104_ = 1.f;
     else
         x104_ = 0.f;

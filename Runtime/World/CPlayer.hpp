@@ -21,6 +21,7 @@ class CFinalInput;
 class CPlayerCameraBob;
 class CFirstPersonCamera;
 class CCollidableSphere;
+class CScriptPlayerHint;
 
 class CPlayer : public CPhysicsActor
 {
@@ -40,19 +41,19 @@ public:
 
     enum class EPlayerOrbitType
     {
-        Zero,
-        One,
+        Close,
+        Far,
         Two
     };
 
     enum class EPlayerOrbitState
     {
-        Zero,
+        NoOrbit,
         One,
         Two,
         Three,
         Four,
-        Five
+        Grapple
     };
 
     enum class EPlayerOrbitRequest
@@ -115,11 +116,11 @@ public:
 
     enum class EPlayerCameraState
     {
-        Zero,
-        One,
+        FirstPerson,
+        Ball,
         Two,
-        Three,
-        Four
+        Transitioning,
+        Spawned
     };
 
     enum class ESurfaceRestraints
@@ -161,22 +162,23 @@ public:
 private:
     struct CVisorSteam
     {
-        float x0_;
-        float x4_;
-        float x8_;
+        float x0_curTargetAlpha;
+        float x4_curAlphaInDur;
+        float x8_curAlphaOutDur;
         CAssetId xc_tex;
-        float x10_ = 0.f;
-        float x14_ = 0.f;
-        float x18_ = 0.f;
+        float x10_nextTargetAlpha = 0.f;
+        float x14_nextAlphaInDur = 0.f;
+        float x18_nextAlphaOutDur = 0.f;
         CAssetId x1c_txtr;
         float x20_alpha = 0.f;
-        float x24_ = 0.f;
+        float x24_delayTimer = 0.f;
         bool x28_affectsThermal = false;
 
     public:
-        CVisorSteam(float a, float b, float c, CAssetId tex) : x0_(a), x4_(b), x8_(c), xc_tex(tex) {}
+        CVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId tex)
+        : x0_curTargetAlpha(targetAlpha), x4_curAlphaInDur(alphaInDur), x8_curAlphaOutDur(alphaOutDur), xc_tex(tex) {}
         CAssetId GetTextureId() const;
-        void SetSteam(float a, float b, float c, CAssetId txtr, bool affectsThermal);
+        void SetSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId txtr, bool affectsThermal);
         void Update(float dt);
         float GetAlpha() const { return x20_alpha; }
         bool AffectsThermal() const { return x28_affectsThermal; }
@@ -205,15 +207,15 @@ private:
 
     EPlayerMovementState x258_movementState = EPlayerMovementState::OnGround;
     std::vector<CToken> x25c_ballTransitionsRes;
-    TUniqueId x26c_ = kInvalidUniqueId;
-    float x270_ = 0.f;
+    TUniqueId x26c_attachedActor = kInvalidUniqueId;
+    float x270_attachedActorTime = 0.f;
     CPlayerEnergyDrain x274_energyDrain = CPlayerEnergyDrain(4);
     float x288_startingJumpTimeout = 0.f;
     float x28c_sjTimer = 0.f;
     float x290_minJumpTimeout = 0.f;
-    float x294_jumpCameraPitchTimer = 0.f;
+    float x294_jumpCameraTimer = 0.f;
     u32 x298_jumpPresses = 0;
-    float x29c_spaceJumpCameraPitchTimer = 0.f;
+    float x29c_fallCameraTimer = 0.f;
     float x2a0_ = 0.f;
     bool x2a4_cancelCameraPitch = false;
     float x2a8_timeSinceJump = 1000.f;
@@ -224,27 +226,27 @@ private:
     float x2d4_accelerationChangeTimer = 0.f;
     zeus::CAABox x2d8_fpBounds;
     float x2f0_ballTransHeight = 0.f;
-    EPlayerCameraState x2f4_cameraState = EPlayerCameraState::Zero;
-    EPlayerMorphBallState x2f8_morphTransState = EPlayerMorphBallState::Unmorphed;
-    EPlayerMorphBallState x2fc_cinematicMorphTransState = EPlayerMorphBallState::Unmorphed;
+    EPlayerCameraState x2f4_cameraState = EPlayerCameraState::FirstPerson;
+    EPlayerMorphBallState x2f8_morphBallState = EPlayerMorphBallState::Unmorphed;
+    EPlayerMorphBallState x2fc_spawnedMorphBallState = EPlayerMorphBallState::Unmorphed;
     float x300_fallingTime = 0.f;
-    EPlayerOrbitState x304_orbitState = EPlayerOrbitState::Zero;
-    EPlayerOrbitType x308_orbitType = EPlayerOrbitType::Zero;
+    EPlayerOrbitState x304_orbitState = EPlayerOrbitState::NoOrbit;
+    EPlayerOrbitType x308_orbitType = EPlayerOrbitType::Close;
     EPlayerOrbitRequest x30c_orbitRequest = EPlayerOrbitRequest::Three;
     TUniqueId x310_orbitTargetId = kInvalidUniqueId;
     zeus::CVector3f x314_orbitPoint;
     zeus::CVector3f x320_orbitVector;
-    float x32c_orbitDistance = 0.f;
-    EPlayerZoneInfo x330_orbitZone = EPlayerZoneInfo::Zero;
+    float x32c_orbitModeTimer = 0.f;
+    EPlayerZoneInfo x330_orbitZoneMode = EPlayerZoneInfo::Zero;
     EPlayerZoneType x334_orbitType = EPlayerZoneType::Ellipse;
     u32 x338_ = 1;
-    TUniqueId x33c_ = kInvalidUniqueId;
+    TUniqueId x33c_orbitNextTargetId = kInvalidUniqueId;
     float x340_ = 0.f;
     std::vector<TUniqueId> x344_nearbyOrbitObjects;
     std::vector<TUniqueId> x354_onScreenOrbitObjects;
     std::vector<TUniqueId> x364_offScreenOrbitObjects;
     bool x374_orbitLockEstablished = false;
-    float x378_ = 0.f;
+    float x378_orbitPreventionTimer = 0.f;
     bool x37c_sidewaysDashing = false;
     float x380_strafeInputAtDash = 0.f;
     float x384_dashTimer = 0.f;
@@ -285,22 +287,22 @@ private:
     EGunHolsterState x498_gunHolsterState = EGunHolsterState::Drawn;
     float x49c_gunHolsterRemTime;
     std::unique_ptr<CFailsafeTest> x4a0_failsafeTest;
-    TReservedAverage<float, 20> x4a4_;
-    float x4f8_ = 0.f;
-    float x4fc_ = 0.f;
+    TReservedAverage<float, 20> x4a4_moveSpeedAvg;
+    float x4f8_moveSpeed = 0.f;
+    float x4fc_flatMoveSpeed = 0.f;
     zeus::CVector3f x500_lookDir = x34_transform.basis[1];
     zeus::CVector3f x50c_moveDir = x34_transform.basis[1];
     zeus::CVector3f x518_leaveMorphDir = x34_transform.basis[1];
-    zeus::CVector3f x524_ = x34_transform.basis[1];
-    zeus::CVector3f x530_ = x34_transform.basis[1];
-    float x53c_ = 0.f;
-    zeus::CVector3f x540_ = x34_transform.basis[1];
-    zeus::CVector3f x54c_ = x34_transform.basis[1];
+    zeus::CVector3f x524_lastPosForDirCalc = x34_transform.basis[1];
+    zeus::CVector3f x530_gunDir = x34_transform.basis[1];
+    float x53c_timeMoving = 0.f;
+    zeus::CVector3f x540_controlDir = x34_transform.basis[1];
+    zeus::CVector3f x54c_controlDirFlat = x34_transform.basis[1];
     bool x558_wasDamaged = false;
     float x55c_damageAmt = 0.f;
     float x560_prevDamageAmt = 0.f;
     zeus::CVector3f x564_damageLocation;
-    float x570_ = 0.f;
+    float x570_immuneTimer = 0.f;
     float x574_morphTime = 0.f;
     float x578_morphDuration = 0.f;
     u32 x57c_ = 0;
@@ -313,7 +315,7 @@ private:
     TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
     TReservedAverage<float, 4> x71c_transitionModelAlphas;
     std::vector<std::unique_ptr<CModelData>> x730_transitionModels;
-    float x740_staticOutTimer = 0.f;
+    float x740_staticTimer = 0.f;
     float x744_staticOutSpeed = 0.f;
     float x748_staticInSpeed = 0.f;
     float x74c_visorStaticAlpha = 1.f;
@@ -344,15 +346,15 @@ private:
     CPlayerState::EBeamId x7ec_beam = CPlayerState::EBeamId::Power;
     std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
     zeus::CTransform x7f4_gunWorldXf;
-    float x824_ = 0.f;
+    float x824_transitionFilterTimer = 0.f;
     float x828_waterLevelOnPlayer = 0.f;
     bool x82c_inLava = false;
     TUniqueId x82e_ridingPlatform = kInvalidUniqueId;
     TUniqueId x830_playerHint = kInvalidUniqueId;
     u32 x834_ = 1000;
-    u32 x838_ = 0;
-    u32 x93c_ = 0;
-    u32 x980_ = 0;
+    rstl::reserved_vector<std::pair<u32, TUniqueId>, 32> x838_playerHints;
+    rstl::reserved_vector<TUniqueId, 32> x93c_playerHintsToRemove;
+    rstl::reserved_vector<TUniqueId, 32> x980_playerHintsToAdd;
 
     union
     {
@@ -364,7 +366,7 @@ private:
             bool x9c4_27_canEnterMorphBall : 1;
             bool x9c4_28_canLeaveMorphBall : 1;
             bool x9c4_29_ : 1;
-            bool x9c4_30_ : 1;
+            bool x9c4_30_controlDirOverride : 1;
             bool x9c4_31_dampUnderwaterMotion : 1;
             bool x9c5_24_ : 1;
             bool x9c5_25_splashUpdated : 1;
@@ -375,7 +377,7 @@ private:
             bool x9c5_30_ : 1;
             bool x9c5_31_stepCameraZBiasDirty : 1;
             bool x9c6_24_extendTargetDistance : 1;
-            bool x9c6_25_ : 1;
+            bool x9c6_25_interpolatingControlDir : 1;
             bool x9c6_26_outOfBallLookAtHint : 1;
             bool x9c6_27_aimingAtProjectile : 1;
             bool x9c6_28_aligningGrappleSwingTurn : 1;
@@ -390,14 +392,14 @@ private:
 
     float x9c8_eyeZBias = 0.f;
     float x9cc_stepCameraZBias = 0.f;
-    u32 x9d0_ = 0;
-    u32 x9d4_ = 0;
-    zeus::CVector3f x9d8_ = zeus::CVector3f::skForward;
+    u32 x9d0_bombJumpCount = 0;
+    u32 x9d4_bombJumpCheckDelayFrames = 0;
+    zeus::CVector3f x9d8_controlDirOverrideDir = zeus::CVector3f::skForward;
     rstl::reserved_vector<TUniqueId, 5> x9e4_orbitDisableList;
 
     float x9f4_deathTime = 0.f;
-    float x9f8_ = 0.f;
-    float x9fc_ = 0.f;
+    float x9f8_controlDirInterpTime = 0.f;
+    float x9fc_controlDirInterpDur = 0.f;
     TUniqueId xa00_deathPowerBomb = kInvalidUniqueId;
     float xa04_ = 0.f;
     CAssetId xa08_steamTextureId;
@@ -408,7 +410,7 @@ private:
     float xa1c_threatOverride = 0.f;
     float xa20_radarXYRadiusOverride = 1.f;
     float xa24_radarZRadiusOverride = 1.f;
-    float xa28_ = 0.f;
+    float xa28_attachedActorStruggle = 0.f;
     u32 xa2c_ = 2;
     float xa30_samusExhaustedVoiceTimer = 4.f;
 
@@ -420,6 +422,7 @@ private:
     void InitializeBallTransition();
     float UpdateCameraBob(float dt, CStateManager& mgr);
     float GetAcceleration() const;
+    float CalculateOrbitZBasedDistance(EPlayerOrbitType type) const;
 
 public:
     CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, CAssetId w1, const zeus::CVector3f&, float, float,
@@ -490,9 +493,16 @@ public:
     void UpdateWaterSurfaceCameraBias(CStateManager& mgr);
     void UpdatePhazonCameraShake(float dt, CStateManager& mgr);
     void UpdatePhazonDamage(float dt, CStateManager& mgr);
+    void ResetPlayerHintState();
+    bool SetAreaPlayerHint(const CScriptPlayerHint& hint, CStateManager& mgr);
+    void AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr);
+    void AddToPlayerHintAddList(TUniqueId id, CStateManager& mgr);
+    void DeactivatePlayerHint(TUniqueId id, CStateManager& mgr);
     void UpdatePlayerHints(CStateManager& mgr);
     void UpdateBombJumpStuff();
     void UpdateTransitionFilter(float dt, CStateManager& mgr);
+    void ResetControlDirectionInterpolation();
+    void SetControlDirectionInterpolation(float time);
     void UpdatePlayerControlDirection(float dt, CStateManager& mgr);
     void Think(float, CStateManager&);
     void PreThink(float, CStateManager&);
@@ -520,7 +530,7 @@ public:
     void DrawGun(CStateManager& mgr);
     void HolsterGun(CStateManager& mgr);
     EPlayerCameraState GetCameraState() const { return x2f4_cameraState; }
-    EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphTransState; }
+    EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphBallState; }
     bool IsMorphBallTransitioning() const;
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
     float GetGravity() const;
@@ -557,7 +567,7 @@ public:
     bool WithinOrbitScreenBox(const zeus::CVector3f&, EPlayerZoneInfo, EPlayerZoneType) const;
     bool WithinOrbitScreenEllipse(const zeus::CVector3f&, EPlayerZoneInfo) const;
     bool CheckOrbitDisableSourceList(CStateManager& mgr);
-    bool CheckOrbitDisableSourceList() const { return x9e4_orbitDisableList.size() != 0; }
+    bool CheckOrbitDisableSourceList() const { return !x9e4_orbitDisableList.empty(); }
     void RemoveOrbitDisableSource(TUniqueId);
     void AddOrbitDisableSource(CStateManager& mgr, TUniqueId);
     void UpdateOrbitPreventionTimer(float);
@@ -579,7 +589,7 @@ public:
     float GetUnbiasedEyeHeight() const;
     float GetStepUpHeight() const;
     float GetStepDownHeight() const;
-    void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool);
+    void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool resetBallCam);
     void BombJump(const zeus::CVector3f& pos, CStateManager& mgr);
     zeus::CTransform CreateTransformFromMovementDirection() const;
     const CCollisionPrimitive* GetCollisionPrimitive() const;
@@ -607,7 +617,7 @@ public:
     const CScriptWater* GetVisorRunoffEffect(const CStateManager& mgr) const;
     void SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr);
     bool CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) const;
-    void SetHudDisable(float f1, float f2, float f3);
+    void SetHudDisable(float staticTimer, float outSpeed, float inSpeed);
     void SetIntoBallReadyAnimation(CStateManager& mgr);
     void LeaveMorphBallState(CStateManager& mgr);
     bool CanEnterMorphBallState(CStateManager& mgr, float f1) const;
@@ -637,17 +647,22 @@ public:
     CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }
     float GetDeathTime() const { return x9f4_deathTime; }
     const CPlayerEnergyDrain& GetEnergyDrain() const { return x274_energyDrain; }
-    EPlayerZoneInfo GetOrbitZone() const { return x330_orbitZone; }
+    EPlayerZoneInfo GetOrbitZone() const { return x330_orbitZoneMode; }
     EPlayerZoneType GetOrbitType() const { return x334_orbitType; }
     const zeus::CTransform& GetFirstPersonCameraTransform(const CStateManager& mgr) const;
     const std::vector<TUniqueId>& GetNearbyOrbitObjects() const { return x344_nearbyOrbitObjects; }
     const std::vector<TUniqueId>& GetOnScreenOrbitObjects() const { return x354_onScreenOrbitObjects; }
     const std::vector<TUniqueId>& GetOffScreenOrbitObjects() const { return x364_offScreenOrbitObjects; }
     void SetPlayerHitWallDuringMove();
-
+    ESurfaceRestraints GetCurrentSurfaceRestraint() const { return x2ac_surfaceRestraint; }
+    ESurfaceRestraints GetSurfaceRestraint() const
+    { return x2b0_outOfWaterTicks == 2 ? GetCurrentSurfaceRestraint() : ESurfaceRestraints::Water; }
     void DecrementPhazon();
     void IncrementPhazon();
     void ApplySubmergedPitchBend(CSfxHandle& sfx);
+    void DetachActorFromPlayer();
+    bool AttachActorToPlayer(TUniqueId id, bool disableGun);
+    float GetAttachedActorStruggle() const { return xa28_attachedActorStruggle; }
 };
 }
 
