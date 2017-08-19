@@ -37,6 +37,8 @@ class CScriptPlatform : public CPhysicsActor
     rstl::optional_object<TLockedToken<CCollidableOBBTreeGroupContainer>> x304_treeGroupContainer;
     std::unique_ptr<CCollidableOBBTreeGroup> x314_treeGroup;
     std::vector<SRiders> x318_riders;
+    std::vector<SRiders> x328_;
+    std::vector<SRiders> x338_;
     float x348_;
     u32 x34c_;
     u32 x350_;
@@ -66,6 +68,10 @@ public:
     void Accept(IVisitor& visitor);
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     bool IsRider(TUniqueId id) const;
+    std::vector<SRiders>& GetX328() { return x328_; }
+    const std::vector<SRiders>& GetX328() const { return x328_; }
+    std::vector<SRiders>& GetX338() { return x338_; }
+    const std::vector<SRiders>& GetX338() const { return x338_; }
 };
 }
 
