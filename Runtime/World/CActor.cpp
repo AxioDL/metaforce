@@ -101,7 +101,7 @@ void CActor::CalculateRenderBounds()
         x9c_renderBounds = zeus::CAABox(x34_transform.origin, x34_transform.origin);
 }
 
-CHealthInfo* CActor::HealthInfo() { return nullptr; }
+CHealthInfo* CActor::HealthInfo(CStateManager&) { return nullptr; }
 
 const CDamageVulnerability* CActor::GetDamageVulnerability() const { return nullptr; }
 

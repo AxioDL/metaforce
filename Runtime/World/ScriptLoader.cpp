@@ -72,6 +72,7 @@
 #include "CScriptRoomAcoustics.hpp"
 #include "CScriptControllerAction.hpp"
 #include "CScriptPlayerHint.hpp"
+#include "MP1/World/CMetroidPrimeRelay.hpp"
 #include "CPatternedInfo.hpp"
 #include "CSimplePool.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
@@ -429,7 +430,8 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, mass,
-                            zMomentum, list, hInfo, dVuln, actParms, looping, active, w2, f3, b6, castsShadow, xposeRotate, b9);
+                            zMomentum, list, hInfo, dVuln, actParms, looping, active, w2, f3, b6, castsShadow,
+                            xposeRotate, b9);
 }
 
 CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2395,7 +2397,33 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& 
 CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& in, int propCount,
                                               const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 22, "MetroidPrimeStage1"))
+        return nullptr;
+    u32 version = in.readUint32Big();
+    if (version != 3)
+        return nullptr;
+
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    bool active = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+    bool b1 = in.readBool();
+    u32 w2 = in.readUint32Big();
+    CHealthInfo hInfo1(in);
+    CHealthInfo hInfo2(in);
+    u32 w3 = in.readUint32Big();
+    rstl::reserved_vector<MP1::SPrimeExoRoomParameters, 4> roomParms;
+    for (int i=0 ; i<4 ; ++i)
+        roomParms.emplace_back(in);
+    u32 w4 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
+    MP1::SPrimeExoParameters primeParms(in);
+
+    return new MP1::CMetroidPrimeRelay(mgr.AllocateUniqueId(), aHead.x0_name, info, active,
+                                       aHead.x10_transform, aHead.x40_scale, std::move(primeParms),
+                                       f1, f2, f3, w1, b1, w2, hInfo1, hInfo2, w3, w4, w5, std::move(roomParms));
 }
 
 CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

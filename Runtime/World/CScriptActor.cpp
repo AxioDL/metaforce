@@ -116,7 +116,7 @@ void CScriptActor::Think(float dt, CStateManager& mgr)
         }
     }
 
-    if (!x2e2_25_dead && HealthInfo()->GetHP() <= 0.f)
+    if (!x2e2_25_dead && HealthInfo(mgr)->GetHP() <= 0.f)
     {
         x2e2_25_dead = true;
         SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);

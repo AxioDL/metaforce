@@ -320,8 +320,9 @@ public:
     void TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee);
     bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);
-    bool ApplyDamage(TUniqueId, TUniqueId, TUniqueId, const CDamageInfo& info,
-                     const CMaterialFilter&, const zeus::CVector3f&);
+    bool ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqueId radiusSender,
+                     const CDamageInfo& info, const CMaterialFilter& filter,
+                     const zeus::CVector3f& knockbackVec);
     void UpdateAreaSounds();
     void FrameEnd();
     void ProcessPlayerInput();

@@ -1272,7 +1272,7 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
 {
     if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Reflect)
         return;
-    CHealthInfo* hInfo = actor.HealthInfo();
+    CHealthInfo* hInfo = actor.HealthInfo(*this);
     if (!hInfo)
         return;
 
@@ -1391,23 +1391,24 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
     }
 }
 
-void CStateManager::ProcessRadiusDamage(const CActor& a1, CActor& a2, TUniqueId senderId, const CDamageInfo& info,
+void CStateManager::ProcessRadiusDamage(const CActor& damager, CActor& damagee,
+                                        TUniqueId senderId, const CDamageInfo& info,
                                         const CMaterialFilter& filter)
 {
-    zeus::CAABox aabb(a1.GetTranslation() - info.GetRadius(), a1.GetTranslation() + info.GetRadius());
+    zeus::CAABox aabb(damager.GetTranslation() - info.GetRadius(), damager.GetTranslation() + info.GetRadius());
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     BuildNearList(nearList, aabb, filter, nullptr);
     for (TUniqueId id : nearList)
     {
         CEntity* ent = ObjectById(id);
-        if (!ent || ent->GetUniqueId() == a1.GetUniqueId() ||
+        if (!ent || ent->GetUniqueId() == damager.GetUniqueId() ||
             ent->GetUniqueId() == senderId ||
-            ent->GetUniqueId() == a2.GetUniqueId())
+            ent->GetUniqueId() == damagee.GetUniqueId())
             continue;
 
-        TestBombHittingWater(a1, a1.GetTranslation(), static_cast<CActor&>(*ent));
-        if (TestRayDamage(a1.GetTranslation(), static_cast<CActor&>(*ent), nearList))
-            ApplyRadiusDamage(a1, a1.GetTranslation(), static_cast<CActor&>(*ent), info);
+        TestBombHittingWater(damager, damager.GetTranslation(), static_cast<CActor&>(*ent));
+        if (TestRayDamage(damager.GetTranslation(), static_cast<CActor&>(*ent), nearList))
+            ApplyRadiusDamage(damager, damager.GetTranslation(), static_cast<CActor&>(*ent), info);
     }
 }
 
@@ -1431,7 +1432,7 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
                 delta.normalize();
 
             bool alive = false;
-            if (CHealthInfo* hInfo = a2.HealthInfo())
+            if (CHealthInfo* hInfo = a2.HealthInfo(*this))
                 if (hInfo->GetHP() > 0.f)
                     alive = true;
 
@@ -1451,8 +1452,8 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
             }
             else
             {
-                a2.SendScriptMsgs(EScriptObjectState::UNKS6, *this, EScriptObjectMessage::None);
-                SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InternalMessage20);
+                a2.SendScriptMsgs(EScriptObjectState::InvulnDamage, *this, EScriptObjectMessage::None);
+                SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InvulnDamage);
             }
 
             if (alive && info.GetKnockBackPower() > 0.f)
@@ -1464,7 +1465,7 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
 bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
                                   const rstl::reserved_vector<TUniqueId, 1024>& nearList)
 {
-    const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo();
+    const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo(*this);
     if (!hInfo)
         return false;
 
@@ -1616,7 +1617,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
 bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& damagee, float dam,
                                      const CWeaponMode& weapMode)
 {
-    CHealthInfo* hInfo = damagee.HealthInfo();
+    CHealthInfo* hInfo = damagee.HealthInfo(*this);
     if (!hInfo || dam < 0.f)
         return false;
 
@@ -1674,62 +1675,63 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
     return significant;
 }
 
-bool CStateManager::ApplyDamage(TUniqueId id0, TUniqueId id1, TUniqueId id2,
+bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqueId radiusSender,
                                 const CDamageInfo& info, const CMaterialFilter& filter,
-                                const zeus::CVector3f& vec)
+                                const zeus::CVector3f& knockbackVec)
 {
-    CEntity* ent0 = ObjectById(id0);
-    CEntity* ent1 = ObjectById(id1);
-    TCastToPtr<CActor> act0 = ent0;
-    TCastToPtr<CActor> act1 = ent1;
+    CEntity* ent0 = ObjectById(damagerId);
+    CEntity* ent1 = ObjectById(damageeId);
+    TCastToPtr<CActor> damager = ent0;
+    TCastToPtr<CActor> damagee = ent1;
     bool isPlayer = TCastToPtr<CPlayer>(ent1);
 
-    if (act1)
+    if (damagee)
     {
-        if (CHealthInfo* hInfo = act1->HealthInfo())
+        if (CHealthInfo* hInfo = damagee->HealthInfo(*this))
         {
             zeus::CVector3f position;
             zeus::CVector3f direction = zeus::CVector3f::skRight;
             bool alive = hInfo->GetHP() > 0.f;
-            if (act0)
+            if (damager)
             {
-                position = act0->GetTranslation();
-                direction = act0->GetTransform().basis[1];
+                position = damager->GetTranslation();
+                direction = damager->GetTransform().basis[1];
             }
 
             const CDamageVulnerability* dVuln;
-            if (act0 || isPlayer)
-                dVuln = act1->GetDamageVulnerability(position, direction, info);
+            if (damager || isPlayer)
+                dVuln = damagee->GetDamageVulnerability(position, direction, info);
             else
-                dVuln = act1->GetDamageVulnerability();
+                dVuln = damagee->GetDamageVulnerability();
 
             if (info.GetWeaponMode().GetType() == EWeaponType::None ||
                 dVuln->WeaponHurts(info.GetWeaponMode(), false))
             {
                 if (info.GetDamage() > 0.f)
-                    ApplyLocalDamage(position, direction, *act1, info.GetDamage(), info.GetWeaponMode());
-                act1->SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
-                SendScriptMsg(act1.GetPtr(), id0, EScriptObjectMessage::Damage);
+                    ApplyLocalDamage(position, direction, *damagee, info.GetDamage(), info.GetWeaponMode());
+                damagee->SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
+                SendScriptMsg(damagee.GetPtr(), damagerId, EScriptObjectMessage::Damage);
             }
             else
             {
-                act1->SendScriptMsgs(EScriptObjectState::UNKS6, *this, EScriptObjectMessage::None);
-                SendScriptMsg(act1.GetPtr(), id0, EScriptObjectMessage::InternalMessage20);
+                damagee->SendScriptMsgs(EScriptObjectState::InvulnDamage, *this, EScriptObjectMessage::None);
+                SendScriptMsg(damagee.GetPtr(), damagerId, EScriptObjectMessage::InvulnDamage);
             }
 
-            if (alive && act0 && info.GetKnockBackPower() > 0.f)
+            if (alive && damager && info.GetKnockBackPower() > 0.f)
             {
-                zeus::CVector3f delta = vec.isZero() ? (act1->GetTranslation() - act0->GetTranslation()) : vec;
-                ApplyKnockBack(*act1, info, *dVuln, delta.normalized(), 0.f);
+                zeus::CVector3f delta = knockbackVec.isZero() ?
+                                        (damagee->GetTranslation() - damager->GetTranslation()) : knockbackVec;
+                ApplyKnockBack(*damagee, info, *dVuln, delta.normalized(), 0.f);
             }
         }
 
-        if (act0 && info.GetRadius() > 0.f)
-            ProcessRadiusDamage(*act0, *act1, id2, info, filter);
+        if (damager && info.GetRadius() > 0.f)
+            ProcessRadiusDamage(*damager, *damagee, radiusSender, info, filter);
 
         if (TCastToPtr<CWallCrawlerSwarm> swarm = ent1)
-            if (act0)
-                swarm->ApplyRadiusDamage(act0->GetTranslation(), info, *this);
+            if (damager)
+                swarm->ApplyRadiusDamage(damager->GetTranslation(), info, *this);
     }
 
     return false;

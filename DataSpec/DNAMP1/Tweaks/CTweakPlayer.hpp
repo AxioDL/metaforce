@@ -54,7 +54,7 @@ struct CTweakPlayer : ITweakPlayer
     Value<float> x14c_freeLookDampenFactor;
     Value<float> x150_leftDiv;
     Value<float> x154_rightDiv;
-    Value<float> x158_orbitZBasedDistance[3];
+    Value<float> x158_orbitMinDistance[3];
     Value<float> x164_orbitNormalDistance[3];
     Value<float> x170_orbitMaxDistance[3];
     Value<float> x17c_;
@@ -296,7 +296,7 @@ struct CTweakPlayer : ITweakPlayer
     float GetFreeLookDampenFactor() const { return x14c_freeLookDampenFactor; }
     float GetLeftLogicalThreshold() const { return x150_leftDiv; }
     float GetRightLogicalThreshold() const { return x154_rightDiv; }
-    float GetOrbitZBasedDistance(int type) const { return x158_orbitZBasedDistance[type]; }
+    float GetOrbitMinDistance(int type) const { return x158_orbitMinDistance[type]; }
     float GetOrbitNormalDistance(int type) const { return x164_orbitNormalDistance[type]; }
     float GetOrbitMaxDistance(int type) const { return x170_orbitMaxDistance[type]; }
     float GetFrozenTimeout() const { return x2f8_frozenTimeout; }

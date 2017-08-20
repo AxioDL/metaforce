@@ -162,7 +162,7 @@ enum class EScriptObjectState
     DeathRattle,
     UNKS4,
     Damage,
-    UNKS6,
+    InvulnDamage,
     UNKS5,
     Modify,
     ScanStart,
@@ -219,7 +219,7 @@ enum class EScriptObjectMessage
     RemoveSplashInhabitant = 39,
     InternalMessage18 = 40,
     Damage            = 41,
-    InternalMessage20 = 42,
+    InvulnDamage      = 42,
     ProjectileCollide = 43,
     InSnakeWeed       = 44,
     InternalMessage26 = 48

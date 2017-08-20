@@ -43,7 +43,7 @@ public:
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);
     const CDamageVulnerability* GetDamageVulnerability() const { return &x268_damageVulnerability; }
-    CHealthInfo* HealthInfo() { return &x260_currentHealth; }
+    CHealthInfo* HealthInfo(CStateManager&) { return &x260_currentHealth; }
 };
 }
 

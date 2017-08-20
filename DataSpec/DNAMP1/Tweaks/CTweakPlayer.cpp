@@ -251,20 +251,20 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x264_aimAssistHorizontalAngle = __dna_reader.readFloatBig();
     /* x268_aimAssistVerticalAngle */
     x268_aimAssistVerticalAngle = __dna_reader.readFloatBig();
-    /* x158_orbitZBasedDistance[0] */
-    x158_orbitZBasedDistance[0] = __dna_reader.readFloatBig();
+    /* x158_orbitMinDistance[0] */
+    x158_orbitMinDistance[0] = __dna_reader.readFloatBig();
     /* x164_orbitNormalDistance[0] */
     x164_orbitNormalDistance[0] = __dna_reader.readFloatBig();
     /* x170_orbitMaxDistance[0] */
     x170_orbitMaxDistance[0] = __dna_reader.readFloatBig();
-    /* x158_orbitZBasedDistance[1] */
-    x158_orbitZBasedDistance[1] = __dna_reader.readFloatBig();
+    /* x158_orbitMinDistance[1] */
+    x158_orbitMinDistance[1] = __dna_reader.readFloatBig();
     /* x164_orbitNormalDistance[1] */
     x164_orbitNormalDistance[1] = __dna_reader.readFloatBig();
     /* x170_orbitMaxDistance[1] */
     x170_orbitMaxDistance[1] = __dna_reader.readFloatBig();
-    /* x158_orbitZBasedDistance[2] */
-    x158_orbitZBasedDistance[2] = __dna_reader.readFloatBig();
+    /* x158_orbitMinDistance[2] */
+    x158_orbitMinDistance[2] = __dna_reader.readFloatBig();
     /* x164_orbitNormalDistance[2] */
     x164_orbitNormalDistance[2] = __dna_reader.readFloatBig();
     /* x170_orbitMaxDistance[2] */
@@ -691,20 +691,20 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x264_aimAssistHorizontalAngle);
     /* x268_aimAssistVerticalAngle */
     __dna_writer.writeFloatBig(x268_aimAssistVerticalAngle);
-    /* x158_orbitZBasedDistance[0] */
-    __dna_writer.writeFloatBig(x158_orbitZBasedDistance[0]);
+    /* x158_orbitMinDistance[0] */
+    __dna_writer.writeFloatBig(x158_orbitMinDistance[0]);
     /* x164_orbitNormalDistance[0] */
     __dna_writer.writeFloatBig(x164_orbitNormalDistance[0]);
     /* x170_orbitMaxDistance[0] */
     __dna_writer.writeFloatBig(x170_orbitMaxDistance[0]);
-    /* x158_orbitZBasedDistance[1] */
-    __dna_writer.writeFloatBig(x158_orbitZBasedDistance[1]);
+    /* x158_orbitMinDistance[1] */
+    __dna_writer.writeFloatBig(x158_orbitMinDistance[1]);
     /* x164_orbitNormalDistance[1] */
     __dna_writer.writeFloatBig(x164_orbitNormalDistance[1]);
     /* x170_orbitMaxDistance[1] */
     __dna_writer.writeFloatBig(x170_orbitMaxDistance[1]);
-    /* x158_orbitZBasedDistance[2] */
-    __dna_writer.writeFloatBig(x158_orbitZBasedDistance[2]);
+    /* x158_orbitMinDistance[2] */
+    __dna_writer.writeFloatBig(x158_orbitMinDistance[2]);
     /* x164_orbitNormalDistance[2] */
     __dna_writer.writeFloatBig(x164_orbitNormalDistance[2]);
     /* x170_orbitMaxDistance[2] */
@@ -1161,16 +1161,16 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x264_aimAssistHorizontalAngle = __dna_docin.readFloat("x264_aimAssistHorizontalAngle");
     /* x268_aimAssistVerticalAngle */
     x268_aimAssistVerticalAngle = __dna_docin.readFloat("x268_aimAssistVerticalAngle");
-    /* x158_orbitZBasedDistance */
+    /* x158_orbitMinDistance */
     size_t __x158_Count;
-    if (auto v = __dna_docin.enterSubVector("x158_orbitZBasedDistance", __x158_Count))
+    if (auto v = __dna_docin.enterSubVector("x158_orbitMinDistance", __x158_Count))
     {
-    /* x158_orbitZBasedDistance[0] */
-    x158_orbitZBasedDistance[0] = __dna_docin.readFloat("x158_orbitZBasedDistance");
-    /* x158_orbitZBasedDistance[1] */
-    x158_orbitZBasedDistance[1] = __dna_docin.readFloat("x158_orbitZBasedDistance");
-    /* x158_orbitZBasedDistance[2] */
-    x158_orbitZBasedDistance[2] = __dna_docin.readFloat("x158_orbitZBasedDistance");
+    /* x158_orbitMinDistance[0] */
+    x158_orbitMinDistance[0] = __dna_docin.readFloat("x158_orbitMinDistance");
+    /* x158_orbitMinDistance[1] */
+    x158_orbitMinDistance[1] = __dna_docin.readFloat("x158_orbitMinDistance");
+    /* x158_orbitMinDistance[2] */
+    x158_orbitMinDistance[2] = __dna_docin.readFloat("x158_orbitMinDistance");
     }
     /* x164_orbitNormalDistance */
     size_t __x164_Count;
@@ -1670,15 +1670,15 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x264_aimAssistHorizontalAngle", x264_aimAssistHorizontalAngle);
     /* x268_aimAssistVerticalAngle */
     __dna_docout.writeFloat("x268_aimAssistVerticalAngle", x268_aimAssistVerticalAngle);
-    /* x158_orbitZBasedDistance */
-    if (auto v = __dna_docout.enterSubVector("x158_orbitZBasedDistance"))
+    /* x158_orbitMinDistance */
+    if (auto v = __dna_docout.enterSubVector("x158_orbitMinDistance"))
     {
-    /* x158_orbitZBasedDistance[0] */
-    __dna_docout.writeFloat("x158_orbitZBasedDistance", x158_orbitZBasedDistance[0]);
-    /* x158_orbitZBasedDistance[1] */
-    __dna_docout.writeFloat("x158_orbitZBasedDistance", x158_orbitZBasedDistance[1]);
-    /* x158_orbitZBasedDistance[2] */
-    __dna_docout.writeFloat("x158_orbitZBasedDistance", x158_orbitZBasedDistance[2]);
+    /* x158_orbitMinDistance[0] */
+    __dna_docout.writeFloat("x158_orbitMinDistance", x158_orbitMinDistance[0]);
+    /* x158_orbitMinDistance[1] */
+    __dna_docout.writeFloat("x158_orbitMinDistance", x158_orbitMinDistance[1]);
+    /* x158_orbitMinDistance[2] */
+    __dna_docout.writeFloat("x158_orbitMinDistance", x158_orbitMinDistance[2]);
     }
     /* x164_orbitNormalDistance */
     if (auto v = __dna_docout.enterSubVector("x164_orbitNormalDistance"))

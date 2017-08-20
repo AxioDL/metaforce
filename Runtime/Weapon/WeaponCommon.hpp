@@ -23,7 +23,7 @@ enum class EWeaponType
     Lava = 11,
     Hot = 12,
     Unused1 = 13,
-    Unused2 = 14
+    OrangePhazon = 14
 };
 }
 #endif // __URDE_WEAPONCOMMON_HPP__

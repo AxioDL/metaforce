@@ -43,34 +43,34 @@ public:
     {
         Close,
         Far,
-        Two
+        Default
     };
 
     enum class EPlayerOrbitState
     {
         NoOrbit,
-        One,
-        Two,
-        Three,
-        Four,
+        OrbitObject,
+        OrbitPoint,
+        OrbitCarcass,
+        ForcedOrbitObject, // For CMetroidBeta attack
         Grapple
     };
 
     enum class EPlayerOrbitRequest
     {
-        Zero,
-        One,
-        Two,
-        Three,
+        StopOrbit,
+        Respawn,
+        EnterMorphBall,
+        Default,
         Four,
         Five,
-        Six,
-        Seven,
-        Eight,
-        Nine,
-        Ten,
-        Eleven,
-        Twelve
+        InvalidateTarget,
+        BadVerticalAngle,
+        ActivateOrbitSource,
+        ProjectileCollide,
+        Freeze,
+        DamageOnGrapple,
+        LostGrappleLineOfSight
     };
 
     enum class EOrbitValidationResult
@@ -86,8 +86,8 @@ public:
 
     enum class EPlayerZoneInfo
     {
-        Zero,
-        One
+        Targeting,
+        Scan
     };
 
     enum class EPlayerZoneType
@@ -232,12 +232,12 @@ private:
     float x300_fallingTime = 0.f;
     EPlayerOrbitState x304_orbitState = EPlayerOrbitState::NoOrbit;
     EPlayerOrbitType x308_orbitType = EPlayerOrbitType::Close;
-    EPlayerOrbitRequest x30c_orbitRequest = EPlayerOrbitRequest::Three;
+    EPlayerOrbitRequest x30c_orbitRequest = EPlayerOrbitRequest::Default;
     TUniqueId x310_orbitTargetId = kInvalidUniqueId;
     zeus::CVector3f x314_orbitPoint;
     zeus::CVector3f x320_orbitVector;
     float x32c_orbitModeTimer = 0.f;
-    EPlayerZoneInfo x330_orbitZoneMode = EPlayerZoneInfo::Zero;
+    EPlayerZoneInfo x330_orbitZoneMode = EPlayerZoneInfo::Targeting;
     EPlayerZoneType x334_orbitType = EPlayerZoneType::Ellipse;
     u32 x338_ = 1;
     TUniqueId x33c_orbitNextTargetId = kInvalidUniqueId;
@@ -351,7 +351,7 @@ private:
     bool x82c_inLava = false;
     TUniqueId x82e_ridingPlatform = kInvalidUniqueId;
     TUniqueId x830_playerHint = kInvalidUniqueId;
-    u32 x834_ = 1000;
+    u32 x834_playerHintPriority = 1000;
     rstl::reserved_vector<std::pair<u32, TUniqueId>, 32> x838_playerHints;
     rstl::reserved_vector<TUniqueId, 32> x93c_playerHintsToRemove;
     rstl::reserved_vector<TUniqueId, 32> x980_playerHintsToAdd;
@@ -384,7 +384,7 @@ private:
             bool x9c6_29_disableInput : 1;
             bool x9c6_30_newScanScanning : 1;
             bool x9c6_31_overrideRadarRadius : 1;
-            bool x9c7_24_ : 1;
+            bool x9c7_24_noDamageLoopSfx : 1;
             bool x9c7_25_outOfBallLookAtHintActor : 1;
         };
         u32 _dummy = 0;
@@ -401,7 +401,7 @@ private:
     float x9f8_controlDirInterpTime = 0.f;
     float x9fc_controlDirInterpDur = 0.f;
     TUniqueId xa00_deathPowerBomb = kInvalidUniqueId;
-    float xa04_ = 0.f;
+    float xa04_preThinkDt = 0.f;
     CAssetId xa08_steamTextureId;
     CAssetId xa0c_iceTextureId;
     u32 xa10_phazonCounter = 0;
@@ -411,7 +411,7 @@ private:
     float xa20_radarXYRadiusOverride = 1.f;
     float xa24_radarZRadiusOverride = 1.f;
     float xa28_attachedActorStruggle = 0.f;
-    u32 xa2c_ = 2;
+    int xa2c_damageLoopSfxDelayTicks = 2;
     float xa30_samusExhaustedVoiceTimer = 4.f;
 
     void StartLandingControlFreeze();
@@ -422,7 +422,7 @@ private:
     void InitializeBallTransition();
     float UpdateCameraBob(float dt, CStateManager& mgr);
     float GetAcceleration() const;
-    float CalculateOrbitZBasedDistance(EPlayerOrbitType type) const;
+    float CalculateOrbitMinDistance(EPlayerOrbitType type) const;
 
 public:
     CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, CAssetId w1, const zeus::CVector3f&, float, float,
@@ -444,20 +444,20 @@ public:
     void AsyncLoadSuit(CStateManager& mgr);
     void LoadAnimationTokens();
     bool HasTransitionBeamModel() const;
-    virtual bool CanRenderUnsorted(CStateManager& mgr) const;
-    virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
-                                                               const CDamageInfo& info) const;
-    virtual const CDamageVulnerability* GetDamageVulnerability() const;
-    virtual zeus::CVector3f GetHomingPosition(CStateManager& mgr, float) const;
-    zeus::CVector3f GetAimPosition(CStateManager& mgr, float) const;
-    virtual void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
+    bool CanRenderUnsorted(const CStateManager& mgr) const;
+    const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
+                                                       const CDamageInfo& info) const;
+    const CDamageVulnerability* GetDamageVulnerability() const;
+    zeus::CVector3f GetHomingPosition(const CStateManager& mgr, float) const;
+    zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
+    void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
     zeus::CVector3f GetDamageLocationWR() const { return x564_damageLocation; }
     float GetPrevDamageAmount() const { return x560_prevDamageAmt; }
     float GetDamageAmount() const { return x55c_damageAmt; }
     bool WasDamaged() const { return x558_wasDamaged; }
     void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
     void Accept(IVisitor& visitor);
-    static CHealthInfo* HealthInfo(const CStateManager& mgr);
+    CHealthInfo* HealthInfo(CStateManager& mgr);
     bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor& actor, CStateManager& mgr);
@@ -541,6 +541,7 @@ public:
     void BeginGrapple(zeus::CVector3f&, CStateManager& mgr);
     void BreakGrapple(EPlayerOrbitRequest, CStateManager& mgr);
     void SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr);
+    void SetOrbitRequestForTarget(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr);
     bool InGrappleJumpCooldown() const;
     void PreventFallingCameraPitch();
     void OrbitCarcass(CStateManager&);

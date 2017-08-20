@@ -108,7 +108,7 @@ public:
     virtual void Render(const CStateManager&) const {}
     virtual bool CanRenderUnsorted(const CStateManager&) const { return false; }
     virtual void CalculateRenderBounds();
-    virtual CHealthInfo* HealthInfo();
+    virtual CHealthInfo* HealthInfo(CStateManager&);
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
     virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                const CDamageInfo&) const;
@@ -174,7 +174,8 @@ public:
     bool CanDrawStatic() const;
     bool GetE7_29() const  { return xe7_29_; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
-    const CHealthInfo* GetHealthInfo() const { return const_cast<CActor*>(this)->HealthInfo(); }
+    const CHealthInfo* GetHealthInfo(const CStateManager& mgr) const
+    { return const_cast<CActor*>(this)->HealthInfo(const_cast<CStateManager&>(mgr)); }
     bool GetDoTargetDistanceTest() const { return xe7_30_doTargetDistanceTest; }
     void SetCalculateLighting(bool c);
     float GetAverageAnimVelocity(int anim) const;

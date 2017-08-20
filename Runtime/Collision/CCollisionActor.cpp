@@ -90,7 +90,7 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-CHealthInfo* CCollisionActor::HealthInfo() { return &x28c_healthInfo; }
+CHealthInfo* CCollisionActor::HealthInfo(CStateManager&) { return &x28c_healthInfo; }
 
 const CDamageVulnerability* CCollisionActor::GetDamageVulnerability() const { return &x294_damageVuln; }
 

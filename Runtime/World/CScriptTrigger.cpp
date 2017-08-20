@@ -294,7 +294,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
             {
                 mgr.SendScriptMsg(x8_uid, mgr.GetEditorIdForUniqueId(x8_uid), EScriptObjectMessage::Deactivate,
                                   EScriptObjectState::Entered);
-                if (act.HealthInfo() && x100_damageInfo.GetDamage() > 0.f)
+                if (act.HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f)
                 {
                     mgr.ApplyDamage(x8_uid, act.GetUniqueId(), x8_uid, x100_damageInfo,
                                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}),
@@ -302,9 +302,9 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
                 }
             }
 
-            if ((x12c_flags & ETriggerFlags::KillOnEnter) != ETriggerFlags::None && act.HealthInfo())
+            if ((x12c_flags & ETriggerFlags::KillOnEnter) != ETriggerFlags::None && act.HealthInfo(mgr))
             {
-                CHealthInfo* hInfo = act.HealthInfo();
+                CHealthInfo* hInfo = act.HealthInfo(mgr);
                 mgr.ApplyDamage(
                     x8_uid, act.GetUniqueId(), x8_uid, {sktonOHurtWeaponMode, 10.f * hInfo->GetHP(), 0.f, 0.f},
                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}), zeus::CVector3f::skZero);

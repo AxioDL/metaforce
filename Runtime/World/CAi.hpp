@@ -46,7 +46,7 @@ public:
     const CStateMachine* GetStateMachine() const;
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
-    virtual CHealthInfo* HealthInfo() { return &x258_healthInfo; }
+    virtual CHealthInfo* HealthInfo(CStateManager&) { return &x258_healthInfo; }
     virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg)=0;
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float)=0;
     virtual CDamageVulnerability GetDamageVulnerability()  { return x260_damageVulnerability; }

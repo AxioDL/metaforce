@@ -60,7 +60,7 @@ public:
     void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
     void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
     const CDamageVulnerability* GetDamageVulnerability() const { return &x174_dVuln; }
-    CHealthInfo* HealthInfo() { return &x16c_hInfo; }
+    CHealthInfo* HealthInfo(CStateManager&) { return &x16c_hInfo; }
     void Think(float, CStateManager&);
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
 };

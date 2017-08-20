@@ -494,7 +494,7 @@ void CHudDecoInterfaceXRay::SetFrameColorValue(float v)
 
 void CHudDecoInterfaceXRay::Update(float dt, const CStateManager& stateMgr)
 {
-    if (stateMgr.GetPlayer().GetOrbitState() == CPlayer::EPlayerOrbitState::One)
+    if (stateMgr.GetPlayer().GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitObject)
         x4_seekerScale = std::max(x4_seekerScale - 3.f * dt, 0.35f);
     else
         x4_seekerScale = std::min(3.f * dt + x4_seekerScale, 1.f);

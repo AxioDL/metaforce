@@ -408,7 +408,7 @@ void CSamusHud::UpdateEnergy(float dt, const CStateManager& mgr, bool init)
         const CEntity* bossEnt = mgr.GetObjectById(mgr.GetBossId());
         if (TCastToConstPtr<CActor> act = bossEnt)
         {
-            if (const CHealthInfo* hInfo = act->GetHealthInfo())
+            if (const CHealthInfo* hInfo = act->GetHealthInfo(mgr))
             {
                 float bossEnergy = std::ceil(hInfo->GetHP());
                 x2b4_bossEnergyIntf->SetBossParams(true, g_MainStringTable->GetString(mgr.GetBossStringIdx()),

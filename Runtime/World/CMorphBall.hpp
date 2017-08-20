@@ -143,7 +143,7 @@ public:
     void GetTouchedHalfPipeRecently() const {}
     void SetTouchedHalfPipeRecently(bool) {}
     void DisableHalfPipeStatus() {}
-    void BallCloseToCollision(const CStateManager&, float) const {}
+    bool BallCloseToCollision(const CStateManager&, float, const CMaterialFilter& filter) const { return false; }
     void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&) {}
     bool IsInFrustum(const zeus::CFrustum&) const { return false; }
     void ComputeLiftForces(const zeus::CVector3f&, const zeus::CVector3f&, const CStateManager&) {}

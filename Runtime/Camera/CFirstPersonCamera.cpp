@@ -104,8 +104,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform::Identity());
     }
 
-    if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Four ||
-        player->GetOrbitState() == CPlayer::EPlayerOrbitState::One)
+    if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::ForcedOrbitObject ||
+        player->GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitObject)
     {
         const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(player->x310_orbitTargetId));
         if (act && act->GetMaterialList().Intersection(CMaterialList(EMaterialTypes::Lava)) != 0)
@@ -154,8 +154,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     if (player->x3dc_inFreeLook)
     {
-        if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Four ||
-            player->GetOrbitState() == CPlayer::EPlayerOrbitState::One)
+        if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::ForcedOrbitObject ||
+            player->GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitObject)
         {
             zeus::CVector3f gunFrontVec = gunXf.frontVector();
 
@@ -200,8 +200,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
             }
         }
-        else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::Two ||
-                 player->GetOrbitState() == CPlayer::EPlayerOrbitState::Three)
+        else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitPoint ||
+                 player->GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitCarcass)
         {
             dt *= g_tweakPlayer->GetOrbitCameraSpeed();
             CalculateGunFollowOrientationAndTransform(gunXf, qGun, dt, rVec);

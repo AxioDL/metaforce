@@ -39,7 +39,7 @@ public:
 
     void Accept(IVisitor &visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-    CHealthInfo* HealthInfo();
+    CHealthInfo* HealthInfo(CStateManager&);
     const CDamageVulnerability* GetDamageVulnerability() const;
     const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                        const CDamageInfo&) const;

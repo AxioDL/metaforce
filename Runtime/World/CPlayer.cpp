@@ -23,6 +23,7 @@
 #include "CHUDBillboardEffect.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CScriptPlayerHint.hpp"
+#include "CScriptAreaAttributes.hpp"
 
 namespace urde
 {
@@ -201,7 +202,7 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr)
         ballCam->SetFovInterpolation(mgr.GetCameraManager()->GetFirstPersonCamera()->GetFov(),
                                      CCameraManager::ThirdPersonFOV(), 1.f, 0.f);
     }
-    SetOrbitRequest(EPlayerOrbitRequest::Two, mgr);
+    SetOrbitRequest(EPlayerOrbitRequest::EnterMorphBall, mgr);
     x490_gun->CancelFiring(mgr);
     HolsterGun(mgr);
 }
@@ -724,10 +725,10 @@ float CPlayer::GetAcceleration() const
     return x2b4_accelerationTable[x2d0_curAcceleration];
 }
 
-float CPlayer::CalculateOrbitZBasedDistance(EPlayerOrbitType type) const
+float CPlayer::CalculateOrbitMinDistance(EPlayerOrbitType type) const
 {
     return zeus::clamp(1.f, std::fabs(x314_orbitPoint.z - GetTranslation().z) / 20.f, 4.f) *
-        g_tweakPlayer->GetOrbitZBasedDistance(int(type));
+        g_tweakPlayer->GetOrbitMinDistance(int(type));
 }
 
 void CPlayer::PostUpdate(float dt, CStateManager& mgr)
@@ -813,7 +814,7 @@ bool CPlayer::HasTransitionBeamModel() const
     return x7f0_ballTransitionBeamModel && !x7f0_ballTransitionBeamModel->IsNull();
 }
 
-bool CPlayer::CanRenderUnsorted(CStateManager& mgr) const { return false; }
+bool CPlayer::CanRenderUnsorted(const CStateManager& mgr) const { return false; }
 
 const CDamageVulnerability* CPlayer::GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
                                                             const CDamageInfo& info) const
@@ -829,14 +830,14 @@ const CDamageVulnerability* CPlayer::GetDamageVulnerability() const
     return GetDamageVulnerability(zeus::CVector3f::skZero, zeus::CVector3f::skUp, info);
 }
 
-zeus::CVector3f CPlayer::GetHomingPosition(CStateManager& mgr, float dt) const
+zeus::CVector3f CPlayer::GetHomingPosition(const CStateManager& mgr, float dt) const
 {
     if (dt > 0.f)
         return x34_transform.origin + PredictMotion(dt).x0_translation;
     return x34_transform.origin;
 }
 
-zeus::CVector3f CPlayer::GetAimPosition(CStateManager& mgr, float dt) const
+zeus::CVector3f CPlayer::GetAimPosition(const CStateManager& mgr, float dt) const
 {
     zeus::CVector3f ret = x34_transform.origin;
     if (dt > 0.f)
@@ -844,7 +845,7 @@ zeus::CVector3f CPlayer::GetAimPosition(CStateManager& mgr, float dt) const
         if (x304_orbitState == EPlayerOrbitState::NoOrbit)
             ret += PredictMotion(dt).x0_translation;
         else
-            ret = CSteeringBehaviors::ProjectOrbitalPosition(ret, x138_velocity, x314_orbitPoint, dt);
+            ret = CSteeringBehaviors::ProjectOrbitalPosition(ret, x138_velocity, x314_orbitPoint, dt, xa04_preThinkDt);
     }
 
     if (x2f8_morphBallState == EPlayerMorphBallState::Morphed)
@@ -949,7 +950,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
         switch (type)
         {
         case EWeaponType::Phazon:
-        case EWeaponType::Unused2:
+        case EWeaponType::OrangePhazon:
             damageLoopSfx = 3114;
             damageSamusVoiceSfx = 1653;
             break;
@@ -992,7 +993,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
             doRumble = true;
         }
 
-        if (damageLoopSfx && !x9c7_24_ && x2ac_surfaceRestraint >= ESurfaceRestraints::Ice)
+        if (damageLoopSfx && !x9c7_24_noDamageLoopSfx && xa2c_damageLoopSfxDelayTicks >= 2)
         {
             if (!x770_damageLoopSfx || x788_damageLoopSfxId != damageLoopSfx)
             {
@@ -1013,7 +1014,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
             }
             x770_damageLoopSfx = CSfxManager::SfxStart(suitDamageSfx, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
             x788_damageLoopSfxId = suitDamageSfx;
-            xa2c_ = 0;
+            xa2c_damageLoopSfxDelayTicks = 0;
             doRumble = true;
         }
 
@@ -1035,7 +1036,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
     }
 
     if (x3b8_grappleState != EGrappleState::None)
-        BreakGrapple(EPlayerOrbitRequest::Eleven, mgr);
+        BreakGrapple(EPlayerOrbitRequest::DamageOnGrapple, mgr);
 }
 
 void CPlayer::Accept(IVisitor& visitor)
@@ -1043,7 +1044,7 @@ void CPlayer::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-CHealthInfo* CPlayer::HealthInfo(const CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
+CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
 
 bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const
 {
@@ -1156,7 +1157,7 @@ bool CPlayer::ValidateScanning(const CFinalInput& input, CStateManager& mgr)
 {
     if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::ScanItem, input))
     {
-        if (x304_orbitState == EPlayerOrbitState::One)
+        if (x304_orbitState == EPlayerOrbitState::OrbitObject)
         {
             if (TCastToPtr<CActor> act = mgr.ObjectById(x310_orbitTargetId))
             {
@@ -1606,7 +1607,7 @@ void CPlayer::ComputeFreeLook(const CFinalInput& input)
 
 void CPlayer::UpdateFreeLookState(const CFinalInput& input, float dt, CStateManager& mgr)
 {
-    if (x304_orbitState == EPlayerOrbitState::Four || IsMorphBallTransitioning() ||
+    if (x304_orbitState == EPlayerOrbitState::ForcedOrbitObject || IsMorphBallTransitioning() ||
         x2f8_morphBallState != EPlayerMorphBallState::Unmorphed ||
         (x3b8_grappleState != EGrappleState::None && x3b8_grappleState != EGrappleState::Firing))
     {
@@ -2141,9 +2142,9 @@ void CPlayer::Freeze(CStateManager& stateMgr, CAssetId steamTxtr, u16 sfx, CAsse
     CPhysicsActor::Stop();
     ClearForcesAndTorques();
     if (x3b8_grappleState != EGrappleState::None)
-        BreakGrapple(EPlayerOrbitRequest::Ten, stateMgr);
+        BreakGrapple(EPlayerOrbitRequest::Freeze, stateMgr);
     else
-        SetOrbitRequest(EPlayerOrbitRequest::Ten, stateMgr);
+        SetOrbitRequest(EPlayerOrbitRequest::Freeze, stateMgr);
 
     AddMaterial(EMaterialTypes::Immovable, stateMgr);
     xa08_steamTextureId = steamTxtr;
@@ -2260,12 +2261,95 @@ void CPlayer::UpdateWaterSurfaceCameraBias(CStateManager& mgr)
 
 void CPlayer::UpdatePhazonCameraShake(float dt, CStateManager& mgr)
 {
-
+    xa2c_damageLoopSfxDelayTicks = std::min(2, xa2c_damageLoopSfxDelayTicks + 1);
+    if (xa10_phazonCounter != 0)
+    {
+        if (xa14_phazonCameraShakeTimer == 0.f)
+            mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::BuildPhazonCameraShakeData(1.f, 0.075f), false);
+        xa14_phazonCameraShakeTimer += dt;
+        if (xa14_phazonCameraShakeTimer > 2.f)
+            xa14_phazonCameraShakeTimer = 0.f;
+    }
 }
 
 void CPlayer::UpdatePhazonDamage(float dt, CStateManager& mgr)
 {
+    if (x4_areaId == kInvalidAreaId)
+        return;
 
+    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
+    if (!area->IsPostConstructed())
+        return;
+
+    bool touchingPhazon = false;
+    EPhazonType phazonType;
+    if (const CScriptAreaAttributes* attr = area->GetPostConstructed()->x10d8_areaAttributes)
+        phazonType = attr->GetPhazonType();
+    else
+        phazonType = EPhazonType::None;
+
+    if (phazonType == EPhazonType::Orange ||
+        (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PhazonSuit) && phazonType == EPhazonType::Blue))
+    {
+        CMaterialFilter filter = CMaterialFilter::MakeInclude({EMaterialTypes::Phazon});
+        if (x2f8_morphBallState == EPlayerMorphBallState::Morphed)
+        {
+            touchingPhazon = x768_morphball->BallCloseToCollision(mgr, 2.9f, filter);
+        }
+        else
+        {
+            CMaterialList primMaterial(EMaterialTypes::Player, EMaterialTypes::Solid);
+            CCollidableSphere prim(zeus::CSphere(
+                GetCollisionPrimitive()->CalculateAABox(x34_transform).center(), 4.25f), primMaterial);
+            rstl::reserved_vector<TUniqueId, 1024> nearList;
+            mgr.BuildColliderList(nearList, *this, prim.CalculateLocalAABox());
+            if (CGameCollision::DetectStaticCollisionBoolean(mgr, prim, zeus::CTransform::Identity(), filter))
+            {
+                touchingPhazon = true;
+            }
+            else
+            {
+                for (TUniqueId id : nearList)
+                {
+                    if (TCastToConstPtr<CPhysicsActor> act = mgr.GetObjectById(id))
+                    {
+                        CInternalCollisionStructure::CPrimDesc prim0(prim, filter, zeus::CTransform::Identity());
+                        CInternalCollisionStructure::CPrimDesc prim1(*act->GetCollisionPrimitive(),
+                                                                     CMaterialFilter::skPassEverything,
+                                                                     act->GetPrimitiveTransform());
+                        if (CCollisionPrimitive::CollideBoolean(prim0, prim1))
+                        {
+                            touchingPhazon = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (touchingPhazon)
+    {
+        xa18_phazonDamageLag += dt;
+        xa18_phazonDamageLag = std::min(xa18_phazonDamageLag, 3.f);
+        if (xa18_phazonDamageLag > 0.2f)
+        {
+            float damage = (xa18_phazonDamageLag - 0.2f) / 3.f * 60.f * dt;
+            CDamageInfo dInfo(CWeaponMode(phazonType == EPhazonType::Orange ?
+                                          EWeaponType::OrangePhazon : EWeaponType::Phazon), damage, 0.f, 0.f);
+            mgr.ApplyDamage(kInvalidUniqueId, GetUniqueId(), kInvalidUniqueId, dInfo,
+                            CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
+                            zeus::CVector3f::skZero);
+        }
+    }
+    else
+    {
+        xa18_phazonDamageLag -= dt;
+        xa18_phazonDamageLag = std::min(0.2f, xa18_phazonDamageLag);
+        xa18_phazonDamageLag = std::max(0.f, xa18_phazonDamageLag);
+    }
+
+    xa1c_threatOverride = std::min(1.f, xa18_phazonDamageLag / 0.2f);
 }
 
 void CPlayer::ResetPlayerHintState()
@@ -2329,11 +2413,10 @@ void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr)
 {
     if (TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id))
     {
-        bool alreadyAdded = false;
         for (TUniqueId existId : x93c_playerHintsToRemove)
             if (id == existId)
                 return;
-        if (!alreadyAdded && x93c_playerHintsToRemove.size() != 32)
+        if (x93c_playerHintsToRemove.size() != 32)
             x93c_playerHintsToRemove.push_back(id);
     }
 }
@@ -2342,11 +2425,10 @@ void CPlayer::AddToPlayerHintAddList(TUniqueId id, CStateManager& mgr)
 {
     if (TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id))
     {
-        bool alreadyAdded = false;
         for (TUniqueId existId : x980_playerHintsToAdd)
             if (id == existId)
                 return;
-        if (!alreadyAdded && x980_playerHintsToAdd.size() != 32)
+        if (x980_playerHintsToAdd.size() != 32)
             x980_playerHintsToAdd.push_back(id);
     }
 }
@@ -2355,11 +2437,10 @@ void CPlayer::DeactivatePlayerHint(TUniqueId id, CStateManager& mgr)
 {
     if (TCastToPtr<CScriptPlayerHint> hint = mgr.ObjectById(id))
     {
-        bool alreadyAdded = false;
         for (TUniqueId existId : x93c_playerHintsToRemove)
             if (id == existId)
                 return;
-        if (!alreadyAdded && x93c_playerHintsToRemove.size() != 32)
+        if (x93c_playerHintsToRemove.size() != 32)
         {
             x93c_playerHintsToRemove.push_back(id);
             hint->ClearObjectList();
@@ -2432,7 +2513,7 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr)
         if ((needsNewHint || removedHint) && x838_playerHints.empty())
         {
             x830_playerHint = kInvalidUniqueId;
-            x834_ = 1000;
+            x834_playerHintPriority = 1000;
             ResetPlayerHintState();
             return;
         }
@@ -2455,14 +2536,14 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr)
         if (!foundHintInArea)
         {
             x830_playerHint = kInvalidUniqueId;
-            x834_ = 1000;
+            x834_playerHintPriority = 1000;
             ResetPlayerHintState();
         }
 
         if (foundHint != nullptr && foundHintInArea && x830_playerHint != foundHint->GetUniqueId())
         {
             x830_playerHint = foundHint->GetUniqueId();
-            x834_ = foundHint->GetPriority();
+            x834_playerHintPriority = foundHint->GetPriority();
             if (SetAreaPlayerHint(*foundHint, mgr))
                 DeactivatePlayerHint(x830_playerHint, mgr);
         }
@@ -2647,7 +2728,7 @@ void CPlayer::PreThink(float dt, CStateManager& mgr)
     x55c_damageAmt = 0.f;
     x560_prevDamageAmt = 0.f;
     x564_damageLocation = zeus::CVector3f::skZero;
-    xa04_ = dt;
+    xa04_preThinkDt = dt;
 }
 
 static const u16 skPlayerLandSfxSoft[] =
@@ -2812,7 +2893,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         break;
     case EScriptObjectMessage::ProjectileCollide:
         x378_orbitPreventionTimer = g_tweakPlayer->GetOrbitPreventionTime();
-        SetOrbitRequest(EPlayerOrbitRequest::Nine, mgr);
+        SetOrbitRequest(EPlayerOrbitRequest::ProjectileCollide, mgr);
         break;
     case EScriptObjectMessage::AddPlatformRider:
         x82e_ridingPlatform = sender;
@@ -3642,7 +3723,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
             }
             else
             {
-                BreakGrapple(EPlayerOrbitRequest::Six, mgr);
+                BreakGrapple(EPlayerOrbitRequest::InvalidateTarget, mgr);
             }
             break;
         }
@@ -3726,7 +3807,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                         {
                             if (!g_tweakPlayer->GetGrappleJumpMode() && x3d8_grappleJumpTimeout <= 0.f)
                                 ApplyGrappleJump(mgr);
-                            BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                            BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
                         }
                     }
                     break;
@@ -3735,7 +3816,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                 }
 
                 break;
-            case EPlayerOrbitState::One:
+            case EPlayerOrbitState::OrbitObject:
                 if (playerToPoint.canBeNormalized())
                 {
                     CRayCastResult result =
@@ -3815,14 +3896,14 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
     {
         if (x304_orbitState >= EPlayerOrbitState::Grapple)
             return;
-        if (x304_orbitState != EPlayerOrbitState::One)
+        if (x304_orbitState != EPlayerOrbitState::OrbitObject)
             return;
     }
     else
     {
         if (!point)
         {
-            BreakGrapple(EPlayerOrbitRequest::Three, mgr);
+            BreakGrapple(EPlayerOrbitRequest::Default, mgr);
             return;
         }
 
@@ -3834,7 +3915,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                 x3d8_grappleJumpTimeout -= input.DeltaTime();
                 if (x3d8_grappleJumpTimeout <= 0.f)
                 {
-                    BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                    BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
                     SetMoveState(EPlayerMovementState::StartingJump, mgr);
                     ComputeMovement(input, mgr, input.DeltaTime());
                     PreventFallingCameraPitch();
@@ -3859,14 +3940,14 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                 {
                     SetMoveState(EPlayerMovementState::StartingJump, mgr);
                     ComputeMovement(input, mgr, input.DeltaTime());
-                    BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                    BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
                     PreventFallingCameraPitch();
                 }
                 break;
             case EGrappleState::Firing:
             case EGrappleState::Pull:
                 if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
-                    BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                    BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
                 break;
             default:
                 break;
@@ -3885,7 +3966,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                                       LineOfSightFilter);
             if (result.IsValid())
             {
-                BreakGrapple(EPlayerOrbitRequest::Twelve, mgr);
+                BreakGrapple(EPlayerOrbitRequest::LostGrappleLineOfSight, mgr);
             }
         }
         return;
@@ -3893,7 +3974,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
 
     if (x490_gun->GetGrappleArm().BeamActive() && g_tweakPlayer->GetGrappleJumpMode() == 1 &&
         !ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
-        BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+        BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
 }
 
 void CPlayer::ApplyGrappleJump(CStateManager& mgr)
@@ -3951,15 +4032,31 @@ void CPlayer::SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr)
     x30c_orbitRequest = req;
     switch (req)
     {
-    case EPlayerOrbitRequest::Eight:
-
-    case EPlayerOrbitRequest::Seven:
-        SetOrbitState(EPlayerOrbitState::Two, mgr);
+    case EPlayerOrbitRequest::ActivateOrbitSource:
+        ActivateOrbitSource(mgr);
+        break;
+    case EPlayerOrbitRequest::BadVerticalAngle:
+        SetOrbitState(EPlayerOrbitState::OrbitPoint, mgr);
         x314_orbitPoint = g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)) *
             x34_transform.basis[1] + x34_transform.origin;
         break;
     default:
         SetOrbitState(EPlayerOrbitState::NoOrbit, mgr);
+        break;
+    }
+}
+
+void CPlayer::SetOrbitRequestForTarget(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr)
+{
+    switch (x304_orbitState)
+    {
+    case EPlayerOrbitState::OrbitObject:
+    case EPlayerOrbitState::ForcedOrbitObject:
+    case EPlayerOrbitState::Grapple:
+        if (id == x310_orbitTargetId)
+            SetOrbitRequest(req, mgr);
+        break;
+    default:
         break;
     }
 }
@@ -3980,17 +4077,17 @@ void CPlayer::PreventFallingCameraPitch()
 
 void CPlayer::OrbitCarcass(CStateManager& mgr)
 {
-    if (x304_orbitState == EPlayerOrbitState::One)
+    if (x304_orbitState == EPlayerOrbitState::OrbitObject)
     {
-        x308_orbitType = EPlayerOrbitType::Two;
-        SetOrbitState(EPlayerOrbitState::Three, mgr);
+        x308_orbitType = EPlayerOrbitType::Default;
+        SetOrbitState(EPlayerOrbitState::OrbitCarcass, mgr);
     }
 }
 
 void CPlayer::OrbitPoint(EPlayerOrbitType type, CStateManager& mgr)
 {
     x308_orbitType = type;
-    SetOrbitState(EPlayerOrbitState::Two, mgr);
+    SetOrbitState(EPlayerOrbitState::OrbitPoint, mgr);
     SetOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
 }
 
@@ -4005,10 +4102,10 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr)
     CFirstPersonCamera* cam = mgr.GetCameraManager()->GetFirstPersonCamera();
     switch (x304_orbitState)
     {
-    case EPlayerOrbitState::One:
+    case EPlayerOrbitState::OrbitObject:
         cam->SetLockCamera(false);
         break;
-    case EPlayerOrbitState::Three:
+    case EPlayerOrbitState::OrbitCarcass:
     {
         cam->SetLockCamera(true);
         zeus::CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
@@ -4026,7 +4123,7 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr)
         SetOrbitTargetId(kInvalidUniqueId, mgr);
         x33c_orbitNextTargetId = kInvalidUniqueId;
         break;
-    case EPlayerOrbitState::Two:
+    case EPlayerOrbitState::OrbitPoint:
         SetOrbitTargetId(kInvalidUniqueId, mgr);
         x33c_orbitNextTargetId = kInvalidUniqueId;
         break;
@@ -4054,12 +4151,12 @@ void CPlayer::UpdateOrbitPosition(float dist, CStateManager& mgr)
 {
     switch (x304_orbitState)
     {
-    case EPlayerOrbitState::Two:
-    case EPlayerOrbitState::Three:
+    case EPlayerOrbitState::OrbitPoint:
+    case EPlayerOrbitState::OrbitCarcass:
         SetOrbitPosition(dist, mgr);
         break;
-    case EPlayerOrbitState::One:
-    case EPlayerOrbitState::Four:
+    case EPlayerOrbitState::OrbitObject:
+    case EPlayerOrbitState::ForcedOrbitObject:
     case EPlayerOrbitState::Grapple:
         if (TCastToPtr<CActor> act = mgr.ObjectById(x310_orbitTargetId))
             if (x310_orbitTargetId != kInvalidUniqueId)
@@ -4071,7 +4168,7 @@ void CPlayer::UpdateOrbitPosition(float dist, CStateManager& mgr)
 
 void CPlayer::UpdateOrbitZPosition()
 {
-    if (x304_orbitState == EPlayerOrbitState::Two)
+    if (x304_orbitState == EPlayerOrbitState::OrbitPoint)
     {
         if (std::fabs(x320_orbitVector.z) < g_tweakPlayer->GetOrbitZRange())
             x314_orbitPoint.z = x320_orbitVector.z + x34_transform.origin.z + GetEyeHeight();
@@ -4086,7 +4183,8 @@ void CPlayer::UpdateOrbitFixedPosition()
 void CPlayer::SetOrbitPosition(float dist, CStateManager& mgr)
 {
     zeus::CTransform camXf = GetFirstPersonCameraTransform(mgr);
-    if (x304_orbitState == EPlayerOrbitState::Two && x30c_orbitRequest == EPlayerOrbitRequest::Seven)
+    if (x304_orbitState == EPlayerOrbitState::OrbitPoint &&
+        x30c_orbitRequest == EPlayerOrbitRequest::BadVerticalAngle)
         camXf = x34_transform;
     zeus::CVector3f fwd = camXf.basis[1];
     float dot = fwd.normalized().dot(fwd);
@@ -4130,8 +4228,8 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr)
 
     if (g_tweakPlayer->GetAimWhenOrbitingPoint())
     {
-        if (x304_orbitState == EPlayerOrbitState::One ||
-            x304_orbitState == EPlayerOrbitState::Four)
+        if (x304_orbitState == EPlayerOrbitState::OrbitObject ||
+            x304_orbitState == EPlayerOrbitState::ForcedOrbitObject)
         {
             if (ValidateOrbitTargetId(x310_orbitTargetId, mgr) == EOrbitValidationResult::OK)
                 ResetAimTargetPrediction(x310_orbitTargetId);
@@ -4180,8 +4278,8 @@ bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr)
     if (!act || !act->GetMaterialList().HasMaterial(EMaterialTypes::Target) || !act->GetIsTargetable())
         return false;
 
-    if (x304_orbitState == EPlayerOrbitState::One ||
-        x304_orbitState == EPlayerOrbitState::Four)
+    if (x304_orbitState == EPlayerOrbitState::OrbitObject ||
+        x304_orbitState == EPlayerOrbitState::ForcedOrbitObject)
     {
         if (ValidateOrbitTargetId(x310_orbitTargetId, mgr) != EOrbitValidationResult::OK)
         {
@@ -4205,8 +4303,8 @@ bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr)
                                  vpHHalf + screenPos.y * vpHHalf,
                                  screenPos.z);
         if (WithinOrbitScreenBox(posInBox, x330_orbitZoneMode, x334_orbitType) ||
-            (x330_orbitZoneMode != EPlayerZoneInfo::Zero &&
-             WithinOrbitScreenBox(posInBox, EPlayerZoneInfo::Zero, x334_orbitType)))
+            (x330_orbitZoneMode != EPlayerZoneInfo::Targeting &&
+             WithinOrbitScreenBox(posInBox, EPlayerZoneInfo::Targeting, x334_orbitType)))
         {
             float eyeToAimMag = eyeToAim.magnitude();
             if (eyeToAimMag <= g_tweakPlayer->GetAimMaxDistance())
@@ -4248,7 +4346,7 @@ bool CPlayer::ValidateObjectForMode(TUniqueId uid, CStateManager& mgr) const
 
     if (GetCombatMode())
     {
-        if (CHealthInfo* hInfo = act->HealthInfo())
+        if (CHealthInfo* hInfo = act->HealthInfo(mgr))
         {
             if (hInfo->GetHP() > 0.f)
                 return true;
@@ -4270,7 +4368,7 @@ bool CPlayer::ValidateObjectForMode(TUniqueId uid, CStateManager& mgr) const
 
     if (GetExplorationMode())
     {
-        if (!act->HealthInfo())
+        if (!act->HealthInfo(mgr))
         {
             if (TCastToPtr<CScriptGrapplePoint> point = mgr.ObjectById(uid))
             {
@@ -4308,7 +4406,7 @@ TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr)
                      g_tweakPlayer->GetAimBoxHeight(), dist);
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildNearList(nearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Target}), this);
-    return CheckEnemiesAgainstOrbitZone(nearList, EPlayerZoneInfo::Zero, EPlayerZoneType::Ellipse, mgr);
+    return CheckEnemiesAgainstOrbitZone(nearList, EPlayerZoneInfo::Targeting, EPlayerZoneType::Ellipse, mgr);
 }
 
 const zeus::CTransform& CPlayer::GetFirstPersonCameraTransform(const CStateManager& mgr) const
@@ -4752,13 +4850,13 @@ void CPlayer::UpdateOrbitZone(CStateManager& mgr)
     {
         x334_orbitType = EPlayerZoneType::Ellipse;
         x338_ = 1;
-        x330_orbitZoneMode = EPlayerZoneInfo::Zero;
+        x330_orbitZoneMode = EPlayerZoneInfo::Targeting;
     }
     else
     {
         x334_orbitType = EPlayerZoneType::Box;
         x338_ = 2;
-        x330_orbitZoneMode = EPlayerZoneInfo::One;
+        x330_orbitZoneMode = EPlayerZoneInfo::Scan;
     }
 }
 
@@ -4785,7 +4883,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
                 {
                     if (ValidateAimTargetId(x310_orbitTargetId, mgr))
                         ResetAimTargetPrediction(x310_orbitTargetId);
-                    SetOrbitState(EPlayerOrbitState::One, mgr);
+                    SetOrbitState(EPlayerOrbitState::OrbitObject, mgr);
                     UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
                 }
             }
@@ -4799,15 +4897,15 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
             break;
         case EPlayerOrbitState::Grapple:
             if (x310_orbitTargetId == kInvalidUniqueId)
-                BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
             break;
-        case EPlayerOrbitState::One:
+        case EPlayerOrbitState::OrbitObject:
             if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId))
             {
                 if (ValidateCurrentOrbitTargetId(mgr) == EOrbitValidationResult::OK)
                     UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
                 else
-                    BreakGrapple(EPlayerOrbitRequest::Six, mgr);
+                    BreakGrapple(EPlayerOrbitRequest::InvalidateTarget, mgr);
             }
             else
             {
@@ -4817,13 +4915,13 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
                 else if (result == EOrbitValidationResult::BrokenLookAngle)
                     OrbitPoint(EPlayerOrbitType::Far, mgr);
                 else if (result == EOrbitValidationResult::ExtremeHorizonAngle)
-                    SetOrbitRequest(EPlayerOrbitRequest::Seven, mgr);
+                    SetOrbitRequest(EPlayerOrbitRequest::BadVerticalAngle, mgr);
                 else
                     ActivateOrbitSource(mgr);
             }
             UpdateOrbitSelection(input, mgr);
             break;
-        case EPlayerOrbitState::Two:
+        case EPlayerOrbitState::OrbitPoint:
             if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input))
             {
                 SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
@@ -4831,7 +4929,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
                 {
                     if (ValidateAimTargetId(x310_orbitTargetId, mgr))
                         ResetAimTargetPrediction(x310_orbitTargetId);
-                    SetOrbitState(EPlayerOrbitState::One, mgr);
+                    SetOrbitState(EPlayerOrbitState::OrbitObject, mgr);
                     UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
                 }
             }
@@ -4854,14 +4952,13 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
                         UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
                     }
                     break;
-                    break;
                 default:
                     break;
                 }
             }
             UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
             break;
-        case EPlayerOrbitState::Three:
+        case EPlayerOrbitState::OrbitCarcass:
             if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input))
             {
                 SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
@@ -4869,13 +4966,13 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
                 {
                     if (ValidateAimTargetId(x310_orbitTargetId, mgr))
                         ResetAimTargetPrediction(x310_orbitTargetId);
-                    SetOrbitState(EPlayerOrbitState::One, mgr);
+                    SetOrbitState(EPlayerOrbitState::OrbitObject, mgr);
                     UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
                 }
             }
             UpdateOrbitSelection(input, mgr);
             break;
-        case EPlayerOrbitState::Four:
+        case EPlayerOrbitState::ForcedOrbitObject:
             UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
             UpdateOrbitSelection(input, mgr);
             break;
@@ -4892,11 +4989,11 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
     {
         switch (x304_orbitState)
         {
-        case EPlayerOrbitState::One:
+        case EPlayerOrbitState::OrbitObject:
             if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId))
-                BreakGrapple(EPlayerOrbitRequest::Three, mgr);
+                BreakGrapple(EPlayerOrbitRequest::Default, mgr);
             else
-                SetOrbitRequest(EPlayerOrbitRequest::Zero, mgr);
+                SetOrbitRequest(EPlayerOrbitRequest::StopOrbit, mgr);
             break;
         case EPlayerOrbitState::Grapple:
             if (!g_tweakPlayer->GetOrbitReleaseBreaksGrapple())
@@ -4907,15 +5004,15 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
             }
             else
             {
-                BreakGrapple(EPlayerOrbitRequest::Zero, mgr);
+                BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
             }
             break;
-        case EPlayerOrbitState::Four:
+        case EPlayerOrbitState::ForcedOrbitObject:
             UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
             UpdateOrbitSelection(input, mgr);
             break;
         default:
-            SetOrbitRequest(EPlayerOrbitRequest::Zero, mgr);
+            SetOrbitRequest(EPlayerOrbitRequest::StopOrbit, mgr);
             break;
         }
     }
@@ -4929,7 +5026,7 @@ void CPlayer::ActivateOrbitSource(CStateManager& mgr)
         OrbitCarcass(mgr);
         break;
     case 1:
-        SetOrbitRequest(EPlayerOrbitRequest::Six, mgr);
+        SetOrbitRequest(EPlayerOrbitRequest::InvalidateTarget, mgr);
         break;
     case 2:
         if (x394_orbitingEnemy)
@@ -4957,7 +5054,7 @@ void CPlayer::UpdateOrbitSelection(const CFinalInput& input, CStateManager& mgr)
         SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
         if (ValidateAimTargetId(x310_orbitTargetId, mgr))
             ResetAimTargetPrediction(x310_orbitTargetId);
-        SetOrbitState(EPlayerOrbitState::One, mgr);
+        SetOrbitState(EPlayerOrbitState::OrbitObject, mgr);
         UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
     }
 }
@@ -4969,12 +5066,12 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr)
 
     switch (x304_orbitState)
     {
-    case EPlayerOrbitState::Two:
+    case EPlayerOrbitState::OrbitPoint:
         if (x3dc_inFreeLook)
             return;
-    case EPlayerOrbitState::One:
-    case EPlayerOrbitState::Three:
-    case EPlayerOrbitState::Four:
+    case EPlayerOrbitState::OrbitObject:
+    case EPlayerOrbitState::OrbitCarcass:
+    case EPlayerOrbitState::ForcedOrbitObject:
     {
         zeus::CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
         if (!x374_orbitLockEstablished)
@@ -5005,21 +5102,21 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
 
     switch (x304_orbitState)
     {
-    case EPlayerOrbitState::One:
+    case EPlayerOrbitState::OrbitObject:
         if (auto* ent = static_cast<const CActor*>(mgr.GetObjectById(x310_orbitTargetId)))
         {
             if (ent->GetDoTargetDistanceTest() &&
                 (playerToPointMag >= GetOrbitMaxLockDistance(mgr) || playerToPointMag < 0.5f))
             {
                 if (playerToPointMag < 0.5f)
-                    SetOrbitRequest(EPlayerOrbitRequest::Seven, mgr);
+                    SetOrbitRequest(EPlayerOrbitRequest::BadVerticalAngle, mgr);
                 else
                     ActivateOrbitSource(mgr);
             }
         }
         UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
         break;
-    case EPlayerOrbitState::Two:
+    case EPlayerOrbitState::OrbitPoint:
     {
         if (g_tweakPlayer->GetOrbitFixedOffset() &&
             std::fabs(x320_orbitVector.z) > g_tweakPlayer->GetOrbitFixedOffsetZDiff())
@@ -5027,8 +5124,8 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
             UpdateOrbitFixedPosition();
             return;
         }
-        if (playerToPointMag < CalculateOrbitZBasedDistance(x308_orbitType))
-            UpdateOrbitPosition(CalculateOrbitZBasedDistance(x308_orbitType), mgr);
+        if (playerToPointMag < CalculateOrbitMinDistance(x308_orbitType))
+            UpdateOrbitPosition(CalculateOrbitMinDistance(x308_orbitType), mgr);
         float maxDist = g_tweakPlayer->GetOrbitMaxDistance(int(x308_orbitType));
         if (playerToPointMag > maxDist)
             UpdateOrbitPosition(maxDist, mgr);
@@ -5038,17 +5135,17 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
         float angleToPoint = std::asin(zeus::clamp(-1.f, std::fabs(eyeToPoint.z) / eyeToPoint.magnitude(), 1.f));
         if ((eyeToPoint.z >= 0.f && angleToPoint >= g_tweakPlayer->GetOrbitUpperAngle()) ||
             (eyeToPoint.z < 0.f && angleToPoint >= g_tweakPlayer->GetOrbitLowerAngle()))
-            SetOrbitRequest(EPlayerOrbitRequest::Seven, mgr);
+            SetOrbitRequest(EPlayerOrbitRequest::BadVerticalAngle, mgr);
         break;
     }
-    case EPlayerOrbitState::Three:
+    case EPlayerOrbitState::OrbitCarcass:
     {
         if (x3dd_lookButtonHeld)
             SetOrbitPosition(x340_, mgr);
-        if (playerToPointMag < CalculateOrbitZBasedDistance(x308_orbitType))
+        if (playerToPointMag < CalculateOrbitMinDistance(x308_orbitType))
         {
-            UpdateOrbitPosition(CalculateOrbitZBasedDistance(x308_orbitType), mgr);
-            x340_ = CalculateOrbitZBasedDistance(x308_orbitType);
+            UpdateOrbitPosition(CalculateOrbitMinDistance(x308_orbitType), mgr);
+            x340_ = CalculateOrbitMinDistance(x308_orbitType);
         }
         float maxDist = g_tweakPlayer->GetOrbitMaxDistance(int(x308_orbitType));
         if (playerToPointMag > maxDist)
@@ -5292,7 +5389,7 @@ void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool rese
     if (resetBallCam)
         mgr.GetCameraManager()->GetBallCamera()->Reset(eyeXf, mgr);
     ForceGunOrientation(x34_transform, mgr);
-    SetOrbitRequest(EPlayerOrbitRequest::One, mgr);
+    SetOrbitRequest(EPlayerOrbitRequest::Respawn, mgr);
 }
 
 void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr)
@@ -5585,7 +5682,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
 
 float CPlayer::TurnInput(const CFinalInput& input) const
 {
-    if (x304_orbitState == EPlayerOrbitState::One || x304_orbitState == EPlayerOrbitState::Grapple)
+    if (x304_orbitState == EPlayerOrbitState::OrbitObject || x304_orbitState == EPlayerOrbitState::Grapple)
         return 0.f;
     if (IsMorphBallTransitioning())
         return 0.f;
@@ -5698,7 +5795,7 @@ zeus::CVector3f CPlayer::CalculateLeftStickEdgePosition(float strafeInput, float
 bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput,
                                   const CFinalInput& input, CStateManager& mgr) const
 {
-    if (x9c5_28_slidingOnWall || x9c5_29_hitWall || x304_orbitState != EPlayerOrbitState::One)
+    if (x9c5_28_slidingOnWall || x9c5_29_hitWall || x304_orbitState != EPlayerOrbitState::OrbitObject)
         return false;
 
     if (g_tweakPlayer->GetDashOnButtonRelease())
@@ -5778,7 +5875,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
     {
         x384_dashTimer += dt;
         if (x258_movementState == EPlayerMovementState::OnGround || x384_dashTimer >= x3a0_dashDuration ||
-            x9c5_28_slidingOnWall || x9c5_29_hitWall || x304_orbitState != EPlayerOrbitState::One)
+            x9c5_28_slidingOnWall || x9c5_29_hitWall || x304_orbitState != EPlayerOrbitState::OrbitObject)
         {
             FinishSidewaysDash();
             strafeVel *= strafeInput;
@@ -5837,7 +5934,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
             turnSpeedMul = g_tweakPlayer->GetFreeLookTurnSpeedMultiplier();
 
     if (x304_orbitState == EPlayerOrbitState::NoOrbit ||
-        (x3dd_lookButtonHeld && x304_orbitState != EPlayerOrbitState::One &&
+        (x3dd_lookButtonHeld && x304_orbitState != EPlayerOrbitState::OrbitObject &&
             x304_orbitState != EPlayerOrbitState::Grapple))
     {
         if (std::fabs(zRotateInput) < 0.00001f)
@@ -5897,10 +5994,10 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
     {
         switch (x304_orbitState)
         {
-        case EPlayerOrbitState::One:
-        case EPlayerOrbitState::Two:
-        case EPlayerOrbitState::Three:
-        case EPlayerOrbitState::Four:
+        case EPlayerOrbitState::OrbitObject:
+        case EPlayerOrbitState::OrbitPoint:
+        case EPlayerOrbitState::OrbitCarcass:
+        case EPlayerOrbitState::ForcedOrbitObject:
             if (!InGrappleJumpCooldown())
                 ComputeDash(input, dt, mgr);
             break;
@@ -6145,7 +6242,7 @@ void CPlayer::UpdateCinematicState(CStateManager& mgr)
             else
             {
                 CPhysicsActor::Stop();
-                SetOrbitRequest(EPlayerOrbitRequest::One, mgr);
+                SetOrbitRequest(EPlayerOrbitRequest::Respawn, mgr);
                 switch (x2fc_spawnedMorphBallState)
                 {
                 case EPlayerMorphBallState::Unmorphed:
@@ -6208,7 +6305,7 @@ void CPlayer::SetCameraState(EPlayerCameraState camState, CStateManager& stateMg
 bool CPlayer::IsEnergyLow(const CStateManager& mgr) const
 {
     float lowThreshold = mgr.GetPlayerState()->GetItemCapacity(CPlayerState::EItemType::EnergyTanks) < 4 ? 30.f : 100.f;
-    return HealthInfo(mgr)->GetHP() < lowThreshold;
+    return GetHealthInfo(mgr)->GetHP() < lowThreshold;
 }
 
 bool CPlayer::ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const
@@ -6377,7 +6474,7 @@ void CPlayer::SetSpawnedMorphBallState(EPlayerMorphBallState state, CStateManage
     if (x2fc_spawnedMorphBallState != x2f8_morphBallState)
     {
         CPhysicsActor::Stop();
-        SetOrbitRequest(EPlayerOrbitRequest::One, mgr);
+        SetOrbitRequest(EPlayerOrbitRequest::Respawn, mgr);
         switch (x2fc_spawnedMorphBallState)
         {
         case EPlayerMorphBallState::Unmorphed:

@@ -130,7 +130,7 @@ struct ITweakPlayer : ITweak
     virtual float GetFreeLookDampenFactor() const=0; // x14c
     virtual float GetLeftLogicalThreshold() const=0;
     virtual float GetRightLogicalThreshold() const=0;
-    virtual float GetOrbitZBasedDistance(int type) const=0;
+    virtual float GetOrbitMinDistance(int type) const=0;
     virtual float GetOrbitNormalDistance(int type) const=0;
     virtual float GetOrbitMaxDistance(int type) const=0;
     virtual float GetFrozenTimeout() const=0;

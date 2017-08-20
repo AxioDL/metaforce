@@ -32,6 +32,7 @@ public:
     float GetThermalHeat() const { return x40_thermalHeat; }
     float GetXRayFogDistance() const { return x44_xrayFogDistance; }
     float GetWorldLightingLevel() const { return x48_worldLightingLevel; }
+    EPhazonType GetPhazonType() const { return x50_phazon; }
 };
 }
 

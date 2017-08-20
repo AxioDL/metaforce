@@ -5,6 +5,7 @@ set(MP1_WORLD_SOURCES
     CSpacePirate.hpp CSpacePirate.cpp
     CBabygoth.hpp CBabygoth.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
+    CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
     CActorContraption.hpp CActorContraption.cpp
     CThardusRockProjectile.hpp CThardusRockProjectile.cpp
     CMetroidBeta.hpp CMetroidBeta.cpp
