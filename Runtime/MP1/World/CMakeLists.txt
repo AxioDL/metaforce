@@ -9,6 +9,7 @@ set(MP1_WORLD_SOURCES
     CActorContraption.hpp CActorContraption.cpp
     CThardusRockProjectile.hpp CThardusRockProjectile.cpp
     CMetroidBeta.hpp CMetroidBeta.cpp
-    CMetroid.hpp CMetroid.cpp)
+    CMetroid.hpp CMetroid.cpp
+    CMetaree.hpp CMetaree.cpp)
 
 runtime_add_list(World MP1_WORLD_SOURCES)
