@@ -35,6 +35,19 @@ extern logvisor::Module BlenderLog;
 extern class BlenderToken SharedBlenderToken;
 class HMDLBuffers;
 
+struct PoolSkinIndex
+{
+    size_t m_poolSz = 0;
+    std::unique_ptr<uint32_t[]> m_poolToSkinIndex;
+
+    void allocate(size_t poolSz)
+    {
+        m_poolSz = poolSz;
+        if (poolSz)
+            m_poolToSkinIndex.reset(new uint32_t[poolSz]);
+    }
+};
+
 class BlenderConnection
 {
 public:
@@ -586,7 +599,7 @@ public:
             /** Prepares mesh representation for indexed access on modern APIs.
              *  Mesh must remain resident for accessing reference members
              */
-            HMDLBuffers getHMDLBuffers(bool absoluteCoords) const;
+            HMDLBuffers getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinIndex) const;
         };
 
         /** Intermediate collision mesh representation prepared by blender from a single mesh object */

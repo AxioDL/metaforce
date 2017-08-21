@@ -23,7 +23,8 @@ atVec3f BlenderConnection::DataStream::MtxVecMul3RM(const Matrix4f& mtx, const V
     return res;
 }
 
-HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoords) const
+HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoords,
+                                                                PoolSkinIndex& poolSkinIndex) const
 {
     /* If skinned, compute max weight vec count */
     size_t weightCount = 0;
@@ -89,8 +90,10 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoo
     metaOut.indexCount = iboData.size();
 
     size_t vboSz = metaOut.vertCount * metaOut.vertStride;
+    poolSkinIndex.allocate(vertPool.size());
     HMDLBuffers ret(std::move(metaOut), vboSz, iboData, std::move(outSurfaces), skinBanks);
     athena::io::MemoryWriter vboW(ret.m_vboData.get(), vboSz);
+    uint32_t curPoolIdx = 0;
     for (const std::pair<const Surface*, const Surface::Vert*>& sv : vertPool)
     {
         const Surface& s = *sv.first;
@@ -155,6 +158,10 @@ HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoo
                 vboW.writeVec4fLittle(vec);
             }
         }
+
+        /* mapping pool verts to skin indices */
+        poolSkinIndex.m_poolToSkinIndex[curPoolIdx] = sv.second->iSkin;
+        ++curPoolIdx;
     }
 
     return ret;
