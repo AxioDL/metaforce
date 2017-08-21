@@ -66,10 +66,11 @@ public:
     };
     enum class EColliderType
     {
+        Zero = 0,
         One = 1
     };
 
-private:
+protected:
     union
     {
         struct
@@ -82,6 +83,9 @@ private:
         u32 _dummy = 0;
     };
     ECharacter x34c_character;
+
+    float x338_;
+    std::unique_ptr<CBodyController> x450_bodyController;
 
     union
     {
@@ -99,6 +103,7 @@ public:
                CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
                const CActorParameters& params, int variant);
 
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
     virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg) {}
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}
 
