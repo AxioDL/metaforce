@@ -1473,7 +1473,8 @@ template bool WriteCMDL<DNAMP1::MaterialSet, DNACMDL::SurfaceHeader_1, 2>
 (const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
 
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
-bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh)
+bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                   const Mesh& mesh, hecl::PoolSkinIndex& poolSkinIndex)
 {
     Header head;
     head.magic = 0xDEADBABE;
@@ -1536,7 +1537,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
         }
     }
 
-    hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(false);
+    hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(false, poolSkinIndex);
 
     /* Metadata */
     size_t secSz = bufs.m_meta.binarySize(0);
@@ -1643,7 +1644,8 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
 }
 
 template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>
-(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh);
+(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh,
+ hecl::PoolSkinIndex& poolSkinIndex);
 
 template <class MaterialSet, class SurfaceHeader, class MeshHeader>
 bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
@@ -1757,7 +1759,8 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
             meshHeader.write(w);
         }
 
-        hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(true);
+        hecl::PoolSkinIndex poolSkinIndex;
+        hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(true, poolSkinIndex);
 
         std::vector<size_t> surfEndOffs;
         surfEndOffs.reserve(bufs.m_surfaces.size());

@@ -13,7 +13,7 @@ class CGunMotion
     CModelData x0_modelData;
 
 public:
-    CGunMotion(u32, const zeus::CVector3f& vec);
+    CGunMotion(CAssetId, const zeus::CVector3f& vec);
 };
 
 }

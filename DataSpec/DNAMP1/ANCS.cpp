@@ -1263,6 +1263,30 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
     for (uint32_t i=0 ; i<boneNameCount ; ++i)
         boneNames.push_back(skinIO.readString());
 
+    std::vector<std::vector<std::pair<uint32_t, float>>> skins;
+    uint32_t skinCount = skinIO.readUint32Big();
+    skins.resize(skinCount);
+    for (uint32_t i=0 ; i<skinCount ; ++i)
+    {
+        std::vector<std::pair<uint32_t, float>>& virtualBone = skins[i];
+        uint32_t bindCount = skinIO.readUint32Big();
+        virtualBone.reserve(bindCount);
+        for (uint32_t j=0 ; j<bindCount ; ++j)
+        {
+            uint32_t bIdx = skinIO.readUint32Big();
+            float weight = skinIO.readFloatBig();
+            const std::string& name = boneNames[bIdx];
+            auto search = boneIdMap.find(name);
+            if (search == boneIdMap.cend())
+                Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
+                           name.c_str(), inPath.getRelativePathUTF8().c_str());
+            virtualBone.emplace_back(search->second, weight);
+        }
+    }
+
+    atUint64 uniquePoolIndexLen = skinIO.length() - skinIO.position();
+    auto uniquePoolIndexData = skinIO.readUBytes(uniquePoolIndexLen);
+
     skinIO.close();
 
     athena::io::TransactionalFileWriter skinOut(outPath.getAbsolutePath());
@@ -1281,6 +1305,19 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
             skinOut.writeUint32Big(search->second);
         }
     }
+
+    skinOut.writeUint32Big(skins.size());
+    for (auto& virtuaBone : skins)
+    {
+        skinOut.writeUint32Big(virtuaBone.size());
+        for (auto& bind : virtuaBone)
+        {
+            skinOut.writeUint32Big(bind.first);
+            skinOut.writeFloatBig(bind.second);
+        }
+    }
+
+    skinOut.writeUBytes(uniquePoolIndexData.get(), uniquePoolIndexLen);
 
     return true;
 }

@@ -105,11 +105,6 @@ private:
     const MaterialSet* x4_matSet;
     int m_matSetIdx = -1;
     const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>* m_pipelines;
-    boo::IVertexFormat* m_vtxFmt;
-    boo::IGraphicsBufferS* x8_vbo;
-    boo::IGraphicsBufferS* xc_ibo;
-    size_t m_weightVecCount;
-    size_t m_skinBankCount;
     std::vector<TCachedToken<CTexture>> x1c_textures;
     zeus::CAABox x20_aabb;
     CBooSurface* x38_firstUnsortedSurface = nullptr;
@@ -135,8 +130,17 @@ private:
         boo::GraphicsDataToken m_gfxToken;
         boo::IGraphicsBufferD* m_uniformBuffer;
         std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
+        boo::IVertexFormat* m_dynamicVtxFmt = nullptr;
+        boo::IGraphicsBufferD* m_dynamicVbo = nullptr;
+
+        boo::IGraphicsBuffer* GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
+        boo::IVertexFormat* GetBooVtxFmt(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
     };
     std::vector<ModelInstance> m_instances;
+
+    boo::IVertexFormat* m_staticVtxFmt = nullptr;
+    boo::IGraphicsBufferS* m_staticVbo = nullptr;
+    boo::IGraphicsBufferS* m_staticIbo = nullptr;
 
     boo::ITexture* m_txtrOverrides[8] = {};
 
@@ -156,7 +160,7 @@ public:
     ~CBooModel();
     CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 renderMask,
+              const zeus::CAABox& aabb, u8 renderMask,
               int numInsts, boo::ITexture* txtrOverrides[8]);
 
     static void MakeTexturesFromMats(const MaterialSet& matSet,
@@ -173,9 +177,9 @@ public:
     void UnlockTextures() const;
     void Touch(int shaderIdx) const;
     void VerifyCurrentShader(int shaderIdx);
-    void UpdateUniformData(const CModelFlags& flags,
-                           const CSkinRules* cskr,
-                           const CPoseAsTransforms* pose) const;
+    boo::IGraphicsBufferD* UpdateUniformData(const CModelFlags& flags,
+                                             const CSkinRules* cskr,
+                                             const CPoseAsTransforms* pose) const;
     void DrawAlpha(const CModelFlags& flags,
                    const CSkinRules* cskr,
                    const CPoseAsTransforms* pose) const;
@@ -224,12 +228,11 @@ class CModel
 
     /* urde addition: boo! */
     boo::GraphicsDataToken m_gfxToken;
-    boo::IGraphicsBufferS* m_vbo;
+    boo::IVertexFormat* m_staticVtxFmt = nullptr;
+    boo::IGraphicsBufferS* m_staticVbo = nullptr;
+    hecl::HMDLMeta m_hmdlMeta;
+    std::unique_ptr<uint8_t[]> m_dynamicVertexData;
     boo::IGraphicsBufferS* m_ibo;
-    boo::IVertexFormat* m_vtxFmt;
-
-    u32 m_weightVecCount;
-    u32 m_skinBankCount;
 
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
@@ -246,6 +249,13 @@ public:
     const CBooModel& GetInstance() const {return *x28_modelInst;}
     std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts, boo::ITexture* txtrOverrides[8] = nullptr);
     void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
+
+    size_t GetPoolVertexOffset(size_t idx) const;
+    zeus::CVector3f GetPoolVertex(size_t idx) const;
+    size_t GetPoolNormalOffset(size_t idx) const;
+    zeus::CVector3f GetPoolNormal(size_t idx) const;
+    void ApplyVerticesCPU(boo::IGraphicsBufferD* vertBuf,
+                          const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

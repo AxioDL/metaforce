@@ -120,9 +120,11 @@ struct CMDL
                          const hecl::ProjectPath& inPath,
                          const DNACMDL::Mesh& mesh)
     {
+        hecl::PoolSkinIndex poolSkinIndex;
         if (mesh.skins.size())
         {
-            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(outPath, inPath, mesh))
+            if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(
+                outPath, inPath, mesh, poolSkinIndex))
                 return false;
 
             /* Output skinning intermediate */
@@ -137,8 +139,26 @@ struct CMDL
             writer.writeUint32Big(mesh.boneNames.size());
             for (const std::string& boneName : mesh.boneNames)
                 writer.writeString(boneName);
+
+            /* CVirtualBone structure just like original (for CPU skinning) */
+            writer.writeUint32Big(mesh.skins.size());
+            for (auto& s : mesh.skins)
+            {
+                writer.writeUint32Big(s.size());
+                for (auto& b : s)
+                {
+                    writer.writeUint32Big(b.boneIdx);
+                    writer.writeFloatBig(b.weight);
+                }
+            }
+
+            /* Write indirection table mapping pool verts to CVirtualBones */
+            writer.writeUint32Big(poolSkinIndex.m_poolSz);
+            for (uint32_t i=0 ; i<poolSkinIndex.m_poolSz ; ++i)
+                writer.writeUint32Big(poolSkinIndex.m_poolToSkinIndex[i]);
         }
-        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(outPath, inPath, mesh))
+        else if (!DNACMDL::WriteHMDLCMDL<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>(
+            outPath, inPath, mesh, poolSkinIndex))
             return false;
         return true;
     }

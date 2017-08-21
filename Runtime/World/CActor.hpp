@@ -63,10 +63,12 @@ protected:
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
+            bool xe5_31_ : 1;
             u8 xe6_24_fluidCounter : 3;
             u8 xe6_27_renderVisorFlags : 3; // 2: thermal cold, 4: thermal hot
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;
+            bool xe7_27_ : 1;
             bool xe7_29_ : 1;
             bool xe7_30_doTargetDistanceTest : 1;
             bool xe7_31_targetable : 1;

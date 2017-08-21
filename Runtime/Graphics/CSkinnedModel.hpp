@@ -21,6 +21,7 @@ class CSkinnedModel
     TLockedToken<CModel> x4_model;
     TLockedToken<CSkinRules> x10_skinRules;
     TLockedToken<CCharLayoutInfo> x1c_layoutInfo;
+    std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>> m_vertWorkspace;
 public:
     enum class EDataOwnership
     {
@@ -45,7 +46,7 @@ public:
                    const float* morphMagnitudes);
     void Draw(const CModelFlags& drawFlags) const;
 
-    typedef void(*FPointGenerator)(void* item, const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
+    typedef void(*FPointGenerator)(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
     static void SetPointGeneratorFunc(void* ctx, FPointGenerator func)
     {
         g_PointGenFunc = func;

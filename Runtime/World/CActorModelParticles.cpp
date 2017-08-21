@@ -19,15 +19,15 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
     x8_.resize(8);
 }
 
-u32 GetNextBestPt(s32 start, const zeus::CVector3f* vecPtr, s32 vecCount, CRandom16& rnd)
+u32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, CRandom16& rnd)
 {
-    const zeus::CVector3f& startVec = vecPtr[start];
+    const zeus::CVector3f& startVec = vn[start].first;
     u32 ret;
     float lastMag = 0.f;
     for (s32 i = 0; i < 10; ++i)
     {
-        u32 idx = u32(rnd.Range(0, vecCount - 1));
-        const zeus::CVector3f& rndVec = vecPtr[idx];
+        u32 idx = u32(rnd.Range(0, s32(vn.size()) - 1));
+        const zeus::CVector3f& rndVec = vn[idx].first;
         float mag = (startVec - rndVec).magSquared();
         if (mag > lastMag)
         {
@@ -37,14 +37,14 @@ u32 GetNextBestPt(s32 start, const zeus::CVector3f* vecPtr, s32 vecCount, CRando
     }
     return ret;
 }
-void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1)
+void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn)
 {
     for (std::pair<std::unique_ptr<CElementGen>, u32>& pair: x8_)
     {
         if (pair.first)
         {
             CRandom16 rnd(pair.second);
-            zeus::CVector3f vec = v1[u32(rnd.Float() * (w1 - 1))];
+            const zeus::CVector3f& vec = vn[u32(rnd.Float() * (vn.size() - 1))].first;
             pair.first->SetTranslation(xec_ * vec);
         }
     }
@@ -57,9 +57,9 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
         u32 idx = x80_;
         for (u32 i = 0; i < count; ++i)
         {
-            idx = GetNextBestPt(idx, v1, w1, rnd);
-            x78_->SetTranslation(xec_ * v1[idx]);
-            zeus::CVector3f v = v2[idx];
+            idx = GetNextBestPt(idx, vn, rnd);
+            x78_->SetTranslation(xec_ * vn[idx].first);
+            zeus::CVector3f v = vn[idx].second;
             if (v.canBeNormalized())
             {
                 v.normalize();
@@ -79,10 +79,10 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
         std::unique_ptr<CElementGen> iceGen = x128_parent.MakeIceGen();
         iceGen->SetGlobalOrientAndTrans(xf8_);
 
-        u32 next = GetNextBestPt(xb0_, v1, w1, rnd);
-        iceGen->SetTranslation(xec_ * v1[next]);
+        u32 next = GetNextBestPt(xb0_, vn, rnd);
+        iceGen->SetTranslation(xec_ * vn[next].first);
 
-        iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(v2[next])));
+        iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(vn[next].second)));
 
         x8c_.push_back(std::move(iceGen));
         xb0_ = (x8c_.size() == 4 ? -1 : next);
@@ -99,9 +99,9 @@ void CActorModelParticles::CItem::GeneratePoints(const zeus::CVector3f* v1, cons
         u32 lastRnd;
         for (u32 i = 0; i < end; ++i)
         {
-            xc0_particleElectric->SetOverrideIPos(v1[u32(rnd.Range(0, w1 - 1))] * xec_);
-            lastRnd = u32(rnd.Range(0, w1 - 1));
-            xc0_particleElectric->SetOverrideFPos(v1[lastRnd] * xec_);
+            xc0_particleElectric->SetOverrideIPos(vn[u32(rnd.Range(0, s32(vn.size()) - 1))].first * xec_);
+            lastRnd = u32(rnd.Range(0, s32(vn.size()) - 1));
+            xc0_particleElectric->SetOverrideFPos(vn[lastRnd].first * xec_);
             xc0_particleElectric->ForceParticleCreation(1);
         }
 
@@ -261,10 +261,10 @@ void CActorModelParticles::Update(float dt, CStateManager& mgr)
 
 }
 
-void CActorModelParticles::PointGenerator(void* item, const zeus::CVector3f* v1,
-                                          const zeus::CVector3f* v2, int w1)
+void CActorModelParticles::PointGenerator(void* ctx,
+                                          const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn)
 {
-    reinterpret_cast<CItem*>(item)->GeneratePoints(v1, v2, w1);
+    reinterpret_cast<CItem*>(ctx)->GeneratePoints(vn);
 }
 
 void CActorModelParticles::SetupHook(TUniqueId uid)

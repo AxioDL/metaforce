@@ -19,12 +19,12 @@ struct CTweakPlayerGun : ITweakPlayerGun
     Value<float> x18_;
     Value<float> x1c_;
     Value<float> x20_;
-    Value<float> x24_;
-    Value<float> x28_;
-    Value<float> x2c_;
-    Value<float> x30_;
-    Value<float> x34_;
-    Value<float> x38_;
+    Value<float> x24_aimVerticalSpeed;
+    Value<float> x28_aimHorizontalSpeed;
+    Value<float> x2c_bombFuseTime;
+    Value<float> x30_bombDropDelayTime;
+    Value<float> x34_holoHoldTime;
+    Value<float> x38_gunTransformTime;
     Value<float> x3c_gunHolsterTime;
     Value<float> x40_gunNotFiringTime;
     Value<float> x44_fixedVerticalAim;
@@ -53,12 +53,12 @@ struct CTweakPlayerGun : ITweakPlayerGun
         x44_fixedVerticalAim = zeus::degToRad(x44_fixedVerticalAim);
     }
 
-    float GetX24() const { return x24_; }
-    float GetX28() const { return x28_; }
-    float GetX2c() const { return x2c_; }
-    float GetX30() const { return x30_; }
-    float GetX34() const { return x34_; }
-    float GetX38() const { return x38_; }
+    float GetAimVerticalSpeed() const { return x24_aimVerticalSpeed; }
+    float GetAimHorizontalSpeed() const { return x28_aimHorizontalSpeed; }
+    float GetBombFuseTime() const { return x2c_bombFuseTime; }
+    float GetBombDropDelayTime() const { return x30_bombDropDelayTime; }
+    float GetHoloHoldTime() const { return x34_holoHoldTime; }
+    float GetGunTransformTime() const { return x38_gunTransformTime; }
     float GetGunHolsterTime() const { return x3c_gunHolsterTime; }
     float GetGunNotFiringTime() const { return x40_gunNotFiringTime; }
     float GetFixedVerticalAim() const { return x44_fixedVerticalAim; }

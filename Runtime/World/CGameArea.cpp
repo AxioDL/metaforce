@@ -1007,7 +1007,7 @@ void CGameArea::FillInStaticGeometry()
             TToken<CModel> nullModel;
             inst.m_instance = std::make_unique<CBooModel>
                 (nullModel, &inst.m_surfaces, x12c_postConstructed->m_materialSet, vtxFmt, vbo, ibo,
-                 hmdlMeta.weightCount, hmdlMeta.bankCount, inst.x34_aabb, inst.x0_visorFlags, 1, nullptr);
+                 inst.x34_aabb, inst.x0_visorFlags, 1, nullptr);
         }
 
         return true;

@@ -1,5 +1,6 @@
 #include "CSkinnedModel.hpp"
 #include "Character/CSkinRules.hpp"
+#include "CVertexMorphEffect.hpp"
 
 namespace urde
 {
@@ -35,7 +36,20 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
                               const rstl::optional_object<CVertexMorphEffect>& morphEffect,
                               const float* morphMagnitudes)
 {
-    m_modelInst->UpdateUniformData(drawFlags, x10_skinRules.GetObj(), &pose);
+    if (morphEffect || g_PointGenFunc)
+    {
+        boo::IGraphicsBufferD* vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr);
+        x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
+        if (morphEffect)
+            morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
+        if (g_PointGenFunc)
+            g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
+        x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
+    }
+    else
+    {
+        m_modelInst->UpdateUniformData(drawFlags, x10_skinRules.GetObj(), &pose);
+    }
 }
 
 void CSkinnedModel::Draw(const CModelFlags& drawFlags) const

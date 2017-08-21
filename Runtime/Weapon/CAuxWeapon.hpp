@@ -9,7 +9,7 @@ namespace urde
 class CAuxWeapon
 {
 public:
-    CAuxWeapon(TUniqueId id);
+    explicit CAuxWeapon(TUniqueId id);
 };
 
 }

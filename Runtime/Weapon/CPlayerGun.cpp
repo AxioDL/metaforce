@@ -5,21 +5,32 @@
 namespace urde
 {
 
+static const zeus::CVector3f sGunScale(2.f);
+
 CPlayerGun::CPlayerGun(TUniqueId id)
 : x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, 0, 0, 0, 0.1f), x538_thisId(id),
   x550_camBob(CPlayerCameraBob::ECameraBobType::One,
-              zeus::CVector2f(0.071f, 0.141f), 0.47f),
-  x678_morph(g_tweakPlayerGun->GetX38(), g_tweakPlayerGun->GetX34())
+              zeus::CVector2f(CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY),
+              CPlayerCameraBob::kCameraBobPeriod),
+  x678_morph(g_tweakPlayerGun->GetGunTransformTime(), g_tweakPlayerGun->GetHoloHoldTime()),
+  x6c8_(zeus::CVector3f(-0.29329199f, 0.f, -0.2481945f),
+        zeus::CVector3f(0.29329199f, 1.292392f, 0.2481945f)),
+  x6e0_rightHandModel(CAnimRes(g_tweakGunRes->xc_rightHand, 0, zeus::CVector3f(3.f), 0, true))
 {
-    x354_ = g_tweakPlayerGun->GetX2c();
-    x358_ = g_tweakPlayerGun->GetX30();
-    x668_ = g_tweakPlayerGun->GetX24();
-    x66c_ = g_tweakPlayerGun->GetX28();
+    x354_bombFuseTime = g_tweakPlayerGun->GetBombFuseTime();
+    x358_bombDropDelayTime = g_tweakPlayerGun->GetBombDropDelayTime();
+    x668_aimVerticalSpeed = g_tweakPlayerGun->GetAimVerticalSpeed();
+    x66c_aimHorizontalSpeed = g_tweakPlayerGun->GetAimHorizontalSpeed();
+
+    x73c_gunMotion = std::make_unique<CGunMotion>(g_tweakGunRes->x4_gunMotion, sGunScale);
+    x740_grappleArm = std::make_unique<CGrappleArm>(sGunScale);
+    x744_auxWeapon = std::make_unique<CAuxWeapon>(id);
+
 
     x832_31_ = true;
     x833_24_isFidgeting = true;
     x833_30_ = true;
-    x6e0_.SetSortThermal(true);
+    x6e0_rightHandModel.SetSortThermal(true);
 
     /* TODO: Finish */
 }

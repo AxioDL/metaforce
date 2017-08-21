@@ -19,6 +19,7 @@
 #include "Character/CModelData.hpp"
 #include "World/CWorldShadow.hpp"
 #include "World/ScriptObjectSupport.hpp"
+#include "Graphics/CModelPointSelector.hpp"
 
 namespace urde
 {
@@ -40,10 +41,10 @@ private:
     class CGunMorph
     {
         float x0_ = 0.f;
-        float x4_;
+        float x4_gunTransformTime;
         float x8_ = 0.f;
         float xc_ = 0.1f;
-        float x10_;
+        float x10_holoHoldTime;
         float x14_ = 2.f;
         float x18_transitionFactor = 1.f;
         u32 x1c_ = 2;
@@ -60,8 +61,8 @@ private:
         };
 
     public:
-        CGunMorph(float a, float b)
-        : x4_(a), x10_(std::fabs(b)) {}
+        CGunMorph(float gunTransformTime, float holoHoldTime)
+        : x4_gunTransformTime(gunTransformTime), x10_holoHoldTime(std::fabs(holoHoldTime)) {}
         float GetTransitionFactor() const { return x18_transitionFactor; }
     };
 
@@ -100,8 +101,8 @@ private:
     float x348_ = 0.f;
     float x34c_ = 0.f;
     float x350_ = 0.f;
-    float x354_;
-    float x358_;
+    float x354_bombFuseTime;
+    float x358_bombDropDelayTime;
     float x35c_bombTime = 0.f;
     float x360_ = 0.f;
     float x364_ = 0.f;
@@ -140,8 +141,8 @@ private:
     float x65c_ = 0.f;
     float x660_ = 0.f;
     float x664_ = 0.f;
-    float x668_;
-    float x66c_;
+    float x668_aimVerticalSpeed;
+    float x66c_aimHorizontalSpeed;
     TUniqueId x670_ = kInvalidUniqueId;
     u32 x674_ = 0;
     CGunMorph x678_morph;
@@ -156,7 +157,7 @@ private:
     u32 x6c0_ = 0;
     u32 x6c4_ = 0;
     zeus::CAABox x6c8_;
-    CModelData x6e0_;
+    CModelData x6e0_rightHandModel;
     CGunWeapon* x72c_currentBeam = nullptr;
     u32 x730_ = 0;
     u32 x734_ = 0;
@@ -164,6 +165,7 @@ private:
     std::unique_ptr<CGunMotion> x73c_gunMotion;
     std::unique_ptr<CGrappleArm> x740_grappleArm;
     std::unique_ptr<CAuxWeapon> x744_auxWeapon;
+    std::unique_ptr<CModelPointSelector> x748_modelPointSelector;
     std::unique_ptr<CPowerBeam> x74c_powerBeam;
     std::unique_ptr<CIceBeam> x750_iceBeam;
     std::unique_ptr<CWaveBeam> x754_waveBeam;

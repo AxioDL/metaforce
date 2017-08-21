@@ -7,6 +7,7 @@
 #include "zeus/CTransform.hpp"
 #include "Particle/CParticleElectric.hpp"
 #include "Particle/CParticleSwoosh.hpp"
+#include "Graphics/CModelPointSelector.hpp"
 
 namespace urde
 {
@@ -41,7 +42,7 @@ public:
         u32 xc8_ = 0;
         u32 xcc_seed3 = 99;
         zeus::CColor xd0_;
-        std::unique_ptr<u32> xd4_;
+        std::unique_ptr<CModelPointSelector> xd4_pointSelector;
         TToken<CTexture> xdc_ashy;
         std::unique_ptr<CElementGen> xe4_;
         zeus::CVector3f xec_ = zeus::CVector3f::skOne;
@@ -60,7 +61,7 @@ public:
         u8 x134_bits = 0;
     public:
         CItem(const CEntity& ent, CActorModelParticles& parent);
-        void GeneratePoints(const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
+        void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
         void Update(float, CStateManager&);
     };
 
@@ -87,7 +88,7 @@ private:
 
 public:
     CActorModelParticles();
-    static void PointGenerator(void* item, const zeus::CVector3f* v1, const zeus::CVector3f* v2, int w1);
+    static void PointGenerator(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
     void AddStragglersToRenderer(const CStateManager& mgr);
     void Update(float dt, CStateManager& mgr);
     void SetupHook(TUniqueId uid);

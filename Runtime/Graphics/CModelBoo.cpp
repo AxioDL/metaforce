@@ -135,12 +135,12 @@ CBooModel::~CBooModel()
 
 CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-                     size_t weightVecCount, size_t skinBankCount, const zeus::CAABox& aabb, u8 renderMask,
-                     int instCount, boo::ITexture* txtrOverrides[8])
+                     const zeus::CAABox& aabb, u8 renderMask,
+                     int numInsts, boo::ITexture* txtrOverrides[8])
 : m_model(token), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_matSetIdx(shader.m_matSetIdx),
-  m_pipelines(&shader.m_shaders), m_vtxFmt(vtxFmt), x8_vbo(vbo), xc_ibo(ibo), m_weightVecCount(weightVecCount),
-  m_skinBankCount(skinBankCount), x1c_textures(shader.x0_textures), x20_aabb(aabb),
-  x40_24_texturesLoaded(false), x40_25_modelVisible(0), x41_mask(renderMask)
+  m_pipelines(&shader.m_shaders), x1c_textures(shader.x0_textures), x20_aabb(aabb),
+  x40_24_texturesLoaded(false), x40_25_modelVisible(0), x41_mask(renderMask),
+  m_staticVtxFmt(vtxFmt), m_staticVbo(vbo), m_staticIbo(ibo)
 {
     if (txtrOverrides)
         for (int i=0 ; i<8 ; ++i)
@@ -174,9 +174,39 @@ CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, 
         }
     }
 
-    m_instances.reserve(instCount);
-    for (int i=0 ; i<instCount ; ++i)
+    m_instances.reserve(numInsts);
+    for (int i=0 ; i<numInsts ; ++i)
         PushNewModelInstance();
+}
+
+boo::IGraphicsBuffer* CBooModel::ModelInstance::GetBooVBO(const CBooModel& model,
+                                                          boo::IGraphicsDataFactory::Context& ctx)
+{
+    if (model.m_staticVbo)
+        return model.m_staticVbo;
+    if (!m_dynamicVbo && model.m_model)
+    {
+        const CModel& parent = *model.m_model;
+        m_dynamicVbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex,
+                                            parent.m_hmdlMeta.vertStride, parent.m_hmdlMeta.vertCount);
+        m_dynamicVbo->load(parent.m_dynamicVertexData.get(),
+                           parent.m_hmdlMeta.vertStride * parent.m_hmdlMeta.vertCount);
+    }
+    return m_dynamicVbo;
+}
+
+boo::IVertexFormat* CBooModel::ModelInstance::GetBooVtxFmt(const CBooModel& model,
+                                                           boo::IGraphicsDataFactory::Context& ctx)
+{
+    if (model.m_staticVtxFmt)
+        return model.m_staticVtxFmt;
+    if (!m_dynamicVtxFmt && model.m_model)
+    {
+        const CModel& parent = *model.m_model;
+        m_dynamicVtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, parent.m_hmdlMeta,
+                                                                   GetBooVBO(model, ctx), parent.m_ibo);
+    }
+    return m_dynamicVtxFmt;
 }
 
 CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
@@ -188,6 +218,13 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         Log.report(logvisor::Fatal, "Model buffer overflow");
     m_instances.emplace_back();
     ModelInstance& newInst = m_instances.back();
+    size_t skinBankCount = 0;
+    size_t weightVecCount = 0;
+    if (const CModel* model = m_model.GetObj())
+    {
+        skinBankCount = model->m_hmdlMeta.bankCount;
+        weightVecCount = model->m_hmdlMeta.weightCount;
+    }
 
     newInst.m_gfxToken = CGraphics::CommitResources(
                 [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
@@ -195,8 +232,8 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         /* Determine space required by uniform buffer */
         std::vector<size_t> skinOffs;
         std::vector<size_t> skinSizes;
-        skinOffs.reserve(std::max(size_t(1), m_skinBankCount));
-        skinSizes.reserve(std::max(size_t(1), m_skinBankCount));
+        skinOffs.reserve(std::max(size_t(1), skinBankCount));
+        skinSizes.reserve(std::max(size_t(1), skinBankCount));
 
         std::vector<size_t> uvOffs;
         std::vector<size_t> uvSizes;
@@ -205,12 +242,12 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
 
         /* Vert transform matrices */
         size_t uniBufSize = 0;
-        if (m_skinBankCount)
+        if (skinBankCount)
         {
             /* Skinned */
-            for (size_t i=0 ; i<m_skinBankCount ; ++i)
+            for (size_t i=0 ; i<skinBankCount ; ++i)
             {
-                size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * m_weightVecCount * 4 + 1));
+                size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * weightVecCount * 4 + 1));
                 skinOffs.push_back(uniBufSize);
                 skinSizes.push_back(thisSz);
                 uniBufSize += thisSz;
@@ -299,7 +336,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             }
             texs[7] = g_Renderer->x220_sphereRamp;
 
-            if (m_skinBankCount)
+            if (skinBankCount)
             {
                 thisOffs[0] = skinOffs[surf.m_data.skinMtxBankIdx];
                 thisSizes[0] = skinSizes[surf.m_data.skinMtxBankIdx];
@@ -361,9 +398,9 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                     ltexs = texs;
                 }
                 extendeds.push_back(
-                            ctx.newShaderDataBinding(pipeline, m_vtxFmt,
-                                                     x8_vbo, nullptr, xc_ibo, 4, bufs, stages,
-                                                     thisOffs, thisSizes, texCount, ltexs, nullptr, nullptr));
+                            ctx.newShaderDataBinding(pipeline, newInst.GetBooVtxFmt(*this, ctx),
+                                                     newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo, 4, bufs,
+                                                     stages, thisOffs, thisSizes, texCount, ltexs, nullptr, nullptr));
                 ++idx;
             }
         }
@@ -695,16 +732,24 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     }
 }
 
-void CBooModel::UpdateUniformData(const CModelFlags& flags,
-                                  const CSkinRules* cskr,
-                                  const CPoseAsTransforms* pose) const
+boo::IGraphicsBufferD* CBooModel::UpdateUniformData(const CModelFlags& flags,
+                                                    const CSkinRules* cskr,
+                                                    const CPoseAsTransforms* pose) const
 {
+    size_t skinBankCount = 0;
+    size_t weightVecCount = 0;
+    if (const CModel* model = m_model.GetObj())
+    {
+        skinBankCount = model->m_hmdlMeta.bankCount;
+        weightVecCount = model->m_hmdlMeta.weightCount;
+    }
+
     const ModelInstance* inst;
     if (m_instances.size() <= m_uniUpdateCount)
     {
         inst = const_cast<CBooModel*>(this)->PushNewModelInstance();
         if (!inst)
-            return;
+            return nullptr;
     }
     else
         inst = &m_instances[m_uniUpdateCount];
@@ -713,13 +758,13 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
     u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
     u8* dataCur = dataOut;
 
-    if (m_skinBankCount)
+    if (skinBankCount)
     {
         /* Skinned */
         std::vector<const zeus::CTransform*> bankTransforms;
-        size_t weightCount = m_weightVecCount * 4;
+        size_t weightCount = weightVecCount * 4;
         bankTransforms.reserve(weightCount);
-        for (size_t i=0 ; i<m_skinBankCount ; ++i)
+        for (size_t i=0 ; i<skinBankCount ; ++i)
         {
             if (cskr && pose)
             {
@@ -844,6 +889,7 @@ void CBooModel::UpdateUniformData(const CModelFlags& flags,
     }
 
     inst->m_uniformBuffer->unmap();
+    return inst->m_dynamicVbo;
  }
 
 void CBooModel::DrawAlpha(const CModelFlags& flags,
@@ -879,10 +925,10 @@ void CBooModel::Draw(const CModelFlags& flags,
     }
 }
 
-static const u8* MemoryFromPartData(const u8*& dataCur, const s32*& secSizeCur)
+static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur)
 {
     const u8* ret;
-    if (*secSizeCur)
+    if (*secSizeCur != 0)
         ret = dataCur;
     else
         ret = nullptr;
@@ -897,7 +943,7 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, 
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
-                                       m_vtxFmt, m_vbo, m_ibo, m_weightVecCount, m_skinBankCount,
+                                       m_staticVtxFmt, m_staticVbo, m_ibo,
                                        m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
 }
 
@@ -916,7 +962,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x28));
     x18_matSets.reserve(matSetCount);
     const u8* dataCur = data.get() + ROUND_UP_32(0x2c + secCount * 4);
-    const s32* secSizeCur = reinterpret_cast<const s32*>(data.get() + 0x2c);
+    const u32* secSizeCur = reinterpret_cast<const u32*>(data.get() + 0x2c);
     for (u32 i=0 ; i<matSetCount ; ++i)
     {
         u32 matSetSz = hecl::SBig(*secSizeCur);
@@ -928,15 +974,12 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
         CBooModel::MakeTexturesFromMats(shader.m_matSet, shader.x0_textures, *store);
     }
 
-    hecl::HMDLMeta hmdlMeta;
     {
         u32 hmdlSz = hecl::SBig(*secSizeCur);
         const u8* hmdlMetadata = MemoryFromPartData(dataCur, secSizeCur);
         athena::io::MemoryReader r(hmdlMetadata, hmdlSz);
-        hmdlMeta.read(r);
+        m_hmdlMeta.read(r);
     }
-    m_weightVecCount = hmdlMeta.weightCount;
-    m_skinBankCount = hmdlMeta.bankCount;
 
     const u8* vboData = MemoryFromPartData(dataCur, secSizeCur);
     const u8* iboData = MemoryFromPartData(dataCur, secSizeCur);
@@ -955,8 +998,8 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
             else
                 reflectionType = hecl::Backend::ReflectionType::None;
             hecl::Runtime::ShaderTag tag(mat.heclIr,
-                                         hmdlMeta.colorCount, hmdlMeta.uvCount, hmdlMeta.weightCount,
-                                         hmdlMeta.weightCount * 4, 8, boo::Primitive(hmdlMeta.topology),
+                                         m_hmdlMeta.colorCount, m_hmdlMeta.uvCount, m_hmdlMeta.weightCount,
+                                         m_hmdlMeta.weightCount * 4, 8, boo::Primitive(m_hmdlMeta.topology),
                                          reflectionType, true, true, true);
             matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader
                                        (tag, mat.heclIr, "CMDL", *CGraphics::g_BooFactory));
@@ -965,9 +1008,23 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData, hmdlMeta.vertStride, hmdlMeta.vertCount);
-        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, hmdlMeta.indexCount);
-        m_vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, m_vbo, m_ibo);
+        if (!m_hmdlMeta.bankCount)
+        {
+            /* Non-skinned models use static vertex buffers shared with CBooModel instances */
+            m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData,
+                                              m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
+            m_staticVtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, m_hmdlMeta, m_staticVbo, m_ibo);
+        }
+        else
+        {
+            /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
+            size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
+            m_dynamicVertexData.reset(new uint8_t[vboSz]);
+            memmove(m_dynamicVertexData.get(), vboData, vboSz);
+        }
+
+        /* Index buffer is always static */
+        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
         return true;
     });
 
@@ -1040,6 +1097,46 @@ bool CModel::IsLoaded(int shaderIdx) const
         }
     }
     return loaded;
+}
+
+size_t CModel::GetPoolVertexOffset(size_t idx) const
+{
+    return m_hmdlMeta.vertStride * idx;
+}
+
+zeus::CVector3f CModel::GetPoolVertex(size_t idx) const
+{
+    auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
+    return {floats[0], floats[1], floats[2]};
+}
+
+size_t CModel::GetPoolNormalOffset(size_t idx) const
+{
+    return m_hmdlMeta.vertStride * idx + 12;
+}
+
+zeus::CVector3f CModel::GetPoolNormal(size_t idx) const
+{
+    auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
+    return {floats[0], floats[1], floats[2]};
+}
+
+void CModel::ApplyVerticesCPU(boo::IGraphicsBufferD* vertBuf,
+                              const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const
+{
+    u8* data = reinterpret_cast<u8*>(vertBuf->map(m_hmdlMeta.vertStride * m_hmdlMeta.vertCount));
+    for (u32 i=0 ; i<std::min(u32(vn.size()), m_hmdlMeta.vertCount) ; ++i)
+    {
+        const std::pair<zeus::CVector3f, zeus::CVector3f>& avn = vn[i];
+        float* floats = reinterpret_cast<float*>(data + GetPoolVertexOffset(i));
+        floats[0] = avn.first.x;
+        floats[1] = avn.first.y;
+        floats[2] = avn.first.z;
+        floats[3] = avn.second.x;
+        floats[4] = avn.second.y;
+        floats[5] = avn.second.z;
+    }
+    vertBuf->unmap();
 }
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
