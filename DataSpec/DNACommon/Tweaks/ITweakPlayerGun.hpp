@@ -34,17 +34,26 @@ struct SChargedShotParam : SShotParam
 struct ITweakPlayerGun : ITweak
 {
     DECL_YAML
+    virtual float GetUpLookAngle() const = 0;
+    virtual float GetDownLookAngle() const = 0;
+    virtual float GetVerticalSpread() const = 0;
+    virtual float GetHorizontalSpread() const = 0;
+    virtual float GetHighVerticalSpread() const = 0;
+    virtual float GetHighHorizontalSpread() const = 0;
+    virtual float GetLowVerticalSpread() const = 0;
+    virtual float GetLowHorizontalSpread() const = 0;
     virtual float GetAimVerticalSpeed() const = 0; // x24
     virtual float GetAimHorizontalSpeed() const = 0; // x28
     virtual float GetBombFuseTime() const = 0; // x2c
     virtual float GetBombDropDelayTime() const = 0; // x30
     virtual float GetHoloHoldTime() const = 0; // x34
     virtual float GetGunTransformTime() const = 0; // x38
-    virtual float GetGunHolsterTime() const=0;
-    virtual float GetGunNotFiringTime() const=0;
-    virtual float GetFixedVerticalAim() const=0;
-    virtual const zeus::CVector3f& GetGunPosition() const=0;
-    virtual const zeus::CVector3f& GetGrapplingArmPosition() const=0;
+    virtual float GetGunHolsterTime() const = 0;
+    virtual float GetGunNotFiringTime() const = 0;
+    virtual float GetFixedVerticalAim() const = 0;
+    virtual float GetGunExtendDistance() const = 0;
+    virtual const zeus::CVector3f& GetGunPosition() const = 0;
+    virtual const zeus::CVector3f& GetGrapplingArmPosition() const = 0;
     virtual float GetRichochetDamage(atUint32) const = 0;
 };
 }

@@ -7,7 +7,7 @@
 #include "zeus/CTransform.hpp"
 #include "Particle/CParticleElectric.hpp"
 #include "Particle/CParticleSwoosh.hpp"
-#include "Graphics/CModelPointSelector.hpp"
+#include "Graphics/CRainSplashGenerator.hpp"
 
 namespace urde
 {
@@ -42,7 +42,7 @@ public:
         u32 xc8_ = 0;
         u32 xcc_seed3 = 99;
         zeus::CColor xd0_;
-        std::unique_ptr<CModelPointSelector> xd4_pointSelector;
+        std::unique_ptr<CRainSplashGenerator> xd4_rainSplashGenerator;
         TToken<CTexture> xdc_ashy;
         std::unique_ptr<CElementGen> xe4_;
         zeus::CVector3f xec_ = zeus::CVector3f::skOne;

@@ -11,14 +11,14 @@ namespace DNAMP1
 struct CTweakPlayerGun : ITweakPlayerGun
 {
     DECL_YAML
-    Value<float> x4_;
-    Value<float> x8_;
-    Value<float> xc_;
-    Value<float> x10_;
-    Value<float> x14_;
-    Value<float> x18_;
-    Value<float> x1c_;
-    Value<float> x20_;
+    Value<float> x4_upLookAngle;
+    Value<float> x8_downLookAngle;
+    Value<float> xc_verticalSpread;
+    Value<float> x10_horizontalSpread;
+    Value<float> x14_highVerticalSpread;
+    Value<float> x18_highHorizontalSpread;
+    Value<float> x1c_lowVerticalSpread;
+    Value<float> x20_lowHorizontalSpread;
     Value<float> x24_aimVerticalSpeed;
     Value<float> x28_aimHorizontalSpeed;
     Value<float> x2c_bombFuseTime;
@@ -28,7 +28,7 @@ struct CTweakPlayerGun : ITweakPlayerGun
     Value<float> x3c_gunHolsterTime;
     Value<float> x40_gunNotFiringTime;
     Value<float> x44_fixedVerticalAim;
-    Value<float> x48_;
+    Value<float> x48_gunExtendDistance;
     Value<zeus::CVector3f> x4c_gunPosition;
     Value<zeus::CVector3f> x58_;
     Value<zeus::CVector3f> x64_grapplingArmPosition;
@@ -53,6 +53,14 @@ struct CTweakPlayerGun : ITweakPlayerGun
         x44_fixedVerticalAim = zeus::degToRad(x44_fixedVerticalAim);
     }
 
+    float GetUpLookAngle() const { return x4_upLookAngle; }
+    float GetDownLookAngle() const { return x8_downLookAngle; }
+    float GetVerticalSpread() const { return xc_verticalSpread; }
+    float GetHorizontalSpread() const { return x10_horizontalSpread; }
+    float GetHighVerticalSpread() const { return x14_highVerticalSpread; }
+    float GetHighHorizontalSpread() const { return x18_highHorizontalSpread; }
+    float GetLowVerticalSpread() const { return x1c_lowVerticalSpread; }
+    float GetLowHorizontalSpread() const { return x20_lowHorizontalSpread; }
     float GetAimVerticalSpeed() const { return x24_aimVerticalSpeed; }
     float GetAimHorizontalSpeed() const { return x28_aimHorizontalSpeed; }
     float GetBombFuseTime() const { return x2c_bombFuseTime; }
@@ -62,6 +70,7 @@ struct CTweakPlayerGun : ITweakPlayerGun
     float GetGunHolsterTime() const { return x3c_gunHolsterTime; }
     float GetGunNotFiringTime() const { return x40_gunNotFiringTime; }
     float GetFixedVerticalAim() const { return x44_fixedVerticalAim; }
+    float GetGunExtendDistance() const { return x48_gunExtendDistance; }
     const zeus::CVector3f& GetGunPosition() const { return x4c_gunPosition; }
     const zeus::CVector3f& GetGrapplingArmPosition() const { return x64_grapplingArmPosition; }
     float GetRichochetDamage(atUint32 type) const

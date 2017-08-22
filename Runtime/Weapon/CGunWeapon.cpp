@@ -41,13 +41,14 @@ s32 GetWeaponIndex(EWeaponType type)
     return 0;
 }
 
-CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId uid, EMaterialTypes mType, const zeus::CVector3f& vec)
-    : x4_(vec),
-      x104_gunCharacter(g_SimplePool->GetObj(SObjectTag{FOURCC('ANCS'), ancsId})),
-      x13c_armCharacter(g_SimplePool->GetObj(skSuitArmNames[0])),
-      x1c0_weaponType(type),
-      x1c4_uid(uid),
-      x1c8_matType(mType)
+CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId,
+                       EMaterialTypes playerMaterial, const zeus::CVector3f& scale)
+: x4_scale(scale),
+  x104_gunCharacter(g_SimplePool->GetObj(SObjectTag{FOURCC('ANCS'), ancsId})),
+  x13c_armCharacter(g_SimplePool->GetObj(skSuitArmNames[0])),
+  x1c0_weaponType(type),
+  x1c4_playerId(playerId),
+  x1c8_playerMaterial(playerMaterial)
 {
 }
 

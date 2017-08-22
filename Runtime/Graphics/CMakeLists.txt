@@ -66,7 +66,7 @@ set(GRAPHICS_SOURCES
     CPVSAreaSet.hpp CPVSAreaSet.cpp
     CGraphics.hpp CGraphics.cpp
     CSimpleShadow.hpp CSimpleShadow.cpp
-    CModelPointSelector.hpp CModelPointSelector.cpp
+    CRainSplashGenerator.hpp CRainSplashGenerator.cpp
     Shaders/TShader.hpp Shaders/TMultiBlendShader.hpp Shaders/TShaderDecl.hpp Shaders/TMultiBlendShaderDecl.hpp
     Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp Shaders/CLineRendererShadersGLSL.cpp
     Shaders/CTexturedQuadFilter.hpp Shaders/CTexturedQuadFilter.cpp Shaders/CTexturedQuadFilterGLSL.cpp

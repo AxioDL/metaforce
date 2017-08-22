@@ -19,7 +19,7 @@
 #include "Character/CModelData.hpp"
 #include "World/CWorldShadow.hpp"
 #include "World/ScriptObjectSupport.hpp"
-#include "Graphics/CModelPointSelector.hpp"
+#include "Graphics/CRainSplashGenerator.hpp"
 
 namespace urde
 {
@@ -68,7 +68,9 @@ private:
 
     class CMotionState
     {
-        static const float kGunExtendDistance;
+        static float gGunExtendDistance;
+    public:
+        static void SetExtendDistance(float d) { gGunExtendDistance = d; }
     };
 
     CActorLights x0_lights;
@@ -133,9 +135,7 @@ private:
     TUniqueId x538_thisId;
     TUniqueId x53a_ = kInvalidUniqueId;
     TUniqueId x53c_ = kInvalidUniqueId;
-    u32 x544_ = 0;
-    u32 x548_ = 0;
-    u32 x54c_ = 0;
+    std::vector<CToken> x540_handAnimTokens;
     CPlayerCameraBob x550_camBob;
     u32 x658_ = 1;
     float x65c_ = 0.f;
@@ -161,19 +161,24 @@ private:
     CGunWeapon* x72c_currentBeam = nullptr;
     u32 x730_ = 0;
     u32 x734_ = 0;
-    u32 x738_ = 0;
+    CGunWeapon* x738_nextBeam = nullptr;
     std::unique_ptr<CGunMotion> x73c_gunMotion;
     std::unique_ptr<CGrappleArm> x740_grappleArm;
     std::unique_ptr<CAuxWeapon> x744_auxWeapon;
-    std::unique_ptr<CModelPointSelector> x748_modelPointSelector;
+    std::unique_ptr<CRainSplashGenerator> x748_rainSplashGenerator;
     std::unique_ptr<CPowerBeam> x74c_powerBeam;
     std::unique_ptr<CIceBeam> x750_iceBeam;
     std::unique_ptr<CWaveBeam> x754_waveBeam;
     std::unique_ptr<CPlasmaBeam> x758_plasmaBeam;
     std::unique_ptr<CPhazonBeam> x75c_phazonBeam;
-    CGunWeapon* x760_selectableBeams[4] = {};
-    std::unique_ptr<CElementGen> x774_;
+    CGunWeapon* x760_selectableBeams[4] = {}; // Used to be reserved_vector
+    std::unique_ptr<CElementGen> x774_holoTransitionGen;
+    std::unique_ptr<u32> x77c_;
+    rstl::reserved_vector<rstl::reserved_vector<TLockedToken<CGenDescription>, 2>, 2> x784_bombEffects;
+    rstl::reserved_vector<TLockedToken<CGenDescription>, 5> x7c0_auxMuzzleEffects;
+    rstl::reserved_vector<std::unique_ptr<CElementGen>, 5> x800_auxMuzzleGenerators;
     std::unique_ptr<CWorldShadow> x82c_shadow;
+    s16 x830 = -1;
 
     union
     {
@@ -218,8 +223,14 @@ private:
         u32 _dummy = 0;
     };
 
+    void InitBeamData();
+    void InitBombData();
+    void InitMuzzleData();
+    void InitCTData();
+    void LoadHandAnimTokens();
+
 public:
-    CPlayerGun(TUniqueId id);
+    explicit CPlayerGun(TUniqueId playerId);
 
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AsyncLoadSuit(CStateManager& mgr);

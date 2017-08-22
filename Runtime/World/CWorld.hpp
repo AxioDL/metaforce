@@ -7,7 +7,7 @@
 #include "Graphics/CModel.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "AutoMapper/CMapWorld.hpp"
-
+#include "CEnvFxManager.hpp"
 
 namespace urde
 {
@@ -147,7 +147,8 @@ private:
     TLockedToken<CModel> x94_skybox;
     TLockedToken<CModel> xa4_skyboxB;
     TLockedToken<CModel> xb4_skyboxC;
-    std::vector<CSfxHandle> xc4_sfxHandles;
+    EEnvFxType xc4_neededFx = EEnvFxType::None;
+    std::vector<CSfxHandle> xc8_sfxHandles;
 
     void LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data);
     void LoadSoundGroups();
@@ -200,6 +201,7 @@ public:
     void TouchSky();
     void DrawSky(const zeus::CTransform& xf) const;
     void StopSound(s16);
+    EEnvFxType GetNeededEnvFx() const { return xc4_neededFx; }
 };
 
 struct CWorldLayers

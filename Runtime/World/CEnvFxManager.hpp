@@ -14,8 +14,8 @@ class CTexture;
 enum class EEnvFxType
 {
     None,
-    Rain,
-    Snow
+    Snow,
+    Rain
 };
 
 enum class EPhazonType
@@ -51,10 +51,10 @@ class CEnvFxManager
 {
     zeus::CAABox x0_ = zeus::CAABox(-63.5, 63.5);
     zeus::CVector3f x18_ = zeus::CVector3f::skZero;
-    u8 x24_ = 0;
+    bool x24_ = false;
     float x28_ = 0.f;
     u32 x2c_ = -1;
-    float x30_ = 0.f;
+    float x30_rainMagnitude = 0.f;
     float x34_fxDensity = 0.f;
     float x38_ = 0.f;
     u8 x3c = 0;
@@ -78,6 +78,8 @@ public:
     void GetParticleBoundsToWorldScale() const;
     void AreaLoaded();
     void SetXB54(float f) { xb54_ = f; }
+    bool GetX24() const { return x24_; }
+    float GetRainMagnitude() const { return x30_rainMagnitude; }
 };
 
 }

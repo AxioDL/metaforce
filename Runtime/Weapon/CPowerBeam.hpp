@@ -8,8 +8,16 @@ namespace urde
 
 class CPowerBeam : public CGunWeapon
 {
+    TCachedToken<CGenDescription> x21c_shotSmoke;
+    TCachedToken<CGenDescription> x228_power2nd1;
+    u32 x234_ = 0;
+    float x23c_ = 0.f;
+    u32 x240_ = 0;
+    bool x244_24 : 1;
+    bool x244_25 : 1;
 public:
-    CPowerBeam(u32, EWeaponType, TUniqueId, EMaterialTypes, const zeus::CVector3f&);
+    CPowerBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
+               EMaterialTypes playerMaterial, const zeus::CVector3f& scale);
 };
 
 }

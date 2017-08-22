@@ -1,10 +1,18 @@
 #include "CPowerBeam.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
-CPowerBeam::CPowerBeam(u32 w1, EWeaponType wType, TUniqueId uid, EMaterialTypes mType, const zeus::CVector3f& vec)
-    : CGunWeapon(w1, wType, uid, mType, vec)
+
+CPowerBeam::CPowerBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
+                       EMaterialTypes playerMaterial, const zeus::CVector3f& scale)
+: CGunWeapon(characterId, type, playerId, playerMaterial, scale)
 {
+    x21c_shotSmoke = g_SimplePool->GetObj("ShotSmoke");
+    x228_power2nd1 = g_SimplePool->GetObj("Power2nd_1");
+    x244_24 = false;
+    x244_25 = false;
 }
+
 }
