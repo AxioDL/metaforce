@@ -132,8 +132,8 @@ public:
     bool IsAnimating() const;
     bool IsInFrustum(const zeus::CTransform& xf, const zeus::CFrustum& frustum) const;
     void RenderParticles(const zeus::CFrustum& frustum) const;
-    void Touch(EWhichModel, int shaderIdx);
-    void Touch(const CStateManager& stateMgr, int shaderIdx);
+    void Touch(EWhichModel, int shaderIdx) const;
+    void Touch(const CStateManager& stateMgr, int shaderIdx) const;
     void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b);
     void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf,
                              const CActorLights* lights, const CModelFlags& drawFlags);

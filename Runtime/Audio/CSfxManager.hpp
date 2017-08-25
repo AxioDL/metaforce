@@ -217,6 +217,7 @@ public:
     static float GetReverbAmount();
     static void PitchBend(const CSfxHandle& handle, float pitch);
     static void SfxVolume(const CSfxHandle& handle, float vol);
+    static void SfxSpan(const CSfxHandle& handle, float span);
     static u16 TranslateSFXID(u16);
     static void SfxStop(const CSfxHandle& handle);
     static CSfxHandle SfxStart(u16 id, float vol, float pan, bool useAcoustics, s16 prio, bool looped, s32 areaId);

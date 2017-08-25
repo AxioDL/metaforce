@@ -4,6 +4,7 @@
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
 #include "Character/CModelData.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -54,6 +55,10 @@ public:
     void GrappleBeamDisconnected();
     void GrappleBeamConnected();
     void RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos);
+    void TouchModel(const CStateManager& mgr) const;
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void EnterStruck(CStateManager& mgr, float angle, bool attack, bool b2);
+    void EnterIdle(CStateManager& mgr);
 };
 
 }

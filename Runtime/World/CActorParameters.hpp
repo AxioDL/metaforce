@@ -59,6 +59,7 @@ public:
     void SetVisorParameters(const CVisorParameters& vParams) { x54_visorParms = vParams; }
     const CVisorParameters& GetVisorParameters() const { return x54_visorParms; }
     const CLightParameters& GetLightParameters() const { return x0_lightParms; }
+    bool HasThermalHeat() const { return x58_25_thermalHeat; }
 };
 }
 

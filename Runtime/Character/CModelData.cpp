@@ -279,7 +279,7 @@ void CModelData::RenderParticles(const zeus::CFrustum& frustum) const
         x10_animData->RenderAuxiliary(frustum);
 }
 
-void CModelData::Touch(EWhichModel which, int shaderIdx)
+void CModelData::Touch(EWhichModel which, int shaderIdx) const
 {
     if (x10_animData)
         x10_animData->Touch(PickAnimatedModel(which), shaderIdx);
@@ -287,9 +287,9 @@ void CModelData::Touch(EWhichModel which, int shaderIdx)
         PickStaticModel(which)->Touch(shaderIdx);
 }
 
-void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx)
+void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) const
 {
-    Touch(GetRenderingModel(stateMgr), shaderIdx);
+    Touch(const_cast<CModelData&>(*this).GetRenderingModel(stateMgr), shaderIdx);
 }
 
 void CModelData::RenderThermal(const zeus::CTransform& xf,

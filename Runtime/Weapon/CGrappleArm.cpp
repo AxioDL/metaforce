@@ -36,4 +36,24 @@ void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVecto
 
 }
 
+void CGrappleArm::TouchModel(const CStateManager& mgr) const
+{
+
+}
+
+void CGrappleArm::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
+{
+
+}
+
+void CGrappleArm::EnterStruck(CStateManager& mgr, float angle, bool attack, bool b2)
+{
+
+}
+
+void CGrappleArm::EnterIdle(CStateManager& mgr)
+{
+
+}
+
 }

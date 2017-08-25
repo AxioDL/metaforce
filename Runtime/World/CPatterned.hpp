@@ -85,6 +85,42 @@ protected:
     ECharacter x34c_character;
 
     float x338_;
+
+    union
+    {
+        struct
+        {
+            bool x400_24_ : 1;
+            bool x400_25_ : 1; // t
+            bool x400_26_ : 1;
+            bool x400_27_ : 1;
+            bool x400_28_ : 1;
+            bool x400_29_ : 1;
+            bool x400_30_ : 1;
+            bool x400_31_ : 1; // r25 == 1
+            bool x401_24_ : 1;
+            bool x401_25_ : 1;
+            bool x401_26_ : 1;
+            bool x401_27_ : 1;
+            bool x401_28_ : 1;
+            bool x401_29_ : 1;
+            bool x401_30_ : 1;
+            bool x401_31_ : 1;
+            bool x402_24_ : 1;
+            bool x402_25_ : 1;
+            bool x402_26_ : 1;
+            bool x402_27_ : 1;
+            bool x402_28_ : 1;
+            bool x402_29_ : 1; // t
+            bool x402_30_ : 1;
+            bool x402_31_ : 1;
+            bool x403_24_ : 1;
+            bool x403_25_ : 1; // t
+            bool x403_26_ : 1; // t
+        };
+        u32 _dummy2 = 0;
+    };
+
     std::unique_ptr<CBodyController> x450_bodyController;
 
     union
@@ -95,8 +131,11 @@ protected:
             bool x4e1_25_ : 1;
             bool x4e1_26_ : 1;
         };
-        u32 _dummy2 = 0;
+        u32 _dummy3 = 0;
     };
+
+    float x500_ = 0.f;
+    float x504_damageDur = 0.f;
 public:
     CPatterned(ECharacter character, TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
@@ -126,9 +165,11 @@ public:
     }
 
     bool GetX328_26() const { return x328_26_; }
+    bool GetX402_28() const { return x402_28_; }
 
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
+    float GetDamageDuration() const { return x504_damageDur; }
 };
 }
 

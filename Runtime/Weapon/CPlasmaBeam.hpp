@@ -19,6 +19,7 @@ class CPlasmaBeam : public CGunWeapon
 public:
     CPlasmaBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
                 EMaterialTypes playerMaterial, const zeus::CVector3f& scale);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
 };
 
 }

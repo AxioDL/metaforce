@@ -24,6 +24,10 @@ class CPhazonBeam : public CGunWeapon
 public:
     CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
                 EMaterialTypes playerMaterial, const zeus::CVector3f& scale);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    bool IsFiring() const { return x278_ < 1.f / 6.f; }
+    void SetX274_25(bool b) { x274_25 = b; }
+    void SetX274_26(bool b) { x274_26 = b; }
 };
 
 }

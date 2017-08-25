@@ -222,6 +222,9 @@ enum class EScriptObjectMessage
     InvulnDamage      = 42,
     ProjectileCollide = 43,
     InSnakeWeed       = 44,
+    AddPhazonPoolInhabitant = 45,
+    UpdatePhazonPoolInhabitant = 46,
+    RemovePhazonPoolInhabitant = 47,
     InternalMessage26 = 48
 };
 

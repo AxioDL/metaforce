@@ -1,6 +1,7 @@
 #include "CPatterned.hpp"
 #include "CPatternedInfo.hpp"
 #include "TCastTo.hpp"
+#include "CActorParameters.hpp"
 
 namespace urde
 {
@@ -24,6 +25,12 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, const std::string& n
       pInfo.xfc_stateMachineId, actorParms, pInfo.xd8_stepUpHeight, 0.8f),
   x34c_character(character)
 {
+    x400_25_ = true;
+    x400_31_ = moveType == CPatterned::EMovementType::Flyer;
+    x402_29_ = true;
+    x402_30_ = x402_31_ = actorParms.HasThermalHeat();
+    x403_25_ = true;
+    x403_26_ = true;
 }
 
 }

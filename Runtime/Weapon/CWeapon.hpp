@@ -21,6 +21,7 @@ public:
         Unknown1 = (1 << 7),
         Bombs = (1 << 8),
         PowerBombs = (1 << 9),
+        Twelve = (1 << 12),
         StaticInterference = (1 << 14),
     };
 
@@ -35,7 +36,7 @@ private:
     CDamageInfo x12c_;
     float x148_;
     float x14c_;
-    float x150_;
+    float x150_damageDuration;
     float x154_interferenceDuration;
 public:
     CWeapon(TUniqueId, TAreaId, bool, TUniqueId, EWeaponType, const std::string&, const zeus::CTransform&,
@@ -52,6 +53,7 @@ public:
     const CDamageInfo& GetDamageInfo() const;
     CDamageInfo& DamageInfo();
     void SetDamageInfo(const CDamageInfo&);
+    float GetDamageDuration() const { return x150_damageDuration; }
     float GetInterferenceDuration() const { return x154_interferenceDuration; }
 
     void Think(float, CStateManager &) {}

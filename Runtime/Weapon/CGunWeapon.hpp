@@ -9,6 +9,7 @@
 #include "Character/CAnimCharacterSet.hpp"
 #include "Particle/CElementGen.hpp"
 #include "CToken.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -16,13 +17,22 @@ namespace NWeaponTypes
 {
 enum class EGunAnimType
 {
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    FromMissile,
+    ToMissile,
+    Seven,
+    MissileReload,
+    FromBeam
 };
 }
 
 class CActorLights;
 class CGunController;
 struct CModelFlags;
-class CStateManager;
 class CWeaponDescription;
 
 class CVelocityInfo
@@ -38,8 +48,12 @@ public:
 class CGunWeapon
 {
 public:
-    enum class ESecondaryFxType : u32
+    enum class ESecondaryFxType
     {
+        Zero,
+        One,
+        Two,
+        Three
     };
 protected:
     static const char* skBeamXferNames[5];
@@ -53,6 +67,9 @@ protected:
     TToken<CGenDescription> x160_xferEffect;
     rstl::reserved_vector<TCachedToken<CGenDescription>, 2> x16c_muzzleEffects;
     rstl::reserved_vector<TCachedToken<CGenDescription>, 2> x188_secondaryEffects;
+    rstl::reserved_vector<std::unique_ptr<CElementGen>, 2> x1a4_muzzleGenerators;
+    u32 x1b8_ = 0;
+    CRainSplashGenerator* x1bc_rainSplashGenerator = nullptr;
     EWeaponType x1c0_weaponType;
     TUniqueId x1c4_playerId;
     EMaterialTypes x1c8_playerMaterial;
@@ -71,14 +88,19 @@ public:
     virtual void Fire(bool, float, CPlayerState::EChargeState, const zeus::CTransform&, CStateManager&, TUniqueId) {}
     virtual void EnableFx(bool) {}
     virtual void EnableSecondaryFx(ESecondaryFxType) {}
+    void ActivateCharge(bool b1, bool b2);
+    void Touch(const CStateManager& mgr);
+    void TouchHolo(const CStateManager& mgr);
     virtual void Draw(bool, const CStateManager&, const zeus::CTransform&, const CModelFlags&,
                       const CActorLights*) const {}
     virtual void DrawMuzzleFx(const CStateManager&) const {}
     virtual void Update(float, CStateManager&) {}
-    virtual void Load(bool) {}
+    virtual void Load(CStateManager& mgr, bool) {}
     virtual void Unload(CStateManager&) {}
     virtual bool IsLoaded() const {return false;}
     const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
+    void SetRainSplashGenerator(CRainSplashGenerator* g) { x1bc_rainSplashGenerator = g; }
+    CElementGen* GetChargeMuzzleFx() const { return x1a4_muzzleGenerators[1].get(); }
 };
 }
 

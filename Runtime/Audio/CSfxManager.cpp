@@ -340,6 +340,12 @@ void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol)
         handle->GetVoice()->setVolume(vol);
 }
 
+void CSfxManager::SfxSpan(const CSfxHandle& handle, float span)
+{
+    if (handle->IsPlaying())
+        handle->GetVoice()->setSurroundPan(span);
+}
+
 u16 CSfxManager::TranslateSFXID(u16 id)
 {
     if (mpSfxTranslationTable == nullptr)

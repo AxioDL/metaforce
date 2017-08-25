@@ -14,4 +14,9 @@ CPlasmaBeam::CPlasmaBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
     x22c_25 = false;
 }
 
+void CPlasmaBeam::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
+{
+
+}
+
 }

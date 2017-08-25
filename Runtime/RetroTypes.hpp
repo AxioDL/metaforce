@@ -78,8 +78,8 @@ struct TUniqueId
     TUniqueId(u16 value, u16 version) : id(value | (version << 10)) {}
     u16 id = u16(-1);
 
-    s16 Version() const { return s16((id >> 10)  & 0x3f);}
-    s16 Value() const { return s16(id & 0x3ff);}
+    u16 Version() const { return u16((id >> 10)  & 0x3f);}
+    u16 Value() const { return u16(id & 0x3ff);}
     bool operator<(const TUniqueId& other) const { return (id < other.id); }
     bool operator!=(const TUniqueId& other) const { return (id != other.id); }
     bool operator==(const TUniqueId& other) const { return (id == other.id); }

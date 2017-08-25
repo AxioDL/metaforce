@@ -154,10 +154,10 @@ public:
     void UpdateVisorTransition(float dt);
     bool StartVisorTransition(EPlayerVisor visor);
     void ResetVisor();
-    bool ItemEnabled(EItemType type);
+    bool ItemEnabled(EItemType type) const;
     void DisableItem(EItemType type);
     void EnableItem(EItemType type);
-    bool HasPowerUp(EItemType type);
+    bool HasPowerUp(EItemType type) const;
     u32 GetItemCapacity(EItemType type) const;
     u32 GetItemAmount(EItemType type) const;
     void DecrPickup(EItemType type, s32 amount);

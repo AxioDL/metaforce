@@ -347,7 +347,7 @@ private:
     std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
     zeus::CTransform x7f4_gunWorldXf;
     float x824_transitionFilterTimer = 0.f;
-    float x828_waterLevelOnPlayer = 0.f;
+    float x828_distanceUnderWater = 0.f;
     bool x82c_inLava = false;
     TUniqueId x82e_ridingPlatform = kInvalidUniqueId;
     TUniqueId x830_playerHint = kInvalidUniqueId;
@@ -429,6 +429,7 @@ public:
             float, float, const CMaterialList&);
 
     bool IsTransparent() const;
+    bool GetControlsFrozen() const { return x760_controlsFrozen; }
     float GetTransitionAlpha(const zeus::CVector3f& camPos, float zNear) const;
     s32 ChooseTransitionToAnimation(float dt, CStateManager& mgr) const;
     void TransitionToMorphBallState(float dt, CStateManager& mgr);
@@ -663,7 +664,9 @@ public:
     void ApplySubmergedPitchBend(CSfxHandle& sfx);
     void DetachActorFromPlayer();
     bool AttachActorToPlayer(TUniqueId id, bool disableGun);
+    TUniqueId GetAttachedActor() const { return x26c_attachedActor; }
     float GetAttachedActorStruggle() const { return xa28_attachedActorStruggle; }
+    float GetDistanceUnderWater() const { return x828_distanceUnderWater; }
 };
 }
 

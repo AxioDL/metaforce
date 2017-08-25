@@ -1,7 +1,6 @@
 #include "CGunWeapon.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
-#include "Particle/CGenDescription.hpp"
 
 namespace urde
 {
@@ -54,6 +53,20 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId,
 
 void CGunWeapon::AsyncLoadSuitArm(CStateManager& mgr)
 {
+}
+
+void CGunWeapon::ActivateCharge(bool b1, bool b2)
+{
+}
+
+void CGunWeapon::Touch(const CStateManager& mgr)
+{
+
+}
+
+void CGunWeapon::TouchHolo(const CStateManager& mgr)
+{
+
 }
 
 }

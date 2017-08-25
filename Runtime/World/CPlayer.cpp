@@ -2996,7 +2996,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
     if (x790_footstepSfxSel != EFootstepSfx::None && x78c_footstepSfxTimer > sfxDelay)
     {
         static float EarHeight = GetEyeHeight() - 0.1f;
-        if (xe6_24_fluidCounter != 0 &&  x828_waterLevelOnPlayer > 0.f && x828_waterLevelOnPlayer < EarHeight)
+        if (xe6_24_fluidCounter != 0 &&  x828_distanceUnderWater > 0.f && x828_distanceUnderWater < EarHeight)
         {
             if (x82c_inLava)
             {
@@ -5628,7 +5628,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
         hDoubleJumpAccel = g_tweakPlayer->GetSidewaysHorizontalDoubleJumpAccel();
     }
 
-    if (x828_waterLevelOnPlayer >= 0.8f * GetEyeHeight())
+    if (x828_distanceUnderWater >= 0.8f * GetEyeHeight())
         doubleJumpImpulse *= jumpFactor;
 
     if (x258_movementState == EPlayerMovementState::StartingJump)
@@ -6522,19 +6522,19 @@ bool CPlayer::CheckSubmerged() const
     if (xe6_24_fluidCounter == 0)
         return false;
 
-    return x828_waterLevelOnPlayer >= (x2f8_morphBallState == EPlayerMorphBallState::Morphed ?
+    return x828_distanceUnderWater >= (x2f8_morphBallState == EPlayerMorphBallState::Morphed ?
         2.f * g_tweakPlayer->GetPlayerBallHalfExtent() : 0.5f * GetEyeHeight());
 }
 
 void CPlayer::UpdateSubmerged(CStateManager& mgr)
 {
     x82c_inLava = false;
-    x828_waterLevelOnPlayer = 0.f;
+    x828_distanceUnderWater = 0.f;
     if (xe6_24_fluidCounter != 0)
     {
         if (TCastToPtr<CScriptWater> water = mgr.ObjectById(xc4_fluidId))
         {
-            x828_waterLevelOnPlayer =
+            x828_distanceUnderWater =
                 -(zeus::CVector3f::skUp.dot(x34_transform.origin) - water->GetTriggerBoundsWR().max.z);
             CFluidPlane::EFluidType fluidType = water->GetFluidPlane().GetFluidType();
             x82c_inLava = (fluidType == CFluidPlane::EFluidType::Lava || fluidType == CFluidPlane::EFluidType::ThickLava);

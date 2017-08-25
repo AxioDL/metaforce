@@ -293,7 +293,7 @@ void CPlayerState::ResetVisor()
     x1c_visorTransitionFactor = 0.0f;
 }
 
-bool CPlayerState::ItemEnabled(CPlayerState::EItemType type)
+bool CPlayerState::ItemEnabled(CPlayerState::EItemType type) const
 {
     if (HasPowerUp(type))
         return (x4_enabledItems & (1 << u32(type)));
@@ -312,7 +312,7 @@ void CPlayerState::DisableItem(CPlayerState::EItemType type)
         x4_enabledItems &= ~(1 << u32(type));
 }
 
-bool CPlayerState::HasPowerUp(CPlayerState::EItemType type)
+bool CPlayerState::HasPowerUp(CPlayerState::EItemType type) const
 {
     if (type < EItemType::Max)
         return x24_powerups[u32(type)].x4_capacity != 0;

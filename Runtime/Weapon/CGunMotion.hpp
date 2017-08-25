@@ -8,12 +8,24 @@
 namespace urde
 {
 
+namespace SamusGun
+{
+enum class EAnimationState
+{
+    Zero,
+    One,
+    Two
+};
+}
+
 class CGunMotion
 {
     CModelData x0_modelData;
 
 public:
     CGunMotion(CAssetId, const zeus::CVector3f& vec);
+    const CModelData& GetModelData() const { return x0_modelData; }
+    void PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle, bool attack);
 };
 
 }

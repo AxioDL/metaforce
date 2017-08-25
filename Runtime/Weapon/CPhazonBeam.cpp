@@ -21,4 +21,9 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
     x274_27 = false;
 }
 
+void CPhazonBeam::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
+{
+
+}
+
 }
