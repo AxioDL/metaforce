@@ -2,6 +2,7 @@
 #define __URDE_CGSFIDGET_HPP__
 
 #include "RetroTypes.hpp"
+#include "CToken.hpp"
 
 namespace urde
 {
@@ -9,16 +10,14 @@ class CAnimData;
 class CStateManager;
 class CGSFidget
 {
-    u32 x4_ = 0;
-    u32 x8_ = 0;
-    u32 xc_ = 0;
-    u32 x10_ = -1;
-    u32 x14_ = -1;
-    u32 x18_ = -1;
+    std::vector<CToken> x0_anims;
+    s32 x10_ = -1;
+    s32 x14_parm1 = -1;
+    s32 x18_parm2 = -1;
 public:
-    bool Update(CAnimData&, float, CStateManager&);
-    void SetAnim(CAnimData&, s32, s32, s32, CStateManager&);
-    void LoadAnimAsync(CAnimData, s32, s32, s32, CStateManager&);
+    bool Update(CAnimData& data, float dt, CStateManager& mgr);
+    s32 SetAnim(CAnimData& data, s32 type, s32 parm1, s32 parm2, CStateManager& mgr);
+    void LoadAnimAsync(CAnimData& data, s32 type, s32 parm1, s32 parm2, CStateManager& mgr);
     void UnLoadAnim();
     bool IsAnimLoaded() const;
 };

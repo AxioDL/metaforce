@@ -31,6 +31,14 @@ struct SChargedShotParam : SShotParam
     bool Charged() const { return true; }
 };
 
+struct SWeaponInfo : BigYAML
+{
+    DECL_YAML
+    Value<float> x0_coolDown = 0.1f;
+    SShotParam x4_normal;
+    SChargedShotParam x20_charged;
+};
+
 struct ITweakPlayerGun : ITweak
 {
     DECL_YAML
@@ -55,6 +63,8 @@ struct ITweakPlayerGun : ITweak
     virtual const zeus::CVector3f& GetGunPosition() const = 0;
     virtual const zeus::CVector3f& GetGrapplingArmPosition() const = 0;
     virtual float GetRichochetDamage(atUint32) const = 0;
+    virtual const SWeaponInfo& GetBeamInfo(atInt32 beam) const = 0;
+    virtual const SComboShotParam& GetComboShotInfo(atInt32 beam) const = 0;
 };
 }
 

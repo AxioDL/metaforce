@@ -26,4 +26,9 @@ void CPhazonBeam::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager
 
 }
 
+void CPhazonBeam::StopBeam(CStateManager& mgr, bool b1)
+{
+
+}
+
 }

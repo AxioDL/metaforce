@@ -15,7 +15,7 @@ public:
     bool IsDisabled() const { return xf0_24_disabled; }
     void SetDisabled(bool disabled);
     void Update(float);
-    void StopRumble(u16) {}
+    void StopRumble(s16) {}
     void Rumble(CStateManager&, ERumbleFxId, ERumblePriority priority) {}
     void Rumble(CStateManager&, ERumbleFxId, float, ERumblePriority priority) {}
 };

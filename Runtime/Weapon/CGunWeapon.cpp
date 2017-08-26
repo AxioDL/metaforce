@@ -55,6 +55,32 @@ void CGunWeapon::AsyncLoadSuitArm(CStateManager& mgr)
 {
 }
 
+void CGunWeapon::BuildSecondaryEffect(ESecondaryFxType type)
+{
+    switch (type)
+    {
+    case ESecondaryFxType::Two:
+        if (x204_secondaryEffectType == ESecondaryFxType::Two)
+            break;
+        x1b8_secondaryEffect = std::make_unique<CElementGen>(x188_secondaryEffects[1],
+                                                             CElementGen::EModelOrientationType::Normal,
+                                                             CElementGen::EOptionalSystemFlags::One);
+        x1b8_secondaryEffect->SetGlobalScale(x4_scale);
+        break;
+    case ESecondaryFxType::One:
+        if (x204_secondaryEffectType == ESecondaryFxType::One)
+            break;
+        x1b8_secondaryEffect = std::make_unique<CElementGen>(x188_secondaryEffects[0],
+                                                             CElementGen::EModelOrientationType::Normal,
+                                                             CElementGen::EOptionalSystemFlags::One);
+        x1b8_secondaryEffect->SetGlobalScale(x4_scale);
+        break;
+    default:
+        break;
+    }
+    x204_secondaryEffectType = type;
+}
+
 void CGunWeapon::ActivateCharge(bool b1, bool b2)
 {
 }
@@ -67,6 +93,23 @@ void CGunWeapon::Touch(const CStateManager& mgr)
 void CGunWeapon::TouchHolo(const CStateManager& mgr)
 {
 
+}
+
+void CGunWeapon::UpdateMuzzleFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, bool emitting)
+{
+
+}
+
+const SWeaponInfo& CGunWeapon::GetWeaponInfo() const
+{
+    return g_tweakPlayerGun->GetBeamInfo(s32(x200_beamId));
+}
+
+zeus::CAABox CGunWeapon::GetBounds() const
+{
+    if (x10_solidModelData)
+        return x10_solidModelData->GetBounds();
+    return zeus::CAABox::skNullBox;
 }
 
 }

@@ -8,10 +8,23 @@ namespace urde
 
 class CFidget
 {
-    u32 x0_ = 0;
-    u32 x4_ = -1;
+public:
+    enum class EState
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven
+    };
+private:
+    EState x0_state = EState::Zero;
+    s32 x4_ = -1;
     u32 x8_ = 0;
-    u32 xc_ = -1;
+    s32 xc_ = -1;
     u32 x10_ = 3;
     float x14_ = 0.f;
     float x18_ = 0.f;
@@ -23,7 +36,8 @@ class CFidget
     float x30_ = 105.f;
     bool x34_24_ = false;
 public:
-
+    EState GetState() const { return x0_state; }
+    void ResetAll();
 };
 
 }

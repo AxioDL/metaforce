@@ -35,13 +35,6 @@ struct CTweakPlayerGun : ITweakPlayerGun
     SShotParam x70_bomb;
     SShotParam x8c_powerBomb;
     SShotParam x1d4_missile;
-    struct SWeaponInfo : BigYAML
-    {
-        DECL_YAML
-        Value<float> x0_coolDown = 0.1f;
-        SShotParam x4_normal;
-        SChargedShotParam x20_charged;
-    };
     SWeaponInfo xa8_beams[5];
     SComboShotParam x1f0_combos[5];    // Originally rstl::prereserved_vector<SShotParam,5>
     Value<float> x280_ricochetData[6]; // Originally rstl::prereserved_vector<float,5>, extended to 6 to capture
@@ -103,11 +96,18 @@ struct CTweakPlayerGun : ITweakPlayerGun
         }
     }
 
-    SWeaponInfo GetBeamInfo(atInt32 beam) const
+    const SWeaponInfo& GetBeamInfo(atInt32 beam) const
     {
         if (beam < 0 || beam > 5)
             return xa8_beams[0];
         return xa8_beams[beam];
+    }
+
+    const SComboShotParam& GetComboShotInfo(atInt32 beam) const
+    {
+        if (beam < 0 || beam > 5)
+            return x1f0_combos[0];
+        return x1f0_combos[beam];
     }
 };
 }

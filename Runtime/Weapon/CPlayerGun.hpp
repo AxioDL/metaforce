@@ -83,14 +83,35 @@ private:
 
     class CMotionState
     {
+    public:
+        enum class EMotionState
+        {
+            Zero,
+            One,
+            Two
+        };
+    private:
         static float gGunExtendDistance;
+        bool x0_24_ = true;
+        float x4_ = 0.f;
+        float x8_ = 0.f;
+        float xc_ = 0.f;
+        float x10_ = 0.f;
+        float x14_ = 0.f;
+        float x18_ = 0.f;
+        float x1c_ = 0.f;
+        EMotionState x20_state = EMotionState::Zero;
+        u32 x24_ = 0;
     public:
         static void SetExtendDistance(float d) { gGunExtendDistance = d; }
+        void SetState(EMotionState state) { x20_state = state; }
+        void Update(bool b1, float dt, zeus::CTransform& xf, CStateManager& mgr);
+
     };
 
     CActorLights x0_lights;
-    u32 x2e0_ = 0;
-    u32 x2e4_ = 0;
+    CSfxHandle x2e0_chargeSfx;
+    CSfxHandle x2e4_invalidSfx;
     u32 x2e8_ = 0;
     u32 x2ec_firing = 0;
     u32 x2f0_ = 0;
@@ -116,8 +137,8 @@ private:
     float x340_chargeBeamFactor = 0.f;
     float x344_ = 0.f;
     float x348_ = 0.f;
-    float x34c_ = 0.f;
-    float x350_ = 0.f;
+    float x34c_shakeX = 0.f;
+    float x350_shakeZ = 0.f;
     float x354_bombFuseTime;
     float x358_bombDropDelayTime;
     float x35c_bombTime = 0.f;
@@ -125,7 +146,7 @@ private:
     float x364_ = 0.f;
     float x368_ = 0.f;
     float x36c_ = 1.f;
-    float x370_ = 1.f;
+    float x370_gunMotionSpeedMult = 1.f;
     float x374_ = 0.f;
     float x378_ = 0.f;
     float x37c_ = 0.f;
@@ -133,7 +154,7 @@ private:
     float x384_ = 0.f;
     float x388_ = 0.f;
     float x38c_ = 0.f;
-    float x390_ = 0.f;
+    float x390_cooldown = 0.f;
     float x394_damageTimer = 0.f;
     float x398_damageAmt = 0.f;
     float x39c_ = 0.f;
@@ -141,12 +162,12 @@ private:
     CFidget x3a4_fidget;
     zeus::CVector3f x3dc_damageLocation;
     zeus::CTransform x3e8_xf;
-    zeus::CTransform x418_;
-    zeus::CTransform x448_;
+    zeus::CTransform x418_beamLocalXf;
+    zeus::CTransform x448_elbowWorldXf;
     zeus::CTransform x478_assistAimXf;
-    zeus::CTransform x4a8_;
-    zeus::CTransform x4d8_;
-    zeus::CTransform x508_;
+    zeus::CTransform x4a8_gunWorldXf;
+    zeus::CTransform x4d8_gunLocalXf;
+    zeus::CTransform x508_elbowLocalXf;
     TUniqueId x538_playerId;
     TUniqueId x53a_ = kInvalidUniqueId;
     TUniqueId x53c_lightId = kInvalidUniqueId;
@@ -161,16 +182,7 @@ private:
     TUniqueId x670_ = kInvalidUniqueId;
     u32 x674_ = 0;
     CGunMorph x678_morph;
-    bool x6a0_24_ = true;
-    float x6a4_ = 0.f;
-    float x6a8_ = 0.f;
-    float x6ac_ = 0.f;
-    float x6b0_ = 0.f;
-    float x6b4_ = 0.f;
-    float x6b8_ = 0.f;
-    float x6bc_ = 0.f;
-    u32 x6c0_ = 0;
-    u32 x6c4_ = 0;
+    CMotionState x6a0_motionState;
     zeus::CAABox x6c8_;
     CModelData x6e0_rightHandModel;
     CGunWeapon* x72c_currentBeam = nullptr;
@@ -188,12 +200,12 @@ private:
     std::unique_ptr<CPhazonBeam> x75c_phazonBeam;
     CGunWeapon* x760_selectableBeams[4] = {}; // Used to be reserved_vector
     std::unique_ptr<CElementGen> x774_holoTransitionGen;
-    std::unique_ptr<u32> x77c_;
+    std::unique_ptr<CElementGen> x77c_;
     rstl::reserved_vector<rstl::reserved_vector<TLockedToken<CGenDescription>, 2>, 2> x784_bombEffects;
     rstl::reserved_vector<TLockedToken<CGenDescription>, 5> x7c0_auxMuzzleEffects;
     rstl::reserved_vector<std::unique_ptr<CElementGen>, 5> x800_auxMuzzleGenerators;
     std::unique_ptr<CWorldShadow> x82c_shadow;
-    s16 x830 = -1;
+    s16 x830_chargeRumbleHandle = -1;
 
     union
     {
@@ -213,7 +225,7 @@ private:
             bool x833_26_ : 1;
             bool x833_27_ : 1;
             bool x833_28_phazonBeamActive : 1;
-            bool x833_29_ : 1;
+            bool x833_29_pointBlankWorldSurface : 1;
             bool x833_30_ : 1;
             bool x833_31_ : 1;
 
@@ -222,8 +234,8 @@ private:
             bool x834_26_ : 1;
             bool x834_27_underwater : 1;
             bool x834_28_ : 1;
-            bool x834_29_ : 1;
-            bool x834_30_damaged : 1;
+            bool x834_29_frozen : 1;
+            bool x834_30_inBigStrike : 1;
             bool x834_31_ : 1;
 
             bool x835_24_canFirePhazon : 1;
@@ -245,17 +257,36 @@ private:
     void LoadHandAnimTokens();
     void CreateGunLight(CStateManager& mgr);
     void DeleteGunLight(CStateManager& mgr);
+    void UpdateGunLight(const zeus::CTransform& pos, CStateManager& mgr);
     void SetGunLightActive(bool active, CStateManager& mgr);
     void SetPhazonBeamMorph(bool intoPhazonBeam);
     void Reset(CStateManager& mgr, bool b1);
     void ResetBeamParams(CStateManager& mgr, const CPlayerState& playerState, bool playSelectionSfx);
-    void PlaySfx(u16 sfx, bool underwater, bool looped, float pan);
-    void PlayAnim(NWeaponTypes::EGunAnimType type, bool b1);
+    CSfxHandle PlaySfx(u16 sfx, bool underwater, bool looped, float pan);
+    void PlayAnim(NWeaponTypes::EGunAnimType type, bool loop);
     void CancelCharge(CStateManager& mgr, bool withEffect);
+    bool ExitMissile();
+    void StopChargeSound(CStateManager& mgr);
+    void UnLoadFidget();
+    void ReturnArmAndGunToDefault(CStateManager& mgr, bool b1);
+    void ReturnToRestPose();
+    void ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr);
+    void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, const std::string& lctrName,
+                          bool b1, bool b2);
+    void UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr);
+    void ProcessGunMorph(float dt, CStateManager& mgr);
+    void ProcessPhazonGunMorph(float dt, CStateManager& mgr);
+    void UpdateChargeState(float dt, CStateManager& mgr);
+    void UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CStateManager& mgr);
+    void DoUserAnimEvents(float dt, CStateManager& mgr);
+    TUniqueId GetTargetId(CStateManager& mgr) const;
+    void CancelLockOn();
+    void UpdateWeaponFire(float dt, const CPlayerState& playerState, CStateManager& mgr);
+    void UpdateGunIdle(bool b1, float camBobT, float dt, CStateManager& mgr);
 
 public:
     explicit CPlayerGun(TUniqueId playerId);
-    void TakeDamage(bool attack, bool notFromMetroid, CStateManager& mgr);
+    void TakeDamage(bool bigStrike, bool notFromMetroid, CStateManager& mgr);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AsyncLoadSuit(CStateManager& mgr);
     void TouchModel(const CStateManager& stateMgr);

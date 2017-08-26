@@ -6,54 +6,94 @@
 namespace urde
 {
 
-void CGunController::UnLoadFidget()
+void CGunController::LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 parm1, s32 parm2)
 {
-
+    x30_fidget.LoadAnimAsync(*x0_modelData.AnimationData(), type, parm1, parm2, mgr);
 }
 
-void CGunController::LoadFidgetAnimAsync(CStateManager &, s32, s32, s32)
+void CGunController::EnterFidget(CStateManager& mgr, s32 type, s32 parm1, s32 parm2)
 {
-
+    x54_curAnimId = x30_fidget.SetAnim(*x0_modelData.AnimationData(), type, parm1, parm2, mgr);
+    x50_gunState = EGunState::Fidget;
 }
 
-void CGunController::GetFreeLookSetId() const
+void CGunController::EnterFreeLook(CStateManager& mgr, s32 gunId, s32 setId)
 {
-
+    if (x50_gunState != EGunState::ComboFire && !x58_25_enteredComboFire)
+        x54_curAnimId = x4_freeLook.SetAnim(*x0_modelData.AnimationData(), gunId, setId, 0, mgr, 0.f);
+    else
+        x4_freeLook.SetLoopState(x1c_comboFire.GetLoopState());
+    x50_gunState = EGunState::FreeLook;
 }
 
-bool CGunController::IsFidgetLoaded() const
+void CGunController::EnterComboFire(CStateManager& mgr, s32 gunId)
 {
-    return false;
+    if (x50_gunState != EGunState::FreeLook)
+        x54_curAnimId = x1c_comboFire.SetAnim(*x0_modelData.AnimationData(), gunId, 0, mgr, 0.f);
+    else
+        x1c_comboFire.SetLoopState(x4_freeLook.GetLoopState());
+    x50_gunState = EGunState::ComboFire;
+    x58_25_enteredComboFire = true;
 }
 
-bool CGunController::IsComboOver() const
+void CGunController::EnterStruck(CStateManager& mgr, float angle, bool bigStrike, bool b2)
 {
-    return true;
+    switch (x50_gunState)
+    {
+    case EGunState::Default:
+    case EGunState::ComboFire:
+    case EGunState::Idle:
+    case EGunState::Strike:
+    case EGunState::BigStrike:
+        return;
+    case EGunState::FreeLook:
+        x4_freeLook.SetIdle(true);
+        break;
+    default:
+        break;
+    }
+
+    const CPASDatabase& pasDatabase = x0_modelData.AnimationData()->GetCharacterInfo().GetPASDatabase();
+    CPASAnimParmData parms(2, CPASAnimParm::FromInt32(x4_freeLook.GetGunId()),
+                           CPASAnimParm::FromReal32(angle), CPASAnimParm::FromBool(bigStrike),
+                           CPASAnimParm::FromBool(b2));
+    std::pair<float, s32> anim =
+        pasDatabase.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
+    x0_modelData.AnimationData()->EnableLooping(false);
+    CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);
+    x0_modelData.AnimationData()->SetAnimation(aparms, false);
+    x54_curAnimId = anim.second;
+    x58_25_enteredComboFire = false;
+    x50_gunState = bigStrike ? EGunState::BigStrike : EGunState::Strike;
 }
 
-void CGunController::EnterFreeLook(CStateManager &, s32, s32)
+void CGunController::EnterIdle(CStateManager& mgr)
 {
+    CPASAnimParm parm = CPASAnimParm::NoParameter();
+    switch (x50_gunState)
+    {
+    case EGunState::FreeLook:
+        parm = CPASAnimParm::FromEnum(1);
+        x4_freeLook.SetIdle(true);
+        break;
+    case EGunState::ComboFire:
+        parm = CPASAnimParm::FromEnum(1);
+        x1c_comboFire.SetIdle(true);
+        break;
+    default:
+        return;
+    }
 
-}
-
-void CGunController::EnterComboFire(CStateManager &, s32)
-{
-
-}
-
-void CGunController::EnterFidget(CStateManager &, s32, s32, s32)
-{
-
-}
-
-void CGunController::EnterStruck(CStateManager &, float)
-{
-
-}
-
-void CGunController::EnterIdle(CStateManager &)
-{
-
+    const CPASDatabase& pasDatabase = x0_modelData.AnimationData()->GetCharacterInfo().GetPASDatabase();
+    CPASAnimParmData parms(5, parm);
+    std::pair<float, s32> anim =
+        pasDatabase.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
+    x0_modelData.AnimationData()->EnableLooping(false);
+    CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);
+    x0_modelData.AnimationData()->SetAnimation(aparms, false);
+    x54_curAnimId = anim.second;
+    x50_gunState = EGunState::Idle;
+    x58_25_enteredComboFire = false;
 }
 
 bool CGunController::Update(float dt, CStateManager& mgr)
@@ -63,60 +103,93 @@ bool CGunController::Update(float dt, CStateManager& mgr)
     {
     case EGunState::FreeLook:
     {
-        x58_24_ = x4_freeLook.Update(animData, dt, mgr);
-        if (!x58_24_ || !x58_25_)
+        x58_24_animDone = x4_freeLook.Update(animData, dt, mgr);
+        if (!x58_24_animDone || !x58_25_enteredComboFire)
             break;
 
-        EnterComboFire(mgr, x4_freeLook.xc_);
-        x58_24_ = false;
+        EnterComboFire(mgr, x4_freeLook.GetGunId());
+        x58_24_animDone = false;
         break;
     }
     case EGunState::ComboFire:
-        x58_24_ = x1c_comboFire.Update(animData, dt, mgr);
+        x58_24_animDone = x1c_comboFire.Update(animData, dt, mgr);
         break;
     case EGunState::Fidget:
-        x58_24_ = x30_fidget.Update(animData, dt, mgr);
+        x58_24_animDone = x30_fidget.Update(animData, dt, mgr);
         break;
-    case EGunState::Six:
+    case EGunState::Strike:
     {
         if (animData.IsAnimTimeRemaining(0.001f, "Whole Body"))
             break;
-        x54_ = x4_freeLook.SetAnim(animData, x4_freeLook.xc_, x4_freeLook.x10_, 0, mgr, 0.f);
+        x54_curAnimId = x4_freeLook.SetAnim(animData, x4_freeLook.GetGunId(), x4_freeLook.GetSetId(), 0, mgr, 0.f);
         x50_gunState = EGunState::FreeLook;
         break;
     }
-    case EGunState::Seven:
-        x58_24_ = !animData.IsAnimTimeRemaining(0.001f, "Whole Body");
+    case EGunState::BigStrike:
+        x58_24_animDone = !animData.IsAnimTimeRemaining(0.001f, "Whole Body");
         break;
     default:
         break;
     }
 
-    if (!x58_24_)
+    if (!x58_24_animDone)
         return false;
 
-    x50_gunState = EGunState::Zero;
-    x58_25_ = false;
+    x50_gunState = EGunState::Inactive;
+    x58_25_enteredComboFire = false;
 
     return true;
 }
 
-void CGunController::ReturnToDefault(CStateManager &, float)
+void CGunController::ReturnToDefault(CStateManager& mgr, float dt, bool setState)
 {
+    CAnimData& animData = *x0_modelData.AnimationData();
 
+    switch (x50_gunState)
+    {
+    case EGunState::Strike:
+        x50_gunState = EGunState::FreeLook;
+    case EGunState::Idle:
+        x4_freeLook.SetIdle(false);
+    case EGunState::FreeLook:
+        if (setState)
+            break;
+        x54_curAnimId = x4_freeLook.SetAnim(animData, x4_freeLook.GetGunId(), x4_freeLook.GetSetId(), 2, mgr, dt);
+        x58_25_enteredComboFire = false;
+        break;
+    case EGunState::ComboFire:
+        x54_curAnimId = x1c_comboFire.SetAnim(animData, x1c_comboFire.GetGunId(), 2, mgr, dt);
+        break;
+    case EGunState::Fidget:
+        ReturnToBasePosition(mgr, dt);
+        break;
+    case EGunState::BigStrike:
+        x4_freeLook.SetIdle(false);
+        break;
+    default:
+        break;
+    }
+
+    if (setState)
+        x50_gunState = EGunState::Default;
 }
 
 void CGunController::ReturnToBasePosition(CStateManager& mgr, float)
 {
     const CPASDatabase& pasDatabase = x0_modelData.AnimationData()->GetCharacterInfo().GetPASDatabase();
     std::pair<float, s32> anim =
-        pasDatabase.FindBestAnimation(CPASAnimParmData::NoParameters(6), *mgr.GetActiveRandom(), -1);
+        pasDatabase.FindBestAnimation(CPASAnimParmData(6), *mgr.GetActiveRandom(), -1);
+    x0_modelData.AnimationData()->EnableLooping(false);
+    CAnimPlaybackParms parms(anim.second, -1, 1.f, true);
+    x0_modelData.AnimationData()->SetAnimation(parms, false);
+    x54_curAnimId = anim.second;
+    x58_25_enteredComboFire = false;
 }
 
 void CGunController::Reset()
 {
-    x58_24_ = true;
-    x58_25_ = false;
-    x50_gunState = EGunState::Zero;
+    x58_24_animDone = true;
+    x58_25_enteredComboFire = false;
+    x50_gunState = EGunState::Inactive;
 }
 }

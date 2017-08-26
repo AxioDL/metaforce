@@ -20,6 +20,8 @@ public:
     CPlasmaBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
                 EMaterialTypes playerMaterial, const zeus::CVector3f& scale);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    bool IsFiring() const { return x234_ > 0.f; }
+    void StopBeam(CStateManager& mgr, bool b1) {}
 };
 
 }

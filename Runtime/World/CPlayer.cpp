@@ -1309,7 +1309,7 @@ void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) co
     if (mgr.GetCameraManager()->IsInCinematicCamera())
         return;
 
-    if (x490_gun->GetGrappleArm().InGrappleCycle() &&
+    if (x490_gun->GetGrappleArm().GetActive() &&
         x490_gun->GetGrappleArm().GetAnimState() != CGrappleArm::EArmState::Ten)
         x490_gun->GetGrappleArm().RenderGrappleBeam(mgr, pos);
 

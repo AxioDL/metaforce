@@ -1,5 +1,5 @@
 set(WEAPON_SOURCES
-    WeaponCommon.hpp
+    WeaponCommon.hpp WeaponCommon.cpp
     CWeaponMgr.hpp CWeaponMgr.cpp
     CGunController.hpp CGunController.cpp
     CGunMotion.hpp CGunMotion.cpp

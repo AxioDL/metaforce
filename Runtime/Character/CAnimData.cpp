@@ -543,7 +543,7 @@ bool CAnimData::IsAnimTimeRemaining(float rem, const std::string& name) const
 {
     if (!x1f8_animRoot)
         return false;
-    return x1f8_animRoot->VGetTimeRemaining().GetSeconds() <= rem;
+    return x1f8_animRoot->VGetTimeRemaining().GetSeconds() >= rem;
 }
 
 float CAnimData::GetAnimTimeRemaining(const std::string& name) const

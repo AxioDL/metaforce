@@ -110,7 +110,7 @@ public:
 
     SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
     void Render(const CStateManager& stateMgr, const zeus::CTransform& xf,
-                const CActorLights* lights, const CModelFlags& drawFlags);
+                const CActorLights* lights, const CModelFlags& drawFlags) const;
     static EWhichModel GetRenderingModel(const CStateManager& stateMgr);
     CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
     const std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which) const;
@@ -134,11 +134,11 @@ public:
     void RenderParticles(const zeus::CFrustum& frustum) const;
     void Touch(EWhichModel, int shaderIdx) const;
     void Touch(const CStateManager& stateMgr, int shaderIdx) const;
-    void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b);
+    void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b) const;
     void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf,
-                             const CActorLights* lights, const CModelFlags& drawFlags);
+                             const CActorLights* lights, const CModelFlags& drawFlags) const;
     void Render(EWhichModel, const zeus::CTransform& xf,
-                const CActorLights* lights, const CModelFlags& drawFlags);
+                const CActorLights* lights, const CModelFlags& drawFlags) const;
 
     void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                            const zeus::CColor& color0, const zeus::CColor& color1);

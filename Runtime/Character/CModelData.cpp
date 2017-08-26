@@ -49,7 +49,7 @@ SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a,
 }
 
 void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform& xf,
-                        const CActorLights* lights, const CModelFlags& drawFlags)
+                        const CActorLights* lights, const CModelFlags& drawFlags) const
 {
     Render(GetRenderingModel(stateMgr), xf, lights, drawFlags);
 }
@@ -293,7 +293,7 @@ void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) const
 }
 
 void CModelData::RenderThermal(const zeus::CTransform& xf,
-                               const zeus::CColor& a, const zeus::CColor& b)
+                               const zeus::CColor& a, const zeus::CColor& b) const
 {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
     CGraphics::DisableAllLights();
@@ -314,7 +314,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
 }
 
 void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& xf,
-                                     const CActorLights* lights, const CModelFlags& drawFlags)
+                                     const CActorLights* lights, const CModelFlags& drawFlags) const
 {
     if ((x14_25_sortThermal && which == EWhichModel::Thermal) ||
         x10_animData || !x1c_normalModel || drawFlags.x0_blendMode > 2)
@@ -338,7 +338,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
 }
 
 void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
-                        const CActorLights* lights, const CModelFlags& drawFlags)
+                        const CActorLights* lights, const CModelFlags& drawFlags) const
 {
     if (x14_25_sortThermal && which == EWhichModel::Thermal)
     {

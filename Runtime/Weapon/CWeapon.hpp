@@ -21,7 +21,7 @@ public:
         Unknown1 = (1 << 7),
         Bombs = (1 << 8),
         PowerBombs = (1 << 9),
-        Twelve = (1 << 12),
+        BigStrike = (1 << 12),
         StaticInterference = (1 << 14),
     };
 

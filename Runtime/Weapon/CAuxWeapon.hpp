@@ -9,11 +9,15 @@ namespace urde
 
 class CAuxWeapon
 {
+    bool x80_24_isLoaded : 1;
 public:
     explicit CAuxWeapon(TUniqueId id);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     bool IsComboFxActive(const CStateManager& mgr) const;
     void Load(int curBeam, CStateManager& mgr);
+    void StopComboFx(CStateManager& mgr, bool b1);
+    void LoadIdle();
+    bool IsLoaded() const { return x80_24_isLoaded; }
 };
 
 }

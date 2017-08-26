@@ -10,14 +10,14 @@ namespace urde
 {
 enum class EGunState
 {
-    Zero,
-    One,
+    Inactive,
+    Default,
     FreeLook,
     ComboFire,
-    Four,
+    Idle,
     Fidget,
-    Six,
-    Seven
+    Strike,
+    BigStrike
 };
 
 class CGunController
@@ -26,37 +26,31 @@ class CGunController
     CGSFreeLook x4_freeLook;
     CGSComboFire x1c_comboFire;
     CGSFidget x30_fidget;
-    EGunState x50_gunState = EGunState::Zero;
-    u32 x54_ = -1;
-
-    union {
-        struct
-        {
-            bool x58_24_ : 1;
-            bool x58_25_ : 1;
-        };
-        u8 _dummy = 0;
-    };
+    EGunState x50_gunState = EGunState::Inactive;
+    s32 x54_curAnimId = -1;
+    bool x58_24_animDone : 1;
+    bool x58_25_enteredComboFire : 1;
 
 public:
     CGunController(CModelData& modelData)
     : x0_modelData(modelData)
     {
-        x58_24_ = true;
+        x58_24_animDone = true;
+        x58_25_enteredComboFire = false;
     }
 
-    void UnLoadFidget();
-    void LoadFidgetAnimAsync(CStateManager&, s32, s32, s32);
-    void GetFreeLookSetId() const;
-    bool IsFidgetLoaded() const;
-    bool IsComboOver() const;
-    void EnterFreeLook(CStateManager&, s32, s32);
-    void EnterComboFire(CStateManager&, s32);
-    void EnterFidget(CStateManager&, s32, s32, s32);
-    void EnterStruck(CStateManager&, float);
-    void EnterIdle(CStateManager&);
-    bool Update(float, CStateManager&);
-    void ReturnToDefault(CStateManager&, float);
+    void UnLoadFidget() { x30_fidget.UnLoadAnim(); }
+    void LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 parm1, s32 parm2);
+    void EnterFidget(CStateManager& mgr, s32 type, s32 parm1, s32 parm2);
+    bool IsFidgetLoaded() const { return x30_fidget.IsAnimLoaded(); }
+    s32 GetFreeLookSetId() const { return x4_freeLook.GetSetId(); }
+    bool IsComboOver() const { return x1c_comboFire.IsComboOver(); }
+    void EnterFreeLook(CStateManager& mgr, s32 gunId, s32 setId);
+    void EnterComboFire(CStateManager& mgr, s32 gunId);
+    void EnterStruck(CStateManager& mgr, float angle, bool bigStrike, bool b2);
+    void EnterIdle(CStateManager& mgr);
+    bool Update(float dt, CStateManager& mgr);
+    void ReturnToDefault(CStateManager& mgr, float dt, bool setState);
     void ReturnToBasePosition(CStateManager&, float);
     void Reset();
 };

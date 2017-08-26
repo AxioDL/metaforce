@@ -66,7 +66,7 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) const
         CActorLights* lights = x6c_ == 1 ? nullptr : x4c_lights.get();
         if (x6c_ == 3)
         {
-            const_cast<CModelData&>(x0_modelData).Render(mgr, modelXf, lights, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+            x0_modelData.Render(mgr, modelXf, lights, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
         }
         else
         {
@@ -77,8 +77,8 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) const
                 transFactor = 0.f;
             if (transFactor > 0.f)
             {
-                const_cast<CModelData&>(x0_modelData).Render(mgr, modelXf, nullptr, CModelFlags(7, 0, 3, zeus::CColor::skBlack));
-                const_cast<CModelData&>(x0_modelData).Render(mgr, modelXf, lights, CModelFlags(7, 0, 1, zeus::CColor(1.f, transFactor)));
+                x0_modelData.Render(mgr, modelXf, nullptr, CModelFlags(7, 0, 3, zeus::CColor::skBlack));
+                x0_modelData.Render(mgr, modelXf, lights, CModelFlags(7, 0, 1, zeus::CColor(1.f, transFactor)));
             }
         }
     }

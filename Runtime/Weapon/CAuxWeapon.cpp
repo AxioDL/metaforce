@@ -23,4 +23,14 @@ void CAuxWeapon::Load(int curBeam, CStateManager& mgr)
 
 }
 
+void CAuxWeapon::StopComboFx(CStateManager& mgr, bool b1)
+{
+
+}
+
+void CAuxWeapon::LoadIdle()
+{
+
+}
+
 }

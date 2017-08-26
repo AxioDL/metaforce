@@ -41,6 +41,11 @@ void CGrappleArm::TouchModel(const CStateManager& mgr) const
 
 }
 
+void CGrappleArm::Update(float grappleSwingT, float dt, CStateManager& mgr)
+{
+
+}
+
 void CGrappleArm::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
 {
 
@@ -52,6 +57,11 @@ void CGrappleArm::EnterStruck(CStateManager& mgr, float angle, bool attack, bool
 }
 
 void CGrappleArm::EnterIdle(CStateManager& mgr)
+{
+
+}
+
+void CGrappleArm::ReturnToDefault(CStateManager& mgr, float f1, bool b1)
 {
 
 }
