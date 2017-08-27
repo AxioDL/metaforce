@@ -35,7 +35,8 @@ public:
     };
     enum class EBWeapon
     {
-
+        Zero,
+        One
     };
     enum class EGunOverrideMode
     {
@@ -113,11 +114,12 @@ private:
     CSfxHandle x2e0_chargeSfx;
     CSfxHandle x2e4_invalidSfx;
     u32 x2e8_ = 0;
-    u32 x2ec_firing = 0;
-    u32 x2f0_ = 0;
-    u32 x2f4_ = 0;
+    // 0x1: FireOrBomb, 0x2: MissileOrPowerBomb
+    u32 x2ec_lastFireButtonStates = 0;
+    u32 x2f0_pressedFireButtonStates = 0;
+    u32 x2f4_fireButtonStates = 0;
     u32 x2f8_ = 1;
-    u32 x2fc_ = 0;
+    u32 x2fc_fidgetAnimBits = 0;
     u32 x300_ = 0;
     u32 x304_ = 0;
     u32 x308_bombCount = 3;
@@ -130,7 +132,7 @@ private:
     u32 x324_ = 4;
     u32 x328_ = 0x2000;
     u32 x32c_ = 0;
-    u32 x330_chargeWeaponIdx = 0;
+    EChargeState x330_chargeState = EChargeState::Normal;
     u32 x334_ = 0;
     u32 x338_ = 0;
     EGunOverrideMode x33c_gunOverrideMode = EGunOverrideMode::Normal;
@@ -169,7 +171,7 @@ private:
     zeus::CTransform x4d8_gunLocalXf;
     zeus::CTransform x508_elbowLocalXf;
     TUniqueId x538_playerId;
-    TUniqueId x53a_ = kInvalidUniqueId;
+    TUniqueId x53a_powerBomb = kInvalidUniqueId;
     TUniqueId x53c_lightId = kInvalidUniqueId;
     std::vector<CToken> x540_handAnimTokens;
     CPlayerCameraBob x550_camBob;
@@ -281,7 +283,19 @@ private:
     void DoUserAnimEvents(float dt, CStateManager& mgr);
     TUniqueId GetTargetId(CStateManager& mgr) const;
     void CancelLockOn();
+    void FireSecondary(float dt, CStateManager& mgr);
+    void ResetCharged(float dt, CStateManager& mgr);
+    void ActivateCombo(CStateManager& mgr);
+    void ProcessChargeState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt);
+    void ResetNormal(CStateManager& mgr);
+    void UpdateNormalShotCycle(float dt, CStateManager& mgr);
+    void ProcessNormalState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt);
     void UpdateWeaponFire(float dt, const CPlayerState& playerState, CStateManager& mgr);
+    void EnterFreeLook(CStateManager& mgr);
+    void SetFidgetAnimBits(int parm2, bool beamOnly);
+    void AsyncLoadFidget(CStateManager& mgr);
+    bool IsFidgetLoaded() const;
+    void EnterFidget(CStateManager& mgr);
     void UpdateGunIdle(bool b1, float camBobT, float dt, CStateManager& mgr);
 
 public:
@@ -318,7 +332,8 @@ public:
     void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
     void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
     void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
-    bool GetFiring() const { return x2ec_firing != 0; }
+    u32 GetLastFireButtonStates() const { return x2ec_lastFireButtonStates; }
+    void DropBomb(EBWeapon weapon, CStateManager& mgr);
     TUniqueId DropPowerBomb(CStateManager& mgr);
     void SetActorAttached(bool b) { x835_31_actorAttached = b; }
 };

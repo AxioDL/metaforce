@@ -1,5 +1,24 @@
 #ifndef __URDE_GAMEGLOBALOBJECTS_HPP__
 #define __URDE_GAMEGLOBALOBJECTS_HPP__
+
+#define USE_DOWNCAST_TWEAKS 1
+
+#if USE_DOWNCAST_TWEAKS
+#include "../DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayerGun.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakGunRes.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayerRes.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakGui.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakSlideShow.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakGui.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakTargeting.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakAutoMapper.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakParticle.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakBall.hpp"
+#include "../DataSpec/DNAMP1/Tweaks/CTweakGuiColors.hpp"
+#else
 #include "../DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
@@ -14,6 +33,7 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakParticle.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakBall.hpp"
 #include "../DataSpec/DNACommon/Tweaks/ITweakGuiColors.hpp"
+#endif
 
 namespace urde
 {
@@ -33,6 +53,21 @@ extern class CBooRenderer* g_Renderer;
 extern class CStringTable* g_MainStringTable;
 extern class CInputGenerator* g_InputGenerator;
 
+#if USE_DOWNCAST_TWEAKS
+using ITweakGame = DataSpec::DNAMP1::CTweakGame;
+using ITweakPlayer = DataSpec::DNAMP1::CTweakPlayer;
+using ITweakPlayerRes = DataSpec::DNAMP1::CTweakPlayerRes;
+using ITweakPlayerControl = DataSpec::DNAMP1::CTweakPlayerControl;
+using ITweakPlayerGun = DataSpec::DNAMP1::CTweakPlayerGun;
+using ITweakGunRes = DataSpec::DNAMP1::CTweakGunRes;
+using ITweakTargeting = DataSpec::DNAMP1::CTweakTargeting;
+using ITweakAutoMapper = DataSpec::DNAMP1::CTweakAutoMapper;
+using ITweakGui = DataSpec::DNAMP1::CTweakGui;
+using ITweakSlideShow = DataSpec::DNAMP1::CTweakSlideShow;
+using ITweakParticle = DataSpec::DNAMP1::CTweakParticle;
+using ITweakBall = DataSpec::DNAMP1::CTweakBall;
+using ITweakGuiColors = DataSpec::DNAMP1::CTweakGuiColors;
+#else
 using ITweakGame = DataSpec::ITweakGame;
 using ITweakPlayer = DataSpec::ITweakPlayer;
 using ITweakPlayerRes = DataSpec::ITweakPlayerRes;
@@ -46,6 +81,7 @@ using ITweakSlideShow = DataSpec::ITweakSlideShow;
 using ITweakParticle = DataSpec::ITweakParticle;
 using ITweakBall = DataSpec::ITweakBall;
 using ITweakGuiColors = DataSpec::ITweakGuiColors;
+#endif
 
 extern ITweakGame*   g_tweakGame;
 extern ITweakPlayer* g_tweakPlayer;

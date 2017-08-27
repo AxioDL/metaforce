@@ -10,7 +10,7 @@ CGunMotion::CGunMotion(CAssetId ancsId, const zeus::CVector3f& scale)
 : x0_modelData(CAnimRes(ancsId, 0, scale, 0, false), 1),
   x4c_gunController(x0_modelData)
 {
-    xb8_24_inFidget = false;
+    xb8_24_animPlaying = false;
     LoadAnimations();
 }
 
@@ -84,7 +84,7 @@ void CGunMotion::BasePosition(bool bigStrikeReset)
 
 void CGunMotion::EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
 {
-    xb8_24_inFidget = true;
+    xb8_24_animPlaying = true;
     x4c_gunController.EnterFidget(mgr, s32(type), 0, parm2);
 }
 
@@ -92,7 +92,7 @@ void CGunMotion::Update(float dt, CStateManager& mgr)
 {
     x0_modelData.AdvanceAnimation(dt, mgr, kInvalidAreaId, true);
     if (x4c_gunController.Update(dt, mgr))
-        xb8_24_inFidget = false;
+        xb8_24_animPlaying = false;
 }
 
 void CGunMotion::Draw(const CStateManager& mgr, const zeus::CTransform& xf) const

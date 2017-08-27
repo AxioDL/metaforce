@@ -12,6 +12,7 @@
 #include "CStateManager.hpp"
 #include "CGunController.hpp"
 #include "WeaponCommon.hpp"
+#include "CGunMotion.hpp"
 
 namespace urde
 {
@@ -20,16 +21,23 @@ class CActorLights;
 struct CModelFlags;
 class CWeaponDescription;
 
+enum class EChargeState
+{
+    Normal,
+    Charged
+};
+
 using SWeaponInfo = DataSpec::SWeaponInfo;
 
 class CVelocityInfo
 {
     friend class CGunWeapon;
     rstl::reserved_vector<zeus::CVector3f, 2> x0_vel;
-    rstl::reserved_vector<bool, 2> x1c_;
+    rstl::reserved_vector<bool, 2> x1c_targetHoming;
     rstl::reserved_vector<float, 2> x24_;
 public:
     const zeus::CVector3f& GetVelocity(int i) const { return x0_vel[i]; }
+    bool GetTargetHoming(int i) const { return x1c_targetHoming[i]; }
 };
 
 class CGunWeapon
@@ -95,7 +103,8 @@ public:
     virtual void PreRenderGunFx(const CStateManager&, const zeus::CTransform&) {}
     virtual void PostRenderGunFx(const CStateManager&, const zeus::CTransform&) {}
     virtual void UpdateGunFx(bool, float, const CStateManager&, const zeus::CTransform&) {}
-    virtual void Fire(bool, float, CPlayerState::EChargeState, const zeus::CTransform&, CStateManager&, TUniqueId) {}
+    virtual void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+                      CStateManager& mgr, TUniqueId homingTarget) {}
     virtual void EnableFx(bool) {}
     virtual void EnableSecondaryFx(ESecondaryFxType) {}
     void BuildSecondaryEffect(ESecondaryFxType type);
@@ -115,6 +124,11 @@ public:
     CElementGen* GetChargeMuzzleFx() const { return x1a4_muzzleGenerators[1].get(); }
     void ReturnToDefault(CStateManager& mgr) {}
     void UnLoadFidget() {}
+    bool IsFidgetLoaded() const { return x100_gunController->IsFidgetLoaded(); }
+    void AsyncLoadFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
+    { x100_gunController->LoadFidgetAnimAsync(mgr, s32(type), s32(x200_beamId), parm2); }
+    void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
+    { x100_gunController->EnterFidget(mgr, s32(type), s32(x200_beamId), parm2); }
     CModelData& GetSolidModelData() { return *x10_solidModelData; }
     const SWeaponInfo& GetWeaponInfo() const;
     zeus::CAABox GetBounds() const;

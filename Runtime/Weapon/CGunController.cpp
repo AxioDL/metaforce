@@ -6,14 +6,14 @@
 namespace urde
 {
 
-void CGunController::LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 parm1, s32 parm2)
+void CGunController::LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 gunId, s32 parm2)
 {
-    x30_fidget.LoadAnimAsync(*x0_modelData.AnimationData(), type, parm1, parm2, mgr);
+    x30_fidget.LoadAnimAsync(*x0_modelData.AnimationData(), type, gunId, parm2, mgr);
 }
 
-void CGunController::EnterFidget(CStateManager& mgr, s32 type, s32 parm1, s32 parm2)
+void CGunController::EnterFidget(CStateManager& mgr, s32 type, s32 gunId, s32 parm2)
 {
-    x54_curAnimId = x30_fidget.SetAnim(*x0_modelData.AnimationData(), type, parm1, parm2, mgr);
+    x54_curAnimId = x30_fidget.SetAnim(*x0_modelData.AnimationData(), type, gunId, parm2, mgr);
     x50_gunState = EGunState::Fidget;
 }
 

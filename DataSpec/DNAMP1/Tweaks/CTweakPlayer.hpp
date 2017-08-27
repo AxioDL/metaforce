@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakPlayer : ITweakPlayer
+struct CTweakPlayer final : ITweakPlayer
 {
     Delete _d;
     Value<float> x4_maxTranslationalAcceleration[8];

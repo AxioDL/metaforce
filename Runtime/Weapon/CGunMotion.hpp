@@ -23,7 +23,9 @@ enum class EAnimationState
 };
 enum class EFidgetType
 {
-    Zero
+    Invalid = -1,
+    Zero,
+    One
 };
 }
 
@@ -32,7 +34,7 @@ class CGunMotion
     CModelData x0_modelData;
     CGunController x4c_gunController;
     std::vector<CToken> xa8_anims;
-    bool xb8_24_inFidget : 1;
+    bool xb8_24_animPlaying : 1;
 
     void LoadAnimations();
 
@@ -47,6 +49,7 @@ public:
     void Draw(const CStateManager& mgr, const zeus::CTransform& xf) const;
     s32 GetFreeLookSetId() const { return x4c_gunController.GetFreeLookSetId(); }
     CGunController& GunController() { return x4c_gunController; }
+    bool IsAnimPlaying() const { return xb8_24_animPlaying; }
 };
 
 }

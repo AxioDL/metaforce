@@ -532,6 +532,8 @@ public:
     void HolsterGun(CStateManager& mgr);
     EPlayerCameraState GetCameraState() const { return x2f4_cameraState; }
     EPlayerMorphBallState GetMorphballTransitionState() const { return x2f8_morphBallState; }
+    EGunHolsterState GetGunHolsterState() const { return x498_gunHolsterState; }
+    EPlayerMovementState GetPlayerMovementState() const { return x258_movementState; }
     bool IsMorphBallTransitioning() const;
     void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
     float GetGravity() const;
@@ -643,7 +645,7 @@ public:
     float GetMorphTime() const { return x574_morphTime; }
     float GetMorphDuration() const { return x578_morphDuration; }
     bool IsInFreeLook() const { return x3dc_inFreeLook; }
-    bool IsLookControlHeld() const { return x3de_lookAnalogHeld; }
+    bool GetFreeLookStickState() const { return x3de_lookAnalogHeld; }
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
     CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }

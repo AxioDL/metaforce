@@ -8,7 +8,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-struct CTweakBall : public ITweakBall
+struct CTweakBall final : public ITweakBall
 {
     DECL_YAML
     Delete __d;

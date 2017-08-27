@@ -17,6 +17,7 @@ namespace urde
 
 enum class EListenNoiseType
 {
+    Zero
 };
 
 enum class EKnockBackType

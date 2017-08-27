@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakPlayerRes : ITweakPlayerRes
+struct CTweakPlayerRes final : ITweakPlayerRes
 {
     DECL_YAML
 
@@ -72,32 +72,32 @@ struct CTweakPlayerRes : ITweakPlayerRes
 
     Value<float> m_unkFloat;
 
-    const std::string& GetSaveStationIcon() const { return m_saveStationIcon; }
-    const std::string& GetMissileStationIcon() const { return m_missileStationIcon; }
-    const std::string& GetElevatorIcon() const { return m_elevatorIcon; }
+    const std::string& _GetSaveStationIcon() const { return m_saveStationIcon; }
+    const std::string& _GetMissileStationIcon() const { return m_missileStationIcon; }
+    const std::string& _GetElevatorIcon() const { return m_elevatorIcon; }
 
-    const std::string& GetMinesBreakFirstTopIcon() const { return m_minesBreakFirstTopIcon; }
-    const std::string& GetMinesBreakFirstBottomIcon() const { return m_minesBreakFirstBottomIcon; }
-    const std::string& GetMinesBreakSecondTopIcon() const { return m_minesBreakSecondTopIcon; }
-    const std::string& GetMinesBreakSecondBottomIcon() const { return m_minesBreakSecondBottomIcon; }
+    const std::string& _GetMinesBreakFirstTopIcon() const { return m_minesBreakFirstTopIcon; }
+    const std::string& _GetMinesBreakFirstBottomIcon() const { return m_minesBreakFirstBottomIcon; }
+    const std::string& _GetMinesBreakSecondTopIcon() const { return m_minesBreakSecondTopIcon; }
+    const std::string& _GetMinesBreakSecondBottomIcon() const { return m_minesBreakSecondBottomIcon; }
 
-    const std::string& GetLStick(size_t idx) const { return (&m_lStickN)[idx]; }
-    const std::string& GetCStick(size_t idx) const { return (&m_cStickN)[idx]; }
+    const std::string& _GetLStick(size_t idx) const { return (&m_lStickN)[idx]; }
+    const std::string& _GetCStick(size_t idx) const { return (&m_cStickN)[idx]; }
 
-    const std::string& GetLTrigger(size_t idx) const { return (&m_lTriggerOut)[idx]; }
-    const std::string& GetRTrigger(size_t idx) const { return (&m_rTriggerOut)[idx]; }
-    const std::string& GetStartButton(size_t idx) const { return (&m_startButtonOut)[idx]; }
-    const std::string& GetAButton(size_t idx) const { return (&m_aButtonOut)[idx]; }
-    const std::string& GetBButton(size_t idx) const { return (&m_bButtonOut)[idx]; }
-    const std::string& GetXButton(size_t idx) const { return (&m_xButtonOut)[idx]; }
-    const std::string& GetYButton(size_t idx) const { return (&m_yButtonOut)[idx]; }
+    const std::string& _GetLTrigger(size_t idx) const { return (&m_lTriggerOut)[idx]; }
+    const std::string& _GetRTrigger(size_t idx) const { return (&m_rTriggerOut)[idx]; }
+    const std::string& _GetStartButton(size_t idx) const { return (&m_startButtonOut)[idx]; }
+    const std::string& _GetAButton(size_t idx) const { return (&m_aButtonOut)[idx]; }
+    const std::string& _GetBButton(size_t idx) const { return (&m_bButtonOut)[idx]; }
+    const std::string& _GetXButton(size_t idx) const { return (&m_xButtonOut)[idx]; }
+    const std::string& _GetYButton(size_t idx) const { return (&m_yButtonOut)[idx]; }
 
-    const std::string& GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
+    const std::string& _GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
 
-    const std::string& GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
-    const std::string& GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
+    const std::string& _GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
+    const std::string& _GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
 
-    float GetUnkFloat() const { return m_unkFloat; }
+    float _GetUnkFloat() const { return m_unkFloat; }
 
     CTweakPlayerRes() = default;
     CTweakPlayerRes(athena::io::IStreamReader& in) { read(in); }

@@ -394,8 +394,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     x8_textData.reset();
     x20_random.SetSeed(99);
 
-    CAssetId beamModelId = g_tweakPlayerRes->GetBeamCineModel(
-        DataSpec::ITweakPlayerRes::EBeamId(g_GameState->GetPlayerState()->GetCurrentBeam()));
+    CAssetId beamModelId = g_tweakPlayerRes->GetBeamCineModel(g_GameState->GetPlayerState()->GetCurrentBeam());
 
     x4_modelData->x14c_beamModel = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), beamModelId});
 

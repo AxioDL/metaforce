@@ -7,7 +7,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-struct CTweakGui : ITweakGui
+struct CTweakGui final : ITweakGui
 {
     DECL_YAML
     Value<bool> x4_;

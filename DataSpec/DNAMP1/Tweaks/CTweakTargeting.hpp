@@ -7,7 +7,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-struct CTweakTargeting : public ITweakTargeting
+struct CTweakTargeting final : public ITweakTargeting
 {
     DECL_YAML
     Value<atUint32> x4_;

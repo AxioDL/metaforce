@@ -7,7 +7,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-struct CTweakGuiColors : public ITweakGuiColors
+struct CTweakGuiColors final : public ITweakGuiColors
 {
     DECL_YAML
     DNAColor x4_pauseBlurFilterColor;

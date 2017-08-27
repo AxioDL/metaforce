@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakPlayerGun : ITweakPlayerGun
+struct CTweakPlayerGun final : ITweakPlayerGun
 {
     DECL_YAML
     Value<float> x4_upLookAngle;

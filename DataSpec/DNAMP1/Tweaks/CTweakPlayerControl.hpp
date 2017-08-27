@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakPlayerControl : ITweakPlayerControl
+struct CTweakPlayerControl final : ITweakPlayerControl
 {
     DECL_YAML
     Vector<atUint32, DNA_COUNT(67)> m_mappings;

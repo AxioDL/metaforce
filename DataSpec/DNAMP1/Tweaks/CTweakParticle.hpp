@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakParticle : ITweakParticle
+struct CTweakParticle final : ITweakParticle
 {
     DECL_YAML
     String<-1> m_particle;

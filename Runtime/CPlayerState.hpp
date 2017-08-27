@@ -95,10 +95,6 @@ public:
         Phazon = 27
     };
 
-    enum class EChargeState : u32
-    {
-    };
-
 private:
 
     static const u32 PowerUpMaxValues[41];

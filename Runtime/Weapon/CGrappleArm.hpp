@@ -6,6 +6,7 @@
 #include "Character/CModelData.hpp"
 #include "CStateManager.hpp"
 #include "CGunController.hpp"
+#include "CGunMotion.hpp"
 
 namespace urde
 {
@@ -66,6 +67,8 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void EnterStruck(CStateManager& mgr, float angle, bool attack, bool b2);
     void EnterIdle(CStateManager& mgr);
+    void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 gunId, s32 parm2);
+    void EnterFreeLook(s32 gunId, s32 setId, CStateManager& mgr);
     void ReturnToDefault(CStateManager& mgr, float f1, bool b1);
     CGunController* GunController() { return x328_gunController.get(); }
 };

@@ -431,7 +431,7 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr)
     TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     CPlayer& player = mgr.GetPlayer();
     bool inFreeLook = player.IsInFreeLook() && fpCam;
-    bool lookControlHeld = player.IsLookControlHeld();
+    bool lookControlHeld = player.GetFreeLookStickState();
     if (x2e0_24_inFreeLook != inFreeLook)
     {
         if (inFreeLook)
@@ -1527,7 +1527,7 @@ void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) const
     }
     else
     {
-        float halfModPeriod = 0.5 * modPeriod;
+        float halfModPeriod = 0.5f * modPeriod;
         float tmp = std::fabs(std::fmod(drainTime, modPeriod));
         if (tmp < halfModPeriod)
             alpha = tmp / halfModPeriod;

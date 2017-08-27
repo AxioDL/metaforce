@@ -61,6 +61,16 @@ void CGrappleArm::EnterIdle(CStateManager& mgr)
 
 }
 
+void CGrappleArm::EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 gunId, s32 parm2)
+{
+
+}
+
+void CGrappleArm::EnterFreeLook(s32 gunId, s32 setId, CStateManager& mgr)
+{
+
+}
+
 void CGrappleArm::ReturnToDefault(CStateManager& mgr, float f1, bool b1)
 {
 

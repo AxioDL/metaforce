@@ -8,7 +8,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakGame : ITweakGame
+struct CTweakGame final : ITweakGame
 {
     DECL_YAML
     String<-1> x4_worldPrefix;

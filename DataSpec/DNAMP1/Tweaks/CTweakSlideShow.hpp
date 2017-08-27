@@ -9,7 +9,7 @@ namespace DataSpec
 namespace DNAMP1
 {
 
-struct CTweakSlideShow : ITweakSlideShow
+struct CTweakSlideShow final : ITweakSlideShow
 {
     DECL_YAML
 

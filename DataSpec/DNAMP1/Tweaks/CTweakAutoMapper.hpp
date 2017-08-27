@@ -8,7 +8,7 @@ namespace DataSpec
 {
 namespace DNAMP1
 {
-struct CTweakAutoMapper : public ITweakAutoMapper
+struct CTweakAutoMapper final : public ITweakAutoMapper
 {
     DECL_YAML
     Value<bool> x4_24_showOneMiniMapArea : 1;

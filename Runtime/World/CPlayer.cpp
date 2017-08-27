@@ -666,7 +666,7 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr)
     }
     else if (bobMag < 0.01f)
     {
-        if (x490_gun->GetFiring())
+        if (x490_gun->GetLastFireButtonStates() != 0)
         {
             bobMag = 0.f;
             state = CPlayerCameraBob::ECameraBobState::GunFireNoBob;
