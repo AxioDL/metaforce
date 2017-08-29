@@ -1,82 +1,82 @@
 #include "ScriptLoader.hpp"
-#include "CStateManager.hpp"
-#include "CGrappleParameters.hpp"
 #include "CActorParameters.hpp"
-#include "CVisorParameters.hpp"
-#include "CScannableParameters.hpp"
-#include "CLightParameters.hpp"
 #include "CAnimationParameters.hpp"
-#include "CFluidUVMotion.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CWorld.hpp"
-#include "Particle/CWeaponDescription.hpp"
 #include "CDamageInfo.hpp"
+#include "CFluidUVMotion.hpp"
+#include "CGrappleParameters.hpp"
+#include "CLightParameters.hpp"
+#include "CPatternedInfo.hpp"
+#include "CRepulsor.hpp"
+#include "CScannableParameters.hpp"
 #include "CScriptActor.hpp"
-#include "CScriptWaypoint.hpp"
-#include "CScriptDoor.hpp"
-#include "CScriptTrigger.hpp"
-#include "CScriptTimer.hpp"
-#include "CScriptCounter.hpp"
-#include "CScriptDock.hpp"
 #include "CScriptActorKeyframe.hpp"
-#include "CScriptWater.hpp"
-#include "CScriptEffect.hpp"
-#include "CScriptPlatform.hpp"
-#include "CScriptSound.hpp"
-#include "CScriptGenerator.hpp"
-#include "CScriptGrapplePoint.hpp"
-#include "CScriptPickupGenerator.hpp"
-#include "CScriptPointOfInterest.hpp"
-#include "CScriptPlayerActor.hpp"
+#include "CScriptActorRotate.hpp"
+#include "CScriptAiJumpPoint.hpp"
 #include "CScriptAreaAttributes.hpp"
-#include "CScriptCameraWaypoint.hpp"
-#include "CScriptCoverPoint.hpp"
-#include "CScriptSpawnPoint.hpp"
-#include "CScriptCameraHint.hpp"
-#include "CScriptPickup.hpp"
-#include "CScriptMemoryRelay.hpp"
-#include "CScriptRandomRelay.hpp"
-#include "CScriptRelay.hpp"
-#include "CScriptHUDMemo.hpp"
-#include "CScriptCameraFilterKeyframe.hpp"
+#include "CScriptBeam.hpp"
 #include "CScriptCameraBlurKeyframe.hpp"
+#include "CScriptCameraFilterKeyframe.hpp"
+#include "CScriptCameraHint.hpp"
+#include "CScriptCameraHintTrigger.hpp"
+#include "CScriptCameraPitchVolume.hpp"
+#include "CScriptCameraShaker.hpp"
+#include "CScriptCameraWaypoint.hpp"
+#include "CScriptColorModulate.hpp"
+#include "CScriptControllerAction.hpp"
+#include "CScriptCounter.hpp"
+#include "CScriptCoverPoint.hpp"
 #include "CScriptDamageableTrigger.hpp"
 #include "CScriptDebris.hpp"
-#include "CScriptSteam.hpp"
 #include "CScriptDistanceFog.hpp"
+#include "CScriptDock.hpp"
 #include "CScriptDockAreaChange.hpp"
-#include "CScriptActorRotate.hpp"
-#include "CScriptSpecialFunction.hpp"
-#include "CScriptSwitch.hpp"
-#include "CScriptPlayerStateChange.hpp"
-#include "CWallCrawlerSwarm.hpp"
-#include "CScriptAiJumpPoint.hpp"
-#include "CScriptColorModulate.hpp"
-#include "CScriptCameraShaker.hpp"
-#include "CRepulsor.hpp"
-#include "CScriptCameraPitchVolume.hpp"
-#include "CScriptCameraHintTrigger.hpp"
-#include "CScriptVisorFlare.hpp"
-#include "CScriptWorldTeleporter.hpp"
-#include "CScriptBeam.hpp"
+#include "CScriptDoor.hpp"
+#include "CScriptEffect.hpp"
+#include "CScriptGenerator.hpp"
+#include "CScriptGrapplePoint.hpp"
+#include "CScriptHUDMemo.hpp"
 #include "CScriptMazeNode.hpp"
-#include "Camera/CCinematicCamera.hpp"
-#include "MP1/World/CNewIntroBoss.hpp"
-#include "MP1/World/CBeetle.hpp"
-#include "MP1/World/CWarWasp.hpp"
-#include "MP1/World/CSpacePirate.hpp"
-#include "MP1/World/CActorContraption.hpp"
-#include "CScriptShadowProjector.hpp"
-#include "CScriptStreamedMusic.hpp"
+#include "CScriptMemoryRelay.hpp"
 #include "CScriptMidi.hpp"
-#include "CScriptRoomAcoustics.hpp"
-#include "CScriptControllerAction.hpp"
+#include "CScriptPickup.hpp"
+#include "CScriptPickupGenerator.hpp"
+#include "CScriptPlatform.hpp"
+#include "CScriptPlayerActor.hpp"
 #include "CScriptPlayerHint.hpp"
-#include "MP1/World/CMetroidPrimeRelay.hpp"
-#include "CPatternedInfo.hpp"
+#include "CScriptPlayerStateChange.hpp"
+#include "CScriptPointOfInterest.hpp"
+#include "CScriptRandomRelay.hpp"
+#include "CScriptRelay.hpp"
+#include "CScriptRoomAcoustics.hpp"
+#include "CScriptShadowProjector.hpp"
+#include "CScriptSound.hpp"
+#include "CScriptSpawnPoint.hpp"
+#include "CScriptSpecialFunction.hpp"
+#include "CScriptSteam.hpp"
+#include "CScriptStreamedMusic.hpp"
+#include "CScriptSwitch.hpp"
+#include "CScriptTimer.hpp"
+#include "CScriptTrigger.hpp"
+#include "CScriptVisorFlare.hpp"
+#include "CScriptWater.hpp"
+#include "CScriptWaypoint.hpp"
+#include "CScriptWorldTeleporter.hpp"
 #include "CSimplePool.hpp"
+#include "CStateManager.hpp"
+#include "CVisorParameters.hpp"
+#include "CWallCrawlerSwarm.hpp"
+#include "CWorld.hpp"
+#include "Camera/CCinematicCamera.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
 #include "Editor/ProjectResourceFactoryMP1.hpp"
+#include "GameGlobalObjects.hpp"
+#include "MP1/World/CActorContraption.hpp"
+#include "MP1/World/CBeetle.hpp"
+#include "MP1/World/CMetroidPrimeRelay.hpp"
+#include "MP1/World/CNewIntroBoss.hpp"
+#include "MP1/World/CSpacePirate.hpp"
+#include "MP1/World/CWarWasp.hpp"
+#include "Particle/CWeaponDescription.hpp"
 
 namespace urde
 {
@@ -736,27 +736,27 @@ CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int prop
 
     SActorHead head = LoadActorHead(in, mgr);
 
-    bool b1 = in.readBool();
-    float f1 = in.readFloatBig();
+    bool active = in.readBool();
+    float shotDuration = in.readFloatBig();
     bool b2 = in.readBool();
     bool b3 = in.readBool();
     bool b4 = in.readBool();
     bool b5 = in.readBool();
     bool b6 = in.readBool();
-    bool b7 = in.readBool();
+    bool disableInput = in.readBool();
     bool b8 = in.readBool();
-    float f2 = in.readFloatBig();
+    float fov = in.readFloatBig();
     bool b9 = in.readBool();
 
     bool b10 = false;
     if (propCount > 14)
         b10 = in.readBool();
 
-    u32 flags = u32(b2) | u32(b3) << 1 | u32(b4) << 2 | u32(b5) << 3 | u32(b6) << 4 | u32(b7) << 5 | u32(b8) << 6 |
-                u32(b9) << 8;
+    u32 flags = u32(b2) | u32(b3) << 1 | u32(b4) << 2 | u32(b5) << 3 | u32(b6) << 4 | u32(disableInput) << 5 |
+                u32(b8) << 6 | u32(b9) << 8;
 
-    return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1,
-                                f2 / CCameraManager::Aspect(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
+    return new CCinematicCamera(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, shotDuration,
+                                fov / CCameraManager::Aspect(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
                                 CCameraManager::Aspect(), flags);
 }
 
@@ -767,11 +767,11 @@ CEntity* ScriptLoader::LoadCameraWaypoint(CStateManager& mgr, CInputStream& in, 
 
     SActorHead head = LoadActorHead(in, mgr);
 
-    bool b1 = in.readBool();
+    bool active = in.readBool();
     float f1 = in.readFloatBig();
     u32 w1 = in.readUint32Big();
 
-    return new CScriptCameraWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, b1, f1, w1);
+    return new CScriptCameraWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, f1, w1);
 }
 
 CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1037,8 +1037,8 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
     float timeOut = in.readFloatBig();
     CAssetId txtr = in.readUint32Big();
 
-    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, type, shape, filterIdx, unk,
-                                           color, timeIn, timeOut, txtr, active);
+    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, type, shape, filterIdx, unk, color,
+                                           timeIn, timeOut, txtr, active);
 }
 
 CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1055,8 +1055,8 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
     float timeIn = in.readFloatBig();
     float timeOut = in.readFloatBig();
 
-    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), name, info, type, amount,
-                                         unk, timeIn, timeOut, active);
+    return new CScriptCameraBlurKeyframe(mgr.AllocateUniqueId(), name, info, type, amount, unk, timeIn, timeOut,
+                                         active);
 }
 
 u32 ClassifyVector(const zeus::CVector3f& dir)
@@ -1288,16 +1288,16 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     if (bumpMap == -1)
         envMap = _envMap;
 
-    return new CScriptWater(
-        mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags, thermalCold,
-        displaySurface, patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, {}, bumpLightDir, bumpScale,
-        morphInTime, morphOutTime, active, fluidType, b4, alpha, uvMotion, turbSpeed, turbDistance, turbFreqMax,
-        turbFreqMin, turbPhaseMax, turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, splashColor, unkColor,
-        splashParticle1, splashParticle2, splashParticle3, visorRunoffParticle, unmorphVisorRunoffParticle,
-        visorRunoffSfx, unmorphVisorRunoffSfx, splashSfx1, splashSfx2, splashSfx3, tileSize, tileSubdivisions,
-        specularMin, specularMax, reflectionSize, rippleIntensity, reflectionBlend, fogBias, fogMagnitude, fogSpeed,
-        fogColor, lightmap, unitsPerLightmapTexel, alphaInTime, alphaOutTime, w21, w22, b5, bitVal0, bitVal1,
-        std::move(bitset));
+    return new CScriptWater(mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags,
+                            thermalCold, displaySurface, patternMap1, patternMap2, colorMap, bumpMap, envMap,
+                            envBumpMap, {}, bumpLightDir, bumpScale, morphInTime, morphOutTime, active, fluidType, b4,
+                            alpha, uvMotion, turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
+                            turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, splashColor, unkColor, splashParticle1,
+                            splashParticle2, splashParticle3, visorRunoffParticle, unmorphVisorRunoffParticle,
+                            visorRunoffSfx, unmorphVisorRunoffSfx, splashSfx1, splashSfx2, splashSfx3, tileSize,
+                            tileSubdivisions, specularMin, specularMax, reflectionSize, rippleIntensity,
+                            reflectionBlend, fogBias, fogMagnitude, fogSpeed, fogColor, lightmap, unitsPerLightmapTexel,
+                            alphaInTime, alphaOutTime, w21, w22, b5, bitVal0, bitVal1, std::move(bitset));
 }
 
 CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1523,11 +1523,11 @@ CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in, int
     std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f rotation = zeus::CVector3f::ReadBig(in);
     float scale = in.readFloatBig();
-    bool b1 = in.readBool();
+    bool updateActors = in.readBool();
     bool b2 = in.readBool();
     bool active = in.readBool();
 
-    return new CScriptActorRotate(mgr.AllocateUniqueId(), name, info, rotation, scale, b1, b2, active);
+    return new CScriptActorRotate(mgr.AllocateUniqueId(), name, info, rotation, scale, updateActors, b2, active);
 }
 
 CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1892,9 +1892,9 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
                                           showDelay);
 
     return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId,
-                                      animParms.GetACSFile(), animParms.GetCharacter(),
-                                      animParms.GetInitialAnimation(), playerScale, platformModel, platformScale,
-                                      backgroundModel, backgroundScale, upElevator, elevatorSound, volume, panning);
+                                      animParms.GetACSFile(), animParms.GetCharacter(), animParms.GetInitialAnimation(),
+                                      playerScale, platformModel, platformScale, backgroundModel, backgroundScale,
+                                      upElevator, elevatorSound, volume, panning);
 }
 
 CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2156,7 +2156,25 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
 
 CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 7, "FogVolume"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CVector3f center = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f volume = zeus::CVector3f::ReadBig(in);
+    float flickerSpeed = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    zeus::CColor fogColor = zeus::CColor::ReadRGBABig(in);
+    bool active = in.readBool();
+
+    volume.x = std::fabs(volume.x);
+    volume.y = std::fabs(volume.y);
+    volume.z = std::fabs(volume.z);
+
+    return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(center, {}),
+                                      CScriptSpecialFunction::ESpecialFunction::FogVolume, "", flickerSpeed, f2, 0.f,
+                                      0.f, volume, fogColor, active, CDamageInfo(), CAssetId(), CAssetId(), CAssetId(),
+                                      -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadBabygoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2205,7 +2223,18 @@ CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& i
 CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStream& in, int propCount,
                                                   const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "EnvFxDensityController"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    bool active = in.readBool();
+    float density = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+
+    return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform::Identity(),
+                                      CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density,
+                                      w1, 0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active,
+                                      CDamageInfo(), CAssetId(), CAssetId(), CAssetId(), -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2415,15 +2444,15 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& 
     CHealthInfo hInfo2(in);
     u32 w3 = in.readUint32Big();
     rstl::reserved_vector<MP1::SPrimeExoRoomParameters, 4> roomParms;
-    for (int i=0 ; i<4 ; ++i)
+    for (int i = 0; i < 4; ++i)
         roomParms.emplace_back(in);
     u32 w4 = in.readUint32Big();
     u32 w5 = in.readUint32Big();
     MP1::SPrimeExoParameters primeParms(in);
 
-    return new MP1::CMetroidPrimeRelay(mgr.AllocateUniqueId(), aHead.x0_name, info, active,
-                                       aHead.x10_transform, aHead.x40_scale, std::move(primeParms),
-                                       f1, f2, f3, w1, b1, w2, hInfo1, hInfo2, w3, w4, w5, std::move(roomParms));
+    return new MP1::CMetroidPrimeRelay(mgr.AllocateUniqueId(), aHead.x0_name, info, active, aHead.x10_transform,
+                                       aHead.x40_scale, std::move(primeParms), f1, f2, f3, w1, b1, w2, hInfo1, hInfo2,
+                                       w3, w4, w5, std::move(roomParms));
 }
 
 CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

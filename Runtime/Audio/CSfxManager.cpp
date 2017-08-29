@@ -361,6 +361,11 @@ u16 CSfxManager::TranslateSFXID(u16 id)
     return ret;
 }
 
+bool CSfxManager::PlaySound(const CSfxManager::CSfxHandle &handle)
+{
+    return false;
+}
+
 void CSfxManager::StopSound(const CSfxHandle& handle)
 {
     if (!handle)

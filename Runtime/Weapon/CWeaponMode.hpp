@@ -11,11 +11,11 @@ class CWeaponMode
     bool x4_24_charged : 1;
     bool x4_25_comboed : 1;
     bool x4_26_instantKill : 1;
+
 public:
     CWeaponMode() = default;
     CWeaponMode(EWeaponType, bool charged = false, bool comboed = false, bool instaKill = false);
     EWeaponType GetType() const;
-
 
     bool IsCharged() const { return x4_24_charged; }
     bool IsComboed() const { return x4_25_comboed; }
@@ -29,6 +29,7 @@ public:
     static CWeaponMode Ice();
     static CWeaponMode Power();
     static CWeaponMode Bomb();
+    static CWeaponMode PowerBomb();
 };
 }
 #endif // __URDE_CWEAPONMODE_HPP__

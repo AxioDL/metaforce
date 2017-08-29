@@ -17,7 +17,7 @@ public:
         PlayerFollowLocator = 1,
         SpinnerController = 2,
         ObjectFollowLocator = 3,
-        Four = 4,
+        ChaffTarget = 4,
         InventoryActivator = 5,
         MapStation = 6,
         SaveStation = 7,
@@ -35,7 +35,7 @@ public:
         ObjectFollowObject = 19,
         RedundantHintSystem = 20,
         DropBomb = 21,
-        TwentyTwo = 22,
+        ScaleActor = 22,
         MissileStation = 23,
         Billboard = 24,
         PlayerInAreaRelay = 25,
@@ -64,7 +64,7 @@ public:
 private:
     ESpecialFunction xe8_function;
     std::string xec_locatorName;
-    float xfc_radius;
+    float xfc_;
     float x100_;
     float x104_;
     float x108_;
@@ -101,7 +101,7 @@ private:
             bool x1e4_26_ : 1;
             bool x1e4_27_ : 1;
             bool x1e4_31_ : 1;
-            bool x1e5_24_ : 1;
+            bool x1e5_24_doSave : 1;
             bool x1e5_25_ : 1;
             bool x1e5_26_ : 1;
         };
@@ -130,6 +130,8 @@ public:
     void ThinkSpinnerController(float, CStateManager&, ESpinnerControllerMode);
     void ThinkObjectFollowLocator(float, CStateManager&);
     void ThinkChaffTarget(float, CStateManager&);
+    void ThinkActorScale(float, CStateManager&);
+    void ThinkSaveStation(float, CStateManager&);
 
     bool ShouldSkipCinematic(CStateManager& stateMgr) const;
 };

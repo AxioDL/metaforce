@@ -32,7 +32,7 @@ void CScriptCameraPitchVolume::Accept(IVisitor& visitor)
 
 void CScriptCameraPitchVolume::Think(float, CStateManager& mgr)
 {
-    if (!x30_24_active)
+    if (!GetActive())
         return;
 
     if (x13c_24_entered && !x13c_25_occupied)

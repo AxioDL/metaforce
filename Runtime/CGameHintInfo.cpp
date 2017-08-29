@@ -37,14 +37,12 @@ CGameHintInfo::SHintLocation::SHintLocation(CInputStream& in, s32)
 
 int CGameHintInfo::FindHintIndex(const char* str)
 {
-    int idx = 0;
-    for (const CGameHintInfo::CGameHint& hint : g_MemoryCardSys->GetHints())
-    {
-        if (!hint.GetName().compare(str))
-            return idx;
-        ++idx;
-    }
-    return -1;
+    const std::vector<CGameHint>& gameHints = g_MemoryCardSys->GetHints();
+    const auto& it = std::find_if(gameHints.begin(), gameHints.end(), [&str](const CGameHint& gh) -> bool {
+        return !gh.GetName().compare(str);
+    });
+
+    return (it != gameHints.end() ? it - gameHints.begin() : -1);
 }
 
 CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer, CObjectReference*)

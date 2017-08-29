@@ -109,6 +109,9 @@ struct CTweakPlayerGun final : ITweakPlayerGun
             return x1f0_combos[0];
         return x1f0_combos[beam];
     }
+
+    const SShotParam& GetBombInfo() const { return x70_bomb; }
+    const SShotParam& GetPowerBombInfo() const { return x8c_powerBomb; }
 };
 }
 }

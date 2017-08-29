@@ -6,11 +6,12 @@
 namespace urde
 {
 
-CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool b1, bool b2, bool b3)
+CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool b1,
+                                       bool skipSendActive, bool ignoreMessages)
     : CEntity(uid, info, true, name),
       x34_24_(b1),
-      x34_25_skipSendActive(b2),
-      x34_26_ignoreMessages(b3)
+      x34_25_skipSendActive(skipSendActive),
+      x34_26_ignoreMessages(ignoreMessages)
 {
 }
 

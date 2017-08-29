@@ -211,6 +211,7 @@ public:
                                const zeus::CVector3f& heading, const zeus::CVector3f& up,
                                u8 vol);
 
+    static bool PlaySound(const CSfxHandle& handle);
     static void StopSound(const CSfxHandle& handle);
     static s16 GetRank(CBaseSfxWrapper* sfx);
     static void ApplyReverb();

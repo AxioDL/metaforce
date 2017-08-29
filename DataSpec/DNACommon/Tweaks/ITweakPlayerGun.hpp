@@ -65,6 +65,8 @@ struct ITweakPlayerGun : ITweak
     virtual float GetRichochetDamage(atUint32) const = 0;
     virtual const SWeaponInfo& GetBeamInfo(atInt32 beam) const = 0;
     virtual const SComboShotParam& GetComboShotInfo(atInt32 beam) const = 0;
+    virtual const SShotParam& GetBombInfo() const=0;
+    virtual const SShotParam& GetPowerBombInfo() const=0;
 };
 }
 

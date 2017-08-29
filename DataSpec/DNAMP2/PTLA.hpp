@@ -11,7 +11,6 @@ struct PTLA : BigDNA
 {
     DECL_DNA
     Value<atUint32> magic;
-    Value<atUint32> version;
     struct UnknownStruct1 : BigDNA
     {
         DECL_DNA
@@ -27,7 +26,8 @@ struct PTLA : BigDNA
             Value<atUint16> unknown6;
         };
         Vector<Entry, DNA_COUNT(count)> entries;
-        Value<atVec3f> unknown[2];
+        Value<atUint16> unknown1;
+        Value<atVec3f> unknown2[2];
     };
     Value<atUint32> count1;
     Vector<UnknownStruct1, DNA_COUNT(count1)> entries1;

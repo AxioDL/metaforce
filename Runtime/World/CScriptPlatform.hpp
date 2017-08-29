@@ -72,6 +72,7 @@ public:
     const std::vector<SRiders>& GetX328() const { return x328_; }
     std::vector<SRiders>& GetX338() { return x338_; }
     const std::vector<SRiders>& GetX338() const { return x338_; }
+    void AddSlave(TUniqueId, CStateManager&) {}
 };
 }
 

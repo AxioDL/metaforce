@@ -385,6 +385,7 @@ public:
     bool ShouldQuitGame() const { return xf94_25_quitGame; }
     void SetShouldQuitGame(bool should) { xf94_25_quitGame = should; }
     void SetInSaveUI(bool b) { xf94_28_inSaveUI = b; }
+    bool GetInSaveUI() const { return xf94_28_inSaveUI; }
     void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
     bool GetInMapScreen() const { return xf94_27_inMapScreen; }
     bool IsFullThreat() const { return xf94_30_fullThreat; }

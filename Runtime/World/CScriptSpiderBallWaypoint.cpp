@@ -25,7 +25,7 @@ void CScriptSpiderBallWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqu
 
     if (msg == EScriptObjectMessage::InitializedInArea)
         BuildWaypointListAndBounds(mgr);
-    else if (msg == EScriptObjectMessage::UNKM2)
+    else if (msg == EScriptObjectMessage::Arrived)
         SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 }
 

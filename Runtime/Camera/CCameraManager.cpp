@@ -330,4 +330,9 @@ bool CCameraManager::HasBallCameraInitialPositionHint(CStateManager& mgr) const
 {
     return false;
 }
+
+void CCameraManager::RemoveCinemaCamera(TUniqueId uid, CStateManager& mgr)
+{
+    x4_cineCameras.erase(std::remove(x4_cineCameras.begin(), x4_cineCameras.end(), uid));
+}
 }

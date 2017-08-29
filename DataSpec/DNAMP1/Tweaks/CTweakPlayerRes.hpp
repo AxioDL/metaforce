@@ -70,7 +70,7 @@ struct CTweakPlayerRes final : ITweakPlayerRes
     String<-1> m_cinePlasma;
     String<-1> m_cinePhazon;
 
-    Value<float> m_unkFloat;
+    Value<float> m_cinematicMoveOutofIntoPlayerDistance;
 
     const std::string& _GetSaveStationIcon() const { return m_saveStationIcon; }
     const std::string& _GetMissileStationIcon() const { return m_missileStationIcon; }
@@ -97,7 +97,7 @@ struct CTweakPlayerRes final : ITweakPlayerRes
     const std::string& _GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
     const std::string& _GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
 
-    float _GetUnkFloat() const { return m_unkFloat; }
+    float _GetCinematicMoveOutofIntoPlayerDistance() const { return m_cinematicMoveOutofIntoPlayerDistance; }
 
     CTweakPlayerRes() = default;
     CTweakPlayerRes(athena::io::IStreamReader& in) { read(in); }

@@ -86,6 +86,7 @@ public:
     void RemoveCameraShaker(int id);
     int AddCameraShaker(const CCameraShakeData& data, bool sfx);
     void AddCinemaCamera(TUniqueId, CStateManager& stateMgr);
+    void RemoveCinemaCamera(TUniqueId, CStateManager&);
     void SetInsideFluid(bool, TUniqueId);
     void Update(float dt, CStateManager& stateMgr);
     CGameCamera* GetCurrentCamera(CStateManager& stateMgr) const;

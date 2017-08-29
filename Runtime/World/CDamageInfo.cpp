@@ -46,5 +46,4 @@ float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const
 
     return xc_radiusDamage;
 }
-
 }

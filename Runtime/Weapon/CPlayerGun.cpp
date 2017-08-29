@@ -8,6 +8,7 @@
 #include "MP1/World/CMetroid.hpp"
 #include "World/CScriptWater.hpp"
 #include "World/CGameLight.hpp"
+#include "World/CScriptPlatform.hpp"
 #include "Input/ControlMapper.hpp"
 #include "CBomb.hpp"
 #include "CPowerBomb.hpp"
@@ -1052,7 +1053,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
                 mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::MorphBallBombs))
             {
                 if (x835_28_bombReady)
-                    DropBomb(EBWeapon::Zero, mgr);
+                    DropBomb(EBWeapon::Bomb, mgr);
             }
             else if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PowerBombs) &&
                      mgr.GetPlayerState()->GetItemAmount(CPlayerState::EItemType::PowerBombs) > 0)
@@ -1060,7 +1061,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
                 x835_29_powerBombReady = mgr.CanCreateProjectile(x538_playerId, EWeaponType::PowerBomb, 1) &&
                                          mgr.CanCreateProjectile(x538_playerId, EWeaponType::Bomb, 1);
                 if ((pressedStates & 0x2) != 0 && x835_29_powerBombReady)
-                    DropBomb(EBWeapon::One, mgr);
+                    DropBomb(EBWeapon::PowerBomb, mgr);
             }
         }
     }
@@ -1675,12 +1676,50 @@ void CPlayerGun::AddToRenderer(const zeus::CFrustum& frustum, const CStateManage
 
 void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr)
 {
+    if (weapon == EBWeapon::Bomb)
+    {
+        if (x32c_ != 0)
+        {
+            x32c_ = 0xA;
+            return;
+        }
 
+        if (x308_bombCount <= 0)
+            return;
+
+        CBomb* bomb =
+            new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
+                      mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime,
+                      zeus::CTransform::Translate(zeus::CVector3f{0.f, g_tweakPlayer->GetPlayerBallHalfExtent(), 0.f}),
+                      g_tweakPlayerGun->GetBombInfo());
+        mgr.AddObject(bomb);
+
+        if (x308_bombCount == 3)
+            x35c_bombTime = x358_bombDropDelayTime;
+
+        --x308_bombCount;
+        if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(mgr.GetPlayer().GetRidingPlatformId()))
+            plat->AddSlave(bomb->GetUniqueId(), mgr);
+    }
+    else if (weapon == EBWeapon::PowerBomb)
+    {
+        mgr.GetPlayerState()->DecrPickup(CPlayerState::EItemType::PowerBombs, 1);
+        x53a_powerBomb = DropPowerBomb(mgr);
+    }
 }
 
 TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr)
 {
-    return {};
-}
+    CDamageInfo dInfo = (mgr.GetPlayer().GetDeathTime() <= 0.f ? g_tweakPlayerGun->GetPowerBombInfo()
+                                                               : CDamageInfo(CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f));
 
+    TUniqueId uid = mgr.AllocateUniqueId();
+    CPowerBomb* pBomb =
+        new CPowerBomb(x784_bombEffects[1][0], uid, kInvalidAreaId, x538_playerId,
+                       zeus::CTransform::Translate(mgr.GetPlayer().GetTranslation() +
+                                                   zeus::CVector3f{0.f, g_tweakPlayer->GetPlayerBallHalfExtent(), 0.f}),
+                       dInfo);
+    mgr.AddObject(*pBomb);
+    return uid;
+}
 }

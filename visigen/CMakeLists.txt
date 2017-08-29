@@ -24,6 +24,3 @@ add_executable(visigen ${PLAT_SRCS}
                VISIRenderer.cpp VISIRenderer.hpp
                VISIBuilder.cpp VISIBuilder.hpp)
 target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS})
-
-add_custom_command(TARGET visigen POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)

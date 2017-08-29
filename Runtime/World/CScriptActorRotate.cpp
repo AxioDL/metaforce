@@ -7,14 +7,15 @@
 namespace urde
 {
 CScriptActorRotate::CScriptActorRotate(TUniqueId uid, const std::string& name, const CEntityInfo& info,
-                                       const zeus::CVector3f& rotation, float f1, bool b1, bool b2, bool active)
+                                       const zeus::CVector3f& rotation, float maxTime, bool updateActors,
+                                       bool updateOnCreation, bool active)
 : CEntity(uid, info, active, name)
 , x34_rotation(rotation)
-, x40_maxTime(f1)
+, x40_maxTime(maxTime)
 , x58_24_updateRotation(false)
 , x58_25_skipSpiderBallWaypoints(false)
-, x58_26_updateActors(b1)
-, x58_27_updateOnCreation(b2)
+, x58_26_updateActors(updateActors)
+, x58_27_updateOnCreation(updateOnCreation)
 {
 }
 

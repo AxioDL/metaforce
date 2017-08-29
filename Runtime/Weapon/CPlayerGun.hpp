@@ -35,8 +35,8 @@ public:
     };
     enum class EBWeapon
     {
-        Zero,
-        One
+        Bomb,
+        PowerBomb
     };
     enum class EGunOverrideMode
     {

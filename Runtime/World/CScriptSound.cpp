@@ -12,7 +12,7 @@ bool CScriptSound::sFirstInFrame = false;
 
 CScriptSound::CScriptSound(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
                            s16 soundId, bool active, float f1, float f2, float f3, u32 w1, u32 w2, u32 w3, u32 w4,
-                           u32 w5, u32 w6, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7, u32 w7)
+                           u32 w5, u32 w6, bool b1, bool b2, bool autoStart, bool b4, bool b5, bool b6, bool b7, u32 w7)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
          CActorParameters::None(), kInvalidUniqueId)
 , xfc_(f3)
@@ -29,7 +29,7 @@ CScriptSound::CScriptSound(TUniqueId uid, const std::string& name, const CEntity
 {
     x11c_25_ = b1;
     x11c_26_ = b2;
-    x11c_27_ = b3;
+    x11c_27_autoStart = autoStart;
     x11c_28_ = b4;
     x11c_29_ = b5;
     x11c_30_ = b6;
@@ -59,37 +59,52 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     {
     case EScriptObjectMessage::Registered:
     {
+        if (GetActive() && x11c_27_autoStart)
+            x11c_24_ = true;
+        x11c_31_ = mgr.GetIsGeneratingObject();
     }
     break;
     case EScriptObjectMessage::Play:
     {
+        if (GetActive())
+            PlaySound(mgr);
     }
     break;
     case EScriptObjectMessage::Stop:
     {
+        if (GetActive())
+            StopSound(mgr);
     }
     break;
     case EScriptObjectMessage::Deactivate:
     {
+        if (GetActive())
+            StopSound(mgr);
     }
     break;
     case EScriptObjectMessage::Activate:
     {
+        if(GetActive())
+            x11c_24_ = true;
     }
     break;
     case EScriptObjectMessage::Deleted:
     {
+        if (!x11c_30_)
+            StopSound(mgr);
     }
     break;
     default:break;
     }
 }
 
-void CScriptSound::PlaySound(CStateManager&) {}
+void CScriptSound::PlaySound(CStateManager&)
+{
+}
 
 void CScriptSound::StopSound(CStateManager& mgr)
 {
-    x11c_24_playing = false;
+    x11c_24_ = false;
     if (x11c_30_ && x11c_26_)
     {
         mgr.WorldNC()->StopSound(x100_soundId);

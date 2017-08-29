@@ -669,6 +669,7 @@ public:
     TUniqueId GetAttachedActor() const { return x26c_attachedActor; }
     float GetAttachedActorStruggle() const { return xa28_attachedActorStruggle; }
     float GetDistanceUnderWater() const { return x828_distanceUnderWater; }
+    TUniqueId GetRidingPlatformId() const { return x82e_ridingPlatform; }
 };
 }
 

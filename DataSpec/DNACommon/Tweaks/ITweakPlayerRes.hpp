@@ -41,7 +41,7 @@ struct ITweakPlayerRes : ITweak
     ResId xc8_ballTransitions[5];
     ResId xc8_cineGun[5];
 
-    float xf0_unkFloat;
+    float xf0_cinematicMoveOutofIntoPlayerDistance;
 
     ResId GetBeamBallTransitionModel(EBeamId beam) const
     {
@@ -131,7 +131,7 @@ struct ITweakPlayerRes : ITweak
         for (int i=0 ; i<5 ; ++i)
             xc8_cineGun[i] = factory.GetResourceIdByName(_GetBeamCineModel(i).c_str())->id;
 
-        xf0_unkFloat = _GetUnkFloat();
+        xf0_cinematicMoveOutofIntoPlayerDistance = _GetCinematicMoveOutofIntoPlayerDistance();
     }
 
 protected:
@@ -160,7 +160,7 @@ protected:
     virtual const std::string& _GetBallTransitionBeamRes(size_t idx) const=0;
     virtual const std::string& _GetBeamCineModel(size_t idx) const=0;
 
-    virtual float _GetUnkFloat() const=0;
+    virtual float _GetCinematicMoveOutofIntoPlayerDistance() const=0;
 };
 
 }

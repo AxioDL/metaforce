@@ -37,7 +37,7 @@ class CMetaree : public CPatterned
 
     u32 x5cc_;
 public:
-    static constexpr ECharacter CharacterType = ECharacter::MetroidPrimeExo;
+    static constexpr ECharacter CharacterType = ECharacter::Metaree;
     CMetaree(TUniqueId, const std::string&, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
              const CPatternedInfo&, const CDamageInfo&, float, const zeus::CVector3f&, float, EBodyType, float, float,
              const CActorParameters&);

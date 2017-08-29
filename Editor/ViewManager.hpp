@@ -124,31 +124,9 @@ class ViewManager : public specter::IViewManager
         }
     };
     std::unique_ptr<TestGameView> m_testGameView;
-    urde::TLockedToken<CModel> m_modelTest;
-    urde::TLockedToken<CGenDescription> m_partGenDesc;
-    TLockedToken<CGameHintInfo> m_hints;
-    std::unique_ptr<CElementGen> m_partGen;
-    std::unique_ptr<CLineRenderer> m_lineRenderer;
-    std::unique_ptr<CMoviePlayer> m_moviePlayer;
-    std::unique_ptr<u8[]> m_rsfBuf;
     std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
     std::unique_ptr<boo::IAudioVoice> m_videoVoice;
     std::experimental::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
-    struct AudioVoiceCallback : boo::IAudioVoiceCallback
-    {
-        ViewManager& m_vm;
-        void preSupplyAudio(boo::IAudioVoice&, double) {}
-        size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
-        {
-            if (m_vm.m_moviePlayer)
-                m_vm.m_moviePlayer->MixAudio(data, nullptr, frames);
-            CMoviePlayer::MixStaticAudio(data, data, frames);
-            return frames;
-        }
-        AudioVoiceCallback(ViewManager& vm) : m_vm(vm) {}
-    } m_voiceCallback;
-
-    std::experimental::optional<CStaticAudioPlayer> m_newAudioPlayer;
 
     hecl::SystemString m_recentProjectsPath;
     std::vector<hecl::SystemString> m_recentProjects;

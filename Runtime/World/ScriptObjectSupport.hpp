@@ -179,7 +179,7 @@ enum class EScriptObjectMessage
     None              = -1,
     UNKM0             = 0,
     Activate          = 1,
-    UNKM2             = 2,
+    Arrived           = 2,
     Close             = 3,
     Deactivate        = 4,
     Decrement         = 5,

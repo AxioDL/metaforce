@@ -27,51 +27,8 @@ namespace urde
 
 void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
 {
-    m_modelTest = objStore.GetObj("MP1/Shared/CMDL_B2B41738.blend");
-#if 0
-    SObjectTag samusCharSet = m_projManager.TagFromPath(_S("MP1/Shared/ANCS_77289A4A.*"));
-    SObjectTag platModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_6FA561D0.blend"));
-    SObjectTag bgModel = m_projManager.TagFromPath(_S("MP1/Shared/CMDL_BC34D54C.blend"));
-    CAnimRes samusAnimRes(samusCharSet.id, 2, zeus::CVector3f{2.f, 2.f, 2.f}, 1, true);
-    g_GameState->GetWorldTransitionManager()->EnableTransition(samusAnimRes,
-                                                               platModel.id, zeus::CVector3f::skOne,
-                                                               bgModel.id, zeus::CVector3f::skOne, true);
-
-    SObjectTag areaTag = m_projManager.TagFromPath(
-        _S("MP1/Metroid1/!1IntroLevel1027/00 Exterior Docking Hangar/!area.blend"));
-    auto areaData = m_projManager.resourceFactoryMP1().LoadResourceSync(areaTag);
-#endif
-
-    //m_modelTest = objStore.GetObj("gun_cmdl");
-
-    //m_modelTest = objStore.GetObj("CMDL_GameCube");
-
-    //m_partGenDesc = objStore.GetObj({hecl::FOURCC('PART'), 0x0deb9456});
-    //m_partGenDesc = objStore.GetObj("PowerCharge");
-    //m_partGen.reset(new urde::CElementGen(m_partGenDesc,
-    //                                       urde::CElementGen::EModelOrientationType::Normal,
-    //                                       urde::CElementGen::EOptionalSystemFlags::None));
-    //m_partGen->SetGlobalScale({5.f, 5.f, 5.f});
-    m_lineRenderer.reset(new urde::CLineRenderer(urde::CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true));
-
     TLockedToken<CTexture> xrayPalette = objStore.GetObj("TXTR_XRayPalette");
     m_testGameView.reset(new TestGameView(*this, m_viewResources, *m_rootView, xrayPalette));
-
-#if 0
-    m_moviePlayer.reset(new CMoviePlayer("Video/SpecialEnding.thp", 1.f, false, true));
-    m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
-    CDvdFile testRSF("Audio/frontend_1.rsf");
-    u64 rsfLen = testRSF.Length();
-    m_rsfBuf.reset(new u8[rsfLen]);
-    testRSF.SyncRead(m_rsfBuf.get(), rsfLen);
-    CMoviePlayer::SetStaticAudio(m_rsfBuf.get(), rsfLen, 416480, 1973664);
-
-    m_videoVoice = m_voiceEngine->allocateNewStereoVoice(32000, &m_voiceCallback);
-    m_videoVoice->start();
-#endif
-
-    //m_newAudioPlayer.emplace(*m_voiceEngine, "Audio/frontend_1.rsf", 416480, 1973664);
-    //m_newAudioPlayer->StartMixing();
 
     m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_testGameView.get());
@@ -92,93 +49,7 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
 void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->clearTarget(true, true);
-
-    //g_GameState->GetWorldTransitionManager()->Update(1.f / 60.f);
-    //g_GameState->GetWorldTransitionManager()->Draw();
-
-    if (m_vm.m_modelTest.IsLoaded())
-    {
-#if 0
-        CModelFlags flags;
-
-        flags.m_extendedShader = EExtendedShader::Flat;
-        //flags.m_extendedShaderIdx = 2;
-        //if (std::fmod(m_theta, M_PIF) < M_PIF / 2.f)
-        //    flags.m_extendedShaderIdx = 1;
-
-        m_theta += 0.01f;
-        CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(m_theta));
-        g_Renderer->SetWorldViewpoint(zeus::lookAt(zeus::CVector3f{0.f, -20.f, 7.f},
-                                      {0.f, 0.f, 3.f}));
-        boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
-        float aspect = windowRect.size[0] / float(windowRect.size[1]);
-
-        CGraphics::SetPerspective(55.0, aspect, 0.2f, 50.f);
-        //CGraphics::SetFog(ERglFogMode::PerspExp, 7.f, 15.f, zeus::CColor::skRed);
-        //CGraphics::SetFog(ERglFogMode::PerspExp, 10.f + std::sin(m_theta) * 5.f, 15.f + std::sin(m_theta) * 5.f, zeus::CColor::skRed);
-        zeus::CFrustum frustum;
-        frustum.updatePlanes(CGraphics::g_GXModelView, zeus::SProjPersp(55.0, aspect, 0.2f, 50.f));
-        g_Renderer->SetClippingPlanes(frustum);
-
-        std::vector<CLight> lights = {CLight::BuildLocalAmbient({}, {0.05f, 0.05f, 0.05f, 1.f}),
-                                      CLight::BuildCustom({5.f, -20.f, 10.f}, {0.f, 1.f, 0.f},
-                                      {200.f, 200.f, 200.f}, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f)};
-        lights = {CLight::BuildLocalAmbient({}, {0.5f, 0.5f, 0.5f, 1.f})};
-        m_vm.m_modelTest->GetInstance().ActivateLights(lights);
-        //g_Renderer->SetThermal(true, 1.f, zeus::CColor::skWhite);
-        //g_Renderer->SetThermalColdScale(std::sin(m_theta) * 0.5f + 0.5f);
-        //g_Renderer->DoThermalBlendCold();
-        flags.m_extendedShader = EExtendedShader::Lighting;
-        //m_widescreen.draw(zeus::CColor::skBlack, std::sin(m_theta * 3.f) / 2.f + 0.5f);
-        m_vm.m_modelTest->Draw(flags);
-        g_Renderer->ReallyRenderFogVolume(zeus::CColor::skRed, m_vm.m_modelTest->GetAABB(),
-                                          nullptr, nullptr);
-        //m_xrayBlur.draw(25.f);
-        //m_camBlur.draw((std::sin(m_theta * 3.f) / 2.f + 0.5f) * 3.f);
-        //g_Renderer->DoThermalBlendHot();
-        //m_spaceWarpFilter.setStrength(std::sin(m_theta * 5.f) * 0.5f + 0.5f);
-        //m_spaceWarpFilter.draw(zeus::CVector2f{0.f, 0.f});
-#endif
-
-    }
-    if (m_vm.m_partGen)
-    {
-        m_vm.m_partGen->Update(1.0 / 60.0);
-
-        if (m_vm.m_partGen->IsSystemDeletable())
-            m_vm.m_partGen->Reset();
-
-        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
-        CGraphics::SetViewPointMatrix(zeus::CTransform::Identity() + zeus::CVector3f(0.f, -10.f, 0.f));
-        boo::SWindowRect windowRect = m_vm.m_mainWindow->getWindowFrame();
-        float aspect = windowRect.size[0] / float(windowRect.size[1]);
-        CGraphics::SetPerspective(55.0, aspect, 0.1f, 1000.f);
-        //gfxQ->clearTarget(false, true);
-        m_vm.m_partGen->Render();
-
-        /*
-        m_vm.m_lineRenderer->Reset();
-        m_vm.m_lineRenderer->AddVertex({-0.5f, 0.f, -0.5f}, zeus::CColor::skBlue, 1.f);
-        m_vm.m_lineRenderer->AddVertex({-0.5f, 0.f, 0.5f}, zeus::CColor::skBlue, 1.f);
-        m_vm.m_lineRenderer->AddVertex({0.5f, 10.f, 0.5f}, zeus::CColor::skRed, 3.f);
-        m_vm.m_lineRenderer->AddVertex({0.5f, 0.f, -0.5f}, zeus::CColor::skBlue, 1.f);
-        m_vm.m_lineRenderer->Render();
-        */
-    }
-    if (m_vm.m_moviePlayer)
-    {
-        if (m_vm.m_moviePlayer->GetIsMovieFinishedPlaying())
-        {
-            m_vm.m_moviePlayer.reset(new CMoviePlayer("Video/01_startloop.thp", -1.f, true, false));
-            m_vm.m_moviePlayer->SetFrame({-1.0f, 1.0f, 0.f}, {-1.0f, -1.0f, 0.f}, {1.0f, -1.0f, 0.f}, {1.0f, 1.0f, 0.f});
-        }
-
-        m_vm.m_moviePlayer->Update(1.f / 60.f);
-        m_vm.m_moviePlayer->DrawFrame();
-    }
-
     m_vm.m_projManager.mainDraw();
-
     ++m_frame;
 }
 
@@ -253,7 +124,7 @@ void ViewManager::DismissSplash()
 
 ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
-  m_fontCache(fileMgr), m_translator(urde::SystemLocaleOrEnglish()), m_voiceCallback(*this),
+  m_fontCache(fileMgr), m_translator(urde::SystemLocaleOrEnglish()),
   m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().c_str())),
   m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().c_str()))
 {

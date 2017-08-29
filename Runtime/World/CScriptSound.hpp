@@ -30,10 +30,10 @@ class CScriptSound : public CActor
     {
         struct
         {
-            bool x11c_24_playing : 1;
+            bool x11c_24_ : 1;
             bool x11c_25_ : 1;
             bool x11c_26_ : 1;
-            bool x11c_27_ : 1;
+            bool x11c_27_autoStart : 1;
             bool x11c_28_ : 1;
             bool x11c_29_ : 1;
             bool x11c_30_ : 1;

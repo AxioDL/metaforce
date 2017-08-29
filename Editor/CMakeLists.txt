@@ -50,3 +50,10 @@ target_link_libraries(urde
 
 set_target_properties(urde PROPERTIES
                       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
+
+add_dependencies(urde visigen hecl)
+
+add_custom_command(TARGET urde POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
+add_custom_command(TARGET urde POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)

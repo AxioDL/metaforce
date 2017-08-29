@@ -45,14 +45,14 @@ struct SObjectTag
     bool operator<(const SObjectTag& other) const { return id < other.id; }
     SObjectTag() = default;
     SObjectTag(FourCC tp, CAssetId rid) : type(tp), id(rid) {}
-    SObjectTag(CInputStream& in, bool _64bit = false)
+    SObjectTag(CInputStream& in)
     {
         in.readBytesToBuf(&type, 4);
-        id = (_64bit ? in.readUint64Big() : in.readUint32Big());
+        id = CAssetId(in);
     }
-    void readMLVL(CInputStream& in, bool _64bit = false)
+    void readMLVL(CInputStream& in)
     {
-        id = (_64bit ? in.readUint64Big() : in.readUint32Big());
+        id = CAssetId(in);
         in.readBytesToBuf(&type, 4);
     }
 };
