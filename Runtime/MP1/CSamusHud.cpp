@@ -625,7 +625,7 @@ void CSamusHud::UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr)
 
     if (x2a8_beamMenu)
     {
-        x2a8_beamMenu->SetSelection(gun.GetSelectedBeam(), gun.GetPendingSelectedBeam(), beamInterp);
+        x2a8_beamMenu->SetSelection(int(gun.GetCurrentBeam()), int(gun.GetNextBeam()), beamInterp);
         x2a8_beamMenu->SetPlayerHas(BuildPlayerHasBeams(mgr));
     }
 

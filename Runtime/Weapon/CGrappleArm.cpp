@@ -46,6 +46,17 @@ void CGrappleArm::Update(float grappleSwingT, float dt, CStateManager& mgr)
 
 }
 
+void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos)
+{
+
+}
+
+void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos,
+                         const CModelFlags& flags, const CActorLights* lights) const
+{
+
+}
+
 void CGrappleArm::AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&)
 {
 

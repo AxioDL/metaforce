@@ -51,26 +51,40 @@ private:
     public:
         enum class EGunState
         {
-            Zero,
-            One
+            InWipeDone,
+            OutWipeDone,
+            InWipe,
+            OutWipe
+        };
+        enum class EMorphEvent
+        {
+            None,
+            InWipeDone,
+            OutWipeDone
+        };
+        enum class EDir
+        {
+            In,
+            Out,
+            Done
         };
     private:
-        float x0_ = 0.f;
+        float x0_yLerp = 0.f;
         float x4_gunTransformTime;
-        float x8_ = 0.f;
-        float xc_ = 0.1f;
+        float x8_remTime = 0.f;
+        float xc_speed = 0.1f;
         float x10_holoHoldTime;
-        float x14_ = 2.f;
+        float x14_remHoldTime = 2.f;
         float x18_transitionFactor = 1.f;
-        u32 x1c_ = 2;
-        EGunState x20_gunState = EGunState::One;
+        EDir x1c_dir = EDir::Done;
+        EGunState x20_gunState = EGunState::OutWipeDone;
 
         union
         {
             struct
             {
-                bool x24_24_ : 1;
-                bool x24_25_ : 1;
+                bool x24_24_morphing : 1;
+                bool x24_25_weaponChanged : 1;
             };
             u32 _dummy = 0;
         };
@@ -78,8 +92,12 @@ private:
     public:
         CGunMorph(float gunTransformTime, float holoHoldTime)
         : x4_gunTransformTime(gunTransformTime), x10_holoHoldTime(std::fabs(holoHoldTime)) {}
+        float GetYLerp() const { return x0_yLerp; }
         float GetTransitionFactor() const { return x18_transitionFactor; }
         EGunState GetGunState() const { return x20_gunState; }
+        void SetWeaponChanged() { x24_25_weaponChanged = true; }
+        EMorphEvent Update(float inY, float outY, float dt);
+        void StartWipe(EDir dir);
     };
 
     class CMotionState
@@ -113,7 +131,7 @@ private:
     CActorLights x0_lights;
     CSfxHandle x2e0_chargeSfx;
     CSfxHandle x2e4_invalidSfx;
-    u32 x2e8_ = 0;
+    CSfxHandle x2e8_phazonBeamSfx;
     // 0x1: FireOrBomb, 0x2: MissileOrPowerBomb
     u32 x2ec_lastFireButtonStates = 0;
     u32 x2f0_pressedFireButtonStates = 0;
@@ -124,11 +142,11 @@ private:
     u32 x304_ = 0;
     u32 x308_bombCount = 3;
     u32 x30c_ = 0;
-    u32 x310_selectedBeam = 0;
-    u32 x314_pendingSelectedBeam = 0;
+    CPlayerState::EBeamId x310_currentBeam = CPlayerState::EBeamId::Power;
+    CPlayerState::EBeamId x314_nextBeam = CPlayerState::EBeamId::Power;
     u32 x318_ = 0;
     EMissleMode x31c_missileMode = EMissleMode::Inactive;
-    u32 x320_ = 0;
+    CPlayerState::EBeamId x320_currentAuxBeam = CPlayerState::EBeamId::Power;
     u32 x324_ = 4;
     u32 x328_ = 0x2000;
     u32 x32c_ = 0;
@@ -159,7 +177,7 @@ private:
     float x390_cooldown = 0.f;
     float x394_damageTimer = 0.f;
     float x398_damageAmt = 0.f;
-    float x39c_ = 0.f;
+    float x39c_phazonMorphT = 0.f;
     float x3a0_ = 0.f;
     CFidget x3a4_fidget;
     zeus::CVector3f x3dc_damageLocation;
@@ -185,11 +203,11 @@ private:
     u32 x674_ = 0;
     CGunMorph x678_morph;
     CMotionState x6a0_motionState;
-    zeus::CAABox x6c8_;
+    zeus::CAABox x6c8_hologramClipCube;
     CModelData x6e0_rightHandModel;
     CGunWeapon* x72c_currentBeam = nullptr;
-    u32 x730_ = 0;
-    CGunWeapon* x734_ = nullptr;
+    CGunWeapon* x730_outgoingBeam = nullptr;
+    CGunWeapon* x734_loadingBeam = nullptr;
     CGunWeapon* x738_nextBeam = nullptr;
     std::unique_ptr<CGunMotion> x73c_gunMotion;
     std::unique_ptr<CGrappleArm> x740_grappleArm;
@@ -274,9 +292,11 @@ private:
     void ReturnToRestPose();
     void ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr);
     void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, const std::string& lctrName,
-                          bool b1, bool b2);
+                          bool shake, bool dyn);
     void UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr);
     void ProcessGunMorph(float dt, CStateManager& mgr);
+    void SetPhazonBeamFeedback(bool active);
+    void StartPhazonBeamTransition(bool active, CStateManager& mgr, CPlayerState& playerState);
     void ProcessPhazonGunMorph(float dt, CStateManager& mgr);
     void UpdateChargeState(float dt, CStateManager& mgr);
     void UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CStateManager& mgr);
@@ -297,6 +317,9 @@ private:
     bool IsFidgetLoaded() const;
     void EnterFidget(CStateManager& mgr);
     void UpdateGunIdle(bool b1, float camBobT, float dt, CStateManager& mgr);
+    void RenderEnergyDrainEffects(const CStateManager& mgr) const;
+    void DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
+    zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& pos, const CGameCamera& cam) const;
 
 public:
     explicit CPlayerGun(TUniqueId playerId);
@@ -311,8 +334,8 @@ public:
     bool IsBombReady() const { return x835_28_bombReady; }
     u32 GetBombCount() const { return x308_bombCount; }
     bool IsPowerBombReady() const { return x835_29_powerBombReady; }
-    u32 GetSelectedBeam() const { return x310_selectedBeam; }
-    u32 GetPendingSelectedBeam() const { return x314_pendingSelectedBeam; }
+    CPlayerState::EBeamId GetCurrentBeam() const { return x310_currentBeam; }
+    CPlayerState::EBeamId GetNextBeam() const { return x314_nextBeam; }
     const CGunMorph& GetGunMorph() const { return x678_morph; }
     float GetHoloTransitionFactor() const { return x678_morph.GetTransitionFactor(); }
     void SetTransform(const zeus::CTransform& xf) { x3e8_xf = xf; }

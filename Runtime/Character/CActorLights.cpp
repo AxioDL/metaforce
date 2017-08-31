@@ -38,7 +38,7 @@ void CActorLights::BuildConstantAmbientLighting()
 {
     x299_26_ = true;
     x298_24_dirty = true;
-    x29c_shadowLightValIdx = -1;
+    x29c_shadowLightArrIdx = -1;
     x2a0_shadowLightIdx = -1;
 }
 
@@ -49,7 +49,7 @@ void CActorLights::BuildConstantAmbientLighting(const zeus::CColor& color)
     x294_aid = kInvalidAreaId;
     x298_24_dirty = true;
     x298_26_hasAreaLights = true;
-    x29c_shadowLightValIdx = -1;
+    x29c_shadowLightArrIdx = -1;
     x2a0_shadowLightIdx = -1;
 }
 
@@ -201,7 +201,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
         /* World lights disabled */
         if (x298_31_disableWorldLights)
             x2d4_worldLightingLevel = worldLightingLevel;
-        x29c_shadowLightValIdx = -1;
+        x29c_shadowLightArrIdx = -1;
         return true;
     }
 
@@ -230,7 +230,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     x2d4_worldLightingLevel = worldLightingLevel;
     x298_24_dirty = false;
     x294_aid = area.GetAreaId();
-    x29c_shadowLightValIdx = -1;
+    x29c_shadowLightArrIdx = -1;
     x288_ambientColor = zeus::CColor::skClear;
 
     /* Find candidate lights via PVS */
@@ -369,7 +369,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
                 zeus::CVector3f delta = light.GetPosition() - vec;
                 float deltaMag = delta.magnitude();
                 bool useShadow = false;
-                if (x298_27_findShadowLight && x29c_shadowLightValIdx == -1 && light.GetType() != ELightType::LocalAmbient &&
+                if (x298_27_findShadowLight && x29c_shadowLightArrIdx == -1 && light.GetType() != ELightType::LocalAmbient &&
                     deltaMag > 2.f && !aabb.pointInside(light.GetPosition()))
                 {
                     /* Perform shadow dynamic range check */
@@ -383,7 +383,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
                 if (useShadow)
                 {
                     /* Note shadow light */
-                    x29c_shadowLightValIdx = x0_areaLights.size();
+                    x29c_shadowLightArrIdx = x0_areaLights.size();
                     x2a0_shadowLightIdx = value.x0_areaLightIdx;
                 }
                 else if (!outOfBounds)

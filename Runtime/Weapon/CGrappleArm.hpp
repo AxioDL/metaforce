@@ -10,6 +10,9 @@
 
 namespace urde
 {
+class CStateManager;
+class CModelFlags;
+class CActorLights;
 
 class CGrappleArm
 {
@@ -31,6 +34,7 @@ public:
 private:
     CModelData x0_modelData;
     zeus::CTransform x220_xf;
+    zeus::CTransform x2e0_auxXf;
     std::unique_ptr<CGunController> x328_gunController;
     EArmState x334_animState;
     union
@@ -51,6 +55,7 @@ public:
     void AsyncLoadSuit(CStateManager& mgr);
     void SetTransform(const zeus::CTransform& xf) { x220_xf = xf; }
     const zeus::CTransform& GetTransform() const { return x220_xf; }
+    zeus::CTransform& AuxTransform() { return x2e0_auxXf; }
     void SetAnimState(EArmState state);
     EArmState GetAnimState() const { return x334_animState; }
     bool GetActive() const { return x3b2_24_active; }
@@ -64,6 +69,9 @@ public:
     void RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos);
     void TouchModel(const CStateManager& mgr) const;
     void Update(float grappleSwingT, float dt, CStateManager& mgr);
+    void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
+    void Render(const CStateManager& mgr, const zeus::CVector3f& pos,
+                const CModelFlags& flags, const CActorLights* lights) const;
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void EnterStruck(CStateManager& mgr, float angle, bool attack, bool b2);
     void EnterIdle(CStateManager& mgr);

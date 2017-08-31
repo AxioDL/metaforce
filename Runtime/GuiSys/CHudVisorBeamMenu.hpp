@@ -37,8 +37,8 @@ private:
 
     CGuiFrame& x0_baseHud;
     EHudVisorBeamMenu x4_type;
-    u32 x8_selectedItem = 0;
-    u32 xc_pendingSelection = 0;
+    int x8_selectedItem = 0;
+    int xc_pendingSelection = 0;
     float x10_interp = 1.f;
     bool x14_24_visibleDebug : 1;
     bool x14_25_visibleGame : 1;

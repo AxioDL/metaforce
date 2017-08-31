@@ -95,6 +95,11 @@ void CGunWeapon::TouchHolo(const CStateManager& mgr)
 
 }
 
+void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags) const
+{
+
+}
+
 void CGunWeapon::UpdateMuzzleFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, bool emitting)
 {
 
@@ -109,6 +114,13 @@ zeus::CAABox CGunWeapon::GetBounds() const
 {
     if (x10_solidModelData)
         return x10_solidModelData->GetBounds();
+    return zeus::CAABox::skNullBox;
+}
+
+zeus::CAABox CGunWeapon::GetBounds(const zeus::CTransform& xf) const
+{
+    if (x10_solidModelData)
+        return x10_solidModelData->GetBounds(xf);
     return zeus::CAABox::skNullBox;
 }
 

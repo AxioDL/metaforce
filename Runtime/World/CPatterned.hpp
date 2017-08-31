@@ -150,8 +150,7 @@ public:
     static T* CastTo(CEntity* ent)
     {
         if (TCastToPtr<CPatterned> patterned = ent)
-            if (patterned->x34c_character == T::CharacterType)
-                return static_cast<T*>(patterned.GetPtr());
+            return CastTo<T>(patterned.GetPtr());
         return nullptr;
     }
 
@@ -159,8 +158,23 @@ public:
     static const T* CastTo(const CEntity* ent)
     {
         if (TCastToConstPtr<CPatterned> patterned = ent)
-            if (patterned->x34c_character == T::CharacterType)
-                return static_cast<const T*>(patterned.GetPtr());
+            return CastTo<T>(patterned.GetPtr());
+        return nullptr;
+    }
+
+    template <class T>
+    static T* CastTo(CPatterned* patterned)
+    {
+        if (patterned->x34c_character == T::CharacterType)
+            return static_cast<T*>(patterned);
+        return nullptr;
+    }
+
+    template <class T>
+    static const T* CastTo(const CPatterned* patterned)
+    {
+        if (patterned->x34c_character == T::CharacterType)
+            return static_cast<const T*>(patterned);
         return nullptr;
     }
 

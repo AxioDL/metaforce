@@ -86,12 +86,13 @@ public:
         FusionPhazon
     };
 
-    enum class EBeamId : u32
+    enum class EBeamId : s32
     {
+        Invalid = -1,
         Power,
         Ice,
-        Plasma,
         Wave,
+        Plasma,
         Phazon = 27
     };
 
@@ -137,6 +138,7 @@ public:
     EPlayerSuit GetCurrentSuit() const;
     EPlayerSuit GetCurrentSuitRaw() const { return x20_currentSuit; }
     EBeamId GetCurrentBeam() const { return x8_currentBeam; }
+    void SetCurrentBeam(EBeamId beam) { x8_currentBeam = beam; }
     bool CanVisorSeeFog(const CStateManager& stateMgr) const;
     EPlayerVisor GetCurrentVisor() const { return x14_currentVisor; }
     EPlayerVisor GetTransitioningVisor() const { return x18_transitioningVisor; }

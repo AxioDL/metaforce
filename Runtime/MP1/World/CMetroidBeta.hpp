@@ -16,6 +16,7 @@ public:
     CMetroidBeta(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                  const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                  const CActorParameters& aParms, const CMetroidData& metroidData);
+    void RenderHitGunEffect() const;
 };
 
 }

@@ -118,6 +118,7 @@ public:
     virtual void Load(CStateManager& mgr, bool) {}
     virtual void Unload(CStateManager&) {}
     virtual bool IsLoaded() const {return false;}
+    void DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags) const;
     void UpdateMuzzleFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, bool emitting);
     const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
     void SetRainSplashGenerator(CRainSplashGenerator* g) { x1bc_rainSplashGenerator = g; }
@@ -129,10 +130,12 @@ public:
     { x100_gunController->LoadFidgetAnimAsync(mgr, s32(type), s32(x200_beamId), parm2); }
     void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
     { x100_gunController->EnterFidget(mgr, s32(type), s32(x200_beamId), parm2); }
+    bool HasSolidModelData() const { return x10_solidModelData.operator bool(); }
     CModelData& GetSolidModelData() { return *x10_solidModelData; }
     const SWeaponInfo& GetWeaponInfo() const;
     zeus::CAABox GetBounds() const;
-    void SetLeavingBeam() { x218_29_leavingBeam = true; }
+    zeus::CAABox GetBounds(const zeus::CTransform& xf) const;
+    void SetLeavingBeam(bool leaving) { x218_29_leavingBeam = leaving; }
 };
 }
 

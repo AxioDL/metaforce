@@ -14,5 +14,10 @@ CMetroidBeta::CMetroidBeta(TUniqueId uid, const std::string& name, const CEntity
 {
 }
 
+void CMetroidBeta::RenderHitGunEffect() const
+{
+
+}
+
 }
 }

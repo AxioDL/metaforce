@@ -44,7 +44,8 @@ enum class EGunAnimType
     ToMissile,
     Seven,
     MissileReload,
-    FromBeam
+    FromBeam,
+    Ten
 };
 
 void primitive_set_to_token_vector(const CAnimData& animData, const std::set<CPrimitive>& primSet,

@@ -55,10 +55,10 @@ struct ITweakPlayerRes : ITweak
             return xc8_ballTransitions[0];
         case EBeamId::Ice:
             return xc8_ballTransitions[1];
-        case EBeamId::Plasma:
-            return xc8_ballTransitions[3];
         case EBeamId::Wave:
             return xc8_ballTransitions[2];
+        case EBeamId::Plasma:
+            return xc8_ballTransitions[3];
         case EBeamId::Phazon:
             return xc8_ballTransitions[4];
         }
@@ -76,10 +76,10 @@ struct ITweakPlayerRes : ITweak
             return xc8_cineGun[0];
         case EBeamId::Ice:
             return xc8_cineGun[1];
-        case EBeamId::Plasma:
-            return xc8_cineGun[3];
         case EBeamId::Wave:
             return xc8_cineGun[2];
+        case EBeamId::Plasma:
+            return xc8_cineGun[3];
         case EBeamId::Phazon:
             return xc8_cineGun[4];
         }

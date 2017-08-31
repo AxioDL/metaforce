@@ -40,8 +40,8 @@ class CActorLights
         u16 _dummy = 0;
     };
     bool x29a_findNearestDynamicLights = false;
-    u32 x29c_shadowLightValIdx = -1;
-    u32 x2a0_shadowLightIdx = -1;
+    s32 x29c_shadowLightArrIdx = -1;
+    s32 x2a0_shadowLightIdx = -1;
     u32 x2a4_lastUpdateFrame = 0;
     u32 x2a8_areaUpdateFramePeriod;
     zeus::CVector3f x2ac_actorPosBias;
@@ -51,7 +51,7 @@ class CActorLights
     float x2cc_actorPositionDeltaUpdateThreshold;
     float x2d0_shadowDynamicRangeThreshold = 0.f;
     float x2d4_worldLightingLevel = 1.f;
-    u32 x2d8_brightLightIdx = -1;
+    s32 x2d8_brightLightIdx = -1;
     u32 x2dc_brightLightLag = 0;
 
     static void MergeOverflowLight(CLight& out, zeus::CColor& color, const CLight& in, float colorMag);
@@ -75,11 +75,11 @@ public:
     void ActivateLights(CBooModel& model) const;
     void SetCastShadows(bool v) { x298_25_castShadows = v; }
     void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }
+    void SetShadowDynamicRangeThreshold(float t) { x2d0_shadowDynamicRangeThreshold = t; }
     void SetAmbientChannelOverflow(bool v) { x298_29_ambientChannelOverflow = v; }
     void DisableAreaLights();
     void SetMaxDynamicLights(int l) { x2bc_maxDynamicLights = l; }
     void SetFindNearestDynamicLights(bool v) { x29a_findNearestDynamicLights = v; }
-
     void SetAmbientColor(const zeus::CColor& color) { x288_ambientColor = color; }
     const zeus::CColor& GetAmbientColor() const { return x288_ambientColor; }
     const CLight& GetLight(u32 idx) const;
@@ -88,6 +88,9 @@ public:
     const std::vector<CLight>& GetAreaLights() const { return x0_areaLights; }
     const std::vector<CLight>& GetDynamicLights() const { return x144_dynamicLights; }
     bool GetIsDirty() const { return x298_24_dirty; }
+    bool HasShadowLight() const { return x29c_shadowLightArrIdx != -1; }
+    s32 GetShadowLightArrIndex() const { return x29c_shadowLightArrIdx; }
+    s32 GetShadowLightIndex() const { return x2a0_shadowLightIdx; }
 };
 
 }
