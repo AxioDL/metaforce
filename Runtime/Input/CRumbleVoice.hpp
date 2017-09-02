@@ -9,13 +9,15 @@ enum class ERumbleFxId
 {
     Seven = 7,
     Eleven = 11,
+    Twelve = 12,
     Fifteen = 15
 };
 enum class ERumblePriority
 {
     None = 0,
     One = 1,
-    Two = 2
+    Two = 2,
+    Three = 3
 };
 
 struct SAdsrData;

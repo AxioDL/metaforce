@@ -15,8 +15,9 @@ class CPlayerState
 {
     friend class CWorldTransManager;
 public:
-    enum class EItemType : u32
+    enum class EItemType : s32
     {
+        Invalid = -1,
         PowerBeam = 0,
         IceBeam = 1,
         WaveBeam = 2,
@@ -127,7 +128,7 @@ public:
 
     float sub_80091204() const;
     u32 GetMissileCostForAltAttack() const;
-    static float GetMissileComboChargeFactor() { return 1.8f; }
+    static constexpr float GetMissileComboChargeFactor() { return 1.8f; }
     u32 CalculateItemCollectionRate() const;
 
     CHealthInfo& HealthInfo();

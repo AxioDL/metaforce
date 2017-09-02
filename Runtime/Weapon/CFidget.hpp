@@ -41,7 +41,7 @@ public:
     EState GetState() const { return x0_state; }
     SamusGun::EFidgetType GetType() const { return x4_type; }
     s32 GetParm2() const { return xc_parm2; }
-    EState Update(int fire, bool bobbing, bool b1, float dt, CStateManager& mgr);
+    EState Update(int fire, bool bobbing, bool inStrikeCooldown, float dt, CStateManager& mgr);
     void ResetMinor();
     void ResetAll();
     void DoneLoading() { x34_24_loading = false; }

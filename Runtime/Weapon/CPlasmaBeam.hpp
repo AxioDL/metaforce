@@ -22,6 +22,8 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     bool IsFiring() const { return x234_ > 0.f; }
     void StopBeam(CStateManager& mgr, bool b1) {}
+    void UpdateBeam(float dt, const zeus::CTransform& targetXf,
+                    const zeus::CVector3f& localBeamPos, CStateManager& mgr) {}
 };
 
 }

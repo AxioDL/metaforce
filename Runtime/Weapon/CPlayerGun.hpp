@@ -38,12 +38,47 @@ public:
         Bomb,
         PowerBomb
     };
-    enum class EGunOverrideMode
+    enum class EPhazonBeamState
     {
-        Normal,
-        One,
-        Two,
-        Three
+        Inactive,
+        Entering,
+        Exiting,
+        Active
+    };
+    enum class EChargePhase
+    {
+        NotCharging,
+        ChargeRequested,
+        AnimAndSfx,
+        FxGrowing,
+        FxGrown,
+        ComboXfer,
+        ComboXferDone,
+        ComboFire,
+        ComboFireDone,
+        ChargeCancelled,
+        ChargeDone
+    };
+    enum class ENextState
+    {
+        StatusQuo,
+        EnterMissile,
+        ExitMissile,
+        MissileShotDone,
+        MissileReload,
+        ChangeWeapon,
+        SetupBeam,
+        Seven,
+        EnterPhazonBeam,
+        ExitPhazonBeam
+    };
+    enum class EIdleState
+    {
+        NotIdle,
+        Wander,
+        Idle,
+        Three,
+        Four
     };
 private:
     class CGunMorph
@@ -107,25 +142,31 @@ private:
         {
             Zero,
             One,
-            Two
+            LockOn,
+            CancelLockOn
+        };
+        enum class EFireState
+        {
+            NotFiring,
+            StartFire,
+            Firing
         };
     private:
         static float gGunExtendDistance;
-        bool x0_24_ = true;
-        float x4_ = 0.f;
-        float x8_ = 0.f;
-        float xc_ = 0.f;
-        float x10_ = 0.f;
-        float x14_ = 0.f;
-        float x18_ = 0.f;
-        float x1c_ = 0.f;
+        bool x0_24_extendParabola = true;
+        float x4_extendParabolaDelayTimer = 0.f;
+        float x8_fireTime = 0.f;
+        float xc_curExtendDist = 0.f;
+        float x10_curRotation = 0.f;
+        float x14_rotationT = 0.f;
+        float x18_startRotation = 0.f;
+        float x1c_endRotation = 0.f;
         EMotionState x20_state = EMotionState::Zero;
-        u32 x24_ = 0;
+        EFireState x24_fireState = EFireState::NotFiring;
     public:
         static void SetExtendDistance(float d) { gGunExtendDistance = d; }
         void SetState(EMotionState state) { x20_state = state; }
-        void Update(bool b1, float dt, zeus::CTransform& xf, CStateManager& mgr);
-
+        void Update(bool firing, float dt, zeus::CTransform& xf, CStateManager& mgr);
     };
 
     CActorLights x0_lights;
@@ -136,49 +177,50 @@ private:
     u32 x2ec_lastFireButtonStates = 0;
     u32 x2f0_pressedFireButtonStates = 0;
     u32 x2f4_fireButtonStates = 0;
-    u32 x2f8_ = 1;
+    // 0x1: beam mode, 0x2: missile mode, 0x4: missile ready, 0x8: morphing, 0x10: combo fire
+    u32 x2f8_stateFlags = 0x1;
     u32 x2fc_fidgetAnimBits = 0;
-    u32 x300_ = 0;
+    u32 x300_remainingMissiles = 0;
     u32 x304_ = 0;
     u32 x308_bombCount = 3;
-    u32 x30c_ = 0;
+    u32 x30c_rapidFireShots = 0;
     CPlayerState::EBeamId x310_currentBeam = CPlayerState::EBeamId::Power;
     CPlayerState::EBeamId x314_nextBeam = CPlayerState::EBeamId::Power;
-    u32 x318_ = 0;
+    u32 x318_comboAmmoIdx = 0;
     EMissleMode x31c_missileMode = EMissleMode::Inactive;
     CPlayerState::EBeamId x320_currentAuxBeam = CPlayerState::EBeamId::Power;
-    u32 x324_ = 4;
-    u32 x328_ = 0x2000;
-    u32 x32c_ = 0;
+    EIdleState x324_idleState = EIdleState::Four;
+    float x328_animSfxPitch = 0.f;
+    EChargePhase x32c_chargePhase = EChargePhase::NotCharging;
     EChargeState x330_chargeState = EChargeState::Normal;
     u32 x334_ = 0;
-    u32 x338_ = 0;
-    EGunOverrideMode x33c_gunOverrideMode = EGunOverrideMode::Normal;
+    ENextState x338_nextState = ENextState::StatusQuo;
+    EPhazonBeamState x33c_phazonBeamState = EPhazonBeamState::Inactive;
     float x340_chargeBeamFactor = 0.f;
-    float x344_ = 0.f;
-    float x348_ = 0.f;
+    float x344_comboXferTimer = 0.f;
+    float x348_chargeCancelTimer = 0.f;
     float x34c_shakeX = 0.f;
     float x350_shakeZ = 0.f;
     float x354_bombFuseTime;
     float x358_bombDropDelayTime;
     float x35c_bombTime = 0.f;
     float x360_ = 0.f;
-    float x364_ = 0.f;
-    float x368_ = 0.f;
+    float x364_gunStrikeCoolTimer = 0.f;
+    float x368_idleWanderDelayTimer = 0.f;
     float x36c_ = 1.f;
     float x370_gunMotionSpeedMult = 1.f;
     float x374_ = 0.f;
-    float x378_ = 0.f;
-    float x37c_ = 0.f;
-    float x380_ = 0.f;
-    float x384_ = 0.f;
-    float x388_ = 0.f;
-    float x38c_ = 0.f;
+    float x378_shotSmokeStartTimer = 0.f;
+    float x37c_rapidFireShotsDecayTimer = 0.f;
+    float x380_shotSmokeTimer = 0.f;
+    float x384_gunStrikeDelayTimer = 0.f;
+    float x388_enterFreeLookDelayTimer = 0.f;
+    float x38c_muzzleEffectVisTimer = 0.f;
     float x390_cooldown = 0.f;
     float x394_damageTimer = 0.f;
     float x398_damageAmt = 0.f;
     float x39c_phazonMorphT = 0.f;
-    float x3a0_ = 0.f;
+    float x3a0_missileExitTimer = 0.f;
     CFidget x3a4_fidget;
     zeus::CVector3f x3dc_damageLocation;
     zeus::CTransform x3e8_xf;
@@ -199,8 +241,7 @@ private:
     float x664_ = 0.f;
     float x668_aimVerticalSpeed;
     float x66c_aimHorizontalSpeed;
-    TUniqueId x670_ = kInvalidUniqueId;
-    u32 x674_ = 0;
+    std::pair<u16, CSfxHandle> x670_animSfx = {0xffff, {}};
     CGunMorph x678_morph;
     CMotionState x6a0_motionState;
     zeus::CAABox x6c8_hologramClipCube;
@@ -220,7 +261,7 @@ private:
     std::unique_ptr<CPhazonBeam> x75c_phazonBeam;
     CGunWeapon* x760_selectableBeams[4] = {}; // Used to be reserved_vector
     std::unique_ptr<CElementGen> x774_holoTransitionGen;
-    std::unique_ptr<CElementGen> x77c_;
+    std::unique_ptr<CElementGen> x77c_comboXferGen;
     rstl::reserved_vector<rstl::reserved_vector<TLockedToken<CGenDescription>, 2>, 2> x784_bombEffects;
     rstl::reserved_vector<TLockedToken<CGenDescription>, 5> x7c0_auxMuzzleEffects;
     rstl::reserved_vector<std::unique_ptr<CElementGen>, 5> x800_auxMuzzleGenerators;
@@ -231,14 +272,14 @@ private:
     {
         struct
         {
-            bool x832_24_ : 1;
-            bool x832_25_ : 1;
-            bool x832_26_ : 1;
-            bool x832_27_ : 1;
-            bool x832_28_ : 1;
-            bool x832_29_ : 1;
-            bool x832_30_ : 1;
-            bool x832_31_ : 1;
+            bool x832_24_cancellingCharge : 1;
+            bool x832_25_chargeEffectVisible : 1;
+            bool x832_26_comboFiring : 1;
+            bool x832_27_chargeAnimStarted : 1;
+            bool x832_28_readyForShot : 1;
+            bool x832_29_lockedOn : 1;
+            bool x832_30_requestReturnToDefault : 1;
+            bool x832_31_inRestPose : 1;
 
             bool x833_24_isFidgeting : 1;
             bool x833_25_ : 1;
@@ -246,17 +287,17 @@ private:
             bool x833_27_ : 1;
             bool x833_28_phazonBeamActive : 1;
             bool x833_29_pointBlankWorldSurface : 1;
-            bool x833_30_ : 1;
-            bool x833_31_ : 1;
+            bool x833_30_canShowAuxMuzzleEffect : 1;
+            bool x833_31_inFreeLook : 1;
 
             bool x834_24_charging : 1;
-            bool x834_25_ : 1;
-            bool x834_26_ : 1;
+            bool x834_25_gunMotionFidgeting : 1;
+            bool x834_26_animPlaying : 1;
             bool x834_27_underwater : 1;
-            bool x834_28_ : 1;
+            bool x834_28_requestImmediateRecharge : 1;
             bool x834_29_frozen : 1;
             bool x834_30_inBigStrike : 1;
-            bool x834_31_ : 1;
+            bool x834_31_gunMotionInFidgetBasePosition : 1;
 
             bool x835_24_canFirePhazon : 1;
             bool x835_25_inPhazonBeam : 1;
@@ -277,7 +318,7 @@ private:
     void LoadHandAnimTokens();
     void CreateGunLight(CStateManager& mgr);
     void DeleteGunLight(CStateManager& mgr);
-    void UpdateGunLight(const zeus::CTransform& pos, CStateManager& mgr);
+    void UpdateGunLight(const zeus::CTransform& xf, CStateManager& mgr);
     void SetGunLightActive(bool active, CStateManager& mgr);
     void SetPhazonBeamMorph(bool intoPhazonBeam);
     void Reset(CStateManager& mgr, bool b1);
@@ -288,7 +329,7 @@ private:
     bool ExitMissile();
     void StopChargeSound(CStateManager& mgr);
     void UnLoadFidget();
-    void ReturnArmAndGunToDefault(CStateManager& mgr, bool b1);
+    void ReturnArmAndGunToDefault(CStateManager& mgr, bool returnToDefault);
     void ReturnToRestPose();
     void ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr);
     void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, const std::string& lctrName,
@@ -298,8 +339,10 @@ private:
     void SetPhazonBeamFeedback(bool active);
     void StartPhazonBeamTransition(bool active, CStateManager& mgr, CPlayerState& playerState);
     void ProcessPhazonGunMorph(float dt, CStateManager& mgr);
+    void EnableChargeFx(EChargeState state, CStateManager& mgr);
     void UpdateChargeState(float dt, CStateManager& mgr);
     void UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CStateManager& mgr);
+    void DoUserAnimEvent(float dt, CStateManager& mgr, const CInt32POINode& node, EUserEventType type);
     void DoUserAnimEvents(float dt, CStateManager& mgr);
     TUniqueId GetTargetId(CStateManager& mgr) const;
     void CancelLockOn();
@@ -316,7 +359,7 @@ private:
     void AsyncLoadFidget(CStateManager& mgr);
     bool IsFidgetLoaded() const;
     void EnterFidget(CStateManager& mgr);
-    void UpdateGunIdle(bool b1, float camBobT, float dt, CStateManager& mgr);
+    void UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, CStateManager& mgr);
     void RenderEnergyDrainEffects(const CStateManager& mgr) const;
     void DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& pos, const CGameCamera& cam) const;

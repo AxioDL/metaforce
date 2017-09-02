@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
+#include "Audio/CSfxManager.hpp"
 #include <set>
 
 namespace urde
@@ -10,6 +11,8 @@ namespace urde
 class CAnimData;
 class CToken;
 class CPrimitive;
+class CStateManager;
+
 enum class EWeaponType
 {
     None = -1,
@@ -35,17 +38,17 @@ namespace NWeaponTypes
 
 enum class EGunAnimType
 {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
+    BasePosition,
+    Shoot,
+    ChargeUp,
+    ChargeLoop,
+    ChargeShoot,
     FromMissile,
     ToMissile,
-    Seven,
+    MissileShoot,
     MissileReload,
     FromBeam,
-    Ten
+    ToBeam
 };
 
 void primitive_set_to_token_vector(const CAnimData& animData, const std::set<CPrimitive>& primSet,
@@ -55,6 +58,10 @@ void lock_tokens(std::vector<CToken>& anims);
 bool are_tokens_ready(const std::vector<CToken>& anims);
 void get_token_vector(CAnimData& animData, int begin, int end, std::vector<CToken>& tokensOut, bool preLock);
 void get_token_vector(CAnimData& animData, int animIdx, std::vector<CToken>& tokensOut, bool preLock);
+void do_sound_event(std::pair<u16, CSfxHandle>& sfxHandle, float& pitch, bool doPitchBend, u32 soundId,
+                    float weight, u32 flags, float falloff, float maxDist, float minVol, float maxVol,
+                    const zeus::CVector3f& posToCam, const zeus::CVector3f& pos, TAreaId aid,
+                    CStateManager& mgr);
 
 }
 

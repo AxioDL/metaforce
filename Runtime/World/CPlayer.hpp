@@ -561,6 +561,7 @@ public:
     bool ValidateAimTargetId(TUniqueId, CStateManager& mgr);
     bool ValidateObjectForMode(TUniqueId, CStateManager& mgr) const;
     TUniqueId FindAimTargetId(CStateManager& mgr);
+    TUniqueId GetAimTarget() const { return x3f4_aimTarget; }
     TUniqueId CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, EPlayerZoneInfo, EPlayerZoneType,
                                            CStateManager& mgr) const;
     TUniqueId FindOrbitTargetId(CStateManager& mgr);
@@ -634,6 +635,7 @@ public:
     EPlayerScanState GetScanningState() const { return x3a8_scanState; }
     float GetScanningTime() const { return x3ac_scanningTime; }
     TUniqueId GetOrbitTargetId() const { return x310_orbitTargetId; }
+    TUniqueId GetOrbitNextTargetId() const { return x33c_orbitNextTargetId; }
     TUniqueId GetScanningObjectId() const { return x3b4_scanningObject; }
     EGrappleState GetGrappleState() const { return x3b8_grappleState; }
     bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }

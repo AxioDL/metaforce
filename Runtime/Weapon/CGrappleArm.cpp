@@ -82,6 +82,11 @@ void CGrappleArm::EnterFreeLook(s32 gunId, s32 setId, CStateManager& mgr)
 
 }
 
+void CGrappleArm::EnterComboFire(s32 gunId, CStateManager& mgr)
+{
+
+}
+
 void CGrappleArm::ReturnToDefault(CStateManager& mgr, float f1, bool b1)
 {
 

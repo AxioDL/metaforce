@@ -31,4 +31,10 @@ void CPhazonBeam::StopBeam(CStateManager& mgr, bool b1)
 
 }
 
+void CPhazonBeam::UpdateBeam(float dt, const zeus::CTransform& targetXf,
+                             const zeus::CVector3f& localBeamPos, CStateManager& mgr)
+{
+
+}
+
 }

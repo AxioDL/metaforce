@@ -77,6 +77,7 @@ public:
     void EnterIdle(CStateManager& mgr);
     void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 gunId, s32 parm2);
     void EnterFreeLook(s32 gunId, s32 setId, CStateManager& mgr);
+    void EnterComboFire(s32 gunId, CStateManager& mgr);
     void ReturnToDefault(CStateManager& mgr, float f1, bool b1);
     CGunController* GunController() { return x328_gunController.get(); }
 };

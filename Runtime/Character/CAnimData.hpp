@@ -85,6 +85,7 @@ class CAnimData
 {
     friend class CModelData;
     friend class CActor;
+    friend class CPlayerGun;
 public:
     enum class EAnimDir
     {

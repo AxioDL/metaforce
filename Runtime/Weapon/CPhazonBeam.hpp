@@ -29,6 +29,8 @@ public:
     void SetX274_25(bool b) { x274_25 = b; }
     void SetX274_26(bool b) { x274_26 = b; }
     void StopBeam(CStateManager& mgr, bool b1);
+    void UpdateBeam(float dt, const zeus::CTransform& targetXf,
+                    const zeus::CVector3f& localBeamPos, CStateManager& mgr);
 };
 
 }

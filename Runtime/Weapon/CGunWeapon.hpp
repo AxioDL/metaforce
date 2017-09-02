@@ -63,7 +63,7 @@ protected:
     TToken<CAnimCharacterSet> x104_gunCharacter;
     TToken<CAnimCharacterSet> x13c_armCharacter;
     rstl::reserved_vector<TCachedToken<CWeaponDescription>, 2> x144_weapons;
-    TToken<CGenDescription> x160_xferEffect;
+    TCachedToken<CGenDescription> x160_xferEffect;
     rstl::reserved_vector<TCachedToken<CGenDescription>, 2> x16c_muzzleEffects;
     rstl::reserved_vector<TCachedToken<CGenDescription>, 2> x188_secondaryEffects;
     rstl::reserved_vector<std::unique_ptr<CElementGen>, 2> x1a4_muzzleGenerators;
@@ -84,7 +84,7 @@ protected:
         struct
         {
             bool x218_24 : 1;
-            bool x218_25 : 1;
+            bool x218_25_enableCharge : 1;
             bool x218_26 : 1;
             bool x218_27 : 1;
             bool x218_28 : 1;
@@ -97,12 +97,11 @@ public:
     CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EMaterialTypes, const zeus::CVector3f& scale);
     void AsyncLoadSuitArm(CStateManager& mgr);
     void AllocResPools(CPlayerState::EBeamId);
-
     virtual void Reset(CStateManager&) {}
-    virtual void PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {}
+    virtual void PlayAnim(NWeaponTypes::EGunAnimType type, bool loop);
     virtual void PreRenderGunFx(const CStateManager&, const zeus::CTransform&) {}
     virtual void PostRenderGunFx(const CStateManager&, const zeus::CTransform&) {}
-    virtual void UpdateGunFx(bool, float, const CStateManager&, const zeus::CTransform&) {}
+    virtual void UpdateGunFx(bool shotSmoke, float, const CStateManager&, const zeus::CTransform&) {}
     virtual void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget) {}
     virtual void EnableFx(bool) {}
@@ -123,7 +122,9 @@ public:
     const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
     void SetRainSplashGenerator(CRainSplashGenerator* g) { x1bc_rainSplashGenerator = g; }
     CElementGen* GetChargeMuzzleFx() const { return x1a4_muzzleGenerators[1].get(); }
+    const TToken<CGenDescription>& GetComboXferDescr() const { return x160_xferEffect; }
     void ReturnToDefault(CStateManager& mgr) {}
+    bool PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle) { return false; }
     void UnLoadFidget() {}
     bool IsFidgetLoaded() const { return x100_gunController->IsFidgetLoaded(); }
     void AsyncLoadFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
@@ -133,9 +134,13 @@ public:
     bool HasSolidModelData() const { return x10_solidModelData.operator bool(); }
     CModelData& GetSolidModelData() { return *x10_solidModelData; }
     const SWeaponInfo& GetWeaponInfo() const;
+    EWeaponType GetWeaponType() const { return x1c0_weaponType; }
     zeus::CAABox GetBounds() const;
     zeus::CAABox GetBounds(const zeus::CTransform& xf) const;
+    bool ComboFireOver() const { return x100_gunController->IsComboOver(); }
+    bool IsChargeAnimOver() const;
     void SetLeavingBeam(bool leaving) { x218_29_leavingBeam = leaving; }
+    void EnableCharge(bool c) { x218_25_enableCharge = c; }
 };
 }
 

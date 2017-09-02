@@ -3,7 +3,7 @@
 namespace urde
 {
 
-CFidget::EState CFidget::Update(int fire, bool bobbing, bool b1, float dt, CStateManager& mgr)
+CFidget::EState CFidget::Update(int fire, bool bobbing, bool inStrikeCooldown, float dt, CStateManager& mgr)
 {
     return EState::Zero;
 }

@@ -1,6 +1,7 @@
 #include "CGunWeapon.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "Character/CModelData.hpp"
 
 namespace urde
 {
@@ -53,6 +54,24 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId,
 
 void CGunWeapon::AsyncLoadSuitArm(CStateManager& mgr)
 {
+}
+
+void CGunWeapon::AllocResPools(CPlayerState::EBeamId)
+{
+
+}
+
+static const s32 skAnimTypeList[] = { 0, 4, 1, 2, 3, 5, 6, 7, 8, 9, 10 };
+
+void CGunWeapon::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop)
+{
+    if (x218_26 && type >= NWeaponTypes::EGunAnimType::BasePosition &&
+        type <= NWeaponTypes::EGunAnimType::ToBeam)
+    {
+        x10_solidModelData->AnimationData()->EnableLooping(loop);
+        CAnimPlaybackParms parms(skAnimTypeList[int(type)], -1, 1.f, true);
+        x10_solidModelData->AnimationData()->SetAnimation(parms, false);
+    }
 }
 
 void CGunWeapon::BuildSecondaryEffect(ESecondaryFxType type)
@@ -122,6 +141,11 @@ zeus::CAABox CGunWeapon::GetBounds(const zeus::CTransform& xf) const
     if (x10_solidModelData)
         return x10_solidModelData->GetBounds(xf);
     return zeus::CAABox::skNullBox;
+}
+
+bool CGunWeapon::IsChargeAnimOver() const
+{
+    return false;
 }
 
 }

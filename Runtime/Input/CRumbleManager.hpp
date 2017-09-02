@@ -17,7 +17,7 @@ public:
     void Update(float);
     void StopRumble(s16) {}
     void Rumble(CStateManager&, ERumbleFxId, ERumblePriority priority) {}
-    void Rumble(CStateManager&, ERumbleFxId, float, ERumblePriority priority) {}
+    s16 Rumble(CStateManager&, ERumbleFxId, float, ERumblePriority priority) {return 0;}
 };
 }
 

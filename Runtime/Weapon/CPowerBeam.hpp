@@ -10,7 +10,7 @@ class CPowerBeam : public CGunWeapon
 {
     TCachedToken<CGenDescription> x21c_shotSmoke;
     TCachedToken<CGenDescription> x228_power2nd1;
-    u32 x234_ = 0;
+    std::unique_ptr<CElementGen> x234_shotSmokeGen;
     float x23c_ = 0.f;
     u32 x240_ = 0;
     bool x244_24 : 1;
