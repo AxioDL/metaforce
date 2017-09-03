@@ -80,6 +80,8 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
     x550_camBob.SetPlayerVelocity(zeus::CVector3f::skZero);
     x550_camBob.SetBobMagnitude(0.f);
     x550_camBob.SetBobTimeScale(0.f);
+
+    m_aaboxShader.setAABB(x6c8_hologramClipCube);
 }
 
 void CPlayerGun::InitBeamData()
@@ -2455,9 +2457,26 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
         return {-1.f, -1.f, 1.f};
 }
 
-static void CopyScreenTex() {}
-static void DrawScreenTex(float f1) {}
-static void DrawClipCube(const zeus::CAABox& aabb) {}
+void CPlayerGun::CopyScreenTex()
+{
+    // Copy lower right quadrant to gpCopyTexBuf as RGBA8
+    CGraphics::ResolveSpareTexture(g_Viewport);
+}
+
+void CPlayerGun::DrawScreenTex(float z) const
+{
+    // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
+    // This is accomplished using orthographic projection quad with sweeping `y` coordinates
+    // Depth is set to GEQUAL to obscure pixels in front rather than behind
+    m_screenQuad.draw(zeus::CColor::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
+}
+
+void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) const
+{
+    // Render AABB as completely transparent object, only modifying Z-buffer
+    // AABB has already been set in constructor (since it's constant)
+    m_aaboxShader.draw(zeus::CColor::skClear);
+}
 
 static const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::CColor::skWhite};
 static const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};

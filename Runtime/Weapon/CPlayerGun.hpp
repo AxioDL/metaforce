@@ -20,6 +20,8 @@
 #include "World/CWorldShadow.hpp"
 #include "World/ScriptObjectSupport.hpp"
 #include "Graphics/CRainSplashGenerator.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Graphics/Shaders/CAABoxShader.hpp"
 
 namespace urde
 {
@@ -311,6 +313,9 @@ private:
         u32 _dummy = 0;
     };
 
+    mutable CTexturedQuadFilter m_screenQuad = {EFilterType::Blend, CGraphics::g_SpareTexture, true};
+    mutable CAABoxShader m_aaboxShader = {true};
+
     void InitBeamData();
     void InitBombData();
     void InitMuzzleData();
@@ -363,6 +368,9 @@ private:
     void RenderEnergyDrainEffects(const CStateManager& mgr) const;
     void DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const;
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& pos, const CGameCamera& cam) const;
+    static void CopyScreenTex();
+    void DrawScreenTex(float z) const;
+    void DrawClipCube(const zeus::CAABox& aabb) const;
 
 public:
     explicit CPlayerGun(TUniqueId playerId);

@@ -9,8 +9,8 @@ CTexturedQuadFilter::CTexturedQuadFilter(boo::ITexture* tex)
 {
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, boo::ITexture* tex)
-: m_booTex(tex)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, boo::ITexture* tex, bool gequal)
+: m_booTex(tex), m_gequal(gequal)
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
@@ -28,14 +28,14 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type,
     m_tex = tex;
 }
 
-void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect)
+void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect, float z)
 {
     Vert verts[4] =
     {
-        {{0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{0.f, 1.f, 0.f}, {0.f, uvScale}},
-        {{1.f, 0.f, 0.f}, {uvScale, 0.f}},
-        {{1.f, 1.f, 0.f}, {uvScale, uvScale}},
+        {{0.f, 0.f, z}, {0.f, 0.f}},
+        {{0.f, 1.f, z}, {0.f, uvScale}},
+        {{1.f, 0.f, z}, {uvScale, 0.f}},
+        {{1.f, 1.f, z}, {uvScale, uvScale}},
     };
     m_vbo->load(verts, sizeof(verts));
 

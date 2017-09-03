@@ -32,6 +32,7 @@ protected:
     boo::IGraphicsBufferD* m_uniBuf;
     boo::IShaderDataBinding* m_dataBind = nullptr;
     Uniform m_uniform;
+    bool m_gequal;
 
     CTexturedQuadFilter(boo::ITexture* tex);
 
@@ -44,12 +45,12 @@ public:
 
     static const zeus::CRectangle DefaultRect;
     CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex);
-    CTexturedQuadFilter(EFilterType type, boo::ITexture* tex);
+    CTexturedQuadFilter(EFilterType type, boo::ITexture* tex, bool gequal = false);
     CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
     CTexturedQuadFilter& operator=(CTexturedQuadFilter&&) = default;
-    void draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect=DefaultRect);
+    void draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect=DefaultRect, float z=0.f);
     void drawCropped(const zeus::CColor& color, float uvScale);
     void drawVerts(const zeus::CColor& color, const Vert verts[4], float lod=0.f);
     void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);

@@ -1,5 +1,4 @@
 #include "CCameraBlurFilter.hpp"
-#include "Graphics/CGraphics.hpp"
 
 namespace urde
 {

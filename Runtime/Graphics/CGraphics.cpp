@@ -28,7 +28,7 @@ zeus::CVector3f CGraphics::g_ViewPoint;
 zeus::CTransform CGraphics::g_GXViewPointMatrix;
 zeus::CTransform CGraphics::g_CameraMatrix;
 SClipScreenRect CGraphics::g_CroppedViewport;
-int CGraphics::g_ViewportSamples = 1;
+unsigned int CGraphics::g_ViewportSamples = 1;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
 SViewport g_Viewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
 u32 CGraphics::g_FrameCounter = 0;

@@ -1,6 +1,5 @@
 #include "CCameraBlurFilter.hpp"
 #include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
 
 namespace urde
 {

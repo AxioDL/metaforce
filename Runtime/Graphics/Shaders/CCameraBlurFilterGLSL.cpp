@@ -1,6 +1,5 @@
 #include "CCameraBlurFilter.hpp"
 #include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
 
 namespace urde
 {
@@ -127,7 +126,7 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
     const char* uniNames[] = {"CameraBlurUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                       boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterGLDataBindingFactory;
 }
 
