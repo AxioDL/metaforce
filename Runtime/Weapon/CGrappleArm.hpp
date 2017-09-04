@@ -4,6 +4,7 @@
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
 #include "Character/CModelData.hpp"
+#include "Character/CAnimCharacterSet.hpp"
 #include "CStateManager.hpp"
 #include "CGunController.hpp"
 #include "CGunMotion.hpp"
@@ -11,7 +12,7 @@
 namespace urde
 {
 class CStateManager;
-class CModelFlags;
+struct CModelFlags;
 class CActorLights;
 
 class CGrappleArm
@@ -19,30 +20,65 @@ class CGrappleArm
 public:
     enum class EArmState
     {
-        Zero,
-        One,
-        Two,
+        IntoGrapple,
+        IntoGrappleIdle,
+        FireGrapple,
         Three,
-        Four,
+        ConnectGrapple,
         Five,
-        Six,
+        Connected,
         Seven,
-        Eight,
-        Nine,
-        Ten
+        OutOfGrapple,
+        GunControllerAnimation,
+        Done
     };
 private:
-    CModelData x0_modelData;
+    std::experimental::optional<CModelData> x0_grappleArmModel;
+    std::experimental::optional<CModelData> x50_grappleArmSkeletonModel;
+    CModelData xa0_grappleGearModel;
+    CModelData xec_grapNoz1Model;
+    CModelData x138_grapNoz2Model;
+    TCachedToken<CAnimCharacterSet> x184_grappleArm;
+    std::vector<CToken> x18c_anims;
+    rstl::reserved_vector<std::vector<CToken>, 8> x19c_suitDeps;
     zeus::CTransform x220_xf;
+    zeus::CTransform x250_grapLocatorXf;
+    zeus::CTransform x280_grapNozLoc1Xf;
+    zeus::CTransform x2b0_grapNozLoc2Xf;
     zeus::CTransform x2e0_auxXf;
+    zeus::CVector3f x310_grapplePointPos;
+    zeus::CVector3f x31c_scale;
     std::unique_ptr<CGunController> x328_gunController;
-    EArmState x334_animState;
+    CSfxHandle x32c_grappleLoopSfx;
+    CSfxHandle x330_swooshSfx;
+    EArmState x334_animState = EArmState::Done;
+    float x338_beamT = 0.f;
+    float x33c_beamDist = 0.f;
+    float x340_anglePhase = 0.f;
+    float x344_xAmplitude = 0.f;
+    float x348_zAmplitude = 0.f;
+    std::pair<u16, CSfxHandle> x34c_animSfx = {0xffff, {}};
+    TCachedToken<CGenDescription> x354_grappleSegmentDesc;
+    TCachedToken<CGenDescription> x360_grappleClawDesc;
+    TCachedToken<CGenDescription> x36c_grappleHitDesc;
+    TCachedToken<CGenDescription> x378_grappleMuzzleDesc;
+    TCachedToken<CSwooshDescription> x384_grappleSwooshDesc;
+    std::unique_ptr<CElementGen> x390_grappleSegmentGen;
+    std::unique_ptr<CElementGen> x394_grappleClawGen;
+    std::unique_ptr<CElementGen> x398_grappleHitGen;
+    std::unique_ptr<CElementGen> x39c_grappleMuzzleGen;
+    std::unique_ptr<CParticleSwoosh> x3a0_grappleSwooshGen;
+    std::unique_ptr<CRainSplashGenerator> x3a4_rainSplashGenerator;
+    CPlayerState::EPlayerSuit x3a8_loadedSuit = CPlayerState::EPlayerSuit::Invalid;
+    float x3ac_pitchBend = 0.f;
+    s16 x3b0_rumbleHandle = -1;
     union
     {
         struct
         {
             bool x3b2_24_active : 1;
             bool x3b2_25_beamActive : 1;
+            bool x3b2_26_grappleHit : 1;
             bool x3b2_27_armMoving : 1;
             bool x3b2_28_isGrappling : 1;
             bool x3b2_29_suitLoading : 1;
@@ -50,8 +86,30 @@ private:
         u32 _dummy = 0;
     };
 
+    static float g_GrappleBeamAnglePhaseDelta;
+    static float g_GrappleBeamXWaveAmplitude;
+    static float g_GrappleBeamZWaveAmplitude;
+    static float g_GrappleBeamSpeed;
+
+    void FillTokenVector(const std::vector<SObjectTag>& tags, std::vector<CToken>& objects);
+    void BuildSuitDependencyList();
+    void LoadAnimations();
+    void ResetAuxParams(bool resetGunController);
+    void DisconnectGrappleBeam();
+    void LoadSuitPoll();
+    void BuildXRayModel();
+    void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type);
+    void DoUserAnimEvents(CStateManager& mgr);
+    void UpdateArmMovement(float dt, CStateManager& mgr);
+    void UpdateGrappleBeamFx(const zeus::CVector3f& beamGunPos, const zeus::CVector3f& beamAirPos, CStateManager& mgr);
+    bool UpdateGrappleBeam(float dt, const zeus::CTransform& beamLoc, CStateManager& mgr);
+    void UpdateSwingAction(float grappleSwingT, float dt, CStateManager& mgr);
+    void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) const;
+
+    static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
+
 public:
-    explicit CGrappleArm(const zeus::CVector3f& vec);
+    explicit CGrappleArm(const zeus::CVector3f& scale);
     void AsyncLoadSuit(CStateManager& mgr);
     void SetTransform(const zeus::CTransform& xf) { x220_xf = xf; }
     const zeus::CTransform& GetTransform() const { return x220_xf; }
@@ -73,12 +131,12 @@ public:
     void Render(const CStateManager& mgr, const zeus::CVector3f& pos,
                 const CModelFlags& flags, const CActorLights* lights) const;
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-    void EnterStruck(CStateManager& mgr, float angle, bool attack, bool b2);
+    void EnterStruck(CStateManager& mgr, float angle, bool bigStrike, bool notInFreeLook);
     void EnterIdle(CStateManager& mgr);
-    void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 gunId, s32 parm2);
+    void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 gunId, s32 animSet);
     void EnterFreeLook(s32 gunId, s32 setId, CStateManager& mgr);
     void EnterComboFire(s32 gunId, CStateManager& mgr);
-    void ReturnToDefault(CStateManager& mgr, float f1, bool b1);
+    void ReturnToDefault(CStateManager& mgr, float dt, bool setState);
     CGunController* GunController() { return x328_gunController.get(); }
 };
 

@@ -1310,7 +1310,7 @@ void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) co
         return;
 
     if (x490_gun->GetGrappleArm().GetActive() &&
-        x490_gun->GetGrappleArm().GetAnimState() != CGrappleArm::EArmState::Ten)
+        x490_gun->GetGrappleArm().GetAnimState() != CGrappleArm::EArmState::Done)
         x490_gun->GetGrappleArm().RenderGrappleBeam(mgr, pos);
 
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Scan &&
@@ -3834,11 +3834,11 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                             case 0:
                                 switch (x490_gun->GetGrappleArm().GetAnimState())
                                 {
-                                case CGrappleArm::EArmState::One:
+                                case CGrappleArm::EArmState::IntoGrappleIdle:
                                     if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input))
-                                        x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Two);
+                                        x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::FireGrapple);
                                     break;
-                                case CGrappleArm::EArmState::Six:
+                                case CGrappleArm::EArmState::Connected:
                                     BeginGrapple(playerToPoint, mgr);
                                     break;
                                 default:
@@ -3850,10 +3850,10 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                                 {
                                     switch (x490_gun->GetGrappleArm().GetAnimState())
                                     {
-                                    case CGrappleArm::EArmState::One:
-                                        x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Two);
+                                    case CGrappleArm::EArmState::IntoGrappleIdle:
+                                        x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::FireGrapple);
                                         break;
-                                    case CGrappleArm::EArmState::Six:
+                                    case CGrappleArm::EArmState::Connected:
                                         BeginGrapple(playerToPoint, mgr);
                                         break;
                                     default:
@@ -3865,10 +3865,10 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                             case 2:
                                 switch (x490_gun->GetGrappleArm().GetAnimState())
                                 {
-                                case CGrappleArm::EArmState::One:
-                                    x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Two);
+                                case CGrappleArm::EArmState::IntoGrappleIdle:
+                                    x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::FireGrapple);
                                     break;
-                                case CGrappleArm::EArmState::Six:
+                                case CGrappleArm::EArmState::Connected:
                                     BeginGrapple(playerToPoint, mgr);
                                     break;
                                 default:
@@ -4022,7 +4022,7 @@ void CPlayer::BreakGrapple(EPlayerOrbitRequest req, CStateManager& mgr)
     SetOrbitRequest(req, mgr);
     x3b8_grappleState = EGrappleState::None;
     AddMaterial(EMaterialTypes::GroundCollider, mgr);
-    x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::Eight);
+    x490_gun->GetGrappleArm().SetAnimState(CGrappleArm::EArmState::OutOfGrapple);
     if (!InGrappleJumpCooldown() && x3b8_grappleState != EGrappleState::JumpOff)
         DrawGun(mgr);
 }

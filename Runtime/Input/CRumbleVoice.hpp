@@ -10,7 +10,9 @@ enum class ERumbleFxId
     Seven = 7,
     Eleven = 11,
     Twelve = 12,
-    Fifteen = 15
+    Fourteen = 14,
+    Fifteen = 15,
+    Seventeen = 17
 };
 enum class ERumblePriority
 {

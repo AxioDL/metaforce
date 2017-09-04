@@ -171,11 +171,38 @@ public:
 
     void DoElectricCreate(const std::vector<zeus::CVector3f>& offsets)
     {
-        int curIdx = x158_curParticle;
+        u32 curIdx = x158_curParticle;
         for (int i=0 ; i<x15c_swooshes.size() ; ++i)
         {
-            curIdx = (curIdx + 1) % x15c_swooshes.size();
+            curIdx = u32((curIdx + 1) % x15c_swooshes.size());
             x15c_swooshes[curIdx].xc_translation = offsets[i];
+        }
+    }
+
+    void DoGrappleWarmup()
+    {
+        for (int i=0 ; i<x15c_swooshes.size()-1 ; ++i)
+        {
+            x1d0_26_disableUpdate = true;
+            Update(0.0);
+        }
+    }
+
+    void DoGrappleUpdate(const zeus::CVector3f& beamGunPos, const zeus::CTransform& rotation, float anglePhase,
+                         float xAmplitude, float zAmplitude, const zeus::CVector3f& swooshSegDelta)
+    {
+        float rot = x15c_swooshes.back().x30_irot;
+        zeus::CVector3f trans = beamGunPos;
+        for (int i=0 ; i<x15c_swooshes.size() ; ++i)
+        {
+            SSwooshData& data = x15c_swooshes[i];
+            zeus::CVector3f vec;
+            if (i > 0)
+                vec = rotation * zeus::CVector3f(std::cos(i + anglePhase) * xAmplitude, 0.f,
+                                                 std::sin(float(i)) * zAmplitude);
+            data.xc_translation = trans + vec;
+            trans += swooshSegDelta;
+            std::swap(rot, data.x30_irot);
         }
     }
 };

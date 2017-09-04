@@ -13,35 +13,36 @@ class CFidget
 public:
     enum class EState
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven
+        NoFidget,
+        MinorFidget,
+        MajorFidget,
+        HolsterBeam,
+        StillMinorFidget,
+        StillMajorFidget,
+        StillHolsterBeam,
+        Loading
     };
 private:
-    EState x0_state = EState::Zero;
+    EState x0_state = EState::NoFidget;
     SamusGun::EFidgetType x4_type = SamusGun::EFidgetType::Invalid;
-    u32 x8_ = 0;
-    s32 xc_parm2 = -1;
-    u32 x10_ = 3;
-    float x14_ = 0.f;
-    float x18_ = 0.f;
-    float x1c_ = 0.f;
-    float x20_ = 0.f;
-    float x24_ = 0.f;
-    float x28_ = 0.f;
-    float x2c_ = 0.f;
-    float x30_ = 105.f;
+    u32 x8_delayTriggerBits = 0;
+    // 0: panel, 1: panel reset, 2: adjust nozzle, 3: panel buttons
+    s32 xc_animSet = -1;
+    u32 x10_delayTimerEnableBits = 3;
+    float x14_timeSinceFire = 0.f;
+    float x18_timeSinceStrikeCooldown = 0.f;
+    float x1c_timeSinceUnmorph = 0.f;
+    float x20_timeSinceBobbing = 0.f;
+    float x24_minorDelayTimer = 0.f;
+    float x28_majorDelayTimer = 0.f;
+    float x2c_holsterTimeSinceFire = 0.f;
+    float x30_timeUntilHolster = 105.f;
     bool x34_24_loading = false;
 public:
     EState GetState() const { return x0_state; }
     SamusGun::EFidgetType GetType() const { return x4_type; }
-    s32 GetParm2() const { return xc_parm2; }
-    EState Update(int fire, bool bobbing, bool inStrikeCooldown, float dt, CStateManager& mgr);
+    s32 GetAnimSet() const { return xc_animSet; }
+    EState Update(int fireButtonStates, bool bobbing, bool inStrikeCooldown, float dt, CStateManager& mgr);
     void ResetMinor();
     void ResetAll();
     void DoneLoading() { x34_24_loading = false; }

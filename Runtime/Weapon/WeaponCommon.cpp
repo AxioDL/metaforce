@@ -61,7 +61,7 @@ bool are_tokens_ready(const std::vector<CToken>& anims)
     return true;
 }
 
-void get_token_vector(CAnimData& animData, int begin, int end, std::vector<CToken>& tokensOut, bool preLock)
+void get_token_vector(const CAnimData& animData, int begin, int end, std::vector<CToken>& tokensOut, bool preLock)
 {
     std::set<CPrimitive> prims;
     for (int i=begin ; i<end ; ++i)
@@ -72,7 +72,7 @@ void get_token_vector(CAnimData& animData, int begin, int end, std::vector<CToke
     primitive_set_to_token_vector(animData, prims, tokensOut, preLock);
 }
 
-void get_token_vector(CAnimData& animData, int animIdx, std::vector<CToken>& tokensOut, bool preLock)
+void get_token_vector(const CAnimData& animData, int animIdx, std::vector<CToken>& tokensOut, bool preLock)
 {
     std::set<CPrimitive> prims;
     CAnimPlaybackParms parms(animIdx, -1, 1.f, true);
@@ -156,6 +156,33 @@ void do_sound_event(std::pair<u16, CSfxHandle>& sfxHandle, float& pitch, bool do
                 CSfxManager::PitchBend(hnd, pitch);
         }
     }
+}
+
+CAssetId get_asset_id_from_name(const char* name)
+{
+    const SObjectTag* tag = g_ResFactory->GetResourceIdByName(name);
+    if (!tag)
+        return {};
+    return tag->id;
+}
+
+CPlayerState::EPlayerSuit get_current_suit(const CStateManager& mgr)
+{
+    CPlayerState::EPlayerSuit suit = mgr.GetPlayerState()->GetCurrentSuit();
+    if (suit < CPlayerState::EPlayerSuit::Power || suit > CPlayerState::EPlayerSuit::FusionGravity)
+        suit = CPlayerState::EPlayerSuit::Power;
+    if (suit == CPlayerState::EPlayerSuit::FusionPower)
+        suit = CPlayerState::EPlayerSuit(int(suit) + int(mgr.GetPlayerState()->GetCurrentSuitRaw()));
+    return suit;
+}
+
+CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan)
+{
+    CSfxHandle hnd = CSfxManager::SfxStart(sfx, 1.f, pan, true, 0x7f, looped, kInvalidAreaId);
+    CSfxManager::SfxSpan(hnd, 0.f);
+    if (underwater)
+        CSfxManager::PitchBend(hnd, -1.f);
+    return hnd;
 }
 
 }

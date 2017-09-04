@@ -52,6 +52,10 @@ public:
         g_PointGenFunc = func;
         g_PointGenCtx = ctx;
     }
+    static void ClearPointGeneratorFunc()
+    {
+        g_PointGenFunc = nullptr;
+    }
     static FPointGenerator g_PointGenFunc;
     static void* g_PointGenCtx;
 };

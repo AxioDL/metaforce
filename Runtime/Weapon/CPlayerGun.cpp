@@ -530,7 +530,7 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr)
         if (ExitMissile())
         {
             if (!CSfxManager::IsPlaying(x2e4_invalidSfx))
-                x2e4_invalidSfx = PlaySfx(1763, x834_27_underwater, false, 0.165f);
+                x2e4_invalidSfx = NWeaponTypes::play_sfx(1763, x834_27_underwater, false, 0.165f);
         }
         else
         {
@@ -588,15 +588,6 @@ void CPlayerGun::ResetBeamParams(CStateManager& mgr, const CPlayerState& playerS
     x833_30_canShowAuxMuzzleEffect = true;
 }
 
-CSfxHandle CPlayerGun::PlaySfx(u16 sfx, bool underwater, bool looped, float pan)
-{
-    CSfxHandle hnd = CSfxManager::SfxStart(sfx, 1.f, pan, true, 0x7f, looped, kInvalidAreaId);
-    CSfxManager::SfxSpan(hnd, 0.f);
-    if (underwater)
-        CSfxManager::PitchBend(hnd, -1.f);
-    return hnd;
-}
-
 static const u16 skFromMissileSound[] = { 1824, 1849, 1851, 1853 };
 static const u16 skFromBeamSound[] = { 0, 1822, 1828, 1826 };
 static const u16 skToMissileSound[] = { 1823, 1829, 1850, 1852 };
@@ -628,7 +619,7 @@ void CPlayerGun::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop)
     }
 
     if (sfx != 0xffff)
-        PlaySfx(sfx, x834_27_underwater, false, 0.165f);
+        NWeaponTypes::play_sfx(sfx, x834_27_underwater, false, 0.165f);
 }
 
 void CPlayerGun::CancelCharge(CStateManager& mgr, bool withEffect)
@@ -776,9 +767,9 @@ void CPlayerGun::ReturnToRestPose()
 void CPlayerGun::ResetIdle(CStateManager& mgr)
 {
     x550_camBob.SetState(CPlayerCameraBob::ECameraBobState::GunFireNoBob, mgr);
-    if (x3a4_fidget.GetState() != CFidget::EState::Zero)
+    if (x3a4_fidget.GetState() != CFidget::EState::NoFidget)
     {
-        if (x3a4_fidget.GetState() == CFidget::EState::Seven)
+        if (x3a4_fidget.GetState() == CFidget::EState::Loading)
             UnLoadFidget();
         ReturnArmAndGunToDefault(mgr, true);
     }
@@ -1118,7 +1109,7 @@ void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr)
             x730_outgoingBeam = nullptr;
         }
         if (isUnmorphed)
-            PlaySfx(skIntoBeamSound[int(x310_currentBeam)], x834_27_underwater, false, 0.165f);
+            NWeaponTypes::play_sfx(skIntoBeamSound[int(x310_currentBeam)], x834_27_underwater, false, 0.165f);
         x72c_currentBeam->SetRainSplashGenerator(x748_rainSplashGenerator.get());
         x72c_currentBeam->EnableFx(true);
         PlayAnim(NWeaponTypes::EGunAnimType::ToBeam, false);
@@ -1149,7 +1140,7 @@ void CPlayerGun::SetPhazonBeamFeedback(bool active)
         CSfxManager::SfxStop(x2e8_phazonBeamSfx);
     x2e8_phazonBeamSfx.reset();
     if (active)
-        x2e8_phazonBeamSfx = PlaySfx(3141, x834_27_underwater, false, 0.165f);
+        x2e8_phazonBeamSfx = NWeaponTypes::play_sfx(3141, x834_27_underwater, false, 0.165f);
 }
 
 void CPlayerGun::StartPhazonBeamTransition(bool active, CStateManager& mgr, CPlayerState& playerState)
@@ -1284,7 +1275,7 @@ void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr)
             {
                 PlayAnim(NWeaponTypes::EGunAnimType::ChargeUp, false);
                 if (!x2e0_chargeSfx)
-                    x2e0_chargeSfx = PlaySfx(skBeamChargeUpSound[int(x310_currentBeam)],
+                    x2e0_chargeSfx = NWeaponTypes::play_sfx(skBeamChargeUpSound[int(x310_currentBeam)],
                                              x834_27_underwater, true, 0.165f);
                 if (x830_chargeRumbleHandle == -1)
                     x830_chargeRumbleHandle = mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Twelve, 1.f,
@@ -1503,7 +1494,7 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr)
     if (x835_25_inPhazonBeam || x318_comboAmmoIdx == 0 ||
         !mgr.GetPlayerState()->HasPowerUp(skItemArr[x318_comboAmmoIdx]) || (x2f8_stateFlags & 0x4) != 0x4)
     {
-        PlaySfx(1781, x834_27_underwater, false, 0.165f);
+        NWeaponTypes::play_sfx(1781, x834_27_underwater, false, 0.165f);
         return;
     }
 
@@ -1551,7 +1542,7 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr)
     }
     else
     {
-        PlaySfx(skItemEmptySound[x318_comboAmmoIdx], x834_27_underwater, false, 0.165f);
+        NWeaponTypes::play_sfx(skItemEmptySound[x318_comboAmmoIdx], x834_27_underwater, false, 0.165f);
     }
 }
 
@@ -1599,13 +1590,13 @@ void CPlayerGun::ActivateCombo(CStateManager& mgr)
             }
             x72c_currentBeam->EnableCharge(true);
             StopChargeSound(mgr);
-            PlaySfx(1762, x834_27_underwater, false, 0.165f);
+            NWeaponTypes::play_sfx(1762, x834_27_underwater, false, 0.165f);
             x32c_chargePhase = EChargePhase::ComboXfer;
         }
     }
     else
     {
-        PlaySfx(1781, x834_27_underwater, false, 0.165f);
+        NWeaponTypes::play_sfx(1781, x834_27_underwater, false, 0.165f);
     }
 }
 
@@ -1780,7 +1771,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
                 else
                 {
                     if (!CSfxManager::IsPlaying(x2e4_invalidSfx))
-                        x2e4_invalidSfx = PlaySfx(1781, x834_27_underwater, false, 0.165f);
+                        x2e4_invalidSfx = NWeaponTypes::play_sfx(1781, x834_27_underwater, false, 0.165f);
                     else
                         x2e4_invalidSfx.reset();
                 }
@@ -1788,7 +1779,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
         }
         else
         {
-            if (x3a4_fidget.GetState() == CFidget::EState::Zero)
+            if (x3a4_fidget.GetState() == CFidget::EState::NoFidget)
             {
                 if ((x2f8_stateFlags & 0x10) == 0x10 && x744_auxWeapon->IsComboFxActive(mgr))
                 {
@@ -1819,7 +1810,7 @@ void CPlayerGun::EnterFreeLook(CStateManager& mgr)
                                    x73c_gunMotion->GetFreeLookSetId(), mgr);
 }
 
-void CPlayerGun::SetFidgetAnimBits(int parm2, bool beamOnly)
+void CPlayerGun::SetFidgetAnimBits(int animSet, bool beamOnly)
 {
     x2fc_fidgetAnimBits = 0;
     if (beamOnly)
@@ -1830,14 +1821,14 @@ void CPlayerGun::SetFidgetAnimBits(int parm2, bool beamOnly)
 
     switch (x3a4_fidget.GetType())
     {
-    case SamusGun::EFidgetType::Zero:
+    case SamusGun::EFidgetType::Minor:
         x2fc_fidgetAnimBits = 1;
-        if (parm2 != 1)
+        if (animSet != 1)
             return;
         x2fc_fidgetAnimBits |= 4;
         break;
-    case SamusGun::EFidgetType::One:
-        if (parm2 >= 6 || parm2 < 4)
+    case SamusGun::EFidgetType::Major:
+        if (animSet >= 6 || animSet < 4)
             x2fc_fidgetAnimBits = 2;
         else
             x2fc_fidgetAnimBits = 1;
@@ -1850,21 +1841,21 @@ void CPlayerGun::SetFidgetAnimBits(int parm2, bool beamOnly)
 
 void CPlayerGun::AsyncLoadFidget(CStateManager& mgr)
 {
-    SetFidgetAnimBits(x3a4_fidget.GetParm2(), x3a4_fidget.GetState() == CFidget::EState::Three);
+    SetFidgetAnimBits(x3a4_fidget.GetAnimSet(), x3a4_fidget.GetState() == CFidget::EState::HolsterBeam);
     if ((x2fc_fidgetAnimBits & 0x1) == 0x1)
         x73c_gunMotion->GunController().LoadFidgetAnimAsync(mgr, s32(x3a4_fidget.GetType()),
-                                                            s32(x310_currentBeam), x3a4_fidget.GetParm2());
+                                                            s32(x310_currentBeam), x3a4_fidget.GetAnimSet());
     if ((x2fc_fidgetAnimBits & 0x2) == 0x2)
     {
-        x72c_currentBeam->AsyncLoadFidget(mgr, (x3a4_fidget.GetState() == CFidget::EState::Three ?
-            SamusGun::EFidgetType::Zero : x3a4_fidget.GetType()), x3a4_fidget.GetParm2());
+        x72c_currentBeam->AsyncLoadFidget(mgr, (x3a4_fidget.GetState() == CFidget::EState::HolsterBeam ?
+            SamusGun::EFidgetType::Minor : x3a4_fidget.GetType()), x3a4_fidget.GetAnimSet());
         x832_31_inRestPose = false;
     }
     if ((x2fc_fidgetAnimBits & 0x4) == 0x4)
         if (CGunController* gc = x740_grappleArm->GunController())
             gc->LoadFidgetAnimAsync(mgr, s32(x3a4_fidget.GetType()),
-                                    x3a4_fidget.GetType() != SamusGun::EFidgetType::Zero ? s32(x310_currentBeam) : 0,
-                                    x3a4_fidget.GetParm2());
+                                    x3a4_fidget.GetType() != SamusGun::EFidgetType::Minor ? s32(x310_currentBeam) : 0,
+                                    x3a4_fidget.GetAnimSet());
 }
 
 bool CPlayerGun::IsFidgetLoaded() const
@@ -1885,7 +1876,7 @@ void CPlayerGun::EnterFidget(CStateManager& mgr)
 {
     if ((x2fc_fidgetAnimBits & 0x1) == 0x1)
     {
-        x73c_gunMotion->EnterFidget(mgr, x3a4_fidget.GetType(), x3a4_fidget.GetParm2());
+        x73c_gunMotion->EnterFidget(mgr, x3a4_fidget.GetType(), x3a4_fidget.GetAnimSet());
         x834_25_gunMotionFidgeting = true;
     }
     else
@@ -1894,12 +1885,12 @@ void CPlayerGun::EnterFidget(CStateManager& mgr)
     }
 
     if ((x2fc_fidgetAnimBits & 0x2) == 0x2)
-        x72c_currentBeam->EnterFidget(mgr, x3a4_fidget.GetType(), x3a4_fidget.GetParm2());
+        x72c_currentBeam->EnterFidget(mgr, x3a4_fidget.GetType(), x3a4_fidget.GetAnimSet());
 
     if ((x2fc_fidgetAnimBits & 0x4) == 0x4)
         x740_grappleArm->EnterFidget(mgr, x3a4_fidget.GetType(),
-                                     x3a4_fidget.GetType() != SamusGun::EFidgetType::Zero ? s32(x310_currentBeam) : 0,
-                                     x3a4_fidget.GetParm2());
+                                     x3a4_fidget.GetType() != SamusGun::EFidgetType::Minor ? s32(x310_currentBeam) : 0,
+                                     x3a4_fidget.GetAnimSet());
 
     UnLoadFidget();
     x3a4_fidget.DoneLoading();
@@ -1909,7 +1900,7 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
 {
     CPlayer& player = mgr.GetPlayer();
     if (player.IsInFreeLook() && !x832_29_lockedOn && !x740_grappleArm->IsGrappling() &&
-        x3a4_fidget.GetState() != CFidget::EState::Three &&
+        x3a4_fidget.GetState() != CFidget::EState::HolsterBeam &&
         player.GetGunHolsterState() == CPlayer::EGunHolsterState::Drawn && !x834_30_inBigStrike)
     {
         if ((x2f8_stateFlags & 0x8) != 0x8)
@@ -1999,7 +1990,7 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
             {
                 switch (x3a4_fidget.Update(x2ec_lastFireButtonStates, camBobT > 0.01f, inStrikeCooldown, dt, mgr))
                 {
-                case CFidget::EState::Zero:
+                case CFidget::EState::NoFidget:
                     if (x324_idleState != EIdleState::Idle)
                     {
                         x73c_gunMotion->PlayPasAnim(SamusGun::EAnimationState::Idle, mgr, 0.f, false);
@@ -2007,9 +1998,9 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
                     }
                     x550_camBob.SetState(CPlayerCameraBob::ECameraBobState::WalkNoBob, mgr);
                     break;
-                case CFidget::EState::One:
-                case CFidget::EState::Two:
-                case CFidget::EState::Three:
+                case CFidget::EState::MinorFidget:
+                case CFidget::EState::MajorFidget:
+                case CFidget::EState::HolsterBeam:
                     if (x324_idleState != EIdleState::NotIdle)
                     {
                         x73c_gunMotion->BasePosition(false);
@@ -2017,12 +2008,12 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
                     }
                     AsyncLoadFidget(mgr);
                     break;
-                case CFidget::EState::Seven:
+                case CFidget::EState::Loading:
                     if (IsFidgetLoaded())
                         EnterFidget(mgr);
                     break;
-                case CFidget::EState::Four:
-                case CFidget::EState::Five:
+                case CFidget::EState::StillMinorFidget:
+                case CFidget::EState::StillMajorFidget:
                     x550_camBob.SetState(CPlayerCameraBob::ECameraBobState::Walk, mgr);
                     x833_24_isFidgeting = false;
                     x834_26_animPlaying = x834_25_gunMotionFidgeting ? x73c_gunMotion->IsAnimPlaying() :
@@ -2432,7 +2423,7 @@ void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const
 void CPlayerGun::DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const
 {
     const CPlayer& player = mgr.GetPlayer();
-    if (!x740_grappleArm->GetActive() || x740_grappleArm->GetAnimState() == CGrappleArm::EArmState::Ten)
+    if (!x740_grappleArm->GetActive() || x740_grappleArm->GetAnimState() == CGrappleArm::EArmState::Done)
         return;
 
     if (player.GetGrappleState() != CPlayer::EGrappleState::None ||

@@ -40,8 +40,8 @@ public:
     }
 
     void UnLoadFidget() { x30_fidget.UnLoadAnim(); }
-    void LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 gunId, s32 parm2);
-    void EnterFidget(CStateManager& mgr, s32 type, s32 gunId, s32 parm2);
+    void LoadFidgetAnimAsync(CStateManager& mgr, s32 type, s32 gunId, s32 animSet);
+    void EnterFidget(CStateManager& mgr, s32 type, s32 gunId, s32 animSet);
     bool IsFidgetLoaded() const { return x30_fidget.IsAnimLoaded(); }
     s32 GetFreeLookSetId() const { return x4_freeLook.GetSetId(); }
     bool IsComboOver() const { return x1c_comboFire.IsComboOver(); }
@@ -53,6 +53,7 @@ public:
     void ReturnToDefault(CStateManager& mgr, float dt, bool setState);
     void ReturnToBasePosition(CStateManager&, float);
     void Reset();
+    s32 GetCurAnimId() const { return x54_curAnimId; }
 };
 }
 

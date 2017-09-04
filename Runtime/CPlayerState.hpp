@@ -75,8 +75,9 @@ public:
         Max
     };
 
-    enum class EPlayerSuit : u32
+    enum class EPlayerSuit : s32
     {
+        Invalid = -1,
         Power,
         Gravity,
         Varia,

@@ -5,6 +5,7 @@
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
 #include "Audio/CSfxManager.hpp"
 #include <set>
+#include <Runtime/CPlayerState.hpp>
 
 namespace urde
 {
@@ -56,12 +57,15 @@ void primitive_set_to_token_vector(const CAnimData& animData, const std::set<CPr
 void unlock_tokens(std::vector<CToken>& anims);
 void lock_tokens(std::vector<CToken>& anims);
 bool are_tokens_ready(const std::vector<CToken>& anims);
-void get_token_vector(CAnimData& animData, int begin, int end, std::vector<CToken>& tokensOut, bool preLock);
-void get_token_vector(CAnimData& animData, int animIdx, std::vector<CToken>& tokensOut, bool preLock);
+void get_token_vector(const CAnimData& animData, int begin, int end, std::vector<CToken>& tokensOut, bool preLock);
+void get_token_vector(const CAnimData& animData, int animIdx, std::vector<CToken>& tokensOut, bool preLock);
 void do_sound_event(std::pair<u16, CSfxHandle>& sfxHandle, float& pitch, bool doPitchBend, u32 soundId,
                     float weight, u32 flags, float falloff, float maxDist, float minVol, float maxVol,
                     const zeus::CVector3f& posToCam, const zeus::CVector3f& pos, TAreaId aid,
                     CStateManager& mgr);
+CAssetId get_asset_id_from_name(const char* name);
+CPlayerState::EPlayerSuit get_current_suit(const CStateManager& mgr);
+CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan);
 
 }
 

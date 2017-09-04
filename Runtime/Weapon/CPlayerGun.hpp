@@ -328,7 +328,6 @@ private:
     void SetPhazonBeamMorph(bool intoPhazonBeam);
     void Reset(CStateManager& mgr, bool b1);
     void ResetBeamParams(CStateManager& mgr, const CPlayerState& playerState, bool playSelectionSfx);
-    CSfxHandle PlaySfx(u16 sfx, bool underwater, bool looped, float pan);
     void PlayAnim(NWeaponTypes::EGunAnimType type, bool loop);
     void CancelCharge(CStateManager& mgr, bool withEffect);
     bool ExitMissile();
@@ -360,7 +359,7 @@ private:
     void ProcessNormalState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt);
     void UpdateWeaponFire(float dt, const CPlayerState& playerState, CStateManager& mgr);
     void EnterFreeLook(CStateManager& mgr);
-    void SetFidgetAnimBits(int parm2, bool beamOnly);
+    void SetFidgetAnimBits(int animSet, bool beamOnly);
     void AsyncLoadFidget(CStateManager& mgr);
     bool IsFidgetLoaded() const;
     void EnterFidget(CStateManager& mgr);

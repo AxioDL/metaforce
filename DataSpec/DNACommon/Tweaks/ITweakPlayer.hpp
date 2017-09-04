@@ -115,6 +115,10 @@ struct ITweakPlayer : ITweak
     virtual uint32_t GetGrappleJumpMode() const=0;
     virtual bool GetOrbitReleaseBreaksGrapple() const=0;
     virtual bool GetInvertGrappleTurn() const=0;
+    virtual float GetGrappleBeamSpeed() const=0;
+    virtual float GetGrappleBeamXWaveAmplitude() const=0;
+    virtual float GetGrappleBeamZWaveAmplitude() const=0;
+    virtual float GetGrappleBeamAnglePhaseDelta() const=0;
     virtual float GetHorizontalFreeLookAngleVel() const=0;
     virtual float GetVerticalFreeLookAngleVel() const=0; // x134
     virtual float GetOrbitCameraSpeed() const=0; // x184

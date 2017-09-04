@@ -162,10 +162,10 @@ struct CTweakPlayer final : ITweakPlayer
     Value<atUint32> x2d0_grappleJumpMode;
     Value<bool> x2d4_orbitReleaseBreaksGrapple;
     Value<bool> x2d5_invertGrappleTurn;
-    Value<float> x2d8_;
-    Value<float> x2dc_;
-    Value<float> x2e0_;
-    Value<float> x2e4_;
+    Value<float> x2d8_grappleBeamSpeed;
+    Value<float> x2dc_grappleBeamXWaveAmplitude;
+    Value<float> x2e0_grappleBeamZWaveAmplitude;
+    Value<float> x2e4_grappleBeamAnglePhaseDelta;
     Value<float> x2e8_;
     Value<float> x2ec_;
     Value<float> x2f0_;
@@ -280,6 +280,10 @@ struct CTweakPlayer final : ITweakPlayer
     uint32_t GetGrappleJumpMode() const { return x2d0_grappleJumpMode; }
     bool GetOrbitReleaseBreaksGrapple() const { return x2d4_orbitReleaseBreaksGrapple; }
     bool GetInvertGrappleTurn() const { return x2d5_invertGrappleTurn; }
+    float GetGrappleBeamSpeed() const { return x2d8_grappleBeamSpeed; }
+    float GetGrappleBeamXWaveAmplitude() const { return x2dc_grappleBeamXWaveAmplitude; }
+    float GetGrappleBeamZWaveAmplitude() const { return x2e0_grappleBeamZWaveAmplitude; }
+    float GetGrappleBeamAnglePhaseDelta() const { return x2e4_grappleBeamAnglePhaseDelta; }
     float GetHorizontalFreeLookAngleVel() const { return x130_horizontalFreeLookAngleVel; }
     float GetVerticalFreeLookAngleVel() const { return x134_verticalFreeLookAngleVel; }
     float GetOrbitCameraSpeed() const { return x184_orbitCameraSpeed; }

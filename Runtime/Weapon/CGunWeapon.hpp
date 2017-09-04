@@ -127,8 +127,8 @@ public:
     bool PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle) { return false; }
     void UnLoadFidget() {}
     bool IsFidgetLoaded() const { return x100_gunController->IsFidgetLoaded(); }
-    void AsyncLoadFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
-    { x100_gunController->LoadFidgetAnimAsync(mgr, s32(type), s32(x200_beamId), parm2); }
+    void AsyncLoadFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 animSet)
+    { x100_gunController->LoadFidgetAnimAsync(mgr, s32(type), s32(x200_beamId), animSet); }
     void EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2)
     { x100_gunController->EnterFidget(mgr, s32(type), s32(x200_beamId), parm2); }
     bool HasSolidModelData() const { return x10_solidModelData.operator bool(); }

@@ -24,8 +24,8 @@ enum class EAnimationState
 enum class EFidgetType
 {
     Invalid = -1,
-    Zero,
-    One
+    Minor,
+    Major
 };
 }
 

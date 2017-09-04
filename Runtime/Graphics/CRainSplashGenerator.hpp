@@ -66,6 +66,7 @@ public:
     void Update(float dt, CStateManager& mgr);
     void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
     void Draw(const zeus::CTransform& xf) const;
+    bool IsRaining() const { return x48_25_raining; }
 };
 
 }

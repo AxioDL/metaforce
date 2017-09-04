@@ -369,7 +369,7 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x2a8_grappleSwingPeriod = __dna_reader.readFloatBig();
     /* x2ac_grapplePullSpeedMin */
     x2ac_grapplePullSpeedMin = __dna_reader.readFloatBig();
-    /* x2b0_ */
+    /* x2b0_grappleCameraSpeed */
     x2b0_grappleCameraSpeed = __dna_reader.readFloatBig();
     /* x2b4_maxGrappleLockedTurnAlignDistance */
     x2b4_maxGrappleLockedTurnAlignDistance = __dna_reader.readFloatBig();
@@ -391,14 +391,14 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x2d4_orbitReleaseBreaksGrapple = __dna_reader.readBool();
     /* x2d5_invertGrappleTurn */
     x2d5_invertGrappleTurn = __dna_reader.readBool();
-    /* x2d8_ */
-    x2d8_ = __dna_reader.readFloatBig();
-    /* x2dc_ */
-    x2dc_ = __dna_reader.readFloatBig();
-    /* x2e0_ */
-    x2e0_ = __dna_reader.readFloatBig();
-    /* x2e4_ */
-    x2e4_ = __dna_reader.readFloatBig();
+    /* x2d8_grappleBeamSpeed */
+    x2d8_grappleBeamSpeed = __dna_reader.readFloatBig();
+    /* x2dc_grappleBeamXWaveAmplitude */
+    x2dc_grappleBeamXWaveAmplitude = __dna_reader.readFloatBig();
+    /* x2e0_grappleBeamZWaveAmplitude */
+    x2e0_grappleBeamZWaveAmplitude = __dna_reader.readFloatBig();
+    /* x2e4_grappleBeamAnglePhaseDelta */
+    x2e4_grappleBeamAnglePhaseDelta = __dna_reader.readFloatBig();
     /* x26c_playerHeight */
     x26c_playerHeight = __dna_reader.readFloatBig();
     /* x270_playerXYHalfExtent */
@@ -809,7 +809,7 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x2a8_grappleSwingPeriod);
     /* x2ac_grapplePullSpeedMin */
     __dna_writer.writeFloatBig(x2ac_grapplePullSpeedMin);
-    /* x2b0_ */
+    /* x2b0_grappleCameraSpeed */
     __dna_writer.writeFloatBig(x2b0_grappleCameraSpeed);
     /* x2b4_maxGrappleLockedTurnAlignDistance */
     __dna_writer.writeFloatBig(x2b4_maxGrappleLockedTurnAlignDistance);
@@ -831,14 +831,14 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeBool(x2d4_orbitReleaseBreaksGrapple);
     /* x2d5_invertGrappleTurn */
     __dna_writer.writeBool(x2d5_invertGrappleTurn);
-    /* x2d8_ */
-    __dna_writer.writeFloatBig(x2d8_);
-    /* x2dc_ */
-    __dna_writer.writeFloatBig(x2dc_);
-    /* x2e0_ */
-    __dna_writer.writeFloatBig(x2e0_);
-    /* x2e4_ */
-    __dna_writer.writeFloatBig(x2e4_);
+    /* x2d8_grappleBeamSpeed */
+    __dna_writer.writeFloatBig(x2d8_grappleBeamSpeed);
+    /* x2dc_grappleBeamXWaveAmplitude */
+    __dna_writer.writeFloatBig(x2dc_grappleBeamXWaveAmplitude);
+    /* x2e0_grappleBeamZWaveAmplitude */
+    __dna_writer.writeFloatBig(x2e0_grappleBeamZWaveAmplitude);
+    /* x2e4_grappleBeamAnglePhaseDelta */
+    __dna_writer.writeFloatBig(x2e4_grappleBeamAnglePhaseDelta);
     /* x26c_playerHeight */
     __dna_writer.writeFloatBig(x26c_playerHeight);
     /* x270_playerXYHalfExtent */
@@ -1324,8 +1324,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2a8_grappleSwingPeriod = __dna_docin.readFloat("x2a8_grappleSwingPeriod");
     /* x2ac_grapplePullSpeedMin */
     x2ac_grapplePullSpeedMin = __dna_docin.readFloat("x2ac_grapplePullSpeedMin");
-    /* x2b0_ */
-    x2b0_grappleCameraSpeed = __dna_docin.readFloat("x2b0_");
+    /* x2b0_grappleCameraSpeed */
+    x2b0_grappleCameraSpeed = __dna_docin.readFloat("x2b0_grappleCameraSpeed");
     /* x2b4_maxGrappleLockedTurnAlignDistance */
     x2b4_maxGrappleLockedTurnAlignDistance = __dna_docin.readFloat("x2b4_maxGrappleLockedTurnAlignDistance");
     /* x2b8_grapplePullSpeedProportion */
@@ -1346,14 +1346,14 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x2d4_orbitReleaseBreaksGrapple = __dna_docin.readBool("x2d4_orbitReleaseBreaksGrapple");
     /* x2d5_invertGrappleTurn */
     x2d5_invertGrappleTurn = __dna_docin.readBool("x2d5_invertGrappleTurn");
-    /* x2d8_ */
-    x2d8_ = __dna_docin.readFloat("x2d8_");
-    /* x2dc_ */
-    x2dc_ = __dna_docin.readFloat("x2dc_");
-    /* x2e0_ */
-    x2e0_ = __dna_docin.readFloat("x2e0_");
-    /* x2e4_ */
-    x2e4_ = __dna_docin.readFloat("x2e4_");
+    /* x2d8_grappleBeamSpeed */
+    x2d8_grappleBeamSpeed = __dna_docin.readFloat("x2d8_grappleBeamSpeed");
+    /* x2dc_grappleBeamXWaveAmplitude */
+    x2dc_grappleBeamXWaveAmplitude = __dna_docin.readFloat("x2dc_grappleBeamXWaveAmplitude");
+    /* x2e0_grappleBeamZWaveAmplitude */
+    x2e0_grappleBeamZWaveAmplitude = __dna_docin.readFloat("x2e0_grappleBeamZWaveAmplitude");
+    /* x2e4_grappleBeamAnglePhaseDelta */
+    x2e4_grappleBeamAnglePhaseDelta = __dna_docin.readFloat("x2e4_grappleBeamAnglePhaseDelta");
     /* x26c_playerHeight */
     x26c_playerHeight = __dna_docin.readFloat("x26c_playerHeight");
     /* x270_playerXYHalfExtent */
@@ -1824,8 +1824,8 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x2a8_grappleSwingPeriod", x2a8_grappleSwingPeriod);
     /* x2ac_grapplePullSpeedMin */
     __dna_docout.writeFloat("x2ac_grapplePullSpeedMin", x2ac_grapplePullSpeedMin);
-    /* x2b0_ */
-    __dna_docout.writeFloat("x2b0_", x2b0_grappleCameraSpeed);
+    /* x2b0_grappleCameraSpeed */
+    __dna_docout.writeFloat("x2b0_grappleCameraSpeed", x2b0_grappleCameraSpeed);
     /* x2b4_maxGrappleLockedTurnAlignDistance */
     __dna_docout.writeFloat("x2b4_maxGrappleLockedTurnAlignDistance", x2b4_maxGrappleLockedTurnAlignDistance);
     /* x2b8_grapplePullSpeedProportion */
@@ -1846,14 +1846,14 @@ void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeBool("x2d4_orbitReleaseBreaksGrapple", x2d4_orbitReleaseBreaksGrapple);
     /* x2d5_invertGrappleTurn */
     __dna_docout.writeBool("x2d5_invertGrappleTurn", x2d5_invertGrappleTurn);
-    /* x2d8_ */
-    __dna_docout.writeFloat("x2d8_", x2d8_);
-    /* x2dc_ */
-    __dna_docout.writeFloat("x2dc_", x2dc_);
-    /* x2e0_ */
-    __dna_docout.writeFloat("x2e0_", x2e0_);
-    /* x2e4_ */
-    __dna_docout.writeFloat("x2e4_", x2e4_);
+    /* x2d8_grappleBeamSpeed */
+    __dna_docout.writeFloat("x2d8_grappleBeamSpeed", x2d8_grappleBeamSpeed);
+    /* x2dc_grappleBeamXWaveAmplitude */
+    __dna_docout.writeFloat("x2dc_grappleBeamXWaveAmplitude", x2dc_grappleBeamXWaveAmplitude);
+    /* x2e0_grappleBeamZWaveAmplitude */
+    __dna_docout.writeFloat("x2e0_grappleBeamZWaveAmplitude", x2e0_grappleBeamZWaveAmplitude);
+    /* x2e4_grappleBeamAnglePhaseDelta */
+    __dna_docout.writeFloat("x2e4_grappleBeamAnglePhaseDelta", x2e4_grappleBeamAnglePhaseDelta);
     /* x26c_playerHeight */
     __dna_docout.writeFloat("x26c_playerHeight", x26c_playerHeight);
     /* x270_playerXYHalfExtent */
