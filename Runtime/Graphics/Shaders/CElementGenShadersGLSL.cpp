@@ -66,8 +66,8 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
-"    colorOut.a = colorOut.r;\n"
+"    colorOut = vtf.color;\n"
+"    colorOut.a = texture(tex, vtf.uv).r;\n"
 "}\n";
 
 static const char* VS_GLSL_INDTEX =
@@ -302,10 +302,18 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
                 gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, vtxFmt, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+            if (shaders.m_regPipelineSub)
+                gen.m_normalSubDataBind = ctx.newShaderDataBinding(shaders.m_regPipelineSub, vtxFmt, nullptr,
+                                                                   gen.m_instBuf, nullptr, 1, uniforms,
+                                                                   nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipeline)
                 gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, vtxFmt, nullptr,
                                                                     gen.m_instBuf, nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
+            if (shaders.m_redToAlphaPipelineSub)
+                gen.m_redToAlphaSubDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipelineSub, vtxFmt, nullptr,
+                                                                       gen.m_instBuf, nullptr, 1, uniforms,
+                                                                       nullptr, texCount, textures, nullptr, nullptr);
         }
 
         if (gen.m_instBufPmus)
@@ -367,6 +375,24 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, boo::ZTest::None, false,
                                                    true, false, boo::CullMode::None);
+
+    m_texZTestNoZWriteSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
+                                                  boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                  true, false, boo::CullMode::None);
+    m_texNoZTestNoZWriteSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
+                                                    boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                    boo::Primitive::TriStrips, boo::ZTest::None, false,
+                                                    true, false, boo::CullMode::None);
+
+    m_texRedToAlphaZTestSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, 1, TexNames, 1, UniNames,
+                                                    boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                    boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                    true, false, boo::CullMode::None);
+    m_texRedToAlphaNoZTestSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, 1, TexNames, 1, UniNames,
+                                                      boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                      boo::Primitive::TriStrips, boo::ZTest::None, false,
+                                                      true, false, boo::CullMode::None);
 
     m_indTexZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, 3, TindTexNames, 1, UniNames,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
@@ -457,10 +483,19 @@ struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindi
                 gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+            if (shaders.m_regPipelineSub)
+                gen.m_normalSubDataBind = ctx.newShaderDataBinding(shaders.m_regPipelineSub, nullptr, nullptr,
+                                                                   gen.m_instBuf, nullptr, 1, uniforms,
+                                                                   nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipeline)
                 gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, nullptr, nullptr,
                                                                     gen.m_instBuf, nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
+            if (shaders.m_redToAlphaPipelineSub)
+                gen.m_redToAlphaSubDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipelineSub, nullptr, nullptr,
+                                                                       gen.m_instBuf, nullptr, 1, uniforms,
+                                                                       nullptr, texCount, textures, nullptr, nullptr);
+
         }
 
         if (gen.m_instBufPmus)
@@ -560,6 +595,24 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, boo::ZTest::None, false,
                                                    true, false, boo::CullMode::None);
+
+    m_texZTestNoZWriteSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_vtxFormatTex,
+                                                  boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                  true, false, boo::CullMode::None);
+    m_texNoZTestNoZWriteSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_vtxFormatTex,
+                                                    boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                    boo::Primitive::TriStrips, boo::ZTest::None, false,
+                                                    true, false, boo::CullMode::None);
+
+    m_texRedToAlphaZTestSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, m_vtxFormatTex,
+                                                    boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                    boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                    true, false, boo::CullMode::None);
+    m_texRedToAlphaNoZTestSub = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX_REDTOALPHA, m_vtxFormatTex,
+                                                      boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                      boo::Primitive::TriStrips, boo::ZTest::None, false,
+                                                      true, false, boo::CullMode::None);
 
     m_indTexZWrite = ctx.newShaderPipeline(VS_GLSL_INDTEX, FS_GLSL_INDTEX, m_vtxFormatIndTex,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,

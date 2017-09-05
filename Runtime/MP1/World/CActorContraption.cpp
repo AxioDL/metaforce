@@ -90,7 +90,8 @@ CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string& nam
         CFlameInfo flameInfo(6, 6, x308_flameFxId, 20, 0.5f, 1.f, 1.f);
         CFlameThrower* ret = new CFlameThrower(x300_flameThrowerGen, name, EWeaponType::Missile, flameInfo,
                                                zeus::CTransform::Identity(), EMaterialTypes::CollisionActor, x30c_dInfo,
-                                               id, GetAreaId(), GetUniqueId(), 0, -1, -1, -1);
+                                               id, GetAreaId(), GetUniqueId(), CWeapon::EProjectileAttrib::None,
+                                               -1, -1, -1);
 
         x2e8_children.emplace_back(id, name);
 

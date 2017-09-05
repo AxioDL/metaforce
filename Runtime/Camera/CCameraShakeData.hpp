@@ -51,6 +51,7 @@ class CCameraShakeData
     float xd0_f2;
 
 public:
+    static const CCameraShakeData skChargedCameraShakeData;
     CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& sfxPos,
                      const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                      const CCameraShakerComponent& shaker3);

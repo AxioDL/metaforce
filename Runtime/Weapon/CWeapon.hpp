@@ -14,6 +14,9 @@ public:
     enum class EProjectileAttrib
     {
         None = 0,
+        PartialCharge = (1 << 0),
+        PlasmaProjectile = (1 << 1),
+        Charged = (1 << 2),
         Ice = (1 << 3),
         Wave = (1 << 4),
         Plasma = (1 << 5),
@@ -21,6 +24,7 @@ public:
         Unknown1 = (1 << 7),
         Bombs = (1 << 8),
         PowerBombs = (1 << 9),
+        ArmCannon = (1 << 11),
         BigStrike = (1 << 12),
         StaticInterference = (1 << 14),
     };
@@ -39,8 +43,9 @@ private:
     float x150_damageDuration;
     float x154_interferenceDuration;
 public:
-    CWeapon(TUniqueId, TAreaId, bool, TUniqueId, EWeaponType, const std::string&, const zeus::CTransform&,
-            const CMaterialFilter&, const CMaterialList&, const CDamageInfo&, EProjectileAttrib, CModelData&&);
+    CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type,
+            const std::string& name, const zeus::CTransform& xf, const CMaterialFilter& filter,
+            const CMaterialList& mList, const CDamageInfo&, EProjectileAttrib attribs, CModelData&& mData);
 
     virtual void Accept(IVisitor &visitor);
     bool HasAttrib(EProjectileAttrib) const;

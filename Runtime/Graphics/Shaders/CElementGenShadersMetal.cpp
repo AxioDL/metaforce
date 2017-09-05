@@ -71,8 +71,7 @@ static const char* FS_METAL_TEX_REDTOALPHA =
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
 "                      texture2d<float> tex0 [[ texture(0) ]])\n"
 "{\n"
-"    float4 colr = vtf.color * tex0.sample(samp, vtf.uv);\n"
-"    return float4(colr.rgb, colr.r);"
+"    return float4(vtf.color.rgb, tex0.sample(samp, vtf.uv).r);\n"
 "}\n";
 
 static const char* VS_METAL_INDTEX =
@@ -242,10 +241,18 @@ struct MetalElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindin
                 gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipeline, nullptr, nullptr,
                                                                 gen.m_instBuf, nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_regPipelineSub)
+                gen.m_normalSubDataBind = ctx.newShaderDataBinding(shader.m_regPipelineSub, nullptr, nullptr,
+                                                                   gen.m_instBuf, nullptr, 1, uniforms,
+                                                                   nullptr, texCount, textures, nullptr, nullptr);
             if (shader.m_redToAlphaPipeline)
                 gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipeline, nullptr, nullptr,
                                                                     gen.m_instBuf, nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipelineSub)
+                gen.m_redToAlphaSubDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipelineSub, nullptr, nullptr,
+                                                                       gen.m_instBuf, nullptr, 1, uniforms,
+                                                                       nullptr, texCount, textures, nullptr, nullptr);
         }
 
         if (gen.m_instBufPmus)
@@ -254,13 +261,13 @@ struct MetalElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindin
             texCount = std::min(texCount, 1);
 
             if (shader.m_regPipelinePmus)
-                gen.m_normalDataBind = ctx.newShaderDataBinding(shader.m_regPipelinePmus, nullptr, nullptr,
-                                                                gen.m_instBufPmus, nullptr, 1, uniforms,
-                                                                nullptr, texCount, textures, nullptr, nullptr);
-            if (shader.m_redToAlphaPipelinePmus)
-                gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shader.m_redToAlphaPipelinePmus, nullptr, nullptr,
+                gen.m_normalDataBindPmus = ctx.newShaderDataBinding(shader.m_regPipelinePmus, nullptr, nullptr,
                                                                     gen.m_instBufPmus, nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
+            if (shader.m_redToAlphaPipelinePmus)
+                gen.m_redToAlphaDataBindPmus = ctx.newShaderDataBinding(shader.m_redToAlphaPipelinePmus, nullptr, nullptr,
+                                                                        gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                        nullptr, texCount, textures, nullptr, nullptr);
         }
 
         return nullptr;
@@ -342,6 +349,28 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
                                                    CGraphics::g_ViewportSamples,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+
+    m_texZTestNoZWriteSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_vtxFormatTex,
+                                                  CGraphics::g_ViewportSamples,
+                                                  boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                  true, false, boo::CullMode::None);
+    m_texNoZTestNoZWriteSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_vtxFormatTex,
+                                                    CGraphics::g_ViewportSamples,
+                                                    boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                    boo::Primitive::TriStrips, boo::ZTest::None, false,
+                                                    true, false, boo::CullMode::None);
+
+    m_texRedToAlphaZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, m_vtxFormatTex,
+                                                    CGraphics::g_ViewportSamples,
+                                                    boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                    boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
+                                                    true, false, boo::CullMode::None);
+    m_texRedToAlphaNoZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, m_vtxFormatTex,
+                                                      CGraphics::g_ViewportSamples,
+                                                      boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
+                                                      boo::Primitive::TriStrips, boo::ZTest::None, false,
+                                                      true, false, boo::CullMode::None);
 
     m_indTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, m_vtxFormatIndTex,
                                            CGraphics::g_ViewportSamples,

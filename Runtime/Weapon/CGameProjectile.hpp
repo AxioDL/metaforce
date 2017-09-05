@@ -24,15 +24,17 @@ class CGameProjectile : public CWeapon
         {
             bool x2e4_24_ : 1;
             bool x2e4_25_ : 1;
-            bool x2e4_26_ : 1;
-            bool x2e4_27_ : 1;
+            bool x2e4_26_waterUpdate : 1;
+            bool x2e4_27_inWater : 1;
             bool x2e4_28_ : 1;
         };
     };
 public:
-    CGameProjectile(bool, const TToken<CWeaponDescription>&, const std::string&, EWeaponType, const zeus::CTransform&,
-                    EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, TUniqueId, u32, bool,
-                    const zeus::CVector3f&, const rstl::optional_object<TLockedToken<CGenDescription>>&, s16, bool);
+    CGameProjectile(bool active, const TToken<CWeaponDescription>&, const std::string& name,
+                    EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes matType,
+                    const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
+                    TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
+                    const rstl::optional_object<TLockedToken<CGenDescription>>& particle, s16 s1, bool b3);
 
     virtual void Accept(IVisitor &visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);

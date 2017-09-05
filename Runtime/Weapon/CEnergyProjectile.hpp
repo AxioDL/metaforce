@@ -28,8 +28,8 @@ class CEnergyProjectile : public CGameProjectile
 public:
     CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
                       const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
-                      TUniqueId id0, TAreaId aid, TUniqueId id1, TUniqueId id2, u32 w1, bool b1,
-                      const zeus::CVector3f& scale,
+                      TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
+                      EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                       const rstl::optional_object<TLockedToken<CGenDescription>>& particle,
                       s16 w2, bool b2);
 };

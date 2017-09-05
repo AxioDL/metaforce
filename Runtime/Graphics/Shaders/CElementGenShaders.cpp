@@ -12,6 +12,10 @@ boo::IShaderPipeline* CElementGenShaders::m_texAdditiveZTest = nullptr;
 boo::IShaderPipeline* CElementGenShaders::m_texAdditiveNoZTest = nullptr;
 boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaZTest = nullptr;
 boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaNoZTest = nullptr;
+boo::IShaderPipeline* CElementGenShaders::m_texZTestNoZWriteSub = nullptr;
+boo::IShaderPipeline* CElementGenShaders::m_texNoZTestNoZWriteSub = nullptr;
+boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaZTestSub = nullptr;
+boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaNoZTestSub = nullptr;
 
 boo::IShaderPipeline* CElementGenShaders::m_indTexZWrite = nullptr;
 boo::IShaderPipeline* CElementGenShaders::m_indTexNoZWrite = nullptr;
@@ -51,7 +55,9 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
 {
     CGenDescription* desc = gen.x1c_genDesc.GetObj();
     boo::IShaderPipeline* regPipeline = nullptr;
+    boo::IShaderPipeline* regPipelineSub = nullptr;
     boo::IShaderPipeline* redToAlphaPipeline = nullptr;
+    boo::IShaderPipeline* redToAlphaPipelineSub = nullptr;
     boo::IShaderPipeline* regPipelinePmus = nullptr;
     boo::IShaderPipeline* redToAlphaPipelinePmus = nullptr;
 
@@ -87,9 +93,17 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
         else
         {
             if (gen.x26c_28_zTest)
+            {
                 redToAlphaPipeline = m_texRedToAlphaZTest;
+                regPipelineSub = m_texZTestNoZWriteSub;
+                redToAlphaPipelineSub = m_texRedToAlphaZTestSub;
+            }
             else
+            {
                 redToAlphaPipeline = m_texRedToAlphaNoZTest;
+                regPipelineSub = m_texNoZTestNoZWriteSub;
+                redToAlphaPipelineSub = m_texRedToAlphaNoZTestSub;
+            }
 
             if (gen.x26c_26_AAPH)
             {
@@ -164,7 +178,7 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
         }
     }
 
-    CElementGenShaders shad(gen, regPipeline, redToAlphaPipeline,
+    CElementGenShaders shad(gen, regPipeline, regPipelineSub, redToAlphaPipeline, redToAlphaPipelineSub,
                             regPipelinePmus, redToAlphaPipelinePmus);
     TShader<CElementGenShaders>::BuildShaderDataBinding(ctx, shad);
 }

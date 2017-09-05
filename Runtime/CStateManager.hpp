@@ -440,6 +440,7 @@ public:
     float GetThermalColdScale2() const { return xf28_thermColdScale2; }
     void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
     float IntegrateVisorFog(float f) const;
+    u32 GetUpdateFrameIndex() const { return x8d8_updateFrameIdx; }
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

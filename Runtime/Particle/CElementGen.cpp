@@ -18,6 +18,7 @@ static logvisor::Module Log("urde::CElementGen");
 URDE_DECL_SPECIALIZE_SHADER(CElementGenShaders)
 
 u16 CElementGen::g_GlobalSeed = 99;
+bool CElementGen::g_subtractBlend = false;
 
 int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
@@ -1152,16 +1153,20 @@ void CElementGen::RenderModels()
         else
         {
             CModel* model = desc->x5c_x48_PMDL.m_token.GetObj();
-            if (desc->x44_31_x31_25_PMAB)
+            if (g_subtractBlend)
             {
-                model->Draw({3, 0, 1, col});
+                model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
+            }
+            else if (desc->x44_31_x31_25_PMAB)
+            {
+                model->Draw({7, 0, 1, col});
             }
             else
             {
                 if (1.f == col.a)
                     model->Draw({0, 0, 3, zeus::CColor::skWhite});
                 else
-                    model->Draw({4, 0, 1, col});
+                    model->Draw({5, 0, 1, col});
             }
         }
 
@@ -1389,10 +1394,20 @@ void CElementGen::RenderParticles()
     if (sMoveRedToAlphaBuffer && x26c_26_AAPH)
         moveRedToAlphaBuffer = true;
 
-    if (moveRedToAlphaBuffer)
-        CGraphics::SetShaderDataBinding(m_redToAlphaDataBind);
+    if (g_subtractBlend)
+    {
+        if (moveRedToAlphaBuffer)
+            CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind);
+        else
+            CGraphics::SetShaderDataBinding(m_normalSubDataBind);
+    }
     else
-        CGraphics::SetShaderDataBinding(m_normalDataBind);
+    {
+        if (moveRedToAlphaBuffer)
+            CGraphics::SetShaderDataBinding(m_redToAlphaDataBind);
+        else
+            CGraphics::SetShaderDataBinding(m_normalDataBind);
+    }
 
     int mbspVal = std::max(1, x270_MBSP);
 

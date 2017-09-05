@@ -1155,7 +1155,7 @@ void CPlayerGun::StartPhazonBeamTransition(bool active, CStateManager& mgr, CPla
     SetPhazonBeamFeedback(active);
     x72c_currentBeam->SetRainSplashGenerator(x748_rainSplashGenerator.get());
     x72c_currentBeam->EnableFx(true);
-    x72c_currentBeam->SetLeavingBeam(false);
+    x72c_currentBeam->SetDrawHologram(false);
     PlayAnim(NWeaponTypes::EGunAnimType::ToBeam, false);
     if (x833_31_inFreeLook)
         EnterFreeLook(mgr);
@@ -1656,7 +1656,8 @@ void CPlayerGun::UpdateNormalShotCycle(float dt, CStateManager& mgr)
         homingTarget = GetTargetId(mgr);
     else
         homingTarget = kInvalidUniqueId;
-    x72c_currentBeam->Fire(x834_27_underwater, dt, x330_chargeState, xf, mgr, homingTarget);
+    x72c_currentBeam->Fire(x834_27_underwater, dt, x330_chargeState, xf, mgr, homingTarget,
+                           x340_chargeBeamFactor, x340_chargeBeamFactor);
     mgr.InformListeners(x4a8_gunWorldXf.origin, EListenNoiseType::Zero);
 }
 
@@ -2076,11 +2077,11 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
     if (becameFrozen)
     {
         x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Zero);
-        x72c_currentBeam->BuildSecondaryEffect(CGunWeapon::ESecondaryFxType::One);
+        x72c_currentBeam->EnableFrozenEffect(CGunWeapon::EFrozenFxType::Frozen);
     }
     else if (becameThawed)
     {
-        x72c_currentBeam->BuildSecondaryEffect(CGunWeapon::ESecondaryFxType::Two);
+        x72c_currentBeam->EnableFrozenEffect(CGunWeapon::EFrozenFxType::Thawed);
     }
 
     if (becameFrozen || becameThawed)
@@ -2151,14 +2152,14 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
             case ENextState::EnterPhazonBeam:
                 if (x75c_phazonBeam->IsLoaded())
                     break;
-                x72c_currentBeam->SetLeavingBeam(true);
+                x72c_currentBeam->SetDrawHologram(true);
                 x75c_phazonBeam->Load(mgr, false);
                 x33c_phazonBeamState = EPhazonBeamState::Entering;
                 break;
             case ENextState::ExitPhazonBeam:
                 if (x738_nextBeam->IsLoaded())
                     break;
-                x72c_currentBeam->SetLeavingBeam(true);
+                x72c_currentBeam->SetDrawHologram(true);
                 x738_nextBeam->Load(mgr, false);
                 x33c_phazonBeamState = EPhazonBeamState::Exiting;
                 break;
@@ -2515,7 +2516,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
         x744_auxWeapon->RenderMuzzleFx();
 
     x72c_currentBeam->PreRenderGunFx(mgr, offsetWorldXf);
-    bool r26 = !x740_grappleArm->IsGrappling() &&
+    bool drawSuitArm = !x740_grappleArm->IsGrappling() &&
         mgr.GetPlayer().GetGunHolsterState() == CPlayer::EGunHolsterState::Drawn;
     x73c_gunMotion->Draw(mgr, offsetWorldXf);
 
@@ -2531,7 +2532,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                        kHandThermalFlag : kHandHoloFlag);
         }
         DrawArm(mgr, pos, flags);
-        x72c_currentBeam->Draw(r26, mgr, offsetWorldXf, useFlags, &x0_lights);
+        x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, useFlags, &x0_lights);
         x82c_shadow->DisableModelProjectedShadow();
         break;
     case CGunMorph::EGunState::InWipeDone:
@@ -2550,7 +2551,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                 x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
             CGraphics::SetModelMatrix(morphXf);
             DrawClipCube(x6c8_hologramClipCube);
-            x72c_currentBeam->Draw(r26, mgr, offsetWorldXf, useFlags, &x0_lights);
+            x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, useFlags, &x0_lights);
             x82c_shadow->DisableModelProjectedShadow();
         }
         else

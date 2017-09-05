@@ -6,22 +6,23 @@ namespace urde
 {
 
 CDamageInfo::CDamageInfo(const DataSpec::SShotParam& other)
-: x0_weaponMode(CWeaponMode(EWeaponType(other.weaponType), other.Charged(), other.Comboed(), other.InstaKill()))
+: x0_weaponMode(CWeaponMode(EWeaponType(other.weaponType), other.charged, other.combo, other.instaKill))
 , x8_damage(other.damage)
 , xc_radiusDamage(other.radiusDamage)
 , x10_radius(other.radius)
 , x14_knockback(other.knockback)
+, x18_noImmunity(other.noImmunity)
 {
 }
 
 CDamageInfo& CDamageInfo::operator=(const DataSpec::SShotParam& other)
 {
-    x0_weaponMode = CWeaponMode(EWeaponType(other.weaponType), other.Charged(), other.Comboed(), other.InstaKill());
+    x0_weaponMode = CWeaponMode(EWeaponType(other.weaponType), other.charged, other.combo, other.instaKill);
     x8_damage = other.damage;
-    xc_radiusDamage = x8_damage;
+    xc_radiusDamage = other.radiusDamage;
     x10_radius = other.radius;
     x14_knockback = other.knockback;
-    x18_noImmunity = false;
+    x18_noImmunity = other.noImmunity;
     return *this;
 }
 

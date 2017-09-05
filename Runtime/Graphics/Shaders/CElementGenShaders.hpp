@@ -35,6 +35,10 @@ private:
     static boo::IShaderPipeline* m_texAdditiveNoZTest;
     static boo::IShaderPipeline* m_texRedToAlphaZTest;
     static boo::IShaderPipeline* m_texRedToAlphaNoZTest;
+    static boo::IShaderPipeline* m_texZTestNoZWriteSub;
+    static boo::IShaderPipeline* m_texNoZTestNoZWriteSub;
+    static boo::IShaderPipeline* m_texRedToAlphaZTestSub;
+    static boo::IShaderPipeline* m_texRedToAlphaNoZTestSub;
 
     static boo::IShaderPipeline* m_indTexZWrite;
     static boo::IShaderPipeline* m_indTexNoZWrite;
@@ -57,15 +61,20 @@ private:
 
     CElementGen& m_gen;
     boo::IShaderPipeline* m_regPipeline;
+    boo::IShaderPipeline* m_regPipelineSub;
     boo::IShaderPipeline* m_redToAlphaPipeline;
+    boo::IShaderPipeline* m_redToAlphaPipelineSub;
     boo::IShaderPipeline* m_regPipelinePmus;
     boo::IShaderPipeline* m_redToAlphaPipelinePmus;
     CElementGenShaders(CElementGen& gen,
                        boo::IShaderPipeline* regPipeline,
+                       boo::IShaderPipeline* regPipelineSub,
                        boo::IShaderPipeline* redToAlphaPipeline,
+                       boo::IShaderPipeline* redToAlphaPipelineSub,
                        boo::IShaderPipeline* regPipelinePmus,
                        boo::IShaderPipeline* redToAlphaPipelinePmus)
-    : m_gen(gen), m_regPipeline(regPipeline), m_redToAlphaPipeline(redToAlphaPipeline),
+    : m_gen(gen), m_regPipeline(regPipeline), m_regPipelineSub(regPipelineSub),
+      m_redToAlphaPipeline(redToAlphaPipeline), m_redToAlphaPipelineSub(redToAlphaPipelineSub),
       m_regPipelinePmus(regPipelinePmus), m_redToAlphaPipelinePmus(redToAlphaPipelinePmus) {}
 
 public:

@@ -54,6 +54,33 @@ void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform& x
     Render(GetRenderingModel(stateMgr), xf, lights, drawFlags);
 }
 
+bool CModelData::IsLoaded(int shaderIdx) const
+{
+    if (x10_animData)
+    {
+        if (!x10_animData->xd8_modelData->GetModel()->IsLoaded(shaderIdx))
+            return false;
+        if (const CSkinnedModel* model = x10_animData->xf4_xrayModel.get())
+            if (!model->GetModel()->IsLoaded(shaderIdx))
+                return false;
+        if (const CSkinnedModel* model = x10_animData->xf8_infraModel.get())
+            if (!model->GetModel()->IsLoaded(shaderIdx))
+                return false;
+    }
+
+    if (const CModel* model = x1c_normalModel.GetObj())
+        if (!model->IsLoaded(shaderIdx))
+            return false;
+    if (const CModel* model = x2c_xrayModel.GetObj())
+        if (!model->IsLoaded(shaderIdx))
+            return false;
+    if (const CModel* model = x3c_infraModel.GetObj())
+        if (!model->IsLoaded(shaderIdx))
+            return false;
+
+    return true;
+}
+
 CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& stateMgr)
 {
     switch (stateMgr.GetPlayerState()->GetActiveVisor(stateMgr))

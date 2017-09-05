@@ -10,9 +10,10 @@ namespace urde
 class CPlasmaProjectile : public CBeamProjectile
 {
 public:
-    CPlasmaProjectile(const TToken<CWeaponDescription>&, const std::string&, EWeaponType, const CBeamInfo&,
-                      const zeus::CTransform&, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, u32,
-                      bool, u32);
+    CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, const std::string& name,
+                      EWeaponType wType, const CBeamInfo& bInfo, const zeus::CTransform& xf,
+                      EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid,
+                      TUniqueId owner, u32 w1, bool b1, EProjectileAttrib attribs);
 
     void Accept(IVisitor& visitor);
 

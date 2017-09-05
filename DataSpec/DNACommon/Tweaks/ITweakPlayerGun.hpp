@@ -6,29 +6,32 @@
 
 namespace DataSpec
 {
+/* Same as CDamageInfo */
 struct SShotParam : BigYAML
 {
     DECL_YAML
-    Value<atUint32> weaponType = -1;
+    Value<atInt32> weaponType = -1;
+    bool charged : 1;
+    bool combo : 1;
+    bool instaKill : 1;
     Value<float> damage = 0.f;
     Value<float> radiusDamage = 0.f;
     Value<float> radius = 0.f;
     Value<float> knockback = 0.f;
-    virtual bool Charged() const { return false; }
-    virtual bool Comboed() const { return false; }
-    virtual bool InstaKill() const { return false; }
+    bool noImmunity : 1;
+    SShotParam() { charged = false; combo = false; instaKill = false; noImmunity = false; }
 };
 
 struct SComboShotParam : SShotParam
 {
     DECL_YAML
-    bool Comboed() const { return true; }
+    SComboShotParam() { combo = true; }
 };
 
 struct SChargedShotParam : SShotParam
 {
     DECL_YAML
-    bool Charged() const { return true; }
+    SChargedShotParam() { charged = true; }
 };
 
 struct SWeaponInfo : BigYAML

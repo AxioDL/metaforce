@@ -3,6 +3,7 @@
 
 #include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
+#include "Runtime/CPlayerState.hpp"
 
 namespace DataSpec
 {
@@ -10,14 +11,7 @@ namespace DataSpec
 struct ITweakGunRes : ITweak
 {
     using ResId = urde::CAssetId;
-    enum class EBeamId
-    {
-        Power,
-        Ice,
-        Wave,
-        Plasma,
-        Phazon
-    };
+    using EBeamId = urde::CPlayerState::EBeamId;
 
     ResId x4_gunMotion;
     ResId x8_grappleArm;
@@ -54,6 +48,7 @@ struct ITweakGunRes : ITweak
             b = 0;
         switch (EBeamId(b))
         {
+        default:
         case EBeamId::Power:
             return x10_powerBeam;
         case EBeamId::Ice:

@@ -374,7 +374,7 @@ bool CInventoryScreen::IsRightInventoryItemEquipped(int idx) const
     case 3: // Plasma Beam
         return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Plasma;
     case 4: // Phazon Beam
-        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Phazon;
+        return playerState.GetCurrentBeam() == CPlayerState::EBeamId::Phazon2;
     case 5: // Morph Ball
         return playerState.HasPowerUp(CPlayerState::EItemType::MorphBall);
     case 6: // Boost Ball

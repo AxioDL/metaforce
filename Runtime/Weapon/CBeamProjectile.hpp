@@ -7,8 +7,10 @@ namespace urde
 class CBeamProjectile : public CGameProjectile
 {
 public:
-    CBeamProjectile(const TToken<CWeaponDescription>&, const std::string&, EWeaponType, const zeus::CTransform&, int,
-                    float, float, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, u32, bool);
+    CBeamProjectile(const TToken<CWeaponDescription>& wDesc, const std::string& name, EWeaponType wType,
+                    const zeus::CTransform& xf, int flags, float f1, float f2, EMaterialTypes matType,
+                    const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
+                    EProjectileAttrib attribs, bool b1);
 
     void Accept(IVisitor &visitor);
     float GetMaxRadius() const;

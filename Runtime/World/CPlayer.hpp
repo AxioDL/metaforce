@@ -425,8 +425,9 @@ private:
     float CalculateOrbitMinDistance(EPlayerOrbitType type) const;
 
 public:
-    CPlayer(TUniqueId, const zeus::CTransform&, const zeus::CAABox&, CAssetId w1, const zeus::CVector3f&, float, float,
-            float, float, const CMaterialList&);
+    CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
+            const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float ballRadius,
+            const CMaterialList& ml);
 
     bool IsTransparent() const;
     bool GetControlsFrozen() const { return x760_controlsFrozen; }

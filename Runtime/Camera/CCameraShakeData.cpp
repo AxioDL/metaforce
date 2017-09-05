@@ -147,4 +147,9 @@ CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in)
     return {duration, 100.f, 0, zeus::CVector3f::skZero, shaker1, shaker2, shaker3};
 }
 
+const CCameraShakeData CCameraShakeData::skChargedCameraShakeData =
+    {0.3f, 100.f, 0, zeus::CVector3f::skZero, CCameraShakerComponent(),
+     CCameraShakerComponent(1, {0, 0.f, 0.f, 0.3f, -1.f}, {1, 0.f, 0.f, 0.05f, 0.3f}),
+     CCameraShakerComponent()};
+
 }

@@ -2314,7 +2314,7 @@ void CStateManager::UpdateRoomAcoustics(TAreaId aid)
         return;
     }
 
-    int idx = updateCount * x900_activeRandom->Float() * 0.99f;
+    auto idx = int(updateCount * x900_activeRandom->Float() * 0.99f);
     updates[idx]->EnableAuxCallbacks();
 }
 

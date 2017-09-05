@@ -51,6 +51,12 @@ public:
     float GetRadiusDamage() const { return xc_radiusDamage; }
     float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
     bool NoImmunity() const { return x18_noImmunity; }
+    void MultiplyDamage(float m)
+    {
+        x8_damage *= m;
+        xc_radiusDamage *= m;
+        x14_knockback *= m;
+    }
 };
 }
 

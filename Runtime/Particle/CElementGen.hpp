@@ -27,8 +27,10 @@ class CParticleElectric;
 class CElementGen : public CParticleGen
 {
     static u16 g_GlobalSeed;
+    static bool g_subtractBlend;
 public:
     static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
+    static void SetSubtractBlend(bool s) { g_subtractBlend = s; }
     enum class EModelOrientationType
     {
         Normal,
@@ -172,7 +174,9 @@ public:
     boo::GraphicsDataToken m_gfxToken;
 
     boo::IShaderDataBinding* m_normalDataBind = nullptr;
+    boo::IShaderDataBinding* m_normalSubDataBind = nullptr;
     boo::IShaderDataBinding* m_redToAlphaDataBind = nullptr;
+    boo::IShaderDataBinding* m_redToAlphaSubDataBind = nullptr;
     boo::IGraphicsBufferD* m_instBuf = nullptr;
     boo::IGraphicsBufferD* m_uniformBuf = nullptr;
 

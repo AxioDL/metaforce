@@ -95,7 +95,8 @@ public:
         Ice,
         Wave,
         Plasma,
-        Phazon = 27
+        Phazon,
+        Phazon2 = 27
     };
 
 private:

@@ -8,14 +8,15 @@ namespace urde
 {
 CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>&, const std::string& name,
                                  EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes matType,
-                                 const CDamageInfo& dInfo, TUniqueId owner, TAreaId aid, TUniqueId uid, TUniqueId,
-                                 u32 w1, bool b2, const zeus::CVector3f&,
-                                 const rstl::optional_object<TLockedToken<CGenDescription>>&, s16, bool b3)
-: CWeapon(owner, aid, active, uid, wType, name, xf,
+                                 const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
+                                 TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
+                                 const zeus::CVector3f& scale,
+                                 const rstl::optional_object<TLockedToken<CGenDescription>>& particle, s16 s1, bool b3)
+: CWeapon(uid, aid, active, owner, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(
               {EMaterialTypes::NonSolidDamageable, matType},
               {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType, EMaterialTypes::Solid}),
-          CMaterialList(), dInfo, EProjectileAttrib(w1) | GetBeamAttribType(wType), CModelData::CModelDataNull())
+          CMaterialList(), dInfo, attribs | GetBeamAttribType(wType), CModelData::CModelDataNull())
 {
 }
 
@@ -23,25 +24,25 @@ void CGameProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
 
 void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*/, CStateManager& mgr)
 {
-    if (msg == EScriptObjectMessage::UpdateSplashInhabitant)
+    if (msg == EScriptObjectMessage::AddSplashInhabitant)
     {
-        if (!x2e4_27_)
+        if (!x2e4_27_inWater)
         {
-            x2e4_27_ = true;
-            x2e4_26_ = true;
+            x2e4_27_inWater = true;
+            x2e4_26_waterUpdate = true;
         }
     }
     else if (msg == EScriptObjectMessage::UpdateSplashInhabitant)
     {
-        if (!x2e4_26_)
-            x2e4_26_ = true;
+        if (!x2e4_26_waterUpdate)
+            x2e4_26_waterUpdate = true;
     }
     else if (msg == EScriptObjectMessage::RemoveSplashInhabitant)
     {
-        if (x2e4_26_)
+        if (x2e4_26_waterUpdate)
         {
-            x2e4_26_ = false;
-            x2e4_27_ = false;
+            x2e4_26_waterUpdate = false;
+            x2e4_27_inWater = false;
         }
     }
     else if (msg == EScriptObjectMessage::Deleted)
