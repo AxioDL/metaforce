@@ -6,6 +6,7 @@
 #include "World/CScriptAreaAttributes.hpp"
 #include "CGameState.hpp"
 #include "DataSpec/DNAMP1/MREA.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -465,6 +466,12 @@ void CGameArea::SetThermalSpeedAndTarget(float speed, float target)
     x12c_postConstructed->x1124_thermalTarget = target;
 }
 
+void CGameArea::SetWeaponWorldLighting(float speed, float target)
+{
+    x12c_postConstructed->x1134_weaponWorldLightingSpeed = speed;
+    x12c_postConstructed->x1138_weaponWorldLightingTarget = target;
+}
+
 float CGameArea::GetXRayFogDistance() const
 {
     const CScriptAreaAttributes* attrs = x12c_postConstructed->x10d8_areaAttributes;
@@ -522,6 +529,63 @@ void CGameArea::UpdateThermalVisor(float dt)
     x12c_postConstructed->x111c_thermalCurrent = influence;
 }
 
+void CGameArea::UpdateWeaponWorldLighting(float dt)
+{
+    float newLightingLevel = x12c_postConstructed->x1128_worldLightingLevel;
+    if (x12c_postConstructed->x112c_xraySpeed != 0)
+    {
+        float speed = dt * x12c_postConstructed->x112c_xraySpeed;
+        if (std::fabs(x12c_postConstructed->x1130_xrayTarget - newLightingLevel) < speed)
+        {
+            newLightingLevel = x12c_postConstructed->x1130_xrayTarget;
+            x12c_postConstructed->x1134_weaponWorldLightingSpeed = 0.f;
+        }
+        else if (x12c_postConstructed->x1130_xrayTarget < newLightingLevel)
+        {
+            newLightingLevel -= speed;
+        }
+        else
+        {
+            newLightingLevel += speed;
+        }
+    }
+
+    if (x12c_postConstructed->x1134_weaponWorldLightingSpeed != 0.f)
+    {
+        float newWeaponWorldLightingLevel = x12c_postConstructed->x1128_worldLightingLevel;
+        float speed = dt * x12c_postConstructed->x1134_weaponWorldLightingSpeed;
+        if (std::fabs(x12c_postConstructed->x1138_weaponWorldLightingTarget - newLightingLevel) < speed)
+        {
+            newWeaponWorldLightingLevel = x12c_postConstructed->x1138_weaponWorldLightingTarget;
+            x12c_postConstructed->x1134_weaponWorldLightingSpeed = 0.f;
+        }
+        else if (x12c_postConstructed->x1138_weaponWorldLightingTarget < newWeaponWorldLightingLevel)
+        {
+            newWeaponWorldLightingLevel -= speed;
+        }
+        else
+        {
+            newWeaponWorldLightingLevel += speed;
+        }
+        if (x12c_postConstructed->x112c_xraySpeed != 0.f)
+        {
+            newLightingLevel = std::min(newLightingLevel, newWeaponWorldLightingLevel);
+        }
+        else
+        {
+            newLightingLevel = newWeaponWorldLightingLevel;
+        }
+    }
+
+    if (std::fabs(x12c_postConstructed->x1128_worldLightingLevel - newLightingLevel) >= 0.00001f)
+    {
+        x12c_postConstructed->x1128_worldLightingLevel = newLightingLevel;
+        for (CEntity* ent : *x12c_postConstructed->x10c0_areaObjs)
+            if (TCastToPtr<CActor> act = ent)
+                act->SetWorldLightingDirty(true);
+    }
+}
+
 void CGameArea::AliveUpdate(float dt)
 {
     if (x12c_postConstructed->x10dc_occlusionState == EOcclusionState::Occluded)
@@ -530,7 +594,7 @@ void CGameArea::AliveUpdate(float dt)
         x12c_postConstructed->x10e4_ = 0.f;
     UpdateFog(dt);
     UpdateThermalVisor(dt);
-
+    UpdateWeaponWorldLighting(dt);
 }
 
 void CGameArea::SetOcclusionState(EOcclusionState state)

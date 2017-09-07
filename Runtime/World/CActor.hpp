@@ -69,6 +69,7 @@ protected:
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;
             bool xe7_27_ : 1;
+            bool xe7_28_worldLightingDirty : 1;
             bool xe7_29_ : 1;
             bool xe7_30_doTargetDistanceTest : 1;
             bool xe7_31_targetable : 1;
@@ -174,7 +175,8 @@ public:
     void SetActorLights(std::unique_ptr<CActorLights>);
     const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
     bool CanDrawStatic() const;
-    bool GetE7_29() const  { return xe7_29_; }
+    bool GetE7_29() const { return xe7_29_; }
+    void SetWorldLightingDirty(bool b) { xe7_28_worldLightingDirty = b; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
     const CHealthInfo* GetHealthInfo(const CStateManager& mgr) const
     { return const_cast<CActor*>(this)->HealthInfo(const_cast<CStateManager&>(mgr)); }

@@ -12,14 +12,25 @@ class CWaveBeam : public CGunWeapon
     TCachedToken<CElectricDescription> x228_wave2nd1;
     TCachedToken<CElectricDescription> x234_wave2nd2;
     TCachedToken<CGenDescription> x240_wave2nd3;
-    float x24c_ = 0.f;
-    u32 x250_ = 0;
-    u32 x254_ = 0;
-    bool x258_24 : 1;
-    bool x258_25 : 1;
+    float x24c_effectTimer = 0.f;
+    std::unique_ptr<CParticleElectric> x250_chargeElec;
+    std::unique_ptr<CElementGen> x254_chargeFx;
+    bool x258_24_loaded : 1;
+    bool x258_25_effectTimerActive : 1;
+    void ReInitVariables();
 public:
     CWaveBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
               EMaterialTypes playerMaterial, const zeus::CVector3f& scale);
+
+    void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf);
+    void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf);
+    void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+              CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2);
+    void EnableSecondaryFx(ESecondaryFxType type);
+    void Update(float dt, CStateManager& mgr);
+    void Load(CStateManager& mgr, bool subtypeBasePose);
+    void Unload(CStateManager& mgr);
+    bool IsLoaded() const;
 };
 
 }

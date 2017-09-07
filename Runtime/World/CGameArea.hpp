@@ -249,8 +249,8 @@ public:
         float x1128_worldLightingLevel = 1.f;
         float x112c_xraySpeed = 0.f;
         float x1130_xrayTarget = 1.f;
-        float x1134_ = 0.f;
-        float x1138_ = 1.f;
+        float x1134_weaponWorldLightingSpeed = 0.f;
+        float x1138_weaponWorldLightingTarget = 1.f;
         u32 x113c_ = 0;
     };
 private:
@@ -266,6 +266,7 @@ private:
 
     void UpdateFog(float dt);
     void UpdateThermalVisor(float dt);
+    void UpdateWeaponWorldLighting(float dt);
 
     struct MREAHeader
     {
@@ -304,6 +305,7 @@ public:
 
     void SetXRaySpeedAndTarget(float f1, float f2);
     void SetThermalSpeedAndTarget(float f1, float f2);
+    void SetWeaponWorldLighting(float speed, float target);
 
     CAssetId GetAreaAssetId() const { return x84_mrea; }
     const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }

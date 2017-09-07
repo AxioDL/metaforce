@@ -103,8 +103,8 @@ protected:
     zeus::CVector3f x168_impulse;
     zeus::CAxisAngle x174_torque;
     zeus::CAxisAngle x180_angularImpulse;
-    zeus::CVector3f x18c_;
-    zeus::CAxisAngle x198_;
+    zeus::CVector3f x18c_moveImpulse;
+    zeus::CAxisAngle x198_moveAngularImpulse;
     zeus::CAABox x1a4_baseBoundingBox;
     CCollidableAABox x1c0_collisionPrimitive;
     zeus::CVector3f x1e8_primitiveOffset;

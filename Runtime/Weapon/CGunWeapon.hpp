@@ -54,10 +54,10 @@ class CGunWeapon
 public:
     enum class ESecondaryFxType
     {
-        Zero,
-        One,
-        Two,
-        Three
+        None,
+        Charge,
+        ToCombo,
+        CancelCharge
     };
     enum class EFrozenFxType
     {
@@ -86,7 +86,7 @@ protected:
     EWeaponType x1c0_weaponType;
     TUniqueId x1c4_playerId;
     EMaterialTypes x1c8_playerMaterial;
-    ESecondaryFxType x1cc_enabledSecondaryEffect = ESecondaryFxType::Zero;
+    ESecondaryFxType x1cc_enabledSecondaryEffect = ESecondaryFxType::None;
     CVelocityInfo x1d0_velInfo;
     CPlayerState::EBeamId x200_beamId;
     EFrozenFxType x204_frozenEffect = EFrozenFxType::None;

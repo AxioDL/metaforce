@@ -428,7 +428,7 @@ void CPlayerGun::ResetCharge(CStateManager& mgr, bool b1)
         if (x832_27_chargeAnimStarted || r30)
             PlayAnim(NWeaponTypes::EGunAnimType::BasePosition, false);
         if (r30)
-            x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Zero);
+            x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
         if ((x2f8_stateFlags & 0x2) != 0x2 || x330_chargeState != EChargeState::Normal)
         {
             if ((x2f8_stateFlags & 0x8) != 0x8)
@@ -521,7 +521,7 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr)
             x832_30_requestReturnToDefault = true;
             x740_grappleArm->EnterIdle(mgr);
         }
-        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Zero);
+        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
         x338_nextState = ENextState::ChangeWeapon;
         x2e4_invalidSfx.reset();
     }
@@ -627,11 +627,11 @@ void CPlayerGun::CancelCharge(CStateManager& mgr, bool withEffect)
     if (withEffect)
     {
         x32c_chargePhase = EChargePhase::ChargeCancelled;
-        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Three);
+        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::CancelCharge);
     }
     else
     {
-        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Zero);
+        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
     }
 
     x834_24_charging = false;
@@ -658,8 +658,8 @@ void CPlayerGun::HandlePhazonBeamChange(CStateManager& mgr)
             inMorph = true;
             if (x75c_phazonBeam)
             {
-                x75c_phazonBeam->SetX274_25(false);
-                x75c_phazonBeam->SetX274_26(true);
+                x75c_phazonBeam->SetClipWipeActive(false);
+                x75c_phazonBeam->SetVeinsAlphaActive(true);
             }
         }
         break;
@@ -827,7 +827,7 @@ void CPlayerGun::StopContinuousBeam(CStateManager& mgr, bool b1)
             if (x310_currentBeam != CPlayerState::EBeamId::Power || x833_28_phazonBeamActive)
             {
                 x72c_currentBeam->EnableSecondaryFx(
-                    b1 ? CGunWeapon::ESecondaryFxType::Zero : CGunWeapon::ESecondaryFxType::Three);
+                    b1 ? CGunWeapon::ESecondaryFxType::None : CGunWeapon::ESecondaryFxType::CancelCharge);
             }
             break;
         default:
@@ -1223,7 +1223,7 @@ void CPlayerGun::EnableChargeFx(EChargeState state, CStateManager& mgr)
 {
     x72c_currentBeam->ActivateCharge(true, false);
     SetGunLightActive(true, mgr);
-    x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::One);
+    x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Charge);
     StopContinuousBeam(mgr, false);
 
     switch (x310_currentBeam)
@@ -1368,7 +1368,7 @@ void CPlayerGun::UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CS
         if (!done)
             if (x72c_currentBeam->ComboFireOver())
                 done = true;
-        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Three);
+        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::CancelCharge);
         if (done)
         {
             x32c_chargePhase = EChargePhase::ChargeDone;
@@ -1410,7 +1410,7 @@ void CPlayerGun::DoUserAnimEvent(float dt, CStateManager& mgr, const CInt32POINo
             x2f8_stateFlags |= 0x10;
         CancelCharge(mgr, true);
         if (doFireSecondary)
-            x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Two);
+            x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::ToCombo);
         break;
     default:
         break;
@@ -2076,7 +2076,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
 
     if (becameFrozen)
     {
-        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::Zero);
+        x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
         x72c_currentBeam->EnableFrozenEffect(CGunWeapon::EFrozenFxType::Frozen);
     }
     else if (becameThawed)
