@@ -113,7 +113,6 @@ protected:
     void FreeResPools();
     void FillTokenVector(const std::vector<SObjectTag>& tags, std::vector<CToken>& objects);
     void BuildDependencyList(CPlayerState::EBeamId beam);
-    CDamageInfo GetShotDamageInfo(const SShotParam& shotParam, CStateManager& mgr) const;
     void LoadSuitArm(CStateManager& mgr);
     void LoadGunModels(CStateManager& mgr);
     void LoadAnimations();
@@ -173,6 +172,8 @@ public:
     bool IsChargeAnimOver() const;
     void SetDrawHologram(bool d) { x218_29_drawHologram = d; }
     void EnableCharge(bool c) { x218_25_enableCharge = c; }
+
+    static CDamageInfo GetShotDamageInfo(const SShotParam& shotParam, CStateManager& mgr);
 };
 }
 

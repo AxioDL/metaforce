@@ -10,6 +10,7 @@ enum class ERumbleFxId
     Seven = 7,
     Eleven = 11,
     Twelve = 12,
+    Thirteen = 13,
     Fourteen = 14,
     Fifteen = 15,
     Seventeen = 17

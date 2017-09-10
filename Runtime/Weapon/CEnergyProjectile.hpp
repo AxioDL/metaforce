@@ -20,7 +20,7 @@ class CEnergyProjectile : public CGameProjectile
             bool x3d0_24_ : 1;
             bool x3d0_25_ : 1;
             bool x3d0_26_ : 1;
-            bool x3d0_27_ : 1;
+            bool x3d0_27_camShakeDirty : 1;
         };
         u32 _dummy = 0;
     };
@@ -32,6 +32,7 @@ public:
                       EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                       const rstl::optional_object<TLockedToken<CGenDescription>>& particle,
                       s16 w2, bool b2);
+    void SetCameraShake(const CCameraShakeData& data) { x2fc_camShake = data; x3d0_27_camShakeDirty = true; }
 };
 
 }

@@ -245,7 +245,7 @@ void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const
     if (chargeState == EChargeState::Charged)
     {
         x218_25_enableCharge = true;
-        mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::skChargedCameraShakeData, false);
+        mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::skChargedShotCameraShakeData, false);
     }
 
     x10_solidModelData->AnimationData()->EnableLooping(false);
@@ -674,7 +674,7 @@ void CGunWeapon::EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32
     x100_gunController->EnterFidget(mgr, s32(type), s32(x200_beamId), parm2);
 }
 
-CDamageInfo CGunWeapon::GetShotDamageInfo(const SShotParam& shotParam, CStateManager& mgr) const
+CDamageInfo CGunWeapon::GetShotDamageInfo(const SShotParam& shotParam, CStateManager& mgr)
 {
     CDamageInfo ret(shotParam);
     if (g_GameState->GetHardMode())

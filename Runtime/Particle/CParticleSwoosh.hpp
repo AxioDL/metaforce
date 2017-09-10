@@ -159,6 +159,7 @@ public:
     void DestroyParticles();
     void Reset() {}
     FourCC Get4CharId() const { return FOURCC('SWHC'); }
+    void SetRenderGaps(bool r) { x1d0_27_renderGaps = r; }
 
     void DoElectricWarmup()
     {

@@ -23,11 +23,11 @@ CCameraShakerComponent CCameraShakerComponent::LoadNewCameraShakerComponent(CInp
     return {flags, sp1, sp2};
 }
 
-CCameraShakeData::CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& sfxPos,
+CCameraShakeData::CCameraShakeData(float duration, float sfxDist, u32 w1, const zeus::CVector3f& sfxPos,
                                    const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                                    const CCameraShakerComponent& shaker3)
 : x0_duration(duration), x8_shaker1(shaker1), x44_shaker2(shaker2), x80_shaker3(shaker3),
-  xc0_flags(w1), xc4_sfxPos(sfxPos), xd0_f2(f2)
+  xc0_flags(w1), xc4_sfxPos(sfxPos), xd0_sfxDist(sfxDist)
 {}
 
 CCameraShakeData::CCameraShakeData(float duration, float magnitude)
@@ -57,6 +57,14 @@ CCameraShakeData CCameraShakeData::BuildProjectileCameraShake(float duration, fl
             SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 3.f)),
             CCameraShakerComponent(),
             CCameraShakerComponent()};
+}
+
+CCameraShakeData CCameraShakeData::BuildMissileCameraShake(float duration, float magnitude, float sfxDistance,
+                                                           const zeus::CVector3f& sfxPos)
+{
+    CCameraShakeData ret(duration, magnitude);
+    ret.SetSfxPositionAndDistance(sfxPos, sfxDistance);
+    return ret;
 }
 
 CCameraShakeData CCameraShakeData::BuildPhazonCameraShakeData(float duration, float magnitude)
@@ -147,7 +155,7 @@ CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in)
     return {duration, 100.f, 0, zeus::CVector3f::skZero, shaker1, shaker2, shaker3};
 }
 
-const CCameraShakeData CCameraShakeData::skChargedCameraShakeData =
+const CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData =
     {0.3f, 100.f, 0, zeus::CVector3f::skZero, CCameraShakerComponent(),
      CCameraShakerComponent(1, {0, 0.f, 0.f, 0.3f, -1.f}, {1, 0.f, 0.f, 0.05f, 0.3f}),
      CCameraShakerComponent()};

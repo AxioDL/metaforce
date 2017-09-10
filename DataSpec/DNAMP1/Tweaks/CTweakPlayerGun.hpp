@@ -112,6 +112,7 @@ struct CTweakPlayerGun final : ITweakPlayerGun
 
     const SShotParam& GetBombInfo() const { return x70_bomb; }
     const SShotParam& GetPowerBombInfo() const { return x8c_powerBomb; }
+    const SShotParam& GetMissileInfo() const { return x1d4_missile; }
 };
 }
 }

@@ -123,7 +123,7 @@ void CPlayerState::PutTo(CBitStreamWriter& stream)
     stream.WriteEncoded(x180_scanCompletionRate.second, CBitStreamWriter::GetBitCount(0x100));
 }
 
-static const float unk[]
+static const float unk[] =
 {
     0.2f, 0.1f, 0.2f, 0.2f, 1.f
 };
@@ -133,7 +133,7 @@ float CPlayerState::sub_80091204() const
     return unk[u32(x8_currentBeam)];
 }
 
-static const u32 costs[]
+static const u32 costs[] =
 {
     5, 10, 10, 10, 1
 };
@@ -141,6 +141,16 @@ static const u32 costs[]
 u32 CPlayerState::GetMissileCostForAltAttack() const
 {
     return costs[u32(x8_currentBeam)];
+}
+
+static const float ComboAmmoPeriods[] =
+{
+    0.2f, 0.1f, 0.2f, 0.2f, 1.f
+};
+
+float CPlayerState::GetComboFireAmmoPeriod() const
+{
+    return ComboAmmoPeriods[u32(x8_currentBeam)];
 }
 
 u32 CPlayerState::CalculateItemCollectionRate() const

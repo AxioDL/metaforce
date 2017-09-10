@@ -16,6 +16,7 @@ class CWeaponDescription;
 class CGameProjectile : public CWeapon
 {
     //CProjectileWeapon x170_;
+    TUniqueId x2c0_homingTargetId;
     TUniqueId x2c8_projectileLight;
     u32 x2cc_;
     union
@@ -45,6 +46,7 @@ public:
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                            const CWeaponMode&, int) const
     { return EWeaponCollisionResponseTypes::Projectile; }
+    TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
 };
 }
 

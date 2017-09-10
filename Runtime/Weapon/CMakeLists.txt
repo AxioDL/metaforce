@@ -27,6 +27,8 @@ set(WEAPON_SOURCES
     CBomb.hpp CBomb.cpp
     CPowerBomb.hpp CPowerBomb.cpp
     CFlameInfo.hpp CFlameInfo.cpp
-    CFlameThrower.hpp CFlameThrower.cpp)
+    CFlameThrower.hpp CFlameThrower.cpp
+    CWaveBuster.hpp CWaveBuster.cpp
+    CNewFlameThrower.hpp CNewFlameThrower.cpp)
 
 runtime_add_list(Weapon WEAPON_SOURCES)

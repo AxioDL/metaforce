@@ -48,16 +48,18 @@ class CCameraShakeData
     u32 xbc_shakerId = 0;
     u32 xc0_flags; // 0x1: positional sfx
     zeus::CVector3f xc4_sfxPos;
-    float xd0_f2;
+    float xd0_sfxDist;
 
 public:
-    static const CCameraShakeData skChargedCameraShakeData;
-    CCameraShakeData(float duration, float f2, u32 w1, const zeus::CVector3f& sfxPos,
+    static const CCameraShakeData skChargedShotCameraShakeData;
+    CCameraShakeData(float duration, float sfxDist, u32 w1, const zeus::CVector3f& sfxPos,
                      const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                      const CCameraShakerComponent& shaker3);
     CCameraShakeData(float duration, float magnitude);
     static CCameraShakeData BuildLandingCameraShakeData(float duration, float magnitude);
     static CCameraShakeData BuildProjectileCameraShake(float duration, float magnitude);
+    static CCameraShakeData BuildMissileCameraShake(float duration, float magnitude, float sfxDistance,
+                                                    const zeus::CVector3f& sfxPos);
     static CCameraShakeData BuildPhazonCameraShakeData(float duration, float magnitude);
     //zeus::CVector3f GeneratePoint(float dt, CRandom16& r);
     float GetSomething() const;
@@ -65,6 +67,8 @@ public:
     void SetShakerId(u32 id) { xbc_shakerId = id; }
     u32 GetShakerId() const { return xbc_shakerId; }
     static CCameraShakeData LoadCameraShakeData(CInputStream& in);
+    void SetSfxPositionAndDistance(const zeus::CVector3f& pos, float f2)
+    { xc0_flags |= 0x1; xc4_sfxPos = pos; xd0_sfxDist = f2; }
 };
 
 }

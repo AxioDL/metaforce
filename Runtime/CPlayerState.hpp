@@ -111,7 +111,7 @@ private:
     };
     union
     {
-        struct { bool x0_24_alive : 1; bool x0_25_ : 1; bool x0_26_fusion : 1; };
+        struct { bool x0_24_alive : 1; bool x0_25_firingComboBeam : 1; bool x0_26_fusion : 1; };
         u32 dummy = 0;
     };
 
@@ -130,6 +130,7 @@ public:
 
     float sub_80091204() const;
     u32 GetMissileCostForAltAttack() const;
+    float GetComboFireAmmoPeriod() const;
     static constexpr float GetMissileComboChargeFactor() { return 1.8f; }
     u32 CalculateItemCollectionRate() const;
 
@@ -174,6 +175,8 @@ public:
     void SetScanCompletionRate(const std::pair<u32, u32>& p) { x180_scanCompletionRate = p; }
     bool IsPlayerAlive() const { return x0_24_alive; }
     void SetPlayerAlive(bool alive) { x0_24_alive = alive; }
+    bool IsFiringComboBeam() const { return x0_25_firingComboBeam; }
+    void SetFiringComboBeam(bool f) { x0_25_firingComboBeam = f; }
     void InitializeScanTimes();
     CStaticInterference& GetStaticInterference() { return x188_staticIntf; }
     const rstl::reserved_vector<std::pair<CAssetId, float>, 846>& GetScanTimes() const { return x170_scanTimes; }
