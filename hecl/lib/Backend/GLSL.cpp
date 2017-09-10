@@ -136,6 +136,7 @@ std::string GLSL::GenerateReflectionExpr(ReflectionType type) const
     switch (type)
     {
     case ReflectionType::None:
+    default:
         return "vec3(0.0, 0.0, 0.0)";
     case ReflectionType::Simple:
         return "texture(reflectionTex, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
