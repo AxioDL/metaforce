@@ -6,8 +6,8 @@
 #include "CParticleSwoosh.hpp"
 #include "CParticleElectric.hpp"
 #include "Graphics/CModel.hpp"
-
 #include "Graphics/Shaders/CElementGenShaders.hpp"
+#include "CWarp.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
 
@@ -24,7 +24,7 @@ int CElementGen::g_ParticleAliveCount;
 int CElementGen::g_ParticleSystemAliveCount;
 bool CElementGen::g_ParticleSystemInitialized = false;
 bool CElementGen::sMoveRedToAlphaBuffer = false;
-CElementGen::CParticle* CElementGen::g_currentParticle = nullptr;
+CParticle* CElementGen::g_currentParticle = nullptr;
 
 struct SParticleInstanceTex
 {
@@ -533,6 +533,13 @@ void CElementGen::UpdateExistingParticles()
         AccumulateBounds(particle.x4_pos, particle.x2c_lineLengthOrSize);
         ++it;
     }
+
+    if (x30_particles.empty())
+        return;
+
+    for (CWarp* warp : x4_modifierList)
+        if (warp->UpdateWarp())
+            warp->ModifyParticles(x30_particles);
 }
 
 void CElementGen::CreateNewParticles(int count)
@@ -566,7 +573,7 @@ void CElementGen::CreateNewParticles(int count)
         if (x2c_orientType == EModelOrientationType::One)
             x50_parentMatrices[x30_particles.size()-1] = x1d8_orientation.buildMatrix3f();
 
-        CElementGen::CParticle& particle = x30_particles.back();
+        CParticle& particle = x30_particles.back();
         particle.x28_startFrame = x74_curFrame;
         if (CIntElement* ltme = desc->x34_x28_LTME.get())
             ltme->GetValue(0, particle.x0_endFrame);

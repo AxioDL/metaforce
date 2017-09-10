@@ -5,33 +5,36 @@
 
 namespace urde
 {
+class CStateManager;
+
 class CFlameWarp : public CWarp
 {
-    zeus::CVector3f x4;
-    zeus::CVector3f xc;
-    float x1c;
-    float x20;
-    int x24;
-    bool x28_activated : 1;
-
+    rstl::reserved_vector<zeus::CVector3f, 9> x4_vecs;
+    zeus::CVector3f x74_warpPoint;
+    zeus::CVector3f x80_floatingPoint;
+    float x8c_maxDistSq = 0.f;
+    float x90_minSize = FLT_MAX;
+    float x94_maxSize = FLT_MIN;
+    float x98_maxInfluenceDistSq;
+    CStateManager* x9c_stateMgr = nullptr;
+    bool xa0_24_activated : 1;
+    bool xa0_25_collisionWarp : 1;
+    bool xa0_26_processed : 1;
 public:
-    CFlameWarp(float a, const zeus::CVector3f& b)
-        : x4(b), x1c(0.0), x20(a * a), x24(0)
+    CFlameWarp(float maxInfluenceDist, const zeus::CVector3f& warpPoint, bool collisionWarp)
+    : x74_warpPoint(warpPoint), x80_floatingPoint(warpPoint),
+      x98_maxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist)
     {
-        x28_activated = false;
+        x4_vecs.resize(9, warpPoint);
+        xa0_24_activated = false;
+        xa0_25_collisionWarp = collisionWarp;
+        xa0_26_processed = false;
     }
 
-    ~CFlameWarp() {}
-
-    bool UpdateWarp() { return x28_activated; }
-    void ModifyParticles(int, int, int *,
-                         zeus::CVector3f*,
-                         zeus::CVector3f*,
-                         zeus::CVector3f*,
-                         zeus::CColor*,
-                         float*, float*) {}
-    void Activate(bool val) { x28_activated = val; }
-    bool IsActivated() { return x28_activated; }
+    bool UpdateWarp() { return xa0_24_activated; }
+    void ModifyParticles(std::vector<CParticle>& particles);
+    void Activate(bool val) { xa0_24_activated = val; }
+    bool IsActivated() { return xa0_24_activated; }
     FourCC Get4CharID() { return FOURCC('FWRP'); }
 };
 }

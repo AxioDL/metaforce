@@ -58,17 +58,6 @@ public:
         CParticleListItem(s16 idx)
         : x0_partIdx(idx) {}
     };
-    struct CParticle
-    {
-        int x0_endFrame = 0;
-        zeus::CVector3f x4_pos;
-        zeus::CVector3f x10_prevPos;
-        zeus::CVector3f x1c_vel;
-        int x28_startFrame = 0;
-        float x2c_lineLengthOrSize = 0.f;
-        float x30_lineWidthOrRota = 0.f;
-        zeus::CColor x34_color = {0.f, 0.f, 0.f, 1.f};
-    };
     static CParticle* g_currentParticle;
 private:
     friend class CElementGenShaders;

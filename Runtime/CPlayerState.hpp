@@ -128,7 +128,6 @@ private:
     CStaticInterference x188_staticIntf;
 public:
 
-    float sub_80091204() const;
     u32 GetMissileCostForAltAttack() const;
     float GetComboFireAmmoPeriod() const;
     static constexpr float GetMissileComboChargeFactor() { return 1.8f; }
