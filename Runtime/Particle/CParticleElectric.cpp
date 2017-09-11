@@ -38,7 +38,6 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     if (desc->x40_SSWH)
     {
         x450_27_haveSSWH = true;
-        x1e0_swooshGenerators.reserve(x154_SCNT);
         for (int i=0 ; i<x154_SCNT ; ++i)
         {
             x1e0_swooshGenerators.emplace_back(new CParticleSwoosh(desc->x40_SSWH.m_token, x150_SSEG));

@@ -5,85 +5,487 @@
 #include <algorithm>
 #include <stdlib.h>
 #include "optional.hpp"
+#include <logvisor/logvisor.hpp>
 
 namespace rstl
 {
+
+#ifndef NDEBUG
+static logvisor::Module Log("rstl");
+#endif
 
 template <typename T>
 using optional_object = std::experimental::optional<T>;
 
 /**
- * @brief Vector reserved on construction
+ * @brief Base vector backed by statically-allocated array
  */
 template <class T, size_t N>
-class reserved_vector : public std::vector<T>
+class _reserved_vector_base
 {
-public:
-    reserved_vector() { this->reserve(N); }
-    reserved_vector(size_t n, const T& val) : std::vector<T>(n, val) {}
-};
-
-template <class T, size_t N>
-class prereserved_vector
-{
-    size_t x0_size = 1;
-    T x4_data[N];
+protected:
+    explicit _reserved_vector_base(size_t _init_sz) : x0_size(_init_sz) {}
+    size_t x0_size;
+    uint8_t x4_data[N][sizeof(T)];
+    T& _value(ssize_t idx) { return reinterpret_cast<T&>(x4_data[idx]); }
+    const T& _value(ssize_t idx) const { return reinterpret_cast<const T&>(x4_data[idx]); }
 
 public:
-    class iterator
-    {
-        T* m_val;
-    public:
-        iterator(T* val) : m_val(val) {}
-        T& operator*() const { return *m_val; }
-        T* operator->() const { return m_val; }
-        iterator& operator++() { ++m_val; return *this; }
-        bool operator!=(const iterator& other) const { return m_val != other.m_val; }
-        bool operator==(const iterator& other) const { return m_val == other.m_val; }
-    };
-
     class const_iterator
     {
-        T* m_val;
+        friend class _reserved_vector_base;
+    protected:
+        const T* m_val;
+        explicit const_iterator(const T* val) : m_val(val) {}
     public:
-        const_iterator(const T* val) : m_val(val) {}
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::random_access_iterator_tag;
+
         const T& operator*() const { return *m_val; }
         const T* operator->() const { return m_val; }
         const_iterator& operator++() { ++m_val; return *this; }
+        const_iterator& operator--() { --m_val; return *this; }
+        const_iterator operator++(int) { auto ret = *this; ++m_val; return ret; }
+        const_iterator operator--(int) { auto ret = *this; --m_val; return ret; }
         bool operator!=(const const_iterator& other) const { return m_val != other.m_val; }
         bool operator==(const const_iterator& other) const { return m_val == other.m_val; }
+        const_iterator operator+(std::ptrdiff_t i) const { return const_iterator(m_val + i); }
+        const_iterator operator-(std::ptrdiff_t i) const { return const_iterator(m_val - i); }
+        const_iterator& operator+=(std::ptrdiff_t i) { m_val += i; return *this; }
+        const_iterator& operator-=(std::ptrdiff_t i) { m_val -= i; return *this; }
+        std::ptrdiff_t operator-(const const_iterator& it) const { return m_val - it.m_val; }
+        bool operator>(const const_iterator& it) const { return m_val > it.m_val; }
+        bool operator<(const const_iterator& it) const { return m_val < it.m_val; }
+        bool operator>=(const const_iterator& it) const { return m_val >= it.m_val; }
+        bool operator<=(const const_iterator& it) const { return m_val <= it.m_val; }
+        const T& operator[](std::ptrdiff_t i) const { return m_val[i]; }
     };
 
-    void set_size(size_t n)
+    class iterator : public const_iterator
     {
-        if (n <= N)
-            x0_size = n;
+        friend class _reserved_vector_base;
+        explicit iterator(T* val) : const_iterator(val) {}
+    public:
+        T& operator*() const { return *const_cast<T*>(const_iterator::m_val); }
+        T* operator->() const { return const_cast<T*>(const_iterator::m_val); }
+        iterator& operator++() { ++const_iterator::m_val; return *this; }
+        iterator& operator--() { --const_iterator::m_val; return *this; }
+        iterator operator++(int) { auto ret = *this; ++const_iterator::m_val; return ret; }
+        iterator operator--(int) { auto ret = *this; --const_iterator::m_val; return ret; }
+        iterator operator+(std::ptrdiff_t i) const { return iterator(const_cast<T*>(const_iterator::m_val) + i); }
+        iterator operator-(std::ptrdiff_t i) const { return iterator(const_cast<T*>(const_iterator::m_val) - i); }
+        iterator& operator+=(std::ptrdiff_t i) { const_iterator::m_val += i; return *this; }
+        iterator& operator-=(std::ptrdiff_t i) { const_iterator::m_val -= i; return *this; }
+        std::ptrdiff_t operator-(const iterator& it) const { return const_iterator::m_val - it.m_val; }
+        T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_iterator::m_val)[i]; }
+    };
+
+    class const_reverse_iterator
+    {
+        friend class _reserved_vector_base;
+    protected:
+        const T* m_val;
+        explicit const_reverse_iterator(const T* val) : m_val(val) {}
+    public:
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::random_access_iterator_tag;
+
+        const T& operator*() const { return *m_val; }
+        const T* operator->() const { return m_val; }
+        const_reverse_iterator& operator++() { --m_val; return *this; }
+        const_reverse_iterator& operator--() { ++m_val; return *this; }
+        const_reverse_iterator operator++(int) { auto ret = *this; --m_val; return ret; }
+        const_reverse_iterator operator--(int) { auto ret = *this; ++m_val; return ret; }
+        bool operator!=(const const_reverse_iterator& other) const { return m_val != other.m_val; }
+        bool operator==(const const_reverse_iterator& other) const { return m_val == other.m_val; }
+        const_reverse_iterator operator+(std::ptrdiff_t i) const { return const_reverse_iterator(m_val - i); }
+        const_reverse_iterator operator-(std::ptrdiff_t i) const { return const_reverse_iterator(m_val + i); }
+        const_reverse_iterator& operator+=(std::ptrdiff_t i) { m_val -= i; return *this; }
+        const_reverse_iterator& operator-=(std::ptrdiff_t i) { m_val += i; return *this; }
+        std::ptrdiff_t operator-(const const_reverse_iterator& it) const { return it.m_val - m_val; }
+        bool operator>(const const_iterator& it) const { return it.m_val > m_val; }
+        bool operator<(const const_iterator& it) const { return it.m_val < m_val; }
+        bool operator>=(const const_iterator& it) const { return it.m_val >= m_val; }
+        bool operator<=(const const_iterator& it) const { return it.m_val <= m_val; }
+        const T& operator[](std::ptrdiff_t i) const { return m_val[-i]; }
+    };
+
+    class reverse_iterator : public const_reverse_iterator
+    {
+        friend class _reserved_vector_base;
+        explicit reverse_iterator(T* val) : const_reverse_iterator(val) {}
+    public:
+        T& operator*() const { return *const_cast<T*>(const_reverse_iterator::m_val); }
+        T* operator->() const { return const_cast<T*>(const_reverse_iterator::m_val); }
+        reverse_iterator& operator++() { --const_reverse_iterator::m_val; return *this; }
+        reverse_iterator& operator--() { ++const_reverse_iterator::m_val; return *this; }
+        reverse_iterator operator++(int) { auto ret = *this; --const_reverse_iterator::m_val; return ret; }
+        reverse_iterator operator--(int) { auto ret = *this; ++const_reverse_iterator::m_val; return ret; }
+        reverse_iterator operator+(std::ptrdiff_t i) const
+        { return reverse_iterator(const_cast<T*>(const_reverse_iterator::m_val) - i); }
+        reverse_iterator operator-(std::ptrdiff_t i) const
+        { return reverse_iterator(const_cast<T*>(const_reverse_iterator::m_val) + i); }
+        reverse_iterator& operator+=(std::ptrdiff_t i) { const_reverse_iterator::m_val -= i; return *this; }
+        reverse_iterator& operator-=(std::ptrdiff_t i) { const_reverse_iterator::m_val += i; return *this; }
+        std::ptrdiff_t operator-(const reverse_iterator& it) const { return it.m_val - const_reverse_iterator::m_val; }
+        T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_reverse_iterator::m_val)[-i]; }
+    };
+
+    size_t size() const noexcept { return x0_size; }
+    bool empty() const noexcept { return x0_size == 0; }
+    const T* data() const noexcept { return std::addressof(_value(0)); }
+    T* data() noexcept { return std::addressof(_value(0)); }
+
+    T& back() { return _value(x0_size - 1); }
+    T& front() { return _value(0); }
+    const T& back() const { return _value(x0_size - 1); }
+    const T& front() const { return _value(0); }
+
+    const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
+    const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
+    iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
+    iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
+    const_iterator cbegin() const noexcept { return begin(); }
+    const_iterator cend() const noexcept { return end(); }
+
+    const_reverse_iterator rbegin() const noexcept
+    { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
+    reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
+    reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
+    const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+    const_reverse_iterator crend() const noexcept { return rend(); }
+
+    T& operator[](size_t idx) { return _value(idx); }
+    const T& operator[](size_t idx) const { return _value(idx); }
+
+protected:
+    static iterator _const_cast_iterator(const const_iterator& it) { return iterator(const_cast<T*>(it.m_val)); }
+};
+
+/**
+ * @brief Vector backed by statically-allocated array with uninitialized storage
+ */
+template <class T, size_t N>
+class reserved_vector : public _reserved_vector_base<T, N>
+{
+public:
+    using base = _reserved_vector_base<T, N>;
+    using iterator = typename base::iterator;
+    using const_iterator = typename base::const_iterator;
+    reserved_vector() : base(0) {}
+    ~reserved_vector()
+    {
+        for (size_t i=0 ; i<base::x0_size ; ++i)
+            std::default_delete<T>()(std::addressof(base::_value(i)));
     }
 
-    void set_data(const T* data) { memmove(x4_data, data, sizeof(T) * x0_size); }
-
-    size_t size() const { return x0_size; }
-
-    T& back() const { return x4_data[(x0_size == 0) ? 0 : x0_size - 1]; }
-    T& front() const { return x4_data[0]; }
-    const_iterator cbegin() const { return const_iterator(&x4_data[0]); }
-    const_iterator cend() const { return const_iterator(&x4_data[x0_size - 1]); }
-    iterator begin() { return iterator(&x4_data[0]); }
-    iterator end() { return iterator(&x4_data[x0_size - 1]); }
-
-    T& operator[](size_t idx) { return x4_data[idx]; }
-    const T& operator[](size_t idx) const { return x4_data[idx]; }
     void push_back(const T& d)
     {
-        x4_data[x0_size] = d;
-        ++x0_size;
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
+#endif
+        ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(d);
+        ++base::x0_size;
     }
 
     void push_back(T&& d)
     {
-        x4_data[x0_size] = std::move(d);
-        ++x0_size;
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
+#endif
+        ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<T>(d));
+        ++base::x0_size;
     }
+
+    template<class... _Args>
+    void emplace_back(_Args&&... args)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "emplace_back() called on full rstl::reserved_vector.");
+#endif
+        ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<_Args>(args)...);
+        ++base::x0_size;
+    }
+
+    void pop_back()
+    {
+#ifndef NDEBUG
+        if (base::x0_size == 0)
+            Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
+#endif
+        --base::x0_size;
+        std::default_delete<T>()(std::addressof(base::_value(base::x0_size)));
+    }
+
+    iterator insert(const_iterator pos, const T& value)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+#endif
+        auto target_it = base::_const_cast_iterator(pos) - 1;
+        if (pos == base::cend())
+        {
+            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(value);
+        }
+        else
+        {
+            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size))))
+                T(std::forward<T>(base::_value(base::x0_size - 1)));
+            for (auto it = base::end() - 1; it != target_it; --it)
+                *it = std::forward<T>(*(it - 1));
+            *target_it = value;
+        }
+        ++base::x0_size;
+        return target_it;
+    }
+
+    iterator insert(const_iterator pos, T&& value)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+#endif
+        auto target_it = base::_const_cast_iterator(pos) - 1;
+        if (pos == base::cend())
+        {
+            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<T>(value));
+        }
+        else
+        {
+            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size))))
+                T(std::forward<T>(base::_value(base::x0_size - 1)));
+            for (auto it = base::end() - 1; it != target_it; --it)
+                *it = std::forward<T>(*(it - 1));
+            *target_it = std::forward<T>(value);
+        }
+        ++base::x0_size;
+        return target_it;
+    }
+
+    void resize(size_t size)
+    {
+#ifndef NDEBUG
+        if (size > N)
+            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
+#endif
+        if (size > base::x0_size)
+        {
+            for (size_t i = base::x0_size; i < size; ++i)
+                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T;
+            base::x0_size = size;
+        }
+        else if (size < base::x0_size)
+        {
+            for (size_t i = size; i < base::x0_size; ++i)
+                std::default_delete<T>()(std::addressof(base::_value(i)));
+            base::x0_size = size;
+        }
+    }
+
+    void resize(size_t size, const T& value)
+    {
+#ifndef NDEBUG
+        if (size > N)
+            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
+#endif
+        if (size > base::x0_size)
+        {
+            for (size_t i = base::x0_size; i < size; ++i)
+                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(value);
+            base::x0_size = size;
+        }
+        else if (size < base::x0_size)
+        {
+            for (size_t i = size; i < base::x0_size; ++i)
+                std::default_delete<T>()(std::addressof(base::_value(i)));
+            base::x0_size = size;
+        }
+    }
+
+    iterator erase(const_iterator pos)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == 0)
+            Log.report(logvisor::Fatal, "erase() called on empty rstl::reserved_vector.");
+#endif
+        for (auto it = base::_const_cast_iterator(pos) + 1; it != base::end(); ++it)
+            *(it - 1) = std::forward<T>(*it);
+        --base::x0_size;
+        std::default_delete<T>()(std::addressof(base::_value(base::x0_size)));
+        return base::_const_cast_iterator(pos);
+    }
+
+    void clear()
+    {
+        for (auto it = base::begin(); it != base::end(); ++it)
+            std::default_delete<T>()(std::addressof(*it));
+        base::x0_size = 0;
+    }
+};
+
+/**
+ * @brief Vector backed by statically-allocated array with default-initialized elements
+ */
+template <class T, size_t N>
+class prereserved_vector : public _reserved_vector_base<T, N>
+{
+    void _init()
+    {
+        for (auto& i : base::x4_data)
+            ::new (static_cast<void*>(std::addressof(i))) T;
+    }
+    void _deinit()
+    {
+        for (auto& i : base::x4_data)
+            std::default_delete<T>()(reinterpret_cast<T*>(std::addressof(i)));
+    }
+public:
+    using base = _reserved_vector_base<T, N>;
+    using iterator = typename base::iterator;
+    using const_iterator = typename base::const_iterator;
+    prereserved_vector() : base(1) { _init(); }
+    ~prereserved_vector() { _deinit(); }
+    void set_size(size_t n)
+    {
+        if (n <= N)
+            base::x0_size = n;
+    }
+
+    void set_data(const T* data) { memmove(base::x4_data, data, sizeof(T) * base::x0_size); }
+
+    void push_back(const T& d)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "push_back() called on full rstl::prereserved_vector.");
+#endif
+        base::_value(base::x0_size) = d;
+        ++base::x0_size;
+    }
+
+    void push_back(T&& d)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "push_back() called on full rstl::prereserved_vector.");
+#endif
+        base::_value(base::x0_size) = std::forward<T>(d);
+        ++base::x0_size;
+    }
+
+    template<class... _Args>
+    void emplace_back(_Args&&... args)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "emplace_back() called on full rstl::prereserved_vector.");
+#endif
+        base::_value(base::x0_size) = T(std::forward<_Args>(args)...);
+        ++base::x0_size;
+    }
+
+    void pop_back()
+    {
+#ifndef NDEBUG
+        if (base::x0_size == 0)
+            Log.report(logvisor::Fatal, "pop_back() called on empty rstl::prereserved_vector.");
+#endif
+        --base::x0_size;
+    }
+
+    iterator insert(const_iterator pos, const T& value)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+#endif
+        auto target_it = base::_const_cast_iterator(pos) - 1;
+        if (pos == base::cend())
+        {
+            *target_it = value;
+        }
+        else
+        {
+            for (auto it = base::end(); it != target_it; --it)
+                *it = std::forward<T>(*(it - 1));
+            *target_it = value;
+        }
+        ++base::x0_size;
+        return target_it;
+    }
+
+    iterator insert(const_iterator pos, T&& value)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == N)
+            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+#endif
+        auto target_it = base::_const_cast_iterator(pos) - 1;
+        if (pos == base::cend())
+        {
+            *target_it = std::forward<T>(value);
+        }
+        else
+        {
+            for (auto it = base::end(); it != target_it; --it)
+                *it = std::forward<T>(*(it - 1));
+            *target_it = std::forward<T>(value);
+        }
+        ++base::x0_size;
+        return target_it;
+    }
+
+    void resize(size_t size)
+    {
+#ifndef NDEBUG
+        if (size > N)
+            Log.report(logvisor::Fatal, "resized() call overflows rstl::prereserved_vector.");
+#endif
+        base::x0_size = size;
+    }
+
+    void resize(size_t size, const T& value)
+    {
+#ifndef NDEBUG
+        if (size > N)
+            Log.report(logvisor::Fatal, "resized() call overflows rstl::prereserved_vector.");
+#endif
+        if (size > base::x0_size)
+        {
+            for (size_t i = base::x0_size; i < size; ++i)
+                base::_value(i) = T(value);
+            base::x0_size = size;
+        }
+        else if (size < base::x0_size)
+        {
+            base::x0_size = size;
+        }
+    }
+
+    iterator erase(const_iterator pos)
+    {
+#ifndef NDEBUG
+        if (base::x0_size == 0)
+            Log.report(logvisor::Fatal, "erase() called on empty rstl::prereserved_vector.");
+#endif
+        for (auto it = base::_const_cast_iterator(pos) + 1; it != base::end(); ++it)
+            *(it - 1) = std::forward<T>(*it);
+        --base::x0_size;
+        return base::_const_cast_iterator(pos);
+    }
+
+    void clear() { base::x0_size = 0; }
 };
 
 template<class ForwardIt, class T>

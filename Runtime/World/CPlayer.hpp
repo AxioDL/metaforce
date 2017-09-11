@@ -563,8 +563,8 @@ public:
     bool ValidateObjectForMode(TUniqueId, CStateManager& mgr) const;
     TUniqueId FindAimTargetId(CStateManager& mgr);
     TUniqueId GetAimTarget() const { return x3f4_aimTarget; }
-    TUniqueId CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>&, EPlayerZoneInfo, EPlayerZoneType,
-                                           CStateManager& mgr) const;
+    TUniqueId CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUniqueId, 1024>&, EPlayerZoneInfo,
+                                           EPlayerZoneType, CStateManager& mgr) const;
     TUniqueId FindOrbitTargetId(CStateManager& mgr);
     void UpdateOrbitableObjects(CStateManager& mgr);
     TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const;

@@ -10,14 +10,14 @@ CPASAnimParm::UParmValue CPASAnimInfo::GetAnimParmValue(u32 idx) const
 {
     if (idx >= x4_parms.size())
         return CPASAnimParm::UParmValue{};
-    return x4_parms.at(idx);
+    return x4_parms[idx];
 }
 
 CPASAnimParm CPASAnimInfo::GetAnimParmData(u32 idx, CPASAnimParm::EParmType type) const
 {
     if (idx >= x4_parms.size())
         return CPASAnimParm::NoParameter();
-    const CPASAnimParm::UParmValue& parm = x4_parms.at(idx);
+    const CPASAnimParm::UParmValue& parm = x4_parms[idx];
 
     switch(type)
     {

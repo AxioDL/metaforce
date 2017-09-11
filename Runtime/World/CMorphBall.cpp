@@ -2,7 +2,6 @@
 #include "CDependencyGroup.hpp"
 #include "CMorphBall.hpp"
 #include "CPlayer.hpp"
-#include "CMorphBallShadow.hpp"
 #include "CSimplePool.hpp"
 #include "CGameLight.hpp"
 

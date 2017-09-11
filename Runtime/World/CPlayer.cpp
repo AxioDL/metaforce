@@ -4414,8 +4414,8 @@ const zeus::CTransform& CPlayer::GetFirstPersonCameraTransform(const CStateManag
     return mgr.GetCameraManager()->GetFirstPersonCamera()->GetGunFollowTransform();
 }
 
-TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const std::vector<TUniqueId>& list, EPlayerZoneInfo info,
-                                                EPlayerZoneType zone, CStateManager& mgr) const
+TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUniqueId, 1024>& list,
+                                                EPlayerZoneInfo info, EPlayerZoneType zone, CStateManager& mgr) const
 {
     zeus::CVector3f eyePos = GetEyePosition();
     zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
