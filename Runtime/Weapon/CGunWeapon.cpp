@@ -270,17 +270,13 @@ void CGunWeapon::EnableFrozenEffect(EFrozenFxType type)
     case EFrozenFxType::Thawed:
         if (x204_frozenEffect == EFrozenFxType::Thawed)
             break;
-        x1b8_frozenGenerator = std::make_unique<CElementGen>(x188_frozenEffects[1],
-                                                             CElementGen::EModelOrientationType::Normal,
-                                                             CElementGen::EOptionalSystemFlags::One);
+        x1b8_frozenGenerator = std::make_unique<CElementGen>(x188_frozenEffects[1]);
         x1b8_frozenGenerator->SetGlobalScale(x4_scale);
         break;
     case EFrozenFxType::Frozen:
         if (x204_frozenEffect == EFrozenFxType::Frozen)
             break;
-        x1b8_frozenGenerator = std::make_unique<CElementGen>(x188_frozenEffects[0],
-                                                             CElementGen::EModelOrientationType::Normal,
-                                                             CElementGen::EOptionalSystemFlags::One);
+        x1b8_frozenGenerator = std::make_unique<CElementGen>(x188_frozenEffects[0]);
         x1b8_frozenGenerator->SetGlobalScale(x4_scale);
         break;
     default:
@@ -296,9 +292,7 @@ void CGunWeapon::ActivateCharge(bool enable, bool resetEffect)
     if (enable || resetEffect)
     {
         x1a4_muzzleGenerators[x208_muzzleEffectIdx] =
-            std::make_unique<CElementGen>(x16c_muzzleEffects[x208_muzzleEffectIdx],
-                                          CElementGen::EModelOrientationType::Normal,
-                                          CElementGen::EOptionalSystemFlags::One);
+            std::make_unique<CElementGen>(x16c_muzzleEffects[x208_muzzleEffectIdx]);
     }
 }
 
@@ -434,8 +428,7 @@ void CGunWeapon::LoadMuzzleFx(float dt)
 {
     for (int i=0 ; i<2 ; ++i)
     {
-        x1a4_muzzleGenerators.push_back(std::make_unique<CElementGen>(x16c_muzzleEffects[i],
-            CElementGen::EModelOrientationType::Normal, CElementGen::EOptionalSystemFlags::One));
+        x1a4_muzzleGenerators.push_back(std::make_unique<CElementGen>(x16c_muzzleEffects[i]));
         x1a4_muzzleGenerators.back()->SetParticleEmission(false);
         x1a4_muzzleGenerators.back()->Update(dt);
     }

@@ -168,9 +168,7 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
     x20c_invGrappleBeam = g_SimplePool->GetObj("CMDL_InvGrappleBeam");
     x218_invFins = g_SimplePool->GetObj(FinModels[int(suit)]);
     x224_ballInnerGlow = g_SimplePool->GetObj("BallInnerGlow");
-    x22c_ballInnerGlowGen = std::make_unique<CElementGen>(x224_ballInnerGlow,
-                                                          CElementGen::EModelOrientationType::Normal,
-                                                          CElementGen::EOptionalSystemFlags::One);
+    x22c_ballInnerGlowGen = std::make_unique<CElementGen>(x224_ballInnerGlow);
     x230_ballTransitionFlash = g_SimplePool->GetObj("MorphBallTransitionFlash");
     x23c_lights.push_back(CLight::BuildDirectional(zeus::CVector3f::skForward, zeus::CColor::skWhite));
     x24c_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, false, false, 0.1f);
@@ -285,9 +283,7 @@ void CSamusDoll::Update(float dt, CRandom16& rand)
             oldRemTransTime >= x50_totalTransitionTime - 0.5f &&
             x54_remTransitionTime < x50_totalTransitionTime - 0.5f)
         {
-            x238_ballTransitionFlashGen = std::make_unique<CElementGen>(x230_ballTransitionFlash,
-                                                                        CElementGen::EModelOrientationType::Normal,
-                                                                        CElementGen::EOptionalSystemFlags::One);
+            x238_ballTransitionFlashGen = std::make_unique<CElementGen>(x230_ballTransitionFlash);
             x238_ballTransitionFlashGen->SetGlobalScale(zeus::CVector3f(0.625f));
         }
 

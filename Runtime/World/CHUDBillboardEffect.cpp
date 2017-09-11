@@ -26,8 +26,7 @@ CHUDBillboardEffect::CHUDBillboardEffect(const std::experimental::optional<TToke
 
     if (particle)
     {
-        xe8_generator = std::make_unique<CElementGen>(*particle, CElementGen::EModelOrientationType::Normal,
-                                                      CElementGen::EOptionalSystemFlags::One);
+        xe8_generator = std::make_unique<CElementGen>(*particle);
         if (static_cast<CElementGen&>(*xe8_generator).IsIndirectTextured())
             ++g_IndirectTexturedBillboardCount;
     }

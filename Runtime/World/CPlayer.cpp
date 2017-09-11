@@ -862,7 +862,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     {
         x768_morphball->FluidFXThink(state, water, mgr);
         if (state == EFluidState::InFluid)
-            x9c5_30_ = true;
+            x9c5_30_selectFluidBallSound = true;
     }
     else if (x2f8_morphBallState != EPlayerMorphBallState::Unmorphed)
     {
@@ -2821,7 +2821,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         break;
     case EScriptObjectMessage::Falling:
         if (x2f8_morphBallState == EPlayerMorphBallState::Morphed)
-            if (x768_morphball->GetX187c() == 1)
+            if (x768_morphball->GetSpiderBallState() == CMorphBall::ESpiderBallState::Active)
                 break;
         if (x2f8_morphBallState != EPlayerMorphBallState::Morphed)
             SetMoveState(EPlayerMovementState::Falling, mgr);
@@ -2830,7 +2830,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         break;
     case EScriptObjectMessage::LandOnNotFloor:
         if (x2f8_morphBallState == EPlayerMorphBallState::Morphed &&
-            x768_morphball->GetX187c() == 1 &&
+            x768_morphball->GetSpiderBallState() == CMorphBall::ESpiderBallState::Active &&
             x258_movementState != EPlayerMovementState::StartingJump)
             SetMoveState(EPlayerMovementState::StartingJump, mgr);
         break;
@@ -5476,7 +5476,7 @@ const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const
 
 const CCollidableSphere* CPlayer::GetCollidableSphere() const
 {
-    return x768_morphball->GetCollidableSphere();
+    return &x768_morphball->GetCollidableSphere();
 }
 
 zeus::CTransform CPlayer::GetPrimitiveTransform() const

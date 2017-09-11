@@ -101,16 +101,14 @@ void CIceBeam::EnableSecondaryFx(ESecondaryFxType type)
         case ESecondaryFxType::CancelCharge:
             if (!x248_25_inEndFx)
             {
-                x244_chargeFx = std::make_unique<CElementGen>(x234_ice2nd2, CElementGen::EModelOrientationType::Normal,
-                    CElementGen::EOptionalSystemFlags::One);
+                x244_chargeFx = std::make_unique<CElementGen>(x234_ice2nd2);
                 x244_chargeFx->SetGlobalScale(x4_scale);
                 x248_25_inEndFx = true;
                 x1cc_enabledSecondaryEffect = ESecondaryFxType::CancelCharge;
             }
             break;
         case ESecondaryFxType::Charge:
-            x244_chargeFx = std::make_unique<CElementGen>(x228_ice2nd1, CElementGen::EModelOrientationType::Normal,
-                                                  CElementGen::EOptionalSystemFlags::One);
+            x244_chargeFx = std::make_unique<CElementGen>(x228_ice2nd1);
             x244_chargeFx->SetGlobalScale(x4_scale);
             x248_25_inEndFx = false;
             x1cc_enabledSecondaryEffect = type;
@@ -129,8 +127,7 @@ void CIceBeam::Update(float dt, CStateManager& mgr)
         x248_24_loaded = x21c_iceSmoke.IsLoaded() && x228_ice2nd1.IsLoaded() && x234_ice2nd2.IsLoaded();
         if (x248_24_loaded)
         {
-            x240_smokeGen = std::make_unique<CElementGen>(x21c_iceSmoke, CElementGen::EModelOrientationType::Normal,
-                                                          CElementGen::EOptionalSystemFlags::One);
+            x240_smokeGen = std::make_unique<CElementGen>(x21c_iceSmoke);
             x240_smokeGen->SetGlobalScale(x4_scale);
             x240_smokeGen->SetParticleEmission(false);
         }

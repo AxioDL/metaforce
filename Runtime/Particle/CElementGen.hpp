@@ -157,7 +157,9 @@ private:
     void AccumulateBounds(zeus::CVector3f& pos, float size);
 
 public:
-    CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType, EOptionalSystemFlags flags);
+    CElementGen(const TToken<CGenDescription>& gen,
+                EModelOrientationType orientType = EModelOrientationType::Normal,
+                EOptionalSystemFlags flags = EOptionalSystemFlags::One);
     ~CElementGen();
 
     boo::GraphicsDataToken m_gfxToken;

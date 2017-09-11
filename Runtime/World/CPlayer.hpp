@@ -374,7 +374,7 @@ private:
             bool x9c5_27_camSubmerged : 1;
             bool x9c5_28_slidingOnWall : 1;
             bool x9c5_29_hitWall : 1;
-            bool x9c5_30_ : 1;
+            bool x9c5_30_selectFluidBallSound : 1;
             bool x9c5_31_stepCameraZBiasDirty : 1;
             bool x9c6_24_extendTargetDistance : 1;
             bool x9c6_25_interpolatingControlDir : 1;
@@ -512,7 +512,7 @@ public:
     void SetVisorSteam(float, float, float, CAssetId, bool);
     void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
     u16 GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, u32, u16);
-    u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
+    static u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
     void UpdateCrosshairsState(const CFinalInput&);
     void UpdateVisorTransition(float, CStateManager& mgr);
     void UpdateVisorState(const CFinalInput&, float, CStateManager& mgr);

@@ -53,8 +53,7 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
     x75c_phazonBeam = std::make_unique<CPhazonBeam>(g_tweakGunRes->x20_phazonBeam, EWeaponType::Phazon,
                                                     playerId, EMaterialTypes::Player, sGunScale);
     x774_holoTransitionGen = std::make_unique<CElementGen>(
-        g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->x24_holoTransition}),
-        CElementGen::EModelOrientationType::Normal, CElementGen::EOptionalSystemFlags::One);
+        g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->x24_holoTransition}));
     x82c_shadow = std::make_unique<CWorldShadow>(32, 32, true);
 
     x832_31_inRestPose = true;
@@ -112,9 +111,7 @@ void CPlayerGun::InitMuzzleData()
     {
         x7c0_auxMuzzleEffects.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'),
                                         g_tweakGunRes->xa4_auxMuzzle[i]}));
-        x800_auxMuzzleGenerators.emplace_back(new CElementGen(x7c0_auxMuzzleEffects.back(),
-                                              CElementGen::EModelOrientationType::Normal,
-                                              CElementGen::EOptionalSystemFlags::One));
+        x800_auxMuzzleGenerators.emplace_back(new CElementGen(x7c0_auxMuzzleEffects.back()));
         x800_auxMuzzleGenerators.back()->SetParticleEmission(false);
     }
 }
@@ -1241,9 +1238,7 @@ void CPlayerGun::EnableChargeFx(EChargeState state, CStateManager& mgr)
     x833_30_canShowAuxMuzzleEffect = true;
 
     x800_auxMuzzleGenerators[int(x320_currentAuxBeam)] =
-        std::make_unique<CElementGen>(x7c0_auxMuzzleEffects[int(x320_currentAuxBeam)],
-                                      CElementGen::EModelOrientationType::Normal,
-                                      CElementGen::EOptionalSystemFlags::One);
+        std::make_unique<CElementGen>(x7c0_auxMuzzleEffects[int(x320_currentAuxBeam)]);
 
     x800_auxMuzzleGenerators[int(x320_currentAuxBeam)]->SetParticleEmission(true);
 }
@@ -1584,8 +1579,7 @@ void CPlayerGun::ActivateCombo(CStateManager& mgr)
             if (xferEffect.IsLoaded())
             {
                 x77c_comboXferGen =
-                    std::make_unique<CElementGen>(xferEffect, CElementGen::EModelOrientationType::Normal,
-                                                  CElementGen::EOptionalSystemFlags::One);
+                    std::make_unique<CElementGen>(xferEffect);
                 x77c_comboXferGen->SetGlobalScale(sGunScale);
             }
             x72c_currentBeam->EnableCharge(true);

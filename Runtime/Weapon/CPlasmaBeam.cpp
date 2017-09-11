@@ -109,8 +109,7 @@ void CPlasmaBeam::EnableSecondaryFx(ESecondaryFxType type)
         x228_chargeFx->SetParticleEmission(false);
         break;
     case ESecondaryFxType::Charge:
-        x228_chargeFx = std::make_unique<CElementGen>(x21c_plasma2nd1, CElementGen::EModelOrientationType::Normal,
-                                                      CElementGen::EOptionalSystemFlags::One);
+        x228_chargeFx = std::make_unique<CElementGen>(x21c_plasma2nd1);
         x228_chargeFx->SetGlobalScale(x4_scale);
     default:
         break;

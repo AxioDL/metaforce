@@ -23,12 +23,8 @@ CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType typ
     x378_busterLight.GetObj();
     x384_busterSwoosh1Gen = std::make_unique<CParticleSwoosh>(x354_busterSwoosh1, 0);
     x388_busterSwoosh2Gen = std::make_unique<CParticleSwoosh>(x360_busterSwoosh2, 0);
-    x38c_busterSparksGen = std::make_unique<CElementGen>(x36c_busterSparks,
-                                                         CElementGen::EModelOrientationType::Normal,
-                                                         CElementGen::EOptionalSystemFlags::One);
-    x390_busterLightGen = std::make_unique<CElementGen>(x378_busterLight,
-                                                        CElementGen::EModelOrientationType::Normal,
-                                                        CElementGen::EOptionalSystemFlags::One);
+    x38c_busterSparksGen = std::make_unique<CElementGen>(x36c_busterSparks);
+    x390_busterLightGen = std::make_unique<CElementGen>(x378_busterLight);
     x3d0_24_firing = true;
     x3d0_25_ = true;
     x3d0_26_ = false;

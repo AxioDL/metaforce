@@ -128,8 +128,7 @@ void CWaveBeam::EnableSecondaryFx(ESecondaryFxType type)
             }
             break;
         case ESecondaryFxType::ToCombo:
-            x254_chargeFx = std::make_unique<CElementGen>(x240_wave2nd3, CElementGen::EModelOrientationType::Normal,
-                                                  CElementGen::EOptionalSystemFlags::One);
+            x254_chargeFx = std::make_unique<CElementGen>(x240_wave2nd3);
             x254_chargeFx->SetGlobalScale(x4_scale);
             x24c_effectTimer = 0.f;
             x258_25_effectTimerActive = true;

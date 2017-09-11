@@ -391,8 +391,7 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(const std::string& name, int 
         auto search = x0_particleDescs.find(data.GetTag().id);
         if (search != x0_particleDescs.end())
         {
-            auto sys = std::make_shared<CElementGen>(*search->second, CElementGen::EModelOrientationType::Normal,
-                                                     CElementGen::EOptionalSystemFlags::One);
+            auto sys = std::make_shared<CElementGen>(*search->second);
             newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), "NOT_A_VALID_LOCATOR",
                                                                scaleVec, CParticleData::EParentedMode::Initial, flags, mgr, aid,
                                                                lightId + _getGraphicLightId(sys, *search->second),
@@ -438,8 +437,7 @@ void CParticleDatabase::AddParticleEffect(const std::string& name, int flags, co
         auto search = x0_particleDescs.find(data.GetTag().id);
         if (search != x0_particleDescs.end())
         {
-            auto sys = std::make_shared<CElementGen>(*search->second, CElementGen::EModelOrientationType::Normal,
-                                                     CElementGen::EOptionalSystemFlags::One);
+            auto sys = std::make_shared<CElementGen>(*search->second);
             newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(),
                                                                scaleVec, data.GetParentedMode(), flags, mgr, aid,
                                                                lightId + _getGraphicLightId(sys, *search->second),

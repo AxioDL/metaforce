@@ -29,18 +29,10 @@ CGrappleArm::CGrappleArm(const zeus::CVector3f& scale)
   x36c_grappleHitDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xbc_grappleHit})),
   x378_grappleMuzzleDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xc0_grappleMuzzle})),
   x384_grappleSwooshDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xc4_grappleSwoosh})),
-  x390_grappleSegmentGen(std::make_unique<CElementGen>(x354_grappleSegmentDesc,
-                                                       CElementGen::EModelOrientationType::Normal,
-                                                       CElementGen::EOptionalSystemFlags::One)),
-  x394_grappleClawGen(std::make_unique<CElementGen>(x360_grappleClawDesc,
-                                                    CElementGen::EModelOrientationType::Normal,
-                                                    CElementGen::EOptionalSystemFlags::One)),
-  x398_grappleHitGen(std::make_unique<CElementGen>(x36c_grappleHitDesc,
-                                                   CElementGen::EModelOrientationType::Normal,
-                                                   CElementGen::EOptionalSystemFlags::One)),
-  x39c_grappleMuzzleGen(std::make_unique<CElementGen>(x378_grappleMuzzleDesc,
-                                                      CElementGen::EModelOrientationType::Normal,
-                                                      CElementGen::EOptionalSystemFlags::One)),
+  x390_grappleSegmentGen(std::make_unique<CElementGen>(x354_grappleSegmentDesc)),
+  x394_grappleClawGen(std::make_unique<CElementGen>(x360_grappleClawDesc)),
+  x398_grappleHitGen(std::make_unique<CElementGen>(x36c_grappleHitDesc)),
+  x39c_grappleMuzzleGen(std::make_unique<CElementGen>(x378_grappleMuzzleDesc)),
   x3a0_grappleSwooshGen(std::make_unique<CParticleSwoosh>(x384_grappleSwooshDesc, 0)),
   x3a4_rainSplashGenerator(std::make_unique<CRainSplashGenerator>(scale, 20, 2, 0.f, 0.125f))
 {
@@ -280,12 +272,8 @@ void CGrappleArm::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
     case EUserEventType::Projectile:
         if (x3b2_27_armMoving)
             return;
-        x398_grappleHitGen = std::make_unique<CElementGen>(x36c_grappleHitDesc,
-                                                           CElementGen::EModelOrientationType::Normal,
-                                                           CElementGen::EOptionalSystemFlags::One);
-        x39c_grappleMuzzleGen = std::make_unique<CElementGen>(x378_grappleMuzzleDesc,
-                                                              CElementGen::EModelOrientationType::Normal,
-                                                              CElementGen::EOptionalSystemFlags::One);
+        x398_grappleHitGen = std::make_unique<CElementGen>(x36c_grappleHitDesc);
+        x39c_grappleMuzzleGen = std::make_unique<CElementGen>(x378_grappleMuzzleDesc);
         x338_beamT = 0.f;
         x33c_beamDist = 0.f;
         x340_anglePhase = 0.f;

@@ -57,9 +57,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
         x400_gpsmGenerators.reserve(x154_SCNT);
         for (int i=0 ; i<x154_SCNT ; ++i)
         {
-            x400_gpsmGenerators.emplace_back(new CElementGen(desc->x50_GPSM.m_token,
-                                              CElementGen::EModelOrientationType::Normal,
-                                              CElementGen::EOptionalSystemFlags::One));
+            x400_gpsmGenerators.emplace_back(new CElementGen(desc->x50_GPSM.m_token));
             x400_gpsmGenerators.back()->SetParticleEmission(false);
         }
     }
@@ -70,9 +68,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
         x410_epsmGenerators.reserve(x154_SCNT);
         for (int i=0 ; i<x154_SCNT ; ++i)
         {
-            x410_epsmGenerators.emplace_back(new CElementGen(desc->x60_EPSM.m_token,
-                                              CElementGen::EModelOrientationType::Normal,
-                                              CElementGen::EOptionalSystemFlags::One));
+            x410_epsmGenerators.emplace_back(new CElementGen(desc->x60_EPSM.m_token));
             x410_epsmGenerators.back()->SetParticleEmission(false);
         }
     }

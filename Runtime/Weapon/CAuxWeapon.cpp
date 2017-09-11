@@ -253,9 +253,7 @@ void CAuxWeapon::CreateFlameThrower(const zeus::CTransform& xf, CStateManager& m
     mgr.AddObject(ft);
     ft->Think(dt, mgr);
     ft->StartFiring(xf, mgr);
-    x24_muzzleFxGen = std::make_unique<CElementGen>(xc_flameMuzzle,
-                                                    CElementGen::EModelOrientationType::Normal,
-                                                    CElementGen::EOptionalSystemFlags::One);
+    x24_muzzleFxGen = std::make_unique<CElementGen>(xc_flameMuzzle);
     x7c_comboSfx = NWeaponTypes::play_sfx(1842, false, true, 0.165f);
     mgr.GetCameraManager()->AddCameraShaker(skHardShake, false);
     mgr.GetPlayerState()->SetFiringComboBeam(true);
@@ -286,9 +284,7 @@ void CAuxWeapon::CreateWaveBusterBeam(CWeapon::EProjectileAttrib attribs, TUniqu
         CGunWeapon::GetShotDamageInfo(g_tweakPlayerGun->GetComboShotInfo(2), mgr), x70_waveBusterId,
         kInvalidAreaId, x6c_playerId, homingTarget, attribs);
     mgr.AddObject(wb);
-    x24_muzzleFxGen = std::make_unique<CElementGen>(x18_busterMuzzle,
-                                                    CElementGen::EModelOrientationType::Normal,
-                                                    CElementGen::EOptionalSystemFlags::One);
+    x24_muzzleFxGen = std::make_unique<CElementGen>(x18_busterMuzzle);
     x7c_comboSfx = NWeaponTypes::play_sfx(1847, false, true, 0.165f);
     mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::skChargedShotCameraShakeData, false);
     mgr.GetPlayerState()->SetFiringComboBeam(true);

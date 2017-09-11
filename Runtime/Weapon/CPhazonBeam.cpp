@@ -50,8 +50,7 @@ void CPhazonBeam::UpdateBeam(float dt, const zeus::CTransform& targetXf,
 
 void CPhazonBeam::CreateBeam(CStateManager& mgr)
 {
-    x234_chargeFxGen = std::make_unique<CElementGen>(x228_phazon2nd1, CElementGen::EModelOrientationType::Normal,
-                                                     CElementGen::EOptionalSystemFlags::One);
+    x234_chargeFxGen = std::make_unique<CElementGen>(x228_phazon2nd1);
     if (x234_chargeFxGen)
     {
         x234_chargeFxGen->SetGlobalScale(x4_scale);

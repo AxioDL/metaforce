@@ -99,9 +99,7 @@ void CPowerBeam::EnableSecondaryFx(ESecondaryFxType type)
         x1cc_enabledSecondaryEffect = ESecondaryFxType::None;
         break;
     case ESecondaryFxType::Charge:
-        x238_power2ndGen = std::make_unique<CElementGen>(x228_power2nd1,
-                                                          CElementGen::EModelOrientationType::Normal,
-                                                          CElementGen::EOptionalSystemFlags::One);
+        x238_power2ndGen = std::make_unique<CElementGen>(x228_power2nd1);
         x238_power2ndGen->SetGlobalScale(x4_scale);
         x1cc_enabledSecondaryEffect = type;
         break;
@@ -120,9 +118,7 @@ void CPowerBeam::Update(float dt, CStateManager& mgr)
         x244_25_loaded = x21c_shotSmoke.IsLoaded() && x228_power2nd1.IsLoaded();
         if (x244_25_loaded)
         {
-            x234_shotSmokeGen = std::make_unique<CElementGen>(x21c_shotSmoke,
-                                                              CElementGen::EModelOrientationType::Normal,
-                                                              CElementGen::EOptionalSystemFlags::One);
+            x234_shotSmokeGen = std::make_unique<CElementGen>(x21c_shotSmoke);
             x234_shotSmokeGen->SetParticleEmission(false);
         }
     }

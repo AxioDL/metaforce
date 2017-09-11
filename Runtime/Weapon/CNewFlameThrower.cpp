@@ -60,21 +60,11 @@ void CNewFlameThrower::CreateLightObjects(CStateManager& mgr)
 void CNewFlameThrower::EnableFx(CStateManager& mgr)
 {
     DeleteProjectileLight(mgr);
-    x358_mainFireGen = std::make_unique<CElementGen>(x304_mainFire,
-                                                     CElementGen::EModelOrientationType::Normal,
-                                                     CElementGen::EOptionalSystemFlags::One);
-    x35c_mainSmokeGen = std::make_unique<CElementGen>(x310_mainSmoke,
-                                                      CElementGen::EModelOrientationType::Normal,
-                                                      CElementGen::EOptionalSystemFlags::One);
-    x360_secondarySmokeGen = std::make_unique<CElementGen>(x31c_secondarySmoke,
-                                                           CElementGen::EModelOrientationType::Normal,
-                                                           CElementGen::EOptionalSystemFlags::One);
-    x364_secondaryFireGen = std::make_unique<CElementGen>(x328_secondaryFire,
-                                                          CElementGen::EModelOrientationType::Normal,
-                                                          CElementGen::EOptionalSystemFlags::One);
-    x368_secondarySparksGen = std::make_unique<CElementGen>(x334_secondarySparks,
-                                                            CElementGen::EModelOrientationType::Normal,
-                                                            CElementGen::EOptionalSystemFlags::One);
+    x358_mainFireGen = std::make_unique<CElementGen>(x304_mainFire);
+    x35c_mainSmokeGen = std::make_unique<CElementGen>(x310_mainSmoke);
+    x360_secondarySmokeGen = std::make_unique<CElementGen>(x31c_secondarySmoke);
+    x364_secondaryFireGen = std::make_unique<CElementGen>(x328_secondaryFire);
+    x368_secondarySparksGen = std::make_unique<CElementGen>(x334_secondarySparks);
     x36c_swooshCenterGen = std::make_unique<CParticleSwoosh>(x340_swooshCenter, 0);
     x36c_swooshCenterGen->SetRenderGaps(true);
     x370_swooshFireGen = std::make_unique<CParticleSwoosh>(x34c_swooshFire, 0);

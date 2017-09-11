@@ -153,37 +153,27 @@ void CActorModelParticles::LoadParticleDGRPs()
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeOnFireGen() const
 {
-    return std::make_unique<CElementGen>(x18_onFire,
-                                         CElementGen::EModelOrientationType::Normal,
-                                         CElementGen::EOptionalSystemFlags::One);
+    return std::make_unique<CElementGen>(x18_onFire);
 }
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeAshGen() const
 {
-    return std::make_unique<CElementGen>(x20_ash,
-                                         CElementGen::EModelOrientationType::Normal,
-                                         CElementGen::EOptionalSystemFlags::One);
+    return std::make_unique<CElementGen>(x20_ash);
 }
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeIceGen() const
 {
-    return std::make_unique<CElementGen>(x28_iceBreak,
-                                         CElementGen::EModelOrientationType::Normal,
-                                         CElementGen::EOptionalSystemFlags::One);
+    return std::make_unique<CElementGen>(x28_iceBreak);
 }
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeFirePopGen() const
 {
-    return std::make_unique<CElementGen>(x30_firePop,
-                                         CElementGen::EModelOrientationType::Normal,
-                                         CElementGen::EOptionalSystemFlags::One);
+    return std::make_unique<CElementGen>(x30_firePop);
 }
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeIcePopGen() const
 {
-    return std::make_unique<CElementGen>(x38_icePop,
-                                         CElementGen::EModelOrientationType::Normal,
-                                         CElementGen::EOptionalSystemFlags::One);
+    return std::make_unique<CElementGen>(x38_icePop);
 }
 
 std::unique_ptr<CParticleElectric> CActorModelParticles::MakeElectricGen() const
