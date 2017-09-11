@@ -27,8 +27,8 @@ protected:
     explicit _reserved_vector_base(size_t _init_sz) : x0_size(_init_sz) {}
     size_t x0_size;
     uint8_t x4_data[N][sizeof(T)];
-    T& _value(ssize_t idx) { return reinterpret_cast<T&>(x4_data[idx]); }
-    const T& _value(ssize_t idx) const { return reinterpret_cast<const T&>(x4_data[idx]); }
+    T& _value(std::ptrdiff_t idx) { return reinterpret_cast<T&>(x4_data[idx]); }
+    const T& _value(std::ptrdiff_t idx) const { return reinterpret_cast<const T&>(x4_data[idx]); }
 
 public:
     class const_iterator
