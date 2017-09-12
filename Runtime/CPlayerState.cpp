@@ -167,18 +167,18 @@ u32 CPlayerState::CalculateItemCollectionRate() const
     total += GetItemCapacity(EItemType::GravitySuit);
     total += GetItemCapacity(EItemType::VariaSuit);
     total += GetItemCapacity(EItemType::EnergyTanks);
-    total += GetItemCapacity(EItemType::ArtifactOfTruth);
-    total += GetItemCapacity(EItemType::ArtifactOfStrength);
-    total += GetItemCapacity(EItemType::ArtifactOfElder);
-    total += GetItemCapacity(EItemType::ArtifactOfWild);
-    total += GetItemCapacity(EItemType::ArtifactOfLifegiver);
-    total += GetItemCapacity(EItemType::ArtifactOfWarrior);
-    total += GetItemCapacity(EItemType::ArtifactOfChozo);
-    total += GetItemCapacity(EItemType::ArtifactOfNature);
-    total += GetItemCapacity(EItemType::ArtifactOfSun);
-    total += GetItemCapacity(EItemType::ArtifactOfWorld);
-    total += GetItemCapacity(EItemType::ArtifactOfSpirit);
-    total += GetItemCapacity(EItemType::ArtifactOfNewborn);
+    total += GetItemCapacity(EItemType::Truth);
+    total += GetItemCapacity(EItemType::Strength);
+    total += GetItemCapacity(EItemType::Elder);
+    total += GetItemCapacity(EItemType::Wild);
+    total += GetItemCapacity(EItemType::Lifegiver);
+    total += GetItemCapacity(EItemType::Warrior);
+    total += GetItemCapacity(EItemType::Chozo);
+    total += GetItemCapacity(EItemType::Nature);
+    total += GetItemCapacity(EItemType::Sun);
+    total += GetItemCapacity(EItemType::World);
+    total += GetItemCapacity(EItemType::Spirit);
+    total += GetItemCapacity(EItemType::Newborn);
     return total + GetItemCapacity(EItemType::Wavebuster);
 }
 
@@ -332,7 +332,7 @@ u32 CPlayerState::GetItemAmount(CPlayerState::EItemType type) const
         type == EItemType::Flamethrower   ||
         type == EItemType::EnergyTanks    ||
         type == EItemType::Missiles       ||
-        (type >= EItemType::ArtifactOfTruth && type <= EItemType::ArtifactOfNewborn))
+        (type >= EItemType::Truth && type <= EItemType::Newborn))
     {
         return x24_powerups[u32(type)].x0_amount;
     }
@@ -364,18 +364,18 @@ void CPlayerState::IncrPickup(EItemType type, s32 amount)
     case EItemType::ChargeBeam:
     case EItemType::SpaceJumpBoots:
     case EItemType::EnergyTanks:
-    case EItemType::ArtifactOfTruth:
-    case EItemType::ArtifactOfStrength:
-    case EItemType::ArtifactOfElder:
-    case EItemType::ArtifactOfWild:
-    case EItemType::ArtifactOfLifegiver:
-    case EItemType::ArtifactOfWarrior:
-    case EItemType::ArtifactOfChozo:
-    case EItemType::ArtifactOfNature:
-    case EItemType::ArtifactOfSun:
-    case EItemType::ArtifactOfWorld:
-    case EItemType::ArtifactOfSpirit:
-    case EItemType::ArtifactOfNewborn:
+    case EItemType::Truth:
+    case EItemType::Strength:
+    case EItemType::Elder:
+    case EItemType::Wild:
+    case EItemType::Lifegiver:
+    case EItemType::Warrior:
+    case EItemType::Chozo:
+    case EItemType::Nature:
+    case EItemType::Sun:
+    case EItemType::World:
+    case EItemType::Spirit:
+    case EItemType::Newborn:
     {
         CPowerUp& pup = x24_powerups[u32(type)];
         pup.x0_amount = std::min(pup.x0_amount + amount, pup.x4_capacity);

@@ -1,4 +1,5 @@
 #include "CExplosion.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -22,4 +23,8 @@ CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId 
     xe8_particleGen->SetModulationColor(color);
 }
 
+void CExplosion::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
 }

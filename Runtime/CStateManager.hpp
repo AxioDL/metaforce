@@ -380,6 +380,7 @@ public:
     TUniqueId GetSkipCinematicSpecialFunction() const { return xf38_skipCineSpecialFunc; }
     void SetSkipCinematicSpecialFunction(TUniqueId id) { xf38_skipCineSpecialFunc = id; }
     float GetHUDMessageTime() const { return xf78_hudMessageTime; }
+    u32 GetHUDMessageFrameCount() const { return xf80_hudMessageFrameCount; }
     CAssetId GetPauseHUDMessage() const { return xf08_pauseHudMessage; }
     void IncrementHUDMessageFrameCounter() { ++xf80_hudMessageFrameCount; }
     bool ShouldQuitGame() const { return xf94_25_quitGame; }
@@ -441,6 +442,12 @@ public:
     void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
     float IntegrateVisorFog(float f) const;
     u32 GetUpdateFrameIndex() const { return x8d8_updateFrameIdx; }
+    void sub_80043F2C(u32 frameCount, CAssetId msg, float f1)
+    {
+        xf84_ = frameCount;
+        xf88_ = msg;
+        xf8c_ = f1;
+    }
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

@@ -5,6 +5,7 @@
 #include "Audio/CAudioGroupSet.hpp"
 #include "CGameState.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "World/CScriptAreaAttributes.hpp"
 
 namespace urde
 {
@@ -355,8 +356,8 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     }
     case Phase::LoadingSkyBox:
     {
-        x70_26_ = true;
-        x70_27_ = false;
+        x70_26_skyboxOverridden = true;
+        x70_27_needsSky = false;
 
         if (!x94_skybox.IsLoaded())
             return false;
@@ -560,7 +561,48 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
 
 void CWorld::Update(float dt)
 {
+    xc4_neededFx = EEnvFxType::None;
+    CAssetId skyModel;
+    bool needsSky = false;
+    CGameArea::EOcclusionState occlusionState = CGameArea::EOcclusionState::Occluded;
 
+    u32 r26 = 0;
+
+    for (CGameArea* head = x4c_chainHeads[3] ;
+         head != skGlobalNonConstEnd ;
+         head = head->x130_next, ++r26)
+    {
+        head->AliveUpdate(dt);
+
+        if (head->DoesAreaNeedSkyNow())
+        {
+            const CScriptAreaAttributes* attrs = head->GetPostConstructed()->x10d8_areaAttributes;
+
+            if (attrs && attrs->GetSkyModel().IsValid())
+                skyModel = attrs->GetSkyModel();
+
+            needsSky = true;
+            occlusionState = (head->IsPostConstructed()
+                                             ? head->GetPostConstructed()->x10dc_occlusionState
+                                             : CGameArea::EOcclusionState::Occluded);
+        }
+
+        EEnvFxType envFxType = head->DoesAreaNeedEnvFx();
+        if (envFxType != EEnvFxType::None)
+            xc4_neededFx = envFxType;
+    }
+
+    if (r26 == 0)
+        return;
+
+    if (skyModel.IsValid() && needsSky)
+    {
+        x70_26_skyboxOverridden = true;
+        x70_27_needsSky = needsSky;
+
+        TToken<CModel> skybox = g_SimplePool->GetObj({SBIG('CMDL'), skyModel});
+        /* TODO: Finish */
+    }
 }
 
 void CWorld::PreRender()
@@ -593,7 +635,7 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const
     else
         return;
 
-    if (!x70_27_)
+    if (!x70_27_needsSky)
         return;
 
     CGraphics::DisableAllLights();

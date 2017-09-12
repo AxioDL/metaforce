@@ -28,6 +28,8 @@ public:
 
     bool GetNeedsSky() const { return x34_24_showSkybox; }
     bool GetNeedsEnvFx() const { return x38_envFx != EEnvFxType::None; }
+    CAssetId GetSkyModel() const { return x4c_skybox; }
+    EEnvFxType GetEnvFxType() const { return x38_envFx; }
     float GetEnvFxDensity() const { return x3c_envFxDensity; }
     float GetThermalHeat() const { return x40_thermalHeat; }
     float GetXRayFogDistance() const { return x44_xrayFogDistance; }

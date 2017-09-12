@@ -891,7 +891,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
     SScaledActorHead head = LoadScaledActorHead(in, mgr);
     zeus::CVector3f extent = zeus::CVector3f::ReadBig(in);
     zeus::CVector3f offset = zeus::CVector3f::ReadBig(in);
-    u32 w1 = in.readUint32Big();
+    CPlayerState::EItemType w1 = CPlayerState::EItemType(in.readUint32Big());
     u32 w2 = in.readUint32Big();
     u32 w3 = in.readUint32Big();
     float f1 = in.readFloatBig();
@@ -902,7 +902,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
     CActorParameters actorParms = LoadActorParameters(in);
     bool active = in.readBool();
     float f4 = in.readFloatBig();
-    u32 w5 = in.readUint32Big();
+    CAssetId w4(in);
 
     FourCC acsType = g_ResFactory->GetResourceTypeById(animParms.GetACSFile());
     if (g_ResFactory->GetResourceTypeById(staticModel) == 0 && acsType == 0)
@@ -922,7 +922,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
-                             actorParms, aabb, w1, w3, w2, w5, f1, f2, f3, f4, active);
+                             actorParms, aabb, w1, w3, w2, w4, f1, f2, f3, f4, active);
 }
 
 CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

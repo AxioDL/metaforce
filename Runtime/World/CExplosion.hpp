@@ -22,6 +22,8 @@ public:
     CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId uid, bool active,
                const CEntityInfo& info, const std::string& name, const zeus::CTransform& xf,
                u32, const zeus::CVector3f& scale, const zeus::CColor& color);
+
+     void Accept(IVisitor&);
 };
 
 }

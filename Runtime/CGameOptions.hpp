@@ -61,7 +61,7 @@ class CPersistentOptions
     u32 xbc_autoMapperKeyState = 0;
     u32 xc0_frozenFpsCount = 0;
     u32 xc4_frozenBallCount = 0;
-    u32 xc8_ = 0;
+    u32 xc8_powerBombAmmoCount = 0;
     u32 xcc_logScanPercent = 0;
 
     union
@@ -104,6 +104,12 @@ public:
     bool GetShowFrozenFpsMessage() const { return xc0_frozenFpsCount != 3; }
     void IncrementFrozenBallCount() { xc4_frozenBallCount = std::min(int(xc4_frozenBallCount + 1), 3); }
     bool GetShowFrozenBallMessage() const { return xc4_frozenBallCount != 3; }
+    bool GetShowPowerBombAmmoMessage() const { return xc8_powerBombAmmoCount != 1; }
+    void IncrementPowerBombAmmoCount()
+    {
+        xc8_powerBombAmmoCount = std::min<u32>(1, xc8_powerBombAmmoCount + 1);
+    }
+
     void PutTo(CBitStreamWriter& w) const;
 
     u8* GetNESState() { return x0_; }

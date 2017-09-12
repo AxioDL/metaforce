@@ -137,8 +137,8 @@ private:
         {
             bool x70_24_currentAreaNeedsAllocation : 1;
             bool x70_25_paused : 1;
-            bool x70_26_ : 1;
-            bool x70_27_ : 1;
+            bool x70_26_skyboxOverridden : 1;
+            bool x70_27_needsSky : 1;
         };
         u16 dummy = 0;
     };

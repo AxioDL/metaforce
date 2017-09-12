@@ -17,6 +17,7 @@
 #include "Graphics/CModel.hpp"
 #include "CPathFindArea.hpp"
 #include "Editor/ProjectResourceFactoryBase.hpp"
+#include "World/CEnvFxManager.hpp"
 
 namespace urde
 {
@@ -311,7 +312,7 @@ public:
     const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
     CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
     float GetXRayFogDistance() const;
-    bool DoesAreaNeedEnvFx() const;
+    EEnvFxType DoesAreaNeedEnvFx() const;
     bool DoesAreaNeedSkyNow() const;
     bool OtherAreaOcclusionChanged();
     void PingOcclusionState();

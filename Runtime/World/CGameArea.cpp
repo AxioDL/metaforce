@@ -480,9 +480,18 @@ float CGameArea::GetXRayFogDistance() const
     return 1.f;
 }
 
-bool CGameArea::DoesAreaNeedEnvFx() const
+EEnvFxType CGameArea::DoesAreaNeedEnvFx() const
 {
-    return false;
+    const CPostConstructed* postConstructed = GetPostConstructed();
+    if (!postConstructed)
+        return EEnvFxType::None;
+
+    const CScriptAreaAttributes* attrs = postConstructed->x10d8_areaAttributes;
+    if (attrs)
+        return EEnvFxType::None;
+    if (postConstructed->x10dc_occlusionState == EOcclusionState::Occluded)
+        return EEnvFxType::None;
+    return attrs->GetEnvFxType();
 }
 
 bool CGameArea::DoesAreaNeedSkyNow() const

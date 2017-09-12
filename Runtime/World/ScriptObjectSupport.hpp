@@ -227,7 +227,6 @@ enum class EScriptObjectMessage
     RemovePhazonPoolInhabitant = 47,
     InternalMessage26 = 48
 };
-
 }
 
 #endif // __SCRIPT_OBJECT_SUPPORT_HPP__

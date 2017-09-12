@@ -66,7 +66,7 @@ int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId)
 
 CAssetId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item)
 {
-    if (item < CPlayerState::EItemType::ArtifactOfTruth || item > CPlayerState::EItemType::ArtifactOfNewborn)
+    if (item < CPlayerState::EItemType::Truth || item > CPlayerState::EItemType::Newborn)
         return -1;
     return g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[int(item) - 29]);
 }
