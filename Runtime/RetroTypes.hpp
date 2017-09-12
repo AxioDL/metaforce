@@ -128,7 +128,7 @@ class TReservedAverage : rstl::reserved_vector<T, N>
 {
 public:
     TReservedAverage() = default;
-    TReservedAverage(const T& t) { resize(N, t); }
+    TReservedAverage(const T& t) { rstl::reserved_vector<T, N>::resize(N, t); }
 
     void AddValue(const T& t)
     {

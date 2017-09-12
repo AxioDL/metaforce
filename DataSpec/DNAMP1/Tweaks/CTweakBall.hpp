@@ -38,8 +38,8 @@ struct CTweakBall final : public ITweakBall
     Value<float> xbc_;
     Value<float> xc0_;
     Value<float> xc4_[8];
-    Value<float> xe4_spiderBallRollSpeed;
-    Value<float> xe8_;
+    Value<float> xe4_ballGravity;
+    Value<float> xe8_ballWaterGravity;
     float xec_ = 10000.f;
     float xf0_ = 1000.f;
     float xf4_ = 40000.f;
@@ -110,7 +110,7 @@ struct CTweakBall final : public ITweakBall
     float x208_;
     Value<float> x20c_;
     Value<float> x218_;
-    Value<float> x21c_;
+    Value<float> x21c_boostBallMinRelativeSpeedForDamage;
     Value<float> x220_;
     Value<float> x224_;
     Value<float> x210_;
@@ -140,11 +140,13 @@ struct CTweakBall final : public ITweakBall
     float GetMaxBallTranslationAcceleration(int s) const { return x4_maxTranslationAcceleration[s]; }
     float GetBallTranslationFriction(int s) const { return x24_translationFriction[s]; }
     float GetBallTranslationMaxSpeed(int s) const { return x44_translationMaxSpeed[s]; }
-    float GetSpiderBallRollSpeed() const { return xe4_spiderBallRollSpeed; }
+    float GetBallGravity() const { return xe4_ballGravity; }
+    float GetBallWaterGravity() const { return xe8_ballWaterGravity; }
     float GetBallCameraControlDistance() const { return x1d0_ballCameraControlDistance; }
     float GetLeftStickDivisor() const { return x1e4_leftStickDivisor; }
     float GetRightStickDivisor() const { return x1e8_rightStickDivisor; }
     float GetBallTouchRadius() const { return x204_ballTouchRadius; }
+    float GetBoostBallMinRelativeSpeedForDamage() const { return x21c_boostBallMinRelativeSpeedForDamage; }
 };
 }
 }

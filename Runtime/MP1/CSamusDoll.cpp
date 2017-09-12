@@ -5,6 +5,7 @@
 #include "zeus/CEulerAngles.hpp"
 #include "Collision/CollisionUtil.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "World/CMorphBall.hpp"
 
 namespace urde
 {
@@ -125,19 +126,6 @@ static const u8 BallGlowColors[9][3] =
     {0xff, 0xff, 0xff},
     {0xff, 0xff, 0xff},
     {0xff, 0xff, 0xff},
-};
-
-static const u8 BallTransFlashColors[9][3] =
-{
-    {0xc2, 0x7e, 0x10},
-    {0x66, 0xc4, 0xff},
-    {0x60, 0xff, 0x90},
-    {0x33, 0x33, 0xff},
-    {0xff, 0x20, 0x20},
-    {0x0, 0x9d, 0xb6},
-    {0xd3, 0xf1, 0x0},
-    {0xa6, 0x86, 0xd8},
-    {0xfb, 0x98, 0x21}
 };
 
 static const u8 BallAuxGlowColors[9][3] =
@@ -609,7 +597,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
         {
             if (x22c_ballInnerGlowGen->GetNumActiveChildParticles() > 0)
             {
-                const u8* c = BallTransFlashColors[x1e8_ballGlowColorIdx];
+                const u8* c = CMorphBall::BallTransFlashColors[x1e8_ballGlowColorIdx];
                 zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
                 x22c_ballInnerGlowGen->GetActiveChildParticle(0).SetModulationColor(color);
 
@@ -648,7 +636,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
     if (x238_ballTransitionFlashGen)
     {
-        const u8* c = BallTransFlashColors[x1e8_ballGlowColorIdx];
+        const u8* c = CMorphBall::BallTransFlashColors[x1e8_ballGlowColorIdx];
         zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, 1.f};
         x238_ballTransitionFlashGen->SetModulationColor(color);
         x238_ballTransitionFlashGen->Render();

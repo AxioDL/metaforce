@@ -79,10 +79,10 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     xc4_[6] = __dna_reader.readFloatBig();
     /* xc4_[7] */
     xc4_[7] = __dna_reader.readFloatBig();
-    /* xe4_spiderBallRollSpeed */
-    xe4_spiderBallRollSpeed = __dna_reader.readFloatBig();
-    /* xe8_ */
-    xe8_ = __dna_reader.readFloatBig();
+    /* xe4_ballGravity */
+    xe4_ballGravity = __dna_reader.readFloatBig();
+    /* xe8_ballWaterGravity */
+    xe8_ballWaterGravity = __dna_reader.readFloatBig();
     /* x14c_ */
     x14c_ = __dna_reader.readFloatBig();
     /* x150_ */
@@ -210,7 +210,7 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     /* x218_ */
     x218_ = __dna_reader.readFloatBig();
     /* x21c_ */
-    x21c_ = __dna_reader.readFloatBig();
+    x21c_boostBallMinRelativeSpeedForDamage = __dna_reader.readFloatBig();
     /* x220_ */
     x220_ = __dna_reader.readFloatBig();
     /* x224_ */
@@ -299,10 +299,10 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(xc4_[6]);
     /* xc4_[7] */
     __dna_writer.writeFloatBig(xc4_[7]);
-    /* xe4_spiderBallRollSpeed */
-    __dna_writer.writeFloatBig(xe4_spiderBallRollSpeed);
-    /* xe8_ */
-    __dna_writer.writeFloatBig(xe8_);
+    /* xe4_ballGravity */
+    __dna_writer.writeFloatBig(xe4_ballGravity);
+    /* xe8_ballWaterGravity */
+    __dna_writer.writeFloatBig(xe8_ballWaterGravity);
     /* x14c_ */
     __dna_writer.writeFloatBig(x14c_);
     /* x150_ */
@@ -430,7 +430,7 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     /* x218_ */
     __dna_writer.writeFloatBig(x218_);
     /* x21c_ */
-    __dna_writer.writeFloatBig(x21c_);
+    __dna_writer.writeFloatBig(x21c_boostBallMinRelativeSpeedForDamage);
     /* x220_ */
     __dna_writer.writeFloatBig(x220_);
     /* x224_ */
@@ -539,10 +539,10 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     /* xc4_[7] */
     xc4_[7] = __dna_docin.readFloat("xc4_");
     }
-    /* xe4_spiderBallRollSpeed */
-    xe4_spiderBallRollSpeed = __dna_docin.readFloat("xe4_spiderBallRollSpeed");
-    /* xe8_ */
-    xe8_ = __dna_docin.readFloat("xe8_");
+    /* xe4_ballGravity */
+    xe4_ballGravity = __dna_docin.readFloat("xe4_ballGravity");
+    /* xe8_ballWaterGravity */
+    xe8_ballWaterGravity = __dna_docin.readFloat("xe8_ballWaterGravity");
     /* x14c_ */
     x14c_ = __dna_docin.readFloat("x14c_");
     /* x150_ */
@@ -670,7 +670,7 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     /* x218_ */
     x218_ = __dna_docin.readFloat("x218_");
     /* x21c_ */
-    x21c_ = __dna_docin.readFloat("x21c_");
+    x21c_boostBallMinRelativeSpeedForDamage = __dna_docin.readFloat("x21c_");
     /* x220_ */
     x220_ = __dna_docin.readFloat("x220_");
     /* x224_ */
@@ -775,10 +775,10 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* xc4_[7] */
     __dna_docout.writeFloat("xc4_", xc4_[7]);
     }
-    /* xe4_spiderBallRollSpeed */
-    __dna_docout.writeFloat("xe4_spiderBallRollSpeed", xe4_spiderBallRollSpeed);
-    /* xe8_ */
-    __dna_docout.writeFloat("xe8_", xe8_);
+    /* xe4_ballGravity */
+    __dna_docout.writeFloat("xe4_ballGravity", xe4_ballGravity);
+    /* xe8_ballWaterGravity */
+    __dna_docout.writeFloat("xe8_ballWaterGravity", xe8_ballWaterGravity);
     /* x14c_ */
     __dna_docout.writeFloat("x14c_", x14c_);
     /* x150_ */
@@ -906,7 +906,7 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     /* x218_ */
     __dna_docout.writeFloat("x218_", x218_);
     /* x21c_ */
-    __dna_docout.writeFloat("x21c_", x21c_);
+    __dna_docout.writeFloat("x21c_", x21c_boostBallMinRelativeSpeedForDamage);
     /* x220_ */
     __dna_docout.writeFloat("x220_", x220_);
     /* x224_ */

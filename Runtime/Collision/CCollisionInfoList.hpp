@@ -15,7 +15,7 @@ public:
     void GetAverageLeftNormal() const;
     void GetAveragePoint() const;
     void GetUnionOfAllLeftMaterials() const;
-    s32 GetCount() const { return x0_list.size(); }
+    size_t GetCount() const { return x0_list.size(); }
     void Swap(s32);
 
     void Add(const CCollisionInfo& info, bool swap)

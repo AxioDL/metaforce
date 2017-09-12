@@ -10,11 +10,13 @@ struct ITweakBall : ITweak
     virtual float GetMaxBallTranslationAcceleration(int s) const=0;
     virtual float GetBallTranslationFriction(int s) const=0;
     virtual float GetBallTranslationMaxSpeed(int s) const=0;
-    virtual float GetSpiderBallRollSpeed() const=0;
+    virtual float GetBallGravity() const=0;
+    virtual float GetBallWaterGravity() const=0;
     virtual float GetBallCameraControlDistance() const=0;
     virtual float GetLeftStickDivisor() const=0;
     virtual float GetRightStickDivisor() const=0;
     virtual float GetBallTouchRadius() const=0;
+    virtual float GetBoostBallMinRelativeSpeedForDamage() const=0;
 };
 }
 
