@@ -53,17 +53,9 @@ class ViewManager : public specter::IViewManager
     class TestGameView : public specter::View
     {
         ViewManager& m_vm;
-        CSpaceWarpFilter m_spaceWarpFilter;
-        CWideScreenFilter m_widescreen = { EFilterType::Blend };
-        CXRayBlurFilter m_xrayBlur;
-        CCameraBlurFilter m_camBlur;
-        CRandom16 m_random;
-        float m_theta = 0.f;
-        unsigned m_frame = 0;
     public:
-        TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent,
-                     TLockedToken<CTexture>& xrayPalette)
-        : View(res, parent), m_vm(vm), m_xrayBlur(xrayPalette), m_random(20) {}
+        TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
+        : View(res, parent), m_vm(vm) {}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
 
@@ -151,7 +143,7 @@ class ViewManager : public specter::IViewManager
     unsigned m_editorFrames = 120;
     void FadeInEditors() {m_editorFrames = 0;}
 
-    void BuildTestPART(urde::IObjectStore& objStore);
+    void BuildTestPART();
     void InitMP1(MP1::CMain& main);
 
     Space* m_deferSplit = nullptr;

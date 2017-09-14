@@ -25,10 +25,9 @@ using YAMLNode = athena::io::YAMLNode;
 namespace urde
 {
 
-void ViewManager::BuildTestPART(urde::IObjectStore& objStore)
+void ViewManager::BuildTestPART()
 {
-    TLockedToken<CTexture> xrayPalette = objStore.GetObj("TXTR_XRayPalette");
-    m_testGameView.reset(new TestGameView(*this, m_viewResources, *m_rootView, xrayPalette));
+    m_testGameView.reset(new TestGameView(*this, m_viewResources, *m_rootView));
 
     m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_testGameView.get());
@@ -50,7 +49,6 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     gfxQ->clearTarget(true, true);
     m_vm.m_projManager.mainDraw();
-    ++m_frame;
 }
 
 specter::View* ViewManager::BuildSpaceViews()
