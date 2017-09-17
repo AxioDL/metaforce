@@ -1463,9 +1463,9 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
 }
 
 bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList)
+                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList) const
 {
-    const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo(*this);
+    const CHealthInfo* hInfo = const_cast<CActor&>(damagee).HealthInfo(const_cast<CStateManager&>(*this));
     if (!hInfo)
         return false;
 
@@ -1505,7 +1505,7 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                                    const CMaterialFilter& filter, const CActor& damagee)
+                                    const CMaterialFilter& filter, const CActor& damagee) const
 {
     zeus::CVector3f delta = end - start;
     float mag = delta.magnitude();
@@ -1517,7 +1517,7 @@ bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CV
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                    const CMaterialFilter& filter, const CActor& damagee)
+                                    const CMaterialFilter& filter, const CActor& damagee) const
 {
     return RayCollideWorldInternal(start, end, filter, nearList, &damagee);
 }
@@ -1525,7 +1525,7 @@ bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CV
 bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                             const CMaterialFilter& filter,
                                             const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                            const CActor* damagee)
+                                            const CActor* damagee) const
 {
     zeus::CVector3f delta = end - start;
     if (!delta.canBeNormalized())
@@ -1538,7 +1538,7 @@ bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& start, const 
     return CGameCollision::RayDynamicIntersectionBool(*this, start, dir, filter, nearList, damagee, mag);
 }
 
-bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter)
+bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter) const
 {
     zeus::CVector3f crossed =
     {

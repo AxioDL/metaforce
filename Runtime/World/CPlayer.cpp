@@ -5490,6 +5490,11 @@ void CPlayer::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateM
         x768_morphball->CollidedWith(id, list, mgr);
 }
 
+float CPlayer::GetBallMaxVelocity() const
+{
+    return g_tweakBall->GetBallTranslationMaxSpeed(int(GetSurfaceRestraint()));
+}
+
 float CPlayer::GetActualBallMaxVelocity(float dt) const
 {
     ESurfaceRestraints surf = GetSurfaceRestraint();
@@ -6566,7 +6571,7 @@ bool CPlayer::AttachActorToPlayer(TUniqueId id, bool disableGun)
         x26c_attachedActor = id;
         x270_attachedActorTime = 0.f;
         xa28_attachedActorStruggle = 0.f;
-        x768_morphball->ActorAttached();
+        x768_morphball->StopEffects();
         return true;
     }
 

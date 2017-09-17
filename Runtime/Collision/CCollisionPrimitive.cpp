@@ -84,8 +84,8 @@ bool CCollisionPrimitive::InternalCollide(const CInternalCollisionStructure& col
     return false;
 }
 
-bool CCollisionPrimitive::Collide(CInternalCollisionStructure::CPrimDesc& prim0,
-                                  CInternalCollisionStructure::CPrimDesc& prim1,
+bool CCollisionPrimitive::Collide(const CInternalCollisionStructure::CPrimDesc& prim0,
+                                  const CInternalCollisionStructure::CPrimDesc& prim1,
                                   CCollisionInfoList& list)
 {
     return InternalCollide({prim0, prim1}, list);
@@ -138,8 +138,8 @@ bool CCollisionPrimitive::InternalCollideBoolean(const CInternalCollisionStructu
     return InternalCollide(collision, list);
 }
 
-bool CCollisionPrimitive::CollideBoolean(CInternalCollisionStructure::CPrimDesc& prim0,
-                                         CInternalCollisionStructure::CPrimDesc& prim1)
+bool CCollisionPrimitive::CollideBoolean(const CInternalCollisionStructure::CPrimDesc& prim0,
+                                         const CInternalCollisionStructure::CPrimDesc& prim1)
 {
     return InternalCollideBoolean({prim0, prim1});
 }
@@ -173,8 +173,8 @@ bool CCollisionPrimitive::InternalCollideMoving(const CInternalCollisionStructur
     return false;
 }
 
-bool CCollisionPrimitive::CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
-                                        CInternalCollisionStructure::CPrimDesc& prim1,
+bool CCollisionPrimitive::CollideMoving(const CInternalCollisionStructure::CPrimDesc& prim0,
+                                        const CInternalCollisionStructure::CPrimDesc& prim1,
                                         const zeus::CVector3f& dir,
                                         double& dOut,
                                         CCollisionInfo& infoOut)

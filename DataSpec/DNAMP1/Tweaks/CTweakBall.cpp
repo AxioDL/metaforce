@@ -63,22 +63,22 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x6c_ = __dna_reader.readFloatBig();
     /* x70_ */
     x70_ = __dna_reader.readFloatBig();
-    /* xc4_[0] */
-    xc4_[0] = __dna_reader.readFloatBig();
-    /* xc4_[1] */
-    xc4_[1] = __dna_reader.readFloatBig();
-    /* xc4_[2] */
-    xc4_[2] = __dna_reader.readFloatBig();
-    /* xc4_[3] */
-    xc4_[3] = __dna_reader.readFloatBig();
-    /* xc4_[4] */
-    xc4_[4] = __dna_reader.readFloatBig();
-    /* xc4_[5] */
-    xc4_[5] = __dna_reader.readFloatBig();
-    /* xc4_[6] */
-    xc4_[6] = __dna_reader.readFloatBig();
-    /* xc4_[7] */
-    xc4_[7] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[0] */
+    xc4_ballForwardBrakingAcceleration[0] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[1] */
+    xc4_ballForwardBrakingAcceleration[1] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[2] */
+    xc4_ballForwardBrakingAcceleration[2] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[3] */
+    xc4_ballForwardBrakingAcceleration[3] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[4] */
+    xc4_ballForwardBrakingAcceleration[4] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[5] */
+    xc4_ballForwardBrakingAcceleration[5] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[6] */
+    xc4_ballForwardBrakingAcceleration[6] = __dna_reader.readFloatBig();
+    /* xc4_ballForwardBrakingAcceleration[7] */
+    xc4_ballForwardBrakingAcceleration[7] = __dna_reader.readFloatBig();
     /* xe4_ballGravity */
     xe4_ballGravity = __dna_reader.readFloatBig();
     /* xe8_ballWaterGravity */
@@ -93,16 +93,16 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x1dc_ = __dna_reader.readFloatBig();
     /* x1e0_ */
     x1e0_ = __dna_reader.readFloatBig();
-    /* x1ec_ */
-    x1ec_ = __dna_reader.readFloatBig();
-    /* x1f0_ */
-    x1f0_ = __dna_reader.readFloatBig();
-    /* x1f4_ */
-    x1f4_ = __dna_reader.readFloatBig();
-    /* x1f8_ */
-    x1f8_ = __dna_reader.readFloatBig();
-    /* x1fc_ */
-    x1fc_ = __dna_reader.readFloatBig();
+    /* x1ec_maxLeanAngle */
+    x1ec_maxLeanAngle = __dna_reader.readFloatBig();
+    /* x1f0_tireToMarbleThresholdSpeed */
+    x1f0_tireToMarbleThresholdSpeed = __dna_reader.readFloatBig();
+    /* x1f4_marbleToTireThresholdSpeed */
+    x1f4_marbleToTireThresholdSpeed = __dna_reader.readFloatBig();
+    /* x1f8_forceToLeanGain */
+    x1f8_forceToLeanGain = __dna_reader.readFloatBig();
+    /* x1fc_leanTrackingGain */
+    x1fc_leanTrackingGain = __dna_reader.readFloatBig();
     /* x74_ */
     x74_ = __dna_reader.readFloatBig();
     /* x78_ */
@@ -205,18 +205,18 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x200_ = __dna_reader.readFloatBig();
     /* x204_ballTouchRadius */
     x204_ballTouchRadius = __dna_reader.readFloatBig();
-    /* x20c_ */
-    x20c_ = __dna_reader.readFloatBig();
-    /* x218_ */
-    x218_ = __dna_reader.readFloatBig();
-    /* x21c_ */
+    /* x20c_boostBallDrainTime */
+    x20c_boostBallDrainTime = __dna_reader.readFloatBig();
+    /* x218_boostBallMinChargeTime */
+    x218_boostBallMinChargeTime = __dna_reader.readFloatBig();
+    /* x21c_boostBallMinRelativeSpeedForDamage */
     x21c_boostBallMinRelativeSpeedForDamage = __dna_reader.readFloatBig();
     /* x220_ */
     x220_ = __dna_reader.readFloatBig();
     /* x224_ */
     x224_ = __dna_reader.readFloatBig();
-    /* x210_ */
-    x210_ = __dna_reader.readFloatBig();
+    /* x210_boostBallMaxChargeTime */
+    x210_boostBallMaxChargeTime = __dna_reader.readFloatBig();
     /* x22c_ */
     x22c_ = __dna_reader.readFloatBig();
     /* x230_ */
@@ -283,22 +283,22 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x6c_);
     /* x70_ */
     __dna_writer.writeFloatBig(x70_);
-    /* xc4_[0] */
-    __dna_writer.writeFloatBig(xc4_[0]);
-    /* xc4_[1] */
-    __dna_writer.writeFloatBig(xc4_[1]);
-    /* xc4_[2] */
-    __dna_writer.writeFloatBig(xc4_[2]);
-    /* xc4_[3] */
-    __dna_writer.writeFloatBig(xc4_[3]);
-    /* xc4_[4] */
-    __dna_writer.writeFloatBig(xc4_[4]);
-    /* xc4_[5] */
-    __dna_writer.writeFloatBig(xc4_[5]);
-    /* xc4_[6] */
-    __dna_writer.writeFloatBig(xc4_[6]);
-    /* xc4_[7] */
-    __dna_writer.writeFloatBig(xc4_[7]);
+    /* xc4_ballForwardBrakingAcceleration[0] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[0]);
+    /* xc4_ballForwardBrakingAcceleration[1] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[1]);
+    /* xc4_ballForwardBrakingAcceleration[2] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[2]);
+    /* xc4_ballForwardBrakingAcceleration[3] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[3]);
+    /* xc4_ballForwardBrakingAcceleration[4] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[4]);
+    /* xc4_ballForwardBrakingAcceleration[5] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[5]);
+    /* xc4_ballForwardBrakingAcceleration[6] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[6]);
+    /* xc4_ballForwardBrakingAcceleration[7] */
+    __dna_writer.writeFloatBig(xc4_ballForwardBrakingAcceleration[7]);
     /* xe4_ballGravity */
     __dna_writer.writeFloatBig(xe4_ballGravity);
     /* xe8_ballWaterGravity */
@@ -313,16 +313,16 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x1dc_);
     /* x1e0_ */
     __dna_writer.writeFloatBig(x1e0_);
-    /* x1ec_ */
-    __dna_writer.writeFloatBig(x1ec_);
-    /* x1f0_ */
-    __dna_writer.writeFloatBig(x1f0_);
-    /* x1f4_ */
-    __dna_writer.writeFloatBig(x1f4_);
-    /* x1f8_ */
-    __dna_writer.writeFloatBig(x1f8_);
-    /* x1fc_ */
-    __dna_writer.writeFloatBig(x1fc_);
+    /* x1ec_maxLeanAngle */
+    __dna_writer.writeFloatBig(x1ec_maxLeanAngle);
+    /* x1f0_tireToMarbleThresholdSpeed */
+    __dna_writer.writeFloatBig(x1f0_tireToMarbleThresholdSpeed);
+    /* x1f4_marbleToTireThresholdSpeed */
+    __dna_writer.writeFloatBig(x1f4_marbleToTireThresholdSpeed);
+    /* x1f8_forceToLeanGain */
+    __dna_writer.writeFloatBig(x1f8_forceToLeanGain);
+    /* x1fc_leanTrackingGain */
+    __dna_writer.writeFloatBig(x1fc_leanTrackingGain);
     /* x74_ */
     __dna_writer.writeFloatBig(x74_);
     /* x78_ */
@@ -425,18 +425,18 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x200_);
     /* x204_ballTouchRadius */
     __dna_writer.writeFloatBig(x204_ballTouchRadius);
-    /* x20c_ */
-    __dna_writer.writeFloatBig(x20c_);
-    /* x218_ */
-    __dna_writer.writeFloatBig(x218_);
-    /* x21c_ */
+    /* x20c_boostBallDrainTime */
+    __dna_writer.writeFloatBig(x20c_boostBallDrainTime);
+    /* x218_boostBallMinChargeTime */
+    __dna_writer.writeFloatBig(x218_boostBallMinChargeTime);
+    /* x21c_boostBallMinRelativeSpeedForDamage */
     __dna_writer.writeFloatBig(x21c_boostBallMinRelativeSpeedForDamage);
     /* x220_ */
     __dna_writer.writeFloatBig(x220_);
     /* x224_ */
     __dna_writer.writeFloatBig(x224_);
-    /* x210_ */
-    __dna_writer.writeFloatBig(x210_);
+    /* x210_boostBallMaxChargeTime */
+    __dna_writer.writeFloatBig(x210_boostBallMaxChargeTime);
     /* x22c_ */
     __dna_writer.writeFloatBig(x22c_);
     /* x230_ */
@@ -518,26 +518,26 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x6c_ = __dna_docin.readFloat("x6c_");
     /* x70_ */
     x70_ = __dna_docin.readFloat("x70_");
-    /* xc4_ */
+    /* xc4_ballForwardBrakingAcceleration */
     size_t __xc4_Count;
-    if (auto v = __dna_docin.enterSubVector("xc4_", __xc4_Count))
+    if (auto v = __dna_docin.enterSubVector("xc4_ballForwardBrakingAcceleration", __xc4_Count))
     {
-    /* xc4_[0] */
-    xc4_[0] = __dna_docin.readFloat("xc4_");
-    /* xc4_[1] */
-    xc4_[1] = __dna_docin.readFloat("xc4_");
-    /* xc4_[2] */
-    xc4_[2] = __dna_docin.readFloat("xc4_");
-    /* xc4_[3] */
-    xc4_[3] = __dna_docin.readFloat("xc4_");
-    /* xc4_[4] */
-    xc4_[4] = __dna_docin.readFloat("xc4_");
-    /* xc4_[5] */
-    xc4_[5] = __dna_docin.readFloat("xc4_");
-    /* xc4_[6] */
-    xc4_[6] = __dna_docin.readFloat("xc4_");
-    /* xc4_[7] */
-    xc4_[7] = __dna_docin.readFloat("xc4_");
+    /* xc4_ballForwardBrakingAcceleration[0] */
+    xc4_ballForwardBrakingAcceleration[0] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[1] */
+    xc4_ballForwardBrakingAcceleration[1] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[2] */
+    xc4_ballForwardBrakingAcceleration[2] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[3] */
+    xc4_ballForwardBrakingAcceleration[3] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[4] */
+    xc4_ballForwardBrakingAcceleration[4] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[5] */
+    xc4_ballForwardBrakingAcceleration[5] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[6] */
+    xc4_ballForwardBrakingAcceleration[6] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
+    /* xc4_ballForwardBrakingAcceleration[7] */
+    xc4_ballForwardBrakingAcceleration[7] = __dna_docin.readFloat("xc4_ballForwardBrakingAcceleration");
     }
     /* xe4_ballGravity */
     xe4_ballGravity = __dna_docin.readFloat("xe4_ballGravity");
@@ -553,16 +553,16 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x1dc_ = __dna_docin.readFloat("x1dc_");
     /* x1e0_ */
     x1e0_ = __dna_docin.readFloat("x1e0_");
-    /* x1ec_ */
-    x1ec_ = __dna_docin.readFloat("x1ec_");
-    /* x1f0_ */
-    x1f0_ = __dna_docin.readFloat("x1f0_");
-    /* x1f4_ */
-    x1f4_ = __dna_docin.readFloat("x1f4_");
-    /* x1f8_ */
-    x1f8_ = __dna_docin.readFloat("x1f8_");
-    /* x1fc_ */
-    x1fc_ = __dna_docin.readFloat("x1fc_");
+    /* x1ec_maxLeanAngle */
+    x1ec_maxLeanAngle = __dna_docin.readFloat("x1ec_maxLeanAngle");
+    /* x1f0_tireToMarbleThresholdSpeed */
+    x1f0_tireToMarbleThresholdSpeed = __dna_docin.readFloat("x1f0_tireToMarbleThresholdSpeed");
+    /* x1f4_marbleToTireThresholdSpeed */
+    x1f4_marbleToTireThresholdSpeed = __dna_docin.readFloat("x1f4_marbleToTireThresholdSpeed");
+    /* x1f8_forceToLeanGain */
+    x1f8_forceToLeanGain = __dna_docin.readFloat("x1f8_forceToLeanGain");
+    /* x1fc_leanTrackingGain */
+    x1fc_leanTrackingGain = __dna_docin.readFloat("x1fc_leanTrackingGain");
     /* x74_ */
     x74_ = __dna_docin.readFloat("x74_");
     /* x78_ */
@@ -665,18 +665,18 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x200_ = __dna_docin.readFloat("x200_");
     /* x204_ballTouchRadius */
     x204_ballTouchRadius = __dna_docin.readFloat("x204_ballTouchRadius");
-    /* x20c_ */
-    x20c_ = __dna_docin.readFloat("x20c_");
-    /* x218_ */
-    x218_ = __dna_docin.readFloat("x218_");
-    /* x21c_ */
-    x21c_boostBallMinRelativeSpeedForDamage = __dna_docin.readFloat("x21c_");
+    /* x20c_boostBallDrainTime */
+    x20c_boostBallDrainTime = __dna_docin.readFloat("x20c_boostBallDrainTime");
+    /* x218_boostBallMinChargeTime */
+    x218_boostBallMinChargeTime = __dna_docin.readFloat("x218_boostBallMinChargeTime");
+    /* x21c_boostBallMinRelativeSpeedForDamage */
+    x21c_boostBallMinRelativeSpeedForDamage = __dna_docin.readFloat("x21c_boostBallMinRelativeSpeedForDamage");
     /* x220_ */
     x220_ = __dna_docin.readFloat("x220_");
     /* x224_ */
     x224_ = __dna_docin.readFloat("x224_");
-    /* x210_ */
-    x210_ = __dna_docin.readFloat("x210_");
+    /* x210_boostBallMaxChargeTime */
+    x210_boostBallMaxChargeTime = __dna_docin.readFloat("x210_boostBallMaxChargeTime");
     /* x22c_ */
     x22c_ = __dna_docin.readFloat("x22c_");
     /* x230_ */
@@ -755,25 +755,25 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x6c_", x6c_);
     /* x70_ */
     __dna_docout.writeFloat("x70_", x70_);
-    /* xc4_ */
-    if (auto v = __dna_docout.enterSubVector("xc4_"))
+    /* xc4_ballForwardBrakingAcceleration */
+    if (auto v = __dna_docout.enterSubVector("xc4_ballForwardBrakingAcceleration"))
     {
-    /* xc4_[0] */
-    __dna_docout.writeFloat("xc4_", xc4_[0]);
-    /* xc4_[1] */
-    __dna_docout.writeFloat("xc4_", xc4_[1]);
-    /* xc4_[2] */
-    __dna_docout.writeFloat("xc4_", xc4_[2]);
-    /* xc4_[3] */
-    __dna_docout.writeFloat("xc4_", xc4_[3]);
-    /* xc4_[4] */
-    __dna_docout.writeFloat("xc4_", xc4_[4]);
-    /* xc4_[5] */
-    __dna_docout.writeFloat("xc4_", xc4_[5]);
-    /* xc4_[6] */
-    __dna_docout.writeFloat("xc4_", xc4_[6]);
-    /* xc4_[7] */
-    __dna_docout.writeFloat("xc4_", xc4_[7]);
+    /* xc4_ballForwardBrakingAcceleration[0] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[0]);
+    /* xc4_ballForwardBrakingAcceleration[1] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[1]);
+    /* xc4_ballForwardBrakingAcceleration[2] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[2]);
+    /* xc4_ballForwardBrakingAcceleration[3] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[3]);
+    /* xc4_ballForwardBrakingAcceleration[4] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[4]);
+    /* xc4_ballForwardBrakingAcceleration[5] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[5]);
+    /* xc4_ballForwardBrakingAcceleration[6] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[6]);
+    /* xc4_ballForwardBrakingAcceleration[7] */
+    __dna_docout.writeFloat("xc4_ballForwardBrakingAcceleration", xc4_ballForwardBrakingAcceleration[7]);
     }
     /* xe4_ballGravity */
     __dna_docout.writeFloat("xe4_ballGravity", xe4_ballGravity);
@@ -789,16 +789,16 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x1dc_", x1dc_);
     /* x1e0_ */
     __dna_docout.writeFloat("x1e0_", x1e0_);
-    /* x1ec_ */
-    __dna_docout.writeFloat("x1ec_", x1ec_);
-    /* x1f0_ */
-    __dna_docout.writeFloat("x1f0_", x1f0_);
-    /* x1f4_ */
-    __dna_docout.writeFloat("x1f4_", x1f4_);
-    /* x1f8_ */
-    __dna_docout.writeFloat("x1f8_", x1f8_);
-    /* x1fc_ */
-    __dna_docout.writeFloat("x1fc_", x1fc_);
+    /* x1ec_maxLeanAngle */
+    __dna_docout.writeFloat("x1ec_maxLeanAngle", x1ec_maxLeanAngle);
+    /* x1f0_tireToMarbleThresholdSpeed */
+    __dna_docout.writeFloat("x1f0_tireToMarbleThresholdSpeed", x1f0_tireToMarbleThresholdSpeed);
+    /* x1f4_marbleToTireThresholdSpeed */
+    __dna_docout.writeFloat("x1f4_marbleToTireThresholdSpeed", x1f4_marbleToTireThresholdSpeed);
+    /* x1f8_forceToLeanGain */
+    __dna_docout.writeFloat("x1f8_forceToLeanGain", x1f8_forceToLeanGain);
+    /* x1fc_leanTrackingGain */
+    __dna_docout.writeFloat("x1fc_leanTrackingGain", x1fc_leanTrackingGain);
     /* x74_ */
     __dna_docout.writeFloat("x74_", x74_);
     /* x78_ */
@@ -901,18 +901,18 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x200_", x200_);
     /* x204_ballTouchRadius */
     __dna_docout.writeFloat("x204_ballTouchRadius", x204_ballTouchRadius);
-    /* x20c_ */
-    __dna_docout.writeFloat("x20c_", x20c_);
-    /* x218_ */
-    __dna_docout.writeFloat("x218_", x218_);
-    /* x21c_ */
-    __dna_docout.writeFloat("x21c_", x21c_boostBallMinRelativeSpeedForDamage);
+    /* x20c_boostBallDrainTime */
+    __dna_docout.writeFloat("x20c_boostBallDrainTime", x20c_boostBallDrainTime);
+    /* x218_boostBallMinChargeTime */
+    __dna_docout.writeFloat("x218_boostBallMinChargeTime", x218_boostBallMinChargeTime);
+    /* x21c_boostBallMinRelativeSpeedForDamage */
+    __dna_docout.writeFloat("x21c_boostBallMinRelativeSpeedForDamage", x21c_boostBallMinRelativeSpeedForDamage);
     /* x220_ */
     __dna_docout.writeFloat("x220_", x220_);
     /* x224_ */
     __dna_docout.writeFloat("x224_", x224_);
-    /* x210_ */
-    __dna_docout.writeFloat("x210_", x210_);
+    /* x210_boostBallMaxChargeTime */
+    __dna_docout.writeFloat("x210_boostBallMaxChargeTime", x210_boostBallMaxChargeTime);
     /* x22c_ */
     __dna_docout.writeFloat("x22c_", x22c_);
     /* x230_ */

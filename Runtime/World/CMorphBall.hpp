@@ -28,7 +28,8 @@ class CMorphBall
 public:
     enum class EBallBoostState
     {
-        Zero
+        Zero,
+        One
     };
 
     enum class ESpiderBallState
@@ -45,13 +46,13 @@ public:
 private:
     CPlayer& x0_player;
     s32 x4_ = -1;
-    u32 x8_ = 0;
+    u32 x8_ballGlowColorIdx = 0;
     float xc_radius;
     zeus::CVector3f x10_;
     zeus::CVector3f x1c_;
-    bool x28_ = false;
-    float x2c_ = 0.f;
-    float x30_ = 0.f;
+    bool x28_tireMode = false;
+    float x2c_tireLeanAngle = 0.f;
+    float x30_ballTiltAngle = 0.f;
     CCollidableSphere x38_collisionSphere;
     std::unique_ptr<CModelData> x58_ballModel;
     u32 x5c_ballModelShader = 0;
@@ -63,11 +64,11 @@ private:
     CCollisionInfoList x74_collisionInfos;
     u32 xc78_ = 0;
     ESpiderBallState x187c_spiderBallState = ESpiderBallState::Inactive;
-    zeus::CVector3f x1880_;
+    zeus::CVector3f x1880_spiderTrackNormal;
     float x188c_ = 1.f;
     zeus::CVector3f x1890_spiderTrackPoint;
-    zeus::CVector3f x189c_;
-    zeus::CVector3f x18a8_;
+    zeus::CVector3f x189c_spiderBallDir;
+    zeus::CVector3f x18a8_initialSpiderBallUp;
     float x18b4_ = 0.f;
     float x18b8_ = 0.f;
     bool x18bc_ = false;
@@ -87,7 +88,7 @@ private:
     float x1918_ = 0.f;
     float x191c_damageTimer = 0.f;
     bool x1920_ = false;
-    zeus::CTransform x1924_;
+    zeus::CTransform x1924_surfaceToWorld;
     bool x1954_isProjectile = false;
     std::vector<CToken> x1958_animationTokens;
     TToken<CSwooshDescription> x1968_slowBlueTailSwoosh;
@@ -138,14 +139,14 @@ private:
     zeus::CVector3f x1dd8_;
     bool x1de4_24 : 1;
     bool x1de4_25 : 1;
-    float x1de8_boostTime = 0.f;
+    float x1de8_boostChargeTime = 0.f;
     float x1dec_ = 0.f;
     float x1df0_ = 0.f;
-    float x1df4_ = 0.f;
+    float x1df4_boostDrainTime = 0.f;
     bool x1df8_24_inHalfPipeMode : 1;
     bool x1df8_25_inHalfPipeModeInAir : 1;
     bool x1df8_26_touchedHalfPipeRecently : 1;
-    bool x1df8_27 : 1;
+    bool x1df8_27_ballCloseToCollision : 1;
     float x1dfc_ = 0.f;
     float x1e00_ = 0.f;
     float x1e04_ = 0.f;
@@ -158,7 +159,7 @@ private:
     CSfxHandle x1e30_spiderSfxHandle;
     u16 x1e34_rollSfx = 0xffff;
     u16 x1e36_landSfx = 0xffff;
-    u32 x1e38_ = 0;
+    u32 x1e38_wallSparkFrameCountdown = 0;
     EBallBoostState x1e3c_boostState = EBallBoostState::Zero;
     EBombJumpState x1e40_bombJumpState = EBombJumpState::Zero;
     float x1e44_ = 0.f;
@@ -170,6 +171,8 @@ private:
     static std::unique_ptr<CModelData> GetMorphBallModel(const char* name, float radius);
     void SelectMorphBallSounds(const CMaterialList& mat);
     void UpdateMorphBallSounds(float dt);
+    static zeus::CVector3f TransformSpiderBallForcesToView(const zeus::CVector2f& forces, CStateManager& mgr);
+    void ResetSpiderBallForces();
 public:
     CMorphBall(CPlayer& player, float radius);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
@@ -181,9 +184,9 @@ public:
     bool IsBoosting() const { return false; }
     float GetBallRadius() const;
     float GetBallTouchRadius() const;
-    void ForwardInput(const CFinalInput& input) const;
-    void BallTurnInput(const CFinalInput& input) const;
-    void ComputeBallMovement(const CFinalInput&, CStateManager&, float);
+    float ForwardInput(const CFinalInput& input) const;
+    float BallTurnInput(const CFinalInput& input) const;
+    void ComputeBallMovement(const CFinalInput& input, CStateManager& mgr, float dt);
     bool IsMovementAllowed() const;
     void UpdateSpiderBall(const CFinalInput&, CStateManager&, float);
     void ApplySpiderBallSwingingForces(const CFinalInput&, CStateManager&, float);
@@ -200,27 +203,28 @@ public:
     void UpdateSpiderBallSwingControllerMovementTimer(float, float);
     float GetSpiderBallSwingControllerMovementScalar() const;
     void CreateSpiderBallParticles(const zeus::CVector3f&, const zeus::CVector3f&);
-    void ComputeMarioMovement(const CFinalInput&, CStateManager&, float);
+    void ComputeMarioMovement(const CFinalInput& input, CStateManager& mgr, float dt);
     void SetSpiderBallState(ESpiderBallState state) { x187c_spiderBallState = state; }
-    void GetSwooshToWorld() const;
+    zeus::CTransform GetSwooshToWorld() const;
     zeus::CTransform GetBallToWorld() const;
-    void CalculateSurfaceToWorld(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&) const;
-    void CalculateBallContactInfo(zeus::CVector3f&, zeus::CVector3f&) const;
-    void UpdateBallDynamics(CStateManager&, float);
+    zeus::CTransform CalculateSurfaceToWorld(const zeus::CVector3f& trackNormal,
+                                             const zeus::CVector3f& trackPoint,
+                                             const zeus::CVector3f& ballDir) const;
+    bool CalculateBallContactInfo(zeus::CVector3f& normal, zeus::CVector3f& point) const;
+    void UpdateBallDynamics(CStateManager& mgr, float dt);
     void SwitchToMarble();
     void SwitchToTire();
     void Update(float dt, CStateManager& mgr);
-    void UpdateScriptMessage(EScriptObjectMessage, TUniqueId, CStateManager&);
-    void DeleteLight(CStateManager&);
-    void SetBallLightActive(CStateManager&, bool);
-    void EnterMorphBallState(CStateManager&);
-    void LeaveMorphBallState(CStateManager&);
-    void UpdateEffects(float, CStateManager&);
-    void ComputeBoostBallMovement(const CFinalInput&, const CStateManager&, float);
-    void EnterBoosting();
+    void DeleteLight(CStateManager& mgr);
+    void SetBallLightActive(CStateManager& mgr, bool active);
+    void EnterMorphBallState(CStateManager& mgr);
+    void LeaveMorphBallState(CStateManager& mgr);
+    void UpdateEffects(float dt, CStateManager& mgr);
+    void ComputeBoostBallMovement(const CFinalInput& input, CStateManager& mgr, float dt);
+    void EnterBoosting(CStateManager& mgr);
     void LeaveBoosting();
     void CancelBoosting();
-    void UpdateMarbleDynamics(CStateManager&, float, const zeus::CVector3f&);
+    bool UpdateMarbleDynamics(CStateManager& mgr, float dt, const zeus::CVector3f& point);
     void ApplyFriction(float);
     void DampLinearAndAngularVelocities(float, float);
     zeus::CTransform GetPrimitiveTransform() const;
@@ -243,7 +247,7 @@ public:
     bool GetTouchedHalfPipeRecently() const { return x1df8_26_touchedHalfPipeRecently; }
     void SetTouchedHalfPipeRecently(bool b) { x1df8_26_touchedHalfPipeRecently = b; }
     void DisableHalfPipeStatus();
-    bool BallCloseToCollision(const CStateManager&, float, const CMaterialFilter& filter) const;
+    bool BallCloseToCollision(const CStateManager& mgr, float dist, const CMaterialFilter& filter) const;
     void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr);
     bool IsInFrustum(const zeus::CFrustum& frustum) const;
     void ComputeLiftForces(const zeus::CVector3f&, const zeus::CVector3f&, const CStateManager&);
@@ -257,7 +261,7 @@ public:
     void GetMorphBallModel(const std::string&, float);
     void LoadMorphBallModel(CStateManager& mgr);
     void AddSpiderBallElectricalEffect();
-    void UpdateSpiderBallElectricalEffect();
+    void UpdateSpiderBallElectricalEffects();
     void RenderSpiderBallElectricalEffect() const;
     void RenderEnergyDrainEffects(const CStateManager&) const;
     void TouchModel(const CStateManager& mgr) const;
@@ -275,7 +279,7 @@ public:
     void SetDamageTimer(float t) { x191c_damageTimer = t; }
     void Stop();
     void StopSounds();
-    void ActorAttached();
+    void StopEffects();
     CModelData& GetMorphballModelData() const { return *x58_ballModel; }
     u32 GetMorphballModelShader() const { return x5c_ballModelShader; }
     bool GetX1DE4_25() const { return x1de4_25; }

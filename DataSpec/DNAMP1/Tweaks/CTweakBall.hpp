@@ -37,7 +37,7 @@ struct CTweakBall final : public ITweakBall
     Value<float> xb8_;
     Value<float> xbc_;
     Value<float> xc0_;
-    Value<float> xc4_[8];
+    Value<float> xc4_ballForwardBrakingAcceleration[8];
     Value<float> xe4_ballGravity;
     Value<float> xe8_ballWaterGravity;
     float xec_ = 10000.f;
@@ -98,22 +98,22 @@ struct CTweakBall final : public ITweakBall
     Value<float> x1d8_;
     Value<float> x1dc_;
     Value<float> x1e0_;
-    Value<float> x1ec_;
-    Value<float> x1f0_;
-    Value<float> x1f4_;
-    Value<float> x1f8_;
-    Value<float> x1fc_;
+    Value<float> x1ec_maxLeanAngle;
+    Value<float> x1f0_tireToMarbleThresholdSpeed;
+    Value<float> x1f4_marbleToTireThresholdSpeed;
+    Value<float> x1f8_forceToLeanGain;
+    Value<float> x1fc_leanTrackingGain;
     Value<float> x1e4_leftStickDivisor;
     Value<float> x1e8_rightStickDivisor;
     Value<float> x200_;
     Value<float> x204_ballTouchRadius;
     float x208_;
-    Value<float> x20c_;
-    Value<float> x218_;
+    Value<float> x20c_boostBallDrainTime;
+    Value<float> x218_boostBallMinChargeTime;
     Value<float> x21c_boostBallMinRelativeSpeedForDamage;
     Value<float> x220_;
     Value<float> x224_;
-    Value<float> x210_;
+    Value<float> x210_boostBallMaxChargeTime;
     float x228_;
     Value<float> x22c_;
     Value<float> x230_;
@@ -134,18 +134,27 @@ struct CTweakBall final : public ITweakBall
         x1a8_ = zeus::degToRad(x1a8_);
         x1b0_ = zeus::degToRad(x1b0_);
         x1b4_ = zeus::degToRad(x1b4_);
-        x1ec_ = zeus::degToRad(x1ec_);
+        x1ec_maxLeanAngle = zeus::degToRad(x1ec_maxLeanAngle);
     }
 
     float GetMaxBallTranslationAcceleration(int s) const { return x4_maxTranslationAcceleration[s]; }
     float GetBallTranslationFriction(int s) const { return x24_translationFriction[s]; }
     float GetBallTranslationMaxSpeed(int s) const { return x44_translationMaxSpeed[s]; }
+    float GetBallForwardBrakingAcceleration(int s) const { return xc4_ballForwardBrakingAcceleration[s]; }
     float GetBallGravity() const { return xe4_ballGravity; }
     float GetBallWaterGravity() const { return xe8_ballWaterGravity; }
+    float GetMaxLeanAngle() const { return x1ec_maxLeanAngle; }
+    float GetTireToMarbleThresholdSpeed() const { return x1f0_tireToMarbleThresholdSpeed; }
+    float GetMarbleToTireThresholdSpeed() const { return x1f4_marbleToTireThresholdSpeed; }
+    float GetForceToLeanGain() const { return x1f8_forceToLeanGain; }
+    float GetLeanTrackingGain() const { return x1fc_leanTrackingGain; }
     float GetBallCameraControlDistance() const { return x1d0_ballCameraControlDistance; }
     float GetLeftStickDivisor() const { return x1e4_leftStickDivisor; }
     float GetRightStickDivisor() const { return x1e8_rightStickDivisor; }
     float GetBallTouchRadius() const { return x204_ballTouchRadius; }
+    float GetBoostBallDrainTime() const { return x20c_boostBallDrainTime; }
+    float GetBoostBallMaxChargeTime() const { return x210_boostBallMaxChargeTime; }
+    float GetBoostBallMinChargeTime() const { return x218_boostBallMinChargeTime; }
     float GetBoostBallMinRelativeSpeedForDamage() const { return x21c_boostBallMinRelativeSpeedForDamage; }
 };
 }

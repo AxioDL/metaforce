@@ -150,13 +150,13 @@ public:
     CRayCastResult CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
                            const CMaterialFilter& filter, const zeus::CTransform& xf) const;
 
-    static bool Collide(CInternalCollisionStructure::CPrimDesc& prim0,
-                        CInternalCollisionStructure::CPrimDesc& prim1,
+    static bool Collide(const CInternalCollisionStructure::CPrimDesc& prim0,
+                        const CInternalCollisionStructure::CPrimDesc& prim1,
                         CCollisionInfoList& list);
-    static bool CollideBoolean(CInternalCollisionStructure::CPrimDesc& prim0,
-                               CInternalCollisionStructure::CPrimDesc& prim1);
-    static bool CollideMoving(CInternalCollisionStructure::CPrimDesc& prim0,
-                              CInternalCollisionStructure::CPrimDesc& prim1,
+    static bool CollideBoolean(const CInternalCollisionStructure::CPrimDesc& prim0,
+                               const CInternalCollisionStructure::CPrimDesc& prim1);
+    static bool CollideMoving(const CInternalCollisionStructure::CPrimDesc& prim0,
+                              const CInternalCollisionStructure::CPrimDesc& prim1,
                               const zeus::CVector3f& dir,
                               double& dOut,
                               CCollisionInfo& infoOut);

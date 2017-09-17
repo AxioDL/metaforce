@@ -161,6 +161,12 @@ public:
     FourCC Get4CharId() const { return FOURCC('SWHC'); }
     void SetRenderGaps(bool r) { x1d0_27_renderGaps = r; }
 
+    void DoBallSwooshWarmup()
+    {
+        x1d0_26_disableUpdate = true;
+        Update(0.0);
+    }
+
     void DoElectricWarmup()
     {
         for (int i=0 ; i<x15c_swooshes.size() ; ++i)

@@ -306,17 +306,17 @@ public:
     void ApplyRadiusDamage(const CActor&, const zeus::CVector3f&, CActor&,
                            const CDamageInfo& info);
     bool TestRayDamage(const zeus::CVector3f& pos, const CActor& damagee,
-                       const rstl::reserved_vector<TUniqueId, 1024>& nearList);
+                       const rstl::reserved_vector<TUniqueId, 1024>& nearList) const;
     bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                         const CMaterialFilter& filter, const CActor& damagee);
+                         const CMaterialFilter& filter, const CActor& damagee) const;
     bool RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
                          const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                         const CMaterialFilter& filter, const CActor& damagee);
+                         const CMaterialFilter& filter, const CActor& damagee) const;
     bool RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                  const CMaterialFilter& filter,
                                  const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                 const CActor* damagee);
-    bool MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter);
+                                 const CActor* damagee) const;
+    bool MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterialFilter& filter) const;
     void TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee);
     bool ApplyLocalDamage(const zeus::CVector3f&, const zeus::CVector3f&, CActor&, float,
                           const CWeaponMode&);

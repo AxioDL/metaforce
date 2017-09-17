@@ -122,28 +122,28 @@ public:
     bool DLALeft() const {return x8_anaLeftX < -0.7f;}
     bool DLADown() const {return xc_anaLeftY < -0.7f;}
     bool DLAUp() const {return xc_anaLeftY > 0.7f;}
-    float AStart() const {return x2d_b27_Start ? 1.0 : 0.0;}
-    float AR() const {return x2c_b30_R ? 1.0 : 0.0;}
-    float AL() const {return x2c_b29_L ? 1.0 : 0.0;}
-    float AZ() const {return x2c_b28_Z ? 1.0 : 0.0;}
-    float AY() const {return x2c_b27_Y ? 1.0 : 0.0;}
-    float AX() const {return x2c_b26_X ? 1.0 : 0.0;}
-    float AB() const {return x2c_b25_B ? 1.0 : 0.0;}
-    float AA() const {return x2c_b24_A ? 1.0 : 0.0;}
-    float ADPRight() const {return x2d_b24_DPRight ? 1.0 : 0.0;}
-    float ADPLeft() const {return x2d_b26_DPLeft ? 1.0 : 0.0;}
-    float ADPDown() const {return x2d_b25_DPDown ? 1.0 : 0.0;}
-    float ADPUp() const {return x2c_b31_DPUp ? 1.0 : 0.0;}
+    float AStart() const {return x2d_b27_Start ? 1.f : 0.f;}
+    float AR() const {return x2c_b30_R ? 1.f : 0.f;}
+    float AL() const {return x2c_b29_L ? 1.f : 0.f;}
+    float AZ() const {return x2c_b28_Z ? 1.f : 0.f;}
+    float AY() const {return x2c_b27_Y ? 1.f : 0.f;}
+    float AX() const {return x2c_b26_X ? 1.f : 0.f;}
+    float AB() const {return x2c_b25_B ? 1.f : 0.f;}
+    float AA() const {return x2c_b24_A ? 1.f : 0.f;}
+    float ADPRight() const {return x2d_b24_DPRight ? 1.f : 0.f;}
+    float ADPLeft() const {return x2d_b26_DPLeft ? 1.f : 0.f;}
+    float ADPDown() const {return x2d_b25_DPDown ? 1.f : 0.f;}
+    float ADPUp() const {return x2c_b31_DPUp ? 1.f : 0.f;}
     float ARTrigger() const {return x1c_anaRightTrigger;}
     float ALTrigger() const {return x18_anaLeftTrigger;}
-    float ARARight() const {return x10_anaRightX > 0.0 ? x10_anaRightX : 0.0;}
-    float ARALeft() const {return x10_anaRightX < 0.0 ? -x10_anaRightX : 0.0;}
-    float ARADown() const {return x14_anaRightY < 0.0 ? -x14_anaRightY : 0.0;}
-    float ARAUp() const {return x14_anaRightY > 0.0 ? x14_anaRightY : 0.0;}
-    float ALARight() const {return x8_anaLeftX > 0.0 ? x8_anaLeftX : 0.0;}
-    float ALALeft() const {return x8_anaLeftX < 0.0 ? -x8_anaLeftX : 0.0;}
-    float ALADown() const {return xc_anaLeftY < 0.0 ? -xc_anaLeftY : 0.0;}
-    float ALAUp() const {return xc_anaLeftY > 0.0 ? xc_anaLeftY : 0.0;}
+    float ARARight() const {return x10_anaRightX > 0.f ? x10_anaRightX : 0.f;}
+    float ARALeft() const {return x10_anaRightX < 0.f ? -x10_anaRightX : 0.f;}
+    float ARADown() const {return x14_anaRightY < 0.f ? -x14_anaRightY : 0.f;}
+    float ARAUp() const {return x14_anaRightY > 0.f ? x14_anaRightY : 0.f;}
+    float ALARight() const {return x8_anaLeftX > 0.f ? x8_anaLeftX : 0.f;}
+    float ALALeft() const {return x8_anaLeftX < 0.f ? -x8_anaLeftX : 0.f;}
+    float ALADown() const {return xc_anaLeftY < 0.f ? -xc_anaLeftY : 0.f;}
+    float ALAUp() const {return xc_anaLeftY > 0.f ? xc_anaLeftY : 0.f;}
 
     float ALeftX() const {return x8_anaLeftX;}
     float ALeftY() const {return xc_anaLeftY;}

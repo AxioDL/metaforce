@@ -602,6 +602,7 @@ public:
     const CCollidableSphere* GetCollidableSphere() const;
     zeus::CTransform GetPrimitiveTransform() const;
     void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
+    float GetBallMaxVelocity() const;
     float GetActualBallMaxVelocity(float dt) const;
     float GetActualFirstPersonMaxVelocity(float dt) const;
     void SetMoveState(EPlayerMovementState, CStateManager& mgr);
