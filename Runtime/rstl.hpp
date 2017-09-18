@@ -30,6 +30,12 @@ protected:
     uint8_t x4_data[N][sizeof(T)];
     T& _value(std::ptrdiff_t idx) { return reinterpret_cast<T&>(x4_data[idx]); }
     const T& _value(std::ptrdiff_t idx) const { return reinterpret_cast<const T&>(x4_data[idx]); }
+    template <typename Tp>
+    static void destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value &&
+        !std::is_trivially_destructible<Tp>::value>* = 0) { t.~Tp(); }
+    template <typename Tp>
+    static void destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value ||
+        std::is_trivially_destructible<Tp>::value>* = 0) {}
 
 public:
     class const_iterator
@@ -185,7 +191,7 @@ public:
     {
         if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
             for (size_t i=0 ; i<base::x0_size ; ++i)
-                base::_value(i).~T();
+                base::destroy(base::_value(i));
     }
 
     void push_back(const T& d)
@@ -226,8 +232,7 @@ public:
             Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
 #endif
         --base::x0_size;
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            base::_value(base::x0_size).~T();
+        base::destroy(base::_value(base::x0_size));
     }
 
     iterator insert(const_iterator pos, const T& value)
@@ -292,7 +297,7 @@ public:
         {
             if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
                 for (size_t i = size; i < base::x0_size; ++i)
-                    base::_value(i).~T();
+                    base::destroy(base::_value(i));
             base::x0_size = size;
         }
     }
@@ -313,7 +318,7 @@ public:
         {
             if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
                 for (size_t i = size; i < base::x0_size; ++i)
-                    base::_value(i).~T();
+                    base::destroy(base::_value(i));
             base::x0_size = size;
         }
     }
@@ -327,8 +332,7 @@ public:
         for (auto it = base::_const_cast_iterator(pos) + 1; it != base::end(); ++it)
             *(it - 1) = std::forward<T>(*it);
         --base::x0_size;
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            base::_value(base::x0_size).~T();
+        base::destroy(base::_value(base::x0_size));
         return base::_const_cast_iterator(pos);
     }
 
@@ -336,7 +340,7 @@ public:
     {
         if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
             for (auto it = base::begin(); it != base::end(); ++it)
-                it->~T();
+                base::destroy(*it);
         base::x0_size = 0;
     }
 };
@@ -356,7 +360,7 @@ class prereserved_vector : public _reserved_vector_base<T, N>
     {
         if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
             for (auto& i : base::x4_data)
-                reinterpret_cast<T*>(std::addressof(i))->~T();
+                base::destroy(reinterpret_cast<T&>(i));
     }
 public:
     using base = _reserved_vector_base<T, N>;
