@@ -32,7 +32,7 @@ protected:
     const T& _value(std::ptrdiff_t idx) const { return reinterpret_cast<const T&>(x4_data[idx]); }
     template <typename Tp>
     static void destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value &&
-        !std::is_trivially_destructible<Tp>::value>* = 0) { t.~Tp(); }
+        !std::is_trivially_destructible<Tp>::value>* = 0) { t.Tp::~Tp(); }
     template <typename Tp>
     static void destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value ||
         std::is_trivially_destructible<Tp>::value>* = 0) {}
