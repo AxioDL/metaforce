@@ -34,6 +34,10 @@ class CRainSplashGenerator
         zeus::CVector3f x64_pos;
         float x70_ = 0.f;
         explicit SRainSplash(boo::IGraphicsDataFactory::Context& ctx);
+        SRainSplash(const SRainSplash&) = delete;
+        SRainSplash& operator=(const SRainSplash&) = delete;
+        SRainSplash(SRainSplash&&) = default;
+        SRainSplash& operator=(SRainSplash&&) = default;
         void Update(float dt, CStateManager& mgr);
         bool IsActive() const;
         void Draw(float alpha, float dt, const zeus::CVector3f& pos) const;

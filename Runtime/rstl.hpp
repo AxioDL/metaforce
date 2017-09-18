@@ -25,11 +25,18 @@ template <class T, size_t N>
 class _reserved_vector_base
 {
 protected:
+    union alignas(T) storage_t
+    {
+        struct {} _dummy;
+        T _value;
+        storage_t() : _dummy() {}
+        ~storage_t() {}
+    };
     explicit _reserved_vector_base(size_t _init_sz) : x0_size(_init_sz) {}
     size_t x0_size;
-    uint8_t x4_data[N][sizeof(T)];
-    T& _value(std::ptrdiff_t idx) { return reinterpret_cast<T&>(x4_data[idx]); }
-    const T& _value(std::ptrdiff_t idx) const { return reinterpret_cast<const T&>(x4_data[idx]); }
+    storage_t x4_data[N];
+    T& _value(std::ptrdiff_t idx) { return x4_data[idx]._value; }
+    const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]._value; }
     template <typename Tp>
     static void destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value &&
         !std::is_trivially_destructible<Tp>::value>* = 0) { t.Tp::~Tp(); }
@@ -187,6 +194,73 @@ public:
     using iterator = typename base::iterator;
     using const_iterator = typename base::const_iterator;
     reserved_vector() : base(0) {}
+
+    reserved_vector(const reserved_vector& other) : base(other.x0_size)
+    {
+        for (size_t i=0 ; i<base::x0_size ; ++i)
+            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(other.base::_value(i));
+    }
+
+    reserved_vector& operator=(const reserved_vector& other)
+    {
+        size_t i = 0;
+        if (other.base::x0_size > base::x0_size)
+        {
+            for (; i<base::x0_size ; ++i)
+                base::_value(i) = other.base::_value(i);
+            for (; i<other.base::x0_size ; ++i)
+                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(other.base::_value(i));
+        }
+        else if (other.base::x0_size < base::x0_size)
+        {
+            for (; i<other.base::x0_size ; ++i)
+                base::_value(i) = other.base::_value(i);
+            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+                for (; i<base::x0_size ; ++i)
+                    base::destroy(base::_value(i));
+        }
+        else
+        {
+            for (; i<other.base::x0_size ; ++i)
+                base::_value(i) = other.base::_value(i);
+        }
+        base::x0_size = other.base::x0_size;
+        return *this;
+    }
+
+    reserved_vector(reserved_vector&& other) : base(other.x0_size)
+    {
+        for (size_t i=0 ; i<base::x0_size ; ++i)
+            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(std::forward<T>(other.base::_value(i)));
+    }
+
+    reserved_vector& operator=(reserved_vector&& other)
+    {
+        size_t i = 0;
+        if (other.base::x0_size > base::x0_size)
+        {
+            for (; i<base::x0_size ; ++i)
+                base::_value(i) = std::forward<T>(other.base::_value(i));
+            for (; i<other.base::x0_size ; ++i)
+                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(std::forward<T>(other.base::_value(i)));
+        }
+        else if (other.base::x0_size < base::x0_size)
+        {
+            for (; i<other.base::x0_size ; ++i)
+                base::_value(i) = std::forward<T>(other.base::_value(i));
+            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+                for (; i<base::x0_size ; ++i)
+                    base::destroy(base::_value(i));
+        }
+        else
+        {
+            for (; i<other.base::x0_size ; ++i)
+                base::_value(i) = std::forward<T>(other.base::_value(i));
+        }
+        base::x0_size = other.base::x0_size;
+        return *this;
+    }
+
     ~reserved_vector()
     {
         if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
@@ -354,20 +428,50 @@ class prereserved_vector : public _reserved_vector_base<T, N>
     void _init()
     {
         for (auto& i : base::x4_data)
-            ::new (static_cast<void*>(std::addressof(i))) T;
+            ::new (static_cast<void*>(std::addressof(i._value))) T;
     }
     void _deinit()
     {
         if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
             for (auto& i : base::x4_data)
-                base::destroy(reinterpret_cast<T&>(i));
+                base::destroy(i._value);
     }
 public:
     using base = _reserved_vector_base<T, N>;
     using iterator = typename base::iterator;
     using const_iterator = typename base::const_iterator;
     prereserved_vector() : base(1) { _init(); }
+
+    prereserved_vector(const prereserved_vector& other) : base(other.x0_size)
+    {
+        for (size_t i=0 ; i<N ; ++i)
+            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(other.base::_value(i));
+    }
+
+    prereserved_vector& operator=(const prereserved_vector& other)
+    {
+        for (size_t i=0 ; i<N ; ++i)
+            base::_value(i) = other.base::_value(i);
+        base::x0_size = other.base::x0_size;
+        return *this;
+    }
+
+    prereserved_vector(prereserved_vector&& other) : base(other.x0_size)
+    {
+        for (size_t i=0 ; i<N ; ++i)
+            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(std::forward<T>(other.base::_value(i)));
+    }
+
+    prereserved_vector& operator=(prereserved_vector&& other)
+    {
+        for (size_t i=0 ; i<N ; ++i)
+            base::_value(i) = std::forward<T>(other.base::_value(i));
+        base::x0_size = other.base::x0_size;
+        return *this;
+    }
+
     ~prereserved_vector() { _deinit(); }
+
     void set_size(size_t n)
     {
         if (n <= N)
