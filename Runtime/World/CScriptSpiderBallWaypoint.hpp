@@ -9,8 +9,8 @@ class CScriptSpiderBallWaypoint : public CActor
 {
     enum class ECheckActiveWaypoint
     {
-        No,
-        Yes
+        Check,
+        SkipCheck
     };
     u32 xe8_;
     std::vector<TUniqueId> xec_waypoints;
@@ -22,10 +22,15 @@ public:
     void Render(const CStateManager& mgr) const { CActor::Render(mgr); }
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&) {}
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return xfc_aabox; }
-    void AccumulateBounds(const zeus::CVector3f&);
-    void BuildWaypointListAndBounds(CStateManager&);
-    void AddPreviousWaypoint(TUniqueId);
-    TUniqueId NextWaypoint(const CStateManager&, ECheckActiveWaypoint);
+    void AccumulateBounds(const zeus::CVector3f& v);
+    void BuildWaypointListAndBounds(CStateManager& mgr);
+    void AddPreviousWaypoint(TUniqueId uid);
+    TUniqueId PreviousWaypoint(const CStateManager& mgr, ECheckActiveWaypoint checkActive) const;
+    TUniqueId NextWaypoint(const CStateManager& mgr, ECheckActiveWaypoint checkActive) const;
+    void GetClosestPointAlongWaypoints(CStateManager& mgr, const zeus::CVector3f& ballPos,
+                                       float maxPointToBallDist, const CScriptSpiderBallWaypoint*& closestWaypoint,
+                                       zeus::CVector3f& closestPoint, zeus::CVector3f& deltaBetweenPoints,
+                                       float deltaBetweenInterpDist, zeus::CVector3f& interpDeltaBetweenPoints) const;
 };
 }
 

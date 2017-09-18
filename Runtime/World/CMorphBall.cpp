@@ -10,6 +10,8 @@
 #include "TCastTo.hpp"
 #include "Camera/CGameCamera.hpp"
 #include "Collision/CGameCollision.hpp"
+#include "CScriptSpiderBallAttractionSurface.hpp"
+#include "CScriptSpiderBallWaypoint.hpp"
 
 namespace urde
 {
@@ -386,68 +388,384 @@ bool CMorphBall::IsMovementAllowed() const
     return x1e00_ <= 0.f;
 }
 
-void CMorphBall::UpdateSpiderBall(const CFinalInput&, CStateManager&, float)
+void CMorphBall::UpdateSpiderBall(const CFinalInput& input, CStateManager& mgr, float dt)
 {
-
+    SetSpiderBallSwingingState(CheckForSwitchToSpiderBallSwinging(mgr));
+    if (x18be_spiderBallSwinging)
+        ApplySpiderBallSwingingForces(input, mgr, dt);
+    else
+        ApplySpiderBallRollForces(input, mgr, dt);
 }
 
-void CMorphBall::ApplySpiderBallSwingingForces(const CFinalInput&, CStateManager&, float)
+void CMorphBall::ApplySpiderBallSwingingForces(const CFinalInput& input, CStateManager& mgr, float dt)
 {
-
+    x18b4_ = 0.04f;
+    x18b8_ = 0.99f;
+    x1880_playerToSpiderNormal = x1890_spiderTrackPoint - x0_player.GetTranslation();
+    float playerToSpiderDist = x1880_playerToSpiderNormal.magnitude();
+    x1880_playerToSpiderNormal = x1880_playerToSpiderNormal * (-1.f / playerToSpiderDist);
+    float movement = GetSpiderBallControllerMovement(input);
+    UpdateSpiderBallSwingControllerMovementTimer(movement, dt);
+    float swingMovement = movement * GetSpiderBallSwingControllerMovementScalar();
+    float f29 = playerToSpiderDist * 110000.f / 3.7f;
+    x0_player.ApplyForceWR(
+        x1880_playerToSpiderNormal.cross(x18a8_spiderDistBetweenPoints).cross(x1880_playerToSpiderNormal).normalized() *
+        f29 * swingMovement * 0.06f, zeus::CAxisAngle::sIdentity);
+    x0_player.SetMomentumWR({0.f, 0.f, x0_player.GetMass() * g_tweakBall->GetBallGravity()});
+    x18fc_refPullVel = (1.f - x188c_spiderPullMovement) * 3.7f + 1.4f;
+    x1900_playerToSpiderTrackDist = playerToSpiderDist;
+    zeus::CVector3f playerVel = x0_player.GetVelocity();
+    float playerSpeed = playerVel.magnitude();
+    playerVel -= x1880_playerToSpiderNormal * playerSpeed * x1880_playerToSpiderNormal.dot(playerVel.normalized());
+    float maxPullVel = 0.04f;
+    if (x188c_spiderPullMovement == 1.f && std::fabs(x1880_playerToSpiderNormal.z) > 0.8f)
+        maxPullVel = 0.3f;
+    playerVel += x1880_playerToSpiderNormal *
+        zeus::clamp(-maxPullVel, x18fc_refPullVel - playerToSpiderDist, maxPullVel) / dt;
+    x0_player.SetVelocityWR(playerVel);
 }
 
-zeus::CVector3f CMorphBall::TransformSpiderBallForcesToView(const zeus::CVector2f& forces, CStateManager& mgr)
+zeus::CVector3f CMorphBall::TransformSpiderBallForcesXY(const zeus::CVector2f& forces, CStateManager& mgr)
 {
     return mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis *
         zeus::CVector3f(forces.x, forces.y, 0.f);
 }
 
-void CMorphBall::ApplySpiderBallRollForces(const CFinalInput&, CStateManager&, float)
+zeus::CVector3f CMorphBall::TransformSpiderBallForcesXZ(const zeus::CVector2f& forces, CStateManager& mgr)
 {
-
+    return mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis *
+           zeus::CVector3f(forces.x, 0.f, forces.y);
 }
 
-void CMorphBall::CalculateSpiderBallAttractionSurfaceForces(const CFinalInput&, CStateManager&,
-                                                            const zeus::CTransform&)
+void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManager& mgr, float dt)
 {
+    zeus::CVector2f surfaceForces = CalculateSpiderBallAttractionSurfaceForces(input);
+    zeus::CVector3f viewSurfaceForces = TransformSpiderBallForcesXZ(surfaceForces, mgr);
+    zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform();
+    zeus::CVector3f spiderDirNorm = x189c_spiderInterpDistBetweenPoints.normalized();
+    float upDot = std::fabs(spiderDirNorm.dot(camXf.basis[2]));
+    float foreDot = std::fabs(spiderDirNorm.dot(camXf.basis[1]));
+    if (x0_player.x9c4_29_ && upDot < 0.25f && foreDot > 0.25f)
+        viewSurfaceForces = TransformSpiderBallForcesXY(surfaceForces, mgr);
+    float forceMag = surfaceForces.magnitude();
+    zeus::CVector2f x1d0;
+    float f26 = x18c0_isSpiderSurface ? forceMag : viewSurfaceForces.dot(spiderDirNorm);
+    bool r27 = true;
+    bool r30 = false;
+    if (std::fabs(forceMag) > 0.05f)
+    {
+        x1d0 = surfaceForces.normalized();
+        if (!x18c0_isSpiderSurface && x1d0.dot(x190c_) > 0.9f)
+        {
+            f26 = x1914_ >= 0.f ? forceMag : -forceMag;
+            r30 = true;
+        }
+        else
+        {
+            if (std::fabs(f26) > 0.05f)
+                f26 = f26 >= 0.f ? forceMag : -forceMag;
+            else
+                r27 = false;
+        }
+    }
+    else
+    {
+        r27 = false;
+    }
 
+    if (!r30)
+    {
+        x190c_ = x1d0;
+        x1914_ = f26;
+        x1920_ = true;
+    }
+
+    if (!r27)
+    {
+        f26 = 0.f;
+        ResetSpiderBallForces();
+    }
+
+    bool r31 = true;
+    if (!r27 && x0_player.GetVelocity().magnitude() <= 6.5f)
+        r31 = false;
+
+    zeus::CVector3f f27;
+    if (x18bd_ && r27)
+    {
+        if (x18c0_isSpiderSurface)
+            f27 = viewSurfaceForces * 0.1f;
+        else
+            f27 = x18a8_spiderDistBetweenPoints.normalized() * 0.1f * (f26 >= 0.f ? 1.f : -1.f);
+    }
+
+    zeus::CVector3f ballPos = GetBallToWorld().origin + f27;
+    float distance = 0.f;
+    if (!(!r31 && x18bd_ && x188c_spiderPullMovement == 1.f && !x18bf_))
+    {
+        if (FindClosestSpiderBallWaypoint(mgr, ballPos, x1890_spiderTrackPoint, x189c_spiderInterpDistBetweenPoints,
+                                          x18a8_spiderDistBetweenPoints, distance, x1880_playerToSpiderNormal,
+                                          x18c0_isSpiderSurface, x18c4_spiderSurfaceTransform))
+        {
+            x18bc_ = true;
+            x18bf_ = false;
+        }
+    }
+    else
+    {
+        x1880_playerToSpiderNormal = x1890_spiderTrackPoint - ballPos;
+        distance = x1880_playerToSpiderNormal.magnitude();
+        x1880_playerToSpiderNormal = x1880_playerToSpiderNormal * (-1.f / distance);
+        x18bc_ = true;
+    }
+
+    if (x18bc_)
+    {
+        if (distance < kSpiderBallCollisionRadius)
+            x18bd_ = true;
+        if (x18bd_)
+        {
+            if (r31)
+            {
+                if (!x18c0_isSpiderSurface)
+                {
+                    x18b4_ = 0.4f;
+                    x18b8_ = 0.2f;
+                    float f2 = viewSurfaceForces.dot(x189c_spiderInterpDistBetweenPoints.normalized());
+                    if (r30 && x1920_)
+                    {
+                        f2 = x1918_;
+                    }
+                    else
+                    {
+                        x1918_ = f2;
+                        x1920_ = false;
+                    }
+                    float f25;
+                    if (std::fabs(f2) > 0.1f)
+                    {
+                        f25 = std::copysign(zeus::clamp(-1.f, forceMag, 1.f), f2);
+                    }
+                    else
+                    {
+                        f25 = 0.f;
+                        ResetSpiderBallForces();
+                    }
+                    if (distance > 1.05f)
+                        f25 *= (1.05f - (distance - 1.05f)) / 1.05f;
+                    x0_player.ApplyForceWR(x18a8_spiderDistBetweenPoints.normalized() * 90000.f * f25,
+                                           zeus::CAxisAngle::sIdentity);
+                }
+                else
+                {
+                    x18b4_ = 0.3f;
+                    x18b8_ = 0.2f;
+                    float f31 = x18c4_spiderSurfaceTransform.basis[0].dot(viewSurfaceForces);
+                    float f30 = x18c4_spiderSurfaceTransform.basis[2].dot(viewSurfaceForces);
+                    zeus::CVector3f forceVec = (f31 * x18c4_spiderSurfaceTransform.basis[0] +
+                                                f30 * x18c4_spiderSurfaceTransform.basis[2]) * 45000.f;
+                    x0_player.ApplyForceWR(forceVec, zeus::CAxisAngle::sIdentity);
+                    if (forceVec.magSquared() > 0.f)
+                    {
+                        float angle = std::atan2(45000.f * f31, 45000.f * f30);
+                        if (angle - x18f4_ > M_PIF / 2.f)
+                            angle = angle - M_PIF;
+                        else if (x18f4_ - angle > M_PIF / 2.f)
+                            angle = angle + M_PIF;
+                        x18f8_ = angle;
+                    }
+                    x18f4_ += std::copysign(std::min(std::fabs(x18f8_ - x18f4_), 0.2f), x18f8_ - x18f4_);
+                    x189c_spiderInterpDistBetweenPoints =
+                        x18c4_spiderSurfaceTransform.rotate(zeus::CTransform::RotateY(x18f4_).basis[2]);
+                }
+            }
+            x0_player.ApplyForceWR({0.f, 0.f,
+            g_tweakBall->GetBallGravity() * x0_player.GetMass() * 8.f * (1.f - x188c_spiderPullMovement)},
+                zeus::CAxisAngle::sIdentity);
+        }
+        else
+        {
+            x18b4_ = 0.2f;
+            x18b8_ = 0.2f;
+        }
+        x0_player.SetMomentumWR(4.f * x0_player.GetMass() * g_tweakBall->GetBallGravity() * x1880_playerToSpiderNormal);
+    }
 }
 
-void CMorphBall::CheckForSwitchToSpiderBallSwinging(CStateManager&)
+zeus::CVector2f CMorphBall::CalculateSpiderBallAttractionSurfaceForces(const CFinalInput& input) const
 {
+    if (!IsMovementAllowed())
+        return zeus::CVector2f();
 
+    return {ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnRight, input) -
+            ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnLeft, input),
+            ControlMapper::GetAnalogInput(ControlMapper::ECommands::Forward, input) -
+            ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input)};
 }
 
-void CMorphBall::FindClosestSpiderBallWaypoint(CStateManager&, const zeus::CVector3f&, zeus::CVector3f&,
-                                               zeus::CVector3f&, zeus::CVector3f&, float&, zeus::CVector3f&, bool&,
-                                               zeus::CTransform&) const
+bool CMorphBall::CheckForSwitchToSpiderBallSwinging(CStateManager& mgr) const
 {
+    if (!x18bd_)
+        return false;
 
+    if (x188c_spiderPullMovement == 1.f)
+    {
+        if (x18be_spiderBallSwinging)
+        {
+            zeus::CTransform ballToWorld = GetBallToWorld();
+            zeus::CVector3f closestPoint, interpDeltaBetweenPoints, deltaBetweenPoints, normal;
+            float distance = 0.f;
+            bool isSurface;
+            zeus::CTransform surfaceTransform;
+            return !(FindClosestSpiderBallWaypoint(mgr, ballToWorld.origin, closestPoint, interpDeltaBetweenPoints,
+                                                   deltaBetweenPoints, distance, normal, isSurface, surfaceTransform)
+                     && distance < 2.1f);
+        }
+        return false;
+    }
+
+    if (x18be_spiderBallSwinging)
+        return true;
+
+    return std::fabs(x1880_playerToSpiderNormal.z) > 0.9f;
 }
 
-void CMorphBall::SetSpiderBallSwingingState(bool)
+bool CMorphBall::FindClosestSpiderBallWaypoint(CStateManager& mgr, const zeus::CVector3f& ballCenter,
+                                               zeus::CVector3f& closestPoint,
+                                               zeus::CVector3f& interpDeltaBetweenPoints,
+                                               zeus::CVector3f& deltaBetweenPoints, float& distance,
+                                               zeus::CVector3f& normal, bool& isSurface,
+                                               zeus::CTransform& surfaceTransform) const
 {
+    bool ret = false;
+    zeus::CAABox aabb(ballCenter - 2.1f, ballCenter + 2.1f);
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, nullptr);
+    float minDist = 2.1f;
 
+    for (TUniqueId id : nearList)
+    {
+        if (TCastToConstPtr<CScriptSpiderBallAttractionSurface> surface = mgr.GetObjectById(id))
+        {
+            zeus::CUnitVector3f surfaceNorm(surface->GetTransform().basis[1]);
+            zeus::CPlane plane(surfaceNorm, surface->GetTranslation().dot(surfaceNorm));
+            zeus::CVector3f intersectPoint;
+            if (plane.rayPlaneIntersection(ballCenter + surfaceNorm * 2.1f,
+                                           ballCenter - surfaceNorm * 2.1f, intersectPoint))
+            {
+                zeus::CVector3f halfScale = surface->GetScale() * 0.5f;
+                zeus::CVector3f localPoint = zeus::CTransform::Scale(1.f / halfScale) *
+                    surface->GetTransform().inverse() * intersectPoint;
+                localPoint.x = zeus::clamp(-1.f, localPoint.x, 1.f);
+                localPoint.z = zeus::clamp(-1.f, localPoint.z, 1.f);
+                zeus::CVector3f worldPoint = surface->GetTransform() * zeus::CTransform::Scale(halfScale) * localPoint;
+                zeus::CVector3f finalDelta = worldPoint - ballCenter;
+                float finalMag = finalDelta.magnitude();
+                if (finalMag < minDist)
+                {
+                    minDist = finalMag;
+                    closestPoint = worldPoint;
+                    distance = finalMag;
+                    normal = finalDelta * (-1.f / finalMag);
+                    isSurface = true;
+                    surfaceTransform = surface->GetTransform();
+                    ret = true;
+                }
+            }
+        }
+    }
+
+    for (TUniqueId id : nearList)
+    {
+        if (TCastToConstPtr<CScriptSpiderBallWaypoint> wp = mgr.GetObjectById(id))
+        {
+            const CScriptSpiderBallWaypoint* closestWp = nullptr;
+            zeus::CVector3f worldPoint;
+            zeus::CVector3f useDeltaBetweenPoints = deltaBetweenPoints;
+            zeus::CVector3f useInterpDeltaBetweenPoints = interpDeltaBetweenPoints;
+            wp->GetClosestPointAlongWaypoints(mgr, ballCenter, 2.1f, closestWp, worldPoint, useDeltaBetweenPoints,
+                                              0.8f, useInterpDeltaBetweenPoints);
+            if (closestWp)
+            {
+                zeus::CVector3f ballToPoint = worldPoint - ballCenter;
+                float ballToPointMag = ballToPoint.magnitude();
+                if (ballToPointMag < minDist)
+                {
+                    minDist = ballToPointMag;
+                    closestPoint = worldPoint;
+                    interpDeltaBetweenPoints = useInterpDeltaBetweenPoints;
+                    deltaBetweenPoints = useDeltaBetweenPoints;
+                    distance = ballToPointMag;
+                    normal = ballToPoint * (-1.f / ballToPointMag);
+                    isSurface = false;
+                    ret = true;
+                }
+            }
+        }
+    }
+
+    return ret;
 }
 
-void CMorphBall::GetSpiderBallControllerMovement(const CFinalInput&, bool, bool)
+void CMorphBall::SetSpiderBallSwingingState(bool active)
 {
+    if (x18be_spiderBallSwinging != active)
+    {
+        ResetSpiderBallSwingControllerMovementTimer();
+        x18bf_ = true;
+    }
+    x18be_spiderBallSwinging = active;
+}
 
+float CMorphBall::GetSpiderBallControllerMovement(const CFinalInput& input) const
+{
+    if (!IsMovementAllowed())
+        return 0.f;
+
+    float forward = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Forward, input) -
+                    ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input);
+    float turn = ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnRight, input) -
+                 ControlMapper::GetAnalogInput(ControlMapper::ECommands::TurnLeft, input);
+    float angle = zeus::radToDeg(std::atan2(forward, turn));
+    float hyp = std::sqrt(forward * forward + turn * turn);
+    if (angle > -35.f && angle < 125.f)
+        return hyp;
+    if (angle < -55.f || angle > 145.f)
+        return -hyp;
+    return 0.f;
 }
 
 void CMorphBall::ResetSpiderBallSwingControllerMovementTimer()
 {
-
+    x1904_swingControlDir = 0.f;
+    x1908_swingControlTime = 0.f;
 }
 
-void CMorphBall::UpdateSpiderBallSwingControllerMovementTimer(float, float)
+void CMorphBall::UpdateSpiderBallSwingControllerMovementTimer(float movement, float dt)
 {
-
+    if (std::fabs(movement) < 0.05f)
+    {
+        ResetSpiderBallSwingControllerMovementTimer();
+    }
+    else
+    {
+        if ((movement >= 0.f ? 1.f : -1.f) != x1904_swingControlDir)
+        {
+            ResetSpiderBallSwingControllerMovementTimer();
+            x1904_swingControlDir = (movement >= 0.f ? 1.f : -1.f);
+        }
+        else
+        {
+            x1908_swingControlTime += dt;
+        }
+    }
 }
 
 float CMorphBall::GetSpiderBallSwingControllerMovementScalar() const
 {
-    return 0.f;
+    if (x1908_swingControlTime < 1.2f)
+        return 1.f;
+    return std::max(0.f, (2.4f - x1908_swingControlTime) / 1.2f);
 }
 
 void CMorphBall::CreateSpiderBallParticles(const zeus::CVector3f&, const zeus::CVector3f&)
@@ -470,15 +788,16 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
     if (!IsMovementAllowed())
         return;
 
-    x188c_ = (ControlMapper::GetAnalogInput(ControlMapper::ECommands::SpiderBall, input) >= 0.5f / 100.f) ? 1.f : 0.f;
+    x188c_spiderPullMovement =
+        (ControlMapper::GetAnalogInput(ControlMapper::ECommands::SpiderBall, input) >= 0.5f / 100.f) ? 1.f : 0.f;
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::SpiderBall) &&
-        x188c_ != 0.f && x191c_damageTimer == 0.f)
+        x188c_spiderPullMovement != 0.f && x191c_damageTimer == 0.f)
     {
         if (x187c_spiderBallState != ESpiderBallState::Active)
         {
             x18bd_ = false;
             x187c_spiderBallState = ESpiderBallState::Active;
-            x18a8_initialSpiderBallUp = x189c_spiderBallDir = x0_player.GetTransform().basis[2];
+            x18a8_spiderDistBetweenPoints = x189c_spiderInterpDistBetweenPoints = x0_player.GetTransform().basis[2];
         }
         UpdateSpiderBall(input, mgr, dt);
 
@@ -540,7 +859,8 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
             zeus::CVector3f controlForce = controlXf.rotate({0.f, f28f, 0.f}) + controlXf.rotate({f27f, 0.f, 0.f});
             x1c_ = controlForce;
             if (x1de4_24 && !GetIsInHalfPipeMode())
-                controlForce = x1924_surfaceToWorld.rotate({x1924_surfaceToWorld.transposeRotate(controlForce).x, 0.f, 0.f});
+                controlForce =
+                    x1924_surfaceToWorld.rotate({x1924_surfaceToWorld.transposeRotate(controlForce).x, 0.f, 0.f});
 
             if (GetIsInHalfPipeMode() && controlForce.magnitude() > FLT_EPSILON)
             {
@@ -642,8 +962,8 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt)
     x191c_damageTimer = std::max(0.f, x191c_damageTimer);
     if (x187c_spiderBallState == ESpiderBallState::Active)
     {
-        x1924_surfaceToWorld = CalculateSurfaceToWorld(x1880_spiderTrackNormal,
-                                                       x1890_spiderTrackPoint, x189c_spiderBallDir);
+        x1924_surfaceToWorld = CalculateSurfaceToWorld(x1880_playerToSpiderNormal,
+                                                       x1890_spiderTrackPoint, x189c_spiderInterpDistBetweenPoints);
         x2c_tireLeanAngle = 0.f;
         if (!x28_tireMode)
             SwitchToTire();

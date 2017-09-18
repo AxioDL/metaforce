@@ -64,25 +64,25 @@ private:
     CCollisionInfoList x74_collisionInfos;
     u32 xc78_ = 0;
     ESpiderBallState x187c_spiderBallState = ESpiderBallState::Inactive;
-    zeus::CVector3f x1880_spiderTrackNormal;
-    float x188c_ = 1.f;
+    zeus::CVector3f x1880_playerToSpiderNormal;
+    float x188c_spiderPullMovement = 1.f;
     zeus::CVector3f x1890_spiderTrackPoint;
-    zeus::CVector3f x189c_spiderBallDir;
-    zeus::CVector3f x18a8_initialSpiderBallUp;
+    zeus::CVector3f x189c_spiderInterpDistBetweenPoints;
+    zeus::CVector3f x18a8_spiderDistBetweenPoints;
     float x18b4_ = 0.f;
     float x18b8_ = 0.f;
     bool x18bc_ = false;
     bool x18bd_ = false;
-    bool x18be_ = false;
+    bool x18be_spiderBallSwinging = false;
     bool x18bf_ = true;
-    bool x18c0_ = false;
-    zeus::CTransform x18c4_;
+    bool x18c0_isSpiderSurface = false;
+    zeus::CTransform x18c4_spiderSurfaceTransform;
     float x18f4_ = 0.f;
     float x18f8_ = 0.f;
-    float x18fc_ = 0.f;
-    float x1900_ = 0.f;
-    float x1904_ = 0.f;
-    float x1908_ = 0.f;
+    float x18fc_refPullVel = 0.f;
+    float x1900_playerToSpiderTrackDist = 0.f;
+    float x1904_swingControlDir = 0.f;
+    float x1908_swingControlTime = 0.f;
     zeus::CVector2f x190c_;
     float x1914_ = 0.f;
     float x1918_ = 0.f;
@@ -171,7 +171,8 @@ private:
     static std::unique_ptr<CModelData> GetMorphBallModel(const char* name, float radius);
     void SelectMorphBallSounds(const CMaterialList& mat);
     void UpdateMorphBallSounds(float dt);
-    static zeus::CVector3f TransformSpiderBallForcesToView(const zeus::CVector2f& forces, CStateManager& mgr);
+    static zeus::CVector3f TransformSpiderBallForcesXY(const zeus::CVector2f& forces, CStateManager& mgr);
+    static zeus::CVector3f TransformSpiderBallForcesXZ(const zeus::CVector2f& forces, CStateManager& mgr);
     void ResetSpiderBallForces();
 public:
     CMorphBall(CPlayer& player, float radius);
@@ -188,19 +189,21 @@ public:
     float BallTurnInput(const CFinalInput& input) const;
     void ComputeBallMovement(const CFinalInput& input, CStateManager& mgr, float dt);
     bool IsMovementAllowed() const;
-    void UpdateSpiderBall(const CFinalInput&, CStateManager&, float);
-    void ApplySpiderBallSwingingForces(const CFinalInput&, CStateManager&, float);
-    void ApplySpiderBallRollForces(const CFinalInput&, CStateManager&, float);
-    void CalculateSpiderBallAttractionSurfaceForces(const CFinalInput&, CStateManager&,
-                                                    const zeus::CTransform&);
-    void CheckForSwitchToSpiderBallSwinging(CStateManager&);
-    void FindClosestSpiderBallWaypoint(CStateManager&, const zeus::CVector3f&, zeus::CVector3f&,
-                                       zeus::CVector3f&, zeus::CVector3f&, float&, zeus::CVector3f&, bool&,
-                                       zeus::CTransform&) const;
-    void SetSpiderBallSwingingState(bool);
-    void GetSpiderBallControllerMovement(const CFinalInput&, bool, bool);
+    void UpdateSpiderBall(const CFinalInput& input, CStateManager& mgr, float dt);
+    void ApplySpiderBallSwingingForces(const CFinalInput& input, CStateManager& mgr, float dt);
+    void ApplySpiderBallRollForces(const CFinalInput& input, CStateManager& mgr, float dt);
+    zeus::CVector2f CalculateSpiderBallAttractionSurfaceForces(const CFinalInput& input) const;
+    bool CheckForSwitchToSpiderBallSwinging(CStateManager& mgr) const;
+    bool FindClosestSpiderBallWaypoint(CStateManager& mgr, const zeus::CVector3f& ballCenter,
+                                       zeus::CVector3f& closestPoint,
+                                       zeus::CVector3f& interpDeltaBetweenPoints,
+                                       zeus::CVector3f& deltaBetweenPoints, float& distance,
+                                       zeus::CVector3f& normal, bool& isSurface,
+                                       zeus::CTransform& surfaceTransform) const;
+    void SetSpiderBallSwingingState(bool active);
+    float GetSpiderBallControllerMovement(const CFinalInput& input) const;
     void ResetSpiderBallSwingControllerMovementTimer();
-    void UpdateSpiderBallSwingControllerMovementTimer(float, float);
+    void UpdateSpiderBallSwingControllerMovementTimer(float movement, float dt);
     float GetSpiderBallSwingControllerMovementScalar() const;
     void CreateSpiderBallParticles(const zeus::CVector3f&, const zeus::CVector3f&);
     void ComputeMarioMovement(const CFinalInput& input, CStateManager& mgr, float dt);

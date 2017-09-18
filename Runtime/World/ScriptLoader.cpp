@@ -61,6 +61,7 @@
 #include "CScriptWater.hpp"
 #include "CScriptWaypoint.hpp"
 #include "CScriptWorldTeleporter.hpp"
+#include "CScriptSpiderBallAttractionSurface.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "CVisorParameters.hpp"
@@ -1450,7 +1451,12 @@ CEntity* ScriptLoader::LoadDebugCameraWaypoint(CStateManager& mgr, CInputStream&
 CEntity* ScriptLoader::LoadSpiderBallAttractionSurface(CStateManager& mgr, CInputStream& in, int propCount,
                                                        const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 5, "SpiderBallAttractionSurface"))
+        return nullptr;
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    bool active = in.readBool();
+    return new CScriptSpiderBallAttractionSurface(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
+                                                  aHead.x40_scale, active);
 }
 
 CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

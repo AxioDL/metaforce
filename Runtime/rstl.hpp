@@ -183,7 +183,7 @@ public:
     ~reserved_vector()
     {
         for (size_t i=0 ; i<base::x0_size ; ++i)
-            std::default_delete<T>()(std::addressof(base::_value(i)));
+            base::_value(i).~T();
     }
 
     void push_back(const T& d)
@@ -224,7 +224,7 @@ public:
             Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
 #endif
         --base::x0_size;
-        std::default_delete<T>()(std::addressof(base::_value(base::x0_size)));
+        base::_value(base::x0_size).~T();
     }
 
     iterator insert(const_iterator pos, const T& value)
@@ -288,7 +288,7 @@ public:
         else if (size < base::x0_size)
         {
             for (size_t i = size; i < base::x0_size; ++i)
-                std::default_delete<T>()(std::addressof(base::_value(i)));
+                base::_value(i).~T();
             base::x0_size = size;
         }
     }
@@ -308,7 +308,7 @@ public:
         else if (size < base::x0_size)
         {
             for (size_t i = size; i < base::x0_size; ++i)
-                std::default_delete<T>()(std::addressof(base::_value(i)));
+                base::_value(i).~T();
             base::x0_size = size;
         }
     }
@@ -322,14 +322,14 @@ public:
         for (auto it = base::_const_cast_iterator(pos) + 1; it != base::end(); ++it)
             *(it - 1) = std::forward<T>(*it);
         --base::x0_size;
-        std::default_delete<T>()(std::addressof(base::_value(base::x0_size)));
+        base::_value(base::x0_size).~T();
         return base::_const_cast_iterator(pos);
     }
 
     void clear()
     {
         for (auto it = base::begin(); it != base::end(); ++it)
-            std::default_delete<T>()(std::addressof(*it));
+            it->~T();
         base::x0_size = 0;
     }
 };
@@ -348,7 +348,7 @@ class prereserved_vector : public _reserved_vector_base<T, N>
     void _deinit()
     {
         for (auto& i : base::x4_data)
-            std::default_delete<T>()(reinterpret_cast<T*>(std::addressof(i)));
+            reinterpret_cast<T*>(std::addressof(i))->~T();
     }
 public:
     using base = _reserved_vector_base<T, N>;
