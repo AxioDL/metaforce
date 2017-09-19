@@ -38,6 +38,7 @@ bool CSfxManager::m_auxProcessingEnabled = false;
 float CSfxManager::m_reverbAmount = 1.f;
 CSfxManager::EAuxEffect CSfxManager::m_activeEffect = CSfxManager::EAuxEffect::None;
 CSfxManager::EAuxEffect CSfxManager::m_nextEffect = CSfxManager::EAuxEffect::None;
+std::shared_ptr<amuse::Listener> CSfxManager::m_listener;
 
 u16 CSfxManager::kMaxPriority;
 u16 CSfxManager::kMedPriority;
@@ -132,7 +133,7 @@ void CSfxManager::CSfxEmitterWrapper::Play()
         x24_parmData.x0_pos.v, x24_parmData.xc_dir.v,
         x24_parmData.x18_maxDist, x24_parmData.x1c_distComp,
         x24_parmData.x24_sfxId, x24_parmData.x27_minVol,
-        x24_parmData.x26_maxVol);
+        x24_parmData.x26_maxVol, (x24_parmData.x20_flags & 0x8) != 0);
 
     if (x50_emitterHandle)
         SetPlaying(true);
@@ -176,16 +177,14 @@ u16 CSfxManager::CSfxEmitterWrapper::GetSfxId() const
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitterSilent()
 {
-    x50_emitterHandle->setPos(x24_parmData.x0_pos.v);
-    x50_emitterHandle->setDir(x24_parmData.xc_dir.v);
+    x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
     x50_emitterHandle->setMaxVol(1.f / 127.f);
     x55_cachedMaxVol = x24_parmData.x26_maxVol;
 }
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitter()
 {
-    x50_emitterHandle->setPos(x24_parmData.x0_pos.v);
-    x50_emitterHandle->setDir(x24_parmData.xc_dir.v);
+    x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
     x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
 }
 
@@ -264,17 +263,27 @@ void CSfxManager::TurnOffChannel(ESfxChannels chan)
     }
 }
 
-void CSfxManager::AddListener(ESfxChannels,
-                              const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,
-                              const zeus::CVector3f& right, const zeus::CVector3f& up,
-                              float, float, float, u32, u8)
+void CSfxManager::AddListener(ESfxChannels channel,
+                              const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                              const zeus::CVector3f& heading, const zeus::CVector3f& up,
+                              float frontRadius, float surroundRadius, float soundSpeed,
+                              u32 flags /* 0x1 for doppler */, float vol)
 {
+    if (m_listener)
+        CAudioSys::GetAmuseEngine().removeListener(m_listener.get());
+    m_listener = CAudioSys::GetAmuseEngine().addListener(pos.v, dir.v, heading.v, up.v, frontRadius,
+                                                         surroundRadius, soundSpeed, vol);
 }
 
 void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                  const zeus::CVector3f& heading, const zeus::CVector3f& up,
-                                 u8 vol)
+                                 float vol)
 {
+    if (m_listener)
+    {
+        m_listener->setVectors(pos.v, dir.v, heading.v, up.v);
+        m_listener->setVolume(vol);
+    }
 }
 
 s16 CSfxManager::GetRank(CBaseSfxWrapper* sfx)
@@ -418,8 +427,7 @@ void CSfxManager::UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f&
     emitter.GetEmitterData().xc_dir = dir;
     emitter.GetEmitterData().x26_maxVol = maxVol;
     amuse::Emitter& h = *emitter.GetHandle();
-    h.setPos(pos.v);
-    h.setDir(dir.v);
+    h.setVectors(pos.v, dir.v);
     h.setMaxVol(maxVol);
 }
 

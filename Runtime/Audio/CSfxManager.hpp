@@ -189,6 +189,7 @@ public:
     static float m_reverbAmount;
     static EAuxEffect m_activeEffect;
     static EAuxEffect m_nextEffect;
+    static std::shared_ptr<amuse::Listener> m_listener;
 
     static u16 kMaxPriority;
     static u16 kMedPriority;
@@ -202,14 +203,14 @@ public:
     static void TurnOnChannel(ESfxChannels);
     static void TurnOffChannel(ESfxChannels);
     static ESfxChannels GetCurrentChannel() {return m_currentChannel;}
-    static void AddListener(ESfxChannels,
+    static void AddListener(ESfxChannels channel,
                             const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                             const zeus::CVector3f& heading, const zeus::CVector3f& up,
                             float frontRadius, float surroundRadius, float soundSpeed,
-                            u32 flags /* 0x1 for doppler */, u8 vol);
+                            u32 flags /* 0x1 for doppler */, float vol);
     static void UpdateListener(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                const zeus::CVector3f& heading, const zeus::CVector3f& up,
-                               u8 vol);
+                               float vol);
 
     static bool PlaySound(const CSfxHandle& handle);
     static void StopSound(const CSfxHandle& handle);

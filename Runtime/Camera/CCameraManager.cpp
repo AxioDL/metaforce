@@ -29,7 +29,7 @@ float CCameraManager::sThirdPersonFOV = 60.f;
 CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId)
 {
     CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
-                             {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 0x7f);
+                             {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 1.f);
     sAspect = float(g_Viewport.x8_width / g_Viewport.xc_height);
     sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
 }
@@ -257,7 +257,7 @@ void CCameraManager::UpdateRumble(float, CStateManager&)
 void CCameraManager::UpdateListener(CStateManager& mgr)
 {
     const zeus::CTransform xf = GetCurrentCameraTransform(mgr);
-    CSfxManager::UpdateListener(xf.origin, zeus::CVector3f::skZero, xf.frontVector(), xf.upVector(), 127);
+    CSfxManager::UpdateListener(xf.origin, zeus::CVector3f::skZero, xf.frontVector(), xf.upVector(), 1.f);
 }
 
 float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water)
