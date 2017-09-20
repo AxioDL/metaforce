@@ -768,9 +768,25 @@ float CMorphBall::GetSpiderBallSwingControllerMovementScalar() const
     return std::max(0.f, (2.4f - x1908_swingControlTime) / 1.2f);
 }
 
-void CMorphBall::CreateSpiderBallParticles(const zeus::CVector3f&, const zeus::CVector3f&)
+void CMorphBall::CreateSpiderBallParticles(const zeus::CVector3f& ballPos, const zeus::CVector3f& trackPoint)
 {
-
+    x19d4_spiderBallMagnetEffectGen->SetParticleEmission(true);
+    zeus::CVector3f ballToTrack = trackPoint - ballPos;
+    float ballToTrackMag = ballToTrack.magnitude();
+    int subCount = int(ballToTrackMag / 0.2f + 1.f);
+    ballToTrack = ballToTrack * (1.f / float(subCount));
+    int count = int(8.f * (ballToTrackMag / 2.1f));
+    for (int i=count ; i>=0 ; --i)
+    {
+        zeus::CVector3f translation = ballPos;
+        for (int j=0 ; j<subCount ; ++j)
+        {
+            x19d4_spiderBallMagnetEffectGen->SetTranslation(translation);
+            x19d4_spiderBallMagnetEffectGen->ForceParticleCreation(1);
+            translation += ballToTrack;
+        }
+    }
+    x19d4_spiderBallMagnetEffectGen->SetParticleEmission(false);
 }
 
 void CMorphBall::ResetSpiderBallForces()

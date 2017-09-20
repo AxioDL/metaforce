@@ -205,7 +205,7 @@ public:
     void ResetSpiderBallSwingControllerMovementTimer();
     void UpdateSpiderBallSwingControllerMovementTimer(float movement, float dt);
     float GetSpiderBallSwingControllerMovementScalar() const;
-    void CreateSpiderBallParticles(const zeus::CVector3f&, const zeus::CVector3f&);
+    void CreateSpiderBallParticles(const zeus::CVector3f& ballPos, const zeus::CVector3f& trackPoint);
     void ComputeMarioMovement(const CFinalInput& input, CStateManager& mgr, float dt);
     void SetSpiderBallState(ESpiderBallState state) { x187c_spiderBallState = state; }
     zeus::CTransform GetSwooshToWorld() const;
