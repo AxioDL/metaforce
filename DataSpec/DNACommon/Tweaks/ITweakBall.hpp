@@ -13,6 +13,7 @@ struct ITweakBall : ITweak
     virtual float GetBallForwardBrakingAcceleration(int s) const=0;
     virtual float GetBallGravity() const=0;
     virtual float GetBallWaterGravity() const=0;
+    virtual float GetMinimumAlignmentSpeed() const=0;
     virtual float GetMaxLeanAngle() const=0;
     virtual float GetTireToMarbleThresholdSpeed() const=0;
     virtual float GetMarbleToTireThresholdSpeed() const=0;
@@ -26,6 +27,8 @@ struct ITweakBall : ITweak
     virtual float GetBoostBallMaxChargeTime() const=0;
     virtual float GetBoostBallMinChargeTime() const=0;
     virtual float GetBoostBallMinRelativeSpeedForDamage() const=0;
+    virtual float GetBoostBallChargeTimeTable(int i) const=0;
+    virtual float GetBoostBallIncrementalSpeedTable(int i) const=0;
 };
 }
 

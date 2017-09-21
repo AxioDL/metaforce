@@ -2360,10 +2360,10 @@ void CPlayer::ResetPlayerHintState()
     x9c4_30_controlDirOverride = false;
     x9c6_24_extendTargetDistance = false;
     x9c6_26_outOfBallLookAtHint = false;
-    x9c4_29_ = false;
+    x9c4_29_spiderBallControlXY = false;
     x9c6_29_disableInput = false;
     x9c7_25_outOfBallLookAtHintActor = false;
-    x768_morphball->SetX1DE4_25(true);
+    x768_morphball->SetBoostEnabed(true);
     ResetControlDirectionInterpolation();
 }
 
@@ -2377,10 +2377,10 @@ bool CPlayer::SetAreaPlayerHint(const CScriptPlayerHint& hint, CStateManager& mg
         x9d8_controlDirOverrideDir = hint.GetTransform().basis[1];
     x9c6_24_extendTargetDistance = (hint.GetOverrideFlags() & 0x4) != 0;
     x9c6_26_outOfBallLookAtHint = (hint.GetOverrideFlags() & 0x8) != 0;
-    x9c4_29_ = (hint.GetOverrideFlags() & 0x10) != 0;
+    x9c4_29_spiderBallControlXY = (hint.GetOverrideFlags() & 0x10) != 0;
     x9c6_29_disableInput = (hint.GetOverrideFlags() & 0x80) != 0;
     x9c7_25_outOfBallLookAtHintActor = (hint.GetOverrideFlags() & 0x4000) != 0;
-    x768_morphball->SetX1DE4_25((hint.GetOverrideFlags() & 0x100) == 0);
+    x768_morphball->SetBoostEnabed((hint.GetOverrideFlags() & 0x100) == 0);
     bool switchedVisor = false;
     if ((hint.GetOverrideFlags() & 0x200) != 0)
     {

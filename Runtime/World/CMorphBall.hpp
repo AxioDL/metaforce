@@ -45,7 +45,7 @@ public:
     };
 private:
     CPlayer& x0_player;
-    s32 x4_ = -1;
+    s32 x4_loadedModelId = -1;
     u32 x8_ballGlowColorIdx = 0;
     float xc_radius;
     zeus::CVector3f x10_;
@@ -137,8 +137,8 @@ private:
     u32 x1dc8_ = 0;
     zeus::CVector3f x1dcc_;
     zeus::CVector3f x1dd8_;
-    bool x1de4_24 : 1;
-    bool x1de4_25 : 1;
+    bool x1de4_24_inBoost : 1;
+    bool x1de4_25_boostEnabled : 1;
     float x1de8_boostChargeTime = 0.f;
     float x1dec_ = 0.f;
     float x1df0_ = 0.f;
@@ -152,7 +152,7 @@ private:
     float x1e04_ = 0.f;
     zeus::CVector3f x1e08_;
     zeus::CVector3f x1e14_;
-    u32 x1e20_ = 0;
+    u32 x1e20_ballAnimIdx = 0;
     CSfxHandle x1e24_boostSfxHandle;
     CSfxHandle x1e28_wallHitSfxHandle;
     CSfxHandle x1e2c_rollSfxHandle;
@@ -229,20 +229,18 @@ public:
     void CancelBoosting();
     bool UpdateMarbleDynamics(CStateManager& mgr, float dt, const zeus::CVector3f& point);
     void ApplyFriction(float);
-    void DampLinearAndAngularVelocities(float, float);
-    zeus::CTransform GetPrimitiveTransform() const;
-    void DrawCollisionPrimitive() const;
-    void GetMinimumAlignmentSpeed() const;
+    void DampLinearAndAngularVelocities(float linDamp, float angDamp);
+    float GetMinimumAlignmentSpeed() const;
     void PreRender(CStateManager&, const zeus::CFrustum&);
     void Render(const CStateManager&, const CActorLights*) const;
     void ResetMorphBallTransitionFlash();
-    void UpdateMorphBallTransitionFlash(float);
+    void UpdateMorphBallTransitionFlash(float dt);
     void RenderMorphBallTransitionFlash(const CStateManager&) const;
     void UpdateIceBreakEffect(float dt);
     void RenderIceBreakEffect(const CStateManager& mgr) const;
     bool IsMorphBallTransitionFlashValid() const { return x19dc_morphBallTransitionFlashGen != 0; }
-    void RenderDamageEffects(const CStateManager&, const zeus::CTransform&) const;
-    void UpdateHalfPipeStatus(CStateManager&, float);
+    void RenderDamageEffects(const CStateManager& mgr, const zeus::CTransform& xf) const;
+    void UpdateHalfPipeStatus(CStateManager& mgr, float dt);
     bool GetIsInHalfPipeMode() const { return x1df8_24_inHalfPipeMode; }
     void SetIsInHalfPipeMode(bool b) { x1df8_24_inHalfPipeMode = b; }
     bool GetIsInHalfPipeModeInAir() const { return x1df8_25_inHalfPipeModeInAir; }
@@ -261,7 +259,6 @@ public:
     void Touch(CActor& actor, CStateManager& mgr);
     bool IsClimbable(const CCollisionInfo& cinfo) const;
     void FluidFXThink(CActor::EFluidState, CScriptWater&, CStateManager&);
-    void GetMorphBallModel(const std::string&, float);
     void LoadMorphBallModel(CStateManager& mgr);
     void AddSpiderBallElectricalEffect();
     void UpdateSpiderBallElectricalEffects();
@@ -285,8 +282,8 @@ public:
     void StopEffects();
     CModelData& GetMorphballModelData() const { return *x58_ballModel; }
     u32 GetMorphballModelShader() const { return x5c_ballModelShader; }
-    bool GetX1DE4_25() const { return x1de4_25; }
-    void SetX1DE4_25(bool b) { x1de4_25 = b; }
+    bool GetBoostEnabled() const { return x1de4_25_boostEnabled; }
+    void SetBoostEnabed(bool b) { x1de4_25_boostEnabled = b; }
 
     static const u8 BallTransFlashColors[9][3];
 };

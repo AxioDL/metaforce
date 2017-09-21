@@ -89,8 +89,8 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x150_ = __dna_reader.readFloatBig();
     /* x158_ */
     x158_ = __dna_reader.readFloatBig();
-    /* x1dc_ */
-    x1dc_ = __dna_reader.readFloatBig();
+    /* x1dc_minimumAlignmentSpeed */
+    x1dc_minimumAlignmentSpeed = __dna_reader.readFloatBig();
     /* x1e0_ */
     x1e0_ = __dna_reader.readFloatBig();
     /* x1ec_maxLeanAngle */
@@ -211,18 +211,18 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x218_boostBallMinChargeTime = __dna_reader.readFloatBig();
     /* x21c_boostBallMinRelativeSpeedForDamage */
     x21c_boostBallMinRelativeSpeedForDamage = __dna_reader.readFloatBig();
-    /* x220_ */
-    x220_ = __dna_reader.readFloatBig();
-    /* x224_ */
-    x224_ = __dna_reader.readFloatBig();
+    /* x220_boostBallChargeTime0 */
+    x220_boostBallChargeTime0 = __dna_reader.readFloatBig();
+    /* x224_boostBallChargeTime1 */
+    x224_boostBallChargeTime1 = __dna_reader.readFloatBig();
     /* x210_boostBallMaxChargeTime */
-    x210_boostBallMaxChargeTime = __dna_reader.readFloatBig();
-    /* x22c_ */
-    x22c_ = __dna_reader.readFloatBig();
-    /* x230_ */
-    x230_ = __dna_reader.readFloatBig();
-    /* x234_ */
-    x234_ = __dna_reader.readFloatBig();
+    x228_boostBallChargeTime2 = x210_boostBallMaxChargeTime = __dna_reader.readFloatBig();
+    /* x22c_boostBallIncrementalSpeed0 */
+    x22c_boostBallIncrementalSpeed0 = __dna_reader.readFloatBig();
+    /* x230_boostBallIncrementalSpeed1 */
+    x230_boostBallIncrementalSpeed1 = __dna_reader.readFloatBig();
+    /* x234_boostBallIncrementalSpeed2 */
+    x234_boostBallIncrementalSpeed2 = __dna_reader.readFloatBig();
 }
 
 void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
@@ -309,8 +309,8 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x150_);
     /* x158_ */
     __dna_writer.writeFloatBig(x158_);
-    /* x1dc_ */
-    __dna_writer.writeFloatBig(x1dc_);
+    /* x1dc_minimumAlignmentSpeed */
+    __dna_writer.writeFloatBig(x1dc_minimumAlignmentSpeed);
     /* x1e0_ */
     __dna_writer.writeFloatBig(x1e0_);
     /* x1ec_maxLeanAngle */
@@ -431,18 +431,18 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x218_boostBallMinChargeTime);
     /* x21c_boostBallMinRelativeSpeedForDamage */
     __dna_writer.writeFloatBig(x21c_boostBallMinRelativeSpeedForDamage);
-    /* x220_ */
-    __dna_writer.writeFloatBig(x220_);
-    /* x224_ */
-    __dna_writer.writeFloatBig(x224_);
+    /* x220_boostBallChargeTime0 */
+    __dna_writer.writeFloatBig(x220_boostBallChargeTime0);
+    /* x224_boostBallChargeTime1 */
+    __dna_writer.writeFloatBig(x224_boostBallChargeTime1);
     /* x210_boostBallMaxChargeTime */
     __dna_writer.writeFloatBig(x210_boostBallMaxChargeTime);
-    /* x22c_ */
-    __dna_writer.writeFloatBig(x22c_);
-    /* x230_ */
-    __dna_writer.writeFloatBig(x230_);
-    /* x234_ */
-    __dna_writer.writeFloatBig(x234_);
+    /* x22c_boostBallIncrementalSpeed0 */
+    __dna_writer.writeFloatBig(x22c_boostBallIncrementalSpeed0);
+    /* x230_boostBallIncrementalSpeed1 */
+    __dna_writer.writeFloatBig(x230_boostBallIncrementalSpeed1);
+    /* x234_boostBallIncrementalSpeed2 */
+    __dna_writer.writeFloatBig(x234_boostBallIncrementalSpeed2);
 }
 
 void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
@@ -549,8 +549,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x150_ = __dna_docin.readFloat("x150_");
     /* x158_ */
     x158_ = __dna_docin.readFloat("x158_");
-    /* x1dc_ */
-    x1dc_ = __dna_docin.readFloat("x1dc_");
+    /* x1dc_minimumAlignmentSpeed */
+    x1dc_minimumAlignmentSpeed = __dna_docin.readFloat("x1dc_minimumAlignmentSpeed");
     /* x1e0_ */
     x1e0_ = __dna_docin.readFloat("x1e0_");
     /* x1ec_maxLeanAngle */
@@ -671,18 +671,18 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x218_boostBallMinChargeTime = __dna_docin.readFloat("x218_boostBallMinChargeTime");
     /* x21c_boostBallMinRelativeSpeedForDamage */
     x21c_boostBallMinRelativeSpeedForDamage = __dna_docin.readFloat("x21c_boostBallMinRelativeSpeedForDamage");
-    /* x220_ */
-    x220_ = __dna_docin.readFloat("x220_");
-    /* x224_ */
-    x224_ = __dna_docin.readFloat("x224_");
+    /* x220_boostBallChargeTime0 */
+    x220_boostBallChargeTime0 = __dna_docin.readFloat("x220_boostBallChargeTime0");
+    /* x224_boostBallChargeTime1 */
+    x224_boostBallChargeTime1 = __dna_docin.readFloat("x224_boostBallChargeTime1");
     /* x210_boostBallMaxChargeTime */
-    x210_boostBallMaxChargeTime = __dna_docin.readFloat("x210_boostBallMaxChargeTime");
-    /* x22c_ */
-    x22c_ = __dna_docin.readFloat("x22c_");
-    /* x230_ */
-    x230_ = __dna_docin.readFloat("x230_");
-    /* x234_ */
-    x234_ = __dna_docin.readFloat("x234_");
+    x228_boostBallChargeTime2 = x210_boostBallMaxChargeTime = __dna_docin.readFloat("x210_boostBallMaxChargeTime");
+    /* x22c_boostBallIncrementalSpeed0 */
+    x22c_boostBallIncrementalSpeed0 = __dna_docin.readFloat("x22c_boostBallIncrementalSpeed0");
+    /* x230_boostBallIncrementalSpeed1 */
+    x230_boostBallIncrementalSpeed1 = __dna_docin.readFloat("x230_boostBallIncrementalSpeed1");
+    /* x234_boostBallIncrementalSpeed2 */
+    x234_boostBallIncrementalSpeed2 = __dna_docin.readFloat("x234_boostBallIncrementalSpeed2");
 }
 
 void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
@@ -785,8 +785,8 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x150_", x150_);
     /* x158_ */
     __dna_docout.writeFloat("x158_", x158_);
-    /* x1dc_ */
-    __dna_docout.writeFloat("x1dc_", x1dc_);
+    /* x1dc_minimumAlignmentSpeed */
+    __dna_docout.writeFloat("x1dc_minimumAlignmentSpeed", x1dc_minimumAlignmentSpeed);
     /* x1e0_ */
     __dna_docout.writeFloat("x1e0_", x1e0_);
     /* x1ec_maxLeanAngle */
@@ -907,18 +907,18 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x218_boostBallMinChargeTime", x218_boostBallMinChargeTime);
     /* x21c_boostBallMinRelativeSpeedForDamage */
     __dna_docout.writeFloat("x21c_boostBallMinRelativeSpeedForDamage", x21c_boostBallMinRelativeSpeedForDamage);
-    /* x220_ */
-    __dna_docout.writeFloat("x220_", x220_);
-    /* x224_ */
-    __dna_docout.writeFloat("x224_", x224_);
+    /* x220_boostBallChargeTime0 */
+    __dna_docout.writeFloat("x220_boostBallChargeTime0", x220_boostBallChargeTime0);
+    /* x224_boostBallChargeTime1 */
+    __dna_docout.writeFloat("x224_boostBallChargeTime1", x224_boostBallChargeTime1);
     /* x210_boostBallMaxChargeTime */
     __dna_docout.writeFloat("x210_boostBallMaxChargeTime", x210_boostBallMaxChargeTime);
-    /* x22c_ */
-    __dna_docout.writeFloat("x22c_", x22c_);
-    /* x230_ */
-    __dna_docout.writeFloat("x230_", x230_);
-    /* x234_ */
-    __dna_docout.writeFloat("x234_", x234_);
+    /* x22c_boostBallIncrementalSpeed0 */
+    __dna_docout.writeFloat("x22c_boostBallIncrementalSpeed0", x22c_boostBallIncrementalSpeed0);
+    /* x230_boostBallIncrementalSpeed1 */
+    __dna_docout.writeFloat("x230_boostBallIncrementalSpeed1", x230_boostBallIncrementalSpeed1);
+    /* x234_boostBallIncrementalSpeed2 */
+    __dna_docout.writeFloat("x234_boostBallIncrementalSpeed2", x234_boostBallIncrementalSpeed2);
 }
 
 const char* CTweakBall::DNAType()

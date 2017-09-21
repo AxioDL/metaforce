@@ -135,6 +135,12 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
                               false, false, false, false);
 
+    /* Solid color additive */
+    ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
+                              false, true, false, true);
+
     /* Alpha-only Solid color frontface cull, LEqual */
     ext.registerExtensionSlot({}, {SolidPostHLSL, "SolidPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::One,

@@ -20,6 +20,7 @@ enum EExtendedShader : uint8_t
     ForcedAlpha,
     ForcedAdditive,
     SolidColor,
+    SolidColorAdditive,
     SolidColorFrontfaceCullLEqualAlphaOnly,
     SolidColorFrontfaceCullAlwaysAlphaOnly, // No Z-write or test
     SolidColorBackfaceCullLEqualAlphaOnly,

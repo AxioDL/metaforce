@@ -365,7 +365,7 @@ private:
             bool x9c4_26_ : 1;
             bool x9c4_27_canEnterMorphBall : 1;
             bool x9c4_28_canLeaveMorphBall : 1;
-            bool x9c4_29_ : 1;
+            bool x9c4_29_spiderBallControlXY : 1;
             bool x9c4_30_controlDirOverride : 1;
             bool x9c4_31_dampUnderwaterMotion : 1;
             bool x9c5_24_ : 1;

@@ -96,7 +96,7 @@ struct CTweakBall final : public ITweakBall
     Value<float> x1d0_ballCameraControlDistance;
     Value<float> x1d4_;
     Value<float> x1d8_;
-    Value<float> x1dc_;
+    Value<float> x1dc_minimumAlignmentSpeed;
     Value<float> x1e0_;
     Value<float> x1ec_maxLeanAngle;
     Value<float> x1f0_tireToMarbleThresholdSpeed;
@@ -111,13 +111,13 @@ struct CTweakBall final : public ITweakBall
     Value<float> x20c_boostBallDrainTime;
     Value<float> x218_boostBallMinChargeTime;
     Value<float> x21c_boostBallMinRelativeSpeedForDamage;
-    Value<float> x220_;
-    Value<float> x224_;
+    Value<float> x220_boostBallChargeTime0;
+    Value<float> x224_boostBallChargeTime1;
+    float x228_boostBallChargeTime2;
     Value<float> x210_boostBallMaxChargeTime;
-    float x228_;
-    Value<float> x22c_;
-    Value<float> x230_;
-    Value<float> x234_;
+    Value<float> x22c_boostBallIncrementalSpeed0;
+    Value<float> x230_boostBallIncrementalSpeed1;
+    Value<float> x234_boostBallIncrementalSpeed2;
 
     CTweakBall()=default;
     CTweakBall(athena::io::IStreamReader& r)
@@ -143,6 +143,7 @@ struct CTweakBall final : public ITweakBall
     float GetBallForwardBrakingAcceleration(int s) const { return xc4_ballForwardBrakingAcceleration[s]; }
     float GetBallGravity() const { return xe4_ballGravity; }
     float GetBallWaterGravity() const { return xe8_ballWaterGravity; }
+    float GetMinimumAlignmentSpeed() const { return x1dc_minimumAlignmentSpeed; }
     float GetMaxLeanAngle() const { return x1ec_maxLeanAngle; }
     float GetTireToMarbleThresholdSpeed() const { return x1f0_tireToMarbleThresholdSpeed; }
     float GetMarbleToTireThresholdSpeed() const { return x1f4_marbleToTireThresholdSpeed; }
@@ -156,6 +157,32 @@ struct CTweakBall final : public ITweakBall
     float GetBoostBallMaxChargeTime() const { return x210_boostBallMaxChargeTime; }
     float GetBoostBallMinChargeTime() const { return x218_boostBallMinChargeTime; }
     float GetBoostBallMinRelativeSpeedForDamage() const { return x21c_boostBallMinRelativeSpeedForDamage; }
+    float GetBoostBallChargeTimeTable(int i) const
+    {
+        switch (i)
+        {
+        default:
+        case 0:
+            return x220_boostBallChargeTime0;
+        case 1:
+            return x224_boostBallChargeTime1;
+        case 2:
+            return x228_boostBallChargeTime2;
+        }
+    }
+    float GetBoostBallIncrementalSpeedTable(int i) const
+    {
+        switch (i)
+        {
+        default:
+        case 0:
+            return x22c_boostBallIncrementalSpeed0;
+        case 1:
+            return x230_boostBallIncrementalSpeed1;
+        case 2:
+            return x234_boostBallIncrementalSpeed2;
+        }
+    }
 };
 }
 }
