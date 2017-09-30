@@ -24,7 +24,7 @@ public:
     CCollidableSphere(const zeus::CSphere&, const CMaterialList&);
 
     const zeus::CSphere& GetSphere() const;
-    void SetSphereCenter(const zeus::CVector3f&);
+    void SetSphereCenter(const zeus::CVector3f& center);
     zeus::CSphere Transform(const zeus::CTransform& xf) const;
 
     virtual u32 GetTableIndex() const;

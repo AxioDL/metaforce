@@ -56,14 +56,7 @@ struct CTweakBall final : public ITweakBall
     float x120_ = 40000.f;
     float x124_ = 40000.f;
     float x128_ = 40000.f;
-    float x12c_ = 10000.f;
-    float x130_ = 10000.f;
-    float x134_ = 1000.f;
-    float x138_ = 10000.f;
-    float x13c_ = 2000.f;
-    float x140_ = 2000.f;
-    float x144_ = 2000.f;
-    float x148_ = 2000.f;
+    float x12c_ballSlipFactor[8] = { 10000.f, 10000.f, 1000.f, 10000.f, 2000.f, 2000.f, 2000.f, 2000.f };
     Value<float> x14c_;
     Value<float> x150_;
     Value<float> x158_;
@@ -97,7 +90,7 @@ struct CTweakBall final : public ITweakBall
     Value<float> x1d4_;
     Value<float> x1d8_;
     Value<float> x1dc_minimumAlignmentSpeed;
-    Value<float> x1e0_;
+    Value<float> x1e0_tireness;
     Value<float> x1ec_maxLeanAngle;
     Value<float> x1f0_tireToMarbleThresholdSpeed;
     Value<float> x1f4_marbleToTireThresholdSpeed;
@@ -143,7 +136,9 @@ struct CTweakBall final : public ITweakBall
     float GetBallForwardBrakingAcceleration(int s) const { return xc4_ballForwardBrakingAcceleration[s]; }
     float GetBallGravity() const { return xe4_ballGravity; }
     float GetBallWaterGravity() const { return xe8_ballWaterGravity; }
+    float GetBallSlipFactor(int s) const { return x12c_ballSlipFactor[s]; }
     float GetMinimumAlignmentSpeed() const { return x1dc_minimumAlignmentSpeed; }
+    float GetTireness() const { return x1e0_tireness; }
     float GetMaxLeanAngle() const { return x1ec_maxLeanAngle; }
     float GetTireToMarbleThresholdSpeed() const { return x1f0_tireToMarbleThresholdSpeed; }
     float GetMarbleToTireThresholdSpeed() const { return x1f4_marbleToTireThresholdSpeed; }

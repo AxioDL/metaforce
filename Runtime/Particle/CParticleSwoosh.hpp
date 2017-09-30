@@ -212,6 +212,18 @@ public:
             std::swap(rot, data.x30_irot);
         }
     }
+
+    void DoSpiderBallWarmup(zeus::CVector3f& translation, const zeus::CVector3f& transInc)
+    {
+        SetOrientation(zeus::lookAt(zeus::CVector3f::skZero, transInc));
+        for (int i=0 ; i<6 ; ++i)
+        {
+            SetTranslation(translation);
+            x1d0_26_disableUpdate = true;
+            Update(0.0);
+            translation += transInc;
+        }
+    }
 };
 
 }

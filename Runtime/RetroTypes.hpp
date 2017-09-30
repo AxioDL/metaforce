@@ -159,6 +159,8 @@ public:
     }
 
     void Clear() { this->clear(); }
+
+    size_t Size() const { return this->size(); }
 };
 
 namespace std

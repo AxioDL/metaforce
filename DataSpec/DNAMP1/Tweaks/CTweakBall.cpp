@@ -91,8 +91,8 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x158_ = __dna_reader.readFloatBig();
     /* x1dc_minimumAlignmentSpeed */
     x1dc_minimumAlignmentSpeed = __dna_reader.readFloatBig();
-    /* x1e0_ */
-    x1e0_ = __dna_reader.readFloatBig();
+    /* x1e0_tireness */
+    x1e0_tireness = __dna_reader.readFloatBig();
     /* x1ec_maxLeanAngle */
     x1ec_maxLeanAngle = __dna_reader.readFloatBig();
     /* x1f0_tireToMarbleThresholdSpeed */
@@ -311,8 +311,8 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x158_);
     /* x1dc_minimumAlignmentSpeed */
     __dna_writer.writeFloatBig(x1dc_minimumAlignmentSpeed);
-    /* x1e0_ */
-    __dna_writer.writeFloatBig(x1e0_);
+    /* x1e0_tireness */
+    __dna_writer.writeFloatBig(x1e0_tireness);
     /* x1ec_maxLeanAngle */
     __dna_writer.writeFloatBig(x1ec_maxLeanAngle);
     /* x1f0_tireToMarbleThresholdSpeed */
@@ -551,8 +551,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x158_ = __dna_docin.readFloat("x158_");
     /* x1dc_minimumAlignmentSpeed */
     x1dc_minimumAlignmentSpeed = __dna_docin.readFloat("x1dc_minimumAlignmentSpeed");
-    /* x1e0_ */
-    x1e0_ = __dna_docin.readFloat("x1e0_");
+    /* x1e0_tireness */
+    x1e0_tireness = __dna_docin.readFloat("x1e0_tireness");
     /* x1ec_maxLeanAngle */
     x1ec_maxLeanAngle = __dna_docin.readFloat("x1ec_maxLeanAngle");
     /* x1f0_tireToMarbleThresholdSpeed */
@@ -787,8 +787,8 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x158_", x158_);
     /* x1dc_minimumAlignmentSpeed */
     __dna_docout.writeFloat("x1dc_minimumAlignmentSpeed", x1dc_minimumAlignmentSpeed);
-    /* x1e0_ */
-    __dna_docout.writeFloat("x1e0_", x1e0_);
+    /* x1e0_tireness */
+    __dna_docout.writeFloat("x1e0_tireness", x1e0_tireness);
     /* x1ec_maxLeanAngle */
     __dna_docout.writeFloat("x1ec_maxLeanAngle", x1ec_maxLeanAngle);
     /* x1f0_tireToMarbleThresholdSpeed */

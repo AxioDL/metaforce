@@ -88,6 +88,7 @@ public:
     const std::vector<CLight>& GetAreaLights() const { return x0_areaLights; }
     const std::vector<CLight>& GetDynamicLights() const { return x144_dynamicLights; }
     bool GetIsDirty() const { return x298_24_dirty; }
+    void SetDirty() { x298_24_dirty = true; }
     bool HasShadowLight() const { return x29c_shadowLightArrIdx != -1; }
     s32 GetShadowLightArrIndex() const { return x29c_shadowLightArrIdx; }
     s32 GetShadowLightIndex() const { return x2a0_shadowLightIdx; }

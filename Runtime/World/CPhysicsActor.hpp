@@ -163,6 +163,8 @@ public:
     void SetAngularMomentum(const zeus::CAxisAngle& m) { x108_angularMomentum = m; }
     const zeus::CVector3f& GetMomentum() const { return x150_momentum; }
     const zeus::CVector3f& GetVelocity() const { return x138_velocity; }
+    const zeus::CAxisAngle& GetAngularImpulse() const { return x180_angularImpulse; }
+    void SetAngularImpulse(const zeus::CAxisAngle& i) { x180_angularImpulse = i; }
     zeus::CVector3f GetTotalForcesWR() const;
     void RotateInOneFrameOR(const zeus::CQuaternion& q, float d);
     void MoveInOneFrameOR(const zeus::CVector3f& trans, float d);

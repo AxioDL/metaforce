@@ -480,7 +480,7 @@ SAdvancementDeltas CActor::UpdateAnimation(float dt, CStateManager& mgr, bool ad
     return deltas;
 }
 
-void CActor::SetActorLights(std::unique_ptr<CActorLights> lights)
+void CActor::SetActorLights(std::unique_ptr<CActorLights>&& lights)
 {
     x90_actorLights = std::move(lights);
     xe4_31_lightsDirty = true;

@@ -172,8 +172,9 @@ public:
                            const zeus::CVector3f& position, TAreaId aid, CStateManager& mgr,
                            bool translateId);
     SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
-    void SetActorLights(std::unique_ptr<CActorLights>);
+    void SetActorLights(std::unique_ptr<CActorLights>&& lights);
     const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
+    CActorLights* ActorLights() { return x90_actorLights.get(); }
     bool CanDrawStatic() const;
     bool GetE7_29() const { return xe7_29_; }
     void SetWorldLightingDirty(bool b) { xe7_28_worldLightingDirty = b; }

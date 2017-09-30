@@ -210,9 +210,9 @@ CCollidableSphere::CCollidableSphere(const zeus::CSphere& sphere, const CMateria
 
 const zeus::CSphere& CCollidableSphere::GetSphere() const { return x10_sphere; }
 
-void CCollidableSphere::SetSphereCenter(const zeus::CVector3f&)
+void CCollidableSphere::SetSphereCenter(const zeus::CVector3f& center)
 {
-    /* Remove me? */
+    x10_sphere.position = center;
 }
 
 zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform& xf) const

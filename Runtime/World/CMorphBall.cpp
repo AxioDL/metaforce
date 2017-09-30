@@ -1,4 +1,3 @@
-#include <Runtime/Input/ControlMapper.hpp>
 #include "GameGlobalObjects.hpp"
 #include "CDependencyGroup.hpp"
 #include "CMorphBall.hpp"
@@ -12,17 +11,47 @@
 #include "Collision/CGameCollision.hpp"
 #include "CScriptSpiderBallAttractionSurface.hpp"
 #include "CScriptSpiderBallWaypoint.hpp"
+#include "CScriptWater.hpp"
+#include "Graphics/CSkinnedModel.hpp"
+#include "MP1/World/CMetroidBeta.hpp"
+#include "Input/ControlMapper.hpp"
 
 namespace urde
 {
 
 static float kSpiderBallCollisionRadius;
 
+const u8 CMorphBall::BallGlowColors[9][3] =
+{
+    {0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff},
+    {0xff, 0xd5, 0x19},
+    {0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff},
+};
+
 const u8 CMorphBall::BallTransFlashColors[9][3] =
 {
     {0xc2, 0x7e, 0x10},
     {0x66, 0xc4, 0xff},
     {0x60, 0xff, 0x90},
+    {0x33, 0x33, 0xff},
+    {0xff, 0x20, 0x20},
+    {0x0, 0x9d, 0xb6},
+    {0xd3, 0xf1, 0x0},
+    {0xa6, 0x86, 0xd8},
+    {0xfb, 0x98, 0x21}
+};
+
+const u8 CMorphBall::BallAuxGlowColors[9][3] =
+{
+    {0xc2, 0x7e, 0x10},
+    {0x66, 0xc4, 0xff},
+    {0x6c, 0xff, 0x61},
     {0x33, 0x33, 0xff},
     {0xff, 0x20, 0x20},
     {0x0, 0x9d, 0xb6},
@@ -385,7 +414,7 @@ bool CMorphBall::IsMovementAllowed() const
         return false;
     if (x0_player.IsMorphBallTransitioning())
         return false;
-    return x1e00_ <= 0.f;
+    return x1e00_disableControlCooldown <= 0.f;
 }
 
 void CMorphBall::UpdateSpiderBall(const CFinalInput& input, CStateManager& mgr, float dt)
@@ -399,8 +428,8 @@ void CMorphBall::UpdateSpiderBall(const CFinalInput& input, CStateManager& mgr, 
 
 void CMorphBall::ApplySpiderBallSwingingForces(const CFinalInput& input, CStateManager& mgr, float dt)
 {
-    x18b4_ = 0.04f;
-    x18b8_ = 0.99f;
+    x18b4_linVelDamp = 0.04f;
+    x18b8_angVelDamp = 0.99f;
     x1880_playerToSpiderNormal = x1890_spiderTrackPoint - x0_player.GetTranslation();
     float playerToSpiderDist = x1880_playerToSpiderNormal.magnitude();
     x1880_playerToSpiderNormal = x1880_playerToSpiderNormal * (-1.f / playerToSpiderDist);
@@ -409,7 +438,7 @@ void CMorphBall::ApplySpiderBallSwingingForces(const CFinalInput& input, CStateM
     float swingMovement = movement * GetSpiderBallSwingControllerMovementScalar();
     float f29 = playerToSpiderDist * 110000.f / 3.7f;
     x0_player.ApplyForceWR(
-        x1880_playerToSpiderNormal.cross(x18a8_spiderDistBetweenPoints).cross(x1880_playerToSpiderNormal).normalized() *
+        x1880_playerToSpiderNormal.cross(x18a8_spiderBetweenPoints).cross(x1880_playerToSpiderNormal).normalized() *
         f29 * swingMovement * 0.06f, zeus::CAxisAngle::sIdentity);
     x0_player.SetMomentumWR({0.f, 0.f, x0_player.GetMass() * g_tweakBall->GetBallGravity()});
     x18fc_refPullVel = (1.f - x188c_spiderPullMovement) * 3.7f + 1.4f;
@@ -442,73 +471,73 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
     zeus::CVector2f surfaceForces = CalculateSpiderBallAttractionSurfaceForces(input);
     zeus::CVector3f viewSurfaceForces = TransformSpiderBallForcesXZ(surfaceForces, mgr);
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform();
-    zeus::CVector3f spiderDirNorm = x189c_spiderInterpDistBetweenPoints.normalized();
+    zeus::CVector3f spiderDirNorm = x189c_spiderInterpBetweenPoints.normalized();
     float upDot = std::fabs(spiderDirNorm.dot(camXf.basis[2]));
     float foreDot = std::fabs(spiderDirNorm.dot(camXf.basis[1]));
     if (x0_player.x9c4_29_spiderBallControlXY && upDot < 0.25f && foreDot > 0.25f)
         viewSurfaceForces = TransformSpiderBallForcesXY(surfaceForces, mgr);
     float forceMag = surfaceForces.magnitude();
-    zeus::CVector2f x1d0;
-    float f26 = x18c0_isSpiderSurface ? forceMag : viewSurfaceForces.dot(spiderDirNorm);
-    bool r27 = true;
-    bool r30 = false;
+    zeus::CVector2f normSurfaceForces;
+    float trackForceMag = x18c0_isSpiderSurface ? forceMag : viewSurfaceForces.dot(spiderDirNorm);
+    bool forceApplied = true;
+    bool continueTrackForce = false;
     if (std::fabs(forceMag) > 0.05f)
     {
-        x1d0 = surfaceForces.normalized();
-        if (!x18c0_isSpiderSurface && x1d0.dot(x190c_) > 0.9f)
+        normSurfaceForces = surfaceForces.normalized();
+        if (!x18c0_isSpiderSurface && normSurfaceForces.dot(x190c_normSpiderSurfaceForces) > 0.9f)
         {
-            f26 = x1914_ >= 0.f ? forceMag : -forceMag;
-            r30 = true;
+            trackForceMag = x1914_spiderTrackForceMag >= 0.f ? forceMag : -forceMag;
+            continueTrackForce = true;
         }
         else
         {
-            if (std::fabs(f26) > 0.05f)
-                f26 = f26 >= 0.f ? forceMag : -forceMag;
+            if (std::fabs(trackForceMag) > 0.05f)
+                trackForceMag = trackForceMag >= 0.f ? forceMag : -forceMag;
             else
-                r27 = false;
+                forceApplied = false;
         }
     }
     else
     {
-        r27 = false;
+        forceApplied = false;
     }
 
-    if (!r30)
+    if (!continueTrackForce)
     {
-        x190c_ = x1d0;
-        x1914_ = f26;
-        x1920_ = true;
+        x190c_normSpiderSurfaceForces = normSurfaceForces;
+        x1914_spiderTrackForceMag = trackForceMag;
+        x1920_spiderForcesReset = true;
     }
 
-    if (!r27)
+    if (!forceApplied)
     {
-        f26 = 0.f;
+        trackForceMag = 0.f;
         ResetSpiderBallForces();
     }
 
-    bool r31 = true;
-    if (!r27 && x0_player.GetVelocity().magnitude() <= 6.5f)
-        r31 = false;
+    bool moving = true;
+    if (!forceApplied && x0_player.GetVelocity().magnitude() <= 6.5f)
+        moving = false;
 
-    zeus::CVector3f f27;
-    if (x18bd_ && r27)
+    zeus::CVector3f moveDelta;
+    if (x18bd_touchingSpider && forceApplied)
     {
         if (x18c0_isSpiderSurface)
-            f27 = viewSurfaceForces * 0.1f;
+            moveDelta = viewSurfaceForces * 0.1f;
         else
-            f27 = x18a8_spiderDistBetweenPoints.normalized() * 0.1f * (f26 >= 0.f ? 1.f : -1.f);
+            moveDelta = x18a8_spiderBetweenPoints.normalized() * 0.1f * (trackForceMag >= 0.f ? 1.f : -1.f);
     }
 
-    zeus::CVector3f ballPos = GetBallToWorld().origin + f27;
+    zeus::CVector3f ballPos = GetBallToWorld().origin + moveDelta;
     float distance = 0.f;
-    if (!(!r31 && x18bd_ && x188c_spiderPullMovement == 1.f && !x18bf_))
+    if (moving || !x18bd_touchingSpider || x188c_spiderPullMovement != 1.f || x18bf_spiderSwingInAir)
     {
-        if (FindClosestSpiderBallWaypoint(mgr, ballPos, x1890_spiderTrackPoint, x189c_spiderInterpDistBetweenPoints,
-                                          x18a8_spiderDistBetweenPoints, distance, x1880_playerToSpiderNormal,
+        if (FindClosestSpiderBallWaypoint(mgr, ballPos, x1890_spiderTrackPoint, x189c_spiderInterpBetweenPoints,
+                                          x18a8_spiderBetweenPoints, distance, x1880_playerToSpiderNormal,
                                           x18c0_isSpiderSurface, x18c4_spiderSurfaceTransform))
         {
-            x18bc_ = true;
-            x18bf_ = false;
+            x18bc_spiderNearby = true;
+            x18bf_spiderSwingInAir = false;
         }
     }
     else
@@ -516,50 +545,50 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
         x1880_playerToSpiderNormal = x1890_spiderTrackPoint - ballPos;
         distance = x1880_playerToSpiderNormal.magnitude();
         x1880_playerToSpiderNormal = x1880_playerToSpiderNormal * (-1.f / distance);
-        x18bc_ = true;
+        x18bc_spiderNearby = true;
     }
 
-    if (x18bc_)
+    if (x18bc_spiderNearby)
     {
         if (distance < kSpiderBallCollisionRadius)
-            x18bd_ = true;
-        if (x18bd_)
+            x18bd_touchingSpider = true;
+        if (x18bd_touchingSpider)
         {
-            if (r31)
+            if (moving)
             {
                 if (!x18c0_isSpiderSurface)
                 {
-                    x18b4_ = 0.4f;
-                    x18b8_ = 0.2f;
-                    float f2 = viewSurfaceForces.dot(x189c_spiderInterpDistBetweenPoints.normalized());
-                    if (r30 && x1920_)
+                    x18b4_linVelDamp = 0.4f;
+                    x18b8_angVelDamp = 0.2f;
+                    float viewControlMag = viewSurfaceForces.dot(x189c_spiderInterpBetweenPoints.normalized());
+                    if (continueTrackForce && x1920_spiderForcesReset)
                     {
-                        f2 = x1918_;
+                        viewControlMag = x1918_spiderViewControlMag;
                     }
                     else
                     {
-                        x1918_ = f2;
-                        x1920_ = false;
+                        x1918_spiderViewControlMag = viewControlMag;
+                        x1920_spiderForcesReset = false;
                     }
-                    float f25;
-                    if (std::fabs(f2) > 0.1f)
+                    float finalForceMag;
+                    if (std::fabs(viewControlMag) > 0.1f)
                     {
-                        f25 = std::copysign(zeus::clamp(-1.f, forceMag, 1.f), f2);
+                        finalForceMag = std::copysign(zeus::clamp(-1.f, forceMag, 1.f), viewControlMag);
                     }
                     else
                     {
-                        f25 = 0.f;
+                        finalForceMag = 0.f;
                         ResetSpiderBallForces();
                     }
                     if (distance > 1.05f)
-                        f25 *= (1.05f - (distance - 1.05f)) / 1.05f;
-                    x0_player.ApplyForceWR(x18a8_spiderDistBetweenPoints.normalized() * 90000.f * f25,
+                        finalForceMag *= (1.05f - (distance - 1.05f)) / 1.05f;
+                    x0_player.ApplyForceWR(x18a8_spiderBetweenPoints.normalized() * 90000.f * finalForceMag,
                                            zeus::CAxisAngle::sIdentity);
                 }
                 else
                 {
-                    x18b4_ = 0.3f;
-                    x18b8_ = 0.2f;
+                    x18b4_linVelDamp = 0.3f;
+                    x18b8_angVelDamp = 0.2f;
                     float f31 = x18c4_spiderSurfaceTransform.basis[0].dot(viewSurfaceForces);
                     float f30 = x18c4_spiderSurfaceTransform.basis[2].dot(viewSurfaceForces);
                     zeus::CVector3f forceVec = (f31 * x18c4_spiderSurfaceTransform.basis[0] +
@@ -568,15 +597,19 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
                     if (forceVec.magSquared() > 0.f)
                     {
                         float angle = std::atan2(45000.f * f31, 45000.f * f30);
-                        if (angle - x18f4_ > M_PIF / 2.f)
+                        if (angle - x18f4_spiderSurfacePivotAngle > M_PIF / 2.f)
                             angle = angle - M_PIF;
-                        else if (x18f4_ - angle > M_PIF / 2.f)
+                        else if (x18f4_spiderSurfacePivotAngle - angle > M_PIF / 2.f)
                             angle = angle + M_PIF;
-                        x18f8_ = angle;
+                        x18f8_spiderSurfacePivotTargetAngle = angle;
                     }
-                    x18f4_ += std::copysign(std::min(std::fabs(x18f8_ - x18f4_), 0.2f), x18f8_ - x18f4_);
-                    x189c_spiderInterpDistBetweenPoints =
-                        x18c4_spiderSurfaceTransform.rotate(zeus::CTransform::RotateY(x18f4_).basis[2]);
+                    x18f4_spiderSurfacePivotAngle +=
+                        std::copysign(std::min(std::fabs(x18f8_spiderSurfacePivotTargetAngle -
+                                                             x18f4_spiderSurfacePivotAngle), 0.2f),
+                                      x18f8_spiderSurfacePivotTargetAngle - x18f4_spiderSurfacePivotAngle);
+                    x189c_spiderInterpBetweenPoints =
+                        x18c4_spiderSurfaceTransform.rotate(
+                            zeus::CTransform::RotateY(x18f4_spiderSurfacePivotAngle).basis[2]);
                 }
             }
             x0_player.ApplyForceWR({0.f, 0.f,
@@ -585,8 +618,8 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
         }
         else
         {
-            x18b4_ = 0.2f;
-            x18b8_ = 0.2f;
+            x18b4_linVelDamp = 0.2f;
+            x18b8_angVelDamp = 0.2f;
         }
         x0_player.SetMomentumWR(4.f * x0_player.GetMass() * g_tweakBall->GetBallGravity() * x1880_playerToSpiderNormal);
     }
@@ -605,7 +638,7 @@ zeus::CVector2f CMorphBall::CalculateSpiderBallAttractionSurfaceForces(const CFi
 
 bool CMorphBall::CheckForSwitchToSpiderBallSwinging(CStateManager& mgr) const
 {
-    if (!x18bd_)
+    if (!x18bd_touchingSpider)
         return false;
 
     if (x188c_spiderPullMovement == 1.f)
@@ -712,7 +745,7 @@ void CMorphBall::SetSpiderBallSwingingState(bool active)
     if (x18be_spiderBallSwinging != active)
     {
         ResetSpiderBallSwingControllerMovementTimer();
-        x18bf_ = true;
+        x18bf_spiderSwingInAir = true;
     }
     x18be_spiderBallSwinging = active;
 }
@@ -791,16 +824,16 @@ void CMorphBall::CreateSpiderBallParticles(const zeus::CVector3f& ballPos, const
 
 void CMorphBall::ResetSpiderBallForces()
 {
-    x190c_ = zeus::CVector2f();
-    x1914_ = 0.f;
-    x1918_ = 0.f;
-    x1920_ = true;
+    x190c_normSpiderSurfaceForces = zeus::CVector2f();
+    x1914_spiderTrackForceMag = 0.f;
+    x1918_spiderViewControlMag = 0.f;
+    x1920_spiderForcesReset = true;
 }
 
 void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& mgr, float dt)
 {
-    x1c_ = zeus::CVector3f::skZero;
-    x10_ = zeus::CVector3f::skZero;
+    x1c_controlForce = zeus::CVector3f::skZero;
+    x10_boostControlForce = zeus::CVector3f::skZero;
     if (!IsMovementAllowed())
         return;
 
@@ -811,13 +844,13 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
     {
         if (x187c_spiderBallState != ESpiderBallState::Active)
         {
-            x18bd_ = false;
+            x18bd_touchingSpider = false;
             x187c_spiderBallState = ESpiderBallState::Active;
-            x18a8_spiderDistBetweenPoints = x189c_spiderInterpDistBetweenPoints = x0_player.GetTransform().basis[2];
+            x18a8_spiderBetweenPoints = x189c_spiderInterpBetweenPoints = x0_player.GetTransform().basis[2];
         }
         UpdateSpiderBall(input, mgr, dt);
 
-        if (!x18bc_)
+        if (!x18bc_spiderNearby)
         {
             x187c_spiderBallState = ESpiderBallState::Inactive;
             ResetSpiderBallForces();
@@ -836,44 +869,46 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
         float maxSpeed = ComputeMaxSpeed();
         float curSpeed = x0_player.GetVelocity().magnitude();
         zeus::CTransform controlXf = zeus::lookAt(zeus::CVector3f::skZero, x0_player.x54c_controlDirFlat);
-        zeus::CVector3f controlVel = controlXf.transposeRotate(x0_player.GetVelocity());
-        float f28f = 0.f;
-        float f27f = 0.f;
+        zeus::CVector3f controlFrameVel = controlXf.transposeRotate(x0_player.GetVelocity());
+        float fwdAcc = 0.f;
+        float turnAcc = 0.f;
         if (std::fabs(turn) > 0.1f)
         {
-            float f24 = turn * maxSpeed;
-            float f27 = f24 - controlVel.x;
-            float f3 = zeus::clamp(0.f, std::fabs(f27) / maxSpeed, 1.f);
-            float acc;
-            if ((controlVel.x > 0.f ? 1.f : -1.f) != (f24 > 0.f ? 1.f : -1.f) && curSpeed > 0.8f * maxSpeed)
-                acc = g_tweakBall->GetBallForwardBrakingAcceleration(int(x0_player.GetSurfaceRestraint()));
+            float controlTurn = turn * maxSpeed;
+            float controlTurnDelta = controlTurn - controlFrameVel.x;
+            float accFactor = zeus::clamp(0.f, std::fabs(controlTurnDelta) / maxSpeed, 1.f);
+            float maxAcc;
+            if ((controlFrameVel.x > 0.f ? 1.f : -1.f) != (controlTurn > 0.f ? 1.f : -1.f) &&
+                curSpeed > 0.8f * maxSpeed)
+                maxAcc = g_tweakBall->GetBallForwardBrakingAcceleration(int(x0_player.GetSurfaceRestraint()));
             else
-                acc = g_tweakBall->GetMaxBallTranslationAcceleration(int(x0_player.GetSurfaceRestraint()));
-            if (f27 < 0.f)
-                f27f = -acc * f3;
+                maxAcc = g_tweakBall->GetMaxBallTranslationAcceleration(int(x0_player.GetSurfaceRestraint()));
+            if (controlTurnDelta < 0.f)
+                turnAcc = -maxAcc * accFactor;
             else
-                f27f = acc * f3;
+                turnAcc = maxAcc * accFactor;
         }
         if (std::fabs(forward) > 0.1f)
         {
-            float f24 = forward * maxSpeed;
-            float f25 = f24 - controlVel.y;
-            float f3 = zeus::clamp(0.f, std::fabs(f25) / maxSpeed, 1.f);
-            float acc;
-            if ((controlVel.y > 0.f ? 1.f : -1.f) != (f24 > 0.f ? 1.f : -1.f) && curSpeed > 0.8f * maxSpeed)
-                acc = g_tweakBall->GetBallForwardBrakingAcceleration(int(x0_player.GetSurfaceRestraint()));
+            float controlFwd = forward * maxSpeed;
+            float controlFwdDelta = controlFwd - controlFrameVel.y;
+            float accFactor = zeus::clamp(0.f, std::fabs(controlFwdDelta) / maxSpeed, 1.f);
+            float maxAcc;
+            if ((controlFrameVel.y > 0.f ? 1.f : -1.f) != (controlFwd > 0.f ? 1.f : -1.f) &&
+                curSpeed > 0.8f * maxSpeed)
+                maxAcc = g_tweakBall->GetBallForwardBrakingAcceleration(int(x0_player.GetSurfaceRestraint()));
             else
-                acc = g_tweakBall->GetMaxBallTranslationAcceleration(int(x0_player.GetSurfaceRestraint()));
-            if (f25 < 0.f)
-                f28f = -acc * f3;
+                maxAcc = g_tweakBall->GetMaxBallTranslationAcceleration(int(x0_player.GetSurfaceRestraint()));
+            if (controlFwdDelta < 0.f)
+                fwdAcc = -maxAcc * accFactor;
             else
-                f28f = acc * f3;
+                fwdAcc = maxAcc * accFactor;
         }
 
-        if (f28f != 0.f || f27f != 0.f || x1de4_24_inBoost || GetIsInHalfPipeMode())
+        if (fwdAcc != 0.f || turnAcc != 0.f || x1de4_24_inBoost || GetIsInHalfPipeMode())
         {
-            zeus::CVector3f controlForce = controlXf.rotate({0.f, f28f, 0.f}) + controlXf.rotate({f27f, 0.f, 0.f});
-            x1c_ = controlForce;
+            zeus::CVector3f controlForce = controlXf.rotate({0.f, fwdAcc, 0.f}) + controlXf.rotate({turnAcc, 0.f, 0.f});
+            x1c_controlForce = controlForce;
             if (x1de4_24_inBoost && !GetIsInHalfPipeMode())
                 controlForce =
                     x1924_surfaceToWorld.rotate({x1924_surfaceToWorld.transposeRotate(controlForce).x, 0.f, 0.f});
@@ -884,17 +919,17 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
                     controlForce.dot(x1924_surfaceToWorld.basis[2]) / controlForce.magnitude() < -0.85f)
                 {
                     DisableHalfPipeStatus();
-                    x1e00_ = 0.2f;
+                    x1e00_disableControlCooldown = 0.2f;
                     x0_player.ApplyImpulseWR(x1924_surfaceToWorld.basis[2] * (x0_player.GetMass() * -7.5f),
                                              zeus::CAxisAngle::sIdentity);
                 }
                 if (GetIsInHalfPipeMode())
                 {
                     controlForce -= controlForce.dot(x1924_surfaceToWorld.basis[2]) * x1924_surfaceToWorld.basis[2];
-                    zeus::CVector3f x120 = x1924_surfaceToWorld.transposeRotate(controlForce);
-                    x120.x *= 0.6f;
-                    x120.y *= (x1de4_24_inBoost ? 0.f : 0.35f) * 1.4f;
-                    controlForce = x1924_surfaceToWorld.rotate(x120);
+                    zeus::CVector3f controlForceSurfaceLocal = x1924_surfaceToWorld.transposeRotate(controlForce);
+                    controlForceSurfaceLocal.x *= 0.6f;
+                    controlForceSurfaceLocal.y *= (x1de4_24_inBoost ? 0.f : 0.35f) * 1.4f;
+                    controlForce = x1924_surfaceToWorld.rotate(controlForceSurfaceLocal);
                     if (maxSpeed > 95.f)
                         x0_player.SetVelocityWR(x0_player.GetVelocity() * 0.99f);
                 }
@@ -902,12 +937,12 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
 
             if (GetTouchedHalfPipeRecently())
             {
-                float f1 = x1e08_.dot(x1e14_);
-                if (f1 < 0.99f && f1 > 0.5f)
+                float hpNormComp = x1e08_prevHalfPipeNormal.dot(x1e14_halfPipeNormal);
+                if (hpNormComp < 0.99f && hpNormComp > 0.5f)
                 {
-                    zeus::CVector3f x1c8 = x1e08_.cross(x1e14_).normalized();
+                    zeus::CVector3f hpRampAxis = x1e08_prevHalfPipeNormal.cross(x1e14_halfPipeNormal).normalized();
                     zeus::CVector3f newVel = x0_player.GetVelocity();
-                    newVel -= x1c8 * x1c8.dot(x0_player.GetVelocity()) * 0.15f;
+                    newVel -= hpRampAxis * hpRampAxis.dot(x0_player.GetVelocity()) * 0.15f;
                     x0_player.SetVelocityWR(newVel);
                 }
             }
@@ -922,10 +957,10 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
                         zeus::clamp(0.f, (curSpeed - speedThres) / (maxSpeed - speedThres), 1.f) * dot;
                 }
             }
-            x10_ = controlForce;
+            x10_boostControlForce = controlForce;
             x0_player.ApplyForceWR(controlForce, zeus::CAxisAngle::sIdentity);
         }
-        ComputeLiftForces(x1c_, x0_player.GetVelocity(), mgr);
+        ComputeLiftForces(x1c_controlForce, x0_player.GetVelocity(), mgr);
     }
 }
 
@@ -972,19 +1007,19 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt)
     x1df8_27_ballCloseToCollision = BallCloseToCollision(mgr, kSpiderBallCollisionRadius,
                                     CMaterialFilter::MakeInclude(EMaterialTypes::Solid));
     UpdateHalfPipeStatus(mgr, dt);
-    x1e00_ -= dt;
-    x1e00_ = std::max(0.f, x1e00_);
+    x1e00_disableControlCooldown -= dt;
+    x1e00_disableControlCooldown = std::max(0.f, x1e00_disableControlCooldown);
     x191c_damageTimer -= dt;
     x191c_damageTimer = std::max(0.f, x191c_damageTimer);
     if (x187c_spiderBallState == ESpiderBallState::Active)
     {
         x1924_surfaceToWorld = CalculateSurfaceToWorld(x1880_playerToSpiderNormal,
-                                                       x1890_spiderTrackPoint, x189c_spiderInterpDistBetweenPoints);
+                                                       x1890_spiderTrackPoint, x189c_spiderInterpBetweenPoints);
         x2c_tireLeanAngle = 0.f;
         if (!x28_tireMode)
             SwitchToTire();
-        x1c2c_ = true;
-        x1c28_ = -1.f;
+        x1c2c_tireInterpolating = true;
+        x1c28_tireInterpSpeed = -1.f;
         UpdateMarbleDynamics(mgr, dt, x1890_spiderTrackPoint);
     }
     else
@@ -1033,15 +1068,15 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt)
     if (x187c_spiderBallState != ESpiderBallState::Active)
         ApplyFriction(CalculateSurfaceFriction());
     else
-        DampLinearAndAngularVelocities(x18b4_, x18b8_);
+        DampLinearAndAngularVelocities(x18b4_linVelDamp, x18b8_angVelDamp);
 
     if (x187c_spiderBallState != ESpiderBallState::Active)
         ApplyGravity(mgr);
 
     x74_collisionInfos.Clear();
 
-    x1c3c_quats.AddValue(zeus::CQuaternion(GetBallToWorld().basis));
-    x1c90_vecs.AddValue(GetBallToWorld().origin);
+    x1c3c_ballOrientAvg.AddValue(zeus::CQuaternion(GetBallToWorld().basis));
+    x1c90_ballPosAvg.AddValue(GetBallToWorld().origin);
 }
 
 void CMorphBall::SwitchToMarble()
@@ -1049,16 +1084,16 @@ void CMorphBall::SwitchToMarble()
     x0_player.SetTransform(x0_player.GetTransform() * zeus::CQuaternion::fromAxisAngle(
         x0_player.GetTransform().transposeRotate(x0_player.x500_lookDir), x30_ballTiltAngle).toTransform());
     x28_tireMode = false;
-    x1c2c_ = true;
-    x1c28_ = -1.f;
+    x1c2c_tireInterpolating = true;
+    x1c28_tireInterpSpeed = -1.f;
 }
 
 void CMorphBall::SwitchToTire()
 {
     x28_tireMode = true;
-    x1c2c_ = true;
+    x1c2c_tireInterpolating = true;
     x30_ballTiltAngle = 0.f;
-    x1c28_ = 1.f;
+    x1c28_tireInterpSpeed = 1.f;
 }
 
 void CMorphBall::Update(float dt, CStateManager& mgr)
@@ -1069,36 +1104,36 @@ void CMorphBall::Update(float dt, CStateManager& mgr)
     if (x0_player.GetDeathTime() <= 0.f)
         UpdateEffects(dt, mgr);
 
-    if (x1e44_ > 0.f)
+    if (x1e44_damageEffect > 0.f)
     {
-        x1e44_ -= x1e48_ * dt;
-        if (x1e44_ <= 0.f)
+        x1e44_damageEffect -= x1e48_damageEffectDecaySpeed * dt;
+        if (x1e44_damageEffect <= 0.f)
         {
-            x1e44_ = 0.f;
-            x1e48_ = 0.f;
-            x1e4c_ = 0.f;
+            x1e44_damageEffect = 0.f;
+            x1e48_damageEffectDecaySpeed = 0.f;
+            x1e4c_damageTime = 0.f;
         }
         else
         {
-            x1e4c_ += dt;
+            x1e4c_damageTime += dt;
         }
     }
 
     if (x58_ballModel)
         x58_ballModel->AdvanceAnimation(dt, mgr, kInvalidAreaId, true);
 
-    if (x1c2c_)
+    if (x1c2c_tireInterpolating)
     {
-        x1c20_ += x1c28_ * dt;
-        if (x1c20_ < 0.f)
+        x1c20_tireFactor += x1c28_tireInterpSpeed * dt;
+        if (x1c20_tireFactor < 0.f)
         {
-            x1c2c_ = false;
-            x1c20_ = 0.f;
+            x1c2c_tireInterpolating = false;
+            x1c20_tireFactor = 0.f;
         }
-        else if (x1c20_ > x1c24_)
+        else if (x1c20_tireFactor > x1c24_maxTireFactor)
         {
-            x1c2c_ = false;
-            x1c20_ = x1c24_;
+            x1c2c_tireInterpolating = false;
+            x1c20_tireFactor = x1c24_maxTireFactor;
         }
     }
 
@@ -1126,16 +1161,16 @@ void CMorphBall::SetBallLightActive(CStateManager& mgr, bool active)
 
 void CMorphBall::EnterMorphBallState(CStateManager& mgr)
 {
-    x1c20_ = 0.f;
+    x1c20_tireFactor = 0.f;
     UpdateEffects(0.f, mgr);
     x187c_spiderBallState = ESpiderBallState::Inactive;
     CAnimPlaybackParms parms(0, -1, 1.f, true);
     x58_ballModel->AnimationData()->SetAnimation(parms, false);
     x1e20_ballAnimIdx = 0;
     StopEffects();
-    x1c30_ = 0.f;
-    x1c34_ = 0.f;
-    x1c38_ = 0.f;
+    x1c30_boostOverLightFactor = 0.f;
+    x1c34_boostLightFactor = 0.f;
+    x1c38_spiderLightFactor = 0.f;
     DisableHalfPipeStatus();
     x30_ballTiltAngle = 0.f;
     x2c_tireLeanAngle = 0.f;
@@ -1181,24 +1216,24 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
     x19c8_jaggyTrailGen->SetOrientation(swooshToWorld.getRotation());
     x19c8_jaggyTrailGen->DoBallSwooshWarmup();
     x19cc_wallSparkGen->Update(dt);
-    x1bcc_[7]->Update(dt);
+    x1bc8_wakeEffectGens[7]->Update(dt);
     bool emitRainWake = (x0_player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::OnGround &&
                          mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain &&
                          mgr.GetEnvFxManager()->GetRainMagnitude() > 0.f &&
                          mgr.GetEnvFxManager()->GetX24());
-    x1bcc_[7]->SetParticleEmission(emitRainWake);
+    x1bc8_wakeEffectGens[7]->SetParticleEmission(emitRainWake);
     float rainGenRate = std::min(mgr.GetEnvFxManager()->GetRainMagnitude() * 2.f *
                                  x0_player.x4fc_flatMoveSpeed / x0_player.GetBallMaxVelocity(), 1.f);
-    x1bcc_[7]->SetGeneratorRate(rainGenRate);
-    x1bcc_[7]->SetTranslation(x0_player.GetTranslation());
+    x1bc8_wakeEffectGens[7]->SetGeneratorRate(rainGenRate);
+    x1bc8_wakeEffectGens[7]->SetTranslation(x0_player.GetTranslation());
     if (emitRainWake)
     {
         zeus::CTransform rainOrient = zeus::lookAt(x0_player.x50c_moveDir + x0_player.GetTranslation(),
                                                    x0_player.GetTranslation());
-        x1bcc_[7]->SetOrientation(rainOrient);
+        x1bc8_wakeEffectGens[7]->SetOrientation(rainOrient);
     }
     if (x1c0c_wakeEffectIdx != -1)
-        x1bcc_[x1c0c_wakeEffectIdx]->Update(dt);
+        x1bc8_wakeEffectGens[x1c0c_wakeEffectIdx]->Update(dt);
     if (x1e38_wallSparkFrameCountdown > 0)
     {
         x1e38_wallSparkFrameCountdown -= 1;
@@ -1224,22 +1259,23 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
         x19d8_boostBallGlowGen->Update(dt);
     }
     x19d4_spiderBallMagnetEffectGen->Update(dt);
-    x1c30_ -= 0.03f;
-    x1c30_ = std::max(0.f, x1c30_);
-    if (x1c30_ == 0.f)
+    x1c30_boostOverLightFactor -= 0.03f;
+    x1c30_boostOverLightFactor = std::max(0.f, x1c30_boostOverLightFactor);
+    if (x1c30_boostOverLightFactor == 0.f)
     {
-        x1c34_ -= 0.04f;
-        x1c34_ = std::max(0.f, x1c34_);
+        x1c34_boostLightFactor -= 0.04f;
+        x1c34_boostLightFactor = std::max(0.f, x1c34_boostLightFactor);
     }
     if (x1de4_24_inBoost)
     {
-        x1c30_ = 1.f;
-        x1c34_ = 1.f;
+        x1c30_boostOverLightFactor = 1.f;
+        x1c34_boostLightFactor = 1.f;
     }
     else
     {
-        x1c34_ = std::max(x1de8_boostChargeTime / g_tweakBall->GetBoostBallMaxChargeTime(), x1c34_);
-        x1c34_ = std::min(x1c34_, 1.f);
+        x1c34_boostLightFactor = std::max(x1de8_boostChargeTime / g_tweakBall->GetBoostBallMaxChargeTime(),
+                                       x1c34_boostLightFactor);
+        x1c34_boostLightFactor = std::min(x1c34_boostLightFactor, 1.f);
     }
     UpdateMorphBallTransitionFlash(dt);
     UpdateIceBreakEffect(dt);
@@ -1276,7 +1312,7 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
                 }
                 else
                 {
-                    lObj->SetColor(zeus::CColor::lerp(lObj->GetColor(), zeus::CColor::skWhite, x1c34_));
+                    lObj->SetColor(zeus::CColor::lerp(lObj->GetColor(), zeus::CColor::skWhite, x1c34_boostLightFactor));
                 }
                 light->SetLight(*lObj);
             }
@@ -1290,11 +1326,11 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
         AddSpiderBallElectricalEffect();
         AddSpiderBallElectricalEffect();
         AddSpiderBallElectricalEffect();
-        x1c38_ = std::min(x1c38_ + 0.25f, 1.f);
+        x1c38_spiderLightFactor = std::min(x1c38_spiderLightFactor + 0.25f, 1.f);
     }
     else
     {
-        x1c38_ = std::max(0.f, x1c38_ - 0.15f);
+        x1c38_spiderLightFactor = std::max(0.f, x1c38_spiderLightFactor - 0.15f);
     }
 
     UpdateSpiderBallElectricalEffects();
@@ -1314,7 +1350,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
 
     if (!x1de4_24_inBoost)
     {
-        x1dec_ += dt;
+        x1dec_timeNotInBoost += dt;
         if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input) &&
             x187c_spiderBallState != ESpiderBallState::Active)
         {
@@ -1443,7 +1479,7 @@ void CMorphBall::LeaveBoosting()
 {
     if (x1de4_24_inBoost)
     {
-        x1dec_ = 0.f;
+        x1dec_timeNotInBoost = 0.f;
         x1de8_boostChargeTime = 0.f;
     }
     x1de4_24_inBoost = false;
@@ -1465,6 +1501,79 @@ void CMorphBall::CancelBoosting()
 
 bool CMorphBall::UpdateMarbleDynamics(CStateManager& mgr, float dt, const zeus::CVector3f& point)
 {
+    bool continueForce = false;
+    float maxAcc = g_tweakBall->GetMaxBallTranslationAcceleration(int(x0_player.GetSurfaceRestraint()));
+    if (x0_player.GetVelocity().magnitude() < 3.f && x10_boostControlForce.magnitude() > 0.95f * maxAcc)
+    {
+        zeus::CVector3f localMomentum = x1924_surfaceToWorld.transposeRotate(x0_player.GetMomentum());
+        localMomentum.z = 0.f;
+        zeus::CVector3f localControlForce = x1924_surfaceToWorld.transposeRotate(x10_boostControlForce);
+        localControlForce.z = 0.f;
+        if (localMomentum.canBeNormalized() && localControlForce.canBeNormalized())
+            if (localMomentum.normalized().dot(localControlForce.normalized()) < -0.9f)
+                continueForce = true;
+    }
+
+    if (!continueForce)
+    {
+        zeus::CVector3f vel = x0_player.GetVelocity();
+        zeus::CVector3f ballToPoint =
+            point - (x0_player.GetTranslation() + zeus::CVector3f(0.f, 0.f, GetBallRadius()));
+        zeus::CVector3f addVel = x0_player.GetAngularVelocityWR().getVector().cross(ballToPoint);
+        zeus::CVector3f velDelta = vel - addVel;
+        float f28 = x187c_spiderBallState == ESpiderBallState::Active ? -1.f : 0.4f;
+        float liftSpeed = 0.f;
+        if (x1cd0_liftSpeedAvg.Size() > 3)
+        {
+            liftSpeed = *x1cd0_liftSpeedAvg.GetEntry(0);
+            liftSpeed = std::min(liftSpeed, *x1cd0_liftSpeedAvg.GetEntry(1));
+            liftSpeed = std::min(liftSpeed, *x1cd0_liftSpeedAvg.GetEntry(2));
+        }
+        if (velDelta.magSquared() > 1.f && liftSpeed > f28)
+        {
+            if (velDelta.magnitude() > 25.132742f)
+                velDelta = velDelta.normalized() * M_PIF * 8.f;
+            zeus::CVector3f newVel = vel + addVel;
+            if (newVel.canBeNormalized())
+            {
+                float f26 = (x28_tireMode && x187c_spiderBallState != ESpiderBallState::Active) ? 0.25f : 1.f;
+                zeus::CVector3f f27 = newVel.normalized() * (velDelta.magnitude() *
+                    -g_tweakBall->GetBallSlipFactor(int(x0_player.GetSurfaceRestraint())) *
+                    f26 * 0.5f / GetBallRadius());
+                x0_player.ApplyTorqueWR(ballToPoint.normalized().cross(f27));
+            }
+        }
+    }
+    else
+    {
+        zeus::CVector3f rotAxis = x1924_surfaceToWorld.basis[2].cross(x10_boostControlForce);
+        if (rotAxis.canBeNormalized())
+            SpinToSpeed(25.f / GetBallRadius(), rotAxis.normalized(), 800.f);
+    }
+
+    if (x0_player.GetVelocity().magnitude() >= GetMinimumAlignmentSpeed())
+    {
+        zeus::CVector3f axis = x1924_surfaceToWorld.basis[0];
+        if (x0_player.GetTransform().basis[0].dot(axis) < 0.f)
+            axis = -axis;
+        zeus::CVector3f upVec = x0_player.GetTransform().basis[0].cross(axis);
+        if (upVec.canBeNormalized())
+        {
+            if (!x28_tireMode)
+            {
+                x0_player.SetAngularImpulse(
+                    x0_player.GetAngularImpulse().getVector() + upVec.normalized() * g_tweakBall->GetTireness());
+            }
+            else
+            {
+                x0_player.RotateInOneFrameOR(
+                    zeus::CQuaternion::shortestRotationArc(zeus::CVector3f::skRight,
+                                                           GetBallToWorld().transposeRotate(axis)), dt);
+            }
+        }
+        return upVec.magnitude() < (GetIsInHalfPipeMode() ? 0.2f : 0.05f);
+    }
+
     return false;
 }
 
@@ -1495,14 +1604,246 @@ float CMorphBall::GetMinimumAlignmentSpeed() const
         return g_tweakBall->GetMinimumAlignmentSpeed();
 }
 
-void CMorphBall::PreRender(CStateManager&, const zeus::CFrustum&)
+void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 {
+    if (x1c34_boostLightFactor == 1.f)
+        return;
 
+    x0_player.ActorLights()->SetFindShadowLight(x1e44_damageEffect < 0.25f);
+    x0_player.ActorLights()->SetShadowDynamicRangeThreshold(0.05f);
+    x0_player.ActorLights()->SetDirty();
+
+    CCollidableSphere sphere = x38_collisionSphere;
+    sphere.SetSphereCenter(zeus::CVector3f::skZero);
+    zeus::CAABox ballAABB = sphere.CalculateAABox(GetBallToWorld());
+
+    if (x0_player.GetAreaIdAlways() != kInvalidAreaId)
+    {
+        const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x0_player.GetAreaIdAlways());
+        if (area->IsPostConstructed())
+            x0_player.ActorLights()->BuildAreaLightList(mgr, *area, ballAABB);
+    }
+
+    x0_player.ActorLights()->BuildDynamicLightList(mgr, ballAABB);
+    if (x0_player.ActorLights()->HasShadowLight())
+    {
+        CCollidableSphere sphere = x38_collisionSphere;
+        sphere.SetSphereCenter(zeus::CVector3f::skZero);
+        x1c14_worldShadow->BuildLightShadowTexture(mgr, x0_player.GetAreaIdAlways(),
+                                                   x0_player.GetActorLights()->GetShadowLightIndex(),
+                                                   sphere.CalculateAABox(GetBallToWorld()), false, false);
+    }
+    else
+    {
+        x1c14_worldShadow->ResetBlur();
+    }
+
+    zeus::CColor ambColor = x0_player.ActorLights()->GetAmbientColor();
+    ambColor.a = 1.f;
+    x0_player.ActorLights()->SetAmbientColor(zeus::CColor::lerp(ambColor, zeus::CColor::skWhite,
+                                                                x1c34_boostLightFactor));
+    *x1c18_actorLights = *x0_player.GetActorLights();
+
+    ambColor = x0_player.ActorLights()->GetAmbientColor();
+    ambColor.a = 1.f;
+    x1c18_actorLights->SetAmbientColor(zeus::CColor::lerp(ambColor, zeus::CColor::skWhite,
+                                                          std::max(x1c38_spiderLightFactor, x1c34_boostLightFactor)));
+
+    if (CAnimData* animData = x58_ballModel->AnimationData())
+        animData->PreRender();
 }
 
-void CMorphBall::Render(const CStateManager&, const CActorLights*) const
+void CMorphBall::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn)
 {
+    reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
+}
 
+static const u8 BallSwooshColors[9][3] =
+{
+    {0xC2, 0x8F, 0x17},
+    {0x70, 0xD4, 0xFF},
+    {0x6A, 0xFF, 0x8A},
+    {0x3D, 0x4D, 0xFF},
+    {0xC0, 0x00, 0x00},
+    {0x00, 0xBE, 0xDC},
+    {0xDF, 0xFF, 0x00},
+    {0xC4, 0x9E, 0xFF},
+    {0xFF, 0x9A, 0x22},
+};
+
+static const u8 BallSwooshColorsCharged[9][3] =
+{
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0x80, 0x20},
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0xE6, 0x00},
+    {0xFF, 0xE6, 0x00}
+};
+
+static const u8 BallSwooshColorsLaggy[9][3] =
+{
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xD5, 0x19},
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xCC, 0x00},
+    {0xFF, 0xCC, 0x00}
+};
+
+void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) const
+{
+    zeus::CTransform ballToWorld = GetBallToWorld();
+    if (x28_tireMode)
+    {
+        ballToWorld = ballToWorld *
+                      zeus::CQuaternion::fromAxisAngle(ballToWorld.transposeRotate(x0_player.x500_lookDir),
+                                                       x30_ballTiltAngle).toTransform();
+    }
+
+    bool dying = x0_player.x9f4_deathTime > 0.f;
+    if (dying)
+    {
+        zeus::CColor modColor(0.f, zeus::clamp(0.f, 1.f - x0_player.x9f4_deathTime / 0.2f * 6.f, 1.f));
+        CModelFlags flags(7, u8(x5c_ballModelShader), 1, modColor);
+        x58_ballModel->Render(mgr, ballToWorld, nullptr, flags);
+    }
+
+    CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
+
+    if (x1e44_damageEffect > 0.f)
+        flags = CModelFlags(1, 0, 3, zeus::CColor(1.f, 1.f - x1e44_damageEffect, 1.f - x1e44_damageEffect, 1.f));
+
+    if (x1c1c_rainSplashGen && x1c1c_rainSplashGen->IsRaining())
+        CSkinnedModel::SetPointGeneratorFunc(x1c1c_rainSplashGen.get(), PointGenerator);
+
+    if (x1c34_boostLightFactor != 1.f)
+    {
+        if (lights->HasShadowLight())
+            x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
+        x58_ballModel->Render(mgr, ballToWorld, lights, flags);
+        x1c14_worldShadow->DisableModelProjectedShadow();
+    }
+    else
+    {
+        x58_ballModel->Render(mgr, ballToWorld, nullptr, flags);
+    }
+
+    if (x1c1c_rainSplashGen && x1c1c_rainSplashGen->IsRaining())
+    {
+        CSkinnedModel::ClearPointGeneratorFunc();
+        x1c1c_rainSplashGen->Draw(zeus::CTransform::Translate(ballToWorld.origin));
+    }
+
+    float speed = x0_player.GetVelocity().magnitude();
+    if (x1e44_damageEffect > 0.25f)
+    {
+        RenderDamageEffects(mgr, ballToWorld);
+    }
+    else if (x1c30_boostOverLightFactor > 0.f && !dying)
+    {
+        int count = std::min(int(speed * 0.5f), 5);
+        for (int i=0 ; i<count ; ++i)
+        {
+            zeus::CTransform xf = zeus::CTransform::Translate(*x1c90_ballPosAvg.GetEntry(i)) *
+                x1c3c_ballOrientAvg.GetEntry(i)->toTransform();
+            float alpha = (1.f - i / 5.f) * x1c30_boostOverLightFactor * 0.2f;
+            if (x68_lowPolyBallModel)
+            {
+                CModelFlags lpFlags(7, u8(x6c_lowPolyBallModelShader), 1, zeus::CColor(1.f, alpha));
+                x68_lowPolyBallModel->Render(mgr, xf, nullptr, lpFlags);
+            }
+        }
+    }
+
+    const u8* c = BallSwooshColors[x8_ballGlowColorIdx];
+    float swooshAlpha = x1c20_tireFactor / x1c24_maxTireFactor;
+    zeus::CColor color0 = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, swooshAlpha};
+    c = BallSwooshColorsCharged[x8_ballGlowColorIdx];
+    zeus::CColor color1 = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, swooshAlpha};
+    float t = 0.f;
+    if (x1df4_boostDrainTime > 0.f)
+        t = zeus::clamp(0.f, (speed - 25.f) / 15.f, 1.f);
+    zeus::CColor tailColor = zeus::CColor::lerp(color0, color1, t);
+    x19b8_slowBlueTailSwooshGen->SetModulationColor(tailColor);
+    x19b8_slowBlueTailSwooshGen->Render();
+    x19bc_slowBlueTailSwooshGen2->SetModulationColor(tailColor);
+    x19bc_slowBlueTailSwooshGen2->Render();
+    x19c0_slowBlueTailSwoosh2Gen->SetModulationColor(tailColor);
+    x19c0_slowBlueTailSwoosh2Gen->Render();
+    x19c4_slowBlueTailSwoosh2Gen2->SetModulationColor(tailColor);
+    x19c4_slowBlueTailSwoosh2Gen2->Render();
+
+    if (x1df4_boostDrainTime > 0.f && speed > 23.f && swooshAlpha > 0.5f)
+    {
+        float laggyAlpha = zeus::clamp(0.f, (speed - 23.f) / 17.f, t);
+        c = BallSwooshColorsLaggy[x8_ballGlowColorIdx];
+        zeus::CColor colorLaggy = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, laggyAlpha};
+        x19c8_jaggyTrailGen->SetModulationColor(colorLaggy);
+        x19c8_jaggyTrailGen->Render();
+    }
+
+    RenderSpiderBallElectricalEffect();
+
+    if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::SpiderBall) && x60_spiderBallGlassModel)
+    {
+        float tmp = std::max(x1c38_spiderLightFactor, x1c34_boostLightFactor);
+        CModelFlags sflags(0, u8(x64_spiderBallGlassModelShader), 3, zeus::CColor::skWhite);
+        if (tmp != 1.f)
+        {
+            if (lights->HasShadowLight())
+                x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
+            x60_spiderBallGlassModel->Render(mgr, ballToWorld, x1c18_actorLights.get(), sflags);
+            x1c14_worldShadow->DisableModelProjectedShadow();
+        }
+        else
+        {
+            x60_spiderBallGlassModel->Render(mgr, ballToWorld, nullptr, sflags);
+        }
+    }
+
+    x19cc_wallSparkGen->Render();
+    x1bc8_wakeEffectGens[7]->Render();
+    if (x1c0c_wakeEffectIdx != -1)
+        x1bc8_wakeEffectGens[x1c0c_wakeEffectIdx]->Render();
+
+    c = BallGlowColors[x8_ballGlowColorIdx];
+    zeus::CColor glowColor = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, 1.f};
+    x19d0_ballInnerGlowGen->SetModulationColor(glowColor);
+    if (x19d0_ballInnerGlowGen->GetNumActiveChildParticles() > 0)
+    {
+        c = BallTransFlashColors[x8_ballGlowColorIdx];
+        glowColor = zeus::CColor{c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, 1.f};
+        x19d0_ballInnerGlowGen->GetActiveChildParticle(0).SetModulationColor(glowColor);
+        if (x19d0_ballInnerGlowGen->GetNumActiveChildParticles() > 1)
+        {
+            c = BallAuxGlowColors[x8_ballGlowColorIdx];
+            glowColor = zeus::CColor{c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, 1.f};
+            x19d0_ballInnerGlowGen->GetActiveChildParticle(1).SetModulationColor(glowColor);
+        }
+    }
+
+    x19d0_ballInnerGlowGen->Render();
+    x19d4_spiderBallMagnetEffectGen->Render();
+    RenderEnergyDrainEffects(mgr);
+    if (x19d8_boostBallGlowGen->GetModulationColor() != zeus::CColor::skClear)
+        x19d8_boostBallGlowGen->Render();
+
+    RenderMorphBallTransitionFlash(mgr);
+
+    if (x0_player.GetFrozenState())
+    {
+        CModelFlags fflags(0, 0, 3, zeus::CColor::skWhite);
+        x70_frozenBallModel->Render(mgr, zeus::CTransform::Translate(ballToWorld.origin), lights, fflags);
+    }
+
+    RenderIceBreakEffect(mgr);
 }
 
 void CMorphBall::ResetMorphBallTransitionFlash()
@@ -1576,12 +1917,13 @@ void CMorphBall::RenderIceBreakEffect(const CStateManager& mgr) const
 void CMorphBall::RenderDamageEffects(const CStateManager& mgr, const zeus::CTransform& xf) const
 {
     CRandom16 rand(99);
-    CModelFlags flags(7, 0, 1, zeus::CColor(0.25f * x1e44_, 0.1f * x1e44_, 0.1f * x1e44_, 1.f)); // No Z update
+    CModelFlags flags(7, 0, 1, zeus::CColor(0.25f * x1e44_damageEffect, 0.1f * x1e44_damageEffect,
+                                            0.1f * x1e44_damageEffect, 1.f)); // No Z update
     flags.m_extendedShader = EExtendedShader::SolidColorAdditive;
     for (int i=0 ; i<5 ; ++i)
     {
         rand.Float();
-        float translateMag = 0.15f * x1e44_ * std::sin(30.f * x1e4c_ + rand.Float() * M_PIF);
+        float translateMag = 0.15f * x1e44_damageEffect * std::sin(30.f * x1e4c_damageTime + rand.Float() * M_PIF);
         zeus::CTransform modelXf =
         xf * zeus::CTransform::Translate(translateMag * rand.Float(), translateMag * rand.Float(),
                                          translateMag * rand.Float());
@@ -1591,22 +1933,22 @@ void CMorphBall::RenderDamageEffects(const CStateManager& mgr, const zeus::CTran
 
 void CMorphBall::UpdateHalfPipeStatus(CStateManager& mgr, float dt)
 {
-    x1dfc_ -= dt;
-    x1dfc_ = std::max(0.f, x1dfc_);
-    x1e04_ -= dt;
-    x1e04_ = std::max(0.f, x1e04_);
-    if (x1dfc_ > 0.f)
+    x1dfc_touchHalfPipeCooldown -= dt;
+    x1dfc_touchHalfPipeCooldown = std::max(0.f, x1dfc_touchHalfPipeCooldown);
+    x1e04_touchHalfPipeRecentCooldown -= dt;
+    x1e04_touchHalfPipeRecentCooldown = std::max(0.f, x1e04_touchHalfPipeRecentCooldown);
+    if (x1dfc_touchHalfPipeCooldown > 0.f)
     {
-        float avg = *x1cd0_.GetAverage();
+        float avg = *x1cd0_liftSpeedAvg.GetAverage();
         if (avg > 25.f || (GetIsInHalfPipeMode() && avg > 4.5f))
         {
             SetIsInHalfPipeMode(true);
             SetIsInHalfPipeModeInAir(!x1df8_27_ballCloseToCollision);
-            SetTouchedHalfPipeRecently(x1e04_ > 0.f);
+            SetTouchedHalfPipeRecently(x1e04_touchHalfPipeRecentCooldown > 0.f);
             if (GetIsInHalfPipeModeInAir())
             {
-                x1e08_ = zeus::CVector3f::skZero;
-                x1e14_ = zeus::CVector3f::skZero;
+                x1e08_prevHalfPipeNormal = zeus::CVector3f::skZero;
+                x1e14_halfPipeNormal = zeus::CVector3f::skZero;
             }
         }
         else
@@ -1630,11 +1972,11 @@ void CMorphBall::DisableHalfPipeStatus()
     SetIsInHalfPipeMode(false);
     SetIsInHalfPipeModeInAir(false);
     SetTouchedHalfPipeRecently(false);
-    x1dfc_ = 0.f;
-    x1e00_ = 0.f;
+    x1dfc_touchHalfPipeCooldown = 0.f;
+    x1e00_disableControlCooldown = 0.f;
     x0_player.SetCollisionAccuracyModifier(1.f);
-    x1e08_ = zeus::CVector3f::skZero;
-    x1e14_ = zeus::CVector3f::skZero;
+    x1e08_prevHalfPipeNormal = zeus::CVector3f::skZero;
+    x1e14_halfPipeNormal = zeus::CVector3f::skZero;
 }
 
 bool CMorphBall::BallCloseToCollision(const CStateManager& mgr, float dist, const CMaterialFilter& filter) const
@@ -1751,24 +2093,24 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
     }
 
     if (wakeMaterial == EMaterialTypes::Unknown && x1c0c_wakeEffectIdx != -1)
-        x1bcc_[int(wakeMaterial)]->SetParticleEmission(false);
+        x1bc8_wakeEffectGens[int(wakeMaterial)]->SetParticleEmission(false);
 
     x1954_isProjectile = false;
 
     if (allMats.HasMaterial(EMaterialTypes::HalfPipe))
     {
-        x1dfc_ = 4.f;
-        x1e04_ = 0.05f;
+        x1dfc_touchHalfPipeCooldown = 4.f;
+        x1e04_touchHalfPipeRecentCooldown = 0.05f;
         for (const CCollisionInfo& info : list)
         {
             if (info.GetMaterialLeft().HasMaterial(EMaterialTypes::HalfPipe))
             {
-                if (info.GetNormalLeft().dot(x1e14_) < 0.99)
+                if (info.GetNormalLeft().dot(x1e14_halfPipeNormal) < 0.99)
                 {
-                    x1e08_ = x1e14_;
-                    x1e14_ = info.GetNormalLeft();
-                    if (zeus::close_enough(x1e08_, zeus::CVector3f::skZero, 0.000011920929f))
-                        x1e08_ = x1e14_;
+                    x1e08_prevHalfPipeNormal = x1e14_halfPipeNormal;
+                    x1e14_halfPipeNormal = info.GetNormalLeft();
+                    if (zeus::close_enough(x1e08_prevHalfPipeNormal, zeus::CVector3f::skZero, 0.000011920929f))
+                        x1e08_prevHalfPipeNormal = x1e14_halfPipeNormal;
                 }
             }
         }
@@ -1796,27 +2138,27 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
     {
         zeus::CVector3f cvel = x0_player.GetVelocity();
         float cvelMag = cvel.magnitude();
-        zeus::CVector3f pvel = x1c_;
-        if (pvel.magnitude() > 1000.f && cvelMag > 8.f)
+        zeus::CVector3f cforce = x1c_controlForce;
+        if (cforce.magnitude() > 1000.f && cvelMag > 8.f)
         {
-            zeus::CVector3f pvelNorm = pvel.normalized();
+            zeus::CVector3f cforceNorm = cforce.normalized();
             zeus::CVector3f cvelNorm = cvel.normalized();
             for (const CCollisionInfo& info : list)
             {
                 if (IsClimbable(info) &&
-                    info.GetNormalLeft().dot(pvelNorm) < -0.4f &&
+                    info.GetNormalLeft().dot(cforceNorm) < -0.4f &&
                     info.GetNormalLeft().dot(cvelNorm) < -0.6f)
                 {
-                    float f2 = 0.75f * cvelMag;
+                    float threeQVel = 0.75f * cvelMag;
                     float maxSpeed = g_tweakBall->GetBallTranslationMaxSpeed(int(x0_player.GetSurfaceRestraint()));
                     float f0 = maxSpeed * 0.15f;
-                    float f3 = (f2 - f0) < 0.f ? f2 : f0;
+                    float f3 = (threeQVel - f0) < 0.f ? threeQVel : f0;
                     float f4 = maxSpeed * 0.25f;
                     f4 = (f3 - f4) < 0.f ? f4 : f3;
                     zeus::CVector3f newVel = cvel + zeus::CVector3f(0.f, 0.f, f4);
                     x1dd8_ = newVel;
                     x0_player.SetVelocityWR(newVel);
-                    x1dc8_ += 1;
+                    x1dc8_failsafeCounter += 1;
                     break;
                 }
             }
@@ -1840,7 +2182,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
         }
 
         if (accum / float(count) < 0.5f)
-            x1dc8_ += 1;
+            x1dc8_failsafeCounter += 1;
     }
 
     if (list.GetCount() != 0)
@@ -1860,9 +2202,41 @@ bool CMorphBall::IsInFrustum(const zeus::CFrustum& frustum) const
            frustum.aabbFrustumTest(*swooshBounds);
 }
 
-void CMorphBall::ComputeLiftForces(const zeus::CVector3f&, const zeus::CVector3f&, const CStateManager&)
+void CMorphBall::ComputeLiftForces(const zeus::CVector3f& controlForce, const zeus::CVector3f& velocity,
+                                   const CStateManager& mgr)
 {
-
+    x1cd0_liftSpeedAvg.AddValue(velocity.magnitude());
+    x1d10_liftControlForceAvg.AddValue(controlForce);
+    zeus::CVector3f avgControlForce = *x1d10_liftControlForceAvg.GetAverage();
+    float avgControlForceMag = avgControlForce.magnitude();
+    if (avgControlForceMag > 12000.f)
+    {
+        float avgLiftSpeed = *x1cd0_liftSpeedAvg.GetAverage();
+        if (avgLiftSpeed < 4.f)
+        {
+            zeus::CTransform xf = x0_player.GetPrimitiveTransform();
+            zeus::CAABox aabb = x0_player.GetCollisionPrimitive()->CalculateAABox(xf);
+            aabb.min -= zeus::CVector3f(0.1f, 0.1f, -0.05f);
+            aabb.max += zeus::CVector3f(0.1f, 0.1f, -0.05f);
+            CCollidableAABox colAABB(aabb, {EMaterialTypes::Solid});
+            if (CGameCollision::DetectStaticCollisionBoolean(mgr, colAABB, zeus::CTransform::Identity(),
+                                                             CMaterialFilter::skPassEverything))
+            {
+                zeus::CVector3f pos = xf.origin + zeus::CVector3f(0.f, 0.f, 1.75f * GetBallRadius());
+                zeus::CVector3f dir = avgControlForce * (1.f / avgControlForceMag);
+                CRayCastResult result =
+                mgr.RayStaticIntersection(pos, dir, 1.4f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+                if (result.IsInvalid())
+                {
+                    float mag = 1.f - std::max(0.f, avgLiftSpeed - 3.f);
+                    zeus::CVector3f force(0.f, 0.f, mag * 40000.f);
+                    x0_player.ApplyForceWR(force, zeus::CAxisAngle::sIdentity);
+                    x0_player.ApplyImpulseWR(zeus::CVector3f::skZero,
+                                             zeus::CAxisAngle(-x1924_surfaceToWorld.basis[0] * 1000.f * mag));
+                }
+            }
+        }
+    }
 }
 
 float CMorphBall::CalculateSurfaceFriction() const
@@ -1925,9 +2299,39 @@ bool CMorphBall::IsClimbable(const CCollisionInfo& cinfo) const
     return false;
 }
 
-void CMorphBall::FluidFXThink(CActor::EFluidState, CScriptWater&, CStateManager&)
+void CMorphBall::FluidFXThink(CActor::EFluidState state, CScriptWater& water, CStateManager& mgr)
 {
-
+    zeus::CVector3f vec = x0_player.GetTranslation();
+    vec.z = water.GetTriggerBoundsWR().max.z;
+    if (x0_player.x4fc_flatMoveSpeed >= 8.f)
+    {
+        float maxVel = x0_player.GetBallMaxVelocity();
+        if (mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(x0_player.GetUniqueId()) >=
+            (maxVel - x0_player.x4fc_flatMoveSpeed) / (maxVel - 8.f) * 0.1f)
+        {
+            mgr.GetFluidPlaneManager()->CreateSplash(x0_player.GetUniqueId(), mgr, water, vec, 0.f,
+                                                     state == CActor::EFluidState::EnteredFluid);
+        }
+    }
+    if (x0_player.x4fc_flatMoveSpeed >= 0.2f)
+    {
+        float deltaTime = mgr.GetFluidPlaneManager()->GetLastRippleDeltaTime(x0_player.GetUniqueId());
+        float f0;
+        if (x0_player.x4fc_flatMoveSpeed <= 15.f)
+        {
+            f0 = 0.13f;
+        }
+        else
+        {
+            f0 = std::max(0.1f, 0.13f - 0.03f * (x0_player.x4fc_flatMoveSpeed - 15.f) /
+                                       (x0_player.GetBallMaxVelocity() - x0_player.x4fc_flatMoveSpeed));
+        }
+        if (deltaTime >= f0)
+        {
+            water.GetFluidPlane().AddRipple(0.65f * x0_player.x4fc_flatMoveSpeed / x0_player.GetBallMaxVelocity(),
+                                            x0_player.GetUniqueId(), vec, water, mgr);
+        }
+    }
 }
 
 static const std::pair<const char*, u32> kBallCharacterTable[] =
@@ -2055,22 +2459,73 @@ void CMorphBall::LoadMorphBallModel(CStateManager& mgr)
 
 void CMorphBall::AddSpiderBallElectricalEffect()
 {
+    u32 idx = 0;
+    for (auto& gen : x19e4_spiderElectricGens)
+    {
+        if (gen.second)
+        {
+            ++idx;
+            continue;
+        }
 
+        gen.second = true;
+        x1b6c_activeSpiderElectricList.emplace_back(idx, x1b80_rand.Range(4, 8));
+
+        float sign = (x1b80_rand.Next() & 0x100) < 0x80 ? -1.f : 1.f;
+        float randDir = GetBallRadius() * 0.9f * sign;
+        float ang0 = zeus::degToRad(40.f - x1b80_rand.Float() * 80.f);
+        float ang1 = zeus::degToRad(40.f - x1b80_rand.Float() * 80.f + 90.f);
+        zeus::CVector3f translation(std::sin(ang1) * std::cos(ang0) * sign * 0.6f + randDir * 1.32f,
+                                    0.6f * sign * std::sin(ang0),
+                                    0.6f * sign * std::cos(ang1) * std::cos(ang0));
+        zeus::CVector3f transInc = (zeus::CVector3f(randDir, 0.f, 0.f) - translation) * (1.f / 6.f);
+        gen.first->DoSpiderBallWarmup(translation, transInc);
+        break;
+    }
 }
 
 void CMorphBall::UpdateSpiderBallElectricalEffects()
 {
+    zeus::CTransform ballToWorld = GetBallToWorld();
+    zeus::CVector3f ballTranslation = ballToWorld.origin;
+    ballToWorld.origin = zeus::CVector3f::skZero;
 
+    for (auto it = x1b6c_activeSpiderElectricList.begin() ; it != x1b6c_activeSpiderElectricList.end() ;)
+    {
+        CSpiderBallElectricityManager& elec = *it;
+        if (elec.x8_curFrame >= elec.x4_lifetime)
+        {
+            x19e4_spiderElectricGens[elec.x0_effectIdx].second = false;
+            it = x1b6c_activeSpiderElectricList.erase(it);
+            continue;
+        }
+
+        CParticleSwoosh& swoosh = *x19e4_spiderElectricGens[elec.x0_effectIdx].first;
+        swoosh.SetModulationColor(zeus::CColor(1.f, 1.f - elec.x8_curFrame / elec.x4_lifetime));
+        swoosh.SetGlobalTranslation(ballTranslation);
+        swoosh.SetGlobalOrientation(ballToWorld);
+        elec.x8_curFrame += 1;
+        ++it;
+    }
 }
 
 void CMorphBall::RenderSpiderBallElectricalEffect() const
 {
-
+    for (const CSpiderBallElectricityManager& effect : x1b6c_activeSpiderElectricList)
+        x19e4_spiderElectricGens[effect.x0_effectIdx].first->Render();
 }
 
-void CMorphBall::RenderEnergyDrainEffects(const CStateManager&) const
+void CMorphBall::RenderEnergyDrainEffects(const CStateManager& mgr) const
 {
-
+    for (const CEnergyDrainSource& source : x0_player.x274_energyDrain.GetEnergyDrainSources())
+    {
+        if (const MP1::CMetroidBeta* metroid =
+            CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId())))
+        {
+            metroid->RenderHitBallEffect();
+            break;
+        }
+    }
 }
 
 void CMorphBall::TouchModel(const CStateManager& mgr) const
@@ -2081,14 +2536,23 @@ void CMorphBall::TouchModel(const CStateManager& mgr) const
     x68_lowPolyBallModel->Touch(mgr, x6c_lowPolyBallModelShader);
 }
 
-void CMorphBall::SetAsProjectile(const CDamageInfo&, const CDamageInfo&)
+void CMorphBall::TakeDamage(float dam)
 {
+    if (dam <= 0.f)
+    {
+        x1e44_damageEffect = 0.f;
+        x1e48_damageEffectDecaySpeed = 0.f;
+        return;
+    }
 
-}
+    if (dam >= 20.f)
+        x1e48_damageEffectDecaySpeed = 0.25f;
+    else if (dam > 5.f)
+        x1e48_damageEffectDecaySpeed = 1.f - (dam - 5.f) / 15.f * 0.75f;
+    else
+        x1e48_damageEffectDecaySpeed = 1.f;
 
-void CMorphBall::TakeDamage(float)
-{
-
+    x1e44_damageEffect = 1.f;
 }
 
 void CMorphBall::StartLandingSfx()
@@ -2125,9 +2589,9 @@ void CMorphBall::StopSounds()
 void CMorphBall::StopEffects()
 {
     x19cc_wallSparkGen->SetParticleEmission(false);
-    x1bcc_[7]->SetParticleEmission(false);
+    x1bc8_wakeEffectGens[7]->SetParticleEmission(false);
     if (x1c0c_wakeEffectIdx != -1)
-        x1bcc_[x1c0c_wakeEffectIdx]->SetParticleEmission(false);
+        x1bc8_wakeEffectGens[x1c0c_wakeEffectIdx]->SetParticleEmission(false);
 }
 
 }

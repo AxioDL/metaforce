@@ -115,32 +115,6 @@ static const u32 Character2and3Idxs[8][2] =
     {30, 31}
 };
 
-static const u8 BallGlowColors[9][3] =
-{
-    {0xff, 0xff, 0xff},
-    {0xff, 0xff, 0xff},
-    {0xff, 0xff, 0xff},
-    {0xff, 0xff, 0xff},
-    {0xff, 0xd5, 0x19},
-    {0xff, 0xff, 0xff},
-    {0xff, 0xff, 0xff},
-    {0xff, 0xff, 0xff},
-    {0xff, 0xff, 0xff},
-};
-
-static const u8 BallAuxGlowColors[9][3] =
-{
-    {0xc2, 0x7e, 0x10},
-    {0x66, 0xc4, 0xff},
-    {0x6c, 0xff, 0x61},
-    {0x33, 0x33, 0xff},
-    {0xff, 0x20, 0x20},
-    {0x0, 0x9d, 0xb6},
-    {0xd3, 0xf1, 0x0},
-    {0xa6, 0x86, 0xd8},
-    {0xfb, 0x98, 0x21}
-};
-
 CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp,
                        CPlayerState::EPlayerSuit suit, CPlayerState::EBeamId beam,
                        bool hasSpiderBall, bool hasGrappleBeam)
@@ -589,7 +563,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
         flags.x4_color.a = x6c_ballPulseFactor * alpha * itemPulse;
         x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
 
-        const u8* c = BallGlowColors[x1e8_ballGlowColorIdx];
+        const u8* c = CMorphBall::BallGlowColors[x1e8_ballGlowColorIdx];
         zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
         x22c_ballInnerGlowGen->SetModulationColor(color);
 
@@ -603,7 +577,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
                 if (x22c_ballInnerGlowGen->GetNumActiveChildParticles() > 1)
                 {
-                    const u8* c = BallAuxGlowColors[x1e8_ballGlowColorIdx];
+                    const u8* c = CMorphBall::BallAuxGlowColors[x1e8_ballGlowColorIdx];
                     zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
                     x22c_ballInnerGlowGen->GetActiveChildParticle(1).SetModulationColor(color);
                 }

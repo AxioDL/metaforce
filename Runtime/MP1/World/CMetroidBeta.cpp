@@ -19,5 +19,10 @@ void CMetroidBeta::RenderHitGunEffect() const
 
 }
 
+void CMetroidBeta::RenderHitBallEffect() const
+{
+
+}
+
 }
 }
