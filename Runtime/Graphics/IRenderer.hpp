@@ -45,7 +45,7 @@ public:
 
     virtual ~IRenderer() = default;
     virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int)=0;
-    virtual void EnablePVS(const CPVSVisSet*, u32)=0;
+    virtual void EnablePVS(const CPVSVisSet&, u32)=0;
     virtual void DisablePVS()=0;
     virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*)=0;
     virtual void DrawAreaGeometry(int areaIdx, int mask, int targetMask)=0;

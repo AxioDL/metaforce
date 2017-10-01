@@ -1382,7 +1382,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
 
             if (x1de8_boostChargeTime >= g_tweakBall->GetBoostBallMinChargeTime())
             {
-                if (GetBallBoostState() == EBallBoostState::Zero)
+                if (GetBallBoostState() == EBallBoostState::BoostAvailable)
                 {
                     if (GetIsInHalfPipeMode() || x1df8_27_ballCloseToCollision)
                     {
@@ -1395,7 +1395,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
                         CancelBoosting();
                     }
                 }
-                else if (GetBallBoostState() == EBallBoostState::One)
+                else if (GetBallBoostState() == EBallBoostState::BoostDisabled)
                 {
                     x0_player.SetTransform(zeus::lookAt(x0_player.GetTranslation(),
                                                         x0_player.GetTranslation() + GetBallToWorld().basis[1]));
@@ -1726,7 +1726,10 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     if (x1c34_boostLightFactor != 1.f)
     {
         if (lights->HasShadowLight())
+        {
             x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
+            flags.m_extendedShader = EExtendedShader::WorldShadow;
+        }
         x58_ballModel->Render(mgr, ballToWorld, lights, flags);
         x1c14_worldShadow->DisableModelProjectedShadow();
     }
@@ -1798,7 +1801,10 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
         if (tmp != 1.f)
         {
             if (lights->HasShadowLight())
+            {
                 x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
+                sflags.m_extendedShader = EExtendedShader::WorldShadow;
+            }
             x60_spiderBallGlassModel->Render(mgr, ballToWorld, x1c18_actorLights.get(), sflags);
             x1c14_worldShadow->DisableModelProjectedShadow();
         }

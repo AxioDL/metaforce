@@ -2470,19 +2470,14 @@ static const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const
 {
     CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
-    CModelFlags useFlags;
+    CModelFlags useFlags = flags;
+    if (x0_lights.HasShadowLight())
+        useFlags.m_extendedShader = EExtendedShader::WorldShadow;
+    CModelFlags beamFlags = useFlags;
     if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal)
-    {
-        useFlags = kThermalFlags[int(x310_currentBeam)];
-    }
-    else
-    {
-        if (x835_26_phazonBeamMorphing)
-            useFlags = CModelFlags(1, 0, 3, zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor::skBlack,
-                                                               x39c_phazonMorphT));
-        else
-            useFlags = flags;
-    }
+        beamFlags = kThermalFlags[int(x310_currentBeam)];
+    else if (x835_26_phazonBeamMorphing)
+        beamFlags.x4_color = zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor::skBlack, x39c_phazonMorphT);
 
     const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     CGraphics::SetDepthRange(0.03125f, 0.125f);
@@ -2525,8 +2520,8 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                        mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal ?
                                        kHandThermalFlag : kHandHoloFlag);
         }
-        DrawArm(mgr, pos, flags);
-        x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, useFlags, &x0_lights);
+        DrawArm(mgr, pos, useFlags);
+        x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &x0_lights);
         x82c_shadow->DisableModelProjectedShadow();
         break;
     case CGunMorph::EGunState::InWipeDone:
@@ -2545,7 +2540,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                 x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
             CGraphics::SetModelMatrix(morphXf);
             DrawClipCube(x6c8_hologramClipCube);
-            x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, useFlags, &x0_lights);
+            x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &x0_lights);
             x82c_shadow->DisableModelProjectedShadow();
         }
         else
@@ -2556,7 +2551,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
             x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
             if (x0_lights.HasShadowLight())
                 x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
-            DrawArm(mgr, pos, flags);
+            DrawArm(mgr, pos, useFlags);
             x82c_shadow->DisableModelProjectedShadow();
         }
         break;

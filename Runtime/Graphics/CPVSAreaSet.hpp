@@ -19,6 +19,14 @@ class CPVSAreaSet
     const u8* x1c_lightLeaves;
     CPVSVisOctree x20_octree;
 
+    CPVSVisSet _GetLightSet(u32 lightIdx) const
+    {
+        CPVSVisSet ret;
+        ret.SetFromMemory(x20_octree.GetTotalBits(), x20_octree.GetLightBits(),
+                          x1c_lightLeaves + x10_leafSize * lightIdx);
+        return ret;
+    }
+
 public:
     CPVSAreaSet(const u8* data, u32 len);
     u32 GetNumFeatures() const { return x0_numFeatures; }
@@ -28,6 +36,8 @@ public:
     bool Has2ndLayerLights() const { return x8_num2ndLights != 0; }
     u32 GetEntityIdByIndex(int idx) const { return x18_entityIndex[idx]; }
     const CPVSVisOctree& GetVisOctree() const { return x20_octree; }
+    CPVSVisSet Get1stLightSet(u32 lightIdx) const { return _GetLightSet(x8_num2ndLights + lightIdx); }
+    CPVSVisSet Get2ndLightSet(u32 lightIdx) const { return _GetLightSet(lightIdx); }
 };
 
 }

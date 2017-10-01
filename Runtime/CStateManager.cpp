@@ -694,7 +694,7 @@ void CStateManager::DrawWorld() const
     {
         const CGameArea& area = *areaArr[i];
         SetupFogForArea(area);
-        g_Renderer->EnablePVS(&pvsArr[i], area.x4_selfIdx);
+        g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
         g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
         g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, targetMask);
     }
@@ -767,7 +767,7 @@ void CStateManager::DrawWorld() const
         if (xf7c_projectedShadow)
             xf7c_projectedShadow->Render(*this);
 
-        g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
+        g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
         g_Renderer->DrawSortedGeometry(area.x4_selfIdx, mask, targetMask);
     }
 
@@ -801,7 +801,7 @@ void CStateManager::DrawWorld() const
             const CGameArea& area = *areaArr[i];
             CPVSVisSet& pvs = pvsArr[i];
 
-            g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
+            g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
             g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, 0x20);
             g_Renderer->DrawAreaGeometry(area.x4_selfIdx, mask, 0x10);
         }
@@ -832,7 +832,7 @@ void CStateManager::DrawWorld() const
 
             ++const_cast<CStateManager&>(*this).x8dc_objectDrawToken;
 
-            g_Renderer->EnablePVS(&pvs, area.x4_selfIdx);
+            g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
             g_Renderer->DrawSortedGeometry(area.x4_selfIdx, mask, 0x10);
         }
 

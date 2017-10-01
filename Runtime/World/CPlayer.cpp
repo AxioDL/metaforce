@@ -5395,7 +5395,7 @@ void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool rese
 void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr)
 {
     if (x2f8_morphBallState == EPlayerMorphBallState::Morphed &&
-        x768_morphball->GetBombJumpState() != CMorphBall::EBombJumpState::One)
+        x768_morphball->GetBombJumpState() != CMorphBall::EBombJumpState::BombJumpDisabled)
     {
         zeus::CVector3f posToBall =
             GetTranslation() + zeus::CVector3f(0.f, 0.f, g_tweakPlayer->GetPlayerBallHalfExtent()) - pos;

@@ -589,7 +589,7 @@ void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& 
         }
     }
     x1b8_fogVolumeRamp = ctx.newStaticTexture(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1,
-                                              boo::TextureFormat::I8, data[0],
+                                              boo::TextureFormat::I8, boo::TextureClampMode::Repeat, data[0],
                                               FOGVOL_RAMP_RES * FOGVOL_RAMP_RES);
 }
 
@@ -606,7 +606,7 @@ void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx
         }
     }
     x220_sphereRamp = ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1,
-                                           boo::TextureFormat::I8, data[0],
+                                           boo::TextureFormat::I8, boo::TextureClampMode::Repeat, data[0],
                                            SPHERE_RAMP_RES * SPHERE_RAMP_RES);
 }
 
@@ -676,7 +676,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
     {
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
-        m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, true, false);
+        m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
         GenerateScanLinesVBO(ctx);
         return true;
     });
@@ -734,9 +734,9 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
     }
 }
 
-void CBooRenderer::EnablePVS(const CPVSVisSet* set, u32 areaIdx)
+void CBooRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx)
 {
-    xc8_pvs.emplace(*set);
+    xc8_pvs.emplace(set);
     xe0_pvsAreaIdx = areaIdx;
 }
 

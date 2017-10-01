@@ -33,7 +33,7 @@ boo::GraphicsDataToken InitializeBadging(specter::ViewResources& viewRes)
         specter::IconAtlas<1, 1> atlas;
 
         atlas.initializeAtlas(ctx.newStaticTexture(width, height, mips,
-                              boo::TextureFormat::RGBA8,
+                              boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
                               texels.get(), destSz));
         g_BadgeIcon = atlas.getIcon(0, 0);
         return true;

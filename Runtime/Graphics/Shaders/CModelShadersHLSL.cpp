@@ -30,9 +30,69 @@ static const char* LightingHLSL =
 "    Fog fog;\n"
 "};\n"
 "\n"
-"static float4 LightingFunc(float4 mvPosIn, float4 mvNormIn)\n"
+"static float4 LightingFunc(float4 mvPosIn, float4 mvNormIn, in VertToFrag vtf)\n"
 "{\n"
 "    float4 ret = ambient;\n"
+"    \n"
+"    for (int i=0 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
+"    {\n"
+"        float3 delta = mvPosIn.xyz - lights[i].pos.xyz;\n"
+"        float dist = length(delta);\n"
+"        float angDot = saturate(dot(normalize(delta), lights[i].dir.xyz));\n"
+"        float att = 1.0 / (lights[i].linAtt[2] * dist * dist +\n"
+"                           lights[i].linAtt[1] * dist +\n"
+"                           lights[i].linAtt[0]);\n"
+"        float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
+"                       lights[i].angAtt[1] * angDot +\n"
+"                       lights[i].angAtt[0];\n"
+"        ret += lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz));\n"
+"    }\n"
+"    \n"
+"    return saturate(ret);\n"
+"}\n";
+
+static const char* LightingShadowHLSL =
+"struct Light\n"
+"{\n"
+"    float4 pos;\n"
+"    float4 dir;\n"
+"    float4 color;\n"
+"    float4 linAtt;\n"
+"    float4 angAtt;\n"
+"};\n"
+"struct Fog\n"
+"{\n"
+"    float4 color;\n"
+"    float rangeScale;\n"
+"    float start;\n"
+"};\n"
+"\n"
+"cbuffer LightingUniform : register(b2)\n"
+"{\n"
+"    Light lights[" _XSTR(URDE_MAX_LIGHTS) "];\n"
+"    float4 ambient;\n"
+"    float4 colorReg0;\n"
+"    float4 colorReg1;\n"
+"    float4 colorReg2;\n"
+"    float4 mulColor;\n"
+"    Fog fog;\n"
+"};\n"
+"\n"
+"static float4 LightingShadowFunc(float4 mvPosIn, float4 mvNormIn, in VertToFrag vtf)\n"
+"{\n"
+"    float4 ret = ambient;\n"
+"    \n"
+"    float3 delta = mvPosIn.xyz - lights[i].pos.xyz;\n"
+"    float dist = length(delta);\n"
+"    float angDot = saturate(dot(normalize(delta), lights[i].dir.xyz));\n"
+"    float att = 1.0 / (lights[i].linAtt[2] * dist * dist +\n"
+"                       lights[i].linAtt[1] * dist +\n"
+"                       lights[i].linAtt[0]);\n"
+"    float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
+"                   lights[i].angAtt[1] * angDot +\n"
+"                   lights[i].angAtt[0];\n"
+"    ret += lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz)) *\n"
+"           extTex0.Sample(clampSamp, vtf.extTcgs[0]).r;\n"
 "    \n"
 "    for (int i=0 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
 "    {\n"
@@ -171,6 +231,12 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
+                              false, false, false, true);
+
+    /* World shadow shading (modified lighting) */
+    ext.registerExtensionSlot({LightingShadowHLSL, "LightingShadowFunc"}, {MainPostHLSL, "MainPostFunc"},
+                              0, nullptr, 1, WorldShadowTextures, hecl::Backend::BlendFactor::Original,
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
                               false, false, false, true);
 
     return ext;

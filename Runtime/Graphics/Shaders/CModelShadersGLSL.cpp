@@ -52,6 +52,66 @@ static const char* LightingGLSL =
 "    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
 "}\n";
 
+static const char* LightingShadowGLSL =
+"struct Light\n"
+"{\n"
+"    vec4 pos;\n"
+"    vec4 dir;\n"
+"    vec4 color;\n"
+"    vec4 linAtt;\n"
+"    vec4 angAtt;\n"
+"};\n"
+"struct Fog\n"
+"{\n"
+"    vec4 color;\n"
+"    float rangeScale;\n"
+"    float start;\n"
+"};\n"
+"\n"
+"UBINDING2 uniform LightingUniform\n"
+"{\n"
+"    Light lights[" _XSTR(URDE_MAX_LIGHTS) "];\n"
+"    vec4 ambient;\n"
+"    vec4 colorReg0;\n"
+"    vec4 colorReg1;\n"
+"    vec4 colorReg2;\n"
+"    vec4 mulColor;\n"
+"    Fog fog;\n"
+"};\n"
+"\n"
+"vec4 LightingShadowFunc(vec4 mvPosIn, vec4 mvNormIn)\n"
+"{\n"
+"    vec4 ret = ambient;\n"
+"    \n"
+"    vec3 delta = mvPosIn.xyz - lights[i].pos.xyz;\n"
+"    float dist = length(delta);\n"
+"    float angDot = clamp(dot(normalize(delta), lights[i].dir.xyz), 0.0, 1.0);\n"
+"    float att = 1.0 / (lights[i].linAtt[2] * dist * dist +\n"
+"                       lights[i].linAtt[1] * dist +\n"
+"                       lights[i].linAtt[0]);\n"
+"    float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
+"                   lights[i].angAtt[1] * angDot +\n"
+"                   lights[i].angAtt[0];\n"
+"    ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn.xyz), 0.0, 1.0) *\n"
+"           texture(extTex0, vtf.extTcgs[0]).r;\n"
+"    \n"
+"    for (int i=1 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
+"    {\n"
+"        vec3 delta = mvPosIn.xyz - lights[i].pos.xyz;\n"
+"        float dist = length(delta);\n"
+"        float angDot = clamp(dot(normalize(delta), lights[i].dir.xyz), 0.0, 1.0);\n"
+"        float att = 1.0 / (lights[i].linAtt[2] * dist * dist +\n"
+"                           lights[i].linAtt[1] * dist +\n"
+"                           lights[i].linAtt[0]);\n"
+"        float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
+"                       lights[i].angAtt[1] * angDot +\n"
+"                       lights[i].angAtt[0];\n"
+"        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn.xyz), 0.0, 1.0);\n"
+"    }\n"
+"    \n"
+"    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
+"}\n";
+
 static const char* MainPostGLSL =
 "vec4 MainPostFunc(vec4 colorIn)\n"
 "{\n"
@@ -188,6 +248,20 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
+                              false, false, false, true);
+
+    /* MorphBall shadow shading */
+    ext.registerExtensionSlot({}, {MBShadowPostGLSL, "MBShadowPostFunc"},
+                              3, MBShadowBlockNames, 3, BallFadeTextures,
+                              hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha,
+                              hecl::Backend::ZTest::Equal,
+                              false, false, false, true);
+
+    /* World shadow shading (modified lighting) */
+    ext.registerExtensionSlot({LightingShadowGLSL, "LightingShadowFunc"}, {MainPostGLSL, "MainPostFunc"},
+                              3, BlockNames, 1, WorldShadowTextures, hecl::Backend::BlendFactor::Original,
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
                               false, false, false, true);
 
     return ext;

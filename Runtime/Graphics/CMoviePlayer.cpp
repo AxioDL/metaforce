@@ -449,18 +449,14 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
             if (deinterlace)
             {
                 /* urde addition: this way interlaced THPs don't look horrible */
-                set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width,
-                                                 x6c_videoInfo.height / 2,
-                                                 boo::TextureFormat::I8);
-                set.Y[1] = ctx.newDynamicTexture(x6c_videoInfo.width,
-                                                 x6c_videoInfo.height / 2,
-                                                 boo::TextureFormat::I8);
-                set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
-                                              x6c_videoInfo.height / 2,
-                                              boo::TextureFormat::I8);
-                set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
-                                              x6c_videoInfo.height / 2,
-                                              boo::TextureFormat::I8);
+                set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2,
+                                                 boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
+                set.Y[1] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height / 2,
+                                                 boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
+                set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
+                set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
 
                 boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
                 for (int j=0 ; j<2 ; ++j)
@@ -474,15 +470,12 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
             else
             {
                 /* normal progressive presentation */
-                set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width,
-                                                 x6c_videoInfo.height,
-                                                 boo::TextureFormat::I8);
-                set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
-                                              x6c_videoInfo.height / 2,
-                                              boo::TextureFormat::I8);
-                set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2,
-                                              x6c_videoInfo.height / 2,
-                                              boo::TextureFormat::I8);
+                set.Y[0] = ctx.newDynamicTexture(x6c_videoInfo.width, x6c_videoInfo.height,
+                                                 boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
+                set.U = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
+                set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2,
+                                              boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
 
                 boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
                 boo::ITexture* texs[] = {set.Y[0], set.U, set.V};

@@ -33,9 +33,9 @@ private:
 public:
     CWorldLight(const CWorldLight&) = default;
     CWorldLight(CInputStream& in);
-    ELightType GetLightType() const;
-    const zeus::CVector3f& GetDirection() const;
-    const zeus::CVector3f& GetPosition() const;
+    EWorldLightType GetLightType() const { return x0_type; }
+    const zeus::CVector3f& GetDirection() const { return x1c_direction; }
+    const zeus::CVector3f& GetPosition() const { return x10_position; }
     bool DoesCastShadows() const { return x34_castShadows; }
 
     CLight GetAsCGraphicsLight() const;

@@ -144,6 +144,8 @@ private:
 
     boo::ITexture* m_txtrOverrides[8] = {};
 
+    boo::ITexture* m_lastDrawnShadowMap = nullptr;
+
     ModelInstance* PushNewModelInstance();
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
@@ -209,6 +211,18 @@ public:
     static void KillCachedViewDepState();
     static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
                                          zeus::CMatrix4f* mtxsOut, float& alphaOut);
+
+    static boo::ITexture* g_shadowMap;
+    static zeus::CTransform g_shadowTexXf;
+    static void EnableShadowMaps(boo::ITexture* map, const zeus::CTransform& texXf)
+    {
+        g_shadowMap = map;
+        g_shadowTexXf = texXf;
+    }
+    static void DisableShadowMaps()
+    {
+        g_shadowMap = nullptr;
+    }
 };
 
 class CModel

@@ -523,6 +523,12 @@ std::vector<CLight> CActorLights::BuildLightVector() const
         {
             lights.push_back(*it);
         }
+
+        if (x29c_shadowLightArrIdx > 0)
+        {
+            /* Ensure shadow light comes first for shader extension */
+            std::swap(lights[0], lights[x29c_shadowLightArrIdx]);
+        }
     }
 
     for (const CLight& light : x144_dynamicLights)

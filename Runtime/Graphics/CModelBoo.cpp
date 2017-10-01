@@ -123,6 +123,9 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
     }
 }
 
+boo::ITexture* CBooModel::g_shadowMap = nullptr;
+zeus::CTransform CBooModel::g_shadowTexXf;
+
 CBooModel::~CBooModel()
 {
     if (m_prev)
@@ -334,7 +337,6 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                     texs[texCount++] = tex.GetObj()->GetBooTexture();
                 }
             }
-            texs[7] = g_Renderer->x220_sphereRamp;
 
             if (skinBankCount)
             {
@@ -380,12 +382,19 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 if (idx == EExtendedShader::Thermal)
                 {
                     texCount = 8;
+                    texs[7] = g_Renderer->x220_sphereRamp;
                     ltexs = texs;
                 }
                 else if (idx == EExtendedShader::MorphBallShadow)
                 {
                     texCount = 3;
                     ltexs = mbShadowTexs;
+                }
+                else if (idx == EExtendedShader::WorldShadow)
+                {
+                    texCount = 8;
+                    texs[7] = g_shadowMap;
+                    ltexs = texs;
                 }
                 else if (useReflection)
                 {
@@ -698,31 +707,47 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
         return;
     }
 
-    /* Special Mode0 matrix for exclusive Thermal Visor use */
-    std::experimental::optional<std::array<zeus::CMatrix4f, 2>> thermalMtxOut;
+    std::experimental::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
     if (flags.m_extendedShader == EExtendedShader::Thermal)
     {
-        thermalMtxOut.emplace();
+        /* Special Mode0 matrix for exclusive Thermal Visor use */
+        specialMtxOut.emplace();
 
-        zeus::CMatrix4f& texMtxOut = (*thermalMtxOut)[0];
+        zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
         texMtxOut.vec[3].w = 1.f;
 
-        zeus::CMatrix4f& postMtxOut = (*thermalMtxOut)[1];
+        zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.5f;
         postMtxOut.vec[3].x = 0.5f;
         postMtxOut.vec[3].y = 0.5f;
     }
+    else if (flags.m_extendedShader == EExtendedShader::WorldShadow)
+    {
+        /* Special matrix for mapping world shadow */
+        specialMtxOut.emplace();
+
+        zeus::CMatrix4f mat = g_shadowTexXf.toMatrix4f();
+        zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
+        texMtxOut[0][0] = mat[0][0];
+        texMtxOut[1][0] = mat[1][0];
+        texMtxOut[2][0] = mat[2][0];
+        texMtxOut[3][0] = mat[3][0];
+        texMtxOut[0][1] = mat[0][2];
+        texMtxOut[1][1] = mat[1][2];
+        texMtxOut[2][1] = mat[2][2];
+        texMtxOut[3][1] = mat[3][2];
+    }
 
     for (const MaterialSet::Material& mat : matSet->materials)
     {
-        if (thermalMtxOut)
+        if (specialMtxOut)
         {
             std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-            mtxs[7][0] = (*thermalMtxOut)[0];
-            mtxs[7][1] = (*thermalMtxOut)[1];
+            mtxs[7][0] = (*specialMtxOut)[0];
+            mtxs[7][1] = (*specialMtxOut)[1];
         }
         u8* bufOrig = bufOut;
         for (const UVAnimation& anim : mat.uvAnims)
@@ -742,6 +767,14 @@ boo::IGraphicsBufferD* CBooModel::UpdateUniformData(const CModelFlags& flags,
     {
         skinBankCount = model->m_hmdlMeta.bankCount;
         weightVecCount = model->m_hmdlMeta.weightCount;
+    }
+
+    /* Invalidate instances if new shadow being drawn */
+    if (flags.m_extendedShader == EExtendedShader::WorldShadow &&
+        m_lastDrawnShadowMap != g_shadowMap)
+    {
+        const_cast<CBooModel*>(this)->m_lastDrawnShadowMap = g_shadowMap;
+        const_cast<CBooModel*>(this)->m_instances.clear();
     }
 
     const ModelInstance* inst;

@@ -87,6 +87,11 @@ const hecl::Backend::TextureInfo CModelShaders::BallFadeTextures[] =
     {hecl::Backend::TexGenSrc::Position, 2, 0, 1, false}  // TXTR_BallFade
 };
 
+const hecl::Backend::TextureInfo CModelShaders::WorldShadowTextures[] =
+{
+    {hecl::Backend::TexGenSrc::Position, 7, 0, 7, false} // Shadow tex
+};
+
 CModelShaders::CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
                              boo::IGraphicsDataFactory* gfxFactory)
     : m_shaderCache(storeMgr, gfxFactory, GetShaderExtensions(gfxFactory->platform())) {}

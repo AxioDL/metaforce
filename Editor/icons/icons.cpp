@@ -32,6 +32,7 @@ boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes)
     {
         g_IconAtlas.initializeAtlas(ctx.newStaticTexture(width, height, mips,
                                                          boo::TextureFormat::RGBA8,
+                                                         boo::TextureClampMode::Repeat,
                                                          texels.get(), destSz));
         return true;
     });

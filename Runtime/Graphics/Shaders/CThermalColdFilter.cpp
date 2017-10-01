@@ -8,7 +8,7 @@ CThermalColdFilter::CThermalColdFilter()
 {
     m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        m_shiftTex = ctx.newDynamicTexture(8, 4, boo::TextureFormat::RGBA8);
+        m_shiftTex = ctx.newDynamicTexture(8, 4, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat);
 
         struct Vert
         {

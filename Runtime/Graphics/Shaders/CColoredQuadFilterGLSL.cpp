@@ -1,6 +1,4 @@
 #include "CColoredQuadFilter.hpp"
-#include "TMultiBlendShader.hpp"
-#include "Graphics/CTexture.hpp"
 
 namespace urde
 {

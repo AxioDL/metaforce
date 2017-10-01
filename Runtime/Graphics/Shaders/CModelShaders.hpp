@@ -25,7 +25,8 @@ enum EExtendedShader : uint8_t
     SolidColorFrontfaceCullAlwaysAlphaOnly, // No Z-write or test
     SolidColorBackfaceCullLEqualAlphaOnly,
     SolidColorBackfaceCullGreaterAlphaOnly, // No Z-write
-    MorphBallShadow
+    MorphBallShadow,
+    WorldShadow
 };
 
 class CModelShaders
@@ -39,6 +40,7 @@ class CModelShaders
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat);
     static const hecl::Backend::TextureInfo ThermalTextures[];
     static const hecl::Backend::TextureInfo BallFadeTextures[];
+    static const hecl::Backend::TextureInfo WorldShadowTextures[];
 public:
     struct Light
     {

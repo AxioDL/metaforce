@@ -27,8 +27,8 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
         }
     }
     m_warpTex = ctx.newStaticTexture(WARP_RAMP_RES+1, WARP_RAMP_RES+1, 1,
-                                     boo::TextureFormat::RGBA8, data[0],
-                                     (WARP_RAMP_RES+1) * (WARP_RAMP_RES+1) * 4);
+                                     boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
+                                     data[0], (WARP_RAMP_RES+1) * (WARP_RAMP_RES+1) * 4);
 }
 
 CSpaceWarpFilter::CSpaceWarpFilter()

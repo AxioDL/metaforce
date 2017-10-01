@@ -28,8 +28,8 @@ class CMorphBall
 public:
     enum class EBallBoostState
     {
-        Zero,
-        One
+        BoostAvailable,
+        BoostDisabled
     };
 
     enum class ESpiderBallState
@@ -40,8 +40,8 @@ public:
 
     enum class EBombJumpState
     {
-        Zero,
-        One
+        BombJumpAvailable,
+        BombJumpDisabled
     };
 private:
     struct CSpiderBallElectricityManager
@@ -167,8 +167,8 @@ private:
     u16 x1e34_rollSfx = 0xffff;
     u16 x1e36_landSfx = 0xffff;
     u32 x1e38_wallSparkFrameCountdown = 0;
-    EBallBoostState x1e3c_boostState = EBallBoostState::Zero;
-    EBombJumpState x1e40_bombJumpState = EBombJumpState::Zero;
+    EBallBoostState x1e3c_boostState = EBallBoostState::BoostAvailable;
+    EBombJumpState x1e40_bombJumpState = EBombJumpState::BombJumpAvailable;
     float x1e44_damageEffect = 0.f;
     float x1e48_damageEffectDecaySpeed = 0.f;
     float x1e4c_damageTime = 0.f;
@@ -278,6 +278,7 @@ public:
     EBallBoostState GetBallBoostState() const { return x1e3c_boostState; }
     void SetBallBoostState(EBallBoostState state) { x1e3c_boostState = state; }
     EBombJumpState GetBombJumpState() const { return x1e40_bombJumpState; }
+    void SetBombJumpState(EBombJumpState state) { x1e40_bombJumpState = state; }
     void TakeDamage(float dam);
     void DrawBallShadow(const CStateManager& mgr);
     void DeleteBallShadow();

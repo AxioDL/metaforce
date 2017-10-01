@@ -115,7 +115,7 @@ void CTexture::BuildI4FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -163,7 +163,7 @@ void CTexture::BuildI8FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -212,7 +212,7 @@ void CTexture::BuildIA4FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -261,7 +261,7 @@ void CTexture::BuildIA8FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -369,7 +369,7 @@ void CTexture::BuildC4FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -413,7 +413,7 @@ void CTexture::BuildC8FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -465,7 +465,7 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -522,7 +522,7 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -579,7 +579,7 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        buf.get(), texelCount * 4);
+                                        boo::TextureClampMode::Repeat, buf.get(), texelCount * 4);
         return true;
     });
 }
@@ -643,7 +643,7 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1,
-                                        buf.get(), blockCount * 8);
+                                        boo::TextureClampMode::Repeat, buf.get(), blockCount * 8);
         return true;
     });
 }
@@ -659,7 +659,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
-                                        data, expectedSize);
+                                        boo::TextureClampMode::Repeat, data, expectedSize);
         return true;
     });
 }
@@ -677,9 +677,9 @@ void CTexture::BuildC8(const void* data, size_t length)
         const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
         const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
         m_paletteTex = ctx.newStaticTexture(nentries, 1, 1, boo::TextureFormat::RGBA8,
-                                            paletteTexels, nentries * 4);
+                                            boo::TextureClampMode::Repeat, paletteTexels, nentries * 4);
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::I8,
-                                        texels, texelCount);
+                                        boo::TextureClampMode::Repeat, texels, texelCount);
         return true;
 });
 }
@@ -781,7 +781,7 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype)
     m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_booTex = ctx.newStaticArrayTexture(x4_w, x6_h, layerCount, x8_mips, boo::TextureFormat::RGBA8,
-                                             buf.get(), texelCount * layerCount * 4);
+                                             boo::TextureClampMode::Repeat, buf.get(), texelCount * layerCount * 4);
         return true;
     });
 }

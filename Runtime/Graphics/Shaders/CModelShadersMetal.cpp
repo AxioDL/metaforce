@@ -30,11 +30,72 @@ static const char* LightingMetal =
 "    Fog fog;\n"
 "};\n"
 "\n"
-"static float4 LightingFunc(constant LightingUniform& lu, float4 mvPosIn, float4 mvNormIn)\n"
+"static float4 LightingFunc(constant LightingUniform& lu, float4 mvPosIn, float4 mvNormIn, thread VertToFrag& vtf)\n"
 "{\n"
 "    float4 ret = lu.ambient;\n"
 "    \n"
 "    for (int i=0 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
+"    {\n"
+"        float3 delta = mvPosIn.xyz - lu.lights[i].pos.xyz;\n"
+"        float dist = length(delta);\n"
+"        float angDot = saturate(dot(normalize(delta), lu.lights[i].dir.xyz));\n"
+"        float att = 1.0 / (lu.lights[i].linAtt[2] * dist * dist +\n"
+"                           lu.lights[i].linAtt[1] * dist +\n"
+"                           lu.lights[i].linAtt[0]);\n"
+"        float angAtt = lu.lights[i].angAtt[2] * angDot * angDot +\n"
+"                       lu.lights[i].angAtt[1] * angDot +\n"
+"                       lu.lights[i].angAtt[0];\n"
+"        ret += lu.lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz));\n"
+"    }\n"
+"    \n"
+"    return saturate(ret);\n"
+"}\n";
+
+static const char* LightingShadowMetal =
+"struct Light\n"
+"{\n"
+"    float4 pos;\n"
+"    float4 dir;\n"
+"    float4 color;\n"
+"    float4 linAtt;\n"
+"    float4 angAtt;\n"
+"};\n"
+"struct Fog\n"
+"{\n"
+"    float4 color;\n"
+"    float rangeScale;\n"
+"    float start;\n"
+"};\n"
+"\n"
+"struct LightingUniform\n"
+"{\n"
+"    Light lights[" _XSTR(URDE_MAX_LIGHTS) "];\n"
+"    float4 ambient;\n"
+"    float4 colorReg0;\n"
+"    float4 colorReg1;\n"
+"    float4 colorReg2;\n"
+"    float4 mulColor;\n"
+"    Fog fog;\n"
+"};\n"
+"\n"
+"static float4 EXTLightingShadowFunc(constant LightingUniform& lu, float4 mvPosIn, float4 mvNormIn,\n"
+"                                    thread VertToFrag& vtf, texture2d<float> extTex0)\n"
+"{\n"
+"    float4 ret = lu.ambient;\n"
+"    \n"
+"    float3 delta = mvPosIn.xyz - lu.lights[i].pos.xyz;\n"
+"    float dist = length(delta);\n"
+"    float angDot = saturate(dot(normalize(delta), lu.lights[i].dir.xyz));\n"
+"    float att = 1.0 / (lu.lights[i].linAtt[2] * dist * dist +\n"
+"                       lu.lights[i].linAtt[1] * dist +\n"
+"                       lu.lights[i].linAtt[0]);\n"
+"    float angAtt = lu.lights[i].angAtt[2] * angDot * angDot +\n"
+"                   lu.lights[i].angAtt[1] * angDot +\n"
+"                   lu.lights[i].angAtt[0];\n"
+"    ret += lu.lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz)) *\n"
+"           extTex0.sample(clampSamp, vtf.extTcgs0);\n"
+"    \n"
+"    for (int i=1 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
 "    {\n"
 "        float3 delta = mvPosIn.xyz - lu.lights[i].pos.xyz;\n"
 "        float dist = length(delta);\n"
@@ -177,6 +238,12 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
+                              false, false, false, true);
+
+    /* World shadow shading (modified lighting) */
+    ext.registerExtensionSlot({LightingShadowMetal, "EXTLightingShadowFunc"}, {MainPostMetal, "MainPostFunc"},
+                              1, BlockNames, 1, WorldShadowTextures, hecl::Backend::BlendFactor::Original,
+                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
                               false, false, false, true);
 
     return ext;

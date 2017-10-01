@@ -205,7 +205,7 @@ public:
 
     std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
     void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx);
-    void EnablePVS(const CPVSVisSet*, u32);
+    void EnablePVS(const CPVSVisSet&, u32);
     void DisablePVS();
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
     void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
@@ -279,7 +279,7 @@ public:
     boo::IGraphicsBuffer* GetScanLinesEvenVBO() const {return m_scanLinesEvenVBO;}
     boo::IGraphicsBuffer* GetScanLinesOddVBO() const {return m_scanLinesOddVBO;}
 
-    void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
+    static void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}
     void BindBallShadowIdTarget()
     {

@@ -21,7 +21,8 @@ if(WIN32)
       Shaders/CElementGenShadersHLSL.cpp
       Shaders/CParticleSwooshShadersHLSL.cpp
       Shaders/CFluidPlaneShaderHLSL.cpp
-      Shaders/CAABoxShaderHLSL.cpp)
+      Shaders/CAABoxShaderHLSL.cpp
+      Shaders/CWorldShadowShaderHLSL.cpp)
 elseif(BOO_HAS_METAL)
   set(PLAT_SRCS
       Shaders/CLineRendererShadersMetal.cpp
@@ -45,7 +46,8 @@ elseif(BOO_HAS_METAL)
       Shaders/CElementGenShadersMetal.cpp
       Shaders/CParticleSwooshShadersMetal.cpp
       Shaders/CFluidPlaneShaderMetal.cpp
-      Shaders/CAABoxShaderMetal.cpp)
+      Shaders/CAABoxShaderMetal.cpp
+      Shaders/CWorldShadowShaderMetal.cpp)
 endif()
 
 set(GRAPHICS_SOURCES
@@ -92,6 +94,7 @@ set(GRAPHICS_SOURCES
     Shaders/CParticleSwooshShaders.hpp Shaders/CParticleSwooshShaders.cpp Shaders/CParticleSwooshShadersGLSL.cpp
     Shaders/CFluidPlaneShader.hpp Shaders/CFluidPlaneShader.cpp Shaders/CFluidPlaneShaderGLSL.cpp
     Shaders/CAABoxShader.hpp Shaders/CAABoxShader.cpp Shaders/CAABoxShaderGLSL.cpp
+    Shaders/CWorldShadowShader.hpp Shaders/CWorldShadowShader.cpp Shaders/CWorldShadowShaderGLSL.cpp
     ${PLAT_SRCS})
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)
