@@ -395,7 +395,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
-                                      boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+                                      boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, texmap.get(), bufSz);
             return true;
         });
     }
@@ -480,7 +480,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
-                                      boo::TextureFormat::I8, texmap.get(), bufSz);
+                                      boo::TextureFormat::I8, boo::TextureClampMode::Repeat, texmap.get(), bufSz);
             return true;
         });
     }
@@ -604,7 +604,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
-                                      boo::TextureFormat::RGBA8, texmap.get(), bufSz);
+                                      boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, texmap.get(), bufSz);
             return false;
         });
     }
@@ -689,7 +689,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
-                                      boo::TextureFormat::I8, texmap.get(), bufSz);
+                                      boo::TextureFormat::I8, boo::TextureClampMode::Repeat, texmap.get(), bufSz);
             return true;
         });
     }

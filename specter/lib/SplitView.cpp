@@ -17,7 +17,7 @@ static const zeus::RGBA32 Tex[3] =
 
 void SplitView::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
-    m_shadingTex = ctx.newStaticTexture(3, 1, 1, boo::TextureFormat::RGBA8, Tex, 12);
+    m_shadingTex = ctx.newStaticTexture(3, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, Tex, 12);
 }
 
 SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController* controller,

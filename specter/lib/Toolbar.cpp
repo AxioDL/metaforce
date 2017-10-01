@@ -19,7 +19,7 @@ static const zeus::RGBA32 Tex[] =
 
 void Toolbar::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
-    m_shadingTex = ctx.newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, Tex, 16);
+    m_shadingTex = ctx.newStaticTexture(4, 1, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, Tex, 16);
 }
 
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned units)
