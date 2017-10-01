@@ -10,10 +10,10 @@ namespace urde
 
 class CWorldShadowShader
 {
-    friend class CWorldShadowShaderGLDataBindingFactory;
-    friend class CWorldShadowShaderVulkanDataBindingFactory;
-    friend class CWorldShadowShaderD3DDataBindingFactory;
-    friend class CWorldShadowShaderMetalDataBindingFactory;
+    friend struct CWorldShadowShaderGLDataBindingFactory;
+    friend struct CWorldShadowShaderVulkanDataBindingFactory;
+    friend struct CWorldShadowShaderD3DDataBindingFactory;
+    friend struct CWorldShadowShaderMetalDataBindingFactory;
 
     boo::ITextureR* m_tex;
     std::experimental::optional<CTexturedQuadFilter> m_prevQuad;

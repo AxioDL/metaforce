@@ -55,12 +55,10 @@ struct CWorldShadowShaderD3DDataBindingFactory : TShader<CWorldShadowShader>::ID
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
         boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline,
-            nullptr, nullptr, nullptr, s_VtxFmt,
+        filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
             filter.m_vbo, nullptr, nullptr, 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
-        filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline,
-            nullptr, nullptr, nullptr, s_VtxFmt,
+        filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline, s_VtxFmt,
             filter.m_vbo, nullptr, nullptr, 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         filter._buildTex(ctx);
@@ -76,10 +74,10 @@ CWorldShadowShader::Initialize(boo::ID3DDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_ZPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
+    s_ZPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                         boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     return new CWorldShadowShaderD3DDataBindingFactory;

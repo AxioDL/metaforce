@@ -48,7 +48,7 @@ void CWorldShadowShader::blendPreviousShadow()
 
 void CWorldShadowShader::resolveTexture()
 {
-    boo::SWindowRect rect = {0, 0, m_w, m_h};
+    boo::SWindowRect rect = {0, 0, int(m_w), int(m_h)};
     CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_tex, rect, false, 0, true, false);
 }
 
