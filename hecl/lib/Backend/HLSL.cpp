@@ -179,6 +179,8 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
                   "    vtf.mvpPos = mul(proj, vtf.mvPos);\n";
     }
 
+    retval += "    float4 tmpProj;\n";
+
     int tcgIdx = 0;
     for (const TexCoordGen& tcg : m_tcgs)
     {
@@ -186,8 +188,10 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = mul(texMtxs[%u].postMtx, float4(%s(mul(texMtxs[%u].mtx, %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
-                                   tcg.m_norm ? "normalize" : "", tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
+            retval += hecl::Format("    tmpProj = mul(texMtxs[%u].postMtx, float4(%s(mul(texMtxs[%u].mtx, %s).xyz), 1.0));\n"
+                                   "    vtf.tcgs[%u] = (tmpProj / tmpProj.w).xy;\n", tcg.m_mtx,
+                                   tcg.m_norm ? "normalize" : "", tcg.m_mtx,
+                                   EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str(), tcgIdx);
         ++tcgIdx;
     }
 
@@ -198,9 +202,10 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", i,
                                    EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.extTcgs[%u] = mul(texMtxs[%u].postMtx, float4(%s(mul(texMtxs[%u].mtx, %s).xyz), 1.0)).xy;\n",
-                                   i, extTex.mtxIdx, extTex.normalize ? "normalize" : "",
-                                   extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+            retval += hecl::Format("    tmpProj = mul(texMtxs[%u].postMtx, float4(%s(mul(texMtxs[%u].mtx, %s).xyz), 1.0));\n"
+                                   "    vtf.extTcgs[%u] = (tmpProj / tmpProj.w).xy;\n",
+                                   extTex.mtxIdx, extTex.normalize ? "normalize" : "", extTex.mtxIdx,
+                                   EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str(), i);
     }
 
     if (reflectionType != ReflectionType::None)
@@ -235,7 +240,8 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
         texMapDecl += hecl::Format("Texture2D reflectionTex : register(t%u);\n",
                                    m_texMapEnd);
     std::string retval =
-            "SamplerState samp : register(s0);\n" +
+            "SamplerState samp : register(s0);\n"
+            "SamplerState clampSamp : register(s1);\n" +
             GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
@@ -246,7 +252,7 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm, vtf);\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -308,7 +314,8 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
     }
 
     std::string retval =
-            "SamplerState samp : register(s0);\n" +
+            "SamplerState samp : register(s0);\n"
+            "SamplerState clampSamp : register(s1);\n" +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
@@ -320,7 +327,7 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm, vtf);\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }

@@ -1,6 +1,5 @@
 #include "hecl/Backend/Metal.hpp"
 #if BOO_HAS_METAL
-#include "hecl/Runtime.hpp"
 #include <athena/MemoryReader.hpp>
 #include <athena/MemoryWriter.hpp>
 #include <boo/graphicsdev/Metal.hpp>
@@ -190,6 +189,8 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
         "    vtf.mvpPos = vu.proj * vtf.mvPos;\n";
     }
 
+    retval += "    float4 tmpProj;\n";
+
     int tcgIdx = 0;
     for (const TexCoordGen& tcg : m_tcgs)
     {
@@ -197,8 +198,10 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.tcgs%u = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs%u = (texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", tcgIdx, tcg.m_mtx,
-                                   tcg.m_norm ? "normalize" : "", tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
+            retval += hecl::Format("    tmpProj = texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0);\n"
+                                   "    vtf.tcgs%u = (tmpProj / tmpProj.w).xy;\n", tcg.m_mtx,
+                                   tcg.m_norm ? "normalize" : "", tcg.m_mtx,
+                                   EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str(), tcgIdx);
         ++tcgIdx;
     }
 
@@ -209,8 +212,10 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
             retval += hecl::Format("    vtf.extTcgs%u = %s;\n", i,
                                    EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.extTcgs%u = (texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n", i, extTex.mtxIdx,
-                                   extTex.normalize ? "normalize" : "", extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+            retval += hecl::Format("    tmpProj = texMtxs[%u].postMtx * float4(%s((texMtxs[%u].mtx * %s).xyz), 1.0);\n"
+                                   "    vtf.extTcgs%u = (tmpProj / tmpProj.w).xy;\n", extTex.mtxIdx,
+                                   extTex.normalize ? "normalize" : "", extTex.mtxIdx,
+                                   EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str(), i);
     }
 
     if (reflectionType != ReflectionType::None)
@@ -250,7 +255,8 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     }
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
-    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
+    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
+    "constexpr sampler clampSamp(address::clamp_to_border, border_color::opaque_white, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
@@ -276,7 +282,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry, blockCall.c_str());
+            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos, vtf.mvNorm, vtf);\n", lighting.m_entry, blockCall.c_str());
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -311,6 +317,10 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     std::string postSrc;
     if (post.m_source)
         postSrc = post.m_source;
+
+    std::string lightingEntry;
+    if (lighting.m_entry)
+        lightingEntry = lighting.m_entry;
 
     std::string postEntry;
     if (post.m_entry)
@@ -357,7 +367,8 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     }
 
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
-    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n" +
+    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
+    "constexpr sampler clampSamp(address::clamp_to_border, border_color::opaque_white, filter::linear, mip_filter::linear);\n" +
     GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
@@ -384,7 +395,12 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry, blockCall.c_str());
+        {
+            if (!strncmp(lighting.m_entry, "EXT", 3))
+                retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf, " + (extTexCall.size() ? (extTexCall + ", ") : "") + ");\n";
+            else
+                retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf);\n";
+        }
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }

@@ -186,6 +186,8 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
                   "    gl_Position = proj * vtf.mvPos;\n";
     }
 
+    retval += "    vec4 tmpProj;\n";
+
     int tcgIdx = 0;
     for (const TexCoordGen& tcg : m_tcgs)
     {
@@ -193,9 +195,10 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
             retval += hecl::Format("    vtf.tcgs[%u] = %s;\n", tcgIdx,
                                    EmitTexGenSource2(tcg.m_src, tcg.m_uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.tcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n",
-                                   tcgIdx, tcg.m_mtx, tcg.m_norm ? "normalize" : "",
-                                   tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str());
+            retval += hecl::Format("    tmpProj = texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0);\n"
+                                   "    vtf.tcgs[%u] = (tmpProj / tmpProj.w).xy;\n",
+                                   tcg.m_mtx, tcg.m_norm ? "normalize" : "",
+                                   tcg.m_mtx, EmitTexGenSource4(tcg.m_src, tcg.m_uvIdx).c_str(), tcgIdx);
         ++tcgIdx;
     }
 
@@ -206,9 +209,10 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
             retval += hecl::Format("    vtf.extTcgs[%u] = %s;\n", i,
                                    EmitTexGenSource2(extTex.src, extTex.uvIdx).c_str());
         else
-            retval += hecl::Format("    vtf.extTcgs[%u] = (texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0)).xy;\n",
-                                   i, extTex.mtxIdx, extTex.normalize ? "normalize" : "",
-                                   extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str());
+            retval += hecl::Format("    tmpProj = texMtxs[%u].postMtx * vec4(%s((texMtxs[%u].mtx * %s).xyz), 1.0);\n"
+                                   "    vtf.extTcgs[%u] = (tmpProj / tmpProj.w).xy;\n",
+                                   extTex.mtxIdx, extTex.normalize ? "normalize" : "",
+                                   extTex.mtxIdx, EmitTexGenSource4(extTex.src, extTex.uvIdx).c_str(), i);
     }
 
     if (reflectionType != ReflectionType::None)

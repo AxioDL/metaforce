@@ -98,7 +98,8 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
             {
                 boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
-                renderTex = ctx.newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1], false, false);
+                renderTex = ctx.newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1],
+                                                 boo::TextureClampMode::Repeat, 0, 0);
 
                 /* Generate meta structure (usually statically serialized) */
                 hecl::HMDLMeta testMeta;
@@ -149,7 +150,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                         tex[i][j][3] = 0xff;
                     }
                 boo::ITexture* texture =
-                ctx.newStaticTexture(256, 256, 1, boo::TextureFormat::RGBA8, tex, 256*256*4);
+                ctx.newStaticTexture(256, 256, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, tex, 256*256*4);
 
                 /* Make vertex uniform buffer */
                 vubo = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexUBO), 1);
