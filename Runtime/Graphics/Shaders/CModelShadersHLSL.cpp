@@ -94,7 +94,7 @@ static const char* LightingShadowHLSL =
 "    ret += lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz)) *\n"
 "           extTex0.Sample(clampSamp, vtf.extTcgs[0]).r;\n"
 "    \n"
-"    for (int i=0 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
+"    for (int i=1 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
 "    {\n"
 "        float3 delta = mvPosIn.xyz - lights[i].pos.xyz;\n"
 "        float dist = length(delta);\n"
