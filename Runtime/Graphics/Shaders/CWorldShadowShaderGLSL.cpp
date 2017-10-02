@@ -67,7 +67,6 @@ struct CWorldShadowShaderGLDataBindingFactory : TShader<CWorldShadowShader>::IDa
         filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline,
             vtxFmt, filter.m_vbo, nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
-        filter._buildTex(ctx);
         return nullptr;
     }
 };
@@ -87,7 +86,6 @@ struct CWorldShadowShaderVulkanDataBindingFactory : TShader<CWorldShadowShader>:
         filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline, s_VtxFmt,
             filter.m_vbo, nullptr, nullptr, 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
-        filter._buildTex(ctx);
         return nullptr;
     }
 };

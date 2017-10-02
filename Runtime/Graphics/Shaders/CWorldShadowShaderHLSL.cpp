@@ -61,7 +61,6 @@ struct CWorldShadowShaderD3DDataBindingFactory : TShader<CWorldShadowShader>::ID
         filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline, s_VtxFmt,
             filter.m_vbo, nullptr, nullptr, 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
-        filter._buildTex(ctx);
         return nullptr;
     }
 };

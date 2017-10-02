@@ -15,6 +15,7 @@ class CWorldShadowShader
     friend struct CWorldShadowShaderD3DDataBindingFactory;
     friend struct CWorldShadowShaderMetalDataBindingFactory;
 
+    boo::GraphicsDataToken m_token;
     boo::ITextureR* m_tex;
     std::experimental::optional<CTexturedQuadFilter> m_prevQuad;
     u32 m_w, m_h;
@@ -30,8 +31,6 @@ class CWorldShadowShader
     boo::IShaderDataBinding* m_dataBind = nullptr;
     boo::IShaderDataBinding* m_zDataBind = nullptr;
     Uniform m_uniform;
-
-    void _buildTex(boo::IGraphicsDataFactory::Context& ctx);
 
 public:
     CWorldShadowShader(u32 w, u32 h);
