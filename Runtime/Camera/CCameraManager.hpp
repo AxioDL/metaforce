@@ -57,6 +57,9 @@ class CCameraManager
     u32 xa8_ = 1000;
     u32 xac_ = 0;
 
+    rstl::reserved_vector<TUniqueId, 64> x2b0_inactiveCameraHints;
+    rstl::reserved_vector<TUniqueId, 64> x334_activeCameraHints;
+
     union
     {
         struct
@@ -110,7 +113,6 @@ public:
 
     CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
-    CBallCamera* BallCamera(CStateManager&) const;
     CGameArea::CAreaFog& Fog() { return x3c_fog; }
 
     float sub80009148() const;
@@ -131,6 +133,11 @@ public:
     int GetFluidCounter() const { return x74_fluidCounter; }
     float GetCameraBobMagnitude() const;
     bool HasBallCameraInitialPositionHint(CStateManager& mgr) const;
+
+    void DeleteCameraHint(TUniqueId id, CStateManager& mgr);
+    void AddInactiveCameraHint(TUniqueId id, CStateManager& mgr);
+    void AddActiveCameraHint(TUniqueId id, CStateManager& mgr);
+
 };
 
 }

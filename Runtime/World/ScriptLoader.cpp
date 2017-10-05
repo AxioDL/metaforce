@@ -849,7 +849,7 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
 
     bool active = in.readBool();
     u32 w1 = in.readUint32Big();
-    u32 w2 = in.readUint32Big();
+    auto behaviour = CBallCamera::EBallCameraBehaviour(in.readUint32Big());
     u32 pf = LoadParameterFlags(in);
     pf |= in.readBool() << 6;
     float f1 = in.readFloatBig();
@@ -880,8 +880,9 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
     float f12 = in.readFloatBig();
     float f13 = in.readFloatBig();
 
-    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, w1, w2, pf, f1,
-                                 f2, f3, vec1, vec2, vec3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13);
+    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, w1,
+                                 behaviour, pf, f1, f2, f3, vec1, vec2, vec3, f4, f5, f6, f7, f8, f9, f10,
+                                 f11, f12, f13);
 }
 
 CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

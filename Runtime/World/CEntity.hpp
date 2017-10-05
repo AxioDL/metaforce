@@ -65,6 +65,9 @@ public:
     TUniqueId GetUniqueId() const {return x8_uid;}
     TEditorId GetEditorId() const {return xc_editorId;}
     void SendScriptMsgs(EScriptObjectState state, CStateManager& stateMgr, EScriptObjectMessage msg);
+
+    const std::vector<SConnection>& GetConnectionList() const { return x20_conns; }
+    std::vector<SConnection>& ConnectionList() { return x20_conns; }
 };
 
 }

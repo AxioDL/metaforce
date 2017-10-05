@@ -18,6 +18,10 @@ public:
         Four,
         Five
     };
+    enum class EBallCameraBehaviour
+    {
+
+    };
 private:
     TUniqueId x3dc_tooCloseActorId = kInvalidUniqueId;
     float x3e0_ = 10000.f;

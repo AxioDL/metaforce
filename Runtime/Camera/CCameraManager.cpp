@@ -1,22 +1,15 @@
 #include "CCameraManager.hpp"
 #include "CCameraShakeData.hpp"
 #include "CFirstPersonCamera.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CGameCamera.hpp"
 #include "CStateManager.hpp"
-#include "Input/CRumbleManager.hpp"
 #include "World/CScriptWater.hpp"
 #include "World/CPlayer.hpp"
-#include "World/CScriptWater.hpp"
-#include "CPlayerState.hpp"
 #include "GameGlobalObjects.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "CObjectList.hpp"
 #include "TCastTo.hpp"
 #include "CCinematicCamera.hpp"
 #include "CBallCamera.hpp"
 #include "CInterpolationCamera.hpp"
+#include "World/CScriptCameraHint.hpp"
 
 namespace urde
 {
@@ -219,6 +212,7 @@ float CCameraManager::sub80009148() const
 
 void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
 {
+
 }
 
 void CCameraManager::ThinkCameras(float dt, CStateManager& mgr)
@@ -334,5 +328,45 @@ bool CCameraManager::HasBallCameraInitialPositionHint(CStateManager& mgr) const
 void CCameraManager::RemoveCinemaCamera(TUniqueId uid, CStateManager& mgr)
 {
     x4_cineCameras.erase(std::remove(x4_cineCameras.begin(), x4_cineCameras.end(), uid));
+}
+
+void CCameraManager::DeleteCameraHint(TUniqueId id, CStateManager& mgr)
+{
+    if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(id))
+    {
+        auto search = std::find_if(x2b0_inactiveCameraHints.begin(), x2b0_inactiveCameraHints.end(),
+                                   [id](TUniqueId tid) { return tid == id; });
+        if (search == x2b0_inactiveCameraHints.end())
+        {
+            hint->ClearIdList();
+            hint->SetInactive(true);
+            if (x2b0_inactiveCameraHints.size() != 64)
+                x2b0_inactiveCameraHints.push_back(id);
+        }
+    }
+}
+
+void CCameraManager::AddInactiveCameraHint(TUniqueId id, CStateManager& mgr)
+{
+    if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(id))
+    {
+        auto search = std::find_if(x2b0_inactiveCameraHints.begin(), x2b0_inactiveCameraHints.end(),
+                                   [id](TUniqueId tid) { return tid == id; });
+        if (search == x2b0_inactiveCameraHints.end() &&
+            x2b0_inactiveCameraHints.size() != 64)
+            x2b0_inactiveCameraHints.push_back(id);
+    }
+}
+
+void CCameraManager::AddActiveCameraHint(TUniqueId id, CStateManager& mgr)
+{
+    if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(id))
+    {
+        auto search = std::find_if(x334_activeCameraHints.begin(), x334_activeCameraHints.end(),
+                                   [id](TUniqueId tid) { return tid == id; });
+        if (search == x334_activeCameraHints.end() && xac_ != 64 &&
+            x334_activeCameraHints.size() != 64)
+            x334_activeCameraHints.push_back(id);
+    }
 }
 }
