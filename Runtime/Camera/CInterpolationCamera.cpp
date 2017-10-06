@@ -44,4 +44,10 @@ void CInterpolationCamera::Think(float, CStateManager& mgr)
 
 }
 
+void CInterpolationCamera::SetInterpolation(const zeus::CTransform& xf, const zeus::CVector3f& lookDir,
+                                            float f1, float f2, float f3, TUniqueId camId, bool b1, CStateManager& mgr)
+{
+
+}
+
 }

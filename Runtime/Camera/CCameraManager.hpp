@@ -15,6 +15,8 @@ class CCameraShakeData;
 class CScriptWater;
 class CInterpolationCamera;
 class CFinalInput;
+class CScriptCameraHint;
+class CCinematicCamera;
 
 class CCameraManager
 {
@@ -35,28 +37,27 @@ class CCameraManager
     CBallCamera* x80_ballCamera = nullptr;
     s16 x84_rumbleId = -1;
     CInterpolationCamera* x88_interpCamera = nullptr;
-    float x90_ = 0.f;
-    float x94_ = 1.f;
-    float x98_ = 0.f;
-    float x9c_ = 1.f;
+    float x90_rumbleCooldown = 0.f;
+    float x94_fogDensityFactor = 1.f;
+    float x98_fogDensitySpeed = 0.f;
+    float x9c_fogDensityFactorTarget = 1.f;
 
     union
     {
         struct
         {
-            bool xa0_24_ : 1;
+            bool xa0_24_pendingRumble : 1;
             bool xa0_25_rumbling : 1;
             bool xa0_26_inWater : 1;
         };
         u8 _dummy1 = 0;
     };
 
-    TUniqueId xa2_ = kInvalidUniqueId;
-    TUniqueId xa4_ = kInvalidUniqueId;
-    TUniqueId xa6_ = kInvalidUniqueId;
-    u32 xa8_ = 1000;
-    u32 xac_ = 0;
-
+    TUniqueId xa2_spindleCamId = kInvalidUniqueId;
+    TUniqueId xa4_pathCamId = kInvalidUniqueId;
+    TUniqueId xa6_camHintId = kInvalidUniqueId;
+    s32 xa8_hintPriority = 1000;
+    rstl::reserved_vector<std::pair<s32, TUniqueId>, 64> xac_cameraHints;
     rstl::reserved_vector<TUniqueId, 64> x2b0_inactiveCameraHints;
     rstl::reserved_vector<TUniqueId, 64> x334_activeCameraHints;
 
@@ -71,6 +72,16 @@ class CCameraManager
     };
 
     float x3bc_curFov = 60.f;
+
+    void SetPathCamera(TUniqueId id, CStateManager& mgr);
+    void SetSpindleCamera(TUniqueId id, CStateManager& mgr);
+    void RestoreHintlessCamera(CStateManager& mgr);
+    void InterpolateToBallCamera(const zeus::CTransform& xf, TUniqueId camId, const zeus::CVector3f& lookDir,
+                                 float f1, float f2, float f3, bool b1, CStateManager& mgr);
+    static constexpr bool ShouldBypassInterpolation() { return false; }
+    void SkipBallCameraCinematic(CStateManager& mgr);
+    void ApplyCameraHint(const CScriptCameraHint& hint, CStateManager& mgr);
+
 public:
     CCameraManager(TUniqueId curCameraId=kInvalidUniqueId);
 
@@ -117,11 +128,11 @@ public:
 
     float sub80009148() const;
 
-    void UpdateCameraHints(float, CStateManager&);
-    void ThinkCameras(float, CStateManager&);
-    void UpdateFog(float, CStateManager&);
-    void UpdateRumble(float, CStateManager&);
-    void UpdateListener(CStateManager&);
+    void UpdateCameraHints(float dt, CStateManager& mgr);
+    void ThinkCameras(float dt, CStateManager& mgr);
+    void UpdateFog(float dt, CStateManager& mgr);
+    void UpdateRumble(float dt, CStateManager& mgr);
+    void UpdateListener(CStateManager& mgr);
 
     float CalculateFogDensity(CStateManager&, const CScriptWater*);
 
@@ -137,6 +148,13 @@ public:
     void DeleteCameraHint(TUniqueId id, CStateManager& mgr);
     void AddInactiveCameraHint(TUniqueId id, CStateManager& mgr);
     void AddActiveCameraHint(TUniqueId id, CStateManager& mgr);
+
+    TUniqueId GetLastCineCameraId() const;
+    TUniqueId GetSpindleCameraId() const { return xa2_spindleCamId; }
+    TUniqueId GetPathCameraId() const { return xa4_pathCamId; }
+    const CCinematicCamera* GetLastCineCamera(CStateManager& mgr) const;
+    const CScriptCameraHint* GetCameraHint(CStateManager& mgr) const;
+    bool HasCameraHint(CStateManager& mgr) const;
 
 };
 

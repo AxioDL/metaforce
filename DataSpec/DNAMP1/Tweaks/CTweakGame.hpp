@@ -27,10 +27,10 @@ struct CTweakGame final : ITweakGame
     Value<float> x44_rippleIntentityPoison;
     Value<float> x48_rippleIntensityLava;
     Value<float> x4c_fluidEnvBumpScale;
-    Value<float> x50_unknown14;
-    Value<float> x54_unknown15;
-    Value<float> x58_unknown16;
-    Value<float> x5c_unknown17;
+    Value<float> x50_waterFogDistanceBase;
+    Value<float> x54_waterFogDistanceRange;
+    Value<float> x58_gravityWaterFogDistanceBase;
+    Value<float> x5c_gravityWaterFogDistanceRange;
     Value<float> x60_hardmodeDamageMult;
     Value<float> x64_hardmodeWeaponMult;
 

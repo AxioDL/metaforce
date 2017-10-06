@@ -4,10 +4,8 @@
 #include "CDamageInfo.hpp"
 #include "CFluidUVMotion.hpp"
 #include "CGrappleParameters.hpp"
-#include "CLightParameters.hpp"
 #include "CPatternedInfo.hpp"
 #include "CRepulsor.hpp"
-#include "CScannableParameters.hpp"
 #include "CScriptActor.hpp"
 #include "CScriptActorKeyframe.hpp"
 #include "CScriptActorRotate.hpp"
@@ -56,15 +54,14 @@
 #include "CScriptStreamedMusic.hpp"
 #include "CScriptSwitch.hpp"
 #include "CScriptTimer.hpp"
-#include "CScriptTrigger.hpp"
 #include "CScriptVisorFlare.hpp"
 #include "CScriptWater.hpp"
 #include "CScriptWaypoint.hpp"
 #include "CScriptWorldTeleporter.hpp"
 #include "CScriptSpiderBallAttractionSurface.hpp"
+#include "CScriptSpindleCamera.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
-#include "CVisorParameters.hpp"
 #include "CWallCrawlerSwarm.hpp"
 #include "CWorld.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -2311,9 +2308,49 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
     return nullptr;
 }
 
+
+
 CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 24, "SpindleCamera"))
+        return nullptr;
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    u32 flags = LoadParameterFlags(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+
+    SSpindleSegment seg1(in);
+    seg1.FixupAngles();
+    SSpindleSegment seg2(in);
+    SSpindleSegment seg3(in);
+    SSpindleSegment seg4(in);
+    SSpindleSegment seg5(in);
+    seg5.FixupAngles();
+    SSpindleSegment seg6(in);
+    seg6.FixupAngles();
+    SSpindleSegment seg7(in);
+    seg7.FixupAngles();
+    SSpindleSegment seg8(in);
+    seg8.FixupAngles();
+    SSpindleSegment seg9(in);
+    SSpindleSegment seg10(in);
+    SSpindleSegment seg11(in);
+    seg11.FixupAngles();
+    SSpindleSegment seg12(in);
+    seg12.FixupAngles();
+    SSpindleSegment seg13(in);
+    seg13.FixupAngles();
+    SSpindleSegment seg14(in);
+    SSpindleSegment seg15(in);
+    seg15.FixupAngles();
+
+    return new CScriptSpindleCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
+                                    active, flags, f1, f2, f3, f4, seg1, seg2, seg3, seg4, seg5, seg6,
+                                    seg7, seg8, seg9, seg10, seg11, seg12, seg13, seg14, seg15);
 }
 
 CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

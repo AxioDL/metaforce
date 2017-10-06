@@ -43,7 +43,7 @@ private:
     rstl::reserved_vector<std::experimental::optional<TLockedToken<CGenDescription>>, 3> x264_splashEffects;
     rstl::reserved_vector<u16, 3> x298_splashSounds;
     zeus::CColor x2a4_splashColor;
-    zeus::CColor x2a8_unkColor;
+    zeus::CColor x2a8_fogColor;
     float x2ac_alphaInTime;
     float x2b0_alphaOutTime;
     float x2b4_alphaInRecip;
@@ -131,6 +131,7 @@ public:
     int GetPatchDimensionX() const { return x2d0_patchDimX; }
     int GetPatchDimensionY() const { return x2d4_patchDimY; }
     bool CanRippleAtPoint(const zeus::CVector3f& point) const;
+    const zeus::CColor& GetFogColor() const { return x2a8_fogColor; }
 };
 }
 

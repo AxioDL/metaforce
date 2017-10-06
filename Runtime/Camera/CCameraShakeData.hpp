@@ -7,6 +7,7 @@
 namespace urde
 {
 class CRandom16;
+class CStateManager;
 
 struct SCameraShakePoint
 {
@@ -29,7 +30,7 @@ class CCameraShakerComponent
     friend class CCameraShakeData;
     u32 x4_w1 = 0;
     SCameraShakePoint x8_sp1, x20_sp2;
-    float x38_ = 0.f;
+    float x38_value = 0.f;
 public:
     CCameraShakerComponent() = default;
     CCameraShakerComponent(u32 w1, const SCameraShakePoint& sp1, const SCameraShakePoint& sp2)
@@ -41,7 +42,7 @@ class CCameraShakeData
 {
     friend class CCameraManager;
     float x0_duration;
-    float x4_ = 0.f;
+    float x4_curTime = 0.f;
     CCameraShakerComponent x8_shaker1;
     CCameraShakerComponent x44_shaker2;
     CCameraShakerComponent x80_shaker3;
@@ -62,6 +63,8 @@ public:
                                                     const zeus::CVector3f& sfxPos);
     static CCameraShakeData BuildPhazonCameraShakeData(float duration, float magnitude);
     //zeus::CVector3f GeneratePoint(float dt, CRandom16& r);
+    void Update(float dt, CStateManager& mgr);
+    zeus::CVector3f GetPoint() const;
     float GetSomething() const;
     float GetSomething2() const;
     void SetShakerId(u32 id) { xbc_shakerId = id; }

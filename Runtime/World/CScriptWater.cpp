@@ -44,7 +44,7 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string&
   x24c_unmorphVisorRunoffParticleId(unmorphVisorRunoffparticle),
   x260_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx)),
   x262_unmorphVisorRunoffSfx(CSfxManager::TranslateSFXID(unmorphVisorRunoffSfx)),
-  x2a4_splashColor(splashColor), x2a8_unkColor(unkColor), x2ac_alphaInTime(alphaInTime), x2b0_alphaOutTime(alphaOutTime),
+  x2a4_splashColor(splashColor), x2a8_fogColor(unkColor), x2ac_alphaInTime(alphaInTime), x2b0_alphaOutTime(alphaOutTime),
   x2b4_alphaInRecip((alphaInTime != 0.f) ? 1.f / alphaInTime : 0.f),
   x2b8_alphaOutRecip((alphaOutTime != 0.f) ? 1.f / alphaOutTime : 0.f), x2bc_alpha(alpha), x2c0_tileSize(tileSize)
 {

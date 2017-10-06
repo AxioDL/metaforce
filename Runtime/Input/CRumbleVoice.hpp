@@ -7,6 +7,7 @@ namespace urde
 {
 enum class ERumbleFxId
 {
+    Six = 6,
     Seven = 7,
     Eleven = 11,
     Twelve = 12,

@@ -79,6 +79,16 @@ CCameraShakeData CCameraShakeData::BuildPhazonCameraShakeData(float duration, fl
                                    SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 0.5f))};
 }
 
+void CCameraShakeData::Update(float dt, CStateManager& mgr)
+{
+
+}
+
+zeus::CVector3f CCameraShakeData::GetPoint() const
+{
+    return {x8_shaker1.x38_value, x44_shaker2.x38_value, x80_shaker3.x38_value};
+}
+
 float CCameraShakeData::GetSomething() const
 {
     float ret = 0.f;

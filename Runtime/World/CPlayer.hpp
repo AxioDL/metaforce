@@ -675,6 +675,7 @@ public:
     float GetDistanceUnderWater() const { return x828_distanceUnderWater; }
     TUniqueId GetRidingPlatformId() const { return x82e_ridingPlatform; }
     const zeus::CVector3f& GetLastVelocity() const { return x794_lastVelocity; }
+    const zeus::CVector3f& GetMoveDir() const { return x50c_moveDir; }
 };
 }
 

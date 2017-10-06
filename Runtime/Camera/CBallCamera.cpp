@@ -40,4 +40,34 @@ void CBallCamera::TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr)
 
 }
 
+void CBallCamera::TeleportCamera(const zeus::CTransform& xf, CStateManager& mgr)
+{
+
+}
+
+void CBallCamera::ResetToTweaks(CStateManager& mgr)
+{
+
+}
+
+void CBallCamera::UpdateLookAtPosition(float offset, CStateManager& mgr)
+{
+
+}
+
+zeus::CTransform CBallCamera::UpdateLookDirection(const zeus::CVector3f& dir, CStateManager& mgr)
+{
+    return {};
+}
+
+void CBallCamera::ApplyCameraHint(CStateManager& mgr)
+{
+
+}
+
+void CBallCamera::ResetPosition()
+{
+
+}
+
 }
