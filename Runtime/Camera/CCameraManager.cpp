@@ -215,7 +215,7 @@ void CCameraManager::RestoreHintlessCamera(CStateManager& mgr)
                 x80_ballCamera->TeleportCamera(x80_ballCamera->UpdateLookDirection(camToPlayerFlat, mgr), mgr);
                 InterpolateToBallCamera(ballCamXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetX1D8(),
                                         hint->GetHint().GetX5C(), hint->GetHint().GetX4C(), hint->GetHint().GetX50(),
-                                        ((hint->GetHint().GetOverrideFlags() >> 11) & 0x1) != 0, mgr);
+                                        (hint->GetHint().GetOverrideFlags() & 0x800) != 0, mgr);
             }
         }
     }
@@ -276,25 +276,25 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
     {
         InterpolateToBallCamera(camXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetX1D8(),
                                 hint.GetHint().GetX58(), hint.GetHint().GetX4C(), hint.GetHint().GetX50(),
-                                ((hint.GetHint().GetOverrideFlags() >> 10) & 0x1) != 0, mgr);
+                                (hint.GetHint().GetOverrideFlags() & 0x400) != 0, mgr);
     }
 }
 
 void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
 {
-    bool r27 = false;
+    bool invalidHintRemoved = false;
     for (auto it = xac_cameraHints.begin() ; it != xac_cameraHints.end() ;)
     {
         if (!TCastToPtr<CScriptCameraHint>(mgr.ObjectById(it->second)))
         {
-            r27 = true;
+            invalidHintRemoved = true;
             it = xac_cameraHints.erase(it);
             continue;
         }
         ++it;
     }
 
-    bool r26 = false;
+    bool inactiveHintRemoved = false;
     for (TUniqueId id : x2b0_inactiveCameraHints)
     {
         if (TCastToConstPtr<CScriptCameraHint> hint = mgr.GetObjectById(id))
@@ -308,7 +308,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                         xac_cameraHints.erase(it);
                         if (xa6_camHintId == id)
                         {
-                            r26 = true;
+                            inactiveHintRemoved = true;
                             SetPathCamera(kInvalidUniqueId, mgr);
                             SetSpindleCamera(kInvalidUniqueId, mgr);
                         }
@@ -320,61 +320,61 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
     }
     x2b0_inactiveCameraHints.clear();
 
-    bool r25 = false;
+    bool activeHintAdded = false;
     for (TUniqueId id : x334_activeCameraHints)
     {
         if (TCastToConstPtr<CScriptCameraHint> hint = mgr.GetObjectById(id))
         {
-            bool newActiveHint = false;
+            bool activeHintPresent = false;
             for (auto it = xac_cameraHints.begin() ; it != xac_cameraHints.end() ; ++it)
             {
                 if (it->second == id)
                 {
-                    newActiveHint = true;
+                    activeHintPresent = true;
                     break;
                 }
             }
 
-            if (!newActiveHint)
+            if (!activeHintPresent)
             {
-                r25 = true;
+                activeHintAdded = true;
                 xac_cameraHints.emplace_back(hint->GetPriority(), id);
             }
         }
     }
     x334_activeCameraHints.clear();
 
-    if (r26 || r25 || r27)
+    if (inactiveHintRemoved || activeHintAdded || invalidHintRemoved)
     {
         std::sort(xac_cameraHints.begin(), xac_cameraHints.end(),
                   [](const auto& a, const auto& b) { return a.first < b.first; });
         zeus::CTransform ballCamXf = x80_ballCamera->GetTransform();
-        if ((r26 || r27) && xac_cameraHints.empty())
+        if ((inactiveHintRemoved || invalidHintRemoved) && xac_cameraHints.empty())
         {
             RestoreHintlessCamera(mgr);
             return;
         }
-        bool r26b = false;
-        CScriptCameraHint* foundHint = nullptr;
+        bool foundHint = false;
+        CScriptCameraHint* bestHint = nullptr;
         for (auto& h : xac_cameraHints)
         {
             if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(h.second))
             {
-                foundHint = hint.GetPtr();
-                r26b = true;
+                bestHint = hint.GetPtr();
+                foundHint = true;
                 break;
             }
         }
-        if (!r26b)
+        if (!foundHint)
             RestoreHintlessCamera(mgr);
 
-        bool r25b = false;
-        if (foundHint && r26b)
+        bool changeHint = false;
+        if (bestHint && foundHint)
         {
-            if ((foundHint->GetHint().GetOverrideFlags() & 0x80) != 0 && xac_cameraHints.size() > 1)
+            if ((bestHint->GetHint().GetOverrideFlags() & 0x80) != 0 && xac_cameraHints.size() > 1)
             {
                 zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
-                if ((foundHint->GetHint().GetOverrideFlags() & 0x100) != 0)
+                if ((bestHint->GetHint().GetOverrideFlags() & 0x100) != 0)
                 {
                     zeus::CVector3f camToBall = ballPos - ballCamXf.origin;
                     if (camToBall.canBeNormalized())
@@ -387,14 +387,14 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                         if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(it->second))
                         {
                             if ((hint->GetHint().GetOverrideFlags() & 0x80) != 0 && hint->GetPriority() ==
-                                                                                        foundHint->GetPriority() &&
-                                hint->GetAreaIdAlways() == foundHint->GetAreaIdAlways())
+                                                                                        bestHint->GetPriority() &&
+                                hint->GetAreaIdAlways() == bestHint->GetAreaIdAlways())
                             {
-                                zeus::CVector3f hintToBall = ballPos - foundHint->GetTranslation();
+                                zeus::CVector3f hintToBall = ballPos - bestHint->GetTranslation();
                                 if (hintToBall.canBeNormalized())
                                     hintToBall.normalize();
                                 else
-                                    hintToBall = foundHint->GetTransform().basis[1];
+                                    hintToBall = bestHint->GetTransform().basis[1];
 
                                 float camHintDot = zeus::clamp(-1.f, camToBall.dot(hintToBall), 1.f);
 
@@ -407,7 +407,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                                 float camThisHintDot = zeus::clamp(-1.f, camToBall.dot(thisHintToBall), 1.f);
 
                                 if (camThisHintDot > camHintDot)
-                                    foundHint = hint.GetPtr();
+                                    bestHint = hint.GetPtr();
                             }
                             else
                             {
@@ -422,7 +422,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                 }
                 else
                 {
-                    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(foundHint->GetFirstHelper()))
+                    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(bestHint->GetFirstHelper()))
                     {
                         zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
                         zeus::CVector3f f26 = act->GetTranslation() - ballPos;
@@ -430,21 +430,21 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                         if (ballToHelper.canBeNormalized())
                             ballToHelper.normalize();
                         else
-                            ballToHelper = foundHint->GetTransform().basis[1];
+                            ballToHelper = bestHint->GetTransform().basis[1];
 
                         for (auto it = xac_cameraHints.begin() + 1 ; it != xac_cameraHints.end() ; ++it)
                         {
                             if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(it->second))
                             {
                                 if ((hint->GetHint().GetOverrideFlags() & 0x80) != 0 && hint->GetPriority() ==
-                                                                                            foundHint->GetPriority() &&
-                                    hint->GetAreaIdAlways() == foundHint->GetAreaIdAlways())
+                                                                                            bestHint->GetPriority() &&
+                                    hint->GetAreaIdAlways() == bestHint->GetAreaIdAlways())
                                 {
-                                    zeus::CVector3f hintToHelper = act->GetTranslation() - foundHint->GetTranslation();
+                                    zeus::CVector3f hintToHelper = act->GetTranslation() - bestHint->GetTranslation();
                                     if (hintToHelper.canBeNormalized())
                                         hintToHelper.normalize();
                                     else
-                                        hintToHelper = foundHint->GetTransform().basis[1];
+                                        hintToHelper = bestHint->GetTransform().basis[1];
 
                                     float ballHintDot = zeus::clamp(-1.f, ballToHelper.dot(hintToHelper), 1.f);
 
@@ -464,7 +464,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                                         zeus::clamp(-1.f, thisBallToHelper.dot(thisHintToHelper), 1.f);
 
                                     if (thisBallHintDot > ballHintDot)
-                                        foundHint = hint.GetPtr();
+                                        bestHint = hint.GetPtr();
                                 }
                                 else
                                 {
@@ -479,31 +479,31 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                     }
                 }
 
-                if (foundHint->GetUniqueId() != xa6_camHintId)
-                    r25b = true;
+                if (bestHint->GetUniqueId() != xa6_camHintId)
+                    changeHint = true;
             }
-            else if (xa6_camHintId != foundHint->GetUniqueId())
+            else if (xa6_camHintId != bestHint->GetUniqueId())
             {
-                if (foundHint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::Three)
+                if (bestHint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::Three)
                 {
-                    if ((foundHint->GetHint().GetOverrideFlags() & 0x20) != 0)
+                    if ((bestHint->GetHint().GetOverrideFlags() & 0x20) != 0)
                     {
                         x80_ballCamera->TeleportCamera(
-                            zeus::lookAt(foundHint->GetTranslation(), x80_ballCamera->GetX1D8()), mgr);
+                            zeus::lookAt(bestHint->GetTranslation(), x80_ballCamera->GetX1D8()), mgr);
                     }
-                    DeleteCameraHint(foundHint->GetUniqueId(), mgr);
-                    if ((foundHint->GetHint().GetOverrideFlags() & 0x2000) != 0)
+                    DeleteCameraHint(bestHint->GetUniqueId(), mgr);
+                    if ((bestHint->GetHint().GetOverrideFlags() & 0x2000) != 0)
                         SkipBallCameraCinematic(mgr);
-                    r25b = false;
+                    changeHint = false;
                 }
                 else
                 {
-                    r25b = true;
+                    changeHint = true;
                 }
             }
 
-            if (r25b)
-                ApplyCameraHint(*foundHint, mgr);
+            if (changeHint)
+                ApplyCameraHint(*bestHint, mgr);
         }
     }
 }
@@ -615,9 +615,11 @@ float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater
     float distanceFactor = 1.f - water->GetFluidPlane().GetAlpha();
     float distance = 0;
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
-        distance = g_tweakGame->x5c_gravityWaterFogDistanceRange * distanceFactor + g_tweakGame->x58_gravityWaterFogDistanceBase;
+        distance = g_tweakGame->GetGravityWaterFogDistanceRange() * distanceFactor +
+                   g_tweakGame->GetGravityWaterFogDistanceBase();
     else
-        distance = g_tweakGame->x54_waterFogDistanceRange * distanceFactor + g_tweakGame->x50_waterFogDistanceBase;
+        distance = g_tweakGame->GetWaterFogDistanceRange() * distanceFactor +
+                   g_tweakGame->GetWaterFogDistanceBase();
 
     return distance * x94_fogDensityFactor;
 }

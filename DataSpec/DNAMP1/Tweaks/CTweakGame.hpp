@@ -45,6 +45,10 @@ struct CTweakGame final : ITweakGame
     float GetRippleIntensityPoison() const { return x44_rippleIntentityPoison; }
     float GetRippleIntensityLava() const { return x48_rippleIntensityLava; }
     float GetFluidEnvBumpScale() const { return x4c_fluidEnvBumpScale; }
+    float GetWaterFogDistanceBase() const { return x50_waterFogDistanceBase; }
+    float GetWaterFogDistanceRange() const { return x54_waterFogDistanceRange; }
+    float GetGravityWaterFogDistanceBase() const { return x58_gravityWaterFogDistanceBase; }
+    float GetGravityWaterFogDistanceRange() const { return x5c_gravityWaterFogDistanceRange; }
     float GetHardModeDamageMultiplier() const { return x60_hardmodeDamageMult; }
     float GetHardModeWeaponMultiplier() const { return x64_hardmodeWeaponMult; }
     CTweakGame() = default;
