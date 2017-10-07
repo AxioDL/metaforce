@@ -146,7 +146,7 @@ void CGameCamera::SetFovInterpolation(float start, float fov, float time, float 
     }
 }
 
-void CGameCamera::sub8005AF88()
+void CGameCamera::SkipFovInterpolation()
 {
     if (x178_ > 0)
     {

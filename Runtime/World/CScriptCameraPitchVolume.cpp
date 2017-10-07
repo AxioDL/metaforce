@@ -18,8 +18,8 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, c
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_obbox(xf, scale * skScaleFactor)
-, x124_(r1)
-, x128_(r2)
+, x124_upPitch(r1)
+, x128_downPitch(r2)
 , x12c_scale(scale * skScaleFactor)
 , x138_maxInterpDistance(maxInterpDistance)
 {
@@ -60,10 +60,6 @@ void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr)
 
     x13c_24_entered = xe8_obbox.AABoxIntersectsBox(plBox.value());
 }
-
-const zeus::CVector3f& CScriptCameraPitchVolume::GetScale() const { return x12c_scale; }
-
-float CScriptCameraPitchVolume::GetMaxInterpolationDistance() const { return x138_maxInterpDistance; }
 
 void CScriptCameraPitchVolume::Entered(urde::CStateManager& mgr)
 {

@@ -1,13 +1,10 @@
 #include "CFirstPersonCamera.hpp"
 #include "GameGlobalObjects.hpp"
-#include "Character/CCharLayoutInfo.hpp"
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
-#include "World/CPlayerCameraBob.hpp"
 #include "World/CScriptGrapplePoint.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "World/CScriptCameraPitchVolume.hpp"
 #include "TCastTo.hpp"
-#include <math.h>
 
 namespace urde
 {
@@ -15,8 +12,10 @@ namespace urde
 CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj,
                                        float orbitCameraSpeed, float fov, float nearz, float farz, float aspect)
 : CGameCamera(uid, true, "First Person Camera", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf, fov,
-              nearz, farz, aspect, watchedObj, false, 0), x188_orbitCameraSpeed(orbitCameraSpeed)
+              nearz, farz, aspect, watchedObj, false, 0), x188_orbitCameraSpeed(orbitCameraSpeed),
+  x190_gunFollowXf(xf)
 {
+    x1c6_24_deferBallTransitionProcessing = false;
 }
 
 void CFirstPersonCamera::Accept(IVisitor& visitor)
@@ -24,21 +23,65 @@ void CFirstPersonCamera::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-void CFirstPersonCamera::PreThink(float, CStateManager&) {}
-
-void CFirstPersonCamera::Think(float, CStateManager&)
+void CFirstPersonCamera::PreThink(float dt, CStateManager& mgr)
 {
-
+    // Empty
 }
 
-void CFirstPersonCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {}
+void CFirstPersonCamera::Think(float dt, CStateManager& mgr)
+{
+    if (TCastToPtr<CPlayer> player = mgr.ObjectById(xe8_watchedObject))
+    {
+        if (!x1c6_24_deferBallTransitionProcessing)
+        {
+            if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
+            {
+                if (player->GetCameraState() != CPlayer::EPlayerCameraState::Spawned)
+                    return;
+                SetTransform(player->CreateTransformFromMovementDirection());
+                SetTranslation(player->GetEyePosition());
+                return;
+            }
+            if (player->GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed)
+            {
+                if (player->GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphing)
+                    return;
+                float morphFactor = 0.f;
+                if (player->GetMorphDuration() != 0.f)
+                    morphFactor = zeus::clamp(0.f, player->GetMorphTime() / player->GetMorphDuration(), 1.f);
+                if (std::fabs(morphFactor - 1.f) >= 0.00001f)
+                    return;
+            }
+        }
+        else
+        {
+            x1c6_24_deferBallTransitionProcessing = false;
+        }
+        zeus::CTransform backupXf = x34_transform;
+        UpdateElevation(mgr);
+        UpdateTransform(mgr, dt);
+        SetTransform(ValidateCameraTransform(x34_transform, backupXf));
+        if (x1d4_closeInTimer > 0.f)
+            x1d4_closeInTimer -= dt;
+    }
+}
 
-void CFirstPersonCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {}
+void CFirstPersonCamera::ProcessInput(const CFinalInput&, CStateManager& mgr)
+{
+    // Empty
+}
+
+void CFirstPersonCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr)
+{
+    SetTransform(xf);
+    SetTranslation(mgr.GetPlayer().GetEyePosition());
+    x190_gunFollowXf = x34_transform;
+}
 
 void CFirstPersonCamera::SkipCinematic()
 {
-    x1c8_ = zeus::CVector3f::skZero;
-    x1d4_ = 0.f;
+    x1c8_closeInVec = zeus::CVector3f::skZero;
+    x1d4_closeInTimer = 0.f;
 }
 
 void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransform& gunXf, zeus::CQuaternion& gunQ,
@@ -80,11 +123,11 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     zeus::CTransform playerXf = player->GetTransform();
     zeus::CVector3f rVec =
-        playerXf.rotate({0.f, std::min(std::fabs(std::cos(x1c0_)), 1.0f), std::min(std::fabs(std::sin(x1c0_)), 1.0f)});
+        playerXf.rotate({0.f, std::min(std::fabs(std::cos(x1c0_pitch)), 1.0f), std::min(std::fabs(std::sin(x1c0_pitch)), 1.0f)});
     if (player->x3dc_inFreeLook)
     {
         float angle = player->x3ec_freeLookPitchAngle;
-        float angleClamp = g_tweakPlayer->GetVerticalFreeLookAngleVel() - std::fabs(x1c0_);
+        float angleClamp = g_tweakPlayer->GetVerticalFreeLookAngleVel() - std::fabs(x1c0_pitch);
         angle = zeus::clamp(-angleClamp, angle, angleClamp);
         zeus::CVector3f vec;
         vec.z = std::sin(angle);
@@ -97,9 +140,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     }
 
     zeus::CVector3f eyePos = player->GetEyePosition();
-    if (x1d4_ > 0.f)
+    if (x1d4_closeInTimer > 0.f)
     {
-        eyePos += zeus::clamp(0.f, 0.5f * x1d4_, 1.f) * x1c8_;
+        eyePos += zeus::clamp(0.f, 0.5f * x1d4_closeInTimer, 1.f) * x1c8_closeInVec;
         player->GetCameraBob()->ResetCameraBobTime();
         player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform::Identity());
     }
@@ -126,7 +169,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             float angle = zeus::clamp(0.f, (player->x294_jumpCameraTimer - g_tweakPlayer->GetJumpCameraPitchDownStart()) /
                 g_tweakPlayer->GetJumpCameraPitchDownFull(), 1.f) *
                 g_tweakPlayer->GetJumpCameraPitchDownAngle();
-            angle += x1c0_;
+            angle += x1c0_pitch;
             rVec.x = 0.f;
             rVec.y = std::cos(angle);
             rVec.z = -std::sin(angle);
@@ -191,13 +234,12 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 if (gunFrontVec.canBeNormalized())
                     gunFrontVec.normalize();
 
-                /* BUG: This is exactly what the runtime is doing, should we restore the intended behavior? */
                 float angle = gunFrontVec.dot(rVec);
                 float sdt = dt * g_tweakPlayer->GetGrappleCameraSpeed();
 
                 angle = zeus::clamp(-1.f, angle, 1.f);
-                angle = zeus::clamp(0.f, std::acos(angle) / sdt, 1.f);
-                qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, zeus::CRelAngle::FromDegrees(360.f));
+                angle = zeus::clamp(0.f, std::acos(angle) / sdt, 1.f) * sdt;
+                qGun = zeus::CQuaternion::lookAt(rVec, gunFrontVec, angle);
             }
         }
         else if (player->GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitPoint ||
@@ -259,5 +301,47 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     x190_gunFollowXf.orthonormalize();
 }
 
-void CFirstPersonCamera::UpdateElevation(CStateManager&) {}
+void CFirstPersonCamera::UpdateElevation(CStateManager& mgr)
+{
+    x1c0_pitch = 0.f;
+    if (TCastToConstPtr<CPlayer> player = mgr.GetObjectById(xe8_watchedObject))
+    {
+        if (x1c4_pitchId != kInvalidUniqueId)
+        {
+            if (TCastToConstPtr<CScriptCameraPitchVolume> pvol = mgr.GetObjectById(x1c4_pitchId))
+            {
+                zeus::CVector3f pitchDirFlat = pvol->GetTransform().basis[1];
+                pitchDirFlat.z = 0.f;
+                if (!pitchDirFlat.canBeNormalized())
+                    pitchDirFlat = zeus::CVector3f::skForward;
+
+                zeus::CVector3f playerDirFlat = player->GetTransform().basis[1];
+                playerDirFlat.z = 0.f;
+                playerDirFlat.normalize();
+
+                float pitchDot = zeus::clamp(-1.f, pitchDirFlat.dot(playerDirFlat), 1.f);
+                if (pitchDot < 0.f)
+                    x1c0_pitch = pvol->GetDownPitch() * -pitchDot;
+                else
+                    x1c0_pitch = pvol->GetUpPitch() * -pitchDot;
+
+                zeus::CVector3f pvolToPlayerFlat = player->GetTranslation() - pvol->GetTranslation();
+                pvolToPlayerFlat.z = 0.f;
+                float pitchMul = 0.f;
+                if (pvolToPlayerFlat.canBeNormalized())
+                {
+                    float pvolPlayerProj =
+                        std::fabs(zeus::clamp(-1.f, pvolToPlayerFlat.dot(pitchDirFlat), 1.f)) *
+                        pvolToPlayerFlat.magnitude();
+                    if (pvolPlayerProj <= pvol->GetMaxInterpolationDistance())
+                        pitchMul = 1.f;
+                    else
+                        pitchMul = 1.f - zeus::clamp(-1.f, (pvolPlayerProj - pvol->GetMaxInterpolationDistance()) /
+                            (pvol->GetScale().y - pvol->GetMaxInterpolationDistance()), 1.f);
+                }
+                x1c0_pitch *= pitchMul;
+            }
+        }
+    }
+}
 }

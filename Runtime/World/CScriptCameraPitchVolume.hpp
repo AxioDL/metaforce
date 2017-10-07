@@ -11,8 +11,8 @@ class CScriptCameraPitchVolume : public CActor
 {
     static const zeus::CVector3f skScaleFactor;
     zeus::COBBox xe8_obbox;
-    zeus::CRelAngle x124_;
-    zeus::CRelAngle x128_;
+    zeus::CRelAngle x124_upPitch;
+    zeus::CRelAngle x128_downPitch;
     zeus::CVector3f x12c_scale;
     float x138_maxInterpDistance;
 
@@ -33,10 +33,10 @@ public:
     void Think(float, CStateManager&);
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);
-    const zeus::CRelAngle& GetUpPitch() const;
-    const zeus::CRelAngle& GetDownPitch() const;
-    const zeus::CVector3f& GetScale() const;
-    float GetMaxInterpolationDistance() const;
+    float GetUpPitch() const { return x124_upPitch; }
+    float GetDownPitch() const { return x128_downPitch; }
+    const zeus::CVector3f& GetScale() const { return x12c_scale; }
+    float GetMaxInterpolationDistance() const { return x138_maxInterpDistance; }
     void Entered(CStateManager&);
     void Exited(CStateManager&);
 };

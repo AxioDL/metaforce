@@ -6175,7 +6175,7 @@ void CPlayer::LeaveMorphBallState(CStateManager& mgr)
     mgr.GetCameraManager()->SetPlayerCamera(mgr, mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId());
     mgr.GetCameraManager()->GetBallCamera()->SetState(CBallCamera::EBallCameraState::Zero, mgr);
     SetCameraState(EPlayerCameraState::FirstPerson, mgr);
-    mgr.GetCameraManager()->GetFirstPersonCamera()->SetX1C6_24(true);
+    mgr.GetCameraManager()->GetFirstPersonCamera()->DeferBallTransitionProcessing();
     mgr.GetCameraManager()->GetFirstPersonCamera()->Think(0.f, mgr);
     ForceGunOrientation(x34_transform, mgr);
     DrawGun(mgr);

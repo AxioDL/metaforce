@@ -126,7 +126,7 @@ public:
     CBallCamera* GetBallCamera() { return x80_ballCamera; }
     CGameArea::CAreaFog& Fog() { return x3c_fog; }
 
-    float sub80009148() const;
+    float GetCameraBobMagnitude() const;
 
     void UpdateCameraHints(float dt, CStateManager& mgr);
     void ThinkCameras(float dt, CStateManager& mgr);
@@ -142,7 +142,6 @@ public:
     void SetupBallCamera(CStateManager& mgr);
     void SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId);
     int GetFluidCounter() const { return x74_fluidCounter; }
-    float GetCameraBobMagnitude() const;
     bool HasBallCameraInitialPositionHint(CStateManager& mgr) const;
 
     void DeleteCameraHint(TUniqueId id, CStateManager& mgr);

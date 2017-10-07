@@ -13,6 +13,7 @@ class CGameCamera : public CActor
     friend class CStateManager;
     friend class CCameraManager;
 
+protected:
     TUniqueId xe8_watchedObject;
     zeus::CMatrix4f xec_perspectiveMatrix;
     zeus::CTransform x12c_;
@@ -50,7 +51,7 @@ public:
     bool DisablesInput() const;
     void UpdatePerspective(float);
     void SetFovInterpolation(float start, float end, float time, float f4);
-    void sub8005AF88();
+    void SkipFovInterpolation();
 };
 }
 

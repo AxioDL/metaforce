@@ -146,13 +146,6 @@ void CCameraManager::SkipCinematic(CStateManager& stateMgr)
     x7c_fpCamera->SkipCinematic();
 }
 
-float CCameraManager::sub80009148() const
-{
-    const zeus::CVector3f uVec = x7c_fpCamera->GetTransform().upVector();
-    return 1.f - std::min(std::fabs(std::min(std::fabs(uVec.dot(zeus::CVector3f::skUp)), 1.f) /
-                          std::cos(zeus::degToRad(30.f))), 1.f);
-}
-
 void CCameraManager::SetPathCamera(TUniqueId id, CStateManager& mgr)
 {
     xa4_pathCamId = id;
@@ -663,12 +656,30 @@ void CCameraManager::RenderCameras(const CStateManager& mgr)
 
 void CCameraManager::SetupBallCamera(CStateManager& mgr)
 {
-
+    if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(xa6_camHintId))
+    {
+        if (hint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::Three)
+        {
+            if ((hint->GetHint().GetOverrideFlags() & 0x20) != 0)
+                x80_ballCamera->TeleportCamera(hint->GetTransform(), mgr);
+            AddInactiveCameraHint(xa6_camHintId, mgr);
+        }
+        else
+        {
+            ApplyCameraHint(*hint, mgr);
+        }
+    }
 }
 
 void CCameraManager::SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId)
 {
-
+    if (x88_interpCamera->GetActive())
+    {
+        x88_interpCamera->SetActive(false);
+        x80_ballCamera->SkipFovInterpolation();
+        if (!ShouldBypassInterpolation())
+            SetCurrentCameraId(newCamId, mgr);
+    }
 }
 
 float CCameraManager::GetCameraBobMagnitude() const

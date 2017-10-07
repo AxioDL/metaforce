@@ -127,6 +127,7 @@ for tp in CENTITY_TYPES:
 headerf.write('''
     T* GetPtr() const { return ptr; }
     operator T*() const { return GetPtr(); }
+    T& operator*() const { return *GetPtr(); }
     T* operator->() const { return GetPtr(); }
     operator bool() const { return ptr != nullptr; }
 };
@@ -140,6 +141,7 @@ public:
     TCastToConstPtr(const CEntity& p) : TCastToPtr<T>(const_cast<CEntity&>(p)) {}
     const T* GetPtr() const { return TCastToPtr<T>::ptr; }
     operator const T*() const { return GetPtr(); }
+    const T& operator*() const { return *GetPtr(); }
     const T* operator->() const { return GetPtr(); }
     operator bool() const { return TCastToPtr<T>::ptr != nullptr; }
 };

@@ -167,7 +167,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
     else
         x104_ = 0.f;
 
-    float f1 = mgr.GetCameraManager()->sub80009148();
+    float f1 = mgr.GetCameraManager()->GetCameraBobMagnitude();
     x70_landingTranslation *= f1;
     x78_ *= f1;
     x104_ *= f1;
