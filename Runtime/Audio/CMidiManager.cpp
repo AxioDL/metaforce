@@ -8,7 +8,7 @@ std::unordered_set<CMidiHandle> CMidiManager::m_MidiWrappers = {};
 void CMidiManager::StopAll()
 {
     for (auto it = m_MidiWrappers.begin() ; it != m_MidiWrappers.end() ;)
-        it = Stop(it, 0);
+        it = Stop(it, 0.f);
 }
 
 void CMidiManager::Stop(const CMidiHandle& handle, float fadeTime)

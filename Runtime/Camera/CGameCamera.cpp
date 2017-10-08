@@ -7,11 +7,11 @@ namespace urde
 {
 
 CGameCamera::CGameCamera(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info,
-                         const zeus::CTransform& xf, float fovy, float znear, float zfar, float aspect, TUniqueId uid2,
-                         bool disableInput, u32 controllerIdx)
+                         const zeus::CTransform& xf, float fovy, float znear, float zfar, float aspect,
+                         TUniqueId watchedId, bool disableInput, u32 controllerIdx)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_watchedObject(uid2)
+, xe8_watchedObject(watchedId)
 , x12c_(xf)
 , x15c_currentFov(fovy)
 , x160_znear(znear)

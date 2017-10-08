@@ -103,42 +103,42 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x1f8_forceToLeanGain = __dna_reader.readFloatBig();
     /* x1fc_leanTrackingGain */
     x1fc_leanTrackingGain = __dna_reader.readFloatBig();
-    /* x74_ */
-    x74_ = __dna_reader.readFloatBig();
-    /* x78_ */
-    x78_ = __dna_reader.readVec3fBig();
-    /* x84_ */
-    x84_ = __dna_reader.readFloatBig();
-    /* x88_ */
-    x88_ = __dna_reader.readFloatBig();
-    /* x8c_ */
-    x8c_ = __dna_reader.readFloatBig();
+    /* x74_ballCameraAnglePerSecond */
+    x74_ballCameraAnglePerSecond = __dna_reader.readFloatBig();
+    /* x78_ballCameraOffset */
+    x78_ballCameraOffset = __dna_reader.readVec3fBig();
+    /* x84_ballCameraMinSpeedDistance */
+    x84_ballCameraMinSpeedDistance = __dna_reader.readFloatBig();
+    /* x88_ballCameraMaxSpeedDistance */
+    x88_ballCameraMaxSpeedDistance = __dna_reader.readFloatBig();
+    /* x8c_ballCameraBackwardsDistance */
+    x8c_ballCameraBackwardsDistance = __dna_reader.readFloatBig();
     /* x90_ */
     x90_ = __dna_reader.readFloatBig();
-    /* x94_ */
-    x94_ = __dna_reader.readFloatBig();
-    /* x98_ */
-    x98_ = __dna_reader.readFloatBig();
-    /* x9c_ */
-    x9c_ = __dna_reader.readFloatBig();
-    /* xa0_ */
-    xa0_ = __dna_reader.readFloatBig();
-    /* xa4_ */
-    xa4_ = __dna_reader.readFloatBig();
-    /* xa8_ */
-    xa8_ = __dna_reader.readFloatBig();
-    /* xac_ */
-    xac_ = __dna_reader.readFloatBig();
-    /* xb0_ */
-    xb0_ = __dna_reader.readFloatBig();
-    /* xb4_ */
-    xb4_ = __dna_reader.readFloatBig();
-    /* xb8_ */
-    xb8_ = __dna_reader.readFloatBig();
-    /* xbc_ */
-    xbc_ = __dna_reader.readFloatBig();
-    /* xc0_ */
-    xc0_ = __dna_reader.readFloatBig();
+    /* x94_ballCameraSpringTardis */
+    x94_ballCameraSpringTardis = __dna_reader.readFloatBig();
+    /* x98_ballCameraSpringMax */
+    x98_ballCameraSpringMax = __dna_reader.readFloatBig();
+    /* x9c_ballCameraSpringConstant */
+    x9c_ballCameraSpringConstant = __dna_reader.readFloatBig();
+    /* xa0_ballCameraCentroidSpringTardis */
+    xa0_ballCameraCentroidSpringTardis = __dna_reader.readFloatBig();
+    /* xa4_ballCameraCentroidSpringMax */
+    xa4_ballCameraCentroidSpringMax = __dna_reader.readFloatBig();
+    /* xa8_ballCameraCentroidSpringConstant */
+    xa8_ballCameraCentroidSpringConstant = __dna_reader.readFloatBig();
+    /* xac_ballCameraCentroidDistanceSpringTardis */
+    xac_ballCameraCentroidDistanceSpringTardis = __dna_reader.readFloatBig();
+    /* xb0_ballCameraCentroidDistanceSpringMax */
+    xb0_ballCameraCentroidDistanceSpringMax = __dna_reader.readFloatBig();
+    /* xb4_ballCameraCentroidDistanceSpringConstant */
+    xb4_ballCameraCentroidDistanceSpringConstant = __dna_reader.readFloatBig();
+    /* xb8_ballCameraLookAtSpringTardis */
+    xb8_ballCameraLookAtSpringTardis = __dna_reader.readFloatBig();
+    /* xbc_ballCameraLookAtSpringMax */
+    xbc_ballCameraLookAtSpringMax = __dna_reader.readFloatBig();
+    /* xc0_ballCameraLookAtSpringConstant */
+    xc0_ballCameraLookAtSpringConstant = __dna_reader.readFloatBig();
     /* x154_ */
     x154_ = __dna_reader.readFloatBig();
     /* x15c_ */
@@ -155,42 +155,42 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x170_ = __dna_reader.readFloatBig();
     /* x174_ */
     x174_ = __dna_reader.readFloatBig();
-    /* x178_ */
-    x178_ = __dna_reader.readFloatBig();
-    /* x17c_ */
-    x17c_ = __dna_reader.readFloatBig();
-    /* x180_ */
-    x180_ = __dna_reader.readFloatBig();
-    /* x184_ */
-    x184_ = __dna_reader.readFloatBig();
-    /* x188_ */
-    x188_ = __dna_reader.readFloatBig();
-    /* x18c_ */
-    x18c_ = __dna_reader.readVec3fBig();
-    /* x198_ */
-    x198_ = __dna_reader.readFloatBig();
-    /* x19c_ */
-    x19c_ = __dna_reader.readFloatBig();
-    /* x1a0_ */
-    x1a0_ = __dna_reader.readFloatBig();
-    /* x1a4_ */
-    x1a4_ = __dna_reader.readFloatBig();
-    /* x1a8_ */
-    x1a8_ = __dna_reader.readFloatBig();
-    /* x1ac_ */
-    x1ac_ = __dna_reader.readFloatBig();
-    /* x1b0_ */
-    x1b0_ = __dna_reader.readFloatBig();
-    /* x1b4_ */
-    x1b4_ = __dna_reader.readFloatBig();
-    /* x1b8_ */
-    x1b8_ = __dna_reader.readVec3fBig();
-    /* x1c4_ */
-    x1c4_ = __dna_reader.readFloatBig();
-    /* x1c8_ */
-    x1c8_ = __dna_reader.readFloatBig();
-    /* x1cc_ */
-    x1cc_ = __dna_reader.readFloatBig();
+    /* x178_ballCameraChaseElevation */
+    x178_ballCameraChaseElevation = __dna_reader.readFloatBig();
+    /* x17c_ballCameraChaseDampenAngle */
+    x17c_ballCameraChaseDampenAngle = __dna_reader.readFloatBig();
+    /* x180_ballCameraChaseDistance */
+    x180_ballCameraChaseDistance = __dna_reader.readFloatBig();
+    /* x184_ballCameraChaseYawSpeed */
+    x184_ballCameraChaseYawSpeed = __dna_reader.readFloatBig();
+    /* x188_ballCameraChaseAnglePerSecond */
+    x188_ballCameraChaseAnglePerSecond = __dna_reader.readFloatBig();
+    /* x18c_ballCameraChaseLookAtOffset */
+    x18c_ballCameraChaseLookAtOffset = __dna_reader.readVec3fBig();
+    /* x198_ballCameraChaseSpringTardis */
+    x198_ballCameraChaseSpringTardis = __dna_reader.readFloatBig();
+    /* x19c_ballCameraChaseSpringMax */
+    x19c_ballCameraChaseSpringMax = __dna_reader.readFloatBig();
+    /* x1a0_ballCameraChaseSpringConstant */
+    x1a0_ballCameraChaseSpringConstant = __dna_reader.readFloatBig();
+    /* x1a4_ballCameraBoostElevation */
+    x1a4_ballCameraBoostElevation = __dna_reader.readFloatBig();
+    /* x1a8_ballCameraBoostDampenAngle */
+    x1a8_ballCameraBoostDampenAngle = __dna_reader.readFloatBig();
+    /* x1ac_ballCameraBoostDistance */
+    x1ac_ballCameraBoostDistance = __dna_reader.readFloatBig();
+    /* x1b0_ballCameraBoostYawSpeed */
+    x1b0_ballCameraBoostYawSpeed = __dna_reader.readFloatBig();
+    /* x1b4_ballCameraBoostAnglePerSecond */
+    x1b4_ballCameraBoostAnglePerSecond = __dna_reader.readFloatBig();
+    /* x1b8_ballCameraBoostLookAtOffset */
+    x1b8_ballCameraBoostLookAtOffset = __dna_reader.readVec3fBig();
+    /* x1c4_ballCameraBoostSpringTardis */
+    x1c4_ballCameraBoostSpringTardis = __dna_reader.readFloatBig();
+    /* x1c8_ballCameraBoostSpringMax */
+    x1c8_ballCameraBoostSpringMax = __dna_reader.readFloatBig();
+    /* x1cc_ballCameraBoostSpringConstant */
+    x1cc_ballCameraBoostSpringConstant = __dna_reader.readFloatBig();
     /* x1d0_ballCameraControlDistance */
     x1d0_ballCameraControlDistance = __dna_reader.readFloatBig();
     /* x1d4_ */
@@ -323,42 +323,42 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x1f8_forceToLeanGain);
     /* x1fc_leanTrackingGain */
     __dna_writer.writeFloatBig(x1fc_leanTrackingGain);
-    /* x74_ */
-    __dna_writer.writeFloatBig(x74_);
-    /* x78_ */
-    __dna_writer.writeVec3fBig(x78_);
-    /* x84_ */
-    __dna_writer.writeFloatBig(x84_);
-    /* x88_ */
-    __dna_writer.writeFloatBig(x88_);
-    /* x8c_ */
-    __dna_writer.writeFloatBig(x8c_);
+    /* x74_ballCameraAnglePerSecond */
+    __dna_writer.writeFloatBig(x74_ballCameraAnglePerSecond);
+    /* x78_ballCameraOffset */
+    __dna_writer.writeVec3fBig(x78_ballCameraOffset);
+    /* x84_ballCameraMinSpeedDistance */
+    __dna_writer.writeFloatBig(x84_ballCameraMinSpeedDistance);
+    /* x88_ballCameraMaxSpeedDistance */
+    __dna_writer.writeFloatBig(x88_ballCameraMaxSpeedDistance);
+    /* x8c_ballCameraBackwardsDistance */
+    __dna_writer.writeFloatBig(x8c_ballCameraBackwardsDistance);
     /* x90_ */
     __dna_writer.writeFloatBig(x90_);
-    /* x94_ */
-    __dna_writer.writeFloatBig(x94_);
-    /* x98_ */
-    __dna_writer.writeFloatBig(x98_);
-    /* x9c_ */
-    __dna_writer.writeFloatBig(x9c_);
-    /* xa0_ */
-    __dna_writer.writeFloatBig(xa0_);
-    /* xa4_ */
-    __dna_writer.writeFloatBig(xa4_);
-    /* xa8_ */
-    __dna_writer.writeFloatBig(xa8_);
-    /* xac_ */
-    __dna_writer.writeFloatBig(xac_);
-    /* xb0_ */
-    __dna_writer.writeFloatBig(xb0_);
-    /* xb4_ */
-    __dna_writer.writeFloatBig(xb4_);
-    /* xb8_ */
-    __dna_writer.writeFloatBig(xb8_);
-    /* xbc_ */
-    __dna_writer.writeFloatBig(xbc_);
-    /* xc0_ */
-    __dna_writer.writeFloatBig(xc0_);
+    /* x94_ballCameraSpringTardis */
+    __dna_writer.writeFloatBig(x94_ballCameraSpringTardis);
+    /* x98_ballCameraSpringMax */
+    __dna_writer.writeFloatBig(x98_ballCameraSpringMax);
+    /* x9c_ballCameraSpringConstant */
+    __dna_writer.writeFloatBig(x9c_ballCameraSpringConstant);
+    /* xa0_ballCameraCentroidSpringTardis */
+    __dna_writer.writeFloatBig(xa0_ballCameraCentroidSpringTardis);
+    /* xa4_ballCameraCentroidSpringMax */
+    __dna_writer.writeFloatBig(xa4_ballCameraCentroidSpringMax);
+    /* xa8_ballCameraCentroidSpringConstant */
+    __dna_writer.writeFloatBig(xa8_ballCameraCentroidSpringConstant);
+    /* xac_ballCameraCentroidDistanceSpringTardis */
+    __dna_writer.writeFloatBig(xac_ballCameraCentroidDistanceSpringTardis);
+    /* xb0_ballCameraCentroidDistanceSpringMax */
+    __dna_writer.writeFloatBig(xb0_ballCameraCentroidDistanceSpringMax);
+    /* xb4_ballCameraCentroidDistanceSpringConstant */
+    __dna_writer.writeFloatBig(xb4_ballCameraCentroidDistanceSpringConstant);
+    /* xb8_ballCameraLookAtSpringTardis */
+    __dna_writer.writeFloatBig(xb8_ballCameraLookAtSpringTardis);
+    /* xbc_ballCameraLookAtSpringMax */
+    __dna_writer.writeFloatBig(xbc_ballCameraLookAtSpringMax);
+    /* xc0_ballCameraLookAtSpringConstant */
+    __dna_writer.writeFloatBig(xc0_ballCameraLookAtSpringConstant);
     /* x154_ */
     __dna_writer.writeFloatBig(x154_);
     /* x15c_ */
@@ -375,42 +375,42 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x170_);
     /* x174_ */
     __dna_writer.writeFloatBig(x174_);
-    /* x178_ */
-    __dna_writer.writeFloatBig(x178_);
-    /* x17c_ */
-    __dna_writer.writeFloatBig(x17c_);
-    /* x180_ */
-    __dna_writer.writeFloatBig(x180_);
-    /* x184_ */
-    __dna_writer.writeFloatBig(x184_);
-    /* x188_ */
-    __dna_writer.writeFloatBig(x188_);
-    /* x18c_ */
-    __dna_writer.writeVec3fBig(x18c_);
-    /* x198_ */
-    __dna_writer.writeFloatBig(x198_);
-    /* x19c_ */
-    __dna_writer.writeFloatBig(x19c_);
-    /* x1a0_ */
-    __dna_writer.writeFloatBig(x1a0_);
-    /* x1a4_ */
-    __dna_writer.writeFloatBig(x1a4_);
-    /* x1a8_ */
-    __dna_writer.writeFloatBig(x1a8_);
-    /* x1ac_ */
-    __dna_writer.writeFloatBig(x1ac_);
-    /* x1b0_ */
-    __dna_writer.writeFloatBig(x1b0_);
-    /* x1b4_ */
-    __dna_writer.writeFloatBig(x1b4_);
-    /* x1b8_ */
-    __dna_writer.writeVec3fBig(x1b8_);
-    /* x1c4_ */
-    __dna_writer.writeFloatBig(x1c4_);
-    /* x1c8_ */
-    __dna_writer.writeFloatBig(x1c8_);
-    /* x1cc_ */
-    __dna_writer.writeFloatBig(x1cc_);
+    /* x178_ballCameraChaseElevation */
+    __dna_writer.writeFloatBig(x178_ballCameraChaseElevation);
+    /* x17c_ballCameraChaseDampenAngle */
+    __dna_writer.writeFloatBig(x17c_ballCameraChaseDampenAngle);
+    /* x180_ballCameraChaseDistance */
+    __dna_writer.writeFloatBig(x180_ballCameraChaseDistance);
+    /* x184_ballCameraChaseYawSpeed */
+    __dna_writer.writeFloatBig(x184_ballCameraChaseYawSpeed);
+    /* x188_ballCameraChaseAnglePerSecond */
+    __dna_writer.writeFloatBig(x188_ballCameraChaseAnglePerSecond);
+    /* x18c_ballCameraChaseLookAtOffset */
+    __dna_writer.writeVec3fBig(x18c_ballCameraChaseLookAtOffset);
+    /* x198_ballCameraChaseSpringTardis */
+    __dna_writer.writeFloatBig(x198_ballCameraChaseSpringTardis);
+    /* x19c_ballCameraChaseSpringMax */
+    __dna_writer.writeFloatBig(x19c_ballCameraChaseSpringMax);
+    /* x1a0_ballCameraChaseSpringConstant */
+    __dna_writer.writeFloatBig(x1a0_ballCameraChaseSpringConstant);
+    /* x1a4_ballCameraBoostElevation */
+    __dna_writer.writeFloatBig(x1a4_ballCameraBoostElevation);
+    /* x1a8_ballCameraBoostDampenAngle */
+    __dna_writer.writeFloatBig(x1a8_ballCameraBoostDampenAngle);
+    /* x1ac_ballCameraBoostDistance */
+    __dna_writer.writeFloatBig(x1ac_ballCameraBoostDistance);
+    /* x1b0_ballCameraBoostYawSpeed */
+    __dna_writer.writeFloatBig(x1b0_ballCameraBoostYawSpeed);
+    /* x1b4_ballCameraBoostAnglePerSecond */
+    __dna_writer.writeFloatBig(x1b4_ballCameraBoostAnglePerSecond);
+    /* x1b8_ballCameraBoostLookAtOffset */
+    __dna_writer.writeVec3fBig(x1b8_ballCameraBoostLookAtOffset);
+    /* x1c4_ballCameraBoostSpringTardis */
+    __dna_writer.writeFloatBig(x1c4_ballCameraBoostSpringTardis);
+    /* x1c8_ballCameraBoostSpringMax */
+    __dna_writer.writeFloatBig(x1c8_ballCameraBoostSpringMax);
+    /* x1cc_ballCameraBoostSpringConstant */
+    __dna_writer.writeFloatBig(x1cc_ballCameraBoostSpringConstant);
     /* x1d0_ballCameraControlDistance */
     __dna_writer.writeFloatBig(x1d0_ballCameraControlDistance);
     /* x1d4_ */
@@ -563,42 +563,42 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x1f8_forceToLeanGain = __dna_docin.readFloat("x1f8_forceToLeanGain");
     /* x1fc_leanTrackingGain */
     x1fc_leanTrackingGain = __dna_docin.readFloat("x1fc_leanTrackingGain");
-    /* x74_ */
-    x74_ = __dna_docin.readFloat("x74_");
-    /* x78_ */
-    x78_ = __dna_docin.readVec3f("x78_");
-    /* x84_ */
-    x84_ = __dna_docin.readFloat("x84_");
-    /* x88_ */
-    x88_ = __dna_docin.readFloat("x88_");
-    /* x8c_ */
-    x8c_ = __dna_docin.readFloat("x8c_");
+    /* x74_ballCameraAnglePerSecond */
+    x74_ballCameraAnglePerSecond = __dna_docin.readFloat("x74_ballCameraAnglePerSecond");
+    /* x78_ballCameraOffset */
+    x78_ballCameraOffset = __dna_docin.readVec3f("x78_ballCameraOffset");
+    /* x84_ballCameraMinSpeedDistance */
+    x84_ballCameraMinSpeedDistance = __dna_docin.readFloat("x84_ballCameraMinSpeedDistance");
+    /* x88_ballCameraMaxSpeedDistance */
+    x88_ballCameraMaxSpeedDistance = __dna_docin.readFloat("x88_ballCameraMaxSpeedDistance");
+    /* x8c_ballCameraBackwardsDistance */
+    x8c_ballCameraBackwardsDistance = __dna_docin.readFloat("x8c_ballCameraBackwardsDistance");
     /* x90_ */
     x90_ = __dna_docin.readFloat("x90_");
-    /* x94_ */
-    x94_ = __dna_docin.readFloat("x94_");
-    /* x98_ */
-    x98_ = __dna_docin.readFloat("x98_");
-    /* x9c_ */
-    x9c_ = __dna_docin.readFloat("x9c_");
-    /* xa0_ */
-    xa0_ = __dna_docin.readFloat("xa0_");
-    /* xa4_ */
-    xa4_ = __dna_docin.readFloat("xa4_");
-    /* xa8_ */
-    xa8_ = __dna_docin.readFloat("xa8_");
-    /* xac_ */
-    xac_ = __dna_docin.readFloat("xac_");
-    /* xb0_ */
-    xb0_ = __dna_docin.readFloat("xb0_");
-    /* xb4_ */
-    xb4_ = __dna_docin.readFloat("xb4_");
-    /* xb8_ */
-    xb8_ = __dna_docin.readFloat("xb8_");
-    /* xbc_ */
-    xbc_ = __dna_docin.readFloat("xbc_");
-    /* xc0_ */
-    xc0_ = __dna_docin.readFloat("xc0_");
+    /* x94_ballCameraSpringTardis */
+    x94_ballCameraSpringTardis = __dna_docin.readFloat("x94_ballCameraSpringTardis");
+    /* x98_ballCameraSpringMax */
+    x98_ballCameraSpringMax = __dna_docin.readFloat("x98_ballCameraSpringMax");
+    /* x9c_ballCameraSpringConstant */
+    x9c_ballCameraSpringConstant = __dna_docin.readFloat("x9c_ballCameraSpringConstant");
+    /* xa0_ballCameraCentroidSpringTardis */
+    xa0_ballCameraCentroidSpringTardis = __dna_docin.readFloat("xa0_ballCameraCentroidSpringTardis");
+    /* xa4_ballCameraCentroidSpringMax */
+    xa4_ballCameraCentroidSpringMax = __dna_docin.readFloat("xa4_ballCameraCentroidSpringMax");
+    /* xa8_ballCameraCentroidSpringConstant */
+    xa8_ballCameraCentroidSpringConstant = __dna_docin.readFloat("xa8_ballCameraCentroidSpringConstant");
+    /* xac_ballCameraCentroidDistanceSpringTardis */
+    xac_ballCameraCentroidDistanceSpringTardis = __dna_docin.readFloat("xac_ballCameraCentroidDistanceSpringTardis");
+    /* xb0_ballCameraCentroidDistanceSpringMax */
+    xb0_ballCameraCentroidDistanceSpringMax = __dna_docin.readFloat("xb0_ballCameraCentroidDistanceSpringMax");
+    /* xb4_ballCameraCentroidDistanceSpringConstant */
+    xb4_ballCameraCentroidDistanceSpringConstant = __dna_docin.readFloat("xb4_ballCameraCentroidDistanceSpringConstant");
+    /* xb8_ballCameraLookAtSpringTardis */
+    xb8_ballCameraLookAtSpringTardis = __dna_docin.readFloat("xb8_ballCameraLookAtSpringTardis");
+    /* xbc_ballCameraLookAtSpringMax */
+    xbc_ballCameraLookAtSpringMax = __dna_docin.readFloat("xbc_ballCameraLookAtSpringMax");
+    /* xc0_ballCameraLookAtSpringConstant */
+    xc0_ballCameraLookAtSpringConstant = __dna_docin.readFloat("xc0_ballCameraLookAtSpringConstant");
     /* x154_ */
     x154_ = __dna_docin.readFloat("x154_");
     /* x15c_ */
@@ -615,42 +615,42 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x170_ = __dna_docin.readFloat("x170_");
     /* x174_ */
     x174_ = __dna_docin.readFloat("x174_");
-    /* x178_ */
-    x178_ = __dna_docin.readFloat("x178_");
-    /* x17c_ */
-    x17c_ = __dna_docin.readFloat("x17c_");
-    /* x180_ */
-    x180_ = __dna_docin.readFloat("x180_");
-    /* x184_ */
-    x184_ = __dna_docin.readFloat("x184_");
-    /* x188_ */
-    x188_ = __dna_docin.readFloat("x188_");
-    /* x18c_ */
-    x18c_ = __dna_docin.readVec3f("x18c_");
-    /* x198_ */
-    x198_ = __dna_docin.readFloat("x198_");
-    /* x19c_ */
-    x19c_ = __dna_docin.readFloat("x19c_");
-    /* x1a0_ */
-    x1a0_ = __dna_docin.readFloat("x1a0_");
-    /* x1a4_ */
-    x1a4_ = __dna_docin.readFloat("x1a4_");
-    /* x1a8_ */
-    x1a8_ = __dna_docin.readFloat("x1a8_");
-    /* x1ac_ */
-    x1ac_ = __dna_docin.readFloat("x1ac_");
-    /* x1b0_ */
-    x1b0_ = __dna_docin.readFloat("x1b0_");
-    /* x1b4_ */
-    x1b4_ = __dna_docin.readFloat("x1b4_");
-    /* x1b8_ */
-    x1b8_ = __dna_docin.readVec3f("x1b8_");
-    /* x1c4_ */
-    x1c4_ = __dna_docin.readFloat("x1c4_");
-    /* x1c8_ */
-    x1c8_ = __dna_docin.readFloat("x1c8_");
-    /* x1cc_ */
-    x1cc_ = __dna_docin.readFloat("x1cc_");
+    /* x178_ballCameraChaseElevation */
+    x178_ballCameraChaseElevation = __dna_docin.readFloat("x178_ballCameraChaseElevation");
+    /* x17c_ballCameraChaseDampenAngle */
+    x17c_ballCameraChaseDampenAngle = __dna_docin.readFloat("x17c_ballCameraChaseDampenAngle");
+    /* x180_ballCameraChaseDistance */
+    x180_ballCameraChaseDistance = __dna_docin.readFloat("x180_ballCameraChaseDistance");
+    /* x184_ballCameraChaseYawSpeed */
+    x184_ballCameraChaseYawSpeed = __dna_docin.readFloat("x184_ballCameraChaseYawSpeed");
+    /* x188_ballCameraChaseAnglePerSecond */
+    x188_ballCameraChaseAnglePerSecond = __dna_docin.readFloat("x188_ballCameraChaseAnglePerSecond");
+    /* x18c_ballCameraChaseLookAtOffset */
+    x18c_ballCameraChaseLookAtOffset = __dna_docin.readVec3f("x18c_ballCameraChaseLookAtOffset");
+    /* x198_ballCameraChaseSpringTardis */
+    x198_ballCameraChaseSpringTardis = __dna_docin.readFloat("x198_ballCameraChaseSpringTardis");
+    /* x19c_ballCameraChaseSpringMax */
+    x19c_ballCameraChaseSpringMax = __dna_docin.readFloat("x19c_ballCameraChaseSpringMax");
+    /* x1a0_ballCameraChaseSpringConstant */
+    x1a0_ballCameraChaseSpringConstant = __dna_docin.readFloat("x1a0_ballCameraChaseSpringConstant");
+    /* x1a4_ballCameraBoostElevation */
+    x1a4_ballCameraBoostElevation = __dna_docin.readFloat("x1a4_ballCameraBoostElevation");
+    /* x1a8_ballCameraBoostDampenAngle */
+    x1a8_ballCameraBoostDampenAngle = __dna_docin.readFloat("x1a8_ballCameraBoostDampenAngle");
+    /* x1ac_ballCameraBoostDistance */
+    x1ac_ballCameraBoostDistance = __dna_docin.readFloat("x1ac_ballCameraBoostDistance");
+    /* x1b0_ballCameraBoostYawSpeed */
+    x1b0_ballCameraBoostYawSpeed = __dna_docin.readFloat("x1b0_ballCameraBoostYawSpeed");
+    /* x1b4_ballCameraBoostAnglePerSecond */
+    x1b4_ballCameraBoostAnglePerSecond = __dna_docin.readFloat("x1b4_ballCameraBoostAnglePerSecond");
+    /* x1b8_ballCameraBoostLookAtOffset */
+    x1b8_ballCameraBoostLookAtOffset = __dna_docin.readVec3f("x1b8_ballCameraBoostLookAtOffset");
+    /* x1c4_ballCameraBoostSpringTardis */
+    x1c4_ballCameraBoostSpringTardis = __dna_docin.readFloat("x1c4_ballCameraBoostSpringTardis");
+    /* x1c8_ballCameraBoostSpringMax */
+    x1c8_ballCameraBoostSpringMax = __dna_docin.readFloat("x1c8_ballCameraBoostSpringMax");
+    /* x1cc_ballCameraBoostSpringConstant */
+    x1cc_ballCameraBoostSpringConstant = __dna_docin.readFloat("x1cc_ballCameraBoostSpringConstant");
     /* x1d0_ballCameraControlDistance */
     x1d0_ballCameraControlDistance = __dna_docin.readFloat("x1d0_ballCameraControlDistance");
     /* x1d4_ */
@@ -799,42 +799,42 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x1f8_forceToLeanGain", x1f8_forceToLeanGain);
     /* x1fc_leanTrackingGain */
     __dna_docout.writeFloat("x1fc_leanTrackingGain", x1fc_leanTrackingGain);
-    /* x74_ */
-    __dna_docout.writeFloat("x74_", x74_);
-    /* x78_ */
-    __dna_docout.writeVec3f("x78_", x78_);
-    /* x84_ */
-    __dna_docout.writeFloat("x84_", x84_);
-    /* x88_ */
-    __dna_docout.writeFloat("x88_", x88_);
-    /* x8c_ */
-    __dna_docout.writeFloat("x8c_", x8c_);
+    /* x74_ballCameraAnglePerSecond */
+    __dna_docout.writeFloat("x74_ballCameraAnglePerSecond", x74_ballCameraAnglePerSecond);
+    /* x78_ballCameraOffset */
+    __dna_docout.writeVec3f("x78_ballCameraOffset", x78_ballCameraOffset);
+    /* x84_ballCameraMinSpeedDistance */
+    __dna_docout.writeFloat("x84_ballCameraMinSpeedDistance", x84_ballCameraMinSpeedDistance);
+    /* x88_ballCameraMaxSpeedDistance */
+    __dna_docout.writeFloat("x88_ballCameraMaxSpeedDistance", x88_ballCameraMaxSpeedDistance);
+    /* x8c_ballCameraBackwardsDistance */
+    __dna_docout.writeFloat("x8c_ballCameraBackwardsDistance", x8c_ballCameraBackwardsDistance);
     /* x90_ */
     __dna_docout.writeFloat("x90_", x90_);
-    /* x94_ */
-    __dna_docout.writeFloat("x94_", x94_);
-    /* x98_ */
-    __dna_docout.writeFloat("x98_", x98_);
-    /* x9c_ */
-    __dna_docout.writeFloat("x9c_", x9c_);
-    /* xa0_ */
-    __dna_docout.writeFloat("xa0_", xa0_);
-    /* xa4_ */
-    __dna_docout.writeFloat("xa4_", xa4_);
-    /* xa8_ */
-    __dna_docout.writeFloat("xa8_", xa8_);
-    /* xac_ */
-    __dna_docout.writeFloat("xac_", xac_);
-    /* xb0_ */
-    __dna_docout.writeFloat("xb0_", xb0_);
-    /* xb4_ */
-    __dna_docout.writeFloat("xb4_", xb4_);
-    /* xb8_ */
-    __dna_docout.writeFloat("xb8_", xb8_);
-    /* xbc_ */
-    __dna_docout.writeFloat("xbc_", xbc_);
-    /* xc0_ */
-    __dna_docout.writeFloat("xc0_", xc0_);
+    /* x94_ballCameraSpringTardis */
+    __dna_docout.writeFloat("x94_ballCameraSpringTardis", x94_ballCameraSpringTardis);
+    /* x98_ballCameraSpringMax */
+    __dna_docout.writeFloat("x98_ballCameraSpringMax", x98_ballCameraSpringMax);
+    /* x9c_ballCameraSpringConstant */
+    __dna_docout.writeFloat("x9c_ballCameraSpringConstant", x9c_ballCameraSpringConstant);
+    /* xa0_ballCameraCentroidSpringTardis */
+    __dna_docout.writeFloat("xa0_ballCameraCentroidSpringTardis", xa0_ballCameraCentroidSpringTardis);
+    /* xa4_ballCameraCentroidSpringMax */
+    __dna_docout.writeFloat("xa4_ballCameraCentroidSpringMax", xa4_ballCameraCentroidSpringMax);
+    /* xa8_ballCameraCentroidSpringConstant */
+    __dna_docout.writeFloat("xa8_ballCameraCentroidSpringConstant", xa8_ballCameraCentroidSpringConstant);
+    /* xac_ballCameraCentroidDistanceSpringTardis */
+    __dna_docout.writeFloat("xac_ballCameraCentroidDistanceSpringTardis", xac_ballCameraCentroidDistanceSpringTardis);
+    /* xb0_ballCameraCentroidDistanceSpringMax */
+    __dna_docout.writeFloat("xb0_ballCameraCentroidDistanceSpringMax", xb0_ballCameraCentroidDistanceSpringMax);
+    /* xb4_ballCameraCentroidDistanceSpringConstant */
+    __dna_docout.writeFloat("xb4_ballCameraCentroidDistanceSpringConstant", xb4_ballCameraCentroidDistanceSpringConstant);
+    /* xb8_ballCameraLookAtSpringTardis */
+    __dna_docout.writeFloat("xb8_ballCameraLookAtSpringTardis", xb8_ballCameraLookAtSpringTardis);
+    /* xbc_ballCameraLookAtSpringMax */
+    __dna_docout.writeFloat("xbc_ballCameraLookAtSpringMax", xbc_ballCameraLookAtSpringMax);
+    /* xc0_ballCameraLookAtSpringConstant */
+    __dna_docout.writeFloat("xc0_ballCameraLookAtSpringConstant", xc0_ballCameraLookAtSpringConstant);
     /* x154_ */
     __dna_docout.writeFloat("x154_", x154_);
     /* x15c_ */
@@ -851,42 +851,42 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x170_", x170_);
     /* x174_ */
     __dna_docout.writeFloat("x174_", x174_);
-    /* x178_ */
-    __dna_docout.writeFloat("x178_", x178_);
-    /* x17c_ */
-    __dna_docout.writeFloat("x17c_", x17c_);
-    /* x180_ */
-    __dna_docout.writeFloat("x180_", x180_);
-    /* x184_ */
-    __dna_docout.writeFloat("x184_", x184_);
-    /* x188_ */
-    __dna_docout.writeFloat("x188_", x188_);
-    /* x18c_ */
-    __dna_docout.writeVec3f("x18c_", x18c_);
-    /* x198_ */
-    __dna_docout.writeFloat("x198_", x198_);
-    /* x19c_ */
-    __dna_docout.writeFloat("x19c_", x19c_);
-    /* x1a0_ */
-    __dna_docout.writeFloat("x1a0_", x1a0_);
-    /* x1a4_ */
-    __dna_docout.writeFloat("x1a4_", x1a4_);
-    /* x1a8_ */
-    __dna_docout.writeFloat("x1a8_", x1a8_);
-    /* x1ac_ */
-    __dna_docout.writeFloat("x1ac_", x1ac_);
-    /* x1b0_ */
-    __dna_docout.writeFloat("x1b0_", x1b0_);
-    /* x1b4_ */
-    __dna_docout.writeFloat("x1b4_", x1b4_);
-    /* x1b8_ */
-    __dna_docout.writeVec3f("x1b8_", x1b8_);
-    /* x1c4_ */
-    __dna_docout.writeFloat("x1c4_", x1c4_);
-    /* x1c8_ */
-    __dna_docout.writeFloat("x1c8_", x1c8_);
-    /* x1cc_ */
-    __dna_docout.writeFloat("x1cc_", x1cc_);
+    /* x178_ballCameraChaseElevation */
+    __dna_docout.writeFloat("x178_ballCameraChaseElevation", x178_ballCameraChaseElevation);
+    /* x17c_ballCameraChaseDampenAngle */
+    __dna_docout.writeFloat("x17c_ballCameraChaseDampenAngle", x17c_ballCameraChaseDampenAngle);
+    /* x180_ballCameraChaseDistance */
+    __dna_docout.writeFloat("x180_ballCameraChaseDistance", x180_ballCameraChaseDistance);
+    /* x184_ballCameraChaseYawSpeed */
+    __dna_docout.writeFloat("x184_ballCameraChaseYawSpeed", x184_ballCameraChaseYawSpeed);
+    /* x188_ballCameraChaseAnglePerSecond */
+    __dna_docout.writeFloat("x188_ballCameraChaseAnglePerSecond", x188_ballCameraChaseAnglePerSecond);
+    /* x18c_ballCameraChaseLookAtOffset */
+    __dna_docout.writeVec3f("x18c_ballCameraChaseLookAtOffset", x18c_ballCameraChaseLookAtOffset);
+    /* x198_ballCameraChaseSpringTardis */
+    __dna_docout.writeFloat("x198_ballCameraChaseSpringTardis", x198_ballCameraChaseSpringTardis);
+    /* x19c_ballCameraChaseSpringMax */
+    __dna_docout.writeFloat("x19c_ballCameraChaseSpringMax", x19c_ballCameraChaseSpringMax);
+    /* x1a0_ballCameraChaseSpringConstant */
+    __dna_docout.writeFloat("x1a0_ballCameraChaseSpringConstant", x1a0_ballCameraChaseSpringConstant);
+    /* x1a4_ballCameraBoostElevation */
+    __dna_docout.writeFloat("x1a4_ballCameraBoostElevation", x1a4_ballCameraBoostElevation);
+    /* x1a8_ballCameraBoostDampenAngle */
+    __dna_docout.writeFloat("x1a8_ballCameraBoostDampenAngle", x1a8_ballCameraBoostDampenAngle);
+    /* x1ac_ballCameraBoostDistance */
+    __dna_docout.writeFloat("x1ac_ballCameraBoostDistance", x1ac_ballCameraBoostDistance);
+    /* x1b0_ballCameraBoostYawSpeed */
+    __dna_docout.writeFloat("x1b0_ballCameraBoostYawSpeed", x1b0_ballCameraBoostYawSpeed);
+    /* x1b4_ballCameraBoostAnglePerSecond */
+    __dna_docout.writeFloat("x1b4_ballCameraBoostAnglePerSecond", x1b4_ballCameraBoostAnglePerSecond);
+    /* x1b8_ballCameraBoostLookAtOffset */
+    __dna_docout.writeVec3f("x1b8_ballCameraBoostLookAtOffset", x1b8_ballCameraBoostLookAtOffset);
+    /* x1c4_ballCameraBoostSpringTardis */
+    __dna_docout.writeFloat("x1c4_ballCameraBoostSpringTardis", x1c4_ballCameraBoostSpringTardis);
+    /* x1c8_ballCameraBoostSpringMax */
+    __dna_docout.writeFloat("x1c8_ballCameraBoostSpringMax", x1c8_ballCameraBoostSpringMax);
+    /* x1cc_ballCameraBoostSpringConstant */
+    __dna_docout.writeFloat("x1cc_ballCameraBoostSpringConstant", x1cc_ballCameraBoostSpringConstant);
     /* x1d0_ballCameraControlDistance */
     __dna_docout.writeFloat("x1d0_ballCameraControlDistance", x1d0_ballCameraControlDistance);
     /* x1d4_ */

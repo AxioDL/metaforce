@@ -31,7 +31,8 @@ protected:
     float x184_fov;
 public:
     CGameCamera(TUniqueId, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-                float fov, float nearz, float farz, float aspect, TUniqueId, bool, u32 controllerIdx);
+                float fov, float nearz, float farz, float aspect, TUniqueId watchedId, bool disableInput,
+                u32 controllerIdx);
 
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void SetActive(bool active);
