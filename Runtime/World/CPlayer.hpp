@@ -676,6 +676,7 @@ public:
     TUniqueId GetRidingPlatformId() const { return x82e_ridingPlatform; }
     const zeus::CVector3f& GetLastVelocity() const { return x794_lastVelocity; }
     const zeus::CVector3f& GetMoveDir() const { return x50c_moveDir; }
+    u32 GetBombJumpCount() const { return x9d0_bombJumpCount; }
 };
 }
 

@@ -8,6 +8,7 @@ namespace urde
 class CStateManager;
 class CCameraSpline
 {
+    friend class CBallCamera;
     std::vector<zeus::CVector3f> x4_;
     std::vector<TUniqueId> x14_;
     std::vector<float> x24_;
@@ -18,6 +19,9 @@ public:
     CCameraSpline(bool);
     void CalculateKnots(TUniqueId, const std::vector<SConnection>&, CStateManager&);
     void Initialize(TUniqueId, const std::vector<SConnection>&, CStateManager&);
+    void Reset(int size);
+    void AddKnot(const zeus::CVector3f& v0, const zeus::CVector3f& v1);
+    float CalculateSplineLength();
 };
 }
 

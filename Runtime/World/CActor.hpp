@@ -153,6 +153,7 @@ public:
     const CMaterialFilter& GetMaterialFilter() const { return x70_materialFilter; }
     void SetMaterialFilter(const CMaterialFilter& filter) { x70_materialFilter = filter; }
     const CMaterialList& GetMaterialList() const { return x68_material; }
+    void SetMaterialList(const CMaterialList& list) { x68_material = list; }
     void SetInFluid(bool in, TUniqueId uid);
     bool HasModelData() const;
     const CSfxHandle& GetSfxHandle() const { return x8c_loopingSfxHandle; }

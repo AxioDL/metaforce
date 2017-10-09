@@ -91,10 +91,8 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
         x2a8_26_ = false;
         x2a8_25_ = false;
 
-        /* TODO: Figure out what goes here this
-         * mgr.GetCameraManager()->GetBallCamera()->sub_80083118(x8_uid);
-         * mgr.GetCameraManager()->GetBallCamera()->sub_800830F4(x8_uid);
-         */
+        mgr.GetCameraManager()->GetBallCamera()->DoorClosing(x8_uid);
+        mgr.GetCameraManager()->GetBallCamera()->DoorClosed(x8_uid);
 
         SetDoorAnimation(EDoorAnimType::Close);
         SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);

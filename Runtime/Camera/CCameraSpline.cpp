@@ -23,4 +23,28 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
         //if (waypoint)
     }
 }
+
+void CCameraSpline::Reset(int size)
+{
+    x4_.clear();
+    x24_.clear();
+    x34_.clear();
+    if (size != 0)
+    {
+        x4_.reserve(size);
+        x24_.reserve(size);
+        x34_.reserve(size);
+    }
+}
+
+void CCameraSpline::AddKnot(const zeus::CVector3f& v0, const zeus::CVector3f& v1)
+{
+    x4_.push_back(v0);
+    x34_.push_back(v1);
+}
+
+float CCameraSpline::CalculateSplineLength()
+{
+    return 0.f;
+}
 }
