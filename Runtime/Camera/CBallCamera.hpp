@@ -10,14 +10,14 @@ class CPlayer;
 
 class CCameraSpring
 {
-    float x0_tardis;
-    float x4_tardis2Sqrt;
+    float x0_k;
+    float x4_k2Sqrt;
     float x8_max;
-    float xc_k;
+    float xc_tardis;
     float x10_dx = 0.f;
 public:
-    CCameraSpring(float tardis, float max, float k)
-    : x0_tardis(tardis), x4_tardis2Sqrt(2.f * std::sqrt(tardis)), x8_max(max), xc_k(k) {}
+    CCameraSpring(float k, float max, float tardis)
+    : x0_k(k), x4_k2Sqrt(2.f * std::sqrt(k)), x8_max(max), xc_tardis(tardis) {}
     void Reset();
     float ApplyDistanceSpringNoMax(float targetX, float curX, float dt);
     float ApplyDistanceSpring(float targetX, float curX, float dt);
@@ -158,7 +158,7 @@ private:
     float x3d4_ = 0.f;
     float x3d8_ = 0.f;
     TUniqueId x3dc_tooCloseActorId = kInvalidUniqueId;
-    float x3e0_ = 10000.f;
+    float x3e0_tooCloseActorDist = 10000.f;
     bool x3e4_ = false;
     float x3e8_ = 0.f;
     float x3ec_ = 0.f;
@@ -193,7 +193,8 @@ private:
     bool ShouldResetSpline(CStateManager& mgr) const;
     void UpdatePlayerMovement(float dt, CStateManager& mgr);
     void UpdateTransform(const zeus::CVector3f& lookDir, const zeus::CVector3f& pos, float dt, CStateManager& mgr);
-    zeus::CVector3f ConstrainYawAngle(const CPlayer& player, float f1, float f2, float dt) const;
+    zeus::CVector3f ConstrainYawAngle(const CPlayer& player, float angleVel, float maxAngle, float dt,
+                                      CStateManager& mgr) const;
     void CheckFailsafe(float dt, CStateManager& mgr);
     void UpdateObjectTooCloseId(CStateManager& mgr);
     void UpdateAnglePerSecond(float dt);
@@ -225,12 +226,13 @@ private:
     zeus::CTransform UpdateCameraPositions(float dt, const zeus::CTransform& oldXf, const zeus::CTransform& newXf);
     bool CheckFailsafeFromMorphBallState(CStateManager& mgr) const;
     bool SplineIntersectTest(CMaterialList& intersectMat, CStateManager& mgr) const;
-    bool IsBallNearDoor(CStateManager& mgr) const;
+    static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
     void ActivateFailsafe(float dt, CStateManager& mgr);
     void ConstrainElevationAndDistance(float& elevation, float& distance, float f1, CStateManager& mgr);
     zeus::CVector3f FindDesiredPosition(float distance, float elevation, const zeus::CVector3f& dir, CStateManager& mgr);
     static bool DetectCollision(const zeus::CVector3f& from, const zeus::CVector3f& to, float margin,
                                 float& d, CStateManager& mgr);
+    void TeleportColliders(std::vector<CCameraCollider>& colliderList, const zeus::CVector3f& pos);
 
 public:
     CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransform& xf,
@@ -246,7 +248,7 @@ public:
     void Think(float dt, CStateManager& mgr);
     bool TransitionFromMorphBallState(CStateManager& mgr);
     TUniqueId GetTooCloseActorId() const { return x3dc_tooCloseActorId; }
-    float GetX3E0() const { return x3e0_; }
+    float GetX3E0() const { return x3e0_tooCloseActorDist; }
     void TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr);
     void TeleportCamera(const zeus::CTransform& xf, CStateManager& mgr);
     const zeus::CVector3f& GetX1D8() const { return x1d8_; }

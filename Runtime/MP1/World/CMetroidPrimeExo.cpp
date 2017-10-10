@@ -76,20 +76,20 @@ using CameraShakeData = DataSpec::DNAMP1::MetroidPrimeStage1::MassivePrimeStruct
 
 static SCameraShakePoint BuildCameraShakePoint(CameraShakeData::CameraShakerComponent::CameraShakePoint& sp)
 {
-    return SCameraShakePoint(0, sp.unknown2, sp.unknown3, sp.duration, sp.magnitude);
+    return SCameraShakePoint(false, sp.attackTime, sp.sustainTime, sp.duration, sp.magnitude);
 }
 
 static CCameraShakerComponent BuildCameraShakerComponent(CameraShakeData::CameraShakerComponent& comp)
 {
-    return CCameraShakerComponent(u32(comp.unknown1), BuildCameraShakePoint(comp.shakePoints[0]),
-                                  BuildCameraShakePoint(comp.shakePoints[1]));
+    return CCameraShakerComponent(comp.useModulation, BuildCameraShakePoint(comp.am),
+                                  BuildCameraShakePoint(comp.fm));
 }
 
 static CCameraShakeData LoadCameraShakeData(CInputStream& in)
 {
     CameraShakeData shakeData;
     shakeData.read(in);
-    return CCameraShakeData(shakeData.duration, shakeData.unknown3, u32(shakeData.unknown1),
+    return CCameraShakeData(shakeData.duration, shakeData.sfxDist, u32(shakeData.useSfx),
                             zeus::CVector3f::skZero,
                             BuildCameraShakerComponent(shakeData.shakerComponents[0]),
                             BuildCameraShakerComponent(shakeData.shakerComponents[1]),

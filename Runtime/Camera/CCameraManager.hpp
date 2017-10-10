@@ -154,7 +154,7 @@ public:
     const CCinematicCamera* GetLastCineCamera(CStateManager& mgr) const;
     const CScriptCameraHint* GetCameraHint(CStateManager& mgr) const;
     bool HasCameraHint(CStateManager& mgr) const;
-
+    bool IsInterpolationCameraActive() const;
 };
 
 }

@@ -190,6 +190,7 @@ public:
     void SetDrawFlags(const CModelFlags& flags) { xb4_drawFlags = flags; }
     void SetModelData(std::unique_ptr<CModelData>&& mData);
     u8 GetFluidCounter() const { return xe6_24_fluidCounter; }
+    TUniqueId GetFluidId() const { return xc4_fluidId; }
 };
 }
 

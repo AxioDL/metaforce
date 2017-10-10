@@ -2539,16 +2539,16 @@ CEntity* ScriptLoader::LoadNewCameraShaker(CStateManager& mgr, CInputStream& in,
         return nullptr;
 
     std::string name = mgr.HashInstanceName(in);
-    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f sfxPos = zeus::CVector3f::ReadBig(in);
     bool active = in.readBool();
     u32 flags = LoadParameterFlags(in);
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    CCameraShakerComponent shaker1 = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
-    CCameraShakerComponent shaker2 = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
-    CCameraShakerComponent shaker3 = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
+    float duration = in.readFloatBig();
+    float sfxDist = in.readFloatBig();
+    CCameraShakerComponent shakerX = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
+    CCameraShakerComponent shakerY = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
+    CCameraShakerComponent shakerZ = CCameraShakerComponent::LoadNewCameraShakerComponent(in);
 
-    CCameraShakeData shakeData(f1, f2, flags, v1, shaker1, shaker2, shaker3);
+    CCameraShakeData shakeData(duration, sfxDist, flags, sfxPos, shakerX, shakerY, shakerZ);
 
     return new CScriptCameraShaker(mgr.AllocateUniqueId(), name, info, active, shakeData);
 }

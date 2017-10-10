@@ -1488,7 +1488,7 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
     float origMag = dir.magnitude();
     dir = dir * (1.f / origMag);
 
-    if (RayCollideWorld(pos, center, nearList, filter, damagee))
+    if (RayCollideWorld(pos, center, nearList, filter, &damagee))
         return true;
 
     zeus::CMRay ray(pos, dir, origMag);
@@ -1505,21 +1505,21 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
-                                    const CMaterialFilter& filter, const CActor& damagee) const
+                                    const CMaterialFilter& filter, const CActor* damagee) const
 {
     zeus::CVector3f delta = end - start;
     float mag = delta.magnitude();
     delta = delta / mag;
     rstl::reserved_vector<TUniqueId, 1024> nearList;
-    BuildNearList(nearList, start, delta, mag, filter, &damagee);
-    return RayCollideWorldInternal(start, end, filter, nearList, &damagee);
+    BuildNearList(nearList, start, delta, mag, filter, damagee);
+    return RayCollideWorldInternal(start, end, filter, nearList, damagee);
 }
 
 bool CStateManager::RayCollideWorld(const zeus::CVector3f& start, const zeus::CVector3f& end,
                                     const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                                    const CMaterialFilter& filter, const CActor& damagee) const
+                                    const CMaterialFilter& filter, const CActor* damagee) const
 {
-    return RayCollideWorldInternal(start, end, filter, nearList, &damagee);
+    return RayCollideWorldInternal(start, end, filter, nearList, damagee);
 }
 
 bool CStateManager::RayCollideWorldInternal(const zeus::CVector3f& start, const zeus::CVector3f& end,

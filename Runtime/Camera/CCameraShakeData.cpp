@@ -1,33 +1,34 @@
 #include "CCameraShakeData.hpp"
-#include "CRandom16.hpp"
 #include "World/ScriptLoader.hpp"
+#include "CStateManager.hpp"
+#include "World/CPlayer.hpp"
 
 namespace urde
 {
 
 SCameraShakePoint SCameraShakePoint::LoadCameraShakePoint(CInputStream& in)
 {
-    u32 flags = ScriptLoader::LoadParameterFlags(in);
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
-    float f4 = in.readFloatBig();
-    return {flags, f1, f2, f3, f4};
+    u32 useEnvelope = ScriptLoader::LoadParameterFlags(in);
+    float attackTime = in.readFloatBig();
+    float sustainTime = in.readFloatBig();
+    float duration = in.readFloatBig();
+    float magnitude = in.readFloatBig();
+    return {useEnvelope != 0, attackTime, sustainTime, duration, magnitude};
 }
 
 CCameraShakerComponent CCameraShakerComponent::LoadNewCameraShakerComponent(CInputStream& in)
 {
-    u32 flags = ScriptLoader::LoadParameterFlags(in);
-    SCameraShakePoint sp1 = SCameraShakePoint::LoadCameraShakePoint(in);
-    SCameraShakePoint sp2 = SCameraShakePoint::LoadCameraShakePoint(in);
-    return {flags, sp1, sp2};
+    u32 useModulation = ScriptLoader::LoadParameterFlags(in);
+    SCameraShakePoint am = SCameraShakePoint::LoadCameraShakePoint(in);
+    SCameraShakePoint fm = SCameraShakePoint::LoadCameraShakePoint(in);
+    return {useModulation != 0, am, fm};
 }
 
-CCameraShakeData::CCameraShakeData(float duration, float sfxDist, u32 w1, const zeus::CVector3f& sfxPos,
+CCameraShakeData::CCameraShakeData(float duration, float sfxDist, u32 flags, const zeus::CVector3f& sfxPos,
                                    const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                                    const CCameraShakerComponent& shaker3)
-: x0_duration(duration), x8_shaker1(shaker1), x44_shaker2(shaker2), x80_shaker3(shaker3),
-  xc0_flags(w1), xc4_sfxPos(sfxPos), xd0_sfxDist(sfxDist)
+: x0_duration(duration), x8_shakerX(shaker1), x44_shakerY(shaker2), x80_shakerZ(shaker3),
+  xc0_flags(flags), xc4_sfxPos(sfxPos), xd0_sfxDist(sfxDist)
 {}
 
 CCameraShakeData::CCameraShakeData(float duration, float magnitude)
@@ -79,90 +80,94 @@ CCameraShakeData CCameraShakeData::BuildPhazonCameraShakeData(float duration, fl
                                    SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 0.5f))};
 }
 
+void SCameraShakePoint::Update(float curTime)
+{
+    float offTimePoint = xc_attackTime + x10_sustainTime;
+    float factor = 1.f;
+    if (curTime < xc_attackTime && xc_attackTime > 0.f)
+        factor = zeus::clamp(0.f, curTime / xc_attackTime, 1.f);
+    if (curTime >= offTimePoint && x14_duration > 0.f)
+        factor = 1.f - (curTime - offTimePoint) / x14_duration;
+    x4_value = x8_magnitude * factor;
+}
+
+void CCameraShakerComponent::Update(float curTime, float duration, float distAtt)
+{
+    if (std::fabs(duration) < 0.00001f || !x4_useModulation)
+    {
+        x38_value = 0.f;
+        return;
+    }
+
+    x20_fm.Update(curTime);
+    float freq = 1.f + x20_fm.GetValue();
+    x8_am.Update(curTime);
+    x38_value = x8_am.GetValue() * std::sin(2.f * M_PIF * (duration - curTime) * freq);
+    x38_value *= distAtt;
+}
+
 void CCameraShakeData::Update(float dt, CStateManager& mgr)
 {
-
+    x4_curTime += dt;
+    float distAtt = 1.f;
+    if (xc0_flags & 0x1)
+        distAtt = 1.f - zeus::clamp(0.f, (xc4_sfxPos - mgr.GetPlayer().GetTranslation()).magnitude() / xd0_sfxDist, 1.f);
+    x8_shakerX.Update(x4_curTime, x0_duration, distAtt);
+    x44_shakerY.Update(x4_curTime, x0_duration, distAtt);
+    x80_shakerZ.Update(x4_curTime, x0_duration, distAtt);
 }
 
 zeus::CVector3f CCameraShakeData::GetPoint() const
 {
-    return {x8_shaker1.x38_value, x44_shaker2.x38_value, x80_shaker3.x38_value};
+    return {x8_shakerX.GetValue(), x44_shakerY.GetValue(), x80_shakerZ.GetValue()};
 }
 
-float CCameraShakeData::GetSomething() const
+float CCameraShakeData::GetMaxAMComponent() const
 {
     float ret = 0.f;
-    if (x8_shaker1.x4_w1)
-        ret = x8_shaker1.x8_sp1.GetSomething();
-    if (x44_shaker2.x4_w1)
-        ret = std::max(ret, x44_shaker2.x8_sp1.GetSomething());
-    if (x80_shaker3.x4_w1)
-        ret = std::max(ret, x80_shaker3.x8_sp1.GetSomething());
+    if (x8_shakerX.x4_useModulation)
+        ret = x8_shakerX.x8_am.GetValue();
+    if (x44_shakerY.x4_useModulation)
+        ret = std::max(ret, x44_shakerY.x8_am.GetValue());
+    if (x80_shakerZ.x4_useModulation)
+        ret = std::max(ret, x80_shakerZ.x8_am.GetValue());
     return ret;
 }
 
-float CCameraShakeData::GetSomething2() const
+float CCameraShakeData::GetMaxFMComponent() const
 {
     float ret = 0.f;
-    if (x8_shaker1.x4_w1)
-        ret = x8_shaker1.x20_sp2.GetSomething();
-    if (x44_shaker2.x4_w1)
-        ret = std::max(ret, x44_shaker2.x20_sp2.GetSomething());
-    if (x80_shaker3.x4_w1)
-        ret = std::max(ret, x80_shaker3.x20_sp2.GetSomething());
+    if (x8_shakerX.x4_useModulation)
+        ret = x8_shakerX.x20_fm.GetValue();
+    if (x44_shakerY.x4_useModulation)
+        ret = std::max(ret, x44_shakerY.x20_fm.GetValue());
+    if (x80_shakerZ.x4_useModulation)
+        ret = std::max(ret, x80_shakerZ.x20_fm.GetValue());
     return ret;
 }
-
-#if 0
-zeus::CVector3f CCameraShakeData::GeneratePoint(float dt, CRandom16& r)
-{
-    x3c_cycleTimeLeft -= dt;
-    if (x3c_cycleTimeLeft <= 0.f)
-    {
-        x3c_cycleTimeLeft = r.Range(1.f / 60.f, 0.1f);
-        float zVal = r.Range(-1.f, 1.f);
-        float yVal = 0.f;
-        if (x40_shakeY)
-            yVal = r.Range(-1.f, 1.f);
-        float xVal = r.Range(-1.f, 1.f);
-        zeus::CVector3f shakeVec(xVal, yVal, zVal);
-        if (!shakeVec.canBeNormalized())
-            shakeVec = {0.f, 0.f, 1.f};
-        else
-            shakeVec.normalize();
-        x30_velocity = (shakeVec - x24_position) / x3c_cycleTimeLeft;
-    }
-
-    x24_position += x30_velocity * dt;
-    float interp = zeus::clamp(0.f, 1.f - (x18_duration - x1c_curTime) / x18_duration, 1.f);
-
-    x1c_curTime += dt;
-    return x24_position * zeus::CVector3f::lerp(x0_pointA, xc_pointB, interp);
-}
-#endif
 
 CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in)
 {
-    float f1 = in.readFloatBig();
+    float xMag = in.readFloatBig();
     float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
+    float yMag = in.readFloatBig();
     float f4 = in.readFloatBig();
-    float f5 = in.readFloatBig();
+    float zMag = in.readFloatBig();
     float f6 = in.readFloatBig();
     float duration = in.readFloatBig();
 
-    SCameraShakePoint sp1(0, 0.f, 0.f, duration, 2.f * f1);
-    SCameraShakePoint sp2(0, 0.f, 0.f, duration, 2.f * f3);
-    SCameraShakePoint sp3(0, 0.f, 0.f, duration, 2.f * f5);
-    SCameraShakePoint sp4(0, 0.f, 0.f, 0.5f * duration, 3.f);
-    SCameraShakePoint sp5(0, 0.f, 0.f, 0.5f * duration, 0.f);
-    SCameraShakePoint sp6(0, 0.f, 0.f, 0.5f * duration, 3.f);
+    SCameraShakePoint xAM(0, 0.f, 0.f, duration, 2.f * xMag);
+    SCameraShakePoint yAM(0, 0.f, 0.f, duration, 2.f * yMag);
+    SCameraShakePoint zAM(0, 0.f, 0.f, duration, 2.f * zMag);
+    SCameraShakePoint xFM(0, 0.f, 0.f, 0.5f * duration, 3.f);
+    SCameraShakePoint yFM(0, 0.f, 0.f, 0.5f * duration, 0.f);
+    SCameraShakePoint zFM(0, 0.f, 0.f, 0.5f * duration, 3.f);
 
-    CCameraShakerComponent shaker1(1, sp1, sp4);
-    CCameraShakerComponent shaker2;
-    CCameraShakerComponent shaker3(1, sp3, sp6);
+    CCameraShakerComponent shakerX(1, xAM, xFM);
+    CCameraShakerComponent shakerY;
+    CCameraShakerComponent shakerZ(1, zAM, zFM);
 
-    return {duration, 100.f, 0, zeus::CVector3f::skZero, shaker1, shaker2, shaker3};
+    return {duration, 100.f, 0, zeus::CVector3f::skZero, shakerX, shakerY, shakerZ};
 }
 
 const CCameraShakeData CCameraShakeData::skChargedShotCameraShakeData =

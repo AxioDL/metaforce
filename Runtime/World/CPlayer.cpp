@@ -216,7 +216,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
     if (x258_movementState != EPlayerMovementState::OnGround)
     {
         zeus::CVector3f ballPos = GetBallPosition();
-        if (mgr.RayCollideWorld(ballPos, ballPos + zeus::CVector3f(0.f, 0.f, -7.f), BallTransitionCollide, *this))
+        if (mgr.RayCollideWorld(ballPos, ballPos + zeus::CVector3f(0.f, 0.f, -7.f), BallTransitionCollide, this))
             x584_ballTransitionAnim = 7; // B_balljumptoairpose
     }
 

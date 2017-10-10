@@ -67,7 +67,8 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx)
     }
     if (sfx && data.x0_duration > 0.f)
     {
-        float vol =zeus::clamp(100.f, std::max(data.GetSomething(), data.GetSomething2()) * 9.f + 100.f, 127.f);
+        float vol =
+            zeus::clamp(100.f, std::max(data.GetMaxAMComponent(), data.GetMaxFMComponent()) * 9.f + 100.f, 127.f);
         CSfxHandle sfxHandle;
         if (data.xc0_flags & 0x1)
             sfxHandle = CSfxManager::AddEmitter(1133, data.xc4_sfxPos, zeus::CVector3f::skZero,
@@ -762,4 +763,6 @@ bool CCameraManager::HasCameraHint(CStateManager& mgr) const
         return false;
     return mgr.GetObjectById(xa6_camHintId) != nullptr;
 }
+
+bool CCameraManager::IsInterpolationCameraActive() const { return x88_interpCamera->GetActive(); }
 }

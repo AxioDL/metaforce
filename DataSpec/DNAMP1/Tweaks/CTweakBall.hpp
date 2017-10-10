@@ -25,18 +25,18 @@ struct CTweakBall final : public ITweakBall
     Value<float> x88_ballCameraMaxSpeedDistance;
     Value<float> x8c_ballCameraBackwardsDistance;
     Value<float> x90_;
-    Value<float> x94_ballCameraSpringTardis;
+    Value<float> x94_ballCameraSpringConstant;
     Value<float> x98_ballCameraSpringMax;
-    Value<float> x9c_ballCameraSpringConstant;
-    Value<float> xa0_ballCameraCentroidSpringTardis;
+    Value<float> x9c_ballCameraSpringTardis;
+    Value<float> xa0_ballCameraCentroidSpringConstant;
     Value<float> xa4_ballCameraCentroidSpringMax;
-    Value<float> xa8_ballCameraCentroidSpringConstant;
-    Value<float> xac_ballCameraCentroidDistanceSpringTardis;
+    Value<float> xa8_ballCameraCentroidSpringTardis;
+    Value<float> xac_ballCameraCentroidDistanceSpringConstant;
     Value<float> xb0_ballCameraCentroidDistanceSpringMax;
-    Value<float> xb4_ballCameraCentroidDistanceSpringConstant;
-    Value<float> xb8_ballCameraLookAtSpringTardis;
+    Value<float> xb4_ballCameraCentroidDistanceSpringTardis;
+    Value<float> xb8_ballCameraLookAtSpringConstant;
     Value<float> xbc_ballCameraLookAtSpringMax;
-    Value<float> xc0_ballCameraLookAtSpringConstant;
+    Value<float> xc0_ballCameraLookAtSpringTardis;
     Value<float> xc4_ballForwardBrakingAcceleration[8];
     Value<float> xe4_ballGravity;
     Value<float> xe8_ballWaterGravity;
@@ -74,18 +74,18 @@ struct CTweakBall final : public ITweakBall
     Value<float> x184_ballCameraChaseYawSpeed;
     Value<float> x188_ballCameraChaseAnglePerSecond;
     Value<zeus::CVector3f> x18c_ballCameraChaseLookAtOffset;
-    Value<float> x198_ballCameraChaseSpringTardis;
+    Value<float> x198_ballCameraChaseSpringConstant;
     Value<float> x19c_ballCameraChaseSpringMax;
-    Value<float> x1a0_ballCameraChaseSpringConstant;
+    Value<float> x1a0_ballCameraChaseSpringTardis;
     Value<float> x1a4_ballCameraBoostElevation;
     Value<float> x1a8_ballCameraBoostDampenAngle;
     Value<float> x1ac_ballCameraBoostDistance;
     Value<float> x1b0_ballCameraBoostYawSpeed;
     Value<float> x1b4_ballCameraBoostAnglePerSecond;
     Value<zeus::CVector3f> x1b8_ballCameraBoostLookAtOffset;
-    Value<float> x1c4_ballCameraBoostSpringTardis;
+    Value<float> x1c4_ballCameraBoostSpringConstant;
     Value<float> x1c8_ballCameraBoostSpringMax;
-    Value<float> x1cc_ballCameraBoostSpringConstant;
+    Value<float> x1cc_ballCameraBoostSpringTardis;
     Value<float> x1d0_ballCameraControlDistance;
     Value<float> x1d4_;
     Value<float> x1d8_;
@@ -139,18 +139,18 @@ struct CTweakBall final : public ITweakBall
     float GetBallCameraMinSpeedDistance() const { return x84_ballCameraMinSpeedDistance; }
     float GetBallCameraMaxSpeedDistance() const { return x88_ballCameraMaxSpeedDistance; }
     float GetBallCameraBackwardsDistance() const { return x8c_ballCameraBackwardsDistance; }
-    float GetBallCameraSpringTardis() const { return x94_ballCameraSpringTardis; }
+    float GetBallCameraSpringConstant() const { return x94_ballCameraSpringConstant; }
     float GetBallCameraSpringMax() const { return x98_ballCameraSpringMax; }
-    float GetBallCameraSpringConstant() const { return x9c_ballCameraSpringConstant; }
-    float GetBallCameraCentroidSpringTardis() const { return xa0_ballCameraCentroidSpringTardis; }
+    float GetBallCameraSpringTardis() const { return x9c_ballCameraSpringTardis; }
+    float GetBallCameraCentroidSpringConstant() const { return xa0_ballCameraCentroidSpringConstant; }
     float GetBallCameraCentroidSpringMax() const { return xa4_ballCameraCentroidSpringMax; }
-    float GetBallCameraCentroidSpringConstant() const { return xa8_ballCameraCentroidSpringConstant; }
-    float GetBallCameraCentroidDistanceSpringTardis() const { return xac_ballCameraCentroidDistanceSpringTardis; }
+    float GetBallCameraCentroidSpringTardis() const { return xa8_ballCameraCentroidSpringTardis; }
+    float GetBallCameraCentroidDistanceSpringConstant() const { return xac_ballCameraCentroidDistanceSpringConstant; }
     float GetBallCameraCentroidDistanceSpringMax() const { return xb0_ballCameraCentroidDistanceSpringMax; }
-    float GetBallCameraCentroidDistanceSpringConstant() const { return xb4_ballCameraCentroidDistanceSpringConstant; }
-    float GetBallCameraLookAtSpringTardis() const { return xb8_ballCameraLookAtSpringTardis; }
+    float GetBallCameraCentroidDistanceSpringTardis() const { return xb4_ballCameraCentroidDistanceSpringTardis; }
+    float GetBallCameraLookAtSpringConstant() const { return xb8_ballCameraLookAtSpringConstant; }
     float GetBallCameraLookAtSpringMax() const { return xbc_ballCameraLookAtSpringMax; }
-    float GetBallCameraLookAtSpringConstant() const { return xc0_ballCameraLookAtSpringConstant; }
+    float GetBallCameraLookAtSpringTardis() const { return xc0_ballCameraLookAtSpringTardis; }
     float GetBallForwardBrakingAcceleration(int s) const { return xc4_ballForwardBrakingAcceleration[s]; }
     float GetBallGravity() const { return xe4_ballGravity; }
     float GetBallWaterGravity() const { return xe8_ballWaterGravity; }
@@ -161,18 +161,18 @@ struct CTweakBall final : public ITweakBall
     float GetBallCameraChaseYawSpeed() const { return x184_ballCameraChaseYawSpeed; }
     float GetBallCameraChaseAnglePerSecond() const { return x188_ballCameraChaseAnglePerSecond; }
     const zeus::CVector3f& GetBallCameraChaseLookAtOffset() const { return x18c_ballCameraChaseLookAtOffset; }
-    float GetBallCameraChaseSpringTardis() const { return x198_ballCameraChaseSpringTardis; }
+    float GetBallCameraChaseSpringConstant() const { return x198_ballCameraChaseSpringConstant; }
     float GetBallCameraChaseSpringMax() const { return x19c_ballCameraChaseSpringMax; }
-    float GetBallCameraChaseSpringConstant() const { return x1a0_ballCameraChaseSpringConstant; }
+    float GetBallCameraChaseSpringTardis() const { return x1a0_ballCameraChaseSpringTardis; }
     float GetBallCameraBoostElevation() const { return x1a4_ballCameraBoostElevation; }
     float GetBallCameraBoostDampenAngle() const { return x1a8_ballCameraBoostDampenAngle; }
     float GetBallCameraBoostDistance() const { return x1ac_ballCameraBoostDistance; }
     float GetBallCameraBoostYawSpeed() const { return x1b0_ballCameraBoostYawSpeed; }
     float GetBallCameraBoostAnglePerSecond() const { return x1b4_ballCameraBoostAnglePerSecond; }
     const zeus::CVector3f& GetBallCameraBoostLookAtOffset() const { return x1b8_ballCameraBoostLookAtOffset; }
-    float GetBallCameraBoostSpringTardis() const { return x1c4_ballCameraBoostSpringTardis; }
+    float GetBallCameraBoostSpringConstant() const { return x1c4_ballCameraBoostSpringConstant; }
     float GetBallCameraBoostSpringMax() const { return x1c8_ballCameraBoostSpringMax; }
-    float GetBallCameraBoostSpringConstant() const { return x1cc_ballCameraBoostSpringConstant; }
+    float GetBallCameraBoostSpringTardis() const { return x1cc_ballCameraBoostSpringTardis; }
     float GetBallCameraControlDistance() const { return x1d0_ballCameraControlDistance; }
     float GetMinimumAlignmentSpeed() const { return x1dc_minimumAlignmentSpeed; }
     float GetTireness() const { return x1e0_tireness; }

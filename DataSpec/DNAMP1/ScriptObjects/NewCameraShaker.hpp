@@ -17,22 +17,23 @@ struct NewCameraShaker : IScriptObject
     Value<bool> active;
     PlayerParameters flags;
     Value<float> duration;
-    Value<float> unknown4;
-    struct CameraShakerParameters : BigYAML
+    Value<float> sfxDist;
+    struct CameraShakerComponent : BigYAML
     {
         DECL_YAML
         PlayerParameters flags;
-        struct ShakerInfo : BigYAML
+        struct CameraShakePoint : BigYAML
         {
             DECL_YAML
             PlayerParameters flags;
-            Value<float> unknown1;
-            Value<float> unknown2;
-            Value<float> unknown3;
-            Value<float> unknown4;
+            Value<float> attackTime;
+            Value<float> sustainTime;
+            Value<float> duration;
+            Value<float> magnitude;
         };
-        ShakerInfo shakers[2];
-    } cameraShakerParameters1, cameraShakerParameters2, cameraShakerParameters3;
+        CameraShakePoint am;
+        CameraShakePoint fm;
+    } shakerComponents[3];
 };
 }
 }

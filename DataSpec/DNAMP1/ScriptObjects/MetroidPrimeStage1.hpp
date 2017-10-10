@@ -61,21 +61,23 @@ struct MetroidPrimeStage1 : IScriptObject
         struct CameraShakeData : BigYAML
         {
             DECL_YAML
-            Value<bool> unknown1;
+            Value<bool> useSfx;
             Value<float> duration;
-            Value<float> unknown3;
+            Value<float> sfxDist;
             struct CameraShakerComponent : BigYAML
             {
                 DECL_YAML
-                Value<bool> unknown1;
+                Value<bool> useModulation;
                 struct CameraShakePoint : BigYAML
                 {
                     DECL_YAML
-                    Value<float> unknown2;
-                    Value<float> unknown3;
+                    Value<float> attackTime;
+                    Value<float> sustainTime;
                     Value<float> duration;
                     Value<float> magnitude;
-                } shakePoints[2];
+                };
+                CameraShakePoint am;
+                CameraShakePoint fm;
             } shakerComponents[3];
         } shakeDatas[3];
 

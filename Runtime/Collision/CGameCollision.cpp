@@ -1125,7 +1125,7 @@ CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisi
             if (mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().pointInside(worldPoint))
             {
                 if (mgr.RayCollideWorld(center, center + vec, nearList,
-                                        CMaterialFilter::skPassEverything, actor))
+                                        CMaterialFilter::skPassEverything, &actor))
                 {
                     if (!DetectCollisionBoolean_Cached(mgr, cache, prim, xf, actor.GetMaterialFilter(), nearList))
                         return {vec};
