@@ -11,6 +11,7 @@
 #include "World/CScriptCameraHint.hpp"
 #include "World/CScriptDoor.hpp"
 #include "World/CScriptWater.hpp"
+#include "Collision/CGameCollision.hpp"
 
 namespace urde
 {
@@ -23,19 +24,19 @@ void CCameraSpring::Reset()
 
 float CCameraSpring::ApplyDistanceSpringNoMax(float targetX, float curX, float dt)
 {
-    float usePos = xc_tardis * x10_dx * dt + curX;
+    float useX = xc_tardis * x10_dx * dt + curX;
     x10_dx += xc_tardis * (x0_k * (targetX - curX) - x4_k2Sqrt * x10_dx) * dt;
-    return std::max(usePos, targetX);
+    return std::max(useX, targetX);
 }
 
 float CCameraSpring::ApplyDistanceSpring(float targetX, float curX, float dt)
 {
-    float usePos = xc_tardis * x10_dx * dt + curX;
+    float useX = xc_tardis * x10_dx * dt + curX;
     x10_dx += xc_tardis * (x0_k * (targetX - curX) - x4_k2Sqrt * x10_dx) * dt;
-    usePos = std::max(usePos, targetX);
-    if (usePos - targetX > x8_max)
-        usePos = targetX + x8_max;
-    return usePos;
+    useX = std::max(useX, targetX);
+    if (useX - targetX > x8_max)
+        useX = targetX + x8_max;
+    return useX;
 }
 
 CBallCamera::CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransform& xf,
@@ -332,7 +333,7 @@ void CBallCamera::ResetSpline(CStateManager& mgr)
         tmpPoint2Ball = mgr.GetPlayer().GetMoveDir();
     zeus::CVector3f desiredPosition = FindDesiredPosition(distance, elevation, tmpPoint2Ball, mgr);
     x37c_camSpline.AddKnot(desiredPosition, zeus::CVector3f::skForward);
-    x37c_camSpline.x44_ = x37c_camSpline.CalculateSplineLength();
+    x37c_camSpline.UpdateSplineLength();
     x3d0_24_ = false;
     CMaterialList intersectMat;
     x3c8_ = CMaterialList(EMaterialTypes::Floor, EMaterialTypes::Ceiling);
@@ -411,7 +412,7 @@ void CBallCamera::BuildSpline(CStateManager& mgr)
         mgr.RayWorldIntersection(intersectId, x9ac, -x978.normalized(), x978.magnitude(), BallCameraFilter, nearList);
         if (result.IsValid() && !result.GetMaterial().HasMaterial(EMaterialTypes::Pillar))
             x37c_camSpline.SetKnotPosition(2, result.GetPoint() - x978.normalized() * 0.3f * 1.25f);
-        x37c_camSpline.x44_ = x37c_camSpline.CalculateSplineLength();
+        x37c_camSpline.UpdateSplineLength();
         if (!SplineIntersectTest(intersectMat, mgr))
         {
             x36c_ = 0;
@@ -420,7 +421,7 @@ void CBallCamera::BuildSpline(CStateManager& mgr)
     }
     x374_ = 0.5f;
     x378_ = 0.5f;
-    x37c_camSpline.x44_ = x37c_camSpline.CalculateSplineLength();
+    x37c_camSpline.UpdateSplineLength();
     x3c8_ = CMaterialList();
 }
 
@@ -775,17 +776,161 @@ zeus::CVector3f CBallCamera::ComputeVelocity(const zeus::CVector3f& curVel, cons
 zeus::CVector3f CBallCamera::TweenVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& newVel,
                                            float rate, float dt)
 {
-    return {};
+    zeus::CVector3f velDelta = newVel - curVel;
+    if (velDelta.canBeNormalized())
+    {
+        float t = zeus::clamp(-1.f, velDelta.magnitude() / (rate * dt), 1.f);
+        return velDelta.normalized() * rate * dt * t + curVel;
+    }
+    return newVel;
 }
 
 zeus::CVector3f CBallCamera::MoveCollisionActor(const zeus::CVector3f& pos, float dt, CStateManager& mgr)
 {
-    return {};
+    if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId))
+    {
+        zeus::CVector3f posDelta = pos - act->GetTranslation();
+        if (!posDelta.canBeNormalized() || posDelta.magnitude() < 0.01f)
+        {
+            act->Stop();
+            return act->GetTranslation();
+        }
+        zeus::CVector3f oldTranslation = act->GetTranslation();
+        zeus::CVector3f oldVel = act->GetVelocity();
+        zeus::CVector3f newVel = ComputeVelocity(oldVel, posDelta * (1.f / dt));
+        act->SetVelocityWR(newVel);
+        act->SetMovable(true);
+        act->AddMaterial(EMaterialTypes::Solid, mgr);
+        CGameCollision::Move(mgr, *act, dt, nullptr);
+        zeus::CVector3f posDelta2 = act->GetTranslation() - pos;
+        if (posDelta2.canBeNormalized() && posDelta2.magnitude() > 0.1f)
+        {
+            act->SetTranslation(oldTranslation);
+            act->SetVelocityWR(TweenVelocity(oldVel, newVel, 50.f, dt));
+            CGameCollision::Move(mgr, *act, dt, nullptr);
+            posDelta2 = act->GetTranslation() - pos;
+            if (posDelta2.magnitude() > 0.1f)
+                x478_ += 1;
+            else
+                x478_ = 0;
+        }
+        else
+        {
+            act->Stop();
+            x478_ = 0;
+        }
+        act->SetMovable(false);
+        act->RemoveMaterial(EMaterialTypes::Solid, mgr);
+        return act->GetTranslation();
+    }
+    return pos;
 }
 
 void CBallCamera::UpdateUsingFreeLook(float dt, CStateManager& mgr)
 {
+    if (x400_state == EBallCameraState::Four || x400_state == EBallCameraState::Five)
+    {
+        x36c_ = 0;
+        return;
+    }
 
+    if (x36c_ == 1 && x188_behaviour <= EBallCameraBehaviour::Eight &&
+        x188_behaviour >= EBallCameraBehaviour::Four)
+    {
+        x36c_ = 0;
+        return;
+    }
+
+    float elevation = x1a0_elevation;
+    float distance = x190_curMinDistance;
+    ConstrainElevationAndDistance(elevation, distance, 0.f, mgr);
+
+    zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
+    zeus::CVector3f knotToBall = ballPos - x37c_camSpline.GetKnotPosition(2);
+    if (knotToBall.canBeNormalized())
+        knotToBall.normalize();
+    else
+        knotToBall = mgr.GetPlayer().GetMoveDir();
+    zeus::CVector3f knot3 = x37c_camSpline.GetKnotPosition(3);
+    zeus::CVector3f desiredPos = FindDesiredPosition(distance, elevation, knotToBall, mgr);
+
+    if (x370_24_)
+        x37c_camSpline.SetKnotPosition(3, desiredPos);
+
+    x374_ -= dt;
+
+    float f26 = 1.f - zeus::clamp(0.f, x374_ / x378_, 1.f);
+    if (x36c_ == 1)
+    {
+        CMaterialList intersectMat;
+        if (!SplineIntersectTest(intersectMat, mgr))
+        {
+            x37c_camSpline.SetKnotPosition(3, knot3);
+            if (intersectMat.HasMaterial(EMaterialTypes::Floor))
+            {
+                x36c_ = 0;
+                return;
+            }
+        }
+    }
+
+    if (x374_ <= 0.f || (f26 > 0.75f && x18c_31_))
+    {
+        if (x36c_ == 2 && !x18c_31_)
+        {
+            CMaterialList intersectMat;
+            if (!SplineIntersectTest(intersectMat, mgr))
+            {
+                x36c_ = 0;
+            }
+            else
+            {
+                zeus::CVector3f oldKnot2 = x37c_camSpline.GetKnotPosition(2);
+                zeus::CVector3f oldKnot1 = x37c_camSpline.GetKnotPosition(1);
+                BuildSpline(mgr);
+                x37c_camSpline.SetKnotPosition(3, x37c_camSpline.GetKnotPosition(1));
+                x37c_camSpline.SetKnotPosition(2, x37c_camSpline.GetKnotPosition(0));
+                x37c_camSpline.SetKnotPosition(1, oldKnot2);
+                x37c_camSpline.SetKnotPosition(0, oldKnot1);
+                x37c_camSpline.UpdateSplineLength();
+                x374_ = x378_ - x378_ * (x37c_camSpline.GetKnotT(2) / x37c_camSpline.x44_length);
+                x374_ -= dt;
+                f26 = zeus::clamp(0.f, x374_ / x378_, 1.f);
+            }
+        }
+        else
+        {
+            x36c_ = 0;
+        }
+    }
+
+    x37c_camSpline.UpdateSplineLength();
+    zeus::CVector3f pos = x37c_camSpline.GetInterpolatedSplinePointByLength(f26 * x37c_camSpline.x44_length).origin;
+    if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x46c_collisionActorId))
+    {
+        CMaterialFilter filter = act->GetMaterialFilter();
+        CMaterialFilter tmpFilter = filter;
+        tmpFilter.IncludeList().Add(EMaterialTypes::Wall);
+        tmpFilter.ExcludeList().Add(x3c8_);
+        act->SetMaterialFilter(tmpFilter);
+        MoveCollisionActor(pos, dt, mgr);
+        act->SetMaterialFilter(filter);
+    }
+
+    zeus::CVector3f lookDir = x1d8_ - desiredPos;
+    if (x18d_26_)
+        lookDir = ballPos - desiredPos;
+
+    if (lookDir.canBeNormalized())
+    {
+        lookDir.normalize();
+        UpdateTransform(lookDir, desiredPos, dt, mgr);
+    }
+
+    TeleportCamera(desiredPos, mgr);
+
+    if (x3d0_24_ && x374_ / x378_ < 0.5f)
+        x36c_ = 0;
 }
 
 zeus::CVector3f CBallCamera::InterpolateCameraElevation(const zeus::CVector3f& camPos) const

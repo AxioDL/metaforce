@@ -32,6 +32,8 @@ public:
 
     const CMaterialList& GetIncludeList() const { return x0_include; }
     const CMaterialList& GetExcludeList() const { return x8_exclude; }
+    CMaterialList& IncludeList() { return x0_include; }
+    CMaterialList& ExcludeList() { return x8_exclude; }
     bool Passes(const CMaterialList&) const;
 };
 }
