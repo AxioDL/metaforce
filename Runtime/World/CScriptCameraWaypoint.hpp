@@ -18,6 +18,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
     void Render(const CStateManager&) const {}
+    TUniqueId GetRandomNextWaypointId(CStateManager& mgr) const;
 };
 
 }

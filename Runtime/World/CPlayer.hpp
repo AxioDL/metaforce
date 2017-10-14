@@ -678,6 +678,7 @@ public:
     const zeus::CVector3f& GetMoveDir() const { return x50c_moveDir; }
     const zeus::CVector3f& GetLeaveMorphDir() const { return x518_leaveMorphDir; }
     u32 GetBombJumpCount() const { return x9d0_bombJumpCount; }
+    float GetMoveSpeed() const { return x4f8_moveSpeed; }
 };
 }
 

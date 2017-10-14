@@ -10,7 +10,7 @@ class CCameraSpline
 {
     friend class CBallCamera;
     std::vector<zeus::CVector3f> x4_positions;
-    std::vector<TUniqueId> x14_;
+    std::vector<TUniqueId> x14_wpTracker;
     std::vector<float> x24_t;
     std::vector<zeus::CVector3f> x34_directions;
     float x44_length = 0.f;

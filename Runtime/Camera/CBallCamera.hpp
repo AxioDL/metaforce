@@ -124,12 +124,12 @@ private:
     zeus::CVector3f x2a0_ = zeus::CVector3f::skUp;
     zeus::CVector3f x2ac_ = zeus::CVector3f::skUp;
     zeus::CVector3f x2b8_ = zeus::CVector3f::skUp;
-    u32 x2c4_ = 0;
-    u32 x2c8_ = 0;
-    u32 x2cc_ = 0;
-    u32 x2d0_ = 0;
-    u32 x2d4_ = 0;
-    u32 x2d8_ = 0;
+    int x2c4_ = 0;
+    int x2c8_ = 0;
+    int x2cc_ = 0;
+    int x2d0_ = 0;
+    int x2d4_ = 0;
+    int x2d8_ = 0;
     zeus::CVector3f x2dc_;
     float x2e8_ = 0.f;
     float x2ec_ = 0.f;
@@ -193,7 +193,7 @@ private:
     bool ShouldResetSpline(CStateManager& mgr) const;
     void UpdatePlayerMovement(float dt, CStateManager& mgr);
     void UpdateTransform(const zeus::CVector3f& lookDir, const zeus::CVector3f& pos, float dt, CStateManager& mgr);
-    zeus::CVector3f ConstrainYawAngle(const CPlayer& player, float angleVel, float maxAngle, float dt,
+    zeus::CVector3f ConstrainYawAngle(const CPlayer& player, float distance, float yawSpeed, float dt,
                                       CStateManager& mgr) const;
     void CheckFailsafe(float dt, CStateManager& mgr);
     void UpdateObjectTooCloseId(CStateManager& mgr);
@@ -205,16 +205,16 @@ private:
     zeus::CVector3f TweenVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& newVel, float rate, float dt);
     zeus::CVector3f MoveCollisionActor(const zeus::CVector3f& pos, float dt, CStateManager& mgr);
     void UpdateUsingFreeLook(float dt, CStateManager& mgr);
-    zeus::CVector3f InterpolateCameraElevation(const zeus::CVector3f& camPos) const;
+    zeus::CVector3f InterpolateCameraElevation(const zeus::CVector3f& camPos);
     zeus::CVector3f CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList, int w1) const;
     zeus::CVector3f ApplyColliders();
     void UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& r6, int r7,
-                         float f1, const rstl::reserved_vector<TUniqueId, 1024>& nearList, float f2,
+                         float f1, const rstl::reserved_vector<TUniqueId, 1024>& nearList, float dt,
                          CStateManager& mgr);
-    void AvoidGeometry(const zeus::CTransform& xf, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                       float dt, CStateManager& mgr);
-    void AvoidGeometryFull(const zeus::CTransform& xf, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
-                           float dt, CStateManager& mgr);
+    zeus::CVector3f AvoidGeometry(const zeus::CTransform& xf, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                  float dt, CStateManager& mgr);
+    zeus::CVector3f AvoidGeometryFull(const zeus::CTransform& xf, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                      float dt, CStateManager& mgr);
     zeus::CAABox CalculateCollidersBoundingBox(const std::vector<CCameraCollider>& colliderList,
                                                CStateManager& mgr) const;
     int CountObscuredColliders(const std::vector<CCameraCollider>& colliderList) const;
@@ -228,7 +228,7 @@ private:
     bool SplineIntersectTest(CMaterialList& intersectMat, CStateManager& mgr) const;
     static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
     void ActivateFailsafe(float dt, CStateManager& mgr);
-    void ConstrainElevationAndDistance(float& elevation, float& distance, float f1, CStateManager& mgr);
+    bool ConstrainElevationAndDistance(float& elevation, float& distance, float dt, CStateManager& mgr);
     zeus::CVector3f FindDesiredPosition(float distance, float elevation, const zeus::CVector3f& dir, CStateManager& mgr);
     static bool DetectCollision(const zeus::CVector3f& from, const zeus::CVector3f& to, float margin,
                                 float& d, CStateManager& mgr);

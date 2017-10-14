@@ -1,6 +1,7 @@
 #include "CScriptCameraWaypoint.hpp"
 #include "CActorParameters.hpp"
 #include "TCastTo.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -25,6 +26,26 @@ void CScriptCameraWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
     CActor::AcceptScriptMsg(msg, uid, mgr);
     if (!GetActive() && msg == EScriptObjectMessage::Arrived)
         SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
+}
+
+TUniqueId CScriptCameraWaypoint::GetRandomNextWaypointId(CStateManager& mgr) const
+{
+    std::vector<TUniqueId> candidateIds;
+    for (const SConnection& conn : x20_conns)
+    {
+        if (conn.x0_state == EScriptObjectState::Arrived && conn.x4_msg == EScriptObjectMessage::Next)
+        {
+            TUniqueId uid = mgr.GetIdForScript(conn.x8_objId);
+            if (uid == kInvalidUniqueId)
+                continue;
+            candidateIds.push_back(uid);
+        }
+    }
+
+    if (candidateIds.empty())
+        return kInvalidUniqueId;
+
+    return candidateIds[mgr.GetActiveRandom()->Range(0, s32(candidateIds.size() - 1))];
 }
 
 }
