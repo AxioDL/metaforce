@@ -197,7 +197,7 @@ bool CCameraSpline::GetSurroundingPoints(int idx, rstl::reserved_vector<zeus::CV
     return true;
 }
 
-zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos)
+zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos) const
 {
     if (x4_positions.empty())
         return zeus::CTransform();
@@ -271,7 +271,7 @@ zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos)
     return zeus::CTransform();
 }
 
-zeus::CVector3f CCameraSpline::GetInterpolatedSplinePointByTime(float time, float range)
+zeus::CVector3f CCameraSpline::GetInterpolatedSplinePointByTime(float time, float range) const
 {
     if (x4_positions.empty())
         return {};

@@ -242,7 +242,7 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
     x80_ballCamera->ApplyCameraHint(mgr);
 
     if ((hint.GetHint().GetOverrideFlags() & 0x20) != 0)
-        x80_ballCamera->ResetPosition();
+        x80_ballCamera->ResetPosition(mgr);
 
     switch (hint.GetHint().GetBehaviourType())
     {

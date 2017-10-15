@@ -28,8 +28,8 @@ public:
     float GetKnotT(int idx) const;
     float CalculateSplineLength();
     void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
-    zeus::CTransform GetInterpolatedSplinePointByLength(float pos);
-    zeus::CVector3f GetInterpolatedSplinePointByTime(float time, float range);
+    zeus::CTransform GetInterpolatedSplinePointByLength(float pos) const;
+    zeus::CVector3f GetInterpolatedSplinePointByTime(float time, float range) const;
 };
 }
 

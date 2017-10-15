@@ -46,10 +46,7 @@ void CFirstPersonCamera::Think(float dt, CStateManager& mgr)
             {
                 if (player->GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphing)
                     return;
-                float morphFactor = 0.f;
-                if (player->GetMorphDuration() != 0.f)
-                    morphFactor = zeus::clamp(0.f, player->GetMorphTime() / player->GetMorphDuration(), 1.f);
-                if (std::fabs(morphFactor - 1.f) >= 0.00001f)
+                if (std::fabs(player->GetMorphFactor() - 1.f) >= 0.00001f)
                     return;
             }
         }

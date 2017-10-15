@@ -1253,15 +1253,10 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         morphT = 1.f;
         break;
     case CPlayer::EPlayerMorphBallState::Morphing:
-        if (player.GetMorphDuration() == 0.f)
-            morphT = 0.f;
-        else
-            morphT = zeus::clamp(0.f, player.GetMorphTime() / player.GetMorphDuration(), 1.f);
+        morphT = player.GetMorphFactor();
         break;
     case CPlayer::EPlayerMorphBallState::Unmorphing:
-        if (player.GetMorphDuration() != 0.f)
-            morphT = zeus::clamp(0.f, player.GetMorphTime() / player.GetMorphDuration(), 1.f);
-        morphT = 1.f - morphT;
+        morphT = 1.f - player.GetMorphFactor();
         break;
     default: break;
     }
