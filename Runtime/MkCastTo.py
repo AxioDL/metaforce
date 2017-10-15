@@ -8,7 +8,7 @@ class EndNamespace:
     pass
 
 CENTITY_TYPES = (
-    # Class, Visit, Header
+    # Class, Header
     ('CActor', 'World/CActor.hpp'),
     ('CBallCamera', 'Camera/CBallCamera.hpp'),
     ('CBomb', 'Weapon/CBomb.hpp'),

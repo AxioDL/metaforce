@@ -30,6 +30,7 @@ class CFinalInput;
 class CPlayerGun
 {
 public:
+    static float skTractorBeamFactor;
     enum class EMissleMode
     {
         Inactive,

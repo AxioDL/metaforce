@@ -442,7 +442,7 @@ public:
     void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
     float IntegrateVisorFog(float f) const;
     u32 GetUpdateFrameIndex() const { return x8d8_updateFrameIdx; }
-    void sub_80043F2C(u32 frameCount, CAssetId msg, float f1)
+    void QueueMessage(u32 frameCount, CAssetId msg, float f1)
     {
         xf84_ = frameCount;
         xf88_ = msg;
