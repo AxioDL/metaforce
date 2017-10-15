@@ -648,6 +648,12 @@ public:
     bool ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const;
     float GetMorphTime() const { return x574_morphTime; }
     float GetMorphDuration() const { return x578_morphDuration; }
+    float GetMorphFactor() const
+    {
+        if (0.f != x578_morphDuration)
+            return zeus::clamp(0.f, x574_morphTime / x578_morphDuration, 1.f);
+        return 0.f;
+    }
     bool IsInFreeLook() const { return x3dc_inFreeLook; }
     bool GetFreeLookStickState() const { return x3de_lookAnalogHeld; }
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
@@ -678,6 +684,7 @@ public:
     const zeus::CVector3f& GetMoveDir() const { return x50c_moveDir; }
     const zeus::CVector3f& GetLeaveMorphDir() const { return x518_leaveMorphDir; }
     u32 GetBombJumpCount() const { return x9d0_bombJumpCount; }
+    float GetMoveSpeed() const { return x4f8_moveSpeed; }
 };
 }
 

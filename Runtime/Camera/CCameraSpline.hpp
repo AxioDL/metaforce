@@ -10,11 +10,13 @@ class CCameraSpline
 {
     friend class CBallCamera;
     std::vector<zeus::CVector3f> x4_positions;
-    std::vector<TUniqueId> x14_;
-    std::vector<float> x24_;
+    std::vector<TUniqueId> x14_wpTracker;
+    std::vector<float> x24_t;
     std::vector<zeus::CVector3f> x34_directions;
-    float x44_ = 0.f;
-    bool x48_ = false;
+    float x44_length = 0.f;
+    bool x48_closedLoop = false;
+    bool GetSurroundingPoints(int idx, rstl::reserved_vector<zeus::CVector3f, 4>& positions,
+                              rstl::reserved_vector<zeus::CVector3f, 4>& directions) const;
 public:
     CCameraSpline(bool);
     void CalculateKnots(TUniqueId, const std::vector<SConnection>&, CStateManager&);
@@ -22,7 +24,12 @@ public:
     void Reset(int size);
     void AddKnot(const zeus::CVector3f& pos, const zeus::CVector3f& dir);
     void SetKnotPosition(int idx, const zeus::CVector3f& pos);
+    const zeus::CVector3f& GetKnotPosition(int idx) const;
+    float GetKnotT(int idx) const;
     float CalculateSplineLength();
+    void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
+    zeus::CTransform GetInterpolatedSplinePointByLength(float pos) const;
+    zeus::CVector3f GetInterpolatedSplinePointByTime(float time, float range) const;
 };
 }
 

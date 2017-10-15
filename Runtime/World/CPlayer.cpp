@@ -281,7 +281,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
     CBallCamera* ballCam = mgr.GetCameraManager()->GetBallCamera();
     if (TCastToConstPtr<CActor> act = mgr.GetObjectById(ballCam->GetTooCloseActorId()))
     {
-        if (ballCam->GetX3E0() < 20.f && ballCam->GetX3E0() > 1.f)
+        if (ballCam->GetTooCloseActorDistance() < 20.f && ballCam->GetTooCloseActorDistance() > 1.f)
         {
             zeus::CVector3f deltaFlat = act->GetTranslation() - GetTranslation();
             deltaFlat.z = 0.f;
@@ -5439,7 +5439,7 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr)
             else
             {
                 CBallCamera* ballCam = mgr.GetCameraManager()->GetBallCamera();
-                if (ballCam->GetTooCloseActorId() != kInvalidUniqueId && ballCam->GetX3E0() < 5.f)
+                if (ballCam->GetTooCloseActorId() != kInvalidUniqueId && ballCam->GetTooCloseActorDistance() < 5.f)
                 {
                     x9d0_bombJumpCount = 1;
                     x9d4_bombJumpCheckDelayFrames = 2;

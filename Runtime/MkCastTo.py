@@ -117,6 +117,8 @@ public:
     TCastToPtr() = default;
     TCastToPtr(CEntity* p);
     TCastToPtr(CEntity& p);
+    TCastToPtr<T>& operator=(CEntity& p);
+    TCastToPtr<T>& operator=(CEntity* p);
 
 ''')
 
@@ -139,6 +141,8 @@ public:
     TCastToConstPtr() = default;
     TCastToConstPtr(const CEntity* p) : TCastToPtr<T>(const_cast<CEntity*>(p)) {}
     TCastToConstPtr(const CEntity& p) : TCastToPtr<T>(const_cast<CEntity&>(p)) {}
+    TCastToConstPtr<T>& operator=(const CEntity& p) { TCastToPtr<T>::operator=(const_cast<CEntity&>(p)); return *this; }
+    TCastToConstPtr<T>& operator=(const CEntity* p) { TCastToPtr<T>::operator=(const_cast<CEntity*>(p)); return *this; }
     const T* GetPtr() const { return TCastToPtr<T>::ptr; }
     operator const T*() const { return GetPtr(); }
     const T& operator*() const { return *GetPtr(); }
@@ -168,6 +172,12 @@ TCastToPtr<T>::TCastToPtr(CEntity* p) { p->Accept(*this); }
 
 template <class T>
 TCastToPtr<T>::TCastToPtr(CEntity& p) { p.Accept(*this); }
+
+template <class T>
+TCastToPtr<T>& TCastToPtr<T>::operator=(CEntity* p) { p->Accept(*this); return *this; }
+
+template <class T>
+TCastToPtr<T>& TCastToPtr<T>::operator=(CEntity& p) { p.Accept(*this); return *this; }
 
 ''')
 
