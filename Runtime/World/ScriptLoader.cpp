@@ -845,41 +845,43 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
     SActorHead head = LoadActorHead(in, mgr);
 
     bool active = in.readBool();
-    u32 w1 = in.readUint32Big();
+    u32 prio = in.readUint32Big();
     auto behaviour = CBallCamera::EBallCameraBehaviour(in.readUint32Big());
-    u32 pf = LoadParameterFlags(in);
-    pf |= in.readBool() << 6;
-    float f1 = in.readFloatBig();
-    pf |= in.readBool() << 7;
-    float f2 = in.readFloatBig();
-    pf |= in.readBool() << 8;
-    float f3 = in.readFloatBig();
-    zeus::CVector3f vec1;
-    vec1.readBig(in);
-    pf |= in.readBool() << 9;
-    zeus::CVector3f vec2;
-    vec2.readBig(in);
-    zeus::CVector3f vec3;
-    vec3.readBig(in);
-    pf |= in.readBool() << 10;
-    float f4 = in.readFloatBig();
-    pf |= in.readBool() << 11;
-    float f5 = in.readFloatBig();
-    pf |= in.readBool() << 12;
-    float f6 = in.readFloatBig();
-    pf |= in.readBool() << 13;
-    float f7 = in.readFloatBig();
-    float f8 = in.readFloatBig();
+    u32 overrideFlags = LoadParameterFlags(in);
+    overrideFlags |= in.readBool() << 22;
+    float minDist = in.readFloatBig();
+    overrideFlags |= in.readBool() << 23;
+    float maxDist = in.readFloatBig();
+    overrideFlags |= in.readBool() << 24;
+    float backwardsDist = in.readFloatBig();
+    overrideFlags |= in.readBool() << 25;
+    zeus::CVector3f lookAtOffset;
+    lookAtOffset.readBig(in);
+    overrideFlags |= in.readBool() << 26;
+    zeus::CVector3f chaseLookAtOffset;
+    chaseLookAtOffset.readBig(in);
+    zeus::CVector3f ballToCam;
+    ballToCam.readBig(in);
+    overrideFlags |= in.readBool() << 27;
+    float fov = in.readFloatBig();
+    overrideFlags |= in.readBool() << 28;
+    float attitudeRange = in.readFloatBig();
+    overrideFlags |= in.readBool() << 29;
+    float azimuthRange = in.readFloatBig();
+    overrideFlags |= in.readBool() << 30;
+    float anglePerSecond = in.readFloatBig();
+    float clampVelRange = in.readFloatBig();
     float f9 = in.readFloatBig();
-    pf |= in.readBool() << 14;
-    float f10 = in.readFloatBig();
+    overrideFlags |= in.readBool() << 31;
+    float elevation = in.readFloatBig();
     float f11 = in.readFloatBig();
-    float f12 = in.readFloatBig();
-    float f13 = in.readFloatBig();
+    float clampVelTime = in.readFloatBig();
+    float controlInterpDur = in.readFloatBig();
 
-    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, w1,
-                                 behaviour, pf, f1, f2, f3, vec1, vec2, vec3, f4, f5, f6, f7, f8, f9, f10,
-                                 f11, f12, f13);
+    return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, prio,
+                                 behaviour, overrideFlags, minDist, maxDist, backwardsDist, lookAtOffset,
+                                 chaseLookAtOffset, ballToCam, fov, attitudeRange, azimuthRange, anglePerSecond,
+                                 clampVelRange, f9, elevation, f11, clampVelTime, controlInterpDur);
 }
 
 CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

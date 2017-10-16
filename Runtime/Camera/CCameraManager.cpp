@@ -168,12 +168,12 @@ void CCameraManager::SetSpindleCamera(TUniqueId id, CStateManager& mgr)
 }
 
 void CCameraManager::InterpolateToBallCamera(const zeus::CTransform& xf, TUniqueId camId,
-                                             const zeus::CVector3f& lookDir, float f1, float f2, float f3,
+                                             const zeus::CVector3f& lookPos, float f1, float f2, float f3,
                                              bool b1, CStateManager& mgr)
 {
     if (!IsInFirstPersonCamera())
     {
-        x88_interpCamera->SetInterpolation(xf, lookDir, f1, f2, f3, camId, b1, mgr);
+        x88_interpCamera->SetInterpolation(xf, lookPos, f1, f2, f3, camId, b1, mgr);
         if (!ShouldBypassInterpolation())
             SetCurrentCameraId(x88_interpCamera->GetUniqueId(), mgr);
     }
@@ -197,18 +197,19 @@ void CCameraManager::RestoreHintlessCamera(CStateManager& mgr)
         x80_ballCamera->ResetToTweaks(mgr);
         x80_ballCamera->UpdateLookAtPosition(0.f, mgr);
         if (!mgr.GetPlayer().IsMorphBallTransitioning() &&
-            hint->GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Zero)
+            hint->GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Default)
         {
             if ((hint->GetHint().GetOverrideFlags() & 0x1000) != 0)
             {
-                x80_ballCamera->SetX474(hint->GetHint().GetX4C());
-                x80_ballCamera->SetX470(hint->GetHint().GetX5C());
+                x80_ballCamera->SetClampVelRange(hint->GetHint().GetClampVelRange());
+                x80_ballCamera->SetClampVelTimer(hint->GetHint().GetClampVelTime());
             }
             else
             {
                 x80_ballCamera->TeleportCamera(x80_ballCamera->UpdateLookDirection(camToPlayerFlat, mgr), mgr);
-                InterpolateToBallCamera(ballCamXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetX1D8(),
-                                        hint->GetHint().GetX5C(), hint->GetHint().GetX4C(), hint->GetHint().GetX50(),
+                InterpolateToBallCamera(ballCamXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetLookPos(),
+                                        hint->GetHint().GetClampVelTime(), hint->GetHint().GetClampVelRange(),
+                                        hint->GetHint().GetX50(),
                                         (hint->GetHint().GetOverrideFlags() & 0x800) != 0, mgr);
             }
         }
@@ -228,9 +229,9 @@ void CCameraManager::SkipBallCameraCinematic(CStateManager& mgr)
 
 void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManager& mgr)
 {
-    if (x80_ballCamera->GetState() == CBallCamera::EBallCameraState::Four)
+    if (x80_ballCamera->GetState() == CBallCamera::EBallCameraState::ToBall)
     {
-        x80_ballCamera->SetState(CBallCamera::EBallCameraState::Zero, mgr);
+        x80_ballCamera->SetState(CBallCamera::EBallCameraState::Default, mgr);
         mgr.GetPlayer().SetCameraState(CPlayer::EPlayerCameraState::Ball, mgr);
     }
 
@@ -246,11 +247,11 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
 
     switch (hint.GetHint().GetBehaviourType())
     {
-    case CBallCamera::EBallCameraBehaviour::Six:
-    case CBallCamera::EBallCameraBehaviour::Seven:
+    case CBallCamera::EBallCameraBehaviour::PathCameraDesiredPos:
+    case CBallCamera::EBallCameraBehaviour::PathCamera:
         SetPathCamera(hint.GetDelegatedCamera(), mgr);
         break;
-    case CBallCamera::EBallCameraBehaviour::Eight:
+    case CBallCamera::EBallCameraBehaviour::SpindleCamera:
         SetSpindleCamera(hint.GetDelegatedCamera(), mgr);
         break;
     default:
@@ -265,11 +266,11 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
     x80_ballCamera->UpdateLookAtPosition(0.f, mgr);
 
     if ((hint.GetHint().GetOverrideFlags() & 0x20) == 0 &&
-        (hint.GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Zero ||
-            (oldHint && oldHint->GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Zero)))
+        (hint.GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Default ||
+            (oldHint && oldHint->GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Default)))
     {
-        InterpolateToBallCamera(camXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetX1D8(),
-                                hint.GetHint().GetX58(), hint.GetHint().GetX4C(), hint.GetHint().GetX50(),
+        InterpolateToBallCamera(camXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetLookPos(),
+                                hint.GetHint().GetX58(), hint.GetHint().GetClampVelRange(), hint.GetHint().GetX50(),
                                 (hint.GetHint().GetOverrideFlags() & 0x400) != 0, mgr);
     }
 }
@@ -381,7 +382,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                         if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(it->second))
                         {
                             if ((hint->GetHint().GetOverrideFlags() & 0x80) != 0 && hint->GetPriority() ==
-                                                                                        bestHint->GetPriority() &&
+                                                                                    bestHint->GetPriority() &&
                                 hint->GetAreaIdAlways() == bestHint->GetAreaIdAlways())
                             {
                                 zeus::CVector3f hintToBall = ballPos - bestHint->GetTranslation();
@@ -478,12 +479,12 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
             }
             else if (xa6_camHintId != bestHint->GetUniqueId())
             {
-                if (bestHint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::Three)
+                if (bestHint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::HintInitializePosition)
                 {
                     if ((bestHint->GetHint().GetOverrideFlags() & 0x20) != 0)
                     {
                         x80_ballCamera->TeleportCamera(
-                            zeus::lookAt(bestHint->GetTranslation(), x80_ballCamera->GetX1D8()), mgr);
+                            zeus::lookAt(bestHint->GetTranslation(), x80_ballCamera->GetLookPos()), mgr);
                     }
                     DeleteCameraHint(bestHint->GetUniqueId(), mgr);
                     if ((bestHint->GetHint().GetOverrideFlags() & 0x2000) != 0)
@@ -659,7 +660,7 @@ void CCameraManager::SetupBallCamera(CStateManager& mgr)
 {
     if (TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(xa6_camHintId))
     {
-        if (hint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::Three)
+        if (hint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::HintInitializePosition)
         {
             if ((hint->GetHint().GetOverrideFlags() & 0x20) != 0)
                 x80_ballCamera->TeleportCamera(hint->GetTransform(), mgr);

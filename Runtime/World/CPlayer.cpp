@@ -189,11 +189,11 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr)
     if (!mgr.GetCameraManager()->HasBallCameraInitialPositionHint(mgr))
     {
         mgr.GetCameraManager()->SetupBallCamera(mgr);
-        ballCam->SetState(CBallCamera::EBallCameraState::Four, mgr);
+        ballCam->SetState(CBallCamera::EBallCameraState::ToBall, mgr);
     }
     else
     {
-        ballCam->SetState(CBallCamera::EBallCameraState::Zero, mgr);
+        ballCam->SetState(CBallCamera::EBallCameraState::Default, mgr);
         SetCameraState(EPlayerCameraState::Ball, mgr);
         zeus::CTransform newXf = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
         ballCam->SetTransform(newXf);
@@ -304,7 +304,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
 
     ForceGunOrientation(x34_transform, mgr);
     DrawGun(mgr);
-    ballCam->SetState(CBallCamera::EBallCameraState::Five, mgr);
+    ballCam->SetState(CBallCamera::EBallCameraState::FromBall, mgr);
     ClearForcesAndTorques();
     SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
     AddMaterial(EMaterialTypes::GroundCollider, mgr);
@@ -6173,7 +6173,7 @@ void CPlayer::LeaveMorphBallState(CStateManager& mgr)
     x3f0_vertFreeLookAngleVel = 0.f;
     x768_morphball->LeaveMorphBallState(mgr);
     mgr.GetCameraManager()->SetPlayerCamera(mgr, mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId());
-    mgr.GetCameraManager()->GetBallCamera()->SetState(CBallCamera::EBallCameraState::Zero, mgr);
+    mgr.GetCameraManager()->GetBallCamera()->SetState(CBallCamera::EBallCameraState::Default, mgr);
     SetCameraState(EPlayerCameraState::FirstPerson, mgr);
     mgr.GetCameraManager()->GetFirstPersonCamera()->DeferBallTransitionProcessing();
     mgr.GetCameraManager()->GetFirstPersonCamera()->Think(0.f, mgr);
@@ -6205,7 +6205,7 @@ void CPlayer::EnterMorphBallState(CStateManager& mgr)
 void CPlayer::ActivateMorphBallCamera(CStateManager& mgr)
 {
     SetCameraState(EPlayerCameraState::Ball, mgr);
-    mgr.GetCameraManager()->GetBallCamera()->SetState(CBallCamera::EBallCameraState::Zero, mgr);
+    mgr.GetCameraManager()->GetBallCamera()->SetState(CBallCamera::EBallCameraState::Default, mgr);
 }
 
 void CPlayer::UpdateCinematicState(CStateManager& mgr)

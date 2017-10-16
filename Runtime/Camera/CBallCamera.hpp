@@ -27,16 +27,17 @@ class CCameraCollider
 {
     friend class CBallCamera;
     float x4_radius;
-    zeus::CVector3f x8_;
-    zeus::CVector3f x14_;
-    zeus::CVector3f x20_;
-    zeus::CVector3f x2c_;
+    zeus::CVector3f x8_lastLocalPos;
+    zeus::CVector3f x14_localPos;
+    zeus::CVector3f x20_scaledWorldPos;
+    zeus::CVector3f x2c_lastWorldPos;
     CCameraSpring x38_spring;
     u32 x4c_occlusionCount = 0;
     float x50_scale;
 public:
     CCameraCollider(float radius, const zeus::CVector3f& vec, const CCameraSpring& spring, float scale)
-    : x4_radius(radius), x8_(vec), x14_(vec), x20_(vec), x2c_(vec), x38_spring(spring), x50_scale(scale) {}
+    : x4_radius(radius), x8_lastLocalPos(vec), x14_localPos(vec), x20_scaledWorldPos(vec),
+      x2c_lastWorldPos(vec), x38_spring(spring), x50_scale(scale) {}
 };
 
 class CBallCamera : public CGameCamera
@@ -44,56 +45,62 @@ class CBallCamera : public CGameCamera
 public:
     enum class EBallCameraState
     {
-        Zero,
+        Default,
         One,
-        Two,
-        Three,
-        Four,
-        Five
+        Chase,
+        Boost,
+        ToBall,
+        FromBall
     };
     enum class EBallCameraBehaviour
     {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight
+        Default,
+        FreezeLookPosition, // Unused
+        HintBallToCam,
+        HintInitializePosition,
+        HintFixedPosition,
+        HintFixedTransform,
+        PathCameraDesiredPos, // Unused
+        PathCamera,
+        SpindleCamera
+    };
+    enum class ESplineState
+    {
+        Invalid,
+        Nav,
+        Arc
     };
 private:
     struct SFailsafeState
     {
-        zeus::CTransform x0_;
-        zeus::CTransform x30_;
-        zeus::CVector3f x60_;
-        zeus::CVector3f x6c_;
+        zeus::CTransform x0_playerXf;
+        zeus::CTransform x30_camXf;
+        zeus::CVector3f x60_lookPos;
+        zeus::CVector3f x6c_behindPos;
         zeus::CVector3f x78_;
-        zeus::CVector3f x84_;
-        std::vector<zeus::CVector3f> x90_bezPoints;
+        zeus::CVector3f x84_playerPos;
+        std::vector<zeus::CVector3f> x90_splinePoints;
     };
 
-    EBallCameraBehaviour x188_behaviour = EBallCameraBehaviour::Zero;
+    EBallCameraBehaviour x188_behaviour = EBallCameraBehaviour::Default;
     bool x18c_24_ : 1;
-    bool x18c_25_ : 1;
-    bool x18c_26_ : 1;
-    bool x18c_27_ : 1;
-    bool x18c_28_ : 1;
-    bool x18c_29_ : 1;
-    bool x18c_30_ : 1;
-    bool x18c_31_ : 1;
-    bool x18d_24_ : 1;
-    bool x18d_25_ : 1;
-    bool x18d_26_ : 1;
-    bool x18d_27_ : 1;
-    bool x18d_28_ : 1;
-    bool x18d_29_ : 1;
-    bool x18d_30_ : 1;
-    bool x18d_31_ : 1;
-    bool x18e_24_ : 1;
-    bool x18e_25_ : 1;
+    bool x18c_25_chaseAllowed : 1;
+    bool x18c_26_boostAllowed : 1;
+    bool x18c_27_obscureAvoidance : 1;
+    bool x18c_28_volumeCollider : 1;
+    bool x18c_29_clampAttitude : 1;
+    bool x18c_30_clampAzimuth : 1;
+    bool x18c_31_clearLOS : 1;
+    bool x18d_24_prevClearLOS : 1;
+    bool x18d_25_avoidGeometryFull : 1;
+    bool x18d_26_lookAtBall : 1;
+    bool x18d_27_forceProcessing : 1;
+    bool x18d_28_obtuseDirection : 1;
+    bool x18d_29_noElevationInterp : 1;
+    bool x18d_30_directElevation : 1;
+    bool x18d_31_overrideLookDir : 1;
+    bool x18e_24_noElevationVelClamp : 1;
+    bool x18e_25_noSpline : 1;
     bool x18e_26_ : 1;
     bool x18e_27_nearbyDoorClosed : 1;
     bool x18e_28_nearbyDoorClosing : 1;
@@ -104,13 +111,13 @@ private:
     float x1a0_elevation;
     float x1a4_curAnglePerSecond;
     float x1a8_targetAnglePerSecond;
-    float x1ac_ = 1.5533431f;
-    float x1b0_ = 1.5533431f;
+    float x1ac_attitudeRange = zeus::degToRad(89.f);
+    float x1b0_azimuthRange = zeus::degToRad(89.f);
     zeus::CVector3f x1b4_lookAtOffset;
-    zeus::CVector3f x1c0_;
-    zeus::CVector3f x1cc_;
-    zeus::CVector3f x1d8_;
-    zeus::CTransform x1e4_;
+    zeus::CVector3f x1c0_lookPosAhead;
+    zeus::CVector3f x1cc_fixedLookPos;
+    zeus::CVector3f x1d8_lookPos;
+    zeus::CTransform x1e4_nextLookXf;
     CCameraSpring x214_ballCameraSpring;
     CCameraSpring x228_ballCameraCentroidSpring;
     CCameraSpring x23c_ballCameraLookAtSpring;
@@ -118,53 +125,53 @@ private:
     std::vector<CCameraCollider> x264_smallColliders;
     std::vector<CCameraCollider> x274_mediumColliders;
     std::vector<CCameraCollider> x284_largeColliders;
-    zeus::CVector3f x294_;
-    zeus::CVector3f x2a0_ = zeus::CVector3f::skUp;
-    zeus::CVector3f x2ac_ = zeus::CVector3f::skUp;
-    zeus::CVector3f x2b8_ = zeus::CVector3f::skUp;
-    int x2c4_ = 0;
-    int x2c8_ = 0;
-    int x2cc_ = 0;
-    int x2d0_ = 0;
-    int x2d4_ = 0;
-    int x2d8_ = 0;
-    zeus::CVector3f x2dc_;
-    float x2e8_ = 0.f;
-    float x2ec_ = 0.f;
-    zeus::CVector3f x2f0_;
-    zeus::CVector3f x2fc_;
-    float x308_ = 0.f;
-    float x30c_ = 0.f;
-    zeus::CVector3f x310_;
-    zeus::CVector3f x31c_;
-    u32 x328_ = 0;
-    float x32c_ = 1.f;
-    float x330_ = 0.2f;
-    zeus::CAABox x334_ = zeus::CAABox::skNullBox;
-    float x34c_ = 0.f;
-    CMaterialList x350_ = {EMaterialTypes::Unknown};
-    float x358_ = 0.f;
-    zeus::CVector3f x35c_;
-    TUniqueId x368_ = kInvalidUniqueId;
-    u32 x36c_ = 0;
-    bool x370_24_ : 1;
-    float x374_ = 0.f;
-    float x378_;
+    zeus::CVector3f x294_dampedPos;
+    zeus::CVector3f x2a0_smallCentroid = zeus::CVector3f::skUp;
+    zeus::CVector3f x2ac_mediumCentroid = zeus::CVector3f::skUp;
+    zeus::CVector3f x2b8_largeCentroid = zeus::CVector3f::skUp;
+    int x2c4_smallCollidersObsCount = 0;
+    int x2c8_mediumCollidersObsCount = 0;
+    int x2cc_largeCollidersObsCount = 0;
+    int x2d0_smallColliderIt = 0;
+    int x2d4_mediumColliderIt = 0;
+    int x2d8_largeColliderIt = 0;
+    zeus::CVector3f x2dc_prevBallPos;
+    float x2e8_ballVelFlat = 0.f;
+    float x2ec_maxBallVel = 0.f;
+    zeus::CVector3f x2f0_ballDelta;
+    zeus::CVector3f x2fc_ballDeltaFlat;
+    float x308_speedFactor = 0.f;
+    float x30c_speedingTime = 0.f;
+    zeus::CVector3f x310_idealLookVec;
+    zeus::CVector3f x31c_predictedLookPos;
+    u32 x328_avoidGeomCycle = 0;
+    float x32c_colliderMag = 1.f;
+    float x330_clearColliderThreshold = 0.2f;
+    zeus::CAABox x334_collidersAABB = zeus::CAABox::skNullBox;
+    float x34c_obscuredTime = 0.f;
+    CMaterialList x350_obscuringMaterial = {EMaterialTypes::Unknown};
+    float x358_unobscureMag = 0.f;
+    zeus::CVector3f x35c_splineIntermediatePos;
+    TUniqueId x368_obscuringObjectId = kInvalidUniqueId;
+    ESplineState x36c_splineState = ESplineState::Invalid;
+    bool x370_24_reevalSplineEnd : 1;
+    float x374_splineCtrl = 0.f;
+    float x378_splineCtrlRange;
     CCameraSpline x37c_camSpline;
-    CMaterialList x3c8_ = {EMaterialTypes::Unknown};
-    bool x3d0_24_ : 1;
-    float x3d4_ = 0.f;
-    float x3d8_ = 0.f;
+    CMaterialList x3c8_collisionExcludeList = {EMaterialTypes::Unknown};
+    bool x3d0_24_camBehindFloorOrWall : 1;
+    float x3d4_elevInterpTimer = 0.f;
+    float x3d8_elevInterpStart = 0.f;
     TUniqueId x3dc_tooCloseActorId = kInvalidUniqueId;
     float x3e0_tooCloseActorDist = 10000.f;
-    bool x3e4_ = false;
+    bool x3e4_pendingFailsafe = false;
     float x3e8_ = 0.f;
     float x3ec_ = 0.f;
     float x3f0_ = 0.f;
     float x3f4_ = 2.f;
     float x3f8_ = 0.f;
     float x3fc_ = 0.f;
-    EBallCameraState x400_state = EBallCameraState::Zero;
+    EBallCameraState x400_state = EBallCameraState::Default;
     float x404_chaseElevation;
     float x408_chaseDistance;
     float x40c_chaseAnglePerSecond;
@@ -175,19 +182,19 @@ private:
     float x438_boostAnglePerSecond;
     zeus::CVector3f x43c_boostLookAtOffset;
     CCameraSpring x448_ballCameraBoostSpring;
-    zeus::CVector3f x45c_;
-    float x468_;
+    zeus::CVector3f x45c_overrideBallToCam;
+    float x468_conservativeDoorCamDistance;
     TUniqueId x46c_collisionActorId = kInvalidUniqueId;
-    float x470_ = 0.f;
-    float x474_ = 0.f;
-    u32 x478_ = 0;
+    float x470_clampVelTimer = 0.f;
+    float x474_clampVelRange = 0.f;
+    u32 x478_shortMoveCount = 0;
     std::unique_ptr<SFailsafeState> x47c_failsafeState;
     std::unique_ptr<u32> x480_;
 
     void SetupColliders(std::vector<CCameraCollider>& out, float xMag, float zMag, float radius, int count,
-                        float tardis, float max, float startAngle);
-    void ResetSpline(CStateManager& mgr);
-    void BuildSpline(CStateManager& mgr);
+                        float k, float max, float startAngle);
+    void BuildSplineNav(CStateManager& mgr);
+    void BuildSplineArc(CStateManager& mgr);
     bool ShouldResetSpline(CStateManager& mgr) const;
     void UpdatePlayerMovement(float dt, CStateManager& mgr);
     void UpdateTransform(const zeus::CVector3f& lookDir, const zeus::CVector3f& pos, float dt, CStateManager& mgr);
@@ -197,41 +204,42 @@ private:
     void UpdateObjectTooCloseId(CStateManager& mgr);
     void UpdateAnglePerSecond(float dt);
     void UpdateUsingPathCameras(float dt, CStateManager& mgr);
-    zeus::CVector3f GetFixedLookTarget(const zeus::CVector3f& pos, CStateManager& mgr) const;
+    zeus::CVector3f GetFixedLookTarget(const zeus::CVector3f& hintToLookDir, CStateManager& mgr) const;
     void UpdateUsingFixedCameras(float dt, CStateManager& mgr);
     zeus::CVector3f ComputeVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& posDelta) const;
     zeus::CVector3f TweenVelocity(const zeus::CVector3f& curVel, const zeus::CVector3f& newVel, float rate, float dt);
     zeus::CVector3f MoveCollisionActor(const zeus::CVector3f& pos, float dt, CStateManager& mgr);
     void UpdateUsingFreeLook(float dt, CStateManager& mgr);
-    zeus::CVector3f InterpolateCameraElevation(const zeus::CVector3f& camPos);
-    zeus::CVector3f CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList, int w1) const;
+    zeus::CVector3f InterpolateCameraElevation(const zeus::CVector3f& camPos, float dt);
+    zeus::CVector3f CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList, int numObscured) const;
     zeus::CVector3f ApplyColliders();
-    void UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& r6, int r7,
-                         float f1, const rstl::reserved_vector<TUniqueId, 1024>& nearList, float dt,
+    void UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& it, int count,
+                         float tolerance, const rstl::reserved_vector<TUniqueId, 1024>& nearList, float dt,
                          CStateManager& mgr);
     zeus::CVector3f AvoidGeometry(const zeus::CTransform& xf, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                   float dt, CStateManager& mgr);
-    zeus::CVector3f AvoidGeometryFull(const zeus::CTransform& xf, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+    zeus::CVector3f AvoidGeometryFull(const zeus::CTransform& xf,
+                                      const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                       float dt, CStateManager& mgr);
     zeus::CAABox CalculateCollidersBoundingBox(const std::vector<CCameraCollider>& colliderList,
                                                CStateManager& mgr) const;
     int CountObscuredColliders(const std::vector<CCameraCollider>& colliderList) const;
-    void UpdateCollidersDistances(std::vector<CCameraCollider>& colliderList, float f1, float f2, float f3);
+    void UpdateCollidersDistances(std::vector<CCameraCollider>& colliderList, float xMag, float zMag, float angOffset);
     void UpdateUsingColliders(float dt, CStateManager& mgr);
     void UpdateUsingSpindleCameras(float dt, CStateManager& mgr);
     zeus::CVector3f ClampElevationToWater(zeus::CVector3f& pos, CStateManager& mgr) const;
     void UpdateTransitionFromBallCamera(CStateManager& mgr);
     void UpdateUsingTransitions(float dt, CStateManager& mgr);
     zeus::CTransform UpdateCameraPositions(float dt, const zeus::CTransform& oldXf, const zeus::CTransform& newXf);
-    static zeus::CVector3f GetFailsafeBezierPoint(const std::vector<zeus::CVector3f>& points, float t);
+    static zeus::CVector3f GetFailsafeSplinePoint(const std::vector<zeus::CVector3f>& points, float t);
     bool CheckFailsafeFromMorphBallState(CStateManager& mgr) const;
     bool SplineIntersectTest(CMaterialList& intersectMat, CStateManager& mgr) const;
     static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
     void ActivateFailsafe(float dt, CStateManager& mgr);
     bool ConstrainElevationAndDistance(float& elevation, float& distance, float dt, CStateManager& mgr);
     zeus::CVector3f FindDesiredPosition(float distance, float elevation, const zeus::CVector3f& dir,
-                                        CStateManager& mgr, bool b);
-    static bool DetectCollision(const zeus::CVector3f& from, const zeus::CVector3f& to, float margin,
+                                        CStateManager& mgr, bool fullTest);
+    static bool DetectCollision(const zeus::CVector3f& from, const zeus::CVector3f& to, float radius,
                                 float& d, CStateManager& mgr);
     void TeleportColliders(std::vector<CCameraCollider>& colliderList, const zeus::CVector3f& pos);
     static bool CheckTransitionLineOfSight(const zeus::CVector3f& eyePos, const zeus::CVector3f& behindPos,
@@ -254,12 +262,12 @@ public:
     float GetTooCloseActorDistance() const { return x3e0_tooCloseActorDist; }
     void TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr);
     void TeleportCamera(const zeus::CTransform& xf, CStateManager& mgr);
-    const zeus::CVector3f& GetX1D8() const { return x1d8_; }
+    const zeus::CVector3f& GetLookPos() const { return x1d8_lookPos; }
     void ResetToTweaks(CStateManager& mgr);
     void UpdateLookAtPosition(float dt, CStateManager& mgr);
     zeus::CTransform UpdateLookDirection(const zeus::CVector3f& dir, CStateManager& mgr);
-    void SetX470(float f) { x470_ = f; }
-    void SetX474(float f) { x474_ = f; }
+    void SetClampVelTimer(float f) { x470_clampVelTimer = f; }
+    void SetClampVelRange(float f) { x474_clampVelRange = f; }
     void ApplyCameraHint(CStateManager& mgr);
     void ResetPosition(CStateManager& mgr);
     void DoorClosed(TUniqueId doorId);

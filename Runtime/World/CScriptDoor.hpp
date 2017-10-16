@@ -42,7 +42,7 @@ public:
         {
             bool x2a8_24_ : 1;
             bool x2a8_25_ : 1;
-            bool x2a8_26_ : 1;
+            bool x2a8_26_useConservativeCameraDistance : 1;
             bool x2a8_27_ : 1;
             bool x2a8_28_ : 1;
             bool x2a8_29_ballDoor : 1;

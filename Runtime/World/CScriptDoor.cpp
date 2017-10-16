@@ -34,7 +34,7 @@ CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityIn
 {
     x2a8_29_ballDoor = ballDoor;
     x2a8_25_ = open;
-    x2a8_26_ = open;
+    x2a8_26_useConservativeCameraDistance = open;
     x2a8_28_ = b2;
     x2a8_27_ = true;
     x264_ = GetBoundingBox();
@@ -70,7 +70,7 @@ void CScriptDoor::Think(float dt, CStateManager& mgr)
     if (!GetActive())
         return;
 
-    if (!x2a8_26_)
+    if (!x2a8_26_useConservativeCameraDistance)
     {
         if (x25c_ < 0.5f)
             x25c_ += dt;
@@ -86,9 +86,9 @@ void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager
 /* ORIGINAL 0-00 OFFSET: 8007E0BC */
 void CScriptDoor::ForceClosed(CStateManager & mgr)
 {
-    if (x2a8_26_)
+    if (x2a8_26_useConservativeCameraDistance)
     {
-        x2a8_26_ = false;
+        x2a8_26_useConservativeCameraDistance = false;
         x2a8_25_ = false;
 
         mgr.GetCameraManager()->GetBallCamera()->DoorClosing(x8_uid);

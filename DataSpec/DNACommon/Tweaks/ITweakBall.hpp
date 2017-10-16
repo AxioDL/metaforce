@@ -10,7 +10,7 @@ struct ITweakBall : ITweak
     virtual float GetMaxBallTranslationAcceleration(int s) const=0;
     virtual float GetBallTranslationFriction(int s) const=0;
     virtual float GetBallTranslationMaxSpeed(int s) const=0;
-    virtual float GetBallCameraElevation() const { return 2.736f; }
+    virtual float GetBallCameraElevation() const=0;
     virtual float GetBallCameraAnglePerSecond() const=0;
     virtual const zeus::CVector3f& GetBallCameraOffset() const=0;
     virtual float GetBallCameraMinSpeedDistance() const=0;
@@ -32,6 +32,7 @@ struct ITweakBall : ITweak
     virtual float GetBallGravity() const=0;
     virtual float GetBallWaterGravity() const=0;
     virtual float GetBallSlipFactor(int s) const=0;
+    virtual float GetConservativeDoorCameraDistance() const=0;
     virtual float GetBallCameraChaseElevation() const=0;
     virtual float GetBallCameraChaseDampenAngle() const=0;
     virtual float GetBallCameraChaseDistance() const=0;

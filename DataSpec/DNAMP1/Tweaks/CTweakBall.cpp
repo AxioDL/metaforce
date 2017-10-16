@@ -151,8 +151,8 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x168_ = __dna_reader.readFloatBig();
     /* x16c_ */
     x16c_ = __dna_reader.readFloatBig();
-    /* x170_ */
-    x170_ = __dna_reader.readFloatBig();
+    /* x170_conservativeDoorCamDistance */
+    x170_conservativeDoorCamDistance = __dna_reader.readFloatBig();
     /* x174_ */
     x174_ = __dna_reader.readFloatBig();
     /* x178_ballCameraChaseElevation */
@@ -371,8 +371,8 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x168_);
     /* x16c_ */
     __dna_writer.writeFloatBig(x16c_);
-    /* x170_ */
-    __dna_writer.writeFloatBig(x170_);
+    /* x170_conservativeDoorCamDistance */
+    __dna_writer.writeFloatBig(x170_conservativeDoorCamDistance);
     /* x174_ */
     __dna_writer.writeFloatBig(x174_);
     /* x178_ballCameraChaseElevation */
@@ -611,8 +611,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x168_ = __dna_docin.readFloat("x168_");
     /* x16c_ */
     x16c_ = __dna_docin.readFloat("x16c_");
-    /* x170_ */
-    x170_ = __dna_docin.readFloat("x170_");
+    /* x170_conservativeDoorCamDistance */
+    x170_conservativeDoorCamDistance = __dna_docin.readFloat("x170_conservativeDoorCamDistance");
     /* x174_ */
     x174_ = __dna_docin.readFloat("x174_");
     /* x178_ballCameraChaseElevation */
@@ -847,8 +847,8 @@ void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.writeFloat("x168_", x168_);
     /* x16c_ */
     __dna_docout.writeFloat("x16c_", x16c_);
-    /* x170_ */
-    __dna_docout.writeFloat("x170_", x170_);
+    /* x170_conservativeDoorCamDistance */
+    __dna_docout.writeFloat("x170_conservativeDoorCamDistance", x170_conservativeDoorCamDistance);
     /* x174_ */
     __dna_docout.writeFloat("x174_", x174_);
     /* x178_ballCameraChaseElevation */

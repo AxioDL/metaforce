@@ -66,7 +66,7 @@ struct CTweakBall final : public ITweakBall
     Value<float> x164_;
     Value<float> x168_;
     Value<float> x16c_;
-    Value<float> x170_;
+    Value<float> x170_conservativeDoorCamDistance;
     Value<float> x174_;
     Value<float> x178_ballCameraChaseElevation;
     Value<float> x17c_ballCameraChaseDampenAngle;
@@ -155,6 +155,7 @@ struct CTweakBall final : public ITweakBall
     float GetBallGravity() const { return xe4_ballGravity; }
     float GetBallWaterGravity() const { return xe8_ballWaterGravity; }
     float GetBallSlipFactor(int s) const { return x12c_ballSlipFactor[s]; }
+    float GetConservativeDoorCameraDistance() const { return x170_conservativeDoorCamDistance; }
     float GetBallCameraChaseElevation() const { return x178_ballCameraChaseElevation; }
     float GetBallCameraChaseDampenAngle() const { return x17c_ballCameraChaseDampenAngle; }
     float GetBallCameraChaseDistance() const { return x180_ballCameraChaseDistance; }

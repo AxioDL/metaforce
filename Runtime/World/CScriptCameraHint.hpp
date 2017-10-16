@@ -9,39 +9,55 @@ namespace urde
 
 class CCameraHint
 {
-    s32 x4_overrideFlags;
+    u32 x4_overrideFlags;
     CBallCamera::EBallCameraBehaviour x8_behaviour;
-    float xc_f1;
-    float x10_f2;
-    float x14_f3;
-    zeus::CVector3f x18_r6;
-    zeus::CVector3f x24_r7;
-    zeus::CVector3f x30_r8;
-    float x3c_f4;
-    float x40_f5;
-    float x44_f6;
-    float x48_f7;
-    float x4c_f8;
+    float xc_minDist;
+    float x10_maxDist;
+    float x14_backwardsDist;
+    zeus::CVector3f x18_lookAtOffset;
+    zeus::CVector3f x24_chaseLookAtOffset;
+    zeus::CVector3f x30_ballToCam;
+    float x3c_fov;
+    float x40_attitudeRange;
+    float x44_azimuthRange;
+    float x48_anglePerSecond;
+    float x4c_clampVelRange;
     float x50_f9;
-    float x54_f10;
+    float x54_elevation;
     float x58_f11;
-    float x5c_f12;
-    float x60_f13;
+    float x5c_clampVelTime;
+    float x60_controlInterpDur;
 
 public:
-    CCameraHint(s32 overrideFlags, CBallCamera::EBallCameraBehaviour behaviour, float f1, float f2, float f3,
-                const zeus::CVector3f& r6, const zeus::CVector3f& r7, const zeus::CVector3f& r8, float f4,
-                float f5, float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13)
-    : x4_overrideFlags(overrideFlags), x8_behaviour(behaviour), xc_f1(f1), x10_f2(f2), x14_f3(f3), x18_r6(r6),
-      x24_r7(r7), x30_r8(r8), x3c_f4(f4), x40_f5(f5), x44_f6(f6), x48_f7(f7), x4c_f8(f8), x50_f9(f9), x54_f10(f10),
-      x58_f11(f11), x5c_f12(f12), x60_f13(f13) {}
+    CCameraHint(u32 overrideFlags, CBallCamera::EBallCameraBehaviour behaviour, float minDist, float maxDist,
+                float backwardsDist, const zeus::CVector3f& lookAtOffset, const zeus::CVector3f& chaseLookAtOffset,
+                const zeus::CVector3f& ballToCam, float fov, float attitudeRange, float azimuthRange,
+                float anglePerSecond, float clampVelRange, float f9, float elevation, float f11,
+                float clampVelTime, float controlInterpDur)
+    : x4_overrideFlags(overrideFlags), x8_behaviour(behaviour), xc_minDist(minDist), x10_maxDist(maxDist),
+      x14_backwardsDist(backwardsDist), x18_lookAtOffset(lookAtOffset), x24_chaseLookAtOffset(chaseLookAtOffset),
+      x30_ballToCam(ballToCam), x3c_fov(fov), x40_attitudeRange(attitudeRange), x44_azimuthRange(azimuthRange),
+      x48_anglePerSecond(anglePerSecond), x4c_clampVelRange(clampVelRange), x50_f9(f9), x54_elevation(elevation),
+      x58_f11(f11), x5c_clampVelTime(clampVelTime), x60_controlInterpDur(controlInterpDur) {}
 
-    s32 GetOverrideFlags() const { return x4_overrideFlags; }
+    u32 GetOverrideFlags() const { return x4_overrideFlags; }
     CBallCamera::EBallCameraBehaviour GetBehaviourType() const { return x8_behaviour; }
-    float GetX4C() const { return x4c_f8; }
+    float GetMinDist() const { return xc_minDist; }
+    float GetMaxDist() const { return x10_maxDist; }
+    float GetBackwardsDist() const { return x14_backwardsDist; }
+    const zeus::CVector3f& GetLookAtOffset() const { return x18_lookAtOffset; }
+    const zeus::CVector3f& GetChaseLookAtOffset() const { return x24_chaseLookAtOffset; }
+    const zeus::CVector3f& GetBallToCam() const { return x30_ballToCam; }
+    float GetFov() const { return x3c_fov; }
+    float GetAttitudeRange() const { return x40_attitudeRange; }
+    float GetAzimuthRange() const { return x44_azimuthRange; }
+    float GetAnglePerSecond() const { return x48_anglePerSecond; }
+    float GetClampVelRange() const { return x4c_clampVelRange; }
     float GetX50() const { return x50_f9; }
+    float GetElevation() const { return x54_elevation; }
     float GetX58() const { return x58_f11; }
-    float GetX5C() const { return x5c_f12; }
+    float GetClampVelTime() const { return x5c_clampVelTime; }
+    float GetControlInterpDur() const { return x60_controlInterpDur; }
 };
 
 class CScriptCameraHint : public CActor
@@ -57,10 +73,11 @@ class CScriptCameraHint : public CActor
     void RemoveHelper(TUniqueId id);
 public:
     CScriptCameraHint(TUniqueId, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
-                      bool active, s32 priority, CBallCamera::EBallCameraBehaviour behaviour, s32 overrideFlags,
-                      float f1, float f2, float f3, const zeus::CVector3f& r6, const zeus::CVector3f& r7,
-                      const zeus::CVector3f& r8, float f4, float f5, float f6, float f7, float f8, float f9, float f10,
-                      float f11, float f12, float f13);
+                      bool active, s32 priority, CBallCamera::EBallCameraBehaviour behaviour, u32 overrideFlags,
+                      float minDist, float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,
+                      const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam, float fov,
+                      float attitudeRange, float azimuthRange, float anglePerSecond, float clampVelRange, float f9,
+                      float elevation, float f11, float clampVelTime, float controlInterpDur);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
