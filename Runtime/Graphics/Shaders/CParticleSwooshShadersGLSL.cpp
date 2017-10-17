@@ -27,7 +27,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = colorIn;\n"
-"    vtf.uv = uvIn;\n"
+"    vtf.uv = uvIn.xy;\n"
 "    gl_Position = mvp * vec4(posIn.xyz, 1.0);\n"
 "}\n";
 

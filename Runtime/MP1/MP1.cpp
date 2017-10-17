@@ -17,14 +17,14 @@
 #include "Graphics/Shaders/CFluidPlaneShader.hpp"
 #include "Graphics/Shaders/CAABoxShader.hpp"
 #include "Graphics/Shaders/CWorldShadowShader.hpp"
-#include "Character/CCharLayoutInfo.hpp"
+#include "Graphics/Shaders/CParticleSwooshShaders.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
-#include "CBasics.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 
 namespace urde
 {
+URDE_DECL_SPECIALIZE_SHADER(CParticleSwooshShaders)
 URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
@@ -223,6 +223,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
                             boo::ITextureR* spareTex)
 {
     CGraphics::InitializeBoo(factory, cmdQ, spareTex);
+    TShader<CParticleSwooshShaders>::Initialize();
     TShader<CThermalColdFilter>::Initialize();
     TShader<CThermalHotFilter>::Initialize();
     TShader<CSpaceWarpFilter>::Initialize();
@@ -318,8 +319,40 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     //CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
 }
 
+static logvisor::Module WarmupLog("Shader Warmup");
+
+void CMain::WarmupShaders()
+{
+    if (m_warmupTags.size())
+        return;
+
+    size_t modelCount = 0;
+    g_ResFactory->EnumerateResources([&](const SObjectTag& tag)
+    {
+        if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+            ++modelCount;
+        return true;
+    });
+    m_warmupTags.reserve(modelCount);
+
+    g_ResFactory->EnumerateResources([&](const SObjectTag& tag)
+    {
+        if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+            m_warmupTags.push_back(tag);
+        return true;
+    });
+
+    m_warmupIt = m_warmupTags.begin();
+
+    WarmupLog.report(logvisor::Info, "Began warmup of %" PRISize " objects", modelCount);
+}
+
 bool CMain::Proc()
 {
+    // Warmup cycle overrides update
+    if (m_warmupTags.size())
+        return false;
+
     CGBASupport::GlobalPoll();
     x164_archSupport->UpdateTicks();
     x164_archSupport->Update();
@@ -340,6 +373,33 @@ bool CMain::Proc()
 
 void CMain::Draw()
 {
+    // Warmup cycle overrides draw
+    if (m_warmupTags.size())
+    {
+        auto startTime = std::chrono::steady_clock::now();
+        while (m_warmupIt != m_warmupTags.end())
+        {
+            WarmupLog.report(logvisor::Info, "Warming %.4s %08X", m_warmupIt->type.getChars(), m_warmupIt->id.Value());
+
+            if (m_warmupIt->type == FOURCC('CMDL'))
+                CModel::WarmupShaders(*m_warmupIt);
+            else if (m_warmupIt->type == FOURCC('MREA'))
+                CGameArea::WarmupShaders(*m_warmupIt);
+            ++m_warmupIt;
+
+            // Approximately 3/4 frame of warmups
+            auto curTime = std::chrono::steady_clock::now();
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - startTime).count() > 12)
+                break;
+        }
+        if (m_warmupIt == m_warmupTags.end())
+        {
+            m_warmupTags = std::vector<SObjectTag>();
+            WarmupLog.report(logvisor::Info, "Finished warmup");
+        }
+        return;
+    }
+
     x164_archSupport->Draw();
 }
 
@@ -359,6 +419,7 @@ void CMain::Shutdown()
 {
     x164_archSupport.reset();
     ShutdownSubsystems();
+    TShader<CParticleSwooshShaders>::Shutdown();
     TShader<CThermalColdFilter>::Shutdown();
     TShader<CThermalHotFilter>::Shutdown();
     TShader<CSpaceWarpFilter>::Shutdown();

@@ -523,6 +523,12 @@ struct SpecMP3 : SpecBase
     {
     }
 
+    void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                     BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                     FCookProgress progress)
+    {
+    }
+
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                    BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                    FCookProgress progress)

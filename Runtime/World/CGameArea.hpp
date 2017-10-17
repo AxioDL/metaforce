@@ -289,6 +289,7 @@ private:
 public:
 
     CGameArea(CInputStream& in, int idx, int mlvlVersion);
+    CGameArea(CAssetId mreaId); // Warmup constructor
 
     bool IsFinishedOccluding() const;
     void ReadDependencyList();
@@ -372,6 +373,8 @@ public:
     CObjectList& GetAreaObjects() const { return *GetPostConstructed()->x10c0_areaObjs.get(); }
 
     CGameArea* GetNext() const { return x130_next; }
+
+    static void WarmupShaders(const SObjectTag& mreaTag);
 };
 
 }

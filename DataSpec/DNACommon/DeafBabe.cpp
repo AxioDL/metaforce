@@ -84,15 +84,39 @@ template void DeafBabeSendToBlender<DNAMP2::DeafBabe>(hecl::BlenderConnection::P
 template void DeafBabeSendToBlender<DNAMP1::DCLN::Collision>(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::DCLN::Collision& db, bool isDcln, atInt32 idx);
 
 template<class DEAFBABE>
+static void PopulateAreaFields(DEAFBABE& db,
+    const hecl::BlenderConnection::DataStream::ColMesh& colMesh,
+    const zeus::CAABox& fullAABB,
+    std::enable_if_t<std::is_same<DEAFBABE, DNAMP1::DeafBabe>::value ||
+                     std::is_same<DEAFBABE, DNAMP2::DeafBabe>::value, int>* = 0)
+{
+    AROTBuilder builder;
+    auto octree = builder.buildCol(colMesh, db.rootNodeType);
+    static_cast<std::unique_ptr<atUint8[]>&>(db.bspTree) = std::move(octree.first);
+    db.bspSize = octree.second;
+
+    db.unk1 = 0x1000000;
+    db.length = db.binarySize(0) - 8;
+    db.magic = 0xDEAFBABE;
+    db.version = 3;
+    db.aabb[0] = fullAABB.min;
+    db.aabb[1] = fullAABB.max;
+}
+
+template<class DEAFBABE>
+static void PopulateAreaFields(DEAFBABE& db,
+    const hecl::BlenderConnection::DataStream::ColMesh& colMesh,
+    const zeus::CAABox& fullAABB,
+    std::enable_if_t<std::is_same<DEAFBABE, DNAMP1::DCLN::Collision>::value, int>* = 0)
+{
+    db.magic = 0xDEAFBABE;
+    db.version = 2;
+    db.memSize = 0;
+}
+
+template<class DEAFBABE>
 void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh)
 {
-    {
-        AROTBuilder builder;
-        auto octree = builder.buildCol(colMesh, db.rootNodeType);
-        static_cast<std::unique_ptr<atUint8[]>&>(db.bspTree) = std::move(octree.first);
-        db.bspSize = octree.second;
-    }
-
     db.materials.reserve(colMesh.materials.size());
     for (const hecl::BlenderConnection::DataStream::ColMesh::Material& mat : colMesh.materials)
     {
@@ -186,15 +210,11 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     db.triMatsCount = colMesh.trianges.size();
     db.triangleEdgesCount = colMesh.trianges.size() * 3;
 
-    db.unk1 = 0x1000000;
-    db.length = db.binarySize(0) - 8;
-    db.magic = 0xDEAFBABE;
-    db.version = 3;
-    db.aabb[0] = fullAABB.min;
-    db.aabb[1] = fullAABB.max;
+    PopulateAreaFields(db, colMesh, fullAABB);
 }
 
 template void DeafBabeBuildFromBlender<DNAMP1::DeafBabe>(DNAMP1::DeafBabe& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);
 template void DeafBabeBuildFromBlender<DNAMP2::DeafBabe>(DNAMP2::DeafBabe& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);
+template void DeafBabeBuildFromBlender<DNAMP1::DCLN::Collision>(DNAMP1::DCLN::Collision& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);
 
 }

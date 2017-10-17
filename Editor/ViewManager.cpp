@@ -37,6 +37,7 @@ void ViewManager::BuildTestPART()
 void ViewManager::InitMP1(MP1::CMain& main)
 {
     main.Init(m_fileStoreManager, m_mainWindow.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
+    main.WarmupShaders();
 }
 
 void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)

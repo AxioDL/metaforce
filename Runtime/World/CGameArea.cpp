@@ -411,6 +411,39 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
     xec_totalResourcesSize += g_ResFactory->ResourceSize(SObjectTag{FOURCC('MREA'), x84_mrea});
 }
 
+CGameArea::CGameArea(CAssetId mreaId)
+: x84_mrea(mreaId)
+{
+    while (StartStreamingMainArea()) {}
+
+    for (auto& req : xf8_loadTransactions)
+        req->WaitForComplete();
+
+    MREAHeader header = VerifyHeader();
+    x12c_postConstructed->x4c_insts.reserve(header.modelCount);
+
+    FillInStaticGeometry();
+
+    CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp, zeus::CTransform::Identity());
+    CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
+    zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
+    zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
+    CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
+    CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
+    CModelFlags defaultFlags;
+    for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
+    {
+        CGraphics::SetModelMatrix(zeus::CTransform::Translate(-inst.x34_aabb.center()));
+        inst.m_instance->SyncLoadTextures();
+        inst.m_instance->UpdateUniformData(defaultFlags, nullptr, nullptr);
+        inst.m_instance->WarmupDrawSurfaces();
+    }
+    CGraphics::SetProjectionState(backupProj);
+    CGraphics::SetViewPointMatrix(backupViewPoint);
+    CGraphics::SetModelMatrix(backupModel);
+    CBooModel::DisableShadowMaps();
+}
+
 bool CGameArea::IGetScriptingMemoryAlways() const
 {
     return false;
@@ -1191,6 +1224,11 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes)
 bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent)
 {
     return (ent.GetAreaIdAlways() == x200c_areaIdx);
+}
+void CGameArea::WarmupShaders(const SObjectTag& mreaTag)
+{
+    // Calling this version of the constructor performs warmup implicitly
+    CGameArea area(mreaTag.id);
 }
 
 }

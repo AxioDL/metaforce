@@ -29,7 +29,7 @@ static const char* VS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.color = v.colorIn;\n"
-"    vtf.uv = v.uvIn;\n"
+"    vtf.uv = v.uvIn.xy;\n"
 "    vtf.pos = mul(mvp, float4(v.posIn.xyz, 1.0));\n"
 "    return vtf;\n"
 "}\n";

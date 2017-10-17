@@ -126,6 +126,16 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
 boo::ITexture* CBooModel::g_shadowMap = nullptr;
 zeus::CTransform CBooModel::g_shadowTexXf;
 
+void CBooModel::EnableShadowMaps(boo::ITexture* map, const zeus::CTransform& texXf)
+{
+    g_shadowMap = map;
+    g_shadowTexXf = texXf;
+}
+void CBooModel::DisableShadowMaps()
+{
+    g_shadowMap = nullptr;
+}
+
 CBooModel::~CBooModel()
 {
     if (m_prev)
@@ -488,6 +498,16 @@ void CBooModel::UnlockTextures() const
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
 }
 
+void CBooModel::SyncLoadTextures() const
+{
+    if (!x40_24_texturesLoaded)
+    {
+        for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
+            tex.GetObj();
+        const_cast<CBooModel*>(this)->x40_24_texturesLoaded = true;
+    }
+}
+
 void CBooModel::DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const
 {
     const CBooSurface* surf;
@@ -569,6 +589,39 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
 
     CGraphics::SetShaderDataBinding(binding);
     CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
+}
+
+void CBooModel::WarmupDrawSurfaces() const
+{
+    const CBooSurface* surf = x38_firstUnsortedSurface;
+    while (surf)
+    {
+        WarmupDrawSurface(*surf);
+        surf = surf->m_next;
+    }
+
+    surf = x3c_firstSortedSurface;
+    while (surf)
+    {
+        WarmupDrawSurface(*surf);
+        surf = surf->m_next;
+    }
+}
+
+void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const
+{
+    if (m_uniUpdateCount > m_instances.size())
+        return;
+    const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
+
+    for (const std::vector<boo::IShaderDataBinding*>& extendeds : inst.m_shaderDataBindings)
+    {
+        for (boo::IShaderDataBinding* binding : extendeds)
+        {
+            CGraphics::SetShaderDataBinding(binding);
+            CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
+        }
+    }
 }
 
 void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimation& anim)
@@ -1041,6 +1094,9 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
+        /* Index buffer is always static */
+        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
+
         if (!m_hmdlMeta.bankCount)
         {
             /* Non-skinned models use static vertex buffers shared with CBooModel instances */
@@ -1056,8 +1112,6 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
             memmove(m_dynamicVertexData.get(), vboData, vboSz);
         }
 
-        /* Index buffer is always static */
-        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
         return true;
     });
 
@@ -1170,6 +1224,36 @@ void CModel::ApplyVerticesCPU(boo::IGraphicsBufferD* vertBuf,
         floats[5] = avn.second.z;
     }
     vertBuf->unmap();
+}
+
+void CModel::_WarmupShaders()
+{
+    CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp, zeus::CTransform::Identity());
+    CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
+    zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
+    zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
+    CGraphics::SetModelMatrix(zeus::CTransform::Translate(-m_aabb.center()));
+    CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
+    CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
+    CModelFlags defaultFlags;
+    for (CBooModel::SShader& shader : x18_matSets)
+    {
+        GetInstance().RemapMaterialData(shader);
+        GetInstance().SyncLoadTextures();
+        GetInstance().UpdateUniformData(defaultFlags, nullptr, nullptr);
+        GetInstance().WarmupDrawSurfaces();
+    }
+    CGraphics::SetProjectionState(backupProj);
+    CGraphics::SetViewPointMatrix(backupViewPoint);
+    CGraphics::SetModelMatrix(backupModel);
+    CBooModel::DisableShadowMaps();
+}
+
+void CModel::WarmupShaders(const SObjectTag& cmdlTag)
+{
+    TToken<CModel> model = g_SimplePool->GetObj(cmdlTag);
+    CModel* modelObj = model.GetObj();
+    modelObj->_WarmupShaders();
 }
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

@@ -53,6 +53,8 @@ public:
 class CBooRenderer : public IRenderer
 {
     friend class CBooModel;
+    friend class CModel;
+    friend class CGameArea;
     friend class CWorldTransManager;
     friend class CMorphBallShadow;
 

@@ -71,6 +71,9 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                           FCookProgress progress)=0;
+    virtual void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                             BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                             FCookProgress progress)=0;
     virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                            BlendStream& ds, bool fast, hecl::BlenderToken& btok,
                            FCookProgress progress)=0;

@@ -73,6 +73,7 @@ struct CBooSurface
 class CBooModel
 {
     friend class CModel;
+    friend class CGameArea;
     friend class CBooRenderer;
     friend class CMetroidModelInstance;
     friend class CSkinnedModel;
@@ -151,6 +152,8 @@ private:
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;
     void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
+    void WarmupDrawSurfaces() const;
+    void WarmupDrawSurface(const CBooSurface& surf) const;
 
     static zeus::CVector3f g_PlayerPosition;
     static float g_ModSeconds;
@@ -177,6 +180,7 @@ public:
     void RemapMaterialData(SShader& shader);
     bool TryLockTextures() const;
     void UnlockTextures() const;
+    void SyncLoadTextures() const;
     void Touch(int shaderIdx) const;
     void VerifyCurrentShader(int shaderIdx);
     boo::IGraphicsBufferD* UpdateUniformData(const CModelFlags& flags,
@@ -214,15 +218,8 @@ public:
 
     static boo::ITexture* g_shadowMap;
     static zeus::CTransform g_shadowTexXf;
-    static void EnableShadowMaps(boo::ITexture* map, const zeus::CTransform& texXf)
-    {
-        g_shadowMap = map;
-        g_shadowTexXf = texXf;
-    }
-    static void DisableShadowMaps()
-    {
-        g_shadowMap = nullptr;
-    }
+    static void EnableShadowMaps(boo::ITexture* map, const zeus::CTransform& texXf);
+    static void DisableShadowMaps();
 };
 
 class CModel
@@ -270,6 +267,9 @@ public:
     zeus::CVector3f GetPoolNormal(size_t idx) const;
     void ApplyVerticesCPU(boo::IGraphicsBufferD* vertBuf,
                           const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
+
+    void _WarmupShaders();
+    static void WarmupShaders(const SObjectTag& cmdlTag);
 };
 
 CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,

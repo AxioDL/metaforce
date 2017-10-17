@@ -10,6 +10,7 @@
 #include "DNAMP1/STRG.hpp"
 #include "DNAMP1/SCAN.hpp"
 #include "DNAMP1/CMDL.hpp"
+#include "DNAMP1/DCLN.hpp"
 #include "DNAMP1/MREA.hpp"
 #include "DNAMP1/ANCS.hpp"
 #include "DNAMP1/AGSC.hpp"
@@ -555,6 +556,8 @@ struct SpecMP1 : SpecBase
             {
             case hecl::BlenderConnection::BlendType::Mesh:
                 return {SBIG('CMDL'), path.hash().val32()};
+            case hecl::BlenderConnection::BlendType::ColMesh:
+                return {SBIG('DCLN'), path.hash().val32()};
             case hecl::BlenderConnection::BlendType::Actor:
                 if (path.getAuxInfo().size())
                 {
@@ -726,6 +729,14 @@ struct SpecMP1 : SpecBase
             DNAMP1::CMDL::HMDLCook(out, in, mesh);
         else
             DNAMP1::CMDL::Cook(out, in, mesh);
+    }
+
+    void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                     hecl::BlenderToken& btok, FCookProgress progress)
+    {
+        std::vector<ColMesh> mesh = ds.compileColMeshes();
+        ds.close();
+        DNAMP1::DCLN::Cook(out, in, mesh);
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,

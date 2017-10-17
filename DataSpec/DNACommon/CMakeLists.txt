@@ -34,6 +34,7 @@ set(DNACOMMON_SOURCES
     BabeDead.hpp BabeDead.cpp
     RigInverter.hpp RigInverter.cpp
     AROTBuilder.hpp AROTBuilder.cpp
+    OBBTreeBuilder.hpp OBBTreeBuilder.cpp
     Tweaks/ITweak.hpp
     Tweaks/TweakWriter.hpp
     Tweaks/ITweakGame.hpp

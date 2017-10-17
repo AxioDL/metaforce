@@ -249,6 +249,12 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
             cookMesh(cookedPath, path, ds, fast, btok, progress);
             break;
         }
+        case hecl::BlenderConnection::BlendType::ColMesh:
+        {
+            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            cookColMesh(cookedPath, path, ds, fast, btok, progress);
+            break;
+        }
         case hecl::BlenderConnection::BlendType::Actor:
         {
             hecl::BlenderConnection::DataStream ds = conn.beginData();

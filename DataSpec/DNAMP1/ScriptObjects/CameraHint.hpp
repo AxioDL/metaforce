@@ -22,7 +22,7 @@ struct CameraHint : IScriptObject
     {
         DECL_YAML
         Value<atUint32> propertyCount;
-        Value<bool> unknown1; // 0x1
+        Value<bool> calculateCamPos; // 0x1
         Value<bool> chaseAllowed; // 0x2
         Value<bool> boostAllowed; // 0x4
         Value<bool> obscureAvoidance; // 0x8

@@ -93,7 +93,7 @@ static const char* LightingShadowGLSL =
 "                   lights[0].angAtt[1] * angDot +\n"
 "                   lights[0].angAtt[0];\n"
 "    ret += lights[0].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn.xyz), 0.0, 1.0) *\n"
-"           texture(extTex0, vtf.extTcgs[0]).r;\n"
+"           texture(extTex7, vtf.extTcgs[0]).r;\n"
 "    \n"
 "    for (int i=1 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
 "    {\n"

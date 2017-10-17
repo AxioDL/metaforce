@@ -92,7 +92,7 @@ static const char* LightingShadowHLSL =
 "                   lights[0].angAtt[1] * angDot +\n"
 "                   lights[0].angAtt[0];\n"
 "    ret += lights[0].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz)) *\n"
-"           extTex0.Sample(clampSamp, vtf.extTcgs[0]).r;\n"
+"           extTex7.Sample(clampSamp, vtf.extTcgs[0]).r;\n"
 "    \n"
 "    for (int i=1 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
 "    {\n"

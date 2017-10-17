@@ -2423,9 +2423,9 @@ void CBallCamera::ApplyCameraHint(CStateManager& mgr)
             zeus::CVector3f camPos = mgr.GetPlayer().GetBallPosition() + hint->GetHint().GetBallToCam();
             if ((hint->GetHint().GetOverrideFlags() & 0x1) != 0)
             {
-                float f30 = hint->GetHint().GetBallToCam().toVec2f().magnitude();
-                zeus::CVector3f x23c = -zeus::CVector3f(hint->GetHint().GetBallToCam().toVec2f()).normalized();
-                camPos = FindDesiredPosition(f30, hint->GetHint().GetBallToCam().z, x23c, mgr, false);
+                float distance = hint->GetHint().GetBallToCam().toVec2f().magnitude();
+                zeus::CVector3f camToBall = -zeus::CVector3f(hint->GetHint().GetBallToCam().toVec2f()).normalized();
+                camPos = FindDesiredPosition(distance, hint->GetHint().GetBallToCam().z, camToBall, mgr, false);
             }
             TeleportCamera(zeus::lookAt(camPos, x1d8_lookPos), mgr);
             break;

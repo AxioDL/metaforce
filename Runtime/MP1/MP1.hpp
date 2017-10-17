@@ -240,6 +240,10 @@ private:
 
     boo::IWindow* m_mainWindow = nullptr;
 
+    // Warmup state
+    std::vector<SObjectTag> m_warmupTags;
+    std::vector<SObjectTag>::iterator m_warmupIt;
+
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
 
 public:
@@ -259,6 +263,7 @@ public:
               boo::IWindow* window,
               boo::IAudioVoiceEngine* voiceEngine,
               amuse::IBackendVoiceAllocator& backend);
+    void WarmupShaders();
     bool Proc();
     void Draw();
     void Shutdown();
