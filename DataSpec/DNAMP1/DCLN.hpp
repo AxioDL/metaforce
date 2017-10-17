@@ -8,6 +8,8 @@
 #include "DNAMP1.hpp"
 #include "DeafBabe.hpp"
 
+#define DCLN_DUMP_OBB 0
+
 namespace DataSpec
 {
 namespace DNAMP1
@@ -127,6 +129,7 @@ struct DCLN : BigDNA
                 return (ret + 3) & ~3;
             }
 
+#if DCLN_DUMP_OBB
             void sendToBlender(hecl::BlenderConnection::PyOutStream& os) const
             {
                 os.format("obj = bpy.data.objects.new('%s', None)\n"
@@ -150,6 +153,7 @@ struct DCLN : BigDNA
                     right->sendToBlender(os);
                 }
             }
+#endif
         };
         Node root;
         size_t getMemoryUsage()
@@ -171,7 +175,6 @@ struct DCLN : BigDNA
         os.format("import bpy\n"
                   "import bmesh\n"
                   "from mathutils import Vector, Matrix\n"
-
                   "\n"
                   "bpy.context.scene.name = '%s'\n"
                   "# Clear Scene\n"
@@ -186,7 +189,9 @@ struct DCLN : BigDNA
         for (const Collision& col : collision)
         {
             DeafBabeSendToBlender(os, col, true, idx++);
+#if DCLN_DUMP_OBB
             col.root.sendToBlender(os);
+#endif
         }
         os.centerView();
         os.close();
