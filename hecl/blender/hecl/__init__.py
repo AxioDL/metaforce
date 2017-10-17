@@ -20,6 +20,7 @@ from mathutils import Vector
 hecl_typeS = [
 ('NONE', "None", "Active scene not using HECL", None),
 ('MESH', "Mesh", "Active scene represents an HMDL Mesh", hmdl.draw),
+('CMESH', "Collision Mesh", "Active scene represents a Collision Mesh", None),
 ('ACTOR', "Actor", "Active scene represents a HECL Actor", sact.draw),
 ('AREA', "Area", "Active scene represents a HECL Area", srea.draw),
 ('WORLD', "World", "Active scene represents a HECL World", swld.draw),

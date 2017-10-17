@@ -55,6 +55,7 @@ public:
     {
         None,
         Mesh,
+        ColMesh,
         Actor,
         Area,
         World,
@@ -790,6 +791,9 @@ public:
 
         /** Compile collision mesh by name (AREA blends only) */
         ColMesh compileColMesh(const std::string& name);
+
+        /** Compile all meshes as collision meshes (CMESH blends only) */
+        std::vector<ColMesh> compileColMeshes();
 
         /** Compile all meshes into one (AREA blends only) */
         Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount=10, float maxOctantLength=5.0,

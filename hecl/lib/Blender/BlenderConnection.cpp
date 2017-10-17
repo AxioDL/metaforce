@@ -582,6 +582,7 @@ static const char* BlendTypeStrs[] =
 {
     "NONE",
     "MESH",
+    "CMESH",
     "ACTOR",
     "AREA",
     "WORLD",
@@ -1482,6 +1483,34 @@ BlenderConnection::DataStream::compileColMesh(const std::string& name)
         BlenderLog.report(logvisor::Fatal, "unable to cook collision mesh '%s': %s", name.c_str(), readBuf);
 
     return ColMesh(*m_parent);
+}
+
+std::vector<BlenderConnection::DataStream::ColMesh>
+BlenderConnection::DataStream::compileColMeshes()
+{
+    if (m_parent->m_loadedType != BlendType::ColMesh)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not a CMESH blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "MESHCOMPILECOLLISIONALL");
+    m_parent->_writeStr(req);
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to cook collision meshes: %s", readBuf);
+
+    uint32_t meshCount;
+    m_parent->_readBuf(&meshCount, 4);
+
+    std::vector<BlenderConnection::DataStream::ColMesh> ret;
+    ret.reserve(meshCount);
+
+    for (uint32_t i=0 ; i<meshCount ; ++i)
+        ret.emplace_back(*m_parent);
+
+    return ret;
 }
 
 BlenderConnection::DataStream::Mesh

@@ -235,6 +235,19 @@ def dataout_loop():
             writepipestr(b'OK')
             hecl.hmdl.cookcol(writepipebuf, bpy.data.objects[meshName])
 
+        elif cmdargs[0] == 'MESHCOMPILECOLLISIONALL':
+            writepipestr(b'OK')
+            colCount = 0
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'MESH' and not obj.library:
+                    colCount += 1
+
+            writepipebuf(struct.pack('I', colCount))
+
+            for obj in bpy.context.scene.objects:
+                if obj.type == 'MESH' and not obj.library:
+                    hecl.hmdl.cookcol(writepipebuf, obj)
+
         elif cmdargs[0] == 'MESHCOMPILEALL':
             maxSkinBanks = int(cmdargs[2])
             maxOctantLength = float(cmdargs[3])

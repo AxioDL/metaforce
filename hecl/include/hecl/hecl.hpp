@@ -502,6 +502,7 @@ public:
     std::string toString() const {return std::string(fcc, 4);}
     uint32_t toUint32() const {return num;}
     operator uint32_t() const {return num;}
+    const char* getChars() const {return fcc;}
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
