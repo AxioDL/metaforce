@@ -1664,9 +1664,10 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
         struct MaterialPool
         {
             std::vector<const Mesh::Material*> materials;
-            size_t addMaterial(const Mesh::Material& mat)
+            size_t addMaterial(const Mesh::Material& mat, bool& newMat)
             {
                 size_t ret = 0;
+                newMat = false;
                 for (const Mesh::Material* testMat : materials)
                 {
                     if (mat == *testMat)
@@ -1674,6 +1675,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
                     ++ret;
                 }
                 materials.push_back(&mat);
+                newMat = true;
                 return ret;
             }
         } matPool;
@@ -1696,9 +1698,10 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
                 for (const Mesh::Material& mat : mesh.materialSets[0])
                 {
-                    size_t idx = matPool.addMaterial(mat);
+                    bool newMat;
+                    size_t idx = matPool.addMaterial(mat, newMat);
                     meshToGlobalMats.push_back(idx);
-                    if (idx < matPool.materials.size() - 1)
+                    if (!newMat)
                         continue;
 
                     for (const hecl::ProjectPath& path : mat.texs)
@@ -1736,6 +1739,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
     /* Iterate meshes */
     auto matIt = surfToGlobalMats.cbegin();
+    int meshIdx = 0;
     for (const Mesh& mesh : meshes)
     {
         zeus::CTransform meshXf(mesh.sceneXf.val);

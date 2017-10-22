@@ -78,7 +78,9 @@ class VISIRenderer
     std::vector<Light> m_lights;
     bool SetupVertexBuffersAndFormats();
 
-    GLuint m_query;
+    size_t m_queryCount;
+    std::unique_ptr<GLuint[]> m_queries;
+    std::unique_ptr<bool[]> m_queryBools;
 
     FPercent m_updatePercent;
 

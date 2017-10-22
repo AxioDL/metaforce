@@ -33,7 +33,6 @@ class CModelShaders
 {
     friend class CModel;
     hecl::Runtime::ShaderCacheManager m_shaderCache;
-    static std::experimental::optional<CModelShaders> g_ModelShaders;
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat);
     static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat);
@@ -42,6 +41,8 @@ class CModelShaders
     static const hecl::Backend::TextureInfo BallFadeTextures[];
     static const hecl::Backend::TextureInfo WorldShadowTextures[];
 public:
+    static std::experimental::optional<CModelShaders> g_ModelShaders;
+
     struct Light
     {
         zeus::CVector3f pos;

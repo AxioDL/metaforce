@@ -1,3 +1,5 @@
+#include <hecl/ClientProcess.hpp>
+#include <athena/MemoryReader.hpp>
 #include "MREA.hpp"
 #include "SCLY.hpp"
 #include "PATH.hpp"
@@ -167,8 +169,17 @@ bool MREA::Extract(const SpecBase& dataSpec,
     rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Dump VISI entities */
+    secStart = rs.position();
     if (head.secSizes[curSec] && rs.readUint32Big() == 'VISI')
     {
+        {
+            rs.seek(secStart, athena::Begin);
+            auto visiData = rs.readUBytes(head.secSizes[curSec]);
+            athena::io::FileWriter visiOut(outPath.getWithExtension(_S(".visi"), true).getAbsolutePath());
+            visiOut.writeUBytes(visiData.get(), head.secSizes[curSec]);
+            rs.seek(secStart + 4, athena::Begin);
+        }
+
         athena::io::YAMLDocWriter visiWriter("VISI");
         if (auto __vec = visiWriter.enterSubVector("entities"))
         {
@@ -447,79 +458,121 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             if (auto __vec = r.enterSubVector("entities", entityCount))
             {
                 entities.reserve(entityCount);
-                uint16_t entityId = r.readUint16(nullptr);
-                for (const SCLY::ScriptLayer& layer : sclyData.layers)
+                for (size_t i=0 ; i<entityCount ; ++i)
                 {
-                    for (const std::unique_ptr<IScriptObject>& obj : layer.objects)
+                    uint16_t entityId = r.readUint16(nullptr);
+                    for (const SCLY::ScriptLayer& layer : sclyData.layers)
                     {
-                        if ((obj->id & 0xffff) == entityId)
+                        for (const std::unique_ptr<IScriptObject>& obj : layer.objects)
                         {
-                            zeus::CAABox entAABB = obj->getVISIAABB(btok);
-                            if (entAABB.min.x < entAABB.max.x)
-                                entities.emplace_back(entityId, entAABB);
+                            if ((obj->id & 0xffff) == entityId)
+                            {
+                                zeus::CAABox entAABB = obj->getVISIAABB(btok);
+                                if (!entAABB.invalid())
+                                    entities.emplace_back(entityId, entAABB);
+                            }
                         }
                     }
                 }
             }
 
-            hecl::ProjectPath visiIntOut = outPath.getWithExtension(_S(".visiint"));
-            hecl::ProjectPath visiIn = outPath.getWithExtension(_S(".visi"));
-            athena::io::FileWriter w(visiIntOut.getAbsolutePath());
-            w.writeUint32Big(meshes.size());
-            for (const DNACMDL::Mesh& mesh : meshes)
+            // Check if pre-generated visi exists, recycle if able
+            hecl::ProjectPath preVisiPath = inPath.getWithExtension(_S(".visi"), true);
+            if (preVisiPath.getPathType() == hecl::ProjectPath::Type::File)
             {
-                w.writeUint32Big(uint32_t(mesh.topology));
-
-                w.writeUint32Big(mesh.pos.size());
-                for (const auto& v : mesh.pos)
+                athena::io::FileReader preVisiReader(preVisiPath.getAbsolutePath());
+                atUint64 preVisiLen = preVisiReader.length();
+                if (preVisiLen > 26)
                 {
-                    atVec3f xfPos = hecl::BlenderConnection::DataStream::MtxVecMul4RM(mesh.sceneXf, v);
-                    w.writeVec3fBig(xfPos);
-                }
+                    auto preVisiData = preVisiReader.readUBytes(preVisiLen);
+                    athena::io::MemoryReader preVisiDataReader(preVisiData.get(), preVisiLen);
 
-                w.writeUint32Big(mesh.surfaces.size());
-                for (const DNACMDL::Mesh::Surface& surf : mesh.surfaces)
-                {
-                    w.writeUint32Big(surf.verts.size());
-                    for (const DNACMDL::Mesh::Surface::Vert& vert : surf.verts)
-                        w.writeUint32Big(vert.iPos);
-                    const DNACMDL::Mesh::Material& mat = mesh.materialSets[0][surf.materialIdx];
-                    w.writeBool(mat.transparent);
+                    atUint32 preVisiFourCC = preVisiDataReader.readUint32Big();
+                    atUint32 preVisiVersion = preVisiDataReader.readUint32Big();
+                    preVisiDataReader.readBool();
+                    preVisiDataReader.readBool();
+                    atUint32 preFeatureCount = preVisiDataReader.readUint32Big();
+                    atUint32 preLightsCount = preVisiDataReader.readUint32Big();
+                    atUint32 preLayer2LightCount = preVisiDataReader.readUint32Big();
+                    atUint32 preEntityCount = preVisiDataReader.readUint32Big();
+
+                    if (preVisiFourCC == 'VISI' && preVisiVersion == 2 &&
+                        preFeatureCount == meshes.size() + entities.size() &&
+                        preLightsCount == lightsVisi[0].size() + lightsVisi[1].size() &&
+                        preLayer2LightCount == lightsVisi[1].size() &&
+                        preEntityCount == entities.size())
+                    {
+                        secs.emplace_back(preVisiLen, 0);
+                        memcpy(secs.back().data(), preVisiData.get(), preVisiLen);
+                        visiGood = true;
+                    }
                 }
             }
 
-            w.writeUint32Big(entities.size());
-            for (const auto& ent : entities)
+            if (!visiGood)
             {
-                w.writeUint32Big(ent.first);
-                w.writeVec3fBig(ent.second.min);
-                w.writeVec3fBig(ent.second.max);
-            }
+                hecl::ProjectPath visiIntOut = outPath.getWithExtension(_S(".visiint"));
+                hecl::ProjectPath visiIn = inPath.getWithExtension(_S(".visi"));
+                athena::io::FileWriter w(visiIntOut.getAbsolutePath());
+                w.writeUint32Big(meshes.size());
+                for (const DNACMDL::Mesh& mesh : meshes)
+                {
+                    w.writeUint32Big(uint32_t(mesh.topology));
 
-            w.writeUint32Big(lightsVisi[0].size() + lightsVisi[1].size());
-            w.writeUint32Big(lightsVisi[1].size());
-            for (const auto& light : lightsVisi[1])
-                w.writeVec3fBig(light);
-            for (const auto& light : lightsVisi[0])
-                w.writeVec3fBig(light);
+                    w.writeUint32Big(mesh.pos.size());
+                    for (const auto& v : mesh.pos)
+                    {
+                        atVec3f xfPos = hecl::BlenderConnection::DataStream::MtxVecMul4RM(mesh.sceneXf, v);
+                        w.writeVec3fBig(xfPos);
+                    }
 
-            w.close();
+                    w.writeUint32Big(mesh.surfaces.size());
+                    for (const DNACMDL::Mesh::Surface& surf : mesh.surfaces)
+                    {
+                        w.writeUint32Big(surf.verts.size());
+                        for (const DNACMDL::Mesh::Surface::Vert& vert : surf.verts)
+                            w.writeUint32Big(vert.iPos);
+                        const DNACMDL::Mesh::Material& mat = mesh.materialSets[0][surf.materialIdx];
+                        w.writeBool(mat.transparent);
+                    }
+                }
 
-            hecl::SystemString VisiGenPath = ExeDir + _S("/visigen");
+                w.writeUint32Big(entities.size());
+                for (const auto& ent : entities)
+                {
+                    w.writeUint32Big(ent.first);
+                    w.writeVec3fBig(ent.second.min);
+                    w.writeVec3fBig(ent.second.max);
+                }
+
+                w.writeUint32Big(lightsVisi[0].size() + lightsVisi[1].size());
+                w.writeUint32Big(lightsVisi[1].size());
+                for (const auto& light : lightsVisi[1])
+                    w.writeVec3fBig(light);
+                for (const auto& light : lightsVisi[0])
+                    w.writeVec3fBig(light);
+
+                w.close();
+
+                hecl::SystemString VisiGenPath = ExeDir + _S("/visigen");
 #if _WIN32
-            VisiGenPath += _S(".exe");
+                VisiGenPath += _S(".exe");
 #endif
-            const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
-                                              visiIntOut.getAbsolutePath().c_str(),
-                                              visiIn.getAbsolutePath().c_str(),
-                                              nullptr};
-            if (0 == hecl::RunProcess(VisiGenPath.c_str(), args))
-            {
-                athena::io::FileReader r(visiIn.getAbsolutePath());
-                size_t length = r.length();
-                secs.emplace_back(length, 0);
-                r.readBytesToBuf(secs.back().data(), length);
-                visiGood = true;
+                char thrIdx[16];
+                snprintf(thrIdx, 16, "%d", hecl::ClientProcess::GetThreadWorkerIdx());
+                const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
+                                                  visiIntOut.getAbsolutePath().c_str(),
+                                                  visiIn.getAbsolutePath().c_str(),
+                                                  thrIdx,
+                                                  nullptr};
+                if (0 == hecl::RunProcess(VisiGenPath.c_str(), args))
+                {
+                    athena::io::FileReader r(visiIn.getAbsolutePath());
+                    size_t length = r.length();
+                    secs.emplace_back(length, 0);
+                    r.readBytesToBuf(secs.back().data(), length);
+                    visiGood = true;
+                }
             }
         }
     }
@@ -578,7 +631,7 @@ bool MREA::CookPath(const hecl::ProjectPath& outPath,
     int64_t rem = w.position() % 32;
     if (rem)
         for (int64_t i=0 ; i<32-rem ; ++i)
-            w.writeBytes((atInt8*)"\xff", 1);
+            w.writeUByte(0xff);
 
     return true;
 }

@@ -82,7 +82,7 @@ public:
         }
     }
     size_t binarySize(size_t __isz) const
-    {return __isz + 4;}
+    {return __isz + 16;}
 };
 
 using FourCC = hecl::FourCC;

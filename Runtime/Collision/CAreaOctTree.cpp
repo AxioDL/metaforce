@@ -166,7 +166,7 @@ bool CAreaOctTree::Node::LineTestInternal(const zeus::CLine& line, const CMateri
                 float tf1 = lT;
                 float tf2 = hT;
                 if (BoxLineTest(child.GetBoundingBox(), line, tf1, tf2))
-                    if (!LineTestInternal(line, filter, tf1, tf2, maxT, vec))
+                    if (!child.LineTestInternal(line, filter, tf1, tf2, maxT, vec))
                         return false;
             }
             return true;
@@ -201,7 +201,7 @@ bool CAreaOctTree::Node::LineTestInternal(const zeus::CLine& line, const CMateri
             {
                 Node child = GetChild(r26b);
                 if (child.x20_nodeType != ETreeType::Invalid)
-                    if (!LineTestInternal(line, filter, f21, f22, maxT, vec))
+                    if (!child.LineTestInternal(line, filter, f21, f22, maxT, vec))
                         return false;
             }
             if (i < idx.first)
@@ -306,7 +306,7 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
                 float tf1 = lT;
                 float tf2 = hT;
                 if (BoxLineTest(child.GetBoundingBox(), line, tf1, tf2))
-                    LineTestExInternal(line, filter, tmpRes[i], tf1, tf2, maxT, vec);
+                    child.LineTestExInternal(line, filter, tmpRes[i], tf1, tf2, maxT, vec);
             }
 
             if (!tmpRes[0].x10_surface && !tmpRes[1].x10_surface)
@@ -425,12 +425,12 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
         {
             if (i >= 0)
                 selector ^= 1 << r19[i];
-            float hiT = (i < r17-1) ? hiT = r20[r19[i+1]] : hiT = hT;
+            float hiT = (i < r17-1) ? r20[r19[i+1]] : hT;
             if (hiT > lowT && loT <= hiT)
             {
                 Node child = GetChild(selector);
                 if (child.x20_nodeType != ETreeType::Invalid)
-                    LineTestExInternal(line, filter, res, loT, hiT, maxT, vec);
+                    child.LineTestExInternal(line, filter, res, loT, hiT, maxT, vec);
                 if (res.x10_surface)
                     if (res.x3c_t > highT)
                         res = SRayResult();

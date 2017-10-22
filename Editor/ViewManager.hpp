@@ -143,7 +143,6 @@ class ViewManager : public specter::IViewManager
     unsigned m_editorFrames = 120;
     void FadeInEditors() {m_editorFrames = 0;}
 
-    void BuildTestPART();
     void InitMP1(MP1::CMain& main);
 
     Space* m_deferSplit = nullptr;

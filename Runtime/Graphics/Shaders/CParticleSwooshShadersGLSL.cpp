@@ -73,7 +73,7 @@ struct OGLParticleSwooshDataBindingFactory : TShader<CParticleSwooshShaders>::ID
         CSwooshDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x3c_TEXR.get();
-        boo::ITexture* textures[] = {texr->GetValueTexture(0).GetObj()->GetBooTexture()};
+        boo::ITexture* textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
 
         const boo::VertexElementDescriptor VtxFmt[] =
         {

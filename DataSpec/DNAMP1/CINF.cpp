@@ -135,7 +135,9 @@ CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& i
         if (bone->children.size())
         {
             int curId = 4;
-            RecursiveAddArmatureBone(armature, armature.getChild(bone, 0), 3, curId, idMap, nameMap);
+            const Armature::Bone* child;
+            for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
+                RecursiveAddArmatureBone(armature, child, 3, curId, idMap, nameMap);
         }
 
         bones.emplace_back();

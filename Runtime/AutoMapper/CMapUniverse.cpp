@@ -9,7 +9,7 @@ namespace urde
 CMapUniverse::CMapUniverse(CInputStream& in, u32 version)
     : x0_hexagonId(in.readUint32Big())
 {
-    x4_hexagonToken = g_SimplePool->GetObj({'MAPA', x0_hexagonId});
+    x4_hexagonToken = g_SimplePool->GetObj({FOURCC('MAPA'), x0_hexagonId});
     u32 count = in.readUint32Big();
     x10_worldDatas.reserve(count);
     for (u32 i = 0 ; i<count ; ++i)

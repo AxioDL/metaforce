@@ -105,7 +105,7 @@ struct VISIBuilder
         uint8_t flags = 0;
 
         void buildChildren(int level, int divisions, const zeus::CAABox& curAabb,
-                           PVSRenderCache& rc, Progress& prog, const bool& terminate);
+                           PVSRenderCache& rc, Progress& prog, const std::function<bool()>& terminate);
         void calculateSizesAndOffs(size_t& cur, size_t leafSz);
         void writeNodes(athena::io::MemoryWriter& w, size_t leafBytes) const;
 

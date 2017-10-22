@@ -25,19 +25,16 @@ using YAMLNode = athena::io::YAMLNode;
 namespace urde
 {
 
-void ViewManager::BuildTestPART()
+void ViewManager::InitMP1(MP1::CMain& main)
 {
+    main.Init(m_fileStoreManager, m_mainWindow.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
+    main.WarmupShaders();
+
     m_testGameView.reset(new TestGameView(*this, m_viewResources, *m_rootView));
 
     m_rootView->accessContentViews().clear();
     m_rootView->accessContentViews().push_back(m_testGameView.get());
     m_rootView->updateSize();
-}
-
-void ViewManager::InitMP1(MP1::CMain& main)
-{
-    main.Init(m_fileStoreManager, m_mainWindow.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
-    main.WarmupShaders();
 }
 
 void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
@@ -48,7 +45,6 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
 
 void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    gfxQ->clearTarget(true, true);
     m_vm.m_projManager.mainDraw();
 }
 

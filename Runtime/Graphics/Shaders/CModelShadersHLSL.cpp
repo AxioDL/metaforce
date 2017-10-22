@@ -231,7 +231,7 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
-                              false, false, false, true);
+                              false, false, false, true, true);
 
     /* World shadow shading (modified lighting) */
     ext.registerExtensionSlot({LightingShadowHLSL, "LightingShadowFunc"}, {MainPostHLSL, "MainPostFunc"},

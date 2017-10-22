@@ -194,7 +194,19 @@ int main(int argc, const char** argv)
     swa.border_pixmap = 0;
     swa.event_mask = 0;
 
-    windowId = XCreateWindow(xDisp, screen->root, 0, 0, 768, 512, 10,
+    int instIdx = -1;
+    if (argc > 3)
+        instIdx = atoi(argv[3]);
+
+    int x = 0;
+    int y = 0;
+    if (instIdx != -1)
+    {
+        x = (instIdx & 1) != 0;
+        y = (instIdx & 2) != 0;
+    }
+
+    windowId = XCreateWindow(xDisp, screen->root, x, y, 768, 512, 10,
                              CopyFromParent, CopyFromParent, selectedVisual,
                              CWBorderPixel | CWEventMask | CWColormap, &swa);
 

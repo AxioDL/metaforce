@@ -53,9 +53,9 @@ struct DCLN : BigDNA
             struct LeafData : BigDNA
             {
                 DECL_DNA
-                Value<atUint32> edgeIndexCount;
-                Vector<atUint16, DNA_COUNT(edgeIndexCount)> edgeIndices;
-                size_t getMemoryUsage() const { return (((edgeIndices.size() * 2) + 16) + 3) & ~3; }
+                Value<atUint32> triangleIndexCount;
+                Vector<atUint16, DNA_COUNT(triangleIndexCount)> triangleIndices;
+                size_t getMemoryUsage() const { return (((triangleIndices.size() * 2) + 16) + 3) & ~3; }
             };
 
             Value<atVec4f> xf[3];
@@ -234,6 +234,10 @@ struct DCLN : BigDNA
 
         athena::io::FileWriter w(outPath.getAbsolutePath());
         dcln.write(w);
+        int64_t rem = w.position() % 32;
+        if (rem)
+            for (int64_t i=0 ; i<32-rem ; ++i)
+                w.writeUByte(0xff);
         return true;
     }
 };

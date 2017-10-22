@@ -133,7 +133,26 @@ makeProj:
     m_mainMP1.emplace(m_factoryMP1, m_objStore, m_vm.m_mainBooFactory,
                       m_vm.m_mainCommandQueue, m_vm.m_renderTex);
     m_vm.InitMP1(*m_mainMP1);
-    m_vm.BuildTestPART();
+
+    // precook
+    m_precooking = true;
+    std::vector<SObjectTag> nonMlvls;
+    std::vector<SObjectTag> mlvls;
+    mlvls.reserve(8);
+    m_factoryMP1.EnumerateResources([this, &nonMlvls, &mlvls](const SObjectTag& tag)
+    {
+        if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+            m_factoryMP1.CookResourceAsync(tag);
+        else if (tag.type != FOURCC('MLVL'))
+            nonMlvls.push_back(tag);
+        else // (tag.type == FOURCC('MLVL'))
+            mlvls.push_back(tag);
+        return true;
+    });
+    for (const SObjectTag& tag : nonMlvls)
+        m_factoryMP1.CookResourceAsync(tag);
+    for (const SObjectTag& tag : mlvls)
+        m_factoryMP1.CookResourceAsync(tag);
 
     if (needsSave)
         saveProject();
@@ -182,6 +201,14 @@ bool ProjectManager::saveProject()
 
 void ProjectManager::mainUpdate()
 {
+    if (m_precooking)
+    {
+        if (!m_factoryMP1.IsBusy())
+            m_precooking = false;
+        else
+            return;
+    }
+
     if (m_mainMP1)
     {
         if (m_mainMP1->Proc())
@@ -194,6 +221,9 @@ void ProjectManager::mainUpdate()
 
 void ProjectManager::mainDraw()
 {
+    if (m_precooking)
+        return;
+
     if (m_mainMP1)
         m_mainMP1->Draw();
 }

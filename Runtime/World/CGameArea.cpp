@@ -414,16 +414,16 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
 CGameArea::CGameArea(CAssetId mreaId)
 : x84_mrea(mreaId)
 {
-    while (StartStreamingMainArea()) {}
-
-    for (auto& req : xf8_loadTransactions)
-        req->WaitForComplete();
+    while (StartStreamingMainArea())
+        for (auto& req : xf8_loadTransactions)
+            req->WaitForComplete();
 
     MREAHeader header = VerifyHeader();
-    x12c_postConstructed->x4c_insts.reserve(header.modelCount);
+    x12c_postConstructed->x4c_insts.resize(header.modelCount);
 
-    FillInStaticGeometry();
+    FillInStaticGeometry(false);
 
+    CBooModel::SetDummyTextures(true);
     CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp, zeus::CTransform::Identity());
     CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
     zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
@@ -434,7 +434,6 @@ CGameArea::CGameArea(CAssetId mreaId)
     for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
     {
         CGraphics::SetModelMatrix(zeus::CTransform::Translate(-inst.x34_aabb.center()));
-        inst.m_instance->SyncLoadTextures();
         inst.m_instance->UpdateUniformData(defaultFlags, nullptr, nullptr);
         inst.m_instance->WarmupDrawSurfaces();
     }
@@ -442,6 +441,7 @@ CGameArea::CGameArea(CAssetId mreaId)
     CGraphics::SetViewPointMatrix(backupViewPoint);
     CGraphics::SetModelMatrix(backupModel);
     CBooModel::DisableShadowMaps();
+    CBooModel::SetDummyTextures(false);
 }
 
 bool CGameArea::IGetScriptingMemoryAlways() const
@@ -932,7 +932,7 @@ void CGameArea::PostConstructArea()
     u32 sec = 3;
 
     /* Models */
-    x12c_postConstructed->x4c_insts.reserve(header.modelCount);
+    x12c_postConstructed->x4c_insts.resize(header.modelCount);
     for (u32 i=0 ; i<header.modelCount ; ++i)
     {
         u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>((secIt+4)->first));
@@ -1051,26 +1051,28 @@ void CGameArea::PostConstructArea()
     }
 }
 
-void CGameArea::FillInStaticGeometry()
+void CGameArea::FillInStaticGeometry(bool textures)
 {
-    x12c_postConstructed->x4c_insts.clear();
+    if (!x12c_postConstructed->x4c_insts.empty())
+        for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
+            inst.Clear();
 
     /* Materials */
+    CBooModel::SShader& matSet = x12c_postConstructed->m_materialSet;
     auto secIt = m_resolvedBufs.begin() + 2;
     {
         athena::io::MemoryReader r(secIt->first, secIt->second);
-        x12c_postConstructed->m_materialSet.m_matSet.read(r);
+        matSet.m_matSet.read(r);
+        if (textures)
+            CBooModel::MakeTexturesFromMats(matSet.m_matSet, matSet.x0_textures, *g_SimplePool);
         ++secIt;
     }
 
     x12c_postConstructed->m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         /* Models */
-        for (u32 i=0 ; i<x12c_postConstructed->x4c_insts.capacity() ; ++i)
+        for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
         {
-            x12c_postConstructed->x4c_insts.emplace_back();
-            CMetroidModelInstance& inst = x12c_postConstructed->x4c_insts.back();
-
             {
                 DataSpec::DNAMP1::MREA::MeshHeader header;
                 athena::io::MemoryReader r(secIt->first, secIt->second);
@@ -1081,30 +1083,31 @@ void CGameArea::FillInStaticGeometry()
                 ++secIt;
             }
 
-            hecl::HMDLMeta hmdlMeta;
             {
                 athena::io::MemoryReader r(secIt->first, secIt->second);
-                hmdlMeta.read(r);
+                inst.m_hmdlMeta.read(r);
             }
             ++secIt;
 
             boo::IGraphicsBufferS* vbo;
             boo::IGraphicsBufferS* ibo;
             boo::IVertexFormat* vtxFmt;
-            vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, hmdlMeta.vertStride, hmdlMeta.vertCount);
+            vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, inst.m_hmdlMeta.vertStride,
+                                      inst.m_hmdlMeta.vertCount);
             ++secIt;
-            ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, hmdlMeta.indexCount);
+            ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
             ++secIt;
-            vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, hmdlMeta, vbo, ibo);
+            vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, inst.m_hmdlMeta, vbo, ibo);
 
             u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
             inst.m_surfaces.reserve(surfCount);
+            inst.m_shaders.resize(matSet.m_matSet.materials.size());
             ++secIt;
-            for (u32 i=0 ; i<surfCount ; ++i)
+            for (u32 j=0 ; j<surfCount ; ++j)
             {
                 inst.m_surfaces.emplace_back();
                 CBooSurface& surf = inst.m_surfaces.back();
-                surf.selfIdx = i;
+                surf.selfIdx = j;
                 athena::io::MemoryReader r(secIt->first, secIt->second);
                 surf.m_data.read(r);
                 ++secIt;
@@ -1112,12 +1115,23 @@ void CGameArea::FillInStaticGeometry()
 
             TToken<CModel> nullModel;
             inst.m_instance = std::make_unique<CBooModel>
-                (nullModel, &inst.m_surfaces, x12c_postConstructed->m_materialSet, vtxFmt, vbo, ibo,
-                 inst.x34_aabb, inst.x0_visorFlags, 1, nullptr);
+                (nullModel, nullptr, &inst.m_surfaces, matSet, vtxFmt, vbo, ibo,
+                 inst.x34_aabb, inst.x0_visorFlags, 0, nullptr);
         }
 
         return true;
     });
+
+    for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
+    {
+        for (CBooSurface& surf : inst.m_surfaces)
+        {
+            auto& shad = inst.m_shaders[surf.m_data.matIdx];
+            if (!shad)
+                shad = matSet.BuildShader(inst.m_hmdlMeta, matSet.m_matSet.materials[surf.m_data.matIdx]);
+        }
+        inst.m_instance->RemapMaterialData(matSet, inst.m_shaders);
+    }
 
     x12c_postConstructed->x1108_25_modelsConstructed = true;
 }

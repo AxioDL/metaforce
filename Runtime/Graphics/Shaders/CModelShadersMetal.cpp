@@ -126,7 +126,7 @@ static const char* ThermalPostMetal =
 "    float4 tmulColor;\n"
 "    float4 addColor;\n"
 "};\n"
-"static float4 ThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu, texture2d<float> extTex7, float4 colorIn)\n"
+"static float4 EXTThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu, texture2d<float> extTex7, float4 colorIn)\n"
 "{\n"
 "    return float4(extTex7.sample(samp, vtf.extTcgs0).rrr * lu.tmulColor.rgb + lu.addColor.rgb, 1.0);\n"
 "}\n"
@@ -149,8 +149,8 @@ static const char* MBShadowPostMetal =
 "    float4 shadowUp;\n"
 "    float shadowId;\n"
 "};\n"
-"static float4 MBShadowPostFunc(thread VertToFrag& vtf, constant MBShadowUniform& su,\n"
-"                               texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2, float4 colorIn)\n"
+"static float4 EXTMBShadowPostFunc(thread VertToFrag& vtf, constant MBShadowUniform& su,\n"
+"                                  texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2, float4 colorIn)\n"
 "{\n"
 "    float idTexel = extTex0.sample(samp, vtf.extTcgs0).a;\n"
 "    float sphereTexel = extTex1.sample(samp, vtf.extTcgs1).a;\n"
@@ -179,7 +179,7 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
                               false, false, false, true);
 
     /* Thermal Visor shading */
-    ext.registerExtensionSlot({}, {ThermalPostMetal, "ThermalPostFunc"}, 1, ThermalBlockNames,
+    ext.registerExtensionSlot({}, {ThermalPostMetal, "EXTThermalPostFunc"}, 1, ThermalBlockNames,
                               1, ThermalTextures, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
                               false, false, false, true);
@@ -233,12 +233,12 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
                               false, true, true, false);
 
     /* MorphBall shadow shading */
-    ext.registerExtensionSlot({}, {MBShadowPostMetal, "MBShadowPostFunc"},
+    ext.registerExtensionSlot({}, {MBShadowPostMetal, "EXTMBShadowPostFunc"},
                               1, MBShadowBlockNames, 3, BallFadeTextures,
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
-                              false, false, false, true);
+                              false, false, false, true, true);
 
     /* World shadow shading (modified lighting) */
     ext.registerExtensionSlot({LightingShadowMetal, "EXTLightingShadowFunc"}, {MainPostMetal, "MainPostFunc"},

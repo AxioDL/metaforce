@@ -133,7 +133,7 @@ bool WriteDGRP(const DGRP<IDType>& dgrp, const hecl::ProjectPath& outPath)
     int64_t rem = w.position() % 32;
     if (rem)
         for (int64_t i=0 ; i<32-rem ; ++i)
-            w.writeBytes((atInt8*)"\xff", 1);
+            w.writeUByte(0xff);
     return true;
 }
 template bool WriteDGRP<UniqueID32>(const DGRP<UniqueID32>& dgrp, const hecl::ProjectPath& outPath);

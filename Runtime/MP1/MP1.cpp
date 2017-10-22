@@ -270,6 +270,21 @@ void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr
     CGBASupport::Initialize();
 }
 
+void CMain::MemoryCardInitializePump()
+{
+    if (!g_MemoryCardSys)
+    {
+        std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
+        if (!memSys)
+            memSys.reset(new CMemoryCardSys());
+        if (memSys->InitializePump())
+        {
+            g_MemoryCardSys = memSys.get();
+            g_GameState->InitializeMemoryStates();
+        }
+    }
+}
+
 void CMain::FillInAssetIDs()
 {
 }
@@ -326,6 +341,7 @@ void CMain::WarmupShaders()
     if (m_warmupTags.size())
         return;
 
+    m_needsWarmupClear = true;
     size_t modelCount = 0;
     g_ResFactory->EnumerateResources([&](const SObjectTag& tag)
     {
@@ -376,6 +392,11 @@ void CMain::Draw()
     // Warmup cycle overrides draw
     if (m_warmupTags.size())
     {
+        if (m_needsWarmupClear)
+        {
+            CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
+            m_needsWarmupClear = false;
+        }
         auto startTime = std::chrono::steady_clock::now();
         while (m_warmupIt != m_warmupTags.end())
         {
@@ -400,6 +421,7 @@ void CMain::Draw()
         return;
     }
 
+    CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
     x164_archSupport->Draw();
 }
 

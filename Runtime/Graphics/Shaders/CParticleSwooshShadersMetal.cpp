@@ -77,7 +77,7 @@ struct MetalParticleSwooshDataBindingFactory : TShader<CParticleSwooshShaders>::
         CSwooshDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x3c_TEXR.get();
-        boo::ITexture* textures[] = {texr->GetValueTexture(0).GetObj()->GetBooTexture()};
+        boo::ITexture* textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
 
         boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
         gen.m_dataBind = ctx.newShaderDataBinding(shaders.m_pipeline, CParticleSwooshShaders::m_vtxFormat,

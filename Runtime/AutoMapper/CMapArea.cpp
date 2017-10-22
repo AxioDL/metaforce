@@ -28,7 +28,7 @@ void CMapArea::PostConstruct()
 {
     x38_moStart = x44_buf.get();
     x3c_vertexStart = x38_moStart + (x28_mappableObjCount * 0x50);
-    x40_surfaceStart = x40_surfaceStart + (x2c_vertexCount * 12);
+    x40_surfaceStart = x3c_vertexStart + (x2c_vertexCount * 12);
 
     m_mappableObjects.reserve(x28_mappableObjCount);
     for (u32 i = 0, j=0 ; i<x28_mappableObjCount ; ++i, j += 0x50)

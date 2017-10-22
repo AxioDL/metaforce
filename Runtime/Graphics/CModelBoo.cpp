@@ -46,6 +46,8 @@ void CBooModel::KillCachedViewDepState()
     g_LastModelCached = nullptr;
 }
 
+bool CBooModel::g_DummyTextures = false;
+
 zeus::CVector3f CBooModel::g_ReflectViewPos = {};
 
 static const zeus::CMatrix4f ReflectBaseMtx =
@@ -146,13 +148,13 @@ CBooModel::~CBooModel()
         g_FirstModel = m_next;
 }
 
-CBooModel::CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
+CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
                      boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
                      const zeus::CAABox& aabb, u8 renderMask,
                      int numInsts, boo::ITexture* txtrOverrides[8])
-: m_model(token), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet), m_matSetIdx(shader.m_matSetIdx),
-  m_pipelines(&shader.m_shaders), x1c_textures(shader.x0_textures), x20_aabb(aabb),
-  x40_24_texturesLoaded(false), x40_25_modelVisible(0), x41_mask(renderMask),
+: m_modelTok(token), m_model(parent), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet),
+  m_matSetIdx(shader.m_matSetIdx), m_pipelines(&shader.m_shaders), x1c_textures(shader.x0_textures),
+  x20_aabb(aabb), x40_24_texturesLoaded(false), x40_25_modelVisible(0), x41_mask(renderMask),
   m_staticVtxFmt(vtxFmt), m_staticVbo(vbo), m_staticIbo(ibo)
 {
     if (txtrOverrides)
@@ -224,7 +226,7 @@ boo::IVertexFormat* CBooModel::ModelInstance::GetBooVtxFmt(const CBooModel& mode
 
 CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
 {
-    if (!x40_24_texturesLoaded)
+    if (!x40_24_texturesLoaded && !g_DummyTextures)
         return nullptr;
 
     if (m_instances.size() >= 256)
@@ -233,7 +235,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
     ModelInstance& newInst = m_instances.back();
     size_t skinBankCount = 0;
     size_t weightVecCount = 0;
-    if (const CModel* model = m_model.GetObj())
+    if (const CModel* model = m_model)
     {
         skinBankCount = model->m_hmdlMeta.bankCount;
         weightVecCount = model->m_hmdlMeta.weightCount;
@@ -276,6 +278,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         }
 
         /* Animated UV transform matrices */
+        size_t matCount = x4_matSet->materials.size();
         for (const MaterialSet::Material& mat : x4_matSet->materials)
         {
             size_t thisSz = ROUND_UP_256(/*mat.uvAnims.size()*/ 8 * (sizeof(zeus::CMatrix4f) * 2));
@@ -340,6 +343,10 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 if (boo::ITexture* overtex = m_txtrOverrides[texCount])
                 {
                     texs[texCount++] = overtex;
+                }
+                else if (g_DummyTextures)
+                {
+                    texs[texCount++] = g_Renderer->x220_sphereRamp;
                 }
                 else
                 {
@@ -468,6 +475,17 @@ void CBooModel::RemapMaterialData(SShader& shader)
     m_matSetIdx = shader.m_matSetIdx;
     x1c_textures = shader.x0_textures;
     m_pipelines = &shader.m_shaders;
+    x40_24_texturesLoaded = false;
+    m_instances.clear();
+}
+
+void CBooModel::RemapMaterialData(SShader& shader,
+    const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines)
+{
+    x4_matSet = &shader.m_matSet;
+    m_matSetIdx = shader.m_matSetIdx;
+    x1c_textures = shader.x0_textures;
+    m_pipelines = &pipelines;
     x40_24_texturesLoaded = false;
     m_instances.clear();
 }
@@ -614,13 +632,10 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const
         return;
     const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
 
-    for (const std::vector<boo::IShaderDataBinding*>& extendeds : inst.m_shaderDataBindings)
+    for (boo::IShaderDataBinding* binding : inst.m_shaderDataBindings[surf.selfIdx])
     {
-        for (boo::IShaderDataBinding* binding : extendeds)
-        {
-            CGraphics::SetShaderDataBinding(binding);
-            CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
-        }
+        CGraphics::SetShaderDataBinding(binding);
+        CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
     }
 }
 
@@ -816,7 +831,7 @@ boo::IGraphicsBufferD* CBooModel::UpdateUniformData(const CModelFlags& flags,
 {
     size_t skinBankCount = 0;
     size_t weightVecCount = 0;
-    if (const CModel* model = m_model.GetObj())
+    if (const CModel* model = m_model)
     {
         skinBankCount = model->m_hmdlMeta.bankCount;
         weightVecCount = model->m_hmdlMeta.weightCount;
@@ -1024,13 +1039,44 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur)
     return ret;
 }
 
-std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, boo::ITexture* txtrOverrides[8])
+std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts,
+                                                   boo::ITexture* txtrOverrides[8],
+                                                   bool lockParent)
 {
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
-    return std::make_unique<CBooModel>(m_selfToken, &x8_surfaces, x18_matSets[shaderIdx],
+    auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx],
                                        m_staticVtxFmt, m_staticVbo, m_ibo,
                                        m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
+    if (lockParent)
+        ret->LockParent();
+    return ret;
+}
+
+std::shared_ptr<hecl::Runtime::ShaderPipelines>
+CBooModel::SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat)
+{
+    hecl::Backend::ReflectionType reflectionType;
+    if (mat.flags.samusReflectionIndirectTexture())
+        reflectionType = hecl::Backend::ReflectionType::Indirect;
+    else if (mat.flags.samusReflection())
+        reflectionType = hecl::Backend::ReflectionType::Simple;
+    else
+        reflectionType = hecl::Backend::ReflectionType::None;
+    hecl::Runtime::ShaderTag tag(mat.heclIr,
+                                 meta.colorCount, meta.uvCount, meta.weightCount,
+                                 meta.weightCount * 4, 8, boo::Primitive(meta.topology),
+                                 reflectionType, true, true, true);
+    return CModelShaders::g_ModelShaders->buildExtendedShader
+        (tag, mat.heclIr, "CMDL", *CGraphics::g_BooFactory);
+}
+
+void CBooModel::SShader::BuildShaders(const hecl::HMDLMeta& meta,
+                                      std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders)
+{
+    shaders.reserve(m_matSet.materials.size());
+    for (const MaterialSet::Material& mat : m_matSet.materials)
+        shaders.push_back(BuildShader(meta, mat));
 }
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)
@@ -1072,25 +1118,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     const u8* surfInfo = MemoryFromPartData(dataCur, secSizeCur);
 
     for (CBooModel::SShader& matSet : x18_matSets)
-    {
-        matSet.m_shaders.reserve(matSet.m_matSet.materials.size());
-        for (const MaterialSet::Material& mat : matSet.m_matSet.materials)
-        {
-            hecl::Backend::ReflectionType reflectionType;
-            if (mat.flags.samusReflectionIndirectTexture())
-                reflectionType = hecl::Backend::ReflectionType::Indirect;
-            else if (mat.flags.samusReflection())
-                reflectionType = hecl::Backend::ReflectionType::Simple;
-            else
-                reflectionType = hecl::Backend::ReflectionType::None;
-            hecl::Runtime::ShaderTag tag(mat.heclIr,
-                                         m_hmdlMeta.colorCount, m_hmdlMeta.uvCount, m_hmdlMeta.weightCount,
-                                         m_hmdlMeta.weightCount * 4, 8, boo::Primitive(m_hmdlMeta.topology),
-                                         reflectionType, true, true, true);
-            matSet.m_shaders.push_back(CModelShaders::g_ModelShaders->buildExtendedShader
-                                       (tag, mat.heclIr, "CMDL", *CGraphics::g_BooFactory));
-        }
-    }
+        matSet.BuildShaders(m_hmdlMeta);
 
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
@@ -1131,7 +1159,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
     m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]),
             hecl::SBig(aabbPtr[3]), hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
-    x28_modelInst = MakeNewInstance(0, 1);
+    x28_modelInst = MakeNewInstance(0, 1, nullptr, false);
 }
 
 void CBooModel::SShader::UnlockTextures()
@@ -1228,6 +1256,7 @@ void CModel::ApplyVerticesCPU(boo::IGraphicsBufferD* vertBuf,
 
 void CModel::_WarmupShaders()
 {
+    CBooModel::SetDummyTextures(true);
     CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp, zeus::CTransform::Identity());
     CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
     zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
@@ -1239,7 +1268,6 @@ void CModel::_WarmupShaders()
     for (CBooModel::SShader& shader : x18_matSets)
     {
         GetInstance().RemapMaterialData(shader);
-        GetInstance().SyncLoadTextures();
         GetInstance().UpdateUniformData(defaultFlags, nullptr, nullptr);
         GetInstance().WarmupDrawSurfaces();
     }
@@ -1247,6 +1275,7 @@ void CModel::_WarmupShaders()
     CGraphics::SetViewPointMatrix(backupViewPoint);
     CGraphics::SetModelMatrix(backupModel);
     CBooModel::DisableShadowMaps();
+    CBooModel::SetDummyTextures(false);
 }
 
 void CModel::WarmupShaders(const SObjectTag& cmdlTag)

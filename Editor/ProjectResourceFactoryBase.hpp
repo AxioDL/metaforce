@@ -60,6 +60,10 @@ public:
                   IObj** ptr, const CVParamTransfer& xfer, CObjectReference* selfRef)
         : m_parent(parent), x0_tag(tag), xc_targetObjPtr(ptr), x18_cvXfer(xfer), m_selfRef(selfRef) {}
 
+        /* Cook only */
+        AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag)
+        : m_parent(parent), x0_tag(tag) {}
+
         void EnsurePath(const urde::SObjectTag& tag,
                         const hecl::ProjectPath& path);
         void CookComplete();
@@ -85,7 +89,27 @@ protected:
     std::mutex m_backgroundIndexMutex;
     bool m_backgroundRunning = false;
 
-    std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>> m_asyncLoadList;
+    std::list<std::shared_ptr<AsyncTask>> m_asyncLoadList;
+    std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator> m_asyncLoadMap;
+    std::shared_ptr<AsyncTask>
+    _AddTask(const std::shared_ptr<AsyncTask>& ptr);
+    std::list<std::shared_ptr<AsyncTask>>::iterator
+    _RemoveTask(std::list<std::shared_ptr<AsyncTask>>::iterator it);
+    std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator
+    _RemoveTask(std::unordered_map<SObjectTag,
+        std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator it);
+    std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator
+    _RemoveTask(const SObjectTag& tag);
+
+    static AsyncTask& _GetAsyncTask(std::list<std::shared_ptr<AsyncTask>>::iterator it)
+    {
+        return **it;
+    }
+    static AsyncTask& _GetAsyncTask(
+        std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator it)
+    {
+        return **it->second;
+    }
 
     bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
     bool
@@ -141,9 +165,13 @@ public:
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
     std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
 
-    bool AsyncPumpTask(std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>>::iterator& it);
+    std::shared_ptr<AsyncTask> CookResourceAsync(const urde::SObjectTag& tag);
+
+    template <typename ItType>
+    bool AsyncPumpTask(ItType& it);
     void AsyncIdle();
-    void Shutdown() {CancelBackgroundIndex();}
+    void Shutdown() { CancelBackgroundIndex(); }
+    bool IsBusy() const { return m_asyncLoadMap.size() != 0; }
 
     SObjectTag TagFromPath(const hecl::SystemChar* path) const
     {

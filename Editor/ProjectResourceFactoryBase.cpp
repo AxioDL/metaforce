@@ -548,18 +548,23 @@ void ProjectResourceFactoryBase::AsyncTask::CookComplete()
                                                                       xc_targetDataRawPtr,
                                                                       x14_resSize, x14_resOffset);
     }
-    else
+    else if (xc_targetDataPtr || xc_targetObjPtr)
     {
         x10_loadBuffer.reset(new u8[x14_resSize]);
         m_bufTransaction = m_parent.m_clientProc.addBufferTransaction(m_cookedPath,
                                                                       x10_loadBuffer.get(),
                                                                       x14_resSize, x14_resOffset);
     }
+    else
+    {
+        /* Skip buffer transaction if no target pointers set */
+        m_complete = true;
+    }
 }
 
 bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
 {
-    if (m_failed)
+    if (m_failed || m_complete)
         return true;
 
     if (m_bufTransaction)
@@ -581,13 +586,48 @@ bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
 
 void ProjectResourceFactoryBase::AsyncTask::WaitForComplete()
 {
-    using ItType = std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>>::iterator;
-    ItType search = m_parent.m_asyncLoadList.find(x0_tag);
-    if (search == m_parent.m_asyncLoadList.end())
+    using ItType = std::unordered_map<SObjectTag,
+        std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator;
+    ItType search = m_parent.m_asyncLoadMap.find(x0_tag);
+    if (search == m_parent.m_asyncLoadMap.end())
         return;
     for (ItType tmp = search ; !m_parent.AsyncPumpTask(tmp) ; tmp = search)
     {std::this_thread::sleep_for(std::chrono::milliseconds(2));}
 }
+
+using AsyncTask = ProjectResourceFactoryBase::AsyncTask;
+
+std::shared_ptr<AsyncTask>
+ProjectResourceFactoryBase::_AddTask(const std::shared_ptr<AsyncTask>& ptr)
+{
+    m_asyncLoadMap.insert({ptr->x0_tag, m_asyncLoadList.insert(m_asyncLoadList.end(), ptr)});
+    return ptr;
+}
+
+std::list<std::shared_ptr<AsyncTask>>::iterator
+ProjectResourceFactoryBase::_RemoveTask(std::list<std::shared_ptr<AsyncTask>>::iterator it)
+{
+    m_asyncLoadMap.erase((*it)->x0_tag);
+    return m_asyncLoadList.erase(it);
+}
+
+std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator
+ProjectResourceFactoryBase::_RemoveTask(std::unordered_map<SObjectTag,
+    std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator it)
+{
+    if (it != m_asyncLoadMap.end())
+    {
+        m_asyncLoadList.erase(it->second);
+        return m_asyncLoadMap.erase(it);
+    }
+    return it;
+};
+
+std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator
+ProjectResourceFactoryBase::_RemoveTask(const SObjectTag& tag)
+{
+    return _RemoveTask(m_asyncLoadMap.find(tag));
+};
 
 bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag,
                                                  const hecl::ProjectPath*& pathOut)
@@ -687,17 +727,17 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
     const hecl::ProjectPath* resPath = nullptr;
     if (!WaitForTagReady(tag, resPath))
         return {};
-    auto asyncSearch = m_asyncLoadList.find(tag);
-    if (asyncSearch != m_asyncLoadList.end())
+    auto asyncSearch = m_asyncLoadMap.find(tag);
+    if (asyncSearch != m_asyncLoadMap.end())
     {
         /* Async spinloop */
-        AsyncTask& task = *asyncSearch->second;
+        AsyncTask& task = **asyncSearch->second;
         task.EnsurePath(task.x0_tag, *resPath);
 
         /* Pump load pipeline (cooking if needed) */
         while (!task.AsyncPump()) {std::this_thread::sleep_for(std::chrono::milliseconds(2));}
 
-        if (task.m_complete)
+        if (task.m_complete && task.x10_loadBuffer)
         {
             /* Load complete, build resource */
             std::unique_ptr<IObj> newObj;
@@ -714,16 +754,23 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
 
             *task.xc_targetObjPtr = newObj.get();
             Log.report(logvisor::Warning, "spin-built %.4s %08X",
-                       task.x0_tag.type.toString().c_str(),
-                       u32(task.x0_tag.id.Value()));
+                       task.x0_tag.type.toString().c_str(), u32(task.x0_tag.id.Value()));
 
-            m_asyncLoadList.erase(asyncSearch);
+            _RemoveTask(asyncSearch);
             return newObj;
         }
-        Log.report(logvisor::Error, "unable to spin-build %.4s %08X",
-                   task.x0_tag.type.toString().c_str(),
-                   u32(task.x0_tag.id.Value()));
-        m_asyncLoadList.erase(asyncSearch);
+        else if (task.m_complete)
+        {
+            Log.report(logvisor::Error, "unable to spin-build %.4s %08X; Resource requested as cook-only",
+                       task.x0_tag.type.toString().c_str(), u32(task.x0_tag.id.Value()));
+        }
+        else
+        {
+            Log.report(logvisor::Error, "unable to spin-build %.4s %08X",
+                       task.x0_tag.type.toString().c_str(), u32(task.x0_tag.id.Value()));
+        }
+
+        _RemoveTask(asyncSearch);
         return {};
     }
 
@@ -731,16 +778,15 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
     return BuildSync(tag, *resPath, paramXfer, selfRef);
 }
 
-std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+std::shared_ptr<AsyncTask>
 ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
                                                const urde::CVParamTransfer& paramXfer,
                                                urde::IObj** objOut,
                                                CObjectReference* selfRef)
 {
-    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+    if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag,
-        std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer, selfRef))).first->second;
+    return _AddTask(std::make_unique<AsyncTask>(*this, tag, objOut, paramXfer, selfRef));
 }
 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
@@ -772,40 +818,37 @@ u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
     return fr->length();
 }
 
-std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+std::shared_ptr<AsyncTask>
 ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
                                               std::unique_ptr<u8[]>& target)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
-    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+    if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag,
-        std::make_shared<AsyncTask>(*this, tag, target))).first->second;
+    return _AddTask(std::make_shared<AsyncTask>(*this, tag, target));
 }
 
-std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+std::shared_ptr<AsyncTask>
 ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
                                                   u32 size, u32 off,
                                                   std::unique_ptr<u8[]>& target)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
-    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+    if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag,
-        std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
+    return _AddTask(std::make_shared<AsyncTask>(*this, tag, target, size, off));
 }
 
-std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>
+std::shared_ptr<AsyncTask>
 ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, u8* target)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
-    if (m_asyncLoadList.find(tag) != m_asyncLoadList.end())
+    if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
         return {};
-    return m_asyncLoadList.emplace(std::make_pair(tag,
-        std::make_shared<AsyncTask>(*this, tag, target, size, off))).first->second;
+    return _AddTask(std::make_shared<AsyncTask>(*this, tag, target, size, off));
 }
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)
@@ -847,9 +890,19 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourcePartSync(const urd
     return fr->readUBytes(sz);
 }
 
+std::shared_ptr<AsyncTask>
+ProjectResourceFactoryBase::CookResourceAsync(const urde::SObjectTag& tag)
+{
+    if (!tag.id.IsValid())
+        Log.report(logvisor::Fatal, "attempted to access null id");
+    if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
+        return {};
+    return _AddTask(std::make_shared<AsyncTask>(*this, tag));
+}
+
 void ProjectResourceFactoryBase::CancelBuild(const urde::SObjectTag& tag)
 {
-    m_asyncLoadList.erase(tag);
+    _RemoveTask(tag);
 }
 
 bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
@@ -961,12 +1014,12 @@ void ProjectResourceFactoryBase::EnumerateNamedResources(
     }
 }
 
-bool ProjectResourceFactoryBase::AsyncPumpTask(
-    std::unordered_map<SObjectTag, std::shared_ptr<AsyncTask>>::iterator& it)
+template <typename ItType>
+bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it)
 {
     /* Ensure requested resource is in the index */
     std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-    AsyncTask& task = *it->second;
+    AsyncTask& task = _GetAsyncTask(it);
     auto search = m_tagToPath.find(task.x0_tag);
     if (search == m_tagToPath.end())
     {
@@ -974,7 +1027,7 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(
         {
             Log.report(logvisor::Error, _S("unable to find async load resource (%s, %08X)"),
                        task.x0_tag.type.toString().c_str(), task.x0_tag.id);
-            it = m_asyncLoadList.erase(it);
+            it = _RemoveTask(it);
         }
         return true;
     }
@@ -1025,12 +1078,18 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(
             }
         }
 
-        it = m_asyncLoadList.erase(it);
+        it = _RemoveTask(it);
         return true;
     }
     ++it;
     return false;
 }
+
+template bool ProjectResourceFactoryBase::AsyncPumpTask<std::list<std::shared_ptr<AsyncTask>>::iterator>(
+    std::list<std::shared_ptr<AsyncTask>>::iterator& it);
+template bool ProjectResourceFactoryBase::AsyncPumpTask<std::unordered_map<SObjectTag,
+    std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator>(
+    std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator& it);
 
 void ProjectResourceFactoryBase::AsyncIdle()
 {

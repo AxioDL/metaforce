@@ -243,6 +243,7 @@ private:
     // Warmup state
     std::vector<SObjectTag> m_warmupTags;
     std::vector<SObjectTag>::iterator m_warmupIt;
+    bool m_needsWarmupClear = false;
 
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
 
@@ -269,20 +270,7 @@ public:
     void Shutdown();
     boo::IWindow* GetMainWindow() const;
 
-    void MemoryCardInitializePump()
-    {
-        if (!g_MemoryCardSys)
-        {
-            std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
-            if (!memSys)
-                memSys.reset(new CMemoryCardSys());
-            if (memSys->InitializePump())
-            {
-                g_MemoryCardSys = memSys.get();
-                g_GameState->InitializeMemoryStates();
-            }
-        }
-    }
+    void MemoryCardInitializePump();
 
     bool CheckReset() { return false; }
     bool CheckTerminate() { return false; }

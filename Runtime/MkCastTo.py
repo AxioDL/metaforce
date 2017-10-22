@@ -168,13 +168,13 @@ namespace urde
 {
 
 template <class T>
-TCastToPtr<T>::TCastToPtr(CEntity* p) { p->Accept(*this); }
+TCastToPtr<T>::TCastToPtr(CEntity* p) { if (p) p->Accept(*this); else ptr = nullptr; }
 
 template <class T>
 TCastToPtr<T>::TCastToPtr(CEntity& p) { p.Accept(*this); }
 
 template <class T>
-TCastToPtr<T>& TCastToPtr<T>::operator=(CEntity* p) { p->Accept(*this); return *this; }
+TCastToPtr<T>& TCastToPtr<T>::operator=(CEntity* p) { if (p) p->Accept(*this); else ptr = nullptr; return *this; }
 
 template <class T>
 TCastToPtr<T>& TCastToPtr<T>::operator=(CEntity& p) { p.Accept(*this); return *this; }

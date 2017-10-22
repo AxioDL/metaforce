@@ -116,9 +116,9 @@ static const char* BlurVS =
 "vertex VertToFrag vmain(VertData v [[ stage_in ]], constant PhazonSuitBlurUniform& psu [[ buffer(2) ]])\n"
 "{\n"
 "    VertToFrag vtf;\n"
-"    vtf.uv = uvIn.xy;\n"
-"    vtf.blurDir = blurDir.xy;\n"
-"    vtf.position = float4(posIn.xyz, 1.0);\n"
+"    vtf.uv = v.uvIn.xy;\n"
+"    vtf.blurDir = psu.blurDir.xy;\n"
+"    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 

@@ -340,7 +340,7 @@ public:
     void LoadScriptObjects(CStateManager& mgr);
     std::pair<const u8*, u32> GetLayerScriptBuffer(int layer);
     void PostConstructArea();
-    void FillInStaticGeometry();
+    void FillInStaticGeometry(bool textures = true);
     void VerifyTokenList(CStateManager& stateMgr);
     void ClearTokenList();
     u32 GetPreConstructedSize() const;

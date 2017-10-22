@@ -56,6 +56,10 @@ int wmain(int argc, const hecl::SystemChar** argv)
     VISIRenderer renderer(argc, argv);
     s_Renderer = &renderer;
 
+    int instIdx = -1;
+    if (argc > 3)
+        instIdx = _wtoi(argv[3]);
+
     WNDCLASS wndClass =
     {
         CS_NOCLOSE,
@@ -74,8 +78,16 @@ int wmain(int argc, const hecl::SystemChar** argv)
     RECT clientRect = {0, 0, 768, 512};
     AdjustWindowRect(&clientRect, dwStyle, FALSE);
 
+    int x = 0;
+    int y = 0;
+    if (instIdx != -1)
+    {
+        x = (instIdx & 1) != 0;
+        y = (instIdx & 2) != 0;
+    }
+
     HWND window = CreateWindowW(L"VISIGenWindow", L"VISIGen", dwStyle,
-                                100, 100,
+                                x, y,
                                 clientRect.right - clientRect.left,
                                 clientRect.bottom - clientRect.top,
                                 NULL, NULL, NULL, NULL);

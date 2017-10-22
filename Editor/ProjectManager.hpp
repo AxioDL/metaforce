@@ -34,6 +34,7 @@ class ProjectManager
     ProjectResourceFactoryMP1 m_factoryMP1;
     ProjectResourcePool m_objStore;
     std::experimental::optional<MP1::CMain> m_mainMP1;
+    bool m_precooking = false;
 
 public:
     static ProjectManager* g_SharedManager;

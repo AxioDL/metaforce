@@ -1,6 +1,11 @@
 #include "VISIBuilder.hpp"
 #include <logvisor/logvisor.hpp>
 
+#ifndef _WIN32
+#include <unistd.h>
+#include <signal.h>
+#endif
+
 #define VISI_MAX_LEVEL 10
 #define VISI_MIN_LENGTH 8.0
 
@@ -31,8 +36,8 @@ const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVecto
     {
         const VISIRenderer::RGBA8& pixel = RGBABuf[i];
         uint32_t id = (pixel.b << 16) | (pixel.g << 8) | pixel.r;
-        if (id != 0xffffff)
-            leafOut->setBit(id);
+        if (id != 0)
+            leafOut->setBit(id - 1);
     }
 
     auto setBitLambda = [&](int idx) { leafOut->setBit(idx); };
@@ -51,16 +56,16 @@ const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVecto
 void VISIBuilder::Progress::report(int divisions)
 {
     m_prog += 1.f / divisions;
-    printf(" %g%%        \r", m_prog * 100.f);
-    fflush(stdout);
+    //printf(" %g%%        \r", m_prog * 100.f);
+    //fflush(stdout);
     if (m_updatePercent)
         m_updatePercent(m_prog);
 }
 
 void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAABox& curAabb,
-                                      PVSRenderCache& rc, Progress& prog, const bool& terminate)
+                                      PVSRenderCache& rc, Progress& prog, const std::function<bool()>& terminate)
 {
-    if (terminate)
+    if (terminate())
         return;
 
     // Recurse in while building node structure
@@ -316,9 +321,10 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
     renderCache.m_lightMetaBit = featureCount;
 
     Progress prog(updatePercent);
-    bool& terminate = renderCache.m_renderer.m_terminate;
+    pid_t parentPid = getppid();
+    auto terminate = [this, parentPid]() { return renderCache.m_renderer.m_terminate || kill(parentPid, 0); };
     rootNode.buildChildren(0, 1, fullAabb, renderCache, prog, terminate);
-    if (terminate)
+    if (terminate())
         return {};
 
     // Lights cache their CPVSVisSet result enum as 2 bits
@@ -365,7 +371,6 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
 
     w.seekAlign32();
 
-    printf("\n");
     Log.report(logvisor::Info, "Finished!");
     return dataOut;
 }

@@ -110,8 +110,6 @@ bool VISIRenderer::SetupShaders()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_aabbIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 20 * 4, AABBIdxs, GL_STATIC_DRAW);
 
-    glGenQueries(1, &m_query);
-
     return true;
 }
 
@@ -138,6 +136,7 @@ std::vector<VISIRenderer::Model::Vert> VISIRenderer::AABBToVerts(const zeus::CAA
 
 static zeus::CColor ColorForIndex(int i)
 {
+    i += 1;
     return zeus::CColor((i & 0xff) / 255.f,
                         ((i >> 8) & 0xff) / 255.f,
                         ((i >> 16) & 0xff) / 255.f,
@@ -201,6 +200,11 @@ bool VISIRenderer::SetupVertexBuffersAndFormats()
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Model::Vert), 0);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Model::Vert), (void*)16);
     }
+
+    m_queryCount = m_models.size() + m_entities.size() + m_lights.size();
+    m_queries.reset(new GLuint[m_queryCount]);
+    m_queryBools.reset(new bool[m_queryCount]);
+    glGenQueries(GLsizei(m_queryCount), m_queries.get());
 
     return true;
 }
@@ -277,7 +281,7 @@ void VISIRenderer::RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bo
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
-    glClearColor(1.f, 1.f, 1.f, 1.f);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (int j=0 ; j<6 ; ++j)
@@ -296,26 +300,6 @@ void VISIRenderer::RenderPVSOpaque(RGBA8* bufOut, const zeus::CVector3f& pos, bo
 
         zeus::CFrustum frustum;
         frustum.updatePlanes(mv, g_Proj);
-
-        // Fill depth buffer with backfaces initially
-        glCullFace(GL_FRONT);
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-        for (const Model& model : m_models)
-        {
-            if (!frustum.aabbFrustumTest(model.aabb))
-                continue;
-            glBindVertexArray(model.vao);
-            for (const Model::Surface& surf : model.surfaces)
-            {
-                // Non-transparents first
-                if (!surf.transparent)
-                    glDrawElements(model.topology, surf.count, GL_UNSIGNED_INT,
-                                   reinterpret_cast<void*>(uintptr_t(surf.first * 4)));
-                else
-                    needTransparent = true;
-            }
-        }
 
         // Draw frontfaces
         glCullFace(GL_BACK);
@@ -362,6 +346,8 @@ void VISIRenderer::RenderPVSTransparent(const std::function<void(int)>& passFunc
         zeus::CFrustum frustum;
         frustum.updatePlanes(mv, g_Proj);
 
+        memset(m_queryBools.get(), 0, m_queryCount);
+
         int idx = 0;
         for (const Model& model : m_models)
         {
@@ -371,22 +357,28 @@ void VISIRenderer::RenderPVSTransparent(const std::function<void(int)>& passFunc
                 continue;
             }
             glBindVertexArray(model.vao);
+            glBeginQuery(GL_ANY_SAMPLES_PASSED_CONSERVATIVE, m_queries[idx]);
+            m_queryBools[idx] = true;
             for (const Model::Surface& surf : model.surfaces)
             {
                 // transparents
                 if (surf.transparent)
-                {
-                    glBeginQuery(GL_ANY_SAMPLES_PASSED, m_query);
                     glDrawElements(model.topology, surf.count, GL_UNSIGNED_INT,
                                    reinterpret_cast<void*>(uintptr_t(surf.first * 4)));
-                    glEndQuery(GL_ANY_SAMPLES_PASSED);
-                    GLint res;
-                    glGetQueryObjectiv(m_query, GL_QUERY_RESULT, &res);
-                    if (res)
-                        passFunc(idx);
-                }
             }
+            glEndQuery(GL_ANY_SAMPLES_PASSED_CONSERVATIVE);
             ++idx;
+        }
+
+        for (int i=0 ; i<idx ; ++i)
+        {
+            if (m_queryBools[i])
+            {
+                GLint res;
+                glGetQueryObjectiv(m_queries[i], GL_QUERY_RESULT, &res);
+                if (res)
+                    passFunc(i);
+            }
         }
     }
 }
@@ -414,6 +406,8 @@ void VISIRenderer::RenderPVSEntitiesAndLights(const std::function<void(int)>& pa
         zeus::CFrustum frustum;
         frustum.updatePlanes(mv, g_Proj);
 
+        memset(m_queryBools.get(), 0, m_queryCount);
+
         int idx = m_models.size();
         for (const Entity& ent : m_entities)
         {
@@ -423,36 +417,56 @@ void VISIRenderer::RenderPVSEntitiesAndLights(const std::function<void(int)>& pa
                 continue;
             }
             glBindVertexArray(ent.vao);
-            glBeginQuery(GL_ANY_SAMPLES_PASSED, m_query);
+            m_queryBools[idx] = true;
+            glBeginQuery(GL_ANY_SAMPLES_PASSED_CONSERVATIVE, m_queries[idx]);
             glDrawElements(GL_TRIANGLE_STRIP, 20, GL_UNSIGNED_INT, 0);
-            glEndQuery(GL_ANY_SAMPLES_PASSED);
-            GLint res;
-            glGetQueryObjectiv(m_query, GL_QUERY_RESULT, &res);
-            if (res)
-                passFunc(idx);
+            glEndQuery(GL_ANY_SAMPLES_PASSED_CONSERVATIVE);
+            ++idx;
+        }
+
+        for (const Light& light : m_lights)
+        {
+            if (!frustum.pointFrustumTest(light.point))
+            {
+                ++idx;
+                continue;
+            }
+            glBindVertexArray(light.vao);
+            m_queryBools[idx] = true;
+            glBeginQuery(GL_ANY_SAMPLES_PASSED_CONSERVATIVE, m_queries[idx]);
+            glDrawArrays(GL_POINTS, 0, 1);
+            glEndQuery(GL_ANY_SAMPLES_PASSED_CONSERVATIVE);
+            ++idx;
+        }
+
+        idx = m_models.size();
+        for (const Entity& ent : m_entities)
+        {
+            if (m_queryBools[idx])
+            {
+                GLint res;
+                glGetQueryObjectiv(m_queries[idx], GL_QUERY_RESULT, &res);
+                if (res)
+                    passFunc(idx);
+            }
             ++idx;
         }
 
         int lightIdx = 0;
         for (const Light& light : m_lights)
         {
-            if (!frustum.pointFrustumTest(light.point))
+            if (m_queryBools[idx])
             {
-                ++lightIdx;
-                continue;
+                GLint res;
+                glGetQueryObjectiv(m_queries[idx], GL_QUERY_RESULT, &res);
+                EPVSVisSetState state = m_totalAABB.pointInside(light.point) ?
+                                        EPVSVisSetState::EndOfTree : EPVSVisSetState::OutOfBounds;
+                if (res && state == EPVSVisSetState::EndOfTree)
+                    state = EPVSVisSetState::NodeFound;
+                lightPassFunc(lightIdx, state);
             }
-            glBindVertexArray(light.vao);
-            glBeginQuery(GL_ANY_SAMPLES_PASSED, m_query);
-            glDrawArrays(GL_POINTS, 0, 1);
-            glEndQuery(GL_ANY_SAMPLES_PASSED);
-            GLint res;
-            glGetQueryObjectiv(m_query, GL_QUERY_RESULT, &res);
-            EPVSVisSetState state = m_totalAABB.pointInside(light.point) ?
-                EPVSVisSetState::EndOfTree : EPVSVisSetState::OutOfBounds;
-            if (res && state == EPVSVisSetState::EndOfTree)
-                state = EPVSVisSetState::NodeFound;
-            lightPassFunc(lightIdx, state);
             ++lightIdx;
+            ++idx;
         }
     }
 }

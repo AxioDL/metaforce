@@ -421,7 +421,7 @@ bool WriteELSM(const ELSM<IDType>& elsm, const hecl::ProjectPath& outPath)
     int64_t rem = w.position() % 32;
     if (rem)
         for (int64_t i=0 ; i<32-rem ; ++i)
-            w.writeBytes((atInt8*)"\xff", 1);
+            w.writeUByte(0xff);
     return true;
 }
 template bool WriteELSM<UniqueID32>(const ELSM<UniqueID32>& gpsm, const hecl::ProjectPath& outPath);

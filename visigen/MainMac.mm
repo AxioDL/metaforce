@@ -59,20 +59,29 @@ static void UpdatePercent(float percent)
     VISIRenderer* m_renderer;
     NSWindow* m_window;
     NSOpenGLView* m_glView;
+    int m_instanceIdx;
 }
-- (id)initWithRenderer:(VISIRenderer*)renderer;
+- (id)initWithRenderer:(VISIRenderer*)renderer instIdx:(int)instIdx;
 @end
 
 @implementation AppDelegate
-- (id)initWithRenderer:(VISIRenderer*)renderer
+- (id)initWithRenderer:(VISIRenderer*)renderer instIdx:(int)instIdx
 {
     self = [super init];
     m_renderer = renderer;
+    m_instanceIdx = instIdx;
     return self;
 }
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
-    NSRect cRect = NSMakeRect(100, 100, 768, 512);
+    int x = 0;
+    int y = 0;
+    if (m_instanceIdx != -1)
+    {
+        x = (m_instanceIdx & 1) != 0;
+        y = (m_instanceIdx & 2) != 0;
+    }
+    NSRect cRect = NSMakeRect(x * 768, y * 534, 768, 512);
     m_window = [[NSWindow alloc] initWithContentRect:cRect
                                            styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable
                                              backing:NSBackingStoreBuffered
@@ -109,12 +118,15 @@ int main(int argc, const char** argv)
     logvisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
     VISIRenderer renderer(argc, argv);
+    int instIdx = -1;
+    if (argc > 3)
+        instIdx = atoi(argv[3]);
     @autoreleasepool
     {
         [[NSApplication sharedApplication] setActivationPolicy:NSApplicationActivationPolicyRegular];
 
         /* Delegate (OS X callbacks) */
-        AppDelegate* appDelegate = [[AppDelegate alloc] initWithRenderer:&renderer];
+        AppDelegate* appDelegate = [[AppDelegate alloc] initWithRenderer:&renderer instIdx:instIdx];
         [[NSApplication sharedApplication] setDelegate:appDelegate];
         [[NSApplication sharedApplication] run];
     }

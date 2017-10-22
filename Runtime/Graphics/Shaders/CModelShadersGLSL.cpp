@@ -248,15 +248,7 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
-                              false, false, false, true);
-
-    /* MorphBall shadow shading */
-    ext.registerExtensionSlot({}, {MBShadowPostGLSL, "MBShadowPostFunc"},
-                              3, MBShadowBlockNames, 3, BallFadeTextures,
-                              hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha,
-                              hecl::Backend::ZTest::Equal,
-                              false, false, false, true);
+                              false, false, false, true, true);
 
     /* World shadow shading (modified lighting) */
     ext.registerExtensionSlot({LightingShadowGLSL, "LightingShadowFunc"}, {MainPostGLSL, "MainPostFunc"},

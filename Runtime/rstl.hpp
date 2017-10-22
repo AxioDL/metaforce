@@ -364,7 +364,7 @@ public:
         if (size > base::x0_size)
         {
             for (size_t i = base::x0_size; i < size; ++i)
-                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T;
+                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T();
             base::x0_size = size;
         }
         else if (size < base::x0_size)
@@ -428,7 +428,7 @@ class prereserved_vector : public _reserved_vector_base<T, N>
     void _init()
     {
         for (auto& i : base::x4_data)
-            ::new (static_cast<void*>(std::addressof(i._value))) T;
+            ::new (static_cast<void*>(std::addressof(i._value))) T();
     }
     void _deinit()
     {

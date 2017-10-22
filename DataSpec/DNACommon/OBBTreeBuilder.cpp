@@ -144,14 +144,10 @@ static void MakeLeaf(const ColMesh& mesh, const std::vector<int>& index, Node& n
     n.right.reset();
     n.isLeaf = true;
     n.leafData = std::make_unique<typename Node::LeafData>();
-    n.leafData->edgeIndexCount = atUint32(index.size() * 3);
-    n.leafData->edgeIndices.reserve(n.leafData->edgeIndexCount);
+    n.leafData->triangleIndexCount = atUint32(index.size());
+    n.leafData->triangleIndices.reserve(n.leafData->triangleIndexCount);
     for (int i : index)
-    {
-        const ColMesh::Triangle& T = mesh.trianges[i];
-        for (int j = 0; j < 3; ++j)
-            n.leafData->edgeIndices.push_back(T.edges[j]);
-    }
+        n.leafData->triangleIndices.push_back(i);
 }
 
 template <typename Node>

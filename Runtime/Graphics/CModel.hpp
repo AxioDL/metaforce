@@ -88,6 +88,11 @@ public:
         int m_matSetIdx;
         SShader(int idx) : m_matSetIdx(idx) {}
         void UnlockTextures();
+        std::shared_ptr<hecl::Runtime::ShaderPipelines>
+        BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
+        void BuildShaders(const hecl::HMDLMeta& meta,
+                          std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders);
+        void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
     };
 
     enum class ESurfaceSelection
@@ -101,7 +106,8 @@ private:
     CBooModel* m_next = nullptr;
     CBooModel* m_prev = nullptr;
     size_t m_uniUpdateCount = 0;
-    TLockedToken<CModel> m_model;
+    TToken<CModel> m_modelTok;
+    CModel* m_model;
     std::vector<CBooSurface>* x0_surfaces;
     const MaterialSet* x4_matSet;
     int m_matSetIdx = -1;
@@ -161,9 +167,11 @@ private:
     static float g_TransformedTime2;
     static CBooModel* g_LastModelCached;
 
+    static bool g_DummyTextures;
+
 public:
     ~CBooModel();
-    CBooModel(TToken<CModel>& token, std::vector<CBooSurface>* surfaces, SShader& shader,
+    CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
               boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
               const zeus::CAABox& aabb, u8 renderMask,
               int numInsts, boo::ITexture* txtrOverrides[8]);
@@ -178,6 +186,8 @@ public:
     void ActivateLights(const std::vector<CLight>& lights);
     void DisableAllLights();
     void RemapMaterialData(SShader& shader);
+    void RemapMaterialData(SShader& shader,
+                           const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines);
     bool TryLockTextures() const;
     void UnlockTextures() const;
     void SyncLoadTextures() const;
@@ -196,6 +206,9 @@ public:
               const CSkinRules* cskr,
               const CPoseAsTransforms* pose) const;
     void DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const;
+
+    void LockParent() { m_modelTok.Lock(); }
+    void UnlockParent() { m_modelTok.Unlock(); }
 
 
     const MaterialSet::Material& GetMaterialByIndex(int idx) const
@@ -220,6 +233,8 @@ public:
     static zeus::CTransform g_shadowTexXf;
     static void EnableShadowMaps(boo::ITexture* map, const zeus::CTransform& texXf);
     static void DisableShadowMaps();
+
+    static void SetDummyTextures(bool b) { g_DummyTextures = true; }
 };
 
 class CModel
@@ -258,7 +273,9 @@ public:
     const zeus::CAABox& GetAABB() const {return m_aabb;}
     CBooModel& GetInstance() {return *x28_modelInst;}
     const CBooModel& GetInstance() const {return *x28_modelInst;}
-    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts, boo::ITexture* txtrOverrides[8] = nullptr);
+    std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts,
+                                               boo::ITexture* txtrOverrides[8] = nullptr,
+                                               bool lockParent = true);
     void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
 
     size_t GetPoolVertexOffset(size_t idx) const;

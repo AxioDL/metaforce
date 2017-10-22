@@ -565,7 +565,7 @@ bool WriteFONT(const FONT<IDType>& font, const hecl::ProjectPath& outPath)
     int64_t rem = w.position() % 32;
     if (rem)
         for (int64_t i=0 ; i<32-rem ; ++i)
-            w.writeBytes((atInt8*)"\xff", 1);
+            w.writeUByte(0xff);
     return true;
 }
 template bool WriteFONT<UniqueID32>(const FONT<UniqueID32>& font, const hecl::ProjectPath& outPath);
