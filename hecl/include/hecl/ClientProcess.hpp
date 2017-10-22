@@ -4,6 +4,7 @@
 #include "hecl.hpp"
 #include "Database.hpp"
 #include "hecl/Blender/BlenderConnection.hpp"
+#include "boo/ThreadLocalPtr.hpp"
 #include <list>
 #include <thread>
 #include <mutex>
@@ -80,6 +81,7 @@ private:
         void proc();
     };
     std::vector<Worker> m_workers;
+    static ThreadLocalPtr<ClientProcess::Worker> ThreadWorker;
 
 public:
     ClientProcess(int verbosityLevel=1);
@@ -95,6 +97,15 @@ public:
     void swapCompletedQueue(std::list<std::shared_ptr<Transaction>>& queue);
     void waitUntilComplete();
     void shutdown();
+    bool isBusy() const { return m_pendingQueue.size() || m_inProgress; }
+
+    static int GetThreadWorkerIdx()
+    {
+        Worker* w = ThreadWorker.get();
+        if (w)
+            return w->m_idx;
+        return -1;
+    }
 };
 
 }

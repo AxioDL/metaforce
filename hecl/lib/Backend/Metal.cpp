@@ -396,10 +396,8 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     {
         if (lighting.m_entry)
         {
-            if (!strncmp(lighting.m_entry, "EXT", 3))
-                retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf, " + (extTexCall.size() ? (extTexCall + ", ") : "") + ");\n";
-            else
-                retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf);\n";
+                retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf" +
+                    (!strncmp(lighting.m_entry, "EXT", 3) ? (extTexCall.size() ? (", " + extTexCall) : "") : "") + ");\n";
         }
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
@@ -413,11 +411,19 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
 
     if (m_alphaExpr.size())
-        retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
+    {
+        retval += "    out.color = " + postEntry + "(" +
+                  (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") +
+                      (!strncmp(post.m_entry, "EXT", 3) ? (extTexCall.size() ? (extTexCall + ", ") : "") : "")) : "") +
                   "float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
+    }
     else
-        retval += "    out.color = " + postEntry + "(" + (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") + (extTexCall.size() ? (extTexCall + ", ") : "")) : "") +
+    {
+        retval += "    out.color = " + postEntry + "(" +
+                  (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") +
+                      (!strncmp(post.m_entry, "EXT", 3) ? (extTexCall.size() ? (extTexCall + ", ") : "") : "")) : "") +
                   "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
+    }
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") +
            "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
@@ -526,10 +532,11 @@ struct MetalBackendFactory : IShaderBackendFactory
         {
             sources.emplace_back(m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                                                     tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
-                                                    tag.getReflectionType()),
+                                                    slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType()),
                                  m_backend.makeFrag(slot.blockCount, slot.blockNames,
                                                     tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                    tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs));
+                                                    slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType(),
+                                                    slot.lighting, slot.post, slot.texCount, slot.texs));
             cachedSz += sources.back().first.size() + 1;
             cachedSz += sources.back().second.size() + 1;
 

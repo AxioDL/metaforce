@@ -384,8 +384,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const std::string& source,
 {
     auto search = m_pipelineLookup.find(tag);
     if (search != m_pipelineLookup.cend())
-        if (auto ret = search->second.lock())
-            return ret;
+        return search->second;
 
     std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
@@ -432,8 +431,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
 {
     auto search = m_pipelineLookup.find(tag);
     if (search != m_pipelineLookup.cend())
-        if (auto ret = search->second.lock())
-            return ret;
+        return search->second;
 
     std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
@@ -494,8 +492,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const std::string&
 {
     auto search = m_pipelineLookup.find(tag);
     if (search != m_pipelineLookup.cend())
-        if (auto ret = search->second.lock())
-            return ret;
+        return search->second;
 
     std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
@@ -545,8 +542,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
 {
     auto search = m_pipelineLookup.find(tag);
     if (search != m_pipelineLookup.cend())
-        if (auto ret = search->second.lock())
-            return ret;
+        return search->second;
 
     std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);

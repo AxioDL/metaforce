@@ -145,6 +145,7 @@ public:
         bool noDepthWrite = false;
         bool noColorWrite = false;
         bool noAlphaWrite = false;
+        bool noReflection = false;
     };
     std::vector<ExtensionSlot> m_extensionSlots;
 
@@ -164,7 +165,8 @@ public:
                                    bool frontfaceCull = false,
                                    bool noDepthWrite = false,
                                    bool noColorWrite = false,
-                                   bool noAlphaWrite = false)
+                                   bool noAlphaWrite = false,
+                                   bool noReflection = false)
     {
         m_extensionSlots.emplace_back();
         ExtensionSlot& slot = m_extensionSlots.back();
@@ -181,6 +183,7 @@ public:
         slot.noDepthWrite = noDepthWrite;
         slot.noColorWrite = noColorWrite;
         slot.noAlphaWrite = noAlphaWrite;
+        slot.noReflection = noReflection;
         return m_extensionSlots.size() - 1;
     }
 };
@@ -247,7 +250,7 @@ class ShaderCacheManager
     };
     std::vector<IndexEntry> m_entries;
     std::unordered_map<Hash, size_t> m_entryLookup;
-    std::unordered_map<Hash, std::weak_ptr<ShaderPipelines>> m_pipelineLookup;
+    std::unordered_map<Hash, std::shared_ptr<ShaderPipelines>> m_pipelineLookup;
 
     uint64_t m_timeHash = 0;
     void bootstrapIndex();
@@ -265,6 +268,7 @@ public:
                        boo::IGraphicsDataFactory* gfxFactory)
     : ShaderCacheManager(storeMgr, gfxFactory, ShaderCacheExtensions()) {}
     void reload();
+    void clearCachedPipelines() { m_pipelineLookup.clear(); }
 
     /* Some platforms (like Metal) require information about the render target
      * for encoding the pipeline state. This must be called before building shaders */

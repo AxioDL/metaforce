@@ -216,8 +216,8 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
     }
 
     if (reflectionType != ReflectionType::None)
-        retval += "    vtf.reflectTcgs[0] = normalize((indMtx * vec4(v.posIn, 1.0)).xz) * vec2(0.5, 0.5) + vec2(0.5, 0.5);\n"
-                  "    vtf.reflectTcgs[1] = (reflectMtx * vec4(v.posIn, 1.0)).xy;\n"
+        retval += "    vtf.reflectTcgs[0] = normalize((indMtx * vec4(posIn, 1.0)).xz) * vec2(0.5, 0.5) + vec2(0.5, 0.5);\n"
+                  "    vtf.reflectTcgs[1] = (reflectMtx * vec4(posIn, 1.0)).xy;\n"
                   "    vtf.reflectAlpha = reflectAlpha;\n";
 
     return retval + "}\n";

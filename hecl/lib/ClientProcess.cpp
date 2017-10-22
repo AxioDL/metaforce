@@ -10,9 +10,13 @@
 #include <sys/wait.h>
 #endif
 
+#define HECL_MULTIPROCESSOR 1
+
 namespace hecl
 {
 static logvisor::Module Log("hecl::ClientProcess");
+
+ThreadLocalPtr<ClientProcess::Worker> ClientProcess::ThreadWorker;
 
 static int GetCPUCount()
 {
@@ -68,6 +72,8 @@ ClientProcess::Worker::Worker(ClientProcess& proc, int idx)
 
 void ClientProcess::Worker::proc()
 {
+    ClientProcess::ThreadWorker.reset(this);
+
     char thrName[64];
     snprintf(thrName, 64, "HECL Client Worker %d", m_idx);
     logvisor::RegisterThreadName(thrName);
@@ -172,7 +178,7 @@ void ClientProcess::swapCompletedQueue(std::list<std::shared_ptr<Transaction>>& 
 void ClientProcess::waitUntilComplete()
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    while (m_pendingQueue.size() || m_inProgress)
+    while (isBusy())
         m_waitCv.wait(lk);
 }
 

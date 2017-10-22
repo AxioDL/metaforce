@@ -183,7 +183,7 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
 
     elif obj.retro_widget_type == 'RETRO_ENRG':
         path_hash = path_hasher.hashpath32(obj.retro_energybar_texture_path)
-        buffer += struct.pack('>ffff', path_hash)
+        buffer += struct.pack('>I', path_hash)
 
     elif obj.retro_widget_type == 'RETRO_METR':
         buffer += struct.pack('>bbII',

@@ -518,7 +518,8 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
             InstallAddon(blenderAddonPath.c_str());
             ++installAttempt;
             if (installAttempt >= 2)
-                BlenderLog.report(logvisor::Fatal, _S("unable to install blender addon using '%s'"), blenderAddonPath.c_str());
+                BlenderLog.report(logvisor::Fatal, _S("unable to install blender addon using '%s'"),
+                                  blenderAddonPath.c_str());
             continue;
         }
         else if (!strcmp(lineBuf, "ADDONINSTALLED"))
@@ -600,7 +601,8 @@ bool BlenderConnection::createBlend(const ProjectPath& path, BlendType type)
                           "BlenderConnection::createBlend() musn't be called with stream active");
         return false;
     }
-    _writeStr(("CREATE \"" + path.getAbsolutePathUTF8() + "\" " + BlendTypeStrs[int(type)] + " \"" + m_startupBlend + "\"").c_str());
+    _writeStr(("CREATE \"" + path.getAbsolutePathUTF8() + "\" " + BlendTypeStrs[int(type)] +
+        " \"" + m_startupBlend + "\"").c_str());
     char lineBuf[256];
     _readStr(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
