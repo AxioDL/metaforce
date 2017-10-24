@@ -86,7 +86,7 @@ void ClientProcess::Worker::proc()
             m_proc.m_initCv.notify_one();
             m_didInit = true;
         }
-        while (m_proc.m_pendingQueue.size())
+        while (m_proc.m_running && m_proc.m_pendingQueue.size())
         {
             std::shared_ptr<Transaction> trans = std::move(m_proc.m_pendingQueue.front());
             ++m_proc.m_inProgress;
@@ -186,8 +186,11 @@ void ClientProcess::shutdown()
 {
     if (!m_running)
         return;
+    std::unique_lock<std::mutex> lk(m_mutex);
+    m_pendingQueue.clear();
     m_running = false;
     m_cv.notify_all();
+    lk.unlock();
     for (Worker& worker : m_workers)
         if (worker.m_thr.joinable())
             worker.m_thr.join();

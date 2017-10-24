@@ -77,7 +77,7 @@ std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCo
 
     if (reflectionCoords)
         retval += "    float2 reflectTcgs[2] : REFLECTUV;\n"
-                  "    float reflectAlpha;\n";
+                  "    float reflectAlpha : REFLECTALPHA;\n";
 
     return retval + "};\n";
 }
