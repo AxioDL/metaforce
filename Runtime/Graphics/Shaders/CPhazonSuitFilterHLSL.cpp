@@ -104,13 +104,12 @@ static const char* BlurVS =
 "    float2 blurDir : BLURDIR;\n"
 "};\n"
 "\n"
-"SBINDING(0) out VertToFrag vtf;\n"
 "VertToFrag main(in VertData v)\n"
 "{\n"
 "    VertToFrag vtf;\n"
-"    vtf.uv = uvIn.xy;\n"
+"    vtf.uv = v.uvIn.xy;\n"
 "    vtf.blurDir = blurDir.xy;\n"
-"    vtf.position = float4(posIn.xyz, 1.0);\n"
+"    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
 

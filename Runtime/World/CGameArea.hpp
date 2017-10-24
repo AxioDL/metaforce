@@ -283,7 +283,6 @@ private:
         u32 visiSecIdx;
         u32 pathSecIdx;
         u32 arotSecIdx;
-        std::vector<u32> secSizes;
     };
 
 public:

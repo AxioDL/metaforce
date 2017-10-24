@@ -125,15 +125,20 @@ struct Application : boo::IApplicationCallback
 static hecl::SystemChar CwdBuf[1024];
 hecl::SystemString ExeDir;
 
+void SetupBasics()
+{
+    logvisor::RegisterStandardExceptions();
+    logvisor::RegisterConsoleLogger();
+    atSetExceptionHandler(AthenaExc);
+}
+
 #if _WIN32
 int wmain(int argc, const boo::SystemChar** argv)
 #else
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
-    logvisor::RegisterStandardExceptions();
-    logvisor::RegisterConsoleLogger();
-    atSetExceptionHandler(AthenaExc);
+    SetupBasics();
 
     if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024))
     {
@@ -152,7 +157,20 @@ int main(int argc, const boo::SystemChar** argv)
     return ret;
 }
 
-#if _WIN32
+#if WINAPI_FAMILY && !WINAPI_PARTITION_DESKTOP
+using namespace Windows::ApplicationModel::Core;
+
+[Platform::MTAThread]
+int WINAPIV main(Platform::Array<Platform::String^>^ params)
+{
+    SetupBasics();
+    urde::Application appCb;
+    auto viewProvider = ref new ViewProvider(appCb, _S("urde"), _S("URDE"), params, false);
+    CoreApplication::Run(viewProvider);
+    return 0;
+}
+
+#elif _WIN32
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 {
     int argc = 0;
@@ -168,3 +186,4 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
     return wmain(argc+1, booArgv);
 }
 #endif
+

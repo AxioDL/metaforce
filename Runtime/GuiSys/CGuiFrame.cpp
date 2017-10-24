@@ -105,11 +105,15 @@ void CGuiFrame::DisableLights() const
 
 void CGuiFrame::RemoveLight(CGuiLight* light)
 {
+    if (m_indexedLights.empty())
+        return;
     m_indexedLights[light->GetLightId()] = nullptr;
 }
 
 void CGuiFrame::AddLight(CGuiLight* light)
 {
+    if (m_indexedLights.empty())
+        m_indexedLights.resize(8);
     m_indexedLights[light->GetLightId()] = light;
 }
 

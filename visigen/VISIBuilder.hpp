@@ -7,6 +7,12 @@
 #include "athena/MemoryWriter.hpp"
 #include <unordered_map>
 
+#ifdef _WIN32
+using ProcessType = HANDLE;
+#else
+using ProcessType = pid_t;
+#endif
+
 namespace std
 {
 template <> struct hash<zeus::CVector3f>
@@ -122,7 +128,8 @@ struct VISIBuilder
                                const std::vector<VISIRenderer::Entity>& entities,
                                const std::vector<VISIRenderer::Light>& lights,
                                size_t layer2LightCount,
-                               FPercent updatePercent);
+                               FPercent updatePercent,
+                               ProcessType parentPid);
 
     VISIBuilder(VISIRenderer& renderer) : renderCache(renderer) {}
 };

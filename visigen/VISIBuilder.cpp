@@ -313,7 +313,8 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
                                         const std::vector<VISIRenderer::Entity>& entities,
                                         const std::vector<VISIRenderer::Light>& lights,
                                         size_t layer2LightCount,
-                                        FPercent updatePercent)
+                                        FPercent updatePercent,
+                                        ProcessType parentPid)
 {
     Log.report(logvisor::Info, "Started!");
 
@@ -321,8 +322,20 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
     renderCache.m_lightMetaBit = featureCount;
 
     Progress prog(updatePercent);
-    pid_t parentPid = getppid();
-    auto terminate = [this, parentPid]() { return renderCache.m_renderer.m_terminate || kill(parentPid, 0); };
+#ifndef _WIN32
+    auto terminate = [this, parentPid]()
+    {
+        return renderCache.m_renderer.m_terminate || (parentPid ? kill(parentPid, 0) : false);
+    };
+#else
+    auto terminate = [this, parentPid]()
+    {
+        DWORD exitCode = 0;
+        if (!GetExitCodeProcess(parentPid, &exitCode))
+            return renderCache.m_renderer.m_terminate;
+        return renderCache.m_renderer.m_terminate || (parentPid ? exitCode != STILL_ACTIVE : false);
+    };
+#endif
     rootNode.buildChildren(0, 1, fullAabb, renderCache, prog, terminate);
     if (terminate())
         return {};

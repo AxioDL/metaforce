@@ -503,6 +503,14 @@ void VISIRenderer::Run(FPercent updatePercent)
         return;
     }
 
+    ProcessType parentPid = 0;
+    if (m_argc > 4)
+#ifdef _WIN32
+        parentPid = ProcessType(wcstoull(m_argv[4], nullptr, 16));
+#else
+        parentPid = ProcessType(strtoull(m_argv[4], nullptr, 16));
+#endif
+
     uint32_t layer2LightCount = 0;
     {
         athena::io::FileReader r(m_argv[1]);
@@ -579,7 +587,7 @@ void VISIRenderer::Run(FPercent updatePercent)
     VISIBuilder builder(*this);
     std::vector<uint8_t> dataOut = builder.build(m_totalAABB, m_models.size(),
                                                  m_entities, m_lights, layer2LightCount,
-                                                 m_updatePercent);
+                                                 m_updatePercent, parentPid);
     if (dataOut.empty())
     {
         m_return = 1;

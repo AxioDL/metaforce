@@ -1187,7 +1187,7 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
         return {};
 
     MREAHeader header;
-    athena::io::MemoryReader r(x110_mreaSecBufs[0].first.get() + 4, INT32_MAX);
+    athena::io::MemoryReader r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
     u32 version = r.readUint32Big();
     if (!(version & 0x10000))
         Log.report(logvisor::Fatal, "Attempted to load non-URDE MREA");
@@ -1207,10 +1207,6 @@ CGameArea::MREAHeader CGameArea::VerifyHeader() const
     header.visiSecIdx = r.readUint32Big();
     header.pathSecIdx = r.readUint32Big();
     header.arotSecIdx = r.readUint32Big();
-
-    header.secSizes.reserve(header.secCount);
-    for (u32 i=0 ; i<header.secCount ; ++i)
-        header.secSizes.push_back(r.readUint32Big());
 
     return header;
 }

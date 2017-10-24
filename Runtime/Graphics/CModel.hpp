@@ -258,7 +258,7 @@ class CModel
     boo::IGraphicsBufferS* m_staticVbo = nullptr;
     hecl::HMDLMeta m_hmdlMeta;
     std::unique_ptr<uint8_t[]> m_dynamicVertexData;
-    boo::IGraphicsBufferS* m_ibo;
+    boo::IGraphicsBufferS* m_ibo = nullptr;
 
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;

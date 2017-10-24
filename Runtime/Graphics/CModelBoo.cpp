@@ -1123,21 +1123,26 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
     m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         /* Index buffer is always static */
-        m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
+        if (m_hmdlMeta.indexCount)
+            m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, iboData, 4, m_hmdlMeta.indexCount);
 
         if (!m_hmdlMeta.bankCount)
         {
             /* Non-skinned models use static vertex buffers shared with CBooModel instances */
-            m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData,
-                                              m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
+            if (m_hmdlMeta.vertCount)
+                m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData,
+                                                  m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
             m_staticVtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, m_hmdlMeta, m_staticVbo, m_ibo);
         }
         else
         {
             /* Skinned models use per-instance dynamic buffers for vertex manipulation effects */
             size_t vboSz = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
-            m_dynamicVertexData.reset(new uint8_t[vboSz]);
-            memmove(m_dynamicVertexData.get(), vboData, vboSz);
+            if (vboSz)
+            {
+                m_dynamicVertexData.reset(new uint8_t[vboSz]);
+                memmove(m_dynamicVertexData.get(), vboData, vboSz);
+            }
         }
 
         return true;

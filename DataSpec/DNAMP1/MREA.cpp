@@ -558,13 +558,18 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 #if _WIN32
                 VisiGenPath += _S(".exe");
 #endif
-                char thrIdx[16];
-                snprintf(thrIdx, 16, "%d", hecl::ClientProcess::GetThreadWorkerIdx());
+                hecl::SystemChar thrIdx[16];
+                hecl::SNPrintf(thrIdx, 16, _S("%d"), hecl::ClientProcess::GetThreadWorkerIdx());
+                hecl::SystemChar parPid[32];
+#if _WIN32
+                hecl::SNPrintf(parPid, 32, _S("%ullX"), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
+#else
+                hecl::SNPrintf(parPid, 32, _S("%ullX"), reinterpret_cast<unsigned long long>(getpid()));
+#endif
                 const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
                                                   visiIntOut.getAbsolutePath().c_str(),
                                                   visiIn.getAbsolutePath().c_str(),
-                                                  thrIdx,
-                                                  nullptr};
+                                                  thrIdx, parPid, nullptr};
                 if (0 == hecl::RunProcess(VisiGenPath.c_str(), args))
                 {
                     athena::io::FileReader r(visiIn.getAbsolutePath());

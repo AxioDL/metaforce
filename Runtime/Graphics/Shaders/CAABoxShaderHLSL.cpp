@@ -25,14 +25,12 @@ static const char* VS =
 "VertToFrag main(in VertData v)\n"
 "{\n"
 "    VertToFrag vtf;\n"
-"    vtf.color = bu.color;\n"
-"    vtf.pos = bu.xf * vec4(v.posIn.xyz, 1.0);\n"
+"    vtf.color = color;\n"
+"    vtf.pos = mul(xf, float4(v.posIn.xyz, 1.0));\n"
 "    return vtf;\n"
 "}\n";
 
 static const char* FS =
-"#include <metal_stdlib>\n"
-"using namespace metal;\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos : SV_Position;\n"
