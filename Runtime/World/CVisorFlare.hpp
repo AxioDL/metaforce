@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde
 {

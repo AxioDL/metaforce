@@ -2,6 +2,7 @@
 #define __URDE_CDVDFILE_HPP__
 
 #include "RetroTypes.hpp"
+#include "athena/FileReader.hpp"
 
 #include <thread>
 #include <mutex>

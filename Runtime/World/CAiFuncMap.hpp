@@ -2,6 +2,7 @@
 #define __URDE_CAIFUNCMAP_HPP__
 
 #include "RetroTypes.hpp"
+#include <unordered_map>
 
 namespace urde
 {

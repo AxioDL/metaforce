@@ -191,7 +191,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 if (ci.cmdlOverlay)
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
-                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
+                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.OVER.CSKR", ci.name.c_str()));
                 }
             }
         }

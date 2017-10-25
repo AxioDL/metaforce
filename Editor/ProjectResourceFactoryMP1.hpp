@@ -15,7 +15,6 @@ class ProjectResourceFactoryMP1 : public ProjectResourceFactoryBase
 public:
     ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc);
     void IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp);
-    void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const;
     void Shutdown();
 
     CAssetId TranslateOriginalToNew(CAssetId id) const;

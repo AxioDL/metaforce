@@ -1,4 +1,5 @@
 #include "CWorldLight.hpp"
+#include <cfloat>
 
 namespace urde
 {

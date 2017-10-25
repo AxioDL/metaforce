@@ -562,9 +562,9 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                 hecl::SNPrintf(thrIdx, 16, _S("%d"), hecl::ClientProcess::GetThreadWorkerIdx());
                 hecl::SystemChar parPid[32];
 #if _WIN32
-                hecl::SNPrintf(parPid, 32, _S("%ullX"), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
+                hecl::SNPrintf(parPid, 32, _S("%lluX"), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
 #else
-                hecl::SNPrintf(parPid, 32, _S("%ullX"), reinterpret_cast<unsigned long long>(getpid()));
+                hecl::SNPrintf(parPid, 32, _S("%lluX"), (unsigned long long)getpid());
 #endif
                 const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
                                                   visiIntOut.getAbsolutePath().c_str(),

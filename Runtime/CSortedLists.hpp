@@ -20,7 +20,7 @@ enum ESortedList
 struct SSortedList
 {
     s16 x0_ids[1024];
-    u32 x800_size;
+    u32 x800_size = 0;
     void Reset() {std::fill(std::begin(x0_ids), std::end(x0_ids), -1);}
     SSortedList() {Reset();}
 };

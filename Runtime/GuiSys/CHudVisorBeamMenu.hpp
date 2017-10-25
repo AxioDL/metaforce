@@ -2,6 +2,7 @@
 #define __URDE_CHUDVISORBEAMMENU_HPP__
 
 #include "RetroTypes.hpp"
+#include <cfloat>
 
 namespace urde
 {

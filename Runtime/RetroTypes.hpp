@@ -4,10 +4,11 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <functional>
 #include "GCNTypes.hpp"
 #include "rstl.hpp"
-#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "IOStreams.hpp"
+#include "hecl/hecl.hpp"
 
 namespace urde
 {
@@ -24,10 +25,9 @@ public:
     explicit CAssetId(CInputStream& in);
     bool IsValid() const { return id != UINT64_MAX; }
     u64 Value() const { return id; }
-    void Assign(u64 v) {  id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
+    void Assign(u64 v) { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
     void Reset() { id = UINT64_MAX; }
     void PutTo(COutputStream& out);
-
     bool operator==(const CAssetId& other) const { return id == other.id; }
     bool operator!=(const CAssetId& other) const { return id != other.id; }
     bool operator<(const CAssetId& other) const { return id < other.id; }
@@ -39,6 +39,7 @@ struct SObjectTag
 {
     FourCC type;
     CAssetId id;
+
     operator bool() const { return id.IsValid(); }
     bool operator!=(const SObjectTag& other) const { return id != other.id; }
     bool operator==(const SObjectTag& other) const { return id == other.id; }
@@ -65,11 +66,11 @@ struct TEditorId
     u8 LayerNum() const { return u8((id >> 26) & 0x3f); }
     u16 AreaNum() const { return u16((id >> 16) & 0x3ff); }
     u16 Id() const { return u16(id & 0xffff); }
-
     bool operator<(const TEditorId& other) const { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
     bool operator!=(const TEditorId& other) const { return (id & 0x3ffffff) != (other.id & 0x3ffffff); }
     bool operator==(const TEditorId& other) const { return (id & 0x3ffffff) == (other.id & 0x3ffffff); }
 };
+
 #define kInvalidEditorId TEditorId()
 
 struct TUniqueId
@@ -77,9 +78,8 @@ struct TUniqueId
     TUniqueId() = default;
     TUniqueId(u16 value, u16 version) : id(value | (version << 10)) {}
     u16 id = u16(-1);
-
-    u16 Version() const { return u16((id >> 10)  & 0x3f);}
-    u16 Value() const { return u16(id & 0x3ff);}
+    u16 Version() const { return u16((id >> 10) & 0x3f); }
+    u16 Value() const { return u16(id & 0x3ff); }
     bool operator<(const TUniqueId& other) const { return (id < other.id); }
     bool operator!=(const TUniqueId& other) const { return (id != other.id); }
     bool operator==(const TUniqueId& other) const { return (id == other.id); }
@@ -90,7 +90,6 @@ struct TUniqueId
 using TAreaId = s32;
 
 #define kInvalidAreaId TAreaId(-1)
-}
 
 #if 0
 template <class T, size_t N>
@@ -113,7 +112,7 @@ public:
 };
 #endif
 
-template <class T>
+template<class T>
 T GetAverage(const T* v, s32 count)
 {
     T r = v[0];
@@ -123,11 +122,12 @@ T GetAverage(const T* v, s32 count)
     return r / count;
 }
 
-template <class T, size_t N>
+template<class T, size_t N>
 class TReservedAverage : rstl::reserved_vector<T, N>
 {
 public:
     TReservedAverage() = default;
+
     TReservedAverage(const T& t) { rstl::reserved_vector<T, N>::resize(N, t); }
 
     void AddValue(const T& t)
@@ -135,8 +135,7 @@ public:
         if (this->size() < N)
         {
             this->insert(this->begin(), t);
-        }
-        else
+        } else
         {
             this->pop_back();
             this->insert(this->begin(), t);
@@ -148,7 +147,7 @@ public:
         if (this->empty())
             return {};
 
-        return {::GetAverage<T>(this->data(), this->size())};
+        return {urde::GetAverage<T>(this->data(), this->size())};
     }
 
     rstl::optional_object<T> GetEntry(int i) const
@@ -163,18 +162,20 @@ public:
     size_t Size() const { return this->size(); }
 };
 
+}
+
 namespace std
 {
 template <>
 struct hash<urde::SObjectTag>
 {
-    inline size_t operator()(const urde::SObjectTag& tag) const { return tag.id.Value(); }
+    size_t operator()(const urde::SObjectTag& tag) const noexcept { return tag.id.Value(); }
 };
 
 template <>
 struct hash<urde::CAssetId>
 {
-    inline size_t operator()(const urde::CAssetId& id) const { return id.Value(); }
+    size_t operator()(const urde::CAssetId& id) const noexcept { return id.Value(); }
 };
 }
 

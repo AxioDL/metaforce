@@ -1130,7 +1130,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                     if (sub.overlayMeshes.size())
                     {
                         ch.cmdlOverlay = sub.overlayMeshes[0].second;
-                        ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".over.CSKR"));
+                        ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S('.') +
+                                                                  sub.overlayMeshes[0].first + _S(".CSKR"));
                     }
 
                     break;
@@ -1206,7 +1207,15 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
 {
     hecl::SystemString subName(inPath.getAuxInfo().begin(),
                                inPath.getAuxInfo().end() - 5);
+    hecl::SystemString overName;
+    auto dotPos = subName.rfind(_S('.'));
+    if (dotPos != hecl::SystemString::npos)
+    {
+        overName = hecl::SystemString(subName.begin() + dotPos + 1, subName.end());
+        subName = hecl::SystemString(subName.begin(), subName.begin() + dotPos);
+    }
     hecl::SystemUTF8View subNameView(subName);
+    hecl::SystemUTF8View overNameView(overName);
 
     /* Build bone ID map */
     std::unordered_map<std::string, atInt32> boneIdMap;
@@ -1227,15 +1236,30 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
     if (!subtype)
         Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
 
-    const hecl::ProjectPath& modelPath = subtype->mesh;
+    const hecl::ProjectPath* modelPath = nullptr;
+    if (overName.empty())
+    {
+        modelPath = &subtype->mesh;
+    }
+    else
+    {
+        for (const auto& overlay : subtype->overlayMeshes)
+            if (!overlay.first.compare(overNameView.str()))
+            {
+                modelPath = &overlay.second;
+                break;
+            }
+    }
+    if (!modelPath)
+        Log.report(logvisor::Fatal, _S("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
 
-    if (!modelPath.isFile())
-        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath.getRelativePath().c_str());
+    if (!modelPath->isFile())
+        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().c_str());
 
-    hecl::ProjectPath skinIntPath = modelPath.getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
-    if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath.getModtime())
-        if (!modelCookFunc(modelPath))
-            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath.getRelativePath().c_str());
+    hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
+    if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
+        if (!modelCookFunc(*modelPath))
+            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath->getRelativePath().c_str());
 
     athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
     if (skinIO.hasError())

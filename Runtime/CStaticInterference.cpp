@@ -1,4 +1,5 @@
 #include "CStaticInterference.hpp"
+#include "zeus/Math.hpp"
 
 namespace urde
 {
@@ -24,7 +25,7 @@ void CStaticInterference::Update(CStateManager&, float dt)
     newSources.reserve(m_sources.size());
     for (CStaticInterferenceSource& src : m_sources)
     {
-        if (src.timeLeft >= 0.0)
+        if (src.timeLeft >= 0.f)
         {
             src.timeLeft -= dt;
             newSources.push_back(src);
@@ -35,8 +36,8 @@ void CStaticInterference::Update(CStateManager&, float dt)
 
 float CStaticInterference::GetTotalInterference() const
 {
-    float validAccum = 0.0;
-    float invalidAccum = 0.0;
+    float validAccum = 0.f;
+    float invalidAccum = 0.f;
     for (const CStaticInterferenceSource& src : m_sources)
     {
         if (src.id == kInvalidUniqueId)
@@ -44,11 +45,11 @@ float CStaticInterference::GetTotalInterference() const
         else
             validAccum += src.magnitude;
     }
-    if (validAccum > 0.80000001)
-        validAccum = 0.80000001;
+    if (validAccum > 0.80000001f)
+        validAccum = 0.80000001f;
     validAccum += invalidAccum;
-    if (validAccum > 1.0)
-        return 1.0;
+    if (validAccum > 1.f)
+        return 1.f;
     return validAccum;
 }
 

@@ -430,7 +430,7 @@ struct SpecMP1 : SpecBase
 
         /* Extract part of .dol for RandomStatic entropy */
         hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _S("MP1/NoARAM"));
-        ExtractRandomStaticEntropy(m_dolBuf.get() + 0x4f60, noAramPath);
+        extractRandomStaticEntropy(m_dolBuf.get() + 0x4f60, noAramPath);
 
         return true;
     }
@@ -517,7 +517,7 @@ struct SpecMP1 : SpecBase
         });
     }
 
-    urde::SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
     {
         if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
             return {SBIG('CINF'), path.hash().val32()};
@@ -716,6 +716,18 @@ struct SpecMP1 : SpecBase
             fclose(fp);
         }
         return {};
+    }
+
+    void getTagListForFile(const char* pakName, std::vector<urde::SObjectTag>& out) const
+    {
+        std::string pathPrefix("MP1/");
+        pathPrefix += pakName;
+        pathPrefix += '/';
+
+        std::unique_lock<std::mutex> lk(const_cast<SpecMP1&>(*this).m_backgroundIndexMutex);
+        for (const auto& tag : m_tagToPath)
+            if (!tag.second.getRelativePathUTF8().compare(0, pathPrefix.size(), pathPrefix))
+                out.push_back(tag.first);
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
@@ -1108,6 +1120,210 @@ struct SpecMP1 : SpecBase
             }
         }
     }
+
+    void buildWorldPakList(const hecl::ProjectPath& worldPath,
+                           const hecl::ProjectPath& worldPathCooked,
+                           hecl::BlenderToken& btok,
+                           athena::io::FileWriter& w,
+                           std::vector<urde::SObjectTag>& listOut,
+                           atUint64& resTableOffset)
+    {
+        DNAMP1::MLVL mlvl;
+        {
+            athena::io::FileReader r(worldPathCooked.getAbsolutePath());
+            if (r.hasError())
+                Log.report(logvisor::Fatal, _S("Unable to open world %s"), worldPathCooked.getRelativePath().c_str());
+            mlvl.read(r);
+        }
+
+        size_t count = 5;
+        for (const auto& area : mlvl.areas)
+            for (const auto& dep : area.deps)
+                ++count;
+        listOut.reserve(count);
+
+        urde::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_S(".*"), true), btok);
+
+        w.writeUint32Big(0x80030005);
+        w.writeUint32Big(0);
+
+        w.writeUint32Big(1);
+        DNAMP1::PAK::NameEntry nameEnt;
+        hecl::ProjectPath parentDir = worldPath.getParentPath();
+        nameEnt.type = worldTag.type;
+        nameEnt.id = atUint32(worldTag.id.Value());
+        nameEnt.nameLen = atUint32(hecl::StrLen(parentDir.getLastComponent()));
+        nameEnt.name = parentDir.getLastComponent();
+        nameEnt.write(w);
+
+        w.writeUint32Big(atUint32(count));
+        resTableOffset = w.position();
+        for (const auto& area : mlvl.areas)
+            for (const auto& dep : area.deps)
+                listOut.push_back({dep.type, dep.id.toUint32()});
+
+        urde::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint32());
+        if (nameTag)
+            listOut.push_back(nameTag);
+
+        urde::SObjectTag savwTag(FOURCC('SAVW'), mlvl.saveWorldId.toUint32());
+        if (savwTag)
+        {
+            if (hecl::ProjectPath savwPath = pathFromTag(savwTag))
+                m_project.cookPath(savwPath, {}, false, true);
+            listOut.push_back(savwTag);
+        }
+
+        urde::SObjectTag mapTag(FOURCC('MAPW'), mlvl.worldMap.toUint32());
+        if (mapTag)
+        {
+            if (hecl::ProjectPath mapPath = pathFromTag(mapTag))
+            {
+                m_project.cookPath(mapPath, {}, false, true);
+                if (hecl::ProjectPath mapCookedPath = getCookedPath(mapPath, true))
+                {
+                    athena::io::FileReader r(mapCookedPath.getAbsolutePath());
+                    if (r.hasError())
+                        Log.report(logvisor::Fatal, _S("Unable to open %s"), mapCookedPath.getRelativePath().c_str());
+
+                    if (r.readUint32Big() != 0xDEADF00D)
+                        Log.report(logvisor::Fatal, _S("Corrupt MAPW %s"), mapCookedPath.getRelativePath().c_str());
+                    r.readUint32Big();
+                    atUint32 mapaCount = r.readUint32Big();
+                    for (int i=0 ; i<mapaCount ; ++i)
+                    {
+                        UniqueID32 id;
+                        id.read(r);
+                        listOut.push_back({FOURCC('MAPA'), id.toUint32()});
+                    }
+                }
+            }
+            listOut.push_back(mapTag);
+        }
+
+        urde::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint32());
+        if (skyboxTag)
+        {
+            hecl::ProjectPath skyboxPath = pathFromTag(skyboxTag);
+            if (btok.getBlenderConnection().openBlend(skyboxPath))
+            {
+                auto data = btok.getBlenderConnection().beginData();
+                std::vector<hecl::ProjectPath> textures = data.getTextures();
+                for (const auto& tex : textures)
+                {
+                    urde::SObjectTag texTag = tagFromPath(tex, btok);
+                    if (!texTag)
+                        Log.report(logvisor::Fatal, _S("Unable to resolve %s"), tex.getRelativePath().c_str());
+                    listOut.push_back(texTag);
+                }
+            }
+            listOut.push_back(skyboxTag);
+        }
+
+        listOut.push_back(worldTag);
+
+        for (const auto& item : listOut)
+        {
+            DNAMP1::PAK::Entry ent;
+            ent.compressed = 0;
+            ent.type = item.type;
+            ent.id = atUint32(item.id.Value());
+            ent.size = 0;
+            ent.offset = 0;
+            ent.write(w);
+        }
+    }
+
+    void buildPakList(hecl::BlenderToken& btok,
+                      athena::io::FileWriter& w,
+                      const std::vector<urde::SObjectTag>& list,
+                      const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
+                      atUint64& resTableOffset)
+    {
+        w.writeUint32Big(0x80030005);
+        w.writeUint32Big(0);
+
+        w.writeUint32Big(atUint32(nameList.size()));
+        for (const auto& item : nameList)
+        {
+            DNAMP1::PAK::NameEntry nameEnt;
+            nameEnt.type = item.first.type;
+            nameEnt.id = atUint32(item.first.id.Value());
+            nameEnt.nameLen = atUint32(item.second.size());
+            nameEnt.name = item.second;
+            nameEnt.write(w);
+        }
+
+        w.writeUint32Big(atUint32(list.size()));
+        resTableOffset = w.position();
+        for (const auto& item : list)
+        {
+            DNAMP1::PAK::Entry ent;
+            ent.compressed = 0;
+            ent.type = item.type;
+            ent.id = atUint32(item.id.Value());
+            ent.size = 0;
+            ent.offset = 0;
+            ent.write(w);
+        }
+    }
+
+    void writePakFileIndex(athena::io::FileWriter& w,
+                           const std::vector<urde::SObjectTag>& tags,
+                           const std::vector<std::tuple<size_t, size_t, bool>>& index,
+                           atUint64 resTableOffset)
+    {
+        w.seek(resTableOffset, athena::Begin);
+
+        auto it = tags.begin();
+        for (const auto& item : index)
+        {
+            const urde::SObjectTag& tag = *it++;
+            DNAMP1::PAK::Entry ent;
+            ent.compressed = atUint32(std::get<2>(item));
+            ent.type = tag.type;
+            ent.id = atUint32(tag.id.Value());
+            ent.size = atUint32(std::get<1>(item));
+            ent.offset = atUint32(std::get<0>(item));
+            ent.write(w);
+        }
+    }
+
+    std::pair<std::unique_ptr<uint8_t[]>, size_t>
+    compressPakData(const urde::SObjectTag& tag, const uint8_t* data, size_t len)
+    {
+        bool doCompress = false;
+        switch (tag.type)
+        {
+        case SBIG('TXTR'):
+        case SBIG('CMDL'):
+        case SBIG('CSKR'):
+        case SBIG('ANCS'):
+        case SBIG('ANIM'):
+        case SBIG('FONT'):
+            doCompress = true;
+            break;
+        case SBIG('PART'):
+        case SBIG('ELSC'):
+        case SBIG('SWHC'):
+        case SBIG('WPSC'):
+        case SBIG('DPSC'):
+        case SBIG('CRSC'):
+            doCompress = len >= 0x400;
+            break;
+        default:
+            break;
+        }
+        if (!doCompress)
+            return {};
+
+        uLong destLen = compressBound(len);
+        std::pair<std::unique_ptr<uint8_t[]>, size_t> ret;
+        ret.first.reset(new uint8_t[destLen]);
+        compress(ret.first.get(), &destLen, data, len);
+        ret.second = destLen;
+        return ret;
+    };
 
     void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress)
     {

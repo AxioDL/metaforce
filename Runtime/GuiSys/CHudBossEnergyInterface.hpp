@@ -2,6 +2,7 @@
 #define __URDE_CHUDBOSSENERGYINTERFACE_HPP__
 
 #include "RetroTypes.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde
 {

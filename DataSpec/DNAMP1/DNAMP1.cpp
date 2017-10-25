@@ -244,7 +244,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 if (ci.cmdlOverlay && ci.cskrOverlay)
                 {
                     addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
-                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.over.CSKR", ci.name.c_str()));
+                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.OVER.CSKR", ci.name.c_str()));
                     PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
                     PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
                     cmdlEnt->name = hecl::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());

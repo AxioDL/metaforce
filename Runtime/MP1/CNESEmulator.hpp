@@ -2,6 +2,7 @@
 #define __URDE_CNESEMULATOR_HPP__
 
 #include "RetroTypes.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde
 {

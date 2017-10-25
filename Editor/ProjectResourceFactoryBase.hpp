@@ -6,6 +6,7 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CResFactory.hpp"
+#include "DataSpec/SpecBase.hpp"
 #include "optional.hpp"
 
 #include <thread>
@@ -72,22 +73,12 @@ public:
     };
 
 protected:
-    std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
-    std::unordered_map<hecl::Hash, urde::SObjectTag> m_pathToTag;
-    std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
-    void Clear();
-
     const hecl::Database::Project* m_proj = nullptr;
     const hecl::Database::DataSpecEntry* m_origSpec = nullptr;
     const hecl::Database::DataSpecEntry* m_pcSpec = nullptr;
     /* Used to resolve cooked paths */
     std::unique_ptr<hecl::Database::IDataSpec> m_cookSpec;
     urde::CFactoryMgr m_factoryMgr;
-
-    hecl::BlenderToken m_backgroundBlender;
-    std::thread m_backgroundIndexTh;
-    std::mutex m_backgroundIndexMutex;
-    bool m_backgroundRunning = false;
 
     std::list<std::shared_ptr<AsyncTask>> m_asyncLoadList;
     std::unordered_map<SObjectTag, std::list<std::shared_ptr<AsyncTask>>::iterator> m_asyncLoadMap;
@@ -111,36 +102,36 @@ protected:
         return **it->second;
     }
 
-    bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
     bool
     PrepForReadSync(const SObjectTag& tag,
                     const hecl::ProjectPath& path,
                     std::experimental::optional<athena::io::FileReader>& fr);
 
-    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;    
+    bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut)
+    {
+        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).waitForTagReady(tag, pathOut);
+    }
+    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    {
+        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).tagFromPath(path, btok);
+    }
     SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
     {
-        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).BuildTagFromPath(path, btok);
+        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).buildTagFromPath(path, btok);
     }
-
-    void ReadCatalog(const hecl::ProjectPath& catalogPath,
-                     athena::io::YAMLDocWriter& nameWriter);
-    bool AddFileToIndex(const hecl::ProjectPath& path,
-                        athena::io::YAMLDocWriter& cacheWriter);
-    void BackgroundIndexRecursiveProc(const hecl::ProjectPath& path,
-                                      athena::io::YAMLDocWriter& cacheWriter,
-                                      athena::io::YAMLDocWriter& nameWriter,
-                                      int level);
-    void BackgroundIndexRecursiveCatalogs(const hecl::ProjectPath& path,
-                                          athena::io::YAMLDocWriter& nameWriter,
-                                          int level);
-    void BackgroundIndexProc();
-    void CancelBackgroundIndex();
+    void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const
+    {
+        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getTagListForFile(pakName, out);
+    }
+    void CancelBackgroundIndex()
+    {
+        if (m_cookSpec)
+            return static_cast<DataSpec::SpecBase&>(*m_cookSpec).cancelBackgroundIndex();
+    }
     void BeginBackgroundIndex(hecl::Database::Project& proj,
-                              const hecl::Database::DataSpecEntry& origSpec,
-                              const hecl::Database::DataSpecEntry& pcSpec);
+         const hecl::Database::DataSpecEntry& origSpec,
+         const hecl::Database::DataSpecEntry& pcSpec);
 
-    hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const;
     bool SyncCook(const hecl::ProjectPath& working);
     CFactoryFnReturn BuildSync(const SObjectTag& tag, const hecl::ProjectPath& path,
                                const CVParamTransfer& paramXfer, CObjectReference* selfRef);
@@ -154,6 +145,10 @@ public:
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;
     FourCC GetResourceTypeById(CAssetId id) const;
+    hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const
+    {
+        return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getCookedPath(working, pcTarget);
+    }
 
     void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
     void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;

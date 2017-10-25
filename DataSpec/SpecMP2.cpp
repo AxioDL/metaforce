@@ -318,7 +318,7 @@ struct SpecMP2 : SpecBase
         });
     }
 
-    urde::SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
     {
         return {};
     }

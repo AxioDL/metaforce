@@ -73,9 +73,10 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     hecl::ProjectPath namePath(inPath.getParentPath(), _S("!name.yaml"));
     if (namePath.isFile())
         mlvl.worldNameId = namePath;
-    hecl::ProjectPath savwPath = inPath.ensureAuxInfo(_S("SAVW"));
+    hecl::ProjectPath globPath = inPath.getWithExtension(_S(".*"), true);
+    hecl::ProjectPath savwPath = globPath.ensureAuxInfo(_S("SAVW"));
     mlvl.saveWorldId = savwPath;
-    hecl::ProjectPath mapwPath = inPath.ensureAuxInfo(_S("MAPW"));
+    hecl::ProjectPath mapwPath = globPath.ensureAuxInfo(_S("MAPW"));
     mlvl.worldMap = mapwPath;
 
     size_t areaIdx = 0;
@@ -269,7 +270,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     if (addedPaths.find(path.hash()) == addedPaths.cend())
                     {
                         addedPaths.insert(path.hash());
-                        urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
+                        urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
                         if (tag.id.IsValid())
                             areaOut.deps.emplace_back(tag.id.Value(), tag.type);
                     }
@@ -308,13 +309,13 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 if (addedPaths.find(path.hash()) == addedPaths.cend())
                 {
                     addedPaths.insert(path.hash());
-                    urde::SObjectTag tag = g_curSpec->BuildTagFromPath(path, btok);
+                    urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
                     if (tag.id.IsValid())
                         areaOut.deps.emplace_back(tag.id.Value(), tag.type);
                 }
             }
 
-            urde::SObjectTag tag = g_curSpec->BuildTagFromPath(areaPath, btok);
+            urde::SObjectTag tag = g_curSpec->buildTagFromPath(areaPath, btok);
             if (tag.id.IsValid())
                 areaOut.deps.emplace_back(tag.id.Value(), tag.type);
         }
@@ -359,7 +360,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath,
         /* Area map */
         hecl::ProjectPath mapPath(area.path, _S("/!map.blend"));
         if (mapPath.isFile())
-            mapaTags.push_back(g_curSpec->BuildTagFromPath(mapPath, btok));
+            mapaTags.push_back(g_curSpec->buildTagFromPath(mapPath, btok));
     }
 
     /* Write out MAPW */

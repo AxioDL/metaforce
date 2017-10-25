@@ -3,6 +3,7 @@
 
 #include "RetroTypes.hpp"
 #include "CHudInterface.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde
 {

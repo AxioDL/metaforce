@@ -2,6 +2,7 @@
 #define __URDE_CCAMERASPLINE_HPP__
 
 #include "World/CEntityInfo.hpp"
+#include "zeus/CVector3f.hpp"
 
 namespace urde
 {

@@ -512,7 +512,7 @@ struct SpecMP3 : SpecBase
         return false;
     }
 
-    urde::SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
     {
         return {};
     }

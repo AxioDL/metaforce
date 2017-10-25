@@ -1,419 +1,9 @@
 #include "ProjectResourceFactoryBase.hpp"
 #include "Runtime/IObj.hpp"
 
-#define DUMP_CACHE_FILL 1
-
 namespace urde
 {
 static logvisor::Module Log("urde::ProjectResourceFactoryBase");
-
-static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
-                     const SObjectTag& pathTag, const hecl::ProjectPath& path)
-{
-    char idStr[9];
-    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
-    if (auto v = cacheWriter.enterSubVector(idStr))
-    {
-        cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
-        cacheWriter.writeString(nullptr, path.getAuxInfo().size() ?
-            (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
-             path.getRelativePathUTF8());
-    }
-}
-
-static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter,
-                         const SObjectTag& pathTag,
-                         const std::string& name)
-{
-    char idStr[9];
-    snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
-    nameWriter.writeString(name.c_str(), idStr);
-}
-
-void ProjectResourceFactoryBase::Clear()
-{
-    m_tagToPath.clear();
-    m_pathToTag.clear();
-    m_catalogNameToTag.clear();
-}
-
-SObjectTag ProjectResourceFactoryBase::TagFromPath(const hecl::ProjectPath& path,
-                                                   hecl::BlenderToken& btok) const
-{
-    auto search = m_pathToTag.find(path.hash());
-    if (search != m_pathToTag.cend())
-        return search->second;
-    return BuildTagFromPath(path, btok);
-}
-
-void ProjectResourceFactoryBase::ReadCatalog(const hecl::ProjectPath& catalogPath,
-                                             athena::io::YAMLDocWriter& nameWriter)
-{
-    athena::io::FileReader freader(catalogPath.getAbsolutePath());
-    if (!freader.isOpen())
-        return;
-
-    athena::io::YAMLDocReader reader;
-    bool res = reader.parse(&freader);
-    if (!res)
-        return;
-
-    const athena::io::YAMLNode* root = reader.getRootNode();
-    for (const auto& p : root->m_mapChildren)
-    {
-        /* Hash as lowercase since lookup is case-insensitive */
-        std::string pLower = p.first;
-        std::transform(pLower.cbegin(), pLower.cend(), pLower.begin(), tolower);
-
-        /* Avoid redundant filesystem access for re-caches */
-        if (m_catalogNameToTag.find(pLower) != m_catalogNameToTag.cend())
-            continue;
-
-        athena::io::YAMLNode& node = *p.second;
-        hecl::ProjectPath path;
-        if (node.m_type == YAML_SCALAR_NODE)
-        {
-            path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_scalarString);
-        }
-        else if (node.m_type == YAML_SEQUENCE_NODE)
-        {
-            if (node.m_seqChildren.size() >= 2)
-                path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_seqChildren[0]->m_scalarString).
-                        ensureAuxInfo(node.m_seqChildren[1]->m_scalarString);
-            else if (node.m_seqChildren.size() == 1)
-                path = hecl::ProjectPath(m_proj->getProjectWorkingPath(), node.m_seqChildren[0]->m_scalarString);
-        }
-        if (!path.isFileOrGlob())
-            continue;
-        SObjectTag pathTag = TagFromPath(path, m_backgroundBlender);
-        if (pathTag)
-        {
-            std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-            m_catalogNameToTag[pLower] = pathTag;
-            WriteNameTag(nameWriter, pathTag, p.first);
-#if 0
-            fprintf(stderr, "%s %s %08X\n",
-                    p.first.c_str(),
-                    pathTag.type.toString().c_str(), uint32_t(pathTag.id));
-#endif
-        }
-    }
-}
-
-void ProjectResourceFactoryBase::BackgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir,
-                                                                  athena::io::YAMLDocWriter& nameWriter,
-                                                                  int level)
-{
-    hecl::DirectoryEnumerator dEnum(dir.getAbsolutePath(),
-                                    hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
-                                    false, false, true);
-
-    /* Enumerate all items */
-    for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
-    {
-        hecl::ProjectPath path(dir, ent.m_name);
-        if (ent.m_isDir && level < 1)
-            BackgroundIndexRecursiveCatalogs(path, nameWriter, level+1);
-        else
-        {
-            if (!path.isFile())
-                continue;
-
-            /* Read catalog.yaml for .pak directory if exists */
-            if (level == 1 && !ent.m_name.compare(_S("!catalog.yaml")))
-            {
-                ReadCatalog(path, nameWriter);
-                continue;
-            }
-        }
-
-        /* bail if cancelled by client */
-        if (!m_backgroundRunning)
-            break;
-    }
-}
-
-#if DUMP_CACHE_FILL
-static void DumpCacheAdd(const SObjectTag& pathTag, const hecl::ProjectPath& path)
-{
-    fprintf(stderr, "%s %08X %s\n",
-            pathTag.type.toString().c_str(), uint32_t(pathTag.id.Value()),
-            path.getRelativePathUTF8().c_str());
-}
-#endif
-
-bool ProjectResourceFactoryBase::AddFileToIndex(const hecl::ProjectPath& path,
-                                                athena::io::YAMLDocWriter& cacheWriter)
-{
-    /* Avoid redundant filesystem access for re-caches */
-    if (m_pathToTag.find(path.hash()) != m_pathToTag.cend())
-        return true;
-
-    /* Try as glob */
-    hecl::ProjectPath asGlob = path.getWithExtension(_S(".*"), true);
-    if (m_pathToTag.find(asGlob.hash()) != m_pathToTag.cend())
-        return true;
-
-    /* Classify intermediate into tag */
-    SObjectTag pathTag = BuildTagFromPath(path, m_backgroundBlender);
-    if (pathTag)
-    {
-        std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-        bool useGlob = false;
-
-        /* Special multi-resource intermediates */
-        if (pathTag.type == SBIG('ANCS'))
-        {
-            hecl::BlenderConnection& conn = m_backgroundBlender.getBlenderConnection();
-            if (!conn.openBlend(path) || conn.getBlendType() != hecl::BlenderConnection::BlendType::Actor)
-                return false;
-
-            /* Transform tag to glob */
-            pathTag = {SBIG('ANCS'), asGlob.hash().val32()};
-            useGlob = true;
-
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
-            std::vector<std::string> armatureNames = ds.getArmatureNames();
-            std::vector<std::string> subtypeNames = ds.getSubtypeNames();
-            std::vector<std::string> actionNames = ds.getActionNames();
-
-            for (const std::string& arm : armatureNames)
-            {
-                hecl::SystemStringView sysStr(arm);
-                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
-                SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
-                m_tagToPath[pathTag] = subPath;
-                m_pathToTag[subPath.hash()] = pathTag;
-                WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-                DumpCacheAdd(pathTag, subPath);
-#endif
-            }
-
-            for (const std::string& sub : subtypeNames)
-            {
-                hecl::SystemStringView sysStr(sub);
-                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
-                SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
-                m_tagToPath[pathTag] = subPath;
-                m_pathToTag[subPath.hash()] = pathTag;
-                WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-                DumpCacheAdd(pathTag, subPath);
-#endif
-            }
-
-            for (const std::string& act : actionNames)
-            {
-                hecl::SystemStringView sysStr(act);
-                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
-                SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
-                m_tagToPath[pathTag] = subPath;
-                m_pathToTag[subPath.hash()] = pathTag;
-                WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-                DumpCacheAdd(pathTag, subPath);
-#endif
-            }
-        }
-        else if (pathTag.type == SBIG('MLVL'))
-        {
-            /* Transform tag to glob */
-            pathTag = {SBIG('MLVL'), asGlob.hash().val32()};
-            useGlob = true;
-
-            hecl::ProjectPath subPath = asGlob.ensureAuxInfo(_S("MAPW"));
-            SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
-            m_tagToPath[pathTag] = subPath;
-            m_pathToTag[subPath.hash()] = pathTag;
-            WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-            DumpCacheAdd(pathTag, subPath);
-#endif
-
-            subPath = asGlob.ensureAuxInfo(_S("SAVW"));
-            pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
-            m_tagToPath[pathTag] = subPath;
-            m_pathToTag[subPath.hash()] = pathTag;
-            WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-            DumpCacheAdd(pathTag, subPath);
-#endif
-        }
-        else if (pathTag.type == SBIG('AGSC'))
-        {
-            /* Transform tag to glob */
-            pathTag = {SBIG('AGSC'), asGlob.hash().val32()};
-            useGlob = true;
-        }
-        else if (pathTag.type == SBIG('MREA'))
-        {
-            hecl::ProjectPath subPath = path.ensureAuxInfo(_S("PATH"));
-            SObjectTag pathTag = BuildTagFromPath(subPath, m_backgroundBlender);
-            m_tagToPath[pathTag] = subPath;
-            m_pathToTag[subPath.hash()] = pathTag;
-            WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-            DumpCacheAdd(pathTag, subPath);
-#endif
-        }
-
-        /* Cache in-memory */
-        const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
-        m_tagToPath[pathTag] = usePath;
-        m_pathToTag[usePath.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, usePath);
-#if DUMP_CACHE_FILL
-        DumpCacheAdd(pathTag, usePath);
-#endif
-    }
-
-    return true;
-}
-
-void ProjectResourceFactoryBase::BackgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
-                                                              athena::io::YAMLDocWriter& cacheWriter,
-                                                              athena::io::YAMLDocWriter& nameWriter,
-                                                              int level)
-{
-    hecl::DirectoryEnumerator dEnum(dir.getAbsolutePath(),
-                                    hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
-                                    false, false, true);
-
-    /* Enumerate all items */
-    for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
-    {
-        hecl::ProjectPath path(dir, ent.m_name);
-        if (ent.m_isDir)
-            BackgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level+1);
-        else
-        {
-            if (!path.isFile())
-                continue;
-
-            /* Read catalog.yaml for .pak directory if exists */
-            if (level == 1 && !ent.m_name.compare(_S("!catalog.yaml")))
-            {
-                ReadCatalog(path, nameWriter);
-                continue;
-            }
-
-            /* Index the regular file */
-            AddFileToIndex(path, cacheWriter);
-        }
-
-        /* bail if cancelled by client */
-        if (!m_backgroundRunning)
-            break;
-    }
-}
-
-void ProjectResourceFactoryBase::BackgroundIndexProc()
-{
-    logvisor::RegisterThreadName("Resource Index Thread");
-
-    hecl::ProjectPath tagCachePath(m_proj->getProjectCookedPath(*m_origSpec), _S("tag_cache.yaml"));
-    hecl::ProjectPath nameCachePath(m_proj->getProjectCookedPath(*m_origSpec), _S("name_cache.yaml"));
-    hecl::ProjectPath specRoot(m_proj->getProjectWorkingPath(), m_origSpec->m_name);
-
-    /* Cache will be overwritten with validated entries afterwards */
-    athena::io::YAMLDocWriter cacheWriter(nullptr);
-    athena::io::YAMLDocWriter nameWriter(nullptr);
-
-    /* Read in tag cache */
-    if (tagCachePath.isFile())
-    {
-        athena::io::FileReader reader(tagCachePath.getAbsolutePath());
-        if (reader.isOpen())
-        {
-            Log.report(logvisor::Info, _S("Cache index of '%s' loading"), m_origSpec->m_name);
-            athena::io::YAMLDocReader cacheReader;
-            if (cacheReader.parse(&reader))
-            {
-                std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-                size_t tagCount = cacheReader.getRootNode()->m_mapChildren.size();
-                m_tagToPath.reserve(tagCount);
-                m_pathToTag.reserve(tagCount);
-                size_t loadIdx = 0;
-                for (const auto& child : cacheReader.getRootNode()->m_mapChildren)
-                {
-                    const athena::io::YAMLNode& node = *child.second;
-                    unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
-                    hecl::FourCC type(node.m_seqChildren.at(0)->m_scalarString.c_str());
-                    hecl::ProjectPath path(m_proj->getProjectWorkingPath(),
-                        node.m_seqChildren.at(1)->m_scalarString);
-
-                    if (path.isFileOrGlob())
-                    {
-                        SObjectTag pathTag(type, id);
-                        m_tagToPath[pathTag] = path;
-                        m_pathToTag[path.hash()] = pathTag;
-                        WriteTag(cacheWriter, pathTag, path);
-                    }
-                    fprintf(stderr, "\r %" PRISize " / %" PRISize, ++loadIdx, tagCount);
-                }
-                fprintf(stderr, "\n");
-            }
-            Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),
-                       m_origSpec->m_name, m_tagToPath.size());
-
-            if (nameCachePath.isFile())
-            {
-                /* Read in name cache */
-                Log.report(logvisor::Info, _S("Name index of '%s' loading"), m_origSpec->m_name);
-                athena::io::FileReader nreader(nameCachePath.getAbsolutePath());
-                athena::io::YAMLDocReader nameReader;
-                if (nameReader.parse(&nreader))
-                {
-                    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-                    m_catalogNameToTag.reserve(nameReader.getRootNode()->m_mapChildren.size());
-                    for (const auto& child : nameReader.getRootNode()->m_mapChildren)
-                    {
-                        unsigned long id = strtoul(child.second->m_scalarString.c_str(), nullptr, 16);
-                        auto search = m_tagToPath.find(SObjectTag(FourCC(), uint32_t(id)));
-                        if (search != m_tagToPath.cend())
-                        {
-                            std::string chLower = child.first;
-                            std::transform(chLower.cbegin(), chLower.cend(), chLower.begin(), tolower);
-                            m_catalogNameToTag[chLower] = search->first;
-                            WriteNameTag(nameWriter, search->first, child.first);
-                        }
-                    }
-                }
-                Log.report(logvisor::Info, _S("Name index of '%s' loaded; %d names"),
-                           m_origSpec->m_name, m_catalogNameToTag.size());
-            }
-        }
-    }
-
-    /* Add special original IDs resource if exists (not name-cached to disk) */
-    hecl::ProjectPath oidsPath(specRoot, "!original_ids.yaml");
-    SObjectTag oidsTag = BuildTagFromPath(oidsPath, m_backgroundBlender);
-    if (oidsTag)
-        m_catalogNameToTag["mp1originalids"] = oidsTag;
-
-    Log.report(logvisor::Info, _S("Background index of '%s' started"), m_origSpec->m_name);
-    BackgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
-
-    tagCachePath.makeDirChain(false);
-    athena::io::FileWriter twriter(tagCachePath.getAbsolutePath());
-    cacheWriter.finish(&twriter);
-
-    athena::io::FileWriter nwriter(nameCachePath.getAbsolutePath());
-    nameWriter.finish(&nwriter);
-
-    m_backgroundBlender.shutdown();
-    Log.report(logvisor::Info, _S("Background index of '%s' complete; %d tags, %d names"),
-               m_origSpec->m_name, m_tagToPath.size(), m_catalogNameToTag.size());
-    m_backgroundRunning = false;
-}
-
-void ProjectResourceFactoryBase::CancelBackgroundIndex()
-{
-    m_backgroundRunning = false;
-    if (m_backgroundIndexTh.joinable())
-        m_backgroundIndexTh.join();
-}
 
 void ProjectResourceFactoryBase::BeginBackgroundIndex
     (hecl::Database::Project& proj,
@@ -421,25 +11,11 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex
      const hecl::Database::DataSpecEntry& pcSpec)
 {
     CancelBackgroundIndex();
-    Clear();
     m_proj = &proj;
     m_origSpec = &origSpec;
     m_pcSpec = &pcSpec;
     m_cookSpec.reset(pcSpec.m_factory(proj, hecl::Database::DataSpecTool::Cook));
-    m_backgroundRunning = true;
-    m_backgroundIndexTh =
-        std::thread(std::bind(&ProjectResourceFactoryBase::BackgroundIndexProc, this));
-}
-
-hecl::ProjectPath ProjectResourceFactoryBase::GetCookedPath(const hecl::ProjectPath& working,
-                                                            bool pcTarget) const
-{
-    const hecl::Database::DataSpecEntry* spec = m_origSpec;
-    if (pcTarget)
-        spec = m_cookSpec->overrideDataSpec(working, m_pcSpec, hecl::SharedBlenderToken);
-    if (!spec)
-        return {};
-    return working.getCookedPath(*spec);
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).beginBackgroundIndex();
 }
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
@@ -628,35 +204,6 @@ ProjectResourceFactoryBase::_RemoveTask(const SObjectTag& tag)
 {
     return _RemoveTask(m_asyncLoadMap.find(tag));
 };
-
-bool ProjectResourceFactoryBase::WaitForTagReady(const urde::SObjectTag& tag,
-                                                 const hecl::ProjectPath*& pathOut)
-{
-    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
-    auto search = m_tagToPath.find(tag);
-    if (search == m_tagToPath.end())
-    {
-        if (m_backgroundRunning)
-        {
-            while (m_backgroundRunning)
-            {
-                lk.unlock();
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
-                lk.lock();
-                search = m_tagToPath.find(tag);
-                if (search != m_tagToPath.end())
-                    break;
-            }
-            if (search == m_tagToPath.end())
-                return false;
-        }
-        else
-            return false;
-    }
-    lk.unlock();
-    pathOut = &search->second;
-    return true;
-}
 
 bool
 ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
@@ -922,108 +469,34 @@ bool ProjectResourceFactoryBase::CanBuild(const urde::SObjectTag& tag)
 
 const urde::SObjectTag* ProjectResourceFactoryBase::GetResourceIdByName(const char* name) const
 {
-    std::string lower = name;
-    std::transform(lower.cbegin(), lower.cend(), lower.begin(), tolower);
-
-    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
-    auto search = m_catalogNameToTag.find(lower);
-    if (search == m_catalogNameToTag.end())
-    {
-        if (m_backgroundRunning)
-        {
-            while (m_backgroundRunning)
-            {
-                lk.unlock();
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
-                lk.lock();
-                search = m_catalogNameToTag.find(lower);
-                if (search != m_catalogNameToTag.end())
-                    break;
-            }
-            if (search == m_catalogNameToTag.end())
-                return nullptr;
-        }
-        else
-            return nullptr;
-    }
-    return &search->second;
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getResourceIdByName(name);
 }
 
 FourCC ProjectResourceFactoryBase::GetResourceTypeById(CAssetId id) const
 {
-    if (!id.IsValid())
-        return {};
-
-    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
-    SObjectTag searchTag = {FourCC(), id};
-    auto search = m_tagToPath.find(searchTag);
-    if (search == m_tagToPath.end())
-    {
-        if (m_backgroundRunning)
-        {
-            while (m_backgroundRunning)
-            {
-                lk.unlock();
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
-                lk.lock();
-                search = m_tagToPath.find(searchTag);
-                if (search != m_tagToPath.end())
-                    break;
-            }
-            if (search == m_tagToPath.end())
-                return {};
-        }
-        else
-            return {};
-    }
-
-    return search->first.type;
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getResourceTypeById(id);
 }
 
 void ProjectResourceFactoryBase::EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const
 {
-    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
-    while (m_backgroundRunning)
-    {
-        lk.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        lk.lock();
-    }
-    for (const auto& pair : m_tagToPath)
-    {
-        if (!lambda(pair.first))
-            break;
-    }
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).enumerateResources(lambda);
 }
 
 void ProjectResourceFactoryBase::EnumerateNamedResources(
         const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
 {
-    std::unique_lock<std::mutex> lk(const_cast<ProjectResourceFactoryBase*>(this)->m_backgroundIndexMutex);
-    while (m_backgroundRunning)
-    {
-        lk.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        lk.lock();
-    }
-    lk.unlock();
-    for (const auto& pair : m_catalogNameToTag)
-    {
-        if (!lambda(pair.first, pair.second))
-            break;
-    }
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).enumerateNamedResources(lambda);
 }
 
 template <typename ItType>
 bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it)
 {
     /* Ensure requested resource is in the index */
-    std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
     AsyncTask& task = _GetAsyncTask(it);
-    auto search = m_tagToPath.find(task.x0_tag);
-    if (search == m_tagToPath.end())
+    hecl::ProjectPath path = static_cast<DataSpec::SpecBase&>(*m_cookSpec).pathFromTag(task.x0_tag);
+    if (!path)
     {
-        if (!m_backgroundRunning)
+        if (!static_cast<DataSpec::SpecBase&>(*m_cookSpec).backgroundIndexRunning())
         {
             Log.report(logvisor::Error, _S("unable to find async load resource (%s, %08X)"),
                        task.x0_tag.type.toString().c_str(), task.x0_tag.id);
@@ -1031,8 +504,7 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it)
         }
         return true;
     }
-    lk.unlock();
-    task.EnsurePath(task.x0_tag, search->second);
+    task.EnsurePath(task.x0_tag, path);
 
     /* Pump load pipeline (cooking if needed) */
     if (task.AsyncPump())
