@@ -23,6 +23,7 @@
 namespace hecl
 {
 class BlenderToken;
+class ClientProcess;
 
 namespace Database
 {
@@ -116,24 +117,11 @@ public:
                         bool fast, BlenderToken& btok, FCookProgress progress)
     {(void)path;(void)cookedPath;(void)fast;(void)progress;}
 
-    /**
-     * @brief Package Pass Info
-     *
-     * A package pass performs last-minute queries of source resources,
-     * gathers dependencies and packages cooked data together in the
-     * most efficient form for the dataspec
-     */
-    struct PackagePassInfo
-    {
-        const PackageDepsgraph& depsgraph;
-        ProjectPath subpath;
-        ProjectPath outpath;
-    };
-    virtual bool canPackage(const PackagePassInfo& info,
-                            SystemString& reasonNo)
-    {(void)info;reasonNo=_S("not implemented");return false;}
-    virtual void doPackage(const PackagePassInfo& info)
-    {(void)info;}
+    virtual bool canPackage(const hecl::ProjectPath& path)
+    {(void)path;return false;}
+    virtual void doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
+                           bool fast, hecl::BlenderToken& btok, FProgress progress, ClientProcess* cp=nullptr)
+    {(void)path;}
 
     const DataSpecEntry* getDataSpecEntry() const {return m_specEntry;}
 };
@@ -271,6 +259,8 @@ private:
     ProjectPath m_cookedRoot;
     std::vector<ProjectDataSpec> m_compiledSpecs;
     std::unordered_map<uint64_t, ProjectPath> m_bridgePathCache;
+    std::vector<std::unique_ptr<IDataSpec>> m_cookSpecs;
+    std::unique_ptr<IDataSpec> m_lastPackageSpec;
     bool m_valid = false;
 public:
     Project(const hecl::ProjectRootPath& rootPath);
@@ -414,6 +404,7 @@ public:
      * @param feedbackCb a callback to run reporting cook-progress
      * @param recursive traverse subdirectories to cook as well
      * @param fast enables faster (draft) extraction for supported data types
+     * @param cp if non-null, cook asynchronously via the ClientProcess
      * @return true on success
      *
      * Object cooking is generally an expensive process for large projects.
@@ -421,7 +412,18 @@ public:
      * feedback delivered via feedbackCb.
      */
     bool cookPath(const ProjectPath& path, FProgress feedbackCb,
-                  bool recursive=false, bool force=false, bool fast=false);
+                  bool recursive=false, bool force=false, bool fast=false,
+                  ClientProcess* cp=nullptr);
+
+    /**
+     * @brief Begin package process for specified !world.blend or directory
+     * @param path Path to !world.blend or directory
+     * @param feedbackCb a callback to run reporting cook-progress
+     * @param fast enables faster (draft) extraction for supported data types
+     * @param cp if non-null, cook asynchronously via the ClientProcess
+     */
+    bool packagePath(const ProjectPath& path, FProgress feedbackCb,
+                     bool fast=false, ClientProcess* cp=nullptr);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)

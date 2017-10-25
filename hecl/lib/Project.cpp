@@ -11,6 +11,7 @@
 
 #include "hecl/Database.hpp"
 #include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/ClientProcess.hpp"
 
 namespace hecl
 {
@@ -56,6 +57,7 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead()
         return m_lines;
 
     m_lockedFile = hecl::Fopen(m_filepath.c_str(), _S("a+"), FileLockType::Write);
+    hecl::FSeek(m_lockedFile, 0, SEEK_SET);
 
     std::string mainString;
     char readBuf[1024];
@@ -366,7 +368,8 @@ public:
         submsg += _S(" (");
         submsg += specEnt->m_name;
         submsg += _S(')');
-        m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
+        if (m_progFunc)
+            m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
     }
     void reportFile(const DataSpecEntry* specEnt, const SystemChar* extra)
     {
@@ -376,36 +379,47 @@ public:
         submsg += _S(", ");
         submsg += extra;
         submsg += _S(')');
-        m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
+        if (m_progFunc)
+            m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
     }
-    void reportDirComplete() {m_progFunc(m_dir, nullptr, lidx, 1.0);}
+    void reportDirComplete()
+    {
+        if (m_progFunc)
+            m_progFunc(m_dir, nullptr, lidx, 1.0);
+    }
 };
 
-using SpecInst = std::pair<const DataSpecEntry*, std::unique_ptr<IDataSpec>>;
-
 static void VisitFile(const ProjectPath& path, bool force, bool fast,
-                      std::vector<SpecInst>& specInsts,
-                      CookProgress& progress)
+                      std::vector<std::unique_ptr<IDataSpec>>& specInsts,
+                      CookProgress& progress, ClientProcess* cp)
 {
-    for (SpecInst& spec : specInsts)
+    for (auto& spec : specInsts)
     {
-        if (spec.second->canCook(path, hecl::SharedBlenderToken))
+        if (spec->canCook(path, hecl::SharedBlenderToken))
         {
-            const DataSpecEntry* override = spec.second->overrideDataSpec(path, spec.first, hecl::SharedBlenderToken);
-            if (!override)
-                continue;
-            ProjectPath cooked = path.getCookedPath(*override);
-            if (fast)
-                cooked = cooked.getWithExtension(_S(".fast"));
-            if (force || cooked.getPathType() == ProjectPath::Type::None ||
-                path.getModtime() > cooked.getModtime())
+            if (cp)
             {
-                progress.reportFile(override);
-                spec.second->doCook(path, cooked, fast, hecl::SharedBlenderToken,
-                [&](const SystemChar* extra)
+                cp->addCookTransaction(path, spec.get());
+            }
+            else
+            {
+                const DataSpecEntry* override = spec->overrideDataSpec(path, spec->getDataSpecEntry(),
+                                                                       hecl::SharedBlenderToken);
+                if (!override)
+                    continue;
+                ProjectPath cooked = path.getCookedPath(*override);
+                if (fast)
+                    cooked = cooked.getWithExtension(_S(".fast"));
+                if (force || cooked.getPathType() == ProjectPath::Type::None ||
+                    path.getModtime() > cooked.getModtime())
                 {
-                    progress.reportFile(override, extra);
-                });
+                    progress.reportFile(override);
+                    spec->doCook(path, cooked, fast, hecl::SharedBlenderToken,
+                                 [&](const SystemChar* extra)
+                                 {
+                                     progress.reportFile(override, extra);
+                                 });
+                }
             }
         }
     }
@@ -413,9 +427,12 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
 
 static void VisitDirectory(const ProjectPath& dir,
                            bool recursive, bool force, bool fast,
-                           std::vector<SpecInst>& specInsts,
-                           CookProgress& progress)
+                           std::vector<std::unique_ptr<IDataSpec>>& specInsts,
+                           CookProgress& progress, ClientProcess* cp)
 {
+    if (dir.getLastComponent()[0] == _S('.'))
+        return;
+
     std::map<SystemString, ProjectPath> children;
     dir.getDirChildren(children);
 
@@ -434,7 +451,7 @@ static void VisitDirectory(const ProjectPath& dir,
         if (child.second.getPathType() == ProjectPath::Type::File)
         {
             progress.changeFile(child.first.c_str(), progNum++/progDenom);
-            VisitFile(child.second, force, fast, specInsts, progress);
+            VisitFile(child.second, force, fast, specInsts, progress, cp);
         }
     }
     progress.reportDirComplete();
@@ -448,7 +465,7 @@ static void VisitDirectory(const ProjectPath& dir,
             {
             case ProjectPath::Type::Directory:
             {
-                VisitDirectory(child.second, recursive, force, fast, specInsts, progress);
+                VisitDirectory(child.second, recursive, force, fast, specInsts, progress, cp);
                 break;
             }
             default: break;
@@ -457,76 +474,71 @@ static void VisitDirectory(const ProjectPath& dir,
     }
 }
 
-static void VisitGlob(const ProjectPath& path,
-                      bool recursive, bool force, bool fast,
-                      std::vector<SpecInst>& specInsts,
-                      CookProgress& progress)
-{
-    std::vector<ProjectPath> children;
-    path.getGlobResults(children, path.getProject().getProjectRootPath().getAbsolutePath());
-
-    /* Pass 1: child file count */
-    int childFileCount = 0;
-    for (ProjectPath& child : children)
-        if (child.getPathType() == ProjectPath::Type::File)
-            ++childFileCount;
-
-    /* Pass 2: child files */
-    int progNum = 0;
-    float progDenom = childFileCount;
-    progress.changeDir(path.getLastComponent());
-    for (ProjectPath& child : children)
-    {
-        if (child.getPathType() == ProjectPath::Type::File)
-        {
-            progress.changeFile(child.getLastComponent(), progNum++/progDenom);
-            VisitFile(child, force, fast, specInsts, progress);
-        }
-    }
-    progress.reportDirComplete();
-
-    /* Pass 3: child directories */
-    if (recursive)
-        for (ProjectPath& child : children)
-            if (child.getPathType() == ProjectPath::Type::Directory)
-                VisitDirectory(child, recursive, force, fast, specInsts, progress);
-}
-
 bool Project::cookPath(const ProjectPath& path, FProgress progress,
-                       bool recursive, bool force, bool fast)
+                       bool recursive, bool force, bool fast, ClientProcess* cp)
 {
     /* Construct DataSpec instances for cooking */
-    std::vector<SpecInst> specInsts;
-    specInsts.reserve(m_compiledSpecs.size());
-    for (const ProjectDataSpec& spec : m_compiledSpecs)
-        if (spec.active && spec.spec.m_factory)
-            specInsts.emplace_back(&spec.spec,
-            std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, DataSpecTool::Cook)));
+    if (m_cookSpecs.empty())
+    {
+        m_cookSpecs.reserve(m_compiledSpecs.size());
+        for (const ProjectDataSpec& spec : m_compiledSpecs)
+            if (spec.active && spec.spec.m_factory)
+                m_cookSpecs.push_back(std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, DataSpecTool::Cook)));
+    }
 
     /* Iterate complete directory/file/glob list */
     CookProgress cookProg(progress);
     switch (path.getPathType())
     {
     case ProjectPath::Type::File:
+    case ProjectPath::Type::Glob:
     {
         cookProg.changeFile(path.getLastComponent(), 0.0);
-        VisitFile(path, force, fast, specInsts, cookProg);
+        VisitFile(path, force, fast, m_cookSpecs, cookProg, cp);
         break;
     }
     case ProjectPath::Type::Directory:
     {
-        VisitDirectory(path, recursive, force, fast, specInsts, cookProg);
-        break;
-    }
-    case ProjectPath::Type::Glob:
-    {
-        VisitGlob(path, recursive, force, fast, specInsts, cookProg);
+        VisitDirectory(path, recursive, force, fast, m_cookSpecs, cookProg, cp);
         break;
     }
     default: break;
     }
 
     return true;
+}
+
+bool Project::packagePath(const ProjectPath& path, FProgress progress, bool fast, ClientProcess* cp)
+{
+    /* Construct DataSpec instance for packaging */
+    const DataSpecEntry* specEntry = nullptr;
+    bool foundPC = false;
+    for (const ProjectDataSpec& spec : m_compiledSpecs)
+    {
+        if (spec.active && spec.spec.m_factory)
+        {
+            if (hecl::StringUtils::EndsWith(spec.spec.m_name, _S("-PC")))
+            {
+                foundPC = true;
+                specEntry = &spec.spec;
+            }
+            else if (!foundPC)
+            {
+                specEntry = &spec.spec;
+            }
+        }
+    }
+
+    if (specEntry && (!m_lastPackageSpec || m_lastPackageSpec->getDataSpecEntry() != specEntry))
+        m_lastPackageSpec = std::unique_ptr<IDataSpec>(specEntry->m_factory(*this, DataSpecTool::Package));
+
+    if (m_lastPackageSpec->canPackage(path))
+    {
+        m_lastPackageSpec->doPackage(path, specEntry, fast, hecl::SharedBlenderToken, progress, cp);
+        return true;
+    }
+
+    return false;
 }
 
 void Project::interruptCook()

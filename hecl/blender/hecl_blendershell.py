@@ -392,6 +392,11 @@ def dataout_loop():
             writepipestr(b'OK')
             hecl.sact.get_subtype_names(writepipebuf)
 
+        elif cmdargs[0] == 'GETSUBTYPEOVERLAYNAMES':
+            subtypeName = cmdargs[1]
+            writepipestr(b'OK')
+            hecl.sact.get_subtype_overlay_names(writepipebuf, subtypeName)
+
         elif cmdargs[0] == 'GETACTIONNAMES':
             writepipestr(b'OK')
             hecl.sact.get_action_names(writepipebuf)

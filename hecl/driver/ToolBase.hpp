@@ -9,6 +9,7 @@
 
 #ifndef _WIN32
 #include <unistd.h>
+#include <termios.h>
 #endif
 
 #include "hecl/Database.hpp"
@@ -29,23 +30,6 @@ struct ToolPassInfo
     bool yes = false;
 };
 
-class ToolBase
-{
-protected:
-    const ToolPassInfo& m_info;
-    bool m_good = false;
-public:
-    ToolBase(const ToolPassInfo& info)
-    : m_info(info)
-    {
-        hecl::VerbosityLevel = info.verbosityLevel;
-    }
-    virtual ~ToolBase() {}
-    virtual hecl::SystemString toolName() const=0;
-    virtual int run()=0;
-    inline operator bool() const {return m_good;}
-};
-
 #define RED "\033[0;31m"
 #define GREEN "\033[0;32m"
 #define YELLOW "\033[0;33m"
@@ -61,6 +45,58 @@ public:
 #define WRAP_INDENT 4
 
 extern bool XTERM_COLOR;
+
+class ToolBase
+{
+protected:
+    const ToolPassInfo& m_info;
+    bool m_good = false;
+
+    bool continuePrompt()
+    {
+        if (!m_info.yes)
+        {
+            if (XTERM_COLOR)
+                hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
+            else
+                hecl::Printf(_S("\nContinue? (Y/n) "));
+
+            int ch;
+#ifndef _WIN32
+            struct termios tioOld, tioNew;
+            tcgetattr(0, &tioOld);
+            tioNew = tioOld;
+            tioNew.c_lflag &= ~ICANON;
+            tcsetattr(0, TCSANOW, &tioNew);
+            while ((ch = getchar()))
+#else
+            while ((ch = getch()))
+#endif
+            {
+                if (ch == 'n' || ch == 'N')
+                    return false;
+                if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
+                    break;
+            }
+#ifndef _WIN32
+            tcsetattr(0, TCSANOW, &tioOld);
+#endif
+        }
+        hecl::Printf(_S("\n"));
+        return true;
+    }
+
+public:
+    ToolBase(const ToolPassInfo& info)
+    : m_info(info)
+    {
+        hecl::VerbosityLevel = info.verbosityLevel;
+    }
+    virtual ~ToolBase() {}
+    virtual hecl::SystemString toolName() const=0;
+    virtual int run()=0;
+    inline operator bool() const {return m_good;}
+};
 
 class HelpOutput
 {

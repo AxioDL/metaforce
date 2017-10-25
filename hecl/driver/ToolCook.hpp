@@ -3,6 +3,7 @@
 
 #include "ToolBase.hpp"
 #include <stdio.h>
+#include "hecl/ClientProcess.hpp"
 
 class ToolCook final : public ToolBase
 {
@@ -136,16 +137,13 @@ public:
 
     int run()
     {
+        hecl::ClientProcess cp(m_info.verbosityLevel, m_fast, m_info.force);
         for (const hecl::ProjectPath& path : m_selectedItems)
         {
             int lineIdx = 0;
-            m_useProj->cookPath(path,
-            [&lineIdx](const hecl::SystemChar* message,
-                       const hecl::SystemChar* submessage,
-                       int lidx, float factor)
-            {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);},
-            m_recursive, m_info.force, m_fast);
+            m_useProj->cookPath(path, {}, m_recursive, m_info.force, m_fast, &cp);
         }
+        cp.waitUntilComplete();
         return 0;
     }
 };

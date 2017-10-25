@@ -905,6 +905,7 @@ public:
         std::vector<std::string> getArmatureNames();
         std::vector<std::string> getSubtypeNames();
         std::vector<std::string> getActionNames();
+        std::vector<std::string> getSubtypeOverlayNames(const std::string& name);
 
         struct Matrix3f
         {

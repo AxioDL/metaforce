@@ -374,6 +374,19 @@ def get_subtype_names(writebuf):
         writebuf(struct.pack('I', len(subtype.name)))
         writebuf(subtype.name.encode())
 
+# Access subtype's contained overlay names
+def get_subtype_overlay_names(writebuf, subtypeName):
+    sact_data = bpy.context.scene.hecl_sact_data
+    for sub_idx in range(len(sact_data.subtypes)):
+        subtype = sact_data.subtypes[sub_idx]
+        if subtype.name == subtypeName:
+            writebuf(struct.pack('I', len(subtype.overlays)))
+            for overlay in subtype.overlays:
+                writebuf(struct.pack('I', len(overlay.name)))
+                writebuf(overlay.name.encode())
+            return
+    writebuf(struct.pack('I', 0))
+
 # Access actor's contained action names
 def get_action_names(writebuf):
     sact_data = bpy.context.scene.hecl_sact_data
@@ -382,7 +395,6 @@ def get_action_names(writebuf):
         action = sact_data.actions[action_idx]
         writebuf(struct.pack('I', len(action.name)))
         writebuf(action.name.encode())
-
 
 # Panel draw
 def draw(layout, context):

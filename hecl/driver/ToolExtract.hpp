@@ -25,7 +25,7 @@ class ToolExtract final : public ToolBase
     std::vector<SpecExtractPass> m_specPasses;
     std::vector<hecl::Database::IDataSpec::ExtractReport> m_reps;
     std::unique_ptr<hecl::Database::Project> m_fallbackProj;
-    hecl::Database::Project* m_useProj;
+    hecl::Database::Project* m_useProj = nullptr;
 public:
     ToolExtract(const ToolPassInfo& info)
     : ToolBase(info)
@@ -154,51 +154,23 @@ public:
             hecl::Printf(_S("\n"));
         }
 
-        if (!m_info.yes)
+        if (continuePrompt())
         {
-            if (XTERM_COLOR)
-                hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
-            else
-                hecl::Printf(_S("\nContinue? (Y/n) "));
-
-            int ch;
-#ifndef _WIN32
-            struct termios tioOld, tioNew;
-            tcgetattr(0, &tioOld);
-            tioNew = tioOld;
-            tioNew.c_lflag &= ~ICANON;
-            tcsetattr(0, TCSANOW, &tioNew);
-            while ((ch = getchar()))
-#else
-            while ((ch = getch()))
-#endif
+            for (SpecExtractPass& ds : m_specPasses)
             {
-                if (ch == 'n' || ch == 'N')
-                    return 0;
-                if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
-                    break;
+                if (XTERM_COLOR)
+                    hecl::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
+                else
+                    hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
+
+                int lineIdx = 0;
+                ds.m_instance->doExtract(m_einfo,
+                                         [&lineIdx](const hecl::SystemChar* message,
+                                                    const hecl::SystemChar* submessage,
+                                                    int lidx, float factor)
+                                         {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);});
+                hecl::Printf(_S("\n\n"));
             }
-#ifndef _WIN32
-            tcsetattr(0, TCSANOW, &tioOld);
-#endif
-        }
-
-        hecl::Printf(_S("\n"));
-
-        for (SpecExtractPass& ds : m_specPasses)
-        {
-            if (XTERM_COLOR)
-                hecl::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
-            else
-                hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
-
-            int lineIdx = 0;
-            ds.m_instance->doExtract(m_einfo,
-            [&lineIdx](const hecl::SystemChar* message,
-                       const hecl::SystemChar* submessage,
-                       int lidx, float factor)
-            {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);});
-            hecl::Printf(_S("\n\n"));
         }
 
         return 0;

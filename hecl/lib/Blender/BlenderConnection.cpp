@@ -1791,6 +1791,39 @@ std::vector<std::string> BlenderConnection::DataStream::getActionNames()
     return ret;
 }
 
+std::vector<std::string> BlenderConnection::DataStream::getSubtypeOverlayNames(const std::string& name)
+{
+    if (m_parent->m_loadedType != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+
+    char req[128];
+    snprintf(req, 128, "GETSUBTYPEOVERLAYNAMES %s", name.c_str());
+    m_parent->_writeStr(req);
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get subtype overlays of actor: %s", readBuf);
+
+    std::vector<std::string> ret;
+
+    uint32_t subCount;
+    m_parent->_readBuf(&subCount, 4);
+    ret.reserve(subCount);
+    for (uint32_t i=0 ; i<subCount ; ++i)
+    {
+        ret.emplace_back();
+        std::string& name = ret.back();
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        name.assign(bufSz, ' ');
+        m_parent->_readBuf(&name[0], bufSz);
+    }
+
+    return ret;
+}
+
 std::unordered_map<std::string, BlenderConnection::DataStream::Matrix3f>
 BlenderConnection::DataStream::getBoneMatrices(const std::string& name)
 {

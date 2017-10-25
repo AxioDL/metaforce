@@ -20,6 +20,8 @@ class ClientProcess
     std::condition_variable m_initCv;
     std::condition_variable m_waitCv;
     int m_verbosity;
+    bool m_fast;
+    bool m_force;
 
 public:
     struct Transaction
@@ -84,7 +86,7 @@ private:
     static ThreadLocalPtr<ClientProcess::Worker> ThreadWorker;
 
 public:
-    ClientProcess(int verbosityLevel=1);
+    ClientProcess(int verbosityLevel=1, bool fast=false, bool force=false);
     ~ClientProcess() {shutdown();}
     std::shared_ptr<const BufferTransaction>
     addBufferTransaction(const hecl::ProjectPath& path, void* target,

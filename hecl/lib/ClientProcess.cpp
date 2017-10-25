@@ -47,13 +47,6 @@ void ClientProcess::BufferTransaction::run(BlenderToken& btok)
 void ClientProcess::CookTransaction::run(BlenderToken& btok)
 {
     m_dataSpec->setThreadProject();
-    if (m_path.getAuxInfo().empty())
-        LogModule.report(logvisor::Info, _S("Cooking %s"),
-                         m_path.getRelativePath().c_str());
-    else
-        LogModule.report(logvisor::Info, _S("Cooking %s|%s"),
-                         m_path.getRelativePath().c_str(),
-                         m_path.getAuxInfo().c_str());
     m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok);
     m_complete = true;
 }
@@ -105,8 +98,8 @@ void ClientProcess::Worker::proc()
     m_blendTok.shutdown();
 }
 
-ClientProcess::ClientProcess(int verbosityLevel)
-: m_verbosity(verbosityLevel)
+ClientProcess::ClientProcess(int verbosityLevel, bool fast, bool force)
+: m_verbosity(verbosityLevel), m_fast(fast), m_force(force)
 {
 #ifdef HECL_MULTIPROCESSOR
     const int cpuCount = GetCPUCount();
@@ -161,8 +154,21 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
         if (specEnt)
         {
             hecl::ProjectPath cooked = path.getCookedPath(*specEnt);
+            if (m_fast)
+                cooked = cooked.getWithExtension(_S(".fast"));
             cooked.makeDirChain(false);
-            spec->doCook(path, cooked, false, btok, [](const SystemChar*) {});
+            if (m_force || cooked.getPathType() == ProjectPath::Type::None ||
+                path.getModtime() > cooked.getModtime())
+            {
+                if (path.getAuxInfo().empty())
+                    LogModule.report(logvisor::Info, _S("Cooking %s"),
+                                     path.getRelativePath().c_str());
+                else
+                    LogModule.report(logvisor::Info, _S("Cooking %s|%s"),
+                                     path.getRelativePath().c_str(),
+                                     path.getAuxInfo().c_str());
+                spec->doCook(path, cooked, false, btok, [](const SystemChar*) {});
+            }
             return true;
         }
     }
