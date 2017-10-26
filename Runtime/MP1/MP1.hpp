@@ -52,8 +52,10 @@ class CGameGlobalObjects
     friend class CMain;
 
     std::unique_ptr<CMemoryCardSys> x0_memoryCardSys;
-    IFactory& x4_resFactory;
-    CSimplePool& xcc_simplePool;
+    std::unique_ptr<CResFactory> x4_gameResFactory;
+    IFactory* x4_resFactory;
+    std::unique_ptr<CSimplePool> x4_gameSimplePool;
+    CSimplePool* xcc_simplePool;
     CCharacterFactoryBuilder xec_charFactoryBuilder;
     CAiFuncMap x110_aiFuncMap;
     std::unique_ptr<CGameState> x134_gameState;
@@ -75,12 +77,22 @@ class CGameGlobalObjects
     }
 
 public:
-    CGameGlobalObjects(IFactory& resFactory,
-                       CSimplePool& objStore)
+    CGameGlobalObjects(IFactory* resFactory,
+                       CSimplePool* objStore)
     : x4_resFactory(resFactory), xcc_simplePool(objStore)
     {
-        g_ResFactory = &x4_resFactory;
-        g_SimplePool = &xcc_simplePool;
+        if (!x4_resFactory)
+        {
+            x4_gameResFactory.reset(new CResFactory());
+            x4_resFactory = x4_gameResFactory.get();
+        }
+        if (!xcc_simplePool)
+        {
+            x4_gameSimplePool.reset(new CSimplePool(*x4_resFactory));
+            xcc_simplePool = x4_gameSimplePool.get();
+        }
+        g_ResFactory = x4_resFactory;
+        g_SimplePool = xcc_simplePool;
         g_CharFactoryBuilder = &xec_charFactoryBuilder;
         g_AiFuncMap = &x110_aiFuncMap;
         x134_gameState.reset(new CGameState());
@@ -91,8 +103,9 @@ public:
     void PostInitialize()
     {
         AddPaksAndFactories();
+        x4_resFactory->LoadOriginalIDs(*xcc_simplePool);
         LoadStringTable();
-        m_renderer.reset(AllocateRenderer(xcc_simplePool, x4_resFactory));
+        m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
         CScriptMazeNode::LoadMazeSeeds();
     }
 
@@ -250,7 +263,7 @@ private:
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
 
 public:
-    CMain(IFactory& resFactory, CSimplePool& resStore,
+    CMain(IFactory* resFactory, CSimplePool* resStore,
           boo::IGraphicsDataFactory* gfxFactory,
           boo::IGraphicsCommandQueue* cmdQ,
           boo::ITextureR* spareTex);

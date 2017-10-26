@@ -22,7 +22,7 @@ class CObjectReference
     bool x3_loading = false; /* Rightmost bit of lockCount */
     SObjectTag x4_objTag;
     IObjectStore* xC_objectStore = nullptr;
-    IObj* x10_object = nullptr;
+    std::unique_ptr<IObj> x10_object;
     CVParamTransfer x14_params;
 
     /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
@@ -37,7 +37,7 @@ class CObjectReference
     bool IsLoading() const {return x3_loading;}
 
     /** Indicates an asynchronous load transaction has finished and object is completely loaded */
-    bool IsLoaded() const {return x10_object != nullptr;}
+    bool IsLoaded() const {return x10_object.operator bool();}
 
     /** Decrements 2nd ref-count, performing unload or async-load-cancel if 0 reached */
     void Unlock();

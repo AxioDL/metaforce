@@ -12,6 +12,7 @@ class IObj;
 class CObjectReference;
 class CResLoader;
 class CFactoryMgr;
+class CSimplePool;
 
 using CFactoryFnReturn = std::unique_ptr<IObj>;
 using FFactoryFunc = std::function<CFactoryFnReturn(const urde::SObjectTag& tag,
@@ -28,7 +29,7 @@ class IFactory
 public:
     virtual ~IFactory() = default;
     virtual CFactoryFnReturn Build(const SObjectTag&, const CVParamTransfer&, CObjectReference*)=0;
-    virtual void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**, CObjectReference*)=0;
+    virtual void BuildAsync(const SObjectTag&, const CVParamTransfer&, std::unique_ptr<IObj>*, CObjectReference*)=0;
     virtual void CancelBuild(const SObjectTag&)=0;
     virtual bool CanBuild(const SObjectTag&)=0;
     virtual const SObjectTag* GetResourceIdByName(const char*) const=0;
@@ -37,6 +38,8 @@ public:
     virtual void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const=0;
     virtual CResLoader* GetResLoader() const { return nullptr; }
     virtual CFactoryMgr* GetFactoryMgr() const { return nullptr; }
+    virtual void LoadOriginalIDs(CSimplePool& sp) {}
+    virtual void AsyncIdle() {}
 
     /* Non-factory versions, replaces CResLoader */
     virtual u32 ResourceSize(const urde::SObjectTag& tag)=0;

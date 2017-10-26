@@ -34,6 +34,8 @@ public:
     std::unique_ptr<CInputStream> LoadNewResourceSync(const SObjectTag& tag, void* extBuf=nullptr);
     std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf);
     std::shared_ptr<IDvdRequest> LoadResourceAsync(const SObjectTag& tag, void* buf);
+    std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
+    std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
     bool GetResourceCompression(const SObjectTag& tag);
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);
@@ -47,6 +49,9 @@ public:
     bool CacheFromPakForLoad(CPakFile& file, CAssetId id);
     bool CacheFromPak(const CPakFile& file, CAssetId id) const;
     void MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file);
+    std::vector<std::pair<std::string, SObjectTag>> GetResourceIdToNameList() const;
+    void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
+    void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
 };
 
 }

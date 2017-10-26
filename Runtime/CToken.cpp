@@ -20,9 +20,9 @@ u16 CObjectReference::RemoveReference()
 CObjectReference::CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj,
                                    const SObjectTag& objTag, CVParamTransfer buildParams)
 : x4_objTag(objTag), xC_objectStore(&objStore),
-  x10_object(obj.release()), x14_params(buildParams) {}
+  x10_object(std::move(obj)), x14_params(buildParams) {}
 CObjectReference::CObjectReference(std::unique_ptr<IObj>&& obj)
-: x10_object(obj.release()) {}
+: x10_object(std::move(obj)) {}
 
 void CObjectReference::Unlock()
 {
@@ -57,8 +57,7 @@ void CObjectReference::CancelLoad()
 
 void CObjectReference::Unload()
 {
-    std::default_delete<IObj>()(x10_object);
-    x10_object = nullptr;
+    x10_object.reset();
     x3_loading = false;
 }
 
@@ -67,16 +66,16 @@ IObj* CObjectReference::GetObject()
     if (!x10_object)
     {
         IFactory& factory = xC_objectStore->GetFactory();
-        x10_object = factory.Build(x4_objTag, x14_params, this).release();
+        x10_object = factory.Build(x4_objTag, x14_params, this);
     }
     x3_loading = false;
-    return x10_object;
+    return x10_object.get();
 }
 
 CObjectReference::~CObjectReference()
 {
     if (x10_object)
-        std::default_delete<IObj>()(x10_object);
+        x10_object.reset();
     else if (x3_loading)
         xC_objectStore->GetFactory().CancelBuild(x4_objTag);
 }

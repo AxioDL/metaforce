@@ -29,7 +29,7 @@ public:
         //IDvdRequest* x8_dvdReq = nullptr;
         std::unique_ptr<u8[]>* xc_targetDataPtr = nullptr;
         u8* xc_targetDataRawPtr = nullptr;
-        IObj** xc_targetObjPtr = nullptr;
+        std::unique_ptr<IObj>* xc_targetObjPtr = nullptr;
         std::unique_ptr<u8[]> x10_loadBuffer;
         u32 x14_resSize = UINT32_MAX;
         u32 x14_resOffset = 0;
@@ -58,7 +58,7 @@ public:
           x14_resOffset(off) {}
 
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
-                  IObj** ptr, const CVParamTransfer& xfer, CObjectReference* selfRef)
+                  std::unique_ptr<IObj>* ptr, const CVParamTransfer& xfer, CObjectReference* selfRef)
         : m_parent(parent), x0_tag(tag), xc_targetObjPtr(ptr), x18_cvXfer(xfer), m_selfRef(selfRef) {}
 
         /* Cook only */
@@ -135,12 +135,12 @@ protected:
     bool SyncCook(const hecl::ProjectPath& working);
     CFactoryFnReturn BuildSync(const SObjectTag& tag, const hecl::ProjectPath& path,
                                const CVParamTransfer& paramXfer, CObjectReference* selfRef);
+    std::shared_ptr<AsyncTask> BuildAsyncInternal(const urde::SObjectTag&, const urde::CVParamTransfer&, std::unique_ptr<urde::IObj>*, CObjectReference* selfRef);
 
 public:
     ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}
     std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&, CObjectReference* selfRef);
-    void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**, CObjectReference* selfRef);
-    std::shared_ptr<AsyncTask> BuildAsyncInternal(const urde::SObjectTag&, const urde::CVParamTransfer&, urde::IObj**, CObjectReference* selfRef);
+    void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, std::unique_ptr<urde::IObj>*, CObjectReference* selfRef);
     void CancelBuild(const urde::SObjectTag&);
     bool CanBuild(const urde::SObjectTag&);
     const urde::SObjectTag* GetResourceIdByName(const char*) const;

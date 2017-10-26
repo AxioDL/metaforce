@@ -299,7 +299,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
                 newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer, selfRef);
             }
 
-            *task.xc_targetObjPtr = newObj.get();
+            //*task.xc_targetObjPtr = newObj.get();
             Log.report(logvisor::Warning, "spin-built %.4s %08X",
                        task.x0_tag.type.toString().c_str(), u32(task.x0_tag.id.Value()));
 
@@ -328,7 +328,7 @@ std::unique_ptr<urde::IObj> ProjectResourceFactoryBase::Build(const urde::SObjec
 std::shared_ptr<AsyncTask>
 ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
                                                const urde::CVParamTransfer& paramXfer,
-                                               urde::IObj** objOut,
+                                               std::unique_ptr<urde::IObj>* objOut,
                                                CObjectReference* selfRef)
 {
     if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
@@ -338,7 +338,7 @@ ProjectResourceFactoryBase::BuildAsyncInternal(const urde::SObjectTag& tag,
 
 void ProjectResourceFactoryBase::BuildAsync(const urde::SObjectTag& tag,
                                             const urde::CVParamTransfer& paramXfer,
-                                            urde::IObj** objOut,
+                                            std::unique_ptr<urde::IObj>* objOut,
                                             CObjectReference* selfRef)
 {
     if (!tag.id.IsValid())
@@ -528,7 +528,7 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it)
                     newObj = m_factoryMgr.MakeObject(task.x0_tag, mr, task.x18_cvXfer, task.m_selfRef);
                 }
 
-                *task.xc_targetObjPtr = newObj.release();
+                *task.xc_targetObjPtr = std::move(newObj);
                 Log.report(logvisor::Info, "async-built %.4s %08X",
                            task.x0_tag.type.toString().c_str(),
                            u32(task.x0_tag.id.Value()));

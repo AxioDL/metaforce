@@ -81,7 +81,8 @@ bool ProjectManager::newProject(const hecl::SystemString& path)
 
 bool ProjectManager::openProject(const hecl::SystemString& path)
 {
-    hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
+    hecl::SystemString subPath;
+    hecl::ProjectRootPath projPath = hecl::SearchForProject(path, subPath);
     if (!projPath)
     {
         Log.report(logvisor::Warning, _S("project doesn't exist at '%s'"), path.c_str());
@@ -129,30 +130,43 @@ makeProj:
     else
         m_vm.SetupEditorView();
 
-    m_factoryMP1.IndexMP1Resources(*m_proj, m_objStore);
-    m_mainMP1.emplace(m_factoryMP1, m_objStore, m_vm.m_mainBooFactory,
-                      m_vm.m_mainCommandQueue, m_vm.m_renderTex);
+    bool runFromPaks = hecl::StringUtils::BeginsWith(subPath, _S("out"));
+    if (runFromPaks)
+    {
+        m_mainMP1.emplace(nullptr, nullptr, m_vm.m_mainBooFactory,
+                          m_vm.m_mainCommandQueue, m_vm.m_renderTex);
+    }
+    else
+    {
+        m_factoryMP1.IndexMP1Resources(*m_proj, m_objStore);
+        m_mainMP1.emplace(&m_factoryMP1, &m_objStore, m_vm.m_mainBooFactory,
+                          m_vm.m_mainCommandQueue, m_vm.m_renderTex);
+    }
+
     m_vm.InitMP1(*m_mainMP1);
 
     // precook
-    m_precooking = true;
-    std::vector<SObjectTag> nonMlvls;
-    std::vector<SObjectTag> mlvls;
-    mlvls.reserve(8);
-    m_factoryMP1.EnumerateResources([this, &nonMlvls, &mlvls](const SObjectTag& tag)
+    if (!runFromPaks)
     {
-        if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+        m_precooking = true;
+        std::vector<SObjectTag> nonMlvls;
+        std::vector<SObjectTag> mlvls;
+        mlvls.reserve(8);
+        m_factoryMP1.EnumerateResources([this, &nonMlvls, &mlvls](const SObjectTag& tag)
+                                        {
+                                            if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+                                                m_factoryMP1.CookResourceAsync(tag);
+                                            else if (tag.type != FOURCC('MLVL'))
+                                                nonMlvls.push_back(tag);
+                                            else // (tag.type == FOURCC('MLVL'))
+                                                mlvls.push_back(tag);
+                                            return true;
+                                        });
+        for (const SObjectTag& tag : nonMlvls)
             m_factoryMP1.CookResourceAsync(tag);
-        else if (tag.type != FOURCC('MLVL'))
-            nonMlvls.push_back(tag);
-        else // (tag.type == FOURCC('MLVL'))
-            mlvls.push_back(tag);
-        return true;
-    });
-    for (const SObjectTag& tag : nonMlvls)
-        m_factoryMP1.CookResourceAsync(tag);
-    for (const SObjectTag& tag : mlvls)
-        m_factoryMP1.CookResourceAsync(tag);
+        for (const SObjectTag& tag : mlvls)
+            m_factoryMP1.CookResourceAsync(tag);
+    }
 
     if (needsSave)
         saveProject();
@@ -226,11 +240,6 @@ void ProjectManager::mainDraw()
 
     if (m_mainMP1)
         m_mainMP1->Draw();
-}
-
-void ProjectManager::asyncIdle()
-{
-    m_factoryMP1.AsyncIdle();
 }
 
 void ProjectManager::shutdown()

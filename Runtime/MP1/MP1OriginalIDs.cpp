@@ -28,7 +28,7 @@ CAssetId MP1OriginalIDs::TranslateOriginalToNew(CAssetId id) const
     auto search = rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id,
                                     [](const auto& id) { return id.first; });
     if (search == m_origToNew.cend())
-        return -1;
+        return {};
     return search->second;
 }
 
@@ -37,7 +37,7 @@ CAssetId MP1OriginalIDs::TranslateNewToOriginal(CAssetId id) const
     auto search = rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
                                     [](const auto& id) { return id.first; });
     if (search == m_newToOrig.cend())
-        return -1;
+        return {};
     return search->second;
 }
 

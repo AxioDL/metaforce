@@ -239,7 +239,7 @@ CGameArchitectureSupport::~CGameArchitectureSupport()
     CStreamAudioManager::Shutdown();
 }
 
-CMain::CMain(IFactory& resFactory, CSimplePool& resStore,
+CMain::CMain(IFactory* resFactory, CSimplePool* resStore,
              boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ,
              boo::ITextureR* spareTex)
@@ -339,7 +339,6 @@ void CMain::AddWorldPaks()
         std::string path = pakPrefix;
         if (i != 0)
             path += '0' + i;
-        path += ".upak";
         if (CDvdFile::FileExists(path.c_str()))
             if (CResLoader* loader = g_ResFactory->GetResLoader())
                 loader->AddPakFileAsync(path, false, true);

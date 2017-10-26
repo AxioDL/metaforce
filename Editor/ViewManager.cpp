@@ -279,7 +279,8 @@ bool ViewManager::proc()
     if (g_Renderer)
         g_Renderer->EndScene();
     gfxQ->execute();
-    m_projManager.asyncIdle();
+    if (g_ResFactory)
+        g_ResFactory->AsyncIdle();
     m_mainWindow->waitForRetrace(m_voiceEngine.get());
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();

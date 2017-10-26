@@ -18,7 +18,7 @@ public:
     {
     public:
         CFactoryFnReturn Build(const SObjectTag&, const CVParamTransfer&, CObjectReference* selfRef);
-        void BuildAsync(const SObjectTag&, const CVParamTransfer&, IObj**, CObjectReference* selfRef);
+        void BuildAsync(const SObjectTag&, const CVParamTransfer&, std::unique_ptr<IObj>*, CObjectReference* selfRef);
         void CancelBuild(const SObjectTag&);
         bool CanBuild(const SObjectTag&);
         const SObjectTag* GetResourceIdByName(const char*) const;

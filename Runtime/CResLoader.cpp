@@ -11,7 +11,7 @@ CResLoader::CResLoader()
 
 const std::vector<CAssetId>* CResLoader::GetTagListForFile(const std::string& name) const
 {
-    std::string namePak = name + ".pak";
+    std::string namePak = name + ".upak";
     for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList)
         if (!CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path))
             return &pak->GetDepList();
@@ -20,7 +20,7 @@ const std::vector<CAssetId>* CResLoader::GetTagListForFile(const std::string& na
 
 void CResLoader::AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak)
 {
-    std::string namePak = name + ".pak";
+    std::string namePak = name + ".upak";
     if (CDvdFile::FileExists(namePak.c_str()))
     {
         x30_pakLoadingList.emplace_back(new CPakFile(namePak, samusPak, worldPak));
@@ -95,6 +95,23 @@ std::shared_ptr<IDvdRequest> CResLoader::LoadResourceAsync(const SObjectTag& tag
                                                       ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
 }
 
+std::unique_ptr<u8[]> CResLoader::LoadResourceSync(const urde::SObjectTag& tag)
+{
+    CPakFile* file = FindResourceForLoad(tag.id);
+    u32 size = ROUND_UP_32(x50_cachedResInfo->GetSize());
+    std::unique_ptr<u8[]> ret(new u8[size]);
+    file->SyncSeekRead(ret.get(), size, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
+    return ret;
+}
+
+std::unique_ptr<u8[]> CResLoader::LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off)
+{
+    CPakFile* file = FindResourceForLoad(tag.id);
+    std::unique_ptr<u8[]> ret(new u8[size]);
+    file->SyncSeekRead(ret.get(), size, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + off);
+    return ret;
+}
+
 bool CResLoader::GetResourceCompression(const SObjectTag& tag)
 {
     if (FindResource(tag.id))
@@ -118,7 +135,7 @@ FourCC CResLoader::GetResourceTypeById(CAssetId id) const
 {
     if (FindResource(id))
         return x50_cachedResInfo->GetType();
-    return FourCC();
+    return {};
 }
 
 const SObjectTag* CResLoader::GetResourceIdByName(const char* name) const
@@ -234,6 +251,40 @@ bool CResLoader::CacheFromPak(const CPakFile& file, CAssetId id) const
 void CResLoader::MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file)
 {
     x18_pakLoadedList.push_back(std::move(file));
+}
+
+std::vector<std::pair<std::string, SObjectTag>> CResLoader::GetResourceIdToNameList() const
+{
+    std::vector<std::pair<std::string, SObjectTag>> ret;
+    for (auto it = x18_pakLoadedList.begin() ; it != x18_pakLoadedList.end() ; ++it)
+        for (const auto& name : (*it)->GetNameList())
+            ret.push_back(name);
+    return ret;
+}
+
+void CResLoader::EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const
+{
+    for (auto it = x18_pakLoadedList.begin() ; it != x18_pakLoadedList.end() ; ++it)
+    {
+        for (const CAssetId& id : (*it)->GetDepList())
+        {
+            SObjectTag fcc(GetResourceTypeById(id), id);
+            if (!lambda(fcc))
+                return;
+        }
+    }
+}
+
+void CResLoader::EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
+{
+    for (auto it = x18_pakLoadedList.begin() ; it != x18_pakLoadedList.end() ; ++it)
+    {
+        for (const auto& name : (*it)->GetNameList())
+        {
+            if (!lambda(name.first, name.second))
+                return;
+        }
+    }
 }
 
 }

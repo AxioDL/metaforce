@@ -49,10 +49,10 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag,
 
 void CCharacterFactory::CDummyFactory::BuildAsync(const SObjectTag& tag,
                                                   const CVParamTransfer& parms,
-                                                  IObj** objOut,
+                                                  std::unique_ptr<IObj>* objOut,
                                                   CObjectReference* selfRef)
 {
-    *objOut = Build(tag, parms, selfRef).release();
+    *objOut = Build(tag, parms, selfRef);
 }
 
 void CCharacterFactory::CDummyFactory::CancelBuild(const SObjectTag&)
