@@ -260,6 +260,8 @@ static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg,
 #else
     if (arg[0] == _S('/') || arg[0] == _S('\\'))
         return arg;
+    if (cwd.back() == _S('/') || cwd.back() == _S('\\'))
+        return cwd + arg;
     return cwd + _S('/') + arg;
 #endif
 }

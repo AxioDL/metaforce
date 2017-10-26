@@ -215,6 +215,8 @@ bool IsPathBlend(const hecl::ProjectPath& path)
 
 bool IsPathYAML(const hecl::ProjectPath& path)
 {
+    if (!hecl::StrCmp(path.getLastComponent(), _S("!catalog.yaml")))
+        return false; /* !catalog.yaml is exempt from general use */
     const SystemChar* lastCompExt = path.getLastComponentExt();
     if (!lastCompExt)
         return false;
