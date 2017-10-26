@@ -66,6 +66,7 @@ class CGameGlobalObjects
         x13c_mainStringTable = g_SimplePool->GetObj("STRG_Main");
         g_MainStringTable = x13c_mainStringTable.GetObj();
     }
+    void AddPaksAndFactories();
     static IRenderer*
     AllocateRenderer(IObjectStore& store, IFactory& resFactory)
     {
@@ -89,6 +90,7 @@ public:
 
     void PostInitialize()
     {
+        AddPaksAndFactories();
         LoadStringTable();
         m_renderer.reset(AllocateRenderer(xcc_simplePool, x4_resFactory));
         CScriptMazeNode::LoadMazeSeeds();
@@ -253,6 +255,7 @@ public:
           boo::IGraphicsCommandQueue* cmdQ,
           boo::ITextureR* spareTex);
     void RegisterResourceTweaks();
+    void AddWorldPaks();
     void ResetGameState();
     void StreamNewGameState(CBitStreamReader&, u32 idx);
     void CheckTweakManagerDebugOptions() {}

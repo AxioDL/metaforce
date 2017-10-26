@@ -19,16 +19,19 @@ class CResLoader
     std::list<std::unique_ptr<CPakFile>> x18_pakLoadedList;
     std::list<std::unique_ptr<CPakFile>> x30_pakLoadingList;
     u32 x44_pakLoadingCount = 0;
-    CAssetId x4c_cachedResId;
-    const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
+    std::list<std::unique_ptr<CPakFile>>::iterator x48_curPak;
+    mutable CAssetId x4c_cachedResId;
+    mutable const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
+    bool x54_forwardSeek = false;
 public:
+    CResLoader();
     const std::vector<CAssetId>* GetTagListForFile(const std::string& name) const;
     void AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak);
     void AddPakFile(const std::string& name, bool samusPak, bool worldPak);
-    CInputStream* LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf);
-    void LoadMemResourceSync(const SObjectTag& tag, void** bufOut, int* sizeOut);
-    CInputStream* LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf);
-    CInputStream* LoadNewResourceSync(const SObjectTag& tag, void* extBuf=nullptr);
+    std::unique_ptr<CInputStream> LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf);
+    void LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]>& bufOut, int* sizeOut);
+    std::unique_ptr<CInputStream> LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf);
+    std::unique_ptr<CInputStream> LoadNewResourceSync(const SObjectTag& tag, void* extBuf=nullptr);
     std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf);
     std::shared_ptr<IDvdRequest> LoadResourceAsync(const SObjectTag& tag, void* buf);
     bool GetResourceCompression(const SObjectTag& tag);
@@ -42,7 +45,7 @@ public:
     CPakFile* FindResourceForLoad(CAssetId id);
     CPakFile* FindResourceForLoad(const SObjectTag& tag);
     bool CacheFromPakForLoad(CPakFile& file, CAssetId id);
-    bool CacheFromPak(const CPakFile& file, CAssetId id);
+    bool CacheFromPak(const CPakFile& file, CAssetId id) const;
     void MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file);
 };
 

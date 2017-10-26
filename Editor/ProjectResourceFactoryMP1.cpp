@@ -34,6 +34,7 @@
 #include "Runtime/CDependencyGroup.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
 #include "CSimplePool.hpp"
+#include "MP1/MP1OriginalIDs.hpp"
 #include "GameGlobalObjects.hpp"
 
 namespace DataSpec
@@ -44,57 +45,6 @@ extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 
 namespace urde
 {
-
-class MP1OriginalIDs
-{
-    std::vector<std::pair<CAssetId, CAssetId>> m_origToNew;
-    std::vector<std::pair<CAssetId, CAssetId>> m_newToOrig;
-
-public:
-    MP1OriginalIDs(CInputStream& in)
-    {
-        u32 count = in.readUint32Big();
-        m_origToNew.reserve(count);
-        for (u32 i=0 ; i<count ; ++i)
-        {
-            CAssetId a = in.readUint32Big();
-            CAssetId b = in.readUint32Big();
-            m_origToNew.push_back(std::make_pair(a, b));
-        }
-        m_newToOrig.reserve(count);
-        for (u32 i=0 ; i<count ; ++i)
-        {
-            CAssetId a = in.readUint32Big();
-            CAssetId b = in.readUint32Big();
-            m_newToOrig.push_back(std::make_pair(a, b));
-        }
-    }
-
-    CAssetId TranslateOriginalToNew(CAssetId id) const
-    {
-        auto search = rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id,
-        [](const auto& id) { return id.first; });
-        if (search == m_origToNew.cend())
-            return -1;
-        return search->second;
-    }
-
-    CAssetId TranslateNewToOriginal(CAssetId id) const
-    {
-        auto search = rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
-        [](const auto& id) { return id.first; });
-        if (search == m_newToOrig.cend())
-            return -1;
-        return search->second;
-    }
-};
-
-CFactoryFnReturn FMP1OriginalIDsFactory(const SObjectTag& tag, CInputStream& in,
-                                        const CVParamTransfer& param,
-                                        CObjectReference* selfRef)
-{
-    return TToken<MP1OriginalIDs>::GetIObjObjectFor(std::make_unique<MP1OriginalIDs>(in));
-}
 
 ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& clientProc)
 : ProjectResourceFactoryBase(clientProc)

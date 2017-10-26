@@ -10,6 +10,8 @@ namespace urde
 class CVParamTransfer;
 class IObj;
 class CObjectReference;
+class CResLoader;
+class CFactoryMgr;
 
 using CFactoryFnReturn = std::unique_ptr<IObj>;
 using FFactoryFunc = std::function<CFactoryFnReturn(const urde::SObjectTag& tag,
@@ -33,6 +35,8 @@ public:
     virtual FourCC GetResourceTypeById(CAssetId id) const=0;
     virtual void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const=0;
     virtual void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const=0;
+    virtual CResLoader* GetResLoader() const { return nullptr; }
+    virtual CFactoryMgr* GetFactoryMgr() const { return nullptr; }
 
     /* Non-factory versions, replaces CResLoader */
     virtual u32 ResourceSize(const urde::SObjectTag& tag)=0;

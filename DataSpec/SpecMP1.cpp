@@ -538,6 +538,15 @@ struct SpecMP1 : SpecBase
                     return {SBIG('AGSC'), glob.hash().val32()};
                 }
             }
+            if (ext[0] == _S('*') || !hecl::StrCmp(ext, _S("mid")))
+            {
+                if (path.getWithExtension(_S(".mid"), true).isFile() &&
+                    path.getWithExtension(_S(".yaml"), true).isFile())
+                {
+                    hecl::ProjectPath glob = path.getWithExtension(_S(".*"), true);
+                    return {SBIG('CSNG'), glob.hash().val32()};
+                }
+            }
         }
 
         hecl::ProjectPath asBlend;
@@ -562,13 +571,13 @@ struct SpecMP1 : SpecBase
                 if (path.getAuxInfo().size())
                 {
                     if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
-                        return {SBIG('CINF'), path.hash().val32()};
+                        return {SBIG('CINF'), path.getWithExtension(_S(".*"), true).hash().val32()};
                     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CSKR")))
-                        return {SBIG('CSKR'), path.hash().val32()};
+                        return {SBIG('CSKR'), path.getWithExtension(_S(".*"), true).hash().val32()};
                     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
-                        return {SBIG('ANIM'), path.hash().val32()};
+                        return {SBIG('ANIM'), path.getWithExtension(_S(".*"), true).hash().val32()};
                 }
-                return {SBIG('ANCS'), path.hash().val32()};
+                return {SBIG('ANCS'), path.getWithExtension(_S(".*"), true).hash().val32()};
             case hecl::BlenderConnection::BlendType::Area:
             {
                 if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S("PATH")))
@@ -580,11 +589,11 @@ struct SpecMP1 : SpecBase
                 if (path.getAuxInfo().size())
                 {
                     if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S("MAPW")))
-                        return {SBIG('MAPW'), path.hash().val32()};
+                        return {SBIG('MAPW'), path.getWithExtension(_S(".*"), true).hash().val32()};
                     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S("SAVW")))
-                        return {SBIG('SAVW'), path.hash().val32()};
+                        return {SBIG('SAVW'), path.getWithExtension(_S(".*"), true).hash().val32()};
                 }
-                return {SBIG('MLVL'), path.hash().val32()};
+                return {SBIG('MLVL'), path.getWithExtension(_S(".*"), true).hash().val32()};
             }
             case hecl::BlenderConnection::BlendType::MapArea:
                 return {SBIG('MAPA'), path.hash().val32()};
@@ -1023,7 +1032,7 @@ struct SpecMP1 : SpecBase
                 mSeeds.read(reader);
                 WriteTweak(mSeeds, out);
             }
-            else if (!classStr.compare(DNAMP1::MazeSeeds::DNAType()))
+            else if (!classStr.compare(DNAMP1::SnowForces::DNAType()))
             {
                 DNAMP1::SnowForces sForces;
                 sForces.read(reader);
@@ -1204,6 +1213,7 @@ struct SpecMP1 : SpecBase
         urde::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint32());
         if (skyboxTag)
         {
+            listOut.push_back(skyboxTag);
             hecl::ProjectPath skyboxPath = pathFromTag(skyboxTag);
             if (btok.getBlenderConnection().openBlend(skyboxPath))
             {
@@ -1217,7 +1227,6 @@ struct SpecMP1 : SpecBase
                     listOut.push_back(texTag);
                 }
             }
-            listOut.push_back(skyboxTag);
         }
 
         listOut.push_back(worldTag);

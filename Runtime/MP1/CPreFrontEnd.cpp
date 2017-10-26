@@ -20,8 +20,9 @@ CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage& msg, 
         return EMessageReturn::Normal;
 
     CMain* m = static_cast<CMain*>(g_Main);
-    //if (CResLoader::AreAllPaksLoaded())
-    //    return EMessageReturn::Exit;
+    if (CResLoader* loader = g_ResFactory->GetResLoader())
+        if (loader->AreAllPaksLoaded())
+            return EMessageReturn::Exit;
     if (!x14_resourceTweaksRegistered)
     {
         m->RegisterResourceTweaks();

@@ -365,6 +365,7 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
         }
         case hecl::BlenderConnection::BlendType::Actor:
         {
+            hecl::ProjectPath asGlob = path.getWithExtension(_S(".*"), true);
             hecl::BlenderConnection::DataStream ds = conn.beginData();
             hecl::BlenderConnection::DataStream::Actor actor = ds.compileActorCharacterOnly();
             for (auto& sub : actor.subtypes)
@@ -374,20 +375,32 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                     pathsOut.push_back(sub.mesh);
 
                     hecl::SystemStringView chSysName(sub.name);
-                    pathsOut.push_back(path.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR")));
+                    pathsOut.push_back(asGlob.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR")));
 
                     const auto& arm = actor.armatures[sub.armature];
                     hecl::SystemStringView armSysName(arm.name);
-                    pathsOut.push_back(path.ensureAuxInfo(armSysName.sys_str() + _S(".CINF")));
+                    pathsOut.push_back(asGlob.ensureAuxInfo(armSysName.sys_str() + _S(".CINF")));
                     for (const auto& overlay : sub.overlayMeshes)
                     {
                         pathsOut.push_back(overlay.second);
-                        pathsOut.push_back(path.ensureAuxInfo(chSysName.sys_str() + _S('.') +
-                                                                  overlay.first + _S(".CSKR")));
+                        pathsOut.push_back(asGlob.ensureAuxInfo(chSysName.sys_str() + _S('.') +
+                                                                overlay.first + _S(".CSKR")));
                     }
                 }
             }
-            break;
+            auto actNames = ds.getActionNames();
+            for (const auto& act : actNames)
+            {
+                hecl::SystemStringView actSysName(act);
+                pathsOut.push_back(asGlob.ensureAuxInfo(actSysName.sys_str() + _S(".ANIM")));
+                hecl::ProjectPath evntPath = asGlob.getWithExtension(
+                    hecl::SysFormat(_S(".%s.evnt.yaml"), actSysName.c_str()).c_str(), true);
+                if (evntPath.isFile())
+                    pathsOut.push_back(evntPath);
+            }
+
+            pathsOut.push_back(asGlob);
+            return;
         }
         case hecl::BlenderConnection::BlendType::Area:
         {
@@ -439,6 +452,7 @@ bool SpecBase::canPackage(const hecl::ProjectPath& path)
 }
 
 void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
+                                          std::unordered_set<urde::SObjectTag>& addedTags,
                                           const hecl::ProjectPath& path,
                                           hecl::BlenderToken& btok)
 {
@@ -448,9 +462,24 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
     {
         hecl::ProjectPath childPath(path, ent.m_name);
         if (ent.m_isDir)
-            recursiveBuildResourceList(listOut, childPath, btok);
-        else if (urde::SObjectTag tag = tagFromPath(childPath, btok))
-            listOut.push_back(tag);
+        {
+            recursiveBuildResourceList(listOut, addedTags, childPath, btok);
+        }
+        else
+        {
+            std::vector<hecl::ProjectPath> subPaths;
+            flattenDependencies(childPath, subPaths, btok);
+            for (const auto& subPath : subPaths)
+            {
+                if (urde::SObjectTag tag = tagFromPath(subPath, btok))
+                {
+                    if (addedTags.find(tag) != addedTags.end())
+                        continue;
+                    addedTags.insert(tag);
+                    listOut.push_back(tag);
+                }
+            }
+        }
     }
 }
 
@@ -535,7 +564,8 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     else if (path.getPathType() == hecl::ProjectPath::Type::Directory) /* General PAK */
     {
         /* Build resource list */
-        recursiveBuildResourceList(buildList, path, btok);
+        std::unordered_set<urde::SObjectTag> addedTags;
+        recursiveBuildResourceList(buildList, addedTags, path, btok);
         std::vector<std::pair<urde::SObjectTag, std::string>> nameList;
 
         /* Build name list */
@@ -556,12 +586,19 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     /* Async cook resource list if using ClientProcess */
     if (cp)
     {
+        std::unordered_set<urde::SObjectTag> addedTags;
+        addedTags.reserve(buildList.size());
+
         Log.report(logvisor::Info, _S("Validating resources"));
         size_t loadIdx = 0;
         for (auto& tag : buildList)
         {
             fprintf(stderr, "\r %" PRISize " / %" PRISize "  %.4s %08X", ++loadIdx, buildList.size(),
                     tag.type.getChars(), (unsigned int)tag.id.Value());
+            if (addedTags.find(tag) != addedTags.end())
+                continue;
+            addedTags.insert(tag);
+
             hecl::ProjectPath depPath = pathFromTag(tag);
             if (!depPath)
             {

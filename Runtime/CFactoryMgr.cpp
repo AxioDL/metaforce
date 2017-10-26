@@ -65,4 +65,31 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
     }
 }
 
+static const FourCC TypeTable[] =
+{
+    FOURCC('CLSN'), FOURCC('CMDL'), FOURCC('CSKR'), FOURCC('ANIM'), FOURCC('CINF'), FOURCC('TXTR'),
+    FOURCC('PLTT'), FOURCC('FONT'), FOURCC('ANCS'), FOURCC('EVNT'), FOURCC('MADF'), FOURCC('MLVL'),
+    FOURCC('MREA'), FOURCC('MAPW'), FOURCC('MAPA'), FOURCC('SAVW'), FOURCC('SAVA'), FOURCC('PART'),
+    FOURCC('WPSC'), FOURCC('SWHC'), FOURCC('DPSC'), FOURCC('ELSC'), FOURCC('CRSC'), FOURCC('AFSM'),
+    FOURCC('DCLN'), FOURCC('AGSC'), FOURCC('ATBL'), FOURCC('CSNG'), FOURCC('STRG'), FOURCC('SCAN'),
+    FOURCC('PATH'), FOURCC('DGRP'), FOURCC('HMAP'), FOURCC('CTWK'), FOURCC('FRME'), FOURCC('HINT'),
+    FOURCC('MAPU'), FOURCC('DUMB')
+};
+
+CFactoryMgr::ETypeTable CFactoryMgr::FourCCToTypeIdx(FourCC fcc)
+{
+    for (int i=0 ; i<4 ; ++i)
+        fcc.getChars()[i] = char(std::toupper(fcc.getChars()[i]));
+    auto search = std::find_if(std::begin(TypeTable), std::end(TypeTable),
+                               [fcc](const FourCC& test) { return test == fcc; });
+    if (search == std::end(TypeTable))
+        return ETypeTable::Invalid;
+    return ETypeTable(search - std::begin(TypeTable));
+}
+
+FourCC CFactoryMgr::TypeIdxToFourCC(ETypeTable fcc)
+{
+    return TypeTable[int(fcc)];
+}
+
 }

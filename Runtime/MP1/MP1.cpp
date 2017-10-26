@@ -20,7 +20,39 @@
 #include "Graphics/Shaders/CParticleSwooshShaders.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
+
+#include "CGameHintInfo.hpp"
+#include "Particle/CParticleDataFactory.hpp"
+#include "Particle/CGenDescription.hpp"
+#include "Particle/CElectricDescription.hpp"
+#include "Particle/CSwooshDescription.hpp"
+#include "Particle/CParticleElectricDataFactory.hpp"
+#include "Particle/CParticleSwooshDataFactory.hpp"
+#include "Particle/CWeaponDescription.hpp"
+#include "Particle/CProjectileWeaponDataFactory.hpp"
+#include "Particle/CDecalDataFactory.hpp"
+#include "GuiSys/CGuiFrame.hpp"
+#include "GuiSys/CRasterFont.hpp"
+#include "GuiSys/CStringTable.hpp"
+#include "Graphics/CModel.hpp"
+#include "Graphics/CTexture.hpp"
+#include "Character/CCharLayoutInfo.hpp"
+#include "Character/CSkinRules.hpp"
+#include "Character/CAnimCharacterSet.hpp"
+#include "Character/CAllFormatsAnimSource.hpp"
+#include "Character/CAnimPOIData.hpp"
+#include "Collision/CCollidableOBBTreeGroup.hpp"
+#include "Collision/CCollisionResponseData.hpp"
+#include "CSaveWorld.hpp"
+#include "AutoMapper/CMapWorld.hpp"
+#include "AutoMapper/CMapArea.hpp"
+#include "AutoMapper/CMapUniverse.hpp"
+#include "CScannableObjectInfo.hpp"
 #include "Audio/CAudioGroupSet.hpp"
+#include "Audio/CSfxManager.hpp"
+#include "Audio/CMidiManager.hpp"
+#include "CDependencyGroup.hpp"
+#include "MP1OriginalIDs.hpp"
 
 namespace urde
 {
@@ -248,6 +280,72 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
 void CMain::RegisterResourceTweaks()
 {
 }
+
+void CGameGlobalObjects::AddPaksAndFactories()
+{
+    CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
+    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    if (CResLoader* loader = g_ResFactory->GetResLoader())
+    {
+        loader->AddPakFileAsync("Tweaks", false, false);
+        loader->AddPakFileAsync("NoARAM", false, false);
+        loader->AddPakFileAsync("AudioGrp", false, false);
+        loader->AddPakFileAsync("MiscData", false, false);
+        loader->AddPakFileAsync("SamusGun", true, false);
+        loader->AddPakFileAsync("TestAnim", true, false);
+        loader->AddPakFileAsync("SamGunFx", true, false);
+        loader->AddPakFileAsync("MidiData", false, false);
+        loader->AddPakFileAsync("GGuiSys", false, false);
+    }
+
+    if (CFactoryMgr* fmgr = g_ResFactory->GetFactoryMgr())
+    {
+        fmgr->AddFactory(FOURCC('TXTR'), FMemFactoryFunc(FTextureFactory));
+        fmgr->AddFactory(FOURCC('PART'), FFactoryFunc(FParticleFactory));
+        fmgr->AddFactory(FOURCC('FRME'), FFactoryFunc(RGuiFrameFactoryInGame));
+        fmgr->AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));
+        fmgr->AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FModelFactory));
+        fmgr->AddFactory(FOURCC('CINF'), FFactoryFunc(FCharLayoutInfo));
+        fmgr->AddFactory(FOURCC('CSKR'), FFactoryFunc(FSkinRulesFactory));
+        fmgr->AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
+        fmgr->AddFactory(FOURCC('ANIM'), FFactoryFunc(AnimSourceFactory));
+        fmgr->AddFactory(FOURCC('EVNT'), FFactoryFunc(AnimPOIDataFactory));
+        fmgr->AddFactory(FOURCC('DCLN'), FFactoryFunc(FCollidableOBBTreeGroupFactory));
+        fmgr->AddFactory(FOURCC('DGRP'), FFactoryFunc(FDependencyGroupFactory));
+        fmgr->AddFactory(FOURCC('AGSC'), FMemFactoryFunc(FAudioGroupSetDataFactory));
+        fmgr->AddFactory(FOURCC('CSNG'), FFactoryFunc(FMidiDataFactory));
+        fmgr->AddFactory(FOURCC('ATBL'), FFactoryFunc(FAudioTranslationTableFactory));
+        fmgr->AddFactory(FOURCC('STRG'), FFactoryFunc(FStringTableFactory));
+        fmgr->AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
+        fmgr->AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));
+        fmgr->AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
+        fmgr->AddFactory(FOURCC('OIDS'), FFactoryFunc(FMP1OriginalIDsFactory));
+        fmgr->AddFactory(FOURCC('SCAN'), FFactoryFunc(FScannableObjectInfoFactory));
+        fmgr->AddFactory(FOURCC('CRSC'), FFactoryFunc(FCollisionResponseDataFactory));
+        fmgr->AddFactory(FOURCC('SWHC'), FFactoryFunc(FParticleSwooshDataFactory));
+        fmgr->AddFactory(FOURCC('ELSC'), FFactoryFunc(FParticleElectricDataFactory));
+        fmgr->AddFactory(FOURCC('WPSC'), FFactoryFunc(FProjectileWeaponDataFactory));
+        fmgr->AddFactory(FOURCC('DPSC'), FFactoryFunc(FDecalDataFactory));
+        fmgr->AddFactory(FOURCC('MAPA'), FFactoryFunc(FMapAreaFactory));
+        fmgr->AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
+    }
+}
+
+void CMain::AddWorldPaks()
+{
+    auto& pakPrefix = g_tweakGame->GetWorldPrefix();
+    for (int i=0 ; i<9 ; ++i)
+    {
+        std::string path = pakPrefix;
+        if (i != 0)
+            path += '0' + i;
+        path += ".upak";
+        if (CDvdFile::FileExists(path.c_str()))
+            if (CResLoader* loader = g_ResFactory->GetResLoader())
+                loader->AddPakFileAsync(path, false, true);
+    }
+}
+
 void CMain::ResetGameState()
 {
     CPersistentOptions sysOpts = g_GameState->SystemOptions();
@@ -325,6 +423,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks();
     x70_tweaks.RegisterResourceTweaks();
+    AddWorldPaks();
     FillInAssetIDs();
     x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
     g_archSupport = x164_archSupport.get();

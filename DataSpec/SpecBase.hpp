@@ -187,6 +187,7 @@ protected:
     void backgroundIndexProc();
 
     void recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
+                                    std::unordered_set<urde::SObjectTag>& addedTags,
                                     const hecl::ProjectPath& path,
                                     hecl::BlenderToken& btok);
     void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,

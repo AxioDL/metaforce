@@ -315,6 +315,10 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 }
             }
 
+            urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(areaPath.ensureAuxInfo(_S("PATH")), btok);
+            if (pathTag.id.IsValid())
+                areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
+
             urde::SObjectTag tag = g_curSpec->buildTagFromPath(areaPath, btok);
             if (tag.id.IsValid())
                 areaOut.deps.emplace_back(tag.id.Value(), tag.type);
