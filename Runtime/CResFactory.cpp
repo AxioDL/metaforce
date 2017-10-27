@@ -3,6 +3,7 @@
 
 namespace urde
 {
+static logvisor::Module Log("CResFactory");
 
 void CResFactory::AddToLoadList(SLoadingData&& data)
 {
@@ -11,19 +12,22 @@ void CResFactory::AddToLoadList(SLoadingData&& data)
 
 CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTransfer& xfer, CObjectReference* selfRef)
 {
+    CFactoryFnReturn ret;
     if (x5c_factoryMgr.CanMakeMemory(tag))
     {
         std::unique_ptr<uint8_t[]> data;
         int size;
         x4_loader.LoadMemResourceSync(tag, data, &size);
-        return x5c_factoryMgr.MakeObjectFromMemory(tag, std::move(data), size,
-               x4_loader.GetResourceCompression(tag), xfer, selfRef);
+        ret = x5c_factoryMgr.MakeObjectFromMemory(tag, std::move(data), size,
+              x4_loader.GetResourceCompression(tag), xfer, selfRef);
     }
     else
     {
         auto rp = x4_loader.LoadNewResourceSync(tag, nullptr);
-        return x5c_factoryMgr.MakeObject(tag, *rp, xfer, selfRef);
+        ret = x5c_factoryMgr.MakeObject(tag, *rp, xfer, selfRef);
     }
+    Log.report(logvisor::Warning, "sync-built %.4s %08X", tag.type.getChars(), tag.id.Value());
+    return ret;
 }
 
 bool CResFactory::PumpResource(SLoadingData& data)
@@ -34,6 +38,7 @@ bool CResFactory::PumpResource(SLoadingData& data)
             x5c_factoryMgr.MakeObjectFromMemory(data.x0_tag, std::move(data.x10_loadBuffer),
                                                 data.x14_resSize, data.m_compressed, data.x18_cvXfer,
                                                 data.m_selfRef);
+        Log.report(logvisor::Info, "async-built %.4s %08X", data.x0_tag.type.getChars(), data.x0_tag.id.Value());
         return true;
     }
     return false;
@@ -60,13 +65,15 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
     {
         SLoadingData data(tag, target, xfer, x4_loader.GetResourceCompression(tag), selfRef);
         data.x10_loadBuffer = std::unique_ptr<u8[]>(new u8[x4_loader.ResourceSize(tag)]);
-        x4_loader.LoadResourceAsync(tag, data.x10_loadBuffer.get());
+        data.x8_dvdReq = x4_loader.LoadResourceAsync(tag, data.x10_loadBuffer.get());
         AddToLoadList(std::move(data));
     }
 }
 
 void CResFactory::AsyncIdle()
 {
+    if (m_loadList.empty())
+        return;
     auto startTime = std::chrono::steady_clock::now();
     while (std::chrono::duration_cast<std::chrono::milliseconds>(
            std::chrono::steady_clock::now() - startTime).count() < 2)

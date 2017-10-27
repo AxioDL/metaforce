@@ -25,8 +25,8 @@ CPauseScreen::CPauseScreen(ESubScreen subscreen,
 {
     SObjectTag frmeTag(FOURCC('FRME'), x54_frmePauseScreenId);
     x58_frmePauseScreenBufSz = g_ResFactory->ResourceSize(frmeTag);
-    ProjectResourceFactoryBase& resFac = static_cast<ProjectResourceFactoryBase&>(*g_ResFactory);
-    x60_loadTok = resFac.LoadResourceAsync(frmeTag, x5c_frmePauseScreenBuf);
+    x5c_frmePauseScreenBuf.reset(new u8[x58_frmePauseScreenBufSz]);
+    x60_loadTok = g_ResFactory->LoadResourceAsync(frmeTag, x5c_frmePauseScreenBuf.get());
     CSfxManager::SfxStart(1435, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
@@ -89,7 +89,7 @@ bool CPauseScreen::CheckLoadComplete(const CStateManager& mgr)
     }
     if (x60_loadTok)
     {
-        if (!x60_loadTok->m_complete)
+        if (!x60_loadTok->IsComplete())
             return false;
         for (int i=0 ; i<2 ; ++i)
         {

@@ -30,14 +30,14 @@ public:
 
     enum class ETypeTable : s8
     {
-        Invalid = -1,
         CLSN, CMDL, CSKR, ANIM, CINF, TXTR,
         PLTT, FONT, ANCS, EVNT, MADF, MLVL,
         MREA, MAPW, MAPA, SAVW, SAVA, PART,
         WPSC, SWHC, DPSC, ELSC, CRSC, AFSM,
         DCLN, AGSC, ATBL, CSNG, STRG, SCAN,
         PATH, DGRP, HMAP, CTWK, FRME, HINT,
-        MAPU, DUMB
+        MAPU, DUMB, OIDS,
+        Invalid = 127
     };
 
     static ETypeTable FourCCToTypeIdx(FourCC fcc);

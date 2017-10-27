@@ -7,8 +7,12 @@ static logvisor::Module Log("urde::CPakFile");
 CPakFile::CPakFile(const std::string& filename, bool buildDepList, bool worldPak)
 : CDvdFile(filename.c_str())
 {
+    if (!CDvdFile::operator bool())
+        Log.report(logvisor::Fatal, "%s: Unable to open", GetPath().c_str());
     x28_24_buildDepList = buildDepList;
+    x28_24_buildDepList = true; // Always do this so URDE can rapidly pre-warm shaders
     x28_26_worldPak = worldPak;
+    x28_27_stashedInARAM = false;
 }
 
 const SObjectTag* CPakFile::GetResIdByName(const char* name) const
@@ -79,7 +83,7 @@ void CPakFile::InitialHeaderLoad()
     x4c_resTableCount = r.readUint32Big();
     x48_resTableOffset = u32(r.position());
     x2c_asyncLoadPhase = EAsyncPhase::DataLoad;
-    u32 newSize = ROUND_UP_32(x4c_resTableCount * 16 + x48_resTableOffset);
+    u32 newSize = ROUND_UP_32(x4c_resTableCount * 20 + x48_resTableOffset);
     u32 origSize = u32(x38_headerData.size());
     if (newSize > origSize)
     {
@@ -103,10 +107,10 @@ void CPakFile::Warmup()
 
 const CPakFile::SResInfo* CPakFile::GetResInfoForLoadPreferForward(CAssetId id) const
 {
-    if (!x28_27_worldPakInitialized)
+    if (x28_27_stashedInARAM)
         return nullptr;
-    auto search = std::lower_bound(x74_resList.begin(), x74_resList.end(), id,
-                  [](const SResInfo& left, const CAssetId& right) { return left.x0_id < right; });
+    auto search = rstl::binary_find(x74_resList.begin(), x74_resList.end(), id,
+                  [](const SResInfo& test) { return test.x0_id; });
     if (search == x74_resList.end())
         return nullptr;
     const SResInfo* bestInfo = &*search;
@@ -130,10 +134,10 @@ const CPakFile::SResInfo* CPakFile::GetResInfoForLoadPreferForward(CAssetId id) 
 
 const CPakFile::SResInfo* CPakFile::GetResInfoForLoadDirectionless(CAssetId id) const
 {
-    if (!x28_27_worldPakInitialized)
+    if (x28_27_stashedInARAM)
         return nullptr;
-    auto search = std::lower_bound(x74_resList.begin(), x74_resList.end(), id,
-                  [](const SResInfo& left, const CAssetId& right) { return left.x0_id < right; });
+    auto search = rstl::binary_find(x74_resList.begin(), x74_resList.end(), id,
+                  [](const SResInfo& test) { return test.x0_id; });
     if (search == x74_resList.end())
         return nullptr;
     const SResInfo* bestInfo = &*search;
@@ -158,7 +162,7 @@ const CPakFile::SResInfo* CPakFile::GetResInfo(CAssetId id) const
 {
     if (x2c_asyncLoadPhase != EAsyncPhase::Loaded)
         return nullptr;
-    if (!x28_27_worldPakInitialized)
+    if (x28_27_stashedInARAM)
         return nullptr;
     auto search = rstl::binary_find(x74_resList.begin(), x74_resList.end(), id,
                                     [](const SResInfo& i) { return i.x0_id; });
@@ -171,7 +175,7 @@ void CPakFile::AsyncIdle()
 {
     if (x2c_asyncLoadPhase == EAsyncPhase::Loaded)
         return;
-    if (x30_dvdReq && x30_dvdReq->IsComplete())
+    if (x30_dvdReq && !x30_dvdReq->IsComplete())
         return;
     switch (x2c_asyncLoadPhase)
     {

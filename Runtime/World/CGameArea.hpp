@@ -123,7 +123,7 @@ class CGameArea : public IGameArea
         WaitForFinish
     } xf4_phase = EPhase::LoadHeader;
 
-    std::list<std::shared_ptr<ProjectResourceFactoryBase::AsyncTask>> xf8_loadTransactions;
+    std::list<std::shared_ptr<IDvdRequest>> xf8_loadTransactions;
 
 public:
 

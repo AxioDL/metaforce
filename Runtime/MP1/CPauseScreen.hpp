@@ -45,7 +45,7 @@ private:
     CAssetId x54_frmePauseScreenId;
     u32 x58_frmePauseScreenBufSz;
     std::unique_ptr<u8[]> x5c_frmePauseScreenBuf;
-    std::shared_ptr<ProjectResourceFactoryBase::AsyncTask> x60_loadTok;
+    std::shared_ptr<IDvdRequest> x60_loadTok;
     rstl::reserved_vector<std::unique_ptr<CGuiFrame>, 2> x64_frameInsts;
     u32 x78_activeIdx = 0;
     rstl::reserved_vector<std::unique_ptr<CPauseScreenBase>, 2> x7c_screens;

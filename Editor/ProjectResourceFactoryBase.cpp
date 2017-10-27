@@ -160,7 +160,7 @@ bool ProjectResourceFactoryBase::AsyncTask::AsyncPump()
     return m_failed;
 }
 
-void ProjectResourceFactoryBase::AsyncTask::WaitForComplete()
+void ProjectResourceFactoryBase::AsyncTask::WaitUntilComplete()
 {
     using ItType = std::unordered_map<SObjectTag,
         std::list<std::shared_ptr<AsyncTask>>::iterator>::iterator;
@@ -365,37 +365,25 @@ u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag)
     return fr->length();
 }
 
-std::shared_ptr<AsyncTask>
-ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag,
-                                              std::unique_ptr<u8[]>& target)
+std::shared_ptr<urde::IDvdRequest>
+ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag, void* target)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
         return {};
-    return _AddTask(std::make_shared<AsyncTask>(*this, tag, target));
+    return std::static_pointer_cast<urde::IDvdRequest>(_AddTask(std::make_shared<AsyncTask>(*this, tag, reinterpret_cast<u8*>(target))));
 }
 
-std::shared_ptr<AsyncTask>
+std::shared_ptr<urde::IDvdRequest>
 ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
-                                                  u32 size, u32 off,
-                                                  std::unique_ptr<u8[]>& target)
+                                                  u32 size, u32 off, void* target)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
     if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
         return {};
-    return _AddTask(std::make_shared<AsyncTask>(*this, tag, target, size, off));
-}
-
-std::shared_ptr<AsyncTask>
-ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, u8* target)
-{
-    if (!tag.id.IsValid())
-        Log.report(logvisor::Fatal, "attempted to access null id");
-    if (m_asyncLoadMap.find(tag) != m_asyncLoadMap.end())
-        return {};
-    return _AddTask(std::make_shared<AsyncTask>(*this, tag, target, size, off));
+    return std::static_pointer_cast<urde::IDvdRequest>(_AddTask(std::make_shared<AsyncTask>(*this, tag, reinterpret_cast<u8*>(target), size, off)));
 }
 
 std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::SObjectTag& tag)

@@ -441,14 +441,7 @@ bool SpecBase::canPackage(const hecl::ProjectPath& path)
     auto components = path.getPathComponents();
     if (components.size() <= 1)
         return false;
-    hecl::ProjectPath outDir(m_project.getProjectWorkingPath(), _S("out"));
-
-    if (path.getPathType() == hecl::ProjectPath::Type::File &&
-        !hecl::StrCmp(path.getLastComponent(), _S("!world.blend")))
-        return true;
-    else if (path.getPathType() == hecl::ProjectPath::Type::Directory)
-        return true;
-    return false;
+    return path.isFile() || path.isDirectory();
 }
 
 void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
@@ -537,7 +530,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     waitForIndexComplete();
 
     /* Name pak based on root-relative components */
-    auto components = path.getPathComponents();
+    auto components = path.getWithExtension(_S(""), true).getPathComponents();
     if (components.size() <= 1)
         return;
     hecl::ProjectPath outPath(m_project.getProjectWorkingPath(),
@@ -567,6 +560,38 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
         std::unordered_set<urde::SObjectTag> addedTags;
         recursiveBuildResourceList(buildList, addedTags, path, btok);
         std::vector<std::pair<urde::SObjectTag, std::string>> nameList;
+
+        /* Build name list */
+        for (const auto& item : buildList)
+        {
+            auto search = m_catalogTagToName.find(item);
+            if (search != m_catalogTagToName.end())
+                nameList.emplace_back(item, search->second);
+        }
+
+        /* Write resource list structure */
+        buildPakList(btok, pakOut, buildList, nameList, resTableOffset);
+        if (int64_t rem = pakOut.position() % 32)
+            for (int64_t i=0 ; i<32-rem ; ++i)
+                pakOut.writeUByte(0xff);
+    }
+    else if (path.getPathType() == hecl::ProjectPath::Type::File) /* One-file General PAK */
+    {
+        /* Build resource list */
+        std::vector<hecl::ProjectPath> subPaths;
+        flattenDependencies(path, subPaths, btok);
+        std::unordered_set<urde::SObjectTag> addedTags;
+        std::vector<std::pair<urde::SObjectTag, std::string>> nameList;
+        for (const auto& subPath : subPaths)
+        {
+            if (urde::SObjectTag tag = tagFromPath(subPath, btok))
+            {
+                if (addedTags.find(tag) != addedTags.end())
+                    continue;
+                addedTags.insert(tag);
+                buildList.push_back(tag);
+            }
+        }
 
         /* Build name list */
         for (const auto& item : buildList)

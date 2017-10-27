@@ -512,7 +512,6 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             if (!visiGood)
             {
                 hecl::ProjectPath visiIntOut = outPath.getWithExtension(_S(".visiint"));
-                hecl::ProjectPath visiIn = inPath.getWithExtension(_S(".visi"));
                 athena::io::FileWriter w(visiIntOut.getAbsolutePath());
                 w.writeUint32Big(meshes.size());
                 for (const DNACMDL::Mesh& mesh : meshes)
@@ -568,15 +567,19 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 #endif
                 const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
                                                   visiIntOut.getAbsolutePath().c_str(),
-                                                  visiIn.getAbsolutePath().c_str(),
+                                                  preVisiPath.getAbsolutePath().c_str(),
                                                   thrIdx, parPid, nullptr};
                 if (0 == hecl::RunProcess(VisiGenPath.c_str(), args))
                 {
-                    athena::io::FileReader r(visiIn.getAbsolutePath());
+                    athena::io::FileReader r(preVisiPath.getAbsolutePath());
                     size_t length = r.length();
                     secs.emplace_back(length, 0);
                     r.readBytesToBuf(secs.back().data(), length);
-                    visiGood = true;
+                    visiGood = true; 
+                }
+                else
+                {
+                    Log.report(logvisor::Fatal, _S("Unable to launch %s"), VisiGenPath.c_str());
                 }
             }
         }

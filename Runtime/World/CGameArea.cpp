@@ -416,7 +416,7 @@ CGameArea::CGameArea(CAssetId mreaId)
 {
     while (StartStreamingMainArea())
         for (auto& req : xf8_loadTransactions)
-            req->WaitForComplete();
+            req->WaitUntilComplete();
 
     MREAHeader header = VerifyHeader();
     x12c_postConstructed->x4c_insts.resize(header.modelCount);
@@ -794,8 +794,7 @@ u32 CGameArea::GetNumPartSizes() const
 void CGameArea::AllocNewAreaData(int offset, int size)
 {
     x110_mreaSecBufs.emplace_back(std::unique_ptr<u8[]>(new u8[size]), size);
-    xf8_loadTransactions.push_back(
-        static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->
+    xf8_loadTransactions.push_back(g_ResFactory->
         LoadResourcePartAsync(SObjectTag{FOURCC('MREA'), x84_mrea}, size, offset,
                               x110_mreaSecBufs.back().first.get()));
 }
@@ -809,7 +808,7 @@ void CGameArea::CullDeadAreaRequests()
 {
     for (auto it = xf8_loadTransactions.begin() ; it != xf8_loadTransactions.end() ;)
     {
-        if ((*it)->m_complete)
+        if ((*it)->IsComplete())
         {
             it = xf8_loadTransactions.erase(it);
             continue;
@@ -856,7 +855,7 @@ void CGameArea::Validate(CStateManager& mgr)
     while (StartStreamingMainArea()) {}
 
     for (auto& req : xf8_loadTransactions)
-        req->WaitForComplete();
+        req->WaitUntilComplete();
 
     if (xdc_tokens.empty())
     {

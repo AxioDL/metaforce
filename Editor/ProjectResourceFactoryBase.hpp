@@ -21,7 +21,7 @@ class ProjectResourceFactoryBase : public IFactory
     hecl::ClientProcess& m_clientProc;
 
 public:
-    struct AsyncTask
+    struct AsyncTask : urde::IDvdRequest
     {
         ProjectResourceFactoryBase& m_parent;
 
@@ -53,6 +53,10 @@ public:
           x14_resOffset(off) {}
 
         AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
+                  u8* ptr)
+        : m_parent(parent), x0_tag(tag), xc_targetDataRawPtr(ptr) {}
+
+        AsyncTask(ProjectResourceFactoryBase& parent, const SObjectTag& tag,
                   u8* ptr, u32 size, u32 off)
         : m_parent(parent), x0_tag(tag), xc_targetDataRawPtr(ptr), x14_resSize(size),
           x14_resOffset(off) {}
@@ -69,7 +73,10 @@ public:
                         const hecl::ProjectPath& path);
         void CookComplete();
         bool AsyncPump();
-        void WaitForComplete();
+        void WaitUntilComplete();
+        bool IsComplete() { return m_complete; }
+        void PostCancelRequest() {}
+        EMediaType GetMediaType() const { return EMediaType::Real; }
     };
 
 protected:
@@ -154,9 +161,8 @@ public:
     void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
 
     u32 ResourceSize(const SObjectTag& tag);
-    std::shared_ptr<AsyncTask> LoadResourceAsync(const urde::SObjectTag& tag, std::unique_ptr<u8[]>& target);
-    std::shared_ptr<AsyncTask> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, std::unique_ptr<u8[]>& target);
-    std::shared_ptr<AsyncTask> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, u8* target);
+    std::shared_ptr<urde::IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target);
+    std::shared_ptr<urde::IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, void* target);
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
     std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
 

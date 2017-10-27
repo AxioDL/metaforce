@@ -18,7 +18,8 @@ CWorld::CSoundGroupData::CSoundGroupData(int grpId, CAssetId agsc) : x0_groupId(
 CDummyWorld::CDummyWorld(CAssetId mlvlId, bool loadMap) : x4_loadMap(loadMap), xc_mlvlId(mlvlId)
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
-    static_cast<ProjectResourceFactoryBase*>(g_ResFactory)->LoadResourceAsync(tag, x34_loadBuf);
+    x34_loadBuf.reset(new u8[g_ResFactory->ResourceSize(tag)]);
+    g_ResFactory->LoadResourceAsync(tag, x34_loadBuf.get());
 }
 
 CAssetId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
@@ -186,7 +187,8 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
 {
     x70_24_currentAreaNeedsAllocation = true;
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
-    static_cast<ProjectResourceFactoryBase&>(resFactory).LoadResourceAsync(tag, x40_loadBuf);
+    x40_loadBuf.reset(new u8[resFactory.ResourceSize(tag)]);
+    resFactory.LoadResourceAsync(tag, x40_loadBuf.get());
 }
 
 CAssetId CWorld::IGetWorldAssetId() const { return x8_mlvlId; }

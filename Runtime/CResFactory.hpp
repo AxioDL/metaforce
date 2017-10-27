@@ -69,6 +69,16 @@ public:
         return x4_loader.LoadResourcePartSync(tag, size, off);
     }
 
+    std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target)
+    {
+        return x4_loader.LoadResourceAsync(tag, target);
+    }
+
+    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, void* target)
+    {
+        return x4_loader.LoadResourcePartAsync(tag, size, off, target);
+    }
+
     const SObjectTag* GetResourceIdByName(const char* name) const
     {
         return x4_loader.GetResourceIdByName(name);
@@ -97,6 +107,9 @@ public:
     void LoadOriginalIDs(CSimplePool& sp);
     CAssetId TranslateOriginalToNew(CAssetId id) const;
     CAssetId TranslateNewToOriginal(CAssetId id) const;
+
+    CResLoader* GetResLoader() { return &x4_loader; }
+    CFactoryMgr* GetFactoryMgr() { return &x5c_factoryMgr; }
 };
 
 }

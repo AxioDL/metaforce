@@ -60,17 +60,17 @@ u32 CCharacterFactoryBuilder::CDummyFactory::ResourceSize(const urde::SObjectTag
     return 0;
 }
 
-bool CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
-                                                                std::unique_ptr<u8[]>& target)
+std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
+                                                                                        void* target)
 {
-    return false;
+    return {};
 }
 
-bool CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
-                                                                    u32 size, u32 off,
-                                                                    std::unique_ptr<u8[]>& target)
+std::shared_ptr<IDvdRequest> CCharacterFactoryBuilder::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
+                                                                                            u32 size, u32 off,
+                                                                                            void* target)
 {
-    return false;
+    return {};
 }
 
 std::unique_ptr<u8[]> CCharacterFactoryBuilder::CDummyFactory::LoadResourceSync(const urde::SObjectTag& tag)

@@ -38,93 +38,91 @@ static const SObjectTag& IDFromFactory(CResFactory& factory, const char* name)
 
 void CTweaks::RegisterTweaks()
 {
-    ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
     std::experimental::optional<CMemoryInStream> strm;
     const SObjectTag* tag;
 
     /* Particle */
-    tag = factory.GetResourceIdByName("Particle");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("Particle");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakParticle = new DataSpec::DNAMP1::CTweakParticle(*strm);
 
     /* Player */
-    tag = factory.GetResourceIdByName("Player");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("Player");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakPlayer = new DataSpec::DNAMP1::CTweakPlayer(*strm);
 
     /* CameraBob */
-    tag = factory.GetResourceIdByName("CameraBob");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("CameraBob");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     CPlayerCameraBob::ReadTweaks(*strm);
 
     /* Ball */
-    tag = factory.GetResourceIdByName("Ball");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("Ball");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakBall = new DataSpec::DNAMP1::CTweakBall(*strm);
 
     /* PlayerGun */
-    tag = factory.GetResourceIdByName("PlayerGun");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("PlayerGun");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakPlayerGun = new DataSpec::DNAMP1::CTweakPlayerGun(*strm);
 
     /* Targeting */
-    tag = factory.GetResourceIdByName("Targeting");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("Targeting");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakTargeting = new DataSpec::DNAMP1::CTweakTargeting(*strm);
 
     /* Game */
-    tag = factory.GetResourceIdByName("Game");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("Game");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakGame = new DataSpec::DNAMP1::CTweakGame(*strm);
 
     /* GuiColors */
-    tag = factory.GetResourceIdByName("GuiColors");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("GuiColors");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakGuiColors = new DataSpec::DNAMP1::CTweakGuiColors(*strm);
 
     /* AutoMapper */
-    tag = factory.GetResourceIdByName("AutoMapper");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("AutoMapper");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakAutoMapper = new DataSpec::DNAMP1::CTweakAutoMapper(*strm);
     CMappableObject::ReadAutoMapperTweaks(*g_tweakAutoMapper);
 
     /* Gui */
-    tag = factory.GetResourceIdByName("Gui");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("Gui");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakGui = new DataSpec::DNAMP1::CTweakGui(*strm);
 
     /* PlayerControls */
-    tag = factory.GetResourceIdByName("PlayerControls");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("PlayerControls");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakPlayerControl = new DataSpec::DNAMP1::CTweakPlayerControl(*strm);
 
     /* PlayerControls2 */
-    tag = factory.GetResourceIdByName("PlayerControls2");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("PlayerControls2");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakPlayerControlAlt = new DataSpec::DNAMP1::CTweakPlayerControl(*strm);
 
     g_currentPlayerControl = g_tweakPlayerControl;
 
     /* SlideShow */
-    tag = factory.GetResourceIdByName("SlideShow");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("SlideShow");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakSlideShow = new DataSpec::DNAMP1::CTweakSlideShow(*strm);
 }
 
 void CTweaks::RegisterResourceTweaks()
 {
-    ProjectResourceFactoryMP1& factory = ProjectManager::g_SharedManager->resourceFactoryMP1();
     std::experimental::optional<CMemoryInStream> strm;
     
-    const SObjectTag* tag = factory.GetResourceIdByName("GunRes");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    const SObjectTag* tag = g_ResFactory->GetResourceIdByName("GunRes");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakGunRes = new DataSpec::DNAMP1::CTweakGunRes(*strm);
-    g_tweakGunRes->ResolveResources(factory);
+    g_tweakGunRes->ResolveResources(*g_ResFactory);
 
-    tag = factory.GetResourceIdByName("PlayerRes");
-    strm.emplace(factory.LoadResourceSync(*tag).release(), factory.ResourceSize(*tag));
+    tag = g_ResFactory->GetResourceIdByName("PlayerRes");
+    strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
     g_tweakPlayerRes = new DataSpec::DNAMP1::CTweakPlayerRes(*strm);
-    g_tweakPlayerRes->ResolveResources(factory);
+    g_tweakPlayerRes->ResolveResources(*g_ResFactory);
 }
 
 }

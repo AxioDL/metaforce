@@ -296,6 +296,8 @@ void CGameGlobalObjects::AddPaksAndFactories()
         loader->AddPakFileAsync("SamGunFx", true, false);
         loader->AddPakFileAsync("MidiData", false, false);
         loader->AddPakFileAsync("GGuiSys", false, false);
+        loader->AddPakFileAsync("!original_ids", false, false);
+        loader->WaitForPakFileLoadingComplete();
     }
 
     if (CFactoryMgr* fmgr = g_ResFactory->GetFactoryMgr())
@@ -333,16 +335,19 @@ void CGameGlobalObjects::AddPaksAndFactories()
 
 void CMain::AddWorldPaks()
 {
+    CResLoader* loader = g_ResFactory->GetResLoader();
+    if (!loader)
+        return;
     auto& pakPrefix = g_tweakGame->GetWorldPrefix();
     for (int i=0 ; i<9 ; ++i)
     {
         std::string path = pakPrefix;
         if (i != 0)
             path += '0' + i;
-        if (CDvdFile::FileExists(path.c_str()))
-            if (CResLoader* loader = g_ResFactory->GetResLoader())
-                loader->AddPakFileAsync(path, false, true);
+        if (CDvdFile::FileExists((path + ".upak").c_str()))
+            loader->AddPakFileAsync(path, false, true);
     }
+    loader->WaitForPakFileLoadingComplete();
 }
 
 void CMain::ResetGameState()
@@ -449,16 +454,24 @@ void CMain::WarmupShaders()
     });
     m_warmupTags.reserve(modelCount);
 
+    std::unordered_set<SObjectTag> addedTags;
+    addedTags.reserve(modelCount);
+
     g_ResFactory->EnumerateResources([&](const SObjectTag& tag)
     {
         if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA'))
+        {
+            if (addedTags.find(tag) != addedTags.end())
+                return true;
+            addedTags.insert(tag);
             m_warmupTags.push_back(tag);
+        }
         return true;
     });
 
     m_warmupIt = m_warmupTags.begin();
 
-    WarmupLog.report(logvisor::Info, "Began warmup of %" PRISize " objects", modelCount);
+    WarmupLog.report(logvisor::Info, "Began warmup of %" PRISize " objects", m_warmupTags.size());
 }
 
 bool CMain::Proc()

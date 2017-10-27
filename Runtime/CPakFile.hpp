@@ -44,7 +44,7 @@ private:
             bool x28_24_buildDepList;
             bool x28_25_aramFile;
             bool x28_26_worldPak;
-            bool x28_27_worldPakInitialized;
+            bool x28_27_stashedInARAM;
         };
         u32 _dummy = 0;
     };

@@ -88,17 +88,17 @@ u32 CCharacterFactory::CDummyFactory::ResourceSize(const urde::SObjectTag& tag)
     return 0;
 }
 
-bool CCharacterFactory::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
-                                                         std::unique_ptr<u8[]>& target)
+std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourceAsync(const urde::SObjectTag& tag,
+                                                                                 void* target)
 {
-    return false;
+    return {};
 }
 
-bool CCharacterFactory::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
-                                                             u32 size, u32 off,
-                                                             std::unique_ptr<u8[]>& target)
+std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
+                                                                                     u32 size, u32 off,
+                                                                                     void* target)
 {
-    return false;
+    return {};
 }
 
 std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const urde::SObjectTag& tag)

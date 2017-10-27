@@ -3,6 +3,7 @@
 
 namespace urde
 {
+static logvisor::Module Log("CResLoader");
 
 CResLoader::CResLoader()
 {
@@ -18,12 +19,12 @@ const std::vector<CAssetId>* CResLoader::GetTagListForFile(const std::string& na
     return nullptr;
 }
 
-void CResLoader::AddPakFileAsync(const std::string& name, bool samusPak, bool worldPak)
+void CResLoader::AddPakFileAsync(const std::string& name, bool buildDepList, bool worldPak)
 {
     std::string namePak = name + ".upak";
     if (CDvdFile::FileExists(namePak.c_str()))
     {
-        x30_pakLoadingList.emplace_back(new CPakFile(namePak, samusPak, worldPak));
+        x30_pakLoadingList.emplace_back(new CPakFile(namePak, buildDepList, worldPak));
         ++x44_pakLoadingCount;
     }
 }
@@ -31,11 +32,16 @@ void CResLoader::AddPakFileAsync(const std::string& name, bool samusPak, bool wo
 void CResLoader::AddPakFile(const std::string& name, bool samusPak, bool worldPak)
 {
     AddPakFileAsync(name, samusPak, worldPak);
+    WaitForPakFileLoadingComplete();
+}
+
+void CResLoader::WaitForPakFileLoadingComplete()
+{
     while (x44_pakLoadingCount)
         AsyncIdlePakLoading();
 }
 
-std::unique_ptr<CInputStream> CResLoader::LoadNewResourcePartSync(const SObjectTag& tag, int offset, int length, void* extBuf)
+std::unique_ptr<CInputStream> CResLoader::LoadNewResourcePartSync(const SObjectTag& tag, u32 length, u32 offset, void* extBuf)
 {
     void* buf = extBuf;
     CPakFile* file = FindResourceForLoad(tag);
@@ -83,7 +89,7 @@ std::unique_ptr<CInputStream> CResLoader::LoadNewResourceSync(const SObjectTag& 
     return std::unique_ptr<CInputStream>(newStrm);
 }
 
-std::shared_ptr<IDvdRequest> CResLoader::LoadResourcePartAsync(const SObjectTag& tag, int offset, int length, void* buf)
+std::shared_ptr<IDvdRequest> CResLoader::LoadResourcePartAsync(const SObjectTag& tag, u32 length, u32 offset, void* buf)
 {
     return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, length,
                                                       ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + offset);
@@ -187,6 +193,7 @@ bool CResLoader::FindResource(CAssetId id) const
             return true;
     }
 
+    Log.report(logvisor::Fatal, "Unable to find asset %08X", id);
     return false;
 }
 
@@ -207,6 +214,7 @@ CPakFile* CResLoader::FindResourceForLoad(CAssetId id)
         }
     }
 
+    Log.report(logvisor::Fatal, "Unable to find asset %08X", id);
     return nullptr;
 }
 

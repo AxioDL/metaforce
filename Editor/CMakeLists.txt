@@ -56,4 +56,6 @@ add_dependencies(urde visigen hecl)
 add_custom_command(TARGET urde POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
 add_custom_command(TARGET urde POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:hecl>)
+add_custom_command(TARGET urde POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)

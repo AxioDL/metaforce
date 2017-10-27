@@ -1165,8 +1165,6 @@ struct SpecMP1 : SpecBase
         nameEnt.name = parentDir.getLastComponent();
         nameEnt.write(w);
 
-        w.writeUint32Big(atUint32(count));
-        resTableOffset = w.position();
         for (const auto& area : mlvl.areas)
             for (const auto& dep : area.deps)
                 listOut.push_back({dep.type, dep.id.toUint32()});
@@ -1231,6 +1229,8 @@ struct SpecMP1 : SpecBase
 
         listOut.push_back(worldTag);
 
+        w.writeUint32Big(atUint32(listOut.size()));
+        resTableOffset = w.position();
         for (const auto& item : listOut)
         {
             DNAMP1::PAK::Entry ent;
