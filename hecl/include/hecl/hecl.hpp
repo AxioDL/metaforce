@@ -377,6 +377,15 @@ static inline int StrCmp(const SystemChar* str1, const SystemChar* str2)
 #endif
 }
 
+static inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count)
+{
+#if HECL_UCS2
+    return wcsncmp(str1, str2, count);
+#else
+    return strncmp(str1, str2, count);
+#endif
+}
+
 static inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2)
 {
 #if HECL_UCS2
@@ -1239,7 +1248,7 @@ public:
         size_t len = StrLen(test);
         if (len > str.size())
             return false;
-        return !StrCmp(str.data(), test);
+        return !StrNCmp(str.data(), test, len);
     }
 
     static bool EndsWith(const SystemString& str, const SystemChar* test)
@@ -1247,7 +1256,7 @@ public:
         size_t len = StrLen(test);
         if (len > str.size())
             return false;
-        return !StrCmp(&*(str.end() - len), test);
+        return !StrNCmp(&*(str.end() - len), test, len);
     }
 
     static std::string TrimWhitespace(const std::string& str)
@@ -1267,7 +1276,7 @@ public:
         size_t len = strlen(test);
         if (len > str.size())
             return false;
-        return !strcmp(str.data(), test);
+        return !strncmp(str.data(), test, len);
     }
 
     static bool EndsWith(const std::string& str, const char* test)
@@ -1275,7 +1284,7 @@ public:
         size_t len = strlen(test);
         if (len > str.size())
             return false;
-        return !strcmp(&*(str.end() - len), test);
+        return !strncmp(&*(str.end() - len), test, len);
     }
 
     static SystemString TrimWhitespace(const SystemString& str)

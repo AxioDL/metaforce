@@ -98,7 +98,7 @@ static int Read(int fd, void* buf, size_t size)
         }
         else
             return ret;
-    } while (intrCount < 3);
+    } while (intrCount < 1000);
     return -1;
 }
 
@@ -117,7 +117,7 @@ static int Write(int fd, const void* buf, size_t size)
         }
         else
             return ret;
-    } while (intrCount < 3);
+    } while (intrCount < 1000);
     return -1;
 }
 
@@ -127,6 +127,7 @@ uint32_t BlenderConnection::_readStr(char* buf, uint32_t bufSz)
     int ret = Read(m_readpipe[0], &readLen, 4);
     if (ret < 4)
     {
+        BlenderLog.report(logvisor::Error, "Pipe error %d %s", ret, strerror(errno));
         _blenderDied();
         return 0;
     }

@@ -21,10 +21,27 @@ class ToolPackage final : public ToolBase
         m_selectedItems.push_back(path);
     }
 
+    void CheckFile(const hecl::ProjectPath& path)
+    {
+        if (!hecl::StrCmp(path.getLastComponent(), _S("!world.blend")))
+            AddSelectedItem(path);
+        else if (!hecl::StrCmp(path.getLastComponent(), _S("!original_ids.yaml")))
+        {
+            auto pathComps = path.getPathComponents();
+            if (pathComps.size() == 2 && pathComps[0] != _S("out"))
+                AddSelectedItem(path);
+        }
+    }
+
     void FindSelectedItems(const hecl::ProjectPath& path, bool checkGeneral)
     {
-        size_t origSize = m_selectedItems.size();
+        if (path.isFile())
+        {
+            CheckFile(path);
+            return;
+        }
 
+        size_t origSize = m_selectedItems.size();
         hecl::DirectoryEnumerator dEnum(path.getAbsolutePath(),
                                         hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted, false, false, true);
         for (const auto& ent : dEnum)
@@ -32,13 +49,12 @@ class ToolPackage final : public ToolBase
             hecl::ProjectPath childPath(path, ent.m_name);
             if (ent.m_isDir)
                 FindSelectedItems(childPath, checkGeneral && childPath.getPathComponents().size() <= 2);
-            else if (ent.m_name == _S("!world.blend"))
-                AddSelectedItem(childPath);
+            else
+                CheckFile(childPath);
         }
 
-        /* Directory with 2 components, not "Shared" and no nested !world.blend files == General PAK */
-        if (path.getPathType() == hecl::ProjectPath::Type::Directory && checkGeneral &&
-            origSize == m_selectedItems.size())
+        /* Directory with 2 components not "Shared" and no nested !world.blend files == General PAK */
+        if (checkGeneral && origSize == m_selectedItems.size())
         {
             auto pathComps = path.getPathComponents();
             if (pathComps.size() == 2 && pathComps[0] != _S("out") && pathComps[1] != _S("Shared"))
