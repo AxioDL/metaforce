@@ -16,15 +16,16 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
     if (x5c_factoryMgr.CanMakeMemory(tag))
     {
         std::unique_ptr<uint8_t[]> data;
-        int size;
+        int size = 0;
         x4_loader.LoadMemResourceSync(tag, data, &size);
-        ret = x5c_factoryMgr.MakeObjectFromMemory(tag, std::move(data), size,
-              x4_loader.GetResourceCompression(tag), xfer, selfRef);
+        if (size)
+            ret = x5c_factoryMgr.MakeObjectFromMemory(tag, std::move(data), size,
+                  x4_loader.GetResourceCompression(tag), xfer, selfRef);
     }
     else
     {
-        auto rp = x4_loader.LoadNewResourceSync(tag, nullptr);
-        ret = x5c_factoryMgr.MakeObject(tag, *rp, xfer, selfRef);
+        if (auto rp = x4_loader.LoadNewResourceSync(tag, nullptr))
+            ret = x5c_factoryMgr.MakeObject(tag, *rp, xfer, selfRef);
     }
     Log.report(logvisor::Warning, "sync-built %.4s %08X", tag.type.getChars(), tag.id.Value());
     return ret;
@@ -50,9 +51,10 @@ std::unique_ptr<IObj> CResFactory::Build(const SObjectTag& tag, const CVParamTra
     if (search != m_loadMap.end())
     {
         while (!PumpResource(*search->second) || !search->second->xc_targetPtr) {}
+        std::unique_ptr<IObj> ret = std::move(*search->second->xc_targetPtr);
         m_loadList.erase(search->second);
         m_loadMap.erase(search);
-        return std::move(*search->second->xc_targetPtr);
+        return ret;
     }
     return BuildSync(tag, xfer, selfRef);
 }
@@ -61,12 +63,16 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
                              CObjectReference* selfRef)
 {
     auto search = m_loadMap.find(tag);
-    if (search != m_loadMap.end())
+    if (search == m_loadMap.end())
     {
         SLoadingData data(tag, target, xfer, x4_loader.GetResourceCompression(tag), selfRef);
-        data.x10_loadBuffer = std::unique_ptr<u8[]>(new u8[x4_loader.ResourceSize(tag)]);
-        data.x8_dvdReq = x4_loader.LoadResourceAsync(tag, data.x10_loadBuffer.get());
-        AddToLoadList(std::move(data));
+        data.x14_resSize = x4_loader.ResourceSize(tag);
+        if (data.x14_resSize)
+        {
+            data.x10_loadBuffer = std::unique_ptr<u8[]>(new u8[data.x14_resSize]);
+            data.x8_dvdReq = x4_loader.LoadResourceAsync(tag, data.x10_loadBuffer.get());
+            AddToLoadList(std::move(data));
+        }
     }
 }
 
@@ -83,6 +89,8 @@ void CResFactory::AsyncIdle()
         {
             m_loadMap.erase(task.x0_tag);
             m_loadList.pop_front();
+            if (m_loadList.empty())
+                return;
         }
     }
 }

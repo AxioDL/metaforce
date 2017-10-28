@@ -1131,7 +1131,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                     {
                         ch.cmdlOverlay = sub.overlayMeshes[0].second;
                         ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S('.') +
-                                                                  sub.overlayMeshes[0].first + _S(".CSKR"));
+                                                              sub.overlayMeshes[0].first + _S(".CSKR"));
                     }
 
                     break;

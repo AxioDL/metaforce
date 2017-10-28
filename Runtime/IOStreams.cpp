@@ -149,11 +149,15 @@ atUint64 CZipInputStream::readUBytesToBuf(void *buf, atUint64 len)
 {
     x30_zstrm.next_out = (Bytef*)buf;
     x30_zstrm.avail_out = len;
+    x30_zstrm.total_out = 0;
     while (x30_zstrm.avail_out != 0)
     {
-        atUint64 readSz = x28_strm->readUBytesToBuf(x24_compBuf.get(), 4096);
-        x30_zstrm.avail_in = readSz;
-        x30_zstrm.next_in = x24_compBuf.get();
+        if (x30_zstrm.avail_in == 0)
+        {
+            atUint64 readSz = x28_strm->readUBytesToBuf(x24_compBuf.get(), 4096);
+            x30_zstrm.avail_in = readSz;
+            x30_zstrm.next_in = x24_compBuf.get();
+        }
         if (inflate(&x30_zstrm, Z_NO_FLUSH) != Z_OK)
             break;
     }

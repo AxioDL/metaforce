@@ -53,11 +53,13 @@ std::unique_ptr<CInputStream> CResLoader::LoadNewResourcePartSync(const SObjectT
 
 void CResLoader::LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]>& bufOut, int* sizeOut)
 {
-    CPakFile* file = FindResourceForLoad(tag);
-    bufOut = std::unique_ptr<u8[]>(new u8[x50_cachedResInfo->GetSize()]);
-    file->SyncSeekRead(bufOut.get(), x50_cachedResInfo->GetSize(), ESeekOrigin::Begin,
-                       x50_cachedResInfo->GetOffset());
-    *sizeOut = x50_cachedResInfo->GetSize();
+    if (CPakFile* file = FindResourceForLoad(tag))
+    {
+        bufOut = std::unique_ptr<u8[]>(new u8[x50_cachedResInfo->GetSize()]);
+        file->SyncSeekRead(bufOut.get(), x50_cachedResInfo->GetSize(), ESeekOrigin::Begin,
+                           x50_cachedResInfo->GetOffset());
+        *sizeOut = x50_cachedResInfo->GetSize();
+    }
 }
 
 std::unique_ptr<CInputStream> CResLoader::LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf)
@@ -75,18 +77,21 @@ std::unique_ptr<CInputStream> CResLoader::LoadResourceFromMemorySync(const SObje
 std::unique_ptr<CInputStream> CResLoader::LoadNewResourceSync(const SObjectTag& tag, void* extBuf)
 {
     void* buf = extBuf;
-    CPakFile* file = FindResourceForLoad(tag);
-    size_t resSz = ROUND_UP_32(x50_cachedResInfo->GetSize());
-    if (!buf)
-        buf = new u8[resSz];
-    file->SyncSeekRead(buf, resSz, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
-    CInputStream* newStrm = new athena::io::MemoryReader((atUint8*)buf, resSz, !extBuf);
-    if (x50_cachedResInfo->IsCompressed())
+    if (CPakFile* file = FindResourceForLoad(tag))
     {
-        newStrm->readUint32Big();
-        newStrm = new CZipInputStream(std::unique_ptr<CInputStream>(newStrm));
+        size_t resSz = ROUND_UP_32(x50_cachedResInfo->GetSize());
+        if (!buf)
+            buf = new u8[resSz];
+        file->SyncSeekRead(buf, resSz, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
+        CInputStream* newStrm = new athena::io::MemoryReader((atUint8*) buf, resSz, !extBuf);
+        if (x50_cachedResInfo->IsCompressed())
+        {
+            newStrm->readUint32Big();
+            newStrm = new CZipInputStream(std::unique_ptr<CInputStream>(newStrm));
+        }
+        return std::unique_ptr<CInputStream>(newStrm);
     }
-    return std::unique_ptr<CInputStream>(newStrm);
+    return {};
 }
 
 std::shared_ptr<IDvdRequest> CResLoader::LoadResourcePartAsync(const SObjectTag& tag, u32 length, u32 offset, void* buf)
@@ -116,6 +121,25 @@ std::unique_ptr<u8[]> CResLoader::LoadResourcePartSync(const urde::SObjectTag& t
     std::unique_ptr<u8[]> ret(new u8[size]);
     file->SyncSeekRead(ret.get(), size, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + off);
     return ret;
+}
+
+void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const
+{
+    std::string path = std::string(pakName) + ".upak";
+    for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
+    {
+        if (!CStringExtras::CompareCaseInsensitive(file->GetPath(), path))
+        {
+            auto& depList = file->GetDepList();
+            out.reserve(depList.size());
+            for (const auto& dep : depList)
+            {
+                auto resInfo = file->GetResInfo(dep);
+                out.emplace_back(resInfo->GetType(), dep);
+            }
+            return;
+        }
+    }
 }
 
 bool CResLoader::GetResourceCompression(const SObjectTag& tag)
@@ -193,7 +217,7 @@ bool CResLoader::FindResource(CAssetId id) const
             return true;
     }
 
-    Log.report(logvisor::Fatal, "Unable to find asset %08X", id);
+    Log.report(logvisor::Error, "Unable to find asset %08X", id);
     return false;
 }
 
@@ -214,7 +238,7 @@ CPakFile* CResLoader::FindResourceForLoad(CAssetId id)
         }
     }
 
-    Log.report(logvisor::Fatal, "Unable to find asset %08X", id);
+    Log.report(logvisor::Error, "Unable to find asset %08X", id);
     return nullptr;
 }
 

@@ -341,6 +341,7 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                                    hecl::BlenderToken& btok)
 {
     DataSpec::g_curSpec.reset(this);
+    g_ThreadBlenderToken.reset(&btok);
 
     hecl::ProjectPath asBlend;
     if (path.getPathType() == hecl::ProjectPath::Type::Glob)

@@ -51,10 +51,10 @@ class CGameGlobalObjects
 {
     friend class CMain;
 
+    std::unique_ptr<CSimplePool> m_gameSimplePool;
+    std::unique_ptr<CResFactory> m_gameResFactory;
     std::unique_ptr<CMemoryCardSys> x0_memoryCardSys;
-    std::unique_ptr<CResFactory> x4_gameResFactory;
     IFactory* x4_resFactory;
-    std::unique_ptr<CSimplePool> x4_gameSimplePool;
     CSimplePool* xcc_simplePool;
     CCharacterFactoryBuilder xec_charFactoryBuilder;
     CAiFuncMap x110_aiFuncMap;
@@ -83,13 +83,13 @@ public:
     {
         if (!x4_resFactory)
         {
-            x4_gameResFactory.reset(new CResFactory());
-            x4_resFactory = x4_gameResFactory.get();
+            m_gameResFactory.reset(new CResFactory());
+            x4_resFactory = m_gameResFactory.get();
         }
         if (!xcc_simplePool)
         {
-            x4_gameSimplePool.reset(new CSimplePool(*x4_resFactory));
-            xcc_simplePool = x4_gameSimplePool.get();
+            m_gameSimplePool.reset(new CSimplePool(*x4_resFactory));
+            xcc_simplePool = m_gameSimplePool.get();
         }
         g_ResFactory = x4_resFactory;
         g_SimplePool = xcc_simplePool;

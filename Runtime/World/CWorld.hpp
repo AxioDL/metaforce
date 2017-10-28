@@ -50,7 +50,7 @@ class CDummyWorld : public IWorld
     std::vector<CDummyGameArea> x18_areas;
     CAssetId x28_mapWorldId = -1;
     TLockedToken<CMapWorld> x2c_mapWorld;
-    //AsyncTask x30_loadToken;
+    std::shared_ptr<IDvdRequest> x30_loadToken;
     std::unique_ptr<uint8_t[]> x34_loadBuf;
     //u32 x38_bufSz;
     TAreaId x3c_curAreaId = kInvalidAreaId;

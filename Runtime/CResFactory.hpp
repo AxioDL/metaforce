@@ -69,6 +69,11 @@ public:
         return x4_loader.LoadResourcePartSync(tag, size, off);
     }
 
+    void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const
+    {
+        return x4_loader.GetTagListForFile(pakName, out);
+    }
+
     std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target)
     {
         return x4_loader.LoadResourceAsync(tag, target);

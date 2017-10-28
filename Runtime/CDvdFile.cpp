@@ -32,6 +32,7 @@ public:
     bool IsComplete() {return m_complete;}
     void PostCancelRequest()
     {
+        std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
         m_cancel = true;
     }
 

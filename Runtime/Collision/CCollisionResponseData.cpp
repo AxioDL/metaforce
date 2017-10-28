@@ -86,7 +86,7 @@ bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStre
             if (cls == SBIG('NONE'))
                 return true;
 
-            CAssetId id = u64(CPF::GetInt(in));
+            CAssetId id = u64(in.readUint32Big());
             if (!id.IsValid())
                 return true;
 

@@ -19,7 +19,7 @@ CDummyWorld::CDummyWorld(CAssetId mlvlId, bool loadMap) : x4_loadMap(loadMap), x
 {
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     x34_loadBuf.reset(new u8[g_ResFactory->ResourceSize(tag)]);
-    g_ResFactory->LoadResourceAsync(tag, x34_loadBuf.get());
+    x30_loadToken = g_ResFactory->LoadResourceAsync(tag, x34_loadBuf.get());
 }
 
 CAssetId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
@@ -103,8 +103,9 @@ bool CDummyWorld::ICheckWorldComplete()
     {
     case Phase::Loading:
     {
-        if (!x34_loadBuf)
+        if (x30_loadToken && !x30_loadToken->IsComplete())
             return false;
+        x30_loadToken.reset();
         athena::io::MemoryReader r(x34_loadBuf.get(), UINT32_MAX, false);
         r.readUint32Big();
         int version = r.readUint32Big();

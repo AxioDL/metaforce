@@ -37,6 +37,7 @@ public:
     std::shared_ptr<IDvdRequest> LoadResourceAsync(const SObjectTag& tag, void* buf);
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
     std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
+    void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const;
     bool GetResourceCompression(const SObjectTag& tag);
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);

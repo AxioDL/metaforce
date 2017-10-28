@@ -17,7 +17,6 @@ using FourCC = hecl::FourCC;
 
 class CAssetId
 {
-private:
     u64 id = UINT64_MAX;
 public:
     CAssetId() = default;
