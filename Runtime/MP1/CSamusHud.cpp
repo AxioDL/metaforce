@@ -720,7 +720,7 @@ void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr)
             zeus::CTransform::Translate(x588_base_basewidget_pivot->GetWorldPosition()));
         x274_loadedFrmeBaseHud->GetFrameCamera()->SetO2WTransform(
             BuildFinalCameraTransform(zeus::CQuaternion::skNoRotation, x304_basewidgetIdlePos, x310_cameraPos));
-        x8_targetingMgr.SetRotation(zeus::CQuaternion::skNoRotation);
+        x8_targetingMgr.CompoundTargetReticle().SetLeadingOrientation(zeus::CQuaternion::skNoRotation);
     }
     else
     {
@@ -734,7 +734,7 @@ void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr)
         zeus::CQuaternion rot = zeus::CQuaternion::lookAt(zeus::CUnitVector3f(x2f8_fpCamDir), fpCamDir, 2.f * M_PIF);
         rot *= rot;
         rot *= rot;
-        x8_targetingMgr.SetRotation(rot);
+        x8_targetingMgr.CompoundTargetReticle().SetLeadingOrientation(rot);
 
         zeus::CVector3f bobTranslation = player.GetCameraBob()->GetHelmetBobTranslation();
 

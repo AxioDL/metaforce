@@ -10,7 +10,8 @@ namespace DNAMP1
 struct CTweakTargeting final : public ITweakTargeting
 {
     DECL_YAML
-    Value<atUint32> x4_;
+    Value<float> x0_;
+    Value<atUint32> x4_targetRadiusMode;
     Value<float> x8_;
     Value<float> xc_;
     Value<float> x10_;
@@ -18,16 +19,16 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> x18_;
     Value<float> x1c_;
     Value<float> x20_;
-    Value<float> x24_;
-    Value<float> x28_;
-    Value<float> x2c_;
+    Value<float> x24_seekerScale;
+    Value<float> x28_seekerAngleSpeed;
+    Value<float> x2c_xrayRetAngleSpeed;
     Value<atVec3f> x30_;
     Value<atVec3f> x3c_;
     Value<float> x48_;
     Value<float> x4c_;
-    Value<float> x50_;
-    Value<float> x54_;
-    Value<float> x58_;
+    Value<float> x50_orbitPointZOffset;
+    Value<float> x54_orbitPointInTime;
+    Value<float> x58_orbitPointOutTime;
     Value<float> x5c_;
     Value<atVec3f> x60_;
     Value<atVec3f> x6c_;
@@ -41,7 +42,7 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> xa4_;
     Value<float> xa8_;
     Value<float> xac_;
-    Value<atVec4f> xb0_;
+    DNAColor xb0_thermalReticuleColor;
     Value<float> xb4_;
     Value<atVec4f> xb8_;
     Value<float> xbc_;
@@ -83,13 +84,13 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> x144_;
     Value<float> x148_;
     Value<atVec4f> x14c_;
-    Value<atVec4f> x150_;
+    DNAColor x150_seekerColor;
     Value<float> x154_;
     Value<float> x158_;
     Value<float> x15c_;
     Value<float> x160_;
-    Value<float> x164_;
-    Value<float> x168_;
+    Value<float> x164_seekerClampMin;
+    Value<float> x168_seekerClampMax;
     Value<float> x16c_;
     Value<float> x170_;
     Value<float> x174_;
@@ -100,20 +101,20 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> x188_;
     Value<float> x18c_;
     Value<float> x190_;
-    Value<float> x194_;
-    Value<float> x198_;
-    Value<float> x19c_;
-    Value<float> x1a0_;
-    Value<atVec4f> x1a4_;
-    Value<atVec4f> x1a8_;
-    Value<atVec4f> x1ac_;
+    Value<float> x194_grappleSelectScale;
+    Value<float> x198_grappleScale;
+    Value<float> x19c_grappleClampMin;
+    Value<float> x1a0_grappleClampMax;
+    DNAColor x1a4_grapplePointSelectColor;
+    DNAColor x1a8_grapplePointColor;
+    DNAColor x1ac_lockedGrapplePointSelectColor;
     Value<float> x1b0_;
     Value<atVec4f> x1b4_;
     Value<float> x1b8_;
-    Value<atVec4f> x1bc_;
-    Value<atVec4f> x1c0_;
+    DNAColor x1bc_orbitPointColor;
+    DNAColor x1c0_crosshairsColor;
     Value<float> x1c4_;
-    Value<bool> x1c8_;
+    Value<bool> x1c8_drawOrbitPoint;
     Value<atVec4f> x1cc_;
     Value<float> x1d0_;
     Value<atVec4f> x1d4_;
@@ -130,10 +131,10 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> x200_;
     Value<float> x204_;
     Value<float> x208_;
-    Value<float> x20c_;
-    Value<float> x210_;
-    Value<atVec4f> x214_;
-    Value<float> x218_;
+    Value<float> x20c_reticuleClampMin;
+    Value<float> x210_reticuleClampMax;
+    DNAColor x214_xrayRetRingColor;
+    Value<float> x218_reticuleScale;
     Value<float> x21c_scanTargetClampMin;
     Value<float> x220_scanTargetClampMax;
     Value<float> x224_;
@@ -148,8 +149,33 @@ struct CTweakTargeting final : public ITweakTargeting
         x208_ = (2.f * M_PIF) * (0.003f * x208_);
     }
 
+    atUint32 GetTargetRadiusMode() const { return x4_targetRadiusMode; }
+    float GetSeekerScale() const { return x24_seekerScale; }
+    float GetSeekerAngleSpeed() const { return x28_seekerAngleSpeed; }
+    float GetXRayRetAngleSpeed() const { return x2c_xrayRetAngleSpeed; }
+    float GetOrbitPointZOffset() const { return x50_orbitPointZOffset; }
+    float GetOrbitPointInTime() const { return x54_orbitPointInTime; }
+    float GetOrbitPointOutTime() const { return x58_orbitPointOutTime; }
+    const zeus::CColor& GetThermalReticuleColor() const { return xb0_thermalReticuleColor; }
     float GetOvershootOffset() const { return xe8_overshootOffset; }
     float GetXD0() const { return xd0_; }
+    const zeus::CColor& GetSeekerColor() const { return x150_seekerColor; }
+    float GetSeekerClampMin() const { return x164_seekerClampMin; }
+    float GetSeekerClampMax() const { return x168_seekerClampMax; }
+    float GetGrappleSelectScale() const { return x194_grappleSelectScale; }
+    float GetGrappleScale() const { return x198_grappleScale; }
+    float GetGrappleClampMin() const { return x19c_grappleClampMin; }
+    float GetGrappleClampMax() const { return x1a0_grappleClampMax; }
+    const zeus::CColor& GetGrapplePointSelectColor() const { return x1a4_grapplePointSelectColor; }
+    const zeus::CColor& GetGrapplePointColor() const { return x1a8_grapplePointColor; }
+    const zeus::CColor& GetLockedGrapplePointSelectColor() const { return x1ac_lockedGrapplePointSelectColor; }
+    const zeus::CColor& GetOrbitPointColor() const { return x1bc_orbitPointColor; }
+    const zeus::CColor& GetCrosshairsColor() const { return x1c0_crosshairsColor; }
+    bool DrawOrbitPoint() const { return x1c8_drawOrbitPoint; }
+    float GetReticuleClampMin() const { return x20c_reticuleClampMin; }
+    float GetReticuleClampMax() const { return x210_reticuleClampMax; }
+    const zeus::CColor& GetXRayRetRingColor() const { return x214_xrayRetRingColor; }
+    float GetReticuleScale() const { return x218_reticuleScale; }
     float GetScanTargetClampMin() const { return x21c_scanTargetClampMin; }
     float GetScanTargetClampMax() const { return x220_scanTargetClampMax; }
 };

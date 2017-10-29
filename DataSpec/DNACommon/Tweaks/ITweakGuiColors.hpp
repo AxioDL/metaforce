@@ -91,6 +91,7 @@ struct ITweakGuiColors : BigYAML
     virtual const zeus::CColor& GetScanIconCriticalDimColor() const=0;
     virtual const zeus::CColor& GetScanIconNoncriticalColor() const=0;
     virtual const zeus::CColor& GetScanIconNoncriticalDimColor() const=0;
+    virtual const zeus::CColor& GetScanReticuleColor() const=0;
     virtual const zeus::CColor& GetThreatDigitsFont() const=0;
     virtual const zeus::CColor& GetThreatDigitsOutline() const=0;
     virtual const zeus::CColor& GetMissileDigitsFont() const=0;

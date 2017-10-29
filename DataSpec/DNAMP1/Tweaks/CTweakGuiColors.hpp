@@ -111,7 +111,7 @@ struct CTweakGuiColors final : public ITweakGuiColors
     DNAColor x18c_scanIconCriticalDimColor;
     DNAColor x190_scanIconNoncriticalColor;
     DNAColor x194_scanIconNoncriticalDimColor;
-    DNAColor x198_;
+    DNAColor x198_scanReticuleColor;
     DNAColor x19c_threatDigitsFont;
     DNAColor x1a0_threatDigitsOutline;
     DNAColor x1a4_missileDigitsFont;
@@ -209,6 +209,7 @@ struct CTweakGuiColors final : public ITweakGuiColors
     const zeus::CColor& GetScanIconCriticalDimColor() const { return x18c_scanIconCriticalDimColor; }
     const zeus::CColor& GetScanIconNoncriticalColor() const { return x190_scanIconNoncriticalColor; }
     const zeus::CColor& GetScanIconNoncriticalDimColor() const { return x194_scanIconNoncriticalDimColor; }
+    const zeus::CColor& GetScanReticuleColor() const { return x198_scanReticuleColor; }
     const zeus::CColor& GetThreatDigitsFont() const { return x19c_threatDigitsFont; }
     const zeus::CColor& GetThreatDigitsOutline() const { return x1a0_threatDigitsOutline; }
     const zeus::CColor& GetMissileDigitsFont() const { return x1a4_missileDigitsFont; }

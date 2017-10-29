@@ -132,7 +132,7 @@ bool CAutoMapper::CheckLoadComplete()
             return false;
         x4_loadPhase = ELoadPhase::LoadUniverse;
     case ELoadPhase::LoadUniverse:
-        if (x8_mapu.IsLoaded())
+        if (!x8_mapu.IsLoaded())
             return false;
         x14_dummyWorlds.resize(x8_mapu->GetNumMapWorldDatas());
         SetCurWorldAssetId(x24_world->IGetWorldAssetId());
