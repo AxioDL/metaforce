@@ -383,9 +383,10 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                     pathsOut.push_back(asGlob.ensureAuxInfo(armSysName.sys_str() + _S(".CINF")));
                     for (const auto& overlay : sub.overlayMeshes)
                     {
+                        hecl::SystemStringView ovelaySys(overlay.first);
                         pathsOut.push_back(overlay.second);
                         pathsOut.push_back(asGlob.ensureAuxInfo(chSysName.sys_str() + _S('.') +
-                                                                overlay.first + _S(".CSKR")));
+                                                                ovelaySys.sys_str() + _S(".CSKR")));
                     }
                 }
             }
@@ -1046,8 +1047,9 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
                 std::vector<std::string> overlayNames = ds.getSubtypeOverlayNames(sub);
                 for (const auto& overlay : overlayNames)
                 {
+                    hecl::SystemStringView overlaySys(overlay);
                     hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S('.') +
-                                                                         overlay + _S(".CSKR"));
+                                                                     overlaySys.sys_str() + _S(".CSKR"));
                     urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
                     m_tagToPath[pathTag] = subPath;
                     m_pathToTag[subPath.hash()] = pathTag;

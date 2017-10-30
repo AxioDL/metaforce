@@ -1162,7 +1162,7 @@ struct SpecMP1 : SpecBase
         nameEnt.type = worldTag.type;
         nameEnt.id = atUint32(worldTag.id.Value());
         nameEnt.nameLen = atUint32(hecl::StrLen(parentDir.getLastComponent()));
-        nameEnt.name = parentDir.getLastComponent();
+        nameEnt.name = parentDir.getLastComponentUTF8();
         nameEnt.write(w);
 
         for (const auto& area : mlvl.areas)

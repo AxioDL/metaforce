@@ -79,7 +79,7 @@ static const FourCC TypeTable[] =
 CFactoryMgr::ETypeTable CFactoryMgr::FourCCToTypeIdx(FourCC fcc)
 {
     for (int i=0 ; i<4 ; ++i)
-        fcc.getChars()[i] = char(std::toupper(fcc.getChars()[i]));
+        fcc.getChars()[i] = char(toupper(fcc.getChars()[i]));
     auto search = std::find_if(std::begin(TypeTable), std::end(TypeTable),
                                [fcc](const FourCC& test) { return test == fcc; });
     if (search == std::end(TypeTable))
