@@ -186,7 +186,8 @@ bool Project::ConfigFile::unlockAndCommit()
     else
     {
 #if HECL_UCS2
-        _wrename(newPath.c_str(), m_filepath.c_str());
+        //_wrename(newPath.c_str(), m_filepath.c_str());
+        ReplaceFileW(m_filepath.c_str(), newPath.c_str(), nullptr, 0, nullptr, nullptr);
 #else
         rename(newPath.c_str(), m_filepath.c_str());
 #endif
@@ -529,7 +530,10 @@ bool Project::packagePath(const ProjectPath& path, FProgress progress, bool fast
         }
     }
 
-    if (specEntry && (!m_lastPackageSpec || m_lastPackageSpec->getDataSpecEntry() != specEntry))
+    if (!specEntry)
+        LogModule.report(logvisor::Fatal, "No matching DataSpec");
+
+    if (!m_lastPackageSpec || m_lastPackageSpec->getDataSpecEntry() != specEntry)
         m_lastPackageSpec = std::unique_ptr<IDataSpec>(specEntry->m_factory(*this, DataSpecTool::Package));
 
     if (m_lastPackageSpec->canPackage(path))

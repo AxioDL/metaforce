@@ -10,6 +10,8 @@
 #ifndef _WIN32
 #include <unistd.h>
 #include <termios.h>
+#else
+#include <conio.h>
 #endif
 
 #include "hecl/Database.hpp"
