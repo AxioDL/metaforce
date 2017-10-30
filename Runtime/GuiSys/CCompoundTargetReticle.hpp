@@ -1,11 +1,11 @@
 #ifndef __CCOMPOUNDTARGETRETICLE_HPP__
 #define __CCOMPOUNDTARGETRETICLE_HPP__
 
-#include <Runtime/CPlayerState.hpp>
 #include "RetroTypes.hpp"
 #include "zeus/CQuaternion.hpp"
 #include "CToken.hpp"
 #include "Graphics/CLineRenderer.hpp"
+#include "CPlayerState.hpp"
 
 namespace urde
 {
@@ -56,10 +56,10 @@ public:
     struct SOuterItemInfo
     {
         TCachedToken<CModel> x0_model;
-        float xc_ = 0.f;
-        float x10_ = 0.f;
-        float x14_ = 0.f;
-        float x18_ = 0.f;
+        float xc_offshootBaseAngle = 0.f;
+        float x10_rotAng = 0.f;
+        float x14_baseAngle = 0.f;
+        float x18_offshootAngleDelta = 0.f;
         SOuterItemInfo(const char*);
     };
 
@@ -112,20 +112,20 @@ private:
     TCachedToken<CModel> xb8_thermalReticle;
     SOuterItemInfo xc4_chargeGauge;
     std::vector<SOuterItemInfo> xe0_outerBeamIconSquares;
-    TUniqueId xf0_;
-    TUniqueId xf2_;
+    TUniqueId xf0_targetId;
+    TUniqueId xf2_nextTargetId;
     zeus::CVector3f xf4_targetPos;
     zeus::CVector3f x100_laggingTargetPos;
-    CTargetReticleRenderState x10c_ = CTargetReticleRenderState::skZeroRenderState;
-    CTargetReticleRenderState x12c_ = CTargetReticleRenderState::skZeroRenderState;
-    CTargetReticleRenderState x14c_ = CTargetReticleRenderState::skZeroRenderState;
-    float x16c_ = 0.f;
-    float x170_ = 0.f;
-    CTargetReticleRenderState x174_ = CTargetReticleRenderState::skZeroRenderState;
-    CTargetReticleRenderState x194_ = CTargetReticleRenderState::skZeroRenderState;
-    CTargetReticleRenderState x1b4_ = CTargetReticleRenderState::skZeroRenderState;
-    float x1d4_ = 0.f;
-    float x1d8_ = 0.f;
+    CTargetReticleRenderState x10c_currGroupInterp = CTargetReticleRenderState::skZeroRenderState;
+    CTargetReticleRenderState x12c_currGroupA = CTargetReticleRenderState::skZeroRenderState;
+    CTargetReticleRenderState x14c_currGroupB = CTargetReticleRenderState::skZeroRenderState;
+    float x16c_currGroupDur = 0.f;
+    float x170_currGroupTimer = 0.f;
+    CTargetReticleRenderState x174_nextGroupInterp = CTargetReticleRenderState::skZeroRenderState;
+    CTargetReticleRenderState x194_nextGroupA = CTargetReticleRenderState::skZeroRenderState;
+    CTargetReticleRenderState x1b4_nextGroupB = CTargetReticleRenderState::skZeroRenderState;
+    float x1d4_nextGroupDur = 0.f;
+    float x1d8_nextGroupTimer = 0.f;
     TUniqueId x1dc_grapplePoint0 = kInvalidUniqueId;
     TUniqueId x1de_grapplePoint1 = kInvalidUniqueId;
     float x1e0_grapplePoint0T = 0.f;
@@ -134,14 +134,14 @@ private:
     float x1ec_seekerAngle = 0.f;
     float x1f0_xrayRetAngle = 0.f;
     bool x1f4_missileActive = false;
-    float x1f8_ = 0.f;
-    float x1fc_ = 0.f;
+    float x1f8_missileBracketTimer = 0.f;
+    float x1fc_missileBracketScaleTimer = 0.f;
     CPlayerState::EBeamId x200_beam = CPlayerState::EBeamId::Power;
-    float x204_ = 0.f;
-    float x208_;
+    float x204_chargeGaugeOvershootTimer = 0.f;
+    float x208_lockonTimer;
     float x20c_ = 0.f;
-    float x210_ = 0.f;
-    float x214_ = 0.f;
+    float x210_lockFireTimer = 0.f;
+    float x214_fullChargeFadeTimer = 0.f;
     bool x218_beamShot = false;
     bool x219_missileShot = false;
     bool x21a_fullyCharged = false;

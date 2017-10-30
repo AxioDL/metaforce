@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "CCompoundTargetReticle.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Camera/CGameCamera.hpp"
@@ -22,8 +23,9 @@ CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(const char* res) : x0_mod
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 : x0_leadingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
 , x10_laggingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
-, x2c_overshootOffsetHalf(0.5f * g_tweakTargeting->GetOvershootOffset())
-, x30_premultOvershootOffset(calculate_premultiplied_overshoot_offset(g_tweakTargeting->GetOvershootOffset()))
+, x2c_overshootOffsetHalf(0.5f * g_tweakTargeting->GetChargeGaugeOvershootOffset())
+, x30_premultOvershootOffset(
+        calculate_premultiplied_overshoot_offset(g_tweakTargeting->GetChargeGaugeOvershootOffset()))
 , x34_crosshairs(g_SimplePool->GetObj(skCrosshairsReticleAssetName))
 , x40_seeker(g_SimplePool->GetObj(skSeekerAssetName))
 , x4c_lockConfirm(g_SimplePool->GetObj(skLockConfirmAssetName))
@@ -39,7 +41,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , xc4_chargeGauge(skChargeGaugeAssetName)
 , xf4_targetPos(CalculateOrbitZoneReticlePosition(mgr, false))
 , x100_laggingTargetPos(CalculateOrbitZoneReticlePosition(mgr, true))
-, x208_(g_tweakTargeting->GetXD0())
+, x208_lockonTimer(g_tweakTargeting->GetLockonDuration())
 {
     xe0_outerBeamIconSquares.reserve(9);
     for (u32 i = 0; i < 9; ++i)
@@ -88,7 +90,7 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr)
     if (angle < 0.1f || angle > 45.f)
         t = 1.f;
     else
-        t = std::min(1.f, g_tweakTargeting->x224_ * dt / angle);
+        t = std::min(1.f, g_tweakTargeting->GetAngularLagSpeed() * dt / angle);
     x10_laggingOrientation = t == 1.f ? x0_leadingOrientation :
                              zeus::CQuaternion::slerp(x10_laggingOrientation, x0_leadingOrientation, t);
     xf4_targetPos = CalculateOrbitZoneReticlePosition(mgr, false);
@@ -187,47 +189,52 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr)
     if (fullyCharged != x21a_fullyCharged)
         x21a_fullyCharged = fullyCharged;
     if (x21a_fullyCharged)
-        x214_ = std::min(dt / g_tweakTargeting->x1b8_ + x214_, g_tweakTargeting->x0_);
+        x214_fullChargeFadeTimer =
+            std::min(dt / g_tweakTargeting->GetFullChargeFadeDuration() + x214_fullChargeFadeTimer,
+                     g_tweakTargeting->GetFullChargeFadeDuration());
     else
-        x214_ = std::max(x214_ - dt / g_tweakTargeting->x1b8_, 0.f);
+        x214_fullChargeFadeTimer =
+            std::max(x214_fullChargeFadeTimer - dt / g_tweakTargeting->GetFullChargeFadeDuration(), 0.f);
     bool missileActive = gun->GetMissleMode() == CPlayerGun::EMissleMode::Active;
     if (missileActive != x1f4_missileActive)
     {
-        if (x1f8_ != 0.f)
-            x1f8_ = FLT_EPSILON - x1f8_;
+        if (x1f8_missileBracketTimer != 0.f)
+            x1f8_missileBracketTimer = FLT_EPSILON - x1f8_missileBracketTimer;
         else
-            x1f8_ = FLT_EPSILON;
+            x1f8_missileBracketTimer = FLT_EPSILON;
         x1f4_missileActive = missileActive;
     }
     CPlayerState::EBeamId beam = gun->GetCurrentBeam();
     if (beam != x200_beam)
     {
-        x204_ = g_tweakTargeting->xec_;
+        x204_chargeGaugeOvershootTimer = g_tweakTargeting->GetChargeGaugeOvershootDuration();
         for (int i=0 ; i<9 ; ++i)
         {
-            zeus::CRelAngle f1 = g_tweakTargeting->xf8_[int(beam)].floats[i];
+            zeus::CRelAngle baseAngle = g_tweakTargeting->GetOuterBeamSquareAngles(int(beam))[i];
             SOuterItemInfo& icon = xe0_outerBeamIconSquares[i];
-            zeus::CRelAngle f7 = f1.asRadians() - icon.x10_;
+            zeus::CRelAngle offshootAngleDelta = baseAngle.asRadians() - icon.x10_rotAng;
             if ((i & 0x1) == 1)
-                f7 = (f1 > 0.f) ? zeus::CRelAngle(-2.f * M_PIF - f1) : zeus::CRelAngle(2.f * M_PIF + f1);
-            icon.xc_ = icon.x10_;
-            icon.x18_ = f7;
-            icon.x14_ = f1;
+                offshootAngleDelta = (baseAngle > 0.f) ? zeus::CRelAngle(-2.f * M_PIF - baseAngle) :
+                     zeus::CRelAngle(2.f * M_PIF + baseAngle);
+            icon.xc_offshootBaseAngle = icon.x10_rotAng;
+            icon.x18_offshootAngleDelta = offshootAngleDelta;
+            icon.x14_baseAngle = baseAngle;
         }
-        zeus::CRelAngle f30 = g_tweakTargeting->x108_[int(beam)];
-        float f2 = f30.asRadians() - xc4_chargeGauge.x10_;
+        zeus::CRelAngle baseAngle = g_tweakTargeting->GetChargeGaugeAngle(int(beam));
+        float offshootAngleDelta = baseAngle.asRadians() - xc4_chargeGauge.x10_rotAng;
         if ((rand() & 0x1) == 1)
-            f2 = (f2 > 0.f) ? -2.f * M_PIF - f2 : 2.f * M_PIF + f2;
-        xc4_chargeGauge.xc_ = xc4_chargeGauge.x10_;
-        xc4_chargeGauge.x18_ = f2;
-        xc4_chargeGauge.x14_ = f30;
+            offshootAngleDelta = (offshootAngleDelta > 0.f) ?
+                                 -2.f * M_PIF - offshootAngleDelta : 2.f * M_PIF + offshootAngleDelta;
+        xc4_chargeGauge.xc_offshootBaseAngle = xc4_chargeGauge.x10_rotAng;
+        xc4_chargeGauge.x18_offshootAngleDelta = offshootAngleDelta;
+        xc4_chargeGauge.x14_baseAngle = baseAngle;
         x200_beam = beam;
-        x208_ = 0.f;
+        x208_lockonTimer = 0.f;
     }
     if (gun->GetLastFireButtonStates() & 0x1)
     {
         if (!x218_beamShot)
-            x210_ = g_tweakTargeting->x12c_;
+            x210_lockFireTimer = g_tweakTargeting->GetLockFireDuration();
         x218_beamShot = true;
     }
     else
@@ -237,14 +244,14 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr)
     if (gun->GetLastFireButtonStates() & 0x2)
     {
         if (!x219_missileShot)
-            x1fc_ = g_tweakTargeting->xc8_;
+            x1fc_missileBracketScaleTimer = g_tweakTargeting->GetMissileBracketScaleDuration();
         x219_missileShot = true;
     }
     else
     {
         x219_missileShot = false;
     }
-    if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(xf2_))
+    if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(xf2_nextTargetId))
     {
         if (point->GetUniqueId() != x1dc_grapplePoint0)
         {
@@ -274,8 +281,10 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr)
         if (x1e4_grapplePoint1T == 0.f)
             x1de_grapplePoint1 = kInvalidUniqueId;
     }
-    x1f0_xrayRetAngle = zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetXRayRetAngleSpeed() * dt) + x1f0_xrayRetAngle);
-    x1ec_seekerAngle = zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetSeekerAngleSpeed() * dt) + x1ec_seekerAngle);
+    x1f0_xrayRetAngle =
+        zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetXRayRetAngleSpeed() * dt) + x1f0_xrayRetAngle);
+    x1ec_seekerAngle =
+        zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetSeekerAngleSpeed() * dt) + x1ec_seekerAngle);
 }
 
 void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderState& a,
@@ -297,19 +306,162 @@ void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderS
         out.x0_target = kInvalidUniqueId;
 }
 
+static bool IsDamageOrbit(CPlayer::EPlayerOrbitRequest req)
+{
+    switch (req)
+    {
+    case CPlayer::EPlayerOrbitRequest::Five:
+    case CPlayer::EPlayerOrbitRequest::ActivateOrbitSource:
+    case CPlayer::EPlayerOrbitRequest::ProjectileCollide:
+    case CPlayer::EPlayerOrbitRequest::Freeze:
+    case CPlayer::EPlayerOrbitRequest::DamageOnGrapple:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager& mgr)
 {
-    // TODO: Finish
+    TUniqueId targetId = mgr.GetPlayer().GetOrbitTargetId();
+    if (targetId != xf0_targetId)
+    {
+        if (targetId != kInvalidUniqueId)
+        {
+            if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(targetId))
+                CSfxManager::SfxStart(1393, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            else
+                CSfxManager::SfxStart(1377, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        }
+
+        if (targetId == kInvalidUniqueId)
+        {
+            x12c_currGroupA = x10c_currGroupInterp;
+            x14c_currGroupB.SetFactor(0.f);
+            x16c_currGroupDur = IsDamageOrbit(mgr.GetPlayer().GetOrbitRequest()) ? 0.65f :
+                                g_tweakTargeting->GetCurrLockOnEnterDuration();
+        }
+        else
+        {
+            x12c_currGroupA = x10c_currGroupInterp;
+            if (xf0_targetId == kInvalidUniqueId)
+                x12c_currGroupA.SetTargetId(targetId);
+            x14c_currGroupB = CTargetReticleRenderState(targetId, 1.f, zeus::CVector3f::skZero, 1.f,
+                IsGrappleTarget(targetId, mgr) ? g_tweakTargeting->GetGrappleMinClampScale() : 1.f, false);
+            x16c_currGroupDur = xf0_targetId == kInvalidUniqueId ? g_tweakTargeting->GetCurrLockOnExitDuration() :
+                                g_tweakTargeting->GetCurrLockOnSwitchDuration();
+            x170_currGroupTimer = x16c_currGroupDur;
+            xf0_targetId = targetId;
+        }
+    }
+    if (x170_currGroupTimer > 0.f)
+    {
+        UpdateTargetParameters(x12c_currGroupA, mgr);
+        UpdateTargetParameters(x14c_currGroupB, mgr);
+        x170_currGroupTimer = std::max(0.f, x170_currGroupTimer - dt);
+        CTargetReticleRenderState::InterpolateWithClamp(x12c_currGroupA, x10c_currGroupInterp, x14c_currGroupB,
+                                                        1.f - x170_currGroupTimer / x16c_currGroupDur);
+    }
+    else
+    {
+        UpdateTargetParameters(x10c_currGroupInterp, mgr);
+    }
+    if (x1f8_missileBracketTimer != 0.f && x1f8_missileBracketTimer < g_tweakTargeting->GetMissileBracketDuration())
+    {
+        if (x1f8_missileBracketTimer < 0.f)
+            x1f8_missileBracketTimer =
+                std::min(0.f, x1f8_missileBracketTimer + dt);
+        else
+            x1f8_missileBracketTimer =
+                std::min(g_tweakTargeting->GetMissileBracketDuration(), x1f8_missileBracketTimer + dt);
+    }
+    if (x204_chargeGaugeOvershootTimer > 0.f)
+    {
+        x204_chargeGaugeOvershootTimer = std::max(0.f, x204_chargeGaugeOvershootTimer - dt);
+        if (x204_chargeGaugeOvershootTimer == 0.f)
+        {
+            for (int i=0 ; i<9 ; ++i)
+                xe0_outerBeamIconSquares[i].x10_rotAng = xe0_outerBeamIconSquares[i].x14_baseAngle;
+            xc4_chargeGauge.x10_rotAng = xc4_chargeGauge.x14_baseAngle;
+            x208_lockonTimer = FLT_EPSILON;
+        }
+        else
+        {
+            float offshoot = offshoot_func(x2c_overshootOffsetHalf, x30_premultOvershootOffset,
+                                           1.f - x204_chargeGaugeOvershootTimer /
+                                                     g_tweakTargeting->GetChargeGaugeOvershootDuration());
+            for (int i=0 ; i<9 ; ++i)
+            {
+                SOuterItemInfo& item = xe0_outerBeamIconSquares[i];
+                item.x10_rotAng = zeus::CRelAngle(item.x18_offshootAngleDelta * offshoot + item.xc_offshootBaseAngle);
+            }
+            xc4_chargeGauge.x10_rotAng = zeus::CRelAngle(xc4_chargeGauge.x18_offshootAngleDelta * offshoot +
+                                                             xc4_chargeGauge.xc_offshootBaseAngle);
+        }
+    }
+    if (x208_lockonTimer > 0.f && x208_lockonTimer < g_tweakTargeting->GetLockonDuration())
+        x208_lockonTimer = std::min(g_tweakTargeting->GetLockonDuration(), x208_lockonTimer + dt);
+    if (x210_lockFireTimer > 0.f)
+        x210_lockFireTimer = std::max(0.f, x210_lockFireTimer - dt);
+    if (x1fc_missileBracketScaleTimer > 0.f)
+        x1fc_missileBracketScaleTimer = std::max(0.f, x1fc_missileBracketScaleTimer - dt);
 }
 
 void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager& mgr)
 {
-    // TODO: Finish
+    TUniqueId nextTargetId = mgr.GetPlayer().GetOrbitNextTargetId();
+    if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan &&
+        mgr.GetPlayer().GetOrbitTargetId() != kInvalidUniqueId)
+        nextTargetId = mgr.GetPlayer().GetOrbitTargetId();
+    if (nextTargetId != xf2_nextTargetId)
+    {
+        if (xf2_nextTargetId == kInvalidUniqueId)
+        {
+            x194_nextGroupA = x174_nextGroupInterp;
+            x1b4_nextGroupB = CTargetReticleRenderState(kInvalidUniqueId, 1.f,
+                (x20_prevState == EReticleState::XRay || x20_prevState == EReticleState::Thermal) ?
+                x100_laggingTargetPos : xf4_targetPos, 0.f, 1.f, true);
+            x1d4_nextGroupDur = x1d8_nextGroupTimer = g_tweakTargeting->GetNextLockOnEnterDuration();
+            xf2_nextTargetId = nextTargetId;
+        }
+        else
+        {
+            x194_nextGroupA = x174_nextGroupInterp;
+            x1b4_nextGroupB = CTargetReticleRenderState(nextTargetId, 1.f, zeus::CVector3f::skZero, 1.f,
+                IsGrappleTarget(nextTargetId, mgr) ? g_tweakTargeting->GetGrappleMinClampScale() : 1.f, true);
+            x1d4_nextGroupDur = x1d8_nextGroupTimer = xf2_nextTargetId == kInvalidUniqueId ?
+                                                      g_tweakTargeting->GetNextLockOnExitDuration() :
+                                                      g_tweakTargeting->GetNextLockOnSwitchDuration();
+            xf2_nextTargetId = nextTargetId;
+        }
+    }
+    if (x1d8_nextGroupTimer > 0.f)
+    {
+        UpdateTargetParameters(x194_nextGroupA, mgr);
+        UpdateTargetParameters(x1b4_nextGroupB, mgr);
+        x1d8_nextGroupTimer = std::max(0.f, x1d8_nextGroupTimer - dt);
+        CTargetReticleRenderState::InterpolateWithClamp(x194_nextGroupA, x174_nextGroupInterp, x1b4_nextGroupB,
+                                                        1.f - x1d8_nextGroupTimer / x1d4_nextGroupDur);
+    }
+    else
+    {
+        UpdateTargetParameters(x174_nextGroupInterp, mgr);
+    }
 }
 
 void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager& mgr)
 {
-    // TODO: Finish
+    if (xf0_targetId == kInvalidUniqueId && xf2_nextTargetId != kInvalidUniqueId)
+        x20c_ = std::min(1.f, 2.f * dt + x20c_);
+    else
+        x20c_ = std::max(0.f, x20c_ - 2.f * dt);
+    if (mgr.GetPlayer().IsShowingCrosshairs() &&
+        mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan)
+        x1e8_crosshairsScale =
+            std::min(1.f, dt / g_tweakTargeting->GetCrosshairsScaleDuration() + x1e8_crosshairsScale);
+    else
+        x1e8_crosshairsScale =
+            std::max(0.f, x1e8_crosshairsScale - dt / g_tweakTargeting->GetCrosshairsScaleDuration());
 }
 
 void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) const
@@ -407,8 +559,261 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
 {
     if (x28_noDrawTicks > 0)
         return;
+    if (x1e0_grapplePoint0T + x1e4_grapplePoint1T > 0 || x10c_currGroupInterp.GetFactor() == 0.f)
+        return;
 
-    // TODO: Finish
+    float lockBreakAlpha = x10c_currGroupInterp.GetFactor();
+    float visorFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
+    bool lockConfirm = false;
+    bool lockReticule = false;
+    switch (x20_prevState)
+    {
+    case EReticleState::Combat:
+        lockConfirm = true;
+        lockReticule = true;
+        break;
+    case EReticleState::Scan:
+        lockConfirm = true;
+        break;
+    default:
+        break;
+    }
+
+    zeus::CMatrix3f lockBreakXf;
+    zeus::CColor lockBreakColor = zeus::CColor::skClear;
+    if (IsDamageOrbit(mgr.GetPlayer().GetOrbitRequest()) && x14c_currGroupB.GetFactor() == 0)
+    {
+        zeus::CMatrix3f lockBreakRM;
+        for (int i=0 ; i<4 ; ++i)
+        {
+            int a = rand() % 9;
+            auto b = std::div(a, 3);
+            lockBreakRM[b.rem][b.quot] += rand() / float(RAND_MAX) - 0.5f;
+        }
+        lockBreakXf = lockBreakRM.transposed();
+        if (x10c_currGroupInterp.GetFactor() > 0.8f)
+            lockBreakColor = zeus::CColor(1.f, (x10c_currGroupInterp.GetFactor() - 0.8f) * 0.3f / 0.2f);
+        lockBreakAlpha = x10c_currGroupInterp.GetFactor() > 0.75f ?
+                         1.f : std::max(0.f, (x10c_currGroupInterp.GetFactor() - 0.55f) / 0.2f);
+    }
+
+    if (lockConfirm && x4c_lockConfirm.IsLoaded())
+    {
+        zeus::CMatrix3f scale(
+            CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                  x10c_currGroupInterp.GetRadiusWorld(),
+                                  x10c_currGroupInterp.GetMinViewportClampScale() *
+                                      g_tweakTargeting->GetLockConfirmClampMin(),
+                                  g_tweakTargeting->GetLockConfirmClampMax(), mgr) *
+            g_tweakTargeting->GetLockConfirmScale() / x10c_currGroupInterp.GetFactor());
+        zeus::CTransform modelXf(lockBreakXf * (rot * zeus::CMatrix3f::RotateY(x1ec_seekerAngle) * scale),
+                                 x10c_currGroupInterp.GetTargetPositionWorld());
+        CGraphics::SetModelMatrix(modelXf);
+        zeus::CColor color = g_tweakTargeting->GetLockConfirmColor();
+        color.a *= lockBreakAlpha;
+        CModelFlags flags(7, 0, 0, lockBreakColor + color);
+        x4c_lockConfirm->Draw(flags);
+    }
+
+    if (lockReticule)
+    {
+        if (x58_targetFlower.IsLoaded())
+        {
+            zeus::CMatrix3f scale(
+                CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                      x10c_currGroupInterp.GetRadiusWorld(),
+                                      x10c_currGroupInterp.GetMinViewportClampScale() *
+                                          g_tweakTargeting->GetTargetFlowerClampMin(),
+                                      g_tweakTargeting->GetTargetFlowerClampMax(), mgr) *
+                g_tweakTargeting->GetTargetFlowerScale() / lockBreakAlpha);
+            zeus::CTransform modelXf(lockBreakXf * (rot * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle) * scale),
+                                     x10c_currGroupInterp.GetTargetPositionWorld());
+            CGraphics::SetModelMatrix(modelXf);
+            zeus::CColor color = g_tweakTargeting->GetTargetFlowerColor();
+            color.a *= lockBreakAlpha * visorFactor;
+            CModelFlags flags(7, 0, 0, lockBreakColor + color);
+            x58_targetFlower->Draw(flags);
+        }
+        if (x1f8_missileBracketTimer != 0.f && x64_missileBracket.IsLoaded())
+        {
+            float t = std::fabs((x1fc_missileBracketScaleTimer - 0.5f *
+                                g_tweakTargeting->GetMissileBracketScaleDuration())
+                                / 0.5f * g_tweakTargeting->GetMissileBracketScaleDuration());
+            float tscale = ((1.f - t) * g_tweakTargeting->GetMissileBracketScaleEnd() +
+                           t * g_tweakTargeting->GetMissileBracketScaleStart());
+            zeus::CMatrix3f scale(
+                CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                      x10c_currGroupInterp.GetRadiusWorld(),
+                                      x10c_currGroupInterp.GetMinViewportClampScale() *
+                                          g_tweakTargeting->GetMissileBracketClampMin(),
+                                      g_tweakTargeting->GetMissileBracketClampMax(), mgr) *
+                std::fabs(x1f8_missileBracketTimer) / g_tweakTargeting->GetMissileBracketDuration() *
+                    tscale / x10c_currGroupInterp.GetFactor());
+            for (int i=0 ; i<4 ; ++i)
+            {
+                zeus::CTransform modelXf(
+                    lockBreakXf * rot *
+                        zeus::CMatrix3f(zeus::CVector3f{i < 2 ? 1.f : -1.f, 1.f, i & 0x1 ? 1.f : -1.f}) * scale,
+                    x10c_currGroupInterp.GetTargetPositionWorld());
+                CGraphics::SetModelMatrix(modelXf);
+                zeus::CColor color = g_tweakTargeting->GetMissileBracketColor();
+                color.a *= lockBreakAlpha * visorFactor;
+                CModelFlags flags(7, 0, 0, lockBreakColor + color);
+                x64_missileBracket->Draw(flags);
+            }
+        }
+        zeus::CMatrix3f scale(
+            CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                  x10c_currGroupInterp.GetRadiusWorld(),
+                                  x10c_currGroupInterp.GetMinViewportClampScale() *
+                                      g_tweakTargeting->GetChargeGaugeClampMin(),
+                                  g_tweakTargeting->GetChargeGaugeClampMax(), mgr) *
+            1.f / x10c_currGroupInterp.GetFactor() * g_tweakTargeting->GetOuterBeamSquaresScale());
+        zeus::CMatrix3f outerBeamXf = rot * scale;
+        for (int i=0 ; i<9 ; ++i)
+        {
+            const SOuterItemInfo& info = xe0_outerBeamIconSquares[i];
+            if (info.x0_model.IsLoaded())
+            {
+                zeus::CTransform modelXf(lockBreakXf * outerBeamXf * zeus::CMatrix3f::RotateY(info.x10_rotAng),
+                                         x10c_currGroupInterp.GetTargetPositionWorld());
+                CGraphics::SetModelMatrix(modelXf);
+                zeus::CColor color = g_tweakTargeting->GetOuterBeamSquareColor();
+                color.a *= lockBreakAlpha * visorFactor;
+                CModelFlags flags(7, 0, 0, lockBreakColor + color);
+                info.x0_model->Draw(flags);
+            }
+        }
+        if (xc4_chargeGauge.x0_model.IsLoaded())
+        {
+            zeus::CMatrix3f scale(
+                CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                      x10c_currGroupInterp.GetRadiusWorld(),
+                                      x10c_currGroupInterp.GetMinViewportClampScale() *
+                                          g_tweakTargeting->GetChargeGaugeClampMin(),
+                                      g_tweakTargeting->GetChargeGaugeClampMax(), mgr) *
+                g_tweakTargeting->GetChargeGaugeScale() / x10c_currGroupInterp.GetFactor());
+            zeus::CMatrix3f chargeGaugeXf = rot * scale * zeus::CMatrix3f::RotateY(xc4_chargeGauge.x10_rotAng);
+            float pulseT = std::fabs(std::fmod(CGraphics::GetSecondsMod900(),
+                                               g_tweakTargeting->GetChargeGaugePulsePeriod()));
+            zeus::CColor gaugeColor = zeus::CColor::lerp(g_tweakTargeting->GetChargeGaugeNonFullColor(),
+            zeus::CColor::lerp(g_tweakTargeting->GetChargeGaugePulseColorHigh(),
+                               g_tweakTargeting->GetChargeGaugePulseColorLow(),
+                               pulseT < 0.5f * g_tweakTargeting->GetChargeGaugePulsePeriod() ?
+                               pulseT / (0.5f * g_tweakTargeting->GetChargeGaugePulsePeriod()) :
+                               (g_tweakTargeting->GetChargeGaugePulsePeriod() - pulseT) /
+                                   (0.5f * g_tweakTargeting->GetChargeGaugePulsePeriod())),
+                               x214_fullChargeFadeTimer / g_tweakTargeting->GetFullChargeFadeDuration());
+            zeus::CTransform modelXf(lockBreakXf * chargeGaugeXf, x10c_currGroupInterp.GetTargetPositionWorld());
+            CGraphics::SetModelMatrix(modelXf);
+            zeus::CColor color = gaugeColor;
+            color.a *= lockBreakAlpha * visorFactor;
+            CModelFlags flags(7, 0, 0, lockBreakColor + color);
+            xc4_chargeGauge.x0_model->Draw(flags);
+
+            if (xa0_chargeTickFirst.IsLoaded())
+            {
+                const CPlayerGun* gun = mgr.GetPlayer().GetPlayerGun();
+                int numTicks = int(g_tweakTargeting->GetChargeTickCount() *
+                                   (gun->IsCharging() ? gun->GetChargeBeamFactor() : 0.f));
+                for (int i=0 ; i<numTicks ; ++i)
+                {
+                    CModelFlags flags(7, 0, 0, lockBreakColor + color);
+                    xa0_chargeTickFirst->Draw(flags);
+                    modelXf.rotateLocalY(g_tweakTargeting->GetChargeTickAnglePitch());
+                    CGraphics::SetModelMatrix(modelXf);
+                }
+            }
+        }
+        if (x208_lockonTimer > 0.f && x70_innerBeamIcon.IsLoaded())
+        {
+            const zeus::CColor* iconColor;
+            switch (x200_beam)
+            {
+            case CPlayerState::EBeamId::Power:
+                iconColor = &g_tweakTargeting->GetInnerBeamColorPower();
+                break;
+            case CPlayerState::EBeamId::Ice:
+                iconColor = &g_tweakTargeting->GetInnerBeamColorIce();
+                break;
+            case CPlayerState::EBeamId::Wave:
+                iconColor = &g_tweakTargeting->GetInnerBeamColorWave();
+                break;
+            default:
+                iconColor = &g_tweakTargeting->GetInnerBeamColorPlasma();
+                break;
+            }
+            zeus::CMatrix3f scale(
+                CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                      x10c_currGroupInterp.GetRadiusWorld(),
+                                      x10c_currGroupInterp.GetMinViewportClampScale() *
+                                          g_tweakTargeting->GetInnerBeamClampMin(),
+                                      g_tweakTargeting->GetInnerBeamClampMax(), mgr) *
+                g_tweakTargeting->GetInnerBeamScale() * (x208_lockonTimer / g_tweakTargeting->GetLockonDuration()) /
+                    x10c_currGroupInterp.GetFactor());
+            zeus::CTransform modelXf(lockBreakXf * rot * scale, x10c_currGroupInterp.GetTargetPositionWorld());
+            CGraphics::SetModelMatrix(modelXf);
+            zeus::CColor color = *iconColor;
+            color.a *= lockBreakAlpha * visorFactor;
+            CModelFlags flags(7, 0, 0, lockBreakColor + color);
+            x70_innerBeamIcon->Draw(flags);
+        }
+        if (x210_lockFireTimer > 0.f && x7c_lockFire.IsLoaded())
+        {
+            zeus::CMatrix3f scale(
+                CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                      x10c_currGroupInterp.GetRadiusWorld(),
+                                      x10c_currGroupInterp.GetMinViewportClampScale() *
+                                          g_tweakTargeting->GetLockFireClampMin(),
+                                      g_tweakTargeting->GetLockFireClampMax(), mgr) *
+                g_tweakTargeting->GetLockFireScale() / x10c_currGroupInterp.GetFactor());
+            zeus::CTransform modelXf(lockBreakXf * rot * scale * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle),
+                                     x10c_currGroupInterp.GetTargetPositionWorld());
+            CGraphics::SetModelMatrix(modelXf);
+            zeus::CColor color = g_tweakTargeting->GetLockFireColor();
+            color.a *= visorFactor * lockBreakAlpha * (x210_lockFireTimer / g_tweakTargeting->GetLockFireDuration());
+            CModelFlags flags(7, 0, 0, lockBreakColor + color);
+            x7c_lockFire->Draw(flags);
+        }
+        if (x208_lockonTimer > 0.f && x88_lockDagger.IsLoaded())
+        {
+            float t = std::fabs((x210_lockFireTimer - 0.5f * g_tweakTargeting->GetLockFireDuration()) /
+                                    0.5f * g_tweakTargeting->GetLockFireDuration());
+            float tscale = ((1.f - t) * g_tweakTargeting->GetLockDaggerScaleEnd() +
+                           t * g_tweakTargeting->GetLockDaggerScaleStart());
+            zeus::CMatrix3f scale(
+                CalculateClampedScale(x10c_currGroupInterp.GetTargetPositionWorld(),
+                                      x10c_currGroupInterp.GetRadiusWorld(),
+                                      x10c_currGroupInterp.GetMinViewportClampScale() *
+                                          g_tweakTargeting->GetLockDaggerClampMin(),
+                                      g_tweakTargeting->GetLockDaggerClampMax(), mgr) * tscale *
+                    (x208_lockonTimer / g_tweakTargeting->GetLockonDuration()) / x10c_currGroupInterp.GetFactor());
+            zeus::CMatrix3f lockDaggerXf = rot * scale;
+            for (int i=0 ; i<3 ; ++i)
+            {
+                float ang;
+                switch (i)
+                {
+                case 0:
+                    ang = g_tweakTargeting->GetLockDaggerAngle0();
+                    break;
+                case 1:
+                    ang = g_tweakTargeting->GetLockDaggerAngle1();
+                    break;
+                default:
+                    ang = g_tweakTargeting->GetLockDaggerAngle2();
+                    break;
+                }
+                zeus::CTransform modelXf(lockBreakXf * lockDaggerXf * zeus::CMatrix3f::RotateY(ang),
+                                         x10c_currGroupInterp.GetTargetPositionWorld());
+                CGraphics::SetModelMatrix(modelXf);
+                zeus::CColor color = g_tweakTargeting->GetLockDaggerColor();
+                color.a *= visorFactor * lockBreakAlpha;
+                CModelFlags flags(7, 0, 0, lockBreakColor + color);
+                x88_lockDagger->Draw(flags);
+            }
+        }
+    }
 }
 
 void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) const
@@ -416,7 +821,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
     if (x28_noDrawTicks > 0)
         return;
 
-    zeus::CVector3f x408 = x174_.GetTargetPositionWorld();
+    zeus::CVector3f position = x174_nextGroupInterp.GetTargetPositionWorld();
     float visorFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
 
     bool scanRet = false;
@@ -437,17 +842,19 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
         break;
     }
 
-    if (!xrayRet && x174_.GetFactor() > 0.f && x40_seeker.IsLoaded())
+    if (!xrayRet && x174_nextGroupInterp.GetFactor() > 0.f && x40_seeker.IsLoaded())
     {
         zeus::CMatrix3f scale(
-            CalculateClampedScale(x408, x174_.GetRadiusWorld(),
-                                  x174_.GetMinViewportClampScale() * g_tweakTargeting->GetSeekerClampMin(),
-                                  g_tweakTargeting->GetSeekerClampMax(), mgr) * g_tweakTargeting->GetSeekerScale());
+            CalculateClampedScale(position, x174_nextGroupInterp.GetRadiusWorld(),
+                                  x174_nextGroupInterp.GetMinViewportClampScale() *
+                                      g_tweakTargeting->GetSeekerClampMin(),
+                                  g_tweakTargeting->GetSeekerClampMax(), mgr) *
+                g_tweakTargeting->GetSeekerScale());
         zeus::CTransform modelXf(rot * zeus::CMatrix3f::RotateY(x1ec_seekerAngle) * scale,
-                                 x174_.GetTargetPositionWorld());
+                                 x174_nextGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
         zeus::CColor color = g_tweakTargeting->GetSeekerColor();
-        color.a *= x174_.GetFactor();
+        color.a *= x174_nextGroupInterp.GetFactor();
         CModelFlags flags(7, 0, 0, color);
         x40_seeker->Draw(flags);
     }
@@ -455,12 +862,13 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
     if (xrayRet && xac_xrayRetRing.IsLoaded())
     {
         zeus::CMatrix3f scale(
-            CalculateClampedScale(x408, x174_.GetRadiusWorld(),
-                                  x174_.GetMinViewportClampScale() * g_tweakTargeting->GetReticuleClampMin(),
+            CalculateClampedScale(position, x174_nextGroupInterp.GetRadiusWorld(),
+                                  x174_nextGroupInterp.GetMinViewportClampScale() *
+                                      g_tweakTargeting->GetReticuleClampMin(),
                                   g_tweakTargeting->GetReticuleClampMax(), mgr) *
                 g_tweakTargeting->GetReticuleScale());
         zeus::CTransform modelXf(rot * scale * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle),
-                                 x174_.GetTargetPositionWorld());
+                                 x174_nextGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
         zeus::CColor color = g_tweakTargeting->GetXRayRetRingColor();
         color.a *= visorFactor;
@@ -471,11 +879,12 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
     if (thermalRet && xb8_thermalReticle.IsLoaded())
     {
         zeus::CMatrix3f scale(
-            CalculateClampedScale(x408, x174_.GetRadiusWorld(),
-                                  x174_.GetMinViewportClampScale() * g_tweakTargeting->GetReticuleClampMin(),
+            CalculateClampedScale(position, x174_nextGroupInterp.GetRadiusWorld(),
+                                  x174_nextGroupInterp.GetMinViewportClampScale() *
+                                      g_tweakTargeting->GetReticuleClampMin(),
                                   g_tweakTargeting->GetReticuleClampMax(), mgr) *
             g_tweakTargeting->GetReticuleScale());
-        zeus::CTransform modelXf(rot * scale, x174_.GetTargetPositionWorld());
+        zeus::CTransform modelXf(rot * scale, x174_nextGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
         zeus::CColor color = g_tweakTargeting->GetThermalReticuleColor();
         color.a *= visorFactor;
@@ -485,13 +894,14 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
 
     if (scanRet && visorFactor > 0.f)
     {
-        float factor = visorFactor * x174_.GetFactor();
+        float factor = visorFactor * x174_nextGroupInterp.GetFactor();
         zeus::CMatrix3f scale(
-            CalculateClampedScale(x408, x174_.GetRadiusWorld(),
-                                  x174_.GetMinViewportClampScale() * g_tweakTargeting->GetScanTargetClampMin(),
+            CalculateClampedScale(position, x174_nextGroupInterp.GetRadiusWorld(),
+                                  x174_nextGroupInterp.GetMinViewportClampScale() *
+                                      g_tweakTargeting->GetScanTargetClampMin(),
                                   g_tweakTargeting->GetScanTargetClampMax(), mgr) *
                 (1.f / factor));
-        zeus::CTransform modelXf(rot * scale, x174_.GetTargetPositionWorld());
+        zeus::CTransform modelXf(rot * scale, x174_nextGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
         // compare, GX_LESS, no update
         float alpha = 0.5f * factor;
