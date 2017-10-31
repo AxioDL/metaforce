@@ -28,7 +28,7 @@ public:
     void AddFactory(FourCC key, FFactoryFunc func) {m_factories[key] = func;}
     void AddFactory(FourCC key, FMemFactoryFunc func) {m_memFactories[key] = func;}
 
-    enum class ETypeTable : s8
+    enum class ETypeTable : u8
     {
         CLSN, CMDL, CSKR, ANIM, CINF, TXTR,
         PLTT, FONT, ANCS, EVNT, MADF, MLVL,
