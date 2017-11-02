@@ -147,11 +147,11 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                           boo::Primitive::TriStrips, boo::ZTest::None,
                                           false, true, false, boo::CullMode::None);
-    m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                          boo::Primitive::TriStrips, boo::ZTest::None,
                                          false, true, false, boo::CullMode::None);
-    m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);

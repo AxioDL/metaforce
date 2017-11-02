@@ -319,10 +319,14 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         /* Binding for each surface */
         newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
-        boo::ITexture* texs[8] = {};
-        boo::ITexture* mbShadowTexs[] = {g_Renderer->m_ballShadowId,
-                                         g_Renderer->x220_sphereRamp,
-                                         g_Renderer->m_ballFade};
+        boo::ITexture* mbShadowTexs[8] = {g_Renderer->m_ballShadowId,
+                                          g_Renderer->x220_sphereRamp,
+                                          g_Renderer->m_ballFade,
+                                          g_Renderer->x220_sphereRamp,
+                                          g_Renderer->x220_sphereRamp,
+                                          g_Renderer->x220_sphereRamp,
+                                          g_Renderer->x220_sphereRamp,
+                                          g_Renderer->x220_sphereRamp};
         size_t thisOffs[4];
         size_t thisSizes[4];
 
@@ -337,6 +341,14 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
         {
             const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
+            boo::ITexture* texs[8] = {g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp,
+                                      g_Renderer->x220_sphereRamp};
             u32 texCount = 0;
             for (atUint32 idx : mat.textureIdxs)
             {
@@ -351,7 +363,8 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
                 else
                 {
                     TCachedToken<CTexture>& tex = x1c_textures[idx];
-                    texs[texCount++] = tex.GetObj()->GetBooTexture();
+                    if (boo::ITexture* btex = tex.GetObj()->GetBooTexture())
+                        texs[texCount++] = btex;
                 }
             }
 
@@ -375,7 +388,10 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
             if (useReflection)
             {
-                texs[texCount] = g_Renderer->x14c_reflectionTex;
+                if (g_Renderer->x14c_reflectionTex)
+                    texs[texCount] = g_Renderer->x14c_reflectionTex;
+                else
+                    texs[texCount] = g_Renderer->x220_sphereRamp;
                 thisOffs[3] = curReflect;
                 curReflect += 256;
             }
@@ -394,39 +410,36 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
             int idx = 0;
             for (boo::IShaderPipeline* pipeline : pipelines->m_pipelines)
             {
-                size_t texCount;
                 boo::ITexture** ltexs;
                 if (idx == EExtendedShader::Thermal)
                 {
-                    texCount = 8;
                     texs[7] = g_Renderer->x220_sphereRamp;
                     ltexs = texs;
                 }
                 else if (idx == EExtendedShader::MorphBallShadow)
                 {
-                    texCount = 3;
                     ltexs = mbShadowTexs;
                 }
                 else if (idx == EExtendedShader::WorldShadow)
                 {
-                    texCount = 8;
-                    texs[7] = g_shadowMap;
+                    if (g_shadowMap)
+                        texs[7] = g_shadowMap;
+                    else
+                        texs[7] = g_Renderer->x220_sphereRamp;
                     ltexs = texs;
                 }
                 else if (useReflection)
                 {
-                    texCount = mat.textureIdxs.size() + 1;
                     ltexs = texs;
                 }
                 else
                 {
-                    texCount = mat.textureIdxs.size();
                     ltexs = texs;
                 }
                 extendeds.push_back(
                             ctx.newShaderDataBinding(pipeline, newInst.GetBooVtxFmt(*this, ctx),
                                                      newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo, 4, bufs,
-                                                     stages, thisOffs, thisSizes, texCount, ltexs, nullptr, nullptr));
+                                                     stages, thisOffs, thisSizes, 8, ltexs, nullptr, nullptr));
                 ++idx;
             }
         }
@@ -632,11 +645,15 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const
         return;
     const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
 
-    for (boo::IShaderDataBinding* binding : inst.m_shaderDataBindings[surf.selfIdx])
+    // Only warmup normal lighting and thermal visor
+#if 0
+    for (int i=1 ; i<=2 ; ++i)
     {
+        boo::IShaderDataBinding* binding = inst.m_shaderDataBindings[surf.selfIdx][i];
         CGraphics::SetShaderDataBinding(binding);
         CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
     }
+#endif
 }
 
 void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimation& anim)
