@@ -16,7 +16,7 @@ static logvisor::Module Log("CGameArea");
 CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf)
 : x0_buf(buf)
 {
-    athena::io::MemoryReader r(x0_buf + 8, INT32_MAX);
+    CMemoryInStream r(x0_buf + 8, INT32_MAX);
     x8_bitmapCount = r.readUint32Big();
     xc_meshCount = r.readUint32Big();
     x10_nodeCount = r.readUint32Big();
@@ -799,9 +799,51 @@ void CGameArea::AllocNewAreaData(int offset, int size)
                               x110_mreaSecBufs.back().first.get()));
 }
 
-bool CGameArea::Invalidate(CStateManager& mgr)
+bool CGameArea::Invalidate(CStateManager* mgr)
 {
-    return false;
+    if (xf0_24_postConstructed)
+    {
+        ClearTokenList();
+        /* TODO: Verify, not sure if I'm getting this right - Phil */
+        for (auto it = xf8_loadTransactions.begin(); it != xf8_loadTransactions.end(); )
+        {
+            if (!(*it)->IsComplete())
+                (*it)->PostCancelRequest();
+            else
+                it = xf8_loadTransactions.erase(it);
+        }
+        if (xf8_loadTransactions.size() != 0)
+            return false;
+
+        x12c_postConstructed.reset();
+        KillmAreaData();
+
+        return true;
+    }
+
+    if (mgr)
+        mgr->PrepareAreaUnload(GetAreaId());
+
+#if 0
+    dword_805a8eb0 -= GetPostConstructedSize();
+#endif
+    RemoveStaticGeometry();
+    x12c_postConstructed.reset();
+    xf0_24_postConstructed = false;
+    xf0_28_validated = false;
+    xf4_phase = EPhase::LoadHeader;
+    xf8_loadTransactions.clear();
+    CullDeadAreaRequests();
+    KillmAreaData();
+    ClearTokenList();
+    if (mgr)
+        mgr->AreaUnloaded(GetAreaId());
+    return true;
+}
+
+void CGameArea::KillmAreaData()
+{
+    x110_mreaSecBufs.clear();
 }
 
 void CGameArea::CullDeadAreaRequests()

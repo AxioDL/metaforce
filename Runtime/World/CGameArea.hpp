@@ -332,7 +332,8 @@ public:
     void PrepTokens();
     u32 GetNumPartSizes() const;
     void AllocNewAreaData(int, int);
-    bool Invalidate(CStateManager& mgr);
+    bool Invalidate(CStateManager* mgr);
+    void KillmAreaData();
     void CullDeadAreaRequests();
     void StartStreamIn(CStateManager& mgr);
     void Validate(CStateManager& mgr);
