@@ -804,13 +804,16 @@ bool CGameArea::Invalidate(CStateManager* mgr)
     if (xf0_24_postConstructed)
     {
         ClearTokenList();
-        /* TODO: Verify, not sure if I'm getting this right - Phil */
+
         for (auto it = xf8_loadTransactions.begin(); it != xf8_loadTransactions.end(); )
         {
             if (!(*it)->IsComplete())
+            {
                 (*it)->PostCancelRequest();
-            else
-                it = xf8_loadTransactions.erase(it);
+                ++it;
+                continue;
+            }
+            it = xf8_loadTransactions.erase(it);
         }
         if (xf8_loadTransactions.size() != 0)
             return false;

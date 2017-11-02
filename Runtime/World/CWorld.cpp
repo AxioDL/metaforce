@@ -440,7 +440,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
     CGameArea* toDeallocateAreas = x4c_chainHeads[0];
     while (toDeallocateAreas)
     {
-        if (toDeallocateAreas->Invalidate(mgr))
+        if (toDeallocateAreas->Invalidate(&mgr))
         {
             MoveToChain(toDeallocateAreas, EChain::Deallocated);
             break;
