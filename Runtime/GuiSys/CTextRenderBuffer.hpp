@@ -72,7 +72,7 @@ private:
     {
         TLockedToken<CRasterFont> m_font;
         hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
-        boo::IShaderDataBinding* m_dataBinding = nullptr;
+        boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
         std::vector<CTextSupportShader::CharacterInstance> m_charData;
         u32 m_charCount = 0;
         bool m_dirty = true;
@@ -85,14 +85,12 @@ private:
     {
         CFontImageDef m_imageDef;
         hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
-        std::vector<boo::IShaderDataBinding*> m_dataBinding;
+        std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
         CTextSupportShader::ImageInstance m_imageData;
         bool m_dirty = true;
         BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
     };
     std::vector<BooImage> m_images;
-
-    boo::GraphicsDataToken m_booToken;
 
     struct BooPrimitiveMark
     {

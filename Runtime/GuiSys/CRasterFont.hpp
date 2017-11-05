@@ -147,7 +147,8 @@ public:
     }
     void GetSize(const CDrawStringOptions& opts, int& width, int& height,
                  const char16_t* str, int len) const;
-    boo::ITexture* GetTexture() { return x80_texture->GetFontTexture(CTexture::EFontType(x2c_mode)); }
+    const boo::ObjToken<boo::ITexture>& GetTexture()
+    { return x80_texture->GetFontTexture(CTexture::EFontType(x2c_mode)); }
 
     bool IsFinishedLoading() const;
 };

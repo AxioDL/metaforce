@@ -3,7 +3,7 @@
 namespace urde
 {
 
-static boo::IVertexFormat* s_vtxFmt = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_vtxFmt;
 
 static const char* VS =
 "#include <metal_stdlib>\n"
@@ -148,10 +148,10 @@ static const char* FSDoor =
 "    return colorOut;\n"
 "}\n";
 
-boo::IShaderPipeline*
+boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
-    if (s_vtxFmt == nullptr)
+    if (!s_vtxFmt)
     {
         boo::VertexElementDescriptor elements[] =
         {
@@ -467,17 +467,18 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
     std::string finalFS = hecl::Format(FS, textures.c_str(), combiner.c_str());
 
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), s_vtxFmt, CGraphics::g_ViewportSamples,
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr,
+                                 s_vtxFmt, CGraphics::g_ViewportSamples,
                                  info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
                                  info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                  boo::CullMode::None);
 }
 
-boo::IShaderPipeline*
+boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
 {
-    if (s_vtxFmt == nullptr)
+    if (!s_vtxFmt)
     {
         boo::VertexElementDescriptor elements[] =
         {
@@ -523,22 +524,23 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
     std::string finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
 
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), s_vtxFmt, CGraphics::g_ViewportSamples,
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr,
+                                 s_vtxFmt, CGraphics::g_ViewportSamples,
                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                  boo::CullMode::None);
 }
 
-boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline, bool door)
+boo::ObjToken<boo::IShaderDataBinding> CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::Context& ctx,
+                                       const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)
 {
-    boo::IGraphicsBuffer* ubufs[] = { m_uniBuf, m_uniBuf, m_uniBuf };
+    boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = { m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get() };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
                                         boo::PipelineStage::Fragment };
     size_t ubufOffs[] = {0, 0, 768};
     size_t ubufSizes[] = {768, 768, 256};
     size_t texCount = 0;
-    boo::ITexture* texs[7] = {};
+    boo::ObjToken<boo::ITexture> texs[7];
     if (m_patternTex1)
         texs[texCount++] = (*m_patternTex1)->GetBooTexture();
     if (m_patternTex2)
@@ -553,7 +555,7 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo.get(), nullptr, nullptr, door ? 1 : 3,
                                     ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 

@@ -82,17 +82,17 @@ public:
 private:
     class Cache
     {
-        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*> m_cache[1024] = {};
-        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*> m_doorCache[8] = {};
-        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*>&
+        boo::ObjToken<boo::IShaderPipeline> m_cache[1024] = {};
+        boo::ObjToken<boo::IShaderPipeline> m_doorCache[8] = {};
+        boo::ObjToken<boo::IShaderPipeline>&
         CacheSlot(const SFluidPlaneShaderInfo& info, int i) { return m_cache[i]; }
-        std::pair<boo::GraphicsDataToken, boo::IShaderPipeline*>&
+        boo::ObjToken<boo::IShaderPipeline>&
         CacheSlot(const SFluidPlaneDoorShaderInfo& info, int i) { return m_doorCache[i]; }
         static u16 MakeCacheKey(const SFluidPlaneShaderInfo& info);
         static u16 MakeCacheKey(const SFluidPlaneDoorShaderInfo& info);
     public:
         template<class T>
-        boo::IShaderPipeline* GetOrBuildShader(const T& info);
+        boo::ObjToken<boo::IShaderPipeline> GetOrBuildShader(const T& info);
         void Clear();
     };
     static Cache _cache;
@@ -113,23 +113,28 @@ private:
     std::experimental::optional<TLockedToken<CTexture>> m_envMap;
     std::experimental::optional<TLockedToken<CTexture>> m_envBumpMap;
     std::experimental::optional<TLockedToken<CTexture>> m_lightmap;
-    boo::GraphicsDataToken m_gfxTok;
-    boo::IGraphicsBufferD* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind;
+    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
 
-    static boo::IShaderPipeline* BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    static boo::IShaderPipeline* BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::GLDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::GLDataFactory::Context& ctx,
+                                                           const SFluidPlaneShaderInfo& info);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::GLDataFactory::Context& ctx,
+                                                           const SFluidPlaneDoorShaderInfo& info);
+    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::GLDataFactory::Context& ctx,
+                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #if _WIN32
     static boo::IShaderPipeline* BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
     static boo::IShaderPipeline* BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
     boo::IShaderDataBinding* BuildBinding(boo::ID3DDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
 #endif
 #if BOO_HAS_METAL
-    static boo::IShaderPipeline* BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    static boo::IShaderPipeline* BuildShader(boo::MetalDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::MetalDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::MetalDataFactory::Context& ctx,
+                                                           const SFluidPlaneShaderInfo& info);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::MetalDataFactory::Context& ctx,
+                                                           const SFluidPlaneDoorShaderInfo& info);
+    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::MetalDataFactory::Context& ctx,
+                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 #if BOO_HAS_VULKAN
     static boo::IShaderPipeline* BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
@@ -137,7 +142,7 @@ private:
     boo::IShaderDataBinding* BuildBinding(boo::VulkanDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
 #endif
 
-    void PrepareBinding(boo::IShaderPipeline* pipeline, u32 maxVertCount, bool door);
+    void PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door);
 public:
     CFluidPlaneShader(CFluidPlane::EFluidType type,
                       const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,

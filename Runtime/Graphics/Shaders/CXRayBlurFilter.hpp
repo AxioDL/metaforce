@@ -22,11 +22,10 @@ class CXRayBlurFilter
         zeus::CMatrix4f m_uv[4];
     };
     TLockedToken<CTexture> m_paletteTex;
-    boo::ITexture* m_booTex = nullptr;
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::ITexture> m_booTex;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
 
 public:

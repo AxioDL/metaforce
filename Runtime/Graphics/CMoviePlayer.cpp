@@ -176,9 +176,8 @@ static const u16 StaticVolumeLookup[] =
 };
 
 /* shared boo resources */
-static boo::GraphicsDataToken GraphicsData;
-static boo::IVertexFormat* YUVVTXFmt = nullptr;
-static boo::IShaderPipeline* YUVShaderPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> YUVVTXFmt;
+static boo::ObjToken<boo::IShaderPipeline> YUVShaderPipeline;
 static tjhandle TjHandle = nullptr;
 
 /* RSF audio state */
@@ -199,7 +198,7 @@ static const char* TexNames[] = {"texY", "texU", "texV"};
 
 void CMoviePlayer::Initialize()
 {
-    GraphicsData = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         if (!ctx.bindingNeedsVertexFormat())
         {
@@ -231,7 +230,7 @@ void CMoviePlayer::Initialize()
 #if BOO_HAS_METAL
         case boo::IGraphicsDataFactory::Platform::Metal:
             YUVShaderPipeline = static_cast<boo::MetalDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_METAL_YUV, FS_METAL_YUV, YUVVTXFmt, 1,
+                    (VS_METAL_YUV, FS_METAL_YUV, nullptr, nullptr, YUVVTXFmt, 1,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                      boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;
@@ -254,7 +253,8 @@ void CMoviePlayer::Initialize()
 
 void CMoviePlayer::Shutdown()
 {
-    GraphicsData.doDestroy();
+    YUVVTXFmt.reset();
+    YUVShaderPipeline.reset();
     tjDestroy(TjHandle);
 }
 
@@ -424,18 +424,18 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
     /* All set for GPU resources */
-    m_token = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
         m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);
 
-        boo::IVertexFormat* vtxFmt = YUVVTXFmt;
+        boo::ObjToken<boo::IVertexFormat> vtxFmt = YUVVTXFmt;
         if (ctx.bindingNeedsVertexFormat())
         {
             boo::VertexElementDescriptor texvdescs[] =
             {
-                {m_vertBuf, nullptr, boo::VertexSemantic::Position4},
-                {m_vertBuf, nullptr, boo::VertexSemantic::UV4}
+                {m_vertBuf.get(), nullptr, boo::VertexSemantic::Position4},
+                {m_vertBuf.get(), nullptr, boo::VertexSemantic::UV4}
             };
             vtxFmt = ctx.newVertexFormat(2, texvdescs);
         }
@@ -458,11 +458,11 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2,
                                               boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
 
-                boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
+                boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
                 for (int j=0 ; j<2 ; ++j)
                 {
-                    boo::ITexture* texs[] = {set.Y[j], set.U, set.V};
-                    set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
+                    boo::ObjToken<boo::ITexture> texs[] = {set.Y[j].get(), set.U.get(), set.V.get()};
+                    set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf.get(),
                                                               nullptr, nullptr, 1, bufs, nullptr,
                                                               3, texs, nullptr, nullptr);
                 }
@@ -477,9 +477,9 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 set.V = ctx.newDynamicTexture(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2,
                                               boo::TextureFormat::I8, boo::TextureClampMode::Repeat);
 
-                boo::IGraphicsBuffer* bufs[] = {m_blockBuf};
-                boo::ITexture* texs[] = {set.Y[0], set.U, set.V};
-                set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf,
+                boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
+                boo::ObjToken<boo::ITexture> texs[] = {set.Y[0].get(), set.U.get(), set.V.get()};
+                set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf.get(),
                                                           nullptr, nullptr, 1, bufs, nullptr,
                                                           3, texs, nullptr, nullptr);
             }
@@ -686,9 +686,9 @@ void CMoviePlayer::DrawFrame()
 
     /* draw appropriate field */
     CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding
+    CGraphics::SetShaderDataBinding
         (tex.binding[m_deinterlace ? (xfc_fieldIndex != 0) : 0]);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::DrawArray(0, 4);
 
     /* ensure second field is being displayed by VI to signal advance
      * (faked in urde with continuous xor) */

@@ -14,9 +14,13 @@ namespace urde
 class CTexturedQuadFilter
 {
     friend struct CTexturedQuadFilterGLDataBindingFactory;
+    friend struct CTexturedQuadFilterAlphaGLDataBindingFactory;
     friend struct CTexturedQuadFilterVulkanDataBindingFactory;
+    friend struct CTexturedQuadFilterAlphaVulkanDataBindingFactory;
     friend struct CTexturedQuadFilterMetalDataBindingFactory;
+    friend struct CTexturedQuadFilterAlphaMetalDataBindingFactory;
     friend struct CTexturedQuadFilterD3DDataBindingFactory;
+    friend struct CTexturedQuadFilterAlphaD3DDataBindingFactory;
 
 protected:
     struct Uniform
@@ -26,15 +30,14 @@ protected:
         float m_lod = 0.f;
     };
     TLockedToken<CTexture> m_tex;
-    boo::ITexture* m_booTex;
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferD* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::ITexture> m_booTex;
+    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
     bool m_gequal;
 
-    CTexturedQuadFilter(boo::ITexture* tex);
+    CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex);
 
 public:
     struct Vert
@@ -45,7 +48,7 @@ public:
 
     static const zeus::CRectangle DefaultRect;
     CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex);
-    CTexturedQuadFilter(EFilterType type, boo::ITexture* tex, bool gequal = false);
+    CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, bool gequal = false);
     CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
@@ -69,7 +72,7 @@ class CTexturedQuadFilterAlpha : public CTexturedQuadFilter
 
 public:
     CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex);
-    CTexturedQuadFilterAlpha(EFilterType type, boo::ITexture* tex);
+    CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex);
     using _CLS = CTexturedQuadFilterAlpha;
 #include "TMultiBlendShaderDecl.hpp"
 };

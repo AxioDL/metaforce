@@ -30,10 +30,9 @@ private:
         zeus::CMatrix4f m_matrix;
         zeus::CColor m_color;
     };
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferD* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf[3];
-    boo::IShaderDataBinding* m_dataBind[3];
+    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf[3];
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind[3];
     Uniform m_uniform;
     const CTexture* m_tex = nullptr;
     size_t m_maxVerts = 0;

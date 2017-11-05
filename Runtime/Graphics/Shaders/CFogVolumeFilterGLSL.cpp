@@ -86,34 +86,34 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_1WayPipeline = nullptr;
-static boo::IShaderPipeline* s_2WayPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_1WayPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_2WayPipeline;
 
 struct CFogVolumeFilterGLDataBindingFactory : TShader<CFogVolumeFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CFogVolumeFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CFogVolumeFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IVertexFormat* VtxVmtObj = cctx.newVertexFormat(2, VtxVmt);
-        boo::ITexture* texs[] = { CGraphics::g_SpareTexture, CGraphics::g_SpareTexture,
-                                  g_Renderer->GetFogRampTex() };
+        boo::ObjToken<boo::IVertexFormat> VtxVmtObj = cctx.newVertexFormat(2, VtxVmt);
+        boo::ObjToken<boo::ITexture> texs[] = { CGraphics::g_SpareTexture.get(), CGraphics::g_SpareTexture.get(),
+                                                g_Renderer->GetFogRampTex().get() };
         int bindIdxs[] = {0, 1, 0};
         bool bindDepth[] = {true, true, false};
-        boo::IGraphicsBuffer* ubufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = {filter.m_uniBuf.get()};
 
         filter.m_dataBind1Way = cctx.newShaderDataBinding(s_1WayPipeline, VtxVmtObj,
-            filter.m_vbo, nullptr, nullptr, 1, ubufs,
+            filter.m_vbo.get(), nullptr, nullptr, 1, ubufs,
             nullptr, nullptr, nullptr, 3, texs, bindIdxs, bindDepth);
         filter.m_dataBind2Way = cctx.newShaderDataBinding(s_2WayPipeline, VtxVmtObj,
-            filter.m_vbo, nullptr, nullptr, 1, ubufs,
+            filter.m_vbo.get(), nullptr, nullptr, 1, ubufs,
             nullptr, nullptr, nullptr, 3, texs, bindIdxs, bindDepth);
         return filter.m_dataBind1Way;
     }
@@ -155,6 +155,13 @@ CFogVolumeFilter::Initialize(boo::GLDataFactory::Context& ctx)
                                            boo::BlendFactor::One, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CFogVolumeFilterGLDataBindingFactory;
+}
+
+template <>
+void CFogVolumeFilter::Shutdown<boo::GLDataFactory>()
+{
+    s_1WayPipeline.reset();
+    s_2WayPipeline.reset();
 }
 
 #if BOO_HAS_VULKAN

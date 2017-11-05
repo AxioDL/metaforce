@@ -44,25 +44,25 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CAABoxShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
-static boo::IShaderPipeline* s_zOnlyPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_zOnlyPipeline;
 
 struct CAABoxShaderGLDataBindingFactory : TShader<CAABoxShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CAABoxShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CAABoxShader& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
         };
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         return cctx.newShaderDataBinding(filter.m_zOnly ? s_zOnlyPipeline : s_Pipeline,
-                                         ctx.newVertexFormat(1, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(1, VtxVmt), filter.m_vbo.get(), nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -93,6 +93,13 @@ TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::GLData
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CAABoxShaderGLDataBindingFactory;
+}
+
+template <>
+void CAABoxShader::Shutdown<boo::GLDataFactory>()
+{
+    s_Pipeline.reset();
+    s_zOnlyPipeline.reset();
 }
 
 #if BOO_HAS_VULKAN

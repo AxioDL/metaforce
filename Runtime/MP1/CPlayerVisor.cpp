@@ -402,7 +402,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
         if (!m_newScanPaneInst)
         {
             CPlayerVisor* ncThis = const_cast<CPlayerVisor*>(this);
-            boo::ITexture* texs[8] = {CGraphics::g_SpareTexture};
+            boo::ObjToken<boo::ITexture> texs[8] = {CGraphics::g_SpareTexture.get()};
             ncThis->m_newScanPaneInst = ncThis->x108_newScanPane->MakeNewInstance(0, 1, texs);
             ncThis->m_newScanPaneInst->VerifyCurrentShader(0);
         }

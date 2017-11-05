@@ -43,12 +43,12 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
-static boo::IShaderPipeline* s_AddPipeline = nullptr;
-static boo::IShaderPipeline* s_MultPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
 
-static boo::IShaderPipeline* SelectPipeline(EFilterType type)
+static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type)
 {
     switch (type)
     {
@@ -59,26 +59,25 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type)
     case EFilterType::Multiply:
         return s_MultPipeline;
     default:
-        return nullptr;
+        return {};
     }
 }
 
 struct CColoredQuadFilterGLDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CColoredQuadFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  EFilterType type, CColoredQuadFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4}
         };
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         return cctx.newShaderDataBinding(SelectPipeline(type),
-                                         ctx.newVertexFormat(1, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(1, VtxVmt), filter.m_vbo.get(), nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -114,6 +113,14 @@ CColoredQuadFilter::Initialize(boo::GLDataFactory::Context& ctx)
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CColoredQuadFilterGLDataBindingFactory;
+}
+
+template <>
+void CColoredQuadFilter::Shutdown<boo::GLDataFactory>()
+{
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
 }
 
 #if BOO_HAS_VULKAN

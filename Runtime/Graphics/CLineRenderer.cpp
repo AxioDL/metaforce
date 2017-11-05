@@ -23,7 +23,8 @@ hecl::VertexBufferPool<CLineRenderer::SDrawVertNoTex> CLineRenderer::s_vertPoolN
 hecl::UniformBufferPool<CLineRenderer::SDrawUniform> CLineRenderer::s_uniformPool = {};
 
 CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
-                             EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive)
+                             EPrimitiveMode mode, u32 maxVerts,
+                             const boo::ObjToken<boo::ITexture>& texture, bool additive)
 : m_mode(mode), m_maxVerts(maxVerts)
 {
     if (maxVerts < 2)
@@ -31,7 +32,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
         LineRendererLog.report(logvisor::Fatal, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
         return;
     }
-    m_textured = texture != nullptr;
+    m_textured = texture;
 
     u32 maxTriVerts;
     switch (mode)
@@ -57,7 +58,8 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
     CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive);
 }
 
-CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive)
+CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
+                             const boo::ObjToken<boo::ITexture>& texture, bool additive)
 : m_mode(mode), m_maxVerts(maxVerts)
 {
     if (maxVerts < 2)
@@ -65,7 +67,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
         LineRendererLog.report(logvisor::Fatal, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
         return;
     }
-    m_textured = texture != nullptr;
+    m_textured = texture;
 
     u32 maxTriVerts;
     switch (mode)
@@ -88,7 +90,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* t
 
     m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
 
-    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive);
         return true;

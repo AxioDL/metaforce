@@ -48,20 +48,20 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CAABoxShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
-static boo::IShaderPipeline* s_zOnlyPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_zOnlyPipeline;
 
 struct CAABoxShaderMetalDataBindingFactory : TShader<CAABoxShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CAABoxShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CAABoxShader& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(filter.m_zOnly ? s_zOnlyPipeline : s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -73,13 +73,23 @@ TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::MetalD
         {nullptr, nullptr, boo::VertexSemantic::Position4},
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                       s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
-    s_zOnlyPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    s_zOnlyPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                            s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CAABoxShaderMetalDataBindingFactory;
+}
+
+template <>
+void CAABoxShader::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
+    s_zOnlyPipeline.reset();
 }
 
 }

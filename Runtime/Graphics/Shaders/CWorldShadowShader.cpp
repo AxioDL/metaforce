@@ -6,7 +6,7 @@ namespace urde
 CWorldShadowShader::CWorldShadowShader(u32 w, u32 h)
 : m_w(w), m_h(h)
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 16, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -47,7 +47,7 @@ void CWorldShadowShader::lightenShadow()
 void CWorldShadowShader::blendPreviousShadow()
 {
     if (!m_prevQuad)
-        m_prevQuad.emplace(EFilterType::Blend, m_tex);
+        m_prevQuad.emplace(EFilterType::Blend, m_tex.get());
     m_prevQuad->draw({1.f, 0.85f}, 1.f);
 }
 
@@ -56,8 +56,6 @@ void CWorldShadowShader::resolveTexture()
     boo::SWindowRect rect = {0, 0, int(m_w), int(m_h)};
     CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_tex, rect, false, 0, true, false);
 }
-
-void CWorldShadowShader::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CWorldShadowShader)
 

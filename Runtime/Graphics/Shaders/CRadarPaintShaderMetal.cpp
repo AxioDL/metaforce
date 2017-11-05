@@ -58,20 +58,20 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CRadarPaintShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CRadarPaintShaderMetalDataBindingFactory : TShader<CRadarPaintShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CRadarPaintShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CRadarPaintShader& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         nullptr, filter.m_vbo, nullptr, 1, bufs,
+                                         nullptr, filter.m_vbo.get(), nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -92,11 +92,19 @@ CRadarPaintShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Color}
     };
     s_VtxFmt = ctx.newVertexFormat(9, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                       s_VtxFmt, CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CRadarPaintShaderMetalDataBindingFactory;
+}
+
+template <>
+void CRadarPaintShader::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 
 }

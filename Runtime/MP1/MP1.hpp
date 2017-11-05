@@ -220,7 +220,7 @@ private:
     {
         BooSetter(boo::IGraphicsDataFactory* factory,
                   boo::IGraphicsCommandQueue* cmdQ,
-                  boo::ITextureR* spareTex);
+                  const boo::ObjToken<boo::ITextureR>& spareTex);
     } m_booSetter;
 
     //CMemorySys x6c_memSys;
@@ -266,7 +266,7 @@ public:
     CMain(IFactory* resFactory, CSimplePool* resStore,
           boo::IGraphicsDataFactory* gfxFactory,
           boo::IGraphicsCommandQueue* cmdQ,
-          boo::ITextureR* spareTex);
+          const boo::ObjToken<boo::ITextureR>& spareTex);
     void RegisterResourceTweaks();
     void AddWorldPaks();
     void ResetGameState();

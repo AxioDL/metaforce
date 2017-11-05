@@ -66,25 +66,25 @@ BOO_GLSL_BINDING_HEAD
 
 struct OGLParticleSwooshDataBindingFactory : TShader<CParticleSwooshShaders>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CParticleSwooshShaders& shaders)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CParticleSwooshShaders& shaders)
     {
         CParticleSwoosh& gen = shaders.m_gen;
         CSwooshDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x3c_TEXR.get();
-        boo::ITexture* textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
+        boo::ObjToken<boo::ITexture> textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
 
         const boo::VertexElementDescriptor VtxFmt[] =
         {
-            {gen.m_vertBuf, nullptr, boo::VertexSemantic::Position4},
-            {gen.m_vertBuf, nullptr, boo::VertexSemantic::UV4},
-            {gen.m_vertBuf, nullptr, boo::VertexSemantic::Color},
+            {gen.m_vertBuf.get(), nullptr, boo::VertexSemantic::Position4},
+            {gen.m_vertBuf.get(), nullptr, boo::VertexSemantic::UV4},
+            {gen.m_vertBuf.get(), nullptr, boo::VertexSemantic::Color},
         };
-        boo::IVertexFormat* vtxFmt = ctx.newVertexFormat(3, VtxFmt);
+        boo::ObjToken<boo::IVertexFormat> vtxFmt = ctx.newVertexFormat(3, VtxFmt);
 
-        boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
-        gen.m_dataBind = ctx.newShaderDataBinding(shaders.m_pipeline, vtxFmt, gen.m_vertBuf,
+        boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBuf.get()};
+        gen.m_dataBind = ctx.newShaderDataBinding(shaders.m_pipeline, vtxFmt, gen.m_vertBuf.get(),
                                                   nullptr, nullptr, 1, uniforms,
                                                   nullptr, texr ? 1 : 0, textures, nullptr, nullptr);
         return nullptr;
@@ -131,6 +131,20 @@ TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::In
                                                     true, false, boo::CullMode::None);
 
     return new struct OGLParticleSwooshDataBindingFactory;
+}
+
+template <>
+void CParticleSwooshShaders::Shutdown<boo::GLDataFactory>()
+{
+    m_texZWrite.reset();
+    m_texNoZWrite.reset();
+    m_texAdditiveZWrite.reset();
+    m_texAdditiveNoZWrite.reset();
+
+    m_noTexZWrite.reset();
+    m_noTexNoZWrite.reset();
+    m_noTexAdditiveZWrite.reset();
+    m_noTexAdditiveNoZWrite.reset();
 }
 
 #if BOO_HAS_VULKAN

@@ -70,18 +70,18 @@ static const char* FS_NOTEX =
 
 struct MetalParticleSwooshDataBindingFactory : TShader<CParticleSwooshShaders>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CParticleSwooshShaders& shaders)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CParticleSwooshShaders& shaders)
     {
         CParticleSwoosh& gen = shaders.m_gen;
         CSwooshDescription* desc = gen.GetDesc();
 
         CUVElement* texr = desc->x3c_TEXR.get();
-        boo::ITexture* textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
+        boo::ObjToken<boo::ITexture> textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
 
-        boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBuf.get()};
         gen.m_dataBind = ctx.newShaderDataBinding(shaders.m_pipeline, CParticleSwooshShaders::m_vtxFormat,
-                                                  gen.m_vertBuf, nullptr, nullptr, 1, uniforms,
+                                                  gen.m_vertBuf.get(), nullptr, nullptr, 1, uniforms,
                                                   nullptr, texr ? 1 : 0, textures, nullptr, nullptr);
         return nullptr;
     }
@@ -97,41 +97,65 @@ TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::In
     };
     m_vtxFormat = ctx.newVertexFormat(3, VtxFmt);
 
-    m_texZWrite = ctx.newShaderPipeline(VS, FS_TEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
+                                        m_vtxFormat, CGraphics::g_ViewportSamples,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                         boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                         true, false, boo::CullMode::None);
-    m_texNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
+                                          m_vtxFormat, CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                           true, false, boo::CullMode::None);
-    m_texAdditiveZWrite = ctx.newShaderPipeline(VS, FS_TEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texAdditiveZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
+                                                m_vtxFormat, CGraphics::g_ViewportSamples,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                                 true, false, boo::CullMode::None);
-    m_texAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
+                                                  m_vtxFormat, CGraphics::g_ViewportSamples,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                                   true, false, boo::CullMode::None);
 
-    m_noTexZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
+                                          m_vtxFormat, CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                           true, false, boo::CullMode::None);
-    m_noTexNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
+                                            m_vtxFormat, CGraphics::g_ViewportSamples,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                             boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                             true, false, boo::CullMode::None);
-    m_noTexAdditiveZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexAdditiveZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
+                                                  m_vtxFormat, CGraphics::g_ViewportSamples,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                                   true, false, boo::CullMode::None);
-    m_noTexAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
+                                                    m_vtxFormat, CGraphics::g_ViewportSamples,
                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                                     true, false, boo::CullMode::None);
 
     return new struct MetalParticleSwooshDataBindingFactory;
+}
+
+template <>
+void CParticleSwooshShaders::Shutdown<boo::MetalDataFactory>()
+{
+    m_texZWrite.reset();
+    m_texNoZWrite.reset();
+    m_texAdditiveZWrite.reset();
+    m_texAdditiveNoZWrite.reset();
+
+    m_noTexZWrite.reset();
+    m_noTexNoZWrite.reset();
+    m_noTexAdditiveZWrite.reset();
+    m_noTexAdditiveNoZWrite.reset();
+
+    m_vtxFormat.reset();
 }
 
 }

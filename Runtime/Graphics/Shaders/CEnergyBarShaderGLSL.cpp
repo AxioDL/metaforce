@@ -50,30 +50,30 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CEnergyBarShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CEnergyBarShaderGLDataBindingFactory : TShader<CEnergyBarShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CEnergyBarShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CEnergyBarShader& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IVertexFormat* vtxFmt = ctx.newVertexFormat(2, VtxVmt);
-        boo::IGraphicsBuffer* bufs[1];
+        boo::ObjToken<boo::IVertexFormat> vtxFmt = ctx.newVertexFormat(2, VtxVmt);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[1];
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
         for (int i=0 ; i<3 ; ++i)
         {
-            bufs[0] = filter.m_uniBuf[i];
+            bufs[0] = filter.m_uniBuf[i].get();
             filter.m_dataBind[i] = cctx.newShaderDataBinding(s_Pipeline,
-                vtxFmt, filter.m_vbo, nullptr, nullptr,
+                vtxFmt, filter.m_vbo.get(), nullptr, nullptr,
                 1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
         }
         return filter.m_dataBind[0];
@@ -111,6 +111,12 @@ CEnergyBarShader::Initialize(boo::GLDataFactory::Context& ctx)
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     return new CEnergyBarShaderGLDataBindingFactory;
+}
+
+template <>
+void CEnergyBarShader::Shutdown<boo::GLDataFactory>()
+{
+    s_Pipeline.reset();
 }
 
 #if BOO_HAS_VULKAN

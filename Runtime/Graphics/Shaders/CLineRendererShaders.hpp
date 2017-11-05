@@ -18,22 +18,21 @@ public:
     {
         virtual void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                             CLineRenderer& renderer,
-                                            boo::IShaderPipeline* pipeline,
-                                            boo::ITexture* texture)=0;
+                                            const boo::ObjToken<boo::IShaderPipeline>& pipeline,
+                                            const boo::ObjToken<boo::ITexture>& texture)=0;
     };
 
 private:
-    static boo::IShaderPipeline* m_texAlpha;
-    static boo::IShaderPipeline* m_texAdditive;
+    static boo::ObjToken<boo::IShaderPipeline> m_texAlpha;
+    static boo::ObjToken<boo::IShaderPipeline> m_texAdditive;
 
-    static boo::IShaderPipeline* m_noTexAlpha;
-    static boo::IShaderPipeline* m_noTexAdditive;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAlpha;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditive;
 
-    static boo::IVertexFormat* m_texVtxFmt;
-    static boo::IVertexFormat* m_noTexVtxFmt;
+    static boo::ObjToken<boo::IVertexFormat> m_texVtxFmt;
+    static boo::ObjToken<boo::IVertexFormat> m_noTexVtxFmt;
 
     static std::unique_ptr<IDataBindingFactory> m_bindFactory;
-    static boo::GraphicsDataToken m_gfxToken;
 
 public:
     static IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
@@ -50,7 +49,7 @@ public:
     static void Initialize();
     static void Shutdown();
     static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                       boo::ITexture* texture, bool additive);
+                                       const boo::ObjToken<boo::ITexture>& texture, bool additive);
 };
 
 }

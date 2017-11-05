@@ -58,20 +58,20 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CThermalHotFilterMetalDataBindingFactory : TShader<CThermalHotFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CThermalHotFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CThermalHotFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture, g_Renderer->GetThermoPalette()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), g_Renderer->GetThermoPalette()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
@@ -84,11 +84,19 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                       s_VtxFmt, CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::DstAlpha, boo::BlendFactor::InvDstAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None, false,
                                        true, true, boo::CullMode::None);
     return new CThermalHotFilterMetalDataBindingFactory;
+}
+
+template <>
+void CThermalHotFilter::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 
 }

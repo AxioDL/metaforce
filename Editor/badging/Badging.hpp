@@ -5,7 +5,8 @@
 
 namespace urde
 {
-boo::GraphicsDataToken InitializeBadging(specter::ViewResources& viewRes);
+void InitializeBadging(specter::ViewResources& viewRes);
+void DestroyBadging();
 
 specter::Icon& GetBadge();
 }

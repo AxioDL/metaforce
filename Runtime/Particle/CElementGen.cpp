@@ -244,7 +244,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     if (x26c_31_LINE)
     {
         CUVElement* texr = desc->x54_x40_TEXR.get();
-        boo::ITexture* tex = nullptr;
+        boo::ObjToken<boo::ITexture> tex;
         if (texr)
             tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
         int maxVerts = (x90_MAXP == 0 ? 256 : x90_MAXP);
@@ -259,7 +259,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * x90_MAXP) : x90_MAXP;
     maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
-    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         if (!x26c_31_LINE)
         {

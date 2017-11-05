@@ -97,7 +97,6 @@ class CBooRenderer : public IRenderer
     IFactory& x8_factory;
     IObjectStore& xc_store;
     TLockedToken<CTexture> m_staticEntropy;
-    boo::GraphicsDataToken m_gfxToken;
     // CFont x10_fnt;
     u32 x18_ = 0;
     std::list<CAreaListItem> x1c_areaListItems;
@@ -120,17 +119,17 @@ class CBooRenderer : public IRenderer
     //boo::ITextureS* xe4_blackTex = nullptr;
     bool xee_24_ : 1;
 
-    boo::ITextureR* x14c_reflectionTex = nullptr;
+    boo::ObjToken<boo::ITextureR> x14c_reflectionTex;
     //boo::ITextureS* x150_mirrorRamp = nullptr;
-    boo::ITextureS* x1b8_fogVolumeRamp = nullptr;
-    boo::ITextureS* x220_sphereRamp = nullptr;
+    boo::ObjToken<boo::ITextureS> x1b8_fogVolumeRamp;
+    boo::ObjToken<boo::ITextureS> x220_sphereRamp;
     TLockedToken<CTexture> m_thermoPaletteTex;
-    boo::ITexture* x288_thermoPalette = nullptr;
+    boo::ObjToken<boo::ITexture> x288_thermoPalette;
     TLockedToken<CTexture> m_ballFadeTex;
-    boo::ITexture* m_ballFade = nullptr;
-    boo::ITextureR* m_ballShadowId = nullptr;
-    boo::IGraphicsBufferS* m_scanLinesEvenVBO = nullptr;
-    boo::IGraphicsBufferS* m_scanLinesOddVBO = nullptr;
+    boo::ObjToken<boo::ITexture> m_ballFade;
+    boo::ObjToken<boo::ITextureR> m_ballShadowId;
+    boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesEvenVBO;
+    boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesOddVBO;
     int m_ballShadowIdW = 64;
     int m_ballShadowIdH = 64;
 
@@ -275,11 +274,11 @@ public:
     void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                const CModel* model, const CSkinnedModel* sModel);
 
-    boo::ITexture* GetThermoPalette() {return x288_thermoPalette;}
-    boo::ITextureS* GetFogRampTex() {return x1b8_fogVolumeRamp;}
-    boo::ITexture* GetRandomStaticEntropyTex() const {return m_staticEntropy->GetBooTexture();}
-    boo::IGraphicsBuffer* GetScanLinesEvenVBO() const {return m_scanLinesEvenVBO;}
-    boo::IGraphicsBuffer* GetScanLinesOddVBO() const {return m_scanLinesOddVBO;}
+    const boo::ObjToken<boo::ITexture>& GetThermoPalette() {return x288_thermoPalette;}
+    const boo::ObjToken<boo::ITextureS>& GetFogRampTex() {return x1b8_fogVolumeRamp;}
+    const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const {return m_staticEntropy->GetBooTexture();}
+    const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const {return m_scanLinesEvenVBO;}
+    const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const {return m_scanLinesOddVBO;}
 
     static void BindMainDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);}
     void BindReflectionDrawTarget() {CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex);}

@@ -89,38 +89,38 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneDoorShaderInfo& info
 }
 
 template<class T>
-boo::IShaderPipeline* CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
+boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
 {
     u16 key = MakeCacheKey(info);
     auto& slot = CacheSlot(info, key);
-    if (slot.second != nullptr)
-        return slot.second;
+    if (slot)
+        return slot;
 
     if (CGraphics::g_BooFactory == nullptr)
         return nullptr;
 
-    slot.first = CGraphics::CommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
         {
         case boo::IGraphicsDataFactory::Platform::OpenGL:
-            slot.second = BuildShader(static_cast<boo::GLDataFactory::Context&>(ctx), info);
+            slot = BuildShader(static_cast<boo::GLDataFactory::Context&>(ctx), info);
             break;
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:
-            slot.second = BuildShader(static_cast<boo::ID3DDataFactory::Context&>(ctx), info);
+            slot = BuildShader(static_cast<boo::ID3DDataFactory::Context&>(ctx), info);
             break;
 #endif
 #if BOO_HAS_METAL
         case boo::IGraphicsDataFactory::Platform::Metal:
-            slot.second = BuildShader(static_cast<boo::MetalDataFactory::Context&>(ctx), info);
+            slot = BuildShader(static_cast<boo::MetalDataFactory::Context&>(ctx), info);
             break;
 #endif
 #if BOO_HAS_VULKAN
         case boo::IGraphicsDataFactory::Platform::Vulkan:
-            slot.second = BuildShader(static_cast<boo::VulkanDataFactory::Context&>(ctx), info);
+            slot = BuildShader(static_cast<boo::VulkanDataFactory::Context&>(ctx), info);
             break;
 #endif
         default: break;
@@ -128,31 +128,25 @@ boo::IShaderPipeline* CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
         return true;
     });
 
-    return slot.second;
+    return slot;
 }
 
-template boo::IShaderPipeline*
+template boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info);
-template boo::IShaderPipeline*
+template boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info);
 
 void CFluidPlaneShader::Cache::Clear()
 {
     for (auto& p : m_cache)
-    {
-        p.first.doDestroy();
-        p.second = nullptr;
-    }
+        p.reset();
     for (auto& p : m_doorCache)
-    {
-        p.first.doDestroy();
-        p.second = nullptr;
-    }
+        p.reset();
 }
 
-void CFluidPlaneShader::PrepareBinding(boo::IShaderPipeline* pipeline, u32 maxVertCount, bool door)
+void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door)
 {
-    m_gfxTok = CGraphics::CommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
@@ -211,7 +205,7 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
                                      m_envBumpMap.operator bool(),
                                      m_lightmap.operator bool(),
                                      doubleLightmapBlend, additive);
-    boo::IShaderPipeline* pipeline = _cache.GetOrBuildShader(shaderInfo);
+    boo::ObjToken<boo::IShaderPipeline> pipeline = _cache.GetOrBuildShader(shaderInfo);
     PrepareBinding(pipeline, maxVertCount, false);
 }
 
@@ -226,7 +220,7 @@ CFluidPlaneShader::CFluidPlaneShader(const std::experimental::optional<TLockedTo
     SFluidPlaneDoorShaderInfo shaderInfo(m_patternTex1.operator bool(),
                                          m_patternTex2.operator bool(),
                                          m_colorTex.operator bool());
-    boo::IShaderPipeline* pipeline = _cache.GetOrBuildShader(shaderInfo);
+    boo::ObjToken<boo::IShaderPipeline> pipeline = _cache.GetOrBuildShader(shaderInfo);
     PrepareBinding(pipeline, maxVertCount, true);
 }
 

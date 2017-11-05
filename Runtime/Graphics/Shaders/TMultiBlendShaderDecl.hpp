@@ -8,4 +8,4 @@ static TMultiBlendShader<_CLS>::IDataBindingFactory* Initialize(boo::MetalDataFa
 #if BOO_HAS_VULKAN
 static TMultiBlendShader<_CLS>::IDataBindingFactory* Initialize(boo::VulkanDataFactory::Context& ctx);
 #endif
-static void Shutdown();
+template <class F> static void Shutdown();

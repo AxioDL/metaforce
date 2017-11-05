@@ -48,19 +48,19 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CMapSurfaceShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CMapSurfaceShaderMetalDataBindingFactory : TShader<CMapSurfaceShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CMapSurfaceShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CMapSurfaceShader& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-            filter.m_vbo, nullptr, filter.m_ibo, 1, bufs,
+            filter.m_vbo.get(), nullptr, filter.m_ibo.get(), 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return filter.m_dataBind;
     }
@@ -74,10 +74,18 @@ CMapSurfaceShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+        s_VtxFmt, CGraphics::g_ViewportSamples,
         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
         boo::ZTest::LEqual, false, true, false, boo::CullMode::Backface);
     return new CMapSurfaceShaderMetalDataBindingFactory;
+}
+
+template <>
+void CMapSurfaceShader::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 
 }

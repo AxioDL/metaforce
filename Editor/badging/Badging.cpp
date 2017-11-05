@@ -10,7 +10,7 @@ namespace urde
 static logvisor::Module Log("URDE::badging");
 static specter::Icon g_BadgeIcon;
 
-boo::GraphicsDataToken InitializeBadging(specter::ViewResources& viewRes)
+void InitializeBadging(specter::ViewResources& viewRes)
 {
     athena::io::MemoryReader r(URDE_BADGE, URDE_BADGE_SZ);
 
@@ -28,7 +28,7 @@ boo::GraphicsDataToken InitializeBadging(specter::ViewResources& viewRes)
     if (uncompress(texels.get(), &destSz, URDE_BADGE + pos, URDE_BADGE_SZ - pos) != Z_OK)
         Log.report(logvisor::Fatal, "unable to decompress badge");
 
-    return viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         specter::IconAtlas<1, 1> atlas;
 
@@ -38,6 +38,11 @@ boo::GraphicsDataToken InitializeBadging(specter::ViewResources& viewRes)
         g_BadgeIcon = atlas.getIcon(0, 0);
         return true;
     });
+}
+
+void DestroyBadging()
+{
+    g_BadgeIcon.m_tex.reset();
 }
 
 specter::Icon& GetBadge()

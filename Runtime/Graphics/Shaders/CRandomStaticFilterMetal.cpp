@@ -112,13 +112,13 @@ static const char* FSCookieCutter =
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CRandomStaticFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
-static boo::IShaderPipeline* s_AddPipeline = nullptr;
-static boo::IShaderPipeline* s_MultPipeline = nullptr;
-static boo::IShaderPipeline* s_CookieCutterPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_CookieCutterPipeline;
 
-static boo::IShaderPipeline* SelectPipeline(EFilterType type)
+static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type)
 {
     switch (type)
     {
@@ -129,22 +129,21 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type)
     case EFilterType::Multiply:
         return s_MultPipeline;
     default:
-        return nullptr;
+        return {};
     }
 }
 
 struct CRandomStaticFilterMetalDataBindingFactory : TMultiBlendShader<CRandomStaticFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CRandomStaticFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  EFilterType type, CRandomStaticFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {g_Renderer->GetRandomStaticEntropyTex()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {g_Renderer->GetRandomStaticEntropyTex()};
         return cctx.newShaderDataBinding(filter.m_cookieCutter ? s_CookieCutterPipeline : SelectPipeline(type),
-                                         s_VtxFmt, filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         s_VtxFmt, filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -158,23 +157,37 @@ CRandomStaticFilter::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                            s_VtxFmt, CGraphics::g_ViewportSamples,
                                             boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_AddPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                          s_VtxFmt, CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                           s_VtxFmt, CGraphics::g_ViewportSamples,
                                            boo::BlendFactor::SrcColor,
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, nullptr, nullptr,
+                                                   s_VtxFmt, CGraphics::g_ViewportSamples,
                                                    boo::BlendFactor::SrcColor,
                                                    boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                                    boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CRandomStaticFilterMetalDataBindingFactory;
+}
+
+template <>
+void CRandomStaticFilter::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
+    s_CookieCutterPipeline.reset();
 }
 
 }

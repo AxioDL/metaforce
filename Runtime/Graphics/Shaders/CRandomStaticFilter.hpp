@@ -23,10 +23,9 @@ class CRandomStaticFilter
         float randOff;
         float discardThres;
     };
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
     bool m_cookieCutter;
 

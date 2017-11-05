@@ -100,10 +100,9 @@ class CParticleSwoosh : public CParticleGen
     float x208_maxRadius = 0.f;
     zeus::CColor x20c_moduColor = zeus::CColor::skWhite;
 
-    boo::GraphicsDataToken m_gfxToken;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
-    boo::IGraphicsBufferD* m_vertBuf = nullptr;
-    boo::IGraphicsBufferD* m_uniformBuf = nullptr;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+    boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     std::vector<CParticleSwooshShaders::Vert> m_cachedVerts;
 

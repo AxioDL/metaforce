@@ -26,10 +26,9 @@ class CCameraBlurFilter
         zeus::CVector4f m_uv[6];
         float m_opacity = 1.f;
     };
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferD* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
 
 public:

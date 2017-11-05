@@ -23,11 +23,10 @@ class CThermalColdFilter
         zeus::CColor m_colorRegs[3];
     };
     u8 m_shiftTexture[4][8][4] = {};
-    boo::GraphicsDataToken m_token;
-    boo::ITextureD* m_shiftTex = nullptr;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::ITextureD> m_shiftTex;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
 
 public:

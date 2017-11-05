@@ -27,52 +27,52 @@ public:
     };
 
 private:
-    static boo::IShaderPipeline* m_texZTestZWrite;
-    static boo::IShaderPipeline* m_texNoZTestZWrite;
-    static boo::IShaderPipeline* m_texZTestNoZWrite;
-    static boo::IShaderPipeline* m_texNoZTestNoZWrite;
-    static boo::IShaderPipeline* m_texAdditiveZTest;
-    static boo::IShaderPipeline* m_texAdditiveNoZTest;
-    static boo::IShaderPipeline* m_texRedToAlphaZTest;
-    static boo::IShaderPipeline* m_texRedToAlphaNoZTest;
-    static boo::IShaderPipeline* m_texZTestNoZWriteSub;
-    static boo::IShaderPipeline* m_texNoZTestNoZWriteSub;
-    static boo::IShaderPipeline* m_texRedToAlphaZTestSub;
-    static boo::IShaderPipeline* m_texRedToAlphaNoZTestSub;
+    static boo::ObjToken<boo::IShaderPipeline> m_texZTestZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texNoZTestZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texZTestNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texNoZTestNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveZTest;
+    static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveNoZTest;
+    static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaZTest;
+    static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaNoZTest;
+    static boo::ObjToken<boo::IShaderPipeline> m_texZTestNoZWriteSub;
+    static boo::ObjToken<boo::IShaderPipeline> m_texNoZTestNoZWriteSub;
+    static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaZTestSub;
+    static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaNoZTestSub;
 
-    static boo::IShaderPipeline* m_indTexZWrite;
-    static boo::IShaderPipeline* m_indTexNoZWrite;
-    static boo::IShaderPipeline* m_indTexAdditive;
+    static boo::ObjToken<boo::IShaderPipeline> m_indTexZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_indTexNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_indTexAdditive;
 
-    static boo::IShaderPipeline* m_cindTexZWrite;
-    static boo::IShaderPipeline* m_cindTexNoZWrite;
-    static boo::IShaderPipeline* m_cindTexAdditive;
+    static boo::ObjToken<boo::IShaderPipeline> m_cindTexZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_cindTexNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_cindTexAdditive;
 
-    static boo::IShaderPipeline* m_noTexZTestZWrite;
-    static boo::IShaderPipeline* m_noTexNoZTestZWrite;
-    static boo::IShaderPipeline* m_noTexZTestNoZWrite;
-    static boo::IShaderPipeline* m_noTexNoZTestNoZWrite;
-    static boo::IShaderPipeline* m_noTexAdditiveZTest;
-    static boo::IShaderPipeline* m_noTexAdditiveNoZTest;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexZTestZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexNoZTestZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexZTestNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexNoZTestNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZTest;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveNoZTest;
 
-    static boo::IVertexFormat* m_vtxFormatTex; /* No OpenGL */
-    static boo::IVertexFormat* m_vtxFormatIndTex; /* No OpenGL */
-    static boo::IVertexFormat* m_vtxFormatNoTex; /* No OpenGL */
+    static boo::ObjToken<boo::IVertexFormat> m_vtxFormatTex; /* No OpenGL */
+    static boo::ObjToken<boo::IVertexFormat> m_vtxFormatIndTex; /* No OpenGL */
+    static boo::ObjToken<boo::IVertexFormat> m_vtxFormatNoTex; /* No OpenGL */
 
     CElementGen& m_gen;
-    boo::IShaderPipeline* m_regPipeline;
-    boo::IShaderPipeline* m_regPipelineSub;
-    boo::IShaderPipeline* m_redToAlphaPipeline;
-    boo::IShaderPipeline* m_redToAlphaPipelineSub;
-    boo::IShaderPipeline* m_regPipelinePmus;
-    boo::IShaderPipeline* m_redToAlphaPipelinePmus;
+    boo::ObjToken<boo::IShaderPipeline> m_regPipeline;
+    boo::ObjToken<boo::IShaderPipeline> m_regPipelineSub;
+    boo::ObjToken<boo::IShaderPipeline> m_redToAlphaPipeline;
+    boo::ObjToken<boo::IShaderPipeline> m_redToAlphaPipelineSub;
+    boo::ObjToken<boo::IShaderPipeline> m_regPipelinePmus;
+    boo::ObjToken<boo::IShaderPipeline> m_redToAlphaPipelinePmus;
     CElementGenShaders(CElementGen& gen,
-                       boo::IShaderPipeline* regPipeline,
-                       boo::IShaderPipeline* regPipelineSub,
-                       boo::IShaderPipeline* redToAlphaPipeline,
-                       boo::IShaderPipeline* redToAlphaPipelineSub,
-                       boo::IShaderPipeline* regPipelinePmus,
-                       boo::IShaderPipeline* redToAlphaPipelinePmus)
+                       const boo::ObjToken<boo::IShaderPipeline>& regPipeline,
+                       const boo::ObjToken<boo::IShaderPipeline>& regPipelineSub,
+                       const boo::ObjToken<boo::IShaderPipeline>& redToAlphaPipeline,
+                       const boo::ObjToken<boo::IShaderPipeline>& redToAlphaPipelineSub,
+                       const boo::ObjToken<boo::IShaderPipeline>& regPipelinePmus,
+                       const boo::ObjToken<boo::IShaderPipeline>& redToAlphaPipelinePmus)
     : m_gen(gen), m_regPipeline(regPipeline), m_regPipelineSub(regPipelineSub),
       m_redToAlphaPipeline(redToAlphaPipeline), m_redToAlphaPipelineSub(redToAlphaPipelineSub),
       m_regPipelinePmus(regPipelinePmus), m_redToAlphaPipelinePmus(redToAlphaPipelinePmus) {}

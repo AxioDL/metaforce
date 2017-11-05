@@ -53,26 +53,26 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CSpaceWarpFilterGLDataBindingFactory : TShader<CSpaceWarpFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CSpaceWarpFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CSpaceWarpFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_warpTex};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), filter.m_warpTex.get()};
         return cctx.newShaderDataBinding(s_Pipeline,
-                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo.get(), nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
@@ -102,6 +102,12 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
                                        boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CSpaceWarpFilterGLDataBindingFactory;
+}
+
+template <>
+void CSpaceWarpFilter::Shutdown<boo::GLDataFactory>()
+{
+    s_Pipeline.reset();
 }
 
 #if BOO_HAS_VULKAN

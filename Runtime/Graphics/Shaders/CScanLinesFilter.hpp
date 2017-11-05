@@ -21,9 +21,8 @@ class CScanLinesFilter
     {
         zeus::CColor color;
     };
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
     bool m_even;
 

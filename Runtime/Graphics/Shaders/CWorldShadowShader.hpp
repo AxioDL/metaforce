@@ -15,7 +15,7 @@ class CWorldShadowShader
     friend struct CWorldShadowShaderD3DDataBindingFactory;
     friend struct CWorldShadowShaderMetalDataBindingFactory;
 
-    boo::ITextureR* m_tex;
+    boo::ObjToken<boo::ITextureR> m_tex;
     std::experimental::optional<CTexturedQuadFilter> m_prevQuad;
     u32 m_w, m_h;
 
@@ -24,11 +24,10 @@ class CWorldShadowShader
         zeus::CMatrix4f m_matrix;
         zeus::CColor m_color;
     };
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferD* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
-    boo::IShaderDataBinding* m_zDataBind = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+    boo::ObjToken<boo::IShaderDataBinding> m_zDataBind;
     Uniform m_uniform;
 
 public:
@@ -42,7 +41,7 @@ public:
     u32 GetWidth() const { return m_w; }
     u32 GetHeight() const { return m_h; }
 
-    boo::ITexture* GetTexture() const { return m_tex; }
+    const boo::ObjToken<boo::ITextureR>& GetTexture() const { return m_tex; }
 
     using _CLS = CWorldShadowShader;
 #include "TShaderDecl.hpp"

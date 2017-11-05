@@ -5,17 +5,17 @@
 namespace urde
 {
 
-boo::IShaderPipeline* CParticleSwooshShaders::m_texZWrite = nullptr;
-boo::IShaderPipeline* CParticleSwooshShaders::m_texNoZWrite = nullptr;
-boo::IShaderPipeline* CParticleSwooshShaders::m_texAdditiveZWrite = nullptr;
-boo::IShaderPipeline* CParticleSwooshShaders::m_texAdditiveNoZWrite = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_texZWrite;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_texNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_texAdditiveZWrite;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_texAdditiveNoZWrite;
 
-boo::IShaderPipeline* CParticleSwooshShaders::m_noTexZWrite = nullptr;
-boo::IShaderPipeline* CParticleSwooshShaders::m_noTexNoZWrite = nullptr;
-boo::IShaderPipeline* CParticleSwooshShaders::m_noTexAdditiveZWrite = nullptr;
-boo::IShaderPipeline* CParticleSwooshShaders::m_noTexAdditiveNoZWrite = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_noTexZWrite;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_noTexNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_noTexAdditiveZWrite;
+boo::ObjToken<boo::IShaderPipeline> CParticleSwooshShaders::m_noTexAdditiveNoZWrite;
 
-boo::IVertexFormat* CParticleSwooshShaders::m_vtxFormat = nullptr;
+boo::ObjToken<boo::IVertexFormat> CParticleSwooshShaders::m_vtxFormat;
 
 CParticleSwooshShaders::EShaderClass CParticleSwooshShaders::GetShaderClass(CParticleSwoosh& gen)
 {
@@ -30,7 +30,7 @@ CParticleSwooshShaders::EShaderClass CParticleSwooshShaders::GetShaderClass(CPar
 void CParticleSwooshShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CParticleSwoosh& gen)
 {
     CSwooshDescription* desc = gen.GetDesc();
-    boo::IShaderPipeline* pipeline = nullptr;
+    boo::ObjToken<boo::IShaderPipeline> pipeline;
 
     if (desc->x3c_TEXR)
     {
@@ -70,8 +70,6 @@ void CParticleSwooshShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::C
     CParticleSwooshShaders shad(gen, pipeline);
     TShader<CParticleSwooshShaders>::BuildShaderDataBinding(ctx, shad);
 }
-
-void CParticleSwooshShaders::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CParticleSwooshShaders)
 

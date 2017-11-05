@@ -85,7 +85,7 @@ private:
 
     CColoredQuadFilter m_fadeToBlack = { EFilterType::Blend };
     CTexturedQuadFilter m_dissolve = { EFilterType::Blend,
-                                       CGraphics::g_SpareTexture };
+                                       CGraphics::g_SpareTexture.get() };
     CWideScreenFilter m_widescreen = { EFilterType::Blend };
     CCameraBlurFilter m_camblur;
 

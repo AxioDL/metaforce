@@ -3,24 +3,23 @@
 namespace urde
 {
 
-boo::IShaderPipeline* CLineRendererShaders::m_texAlpha = nullptr;
-boo::IShaderPipeline* CLineRendererShaders::m_texAdditive = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_texAlpha;
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_texAdditive;
 
-boo::IShaderPipeline* CLineRendererShaders::m_noTexAlpha = nullptr;
-boo::IShaderPipeline* CLineRendererShaders::m_noTexAdditive = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAlpha;
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAdditive;
 
-boo::IVertexFormat* CLineRendererShaders::m_texVtxFmt = nullptr;
-boo::IVertexFormat* CLineRendererShaders::m_noTexVtxFmt = nullptr;
+boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_texVtxFmt;
+boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_noTexVtxFmt;
 
 std::unique_ptr<CLineRendererShaders::IDataBindingFactory> CLineRendererShaders::m_bindFactory;
-boo::GraphicsDataToken CLineRendererShaders::m_gfxToken;
 
 void CLineRendererShaders::Initialize()
 {
     if (!CGraphics::g_BooFactory)
         return;
 
-    m_gfxToken = CGraphics::CommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         switch (ctx.platform())
@@ -52,15 +51,20 @@ void CLineRendererShaders::Initialize()
 
 void CLineRendererShaders::Shutdown()
 {
-    m_gfxToken.doDestroy();
+    m_texAlpha.reset();
+    m_texAdditive.reset();
+    m_noTexAlpha.reset();
+    m_noTexAdditive.reset();
+    m_texVtxFmt.reset();
+    m_noTexVtxFmt.reset();
 }
 
 void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                   CLineRenderer& renderer,
-                                                  boo::ITexture* texture,
+                                                  const boo::ObjToken<boo::ITexture>& texture,
                                                   bool additive)
 {
-    boo::IShaderPipeline* pipeline = nullptr;
+    boo::ObjToken<boo::IShaderPipeline> pipeline;
     if (texture)
     {
         if (additive)

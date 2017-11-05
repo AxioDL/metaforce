@@ -79,26 +79,26 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CCameraBlurFilterGLDataBindingFactory : TShader<CCameraBlurFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraBlurFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CCameraBlurFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
         return cctx.newShaderDataBinding(s_Pipeline,
-                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo.get(), nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -128,6 +128,12 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterGLDataBindingFactory;
+}
+
+template <>
+void CCameraBlurFilter::Shutdown<boo::GLDataFactory>()
+{
+    s_Pipeline.reset();
 }
 
 #if BOO_HAS_VULKAN

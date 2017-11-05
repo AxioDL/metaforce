@@ -16,19 +16,18 @@ class TShader
 public:
     struct IDataBindingFactory
     {
-        virtual boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                                ShaderImp& filter)=0;
+        virtual boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                              ShaderImp& filter)=0;
     };
 
     static std::unique_ptr<IDataBindingFactory> m_bindFactory;
-    static boo::GraphicsDataToken m_gfxToken;
 
     static void Initialize()
     {
         if (!CGraphics::g_BooFactory)
             return;
 
-        m_gfxToken = CGraphics::CommitResources(
+        CGraphics::CommitResources(
         [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             switch (ctx.platform())
@@ -60,11 +59,33 @@ public:
 
     static void Shutdown()
     {
-        ShaderImp::Shutdown();
-        m_gfxToken.doDestroy();
+        switch (CGraphics::g_BooFactory->platform())
+        {
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
+            ShaderImp::template Shutdown<boo::GLDataFactory>();
+            break;
+#if _WIN32
+        case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D12:
+            ShaderImp::template Shutdown<boo::ID3DDataFactory>();
+            break;
+#endif
+#if BOO_HAS_METAL
+        case boo::IGraphicsDataFactory::Platform::Metal:
+            ShaderImp::template Shutdown<boo::MetalDataFactory>();
+            break;
+#endif
+#if BOO_HAS_VULKAN
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
+            ShaderImp::template Shutdown<boo::VulkanDataFactory>();
+            break;
+#endif
+        default: break;
+        }
     }
 
-    static boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, ShaderImp& filter)
+    static boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, ShaderImp& filter)
     {
         return m_bindFactory->BuildShaderDataBinding(ctx, filter);
     }
@@ -72,15 +93,11 @@ public:
 
 #define URDE_DECL_SPECIALIZE_SHADER(cls) \
 template <> std::unique_ptr<TShader<cls>::IDataBindingFactory> \
-TShader<cls>::m_bindFactory; \
-template <> boo::GraphicsDataToken \
-TShader<cls>::m_gfxToken; \
+TShader<cls>::m_bindFactory;
 
 #define URDE_SPECIALIZE_SHADER(cls) \
 template <> std::unique_ptr<TShader<cls>::IDataBindingFactory> \
 TShader<cls>::m_bindFactory = {}; \
-template <> boo::GraphicsDataToken \
-TShader<cls>::m_gfxToken = {}; \
 \
 template class TShader<cls>;
 

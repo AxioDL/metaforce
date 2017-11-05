@@ -17,7 +17,7 @@ void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 l
     texTransform = posXf.inverse() * texTransform;
     texTransform = (texTransform * zeus::CTransform::Scale(float(M_SQRT2) * x64_objHalfExtent * f1)).inverse();
     texTransform = zeus::CTransform::Translate(0.5f, 0.f, 0.5f) * texTransform;
-    CBooModel::EnableShadowMaps(m_shader.GetTexture(), texTransform);
+    CBooModel::EnableShadowMaps(m_shader.GetTexture().get(), texTransform);
 }
 
 void CWorldShadow::DisableModelProjectedShadow()

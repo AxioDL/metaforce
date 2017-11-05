@@ -5,7 +5,7 @@ namespace urde
 
 CCameraBlurFilter::CCameraBlurFilter()
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -55,11 +55,9 @@ void CCameraBlurFilter::draw(float amount)
     m_uniform.m_opacity = std::min(amount / 2.f, 1.f);
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
-
-void CCameraBlurFilter::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CCameraBlurFilter)
 

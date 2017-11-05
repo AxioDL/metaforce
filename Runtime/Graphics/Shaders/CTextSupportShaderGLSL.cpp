@@ -127,6 +127,15 @@ CTextSupportShader::Initialize(boo::GLDataFactory::Context& ctx)
     return nullptr;
 }
 
+template <>
+void CTextSupportShader::Shutdown<boo::GLDataFactory>()
+{
+    s_TextAlphaPipeline.reset();
+    s_TextAddPipeline.reset();
+    s_ImageAlphaPipeline.reset();
+    s_ImageAddPipeline.reset();
+}
+
 #if BOO_HAS_VULKAN
 TMultiBlendShader<CTextSupportShader>::IDataBindingFactory*
 CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
