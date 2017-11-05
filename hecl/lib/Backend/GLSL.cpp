@@ -390,7 +390,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
                                        boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::IShaderPipeline*& objOut)
+                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
     {
         m_backend.reset(ir, diag);
         size_t cachedSz = 3;
@@ -433,8 +433,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
-                                               boo::IGraphicsDataFactory::Context& ctx)
+    boo::ObjToken<boo::IShaderPipeline> buildShaderFromCache(const ShaderCachedData& data,
+                                                             boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
@@ -450,7 +450,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         if (texMapEnd > 8)
             Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
 
-        boo::IShaderPipeline* ret =
+        auto ret =
         static_cast<boo::GLDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   texMapEnd, STD_TEXNAMES,
@@ -520,7 +520,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            auto ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
                                       8, STD_TEXNAMES, bc, bn,
@@ -602,7 +602,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            auto ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                       8, STD_TEXNAMES, bc, bn,

@@ -46,9 +46,9 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         m_mainWindow = app->newWindow(_S("HECL Test"), 1);
         m_mainWindow->setCallback(&m_windowCb);
 
-        boo::ITextureR* renderTex = nullptr;
-        boo::IGraphicsBufferD* vubo = nullptr;
-        boo::IShaderDataBinding* binding = nullptr;
+        boo::ObjToken<boo::ITextureR> renderTex;
+        boo::ObjToken<boo::IGraphicsBuffer> vubo;
+        boo::ObjToken<boo::IShaderDataBinding> binding;
 
         struct VertexUBO
         {
@@ -94,7 +94,6 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             std::shared_ptr<hecl::Runtime::ShaderPipelines> testShaderObj =
             shaderMgr.buildShader(testShaderTag, testShader, "testShader", *gfxF);
 
-            boo::GraphicsDataToken data =
             gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
             {
                 boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
@@ -149,14 +148,14 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                         tex[i][j][2] = 0;
                         tex[i][j][3] = 0xff;
                     }
-                boo::ITexture* texture =
-                ctx.newStaticTexture(256, 256, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, tex, 256*256*4);
+                boo::ObjToken<boo::ITexture> texture =
+                ctx.newStaticTexture(256, 256, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, tex, 256*256*4).get();
 
                 /* Make vertex uniform buffer */
-                vubo = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexUBO), 1);
+                vubo = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(VertexUBO), 1).get();
 
                 /* Assemble data binding */
-                binding = testData.newShaderDataBindng(ctx, testShaderObj->m_pipelines[0], 1, (boo::IGraphicsBuffer**)&vubo, nullptr, 1, &texture);
+                binding = testData.newShaderDataBindng(ctx, testShaderObj->m_pipelines[0], 1, &vubo, nullptr, 1, &texture);
                 return true;
             });
 
@@ -209,7 +208,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
 
             vuboData.modelview[3][0] = sinf(frameIdx / 60.0) * 0.5;
             vuboData.modelview[3][1] = cosf(frameIdx / 60.0) * 0.5;
-            vubo->load(&vuboData, sizeof(vuboData));
+            vubo.cast<boo::IGraphicsBufferD>()->load(&vuboData, sizeof(vuboData));
 
             gfxQ->setShaderDataBinding(binding);
             gfxQ->drawIndexed(0, 4);

@@ -23,12 +23,14 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx,
     m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);
 
     if (ctx.bindingNeedsVertexFormat())
-        m_vtxFmt = NewVertexFormat(ctx, meta, m_vbo, m_ibo);
+        m_vtxFmt = NewVertexFormat(ctx, meta, m_vbo.get(), m_ibo.get());
 }
 
 /* For binding constructors that require vertex format up front (GLSL) */
-boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory::Context& ctx, const HMDLMeta& meta,
-                                              boo::IGraphicsBuffer* vbo, boo::IGraphicsBuffer* ibo)
+boo::ObjToken<boo::IVertexFormat>
+HMDLData::NewVertexFormat(boo::IGraphicsDataFactory::Context& ctx, const HMDLMeta& meta,
+                          const boo::ObjToken<boo::IGraphicsBuffer>& vbo,
+                          const boo::ObjToken<boo::IGraphicsBuffer>& ibo)
 {
     size_t elemCount = 2 + meta.colorCount + meta.uvCount + meta.weightCount;
     std::unique_ptr<boo::VertexElementDescriptor[]> vdescs(new boo::VertexElementDescriptor[elemCount]);
@@ -64,7 +66,7 @@ boo::IVertexFormat* HMDLData::NewVertexFormat(boo::IGraphicsDataFactory::Context
 }
 
 /* For shader constructors that require vertex format up-front (HLSL/Metal/Vulkan) */
-boo::IVertexFormat* ShaderTag::newVertexFormat(boo::IGraphicsDataFactory::Context& ctx) const
+boo::ObjToken<boo::IVertexFormat> ShaderTag::newVertexFormat(boo::IGraphicsDataFactory::Context& ctx) const
 {
     size_t elemCount = 2 + m_colorCount + m_uvCount + m_weightCount;
     std::unique_ptr<boo::VertexElementDescriptor[]> vdescs(new boo::VertexElementDescriptor[elemCount]);

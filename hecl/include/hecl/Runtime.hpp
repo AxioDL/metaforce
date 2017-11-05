@@ -91,7 +91,7 @@ public:
     uint64_t getMetaData() const {return m_meta;}
 
     /* For shader constructors that require vertex format up-front (HLSL) */
-    boo::IVertexFormat* newVertexFormat(boo::IGraphicsDataFactory::Context& ctx) const;
+    boo::ObjToken<boo::IVertexFormat> newVertexFormat(boo::IGraphicsDataFactory::Context& ctx) const;
 };
 
 /**
@@ -196,14 +196,14 @@ class IShaderBackendFactory
     friend class ShaderCacheManager;
 protected:
     unsigned m_rtHint = 1;
-    using FReturnExtensionShader = std::function<void(boo::IShaderPipeline*)>;
+    using FReturnExtensionShader = std::function<void(const boo::ObjToken<boo::IShaderPipeline>&)>;
     virtual ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                                const hecl::Frontend::IR& ir,
                                                hecl::Frontend::Diagnostics& diag,
                                                boo::IGraphicsDataFactory::Context& ctx,
-                                               boo::IShaderPipeline*& objOut)=0;
-    virtual boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
-                                                       boo::IGraphicsDataFactory::Context& ctx)=0;
+                                               boo::ObjToken<boo::IShaderPipeline>& objOut)=0;
+    virtual boo::ObjToken<boo::IShaderPipeline> buildShaderFromCache(const ShaderCachedData& data,
+                                                                     boo::IGraphicsDataFactory::Context& ctx)=0;
     virtual ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
                                                        const hecl::Frontend::IR& ir,
                                                        hecl::Frontend::Diagnostics& diag,
@@ -215,7 +215,7 @@ protected:
                                               boo::IGraphicsDataFactory::Context& ctx,
                                               FReturnExtensionShader returnFunc)=0;
 public:
-    virtual ~IShaderBackendFactory() {}
+    virtual ~IShaderBackendFactory() = default;
 };
 
 /**
@@ -223,8 +223,7 @@ public:
  */
 struct ShaderPipelines
 {
-    boo::GraphicsDataToken m_token;
-    std::vector<boo::IShaderPipeline*> m_pipelines;
+    std::vector<boo::ObjToken<boo::IShaderPipeline>> m_pipelines;
 };
 
 /**
@@ -256,10 +255,10 @@ class ShaderCacheManager
     void bootstrapIndex();
     ShaderCachedData lookupData(const Hash& hash);
     bool addData(const ShaderCachedData& data);
-    boo::IShaderPipeline* buildFromCache(const ShaderCachedData& foundData,
-                                         boo::IGraphicsDataFactory::Context& ctx);
-    std::vector<boo::IShaderPipeline*> buildExtendedFromCache(const ShaderCachedData& foundData,
-                                                              boo::IGraphicsDataFactory::Context& ctx);
+    boo::ObjToken<boo::IShaderPipeline> buildFromCache(const ShaderCachedData& foundData,
+                                                       boo::IGraphicsDataFactory::Context& ctx);
+    std::vector<boo::ObjToken<boo::IShaderPipeline>> buildExtendedFromCache(const ShaderCachedData& foundData,
+                                                                            boo::IGraphicsDataFactory::Context& ctx);
 public:
     ShaderCacheManager(const FileStoreManager& storeMgr,
                        boo::IGraphicsDataFactory* gfxFactory,
@@ -293,23 +292,26 @@ public:
  */
 struct HMDLData
 {
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferS* m_ibo;
-    boo::IVertexFormat* m_vtxFmt = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+    boo::ObjToken<boo::IVertexFormat> m_vtxFmt;
 
     HMDLData(boo::IGraphicsDataFactory::Context& ctx,
              const void* metaData, const void* vbo, const void* ibo);
 
     /* For binding constructors that require vertex format up front (GLSL) */
-    static boo::IVertexFormat* NewVertexFormat(boo::IGraphicsDataFactory::Context& ctx, const HMDLMeta& meta,
-                                               boo::IGraphicsBuffer* vbo=nullptr, boo::IGraphicsBuffer* ibo=nullptr);
+    static boo::ObjToken<boo::IVertexFormat>
+    NewVertexFormat(boo::IGraphicsDataFactory::Context& ctx, const HMDLMeta& meta,
+                    const boo::ObjToken<boo::IGraphicsBuffer>& vbo={},
+                    const boo::ObjToken<boo::IGraphicsBuffer>& ibo={});
 
-    boo::IShaderDataBinding* newShaderDataBindng(boo::IGraphicsDataFactory::Context& ctx,
-                                                 boo::IShaderPipeline* shader,
-                                                 size_t ubufCount, boo::IGraphicsBuffer** ubufs,
-                                                 const boo::PipelineStage* ubufStages,
-                                                 size_t texCount, boo::ITexture** texs)
-    {return ctx.newShaderDataBinding(shader, m_vtxFmt, m_vbo, nullptr, m_ibo,
+    boo::ObjToken<boo::IShaderDataBinding>
+    newShaderDataBindng(boo::IGraphicsDataFactory::Context& ctx,
+                        const boo::ObjToken<boo::IShaderPipeline>& shader,
+                        size_t ubufCount, const boo::ObjToken<boo::IGraphicsBuffer>* ubufs,
+                        const boo::PipelineStage* ubufStages,
+                        size_t texCount, const boo::ObjToken<boo::ITexture>* texs)
+    {return ctx.newShaderDataBinding(shader, m_vtxFmt, m_vbo.get(), nullptr, m_ibo.get(),
                                      ubufCount, ubufs, ubufStages, nullptr, nullptr,
                                      texCount, texs, nullptr, nullptr);}
 };

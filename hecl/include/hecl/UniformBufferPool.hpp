@@ -51,13 +51,13 @@ private:
     /** Efficient way to get bucket and block simultaneously */
     DivTp getBucketDiv(IndexTp idx) const { return std::div(idx, m_countPerBucket); }
 
-    /** Buffer pool token */
-    boo::GraphicsBufferPoolToken m_token;
+    /** Factory pointer for building additional buffers */
+    boo::IGraphicsDataFactory* m_factory = nullptr;
 
     /** Private bucket info */
     struct Bucket
     {
-        boo::IGraphicsBufferD* buffer;
+        boo::ObjToken<boo::IGraphicsBufferD> buffer;
         uint8_t* cpuBuffer = nullptr;
         std::atomic_size_t useCount = {};
         bool dirty = false;
@@ -80,8 +80,8 @@ private:
         void increment(UniformBufferPool& pool)
         {
             if (useCount.fetch_add(1) == 0)
-                buffer = pool.m_token.newPoolBuffer(boo::BufferUse::Uniform,
-                                                    pool.m_stride, pool.m_countPerBucket);
+                buffer = pool.m_factory->newPoolBuffer(boo::BufferUse::Uniform,
+                                                       pool.m_stride, pool.m_countPerBucket);
         }
 
         void decrement(UniformBufferPool& pool)
@@ -93,8 +93,7 @@ private:
                     buffer->unmap();
                     cpuBuffer = nullptr;
                 }
-                pool.m_token.deletePoolBuffer(buffer);
-                buffer = nullptr;
+                buffer.reset();
             }
         }
     };
@@ -168,7 +167,7 @@ public:
             return reinterpret_cast<UniformStruct&>(bucket.cpuBuffer[m_div.rem * m_pool->m_stride]);
         }
 
-        std::pair<boo::IGraphicsBufferD*, IndexTp> getBufferInfo() const
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>, IndexTp> getBufferInfo() const
         {
             Bucket& bucket = *m_pool->m_buckets[m_div.quot];
             return {bucket.buffer, m_div.rem * m_pool->m_stride};
@@ -192,12 +191,15 @@ public:
     /** Allocate free block into client-owned Token */
     Token allocateBlock(boo::IGraphicsDataFactory* factory)
     {
-        if (!m_token)
-            m_token = factory->newBufferPool();
+        m_factory = factory;
         return Token(this);
     }
 
-    void doDestroy() { m_token.doDestroy(); }
+    void doDestroy()
+    {
+        for (auto& bucket : m_buckets)
+            bucket->buffer.reset();
+    }
 };
 
 }

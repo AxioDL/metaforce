@@ -419,6 +419,7 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
                 int devNull = open("/dev/null", O_WRONLY);
                 dup2(devNull, STDOUT_FILENO);
                 dup2(devNull, STDERR_FILENO);
+                close(devNull);
             }
 
             char errbuf[256];

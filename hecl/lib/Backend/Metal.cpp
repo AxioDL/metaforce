@@ -443,7 +443,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
                                        boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::IShaderPipeline*& objOut)
+                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
     {
         if (!m_rtHint)
             Log.report(logvisor::Fatal,
@@ -455,15 +455,17 @@ struct MetalBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
                            tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr, tag.getReflectionType());
-        cachedSz += vertSource.size() + 1;
 
         std::string fragSource = m_backend.makeFrag(0, nullptr,
             tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
             tag.getReflectionType());
-        cachedSz += fragSource.size() + 1;
+
+        std::vector<uint8_t> vertBlob;
+        std::vector<uint8_t> fragBlob;
         objOut =
         static_cast<boo::MetalDataFactory::Context&>(ctx).
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                              &vertBlob, &fragBlob,
                               tag.newVertexFormat(ctx), m_rtHint,
                               boo::BlendFactor(m_backend.m_blendSrc),
                               boo::BlendFactor(m_backend.m_blendDst),
@@ -473,18 +475,23 @@ struct MetalBackendFactory : IShaderBackendFactory
         if (!objOut)
             Log.report(logvisor::Fatal, "unable to build shader");
 
+        cachedSz += vertBlob.size() + 4;
+        cachedSz += fragBlob.size() + 4;
+
         ShaderCachedData dataOut(tag, cachedSz);
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
-        w.writeString(vertSource);
-        w.writeString(fragSource);
+        w.writeUint32Big(vertBlob.size());
+        w.writeUBytes(vertBlob.data(), vertBlob.size());
+        w.writeUint32Big(fragBlob.size());
+        w.writeUBytes(fragBlob.data(), fragBlob.size());
 
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
-                                               boo::IGraphicsDataFactory::Context& ctx)
+    boo::ObjToken<boo::IShaderPipeline> buildShaderFromCache(const ShaderCachedData& data,
+                                                             boo::IGraphicsDataFactory::Context& ctx)
     {
         if (!m_rtHint)
             Log.report(logvisor::Fatal,
@@ -494,15 +501,28 @@ struct MetalBackendFactory : IShaderBackendFactory
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
         boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-        std::string vertSource = r.readString();
-        std::string fragSource = r.readString();
+        std::vector<uint8_t> vertBlob;
+        std::vector<uint8_t> fragBlob;
+        atUint32 vertLen = r.readUint32Big();
+        if (vertLen)
+        {
+            vertBlob.resize(vertLen);
+            r.readUBytesToBuf(&vertBlob[0], vertLen);
+        }
+        atUint32 fragLen = r.readUint32Big();
+        if (fragLen)
+        {
+            fragBlob.resize(fragLen);
+            r.readUBytesToBuf(&fragBlob[0], fragLen);
+        }
 
         if (r.hasError())
             return nullptr;
 
-        boo::IShaderPipeline* ret =
+        auto ret =
         static_cast<boo::MetalDataFactory::Context&>(ctx).
-            newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+            newShaderPipeline(nullptr, nullptr,
+                              &vertBlob, &fragBlob,
                               tag.newVertexFormat(ctx), m_rtHint,
                               blendSrc, blendDst, tag.getPrimType(),
                               tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None, tag.getDepthWrite(), true, true,
@@ -526,19 +546,19 @@ struct MetalBackendFactory : IShaderBackendFactory
         m_backend.reset(ir, diag);
         size_t cachedSz = 2;
 
-        std::vector<std::pair<std::string, std::string>> sources;
-        sources.reserve(extensionSlots.size());
+        std::vector<std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> blobs;
+        blobs.reserve(extensionSlots.size());
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
-            sources.emplace_back(m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                                                    tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
-                                                    slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType()),
-                                 m_backend.makeFrag(slot.blockCount, slot.blockNames,
-                                                    tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                    slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType(),
-                                                    slot.lighting, slot.post, slot.texCount, slot.texs));
-            cachedSz += sources.back().first.size() + 1;
-            cachedSz += sources.back().second.size() + 1;
+            std::string vertSource =
+                m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
+                                   tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                                   slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType());
+            std::string fragSource =
+                m_backend.makeFrag(slot.blockCount, slot.blockNames,
+                                   tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+                                   slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType(),
+                                   slot.lighting, slot.post, slot.texCount, slot.texs);
 
             boo::ZTest zTest;
             switch (slot.depthTest)
@@ -561,9 +581,11 @@ struct MetalBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            blobs.emplace_back();
+            auto ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
-                newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
+                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                                  &blobs.back().first, &blobs.back().second,
                                   tag.newVertexFormat(ctx), m_rtHint,
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
@@ -573,6 +595,9 @@ struct MetalBackendFactory : IShaderBackendFactory
                                   (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
+
+            cachedSz += blobs.back().first.size() + 4;
+            cachedSz += blobs.back().second.size() + 4;
             returnFunc(ret);
         }
 
@@ -580,10 +605,12 @@ struct MetalBackendFactory : IShaderBackendFactory
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
         w.writeUByte(atUint8(m_backend.m_blendSrc));
         w.writeUByte(atUint8(m_backend.m_blendDst));
-        for (auto& src : sources)
+        for (auto& blob : blobs)
         {
-            w.writeString(src.first);
-            w.writeString(src.second);
+            w.writeUint32Big(blob.first.size());
+            w.writeUBytes(blob.first.data(), blob.first.size());
+            w.writeUint32Big(blob.second.size());
+            w.writeUBytes(blob.second.data(), blob.second.size());
         }
 
         return dataOut;
@@ -608,8 +635,20 @@ struct MetalBackendFactory : IShaderBackendFactory
 
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
-            std::string vertSource = r.readString();
-            std::string fragSource = r.readString();
+            std::vector<uint8_t> vertBlob;
+            std::vector<uint8_t> fragBlob;
+            atUint32 vertLen = r.readUint32Big();
+            if (vertLen)
+            {
+                vertBlob.resize(vertLen);
+                r.readUBytesToBuf(&vertBlob[0], vertLen);
+            }
+            atUint32 fragLen = r.readUint32Big();
+            if (fragLen)
+            {
+                fragBlob.resize(fragLen);
+                r.readUBytesToBuf(&fragBlob[0], fragLen);
+            }
 
             if (r.hasError())
                 return false;
@@ -635,9 +674,10 @@ struct MetalBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            auto ret =
             static_cast<boo::MetalDataFactory::Context&>(ctx).
-                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
+                newShaderPipeline(nullptr, nullptr,
+                                  &vertBlob, &fragBlob,
                                   tag.newVertexFormat(ctx), m_rtHint,
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
