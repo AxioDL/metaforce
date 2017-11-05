@@ -293,6 +293,55 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in)
     return ret;
 }
 
+std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& area)
+{
+    SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
+    std::unique_ptr<u8[]> data = std::move(g_ResFactory->LoadNewResourcePartSync(tag, 0, 96, data));
+
+    if (*reinterpret_cast<u32*>(data.get()) != SBIG(0xDEADBEEF))
+        return {};
+
+    SMREAHeader header;
+    CMemoryInStream r(data.get() + 4, 96 - 4);
+    u32 version = r.readUint32Big();
+    if (!(version & 0x10000))
+        Log.report(logvisor::Fatal, "Attempted to load non-URDE MREA");
+
+    version &= ~0x10000;
+    header.version = (version >= 12 && version <= 15) ? version : 0;
+    if (!header.version)
+        return {};
+
+    header.xf.read34RowMajor(r);
+    header.modelCount = r.readUint32Big();
+    header.secCount = r.readUint32Big();
+    header.geomSecIdx = r.readUint32Big();
+    header.sclySecIdx = r.readUint32Big();
+    header.collisionSecIdx = r.readUint32Big();
+    header.unkSecIdx = r.readUint32Big();
+    header.lightSecIdx = r.readUint32Big();
+    header.visiSecIdx = r.readUint32Big();
+    header.pathSecIdx = r.readUint32Big();
+    header.arotSecIdx = r.readUint32Big();
+
+    u32 dataLen = ROUND_UP_32(header.secCount * 4);
+
+    data.reset(std::move(g_ResFactory->LoadNewResourcePartSync(tag, 96, dataLen)));
+
+    r = CMemoryInStream(data, dataLen);
+
+    std::vector<u32> secSizes(header.secCount);
+    u32 lastSize;
+    for (u32 i = 0; i < header.secCount; ++i)
+    {
+        lastSize = r.readUint32Big();
+        secSizes.push_back(lastSize);
+    }
+
+    // TODO: Finish
+    return {};
+}
+
 CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion)
 {
     x8_nameSTRG = in.readUint32Big();
@@ -326,7 +375,7 @@ CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion)
 
 bool CDummyGameArea::IGetScriptingMemoryAlways() const
 {
-    return false;
+    return GetScriptingMemoryAlways(*this);
 }
 
 TAreaId CDummyGameArea::IGetAreaId() const
@@ -418,7 +467,7 @@ CGameArea::CGameArea(CAssetId mreaId)
         for (auto& req : xf8_loadTransactions)
             req->WaitUntilComplete();
 
-    MREAHeader header = VerifyHeader();
+    SMREAHeader header = VerifyHeader();
     x12c_postConstructed->x4c_insts.resize(header.modelCount);
 
     FillInStaticGeometry(false);
@@ -446,12 +495,12 @@ CGameArea::CGameArea(CAssetId mreaId)
 
 bool CGameArea::IGetScriptingMemoryAlways() const
 {
-    return false;
+    return GetScriptingMemoryAlways(*this);
 }
 
 bool CGameArea::IIsActive() const
 {
-    return false;
+    return xf0_25_active;
 }
 
 TAreaId CGameArea::IGetAttachedAreaId(int idx) const
@@ -520,7 +569,7 @@ EEnvFxType CGameArea::DoesAreaNeedEnvFx() const
         return EEnvFxType::None;
 
     const CScriptAreaAttributes* attrs = postConstructed->x10d8_areaAttributes;
-    if (attrs)
+    if (!attrs)
         return EEnvFxType::None;
     if (postConstructed->x10dc_occlusionState == EOcclusionState::Occluded)
         return EEnvFxType::None;
@@ -529,24 +578,73 @@ EEnvFxType CGameArea::DoesAreaNeedEnvFx() const
 
 bool CGameArea::DoesAreaNeedSkyNow() const
 {
-    return false;
+    const CPostConstructed* postConstructed = GetPostConstructed();
+    if (!postConstructed)
+        return false;
+
+    const CScriptAreaAttributes* attrs = postConstructed->x10d8_areaAttributes;
+    if (!attrs)
+        return false;
+
+    return attrs->GetNeedsSky();
 }
 
 void CGameArea::UpdateFog(float dt)
 {
+    CAreaFog* fog = *GetPostConstructed()->x10c4_areaFog;
+    if (fog)
+        fog->Update(dt);
 }
 
-bool CGameArea::OtherAreaOcclusionChanged()
+void CGameArea::OtherAreaOcclusionChanged()
 {
-    return false;
+    if (GetPostConstructed()->x10e0_ == 3 && GetPostConstructed()->x10dc_occlusionState != EOcclusionState::Occluded)
+    {
+#if 0
+        bool unloaded = UnloadAllloadedTextures();
+        bool transferred = TransferTokensToARAM();
+        x12c_postConstructed->x1108_27_ = (unloaded && transferred)
+#endif
+    }
+    else
+    {
+        ReloadAllUnloadedTextures();
+    }
 }
 
 void CGameArea::PingOcclusionState()
 {
+    if (GetOcclusionState() == EOcclusionState::Occluded && GetPostConstructed()->x10e0_ < 2)
+    {
+        x12c_postConstructed->x10e0_ += 1;
+        return;
+    }
+
+    x12c_postConstructed->x10e0_ = 3;
+    if (!x12c_postConstructed->x1108_27_)
+    {
+        bool unloaded = true;
+        bool transferred = true;
+#if 0
+        unloaded = UnloadAllloadedTextures();
+        transferred = TransferTokens();
+#endif
+        if (unloaded && transferred)
+            x12c_postConstructed->x1108_27_ = true;
+
+        x12c_postConstructed->x1108_26_ = true;
+    }
 }
 
 void CGameArea::PreRender()
 {
+    if (!xf0_24_postConstructed)
+        return;
+
+    if (x12c_postConstructed->x1108_28_occlusionPinged)
+        x12c_postConstructed->x1108_28_occlusionPinged = false;
+    else
+        PingOcclusionState();
 }
 
 void CGameArea::UpdateThermalVisor(float dt)
@@ -722,7 +820,7 @@ bool CGameArea::StartStreamingMainArea()
         CullDeadAreaRequests();
         if (xf8_loadTransactions.size())
             break;
-        MREAHeader header = VerifyHeader();
+        SMREAHeader header = VerifyHeader();
         AllocNewAreaData(x110_mreaSecBufs[0].second, ROUND_UP_32(header.secCount * 4));
         xf4_phase = EPhase::ReserveSections;
         break;
@@ -781,11 +879,6 @@ void CGameArea::ReloadAllUnloadedTextures()
 {
 }
 
-void CGameArea::PrepTokens()
-{
-
-}
-
 u32 CGameArea::GetNumPartSizes() const
 {
     return hecl::SBig(*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get() + 60));
@@ -795,7 +888,7 @@ void CGameArea::AllocNewAreaData(int offset, int size)
 {
     x110_mreaSecBufs.emplace_back(std::unique_ptr<u8[]>(new u8[size]), size);
     xf8_loadTransactions.push_back(g_ResFactory->
-        LoadResourcePartAsync(SObjectTag{FOURCC('MREA'), x84_mrea}, size, offset,
+        LoadResourcePartAsync(SObjectTag{FOURCC('MREA'), x84_mrea}, offset, size,
                               x110_mreaSecBufs.back().first.get()));
 }
 
@@ -966,7 +1059,7 @@ std::pair<const u8*, u32> CGameArea::GetLayerScriptBuffer(int layer)
 
 void CGameArea::PostConstructArea()
 {
-    MREAHeader header = VerifyHeader();
+    SMREAHeader header = VerifyHeader();
 
     auto secIt = m_resolvedBufs.begin() + 2;
 
@@ -1223,15 +1316,15 @@ u32 CGameArea::GetPreConstructedSize() const
     return 0;
 }
 
-CGameArea::MREAHeader CGameArea::VerifyHeader() const
+SMREAHeader CGameArea::VerifyHeader() const
 {
     if (x110_mreaSecBufs.empty())
         return {};
     if (*reinterpret_cast<u32*>(x110_mreaSecBufs[0].first.get()) != SBIG(0xDEADBEEF))
         return {};
 
-    MREAHeader header;
-    athena::io::MemoryReader r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
+    SMREAHeader header;
+    CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
     u32 version = r.readUint32Big();
     if (!(version & 0x10000))
         Log.report(logvisor::Fatal, "Attempted to load non-URDE MREA");

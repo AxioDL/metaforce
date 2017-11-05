@@ -33,10 +33,10 @@ public:
     void LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]>& bufOut, int* sizeOut);
     std::unique_ptr<CInputStream> LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf);
     std::unique_ptr<CInputStream> LoadNewResourceSync(const SObjectTag& tag, void* extBuf=nullptr);
-    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const SObjectTag& tag, u32 length, u32 offset, void* buf);
+    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const SObjectTag& tag, u32 offset, u32 length, void* buf);
     std::shared_ptr<IDvdRequest> LoadResourceAsync(const SObjectTag& tag, void* buf);
     std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
-    std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
+    std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size);
     void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const;
     bool GetResourceCompression(const SObjectTag& tag);
     u32 ResourceSize(const SObjectTag& tag);

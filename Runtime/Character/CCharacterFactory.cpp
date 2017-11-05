@@ -95,7 +95,7 @@ std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourceAsync
 }
 
 std::shared_ptr<IDvdRequest> CCharacterFactory::CDummyFactory::LoadResourcePartAsync(const urde::SObjectTag& tag,
-                                                                                     u32 size, u32 off,
+                                                                                     u32 off, u32 size,
                                                                                      void* target)
 {
     return {};
@@ -106,8 +106,8 @@ std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourceSync(const u
     return {};
 }
 
-std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadResourcePartSync(const urde::SObjectTag& tag,
-                                                                             u32 size, u32 off)
+std::unique_ptr<u8[]> CCharacterFactory::CDummyFactory::LoadNewResourcePartSync(const urde::SObjectTag& tag,
+                                                                             u32 off, u32 size)
 {
     return {};
 }

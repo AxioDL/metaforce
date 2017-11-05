@@ -547,7 +547,7 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
         if (&areaItr == area)
             continue;
         if (areaItr.IsPostConstructed() && areaItr.GetOcclusionState() == CGameArea::EOcclusionState::Visible)
-            areaItr.PrepTokens();
+            areaItr.OtherAreaOcclusionChanged();
     }
 
     for (CGameArea& areaItr : *world)
@@ -555,7 +555,7 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
         if (&areaItr == area)
             continue;
         if (areaItr.IsPostConstructed() && areaItr.GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
-            areaItr.PrepTokens();
+            areaItr.OtherAreaOcclusionChanged();
     }
 
     if (occlusionState == CGameArea::EOcclusionState::Occluded)

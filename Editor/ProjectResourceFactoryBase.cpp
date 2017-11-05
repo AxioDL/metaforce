@@ -377,7 +377,7 @@ ProjectResourceFactoryBase::LoadResourceAsync(const urde::SObjectTag& tag, void*
 
 std::shared_ptr<urde::IDvdRequest>
 ProjectResourceFactoryBase::LoadResourcePartAsync(const urde::SObjectTag& tag,
-                                                  u32 size, u32 off, void* target)
+                                                  u32 off, u32 size, void* target)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");
@@ -404,8 +404,8 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::S
     return fr->readUBytes(fr->length());
 }
 
-std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourcePartSync(const urde::SObjectTag& tag,
-                                                                       u32 size, u32 off)
+std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const urde::SObjectTag& tag,
+                                                                       u32 off, u32 size)
 {
     if (!tag.id.IsValid())
         Log.report(logvisor::Fatal, "attempted to access null id");

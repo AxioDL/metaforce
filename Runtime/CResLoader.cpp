@@ -115,7 +115,7 @@ std::unique_ptr<u8[]> CResLoader::LoadResourceSync(const urde::SObjectTag& tag)
     return ret;
 }
 
-std::unique_ptr<u8[]> CResLoader::LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off)
+std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size)
 {
     CPakFile* file = FindResourceForLoad(tag.id);
     std::unique_ptr<u8[]> ret(new u8[size]);

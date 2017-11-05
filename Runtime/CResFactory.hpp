@@ -64,9 +64,9 @@ public:
         return x4_loader.LoadResourceSync(tag);
     }
 
-    std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off)
+    std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size)
     {
-        return x4_loader.LoadResourcePartSync(tag, size, off);
+        return x4_loader.LoadNewResourcePartSync(tag, off, size);
     }
 
     void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const
@@ -79,9 +79,9 @@ public:
         return x4_loader.LoadResourceAsync(tag, target);
     }
 
-    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, void* target)
+    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size, void* target)
     {
-        return x4_loader.LoadResourcePartAsync(tag, size, off, target);
+        return x4_loader.LoadResourcePartAsync(tag, off, size, target);
     }
 
     const SObjectTag* GetResourceIdByName(const char* name) const

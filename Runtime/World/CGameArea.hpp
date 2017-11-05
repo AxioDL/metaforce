@@ -23,6 +23,22 @@ namespace urde
 {
 class CStateManager;
 class CScriptAreaAttributes;
+struct SMREAHeader
+{
+    u32 version = 0;
+    zeus::CTransform xf;
+    u32 modelCount;
+    u32 secCount;
+    u32 geomSecIdx;
+    u32 sclySecIdx;
+    u32 collisionSecIdx;
+    u32 unkSecIdx;
+    u32 lightSecIdx;
+    u32 visiSecIdx;
+    u32 pathSecIdx;
+    u32 arotSecIdx;
+};
+
 class CDummyGameArea : public IGameArea
 {
     friend class CDummyWorld;
@@ -38,7 +54,7 @@ class CDummyGameArea : public IGameArea
 public:
     CDummyGameArea(CInputStream& in, int idx, int mlvlVersion);
 
-    bool IGetScriptingMemoryAlways() const;
+    std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const;
     TAreaId IGetAreaId() const;
     CAssetId IGetAreaAssetId() const;
     bool IIsActive() const;
@@ -237,7 +253,7 @@ public:
                 bool x1108_25_modelsConstructed : 1;
                 bool x1108_26_ : 1;
                 bool x1108_27_ : 1;
-                bool x1108_28_ : 1;
+                bool x1108_28_occlusionPinged : 1;
                 bool x1108_29_ : 1;
                 bool x1108_30_ : 1;
             };
@@ -269,22 +285,6 @@ private:
     void UpdateThermalVisor(float dt);
     void UpdateWeaponWorldLighting(float dt);
 
-    struct MREAHeader
-    {
-        u32 version = 0;
-        zeus::CTransform xf;
-        u32 modelCount;
-        u32 secCount;
-        u32 geomSecIdx;
-        u32 sclySecIdx;
-        u32 collisionSecIdx;
-        u32 unkSecIdx;
-        u32 lightSecIdx;
-        u32 visiSecIdx;
-        u32 pathSecIdx;
-        u32 arotSecIdx;
-    };
-
 public:
 
     CGameArea(CInputStream& in, int idx, int mlvlVersion);
@@ -294,7 +294,7 @@ public:
     void ReadDependencyList();
     void SetPauseState(bool paused);
 
-    bool IGetScriptingMemoryAlways() const;
+    std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const;
     TAreaId GetAreaId() const { return x4_selfIdx; }
     TAreaId IGetAreaId() const { return x4_selfIdx; }
     CAssetId IGetAreaAssetId() const { return x84_mrea; }
@@ -304,8 +304,8 @@ public:
     CAssetId IGetStringTableAssetId() const;
     const zeus::CTransform& IGetTM() const;
 
-    void SetXRaySpeedAndTarget(float f1, float f2);
-    void SetThermalSpeedAndTarget(float f1, float f2);
+    void SetXRaySpeedAndTarget(float speed, float target);
+    void SetThermalSpeedAndTarget(float speed, float target);
     void SetWeaponWorldLighting(float speed, float target);
 
     CAssetId GetAreaAssetId() const { return x84_mrea; }
@@ -314,7 +314,7 @@ public:
     float GetXRayFogDistance() const;
     EEnvFxType DoesAreaNeedEnvFx() const;
     bool DoesAreaNeedSkyNow() const;
-    bool OtherAreaOcclusionChanged();
+    void OtherAreaOcclusionChanged();
     void PingOcclusionState();
     void PreRender();
     void AliveUpdate(float dt);
@@ -329,7 +329,6 @@ public:
     //void UnloadAllLoadedTextures();
     //void ReloadAllLoadedTextures();
     void ReloadAllUnloadedTextures();
-    void PrepTokens();
     u32 GetNumPartSizes() const;
     void AllocNewAreaData(int, int);
     bool Invalidate(CStateManager* mgr);
@@ -344,7 +343,7 @@ public:
     void VerifyTokenList(CStateManager& stateMgr);
     void ClearTokenList();
     u32 GetPreConstructedSize() const;
-    MREAHeader VerifyHeader() const;
+    SMREAHeader VerifyHeader() const;
     TUniqueId LookupPVSUniqueID(TUniqueId id) const;
     s16 LookupPVSID(TUniqueId id) const;
     const CPVSAreaSet* GetAreaVisSet() const { return GetPostConstructed()->xa0_pvs.get(); }

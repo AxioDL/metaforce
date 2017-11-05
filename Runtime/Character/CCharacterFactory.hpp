@@ -38,9 +38,9 @@ public:
 
         u32 ResourceSize(const urde::SObjectTag& tag);
         std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target);
-        std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 size, u32 off, void* target);
+        std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size, void* target);
         std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
-        std::unique_ptr<u8[]> LoadResourcePartSync(const urde::SObjectTag& tag, u32 size, u32 off);
+        std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size);
     };
 
 private:

@@ -42,7 +42,7 @@ public:
         void SetReferenceCount(s32 v) { x0_referenceCount = v; x48_isReferenced = true; }
     };
 
-    virtual bool IGetScriptingMemoryAlways() const=0;
+    virtual std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const=0;
     virtual TAreaId IGetAreaId() const=0;
     virtual CAssetId IGetAreaAssetId() const=0;
     virtual bool IIsActive() const=0;
