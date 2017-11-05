@@ -39,7 +39,14 @@ CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& msg,
 
         if (x18_splashTimeout <= 0.f)
         {
+            /* HACK: If we're not compiling with Intel's IPP library we want to skip the Dolby Pro Logic II logo
+             * This is purely a URDE addition and does not reflect retro's intentions. - Phil
+             */
+#if INTEL_IPP
+            if (x14_which != ESplashScreen::Dolby)
+#else
             if (x14_which != ESplashScreen::Retro)
+#endif
                 queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 9999, 9999,
                                                       std::make_shared<CSplashScreen>(ESplashScreen(int(x14_which) + 1))));
             return EMessageReturn::RemoveIOWinAndExit;

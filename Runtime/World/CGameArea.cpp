@@ -296,7 +296,7 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in)
 std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& area)
 {
     SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
-    std::unique_ptr<u8[]> data = std::move(g_ResFactory->LoadNewResourcePartSync(tag, 0, 96, data));
+    std::unique_ptr<u8[]> data = std::move(g_ResFactory->LoadNewResourcePartSync(tag, 0, 96));
 
     if (*reinterpret_cast<u32*>(data.get()) != SBIG(0xDEADBEEF))
         return {};
@@ -326,9 +326,9 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
 
     u32 dataLen = ROUND_UP_32(header.secCount * 4);
 
-    data.reset(std::move(g_ResFactory->LoadNewResourcePartSync(tag, 96, dataLen)));
+    data = std::move(g_ResFactory->LoadNewResourcePartSync(tag, 96, dataLen));
 
-    r = CMemoryInStream(data, dataLen);
+    r = CMemoryInStream(data.get(), dataLen);
 
     std::vector<u32> secSizes(header.secCount);
     u32 lastSize;
@@ -591,7 +591,7 @@ bool CGameArea::DoesAreaNeedSkyNow() const
 
 void CGameArea::UpdateFog(float dt)
 {
-    CAreaFog* fog = *GetPostConstructed()->x10c4_areaFog;
+    CAreaFog* fog = GetPostConstructed()->x10c4_areaFog.get();
     if (fog)
         fog->Update(dt);
 }
@@ -600,11 +600,13 @@ void CGameArea::OtherAreaOcclusionChanged()
 {
     if (GetPostConstructed()->x10e0_ == 3 && GetPostConstructed()->x10dc_occlusionState != EOcclusionState::Occluded)
     {
+        bool unloaded = true;
+        bool transferred = true;
 #if 0
         bool unloaded = UnloadAllloadedTextures();
         bool transferred = TransferTokensToARAM();
-        x12c_postConstructed->x1108_27_ = (unloaded && transferred)
 #endif
+        x12c_postConstructed->x1108_27_ = (unloaded && transferred);
     }
     else
     {
@@ -629,8 +631,7 @@ void CGameArea::PingOcclusionState()
         unloaded = UnloadAllloadedTextures();
         transferred = TransferTokens();
 #endif
-        if (unloaded && transferred)
-            x12c_postConstructed->x1108_27_ = true;
+        x12c_postConstructed->x1108_27_ = (unloaded && transferred);
 
         x12c_postConstructed->x1108_26_ = true;
     }
@@ -742,7 +743,7 @@ void CGameArea::SetOcclusionState(EOcclusionState state)
     if (!xf0_24_postConstructed || x12c_postConstructed->x10dc_occlusionState == state)
         return;
 
-    if (state == EOcclusionState::Occluded)
+    if (state != EOcclusionState::Occluded)
     {
         ReloadAllUnloadedTextures();
         AddStaticGeometry();
