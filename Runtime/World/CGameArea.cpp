@@ -373,7 +373,7 @@ CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion)
         x54_docks.emplace_back(in, x14_transform);
 }
 
-bool CDummyGameArea::IGetScriptingMemoryAlways() const
+std::pair<std::unique_ptr<u8[]>, s32> CDummyGameArea::IGetScriptingMemoryAlways() const
 {
     return GetScriptingMemoryAlways(*this);
 }
@@ -493,7 +493,7 @@ CGameArea::CGameArea(CAssetId mreaId)
     CBooModel::SetDummyTextures(false);
 }
 
-bool CGameArea::IGetScriptingMemoryAlways() const
+std::pair<std::unique_ptr<u8[]>, s32> CGameArea::IGetScriptingMemoryAlways() const
 {
     return GetScriptingMemoryAlways(*this);
 }
