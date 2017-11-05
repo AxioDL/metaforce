@@ -58,8 +58,7 @@ class FontAtlas
 {
     friend class FontCache;
     FT_Face m_face;
-    boo::ITextureSA* m_tex = nullptr;
-    boo::GraphicsDataToken m_token;
+    boo::ObjToken<boo::ITextureSA> m_tex;
     uint32_t m_dpi;
     FT_Fixed m_ftXscale;
     FT_UShort m_ftXPpem;
@@ -125,7 +124,7 @@ public:
     FT_Fixed FT_Xscale() const {return m_ftXscale;}
     FT_UShort FT_XPPem() const {return m_ftXPpem;}
     FT_Pos FT_LineHeight() const {return m_lineHeight;}
-    boo::ITexture* texture() const {return m_tex;}
+    const boo::ObjToken<boo::ITextureSA>& texture() const {return m_tex;}
     bool subpixel() const {return m_subpixel;}
 
     const Glyph* lookupGlyph(atUint32 charcode) const

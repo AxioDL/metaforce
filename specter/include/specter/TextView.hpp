@@ -61,8 +61,8 @@ public:
 private:
     size_t m_capacity;
     hecl::VertexBufferPool<RenderGlyph>::Token m_glyphBuf;
-    boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
-    boo::IShaderDataBinding* m_shaderBinding;
+    boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* OpenGL only */
+    boo::ObjToken<boo::IShaderDataBinding> m_shaderBinding;
     const FontAtlas& m_fontAtlas;
     Alignment m_align;
     int m_width = 0;
@@ -87,9 +87,9 @@ public:
         }
 
         FontCache* m_fcache = nullptr;
-        boo::IShaderPipeline* m_regular = nullptr;
-        boo::IShaderPipeline* m_subpixel = nullptr;
-        boo::IVertexFormat* m_vtxFmt = nullptr; /* Not OpenGL */
+        boo::ObjToken<boo::IShaderPipeline> m_regular;
+        boo::ObjToken<boo::IShaderPipeline> m_subpixel;
+        boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* Not OpenGL */
 
         void init(boo::GLDataFactory::Context& ctx, FontCache* fcache);
 #if _WIN32
@@ -101,6 +101,14 @@ public:
 #if BOO_HAS_VULKAN
         void init(boo::VulkanDataFactory::Context& ctx, FontCache* fcache);
 #endif
+
+        void destroy()
+        {
+            m_glyphPool.doDestroy();
+            m_regular.reset();
+            m_subpixel.reset();
+            m_vtxFmt.reset();
+        }
     };
 
     TextView(ViewResources& res, View& parentView, const FontAtlas& font, Alignment align=Alignment::Left, size_t capacity=256);

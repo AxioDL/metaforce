@@ -270,7 +270,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
     };
     m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
-    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, m_solidVtxFmt, 1,
+    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, nullptr, nullptr, m_solidVtxFmt, 1,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
@@ -281,7 +281,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
     };
     m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
-    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, m_texVtxFmt, 1,
+    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, nullptr, nullptr, m_texVtxFmt, 1,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                         boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
@@ -369,16 +369,9 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
     }
 }
 
-void View::_commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
-{
-    m_gfxData = res.m_factory->commitTransaction(commitFunc);
-}
-
 void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
 {
-    if (m_gfxData)
-        Log.report(logvisor::Fatal, "multiple resource commits not allowed");
-    _commitResources(res, commitFunc);
+    res.m_factory->commitTransaction(commitFunc);
 }
 
 void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ctx,
@@ -389,7 +382,7 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
     auto vBufInfo = m_vertsBuf.getBufferInfo();
     auto uBufInfo = viewBlockBuf.getBufferInfo();
 
-    boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
+    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {uBufInfo.first.get()};
     size_t bufOffs[] = {size_t(uBufInfo.second)};
     size_t bufSizes[] = {sizeof(ViewBlock)};
 
@@ -397,12 +390,12 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
     {
         boo::VertexElementDescriptor vdescs[] =
         {
-            {vBufInfo.first, nullptr, boo::VertexSemantic::Position4},
-            {vBufInfo.first, nullptr, boo::VertexSemantic::Color}
+            {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Position4},
+            {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Color}
         };
         m_vtxFmt = ctx.newVertexFormat(2, vdescs, vBufInfo.second);
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
-                                                   m_vtxFmt, vBufInfo.first, nullptr,
+                                                   m_vtxFmt, vBufInfo.first.get(), nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
                                                    bufSizes, 0, nullptr, nullptr, nullptr, vBufInfo.second);
     }
@@ -410,7 +403,7 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
     {
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_solidShader,
                                                    res.m_viewRes.m_solidVtxFmt,
-                                                   vBufInfo.first, nullptr,
+                                                   vBufInfo.first.get(), nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
                                                    bufSizes, 0, nullptr, nullptr, nullptr, vBufInfo.second);
     }
@@ -419,27 +412,27 @@ void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ct
 void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
                                         ViewResources& res, size_t count,
                                         const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
-                                        boo::ITexture* texture)
+                                        const boo::ObjToken<boo::ITexture>& texture)
 {
     m_vertsBuf = res.m_viewRes.m_texPool.allocateBlock(res.m_factory, count);
     auto vBufInfo = m_vertsBuf.getBufferInfo();
     auto uBufInfo = viewBlockBuf.getBufferInfo();
 
-    boo::IGraphicsBuffer* bufs[] = {uBufInfo.first};
+    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {uBufInfo.first.get()};
     size_t bufOffs[] = {size_t(uBufInfo.second)};
     size_t bufSizes[] = {sizeof(ViewBlock)};
-    boo::ITexture* tex[] = {texture};
+    boo::ObjToken<boo::ITexture> tex[] = {texture};
 
     if (!res.m_viewRes.m_texVtxFmt)
     {
         boo::VertexElementDescriptor vdescs[] =
         {
-            {vBufInfo.first, nullptr, boo::VertexSemantic::Position4},
-            {vBufInfo.first, nullptr, boo::VertexSemantic::UV4}
+            {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Position4},
+            {vBufInfo.first.get(), nullptr, boo::VertexSemantic::UV4}
         };
         m_vtxFmt = ctx.newVertexFormat(2, vdescs, vBufInfo.second);
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
-                                                   m_vtxFmt, vBufInfo.first, nullptr,
+                                                   m_vtxFmt, vBufInfo.first.get(), nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
                                                    bufSizes, 1, tex, nullptr, nullptr, vBufInfo.second);
     }
@@ -447,7 +440,7 @@ void View::VertexBufferBindingTex::init(boo::IGraphicsDataFactory::Context& ctx,
     {
         m_shaderBinding = ctx.newShaderDataBinding(res.m_viewRes.m_texShader,
                                                    res.m_viewRes.m_texVtxFmt,
-                                                   vBufInfo.first, nullptr,
+                                                   vBufInfo.first.get(), nullptr,
                                                    nullptr, 1, bufs, nullptr, bufOffs,
                                                    bufSizes, 1, tex, nullptr, nullptr, vBufInfo.second);
     }

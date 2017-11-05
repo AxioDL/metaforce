@@ -87,6 +87,7 @@ public:
         friend class Button;
 
         void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
+        void destroy() {}
     };
 
     ~Button() {closeMenu({});}

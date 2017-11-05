@@ -254,7 +254,7 @@ void TextView::Resources::init(boo::MetalDataFactory::Context& ctx, FontCache* f
     m_vtxFmt = ctx.newVertexFormat(13, vdescs);
 
     m_regular =
-    ctx.newShaderPipeline(VS, FSReg, m_vtxFmt, 1,
+    ctx.newShaderPipeline(VS, FSReg, nullptr, nullptr, m_vtxFmt, 1,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                           boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 }
@@ -295,7 +295,7 @@ void TextView::Resources::init(boo::VulkanDataFactory::Context& ctx, FontCache* 
 void TextView::_commitResources(size_t capacity)
 {
     auto& res = rootView().viewRes();
-    View::_commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    View::commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
 
@@ -303,7 +303,7 @@ void TextView::_commitResources(size_t capacity)
         {
             m_glyphBuf = res.m_textRes.m_glyphPool.allocateBlock(res.m_factory, capacity);
 
-            boo::IShaderPipeline* shader;
+            boo::ObjToken<boo::IShaderPipeline> shader;
             if (m_fontAtlas.subpixel())
                 shader = res.m_textRes.m_subpixel;
             else
@@ -311,39 +311,39 @@ void TextView::_commitResources(size_t capacity)
 
             auto vBufInfo = m_glyphBuf.getBufferInfo();
             auto uBufInfo = m_viewVertBlockBuf.getBufferInfo();
-            boo::IGraphicsBuffer* uBufs[] = {uBufInfo.first};
+            boo::ObjToken<boo::IGraphicsBuffer> uBufs[] = {uBufInfo.first.get()};
             size_t uBufOffs[] = {size_t(uBufInfo.second)};
             size_t uBufSizes[] = {sizeof(ViewBlock)};
-            boo::ITexture* texs[] = {m_fontAtlas.texture()};
+            boo::ObjToken<boo::ITexture> texs[] = {m_fontAtlas.texture().get()};
 
             if (!res.m_textRes.m_vtxFmt)
             {
                 boo::VertexElementDescriptor vdescs[] =
                 {
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                    {vBufInfo.first, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 0},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 1},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 2},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::ModelView | boo::VertexSemantic::Instanced, 3},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {vBufInfo.first.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
                 };
                 m_vtxFmt = ctx.newVertexFormat(13, vdescs, 0, vBufInfo.second);
                 m_shaderBinding = ctx.newShaderDataBinding(shader, m_vtxFmt,
-                                                           nullptr, vBufInfo.first, nullptr, 1,
+                                                           nullptr, vBufInfo.first.get(), nullptr, 1,
                                                            uBufs, nullptr, uBufOffs, uBufSizes,
                                                            1, texs, nullptr, nullptr, 0, vBufInfo.second);
             }
             else
             {
                 m_shaderBinding = ctx.newShaderDataBinding(shader, res.m_textRes.m_vtxFmt,
-                                                           nullptr, vBufInfo.first, nullptr, 1,
+                                                           nullptr, vBufInfo.first.get(), nullptr, 1,
                                                            uBufs, nullptr, uBufOffs, uBufSizes,
                                                            1, texs, nullptr, nullptr, 0, vBufInfo.second);
             }

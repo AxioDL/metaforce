@@ -34,7 +34,7 @@ Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned 
     {
         buildResources(ctx, res);
         m_tbBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
-        m_vertsBinding.init(ctx, res, 10, m_tbBlockBuf, res.m_toolbarRes.m_shadingTex);
+        m_vertsBinding.init(ctx, res, 10, m_tbBlockBuf, res.m_toolbarRes.m_shadingTex.get());
         return true;
     });
     setBackground(res.themeData().toolbarBackground());

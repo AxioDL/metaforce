@@ -60,8 +60,6 @@ private:
         m_vertsBinding.load<decltype(_m_verts)>(_m_verts);
     }
 
-    boo::GraphicsDataToken m_windowGfxData;
-
     std::unique_ptr<TextView> m_cornersOutline[4];
     std::unique_ptr<TextView> m_cornersFilled[4];
 

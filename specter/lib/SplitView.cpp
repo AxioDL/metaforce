@@ -29,7 +29,7 @@ SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController
     {
         buildResources(ctx, res);
         m_splitBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
-        m_splitVertsBinding.init(ctx, res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex);
+        m_splitVertsBinding.init(ctx, res, 4, m_splitBlockBuf, res.m_splitRes.m_shadingTex.get());
         return true;
     });
 }

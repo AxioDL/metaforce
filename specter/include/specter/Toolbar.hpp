@@ -14,9 +14,10 @@ public:
     {
         friend class ViewResources;
         friend class Toolbar;
-        boo::ITextureS* m_shadingTex;
+        boo::ObjToken<boo::ITextureS> m_shadingTex;
 
         void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
+        void destroy() { m_shadingTex.reset(); }
     };
 
     enum class Position

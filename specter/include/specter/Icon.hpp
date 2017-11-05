@@ -8,10 +8,10 @@ namespace specter
 
 struct Icon
 {
-    boo::ITexture* m_tex = nullptr;
+    boo::ObjToken<boo::ITexture> m_tex;
     zeus::CVector2f m_uvCoords[4];
     Icon() = default;
-    Icon(boo::ITexture* tex, float rect[4])
+    Icon(const boo::ObjToken<boo::ITexture>& tex, float rect[4])
     : m_tex(tex)
     {
         m_uvCoords[0][0] = rect[0];
@@ -31,25 +31,26 @@ struct Icon
 template <size_t COLS, size_t ROWS>
 class IconAtlas
 {
-    boo::ITexture* m_tex = nullptr;
+    boo::ObjToken<boo::ITextureS> m_tex;
     Icon m_icons[COLS][ROWS];
 
     Icon MakeIcon(float x, float y)
     {
         float rect[] = {x / float(COLS),                     y / float(ROWS),
                         x / float(COLS) + 1.f / float(COLS), y / float(ROWS) + 1.f / float(ROWS)};
-        return Icon(m_tex, rect);
+        return Icon(m_tex.get(), rect);
     }
 public:
     IconAtlas() = default;
     operator bool() const {return m_tex != nullptr;}
-    void initializeAtlas(boo::ITexture* tex)
+    void initializeAtlas(const boo::ObjToken<boo::ITextureS>& tex)
     {
         m_tex = tex;
         for (int c=0 ; c<COLS ; ++c)
             for (int r=0 ; r<ROWS ; ++r)
                 m_icons[c][r] = MakeIcon(c, r);
     }
+    void destroyAtlas() { m_tex.reset(); }
     Icon& getIcon(size_t c, size_t r) {return m_icons[c][r];}
 };
 

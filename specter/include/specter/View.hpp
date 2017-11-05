@@ -111,8 +111,8 @@ public:
     struct VertexBufferBinding
     {
         typename hecl::VertexBufferPool<VertStruct>::Token m_vertsBuf;
-        boo::IVertexFormat* m_vtxFmt = nullptr; /* OpenGL only */
-        boo::IShaderDataBinding* m_shaderBinding = nullptr;
+        boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* OpenGL only */
+        boo::ObjToken<boo::IShaderDataBinding> m_shaderBinding;
 
         void load(const VertStruct* data, size_t count)
         {
@@ -137,7 +137,7 @@ public:
             }
         }
 
-        operator boo::IShaderDataBinding*() { return m_shaderBinding; }
+        operator const boo::ObjToken<boo::IShaderDataBinding>&() { return m_shaderBinding; }
     };
     struct VertexBufferBindingSolid : VertexBufferBinding<SolidShaderVert>
     {
@@ -150,7 +150,7 @@ public:
         void init(boo::IGraphicsDataFactory::Context& ctx,
                   ViewResources& res, size_t count,
                   const hecl::UniformBufferPool<ViewBlock>::Token& viewBlockBuf,
-                  boo::ITexture* texture);
+                  const boo::ObjToken<boo::ITexture>& texture);
     };
 
 private:
@@ -159,7 +159,6 @@ private:
     boo::SWindowRect m_subRect;
     VertexBufferBindingSolid m_bgVertsBinding;
     SolidShaderVert m_bgRect[4];
-    boo::GraphicsDataToken m_gfxData;
 
     friend class RootView;
     View(ViewResources& res);
@@ -200,11 +199,11 @@ public:
             m_texPool.updateBuffers();
         }
 
-        boo::IShaderPipeline* m_solidShader = nullptr;
-        boo::IVertexFormat* m_solidVtxFmt = nullptr; /* Not OpenGL */
+        boo::ObjToken<boo::IShaderPipeline> m_solidShader;
+        boo::ObjToken<boo::IVertexFormat> m_solidVtxFmt; /* Not OpenGL */
 
-        boo::IShaderPipeline* m_texShader = nullptr;
-        boo::IVertexFormat* m_texVtxFmt = nullptr; /* Not OpenGL */
+        boo::ObjToken<boo::IShaderPipeline> m_texShader;
+        boo::ObjToken<boo::IVertexFormat> m_texVtxFmt; /* Not OpenGL */
 
         void init(boo::GLDataFactory::Context& ctx, const IThemeData& theme);
 #if _WIN32
@@ -216,12 +215,23 @@ public:
 #if BOO_HAS_VULKAN
         void init(boo::VulkanDataFactory::Context& ctx, const IThemeData& theme);
 #endif
+
+        void destroy()
+        {
+            m_bufPool.doDestroy();
+            m_solidPool.doDestroy();
+            m_texPool.doDestroy();
+
+            m_solidShader.reset();
+            m_solidVtxFmt.reset();
+            m_texShader.reset();
+            m_texVtxFmt.reset();
+        }
     };
 
 protected:
     View(ViewResources& res, View& parentView);
     void buildResources(boo::IGraphicsDataFactory::Context& ctx, ViewResources& res);
-    void _commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc);
     void commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc);
 
 public:

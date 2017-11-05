@@ -19,7 +19,7 @@ namespace specter
 class RootView : public View
 {
     boo::IWindow* m_window = nullptr;
-    boo::ITextureR* m_renderTex = nullptr;
+    boo::ObjToken<boo::ITextureR> m_renderTex;
     boo::SWindowRect m_rootRect = {};
     bool m_resizeRTDirty = false;
     bool m_destroyed = false;
@@ -146,7 +146,7 @@ public:
     IViewManager& viewManager() const {return m_viewMan;}
     ViewResources& viewRes() const {return *m_viewRes;}
     const IThemeData& themeData() const {return *m_viewRes->m_theme;}
-    boo::ITextureR* renderTex() const {return m_renderTex;}
+    const boo::ObjToken<boo::ITextureR>& renderTex() const {return m_renderTex;}
 
     std::vector<View*>& accessContentViews() {return m_views;}
 

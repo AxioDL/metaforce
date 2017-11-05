@@ -391,7 +391,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 
         WriteCompressed(writer, (atUint8*)texmap.get(), bufSz);
 
-        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
@@ -476,7 +476,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
 
         WriteCompressed(writer, (atUint8*)texmap.get(), bufSz);
 
-        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
@@ -600,7 +600,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         if (!ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz))
             return;
 
-        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,
@@ -685,7 +685,7 @@ FontAtlas::FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
         if (!ReadDecompressed(reader, (atUint8*)texmap.get(), bufSz))
             return;
 
-        m_token = gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
             m_tex =
             ctx.newStaticArrayTexture(TEXMAP_DIM, finalHeight, fullTexmapLayers + 1, 1,

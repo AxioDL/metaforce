@@ -167,7 +167,6 @@ public:
     SplitView::Resources m_splitRes;
     Toolbar::Resources m_toolbarRes;
     Button::Resources m_buttonRes;
-    boo::GraphicsDataToken m_resData;
 
     specter::FontTag m_mainFont;
     specter::FontTag m_monoFont;
@@ -188,11 +187,6 @@ public:
     ViewResources& operator=(const ViewResources& other) = delete;
     ViewResources& operator=(ViewResources&& other) = default;
 
-    void destroyResData()
-    {
-        m_resData.doDestroy();
-    }
-
     void updateBuffers()
     {
         m_viewRes.updateBuffers();
@@ -209,6 +203,7 @@ public:
     }
 
     void init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const IThemeData* theme, float pixelFactor);
+    void destroyResData();
     void prepFontCacheSync();
     void prepFontCacheAsync(boo::IWindow* window);
     bool fontCacheReady() const {return m_fcacheReady;}

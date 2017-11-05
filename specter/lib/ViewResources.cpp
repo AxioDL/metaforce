@@ -17,7 +17,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
 
     m_curveFont = fcache->prepCurvesFont(factory, AllCharFilter, false, 8.f, dpi);
 
-    m_resData = factory->commitTransaction(
+    factory->commitTransaction(
     [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         switch (ctx.platform())
@@ -46,6 +46,15 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
         }
         return true;
     });
+}
+
+void ViewResources::destroyResData()
+{
+    m_viewRes.destroy();
+    m_textRes.destroy();
+    m_splitRes.destroy();
+    m_toolbarRes.destroy();
+    m_buttonRes.destroy();
 }
 
 void ViewResources::prepFontCacheSync()

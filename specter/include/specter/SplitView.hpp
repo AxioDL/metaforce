@@ -16,9 +16,10 @@ public:
     {
         friend class ViewResources;
         friend class SplitView;
-        boo::ITextureS* m_shadingTex;
+        boo::ObjToken<boo::ITextureS> m_shadingTex;
 
         void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
+        void destroy() { m_shadingTex.reset(); }
     };
 
     enum class ArrowDir
