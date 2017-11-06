@@ -360,7 +360,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
                                        boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::IShaderPipeline*& objOut)
+                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
     {
         m_backend.reset(ir, diag);
 
@@ -431,8 +431,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
-                                               boo::IGraphicsDataFactory::Context& ctx)
+    boo::ObjToken<boo::IShaderPipeline>
+    buildShaderFromCache(const ShaderCachedData& data,
+                         boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
@@ -469,7 +470,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         if (r.hasError())
             return nullptr;
 
-        boo::IShaderPipeline* ret =
+        boo::ObjToken<boo::IShaderPipeline> ret =
         static_cast<boo::ID3DDataFactory::Context&>(ctx).
             newShaderPipeline(nullptr, nullptr,
                               ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
@@ -534,7 +535,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            boo::ObjToken<boo::IShaderPipeline> ret =
             static_cast<boo::ID3DDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   ReferenceComPtr(thisPipeBlobs.vert), ReferenceComPtr(thisPipeBlobs.frag), ReferenceComPtr(thisPipeBlobs.pipeline),
@@ -654,7 +655,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            boo::ObjToken<boo::IShaderPipeline> ret =
             static_cast<boo::ID3DDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
                                   ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),

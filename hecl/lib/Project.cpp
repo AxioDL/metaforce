@@ -187,7 +187,7 @@ bool Project::ConfigFile::unlockAndCommit()
     {
 #if HECL_UCS2
         //_wrename(newPath.c_str(), m_filepath.c_str());
-        ReplaceFileW(m_filepath.c_str(), newPath.c_str(), nullptr, 0, nullptr, nullptr);
+        MoveFileExW(newPath.c_str(), m_filepath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 #else
         rename(newPath.c_str(), m_filepath.c_str());
 #endif

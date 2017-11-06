@@ -635,7 +635,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                        const hecl::Frontend::IR& ir,
                                        hecl::Frontend::Diagnostics& diag,
                                        boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::IShaderPipeline*& objOut)
+                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
     {
         m_backend.reset(ir, diag);
 
@@ -704,8 +704,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         return dataOut;
     }
 
-    boo::IShaderPipeline* buildShaderFromCache(const ShaderCachedData& data,
-                                               boo::IGraphicsDataFactory::Context& ctx)
+    boo::ObjToken<boo::IShaderPipeline>
+    buildShaderFromCache(const ShaderCachedData& data,
+                         boo::IGraphicsDataFactory::Context& ctx)
     {
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
@@ -731,7 +732,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         if (r.hasError())
             return nullptr;
 
-        boo::IShaderPipeline* ret =
+        boo::ObjToken<boo::IShaderPipeline> ret =
         static_cast<boo::VulkanDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
                                   &vertBlob, &fragBlob, &pipelineBlob,
@@ -777,7 +778,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                                         tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs);
             pipeBlobs.emplace_back();
             Blobs& pipeBlob = pipeBlobs.back();
-            boo::IShaderPipeline* ret =
+            boo::ObjToken<boo::IShaderPipeline> ret =
             static_cast<boo::VulkanDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                       &pipeBlob.vert, &pipeBlob.frag, &pipeBlob.pipeline,
@@ -894,7 +895,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                 break;
             }
 
-            boo::IShaderPipeline* ret =
+            boo::ObjToken<boo::IShaderPipeline> ret =
             static_cast<boo::VulkanDataFactory::Context&>(ctx).
                     newShaderPipeline(nullptr, nullptr,
                                       &vertBlob, &fragBlob, &pipelineBlob,

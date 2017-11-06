@@ -2,7 +2,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#define WIN_PAUSE 1
+#define WIN_PAUSE 0
 #include <objbase.h>
 #endif
 

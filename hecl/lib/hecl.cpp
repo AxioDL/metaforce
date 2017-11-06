@@ -108,6 +108,8 @@ void SanitizePath(std::string& path)
         }
         return a;
     });
+    while (path.back() == '/')
+        path.pop_back();
 }
 
 static const std::wstring WIllegals {L"<>?\"|"};
@@ -140,6 +142,8 @@ void SanitizePath(std::wstring& path)
         }
         return a;
     });
+    while (path.back() == L'/')
+        path.pop_back();
 }
 
 static std::mutex PathsMutex;
