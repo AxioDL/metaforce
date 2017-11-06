@@ -46,12 +46,12 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CScanLinesFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
-static boo::IShaderPipeline* s_AddPipeline = nullptr;
-static boo::IShaderPipeline* s_MultPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
 
-static boo::IShaderPipeline* SelectPipeline(EFilterType type)
+static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type)
 {
     switch (type)
     {
@@ -68,15 +68,15 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type)
 
 struct CScanLinesFilterD3DDataBindingFactory : TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CScanLinesFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           EFilterType type, CScanLinesFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* vbo = filter.m_even ?
-            g_Renderer->GetScanLinesEvenVBO() : g_Renderer->GetScanLinesOddVBO();
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> vbo = filter.m_even ?
+            g_Renderer->GetScanLinesEvenVBO().get() : g_Renderer->GetScanLinesOddVBO().get();
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
@@ -104,6 +104,15 @@ CScanLinesFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CScanLinesFilterD3DDataBindingFactory;
+}
+
+template <>
+void CScanLinesFilter::Shutdown<boo::ID3DDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
 }
 
 }

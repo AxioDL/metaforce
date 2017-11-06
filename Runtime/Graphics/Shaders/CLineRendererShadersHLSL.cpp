@@ -89,13 +89,16 @@ static const char* FS_HLSL_NOTEX =
 struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+                                const boo::ObjToken<boo::IShaderPipeline>& pipeline,
+                                const boo::ObjToken<boo::ITexture>& texture)
     {
         int texCount = 0;
-        boo::ITexture* textures[1];
+        boo::ObjToken<boo::ITexture> textures[1];
 
-        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
-        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+                hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+                hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
             renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
@@ -108,12 +111,12 @@ struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
             vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         size_t ubufOffs[] = {size_t(ubufInfo.second)};
         size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first,
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first.get(),
                                                          nullptr, nullptr, 1, uniforms, stages,
                                                          ubufOffs, ubufSizes, texCount, textures,
                                                          nullptr, nullptr, vbufInfo.second);

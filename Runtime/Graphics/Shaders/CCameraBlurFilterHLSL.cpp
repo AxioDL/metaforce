@@ -87,20 +87,21 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CCameraBlurFilterD3DDataBindingFactory : TShader<CCameraBlurFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraBlurFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CCameraBlurFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -118,6 +119,13 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterD3DDataBindingFactory;
+}
+
+template <>
+void CCameraBlurFilter::Shutdown<boo::ID3DDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 
 }

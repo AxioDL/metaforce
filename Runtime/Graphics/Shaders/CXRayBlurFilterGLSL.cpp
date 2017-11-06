@@ -91,15 +91,16 @@ struct CXRayBlurFilterGLDataBindingFactory : TShader<CXRayBlurFilter>::IDataBind
 #if BOO_HAS_VULKAN
 struct CXRayBlurFilterVulkanDataBindingFactory : TShader<CXRayBlurFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CXRayBlurFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CXRayBlurFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture, filter.m_booTex};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), filter.m_booTex.get()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
@@ -134,6 +135,13 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
                                        boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CXRayBlurFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CXRayBlurFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 #endif
 

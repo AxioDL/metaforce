@@ -85,15 +85,16 @@ struct CRadarPaintShaderGLDataBindingFactory : TShader<CRadarPaintShader>::IData
 #if BOO_HAS_VULKAN
 struct CRadarPaintShaderVulkanDataBindingFactory : TShader<CRadarPaintShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CRadarPaintShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CRadarPaintShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         nullptr, filter.m_vbo, nullptr, 1, bufs,
+                                         nullptr, filter.m_vbo.get(), nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -137,6 +138,13 @@ CRadarPaintShader::Initialize(boo::VulkanDataFactory::Context& ctx)
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CRadarPaintShaderVulkanDataBindingFactory;
+}
+
+template <>
+void CRadarPaintShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 #endif
 

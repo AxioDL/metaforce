@@ -85,15 +85,15 @@ struct CColoredQuadFilterGLDataBindingFactory : TMultiBlendShader<CColoredQuadFi
 #if BOO_HAS_VULKAN
 struct CColoredQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CColoredQuadFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           EFilterType type, CColoredQuadFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -142,6 +142,15 @@ CColoredQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CColoredQuadFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CColoredQuadFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
 }
 #endif
 

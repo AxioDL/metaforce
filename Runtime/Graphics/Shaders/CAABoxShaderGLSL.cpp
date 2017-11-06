@@ -70,14 +70,15 @@ struct CAABoxShaderGLDataBindingFactory : TShader<CAABoxShader>::IDataBindingFac
 #if BOO_HAS_VULKAN
 struct CAABoxShaderVulkanDataBindingFactory : TShader<CAABoxShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CAABoxShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CAABoxShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(filter.m_zOnly ? s_zOnlyPipeline : s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     }
 };
@@ -117,6 +118,14 @@ TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::Vulkan
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CAABoxShaderVulkanDataBindingFactory;
+}
+
+template <>
+void CAABoxShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
+    s_zOnlyPipeline.reset();
 }
 #endif
 

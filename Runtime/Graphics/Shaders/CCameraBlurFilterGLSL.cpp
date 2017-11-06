@@ -106,15 +106,16 @@ struct CCameraBlurFilterGLDataBindingFactory : TShader<CCameraBlurFilter>::IData
 #if BOO_HAS_VULKAN
 struct CCameraBlurFilterVulkanDataBindingFactory : TShader<CCameraBlurFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CCameraBlurFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CCameraBlurFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -149,6 +150,13 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CCameraBlurFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 #endif
 

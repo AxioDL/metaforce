@@ -74,17 +74,18 @@ struct CWorldShadowShaderGLDataBindingFactory : TShader<CWorldShadowShader>::IDa
 #if BOO_HAS_VULKAN
 struct CWorldShadowShaderVulkanDataBindingFactory : TShader<CWorldShadowShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CWorldShadowShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CWorldShadowShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-            filter.m_vbo, nullptr, nullptr, 1, bufs,
+            filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline, s_VtxFmt,
-            filter.m_vbo, nullptr, nullptr, 1, bufs,
+            filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return nullptr;
     }
@@ -127,6 +128,14 @@ CWorldShadowShader::Initialize(boo::VulkanDataFactory::Context& ctx)
                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                         boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     return new CWorldShadowShaderVulkanDataBindingFactory;
+}
+
+template <>
+void CWorldShadowShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
+    s_ZPipeline.reset();
 }
 #endif
 

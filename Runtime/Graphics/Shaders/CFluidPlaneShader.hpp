@@ -124,9 +124,12 @@ private:
     boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::GLDataFactory::Context& ctx,
                                                         const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #if _WIN32
-    static boo::IShaderPipeline* BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    static boo::IShaderPipeline* BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::ID3DDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::ID3DDataFactory::Context& ctx,
+                                                           const SFluidPlaneShaderInfo& info);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::ID3DDataFactory::Context& ctx,
+                                                           const SFluidPlaneDoorShaderInfo& info);
+    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::ID3DDataFactory::Context& ctx,
+                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 #if BOO_HAS_METAL
     static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::MetalDataFactory::Context& ctx,
@@ -137,9 +140,12 @@ private:
                                                         const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 #if BOO_HAS_VULKAN
-    static boo::IShaderPipeline* BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info);
-    static boo::IShaderPipeline* BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info);
-    boo::IShaderDataBinding* BuildBinding(boo::VulkanDataFactory::Context& ctx, boo::IShaderPipeline* pipeline, bool door);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::VulkanDataFactory::Context& ctx,
+                                                           const SFluidPlaneShaderInfo& info);
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::VulkanDataFactory::Context& ctx,
+                                                           const SFluidPlaneDoorShaderInfo& info);
+    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::VulkanDataFactory::Context& ctx,
+                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 
     void PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door);

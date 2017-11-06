@@ -89,15 +89,15 @@ struct CScanLinesFilterGLDataBindingFactory : TMultiBlendShader<CScanLinesFilter
 #if BOO_HAS_VULKAN
 struct CScanLinesFilterVulkanDataBindingFactory : TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CScanLinesFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           EFilterType type, CScanLinesFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* vbo = filter.m_even ?
-            g_Renderer->GetScanLinesEvenVBO() : g_Renderer->GetScanLinesOddVBO();
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> vbo = filter.m_even ?
+            g_Renderer->GetScanLinesEvenVBO().get() : g_Renderer->GetScanLinesOddVBO().get();
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
                                          vbo, nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
@@ -148,6 +148,15 @@ CScanLinesFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CScanLinesFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CScanLinesFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
 }
 #endif
 

@@ -79,15 +79,16 @@ struct CThermalHotFilterGLDataBindingFactory : TShader<CThermalHotFilter>::IData
 #if BOO_HAS_VULKAN
 struct CThermalHotFilterVulkanDataBindingFactory : TShader<CThermalHotFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CThermalHotFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CThermalHotFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {CGraphics::g_SpareTexture, g_Renderer->GetThermoPalette()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), g_Renderer->GetThermoPalette()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 2, texs, nullptr, nullptr);
     }
 };
@@ -122,6 +123,13 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
                                        boo::BlendFactor::InvDstAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, true, boo::CullMode::None);
     return new CThermalHotFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CThermalHotFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 #endif
 

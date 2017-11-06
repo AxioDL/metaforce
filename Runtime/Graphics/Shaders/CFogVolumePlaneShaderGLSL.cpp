@@ -52,14 +52,15 @@ struct CFogVolumePlaneShaderGLDataBindingFactory : TShader<CFogVolumePlaneShader
 #if BOO_HAS_VULKAN
 struct CFogVolumePlaneShaderVulkanDataBindingFactory : TShader<CFogVolumePlaneShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CFogVolumePlaneShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CFogVolumePlaneShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
         for (int i=0 ; i<4 ; ++i)
             filter.m_dataBinds[i] = cctx.newShaderDataBinding(s_Pipelines[i], s_VtxFmt,
-                filter.m_vbo, nullptr, nullptr, 0, nullptr,
+                filter.m_vbo.get(), nullptr, nullptr, 0, nullptr,
                 nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return filter.m_dataBinds[0];
     }
@@ -115,6 +116,16 @@ CFogVolumePlaneShader::Initialize(boo::VulkanDataFactory::Context& ctx)
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::Greater, false, false, false, boo::CullMode::Backface);
     return new CFogVolumePlaneShaderVulkanDataBindingFactory;
+}
+
+template <>
+void CFogVolumePlaneShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipelines[0].reset();
+    s_Pipelines[1].reset();
+    s_Pipelines[2].reset();
+    s_Pipelines[3].reset();
 }
 #endif
 

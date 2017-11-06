@@ -184,6 +184,17 @@ CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
 
     return nullptr;
 }
+
+template <>
+void CTextSupportShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_TextVtxFmt.reset();
+    s_TextAlphaPipeline.reset();
+    s_TextAddPipeline.reset();
+    s_ImageVtxFmt.reset();
+    s_ImageAlphaPipeline.reset();
+    s_ImageAddPipeline.reset();
+}
 #endif
 
 }

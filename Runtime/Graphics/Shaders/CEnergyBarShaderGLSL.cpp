@@ -83,18 +83,18 @@ struct CEnergyBarShaderGLDataBindingFactory : TShader<CEnergyBarShader>::IDataBi
 #if BOO_HAS_VULKAN
 struct CEnergyBarShaderVulkanDataBindingFactory : TShader<CEnergyBarShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CEnergyBarShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CEnergyBarShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[1];
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[1];
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
         for (int i=0 ; i<3 ; ++i)
         {
-            bufs[0] = filter.m_uniBuf[i];
+            bufs[0] = filter.m_uniBuf[i].get();
             filter.m_dataBind[i] = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                filter.m_vbo, nullptr, nullptr, 1, bufs,
+                filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                 nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
         }
         return filter.m_dataBind[0];
@@ -133,6 +133,13 @@ CEnergyBarShader::Initialize(boo::VulkanDataFactory::Context& ctx)
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     return new CEnergyBarShaderVulkanDataBindingFactory;
+}
+
+template <>
+void CEnergyBarShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 #endif
 

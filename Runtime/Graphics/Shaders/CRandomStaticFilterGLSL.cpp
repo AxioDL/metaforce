@@ -151,16 +151,16 @@ struct CRandomStaticFilterGLDataBindingFactory : TMultiBlendShader<CRandomStatic
 #if BOO_HAS_VULKAN
 struct CRandomStaticFilterVulkanDataBindingFactory : TMultiBlendShader<CRandomStaticFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CRandomStaticFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           EFilterType type, CRandomStaticFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {g_Renderer->GetRandomStaticEntropyTex()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {g_Renderer->GetRandomStaticEntropyTex().get()};
         return cctx.newShaderDataBinding(filter.m_cookieCutter ? s_CookieCutterPipeline : SelectPipeline(type),
-                                         s_VtxFmt, filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         s_VtxFmt, filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -218,6 +218,16 @@ CRandomStaticFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
                                                    boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                                    boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CRandomStaticFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CRandomStaticFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
+    s_CookieCutterPipeline.reset();
 }
 #endif
 
