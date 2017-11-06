@@ -9,7 +9,7 @@ namespace urde
 CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
 : m_cookieCutter(cookieCutter)
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         struct Vert
         {
@@ -40,8 +40,6 @@ void CRandomStaticFilter::draw(const zeus::CColor& color, float t)
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 4);
 }
-
-void CRandomStaticFilter::Shutdown() {}
 
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CRandomStaticFilter)
 

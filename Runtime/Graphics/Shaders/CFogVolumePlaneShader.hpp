@@ -17,9 +17,8 @@ class CFogVolumePlaneShader
     friend struct CFogVolumePlaneShaderMetalDataBindingFactory;
     friend struct CFogVolumePlaneShaderD3DDataBindingFactory;
 
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferD* m_vbo;
-    boo::IShaderDataBinding* m_dataBinds[4];
+    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBinds[4];
     std::vector<zeus::CVector4f> m_verts;
     size_t m_vertCapacity = 0;
 

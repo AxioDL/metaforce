@@ -16,11 +16,10 @@ class CFogVolumeFilter
     friend struct CFogVolumeFilterMetalDataBindingFactory;
     friend struct CFogVolumeFilterD3DDataBindingFactory;
 
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind1Way;
-    boo::IShaderDataBinding* m_dataBind2Way;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind1Way;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind2Way;
 
 public:
     CFogVolumeFilter();

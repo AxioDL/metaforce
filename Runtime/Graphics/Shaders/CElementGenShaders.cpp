@@ -4,37 +4,37 @@
 namespace urde
 {
 
-boo::IShaderPipeline* CElementGenShaders::m_texZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texNoZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texNoZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texAdditiveZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texAdditiveNoZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaNoZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texZTestNoZWriteSub = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texNoZTestNoZWriteSub = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaZTestSub = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_texRedToAlphaNoZTestSub = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texZTestZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texNoZTestZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texZTestNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texNoZTestNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texAdditiveZTest;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texAdditiveNoZTest;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texRedToAlphaZTest;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texRedToAlphaNoZTest;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texZTestNoZWriteSub;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texNoZTestNoZWriteSub;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texRedToAlphaZTestSub;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_texRedToAlphaNoZTestSub;
 
-boo::IShaderPipeline* CElementGenShaders::m_indTexZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_indTexNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_indTexAdditive = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_indTexZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_indTexNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_indTexAdditive;
 
-boo::IShaderPipeline* CElementGenShaders::m_cindTexZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_cindTexNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_cindTexAdditive = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_cindTexZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_cindTexNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_cindTexAdditive;
 
-boo::IShaderPipeline* CElementGenShaders::m_noTexZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexNoZTestZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexNoZTestNoZWrite = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexAdditiveZTest = nullptr;
-boo::IShaderPipeline* CElementGenShaders::m_noTexAdditiveNoZTest = nullptr;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_noTexZTestZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_noTexNoZTestZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_noTexZTestNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_noTexNoZTestNoZWrite;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_noTexAdditiveZTest;
+boo::ObjToken<boo::IShaderPipeline> CElementGenShaders::m_noTexAdditiveNoZTest;
 
-boo::IVertexFormat* CElementGenShaders::m_vtxFormatTex = nullptr;
-boo::IVertexFormat* CElementGenShaders::m_vtxFormatIndTex = nullptr;
-boo::IVertexFormat* CElementGenShaders::m_vtxFormatNoTex = nullptr;
+boo::ObjToken<boo::IVertexFormat> CElementGenShaders::m_vtxFormatTex;
+boo::ObjToken<boo::IVertexFormat> CElementGenShaders::m_vtxFormatIndTex;
+boo::ObjToken<boo::IVertexFormat> CElementGenShaders::m_vtxFormatNoTex;
 
 CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen& gen)
 {
@@ -54,12 +54,12 @@ CElementGenShaders::EShaderClass CElementGenShaders::GetShaderClass(CElementGen&
 void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen)
 {
     CGenDescription* desc = gen.x1c_genDesc.GetObj();
-    boo::IShaderPipeline* regPipeline = nullptr;
-    boo::IShaderPipeline* regPipelineSub = nullptr;
-    boo::IShaderPipeline* redToAlphaPipeline = nullptr;
-    boo::IShaderPipeline* redToAlphaPipelineSub = nullptr;
-    boo::IShaderPipeline* regPipelinePmus = nullptr;
-    boo::IShaderPipeline* redToAlphaPipelinePmus = nullptr;
+    boo::ObjToken<boo::IShaderPipeline> regPipeline;
+    boo::ObjToken<boo::IShaderPipeline> regPipelineSub;
+    boo::ObjToken<boo::IShaderPipeline> redToAlphaPipeline;
+    boo::ObjToken<boo::IShaderPipeline> redToAlphaPipelineSub;
+    boo::ObjToken<boo::IShaderPipeline> regPipelinePmus;
+    boo::ObjToken<boo::IShaderPipeline> redToAlphaPipelinePmus;
 
     if (desc->x54_x40_TEXR)
     {
@@ -182,8 +182,6 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
                             regPipelinePmus, redToAlphaPipelinePmus);
     TShader<CElementGenShaders>::BuildShaderDataBinding(ctx, shad);
 }
-
-void CElementGenShaders::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CElementGenShaders)
 

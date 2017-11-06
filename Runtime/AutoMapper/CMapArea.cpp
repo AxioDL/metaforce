@@ -54,7 +54,7 @@ void CMapArea::PostConstruct()
         m_surfaces.back().PostConstruct(x44_buf.get(), index);
     }
 
-    m_gfxToken = CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, x3c_vertexStart, 12, x2c_vertexCount);
         m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());

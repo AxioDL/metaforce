@@ -103,13 +103,13 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_AlphaPipeline = nullptr;
-static boo::IShaderPipeline* s_AlphaGEqualPipeline = nullptr;
-static boo::IShaderPipeline* s_AddPipeline = nullptr;
-static boo::IShaderPipeline* s_MultPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaGEqualPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
 
-static boo::IShaderPipeline* SelectPipeline(EFilterType type, bool gequal)
+static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type, bool gequal)
 {
     if (gequal)
         return s_AlphaGEqualPipeline;
@@ -122,16 +122,16 @@ static boo::IShaderPipeline* SelectPipeline(EFilterType type, bool gequal)
     case EFilterType::Multiply:
         return s_MultPipeline;
     default:
-        return nullptr;
+        return {};
     }
 }
 
-static boo::IVertexFormat* s_AVtxFmt = nullptr;
-static boo::IShaderPipeline* s_AAlphaPipeline = nullptr;
-static boo::IShaderPipeline* s_AAddPipeline = nullptr;
-static boo::IShaderPipeline* s_AMultPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_AVtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_AAlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AAddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AMultPipeline;
 
-static boo::IShaderPipeline* SelectAlphaPipeline(EFilterType type)
+static boo::ObjToken<boo::IShaderPipeline> SelectAlphaPipeline(EFilterType type)
 {
     switch (type)
     {
@@ -142,28 +142,27 @@ static boo::IShaderPipeline* SelectAlphaPipeline(EFilterType type)
     case EFilterType::Multiply:
         return s_AMultPipeline;
     default:
-        return nullptr;
+        return {};
     }
 }
 
 struct CTexturedQuadFilterGLDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CTexturedQuadFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  EFilterType type, CTexturedQuadFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[] = {filter.m_booTex};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
         return cctx.newShaderDataBinding(SelectPipeline(type, filter.m_gequal),
-                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo.get(), nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -171,16 +170,16 @@ struct CTexturedQuadFilterGLDataBindingFactory : TMultiBlendShader<CTexturedQuad
 #if BOO_HAS_VULKAN
 struct CTexturedQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CTexturedQuadFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           EFilterType type, CTexturedQuadFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_booTex};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
         return cctx.newShaderDataBinding(SelectPipeline(type, filter.m_gequal), s_VtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -204,6 +203,15 @@ CTexturedQuadFilter::Initialize(boo::GLDataFactory::Context& ctx)
                                            boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CTexturedQuadFilterGLDataBindingFactory;
+}
+
+template <>
+void CTexturedQuadFilter::Shutdown<boo::GLDataFactory>()
+{
+    s_AlphaPipeline.reset();
+    s_AlphaGEqualPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
 }
 
 #if BOO_HAS_VULKAN
@@ -230,28 +238,37 @@ CTexturedQuadFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CTexturedQuadFilterVulkanDataBindingFactory;
 }
+
+template <>
+void CTexturedQuadFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_AlphaPipeline.reset();
+    s_AlphaGEqualPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
+}
 #endif
 
 URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 
 struct CTexturedQuadFilterAlphaGLDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CTexturedQuadFilterAlpha& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  EFilterType type, CTexturedQuadFilterAlpha& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[] = {filter.m_booTex};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
         return cctx.newShaderDataBinding(SelectAlphaPipeline(type),
-                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo, nullptr, nullptr,
+                                         ctx.newVertexFormat(2, VtxVmt), filter.m_vbo.get(), nullptr, nullptr,
                                          1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -259,16 +276,16 @@ struct CTexturedQuadFilterAlphaGLDataBindingFactory : TMultiBlendShader<CTexture
 #if BOO_HAS_VULKAN
 struct CTexturedQuadFilterAlphaVulkanDataBindingFactory : TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    EFilterType type,
-                                                    CTexturedQuadFilterAlpha& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           EFilterType type, CTexturedQuadFilterAlpha& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_booTex};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
         return cctx.newShaderDataBinding(SelectAlphaPipeline(type), s_AVtxFmt,
-                                         filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                         filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -291,6 +308,14 @@ CTexturedQuadFilterAlpha::Initialize(boo::GLDataFactory::Context& ctx)
     return new CTexturedQuadFilterAlphaGLDataBindingFactory;
 }
 
+template <>
+void CTexturedQuadFilterAlpha::Shutdown<boo::GLDataFactory>()
+{
+    s_AAlphaPipeline.reset();
+    s_AAddPipeline.reset();
+    s_AMultPipeline.reset();
+}
+
 #if BOO_HAS_VULKAN
 TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory*
 CTexturedQuadFilterAlpha::Initialize(boo::VulkanDataFactory::Context& ctx)
@@ -311,6 +336,15 @@ CTexturedQuadFilterAlpha::Initialize(boo::VulkanDataFactory::Context& ctx)
                                             boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                             boo::ZTest::None, false, true, true, boo::CullMode::None);
     return new CTexturedQuadFilterAlphaVulkanDataBindingFactory;
+}
+
+template <>
+void CTexturedQuadFilterAlpha::Shutdown<boo::VulkanDataFactory>()
+{
+    s_AVtxFmt.reset();
+    s_AAlphaPipeline.reset();
+    s_AAddPipeline.reset();
+    s_AMultPipeline.reset();
 }
 #endif
 

@@ -83,27 +83,28 @@ static const char* FS2Way =
 
 URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_1WayPipeline = nullptr;
-static boo::IShaderPipeline* s_2WayPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_1WayPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_2WayPipeline;
 
 struct CFogVolumeFilterD3DDataBindingFactory : TShader<CFogVolumeFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CFogVolumeFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CFogVolumeFilter& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
-        boo::ITexture* texs[] = { CGraphics::g_SpareTexture, CGraphics::g_SpareTexture,
-                                  g_Renderer->GetFogRampTex() };
+        boo::ObjToken<boo::ITexture> texs[] = { CGraphics::g_SpareTexture.get(), CGraphics::g_SpareTexture.get(),
+                                                g_Renderer->GetFogRampTex().get() };
         int bindIdxs[] = {0, 1, 0};
         bool bindDepth[] = {true, true, false};
-        boo::IGraphicsBuffer* ubufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = {filter.m_uniBuf.get()};
 
         filter.m_dataBind1Way = cctx.newShaderDataBinding(s_1WayPipeline, s_VtxFmt,
-            filter.m_vbo, nullptr, nullptr, 1, ubufs,
+            filter.m_vbo.get(), nullptr, nullptr, 1, ubufs,
             nullptr, nullptr, nullptr, 3, texs, bindIdxs, bindDepth);
         filter.m_dataBind2Way = cctx.newShaderDataBinding(s_2WayPipeline, s_VtxFmt,
-            filter.m_vbo, nullptr, nullptr, 1, ubufs,
+            filter.m_vbo.get(), nullptr, nullptr, 1, ubufs,
             nullptr, nullptr, nullptr, 3, texs, bindIdxs, bindDepth);
         return filter.m_dataBind1Way;
     }
@@ -125,6 +126,14 @@ CFogVolumeFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
                                            boo::BlendFactor::One, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CFogVolumeFilterD3DDataBindingFactory;
+}
+
+template <>
+void CFogVolumeFilter::Shutdown<boo::ID3DDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_1WayPipeline.reset();
+    s_2WayPipeline.reset();
 }
 
 }

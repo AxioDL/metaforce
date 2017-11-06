@@ -44,25 +44,25 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CMapSurfaceShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CMapSurfaceShaderGLDataBindingFactory : TShader<CMapSurfaceShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CMapSurfaceShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CMapSurfaceShader& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, filter.m_ibo, boo::VertexSemantic::Position4}
+            {filter.m_vbo.get(), filter.m_ibo.get(), boo::VertexSemantic::Position4}
         };
-        boo::IVertexFormat* vtxFmt = ctx.newVertexFormat(1, VtxVmt);
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IVertexFormat> vtxFmt = ctx.newVertexFormat(1, VtxVmt);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline,
-            vtxFmt, filter.m_vbo, nullptr, filter.m_ibo,
+            vtxFmt, filter.m_vbo.get(), nullptr, filter.m_ibo.get(),
             1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return filter.m_dataBind;
     }
@@ -71,14 +71,15 @@ struct CMapSurfaceShaderGLDataBindingFactory : TShader<CMapSurfaceShader>::IData
 #if BOO_HAS_VULKAN
 struct CMapSurfaceShaderVulkanDataBindingFactory : TShader<CMapSurfaceShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CMapSurfaceShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CMapSurfaceShader& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-            filter.m_vbo, nullptr, filter.m_ibo, 1, bufs,
+            filter.m_vbo.get(), nullptr, filter.m_ibo.get(), 1, bufs,
             nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return filter.m_dataBind;
     }
@@ -96,6 +97,12 @@ CMapSurfaceShader::Initialize(boo::GLDataFactory::Context& ctx)
     return new CMapSurfaceShaderGLDataBindingFactory;
 }
 
+template <>
+void CMapSurfaceShader::Shutdown<boo::GLDataFactory>()
+{
+    s_Pipeline.reset();
+}
+
 #if BOO_HAS_VULKAN
 TShader<CMapSurfaceShader>::IDataBindingFactory*
 CMapSurfaceShader::Initialize(boo::VulkanDataFactory::Context& ctx)
@@ -109,6 +116,13 @@ CMapSurfaceShader::Initialize(boo::VulkanDataFactory::Context& ctx)
         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
         boo::ZTest::LEqual, false, true, false, boo::CullMode::Backface);
     return new CMapSurfaceShaderVulkanDataBindingFactory;
+}
+
+template <>
+void CMapSurfaceShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
 }
 #endif
 

@@ -54,7 +54,7 @@ void CTextRenderBuffer::CommitResources()
     for (BooFontCharacters& chs : m_fontCharacters)
         chs.m_font->GetTexture();
 
-    m_booToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
         auto uBufInfo = m_uniBuf.getBufferInfo();
@@ -64,34 +64,34 @@ void CTextRenderBuffer::CommitResources()
             chs.m_instBuf = CTextSupportShader::s_CharInsts.allocateBlock(CGraphics::g_BooFactory, chs.m_charCount);
             auto iBufInfo = chs.m_instBuf.getBufferInfo();
 
-            boo::IVertexFormat* vFmt = CTextSupportShader::s_TextVtxFmt;
+            boo::ObjToken<boo::IVertexFormat> vFmt = CTextSupportShader::s_TextVtxFmt;
             if (ctx.bindingNeedsVertexFormat())
             {
-                boo::IGraphicsBufferD* buf = iBufInfo.first;
+                boo::ObjToken<boo::IGraphicsBufferD> buf = iBufInfo.first;
                 boo::VertexElementDescriptor elems[] =
                 {
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
-                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
-                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {buf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
+                    {buf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 1},
+                    {buf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
                 };
                 vFmt = ctx.newVertexFormat(11, elems, 0, iBufInfo.second);
             }
 
-            boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
+            boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get()};
             boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
             size_t unioffs[] = {size_t(uBufInfo.second)};
             size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
-            boo::ITexture* texs[] = {chs.m_font->GetTexture()};
+            boo::ObjToken<boo::ITexture> texs[] = {chs.m_font->GetTexture()};
             chs.m_dataBinding = ctx.newShaderDataBinding(CTextSupportShader::SelectTextPipeline(m_drawFlags),
-                                                         vFmt, nullptr, iBufInfo.first, nullptr,
+                                                         vFmt, nullptr, iBufInfo.first.get(), nullptr,
                                                          1, uniforms, unistages, unioffs,
                                                          unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
         }
@@ -101,35 +101,35 @@ void CTextRenderBuffer::CommitResources()
             img.m_instBuf = CTextSupportShader::s_ImgInsts.allocateBlock(CGraphics::g_BooFactory, 1);
             auto iBufInfo = img.m_instBuf.getBufferInfo();
 
-            boo::IVertexFormat* vFmt = CTextSupportShader::s_ImageVtxFmt;
+            boo::ObjToken<boo::IVertexFormat> vFmt = CTextSupportShader::s_ImageVtxFmt;
             if (ctx.bindingNeedsVertexFormat())
             {
-                boo::IGraphicsBufferD* buf = iBufInfo.first;
+                boo::ObjToken<boo::IGraphicsBufferD> buf = iBufInfo.first;
                 boo::VertexElementDescriptor elems[] =
                 {
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {buf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {buf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                    {buf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {buf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {buf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                    {buf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
                 };
                 vFmt = ctx.newVertexFormat(9, elems, 0, iBufInfo.second);
             }
 
-            boo::IGraphicsBuffer* uniforms[] = {uBufInfo.first};
+            boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get()};
             boo::PipelineStage unistages[] = {boo::PipelineStage::Vertex};
             size_t unioffs[] = {size_t(uBufInfo.second)};
             size_t unisizes[] = {sizeof(CTextSupportShader::Uniform)};
             img.m_dataBinding.reserve(img.m_imageDef.x4_texs.size());
             for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)
             {
-                boo::ITexture* texs[] = {tex->GetBooTexture()};
+                boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
                 img.m_dataBinding.push_back(ctx.newShaderDataBinding(CTextSupportShader::SelectImagePipeline(m_drawFlags),
-                                                                     vFmt, nullptr, iBufInfo.first, nullptr,
+                                                                     vFmt, nullptr, iBufInfo.first.get(), nullptr,
                                                                      1, uniforms, unistages, unioffs,
                                                                      unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
             }

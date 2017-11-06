@@ -14,16 +14,15 @@ class CPhazonSuitFilter
     friend struct CPhazonSuitFilterMetalDataBindingFactory;
     friend struct CPhazonSuitFilterD3DDataBindingFactory;
 
-    boo::GraphicsDataToken m_gfxTok;
-    boo::IGraphicsBufferD* m_uniBufBlurX;
-    boo::IGraphicsBufferD* m_uniBufBlurY;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IGraphicsBufferS* m_blurVbo;
-    boo::IGraphicsBufferS* m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurX;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurY;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IGraphicsBufferS> m_blurVbo;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
     const CTexture* m_indTex = nullptr;
-    boo::IShaderDataBinding* m_dataBindBlurX = nullptr;
-    boo::IShaderDataBinding* m_dataBindBlurY = nullptr;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBindBlurX;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBindBlurY;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
 
 public:
     void drawBlurPasses(float radius, const CTexture* indTex);

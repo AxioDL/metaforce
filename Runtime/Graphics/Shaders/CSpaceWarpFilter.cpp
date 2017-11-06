@@ -28,12 +28,12 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
     }
     m_warpTex = ctx.newStaticTexture(WARP_RAMP_RES+1, WARP_RAMP_RES+1, 1,
                                      boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat,
-                                     data[0], (WARP_RAMP_RES+1) * (WARP_RAMP_RES+1) * 4);
+                                     data[0], (WARP_RAMP_RES+1) * (WARP_RAMP_RES+1) * 4).get();
 }
 
 CSpaceWarpFilter::CSpaceWarpFilter()
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         GenerateWarpRampTex(ctx);
         struct Vert
@@ -148,11 +148,9 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     m_uniform.m_strength.y = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
-
-void CSpaceWarpFilter::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CSpaceWarpFilter)
 

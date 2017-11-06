@@ -6,7 +6,7 @@ namespace urde
 
 CThermalColdFilter::CThermalColdFilter()
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_shiftTex = ctx.newDynamicTexture(8, 4, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat);
 
@@ -62,11 +62,9 @@ void CThermalColdFilter::draw()
     m_uniform.m_shiftTexScale[1] = 1.f / m_uniform.m_shiftTexMtx[1][1];
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
-
-void CThermalColdFilter::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CThermalColdFilter)
 

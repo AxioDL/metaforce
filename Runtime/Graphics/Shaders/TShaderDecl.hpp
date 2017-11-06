@@ -8,4 +8,4 @@ static TShader<_CLS>::IDataBindingFactory* Initialize(boo::MetalDataFactory::Con
 #if BOO_HAS_VULKAN
 static TShader<_CLS>::IDataBindingFactory* Initialize(boo::VulkanDataFactory::Context& ctx);
 #endif
-static void Shutdown();
+template <class F> static void Shutdown();

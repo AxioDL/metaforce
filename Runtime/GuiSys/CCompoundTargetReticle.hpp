@@ -152,7 +152,6 @@ private:
 
     struct SScanReticuleRenderer
     {
-        boo::GraphicsDataToken m_token;
         std::experimental::optional<CLineRenderer> m_lineRenderers[2];
         std::experimental::optional<CLineRenderer> m_stripRenderers[2][4];
         SScanReticuleRenderer();

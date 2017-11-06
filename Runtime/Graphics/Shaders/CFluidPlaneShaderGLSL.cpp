@@ -509,7 +509,7 @@ static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTe
     finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
 }
 
-boo::IShaderPipeline*
+boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
     int nextTex = 0;
@@ -524,7 +524,7 @@ CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPla
                                  boo::CullMode::None);
 }
 
-boo::IShaderPipeline*
+boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
 {
     int nextTex = 0;
@@ -539,12 +539,12 @@ CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPla
 }
 
 #if BOO_HAS_VULKAN
-static boo::IVertexFormat* s_vtxFmt = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_vtxFmt;
 
-boo::IShaderPipeline*
+boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
-    if (s_vtxFmt == nullptr)
+    if (!s_vtxFmt)
     {
         boo::VertexElementDescriptor elements[] =
         {
@@ -568,10 +568,10 @@ CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFlui
                                  boo::CullMode::None);
 }
 
-boo::IShaderPipeline*
+boo::ObjToken<boo::IShaderPipeline>
 CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
 {
-    if (s_vtxFmt == nullptr)
+    if (!s_vtxFmt)
     {
         boo::VertexElementDescriptor elements[] =
         {
@@ -595,25 +595,26 @@ CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFlui
 }
 #endif
 
-boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline, bool door)
+boo::ObjToken<boo::IShaderDataBinding>
+CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Context& ctx,
+                                const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)
 {
     boo::VertexElementDescriptor elements[] =
     {
-        {m_vbo, nullptr, boo::VertexSemantic::Position4},
-        {m_vbo, nullptr, boo::VertexSemantic::Normal4, 0},
-        {m_vbo, nullptr, boo::VertexSemantic::Normal4, 1},
-        {m_vbo, nullptr, boo::VertexSemantic::Normal4, 2},
-        {m_vbo, nullptr, boo::VertexSemantic::Color}
+        {m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+        {m_vbo.get(), nullptr, boo::VertexSemantic::Normal4, 0},
+        {m_vbo.get(), nullptr, boo::VertexSemantic::Normal4, 1},
+        {m_vbo.get(), nullptr, boo::VertexSemantic::Normal4, 2},
+        {m_vbo.get(), nullptr, boo::VertexSemantic::Color}
     };
-    boo::IVertexFormat* vtxFmt = ctx.newVertexFormat(5, elements);
-    boo::IGraphicsBuffer* ubufs[] = { m_uniBuf, m_uniBuf, m_uniBuf };
+    boo::ObjToken<boo::IVertexFormat> vtxFmt = ctx.newVertexFormat(5, elements);
+    boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = { m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get() };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
                                         boo::PipelineStage::Fragment };
     size_t ubufOffs[] = {0, 0, 768};
     size_t ubufSizes[] = {768, 768, 256};
     size_t texCount = 0;
-    boo::ITexture* texs[7] = {};
+    boo::ObjToken<boo::ITexture> texs[7];
     if (m_patternTex1)
         texs[texCount++] = (*m_patternTex1)->GetBooTexture();
     if (m_patternTex2)
@@ -628,21 +629,22 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Con
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+    return ctx.newShaderDataBinding(pipeline, vtxFmt, m_vbo.get(), nullptr, nullptr, door ? 1 : 3,
                                     ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 
 #if BOO_HAS_VULKAN
-boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory::Context& ctx,
-                                                         boo::IShaderPipeline* pipeline, bool door)
+boo::ObjToken<boo::IShaderDataBinding>
+CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory::Context& ctx,
+                                const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)
 {
-    boo::IGraphicsBuffer* ubufs[] = { m_uniBuf, m_uniBuf, m_uniBuf };
+    boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = { m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get() };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
                                         boo::PipelineStage::Fragment };
     size_t ubufOffs[] = {0, 0, 768};
     size_t ubufSizes[] = {768, 768, 256};
     size_t texCount = 0;
-    boo::ITexture* texs[7] = {};
+    boo::ObjToken<boo::ITexture> texs[7] = {};
     if (m_patternTex1)
         texs[texCount++] = (*m_patternTex1)->GetBooTexture();
     if (m_patternTex2)
@@ -657,7 +659,7 @@ boo::IShaderDataBinding* CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory:
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo, nullptr, nullptr, door ? 1 : 3,
+    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo.get(), nullptr, nullptr, door ? 1 : 3,
                                     ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 #endif

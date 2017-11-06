@@ -515,7 +515,7 @@ void CGraphics::TickRenderTimings()
 boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDataFactory::Platform::Null;
 boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
 boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
-boo::ITextureR* CGraphics::g_SpareTexture = nullptr;
+boo::ObjToken<boo::ITextureR> CGraphics::g_SpareTexture;
 const boo::SystemChar* CGraphics::g_BooPlatformName = nullptr;
 
 }

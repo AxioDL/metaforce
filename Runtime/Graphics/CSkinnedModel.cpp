@@ -38,7 +38,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
 {
     if (morphEffect || g_PointGenFunc)
     {
-        boo::IGraphicsBufferD* vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr);
+        boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr);
         x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
         if (morphEffect)
             morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);

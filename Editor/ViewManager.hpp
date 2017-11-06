@@ -37,12 +37,10 @@ class ViewManager : public specter::IViewManager
     specter::FontCache m_fontCache;
     specter::DefaultThemeData m_themeData;
     specter::ViewResources m_viewResources;
-    boo::GraphicsDataToken m_iconsToken;
-    boo::GraphicsDataToken m_badgeToken;
     specter::Translator m_translator;
     boo::IGraphicsDataFactory* m_mainBooFactory = nullptr;
     boo::IGraphicsCommandQueue* m_mainCommandQueue = nullptr;
-    boo::ITextureR* m_renderTex = nullptr;
+    boo::ObjToken<boo::ITextureR> m_renderTex;
     const boo::SystemChar* m_mainPlatformName;
 
     std::unique_ptr<specter::RootView> m_rootView;

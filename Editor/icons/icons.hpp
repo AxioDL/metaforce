@@ -6,7 +6,8 @@
 
 namespace urde
 {
-boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes);
+void InitializeIcons(specter::ViewResources& viewRes);
+void DestroyIcons();
 
 enum class SpaceIcon
 {

@@ -11,7 +11,7 @@ static logvisor::Module Log("URDE::icons");
 
 specter::IconAtlas<8,8> g_IconAtlas;
 
-boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes)
+void InitializeIcons(specter::ViewResources& viewRes)
 {
     athena::io::MemoryReader r(URDE_ICONS, URDE_ICONS_SZ);
     size_t fmt = r.readUint32Big();
@@ -28,7 +28,7 @@ boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes)
     if (uncompress(texels.get(), &destSz, URDE_ICONS + pos, URDE_ICONS_SZ - pos) != Z_OK)
         Log.report(logvisor::Fatal, "unable to decompress icons");
 
-    return viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         g_IconAtlas.initializeAtlas(ctx.newStaticTexture(width, height, mips,
                                                          boo::TextureFormat::RGBA8,
@@ -36,6 +36,11 @@ boo::GraphicsDataToken InitializeIcons(specter::ViewResources& viewRes)
                                                          texels.get(), destSz));
         return true;
     });
+}
+
+void DestroyIcons()
+{
+    g_IconAtlas.destroyAtlas();
 }
 
 specter::Icon& GetIcon(SpaceIcon icon)

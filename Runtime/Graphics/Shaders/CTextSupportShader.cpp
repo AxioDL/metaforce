@@ -4,13 +4,13 @@
 namespace urde
 {
 
-boo::IVertexFormat* CTextSupportShader::s_TextVtxFmt = nullptr;
-boo::IShaderPipeline* CTextSupportShader::s_TextAlphaPipeline = nullptr;
-boo::IShaderPipeline* CTextSupportShader::s_TextAddPipeline = nullptr;
+boo::ObjToken<boo::IVertexFormat> CTextSupportShader::s_TextVtxFmt;
+boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAlphaPipeline;
+boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAddPipeline;
 
-boo::IVertexFormat* CTextSupportShader::s_ImageVtxFmt = nullptr;
-boo::IShaderPipeline* CTextSupportShader::s_ImageAlphaPipeline = nullptr;
-boo::IShaderPipeline* CTextSupportShader::s_ImageAddPipeline = nullptr;
+boo::ObjToken<boo::IVertexFormat> CTextSupportShader::s_ImageVtxFmt;
+boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAlphaPipeline;
+boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAddPipeline;
 
 hecl::VertexBufferPool<CTextSupportShader::CharacterInstance> CTextSupportShader::s_CharInsts;
 hecl::VertexBufferPool<CTextSupportShader::ImageInstance> CTextSupportShader::s_ImgInsts;
@@ -61,6 +61,13 @@ void CTextSupportShader::ImageInstance::SetMetrics(const CFontImageDef& imgDef,
 
 void CTextSupportShader::Shutdown()
 {
+    s_TextVtxFmt.reset();
+    s_TextAlphaPipeline.reset();
+    s_TextAddPipeline.reset();
+    s_ImageVtxFmt.reset();
+    s_ImageAlphaPipeline.reset();
+    s_ImageAddPipeline.reset();
+
     s_CharInsts.doDestroy();
     s_ImgInsts.doDestroy();
     s_Uniforms.doDestroy();

@@ -242,7 +242,7 @@ CGameArchitectureSupport::~CGameArchitectureSupport()
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore,
              boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ,
-             boo::ITextureR* spareTex)
+             const boo::ObjToken<boo::ITextureR>& spareTex)
 : m_booSetter(gfxFactory, cmdQ, spareTex),
   x128_globalObjects(resFactory, resStore)
 {
@@ -252,7 +252,7 @@ CMain::CMain(IFactory* resFactory, CSimplePool* resStore,
 
 CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
                             boo::IGraphicsCommandQueue* cmdQ,
-                            boo::ITextureR* spareTex)
+                            const boo::ObjToken<boo::ITextureR>& spareTex)
 {
     CGraphics::InitializeBoo(factory, cmdQ, spareTex);
     TShader<CParticleSwooshShaders>::Initialize();
@@ -437,7 +437,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     //CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
 }
 
-static logvisor::Module WarmupLog("Shader Warmup");
+static logvisor::Module WarmupLog("ShaderWarmup");
 
 void CMain::WarmupShaders()
 {
@@ -511,7 +511,9 @@ void CMain::Draw()
         auto startTime = std::chrono::steady_clock::now();
         while (m_warmupIt != m_warmupTags.end())
         {
-            WarmupLog.report(logvisor::Info, "Warming %.4s %08X", m_warmupIt->type.getChars(), m_warmupIt->id.Value());
+            WarmupLog.report(logvisor::Info, "[%d / %d] Warming %.4s %08X",
+                             int(m_warmupIt - m_warmupTags.begin() + 1), int(m_warmupTags.size()),
+                             m_warmupIt->type.getChars(), m_warmupIt->id.Value());
 
             if (m_warmupIt->type == FOURCC('CMDL'))
                 CModel::WarmupShaders(*m_warmupIt);

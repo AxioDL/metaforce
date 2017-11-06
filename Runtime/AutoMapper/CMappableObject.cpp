@@ -278,9 +278,8 @@ bool CMappableObject::IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& 
     }
 }
 
-boo::GraphicsDataToken CMappableObject::g_gfxToken = {};
-boo::IGraphicsBufferS* CMappableObject::g_doorVbo;
-boo::IGraphicsBufferS* CMappableObject::g_doorIbo;
+boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorVbo;
+boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
 
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks)
 {
@@ -296,7 +295,7 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks)
     doorVerts[6].assign(.2f * -center.z,  center.y, 0.f);
     doorVerts[7].assign(.2f * -center.z,  center.y, 2.f * center.x);
 
-    g_gfxToken = CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx)
     {
         g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts, 16, 8);
         g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices, 4, 24);
@@ -306,6 +305,7 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks)
 
 void CMappableObject::Shutdown()
 {
-    g_gfxToken.doDestroy();
+    g_doorVbo.reset();
+    g_doorIbo.reset();
 }
 }

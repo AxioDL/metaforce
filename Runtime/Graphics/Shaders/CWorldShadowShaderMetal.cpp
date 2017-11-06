@@ -47,23 +47,23 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CWorldShadowShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
-static boo::IShaderPipeline* s_ZPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_ZPipeline;
 
 struct CWorldShadowShaderMetalDataBindingFactory : TShader<CWorldShadowShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CWorldShadowShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CWorldShadowShader& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                                      filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                                      filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                                       nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         filter.m_zDataBind = cctx.newShaderDataBinding(s_ZPipeline, s_VtxFmt,
-                                                       filter.m_vbo, nullptr, nullptr, 1, bufs,
+                                                       filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                                        nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return nullptr;
     }
@@ -77,13 +77,23 @@ CWorldShadowShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Position4}
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                       s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_ZPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+    s_ZPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
+                                        s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                         boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     return new CWorldShadowShaderMetalDataBindingFactory;
+}
+
+template <>
+void CWorldShadowShader::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
+    s_ZPipeline.reset();
 }
 
 }

@@ -20,13 +20,13 @@ class CTextSupportShader
     friend struct CTextSupportShaderD3DDataBindingFactory;
     friend class CTextRenderBuffer;
 
-    static boo::IVertexFormat* s_TextVtxFmt;
-    static boo::IShaderPipeline* s_TextAlphaPipeline;
-    static boo::IShaderPipeline* s_TextAddPipeline;
+    static boo::ObjToken<boo::IVertexFormat> s_TextVtxFmt;
+    static boo::ObjToken<boo::IShaderPipeline> s_TextAlphaPipeline;
+    static boo::ObjToken<boo::IShaderPipeline> s_TextAddPipeline;
 
-    static boo::IVertexFormat* s_ImageVtxFmt;
-    static boo::IShaderPipeline* s_ImageAlphaPipeline;
-    static boo::IShaderPipeline* s_ImageAddPipeline;
+    static boo::ObjToken<boo::IVertexFormat> s_ImageVtxFmt;
+    static boo::ObjToken<boo::IShaderPipeline> s_ImageAlphaPipeline;
+    static boo::ObjToken<boo::IShaderPipeline> s_ImageAddPipeline;
 
     struct Uniform
     {
@@ -60,7 +60,7 @@ public:
     using _CLS = CTextSupportShader;
 #include "TMultiBlendShaderDecl.hpp"
 
-    static boo::IShaderPipeline* SelectTextPipeline(CGuiWidget::EGuiModelDrawFlags df)
+    static boo::ObjToken<boo::IShaderPipeline> SelectTextPipeline(CGuiWidget::EGuiModelDrawFlags df)
     {
         switch (df)
         {
@@ -72,11 +72,11 @@ public:
         case CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw:
             return s_TextAddPipeline;
         default:
-            return nullptr;
+            return {};
         }
     }
 
-    static boo::IShaderPipeline* SelectImagePipeline(CGuiWidget::EGuiModelDrawFlags df)
+    static boo::ObjToken<boo::IShaderPipeline> SelectImagePipeline(CGuiWidget::EGuiModelDrawFlags df)
     {
         switch (df)
         {
@@ -88,7 +88,7 @@ public:
         case CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw:
             return s_ImageAddPipeline;
         default:
-            return nullptr;
+            return {};
         }
     }
 
@@ -98,6 +98,8 @@ public:
         s_ImgInsts.updateBuffers();
         s_Uniforms.updateBuffers();
     }
+
+    static void Shutdown();
 };
 
 }

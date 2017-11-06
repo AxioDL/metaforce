@@ -5,7 +5,7 @@ namespace urde
 
 CFogVolumeFilter::CFogVolumeFilter()
 {
-    m_token = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         struct Vert
         {
@@ -38,8 +38,6 @@ void CFogVolumeFilter::draw1WayPass(const zeus::CColor& color)
     CGraphics::SetShaderDataBinding(m_dataBind1Way);
     CGraphics::DrawArray(0, 4);
 }
-
-void CFogVolumeFilter::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CFogVolumeFilter)
 

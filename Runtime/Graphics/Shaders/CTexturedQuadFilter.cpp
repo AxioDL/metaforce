@@ -4,15 +4,15 @@
 namespace urde
 {
 
-CTexturedQuadFilter::CTexturedQuadFilter(boo::ITexture* tex)
+CTexturedQuadFilter::CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex)
 : m_booTex(tex)
 {
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, boo::ITexture* tex, bool gequal)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, bool gequal)
 : m_booTex(tex), m_gequal(gequal)
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 16);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -138,14 +138,12 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
 
 const zeus::CRectangle CTexturedQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
 
-void CTexturedQuadFilter::Shutdown() {}
-
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 
-CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, boo::ITexture* tex)
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex)
 : CTexturedQuadFilter(tex)
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -160,8 +158,6 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type,
 {
     m_tex = tex;
 }
-
-void CTexturedQuadFilterAlpha::Shutdown() {}
 
 URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
 

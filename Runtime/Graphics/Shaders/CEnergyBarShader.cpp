@@ -21,7 +21,7 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
     {
         m_maxVerts = totalVerts;
         m_tex = tex;
-        m_token = CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), m_maxVerts);
             for (int i=0 ; i<3 ; ++i)
@@ -76,7 +76,5 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
 }
 
 URDE_SPECIALIZE_SHADER(CEnergyBarShader)
-
-void CEnergyBarShader::Shutdown() {}
 
 }

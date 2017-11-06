@@ -4,8 +4,8 @@ namespace urde
 {
 
 CMapSurfaceShader::CMapSurfaceShader(boo::IGraphicsDataFactory::Context& ctx,
-                                     boo::IGraphicsBufferS* vbo,
-                                     boo::IGraphicsBufferS* ibo)
+                                     const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
+                                     const boo::ObjToken<boo::IGraphicsBufferS>& ibo)
 : m_vbo(vbo), m_ibo(ibo)
 {
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -23,7 +23,5 @@ void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count)
 }
 
 URDE_SPECIALIZE_SHADER(CMapSurfaceShader)
-
-void CMapSurfaceShader::Shutdown() {}
 
 }

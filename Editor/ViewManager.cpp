@@ -204,8 +204,8 @@ void ViewManager::init(boo::IApplication* app)
     m_mainWindow->setTitle(_S("URDE [") + hecl::SystemString(m_mainPlatformName) + _S("]"));
     m_mainCommandQueue = m_mainWindow->getCommandQueue();
     m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
-    m_iconsToken = InitializeIcons(m_viewResources);
-    m_badgeToken = InitializeBadging(m_viewResources);
+    InitializeIcons(m_viewResources);
+    InitializeBadging(m_viewResources);
     m_viewResources.prepFontCacheAsync(m_mainWindow.get());
     specter::RootView* root = SetupRootView();
     m_showSplash = true;
@@ -292,7 +292,8 @@ void ViewManager::stop()
     m_videoVoice.reset();
     m_projManager.shutdown();
     CDvdFile::Shutdown();
-    m_iconsToken.doDestroy();
+    DestroyIcons();
+    DestroyBadging();
     m_viewResources.destroyResData();
     m_fontCache.destroyAtlases();
     m_mainWindow->getCommandQueue()->stopRenderer();

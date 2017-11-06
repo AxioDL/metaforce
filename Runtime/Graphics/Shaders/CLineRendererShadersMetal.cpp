@@ -103,14 +103,18 @@ static const char* FS_METAL_NOTEX =
 
 struct MetalLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                CLineRenderer& renderer,
+                                const boo::ObjToken<boo::IShaderPipeline>& pipeline,
+                                const boo::ObjToken<boo::ITexture>& texture)
     {
         int texCount = 0;
-        boo::ITexture* textures[1];
+        boo::ObjToken<boo::ITexture> textures[1];
 
-        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
-        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+            hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+            hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
             renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
@@ -123,12 +127,12 @@ struct MetalLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
             vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         size_t ubufOffs[] = {ubufInfo.second};
         size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first,
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first.get(),
                                                          nullptr, nullptr, 1, uniforms, stages,
                                                          ubufOffs, ubufSizes, texCount, textures,
                                                          nullptr, nullptr, vbufInfo.second);
@@ -152,19 +156,19 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     };
     m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
-    m_texAlpha = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
+    m_texAlpha = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
                                        CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
-    m_texAdditive = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, m_texVtxFmt,
+    m_texAdditive = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
                                           CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                           boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
-    m_noTexAlpha = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
                                          CGraphics::g_ViewportSamples,
                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                          boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
-    m_noTexAdditive = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, m_noTexVtxFmt,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
                                             CGraphics::g_ViewportSamples,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                             boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);

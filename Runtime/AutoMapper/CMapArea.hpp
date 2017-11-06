@@ -29,8 +29,12 @@ public:
         {
             CMapSurfaceShader m_surfacePrims;
             std::vector<CLineRenderer> m_linePrims;
-            Instance(boo::IGraphicsDataFactory::Context& ctx, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo)
+            Instance(boo::IGraphicsDataFactory::Context& ctx,
+                     const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
+                     const boo::ObjToken<boo::IGraphicsBufferS>& ibo)
             : m_surfacePrims(ctx, vbo, ibo) {}
+            Instance(Instance&&) = default;
+            Instance& operator=(Instance&&) = default;
         };
         std::vector<Instance> m_instances;
     public:
@@ -67,9 +71,8 @@ private:
     u8* x40_surfaceStart;
     std::vector<CMapAreaSurface> m_surfaces;
     std::unique_ptr<u8[]> x44_buf;
-    boo::GraphicsDataToken m_gfxToken;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferS* m_ibo;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
     CMapArea(CInputStream& in, u32 size);

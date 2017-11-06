@@ -22,10 +22,9 @@ class CColoredQuadFilter
         zeus::CMatrix4f m_matrix;
         zeus::CColor m_color;
     };
-    boo::GraphicsDataToken m_token;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
 
 public:

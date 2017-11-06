@@ -83,13 +83,13 @@ private:
 
     struct CTHPTextureSet
     {
-        boo::ITextureD* Y[2] = {};
-        boo::ITextureD* U = nullptr;
-        boo::ITextureD* V = nullptr;
+        boo::ObjToken<boo::ITextureD> Y[2];
+        boo::ObjToken<boo::ITextureD> U;
+        boo::ObjToken<boo::ITextureD> V;
         u32 playedSamples = 0;
         u32 audioSamples = 0;
         std::unique_ptr<s16[]> audioBuf;
-        boo::IShaderDataBinding* binding[2] = {};
+        boo::ObjToken<boo::IShaderDataBinding> binding[2];
     };
     std::vector<CTHPTextureSet> x80_textures;
     std::unique_ptr<uint8_t[]> x90_requestBuf;
@@ -116,7 +116,6 @@ private:
     u32 xf8_ = 0;
     u32 xfc_fieldIndex = 0;
 
-    boo::GraphicsDataToken m_token;
     std::unique_ptr<uint8_t[]> m_yuvBuf;
 
     union
@@ -130,8 +129,8 @@ private:
     };
 
     specter::View::ViewBlock m_viewVertBlock;
-    boo::IGraphicsBufferD* m_blockBuf;
-    boo::IGraphicsBufferD* m_vertBuf;
+    boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
+    boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
 
     specter::View::TexShaderVert m_frame[4];
 

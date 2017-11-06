@@ -5,7 +5,7 @@ namespace urde
 
 CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         struct Vert
         {
@@ -87,8 +87,6 @@ void CWideScreenFilter::SetViewportToFull()
     CGraphics::g_CroppedViewport = rect;
     CGraphics::g_BooMainCommandQueue->setViewport(rect);
 }
-
-void CColoredQuadFilter::Shutdown() {}
 
 const zeus::CRectangle CColoredQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
 

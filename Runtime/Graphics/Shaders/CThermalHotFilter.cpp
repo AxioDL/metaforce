@@ -6,7 +6,7 @@ namespace urde
 
 CThermalHotFilter::CThermalHotFilter()
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         struct Vert
         {
@@ -32,11 +32,9 @@ void CThermalHotFilter::draw()
 
     //m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 4);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 4);
 }
-
-void CThermalHotFilter::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CThermalHotFilter)
 

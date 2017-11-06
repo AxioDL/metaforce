@@ -33,21 +33,21 @@ public:
     };
 
 private:
-    static boo::IShaderPipeline* m_texZWrite;
-    static boo::IShaderPipeline* m_texNoZWrite;
-    static boo::IShaderPipeline* m_texAdditiveZWrite;
-    static boo::IShaderPipeline* m_texAdditiveNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveNoZWrite;
 
-    static boo::IShaderPipeline* m_noTexZWrite;
-    static boo::IShaderPipeline* m_noTexNoZWrite;
-    static boo::IShaderPipeline* m_noTexAdditiveZWrite;
-    static boo::IShaderPipeline* m_noTexAdditiveNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexNoZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZWrite;
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveNoZWrite;
 
-    static boo::IVertexFormat* m_vtxFormat; /* No OpenGL */
+    static boo::ObjToken<boo::IVertexFormat> m_vtxFormat; /* No OpenGL */
 
     CParticleSwoosh& m_gen;
-    boo::IShaderPipeline* m_pipeline;
-    CParticleSwooshShaders(CParticleSwoosh& gen, boo::IShaderPipeline* pipeline)
+    boo::ObjToken<boo::IShaderPipeline> m_pipeline;
+    CParticleSwooshShaders(CParticleSwoosh& gen, const boo::ObjToken<boo::IShaderPipeline>& pipeline)
     : m_gen(gen), m_pipeline(pipeline) {}
 
 public:

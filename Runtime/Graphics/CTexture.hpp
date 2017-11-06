@@ -31,9 +31,8 @@ private:
     u16 x4_w;
     u16 x6_h;
     u32 x8_mips;
-    boo::GraphicsDataToken m_booToken;
-    boo::ITexture* m_booTex;
-    boo::ITexture* m_paletteTex;
+    boo::ObjToken<boo::ITexture> m_booTex;
+    boo::ObjToken<boo::ITexture> m_paletteTex;
     std::unique_ptr<u8[]> m_otex;
     EFontType m_ftype = EFontType::None;
 
@@ -69,11 +68,11 @@ public:
     u16 GetHeight() const {return x6_h;}
     u32 GetNumMips() const {return x8_mips;}
     void Load(int slot, EClampMode clamp) const;
-    boo::ITexture* GetBooTexture() const {return m_booTex;}
-    boo::ITexture* GetPaletteTexture() const {return m_paletteTex;}
+    const boo::ObjToken<boo::ITexture>& GetBooTexture() const {return m_booTex;}
+    const boo::ObjToken<boo::ITexture>& GetPaletteTexture() const {return m_paletteTex;}
     std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
                                              std::unique_ptr<u8[]>& paletteOut) const;
-    boo::ITexture* GetFontTexture(EFontType tp);
+    const boo::ObjToken<boo::ITexture>& GetFontTexture(EFontType tp);
 };
 
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,

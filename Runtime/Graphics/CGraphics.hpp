@@ -300,11 +300,11 @@ public:
     static const boo::SystemChar* g_BooPlatformName;
     static boo::IGraphicsDataFactory* g_BooFactory;
     static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
-    static boo::ITextureR* g_SpareTexture;
+    static boo::ObjToken<boo::ITextureR> g_SpareTexture;
 
     static void InitializeBoo(boo::IGraphicsDataFactory* factory,
                               boo::IGraphicsCommandQueue* cc,
-                              boo::ITextureR* spareTex)
+                              const boo::ObjToken<boo::ITextureR>& spareTex)
     {
         g_BooPlatform = factory->platform();
         g_BooPlatformName = factory->platformName();
@@ -313,16 +313,16 @@ public:
         g_SpareTexture = spareTex;
     }
 
-    const boo::SystemChar* PlatformName()
+    static const boo::SystemChar* PlatformName()
     {
         return g_BooPlatformName;
     }
 
-    static boo::GraphicsDataToken CommitResources(const boo::FactoryCommitFunc& commitFunc)
+    static void CommitResources(const boo::FactoryCommitFunc& commitFunc)
     {
-        return g_BooFactory->commitTransaction(commitFunc);
+        g_BooFactory->commitTransaction(commitFunc);
     }
-    static void SetShaderDataBinding(boo::IShaderDataBinding* binding)
+    static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding)
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);
     }

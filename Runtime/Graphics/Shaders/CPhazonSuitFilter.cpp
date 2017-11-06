@@ -8,8 +8,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex)
     if (!m_dataBind || indTex != m_indTex)
     {
         m_indTex = indTex;
-        m_gfxTok = CGraphics::CommitResources(
-        [this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_uniBufBlurX = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);
             m_uniBufBlurY = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);
@@ -88,8 +87,6 @@ void CPhazonSuitFilter::draw(const zeus::CColor& color,
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 4);
 }
-
-void CPhazonSuitFilter::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CPhazonSuitFilter)
 

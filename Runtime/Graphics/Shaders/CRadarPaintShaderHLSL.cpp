@@ -51,20 +51,21 @@ static const char* FS =
 
 URDE_DECL_SPECIALIZE_SHADER(CRadarPaintShader)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
 struct CRadarPaintShaderD3DDataBindingFactory : TShader<CRadarPaintShader>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CRadarPaintShader& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CRadarPaintShader& filter)
     {
         boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBuf};
-        boo::ITexture* texs[] = {filter.m_tex->GetBooTexture()};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
+        boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
         return cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
-                                         nullptr, filter.m_vbo, nullptr, 1, bufs,
+                                         nullptr, filter.m_vbo.get(), nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
 };
@@ -92,4 +93,10 @@ CRadarPaintShader::Initialize(boo::ID3DDataFactory::Context& ctx)
     return new CRadarPaintShaderD3DDataBindingFactory;
 }
 
+template <>
+void CRadarPaintShader::Shutdown<boo::ID3DDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_Pipeline.reset();
+}
 }

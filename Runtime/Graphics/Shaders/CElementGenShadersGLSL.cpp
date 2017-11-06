@@ -192,18 +192,18 @@ BOO_GLSL_BINDING_HEAD
 
 struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CElementGenShaders& shaders)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CElementGenShaders& shaders)
     {
         CElementGen& gen = shaders.m_gen;
         CGenDescription* desc = gen.GetDesc();
 
-        boo::IVertexFormat* vtxFmt = nullptr;
-        boo::IVertexFormat* vtxFmtPmus = nullptr;
+        boo::ObjToken<boo::IVertexFormat> vtxFmt;
+        boo::ObjToken<boo::IVertexFormat> vtxFmtPmus;
         CUVElement* texr = desc->x54_x40_TEXR.get();
         CUVElement* tind = desc->x58_x44_TIND.get();
         int texCount = 0;
-        boo::ITexture* textures[3];
+        boo::ObjToken<boo::ITexture> textures[3];
 
         if (texr)
         {
@@ -213,22 +213,22 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
             {
                 if (tind)
                 {
-                    textures[1] = CGraphics::g_SpareTexture;
+                    textures[1] = CGraphics::g_SpareTexture.get();
                     textures[2] = tind->GetValueTexture(0).GetObj()->GetBooTexture();
                     texCount = 3;
 
                     const boo::VertexElementDescriptor TexFmtIndTex[] =
                     {
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 4},
                     };
                     vtxFmt = ctx.newVertexFormat(10, TexFmtIndTex);
                 }
@@ -236,15 +236,15 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
                 {
                     const boo::VertexElementDescriptor TexFmtTex[] =
                     {
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                        {gen.m_instBuf, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                        {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
                     };
                     vtxFmt = ctx.newVertexFormat(9, TexFmtTex);
                 }
@@ -253,15 +253,15 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
             {
                 const boo::VertexElementDescriptor TexFmtTex[] =
                 {
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::UV4 | boo::VertexSemantic::Instanced, 3}
                 };
                 vtxFmtPmus = ctx.newVertexFormat(9, TexFmtTex);
             }
@@ -272,11 +272,11 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
             {
                 const boo::VertexElementDescriptor TexFmtNoTex[] =
                 {
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {gen.m_instBuf, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                    {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {gen.m_instBuf.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
                 };
                 vtxFmt = ctx.newVertexFormat(5, TexFmtNoTex);
             }
@@ -284,11 +284,11 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
             {
                 const boo::VertexElementDescriptor TexFmtNoTex[] =
                 {
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
-                    {gen.m_instBufPmus, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 0},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 1},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 2},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Position4 | boo::VertexSemantic::Instanced, 3},
+                    {gen.m_instBufPmus.get(), nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced}
                 };
                 vtxFmtPmus = ctx.newVertexFormat(5, TexFmtNoTex);
             }
@@ -296,38 +296,38 @@ struct OGLElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
 
         if (gen.m_instBuf)
         {
-            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
+            boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBuf.get()};
 
             if (shaders.m_regPipeline)
                 gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, vtxFmt, nullptr,
-                                                                gen.m_instBuf, nullptr, 1, uniforms,
+                                                                gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_regPipelineSub)
                 gen.m_normalSubDataBind = ctx.newShaderDataBinding(shaders.m_regPipelineSub, vtxFmt, nullptr,
-                                                                   gen.m_instBuf, nullptr, 1, uniforms,
+                                                                   gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                    nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipeline)
                 gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, vtxFmt, nullptr,
-                                                                    gen.m_instBuf, nullptr, 1, uniforms,
+                                                                    gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipelineSub)
                 gen.m_redToAlphaSubDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipelineSub, vtxFmt, nullptr,
-                                                                       gen.m_instBuf, nullptr, 1, uniforms,
+                                                                       gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                        nullptr, texCount, textures, nullptr, nullptr);
         }
 
         if (gen.m_instBufPmus)
         {
-            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBufPmus};
+            boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBufPmus.get()};
             texCount = std::min(texCount, 1);
 
             if (shaders.m_regPipelinePmus)
                 gen.m_normalDataBindPmus = ctx.newShaderDataBinding(shaders.m_regPipelinePmus, vtxFmtPmus, nullptr,
-                                                                    gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                    gen.m_instBufPmus.get(), nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipelinePmus)
                 gen.m_redToAlphaDataBindPmus = ctx.newShaderDataBinding(shaders.m_redToAlphaPipelinePmus, vtxFmtPmus, nullptr,
-                                                                        gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                        gen.m_instBufPmus.get(), nullptr, 1, uniforms,
                                                                         nullptr, texCount, textures, nullptr, nullptr);
         }
 
@@ -449,11 +449,44 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
     return new struct OGLElementDataBindingFactory;
 }
 
+template <>
+void CElementGenShaders::Shutdown<boo::GLDataFactory>()
+{
+    m_texZTestZWrite.reset();
+    m_texNoZTestZWrite.reset();
+    m_texZTestNoZWrite.reset();
+    m_texNoZTestNoZWrite.reset();
+    m_texAdditiveZTest.reset();
+    m_texAdditiveNoZTest.reset();
+    m_texRedToAlphaZTest.reset();
+    m_texRedToAlphaNoZTest.reset();
+    m_texZTestNoZWriteSub.reset();
+    m_texNoZTestNoZWriteSub.reset();
+    m_texRedToAlphaZTestSub.reset();
+    m_texRedToAlphaNoZTestSub.reset();
+
+    m_indTexZWrite.reset();
+    m_indTexNoZWrite.reset();
+    m_indTexAdditive.reset();
+
+    m_cindTexZWrite.reset();
+    m_cindTexNoZWrite.reset();
+    m_cindTexAdditive.reset();
+
+    m_noTexZTestZWrite.reset();
+    m_noTexNoZTestZWrite.reset();
+    m_noTexZTestNoZWrite.reset();
+    m_noTexNoZTestNoZWrite.reset();
+    m_noTexAdditiveZTest.reset();
+    m_noTexAdditiveNoZTest.reset();
+}
+
 #if BOO_HAS_VULKAN
 struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CElementGenShaders& shaders)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CElementGenShaders& shaders)
     {
         CElementGen& gen = shaders.m_gen;
         CGenDescription* desc = gen.GetDesc();
@@ -461,7 +494,7 @@ struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindi
         CUVElement* texr = desc->x54_x40_TEXR.get();
         CUVElement* tind = desc->x58_x44_TIND.get();
         int texCount = 0;
-        boo::ITexture* textures[3];
+        boo::ObjToken<boo::ITexture> textures[3];
 
         if (texr)
         {
@@ -469,7 +502,7 @@ struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindi
             texCount = 1;
             if (tind)
             {
-                textures[1] = CGraphics::g_SpareTexture;
+                textures[1] = CGraphics::g_SpareTexture.get();
                 textures[2] = tind->GetValueTexture(0).GetObj()->GetBooTexture();
                 texCount = 3;
             }
@@ -477,39 +510,39 @@ struct VulkanElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindi
 
         if (gen.m_instBuf)
         {
-            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBuf};
+            boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBuf.get()};
 
             if (shaders.m_regPipeline)
                 gen.m_normalDataBind = ctx.newShaderDataBinding(shaders.m_regPipeline, nullptr, nullptr,
-                                                                gen.m_instBuf, nullptr, 1, uniforms,
+                                                                gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                 nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_regPipelineSub)
                 gen.m_normalSubDataBind = ctx.newShaderDataBinding(shaders.m_regPipelineSub, nullptr, nullptr,
-                                                                   gen.m_instBuf, nullptr, 1, uniforms,
+                                                                   gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                    nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipeline)
                 gen.m_redToAlphaDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipeline, nullptr, nullptr,
-                                                                    gen.m_instBuf, nullptr, 1, uniforms,
+                                                                    gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipelineSub)
                 gen.m_redToAlphaSubDataBind = ctx.newShaderDataBinding(shaders.m_redToAlphaPipelineSub, nullptr, nullptr,
-                                                                       gen.m_instBuf, nullptr, 1, uniforms,
+                                                                       gen.m_instBuf.get(), nullptr, 1, uniforms,
                                                                        nullptr, texCount, textures, nullptr, nullptr);
 
         }
 
         if (gen.m_instBufPmus)
         {
-            boo::IGraphicsBuffer* uniforms[] = {gen.m_uniformBufPmus};
+            boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBufPmus.get()};
             texCount = std::min(texCount, 1);
 
             if (shaders.m_regPipelinePmus)
                 gen.m_normalDataBindPmus = ctx.newShaderDataBinding(shaders.m_regPipelinePmus, nullptr, nullptr,
-                                                                    gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                    gen.m_instBufPmus.get(), nullptr, 1, uniforms,
                                                                     nullptr, texCount, textures, nullptr, nullptr);
             if (shaders.m_redToAlphaPipelinePmus)
                 gen.m_redToAlphaDataBindPmus = ctx.newShaderDataBinding(shaders.m_redToAlphaPipelinePmus, nullptr, nullptr,
-                                                                        gen.m_instBufPmus, nullptr, 1, uniforms,
+                                                                        gen.m_instBufPmus.get(), nullptr, 1, uniforms,
                                                                         nullptr, texCount, textures, nullptr, nullptr);
         }
 
@@ -667,6 +700,42 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
                                                    true, false, boo::CullMode::None);
 
     return new struct VulkanElementDataBindingFactory;
+}
+
+template <>
+void CElementGenShaders::Shutdown<boo::VulkanDataFactory>()
+{
+    m_vtxFormatTex.reset();
+    m_vtxFormatIndTex.reset();
+    m_vtxFormatNoTex.reset();
+
+    m_texZTestZWrite.reset();
+    m_texNoZTestZWrite.reset();
+    m_texZTestNoZWrite.reset();
+    m_texNoZTestNoZWrite.reset();
+    m_texAdditiveZTest.reset();
+    m_texAdditiveNoZTest.reset();
+    m_texRedToAlphaZTest.reset();
+    m_texRedToAlphaNoZTest.reset();
+    m_texZTestNoZWriteSub.reset();
+    m_texNoZTestNoZWriteSub.reset();
+    m_texRedToAlphaZTestSub.reset();
+    m_texRedToAlphaNoZTestSub.reset();
+
+    m_indTexZWrite.reset();
+    m_indTexNoZWrite.reset();
+    m_indTexAdditive.reset();
+
+    m_cindTexZWrite.reset();
+    m_cindTexNoZWrite.reset();
+    m_cindTexAdditive.reset();
+
+    m_noTexZTestZWrite.reset();
+    m_noTexNoZTestZWrite.reset();
+    m_noTexZTestNoZWrite.reset();
+    m_noTexNoZTestNoZWrite.reset();
+    m_noTexAdditiveZTest.reset();
+    m_noTexAdditiveNoZTest.reset();
 }
 #endif
 

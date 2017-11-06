@@ -69,7 +69,7 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
         {
             int maxVerts = x1b4_LENG * (x1b0_SPLN+1) * x1b8_SIDE * 4;
             m_cachedVerts.reserve(maxVerts);
-            m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+            CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
             {
                 m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(CParticleSwooshShaders::Vert), maxVerts);
                 m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);

@@ -127,6 +127,15 @@ CTextSupportShader::Initialize(boo::GLDataFactory::Context& ctx)
     return nullptr;
 }
 
+template <>
+void CTextSupportShader::Shutdown<boo::GLDataFactory>()
+{
+    s_TextAlphaPipeline.reset();
+    s_TextAddPipeline.reset();
+    s_ImageAlphaPipeline.reset();
+    s_ImageAddPipeline.reset();
+}
+
 #if BOO_HAS_VULKAN
 TMultiBlendShader<CTextSupportShader>::IDataBindingFactory*
 CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
@@ -174,6 +183,17 @@ CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     return nullptr;
+}
+
+template <>
+void CTextSupportShader::Shutdown<boo::VulkanDataFactory>()
+{
+    s_TextVtxFmt.reset();
+    s_TextAlphaPipeline.reset();
+    s_TextAddPipeline.reset();
+    s_ImageVtxFmt.reset();
+    s_ImageAlphaPipeline.reset();
+    s_ImageAddPipeline.reset();
 }
 #endif
 

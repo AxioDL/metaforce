@@ -88,15 +88,19 @@ BOO_GLSL_BINDING_HEAD
 
 struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
-    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+    void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                CLineRenderer& renderer,
+                                const boo::ObjToken<boo::IShaderPipeline>& pipeline,
+                                const boo::ObjToken<boo::ITexture>& texture)
     {
-        boo::IVertexFormat* vtxFmt = nullptr;
+        boo::ObjToken<boo::IVertexFormat> vtxFmt;
         int texCount = 0;
-        boo::ITexture* textures[1];
+        boo::ObjToken<boo::ITexture> textures[1];
 
-        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
-        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+            hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+            hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
             renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
@@ -105,9 +109,9 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
             texCount = 1;
             const boo::VertexElementDescriptor TexFmtTex[] =
             {
-                {vbufInfo.first, nullptr, boo::VertexSemantic::Position4},
-                {vbufInfo.first, nullptr, boo::VertexSemantic::Color},
-                {vbufInfo.first, nullptr, boo::VertexSemantic::UV4}
+                {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Position4},
+                {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Color},
+                {vbufInfo.first.get(), nullptr, boo::VertexSemantic::UV4}
             };
             vtxFmt = ctx.newVertexFormat(3, TexFmtTex);
         }
@@ -116,18 +120,18 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
             vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
             const boo::VertexElementDescriptor TexFmtNoTex[] =
             {
-                {vbufInfo.first, nullptr, boo::VertexSemantic::Position4},
-                {vbufInfo.first, nullptr, boo::VertexSemantic::Color}
+                {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Position4},
+                {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Color}
             };
             vtxFmt = ctx.newVertexFormat(2, TexFmtNoTex);
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         size_t ubufOffs[] = {size_t(ubufInfo.second)};
         size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, vbufInfo.first,
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vtxFmt, vbufInfo.first.get(),
                                                          nullptr, nullptr, 1, uniforms, stages,
                                                          ubufOffs, ubufSizes, texCount, textures,
                                                          nullptr, nullptr, vbufInfo.second);
@@ -147,11 +151,11 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                           boo::Primitive::TriStrips, boo::ZTest::None,
                                           false, true, false, boo::CullMode::None);
-    m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
+    m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                          boo::Primitive::TriStrips, boo::ZTest::None,
                                          false, true, false, boo::CullMode::None);
-    m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 1, nullptr, 1, UniNames,
+    m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);
@@ -163,13 +167,16 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
 struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
 {
     void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                boo::IShaderPipeline* pipeline, boo::ITexture* texture)
+                                const boo::ObjToken<boo::IShaderPipeline>& pipeline,
+                                const boo::ObjToken<boo::ITexture>& texture)
     {
         int texCount = 0;
-        boo::ITexture* textures[1];
+        boo::ObjToken<boo::ITexture> textures[1];
 
-        std::pair<boo::IGraphicsBufferD*, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
-        std::pair<boo::IGraphicsBufferD*, hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+                hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+        std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+                hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
             renderer.m_uniformBuf.getBufferInfo();
         if (texture)
         {
@@ -182,12 +189,12 @@ struct VulkanLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
             vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
         }
 
-        boo::IGraphicsBuffer* uniforms[] = {ubufInfo.first};
+        boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
         size_t ubufOffs[] = {size_t(ubufInfo.second)};
         size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
 
-        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first,
+        renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, nullptr, vbufInfo.first.get(),
                                                          nullptr, nullptr, 1, uniforms,
                                                          stages, ubufOffs, ubufSizes, texCount, textures,
                                                          nullptr, nullptr, vbufInfo.second);

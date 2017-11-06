@@ -67,15 +67,14 @@ private:
     static hecl::UniformBufferPool<SDrawUniform> s_uniformPool;
 
 public:
-    boo::GraphicsDataToken m_gfxToken;
     hecl::VertexBufferPool<SDrawVertTex>::Token m_vertBufTex;
     hecl::VertexBufferPool<SDrawVertNoTex>::Token m_vertBufNoTex;
     hecl::UniformBufferPool<SDrawUniform>::Token m_uniformBuf;
-    boo::IShaderDataBinding* m_shaderBind = nullptr;
+    boo::ObjToken<boo::IShaderDataBinding> m_shaderBind;
 
     CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
-                  EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive);
-    CLineRenderer(EPrimitiveMode mode, u32 maxVerts, boo::ITexture* texture, bool additive);
+                  EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture, bool additive);
+    CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture, bool additive);
     CLineRenderer(CLineRenderer&&) = default;
 
     void Reset();

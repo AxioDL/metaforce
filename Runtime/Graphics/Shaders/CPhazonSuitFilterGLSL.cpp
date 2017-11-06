@@ -149,80 +149,80 @@ BOO_GLSL_BINDING_HEAD
 
 URDE_DECL_SPECIALIZE_SHADER(CPhazonSuitFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IVertexFormat* s_BlurVtxFmt = nullptr;
-static boo::IShaderPipeline* s_IndPipeline = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
-static boo::IShaderPipeline* s_BlurPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IVertexFormat> s_BlurVtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_IndPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_BlurPipeline;
 
 struct CPhazonSuitFilterGLDataBindingFactory : TShader<CPhazonSuitFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CPhazonSuitFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CPhazonSuitFilter& filter)
     {
         boo::GLDataFactory::Context& cctx = static_cast<boo::GLDataFactory::Context&>(ctx);
 
         const boo::VertexElementDescriptor BlurVtxVmt[] =
         {
-            {filter.m_blurVbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_blurVbo, nullptr, boo::VertexSemantic::UV4}
+            {filter.m_blurVbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_blurVbo.get(), nullptr, boo::VertexSemantic::UV4}
         };
-        boo::IVertexFormat* blurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
+        boo::ObjToken<boo::IVertexFormat> blurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBufBlurX};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBufBlurX.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[4];
+        boo::ObjToken<boo::ITexture> texs[4];
         int texBindIdxs[4];
 
-        texs[0] = CGraphics::g_SpareTexture;
+        texs[0] = CGraphics::g_SpareTexture.get();
         texBindIdxs[0] = 1;
         filter.m_dataBindBlurX = cctx.newShaderDataBinding(s_BlurPipeline,
-            blurVtxFmt, filter.m_blurVbo, nullptr, nullptr,
+            blurVtxFmt, filter.m_blurVbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
 
-        bufs[0] = filter.m_uniBufBlurY;
-        texs[0] = CGraphics::g_SpareTexture;
+        bufs[0] = filter.m_uniBufBlurY.get();
+        texs[0] = CGraphics::g_SpareTexture.get();
         texBindIdxs[0] = 2;
         filter.m_dataBindBlurY = cctx.newShaderDataBinding(s_BlurPipeline,
-            blurVtxFmt, filter.m_blurVbo, nullptr, nullptr,
+            blurVtxFmt, filter.m_blurVbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
 
         const boo::VertexElementDescriptor VtxVmt[] =
         {
-            {filter.m_vbo, nullptr, boo::VertexSemantic::Position4},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4, 0},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4, 1},
-            {filter.m_vbo, nullptr, boo::VertexSemantic::UV4, 2}
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::Position4},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4, 0},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4, 1},
+            {filter.m_vbo.get(), nullptr, boo::VertexSemantic::UV4, 2}
         };
-        boo::IVertexFormat* vtxFmt = ctx.newVertexFormat(4, VtxVmt);
+        boo::ObjToken<boo::IVertexFormat> vtxFmt = ctx.newVertexFormat(4, VtxVmt);
 
-        bufs[0] = filter.m_uniBuf;
+        bufs[0] = filter.m_uniBuf.get();
         size_t texCount;
         if (filter.m_indTex)
         {
-            texs[0] = CGraphics::g_SpareTexture;
+            texs[0] = CGraphics::g_SpareTexture.get();
             texBindIdxs[0] = 0;
             texs[1] = filter.m_indTex->GetBooTexture();
             texBindIdxs[1] = 0;
-            texs[2] = CGraphics::g_SpareTexture;
+            texs[2] = CGraphics::g_SpareTexture.get();
             texBindIdxs[2] = 1;
-            texs[3] = CGraphics::g_SpareTexture;
+            texs[3] = CGraphics::g_SpareTexture.get();
             texBindIdxs[3] = 2;
             texCount = 4;
         }
         else
         {
-            texs[0] = CGraphics::g_SpareTexture;
+            texs[0] = CGraphics::g_SpareTexture.get();
             texBindIdxs[0] = 0;
-            texs[1] = CGraphics::g_SpareTexture;
+            texs[1] = CGraphics::g_SpareTexture.get();
             texBindIdxs[1] = 1;
-            texs[2] = CGraphics::g_SpareTexture;
+            texs[2] = CGraphics::g_SpareTexture.get();
             texBindIdxs[2] = 2;
             texCount = 3;
         }
 
         return cctx.newShaderDataBinding(filter.m_indTex ? s_IndPipeline : s_Pipeline,
-            vtxFmt, filter.m_vbo, nullptr, nullptr,
+            vtxFmt, filter.m_vbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, texCount, texs, texBindIdxs, nullptr);
     }
 };
@@ -230,56 +230,57 @@ struct CPhazonSuitFilterGLDataBindingFactory : TShader<CPhazonSuitFilter>::IData
 #if BOO_HAS_VULKAN
 struct CPhazonSuitFilterVulkanDataBindingFactory : TShader<CPhazonSuitFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CPhazonSuitFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding>
+    BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                           CPhazonSuitFilter& filter)
     {
         boo::VulkanDataFactory::Context& cctx = static_cast<boo::VulkanDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBufBlurX};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBufBlurX.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[4];
+        boo::ObjToken<boo::ITexture> texs[4];
         int texBindIdxs[4];
 
-        texs[0] = CGraphics::g_SpareTexture;
+        texs[0] = CGraphics::g_SpareTexture.get();
         texBindIdxs[0] = 1;
         filter.m_dataBindBlurX = cctx.newShaderDataBinding(s_BlurPipeline,
-            s_BlurVtxFmt, filter.m_blurVbo, nullptr, nullptr,
+            s_BlurVtxFmt, filter.m_blurVbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
 
-        bufs[0] = filter.m_uniBufBlurY;
-        texs[0] = CGraphics::g_SpareTexture;
+        bufs[0] = filter.m_uniBufBlurY.get();
+        texs[0] = CGraphics::g_SpareTexture.get();
         texBindIdxs[0] = 2;
         filter.m_dataBindBlurY = cctx.newShaderDataBinding(s_BlurPipeline,
-            s_BlurVtxFmt, filter.m_blurVbo, nullptr, nullptr,
+            s_BlurVtxFmt, filter.m_blurVbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
 
-        bufs[0] = filter.m_uniBuf;
+        bufs[0] = filter.m_uniBuf.get();
         size_t texCount;
         if (filter.m_indTex)
         {
-            texs[0] = CGraphics::g_SpareTexture;
+            texs[0] = CGraphics::g_SpareTexture.get();
             texBindIdxs[0] = 0;
             texs[1] = filter.m_indTex->GetBooTexture();
             texBindIdxs[1] = 0;
-            texs[2] = CGraphics::g_SpareTexture;
+            texs[2] = CGraphics::g_SpareTexture.get();
             texBindIdxs[2] = 1;
-            texs[3] = CGraphics::g_SpareTexture;
+            texs[3] = CGraphics::g_SpareTexture.get();
             texBindIdxs[3] = 2;
             texCount = 4;
         }
         else
         {
-            texs[0] = CGraphics::g_SpareTexture;
+            texs[0] = CGraphics::g_SpareTexture.get();
             texBindIdxs[0] = 0;
-            texs[1] = CGraphics::g_SpareTexture;
+            texs[1] = CGraphics::g_SpareTexture.get();
             texBindIdxs[1] = 1;
-            texs[2] = CGraphics::g_SpareTexture;
+            texs[2] = CGraphics::g_SpareTexture.get();
             texBindIdxs[2] = 2;
             texCount = 3;
         }
 
         return cctx.newShaderDataBinding(filter.m_indTex ? s_IndPipeline : s_Pipeline,
-            s_VtxFmt, filter.m_vbo, nullptr, nullptr,
+            s_VtxFmt, filter.m_vbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, texCount, texs, texBindIdxs, nullptr);
     }
 };
@@ -304,6 +305,14 @@ CPhazonSuitFilter::Initialize(boo::GLDataFactory::Context& ctx)
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, false, true, boo::CullMode::None);
     return new CPhazonSuitFilterGLDataBindingFactory;
+}
+
+template <>
+void CPhazonSuitFilter::Shutdown<boo::GLDataFactory>()
+{
+    s_IndPipeline.reset();
+    s_Pipeline.reset();
+    s_BlurPipeline.reset();
 }
 
 #if BOO_HAS_VULKAN
@@ -334,6 +343,17 @@ CPhazonSuitFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, false, true, boo::CullMode::None);
     return new CPhazonSuitFilterVulkanDataBindingFactory;
+}
+
+template <>
+void CPhazonSuitFilter::Shutdown<boo::VulkanDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_BlurVtxFmt.reset();
+
+    s_IndPipeline.reset();
+    s_Pipeline.reset();
+    s_BlurPipeline.reset();
 }
 #endif
 

@@ -158,64 +158,64 @@ static const char* BlurFS =
 
 URDE_DECL_SPECIALIZE_SHADER(CPhazonSuitFilter)
 
-static boo::IVertexFormat* s_VtxFmt = nullptr;
-static boo::IVertexFormat* s_BlurVtxFmt = nullptr;
-static boo::IShaderPipeline* s_IndPipeline = nullptr;
-static boo::IShaderPipeline* s_Pipeline = nullptr;
-static boo::IShaderPipeline* s_BlurPipeline = nullptr;
+static boo::ObjToken<boo::IVertexFormat> s_VtxFmt;
+static boo::ObjToken<boo::IVertexFormat> s_BlurVtxFmt;
+static boo::ObjToken<boo::IShaderPipeline> s_IndPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_BlurPipeline;
 
 struct CPhazonSuitFilterMetalDataBindingFactory : TShader<CPhazonSuitFilter>::IDataBindingFactory
 {
-    boo::IShaderDataBinding* BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
-                                                    CPhazonSuitFilter& filter)
+    boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
+                                                                  CPhazonSuitFilter& filter)
     {
         boo::MetalDataFactory::Context& cctx = static_cast<boo::MetalDataFactory::Context&>(ctx);
 
-        boo::IGraphicsBuffer* bufs[] = {filter.m_uniBufBlurX};
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBufBlurX.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-        boo::ITexture* texs[4];
+        boo::ObjToken<boo::ITexture> texs[4];
         int texBindIdxs[4];
 
-        texs[0] = CGraphics::g_SpareTexture;
+        texs[0] = CGraphics::g_SpareTexture.get();
         texBindIdxs[0] = 1;
         filter.m_dataBindBlurX = cctx.newShaderDataBinding(s_BlurPipeline,
-            s_BlurVtxFmt, filter.m_blurVbo, nullptr, nullptr,
+            s_BlurVtxFmt, filter.m_blurVbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
 
-        bufs[0] = filter.m_uniBufBlurY;
-        texs[0] = CGraphics::g_SpareTexture;
+        bufs[0] = filter.m_uniBufBlurY.get();
+        texs[0] = CGraphics::g_SpareTexture.get();
         texBindIdxs[0] = 2;
         filter.m_dataBindBlurY = cctx.newShaderDataBinding(s_BlurPipeline,
-            s_BlurVtxFmt, filter.m_blurVbo, nullptr, nullptr,
+            s_BlurVtxFmt, filter.m_blurVbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
 
-        bufs[0] = filter.m_uniBuf;
+        bufs[0] = filter.m_uniBuf.get();
         size_t texCount;
         if (filter.m_indTex)
         {
-            texs[0] = CGraphics::g_SpareTexture;
+            texs[0] = CGraphics::g_SpareTexture.get();
             texBindIdxs[0] = 0;
             texs[1] = filter.m_indTex->GetBooTexture();
             texBindIdxs[1] = 0;
-            texs[2] = CGraphics::g_SpareTexture;
+            texs[2] = CGraphics::g_SpareTexture.get();
             texBindIdxs[2] = 1;
-            texs[3] = CGraphics::g_SpareTexture;
+            texs[3] = CGraphics::g_SpareTexture.get();
             texBindIdxs[3] = 2;
             texCount = 4;
         }
         else
         {
-            texs[0] = CGraphics::g_SpareTexture;
+            texs[0] = CGraphics::g_SpareTexture.get();
             texBindIdxs[0] = 0;
-            texs[1] = CGraphics::g_SpareTexture;
+            texs[1] = CGraphics::g_SpareTexture.get();
             texBindIdxs[1] = 1;
-            texs[2] = CGraphics::g_SpareTexture;
+            texs[2] = CGraphics::g_SpareTexture.get();
             texBindIdxs[2] = 2;
             texCount = 3;
         }
 
         return cctx.newShaderDataBinding(filter.m_indTex ? s_IndPipeline : s_Pipeline,
-            s_VtxFmt, filter.m_vbo, nullptr, nullptr,
+            s_VtxFmt, filter.m_vbo.get(), nullptr, nullptr,
             1, bufs, stages, nullptr, nullptr, texCount, texs, texBindIdxs, nullptr);
     }
 };
@@ -237,19 +237,29 @@ CPhazonSuitFilter::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_BlurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
-    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, s_VtxFmt,
+    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, nullptr, nullptr, s_VtxFmt,
                                           CGraphics::g_ViewportSamples, boo::BlendFactor::One,
                                           boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
                                        CGraphics::g_ViewportSamples, boo::BlendFactor::One,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_BlurPipeline = ctx.newShaderPipeline(BlurVS, BlurFS, s_BlurVtxFmt,
+    s_BlurPipeline = ctx.newShaderPipeline(BlurVS, BlurFS, nullptr, nullptr, s_BlurVtxFmt,
                                            CGraphics::g_ViewportSamples, boo::BlendFactor::One,
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, false, true, boo::CullMode::None);
     return new CPhazonSuitFilterMetalDataBindingFactory;
+}
+
+template <>
+void CPhazonSuitFilter::Shutdown<boo::MetalDataFactory>()
+{
+    s_VtxFmt.reset();
+    s_BlurVtxFmt.reset();
+    s_IndPipeline.reset();
+    s_Pipeline.reset();
+    s_BlurPipeline.reset();
 }
 
 }

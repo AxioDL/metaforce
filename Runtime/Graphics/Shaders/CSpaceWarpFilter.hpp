@@ -22,11 +22,10 @@ class CSpaceWarpFilter
         zeus::CVector3f m_strength;
     };
     u8 m_shiftTexture[4][8][4] = {};
-    boo::GraphicsDataToken m_token;
-    boo::ITexture* m_warpTex;
-    boo::IGraphicsBufferS* m_vbo;
-    boo::IGraphicsBufferD* m_uniBuf;
-    boo::IShaderDataBinding* m_dataBind = nullptr;
+    boo::ObjToken<boo::ITexture> m_warpTex;
+    boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
     float m_strength = 1.f;
 

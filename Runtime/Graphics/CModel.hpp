@@ -134,24 +134,23 @@ private:
     size_t m_uniformDataSize = 0;
     struct ModelInstance
     {
-        boo::GraphicsDataToken m_gfxToken;
-        boo::IGraphicsBufferD* m_uniformBuffer;
-        std::vector<std::vector<boo::IShaderDataBinding*>> m_shaderDataBindings;
-        boo::IVertexFormat* m_dynamicVtxFmt = nullptr;
-        boo::IGraphicsBufferD* m_dynamicVbo = nullptr;
+        boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
+        std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
+        boo::ObjToken<boo::IVertexFormat> m_dynamicVtxFmt;
+        boo::ObjToken<boo::IGraphicsBufferD> m_dynamicVbo;
 
-        boo::IGraphicsBuffer* GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
-        boo::IVertexFormat* GetBooVtxFmt(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
+        boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
+        boo::ObjToken<boo::IVertexFormat> GetBooVtxFmt(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
     };
     std::vector<ModelInstance> m_instances;
 
-    boo::IVertexFormat* m_staticVtxFmt = nullptr;
-    boo::IGraphicsBufferS* m_staticVbo = nullptr;
-    boo::IGraphicsBufferS* m_staticIbo = nullptr;
+    boo::ObjToken<boo::IVertexFormat> m_staticVtxFmt;
+    boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
+    boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
 
-    boo::ITexture* m_txtrOverrides[8] = {};
+    boo::ObjToken<boo::ITexture> m_txtrOverrides[8];
 
-    boo::ITexture* m_lastDrawnShadowMap = nullptr;
+    boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
 
     ModelInstance* PushNewModelInstance();
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
@@ -172,9 +171,9 @@ private:
 public:
     ~CBooModel();
     CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-              boo::IVertexFormat* vtxFmt, boo::IGraphicsBufferS* vbo, boo::IGraphicsBufferS* ibo,
-              const zeus::CAABox& aabb, u8 renderMask,
-              int numInsts, boo::ITexture* txtrOverrides[8]);
+              const boo::ObjToken<boo::IVertexFormat>& vtxFmt, const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
+              const boo::ObjToken<boo::IGraphicsBufferS>& ibo, const zeus::CAABox& aabb, u8 renderMask,
+              int numInsts, const boo::ObjToken<boo::ITexture> txtrOverrides[8]);
 
     static void MakeTexturesFromMats(const MaterialSet& matSet,
                                      std::vector<TCachedToken<CTexture>>& toksOut,
@@ -193,9 +192,9 @@ public:
     void SyncLoadTextures() const;
     void Touch(int shaderIdx) const;
     void VerifyCurrentShader(int shaderIdx);
-    boo::IGraphicsBufferD* UpdateUniformData(const CModelFlags& flags,
-                                             const CSkinRules* cskr,
-                                             const CPoseAsTransforms* pose) const;
+    boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags,
+                                                           const CSkinRules* cskr,
+                                                           const CPoseAsTransforms* pose) const;
     void DrawAlpha(const CModelFlags& flags,
                    const CSkinRules* cskr,
                    const CPoseAsTransforms* pose) const;
@@ -229,9 +228,9 @@ public:
     static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
                                          zeus::CMatrix4f* mtxsOut, float& alphaOut);
 
-    static boo::ITexture* g_shadowMap;
+    static boo::ObjToken<boo::ITexture> g_shadowMap;
     static zeus::CTransform g_shadowTexXf;
-    static void EnableShadowMaps(boo::ITexture* map, const zeus::CTransform& texXf);
+    static void EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf);
     static void DisableShadowMaps();
 
     static void SetDummyTextures(bool b) { g_DummyTextures = true; }
@@ -253,12 +252,11 @@ class CModel
     int x38_lastFrame;
 
     /* urde addition: boo! */
-    boo::GraphicsDataToken m_gfxToken;
-    boo::IVertexFormat* m_staticVtxFmt = nullptr;
-    boo::IGraphicsBufferS* m_staticVbo = nullptr;
+    boo::ObjToken<boo::IVertexFormat> m_staticVtxFmt;
+    boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
     hecl::HMDLMeta m_hmdlMeta;
     std::unique_ptr<uint8_t[]> m_dynamicVertexData;
-    boo::IGraphicsBufferS* m_ibo = nullptr;
+    boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
     using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
@@ -274,7 +272,7 @@ public:
     CBooModel& GetInstance() {return *x28_modelInst;}
     const CBooModel& GetInstance() const {return *x28_modelInst;}
     std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts,
-                                               boo::ITexture* txtrOverrides[8] = nullptr,
+                                               const boo::ObjToken<boo::ITexture> txtrOverrides[8] = nullptr,
                                                bool lockParent = true);
     void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
 
@@ -282,7 +280,7 @@ public:
     zeus::CVector3f GetPoolVertex(size_t idx) const;
     size_t GetPoolNormalOffset(size_t idx) const;
     zeus::CVector3f GetPoolNormal(size_t idx) const;
-    void ApplyVerticesCPU(boo::IGraphicsBufferD* vertBuf,
+    void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
                           const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
 
     void _WarmupShaders();

@@ -6,7 +6,7 @@ namespace urde
 void CFogVolumePlaneShader::CommitResources(size_t capacity)
 {
     m_vertCapacity = capacity;
-    m_token = CGraphics::CommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector4f), capacity);
         TShader<CFogVolumePlaneShader>::BuildShaderDataBinding(ctx, *this);
@@ -59,8 +59,6 @@ void CFogVolumePlaneShader::draw(int pass)
     CGraphics::SetShaderDataBinding(m_dataBinds[pass]);
     CGraphics::DrawArray(0, m_verts.size());
 }
-
-void CFogVolumePlaneShader::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CFogVolumePlaneShader)
 

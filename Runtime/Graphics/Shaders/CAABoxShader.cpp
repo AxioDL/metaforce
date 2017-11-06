@@ -6,7 +6,7 @@ namespace urde
 CAABoxShader::CAABoxShader(bool zOnly)
 : m_zOnly(zOnly)
 {
-    m_token = CGraphics::g_BooFactory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector3f), 34);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -69,11 +69,9 @@ void CAABoxShader::draw(const zeus::CColor& color)
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(Uniform));
 
-    CGraphics::g_BooMainCommandQueue->setShaderDataBinding(m_dataBind);
-    CGraphics::g_BooMainCommandQueue->draw(0, 34);
+    CGraphics::SetShaderDataBinding(m_dataBind);
+    CGraphics::DrawArray(0, 34);
 }
-
-void CAABoxShader::Shutdown() {}
 
 URDE_SPECIALIZE_SHADER(CAABoxShader)
 

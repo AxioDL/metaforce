@@ -17,9 +17,8 @@ class CMapWorldInfo;
 class CMappableObject
 {
     friend class CMapArea;
-    static boo::GraphicsDataToken g_gfxToken;
-    static boo::IGraphicsBufferS* g_doorVbo;
-    static boo::IGraphicsBufferS* g_doorIbo;
+    static boo::ObjToken<boo::IGraphicsBufferS> g_doorVbo;
+    static boo::ObjToken<boo::IGraphicsBufferS> g_doorIbo;
 
 public:
     enum class EMappableObjectType

@@ -473,7 +473,7 @@ CGameArea::CGameArea(CAssetId mreaId)
     FillInStaticGeometry(false);
 
     CBooModel::SetDummyTextures(true);
-    CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp, zeus::CTransform::Identity());
+    CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform::Identity());
     CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
     zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
     zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
@@ -1206,7 +1206,7 @@ void CGameArea::FillInStaticGeometry(bool textures)
         ++secIt;
     }
 
-    x12c_postConstructed->m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         /* Models */
         for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
@@ -1227,15 +1227,15 @@ void CGameArea::FillInStaticGeometry(bool textures)
             }
             ++secIt;
 
-            boo::IGraphicsBufferS* vbo;
-            boo::IGraphicsBufferS* ibo;
-            boo::IVertexFormat* vtxFmt;
+            boo::ObjToken<boo::IGraphicsBufferS> vbo;
+            boo::ObjToken<boo::IGraphicsBufferS> ibo;
+            boo::ObjToken<boo::IVertexFormat> vtxFmt;
             vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, inst.m_hmdlMeta.vertStride,
                                       inst.m_hmdlMeta.vertCount);
             ++secIt;
             ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
             ++secIt;
-            vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, inst.m_hmdlMeta, vbo, ibo);
+            vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, inst.m_hmdlMeta, vbo.get(), ibo.get());
 
             u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
             inst.m_surfaces.reserve(surfCount);

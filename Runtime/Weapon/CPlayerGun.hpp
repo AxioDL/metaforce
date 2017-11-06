@@ -314,7 +314,7 @@ private:
         u32 _dummy = 0;
     };
 
-    mutable CTexturedQuadFilter m_screenQuad = {EFilterType::Blend, CGraphics::g_SpareTexture, true};
+    mutable CTexturedQuadFilter m_screenQuad = {EFilterType::Blend, CGraphics::g_SpareTexture.get(), true};
     mutable CAABoxShader m_aaboxShader = {true};
 
     void InitBeamData();

@@ -14,7 +14,7 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
     x48_24 = false;
     x48_25_raining = true;
     x0_rainSplashes.reserve(maxSplashes);
-    m_gfxTok = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         for (int i=0 ; i<maxSplashes ; ++i)
             x0_rainSplashes.emplace_back(ctx);

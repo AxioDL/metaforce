@@ -672,7 +672,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
     m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
-    m_gfxToken = CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
