@@ -323,7 +323,7 @@ ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpath
                 SystemString::const_iterator origEnd = testRoot.getAbsolutePath().end();
                 while (end != origEnd && *end != _S('/') && *end != _S('\\'))
                     ++end;
-                if (*end == _S('/') || *end == _S('\\'))
+                if (end != origEnd && (*end == _S('/') || *end == _S('\\')))
                     ++end;
                 subpathOut.assign(end, origEnd);
                 return newRootPath;
