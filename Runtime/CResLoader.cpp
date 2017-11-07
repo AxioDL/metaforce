@@ -94,16 +94,17 @@ std::unique_ptr<CInputStream> CResLoader::LoadNewResourceSync(const SObjectTag& 
     return {};
 }
 
-std::shared_ptr<IDvdRequest> CResLoader::LoadResourcePartAsync(const SObjectTag& tag, u32 length, u32 offset, void* buf)
+std::shared_ptr<IDvdRequest> CResLoader::LoadResourcePartAsync(const SObjectTag& tag, u32 off, u32 size, void* buf)
 {
-    return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, length,
-                                                      ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + offset);
+    CPakFile* file = FindResourceForLoad(tag.id);
+    return file->AsyncSeekRead(buf, size, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + off);
 }
 
 std::shared_ptr<IDvdRequest> CResLoader::LoadResourceAsync(const SObjectTag& tag, void* buf)
 {
-    return FindResourceForLoad(tag.id)->AsyncSeekRead(buf, ROUND_UP_32(x50_cachedResInfo->GetSize()),
-                                                      ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
+    CPakFile* file = FindResourceForLoad(tag.id);
+    return file->AsyncSeekRead(buf, ROUND_UP_32(x50_cachedResInfo->GetSize()),
+                               ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
 }
 
 std::unique_ptr<u8[]> CResLoader::LoadResourceSync(const urde::SObjectTag& tag)
@@ -187,8 +188,7 @@ bool CResLoader::AreAllPaksLoaded() const
 void CResLoader::AsyncIdlePakLoading()
 {
     for (auto it=x30_pakLoadingList.begin();
-         it != x30_pakLoadingList.end();
-         ++it)
+         it != x30_pakLoadingList.end();)
     {
         (*it)->AsyncIdle();
         if ((*it)->x2c_asyncLoadPhase == CPakFile::EAsyncPhase::Loaded)
@@ -196,7 +196,9 @@ void CResLoader::AsyncIdlePakLoading()
             MoveToCorrectLoadedList(std::move(*it));
             it = x30_pakLoadingList.erase(it);
             --x44_pakLoadingCount;
+            continue;
         }
+        ++it;
     }
 }
 
