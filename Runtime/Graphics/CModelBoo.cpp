@@ -647,14 +647,12 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const
     const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
 
     // Only warmup normal lighting and thermal visor
-#if 0
     for (int i=1 ; i<=2 ; ++i)
     {
-        boo::IShaderDataBinding* binding = inst.m_shaderDataBindings[surf.selfIdx][i];
+        auto& binding = inst.m_shaderDataBindings[surf.selfIdx][i];
         CGraphics::SetShaderDataBinding(binding);
         CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
     }
-#endif
 }
 
 void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimation& anim)
