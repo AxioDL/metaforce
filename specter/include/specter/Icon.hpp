@@ -42,7 +42,7 @@ class IconAtlas
     }
 public:
     IconAtlas() = default;
-    operator bool() const {return m_tex != nullptr;}
+    operator bool() const {return m_tex;}
     void initializeAtlas(const boo::ObjToken<boo::ITextureS>& tex)
     {
         m_tex = tex;
