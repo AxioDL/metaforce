@@ -153,6 +153,7 @@ public:
 
     size_t size() const noexcept { return x0_size; }
     bool empty() const noexcept { return x0_size == 0; }
+    constexpr size_t capacity() const noexcept { return N; }
     const T* data() const noexcept { return std::addressof(_value(0)); }
     T* data() noexcept { return std::addressof(_value(0)); }
 

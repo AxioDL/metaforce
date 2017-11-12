@@ -16,7 +16,7 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Instance), m_maxInsts);
             m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);
-            TShader<CRadarPaintShader>::BuildShaderDataBinding(ctx, *this);
+            m_dataBind = TShader<CRadarPaintShader>::BuildShaderDataBinding(ctx, *this);
             return true;
         });
     }

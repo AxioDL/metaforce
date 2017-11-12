@@ -20,13 +20,15 @@
 namespace urde
 {
 
-static rstl::reserved_vector<CDrawable, 50> sDataHolder;
+static logvisor::Module Log("CBooRenderer");
+
+static rstl::reserved_vector<CDrawable, 512> sDataHolder;
 static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucketsHolder;
 static rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
 static rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
 
 rstl::reserved_vector<u16, 50> Buckets::sBucketIndex;
-rstl::reserved_vector<CDrawable, 50>* Buckets::sData = nullptr;
+rstl::reserved_vector<CDrawable, 512>* Buckets::sData = nullptr;
 rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* Buckets::sBuckets = nullptr;
 rstl::reserved_vector<CDrawablePlaneObject, 8>* Buckets::sPlaneObjectData = nullptr;
 rstl::reserved_vector<u16, 8>* Buckets::sPlaneObjectBucket = nullptr;
@@ -48,40 +50,73 @@ void Buckets::Clear()
 void Buckets::Sort()
 {
     float delta = std::max(1.f, sMinMaxDistance[1] - sMinMaxDistance[0]);
-    sPlaneObjectBucket->resize(8);
+    float pitch = 49.f / delta;
+    for (auto it = sPlaneObjectData->begin() ; it != sPlaneObjectData->end() ; ++it)
+        if (sPlaneObjectBucket->size() < 8)
+            sPlaneObjectBucket->push_back(s16(it - sPlaneObjectData->begin()));
 
-    std::sort(sPlaneObjectBucket->begin(), sPlaneObjectBucket->end(),
-    [](u16 a, u16 b) -> bool
+    u32 precision = 50;
+    if (sPlaneObjectBucket->size())
     {
-        return (*sPlaneObjectData)[a].GetDistance() >= (*sPlaneObjectData)[b].GetDistance();
-    });
+        std::sort(sPlaneObjectBucket->begin(), sPlaneObjectBucket->end(),
+        [](u16 a, u16 b) -> bool
+        {
+            return (*sPlaneObjectData)[a].GetDistance() >= (*sPlaneObjectData)[b].GetDistance();
+        });
+        precision = 50 / u32(sPlaneObjectBucket->size() + 1);
+        pitch = 1.f / (delta / float(precision - 2));
 
-    u32 precision = 50 / (8 + 1);
-    float pitch = 1.f / (delta / float(precision - 2));
-
-    int accum = 0;
-    for (u16 idx : *sPlaneObjectBucket)
-    {
-        ++accum;
-        CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
-        planeObj.x24_targetBucket = precision * accum;
+        int accum = 0;
+        for (u16 idx : *sPlaneObjectBucket)
+        {
+            ++accum;
+            CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
+            planeObj.x24_targetBucket = u16(precision * accum);
+        }
     }
 
     for (CDrawable& drawable : *sData)
     {
         int slot;
+        float relDist = drawable.GetDistance() - sMinMaxDistance[0];
         if (sPlaneObjectBucket->empty())
         {
-            slot = zeus::clamp(1, int((drawable.GetDistance() - sMinMaxDistance[0]) * pitch), 49);
+            slot = zeus::clamp(1, int(relDist * pitch), 49);
         }
         else
         {
-            /* TODO: Planar sort distribution */
+            slot = zeus::clamp(0, int(relDist * pitch), int(precision) - 2);
+            for (u16 idx : *sPlaneObjectBucket)
+            {
+                CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
+                bool partial, full;
+                if (planeObj.x3c_25_zOnly)
+                {
+                    partial = drawable.GetBounds().max.z > planeObj.GetPlane().d;
+                    full = drawable.GetBounds().min.z > planeObj.GetPlane().d;
+                }
+                else
+                {
+                    partial = planeObj.GetPlane().pointToPlaneDist(
+                        drawable.GetBounds().closestPointAlongVector(planeObj.GetPlane().vec)) > 0.f;
+                    full = planeObj.GetPlane().pointToPlaneDist(
+                        drawable.GetBounds().furthestPointAlongVector(planeObj.GetPlane().vec)) > 0.f;
+                }
+                bool cont;
+                if (drawable.GetType() == EDrawableType::Particle)
+                    cont = planeObj.x3c_24_invertTest ? !partial : full;
+                else
+                    cont = planeObj.x3c_24_invertTest ? (!partial || !full) : (partial || full);
+                if (!cont)
+                    break;
+            }
         }
 
         if (slot == -1)
             slot = 49;
-        (*sBuckets)[slot].push_back(&drawable);
+        rstl::reserved_vector<CDrawable*, 128>& bucket = (*sBuckets)[slot];
+        if (bucket.size() < bucket.capacity())
+            bucket.push_back(&drawable);
     }
 
     int bucketIdx = sBuckets->size();
@@ -108,21 +143,28 @@ void Buckets::Sort()
     }
 }
 
-void Buckets::InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool b1,
-                                const zeus::CPlane& plane, bool b2, EDrawableType dtype, const void* data)
+void Buckets::InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool invertTest,
+                                const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data)
 {
-    sPlaneObjectData->push_back(CDrawablePlaneObject(dtype, dist, something, aabb, b1, plane, b2, data));
+    sPlaneObjectData->push_back(CDrawablePlaneObject(dtype, dist, something, aabb, invertTest, plane, zOnly, data));
 }
 
 void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype,
                      const void* data, const zeus::CPlane& plane, u16 extraSort)
 {
-    float dist = plane.pointToPlaneDist(pos);
-    sData->push_back(CDrawable(dtype, extraSort, dist, aabb, data));
-    if (sMinMaxDistance[0] > dist)
-        sMinMaxDistance[0] = dist;
-    if (sMinMaxDistance[1] < dist)
-        sMinMaxDistance[1] = dist;
+    if (sData->size() != sData->capacity())
+    {
+        float dist = plane.pointToPlaneDist(pos);
+        sData->push_back(CDrawable(dtype, extraSort, dist, aabb, data));
+        if (sMinMaxDistance[0] > dist)
+            sMinMaxDistance[0] = dist;
+        if (sMinMaxDistance[1] < dist)
+            sMinMaxDistance[1] = dist;
+    }
+    else
+    {
+        Log.report(logvisor::Fatal, "Rendering buckets filled to capacity");
+    }
 }
 
 void Buckets::Shutdown()
@@ -236,12 +278,12 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item)
             }
             case EDrawableType::WorldSurface:
             {
-                SetupRendererStates();
+                //SetupRendererStates();
                 CBooSurface* surf = static_cast<CBooSurface*>((void*)drawable->GetData());
                 CBooModel* model = surf->m_parent;
                 if (model)
                 {
-                    ActivateLightsForModel(item, *model);
+                    //ActivateLightsForModel(item, *model);
                     model->DrawSurface(*surf, flags);
                 }
                 break;
@@ -262,7 +304,7 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item)
 
 void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
 {
-    ActivateLightsForModel(item, model);
+    //ActivateLightsForModel(item, model);
     CBooSurface* surf = model.x38_firstUnsortedSurface;
     CModelFlags flags;
     flags.m_extendedShader = EExtendedShader::Lighting;
@@ -677,6 +719,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
         m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
+        x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::Repeat, 1, 0);
         GenerateScanLinesVBO(ctx);
         return true;
     });
@@ -745,6 +788,29 @@ void CBooRenderer::DisablePVS()
     xc8_pvs = std::experimental::nullopt;
 }
 
+void CBooRenderer::UpdateAreaUniforms(int areaIdx)
+{
+    SetupRendererStates();
+
+    for (CAreaListItem& item : x1c_areaListItems)
+    {
+        if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
+            continue;
+
+        for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it)
+        {
+            CBooModel* model = *it;
+            if (model->TryLockTextures())
+            {
+                ActivateLightsForModel(&item, *model);
+                CModelFlags flags;
+                flags.m_extendedShader = EExtendedShader::Lighting;
+                model->UpdateUniformData(flags, nullptr, nullptr);
+            }
+        }
+    }
+}
+
 void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry)
 {
     auto search = FindStaticGeometry(geometry);
@@ -755,7 +821,7 @@ void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>
 void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
 {
     x318_30_inAreaDraw = true;
-    SetupRendererStates();
+    //SetupRendererStates();
     CModelFlags flags;
 
     for (CAreaListItem& item : x1c_areaListItems)
@@ -793,7 +859,7 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
 
 void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 {
-    SetupRendererStates();
+    //SetupRendererStates();
 
     CAreaListItem* lastOctreeItem = nullptr;
 
@@ -871,7 +937,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 
 void CBooRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask)
 {
-    SetupRendererStates();
+    //SetupRendererStates();
 
     CAreaListItem* lastOctreeItem = nullptr;
 
@@ -1327,6 +1393,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
                                                const zeus::CAABox& aabb) const
 {
     SetupRendererStates();
+    const_cast<CBooRenderer&>(*this).UpdateAreaUniforms(-1);
 
     CModelFlags flags;
     flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw

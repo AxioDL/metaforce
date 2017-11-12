@@ -649,7 +649,8 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
         x148_model_automapper->SetIsVisible(true);
         x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, zeus::CVector3f::skZero));
         // ZTest no write
-        x38_autoMapper->Draw(stateMgr, zeus::CTransform::Translate(0.f, 0.02f, 0.f) * x18c_camXf, mapAlpha * x1f4_visorStaticAlpha * t);
+        x38_autoMapper->Draw(stateMgr, zeus::CTransform::Translate(0.f, 0.02f, 0.f) * x18c_camXf,
+                             mapAlpha * x1f4_visorStaticAlpha * t);
         // Zest and write
         x148_model_automapper->SetIsVisible(false);
     }

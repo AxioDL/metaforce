@@ -148,6 +148,7 @@ class ViewManager : public specter::IViewManager
     int m_deferSplitThisSlot;
     boo::SWindowCoord m_deferSplitCoord;
     hecl::SystemString m_deferedProject;
+    bool m_noShaderWarmup = false;
 
 public:
     ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr);

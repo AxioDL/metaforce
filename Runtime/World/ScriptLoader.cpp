@@ -55,6 +55,7 @@
 #include "CScriptSwitch.hpp"
 #include "CScriptTimer.hpp"
 #include "CScriptVisorFlare.hpp"
+#include "CScriptVisorGoo.hpp"
 #include "CScriptWater.hpp"
 #include "CScriptWaypoint.hpp"
 #include "CScriptWorldTeleporter.hpp"
@@ -723,8 +724,8 @@ CEntity* ScriptLoader::LoadDock(CStateManager& mgr, CInputStream& in, int propCo
     scale.readBig(in);
     u32 dock = in.readUint32Big();
     TAreaId area = in.readUint32Big();
-    bool b1 = in.readBool();
-    return new CScriptDock(mgr.AllocateUniqueId(), name, info, position, scale, dock, area, active, 0, b1);
+    bool loadConnected = in.readBool();
+    return new CScriptDock(mgr.AllocateUniqueId(), name, info, position, scale, dock, area, active, 0, loadConnected);
 }
 
 CEntity* ScriptLoader::LoadCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1905,6 +1906,28 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 11, "VisorGoo"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CVector3f position;
+    position.readBig(in);
+    zeus::CTransform xf = zeus::CTransform::Translate(position);
+    CAssetId particle(in);
+    CAssetId electric(in);
+    float minDist = in.readFloatBig();
+    float maxDist = in.readFloatBig();
+    float nearProb = in.readFloatBig();
+    float farProb = in.readFloatBig();
+    zeus::CColor color;
+    color.readRGBABig(in);
+    u32 sfx = in.readUint32Big();
+    bool forceShow = in.readBool();
+
+    if (particle.IsValid() || electric.IsValid())
+        return new CScriptVisorGoo(mgr.AllocateUniqueId(), name, info, xf, particle, electric,
+                                   minDist, maxDist, nearProb, farProb, color, sfx, forceShow, false);
+
     return nullptr;
 }
 
@@ -2325,29 +2348,29 @@ CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, i
     float f3 = in.readFloatBig();
     float f4 = in.readFloatBig();
 
-    SSpindleSegment seg1(in);
+    SSpindleProperty seg1(in);
     seg1.FixupAngles();
-    SSpindleSegment seg2(in);
-    SSpindleSegment seg3(in);
-    SSpindleSegment seg4(in);
-    SSpindleSegment seg5(in);
+    SSpindleProperty seg2(in);
+    SSpindleProperty seg3(in);
+    SSpindleProperty seg4(in);
+    SSpindleProperty seg5(in);
     seg5.FixupAngles();
-    SSpindleSegment seg6(in);
+    SSpindleProperty seg6(in);
     seg6.FixupAngles();
-    SSpindleSegment seg7(in);
+    SSpindleProperty seg7(in);
     seg7.FixupAngles();
-    SSpindleSegment seg8(in);
+    SSpindleProperty seg8(in);
     seg8.FixupAngles();
-    SSpindleSegment seg9(in);
-    SSpindleSegment seg10(in);
-    SSpindleSegment seg11(in);
+    SSpindleProperty seg9(in);
+    SSpindleProperty seg10(in);
+    SSpindleProperty seg11(in);
     seg11.FixupAngles();
-    SSpindleSegment seg12(in);
+    SSpindleProperty seg12(in);
     seg12.FixupAngles();
-    SSpindleSegment seg13(in);
+    SSpindleProperty seg13(in);
     seg13.FixupAngles();
-    SSpindleSegment seg14(in);
-    SSpindleSegment seg15(in);
+    SSpindleProperty seg14(in);
+    SSpindleProperty seg15(in);
     seg15.FixupAngles();
 
     return new CScriptSpindleCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
@@ -2384,7 +2407,22 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
 
 CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 6, "RumbleEffect"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CVector3f position;
+    position.readBig(in);
+    bool active = in.readBool();
+    float f1 = in.readFloatBig();
+    u32 w1 = in.readUint32Big();
+    u32 pFlags = LoadParameterFlags(in);
+
+    return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info,
+                                      ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, position),
+                                      CScriptSpecialFunction::ESpecialFunction::RumbleEffect, "",
+                                      f1, w1, pFlags, 0.f, zeus::CVector3f::skZero,
+                                      zeus::CColor::skBlack, active, {}, {}, {}, {}, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

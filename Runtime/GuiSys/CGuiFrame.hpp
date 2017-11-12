@@ -46,6 +46,7 @@ public:
     ~CGuiFrame();
 
     CGuiSys& GetGuiSys() {return x8_guiSys;}
+    CAssetId GetAssetId() const {return x0_id;}
 
     CGuiLight* GetFrameLight(int idx) const { return m_indexedLights[idx]; }
     CGuiCamera* GetFrameCamera() const { return x14_camera.get(); }

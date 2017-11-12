@@ -49,7 +49,7 @@ void CObjectList::RemoveObject(TUniqueId uid)
 const CEntity* CObjectList::operator[](size_t i) const
 {
     const SObjectListEntry& ent = x0_list[i];
-    if (ent.entity->x30_26_scriptingBlocked)
+    if (!ent.entity || ent.entity->x30_26_scriptingBlocked)
         return nullptr;
     return ent.entity;
 }
@@ -57,7 +57,7 @@ const CEntity* CObjectList::operator[](size_t i) const
 CEntity* CObjectList::operator[](size_t i)
 {
     SObjectListEntry& ent = x0_list[i];
-    if (ent.entity->x30_26_scriptingBlocked)
+    if (!ent.entity || ent.entity->x30_26_scriptingBlocked)
         return nullptr;
     return ent.entity;
 }
@@ -67,7 +67,7 @@ const CEntity* CObjectList::GetObjectById(TUniqueId uid) const
     if (uid == kInvalidUniqueId)
         return nullptr;
     const SObjectListEntry& ent = x0_list[uid.Value()];
-    if (ent.entity->x30_26_scriptingBlocked)
+    if (!ent.entity || ent.entity->x30_26_scriptingBlocked)
         return nullptr;
     return ent.entity;
 }
@@ -77,7 +77,7 @@ CEntity* CObjectList::GetObjectById(TUniqueId uid)
     if (uid == kInvalidUniqueId)
         return nullptr;
     SObjectListEntry& ent = x0_list[uid.Value()];
-    if (ent.entity->x30_26_scriptingBlocked)
+    if (!ent.entity || ent.entity->x30_26_scriptingBlocked)
         return nullptr;
     return ent.entity;
 }

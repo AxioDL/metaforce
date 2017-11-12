@@ -137,16 +137,16 @@ private:
         {
             bool x70_24_currentAreaNeedsAllocation : 1;
             bool x70_25_paused : 1;
-            bool x70_26_skyboxOverridden : 1;
-            bool x70_27_needsSky : 1;
+            bool x70_26_skyboxActive : 1;
+            bool x70_27_skyboxVisible : 1;
         };
-        u16 dummy = 0;
+        u32 dummy = 0;
     };
     std::vector<CSoundGroupData> x74_soundGroupData;
     std::string x84_defAudioTrack;
-    TLockedToken<CModel> x94_skybox;
-    TLockedToken<CModel> xa4_skyboxB;
-    TLockedToken<CModel> xb4_skyboxC;
+    TLockedToken<CModel> x94_skyboxWorld;
+    TLockedToken<CModel> xa4_skyboxWorldLoaded;
+    TLockedToken<CModel> xb4_skyboxOverride;
     EEnvFxType xc4_neededFx = EEnvFxType::None;
     std::vector<CSfxHandle> xc8_sfxHandles;
 
@@ -156,7 +156,7 @@ private:
 public:
 
     void MoveToChain(CGameArea* area, EChain chain);
-    void MoveAreaToChain3(TAreaId aid);
+    void MoveAreaToAliveChain(TAreaId aid);
     bool CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId);
     CGameArea::CChainIterator GetChainHead(EChain chain) { return {x4c_chainHeads[int(chain)]}; }
     CGameArea::CConstChainIterator GetChainHead(EChain chain) const { return {x4c_chainHeads[int(chain)]}; }

@@ -28,7 +28,8 @@ namespace urde
 void ViewManager::InitMP1(MP1::CMain& main)
 {
     main.Init(m_fileStoreManager, m_mainWindow.get(), m_voiceEngine.get(), *m_amuseAllocWrapper);
-    main.WarmupShaders();
+    if (!m_noShaderWarmup)
+        main.WarmupShaders();
 
     m_testGameView.reset(new TestGameView(*this, m_viewResources, *m_rootView));
 
@@ -218,11 +219,10 @@ void ViewManager::init(boo::IApplication* app)
 
     for (const auto& arg : app->getArgs())
     {
-        if (hecl::SearchForProject(arg))
-        {
+        if (m_deferedProject.empty() && hecl::SearchForProject(arg))
             m_deferedProject = arg;
-            break;
-        }
+        if (arg == _S("--no-shader-warmup"))
+            m_noShaderWarmup = true;
     }
 }
 

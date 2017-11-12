@@ -696,6 +696,7 @@ void CStateManager::DrawWorld() const
         SetupFogForArea(area);
         g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
         g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
+        g_Renderer->UpdateAreaUniforms(area.x4_selfIdx);
         g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, targetMask);
     }
 

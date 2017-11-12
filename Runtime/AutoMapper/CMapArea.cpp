@@ -56,7 +56,7 @@ void CMapArea::PostConstruct()
 
     CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx)
     {
-        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, x3c_vertexStart, 12, x2c_vertexCount);
+        m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
         m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
 
         /* Only the map universe specifies Always; it draws a maximum of 133 instances */
@@ -206,6 +206,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
     x1c_outlineOffset = buf + reinterpret_cast<uintptr_t>(x1c_outlineOffset);
 
     m_primStart = index.size();
+    bool start = true;
     {
         athena::io::MemoryReader r(x18_surfOffset, INT_MAX);
         u32 primCount = r.readUint32Big();
@@ -219,7 +220,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
             {
                 for (u32 v=0 ; v<count ; v+=3)
                 {
-                    if (index.size())
+                    if (!start)
                     {
                         index.push_back(index.back());
                         index.push_back(r.readUByte());
@@ -228,6 +229,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
                     else
                     {
                         index.push_back(r.readUByte());
+                        start = false;
                     }
                     index.push_back(r.readUByte());
                     index.push_back(r.readUByte());
@@ -237,7 +239,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
             }
             case GX::Primitive::TRIANGLESTRIP:
             {
-                if (index.size())
+                if (!start)
                 {
                     index.push_back(index.back());
                     index.push_back(r.readUByte());
@@ -246,6 +248,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
                 else
                 {
                     index.push_back(r.readUByte());
+                    start = false;
                 }
                 for (u32 v=1 ; v<count ; ++v)
                     index.push_back(r.readUByte());
@@ -256,7 +259,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
             case GX::Primitive::TRIANGLEFAN:
             {
                 u8 firstVert = r.readUByte();
-                if (index.size())
+                if (!start)
                 {
                     index.push_back(index.back());
                     index.push_back(r.readUByte());
@@ -265,6 +268,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
                 {
                     index.push_back(r.readUByte());
                     index.push_back(index.back());
+                    start = false;
                 }
                 for (u32 v=1 ; v<count ; ++v)
                 {
@@ -315,6 +319,7 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
                     u8 idx = r.readUByte();
                     prim.AddVertex(verts[idx], color, width);
                 }
+                r.seekAlign4();
                 prim.Render();
             }
             width -= 1.f;

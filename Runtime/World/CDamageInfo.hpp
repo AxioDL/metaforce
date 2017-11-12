@@ -16,10 +16,10 @@ class CDamageVulnerability;
 class CDamageInfo
 {
     CWeaponMode x0_weaponMode;
-    float x8_damage;
-    float xc_radiusDamage;
-    float x10_radius;
-    float x14_knockback;
+    float x8_damage = 0.f;
+    float xc_radiusDamage = 0.f;
+    float x10_radius = 0.f;
+    float x14_knockback = 0.f;
     bool x18_noImmunity = false;
 
 public:

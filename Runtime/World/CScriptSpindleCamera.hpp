@@ -6,7 +6,7 @@
 namespace urde
 {
 
-struct SSpindleSegment
+struct SSpindleProperty
 {
     u32 x0_;
     u32 x4_paramFlags;
@@ -15,7 +15,7 @@ struct SSpindleSegment
     float x10_;
     float x14_;
 
-    SSpindleSegment(CInputStream& in);
+    SSpindleProperty(CInputStream& in);
     void FixupAngles()
     {
         x8_ = zeus::degToRad(x8_);
@@ -31,35 +31,35 @@ class CScriptSpindleCamera : public CGameCamera
     float x1b4_f2;
     float x1b8_f3;
     float x1bc_f4;
-    SSpindleSegment x1c0_seg1;
-    SSpindleSegment x1d8_seg2;
-    SSpindleSegment x1f0_seg3;
-    SSpindleSegment x208_seg4;
-    SSpindleSegment x220_seg5;
-    SSpindleSegment x238_seg6;
-    SSpindleSegment x250_seg7;
-    SSpindleSegment x268_seg8;
-    SSpindleSegment x280_seg9;
-    SSpindleSegment x298_seg10;
-    SSpindleSegment x2b0_seg11;
-    SSpindleSegment x2c8_seg12;
-    SSpindleSegment x2e0_seg13;
-    SSpindleSegment x2f8_seg14;
-    SSpindleSegment x310_seg15;
+    SSpindleProperty x1c0_seg1;
+    SSpindleProperty x1d8_seg2;
+    SSpindleProperty x1f0_seg3;
+    SSpindleProperty x208_seg4;
+    SSpindleProperty x220_seg5;
+    SSpindleProperty x238_seg6;
+    SSpindleProperty x250_seg7;
+    SSpindleProperty x268_seg8;
+    SSpindleProperty x280_seg9;
+    SSpindleProperty x298_seg10;
+    SSpindleProperty x2b0_seg11;
+    SSpindleProperty x2c8_seg12;
+    SSpindleProperty x2e0_seg13;
+    SSpindleProperty x2f8_seg14;
+    SSpindleProperty x310_seg15;
     float x328_ = 0.f;
     bool x32c_24 = false;
     zeus::CVector3f x330_lookDir;
 public:
     CScriptSpindleCamera(TUniqueId uid, const std::string& name, const CEntityInfo& info,
                          const zeus::CTransform& xf, bool active, u32 r9,
-                         float f1, float f2, float f3, float f4, const SSpindleSegment& seg1,
-                         const SSpindleSegment& seg2, const SSpindleSegment& seg3,
-                         const SSpindleSegment& seg4, const SSpindleSegment& seg5,
-                         const SSpindleSegment& seg6, const SSpindleSegment& seg7,
-                         const SSpindleSegment& seg8, const SSpindleSegment& seg9,
-                         const SSpindleSegment& seg10, const SSpindleSegment& seg11,
-                         const SSpindleSegment& seg12, const SSpindleSegment& seg13,
-                         const SSpindleSegment& seg14, const SSpindleSegment& seg15);
+                         float f1, float f2, float f3, float f4, const SSpindleProperty& seg1,
+                         const SSpindleProperty& seg2, const SSpindleProperty& seg3,
+                         const SSpindleProperty& seg4, const SSpindleProperty& seg5,
+                         const SSpindleProperty& seg6, const SSpindleProperty& seg7,
+                         const SSpindleProperty& seg8, const SSpindleProperty& seg9,
+                         const SSpindleProperty& seg10, const SSpindleProperty& seg11,
+                         const SSpindleProperty& seg12, const SSpindleProperty& seg13,
+                         const SSpindleProperty& seg14, const SSpindleProperty& seg15);
 
     void Accept(IVisitor& visitor);
     void ProcessInput(const CFinalInput& input, CStateManager& mgr);

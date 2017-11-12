@@ -127,7 +127,7 @@ class CGameArea : public IGameArea
             bool xf0_27_paused : 1;
             bool xf0_28_validated : 1;
         };
-        u8 _dummy = 0;
+        u32 _dummy = 0;
     };
 
     enum class EPhase

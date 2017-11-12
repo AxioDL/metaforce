@@ -99,7 +99,7 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst)
 {
     zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
     q += mst.xc_orientation;
-    SetTransform(zeus::CTransform(q, x34_transform.origin));
+    SetTransform(zeus::CTransform(zeus::CQuaternion::fromNUQuaternion(q), x34_transform.origin));
 
     SetTranslation(x34_transform.origin + mst.x0_translation);
 
@@ -115,7 +115,7 @@ CMotionState CPhysicsActor::GetMotionState() const
 
 void CPhysicsActor::SetMotionState(const CMotionState& mst)
 {
-    SetTransform(zeus::CTransform(mst.xc_orientation, x34_transform.origin));
+    SetTransform(zeus::CTransform(zeus::CQuaternion::fromNUQuaternion(mst.xc_orientation), x34_transform.origin));
     SetTranslation(mst.x0_translation);
 
     xfc_constantForce = mst.x1c_velocity;
@@ -302,16 +302,17 @@ CMotionState CPhysicsActor::PredictMotion(float dt) const
 CMotionState CPhysicsActor::PredictLinearMotion(float dt) const
 {
     zeus::CVector3f velocity = CalculateNewVelocityWR_UsingImpulses();
-    return {velocity * dt, zeus::CNUQuaternion::skNoRotation, ((x15c_force + x150_momentum) * dt) + x168_impulse,
+    return {velocity * dt, {0.f, zeus::CVector3f::skZero}, ((x15c_force + x150_momentum) * dt) + x168_impulse,
             zeus::CAxisAngle::skZero};
 }
 
 CMotionState CPhysicsActor::PredictAngularMotion(float dt) const
 {
     const zeus::CVector3f v1 = xf4_inertiaTensorRecip * (x180_angularImpulse + x198_moveAngularImpulse);
-    zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion({0.f, x144_angularVelocity + v1});
-    return {zeus::CVector3f::skZero, q * zeus::CNUQuaternion(x34_transform.buildMatrix3f()) * dt,
+    zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion(0.f, x144_angularVelocity + v1);
+    CMotionState ret = {zeus::CVector3f::skZero, q * zeus::CNUQuaternion(x34_transform.buildMatrix3f()) * dt,
             zeus::CVector3f::skZero, (x174_torque * dt) + x180_angularImpulse};
+    return ret;
 }
 
 void CPhysicsActor::ApplyForceOR(const zeus::CVector3f& force, const zeus::CAxisAngle& torque)

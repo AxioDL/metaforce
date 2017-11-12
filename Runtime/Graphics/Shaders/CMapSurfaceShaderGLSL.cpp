@@ -1,5 +1,4 @@
 #include "CMapSurfaceShader.hpp"
-#include "TShader.hpp"
 
 namespace urde
 {

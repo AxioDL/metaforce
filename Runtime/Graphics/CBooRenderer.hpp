@@ -32,7 +32,7 @@ class Buckets
     friend class CBooRenderer;
 
     static rstl::reserved_vector<u16, 50> sBucketIndex;
-    static rstl::reserved_vector<CDrawable, 50>* sData;
+    static rstl::reserved_vector<CDrawable, 512>* sData;
     static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets;
     static rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData;
     static rstl::reserved_vector<u16, 8>* sPlaneObjectBucket;
@@ -42,8 +42,8 @@ class Buckets
 public:
     static void Clear();
     static void Sort();
-    static void InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool b1,
-                                  const zeus::CPlane& plane, bool b2, EDrawableType dtype, const void* data);
+    static void InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool invertTest,
+                                  const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data);
     static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype,
                        const void* data, const zeus::CPlane& plane, u16 extraSort);
     static void Shutdown();
@@ -208,6 +208,7 @@ public:
     void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx);
     void EnablePVS(const CPVSVisSet&, u32);
     void DisablePVS();
+    void UpdateAreaUniforms(int areaIdx);
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
     void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
     void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask);

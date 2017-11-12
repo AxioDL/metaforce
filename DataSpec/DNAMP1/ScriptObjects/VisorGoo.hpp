@@ -15,14 +15,14 @@ struct VisorGoo : IScriptObject
     String<-1> name;
     Value<atVec3f> position;
     UniqueID32 particle;
-    Value<atUint32> unknown1; // always FF
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<float> unknown4;
-    Value<float> unknown5;
-    Value<atVec4f> unknown6; // CColor
-    Value<atUint32> unknown7;
-    Value<bool> unknown8;
+    UniqueID32 electric;
+    Value<float> minDist;
+    Value<float> maxDist;
+    Value<float> nearProb;
+    Value<float> farProb;
+    DNAColor color;
+    Value<atUint32> sfx;
+    Value<bool> skipAngleTest;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {
@@ -31,11 +31,17 @@ struct VisorGoo : IScriptObject
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
             ent->name = name + "_part";
         }
+        if (electric)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(electric);
+            ent->name = name + "_elsc";
+        }
     }
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
         g_curSpec->flattenDependencies(particle, pathsOut);
+        g_curSpec->flattenDependencies(electric, pathsOut);
     }
 };
 }

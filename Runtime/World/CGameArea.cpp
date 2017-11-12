@@ -1010,7 +1010,7 @@ void CGameArea::Validate(CStateManager& mgr)
 
     PostConstructArea();
     if (x4_selfIdx != kInvalidAreaId)
-        mgr.WorldNC()->MoveAreaToChain3(x4_selfIdx);
+        mgr.WorldNC()->MoveAreaToAliveChain(x4_selfIdx);
 
     LoadScriptObjects(mgr);
 

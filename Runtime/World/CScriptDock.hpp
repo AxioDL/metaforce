@@ -33,7 +33,8 @@ class CScriptDock : public CPhysicsActor
 
 public:
     CScriptDock(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CVector3f position,
-                const zeus::CVector3f& extent, s32, TAreaId, bool active, s32 w1, bool b1);
+                const zeus::CVector3f& extent, s32 dock, TAreaId area, bool active,
+                s32 dockReferenceCount, bool loadConnected);
 
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);

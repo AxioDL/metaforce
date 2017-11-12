@@ -606,7 +606,9 @@ void CBooModel::DrawSurfaces(const CModelFlags& flags) const
 
 void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const
 {
-    if (m_uniUpdateCount > m_instances.size())
+    //if (m_uniUpdateCount == 0)
+    //    Log.report(logvisor::Fatal, "UpdateUniformData() not called");
+    if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
         return;
     const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
 
@@ -727,7 +729,8 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::CylinderEnvironment:
     {
-        texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+        //texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
+        texMtxOut = CGraphics::g_GXModelView.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
 
         const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;

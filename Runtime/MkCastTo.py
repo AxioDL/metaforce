@@ -67,6 +67,7 @@ CENTITY_TYPES = (
     ('CScriptTimer', 'World/CScriptTimer.hpp'),
     ('CScriptTrigger', 'World/CScriptTrigger.hpp'),
     ('CScriptVisorFlare', 'World/CScriptVisorFlare.hpp'),
+    ('CScriptVisorGoo', 'World/CScriptVisorGoo.hpp'),
     ('CScriptWater', 'World/CScriptWater.hpp'),
     ('CScriptWaypoint', 'World/CScriptWaypoint.hpp'),
     ('CSnakeWeedSwarm', 'World/CSnakeWeedSwarm.hpp'),

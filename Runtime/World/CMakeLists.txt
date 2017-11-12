@@ -96,6 +96,7 @@ set(WORLD_SOURCES
     CScriptRoomAcoustics.hpp CScriptRoomAcoustics.cpp
     CScriptControllerAction.hpp CScriptControllerAction.cpp
     CVisorFlare.hpp CVisorFlare.cpp
+    CScriptVisorGoo.hpp CScriptVisorGoo.cpp
     CGrappleParameters.hpp
     CActorParameters.hpp
     CLightParameters.hpp

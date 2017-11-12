@@ -329,6 +329,8 @@ float CSfxManager::GetReverbAmount()
 
 void CSfxManager::PitchBend(const CSfxHandle& handle, float pitch)
 {
+    if (!handle)
+        return;
     if (!handle->IsPlaying())
         CSfxManager::Update(0.f);
     if (handle->IsPlaying())
@@ -340,6 +342,8 @@ void CSfxManager::PitchBend(const CSfxHandle& handle, float pitch)
 
 void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol)
 {
+    if (!handle)
+        return;
     if (handle->IsEmitter())
     {
         CSfxWrapper& wrapper = static_cast<CSfxWrapper&>(*handle);
@@ -351,6 +355,8 @@ void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol)
 
 void CSfxManager::SfxSpan(const CSfxHandle& handle, float span)
 {
+    if (!handle)
+        return;
     if (handle->IsPlaying())
         handle->GetVoice()->setSurroundPan(span);
 }

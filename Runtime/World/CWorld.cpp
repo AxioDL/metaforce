@@ -230,14 +230,14 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain)
         return;
 
     if (area->x138_curChain != EChain::Invalid)
-        if (x4c_chainHeads[int(chain)] == area)
-            x4c_chainHeads[int(chain)] = area->x130_next;
+        if (x4c_chainHeads[int(area->x138_curChain)] == area)
+            x4c_chainHeads[int(area->x138_curChain)] = area->x130_next;
 
     area->SetChain(x4c_chainHeads[int(chain)], chain);
     x4c_chainHeads[int(chain)] = area;
 }
 
-void CWorld::MoveAreaToChain3(TAreaId aid)
+void CWorld::MoveAreaToAliveChain(TAreaId aid)
 {
     MoveToChain(x18_areas[aid].get(), EChain::Alive);
 }
@@ -282,7 +282,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
         {
             CAssetId skyboxId = r.readUint32Big();
             if (skyboxId != -1 && mgr)
-                x94_skybox = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
+                x94_skyboxWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
         }
         if (version >= 17)
             x2c_relays = CWorld::CRelay::ReadMemoryRelays(r);
@@ -359,13 +359,13 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     }
     case Phase::LoadingSkyBox:
     {
-        x70_26_skyboxOverridden = true;
-        x70_27_needsSky = false;
+        x70_26_skyboxActive = true;
+        x70_27_skyboxVisible = false;
 
-        if (!x94_skybox.IsLoaded())
+        if (!x94_skyboxWorld.IsLoaded())
             return false;
 
-        CModel* skybox = x94_skybox.GetObj();
+        CModel* skybox = x94_skyboxWorld.GetObj();
         if (!skybox)
             return false;
 
@@ -373,7 +373,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
         if (!skybox->IsLoaded(0))
             return false;
 
-        xa4_skyboxB = x94_skybox;
+        xa4_skyboxWorldLoaded = x94_skyboxWorld;
 
         for (CSoundGroupData& group : x74_soundGroupData)
             group.x1c_groupData.Lock();
@@ -565,15 +565,15 @@ void CWorld::PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGame
 void CWorld::Update(float dt)
 {
     xc4_neededFx = EEnvFxType::None;
-    CAssetId skyModel;
+    CAssetId overrideSkyId;
     bool needsSky = false;
-    CGameArea::EOcclusionState occlusionState = CGameArea::EOcclusionState::Occluded;
+    bool skyVisible = false;
 
-    u32 r26 = 0;
+    u32 areaCount = 0;
 
     for (CGameArea* head = x4c_chainHeads[3] ;
          head != skGlobalNonConstEnd ;
-         head = head->x130_next, ++r26)
+         head = head->x130_next, ++areaCount)
     {
         head->AliveUpdate(dt);
 
@@ -582,12 +582,14 @@ void CWorld::Update(float dt)
             const CScriptAreaAttributes* attrs = head->GetPostConstructed()->x10d8_areaAttributes;
 
             if (attrs && attrs->GetSkyModel().IsValid())
-                skyModel = attrs->GetSkyModel();
+                overrideSkyId = attrs->GetSkyModel();
 
             needsSky = true;
-            occlusionState = (head->IsPostConstructed()
+            CGameArea::EOcclusionState occlusionState = (head->IsPostConstructed()
                                              ? head->GetPostConstructed()->x10dc_occlusionState
                                              : CGameArea::EOcclusionState::Occluded);
+            if (occlusionState == CGameArea::EOcclusionState::Visible)
+                skyVisible = true;
         }
 
         EEnvFxType envFxType = head->DoesAreaNeedEnvFx();
@@ -595,16 +597,48 @@ void CWorld::Update(float dt)
             xc4_neededFx = envFxType;
     }
 
-    if (r26 == 0)
+    if (areaCount == 0)
         return;
 
-    if (skyModel.IsValid() && needsSky)
+    if (overrideSkyId.IsValid() && needsSky)
     {
-        x70_26_skyboxOverridden = true;
-        x70_27_needsSky = needsSky;
-
-        TToken<CModel> skybox = g_SimplePool->GetObj({SBIG('CMDL'), skyModel});
-        /* TODO: Finish */
+        x70_26_skyboxActive = true;
+        x70_27_skyboxVisible = skyVisible;
+        xb4_skyboxOverride = g_SimplePool->GetObj({SBIG('CMDL'), overrideSkyId});
+        xa4_skyboxWorldLoaded = TLockedToken<CModel>();
+        if (x94_skyboxWorld)
+            x94_skyboxWorld.Unlock();
+    }
+    else
+    {
+        xb4_skyboxOverride = TLockedToken<CModel>();
+        if (!x94_skyboxWorld)
+        {
+            x70_26_skyboxActive = false;
+            x70_27_skyboxVisible = false;
+        }
+        else if (!needsSky)
+        {
+            xa4_skyboxWorldLoaded = TLockedToken<CModel>();
+            x94_skyboxWorld.Unlock();
+            x70_26_skyboxActive = false;
+            x70_27_skyboxVisible = false;
+        }
+        else
+        {
+            if (!xa4_skyboxWorldLoaded)
+            {
+                x94_skyboxWorld.Lock();
+                if (x94_skyboxWorld.IsLoaded())
+                {
+                    x94_skyboxWorld->Touch(0);
+                    if (x94_skyboxWorld->IsLoaded(0))
+                        xa4_skyboxWorldLoaded = x94_skyboxWorld;
+                }
+            }
+            x70_26_skyboxActive = true;
+            x70_27_skyboxVisible = skyVisible;
+        }
     }
 }
 
@@ -631,14 +665,14 @@ void CWorld::TouchSky()
 void CWorld::DrawSky(const zeus::CTransform& xf) const
 {
     const CModel* model;
-    if (xa4_skyboxB)
-        model = xa4_skyboxB.GetObj();
-    else if (xb4_skyboxC)
-        model = xb4_skyboxC.GetObj();
+    if (xa4_skyboxWorldLoaded)
+        model = xa4_skyboxWorldLoaded.GetObj();
+    else if (xb4_skyboxOverride)
+        model = xb4_skyboxOverride.GetObj();
     else
         return;
 
-    if (!x70_27_needsSky)
+    if (!x70_27_skyboxVisible)
         return;
 
     CGraphics::DisableAllLights();
