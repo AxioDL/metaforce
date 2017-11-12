@@ -44,7 +44,7 @@ def cook(writebuf, mesh_obj):
 
     # Create map surfaces and borders
     island_faces = list(bm_master.faces)
-    prev_loop_emit = None
+    #prev_loop_emit = None
     out_count = 0
     loop_ranges = []
     loop_iter = 0
@@ -91,15 +91,8 @@ def cook(writebuf, mesh_obj):
         loop_set = set()
         edge_set = set()
         loop_count = len(max_sl)
-        if prev_loop_emit:
-            vert_pool.loop_out_map(writebuf, prev_loop_emit)
-            vert_pool.loop_out_map(writebuf, max_sl[0])
-            loop_count += 2
-            loop_set.add(prev_loop_emit)
-            loop_set.add(max_sl[0])
         for loop in max_sl:
             vert_pool.loop_out_map(writebuf, loop)
-            prev_loop_emit = loop
             loop_set.add(loop)
             for edge in loop.face.edges:
                 if edge.seam:
@@ -146,7 +139,7 @@ def cook(writebuf, mesh_obj):
             norm_avg.normalize()
 
         loop_ranges.append((loop_iter, loop_count, edge_ranges, pos_avg, norm_avg))
-        loop_iter += loop_count + edge_count
+        loop_iter = edge_iter
 
     # No more surfaces
     writebuf(struct.pack('B', 0))
