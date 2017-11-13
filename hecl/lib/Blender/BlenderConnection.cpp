@@ -35,6 +35,8 @@ template <> struct hash<std::pair<uint32_t,uint32_t>>
 };
 }
 
+using namespace std::literals;
+
 namespace hecl
 {
 
@@ -603,14 +605,14 @@ bool BlenderConnection::createBlend(const ProjectPath& path, BlendType type)
                           "BlenderConnection::createBlend() musn't be called with stream active");
         return false;
     }
-    _writeStr(("CREATE \"" + path.getAbsolutePathUTF8() + "\" " + BlendTypeStrs[int(type)] +
+    _writeStr(("CREATE \""s + path.getAbsolutePathUTF8().data() + "\" " + BlendTypeStrs[int(type)] +
         " \"" + m_startupBlend + "\"").c_str());
     char lineBuf[256];
     _readStr(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
     {
         /* Delete immediately in case save doesn't occur */
-        hecl::Unlink(path.getAbsolutePath().c_str());
+        hecl::Unlink(path.getAbsolutePath().data());
         m_loadedBlend = path;
         m_loadedType = type;
         return true;
@@ -628,7 +630,7 @@ bool BlenderConnection::openBlend(const ProjectPath& path, bool force)
     }
     if (!force && path == m_loadedBlend)
         return true;
-    _writeStr(("OPEN \"" + path.getAbsolutePathUTF8() + "\"").c_str());
+    _writeStr(("OPEN \""s + path.getAbsolutePathUTF8().data() + "\"").c_str());
     char lineBuf[256];
     _readStr(lineBuf, sizeof(lineBuf));
     if (!strcmp(lineBuf, "FINISHED"))
@@ -680,8 +682,8 @@ void BlenderConnection::deleteBlend()
 {
     if (m_loadedBlend)
     {
-        hecl::Unlink(m_loadedBlend.getAbsolutePath().c_str());
-        BlenderLog.report(logvisor::Info, _S("Deleted '%s'"), m_loadedBlend.getAbsolutePath().c_str());
+        hecl::Unlink(m_loadedBlend.getAbsolutePath().data());
+        BlenderLog.report(logvisor::Info, _S("Deleted '%s'"), m_loadedBlend.getAbsolutePath().data());
         m_loadedBlend = ProjectPath();
     }
 }
@@ -930,10 +932,10 @@ BlenderConnection::DataStream::Mesh::Material::Material
         conn._readBuf(&bufSz, 4);
         std::string readStr(bufSz, ' ');
         conn._readBuf(&readStr[0], bufSz);
-        SystemStringView absolute(readStr);
+        SystemStringConv absolute(readStr);
 
         SystemString relative =
-        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
         texs.emplace_back(conn.m_loadedBlend.getProject().getProjectWorkingPath(), relative);
     }
 
@@ -1227,7 +1229,7 @@ BlenderConnection::DataStream::MapUniverse::World::World(BlenderConnection& conn
         path.assign(pathLen, '\0');
         conn._readBuf(&path[0], pathLen);
 
-        hecl::SystemStringView sysPath(path);
+        hecl::SystemStringConv sysPath(path);
         worldPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), sysPath.sys_str());
     }
 }
@@ -1242,7 +1244,7 @@ BlenderConnection::DataStream::MapUniverse::MapUniverse(BlenderConnection& conn)
         path.assign(pathLen, '\0');
         conn._readBuf(&path[0], pathLen);
 
-        hecl::SystemStringView sysPath(path);
+        hecl::SystemStringConv sysPath(path);
         SystemString pathRel =
         conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(sysPath.sys_str());
         hexagonPath.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), pathRel);
@@ -1324,10 +1326,10 @@ BlenderConnection::DataStream::Actor::Subtype::Subtype(BlenderConnection& conn)
     {
         meshPath.assign(bufSz, ' ');
         conn._readBuf(&meshPath[0], bufSz);
-        SystemStringView meshPathAbs(meshPath);
+        SystemStringConv meshPathAbs(meshPath);
 
         SystemString meshPathRel =
-        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs);
+        conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
         mesh.assign(conn.m_loadedBlend.getProject().getProjectWorkingPath(), meshPathRel);
     }
 
@@ -1349,10 +1351,10 @@ BlenderConnection::DataStream::Actor::Subtype::Subtype(BlenderConnection& conn)
         {
             meshPath.assign(bufSz, ' ');
             conn._readBuf(&meshPath[0], bufSz);
-            SystemStringView meshPathAbs(meshPath);
+            SystemStringConv meshPathAbs(meshPath);
 
             SystemString meshPathRel =
-            conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs);
+            conn.m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
             overlayMeshes.emplace_back(std::move(overlayName),
             ProjectPath(conn.m_loadedBlend.getProject().getProjectWorkingPath(), meshPathRel));
         }
@@ -1432,7 +1434,7 @@ BlenderConnection::DataStream::compileMesh(HMDLTopology topology,
 {
     if (m_parent->m_loadedType != BlendType::Mesh)
         BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
     snprintf(req, 128, "MESHCOMPILE %s %d",
@@ -1448,43 +1450,43 @@ BlenderConnection::DataStream::compileMesh(HMDLTopology topology,
 }
 
 BlenderConnection::DataStream::Mesh
-BlenderConnection::DataStream::compileMesh(const std::string& name,
+BlenderConnection::DataStream::compileMesh(std::string_view name,
                                            HMDLTopology topology,
                                            int skinSlotCount,
                                            Mesh::SurfProgFunc surfProg)
 {
     if (m_parent->m_loadedType != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
-    snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.c_str(),
+    snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.data(),
              MeshOutputModeString(topology), skinSlotCount);
     m_parent->_writeStr(req);
 
     char readBuf[256];
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
-        BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.c_str(), readBuf);
+        BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.data(), readBuf);
 
     return Mesh(*m_parent, topology, skinSlotCount, surfProg);
 }
 
 BlenderConnection::DataStream::ColMesh
-BlenderConnection::DataStream::compileColMesh(const std::string& name)
+BlenderConnection::DataStream::compileColMesh(std::string_view name)
 {
     if (m_parent->m_loadedType != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
-    snprintf(req, 128, "MESHCOMPILENAMECOLLISION %s", name.c_str());
+    snprintf(req, 128, "MESHCOMPILENAMECOLLISION %s", name.data());
     m_parent->_writeStr(req);
 
     char readBuf[256];
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
-        BlenderLog.report(logvisor::Fatal, "unable to cook collision mesh '%s': %s", name.c_str(), readBuf);
+        BlenderLog.report(logvisor::Fatal, "unable to cook collision mesh '%s': %s", name.data(), readBuf);
 
     return ColMesh(*m_parent);
 }
@@ -1494,7 +1496,7 @@ BlenderConnection::DataStream::compileColMeshes()
 {
     if (m_parent->m_loadedType != BlendType::ColMesh)
         BlenderLog.report(logvisor::Fatal, _S("%s is not a CMESH blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
     snprintf(req, 128, "MESHCOMPILECOLLISIONALL");
@@ -1525,7 +1527,7 @@ BlenderConnection::DataStream::compileAllMeshes(HMDLTopology topology,
 {
     if (m_parent->m_loadedType != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
     snprintf(req, 128, "MESHCOMPILEALL %s %d %f",
@@ -1545,7 +1547,7 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
 {
     if (m_parent->m_loadedType != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("LIGHTCOMPILEALL");
 
@@ -1566,14 +1568,14 @@ std::vector<BlenderConnection::DataStream::Light> BlenderConnection::DataStream:
     return ret;
 }
 
-void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, int version)
+void BlenderConnection::DataStream::compileGuiFrame(std::string_view pathOut, int version)
 {
     if (m_parent->m_loadedType != BlendType::Frame)
         BlenderLog.report(logvisor::Fatal, _S("%s is not a FRAME blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[512];
-    snprintf(req, 512, "FRAMECOMPILE '%s' %d", pathOut.c_str(), version);
+    snprintf(req, 512, "FRAMECOMPILE '%s' %d", pathOut.data(), version);
     m_parent->_writeStr(req);
 
     char readBuf[1024];
@@ -1588,13 +1590,13 @@ void BlenderConnection::DataStream::compileGuiFrame(const std::string& pathOut, 
             break;
 
         std::string readStr(readBuf);
-        SystemStringView absolute(readStr);
+        SystemStringConv absolute(readStr);
         auto& proj = m_parent->m_loadedBlend.getProject();
         SystemString relative;
         if (PathRelative(absolute.c_str()))
             relative = absolute.sys_str();
         else
-            relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
+            relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
         hecl::ProjectPath path(proj.getProjectWorkingPath(), relative);
 
         snprintf(req, 512, "%016" PRIX64 , path.hash().val64());
@@ -1621,10 +1623,10 @@ std::vector<ProjectPath> BlenderConnection::DataStream::getTextures()
         m_parent->_readBuf(&bufSz, 4);
         std::string readStr(bufSz, ' ');
         m_parent->_readBuf(&readStr[0], bufSz);
-        SystemStringView absolute(readStr);
+        SystemStringConv absolute(readStr);
 
         SystemString relative =
-        m_parent->m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute);
+        m_parent->m_loadedBlend.getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
         texs.emplace_back(m_parent->m_loadedBlend.getProject().getProjectWorkingPath(), relative);
     }
 
@@ -1635,7 +1637,7 @@ BlenderConnection::DataStream::Actor BlenderConnection::DataStream::compileActor
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("ACTORCOMPILE");
 
@@ -1652,7 +1654,7 @@ BlenderConnection::DataStream::compileActorCharacterOnly()
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("ACTORCOMPILECHARACTERONLY");
 
@@ -1665,14 +1667,14 @@ BlenderConnection::DataStream::compileActorCharacterOnly()
 }
 
 BlenderConnection::DataStream::Actor::Action
-BlenderConnection::DataStream::compileActionChannelsOnly(const std::string& name)
+BlenderConnection::DataStream::compileActionChannelsOnly(std::string_view name)
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
-    snprintf(req, 128, "ACTIONCOMPILECHANNELSONLY %s", name.c_str());
+    snprintf(req, 128, "ACTIONCOMPILECHANNELSONLY %s", name.data());
     m_parent->_writeStr(req);
 
     char readBuf[256];
@@ -1688,7 +1690,7 @@ BlenderConnection::DataStream::compileWorld()
 {
     if (m_parent->m_loadedType != BlendType::World)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an WORLD blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("WORLDCOMPILE");
 
@@ -1704,7 +1706,7 @@ std::vector<std::string> BlenderConnection::DataStream::getArmatureNames()
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("GETARMATURENAMES");
 
@@ -1735,7 +1737,7 @@ std::vector<std::string> BlenderConnection::DataStream::getSubtypeNames()
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("GETSUBTYPENAMES");
 
@@ -1766,7 +1768,7 @@ std::vector<std::string> BlenderConnection::DataStream::getActionNames()
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("GETACTIONNAMES");
 
@@ -1793,14 +1795,14 @@ std::vector<std::string> BlenderConnection::DataStream::getActionNames()
     return ret;
 }
 
-std::vector<std::string> BlenderConnection::DataStream::getSubtypeOverlayNames(const std::string& name)
+std::vector<std::string> BlenderConnection::DataStream::getSubtypeOverlayNames(std::string_view name)
 {
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
-    snprintf(req, 128, "GETSUBTYPEOVERLAYNAMES %s", name.c_str());
+    snprintf(req, 128, "GETSUBTYPEOVERLAYNAMES %s", name.data());
     m_parent->_writeStr(req);
 
     char readBuf[256];
@@ -1827,17 +1829,17 @@ std::vector<std::string> BlenderConnection::DataStream::getSubtypeOverlayNames(c
 }
 
 std::unordered_map<std::string, BlenderConnection::DataStream::Matrix3f>
-BlenderConnection::DataStream::getBoneMatrices(const std::string& name)
+BlenderConnection::DataStream::getBoneMatrices(std::string_view name)
 {
     if (name.empty())
         return {};
 
     if (m_parent->m_loadedType != BlendType::Actor)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[128];
-    snprintf(req, 128, "GETBONEMATRICES %s", name.c_str());
+    snprintf(req, 128, "GETBONEMATRICES %s", name.data());
     m_parent->_writeStr(req);
 
     char readBuf[256];
@@ -1877,17 +1879,17 @@ BlenderConnection::DataStream::getBoneMatrices(const std::string& name)
 
 }
 
-bool BlenderConnection::DataStream::renderPvs(const std::string& path, const atVec3f& location)
+bool BlenderConnection::DataStream::renderPvs(std::string_view path, const atVec3f& location)
 {
     if (path.empty())
         return false;
 
     if (m_parent->m_loadedType != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[256];
-    snprintf(req, 256, "RENDERPVS %s %f %f %f", path.c_str(),
+    snprintf(req, 256, "RENDERPVS %s %f %f %f", path.data(),
              location.vec[0], location.vec[1], location.vec[2]);
     m_parent->_writeStr(req);
 
@@ -1895,29 +1897,29 @@ bool BlenderConnection::DataStream::renderPvs(const std::string& path, const atV
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
         BlenderLog.report(logvisor::Fatal, "unable to render PVS for: %s; %s",
-                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().data(), readBuf);
 
     return true;
 }
 
-bool BlenderConnection::DataStream::renderPvsLight(const std::string& path, const std::string& lightName)
+bool BlenderConnection::DataStream::renderPvsLight(std::string_view path, std::string_view lightName)
 {
     if (path.empty())
         return false;
 
     if (m_parent->m_loadedType != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     char req[256];
-    snprintf(req, 256, "RENDERPVSLIGHT %s %s", path.c_str(), lightName.c_str());
+    snprintf(req, 256, "RENDERPVSLIGHT %s %s", path.data(), lightName.data());
     m_parent->_writeStr(req);
 
     char readBuf[256];
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
-        BlenderLog.report(logvisor::Fatal, "unable to render PVS light %s for: %s; %s", lightName.c_str(),
-                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
+        BlenderLog.report(logvisor::Fatal, "unable to render PVS light %s for: %s; %s", lightName.data(),
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().data(), readBuf);
 
     return true;
 }
@@ -1926,7 +1928,7 @@ BlenderConnection::DataStream::MapArea BlenderConnection::DataStream::compileMap
 {
     if (m_parent->m_loadedType != BlendType::MapArea)
         BlenderLog.report(logvisor::Fatal, _S("%s is not a MAPAREA blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("MAPAREACOMPILE");
 
@@ -1934,7 +1936,7 @@ BlenderConnection::DataStream::MapArea BlenderConnection::DataStream::compileMap
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
         BlenderLog.report(logvisor::Fatal, "unable to compile map area: %s; %s",
-                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().data(), readBuf);
 
     return {*m_parent};
 }
@@ -1943,7 +1945,7 @@ BlenderConnection::DataStream::MapUniverse BlenderConnection::DataStream::compil
 {
     if (m_parent->m_loadedType != BlendType::MapUniverse)
         BlenderLog.report(logvisor::Fatal, _S("%s is not a MAPUNIVERSE blend"),
-                          m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                          m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("MAPUNIVERSECOMPILE");
 
@@ -1951,7 +1953,7 @@ BlenderConnection::DataStream::MapUniverse BlenderConnection::DataStream::compil
     m_parent->_readStr(readBuf, 256);
     if (strcmp(readBuf, "OK"))
         BlenderLog.report(logvisor::Fatal, "unable to compile map universe: %s; %s",
-                          m_parent->m_loadedBlend.getAbsolutePathUTF8().c_str(), readBuf);
+                          m_parent->m_loadedBlend.getAbsolutePathUTF8().data(), readBuf);
 
     return {*m_parent};
 }

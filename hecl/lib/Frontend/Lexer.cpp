@@ -345,7 +345,7 @@ void Lexer::consumeAllTokens(Parser& parser)
 
     if (hecl::VerbosityLevel > 1)
     {
-        printf("%s\n", m_diag.getSource().c_str());
+        printf("%s\n", m_diag.getSource().data());
         PrintTree(firstNode);
         printf("\n");
     }

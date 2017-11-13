@@ -23,9 +23,9 @@ class ToolPackage final : public ToolBase
 
     void CheckFile(const hecl::ProjectPath& path)
     {
-        if (!hecl::StrCmp(path.getLastComponent(), _S("!world.blend")))
+        if (!hecl::StrCmp(path.getLastComponent().data(), _S("!world.blend")))
             AddSelectedItem(path);
-        else if (!hecl::StrCmp(path.getLastComponent(), _S("!original_ids.yaml")))
+        else if (!hecl::StrCmp(path.getLastComponent().data(), _S("!original_ids.yaml")))
         {
             auto pathComps = path.getPathComponents();
             if (pathComps.size() == 2 && pathComps[0] != _S("out"))
@@ -100,8 +100,8 @@ public:
                         LogModule.report(logvisor::Fatal,
                                          _S("hecl package can only process multiple items in the same project; ")
                                          _S("'%s' and '%s' are different projects"),
-                                         m_fallbackProj->getProjectRootPath().getAbsolutePath().c_str(),
-                                         root.getAbsolutePath().c_str());
+                                         m_fallbackProj->getProjectRootPath().getAbsolutePath().data(),
+                                         root.getAbsolutePath().data());
 
                     FindSelectedItems({*m_useProj, subPath}, true);
                 }
@@ -172,7 +172,7 @@ public:
             hecl::Printf(_S("ABOUT TO PACKAGE:\n"));
 
         for (auto& item : m_selectedItems)
-            hecl::Printf(_S("%s\n"), item.getRelativePath().c_str());
+            hecl::Printf(_S("%s\n"), item.getRelativePath().data());
 
         if (continuePrompt())
         {
@@ -180,7 +180,7 @@ public:
             for (const hecl::ProjectPath& path : m_selectedItems)
             {
                 if (!m_useProj->packagePath(path, {}, m_fast, &cp))
-                    LogModule.report(logvisor::Error, _S("Unable to package %s"), path.getAbsolutePath().c_str());
+                    LogModule.report(logvisor::Error, _S("Unable to package %s"), path.getAbsolutePath().data());
             }
             cp.waitUntilComplete();
         }

@@ -35,7 +35,7 @@ void ClientProcess::BufferTransaction::run(BlenderToken& btok)
     if (r.hasError())
     {
         Log.report(logvisor::Fatal, _S("unable to background-buffer '%s'"),
-                   m_path.getAbsolutePath().c_str());
+                   m_path.getAbsolutePath().data());
         return;
     }
     if (m_offset)
@@ -162,11 +162,11 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
             {
                 if (path.getAuxInfo().empty())
                     LogModule.report(logvisor::Info, _S("Cooking %s"),
-                                     path.getRelativePath().c_str());
+                                     path.getRelativePath().data());
                 else
                     LogModule.report(logvisor::Info, _S("Cooking %s|%s"),
-                                     path.getRelativePath().c_str(),
-                                     path.getAuxInfo().c_str());
+                                     path.getRelativePath().data(),
+                                     path.getAuxInfo().data());
                 spec->doCook(path, cooked, false, btok, [](const SystemChar*) {});
             }
             return true;

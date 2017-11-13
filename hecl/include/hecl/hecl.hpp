@@ -49,11 +49,11 @@ struct DataSpecEntry;
 extern unsigned VerbosityLevel;
 extern logvisor::Module LogModule;
 
-std::string WideToUTF8(const std::wstring& src);
-std::string Char16ToUTF8(const std::u16string& src);
-std::wstring Char16ToWide(const std::u16string& src);
-std::wstring UTF8ToWide(const std::string& src);
-std::u16string UTF8ToChar16(const std::string& src);
+std::string WideToUTF8(std::wstring_view src);
+std::string Char16ToUTF8(std::u16string_view src);
+std::wstring Char16ToWide(std::u16string_view src);
+std::wstring UTF8ToWide(std::string_view src);
+std::u16string UTF8ToChar16(std::string_view src);
 
 /* humanize_number port from FreeBSD's libutil */
 enum class HNFlags
@@ -77,63 +77,51 @@ ENABLE_BITWISE_ENUM(HNScale)
 std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int scale, HNFlags flags);
 
 #if HECL_UCS2
-class SystemUTF8View
+class SystemUTF8Conv
 {
     std::string m_utf8;
 public:
-    explicit SystemUTF8View(const SystemString& str)
+    explicit SystemUTF8Conv(SystemStringView str)
     : m_utf8(WideToUTF8(str)) {}
-    operator const std::string&() const {return m_utf8;}
-    const std::string& str() const {return m_utf8;}
+    std::string_view str() const {return m_utf8;}
     const char* c_str() const {return m_utf8.c_str();}
-    std::string operator+(const std::string& other) const {return m_utf8 + other;}
-    std::string operator+(const char* other) const {return m_utf8 + other;}
+    std::string operator+(std::string_view other) const {return m_utf8 + other;}
 };
-inline std::string operator+(const std::string& lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
-inline std::string operator+(const char* lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
-class SystemStringView
+inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {return lhs + std::string(rhs);}
+class SystemStringConv
 {
     std::wstring m_sys;
 public:
-    explicit SystemStringView(const std::string& str)
+    explicit SystemStringConv(std::string_view str)
     : m_sys(UTF8ToWide(str)) {}
-    operator const std::wstring&() const {return m_sys;}
-    const std::wstring& sys_str() const {return m_sys;}
+    SystemStringView sys_str() const {return m_sys;}
     const SystemChar* c_str() const {return m_sys.c_str();}
-    std::wstring operator+(const std::wstring& other) const {return m_sys + other;}
-    std::wstring operator+(const wchar_t* other) const {return m_sys + other;}
+    std::wstring operator+(const std::wstring_view other) const {return m_sys + other;}
 };
-inline std::wstring operator+(const std::wstring& lhs, const SystemStringView& rhs) {return lhs + std::wstring(rhs);}
-inline std::wstring operator+(const wchar_t* lhs, const SystemStringView& rhs) {return lhs + std::wstring(rhs);}
+inline std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {return lhs + std::wstring(rhs);}
 #else
-class SystemUTF8View
+class SystemUTF8Conv
 {
-    const std::string& m_utf8;
+    std::string_view m_utf8;
 public:
-    explicit SystemUTF8View(const SystemString& str)
+    explicit SystemUTF8Conv(SystemStringView str)
     : m_utf8(str) {}
-    operator const std::string&() const {return m_utf8;}
-    const std::string& str() const {return m_utf8;}
-    const char* c_str() const {return m_utf8.c_str();}
-    std::string operator+(const std::string& other) const {return std::string(m_utf8) + other;}
-    std::string operator+(const char* other) const {return std::string(m_utf8) + other;}
+    std::string_view str() const {return m_utf8;}
+    const char* c_str() const {return m_utf8.data();}
+    std::string operator+(std::string_view other) const {return std::string(m_utf8) + other.data();}
 };
-inline std::string operator+(const std::string& lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
-inline std::string operator+(const char* lhs, const SystemUTF8View& rhs) {return lhs + std::string(rhs);}
-class SystemStringView
+inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {return std::string(lhs) + rhs.c_str();}
+class SystemStringConv
 {
-    const std::string& m_sys;
+    std::string_view m_sys;
 public:
-    explicit SystemStringView(const std::string& str)
+    explicit SystemStringConv(std::string_view str)
     : m_sys(str) {}
-    operator const std::string&() const {return m_sys;}
-    const std::string& sys_str() const {return m_sys;}
-    const SystemChar* c_str() const {return m_sys.c_str();}
-    std::string operator+(const std::string& other) const {return m_sys + other;}
-    std::string operator+(const char* other) const {return m_sys + other;}
+    SystemStringView sys_str() const {return m_sys;}
+    const SystemChar* c_str() const {return m_sys.data();}
+    std::string operator+(std::string_view other) const {return std::string(m_sys) + other.data();}
 };
-inline std::string operator+(const std::string& lhs, const SystemStringView& rhs) {return lhs + std::string(rhs);}
-inline std::string operator+(const char* lhs, const SystemStringView& rhs) {return lhs + std::string(rhs);}
+inline std::string operator+(std::string_view lhs, const SystemStringConv& rhs) {return std::string(lhs) + rhs.c_str();}
 #endif
 
 void SanitizePath(std::string& path);
@@ -226,7 +214,7 @@ static SystemString GetcwdStr()
     return SystemString();
 }
 
-static inline bool IsAbsolute(const SystemString& path)
+static inline bool IsAbsolute(SystemStringView path)
 {
 #if _WIN32
     if (path.size() && (path[0] == _S('\\') || path[0] == _S('/')))
@@ -532,9 +520,9 @@ public:
     operator bool() const {return hash != 0;}
     Hash(const void* buf, size_t len)
     : hash(XXH64((uint8_t*)buf, len, 0)) {}
-    Hash(const std::string& str)
+    Hash(std::string_view str)
     : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
-    Hash(const std::wstring& str)
+    Hash(std::wstring_view str)
     : hash(XXH64((uint8_t*)str.data(), str.size()*2, 0)) {}
     Hash(uint64_t hashin)
     : hash(hashin) {}
@@ -576,21 +564,21 @@ public:
  */
 struct CaseInsensitiveCompare
 {
-    bool operator()(const std::string& lhs, const std::string& rhs) const
+    bool operator()(std::string_view lhs, std::string_view rhs) const
     {
 #if _WIN32
-        if (_stricmp(lhs.c_str(), rhs.c_str()) < 0)
+        if (_stricmp(lhs.data(), rhs.data()) < 0)
 #else
-        if (strcasecmp(lhs.c_str(), rhs.c_str()) < 0)
+        if (strcasecmp(lhs.data(), rhs.data()) < 0)
 #endif
             return true;
         return false;
     }
 
 #if _WIN32
-    bool operator()(const std::wstring& lhs, const std::wstring& rhs) const
+    bool operator()(std::wstring_view lhs, std::wstring_view rhs) const
     {
-        if (_wcsicmp(lhs.c_str(), rhs.c_str()) < 0)
+        if (_wcsicmp(lhs.data(), rhs.data()) < 0)
             return true;
         return false;
     }
@@ -627,10 +615,7 @@ private:
     std::vector<Entry> m_entries;
 
 public:
-    DirectoryEnumerator(const hecl::SystemString& path, Mode mode=Mode::DirsThenFilesSorted,
-                        bool sizeSort=false, bool reverse=false, bool noHidden=false)
-    : DirectoryEnumerator(path.c_str(), mode, sizeSort, reverse, noHidden) {}
-    DirectoryEnumerator(const hecl::SystemChar* path, Mode mode=Mode::DirsThenFilesSorted,
+    DirectoryEnumerator(SystemStringView path, Mode mode=Mode::DirsThenFilesSorted,
                         bool sizeSort=false, bool reverse=false, bool noHidden=false);
 
     operator bool() const {return m_entries.size() != 0;}
@@ -671,7 +656,7 @@ public:
      * @brief Construct a representation of a project root path
      * @param path valid filesystem-path (relative or absolute) to project root
      */
-    ProjectRootPath(const SystemString& path) : m_projRoot(path)
+    ProjectRootPath(SystemStringView path) : m_projRoot(path)
     {
         SanitizePath(m_projRoot);
         m_hash = Hash(m_projRoot);
@@ -681,14 +666,14 @@ public:
      * @brief Access fully-canonicalized absolute path
      * @return Absolute path reference
      */
-    const SystemString& getAbsolutePath() const {return m_projRoot;}
+    SystemStringView getAbsolutePath() const {return m_projRoot;}
 
     /**
      * @brief Make absolute path project relative
      * @param absPath Absolute path
      * @return SystemString of path relative to project root
      */
-    SystemString getProjectRelativeFromAbsolute(const SystemString& absPath) const
+    SystemString getProjectRelativeFromAbsolute(SystemStringView absPath) const
     {
         if (absPath.size() > m_projRoot.size())
         {
@@ -705,7 +690,7 @@ public:
             }
         }
         LogModule.report(logvisor::Fatal, "unable to resolve '%s' as project relative '%s'",
-                         absPath.c_str(), m_projRoot.c_str());
+                         absPath.data(), m_projRoot.c_str());
         return SystemString();
     }
 
@@ -729,12 +714,12 @@ public:
      * @brief Obtain c-string of final path component
      * @return Final component c-string (may be empty)
      */
-    const SystemChar* getLastComponent() const
+    SystemStringView getLastComponent() const
     {
         size_t pos = m_projRoot.rfind(_S('/'));
         if (pos == SystemString::npos)
-            return m_projRoot.c_str() + m_projRoot.size();
-        return m_projRoot.c_str() + pos + 1;
+            return {};
+        return {m_projRoot.c_str() + pos + 1, size_t(m_projRoot.size() - pos - 1)};
     }
 };
 
@@ -813,12 +798,12 @@ public:
      * @param project previously constructed Project to use root path of
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(Database::Project& project, const SystemString& path) {assign(project, path);}
-    void assign(Database::Project& project, const SystemString& path);
+    ProjectPath(Database::Project& project, SystemStringView path) {assign(project, path);}
+    void assign(Database::Project& project, SystemStringView path);
 
 #if HECL_UCS2
-    ProjectPath(Database::Project& project, const std::string& path) {assign(project, path);}
-    void assign(Database::Project& project, const std::string& path);
+    ProjectPath(Database::Project& project, std::string_view path) {assign(project, path);}
+    void assign(Database::Project& project, std::string_view path);
 #endif
 
     /**
@@ -826,12 +811,12 @@ public:
      * @param parentPath previously constructed ProjectPath which ultimately connects to a ProjectRootPath
      * @param path valid filesystem-path (relative or absolute) to subpath
      */
-    ProjectPath(const ProjectPath& parentPath, const SystemString& path) {assign(parentPath, path);}
-    void assign(const ProjectPath& parentPath, const SystemString& path);
+    ProjectPath(const ProjectPath& parentPath, SystemStringView path) {assign(parentPath, path);}
+    void assign(const ProjectPath& parentPath, SystemStringView path);
 
 #if HECL_UCS2
-    ProjectPath(const ProjectPath& parentPath, const std::string& path) {assign(parentPath, path);}
-    void assign(const ProjectPath& parentPath, const std::string& path);
+    ProjectPath(const ProjectPath& parentPath, std::string_view path) {assign(parentPath, path);}
+    void assign(const ProjectPath& parentPath, std::string_view path);
 #endif
 
     /**
@@ -882,13 +867,13 @@ public:
      * @brief Access fully-canonicalized absolute path
      * @return Absolute path reference
      */
-    const SystemString& getAbsolutePath() const {return m_absPath;}
+    SystemStringView getAbsolutePath() const {return m_absPath;}
 
     /**
      * @brief Access fully-canonicalized project-relative path
      * @return Relative pointer to within absolute-path or "." for project root-directory (use isRoot to detect)
      */
-    const SystemString& getRelativePath() const
+    SystemStringView getRelativePath() const
     {
         if (m_relPath.size())
             return m_relPath;
@@ -923,44 +908,43 @@ public:
      * @brief Obtain c-string of final path component (stored within relative path)
      * @return Final component c-string (may be empty)
      */
-    const SystemChar* getLastComponent() const
+    SystemStringView getLastComponent() const
     {
         size_t pos = m_relPath.rfind(_S('/'));
         if (pos == SystemString::npos)
-            return m_relPath.c_str() + m_relPath.size();
-        return m_relPath.c_str() + pos + 1;
+            return {};
+        return {m_relPath.c_str() + pos + 1, m_relPath.size() - pos - 1};
     }
-    const char* getLastComponentUTF8() const
+    SystemStringView getLastComponentUTF8() const
     {
         size_t pos = m_relPath.rfind(_S('/'));
 #if HECL_UCS2
         if (pos == SystemString::npos)
-            return m_utf8RelPath.c_str() + m_utf8RelPath.size();
-        return m_utf8RelPath.c_str() + pos + 1;
+            return {};
+        return {m_utf8RelPath.c_str() + pos + 1, size_t(m_utf8RelPath.size() - pos - 1)};
 #else
         if (pos == SystemString::npos)
-            return m_relPath.c_str() + m_relPath.size();
-        return m_relPath.c_str() + pos + 1;
+            return {};
+        return {m_relPath.c_str() + pos + 1, size_t(m_relPath.size() - pos - 1)};
 #endif
     }
 
     /**
      * @brief Obtain c-string of extension of final path component (stored within relative path)
-     * @return Final component extension c-string (may be nullptr)
+     * @return Final component extension c-string (may be empty)
      */
-    const SystemChar* getLastComponentExt() const
+    SystemStringView getLastComponentExt() const
     {
-        const SystemChar* lastCompOrig = getLastComponent();
-        const SystemChar* lastComp = lastCompOrig;
-        while (*lastComp != _S('\0'))
-            ++lastComp;
-        while (lastComp != lastCompOrig)
+        SystemStringView lastCompOrig = getLastComponent().data();
+        const SystemChar* end = lastCompOrig.data() + lastCompOrig.size();
+        const SystemChar* lastComp = end;
+        while (lastComp != lastCompOrig.data())
         {
             if (*lastComp == _S('.'))
-                return lastComp + 1;
+                return {lastComp + 1, size_t(end - lastComp - 1)};
             --lastComp;
         }
-        return nullptr;
+        return {};
     }
 
     /**
@@ -1038,7 +1022,7 @@ public:
      * @brief Access fully-canonicalized absolute path in UTF-8
      * @return Absolute path reference
      */
-    const std::string& getAbsolutePathUTF8() const
+    std::string_view getAbsolutePathUTF8() const
     {
 #if HECL_UCS2
         return m_utf8AbsPath;
@@ -1047,7 +1031,7 @@ public:
 #endif
     }
 
-    const std::string& getRelativePathUTF8() const
+    std::string_view getRelativePathUTF8() const
     {
 #if HECL_UCS2
         return m_utf8RelPath;
@@ -1056,12 +1040,12 @@ public:
 #endif
     }
 
-    const SystemString& getAuxInfo() const
+    SystemStringView getAuxInfo() const
     {
         return m_auxInfo;
     }
 
-    const std::string& getAuxInfoUTF8() const
+    std::string_view getAuxInfoUTF8() const
     {
 #if HECL_UCS2
         return m_utf8AuxInfo;
@@ -1074,25 +1058,15 @@ public:
      * @brief Construct a path with the aux info overwritten with specified string
      * @param auxStr string to replace existing auxInfo with
      */
-    ProjectPath ensureAuxInfo(const SystemChar* auxStr) const
+    ProjectPath ensureAuxInfo(SystemStringView auxStr) const
     {
-        return ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
-    }
-
-    ProjectPath ensureAuxInfo(const SystemString& auxStr) const
-    {
-        return ProjectPath(getProject(), getRelativePath() + _S('|') + auxStr);
+        return ProjectPath(getProject(), SystemString(getRelativePath()) + _S('|') + auxStr.data());
     }
 
 #if HECL_UCS2
-    ProjectPath ensureAuxInfo(const char* auxStr) const
+    ProjectPath ensureAuxInfo(std::string_view auxStr) const
     {
-        return ProjectPath(getProject(), getRelativePath() + _S('|') + UTF8ToWide(auxStr));
-    }
-
-    ProjectPath ensureAuxInfo(const std::string& auxStr) const
-    {
-        return ProjectPath(getProject(), getRelativePath() + _S('|') + UTF8ToWide(auxStr));
+        return ProjectPath(getProject(), SystemString(getRelativePath()) + _S('|') + UTF8ToWide(auxStr));
     }
 #endif
 
@@ -1244,23 +1218,21 @@ public:
 class StringUtils
 {
 public:
-    static bool BeginsWith(const SystemString& str, const SystemChar* test)
+    static bool BeginsWith(SystemStringView str, SystemStringView test)
     {
-        size_t len = StrLen(test);
-        if (len > str.size())
+        if (test.size() > str.size())
             return false;
-        return !StrNCmp(str.data(), test, len);
+        return !StrNCmp(str.data(), test.data(), test.size());
     }
 
-    static bool EndsWith(const SystemString& str, const SystemChar* test)
+    static bool EndsWith(SystemStringView str, SystemStringView test)
     {
-        size_t len = StrLen(test);
-        if (len > str.size())
+        if (test.size() > str.size())
             return false;
-        return !StrNCmp(&*(str.end() - len), test, len);
+        return !StrNCmp(&*(str.end() - test.size()), test.data(), test.size());
     }
 
-    static std::string TrimWhitespace(const std::string& str)
+    static std::string TrimWhitespace(std::string_view str)
     {
         auto bit = str.begin();
         while (bit != str.cend() && isspace(*bit))
@@ -1272,23 +1244,21 @@ public:
     }
 
 #if HECL_UCS2
-    static bool BeginsWith(const std::string& str, const char* test)
+    static bool BeginsWith(std::string_view str, std::string_view test)
     {
-        size_t len = strlen(test);
-        if (len > str.size())
+        if (test.size() > str.size())
             return false;
-        return !strncmp(str.data(), test, len);
+        return !strncmp(str.data(), test.data(), test.size());
     }
 
-    static bool EndsWith(const std::string& str, const char* test)
+    static bool EndsWith(std::string_view str, std::string_view test)
     {
-        size_t len = strlen(test);
-        if (len > str.size())
+        if (test.size() > str.size())
             return false;
-        return !strncmp(&*(str.end() - len), test, len);
+        return !strncmp(&*(str.end() - test.size()), test.data(), test.size());
     }
 
-    static SystemString TrimWhitespace(const SystemString& str)
+    static SystemString TrimWhitespace(SystemStringView str)
     {
         auto bit = str.begin();
         while (bit != str.cend() && iswspace(*bit))
@@ -1328,7 +1298,7 @@ public:
  * @param path absolute or relative file path to search from
  * @return Newly-constructed root path (bool-evaluating to false if not found)
  */
-ProjectRootPath SearchForProject(const SystemString& path);
+ProjectRootPath SearchForProject(SystemStringView path);
 
 /**
  * @brief Search from within provided directory for the project root
@@ -1336,7 +1306,7 @@ ProjectRootPath SearchForProject(const SystemString& path);
  * @param subpathOut remainder of provided path assigned to this ProjectPath
  * @return Newly-constructed root path (bool-evaluating to false if not found)
  */
-ProjectRootPath SearchForProject(const SystemString& path, SystemString& subpathOut);
+ProjectRootPath SearchForProject(SystemStringView path, SystemString& subpathOut);
 
 /**
  * @brief Test if given path is a PNG (based on file header)

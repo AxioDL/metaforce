@@ -95,10 +95,10 @@ public:
             for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
             {
                 if (XTERM_COLOR)
-                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name);
+                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name.data());
                 else
-                    hecl::Printf(_S("%s\n"), spec->m_name);
-                hecl::Printf(_S("  %s\n"), spec->m_desc);
+                    hecl::Printf(_S("%s\n"), spec->m_name.data());
+                hecl::Printf(_S("  %s\n"), spec->m_desc.data());
             }
             return 0;
         }
@@ -109,9 +109,9 @@ public:
             for (auto& spec : specs)
             {
                 if (XTERM_COLOR)
-                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name);
+                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name.data());
                 else
-                    hecl::Printf(_S("%s"), spec.spec.m_name);
+                    hecl::Printf(_S("%s"), spec.spec.m_name.data());
                 if (spec.active)
                 {
                     if (XTERM_COLOR)
@@ -119,7 +119,7 @@ public:
                     else
                         hecl::Printf(_S(" [ENABLED]"));
                 }
-                hecl::Printf(_S("\n  %s\n"), spec.spec.m_desc);
+                hecl::Printf(_S("\n  %s\n"), spec.spec.m_desc.data());
             }
             return 0;
         }
@@ -137,7 +137,7 @@ public:
                 hecl::ToLower(compName);
                 if (!itName.compare(compName))
                 {
-                    opSpecs.push_back(spec.spec.m_name);
+                    opSpecs.emplace_back(spec.spec.m_name);
                     break;
                 }
             }

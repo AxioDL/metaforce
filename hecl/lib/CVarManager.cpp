@@ -41,7 +41,7 @@ void CVarManager::update()
 
 bool CVarManager::registerCVar(CVar* cvar)
 {
-    std::string tmp = cvar->name();
+    std::string tmp(cvar->name());
     athena::utility::tolower(tmp);
     if (m_cvars.find(tmp) != m_cvars.end())
         return false;
@@ -50,13 +50,15 @@ bool CVarManager::registerCVar(CVar* cvar)
     return true;
 }
 
-CVar* CVarManager::findCVar(std::string name)
+CVar* CVarManager::findCVar(std::string_view name)
 {
-    athena::utility::tolower(name);
-    if (m_cvars.find(name) == m_cvars.end())
+    std::string lower(name);
+    athena::utility::tolower(lower);
+    auto search = m_cvars.find(lower);
+    if (search == m_cvars.end())
         return nullptr;
 
-    return m_cvars[name];
+    return search->second;
 }
 
 std::vector<CVar*> CVarManager::archivedCVars() const
@@ -87,7 +89,7 @@ void CVarManager::deserialize(CVar* cvar)
 #if _WIN32
     hecl::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toWideLiteral();
 #else
-    hecl::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
 #endif
     hecl::Sstat st;
 
@@ -147,9 +149,9 @@ void CVarManager::serialize()
     container.cvarCount = container.cvars.size();
 
 #if _WIN32
-    hecl::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toWideLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
 #else
-    hecl::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
 #endif
 
     if (m_useBinary)

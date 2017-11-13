@@ -10,7 +10,7 @@ namespace Runtime
 {
 static logvisor::Module Log("FileStoreManager");
 
-FileStoreManager::FileStoreManager(const SystemString& domain)
+FileStoreManager::FileStoreManager(SystemStringView domain)
 : m_domain(domain)
 {
 #if _WIN32
@@ -35,7 +35,8 @@ FileStoreManager::FileStoreManager(const SystemString& domain)
     path += "/.heclrun";
     if (mkdir(path.c_str(), 0755) && errno != EEXIST)
         Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
-    path += '/' + domain;
+    path += '/';
+    path += domain.data();
     if (mkdir(path.c_str(), 0755) && errno != EEXIST)
         Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
     m_storeRoot = path;

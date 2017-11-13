@@ -180,7 +180,7 @@ void ResourceLock::ClearThreadRes()
 
 bool IsPathPNG(const hecl::ProjectPath& path)
 {
-    FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _S("rb"));
     if (!fp)
         return false;
     uint32_t buf = 0;
@@ -198,10 +198,10 @@ bool IsPathPNG(const hecl::ProjectPath& path)
 
 bool IsPathBlend(const hecl::ProjectPath& path)
 {
-    const SystemChar* lastCompExt = path.getLastComponentExt();
-    if (!lastCompExt || hecl::StrCmp(lastCompExt, _S("blend")))
+    auto lastCompExt = path.getLastComponentExt();
+    if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _S("blend")))
         return false;
-    FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _S("rb"));
     if (!fp)
         return false;
     uint32_t buf = 0;
@@ -219,22 +219,22 @@ bool IsPathBlend(const hecl::ProjectPath& path)
 
 bool IsPathYAML(const hecl::ProjectPath& path)
 {
-    if (!hecl::StrCmp(path.getLastComponent(), _S("!catalog.yaml")))
+    if (!hecl::StrCmp(path.getLastComponent().data(), _S("!catalog.yaml")))
         return false; /* !catalog.yaml is exempt from general use */
-    const SystemChar* lastCompExt = path.getLastComponentExt();
-    if (!lastCompExt)
+    auto lastCompExt = path.getLastComponentExt();
+    if (lastCompExt.empty())
         return false;
-    if (!hecl::StrCmp(lastCompExt, _S("yaml")) ||
-        !hecl::StrCmp(lastCompExt, _S("yml")))
+    if (!hecl::StrCmp(lastCompExt.data(), _S("yaml")) ||
+        !hecl::StrCmp(lastCompExt.data(), _S("yml")))
         return true;
     return false;
 }
 
-hecl::DirectoryEnumerator::DirectoryEnumerator(const hecl::SystemChar* path, Mode mode,
+hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
                                                bool sizeSort, bool reverse, bool noHidden)
 {
     hecl::Sstat theStat;
-    if (hecl::Stat(path, &theStat) || !S_ISDIR(theStat.st_mode))
+    if (hecl::Stat(path.data(), &theStat) || !S_ISDIR(theStat.st_mode))
         return;
 
 #if _WIN32
@@ -366,7 +366,7 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(const hecl::SystemChar* path, Mod
 
 #else
 
-    DIR* dir = opendir(path);
+    DIR* dir = opendir(path.data());
     if (!dir)
         return;
     const dirent* d;
@@ -495,16 +495,16 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(const hecl::SystemChar* path, Mod
 #define FILE_MAXDIR 768
 
 static std::pair<hecl::SystemString, std::string>
-NameFromPath(const hecl::SystemString& path)
+NameFromPath(hecl::SystemStringView path)
 {
-    hecl::SystemUTF8View utf8(path);
+    hecl::SystemUTF8Conv utf8(path);
     if (utf8.str().size() == 1 && utf8.str()[0] == '/')
-        return {path, "/"};
+        return {hecl::SystemString(path), "/"};
     size_t lastSlash = utf8.str().rfind('/');
     if (lastSlash != std::string::npos)
-        return {path, std::string(utf8.str().cbegin() + lastSlash + 1, utf8.str().cend())};
+        return {hecl::SystemString(path), std::string(utf8.str().cbegin() + lastSlash + 1, utf8.str().cend())};
     else
-        return {path, utf8.str()};
+        return {hecl::SystemString(path), std::string(utf8.str())};
 }
 
 std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
@@ -647,7 +647,7 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
     return ret;
 }
 
-std::wstring Char16ToWide(const std::u16string& src)
+std::wstring Char16ToWide(std::u16string_view src)
 {
     return std::wstring(src.begin(), src.end());
 }

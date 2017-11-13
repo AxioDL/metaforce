@@ -29,17 +29,16 @@ class Diagnostics
     std::string m_backend = "Backend";
     std::string sourceDiagString(const SourceLocation& l, bool ansi=false) const;
 public:
-    void reset(const std::string& name, const std::string& source) {m_name = name; m_source = source;}
-    void reset(const std::string& name) {m_name = name; m_source.clear();}
-    void setBackend(const std::string& backend) {m_backend = backend;}
-    void setBackend(const char* backend) {m_backend = backend;}
+    void reset(std::string_view name, std::string_view source) {m_name = name; m_source = source;}
+    void reset(std::string_view name) {m_name = name; m_source.clear();}
+    void setBackend(std::string_view backend) {m_backend = backend;}
     void reportParserErr(const SourceLocation& l, const char* format, ...);
     void reportLexerErr(const SourceLocation& l, const char* format, ...);
     void reportCompileErr(const SourceLocation& l, const char* format, ...);
     void reportBackendErr(const SourceLocation& l, const char* format, ...);
 
-    const std::string& getName() const {return m_name;}
-    const std::string& getSource() const {return m_source;}
+    std::string_view getName() const {return m_name;}
+    std::string_view getSource() const {return m_source;}
 };
 
 class Parser
@@ -61,11 +60,11 @@ public:
     };
 private:
     Diagnostics& m_diag;
-    const std::string* m_source = nullptr;
-    std::string::const_iterator m_sourceIt;
+    std::string_view m_source;
+    std::string_view::const_iterator m_sourceIt;
     std::vector<TokenType> m_parenStack;
     bool m_reset = false;
-    void skipWhitespace(std::string::const_iterator& it);
+    void skipWhitespace(std::string_view::const_iterator& it);
 public:
     struct Token
     {
@@ -107,7 +106,7 @@ public:
             return nullptr;
         }
     };
-    void reset(const std::string& source);
+    void reset(std::string_view source);
     Token consumeToken();
     SourceLocation getLocation() const;
 
@@ -399,7 +398,7 @@ class Frontend
     Parser m_parser;
     Lexer m_lexer;
 public:
-    IR compileSource(const std::string& source, const std::string& diagName)
+    IR compileSource(std::string_view source, std::string_view diagName)
     {
         Hash hash(source);
         m_diag.reset(diagName, source);

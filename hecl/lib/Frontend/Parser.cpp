@@ -8,19 +8,19 @@ namespace hecl
 namespace Frontend
 {
 
-void Parser::skipWhitespace(std::string::const_iterator& it)
+void Parser::skipWhitespace(std::string_view::const_iterator& it)
 {
-    while (it != m_source->cend())
+    while (it != m_source.cend())
     {
-        while (it != m_source->cend() && isspace(*it))
+        while (it != m_source.cend() && isspace(*it))
             ++it;
 
         /* Skip comment line */
-        if (it != m_source->cend() && *it == '#')
+        if (it != m_source.cend() && *it == '#')
         {
-            while (it != m_source->cend() && *it != '\n')
+            while (it != m_source.cend() && *it != '\n')
                 ++it;
-            if (it != m_source->cend() && *it == '\n')
+            if (it != m_source.cend() && *it == '\n')
                 ++it;
             continue;
         }
@@ -28,17 +28,17 @@ void Parser::skipWhitespace(std::string::const_iterator& it)
     }
 }
 
-void Parser::reset(const std::string& source)
+void Parser::reset(std::string_view source)
 {
-    m_source = &source;
-    m_sourceIt = m_source->cbegin();
+    m_source = source;
+    m_sourceIt = m_source.cbegin();
     m_parenStack.clear();
     m_reset = true;
 }
 
 Parser::Token Parser::consumeToken()
 {
-    if (!m_source)
+    if (m_source.empty())
         return Parser::Token(TokenType::None, SourceLocation());
 
     /* If parser has just been reset, emit begin token */
@@ -52,7 +52,7 @@ Parser::Token Parser::consumeToken()
     skipWhitespace(m_sourceIt);
 
     /* Check for source end */
-    if (m_sourceIt == m_source->cend())
+    if (m_sourceIt == m_source.cend())
         return Parser::Token(TokenType::SourceEnd, getLocation());
 
     /* Check for numeric literal */
@@ -72,13 +72,13 @@ Parser::Token Parser::consumeToken()
     if (*m_sourceIt == '.')
     {
         int count = 0;
-        std::string::const_iterator tmp = m_sourceIt + 1;
-        if (tmp != m_source->cend())
+        std::string_view::const_iterator tmp = m_sourceIt + 1;
+        if (tmp != m_source.cend())
         {
             for (int i=0 ; i<4 ; ++i)
             {
-                std::string::const_iterator tmp2 = tmp + i;
-                if (tmp2 == m_source->cend())
+                std::string_view::const_iterator tmp2 = tmp + i;
+                if (tmp2 == m_source.cend())
                     break;
                 char ch = tolower(*tmp2);
                 if (ch >= 'w' && ch <= 'z')
@@ -94,7 +94,7 @@ Parser::Token Parser::consumeToken()
             Parser::Token tok(TokenType::VectorSwizzle, getLocation());
             for (int i=0 ; i<count ; ++i)
             {
-                std::string::const_iterator tmp2 = tmp + i;
+                std::string_view::const_iterator tmp2 = tmp + i;
                 tok.m_tokenString += tolower(*tmp2);
             }
             m_sourceIt = tmp + count;
@@ -137,10 +137,10 @@ Parser::Token Parser::consumeToken()
     /* Check for function start */
     if (isalpha(*m_sourceIt) || *m_sourceIt == '_')
     {
-        std::string::const_iterator tmp = m_sourceIt + 1;
-        while (tmp != m_source->cend() && (isalnum(*tmp) || *tmp == '_') && *tmp != '(')
+        std::string_view::const_iterator tmp = m_sourceIt + 1;
+        while (tmp != m_source.cend() && (isalnum(*tmp) || *tmp == '_') && *tmp != '(')
             ++tmp;
-        std::string::const_iterator nameEnd = tmp;
+        std::string_view::const_iterator nameEnd = tmp;
         skipWhitespace(tmp);
         if (*tmp == '(')
         {
@@ -172,9 +172,9 @@ Parser::Token Parser::consumeToken()
 
 SourceLocation Parser::getLocation() const
 {
-    if (!m_source)
+    if (m_source.empty())
         return SourceLocation();
-    std::string::const_iterator it = m_source->cbegin();
+    std::string_view::const_iterator it = m_source.cbegin();
     int line = 0;
     int col = 0;
     for (; it != m_sourceIt ; ++it)

@@ -4,7 +4,7 @@
 namespace hecl
 {
 
-std::string WideToUTF8(const std::wstring& src)
+std::string WideToUTF8(std::wstring_view src)
 {
     std::string retval;
     retval.reserve(src.length());
@@ -22,7 +22,7 @@ std::string WideToUTF8(const std::wstring& src)
     return retval;
 }
 
-std::string Char16ToUTF8(const std::u16string& src)
+std::string Char16ToUTF8(std::u16string_view src)
 {
     std::string retval;
     retval.reserve(src.length());
@@ -40,11 +40,11 @@ std::string Char16ToUTF8(const std::u16string& src)
     return retval;
 }
 
-std::wstring UTF8ToWide(const std::string& src)
+std::wstring UTF8ToWide(std::string_view src)
 {
     std::wstring retval;
     retval.reserve(src.length());
-    const utf8proc_uint8_t* buf = reinterpret_cast<const utf8proc_uint8_t*>(src.c_str());
+    const utf8proc_uint8_t* buf = reinterpret_cast<const utf8proc_uint8_t*>(src.data());
     while (*buf)
     {
         utf8proc_int32_t wc;
@@ -60,11 +60,11 @@ std::wstring UTF8ToWide(const std::string& src)
     return retval;
 }
 
-std::u16string UTF8ToChar16(const std::string& src)
+std::u16string UTF8ToChar16(std::string_view src)
 {
     std::u16string retval;
     retval.reserve(src.length());
-    const utf8proc_uint8_t* buf = reinterpret_cast<const utf8proc_uint8_t*>(src.c_str());
+    const utf8proc_uint8_t* buf = reinterpret_cast<const utf8proc_uint8_t*>(src.data());
     while (*buf)
     {
         utf8proc_int32_t wc;

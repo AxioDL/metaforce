@@ -51,8 +51,8 @@ public:
                         LogModule.report(logvisor::Fatal,
                                          _S("hecl cook can only process multiple items in the same project; ")
                                          _S("'%s' and '%s' are different projects"),
-                                         m_fallbackProj->getProjectRootPath().getAbsolutePath().c_str(),
-                                         root.getAbsolutePath().c_str());
+                                         m_fallbackProj->getProjectRootPath().getAbsolutePath().data(),
+                                         root.getAbsolutePath().data());
                     m_selectedItems.emplace_back(*m_useProj, subPath);
                 }
             }

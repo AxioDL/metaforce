@@ -45,10 +45,10 @@ static inline bool CheckNewLineAdvance(std::string::const_iterator& it)
     return false;
 }
 
-Project::ConfigFile::ConfigFile(const Project& project, const SystemString& name,
-                                const SystemString& subdir)
+Project::ConfigFile::ConfigFile(const Project& project, SystemStringView name,
+                                SystemStringView subdir)
 {
-    m_filepath = project.m_rootPath.getAbsolutePath() + subdir + name;
+    m_filepath = SystemString(project.m_rootPath.getAbsolutePath()) + subdir.data() + name.data();
 }
 
 std::vector<std::string>& Project::ConfigFile::lockAndRead()
@@ -89,13 +89,13 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead()
     return m_lines;
 }
 
-void Project::ConfigFile::addLine(const std::string& line)
+void Project::ConfigFile::addLine(std::string_view line)
 {
     if (!checkForLine(line))
-        m_lines.push_back(line);
+        m_lines.emplace_back(line);
 }
 
-void Project::ConfigFile::removeLine(const std::string& refLine)
+void Project::ConfigFile::removeLine(std::string_view refLine)
 {
     if (!m_lockedFile)
     {
@@ -116,7 +116,7 @@ void Project::ConfigFile::removeLine(const std::string& refLine)
     }
 }
 
-bool Project::ConfigFile::checkForLine(const std::string& refLine)
+bool Project::ConfigFile::checkForLine(std::string_view refLine)
 {
     if (!m_lockedFile)
     {
@@ -210,15 +210,16 @@ Project::Project(const ProjectRootPath& rootPath)
 {
     /* Stat for existing project directory (must already exist) */
     Sstat myStat;
-    if (hecl::Stat(m_rootPath.getAbsolutePath().c_str(), &myStat))
+    if (hecl::Stat(m_rootPath.getAbsolutePath().data(), &myStat))
     {
-        LogModule.report(logvisor::Error, _S("unable to stat %s"), m_rootPath.getAbsolutePath().c_str());
+        LogModule.report(logvisor::Error, _S("unable to stat %s"), m_rootPath.getAbsolutePath().data());
         return;
     }
 
     if (!S_ISDIR(myStat.st_mode))
     {
-        LogModule.report(logvisor::Error, _S("provided path must be a directory; '%s' isn't"), m_rootPath.getAbsolutePath().c_str());
+        LogModule.report(logvisor::Error, _S("provided path must be a directory; '%s' isn't"),
+                         m_rootPath.getAbsolutePath().data());
         return;
     }
 
@@ -228,7 +229,7 @@ Project::Project(const ProjectRootPath& rootPath)
 
     /* Ensure beacon is valid or created */
     ProjectPath beaconPath(m_dotPath, _S("beacon"));
-    FILE* bf = hecl::Fopen(beaconPath.getAbsolutePath().c_str(), _S("a+b"));
+    FILE* bf = hecl::Fopen(beaconPath.getAbsolutePath().data(), _S("a+b"));
     struct BeaconStruct
     {
         hecl::FourCC magic;
@@ -279,7 +280,7 @@ bool Project::removePaths(const std::vector<ProjectPath>& paths, bool recursive)
     {
         for (const ProjectPath& path : paths)
         {
-            std::string recursiveBase = path.getRelativePathUTF8();
+            auto recursiveBase = path.getRelativePathUTF8();
             for (auto it = existingPaths.begin();
                  it != existingPaths.end();)
             {
@@ -319,9 +320,9 @@ void Project::rescanDataSpecs()
     for (const DataSpecEntry* spec : DATA_SPEC_REGISTRY)
     {
         hecl::SystemString specStr(spec->m_name);
-        SystemUTF8View specUTF8(specStr);
+        SystemUTF8Conv specUTF8(specStr);
         m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, hecl::SystemString(spec->m_name) + _S(".spec")),
-                                   m_specs.checkForLine(specUTF8) ? true : false});
+                                   m_specs.checkForLine(specUTF8.str())});
     }
     m_specs.unlockAndDiscard();
 }
@@ -331,8 +332,8 @@ bool Project::enableDataSpecs(const std::vector<SystemString>& specs)
     m_specs.lockAndRead();
     for (const SystemString& spec : specs)
     {
-        SystemUTF8View specView(spec);
-        m_specs.addLine(specView);
+        SystemUTF8Conv specView(spec);
+        m_specs.addLine(specView.str());
     }
     bool result = m_specs.unlockAndCommit();
     rescanDataSpecs();
@@ -344,8 +345,8 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
     m_specs.lockAndRead();
     for (const SystemString& spec : specs)
     {
-        SystemUTF8View specView(spec);
-        m_specs.removeLine(specView);
+        SystemUTF8Conv specView(spec);
+        m_specs.removeLine(specView.str());
     }
     bool result = m_specs.unlockAndCommit();
     rescanDataSpecs();
@@ -446,7 +447,7 @@ static void VisitDirectory(const ProjectPath& dir,
     /* Pass 2: child files */
     int progNum = 0;
     float progDenom = childFileCount;
-    progress.changeDir(dir.getLastComponent());
+    progress.changeDir(dir.getLastComponent().data());
     for (auto& child : children)
     {
         if (child.second.getPathType() == ProjectPath::Type::File)
@@ -494,7 +495,7 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress,
     case ProjectPath::Type::File:
     case ProjectPath::Type::Glob:
     {
-        cookProg.changeFile(path.getLastComponent(), 0.0);
+        cookProg.changeFile(path.getLastComponent().data(), 0.0);
         VisitFile(path, force, fast, m_cookSpecs, cookProg, cp);
         break;
     }

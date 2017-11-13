@@ -159,9 +159,9 @@ public:
             for (SpecExtractPass& ds : m_specPasses)
             {
                 if (XTERM_COLOR)
-                    hecl::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name);
+                    hecl::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name.data());
                 else
-                    hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name);
+                    hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name.data());
 
                 int lineIdx = 0;
                 ds.m_instance->doExtract(m_einfo,

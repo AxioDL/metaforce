@@ -10,24 +10,26 @@ namespace hecl
 extern CVar* com_developer;
 extern CVar* com_enableCheats;
 
-CVar::CVar(const std::string& name, const std::string &value, const std::string &help, EType type, EFlags flags, CVarManager& parent)
+using namespace std::literals;
+
+CVar::CVar(std::string_view name, std::string_view value, std::string_view help, EType type, EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    m_name= name;
-    m_value = value;
-    m_defaultValue = value;
+    m_name = std::string(name);
+    m_value = std::string(value);
+    m_defaultValue = std::string(value);
     m_help = help;
     m_type = type;
     m_flags = flags;
     m_allowedWrite = false;
 }
 
-CVar::CVar(const std::string& name, const std::string& value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
+CVar::CVar(std::string_view name, std::string_view value, std::string_view help, CVar::EFlags flags, CVarManager& parent)
 : m_mgr(parent)
 {
     m_flags = flags;
     m_allowedWrite = false;
-    m_name = name;
+    m_name = std::string(name);
     m_help = help;
     m_type = EType::Literal;
 
@@ -43,10 +45,10 @@ CVar::CVar(const std::string& name, const std::string& value, const std::string&
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, const atVec4f& value, const std::string& help, EFlags flags, CVarManager& parent)
+CVar::CVar(std::string_view name, const atVec4f& value, std::string_view help, EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    m_name= name;
+    m_name = std::string(name);
     m_help = help;
     m_type = EType::Vec4f;
     m_flags = flags;
@@ -64,10 +66,10 @@ CVar::CVar(const std::string& name, const atVec4f& value, const std::string& hel
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager& parent)
+CVar::CVar(std::string_view name, float value, std::string_view help, EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    m_name= name;
+    m_name = std::string(name);
     m_help = help;
     m_type = EType::Float;
     m_flags = flags;
@@ -85,10 +87,10 @@ CVar::CVar(const std::string& name, float value, const std::string& help, EFlags
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
+CVar::CVar(std::string_view name, bool value, std::string_view help, CVar::EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    m_name= name;
+    m_name = std::string(name);
     m_help = help;
     m_type = EType::Boolean;
     m_flags = flags;
@@ -106,10 +108,10 @@ CVar::CVar(const std::string& name, bool value, const std::string& help, CVar::E
     m_flags = flags;
 }
 
-CVar::CVar(const std::string& name, int value, const std::string& help, CVar::EFlags flags, CVarManager& parent)
+CVar::CVar(std::string_view name, int value, std::string_view help, CVar::EFlags flags, CVarManager& parent)
     : m_mgr(parent)
 {
-    m_name= name;
+    m_name = std::string(name);
     m_help = help;
     m_type = EType::Integer;
     m_flags = flags;
@@ -287,9 +289,9 @@ bool CVar::fromBoolean(bool val)
         return false;
 
     if (val)
-        m_value = "true";
+        m_value = "true"sv;
     else
-        m_value = "false";
+        m_value = "false"sv;
 
     setModified();
     return true;
@@ -313,7 +315,7 @@ bool CVar::fromInteger(int val)
     return true;
 }
 
-bool CVar::fromLiteral(const std::string& val)
+bool CVar::fromLiteral(std::string_view val)
 {
     if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;
@@ -331,7 +333,7 @@ bool CVar::fromLiteral(const std::string& val)
     return true;
 }
 
-bool CVar::fromLiteral(const std::wstring& val)
+bool CVar::fromLiteral(std::wstring_view val)
 {
     if (isCheat() && (com_developer && !com_developer->toBoolean() && !com_enableCheats->toBoolean()))
         return false;

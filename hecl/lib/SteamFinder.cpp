@@ -94,8 +94,8 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name)
     while (std::regex_search(begin, end, dirMatch, regSteamPath))
     {
         std::string match = dirMatch[1].str();
-        hecl::SystemStringView otherInstallDir(match);
-        hecl::SystemString otherAppPath = otherInstallDir.sys_str() + PATH_SEP +
+        hecl::SystemStringConv otherInstallDir(match);
+        hecl::SystemString otherAppPath = hecl::SystemString(otherInstallDir.sys_str()) + PATH_SEP +
             _S("steamapps") + PATH_SEP + appPath;
         if (!hecl::Stat(otherAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
             return otherAppPath;

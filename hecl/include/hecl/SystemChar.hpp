@@ -15,7 +15,8 @@
 #include <wchar.h>
 #endif
 #include <string>
-#include <string.h>
+#include <string_view>
+#include <cstring>
 #include <algorithm>
 
 namespace hecl
@@ -29,6 +30,7 @@ namespace hecl
 typedef wchar_t SystemChar;
 static inline size_t StrLen(const SystemChar* str) {return wcslen(str);}
 typedef std::wstring SystemString;
+typedef std::wstring_view SystemStringView;
 static inline void ToLower(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), towlower);}
 static inline void ToUpper(SystemString& str)
@@ -41,6 +43,7 @@ typedef struct _stat Sstat;
 typedef char SystemChar;
 static inline size_t StrLen(const SystemChar* str) {return strlen(str);}
 typedef std::string SystemString;
+typedef std::string_view SystemStringView;
 static inline void ToLower(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), tolower);}
 static inline void ToUpper(SystemString& str)

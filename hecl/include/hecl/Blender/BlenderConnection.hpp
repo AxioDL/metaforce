@@ -26,7 +26,7 @@
 #include "hecl/HMDLMeta.hpp"
 #include <athena/Types.hpp>
 #include <athena/MemoryWriter.hpp>
-#include <optional.hpp>
+#include "optional.hpp"
 
 namespace hecl
 {
@@ -389,7 +389,7 @@ public:
             if (m_parent->m_loadedType != BlendType::Mesh &&
                 m_parent->m_loadedType != BlendType::Actor)
                 BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH or ACTOR blend"),
-                                  m_parent->m_loadedBlend.getAbsolutePath().c_str());
+                                  m_parent->m_loadedBlend.getAbsolutePath().data());
 
             m_parent->_writeStr("MESHAABB");
             char readBuf[256];
@@ -786,11 +786,11 @@ public:
                          Mesh::SurfProgFunc surfProg=[](int){});
 
         /** Compile mesh by name (AREA blends only) */
-        Mesh compileMesh(const std::string& name, HMDLTopology topology, int skinSlotCount=10,
+        Mesh compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount=10,
                          Mesh::SurfProgFunc surfProg=[](int){});
 
         /** Compile collision mesh by name (AREA blends only) */
-        ColMesh compileColMesh(const std::string& name);
+        ColMesh compileColMesh(std::string_view name);
 
         /** Compile all meshes as collision meshes (CMESH blends only) */
         std::vector<ColMesh> compileColMeshes();
@@ -806,7 +806,7 @@ public:
         std::vector<Light> compileLights();
 
         /** Compile GUI into FRME data (FRAME blends only) */
-        void compileGuiFrame(const std::string& pathOut, int version);
+        void compileGuiFrame(std::string_view pathOut, int version);
 
         /** Gather all texture paths in scene */
         std::vector<ProjectPath> getTextures();
@@ -901,11 +901,11 @@ public:
 
         Actor compileActor();
         Actor compileActorCharacterOnly();
-        Actor::Action compileActionChannelsOnly(const std::string& name);
+        Actor::Action compileActionChannelsOnly(std::string_view name);
         std::vector<std::string> getArmatureNames();
         std::vector<std::string> getSubtypeNames();
         std::vector<std::string> getActionNames();
-        std::vector<std::string> getSubtypeOverlayNames(const std::string& name);
+        std::vector<std::string> getSubtypeOverlayNames(std::string_view name);
 
         struct Matrix3f
         {
@@ -913,10 +913,10 @@ public:
             inline atVec3f& operator[](size_t idx) {return m[idx];}
             inline const atVec3f& operator[](size_t idx) const {return m[idx];}
         };
-        std::unordered_map<std::string, Matrix3f> getBoneMatrices(const std::string& name);
+        std::unordered_map<std::string, Matrix3f> getBoneMatrices(std::string_view name);
 
-        bool renderPvs(const std::string& path, const atVec3f& location);
-        bool renderPvsLight(const std::string& path, const std::string& lightName);
+        bool renderPvs(std::string_view path, const atVec3f& location);
+        bool renderPvsLight(std::string_view path, std::string_view lightName);
 
         MapArea compileMapArea();
         MapUniverse compileMapUniverse();

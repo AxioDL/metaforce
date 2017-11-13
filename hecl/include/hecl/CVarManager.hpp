@@ -16,7 +16,7 @@ class CVarManager final
 {
     using CVarContainer = DNACVAR::CVarContainer;
     template <typename T>
-    CVar* _newCVar(const std::string& name, const std::string& help, const T& value, CVar::EFlags flags)
+    CVar* _newCVar(std::string_view name, std::string_view help, const T& value, CVar::EFlags flags)
     {
         CVar* ret(new CVar(name, value, help, flags, *this));
         if (registerCVar(ret))
@@ -41,20 +41,20 @@ public:
     ~CVarManager();
 
     void update();
-    CVar* newCVar(const std::string& name, const std::string& help, const atVec4f& value, CVar::EFlags flags)
+    CVar* newCVar(std::string_view name, std::string_view help, const atVec4f& value, CVar::EFlags flags)
     { return _newCVar<atVec4f>(name, help, value, flags); }
-    CVar* newCVar(const std::string& name, const std::string& help, const std::string& value, CVar::EFlags flags)
-    { return _newCVar<std::string>(name, help, value, flags); }
-    CVar* newCVar(const std::string& name, const std::string& help, bool value, CVar::EFlags flags)
+    CVar* newCVar(std::string_view name, std::string_view help, std::string_view value, CVar::EFlags flags)
+    { return _newCVar<std::string_view>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, bool value, CVar::EFlags flags)
     { return _newCVar<bool>(name, help, value, flags); }
-    CVar* newCVar(const std::string& name, const std::string& help, float value, CVar::EFlags flags)
+    CVar* newCVar(std::string_view name, std::string_view help, float value, CVar::EFlags flags)
     { return _newCVar<float>(name, help, value, flags); }
-    CVar* newCVar(const std::string& name, const std::string& help, int value, CVar::EFlags flags)
+    CVar* newCVar(std::string_view name, std::string_view help, int value, CVar::EFlags flags)
     { return _newCVar<int>(name, help, value, flags); }
 
     bool registerCVar(CVar* cvar);
 
-    CVar* findCVar(std::string name);
+    CVar* findCVar(std::string_view name);
 
     std::vector<CVar*> archivedCVars() const;
     std::vector<CVar*> cvars() const;

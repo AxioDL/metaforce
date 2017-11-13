@@ -24,13 +24,13 @@ class FileStoreManager
     SystemString m_domain;
     SystemString m_storeRoot;
 public:
-    FileStoreManager(const SystemString& domain);
-    const SystemString& getDomain() const {return m_domain;}
+    FileStoreManager(SystemStringView domain);
+    SystemStringView getDomain() const {return m_domain;}
     /**
      * @brief Returns the full path to the file store, including domain
      * @return Full path to store e.g /home/foo/.hecl/bar
      */
-    const SystemString& getStoreRoot() const {return m_storeRoot;}
+    SystemStringView getStoreRoot() const {return m_storeRoot;}
 };
 
 /**
@@ -57,7 +57,7 @@ class ShaderTag : public Hash
     };
 public:
     ShaderTag() = default;
-    ShaderTag(const std::string& source, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t, boo::Primitive pt,
+    ShaderTag(std::string_view source, uint8_t c, uint8_t u, uint8_t w, uint8_t s, uint8_t t, boo::Primitive pt,
               Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling)
     : Hash(source), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s), m_texMtxCount(t),
       m_primitiveType(uint8_t(pt)), m_reflectionType(uint8_t(reflectionType)),
@@ -273,17 +273,17 @@ public:
      * for encoding the pipeline state. This must be called before building shaders */
     void setRenderTargetSamples(unsigned samps) {m_factory->m_rtHint = samps;}
 
-    std::shared_ptr<ShaderPipelines> buildShader(const ShaderTag& tag, const std::string& source,
-                                                 const std::string& diagName,
+    std::shared_ptr<ShaderPipelines> buildShader(const ShaderTag& tag, std::string_view source,
+                                                 std::string_view diagName,
                                                  boo::IGraphicsDataFactory& factory);
     std::shared_ptr<ShaderPipelines> buildShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                                 const std::string& diagName,
+                                                 std::string_view diagName,
                                                  boo::IGraphicsDataFactory& factory);
-    std::shared_ptr<ShaderPipelines> buildExtendedShader(const ShaderTag& tag, const std::string& source,
-                                                         const std::string& diagName,
+    std::shared_ptr<ShaderPipelines> buildExtendedShader(const ShaderTag& tag, std::string_view source,
+                                                         std::string_view diagName,
                                                          boo::IGraphicsDataFactory& factory);
     std::shared_ptr<ShaderPipelines> buildExtendedShader(const ShaderTag& tag, const hecl::Frontend::IR& ir,
-                                                         const std::string& diagName,
+                                                         std::string_view diagName,
                                                          boo::IGraphicsDataFactory& factory);
 };
 

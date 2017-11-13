@@ -66,16 +66,16 @@ public:
     using EType = DNACVAR::EType;
     using EFlags = DNACVAR::EFlags;
 
-    CVar(const std::string& name, const std::string& value, const std::string& help, EType type, EFlags flags, CVarManager& parent);
-    CVar(const std::string& name, const std::string& value, const std::string& help, EFlags flags, CVarManager& parent);
-    CVar(const std::string& name, float value, const std::string& help, EFlags flags, CVarManager& parent);
-    CVar(const std::string& name, bool  value, const std::string& help, EFlags flags, CVarManager& parent);
-    CVar(const std::string& name, int   value, const std::string& help, EFlags flags, CVarManager& parent);
-    CVar(const std::string& name, const atVec4f& value, const std::string& help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, std::string_view value, std::string_view help, EType type, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, std::string_view value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, float value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, bool  value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, int   value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, const atVec4f& value, std::string_view help, EFlags flags, CVarManager& parent);
 
 
-    const std::string& name() const { return m_name; }
-    const std::string& rawHelp() const { return m_help; }
+    std::string_view name() const { return m_name; }
+    std::string_view rawHelp() const { return m_help; }
     std::string help() const;
 
     atVec4f toVec4f(bool* isValid = nullptr) const;
@@ -89,8 +89,8 @@ public:
     bool fromFloat(float val);
     bool fromBoolean(bool val);
     bool fromInteger(int val);
-    bool fromLiteral(const std::string& val);
-    bool fromLiteral(const std::wstring& val);
+    bool fromLiteral(std::string_view val);
+    bool fromLiteral(std::wstring_view val);
 
     bool isFloat()    const { return m_type == EType::Float; }
     bool isBoolean()  const { return m_type == EType::Boolean; }

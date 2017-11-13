@@ -145,11 +145,11 @@ extern std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
  */
 struct DataSpecEntry
 {
-    const SystemChar* m_name;
-    const SystemChar* m_desc;
+    SystemStringView m_name;
+    SystemStringView m_desc;
     std::function<IDataSpec*(Project&, DataSpecTool)> m_factory;
 
-    DataSpecEntry(const SystemChar* name, const SystemChar* desc,
+    DataSpecEntry(SystemStringView name, SystemStringView desc,
                   std::function<IDataSpec*(Project& project, DataSpecTool)>&& factory)
     : m_name(name), m_desc(desc), m_factory(std::move(factory)) {}
 };
@@ -228,10 +228,10 @@ protected:
     {return FourCC("NULL");}
 
 public:
-    ObjectBase(const SystemString& path)
+    ObjectBase(SystemStringView path)
     : m_path(path) {}
 
-    const SystemString& getPath() const {return m_path;}
+    SystemStringView getPath() const {return m_path;}
 
 };
 
@@ -278,12 +278,12 @@ public:
         std::vector<std::string> m_lines;
         FILE* m_lockedFile = NULL;
     public:
-        ConfigFile(const Project& project, const SystemString& name,
-                   const SystemString& subdir=_S("/.hecl/"));
+        ConfigFile(const Project& project, SystemStringView name,
+                   SystemStringView subdir=_S("/.hecl/"));
         std::vector<std::string>& lockAndRead();
-        void addLine(const std::string& line);
-        void removeLine(const std::string& refLine);
-        bool checkForLine(const std::string& refLine);
+        void addLine(std::string_view line);
+        void removeLine(std::string_view refLine);
+        bool checkForLine(std::string_view refLine);
         void unlockAndDiscard();
         bool unlockAndCommit();
     };
