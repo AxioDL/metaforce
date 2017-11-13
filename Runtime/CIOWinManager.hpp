@@ -31,8 +31,8 @@ public:
     void Draw() const;
     bool DistributeOneMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void PumpMessages(CArchitectureQueue& queue);
-    CIOWin* FindIOWin(const std::string& name);
-    std::shared_ptr<CIOWin> FindAndShareIOWin(const std::string& name);
+    CIOWin* FindIOWin(std::string_view name);
+    std::shared_ptr<CIOWin> FindAndShareIOWin(std::string_view name);
     void ChangeIOWinPriority(CIOWin* toChange, int pumpPrio, int drawPrio);
     void RemoveAllIOWins();
     void RemoveIOWin(CIOWin* toRemove);

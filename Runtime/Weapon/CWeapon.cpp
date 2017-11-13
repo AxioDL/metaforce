@@ -6,7 +6,7 @@ namespace urde
 {
 
 CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type,
-                 const std::string& name, const zeus::CTransform& xf, const CMaterialFilter& filter,
+                 std::string_view name, const zeus::CTransform& xf, const CMaterialFilter& filter,
                  const CMaterialList& mList, const CDamageInfo&, EProjectileAttrib attribs, CModelData&& mData)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf, std::move(mData), mList,
          CActorParameters::None(), kInvalidUniqueId)

@@ -68,7 +68,7 @@ class CStateMachine
 public:
     CStateMachine(CInputStream& in);
 
-    s32 GetStateIndex(const std::string& state) const;
+    s32 GetStateIndex(std::string_view state) const;
     const std::vector<CAiState>& GetStateVector() const;
 };
 
@@ -100,7 +100,7 @@ public:
             x4_state->CallFunc(mgr, ai, EStateMsg::One, delta);
     }
     void SetState(CStateManager&, CAi&, s32);
-    void SetState(CStateManager&, CAi&, const CStateMachine*, const std::string&);
+    void SetState(CStateManager&, CAi&, const CStateMachine*, std::string_view);
     const std::vector<CAiState>* GetStateVector() const;
     void Setup(const CStateMachine* machine);
     std::string GetName() const;

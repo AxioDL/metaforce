@@ -119,7 +119,7 @@ protected:
     u32 x250_numTicksPartialUpdate;
 
 public:
-    CPhysicsActor(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CPhysicsActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CMaterialList&, const zeus::CAABox&, const SMoverData&, const CActorParameters&, float, float);
 
     void Render(const CStateManager& mgr) const;

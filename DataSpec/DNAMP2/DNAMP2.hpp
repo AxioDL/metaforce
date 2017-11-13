@@ -28,8 +28,8 @@ public:
               bool doExtract=true);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const DNAMP1::PAK& pak, const DNAMP1::PAK::Entry& entry);
-    const std::string& getName() const {return m_node.getName();}
-    const hecl::SystemString& getLevelString() const {return m_levelString;}
+    std::string_view getName() const {return m_node.getName();}
+    hecl::SystemStringView getLevelString() const {return m_levelString;}
 
     using PAKType = DNAMP1::PAK;
     const PAKType& getPAK() const {return m_pak;}

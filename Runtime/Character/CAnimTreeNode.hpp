@@ -11,7 +11,7 @@ class CAnimTreeNode : public IAnimReader
 protected:
     std::string x4_name;
 public:
-    CAnimTreeNode(const std::string& name) : x4_name(name) {}
+    CAnimTreeNode(std::string_view name) : x4_name(name) {}
     bool IsCAnimTreeNode() const {return true;}
 
     virtual u32 Depth() const=0;

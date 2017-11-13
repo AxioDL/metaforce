@@ -168,7 +168,7 @@ struct DCLN : BigDNA
 
     Vector<Collision, DNA_COUNT(colCount)> collision;
 
-    void sendToBlender(hecl::BlenderConnection& conn, const std::string& entryName)
+    void sendToBlender(hecl::BlenderConnection& conn, std::string_view entryName)
     {
         /* Open Py Stream and read sections */
         hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
@@ -182,7 +182,7 @@ struct DCLN : BigDNA
                   "    if ob.type != 'CAMERA':\n"
                   "        bpy.context.scene.objects.unlink(ob)\n"
                   "        bpy.data.objects.remove(ob)\n",
-                  entryName.c_str());
+                  entryName.data());
 
         DeafBabe::BlenderInit(os);
         atInt32 idx = 0;

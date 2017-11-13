@@ -10,18 +10,18 @@ CResLoader::CResLoader()
     x48_curPak = x18_pakLoadedList.end();
 }
 
-const std::vector<CAssetId>* CResLoader::GetTagListForFile(const std::string& name) const
+const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name) const
 {
-    std::string namePak = name + ".upak";
+    std::string namePak = std::string(name) + ".upak";
     for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList)
         if (!CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path))
             return &pak->GetDepList();
     return nullptr;
 }
 
-void CResLoader::AddPakFileAsync(const std::string& name, bool buildDepList, bool worldPak)
+void CResLoader::AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak)
 {
-    std::string namePak = name + ".upak";
+    std::string namePak = std::string(name) + ".upak";
     if (CDvdFile::FileExists(namePak.c_str()))
     {
         x30_pakLoadingList.emplace_back(new CPakFile(namePak, buildDepList, worldPak));
@@ -29,7 +29,7 @@ void CResLoader::AddPakFileAsync(const std::string& name, bool buildDepList, boo
     }
 }
 
-void CResLoader::AddPakFile(const std::string& name, bool samusPak, bool worldPak)
+void CResLoader::AddPakFile(std::string_view name, bool samusPak, bool worldPak)
 {
     AddPakFileAsync(name, samusPak, worldPak);
     WaitForPakFileLoadingComplete();
@@ -169,7 +169,7 @@ FourCC CResLoader::GetResourceTypeById(CAssetId id) const
     return {};
 }
 
-const SObjectTag* CResLoader::GetResourceIdByName(const char* name) const
+const SObjectTag* CResLoader::GetResourceIdByName(std::string_view name) const
 {
     for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
     {
@@ -309,7 +309,7 @@ void CResLoader::EnumerateResources(const std::function<bool(const SObjectTag&)>
     }
 }
 
-void CResLoader::EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
+void CResLoader::EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const
 {
     for (auto it = x18_pakLoadedList.begin() ; it != x18_pakLoadedList.end() ; ++it)
     {

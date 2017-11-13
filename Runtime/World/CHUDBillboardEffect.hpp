@@ -28,7 +28,7 @@ class CHUDBillboardEffect : public CEffect
 public:
     CHUDBillboardEffect(const std::experimental::optional<TToken<CGenDescription>>& particle,
                         const std::experimental::optional<TToken<CElectricDescription>>& electric,
-                        TUniqueId uid, bool active, const std::string& name, float, const zeus::CVector3f& v0,
+                        TUniqueId uid, bool active, std::string_view name, float, const zeus::CVector3f& v0,
                         const zeus::CColor& color, const zeus::CVector3f& v1, const zeus::CVector3f& v2);
     ~CHUDBillboardEffect();
     void Accept(IVisitor& visitor);

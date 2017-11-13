@@ -40,8 +40,8 @@ bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
           "\n";
 
     hecl::ProjectPath hexPath = pakRouter.getWorking(mapu.hexMapa);
-    os.linkBlend(hexPath.getAbsolutePathUTF8().c_str(),
-                 pakRouter.getBestEntryName(mapu.hexMapa).c_str());
+    os.linkBlend(hexPath.getAbsolutePathUTF8().data(),
+                 pakRouter.getBestEntryName(mapu.hexMapa).data());
     os << "hexMesh = bpy.data.objects['MAP'].data\n";
 
     for (const MAPU::World& wld : mapu.worlds)
@@ -62,7 +62,7 @@ bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
                   wldXf.xf[1].vec[0], wldXf.xf[1].vec[1], wldXf.xf[1].vec[2], wldXf.xf[1].vec[3],
                   wldXf.xf[2].vec[0], wldXf.xf[2].vec[1], wldXf.xf[2].vec[2], wldXf.xf[2].vec[3],
                   wld.hexColor.r, wld.hexColor.g, wld.hexColor.b, wld.hexColor.a,
-                  path.getParentPath().getRelativePathUTF8().c_str());
+                  path.getParentPath().getRelativePathUTF8().data());
         int idx = 0;
         for (const MAPU::Transform& hexXf : wld.hexTransforms)
         {

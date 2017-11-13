@@ -15,7 +15,7 @@ public:
     CInt32POINode();
     CInt32POINode(CInputStream& in);
     s32 GetValue() const {return x38_val;}
-    const std::string& GetLocatorName() const {return x3c_locatorName;}
+    std::string_view GetLocatorName() const {return x3c_locatorName;}
 
     static CInt32POINode CopyNodeMinusStartTime(const CInt32POINode& node,
                                                 const CCharAnimTime& startTime);

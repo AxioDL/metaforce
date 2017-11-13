@@ -19,11 +19,11 @@ public:
 private:
     TReservedAverage<float, 8> x2e0_;
 public:
-    CScriptDebris(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CScriptDebris(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, CAssetId, const zeus::CVector3f&, float, const zeus::CVector3f&,
                   const zeus::CColor&, float, float, float, EScaleType, bool, bool, bool);
 
-    CScriptDebris(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CScriptDebris(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, float, float, float, float, float, float, float, float, float,
                   const zeus::CColor&, const zeus::CColor&, float, const zeus::CVector3f&, const zeus::CVector3f&,
                   float, float, const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, bool, bool, EOrientationType, CAssetId,

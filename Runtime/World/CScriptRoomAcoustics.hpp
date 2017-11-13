@@ -26,7 +26,7 @@ class CScriptRoomAcoustics : public CEntity
     amuse::EffectDelayInfo x80_delayInfo;
 
 public:
-    CScriptRoomAcoustics(TUniqueId uid, const std::string& name,
+    CScriptRoomAcoustics(TUniqueId uid, std::string_view name,
                          const CEntityInfo& info, bool active, u32 volScale,
                          bool revHi, bool revHiDis, float revHiColoration, float revHiMix,
                          float revHiTime, float revHiDamping, float revHiPreDelay, float revHiCrosstalk,

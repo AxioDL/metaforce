@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, const std::string& name, const zeus::CTransform& xf,
+CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
                        TUniqueId parentId, const CLight& light, u32 w1, u32 w2, float f1)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(), kInvalidUniqueId),

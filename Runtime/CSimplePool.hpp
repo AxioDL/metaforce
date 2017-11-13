@@ -23,8 +23,8 @@ public:
     CSimplePool(IFactory& factory);
     CToken GetObj(const SObjectTag&, const CVParamTransfer&);
     CToken GetObj(const SObjectTag&);
-    CToken GetObj(const char*);
-    CToken GetObj(const char*, const CVParamTransfer&);
+    CToken GetObj(std::string_view);
+    CToken GetObj(std::string_view, const CVParamTransfer&);
     bool HasObject(const SObjectTag&) const;
     bool ObjectIsLive(const SObjectTag&) const;
     IFactory& GetFactory() const {return x18_factory;}

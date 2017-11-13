@@ -89,7 +89,7 @@ void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
             TXTR::Extract(rs, txtrPath);
         }
         hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
-        hecl::SystemUTF8View resPathView(resPath);
+        hecl::SystemUTF8Conv resPathView(resPath);
         os.format("if '%s' in bpy.data.textures:\n"
                   "    image = bpy.data.images['%s']\n"
                   "    texture = bpy.data.textures[image.name]\n"
@@ -100,7 +100,7 @@ void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
                   "    texture.image = image\n"
                   "texmap_list.append(texture)\n"
                   "\n", texName.c_str(), texName.c_str(),
-                  resPathView.str().c_str(), texName.c_str());
+                  resPathView.c_str(), texName.c_str());
     }
 
     unsigned m=0;
@@ -519,7 +519,7 @@ void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
     os.format("# Master shader library\n"
               "with bpy.data.libraries.load('%s', link=True, relative=True) as (data_from, data_to):\n"
               "    data_to.node_groups = data_from.node_groups\n"
-              "\n", masterShaderPath.getAbsolutePathUTF8().c_str());
+              "\n", masterShaderPath.getAbsolutePathUTF8().data());
 }
 
 void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
@@ -1248,7 +1248,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
             atUint32 nextGroupIdx = 0;
             for (const Mesh::Material& mat : mset)
             {
-                std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                 hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
                 setBackends.emplace_back();
                 hecl::Backend::GX& matGX = setBackends.back();
@@ -1521,7 +1521,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
             size_t endOff = 0;
             for (const Mesh::Material& mat : mset)
             {
-                std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                 targetMSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
                 endOff = targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
@@ -1719,7 +1719,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
                             texPaths.push_back(path);
                     }
 
-                    std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8(), mat.name.c_str());
+                    std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                     matSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
                     endOff = matSet.materials.back().binarySize(endOff);
                     matSet.head.addMaterialEndOff(endOff);

@@ -36,7 +36,7 @@ protected:
 public:
     static const std::vector<SConnection> NullConnectionList;
     virtual ~CEntity() = default;
-    CEntity(TUniqueId uid, const CEntityInfo& info, bool active, const std::string& name);
+    CEntity(TUniqueId uid, const CEntityInfo& info, bool active, std::string_view name);
     virtual void Accept(IVisitor& visitor)=0;
     virtual void PreThink(float, CStateManager&) {}
     virtual void Think(float, CStateManager&) {}

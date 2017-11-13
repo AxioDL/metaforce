@@ -6,7 +6,7 @@
 
 namespace urde
 {
-CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        zeus::CTransform& xf, bool active, float f1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
          CActorParameters::None(), kInvalidUniqueId)

@@ -4,7 +4,7 @@ namespace urde
 {
 
 CAnimTreeTimeScale::CAnimTreeTimeScale(const std::weak_ptr<CAnimTreeNode>& node, float scale,
-                                       const std::string& name)
+                                       std::string_view name)
     : CAnimTreeSingleChild(node, name)
     , x18_timeScale(new CConstantAnimationTimeScale(scale))
 {

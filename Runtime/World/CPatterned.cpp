@@ -12,7 +12,7 @@ CMaterialList gkPatternedGroundMaterialList(EMaterialTypes::Character, EMaterial
 CMaterialList gkPatternedFlyerMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
                                            EMaterialTypes::Orbit, EMaterialTypes::Target);
 
-CPatterned::CPatterned(ECharacter character, TUniqueId uid, const std::string& name, CPatterned::EFlavorType flavor,
+CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor,
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
                        const CPatternedInfo& pInfo, CPatterned::EMovementType moveType, CPatterned::EColliderType,
                        EBodyType, const CActorParameters& actorParms, int variant)

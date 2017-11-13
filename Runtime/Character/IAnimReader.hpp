@@ -56,11 +56,11 @@ struct CAnimTreeEffectiveContribution
     CCharAnimTime x2c_remTime;
     u32 x34_dbIdx;
 public:
-    CAnimTreeEffectiveContribution(float cweight, const std::string& name, const CSteadyStateAnimInfo& ssInfo,
+    CAnimTreeEffectiveContribution(float cweight, std::string_view name, const CSteadyStateAnimInfo& ssInfo,
                                    const CCharAnimTime& remTime, u32 dbIdx)
     : x0_contributionWeight(cweight), x4_name(name), x14_ssInfo(ssInfo), x2c_remTime(remTime), x34_dbIdx(dbIdx) {}
     float GetContributionWeight() const { return x0_contributionWeight; }
-    const std::string& GetPrimitiveName() const { return x4_name; }
+    std::string_view GetPrimitiveName() const { return x4_name; }
     const CSteadyStateAnimInfo& GetSteadyStateAnimInfo() const { return x14_ssInfo; }
     const CCharAnimTime& GetTimeRemaining() const { return x2c_remTime; }
     u32 GetAnimDatabaseIndex() const { return x34_dbIdx; }

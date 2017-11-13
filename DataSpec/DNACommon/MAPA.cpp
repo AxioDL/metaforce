@@ -376,7 +376,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     if (mapaIn.verts.size() >= 256)
     {
         Log.report(logvisor::Error, _S("MAPA %s vertex range exceeded [%d/%d]"),
-                   out.getRelativePath().c_str(), mapaIn.verts.size(), 255);
+                   out.getRelativePath().data(), mapaIn.verts.size(), 255);
         return false;
     }
 

@@ -41,9 +41,9 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
         GIT_BRANCH[0]      != '\0')
     {
         m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s",
-                                      vm.translateOr("branch", "Branch").c_str(), GIT_BRANCH,
-                                      vm.translateOr("commit", "Commit").c_str(), GIT_COMMIT_HASH,
-                                      vm.translateOr("date", "Date").c_str(), GIT_COMMIT_DATE);
+                                      vm.translateOr("branch", "Branch").data(), GIT_BRANCH,
+                                      vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
+                                      vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
     }
 
     m_openProjBind.m_openRecentMenuRoot.m_text = vm.translateOr("recent_projects", "Recent Projects");

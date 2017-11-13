@@ -18,7 +18,7 @@ public:
     virtual u32 GetNumMetaAnims() const=0;
     virtual const char* GetMetaAnimName(u32) const=0;
     virtual void GetAllUniquePrimitives(std::vector<CPrimitive>&) const=0;
-    virtual void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>&, const std::string&) const=0;
+    virtual void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>&, std::string_view) const=0;
 };
 
 }

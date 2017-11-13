@@ -124,10 +124,10 @@ public:
     void AdvanceParticles(const zeus::CTransform& xf, float, CStateManager& stateMgr);
     zeus::CAABox GetBounds() const;
     zeus::CAABox GetBounds(const zeus::CTransform& xf) const;
-    zeus::CTransform GetScaledLocatorTransformDynamic(const std::string& name, const CCharAnimTime* time) const;
-    zeus::CTransform GetScaledLocatorTransform(const std::string& name) const;
-    zeus::CTransform GetLocatorTransformDynamic(const std::string& name, const CCharAnimTime* time) const;
-    zeus::CTransform GetLocatorTransform(const std::string& name) const;
+    zeus::CTransform GetScaledLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
+    zeus::CTransform GetScaledLocatorTransform(std::string_view name) const;
+    zeus::CTransform GetLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
+    zeus::CTransform GetLocatorTransform(std::string_view name) const;
     SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16&, bool advTree);
     SAdvancementDeltas AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree);
     bool IsAnimating() const;

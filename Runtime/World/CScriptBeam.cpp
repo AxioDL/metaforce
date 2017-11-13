@@ -8,7 +8,7 @@
 namespace urde
 {
 
-CScriptBeam::CScriptBeam(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptBeam::CScriptBeam(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          bool active, const TToken<CWeaponDescription>& weaponDesc, const CBeamInfo& bInfo,
                          const CDamageInfo& dInfo)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),

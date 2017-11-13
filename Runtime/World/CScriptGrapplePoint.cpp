@@ -6,8 +6,9 @@
 
 namespace urde
 {
-CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, const std::string &name, const CEntityInfo& info,
-                                         const zeus::CTransform &transform, bool active, const CGrappleParameters &params)
+CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+                                         const zeus::CTransform &transform, bool active,
+                                         const CGrappleParameters &params)
     : CActor(uid, active, name, info, transform, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Orbit),
              CActorParameters::None(),
              kInvalidUniqueId),

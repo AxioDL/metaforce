@@ -131,31 +131,6 @@ public:
         TAreaId xc_areaId;
     };
 
-    class CAudioMenu
-    {
-    public:
-        enum class EMenu
-        {
-        };
-        struct SMenuOption
-        {
-            SMenuOption(const std::string&, s32, s32, s32);
-            void BuildDrawableString();
-        };
-
-    private:
-    public:
-        CAudioMenu()=default;
-        void SetIsHighlighted(bool);
-        void AddOption(const SMenuOption&);
-        void ProcessControllerInput(const CFinalInput&);
-        u32 GetSelectionIndex() const;
-        const SMenuOption& GetOption(s32) const;
-        SMenuOption& Option(s32);
-        void SetSelectionIndex(s32);
-        void Draw(EMenu) const;
-    };
-
 private:
     enum class EZoomState
     {

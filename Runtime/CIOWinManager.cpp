@@ -117,9 +117,9 @@ void CIOWinManager::PumpMessages(CArchitectureQueue& queue)
     }
 }
 
-CIOWin* CIOWinManager::FindIOWin(const std::string& name)
+CIOWin* CIOWinManager::FindIOWin(std::string_view name)
 {
-    size_t findHash = std::hash<std::string>()(name);
+    size_t findHash = std::hash<std::string_view>()(name);
 
     for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {
@@ -138,9 +138,9 @@ CIOWin* CIOWinManager::FindIOWin(const std::string& name)
     return nullptr;
 }
 
-std::shared_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(const std::string& name)
+std::shared_ptr<CIOWin> CIOWinManager::FindAndShareIOWin(std::string_view name)
 {
-    size_t findHash = std::hash<std::string>()(name);
+    size_t findHash = std::hash<std::string_view>()(name);
 
     for (IOWinPQNode* node = x4_pumpRoot ; node ; node = node->x8_next)
     {

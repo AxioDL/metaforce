@@ -18,14 +18,14 @@ public:
         return strcasecmp(a, b);
 #endif
     }
-    static int CompareCaseInsensitive(const std::string& a, const std::string& b)
+    static int CompareCaseInsensitive(std::string_view a, std::string_view b)
     {
-        return CompareCaseInsensitive(a.c_str(), b.c_str());
+        return CompareCaseInsensitive(a.data(), b.data());
     }
 
-    static int IndexOfSubstring(const std::string& haystack, const std::string& needle)
+    static int IndexOfSubstring(std::string_view haystack, std::string_view needle)
     {
-        std::string str = haystack;
+        std::string str(haystack);
         std::transform(str.begin(), str.end(), str.begin(), tolower);
         std::string::size_type s = str.find(needle);
         if (s == std::string::npos)

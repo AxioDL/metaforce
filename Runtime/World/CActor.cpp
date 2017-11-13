@@ -20,7 +20,7 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
     return ret;
 }
 
-CActor::CActor(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform&,
+CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
                CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid)
 : CEntity(uid, info, active, name)
 , x68_material(MakeActorMaterialList(list, params))
@@ -139,12 +139,12 @@ void CActor::SetVolume(float vol)
         CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, GetTranslation(), zeus::CVector3f::skZero, vol);
 }
 
-const zeus::CTransform CActor::GetScaledLocatorTransform(const std::string& segName) const
+const zeus::CTransform CActor::GetScaledLocatorTransform(std::string_view segName) const
 {
     return x64_modelData->GetScaledLocatorTransform(segName);
 }
 
-const zeus::CTransform CActor::GetLocatorTransform(const std::string& segName) const
+const zeus::CTransform CActor::GetLocatorTransform(std::string_view segName) const
 {
     return x64_modelData->GetLocatorTransform(segName);
 }

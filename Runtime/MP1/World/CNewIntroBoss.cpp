@@ -7,7 +7,7 @@ namespace urde
 namespace MP1
 {
 
-CNewIntroBoss::CNewIntroBoss(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                              const CActorParameters& actParms, float, u32, const CDamageInfo& dInfo,
                              u32, u32, u32, u32)

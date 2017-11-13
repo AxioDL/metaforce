@@ -8,7 +8,7 @@ namespace urde
 {
 namespace MP1
 {
-CMetaree::CMetaree(TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
+CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CDamageInfo& dInfo,
                    float f1, const zeus::CVector3f& v1, float f2, EBodyType bodyType, float f3, float f4,
                    const CActorParameters& aParms)

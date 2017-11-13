@@ -175,10 +175,10 @@ public:
     }
 
     const std::vector<hecl::SystemString>* recentProjects() const {return &m_recentProjects;}
-    void pushRecentProject(const hecl::SystemString& path);
+    void pushRecentProject(hecl::SystemStringView path);
 
     const std::vector<hecl::SystemString>* recentFiles() const {return &m_recentFiles;}
-    void pushRecentFile(const hecl::SystemString& path);
+    void pushRecentFile(hecl::SystemStringView path);
 
     void init(boo::IApplication* app);
     const boo::SystemChar* platformName() { return m_mainPlatformName; }

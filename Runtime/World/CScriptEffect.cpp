@@ -10,7 +10,7 @@ namespace urde
 u32 CScriptEffect::g_NumParticlesUpdating = 0;
 u32 CScriptEffect::g_NumParticlesRendered = 0;
 
-CScriptEffect::CScriptEffect(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                              const zeus::CTransform& xf, const zeus::CVector3f& scale,
                              CAssetId partId, CAssetId elscId, bool, bool, bool, bool active,
                              bool, float, float, float, float, bool, float, float, float,

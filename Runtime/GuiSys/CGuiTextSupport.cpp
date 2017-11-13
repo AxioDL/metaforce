@@ -230,7 +230,7 @@ void CGuiTextSupport::SetFontColor(const zeus::CColor& col)
     }
 }
 
-void CGuiTextSupport::AddText(const std::u16string& str)
+void CGuiTextSupport::AddText(std::u16string_view str)
 {
     if (x60_renderBuf)
     {
@@ -242,7 +242,7 @@ void CGuiTextSupport::AddText(const std::u16string& str)
     ClearRenderBuffer();
 }
 
-void CGuiTextSupport::SetText(const std::u16string& str, bool multipage)
+void CGuiTextSupport::SetText(std::u16string_view str, bool multipage)
 {
     if (x0_string.compare(str))
     {
@@ -255,7 +255,7 @@ void CGuiTextSupport::SetText(const std::u16string& str, bool multipage)
     }
 }
 
-void CGuiTextSupport::SetText(const std::string& str, bool multipage)
+void CGuiTextSupport::SetText(std::string_view str, bool multipage)
 {
     SetText(hecl::UTF8ToChar16(str), multipage);
 }

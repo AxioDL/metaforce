@@ -1054,9 +1054,9 @@ bool ANCS::Extract(const SpecBase& dataSpec,
     {
         if (res.second.evntId)
         {
-            hecl::SystemStringView sysStr(res.second.name);
+            hecl::SystemStringConv sysStr(res.second.name);
             hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_S(".")) +
-                                                                       sysStr.sys_str() +
+                                                                       sysStr.c_str() +
                                                                        _S(".evnt.yaml")).c_str(), true);
             hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
 
@@ -1083,24 +1083,24 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
     if (!yamlPath.isFile())
         Log.report(logvisor::Fatal, _S("'%s' not found as file"),
-                   yamlPath.getRelativePath().c_str());
+                   yamlPath.getRelativePath().data());
 
     athena::io::FileReader reader(yamlPath.getAbsolutePath());
     if (!reader.isOpen())
         Log.report(logvisor::Fatal, _S("can't open '%s' for reading"),
-                   yamlPath.getRelativePath().c_str());
+                   yamlPath.getRelativePath().data());
 
     if (!BigYAML::ValidateFromYAMLStream<ANCS>(reader))
     {
         Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
-                   yamlPath.getRelativePath().c_str());
+                   yamlPath.getRelativePath().data());
     }
 
     athena::io::YAMLDocReader yamlReader;
     if (!yamlReader.parse(&reader))
     {
         Log.report(logvisor::Fatal, _S("unable to parse '%s'"),
-                   yamlPath.getRelativePath().c_str());
+                   yamlPath.getRelativePath().data());
     }
     ANCS ancs;
     ancs.read(yamlReader);
@@ -1114,8 +1114,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         ch.cmdlOverlay = UniqueID32{};
         ch.cskrOverlay = UniqueID32{};
 
-        hecl::SystemStringView chSysName(ch.name);
-        ch.cskr = inPath.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR"));
+        hecl::SystemStringConv chSysName(ch.name);
+        ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR"));
 
         for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
@@ -1124,15 +1124,15 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 if (sub.armature >= 0)
                 {
                     const DNAANCS::Actor::Armature& arm = actor.armatures[sub.armature];
-                    hecl::SystemStringView armSysName(arm.name);
-                    ch.cinf = inPath.ensureAuxInfo(armSysName.sys_str() + _S(".CINF"));
+                    hecl::SystemStringConv armSysName(arm.name);
+                    ch.cinf = inPath.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF"));
                     ch.cmdl = sub.mesh;
                     if (sub.overlayMeshes.size())
                     {
-                        hecl::SystemStringView overlaySys(sub.overlayMeshes[0].first);
+                        hecl::SystemStringConv overlaySys(sub.overlayMeshes[0].first);
                         ch.cmdlOverlay = sub.overlayMeshes[0].second;
-                        ch.cskrOverlay = inPath.ensureAuxInfo(chSysName.sys_str() + _S('.') +
-                                                              overlaySys.sys_str() + _S(".CSKR"));
+                        ch.cskrOverlay = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
+                                                              overlaySys.c_str() + _S(".CSKR"));
                     }
 
                     break;
@@ -1144,8 +1144,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     /* Set Animation Resource IDs */
     ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) -> bool
     {
-        hecl::SystemStringView sysStr(prim.animName);
-        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
+        hecl::SystemStringConv sysStr(prim.animName);
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".ANIM"));
         prim.animId = pathOut;
         return true;
     });
@@ -1154,15 +1154,15 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     ancs.animationSet.animResources.reserve(actor.actions.size());
     for (const DNAANCS::Actor::Action& act : actor.actions)
     {
-        hecl::SystemStringView sysStr(act.name);
-        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
+        hecl::SystemStringConv sysStr(act.name);
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".ANIM"));
 
         ancs.animationSet.animResources.emplace_back();
         ancs.animationSet.animResources.back().animId = pathOut;
 
         /* Check for associated EVNT YAML */
         hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) +
-                                                                  sysStr.sys_str() +
+                                                                  sysStr.c_str() +
                                                                   _S(".evnt.yaml")).c_str(), true);
         evntYamlPath = evntYamlPath.ensureAuxInfo(_S(""));
         if (evntYamlPath.isFile())
@@ -1185,7 +1185,7 @@ bool ANCS::CookCINF(const hecl::ProjectPath& outPath,
 
     for (const DNAANCS::Actor::Armature& arm : actor.armatures)
     {
-        hecl::SystemStringView sysStr(arm.name);
+        hecl::SystemStringConv sysStr(arm.name);
         if (sysStr.sys_str() == armName)
         {
             std::unordered_map<std::string, atInt32> boneIdMap;
@@ -1215,8 +1215,8 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
         overName = hecl::SystemString(subName.begin() + dotPos + 1, subName.end());
         subName = hecl::SystemString(subName.begin(), subName.begin() + dotPos);
     }
-    hecl::SystemUTF8View subNameView(subName);
-    hecl::SystemUTF8View overNameView(overName);
+    hecl::SystemUTF8Conv subNameView(subName);
+    hecl::SystemUTF8Conv overNameView(overName);
 
     /* Build bone ID map */
     std::unordered_map<std::string, atInt32> boneIdMap;
@@ -1255,16 +1255,16 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
         Log.report(logvisor::Fatal, _S("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
 
     if (!modelPath->isFile())
-        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().c_str());
+        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().data());
 
     hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
     if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
         if (!modelCookFunc(*modelPath))
-            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath->getRelativePath().c_str());
+            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath->getRelativePath().data());
 
     athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
     if (skinIO.hasError())
-        Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().c_str());
+        Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().data());
 
     std::vector<std::vector<uint32_t>> skinBanks;
     uint32_t bankCount = skinIO.readUint32Big();
@@ -1304,7 +1304,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
             auto search = boneIdMap.find(name);
             if (search == boneIdMap.cend())
                 Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
-                           name.c_str(), inPath.getRelativePathUTF8().c_str());
+                           name.c_str(), inPath.getRelativePathUTF8().data());
             virtualBone.emplace_back(search->second, weight);
         }
     }
@@ -1326,7 +1326,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
             auto search = boneIdMap.find(name);
             if (search == boneIdMap.cend())
                 Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
-                           name.c_str(), inPath.getRelativePathUTF8().c_str());
+                           name.c_str(), inPath.getRelativePathUTF8().data());
             skinOut.writeUint32Big(search->second);
         }
     }
@@ -1355,12 +1355,12 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
 {
     hecl::SystemString actName(inPath.getAuxInfo().begin(),
                                inPath.getAuxInfo().end() - 5);
-    hecl::SystemUTF8View actNameView(actName);
+    hecl::SystemUTF8Conv actNameView(actName);
     DNAANCS::Actor::Action action = ds.compileActionChannelsOnly(actNameView.str());
 
     if (!actor.armatures.size())
         Log.report(logvisor::Fatal, _S("0 armatures in %s"),
-                   inPath.getRelativePath().c_str());
+                   inPath.getRelativePath().data());
 
     /* Build bone ID map */
     std::unordered_map<std::string, atInt32> boneIdMap;

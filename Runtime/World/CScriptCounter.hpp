@@ -13,7 +13,7 @@ class CScriptCounter : public CEntity
     s32 x3c_max;
     bool x40_autoReset;
 public:
-    CScriptCounter(TUniqueId, const std::string& name, const CEntityInfo& info,
+    CScriptCounter(TUniqueId, std::string_view name, const CEntityInfo& info,
                    s32, s32, bool, bool);
 
     void Accept(IVisitor& visitor);

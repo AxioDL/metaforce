@@ -237,7 +237,7 @@ zeus::CAABox CModelData::GetBounds(const zeus::CTransform& xf) const
         return x1c_normalModel->GetAABB().getTransformedAABox(xf2);
 }
 
-zeus::CTransform CModelData::GetScaledLocatorTransformDynamic(const std::string& name,
+zeus::CTransform CModelData::GetScaledLocatorTransformDynamic(std::string_view name,
                                                               const CCharAnimTime* time) const
 {
     zeus::CTransform xf = GetLocatorTransformDynamic(name, time);
@@ -245,14 +245,14 @@ zeus::CTransform CModelData::GetScaledLocatorTransformDynamic(const std::string&
     return xf;
 }
 
-zeus::CTransform CModelData::GetScaledLocatorTransform(const std::string& name) const
+zeus::CTransform CModelData::GetScaledLocatorTransform(std::string_view name) const
 {
     zeus::CTransform xf = GetLocatorTransform(name);
     xf.origin *= x0_scale;
     return xf;
 }
 
-zeus::CTransform CModelData::GetLocatorTransformDynamic(const std::string& name,
+zeus::CTransform CModelData::GetLocatorTransformDynamic(std::string_view name,
                                                         const CCharAnimTime* time) const
 {
     if (x10_animData)
@@ -261,7 +261,7 @@ zeus::CTransform CModelData::GetLocatorTransformDynamic(const std::string& name,
         return {};
 }
 
-zeus::CTransform CModelData::GetLocatorTransform(const std::string& name) const
+zeus::CTransform CModelData::GetLocatorTransform(std::string_view name) const
 {
     if (x10_animData)
         return x10_animData->GetLocatorTransform(name, nullptr);

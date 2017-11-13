@@ -16,7 +16,7 @@ const float CScriptWater::kSplashScales[6] =
     1.19f, 0.709f, 1.f
 };
 
-CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info,
                            const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
                            zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold,
                            bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap,

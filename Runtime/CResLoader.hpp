@@ -25,9 +25,9 @@ class CResLoader
     bool x54_forwardSeek = false;
 public:
     CResLoader();
-    const std::vector<CAssetId>* GetTagListForFile(const std::string& name) const;
-    void AddPakFileAsync(const std::string& name, bool buildDepList, bool worldPak);
-    void AddPakFile(const std::string& name, bool samusPak, bool worldPak);
+    const std::vector<CAssetId>* GetTagListForFile(std::string_view name) const;
+    void AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak);
+    void AddPakFile(std::string_view name, bool samusPak, bool worldPak);
     void WaitForPakFileLoadingComplete();
     std::unique_ptr<CInputStream> LoadNewResourcePartSync(const SObjectTag& tag, u32 length, u32 offset, void* extBuf);
     void LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]>& bufOut, int* sizeOut);
@@ -42,7 +42,7 @@ public:
     u32 ResourceSize(const SObjectTag& tag);
     bool ResourceExists(const SObjectTag& tag);
     FourCC GetResourceTypeById(CAssetId id) const;
-    const SObjectTag* GetResourceIdByName(const char* name) const;
+    const SObjectTag* GetResourceIdByName(std::string_view name) const;
     bool AreAllPaksLoaded() const;
     void AsyncIdlePakLoading();
     bool FindResource(CAssetId id) const;
@@ -53,7 +53,7 @@ public:
     void MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file);
     std::vector<std::pair<std::string, SObjectTag>> GetResourceIdToNameList() const;
     void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
-    void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
+    void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const;
 };
 
 }

@@ -42,7 +42,7 @@ private:
 public:
     CCharacterInfo(CInputStream& in);
 
-    const std::string& GetCharacterName() const { return x4_name; }
+    std::string_view GetCharacterName() const { return x4_name; }
     CAssetId GetModelId() const {return x14_cmdl;}
     CAssetId GetSkinRulesId() const {return x18_cskr;}
     CAssetId GetCharLayoutInfoId() const {return x1c_cinf;}

@@ -337,7 +337,7 @@ private:
     void ReturnArmAndGunToDefault(CStateManager& mgr, bool returnToDefault);
     void ReturnToRestPose();
     void ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr);
-    void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, const std::string& lctrName,
+    void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName,
                           bool shake, bool dyn);
     void UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr);
     void ProcessGunMorph(float dt, CStateManager& mgr);

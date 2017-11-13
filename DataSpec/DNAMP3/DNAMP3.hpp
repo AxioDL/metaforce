@@ -28,12 +28,12 @@ public:
               bool doExtract=true);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const PAK& pak, const PAK::Entry& entry);
-    inline const std::string& getName() const {return m_node.getName();}
-    inline hecl::SystemString getLevelString() const {return m_levelString;}
+    std::string_view getName() const {return m_node.getName();}
+    hecl::SystemStringView getLevelString() const {return m_levelString;}
 
     using PAKType = PAK;
-    inline const PAKType& getPAK() const {return m_pak;}
-    inline const nod::Node& getNode() const {return m_node;}
+    const PAKType& getPAK() const {return m_pak;}
+    const nod::Node& getNode() const {return m_node;}
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,

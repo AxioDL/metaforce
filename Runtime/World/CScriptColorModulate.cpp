@@ -5,7 +5,7 @@
 
 namespace urde
 {
-CScriptColorModulate::CScriptColorModulate(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptColorModulate::CScriptColorModulate(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                            const zeus::CColor& c1, const zeus::CColor& c2,
                                            EBlendMode bm, float f1, float f2,
                                            bool b1, bool b2, bool b3, bool b4, bool b5, bool active)

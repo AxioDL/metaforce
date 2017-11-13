@@ -129,16 +129,16 @@ public:
     void SetGeometryColor(const zeus::CColor& col);
     void SetOutlineColor(const zeus::CColor& col);
     void SetFontColor(const zeus::CColor& col);
-    void AddText(const std::u16string& str);
-    void SetText(const std::u16string& str, bool multipage=false);
-    void SetText(const std::string& str, bool multipage=false);
+    void AddText(std::u16string_view str);
+    void SetText(std::u16string_view str, bool multipage=false);
+    void SetText(std::string_view str, bool multipage=false);
     void SetJustification(EJustification j);
     void SetVerticalJustification(EVerticalJustification j);
     void SetImageBaseline(bool b);
     bool GetIsTextSupportFinishedLoading() const;
     float GetCurTime() const { return x3c_curTime; }
     void SetCurTime(float t) { x3c_curTime = t; }
-    const std::u16string& GetString() const { return x0_string; }
+    std::u16string_view GetString() const { return x0_string; }
     void SetControlTXTRMap(const std::vector<std::pair<CAssetId, CAssetId>>* txtrMap);
     int GetPageCounter() const { return x304_pageCounter; }
     int GetTotalPageCount();

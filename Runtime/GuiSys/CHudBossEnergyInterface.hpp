@@ -25,7 +25,7 @@ public:
     CHudBossEnergyInterface(CGuiFrame& selHud);
     void Update(float dt);
     void SetAlpha(float a) { x0_alpha = a; }
-    void SetBossParams(bool visible, const std::u16string& name,
+    void SetBossParams(bool visible, std::u16string_view name,
                        float curEnergy, float maxEnergy);
     static std::pair<zeus::CVector3f, zeus::CVector3f> BossEnergyCoordFunc(float t);
 };

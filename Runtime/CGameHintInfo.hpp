@@ -32,7 +32,7 @@ public:
         float GetNormalTime() const { return x14_normalTime; }
         float GetImmediateTime() const { return x10_immediateTime; }
         float GetTextTime() const { return x1c_textTime; }
-        const std::string& GetName() const { return x0_name; }
+        std::string_view GetName() const { return x0_name; }
         CAssetId GetStringID() const { return x18_stringId; }
         const std::vector<SHintLocation>& GetLocations() const { return x20_locations; }
     };

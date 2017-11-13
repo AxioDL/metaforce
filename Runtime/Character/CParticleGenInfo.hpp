@@ -35,7 +35,7 @@ class CParticleGenInfo
     EParticleGenState x80_state;
 
 public:
-    CParticleGenInfo(const SObjectTag& part, int frameCount, const std::string& boneName,
+    CParticleGenInfo(const SObjectTag& part, int frameCount, std::string_view boneName,
                      const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
                      int flags, EParticleGenState state);
 
@@ -81,7 +81,7 @@ public:
     void SetState(EParticleGenState s) { x80_state = s; }
 
     CParticleData::EParentedMode GetParentedMode() const { return x28_parentMode; }
-    const std::string& GetLocatorName() const { return x10_boneName; }
+    std::string_view GetLocatorName() const { return x10_boneName; }
 };
 
 class CParticleGenInfoGeneric : public CParticleGenInfo
@@ -91,7 +91,7 @@ class CParticleGenInfoGeneric : public CParticleGenInfo
 
 public:
     CParticleGenInfoGeneric(const SObjectTag& part, const std::weak_ptr<CParticleGen>& system,
-                            int frames, const std::string& boneName, const zeus::CVector3f& scale,
+                            int frames, std::string_view boneName, const zeus::CVector3f& scale,
                             CParticleData::EParentedMode parentMode, int flags, CStateManager& stateMgr, TAreaId,
                             int lightId, EParticleGenState state);
 

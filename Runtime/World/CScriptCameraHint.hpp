@@ -72,7 +72,7 @@ class CScriptCameraHint : public CActor
     void AddHelper(TUniqueId id);
     void RemoveHelper(TUniqueId id);
 public:
-    CScriptCameraHint(TUniqueId, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+    CScriptCameraHint(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                       bool active, s32 priority, CBallCamera::EBallCameraBehaviour behaviour, u32 overrideFlags,
                       float minDist, float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,
                       const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam, float fov,

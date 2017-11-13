@@ -18,7 +18,7 @@ class CScriptMemoryRelay : public CEntity
         u8 dummy = 0;
     };
 public:
-    CScriptMemoryRelay(TUniqueId, const std::string& name, const CEntityInfo&, bool, bool, bool);
+    CScriptMemoryRelay(TUniqueId, std::string_view name, const CEntityInfo&, bool, bool, bool);
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };

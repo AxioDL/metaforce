@@ -23,9 +23,9 @@ namespace DNAMP3
 {
 logvisor::Module Log("urde::DNAMP3");
 
-static bool GetNoShare(const std::string& name)
+static bool GetNoShare(std::string_view name)
 {
-    std::string lowerName = name;
+    std::string lowerName(name);
     std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
     if (!lowerName.compare(0, 7, "metroid"))
         return false;
@@ -70,9 +70,9 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
     }
 }
 
-static hecl::SystemString LayerName(const std::string& name)
+static hecl::SystemString LayerName(std::string_view name)
 {
-    hecl::SystemString ret = hecl::SystemStringView(name).sys_str();
+    hecl::SystemString ret(hecl::SystemStringConv(name).sys_str());
     for (auto& ch : ret)
         if (ch == _S('/') || ch == _S('\\'))
             ch = _S('-');
@@ -96,7 +96,7 @@ void PAKBridge::build()
             }
             bool named;
             std::string bestName = m_pak.bestEntryName(entry, named);
-            level.name = hecl::SystemStringView(bestName).sys_str();
+            level.name = hecl::SystemStringConv(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
@@ -132,11 +132,11 @@ void PAKBridge::build()
                 }
                 if (areaDeps.name.empty())
                 {
-                    areaDeps.name = hecl::SystemStringView(area.internalAreaName).sys_str();
+                    areaDeps.name = hecl::SystemStringConv(area.internalAreaName).sys_str();
                     if (areaDeps.name.empty())
                     {
                         std::string idStr = area.areaMREAId.toString();
-                        areaDeps.name = _S("MREA_") + hecl::SystemStringView(idStr).sys_str();
+                        areaDeps.name = hecl::SystemString(_S("MREA_")) + hecl::SystemStringConv(idStr).c_str();
                     }
                 }
                 hecl::SystemChar num[16];
@@ -200,7 +200,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             {
                 addTo[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
                 cskrCinfToChar[overlay.cskr] = std::make_pair(entry.second.id,
-                    hecl::Format("%s.%s.CSKR", ci.name.c_str(), overlay.type.toString().c_str()));
+                    hecl::Format("%s.%.4s.CSKR", ci.name.c_str(), overlay.type.getChars()));
             }
         }
     }

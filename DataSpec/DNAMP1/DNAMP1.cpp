@@ -52,9 +52,9 @@ namespace DNAMP1
 {
 logvisor::Module Log("urde::DNAMP1");
 
-static bool GetNoShare(const std::string& name)
+static bool GetNoShare(std::string_view name)
 {
-    std::string lowerName = name;
+    std::string lowerName(name);
     std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
     if (!lowerName.compare(0, 7, "metroid"))
         return false;
@@ -93,9 +93,9 @@ PAKBridge::PAKBridge(hecl::Database::Project& project,
     }
 }
 
-static hecl::SystemString LayerName(const std::string& name)
+static hecl::SystemString LayerName(std::string_view name)
 {
-    hecl::SystemString ret = hecl::SystemStringView(name).sys_str();
+    hecl::SystemString ret(hecl::SystemStringConv(name).sys_str());
     for (auto& ch : ret)
         if (ch == _S('/') || ch == _S('\\'))
             ch = _S('-');
@@ -119,7 +119,7 @@ void PAKBridge::build()
             }
             bool named;
             std::string bestName = m_pak.bestEntryName(entry, named);
-            level.name = hecl::SystemStringView(bestName).sys_str();
+            level.name = hecl::SystemStringConv(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
@@ -165,13 +165,13 @@ void PAKBridge::build()
                 if (areaDeps.name.empty())
                 {
                     std::string idStr = area.areaMREAId.toString();
-                    areaDeps.name = _S("MREA_") + hecl::SystemStringView(idStr).sys_str();
+                    areaDeps.name = hecl::SystemString(_S("MREA_")) + hecl::SystemStringConv(idStr).c_str();
                 }
                 hecl::SystemChar num[16];
                 hecl::SNPrintf(num, 16, _S("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
-                std::string lowerName = hecl::SystemUTF8View(areaDeps.name).str();
+                std::string lowerName(hecl::SystemUTF8Conv(areaDeps.name).str());
                 for (char& ch : lowerName)
                 {
                     ch = tolower(ch);

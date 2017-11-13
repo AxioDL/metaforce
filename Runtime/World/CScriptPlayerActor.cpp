@@ -4,7 +4,7 @@
 
 namespace urde
 {
-CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        const zeus::CTransform& xf, const CAnimRes& animRes, CModelData&& mData,
                                        const zeus::CAABox& aabox, bool b1, const CMaterialList& list, float mass,
                                        float zMomentum, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,

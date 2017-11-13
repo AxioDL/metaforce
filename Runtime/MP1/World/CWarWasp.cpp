@@ -6,7 +6,7 @@ namespace urde
 {
 namespace MP1
 {
-CWarWasp::CWarWasp(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
                    CPatterned::EColliderType collider, const CDamageInfo& dInfo1, const CActorParameters& actorParms,
                    CAssetId weapon, const CDamageInfo& dInfo2, CAssetId particle, u32 w3)

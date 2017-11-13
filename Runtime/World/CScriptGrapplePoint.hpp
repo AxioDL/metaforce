@@ -11,8 +11,8 @@ class CScriptGrapplePoint : public CActor
     zeus::CAABox xe8_;
     CGrappleParameters x100_parameters;
 public:
-    CScriptGrapplePoint(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& transform,
-                        bool active, const CGrappleParameters& params);
+    CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+                        const zeus::CTransform& transform, bool active, const CGrappleParameters& params);
 
     void Accept(IVisitor& visitor);
     const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }

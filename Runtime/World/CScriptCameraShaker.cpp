@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CScriptCameraShaker::CScriptCameraShaker(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptCameraShaker::CScriptCameraShaker(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                          bool active, const CCameraShakeData& shakeData)
 : CEntity(uid, info, active, name), x34_shakeData(shakeData)
 {}

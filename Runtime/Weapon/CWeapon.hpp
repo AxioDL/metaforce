@@ -44,7 +44,7 @@ private:
     float x154_interferenceDuration;
 public:
     CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type,
-            const std::string& name, const zeus::CTransform& xf, const CMaterialFilter& filter,
+            std::string_view name, const zeus::CTransform& xf, const CMaterialFilter& filter,
             const CMaterialList& mList, const CDamageInfo&, EProjectileAttrib attribs, CModelData&& mData);
 
     virtual void Accept(IVisitor &visitor);

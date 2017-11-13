@@ -86,7 +86,7 @@ CMemoryCardSys::CMemoryCardSys()
 
     std::vector<std::pair<CAssetId, CAssetId>> orderedMLVLs;
     orderedMLVLs.reserve(16);
-    g_ResFactory->EnumerateNamedResources([&](const std::string& name, const SObjectTag& tag) -> bool
+    g_ResFactory->EnumerateNamedResources([&](std::string_view name, const SObjectTag& tag) -> bool
     {
         if (tag.type == FOURCC('MLVL'))
         {

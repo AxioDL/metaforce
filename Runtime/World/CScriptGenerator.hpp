@@ -23,7 +23,7 @@ class CScriptGenerator : public CEntity
     float x4c_maxScale;
 
 public:
-    CScriptGenerator(TUniqueId uid, const std::string& name, const CEntityInfo& info, u32, bool, const zeus::CVector3f&,
+    CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32, bool, const zeus::CVector3f&,
                      bool, bool, float, float);
 
     void Accept(IVisitor& visitor);

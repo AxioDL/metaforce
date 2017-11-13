@@ -75,7 +75,7 @@ struct Application : boo::IApplicationCallback
         {
             if (arg.find(_S("--verbosity=")) == 0 || arg.find(_S("-v=")) == 0)
             {
-                hecl::SystemUTF8View utf8Arg(arg.substr(arg.find_last_of('=') + 1));
+                hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
                 hecl::VerbosityLevel = atoi(utf8Arg.c_str());
                 hecl::LogModule.report(logvisor::Info, "Set verbosity level to %i", hecl::VerbosityLevel);
             }

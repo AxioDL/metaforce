@@ -19,9 +19,9 @@ struct STRG : ISTRG
     std::unordered_map<FourCC, std::vector<std::u16string>*> langMap;
     std::map<std::string, int32_t> names;
 
-    int32_t lookupIdx(const std::string& name) const
+    int32_t lookupIdx(std::string_view name) const
     {
-        auto search = names.find(name);
+        auto search = names.find(name.data());
         if (search == names.end())
             return -1;
         return search->second;

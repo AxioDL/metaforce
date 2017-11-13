@@ -310,30 +310,30 @@ void CParticleDatabase::AddToRendererClipped(const zeus::CFrustum& frustum) cons
     AddToRendererClippedParticleGenMap(x3c_rendererDrawLoop, frustum);
 }
 
-CParticleGenInfo* CParticleDatabase::GetParticleEffect(const std::string& name) const
+CParticleGenInfo* CParticleDatabase::GetParticleEffect(std::string_view name) const
 {
-    auto search = x3c_rendererDrawLoop.find(name);
+    auto search = x3c_rendererDrawLoop.find(name.data());
     if (search != x3c_rendererDrawLoop.end())
         return search->second.get();
-    search = x50_firstDrawLoop.find(name);
+    search = x50_firstDrawLoop.find(name.data());
     if (search != x50_firstDrawLoop.end())
         return search->second.get();
-    search = x64_lastDrawLoop.find(name);
+    search = x64_lastDrawLoop.find(name.data());
     if (search != x64_lastDrawLoop.end())
         return search->second.get();
-    search = x78_rendererDraw.find(name);
+    search = x78_rendererDraw.find(name.data());
     if (search != x78_rendererDraw.end())
         return search->second.get();
-    search = x8c_firstDraw.find(name);
+    search = x8c_firstDraw.find(name.data());
     if (search != x8c_firstDraw.end())
         return search->second.get();
-    search = xa0_lastDraw.find(name);
+    search = xa0_lastDraw.find(name.data());
     if (search != xa0_lastDraw.end())
         return search->second.get();
     return nullptr;
 }
 
-void CParticleDatabase::SetParticleEffectState(const std::string& name, bool active, CStateManager& mgr)
+void CParticleDatabase::SetParticleEffectState(std::string_view name, bool active, CStateManager& mgr)
 {
     if (CParticleGenInfo* info = GetParticleEffect(name))
     {
@@ -345,7 +345,7 @@ void CParticleDatabase::SetParticleEffectState(const std::string& name, bool act
     }
 }
 
-void CParticleDatabase::SetCEXTValue(const std::string& name, int idx, float value)
+void CParticleDatabase::SetCEXTValue(std::string_view name, int idx, float value)
 {
     if (CParticleGenInfo* info = GetParticleEffect(name))
     {
@@ -362,7 +362,7 @@ static s32 _getGraphicLightId(const T& system, const U& desc)
     return -1;
 }
 
-void CParticleDatabase::AddAuxiliaryParticleEffect(const std::string& name, int flags, const CAuxiliaryParticleData& data,
+void CParticleDatabase::AddAuxiliaryParticleEffect(std::string_view name, int flags, const CAuxiliaryParticleData& data,
                                                    const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, int lightId)
 {
     if (CParticleGenInfo* info = GetParticleEffect(name))
@@ -407,7 +407,7 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(const std::string& name, int 
     }
 }
 
-void CParticleDatabase::AddParticleEffect(const std::string& name, int flags, const CParticleData& data,
+void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, const CParticleData& data,
                                           const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid,
                                           bool oneShot, int lightId)
 {
@@ -482,7 +482,7 @@ void CParticleDatabase::AddParticleEffect(const std::string& name, int flags, co
     }
 }
 
-void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, const std::string& name,
+void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, std::string_view name,
                                           std::unique_ptr<CParticleGenInfo>&& gen)
 {
     std::map<std::string, std::unique_ptr<CParticleGenInfo>>* useMap;

@@ -5,7 +5,7 @@ namespace urde
 {
 const std::vector<SConnection> CEntity::NullConnectionList;
 
-CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, const std::string& name)
+CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, std::string_view name)
 : x4_areaId(info.GetAreaId()), x8_uid(uniqueId), xc_editorId(info.GetEditorId()), x10_name(name),
   x20_conns(info.GetConnectionList())
 {

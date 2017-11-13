@@ -152,9 +152,9 @@ const PAK::Entry* PAK::lookupEntry(const UniqueID32& id) const
     return nullptr;
 }
 
-const PAK::Entry* PAK::lookupEntry(const std::string& name) const
+const PAK::Entry* PAK::lookupEntry(std::string_view name) const
 {
-    auto result = m_nameMap.find(name);
+    auto result = m_nameMap.find(name.data());
     if (result != m_nameMap.end())
     {
         auto result1 = m_entries.find(result->second);

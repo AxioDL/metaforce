@@ -38,7 +38,7 @@ public:
     const CSegIdList& GetSegIdList() const {return x8_segIdList;}
     zeus::CVector3f GetFromParentUnrotated(const CSegId& id) const;
     zeus::CVector3f GetFromRootUnrotated(const CSegId& id) const;
-    CSegId GetSegIdFromString(const std::string& name) const;
+    CSegId GetSegIdFromString(std::string_view name) const;
 };
 
 CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParamTransfer&,

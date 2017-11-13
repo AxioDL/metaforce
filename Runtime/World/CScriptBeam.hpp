@@ -15,7 +15,7 @@ class CScriptBeam : public CActor
     CDamageInfo x138_damageInfo;
     TUniqueId x154_projectileId;
 public:
-    CScriptBeam(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool,
+    CScriptBeam(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
                 const TToken<CWeaponDescription>&, const CBeamInfo&, const CDamageInfo&);
 
     void Accept(IVisitor& visitor);

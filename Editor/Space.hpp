@@ -111,7 +111,7 @@ public:
     struct SpaceSelectBind : specter::IButtonBinding
     {
         Space& m_space;
-        const char* name(const specter::Control* control) const {return SpaceMenuNode::s_text.c_str();}
+        std::string_view name(const specter::Control* control) const {return SpaceMenuNode::s_text;}
 
         MenuStyle menuStyle(const specter::Button* button) const {return MenuStyle::Primary;}
         std::unique_ptr<specter::View> buildMenu(const specter::Button* button);
@@ -384,7 +384,7 @@ class TestSpace : public Space
     specter::IButtonBinding* m_binding;
 
 public:
-    TestSpace(ViewManager& vm, Space* parent, const std::string& content, const std::string& button,
+    TestSpace(ViewManager& vm, Space* parent, std::string_view content, std::string_view button,
               specter::IButtonBinding* binding)
     : Space(vm, Class::TestSpace, parent), m_contentStr(content), m_buttonStr(button), m_binding(binding)
     {}

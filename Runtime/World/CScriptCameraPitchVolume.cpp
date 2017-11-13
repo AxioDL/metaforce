@@ -11,7 +11,7 @@ namespace urde
 {
 const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = {0.5f};
 
-CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, const std::string& name,
+CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
                                                    const zeus::CTransform& xf, const zeus::CRelAngle& r1,
                                                    const zeus::CRelAngle& r2, float maxInterpDistance)

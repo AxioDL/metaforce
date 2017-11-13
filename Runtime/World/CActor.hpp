@@ -94,7 +94,7 @@ public:
         Done,
     };
 
-    CActor(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
            const CMaterialList&, const CActorParameters&, TUniqueId);
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
@@ -132,8 +132,8 @@ public:
     void SetVolume(float vol);
     const zeus::CTransform& GetTransform() const { return x34_transform; }
     const zeus::CVector3f& GetTranslation() const { return x34_transform.origin; }
-    const zeus::CTransform GetScaledLocatorTransform(const std::string& segName) const;
-    const zeus::CTransform GetLocatorTransform(const std::string& segName) const;
+    const zeus::CTransform GetScaledLocatorTransform(std::string_view segName) const;
+    const zeus::CTransform GetLocatorTransform(std::string_view segName) const;
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
     void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);

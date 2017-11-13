@@ -7,7 +7,7 @@ namespace urde
 static logvisor::Module Log("URDE::ProjectManager");
 ProjectManager* ProjectManager::g_SharedManager = nullptr;
 
-CToken ProjectResourcePool::GetObj(const char* name)
+CToken ProjectResourcePool::GetObj(std::string_view name)
 {
     CToken ret = CSimplePool::GetObj(name);
     if (ret)
@@ -22,7 +22,7 @@ CToken ProjectResourcePool::GetObj(const char* name)
     return {};
 }
 
-CToken ProjectResourcePool::GetObj(const char* name, const CVParamTransfer& pvxfer)
+CToken ProjectResourcePool::GetObj(std::string_view name, const CVParamTransfer& pvxfer)
 {
     CToken ret = CSimplePool::GetObj(name, pvxfer);
     if (ret)
@@ -49,16 +49,16 @@ ProjectManager::ProjectManager(ViewManager &vm)
     g_SharedManager = this;
 }
 
-bool ProjectManager::newProject(const hecl::SystemString& path)
+bool ProjectManager::newProject(hecl::SystemStringView path)
 {
     hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
     if (projPath)
     {
-        Log.report(logvisor::Warning, _S("project already exists at '%s'"), path.c_str());
+        Log.report(logvisor::Warning, _S("project already exists at '%s'"), path.data());
         return false;
     }
 
-    hecl::MakeDir(path.c_str());
+    hecl::MakeDir(path.data());
     m_proj.reset(new hecl::Database::Project(path));
     if (!*m_proj)
     {
@@ -79,13 +79,13 @@ bool ProjectManager::newProject(const hecl::SystemString& path)
     return true;
 }
 
-bool ProjectManager::openProject(const hecl::SystemString& path)
+bool ProjectManager::openProject(hecl::SystemStringView path)
 {
     hecl::SystemString subPath;
     hecl::ProjectRootPath projPath = hecl::SearchForProject(path, subPath);
     if (!projPath)
     {
-        Log.report(logvisor::Warning, _S("project doesn't exist at '%s'"), path.c_str());
+        Log.report(logvisor::Warning, _S("project doesn't exist at '%s'"), path.data());
         return false;
     }
 
@@ -182,7 +182,7 @@ makeProj:
     return true;
 }
 
-bool ProjectManager::extractGame(const hecl::SystemString& path)
+bool ProjectManager::extractGame(hecl::SystemStringView path)
 {
     return false;
 }
@@ -204,9 +204,9 @@ bool ProjectManager::saveProject()
 
     hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
 
-    hecl::Unlink(newSpacesPath.getAbsolutePath().c_str());
-    hecl::Rename(oldSpacesPath.getAbsolutePath().c_str(),
-                 newSpacesPath.getAbsolutePath().c_str());
+    hecl::Unlink(newSpacesPath.getAbsolutePath().data());
+    hecl::Rename(oldSpacesPath.getAbsolutePath().data(),
+                 newSpacesPath.getAbsolutePath().data());
 
     m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
 

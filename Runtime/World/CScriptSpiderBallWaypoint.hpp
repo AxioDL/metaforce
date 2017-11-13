@@ -16,7 +16,7 @@ class CScriptSpiderBallWaypoint : public CActor
     std::vector<TUniqueId> xec_waypoints;
     std::experimental::optional<zeus::CAABox> xfc_aabox;
 public:
-    CScriptSpiderBallWaypoint(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool, u32);
+    CScriptSpiderBallWaypoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, u32);
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void Render(const CStateManager& mgr) const { CActor::Render(mgr); }

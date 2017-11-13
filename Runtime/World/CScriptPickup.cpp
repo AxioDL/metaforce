@@ -14,7 +14,7 @@
 
 namespace urde
 {
-CScriptPickup::CScriptPickup(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                              const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& aParams,
                              const zeus::CAABox& aabb, CPlayerState::EItemType itemType, s32 amount, s32 capacity,
                              CAssetId explosionEffect, float possibility, float f2, float f3, float f4, bool active)

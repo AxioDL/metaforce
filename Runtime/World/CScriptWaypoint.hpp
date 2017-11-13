@@ -10,7 +10,7 @@ class CScriptWaypoint : public CActor
 {
     u16 xfa_jumpFlags;
 public:
-    CScriptWaypoint(TUniqueId, const std::string&, const CEntityInfo&,
+    CScriptWaypoint(TUniqueId, std::string_view, const CEntityInfo&,
                     const zeus::CTransform&, bool, float, float,
                     u32, u32, u32, u32, u32, u32, u32);
 

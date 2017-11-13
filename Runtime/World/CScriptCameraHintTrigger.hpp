@@ -22,7 +22,7 @@ class CScriptCameraHintTrigger : public CActor
     };
 
 public:
-    CScriptCameraHintTrigger(TUniqueId, bool, const std::string& name, const CEntityInfo&, const zeus::CVector3f&,
+    CScriptCameraHintTrigger(TUniqueId, bool, std::string_view name, const CEntityInfo&, const zeus::CVector3f&,
                              const zeus::CTransform&, bool, bool);
 
     void Accept(IVisitor& visitor);

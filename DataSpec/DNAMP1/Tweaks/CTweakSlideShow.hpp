@@ -33,7 +33,7 @@ struct CTweakSlideShow final : ITweakSlideShow
     CTweakSlideShow() = default;
     CTweakSlideShow(athena::io::IStreamReader& in) { read(in); }
 
-    const std::string& GetFont() const { return x14_fontAssetName; }
+    std::string_view GetFont() const { return x14_fontAssetName; }
     const zeus::CColor& GetFontColor() const { return x24_fontColor; }
     const zeus::CColor& GetOutlineColor() const { return x28_outlineColor; }
     float GetScanPercentInterval() const { return x2c_scanPercentInterval; }

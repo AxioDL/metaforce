@@ -5,7 +5,7 @@
 namespace urde
 {
 
-CScriptTimer::CScriptTimer(TUniqueId uid, const std::string& name, const CEntityInfo& info, float startTime,
+CScriptTimer::CScriptTimer(TUniqueId uid, std::string_view name, const CEntityInfo& info, float startTime,
                            float maxRandDelay, bool loop, bool autoStart, bool active)
 : CEntity(uid, info, active, name)
 , x34_time(startTime)

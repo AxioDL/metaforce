@@ -151,10 +151,10 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
     size_t bridgeIdx = 0;
     for (BRIDGETYPE& bridge : bridges)
     {
-        const std::string& name = bridge.getName();
-        hecl::SystemStringView sysName(name);
+        const auto& name = bridge.getName();
+        hecl::SystemStringConv sysName(name);
 
-        hecl::SystemString::const_iterator extit = sysName.sys_str().end() - 4;
+        hecl::SystemStringView::const_iterator extit = sysName.sys_str().end() - 4;
         hecl::SystemString baseName(sysName.sys_str().begin(), extit);
 
         m_bridgePaths.emplace_back(std::make_pair(hecl::ProjectPath(m_gameWorking, baseName),
@@ -214,12 +214,12 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
                 {
                     if (auto v = catalogWriter.enterSubVector(nullptr))
                     {
-                        catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
-                        catalogWriter.writeString(nullptr, working.getAuxInfoUTF8().c_str());
+                        catalogWriter.writeString(nullptr, working.getRelativePathUTF8());
+                        catalogWriter.writeString(nullptr, working.getAuxInfoUTF8());
                     }
                 }
                 else
-                    catalogWriter.writeString(nullptr, working.getRelativePathUTF8().c_str());
+                    catalogWriter.writeString(nullptr, working.getRelativePathUTF8());
             }
         }
 
@@ -227,8 +227,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         intptr_t curBridgeIdx = reinterpret_cast<intptr_t>(m_curBridgeIdx.get());
         const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
         pakPath.makeDirChain(true);
-        hecl::SystemString catalogPath = hecl::ProjectPath(pakPath, "!catalog.yaml").getAbsolutePath();
-        athena::io::FileWriter writer(catalogPath);
+        athena::io::FileWriter writer(hecl::ProjectPath(pakPath, "!catalog.yaml").getAbsolutePath());
         catalogWriter.finish(&writer);
     }
 }
@@ -264,8 +263,8 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* en
         hecl::ProjectPath characterPath = getWorking(characterSearch->second.first);
         if (entry->type == FOURCC('EVNT'))
         {
-            hecl::SystemStringView wideStr(characterSearch->second.second);
-            return characterPath.getWithExtension((_S(".") + wideStr.sys_str()).c_str(), true);
+            hecl::SystemStringConv wideStr(characterSearch->second.second);
+            return characterPath.getWithExtension((hecl::SystemString(_S(".")) + wideStr.c_str()).c_str(), true);
         }
         return characterPath.ensureAuxInfo(characterSearch->second.second);
     }
@@ -530,7 +529,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
                 continue;
 
             std::string bestName = getBestEntryName(*entryPtr, false);
-            hecl::SystemStringView bestNameView(bestName);
+            hecl::SystemStringConv bestNameView(bestName);
             float thisFac = ++count / fsz;
             progress(bestNameView.c_str(), thisFac);
 
@@ -548,7 +547,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             {
                 cooked.makeDirChain(false);
                 PAKEntryReadStream s = entryPtr->beginReadStream(*node);
-                FILE* fout = hecl::Fopen(cooked.getAbsolutePath().c_str(), _S("wb"));
+                FILE* fout = hecl::Fopen(cooked.getAbsolutePath().data(), _S("wb"));
                 fwrite(s.data(), 1, s.length(), fout);
                 fclose(fout);
             }

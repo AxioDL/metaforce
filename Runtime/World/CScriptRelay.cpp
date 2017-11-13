@@ -5,7 +5,7 @@
 namespace urde
 {
 
-CScriptRelay::CScriptRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool active)
+CScriptRelay::CScriptRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active)
     : CEntity(uid, info, active, name)
 {
 }

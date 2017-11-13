@@ -5,7 +5,7 @@ namespace urde
 {
 
 CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId uid, bool active,
-                       const CEntityInfo& info, const std::string& name, const zeus::CTransform& xf,
+                       const CEntityInfo& info, std::string_view name, const zeus::CTransform& xf,
                        u32 flags, const zeus::CVector3f& scale, const zeus::CColor& color)
 : CEffect(uid, info, active, name, xf)
 {

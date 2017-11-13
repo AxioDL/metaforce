@@ -14,7 +14,7 @@ class CScriptCameraBlurKeyframe : public CEntity
     float x40_timeIn;
     float x44_timeOut;
 public:
-    CScriptCameraBlurKeyframe(TUniqueId uid, const std::string& name,
+    CScriptCameraBlurKeyframe(TUniqueId uid, std::string_view name,
                               const CEntityInfo& info, EBlurType type,
                               float amount, u32 unk, float timeIn,
                               float timeOut, bool active);

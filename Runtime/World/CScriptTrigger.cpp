@@ -13,7 +13,7 @@
 namespace urde
 {
 
-CScriptTrigger::CScriptTrigger(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
                                const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active, bool deactivateOnEntered,
                                bool deactivateOnExited)

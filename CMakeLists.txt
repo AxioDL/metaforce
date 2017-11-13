@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR) # because of CMAKE_CXX_STANDAR
 cmake_policy(SET CMP0054 NEW)
 project(urde)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)

@@ -61,7 +61,7 @@ void SpecBase::setThreadProject()
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
-    m_disc = nod::OpenDiscFromImage(info.srcpath.c_str(), m_isWii);
+    m_disc = nod::OpenDiscFromImage(info.srcpath, m_isWii);
     if (!m_disc)
         return false;
     const char* gameID = m_disc->getHeader().m_gameID;
@@ -141,7 +141,7 @@ static bool IsPathAudioGroup(const hecl::ProjectPath& path)
         !path.getWithExtension(_S(".samp"), true).isFile())
     {
         if (path.isFile() &&
-            !hecl::StrCmp(_S("proj"), path.getLastComponentExt()) &&
+            !hecl::StrCmp(_S("proj"), path.getLastComponentExt().data()) &&
             path.getWithExtension(_S(".pool"), true).isFile() &&
             path.getWithExtension(_S(".sdir"), true).isFile() &&
             path.getWithExtension(_S(".samp"), true).isFile())
@@ -158,7 +158,7 @@ static bool IsPathSong(const hecl::ProjectPath& path)
         !path.getWithExtension(_S(".yaml"), true).isFile())
     {
         if (path.isFile() &&
-            !hecl::StrCmp(_S("mid"), path.getLastComponentExt()) &&
+            !hecl::StrCmp(_S("mid"), path.getLastComponentExt().data()) &&
             path.getWithExtension(_S(".yaml"), true).isFile())
             return true;
         return false;
@@ -229,7 +229,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
         if (!conn.openBlend(asBlend))
         {
             Log.report(logvisor::Error, _S("unable to cook '%s'"),
-                       path.getAbsolutePath().c_str());
+                       path.getAbsolutePath().data());
             return nullptr;
         }
         hecl::BlenderConnection::BlendType type = conn.getBlendType();
@@ -375,26 +375,26 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                 {
                     pathsOut.push_back(sub.mesh);
 
-                    hecl::SystemStringView chSysName(sub.name);
-                    pathsOut.push_back(asGlob.ensureAuxInfo(chSysName.sys_str() + _S(".CSKR")));
+                    hecl::SystemStringConv chSysName(sub.name);
+                    pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR")));
 
                     const auto& arm = actor.armatures[sub.armature];
-                    hecl::SystemStringView armSysName(arm.name);
-                    pathsOut.push_back(asGlob.ensureAuxInfo(armSysName.sys_str() + _S(".CINF")));
+                    hecl::SystemStringConv armSysName(arm.name);
+                    pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF")));
                     for (const auto& overlay : sub.overlayMeshes)
                     {
-                        hecl::SystemStringView ovelaySys(overlay.first);
+                        hecl::SystemStringConv ovelaySys(overlay.first);
                         pathsOut.push_back(overlay.second);
-                        pathsOut.push_back(asGlob.ensureAuxInfo(chSysName.sys_str() + _S('.') +
-                                                                ovelaySys.sys_str() + _S(".CSKR")));
+                        pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
+                                                                ovelaySys.c_str() + _S(".CSKR")));
                     }
                 }
             }
             auto actNames = ds.getActionNames();
             for (const auto& act : actNames)
             {
-                hecl::SystemStringView actSysName(act);
-                pathsOut.push_back(asGlob.ensureAuxInfo(actSysName.sys_str() + _S(".ANIM")));
+                hecl::SystemStringConv actSysName(act);
+                pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(actSysName.sys_str()) + _S(".ANIM")));
                 hecl::ProjectPath evntPath = asGlob.getWithExtension(
                     hecl::SysFormat(_S(".%s.evnt.yaml"), actSysName.c_str()).c_str(), true);
                 if (evntPath.isFile())
@@ -496,7 +496,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
         hecl::ProjectPath cooked = getCookedPath(path, true);
         athena::io::FileReader r(cooked.getAbsolutePath());
         if (r.hasError())
-            Log.report(logvisor::Fatal, _S("Unable to open resource %s"), cooked.getRelativePath().c_str());
+            Log.report(logvisor::Fatal, _S("Unable to open resource %s"), cooked.getRelativePath().data());
         atUint64 size = r.length();
         auto data = r.readUBytes(size);
         auto compData = compressPakData(tag, data.get(), size);
@@ -538,7 +538,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     hecl::ProjectPath outPath(m_project.getProjectWorkingPath(),
                              _S("out/") + components[0] + _S("/") + components[1] + _S(".upak"));
     outPath.makeDirChain(false);
-    hecl::SystemString tmpPath = outPath.getAbsolutePath() + _S("~");
+    hecl::SystemString tmpPath = hecl::SystemString(outPath.getAbsolutePath()) + _S("~");
 
     /* Output file */
     athena::io::FileWriter pakOut(tmpPath);
@@ -546,7 +546,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     atUint64 resTableOffset = 0;
 
     if (path.getPathType() == hecl::ProjectPath::Type::File &&
-        !hecl::StrCmp(path.getLastComponent(), _S("!world.blend"))) /* World PAK */
+        !hecl::StrCmp(path.getLastComponent().data(), _S("!world.blend"))) /* World PAK */
     {
         /* Force-cook MLVL and write resource list structure */
         m_project.cookPath(path, progress, false, true, fast);
@@ -642,7 +642,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 
     /* Write resource data and build file index */
     std::vector<std::tuple<size_t, size_t, bool>> fileIndex;
-    Log.report(logvisor::Info, _S("Copying data into %s"), outPath.getRelativePath().c_str());
+    Log.report(logvisor::Info, _S("Copying data into %s"), outPath.getRelativePath().data());
     copyBuildListData(fileIndex, buildList, entry, fast, progress, pakOut);
 
     /* Write file index */
@@ -650,7 +650,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     pakOut.close();
 
     /* Atomic rename */
-    hecl::Rename(tmpPath.c_str(), outPath.getAbsolutePath().c_str());
+    hecl::Rename(tmpPath.c_str(), outPath.getAbsolutePath().data());
 }
 
 hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const
@@ -684,18 +684,18 @@ void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::Projec
     hecl::ProjectPath entropyPath(noAramPath, _S("RandomStaticEntropy.png"));
     hecl::ProjectPath catalogPath(noAramPath, _S("!catalog.yaml"));
 
-    if (FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().c_str(), _S("a")))
+    if (FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().data(), _S("a")))
     {
-        fprintf(fp, "RandomStaticEntropy: %s\n", entropyPath.getRelativePathUTF8().c_str());
+        fprintf(fp, "RandomStaticEntropy: %s\n", entropyPath.getRelativePathUTF8().data());
         fclose(fp);
     }
 
-    FILE* fp = hecl::Fopen(entropyPath.getAbsolutePath().c_str(), _S("wb"));
+    FILE* fp = hecl::Fopen(entropyPath.getAbsolutePath().data(), _S("wb"));
     if (!fp)
     {
         Log.report(logvisor::Error,
                    _S("Unable to open '%s' for writing"),
-                   entropyPath.getAbsolutePath().c_str());
+                   entropyPath.getAbsolutePath().data());
         return;
     }
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
@@ -783,9 +783,9 @@ bool SpecBase::waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectP
     return true;
 }
 
-const urde::SObjectTag* SpecBase::getResourceIdByName(const char* name) const
+const urde::SObjectTag* SpecBase::getResourceIdByName(std::string_view name) const
 {
-    std::string lower = name;
+    std::string lower(name);
     std::transform(lower.cbegin(), lower.cend(), lower.begin(), tolower);
 
     std::unique_lock<std::mutex> lk(const_cast<SpecBase&>(*this).m_backgroundIndexMutex);
@@ -854,7 +854,7 @@ void SpecBase::enumerateResources(const std::function<bool(const urde::SObjectTa
 }
 
 void SpecBase::enumerateNamedResources(
-    const std::function<bool(const std::string&, const urde::SObjectTag&)>& lambda) const
+    const std::function<bool(std::string_view, const urde::SObjectTag&)>& lambda) const
 {
     waitForIndexComplete();
     for (const auto& pair : m_catalogNameToTag)
@@ -873,18 +873,18 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter,
     {
         cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
         cacheWriter.writeString(nullptr, path.getAuxInfo().size() ?
-                                         (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
+                                         (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
                                          path.getRelativePathUTF8());
     }
 }
 
 static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter,
                          const urde::SObjectTag& pathTag,
-                         const std::string& name)
+                         std::string_view name)
 {
     char idStr[9];
     snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
-    nameWriter.writeString(name.c_str(), idStr);
+    nameWriter.writeString(name.data(), idStr);
 }
 
 void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath,
@@ -980,7 +980,7 @@ static void DumpCacheAdd(const urde::SObjectTag& pathTag, const hecl::ProjectPat
 {
     fprintf(stderr, "%s %08X %s\n",
             pathTag.type.toString().c_str(), uint32_t(pathTag.id.Value()),
-            path.getRelativePathUTF8().c_str());
+            path.getRelativePathUTF8().data());
 }
 #endif
 
@@ -1021,8 +1021,8 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
 
             for (const std::string& arm : armatureNames)
             {
-                hecl::SystemStringView sysStr(arm);
-                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".CINF"));
+                hecl::SystemStringConv sysStr(arm);
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".CINF"));
                 urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
                 m_tagToPath[pathTag] = subPath;
                 m_pathToTag[subPath.hash()] = pathTag;
@@ -1034,8 +1034,8 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
 
             for (const std::string& sub : subtypeNames)
             {
-                hecl::SystemStringView sysStr(sub);
-                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".CSKR"));
+                hecl::SystemStringConv sysStr(sub);
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".CSKR"));
                 urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
                 m_tagToPath[pathTag] = subPath;
                 m_pathToTag[subPath.hash()] = pathTag;
@@ -1047,9 +1047,9 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
                 std::vector<std::string> overlayNames = ds.getSubtypeOverlayNames(sub);
                 for (const auto& overlay : overlayNames)
                 {
-                    hecl::SystemStringView overlaySys(overlay);
-                    hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S('.') +
-                                                                     overlaySys.sys_str() + _S(".CSKR"));
+                    hecl::SystemStringConv overlaySys(overlay);
+                    hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S('.') +
+                                                                     overlaySys.c_str() + _S(".CSKR"));
                     urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
                     m_tagToPath[pathTag] = subPath;
                     m_pathToTag[subPath.hash()] = pathTag;
@@ -1062,8 +1062,8 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
 
             for (const std::string& act : actionNames)
             {
-                hecl::SystemStringView sysStr(act);
-                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(sysStr.sys_str() + _S(".ANIM"));
+                hecl::SystemStringConv sysStr(act);
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".ANIM"));
                 urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
                 m_tagToPath[pathTag] = subPath;
                 m_pathToTag[subPath.hash()] = pathTag;

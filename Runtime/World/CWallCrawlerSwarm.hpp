@@ -57,7 +57,7 @@ private:
     zeus::CVector3f x130_lastKilledOffset;
 
 public:
-    CWallCrawlerSwarm(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CVector3f&,
+    CWallCrawlerSwarm(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,
                       const zeus::CTransform&, u32, const CAnimRes&, u32, u32, u32, u32, u32, u32, const CDamageInfo&,
                       const CDamageInfo&, float, float, float, float, u32, u32, float, float, float, float, float,
                       float, float, float, float, u32, float, float, float, const CHealthInfo&, const CDamageVulnerability&,

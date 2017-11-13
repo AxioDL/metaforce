@@ -45,7 +45,7 @@ public:
     void SetLinkedObjectAlpha(float a, CStateManager& mgr);
     float GetPuddleAlphaScale() const;
 public:
-    CScriptDamageableTrigger(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CScriptDamageableTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                              const zeus::CVector3f& position, const zeus::CVector3f& extent,
                              const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                              u32 faceFlag, CAssetId patternTex1, CAssetId patternTex2,

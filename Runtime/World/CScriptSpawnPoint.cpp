@@ -8,7 +8,7 @@
 namespace urde
 {
 
-CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, const std::vector<u32>& itemCounts, bool defaultSpawn,
                                      bool active, bool morphed)
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts)

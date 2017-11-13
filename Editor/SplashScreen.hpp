@@ -41,15 +41,15 @@ class SplashScreen : public specter::ModalWindow
         SplashScreen& m_splash;
         hecl::SystemString m_deferPath;
         NewProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name(const specter::Control* control) const {return m_splash.m_newString.c_str();}
-        const char* help(const specter::Control* control) const {return "Creates an empty project at selected path";}
+        std::string_view name(const specter::Control* control) const {return m_splash.m_newString.c_str();}
+        std::string_view help(const specter::Control* control) const {return "Creates an empty project at selected path";}
         void activated(const specter::Button* button, const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_newString,
                                                  specter::FileBrowser::Type::NewHECLProject,
-                                                 [&](bool ok, const hecl::SystemString& path)
+                                                 [&](bool ok, hecl::SystemStringView path)
             {
                 if (ok)
                     m_deferPath = path;
@@ -64,15 +64,15 @@ class SplashScreen : public specter::ModalWindow
         SplashScreen& m_splash;
         hecl::SystemString m_deferPath;
         OpenProjBinding(SplashScreen& splash) : m_splash(splash), m_openRecentMenuRoot(*this) {}
-        const char* name(const specter::Control* control) const {return m_splash.m_openString.c_str();}
-        const char* help(const specter::Control* control) const {return "Opens an existing project at selected path";}
+        std::string_view name(const specter::Control* control) const {return m_splash.m_openString.c_str();}
+        std::string_view help(const specter::Control* control) const {return "Opens an existing project at selected path";}
         void activated(const specter::Button* button, const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_openString,
                                                  specter::FileBrowser::Type::OpenHECLProject,
-                                                 [&](bool ok, const hecl::SystemString& path)
+                                                 [&](bool ok, hecl::SystemStringView path)
             {
                 if (ok)
                     m_deferPath = path;
@@ -108,7 +108,7 @@ class SplashScreen : public specter::ModalWindow
                 {
                     std::vector<hecl::SystemString> pathComps = specter::FileBrowser::PathComponents(path);
                     if (pathComps.size())
-                        m_text = hecl::SystemUTF8View(pathComps.back()).str();
+                        m_text = hecl::SystemUTF8Conv(pathComps.back()).str();
                 }
             };
             std::vector<OpenRecentMenuItem> m_items;
@@ -142,15 +142,15 @@ class SplashScreen : public specter::ModalWindow
         SplashScreen& m_splash;
         hecl::SystemString m_deferPath;
         ExtractProjBinding(SplashScreen& splash) : m_splash(splash) {}
-        const char* name(const specter::Control* control) const {return m_splash.m_extractString.c_str();}
-        const char* help(const specter::Control* control) const {return "Extracts game image as project at selected path";}
+        std::string_view name(const specter::Control* control) const {return m_splash.m_extractString.c_str();}
+        std::string_view help(const specter::Control* control) const {return "Extracts game image as project at selected path";}
         void activated(const specter::Button* button, const boo::SWindowCoord& coord)
         {
             m_splash.m_fileBrowser.m_view.reset(
                         new specter::FileBrowser(m_splash.rootView().viewRes(),
                                                  m_splash, m_splash.m_extractString,
                                                  specter::FileBrowser::Type::OpenFile,
-                                                 [&](bool ok, const hecl::SystemString& path)
+                                                 [&](bool ok, hecl::SystemStringView path)
             {
                 if (ok)
                     m_deferPath = path;

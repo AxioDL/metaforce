@@ -88,8 +88,8 @@ public:
                   boo::IGraphicsDataFactory* gfxFactory);
 
     std::shared_ptr<hecl::Runtime::ShaderPipelines> buildShader(const hecl::Runtime::ShaderTag& tag,
-                                                                const std::string& source,
-                                                                const std::string& diagName,
+                                                                std::string_view source,
+                                                                std::string_view diagName,
                                                                 boo::IGraphicsDataFactory& factory)
     {
         return m_shaderCache.buildShader(tag, source, diagName, factory);
@@ -97,15 +97,15 @@ public:
 
     std::shared_ptr<hecl::Runtime::ShaderPipelines> buildShader(const hecl::Runtime::ShaderTag& tag,
                                                                 const hecl::Frontend::IR& ir,
-                                                                const std::string& diagName,
+                                                                std::string_view diagName,
                                                                 boo::IGraphicsDataFactory& factory)
     {
         return m_shaderCache.buildShader(tag, ir, diagName, factory);
     }
 
     std::shared_ptr<hecl::Runtime::ShaderPipelines> buildExtendedShader(const hecl::Runtime::ShaderTag& tag,
-                                                                        const std::string& source,
-                                                                        const std::string& diagName,
+                                                                        std::string_view source,
+                                                                        std::string_view diagName,
                                                                         boo::IGraphicsDataFactory& factory)
     {
         return m_shaderCache.buildExtendedShader(tag, source, diagName, factory);
@@ -113,7 +113,7 @@ public:
 
     std::shared_ptr<hecl::Runtime::ShaderPipelines> buildExtendedShader(const hecl::Runtime::ShaderTag& tag,
                                                                         const hecl::Frontend::IR& ir,
-                                                                        const std::string& diagName,
+                                                                        std::string_view diagName,
                                                                         boo::IGraphicsDataFactory& factory)
     {
         return m_shaderCache.buildExtendedShader(tag, ir, diagName, factory);

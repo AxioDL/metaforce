@@ -87,7 +87,7 @@ CAnimData::CAnimData(CAssetId id,
     {
         defaultAnim = 0;
         Log.report(logvisor::Warning, "Character %s has invalid initial animation, so defaulting to first.",
-                   character.GetCharacterName().c_str());
+                   character.GetCharacterName().data());
     }
 
     std::shared_ptr<CAnimTreeNode> treeNode =
@@ -534,19 +534,19 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
     return ret;
 }
 
-zeus::CTransform CAnimData::GetLocatorTransform(const std::string& name, const CCharAnimTime* time) const
+zeus::CTransform CAnimData::GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const
 {
     return GetLocatorTransform(xcc_layoutData->GetSegIdFromString(name), time);
 }
 
-bool CAnimData::IsAnimTimeRemaining(float rem, const std::string& name) const
+bool CAnimData::IsAnimTimeRemaining(float rem, std::string_view name) const
 {
     if (!x1f8_animRoot)
         return false;
     return x1f8_animRoot->VGetTimeRemaining().GetSeconds() >= rem;
 }
 
-float CAnimData::GetAnimTimeRemaining(const std::string& name) const
+float CAnimData::GetAnimTimeRemaining(std::string_view name) const
 {
     float rem = x1f8_animRoot->VGetTimeRemaining().GetSeconds();
     if (x200_speedScale)
@@ -1001,7 +1001,7 @@ void CAnimData::ResetPOILists()
     x218_passedSoundCount = 0;
 }
 
-CSegId CAnimData::GetLocatorSegId(const std::string& name) const
+CSegId CAnimData::GetLocatorSegId(std::string_view name) const
 {
     return xcc_layoutData->GetSegIdFromString(name);
 }
@@ -1034,7 +1034,7 @@ void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model)
     x108_aabb = xd8_modelData->GetModel()->GetAABB();
 }
 
-void CAnimData::SetParticleCEXTValue(const std::string& name, int idx, float value)
+void CAnimData::SetParticleCEXTValue(std::string_view name, int idx, float value)
 {
     auto search = std::find_if(xc_charInfo.x98_effects.begin(), xc_charInfo.x98_effects.end(),
     [&name](const auto& v) { return v.first == name; });

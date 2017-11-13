@@ -46,7 +46,7 @@ CAnimSourceReaderBase::GetUniqueParticlePOIs() const
     const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
     std::map<std::string, CParticleData::EParentedMode> ret;
     for (const CParticlePOINode& node : particleNodes)
-        ret[node.GetString()] = node.GetParticleData().GetParentedMode();
+        ret[std::string(node.GetString())] = node.GetParticleData().GetParentedMode();
     return ret;
 }
 
@@ -56,7 +56,7 @@ CAnimSourceReaderBase::GetUniqueInt32POIs() const
     const std::vector<CInt32POINode>& int32Nodes = x4_sourceInfo->GetInt32POIStream();
     std::map<std::string, s32> ret;
     for (const CInt32POINode& node : int32Nodes)
-        ret[node.GetString()] = node.GetValue();
+        ret[std::string(node.GetString())] = node.GetValue();
     return ret;
 }
 
@@ -66,7 +66,7 @@ CAnimSourceReaderBase::GetUniqueBoolPOIs() const
     const std::vector<CBoolPOINode>& boolNodes = x4_sourceInfo->GetBoolPOIStream();
     std::map<std::string, bool> ret;
     for (const CBoolPOINode& node : boolNodes)
-        ret[node.GetString()] = node.GetValue();
+        ret[std::string(node.GetString())] = node.GetValue();
     return ret;
 }
 

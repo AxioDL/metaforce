@@ -20,9 +20,9 @@ class CEffectComponent
 public:
     CEffectComponent(CInputStream& in);
 
-    const std::string& GetComponentName() const { return x0_name; }
+    std::string_view GetComponentName() const { return x0_name; }
     const SObjectTag& GetParticleTag() const { return x10_tag; }
-    const std::string& GetSegmentName() const { return x18_boneName; }
+    std::string_view GetSegmentName() const { return x18_boneName; }
     float GetScale() const { return x28_scale; }
     CParticleData::EParentedMode GetParentedMode() const { return x2c_parentedMode; }
     u32 GetFlags() const { return x30_flags; }

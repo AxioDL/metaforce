@@ -11,15 +11,15 @@ CGuiWidgetIdDB::CGuiWidgetIdDB()
     AddWidget("kGSYS_DefaultLightID");
 }
 
-s16 CGuiWidgetIdDB::FindWidgetID(const std::string& name) const
+s16 CGuiWidgetIdDB::FindWidgetID(std::string_view name) const
 {
-    auto search = x0_dbMap.find(name);
+    auto search = x0_dbMap.find(name.data());
     if (search == x0_dbMap.cend())
         return -1;
     return search->second;
 }
 
-s16 CGuiWidgetIdDB::AddWidget(const std::string& name, s16 id)
+s16 CGuiWidgetIdDB::AddWidget(std::string_view name, s16 id)
 {
     s16 findId = FindWidgetID(name);
     if (findId == -1)
@@ -32,7 +32,7 @@ s16 CGuiWidgetIdDB::AddWidget(const std::string& name, s16 id)
     return findId;
 }
 
-s16 CGuiWidgetIdDB::AddWidget(const std::string& name)
+s16 CGuiWidgetIdDB::AddWidget(std::string_view name)
 {
     s16 findId = FindWidgetID(name);
     if (findId == -1)

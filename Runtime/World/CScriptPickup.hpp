@@ -24,7 +24,7 @@ class CScriptPickup : public CPhysicsActor
     u8 x28c_26_ : 1;
 
 public:
-    CScriptPickup(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CScriptPickup(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                   const CActorParameters&, const zeus::CAABox&, CPlayerState::EItemType, s32, s32, CAssetId, float,
                   float, float, float, bool);
 

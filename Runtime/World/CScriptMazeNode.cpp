@@ -9,7 +9,7 @@ namespace urde
 
 atUint32 CScriptMazeNode::sMazeSeeds[300] = {0};
 
-CScriptMazeNode::CScriptMazeNode(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, bool active, s32 w1, s32 w2, s32 w3,
                                  const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, const zeus::CVector3f& vec3)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),

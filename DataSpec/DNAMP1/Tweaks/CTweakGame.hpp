@@ -34,7 +34,7 @@ struct CTweakGame final : ITweakGame
     Value<float> x60_hardmodeDamageMult;
     Value<float> x64_hardmodeWeaponMult;
 
-    const std::string& GetWorldPrefix() const { return x4_worldPrefix; }
+    std::string_view GetWorldPrefix() const { return x4_worldPrefix; }
     bool GetSplashScreensDisabled() const { return x2b_splashScreensDisabled; }
     float GetFirstPersonFOV() const { return x24_fov; }
     float GetPressStartDelay() const { return x30_pressStartDelay; }

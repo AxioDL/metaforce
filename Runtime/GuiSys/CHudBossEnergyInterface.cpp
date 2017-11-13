@@ -42,7 +42,7 @@ void CHudBossEnergyInterface::Update(float dt)
     }
 }
 
-void CHudBossEnergyInterface::SetBossParams(bool visible, const std::u16string& name,
+void CHudBossEnergyInterface::SetBossParams(bool visible, std::u16string_view name,
                                             float curEnergy, float maxEnergy)
 {
     x10_24_visible = visible;

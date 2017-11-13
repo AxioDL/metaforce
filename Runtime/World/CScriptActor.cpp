@@ -11,7 +11,7 @@
 namespace urde
 {
 
-CScriptActor::CScriptActor(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
                            const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                            const CActorParameters& actParms, bool looping, bool active, u32 w1, float f3, bool b2,

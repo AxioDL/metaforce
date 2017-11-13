@@ -6,7 +6,7 @@
 
 namespace urde
 {
-CScriptPlayerStateChange::CScriptPlayerStateChange(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptPlayerStateChange::CScriptPlayerStateChange(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                    bool active, u32 itemType, u32 itemCount, u32 itemCapacity,
                                                    EControl control, EControlCommandOption controlCmdOpt)
 : CEntity(uid, info, active, name)

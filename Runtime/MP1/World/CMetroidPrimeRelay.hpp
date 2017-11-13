@@ -29,7 +29,7 @@ class CMetroidPrimeRelay : public CEntity
     rstl::reserved_vector<SPrimeExoRoomParameters, 4> xcb8_roomParms;
 
 public:
-    CMetroidPrimeRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool active,
+    CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                        const zeus::CTransform& xf, const zeus::CVector3f& scale, SPrimeExoParameters&& parms,
                        float f1, float f2, float f3, u32 w1, bool b1, u32 w2, const CHealthInfo& hInfo1,
                        const CHealthInfo& hInfo2, u32 w3, u32 w4, u32 w5,

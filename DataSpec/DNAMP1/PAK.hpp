@@ -53,7 +53,7 @@ struct PAK : BigDNA
     std::unordered_map<std::string, UniqueID32> m_nameMap;
 
     const Entry* lookupEntry(const UniqueID32& id) const;
-    const Entry* lookupEntry(const std::string& name) const;
+    const Entry* lookupEntry(std::string_view name) const;
     std::string bestEntryName(const Entry& entry, bool& named) const;
 
     using IDType = UniqueID32;

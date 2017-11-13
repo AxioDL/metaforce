@@ -5,7 +5,7 @@
 
 namespace urde
 {
-CScriptDockAreaChange::CScriptDockAreaChange(TUniqueId uid, const std::string& name, const CEntityInfo& info, s32 w1,
+CScriptDockAreaChange::CScriptDockAreaChange(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 w1,
                                              bool active)
 : CEntity(uid, info, active, name), x34_dockReference(w1)
 {

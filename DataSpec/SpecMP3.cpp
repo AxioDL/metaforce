@@ -16,6 +16,8 @@
 namespace DataSpec
 {
 
+using namespace std::literals;
+
 static logvisor::Module Log("urde::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
@@ -75,8 +77,8 @@ struct SpecMP3 : SpecBase
         for (const nod::Node& child : root)
         {
             bool isPak = false;
-            const std::string& name = child.getName();
-            std::string lowerName = name;
+            auto name = child.getName();
+            std::string lowerName(name);
             std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
             if (name.size() > 4)
             {
@@ -109,7 +111,7 @@ struct SpecMP3 : SpecBase
                         {
                             for (const hecl::SystemString& arg : args)
                             {
-                                std::string lowerArg = hecl::SystemUTF8View(arg).str();
+                                std::string lowerArg(hecl::SystemUTF8Conv(arg).str());
                                 std::transform(lowerArg.begin(), lowerArg.end(), lowerArg.begin(), tolower);
                                 if (!lowerArg.compare(0, lowerBase.size(), lowerBase))
                                     good = true;
@@ -138,13 +140,13 @@ struct SpecMP3 : SpecBase
         {
             m_feOrderedPaks.clear();
             for (DNAMP3::PAKBridge& dpak : m_fePaks)
-                m_feOrderedPaks[dpak.getName()] = &dpak;
+                m_feOrderedPaks[std::string(dpak.getName())] = &dpak;
         }
         else
         {
             m_orderedPaks.clear();
             for (DNAMP3::PAKBridge& dpak : m_paks)
-                m_orderedPaks[dpak.getName()] = &dpak;
+                m_orderedPaks[std::string(dpak.getName())] = &dpak;
         }
 
         /* Assemble extract report */
@@ -154,8 +156,8 @@ struct SpecMP3 : SpecBase
                 continue;
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
-            hecl::SystemStringView nameView(item.first);
-            childRep.name = nameView;
+            hecl::SystemStringConv nameView(item.first);
+            childRep.name = hecl::SystemString(nameView.sys_str());
             if (!item.first.compare("Worlds.pak"))
                 continue;
             else if (!item.first.compare("Metroid6.pak"))
@@ -196,7 +198,7 @@ struct SpecMP3 : SpecBase
         rep.name = _S("MP3");
         rep.desc = _S("Metroid Prime 3 ") + regstr;
         std::string buildStr(buildInfo);
-        hecl::SystemStringView buildView(buildStr);
+        hecl::SystemStringConv buildView(buildStr);
         rep.desc += _S(" (") + buildView + _S(")");
 
         /* Iterate PAKs and build level options */
@@ -293,7 +295,7 @@ struct SpecMP3 : SpecBase
             rep.desc = _S("Metroid Prime 3 ") + regstr;
 
             std::string buildStr(buildInfo);
-            hecl::SystemStringView buildView(buildStr);
+            hecl::SystemStringConv buildView(buildStr);
             rep.desc += _S(" (") + buildView + _S(")");
 
 
@@ -329,7 +331,7 @@ struct SpecMP3 : SpecBase
             if (buildInfo)
             {
                 std::string buildStr(buildInfo);
-                hecl::SystemStringView buildView(buildStr);
+                hecl::SystemStringConv buildView(buildStr);
                 rep.desc += _S(" (") + buildView + _S(")");
             }
 
@@ -354,9 +356,9 @@ struct SpecMP3 : SpecBase
         size_t nodeCount = 0;
         int prog = 0;
         nod::ExtractionContext ctx = {force,
-        [&](const std::string& name, float)
+        [&](std::string_view name, float)
         {
-            hecl::SystemStringView nameView(name);
+            hecl::SystemStringConv nameView(name);
             progress(currentTarget.c_str(), nameView.c_str(), compIdx, prog / (float)nodeCount);
         }};
         if (doMP3)
@@ -398,14 +400,14 @@ struct SpecMP3 : SpecBase
                 if (!pak.m_doExtract)
                     continue;
 
-                const std::string& name = pak.getName();
-                hecl::SystemStringView sysName(name);
+                auto name = pak.getName();
+                hecl::SystemStringConv sysName(name);
 
                 {
                     std::unique_lock<std::mutex> lk(msgLock);
                     progress(sysName.c_str(), _S(""), compIdx, 0.0);
                 }
-                hecl::SystemString pakName = sysName.sys_str();
+                hecl::SystemString pakName = hecl::SystemString(sysName.sys_str());
                 process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
                 {
                     m_pakRouter.extractResources(pak, force, btok,
@@ -457,14 +459,14 @@ struct SpecMP3 : SpecBase
                 if (!pak.m_doExtract)
                     continue;
 
-                const std::string& name = pak.getName();
-                hecl::SystemStringView sysName(name);
+                auto name = pak.getName();
+                hecl::SystemStringConv sysName(name);
 
                 {
                     std::unique_lock<std::mutex> lk(msgLock);
                     progress(sysName.c_str(), _S(""), compIdx, 0.0);
                 }
-                hecl::SystemString pakName = sysName.sys_str();
+                hecl::SystemString pakName(sysName.sys_str());
                 process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
                 {
                     m_fePakRouter.extractResources(pak, force, btok,
@@ -591,16 +593,16 @@ struct SpecMP3 : SpecBase
 
 hecl::Database::DataSpecEntry SpecEntMP3
 (
-    _S("MP3"),
-    _S("Data specification for original Metroid Prime 3 engine"),
+    _S("MP3"sv),
+    _S("Data specification for original Metroid Prime 3 engine"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
     -> hecl::Database::IDataSpec* {return new struct SpecMP3(&SpecEntMP3, project, false);}
 );
 
 hecl::Database::DataSpecEntry SpecEntMP3PC =
 {
-    _S("MP3-PC"),
-    _S("Data specification for PC-optimized Metroid Prime 3 engine"),
+    _S("MP3-PC"sv),
+    _S("Data specification for PC-optimized Metroid Prime 3 engine"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
     -> hecl::Database::IDataSpec*
     {
@@ -612,8 +614,8 @@ hecl::Database::DataSpecEntry SpecEntMP3PC =
 
 hecl::Database::DataSpecEntry SpecEntMP3ORIG =
 {
-    _S("MP3-ORIG"),
-    _S("Data specification for unmodified Metroid Prime 3 resources"),
+    _S("MP3-ORIG"sv),
+    _S("Data specification for unmodified Metroid Prime 3 resources"sv),
     {}
 };
 

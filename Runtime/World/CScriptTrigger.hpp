@@ -68,7 +68,7 @@ protected:
     };
 
 public:
-    CScriptTrigger(TUniqueId, const std::string& name, const CEntityInfo& info, const zeus::CVector3f& pos,
+    CScriptTrigger(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& pos,
                    const zeus::CAABox&, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
                    ETriggerFlags triggerFlags, bool, bool, bool);
 

@@ -33,7 +33,7 @@ class CScriptActorRotate : public CEntity
     void UpdatePlatformRiders(std::vector<SRiders>&, CScriptPlatform&,
                               const zeus::CTransform&, CStateManager&);
 public:
-    CScriptActorRotate(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float, bool, bool,
+    CScriptActorRotate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, float, bool, bool,
                        bool);
 
     void Accept(IVisitor& visitor);

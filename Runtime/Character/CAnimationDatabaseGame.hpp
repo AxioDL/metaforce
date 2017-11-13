@@ -16,7 +16,7 @@ public:
     u32 GetNumMetaAnims() const;
     const char* GetMetaAnimName(u32 idx) const;
     void GetAllUniquePrimitives(std::vector<CPrimitive>& primsOut) const;
-    void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>& primsOut, const std::string& name) const;
+    void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>& primsOut, std::string_view name) const;
 };
 
 }

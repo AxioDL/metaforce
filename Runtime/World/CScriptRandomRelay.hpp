@@ -11,7 +11,7 @@ class CScriptRandomRelay : public CEntity
     u32 x38_variance;
     bool x3c_clamp;
 public:
-    CScriptRandomRelay(TUniqueId, const std::string&, const CEntityInfo&, s32, s32, bool, bool);
+    CScriptRandomRelay(TUniqueId, std::string_view, const CEntityInfo&, s32, s32, bool, bool);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);

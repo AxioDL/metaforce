@@ -46,7 +46,7 @@ public:
     static void Initialize(const hecl::ProjectPath& path);
     static void Shutdown();
 
-    CDvdFile(const char* path)
+    CDvdFile(std::string_view path)
         : x18_path(path),
           m_reader(std::make_shared<athena::io::FileReader>(
                    hecl::ProjectPath(m_DvdRoot, path).getAbsolutePath())) {}
@@ -55,7 +55,7 @@ public:
     {
         m_reader->seek(pos, athena::SeekOrigin::Begin);
     }
-    static bool FileExists(const char* path)
+    static bool FileExists(std::string_view path)
     {
         return hecl::ProjectPath(m_DvdRoot, path).isFile();
     }
@@ -79,7 +79,7 @@ public:
         return m_reader->readBytesToBuf(buf, len);
     }
     u64 Length() {return m_reader->length();}
-    const std::string& GetPath() const { return x18_path; }
+    std::string_view GetPath() const { return x18_path; }
 };
 }
 

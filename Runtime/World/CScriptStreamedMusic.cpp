@@ -10,13 +10,11 @@
 namespace urde
 {
 
-bool CScriptStreamedMusic::IsDSPFile(const std::string& fileName)
+bool CScriptStreamedMusic::IsDSPFile(std::string_view fileName)
 {
     if (!CStringExtras::CompareCaseInsensitive(fileName, "sw"))
         return true;
-    if (CStringExtras::IndexOfSubstring(fileName, ".dsp") != -1)
-        return true;
-    return false;
+    return CStringExtras::IndexOfSubstring(fileName, ".dsp") != -1;
 }
 
 void CScriptStreamedMusic::StopStream(CStateManager& mgr)
@@ -47,8 +45,8 @@ void CScriptStreamedMusic::TweakOverride(CStateManager& mgr)
     }
 }
 
-CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, const std::string& name,
-                                           bool active, const std::string& fileName, bool noStopOnDeactivate,
+CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, std::string_view name,
+                                           bool active, std::string_view fileName, bool noStopOnDeactivate,
                                            float fadeIn, float fadeOut, u32 volume, bool loop, bool music)
 : CEntity(id, info, active, name), x34_fileName(fileName), x44_noStopOnDeactivate(noStopOnDeactivate),
   x45_fileIsDsp(IsDSPFile(fileName)), x46_loop(loop), x47_music(music),

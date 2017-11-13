@@ -42,10 +42,10 @@ CStateMachine::CStateMachine(CInputStream& in)
 #endif
 }
 
-s32 CStateMachine::GetStateIndex(const std::string& state) const
+s32 CStateMachine::GetStateIndex(std::string_view state) const
 {
     auto it = std::find_if(x0_states.begin(), x0_states.end(), [&state](const CAiState& st) -> bool {
-        return (strncmp(st.GetName(), state.c_str(), 31) == 0);
+        return (strncmp(st.GetName(), state.data(), 31) == 0);
     });
     if (it == x0_states.end())
         return 0;
@@ -61,7 +61,7 @@ void CStateMachineState::SetState(CStateManager &, CAi &, s32 idx)
 {
 }
 
-void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, const CStateMachine* machine, const std::string& state)
+void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, const CStateMachine* machine, std::string_view state)
 {
     if (!machine)
         return;

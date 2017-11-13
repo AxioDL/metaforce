@@ -110,7 +110,7 @@ private:
         u32 dummy = 0;
     };
 
-    bool LoadTXTRDep(const std::string& name);
+    bool LoadTXTRDep(std::string_view name);
     static bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps);
 
 public:

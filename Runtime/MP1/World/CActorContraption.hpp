@@ -17,7 +17,7 @@ class CActorContraption : public CScriptActor
     CAssetId x308_flameFxId;
     CDamageInfo x30c_dInfo;
 public:
-    CActorContraption(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CActorContraption(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                       const zeus::CAABox&, const CMaterialList&, float, float, const CHealthInfo&,
                       const CDamageVulnerability&, const CActorParameters&, CAssetId, const CDamageInfo&, bool);
 
@@ -25,7 +25,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void Think(float, CStateManager &);
     void DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType, float dt);
-    CFlameThrower* CreateFlameThrower(const std::string&, CStateManager&);
+    CFlameThrower* CreateFlameThrower(std::string_view, CStateManager&);
     void ResetFlameThrowers(CStateManager& mgr);
 };
 }

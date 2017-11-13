@@ -10,7 +10,7 @@ namespace urde
 {
 bool CScriptSound::sFirstInFrame = false;
 
-CScriptSound::CScriptSound(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            s16 soundId, bool active, float f1, float f2, float f3, u32 w1, u32 w2, u32 w3, u32 w4,
                            u32 w5, u32 w6, bool b1, bool b2, bool autoStart, bool b4, bool b5, bool b6, bool b7, u32 w7)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),

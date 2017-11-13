@@ -8,7 +8,7 @@
 
 namespace urde
 {
-CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId)
 : CEntity(uid, info, active, name)
 , x34_worldId(worldId)
@@ -20,7 +20,7 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string&
 {
 }
 
-CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId,
                                                CAssetId playerAncs, u32 charIdx, u32 defaultAnim,
                                                const zeus::CVector3f& playerScale, CAssetId platformModel,
@@ -46,7 +46,7 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string&
 {
 }
 
-CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId, u16 soundId, u8 volume,
                                                u8 panning, CAssetId fontId, CAssetId stringId, bool fadeWhite,
                                                float charFadeIn, float charsPerSecond, float showDelay)

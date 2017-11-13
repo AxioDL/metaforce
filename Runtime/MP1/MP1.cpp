@@ -212,7 +212,7 @@ void CGameArchitectureSupport::UnloadAudio()
     {
         const AudioGroupInfo& info = StaticAudioGroups[i];
         const SObjectTag* tag = g_ResFactory->GetResourceIdByName(info.name);
-        const std::string& name = CAudioSys::SysGetGroupSetName(tag->id);
+        auto name = CAudioSys::SysGetGroupSetName(tag->id);
         CAudioSys::SysRemoveGroupFromAmuse(name);
         CAudioSys::SysUnloadAudioGroupSet(name);
     }
@@ -338,10 +338,10 @@ void CMain::AddWorldPaks()
     CResLoader* loader = g_ResFactory->GetResLoader();
     if (!loader)
         return;
-    auto& pakPrefix = g_tweakGame->GetWorldPrefix();
+    auto pakPrefix = g_tweakGame->GetWorldPrefix();
     for (int i=0 ; i<9 ; ++i)
     {
-        std::string path = pakPrefix;
+        std::string path(pakPrefix);
         if (i != 0)
             path += '0' + i;
         if (CDvdFile::FileExists((path + ".upak").c_str()))

@@ -137,7 +137,7 @@ protected:
     float x500_ = 0.f;
     float x504_damageDur = 0.f;
 public:
-    CPatterned(ECharacter character, TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
+    CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
                CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
                const CActorParameters& params, int variant);

@@ -13,7 +13,7 @@ std::string CAnimTreeBlend::CreatePrimitiveName(const std::shared_ptr<CAnimTreeN
 CAnimTreeBlend::CAnimTreeBlend(bool b1,
                                const std::shared_ptr<CAnimTreeNode>& a,
                                const std::shared_ptr<CAnimTreeNode>& b,
-                               float blendWeight, const std::string& name)
+                               float blendWeight, std::string_view name)
 : CAnimTreeTweenBase(b1, a, b, 1 | 2, name), x24_blendWeight(blendWeight)
 {
 

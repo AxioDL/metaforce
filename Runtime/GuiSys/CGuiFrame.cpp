@@ -30,7 +30,7 @@ CGuiFrame::~CGuiFrame()
     x8_guiSys.m_registeredFrames.erase(this);
 }
 
-CGuiWidget* CGuiFrame::FindWidget(const std::string& name) const
+CGuiWidget* CGuiFrame::FindWidget(std::string_view name) const
 {
     s16 id = x18_idDB.FindWidgetID(name);
     if (id == -1)

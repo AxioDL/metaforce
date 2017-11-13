@@ -12,14 +12,14 @@ std::string CAnimTreeTransition::CreatePrimitiveName(const std::weak_ptr<CAnimTr
 CAnimTreeTransition::CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
                                          const std::weak_ptr<CAnimTreeNode>& b, const CCharAnimTime& time1,
                                          const CCharAnimTime& time2, bool b2, bool b3, int flags,
-                                         const std::string& name, bool b4)
+                                         std::string_view name, bool b4)
 : CAnimTreeTweenBase(b1, a, b, flags, name), x24_(time1), x2c_(time2), x34_(b2), x35_(b3), x36_(b4)
 {
 }
 
 CAnimTreeTransition::CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
                                          const std::weak_ptr<CAnimTreeNode>& b, const CCharAnimTime& time, bool b2,
-                                         int flags, const std::string& name)
+                                         int flags, std::string_view name)
 : CAnimTreeTweenBase(b1, a, b, flags, name), x24_(time), x34_(b2), x35_(a.lock()->VGetBoolPOIState("Loop"))
 {
 }

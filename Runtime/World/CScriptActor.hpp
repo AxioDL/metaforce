@@ -30,7 +30,7 @@ protected:
     bool x2e3_24_ : 1;
 
 public:
-    CScriptActor(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CScriptActor(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                  const zeus::CAABox& aabb, float, float, const CMaterialList& matList, const CHealthInfo&,
                  const CDamageVulnerability&, const CActorParameters&, bool, bool, u32, float, bool, bool, bool, bool);
     void Accept(IVisitor& visitor);

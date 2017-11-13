@@ -28,7 +28,7 @@ public:
     CParticleData(CInputStream& in);
     u32 GetDuration() const { return x0_duration; }
     const SObjectTag& GetTag() const { return x4_particle; }
-    const std::string& GetSegmentName() const { return xc_boneName; }
+    std::string_view GetSegmentName() const { return xc_boneName; }
     float GetScale() const { return x1c_scale; }
     EParentedMode GetParentedMode() const { return x20_parentMode; }
 };

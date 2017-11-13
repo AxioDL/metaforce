@@ -72,30 +72,30 @@ struct CTweakPlayerRes final : ITweakPlayerRes
 
     Value<float> m_cinematicMoveOutofIntoPlayerDistance;
 
-    const std::string& _GetSaveStationIcon() const { return m_saveStationIcon; }
-    const std::string& _GetMissileStationIcon() const { return m_missileStationIcon; }
-    const std::string& _GetElevatorIcon() const { return m_elevatorIcon; }
+    std::string_view _GetSaveStationIcon() const { return m_saveStationIcon; }
+    std::string_view _GetMissileStationIcon() const { return m_missileStationIcon; }
+    std::string_view _GetElevatorIcon() const { return m_elevatorIcon; }
 
-    const std::string& _GetMinesBreakFirstTopIcon() const { return m_minesBreakFirstTopIcon; }
-    const std::string& _GetMinesBreakFirstBottomIcon() const { return m_minesBreakFirstBottomIcon; }
-    const std::string& _GetMinesBreakSecondTopIcon() const { return m_minesBreakSecondTopIcon; }
-    const std::string& _GetMinesBreakSecondBottomIcon() const { return m_minesBreakSecondBottomIcon; }
+    std::string_view _GetMinesBreakFirstTopIcon() const { return m_minesBreakFirstTopIcon; }
+    std::string_view _GetMinesBreakFirstBottomIcon() const { return m_minesBreakFirstBottomIcon; }
+    std::string_view _GetMinesBreakSecondTopIcon() const { return m_minesBreakSecondTopIcon; }
+    std::string_view _GetMinesBreakSecondBottomIcon() const { return m_minesBreakSecondBottomIcon; }
 
-    const std::string& _GetLStick(size_t idx) const { return (&m_lStickN)[idx]; }
-    const std::string& _GetCStick(size_t idx) const { return (&m_cStickN)[idx]; }
+    std::string_view _GetLStick(size_t idx) const { return (&m_lStickN)[idx]; }
+    std::string_view _GetCStick(size_t idx) const { return (&m_cStickN)[idx]; }
 
-    const std::string& _GetLTrigger(size_t idx) const { return (&m_lTriggerOut)[idx]; }
-    const std::string& _GetRTrigger(size_t idx) const { return (&m_rTriggerOut)[idx]; }
-    const std::string& _GetStartButton(size_t idx) const { return (&m_startButtonOut)[idx]; }
-    const std::string& _GetAButton(size_t idx) const { return (&m_aButtonOut)[idx]; }
-    const std::string& _GetBButton(size_t idx) const { return (&m_bButtonOut)[idx]; }
-    const std::string& _GetXButton(size_t idx) const { return (&m_xButtonOut)[idx]; }
-    const std::string& _GetYButton(size_t idx) const { return (&m_yButtonOut)[idx]; }
+    std::string_view _GetLTrigger(size_t idx) const { return (&m_lTriggerOut)[idx]; }
+    std::string_view _GetRTrigger(size_t idx) const { return (&m_rTriggerOut)[idx]; }
+    std::string_view _GetStartButton(size_t idx) const { return (&m_startButtonOut)[idx]; }
+    std::string_view _GetAButton(size_t idx) const { return (&m_aButtonOut)[idx]; }
+    std::string_view _GetBButton(size_t idx) const { return (&m_bButtonOut)[idx]; }
+    std::string_view _GetXButton(size_t idx) const { return (&m_xButtonOut)[idx]; }
+    std::string_view _GetYButton(size_t idx) const { return (&m_yButtonOut)[idx]; }
 
-    const std::string& _GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
+    std::string_view _GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
 
-    const std::string& _GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
-    const std::string& _GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
+    std::string_view _GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
+    std::string_view _GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
 
     float _GetCinematicMoveOutofIntoPlayerDistance() const { return m_cinematicMoveOutofIntoPlayerDistance; }
 

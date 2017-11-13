@@ -10,7 +10,7 @@ class CScriptRelay : public CEntity
     TUniqueId x34_nextRelay = kInvalidUniqueId;
     u32 x38_refCount = 0;
 public:
-    CScriptRelay(TUniqueId, const std::string&, const CEntityInfo&, bool);
+    CScriptRelay(TUniqueId, std::string_view, const CEntityInfo&, bool);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);

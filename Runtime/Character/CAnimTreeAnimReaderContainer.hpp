@@ -11,7 +11,7 @@ class CAnimTreeAnimReaderContainer : public CAnimTreeNode
     std::shared_ptr<IAnimReader> x14_reader;
     u32 x1c_animDbIdx;
 public:
-    CAnimTreeAnimReaderContainer(const std::string& name,
+    CAnimTreeAnimReaderContainer(std::string_view name,
                                  std::shared_ptr<IAnimReader> reader,
                                  u32 animDbIdx);
 

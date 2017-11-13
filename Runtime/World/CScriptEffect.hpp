@@ -11,7 +11,7 @@ class CScriptEffect : public CActor
     static u32 g_NumParticlesUpdating;
     static u32 g_NumParticlesRendered;
 public:
-    CScriptEffect(TUniqueId, const std::string& name, const CEntityInfo& info,
+    CScriptEffect(TUniqueId, std::string_view name, const CEntityInfo& info,
                   const zeus::CTransform& xf, const zeus::CVector3f& scale,
                   CAssetId partId, CAssetId elscId, bool, bool, bool, bool active,
                   bool, float, float, float, float, bool, float, float, float,

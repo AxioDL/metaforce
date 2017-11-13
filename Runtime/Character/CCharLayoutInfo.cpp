@@ -22,9 +22,9 @@ zeus::CVector3f CCharLayoutInfo::GetFromRootUnrotated(const CSegId& id) const
     return bone.x4_origin;
 }
 
-CSegId CCharLayoutInfo::GetSegIdFromString(const std::string& name) const
+CSegId CCharLayoutInfo::GetSegIdFromString(std::string_view name) const
 {
-    auto it = x18_segIdMap.find(name);
+    auto it = x18_segIdMap.find(name.data());
     if (it == x18_segIdMap.end())
         return {};
 

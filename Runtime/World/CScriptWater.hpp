@@ -77,7 +77,7 @@ private:
     void SetupGridClipping(CStateManager& mgr, int computeVerts);
     void UpdateSplashInhabitants(CStateManager& mgr);
 public:
-    CScriptWater(CStateManager& mgr, TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view name, const CEntityInfo& info,
                  const zeus::CVector3f& pos, const zeus::CAABox& box, const urde::CDamageInfo& dInfo,
                  zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool thermalCold,
                  bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap,

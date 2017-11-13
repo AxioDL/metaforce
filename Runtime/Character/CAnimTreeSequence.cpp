@@ -7,7 +7,7 @@ namespace urde
 
 CAnimTreeSequence::CAnimTreeSequence(const std::vector<std::shared_ptr<IMetaAnim>>& seq,
                                      const CAnimSysContext& animSys,
-                                     const std::string& name)
+                                     std::string_view name)
 : CAnimTreeSingleChild(seq[0]->GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders()), name),
   x18_(animSys), x3c_fundamentals(CSequenceHelper(seq, animSys).ComputeSequenceFundamentals()), x94_curTime(0.f)
 {
@@ -16,7 +16,7 @@ CAnimTreeSequence::CAnimTreeSequence(const std::vector<std::shared_ptr<IMetaAnim
 CAnimTreeSequence::CAnimTreeSequence(const std::shared_ptr<CAnimTreeNode>& curNode,
                                      const std::vector<std::shared_ptr<IMetaAnim>>& metaAnims,
                                      const CAnimSysContext& animSys,
-                                     const std::string& name,
+                                     std::string_view name,
                                      const CSequenceFundamentals& fundamentals,
                                      const CCharAnimTime& time)
 : CAnimTreeSingleChild(curNode, name), x18_(animSys), x28_(metaAnims), x3c_fundamentals(fundamentals), x94_curTime(time)

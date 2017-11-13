@@ -8,7 +8,7 @@
 namespace urde
 {
 
-CPOINode::CPOINode(const std::string& name, EPOIType type, const CCharAnimTime& time,
+CPOINode::CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time,
                    u32 index, bool c, float weight, u32 e, u32 f)
 : x4_(1),
   x8_name(name),

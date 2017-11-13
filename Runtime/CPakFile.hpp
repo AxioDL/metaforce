@@ -69,10 +69,10 @@ private:
     void InitialHeaderLoad();
     void Warmup();
 public:
-    CPakFile(const std::string& filename, bool buildDepList, bool worldPak);
+    CPakFile(std::string_view filename, bool buildDepList, bool worldPak);
     const std::vector<std::pair<std::string, SObjectTag>>& GetNameList() const { return x54_nameList; }
     const std::vector<CAssetId>& GetDepList() const { return x64_depList; }
-    const SObjectTag* GetResIdByName(const char* name) const;
+    const SObjectTag* GetResIdByName(std::string_view name) const;
     const SResInfo* GetResInfoForLoadPreferForward(CAssetId id) const;
     const SResInfo* GetResInfoForLoadDirectionless(CAssetId id) const;
     const SResInfo* GetResInfo(CAssetId id) const;

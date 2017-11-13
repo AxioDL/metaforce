@@ -8,7 +8,7 @@ namespace urde
 namespace MP1
 {
 
-CBeetle::CBeetle(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
+CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
                  const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CBeetle::EEntranceType, const CDamageInfo&,
                  const CDamageVulnerability&, const zeus::CVector3f&, float, float, float, const CDamageVulnerability&,
                  const CActorParameters& aParams, const rstl::optional_object<CStaticRes>)

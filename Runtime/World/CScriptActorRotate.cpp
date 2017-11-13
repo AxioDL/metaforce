@@ -6,7 +6,7 @@
 
 namespace urde
 {
-CScriptActorRotate::CScriptActorRotate(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptActorRotate::CScriptActorRotate(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                        const zeus::CVector3f& rotation, float maxTime, bool updateActors,
                                        bool updateOnCreation, bool active)
 : CEntity(uid, info, active, name)

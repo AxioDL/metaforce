@@ -566,8 +566,8 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                 hecl::SNPrintf(parPid, 32, _S("%lluX"), (unsigned long long)getpid());
 #endif
                 const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
-                                                  visiIntOut.getAbsolutePath().c_str(),
-                                                  preVisiPath.getAbsolutePath().c_str(),
+                                                  visiIntOut.getAbsolutePath().data(),
+                                                  preVisiPath.getAbsolutePath().data(),
                                                   thrIdx, parPid, nullptr};
                 if (0 == hecl::RunProcess(VisiGenPath.c_str(), args))
                 {

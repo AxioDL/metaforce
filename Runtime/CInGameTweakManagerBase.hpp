@@ -17,12 +17,12 @@ public:
         float x0_fadeIn, x4_fadeOut, x8_volume;
         std::string xc_fileName;
         CAssetId x1c_res;
-        Audio(float fadeIn, float fadeOut, float vol, const std::string& fileName, u32 handle)
+        Audio(float fadeIn, float fadeOut, float vol, std::string_view fileName, u32 handle)
         : x0_fadeIn(fadeIn), x4_fadeOut(fadeOut), x8_volume(vol), xc_fileName(fileName), x1c_res(handle) {}
         float GetFadeIn() const { return x0_fadeIn; }
         float GetFadeOut() const { return x4_fadeOut; }
         float GetVolume() const { return x8_volume; }
-        const std::string& GetFileName() const { return xc_fileName; }
+        std::string_view GetFileName() const { return xc_fileName; }
         CAssetId GetResId() const { return x1c_res; }
         static Audio None() { return Audio{0.f, 0.f, 0.f, "", 0}; }
     };
@@ -44,9 +44,9 @@ public:
     CTweakValue()=default;
     //CTweakValue(CTextInputStream&);
     //void PutTo(CTextOutStream&);
-    const std::string& GetName() const { return x4_key; }
-    const std::string& GetValueAsString() const;
-    void SetValueFromString(const std::string&);
+    std::string_view GetName() const { return x4_key; }
+    std::string_view GetValueAsString() const;
+    void SetValueFromString(std::string_view);
     const Audio& GetAudio() const { return x24_audio; }
     EType GetType() const { return x0_type; }
 };
@@ -56,7 +56,7 @@ class CInGameTweakManagerBase
 protected:
     std::vector<CTweakValue> x0_values;
 public:
-    bool HasTweakValue(const std::string& name) const
+    bool HasTweakValue(std::string_view name) const
     {
         for (const CTweakValue& val : x0_values)
             if (val.GetName() == name)
@@ -64,7 +64,7 @@ public:
         return false;
     }
 
-    const CTweakValue* GetTweakValue(const std::string& name) const
+    const CTweakValue* GetTweakValue(std::string_view name) const
     {
         for (const CTweakValue& val : x0_values)
             if (val.GetName() == name)
@@ -72,16 +72,16 @@ public:
         return nullptr;
     }
 
-    bool ReadFromMemoryCard(const std::string& name)
+    bool ReadFromMemoryCard(std::string_view name)
     {
         return true;
     }
 
     static std::string GetIdentifierForMidiEvent(CAssetId world, CAssetId area,
-                                                 const std::string& midiObj)
+                                                 std::string_view midiObj)
     {
         return hecl::Format("World %8.8x Area %8.8x MidiObject: %s",
-                            u32(world.Value()), u32(area.Value()), midiObj.c_str());
+                            u32(world.Value()), u32(area.Value()), midiObj.data());
     }
 };
 

@@ -80,10 +80,10 @@ public:
     struct SGuiTextPair
     {
         CGuiTextPane* x0_panes[2] = {};
-        void SetPairText(const std::u16string& str);
+        void SetPairText(std::u16string_view str);
     };
     static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
-    static void FindAndSetPairText(CGuiFrame* frame, const char* name, const std::u16string& str);
+    static void FindAndSetPairText(CGuiFrame* frame, const char* name, std::u16string_view str);
 
     struct SFileMenuOption
     {
@@ -172,7 +172,7 @@ public:
         void DoFileMenuAdvance(CGuiTableGroup* caller);
 
         static SFileMenuOption FindFileSelectOption(CGuiFrame* frame, int idx);
-        static void StartTextAnimating(CGuiTextPane* text, const std::u16string& str, float chRate);
+        static void StartTextAnimating(CGuiTextPane* text, std::u16string_view str, float chRate);
     };
 
     struct SFusionBonusFrame

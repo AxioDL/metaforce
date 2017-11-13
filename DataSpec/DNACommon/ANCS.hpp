@@ -59,7 +59,7 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
                     return false;
 
                 std::string bestName = pakRouter.getBestEntryName(*cmdlE);
-                hecl::SystemStringView bestNameView(bestName);
+                hecl::SystemStringConv bestNameView(bestName);
                 fileChanged(bestNameView.c_str());
 
                 typename ANCSDNA::CSKRType cskr;
@@ -79,7 +79,7 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
     }
 
     std::string bestName = pakRouter.getBestEntryName(entry);
-    hecl::SystemStringView bestNameView(bestName);
+    hecl::SystemStringConv bestNameView(bestName);
     fileChanged(bestNameView.c_str());
 
     /* Establish ANCS blend */
@@ -138,8 +138,8 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
             if (cmdlE)
             {
                 hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-                os.linkBlend(cmdlPath.getAbsolutePathUTF8().c_str(),
-                             pakRouter.getBestEntryName(*cmdlE).c_str(), true);
+                os.linkBlend(cmdlPath.getAbsolutePathUTF8().data(),
+                             pakRouter.getBestEntryName(*cmdlE).data(), true);
 
                 /* Attach CMDL to CINF */
                 os << "if obj.name not in bpy.context.scene.objects:\n"
@@ -160,8 +160,8 @@ bool ReadANCSToBlender(hecl::BlenderConnection& conn,
                 if (cmdlE)
                 {
                     hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-                    os.linkBlend(cmdlPath.getAbsolutePathUTF8().c_str(),
-                                 pakRouter.getBestEntryName(*cmdlE).c_str(), true);
+                    os.linkBlend(cmdlPath.getAbsolutePathUTF8().data(),
+                                 pakRouter.getBestEntryName(*cmdlE).data(), true);
 
                     /* Attach CMDL to CINF */
                     os << "if obj.name not in bpy.context.scene.objects:\n"

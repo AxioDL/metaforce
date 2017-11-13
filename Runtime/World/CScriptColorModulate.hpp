@@ -41,7 +41,7 @@ private:
     };
 
 public:
-    CScriptColorModulate(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CColor&, const zeus::CColor&,
+    CScriptColorModulate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CColor&, const zeus::CColor&,
                          EBlendMode, float, float, bool, bool, bool, bool, bool, bool);
 
     void Accept(IVisitor& visitor);

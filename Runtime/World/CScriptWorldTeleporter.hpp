@@ -46,10 +46,10 @@ class CScriptWorldTeleporter : public CEntity
     CAssetId x8c_fontId;
     CAssetId x90_stringId;
 public:
-    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, CAssetId, CAssetId);
-    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, CAssetId, CAssetId, u16, u8, u8, CAssetId,
+    CScriptWorldTeleporter(TUniqueId, std::string_view, const CEntityInfo&, bool, CAssetId, CAssetId);
+    CScriptWorldTeleporter(TUniqueId, std::string_view, const CEntityInfo&, bool, CAssetId, CAssetId, u16, u8, u8, CAssetId,
                            CAssetId, bool, float, float, float);
-    CScriptWorldTeleporter(TUniqueId, const std::string&, const CEntityInfo&, bool, CAssetId, CAssetId, CAssetId, u32, u32,
+    CScriptWorldTeleporter(TUniqueId, std::string_view, const CEntityInfo&, bool, CAssetId, CAssetId, CAssetId, u32, u32,
                            const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, bool,
                            u16, u8, u8);
 

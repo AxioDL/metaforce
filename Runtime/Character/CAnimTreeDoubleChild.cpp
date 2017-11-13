@@ -5,7 +5,7 @@ namespace urde
 
 CAnimTreeDoubleChild::CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a,
                                            const std::weak_ptr<CAnimTreeNode>& b,
-                                           const std::string& name)
+                                           std::string_view name)
 : CAnimTreeNode(name), x14_a(a.lock()), x18_b(b.lock())
 {
 }

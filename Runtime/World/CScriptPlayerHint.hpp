@@ -16,7 +16,7 @@ class CScriptPlayerHint : public CActor
     void AddToObjectList(TUniqueId uid);
     void RemoveFromObjectList(TUniqueId uid);
 public:
-    CScriptPlayerHint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                       const zeus::CTransform& xf, bool active, u32 priority, u32 overrideFlags);
     void Accept(IVisitor& visit);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

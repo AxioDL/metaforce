@@ -40,7 +40,7 @@ class CScriptPlayerActor : public CScriptActor
     };
 
 public:
-    CScriptPlayerActor(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
+    CScriptPlayerActor(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
                        CModelData&&, const zeus::CAABox&, bool, const CMaterialList&, float, float,
                        const CHealthInfo&, const CDamageVulnerability&, const CActorParameters&, bool, bool, u32, u32);
 

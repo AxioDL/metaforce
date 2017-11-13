@@ -137,7 +137,7 @@ public:
 
         CVParamTransfer m_texParam = {new TObjOwnerParam<u32>(SBIG('OTEX'))};
 
-        CCardFileInfo(kabufuda::ECardSlot port, const std::string& name)
+        CCardFileInfo(kabufuda::ECardSlot port, std::string_view name)
         : m_handle(port), x18_fileName(name) {}
 
         void LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp);

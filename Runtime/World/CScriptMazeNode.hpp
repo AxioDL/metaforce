@@ -33,7 +33,7 @@ class CScriptMazeNode : public CActor
         u8 dummy = 0;
     };
 public:
-    CScriptMazeNode(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool, s32, s32, s32,
+    CScriptMazeNode(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, s32, s32, s32,
                     const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&);
 
     void Accept(IVisitor &visitor);

@@ -3,7 +3,7 @@
 
 namespace urde
 {
-CScriptPickupGenerator::CScriptPickupGenerator(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptPickupGenerator::CScriptPickupGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CVector3f& pos, float frequency, bool active)
 : CEntity(uid, info, active, name), x34_position(pos), x40_frequency(frequency)
 {

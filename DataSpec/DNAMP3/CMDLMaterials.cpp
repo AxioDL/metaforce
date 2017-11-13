@@ -131,7 +131,7 @@ void Material::SectionPASS::constructNode(hecl::BlenderConnection::PyOutStream& 
             TXTR::Extract(rs, txtrPath);
         }
         hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, txtrId);
-        hecl::SystemUTF8View resPathView(resPath);
+        hecl::SystemUTF8Conv resPathView(resPath);
         out.format("if '%s' in bpy.data.textures:\n"
                    "    image = bpy.data.images['%s']\n"
                    "    texture = bpy.data.textures[image.name]\n"
@@ -142,7 +142,7 @@ void Material::SectionPASS::constructNode(hecl::BlenderConnection::PyOutStream& 
                    "    texture.image = image\n"
                    "tex_maps.append(texture)\n"
                    "\n", texName.c_str(), texName.c_str(),
-                   resPathView.str().c_str(), texName.c_str());
+                   resPathView.c_str(), texName.c_str());
         if (uvAnim.size())
         {
             const UVAnimation& uva = uvAnim[0];

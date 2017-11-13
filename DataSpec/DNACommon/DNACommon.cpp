@@ -56,7 +56,7 @@ template
 hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const UniqueID64& id, bool silenceWarnings);
 
 template <class IDType>
-hecl::ProjectPath UniqueIDBridge::MakePathFromString(const std::string& str)
+hecl::ProjectPath UniqueIDBridge::MakePathFromString(std::string_view str)
 {
     if (str.empty())
         return {};
@@ -69,9 +69,9 @@ hecl::ProjectPath UniqueIDBridge::MakePathFromString(const std::string& str)
     return path;
 }
 template
-hecl::ProjectPath UniqueIDBridge::MakePathFromString<UniqueID32>(const std::string& str);
+hecl::ProjectPath UniqueIDBridge::MakePathFromString<UniqueID32>(std::string_view str);
 template
-hecl::ProjectPath UniqueIDBridge::MakePathFromString<UniqueID64>(const std::string& str);
+hecl::ProjectPath UniqueIDBridge::MakePathFromString<UniqueID64>(std::string_view str);
 
 template <class IDType>
 void UniqueIDBridge::TransformOldHashToNewHash(IDType& id)
@@ -105,7 +105,7 @@ void UniqueID32::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
+        (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
          path.getRelativePathUTF8());
 }
 size_t UniqueID32::binarySize(size_t __isz) const
@@ -165,8 +165,8 @@ void AuxiliaryID32::write(athena::io::YAMLDocWriter& writer) const
         return;
     if (m_addExtension)
         path = path.getWithExtension(m_addExtension);
-    hecl::SystemUTF8View ufx8AuxStr(m_auxStr);
-    writer.writeString(nullptr, path.getRelativePathUTF8() + '|' + ufx8AuxStr);
+    hecl::SystemUTF8Conv ufx8AuxStr(m_auxStr);
+    writer.writeString(nullptr, std::string(path.getRelativePathUTF8()) + '|' + ufx8AuxStr);
 }
 
 
@@ -187,7 +187,7 @@ void UniqueID64::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
+        (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
          path.getRelativePathUTF8());
 }
 size_t UniqueID64::binarySize(size_t __isz) const
@@ -223,7 +223,7 @@ void UniqueID128::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (path.getRelativePathUTF8() + '|' + path.getAuxInfoUTF8()) :
+        (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
          path.getRelativePathUTF8());
 }
 size_t UniqueID128::binarySize(size_t __isz) const

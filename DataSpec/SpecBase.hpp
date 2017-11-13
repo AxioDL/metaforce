@@ -143,11 +143,11 @@ struct SpecBase : hecl::Database::IDataSpec
     urde::SObjectTag tagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;
     hecl::ProjectPath pathFromTag(const urde::SObjectTag& tag) const;
     bool waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
-    const urde::SObjectTag* getResourceIdByName(const char* name) const;
+    const urde::SObjectTag* getResourceIdByName(std::string_view name) const;
     hecl::FourCC getResourceTypeById(urde::CAssetId id) const;
     void enumerateResources(const std::function<bool(const urde::SObjectTag&)>& lambda) const;
     void enumerateNamedResources(
-        const std::function<bool(const std::string&, const urde::SObjectTag&)>& lambda) const;
+        const std::function<bool(std::string_view, const urde::SObjectTag&)>& lambda) const;
     void cancelBackgroundIndex();
     void beginBackgroundIndex();
     bool backgroundIndexRunning() const { return m_backgroundRunning; }

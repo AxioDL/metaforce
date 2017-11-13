@@ -19,7 +19,7 @@ public:
     };
 private:
 public:
-    CBeetle(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+    CBeetle(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, CPatterned::EFlavorType,EEntranceType, const CDamageInfo &, const CDamageVulnerability&,
             const zeus::CVector3f&, float, float, float, const CDamageVulnerability&, const CActorParameters&,
             const rstl::optional_object<CStaticRes>);

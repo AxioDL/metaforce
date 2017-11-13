@@ -10,7 +10,7 @@
 namespace urde
 {
 
-CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, CAssetId particle, CAssetId electric,
                                  float minDist, float maxDist, float nearProb, float farProb,
                                  const zeus::CColor& color, int sfx, bool forceShow, bool active)

@@ -4,7 +4,7 @@
 namespace urde
 {
 
-CScriptDebris::CScriptDebris(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CActorParameters& aParams, CAssetId, const zeus::CVector3f&, float,
                              const zeus::CVector3f&, const zeus::CColor&, float f1, float f2, float f3,
                              CScriptDebris::EScaleType, bool, bool, bool active)
@@ -15,7 +15,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const std::string& name, const CEnti
 
 }
 
-CScriptDebris::CScriptDebris(TUniqueId uid, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CActorParameters& aParams, float, float, float, float, float,
                              float, float, float, float, const zeus::CColor&, const zeus::CColor&, float,
                              const zeus::CVector3f&, const zeus::CVector3f&, float, float,

@@ -32,7 +32,7 @@ class CMetroid : public CPatterned
 {
 public:
     static constexpr ECharacter CharacterType = ECharacter::Metroid;
-    CMetroid(TUniqueId uid, const std::string& name, EFlavorType flavor, const CEntityInfo& info,
+    CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
              const CActorParameters& aParms, const CMetroidData& metroidData);
 };

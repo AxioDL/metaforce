@@ -29,8 +29,8 @@ static uint32_t ParseTag(const char16_t* str)
     return strtoul(parseStr, nullptr, 16);
 }
 
-static std::u16string::const_iterator SkipCommas(std::u16string& ret, const std::u16string& str,
-                                                 std::u16string::const_iterator it, size_t count)
+static std::u16string_view::const_iterator SkipCommas(std::u16string& ret, std::u16string_view str,
+                                                      std::u16string_view::const_iterator it, size_t count)
 {
     for (size_t i = 0; i < count; ++i)
     {
@@ -44,8 +44,8 @@ static std::u16string::const_iterator SkipCommas(std::u16string& ret, const std:
     return it;
 }
 
-static std::u16string::const_iterator UncookTextureList(std::u16string& ret, const std::u16string& str,
-                                                        std::u16string::const_iterator it)
+static std::u16string_view::const_iterator UncookTextureList(std::u16string& ret, std::u16string_view str,
+                                                             std::u16string_view::const_iterator it)
 {
     while (true)
     {
@@ -76,8 +76,8 @@ static std::u16string::const_iterator UncookTextureList(std::u16string& ret, con
     return str.begin() + scpos + 1;
 }
 
-static std::u16string::const_iterator CookTextureList(std::u16string& ret, const std::u16string& str,
-                                                      std::u16string::const_iterator it)
+static std::u16string_view::const_iterator CookTextureList(std::u16string& ret, std::u16string_view str,
+                                                           std::u16string_view::const_iterator it)
 {
     while (true)
     {
@@ -112,8 +112,8 @@ static std::u16string::const_iterator CookTextureList(std::u16string& ret, const
     return str.begin() + scpos + 1;
 }
 
-static std::u16string::const_iterator GatherTextureList(std::vector<hecl::ProjectPath>& pathsOut,
-                                                        const std::u16string& str, std::u16string::const_iterator it)
+static std::u16string_view::const_iterator GatherTextureList(std::vector<hecl::ProjectPath>& pathsOut,
+                                                             std::u16string_view str, std::u16string_view::const_iterator it)
 {
     while (true)
     {
@@ -148,7 +148,7 @@ static std::u16string::const_iterator GatherTextureList(std::vector<hecl::Projec
     return str.begin() + scpos + 1;
 }
 
-static std::u16string UncookString(const std::u16string& str)
+static std::u16string UncookString(std::u16string_view str)
 {
     std::u16string ret;
     ret.reserve(str.size());
@@ -220,7 +220,7 @@ static std::u16string UncookString(const std::u16string& str)
     return ret;
 }
 
-static std::u16string CookString(const std::u16string& str)
+static std::u16string CookString(std::u16string_view str)
 {
     std::u16string ret;
     ret.reserve(str.size());
@@ -297,52 +297,53 @@ void STRG::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
         for (const std::u16string& str : lang.second)
         {
-            for (auto it = str.begin(); it != str.end();)
+            std::u16string_view strView(str);
+            for (auto it = strView.begin(); it != strView.end();)
             {
                 if (*it == u'&')
                 {
                     ++it;
-                    if (!str.compare(it - str.begin(), 5, u"image"))
+                    if (!str.compare(it - strView.begin(), 5, u"image"))
                     {
                         it += 6;
-                        if (!str.compare(it - str.begin(), 1, u"A"))
+                        if (!str.compare(it - strView.begin(), 1, u"A"))
                         {
                             it = SkipCommas(skip, str, it, 2);
                             it = GatherTextureList(pathsOut, str, it);
                             continue;
                         }
-                        else if (!str.compare(it - str.begin(), 2, u"SA"))
+                        else if (!str.compare(it - strView.begin(), 2, u"SA"))
                         {
                             it = SkipCommas(skip, str, it, 4);
                             it = GatherTextureList(pathsOut, str, it);
                             continue;
                         }
-                        else if (!str.compare(it - str.begin(), 2, u"SI"))
+                        else if (!str.compare(it - strView.begin(), 2, u"SI"))
                         {
                             it = SkipCommas(skip, str, it, 3);
                             it = GatherTextureList(pathsOut, str, it);
                             continue;
                         }
                     }
-                    else if (!str.compare(it - str.begin(), 4, u"font"))
+                    else if (!str.compare(it - strView.begin(), 4, u"font"))
                     {
                         it += 5;
-                        auto scpos = str.find(u';', it - str.begin());
+                        auto scpos = str.find(u';', it - strView.begin());
                         if (scpos == std::u16string::npos)
                             Log.report(logvisor::Fatal, "Missing semicolon token while pasing font tag");
                         hecl::ProjectPath path = UniqueIDBridge::MakePathFromString<UniqueID32>(
-                            hecl::Char16ToUTF8(std::u16string(it, str.begin() + scpos)));
+                            hecl::Char16ToUTF8(std::u16string(it, strView.begin() + scpos)));
                         if (path)
                             pathsOut.push_back(path);
-                        it = str.begin() + scpos + 1;
+                        it = strView.begin() + scpos + 1;
                     }
                     else
                     {
-                        auto scpos = str.find(u';', it - str.begin());
+                        auto scpos = str.find(u';', it - strView.begin());
                         if (scpos == std::u16string::npos)
-                            it = str.end();
+                            it = strView.end();
                         else
-                            it = str.begin() + scpos + 1;
+                            it = strView.begin() + scpos + 1;
                     }
                 }
                 else

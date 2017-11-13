@@ -78,7 +78,7 @@ private:
         std::string x14_name;
         std::vector<u8> x24_saveFileData;
         std::vector<u8> x34_saveData;
-        SFileInfo(kabufuda::ECardSlot cardPort, const std::string& name);
+        SFileInfo(kabufuda::ECardSlot cardPort, std::string_view name);
         kabufuda::ECardResult Open();
         kabufuda::ECardResult Close();
         kabufuda::ECardSlot GetFileCardPort() const { return x0_fileInfo.slot; }

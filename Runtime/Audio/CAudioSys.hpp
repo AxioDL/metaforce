@@ -78,14 +78,14 @@ public:
     {
 
     }
-    static TLockedToken<CAudioGroupSet> FindGroupSet(const std::string& name);
-    static const std::string& SysGetGroupSetName(CAssetId id);
+    static TLockedToken<CAudioGroupSet> FindGroupSet(std::string_view name);
+    static std::string_view SysGetGroupSetName(CAssetId id);
     static bool SysLoadGroupSet(CSimplePool* pool, CAssetId id);
-    static bool SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, CAssetId id);
-    static void SysUnloadAudioGroupSet(const std::string& name);
-    static bool SysIsGroupSetLoaded(const std::string& name);
-    static void SysAddGroupIntoAmuse(const std::string& name);
-    static void SysRemoveGroupFromAmuse(const std::string& name);
+    static bool SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, std::string_view name, CAssetId id);
+    static void SysUnloadAudioGroupSet(std::string_view name);
+    static bool SysIsGroupSetLoaded(std::string_view name);
+    static void SysAddGroupIntoAmuse(std::string_view name);
+    static void SysRemoveGroupFromAmuse(std::string_view name);
     static void SysSetVolume(u8 volume);
     static void SysSetSfxVolume(u8 volume, u16 time, bool music, bool fx);
 

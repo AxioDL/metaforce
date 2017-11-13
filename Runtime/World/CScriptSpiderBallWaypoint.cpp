@@ -5,7 +5,7 @@
 
 namespace urde
 {
-CScriptSpiderBallWaypoint::CScriptSpiderBallWaypoint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptSpiderBallWaypoint::CScriptSpiderBallWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                      const zeus::CTransform& xf, bool active, u32 w1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
          CActorParameters::None(), kInvalidUniqueId)

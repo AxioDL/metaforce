@@ -13,7 +13,7 @@ class CMetroidBeta : public CPatterned
 {
 public:
     static constexpr ECharacter CharacterType = ECharacter::MetroidBeta;
-    CMetroidBeta(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                  const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                  const CActorParameters& aParms, const CMetroidData& metroidData);
     void RenderHitGunEffect() const;

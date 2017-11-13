@@ -38,17 +38,17 @@ private:
 
 public:
     CJointCollisionDescription(ECollisionType, CSegId, CSegId, const zeus::CVector3f&, const zeus::CVector3f&, float,
-                               float, EOrientationType, const std::string&, float);
-    const std::string& GetName() const { return x2c_name; }
+                               float, EOrientationType, std::string_view, float);
+    std::string_view GetName() const { return x2c_name; }
     TUniqueId GetCollisionActorId() const { return x3c_actorId; }
     static CJointCollisionDescription SphereSubdivideCollision(CSegId, CSegId, float, float,
-                                                               EOrientationType, const std::string&, float);
-    static CJointCollisionDescription SphereCollision(CSegId, float, const std::string&, float);
-    static CJointCollisionDescription AABoxCollision(CSegId, zeus::CVector3f const&, const std::string&, float);
+                                                               EOrientationType, std::string_view, float);
+    static CJointCollisionDescription SphereCollision(CSegId, float, std::string_view, float);
+    static CJointCollisionDescription AABoxCollision(CSegId, zeus::CVector3f const&, std::string_view, float);
     static CJointCollisionDescription OBBAutoSizeCollision(CSegId, CSegId, const zeus::CVector3f&, EOrientationType,
-                                                           const std::string&, float);
+                                                           std::string_view, float);
     static CJointCollisionDescription OBBCollision(CSegId, const zeus::CVector3f&, const zeus::CVector3f&,
-                                                   const std::string&, float);
+                                                   std::string_view, float);
     zeus::CVector3f GetPivotPoint() const;
     float GetRadius() const;
     void SetCollisionActorId(TUniqueId);

@@ -17,7 +17,7 @@ public:
     CAnimTreeBlend(bool,
                    const std::shared_ptr<CAnimTreeNode>& a,
                    const std::shared_ptr<CAnimTreeNode>& b,
-                   float blendWeight, const std::string& name);
+                   float blendWeight, std::string_view name);
 
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;

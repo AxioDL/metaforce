@@ -26,7 +26,7 @@ protected:
 
 public:
     CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
-                         const std::string& name);
+                         std::string_view name);
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;

@@ -84,7 +84,7 @@ public:
         return x4_loader.LoadResourcePartAsync(tag, off, size, target);
     }
 
-    const SObjectTag* GetResourceIdByName(const char* name) const
+    const SObjectTag* GetResourceIdByName(std::string_view name) const
     {
         return x4_loader.GetResourceIdByName(name);
     }
@@ -104,7 +104,7 @@ public:
         return x4_loader.EnumerateResources(lambda);
     }
 
-    void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
+    void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const
     {
         return x4_loader.EnumerateNamedResources(lambda);
     }

@@ -64,7 +64,7 @@ struct PAK : BigDNA
     DECL_EXPLICIT_DNA
 
     const Entry* lookupEntry(const UniqueID64& id) const;
-    const Entry* lookupEntry(const std::string& name) const;
+    const Entry* lookupEntry(std::string_view name) const;
     std::string bestEntryName(const Entry& entry, bool& named) const;
 
     typedef UniqueID64 IDType;

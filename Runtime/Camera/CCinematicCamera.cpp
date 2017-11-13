@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CCinematicCamera::CCinematicCamera(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CCinematicCamera::CCinematicCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, bool active, float shotDuration, float fovy, float znear,
                                    float zfar, float aspect, u32 w1)
 : CGameCamera(uid, active, name, info, xf, fovy, znear, zfar, aspect, kInvalidUniqueId, w1 & 0x20, 0), x21c_w1(w1)

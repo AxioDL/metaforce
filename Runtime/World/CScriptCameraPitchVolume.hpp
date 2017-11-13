@@ -26,7 +26,7 @@ class CScriptCameraPitchVolume : public CActor
     };
 
 public:
-    CScriptCameraPitchVolume(TUniqueId, bool, const std::string&, const CEntityInfo&, const zeus::CVector3f&,
+    CScriptCameraPitchVolume(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,
                              const zeus::CTransform&, const zeus::CRelAngle&, const zeus::CRelAngle&, float);
 
     void Accept(IVisitor& visitor);

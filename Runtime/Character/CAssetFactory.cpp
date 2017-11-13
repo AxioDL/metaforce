@@ -35,7 +35,7 @@ bool CCharacterFactoryBuilder::CDummyFactory::CanBuild(const SObjectTag&)
     return true;
 }
 
-const SObjectTag* CCharacterFactoryBuilder::CDummyFactory::GetResourceIdByName(const char*) const
+const SObjectTag* CCharacterFactoryBuilder::CDummyFactory::GetResourceIdByName(std::string_view) const
 {
     return nullptr;
 }
@@ -51,7 +51,7 @@ void CCharacterFactoryBuilder::CDummyFactory::EnumerateResources(
 }
 
 void CCharacterFactoryBuilder::CDummyFactory::EnumerateNamedResources(
-        const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const
+        const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const
 {
 }
 

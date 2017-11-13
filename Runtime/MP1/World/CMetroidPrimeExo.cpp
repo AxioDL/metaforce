@@ -146,7 +146,7 @@ SPrimeExoRoomParameters::SPrimeExoRoomParameters(CInputStream& in)
         x0_.push_back(in.readFloatBig());
 }
 
-CMetroidPrimeExo::CMetroidPrimeExo(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CMetroidPrimeExo::CMetroidPrimeExo(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                                    const CActorParameters& aParms, u32 pw1, const CCameraShakeData& shakeData1,
                                    const CCameraShakeData& shakeData2, const CCameraShakeData& shakeData3,

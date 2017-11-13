@@ -8,7 +8,7 @@
 namespace urde
 {
 
-CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                   bool active, const zeus::CVector3f& pos, CVisorFlare::EBlendMode blendMode,
                   bool b1, float f1, float f2, float f3, u32 w1, u32 w2,
                   const std::vector<CVisorFlare::CFlareDef>& flares)

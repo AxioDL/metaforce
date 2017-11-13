@@ -21,11 +21,11 @@ public:
         void BuildAsync(const SObjectTag&, const CVParamTransfer&, std::unique_ptr<IObj>*, CObjectReference* selfRef);
         void CancelBuild(const SObjectTag&);
         bool CanBuild(const SObjectTag&);
-        const SObjectTag* GetResourceIdByName(const char*) const;
+        const SObjectTag* GetResourceIdByName(std::string_view) const;
         FourCC GetResourceTypeById(CAssetId id) const;
 
         void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
-        void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
+        void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const;
 
         u32 ResourceSize(const urde::SObjectTag& tag);
         std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target);

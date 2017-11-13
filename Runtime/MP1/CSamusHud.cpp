@@ -1769,7 +1769,7 @@ zeus::CTransform CSamusHud::BuildFinalCameraTransform(const zeus::CQuaternion& r
     return zeus::CTransform(invRot, invRot.transform(camPos - pos) + pos);
 }
 
-void CSamusHud::SetMessage(const std::u16string& text, const CHUDMemoParms& info)
+void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info)
 {
     bool isWidgetVisible = x598_base_basewidget_message->GetIsVisible();
     if (!isWidgetVisible || info.x6_hintMemo)
@@ -1799,7 +1799,7 @@ void CSamusHud::SetMessage(const std::u16string& text, const CHUDMemoParms& info
         }
         else
         {
-            x59c_base_textpane_message->TextSupport().AddText(std::u16string(u"\n") + text);
+            x59c_base_textpane_message->TextSupport().AddText(std::u16string(u"\n") + text.data());
         }
 
         x59c_base_textpane_message->SetColor(zeus::CColor::skWhite);

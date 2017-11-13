@@ -470,14 +470,14 @@ bool FRME::Extract(const SpecBase &dataSpec,
 
                 if (resPath.size())
                 {
-                    hecl::SystemUTF8View resPathView(resPath);
+                    hecl::SystemUTF8Conv resPathView(resPath);
                     os.format("if '%s' in bpy.data.images:\n"
                               "    image = bpy.data.images['%s']\n"
                               "else:\n"
                               "    image = bpy.data.images.load('''//%s''')\n"
                               "    image.name = '%s'\n",
                               texName.c_str(), texName.c_str(),
-                              resPathView.str().c_str(), texName.c_str());
+                              resPathView.c_str(), texName.c_str());
                 }
                 else
                 {
@@ -535,7 +535,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
         os.format("frme_obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
                   "frme_obj.pass_index = %d\n"
                   "parentName = '%s'\n"
-                  "frme_obj.retro_widget_type = 'RETRO_%s'\n"
+                  "frme_obj.retro_widget_type = 'RETRO_%.4s'\n"
                   "frme_obj.retro_widget_use_anim_controller = %s\n"
                   "frme_obj.retro_widget_default_visible = %s\n"
                   "frme_obj.retro_widget_default_active = %s\n"
@@ -549,7 +549,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                   "else:\n"
                   "    frme_obj.parent = bpy.data.objects[parentName]\n",
                   w.header.name.c_str(), pIdx++, w.header.parent.c_str(),
-                  w.type.toString().c_str(),
+                  w.type.getChars(),
                   w.header.useAnimController ? "True" : "False",
                   w.header.defaultVisible ? "True" : "False",
                   w.header.defaultActive ? "True" : "False",
@@ -566,7 +566,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
             hecl::ProjectPath modelPath = pakRouter.getWorking(info->model);
             const PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
 
-            os.linkBlend(modelPath.getAbsolutePathUTF8().c_str(),
+            os.linkBlend(modelPath.getAbsolutePathUTF8().data(),
                          pakRouter.getBestEntryName(*cmdlE).c_str(), true);
 
             os.format("frme_obj.retro_model_light_mask = %d\n", info->lightMask);
@@ -622,7 +622,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                           info->scaleCenter.vec[0],
                           info->scaleCenter.vec[1],
                           info->scaleCenter.vec[2],
-                          fontPath.getRelativePathUTF8().c_str(),
+                          fontPath.getRelativePathUTF8().data(),
                           info->wordWrap ? "True" : "False",
                           info->horizontal ? "True" : "False",
                           info->fillColor.vec[0],
@@ -635,7 +635,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                           info->outlineColor.vec[3],
                           info->blockExtent.vec[0],
                           info->blockExtent.vec[1],
-                          jpFontPath.getRelativePathUTF8().c_str(),
+                          jpFontPath.getRelativePathUTF8().data(),
                           info->jpnPointScale[0],
                           info->jpnPointScale[1],
                           int(info->justification),
@@ -683,7 +683,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                 hecl::ProjectPath txtrPath = pakRouter.getWorking(info->texture);
                 if (txtrPath)
                     os.format("frme_obj.retro_energybar_texture_path = '%s'\n",
-                              txtrPath.getRelativePathUTF8().c_str());
+                              txtrPath.getRelativePathUTF8().data());
             }
         }
         else if (w.type == SBIG('METR'))

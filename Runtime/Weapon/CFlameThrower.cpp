@@ -8,7 +8,7 @@ namespace urde
 {
 const zeus::CVector3f CFlameThrower::kLightOffset(0, 3.f, 2.f);
 
-CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, const std::string& name, EWeaponType wType,
+CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                              const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                              const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner,
                              EProjectileAttrib attribs, u32 w2, s16 sId, u32 w3)

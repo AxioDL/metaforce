@@ -3,7 +3,7 @@
 
 namespace urde
 {
-CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, const std::string& name, const CEntityInfo& info, s32 animId,
+CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId,
                                            bool b1, float f1, bool b2, u32 w2, bool active, float totalPlayback)
 : CEntity(uid, info, active, name)
 , x34_animationId(animId)

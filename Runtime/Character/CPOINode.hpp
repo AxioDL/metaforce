@@ -33,12 +33,12 @@ protected:
     u32 x30_charIdx = -1;
     u32 x34_flags;
 public:
-    CPOINode(const std::string& name, EPOIType type, const CCharAnimTime& time,
+    CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time,
              u32 index, bool, float weight, u32 charIdx, u32 flags);
     CPOINode(CInputStream& in);
     virtual ~CPOINode() = default;
 
-    const std::string& GetString() const {return x8_name;}
+    std::string_view GetString() const {return x8_name;}
     const CCharAnimTime& GetTime() const {return x1c_time;}
     void SetTime(const CCharAnimTime& time) { x1c_time = time; }
     EPOIType GetPoiType() const { return x18_type; }

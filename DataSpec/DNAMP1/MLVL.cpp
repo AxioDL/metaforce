@@ -90,7 +90,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         if (!areaPath.isFile())
             continue;
 
-        Log.report(logvisor::Info, _S("Visiting %s"), area.path.getRelativePath().c_str());
+        Log.report(logvisor::Info, _S("Visiting %s"), area.path.getRelativePath().data());
 
         hecl::ProjectPath memRelayPath(area.path, _S("/!memoryrelays.yaml"));
 
@@ -277,8 +277,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 }
             }
 
-            hecl::SystemUTF8View layerU8(layerName);
-            mlvl.layerNames.push_back(layerU8.str());
+            hecl::SystemUTF8Conv layerU8(layerName);
+            mlvl.layerNames.emplace_back(layerU8.str());
             nameOffset += layerName.size() + 1;
 
             MLVL::LayerFlags& thisLayFlags = mlvl.layerFlags.back();

@@ -6,7 +6,7 @@
 
 namespace urde
 {
-CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>&, const std::string& name,
+CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>&, std::string_view name,
                                  EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes matType,
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
@@ -72,7 +72,7 @@ void CGameProjectile::DeleteProjectileLight(CStateManager& mgr)
     }
 }
 
-void CGameProjectile::CreateProjectileLight(const std::string& name, const CLight& light, CStateManager& mgr)
+void CGameProjectile::CreateProjectileLight(std::string_view name, const CLight& light, CStateManager& mgr)
 {
     DeleteProjectileLight(mgr);
     x2c8_projectileLight = mgr.AllocateUniqueId();

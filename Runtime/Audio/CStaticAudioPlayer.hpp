@@ -57,9 +57,9 @@ class CStaticAudioPlayer
     std::unique_ptr<boo::IAudioVoice> m_voice;
 
 public:
-    CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, const std::string& path,
+    CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path,
                        int loopStart, int loopEnd);
-    CStaticAudioPlayer(const std::string& path,
+    CStaticAudioPlayer(std::string_view path,
                        int loopStart, int loopEnd)
     : CStaticAudioPlayer(*CAudioSys::GetVoiceEngine(), path, loopStart, loopEnd) {}
 

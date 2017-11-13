@@ -20,7 +20,7 @@ private:
     float xec_time = 0.f;
 
 public:
-    CScriptTargetingPoint(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool);
+    CScriptTargetingPoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);

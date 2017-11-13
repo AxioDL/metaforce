@@ -130,7 +130,7 @@ public:
     template <class IDType>
     static hecl::ProjectPath TranslatePakIdToPath(const IDType& id, bool silenceWarnings=false);
     template <class IDType>
-    static hecl::ProjectPath MakePathFromString(const std::string& str);
+    static hecl::ProjectPath MakePathFromString(std::string_view str);
     template <class IDType>
     static void TransformOldHashToNewHash(IDType& id);
 

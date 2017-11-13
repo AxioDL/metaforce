@@ -16,14 +16,14 @@ class CScriptStreamedMusic : public CEntity
     float x48_fadeIn;
     float x4c_fadeOut;
     u32 x50_volume;
-    static bool IsDSPFile(const std::string& fileName);
+    static bool IsDSPFile(std::string_view fileName);
     void StopStream(CStateManager& mgr);
     void StartStream(CStateManager& mgr);
     void TweakOverride(CStateManager& mgr);
 
 public:
-    CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, const std::string& name,
-                         bool active, const std::string& fileName, bool noStopOnDeactivate,
+    CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, std::string_view name,
+                         bool active, std::string_view fileName, bool noStopOnDeactivate,
                          float fadeIn, float fadeOut, u32 volume, bool loop, bool music);
 
     void Stop(CStateManager& mgr);

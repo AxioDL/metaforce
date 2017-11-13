@@ -10,7 +10,7 @@ class CThardusRockProjectile : public CPatterned
 {
 public:
     static constexpr ECharacter CharacterType = ECharacter::ThardusRockProjectile;
-    CThardusRockProjectile(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CThardusRockProjectile(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                            const zeus::CTransform& xf, CModelData&& modelData, const CActorParameters& aParms,
                            const CPatternedInfo& patternedInfo, const std::vector<CModelData>& mDataVec, u32);
 };

@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CScriptControllerAction::CScriptControllerAction(TUniqueId uid, const std::string& name,
+CScriptControllerAction::CScriptControllerAction(TUniqueId uid, std::string_view name,
                                                  const CEntityInfo& info, bool active,
                                                  ControlMapper::ECommands command, bool mapScreenResponse, u32 w1, bool deactivateOnClose)
 : CEntity(uid, info, active, name), x34_command(command), x38_mapScreenSubaction(w1)

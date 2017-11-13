@@ -12,7 +12,7 @@ CMaterialList MakeMaterialList()
                          EMaterialTypes::ExcludeFromLineOfSightTest);
 }
 
-CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info,
+CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                                      const zeus::CVector3f&, const zeus::CTransform& xf, u32, const CAnimRes&, u32, u32,
                                      u32, u32, u32, u32, const CDamageInfo&, const CDamageInfo&, float, float, float,
                                      float, u32, u32, float, float, float, float, float, float, float, float, float,

@@ -4,7 +4,7 @@
 
 namespace urde
 {
-CScriptSwitch::CScriptSwitch(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool active, bool opened,
+CScriptSwitch::CScriptSwitch(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active, bool opened,
                              bool closeOnOpened)
 : CEntity(uid, info, active, name), x34_opened(opened), x35_closeOnOpened(closeOnOpened)
 {

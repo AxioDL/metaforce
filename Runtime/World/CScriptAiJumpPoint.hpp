@@ -23,7 +23,7 @@ private:
     float x110_timeRemaining = 0.f;
 
 public:
-    CScriptAiJumpPoint(TUniqueId, const std::string&, const CEntityInfo&, zeus::CTransform&, bool, float);
+    CScriptAiJumpPoint(TUniqueId, std::string_view, const CEntityInfo&, zeus::CTransform&, bool, float);
 
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);

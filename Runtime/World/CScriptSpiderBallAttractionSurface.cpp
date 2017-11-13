@@ -6,7 +6,7 @@ namespace urde
 {
 
 CScriptSpiderBallAttractionSurface::CScriptSpiderBallAttractionSurface(
-    TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    TUniqueId uid, std::string_view name, const CEntityInfo& info,
     const zeus::CTransform& xf, const zeus::CVector3f& scale, bool active)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::Unknown},
          CActorParameters::None(), kInvalidUniqueId), xe8_scale(scale),

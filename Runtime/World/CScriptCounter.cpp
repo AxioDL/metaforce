@@ -5,7 +5,7 @@
 namespace urde
 {
 
-CScriptCounter::CScriptCounter(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptCounter::CScriptCounter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                s32 initial, s32 max, bool autoReset, bool active)
 : CEntity(uid, info, active, name)
 , x34_initial(initial)

@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, bool b1,
+CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool b1,
                                        bool skipSendActive, bool ignoreMessages)
     : CEntity(uid, info, true, name),
       x34_24_(b1),

@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CScriptCameraHint::CScriptCameraHint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptCameraHint::CScriptCameraHint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, bool active, s32 priority,
                                      CBallCamera::EBallCameraBehaviour behaviour, u32 overrideFlags, float minDist,
                                      float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,

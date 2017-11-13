@@ -25,7 +25,7 @@ private:
     EControl x40_ctrl;
     EControlCommandOption x44_ctrlCmdOpt;
 public:
-    CScriptPlayerStateChange(TUniqueId, const std::string&, const CEntityInfo&, bool, u32, u32, u32, EControl,
+    CScriptPlayerStateChange(TUniqueId, std::string_view, const CEntityInfo&, bool, u32, u32, u32, EControl,
                              EControlCommandOption);
     void Accept(IVisitor& visit);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

@@ -17,6 +17,8 @@
 namespace DataSpec
 {
 
+using namespace std::literals;
+
 static logvisor::Module Log("urde::SpecMP2");
 extern hecl::Database::DataSpecEntry SpecEntMP2;
 extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
@@ -53,8 +55,8 @@ struct SpecMP2 : SpecBase
         for (const nod::Node& child : root)
         {
             bool isPak = false;
-            const std::string& name = child.getName();
-            std::string lowerName = name;
+            auto name = child.getName();
+            std::string lowerName(name);
             std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
             if (name.size() > 4)
             {
@@ -87,7 +89,7 @@ struct SpecMP2 : SpecBase
                         {
                             for (const hecl::SystemString& arg : args)
                             {
-                                std::string lowerArg = hecl::SystemUTF8View(arg).str();
+                                std::string lowerArg(hecl::SystemUTF8Conv(arg).str());
                                 std::transform(lowerArg.begin(), lowerArg.end(), lowerArg.begin(), tolower);
                                 if (!lowerArg.compare(0, lowerBase.size(), lowerBase))
                                     good = true;
@@ -106,7 +108,7 @@ struct SpecMP2 : SpecBase
         /* Sort PAKs alphabetically */
         m_orderedPaks.clear();
         for (DNAMP2::PAKBridge& dpak : m_paks)
-            m_orderedPaks[dpak.getName()] = &dpak;
+            m_orderedPaks[std::string(dpak.getName())] = &dpak;
 
         /* Assemble extract report */
         for (const std::pair<std::string, DNAMP2::PAKBridge*>& item : m_orderedPaks)
@@ -115,8 +117,8 @@ struct SpecMP2 : SpecBase
                 continue;
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
-            hecl::SystemStringView nameView(item.first);
-            childRep.name = nameView;
+            hecl::SystemStringConv nameView(item.first);
+            childRep.name = hecl::SystemString(nameView.sys_str());
             childRep.desc = item.second->getLevelString();
         }
     }
@@ -138,7 +140,7 @@ struct SpecMP2 : SpecBase
         rep.name = _S("MP2");
         rep.desc = _S("Metroid Prime 2 ") + regstr;
         std::string buildStr(buildInfo);
-        hecl::SystemStringView buildView(buildStr);
+        hecl::SystemStringConv buildView(buildStr);
         rep.desc += _S(" (") + buildView + _S(")");
 
         /* Iterate PAKs and build level options */
@@ -201,7 +203,7 @@ struct SpecMP2 : SpecBase
         if (buildInfo)
         {
             std::string buildStr(buildInfo);
-            hecl::SystemStringView buildView(buildStr);
+            hecl::SystemStringConv buildView(buildStr);
             rep.desc += _S(" (") + buildView + _S(")");
         }
 
@@ -237,8 +239,8 @@ struct SpecMP2 : SpecBase
         mp2OutPath.makeDir();
         progress(_S("MP2 Root"), _S(""), 3, 0.0);
         int prog = 0;
-        ctx.progressCB = [&](const std::string& name, float) {
-            hecl::SystemStringView nameView(name);
+        ctx.progressCB = [&](std::string_view name, float) {
+            hecl::SystemStringConv nameView(name);
             progress(_S("MP2 Root"), nameView.c_str(), 3, prog);
         };
         for (const nod::Node* node : m_nonPaks)
@@ -258,14 +260,14 @@ struct SpecMP2 : SpecBase
             if (!pak.m_doExtract)
                 continue;
 
-            const std::string& name = pak.getName();
-            hecl::SystemStringView sysName(name);
+            auto name = pak.getName();
+            hecl::SystemStringConv sysName(name);
 
             {
                 std::unique_lock<std::mutex> lk(msgLock);
                 progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
-            hecl::SystemString pakName = sysName.sys_str();
+            hecl::SystemString pakName = hecl::SystemString(sysName.sys_str());
             process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
             {
                 m_pakRouter.extractResources(pak, force, btok,
@@ -405,16 +407,16 @@ struct SpecMP2 : SpecBase
 
 hecl::Database::DataSpecEntry SpecEntMP2
 (
-    _S("MP2"),
-    _S("Data specification for original Metroid Prime 2 engine"),
+    _S("MP2"sv),
+    _S("Data specification for original Metroid Prime 2 engine"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
     -> hecl::Database::IDataSpec* {return new struct SpecMP2(&SpecEntMP2, project, false);}
 );
 
 hecl::Database::DataSpecEntry SpecEntMP2PC =
 {
-    _S("MP2-PC"),
-    _S("Data specification for PC-optimized Metroid Prime 2 engine"),
+    _S("MP2-PC"sv),
+    _S("Data specification for PC-optimized Metroid Prime 2 engine"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
     -> hecl::Database::IDataSpec*
     {
@@ -426,8 +428,8 @@ hecl::Database::DataSpecEntry SpecEntMP2PC =
 
 hecl::Database::DataSpecEntry SpecEntMP2ORIG =
 {
-    _S("MP2-ORIG"),
-    _S("Data specification for unmodified Metroid Prime 2 resources"),
+    _S("MP2-ORIG"sv),
+    _S("Data specification for unmodified Metroid Prime 2 resources"sv),
     {}
 };
 

@@ -4,7 +4,7 @@
 
 namespace urde
 {
-CRepulsor::CRepulsor(TUniqueId uid, bool active, const std::string& name, const CEntityInfo& info,
+CRepulsor::CRepulsor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                      const zeus::CVector3f& pos, float radius)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)

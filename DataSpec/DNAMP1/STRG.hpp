@@ -19,7 +19,7 @@ struct STRG : ISTRG
     std::vector<std::pair<FourCC, std::vector<std::u16string>>> langs;
     std::unordered_map<FourCC, std::vector<std::u16string>*> langMap;
 
-    int32_t lookupIdx(const std::string& name) const {return -1;}
+    int32_t lookupIdx(std::string_view name) const {return -1;}
 
     size_t count() const
     {

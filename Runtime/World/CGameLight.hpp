@@ -14,7 +14,7 @@ class CGameLight : public CActor
     float x144_lifeTime;
 
 public:
-    CGameLight(TUniqueId, TAreaId, bool, const std::string&, const zeus::CTransform&, TUniqueId, const CLight&, u32,
+    CGameLight(TUniqueId, TAreaId, bool, std::string_view, const zeus::CTransform&, TUniqueId, const CLight&, u32,
                u32, float);
 
     void Accept(IVisitor &visitor);

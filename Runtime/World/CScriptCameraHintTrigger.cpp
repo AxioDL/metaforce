@@ -5,7 +5,7 @@
 namespace urde
 {
 
-CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, const std::string& name,
+CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
                                                    const zeus::CTransform& xf, bool b2, bool b3)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),

@@ -10,15 +10,15 @@ static std::unordered_map<std::string, TLockedToken<CAudioGroupSet>> mpGroupSetD
 static std::unordered_map<CAssetId, std::string> mpGroupSetResNameDB;
 static const std::string mpDefaultInvalidString = "NULL";
 
-TLockedToken<CAudioGroupSet> CAudioSys::FindGroupSet(const std::string& name)
+TLockedToken<CAudioGroupSet> CAudioSys::FindGroupSet(std::string_view name)
 {
-    auto search = mpGroupSetDB.find(name);
+    auto search = mpGroupSetDB.find(name.data());
     if (search == mpGroupSetDB.cend())
         return {};
     return search->second;
 }
 
-const std::string& CAudioSys::SysGetGroupSetName(CAssetId id)
+std::string_view CAudioSys::SysGetGroupSetName(CAssetId id)
 {
     auto search = mpGroupSetResNameDB.find(id);
     if (search == mpGroupSetResNameDB.cend())
@@ -41,7 +41,7 @@ bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, CAssetId id)
     }
 }
 
-bool CAudioSys::SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const std::string& name, CAssetId id)
+bool CAudioSys::SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, std::string_view name, CAssetId id)
 {
     if (!FindGroupSet(name))
     {
@@ -55,28 +55,28 @@ bool CAudioSys::SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, const s
     }
 }
 
-void CAudioSys::SysUnloadAudioGroupSet(const std::string& name)
+void CAudioSys::SysUnloadAudioGroupSet(std::string_view name)
 {
     auto set = FindGroupSet(name);
     if (!set)
         return;
 
-    mpGroupSetDB.erase(name);
+    mpGroupSetDB.erase(name.data());
     mpGroupSetResNameDB.erase(set.GetObjectTag()->id);
 }
 
-bool CAudioSys::SysIsGroupSetLoaded(const std::string& name)
+bool CAudioSys::SysIsGroupSetLoaded(std::string_view name)
 {
     return FindGroupSet(name).operator bool();
 }
 
-void CAudioSys::SysAddGroupIntoAmuse(const std::string& name)
+void CAudioSys::SysAddGroupIntoAmuse(std::string_view name)
 {
     if (auto set = FindGroupSet(name))
         AddAudioGroup(set->GetAudioGroupData());
 }
 
-void CAudioSys::SysRemoveGroupFromAmuse(const std::string& name)
+void CAudioSys::SysRemoveGroupFromAmuse(std::string_view name)
 {
     if (auto set = FindGroupSet(name))
         RemoveAudioGroup(set->GetAudioGroupData());

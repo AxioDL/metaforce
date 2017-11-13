@@ -13,7 +13,7 @@ class CScriptPickupGenerator : public CEntity
     float x44_ = 0.f;
     void sub8015E220();
 public:
-    CScriptPickupGenerator(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CVector3f&, float, bool);
+    CScriptPickupGenerator(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, float, bool);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);

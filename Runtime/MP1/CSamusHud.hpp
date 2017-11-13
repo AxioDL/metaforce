@@ -267,16 +267,16 @@ public:
     static zeus::CTransform BuildFinalCameraTransform(const zeus::CQuaternion& rot,
                                                       const zeus::CVector3f& pos,
                                                       const zeus::CVector3f& camPos);
-    static void DisplayHudMemo(const std::u16string& text, const CHUDMemoParms& info)
+    static void DisplayHudMemo(std::u16string_view text, const CHUDMemoParms& info)
     {
         if (g_SamusHud)
             g_SamusHud->InternalDisplayHudMemo(text, info);
     }
-    void InternalDisplayHudMemo(const std::u16string& text, const CHUDMemoParms& info)
+    void InternalDisplayHudMemo(std::u16string_view text, const CHUDMemoParms& info)
     {
         SetMessage(text, info);
     }
-    void SetMessage(const std::u16string& text, const CHUDMemoParms& info);
+    void SetMessage(std::u16string_view text, const CHUDMemoParms& info);
     static void DeferHintMemo(CAssetId strg, u32 strgIdx, const CHUDMemoParms& info)
     {
         if (g_SamusHud)

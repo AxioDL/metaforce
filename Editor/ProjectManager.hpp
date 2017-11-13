@@ -21,8 +21,8 @@ class ProjectResourcePool : public CSimplePool
 public:
     ProjectResourcePool(IFactory& factory, ProjectManager& parent)
     : CSimplePool(factory), m_parent(parent) {}
-    CToken GetObj(const char*);
-    CToken GetObj(const char*, const CVParamTransfer&);
+    CToken GetObj(std::string_view);
+    CToken GetObj(std::string_view, const CVParamTransfer&);
 };
 
 class ProjectManager
@@ -45,12 +45,12 @@ public:
     ProjectResourcePool& objectStore() {return m_objStore;}
     ProjectResourceFactoryMP1& resourceFactoryMP1() {return m_factoryMP1;}
     MP1::CMain* gameMain() {return m_mainMP1 ? &*m_mainMP1 : nullptr;}
-    SObjectTag TagFromPath(const hecl::SystemChar* path) const
+    SObjectTag TagFromPath(hecl::SystemStringView path) const
     { return m_factoryMP1.ProjectResourceFactoryBase::TagFromPath(path); }
 
-    bool newProject(const hecl::SystemString& path);
-    bool openProject(const hecl::SystemString& path);
-    bool extractGame(const hecl::SystemString& path);
+    bool newProject(hecl::SystemStringView path);
+    bool openProject(hecl::SystemStringView path);
+    bool extractGame(hecl::SystemStringView path);
     bool saveProject();
 
     void mainUpdate();

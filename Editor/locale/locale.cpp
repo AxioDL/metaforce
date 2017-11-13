@@ -18,27 +18,29 @@ extern "C" size_t L_ja_JP_SZ;
 namespace urde
 {
 
+using namespace std::literals;
+
 static const specter::Locale Locales[] =
 {
-    {"en_US", "US English", L_en_US, L_en_US_SZ},
-    {"en_GB", "British English", L_en_GB, L_en_GB_SZ},
-    {"ja_JP", "Japanese", L_ja_JP, L_ja_JP_SZ}
+    {"en_US"sv, "US English"sv, L_en_US, L_en_US_SZ},
+    {"en_GB"sv, "British English"sv, L_en_GB, L_en_GB_SZ},
+    {"ja_JP"sv, "Japanese"sv, L_ja_JP, L_ja_JP_SZ}
 };
 
-std::vector<std::pair<const std::string*, const std::string*>> ListLocales()
+std::vector<std::pair<std::string_view, std::string_view>> ListLocales()
 {
     constexpr size_t localeCount = std::extent<decltype(Locales)>::value;
-    std::vector<std::pair<const std::string*, const std::string*>> ret;
+    std::vector<std::pair<std::string_view, std::string_view>> ret;
     ret.reserve(localeCount);
     for (size_t i=0 ; i<localeCount ; ++i)
     {
         const specter::Locale& l = Locales[i];
-        ret.emplace_back(&l.name(), &l.fullName());
+        ret.emplace_back(l.name(), l.fullName());
     }
     return ret;
 }
 
-const specter::Locale* LookupLocale(const std::string& name)
+const specter::Locale* LookupLocale(std::string_view name)
 {
     constexpr size_t localeCount = std::extent<decltype(Locales)>::value;
     for (size_t i=0 ; i<localeCount ; ++i)

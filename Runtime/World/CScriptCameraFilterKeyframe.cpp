@@ -4,7 +4,7 @@
 
 namespace urde
 {
-CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, const std::string& name,
+CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(TUniqueId uid, std::string_view name,
                                                          const CEntityInfo& info, EFilterType type, EFilterShape shape,
                                                          u32 filterIdx, u32 unk, const zeus::CColor& color,
                                                          float timeIn, float timeOut, CAssetId txtr, bool active)

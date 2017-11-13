@@ -503,10 +503,10 @@ public:
         x70_24_unclaimed = true;
     }
 
-    CDSPStreamManager(const std::string& fileName, u32 handle, float volume, bool oneshot)
+    CDSPStreamManager(std::string_view fileName, u32 handle, float volume, bool oneshot)
     : x60_fileName(fileName), x73_volume(volume), x74_oneshot(oneshot), x78_handleId(handle)
     {
-        if (!CDvdFile::FileExists(fileName.c_str()))
+        if (!CDvdFile::FileExists(fileName))
             x70_24_unclaimed = true;
     }
 
@@ -771,7 +771,7 @@ public:
         m_dvdReq.reset();
     }
 
-    static u32 StartStreaming(const std::string& fileName, float volume, bool oneshot)
+    static u32 StartStreaming(std::string_view fileName, float volume, bool oneshot)
     {
         auto pipePos = fileName.find('|');
         if (pipePos == std::string::npos)
@@ -951,7 +951,7 @@ struct SDSPPlayer
     bool x28_music = true;
 
     SDSPPlayer() = default;
-    SDSPPlayer(EPlayerState playing, const std::string& fileName, float volume,
+    SDSPPlayer(EPlayerState playing, std::string_view fileName, float volume,
                float fadeIn, float fadeOut, u32 handle, bool music)
     : x0_fileName(fileName), x10_playState(playing), x14_volume(volume),
       x18_fadeIn(fadeIn), x1c_fadeOut(fadeOut), x20_internalHandle(handle), x28_music(music) {}
@@ -967,7 +967,7 @@ float CStreamAudioManager::GetTargetDSPVolume(float fileVol, bool music)
         return g_SfxUnmute ? (g_SfxVolume * fileVol / 127.f) : 0.f;
 }
 
-void CStreamAudioManager::Start(bool oneshot, const std::string& fileName,
+void CStreamAudioManager::Start(bool oneshot, std::string_view fileName,
                                 u8 volume, bool music, float fadeIn, float fadeOut)
 {
     float fvol = volume / 127.f;
@@ -1022,7 +1022,7 @@ void CStreamAudioManager::Start(bool oneshot, const std::string& fileName,
     }
 }
 
-void CStreamAudioManager::Stop(bool oneshot, const std::string& fileName)
+void CStreamAudioManager::Stop(bool oneshot, std::string_view fileName)
 {
     SDSPPlayer& p = s_Players[oneshot];
     SDSPPlayer& qp = s_QueuedPlayers[oneshot];

@@ -7,7 +7,7 @@
 namespace urde
 {
 
-CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CTransform& xf, bool active, const zeus::CVector3f& offset,
                                                bool b2, float scale, float f2, float opacity, float opacityQ,
                                                s32 textureSize)

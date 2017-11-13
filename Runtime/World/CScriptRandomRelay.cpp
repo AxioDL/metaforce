@@ -4,7 +4,7 @@
 
 namespace urde
 {
-CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, const std::string& name, const CEntityInfo& info, s32 connCount, s32 variance,
+CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 connCount, s32 variance,
                                        bool clamp, bool active)
     : CEntity(uid, info, active, name),
       x34_connectionCount((clamp && connCount > 100) ? 100 : connCount),

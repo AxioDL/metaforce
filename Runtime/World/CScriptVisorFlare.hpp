@@ -13,7 +13,7 @@ class CScriptVisorFlare : public CActor
     bool x11c_notInRenderLast = true;
 
 public:
-    CScriptVisorFlare(TUniqueId, const std::string& name, const CEntityInfo& info,
+    CScriptVisorFlare(TUniqueId, std::string_view name, const CEntityInfo& info,
                       bool, const zeus::CVector3f&, CVisorFlare::EBlendMode blendMode,
                       bool, float, float, float, u32, u32,
                       const std::vector<CVisorFlare::CFlareDef>& flares);

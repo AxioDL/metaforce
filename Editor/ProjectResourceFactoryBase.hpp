@@ -150,7 +150,7 @@ public:
     void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, std::unique_ptr<urde::IObj>*, CObjectReference* selfRef);
     void CancelBuild(const urde::SObjectTag&);
     bool CanBuild(const urde::SObjectTag&);
-    const urde::SObjectTag* GetResourceIdByName(const char*) const;
+    const urde::SObjectTag* GetResourceIdByName(std::string_view) const;
     FourCC GetResourceTypeById(CAssetId id) const;
     hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const
     {
@@ -158,7 +158,7 @@ public:
     }
 
     void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
-    void EnumerateNamedResources(const std::function<bool(const std::string&, const SObjectTag&)>& lambda) const;
+    void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const;
 
     u32 ResourceSize(const SObjectTag& tag);
     std::shared_ptr<urde::IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target);
@@ -174,7 +174,7 @@ public:
     void Shutdown() { CancelBackgroundIndex(); }
     bool IsBusy() const { return m_asyncLoadMap.size() != 0; }
 
-    SObjectTag TagFromPath(const hecl::SystemChar* path) const
+    SObjectTag TagFromPath(hecl::SystemStringView path) const
     {
         return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path),
                            hecl::SharedBlenderToken);

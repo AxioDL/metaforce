@@ -16,7 +16,7 @@ static CMaterialList MakePlatformMaterialList()
     return ret;
 }
 
-CScriptPlatform::CScriptPlatform(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                  const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                                  const zeus::CAABox& aabb, float f1, bool, float f2, bool active,
                                  const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,

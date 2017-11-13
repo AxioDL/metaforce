@@ -108,9 +108,9 @@ public:
         }
         return -1;
     }
-    void SetUIOpts(const std::u16string& opt0,
-                   const std::u16string& opt1,
-                   const std::u16string& opt2)
+    void SetUIOpts(std::u16string_view opt0,
+                   std::u16string_view opt1,
+                   std::u16string_view opt2)
     {
         m_touchBar->_opts[0] = opt0.size() ? [NSString stringWithUTF8String:hecl::Char16ToUTF8(opt0).c_str()] : nil;
         m_touchBar->_opts[1] = opt1.size() ? [NSString stringWithUTF8String:hecl::Char16ToUTF8(opt1).c_str()] : nil;

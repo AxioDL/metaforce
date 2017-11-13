@@ -19,7 +19,7 @@ class CScriptMidi : public CEntity
     void StopInternal(float fadeTime);
 
 public:
-    CScriptMidi(TUniqueId id, const CEntityInfo& info, const std::string& name,
+    CScriptMidi(TUniqueId id, const CEntityInfo& info, std::string_view name,
                 bool active, CAssetId csng, float, float, s32);
 
     void Stop(CStateManager& mgr, float fadeTime);

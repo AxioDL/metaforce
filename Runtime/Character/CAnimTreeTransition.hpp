@@ -20,9 +20,9 @@ public:
                                            float);
 
     CAnimTreeTransition(bool, const std::weak_ptr<CAnimTreeNode>&, const std::weak_ptr<CAnimTreeNode>&,
-                        const CCharAnimTime&, const CCharAnimTime&, bool, bool, int, const std::string&, bool);
+                        const CCharAnimTime&, const CCharAnimTime&, bool, bool, int, std::string_view, bool);
     CAnimTreeTransition(bool, const std::weak_ptr<CAnimTreeNode>&, const std::weak_ptr<CAnimTreeNode>&,
-                        const CCharAnimTime&, bool, int, const std::string&);
+                        const CCharAnimTime&, bool, int, std::string_view);
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
     CCharAnimTime VGetTimeRemaining() const;
     CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;

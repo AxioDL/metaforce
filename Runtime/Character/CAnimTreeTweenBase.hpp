@@ -17,7 +17,7 @@ public:
     CAnimTreeTweenBase(bool,
                        const std::weak_ptr<CAnimTreeNode>& a,
                        const std::weak_ptr<CAnimTreeNode>& b,
-                       int, const std::string& name);
+                       int, std::string_view name);
 
     virtual void SetBlendingWeight(float w)=0;
     virtual float VGetBlendingWeight() const=0;

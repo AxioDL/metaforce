@@ -42,7 +42,7 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
     for (const auto& area : mlvl.areas)
     {
         const typename PAKRouter::EntryType* mreaEntry = pakRouter.lookupEntry(area.areaMREAId);
-        hecl::SystemUTF8View areaDirName(*mreaEntry->unique.m_areaName);
+        hecl::SystemUTF8Conv areaDirName(*mreaEntry->unique.m_areaName);
 
         os.AABBToBMesh(area.aabb[0], area.aabb[1]);
         os.format("box_mesh = bpy.data.meshes.new('''%s''')\n"
@@ -56,7 +56,7 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
                   "box.location = mtxd[0]\n"
                   "box.rotation_quaternion = mtxd[1]\n"
                   "box.scale = mtxd[2]\n",
-                  areaDirName.str().c_str(),
+                  areaDirName.str().data(),
                   area.transformMtx[0].vec[0], area.transformMtx[0].vec[1], area.transformMtx[0].vec[2], area.transformMtx[0].vec[3],
                   area.transformMtx[1].vec[0], area.transformMtx[1].vec[1], area.transformMtx[1].vec[2], area.transformMtx[1].vec[3],
                   area.transformMtx[2].vec[0], area.transformMtx[2].vec[1], area.transformMtx[2].vec[2], area.transformMtx[2].vec[3]);

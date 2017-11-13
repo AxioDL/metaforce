@@ -13,9 +13,9 @@ class CGuiWidgetIdDB
     s16 x14_lastPoolId = 0;
 public:
     CGuiWidgetIdDB();
-    s16 FindWidgetID(const std::string& name) const;
-    s16 AddWidget(const std::string& name, s16 id);
-    s16 AddWidget(const std::string& name);
+    s16 FindWidgetID(std::string_view name) const;
+    s16 AddWidget(std::string_view name, s16 id);
+    s16 AddWidget(std::string_view name);
 };
 
 }

@@ -4,18 +4,18 @@ namespace urde
 {
 static logvisor::Module Log("urde::CPakFile");
 
-CPakFile::CPakFile(const std::string& filename, bool buildDepList, bool worldPak)
-: CDvdFile(filename.c_str())
+CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak)
+: CDvdFile(filename)
 {
     if (!CDvdFile::operator bool())
-        Log.report(logvisor::Fatal, "%s: Unable to open", GetPath().c_str());
+        Log.report(logvisor::Fatal, "%s: Unable to open", GetPath().data());
     x28_24_buildDepList = buildDepList;
     x28_24_buildDepList = true; // Always do this so URDE can rapidly pre-warm shaders
     x28_26_worldPak = worldPak;
     x28_27_stashedInARAM = false;
 }
 
-const SObjectTag* CPakFile::GetResIdByName(const char* name) const
+const SObjectTag* CPakFile::GetResIdByName(std::string_view name) const
 {
     for (const std::pair<std::string, SObjectTag>& p : x54_nameList)
         if (!CStringExtras::CompareCaseInsensitive(p.first.c_str(), name))
@@ -65,7 +65,7 @@ void CPakFile::InitialHeaderLoad()
     if (version != 0x80030005)
     {
         Log.report(logvisor::Fatal, "%s: Incompatible pak file version -- Current version is %x, you're using %x",
-                   GetPath().c_str(), 0x80030005, version);
+                   GetPath().data(), 0x80030005, version);
         return;
     }
 

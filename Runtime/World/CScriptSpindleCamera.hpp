@@ -50,7 +50,7 @@ class CScriptSpindleCamera : public CGameCamera
     bool x32c_24 = false;
     zeus::CVector3f x330_lookDir;
 public:
-    CScriptSpindleCamera(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, bool active, u32 r9,
                          float f1, float f2, float f3, float f4, const SSpindleProperty& seg1,
                          const SSpindleProperty& seg2, const SSpindleProperty& seg3,

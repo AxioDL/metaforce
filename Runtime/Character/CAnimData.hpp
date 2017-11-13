@@ -190,9 +190,9 @@ public:
     void CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
                                     const std::shared_ptr<CAnimTreeNode>& node);
     zeus::CTransform GetLocatorTransform(CSegId id, const CCharAnimTime* time) const;
-    zeus::CTransform GetLocatorTransform(const std::string& name, const CCharAnimTime* time) const;
-    bool IsAnimTimeRemaining(float, const std::string& name) const;
-    float GetAnimTimeRemaining(const std::string& name) const;
+    zeus::CTransform GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const;
+    bool IsAnimTimeRemaining(float, std::string_view name) const;
+    float GetAnimTimeRemaining(std::string_view name) const;
     float GetAnimationDuration(int) const;
     bool GetIsLoop() const {return x220_25_loop;}
     void EnableLooping(bool val) {x220_25_loop = val; x220_24_animating = true;}
@@ -233,7 +233,7 @@ public:
                           const zeus::CVector3f&, CStateManager& stateMgr);
     float GetAverageVelocity(int animIn) const;
     void ResetPOILists();
-    CSegId GetLocatorSegId(const std::string& name) const;
+    CSegId GetLocatorSegId(std::string_view name) const;
     zeus::CAABox GetBoundingBox(const zeus::CTransform& xf) const;
     zeus::CAABox GetBoundingBox() const;
     void SubstituteModelData(const TCachedToken<CSkinnedModel>& model);
@@ -242,7 +242,7 @@ public:
     const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }
     const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
     CParticleDatabase& GetParticleDB() { return x120_particleDB; }
-    void SetParticleCEXTValue(const std::string& name, int idx, float value);
+    void SetParticleCEXTValue(std::string_view name, int idx, float value);
 
     u32 GetPassedBoolPOICount() const { return x20c_passedBoolCount; }
     u32 GetPassedIntPOICount() const { return x210_passedIntCount; }

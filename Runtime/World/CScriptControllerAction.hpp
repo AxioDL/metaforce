@@ -22,7 +22,7 @@ class CScriptControllerAction : public CEntity
         u8 _dummy = 0;
     };
 public:
-    CScriptControllerAction(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CScriptControllerAction(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                             bool active, ControlMapper::ECommands command, bool b1, u32 w1, bool b2);
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);

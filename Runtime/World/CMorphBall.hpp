@@ -173,7 +173,7 @@ private:
     float x1e48_damageEffectDecaySpeed = 0.f;
     float x1e4c_damageTime = 0.f;
     std::unique_ptr<CMorphBallShadow> x1e50_shadow;
-    void LoadAnimationTokens(const std::string& ancsName);
+    void LoadAnimationTokens(std::string_view ancsName);
     void InitializeWakeEffects();
     static std::unique_ptr<CModelData> GetMorphBallModel(const char* name, float radius);
     void SelectMorphBallSounds(const CMaterialList& mat);

@@ -121,8 +121,8 @@ void ViewManager::DismissSplash()
 ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr)
 : m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
   m_fontCache(fileMgr), m_translator(urde::SystemLocaleOrEnglish()),
-  m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().c_str())),
-  m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().c_str()))
+  m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().data())),
+  m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().data()))
 {
     Space::SpaceMenuNode::InitializeStrings(*this);
     char path[2048];
@@ -135,9 +135,9 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
         {
             std::string pathStr(path);
             pathStr.pop_back();
-            hecl::SystemStringView pathStrView(pathStr);
+            hecl::SystemStringConv pathStrView(pathStr);
             if (!hecl::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
-                m_recentProjects.push_back(pathStrView);
+                m_recentProjects.emplace_back(pathStrView.sys_str());
         }
         fclose(fp);
     }
@@ -149,9 +149,9 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
         {
             std::string pathStr(path);
             pathStr.pop_back();
-            hecl::SystemStringView pathStrView(pathStr);
+            hecl::SystemStringConv pathStrView(pathStr);
             if (!hecl::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
-                m_recentFiles.push_back(pathStrView);
+                m_recentFiles.emplace_back(pathStrView.sys_str());
         }
         fclose(fp);
     }
@@ -159,36 +159,36 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
 
 ViewManager::~ViewManager() {}
 
-void ViewManager::pushRecentProject(const hecl::SystemString& path)
+void ViewManager::pushRecentProject(hecl::SystemStringView path)
 {
     for (hecl::SystemString& testPath : m_recentProjects)
     {
         if (path == testPath)
             return;
     }
-    m_recentProjects.push_back(path);
+    m_recentProjects.emplace_back(path);
     FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _S("w"), hecl::FileLockType::Write);
     if (fp)
     {
         for (hecl::SystemString& pPath : m_recentProjects)
-            fprintf(fp, "%s\n", hecl::SystemUTF8View(pPath).c_str());
+            fprintf(fp, "%s\n", hecl::SystemUTF8Conv(pPath).c_str());
         fclose(fp);
     }
 }
 
-void ViewManager::pushRecentFile(const hecl::SystemString& path)
+void ViewManager::pushRecentFile(hecl::SystemStringView path)
 {
     for (hecl::SystemString& testPath : m_recentFiles)
     {
         if (path == testPath)
             return;
     }
-    m_recentFiles.push_back(path);
+    m_recentFiles.emplace_back(path);
     FILE* fp = hecl::Fopen(m_recentFilesPath.c_str(), _S("w"), hecl::FileLockType::Write);
     if (fp)
     {
         for (hecl::SystemString& pPath : m_recentFiles)
-            fprintf(fp, "%s\n", hecl::SystemUTF8View(pPath).c_str());
+            fprintf(fp, "%s\n", hecl::SystemUTF8Conv(pPath).c_str());
         fclose(fp);
     }}
 

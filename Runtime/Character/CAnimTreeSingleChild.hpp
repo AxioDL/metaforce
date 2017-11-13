@@ -11,7 +11,7 @@ class CAnimTreeSingleChild : public CAnimTreeNode
 protected:
     std::shared_ptr<CAnimTreeNode> x14_child;
 public:
-    CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, const std::string& name);
+    CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, std::string_view name);
 
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;

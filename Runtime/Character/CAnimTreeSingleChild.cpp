@@ -3,7 +3,7 @@
 namespace urde
 {
 
-CAnimTreeSingleChild::CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, const std::string& name)
+CAnimTreeSingleChild::CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, std::string_view name)
 : CAnimTreeNode(name)
 , x14_child(node.lock())
 {

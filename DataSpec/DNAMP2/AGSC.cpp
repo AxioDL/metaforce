@@ -44,7 +44,7 @@ bool AGSC::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
         return false;
 
     hecl::ProjectPath woExt = inPath.getWithExtension(nullptr, true);
-    std::string lastComp = woExt.getLastComponentUTF8();
+    std::string lastComp = std::string(woExt.getLastComponentUTF8());
     if (hecl::StringUtils::EndsWith(lastComp, "_AGSC"))
         lastComp.assign(lastComp.cbegin(), lastComp.cend() - 5);
 

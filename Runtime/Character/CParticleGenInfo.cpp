@@ -10,7 +10,7 @@
 namespace urde
 {
 
-CParticleGenInfo::CParticleGenInfo(const SObjectTag& part, int frameCount, const std::string& boneName,
+CParticleGenInfo::CParticleGenInfo(const SObjectTag& part, int frameCount, std::string_view boneName,
                                    const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
                                    int flags, EParticleGenState state)
 : x4_part(part)
@@ -40,7 +40,7 @@ static TUniqueId _initializeLight(const std::weak_ptr<CParticleGen>& system, CSt
 }
 
 CParticleGenInfoGeneric::CParticleGenInfoGeneric(const SObjectTag& part, const std::weak_ptr<CParticleGen>& system,
-                                                 int frameCount, const std::string& boneName,
+                                                 int frameCount, std::string_view boneName,
                                                  const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
                                                  int flags, CStateManager& stateMgr, TAreaId areaId, int lightId,
                                                  EParticleGenState state)

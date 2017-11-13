@@ -17,7 +17,7 @@ public:
 
 private:
 public:
-    CScriptHUDMemo(TUniqueId, const std::string&, const CEntityInfo&, const CHUDMemoParms&,
+    CScriptHUDMemo(TUniqueId, std::string_view, const CEntityInfo&, const CHUDMemoParms&,
                    CScriptHUDMemo::EDisplayType, CAssetId, bool);
 
     void Accept(IVisitor& visitor);

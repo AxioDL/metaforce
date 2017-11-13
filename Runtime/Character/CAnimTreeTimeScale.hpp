@@ -13,7 +13,7 @@ class CAnimTreeTimeScale : public CAnimTreeSingleChild
     CCharAnimTime x20_;
     CCharAnimTime x28_;
 public:
-    CAnimTreeTimeScale(const std::weak_ptr<CAnimTreeNode>&, float, const std::string&);
+    CAnimTreeTimeScale(const std::weak_ptr<CAnimTreeNode>&, float, std::string_view);
 
     static std::string CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&, float, const CCharAnimTime&, float);
 

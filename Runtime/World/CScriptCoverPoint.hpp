@@ -35,7 +35,7 @@ class CScriptCoverPoint : public CActor
     std::experimental::optional<zeus::CAABox> x100_touchBounds;
     float x11c_timeLeft = 0.f;
 public:
-    CScriptCoverPoint(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+    CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                       zeus::CTransform xf, bool active, u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime);
 
     void Accept(IVisitor& visitor);

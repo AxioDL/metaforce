@@ -59,14 +59,14 @@ public:
     void RenderSystemsToBeDrawnFirst() const;
     void AddToRendererClippedMasked(const zeus::CFrustum& frustum, int mask, int target) const;
     void AddToRendererClipped(const zeus::CFrustum& frustum) const;
-    CParticleGenInfo* GetParticleEffect(const std::string& name) const;
-    void SetParticleEffectState(const std::string& name, bool active, CStateManager& mgr);
-    void SetCEXTValue(const std::string& name, int idx, float value);
-    void AddAuxiliaryParticleEffect(const std::string& name, int flags, const CAuxiliaryParticleData& data,
+    CParticleGenInfo* GetParticleEffect(std::string_view name) const;
+    void SetParticleEffectState(std::string_view name, bool active, CStateManager& mgr);
+    void SetCEXTValue(std::string_view name, int idx, float value);
+    void AddAuxiliaryParticleEffect(std::string_view name, int flags, const CAuxiliaryParticleData& data,
                                     const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, int lightId);
-    void AddParticleEffect(const std::string& name, int flags, const CParticleData& data,
+    void AddParticleEffect(std::string_view name, int flags, const CParticleData& data,
                            const zeus::CVector3f& scale, CStateManager& mgr, TAreaId aid, bool oneShot, int lightId);
-    void InsertParticleGen(bool oneShot, int flags, const std::string& name,
+    void InsertParticleGen(bool oneShot, int flags, std::string_view name,
                            std::unique_ptr<CParticleGenInfo>&& gen);
 };
 }

@@ -145,7 +145,7 @@ void CMemoryCardDriver::SGameFileSlot::LoadGameState(u32 idx)
     static_cast<MP1::CMain*>(g_Main)->StreamNewGameState(r, idx);
 }
 
-CMemoryCardDriver::SFileInfo::SFileInfo(kabufuda::ECardSlot port, const std::string& name)
+CMemoryCardDriver::SFileInfo::SFileInfo(kabufuda::ECardSlot port, std::string_view name)
 : x0_fileInfo(port), x14_name(name) {}
 
 CMemoryCardDriver::CMemoryCardDriver(kabufuda::ECardSlot cardPort, CAssetId saveBanner,

@@ -13,7 +13,7 @@ CSlideShow::CSlideShow()
     x134_30_ = true;
     x135_24_ = true;
 
-    const SObjectTag* font = g_ResFactory->GetResourceIdByName(g_tweakSlideShow->GetFont().c_str());
+    const SObjectTag* font = g_ResFactory->GetResourceIdByName(g_tweakSlideShow->GetFont());
     if (font)
     {
         CGuiTextProperties propsA(false, true, EJustification::Center, EVerticalJustification::Bottom);
@@ -66,9 +66,9 @@ CSlideShow::CSlideShow()
     }
 }
 
-bool CSlideShow::LoadTXTRDep(const std::string& name)
+bool CSlideShow::LoadTXTRDep(std::string_view name)
 {
-    const SObjectTag* dgrpTag = g_ResFactory->GetResourceIdByName(name.c_str());
+    const SObjectTag* dgrpTag = g_ResFactory->GetResourceIdByName(name);
     if (dgrpTag && dgrpTag->type == FOURCC('DGRP'))
     {
         x18_galleryTXTRDeps.push_back(g_SimplePool->GetObj(*dgrpTag));

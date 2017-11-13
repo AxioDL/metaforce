@@ -4,7 +4,7 @@
 namespace urde
 {
 
-CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, const std::string& name, EWeaponType wType,
+CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                  const zeus::CTransform& xf, int flags, float f1, float f2, EMaterialTypes matType,
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  EProjectileAttrib attribs, bool b1)

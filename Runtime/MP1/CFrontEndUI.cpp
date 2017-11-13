@@ -704,7 +704,7 @@ CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOpt
     return ret;
 }
 
-void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, const std::u16string& str, float chRate)
+void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, std::u16string_view str, float chRate)
 {
     text->TextSupport().SetText(str);
     text->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, chRate);
@@ -1239,7 +1239,7 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
     }
 }
 
-void CFrontEndUI::SGuiTextPair::SetPairText(const std::u16string& str)
+void CFrontEndUI::SGuiTextPair::SetPairText(std::u16string_view str)
 {
     x0_panes[0]->TextSupport().SetText(str);
     x0_panes[1]->TextSupport().SetText(str);
@@ -1253,7 +1253,7 @@ CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, const 
     return ret;
 }
 
-void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, const std::u16string& str)
+void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, const char* name, std::u16string_view str)
 {
     CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
     w1->TextSupport().SetText(str);

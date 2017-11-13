@@ -10,7 +10,7 @@
 namespace urde
 {
 
-MP1::CActorContraption::CActorContraption(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+MP1::CActorContraption::CActorContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                           const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabox,
                                           const CMaterialList& matList, float mass, float zMomentum, const CHealthInfo& hInfo,
                                           const CDamageVulnerability& dVuln, const CActorParameters& aParams,
@@ -79,7 +79,7 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& 
         CActor::DoUserAnimEvent(mgr, node, evType, dt);
 }
 
-CFlameThrower* MP1::CActorContraption::CreateFlameThrower(const std::string& name, CStateManager& mgr)
+CFlameThrower* MP1::CActorContraption::CreateFlameThrower(std::string_view name, CStateManager& mgr)
 {
     const auto& it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
                            [&name](const std::pair<TUniqueId, std::string>& p) { return p.second == name; });

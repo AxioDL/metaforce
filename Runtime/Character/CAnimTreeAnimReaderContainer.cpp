@@ -3,7 +3,7 @@
 namespace urde
 {
 
-CAnimTreeAnimReaderContainer::CAnimTreeAnimReaderContainer(const std::string& name,
+CAnimTreeAnimReaderContainer::CAnimTreeAnimReaderContainer(std::string_view name,
                                                            std::shared_ptr<IAnimReader> reader,
                                                            u32 dbIdx)
 : CAnimTreeNode(name), x14_reader(reader), x1c_animDbIdx(dbIdx)

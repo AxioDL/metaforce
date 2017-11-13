@@ -544,12 +544,12 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     uint16_t height = rs.readUint16Big();
     uint32_t numMips = rs.readUint32Big();
 
-    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().c_str(), _S("wb"));
+    FILE* fp = hecl::Fopen(outPath.getAbsolutePath().data(), _S("wb"));
     if (!fp)
     {
         Log.report(logvisor::Error,
                    _S("Unable to open '%s' for writing"),
-                   outPath.getAbsolutePath().c_str());
+                   outPath.getAbsolutePath().data());
         return false;
     }
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
@@ -761,12 +761,12 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 
 bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
 {
-    FILE* inf = hecl::Fopen(inPath.getAbsolutePath().c_str(), _S("rb"));
+    FILE* inf = hecl::Fopen(inPath.getAbsolutePath().data(), _S("rb"));
     if (!inf)
     {
         Log.report(logvisor::Error,
                    _S("Unable to open '%s' for reading"),
-                   inPath.getAbsolutePath().c_str());
+                   inPath.getAbsolutePath().data());
         return false;
     }
 
@@ -776,7 +776,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     if (png_sig_cmp((png_const_bytep)header, 0, 8))
     {
         Log.report(logvisor::Error, _S("invalid PNG signature in '%s'"),
-                   inPath.getAbsolutePath().c_str());
+                   inPath.getAbsolutePath().data());
         fclose(inf);
         return false;
     }
@@ -801,7 +801,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     if (setjmp(png_jmpbuf(pngRead)))
     {
         Log.report(logvisor::Error, _S("unable to initialize libpng I/O for '%s'"),
-                   inPath.getAbsolutePath().c_str());
+                   inPath.getAbsolutePath().data());
         fclose(inf);
         png_destroy_read_struct(&pngRead, &info, nullptr);
         return false;
@@ -837,7 +837,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     if (bitDepth != 8)
     {
         Log.report(logvisor::Error, _S("'%s' is not 8 bits-per-channel"),
-                   inPath.getAbsolutePath().c_str());
+                   inPath.getAbsolutePath().data());
         fclose(inf);
         png_destroy_read_struct(&pngRead, &info, nullptr);
         return false;
@@ -869,7 +869,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         break;
     default:
         Log.report(logvisor::Error, _S("unsupported color type in '%s'"),
-                   inPath.getAbsolutePath().c_str());
+                   inPath.getAbsolutePath().data());
         fclose(inf);
         png_destroy_read_struct(&pngRead, &info, nullptr);
         return false;
@@ -890,7 +890,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     if (setjmp(png_jmpbuf(pngRead)))
     {
         Log.report(logvisor::Error, _S("unable to read image in '%s'"),
-                   inPath.getAbsolutePath().c_str());
+                   inPath.getAbsolutePath().data());
         fclose(inf);
         png_destroy_read_struct(&pngRead, &info, nullptr);
         return false;
@@ -979,7 +979,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     {
         Log.report(logvisor::Error,
                    _S("Unable to open '%s' for writing"),
-                   outPath.getAbsolutePath().c_str());
+                   outPath.getAbsolutePath().data());
         return false;
     }
 

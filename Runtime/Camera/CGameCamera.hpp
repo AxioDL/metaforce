@@ -30,7 +30,7 @@ protected:
     float x180_;
     float x184_fov;
 public:
-    CGameCamera(TUniqueId, bool active, const std::string& name, const CEntityInfo& info, const zeus::CTransform& xf,
+    CGameCamera(TUniqueId, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 float fov, float nearz, float farz, float aspect, TUniqueId watchedId, bool disableInput,
                 u32 controllerIdx);
 

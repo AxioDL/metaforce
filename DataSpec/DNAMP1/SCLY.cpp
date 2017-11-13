@@ -48,7 +48,7 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
         if (active)
         {
             hecl::ProjectPath activePath(layerPath, "!defaultactive");
-            fclose(hecl::Fopen(activePath.getAbsolutePath().c_str(), _S("wb")));
+            fclose(hecl::Fopen(activePath.getAbsolutePath().data(), _S("wb")));
         }
 
         hecl::ProjectPath yamlFile(layerPath, _S("!objects.yaml"));

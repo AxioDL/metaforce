@@ -27,7 +27,7 @@ class CScriptShadowProjector : public CActor
     };
 
 public:
-    CScriptShadowProjector(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, bool,
+    CScriptShadowProjector(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
                            const zeus::CVector3f&, bool, float, float, float, float, s32);
 
     void Accept(IVisitor& visitor);

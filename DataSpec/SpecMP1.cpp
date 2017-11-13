@@ -49,6 +49,8 @@
 namespace DataSpec
 {
 
+using namespace std::literals;
+
 static logvisor::Module Log("urde::SpecMP1");
 extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
@@ -185,8 +187,8 @@ struct SpecMP1 : SpecBase
         for (const nod::Node& child : root)
         {
             bool isPak = false;
-            const std::string& name = child.getName();
-            std::string lowerName = name;
+            auto name = child.getName();
+            std::string lowerName(name);
             std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
             if (name.size() > 4)
             {
@@ -219,7 +221,7 @@ struct SpecMP1 : SpecBase
                         {
                             for (const hecl::SystemString& arg : args)
                             {
-                                std::string lowerArg = hecl::SystemUTF8View(arg).str();
+                                std::string lowerArg(hecl::SystemUTF8Conv(arg).str());
                                 std::transform(lowerArg.begin(), lowerArg.end(), lowerArg.begin(), tolower);
                                 if (!lowerArg.compare(0, lowerBase.size(), lowerBase))
                                     good = true;
@@ -238,7 +240,7 @@ struct SpecMP1 : SpecBase
         /* Sort PAKs alphabetically */
         m_orderedPaks.clear();
         for (DNAMP1::PAKBridge& dpak : m_paks)
-            m_orderedPaks[dpak.getName()] = &dpak;
+            m_orderedPaks[std::string(dpak.getName())] = &dpak;
 
         /* Assemble extract report */
         rep.childOpts.reserve(m_orderedPaks.size());
@@ -248,8 +250,8 @@ struct SpecMP1 : SpecBase
                 continue;
             rep.childOpts.emplace_back();
             ExtractReport& childRep = rep.childOpts.back();
-            hecl::SystemStringView nameView(item.first);
-            childRep.name = nameView;
+            hecl::SystemStringConv nameView(item.first);
+            childRep.name = nameView.sys_str();
             childRep.desc = item.second->getLevelString();
         }
     }
@@ -272,7 +274,7 @@ struct SpecMP1 : SpecBase
         if (buildInfo)
         {
             std::string buildStr(buildInfo);
-            hecl::SystemStringView buildView(buildStr);
+            hecl::SystemStringConv buildView(buildStr);
             rep.desc += _S(" (") + buildView + _S(")");
         }
 
@@ -334,7 +336,7 @@ struct SpecMP1 : SpecBase
         if (buildInfo)
         {
             std::string buildStr(buildInfo);
-            hecl::SystemStringView buildView(buildStr);
+            hecl::SystemStringConv buildView(buildStr);
             rep.desc += _S(" (") + buildView + _S(")");
         }
 
@@ -374,8 +376,8 @@ struct SpecMP1 : SpecBase
         /* Extract non-pak files */
         progress(_S("MP1 Root"), _S(""), 3, 0.0);
         int prog = 0;
-        ctx.progressCB = [&](const std::string& name, float) {
-            hecl::SystemStringView nameView(name);
+        ctx.progressCB = [&](std::string_view name, float) {
+            hecl::SystemStringConv nameView(name);
             progress(_S("MP1 Root"), nameView.c_str(), 3, prog / (float)m_nonPaks.size());
         };
         for (const nod::Node* node : m_nonPaks)
@@ -409,19 +411,19 @@ struct SpecMP1 : SpecBase
             if (!pak.m_doExtract)
                 continue;
 
-            const std::string& name = pak.getName();
-            hecl::SystemStringView sysName(name);
+            auto name = pak.getName();
+            hecl::SystemStringConv sysName(name);
 
             {
                 std::unique_lock<std::mutex> lk(msgLock);
                 progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
 
-            hecl::SystemString pakName = sysName.sys_str();
+            auto pakName = sysName.sys_str();
             process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok) {
                 m_pakRouter.extractResources(pak, force, btok, [&](const hecl::SystemChar* substr, float factor) {
                     std::unique_lock<std::mutex> lk(msgLock);
-                    progress(pakName.c_str(), substr, compIdx, factor);
+                    progress(pakName.data(), substr, compIdx, factor);
                 });
             });
         }
@@ -525,7 +527,7 @@ struct SpecMP1 : SpecBase
             return {SBIG('CSKR'), path.hash().val32()};
         else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
             return {SBIG('ANIM'), path.hash().val32()};
-        else if (const hecl::SystemChar* ext = path.getLastComponentExt())
+        else if (const hecl::SystemChar* ext = path.getLastComponentExt().data())
         {
             if (ext[0] == _S('*') || !hecl::StrCmp(ext, _S("proj")))
             {
@@ -611,7 +613,7 @@ struct SpecMP1 : SpecBase
         }
         else if (hecl::IsPathYAML(path))
         {
-            FILE* fp = hecl::Fopen(path.getAbsolutePath().c_str(), _S("r"));
+            FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _S("r"));
             if (!fp)
                 return {};
 
@@ -811,7 +813,7 @@ struct SpecMP1 : SpecBase
 
             for (const std::string& mesh : meshes)
             {
-                hecl::SystemStringView meshSys(mesh);
+                hecl::SystemStringConv meshSys(mesh);
                 if (!mesh.compare("CMESH"))
                 {
                     colMesh = ds.compileColMesh(mesh);
@@ -824,7 +826,7 @@ struct SpecMP1 : SpecBase
             }
 
             if (!colMesh)
-                Log.report(logvisor::Fatal, _S("unable to find mesh named 'CMESH' in %s"), in.getAbsolutePath().c_str());
+                Log.report(logvisor::Fatal, _S("unable to find mesh named 'CMESH' in %s"), in.getAbsolutePath().data());
 
             std::vector<Light> lights = ds.compileLights();
 
@@ -1141,7 +1143,7 @@ struct SpecMP1 : SpecBase
         {
             athena::io::FileReader r(worldPathCooked.getAbsolutePath());
             if (r.hasError())
-                Log.report(logvisor::Fatal, _S("Unable to open world %s"), worldPathCooked.getRelativePath().c_str());
+                Log.report(logvisor::Fatal, _S("Unable to open world %s"), worldPathCooked.getRelativePath().data());
             mlvl.read(r);
         }
 
@@ -1161,7 +1163,7 @@ struct SpecMP1 : SpecBase
         hecl::ProjectPath parentDir = worldPath.getParentPath();
         nameEnt.type = worldTag.type;
         nameEnt.id = atUint32(worldTag.id.Value());
-        nameEnt.nameLen = atUint32(hecl::StrLen(parentDir.getLastComponent()));
+        nameEnt.nameLen = atUint32(parentDir.getLastComponent().size());
         nameEnt.name = parentDir.getLastComponentUTF8();
         nameEnt.write(w);
 
@@ -1191,10 +1193,10 @@ struct SpecMP1 : SpecBase
                 {
                     athena::io::FileReader r(mapCookedPath.getAbsolutePath());
                     if (r.hasError())
-                        Log.report(logvisor::Fatal, _S("Unable to open %s"), mapCookedPath.getRelativePath().c_str());
+                        Log.report(logvisor::Fatal, _S("Unable to open %s"), mapCookedPath.getRelativePath().data());
 
                     if (r.readUint32Big() != 0xDEADF00D)
-                        Log.report(logvisor::Fatal, _S("Corrupt MAPW %s"), mapCookedPath.getRelativePath().c_str());
+                        Log.report(logvisor::Fatal, _S("Corrupt MAPW %s"), mapCookedPath.getRelativePath().data());
                     r.readUint32Big();
                     atUint32 mapaCount = r.readUint32Big();
                     for (int i=0 ; i<mapaCount ; ++i)
@@ -1221,7 +1223,7 @@ struct SpecMP1 : SpecBase
                 {
                     urde::SObjectTag texTag = tagFromPath(tex, btok);
                     if (!texTag)
-                        Log.report(logvisor::Fatal, _S("Unable to resolve %s"), tex.getRelativePath().c_str());
+                        Log.report(logvisor::Fatal, _S("Unable to resolve %s"), tex.getRelativePath().data());
                     listOut.push_back(texTag);
                 }
             }
@@ -1368,13 +1370,13 @@ struct SpecMP1 : SpecBase
 };
 
 hecl::Database::DataSpecEntry SpecEntMP1 = {
-    _S("MP1"), _S("Data specification for original Metroid Prime engine"),
+    _S("MP1"sv), _S("Data specification for original Metroid Prime engine"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> hecl::Database::IDataSpec* {
         return new struct SpecMP1(&SpecEntMP1, project, false);
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1PC = {
-    _S("MP1-PC"), _S("Data specification for PC-optimized Metroid Prime engine"),
+    _S("MP1-PC"sv), _S("Data specification for PC-optimized Metroid Prime engine"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool) -> hecl::Database::IDataSpec* {
         if (tool != hecl::Database::DataSpecTool::Extract)
             return new struct SpecMP1(&SpecEntMP1PC, project, true);
@@ -1382,5 +1384,5 @@ hecl::Database::DataSpecEntry SpecEntMP1PC = {
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1ORIG = {
-    _S("MP1-ORIG"), _S("Data specification for unmodified Metroid Prime resources"), {}};
+    _S("MP1-ORIG"sv), _S("Data specification for unmodified Metroid Prime resources"sv), {}};
 }

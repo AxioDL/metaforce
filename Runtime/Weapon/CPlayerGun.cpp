@@ -959,7 +959,7 @@ void CPlayerGun::ChangeWeapon(const CPlayerState& playerState, CStateManager& mg
     x678_morph.StartWipe(CGunMorph::EDir::In);
 }
 
-void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, const std::string& lctrName,
+void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName,
                                   bool shake, bool dyn)
 {
     if (dyn)

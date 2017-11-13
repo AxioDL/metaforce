@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CScriptGenerator::CScriptGenerator(TUniqueId uid, const std::string& name, const CEntityInfo& info, u32 spawnCount,
+CScriptGenerator::CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32 spawnCount,
                                    bool reuseFollowers, const zeus::CVector3f& vec1, bool inheritXf, bool active,
                                    float minScale, float maxScale)
 : CEntity(uid, info, active, name)

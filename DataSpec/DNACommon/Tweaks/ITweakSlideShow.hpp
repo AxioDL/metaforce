@@ -8,7 +8,7 @@ namespace DataSpec
 
 struct ITweakSlideShow : ITweak
 {
-    virtual const std::string& GetFont() const=0;
+    virtual std::string_view GetFont() const=0;
     virtual const zeus::CColor& GetFontColor() const=0;
     virtual const zeus::CColor& GetOutlineColor() const=0;
     virtual float GetScanPercentInterval() const=0;

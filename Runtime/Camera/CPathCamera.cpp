@@ -4,7 +4,7 @@
 namespace urde
 {
 
-CPathCamera::CPathCamera(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CPathCamera::CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, bool active, bool, bool, bool, bool,
                          float, float, float, float, float, float, float, u32,
                          EInitialSplinePosition)

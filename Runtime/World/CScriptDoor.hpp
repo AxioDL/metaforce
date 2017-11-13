@@ -51,7 +51,7 @@ public:
         u32 dummy2 = 0;
     };
 public:
-    CScriptDoor(TUniqueId, const std::string& name, const CEntityInfo& info,
+    CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info,
                 const zeus::CTransform&, CModelData&&, const CActorParameters&,
                 const zeus::CVector3f&, const zeus::CAABox&,
                 bool active, bool open, bool, float, bool ballDoor);

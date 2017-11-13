@@ -7,7 +7,7 @@ namespace urde
 
 #define RSF_BUFFER_SIZE 0x20000
 
-CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, const std::string& path,
+CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path,
                                        int loopStart, int loopEnd)
 : x0_path(path), x1c_loopStartSamp(loopStart & 0xfffffffe), x20_loopEndSamp(loopEnd & 0xfffffffe),
   m_voiceCallback(*this), m_voice(engine.allocateNewStereoVoice(32000, &m_voiceCallback))
@@ -16,7 +16,7 @@ CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, const std
     //x28_dmaLeft.reset(new u8[640]);
     //x30_dmaRight.reset(new u8[640]);
 
-    CDvdFile file(path.c_str());
+    CDvdFile file(path);
     x10_rsfRem = file.Length();
     x14_rsfLength = x10_rsfRem;
 

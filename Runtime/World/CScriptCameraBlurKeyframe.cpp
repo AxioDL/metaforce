@@ -4,7 +4,7 @@
 
 namespace urde
 {
-CScriptCameraBlurKeyframe::CScriptCameraBlurKeyframe(TUniqueId uid, const std::string& name,
+CScriptCameraBlurKeyframe::CScriptCameraBlurKeyframe(TUniqueId uid, std::string_view name,
                                                      const CEntityInfo& info, EBlurType type,
                                                      float amount, u32 unk, float timeIn,
                                                      float timeOut, bool active)

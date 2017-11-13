@@ -50,7 +50,7 @@ public:
 
     CGuiLight* GetFrameLight(int idx) const { return m_indexedLights[idx]; }
     CGuiCamera* GetFrameCamera() const { return x14_camera.get(); }
-    CGuiWidget* FindWidget(const std::string& name) const;
+    CGuiWidget* FindWidget(std::string_view name) const;
     CGuiWidget* FindWidget(s16 id) const;
     void SetFrameCamera(std::shared_ptr<CGuiCamera>&& camr) { x14_camera = std::move(camr); }
     void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }

@@ -109,8 +109,8 @@ private:
     };
     bool x1f0_ = false;
 public:
-    CScriptSpecialFunction(TUniqueId, const std::string&, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
-                           const std::string&, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
+    CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
+                           std::string_view, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
                            bool, const CDamageInfo&, CAssetId, CAssetId, CAssetId, s16, s16, s16);
 
     void Accept(IVisitor& visitor);

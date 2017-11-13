@@ -83,7 +83,7 @@ public:
         CMapWorldData(CInputStream& in, u32 version);
         CAssetId GetWorldAssetId() const { return x10_worldAssetId; }
         const zeus::CVector3f& GetWorldCenterPoint() const { return x64_centerPoint; }
-        const std::string& GetWorldLabel() const { return x0_label; }
+        std::string_view GetWorldLabel() const { return x0_label; }
         const zeus::CTransform& GetWorldTransform() const { return x14_transform; }
         const zeus::CTransform& GetMapAreaData(s32 idx) const { return x44_hexagonXfs[idx]; }
         u32 GetNumMapAreaDatas() const { return x44_hexagonXfs.size(); }

@@ -15,9 +15,9 @@ class CSaveGameScreenTouchBar
 public:
     virtual ~CSaveGameScreenTouchBar() = default;
     virtual int PopOption();
-    virtual void SetUIOpts(const std::u16string& opt0,
-                           const std::u16string& opt1,
-                           const std::u16string& opt2);
+    virtual void SetUIOpts(std::u16string_view opt0,
+                           std::u16string_view opt1,
+                           std::u16string_view opt2);
 };
 
 std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar();

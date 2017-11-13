@@ -49,7 +49,7 @@ public:
     //  NFTSecondaryFire
     //  NFTSecondarySparks
     //  <invalid>
-    CNewFlameThrower(const TToken<CWeaponDescription>& desc, const std::string& name, EWeaponType wType,
+    CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::string_view name, EWeaponType wType,
                      const CAssetId resInfo[8], const zeus::CTransform& xf, EMaterialTypes matType,
                      const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner, EProjectileAttrib attribs);
     void StartFiring(const zeus::CTransform& xf, CStateManager& mgr);

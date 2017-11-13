@@ -15,7 +15,7 @@ class CScriptTimer : public CEntity
     bool x41_autoStart;
     bool x42_isTiming;
 public:
-    CScriptTimer(TUniqueId, const std::string& name, const CEntityInfo& info,
+    CScriptTimer(TUniqueId, std::string_view name, const CEntityInfo& info,
                  float, float, bool, bool, bool);
 
     void Accept(IVisitor& visitor);

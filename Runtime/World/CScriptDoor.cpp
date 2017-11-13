@@ -25,7 +25,7 @@ static CMaterialList MakeDoorMaterialList(bool open)
     return ret;
 }
 
-CScriptDoor::CScriptDoor(TUniqueId uid, const std::string& name, const CEntityInfo& info,
+CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                          const zeus::CVector3f&, const zeus::CAABox& aabb, bool active,
                          bool open, bool b2, float, bool ballDoor)

@@ -31,7 +31,7 @@ class CGameProjectile : public CWeapon
         };
     };
 public:
-    CGameProjectile(bool active, const TToken<CWeaponDescription>&, const std::string& name,
+    CGameProjectile(bool active, const TToken<CWeaponDescription>&, std::string_view name,
                     EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes matType,
                     const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
@@ -41,7 +41,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     static EProjectileAttrib GetBeamAttribType(EWeaponType wType);
     void DeleteProjectileLight(CStateManager&);
-    void CreateProjectileLight(const std::string&, const CLight&, CStateManager&);
+    void CreateProjectileLight(std::string_view, const CLight&, CStateManager&);
     void Chase(float, CStateManager&);
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                            const CWeaponMode&, int) const

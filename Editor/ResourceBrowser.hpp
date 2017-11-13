@@ -55,34 +55,34 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding
         size_t columnCount() const {return 3;}
         size_t rowCount() const {return m_entries.size();}
 
-        const std::string* header(size_t cIdx) const
+        std::string_view header(size_t cIdx) const
         {
             switch (cIdx)
             {
             case 0:
-                return &m_nameCol;
+                return m_nameCol;
             case 1:
-                return &m_typeCol;
+                return m_typeCol;
             case 2:
-                return &m_sizeCol;
+                return m_sizeCol;
             default: break;
             }
-            return nullptr;
+            return {};
         }
 
-        const std::string* cell(size_t cIdx, size_t rIdx) const
+        std::string_view cell(size_t cIdx, size_t rIdx) const
         {
             switch (cIdx)
             {
             case 0:
-                return &m_entries.at(rIdx).m_name;
+                return m_entries.at(rIdx).m_name;
             case 1:
-                return &m_entries.at(rIdx).m_type;
+                return m_entries.at(rIdx).m_type;
             case 2:
-                return &m_entries.at(rIdx).m_size;
+                return m_entries.at(rIdx).m_size;
             default: break;
             }
-            return nullptr;
+            return {};
         }
 
         bool columnSplitResizeAllowed() const {return true;}
@@ -107,7 +107,7 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding
                 m_entries.emplace_back();
                 Entry& ent = m_entries.back();
                 ent.m_path = d.m_path;
-                hecl::SystemUTF8View nameUtf8(d.m_name);
+                hecl::SystemUTF8Conv nameUtf8(d.m_name);
                 ent.m_name = nameUtf8.str();
                 if (d.m_isDir)
                 {
