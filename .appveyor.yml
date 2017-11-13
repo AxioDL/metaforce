@@ -4,7 +4,7 @@
 clone_depth: 1
 
 os:
-  - Visual Studio 2015
+  - Visual Studio 2017
 
 build:
   verbosity: detailed
@@ -47,7 +47,7 @@ install:
   - llvm-config --version
   
 before_build:
-  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+  - call "C:\Program Files (x86)\Microsoft Visual Studio 15.0\VC\vcvarsall.bat" amd64
   - cd C:\projects\urde
   - git submodule update --init --recursive
 
