@@ -505,7 +505,7 @@ void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, std::string_v
             useMap = &x3c_rendererDrawLoop;
     }
 
-    useMap->insert(std::make_pair(name, std::move(gen)));
+    useMap->insert(std::make_pair(std::string(name), std::move(gen)));
 
     if (flags & 0x60)
         xb4_25_drawingEnds = true;
