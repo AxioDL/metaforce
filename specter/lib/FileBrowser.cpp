@@ -10,10 +10,10 @@ static logvisor::Module Log("specter::FileBrowser");
 #define BROWSER_MIN_WIDTH 600
 #define BROWSER_MIN_HEIGHT 300
 
-std::vector<hecl::SystemString> FileBrowser::PathComponents(const hecl::SystemString& path)
+std::vector<hecl::SystemString> FileBrowser::PathComponents(hecl::SystemStringView path)
 {
     std::vector<hecl::SystemString> ret;
-    hecl::SystemString sPath = path;
+    hecl::SystemString sPath(path);
     hecl::SanitizePath(sPath);
     if (sPath.empty())
         return ret;
@@ -41,9 +41,9 @@ std::vector<hecl::SystemString> FileBrowser::PathComponents(const hecl::SystemSt
     return ret;
 }
 
-FileBrowser::FileBrowser(ViewResources& res, View& parentView, const std::string& title,
-                         Type type, const hecl::SystemString& initialPath,
-                         std::function<void(bool, const hecl::SystemString&)> returnFunc)
+FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view title,
+                         Type type, hecl::SystemStringView initialPath,
+                         std::function<void(bool, hecl::SystemStringView)> returnFunc)
 : ModalWindow(res, parentView, RectangleConstraint(BROWSER_MIN_WIDTH * res.pixelFactor(),
                                                    BROWSER_MIN_HEIGHT * res.pixelFactor(),
                                                    RectangleConstraint::Test::Minimum,
@@ -121,18 +121,18 @@ void FileBrowser::SyncBookmarkSelections(Table& table, BookmarkDataBind& binding
         table.selectRow(-1);
 }
 
-void FileBrowser::navigateToPath(const hecl::SystemString& path)
+void FileBrowser::navigateToPath(hecl::SystemStringView path)
 {
     hecl::Sstat theStat;
-    if (hecl::Stat(path.c_str(), &theStat))
+    if (hecl::Stat(path.data(), &theStat))
         return;
 
-    m_path = path;
+    m_path = hecl::SystemString(path);
     m_comps = PathComponents(m_path);
     if (S_ISREG(theStat.st_mode))
     {
-        hecl::SystemUTF8View utf8(m_comps.back());
-        m_fileField.m_view->setText(utf8);
+        hecl::SystemUTF8Conv utf8(m_comps.back());
+        m_fileField.m_view->setText(utf8.str());
         m_fileField.m_view->clearErrorState();
         m_comps.pop_back();
     }
@@ -200,15 +200,15 @@ void FileBrowser::okActivated(bool viaButton)
     hecl::Sstat theStat;
     if (hecl::Stat(path.c_str(), &theStat) || !S_ISDIR(theStat.st_mode))
     {
-        hecl::SystemUTF8View utf8(path);
+        hecl::SystemUTF8Conv utf8(path);
         m_fileField.m_view->setErrorState(
-            hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
+            hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").data(),
                          utf8.c_str()));
         return;
     }
 
     path += _S('/');
-    path += hecl::SystemStringView(m_fileField.m_view->getText()).sys_str();
+    path += hecl::SystemStringConv(m_fileField.m_view->getText()).sys_str();
 
     int err = hecl::Stat(path.c_str(), &theStat);
     if (m_type == Type::SaveFile)
@@ -216,15 +216,15 @@ void FileBrowser::okActivated(bool viaButton)
         if (m_fileField.m_view->getText().empty())
         {
             m_fileField.m_view->setErrorState(
-                vm.translateOr("file_field_empty", "Unable to save empty file").c_str());
+                vm.translateOr("file_field_empty", "Unable to save empty file"));
             return;
         }
         if (!err && !S_ISDIR(theStat.st_mode))
         {
             m_confirmWindow.reset(new MessageWindow(rootView().viewRes(), *this,
-                                                    MessageWindow::Type::ConfirmOkCancel,
-                                                    hecl::Format(vm.translateOr("overwrite_confirm", "Overwrite '%s'?").c_str(), path.c_str()),
-                                                    [&,path](bool ok)
+                MessageWindow::Type::ConfirmOkCancel,
+                hecl::Format(vm.translateOr("overwrite_confirm", "Overwrite '%s'?").data(), path.c_str()),
+            [&,path](bool ok)
             {
                 if (ok)
                 {
@@ -252,13 +252,13 @@ void FileBrowser::okActivated(bool viaButton)
         if (m_fileField.m_view->getText().empty())
         {
             m_fileField.m_view->setErrorState(
-                vm.translateOr("directory_field_empty", "Unable to make empty-named directory").c_str());
+                vm.translateOr("directory_field_empty", "Unable to make empty-named directory"));
             return;
         }
         if (!err && !S_ISDIR(theStat.st_mode))
         {
             m_fileField.m_view->setErrorState(
-                vm.translateOr("no_overwrite_file", "Unable to make directory over file").c_str());
+                vm.translateOr("no_overwrite_file", "Unable to make directory over file"));
             return;
         }
         if (!err && S_ISDIR(theStat.st_mode))
@@ -269,7 +269,7 @@ void FileBrowser::okActivated(bool viaButton)
                 if (projRoot)
                 {
                     m_fileField.m_view->setErrorState(
-                        vm.translateOr("no_overwrite_project", "Unable to make project within existing project").c_str());
+                        vm.translateOr("no_overwrite_project", "Unable to make project within existing project"));
                     return;
                 }
             }
@@ -290,9 +290,9 @@ void FileBrowser::okActivated(bool viaButton)
         }
         else if (err || !S_ISREG(theStat.st_mode))
         {
-            hecl::SystemUTF8View utf8(path);
+            hecl::SystemUTF8Conv utf8(path);
             m_fileField.m_view->setErrorState(
-                hecl::Format(vm.translateOr("no_access_as_file", "Unable to access '%s' as file").c_str(),
+                hecl::Format(vm.translateOr("no_access_as_file", "Unable to access '%s' as file").data(),
                              utf8.c_str()));
             return;
         }
@@ -319,9 +319,9 @@ void FileBrowser::okActivated(bool viaButton)
         }
         if (err || !S_ISDIR(theStat.st_mode))
         {
-            hecl::SystemUTF8View utf8(path);
+            hecl::SystemUTF8Conv utf8(path);
             m_fileField.m_view->setErrorState(
-                hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").c_str(),
+                hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").data(),
                              utf8.c_str()));
             return;
         }
@@ -345,7 +345,7 @@ void FileBrowser::cancelActivated()
     }
 
     path += _S('/');
-    path += hecl::SystemStringView(m_fileField.m_view->getText()).sys_str();
+    path += hecl::SystemStringConv(m_fileField.m_view->getText()).sys_str();
 
     m_returnFunc(false, path);
     close();

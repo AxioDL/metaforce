@@ -10,8 +10,8 @@ class Button;
 
 struct IControlBinding
 {
-    virtual const char* name(const Control* control) const=0;
-    virtual const char* help(const Control* control) const {return nullptr;}
+    virtual std::string_view name(const Control* control) const=0;
+    virtual std::string_view help(const Control* control) const {return {};}
 };
 
 struct IButtonBinding : IControlBinding
@@ -58,7 +58,7 @@ struct IIntBinding : IControlBinding
 struct IStringBinding : IControlBinding
 {
     virtual std::string getDefault(const Control* control) const {return "";}
-    virtual void changed(const Control* control, const std::string& val)=0;
+    virtual void changed(const Control* control, std::string_view val)=0;
 };
 
 struct CVarControlBinding : IControlBinding
@@ -66,8 +66,8 @@ struct CVarControlBinding : IControlBinding
     hecl::CVar* m_cvar;
     CVarControlBinding(hecl::CVar* cvar)
     : m_cvar(cvar) {}
-    const char* name(const Control* control) const {return m_cvar->name().c_str();}
-    const char* help(const Control* control) const {return m_cvar->rawHelp().c_str();}
+    std::string_view name(const Control* control) const {return m_cvar->name();}
+    std::string_view help(const Control* control) const {return m_cvar->rawHelp();}
 };
 
 class Control : public View

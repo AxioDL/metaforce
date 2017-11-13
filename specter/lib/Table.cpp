@@ -539,13 +539,13 @@ bool Table::CellView::reset(size_t c)
 {
     m_c = c;
     m_r = -1;
-    const std::string* headerText = m_t.m_data->header(c);
-    if (headerText)
+    auto headerText = m_t.m_data->header(c);
+    if (!headerText.empty())
     {
-        uint64_t hash = XXH64(headerText->data(), headerText->size(), 0);
+        uint64_t hash = XXH64(headerText.data(), headerText.size(), 0);
         if (hash != m_textHash)
         {
-            m_text->typesetGlyphs(*headerText, rootView().themeData().uiText());
+            m_text->typesetGlyphs(headerText, rootView().themeData().uiText());
             m_textHash = hash;
         }
         return true;
@@ -562,13 +562,13 @@ bool Table::CellView::reset(size_t c, size_t r)
 {
     m_c = c;
     m_r = r;
-    const std::string* cellText = m_t.m_data->cell(c, r);
-    if (cellText)
+    auto cellText = m_t.m_data->cell(c, r);
+    if (!cellText.empty())
     {
-        uint64_t hash = XXH64(cellText->data(), cellText->size(), 0);
+        uint64_t hash = XXH64(cellText.data(), cellText.size(), 0);
         if (hash != m_textHash)
         {
-            m_text->typesetGlyphs(*cellText, rootView().themeData().uiText());
+            m_text->typesetGlyphs(cellText, rootView().themeData().uiText());
             m_textHash = hash;
         }
         return true;

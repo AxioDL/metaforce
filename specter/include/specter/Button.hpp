@@ -92,11 +92,11 @@ public:
 
     ~Button() {closeMenu({});}
     Button(ViewResources& res, View& parentView,
-           IButtonBinding* controlBinding, const std::string& text, Icon* icon=nullptr,
+           IButtonBinding* controlBinding, std::string_view text, Icon* icon=nullptr,
            Style style=Style::Block, const zeus::CColor& bgColor=zeus::CColor::skWhite,
            RectangleConstraint constraint=RectangleConstraint());
     Button(ViewResources& res, View& parentView,
-           IButtonBinding* controlBinding, const std::string& text, const zeus::CColor& textColor,
+           IButtonBinding* controlBinding, std::string_view text, const zeus::CColor& textColor,
            Icon* icon=nullptr, Style style=Style::Block, const zeus::CColor& bgColor=zeus::CColor::skWhite,
            RectangleConstraint constraint=RectangleConstraint());
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
@@ -107,10 +107,10 @@ public:
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-    void setText(const std::string& text, const zeus::CColor& textColor);
-    void setText(const std::string& text);
+    void setText(std::string_view text, const zeus::CColor& textColor);
+    void setText(std::string_view text);
     void setIcon(Icon* icon=nullptr);
-    const std::string& getText() const {return m_textStr;}
+    std::string_view getText() const {return m_textStr;}
     void colorGlyphs(const zeus::CColor& newColor);
     int nominalWidth() const {return m_nomWidth;}
     int nominalHeight() const {return m_nomHeight;}

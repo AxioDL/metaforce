@@ -100,7 +100,7 @@ Menu::ContentView::ContentView(ViewResources& res, Menu& menu)
     m_hlVerts[3].m_color = res.themeData().button2Hover();
 }
 
-Menu::ItemView::ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode* node)
+Menu::ItemView::ItemView(ViewResources& res, Menu& menu, std::string_view text, size_t idx, IMenuNode* node)
 : View(res, menu), m_menu(menu), m_idx(idx), m_node(node)
 {
     commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool

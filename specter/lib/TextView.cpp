@@ -401,7 +401,7 @@ int TextView::DoKern(FT_Pos val, const FontAtlas& atlas)
     return FT_PIX_ROUND(val) >> 6;
 }
 
-void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& defaultColor)
+void TextView::typesetGlyphs(std::string_view str, const zeus::CColor& defaultColor)
 {
     UTF8Iterator it(str.begin());
     size_t charLen = str.size() ? std::min(it.countTo(str.end()), m_capacity) : 0;
@@ -471,7 +471,7 @@ void TextView::typesetGlyphs(const std::string& str, const zeus::CColor& default
     updateSize();
 }
 
-void TextView::typesetGlyphs(const std::wstring& str, const zeus::CColor& defaultColor)
+void TextView::typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultColor)
 {
     size_t charLen = std::min(str.size(), m_capacity);
     _commitResources(charLen);

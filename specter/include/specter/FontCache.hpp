@@ -15,7 +15,7 @@ class FontTag
 {
     friend class FontCache;
     uint64_t m_hash = 0;
-    FontTag(const std::string& name, bool subpixel, float points, unsigned dpi);
+    FontTag(std::string_view name, bool subpixel, float points, unsigned dpi);
 public:
     FontTag() = default;
     operator bool() const {return m_hash != 0;}
@@ -171,7 +171,7 @@ public:
     FontCache(const FontCache& other) = delete;
     FontCache& operator=(const FontCache& other) = delete;
 
-    FontTag prepCustomFont(boo::IGraphicsDataFactory* gf, const std::string& name, FT_Face face,
+    FontTag prepCustomFont(boo::IGraphicsDataFactory* gf, std::string_view name, FT_Face face,
                            FCharFilter filter=AllCharFilter, bool subpixel=false,
                            float points=10.0, uint32_t dpi=72);
 

@@ -55,9 +55,9 @@ class PathButtons : public ScrollView
         PathButton(PathButtons& pb, ViewResources& res, size_t idx, const hecl::SystemString& str)
         : m_pb(pb), m_idx(idx)
         {
-            m_button.m_view.reset(new Button(res, pb, this, hecl::SystemUTF8View(str).str()));
+            m_button.m_view.reset(new Button(res, pb, this, hecl::SystemUTF8Conv(str).str()));
         }
-        const char* name(const Control* control) const {return m_button.m_view->getText().c_str();}
+        std::string_view name(const Control* control) const {return m_button.m_view->getText();}
         void activated(const Button* button, const boo::SWindowCoord&) {m_pb.m_pathButtonPending = m_idx;}
     };
     friend struct PathButton;

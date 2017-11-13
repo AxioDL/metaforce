@@ -48,7 +48,7 @@ private:
         : m_sv(sv),
           m_leftName(vm.translateOr("scroll_left", "Scroll Left")),
           m_rightName(vm.translateOr("scroll_right", "Scroll Right")) {}
-        const char* name(const Control* control) const
+        std::string_view name(const Control* control) const
         {
             return (control == reinterpret_cast<Control*>(m_sv.m_sideButtons[0].m_view.get())) ?
                    m_leftName.c_str() : m_rightName.c_str();

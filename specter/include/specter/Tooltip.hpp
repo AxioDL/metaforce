@@ -27,8 +27,8 @@ class Tooltip : public View
     std::unique_ptr<TextView> m_cornersOutline[4];
     std::unique_ptr<TextView> m_cornersFilled[4];
 public:
-    Tooltip(ViewResources& res, View& parentView, const std::string& title,
-            const std::string& message);
+    Tooltip(ViewResources& res, View& parentView, std::string_view title,
+            std::string_view message);
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 

@@ -28,8 +28,8 @@ private:
     {
         MessageWindow& m_mw;
         std::string m_name;
-        OKBinding(MessageWindow& mw, std::string&& name) : m_mw(mw), m_name(std::move(name)) {}
-        const char* name(const Control* control) const {return m_name.c_str();}
+        OKBinding(MessageWindow& mw, std::string_view name) : m_mw(mw), m_name(name) {}
+        std::string_view name(const Control* control) const {return m_name;}
         void activated(const Button* button, const boo::SWindowCoord& coord)
         {
             m_mw.m_func(true);
@@ -41,8 +41,8 @@ private:
     {
         MessageWindow& m_mw;
         std::string m_name;
-        CancelBinding(MessageWindow& mw, std::string&& name) : m_mw(mw), m_name(std::move(name)) {}
-        const char* name(const Control* control) const {return m_name.c_str();}
+        CancelBinding(MessageWindow& mw, std::string_view name) : m_mw(mw), m_name(name) {}
+        std::string_view name(const Control* control) const {return m_name;}
         void activated(const Button* button, const boo::SWindowCoord& coord)
         {
             m_mw.m_func(false);
@@ -52,7 +52,7 @@ private:
 
 public:
     MessageWindow(ViewResources& res, View& parentView,
-                  Type type, const std::string& message, std::function<void(bool ok)> func);
+                  Type type, std::string_view message, std::function<void(bool ok)> func);
 
     void updateContentOpacity(float opacity)
     {

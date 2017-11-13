@@ -60,7 +60,7 @@ class Menu : public View
         std::unique_ptr<TextView> m_textView;
         size_t m_idx;
         IMenuNode* m_node;
-        ItemView(ViewResources& res, Menu& menu, const std::string& text, size_t idx, IMenuNode* node);
+        ItemView(ViewResources& res, Menu& menu, std::string_view text, size_t idx, IMenuNode* node);
 
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);

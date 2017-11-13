@@ -17,8 +17,8 @@ class MultiLineTextView : public View
     size_t m_lineCapacity;
     float m_lineHeight;
     int m_width;
-    std::string LineWrap(const std::string& str, int wrap);
-    std::wstring LineWrap(const std::wstring& str, int wrap);
+    std::string LineWrap(std::string_view str, int wrap);
+    std::wstring LineWrap(std::wstring_view str, int wrap);
 
 public:
     MultiLineTextView(ViewResources& res, View& parentView, const FontAtlas& font,
@@ -28,10 +28,10 @@ public:
                       TextView::Alignment align=TextView::Alignment::Left,
                       size_t lineCapacity=256, float lineHeight=1.0);
 
-    void typesetGlyphs(const std::string& str,
+    void typesetGlyphs(std::string_view str,
                        const zeus::CColor& defaultColor=zeus::CColor::skWhite,
                        unsigned wrap=0);
-    void typesetGlyphs(const std::wstring& str,
+    void typesetGlyphs(std::wstring_view str,
                        const zeus::CColor& defaultColor=zeus::CColor::skWhite,
                        unsigned wrap=0);
 

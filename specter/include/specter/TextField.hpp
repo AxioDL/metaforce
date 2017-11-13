@@ -69,8 +69,8 @@ class TextField : public ITextInputView
 public:
     TextField(ViewResources& res, View& parentView, IStringBinding* strBind);
 
-    const std::string& getText() const {return m_textStr;}
-    void setText(const std::string& str);
+    std::string_view getText() const {return m_textStr;}
+    void setText(std::string_view str);
 
     void clipboardCopy();
     void clipboardCut();
@@ -86,14 +86,14 @@ public:
     bool hasMarkedText() const;
     std::pair<int,int> markedRange() const;
     std::pair<int,int> selectedRange() const;
-    void setMarkedText(const std::string& str,
+    void setMarkedText(std::string_view str,
                        const std::pair<int,int>& selectedRange,
                        const std::pair<int,int>& replacementRange);
     void unmarkText();
     
     std::string substringForRange(const std::pair<int,int>& range,
                                   std::pair<int,int>& actualRange) const;
-    void insertText(const std::string& str, const std::pair<int,int>& range);
+    void insertText(std::string_view str, const std::pair<int,int>& range);
     int characterIndexAtPoint(const boo::SWindowCoord& point) const;
     boo::SWindowRect rectForCharacterRange(const std::pair<int,int>& range,
                                            std::pair<int,int>& actualRange) const;
@@ -107,7 +107,7 @@ public:
 
     void setActive(bool active);
     void setCursorPos(size_t pos);
-    void setErrorState(const std::string& message);
+    void setErrorState(std::string_view message);
     void clearErrorState();
 
     void setSelectionRange(size_t start, size_t count);

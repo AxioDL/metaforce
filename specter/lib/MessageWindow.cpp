@@ -7,7 +7,7 @@ namespace specter
 {
 
 MessageWindow::MessageWindow(ViewResources& res, View& parentView,
-                             Type type, const std::string& message,
+                             Type type, std::string_view message,
                              std::function<void (bool)> func)
 : ModalWindow(res, parentView, RectangleConstraint(),
               type==Type::ErrorOk ? res.themeData().splashErrorBackground() : res.themeData().splashBackground()),

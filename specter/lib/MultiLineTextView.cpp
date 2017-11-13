@@ -5,7 +5,7 @@ namespace specter
 {
 static logvisor::Module Log("specter::MultiLineTextView");
 
-std::string MultiLineTextView::LineWrap(const std::string& str, int wrap)
+std::string MultiLineTextView::LineWrap(std::string_view str, int wrap)
 {
     size_t rem = str.size();
     const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
@@ -74,16 +74,16 @@ std::string MultiLineTextView::LineWrap(const std::string& str, int wrap)
     return ret;
 }
 
-std::wstring MultiLineTextView::LineWrap(const std::wstring& str, int wrap)
+std::wstring MultiLineTextView::LineWrap(std::wstring_view str, int wrap)
 {
     uint32_t lCh = -1;
     int adv = 0;
 
     std::wstring ret;
     ret.reserve(str.size());
-    std::wstring::const_iterator lastSpaceIt = str.cend();
+    std::wstring_view::const_iterator lastSpaceIt = str.cend();
     size_t rollbackPos;
-    for (std::wstring::const_iterator it = str.cbegin() ; it != str.cend() ; ++it)
+    for (std::wstring_view::const_iterator it = str.cbegin() ; it != str.cend() ; ++it)
     {
         wchar_t ch = *it;
         if (ch == L'\n')
@@ -159,7 +159,7 @@ MultiLineTextView::MultiLineTextView(ViewResources& res,
                     lineCapacity,
                     lineHeight) {}
 
-void MultiLineTextView::typesetGlyphs(const std::string& str,
+void MultiLineTextView::typesetGlyphs(std::string_view str,
                                       const zeus::CColor& defaultColor,
                                       unsigned wrap)
 {
@@ -210,7 +210,7 @@ void MultiLineTextView::typesetGlyphs(const std::string& str,
     updateSize();
 }
 
-void MultiLineTextView::typesetGlyphs(const std::wstring& str,
+void MultiLineTextView::typesetGlyphs(std::wstring_view str,
                                       const zeus::CColor& defaultColor,
                                       unsigned wrap)
 {

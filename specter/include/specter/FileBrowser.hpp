@@ -60,13 +60,13 @@ private:
         FileBrowser& m_fb;
         ViewChild<std::unique_ptr<Button>> m_button;
         std::string m_text;
-        OKButton(FileBrowser& fb, ViewResources& res, const std::string& text)
+        OKButton(FileBrowser& fb, ViewResources& res, std::string_view text)
         : m_fb(fb), m_text(text)
         {
             m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::CColor::skWhite,
                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
         }
-        const char* name(const Control* control) const {return m_text.c_str();}
+        std::string_view name(const Control* control) const {return m_text;}
         void activated(const Button* button, const boo::SWindowCoord&) {m_fb.okActivated(true);}
     } m_ok;
 
@@ -76,13 +76,13 @@ private:
         FileBrowser& m_fb;
         ViewChild<std::unique_ptr<Button>> m_button;
         std::string m_text;
-        CancelButton(FileBrowser& fb, ViewResources& res, const std::string& text)
+        CancelButton(FileBrowser& fb, ViewResources& res, std::string_view text)
         : m_fb(fb), m_text(text)
         {
             m_button.m_view.reset(new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::CColor::skWhite,
                 RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
         }
-        const char* name(const Control* control) const {return m_text.c_str();}
+        std::string_view name(const Control* control) const {return m_text;}
         void activated(const Button* button, const boo::SWindowCoord&) {m_fb.cancelActivated();}
     } m_cancel;
 
@@ -96,8 +96,8 @@ private:
         std::string m_name;
         FileFieldBind(FileBrowser& browser, const IViewManager& vm)
         : m_browser(browser), m_name(vm.translateOr("file_name", "File Name")) {}
-        const char* name(const Control* control) const {return m_name.c_str();}
-        void changed(const Control* control, const std::string& val)
+        std::string_view name(const Control* control) const {return m_name;}
+        void changed(const Control* control, std::string_view val)
         {
         }
     } m_fileFieldBind;
@@ -128,34 +128,34 @@ private:
         size_t columnCount() const {return 3;}
         size_t rowCount() const {return m_entries.size();}
 
-        const std::string* header(size_t cIdx) const
+        std::string_view header(size_t cIdx) const
         {
             switch (cIdx)
             {
             case 0:
-                return &m_nameCol;
+                return m_nameCol;
             case 1:
-                return &m_typeCol;
+                return m_typeCol;
             case 2:
-                return &m_sizeCol;
+                return m_sizeCol;
             default: break;
             }
-            return nullptr;
+            return {};
         }
 
-        const std::string* cell(size_t cIdx, size_t rIdx) const
+        std::string_view cell(size_t cIdx, size_t rIdx) const
         {
             switch (cIdx)
             {
             case 0:
-                return &m_entries.at(rIdx).m_name;
+                return m_entries.at(rIdx).m_name;
             case 1:
-                return &m_entries.at(rIdx).m_type;
+                return m_entries.at(rIdx).m_type;
             case 2:
-                return &m_entries.at(rIdx).m_size;
+                return m_entries.at(rIdx).m_size;
             default: break;
             }
-            return nullptr;
+            return {};
         }
 
         float m_columnSplits[3] = {0.0f, 0.7f, 0.9f};
@@ -182,7 +182,7 @@ private:
                 m_entries.emplace_back();
                 Entry& ent = m_entries.back();
                 ent.m_path = d.m_path;
-                hecl::SystemUTF8View nameUtf8(d.m_name);
+                hecl::SystemUTF8Conv nameUtf8(d.m_name);
                 ent.m_name = nameUtf8.str();
                 if (d.m_isDir)
                 {
@@ -262,10 +262,10 @@ private:
             Entry(std::pair<hecl::SystemString, std::string>&& path)
             : m_path(std::move(path.first)), m_name(std::move(path.second)) {}
 
-            Entry(const hecl::SystemString& path)
+            Entry(hecl::SystemStringView path)
             : m_path(path)
             {
-                hecl::SystemUTF8View utf8(path);
+                hecl::SystemUTF8Conv utf8(path);
                 if (utf8.str().size() == 1 && utf8.str()[0] == '/')
                 {
                     m_name = "/";
@@ -283,9 +283,9 @@ private:
         size_t columnCount() const {return 1;}
         size_t rowCount() const {return m_entries.size();}
 
-        const std::string* cell(size_t, size_t rIdx) const
+        std::string_view cell(size_t, size_t rIdx) const
         {
-            return &m_entries.at(rIdx).m_name;
+            return m_entries.at(rIdx).m_name;
         }
 
         void setSelectedRow(size_t rIdx)
@@ -312,21 +312,21 @@ private:
     std::unique_ptr<TextView> m_recentBookmarksLabel;
     ViewChild<std::unique_ptr<Table>> m_recentBookmarks;
 
-    std::function<void(bool, const hecl::SystemString&)> m_returnFunc;
+    std::function<void(bool, hecl::SystemStringView)> m_returnFunc;
 
 public:
-    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type,
-                std::function<void(bool, const hecl::SystemString&)> returnFunc)
+    FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
+                std::function<void(bool, hecl::SystemStringView)> returnFunc)
     : FileBrowser(res, parentView, title, type, hecl::GetcwdStr(), returnFunc) {}
-    FileBrowser(ViewResources& res, View& parentView, const std::string& title, Type type,
-                const hecl::SystemString& initialPath,
-                std::function<void(bool, const hecl::SystemString&)> returnFunc);
+    FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
+                hecl::SystemStringView initialPath,
+                std::function<void(bool, hecl::SystemStringView)> returnFunc);
 
-    static std::vector<hecl::SystemString> PathComponents(const hecl::SystemString& path);
+    static std::vector<hecl::SystemString> PathComponents(hecl::SystemStringView path);
     static void SyncBookmarkSelections(Table& table, BookmarkDataBind& binding,
                                        const hecl::SystemString& sel);
 
-    void navigateToPath(const hecl::SystemString& path);
+    void navigateToPath(hecl::SystemStringView path);
     bool showingHidden() const {return m_showingHidden;}
     void setShowingHidden(bool showingHidden)
     {

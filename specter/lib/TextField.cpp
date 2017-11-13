@@ -69,12 +69,13 @@ void TextField::_setMarkedText()
             repEnd += m_markReplStart + m_markReplCount;
         }
 
-        size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+        std::string_view textStr(m_textStr);
+        size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
         repPoint = std::min(repPoint, len);
         repEnd = std::min(repEnd, len);
-        std::string compStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + repPoint).iter());
+        std::string compStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + repPoint).iter());
         compStr += m_deferredMarkStr;
-        compStr += std::string((UTF8Iterator(m_textStr.cbegin()) + repEnd).iter(), m_textStr.cend());
+        compStr += std::string((UTF8Iterator(textStr.cbegin()) + repEnd).iter(), textStr.cend());
         m_text->typesetGlyphs(compStr, m_error ? rootView().themeData().uiText() :
                                                  rootView().themeData().fieldText());
 
@@ -86,8 +87,9 @@ void TextField::_setMarkedText()
         else
             _reallySetCursorPos(pos);
 
+        std::string_view deferredMarkStr(m_deferredMarkStr);
         std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
-        size_t defLen = UTF8Iterator(m_deferredMarkStr.cbegin()).countTo(m_deferredMarkStr.cend());
+        size_t defLen = UTF8Iterator(deferredMarkStr.cbegin()).countTo(deferredMarkStr.cend());
         for (auto it=glyphs.begin()+repPoint ; it<glyphs.begin()+repPoint+defLen ; ++it)
             it->m_color = rootView().themeData().fieldMarkedText();
         m_text->invalidateGlyphs();
@@ -97,7 +99,7 @@ void TextField::_setMarkedText()
     }
 }
 
-void TextField::setText(const std::string& str)
+void TextField::setText(std::string_view str)
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
     UTF8Iterator it(str.cbegin());
@@ -211,7 +213,8 @@ void TextField::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton butt
     }
     else if (m_clickFrames2 < 15)
     {
-        size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+        std::string_view textStr(m_textStr);
+        size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
         setSelectionRange(0, len);
     }
     else if (m_clickFrames < 15)
@@ -273,7 +276,8 @@ void TextField::clipboardCopy()
     if (!m_selectionCount)
         return;
 
-    UTF8Iterator begin(m_textStr.cbegin());
+    std::string_view textStr(m_textStr);
+    UTF8Iterator begin(textStr.cbegin());
     begin += m_selectionStart;
     UTF8Iterator end(begin.iter());
     end += m_selectionCount;
@@ -289,7 +293,8 @@ void TextField::clipboardCut()
     if (!m_selectionCount)
         return;
 
-    UTF8Iterator begin(m_textStr.cbegin());
+    std::string_view textStr(m_textStr);
+    UTF8Iterator begin(textStr.cbegin());
     begin += m_selectionStart;
     UTF8Iterator end(begin.iter());
     end += m_selectionCount;
@@ -297,8 +302,8 @@ void TextField::clipboardCut()
     rootView().window()->clipboardCopy(boo::EClipboardType::UTF8String,
                                        (uint8_t*)&*begin.iter(), end.iter() - begin.iter());
 
-    std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
-    newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+    std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + m_selectionStart).iter());
+    newStr.append((UTF8Iterator(textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), textStr.cend());
     size_t selStart = m_selectionStart;
     setText(newStr);
     setCursorPos(selStart);
@@ -334,21 +339,24 @@ void TextField::clipboardPaste()
 
     if (retData && saniData.size())
     {
+        std::string_view textStr(m_textStr);
         if (m_selectionCount)
         {
-            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
+            std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + m_selectionStart).iter());
             newStr.append(saniData);
-            size_t newSel = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
-            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+            std::string_view newStrView(newStr);
+            size_t newSel = UTF8Iterator(newStrView.cbegin()).countTo(newStrView.cend());
+            newStr.append((UTF8Iterator(textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), textStr.cend());
             setText(newStr);
             setCursorPos(newSel);
         }
         else
         {
-            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
+            std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + m_cursorPos).iter());
             newStr.append(saniData);
-            size_t newSel = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
-            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
+            std::string_view newStrView(newStr);
+            size_t newSel = UTF8Iterator(newStrView.cbegin()).countTo(newStrView.cend());
+            newStr.append((UTF8Iterator(textStr.cbegin()) + m_cursorPos).iter(), textStr.cend());
             setText(newStr);
             setCursorPos(newSel);
         }
@@ -391,7 +399,8 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
     {
         if ((mods & boo::EModifierKey::Shift) != boo::EModifierKey::None)
         {
-            size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+            std::string_view textStr(m_textStr);
+            size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
             if (m_cursorPos < len)
             {
                 size_t origPos = m_cursorPos;
@@ -416,37 +425,39 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
     }
     else if (key == boo::ESpecialKey::Backspace)
     {
+        std::string_view textStr(m_textStr);
         if (m_selectionCount)
         {
-            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
-            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+            std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + m_selectionStart).iter());
+            newStr.append((UTF8Iterator(textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), textStr.cend());
             size_t selStart = m_selectionStart;
             setText(newStr);
             setCursorPos(selStart);
         }
         else if (m_cursorPos > 0)
         {
-            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + (m_cursorPos-1)).iter());
-            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter(), m_textStr.cend());
+            std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + (m_cursorPos-1)).iter());
+            newStr.append((UTF8Iterator(textStr.cbegin()) + m_cursorPos).iter(), textStr.cend());
             setText(newStr);
             setCursorPos(m_cursorPos-1);
         }
     }
     else if (key == boo::ESpecialKey::Delete)
     {
-        size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+        std::string_view textStr(m_textStr);
+        size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
         if (m_selectionCount)
         {
-            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_selectionStart).iter());
-            newStr.append((UTF8Iterator(m_textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), m_textStr.cend());
+            std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + m_selectionStart).iter());
+            newStr.append((UTF8Iterator(textStr.cbegin()) + m_selectionStart + m_selectionCount).iter(), textStr.cend());
             size_t selStart = m_selectionStart;
             setText(newStr);
             setCursorPos(selStart);
         }
         else if (m_cursorPos < len)
         {
-            std::string newStr(m_textStr.cbegin(), (UTF8Iterator(m_textStr.cbegin()) + m_cursorPos).iter());
-            newStr.append((UTF8Iterator(m_textStr.cbegin()) + (m_cursorPos+1)).iter(), m_textStr.cend());
+            std::string newStr(textStr.cbegin(), (UTF8Iterator(textStr.cbegin()) + m_cursorPos).iter());
+            newStr.append((UTF8Iterator(textStr.cbegin()) + (m_cursorPos+1)).iter(), textStr.cend());
             setText(newStr);
             setCursorPos(m_cursorPos);
         }
@@ -463,7 +474,8 @@ std::pair<int,int> TextField::markedRange() const
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
     if (m_deferredMarkStr.empty())
         return {-1, 0};
-    return {m_cursorPos, UTF8Iterator(m_deferredMarkStr.cbegin()).countTo(m_deferredMarkStr.cend())};
+    std::string_view deferredMarkStr(m_deferredMarkStr);
+    return {m_cursorPos, UTF8Iterator(deferredMarkStr.cbegin()).countTo(deferredMarkStr.cend())};
 }
 std::pair<int,int> TextField::selectedRange() const
 {
@@ -472,7 +484,7 @@ std::pair<int,int> TextField::selectedRange() const
         return {-1, 0};
     return {m_deferredSelectionStart, m_deferredSelectionCount};
 }
-void TextField::setMarkedText(const std::string& str,
+void TextField::setMarkedText(std::string_view str,
                               const std::pair<int,int>& selectedRange,
                               const std::pair<int,int>& replacementRange)
 {
@@ -499,47 +511,51 @@ std::string TextField::substringForRange(const std::pair<int,int>& range,
                                          std::pair<int,int>& actualRange) const
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
-    UTF8Iterator begin(m_deferredTextStr.cbegin());
-    size_t curLen = UTF8Iterator(m_deferredTextStr.cbegin()).countTo(m_deferredTextStr.cend());
+    std::string_view deferredTextStr(m_deferredTextStr);
+    UTF8Iterator begin(deferredTextStr.cbegin());
+    size_t curLen = UTF8Iterator(deferredTextStr.cbegin()).countTo(deferredTextStr.cend());
     if (range.first >= curLen)
         return std::string();
     begin += range.first;
     size_t endIdx = std::min(size_t(range.first + range.second), curLen);
-    UTF8Iterator end(m_deferredTextStr.cbegin());
+    UTF8Iterator end(deferredTextStr.cbegin());
     end += endIdx;
     actualRange.first = range.first;
     actualRange.second = endIdx;
     return std::string(begin.iter(), end.iter());
 }
-void TextField::insertText(const std::string& str, const std::pair<int,int>& range)
+void TextField::insertText(std::string_view str, const std::pair<int,int>& range)
 {
     std::string saniStr = SanitizeUTF8TextLine(str.data(), str.size());
 
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
-    size_t curLen = UTF8Iterator(m_deferredTextStr.cbegin()).countTo(m_deferredTextStr.cend());
+    std::string_view deferredTextStr(m_deferredTextStr);
+    size_t curLen = UTF8Iterator(deferredTextStr.cbegin()).countTo(deferredTextStr.cend());
     if (range.first < 0 || range.first >= curLen)
     {
         size_t beginPos = m_deferredCursorPos;
         if (m_selectionCount)
             beginPos = m_selectionCount;
         beginPos = std::min(beginPos, curLen);
-        std::string newStr(m_deferredTextStr.cbegin(), (UTF8Iterator(m_deferredTextStr.cbegin())+beginPos).iter());
+        std::string newStr(deferredTextStr.cbegin(), (UTF8Iterator(deferredTextStr.cbegin())+beginPos).iter());
         newStr += saniStr;
-        size_t newPos = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
-        newStr += std::string((UTF8Iterator(m_deferredTextStr.cbegin())+beginPos).iter(), m_deferredTextStr.cend());
+        std::string_view newStrView(newStr);
+        size_t newPos = UTF8Iterator(newStrView.cbegin()).countTo(newStrView.cend());
+        newStr += std::string((UTF8Iterator(deferredTextStr.cbegin())+beginPos).iter(), deferredTextStr.cend());
         setText(newStr);
         setCursorPos(newPos);
         unmarkText();
         return;
     }
 
-    std::string newStr(m_deferredTextStr.cbegin(), (UTF8Iterator(m_deferredTextStr.cbegin()) + range.first).iter());
+    std::string newStr(deferredTextStr.cbegin(), (UTF8Iterator(deferredTextStr.cbegin()) + range.first).iter());
     newStr += saniStr;
-    size_t newSel = UTF8Iterator(newStr.cbegin()).countTo(newStr.cend());
+    std::string_view newStrView(newStr);
+    size_t newSel = UTF8Iterator(newStrView.cbegin()).countTo(newStrView.cend());
     size_t endIdx = range.first + range.second;
     if (endIdx >= newSel)
         endIdx = newSel - 1;
-    newStr.append((UTF8Iterator(m_deferredTextStr.cbegin()) + endIdx).iter(), m_deferredTextStr.cend());
+    newStr.append((UTF8Iterator(deferredTextStr.cbegin()) + endIdx).iter(), deferredTextStr.cend());
     setText(newStr);
     setCursorPos(newSel);
     unmarkText();
@@ -553,8 +569,9 @@ boo::SWindowRect TextField::rectForCharacterRange(const std::pair<int,int>& rang
                                                   std::pair<int,int>& actualRange) const
 {
     std::unique_lock<std::recursive_mutex> lk(m_textInputLk);
-    UTF8Iterator begin(m_textStr.cbegin());
-    size_t curLen = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+    std::string_view textStr(m_textStr);
+    UTF8Iterator begin(textStr.cbegin());
+    size_t curLen = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
     if (range.first >= curLen)
     {
         const std::vector<TextView::RenderGlyph>& glyphs = m_text->accessGlyphs();
@@ -563,7 +580,7 @@ boo::SWindowRect TextField::rectForCharacterRange(const std::pair<int,int>& rang
     }
     begin += range.first;
     size_t endIdx = std::min(size_t(range.first + range.second), curLen);
-    UTF8Iterator end(m_textStr.cbegin());
+    UTF8Iterator end(textStr.cbegin());
     end += endIdx;
     actualRange.first = range.first;
     actualRange.second = endIdx;
@@ -629,7 +646,8 @@ void TextField::setActive(bool active)
     }
     else if (!m_selectionCount)
     {
-        size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+        std::string_view textStr(m_textStr);
+        size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
         setSelectionRange(0, len);
     }
 }
@@ -660,7 +678,8 @@ void TextField::_setCursorPos()
     {
         m_hasSelectionClear = true;
         _clearSelectionRange();
-        m_cursorPos = std::min(m_deferredCursorPos, UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend()));
+        std::string_view textStr(m_textStr);
+        m_cursorPos = std::min(m_deferredCursorPos, UTF8Iterator(textStr.cbegin()).countTo(textStr.cend()));
         m_deferredCursorPos = m_cursorPos;
         m_cursorFrames = 0;
         _reallySetCursorPos(m_cursorPos);
@@ -675,7 +694,7 @@ void TextField::setCursorPos(size_t pos)
     m_hasCursorSet = true;
 }
 
-void TextField::setErrorState(const std::string& message)
+void TextField::setErrorState(std::string_view message)
 {
     m_error = true;
     if (m_selectionCount)
@@ -764,7 +783,8 @@ void TextField::_setSelectionRange()
 {
     if (m_hasSelectionSet)
     {
-        size_t len = UTF8Iterator(m_textStr.cbegin()).countTo(m_textStr.cend());
+        std::string_view textStr(m_textStr);
+        size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
         m_selectionStart = std::min(m_deferredSelectionStart, len-1);
         m_deferredSelectionStart = m_selectionStart;
         m_selectionCount = std::min(m_deferredSelectionCount, len-m_selectionStart);

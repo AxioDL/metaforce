@@ -29,7 +29,7 @@ class Outliner
             void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
         };
 
-        Node(ViewResources& res, View& parentView, const std::string& description);
+        Node(ViewResources& res, View& parentView, std::string_view description);
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseEnter(const boo::SWindowCoord&);

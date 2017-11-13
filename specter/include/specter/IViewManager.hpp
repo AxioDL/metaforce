@@ -13,7 +13,7 @@ struct IViewManager
 {
 public:
     virtual const Translator* getTranslator() const {return nullptr;}
-    virtual std::string translateOr(const std::string& key, const char* vor) const
+    virtual std::string_view translateOr(std::string_view key, std::string_view vor) const
     {
         const Translator* trans = getTranslator();
         if (trans)
@@ -25,10 +25,10 @@ public:
                                  const boo::SWindowCoord& coord) {}
 
     virtual const std::vector<hecl::SystemString>* recentProjects() const {return nullptr;}
-    virtual void pushRecentProject(const hecl::SystemString& path) {}
+    virtual void pushRecentProject(hecl::SystemStringView path) {}
 
     virtual const std::vector<hecl::SystemString>* recentFiles() const {return nullptr;}
-    virtual void pushRecentFile(const hecl::SystemString& path) {}
+    virtual void pushRecentFile(hecl::SystemStringView path) {}
 };
 
 }

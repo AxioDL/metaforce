@@ -220,7 +220,7 @@ public:
     }
 
     void resetTooltip(ViewResources& res);
-    void displayTooltip(const std::string& name, const std::string& help);
+    void displayTooltip(std::string_view name, std::string_view help);
 
     void beginInteractiveJoin(SplitView* sv, const boo::SWindowCoord& coord)
     {

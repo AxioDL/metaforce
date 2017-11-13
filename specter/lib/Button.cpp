@@ -12,12 +12,12 @@ void Button::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThe
 }
 
 Button::Button(ViewResources& res, View& parentView,
-               IButtonBinding* controlBinding, const std::string& text, Icon* icon,
+               IButtonBinding* controlBinding, std::string_view text, Icon* icon,
                Style style, const zeus::CColor& bgColor, RectangleConstraint constraint)
 : Button(res, parentView, controlBinding, text, res.themeData().uiText(), icon, style, bgColor, constraint) {}
 
 Button::Button(ViewResources& res, View& parentView,
-               IButtonBinding* controlBinding, const std::string& text, const zeus::CColor& textColor,
+               IButtonBinding* controlBinding, std::string_view text, const zeus::CColor& textColor,
                Icon* icon, Style style, const zeus::CColor& bgColor, RectangleConstraint constraint)
 : Control(res, parentView, controlBinding),
   m_style(style), m_textColor(textColor), m_bgColor(bgColor), m_textStr(text), m_constraint(constraint)
@@ -71,12 +71,12 @@ Button::Button(ViewResources& res, View& parentView,
     setText(m_textStr);
 }
 
-void Button::setText(const std::string& text)
+void Button::setText(std::string_view text)
 {
     setText(text, m_textColor);
 }
 
-void Button::setText(const std::string& text, const zeus::CColor& textColor)
+void Button::setText(std::string_view text, const zeus::CColor& textColor)
 {
     m_textStr = text;
     m_textColor = textColor;

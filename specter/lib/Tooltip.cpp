@@ -8,8 +8,8 @@ namespace specter
 #define TOOLTIP_MAX_WIDTH 316
 #define TOOLTIP_MAX_TEXT_WIDTH 300
 
-Tooltip::Tooltip(ViewResources& res, View& parentView, const std::string& title,
-                 const std::string& message)
+Tooltip::Tooltip(ViewResources& res, View& parentView, std::string_view title,
+                 std::string_view message)
 : View(res, parentView), m_titleStr(title), m_messageStr(message)
 {
     for (int i=0 ; i<16 ; ++i)

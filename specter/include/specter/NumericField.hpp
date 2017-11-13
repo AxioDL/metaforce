@@ -37,7 +37,7 @@ public:
         void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
     };
 
-    NumericField(ViewResources& res, View& parentView, const std::string& text);
+    NumericField(ViewResources& res, View& parentView, std::string_view text);
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
     void mouseEnter(const boo::SWindowCoord&);
@@ -45,7 +45,7 @@ public:
     void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-    void setText(const std::string& text);
+    void setText(std::string_view text);
     int nominalWidth() const {return m_nomWidth;}
     int nominalHeight() const {return m_nomHeight;}
 };
