@@ -11,7 +11,7 @@ namespace urde
 CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag)
 : CGuiWidget(parms), x108_modelId(modelId), x10c_lightMask(lightMask)
 {
-    if (!flag || modelId == 0xffffffff ||
+    if (!flag || !modelId.IsValid() ||
         parms.x0_frame->GetGuiSys().GetUsageMode() == CGuiSys::EUsageMode::Two)
         return;
 

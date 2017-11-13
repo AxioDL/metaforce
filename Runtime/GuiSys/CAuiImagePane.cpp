@@ -187,7 +187,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const
 
 bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() const
 {
-    return xb8_tex0Tok.IsLoaded();
+    return !xb8_tex0Tok || xb8_tex0Tok.IsLoaded();
 }
 
 void CAuiImagePane::SetTextureID0(CAssetId tex, CSimplePool* sp)
@@ -195,7 +195,7 @@ void CAuiImagePane::SetTextureID0(CAssetId tex, CSimplePool* sp)
     xc8_tex0 = tex;
     if (!sp)
         return;
-    if (xc8_tex0 != -1)
+    if (xc8_tex0.IsValid())
         xb8_tex0Tok = sp->GetObj({FOURCC('TXTR'), xc8_tex0});
     else
         xb8_tex0Tok = TLockedToken<CTexture>();
