@@ -23,7 +23,8 @@ FileStoreManager::FileStoreManager(SystemStringView domain)
     path += _S("/.heclrun");
 
     hecl::MakeDir(path.c_str());
-    path += _S('/') + domain;
+    path += _S('/');
+    path += domain.data();
 
     hecl::MakeDir(path.c_str());
     m_storeRoot = path;

@@ -54,11 +54,11 @@ static void printHelp(const hecl::SystemChar* pname)
     else
         hecl::Printf(_S("HECL"));
 #if HECL_GIT
-    hecl::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
 #elif HECL_VER
-    hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
 #else
-    hecl::Printf(_S("\nUsage: %s init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S("\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
 #endif
 }
 

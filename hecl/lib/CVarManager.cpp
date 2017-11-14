@@ -87,7 +87,7 @@ void CVarManager::deserialize(CVar* cvar)
 
     CVarContainer container;
 #if _WIN32
-    hecl::SystemString filename = m_store.getStoreRoot() + _S('/') + com_configfile->toWideLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
 #else
     hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
 #endif

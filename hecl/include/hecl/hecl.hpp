@@ -85,9 +85,9 @@ public:
     : m_utf8(WideToUTF8(str)) {}
     std::string_view str() const {return m_utf8;}
     const char* c_str() const {return m_utf8.c_str();}
-    std::string operator+(std::string_view other) const {return m_utf8 + other;}
+    std::string operator+(std::string_view other) const {return m_utf8 + other.data();}
 };
-inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {return lhs + std::string(rhs);}
+inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {return std::string(lhs) + rhs.c_str();}
 class SystemStringConv
 {
     std::wstring m_sys;
@@ -96,9 +96,9 @@ public:
     : m_sys(UTF8ToWide(str)) {}
     SystemStringView sys_str() const {return m_sys;}
     const SystemChar* c_str() const {return m_sys.c_str();}
-    std::wstring operator+(const std::wstring_view other) const {return m_sys + other;}
+    std::wstring operator+(const std::wstring_view other) const {return m_sys + other.data();}
 };
-inline std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {return lhs + std::wstring(rhs);}
+inline std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {return std::wstring(lhs) + rhs.c_str();}
 #else
 class SystemUTF8Conv
 {
@@ -915,7 +915,7 @@ public:
             return {};
         return {m_relPath.c_str() + pos + 1, m_relPath.size() - pos - 1};
     }
-    SystemStringView getLastComponentUTF8() const
+    std::string_view getLastComponentUTF8() const
     {
         size_t pos = m_relPath.rfind(_S('/'));
 #if HECL_UCS2

@@ -261,7 +261,7 @@ const ProjectPath& Project::getProjectCookedPath(const DataSpecEntry& spec) cons
     for (const ProjectDataSpec& sp : m_compiledSpecs)
         if (&sp.spec == &spec)
             return sp.cookedPath;
-    LogModule.report(logvisor::Fatal, "Unable to find spec '%s'", spec.m_name);
+    LogModule.report(logvisor::Fatal, "Unable to find spec '%s'", spec.m_name.data());
     return m_cookedRoot;
 }
 
@@ -368,7 +368,7 @@ public:
     {
         SystemString submsg(m_file);
         submsg += _S(" (");
-        submsg += specEnt->m_name;
+        submsg += specEnt->m_name.data();
         submsg += _S(')');
         if (m_progFunc)
             m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
@@ -377,7 +377,7 @@ public:
     {
         SystemString submsg(m_file);
         submsg += _S(" (");
-        submsg += specEnt->m_name;
+        submsg += specEnt->m_name.data();
         submsg += _S(", ");
         submsg += extra;
         submsg += _S(')');
