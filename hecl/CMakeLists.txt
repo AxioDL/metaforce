@@ -1,5 +1,5 @@
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR) # because of CMAKE_CXX_STANDARD
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
 project(hecl)
 
 set(CMAKE_CXX_STANDARD 17)
