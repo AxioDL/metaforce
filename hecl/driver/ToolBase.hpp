@@ -117,11 +117,13 @@ private:
 
         while (it != string.end())
         {
-            hecl::SystemString::iterator v=it;
+            std::ptrdiff_t v = it - string.begin();
 
             /* copy string until the end of the line is reached */
             for (counter=WRAP_INDENT ; counter < m_lineWidth ; ++counter)
             {
+                if (it >= string.end())
+                    return;
                 if (*it == _S('\n'))
                 {
                     counter = WRAP_INDENT;
@@ -152,11 +154,8 @@ private:
                     if (isspace(*k))
                     {
                         counter = WRAP_INDENT;
-                        if (k < v)
-                        {
-                            k = it;
-                            string.insert(k, _S('\n'));
-                        }
+                        if (k - string.begin() < v)
+                            k = string.insert(it, _S('\n'));
                         else
                             *k = _S('\n');
                         it = k + 1;
