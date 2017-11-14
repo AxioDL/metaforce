@@ -18,7 +18,7 @@ Everything else is much too experimental to make portable/stable release builds 
     * Much multimedia functionality is in place, but not fully tested
 
 ### Build Prerequisites:
-* [CMake 3+](https://cmake.org)
+* [CMake 3.10+](https://cmake.org)
 * [Python 3+](https://python.org)
 * LLVM development package *(headers and libs)*
     * [Specialized Windows Package](https://axiodl.com/LLVM-6.0.0svn-win64.exe)
