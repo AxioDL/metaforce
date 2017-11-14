@@ -35,7 +35,7 @@ install:
   - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
   - 7z x cmake.zip -oC:\projects\deps\cmake > nul
   - set PATH=C:\projects\deps\cmake\bin;%PATH%
-  - C:\projects\deps\cmake\bin\cmake.exe --version
+  - C:\projects\deps\cmake\cmake-3.9.6-win64-x64\bin\cmake.exe --version
   
   ############################################################################
   # Install custom LLVM
@@ -54,7 +54,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - C:\projects\deps\cmake\bin\cmake.exe -GNinja ..
+  - C:\projects\deps\cmake\cmake-3.9.6-win64-x64\bin\cmake.exe -GNinja ..
   - ninja
   
 notifications:
@@ -69,5 +69,5 @@ notifications:
     on_build_status_changed: false
   
 # Uncomment this to debug AppVeyor failures.
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
