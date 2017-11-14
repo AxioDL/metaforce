@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR) # because of CMAKE_CXX_STANDARD
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
 
 cmake_policy(SET CMP0054 NEW)
 project(urde)
