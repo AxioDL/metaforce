@@ -31,7 +31,7 @@ install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - set CMAKE_URL="https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.zip"
+  - set CMAKE_URL="https://cmake.org/files/v3.9/cmake-3.9.6-win64-x64.zip"
   - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
   - 7z x cmake.zip -oC:\projects\deps\cmake > nul
   - set PATH=C:\projects\deps\cmake\bin;%PATH%
