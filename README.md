@@ -21,11 +21,11 @@ Everything else is much too experimental to make portable/stable release builds 
 * [CMake 3+](https://cmake.org)
 * [Python 3+](https://python.org)
 * LLVM development package *(headers and libs)*
-    * [Specialized Windows Package](https://www.dropbox.com/s/8vz8ogsxjhhxoi2/LLVM-4.0.0svn-win64-athena.exe?dl=1)
-    * [macOS Package](http://llvm.org/releases/3.9.0/clang+llvm-3.9.0-x86_64-apple-darwin.tar.xz)
-* **[Windows]** [Visual Studio 2015 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
+    * [Specialized Windows Package](https://axiodl.com/LLVM-6.0.0svn-win64.exe)
+    * [macOS Package](http://releases.llvm.org/5.0.0/clang+llvm-5.0.0-x86_64-apple-darwin.tar.xz)
+* **[Windows]** [Visual Studio 2017 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
 * **[macOS]** [Xcode Tools](https://developer.apple.com/xcode/download/)
-* **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`, `dmix`
+* **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
 
 ### Prep Directions
 

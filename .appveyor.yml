@@ -40,7 +40,7 @@ install:
   ############################################################################
   # Install custom LLVM
   ############################################################################
-  - set LLVM_URL="https://www.dropbox.com/s/8vz8ogsxjhhxoi2/LLVM-4.0.0svn-win64-athena.exe?dl=1"
+  - set LLVM_URL="https://axiodl.com/LLVM-6.0.0svn-win64.exe"
   - appveyor DownloadFile %LLVM_URL% -FileName llvm.exe
   - llvm.exe /S /D=C:\projects\deps\llvm
   - set PATH=C:\projects\deps\llvm\bin;%PATH%
@@ -62,7 +62,7 @@ notifications:
     incoming_webhook:
       secure: uoO0I0PWyCx0KLjBOG6d17aSVuEEvYztB/UiF8J0LmTb2O735mAdWcuZHTImDFUGZxeI34/qzOB2JKqF+h8dZA5yiprSTkWIookqQjUokAM=
   - provider: Webhook
-    url: https://discordapp.com/api/webhooks/345359672326356993/M8kBYpqr1JyVNhnAHBwNN5TnZmtWy9_msxAQoeOlaa73UhPn8gLU5uYZCjU1qsAi3sGN
+    url: https://skyhook.glitch.me/api/webhooks/345359672326356993/M8kBYpqr1JyVNhnAHBwNN5TnZmtWy9_msxAQoeOlaa73UhPn8gLU5uYZCjU1qsAi3sGN/appveyor
     method: POST
     on_build_success: true
     on_build_failure: true

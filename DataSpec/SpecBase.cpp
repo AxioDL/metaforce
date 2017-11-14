@@ -1183,7 +1183,7 @@ void SpecBase::backgroundIndexProc()
         athena::io::FileReader reader(tagCachePath.getAbsolutePath());
         if (reader.isOpen())
         {
-            Log.report(logvisor::Info, _S("Cache index of '%s' loading"), getOriginalSpec().m_name);
+            Log.report(logvisor::Info, _S("Cache index of '%s' loading"), getOriginalSpec().m_name.data());
             athena::io::YAMLDocReader cacheReader;
             if (cacheReader.parse(&reader))
             {
@@ -1212,12 +1212,12 @@ void SpecBase::backgroundIndexProc()
                 fprintf(stderr, "\n");
             }
             Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),
-                       getOriginalSpec().m_name, m_tagToPath.size());
+                       getOriginalSpec().m_name.data(), m_tagToPath.size());
 
             if (nameCachePath.isFile())
             {
                 /* Read in name cache */
-                Log.report(logvisor::Info, _S("Name index of '%s' loading"), getOriginalSpec().m_name);
+                Log.report(logvisor::Info, _S("Name index of '%s' loading"), getOriginalSpec().m_name.data());
                 athena::io::FileReader nreader(nameCachePath.getAbsolutePath());
                 athena::io::YAMLDocReader nameReader;
                 if (nameReader.parse(&nreader))
@@ -1240,7 +1240,7 @@ void SpecBase::backgroundIndexProc()
                     }
                 }
                 Log.report(logvisor::Info, _S("Name index of '%s' loaded; %d names"),
-                           getOriginalSpec().m_name, m_catalogNameToTag.size());
+                           getOriginalSpec().m_name.data(), m_catalogNameToTag.size());
             }
         }
     }
@@ -1254,7 +1254,7 @@ void SpecBase::backgroundIndexProc()
         m_catalogTagToName[oidsTag] = "MP1OriginalIDs";
     }
 
-    Log.report(logvisor::Info, _S("Background index of '%s' started"), getOriginalSpec().m_name);
+    Log.report(logvisor::Info, _S("Background index of '%s' started"), getOriginalSpec().m_name.data());
     backgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
 
     tagCachePath.makeDirChain(false);
@@ -1266,7 +1266,7 @@ void SpecBase::backgroundIndexProc()
 
     m_backgroundBlender.shutdown();
     Log.report(logvisor::Info, _S("Background index of '%s' complete; %d tags, %d names"),
-               getOriginalSpec().m_name, m_tagToPath.size(), m_catalogNameToTag.size());
+               getOriginalSpec().m_name.data(), m_tagToPath.size(), m_catalogNameToTag.size());
     m_backgroundRunning = false;
 }
 

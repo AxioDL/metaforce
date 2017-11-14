@@ -419,11 +419,11 @@ struct SpecMP1 : SpecBase
                 progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
 
-            auto pakName = sysName.sys_str();
+            auto pakName = hecl::SystemString(sysName.sys_str());
             process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok) {
                 m_pakRouter.extractResources(pak, force, btok, [&](const hecl::SystemChar* substr, float factor) {
                     std::unique_lock<std::mutex> lk(msgLock);
-                    progress(pakName.data(), substr, compIdx, factor);
+                    progress(pakName.c_str(), substr, compIdx, factor);
                 });
             });
         }
