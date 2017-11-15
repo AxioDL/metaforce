@@ -116,7 +116,8 @@ void CPauseScreen::StartTransition(float time, const CStateManager& mgr, ESubScr
     std::unique_ptr<CPauseScreenBase>& newScreenSlot = x7c_screens[x78_activeIdx];
     std::unique_ptr<CGuiFrame>& newScreenInst = x64_frameInsts[x78_activeIdx];
     newScreenSlot = BuildPauseSubScreen(xc_nextSubscreen, mgr, *newScreenInst);
-    x7c_screens[1 - x78_activeIdx]->TransitioningAway();
+    if (x7c_screens[1 - x78_activeIdx])
+        x7c_screens[1 - x78_activeIdx]->TransitioningAway();
     x91_initialTransition = false;
 }
 

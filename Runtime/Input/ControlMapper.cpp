@@ -189,7 +189,7 @@ static FloatReturnFn skAnalogFuncs[] =
 };
 
 #define kCommandFilterCount 65
-static bool skCommandFilterFlag[kCommandFilterCount];
+static bool skCommandFilterFlag[kCommandFilterCount] = {true};
 
 void ControlMapper::SetCommandFiltered(ECommands cmd, bool filtered)
 {

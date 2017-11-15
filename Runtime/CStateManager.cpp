@@ -47,6 +47,7 @@
 #include "Collision/CollisionUtil.hpp"
 #include "World/CScriptWater.hpp"
 #include "World/CScriptDoor.hpp"
+#include "Input/ControlMapper.hpp"
 
 #include <cmath>
 
@@ -204,6 +205,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::ShadowProjector)] = ScriptLoader::LoadShadowProjector;
     x90c_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
 
+    ControlMapper::ResetCommandFilters();
     x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
 }
 
