@@ -17,7 +17,7 @@ public:
 
     struct SBucket
     {
-        CAssetId x0_texture = -1;
+        CAssetId x0_texture;
         float x4_appearanceRange = 0.f;
         u32 x8_imagePos = 0;
         zeus::CVector2i xc_size;
@@ -29,7 +29,7 @@ public:
 private:
     void Load(CInputStream&, u32);
     CAssetId x0_scannableObjectId;
-    u32 x4_stringId = -1;
+    CAssetId x4_stringId;
     float x8_totalDownloadTime = 0.f;
     u32 xc_category = 0;
     bool x10_important = false;

@@ -391,7 +391,7 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
         if (!x1dc_onScreenTexTok)
         {
             x1c4_onScreenTex = stateMgr.GetPendingScreenTex();
-            if (x1c4_onScreenTex.x0_id != -1)
+            if (x1c4_onScreenTex.x0_id.IsValid())
             {
                 x1dc_onScreenTexTok = g_SimplePool->GetObj({FOURCC('TXTR'), x1c4_onScreenTex.x0_id});
                 x1d8_onScreenTexAlpha = FLT_EPSILON;
@@ -399,11 +399,11 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
         }
         else
         {
-            if (stateMgr.GetPendingScreenTex().x0_id == -1 &&
+            if (!stateMgr.GetPendingScreenTex().x0_id.IsValid() &&
                 stateMgr.GetPendingScreenTex().x4_origin == zeus::CVector2i(0, 0))
             {
                 x1c4_onScreenTex.x4_origin = stateMgr.GetPendingScreenTex().x4_origin;
-                x1c4_onScreenTex.x0_id = -1;
+                x1c4_onScreenTex.x0_id = {};
                 x1d8_onScreenTexAlpha = 0.f;
             }
             else
@@ -412,7 +412,7 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
             }
         }
     }
-    else if (x1c4_onScreenTex.x0_id != -1 && x1dc_onScreenTexTok.IsLoaded())
+    else if (x1c4_onScreenTex.x0_id.IsValid() && x1dc_onScreenTexTok.IsLoaded())
     {
         x1d8_onScreenTexAlpha = std::min(x1d8_onScreenTexAlpha + dt, 1.f);
     }

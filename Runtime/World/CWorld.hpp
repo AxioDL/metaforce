@@ -46,9 +46,9 @@ class CDummyWorld : public IWorld
     } x8_phase = Phase::Loading;
     CAssetId xc_mlvlId;
     CAssetId x10_strgId;
-    CAssetId x14_savwId = -1;
+    CAssetId x14_savwId;
     std::vector<CDummyGameArea> x18_areas;
-    CAssetId x28_mapWorldId = -1;
+    CAssetId x28_mapWorldId;
     TLockedToken<CMapWorld> x2c_mapWorld;
     std::shared_ptr<IDvdRequest> x30_loadToken;
     std::unique_ptr<uint8_t[]> x34_loadBuf;
@@ -113,11 +113,11 @@ private:
         LoadingSoundGroups,
         Done,
     } x4_phase = Phase::Loading;
-    CAssetId x8_mlvlId = -1;
-    CAssetId xc_strgId = -1;
-    CAssetId x10_savwId = -1;
+    CAssetId x8_mlvlId;
+    CAssetId xc_strgId;
+    CAssetId x10_savwId;
     std::vector<std::unique_ptr<CGameArea>> x18_areas;
-    CAssetId x24_mapwId = -1;
+    CAssetId x24_mapwId;
     TLockedToken<CMapWorld> x28_mapWorld;
     std::vector<CRelay> x2c_relays;
     //AsyncTask x3c_loadToken;

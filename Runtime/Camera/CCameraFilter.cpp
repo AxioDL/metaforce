@@ -28,7 +28,7 @@ void CCameraFilterPass<S>::Update(float dt)
         if (x0_curType == EFilterType::Passthru)
         {
             x24_texObj = TLockedToken<CTexture>();
-            x20_nextTxtr = -1;
+            x20_nextTxtr = {};
         }
     }
 
@@ -47,11 +47,11 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
         xc_duration = 0.f;
         x10_remTime = 0.f;
 
-        if (txtr != -1)
+        if (txtr.IsValid())
             x24_texObj = g_SimplePool->GetObj({FOURCC('TXTR'), txtr});
         if (type == EFilterType::Passthru)
             m_shader = std::experimental::nullopt;
-        else if (x0_curType != type || (x20_nextTxtr != txtr && txtr != -1))
+        else if (x0_curType != type || (x20_nextTxtr != txtr && txtr.IsValid()))
             m_shader.emplace(type, x24_texObj);
 
         x4_nextType = type;
@@ -71,7 +71,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
         x14_prevColor = x18_curColor;
         x8_shape = shape;
         x20_nextTxtr = txtr;
-        if (txtr != -1)
+        if (txtr.IsValid())
             x24_texObj = g_SimplePool->GetObj({FOURCC('TXTR'), txtr});
         x10_remTime = time;
         xc_duration = time;
@@ -104,7 +104,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
 
         if (x0_curType == EFilterType::Passthru)
             m_shader = std::experimental::nullopt;
-        else if (x0_curType != origType || (x20_nextTxtr != origTxtr && x20_nextTxtr != -1))
+        else if (x0_curType != origType || (x20_nextTxtr != origTxtr && x20_nextTxtr.IsValid()))
             m_shader.emplace(x0_curType, x24_texObj);
     }
 }
@@ -147,7 +147,7 @@ void CCameraFilterPassPoly::SetFilter(EFilterType type, EFilterShape shape,
         case EFilterShape::FullscreenHalvesLeftRight:
         case EFilterShape::FullscreenHalvesTopBottom:
         case EFilterShape::FullscreenQuarters:
-            if (txtr != -1)
+            if (txtr.IsValid())
                 m_filter = std::make_unique<CCameraFilterPass<CTexturedQuadFilterAlpha>>();
             else
                 m_filter = std::make_unique<CCameraFilterPass<CColoredQuadFilter>>();

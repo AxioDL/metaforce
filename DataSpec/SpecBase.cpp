@@ -400,6 +400,14 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                 if (evntPath.isFile())
                     pathsOut.push_back(evntPath);
             }
+            ds.close();
+
+            hecl::ProjectPath yamlPath = asGlob.getWithExtension(_S(".yaml"), true);
+            if (yamlPath.isFile())
+            {
+                athena::io::FileReader reader(yamlPath.getAbsolutePath());
+                flattenDependenciesANCSYAML(reader, pathsOut);
+            }
 
             pathsOut.push_back(asGlob);
             return;

@@ -564,6 +564,10 @@ struct SpecMP3 : SpecBase
     {
     }
 
+    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
+    {
+    }
+
     void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                         FCookProgress progress)
     {

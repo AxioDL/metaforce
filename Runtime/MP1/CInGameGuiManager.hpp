@@ -73,7 +73,7 @@ private:
     std::vector<u32> xd8_;
     std::vector<CToken> xe8_pauseResources;
     CCameraFilterPass<CColoredQuadFilter> xf8_camFilter;
-    CAssetId x124_pauseGameHudMessage = -1;
+    CAssetId x124_pauseGameHudMessage;
     float x128_pauseGameHudTime = 0.f;
     std::list<CToken> x12c_;
     u32 x140_ = 0;

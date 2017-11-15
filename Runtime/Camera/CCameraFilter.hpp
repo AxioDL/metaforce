@@ -46,7 +46,7 @@ protected:
     zeus::CColor x14_prevColor;
     zeus::CColor x18_curColor;
     zeus::CColor x1c_nextColor;
-    CAssetId x20_nextTxtr = -1;
+    CAssetId x20_nextTxtr;
     TLockedToken<CTexture> x24_texObj; // Used to be auto_ptr
     float GetT(bool invert) const;
 public:

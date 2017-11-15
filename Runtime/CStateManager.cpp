@@ -1821,7 +1821,7 @@ void CStateManager::Update(float dt)
     if (xf14_curTimeMod900 > 900.f)
         xf14_curTimeMod900 -= 900.f;
 
-    xf08_pauseHudMessage = -1;
+    xf08_pauseHudMessage = {};
 
     CScriptEffect::ResetParticleCounts();
     UpdateThermalVisor();

@@ -164,7 +164,7 @@ bool CResLoader::ResourceExists(const SObjectTag& tag)
 
 FourCC CResLoader::GetResourceTypeById(CAssetId id) const
 {
-    if (FindResource(id))
+    if (id.IsValid() && FindResource(id))
         return x50_cachedResInfo->GetType();
     return {};
 }

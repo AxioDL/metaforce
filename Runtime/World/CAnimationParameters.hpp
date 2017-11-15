@@ -8,7 +8,7 @@ namespace urde
 
 class CAnimationParameters
 {
-    CAssetId x0_ancs = -1;
+    CAssetId x0_ancs;
     u32 x4_charIdx = -1;
     u32 x8_defaultAnim = -1;
 public:

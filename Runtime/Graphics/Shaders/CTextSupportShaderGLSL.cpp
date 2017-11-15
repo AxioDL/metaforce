@@ -32,11 +32,12 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
+"    vec3 pos = posIn[gl_VertexID].xyz;\n"
+"    vtf.uv = uvIn[gl_VertexID].xyz;\n"
 "    vtf.fontColor = color * fontColorIn;\n"
 "    vtf.outlineColor = color * outlineColorIn;\n"
 "    vtf.mulColor = mulColorIn;\n"
-"    vtf.uv = uvIn[gl_VertexID].xyz;\n"
-"    gl_Position = mtx * vec4(posIn[gl_VertexID].xyz, 1.0);\n"
+"    gl_Position = mtx * vec4(pos, 1.0);\n"
 "}\n";
 
 static const char* TextFS =

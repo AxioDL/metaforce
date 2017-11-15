@@ -62,7 +62,7 @@ struct SScriptObjectStream
 
 struct SOnScreenTex
 {
-    CAssetId x0_id = -1;
+    CAssetId x0_id;
     zeus::CVector2i x4_origin;
     zeus::CVector2i xc_extent;
 };

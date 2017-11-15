@@ -1283,11 +1283,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
     CAssetId envBumpMap;
-    if (bumpMap == -1)
+    if (!bumpMap.IsValid())
         envBumpMap = _envBumpMap;
 
     CAssetId envMap;
-    if (bumpMap == -1)
+    if (!bumpMap.IsValid())
         envMap = _envMap;
 
     return new CScriptWater(mgr, mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, triggerFlags,

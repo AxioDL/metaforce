@@ -18,8 +18,8 @@ class CSimplePool;
 class CSaveWorldMemory
 {
     friend class CMemoryCardSys;
-    CAssetId x0_strgId = -1;
-    CAssetId x4_savwId = -1;
+    CAssetId x0_strgId;
+    CAssetId x4_savwId;
     u32 x8_areaCount;
     std::vector<CAssetId> xc_areaIds;
     std::vector<CWorldLayers::Area> x1c_defaultLayerStates;
@@ -129,7 +129,7 @@ public:
         CardFileHandle m_handle;
         std::string x18_fileName;
         std::string x28_comment;
-        CAssetId x3c_bannerTex = -1;
+        CAssetId x3c_bannerTex;
         std::experimental::optional<TLockedToken<CTexture>> x40_bannerTok;
         rstl::reserved_vector<Icon, 8> x50_iconToks;
         std::vector<u8> xf4_saveBuffer;

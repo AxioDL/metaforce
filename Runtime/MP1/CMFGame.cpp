@@ -91,7 +91,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
             {
                 x14_stateManager->SetInSaveUI(x18_guiManager->IsInSaveUI());
                 UnpauseGame();
-                if (x14_stateManager->GetPauseHUDMessage() != -1)
+                if (x14_stateManager->GetPauseHUDMessage().IsValid())
                     x14_stateManager->IncrementHUDMessageFrameCounter();
             }
             break;
@@ -287,7 +287,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
         if (g_MemoryCardSys->HasSaveWorldMemory(mlvlId))
         {
             const CSaveWorldMemory& savwMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
-            if (savwMem.GetWorldNameId() != -1)
+            if (savwMem.GetWorldNameId().IsValid())
             {
                 CAssetId wtMgrFont = g_ResFactory->TranslateOriginalToNew(0xB7BBD0B4);
                 g_GameState->GetWorldTransitionManager()->EnableTransition(wtMgrFont,

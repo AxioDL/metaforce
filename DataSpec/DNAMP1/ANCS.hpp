@@ -531,6 +531,21 @@ struct ANCS : BigYAML
             trans->enumeratePrimitives(func);
     }
 
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        for (const CharacterSet::CharacterInfo& ci : characterSet.characters)
+        {
+            for (const auto& id : ci.partResData.part)
+                g_curSpec->flattenDependencies(id, pathsOut);
+            for (const auto& id : ci.partResData.swhc)
+                g_curSpec->flattenDependencies(id, pathsOut);
+            for (const auto& id : ci.partResData.unk)
+                g_curSpec->flattenDependencies(id, pathsOut);
+            for (const auto& id : ci.partResData.elsc)
+                g_curSpec->flattenDependencies(id, pathsOut);
+        }
+    }
+
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
                         const hecl::ProjectPath& outPath,

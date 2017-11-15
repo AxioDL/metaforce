@@ -11,10 +11,10 @@ class CGameHintInfo
 public:
     struct SHintLocation
     {
-        CAssetId x0_mlvlId = -1;
-        CAssetId x4_mreaId = -1;
+        CAssetId x0_mlvlId;
+        CAssetId x4_mreaId;
         TAreaId x8_areaId = kInvalidAreaId;
-        CAssetId xc_stringId = -1;
+        CAssetId xc_stringId;
         SHintLocation(CInputStream&, s32);
     };
 

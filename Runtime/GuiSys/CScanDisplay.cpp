@@ -249,7 +249,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
     }
 
     CAssetId strId = x14_scannableInfo->GetStringTableId();
-    if (strId != -1)
+    if (strId.IsValid())
         x194_scanStr = g_SimplePool->GetObj({FOURCC('STRG'), strId});
 
     for (int i=0 ; i<4 ; ++i)

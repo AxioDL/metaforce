@@ -15,7 +15,7 @@ CFaceplateDecoration::CFaceplateDecoration(CStateManager& stateMgr) {}
 void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr)
 {
     CAssetId txtrId = stateMgr.GetPlayer().GetVisorSteam().GetTextureId();
-    if (txtrId == -1)
+    if (!txtrId.IsValid())
     {
         if (xc_ready)
         {
@@ -26,7 +26,7 @@ void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr)
         }
     }
 
-    if (x0_id != txtrId && txtrId != -1)
+    if (x0_id != txtrId && txtrId.IsValid())
     {
         if (m_texFilter)
             m_texFilter = std::experimental::nullopt;

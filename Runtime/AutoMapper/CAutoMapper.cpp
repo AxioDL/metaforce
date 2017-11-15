@@ -1339,13 +1339,13 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         if (mwInfo.IsMapped(xa0_curAreaId) || mwInfo.IsAreaVisted(xa0_curAreaId))
             stringId = area->IGetStringTableAssetId();
         else
-            stringId = -1;
+            stringId = {};
     }
 
     if (x88_mapAreaStringId != stringId)
     {
         x88_mapAreaStringId = stringId;
-        if (x88_mapAreaStringId != -1)
+        if (x88_mapAreaStringId.IsValid())
             x8c_mapAreaString = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), x88_mapAreaStringId});
         else
             x8c_mapAreaString = TLockedToken<CStringTable>();
@@ -1370,7 +1370,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         if (hintDesc != x74_areaHintDescId)
         {
             x74_areaHintDescId = hintDesc;
-            if (x74_areaHintDescId != -1)
+            if (x74_areaHintDescId.IsValid())
                 x78_areaHintDesc = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), x74_areaHintDescId});
             else
                 x78_areaHintDesc = TLockedToken<CStringTable>();

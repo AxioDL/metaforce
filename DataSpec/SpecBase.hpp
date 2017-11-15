@@ -106,6 +106,7 @@ struct SpecBase : hecl::Database::IDataSpec
     void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut);
     void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut);
     virtual void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
+    virtual void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
 
     virtual void buildWorldPakList(const hecl::ProjectPath& worldPath,
                                    const hecl::ProjectPath& worldPathCooked,

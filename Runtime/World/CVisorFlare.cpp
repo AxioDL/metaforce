@@ -11,11 +11,11 @@ std::experimental::optional<CVisorFlare::CFlareDef> CVisorFlare::LoadFlareDef(CI
     if (propCount != 4)
         return {};
 
-    u32 txtrId = in.readUint32Big();
+    CAssetId txtrId = in.readUint32Big();
     float f1 = in.readFloatBig();
     float f2 = in.readFloatBig();
     zeus::CColor color = zeus::CColor::ReadRGBABig(in);
-    if (txtrId == -1)
+    if (!txtrId.IsValid())
         return {};
 
     TToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), txtrId});

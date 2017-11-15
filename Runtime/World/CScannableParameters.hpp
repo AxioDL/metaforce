@@ -8,7 +8,7 @@ namespace urde
 
 class CScannableParameters
 {
-    CAssetId x0_scanId = -1;
+    CAssetId x0_scanId;
 
 public:
     CScannableParameters() = default;

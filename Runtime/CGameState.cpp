@@ -80,7 +80,7 @@ CWorldState::CWorldState(CAssetId id)
 {
     x8_relayTracker = std::make_shared<CRelayTracker>();
     xc_mapWorldInfo = std::make_shared<CMapWorldInfo>();
-    x10_desiredAreaAssetId = -1;
+    x10_desiredAreaAssetId = {};
     x14_layerState = std::make_shared<CWorldLayerState>();
 }
 

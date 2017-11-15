@@ -113,7 +113,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr,
         zeus::CColor color = ArtifactPreColor;
         if (playerState.HasPowerUp(CPlayerState::EItemType(i + 29)))
         {
-            if (ArtifactHeadScans[i] != -1)
+            if (ArtifactHeadScans[i].IsValid())
             {
                 CAssetId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
                 float interp = (playerState.GetScanTime(newId) - 0.5f) * 2.f;

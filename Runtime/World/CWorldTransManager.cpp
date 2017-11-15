@@ -403,13 +403,13 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     x4_modelData->x158_suitModel = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), info.GetModelId()});
     x4_modelData->x164_suitSkin = g_SimplePool->GetObj(SObjectTag{FOURCC('CSKR'), info.GetSkinRulesId()});
 
-    if (platRes != -1)
+    if (platRes.IsValid())
     {
         x4_modelData->xb4_platformModelData = {CStaticRes(platRes, platScale), 2};
         x4_modelData->xb4_platformModelData.Touch(CModelData::EWhichModel::Normal, 0);
     }
 
-    if (bgRes != -1)
+    if (bgRes.IsValid())
     {
         CStaticRes bg(bgRes, bgScale);
         x4_modelData->x100_bgModelData[0] = bg;

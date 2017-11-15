@@ -18,7 +18,7 @@ static kabufuda::ECardResult g_OpResults[2] = {};
 CSaveWorldIntermediate::CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw)
 : x0_mlvlId(mlvl), x8_savwId(savw)
 {
-    if (savw == -1)
+    if (!savw.IsValid())
         x2c_dummyWorld = std::make_unique<CDummyWorld>(mlvl, false);
     else
         x34_saveWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), savw});
@@ -198,7 +198,7 @@ void CMemoryCardSys::CCardFileInfo::LockIconToken(CAssetId iconTxtr, kabufuda::E
 u32 CMemoryCardSys::CCardFileInfo::CalculateBannerDataSize() const
 {
     u32 ret = 68;
-    if (x3c_bannerTex != -1)
+    if (x3c_bannerTex.IsValid())
     {
         if ((*x40_bannerTok)->GetMemoryCardTexelFormat() == ETexelFormat::RGB5A3)
             ret = 6212;
@@ -250,7 +250,7 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer()
 
 void CMemoryCardSys::CCardFileInfo::WriteBannerData(CMemoryOutStream& out) const
 {
-    if (x3c_bannerTex != -1)
+    if (x3c_bannerTex.IsValid())
     {
         const TLockedToken<CTexture>& tex = *x40_bannerTok;
         u32 bufSz;
@@ -326,7 +326,7 @@ ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(kabufuda::CardStat& stat) c
     stat.SetIconAddr(68);
 
     kabufuda::EImageFormat bannerFmt;
-    if (x3c_bannerTex != -1)
+    if (x3c_bannerTex.IsValid())
     {
         if ((*x40_bannerTok)->GetMemoryCardTexelFormat() == ETexelFormat::RGB5A3)
             bannerFmt = kabufuda::EImageFormat::RGB5A3;

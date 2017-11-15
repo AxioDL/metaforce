@@ -1132,6 +1132,21 @@ struct SpecMP1 : SpecBase
         }
     }
 
+    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
+    {
+        athena::io::YAMLDocReader reader;
+        if (reader.parse(&fin))
+        {
+            std::string classStr = reader.readString("DNAType");
+            if (!classStr.compare(DNAMP1::ANCS::DNAType()))
+            {
+                DNAMP1::ANCS ancs;
+                ancs.read(reader);
+                ancs.gatherDependencies(pathsOut);
+            }
+        }
+    }
+
     void buildWorldPakList(const hecl::ProjectPath& worldPath,
                            const hecl::ProjectPath& worldPathCooked,
                            hecl::BlenderToken& btok,
@@ -1168,8 +1183,13 @@ struct SpecMP1 : SpecBase
         nameEnt.write(w);
 
         for (const auto& area : mlvl.areas)
+        {
+            urde::SObjectTag nameTag(FOURCC('STRG'), area.areaNameId.toUint32());
+            if (nameTag)
+                listOut.push_back(nameTag);
             for (const auto& dep : area.deps)
                 listOut.push_back({dep.type, dep.id.toUint32()});
+        }
 
         urde::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint32());
         if (nameTag)

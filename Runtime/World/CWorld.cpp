@@ -39,7 +39,7 @@ TAreaId CDummyWorld::IGetCurrentAreaId() const { return x3c_curAreaId; }
 TAreaId CDummyWorld::IGetAreaId(CAssetId id) const
 {
     int ret = 0;
-    if (id == -1)
+    if (!id.IsValid())
         return kInvalidAreaId;
     for (const CDummyGameArea& area : x18_areas)
     {
@@ -213,7 +213,7 @@ TAreaId CWorld::IGetCurrentAreaId() const { return x68_curAreaId; }
 TAreaId CWorld::IGetAreaId(CAssetId id) const
 {
     int ret = 0;
-    if (id == -1)
+    if (!id.IsValid())
         return kInvalidAreaId;
     for (const std::unique_ptr<CGameArea>& area : x18_areas)
     {
@@ -248,7 +248,7 @@ void CWorld::LoadSoundGroups() {}
 
 bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 {
-    if (mreaId != -1)
+    if (mreaId.IsValid())
     {
         x68_curAreaId = 0;
         TAreaId aid = 0;
@@ -281,7 +281,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
         if (version >= 12)
         {
             CAssetId skyboxId = r.readUint32Big();
-            if (skyboxId != -1 && mgr)
+            if (skyboxId.IsValid() && mgr)
                 x94_skyboxWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
         }
         if (version >= 17)

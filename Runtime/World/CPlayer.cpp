@@ -1235,7 +1235,7 @@ void CPlayer::FinishNewScan(CStateManager& mgr)
                         auto scanCompletion = mgr.CalculateScanCompletionRate();
                         CAssetId message = UpdatePersistentScanPercent(mgr.GetPlayerState()->GetLogScans(),
                                                                     scanCompletion.first, scanCompletion.second);
-                        if (message != -1)
+                        if (message.IsValid())
                             mgr.ShowPausedHUDMemo(message, 0.f);
                         mgr.GetPlayerState()->SetScanCompletionRate(scanCompletion);
                     }
