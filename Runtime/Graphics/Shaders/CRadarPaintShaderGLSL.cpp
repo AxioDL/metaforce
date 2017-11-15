@@ -26,9 +26,10 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
-"    vtf.color = colorIn;\n"
+"    vec3 pos = posIn[gl_VertexID].xyz;\n"
 "    vtf.uv = uvIn[gl_VertexID].xy;\n"
-"    gl_Position = xf * vec4(posIn[gl_VertexID].xyz, 1.0);\n"
+"    vtf.color = colorIn;\n"
+"    gl_Position = xf * vec4(pos, 1.0);\n"
 "}\n";
 
 static const char* FS =
