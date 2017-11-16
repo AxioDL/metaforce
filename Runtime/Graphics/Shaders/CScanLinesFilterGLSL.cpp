@@ -115,8 +115,8 @@ CScanLinesFilter::Initialize(boo::GLDataFactory::Context& ctx)
     s_AddPipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames, boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames, boo::BlendFactor::Zero,
+                                           boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CScanLinesFilterGLDataBindingFactory;
 }
@@ -144,8 +144,8 @@ CScanLinesFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
     s_AddPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::Zero,
+                                           boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CScanLinesFilterVulkanDataBindingFactory;
 }

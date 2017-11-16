@@ -9,8 +9,8 @@ namespace MP1
 {
 
 CPauseScreenBlur::CPauseScreenBlur()
+: x4_mapLightQuarter(g_SimplePool->GetObj("TXTR_MapLightQuarter"))
 {
-    x4_mapLightQuarter = g_SimplePool->GetObj("TXTR_MapLightQuarter");
     x50_25_gameDraw = true;
 }
 
@@ -106,7 +106,7 @@ void CPauseScreenBlur::Draw(const CStateManager&) const
     {
         zeus::CColor filterColor =
             zeus::CColor::lerp(zeus::CColor::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
-        const_cast<CTexturedQuadFilter&>(m_quarterFilter).DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
+        const_cast<CTexturedQuadFilter&>(m_quarterFilter).DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t * (31.f/32.f));
         zeus::CColor scanLinesColor =
             zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(0.75f, 1.f), t);
         const_cast<CScanLinesFilterEven&>(m_linesFilter).draw(scanLinesColor);

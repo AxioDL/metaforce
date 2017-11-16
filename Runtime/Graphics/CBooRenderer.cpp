@@ -659,12 +659,12 @@ void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
 
     for (int i=0 ; i<112 ; ++i)
     {
+        verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
         if (i != 0)
             verts.push_back(verts.back());
-        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
-        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f));
-        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
-        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f));
+        verts.push_back(zeus::CVector3f( 1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
+        verts.push_back(zeus::CVector3f( 1.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f));
         if (i != 111)
             verts.push_back(verts.back());
     }
@@ -676,12 +676,12 @@ void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
 
     for (int i=0 ; i<112 ; ++i)
     {
+        verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f));
         if (i != 0)
             verts.push_back(verts.back());
-        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f));
-        verts.push_back(zeus::CVector3f(-1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
-        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f));
-        verts.push_back(zeus::CVector3f( 1.f, 0.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f));
+        verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
+        verts.push_back(zeus::CVector3f( 1.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f));
+        verts.push_back(zeus::CVector3f( 1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
         if (i != 111)
             verts.push_back(verts.back());
     }

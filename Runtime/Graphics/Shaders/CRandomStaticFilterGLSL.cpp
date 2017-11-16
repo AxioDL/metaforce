@@ -177,11 +177,11 @@ CRandomStaticFilter::Initialize(boo::GLDataFactory::Context& ctx)
     s_AddPipeline = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, 1, texNames, 1, uniNames, boo::BlendFactor::Zero,
+                                           boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, 1, texNames, 1, uniNames, boo::BlendFactor::SrcColor,
-                                                   boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+    s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, 1, texNames, 1, uniNames, boo::BlendFactor::Zero,
+                                                   boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
                                                    boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CRandomStaticFilterGLDataBindingFactory;
 }

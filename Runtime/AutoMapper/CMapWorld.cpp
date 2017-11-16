@@ -50,13 +50,15 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count)
 
     for (int i=0 ; i<2 ; ++i)
     {
-        for (CMapAreaData* data = x10_listHeads[i] ; data ; data = data->NextMapAreaData())
+        for (CMapAreaData* data = x10_listHeads[i] ; data ;)
         {
+            CMapAreaData* nextData = data->NextMapAreaData();
             if (!IsMapAreaInBFSInfoVector(data, bfsInfos))
             {
                 data->Unlock();
                 MoveMapAreaToList(data, EMapAreaList::Unloaded);
             }
+            data = nextData;
         }
     }
 

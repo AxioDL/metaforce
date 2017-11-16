@@ -617,17 +617,17 @@ void CPlayer::Update(float dt, CStateManager& mgr)
 
 static const float skStrafeDistances[] =
 {
-    11.8, 11.8, 11.8, 5.0, 6.0, 5.0, 5.0, 6.0
+    11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f
 };
 
 static const float skDashStrafeDistances[] =
 {
-    30.0, 22.6, 10.0, 10.0, 10.0, 10.0, 10.0
+    30.0f, 22.6f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f
 };
 
 static const float skOrbitForwardDistances[] =
 {
-    11.8, 11.8, 11.8, 5.0, 6.0, 5.0, 5.0, 6.0
+    11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f
 };
 
 float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr)
