@@ -172,11 +172,8 @@ FourCC CResLoader::GetResourceTypeById(CAssetId id) const
 const SObjectTag* CResLoader::GetResourceIdByName(std::string_view name) const
 {
     for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
-    {
-        const SObjectTag* id = file->GetResIdByName(name);
-        if (id)
+        if (const SObjectTag* id = file->GetResIdByName(name))
             return id;
-    }
     return nullptr;
 }
 
@@ -312,13 +309,9 @@ void CResLoader::EnumerateResources(const std::function<bool(const SObjectTag&)>
 void CResLoader::EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const
 {
     for (auto it = x18_pakLoadedList.begin() ; it != x18_pakLoadedList.end() ; ++it)
-    {
         for (const auto& name : (*it)->GetNameList())
-        {
             if (!lambda(name.first, name.second))
                 return;
-        }
-    }
 }
 
 }

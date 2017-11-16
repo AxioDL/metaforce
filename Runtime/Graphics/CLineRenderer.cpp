@@ -106,6 +106,8 @@ static zeus::CVector2f IntersectLines(const zeus::CVector2f& pa1, const zeus::CV
     zeus::CVector2f pa1mpa2 = pa1 - pa2;
     zeus::CVector2f pb1mpb2 = pb1 - pb2;
     float denom = pa1mpa2.x * pb1mpb2.y - pa1mpa2.y * pb1mpb2.x;
+    if (denom < 0.0001f)
+        return pa2;
     float numt1 = pa1.x * pa2.y - pa1.y * pa2.x;
     float numt2 = pb1.x * pb2.y - pb1.y * pb2.x;
     return {(numt1 * pb1mpb2.x - pa1mpa2.x * numt2) / denom,
