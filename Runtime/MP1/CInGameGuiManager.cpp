@@ -319,7 +319,7 @@ void CInGameGuiManager::OnNewPauseScreenState(CArchitectureQueue& archQueue)
 {
     if (x1c0_nextState != EInGameGuiState::PauseGame && x1c0_nextState != EInGameGuiState::PauseLogBook)
     {
-        if (x48_pauseScreen->IsTransitioning())
+        if (x48_pauseScreen && x48_pauseScreen->IsTransitioning())
             return;
         x48_pauseScreen.reset();
     }
@@ -481,7 +481,7 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
     {
         if (x1c0_nextState == EInGameGuiState::Zero || x1c0_nextState == EInGameGuiState::InGame)
             TryReloadAreaTextures();
-        if ((x1bc_prevState == x1c0_nextState || !x1e8_enableAutoMapper) &&
+        if ((!x38_autoMapper->IsInMapperStateTransition() || !x1e8_enableAutoMapper) &&
             x3c_pauseScreenBlur->IsNotTransitioning())
             OnNewPauseScreenState(archQueue);
     }

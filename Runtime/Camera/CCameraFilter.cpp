@@ -179,40 +179,17 @@ void CCameraBlurPass::Draw()
     if (x10_curType == EBlurType::NoBlur)
         return;
 
-    SClipScreenRect rect(g_Viewport);
-    CGraphics::ResolveSpareTexture(rect);
-
     if (x10_curType == EBlurType::Xray)
     {
-        float blurX = x1c_curValue * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
-        float blurY = x1c_curValue * g_tweakGui->GetXrayBlurScaleQuadratic() * 0.25f;
-
-        for (int i=0 ; i<4 ; ++i)
-        {
-            float iflt = i;
-            float uvScale = (1.f - (blurX * iflt + blurY * iflt * iflt));
-            float uvOffset = uvScale * -0.5f + 0.5f;
-        }
+        if (!m_xrayShader)
+            m_xrayShader.emplace(x0_paletteTex);
+        m_xrayShader->draw(x1c_curValue);
     }
     else
     {
-        for (int i=0 ; i<7 ; ++i)
-        {
-            float amtX = 0.f;
-            float amtY = 0.f;
-            if (i)
-            {
-                float tmp = i - 1;
-                tmp *= 2.f * M_PIF;
-                tmp /= 6.f;
-
-                amtX = std::cos(tmp);
-                amtX *= x1c_curValue / 640.f;
-
-                amtY = std::sin(tmp);
-                amtY *= x1c_curValue / 448.f;
-            }
-        }
+        if (!m_shader)
+            m_shader.emplace();
+        m_shader->draw(x1c_curValue);
     }
 }
 

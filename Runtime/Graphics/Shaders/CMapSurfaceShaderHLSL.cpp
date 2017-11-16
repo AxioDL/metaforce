@@ -72,7 +72,7 @@ CMapSurfaceShader::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr, s_VtxFmt,
         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-        boo::ZTest::LEqual, false, true, false, boo::CullMode::Backface);
+        boo::ZTest::None, false, true, false, boo::CullMode::Backface);
     return new CMapSurfaceShaderD3DDataBindingFactory;
 }
 

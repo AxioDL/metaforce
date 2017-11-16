@@ -33,10 +33,8 @@ void CXRayBlurFilter::draw(float amount)
 {
     CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
 
-    float blurL = amount * 0.0014f * 0.25f;
-    float blurQ = amount * 0.0000525f * 0.25f;
-    //float blurL = amount * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
-    //float blurQ = amount * g_tweakGui->GetXrayBlurScaleQuadratic() * 0.25f;
+    float blurL = amount * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
+    float blurQ = amount * g_tweakGui->GetXrayBlurScaleQuadratic() * 0.25f;
 
     for (int i=0 ; i<4 ; ++i)
     {

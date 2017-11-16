@@ -363,7 +363,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
     std::sort(sortInfos.begin(), sortInfos.end(),
     [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b)
     {
-        return a.GetZDistance() < b.GetZDistance();
+        return a.GetZDistance() > b.GetZDistance();
     });
 
     int lastAreaIdx = -1;

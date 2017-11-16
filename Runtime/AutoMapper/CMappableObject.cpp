@@ -73,10 +73,9 @@ zeus::CTransform CMappableObject::AdjustTransformForType()
     }
     else if (x0_type >= EMappableObjectType::BlueDoor || x0_type <= EMappableObjectType::PlasmaDoorFloor2)
     {
-        zeus::CMatrix4f tmp = x10_transform.toMatrix4f().transposed();
-        return zeus::CTransform::Translate(tmp.m[1][0], tmp.m[2][1], tmp[3][2]);
+        return x10_transform;
     }
-    return x10_transform;
+    return zeus::CTransform::Translate(x10_transform.origin);
 }
 
 std::pair<zeus::CColor, zeus::CColor>
@@ -155,8 +154,8 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo,
             line.Reset();
             line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
             line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-            line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
             line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
+            line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
             line.Render();
         }
     }
@@ -229,8 +228,8 @@ void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo,
     line.Reset();
     line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
     line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-    line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
     line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
+    line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
     line.Render();
 }
 

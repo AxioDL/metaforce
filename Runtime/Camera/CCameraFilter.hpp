@@ -4,6 +4,8 @@
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
+#include "Graphics/Shaders/CCameraBlurFilter.hpp"
+#include "Graphics/Shaders/CXRayBlurFilter.hpp"
 
 namespace urde
 {
@@ -102,6 +104,9 @@ class CCameraBlurPass
     //bool x2c_usePersistent = false;
     //bool x2d_noPersistentCopy = false;
     //u32 x30_persistentBuf = 0;
+
+    mutable std::experimental::optional<CCameraBlurFilter> m_shader;
+    mutable std::experimental::optional<CXRayBlurFilter> m_xrayShader;
 
 public:
     void Draw();

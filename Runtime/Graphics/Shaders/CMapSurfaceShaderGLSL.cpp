@@ -91,7 +91,7 @@ CMapSurfaceShader::Initialize(boo::GLDataFactory::Context& ctx)
     const char* uniNames[] = {"MapSurfaceUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 0, nullptr, 1, uniNames,
         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-        boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true,
+        boo::Primitive::TriStrips, boo::ZTest::None, false, true,
         false, boo::CullMode::Backface);
     return new CMapSurfaceShaderGLDataBindingFactory;
 }
@@ -113,7 +113,7 @@ CMapSurfaceShader::Initialize(boo::VulkanDataFactory::Context& ctx)
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-        boo::ZTest::LEqual, false, true, false, boo::CullMode::Backface);
+        boo::ZTest::None, false, true, false, boo::CullMode::Backface);
     return new CMapSurfaceShaderVulkanDataBindingFactory;
 }
 
