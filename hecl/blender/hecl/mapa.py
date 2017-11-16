@@ -45,10 +45,10 @@ def cook(writebuf, mesh_obj):
     # Create map surfaces and borders
     island_faces = list(bm_master.faces)
     #prev_loop_emit = None
-    out_count = 0
     loop_ranges = []
     loop_iter = 0
     while len(island_faces):
+        out_count = 0
         sel_lists_local = []
         restore_out_count = out_count
         for start_face in island_faces:
