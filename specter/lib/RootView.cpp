@@ -22,6 +22,11 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
     resized(rect, rect);
 }
 
+RootView::~RootView()
+{
+    m_window->setCallback(nullptr);
+}
+
 RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFactory::Context& ctx)
 : m_rv(rv), m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action")),
   m_splitActionNode(*this), m_joinActionNode(*this)

@@ -113,6 +113,7 @@ class RootView : public View
 
 public:
     RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);
+    ~RootView();
 
     void destroyed();
     bool isDestroyed() const {return m_destroyed;}
