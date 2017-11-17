@@ -438,7 +438,8 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
         if (x1f0_enablePlayerVisor)
             x30_playerVisor->Update(dt, stateMgr);
         if (x1f8_25_playerAlive)
-            x34_samusHud->Update(dt, stateMgr, x1e0_helmetVisMode, x1ec_hudVisMode != EHudVisMode::Zero, x1e4_enableTargetingManager);
+            x34_samusHud->Update(dt, stateMgr, x1e0_helmetVisMode, x1ec_hudVisMode != EHudVisMode::Zero,
+                                 x1e4_enableTargetingManager);
     }
 
     if (x1e8_enableAutoMapper)
@@ -747,7 +748,9 @@ void CInGameGuiManager::StartFadeIn()
 
 bool CInGameGuiManager::GetIsGameDraw() const
 {
-    return x3c_pauseScreenBlur->IsGameDraw();
+    // Always draw world for URDE, even while paused
+    return true;
+    //return x3c_pauseScreenBlur->IsGameDraw();
 }
 
 }

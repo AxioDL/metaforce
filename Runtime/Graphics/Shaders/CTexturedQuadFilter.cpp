@@ -12,6 +12,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, bool gequal)
 : m_booTex(tex), m_gequal(gequal)
 {
+    tex->setClampMode(boo::TextureClampMode::ClampToEdge);
     CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 16);
@@ -99,22 +100,22 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
     {
         Vert QuadVerts[] =
         {
-            {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
-            {{-1.f,  0.f, 0.f}, {0.f, t}},
-            {{ 0.f, -1.f, 0.f}, {t,   0.f}},
-            {{ 0.f,  0.f, 0.f}, {t,   t}},
-            {{-1.f,  1.f, 0.f}, {0.f, 0.f}},
-            {{-1.f,  0.f, 0.f}, {0.f, t}},
-            {{ 0.f,  1.f, 0.f}, {t,   0.f}},
-            {{ 0.f,  0.f, 0.f}, {t,   t}},
-            {{ 1.f, -1.f, 0.f}, {0.f, 0.f}},
-            {{ 1.f,  0.f, 0.f}, {0.f, t}},
-            {{ 0.f, -1.f, 0.f}, {t,   0.f}},
-            {{ 0.f,  0.f, 0.f}, {t,   t}},
-            {{ 1.f,  1.f, 0.f}, {0.f, 0.f}},
-            {{ 1.f,  0.f, 0.f}, {0.f, t}},
-            {{ 0.f,  1.f, 0.f}, {t,   0.f}},
-            {{ 0.f,  0.f, 0.f}, {t,   t}},
+            {{-1.f, -1.f, 0.f}, {t,   t}}, // ll
+            {{-1.f,  0.f, 0.f}, {t,   0.f}},
+            {{ 0.f, -1.f, 0.f}, {0.f, t}},
+            {{ 0.f,  0.f, 0.f}, {0.f, 0.f}},
+            {{-1.f,  1.f, 0.f}, {t,   t}}, // ul
+            {{-1.f,  0.f, 0.f}, {t,   0.f}},
+            {{ 0.f,  1.f, 0.f}, {0.f, t}},
+            {{ 0.f,  0.f, 0.f}, {0.f, 0.f}},
+            {{ 1.f, -1.f, 0.f}, {t,   t}}, // lr
+            {{ 1.f,  0.f, 0.f}, {t,   0.f}},
+            {{ 0.f, -1.f, 0.f}, {0.f, t}},
+            {{ 0.f,  0.f, 0.f}, {0.f, 0.f}},
+            {{ 1.f,  1.f, 0.f}, {t,   t}}, // ur
+            {{ 1.f,  0.f, 0.f}, {t,   0.f}},
+            {{ 0.f,  1.f, 0.f}, {0.f, t}},
+            {{ 0.f,  0.f, 0.f}, {0.f, 0.f}},
         };
         m_vbo->load(QuadVerts, sizeof(Vert) * 16);
         CGraphics::DrawArray(0, 4);

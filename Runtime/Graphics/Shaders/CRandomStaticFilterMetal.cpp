@@ -169,8 +169,8 @@ CRandomStaticFilter::Initialize(boo::MetalDataFactory::Context& ctx)
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
                                            s_VtxFmt, CGraphics::g_ViewportSamples,
-                                           boo::BlendFactor::SrcColor,
-                                           boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
+                                           boo::BlendFactor::Zero,
+                                           boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, nullptr, nullptr,
                                                    s_VtxFmt, CGraphics::g_ViewportSamples,

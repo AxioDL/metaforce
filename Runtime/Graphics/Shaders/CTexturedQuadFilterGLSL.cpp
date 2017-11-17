@@ -59,7 +59,7 @@ BOO_GLSL_BINDING_HEAD
 "void main()\n"
 "{\n"
 "    vtf.color = color;\n"
-"    vtf.uv = -uvIn.xy;\n"
+"    vtf.uv = uvIn.xy;\n"
 "    vtf.lod = lod;\n"
 "    gl_Position = mtx * vec4(posIn.xyz, 1.0);\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
