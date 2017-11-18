@@ -4,6 +4,22 @@ from mathutils import Vector
 VertPool = hmdl.HMDLMesh.VertPool
 strip_next_loop = hmdl.HMDLMesh.strip_next_loop
 
+def recursive_faces_islands(list_out, rem_list, face):
+    if face not in rem_list:
+        return []
+
+    list_out.append(face)
+    rem_list.remove(face)
+    next_faces = []
+    for e in face.edges:
+        if not e.is_contiguous or e.seam:
+            continue
+        for f in e.link_faces:
+            if f == face:
+                continue
+            next_faces.append(f)
+    return next_faces
+
 def cook(writebuf, mesh_obj):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
@@ -43,61 +59,86 @@ def cook(writebuf, mesh_obj):
     vert_pool.write_out_map(writebuf)
 
     # Create map surfaces and borders
-    island_faces = list(bm_master.faces)
-    #prev_loop_emit = None
-    loop_ranges = []
+    faces_rem = list(bm_master.faces)
     loop_iter = 0
-    while len(island_faces):
-        out_count = 0
-        sel_lists_local = []
-        restore_out_count = out_count
-        for start_face in island_faces:
-            for l in start_face.loops:
-                out_count = restore_out_count
-                island_local = list(island_faces)
-                if out_count & 1:
-                    prev_loop = l.link_loop_prev
-                    loop = prev_loop.link_loop_prev
-                    sel_list = [l, prev_loop, loop]
-                    prev_loop = loop
-                else:
-                    prev_loop = l.link_loop_next
-                    loop = prev_loop.link_loop_next
-                    sel_list = [l, prev_loop, loop]
-                out_count += 3
-                island_local.remove(start_face)
-                while True:
-                    if not prev_loop.edge.is_contiguous or prev_loop.edge.seam:
-                        break
-                    loop, prev_loop = strip_next_loop(prev_loop, out_count)
-                    face = loop.face
-                    if face not in island_local:
-                        break
-                    sel_list.append(loop)
-                    island_local.remove(face)
-                    out_count += 1
-                sel_lists_local.append((sel_list, island_local, out_count))
-        max_count = 0
-        max_sl = None
-        max_island_faces = None
-        for sl in sel_lists_local:
-            if len(sl[0]) > max_count:
-                max_count = len(sl[0])
-                max_sl = sl[0]
-                max_island_faces = sl[1]
-                out_count = sl[2]
-        island_faces = max_island_faces
+    loop_ranges = []
+    while len(faces_rem):
+        island_faces = []
+        faces = [faces_rem[0]]
+        while len(faces):
+            next_faces = []
+            ret_faces = None
+            for f in faces:
+                ret_faces = recursive_faces_islands(island_faces, faces_rem, f)
+                if ret_faces == False:
+                    break
+                next_faces.extend(ret_faces)
+            if ret_faces == False:
+                break
+            faces = next_faces
 
+        # island_faces now holds one island (map edge delimited)
+        prev_loop_emit = None
         loop_set = set()
         edge_set = set()
-        loop_count = len(max_sl)
-        for loop in max_sl:
-            vert_pool.loop_out_map(writebuf, loop)
-            loop_set.add(loop)
-            for edge in loop.face.edges:
-                if edge.seam:
-                    edge_set.add(edge)
+        out_count = 0
+        loop_count = 0
+        while len(island_faces):
+            sel_lists_local = []
+            restore_out_count = out_count
+            for start_face in island_faces:
+                for l in start_face.loops:
+                    out_count = restore_out_count
+                    island_local = list(island_faces)
+                    if out_count & 1:
+                        prev_loop = l.link_loop_prev
+                        loop = prev_loop.link_loop_prev
+                        sel_list = [l, prev_loop, loop]
+                        prev_loop = loop
+                    else:
+                        prev_loop = l.link_loop_next
+                        loop = prev_loop.link_loop_next
+                        sel_list = [l, prev_loop, loop]
+                    out_count += 3
+                    island_local.remove(start_face)
+                    while True:
+                        if not prev_loop.edge.is_contiguous or prev_loop.edge.seam:
+                            break
+                        loop, prev_loop = strip_next_loop(prev_loop, out_count)
+                        face = loop.face
+                        if face not in island_local:
+                            break
+                        sel_list.append(loop)
+                        island_local.remove(face)
+                        out_count += 1
+                    sel_lists_local.append((sel_list, island_local, out_count))
+            max_count = 0
+            max_sl = None
+            max_island_faces = None
+            for sl in sel_lists_local:
+                if len(sl[0]) > max_count:
+                    max_count = len(sl[0])
+                    max_sl = sl[0]
+                    max_island_faces = sl[1]
+                    out_count = sl[2]
+            island_faces = max_island_faces
 
+            if prev_loop_emit:
+                vert_pool.loop_out_map(writebuf, prev_loop_emit)
+                vert_pool.loop_out_map(writebuf, max_sl[0])
+                loop_count += 2
+                loop_set.add(prev_loop_emit)
+                loop_set.add(max_sl[0])
+            loop_count += len(max_sl)
+            for loop in max_sl:
+                vert_pool.loop_out_map(writebuf, loop)
+                prev_loop_emit = loop
+                loop_set.add(loop)
+                for edge in loop.face.edges:
+                    if edge.seam:
+                        edge_set.add(edge)
+
+        # Create island surface with edges
         if len(edge_set):
             trace_edge = edge_set.pop()
         else:
