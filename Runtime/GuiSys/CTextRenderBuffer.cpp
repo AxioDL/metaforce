@@ -128,6 +128,7 @@ void CTextRenderBuffer::CommitResources()
             for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)
             {
                 boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
+                texs[0]->setClampMode(boo::TextureClampMode::ClampToEdge);
                 img.m_dataBinding.push_back(ctx.newShaderDataBinding(CTextSupportShader::SelectImagePipeline(m_drawFlags),
                                                                      vFmt, nullptr, iBufInfo.first.get(), nullptr,
                                                                      1, uniforms, unistages, unioffs,

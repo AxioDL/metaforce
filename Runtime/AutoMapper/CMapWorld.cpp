@@ -379,14 +379,21 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
             const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
             zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(
                 areaPostXf.rotate(surf.GetNormal()))) * g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
-                g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
+                               g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
             color *= info.GetSurfaceColor();
             if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface)
                 CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * areaPostXf);
             surf.Draw(mapa->GetVertices(), color, info.GetOutlineColor(), parms.GetOutlineWidthScale());
+
+            lastAreaIdx = info.GetAreaIndex();
+            lastType = info.GetObjectCode();
         }
-        else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
-                 info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object)
+    }
+    for (const CMapObjectSortInfo& info : sortInfos)
+    {
+        const CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+        if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
+            info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object)
         {
             const CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
             zeus::CTransform objXf =
@@ -403,6 +410,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
                     zeus::CMatrix3f(parms.GetObjectScale())));
             }
             mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
+            lastType = info.GetObjectCode();
         }
         else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface)
         {
@@ -413,9 +421,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
             CGraphics::SetModelMatrix(objXf);
             mapObj.DrawDoorSurface(selArea, mwInfo, parms.GetAlpha(), info.GetLocalObjectIndex() % 6,
                                    lastType != info.GetObjectCode());
+            lastType = info.GetObjectCode();
         }
-        lastAreaIdx = info.GetAreaIndex();
-        lastType = info.GetObjectCode();
     }
 }
 

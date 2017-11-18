@@ -151,7 +151,7 @@ void CTextParser::ParseTag(CTextExecuteBuffer& out, const char16_t* str, int len
     }
     else if (BeginsWith(str, len, u"line-extra-space="))
     {
-        out.AddLineSpacing(ParseInt(str + 17, len - 17, true));
+        out.AddLineExtraSpace(ParseInt(str + 17, len - 17, true));
     }
     else if (BeginsWith(str, len, u"just="))
     {

@@ -159,19 +159,23 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_texAlpha = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
                                        CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                       boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                       boo::Primitive::TriStrips, boo::ZTest::None,
+                                       false, true, false, boo::CullMode::None);
     m_texAdditive = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
                                           CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                          boo::Primitive::TriStrips, boo::ZTest::None,
+                                          false, true, false, boo::CullMode::None);
     m_noTexAlpha = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
                                          CGraphics::g_ViewportSamples,
                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                         boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                         boo::Primitive::TriStrips, boo::ZTest::None,
+                                         false, true, false, boo::CullMode::None);
     m_noTexAdditive = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
                                             CGraphics::g_ViewportSamples,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                            boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                            boo::Primitive::TriStrips, boo::ZTest::None,
+                                            false, true, false, boo::CullMode::None);
 
     return new struct MetalLineDataBindingFactory;
 }

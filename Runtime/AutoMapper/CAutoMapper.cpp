@@ -1130,33 +1130,30 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
 
     if (x300_textpane_instructions)
     {
-        if (x84_)
+        if (x78_areaHintDesc.IsLoaded())
         {
-            if (x78_areaHintDesc.IsLoaded())
-            {
-                x2fc_textpane_hint->TextSupport().SetText(x78_areaHintDesc->GetString(0));
-                x304_textpane_instructions1->TextSupport().SetText(u"");
-                x300_textpane_instructions->TextSupport().SetText(u"");
-                x308_textpane_instructions2->TextSupport().SetText(u"");
-            }
-            else
-            {
-                x2fc_textpane_hint->TextSupport().SetText(u"");
-                std::u16string str = hecl::UTF8ToChar16(
-                    hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x24_lStick[x2e4_lStickPos].Value())));
-                str += g_MainStringTable->GetString(46); // Rotate
-                x300_textpane_instructions->TextSupport().SetText(str);
-                str = hecl::UTF8ToChar16(
-                    hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos].Value())));
-                str += g_MainStringTable->GetString(47); // Move
-                x304_textpane_instructions1->TextSupport().SetText(str);
-                str = hecl::UTF8ToChar16(
-                    hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos].Value())));
-                str += g_MainStringTable->GetString(48); // Zoom
-                str += hecl::UTF8ToChar16(
-                    hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos].Value())));
-                x308_textpane_instructions2->TextSupport().SetText(str);
-            }
+            x2fc_textpane_hint->TextSupport().SetText(x78_areaHintDesc->GetString(0));
+            x304_textpane_instructions1->TextSupport().SetText(u"");
+            x300_textpane_instructions->TextSupport().SetText(u"");
+            x308_textpane_instructions2->TextSupport().SetText(u"");
+        }
+        else
+        {
+            x2fc_textpane_hint->TextSupport().SetText(u"");
+            std::u16string str = hecl::UTF8ToChar16(
+                hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x24_lStick[x2e4_lStickPos].Value())));
+            str += g_MainStringTable->GetString(46); // Rotate
+            x300_textpane_instructions->TextSupport().SetText(str);
+            str = hecl::UTF8ToChar16(
+                hecl::Format("&image=SI,0.6,1.0,%8.8X;", u32(g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos].Value())));
+            str += g_MainStringTable->GetString(47); // Move
+            x304_textpane_instructions1->TextSupport().SetText(str);
+            str = hecl::UTF8ToChar16(
+                hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos].Value())));
+            str += g_MainStringTable->GetString(48); // Zoom
+            str += hecl::UTF8ToChar16(
+                hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos].Value())));
+            x308_textpane_instructions2->TextSupport().SetText(str);
         }
     }
 
@@ -1233,13 +1230,15 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
         std::u16string string;
         if (x1bc_state == EAutoMapperState::MapScreenUniverse ||
             (x1bc_state == EAutoMapperState::MapScreen && HasCurrentMapUniverseWorld()))
-            string = hecl::UTF8ToChar16(hecl::Format("image=%8.8X", u32(g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos].Value())));
+            string = hecl::UTF8ToChar16(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos].Value())));
         right1->TextSupport().SetText(string);
         CGuiTextPane* right = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_right"));
         if (x1bc_state == EAutoMapperState::MapScreenUniverse)
             string = g_MainStringTable->GetString(45);
-        else if (x1bc_state == EAutoMapperState::MapScreen)
+        else if (x1bc_state == EAutoMapperState::MapScreen && HasCurrentMapUniverseWorld())
             string = g_MainStringTable->GetString(44);
+        else
+            string = std::u16string();
         right->TextSupport().SetText(string);
     }
 

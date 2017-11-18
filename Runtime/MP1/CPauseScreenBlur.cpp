@@ -110,7 +110,7 @@ void CPauseScreenBlur::Draw(const CStateManager&) const
                                                                      filterColor, t);
         zeus::CColor scanLinesColor =
             zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(0.75f, 1.f), t);
-        //const_cast<CScanLinesFilterEven&>(m_linesFilter).draw(scanLinesColor);
+        const_cast<CScanLinesFilterEven&>(m_linesFilter).draw(scanLinesColor);
     }
 
     if (x50_24_blurring /*&& x1c_camBlur.x2d_noPersistentCopy*/)

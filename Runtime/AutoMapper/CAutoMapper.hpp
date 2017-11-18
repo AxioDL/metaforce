@@ -151,7 +151,6 @@ private:
     rstl::reserved_vector<TLockedToken<CTexture>, 5> x48_mapIcons;
     CAssetId x74_areaHintDescId;
     TLockedToken<CStringTable> x78_areaHintDesc;
-    u32 x84_ = 0;
     CAssetId x88_mapAreaStringId;
     TLockedToken<CStringTable> x8c_mapAreaString; // Used to be optional
     u32 x9c_worldIdx = 0;

@@ -113,7 +113,7 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
                 {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Color},
                 {vbufInfo.first.get(), nullptr, boo::VertexSemantic::UV4}
             };
-            vtxFmt = ctx.newVertexFormat(3, TexFmtTex);
+            vtxFmt = ctx.newVertexFormat(3, TexFmtTex, vbufInfo.second);
         }
         else
         {
@@ -123,7 +123,7 @@ struct OGLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
                 {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Position4},
                 {vbufInfo.first.get(), nullptr, boo::VertexSemantic::Color}
             };
-            vtxFmt = ctx.newVertexFormat(2, TexFmtNoTex);
+            vtxFmt = ctx.newVertexFormat(2, TexFmtNoTex, vbufInfo.second);
         }
 
         boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
@@ -221,7 +221,7 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_texAlpha = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None,
-                                       true, true, false, boo::CullMode::None);
+                                       false, true, false, boo::CullMode::None);
     m_texAdditive = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                           boo::Primitive::TriStrips, boo::ZTest::None,
@@ -229,7 +229,7 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_noTexAlpha = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                          boo::Primitive::TriStrips, boo::ZTest::None,
-                                         true, true, false, boo::CullMode::None);
+                                         false, true, false, boo::CullMode::None);
     m_noTexAdditive = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                             boo::Primitive::TriStrips, boo::ZTest::None,

@@ -84,7 +84,7 @@ void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const
         ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
         ++idx;
     }
-    if (m_indexedLights.empty())
+    if (lightsOut.empty())
     {
         //CGraphics::SetAmbientColor(zeus::CColor::skWhite);
         lightsOut.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skWhite));
