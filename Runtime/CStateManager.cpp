@@ -2202,10 +2202,10 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
         if (sp && sp->x30_24_active && sp->FirstSpawn())
         {
             const zeus::CTransform& xf = sp->GetTransform();
-            zeus::CVector3f lookVec{xf.basis[0][1], xf.basis[1][1], xf.basis[2][1]};
+            zeus::CVector3f lookVec = xf.frontVector();
             if (lookVec.canBeNormalized())
             {
-                auto lookXf = zeus::lookAt(xf.origin, lookVec);
+                auto lookXf = zeus::lookAt(xf.origin, xf.origin + lookVec);
                 x84c_player->Teleport(lookXf, *this, true);
             }
 
