@@ -202,9 +202,9 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
 
     /* Forced additive shading */
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              false, false, false, true);
+                              false, true, false, true);
 
     /* Solid color */
     ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},

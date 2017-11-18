@@ -192,9 +192,9 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
 
     /* Forced additive shading */
     ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"},
-                              1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
+                              1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              false, false, false, true);
+                              false, true, false, true);
 
     /* Solid color */
     ext.registerExtensionSlot({}, {SolidPostMetal, "SolidPostFunc"},
