@@ -4,6 +4,7 @@
 #include "hecl/CVarManager.hpp"
 #include "Runtime/CBasics.hpp"
 #include "ViewManager.hpp"
+#include "hecl/hecl.hpp"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file,
@@ -125,11 +126,24 @@ struct Application : boo::IApplicationCallback
 static hecl::SystemChar CwdBuf[1024];
 hecl::SystemString ExeDir;
 
-void SetupBasics()
+static void SetupBasics(bool logging)
 {
     logvisor::RegisterStandardExceptions();
-    logvisor::RegisterConsoleLogger();
+    if (logging)
+        logvisor::RegisterConsoleLogger();
     atSetExceptionHandler(AthenaExc);
+}
+
+static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv)
+{
+    bool logging = false;
+    for (int i = 1; i < argc; ++i)
+        if (!hecl::StrNCmp(argv[i], _S("-l"), 2))
+        {
+            logging = true;
+            break;
+        }
+    return logging;
 }
 
 #if _WIN32
@@ -138,7 +152,7 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
-    SetupBasics();
+    SetupBasics(IsClientLoggingEnabled(argc, argv));
 
     if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024))
     {
@@ -182,7 +196,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
     for (int i=0 ; i<argc ; ++i)
         booArgv[i+1] = argv[i];
 
-    logvisor::CreateWin32Console();
+    if (IsClientLoggingEnabled(argc+1, booArgv))
+        logvisor::CreateWin32Console();
     return wmain(argc+1, booArgv);
 }
 #endif

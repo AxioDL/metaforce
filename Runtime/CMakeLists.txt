@@ -65,6 +65,7 @@ add_library(RuntimeCommon
             ${WEAPON_SOURCES}
             ITweak.hpp
             IMain.hpp
+            CStopwatch.hpp
             CGameAllocator.hpp CGameAllocator.cpp
             CMemoryCardSys.hpp CMemoryCardSys.cpp
             CScannableObjectInfo.hpp CScannableObjectInfo.cpp

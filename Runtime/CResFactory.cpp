@@ -1,5 +1,6 @@
 #include "CResFactory.hpp"
 #include "CSimplePool.hpp"
+#include "CStopwatch.hpp"
 
 namespace urde
 {

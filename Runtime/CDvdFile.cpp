@@ -1,5 +1,6 @@
 #include "CDvdFile.hpp"
 #include "CDvdRequest.hpp"
+#include "CStopwatch.hpp"
 
 namespace urde
 {

@@ -1,5 +1,6 @@
 #include "CFactoryMgr.hpp"
 #include "IObj.hpp"
+#include "CStopwatch.hpp"
 
 namespace urde
 {
