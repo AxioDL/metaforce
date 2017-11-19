@@ -148,6 +148,12 @@ void CGuiFrame::SetAspectConstraint(float c)
     CGuiSys::ViewportResizeFrame(this);
 }
 
+void CGuiFrame::SetMaxAspect(float c)
+{
+    m_maxAspect = c;
+    CGuiSys::ViewportResizeFrame(this);
+}
+
 void CGuiFrame::Update(float dt)
 {
     xc_headWidget->Update(dt);

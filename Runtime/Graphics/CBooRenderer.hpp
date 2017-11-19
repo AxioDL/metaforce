@@ -68,11 +68,13 @@ class CBooRenderer : public IRenderer
         int x18_areaIdx;
         /* Per-area octree-word major, light bits minor */
         std::vector<u32> x1c_lightOctreeWords;
+        const SShader* m_shaderSet;
 
         CAreaListItem(const std::vector<CMetroidModelInstance>* geom,
                       const CAreaRenderOctTree* octTree,
                       std::vector<TCachedToken<CTexture>>&& textures,
-                      std::vector<CBooModel*>&& models, int areaIdx);
+                      std::vector<CBooModel*>&& models, int areaIdx,
+                      const SShader* shaderSet);
         ~CAreaListItem();
     };
 
@@ -205,7 +207,8 @@ public:
     void AddWorldSurfaces(CBooModel& model);
 
     std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
-    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx);
+    void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx,
+                           const SShader* shaderSet);
     void EnablePVS(const CPVSVisSet&, u32);
     void DisablePVS();
     void UpdateAreaUniforms(int areaIdx);

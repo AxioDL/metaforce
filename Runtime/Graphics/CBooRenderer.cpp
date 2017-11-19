@@ -190,9 +190,10 @@ CBooRenderer::CAreaListItem::CAreaListItem
 (const std::vector<CMetroidModelInstance>* geom,
  const CAreaRenderOctTree* octTree,
  std::vector<TCachedToken<CTexture>>&& textures,
- std::vector<CBooModel*>&& models, int areaIdx)
+ std::vector<CBooModel*>&& models, int areaIdx,
+ const SShader* shaderSet)
  : x0_geometry(geom), x4_octTree(octTree), x8_textures(std::move(textures)),
-   x10_models(std::move(models)), x18_areaIdx(areaIdx) {}
+   x10_models(std::move(models)), x18_areaIdx(areaIdx), m_shaderSet(shaderSet) {}
 
 CBooRenderer::CAreaListItem::~CAreaListItem() {}
 
@@ -738,7 +739,7 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model)
     CBooSurface* surf = model.x3c_firstSortedSurface;
     while (surf)
     {
-        const CBooModel::MaterialSet::Material& mat = model.GetMaterialByIndex(surf->m_data.matIdx);
+        const MaterialSet::Material& mat = model.GetMaterialByIndex(surf->m_data.matIdx);
         zeus::CAABox aabb = surf->GetBounds();
         zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.vec);
         Buckets::Insert(pt, aabb, EDrawableType::WorldSurface, surf, xb0_viewPlane,
@@ -755,7 +756,8 @@ CBooRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geome
 }
 
 void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
-                                     const CAreaRenderOctTree* octTree, int areaIdx)
+                                     const CAreaRenderOctTree* octTree, int areaIdx,
+                                     const SShader* shaderSet)
 {
     auto search = FindStaticGeometry(geometry);
     if (search == x1c_areaListItems.end())
@@ -773,7 +775,7 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
                 models.back()->x44_areaInstanceIdx = instIdx++;
             }
         }
-        x1c_areaListItems.emplace_back(geometry, octTree, std::move(textures), std::move(models), areaIdx);
+        x1c_areaListItems.emplace_back(geometry, octTree, std::move(textures), std::move(models), areaIdx, shaderSet);
     }
 }
 
@@ -792,10 +794,16 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx)
 {
     SetupRendererStates();
 
+    CModelFlags flags;
+    flags.m_extendedShader = EExtendedShader::Lighting;
+
     for (CAreaListItem& item : x1c_areaListItems)
     {
         if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
             continue;
+
+        item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
+                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer);
 
         for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it)
         {
@@ -803,8 +811,6 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx)
             if (model->TryLockTextures())
             {
                 ActivateLightsForModel(&item, *model);
-                CModelFlags flags;
-                flags.m_extendedShader = EExtendedShader::Lighting;
                 model->UpdateUniformData(flags, nullptr, nullptr);
             }
         }

@@ -42,9 +42,15 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
     {
         float easeB = eases[int(b.x44_viewportEase)];
         float easeA = 1.f - easeB;
-        out.x0_viewportSize = zeus::CVector2i(b.x0_viewportSize.x * easeB + a.x0_viewportSize.x * easeA,
-                                              b.x0_viewportSize.y * easeB + a.x0_viewportSize.y * easeA);
+        zeus::CVector2i vpA = a.m_getViewportSize();
+        zeus::CVector2i vpB = b.m_getViewportSize();
+        out.x0_viewportSize = zeus::CVector2i(vpB.x * easeB + vpA.x * easeA,
+                                              vpB.y * easeB + vpA.y * easeA);
     }
+    if (t == 1.f)
+        out.m_getViewportSize = b.m_getViewportSize;
+    else
+        out.m_getViewportSize = nullptr;
 
     if (b.x48_camEase != Ease::None)
     {
@@ -468,7 +474,7 @@ CAutoMapper::BuildMiniMapWorldRenderState(const CStateManager& stateMgr,
 {
     zeus::CQuaternion camOrient = GetMiniMapCameraOrientation(stateMgr);
     zeus::CQuaternion useOrient = (camOrient.dot(rot) >= 0.f) ? camOrient : camOrient.buildEquivalent();
-    SAutoMapperRenderState ret(GetMiniMapViewportSize(), useOrient, g_tweakAutoMapper->GetMiniCamDist(),
+    SAutoMapperRenderState ret(GetMiniMapViewportSize, useOrient, g_tweakAutoMapper->GetMiniCamDist(),
                                g_tweakAutoMapper->GetMiniCamAngle(), GetAreaPointOfInterest(stateMgr, area),
                                GetMapAreaMiniMapDrawDepth(), GetMapAreaMiniMapDrawDepth(),
                                GetMapAreaMiniMapDrawAlphaSurfaceVisited(stateMgr),
@@ -490,7 +496,7 @@ CAutoMapper::BuildMapScreenWorldRenderState(const CStateManager& mgr,
                                             TAreaId area, bool doingHint) const
 {
     float camDist = doingHint ? g_tweakAutoMapper->GetMaxCamDist() : g_tweakAutoMapper->GetCamDist();
-    SAutoMapperRenderState ret(GetMapScreenViewportSize(), rot, camDist,
+    SAutoMapperRenderState ret(GetMapScreenViewportSize, rot, camDist,
                                g_tweakAutoMapper->GetCamAngle(), GetAreaPointOfInterest(mgr, area),
                                GetMapAreaMaxDrawDepth(mgr, area),
                                GetMapAreaMaxDrawDepth(mgr, area),
@@ -512,7 +518,7 @@ CAutoMapper::BuildMapScreenUniverseRenderState(const CStateManager& mgr,
                                                const zeus::CQuaternion& rot,
                                                TAreaId area) const
 {
-    SAutoMapperRenderState ret(GetMapScreenViewportSize(), rot, g_tweakAutoMapper->GetUniverseCamDist(),
+    SAutoMapperRenderState ret(GetMapScreenViewportSize, rot, g_tweakAutoMapper->GetUniverseCamDist(),
                                g_tweakAutoMapper->GetCamAngle(), GetAreaPointOfInterest(mgr, area),
                                GetMapAreaMaxDrawDepth(mgr, area),
                                GetMapAreaMaxDrawDepth(mgr, area),
@@ -1203,6 +1209,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
 
     if (!m_frmeInitialized && x28_frmeMapScreen.IsLoaded())
     {
+        x28_frmeMapScreen->SetMaxAspect(1.78f);
         m_frmeInitialized = true;
         static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_left"))->TextSupport().
             SetText(g_MainStringTable->GetString(42));
@@ -1269,8 +1276,9 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr)
 
     if (x30c_basewidget_leftPane)
     {
+        float vpAspectRatio = std::max(1.78f, g_Viewport.x8_width / float(g_Viewport.xc_height));
         x30c_basewidget_leftPane->SetLocalTransform(
-            zeus::CTransform::Translate(x318_leftPanePos * -15.f, 0.f, 0.f) *
+            zeus::CTransform::Translate(x318_leftPanePos * vpAspectRatio * -9.f, 0.f, 0.f) *
             x30c_basewidget_leftPane->GetTransform());
     }
 
@@ -1443,7 +1451,16 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         alphaInterp = 1.f;
     }
 
-    float aspect = xa8_renderStates[0].x0_viewportSize.x / float(xa8_renderStates[0].x0_viewportSize.y);
+    float aspect;
+    if (xa8_renderStates[0].m_getViewportSize)
+    {
+        zeus::CVector2i vp = xa8_renderStates[0].m_getViewportSize();
+        aspect = vp.x / float(vp.y);
+    }
+    else
+        aspect = xa8_renderStates[0].x0_viewportSize.x / float(xa8_renderStates[0].x0_viewportSize.y);
+    if (aspect > 1.78f)
+        aspect = 1.78f;
     float yScale = xa8_renderStates[0].x18_camDist /
         std::tan(M_PIF / 2.f - 0.5f * 2.f * M_PIF * (xa8_renderStates[0].x1c_camAngle / 360.f));
     float xScale = yScale * aspect;

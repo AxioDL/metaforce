@@ -18,6 +18,7 @@ class CLight;
 class CAreaOctTree;
 class CParticleGen;
 class CModel;
+class SShader;
 class CSkinnedModel;
 class CPVSVisSet;
 struct CAreaRenderOctTree;
@@ -44,7 +45,8 @@ public:
     };
 
     virtual ~IRenderer() = default;
-    virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int)=0;
+    virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int,
+                                   const SShader*)=0;
     virtual void EnablePVS(const CPVSVisSet&, u32)=0;
     virtual void DisablePVS()=0;
     virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*)=0;

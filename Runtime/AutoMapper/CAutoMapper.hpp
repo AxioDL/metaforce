@@ -42,6 +42,8 @@ public:
             In,
             InOut
         };
+        typedef zeus::CVector2i(*FGetViewportSize)();
+        FGetViewportSize m_getViewportSize;
         zeus::CVector2i x0_viewportSize;
         zeus::CQuaternion x8_camOrientation;
         float x18_camDist;
@@ -60,10 +62,10 @@ public:
         Ease x54_depth2Ease;
         Ease x58_alphaEase;
         SAutoMapperRenderState() = default;
-        SAutoMapperRenderState(const zeus::CVector2i& v1, const zeus::CQuaternion& rot,
+        SAutoMapperRenderState(FGetViewportSize v1, const zeus::CQuaternion& rot,
                                float f1, float f2, const zeus::CVector3f& v2, float f3, float f4,
                                float f5, float f6, float f7, float f8)
-        : x0_viewportSize(v1), x8_camOrientation(rot), x18_camDist(f1), x1c_camAngle(f2),
+        : m_getViewportSize(v1), x0_viewportSize(v1()), x8_camOrientation(rot), x18_camDist(f1), x1c_camAngle(f2),
           x20_areaPoint(v2), x2c_drawDepth1(f3), x30_drawDepth2(f4),
           x34_alphaSurfaceVisited(f5), x38_alphaOutlineVisited(f6),
           x3c_alphaSurfaceUnvisited(f7), x40_alphaOutlineUnvisited(f8),

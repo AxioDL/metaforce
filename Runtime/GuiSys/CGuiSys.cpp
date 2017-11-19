@@ -93,6 +93,13 @@ void CGuiSys::ViewportResizeFrame(CGuiFrame* frame)
         }
         frame->m_aspectTransform = zeus::CTransform::Scale({hPad, 1.f, vPad});
     }
+    else if (frame->m_maxAspect > 0.f)
+    {
+        if (vpAspectRatio > frame->m_maxAspect)
+            frame->m_aspectTransform = zeus::CTransform::Scale({frame->m_maxAspect / vpAspectRatio, 1.f, 1.f});
+        else
+            frame->m_aspectTransform = zeus::CTransform::Identity();
+    }
 }
 
 }

@@ -40,6 +40,7 @@ private:
 
     zeus::CTransform m_aspectTransform;
     float m_aspectConstraint = -1.f;
+    float m_maxAspect = -1.f;
 
 public:
     CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
@@ -65,6 +66,7 @@ public:
     void Touch() const;
     const zeus::CTransform& GetAspectTransform() const { return m_aspectTransform; }
     void SetAspectConstraint(float c);
+    void SetMaxAspect(float c);
 
     void Update(float dt);
     void Draw(const CGuiWidgetDrawParms& parms) const;

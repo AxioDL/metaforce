@@ -48,7 +48,9 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
         x72c_camZTweaks[i] = 0.5f * i - 8.f;
 
     x264_loadedFrmeHelmet = x258_frmeHelmet.GetObj();
+    x264_loadedFrmeHelmet->SetMaxAspect(1.78f);
     x274_loadedFrmeBaseHud = x268_frmeBaseHud.GetObj();
+    x274_loadedFrmeBaseHud->SetMaxAspect(1.78f);
     x2a0_helmetIntf = std::make_unique<CHudHelmetInterface>(*x264_loadedFrmeHelmet);
 
     rstl::prereserved_vector<bool, 4> hasVisors = BuildPlayerHasVisors(stateMgr);
@@ -1690,6 +1692,7 @@ void CSamusHud::UpdateStateTransition(float dt, const CStateManager& mgr)
             if (!x278_selectedHud.IsLoaded() || !x278_selectedHud->GetIsFinishedLoading())
                 return;
             x288_loadedSelectedHud = x278_selectedHud.GetObj();
+            x288_loadedSelectedHud->SetMaxAspect(1.78f);
             x2b8_curState = x2bc_nextState;
             x2bc_nextState = x2c0_setState;
             InitializeFrameGlueMutable(mgr);

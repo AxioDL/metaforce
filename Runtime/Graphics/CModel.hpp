@@ -70,6 +70,44 @@ struct CBooSurface
     }
 };
 
+using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
+using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
+
+struct GeometryUniformLayout
+{
+    boo::ObjToken<boo::IGraphicsBufferD> m_sharedBuffer;
+    size_t m_geomBufferSize = 0;
+    size_t m_skinBankCount = 0;
+    size_t m_weightVecCount = 0;
+
+    std::vector<size_t> m_skinOffs;
+    std::vector<size_t> m_skinSizes;
+
+    std::vector<size_t> m_uvOffs;
+    std::vector<size_t> m_uvSizes;
+
+    GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
+    void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
+                const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf) const;
+};
+
+struct SShader
+{
+    std::vector<TCachedToken<CTexture>> x0_textures;
+    std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
+    MaterialSet m_matSet;
+    std::experimental::optional<GeometryUniformLayout> m_geomLayout;
+    int m_matSetIdx;
+    SShader(int idx) : m_matSetIdx(idx) {}
+    void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
+    void UnlockTextures();
+    std::shared_ptr<hecl::Runtime::ShaderPipelines>
+    BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
+    void BuildShaders(const hecl::HMDLMeta& meta,
+                      std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders);
+    void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
+};
+
 class CBooModel
 {
     friend class CModel;
@@ -77,24 +115,8 @@ class CBooModel
     friend class CBooRenderer;
     friend class CMetroidModelInstance;
     friend class CSkinnedModel;
+    friend struct GeometryUniformLayout;
 public:
-    using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
-    using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
-    struct SShader
-    {
-        std::vector<TCachedToken<CTexture>> x0_textures;
-        std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
-        MaterialSet m_matSet;
-        int m_matSetIdx;
-        SShader(int idx) : m_matSetIdx(idx) {}
-        void UnlockTextures();
-        std::shared_ptr<hecl::Runtime::ShaderPipelines>
-        BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
-        void BuildShaders(const hecl::HMDLMeta& meta,
-                          std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders);
-        void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
-    };
-
     enum class ESurfaceSelection
     {
         UnsortedOnly,
@@ -110,6 +132,7 @@ private:
     CModel* m_model;
     std::vector<CBooSurface>* x0_surfaces;
     const MaterialSet* x4_matSet;
+    const GeometryUniformLayout* m_geomLayout;
     int m_matSetIdx = -1;
     const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>* m_pipelines;
     std::vector<TCachedToken<CTexture>> x1c_textures;
@@ -134,6 +157,7 @@ private:
     size_t m_uniformDataSize = 0;
     struct ModelInstance
     {
+        boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
         boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
         std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
         boo::ObjToken<boo::IVertexFormat> m_dynamicVtxFmt;
@@ -233,19 +257,20 @@ public:
     static void EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf);
     static void DisableShadowMaps();
 
-    static void SetDummyTextures(bool b) { g_DummyTextures = true; }
+    static void SetDummyTextures(bool b) { g_DummyTextures = b; }
 };
 
 class CModel
 {
     friend class CBooModel;
+    friend struct GeometryUniformLayout;
     //std::unique_ptr<u8[]> x0_data;
     //u32 x4_dataLen;
     TToken<CModel> m_selfToken; /* DO NOT LOCK! */
     zeus::CAABox m_aabb;
     u32 m_flags;
     std::vector<CBooSurface> x8_surfaces;
-    std::vector<CBooModel::SShader> x18_matSets;
+    std::vector<SShader> x18_matSets;
     std::unique_ptr<CBooModel> x28_modelInst;
     CModel* x30_next = nullptr;
     CModel* x34_prev = nullptr;

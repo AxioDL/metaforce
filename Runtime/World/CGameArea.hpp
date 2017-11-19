@@ -213,7 +213,7 @@ public:
         u32 x8_collisionSize = 0;
         std::experimental::optional<CAreaRenderOctTree> xc_octTree;
         std::vector<CMetroidModelInstance> x4c_insts;
-        CBooModel::SShader m_materialSet = {0};
+        SShader m_materialSet = {0};
         //std::unique_ptr<from unknown, pointless MREA section> x5c_;
         std::vector<CWorldLight> x60_lightsA;
         std::vector<CLight> x70_gfxLightsA;

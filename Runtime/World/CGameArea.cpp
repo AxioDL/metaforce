@@ -777,7 +777,7 @@ void CGameArea::AddStaticGeometry()
         g_Renderer->AddStaticGeometry(&x12c_postConstructed->x4c_insts,
                                       x12c_postConstructed->xc_octTree ?
                                           &*x12c_postConstructed->xc_octTree : nullptr,
-                                      x4_selfIdx);
+                                      x4_selfIdx, &x12c_postConstructed->m_materialSet);
     }
 }
 
@@ -1196,18 +1196,23 @@ void CGameArea::FillInStaticGeometry(bool textures)
             inst.Clear();
 
     /* Materials */
-    CBooModel::SShader& matSet = x12c_postConstructed->m_materialSet;
+    SShader& matSet = x12c_postConstructed->m_materialSet;
     auto secIt = m_resolvedBufs.begin() + 2;
     {
         athena::io::MemoryReader r(secIt->first, secIt->second);
         matSet.m_matSet.read(r);
         if (textures)
             CBooModel::MakeTexturesFromMats(matSet.m_matSet, matSet.x0_textures, *g_SimplePool);
+        matSet.InitializeLayout(nullptr);
         ++secIt;
     }
 
     CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
+        /* Shared geometry uniform buffer */
+        matSet.m_geomLayout->m_sharedBuffer =
+            ctx.newDynamicBuffer(boo::BufferUse::Uniform, matSet.m_geomLayout->m_geomBufferSize, 1);
+
         /* Models */
         for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
         {
