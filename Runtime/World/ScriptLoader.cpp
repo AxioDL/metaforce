@@ -75,8 +75,9 @@
 #include "MP1/World/CNewIntroBoss.hpp"
 #include "MP1/World/CSpacePirate.hpp"
 #include "MP1/World/CWarWasp.hpp"
+#include "MP1/World/CParasite.hpp"
 #include "Particle/CWeaponDescription.hpp"
-
+#include "Camera/CPathCamera.hpp"
 namespace urde
 {
 static logvisor::Module Log("urde::ScriptLoader");
@@ -573,7 +574,7 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int prop
     bool b3 = in.readBool();
     bool b4 = in.readBool();
 
-    if (partId == 0xffffffff && elscId == 0xffffffff)
+    if (!partId.IsValid() && !elscId.IsValid())
         return nullptr;
 
     if (!g_ResFactory->GetResourceTypeById(partId) && !g_ResFactory->GetResourceTypeById(elscId))
@@ -840,8 +841,11 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    if (!EnsurePropertyCount(propCount, 25, "CamerHint"))
+    if (propCount > 25)
+    {
+        Log.report(logvisor::Warning, "Too many props (%d > 25) for CameraHint entity", propCount);
         return nullptr;
+    }
 
     SActorHead head = LoadActorHead(in, mgr);
 
@@ -1423,7 +1427,22 @@ CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (propCount > 15)
+    {
+        Log.report(logvisor::Warning, "Too many props (%d > 15) for PathCamera entity", propCount);
+        return nullptr;
+    }
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+    u32 flags = LoadParameterFlags(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    CPathCamera::EInitialSplinePosition initPos = CPathCamera::EInitialSplinePosition(in.readUint32Big());
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    return new CPathCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, f1, f2, f3, f4, f5, flags, initPos);
 }
 
 CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1573,7 +1592,44 @@ CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int p
 
 CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 6, "Parasite"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+    zeus::CTransform xf = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+
+    std::pair<bool, u32> pcount = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pcount.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pcount.second);
+    CActorParameters aParms = LoadActorParameters(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+    float f10 = in.readFloatBig();
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+    float f13 = in.readFloatBig();
+    float f14 = in.readFloatBig();
+    float f15 = in.readFloatBig();
+    float f16 = in.readFloatBig();
+    float f17 = in.readFloatBig();
+    bool b1 = in.readBool();
+
+    if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS'))
+        return nullptr;
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+    return nullptr; //return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, )
 }
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

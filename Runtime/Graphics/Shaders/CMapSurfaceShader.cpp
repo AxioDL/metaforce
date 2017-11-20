@@ -17,7 +17,7 @@ void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count)
     Uniform uniform = {
         CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), color
     };
-    m_uniBuf->load(&uniform, sizeof(uniform));
+    m_uniBuf->load(&uniform, sizeof(Uniform));
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArrayIndexed(start, count);
 }

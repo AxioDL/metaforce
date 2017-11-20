@@ -3,6 +3,7 @@ set(MP1_WORLD_SOURCES
     CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
     CSpacePirate.hpp CSpacePirate.cpp
+    CParasite.hpp CParasite.cpp
     CBabygoth.hpp CBabygoth.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
