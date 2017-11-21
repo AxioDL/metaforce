@@ -920,8 +920,8 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 
             if (!x44_frustumPlanes.aabbFrustumTest(model->x20_aabb))
             {
-                //model->x40_25_modelVisible = false;
-                //continue;
+                model->x40_25_modelVisible = false;
+                continue;
             }
 
             if (x318_25_drawWireframe)

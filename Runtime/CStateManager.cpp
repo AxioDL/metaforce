@@ -576,7 +576,7 @@ void CStateManager::DrawAdditionalFilters() const
 
 zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
 {
-    const CGameCamera* cam = static_cast<const CGameCamera*>(x870_cameraManager->GetCurrentCamera(*this));
+    const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
     zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
     g_Renderer->SetWorldViewpoint(camXf);
     CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
@@ -594,7 +594,7 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
     zeus::CFrustum frustum;
     zeus::CProjection proj;
     proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
-    frustum.updatePlanes(camXf, proj);
+    frustum.updatePlanes(CGraphics::g_GXModelView, proj);
     g_Renderer->SetClippingPlanes(frustum);
     //g_Renderer->PrimColor(zeus::CColor::skWhite);
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());
