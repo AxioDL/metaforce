@@ -12,9 +12,7 @@
 #define BOLD "\x1b[1m"
 #define NORMAL "\x1b[0m"
 
-namespace hecl
-{
-namespace Frontend
+namespace hecl::Frontend
 {
 
 std::string Diagnostics::sourceDiagString(const SourceLocation& l, bool ansi) const
@@ -43,6 +41,28 @@ std::string Diagnostics::sourceDiagString(const SourceLocation& l, bool ansi) co
     return retval;
 }
 
+void Diagnostics::reportScannerErr(const SourceLocation& l, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char* result = nullptr;
+#ifdef _WIN32
+    int length = _vscprintf(fmt, ap);
+    result = (char*)malloc(length);
+    vsnprintf(result, length, fmt, ap);
+#else
+    vasprintf(&result, fmt, ap);
+#endif
+    va_end(ap);
+    if (logvisor::XtermColor)
+        LogModule.report(logvisor::Fatal, CYAN "[Scanner]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
+    else
+        LogModule.report(logvisor::Fatal, "[Scanner] %s @%d:%d\n%s\n%s",
+                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
+    free(result);
+}
+
 void Diagnostics::reportParserErr(const SourceLocation& l, const char* fmt, ...)
 {
     va_list ap;
@@ -61,50 +81,6 @@ void Diagnostics::reportParserErr(const SourceLocation& l, const char* fmt, ...)
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
     else
         LogModule.report(logvisor::Fatal, "[Parser] %s @%d:%d\n%s\n%s",
-                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
-    free(result);
-}
-
-void Diagnostics::reportLexerErr(const SourceLocation& l, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    char* result = nullptr;
-#ifdef _WIN32
-    int length = _vscprintf(fmt, ap);
-    result = (char*)malloc(length);
-    vsnprintf(result, length, fmt, ap);
-#else
-    vasprintf(&result, fmt, ap);
-#endif
-    va_end(ap);
-    if (logvisor::XtermColor)
-        LogModule.report(logvisor::Fatal, CYAN "[Lexer]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
-                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
-    else
-        LogModule.report(logvisor::Fatal, "[Lexer] %s @%d:%d\n%s\n%s",
-                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
-    free(result);
-}
-
-void Diagnostics::reportCompileErr(const SourceLocation& l, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    char* result = nullptr;
-#ifdef _WIN32
-    int length = _vscprintf(fmt, ap);
-    result = (char*)malloc(length);
-    vsnprintf(result, length, fmt, ap);
-#else
-    vasprintf(&result, fmt, ap);
-#endif
-    va_end(ap);
-    if (logvisor::XtermColor)
-        LogModule.report(logvisor::Fatal, CYAN "[Compiler]" NORMAL " %s " YELLOW "@%d:%d " NORMAL "\n%s\n%s",
-                         m_name.c_str(), l.line, l.col, result, sourceDiagString(l, true).c_str());
-    else
-        LogModule.report(logvisor::Fatal, "[Compiler] %s @%d:%d\n%s\n%s",
                          m_name.c_str(), l.line, l.col, result, sourceDiagString(l, false).c_str());
     free(result);
 }
@@ -131,5 +107,4 @@ void Diagnostics::reportBackendErr(const SourceLocation& l, const char* fmt, ...
     free(result);
 }
 
-}
 }

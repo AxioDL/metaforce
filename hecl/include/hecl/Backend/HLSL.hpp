@@ -33,6 +33,11 @@ private:
         return hecl::Format("float3(%g,%g,%g)", vec.vec[0], vec.vec[1], vec.vec[2]);
     }
 
+    std::string EmitVec3(const std::string& a, const std::string& b, const std::string& c) const
+    {
+        return hecl::Format("float3(%s,%s,%s)", a.c_str(), b.c_str(), c.c_str());
+    }
+
     std::string EmitTexGenSource2(TexGenSrc src, int uvIdx) const;
     std::string EmitTexGenSource4(TexGenSrc src, int uvIdx) const;
 };

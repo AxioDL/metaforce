@@ -83,7 +83,7 @@ unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Ins
         if (inst.getChildCount() < 1)
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
-        const atVec4f& idxImm = idxInst.getImmVec();
+        auto& idxImm = idxInst.getImmVec();
         return addTexCoordGen(diag, inst.m_loc, TexGenSrc(TG_TEX0 + unsigned(idxImm.vec[0])), mtx, normalize, pmtx);
     }
     else if (!tcgName.compare("Normal"))
@@ -125,7 +125,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
 
             const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
-            const atVec4f& mapImm = mapInst.getImmVec();
+            auto& mapImm = mapInst.getImmVec();
             newStage.m_texMapIdx = unsigned(mapImm.vec[0]);
             newStage.m_color[0] = swizzleAlpha ? CC_TEXA : CC_TEXC;
 

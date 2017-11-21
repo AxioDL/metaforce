@@ -52,7 +52,7 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
         if (inst.getChildCount() < 1)
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
-        const atVec4f& idxImm = idxInst.getImmVec();
+        auto& idxImm = idxInst.getImmVec();
         return addTexCoordGen(TexGenSrc::UV, idxImm.vec[0], mtx, normalize);
     }
     else if (!tcgName.compare("Normal"))
@@ -91,7 +91,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
                 diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
 
             const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
-            const atVec4f& mapImm = mapInst.getImmVec();
+            auto& mapImm = mapInst.getImmVec();
             unsigned mapIdx = unsigned(mapImm.vec[0]);
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
@@ -110,6 +110,17 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
         {
             m_lighting = true;
             return toSwizzle ? EmitLightingRaw() : EmitLightingRGB();
+        }
+        else if (!name.compare("vec3"))
+        {
+            if (inst.getChildCount() < 3)
+                diag.reportBackendErr(inst.m_loc, "vec3(r,g,b) requires 3 arguments");
+            const IR::Instruction& aInst = inst.getChildInst(ir, 0);
+            const IR::Instruction& bInst = inst.getChildInst(ir, 1);
+            const IR::Instruction& cInst = inst.getChildInst(ir, 2);
+            return EmitVec3(RecursiveTraceAlpha(ir, diag, aInst, false),
+                            RecursiveTraceAlpha(ir, diag, bInst, false),
+                            RecursiveTraceAlpha(ir, diag, cInst, false));
         }
         else
             diag.reportBackendErr(inst.m_loc, "unable to interpret '%s'", name.c_str());

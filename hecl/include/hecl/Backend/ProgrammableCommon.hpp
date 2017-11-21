@@ -103,6 +103,7 @@ private:
     }
 
     virtual std::string EmitVec3(const atVec4f& vec) const=0;
+    virtual std::string EmitVec3(const std::string& a, const std::string& b, const std::string& c) const=0;
 
     std::string EmitVal(float val) const
     {

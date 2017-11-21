@@ -1,6 +1,7 @@
 set(FRONTEND_SOURCES
     Parser.cpp
-    Lexer.cpp
-    Diagnostics.cpp)
+    Scanner.cpp
+    Diagnostics.cpp
+    Frontend.cpp)
 
 hecl_add_list(Frontend FRONTEND_SOURCES)

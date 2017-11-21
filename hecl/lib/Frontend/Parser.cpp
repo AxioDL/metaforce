@@ -3,191 +3,277 @@
 
 /* Syntatical token parsing system */
 
-namespace hecl
-{
-namespace Frontend
+namespace hecl::Frontend
 {
 
-void Parser::skipWhitespace(std::string_view::const_iterator& it)
+/*
+ * hecl   = { lf } call { lf { lf } call } { lf } .
+ * call   = ident "(" [ expr { "," expr } ] ")" .
+ * expr   = sum { ("+" | "-") sum } .
+ * sum    = factor { ("*" | "/") factor } .
+ * factor = value | "(" expr ")" .
+ * value  = ( call [ "." ident ] )
+ *        | [ "-" ] number
+ *        .
+*/
+
+std::string IRNode::rep(int n, std::string_view s)
 {
-    while (it != m_source.cend())
+    std::string buf;
+    buf.reserve(n * s.size());
+    for (int i = 0; i < n; i++)
+        buf.append(s);
+    return buf;
+}
+
+std::string IRNode::fmt(int level) const
+{
+    std::string buf;
+    auto indent = rep(level, "\t"sv);
+    switch (kind)
     {
-        while (it != m_source.cend() && isspace(*it))
-            ++it;
-
-        /* Skip comment line */
-        if (it != m_source.cend() && *it == '#')
+    case Kind::Call:
+        buf.append(indent);
+        buf.append("Call "sv).append(str);
+        if (!children.empty())
         {
-            while (it != m_source.cend() && *it != '\n')
-                ++it;
-            if (it != m_source.cend() && *it == '\n')
-                ++it;
-            continue;
+            buf.append(" {\n"sv);
+            for (const IRNode& n : children)
+            {
+                buf.append(n.fmt(level + 1));
+                buf.append("\n"sv);
+            }
+            buf.append(indent);
+            buf.append("}"sv);
         }
         break;
+    case Kind::Imm:
+        buf.append(indent);
+        buf.append("Imm "sv).append(hecl::Format("%f", val));
+        break;
+    case Kind::Binop:
+        buf.append(indent);
+        buf.append("Binop "sv).append(OpToStr(op)).append(" {\n"sv);
+        buf.append(left->fmt(level + 1)).append("\n"sv);
+        buf.append(right->fmt(level + 1)).append("\n"sv);
+        buf.append(indent).append("}"sv);
+        break;
+    case Kind::Swizzle:
+        buf.append(indent);
+        buf.append("Swizzle \""sv).append(str);
+        buf.append("\" {\n"sv);
+        buf.append(left->fmt(level + 1)).append("\n"sv);
+        buf.append(indent).append("}"sv);
+        break;
+    default:
+        break;
     }
+    return buf;
 }
 
-void Parser::reset(std::string_view source)
+
+std::string IRNode::describe() const
 {
-    m_source = source;
-    m_sourceIt = m_source.cbegin();
-    m_parenStack.clear();
-    m_reset = true;
+    std::vector<std::string> l;
+    l.push_back("kind="s + KindToStr(kind).data());
+    if (!str.empty())
+        l.push_back("str="s + str);
+    if (kind == Kind::Binop)
+    {
+        l.push_back("op="s + OpToStr(op).data());
+        l.push_back("left="s + left->toString());
+        l.push_back("right="s + right->toString());
+    }
+    if (kind == Kind::Swizzle)
+        l.push_back("node="s + left->toString());
+    if (kind == Kind::Call)
+    {
+        std::string str = "children=["s;
+        for (auto it = children.begin(); it != children.end(); ++it)
+        {
+            str += it->toString();
+            if (&*it != &children.back())
+                str += ';';
+        }
+        str += ']';
+        l.push_back(str);
+    }
+
+    std::string str = "IRNode["s;
+    for (auto it = l.begin(); it != l.end(); ++it)
+    {
+        str += *it;
+        if (&*it != &l.back())
+            str += ';';
+    }
+    str += ']';
+    return str;
 }
 
-Parser::Token Parser::consumeToken()
+void Parser::check(Token::Kind expected)
 {
-    if (m_source.empty())
-        return Parser::Token(TokenType::None, SourceLocation());
-
-    /* If parser has just been reset, emit begin token */
-    if (m_reset)
-    {
-        m_reset = false;
-        return Parser::Token(TokenType::SourceBegin, getLocation());
-    }
-
-    /* Skip whitespace */
-    skipWhitespace(m_sourceIt);
-
-    /* Check for source end */
-    if (m_sourceIt == m_source.cend())
-        return Parser::Token(TokenType::SourceEnd, getLocation());
-
-    /* Check for numeric literal */
-    {
-        char* strEnd;
-        float val = strtof(&*m_sourceIt, &strEnd);
-        if (&*m_sourceIt != strEnd)
-        {
-            Parser::Token tok(TokenType::NumLiteral, getLocation());
-            tok.m_tokenFloat = val;
-            m_sourceIt += (strEnd - &*m_sourceIt);
-            return tok;
-        }
-    }
-
-    /* Check for swizzle op */
-    if (*m_sourceIt == '.')
-    {
-        int count = 0;
-        std::string_view::const_iterator tmp = m_sourceIt + 1;
-        if (tmp != m_source.cend())
-        {
-            for (int i=0 ; i<4 ; ++i)
-            {
-                std::string_view::const_iterator tmp2 = tmp + i;
-                if (tmp2 == m_source.cend())
-                    break;
-                char ch = tolower(*tmp2);
-                if (ch >= 'w' && ch <= 'z')
-                    ++count;
-                else if (ch == 'r' || ch == 'g' || ch == 'b' || ch == 'a')
-                    ++count;
-                else
-                    break;
-            }
-        }
-        if (count)
-        {
-            Parser::Token tok(TokenType::VectorSwizzle, getLocation());
-            for (int i=0 ; i<count ; ++i)
-            {
-                std::string_view::const_iterator tmp2 = tmp + i;
-                tok.m_tokenString += tolower(*tmp2);
-            }
-            m_sourceIt = tmp + count;
-            return tok;
-        }
-    }
-
-    /* Check for arithmetic op */
-    if (*m_sourceIt == '+' || *m_sourceIt == '-' || *m_sourceIt == '*' || *m_sourceIt == '/')
-    {
-        Parser::Token tok(TokenType::ArithmeticOp, getLocation());
-        tok.m_tokenInt = *m_sourceIt;
-        ++m_sourceIt;
-        return tok;
-    }
-
-    /* Check for parenthesis end (group or function call) */
-    if (*m_sourceIt == ')')
-    {
-        if (m_parenStack.empty())
-        {
-            m_diag.reportParserErr(getLocation(), "unexpected ')' while parsing");
-            return Parser::Token(TokenType::None, SourceLocation());
-        }
-        Parser::Token tok(m_parenStack.back(), getLocation());
-        ++m_sourceIt;
-        m_parenStack.pop_back();
-        return tok;
-    }
-
-    /* Check for group start */
-    if (*m_sourceIt == '(')
-    {
-        m_parenStack.push_back(TokenType::EvalGroupEnd);
-        Parser::Token tok(TokenType::EvalGroupStart, getLocation());
-        ++m_sourceIt;
-        return tok;
-    }
-
-    /* Check for function start */
-    if (isalpha(*m_sourceIt) || *m_sourceIt == '_')
-    {
-        std::string_view::const_iterator tmp = m_sourceIt + 1;
-        while (tmp != m_source.cend() && (isalnum(*tmp) || *tmp == '_') && *tmp != '(')
-            ++tmp;
-        std::string_view::const_iterator nameEnd = tmp;
-        skipWhitespace(tmp);
-        if (*tmp == '(')
-        {
-            Parser::Token tok(TokenType::FunctionStart, getLocation());
-            tok.m_tokenString.assign(m_sourceIt, nameEnd);
-            m_sourceIt = tmp + 1;
-            m_parenStack.push_back(TokenType::FunctionEnd);
-            return tok;
-        }
-    }
-
-    /* Check for function arg delimitation */
-    if (*m_sourceIt == ',')
-    {
-        if (m_parenStack.empty() || m_parenStack.back() != TokenType::FunctionEnd)
-        {
-            m_diag.reportParserErr(getLocation(), "unexpected ',' while parsing");
-            return Parser::Token(TokenType::None, SourceLocation());
-        }
-        Parser::Token tok(TokenType::FunctionArgDelim, getLocation());
-        ++m_sourceIt;
-        return tok;
-    }
-
-    /* Error condition if reached */
-    m_diag.reportParserErr(getLocation(), "unexpected token while parsing");
-    return Parser::Token(TokenType::None, SourceLocation());
+    if (sym == expected)
+        scan();
+    else
+        error("expected %s, was %s", Token::KindToStr(expected).data(), Token::KindToStr(sym).data());
 }
 
-SourceLocation Parser::getLocation() const
+IRNode Parser::call()
 {
-    if (m_source.empty())
-        return SourceLocation();
-    std::string_view::const_iterator it = m_source.cbegin();
-    int line = 0;
-    int col = 0;
-    for (; it != m_sourceIt ; ++it)
+    check(Token::Kind::Ident);
+    std::string name = t.str;
+
+    std::list<IRNode> args;
+    check(Token::Kind::Lpar);
+    if (sym == Token::Kind::Lpar || sym == Token::Kind::Ident ||
+        sym == Token::Kind::Number || sym == Token::Kind::Minus)
     {
-        ++col;
-        if (*it == '\n')
+        args.push_back(expr());
+
+        while (sym == Token::Kind::Comma)
         {
-            ++line;
-            col = 0;
+            scan();
+            args.push_back(expr());
         }
     }
-    return {line+1, col+1};
+
+    if (sym != Token::Kind::Rpar)
+        error("expected expr|rpar, was %s", Token::KindToStr(sym).data());
+    else
+        scan();
+    return IRNode(IRNode::Kind::Call, std::move(name), std::move(args), t.loc);
 }
 
+bool Parser::imm(const IRNode& a, const IRNode& b)
+{
+    return a.kind == IRNode::Kind::Imm && b.kind == IRNode::Kind::Imm;
 }
+
+IRNode Parser::expr()
+{
+    IRNode node = sum();
+    while (sym == Token::Kind::Plus || sym == Token::Kind::Minus)
+    {
+        scan();
+        Token::Kind op = t.kind;
+        IRNode right = sum();
+        switch (op)
+        {
+        case Token::Kind::Plus:
+            if (imm(node, right)) // constant folding
+                return IRNode(IRNode::Kind::Imm, node.val + right.val, t.loc);
+            else
+                node = IRNode(IRNode::Op::Add, std::move(node), std::move(right), t.loc);
+            break;
+        case Token::Kind::Minus:
+            if (imm(node, right)) // constant folding
+                node = IRNode(IRNode::Kind::Imm, node.val - right.val, t.loc);
+            else
+                node = IRNode(IRNode::Op::Sub, std::move(node), std::move(right), t.loc);
+            break;
+        default:
+            break;
+        }
+    }
+    return node;
+}
+
+IRNode Parser::sum()
+{
+    IRNode node = factor();
+    while (sym == Token::Kind::Times || sym == Token::Kind::Div)
+    {
+        scan();
+        Token::Kind op = t.kind;
+        IRNode right = factor();
+        switch (op)
+        {
+        case Token::Kind::Times:
+            if (imm(node, right)) // constant folding
+                node = IRNode(IRNode::Kind::Imm, node.val * right.val, t.loc);
+            else
+                node = IRNode(IRNode::Op::Mul, std::move(node), std::move(right), t.loc);
+            break;
+        case Token::Kind::Div:
+            if (imm(node, right)) // constant folding
+                node = IRNode(IRNode::Kind::Imm, node.val / right.val, t.loc);
+            else
+                node = IRNode(IRNode::Op::Div, std::move(node), std::move(right), t.loc);
+            break;
+        default:
+            break;
+        }
+    }
+    return node;
+}
+
+IRNode Parser::factor()
+{
+    if (sym == Token::Kind::Lpar)
+    {
+        scan();
+        IRNode node = expr();
+        check(Token::Kind::Rpar);
+        return node;
+    } else
+        return value();
+}
+
+IRNode Parser::value()
+{
+    if (sym == Token::Kind::Number || sym == Token::Kind::Minus)
+    {
+        scan();
+        bool neg = false;
+        if (t.kind == Token::Kind::Minus)
+        {
+            neg = true;
+            check(Token::Kind::Number);
+        }
+        float val = strtof(((neg ? "-"s : ""s) + t.str).c_str(), nullptr);
+        return IRNode(IRNode::Kind::Imm, val, t.loc);
+    }
+    else if (sym == Token::Kind::Ident)
+    {
+        IRNode call = Parser::call();
+        if (sym == Token::Kind::Period)
+        {
+            scan();
+            check(Token::Kind::Ident);
+            return IRNode(IRNode::Kind::Swizzle, std::string(t.str), std::move(call), t.loc);
+        }
+        return call;
+    }
+    else
+    {
+        error("expected number|call, was %s", Token::KindToStr(sym).data());
+        return IRNode();
+    }
+}
+
+std::list<IRNode> Parser::parse()
+{
+    std::list<IRNode> result;
+    scan();
+    while (sym == Token::Kind::Lf)
+        scan();
+    result.push_back(call());
+    while (sym == Token::Kind::Lf)
+    {
+        while (sym == Token::Kind::Lf)
+            scan();
+        if (sym != Token::Kind::Eof)
+            result.push_back(call());
+    }
+    while (sym == Token::Kind::Lf)
+        scan();
+    check(Token::Kind::Eof);
+
+    if (hecl::VerbosityLevel > 1)
+        for (auto& res : result)
+            printf("%s\n", res.toString().c_str());
+
+    return result;
+}
+
 }

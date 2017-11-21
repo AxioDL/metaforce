@@ -578,6 +578,8 @@ struct GLSLBackendFactory : IShaderBackendFactory
             std::string vertSource = r.readString();
             std::string fragSource = r.readString();
 
+            printf("%s\n%s\n", vertSource.c_str(), fragSource.c_str());
+
             if (r.hasError())
                 return false;
 
