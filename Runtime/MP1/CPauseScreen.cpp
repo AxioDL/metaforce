@@ -303,7 +303,8 @@ bool CPauseScreen::ShouldSwitchToInGame() const
 
 float CPauseScreen::GetHelmetCamYOff() const
 {
-    if (CPauseScreenBase* screen = x7c_screens[x78_activeIdx].get())
+    CPauseScreenBase* screen = x7c_screens[x78_activeIdx].get();
+    if (screen)
         return screen->GetCameraYBias();
     return 0.f;
 }

@@ -593,10 +593,11 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
 
     bool notInCine = !stateMgr.GetCameraManager()->IsInCinematicCamera();
     bool drawVisor = false;
-    if (notInCine && (x1bc_prevState == EInGameGuiState::InGame || x1c0_nextState == EInGameGuiState::InGame))
+    /* Let's always draw the HUD except in cinematic mode */
+    if (notInCine /* && (x1bc_prevState == EInGameGuiState::InGame || x1c0_nextState == EInGameGuiState::InGame) */)
         drawVisor = true;
 
-    if (x3c_pauseScreenBlur->IsGameDraw())
+    //if (x3c_pauseScreenBlur->IsGameDraw())
     {
         x34_samusHud->GetTargetingManager().Draw(stateMgr, true);
         CGraphics::SetDepthRange(0.015625f, 0.03125f);

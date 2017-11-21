@@ -110,13 +110,13 @@ CAutoMapper::CAutoMapper(CStateManager& stateMgr)
     x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x10_minesBreakFirstTopIcon}));
     x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x14_minesBreakFirstBottomIcon}));
 
-    for (int i=0 ; i<9 ; ++i)
+    for (u32 i=0 ; i<9 ; ++i)
     {
         x210_lstick.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x24_lStick[i]}));
         x25c_cstick.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4c_cStick[i]}));
     }
 
-    for (int i=0 ; i<2 ; ++i)
+    for (u32 i=0 ; i<2 ; ++i)
     {
         x2a8_ltrigger.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x74_lTrigger[i]}));
         x2bc_rtrigger.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x80_rTrigger[i]}));
@@ -348,8 +348,8 @@ bool CAutoMapper::CanLeaveMapScreen(const CStateManager& mgr) const
 
 void CAutoMapper::SetCurWorldAssetId(CAssetId mlvlId)
 {
-    int numWorlds = x8_mapu->GetNumMapWorldDatas();
-    for (int i=0 ; i<numWorlds ; ++i)
+    u32 numWorlds = x8_mapu->GetNumMapWorldDatas();
+    for (u32 i=0 ; i<numWorlds ; ++i)
         if (x8_mapu->GetMapWorldData(i).GetWorldAssetId() == mlvlId)
         {
             x9c_worldIdx = i;
@@ -941,13 +941,13 @@ CAutoMapper::FindClosestVisibleWorld(const zeus::CVector3f& point,
 {
     float minDist = 29999.f;
     std::pair<int, int> closestWorld = {xa0_curAreaId, xa0_curAreaId};
-    for (int w=0 ; w<x8_mapu->GetNumMapWorldDatas() ; ++w)
+    for (u32 w=0 ; w<x8_mapu->GetNumMapWorldDatas() ; ++w)
     {
         const CMapUniverse::CMapWorldData& mwData = x8_mapu->GetMapWorldData(w);
         const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(mwData.GetWorldAssetId()).MapWorldInfo();
         if (!mwInfo.IsAnythingSet())
             continue;
-        for (int i=0 ; i<mwData.GetNumMapAreaDatas() ; ++i)
+        for (u32 i=0 ; i<mwData.GetNumMapAreaDatas() ; ++i)
         {
             const zeus::CVector3f& mwOrigin = mwData.GetMapAreaData(i).origin;
             zeus::CVector3f pointToArea = mwOrigin - point;
@@ -1090,7 +1090,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
     else if (IsInMapperState(EAutoMapperState::MapScreenUniverse))
     {
-        int oldWldIdx = x9c_worldIdx;
+        u32 oldWldIdx = x9c_worldIdx;
         if (x1e0_hintSteps.size())
         {
             SAutoMapperHintStep& nextStep = x1e0_hintSteps.front();
@@ -1116,7 +1116,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
         if (x9c_worldIdx != oldWldIdx)
         {
             CAssetId curMlvl = g_GameState->CurrentWorldAssetId();
-            for (int i=0 ; i<x14_dummyWorlds.size() ; ++i)
+            for (u32 i=0 ; i<x14_dummyWorlds.size() ; ++i)
             {
                 auto& wld = x14_dummyWorlds[i];
                 const CMapUniverse::CMapWorldData& mwData = x8_mapu->GetMapWorldData(i);
@@ -1570,7 +1570,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         zeus::CTransform universeAreaXf = mwData.GetWorldTransform() * areaXf;
         float minMag = FLT_MAX;
         int hexIdx = -1;
-        for (int i=0 ; i<mwData.GetNumMapAreaDatas() ; ++i)
+        for (u32 i=0 ; i<mwData.GetNumMapAreaDatas() ; ++i)
         {
             float mag = (universeAreaXf.origin - mwData.GetMapAreaData(i).origin).magnitude();
             if (mag < minMag)
@@ -1616,7 +1616,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             if (hintBeaconFilters.size() < x1f8_hintLocations.size())
             {
                 hintBeaconFilters.reserve(x1f8_hintLocations.size());
-                for (int i=hintBeaconFilters.size() ; i<x1f8_hintLocations.size() ; ++i)
+                for (u32 i=hintBeaconFilters.size() ; i<x1f8_hintLocations.size() ; ++i)
                     hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
             }
             auto locIt = x1f8_hintLocations.cbegin();
@@ -1757,7 +1757,7 @@ void CAutoMapper::SetupHintNavigation()
         }
     }
 
-    for (int i=0 ; i<hintOpts.GetHintStates().size() ; ++i)
+    for (u32 i=0 ; i<hintOpts.GetHintStates().size() ; ++i)
     {
         const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
         if (navigating && hintOpts.GetNextHintIdx() == i)
@@ -1773,7 +1773,7 @@ void CAutoMapper::SetupHintNavigation()
 CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId)
 {
     const CHintOptions& hintOpts = g_GameState->HintOptions();
-    for (int i=0 ; i<hintOpts.GetHintStates().size() ; ++i)
+    for (u32 i=0 ; i<hintOpts.GetHintStates().size() ; ++i)
     {
         const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
         if (state.x0_state != CHintOptions::EHintState::Displaying)

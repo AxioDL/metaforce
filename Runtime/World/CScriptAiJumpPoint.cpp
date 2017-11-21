@@ -30,7 +30,7 @@ void CScriptAiJumpPoint::Think(float dt, CStateManager&)
 
 void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr)
 {
-    AcceptScriptMsg(msg, other, mgr);
+    CActor::AcceptScriptMsg(msg, other, mgr);
 
     if (msg != EScriptObjectMessage::InitializedInArea)
         return;

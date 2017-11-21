@@ -417,9 +417,8 @@ void CStateManager::MurderScriptInstanceNames()
 std::string CStateManager::HashInstanceName(CInputStream& in)
 {
 #ifdef NDEBUG
-    static std::string name;
     while (in.readByte() != 0) {};
-    return name;
+    return "";
 #else
     return in.readString();
 #endif
