@@ -130,7 +130,7 @@ void Buckets::Sort()
             std::sort(bucket.begin(), bucket.end(),
             [](CDrawable* a, CDrawable* b) -> bool
             {
-                return a->GetDistance() >= b->GetDistance();
+                return a->GetDistance() > b->GetDistance();
             });
         }
     }
@@ -866,7 +866,6 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
 void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 {
     //SetupRendererStates();
-
     CAreaListItem* lastOctreeItem = nullptr;
 
     for (CAreaListItem& item : x1c_areaListItems)
@@ -880,7 +879,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
         CPVSVisSet* pvs = nullptr;
         if (xc8_pvs)
             pvs = &*xc8_pvs;
-        if (xe0_pvsAreaIdx != item.x10_models.size())
+        if (xe0_pvsAreaIdx != item.x18_areaIdx)
             pvs = nullptr;
 
         u32 idx = 0;
@@ -921,8 +920,8 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
 
             if (!x44_frustumPlanes.aabbFrustumTest(model->x20_aabb))
             {
-                model->x40_25_modelVisible = false;
-                continue;
+                //model->x40_25_modelVisible = false;
+                //continue;
             }
 
             if (x318_25_drawWireframe)

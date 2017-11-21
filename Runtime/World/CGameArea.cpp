@@ -1244,7 +1244,7 @@ void CGameArea::FillInStaticGeometry(bool textures)
 
             u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
             inst.m_surfaces.reserve(surfCount);
-            inst.m_shaders.resize(matSet.m_matSet.materials.size());
+            inst.m_shaders.reserve(surfCount);
             ++secIt;
             for (u32 j=0 ; j<surfCount ; ++j)
             {

@@ -293,8 +293,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
     x190_gunFollowXf = qGun.toTransform() * gunXf;
     SetTransform(x190_gunFollowXf * bobXf.getRotation());
-
-    CActor::SetTranslation(x190_gunFollowXf.origin + player->GetTransform().rotate(bobXf.origin));
+    x190_gunFollowXf.origin = eyePos;
+    CActor::SetTranslation(eyePos + player->GetTransform().rotate(bobXf.origin));
     x190_gunFollowXf.orthonormalize();
 }
 

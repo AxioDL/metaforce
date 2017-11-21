@@ -502,7 +502,7 @@ void CBooModel::RemapMaterialData(SShader& shader)
 }
 
 void CBooModel::RemapMaterialData(SShader& shader,
-    const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines)
+    const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines)
 {
     x4_matSet = &shader.m_matSet;
     m_geomLayout = &*shader.m_geomLayout;
@@ -1106,11 +1106,12 @@ SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& ma
 }
 
 void SShader::BuildShaders(const hecl::HMDLMeta& meta,
-                           std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders)
+                           std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders)
 {
     shaders.reserve(m_matSet.materials.size());
+    int idx = 0;
     for (const MaterialSet::Material& mat : m_matSet.materials)
-        shaders.push_back(BuildShader(meta, mat));
+        shaders[idx++] = BuildShader(meta, mat);
 }
 
 CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* store, CObjectReference* selfRef)

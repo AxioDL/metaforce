@@ -23,7 +23,7 @@ class CMetroidModelInstance
     std::vector<CBooSurface> m_surfaces;
     std::unique_ptr<CBooModel> m_instance;
     hecl::HMDLMeta m_hmdlMeta;
-    std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
+    std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
 public:
     CMetroidModelInstance() = default;
     CMetroidModelInstance(CMetroidModelInstance&&) = default;

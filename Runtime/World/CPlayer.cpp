@@ -51,7 +51,8 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                  const CMaterialList& ml)
 : CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf,
                 MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(mass), CActorParameters::None(), stepUp,
-                stepDown), x7d0_animRes(resId, 0, playerScale, 0, true), x7d8_beamScale(playerScale)
+                stepDown), x7d0_animRes(resId, 0, playerScale, 0, true), x2d8_fpBounds(aabb),
+  x7d8_beamScale(playerScale)
 {
     x490_gun.reset(new CPlayerGun(uid));
     x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();

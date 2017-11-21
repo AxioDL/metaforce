@@ -94,7 +94,7 @@ struct GeometryUniformLayout
 struct SShader
 {
     std::vector<TCachedToken<CTexture>> x0_textures;
-    std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
+    std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
     MaterialSet m_matSet;
     std::experimental::optional<GeometryUniformLayout> m_geomLayout;
     int m_matSetIdx;
@@ -104,7 +104,7 @@ struct SShader
     std::shared_ptr<hecl::Runtime::ShaderPipelines>
     BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
     void BuildShaders(const hecl::HMDLMeta& meta,
-                      std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders);
+                      std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders);
     void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
 };
 
@@ -134,7 +134,7 @@ private:
     const MaterialSet* x4_matSet;
     const GeometryUniformLayout* m_geomLayout;
     int m_matSetIdx = -1;
-    const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>* m_pipelines;
+    const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>* m_pipelines;
     std::vector<TCachedToken<CTexture>> x1c_textures;
     zeus::CAABox x20_aabb;
     CBooSurface* x38_firstUnsortedSurface = nullptr;
@@ -210,7 +210,7 @@ public:
     void DisableAllLights();
     void RemapMaterialData(SShader& shader);
     void RemapMaterialData(SShader& shader,
-                           const std::vector<std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines);
+                           const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines);
     bool TryLockTextures() const;
     void UnlockTextures() const;
     void SyncLoadTextures() const;
