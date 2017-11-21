@@ -544,12 +544,9 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
     if (search != m_pipelineLookup.cend())
         return search->second;
 
-    if (tag.valSizeT() == 3543211830293577851)
-        printf("");
-
     std::shared_ptr<ShaderPipelines> ret = std::make_shared<ShaderPipelines>();
     ShaderCachedData foundData = lookupData(tag);
-    if (false && foundData)
+    if (foundData)
     {
         factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
         {
