@@ -41,7 +41,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
             const CEntity* cam = x14_stateManager->GetCameraManager()->GetCurrentCamera(*x14_stateManager);
             TCastToConstPtr<CCinematicCamera> cineCam = cam;
             if ((x20_cineSkipTime >= 1.f && x14_stateManager->SpecialSkipCinematic()) || !cineCam ||
-                (cineCam->GetW1() & 0x10 && x28_skippedCineCam != cineCam->GetUniqueId()))
+                (cineCam->GetFlags() & 0x10 && x28_skippedCineCam != cineCam->GetUniqueId()))
             {
                 static_cast<CMain&>(*g_Main).SetScreenFading(false);
                 x1c_flowState = EGameFlowState::InGame;

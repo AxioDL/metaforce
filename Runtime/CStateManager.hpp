@@ -220,7 +220,7 @@ private:
             bool xf94_26_generatingObject : 1;
             bool xf94_27_inMapScreen : 1;
             bool xf94_28_inSaveUI : 1;
-            bool xf94_29_ : 1;
+            bool xf94_29_cinematicPause : 1;
             bool xf94_30_fullThreat : 1;
         };
         u32 xf94_ = 0;
@@ -442,6 +442,7 @@ public:
     void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
     float IntegrateVisorFog(float f) const;
     u32 GetUpdateFrameIndex() const { return x8d8_updateFrameIdx; }
+    void SetCinematicPause(bool p) { xf94_29_cinematicPause = p; }
     void QueueMessage(u32 frameCount, CAssetId msg, float f1)
     {
         xf84_ = frameCount;

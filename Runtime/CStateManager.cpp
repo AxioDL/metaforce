@@ -2021,7 +2021,7 @@ void CStateManager::MoveDoors(float dt)
             continue;
         if (TCastToPtr<CAi> ai = physActor)
         {
-            bool doThink = !xf94_29_;
+            bool doThink = !xf94_29_cinematicPause;
             if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId)
             {
                 const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());
@@ -2107,7 +2107,7 @@ void CStateManager::ThinkEffectsAndActors(float dt)
         for (CEntity* ent : GetAllObjectList())
             if (TCastToPtr<CAi> ai = ent)
             {
-                bool doThink = !xf94_29_;
+                bool doThink = !xf94_29_cinematicPause;
                 if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId)
                 {
                     const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());

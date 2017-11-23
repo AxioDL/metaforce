@@ -1,14 +1,10 @@
 #include "CScriptTrigger.hpp"
-#include "Character/CModelData.hpp"
 #include "CActorParameters.hpp"
-#include "Collision/CMaterialList.hpp"
 #include "CStateManager.hpp"
 #include "TCastTo.hpp"
 #include "World/CPlayer.hpp"
 #include "Weapon/CGameProjectile.hpp"
-#include "Weapon/CWeapon.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "CPlayerState.hpp"
+#include "Camera/CGameCamera.hpp"
 
 namespace urde
 {
@@ -47,9 +43,9 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
             x148_25_camSubmerged = false;
         }
 
-        if (x148_28_)
+        if (x148_28_playerDamage)
         {
-            x148_28_ = false;
+            x148_28_playerDamage = false;
             if (x148_29_didPhazonDamage)
             {
                 mgr.Player()->DecrementPhazon();
@@ -76,32 +72,36 @@ CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id)
 
 void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
 {
-#if 0
-    bool inhabitantExited = false;
-    bool player = false;
-    for (auto it = xe8_inhabitants.begin(); it != xe8_inhabitants.end();)
+    bool sendInside = false;
+    bool sendExited = false;
+    std::list<CObjectTracker>::iterator nextIt;
+    for (auto it = xe8_inhabitants.begin(); it != xe8_inhabitants.end(); it = nextIt)
     {
-        TCastToPtr<CActor> act(mgr.ObjectById((*it).GetObjectId()));
-        if (act->GetUniqueId() == mgr.Player()->GetUniqueId())
+        nextIt = it;
+        ++nextIt;
+        if (TCastToPtr<CActor> act = mgr.ObjectById(it->GetObjectId()))
         {
-            TCastToPtr<CPlayer> pl(act);
-            if (bool(x12c_flags & ETriggerFlags::DetectPlayer))
+            bool playerValid = true;
+            if (it->GetObjectId() == mgr.GetPlayer().GetUniqueId())
             {
-                player = true;
-                using EPlayerMorphBallState = CPlayer::EPlayerMorphBallState;
-                EPlayerMorphBallState mState = pl->GetMorphballTransitionState();
-                if ((mState == EPlayerMorphBallState::Morphed &&
-                     bool(x12c_flags & ETriggerFlags::DetectMorphedPlayer)) ||
-                    (mState == EPlayerMorphBallState::Unmorphed &&
-                     bool(x12c_flags & ETriggerFlags::DetectUnmorphedPlayer)))
+                if ((x12c_flags & ETriggerFlags::DetectPlayer) == ETriggerFlags::None &&
+                    ((mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed &&
+                    (x12c_flags & ETriggerFlags::DetectUnmorphedPlayer) != ETriggerFlags::None) ||
+                    (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
+                    (x12c_flags & ETriggerFlags::DetectMorphedPlayer) != ETriggerFlags::None)))
                 {
-                    it = xe8_inhabitants.erase(it);
-                    if (x148_28_)
+                    playerValid = false;
+                }
+                if (!playerValid)
+                {
+                    xe8_inhabitants.erase(it);
+                    sendExited = true;
+                    if (x148_28_playerDamage)
                     {
-                        x148_28_ = false;
+                        x148_28_playerDamage = false;
                         if (x148_29_didPhazonDamage)
                         {
-                            mgr.Player()->DecrementPhazon();
+                            mgr.GetPlayer().DecrementPhazon();
                             x148_29_didPhazonDamage = false;
                         }
 
@@ -114,97 +114,127 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                 }
             }
 
-            const auto& touchBounds = GetTouchBounds();
-            const auto& actTouchBounds = act->GetTouchBounds();
-            if (touchBounds && actTouchBounds)
+            auto touchBounds = GetTouchBounds();
+            auto actTouchBounds = act->GetTouchBounds();
+            if (touchBounds && actTouchBounds && touchBounds->intersects(*actTouchBounds))
             {
-                if (actTouchBounds->intersects(*touchBounds))
-                {
-                    inhabitantExited = true;
-                    InhabitantIdle(*act, mgr);
-                    if (act->HealthInfo() && x100_damageInfo.GetDamage() > 0.f)
-                        mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x100_damageInfo,
-                                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}));
+                sendInside = true;
+                InhabitantIdle(*act, mgr);
+                if (act->HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f)
+                    mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x100_damageInfo,
+                                    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
+                                    zeus::CVector3f::skZero);
 
-                    TCastToPtr<CPhysicsActor> physAct{act};
-                    if (physAct)
+                if (x128_forceMagnitude > 0.f)
+                {
+                    if (TCastToPtr<CPhysicsActor> pact = act.GetPtr())
                     {
                         float forceMult = 1.f;
-                        if (bool(x12c_flags & ETriggerFlags::UseBooleanIntersection))
+                        if ((x12c_flags & ETriggerFlags::UseBooleanIntersection) != ETriggerFlags::None)
                             forceMult =
                                 touchBounds->booleanIntersection(*actTouchBounds).volume() / actTouchBounds->volume();
 
                         zeus::CVector3f force = forceMult * x11c_forceField;
-                        if (bool(x12c_flags & ETriggerFlags::UseCollisionImpulses))
+                        if ((x12c_flags & ETriggerFlags::UseCollisionImpulses) != ETriggerFlags::None)
                         {
-                            physAct->ApplyImpulseWR(force, zeus::CAxisAngle::sIdentity);
-                            physAct->UseCollisionImpulses();
+                            pact->ApplyImpulseWR(force, zeus::CAxisAngle::sIdentity);
+                            pact->UseCollisionImpulses();
                         }
                         else
-                            physAct->ApplyForceWR(force, zeus::CAxisAngle::sIdentity);
+                            pact->ApplyForceWR(force, zeus::CAxisAngle::sIdentity);
                     }
                 }
             }
             else
             {
-                it = xe8_inhabitants.erase(it);
-                if (mgr.Player()->GetUniqueId() == (*it).GetObjectId())
+                xe8_inhabitants.erase(it);
+                sendExited = true;
+                if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerDamage)
                 {
-                    if (x148_28_)
-                    {
-                        x148_28_ = false;
-                        if (x148_29_didPhazonDamage)
-                        {
-                            mgr.Player()->DecrementPhazon();
-                            x148_29_didPhazonDamage = false;
-                        }
-                    }
-                }
-
-                if (mgr.GetLastTriggerId() == GetUniqueId())
-                    mgr.SetLastTriggerId(kInvalidUniqueId);
-
-                InhabitantExited(*act, mgr);
-                continue;
-            }
-        }
-        else
-        {
-            it = xe8_inhabitants.erase(it);
-            if (mgr.Player()->GetUniqueId() == (*it).GetObjectId())
-            {
-                if (x148_28_)
-                {
-                    x148_28_ = false;
+                    x148_28_playerDamage = false;
                     if (x148_29_didPhazonDamage)
                     {
                         mgr.Player()->DecrementPhazon();
                         x148_29_didPhazonDamage = false;
                     }
-                }
-            }
 
-            if (mgr.GetLastTriggerId() == GetUniqueId())
-                mgr.SetLastTriggerId(kInvalidUniqueId);
+                    if (mgr.GetLastTriggerId() == GetUniqueId())
+                        mgr.SetLastTriggerId(kInvalidUniqueId);
+                }
+
+                InhabitantExited(*act, mgr);
+            }
+        }
+        else
+        {
+            xe8_inhabitants.erase(it);
+            if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerDamage)
+            {
+                x148_28_playerDamage = false;
+                if (x148_29_didPhazonDamage)
+                {
+                    mgr.Player()->DecrementPhazon();
+                    x148_29_didPhazonDamage = false;
+                }
+
+                if (mgr.GetLastTriggerId() == GetUniqueId())
+                    mgr.SetLastTriggerId(kInvalidUniqueId);
+            }
         }
     }
 
-    if (bool(x12c_flags & ETriggerFlags::DetectPlayerIfInside) && x148_24_playerInside && !inhabitantExited)
+    if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None || x148_24_playerInside)
     {
-        SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
-        return;
+        CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+        bool camInTrigger = GetTriggerBoundsWR().pointInside(cam->GetTranslation());
+        if (x148_25_camSubmerged)
+        {
+            if (!camInTrigger)
+            {
+                x148_25_camSubmerged = false;
+                if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None)
+                {
+                    sendExited = true;
+                    InhabitantExited(*cam, mgr);
+                }
+            }
+            else
+            {
+                if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None)
+                {
+                    InhabitantIdle(*cam, mgr);
+                    sendInside = true;
+                }
+            }
+        }
+        else
+        {
+            if (camInTrigger)
+            {
+                x148_25_camSubmerged = true;
+                if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None)
+                {
+                    InhabitantAdded(*cam, mgr);
+                    SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
+                }
+            }
+        }
     }
 
-    if (!player)
+    if (sendInside)
     {
-        SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
+        SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::Activate);
+    }
+
+    if (sendExited)
+    {
+        SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::Activate);
         if (x148_27_deactivateOnExited)
         {
             mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()),
                               EScriptObjectMessage::Deactivate, EScriptObjectState::Exited);
         }
     }
-#endif
 }
 
 std::list<CScriptTrigger::CObjectTracker>& CScriptTrigger::GetInhabitants() { return xe8_inhabitants; }
@@ -266,9 +296,9 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
 
             if (pl)
             {
-                if (!x148_28_)
+                if (!x148_28_playerDamage)
                 {
-                    x148_28_ = true;
+                    x148_28_playerDamage = true;
                     if (x148_29_didPhazonDamage)
                     {
                         mgr.Player()->DecrementPhazon();

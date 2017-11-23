@@ -1332,7 +1332,7 @@ void CPlayer::Render(const CStateManager& mgr) const
     bool doRender = x2f4_cameraState != EPlayerCameraState::Spawned;
     if (!doRender)
         if (TCastToConstPtr<CCinematicCamera> cam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
-            doRender = (x2f8_morphBallState == EPlayerMorphBallState::Morphed && cam->GetW1() & 0x40);
+            doRender = (x2f8_morphBallState == EPlayerMorphBallState::Morphed && cam->GetFlags() & 0x40);
     if (x2f4_cameraState != EPlayerCameraState::FirstPerson && doRender)
     {
         bool doTransitionRender = false;
@@ -1911,7 +1911,7 @@ bool CPlayer::ShouldSampleFailsafe(CStateManager& mgr) const
     TCastToPtr<CCinematicCamera> cineCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     if (!mgr.GetPlayerState()->IsPlayerAlive())
         return false;
-    return x2f4_cameraState != EPlayerCameraState::Spawned || !cineCam || (cineCam->GetW1() & 0x80) == 0;
+    return x2f4_cameraState != EPlayerCameraState::Spawned || !cineCam || (cineCam->GetFlags() & 0x80) == 0;
 }
 
 void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input)
@@ -6301,7 +6301,7 @@ void CPlayer::SetCameraState(EPlayerCameraState camState, CStateManager& stateMg
     {
         bool ballLight = false;
         if (TCastToPtr<CCinematicCamera> cineCam = camMgr->GetCurrentCamera(stateMgr))
-            ballLight = x2f8_morphBallState == EPlayerMorphBallState::Morphed && cineCam->GetW1() & 0x40;
+            ballLight = x2f8_morphBallState == EPlayerMorphBallState::Morphed && cineCam->GetFlags() & 0x40;
         x768_morphball->SetBallLightActive(stateMgr, ballLight);
         break;
     }

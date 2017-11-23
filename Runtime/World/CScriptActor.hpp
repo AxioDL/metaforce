@@ -44,7 +44,8 @@ public:
     void Touch(CActor&, CStateManager&);
     const CDamageVulnerability* GetDamageVulnerability() const { return &x268_damageVulnerability; }
     CHealthInfo* HealthInfo(CStateManager&) { return &x260_currentHealth; }
+    bool GetX2E3_24() const { return x2e3_24_; }
 };
-}
+};
 
 #endif // __URDE_CSCRIPTACTOR_HPP__

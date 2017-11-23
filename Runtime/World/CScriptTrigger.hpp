@@ -61,7 +61,7 @@ protected:
             bool x148_25_camSubmerged : 1;
             bool x148_26_deactivateOnEntered : 1;
             bool x148_27_deactivateOnExited : 1;
-            bool x148_28_ : 1;
+            bool x148_28_playerDamage : 1;
             bool x148_29_didPhazonDamage : 1;
         };
         u8 dummy = 0;
