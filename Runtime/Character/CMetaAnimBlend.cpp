@@ -14,12 +14,15 @@ CMetaAnimBlend::CMetaAnimBlend(CInputStream& in)
 
 void CMetaAnimBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
+    x4_animA->GetUniquePrimitives(primsOut);
+    x4_animA->GetUniquePrimitives(primsOut);
 }
 
 std::shared_ptr<CAnimTreeNode>
 CMetaAnimBlend::VGetAnimationTree(const CAnimSysContext& animSys,
                                   const CMetaAnimTreeBuildOrders& orders) const
 {
+    CMetaAnimTreeBuildOrders buildOrders = CMetaAnimTreeBuildOrders::NoSpecialOrders();
     return {};
 }
 

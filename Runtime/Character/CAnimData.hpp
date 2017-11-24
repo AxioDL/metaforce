@@ -165,6 +165,7 @@ public:
               const TLockedToken<CCharacterFactory>& charFactory,
               int drawInstCount);
 
+    void InitializeEffects(CStateManager&, TAreaId, const zeus::CVector3f&);
     CAssetId GetEventResourceIdForAnimResourceId(CAssetId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);
     static SAdvancementResults AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time);

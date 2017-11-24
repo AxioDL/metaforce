@@ -16,6 +16,11 @@ CParticleDatabase::CParticleDatabase()
     xb4_25_drawingEnds = false;
 }
 
+void CParticleDatabase::CacheParticleDesc(const SObjectTag &tag)
+{
+
+}
+
 void CParticleDatabase::CacheParticleDesc(const CCharacterInfo::CParticleResData& desc)
 {
     for (CAssetId id : desc.x0_part)

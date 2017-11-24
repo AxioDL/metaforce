@@ -14,6 +14,8 @@ CMetaAnimPhaseBlend::CMetaAnimPhaseBlend(CInputStream& in)
 
 void CMetaAnimPhaseBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
+    x4_animA->GetUniquePrimitives(primsOut);
+    x8_animB->GetUniquePrimitives(primsOut);
 }
 
 std::shared_ptr<CAnimTreeNode>
