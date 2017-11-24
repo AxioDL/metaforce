@@ -198,9 +198,8 @@ class SACTAction_load(bpy.types.Operator):
 # Registration
 def register():
     bpy.types.Action.hecl_fps = bpy.props.IntProperty(name="HECL Actor Sub-action Frame-rate",
-                                                      description="Frame-rate at which action is authored; to be interpolated at 60-fps by runtime",
-                                                      min=1, max=60, default=30,
-                                                      update=active_action_update)
+        description="Frame-rate at which action is authored; to be interpolated at 60-fps by runtime",
+        min=1, max=60, default=30, update=active_action_update)
     bpy.utils.register_class(SACTAction)
     bpy.utils.register_class(SACTAction_add)
     bpy.utils.register_class(SACTAction_load)
