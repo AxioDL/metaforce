@@ -50,7 +50,7 @@ class CSortedListManager
     s16 FindInListLower(ESortedList, float) const;
     s16 ConstructIntersectionArray(const zeus::CAABox&);
     s16 CalculateIntersections(ESortedList, ESortedList, s16, s16, s16, s16,
-                                     ESortedList, ESortedList, ESortedList, ESortedList, const zeus::CAABox&);
+                               ESortedList, ESortedList, ESortedList, ESortedList, const zeus::CAABox&);
 public:
     CSortedListManager();
     void BuildNearList(rstl::reserved_vector<TUniqueId, 1024>&, const zeus::CVector3f&, const zeus::CVector3f&,

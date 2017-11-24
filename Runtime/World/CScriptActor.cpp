@@ -30,7 +30,7 @@ CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityIn
 , x2e2_29_((x2e2_24_ && x2e2_25_dead && x2d8_ != 0))
 , x2e2_30_transposeRotate(b4)
 , x2e2_31_(b5)
-, x2e3_24_(false)
+, x2e3_24_cameraMoveIntoAlpha(false)
 {
     if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow)
         CreateShadow(true);

@@ -27,7 +27,7 @@ protected:
     bool x2e2_29_ : 1;
     bool x2e2_30_transposeRotate : 1;
     bool x2e2_31_ : 1;
-    bool x2e3_24_ : 1;
+    bool x2e3_24_cameraMoveIntoAlpha : 1;
 
 public:
     CScriptActor(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
@@ -44,7 +44,7 @@ public:
     void Touch(CActor&, CStateManager&);
     const CDamageVulnerability* GetDamageVulnerability() const { return &x268_damageVulnerability; }
     CHealthInfo* HealthInfo(CStateManager&) { return &x260_currentHealth; }
-    bool GetX2E3_24() const { return x2e3_24_; }
+    bool IsCameraMoveIntoAlpha() const { return x2e3_24_cameraMoveIntoAlpha; }
 };
 };
 

@@ -23,6 +23,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 {
     x148_26_deactivateOnEntered = deactivateOnEntered;
     x148_27_deactivateOnExited = deactivateOnExited;
+    SetCallTouch(false);
 }
 
 void CScriptTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }

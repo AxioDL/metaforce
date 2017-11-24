@@ -45,9 +45,7 @@ void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId oth
         if (wpnt)
         {
             x10c_currentWaypoint = wpnt->GetUniqueId();
-            const CScriptWaypoint* nextWpnt = wpnt->NextWaypoint(mgr);
-            if (nextWpnt)
-                x10e_nextWaypoint = nextWpnt->GetUniqueId();
+            x10e_nextWaypoint = wpnt->NextWaypoint(mgr);
         }
     }
 }

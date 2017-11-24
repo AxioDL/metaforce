@@ -172,6 +172,7 @@ public:
     SAdvancementDeltas UpdateAdditiveAnims(float);
     bool IsAdditiveAnimation(u32) const;
     bool IsAdditiveAnimationAdded(u32) const;
+    const std::shared_ptr<CAnimTreeNode>& GetRootAnimationTree() const { return x1f8_animRoot; }
     const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(u32) const;
     bool IsAdditiveAnimationActive(u32) const;
     void DelAdditiveAnimation(u32);

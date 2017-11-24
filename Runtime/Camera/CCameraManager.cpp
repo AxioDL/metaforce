@@ -12,6 +12,7 @@
 #include "World/CScriptCameraHint.hpp"
 #include "CPathCamera.hpp"
 #include "World/CScriptSpindleCamera.hpp"
+#include "World/CExplosion.hpp"
 
 namespace urde
 {
@@ -80,7 +81,54 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx)
     return x2c_lastShakeId;
 }
 
-void CCameraManager::AddCinemaCamera(TUniqueId id, CStateManager& stateMgr) { x4_cineCameras.push_back(id); }
+void CCameraManager::EnterCinematic(CStateManager& mgr)
+{
+    mgr.GetPlayer().GetPlayerGun()->CancelFiring(mgr);
+    mgr.GetPlayer().Stop(mgr);
+
+    for (CEntity* ent : mgr.GetAllObjectList())
+    {
+        if (TCastToPtr<CExplosion> explo = ent)
+        {
+            mgr.FreeScriptObject(explo->GetUniqueId());
+        }
+        else if (TCastToPtr<CWeapon> weap = ent)
+        {
+            if (weap->GetActive())
+            {
+                if ((weap->GetAttribField() & CWeapon::EProjectileAttrib::KeepInCinematic) ==
+                    CWeapon::EProjectileAttrib::None)
+                {
+                    if (TCastToConstPtr<CAi>(mgr.GetObjectById(weap->GetOwnerId())) ||
+                        TCastToConstPtr<CPlayer>(mgr.GetObjectById(weap->GetOwnerId())))
+                        mgr.FreeScriptObject(weap->GetUniqueId());
+                }
+            }
+        }
+    }
+}
+
+void CCameraManager::AddCinemaCamera(TUniqueId id, CStateManager& stateMgr)
+{
+    if (x4_cineCameras.empty())
+        EnterCinematic(stateMgr);
+    RemoveCinemaCamera(id, stateMgr);
+    x4_cineCameras.push_back(id);
+    if (TCastToPtr<CCinematicCamera> cam = stateMgr.ObjectById(id))
+    {
+        if (cam->GetFlags() & 0x4) // into player eye
+        {
+            float time = 4.f;
+            float delayTime = cam->GetDuration() - 4.f;
+            if (delayTime < 0.f)
+            {
+                delayTime = 0.f;
+                time = cam->GetDuration();
+            }
+            cam->SetFovInterpolation(cam->GetFov(), 55.f, time, delayTime);
+        }
+    }
+}
 
 void CCameraManager::SetInsideFluid(bool val, TUniqueId fluidId)
 {

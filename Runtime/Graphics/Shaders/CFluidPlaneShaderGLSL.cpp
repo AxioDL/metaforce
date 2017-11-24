@@ -460,8 +460,15 @@ static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTe
 
     combiner += "    colorOut.a = kColor0.a;\n";
 
-    finalVS = hecl::Format(VS, additionalTCGs.c_str());
-    finalFS = hecl::Format(FS, textures.c_str(), combiner.c_str());
+    char *finalVSs, *finalFSs;
+    asprintf(&finalVSs, VS, additionalTCGs.c_str());
+    asprintf(&finalFSs, FS, textures.c_str(), combiner.c_str());
+
+    finalVS = finalVSs;
+    finalFS = finalFSs;
+
+    free(finalVSs);
+    free(finalFSs);
 }
 
 static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTex, const char* texNames[3],
@@ -505,8 +512,15 @@ static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTe
 
     combiner += "    colorOut.a = kColor0.a;\n";
 
-    finalVS = hecl::Format(VS, additionalTCGs.c_str());
-    finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
+    char *finalVSs, *finalFSs;
+    asprintf(&finalVSs, VS, additionalTCGs.c_str());
+    asprintf(&finalFSs, FSDoor, textures.c_str(), combiner.c_str());
+
+    finalVS = finalVSs;
+    finalFS = finalFSs;
+
+    free(finalVSs);
+    free(finalFSs);
 }
 
 boo::ObjToken<boo::IShaderPipeline>

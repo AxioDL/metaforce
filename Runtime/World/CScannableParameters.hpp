@@ -13,6 +13,7 @@ class CScannableParameters
 public:
     CScannableParameters() = default;
     CScannableParameters(CAssetId id) : x0_scanId(id) {}
+    CAssetId GetScanId() const { return x0_scanId; }
 };
 }
 

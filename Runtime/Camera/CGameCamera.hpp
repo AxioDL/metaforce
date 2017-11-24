@@ -24,7 +24,7 @@ protected:
     u32 x16c_controllerIdx;
     bool x170_24_perspDirty : 1;
     bool x170_25_disablesInput : 1;
-    float x174_ = 0.f;
+    float x174_delayTime = 0.f;
     float x178_ = 0.f;
     float x17c_ = 0.f;
     float x180_;
@@ -51,7 +51,7 @@ public:
     void GetControllerNumber() const;
     bool DisablesInput() const;
     void UpdatePerspective(float);
-    void SetFovInterpolation(float start, float end, float time, float f4);
+    void SetFovInterpolation(float start, float end, float time, float delayTime);
     void SkipFovInterpolation();
 };
 }

@@ -10,6 +10,8 @@
 #include "IOStreams.hpp"
 #include "hecl/hecl.hpp"
 
+using namespace std::literals;
+
 namespace urde
 {
 

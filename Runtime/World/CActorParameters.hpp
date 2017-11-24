@@ -11,6 +11,7 @@ namespace urde
 class CActorParameters
 {
     friend class ScriptLoader;
+    friend class CActor;
     CLightParameters x0_lightParms;
     CScannableParameters x40_scanParms;
     std::pair<CAssetId, CAssetId> x44_xrayAssets = {};
@@ -23,7 +24,7 @@ class CActorParameters
             bool x58_24_ : 1;
             bool x58_25_thermalHeat : 1;
             bool x58_26_ : 1;
-            bool x58_27_ : 1;
+            bool x58_27_noSortThermal : 1;
         };
         u32 _dummy = 0;
     };
@@ -32,7 +33,7 @@ class CActorParameters
     float x64_ = 0.f;
 
 public:
-    CActorParameters() : x58_24_(true), x58_25_thermalHeat(false), x58_26_(false), x58_27_(false) {}
+    CActorParameters() : x58_24_(true), x58_25_thermalHeat(false), x58_26_(false), x58_27_noSortThermal(false) {}
     CActorParameters(const CLightParameters& lightParms, const CScannableParameters& scanParms,
                      const std::pair<CAssetId, CAssetId>& xrayAssets, const std::pair<CAssetId, CAssetId>& thermalAssets,
                      const CVisorParameters& visorParms, bool b1, bool thermalHeat, bool c, bool d)
@@ -44,7 +45,7 @@ public:
     , x58_24_(b1)
     , x58_25_thermalHeat(thermalHeat)
     , x58_26_(c)
-    , x58_27_(d)
+    , x58_27_noSortThermal(d)
     {
     }
     CActorParameters Scannable(const CScannableParameters& sParms) const

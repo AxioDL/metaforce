@@ -82,6 +82,8 @@ class CCameraManager
     void SkipBallCameraCinematic(CStateManager& mgr);
     void ApplyCameraHint(const CScriptCameraHint& hint, CStateManager& mgr);
 
+    void EnterCinematic(CStateManager& mgr);
+
 public:
     CCameraManager(TUniqueId curCameraId=kInvalidUniqueId);
 

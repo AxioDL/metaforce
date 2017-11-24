@@ -7,6 +7,8 @@
 #include "Character/IAnimReader.hpp"
 #include "Character/CActorLights.hpp"
 #include "Camera/CGameCamera.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
@@ -27,9 +29,38 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
 , x70_materialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}))
 , xc6_nextDrawNode(otherUid)
 {
+    x90_actorLights = mData.IsNull() ? std::unique_ptr<CActorLights>() : params.x0_lightParms.MakeActorLights();
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
+    xd0_ = params.x64_;
     xd8_nonLoopingSfxHandles.resize(2);
+    xe4_27_ = true;
+    xe4_28_ = true;
+    xe4_29_actorLightsDirty = true;
+    xe4_31_lightsDirty = true;
+    xe5_27_useInSortedLists = true;
+    xe5_28_callTouch = true;
+    xe5_29_ = params.x58_24_;
+    xe5_30_ = params.x58_26_;
+    xe6_27_renderVisorFlags = u8(params.x58_25_thermalHeat ? 2 : 1);
+    xe6_29_ = true;
+    xe6_31_targetableVisorFlags = params.GetVisorParameters().GetMask();
+    xe7_27_ = true;
+    xe7_29_actorActive = active;
+    xe7_30_doTargetDistanceTest = true;
+    xe7_31_targetable = true;
+    if (x64_modelData)
+    {
+        if (params.x44_xrayAssets.first.IsValid())
+            x64_modelData->SetXRayModel(params.x44_xrayAssets);
+        if (params.x4c_thermalAssets.first.IsValid())
+            x64_modelData->SetInfraModel(params.x4c_thermalAssets);
+        if (!params.x0_lightParms.x1c_makeLights || params.x0_lightParms.x3c_maxAreaLights == 0)
+            x64_modelData->x18_ambientColor = params.x0_lightParms.x18_noLightsAmbient;
+        x64_modelData->x14_25_sortThermal = !params.x58_27_noSortThermal;
+    }
+    if (params.x40_scanParms.GetScanId().IsValid())
+        x98_scanObjectInfo = g_SimplePool->GetObj(SObjectTag{FOURCC('SCAN'), params.x40_scanParms.GetScanId()});
 }
 
 void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
@@ -499,14 +530,9 @@ bool CActor::CanDrawStatic() const
 
 const CScannableObjectInfo* CActor::GetScannableObjectInfo() const
 {
-    if (!x98_scanObjectInfo)
+    if (!x98_scanObjectInfo || !x98_scanObjectInfo.IsLoaded())
         return nullptr;
-
-    TToken<CScannableObjectInfo>& info = *x98_scanObjectInfo;
-    if (!info || !info.IsLoaded())
-        return nullptr;
-
-    return info.GetObj();
+    return x98_scanObjectInfo.GetObj();
 }
 
 void CActor::SetCalculateLighting(bool c)

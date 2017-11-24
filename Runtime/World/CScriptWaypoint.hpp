@@ -8,6 +8,14 @@ namespace urde
 
 class CScriptWaypoint : public CActor
 {
+    float xe8_;
+    u32 xec_;
+    float xf0_;
+    bool xf4_;
+    bool xf5_;
+    bool xf6_;
+    bool xf7_;
+    bool xf8_;
     u16 xfa_jumpFlags;
 public:
     CScriptWaypoint(TUniqueId, std::string_view, const CEntityInfo&,
@@ -15,8 +23,10 @@ public:
                     u32, u32, u32, u32, u32, u32, u32);
 
     void Accept(IVisitor& visitor);
-
-    const CScriptWaypoint* NextWaypoint(CStateManager&) const { return nullptr; }
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+    void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+    TUniqueId FollowWaypoint(CStateManager& mgr) const;
+    TUniqueId NextWaypoint(CStateManager& mgr) const;
 };
 }
 

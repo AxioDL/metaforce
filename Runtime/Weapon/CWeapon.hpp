@@ -27,11 +27,12 @@ public:
         ArmCannon = (1 << 11),
         BigStrike = (1 << 12),
         StaticInterference = (1 << 14),
+        KeepInCinematic = (1 << 17),
     };
 
 private:
     EProjectileAttrib xe8_projectileAttribs;
-    TUniqueId xec_uid;
+    TUniqueId xec_ownerId;
     EWeaponType xf0_weaponType;
     u32 xf4_;
     CMaterialFilter xf8_;
@@ -52,8 +53,8 @@ public:
     EProjectileAttrib GetAttribField() const { return xe8_projectileAttribs; }
     const CMaterialFilter& GetFilter() const;
     void SetFilter(const CMaterialFilter&);
-    TUniqueId GetOwnerId() const;
-    void SetOwnerId(TUniqueId);
+    TUniqueId GetOwnerId() const { return xec_ownerId; }
+    void SetOwnerId(TUniqueId oid) { xec_ownerId = oid; }
     EWeaponType GetType() const;
     const CDamageInfo& GetDamageInfo() const;
     CDamageInfo& DamageInfo();

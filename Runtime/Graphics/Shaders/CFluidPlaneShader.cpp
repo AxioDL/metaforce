@@ -150,7 +150,7 @@ void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
-        m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, 1024, 1);
+        m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
 
         switch (ctx.platform())
         {

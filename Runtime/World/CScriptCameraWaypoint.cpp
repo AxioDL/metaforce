@@ -7,10 +7,10 @@ namespace urde
 {
 
 CScriptCameraWaypoint::CScriptCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                             const zeus::CTransform& xf, bool active, float f1, u32 w1)
+                                             const zeus::CTransform& xf, bool active, float hfov, u32 w1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_(f1)
+, xe8_hfov(hfov)
 , xec_(w1)
 {
 

@@ -10,6 +10,7 @@ namespace urde
 
 class CLightParameters
 {
+    friend class CActor;
 public:
     enum class EShadowTesselation
     {

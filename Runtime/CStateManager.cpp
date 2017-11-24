@@ -271,25 +271,25 @@ void CStateManager::UpdateThermalVisor()
 
 void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, int type)
 {
-    CStateManager& mgr = reinterpret_cast<CStateManager&>(ctx);
+    const CStateManager& mgr = *reinterpret_cast<const CStateManager*>(ctx);
     switch (type)
     {
     case 0:
     {
-        CActor& actor = reinterpret_cast<CActor&>(drawable);
+        const CActor& actor = *reinterpret_cast<const CActor*>(drawable);
         if (actor.xc8_drawnToken == mgr.x8dc_objectDrawToken)
             break;
         if (actor.xc6_nextDrawNode != kInvalidUniqueId)
             mgr.RecursiveDrawTree(actor.xc6_nextDrawNode);
         actor.Render(mgr);
-        actor.xc8_drawnToken = mgr.x8dc_objectDrawToken;
+        const_cast<CActor&>(actor).xc8_drawnToken = mgr.x8dc_objectDrawToken;
         break;
     }
     case 1:
-        reinterpret_cast<CSimpleShadow&>(drawable).Render(mgr.x8f0_shadowTex.GetObj());
+        reinterpret_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex.GetObj());
         break;
     case 2:
-        reinterpret_cast<CDecal&>(drawable).Render();
+        reinterpret_cast<const CDecal*>(drawable)->Render();
         break;
     default: break;
     }
@@ -711,7 +711,7 @@ void CStateManager::DrawWorld() const
 
     for (TUniqueId id : x86c_stateManagerContainer->xf370_)
         if (const CActor* ent = static_cast<const CActor*>(GetObjectById(id)))
-            if (!thermal || ent->xe6_27_renderVisorFlags & 0x2)
+            if (!thermal || ent->xe6_27_renderVisorFlags & 0x1)
                 ent->Render(*this);
 
     bool morphingPlayerVisible = false;
@@ -728,7 +728,7 @@ void CStateManager::DrawWorld() const
         {
             if (TCastToPtr<CActor> actor = ent)
             {
-                if (!actor->xe7_29_)
+                if (!actor->xe7_29_actorActive)
                     continue;
                 TUniqueId actorId = actor->GetUniqueId();
                 if (!thermal && area.LookupPVSUniqueID(actorId) == actorId)
@@ -749,9 +749,9 @@ void CStateManager::DrawWorld() const
                         continue;
                     }
                 }
-                if (!thermal || actor->xe6_27_renderVisorFlags & 0x2)
+                if (!thermal || actor->xe6_27_renderVisorFlags & 0x1)
                     actor->AddToRenderer(frustum, *this);
-                if (thermal && actor->xe6_27_renderVisorFlags & 0x4)
+                if (thermal && actor->xe6_27_renderVisorFlags & 0x2)
                     thermalActorArr[thermalActorCount++] = actor.GetPtr();
             }
         }
@@ -787,7 +787,7 @@ void CStateManager::DrawWorld() const
             CGraphics::SetDepthRange(0.015625f, 0.03125f);
             for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
                 if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                    if (actor->xe6_27_renderVisorFlags & 0x2)
+                    if (actor->xe6_27_renderVisorFlags & 0x1)
                         actor->Render(*this);
             CGraphics::SetDepthRange(0.125f, 1.f);
         }
@@ -795,7 +795,7 @@ void CStateManager::DrawWorld() const
 
         for (TUniqueId id : x86c_stateManagerContainer->xf370_)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_renderVisorFlags & 0x4)
+                if (actor->xe6_27_renderVisorFlags & 0x2)
                     actor->Render(*this);
 
         for (int i=areaCount-1 ; i>=0 ; --i)
@@ -858,7 +858,7 @@ void CStateManager::DrawWorld() const
         CGraphics::SetDepthRange(0.015625f, 0.03125f);
         for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_renderVisorFlags & 0x4)
+                if (actor->xe6_27_renderVisorFlags & 0x2)
                     actor->Render(*this);
         CGraphics::SetDepthRange(0.125f, 1.f);
     }
@@ -943,7 +943,7 @@ void CStateManager::PreRender()
                 {
                     if (TCastToPtr<CActor> act = ent)
                     {
-                        if (act->GetE7_29())
+                        if (act->IsActorActive())
                         {
                             act->CalculateRenderBounds();
                             act->PreRender(*this, frustum);
@@ -2071,7 +2071,7 @@ void CStateManager::CrossTouchActors()
                 continue;
 
             rstl::optional_object<zeus::CAABox> touchAABB2 = ent2->GetTouchBounds();
-            if (!ent2->GetActive() || touchAABB2)
+            if (!ent2->GetActive() || !touchAABB2)
                 continue;
 
             if (visits[ent2->GetUniqueId().Value()])

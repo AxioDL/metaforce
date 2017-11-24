@@ -38,7 +38,7 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
 void CScriptPlayerActor::SetActive(bool active)
 {
     CActor::SetActive(active);
-    xe7_29_ = true;
+    xe7_29_actorActive = true;
 }
 
 void CScriptPlayerActor::PreRender(CStateManager&, const zeus::CFrustum&)

@@ -456,14 +456,20 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
 
     combiner += "    colorOut.a = kColor0.a;\n";
 
-    std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
-    std::string finalFS = hecl::Format(FS, textures.c_str(), combiner.c_str());
+    char *finalVS, *finalFS;
+    asprintf(&finalVS, VS, additionalTCGs.c_str());
+    asprintf(&finalFS, FS, textures.c_str(), combiner.c_str());
 
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr, nullptr, s_vtxFmt,
-                                 info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
-                                 info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
-                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
-                                 boo::CullMode::None);
+    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr, nullptr, s_vtxFmt,
+                                     info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
+                                     info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
+                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                     boo::CullMode::None);
+
+    free(finalVS);
+    free(finalFS);
+
+    return ret;
 }
 
 boo::ObjToken<boo::IShaderPipeline>
@@ -512,13 +518,19 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
 
     combiner += "    colorOut.a = kColor0.a;\n";
 
-    std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
-    std::string finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
+    char *finalVS, *finalFS;
+    asprintf(&finalVS, VS, additionalTCGs.c_str());
+    asprintf(&finalFS, FSDoor, textures.c_str(), combiner.c_str());
 
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr, nullptr, s_vtxFmt,
-                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
-                                 boo::CullMode::None);
+    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr, nullptr, s_vtxFmt,
+                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                     boo::CullMode::None);
+
+    free(finalVS);
+    free(finalFS);
+
+    return ret;
 }
 
 boo::ObjToken<boo::IShaderDataBinding>

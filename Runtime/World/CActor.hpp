@@ -36,15 +36,15 @@ protected:
     CSfxHandle x8c_loopingSfxHandle;
     std::unique_ptr<CActorLights> x90_actorLights;
     std::unique_ptr<CSimpleShadow> x94_simpleShadow;
-    std::unique_ptr<TToken<CScannableObjectInfo>> x98_scanObjectInfo;
+    TLockedToken<CScannableObjectInfo> x98_scanObjectInfo;
     zeus::CAABox x9c_renderBounds;
     CModelFlags xb4_drawFlags;
     float xbc_time = 0.f;
     float xc0_pitchBend = 0.f;
     TUniqueId xc4_fluidId = kInvalidUniqueId;
-    TUniqueId xc6_nextDrawNode = kInvalidUniqueId;
-    u32 xc8_drawnToken = -1;
-    u32 xcc_addedToken = -1;
+    TUniqueId xc6_nextDrawNode;
+    int xc8_drawnToken = -1;
+    int xcc_addedToken = -1;
     float xd0_;
     float xd4_maxVol = 1.f;
     rstl::reserved_vector<CSfxHandle, 2> xd8_nonLoopingSfxHandles;
@@ -63,14 +63,17 @@ protected:
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
+            bool xe5_29_ : 1;
+            bool xe5_30_ : 1;
             bool xe5_31_ : 1;
             u8 xe6_24_fluidCounter : 3;
-            u8 xe6_27_renderVisorFlags : 3; // 2: thermal cold, 4: thermal hot
+            u8 xe6_27_renderVisorFlags : 2; // 1: thermal cold, 2: thermal hot
+            bool xe6_29_ : 1;
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;
             bool xe7_27_ : 1;
             bool xe7_28_worldLightingDirty : 1;
-            bool xe7_29_ : 1;
+            bool xe7_29_actorActive : 1;
             bool xe7_30_doTargetDistanceTest : 1;
             bool xe7_31_targetable : 1;
         };
@@ -94,8 +97,8 @@ public:
         Done,
     };
 
-    CActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-           const CMaterialList&, const CActorParameters&, TUniqueId);
+    CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
+           CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid);
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual void SetActive(bool active)
@@ -103,7 +106,7 @@ public:
         xe4_27_ = true;
         xe4_28_ = true;
         xe4_29_actorLightsDirty = true;
-        xe7_29_ = true;
+        xe7_29_actorActive = active;
         CEntity::SetActive(active);
     }
     virtual void PreRender(CStateManager&, const zeus::CFrustum&) {}
@@ -177,7 +180,7 @@ public:
     const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
     CActorLights* ActorLights() { return x90_actorLights.get(); }
     bool CanDrawStatic() const;
-    bool GetE7_29() const { return xe7_29_; }
+    bool IsActorActive() const { return xe7_29_actorActive; }
     void SetWorldLightingDirty(bool b) { xe7_28_worldLightingDirty = b; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
     const CHealthInfo* GetHealthInfo(const CStateManager& mgr) const

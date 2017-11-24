@@ -146,7 +146,7 @@ rstl::optional_object<zeus::CAABox> CCollisionActor::GetTouchBounds() const
     else if (x258_primitiveType == EPrimitiveType::AABox)
         aabox = {x280_aaboxPrimitive->CalculateAABox(x34_transform)};
     else if (x258_primitiveType == EPrimitiveType::Sphere)
-        aabox = {x280_aaboxPrimitive->CalculateAABox(x34_transform)};
+        aabox = {x284_spherePrimitive->CalculateAABox(x34_transform)};
 
     aabox->accumulateBounds(aabox->max + x304_extendedTouchBounds);
     aabox->accumulateBounds(aabox->min - x304_extendedTouchBounds);

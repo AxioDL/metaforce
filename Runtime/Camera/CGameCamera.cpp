@@ -24,7 +24,7 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, cons
 , x184_fov(fovy)
 {
 
-    xe7_29_ = false;
+    xe7_29_actorActive = false;
 }
 
 void CGameCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
@@ -46,7 +46,7 @@ void CGameCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 void CGameCamera::SetActive(bool active)
 {
     CActor::SetActive(active);
-    xe7_29_ = false;
+    xe7_29_actorActive = false;
 }
 
 zeus::CMatrix4f CGameCamera::GetPerspectiveMatrix() const
@@ -103,9 +103,9 @@ zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& a,
 
 void CGameCamera::UpdatePerspective(float dt)
 {
-    if (x174_ > 0.f)
+    if (x174_delayTime > 0.f)
     {
-        x174_ -= dt;
+        x174_delayTime -= dt;
         return;
     }
 
@@ -125,18 +125,18 @@ void CGameCamera::UpdatePerspective(float dt)
     }
 }
 
-void CGameCamera::SetFovInterpolation(float start, float fov, float time, float f4)
+void CGameCamera::SetFovInterpolation(float start, float fov, float time, float delayTime)
 {
     if (time < 0.f)
     {
         x15c_currentFov = fov;
         x170_24_perspDirty = true;
         x184_fov = fov;
-        x178_ = x174_ = 0.f;
+        x178_ = x174_delayTime = 0.f;
     }
     else
     {
-        x174_ = std::max(0.f, f4);
+        x174_delayTime = std::max(0.f, delayTime);
         x17c_ = time;
         x178_ = time;
         x180_ = start;
@@ -154,6 +154,6 @@ void CGameCamera::SkipFovInterpolation()
         x170_24_perspDirty = true;
     }
 
-    x178_ = x174_ = 0.f;
+    x178_ = x174_delayTime = 0.f;
 }
 }

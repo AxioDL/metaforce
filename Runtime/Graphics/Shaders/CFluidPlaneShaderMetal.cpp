@@ -17,7 +17,7 @@ static const char* VS =
 "    float4 colorIn [[ attribute(4) ]];\n"
 "};\n"
 "\n"
-"UBINDING0 uniform FluidPlaneUniform\n"
+"struct FluidPlaneUniform\n"
 "{\n"
 "    float4x4 mv;\n"
 "    float4x4 mvNorm;\n"
@@ -27,13 +27,19 @@ static const char* VS =
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    float4 pos : [[ position ]];\n"
+"    float4 pos [[ position ]];\n"
 "    float4 mvPos;\n"
 "    float4 mvNorm;\n"
 "    float4 mvBinorm;\n"
 "    float4 mvTangent;\n"
 "    float4 color;\n"
-"    float2 uvs[7];\n"
+"    float2 uv0;\n"
+"    float2 uv1;\n"
+"    float2 uv2;\n"
+"    float2 uv3;\n"
+"    float2 uv4;\n"
+"    float2 uv5;\n"
+"    float2 uv6;\n"
 "};\n"
 "\n"
 "vertex VertToFrag vmain(VertData v [[ stage_in ]],\n"
@@ -46,9 +52,9 @@ static const char* VS =
 "    vtf.mvBinorm = fu.mvNorm * v.binormalIn;\n"
 "    vtf.mvTangent = fu.mvNorm * v.tangentIn;\n"
 "    vtf.color = v.colorIn;\n"
-"    vtf.uvs[0] = (fu.texMtxs[0] * v.posIn).xy;\n"
-"    vtf.uvs[1] = (fu.texMtxs[1] * v.posIn).xy;\n"
-"    vtf.uvs[2] = (fu.texMtxs[2] * v.posIn).xy;\n"
+"    vtf.uv0 = (fu.texMtxs[0] * v.posIn).xy;\n"
+"    vtf.uv1 = (fu.texMtxs[1] * v.posIn).xy;\n"
+"    vtf.uv2 = (fu.texMtxs[2] * v.posIn).xy;\n"
 "%s" // Additional TCGs here
 "    return vtf;\n"
 "}\n";
@@ -107,13 +113,19 @@ static const char* FS =
 "\n"
 "struct VertToFrag\n"
 "{\n"
-"    float4 pos : [[ position ]];\n"
+"    float4 pos [[ position ]];\n"
 "    float4 mvPos;\n"
 "    float4 mvNorm;\n"
 "    float4 mvBinorm;\n"
 "    float4 mvTangent;\n"
 "    float4 color;\n"
-"    float2 uvs[7];\n"
+"    float2 uv0;\n"
+"    float2 uv1;\n"
+"    float2 uv2;\n"
+"    float2 uv3;\n"
+"    float2 uv4;\n"
+"    float2 uv5;\n"
+"    float2 uv6;\n"
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
@@ -130,18 +142,51 @@ static const char* FSDoor =
 "using namespace metal;\n"
 "constexpr sampler samp(address::repeat, filter::linear);\n"
 "\n"
+"struct Light\n"
+"{\n"
+"    float4 pos;\n"
+"    float4 dir;\n"
+"    float4 color;\n"
+"    float4 linAtt;\n"
+"    float4 angAtt;\n"
+"};\n"
+"struct Fog\n" // Reappropriated for indirect texture scaling
+"{\n"
+"    float4 color;\n"
+"    float indScale;\n"
+"    float start;\n"
+"};\n"
+"\n"
+"struct LightingUniform\n"
+"{\n"
+"    Light lights[" _XSTR(URDE_MAX_LIGHTS) "];\n"
+"    float4 ambient;\n"
+"    float4 kColor0;\n"
+"    float4 kColor1;\n"
+"    float4 kColor2;\n"
+"    float4 kColor3;\n"
+"    Fog fog;\n"
+"};\n"
+"\n"
 "struct VertToFrag\n"
 "{\n"
-"    float4 pos : [[ position ]];\n"
+"    float4 pos [[ position ]];\n"
 "    float4 mvPos;\n"
 "    float4 mvNorm;\n"
 "    float4 mvBinorm;\n"
 "    float4 mvTangent;\n"
 "    float4 color;\n"
-"    float2 uvs[7];\n"
+"    float2 uv0;\n"
+"    float2 uv1;\n"
+"    float2 uv2;\n"
+"    float2 uv3;\n"
+"    float2 uv4;\n"
+"    float2 uv5;\n"
+"    float2 uv6;\n"
 "};\n"
 "\n"
-"fragment float4 fmain(VertToFrag vtf [[ stage_in ]]%s)\n" // Textures here
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      constant LightingUniform& lu [[ buffer(4) ]]%s)\n" // Textures here
 "{\n"
 "    float4 colorOut;\n"
 "%s" // Combiner expression here
@@ -190,22 +235,22 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     if (info.m_hasBumpMap)
     {
         bumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (fu.texMtxs[0] * v.posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[0] * v.posIn).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvBumpMap)
     {
         envBumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (fu.texMtxs[3] * v.posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[3] * v.posIn).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
         envMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (fu.texMtxs[%d] * v.posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[%d] * v.posIn).xy;\n", nextTCG++, nextMtx++);
     }
     if (info.m_hasLightmap)
     {
         lightmapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (fu.texMtxs[%d] * v.posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[%d] * v.posIn).xy;\n", nextTCG++, nextMtx++);
     }
 
     switch (info.m_type)
@@ -215,7 +260,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     case CFluidPlane::EFluidType::Four:
         if (info.m_hasLightmap)
         {
-            combiner += hecl::Format("    float4 lightMapTexel = lightMap.sample(samp, vtf.uvs[%d]);\n", lightmapUv);
+            combiner += hecl::Format("    float4 lightMapTexel = lightMap.sample(samp, vtf.uv%d);\n", lightmapUv);
             // 0: Tex4TCG, Tex4, doubleLightmapBlend ? NULL : GX_COLOR1A1
             // ZERO, TEX, KONST, doubleLightmapBlend ? ZERO : RAS
             // Output reg 2
@@ -253,10 +298,10 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uvs[0]) * lu.kColor0 + lighting) *\n"
-                            "               patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uv0) * lu.kColor0 + lighting) *\n"
+                            "               patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
             else
-                combiner += "    colorOut = lighting * patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = lighting * patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
         }
         else
         {
@@ -267,9 +312,9 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         if (info.m_hasColorTex && !info.m_hasEnvMap && info.m_hasEnvBumpMap)
         {
             // Make previous stage indirect, mtx0
-            combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
+            combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uv%d).ra - float2(0.5, 0.5)) *\n"
                                      "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
-            combiner += "    colorOut += colorTex.sample(samp, indUvs + vtf.uvs[2]) * lighting;\n";
+            combiner += "    colorOut += colorTex.sample(samp, indUvs + vtf.uv2) * lighting;\n";
         }
         else if (info.m_hasEnvMap)
         {
@@ -280,15 +325,15 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
 
             // Make previous stage indirect, mtx0
             if (info.m_hasColorTex)
-                combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]) * lighting;\n";
-            combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
+                combiner += "    colorOut += colorTex.sample(samp, vtf.uv2) * lighting;\n";
+            combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uv%d).ra - float2(0.5, 0.5)) *\n"
                                      "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
-            combiner += hecl::Format("    colorOut = mix(colorOut, envMap.sample(samp, indUvs + vtf.uvs[%d]), lu.kColor1);\n",
+            combiner += hecl::Format("    colorOut = mix(colorOut, envMap.sample(samp, indUvs + vtf.uv%d), lu.kColor1);\n",
                                      envMapUv);
         }
         else if (info.m_hasColorTex)
         {
-            combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]) * lighting;\n";
+            combiner += "    colorOut += colorTex.sample(samp, vtf.uv2) * lighting;\n";
         }
 
         break;
@@ -296,7 +341,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     case CFluidPlane::EFluidType::PoisonWater:
         if (info.m_hasLightmap)
         {
-            combiner += hecl::Format("    float4 lightMapTexel = lightMap.sample(samp, vtf.uvs[%d]);\n", lightmapUv);
+            combiner += hecl::Format("    float4 lightMapTexel = lightMap.sample(samp, vtf.uv%d);\n", lightmapUv);
             // 0: Tex4TCG, Tex4, doubleLightmapBlend ? NULL : GX_COLOR1A1
             // ZERO, TEX, KONST, doubleLightmapBlend ? ZERO : RAS
             // Output reg 2
@@ -334,10 +379,10 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uvs[0]) * lu.kColor0 + lighting) *\n"
-                            "               patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uv0) * lu.kColor0 + lighting) *\n"
+                            "               patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
             else
-                combiner += "    colorOut = lighting * patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = lighting * patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
         }
         else
         {
@@ -349,13 +394,13 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
             if (info.m_hasEnvBumpMap)
             {
                 // Make previous stage indirect, mtx0
-                combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
+                combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uv%d).ra - float2(0.5, 0.5)) *\n"
                                          "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
-                combiner += "    colorOut += colorTex.sample(samp, indUvs + vtf.uvs[2]) * lighting;\n";
+                combiner += "    colorOut += colorTex.sample(samp, indUvs + vtf.uv2) * lighting;\n";
             }
             else
             {
-                combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]) * lighting;\n";
+                combiner += "    colorOut += colorTex.sample(samp, vtf.uv2) * lighting;\n";
             }
         }
 
@@ -379,10 +424,10 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uvs[0]) * lu.kColor0 + vtf.color) *\n"
-                            "               patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uv0) * lu.kColor0 + vtf.color) *\n"
+                            "               patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
             else
-                combiner += "    colorOut = vtf.color * patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = vtf.color * patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
         }
         else
         {
@@ -390,7 +435,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         }
 
         if (info.m_hasColorTex)
-            combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]);\n";
+            combiner += "    colorOut += colorTex.sample(samp, vtf.uv2);\n";
 
         if (info.m_hasBumpMap)
         {
@@ -405,8 +450,8 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
             combiner += "    float3 lightVec = lights[3].pos.xyz - vtf.mvPos.xyz;\n"
                         "    float lx = dot(vtf.mvTangent.xyz, lightVec);\n"
                         "    float ly = dot(vtf.mvBinorm.xyz, lightVec);\n";
-            combiner += hecl::Format("    float4 emboss1 = bumpMap.sample(samp, vtf.uvs[%d]) + float4(0.5);\n"
-                                     "    float4 emboss2 = bumpMap.sample(samp, vtf.uvs[%d] + float2(lx, ly));\n",
+            combiner += hecl::Format("    float4 emboss1 = bumpMap.sample(samp, vtf.uv%d) + float4(0.5);\n"
+                                     "    float4 emboss2 = bumpMap.sample(samp, vtf.uv%d + float2(lx, ly));\n",
                                      bumpMapUv, bumpMapUv);
 
             // 5: NULL, NULL, NULL
@@ -437,10 +482,10 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         if (info.m_hasPatternTex2)
         {
             if (info.m_hasPatternTex1)
-                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uvs[0]) * lu.kColor0 + vtf.color) *\n"
-                            "               patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = (patternTex1.sample(samp, vtf.uv0) * lu.kColor0 + vtf.color) *\n"
+                            "               patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
             else
-                combiner += "    colorOut = vtf.color * patternTex2.sample(samp, vtf.uvs[1]) + vtf.color;\n";
+                combiner += "    colorOut = vtf.color * patternTex2.sample(samp, vtf.uv1) + vtf.color;\n";
         }
         else
         {
@@ -448,31 +493,37 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         }
 
         if (info.m_hasColorTex)
-            combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]);\n";
+            combiner += "    colorOut += colorTex.sample(samp, vtf.uv2);\n";
 
         if (info.m_hasBumpMap)
         {
             // 3: bumpMapTCG, bumpMap, NULL
             // ZERO, TEX, PREV, ZERO
             // Output reg prev, scale 2
-            combiner += hecl::Format("    float4 emboss1 = bumpMap.sample(samp, vtf.uvs[%d]) + float4(0.5);\n", bumpMapUv);
+            combiner += hecl::Format("    float4 emboss1 = bumpMap.sample(samp, vtf.uv%d) + float4(0.5);\n", bumpMapUv);
             combiner += "colorOut *= emboss1 * float4(2.0);\n";
         }
 
         break;
     }
 
-    combiner += "    colorOut.a = kColor0.a;\n";
+    combiner += "    colorOut.a = lu.kColor0.a;\n";
 
-    std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
-    std::string finalFS = hecl::Format(FS, textures.c_str(), combiner.c_str());
+    char *finalVS, *finalFS;
+    asprintf(&finalVS, VS, additionalTCGs.c_str());
+    asprintf(&finalFS, FS, textures.c_str(), combiner.c_str());
 
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr,
-                                 s_vtxFmt, CGraphics::g_ViewportSamples,
-                                 info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
-                                 info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
-                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
-                                 boo::CullMode::None);
+    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr,
+                                     s_vtxFmt, CGraphics::g_ViewportSamples,
+                                     info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
+                                     info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
+                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                     boo::CullMode::None);
+
+    free(finalVS);
+    free(finalFS);
+
+    return ret;
 }
 
 boo::ObjToken<boo::IShaderPipeline>
@@ -506,8 +557,8 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     // Tex0 * kColor0 * Tex1 + Tex2
     if (info.m_hasPatternTex1 && info.m_hasPatternTex2)
     {
-        combiner += "    colorOut = patternTex1.sample(samp, vtf.uvs[0]) * lu.kColor0 *\n"
-                    "               patternTex2.sample(samp, vtf.uvs[1]);\n";
+        combiner += "    colorOut = patternTex1.sample(samp, vtf.uv0) * lu.kColor0 *\n"
+                    "               patternTex2.sample(samp, vtf.uv1);\n";
     }
     else
     {
@@ -516,19 +567,25 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
 
     if (info.m_hasColorTex)
     {
-        combiner += "    colorOut += colorTex.sample(samp, vtf.uvs[2]);\n";
+        combiner += "    colorOut += colorTex.sample(samp, vtf.uv2);\n";
     }
 
-    combiner += "    colorOut.a = kColor0.a;\n";
+    combiner += "    colorOut.a = lu.kColor0.a;\n";
 
-    std::string finalVS = hecl::Format(VS, additionalTCGs.c_str());
-    std::string finalFS = hecl::Format(FSDoor, textures.c_str(), combiner.c_str());
+    char *finalVS, *finalFS;
+    asprintf(&finalVS, VS, additionalTCGs.c_str());
+    asprintf(&finalFS, FSDoor, textures.c_str(), combiner.c_str());
 
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), nullptr, nullptr,
-                                 s_vtxFmt, CGraphics::g_ViewportSamples,
-                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
-                                 boo::CullMode::None);
+    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr,
+                                     s_vtxFmt, CGraphics::g_ViewportSamples,
+                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                     boo::CullMode::None);
+
+    free(finalVS);
+    free(finalFS);
+
+    return ret;
 }
 
 boo::ObjToken<boo::IShaderDataBinding> CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::Context& ctx,
