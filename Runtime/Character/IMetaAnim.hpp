@@ -55,7 +55,13 @@ struct CMetaAnimTreeBuildOrders
     std::experimental::optional<CPreAdvanceIndicator> x0_;
     std::experimental::optional<CPreAdvanceIndicator> x44_;
     static CMetaAnimTreeBuildOrders NoSpecialOrders() { return {}; }
-    void PreAdvanceForAll(const CPreAdvanceIndicator& ind) { x44_.emplace(ind); }
+    static CMetaAnimTreeBuildOrders PreAdvanceForAll(const CPreAdvanceIndicator& ind)
+    {
+        CMetaAnimTreeBuildOrders ret;
+        ret.x0_.emplace(ind);
+        ret.x44_.emplace(ind);
+        return ret;
+    }
 };
 
 class IMetaAnim

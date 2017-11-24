@@ -47,6 +47,7 @@ class CParticleDatabase
                                     std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map, bool deleteIfDone);
 public:
     CParticleDatabase();
+    void CacheParticleDesc(const SObjectTag& tag);
     void CacheParticleDesc(const CCharacterInfo::CParticleResData& desc);
     void SetModulationColorAllActiveEffects(const zeus::CColor& color);
     void SuspendAllActiveEffects(CStateManager& stateMgr);

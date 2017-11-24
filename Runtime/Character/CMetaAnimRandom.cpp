@@ -24,6 +24,8 @@ CMetaAnimRandom::CMetaAnimRandom(CInputStream& in)
 
 void CMetaAnimRandom::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
 {
+    for (const auto& pair : x4_randomData)
+        pair.first->GetUniquePrimitives(primsOut);
 }
 
 std::shared_ptr<CAnimTreeNode>

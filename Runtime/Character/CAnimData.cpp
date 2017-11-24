@@ -97,6 +97,20 @@ CAnimData::CAnimData(CAssetId id,
         x1f8_animRoot = treeNode;
 }
 
+void CAnimData::InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::CVector3f& scale)
+{
+    for (const auto& effects : xc_charInfo.GetEffectList())
+    {
+        for (const auto& effect : effects.second)
+        {
+            x120_particleDB.CacheParticleDesc(effect.GetParticleTag());
+            x120_particleDB.AddParticleEffect(effect.GetSegmentName(), effect.GetFlags(), CParticleData(), scale, mgr,
+                                              aId, true, x21c_particleLightIdx);
+            x120_particleDB.SetParticleEffectState(effect.GetComponentName(), false, mgr);
+        }
+    }
+}
+
 CAssetId CAnimData::GetEventResourceIdForAnimResourceId(CAssetId id) const
 {
     return x0_charFactory->GetEventResourceIdForAnimResourceId(id);

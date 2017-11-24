@@ -55,17 +55,15 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
         if (HasModelData() && x64_modelData->AnimationData())
         {
             TAreaId aid = GetAreaId();
-            // x64_modelData->AnimationData()->sub_8002AE6C(mgr, aid, x64_modelData->x0_particleScale);
+            x64_modelData->AnimationData()->InitializeEffects(mgr, aid, x64_modelData->GetScale());
         }
     }
     break;
     case EScriptObjectMessage::Deleted: // 34
     {
         RemoveEmitter();
-#if 0
         if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->GetNormalModel())
-            x64_modelData->AnimationData()->GetParticleDB().GetActiveParticleLightIds(mgr);
-#endif
+            x64_modelData->AnimationData()->GetParticleDB().DeleteAllLights(mgr);
     }
     break;
     case EScriptObjectMessage::InitializedInArea: // 35

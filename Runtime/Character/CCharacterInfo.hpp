@@ -12,6 +12,7 @@ namespace urde
 class CCharacterInfo
 {
     friend class CAnimData;
+
 public:
     struct CParticleResData
     {
@@ -21,6 +22,7 @@ public:
         std::vector<CAssetId> x30_elsc;
         CParticleResData(CInputStream& in, u16 tableCount);
     };
+
 private:
     u16 x0_tableCount;
     std::string x4_name;
@@ -43,20 +45,23 @@ public:
     CCharacterInfo(CInputStream& in);
 
     std::string_view GetCharacterName() const { return x4_name; }
-    CAssetId GetModelId() const {return x14_cmdl;}
-    CAssetId GetSkinRulesId() const {return x18_cskr;}
-    CAssetId GetCharLayoutInfoId() const {return x1c_cinf;}
+    CAssetId GetModelId() const { return x14_cmdl; }
+    CAssetId GetSkinRulesId() const { return x18_cskr; }
+    CAssetId GetCharLayoutInfoId() const { return x1c_cinf; }
 
     const std::vector<std::pair<std::string, zeus::CAABox>>& GetAnimBBoxList() const { return x88_aabbs; }
+    const std::vector<std::pair<std::string, std::vector<CEffectComponent>>>& GetEffectList() const
+    {
+        return x98_effects;
+    }
 
-    CAssetId GetIceModelId() const {return xa8_cmdlOverlay;}
-    CAssetId GetIceSkinRulesId() const {return xac_cskrOverlay;}
+    CAssetId GetIceModelId() const { return xa8_cmdlOverlay; }
+    CAssetId GetIceSkinRulesId() const { return xac_cskrOverlay; }
 
-    const CParticleResData& GetParticleResData() const {return x44_partRes;}
+    const CParticleResData& GetParticleResData() const { return x44_partRes; }
     u32 GetAnimationIndex(u32 idx) const { return xb0_animIdxs.at(idx); }
     const CPASDatabase& GetPASDatabase() const { return x30_pasDatabase; }
 };
-
 }
 
 #endif // __URDE_CCHARACTERINFO_HPP__
