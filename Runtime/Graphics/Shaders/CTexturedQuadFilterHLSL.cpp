@@ -64,7 +64,6 @@ static const char* VSNoFlip =
 "    VertToFrag vtf;\n"
 "    vtf.color = color;\n"
 "    vtf.uv = v.uvIn.xy;\n"
-"    vtf.uv.y = 1.f - vtf.uv.y;\n"
 "    vtf.lod = lod;\n"
 "    vtf.position = mul(mat, float4(v.posIn.xyz, 1.0));\n"
 "    return vtf;\n"

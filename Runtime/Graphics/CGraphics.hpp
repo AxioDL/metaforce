@@ -223,7 +223,7 @@ public:
     struct CFogState
     {
         zeus::CColor m_color;
-        float m_rangeScale = 1.f;
+        float m_rangeScale = 0.f;
         float m_start = 4096.f;
     };
 
@@ -311,6 +311,13 @@ public:
         g_BooFactory = factory;
         g_BooMainCommandQueue = cc;
         g_SpareTexture = spareTex;
+    }
+
+    static void ShutdownBoo()
+    {
+        g_BooFactory = nullptr;
+        g_BooMainCommandQueue = nullptr;
+        g_SpareTexture.reset();
     }
 
     static const boo::SystemChar* PlatformName()

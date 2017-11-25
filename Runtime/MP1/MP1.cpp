@@ -575,6 +575,7 @@ void CMain::Shutdown()
     TMultiBlendShader<CScanLinesFilter>::Shutdown();
     TMultiBlendShader<CRandomStaticFilter>::Shutdown();
     CFluidPlaneShader::Shutdown();
+    CGraphics::ShutdownBoo();
 }
 
 boo::IWindow* CMain::GetMainWindow() const

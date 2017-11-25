@@ -74,7 +74,7 @@ void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::C
     if (mode == ERglFogMode::None)
     {
         g_Fog.m_start = 4096.f;
-        g_Fog.m_rangeScale = 1.f;
+        g_Fog.m_rangeScale = 0.f;
     }
     else
     {

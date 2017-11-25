@@ -66,7 +66,7 @@ static const char* FS =
 "    float start;\n"
 "};\n"
 "\n"
-"struct LightingUniform\n"
+"cbuffer LightingUniform : register(b2)\n"
 "{\n"
 "    Light lights[" _XSTR(URDE_MAX_LIGHTS) "];\n"
 "    float4 ambient;\n"
@@ -111,7 +111,7 @@ static const char* FS =
 "\n"
 "SamplerState samp : register(s0);\n"
 "%s" // Textures here
-"float4 main(in VertToFrag vtf)\n"
+"float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
 "    float4 lighting = LightingFunc(vtf.mvPos, normalize(vtf.mvNorm));\n"
 "    float4 colorOut;\n"
@@ -120,6 +120,31 @@ static const char* FS =
 "}\n";
 
 static const char* FSDoor =
+"struct Light\n"
+"{\n"
+"    float4 pos;\n"
+"    float4 dir;\n"
+"    float4 color;\n"
+"    float4 linAtt;\n"
+"    float4 angAtt;\n"
+"};\n"
+"struct Fog\n" // Reappropriated for indirect texture scaling
+"{\n"
+"    float4 color;\n"
+"    float indScale;\n"
+"    float start;\n"
+"};\n"
+"\n"
+"cbuffer LightingUniform : register(b2)\n"
+"{\n"
+"    Light lights[" _XSTR(URDE_MAX_LIGHTS) "];\n"
+"    float4 ambient;\n"
+"    float4 kColor0;\n"
+"    float4 kColor1;\n"
+"    float4 kColor2;\n"
+"    float4 kColor3;\n"
+"    Fog fog;\n"
+"};\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos : SV_Position;\n"
@@ -133,7 +158,7 @@ static const char* FSDoor =
 "\n"
 "SamplerState samp : register(s0);\n"
 "%s" // Textures here
-"float4 main(in VertToFrag vtf)\n"
+"float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
 "    float4 colorOut;\n"
 "%s" // Combiner expression here
@@ -165,19 +190,19 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
     int bumpMapUv, envBumpMapUv, envMapUv, lightmapUv;
 
     if (info.m_hasPatternTex1)
-        textures += hecl::Format("Texture2D patternTex1 : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D patternTex1 : register(t%d);\n", nextTex++);
     if (info.m_hasPatternTex2)
-        textures += hecl::Format("Texture2D patternTex2 : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D patternTex2 : register(t%d);\n", nextTex++);
     if (info.m_hasColorTex)
-        textures += hecl::Format("Texture2D colorTex : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D colorTex : register(t%d);\n", nextTex++);
     if (info.m_hasBumpMap)
-        textures += hecl::Format("Texture2D bumpMap : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D bumpMap : register(t%d);\n", nextTex++);
     if (info.m_hasEnvMap)
-        textures += hecl::Format("Texture2D envMap : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D envMap : register(t%d);\n", nextTex++);
     if (info.m_hasEnvBumpMap)
-        textures += hecl::Format("Texture2D envBumpMap : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D envBumpMap : register(t%d);\n", nextTex++);
     if (info.m_hasLightmap)
-        textures += hecl::Format("Texture2D lightMap : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D lightMap : register(t%d);\n", nextTex++);
 
     if (info.m_hasBumpMap)
     {
@@ -494,11 +519,11 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
     int nextTex = 0;
 
     if (info.m_hasPatternTex1)
-        textures += hecl::Format("Texture2D patternTex1 : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D patternTex1 : register(t%d);\n", nextTex++);
     if (info.m_hasPatternTex2)
-        textures += hecl::Format("Texture2D patternTex2 : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D patternTex2 : register(t%d);\n", nextTex++);
     if (info.m_hasColorTex)
-        textures += hecl::Format("Texture2D colorTex : register(t%d)\n", nextTex++);
+        textures += hecl::Format("Texture2D colorTex : register(t%d);\n", nextTex++);
 
     // Tex0 * kColor0 * Tex1 + Tex2
     if (info.m_hasPatternTex1 && info.m_hasPatternTex2)
@@ -558,7 +583,7 @@ CFluidPlaneShader::BuildBinding(boo::ID3DDataFactory::Context& ctx,
         texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
     if (m_lightmap)
         texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo.get(), nullptr, nullptr, door ? 1 : 3,
+    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo.get(), nullptr, nullptr, 3,
                                     ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
 }
 

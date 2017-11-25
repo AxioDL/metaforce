@@ -18,7 +18,7 @@ class CLight;
 class CAreaOctTree;
 class CParticleGen;
 class CModel;
-class SShader;
+struct SShader;
 class CSkinnedModel;
 class CPVSVisSet;
 struct CAreaRenderOctTree;
