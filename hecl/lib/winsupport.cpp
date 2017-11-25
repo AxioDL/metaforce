@@ -34,3 +34,16 @@ void *memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
 
     return NULL;
 }
+
+int asprintf(char** buf, const char* format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int len = vsnprintf(nullptr, 0, format, ap);
+    va_end(ap);
+    *buf = (char*)malloc(len + 1);
+    va_start(ap, format);
+    vsnprintf(*buf, len + 1, format, ap);
+    va_end(ap);
+    return len;
+}

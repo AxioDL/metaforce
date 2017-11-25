@@ -63,7 +63,9 @@ struct Token
     {
         switch (k)
         {
-        case Kind::None: return "none"sv;
+        case Kind::None:
+        default:
+            return "none"sv;
         case Kind::Eof: return "eof"sv;
         case Kind::Lf: return "lf"sv;
         case Kind::Plus: return "+"sv;
@@ -156,7 +158,7 @@ class Scanner
     int _read();
     bool read();
 
-    static char chr(char c) { return (c < 32 || c > 127) ? '.' : c; }
+    static char chr(char c) { return (c < 32) ? '.' : c; }
 
 public:
     Scanner(Diagnostics& diag) : m_diag(diag) {}
@@ -206,6 +208,7 @@ struct IRNode
         case Op::Sub: return "-"sv;
         case Op::Mul: return "*"sv;
         case Op::Div: return "/"sv;
+        default: return ""sv;
         }
     }
 
@@ -213,7 +216,9 @@ struct IRNode
     {
         switch (k)
         {
-        case Kind::None: return "none"sv;
+        case Kind::None:
+        default:
+            return "none"sv;
         case Kind::Call: return "call"sv;
         case Kind::Imm: return "imm"sv;
         case Kind::Binop: return "binop"sv;
