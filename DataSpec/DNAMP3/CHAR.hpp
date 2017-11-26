@@ -114,9 +114,9 @@ struct CHAR : BigYAML
                 Delete expl;
 
                 UniqueID64 caudId;
-                Value<atUint32> unk1;
-                Value<atUint32> unk2;
-                Value<atUint32> unk3;
+                Value<atUint32> unk1_;
+                Value<atUint32> unk2_;
+                Value<atUint32> unk3_;
                 std::vector<float> unk3Vals;
                 Value<atUint32> extraType;
                 Value<float> extraFloat;

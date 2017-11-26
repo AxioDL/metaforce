@@ -1036,6 +1036,10 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
 {
     if (dest && !dest->x30_26_scriptingBlocked)
     {
+#ifndef NDEBUG
+        LogModule.report(logvisor::Info, "Sending '%s' to '%s'",
+                         ScriptObjectMessageToStr(msg).data(), dest->GetName().data());
+#endif
         dest->AcceptScriptMsg(msg, src, *this);
     }
 }
@@ -1050,7 +1054,13 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
 {
     CEntity* dst = ObjectById(dest);
     if (dst)
+    {
+#ifndef NDEBUG
+        LogModule.report(logvisor::Info, "Sending '%s' to '%s'",
+                         ScriptObjectMessageToStr(msg).data(), dst->GetName().data());
+#endif
         dst->AcceptScriptMsg(msg, src, *this);
+    }
 }
 
 void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMessage msg, EScriptObjectState state)
@@ -1110,6 +1120,10 @@ void CStateManager::FreeScriptObject(TUniqueId id)
         x874_sortedListManager->Remove(act.GetPtr());
         act->SetUseInSortedLists(false);
     }
+
+#ifndef NDEBUG
+    LogModule.report(logvisor::Info, "Removed '%s'", ent->GetName().data());
+#endif
 }
 
 std::pair<const SScriptObjectStream*, TEditorId> CStateManager::GetBuildForScript(TEditorId id) const
@@ -2083,7 +2097,7 @@ void CStateManager::CrossTouchActors()
                 ent2->Touch(actor, *this);
             }
 
-            visits[ent2->GetUniqueId().Value()] = true;
+            visits[actor.GetUniqueId().Value()] = true;
         }
     }
 }
@@ -2383,14 +2397,14 @@ void CStateManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& listOu
 
 void CStateManager::UpdateActorInSortedLists(CActor& act)
 {
-    if (!act.GetUseInSortedLists() || !act.xe4_27_)
+    if (!act.GetUseInSortedLists() || !act.xe4_27_notInSortedLists)
         return;
 
     std::experimental::optional<zeus::CAABox> aabb = CalculateObjectBounds(act);
     bool actorInLists = x874_sortedListManager->ActorInLists(&act);
     if (actorInLists || aabb)
     {
-        act.xe4_27_ = false;
+        act.xe4_27_notInSortedLists = false;
         if (actorInLists)
         {
             if (!act.GetActive() || !aabb)
@@ -2469,6 +2483,10 @@ void CStateManager::AddObject(CEntity& ent)
         if (area->IsValidated())
             SendScriptMsg(&ent, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
     }
+
+#ifndef NDEBUG
+    LogModule.report(logvisor::Info, "Added '%s'", ent.GetName().data());
+#endif
 }
 
 void CStateManager::AddObject(CEntity* ent)

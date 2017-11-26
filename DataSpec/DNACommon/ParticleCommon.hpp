@@ -16,7 +16,7 @@ struct IElement : BigYAML
     virtual const char* ClassID() const=0;
 };
 
-struct IRealElement : IElement {Delete _d;};
+struct IRealElement : IElement {Delete _d2;};
 struct RealElementFactory : BigYAML
 {
     Delete _d;
@@ -30,7 +30,7 @@ struct RealElementFactory : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 };
 
-struct IIntElement : IElement {Delete _d;};
+struct IIntElement : IElement {Delete _d2;};
 struct IntElementFactory : BigYAML
 {
     Delete _d;
@@ -44,7 +44,7 @@ struct IntElementFactory : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 };
 
-struct IVectorElement : IElement {Delete _d;};
+struct IVectorElement : IElement {Delete _d2;};
 struct VectorElementFactory : BigYAML
 {
     Delete _d;
@@ -58,7 +58,7 @@ struct VectorElementFactory : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 };
 
-struct IColorElement : IElement {Delete _d;};
+struct IColorElement : IElement {Delete _d2;};
 struct ColorElementFactory : BigYAML
 {
     Delete _d;
@@ -72,7 +72,7 @@ struct ColorElementFactory : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 };
 
-struct IModVectorElement : IElement {Delete _d;};
+struct IModVectorElement : IElement {Delete _d2;};
 struct ModVectorElementFactory : BigYAML
 {
     Delete _d;
@@ -86,7 +86,7 @@ struct ModVectorElementFactory : BigYAML
     void write(athena::io::IStreamWriter& w) const;
 };
 
-struct IEmitterElement : IElement {Delete _d;};
+struct IEmitterElement : IElement {Delete _d2;};
 struct EmitterElementFactory : BigYAML
 {
     Delete _d;
@@ -102,13 +102,13 @@ struct EmitterElementFactory : BigYAML
 
 struct IUVElement : IElement
 {
-    Delete _d;
+    Delete _d2;
     virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const=0;
 };
 
 struct BoolHelper : IElement
 {
-    Delete _d;
+    Delete _d2;
     bool value = false;
     operator bool() const {return value;}
     BoolHelper& operator=(bool val) {value = val; return *this;}
@@ -151,7 +151,7 @@ struct RELifetimeTween : IRealElement
 
 struct REConstant : IRealElement
 {
-    Delete _d;
+    Delete _d3;
     Value<float> val;
 
     void read(athena::io::YAMLDocReader& r)
@@ -464,7 +464,7 @@ struct IEAdd : IIntElement
 
 struct IEConstant : IIntElement
 {
-    Delete _d;
+    Delete _d3;
     Value<atUint32> val;
 
     void read(athena::io::YAMLDocReader& r)
@@ -625,7 +625,7 @@ struct VECircleCluster : IVectorElement
 
 struct VEConstant : IVectorElement
 {
-    Delete _d;
+    Delete _d3;
     RealElementFactory comps[3];
 
     void read(athena::io::YAMLDocReader& r)
@@ -772,7 +772,7 @@ struct CEKeyframeEmitter : IColorElement
 
 struct CEConstant : IColorElement
 {
-    Delete _d;
+    Delete _d3;
     RealElementFactory comps[4];
 
     void read(athena::io::YAMLDocReader& r)
@@ -895,7 +895,7 @@ struct MVEBounce : IModVectorElement
 
 struct MVEConstant : IModVectorElement
 {
-    Delete _d;
+    Delete _d3;
     RealElementFactory comps[3];
 
     void read(athena::io::YAMLDocReader& r)
@@ -1026,7 +1026,7 @@ struct VEAngleSphere : IEmitterElement
 
 struct EESimpleEmitterTR : EESimpleEmitter
 {
-    Delete _d;
+    Delete _d3;
 
     void read(athena::io::YAMLDocReader& r)
     {
@@ -1078,7 +1078,7 @@ struct EESimpleEmitterTR : EESimpleEmitter
 template <class IDType>
 struct UVEConstant : IUVElement
 {
-    Delete _d;
+    Delete _d3;
     IDType tex;
     void read(athena::io::YAMLDocReader& r)
     {
@@ -1119,7 +1119,7 @@ struct UVEConstant : IUVElement
 template <class IDType>
 struct UVEAnimTexture : IUVElement
 {
-    Delete _d;
+    Delete _d3;
     IDType tex;
     IntElementFactory tileW;
     IntElementFactory tileH;

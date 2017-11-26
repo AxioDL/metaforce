@@ -8,7 +8,7 @@ namespace urde
 class CScriptRelay : public CEntity
 {
     TUniqueId x34_nextRelay = kInvalidUniqueId;
-    u32 x38_refCount = 0;
+    u32 x38_sendCount = 0;
 public:
     CScriptRelay(TUniqueId, std::string_view, const CEntityInfo&, bool);
 

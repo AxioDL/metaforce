@@ -546,10 +546,9 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     hecl::ProjectPath outPath(m_project.getProjectWorkingPath(),
                              _S("out/") + components[0] + _S("/") + components[1] + _S(".upak"));
     outPath.makeDirChain(false);
-    hecl::SystemString tmpPath = hecl::SystemString(outPath.getAbsolutePath()) + _S("~");
 
     /* Output file */
-    athena::io::FileWriter pakOut(tmpPath);
+    athena::io::FileWriter pakOut(outPath.getAbsolutePath());
     std::vector<urde::SObjectTag> buildList;
     atUint64 resTableOffset = 0;
 
@@ -656,9 +655,6 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     /* Write file index */
     writePakFileIndex(pakOut, buildList, fileIndex, resTableOffset);
     pakOut.close();
-
-    /* Atomic rename */
-    hecl::Rename(tmpPath.c_str(), outPath.getAbsolutePath().data());
 }
 
 hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const

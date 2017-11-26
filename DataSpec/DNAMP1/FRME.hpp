@@ -56,13 +56,13 @@ struct FRME : BigDNA
 
         struct BWIGInfo : IWidgetInfo
         {
-            Delete _d;
+            Delete _d2;
             FourCC fourcc() const { return FOURCC('BWIG'); }
         };
 
         struct HWIGInfo : IWidgetInfo
         {
-            Delete _d;
+            Delete _d2;
             FourCC fourcc() const { return FOURCC('HWIG'); }
         };
 

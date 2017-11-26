@@ -11,6 +11,7 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, std::string_view name, 
 , xe8_mass(moverData.x30_mass)
 , xec_massRecip(moverData.x30_mass <= 0.f ? 1.f : 1.f / moverData.x30_mass)
 , x150_momentum(moverData.x18_momentum)
+, x1a4_baseBoundingBox(box)
 , x1c0_collisionPrimitive(box, matList)
 , x1f4_lastNonCollidingState(xf.origin, xf.buildMatrix3f())
 , x23c_stepUpHeight(stepUp)

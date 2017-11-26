@@ -1033,7 +1033,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
         return nullptr;
     std::string name = mgr.HashInstanceName(in);
     bool active = in.readBool();
-    EFilterType type = EFilterType(in.readUint32Big());
+    EFilterType ftype = EFilterType(in.readUint32Big());
     EFilterShape shape = EFilterShape(in.readUint32Big());
     u32 filterIdx = in.readUint32Big();
     u32 unk = in.readUint32Big();
@@ -1043,7 +1043,7 @@ CEntity* ScriptLoader::LoadCameraFilterKeyframe(CStateManager& mgr, CInputStream
     float timeOut = in.readFloatBig();
     CAssetId txtr = in.readUint32Big();
 
-    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, type, shape, filterIdx, unk, color,
+    return new CScriptCameraFilterKeyframe(mgr.AllocateUniqueId(), name, info, ftype, shape, filterIdx, unk, color,
                                            timeIn, timeOut, txtr, active);
 }
 

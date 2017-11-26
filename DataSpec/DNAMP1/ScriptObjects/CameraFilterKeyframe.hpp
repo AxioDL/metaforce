@@ -14,7 +14,7 @@ struct CameraFilterKeyframe : IScriptObject
     DECL_YAML
     String<-1> name;
     Value<bool> active;
-    Value<atUint32> type;
+    Value<atUint32> ftype;
     Value<atUint32> shape;
     Value<atUint32> filterIdx;
     Value<atUint32> unk;

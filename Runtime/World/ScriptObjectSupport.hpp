@@ -1,6 +1,8 @@
 #ifndef __SCRIPT_OBJECT_SUPPORT_HPP__
 #define __SCRIPT_OBJECT_SUPPORT_HPP__
 
+#include <string_view>
+
 namespace urde
 {
 
@@ -227,6 +229,13 @@ enum class EScriptObjectMessage
     RemovePhazonPoolInhabitant = 47,
     InternalMessage26 = 48
 };
+
+#ifndef NDEBUG
+std::string_view ScriptObjectTypeToStr(EScriptObjectType type);
+std::string_view ScriptObjectStateToStr(EScriptObjectState state);
+std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message);
+#endif
+
 }
 
 #endif // __SCRIPT_OBJECT_SUPPORT_HPP__

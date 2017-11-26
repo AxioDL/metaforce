@@ -22,9 +22,10 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
     return ret;
 }
 
-CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
+CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid)
 : CEntity(uid, info, active, name)
+, x34_transform(xf)
 , x68_material(MakeActorMaterialList(list, params))
 , x70_materialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}))
 , xc6_nextDrawNode(otherUid)
@@ -34,7 +35,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
     xd0_ = params.x64_;
     xd8_nonLoopingSfxHandles.resize(2);
-    xe4_27_ = true;
+    xe4_27_notInSortedLists = true;
     xe4_28_ = true;
     xe4_29_actorLightsDirty = true;
     xe4_31_lightsDirty = true;
@@ -315,7 +316,7 @@ void CActor::SetSoundEventPitchBend(s32 val)
 void CActor::SetRotation(const zeus::CQuaternion &q)
 {
     x34_transform = q.toTransform(x34_transform.origin);
-    xe4_27_ = true;
+    xe4_27_notInSortedLists = true;
     xe4_28_ = true;
     xe4_29_actorLightsDirty = true;
 }
@@ -323,7 +324,7 @@ void CActor::SetRotation(const zeus::CQuaternion &q)
 void CActor::SetTranslation(const zeus::CVector3f& tr)
 {
     x34_transform.origin = tr;
-    xe4_27_ = true;
+    xe4_27_notInSortedLists = true;
     xe4_28_ = true;
     xe4_29_actorLightsDirty = true;
 }
@@ -331,7 +332,7 @@ void CActor::SetTranslation(const zeus::CVector3f& tr)
 void CActor::SetTransform(const zeus::CTransform& tr)
 {
     x34_transform = tr;
-    xe4_27_ = true;
+    xe4_27_notInSortedLists = true;
     xe4_28_ = true;
     xe4_29_actorLightsDirty = true;
 }

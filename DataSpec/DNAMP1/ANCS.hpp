@@ -183,7 +183,7 @@ struct ANCS : BigYAML
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
-            Delete expl;
+            Delete expl2;
 
             MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
 

@@ -53,7 +53,7 @@ protected:
         struct
         {
             u8 xe4_24_nextNonLoopingSfxHandle : 3;
-            bool xe4_27_ : 1;
+            bool xe4_27_notInSortedLists : 1;
             bool xe4_28_ : 1;
             bool xe4_29_actorLightsDirty : 1;
             bool xe4_30_outOfFrustum : 1;
@@ -103,7 +103,7 @@ public:
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual void SetActive(bool active)
     {
-        xe4_27_ = true;
+        xe4_27_notInSortedLists = true;
         xe4_28_ = true;
         xe4_29_actorLightsDirty = true;
         xe7_29_actorActive = active;

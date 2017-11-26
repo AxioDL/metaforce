@@ -652,7 +652,7 @@ CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Context& ctx,
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
                                         boo::PipelineStage::Fragment };
     size_t ubufOffs[] = {0, 0, 768};
-    size_t ubufSizes[] = {768, 768, 256};
+    size_t ubufSizes[] = {768, 768, sizeof(CModelShaders::LightingUniform)};
     size_t texCount = 0;
     boo::ObjToken<boo::ITexture> texs[7];
     if (m_patternTex1)
@@ -682,7 +682,7 @@ CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory::Context& ctx,
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
                                         boo::PipelineStage::Fragment };
     size_t ubufOffs[] = {0, 0, 768};
-    size_t ubufSizes[] = {768, 768, 256};
+    size_t ubufSizes[] = {768, 768, sizeof(CModelShaders::LightingUniform)};
     size_t texCount = 0;
     boo::ObjToken<boo::ITexture> texs[7] = {};
     if (m_patternTex1)

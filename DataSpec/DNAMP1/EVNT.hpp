@@ -64,7 +64,7 @@ struct EVNT : BigYAML
     {
         DECL_YAML
         Value<atUint32> duration;
-        DNAFourCC type;
+        DNAFourCC ptype;
         UniqueID32 id;
         String<-1> locator;
         Value<float> scale;

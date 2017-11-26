@@ -68,6 +68,8 @@ public:
 
     const std::vector<SConnection>& GetConnectionList() const { return x20_conns; }
     std::vector<SConnection>& ConnectionList() { return x20_conns; }
+
+    std::string_view GetName() const { return x10_name; }
 };
 
 }

@@ -32,7 +32,7 @@ CENTITY_TYPES = (
     ('CAi', 'World/CAi.hpp'),
     ('CPatterned', 'World/CPatterned.hpp'),
     ('CPhysicsActor', 'World/CPhysicsActor.hpp'),
-    ('CPlayer', 'World/CPhysicsActor.hpp'),
+    ('CPlayer', 'World/CPlayer.hpp'),
     ('CRepulsor', 'World/CRepulsor.hpp'),
     ('CScriptActor', 'World/CScriptActor.hpp'),
     ('CScriptActorKeyframe', 'World/CScriptActorKeyframe.hpp'),
@@ -188,6 +188,8 @@ for tp in CENTITY_TYPES:
         sourcef.write('''template <class T>
 void TCastToPtr<T>::Visit(%s* p)
 {
+    static_assert(sizeof(T) > 0, "TCastToPtr can not cast to incomplete type");
+    static_assert(!std::is_void<T>::value, "TCastToPtr can not cast to incomplete type");
     ptr = reinterpret_cast<T*>(std::is_convertible<%s*, T*>::value ? p : nullptr);
 }
 

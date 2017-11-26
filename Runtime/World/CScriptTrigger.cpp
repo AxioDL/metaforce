@@ -11,8 +11,8 @@ namespace urde
 
 CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
-                               const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active, bool deactivateOnEntered,
-                               bool deactivateOnExited)
+                               const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active,
+                               bool deactivateOnEntered, bool deactivateOnExited)
 : CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Trigger), CActorParameters::None(), kInvalidUniqueId)
 , x100_damageInfo(dInfo)
@@ -44,9 +44,9 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
             x148_25_camSubmerged = false;
         }
 
-        if (x148_28_playerDamage)
+        if (x148_28_playerTriggerProc)
         {
-            x148_28_playerDamage = false;
+            x148_28_playerTriggerProc = false;
             if (x148_29_didPhazonDamage)
             {
                 mgr.Player()->DecrementPhazon();
@@ -97,9 +97,9 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                 {
                     xe8_inhabitants.erase(it);
                     sendExited = true;
-                    if (x148_28_playerDamage)
+                    if (x148_28_playerTriggerProc)
                     {
-                        x148_28_playerDamage = false;
+                        x148_28_playerTriggerProc = false;
                         if (x148_29_didPhazonDamage)
                         {
                             mgr.GetPlayer().DecrementPhazon();
@@ -150,9 +150,9 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
             {
                 xe8_inhabitants.erase(it);
                 sendExited = true;
-                if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerDamage)
+                if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerTriggerProc)
                 {
-                    x148_28_playerDamage = false;
+                    x148_28_playerTriggerProc = false;
                     if (x148_29_didPhazonDamage)
                     {
                         mgr.Player()->DecrementPhazon();
@@ -169,9 +169,9 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
         else
         {
             xe8_inhabitants.erase(it);
-            if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerDamage)
+            if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerTriggerProc)
             {
-                x148_28_playerDamage = false;
+                x148_28_playerTriggerProc = false;
                 if (x148_29_didPhazonDamage)
                 {
                     mgr.Player()->DecrementPhazon();
@@ -259,7 +259,6 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
         TCastToPtr<CPlayer> pl(act);
         if (pl)
         {
-
             if (x128_forceMagnitude > 0.f && (x12c_flags & ETriggerFlags::DetectPlayer) != ETriggerFlags::None &&
                 mgr.GetLastTriggerId() == kInvalidUniqueId)
                 mgr.SetLastTriggerId(x8_uid);
@@ -297,9 +296,9 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
 
             if (pl)
             {
-                if (!x148_28_playerDamage)
+                if (!x148_28_playerTriggerProc)
                 {
-                    x148_28_playerDamage = true;
+                    x148_28_playerTriggerProc = true;
                     if (x148_29_didPhazonDamage)
                     {
                         mgr.Player()->DecrementPhazon();
