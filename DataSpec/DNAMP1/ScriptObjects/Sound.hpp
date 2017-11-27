@@ -16,22 +16,22 @@ struct Sound : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<atUint32> soundID;
-    Value<bool> unknown1;
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<float> unknown4;
-    Value<atUint32> unknown5;
-    Value<atUint32> unknown6;
-    Value<atUint32> unknown7;
-    Value<atUint32> unknown8;
-    Value<bool> unknown9;
-    Value<bool> unknown10;
-    Value<bool> unknown11;
-    Value<bool> unknown12;
-    Value<bool> unknown13;
-    Value<bool> unknown14;
-    Value<bool> unknown15;
-    Value<atUint32> unknown16;
+    Value<bool> active;
+    Value<float> maxDist;
+    Value<float> distComp;
+    Value<float> startDelay;
+    Value<atUint32> minVol;
+    Value<atUint32> vol;
+    Value<atUint32> prio;
+    Value<atUint32> pan;
+    Value<bool> loop;
+    Value<bool> nonEmitter;
+    Value<bool> autoStart;
+    Value<bool> occlusionTest;
+    Value<bool> acoustics;
+    Value<bool> worldSfx;
+    Value<bool> allowDuplicates;
+    Value<atUint32> pitch;
 };
 }
 }

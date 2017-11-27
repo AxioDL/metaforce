@@ -1891,7 +1891,7 @@ void CStateManager::Update(float dt)
         x884_actorModelParticles->Update(dt, *this);
 
     if (x904_gameState == EGameState::Running || x904_gameState == EGameState::SoftPaused)
-        ThinkEffectsAndActors(dt);
+        Think(dt);
 
     if (x904_gameState != EGameState::SoftPaused)
         x870_cameraManager->Update(dt, *this);
@@ -2039,17 +2039,17 @@ void CStateManager::MoveDoors(float dt)
             if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId)
             {
                 const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());
-                float f1;
+                float occTime;
                 if (area->IsPostConstructed())
-                    f1 = area->GetPostConstructed()->x10e4_;
+                    occTime = area->GetPostConstructed()->x10e4_occludedTime;
                 else
-                    f1 = 0.f;
-                if (f1 > 5.f)
+                    occTime = 0.f;
+                if (occTime > 5.f)
                     doThink = false;
             }
             if (!doThink)
                 SendScriptMsgAlways(ai->GetUniqueId(), kInvalidUniqueId,
-                                    EScriptObjectMessage::InternalMessage26);
+                                    EScriptObjectMessage::SuspendedMove);
             else if (x84c_player.get() != ent)
                 if (!GetPlatformAndDoorObjectList().IsPlatform(*ent))
                     CGameCollision::Move(*this, physActor, dt, nullptr);
@@ -2102,7 +2102,7 @@ void CStateManager::CrossTouchActors()
     }
 }
 
-void CStateManager::ThinkEffectsAndActors(float dt)
+void CStateManager::Think(float dt)
 {
     if (x84c_player->x9f4_deathTime > 0.f)
     {
@@ -2119,26 +2119,27 @@ void CStateManager::ThinkEffectsAndActors(float dt)
     else
     {
         for (CEntity* ent : GetAllObjectList())
+        {
             if (TCastToPtr<CAi> ai = ent)
             {
                 bool doThink = !xf94_29_cinematicPause;
                 if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId)
                 {
                     const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());
-                    float f1;
+                    float occTime;
                     if (area->IsPostConstructed())
-                        f1 = area->GetPostConstructed()->x10e4_;
+                        occTime = area->GetPostConstructed()->x10e4_occludedTime;
                     else
-                        f1 = 0.f;
-                    if (f1 > 5.f)
+                        occTime = 0.f;
+                    if (occTime > 5.f)
                         doThink = false;
                 }
-                if (doThink)
-                {
-                    CEntity* ent2 = GetAllObjectList().GetObjectById(ai->GetUniqueId());
-                    ent2->Think(dt, *this);
-                }
+                if (!doThink)
+                    continue;
             }
+            if (!GetCameraObjectList().GetObjectById(ent->GetUniqueId()))
+                ent->Think(dt, *this);
+        }
     }
 }
 
@@ -2207,7 +2208,7 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
     UpdateRoomAcoustics(x8cc_nextAreaId);
 
     for (CEntity* ent : GetAllObjectList())
-        SendScriptMsg(ent, kInvalidUniqueId, EScriptObjectMessage::InternalMessage14);
+        SendScriptMsg(ent, kInvalidUniqueId, EScriptObjectMessage::WorldInitialized);
 
     for (CEntity* ent : GetAllObjectList())
     {

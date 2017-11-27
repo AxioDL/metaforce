@@ -336,7 +336,7 @@ public:
     void MovePlatforms(float dt);
     void MoveDoors(float dt);
     void CrossTouchActors();
-    void ThinkEffectsAndActors(float dt);
+    void Think(float dt);
     void PostUpdatePlayer(float dt);
     void ShowPausedHUDMemo(CAssetId strg, float time);
     void ClearGraveyard();

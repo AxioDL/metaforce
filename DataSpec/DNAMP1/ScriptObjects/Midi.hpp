@@ -30,7 +30,8 @@ struct Midi : IScriptObject
 
     void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
     {
-        g_curSpec->flattenDependencies(song, pathsOut);
+        // Dedicated PAK for this
+        //g_curSpec->flattenDependencies(song, pathsOut);
     }
 };
 }

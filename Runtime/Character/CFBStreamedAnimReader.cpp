@@ -498,7 +498,8 @@ SAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& dt)
     xc_curTime = nextTime;
 
     x7c_totals.SetTime(x108_bitLoader, xc_curTime);
-    UpdatePOIStates();
+    if (x54_source->HasPOIData())
+        UpdatePOIStates();
     zeus::CQuaternion nextQ = GetRotation(3);
     zeus::CVector3f nextV = GetOffset(3);
 

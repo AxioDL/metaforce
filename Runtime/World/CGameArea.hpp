@@ -238,7 +238,7 @@ public:
         const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
         EOcclusionState x10dc_occlusionState = EOcclusionState::Occluded;
         u32 x10e0_ = 0;
-        float x10e4_ = 5.f;
+        float x10e4_occludedTime = 5.f;
         u32 x10e8_ = -1;
         u32 x10ec_ = 0;
         // std::vector<CAramToken> x10f0_tokens;

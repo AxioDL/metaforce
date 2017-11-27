@@ -106,7 +106,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     case EScriptObjectMessage::InitializedInArea:
         AreaLoaded(mgr);
         break;
-    case EScriptObjectMessage::InternalMessage14:
+    case EScriptObjectMessage::WorldInitialized:
     {
         UpdateAreaActivateFlags(mgr);
         CMaterialList exclude = GetMaterialFilter().GetExcludeList();

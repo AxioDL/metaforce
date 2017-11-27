@@ -121,7 +121,7 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 {
     CActor::AcceptScriptMsg(msg, uid, mgr);
 
-    if (msg == EScriptObjectMessage::InternalMessage14)
+    if (msg == EScriptObjectMessage::WorldInitialized)
     {
         for (const SConnection& con : x20_conns)
             if (con.x0_state == EScriptObjectState::Retreat)

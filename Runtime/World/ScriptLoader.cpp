@@ -667,28 +667,28 @@ CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propC
     SActorHead head = LoadActorHead(in, mgr);
     s32 soundId = in.readInt32Big();
     bool active = in.readBool();
-    float maxDistance = in.readFloatBig();
-    float minDistance = in.readFloatBig();
-    float f3 = in.readFloatBig();
-    u32 priority = in.readUint32Big();
-    u32 maxVolume = in.readUint32Big();
-    u32 minVolume = in.readUint32Big();
-    u32 panning = in.readUint32Big();
+    float maxDist = in.readFloatBig();
+    float distComp = in.readFloatBig();
+    float startDelay = in.readFloatBig();
+    u32 minVol = in.readUint32Big();
+    u32 vol = in.readUint32Big();
+    u32 prio = in.readUint32Big();
+    u32 pan = in.readUint32Big();
     bool loop = in.readBool();
-    bool persistent = in.readBool();
-    bool triggered = in.readBool();
-    bool b4 = in.readBool();
-    bool roomAcoustic = in.readBool();
-    bool b6 = in.readBool();
-    bool b7 = in.readBool();
-    u32 w5 = in.readUint32Big();
+    bool nonEmitter = in.readBool();
+    bool autoStart = in.readBool();
+    bool occlusionTest = in.readBool();
+    bool acoustics = in.readBool();
+    bool worldSfx = in.readBool();
+    bool allowDuplicates = in.readBool();
+    u32 pitch = in.readUint32Big();
 
     if (soundId < 0)
         return nullptr;
 
-    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, soundId, active,
-                            maxDistance, minDistance, f3, priority, maxVolume, 0, minVolume, panning, 0, loop,
-                            persistent, triggered, b4, roomAcoustic, b6, b7, w5);
+    return new CScriptSound(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, u16(soundId), active,
+                            maxDist, distComp, startDelay, minVol, vol, 0, prio, pan, 0, loop,
+                            nonEmitter, autoStart, occlusionTest, acoustics, worldSfx, allowDuplicates, pitch);
 }
 
 CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

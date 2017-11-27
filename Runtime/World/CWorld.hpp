@@ -129,7 +129,7 @@ private:
     IObjectStore& x60_objectStore;
     IFactory& x64_resFactory;
     TAreaId x68_curAreaId = kInvalidAreaId;
-    u32 x6c_ = 0;
+    u32 x6c_loadedAudioGrpCount = 0;
 
     union
     {
@@ -148,10 +148,12 @@ private:
     TLockedToken<CModel> xa4_skyboxWorldLoaded;
     TLockedToken<CModel> xb4_skyboxOverride;
     EEnvFxType xc4_neededFx = EEnvFxType::None;
-    std::vector<CSfxHandle> xc8_sfxHandles;
+    rstl::reserved_vector<CSfxHandle, 10> xc8_globalSfxHandles;
 
     void LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data);
     void LoadSoundGroups();
+    void UnloadSoundGroups();
+    void StopSounds();
 
 public:
 
@@ -169,6 +171,7 @@ public:
     void SetPauseState(bool paused);
 
     CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId);
+    ~CWorld();
     bool DoesAreaExist(TAreaId area) const;
     const std::vector<std::unique_ptr<CGameArea>>& GetGameAreas() const { return x18_areas; }
 
@@ -200,7 +203,9 @@ public:
     void PreRender();
     void TouchSky();
     void DrawSky(const zeus::CTransform& xf) const;
-    void StopSound(s16);
+    void StopGlobalSound(u16 id);
+    bool HasGlobalSound(u16 id) const;
+    void AddGlobalSound(const CSfxHandle& hnd);
     EEnvFxType GetNeededEnvFx() const { return xc4_neededFx; }
 };
 

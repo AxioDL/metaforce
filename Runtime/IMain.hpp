@@ -41,6 +41,7 @@ public:
     virtual bool Proc()=0;
     virtual void Shutdown()=0;
     virtual boo::IWindow* GetMainWindow() const= 0;
+    virtual EFlowState GetFlowState() const = 0;
     virtual void SetFlowState(EFlowState) = 0;
     virtual size_t GetExpectedIdSize() const = 0;
     virtual void WarmupShaders() = 0;

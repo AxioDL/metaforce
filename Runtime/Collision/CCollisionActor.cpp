@@ -166,7 +166,7 @@ void CCollisionActor::OnScanStateChanged(CActor::EScanState state, CStateManager
 void CCollisionActor::Touch(CActor& actor, CStateManager& mgr)
 {
     x2fc_lastTouched = actor.GetUniqueId();
-    mgr.SendScriptMsgAlways(x25c_owner, GetUniqueId(), EScriptObjectMessage::InternalMessage08);
+    mgr.SendScriptMsgAlways(x25c_owner, GetUniqueId(), EScriptObjectMessage::Touched);
 }
 
 zeus::CVector3f CCollisionActor::GetOrbitPosition(const CStateManager&) const { return GetTouchBounds()->center(); }

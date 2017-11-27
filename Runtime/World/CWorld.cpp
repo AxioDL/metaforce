@@ -6,6 +6,9 @@
 #include "CGameState.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "World/CScriptAreaAttributes.hpp"
+#include "IMain.hpp"
+#include "Audio/CStreamAudioManager.hpp"
+#include "CScriptRoomAcoustics.hpp"
 
 namespace urde
 {
@@ -175,8 +178,6 @@ bool CDummyWorld::ICheckWorldComplete()
     default:
         return false;
     }
-
-    return false;
 }
 
 std::string CDummyWorld::IGetDefaultAudioTrack() const { return {}; }
@@ -190,6 +191,18 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
     SObjectTag tag{FOURCC('MLVL'), mlvlId};
     x40_loadBuf.reset(new u8[resFactory.ResourceSize(tag)]);
     resFactory.LoadResourceAsync(tag, x40_loadBuf.get());
+}
+
+CWorld::~CWorld()
+{
+    StopSounds();
+    if (g_GameState->GetWorldTransitionManager()->IsTransitionEnabled() &&
+        g_Main->GetFlowState() == EFlowState::None)
+        CStreamAudioManager::StopOneShot();
+    else
+        CStreamAudioManager::StopAll();
+    UnloadSoundGroups();
+    CScriptRoomAcoustics::DisableAuxCallbacks();
 }
 
 CAssetId CWorld::IGetWorldAssetId() const { return x8_mlvlId; }
@@ -242,9 +255,34 @@ void CWorld::MoveAreaToAliveChain(TAreaId aid)
     MoveToChain(x18_areas[aid].get(), EChain::Alive);
 }
 
-void CWorld::LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data) {}
+void CWorld::LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data)
+{
+    if (!CAudioSys::SysLoadGroupSet(g_SimplePool, agscId))
+    {
+        auto name = CAudioSys::SysGetGroupSetName(agscId);
+        CAudioSys::SysAddGroupIntoAmuse(name);
+        data.xc_name = name;
+        ++x6c_loadedAudioGrpCount;
+    }
+}
 
 void CWorld::LoadSoundGroups() {}
+
+void CWorld::UnloadSoundGroups()
+{
+    for (CSoundGroupData& data : x74_soundGroupData)
+    {
+        CAudioSys::SysRemoveGroupFromAmuse(data.xc_name);
+        CAudioSys::SysUnloadAudioGroupSet(data.xc_name);
+    }
+}
+
+void CWorld::StopSounds()
+{
+    for (CSfxHandle& hnd : xc8_globalSfxHandles)
+        CSfxManager::RemoveEmitter(hnd);
+    xc8_globalSfxHandles.clear();
+}
 
 bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 {
@@ -654,12 +692,10 @@ void CWorld::PreRender()
 
 void CWorld::TouchSky()
 {
-#if 0
-    if (xa4_skyboxB.IsLoaded())
-        xa4_skyboxB->Touch();
-    if (xb4_skyboxC.IsLoaded())
-        xb4_skyboxC->Touch();
-#endif
+    if (xa4_skyboxWorldLoaded.IsLoaded())
+        xa4_skyboxWorldLoaded->Touch(0);
+    if (xb4_skyboxOverride.IsLoaded())
+        xb4_skyboxOverride->Touch(0);
 }
 
 void CWorld::DrawSky(const zeus::CTransform& xf) const
@@ -686,7 +722,28 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const
     CGraphics::SetDepthRange(0.125f, 1.f);
 }
 
-void CWorld::StopSound(s16)
+void CWorld::StopGlobalSound(u16 id)
 {
+    auto search = std::find_if(xc8_globalSfxHandles.begin(), xc8_globalSfxHandles.end(),
+                               [id](CSfxHandle& hnd) { return hnd->GetSfxId() == id; });
+    if (search != xc8_globalSfxHandles.end())
+    {
+        CSfxManager::RemoveEmitter(*search);
+        xc8_globalSfxHandles.erase(search);
+    }
+}
+
+bool CWorld::HasGlobalSound(u16 id) const
+{
+    auto search = std::find_if(xc8_globalSfxHandles.begin(), xc8_globalSfxHandles.end(),
+                               [id](const CSfxHandle& hnd) { return hnd->GetSfxId() == id; });
+    return search != xc8_globalSfxHandles.end();
+}
+
+void CWorld::AddGlobalSound(const CSfxHandle& hnd)
+{
+    if (xc8_globalSfxHandles.size() >= xc8_globalSfxHandles.capacity())
+        return;
+    xc8_globalSfxHandles.push_back(hnd);
 }
 }

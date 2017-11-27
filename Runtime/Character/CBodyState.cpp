@@ -1074,7 +1074,7 @@ void CBSJump::PlayJumpLoop(CStateManager& mgr, CBodyController& bc)
     if (TCastToPtr<CPhysicsActor> act = bc.GetOwner())
     {
         mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::Falling);
-        mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::InternalMessage18);
+        mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
         x30_24_bodyForceSet = false;
         x18_velocity = act->GetVelocity();
     }
@@ -1195,7 +1195,7 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr)
     const CPASAnimState* hurledState = bc.GetPASDatabase().GetAnimState(14);
     xc_animSeries = hurledState->GetAnimParmData(best.second, 0).GetInt32Value();
     mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Falling);
-    mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::InternalMessage18);
+    mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
     if (!zeus::close_enough(cmd->GetLaunchVelocity(), zeus::CVector3f::skZero, 0.0001f))
         if (TCastToPtr<CPhysicsActor> act = bc.GetOwner())
             act->SetConstantForce(act->GetMass() * cmd->GetLaunchVelocity());
@@ -1729,7 +1729,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
             }
             if (TCastToPtr<CPhysicsActor> act = bc.GetOwner())
             {
-                mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::InternalMessage18);
+                mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
                 if (TCastToPtr<CActor> wp = mgr.ObjectById(x8_wpId))
                 {
                     zeus::CVector3f toWp = wp->GetTranslation() - act->GetTranslation();
@@ -1837,7 +1837,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
                 }
                 if (TCastToPtr<CPhysicsActor> act = bc.GetOwner())
                 {
-                    mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::InternalMessage18);
+                    mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
                     x18_24_launched = false;
                     if (TCastToPtr<CActor> wp = mgr.ObjectById(x8_wpId))
                     {

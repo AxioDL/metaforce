@@ -23,7 +23,7 @@ bool CCharAnimTime::EqualsZero() const
 
 bool CCharAnimTime::EpsilonZero() const
 {
-    return (std::fabs(x0_time) < FLT_EPSILON);
+    return (std::fabs(x0_time) < 0.00001f);
 }
 
 bool CCharAnimTime::GreaterThanZero() const

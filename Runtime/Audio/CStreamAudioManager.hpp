@@ -32,6 +32,7 @@ public:
     static void SetMusicVolume(u8 volume);
 
     static void Initialize();
+    static void StopOneShot();
     static void Shutdown();
 };
 

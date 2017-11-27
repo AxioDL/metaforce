@@ -216,17 +216,17 @@ std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message)
     case EScriptObjectMessage::OnIceSurface: return "OnIceSurface"sv;
     case EScriptObjectMessage::OnMudSlowSurface: return "OnMudSlowSurface"sv;
     case EScriptObjectMessage::OnNormalSurface: return "OnNormalSurface"sv;
-    case EScriptObjectMessage::InternalMessage08: return "InternalMessage08"sv;
+    case EScriptObjectMessage::Touched: return "Touched"sv;
     case EScriptObjectMessage::AddPlatformRider: return "AddPlatformRider"sv;
     case EScriptObjectMessage::LandOnNotFloor: return "LandOnNotFloor"sv;
     case EScriptObjectMessage::Registered: return "Registered"sv;
     case EScriptObjectMessage::Deleted: return "Deleted"sv;
     case EScriptObjectMessage::InitializedInArea: return "InitializedInArea"sv;
-    case EScriptObjectMessage::InternalMessage14: return "InternalMessage14"sv;
+    case EScriptObjectMessage::WorldInitialized: return "WorldInitialized"sv;
     case EScriptObjectMessage::AddSplashInhabitant: return "AddSplashInhabitant"sv;
     case EScriptObjectMessage::UpdateSplashInhabitant: return "UpdateSplashInhabitant"sv;
     case EScriptObjectMessage::RemoveSplashInhabitant: return "RemoveSplashInhabitant"sv;
-    case EScriptObjectMessage::InternalMessage18: return "InternalMessage18"sv;
+    case EScriptObjectMessage::Jumped: return "Jumped"sv;
     case EScriptObjectMessage::Damage: return "Damage"sv;
     case EScriptObjectMessage::InvulnDamage: return "InvulnDamage"sv;
     case EScriptObjectMessage::ProjectileCollide: return "ProjectileCollide"sv;
@@ -234,7 +234,7 @@ std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message)
     case EScriptObjectMessage::AddPhazonPoolInhabitant: return "AddPhazonPoolInhabitant"sv;
     case EScriptObjectMessage::UpdatePhazonPoolInhabitant: return "UpdatePhazonPoolInhabitant"sv;
     case EScriptObjectMessage::RemovePhazonPoolInhabitant: return "RemovePhazonPoolInhabitant"sv;
-    case EScriptObjectMessage::InternalMessage26: return "InternalMessage26"sv;
+    case EScriptObjectMessage::SuspendedMove: return "SuspendedMove"sv;
     default: return "..."sv;
     }
 }

@@ -209,17 +209,17 @@ enum class EScriptObjectMessage
     OnIceSurface      = 27,
     OnMudSlowSurface  = 28,
     OnNormalSurface   = 29,
-    InternalMessage08 = 30,
+    Touched           = 30,
     AddPlatformRider  = 31,
     LandOnNotFloor    = 32,
     Registered        = 33,
     Deleted           = 34,
     InitializedInArea = 35,
-    InternalMessage14 = 36,
+    WorldInitialized  = 36,
     AddSplashInhabitant = 37,
     UpdateSplashInhabitant = 38,
     RemoveSplashInhabitant = 39,
-    InternalMessage18 = 40,
+    Jumped            = 40,
     Damage            = 41,
     InvulnDamage      = 42,
     ProjectileCollide = 43,
@@ -227,7 +227,7 @@ enum class EScriptObjectMessage
     AddPhazonPoolInhabitant = 45,
     UpdatePhazonPoolInhabitant = 46,
     RemovePhazonPoolInhabitant = 47,
-    InternalMessage26 = 48
+    SuspendedMove = 48
 };
 
 #ifndef NDEBUG

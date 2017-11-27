@@ -827,7 +827,7 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& suspendParticles, CRando
         else
         {
             CCharAnimTime remTime = x1f8_animRoot->VGetTimeRemaining();
-            while (remTime.GreaterThanZero() && !remTime.EpsilonZero())
+            while (!remTime.EpsilonZero() && !time.EpsilonZero())
             {
                 x210_passedIntCount += x1f8_animRoot->GetInt32POIList(time, g_Int32POINodes.data(), 16, x210_passedIntCount, 0);
                 x20c_passedBoolCount += x1f8_animRoot->GetBoolPOIList(time, g_BoolPOINodes.data(), 16, x20c_passedBoolCount, 0);

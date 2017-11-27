@@ -730,9 +730,9 @@ void CGameArea::UpdateWeaponWorldLighting(float dt)
 void CGameArea::AliveUpdate(float dt)
 {
     if (x12c_postConstructed->x10dc_occlusionState == EOcclusionState::Occluded)
-        x12c_postConstructed->x10e4_ += dt;
+        x12c_postConstructed->x10e4_occludedTime += dt;
     else
-        x12c_postConstructed->x10e4_ = 0.f;
+        x12c_postConstructed->x10e4_occludedTime = 0.f;
     UpdateFog(dt);
     UpdateThermalVisor(dt);
     UpdateWeaponWorldLighting(dt);

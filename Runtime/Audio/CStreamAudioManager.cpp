@@ -289,6 +289,9 @@ struct SDSPStream : boo::IAudioVoiceCallback
             stream.m_booVoice.reset();
             stream.x0_active = false;
             stream.xd4_ringBuffer.reset();
+            stream.m_readReqs[0].reset();
+            stream.m_readReqs[1].reset();
+            stream.m_file = std::experimental::nullopt;
         }
     }
 
@@ -1194,6 +1197,15 @@ void CStreamAudioManager::SetMusicVolume(u8 volume)
 void CStreamAudioManager::Initialize()
 {
     CDSPStreamManager::Initialize();
+}
+
+void CStreamAudioManager::StopOneShot()
+{
+    CStreamAudioManager::StopStreaming(true);
+    SDSPPlayer& p = s_Players[1];
+    p = SDSPPlayer();
+    SDSPPlayer& qp = s_QueuedPlayers[1];
+    qp = SDSPPlayer();
 }
 
 void CStreamAudioManager::Shutdown()

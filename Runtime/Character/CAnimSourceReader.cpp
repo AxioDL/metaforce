@@ -3,6 +3,7 @@
 #include "CInt32POINode.hpp"
 #include "CParticlePOINode.hpp"
 #include "CSoundPOINode.hpp"
+#include "CFBStreamedAnimReader.hpp"
 
 namespace urde
 {
