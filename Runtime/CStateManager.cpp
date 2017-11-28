@@ -594,7 +594,7 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
     zeus::CFrustum frustum;
     zeus::CProjection proj;
     proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
-    frustum.updatePlanes(CGraphics::g_GXModelView, proj);
+    frustum.updatePlanes(camXf, proj);
     g_Renderer->SetClippingPlanes(frustum);
     //g_Renderer->PrimColor(zeus::CColor::skWhite);
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());

@@ -204,6 +204,12 @@ struct SDSPStream : boo::IAudioVoiceCallback
 
     size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data)
     {
+        if (!x0_active)
+        {
+            memset(data, 0, frames * 2);
+            return frames;
+        }
+
         if (xe8_silent)
         {
             StopStream();

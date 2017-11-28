@@ -316,7 +316,7 @@ public:
         if (base::x0_size == N)
             Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
 #endif
-        auto target_it = base::_const_cast_iterator(pos) - 1;
+        auto target_it = base::_const_cast_iterator(pos);
         if (pos == base::cend())
         {
             ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(value);
@@ -339,7 +339,7 @@ public:
         if (base::x0_size == N)
             Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
 #endif
-        auto target_it = base::_const_cast_iterator(pos) - 1;
+        auto target_it = base::_const_cast_iterator(pos);
         if (pos == base::cend())
         {
             ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<T>(value));
@@ -527,7 +527,7 @@ public:
         if (base::x0_size == N)
             Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
 #endif
-        auto target_it = base::_const_cast_iterator(pos) - 1;
+        auto target_it = base::_const_cast_iterator(pos);
         if (pos == base::cend())
         {
             *target_it = value;
@@ -548,7 +548,7 @@ public:
         if (base::x0_size == N)
             Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
 #endif
-        auto target_it = base::_const_cast_iterator(pos) - 1;
+        auto target_it = base::_const_cast_iterator(pos);
         if (pos == base::cend())
         {
             *target_it = std::forward<T>(value);
