@@ -184,7 +184,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
         }
     }
 
-    if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None || x148_24_playerInside)
+    if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None || x148_24_detectCamera)
     {
         CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
         bool camInTrigger = GetTriggerBoundsWR().pointInside(cam->GetTranslation());
@@ -193,7 +193,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
             if (!camInTrigger)
             {
                 x148_25_camSubmerged = false;
-                if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None)
+                if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None)
                 {
                     sendExited = true;
                     InhabitantExited(*cam, mgr);
@@ -201,7 +201,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
             }
             else
             {
-                if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None)
+                if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None)
                 {
                     InhabitantIdle(*cam, mgr);
                     sendInside = true;
@@ -213,10 +213,10 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
             if (camInTrigger)
             {
                 x148_25_camSubmerged = true;
-                if ((x12c_flags & ETriggerFlags::DetectPlayerIfInside) != ETriggerFlags::None)
+                if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None)
                 {
                     InhabitantAdded(*cam, mgr);
-                    SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
+                    //SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
                 }
             }
         }
@@ -224,12 +224,12 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
 
     if (sendInside)
     {
-        SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::Activate);
+        //SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::Activate);
     }
 
     if (sendExited)
     {
-        SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::Activate);
+        //SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::Activate);
         if (x148_27_deactivateOnExited)
         {
             mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()),
@@ -318,7 +318,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
                 }
             }
 
-            SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
+            //SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
 
             if (x148_26_deactivateOnEntered)
             {

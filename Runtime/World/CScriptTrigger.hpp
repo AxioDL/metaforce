@@ -25,7 +25,7 @@ enum class ETriggerFlags : u32
     KillOnEnter = (1 << 11),
     DetectMorphedPlayer = (1 << 12),
     UseCollisionImpulses = (1 << 13),
-    DetectPlayerIfInside = (1 << 14),
+    DetectCamera = (1 << 14),
     UseBooleanIntersection = (1 << 15),
     DetectUnmorphedPlayer = (1 << 16),
     BlockEnvironmentalEffects = (1 << 17)
@@ -57,7 +57,7 @@ protected:
     union {
         struct
         {
-            bool x148_24_playerInside : 1;
+            bool x148_24_detectCamera : 1;
             bool x148_25_camSubmerged : 1;
             bool x148_26_deactivateOnEntered : 1;
             bool x148_27_deactivateOnExited : 1;

@@ -177,15 +177,21 @@ u16 CSfxManager::CSfxEmitterWrapper::GetSfxId() const
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitterSilent()
 {
-    x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
-    x50_emitterHandle->setMaxVol(1.f / 127.f);
+    if (x50_emitterHandle)
+    {
+        x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
+        x50_emitterHandle->setMaxVol(1.f / 127.f);
+    }
     x55_cachedMaxVol = x24_parmData.x26_maxVol;
 }
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitter()
 {
-    x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
-    x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
+    if (x50_emitterHandle)
+    {
+        x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
+        x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
+    }
 }
 
 void CSfxManager::CSfxEmitterWrapper::SetReverb(float rev)

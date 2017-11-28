@@ -105,6 +105,7 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst)
     SetTranslation(x34_transform.origin + mst.x0_translation);
 
     xfc_constantForce += mst.x1c_velocity;
+    x108_angularMomentum += mst.x28_angularMomentum;
 
     ComputeDerivedQuantities();
 }

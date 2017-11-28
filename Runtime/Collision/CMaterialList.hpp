@@ -77,23 +77,23 @@ public:
     CMaterialList(u64 flags) : x0_list(flags) {}
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5, EMaterialTypes t6)
         : CMaterialList(t1, t2, t3, t4, t5)
-    { x0_list = 1ull << u64(t6); }
+    { x0_list |= 1ull << u64(t6); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5)
         : CMaterialList(t1, t2, t3, t4)
-    { x0_list = 1ull << u64(t5); }
+    { x0_list |= 1ull << u64(t5); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4)
         : CMaterialList(t1, t2, t3)
-    { x0_list = 1ull << u64(t4); }
+    { x0_list |= 1ull << u64(t4); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3)
         : CMaterialList(t1, t2)
-    { x0_list = 1ull << u64(t3); }
+    { x0_list |= 1ull << u64(t3); }
 
     CMaterialList(EMaterialTypes t1, EMaterialTypes t2)
         : CMaterialList(t1)
-    { x0_list = 1ull << u64(t2); }
+    { x0_list |= 1ull << u64(t2); }
 
     CMaterialList(EMaterialTypes t1)
         : x0_list(1ull << u64(t1))

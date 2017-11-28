@@ -594,8 +594,8 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
             result.x8_collision.emplace(collisionInfo);
         }
 
-        if (!result.x8_collision->IsValid() ||
-            !CGameCollision::CanBlock(result.x8_collision->GetMaterialLeft(), result.x8_collision->GetNormalLeft()))
+        if (!collisionInfo.IsValid() ||
+            !CGameCollision::CanBlock(collisionInfo.GetMaterialLeft(), collisionInfo.GetNormalLeft()))
         {
             if (zOffset > 0.f)
             {
@@ -603,7 +603,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
                 xf.origin -= zeus::CVector3f(0.f, 0.f, zOffset);
             }
 
-            if (result.x8_collision->IsValid())
+            if (collisionInfo.IsValid())
                 player.x9c5_28_slidingOnWall = true;
             CheckFalling(actor, mgr, dt);
             player.SetLastFloorPlaneNormal({});
@@ -615,8 +615,8 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
             actor.SetTranslation(actor.GetTranslation() - zeus::CVector3f(0.f, 0.f, stepDown));
             if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(id))
                 mgr.SendScriptMsg(plat.GetPtr(), actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
-            CGameCollision::SendMaterialMessage(mgr, result.x8_collision->GetMaterialLeft(), actor);
-            actor.SetLastFloorPlaneNormal({result.x8_collision->GetNormalLeft()});
+            CGameCollision::SendMaterialMessage(mgr, collisionInfo.GetMaterialLeft(), actor);
+            actor.SetLastFloorPlaneNormal({collisionInfo.GetNormalLeft()});
         }
     }
 
