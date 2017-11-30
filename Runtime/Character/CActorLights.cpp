@@ -36,7 +36,7 @@ CActorLights::CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& act
 
 void CActorLights::BuildConstantAmbientLighting()
 {
-    x299_26_ = true;
+    x299_26_ambientOnly = true;
     x298_24_dirty = true;
     x29c_shadowLightArrIdx = -1;
     x2a0_shadowLightIdx = -1;
@@ -44,7 +44,7 @@ void CActorLights::BuildConstantAmbientLighting()
 
 void CActorLights::BuildConstantAmbientLighting(const zeus::CColor& color)
 {
-    x299_26_ = false;
+    x299_26_ambientOnly = false;
     x288_ambientColor = color;
     x294_aid = kInvalidAreaId;
     x298_24_dirty = true;
@@ -454,7 +454,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
 void CActorLights::BuildDynamicLightList(const CStateManager& mgr, const zeus::CAABox& aabb)
 {
     UpdateBrightLight();
-    x299_26_ = false;
+    x299_26_ambientOnly = false;
     x144_dynamicLights.clear();
 
     if (!x29a_findNearestDynamicLights)
@@ -506,7 +506,10 @@ void CActorLights::BuildDynamicLightList(const CStateManager& mgr, const zeus::C
 std::vector<CLight> CActorLights::BuildLightVector() const
 {
     std::vector<CLight> lights;
-    lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x288_ambientColor));
+
+    zeus::CColor ambColor = x288_ambientColor;
+    ambColor.a = 1.f;
+    lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
 
     if (x0_areaLights.size())
     {
@@ -543,9 +546,10 @@ void CActorLights::ActivateLights(CBooModel& model) const
 
     if (x298_28_inArea)
     {
-        if (!x298_26_hasAreaLights || !x299_26_)
+        if (!x298_26_hasAreaLights || x299_26_ambientOnly)
         {
-            g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+            //g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+            lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skWhite));
             model.ActivateLights(lights);
             return;
         }

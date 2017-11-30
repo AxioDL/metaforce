@@ -35,7 +35,7 @@ class CActorLights
             bool x298_31_disableWorldLights : 1;
             bool x299_24_inBrightLight : 1;
             bool x299_25_useBrightLightLag : 1;
-            bool x299_26_ : 1;
+            bool x299_26_ambientOnly : 1;
         };
         u16 _dummy = 0;
     };

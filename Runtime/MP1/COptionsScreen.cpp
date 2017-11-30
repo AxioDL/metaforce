@@ -14,7 +14,7 @@ COptionsScreen::COptionsScreen(const CStateManager& mgr, CGuiFrame& frame,
                                const CStringTable& pauseStrg)
 : CPauseScreenBase(mgr, frame, pauseStrg)
 {
-    x1a0_gameCube = std::unique_ptr<CGameCubeDoll>();
+    x1a0_gameCube = std::make_unique<CGameCubeDoll>();
     x2a0_24_inOptionBody = false;
 }
 

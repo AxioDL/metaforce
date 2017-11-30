@@ -100,7 +100,8 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst)
 {
     zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
     q += mst.xc_orientation;
-    SetTransform(zeus::CTransform(zeus::CQuaternion::fromNUQuaternion(q), x34_transform.origin));
+    zeus::CQuaternion quat = zeus::CQuaternion::fromNUQuaternion(q);
+    SetTransform(zeus::CTransform(quat, x34_transform.origin));
 
     SetTranslation(x34_transform.origin + mst.x0_translation);
 
@@ -241,7 +242,7 @@ void CPhysicsActor::ComputeDerivedQuantities()
 {
     x138_velocity = xec_massRecip * xfc_constantForce;
     x114_ = x34_transform.buildMatrix3f();
-    x144_angularVelocity = xf0_inertiaTensor * x108_angularMomentum;
+    x144_angularVelocity = xf4_inertiaTensorRecip * x108_angularMomentum;
 }
 
 bool CPhysicsActor::WillMove(const CStateManager&)
@@ -311,7 +312,7 @@ CMotionState CPhysicsActor::PredictLinearMotion(float dt) const
 CMotionState CPhysicsActor::PredictAngularMotion(float dt) const
 {
     const zeus::CVector3f v1 = xf4_inertiaTensorRecip * (x180_angularImpulse + x198_moveAngularImpulse);
-    zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion(0.f, x144_angularVelocity + v1);
+    zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion(0.f, x144_angularVelocity.getVector() + v1);
     CMotionState ret = {zeus::CVector3f::skZero, q * zeus::CNUQuaternion(x34_transform.buildMatrix3f()) * dt,
             zeus::CVector3f::skZero, (x174_torque * dt) + x180_angularImpulse};
     return ret;

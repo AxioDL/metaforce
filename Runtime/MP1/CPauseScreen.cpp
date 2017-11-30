@@ -28,6 +28,7 @@ CPauseScreen::CPauseScreen(ESubScreen subscreen,
     x5c_frmePauseScreenBuf.reset(new u8[x58_frmePauseScreenBufSz]);
     x60_loadTok = g_ResFactory->LoadResourceAsync(frmeTag, x5c_frmePauseScreenBuf.get());
     CSfxManager::SfxStart(1435, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    x7c_screens.resize(2);
 }
 
 std::unique_ptr<CPauseScreenBase> CPauseScreen::BuildPauseSubScreen(ESubScreen subscreen,
@@ -113,11 +114,12 @@ void CPauseScreen::StartTransition(float time, const CStateManager& mgr, ESubScr
         return;
     xc_nextSubscreen = subscreen;
     x4_ = b;
-    std::unique_ptr<CPauseScreenBase>& newScreenSlot = x7c_screens[x78_activeIdx];
-    std::unique_ptr<CGuiFrame>& newScreenInst = x64_frameInsts[x78_activeIdx];
+    x10_alphaInterp = time;
+    std::unique_ptr<CPauseScreenBase>& newScreenSlot = x7c_screens[1 - x78_activeIdx];
+    std::unique_ptr<CGuiFrame>& newScreenInst = x64_frameInsts[1 - x78_activeIdx];
     newScreenSlot = BuildPauseSubScreen(xc_nextSubscreen, mgr, *newScreenInst);
-    if (x7c_screens[1 - x78_activeIdx])
-        x7c_screens[1 - x78_activeIdx]->TransitioningAway();
+    if (x7c_screens[x78_activeIdx])
+        x7c_screens[x78_activeIdx]->TransitioningAway();
     x91_initialTransition = false;
 }
 

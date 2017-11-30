@@ -77,7 +77,7 @@ void CLogBookScreen::UpdateRightTitles()
 {
     std::vector<std::pair<CAssetId, bool>>& category =
         x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
-    for (int i=0 ; xd8_textpane_titles.size() ; ++i)
+    for (int i=0 ; i<xd8_textpane_titles.size() ; ++i)
     {
         std::u16string string;
         size_t scanIndex = x18_firstViewRightSel + i;
