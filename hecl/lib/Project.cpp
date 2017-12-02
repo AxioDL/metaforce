@@ -432,7 +432,7 @@ static void VisitDirectory(const ProjectPath& dir,
                            std::vector<std::unique_ptr<IDataSpec>>& specInsts,
                            CookProgress& progress, ClientProcess* cp)
 {
-    if (dir.getLastComponent()[0] == _S('.'))
+    if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == _S('.'))
         return;
 
     std::map<SystemString, ProjectPath> children;

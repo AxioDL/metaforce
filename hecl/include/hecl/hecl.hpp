@@ -359,6 +359,8 @@ static inline void SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* fo
 
 static inline int StrCmp(const SystemChar* str1, const SystemChar* str2)
 {
+    if (!str1 || !str2)
+        return str1 != str2;
 #if HECL_UCS2
     return wcscmp(str1, str2);
 #else
@@ -368,6 +370,8 @@ static inline int StrCmp(const SystemChar* str1, const SystemChar* str2)
 
 static inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count)
 {
+    if (!str1 || !str2)
+        return str1 != str2;
 #if HECL_UCS2
     return wcsncmp(str1, str2, count);
 #else
@@ -377,6 +381,8 @@ static inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t
 
 static inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2)
 {
+    if (!str1 || !str2)
+        return str1 != str2;
 #if HECL_UCS2
     return _wcsicmp(str1, str2);
 #else
@@ -912,7 +918,7 @@ public:
     {
         size_t pos = m_relPath.rfind(_S('/'));
         if (pos == SystemString::npos)
-            return {};
+            return m_relPath;
         return {m_relPath.c_str() + pos + 1, m_relPath.size() - pos - 1};
     }
     std::string_view getLastComponentUTF8() const
@@ -920,11 +926,11 @@ public:
         size_t pos = m_relPath.rfind(_S('/'));
 #if HECL_UCS2
         if (pos == SystemString::npos)
-            return {};
+            return m_utf8RelPath;
         return {m_utf8RelPath.c_str() + pos + 1, size_t(m_utf8RelPath.size() - pos - 1)};
 #else
         if (pos == SystemString::npos)
-            return {};
+            return m_relPath;
         return {m_relPath.c_str() + pos + 1, size_t(m_relPath.size() - pos - 1)};
 #endif
     }

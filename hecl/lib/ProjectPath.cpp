@@ -170,7 +170,8 @@ Time ProjectPath::getModtime() const
         }
         else if (S_ISDIR(theStat.st_mode))
         {
-            hecl::DirectoryEnumerator de(m_absPath);
+            hecl::DirectoryEnumerator de(m_absPath, hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+                                         false, false, true);
             for (const hecl::DirectoryEnumerator::Entry& ent : de)
             {
                 if (!hecl::Stat(ent.m_path.c_str(), &theStat))
@@ -218,7 +219,8 @@ static void _recursiveGlob(Database::Project& proj,
     /* Compile component into regex */
     SystemRegex regComp(comp, SystemRegex::ECMAScript);
 
-    hecl::DirectoryEnumerator de(itStr);
+    hecl::DirectoryEnumerator de(itStr, hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+                                 false, false, true);
     for (const hecl::DirectoryEnumerator::Entry& ent : de)
     {
         if (std::regex_match(ent.m_name, regComp))
@@ -242,14 +244,16 @@ static void _recursiveGlob(Database::Project& proj,
 
 void ProjectPath::getDirChildren(std::map<SystemString, ProjectPath>& outPaths) const
 {
-    hecl::DirectoryEnumerator de(m_absPath);
+    hecl::DirectoryEnumerator de(m_absPath, hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+                                 false, false, true);
     for (const hecl::DirectoryEnumerator::Entry& ent : de)
         outPaths[ent.m_name] = ProjectPath(*this, ent.m_name);
 }
 
 hecl::DirectoryEnumerator ProjectPath::enumerateDir() const
 {
-    return hecl::DirectoryEnumerator(m_absPath);
+    return hecl::DirectoryEnumerator(m_absPath, hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted,
+                                     false, false, true);
 }
 
 void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
