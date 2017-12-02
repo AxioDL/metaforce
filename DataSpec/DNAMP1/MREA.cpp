@@ -59,6 +59,132 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
     scly.addCMDLRigPairs(pakRouter, addTo);
 }
 
+/* Collision octree dumper */
+static void OutputOctreeNode(hecl::BlenderConnection::PyOutStream& os, athena::io::MemoryReader& r,
+                             BspNodeType type, const zeus::CAABox& aabb)
+{
+    if (type == BspNodeType::Branch)
+    {
+        u16 flags = r.readUint16Big();
+        r.readUint16Big();
+        u32 offsets[8];
+        for (int i=0 ; i<8 ; ++i)
+            offsets[i] = r.readUint32Big();
+        u32 dataStart = r.position();
+        for (int i=0 ; i<8 ; ++i)
+        {
+            r.seek(dataStart + offsets[i], athena::Begin);
+            int chFlags = (flags >> (i * 2)) & 0x3;
+
+            zeus::CAABox pos, neg, res;
+            aabb.splitZ(neg, pos);
+            if (i & 4)
+            {
+                zeus::CAABox(pos).splitY(neg, pos);
+                if (i & 2)
+                {
+                    zeus::CAABox(pos).splitX(neg, pos);
+                    if (i & 1)
+                        res = pos;
+                    else
+                        res = neg;
+                }
+                else
+                {
+                    zeus::CAABox(neg).splitX(neg, pos);
+                    if (i & 1)
+                        res = pos;
+                    else
+                        res = neg;
+                }
+            }
+            else
+            {
+                zeus::CAABox(neg).splitY(neg, pos);
+                if (i & 2)
+                {
+                    zeus::CAABox(pos).splitX(neg, pos);
+                    if (i & 1)
+                        res = pos;
+                    else
+                        res = neg;
+                }
+                else
+                {
+                    zeus::CAABox(neg).splitX(neg, pos);
+                    if (i & 1)
+                        res = pos;
+                    else
+                        res = neg;
+                }
+            }
+
+            OutputOctreeNode(os, r, BspNodeType(chFlags), res);
+        }
+    }
+    else if (type == BspNodeType::Leaf)
+    {
+        zeus::CVector3f pos = aabb.center();
+        zeus::CVector3f extent = aabb.extents();
+        os.format("obj = bpy.data.objects.new('Leaf', None)\n"
+                  "bpy.context.scene.objects.link(obj)\n"
+                  "obj.location = (%f,%f,%f)\n"
+                  "obj.scale = (%f,%f,%f)\n"
+                  "obj.empty_draw_type = 'CUBE'\n"
+                  "obj.layers[1] = True\n"
+                  "obj.layers[0] = False\n",
+        pos.x, pos.y, pos.z, extent.x, extent.y, extent.z);
+    }
+}
+
+static const uint32_t AROTChildCounts[] = { 0, 2, 2, 4, 2, 4, 4, 8 };
+
+/* AROT octree dumper */
+static void OutputOctreeNode(hecl::BlenderConnection::PyOutStream& os, athena::io::MemoryReader& r,
+                             const zeus::CAABox& aabb)
+{
+    r.readUint16Big();
+    u16 flags = r.readUint16Big();
+    if (flags)
+    {
+        u32 childCount = AROTChildCounts[flags];
+        r.seek(2 * childCount);
+
+        zeus::CAABox Z[2] = {aabb};
+        if ((flags & 0x1) != 0)
+            aabb.splitZ(Z[0], Z[1]);
+        for (int k=0 ; k < 1 + ((flags & 0x1) != 0) ; ++k)
+        {
+            zeus::CAABox Y[2] = {Z[0]};
+            if ((flags & 0x2) != 0)
+                Z[k].splitY(Y[0], Y[1]);
+            for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)
+            {
+                zeus::CAABox X[2] = {Y[0]};
+                if ((flags & 0x4) != 0)
+                    Y[j].splitX(X[0], X[1]);
+                for (int i=0 ; i < 1 + ((flags & 0x4) != 0) ; ++i)
+                {
+                    OutputOctreeNode(os, r, X[i]);
+                }
+            }
+        }
+    }
+    else
+    {
+        zeus::CVector3f pos = aabb.center();
+        zeus::CVector3f extent = aabb.extents();
+        os.format("obj = bpy.data.objects.new('Leaf', None)\n"
+                      "bpy.context.scene.objects.link(obj)\n"
+                      "obj.location = (%f,%f,%f)\n"
+                      "obj.scale = (%f,%f,%f)\n"
+                      "obj.empty_draw_type = 'CUBE'\n"
+                      "obj.layers[1] = True\n"
+                      "obj.layers[0] = False\n",
+                  pos.x, pos.y, pos.z, extent.x, extent.y, extent.z);
+    }
+}
+
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
                    const hecl::ProjectPath& outPath,
@@ -143,7 +269,8 @@ bool MREA::Extract(const SpecBase& dataSpec,
     }
 
     /* Skip AROT */
-    rs.seek(head.secSizes[curSec++], athena::Current);
+    secStart = rs.position();
+    rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
     /* Read SCLY layers */
     secStart = rs.position();
@@ -360,6 +487,38 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     {
         AROTBuilder arotBuilder;
         arotBuilder.build(secs, fullAabb, meshAabbs, meshes);
+
+#if 0
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::BlenderConnection::BlendType::Area))
+            return false;
+
+        /* Open Py Stream and read sections */
+        hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+        os.format("import bpy\n"
+                      "import bmesh\n"
+                      "from mathutils import Vector\n"
+                      "\n"
+                      "bpy.context.scene.name = '%s'\n",
+                  inPath.getLastComponentUTF8().data());
+
+        athena::io::MemoryReader reader(secs.back().data(), secs.back().size());
+        reader.readUint32Big();
+        reader.readUint32Big();
+        u32 numMeshBitmaps = reader.readUint32Big();
+        u32 meshBitCount = reader.readUint32Big();
+        u32 numNodes = reader.readUint32Big();
+        auto aabbMin = reader.readVec3fBig();
+        auto aabbMax = reader.readVec3fBig();
+        reader.seekAlign32();
+        reader.seek(ROUND_UP_32(meshBitCount) / 8 * numMeshBitmaps + numNodes * 4);
+        zeus::CAABox arotAABB(aabbMin, aabbMax);
+        OutputOctreeNode(os, reader, arotAABB);
+
+        os.centerView();
+        os.close();
+        conn.saveBlend();
+#endif
     }
 
     /* SCLY */
@@ -395,6 +554,29 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     {        
         DeafBabe collision = {};
         DeafBabeBuildFromBlender(collision, cMesh);
+
+#if 0
+        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::BlenderConnection::BlendType::Area))
+            return false;
+
+        /* Open Py Stream and read sections */
+        hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+        os.format("import bpy\n"
+                      "import bmesh\n"
+                      "from mathutils import Vector\n"
+                      "\n"
+                      "bpy.context.scene.name = '%s'\n",
+                  inPath.getLastComponentUTF8().data());
+
+        athena::io::MemoryReader reader(collision.bspTree.get(), collision.bspSize);
+        zeus::CAABox colAABB(collision.aabb[0], collision.aabb[1]);
+        OutputOctreeNode(os, reader, collision.rootNodeType, colAABB);
+
+        os.centerView();
+        os.close();
+        conn.saveBlend();
+#endif
 
         secs.emplace_back(collision.binarySize(0), 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());

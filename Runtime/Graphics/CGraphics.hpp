@@ -202,7 +202,8 @@ enum class ETexelFormat
     RGBA8   = 9,
     CMPR    = 10,
     RGBA8PC = 16,
-    C8PC    = 17
+    C8PC    = 17,
+    CMPRPC  = 18,
 };
 
 class CGraphics

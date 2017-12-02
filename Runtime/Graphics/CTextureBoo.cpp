@@ -786,6 +786,16 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype)
     });
 }
 
+void CTexture::BuildDXT1(const void* data, size_t length)
+{
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    {
+        m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1,
+                                        boo::TextureClampMode::Repeat, data, length).get();
+        return true;
+    });
+}
+
 CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
     : x0_fmt(fmt)
     , x4_w(w)
@@ -849,6 +859,9 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex)
     case ETexelFormat::C8PC:
         BuildC8(owned.get() + 12, length - 12);
         otex = true;
+        break;
+    case ETexelFormat::CMPRPC:
+        BuildDXT1(owned.get() + 12, length - 12);
         break;
     default:
         Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));

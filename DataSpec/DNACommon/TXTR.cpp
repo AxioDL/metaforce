@@ -896,6 +896,10 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         return false;
     }
 
+    /* Track alpha values for DXT1 eligibility */
+    bool doDXT1 = (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_RGB_ALPHA) &&
+                  width >= 4 && height >= 4;
+
     /* Read and make RGBA */
     for (int r=height-1 ; r>=0 ; --r)
     {
@@ -943,6 +947,8 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
                 bufOut[outbase+1] = rowBuf[inbase+1];
                 bufOut[outbase+2] = rowBuf[inbase+2];
                 bufOut[outbase+3] = rowBuf[inbase+3];
+                if (rowBuf[inbase+3] != 0 && rowBuf[inbase+3] != 255)
+                    doDXT1 = false;
             }
             break;
         case PNG_COLOR_TYPE_PALETTE:
@@ -973,6 +979,44 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         }
     }
 
+    /* Do DXT1 compression */
+    std::unique_ptr<uint8_t[]> compOut;
+    size_t compLen = 0;
+    if (doDXT1)
+    {
+        int filterWidth = width;
+        int filterHeight = height;
+        size_t i;
+        for (i=0 ; i<numMips ; ++i)
+        {
+            compLen += squish::GetStorageRequirements(filterWidth, filterHeight, squish::kDxt1);
+            if (filterWidth == 4 || filterHeight == 4)
+            {
+                ++i;
+                break;
+            }
+            filterWidth /= 2;
+            filterHeight /= 2;
+        }
+        numMips = i;
+
+        compOut.reset(new uint8_t[compLen]);
+
+        filterWidth = width;
+        filterHeight = height;
+        const uint8_t* rgbaIn = bufOut.get();
+        uint8_t* blocksOut = compOut.get();
+        for (i=0 ; i<numMips ; ++i)
+        {
+            int thisLen = squish::GetStorageRequirements(filterWidth, filterHeight, squish::kDxt1);
+            squish::CompressImage(rgbaIn, filterWidth, filterHeight, blocksOut, squish::kDxt1);
+            rgbaIn += filterWidth * filterHeight * nComps;
+            blocksOut += thisLen;
+            filterWidth /= 2;
+            filterHeight /= 2;
+        }
+    }
+
     /* Do write out */
     athena::io::FileWriter outf(outPath.getAbsolutePath(), true, false);
     if (outf.hasError())
@@ -983,13 +1027,23 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         return false;
     }
 
-    outf.writeInt32Big((paletteBuf && paletteSize) ? 17 : 16);
+    int format;
+    if (paletteBuf && paletteSize)
+        format = 17;
+    else if (compOut)
+        format = 18;
+    else
+        format = 16;
+    outf.writeInt32Big(format);
     outf.writeInt16Big(width);
     outf.writeInt16Big(height);
     outf.writeInt32Big(numMips);
     if (paletteBuf && paletteSize)
         outf.writeUBytes(paletteBuf.get(), paletteSize);
-    outf.writeUBytes(bufOut.get(), bufLen);
+    if (compOut)
+        outf.writeUBytes(compOut.get(), compLen);
+    else
+        outf.writeUBytes(bufOut.get(), bufLen);
 
     return true;
 }

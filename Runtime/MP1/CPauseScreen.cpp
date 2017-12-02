@@ -86,6 +86,7 @@ bool CPauseScreen::CheckLoadComplete(const CStateManager& mgr)
         if (!x28_pauseScreenInstructions->GetIsFinishedLoading())
             return false;
         x34_loadedPauseScreenInstructions = x28_pauseScreenInstructions.GetObj();
+        x34_loadedPauseScreenInstructions->SetMaxAspect(1.77f);
         InitializeFrameGlue();
     }
     if (x60_loadTok)
@@ -96,6 +97,7 @@ bool CPauseScreen::CheckLoadComplete(const CStateManager& mgr)
         {
             CMemoryInStream s(x5c_frmePauseScreenBuf.get(), x58_frmePauseScreenBufSz);
             x64_frameInsts.push_back(CGuiFrame::CreateFrame(x54_frmePauseScreenId, *g_GuiSys, s, g_SimplePool));
+            x64_frameInsts.back()->SetMaxAspect(1.77f);
         }
         x5c_frmePauseScreenBuf.reset();
         x60_loadTok.reset();

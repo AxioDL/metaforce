@@ -1762,6 +1762,9 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr)
     if (input.ControllerIdx() != 0)
         return;
 
+    if (input.PLTrigger())
+        Teleport(zeus::CTransform::Translate(-73.1577f, 155.273f, 0.f), mgr, true);
+
     if (x2f8_morphBallState != EPlayerMorphBallState::Morphed)
         UpdateScanningState(input, mgr, input.DeltaTime());
 
@@ -5658,7 +5661,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
             return (vDoubleJumpAccel - (vDoubleJumpAccel - hDoubleJumpAccel) * forwards) * xe8_mass * jumpFactor;
         }
 
-        return GetGravity() / xe8_mass;
+        return GetGravity() * xe8_mass;
     }
 
     if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input) ||

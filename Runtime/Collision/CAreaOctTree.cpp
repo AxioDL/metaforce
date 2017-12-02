@@ -478,13 +478,13 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
     if (type == ETreeType::Branch)
     {
         zeus::CAABox pos, neg, res;
-        x0_aabb.splitZ(pos, neg);
+        x0_aabb.splitZ(neg, pos);
         if (idx & 4)
         {
-            pos.splitY(pos, neg);
+            zeus::CAABox(pos).splitY(neg, pos);
             if (idx & 2)
             {
-                pos.splitX(pos, neg);
+                zeus::CAABox(pos).splitX(neg, pos);
                 if (idx & 1)
                     res = pos;
                 else
@@ -492,7 +492,7 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
             }
             else
             {
-                neg.splitX(pos, neg);
+                zeus::CAABox(neg).splitX(neg, pos);
                 if (idx & 1)
                     res = pos;
                 else
@@ -501,10 +501,10 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
         }
         else
         {
-            neg.splitY(pos, neg);
+            zeus::CAABox(neg).splitY(neg, pos);
             if (idx & 2)
             {
-                pos.splitX(pos, neg);
+                zeus::CAABox(pos).splitX(neg, pos);
                 if (idx & 1)
                     res = pos;
                 else
@@ -512,7 +512,7 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const
             }
             else
             {
-                neg.splitX(pos, neg);
+                zeus::CAABox(neg).splitX(neg, pos);
                 if (idx & 1)
                     res = pos;
                 else

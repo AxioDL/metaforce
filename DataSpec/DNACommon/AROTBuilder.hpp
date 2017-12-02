@@ -12,6 +12,8 @@ namespace DataSpec
 
 struct AROTBuilder
 {
+    using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
+
     struct BitmapPool
     {
         std::vector<std::set<int>> m_pool;
@@ -23,12 +25,14 @@ struct AROTBuilder
         std::vector<Node> childNodes;
         std::set<int> childIndices;
         size_t poolIdx = 0;
-        uint8_t flags = 0;
+        uint16_t flags = 0;
+        uint16_t compSubdivs = 0;
 
         size_t nodeOff = 0;
         size_t nodeSz = 4;
 
-        bool addChild(int level, const zeus::CAABox& curAabb, const zeus::CAABox& childAabb, int idx);
+        void addChild(int level, int minChildren, const std::vector<zeus::CAABox>& triBoxes,
+                      const zeus::CAABox& curAABB, BspNodeType& typeOut);
         void nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPool, size_t& curOff);
         void writeIndirectionTable(athena::io::MemoryWriter& w);
         void writeNodes(athena::io::MemoryWriter& w, int nodeIdx);
@@ -36,12 +40,10 @@ struct AROTBuilder
 
         void colSize(size_t& totalSz);
         void writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB);
-        uint16_t getColRef(uint32_t& offset);
     } rootNode;
 
     void build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
                const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes);
-    using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
     std::pair<std::unique_ptr<uint8_t[]>, uint32_t> buildCol(const ColMesh& mesh, BspNodeType& rootOut);
 };
 
