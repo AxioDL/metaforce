@@ -1,21 +1,21 @@
 [submodule "hecl"]
 	path = hecl
-	url = https://github.com/AxioDL/hecl.git
+	url = ../hecl.git
 [submodule "specter"]
 	path = specter
-	url = https://github.com/AxioDL/specter.git
+	url = ../specter.git
 [submodule "nod"]
 	path = nod
-	url = https://github.com/AxioDL/nod.git
+	url = ../nod.git
 [submodule "amuse"]
 	path = amuse
-	url = https://github.com/AxioDL/amuse.git
+	url = ../amuse.git
 [submodule "kabufuda"]
 	path = kabufuda
-	url = https://github.com/AxioDL/kabufuda.git
+	url = ../kabufuda.git
 [submodule "jbus"]
 	path = jbus
-	url = https://github.com/AxioDL/jbus.git
+	url = ../jbus.git
 [submodule "assetnameparser/tinyxml2"]
 	path = assetnameparser/tinyxml2
-	url = https://github.com/leethomason/tinyxml2.git
+	url = ../tinyxml2.git
