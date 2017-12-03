@@ -1,6 +1,6 @@
 [submodule "extern/libSquish"]
 	path = extern/libSquish
-	url = https://github.com/jackoalan/libSquish.git
+	url = ../libSquish.git
 [submodule "extern/athena"]
 	path = extern/athena
 	url = ../../libAthena/athena.git
@@ -9,5 +9,5 @@
 	url = ../boo.git
 [submodule "extern/libjpeg-turbo"]
 	path = extern/libjpeg-turbo
-	url = https://github.com/jackoalan/libjpeg-turbo.git
+	url = ../libjpeg-turbo.git
 	branch = thp
