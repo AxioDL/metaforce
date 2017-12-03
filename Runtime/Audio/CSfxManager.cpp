@@ -216,8 +216,7 @@ void CSfxManager::KillAll(ESfxChannels chan)
     for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
     {
         const CSfxHandle& handle = *it;
-        if (handle->IsPlaying())
-            handle->Stop();
+        handle->Stop();
         handle->Release();
         it = chanObj.x48_handles.erase(it);
     }
@@ -392,8 +391,7 @@ void CSfxManager::StopSound(const CSfxHandle& handle)
     if (!handle)
         return;
     m_doUpdate = true;
-    if (handle->IsPlaying())
-        handle->Stop();
+    handle->Stop();
     handle->Release();
     CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
     chanObj.x48_handles.erase(handle);
@@ -501,8 +499,7 @@ void CSfxManager::StopAndRemoveAllEmitters()
         for (auto it = chanObj.x48_handles.begin() ; it != chanObj.x48_handles.end() ;)
         {
             const CSfxHandle& handle = *it;
-            if (handle->IsPlaying())
-                handle->Stop();
+            handle->Stop();
             handle->Release();
             it = chanObj.x48_handles.erase(it);
         }
@@ -708,6 +705,7 @@ void CSfxManager::Update(float dt)
         const CSfxHandle& handle = *it;
         if (!handle->IsPlaying() && !handle->IsLooped())
         {
+            handle->Stop();
             handle->Release();
             m_doUpdate = true;
             it = chanObj.x48_handles.erase(it);
