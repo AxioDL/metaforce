@@ -3,7 +3,7 @@
 	url = https://github.com/jackoalan/libSquish.git
 [submodule "extern/athena"]
 	path = extern/athena
-	url = https://github.com/libAthena/athena.git
+	url = ../../libAthena/athena.git
 [submodule "extern/boo"]
 	path = extern/boo
 	url = ../boo.git
