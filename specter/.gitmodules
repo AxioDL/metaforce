@@ -1,6 +1,6 @@
 [submodule "freetype2"]
 	path = freetype2
-	url = https://github.com/AxioDL/freetype2
+	url = ../freetype2
 [submodule "zeus"]
 	path = zeus
-	url = https://github.com/AxioDL/zeus.git
+	url = ../zeus.git
