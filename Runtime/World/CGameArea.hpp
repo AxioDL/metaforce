@@ -360,15 +360,20 @@ public:
     s32 GetDockCount() const { return xcc_docks.size(); }
     Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
 
-    bool IsPostConstructed() const {return xf0_24_postConstructed;}
-    const CPostConstructed* GetPostConstructed() const {return x12c_postConstructed.get();}
+    bool IsPostConstructed() const { return xf0_24_postConstructed && x12c_postConstructed; }
+    const CPostConstructed* GetPostConstructed() const
+    {
+        if (!x12c_postConstructed)
+            return nullptr;
+        return x12c_postConstructed.get();
+    }
 
     bool IsValidated() const { return xf0_28_validated; }
 
     void SetAreaAttributes(const CScriptAreaAttributes* areaAttributes);
     bool GetActive() const { return xf0_25_active; }
     void SetActive(bool active) { xf0_25_active = active; }
-    CObjectList& GetAreaObjects() const { return *GetPostConstructed()->x10c0_areaObjs.get(); }
+    CObjectList* GetAreaObjects() const { return GetPostConstructed()->x10c0_areaObjs.get(); }
 
     CGameArea* GetNext() const { return x130_next; }
 
