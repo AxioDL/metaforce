@@ -434,16 +434,16 @@ void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid)
     {
         CGameArea* area = x850_world->GetArea(actorAid);
         if (area->IsPostConstructed())
-            area->GetAreaObjects().RemoveObject(actor.GetUniqueId());
+            area->GetAreaObjects()->RemoveObject(actor.GetUniqueId());
     }
 
     if (aid == kInvalidAreaId)
         return;
     CGameArea* area = x850_world->GetArea(aid);
-    if (!area->IsPostConstructed() || area->GetAreaObjects().GetValidObjectById(actor.GetUniqueId()))
+    if (!area->IsPostConstructed() || area->GetAreaObjects()->GetValidObjectById(actor.GetUniqueId()))
         return;
 
-    area->GetAreaObjects().AddObject(actor);
+    area->GetAreaObjects()->AddObject(actor);
 }
 
 void CStateManager::TouchSky() const
@@ -2300,7 +2300,7 @@ void CStateManager::RemoveObject(TUniqueId uid)
         {
             CGameArea* area = x850_world->GetArea(ent->GetAreaIdAlways());
             if (area->IsPostConstructed())
-                area->GetAreaObjects().RemoveObject(uid);
+                area->GetAreaObjects()->RemoveObject(uid);
         }
         if (TCastToPtr<CActor> act = ent)
             x874_sortedListManager->Remove(act.GetPtr());
@@ -2470,7 +2470,7 @@ void CStateManager::AddObject(CEntity& ent)
     {
         CGameArea* area = x850_world->GetArea(ent.GetAreaIdAlways());
         if (area->IsPostConstructed())
-            area->GetAreaObjects().AddObject(ent);
+            area->GetAreaObjects()->AddObject(ent);
     }
 
     if (TCastToPtr<CActor> act = ent)

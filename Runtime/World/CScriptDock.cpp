@@ -72,12 +72,15 @@ void CScriptDock::Think(float dt, CStateManager& mgr)
                 mgr.SetCurrentAreaId(aid);
                 s32 otherDock = dock->GetOtherDockNumber(dock->GetReferenceCount());
 
-                CObjectList& objs = mgr.WorldNC()->GetArea(aid)->GetAreaObjects();
-                for (CEntity* ent : objs)
+                CObjectList* objs = mgr.WorldNC()->GetArea(aid)->GetAreaObjects();
+                if (objs)
                 {
-                    TCastToPtr<CScriptDock> dock(ent);
-                    if (dock && dock->GetDockId() == otherDock)
-                        dock->SetLoadConnected(mgr, true);
+                    for (CEntity* ent : *objs)
+                    {
+                        TCastToPtr<CScriptDock> dock(ent);
+                        if (dock && dock->GetDockId() == otherDock)
+                            dock->SetLoadConnected(mgr, true);
+                    }
                 }
             }
         }
