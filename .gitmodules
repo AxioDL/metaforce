@@ -19,3 +19,8 @@
 [submodule "assetnameparser/tinyxml2"]
 	path = assetnameparser/tinyxml2
 	url = ../tinyxml2.git
+[submodule "hecl-gui"]
+	
+	path = hecl-gui
+	
+	url = ../hecl-gui
