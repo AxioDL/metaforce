@@ -258,7 +258,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
 
         return frames;
     }
-    std::unique_ptr<boo::IAudioVoice> m_booVoice;
+    boo::ObjToken<boo::IAudioVoice> m_booVoice;
 
     void DoAllocateStream()
     {

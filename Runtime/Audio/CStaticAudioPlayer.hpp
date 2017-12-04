@@ -54,7 +54,7 @@ class CStaticAudioPlayer
         }
         AudioVoiceCallback(CStaticAudioPlayer& p) : m_parent(p) {}
     } m_voiceCallback;
-    std::unique_ptr<boo::IAudioVoice> m_voice;
+    boo::ObjToken<boo::IAudioVoice> m_voice;
 
 public:
     CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path,
