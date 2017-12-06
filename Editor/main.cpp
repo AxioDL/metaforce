@@ -136,14 +136,10 @@ static void SetupBasics(bool logging)
 
 static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv)
 {
-    bool logging = false;
     for (int i = 1; i < argc; ++i)
         if (!hecl::StrNCmp(argv[i], _S("-l"), 2))
-        {
-            logging = true;
-            break;
-        }
-    return logging;
+            return true;
+    return false;
 }
 
 #if _WIN32
