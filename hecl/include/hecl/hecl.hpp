@@ -164,10 +164,14 @@ int RecursiveMakeDir(const SystemChar* dir);
 
 static inline const SystemChar* GetEnv(const SystemChar* name)
 {
+#if WINDOWS_STORE
+    return nullptr;
+#else
 #if HECL_UCS2
     return _wgetenv(name);
 #else
     return getenv(name);
+#endif
 #endif
 }
 
@@ -230,7 +234,9 @@ static inline bool IsAbsolute(SystemStringView path)
 
 const SystemChar* GetTmpDir();
 
+#if !WINDOWS_STORE
 int RunProcess(const SystemChar* path, const SystemChar* const args[]);
+#endif
 
 enum class FileLockType
 {
@@ -441,7 +447,7 @@ static inline bool PathRelative(const SystemChar* path)
 {
     if (!path || !path[0])
         return false;
-#if _WIN32
+#if _WIN32 && !WINDOWS_STORE
     return PathIsRelative(path);
 #else
     return path[0] != '/';
@@ -452,9 +458,11 @@ static inline int ConsoleWidth()
 {
     int retval = 80;
 #if _WIN32
+#if !WINDOWS_STORE
     CONSOLE_SCREEN_BUFFER_INFO info;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
     retval = info.dwSize.X;
+#endif
 #else
     struct winsize w;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1)

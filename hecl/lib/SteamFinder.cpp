@@ -20,6 +20,7 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name)
     hecl::Sstat theStat;
 
 #ifdef WIN32
+#if !WINDOWS_STORE
     HKEY hkey;
     hecl::SystemChar _steamInstallDir[MAX_PATH] = {0};
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _S("Software\\Valve\\Steam"),
@@ -38,6 +39,9 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name)
 
     if (steamInstallDir.empty())
         return {};
+#else
+    return {};
+#endif
 
 #elif defined(__APPLE__)
     steamInstallDir = getenv("HOME");

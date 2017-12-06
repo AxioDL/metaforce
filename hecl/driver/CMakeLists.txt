@@ -1,3 +1,4 @@
+if(NOT WINDOWS_STORE)
 add_executable(hecl main.cpp
     ToolBase.hpp
     ToolPackage.hpp
@@ -27,3 +28,4 @@ target_link_libraries(hecl
     hecl-common hecl-blender-addon athena-core nod
     logvisor athena-libyaml ${PNG_LIB} squish xxhash zeus boo
     ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
+endif()

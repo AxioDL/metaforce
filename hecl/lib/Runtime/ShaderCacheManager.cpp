@@ -12,7 +12,9 @@ namespace hecl
 {
 namespace Runtime
 {
+#if BOO_HAS_GL
 IShaderBackendFactory* _NewGLSLBackendFactory();
+#endif
 #if _WIN32
 IShaderBackendFactory* _NewHLSLBackendFactory();
 #endif
@@ -129,9 +131,11 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
 
     switch (plat)
     {
+#if BOO_HAS_GL
     case boo::IGraphicsDataFactory::Platform::OpenGL:
         m_factory.reset(_NewGLSLBackendFactory());
         break;
+#endif
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:

@@ -511,6 +511,7 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
 {
     std::vector<std::pair<hecl::SystemString, std::string>> ret;
 #ifdef WIN32
+#if !WINDOWS_STORE
     /* Add the drive names to the listing (as queried by blender) */
     {
         wchar_t wline[FILE_MAXDIR];
@@ -561,6 +562,7 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations()
         SanitizePath(wpath);
         ret.push_back(NameFromPath(wpath));
     }
+#endif
 #else
 #ifdef __APPLE__
     {
@@ -754,9 +756,13 @@ int RecursiveMakeDir(const SystemChar* dir) {
 const SystemChar* GetTmpDir()
 {
 #ifdef _WIN32
+#if WINDOWS_STORE
+    wchar_t* TMPDIR = nullptr;
+#else
     wchar_t* TMPDIR = _wgetenv(L"TEMP");
     if (!TMPDIR)
         TMPDIR = (wchar_t*)L"\\Temp";
+#endif
 #else
     char* TMPDIR = getenv("TMPDIR");
     if (!TMPDIR)
@@ -765,6 +771,7 @@ const SystemChar* GetTmpDir()
     return TMPDIR;
 }
 
+#if !WINDOWS_STORE
 int RunProcess(const SystemChar* path, const SystemChar* const args[])
 {
 #ifdef _WIN32
@@ -894,5 +901,6 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[])
     return -1;
 #endif
 }
+#endif
 
 }

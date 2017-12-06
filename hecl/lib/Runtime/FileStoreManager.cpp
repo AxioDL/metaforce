@@ -4,6 +4,10 @@
 #include <ShlObj.h>
 #endif
 
+#if WINDOWS_STORE
+using namespace Windows::Storage;
+#endif
+
 namespace hecl
 {
 namespace Runtime
@@ -14,12 +18,16 @@ FileStoreManager::FileStoreManager(SystemStringView domain)
 : m_domain(domain)
 {
 #if _WIN32
+#if !WINDOWS_STORE
     WCHAR home[MAX_PATH];
     if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
         Log.report(logvisor::Fatal, _S("unable to locate profile for file store"));
 
     SystemString path(home);
-
+#else
+    StorageFolder^ cacheFolder = ApplicationData::Current->LocalCacheFolder;
+    SystemString path(cacheFolder->Path->Data());
+#endif
     path += _S("/.heclrun");
 
     hecl::MakeDir(path.c_str());

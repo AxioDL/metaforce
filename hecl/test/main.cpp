@@ -244,6 +244,7 @@ void AthenaExcHandler(athena::error::Level level,
     va_end(ap);
 }
 
+#if !WINDOWS_STORE
 #if _WIN32
 int wmain(int argc, const boo::SystemChar** argv)
 #else
@@ -259,8 +260,23 @@ int main(int argc, const boo::SystemChar** argv)
     printf("IM DYING!!\n");
     return ret;
 }
+#else
+using namespace Windows::ApplicationModel::Core;
 
-#if _WIN32
+[Platform::MTAThread]
+int WINAPIV main(Platform::Array<Platform::String^>^ params)
+{
+    logvisor::RegisterStandardExceptions();
+    logvisor::RegisterConsoleLogger();
+    HECLApplicationCallback appCb;
+    boo::ViewProvider^ viewProvider =
+        ref new boo::ViewProvider(appCb, _S("heclTest"), _S("HECL Test"), _S("heclTest"), params, false);
+    CoreApplication::Run(viewProvider);
+    return 0;
+}
+#endif
+
+#if _WIN32 && !WINDOWS_STORE
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 {
     int argc = 0;

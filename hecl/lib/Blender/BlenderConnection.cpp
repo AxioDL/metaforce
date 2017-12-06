@@ -245,6 +245,7 @@ static bool RegFileExists(const hecl::SystemChar* path)
 
 BlenderConnection::BlenderConnection(int verbosityLevel)
 {
+#if !WINDOWS_STORE
     BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
 
     /* Put hecl_blendershell.py in temp dir */
@@ -552,6 +553,9 @@ BlenderConnection::BlenderConnection(int verbosityLevel)
 
         break;
     }
+#else
+    BlenderLog.report(logvisor::Fatal, "BlenderConnection not available on UWP");
+#endif
 }
 
 BlenderConnection::~BlenderConnection()
