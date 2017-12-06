@@ -1,4 +1,6 @@
+#if BOO_HAS_GL
 static TMultiBlendShader<_CLS>::IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
+#endif
 #if _WIN32
 static TMultiBlendShader<_CLS>::IDataBindingFactory* Initialize(boo::ID3DDataFactory::Context& ctx);
 #endif

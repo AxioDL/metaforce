@@ -136,16 +136,13 @@ static void SetupBasics(bool logging)
 
 static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv)
 {
-    bool logging = false;
     for (int i = 1; i < argc; ++i)
         if (!hecl::StrNCmp(argv[i], _S("-l"), 2))
-        {
-            logging = true;
-            break;
-        }
-    return logging;
+            return true;
+    return false;
 }
 
+#if !WINDOWS_STORE
 #if _WIN32
 int wmain(int argc, const boo::SystemChar** argv)
 #else
@@ -170,16 +167,17 @@ int main(int argc, const boo::SystemChar** argv)
     printf("IM DYING!!\n");
     return ret;
 }
+#endif
 
-#if WINAPI_FAMILY && !WINAPI_PARTITION_DESKTOP
+#if WINDOWS_STORE
 using namespace Windows::ApplicationModel::Core;
 
 [Platform::MTAThread]
 int WINAPIV main(Platform::Array<Platform::String^>^ params)
 {
-    SetupBasics();
+    SetupBasics(false);
     urde::Application appCb;
-    auto viewProvider = ref new ViewProvider(appCb, _S("urde"), _S("URDE"), params, false);
+    auto viewProvider = ref new boo::ViewProvider(appCb, _S("urde"), _S("URDE"), _S("urde"), params, false);
     CoreApplication::Run(viewProvider);
     return 0;
 }

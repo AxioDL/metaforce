@@ -691,6 +691,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                 }
             }
 
+#if !WINDOWS_STORE
             if (!visiGood)
             {
                 hecl::ProjectPath visiIntOut = outPath.getWithExtension(_S(".visiint"));
@@ -764,6 +765,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                     Log.report(logvisor::Fatal, _S("Unable to launch %s"), VisiGenPath.c_str());
                 }
             }
+#endif
         }
     }
     if (!visiGood)

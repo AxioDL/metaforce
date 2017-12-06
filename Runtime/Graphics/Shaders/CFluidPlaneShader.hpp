@@ -117,12 +117,14 @@ private:
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
     boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
 
+#if BOO_HAS_GL
     static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::GLDataFactory::Context& ctx,
                                                            const SFluidPlaneShaderInfo& info);
     static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::GLDataFactory::Context& ctx,
                                                            const SFluidPlaneDoorShaderInfo& info);
     boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::GLDataFactory::Context& ctx,
                                                         const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
+#endif
 #if _WIN32
     static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::ID3DDataFactory::Context& ctx,
                                                            const SFluidPlaneShaderInfo& info);

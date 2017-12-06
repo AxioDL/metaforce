@@ -58,9 +58,11 @@ CModelShaders::GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat)
 {
     switch (plat)
     {
+#if BOO_HAS_GL
     case boo::IGraphicsDataFactory::Platform::OpenGL:
     case boo::IGraphicsDataFactory::Platform::Vulkan:
         return GetShaderExtensionsGLSL(plat);
+#endif
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
     case boo::IGraphicsDataFactory::Platform::D3D12:

@@ -4,11 +4,16 @@
 namespace urde
 {
 
+#if WINDOWS_STORE
+using namespace Windows::Storage;
+#endif
+
 /* Partial path-selection logic from
  * https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/UICommon/UICommon.cpp
  * Modified to not use dolphin-binary-relative paths. */
 kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot)
 {
+#if !WINDOWS_STORE
     /* Detect where the User directory is. There are two different cases
      * 1. HKCU\Software\Dolphin Emulator\UserConfigPath exists
      *    -> Use this as the user directory path
@@ -41,6 +46,10 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
         path = kabufuda::SystemString(my_documents) + _S("/Dolphin Emulator");
     else  /* Unable to find */
         return {};
+#else
+    StorageFolder^ localFolder = ApplicationData::Current->LocalFolder;
+    kabufuda::SystemString path(localFolder->Path->Data());
+#endif
 
     path += hecl::SysFormat(_S("/GC/MemoryCard%c.USA.raw"),
                             slot == kabufuda::ECardSlot::SlotA ? _S('A') : _S('B'));
@@ -54,6 +63,7 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
 
 kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot)
 {
+#if !WINDOWS_STORE
     /* Detect where the User directory is. There are two different cases
      * 1. HKCU\Software\Dolphin Emulator\UserConfigPath exists
      *    -> Use this as the user directory path
@@ -86,6 +96,10 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
         path = kabufuda::SystemString(my_documents) + _S("/Dolphin Emulator");
     else  /* Unable to find */
         return {};
+#else
+    StorageFolder^ localFolder = ApplicationData::Current->LocalFolder;
+    kabufuda::SystemString path(localFolder->Path->Data());
+#endif
 
     path += _S("/GC");
     if (hecl::RecursiveMakeDir(path.c_str()) < 0)

@@ -1,3 +1,4 @@
+if(NOT WINDOWS_STORE)
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
 project(visigen)
 
@@ -24,3 +25,4 @@ add_executable(visigen ${PLAT_SRCS}
                VISIRenderer.cpp VISIRenderer.hpp
                VISIBuilder.cpp VISIBuilder.hpp)
 target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS})
+endif()

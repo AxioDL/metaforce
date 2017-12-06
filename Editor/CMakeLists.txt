@@ -12,6 +12,18 @@ atdna(atdna_GameMode.cpp GameMode.hpp)
 
 if(WIN32)
   set(PLAT_SRCS platforms/win/urde.rc)
+  if(WINDOWS_STORE)
+      set(UWP_ASSETS
+          platforms/win/Assets/Square150x150Logo.scale-100.png
+          platforms/win/Assets/Square150x150Logo.scale-125.png
+          platforms/win/Assets/Square150x150Logo.scale-150.png
+          platforms/win/Assets/Square150x150Logo.scale-200.png
+          platforms/win/Assets/Square150x150Logo.scale-400.png)
+      set_property(SOURCE platforms/win/Package.appxmanifest PROPERTY VS_DEPLOYMENT_CONTENT 1)
+      set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+      set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
+      list(APPEND PLAT_SRCS ${UWP_ASSETS} platforms/win/Package.appxmanifest)
+  endif()
 elseif(APPLE)
   set(PLAT_SRCS platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
@@ -51,11 +63,20 @@ target_link_libraries(urde
 set_target_properties(urde PROPERTIES
                       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
 
-add_dependencies(urde visigen hecl)
-
-add_custom_command(TARGET urde POST_BUILD
+if (NOT WINDOWS_STORE)
+  add_dependencies(urde visigen hecl)
+  add_custom_command(TARGET urde POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
-add_custom_command(TARGET urde POST_BUILD
+  add_custom_command(TARGET urde POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:hecl>)
-add_custom_command(TARGET urde POST_BUILD
+  add_custom_command(TARGET urde POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)
+else()
+  message(STATUS "Targeting Windows 10. Setting Extensions to version ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
+  set_property(TARGET urde PROPERTY VS_DESKTOP_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  set_property(TARGET urde PROPERTY VS_MOBILE_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  set_property(TARGET urde PROPERTY VS_IOT_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  # Add a reference to an SDK
+  set_property(TARGET urde PROPERTY VS_SDK_REFERENCES "Microsoft.UniversalCRT.Debug, Version=${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+endif()

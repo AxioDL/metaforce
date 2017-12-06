@@ -24,9 +24,11 @@ void CLineRendererShaders::Initialize()
     {
         switch (ctx.platform())
         {
+#if BOO_HAS_GL
         case boo::IGraphicsDataFactory::Platform::OpenGL:
             m_bindFactory.reset(Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
             break;
+#endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:

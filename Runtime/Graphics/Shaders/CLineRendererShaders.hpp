@@ -35,7 +35,9 @@ private:
     static std::unique_ptr<IDataBindingFactory> m_bindFactory;
 
 public:
+#if BOO_HAS_GL
     static IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
+#endif
 #if _WIN32
     static IDataBindingFactory* Initialize(boo::ID3DDataFactory::Context& ctx);
 #endif

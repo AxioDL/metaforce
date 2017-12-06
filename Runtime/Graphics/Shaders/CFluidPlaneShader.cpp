@@ -104,9 +104,11 @@ boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(c
     {
         switch (ctx.platform())
         {
+#if BOO_HAS_GL
         case boo::IGraphicsDataFactory::Platform::OpenGL:
             slot = BuildShader(static_cast<boo::GLDataFactory::Context&>(ctx), info);
             break;
+#endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:
@@ -154,9 +156,11 @@ void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>
 
         switch (ctx.platform())
         {
+#if BOO_HAS_GL
         case boo::IGraphicsDataFactory::Platform::OpenGL:
             m_dataBind = BuildBinding(static_cast<boo::GLDataFactory::Context&>(ctx), pipeline, door);
             break;
+#endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:

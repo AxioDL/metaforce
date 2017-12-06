@@ -212,12 +212,14 @@ void CMoviePlayer::Initialize()
 
         switch (ctx.platform())
         {
+#if BOO_HAS_GL
         case boo::IGraphicsDataFactory::Platform::OpenGL:
             YUVShaderPipeline = static_cast<boo::GLDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_GLSL_YUV, FS_GLSL_YUV, 3, TexNames, 1, BlockNames,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                      boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;
+#endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:

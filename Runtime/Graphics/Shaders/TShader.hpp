@@ -32,9 +32,11 @@ public:
         {
             switch (ctx.platform())
             {
+#if BOO_HAS_GL
             case boo::IGraphicsDataFactory::Platform::OpenGL:
                 m_bindFactory.reset(ShaderImp::Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
                 break;
+#endif
 #if _WIN32
             case boo::IGraphicsDataFactory::Platform::D3D11:
             case boo::IGraphicsDataFactory::Platform::D3D12:
@@ -61,9 +63,11 @@ public:
     {
         switch (CGraphics::g_BooFactory->platform())
         {
+#if BOO_HAS_GL
         case boo::IGraphicsDataFactory::Platform::OpenGL:
             ShaderImp::template Shutdown<boo::GLDataFactory>();
             break;
+#endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
         case boo::IGraphicsDataFactory::Platform::D3D12:
