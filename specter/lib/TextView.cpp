@@ -10,6 +10,7 @@ namespace specter
 {
 static logvisor::Module Log("specter::TextView");
 
+#if BOO_HAS_GL
 static const char* GLSLVS =
 "#version 330\n"
 BOO_GLSL_BINDING_HEAD
@@ -85,6 +86,7 @@ void TextView::Resources::init(boo::GLDataFactory::Context& ctx, FontCache* fcac
                           boo::BlendFactor::SrcColor1, boo::BlendFactor::InvSrcColor1,
                           boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 }
+#endif
 
 #if _WIN32
 

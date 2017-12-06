@@ -205,7 +205,9 @@ public:
         boo::ObjToken<boo::IShaderPipeline> m_texShader;
         boo::ObjToken<boo::IVertexFormat> m_texVtxFmt; /* Not OpenGL */
 
+#if BOO_HAS_GL
         void init(boo::GLDataFactory::Context& ctx, const IThemeData& theme);
+#endif
 #if _WIN32
         void init(boo::ID3DDataFactory::Context& ctx, const IThemeData& theme);
 #endif

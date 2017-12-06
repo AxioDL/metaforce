@@ -91,7 +91,9 @@ public:
         boo::ObjToken<boo::IShaderPipeline> m_subpixel;
         boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* Not OpenGL */
 
+#if BOO_HAS_GL
         void init(boo::GLDataFactory::Context& ctx, FontCache* fcache);
+#endif
 #if _WIN32
         void init(boo::ID3DDataFactory::Context& ctx, FontCache* fcache);
 #endif
