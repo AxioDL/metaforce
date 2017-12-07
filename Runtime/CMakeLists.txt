@@ -117,3 +117,7 @@ add_library(RuntimeCommon
             TCastTo.hpp TCastTo.cpp
             GCNTypes.hpp
             ${PLAT_SRCS})
+
+if(WINDOWS_STORE)
+    set_property(TARGET RuntimeCommon PROPERTY VS_WINRT_COMPONENT TRUE)
+endif()

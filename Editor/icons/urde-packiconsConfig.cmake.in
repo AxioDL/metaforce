@@ -1,0 +1,9 @@
+# - Config file for the packicons package
+ 
+# Compute paths
+get_filename_component(PACKICONS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+ 
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET packicons AND NOT packicons_BINARY_DIR)
+  include("${PACKICONS_CMAKE_DIR}/urde-packiconsTargets.cmake")
+endif()

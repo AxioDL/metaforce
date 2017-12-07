@@ -1,31 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="AxioDL.URDE" 
-			Version="1.0.0.0" 
-			Publisher="CN=URDE, O=URDE" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4" xmlns:pm="http://schemas.microsoft.com/appx/2014/phone/manifest" IgnorableNamespaces="uap uap4 pm">
+  <Identity Name="AxioDL.URDE" Version="1.0.0.0" Publisher="CN=AxioDL" />
+  <pm:PhoneIdentity PhoneProductId="97E278C0-4527-453D-AE03-375B1FAA0B19" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-	<DisplayName>URDE</DisplayName>
-	<PublisherDisplayName>AxioDL</PublisherDisplayName>
+    <DisplayName>URDE</DisplayName>
+    <PublisherDisplayName>AxioDL</PublisherDisplayName>
+    <Logo>Assets\urde.png</Logo>
   </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.14393.0" MaxVersionTested="10.0.16299.0" />
+  </Dependencies>
   <Resources>
-	<Resource Language="en-us" />
+    <Resource Language="en-us" />
   </Resources>
   <Applications>
-	<Application Id="URDE" StartPage="">
-	  <VisualElements 
-		   DisplayName="URDE"
-		   Description="Game engine recreation for Metroid Prime"
-		   Square310x310Logo="Tiles\Square310x310Logo.png"
-		   Wide310x150Logo="Tiles\Wide310x150Logo.png"
-		   Square150x150Logo="Tiles\Square150x150Logo.png"
-		   Square71x71Logo="Tiles\Square71x71Logo.png"
-		   Square44x44Logo="Tiles\Square44x44Logo.png"
-		   ForegroundText="light"
-		   BackgroundColor="#333333">
-		 <SplashScreen
-		   BackgroundColor="#333333" 
-		   Image="Tiles\SplashScreen.png" />
-	  </VisualElements>
-	</Application>
+    <Application Id="URDE" Executable="$targetnametoken$.exe" EntryPoint="URDE.App">
+      <uap:VisualElements DisplayName="URDE" Description="Game engine recreation for Metroid Prime" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="#333333">
+        <uap:DefaultTile Square310x310Logo="Assets\LargeTile.png" Wide310x150Logo="Assets\WideTile.png" Square71x71Logo="Assets\SmallTile.png">
+        </uap:DefaultTile>
+        <uap:SplashScreen BackgroundColor="#333333" Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+    </Application>
   </Applications>
 </Package>

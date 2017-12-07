@@ -356,13 +356,19 @@ public:
     }
     void clear() { m_words.clear(); m_bitCount = 0; }
 
-    class Iterator : public std::iterator<std::forward_iterator_tag, bool>
+    class Iterator
     {
         friend class WordBitmap;
         const WordBitmap& m_bmp;
         size_t m_idx = 0;
         Iterator(const WordBitmap& bmp, size_t idx) : m_bmp(bmp), m_idx(idx) {}
     public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = bool;
+        using difference_type = std::ptrdiff_t;
+        using pointer = bool*;
+        using reference = bool&;
+
         Iterator& operator++() {++m_idx; return *this;}
         bool operator*() {return m_bmp.getBit(m_idx);}
         bool operator!=(const Iterator& other) const {return m_idx != other.m_idx;}

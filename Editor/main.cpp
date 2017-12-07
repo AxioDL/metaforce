@@ -170,6 +170,7 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 
 #if WINDOWS_STORE
+#include "boo/UWPViewProvider.hpp"
 using namespace Windows::ApplicationModel::Core;
 
 [Platform::MTAThread]

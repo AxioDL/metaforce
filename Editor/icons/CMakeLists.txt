@@ -1,7 +1,30 @@
-if(NOT WINDOWS_STORE)
+if(NOT CMAKE_CROSSCOMPILING)
 include_directories(${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_executable(packicons packicons.c)
 target_link_libraries(packicons ${PNG_LIB} ${ZLIB_LIBRARIES})
+
+##################
+# Package Export #
+##################
+
+# Add all targets to the build-tree export set
+export(TARGETS packicons FILE "${CMAKE_CURRENT_BINARY_DIR}/urde-packiconsTargets.cmake")
+
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export(PACKAGE urde-packicons)
+
+# Create the atdnaConfig.cmake
+# ... for the build tree
+configure_file(urde-packiconsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/urde-packiconsConfig.cmake" @ONLY)
+# ... for the install tree
+configure_file(urde-packiconsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/urde-packiconsConfig.cmake" @ONLY)
+# ... for both
+configure_file(urde-packiconsConfigVersion.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/urde-packiconsConfigVersion.cmake" @ONLY)
+
+else()
+find_package(urde-packicons REQUIRED)
+endif()
 
 unset(INKSCAPE_BIN CACHE)
 set(CMAKE_FIND_APPBUNDLE "NEVER")
@@ -23,10 +46,6 @@ else()
                      ARGS ${INKSCAPE_BIN} ${CMAKE_CURRENT_SOURCE_DIR}/icons.svg
                      ${CMAKE_CURRENT_BINARY_DIR}/icons.bin
                      MAIN_DEPENDENCY icons.svg COMMENT "Generating icons.bin")
-endif()
-else()
-  add_custom_command(OUTPUT icons.bin COMMAND ${CMAKE_COMMAND} ARGS -P
-      ${CMAKE_CURRENT_SOURCE_DIR}/IconDownload.cmake)
 endif()
 
 bintoc(icons.c ${CMAKE_CURRENT_BINARY_DIR}/icons.bin URDE_ICONS)

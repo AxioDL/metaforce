@@ -14,11 +14,46 @@ if(WIN32)
   set(PLAT_SRCS platforms/win/urde.rc)
   if(WINDOWS_STORE)
       set(UWP_ASSETS
+          platforms/win/Assets/LargeTile.scale-100.png
+          platforms/win/Assets/LargeTile.scale-125.png
+          platforms/win/Assets/LargeTile.scale-150.png
+          platforms/win/Assets/LargeTile.scale-200.png
+          platforms/win/Assets/LargeTile.scale-400.png
+          platforms/win/Assets/SmallTile.scale-100.png
+          platforms/win/Assets/SmallTile.scale-125.png
+          platforms/win/Assets/SmallTile.scale-150.png
+          platforms/win/Assets/SmallTile.scale-200.png
+          platforms/win/Assets/SmallTile.scale-400.png
+          platforms/win/Assets/SplashScreen.scale-100.png
+          platforms/win/Assets/SplashScreen.scale-125.png
+          platforms/win/Assets/SplashScreen.scale-150.png
+          platforms/win/Assets/SplashScreen.scale-200.png
+          platforms/win/Assets/SplashScreen.scale-400.png
+          platforms/win/Assets/Square44x44Logo.scale-100.png
+          platforms/win/Assets/Square44x44Logo.scale-125.png
+          platforms/win/Assets/Square44x44Logo.scale-150.png
+          platforms/win/Assets/Square44x44Logo.scale-200.png
+          platforms/win/Assets/Square44x44Logo.scale-400.png
+          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-16.png
+          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-24.png
+          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-32.png
+          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-48.png
+          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-256.png
           platforms/win/Assets/Square150x150Logo.scale-100.png
           platforms/win/Assets/Square150x150Logo.scale-125.png
           platforms/win/Assets/Square150x150Logo.scale-150.png
           platforms/win/Assets/Square150x150Logo.scale-200.png
-          platforms/win/Assets/Square150x150Logo.scale-400.png)
+          platforms/win/Assets/Square150x150Logo.scale-400.png
+          platforms/win/Assets/urde.scale-100.png
+          platforms/win/Assets/urde.scale-125.png
+          platforms/win/Assets/urde.scale-150.png
+          platforms/win/Assets/urde.scale-200.png
+          platforms/win/Assets/urde.scale-400.png
+          platforms/win/Assets/WideTile.scale-100.png
+          platforms/win/Assets/WideTile.scale-125.png
+          platforms/win/Assets/WideTile.scale-150.png
+          platforms/win/Assets/WideTile.scale-200.png
+          platforms/win/Assets/WideTile.scale-400.png)
       set_property(SOURCE platforms/win/Package.appxmanifest PROPERTY VS_DEPLOYMENT_CONTENT 1)
       set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
       set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
@@ -74,9 +109,9 @@ if (NOT WINDOWS_STORE)
 else()
   message(STATUS "Targeting Windows 10. Setting Extensions to version ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
   set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
-  set_property(TARGET urde PROPERTY VS_DESKTOP_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  set_property(TARGET urde PROPERTY VS_MOBILE_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  set_property(TARGET urde PROPERTY VS_IOT_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  #set_property(TARGET urde boo PROPERTY VS_DESKTOP_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  #set_property(TARGET urde boo PROPERTY VS_MOBILE_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  #set_property(TARGET urde boo PROPERTY VS_IOT_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
   # Add a reference to an SDK
-  set_property(TARGET urde PROPERTY VS_SDK_REFERENCES "Microsoft.UniversalCRT.Debug, Version=${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  #set_property(TARGET urde boo PROPERTY VS_SDK_REFERENCES "Microsoft.UniversalCRT.Debug, Version=${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
 endif()
