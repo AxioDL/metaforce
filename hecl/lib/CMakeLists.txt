@@ -65,3 +65,6 @@ add_library(hecl-common
             atdna_CVar.cpp
             ${PLAT_SRCS})
 
+if(WINDOWS_STORE)
+    set_property(TARGET hecl-common PROPERTY VS_WINRT_COMPONENT TRUE)
+endif()

@@ -24,7 +24,22 @@ set(SQUISH_INCLUDE_DIR ${SQUISH_INCLUDE_DIR} PARENT_SCOPE)
 set(BOO_INCLUDE_DIR extern/boo/include)
 
 add_subdirectory(bintoc)
+
+if(NOT TARGET bintoc)
+  # Use native if cross compiling
+  find_package(hecl-bintoc REQUIRED)
+endif()
+
 add_subdirectory(extern)
+
+if(NOT TARGET atdna)
+  # Import native atdna if cross-compiling
+  find_package(atdna REQUIRED)
+  if(NOT TARGET atdna)
+    message(FATAL_ERROR "atdna required for building hecl; please verify LLVM installation")
+  endif()
+endif()
+
 add_definitions(${BOO_SYS_DEFINES})
 include_directories(include blender ${LOGVISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR}
                     ${BOO_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${BOO_SYS_INCLUDES})
