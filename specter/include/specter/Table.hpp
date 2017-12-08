@@ -21,8 +21,8 @@ struct ITableDataBinding
 {
     virtual size_t columnCount() const=0;
     virtual size_t rowCount() const=0;
-    virtual std::string_view header(size_t cIdx) const {return nullptr;}
-    virtual std::string_view cell(size_t cIdx, size_t rIdx) const {return nullptr;}
+	virtual std::string_view header(size_t cIdx) const { return {}; }
+	virtual std::string_view cell(size_t cIdx, size_t rIdx) const { return {}; }
 };
 
 struct ITableStateBinding
