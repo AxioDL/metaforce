@@ -107,11 +107,7 @@ if (NOT WINDOWS_STORE)
   add_custom_command(TARGET urde POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)
 else()
-  message(STATUS "Targeting Windows 10. Setting Extensions to version ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
   set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
-  #set_property(TARGET urde boo PROPERTY VS_DESKTOP_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  #set_property(TARGET urde boo PROPERTY VS_MOBILE_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  #set_property(TARGET urde boo PROPERTY VS_IOT_EXTENSIONS_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  # Add a reference to an SDK
-  #set_property(TARGET urde boo PROPERTY VS_SDK_REFERENCES "Microsoft.UniversalCRT.Debug, Version=${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+  # This should match the Package.appxmanifest
+  set_property(TARGET urde PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
 endif()

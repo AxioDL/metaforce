@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
-
 cmake_policy(SET CMP0054 NEW)
 project(urde)
 
@@ -11,6 +10,7 @@ set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 if(MSVC)
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
     set(VS_DEFINES "/MP")
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT urde)
   endif()
 
   # Shaddup MSVC
