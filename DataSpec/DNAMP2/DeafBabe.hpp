@@ -16,7 +16,7 @@ struct DeafBabe : BigDNA
     struct Material : BigDNA
     {
         DECL_DNA
-        Value<atUint64> material;
+        Value<atUint64> material = 0;
         bool unknown() const { return material & 1; }
         void setUnknown(bool v) { material &= ~1; material |= atUint64(v); }
         bool surfaceStone() const { return (material >> 1ull) & 1; }
@@ -60,11 +60,13 @@ struct DeafBabe : BigDNA
         bool projectilePassthrough() const { return (material >> 20ull) & 1; }
         void setProjectilePassthrough(bool v) { material &= ~(1ull << 20ull); material |= (atUint64(v) << 20ull); }
         bool cameraPassthrough() const { return (material >> 21ull) & 1; }
-        void setCameraPassthrough(bool v) { material &= ~(1ull << 21ull); material |= (atUint64(v) << 19ull); }
+        void setCameraPassthrough(bool v) { material &= ~(1ull << 21ull); material |= (atUint64(v) << 21ull); }
         bool surfaceWood() const { return (material >> 22ull) & 1; }
         void setSurfaceWood(bool v) { material &= ~(1ull << 22ull); material |= (atUint64(v) << 22ull); }
         bool surfaceOrganic() const { return (material >> 23ull) & 1; }
         void setSurfaceOrganic(bool v) { material &= ~(1ull << 23ull); material |= (atUint64(v) << 23ull); }
+        bool flipFace() const { return (material >> 24ull) & 1; }
+        void setFlipFace(bool v) { material &= ~(1ull << 24ull); material |= (atUint64(v) << 24ull); }
         bool surfaceRubber() const { return (material >> 25) & 1; }
         void setSurfaceRubber(bool v) { material &= ~(1ull << 25ull); material |= (atUint64(v) << 25ull); }
         bool seeThrough() const { return (material >> 26ull) & 1; }

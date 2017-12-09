@@ -16,7 +16,7 @@ struct DeafBabe : BigDNA
     struct Material : BigDNA
     {
         DECL_DNA
-        Value<atUint32> material;
+        Value<atUint32> material = 0;
         bool unknown() const { return material & 1; }
         void setUnknown(bool v) { material &= ~1; material |= int(v); }
         bool surfaceStone() const { return (material >> 1) & 1; }
@@ -60,13 +60,15 @@ struct DeafBabe : BigDNA
         bool u20() const { return (material >> 20) & 1; }
         void setU20(bool v) { material &= ~(1ull << 20); material |= (v << 20); }
         bool cameraPassthrough() const { return (material >> 21) & 1; }
-        void setCameraPassthrough(bool v) { material &= ~(1ull << 21); material |= (v << 19); }
+        void setCameraPassthrough(bool v) { material &= ~(1ull << 21); material |= (v << 21); }
         bool surfaceWood() const { return (material >> 22) & 1; }
         void setSurfaceWood(bool v) { material &= ~(1ull << 22); material |= (v << 22); }
         bool surfaceOrganic() const { return (material >> 23) & 1; }
         void setSurfaceOrganic(bool v) { material &= ~(1ull << 23); material |= (v << 23); }
         bool u24() const { return (material >> 24) & 1; }
         void setU24(bool v) { material &= ~(1ull << 24); material |= (v << 24); }
+        bool flipFace() const { return (material >> 25) & 1; }
+        void setFlipFace(bool v) { material &= ~(1ull << 25); material |= (v << 25); }
         bool seeThrough() const { return (material >> 26) & 1; }
         void setSeeThrough(bool v) { material &= ~(1ull << 26); material |= (v << 26); }
         bool scanPassthrough() const { return (material >> 27) & 1; }
@@ -109,14 +111,6 @@ struct DeafBabe : BigDNA
     {
         DECL_DNA
         Value<atUint16> verts[2];
-        atUint16 findCommon(const Edge& other) const
-        {
-            if (verts[0] == other.verts[0] || verts[0] == other.verts[1])
-                return verts[0];
-            if (verts[1] == other.verts[0] || verts[1] == other.verts[1])
-                return verts[1];
-            return -1;
-        }
     };
 
     struct Triangle : BigDNA

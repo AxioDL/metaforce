@@ -30,10 +30,27 @@ void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFB
         const typename DEAFBABE::Edge& edge2 = db.edgeVertConnections[tri.edges[2]];
         if (!edge0.verts[0] && !edge1.verts[0] && !edge2.verts[0])
             break;
+
+        int vindices[3];
+        vindices[2] =
+            (edge1.verts[0] != edge0.verts[0] && edge1.verts[0] != edge0.verts[1]) ?
+            edge1.verts[0] : edge1.verts[1];
+
+        if (triMat.flipFace())
+        {
+            vindices[0] = edge0.verts[1];
+            vindices[1] = edge0.verts[0];
+        }
+        else
+        {
+            vindices[0] = edge0.verts[0];
+            vindices[1] = edge0.verts[1];
+        }
+
         os << "tri_verts = []\n";
-        os.format("tri_verts.append(col_bm.verts[%u])\n", edge0.findCommon(edge1));
-        os.format("tri_verts.append(col_bm.verts[%u])\n", edge1.findCommon(edge2));
-        os.format("tri_verts.append(col_bm.verts[%u])\n", edge2.findCommon(edge0));
+        os.format("tri_verts.append(col_bm.verts[%u])\n", vindices[0]);
+        os.format("tri_verts.append(col_bm.verts[%u])\n", vindices[1]);
+        os.format("tri_verts.append(col_bm.verts[%u])\n", vindices[2]);
 
         os.format("face = col_bm.faces.get(tri_verts)\n"
                   "if face is None:\n"
@@ -117,7 +134,7 @@ static void PopulateAreaFields(DEAFBABE& db,
 template<class DEAFBABE>
 void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh)
 {
-    db.materials.reserve(colMesh.materials.size());
+    db.materials.reserve(colMesh.materials.size() * 2);
     for (const hecl::BlenderConnection::DataStream::ColMesh::Material& mat : colMesh.materials)
     {
         db.materials.emplace_back();
@@ -164,7 +181,6 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
         db.materials.back().setSpiderBall(mat.spiderBall);
         db.materials.back().setScrewAttackWallJump(mat.screwAttackWallJump);
     }
-    db.materialCount = colMesh.materials.size();
 
     zeus::CAABox fullAABB;
 
@@ -193,7 +209,16 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     db.triangleEdgeConnections.reserve(colMesh.trianges.size());
     for (const auto& tri : colMesh.trianges)
     {
-        db.triMats.push_back(tri.matIdx);
+        if (tri.flip)
+        {
+            db.triMats.push_back(db.materials.size());
+            db.materials.push_back(db.materials[tri.matIdx]);
+            db.materials.back().setFlipFace(true);
+        }
+        else
+        {
+            db.triMats.push_back(tri.matIdx);
+        }
 
         db.triangleEdgeConnections.emplace_back();
         db.triangleEdgeConnections.back().edges[0] = tri.edges[0];
@@ -209,6 +234,8 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     }
     db.triMatsCount = colMesh.trianges.size();
     db.triangleEdgesCount = colMesh.trianges.size() * 3;
+
+    db.materialCount = db.materials.size();
 
     PopulateAreaFields(db, colMesh, fullAABB);
 }

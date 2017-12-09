@@ -323,6 +323,7 @@ void CActor::SetRotation(const zeus::CQuaternion &q)
 
 void CActor::SetTranslation(const zeus::CVector3f& tr)
 {
+    auto old = x34_transform.origin;
     x34_transform.origin = tr;
     xe4_27_notInSortedLists = true;
     xe4_28_ = true;

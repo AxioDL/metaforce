@@ -653,7 +653,7 @@ bool CMetroidAreaCollider::SphereCollisionCheck(const CAreaOctTree& octTree, con
 bool CMetroidAreaCollider::MovingAABoxCollisionCheck_BoxVertexTri(const CCollisionSurface& surf, const zeus::CAABox& aabb,
                                                                   const rstl::reserved_vector<u32, 8>& vertIndices,
                                                                   const zeus::CVector3f& dir, double& d,
-                                                                  zeus::CVector3f& normal, zeus::CVector3f& point)
+                                                                  zeus::CVector3f& normalOut, zeus::CVector3f& pointOut)
 {
     bool ret = false;
     for (u32 idx : vertIndices)
@@ -661,8 +661,8 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_BoxVertexTri(const CCollisi
         zeus::CVector3f point = aabb.getPoint(idx);
         if (CollisionUtil::RayTriangleIntersection_Double(point, dir, surf.GetVerts(), d))
         {
-            point = float(d) * dir + point;
-            normal = surf.GetNormal();
+            pointOut = float(d) * dir + point;
+            normalOut = surf.GetNormal();
             ret = true;
         }
     }
