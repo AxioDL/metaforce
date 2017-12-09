@@ -1092,7 +1092,7 @@ BlenderConnection::DataStream::ColMesh::Edge::Edge(BlenderConnection& conn)
 
 BlenderConnection::DataStream::ColMesh::Triangle::Triangle(BlenderConnection& conn)
 {
-    conn._readBuf(this, 16);
+    conn._readBuf(this, 17);
 }
 
 BlenderConnection::DataStream::World::Area::Dock::Dock(BlenderConnection& conn)

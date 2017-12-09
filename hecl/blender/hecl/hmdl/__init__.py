@@ -329,7 +329,10 @@ def cookcol(writebuf, mesh_obj):
         edge_idxs = []
         for loopi in p.loop_indices:
             edge_idxs.append(copy_mesh.loops[loopi].edge_index)
-        writebuf(struct.pack('IIII', edge_idxs[0], edge_idxs[1], edge_idxs[2], p.material_index))
+        l0 = copy_mesh.loops[p.loop_indices[0]]
+        e0 = copy_mesh.edges[l0.edge_index]
+        flip = l0.vertex_index != e0.vertices[0]
+        writebuf(struct.pack('IIIIb', edge_idxs[0], edge_idxs[1], edge_idxs[2], p.material_index, flip))
 
     # Delete copied mesh from scene
     bpy.context.scene.objects.unlink(copy_obj)

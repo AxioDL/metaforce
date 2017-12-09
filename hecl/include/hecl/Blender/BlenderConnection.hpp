@@ -671,6 +671,7 @@ public:
             {
                 uint32_t edges[3];
                 uint32_t matIdx;
+                bool flip;
                 Triangle(BlenderConnection& conn);
             };
             std::vector<Triangle> trianges;
