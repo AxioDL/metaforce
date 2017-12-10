@@ -544,8 +544,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                   tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
                                   !slot.noColorWrite, !slot.noAlphaWrite,
-                                  slot.frontfaceCull ? boo::CullMode::Frontface :
-                                  (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
+                                  (slot.cullMode == hecl::Backend::CullMode::Original) ?
+                                  (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+                                  boo::CullMode(slot.cullMode));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             if (thisPipeBlobs.vert)
@@ -664,8 +665,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                   tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
                                   !slot.noColorWrite, !slot.noAlphaWrite,
-                                  slot.frontfaceCull ? boo::CullMode::Frontface :
-                                  (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
+                                  (slot.cullMode == hecl::Backend::CullMode::Original) ?
+                                  (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+                                  boo::CullMode(slot.cullMode));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);

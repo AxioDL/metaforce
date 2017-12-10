@@ -46,6 +46,14 @@ enum class ZTest : uint8_t
     Original = 0xff
 };
 
+enum class CullMode : uint8_t
+{
+    None,
+    Backface,
+    Frontface,
+    Original = 0xff
+};
+
 struct TextureInfo
 {
     TexGenSrc src;

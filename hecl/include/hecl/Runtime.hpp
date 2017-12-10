@@ -141,7 +141,7 @@ public:
         Backend::BlendFactor srcFactor = Backend::BlendFactor::Original;
         Backend::BlendFactor dstFactor = Backend::BlendFactor::Original;
         Backend::ZTest depthTest = Backend::ZTest::Original;
-        bool frontfaceCull = false;
+        Backend::CullMode cullMode = Backend::CullMode::Backface;
         bool noDepthWrite = false;
         bool noColorWrite = false;
         bool noAlphaWrite = false;
@@ -162,7 +162,7 @@ public:
                                    size_t texCount, const Backend::TextureInfo* texs,
                                    Backend::BlendFactor srcFactor, Backend::BlendFactor dstFactor,
                                    Backend::ZTest depthTest = Backend::ZTest::Original,
-                                   bool frontfaceCull = false,
+                                   Backend::CullMode cullMode = Backend::CullMode::Backface,
                                    bool noDepthWrite = false,
                                    bool noColorWrite = false,
                                    bool noAlphaWrite = false,
@@ -179,7 +179,7 @@ public:
         slot.srcFactor = srcFactor;
         slot.dstFactor = dstFactor;
         slot.depthTest = depthTest;
-        slot.frontfaceCull = frontfaceCull;
+        slot.cullMode = cullMode;
         slot.noDepthWrite = noDepthWrite;
         slot.noColorWrite = noColorWrite;
         slot.noAlphaWrite = noAlphaWrite;

@@ -527,8 +527,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
-                                      slot.frontfaceCull ? boo::CullMode::Frontface :
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
+                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
+                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+                                      boo::CullMode(slot.cullMode));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -609,8 +610,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
-                                      slot.frontfaceCull ? boo::CullMode::Frontface :
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
+                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
+                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+                                      boo::CullMode(slot.cullMode));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -790,8 +792,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                       tag.getPrimType(), tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None,
                                       slot.noDepthWrite ? false : tag.getDepthWrite(),
                                       !slot.noColorWrite, !slot.noAlphaWrite,
-                                      slot.frontfaceCull ? boo::CullMode::Frontface :
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
+                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
+                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+                                      boo::CullMode(slot.cullMode));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             cachedSz += pipeBlob.vert.size() * sizeof(unsigned int);
@@ -904,8 +907,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
                                       !slot.noColorWrite, !slot.noAlphaWrite,
-                                      slot.frontfaceCull ? boo::CullMode::Frontface :
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None));
+                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
+                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+                                      boo::CullMode(slot.cullMode));
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);

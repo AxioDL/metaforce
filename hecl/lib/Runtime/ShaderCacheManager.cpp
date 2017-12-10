@@ -66,7 +66,7 @@ uint64_t ShaderCacheExtensions::hashExtensions() const
         UpdateFieldHash(&st, slot.srcFactor);
         UpdateFieldHash(&st, slot.dstFactor);
         UpdateFieldHash(&st, slot.depthTest);
-        UpdateFieldHash(&st, slot.frontfaceCull);
+        UpdateFieldHash(&st, slot.cullMode);
         UpdateFieldHash(&st, slot.noDepthWrite);
         UpdateFieldHash(&st, slot.noColorWrite);
         UpdateFieldHash(&st, slot.noAlphaWrite);
