@@ -125,7 +125,7 @@ void CParticleSwoosh::UpdateTranslationAndOrientation()
 {
     x208_maxRadius = 0.f;
     x1f0_aabbMin = FLT_MAX;
-    x1fc_aabbMax = FLT_MIN;
+    x1fc_aabbMax = -FLT_MAX;
     CParticleGlobals::SetParticleLifetime(x1b4_LENG);
     CParticleGlobals::SetEmitterTime(x28_curFrame);
 

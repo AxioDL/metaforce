@@ -57,8 +57,8 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         zeus::CColor moduCol = xa8_color2;
         moduCol.a *= parms.x0_alphaMod;
         xb0_frame->EnableLights(x10c_lightMask, const_cast<CBooModel&>(model->GetInstance()));
-        if (xb6_29_cullFaces)
-            CGraphics::SetCullMode(ERglCullMode::Front);
+        //if (xb6_29_cullFaces)
+        //    CGraphics::SetCullMode(ERglCullMode::Front);
 
         switch (xac_drawFlags)
         {
@@ -79,36 +79,36 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         case EGuiModelDrawFlags::Alpha:
         {
             CModelFlags flags(4, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAlpha : EExtendedShader::ForcedAlphaNoCull;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Additive:
         {
             CModelFlags flags(3, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-            flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAdditive : EExtendedShader::ForcedAdditiveNoCull;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         {
             CModelFlags flags(4, 0, xb6_31_depthTest, moduCol);
-            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAlpha : EExtendedShader::ForcedAlphaNoCull;
             model->Draw(flags);
 
             flags.x0_blendMode = 5;
             flags.x1_matSetIdx = 0;
             flags.x2_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
             flags.x4_color = moduCol;
-            flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAdditive : EExtendedShader::ForcedAdditiveNoCull;
             model->Draw(flags);
             break;
         }
         default: break;
         }
 
-        if (xb6_29_cullFaces)
-            CGraphics::SetCullMode(ERglCullMode::None);
+        //if (xb6_29_cullFaces)
+        //    CGraphics::SetCullMode(ERglCullMode::None);
         xb0_frame->DisableLights();
     }
 

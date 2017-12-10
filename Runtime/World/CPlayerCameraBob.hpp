@@ -40,6 +40,7 @@ public:
     static float kSlowSpeedPeriodScale;
     static float kTargetMagnitudeTrackingRate;
     static float kLandingBobSpringConstant;
+    static float kLandingBobSpringConstant2;
     static float kViewWanderRadius;
     static float kViewWanderSpeedMin;
     static float kViewWanderSpeedMax;
@@ -47,37 +48,39 @@ public:
     static float kGunBobMagnitude;
     static float kHelmetBobMagnitude;
     static const float kLandingBobDamping;
+    static const float kLandingBobDamping2;
+    static const float kCameraDamping;
 
 private:
     ECameraBobType x0_type;
     zeus::CVector2f x4_vec;
-    float xc_;
-    float x10_bobMagnitude = 0.f;
-    float x14_ = 0.f;
+    float xc_bobPeriod;
+    float x10_targetBobMagnitude = 0.f;
+    float x14_bobMagnitude = 0.f;
     float x18_bobTimeScale = 0.f;
     float x1c_bobTime = 0.f;
     ECameraBobState x20_oldState = ECameraBobState::Unspecified;
     ECameraBobState x24_curState = ECameraBobState::Unspecified;
     bool x28_applyLandingTrans = false;
-    bool x29_ = false;
+    bool x29_hardLand = false;
     zeus::CTransform x2c_cameraBobTransform;
     zeus::CVector3f x5c_playerVelocity;
-    float x68_ = 0.f;
-    float x6c_ = 0.f;
+    float x68_playerPeakFallVel = 0.f;
+    float x6c_landingVelocity = 0.f;
     float x70_landingTranslation = 0.f;
-    float x74_ = 0.f;
-    float x78_ = 0.f;
+    float x74_camVelocity = 0.f;
+    float x78_camTranslation = 0.f;
     zeus::CVector3f x7c_wanderPoints[4] = {zeus::CVector3f{0.f, 1.f, 0.f}};
     float xb0_wanderPitches[4] = {0.f};
     float xc4_wanderTime = 0.f;
     float xc8_viewWanderSpeed = kViewWanderSpeedMin;
     u32 xcc_wanderIndex = 0;
     zeus::CTransform xd0_viewWanderXf;
-    float x100_ = FLT_EPSILON;
-    float x104_ = 0.f;
+    float x100_wanderMagnitude = FLT_EPSILON;
+    float x104_targetWanderMagnitude = 0.f;
 
 public:
-    CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float);
+    CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float bobPeriod);
 
     zeus::CTransform GetViewWanderTransform() const;
     zeus::CVector3f GetHelmetBobTranslation() const;

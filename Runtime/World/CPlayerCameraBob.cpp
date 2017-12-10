@@ -15,16 +15,19 @@ float CPlayerCameraBob::kMaxOrbitBobScale = 0.8f;
 float CPlayerCameraBob::kSlowSpeedPeriodScale = 0.3f;
 float CPlayerCameraBob::kTargetMagnitudeTrackingRate = 0.1f;
 float CPlayerCameraBob::kLandingBobSpringConstant = 150.f;
+float CPlayerCameraBob::kLandingBobSpringConstant2 = 40.f;
 float CPlayerCameraBob::kViewWanderRadius = 2.9f;
 float CPlayerCameraBob::kViewWanderSpeedMin = 0.1f;
 float CPlayerCameraBob::kViewWanderSpeedMax = 0.3f;
 float CPlayerCameraBob::kViewWanderRollVariation = 0.3f;
 float CPlayerCameraBob::kGunBobMagnitude = 0.3f;
 float CPlayerCameraBob::kHelmetBobMagnitude = 2.f;
-const float CPlayerCameraBob::kLandingBobDamping = 2.f * zeus::sqrtF(150.f);
+const float CPlayerCameraBob::kLandingBobDamping = 2.f * std::sqrt(150.f);
+const float CPlayerCameraBob::kLandingBobDamping2 = 4.f * std::sqrt(40.f);
+const float CPlayerCameraBob::kCameraDamping = 6.f * std::sqrt(80.f);
 
-CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float f1)
-: x0_type(type), x4_vec(vec), xc_(f1)
+CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float bobPeriod)
+: x0_type(type), x4_vec(vec), xc_bobPeriod(bobPeriod)
 {
 }
 
@@ -32,10 +35,9 @@ zeus::CTransform CPlayerCameraBob::GetViewWanderTransform() const { return xd0_v
 
 zeus::CVector3f CPlayerCameraBob::GetHelmetBobTranslation() const
 {
-
     return {kHelmetBobMagnitude * x2c_cameraBobTransform.origin.x,
             kHelmetBobMagnitude * x2c_cameraBobTransform.origin.y,
-            kHelmetBobMagnitude * (x2c_cameraBobTransform.origin.z - x78_)};
+            kHelmetBobMagnitude * (x2c_cameraBobTransform.origin.z - x78_camTranslation)};
 }
 
 zeus::CTransform CPlayerCameraBob::GetGunBobTransformation() const
@@ -48,20 +50,12 @@ zeus::CTransform CPlayerCameraBob::GetCameraBobTransformation() const { return x
 void CPlayerCameraBob::SetPlayerVelocity(const zeus::CVector3f& velocity)
 {
     x5c_playerVelocity = velocity;
-    x68_ = zeus::min(x68_, velocity.z);
+    x68_playerPeakFallVel = zeus::min(x68_playerPeakFallVel, velocity.z);
 }
 
 void CPlayerCameraBob::SetBobMagnitude(float magnitude)
 {
-#if 0
-    /* Retro Original (This is why underpaid (re: unpaid) interns make crappy programmers) */
-    x10_bobMagnitude = magnitude;
-    x10_bobMagnitude = std::max(0.f, x10_bobMagnitude);
-    x10_bobMagnitude = std::max(1.f, x10_bobMagnitude);
-#else
-    /* Should fix lightshow */
-    x10_bobMagnitude = zeus::clamp(0.f, magnitude, 1.f);
-#endif
+    x10_targetBobMagnitude = zeus::clamp(0.f, magnitude, 1.f);
 }
 
 void CPlayerCameraBob::SetBobTimeScale(float ts) { x18_bobTimeScale = zeus::clamp(0.f, ts, 1.f); }
@@ -80,18 +74,15 @@ void CPlayerCameraBob::SetState(CPlayerCameraBob::ECameraBobState state, CStateM
     if (x20_oldState == ECameraBobState::InAir)
     {
         x28_applyLandingTrans = true;
-        x68_ = std::min(x68_, -35.f);
-        x29_ = (x68_ >= -30.f);
-        if (x29_)
-            x74_ += x68_;
-        else
-        {
-            x6c_ += x68_;
-            x68_ = 0.f;
-        }
+        x68_playerPeakFallVel = std::max(x68_playerPeakFallVel, -35.f);
+        x29_hardLand = x68_playerPeakFallVel < -30.f;
+        if (x29_hardLand)
+            x74_camVelocity += x68_playerPeakFallVel;
+        x6c_landingVelocity += x68_playerPeakFallVel;
+        x68_playerPeakFallVel = 0.f;
     }
 
-    if (x24_curState == ECameraBobState::WalkNoBob && x100_ != 0.f)
+    if (x24_curState == ECameraBobState::WalkNoBob && x100_wanderMagnitude != 0.f)
         InitViewWander(mgr);
 }
 
@@ -118,13 +109,13 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr)
         x7c_wanderPoints[xcc_wanderIndex], x7c_wanderPoints[(xcc_wanderIndex + 1) & 3],
         x7c_wanderPoints[(xcc_wanderIndex + 2) & 3], x7c_wanderPoints[(xcc_wanderIndex + 3) & 3], dt);
 
-    pt.x *= x100_;
-    pt.z *= x100_;
+    pt.x *= x100_wanderMagnitude;
+    pt.z *= x100_wanderMagnitude;
     zeus::CTransform orient = zeus::CTransform::RotateY((
         zeus::getCatmullRomSplinePoint(xb0_wanderPitches[xcc_wanderIndex], xb0_wanderPitches[(xcc_wanderIndex + 1) & 3],
                                        xb0_wanderPitches[(xcc_wanderIndex + 2) & 3],
                                        xb0_wanderPitches[(xcc_wanderIndex + 3) & 3], dt) *
-        x100_));
+        x100_wanderMagnitude));
     xd0_viewWanderXf = zeus::lookAt(pt, zeus::CVector3f::skZero, zeus::CVector3f::skUp) * orient;
 
     xc4_wanderTime = (xc8_viewWanderSpeed * xc4_wanderTime) + dt;
@@ -141,52 +132,55 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr)
 
 void CPlayerCameraBob::Update(float dt, CStateManager& mgr)
 {
-    x1c_bobTime = (dt * x18_bobTimeScale) + x1c_bobTime;
-    float landSpring = kLandingBobSpringConstant;
-    float landDampen = kLandingBobDamping;
+    x1c_bobTime += dt * x18_bobTimeScale;
+
     if (x28_applyLandingTrans)
     {
-        landDampen = 4.f * zeus::sqrtF(40.f);
-        landSpring = 40.f;
-    }
+        float landDampen = kLandingBobDamping;
+        float landSpring = kLandingBobSpringConstant;
+        if (x29_hardLand)
+        {
+            landDampen = kLandingBobDamping2;
+            landSpring = kLandingBobSpringConstant2;
+        }
 
-    x6c_ = (dt * -((landSpring * x70_landingTranslation) + -(landDampen * x6c_))) + x6c_;
-    x70_landingTranslation = x6c_ * dt + x70_landingTranslation;
-    x74_ = dt * (-(80.f * x78_) + -((6.f * zeus::sqrtF(80.f)) * x74_)) + x74_;
-    x78_ = x74_ * dt + x78_;
+        x6c_landingVelocity += dt * (-(landDampen * x6c_landingVelocity) - landSpring * x70_landingTranslation);
+        x70_landingTranslation += x6c_landingVelocity * dt;
+        x74_camVelocity += dt * (-(kCameraDamping * x74_camVelocity) - 80.f * x78_camTranslation);
+        x78_camTranslation += x74_camVelocity * dt;
 
-    if (std::fabs(x6c_) < 0.0049f && std::fabs(x70_landingTranslation) < 0.0049f && std::fabs(x78_) < 0.0049f)
-    {
-        x28_applyLandingTrans = false;
-        x70_landingTranslation = 0.f;
-        x78_ = 0.f;
+        if (std::fabs(x6c_landingVelocity) < 0.005f && std::fabs(x70_landingTranslation) < 0.005f &&
+            std::fabs(x74_camVelocity) < 0.005f && std::fabs(x78_camTranslation) < 0.005f)
+        {
+            x28_applyLandingTrans = false;
+            x70_landingTranslation = 0.f;
+            x78_camTranslation = 0.f;
+        }
     }
 
     if (x24_curState == ECameraBobState::WalkNoBob)
-        x104_ = 1.f;
+        x104_targetWanderMagnitude = 1.f;
     else
-        x104_ = 0.f;
+        x104_targetWanderMagnitude = 0.f;
 
-    float f1 = mgr.GetCameraManager()->GetCameraBobMagnitude();
-    x70_landingTranslation *= f1;
-    x78_ *= f1;
-    x104_ *= f1;
+    float mag = mgr.GetCameraManager()->GetCameraBobMagnitude();
+    x70_landingTranslation *= mag;
+    x78_camTranslation *= mag;
+    x104_targetWanderMagnitude *= mag;
     if (mgr.GetPlayer().x38c_doneSidewaysDashing)
     {
         x70_landingTranslation *= 0.2f;
-        x78_ *= 0.2f;
-        x104_ *= 0.4f;
+        x78_camTranslation *= 0.2f;
+        x104_targetWanderMagnitude *= 0.2f;
     }
 
-    x100_ = kTargetMagnitudeTrackingRate * (x104_ - x100_) + x100_;
-    x100_ = std::max(x100_, 0.f);
-    float tmp = x14_;
-    x14_ = kTargetMagnitudeTrackingRate * (x10_bobMagnitude - x14_) + x14_;
+    x100_wanderMagnitude += kTargetMagnitudeTrackingRate * (x104_targetWanderMagnitude - x100_wanderMagnitude);
+    x100_wanderMagnitude = std::max(x100_wanderMagnitude, 0.f);
+    x14_bobMagnitude += kTargetMagnitudeTrackingRate * (x10_targetBobMagnitude - x14_bobMagnitude);
     UpdateViewWander(dt, mgr);
-    x78_ = tmp;
 
-    x2c_cameraBobTransform = GetViewWanderTransform() * CalculateCameraBobTransformation() *
-                             zeus::lookAt(zeus::CVector3f::skZero, {0.f, 2.f, x78_}, zeus::CVector3f::skUp);
+    x2c_cameraBobTransform = CalculateCameraBobTransformation() * GetViewWanderTransform() *
+                             zeus::lookAt(zeus::CVector3f::skZero, {0.f, 2.f, x78_camTranslation}, zeus::CVector3f::skUp);
 }
 
 zeus::CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr)
@@ -205,20 +199,20 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& y) const
 {
     if (x0_type == ECameraBobType::Zero)
     {
-        double c = ((M_PIF * 2.f) * std::fmod(x1c_bobTime, 2.0f * xc_) / xc_);
-        x = (x14_ * x4_vec.x) * float(std::sin(c));
-        y = (x14_ * x4_vec.y) * float(std::fabs(std::cos(c * .5)) * std::cos(c * .5));
+        double c = ((M_PIF * 2.f) * std::fmod(x1c_bobTime, 2.0f * xc_bobPeriod) / xc_bobPeriod);
+        x = (x14_bobMagnitude * x4_vec.x) * float(std::sin(c));
+        y = (x14_bobMagnitude * x4_vec.y) * float(std::fabs(std::cos(c * .5)) * std::cos(c * .5));
     }
     else if (x0_type == ECameraBobType::One)
     {
-        float fX = std::fmod(x1c_bobTime, 2.f * xc_);
-        if (fX > xc_)
-            x = (2.f - (fX / xc_)) * (x14_ * x4_vec.x);
+        float fX = std::fmod(x1c_bobTime, 2.f * xc_bobPeriod);
+        if (fX > xc_bobPeriod)
+            x = (2.f - (fX / xc_bobPeriod)) * (x14_bobMagnitude * x4_vec.x);
         else
-            x = ((fX / xc_)) * (x14_ * x4_vec.x);
+            x = ((fX / xc_bobPeriod)) * (x14_bobMagnitude * x4_vec.x);
 
-        auto sY = float(std::sin(std::fmod((M_PI * fX) / xc_, M_PI)));
-        y = (1.f - sY) * (x14_ * x4_vec.y) * 0.5f + (0.5f * -((sY * sY) - 1.f) * (x14_ * x4_vec.y));
+        auto sY = float(std::sin(std::fmod((M_PI * fX) / xc_bobPeriod, M_PI)));
+        y = (1.f - sY) * (x14_bobMagnitude * x4_vec.y) * 0.5f + (0.5f * -((sY * sY) - 1.f) * (x14_bobMagnitude * x4_vec.y));
     }
 }
 

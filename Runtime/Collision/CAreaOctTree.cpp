@@ -17,6 +17,8 @@ static bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CLine& line, float
     const float* aabbMax = &aabb.max.x;
     const float* lorigin = &line.origin.x;
     const float* ldir = &line.dir.x;
+    lT = -FLT_MAX;
+    hT = FLT_MAX;
 
     for (int i=0 ; i<3 ; ++i)
     {
@@ -27,16 +29,16 @@ static bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CLine& line, float
         if (*ldir < 0.f)
         {
             if (*aabbMax - *lorigin < lT * *ldir)
-                lT = *aabbMax - *lorigin * 1.f / *ldir;
+                lT = (*aabbMax - *lorigin) * 1.f / *ldir;
             if (*aabbMin - *lorigin > hT * *ldir)
-                hT = *aabbMin - *lorigin * 1.f / *ldir;
+                hT = (*aabbMin - *lorigin) * 1.f / *ldir;
         }
         else
         {
             if (*aabbMin - *lorigin > lT * *ldir)
-                lT = *aabbMin - *lorigin * 1.f / *ldir;
+                lT = (*aabbMin - *lorigin) * 1.f / *ldir;
             if (*aabbMax - *lorigin < hT * *ldir)
-                hT = *aabbMax - *lorigin * 1.f / *ldir;
+                hT = (*aabbMax - *lorigin) * 1.f / *ldir;
         }
 
         ++aabbMin;

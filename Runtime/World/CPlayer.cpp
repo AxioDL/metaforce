@@ -2235,7 +2235,7 @@ void CPlayer::UpdateStepCameraZBias(float dt)
                 {
                     if (delta < -GetStepDownHeight())
                         newDelta += -delta - GetStepDownHeight();
-                    newBias = x9cc_stepCameraZBias + newDelta;
+                    newBias = x9cc_stepCameraZBias - newDelta;
                 }
             }
         }
@@ -3000,7 +3000,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
     if (x790_footstepSfxSel != EFootstepSfx::None && x78c_footstepSfxTimer > sfxDelay)
     {
         static float EarHeight = GetEyeHeight() - 0.1f;
-        if (xe6_24_fluidCounter != 0 &&  x828_distanceUnderWater > 0.f && x828_distanceUnderWater < EarHeight)
+        if (xe6_24_fluidCounter != 0 && x828_distanceUnderWater > 0.f && x828_distanceUnderWater < EarHeight)
         {
             if (x82c_inLava)
             {

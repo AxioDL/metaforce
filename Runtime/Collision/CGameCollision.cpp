@@ -381,12 +381,14 @@ CGameCollision::RayWorldIntersection(const CStateManager& mgr, TUniqueId& idOut,
     CRayCastResult staticRes = RayStaticIntersection(mgr, pos, dir, mag, filter);
     CRayCastResult dynamicRes = RayDynamicIntersection(mgr, idOut, pos, dir, mag, filter, nearList);
 
-    if (!dynamicRes.IsInvalid() && staticRes.IsInvalid())
-        return dynamicRes;
-    else if (staticRes.GetT() >= dynamicRes.GetT())
-        return dynamicRes;
-    else
-        return staticRes;
+    if (dynamicRes.IsValid())
+    {
+        if (staticRes.IsInvalid())
+            return dynamicRes;
+        else if (staticRes.GetT() >= dynamicRes.GetT())
+            return dynamicRes;
+    }
+    return staticRes;
 }
 
 bool CGameCollision::RayStaticIntersectionArea(const CGameArea& area, const zeus::CVector3f& pos,

@@ -811,7 +811,7 @@ bool MREA::CookPath(const hecl::ProjectPath& outPath,
     PATH::UnknownStruct& s = path.unkStructs.back();
     s.unk1 = 1;
     s.unk2[0] = atVec3f{FLT_MAX, FLT_MAX, FLT_MAX};
-    s.unk2[1] = atVec3f{FLT_MIN, FLT_MIN, FLT_MIN};
+    s.unk2[1] = atVec3f{-FLT_MAX, -FLT_MAX, -FLT_MAX};
     s.unk2[2] = atVec3f{0.f, 0.f, 0.f};
     for (int i=0 ; i<8 ; ++i)
         s.unk3[i] = ~0;

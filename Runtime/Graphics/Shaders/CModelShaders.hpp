@@ -26,7 +26,9 @@ enum EExtendedShader : uint8_t
     SolidColorBackfaceCullLEqualAlphaOnly,
     SolidColorBackfaceCullGreaterAlphaOnly, // No Z-write
     MorphBallShadow,
-    WorldShadow
+    WorldShadow,
+    ForcedAlphaNoCull,
+    ForcedAdditiveNoCull
 };
 
 class CModelShaders

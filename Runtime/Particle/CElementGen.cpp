@@ -336,7 +336,7 @@ bool CElementGen::InternalUpdate(double dt)
     while (t < x78_curSeconds && std::fabs(t - x78_curSeconds) >= 1.0 / 60000.0)
     {
         x2d4_aabbMin.splat(FLT_MAX);
-        x2e0_aabbMax.splat(FLT_MIN);
+        x2e0_aabbMax.splat(-FLT_MAX);
         x2ec_maxSize = 0.f;
         CParticleGlobals::SetEmitterTime(x74_curFrame);
         UpdateExistingParticles();

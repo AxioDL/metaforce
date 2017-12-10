@@ -741,7 +741,7 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
     std::vector<zeus::CVector2f> coords;
     coords.reserve(x0_areas.size() * 8);
     float zMin = FLT_MAX;
-    float zMax = FLT_MIN;
+    float zMax = -FLT_MAX;
     for (int i=0 ; i<x0_areas.size() ; ++i)
     {
         if (IsMapAreaValid(wld, i, true))
