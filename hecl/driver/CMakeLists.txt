@@ -11,8 +11,10 @@ add_executable(hecl main.cpp
     ToolAdd.hpp
     ToolRemove.hpp
     ToolSpec.hpp
-    ../DataSpecRegistry.hpp
-)
+    ../DataSpecRegistry.hpp)
+if(COMMAND add_sanitizers)
+  add_sanitizers(hecl)
+endif()
 
 if(NOT WIN32)
   list(APPEND PLAT_LIBS pthread)

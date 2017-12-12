@@ -64,6 +64,9 @@ add_library(hecl-common
             atdna_Runtime.cpp
             atdna_CVar.cpp
             ${PLAT_SRCS})
+if(COMMAND add_sanitizers)
+  add_sanitizers(hecl-common)
+endif()
 
 if(WINDOWS_STORE)
     set_property(TARGET hecl-common PROPERTY VS_WINRT_COMPONENT TRUE)
