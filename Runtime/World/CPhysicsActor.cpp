@@ -288,7 +288,7 @@ CPhysicsState CPhysicsActor::GetPhysicsState() const
 CMotionState CPhysicsActor::PredictMotion_Internal(float dt) const
 {
     if (xf8_25_angularEnabled)
-        return PredictMotion(dt);
+        return PredictLinearMotion(dt);
 
     CMotionState msl = PredictLinearMotion(dt);
     CMotionState msa = PredictAngularMotion(dt);
@@ -313,7 +313,7 @@ CMotionState CPhysicsActor::PredictAngularMotion(float dt) const
 {
     const zeus::CVector3f v1 = xf4_inertiaTensorRecip * (x180_angularImpulse + x198_moveAngularImpulse);
     zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion(0.f, x144_angularVelocity.getVector() + v1);
-    CMotionState ret = {zeus::CVector3f::skZero, q * zeus::CNUQuaternion(x34_transform.buildMatrix3f()) * dt,
+    CMotionState ret = {zeus::CVector3f::skZero, (q * zeus::CNUQuaternion(x34_transform.buildMatrix3f())) * dt,
             zeus::CVector3f::skZero, (x174_torque * dt) + x180_angularImpulse};
     return ret;
 }

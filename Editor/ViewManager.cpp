@@ -284,6 +284,7 @@ bool ViewManager::proc()
     m_mainWindow->waitForRetrace(m_voiceEngine.get());
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
+    ++logvisor::FrameIndex;
     return true;
 }
 

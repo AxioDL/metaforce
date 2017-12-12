@@ -24,3 +24,6 @@
 	path = hecl-gui
 	
 	url = ../hecl-gui
+[submodule "sanitizers-cmake"]
+	path = sanitizers-cmake
+	url = git://github.com/arsenm/sanitizers-cmake.git

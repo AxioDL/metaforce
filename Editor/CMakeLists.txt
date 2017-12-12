@@ -94,6 +94,9 @@ target_link_libraries(urde
                       ${PNG_LIB} libjpeg-turbo squish xxhash zeus
                       kabufuda jbus ${ZLIB_LIBRARIES} ${LZO_LIB}
                       ${BOO_SYS_LIBS})
+if(COMMAND add_sanitizers)
+  add_sanitizers(urde)
+endif()
 
 set_target_properties(urde PROPERTIES
                       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")

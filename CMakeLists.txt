@@ -7,7 +7,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+find_package(Sanitizers)
+
+option(URDE_SSE2 "Enable SSE2 flags." Off)
+option(URDE_SSE3 "Enable SSE3 flags." On)
+option(URDE_SSE41 "Enable SSE4.1 flags." Off)
+
 if(MSVC)
+  if(URDE_SSE41)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
+  elseif(URDE_SSE3)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
+  elseif(URDE_SSE2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
+  endif()
+
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
     set(VS_DEFINES "/MP")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT urde)
@@ -34,6 +52,17 @@ if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /RELEASE /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUGTYPE:cv,fixup")
 
 else()
+  if(URDE_SSE41)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
+  elseif(URDE_SSE3)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3")
+  elseif(URDE_SSE2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
+  endif()
+
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
   -Wno-multichar -fno-exceptions -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
 

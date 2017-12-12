@@ -20,6 +20,33 @@ namespace urde
 {
 static logvisor::Module Log{"URDE"};
 
+static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf)
+{
+    hecl::SystemString features;
+    if (cpuInf.AESNI)
+        features += _S("AES-NI");
+    if (cpuInf.SSE1)
+    {
+        if (!features.empty())
+            features += _S(", SSE1");
+        else
+            features += _S("SSE1");
+    }
+    if (cpuInf.SSE2)
+        features += _S(", SSE2");
+    if (cpuInf.SSE3)
+        features += _S(", SSE3");
+    if (cpuInf.SSSE3)
+        features += _S(", SSSE3");
+    if (cpuInf.SSE4a)
+        features += _S(", SSE4a");
+    if (cpuInf.SSE41)
+        features += _S(", SSE4.1");
+    if (cpuInf.SSE42)
+        features += _S(", SSE4.2");
+    return features;
+}
+
 struct Application : boo::IApplicationCallback
 {
     hecl::Runtime::FileStoreManager m_fileMgr;
@@ -85,39 +112,7 @@ struct Application : boo::IApplicationCallback
         const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
         Log.report(logvisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
-        hecl::SystemString features;
-        if (cpuInf.AESNI)
-            features += _S("AES-NI");
-        if (cpuInf.SSE1)
-        {
-            if (!features.empty())
-                features += _S(", SSE1");
-            else
-                features += _S("SSE1");
-        }
-        else
-        {
-            Log.report(logvisor::Fatal, _S("URDE requires SSE1 minimum"));
-            return;
-        }
-        if (cpuInf.SSE2)
-            features += _S(", SSE2");
-        else
-        {
-            Log.report(logvisor::Fatal, _S("URDE requires SSE2 minimum"));
-            return;
-        }
-        if (cpuInf.SSE3)
-            features += _S(", SSE3");
-        if (cpuInf.SSSE3)
-            features += _S(", SSSE3");
-        if (cpuInf.SSE4a)
-            features += _S(", SSE4a");
-        if (cpuInf.SSE41)
-            features += _S(", SSE4.1");
-        if (cpuInf.SSE42)
-            features += _S(", SSE4.2");
-        Log.report(logvisor::Info, _S("CPU Features: %s"), features.c_str());
+        Log.report(logvisor::Info, _S("CPU Features: %s"), CPUFeatureString(cpuInf).c_str());
     }
 };
 
@@ -128,6 +123,22 @@ hecl::SystemString ExeDir;
 
 static void SetupBasics(bool logging)
 {
+    auto result = zeus::validateCPU();
+    if (!result.first)
+    {
+#if _WIN32 && !WINDOWS_STORE
+        char* msg;
+        asprintf(&msg, "ERROR: This build of URDE requires the following CPU features:\n%s\n",
+                 urde::CPUFeatureString(result.second).c_str());
+        MessageBoxA(nullptr, msg, "CPU error", MB_OK | MB_ICONERROR);
+        free(msg);
+#else
+        fprintf(stderr, "ERROR: This build of URDE requires the following CPU features:\n%s\n",
+                urde::CPUFeatureString(result.second).c_str());
+#endif
+        exit(1);
+    }
+
     logvisor::RegisterStandardExceptions();
     if (logging)
         logvisor::RegisterConsoleLogger();

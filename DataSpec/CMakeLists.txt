@@ -69,3 +69,6 @@ add_library(RetroDataSpec
             AssetNameMap32.bin AssetNameMap32.c
             AssetNameMap64.bin AssetNameMap64.c
             RetroMasterShader.c)
+if(COMMAND add_sanitizers)
+  add_sanitizers(RetroDataSpec)
+endif()

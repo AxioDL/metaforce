@@ -1518,12 +1518,13 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                     }
                 }
             }
+            zeus::CTransform modelXf = planeXf * preXf;
             CMapWorld::CMapWorldDrawParms parms(
                 xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
                 xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
                 xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
                 xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp,
-                mapAlpha, 2.f, mgr, planeXf * preXf, camXf, *x24_world,
+                mapAlpha, 2.f, mgr, modelXf, camXf, *x24_world,
                 mwInfo, x1dc_playerFlashPulse, hintFlash, objectScale, true);
             mw->Draw(parms, xa0_curAreaId, xa0_curAreaId,
                      xa8_renderStates[0].x2c_drawDepth1,
@@ -1549,12 +1550,13 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     {
         const CMapWorld* mw = x24_world->IGetMapWorld();
         const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
+        zeus::CTransform modelXf = planeXf * preXf;
         CMapWorld::CMapWorldDrawParms parms(
             xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
             xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
             xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
             xa8_renderStates[0].x40_alphaOutlineUnvisited * alphaInterp,
-            mapAlpha, 2.f, mgr, planeXf * preXf, camXf, *x24_world,
+            mapAlpha, 2.f, mgr, modelXf, camXf, *x24_world,
             mwInfo, 0.f, 0.f, objectScale, true);
         mw->Draw(parms, xa0_curAreaId, xa0_curAreaId,
                  xa8_renderStates[0].x2c_drawDepth1,

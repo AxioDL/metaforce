@@ -117,6 +117,9 @@ add_library(RuntimeCommon
             TCastTo.hpp TCastTo.cpp
             GCNTypes.hpp
             ${PLAT_SRCS})
+if(COMMAND add_sanitizers)
+  add_sanitizers(RuntimeCommon)
+endif()
 
 if(WINDOWS_STORE)
     set_property(TARGET RuntimeCommon PROPERTY VS_WINRT_COMPONENT TRUE)
