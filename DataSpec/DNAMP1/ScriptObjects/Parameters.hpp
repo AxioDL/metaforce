@@ -4,6 +4,7 @@
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
+#include "specter/genie.hpp"
 
 namespace DataSpec
 {
@@ -53,7 +54,7 @@ enum class EPickupType : atUint32
     World = 38,
     Spirit = 39,
     Newborn = 40
-};
+} SPECTER_ENUM("Pickup Type", "", EPickupType);
 
 enum class ESpecialFunctionType : atUint32
 {
@@ -90,7 +91,7 @@ enum class ESpecialFunctionType : atUint32
     Ending,
     FusionRelay,
     WeaponSwitch // PAL Only
-};
+} SPECTER_ENUM("Special Function", "", EPickupType);
 
 struct AnimationParameters : BigYAML
 {
@@ -228,9 +229,9 @@ struct HealthInfo : BigYAML
 {
     DECL_YAML
     Value<atUint32> propertyCount;
-    Value<float>    health;
-    Value<float>    knockbackResistence;
-};
+    Value<float>    health SPECTER_PROPERTY("Health", "Base health for object");
+    Value<float>    knockbackResistence SPECTER_PROPERTY("Knockback Resistence", "");
+} SPECTER_PROPERTY("Health Info", "");
 
 struct LightParameters : BigYAML
 {

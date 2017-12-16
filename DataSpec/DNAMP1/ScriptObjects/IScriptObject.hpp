@@ -4,7 +4,17 @@
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
 #include "zeus/CAABox.hpp"
+#include "specter/genie.hpp"
+
 #include <stdio.h>
+
+#define SO_NAME_SPECPROP() SPECTER_PROPERTY("Name", "Instance name; Used to debug scripting events")
+#define SO_LOCATION_SPECPROP() SPECTER_PROPERTY("Location", "World relative location of the Actor instance")
+#define SO_ORIENTATION_SPECPROP() SPECTER_PROPERTY("Orientation", "Object local axis-angle")
+#define SO_SCALE_SPECPROP() SPECTER_PROPERTY("Scale", "Object local scale")
+#define SO_COLLISION_EXTENT_SPECPROP() SPECTER_PROPERTY("Collision Extent", "")
+#define SO_COLLISION_OFFSET_SPECPROP() SPECTER_PROPERTY("Collision Offset", "")
+#define SO_ACTIVE_SPECPROP() SPECTER_PROPERTY("Active", "If enabled, object instance is drawn and updated")
 
 namespace DataSpec
 {

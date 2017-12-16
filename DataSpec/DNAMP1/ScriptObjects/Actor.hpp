@@ -11,12 +11,12 @@ namespace DNAMP1
 struct Actor : IScriptObject
 {
     DECL_YAML
-    String<-1> name;
-    Value<atVec3f> location;
-    Value<atVec3f> orientation;
-    Value<atVec3f> scale;
-    Value<atVec3f> collisionExtent;
-    Value<atVec3f> collisionOffset;
+    String<-1> name SO_NAME_SPECPROP();
+    Value<atVec3f> location SO_LOCATION_SPECPROP();
+    Value<atVec3f> orientation SO_ORIENTATION_SPECPROP();
+    Value<atVec3f> scale SO_SCALE_SPECPROP();
+    Value<atVec3f> collisionExtent SO_COLLISION_EXTENT_SPECPROP();
+    Value<atVec3f> collisionOffset SO_COLLISION_OFFSET_SPECPROP();
     Value<float>   unknown2;
     Value<float>   unknown3;
     HealthInfo     healthInfo;
