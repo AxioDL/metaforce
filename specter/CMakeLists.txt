@@ -60,7 +60,8 @@ list(APPEND SPECTER_HEADERS
      include/specter/FileBrowser.hpp
      include/specter/Icon.hpp
      include/specter/FontCache.hpp
-     include/specter/Translator.hpp)
+     include/specter/Translator.hpp
+     include/specter/genie.hpp)
 
 atdna(atdna_FontCache.cpp include/specter/FontCache.hpp)
 
