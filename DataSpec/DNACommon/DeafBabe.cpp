@@ -131,56 +131,79 @@ static void PopulateAreaFields(DEAFBABE& db,
     db.memSize = 0;
 }
 
+class MaterialPool
+{
+    std::unordered_map<u64, int> m_materials;
+public:
+    template <class M, class V>
+    int AddOrLookup(const M& mat, V& vec)
+    {
+        auto search = m_materials.find(mat.material);
+        if (search != m_materials.end())
+            return search->second;
+        auto idx = int(vec.size());
+        vec.push_back(mat);
+        m_materials[mat.material] = idx;
+        return idx;
+    }
+};
+
 template<class DEAFBABE>
 void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh)
 {
-    db.materials.reserve(colMesh.materials.size() * 2);
-    for (const hecl::BlenderConnection::DataStream::ColMesh::Material& mat : colMesh.materials)
+    using BlendMat = hecl::BlenderConnection::DataStream::ColMesh::Material;
+
+    auto MakeMat = [](const BlendMat& mat, bool flipFace) -> typename DEAFBABE::Material
     {
-        db.materials.emplace_back();
-        db.materials.back().setUnknown(mat.unknown);
-        db.materials.back().setSurfaceStone(mat.surfaceStone);
-        db.materials.back().setSurfaceMetal(mat.surfaceMetal);
-        db.materials.back().setSurfaceGrass(mat.surfaceGrass);
-        db.materials.back().setSurfaceIce(mat.surfaceIce);
-        db.materials.back().setPillar(mat.pillar);
-        db.materials.back().setSurfaceMetalGrating(mat.surfaceMetalGrating);
-        db.materials.back().setSurfacePhazon(mat.surfacePhazon);
-        db.materials.back().setSurfaceDirt(mat.surfaceDirt);
-        db.materials.back().setSurfaceLava(mat.surfaceLava);
-        db.materials.back().setSurfaceSPMetal(mat.surfaceSPMetal);
-        db.materials.back().setSurfaceStoneRock(mat.surfaceStoneRock);
-        db.materials.back().setSurfaceSnow(mat.surfaceSnow);
-        db.materials.back().setSurfaceMudSlow(mat.surfaceMudSlow);
-        db.materials.back().setSurfaceFabric(mat.surfaceFabric);
-        db.materials.back().setHalfPipe(mat.halfPipe);
-        db.materials.back().setSurfaceMud(mat.surfaceMud);
-        db.materials.back().setSurfaceGlass(mat.surfaceGlass);
-        db.materials.back().setUnused3(mat.unused3);
-        db.materials.back().setUnused4(mat.unused4);
-        db.materials.back().setSurfaceShield(mat.surfaceShield);
-        db.materials.back().setSurfaceSand(mat.surfaceSand);
-        db.materials.back().setSurfaceMothOrSeedOrganics(mat.surfaceMothOrSeedOrganics);
-        db.materials.back().setSurfaceWeb(mat.surfaceWeb);
-        db.materials.back().setProjectilePassthrough(mat.projPassthrough);
-        db.materials.back().setSolid(mat.solid);
-        db.materials.back().setU20(mat.u20);
-        db.materials.back().setCameraPassthrough(mat.camPassthrough);
-        db.materials.back().setSurfaceWood(mat.surfaceWood);
-        db.materials.back().setSurfaceOrganic(mat.surfaceOrganic);
-        db.materials.back().setU24(mat.u24);
-        db.materials.back().setSurfaceRubber(mat.surfaceRubber);
-        db.materials.back().setSeeThrough(mat.seeThrough);
-        db.materials.back().setScanPassthrough(mat.scanPassthrough);
-        db.materials.back().setAiPassthrough(mat.aiPassthrough);
-        db.materials.back().setCeiling(mat.ceiling);
-        db.materials.back().setWall(mat.wall);
-        db.materials.back().setFloor(mat.floor);
-        db.materials.back().setAiBlock(mat.aiBlock);
-        db.materials.back().setJumpNotAllowed(mat.jumpNotAllowed);
-        db.materials.back().setSpiderBall(mat.spiderBall);
-        db.materials.back().setScrewAttackWallJump(mat.screwAttackWallJump);
-    }
+        typename DEAFBABE::Material dbMat = {};
+        dbMat.setUnknown(mat.unknown);
+        dbMat.setSurfaceStone(mat.surfaceStone);
+        dbMat.setSurfaceMetal(mat.surfaceMetal);
+        dbMat.setSurfaceGrass(mat.surfaceGrass);
+        dbMat.setSurfaceIce(mat.surfaceIce);
+        dbMat.setPillar(mat.pillar);
+        dbMat.setSurfaceMetalGrating(mat.surfaceMetalGrating);
+        dbMat.setSurfacePhazon(mat.surfacePhazon);
+        dbMat.setSurfaceDirt(mat.surfaceDirt);
+        dbMat.setSurfaceLava(mat.surfaceLava);
+        dbMat.setSurfaceSPMetal(mat.surfaceSPMetal);
+        dbMat.setSurfaceStoneRock(mat.surfaceStoneRock);
+        dbMat.setSurfaceSnow(mat.surfaceSnow);
+        dbMat.setSurfaceMudSlow(mat.surfaceMudSlow);
+        dbMat.setSurfaceFabric(mat.surfaceFabric);
+        dbMat.setHalfPipe(mat.halfPipe);
+        dbMat.setSurfaceMud(mat.surfaceMud);
+        dbMat.setSurfaceGlass(mat.surfaceGlass);
+        dbMat.setUnused3(mat.unused3);
+        dbMat.setUnused4(mat.unused4);
+        dbMat.setSurfaceShield(mat.surfaceShield);
+        dbMat.setSurfaceSand(mat.surfaceSand);
+        dbMat.setSurfaceMothOrSeedOrganics(mat.surfaceMothOrSeedOrganics);
+        dbMat.setSurfaceWeb(mat.surfaceWeb);
+        dbMat.setProjectilePassthrough(mat.projPassthrough);
+        dbMat.setSolid(mat.solid);
+        dbMat.setU20(mat.u20);
+        dbMat.setCameraPassthrough(mat.camPassthrough);
+        dbMat.setSurfaceWood(mat.surfaceWood);
+        dbMat.setSurfaceOrganic(mat.surfaceOrganic);
+        dbMat.setU24(mat.u24);
+        dbMat.setSurfaceRubber(mat.surfaceRubber);
+        dbMat.setSeeThrough(mat.seeThrough);
+        dbMat.setScanPassthrough(mat.scanPassthrough);
+        dbMat.setAiPassthrough(mat.aiPassthrough);
+        dbMat.setCeiling(mat.ceiling);
+        dbMat.setWall(mat.wall);
+        dbMat.setFloor(mat.floor);
+        dbMat.setAiBlock(mat.aiBlock);
+        dbMat.setJumpNotAllowed(mat.jumpNotAllowed);
+        dbMat.setSpiderBall(mat.spiderBall);
+        dbMat.setScrewAttackWallJump(mat.screwAttackWallJump);
+        dbMat.setFlipFace(flipFace);
+        return dbMat;
+    };
+
+    MaterialPool matPool;
+    db.materials.reserve(colMesh.materials.size() * 2);
 
     zeus::CAABox fullAABB;
 
@@ -209,16 +232,8 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     db.triangleEdgeConnections.reserve(colMesh.trianges.size());
     for (const auto& tri : colMesh.trianges)
     {
-        if (tri.flip)
-        {
-            db.triMats.push_back(db.materials.size());
-            db.materials.push_back(db.materials[tri.matIdx]);
-            db.materials.back().setFlipFace(true);
-        }
-        else
-        {
-            db.triMats.push_back(tri.matIdx);
-        }
+        int triMatIdx = matPool.AddOrLookup(MakeMat(colMesh.materials[tri.matIdx], tri.flip), db.materials);
+        db.triMats.push_back(triMatIdx);
 
         db.triangleEdgeConnections.emplace_back();
         db.triangleEdgeConnections.back().edges[0] = tri.edges[0];
@@ -227,9 +242,9 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
 
         for (int e=0 ; e<3 ; ++e)
         {
-            db.edgeMats[tri.edges[e]] = tri.matIdx;
+            db.edgeMats[tri.edges[e]] = triMatIdx;
             for (int v=0 ; v<2 ; ++v)
-                db.vertMats[colMesh.edges[e].verts[v]] = tri.matIdx;
+                db.vertMats[colMesh.edges[e].verts[v]] = triMatIdx;
         }
     }
     db.triMatsCount = colMesh.trianges.size();

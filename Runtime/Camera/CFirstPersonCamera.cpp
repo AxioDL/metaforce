@@ -86,7 +86,6 @@ void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransf
 {
     zeus::CVector3f gunFrontVec = x190_gunFollowXf.frontVector();
     gunFrontVec.z = 0.f;
-
     if (gunFrontVec.canBeNormalized())
         gunFrontVec.normalize();
 
@@ -95,16 +94,15 @@ void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransf
     if (rVecNoZ.canBeNormalized())
         rVecNoZ.normalize();
 
-    gunXf = zeus::CQuaternion::lookAt(gunFrontVec, rVecNoZ, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
+    gunXf = zeus::CQuaternion::lookAt(gunFrontVec, rVecNoZ, 2.f * M_PIF).toTransform() *
         x190_gunFollowXf.getRotation();
 
     zeus::CVector3f newgunFront = gunXf.frontVector();
-
     if (newgunFront.canBeNormalized())
         newgunFront.normalize();
 
     float angle = newgunFront.dot(rVec);
-    angle = std::min(angle, 1.f);
+    angle = zeus::clamp(-1.f, angle, 1.f);
     gunQ = zeus::CQuaternion::lookAt(newgunFront, rVec, zeus::clamp(0.f, std::acos(angle) / dt, 1.f) * dt);
 }
 
@@ -136,7 +134,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 vec.normalize();
         }
 
-        rVec = zeus::CQuaternion::lookAt({0.f, 1.f, 0.f}, rVec, zeus::CRelAngle::FromDegrees(360.f)).transform(vec);
+        rVec = zeus::CQuaternion::lookAt({0.f, 1.f, 0.f}, rVec, 2.f * M_PIF).transform(vec);
     }
 
     zeus::CVector3f eyePos = player->GetEyePosition();
@@ -198,11 +196,11 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 float angle = zeus::clamp(0.f, (player->x29c_fallCameraTimer - g_tweakPlayer->GetFallCameraPitchDownStart()) /
                                                g_tweakPlayer->GetFallCameraPitchDownFull(), 1.f) *
                               g_tweakPlayer->GetFallCameraPitchDownAngle();
-                //rVec.x = 0.f;
-                //rVec.y = std::cos(angle);
-                //rVec.z = -std::sin(angle);
+                rVec.x = 0.f;
+                rVec.y = std::cos(angle);
+                rVec.z = -std::sin(angle);
 
-                //rVec = playerXf.rotate(rVec);
+                rVec = playerXf.rotate(rVec);
             }
         }
         break;
@@ -253,7 +251,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
             angle = zeus::clamp(-1.f, angle, 1.f);
             float clampedAngle = zeus::clamp(0.f, std::acos(angle) / scaledDt, 1.f);
             if (angle > 0.999f || x18c_lockCamera || player->x374_orbitLockEstablished)
-                qGun = zeus::CQuaternion::lookAt(gunFrontVec, rVec, zeus::CRelAngle::FromDegrees(360.f));
+                qGun = zeus::CQuaternion::lookAt(gunFrontVec, rVec, 2.f * M_PIF);
             else
                 qGun = zeus::CQuaternion::lookAt(gunFrontVec, rVec, scaledDt * clampedAngle);
 
@@ -271,7 +269,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                     rVecCpy.normalize();
 
                 gunXf =
-                    zeus::CQuaternion::lookAt(gunFrontVec, rVecCpy, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
+                    zeus::CQuaternion::lookAt(gunFrontVec, rVecCpy, 2.f * M_PIF).toTransform() *
                     x190_gunFollowXf.getRotation();
 
                 gunFrontVec = gunXf.frontVector();
@@ -283,7 +281,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
 
                 //angle = zeus::clamp(-1.f, angle, 1.f);
                 //angle = zeus::clamp(0.f, std::acos(angle) / sdt, 1.f);
-                qGun = zeus::CQuaternion::lookAt(gunFrontVec, rVecCpy, zeus::CRelAngle::FromDegrees(360.f));
+                qGun = zeus::CQuaternion::lookAt(gunFrontVec, rVecCpy, 2.f * M_PIF);
             }
             break;
         }
@@ -301,7 +299,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         if (rVecCpy.canBeNormalized())
             rVecCpy.normalize();
 
-        gunXf = zeus::CQuaternion::lookAt(gunFront, rVecCpy, zeus::CRelAngle::FromDegrees(360.f)).toTransform() *
+        gunXf = zeus::CQuaternion::lookAt(gunFront, rVecCpy, 2.f * M_PIF).toTransform() *
                 x190_gunFollowXf.getRotation();
         gunFront = gunXf.frontVector();
         if (gunFront.canBeNormalized())
@@ -328,8 +326,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     }
 
     x190_gunFollowXf = qGun.toTransform() * gunXf;
-    //SetTransform(x190_gunFollowXf * bobXf.getRotation());
-    SetTransform(playerXf);
+    SetTransform(x190_gunFollowXf * bobXf.getRotation());
     x190_gunFollowXf.origin = eyePos;
     CActor::SetTranslation(eyePos + player->GetTransform().rotate(bobXf.origin));
     x190_gunFollowXf.orthonormalize();

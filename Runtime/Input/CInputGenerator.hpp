@@ -55,6 +55,12 @@ public:
       m_leftDiv(leftDiv),
       m_rightDiv(rightDiv) {}
 
+    ~CInputGenerator()
+    {
+        if (smashAdapter)
+            smashAdapter->setCallback(nullptr);
+    }
+
     /* Keyboard and mouse events are delivered on the main game
      * thread as part of the app's main event loop. The OS is responsible
      * for buffering events in its own way, then boo flushes the buffer
