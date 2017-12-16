@@ -213,6 +213,8 @@ int main(int argc, const char** argv)
                     info.force = true;
                 else if (*chit == _S('y'))
                     info.yes = true;
+                else if (*chit == _S('g'))
+                    info.gui = true;
                 else
                     info.flags.push_back(*chit);
             }

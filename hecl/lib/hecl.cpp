@@ -23,6 +23,7 @@
 namespace hecl
 {
 unsigned VerbosityLevel = 0;
+bool GuiMode = false;
 logvisor::Module LogModule("hecl");
 static const std::string Illegals {"<>?\"|"};
 

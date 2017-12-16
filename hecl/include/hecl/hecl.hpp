@@ -47,6 +47,7 @@ struct DataSpecEntry;
 }
 
 extern unsigned VerbosityLevel;
+extern bool GuiMode;
 extern logvisor::Module LogModule;
 
 std::string WideToUTF8(std::wstring_view src);

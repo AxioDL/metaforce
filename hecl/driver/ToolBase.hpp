@@ -30,6 +30,7 @@ struct ToolPassInfo
     unsigned verbosityLevel = 0;
     bool force = false;
     bool yes = false;
+    bool gui = false;
 };
 
 #define RED "\033[0;31m"
@@ -93,6 +94,7 @@ public:
     : m_info(info)
     {
         hecl::VerbosityLevel = info.verbosityLevel;
+        hecl::GuiMode = info.gui;
     }
     virtual ~ToolBase() {}
     virtual hecl::SystemString toolName() const=0;
@@ -169,7 +171,7 @@ private:
 public:
 
     HelpOutput(HelpFunc helpFunc)
-    : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(hecl::ConsoleWidth())
+    : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(hecl::GuiMode ? 120 : hecl::ConsoleWidth())
     {}
 
     void go()
@@ -286,7 +288,7 @@ void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* 
     else
         hecl::Printf(_S("  "));
 
-    int width = std::max(80, hecl::ConsoleWidth());
+    int width = (hecl::GuiMode ? 120 : std::max(80, hecl::ConsoleWidth()));
     int half;
     if (blocks)
         half = width / 2 - 2;
