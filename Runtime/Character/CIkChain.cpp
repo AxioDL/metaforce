@@ -36,7 +36,7 @@ void CIkChain::Solve(zeus::CQuaternion& q1, zeus::CQuaternion& q2, const zeus::C
     zeus::CVector3f vecA = q2.transform(x10_);
     zeus::CVector3f crossVecA = x4_.cross(vecA);
     float crossAMag = crossVecA.magnitude();
-    crossVecA *= (1.f / crossVecA.magnitude());
+    crossVecA *= zeus::CVector3f(1.f / crossVecA.magnitude());
     float angle = std::asin(zeus::min(crossAMag, 1.f));
     if (x4_.dot(vecA) < 0.f)
         angle = M_PIF - angle;

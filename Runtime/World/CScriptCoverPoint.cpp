@@ -65,7 +65,7 @@ bool CScriptCoverPoint::Blown(const zeus::CVector3f& point) const
     if (ShouldWallHang())
     {
         zeus::CVector3f posDif = point - x34_transform.origin;
-        posDif *= (1.0 / posDif.magnitude());
+        posDif *= zeus::CVector3f(1.f / posDif.magnitude());
         zeus::CVector3f normDif = posDif.normalized();
 
         zeus::CVector3f frontVec = x34_transform.frontVector();

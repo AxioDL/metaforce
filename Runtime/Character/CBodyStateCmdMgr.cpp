@@ -50,22 +50,22 @@ void CBodyStateCmdMgr::BlendSteeringCmds()
     if (x3c_steeringSpeed > FLT_EPSILON)
     {
         float stepMul = 1.f / x3c_steeringSpeed;
-        xc_face *= stepMul;
+        xc_face *= zeus::CVector3f(stepMul);
 
         switch (x30_steeringMode)
         {
         case ESteeringBlendMode::Normal:
-            x0_move *= stepMul;
+            x0_move *= zeus::CVector3f(stepMul);
             break;
         case ESteeringBlendMode::FullSpeed:
             if (!zeus::close_enough(x0_move, zeus::CVector3f::skZero, 0.0001f))
             {
                 x0_move.normalize();
-                x0_move *= x38_steeringSpeedMax;
+                x0_move *= zeus::CVector3f(x38_steeringSpeedMax);
             }
             break;
         case ESteeringBlendMode::Clamped:
-            x0_move *= stepMul;
+            x0_move *= zeus::CVector3f(stepMul);
             if (!zeus::close_enough(x0_move, zeus::CVector3f::skZero, 0.0001f))
             {
                 if (x0_move.magnitude() < x34_steeringSpeedMin)

@@ -9,7 +9,7 @@
 
 namespace urde
 {
-const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = {0.5f};
+const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = zeus::CVector3f(0.5f);
 
 CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,

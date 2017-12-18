@@ -198,7 +198,7 @@ bool CMVEExplode::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& /*
     {
         float b;
         x8_b->GetValue(frame, b);
-        pVel *= b;
+        pVel *= zeus::CVector3f(b);
     }
 
     return false;

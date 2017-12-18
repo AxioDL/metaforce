@@ -328,14 +328,14 @@ bool RayTriangleIntersection(const zeus::CVector3f& point, const zeus::CVector3f
         return false;
     zeus::CVector3f v0toPoint = point - verts[0];
     float dot1 = v0toPoint.dot(cross0);
-    if (dot1 < 0.0 || dot1 > dot0)
+    if (dot1 < 0.f || dot1 > dot0)
         return false;
     zeus::CVector3f cross1 = v0toPoint.cross(v0tov1);
     float dot2 = cross1.dot(dir);
-    if (dot2 < 0.0 || dot1 + dot2 > dot0)
+    if (dot2 < 0.f || dot1 + dot2 > dot0)
         return false;
-    float final = 1.0 / dot0 * cross1.dot(v0tov2);
-    if (final < 0.0 || final >= d)
+    float final = 1.f / dot0 * cross1.dot(v0tov2);
+    if (final < 0.f || final >= d)
         return false;
     d = final;
     return true;

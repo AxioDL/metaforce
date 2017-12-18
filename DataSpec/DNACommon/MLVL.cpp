@@ -69,7 +69,7 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
             zeus::CVector3f pvAvg;
             for (const atVec3f& pv : dock.planeVerts)
                 pvAvg += pv;
-            pvAvg /= dock.planeVerts.size();
+            pvAvg /= zeus::CVector3f(dock.planeVerts.size());
             int idx = 0;
             for (const atVec3f& pv : dock.planeVerts)
             {

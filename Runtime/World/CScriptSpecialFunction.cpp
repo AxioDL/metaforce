@@ -75,9 +75,9 @@ void CScriptSpecialFunction::ThinkActorScale(float dt, CStateManager& mgr)
                 zeus::CVector3f scale = mData->GetScale();
 
                 if (deltaScale > 0.f)
-                    scale = zeus::min(deltaScale + scale, {x100_});
+                    scale = zeus::min(zeus::CVector3f(deltaScale) + scale, zeus::CVector3f(x100_));
                 else
-                    scale = zeus::max(deltaScale + scale, {x100_});
+                    scale = zeus::max(zeus::CVector3f(deltaScale) + scale, zeus::CVector3f(x100_));
 
                 mData->SetScale(scale);
             }

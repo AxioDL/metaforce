@@ -43,7 +43,7 @@ CLight CWorldLight::GetAsCGraphicsLight() const
 
     if (x0_type == EWorldLightType::LocalAmbient)
     {
-        float_color *= q;
+        float_color *= zeus::CVector3f(q);
         if (float_color.x >= 1.f)
             float_color.x = 1.f;
 

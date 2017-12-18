@@ -2860,7 +2860,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         if (result.IsInvalid())
         {
             SetVelocityWR(x138_velocity * 0.095f);
-            xfc_constantForce *= 0.095f;
+            xfc_constantForce *= zeus::CVector3f(0.095f);
         }
         break;
     }

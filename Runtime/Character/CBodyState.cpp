@@ -89,7 +89,7 @@ void CBSAttack::UpdatePhysicsActor(CBodyController& bc, float dt)
             zeus::CVector3f delta = x20_targetPos - act->GetTranslation();
             float td = x30_alignTargetPosTime - x2c_alignTargetPosStartTime;
             if (dt > 0.f)
-                delta *= dt / td;
+                delta *= zeus::CVector3f(dt / td);
             zeus::CVector3f localDelta = act->GetTransform().transposeRotate(delta);
             act->ApplyImpulseWR(act->GetMoveToORImpulseWR(localDelta, dt), zeus::CAxisAngle::sIdentity);
         }

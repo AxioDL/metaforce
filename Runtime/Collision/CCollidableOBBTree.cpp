@@ -224,12 +224,12 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
                             {
                                 CMetroidAreaCollider::g_DupEdgeList[edgeIdx] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
                                 CMaterialList edgeMat(x10_tree->GetEdgeMaterial(edgeIdx));
-                                if (!edgeMat.HasMaterial(EMaterialTypes::TwentyFour))
+                                if (!edgeMat.HasMaterial(EMaterialTypes::NoEdgeCollision))
                                 {
                                     int nextIdx = (k + 1) % 3;
                                     zeus::CVector3f edgeVec = surf.GetVert(nextIdx) - surf.GetVert(k);
                                     float edgeVecMag = edgeVec.magnitude();
-                                    edgeVec *= (1.f / edgeVecMag);
+                                    edgeVec *= zeus::CVector3f(1.f / edgeVecMag);
                                     float dirDotEdge = dir.dot(edgeVec);
                                     zeus::CVector3f edgeRej = dir - dirDotEdge * edgeVec;
                                     float edgeRejMagSq = edgeRej.magSquared();
@@ -429,7 +429,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
                     {
                         CMetroidAreaCollider::g_DupEdgeList[edgeIdx] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
                         CMaterialList edgeMat(x10_tree->GetEdgeMaterial(edgeIdx));
-                        if (!edgeMat.HasMaterial(EMaterialTypes::TwentyFour))
+                        if (!edgeMat.HasMaterial(EMaterialTypes::NoEdgeCollision))
                         {
                             d = dOut;
                             const CCollisionEdge& edge = x10_tree->GetEdge(edgeIdx);

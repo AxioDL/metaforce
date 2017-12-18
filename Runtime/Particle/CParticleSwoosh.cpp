@@ -124,8 +124,8 @@ void CParticleSwoosh::UpdateSwooshTranslation(const zeus::CVector3f& translation
 void CParticleSwoosh::UpdateTranslationAndOrientation()
 {
     x208_maxRadius = 0.f;
-    x1f0_aabbMin = FLT_MAX;
-    x1fc_aabbMax = -FLT_MAX;
+    x1f0_aabbMin = zeus::CVector3f(FLT_MAX);
+    x1fc_aabbMax = zeus::CVector3f(-FLT_MAX);
     CParticleGlobals::SetParticleLifetime(x1b4_LENG);
     CParticleGlobals::SetEmitterTime(x28_curFrame);
 

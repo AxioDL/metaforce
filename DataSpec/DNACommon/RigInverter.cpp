@@ -55,7 +55,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
                 m_tail += chBone.origin;
             }
         }
-        m_tail /= float(actualChildren);
+        m_tail /= zeus::CVector3f(float(actualChildren));
         if ((m_tail - boneOrigin).magSquared() < 0.001f)
             m_tail = naturalTail;
         else if (isLCTR)

@@ -429,7 +429,7 @@ void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes,
 
     zeus::CVector3d planeNormal = plane.normal();
     for (const zeus::CVector3d& vert : verts)
-        verts2[vert2Count++] = vert - (planeNormal * (planeNormal.dot(vert) - plane.d));
+        verts2[vert2Count++] = vert - (planeNormal * zeus::CVector3f(planeNormal.dot(vert) - plane.d));
 
     CalcDrawFogFan(planes, numPlanes, verts2, vert2Count, iteration, 0, fogVol);
 }

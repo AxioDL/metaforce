@@ -150,8 +150,8 @@ void CGameCollision::MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, fl
                     if (!filterList1.GetCount() && actor.GetMaterialList().HasMaterial(EMaterialTypes::Player))
                     {
                         CMotionState mState = actor.GetLastNonCollidingState();
-                        mState.x1c_velocity *= 0.5f;
-                        mState.x28_angularMomentum *= 0.5f;
+                        mState.x1c_velocity *= zeus::CVector3f(0.5f);
+                        mState.x28_angularMomentum *= zeus::CVector3f(0.5f);
                         actor.SetMotionState(mState);
                     }
                 }
@@ -994,8 +994,8 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
         if (!DetectCollisionBoolean_Cached(mgr, cache, prim, actor.GetPrimitiveTransform(),
                                            actor.GetMaterialFilter(), nearList))
         {
-            lastNonCollide.x1c_velocity *= 0.5f;
-            lastNonCollide.x28_angularMomentum *= 0.5f;
+            lastNonCollide.x1c_velocity *= zeus::CVector3f(0.5f);
+            lastNonCollide.x28_angularMomentum *= zeus::CVector3f(0.5f);
             actor.SetLastNonCollidingState(lastNonCollide);
             //++gDebugPrintCount;
             actor.SetNumTicksStuck(0);
@@ -1013,8 +1013,8 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
             else
             {
                 //++gDebugPrintCount;
-                lastNonCollide.x1c_velocity *= 0.5f;
-                lastNonCollide.x28_angularMomentum *= 0.5f;
+                lastNonCollide.x1c_velocity *= zeus::CVector3f(0.5f);
+                lastNonCollide.x28_angularMomentum *= zeus::CVector3f(0.5f);
                 actor.SetLastNonCollidingState(lastNonCollide);
             }
         }

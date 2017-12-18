@@ -36,9 +36,9 @@ CBooleanSphereAreaCache::CBooleanSphereAreaCache(const zeus::CAABox& aabb, const
 {}
 
 SBoxEdge::SBoxEdge(const zeus::CAABox& aabb, int idx, const zeus::CVector3f& dir)
-: x0_seg(aabb.getEdge(zeus::CAABox::EBoxEdgeId(idx))), x28_dir(x0_seg.dir), x40_end(x0_seg.end),
-  x58_start(x40_end - x28_dir), x70_coDir(x58_start.cross(dir).asNormalized()),
-  x88_dirCoDirDot(x28_dir.dot(x70_coDir))
+: x0_seg(aabb.getEdge(zeus::CAABox::EBoxEdgeId(idx))), x28_start(x0_seg.x0_start), x40_end(x0_seg.x18_end),
+  x58_delta(x40_end - x28_start), x70_coDir(x58_delta.cross(dir).asNormalized()),
+  x88_dirCoDirDot(x28_start.dot(x70_coDir))
 {}
 
 static void FlagEdgeIndicesForFace(int face, bool edgeFlags[12])
@@ -148,7 +148,8 @@ CMovingAABoxComponents::CMovingAABoxComponents(const zeus::CAABox& aabb, const z
     }
 
     for (int i=0 ; i<12 ; ++i)
-        x0_edges.push_back(SBoxEdge(aabb, i, dir));
+        if (edgeFlags[i])
+            x0_edges.push_back(SBoxEdge(aabb, i, dir));
 
     for (int i=0 ; i<8 ; ++i)
         if (vertFlags[i])
@@ -701,12 +702,12 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(const zeus::CVector3f&
     {
         zeus::CVector3d ev0d = ev0;
         zeus::CVector3d ev1d = ev1;
-        if ((edge.x70_coDir.dot(ev0d) >= edge.x88_dirCoDirDot) !=
-            (edge.x70_coDir.dot(ev1d) >= edge.x88_dirCoDirDot))
+        if ((edge.x70_coDir.dot(ev1d) >= edge.x88_dirCoDirDot) !=
+            (edge.x70_coDir.dot(ev0d) >= edge.x88_dirCoDirDot))
         {
             zeus::CVector3d delta = ev0d - ev1d;
-            zeus::CVector3d cross0 = edge.x58_start.cross(delta);
-            if (cross0.magSquared() > DBL_EPSILON)
+            zeus::CVector3d cross0 = edge.x58_delta.cross(delta);
+            if (cross0.magSquared() >= DBL_EPSILON)
             {
                 zeus::CVector3d cross0Norm = cross0.asNormalized();
                 if (cross0Norm.dot(dir) >= 0.0)
@@ -714,11 +715,11 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(const zeus::CVector3f&
                     ev1d = ev0;
                     ev0d = ev1;
                     delta = ev0d - ev1d;
-                    cross0Norm = edge.x58_start.cross(delta).asNormalized();
+                    cross0Norm = edge.x58_delta.cross(delta).asNormalized();
                 }
 
-                zeus::CVector3d clipped = ev0d + -(ev0d.dot(edge.x70_coDir) - edge.x88_dirCoDirDot) /
-                    delta.dot(edge.x70_coDir) * delta;
+                zeus::CVector3d clipped = ev0d + (-(ev0d.dot(edge.x70_coDir) - edge.x88_dirCoDirDot) /
+                    delta.dot(edge.x70_coDir)) * delta;
                 int maxCompIdx = (std::fabs(edge.x70_coDir.x) > std::fabs(edge.x70_coDir.y)) ? 0 : 1;
                 if (std::fabs(edge.x70_coDir[maxCompIdx]) < std::fabs(edge.x70_coDir.z))
                     maxCompIdx = 2;
@@ -740,15 +741,16 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(const zeus::CVector3f&
                     break;
                 }
 
-                double mag = edge.x58_start[ci0] * (clipped[ci1] - edge.x28_dir[ci1]) -
-                    edge.x58_start[ci1] * (clipped[ci0] - edge.x28_dir[ci0]) /
-                    edge.x58_start[ci0] * dir[ci1] - edge.x58_start[ci1] * dir[ci0];
-                if (mag > 0.0 && mag < d)
+                double mag = (edge.x58_delta[ci0] * (clipped[ci1] - edge.x28_start[ci1]) -
+                    edge.x58_delta[ci1] * (clipped[ci0] - edge.x28_start[ci0])) /
+                    (edge.x58_delta[ci0] * dir[ci1] - edge.x58_delta[ci1] * dir[ci0]);
+                if (mag >= 0.0 && mag < d)
                 {
                     zeus::CVector3d clippedMag = clipped - mag * zeus::CVector3d(dir);
-                    if ((edge.x28_dir.x - clippedMag).dot(edge.x40_end.x - clippedMag) < 0.0)
+                    if ((edge.x28_start - clippedMag).dot(edge.x40_end - clippedMag) < 0.0 && mag < d)
                     {
                         normal = cross0Norm.asCVector3f();
+                        d = mag;
                         point = clipped.asCVector3f();
                         ret = true;
                     }
@@ -848,7 +850,7 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(const COctreeLeafCac
                                 {
                                     g_DupEdgeList[edgeIdx] = g_DupPrimitiveCheckCount;
                                     CMaterialList edgeMat(node.GetOwner().GetEdgeMaterial(edgeIdx));
-                                    if (!edgeMat.HasMaterial(EMaterialTypes::TwentyFour))
+                                    if (!edgeMat.HasMaterial(EMaterialTypes::NoEdgeCollision))
                                     {
                                         d = dOut;
                                         const CCollisionEdge& edge = node.GetOwner().GetEdge(edgeIdx);
@@ -971,12 +973,12 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                                         {
                                             g_DupEdgeList[edgeIdx] = g_DupPrimitiveCheckCount;
                                             CMaterialList edgeMat(node.GetOwner().GetEdgeMaterial(edgeIdx));
-                                            if (!edgeMat.HasMaterial(EMaterialTypes::TwentyFour))
+                                            if (!edgeMat.HasMaterial(EMaterialTypes::NoEdgeCollision))
                                             {
                                                 int nextIdx = (k + 1) % 3;
                                                 zeus::CVector3f edgeVec = surf.GetVert(nextIdx) - surf.GetVert(k);
                                                 float edgeVecMag = edgeVec.magnitude();
-                                                edgeVec *= (1.f / edgeVecMag);
+                                                edgeVec *= zeus::CVector3f(1.f / edgeVecMag);
                                                 float dirDotEdge = dir.dot(edgeVec);
                                                 zeus::CVector3f edgeRej = dir - dirDotEdge * edgeVec;
                                                 float edgeRejMagSq = edgeRej.magSquared();

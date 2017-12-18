@@ -1058,7 +1058,10 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
                                   zeus::CVector3f::skForward,
                                   zeus::CVector3f::skUp};
         for (int i=0 ; i<4 ; ++i)
-            vecs[int(rand() / float(RAND_MAX) * 4.f) & 0x3] += (rand() / float(RAND_MAX) - dt) * rotMul;
+        {
+            int sel = int(rand() / float(RAND_MAX) * 9.f);
+            vecs[sel & 0x3][(sel / 3) & 0x3] += (rand() / float(RAND_MAX) - dt) * rotMul;
+        }
         x428_decoShakeRotate = zeus::CMatrix3f(vecs[0], vecs[1], vecs[2]).transposed();
         transformUpdate = true;
     }

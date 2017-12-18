@@ -267,7 +267,6 @@ void CPhysicsActor::SetPhysicsState(const CPhysicsState& state)
 
     xfc_constantForce = state.GetConstantForceWR();
     x108_angularMomentum = state.GetAngularMomentumWR();
-    ;
     x150_momentum = state.GetMomentumWR();
     x15c_force = state.GetForceWR();
     x168_impulse = state.GetImpulseWR();

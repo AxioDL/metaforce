@@ -64,9 +64,9 @@ public:
 struct SBoxEdge
 {
     zeus::CLineSeg x0_seg;
-    zeus::CVector3d x28_dir;
+    zeus::CVector3d x28_start;
     zeus::CVector3d x40_end;
-    zeus::CVector3d x58_start;
+    zeus::CVector3d x58_delta;
     zeus::CVector3d x70_coDir;
     double x88_dirCoDirDot;
     SBoxEdge(const zeus::CAABox& aabb, int idx, const zeus::CVector3f& dir);

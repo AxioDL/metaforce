@@ -31,7 +31,7 @@ enum class EMaterialTypes
     CameraPassthrough = 21,
     Wood = 22,
     Organic = 23,
-    TwentyFour = 24,
+    NoEdgeCollision = 24,
     RedundantEdgeOrFlippedTri = 25,
     SeeThrough = 26,
     ScanPassthrough = 27,

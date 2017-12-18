@@ -41,7 +41,7 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
     for (const zeus::CTransform& xf : x44_hexagonXfs)
         x64_centerPoint += xf.origin;
 
-    x64_centerPoint *= 1.0f / float(x44_hexagonXfs.size());
+    x64_centerPoint *= zeus::CVector3f(1.0f / float(x44_hexagonXfs.size()));
 }
 
 void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3f&, float, float) const

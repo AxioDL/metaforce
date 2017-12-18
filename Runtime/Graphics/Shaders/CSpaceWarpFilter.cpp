@@ -20,7 +20,7 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
             if (mag < 1.f && vec.canBeNormalized())
             {
                 vec.normalize();
-                vec *= std::sqrt(mag);
+                vec *= zeus::CVector2f(std::sqrt(mag));
             }
             data[y][x][0] = zeus::clamp(0, int((((vec.x / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
             data[y][x][1] = zeus::clamp(0, int((((vec.y / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);

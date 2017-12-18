@@ -1844,7 +1844,7 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
         list.Add(EMaterialTypes::Solid);
 
     if ((extents.x < 0.f || extents.y < 0.f || extents.z < 0.f) || extents.isZero())
-        aabox = zeus::CAABox({-.5f}, {0.5f});
+        aabox = zeus::CAABox(-.5f, 0.5f);
 
     return new CScriptPlayerActor(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
                                   CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
@@ -2095,9 +2095,9 @@ CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in
     u32 w15 = in.readUint32Big();
 
     return new CWallCrawlerSwarm(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale,
-                                 aHead.x10_transform, w1, CAnimRes(w2, w3, {1.5f}, w4, true), w5, w6, w7, w8, w9, w10,
-                                 dInfo1, dInfo2, f1, f2, f3, f4, w11, w12, f5, f6, f7, f8, f9, f10, f11, f12, f13, w13,
-                                 f14, f15, f16, hInfo, dVulns, w14, w15, aParams);
+                                 aHead.x10_transform, w1, CAnimRes(w2, w3, zeus::CVector3f(1.5f), w4, true), w5, w6,
+                                 w7, w8, w9, w10, dInfo1, dInfo2, f1, f2, f3, f4, w11, w12, f5, f6, f7, f8, f9, f10,
+                                 f11, f12, f13, w13, f14, f15, f16, hInfo, dVulns, w14, w15, aParams);
 }
 
 CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
