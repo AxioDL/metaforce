@@ -317,7 +317,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     std::sort(valList.begin(), valList.end(),
     [](const SLightValue& a, const SLightValue& b)
     {
-        return a.x10_colorMag >= b.x10_colorMag;
+        return a.x10_colorMag > b.x10_colorMag;
     });
 
     if (x298_27_findShadowLight)
@@ -333,12 +333,12 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     }
 
     /* Ambient color for overflow area lights */
-    zeus::CColor overflowAmbColor;
+    zeus::CColor overflowAmbColor = zeus::CColor::skClear;
 
     /* Averaged light for overflow area lights */
     CLight overflowLight = CLight::BuildCustom(zeus::CVector3f::skZero, zeus::CVector3f::skZero, zeus::CColor::skBlack,
                                                0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-    zeus::CColor overflowLightColor;
+    zeus::CColor overflowLightColor = zeus::CColor::skClear;
     float overflowMag = 0.f;
 
     /* Max significant lights */

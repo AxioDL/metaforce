@@ -606,7 +606,7 @@ void CBallCamera::CheckFailsafe(float dt, CStateManager& mgr)
     else
     {
         x18c_31_clearLOS = true;
-        x350_obscuringMaterial = CMaterialList(EMaterialTypes::Unknown);
+        x350_obscuringMaterial = CMaterialList(EMaterialTypes::NoStepLogic);
     }
 
     if (!x18c_31_clearLOS)

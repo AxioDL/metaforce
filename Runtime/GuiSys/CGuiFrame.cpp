@@ -71,13 +71,13 @@ void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const
         }
         if ((lights & (1 << idx)) != 0)
         {
-            const zeus::CColor& geomCol = light->GetGeometryColor();
-            if (geomCol.r || geomCol.g || geomCol.b)
-            {
+            //const zeus::CColor& geomCol = light->GetGeometryColor();
+            //if (geomCol.r || geomCol.g || geomCol.b)
+            //{
                 //CGraphics::LoadLight(lightId, light->BuildLight());
                 lightsOut.push_back(light->BuildLight());
                 CGraphics::EnableLight(lightId);
-            }
+            //}
             // accumulate ambient color
             ambColor += light->GetAmbientLightColor();
         }

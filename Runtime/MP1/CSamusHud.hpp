@@ -126,7 +126,6 @@ class CSamusHud
     u32 x2d4_totalEnergyTanks = 0;
     u32 x2d8_missileAmount = 0;
     u32 x2dc_missileCapacity = 0;
-    rstl::reserved_vector<SCachedHudLight, 3> x340_lights;
 
     union
     {

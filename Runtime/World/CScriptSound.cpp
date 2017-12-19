@@ -14,7 +14,7 @@ CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityIn
                            u16 soundId, bool active, float maxDist, float distComp, float startDelay, u32 minVol,
                            u32 vol, u32 w3, u32 prio, u32 pan, u32 w6, bool looped, bool nonEmitter, bool autoStart,
                            bool occlusionTest, bool acoustics, bool worldSfx, bool allowDuplicates, s32 pitch)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 , xfc_startDelay(startDelay)
 , x100_soundId(CSfxManager::TranslateSFXID(soundId))

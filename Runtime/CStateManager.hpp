@@ -329,6 +329,7 @@ public:
     void SetGameState(EGameState state);
     EGameState GetGameState() const { return x904_gameState; }
     void ProcessInput(const CFinalInput& input);
+    void UpdateGraphicsTiming(float dt);
     void Update(float dt);
     void UpdateGameState();
     void UpdateHintState(float dt);

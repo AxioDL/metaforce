@@ -177,7 +177,7 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
     {
         u32 matId = it->m_data.matIdx;
         const MaterialSet::Material& matData = GetMaterialByIndex(matId);
-        if (matData.flags.depthSorting())
+        if (matData.flags.depthSorting() || matData.heclIr.m_doAlpha)
         {
             it->m_next = x3c_firstSortedSurface;
             x3c_firstSortedSurface = &*it;

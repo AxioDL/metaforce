@@ -33,6 +33,10 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
         bool wasInitialized = x2a_24_initialized;
         x2a_24_initialized = true;
         float dt = MakeMsg::GetParmTimerTick(msg).x4_parm;
+
+        /* URDE addition: this is continuously updated for animated UVs even when game paused */
+        x14_stateManager->UpdateGraphicsTiming(dt);
+
         switch (x1c_flowState)
         {
         case EGameFlowState::CinematicSkip:

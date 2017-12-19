@@ -410,7 +410,7 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
         return;
 
     CPowerUp& pup = x24_powerups[(u32)type];
-    pup.x0_amount = zeus::clamp(u32(0), pup.x4_capacity + capacity, PowerUpMaxValues[u32(type)]);
+    pup.x4_capacity = zeus::clamp(u32(0), pup.x4_capacity + capacity, PowerUpMaxValues[u32(type)]);
     pup.x0_amount = std::min(pup.x0_amount, pup.x4_capacity);
     if (type >= EItemType::PowerSuit && type <= EItemType::PhazonSuit)
     {

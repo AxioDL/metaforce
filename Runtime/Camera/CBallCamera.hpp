@@ -149,7 +149,7 @@ private:
     float x330_clearColliderThreshold = 0.2f;
     zeus::CAABox x334_collidersAABB = zeus::CAABox::skNullBox;
     float x34c_obscuredTime = 0.f;
-    CMaterialList x350_obscuringMaterial = {EMaterialTypes::Unknown};
+    CMaterialList x350_obscuringMaterial = {EMaterialTypes::NoStepLogic};
     float x358_unobscureMag = 0.f;
     zeus::CVector3f x35c_splineIntermediatePos;
     TUniqueId x368_obscuringObjectId = kInvalidUniqueId;
@@ -158,7 +158,7 @@ private:
     float x374_splineCtrl = 0.f;
     float x378_splineCtrlRange;
     CCameraSpline x37c_camSpline;
-    CMaterialList x3c8_collisionExcludeList = {EMaterialTypes::Unknown};
+    CMaterialList x3c8_collisionExcludeList = {EMaterialTypes::NoStepLogic};
     bool x3d0_24_camBehindFloorOrWall : 1;
     float x3d4_elevInterpTimer = 0.f;
     float x3d8_elevInterpStart = 0.f;

@@ -825,9 +825,10 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
             return;
         x33c_lights->BuildAreaLightList(mgr, *mgr.GetWorld()->GetAreaAlways(playerArea), camAABB);
         for (SCachedHudLight& light : x340_hudLights)
-            if ((light.x0_pos - fpCam->GetTranslation()).normalized().dot(lookDir) > 0.15707964f)
-                if (!IsCachedLightInAreaLights(light, *x33c_lights))
-                    light.x1c_fader *= -1.f;
+            if (light.x1c_fader > 0.f &&
+                ((light.x0_pos - fpCam->GetTranslation()).normalized().dot(lookDir) <= 0.15707964f ||
+                !IsCachedLightInAreaLights(light, *x33c_lights)))
+                light.x1c_fader *= -1.f;
         int negCount = 0;
         for (SCachedHudLight& light : x340_hudLights)
             if (light.x1c_fader <= 0.f)
@@ -835,6 +836,8 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
         --negCount;
         for (const CLight& light : x33c_lights->GetAreaLights())
         {
+            if (negCount < 1)
+                break;
             if (IsAreaLightInCachedLights(light))
                 continue;
             if ((light.GetPosition() - fpCam->GetTranslation()).normalized().dot(lookDir) > 0.15707964f)
@@ -842,6 +845,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
                 int slot = FindEmptyHudLightSlot(light);
                 if (slot == -1)
                     continue;
+                --negCount;
                 SCachedHudLight& cachedLight = x340_hudLights[slot];
                 cachedLight.x0_pos = light.GetPosition();
                 cachedLight.xc_color = light.GetColor();
@@ -856,8 +860,8 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
         for (SCachedHudLight& light : x340_hudLights)
         {
             if (light.x1c_fader < 0.f)
-                light.x1c_fader = std::max(0.f, light.x1c_fader + dt2);
-            else if (light.x1c_fader < 1.f && light.x1c_fader != 0)
+                light.x1c_fader = std::min(0.f, light.x1c_fader + dt2);
+            else if (light.x1c_fader < 1.f && light.x1c_fader != 0.f)
                 light.x1c_fader = std::min(light.x1c_fader + dt2, 1.f);
         }
 
@@ -879,7 +883,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr)
         for (int i=0 ; i<3 ; ++i)
         {
             SCachedHudLight& light = x340_hudLights[i];
-            CGuiLight* lightWidget = *lightIt;
+            CGuiLight* lightWidget = *lightIt++;
             zeus::CVector3f lightToCam = fpCam->GetTranslation() - light.x0_pos;
             zeus::CVector3f lightNormal = fpCam->GetTransform().buildMatrix3f() * lightToCam.normalized();
             float dist = std::max(lightToCam.magnitude(), FLT_EPSILON);

@@ -7,7 +7,7 @@ namespace urde
 {
 enum class EMaterialTypes
 {
-    Unknown = 0,
+    NoStepLogic = 0,
     Stone = 1,
     Metal = 2,
     Grass = 3,
@@ -27,7 +27,7 @@ enum class EMaterialTypes
     Sand = 17,
     ProjectilePassthrough = 18,
     Solid = 19,
-    Twenty = 20,
+    NoPlatformCollision = 20,
     CameraPassthrough = 21,
     Wood = 22,
     Organic = 23,

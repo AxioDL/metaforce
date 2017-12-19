@@ -18,7 +18,7 @@ class CActorLights
     static s32 sFrameSchedulerCount;
     std::vector<CLight> x0_areaLights;
     std::vector<CLight> x144_dynamicLights;
-    zeus::CColor x288_ambientColor;
+    zeus::CColor x288_ambientColor = zeus::CColor::skBlack;
     TAreaId x294_aid = kInvalidAreaId;
 
     union

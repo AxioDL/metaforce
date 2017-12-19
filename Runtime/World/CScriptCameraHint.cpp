@@ -14,7 +14,7 @@ CScriptCameraHint::CScriptCameraHint(TUniqueId uid, std::string_view name, const
                                      float fov, float attitudeRange, float azimuthRange, float anglePerSecond,
                                      float clampVelRange, float f9, float elevation, float f11,
                                      float clampVelTime, float controlInterpDur)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId), xe8_priority(priority),
   xec_hint(overrideFlags, behaviour, minDist, maxDist, backwardsDist, lookAtOffset, chaseLookAtOffset, ballToCam,
            fov, attitudeRange, azimuthRange, anglePerSecond, clampVelRange, f9, elevation, f11, clampVelTime,

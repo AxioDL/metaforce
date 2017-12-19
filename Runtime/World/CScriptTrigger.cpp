@@ -148,9 +148,10 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
             }
             else
             {
+                TUniqueId tmpId = it->GetObjectId();
                 xe8_inhabitants.erase(it);
                 sendExited = true;
-                if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerTriggerProc)
+                if (mgr.GetPlayer().GetUniqueId() == tmpId && x148_28_playerTriggerProc)
                 {
                     x148_28_playerTriggerProc = false;
                     if (x148_29_didPhazonDamage)
@@ -168,8 +169,9 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
         }
         else
         {
+            TUniqueId tmpId = it->GetObjectId();
             xe8_inhabitants.erase(it);
-            if (mgr.GetPlayer().GetUniqueId() == it->GetObjectId() && x148_28_playerTriggerProc)
+            if (mgr.GetPlayer().GetUniqueId() == tmpId && x148_28_playerTriggerProc)
             {
                 x148_28_playerTriggerProc = false;
                 if (x148_29_didPhazonDamage)

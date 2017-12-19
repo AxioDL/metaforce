@@ -2016,7 +2016,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
 
     zeus::CVector3f vel = x0_player.GetVelocity();
     float velMag = vel.magnitude();
-    EMaterialTypes wakeMaterial = EMaterialTypes::Unknown;
+    EMaterialTypes wakeMaterial = EMaterialTypes::NoStepLogic;
     if (velMag > 7.f && x0_player.GetFluidCounter() == 0)
     {
         bool hitWall = false;
@@ -2037,7 +2037,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
                 }
             }
 
-            if (wakeMaterial == EMaterialTypes::Unknown)
+            if (wakeMaterial == EMaterialTypes::NoStepLogic)
             {
                 if (info.GetMaterialLeft().HasMaterial(EMaterialTypes::Floor))
                 {
@@ -2063,7 +2063,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
                         tmpMaterial = EMaterialTypes::Phazon;
 
                     wakeMaterial = tmpMaterial;
-                    if (tmpMaterial != EMaterialTypes::Unknown)
+                    if (tmpMaterial != EMaterialTypes::NoStepLogic)
                     {
                         int mappedIdx = skWakeEffectMap[int(tmpMaterial)];
                         if (mappedIdx == 0) // Phazon
@@ -2098,7 +2098,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
         }
     }
 
-    if (wakeMaterial == EMaterialTypes::Unknown && x1c0c_wakeEffectIdx != -1)
+    if (wakeMaterial == EMaterialTypes::NoStepLogic && x1c0c_wakeEffectIdx != -1)
         x1bc8_wakeEffectGens[int(wakeMaterial)]->SetParticleEmission(false);
 
     x1954_isProjectile = false;

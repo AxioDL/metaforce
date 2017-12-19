@@ -437,6 +437,8 @@ void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid)
             area->GetAreaObjects()->RemoveObject(actor.GetUniqueId());
     }
 
+    actor.x4_areaId = aid;
+
     if (aid == kInvalidAreaId)
         return;
     CGameArea* area = x850_world->GetArea(aid);
@@ -1825,16 +1827,19 @@ void CStateManager::ProcessInput(const CFinalInput& input)
     x870_cameraManager->ProcessInput(input, *this);
 }
 
+void CStateManager::UpdateGraphicsTiming(float dt)
+{
+    xf14_curTimeMod900 += dt;
+    if (xf14_curTimeMod900 > 900.f)
+        xf14_curTimeMod900 -= 900.f;
+}
+
 void CStateManager::Update(float dt)
 {
     CElementGen::SetGlobalSeed(x8d8_updateFrameIdx);
     CParticleElectric::SetGlobalSeed(x8d8_updateFrameIdx);
     CDecal::SetGlobalSeed(x8d8_updateFrameIdx);
     CProjectileWeapon::SetGlobalSeed(x8d8_updateFrameIdx);
-
-    xf14_curTimeMod900 += dt;
-    if (xf14_curTimeMod900 > 900.f)
-        xf14_curTimeMod900 -= 900.f;
 
     xf08_pauseHudMessage = {};
 

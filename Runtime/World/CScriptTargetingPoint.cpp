@@ -7,7 +7,7 @@ namespace urde
 
 CScriptTargetingPoint::CScriptTargetingPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                              const zeus::CTransform& xf, bool active)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Unknown),
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 {
 }
