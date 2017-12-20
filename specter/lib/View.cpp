@@ -274,7 +274,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
 
     m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, nullptr, nullptr, m_solidVtxFmt, 1,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                          boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
     boo::VertexElementDescriptor texvdescs[] =
     {
@@ -285,7 +285,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
 
     m_texShader = ctx.newShaderPipeline(TexVS, TexFS, nullptr, nullptr, m_texVtxFmt, 1,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                        boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                        boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 }
 
 #endif
