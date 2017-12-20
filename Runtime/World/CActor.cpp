@@ -123,6 +123,26 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
+void CActor::PreRender(CStateManager&, const zeus::CFrustum&)
+{
+
+}
+
+void CActor::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const
+{
+
+}
+
+void CActor::Render(const CStateManager&) const
+{
+
+}
+
+bool CActor::CanRenderUnsorted(const CStateManager&) const
+{
+    return false;
+}
+
 void CActor::CalculateRenderBounds()
 {
     if (x64_modelData && (x64_modelData->AnimationData() || x64_modelData->GetNormalModel()))

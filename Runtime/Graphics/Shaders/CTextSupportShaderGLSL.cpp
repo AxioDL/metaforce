@@ -118,6 +118,9 @@ CTextSupportShader::Initialize(boo::GLDataFactory::Context& ctx)
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                               boo::BlendFactor::One, boo::Primitive::TriStrips,
                                               boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+    s_TextAddOverdrawPipeline = ctx.newShaderPipeline(TextVS, TextFS, 1, texNames, 1, uniNames, boo::BlendFactor::One,
+                                              boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                              boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                                  boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
@@ -125,6 +128,9 @@ CTextSupportShader::Initialize(boo::GLDataFactory::Context& ctx)
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, 1, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                                boo::BlendFactor::One, boo::Primitive::TriStrips,
                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+    s_ImageAddOverdrawPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, 1, texNames, 1, uniNames, boo::BlendFactor::One,
+                                                       boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                                       boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     return nullptr;
 }
@@ -134,8 +140,10 @@ void CTextSupportShader::Shutdown<boo::GLDataFactory>()
 {
     s_TextAlphaPipeline.reset();
     s_TextAddPipeline.reset();
+    s_TextAddOverdrawPipeline.reset();
     s_ImageAlphaPipeline.reset();
     s_ImageAddPipeline.reset();
+    s_ImageAddOverdrawPipeline.reset();
 }
 
 #if BOO_HAS_VULKAN
@@ -163,6 +171,9 @@ CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, boo::BlendFactor::SrcAlpha,
                                               boo::BlendFactor::One, boo::Primitive::TriStrips,
                                               boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+    s_TextAddOverdrawPipeline = ctx.newShaderPipeline(TextVS, TextFS, s_TextVtxFmt, boo::BlendFactor::One,
+                                                boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -183,6 +194,9 @@ CTextSupportShader::Initialize(boo::VulkanDataFactory::Context& ctx)
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, boo::BlendFactor::SrcAlpha,
                                                boo::BlendFactor::One, boo::Primitive::TriStrips,
                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+    s_ImageAddOverdrawPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, s_ImageVtxFmt, boo::BlendFactor::One,
+                                                 boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                                 boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     return nullptr;
 }
@@ -193,9 +207,11 @@ void CTextSupportShader::Shutdown<boo::VulkanDataFactory>()
     s_TextVtxFmt.reset();
     s_TextAlphaPipeline.reset();
     s_TextAddPipeline.reset();
+    s_TextAddOverdrawPipeline.reset();
     s_ImageVtxFmt.reset();
     s_ImageAlphaPipeline.reset();
     s_ImageAddPipeline.reset();
+    s_ImageAddOverdrawPipeline.reset();
 }
 #endif
 

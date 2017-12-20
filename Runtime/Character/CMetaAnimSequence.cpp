@@ -30,10 +30,10 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
                                      const CMetaAnimTreeBuildOrders& orders) const
 {
-    if (orders.x0_)
+    if (orders.x0_recursiveAdvance)
     {
         CMetaAnimTreeBuildOrders modOrders;
-        modOrders.PreAdvanceForAll(*orders.x0_);
+        modOrders.PreAdvanceForAll(*orders.x0_recursiveAdvance);
         return GetAnimationTree(animSys, modOrders);
     }
 

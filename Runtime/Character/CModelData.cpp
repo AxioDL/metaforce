@@ -423,7 +423,7 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
 
         /* Normal Blended */
         lights->ActivateLights(*model.GetModelInst());
-        flags.m_extendedShader = EExtendedShader::Lighting;
+        flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = alphaColor;
         x10_animData->Render(model, flags, {}, nullptr);
 
@@ -445,7 +445,7 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
 
         /* Normal Blended */
         lights->ActivateLights(model);
-        flags.m_extendedShader = EExtendedShader::Lighting;
+        flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = alphaColor;
         model.Draw(flags, nullptr, nullptr);
 

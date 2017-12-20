@@ -7,10 +7,12 @@ namespace urde
 boo::ObjToken<boo::IVertexFormat> CTextSupportShader::s_TextVtxFmt;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAlphaPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAddPipeline;
+boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAddOverdrawPipeline;
 
 boo::ObjToken<boo::IVertexFormat> CTextSupportShader::s_ImageVtxFmt;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAlphaPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAddPipeline;
+boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAddOverdrawPipeline;
 
 hecl::VertexBufferPool<CTextSupportShader::CharacterInstance> CTextSupportShader::s_CharInsts;
 hecl::VertexBufferPool<CTextSupportShader::ImageInstance> CTextSupportShader::s_ImgInsts;
@@ -64,9 +66,11 @@ void CTextSupportShader::Shutdown()
     s_TextVtxFmt.reset();
     s_TextAlphaPipeline.reset();
     s_TextAddPipeline.reset();
+    s_TextAddOverdrawPipeline.reset();
     s_ImageVtxFmt.reset();
     s_ImageAlphaPipeline.reset();
     s_ImageAddPipeline.reset();
+    s_ImageAddOverdrawPipeline.reset();
 
     s_CharInsts.doDestroy();
     s_ImgInsts.doDestroy();

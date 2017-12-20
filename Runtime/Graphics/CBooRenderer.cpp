@@ -1310,7 +1310,8 @@ void CBooRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertCo
                                                       const CTexture& indTex, const zeus::CColor& modColor,
                                                       float scale, float offX, float offY)
 {
-    m_phazonSuitFilter.draw(modColor, scale, offX * scale, offY * scale);
+    float qScale = scale / 8.f; // Adjustment for URDE
+    m_phazonSuitFilter.draw(modColor, scale, offX * qScale, offY * qScale);
 }
 
 void CBooRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor /*, const CTexture& maskTex*/)

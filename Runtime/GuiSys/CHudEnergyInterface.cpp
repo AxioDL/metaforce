@@ -117,9 +117,10 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse)
     zeus::CColor emptyColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarEmptyLowEnergy() : barColors.empty;
     zeus::CColor filledColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarFilledLowEnergy() : barColors.filled;
     zeus::CColor shadowColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarShadowLowEnergy() : barColors.shadow;
-    x2c_energybart01_energybar->SetFilledColor(zeus::CColor::lerp(
-        zeus::CColor::lerp(filledColor, g_tweakGuiColors->GetEnergyBarFlashColor(), x8_flashMag),
-        zeus::CColor(1.f, 0.8f, 0.4f, 1.f), energyLowPulse));
+    zeus::CColor useFillColor = zeus::CColor::lerp(filledColor, g_tweakGuiColors->GetEnergyBarFlashColor(), x8_flashMag);
+    if (x1c_27_energyLow)
+        useFillColor = zeus::CColor::lerp(useFillColor, zeus::CColor(1.f, 0.8f, 0.4f, 1.f), energyLowPulse);
+    x2c_energybart01_energybar->SetFilledColor(useFillColor);
     x2c_energybart01_energybar->SetShadowColor(shadowColor);
     x2c_energybart01_energybar->SetEmptyColor(emptyColor);
 }

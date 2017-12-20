@@ -59,10 +59,11 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING3 uniform sampler2D maskTexBlur;\n"
 "void main()\n"
 "{\n"
-"    vec2 indUv = (texture(indTex, vtf.indUv).rg - vec2(0.5, 0.5)) * \n"
+"    vec2 indUv = (texture(indTex, vtf.indUv).ra - vec2(0.5, 0.5)) * \n"
 "        vtf.indScaleOff.xy + vtf.indScaleOff.zw;\n"
-"    colorOut = vtf.color * texture(screenTex, indUv + vtf.screenUv) * \n"
-"        (texture(maskTexBlur, vtf.maskUv).a - texture(maskTex, vtf.maskUv).a);\n"
+"    float maskBlurAlpha = clamp(0.0, (texture(maskTexBlur, vtf.maskUv).a - texture(maskTex, vtf.maskUv).a) * 2.0, 1.0);\n"
+"    colorOut = vtf.color * texture(screenTex, indUv + vtf.screenUv) * maskBlurAlpha;\n"
+"    colorOut.a = vtf.color.a;\n"
 "}\n";
 
 static const char* FS =
@@ -84,8 +85,9 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING2 uniform sampler2D maskTexBlur;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * texture(screenTex, vtf.screenUv) * \n"
-"        (texture(maskTexBlur, vtf.maskUv).a - texture(maskTex, vtf.maskUv).a);\n"
+"    float maskBlurAlpha = clamp(0.0, (texture(maskTexBlur, vtf.maskUv).a - texture(maskTex, vtf.maskUv).a) * 2.0, 1.0);\n"
+"    colorOut = vtf.color * texture(screenTex, vtf.screenUv) * maskBlurAlpha;\n"
+"    colorOut.a = vtf.color.a;\n"
 "}\n";
 
 static const char* BlurVS =
@@ -139,10 +141,10 @@ BOO_GLSL_BINDING_HEAD
 "\n"
 "    sum += texture(maskTex, vtf.uv).a * 0.2270270270;\n"
 "\n"
-"    sum += texture(maskTex, vtf.uv - 1.0 * vtf.blurDir).a * 0.1945945946;\n"
-"    sum += texture(maskTex, vtf.uv - 2.0 * vtf.blurDir).a * 0.1216216216;\n"
-"    sum += texture(maskTex, vtf.uv - 3.0 * vtf.blurDir).a * 0.0540540541;\n"
-"    sum += texture(maskTex, vtf.uv - 4.0 * vtf.blurDir).a * 0.0162162162;\n"
+"    sum += texture(maskTex, vtf.uv + 1.0 * vtf.blurDir).a * 0.1945945946;\n"
+"    sum += texture(maskTex, vtf.uv + 2.0 * vtf.blurDir).a * 0.1216216216;\n"
+"    sum += texture(maskTex, vtf.uv + 3.0 * vtf.blurDir).a * 0.0540540541;\n"
+"    sum += texture(maskTex, vtf.uv + 4.0 * vtf.blurDir).a * 0.0162162162;\n"
 "\n"
 "    colorOut = vec4(1.0, 1.0, 1.0, sum);\n"
 "}\n";
@@ -291,12 +293,12 @@ CPhazonSuitFilter::Initialize(boo::GLDataFactory::Context& ctx)
 {
     const char* uniNames[] = {"PhazonSuitUniform"};
     const char* texNames[] = {"screenTex", "indTex", "maskTex", "maskTexBlur"};
-    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, 4, texNames, 1, uniNames, boo::BlendFactor::One,
-                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, 4, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     texNames[1] = "maskTex";
     texNames[2] = "maskTexBlur";
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, 3, texNames, 1, uniNames, boo::BlendFactor::One,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, 3, texNames, 1, uniNames, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     uniNames[0] = "PhazonSuitBlurUniform";
@@ -333,10 +335,10 @@ CPhazonSuitFilter::Initialize(boo::VulkanDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_BlurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
-    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, s_VtxFmt, boo::BlendFactor::One,
-                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::One,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_BlurPipeline = ctx.newShaderPipeline(BlurVS, BlurFS, s_BlurVtxFmt, boo::BlendFactor::One,

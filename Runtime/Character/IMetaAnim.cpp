@@ -11,13 +11,13 @@ std::shared_ptr<CAnimTreeNode>
 IMetaAnim::GetAnimationTree(const CAnimSysContext& animSys,
                             const CMetaAnimTreeBuildOrders& orders) const
 {
-    if (orders.x44_)
+    if (orders.x44_singleAdvance)
     {
         std::shared_ptr<CAnimTreeNode> tree =
             VGetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
-        if (orders.x44_->IsTime() || orders.x44_->IsString())
+        if (orders.x44_singleAdvance->IsTime() || orders.x44_singleAdvance->IsString())
         {
-            CCharAnimTime time = GetTime(*orders.x44_, *tree);
+            CCharAnimTime time = GetTime(*orders.x44_singleAdvance, *tree);
             AdvanceAnim(*tree, time);
         }
         return tree;

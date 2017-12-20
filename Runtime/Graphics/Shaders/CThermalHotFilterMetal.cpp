@@ -88,7 +88,7 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
                                        s_VtxFmt, CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::DstAlpha, boo::BlendFactor::InvDstAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None, false,
-                                       true, true, boo::CullMode::None);
+                                       true, false, boo::CullMode::None);
     return new CThermalHotFilterMetalDataBindingFactory;
 }
 

@@ -38,8 +38,10 @@ static const char* VS =
 "    vtf.color = psu.color;\n"
 "    vtf.indScaleOff = psu.indScaleOff;\n"
 "    vtf.screenUv = v.screenUvIn.xy;\n"
+"    vtf.screenUv.y = 1.0 - vtf.screenUv.y;\n"
 "    vtf.indUv = v.indUvIn.xy;\n"
 "    vtf.maskUv = v.maskUvIn.xy;\n"
+"    vtf.maskUv.y = 1.0 - vtf.maskUv.y;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
@@ -64,16 +66,16 @@ static const char* IndFS =
 "                      texture2d<float> maskTex [[ texture(2) ]],\n"
 "                      texture2d<float> maskTexBlur [[ texture(3) ]])\n"
 "{\n"
-"    float2 indUv = (indTex.sample(samp, vtf.indUv).rg - float2(0.5, 0.5)) * \n"
+"    float2 indUv = (indTex.sample(samp, vtf.indUv).ra - float2(0.5, 0.5)) * \n"
 "        vtf.indScaleOff.xy + vtf.indScaleOff.zw;\n"
-"    return vtf.color * screenTex.sample(samp, indUv + vtf.screenUv) * \n"
-"        (maskTexBlur.sample(samp, vtf.maskUv).a - maskTex.sample(samp, vtf.maskUv).a);\n"
+"    float maskBlurAlpha = saturate((maskTexBlur.sample(samp, vtf.maskUv).a - maskTex.sample(samp, vtf.maskUv).a) * 2.0);\n"
+"    return float4((vtf.color * screenTex.sample(samp, indUv + vtf.screenUv) * maskBlurAlpha).rgb, vtf.color.a);\n"
 "}\n";
 
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 color;\n"
@@ -88,8 +90,8 @@ static const char* FS =
 "                      texture2d<float> maskTex [[ texture(1) ]],\n"
 "                      texture2d<float> maskTexBlur [[ texture(2) ]])\n"
 "{\n"
-"    return vtf.color * screenTex.sample(samp, vtf.screenUv) * \n"
-"        (maskTexBlur.sample(samp, vtf.maskUv).a - maskTex.sample(samp, vtf.maskUv).a);\n"
+"    float maskBlurAlpha = saturate((maskTexBlur.sample(samp, vtf.maskUv).a - maskTex.sample(samp, vtf.maskUv).a) * 2.0);\n"
+"    return float4((vtf.color * screenTex.sample(samp, vtf.screenUv) * maskBlurAlpha).rgb, vtf.color.a);\n"
 "}\n";
 
 static const char* BlurVS =
@@ -117,6 +119,7 @@ static const char* BlurVS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.uv = v.uvIn.xy;\n"
+"    vtf.uv.y = 1.0 - vtf.uv.y;\n"
 "    vtf.blurDir = psu.blurDir.xy;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
@@ -125,7 +128,7 @@ static const char* BlurVS =
 static const char* BlurFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -148,10 +151,10 @@ static const char* BlurFS =
 "\n"
 "    sum += maskTex.sample(samp, vtf.uv).a * 0.2270270270;\n"
 "\n"
-"    sum += maskTex.sample(samp, vtf.uv - 1.0 * vtf.blurDir).a * 0.1945945946;\n"
-"    sum += maskTex.sample(samp, vtf.uv - 2.0 * vtf.blurDir).a * 0.1216216216;\n"
-"    sum += maskTex.sample(samp, vtf.uv - 3.0 * vtf.blurDir).a * 0.0540540541;\n"
-"    sum += maskTex.sample(samp, vtf.uv - 4.0 * vtf.blurDir).a * 0.0162162162;\n"
+"    sum += maskTex.sample(samp, vtf.uv + 1.0 * vtf.blurDir).a * 0.1945945946;\n"
+"    sum += maskTex.sample(samp, vtf.uv + 2.0 * vtf.blurDir).a * 0.1216216216;\n"
+"    sum += maskTex.sample(samp, vtf.uv + 3.0 * vtf.blurDir).a * 0.0540540541;\n"
+"    sum += maskTex.sample(samp, vtf.uv + 4.0 * vtf.blurDir).a * 0.0162162162;\n"
 "\n"
 "    return float4(1.0, 1.0, 1.0, sum);\n"
 "}\n";
@@ -238,11 +241,11 @@ CPhazonSuitFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_BlurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
     s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, nullptr, nullptr, s_VtxFmt,
-                                          CGraphics::g_ViewportSamples, boo::BlendFactor::One,
-                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+                                          CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
-                                       CGraphics::g_ViewportSamples, boo::BlendFactor::One,
+                                       CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_BlurPipeline = ctx.newShaderPipeline(BlurVS, BlurFS, nullptr, nullptr, s_BlurVtxFmt,

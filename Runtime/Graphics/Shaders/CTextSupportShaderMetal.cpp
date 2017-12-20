@@ -141,11 +141,15 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
     s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr,
                                                 s_TextVtxFmt, CGraphics::g_ViewportSamples,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                                boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr,
                                               s_TextVtxFmt, CGraphics::g_ViewportSamples,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One, boo::Primitive::TriStrips,
-                                              boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                              boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+    s_TextAddOverdrawPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr,
+                                                s_TextVtxFmt, CGraphics::g_ViewportSamples,
+                                                boo::BlendFactor::One, boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     boo::VertexElementDescriptor ImageVtxVmt[] =
     {
@@ -163,11 +167,15 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
     s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr,
                                                  s_ImageVtxFmt, CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                                 boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                                 boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr,
                                                s_ImageVtxFmt, CGraphics::g_ViewportSamples,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One, boo::Primitive::TriStrips,
-                                               boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                               boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+    s_ImageAddOverdrawPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr,
+                                                 s_ImageVtxFmt, CGraphics::g_ViewportSamples,
+                                                 boo::BlendFactor::One, boo::BlendFactor::One, boo::Primitive::TriStrips,
+                                                 boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
     return nullptr;
 }
@@ -178,9 +186,11 @@ void CTextSupportShader::Shutdown<boo::MetalDataFactory>()
     s_TextVtxFmt.reset();
     s_TextAlphaPipeline.reset();
     s_TextAddPipeline.reset();
+    s_TextAddOverdrawPipeline.reset();
     s_ImageVtxFmt.reset();
     s_ImageAlphaPipeline.reset();
     s_ImageAddPipeline.reset();
+    s_ImageAddOverdrawPipeline.reset();
 }
 
 }

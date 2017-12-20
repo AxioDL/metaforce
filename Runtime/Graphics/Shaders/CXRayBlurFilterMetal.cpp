@@ -102,7 +102,7 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
                                        s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::One,
                                        boo::BlendFactor::Zero, boo::Primitive::TriStrips, boo::ZTest::None, false,
-                                       true, true, boo::CullMode::None);
+                                       true, false, boo::CullMode::None);
     return new CXRayBlurFilterMetalDataBindingFactory;
 }
 

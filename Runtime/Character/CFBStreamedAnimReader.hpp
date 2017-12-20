@@ -85,10 +85,10 @@ public:
 
 class CSegIdToIndexConverter
 {
-    u32 x0_indices[96] = {u32(-1)};
+    s32 x0_indices[96];
 public:
     CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals);
-    u32 SegIdToIndex(const CSegId& id) const { return x0_indices[id]; }
+    s32 SegIdToIndex(const CSegId& id) const { return x0_indices[id]; }
 };
 
 class CFBStreamedAnimReader : public CAnimSourceReaderBase

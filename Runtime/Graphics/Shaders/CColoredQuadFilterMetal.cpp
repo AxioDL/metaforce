@@ -92,15 +92,15 @@ CColoredQuadFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
                                             s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                            boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_AddPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
-                                          boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                          boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
                                            s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::Zero,
                                            boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
-                                           boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CColoredQuadFilterMetalDataBindingFactory;
 }
 

@@ -119,7 +119,7 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
                                        s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-                                       boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterMetalDataBindingFactory;
 }
 

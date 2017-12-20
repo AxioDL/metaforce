@@ -58,6 +58,12 @@ void CTextRenderBuffer::CommitResources()
     {
         m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
         auto uBufInfo = m_uniBuf.getBufferInfo();
+        decltype(uBufInfo) uBufInfo2;
+        if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
+        {
+            m_uniBuf2 = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
+            uBufInfo2 = m_uniBuf2.getBufferInfo();
+        }
 
         for (BooFontCharacters& chs : m_fontCharacters)
         {
@@ -94,6 +100,16 @@ void CTextRenderBuffer::CommitResources()
                                                          vFmt, nullptr, iBufInfo.first.get(), nullptr,
                                                          1, uniforms, unistages, unioffs,
                                                          unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
+
+            if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
+            {
+                uniforms[0] = uBufInfo2.first.get();
+                unioffs[0] = size_t(uBufInfo2.second);
+                chs.m_dataBinding2 = ctx.newShaderDataBinding(CTextSupportShader::GetTextAdditiveOverdrawPipeline(),
+                                                              vFmt, nullptr, iBufInfo.first.get(), nullptr,
+                                                              1, uniforms, unistages, unioffs,
+                                                              unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second);
+            }
         }
 
         for (BooImage& img : m_images)
@@ -134,6 +150,21 @@ void CTextRenderBuffer::CommitResources()
                                                                      1, uniforms, unistages, unioffs,
                                                                      unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
             }
+
+            if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
+            {
+                uniforms[0] = uBufInfo2.first.get();
+                unioffs[0] = size_t(uBufInfo2.second);
+                img.m_dataBinding2.reserve(img.m_imageDef.x4_texs.size());
+                for (TToken<CTexture>& tex : img.m_imageDef.x4_texs)
+                {
+                    boo::ObjToken<boo::ITexture> texs[] = {tex->GetBooTexture()};
+                    img.m_dataBinding2.push_back(ctx.newShaderDataBinding(CTextSupportShader::GetImageAdditiveOverdrawPipeline(),
+                                                                          vFmt, nullptr, iBufInfo.first.get(), nullptr,
+                                                                          1, uniforms, unistages, unioffs,
+                                                                          unisizes, 1, texs, nullptr, nullptr, 0, iBufInfo.second));
+                }
+            }
         }
         return true;
     });
@@ -166,6 +197,13 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
 
     const_cast<CTextRenderBuffer*>(this)->m_uniBuf.access() =
         CTextSupportShader::Uniform{mat, col};
+    if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
+    {
+        zeus::CColor colSq = col * col;
+        colSq.a = col.a;
+        const_cast<CTextRenderBuffer*>(this)->m_uniBuf2.access() =
+            CTextSupportShader::Uniform{mat, colSq};
+    }
 
     for (const BooFontCharacters& chs : m_fontCharacters)
     {
@@ -180,6 +218,11 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
             }
             CGraphics::SetShaderDataBinding(chs.m_dataBinding);
             CGraphics::DrawInstances(0, 4, chs.m_charData.size());
+            if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
+            {
+                CGraphics::SetShaderDataBinding(chs.m_dataBinding2);
+                CGraphics::DrawInstances(0, 4, chs.m_charData.size());
+            }
         }
     }
 
@@ -193,6 +236,11 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
         int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
         CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
         CGraphics::DrawInstances(0, 4, 1);
+        if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
+        {
+            CGraphics::SetShaderDataBinding(img.m_dataBinding2[idx]);
+            CGraphics::DrawInstances(0, 4, 1);
+        }
     }
 }
 

@@ -52,14 +52,14 @@ public:
 
 struct CMetaAnimTreeBuildOrders
 {
-    std::experimental::optional<CPreAdvanceIndicator> x0_;
-    std::experimental::optional<CPreAdvanceIndicator> x44_;
+    std::experimental::optional<CPreAdvanceIndicator> x0_recursiveAdvance;
+    std::experimental::optional<CPreAdvanceIndicator> x44_singleAdvance;
     static CMetaAnimTreeBuildOrders NoSpecialOrders() { return {}; }
     static CMetaAnimTreeBuildOrders PreAdvanceForAll(const CPreAdvanceIndicator& ind)
     {
         CMetaAnimTreeBuildOrders ret;
-        ret.x0_.emplace(ind);
-        ret.x44_.emplace(ind);
+        ret.x0_recursiveAdvance.emplace(ind);
+        ret.x44_singleAdvance.emplace(ind);
         return ret;
     }
 };

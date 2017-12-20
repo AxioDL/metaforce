@@ -664,11 +664,6 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_BoxVertexTri(const CCollisi
         {
             pointOut = float(d) * dir + point;
             normalOut = surf.GetNormal();
-            if (normalOut.z > 100.f)
-            {
-                printf("");
-                normalOut = surf.GetNormal();
-            }
             ret = true;
         }
     }

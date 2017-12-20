@@ -318,28 +318,28 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
     m_texZTestZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
                                              m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, boo::ZTest::LEqual, true, true, true, boo::CullMode::None);
+                                             boo::Primitive::TriStrips, boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     m_texNoZTestZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
                                                m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                               boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
     m_texZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
                                                m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                               boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
                                                  m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                                 boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
     m_texAdditiveZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
                                                m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                               boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                               boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
                                                  m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                                 boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
     m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr,
                                                  m_vtxFormatTex, CGraphics::g_ViewportSamples,
@@ -365,64 +365,64 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
                                                     m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                     boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
                                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
-                                                    true, false, boo::CullMode::None);
+                                                    true, true, boo::CullMode::None);
     m_texRedToAlphaNoZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr,
                                                       m_vtxFormatTex, CGraphics::g_ViewportSamples,
                                                       boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
                                                       boo::Primitive::TriStrips, boo::ZTest::None, false,
-                                                      true, false, boo::CullMode::None);
+                                                      true, true, boo::CullMode::None);
 
     m_indTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr,
                                            m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                           boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                           boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
     m_indTexNoZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr,
                                              m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                             boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                             boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
     m_indTexAdditive = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr,
                                              m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                             boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                             boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
 
     m_cindTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr,
                                             m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                            boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                            boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
     m_cindTexNoZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr,
                                               m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                              boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                              boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
     m_cindTexAdditive = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr,
                                               m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                              boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                              boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
 
     m_noTexZTestZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
                                                m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                               boo::Primitive::TriStrips, boo::ZTest::LEqual, true, true, true, boo::CullMode::None);
+                                               boo::Primitive::TriStrips, boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     m_noTexNoZTestZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
                                                  m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 boo::Primitive::TriStrips, boo::ZTest::None, true, true, true, boo::CullMode::None);
+                                                 boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
     m_noTexZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
                                                  m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     m_noTexNoZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
                                                    m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                                                   boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                                   boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
     m_noTexAdditiveZTest = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
                                                  m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
+                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
     m_noTexAdditiveNoZTest = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
                                                    m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
-                                                   boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
+                                                   boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
     return new struct MetalElementDataBindingFactory;
 }

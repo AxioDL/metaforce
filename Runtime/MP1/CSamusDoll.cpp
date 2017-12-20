@@ -120,6 +120,8 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
                        bool hasSpiderBall, bool hasGrappleBeam)
 : x44_suit(suit), x48_beam(beam)
 {
+    x70_fixedRot.rotateZ(M_PIF);
+    x90_userInterpRot = xb0_userRot = x70_fixedRot;
     x1d4_spiderBallGlass = g_SimplePool->GetObj(SpiderBallGlassModels[int(suit)].first);
     x1e0_ballMatIdx = hasSpiderBall ? SpiderBallCharacters[int(suit)].second : BallCharacters[int(suit)].second;
     x1e4_glassMatIdx = SpiderBallGlassModels[int(suit)].second;
@@ -398,7 +400,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
             flags.x4_color = zeus::CColor::skWhite;
             x1f4_invBeam->Draw(flags);
 
-            flags.m_extendedShader = EExtendedShader::Lighting;
+            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             flags.x4_color = zeus::CColor(1.f, alpha);
             x1f4_invBeam->Draw(flags);
 
@@ -431,7 +433,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
             x20c_invGrappleBeam->GetInstance().ActivateLights(x23c_lights);
             CModelFlags flags = {};
-            flags.m_extendedShader = EExtendedShader::Lighting;
+            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             flags.x4_color = zeus::CColor(1.f, alpha);
             x20c_invGrappleBeam->Draw(flags);
 
@@ -445,7 +447,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
             x218_invFins->GetInstance().ActivateLights(x23c_lights);
             CModelFlags flags = {};
-            flags.m_extendedShader = EExtendedShader::Lighting;
+            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             flags.x4_color = zeus::CColor(1.f, alpha);
             x218_invFins->Draw(flags);
 
@@ -472,7 +474,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
                 flags.x4_color = zeus::CColor::skWhite;
                 x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
 
-                flags.m_extendedShader = EExtendedShader::Lighting;
+                flags.m_extendedShader = EExtendedShader::ForcedAlpha;
                 flags.x4_color = zeus::CColor::skWhite;
                 flags.x4_color.a = alpha * ballAlpha;
                 x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
@@ -523,7 +525,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
                 flags.x4_color = zeus::CColor::skWhite;
                 x1d4_spiderBallGlass->Draw(flags);
 
-                flags.m_extendedShader = EExtendedShader::Lighting;
+                flags.m_extendedShader = EExtendedShader::ForcedAlpha;
                 flags.x4_color = zeus::CColor::skWhite;
                 flags.x4_color.a = alpha;
                 x1d4_spiderBallGlass->Draw(flags);
@@ -533,16 +535,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
                 flags.x4_color.a = x6c_ballPulseFactor * alpha * itemPulse;
                 x1d4_spiderBallGlass->Draw(flags);
             }
+        }
 
-            if (phazonSuit && alpha > 0.1f)
-            {
-                float radius = zeus::clamp(0.2f, (10.f - (xc0_userZoom >= 0.f ? xc0_userZoom : -xc0_userZoom)) / 20.f, 1.f);
-                float offset = std::sin(x260_phazonOffsetAngle);
-                zeus::CColor color = g_tweakGuiColors->GetPauseBlurFilterColor();
-                color.a = alpha;
-                g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, alpha), x250_phazonIndirectTexture,
-                                                         color, radius, 0.1f, offset, offset);
-            }
+        if (phazonSuit && alpha > 0.1f)
+        {
+            float radius = zeus::clamp(0.2f, (10.f - (xc0_userZoom >= 0.f ? xc0_userZoom : -xc0_userZoom)) / 20.f, 1.f);
+            float offset = std::sin(x260_phazonOffsetAngle);
+            zeus::CColor color = g_tweakGuiColors->GetPauseBlurFilterColor();
+            color.a = alpha;
+            g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, alpha), x250_phazonIndirectTexture,
+                                                     color, radius, 0.1f, offset, offset);
         }
     }
     else
@@ -553,7 +555,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
         flags.x4_color = zeus::CColor::skWhite;
         x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
 
-        flags.m_extendedShader = EExtendedShader::Lighting;
+        flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = zeus::CColor::skWhite;
         flags.x4_color.a = alpha;
         x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
@@ -596,7 +598,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
             flags.x4_color = zeus::CColor::skWhite;
             x1d4_spiderBallGlass->Draw(flags);
 
-            flags.m_extendedShader = EExtendedShader::Lighting;
+            flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             flags.x4_color = zeus::CColor::skWhite;
             flags.x4_color.a = alpha;
             x1d4_spiderBallGlass->Draw(flags);
@@ -726,16 +728,15 @@ void CSamusDoll::SetRotation(float xDelta, float zDelta, float dt)
     float angXCenter = angX;
     if (angXCenter > M_PIF)
         angXCenter -= 2.f * M_PIF;
-    angX = zeus::clamp(-M_PIF / 2.f, angXCenter, M_PIF / 2.f);
+    angXCenter = zeus::clamp(-1.555f, angXCenter, 1.555f);
 
     float angZCenter = angZ;
     if (angZCenter > M_PIF)
         angZCenter -= 2.f * M_PIF;
-    angZ = zeus::clamp(-M_PIF / 2.f, angZCenter, M_PIF / 2.f);
 
     zeus::CQuaternion quat;
-    quat.rotateZ(angZ);
-    quat.rotateX(angX);
+    quat.rotateZ(angZCenter);
+    quat.rotateX(angXCenter);
     xb0_userRot = quat;
 }
 

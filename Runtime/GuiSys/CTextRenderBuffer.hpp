@@ -67,12 +67,14 @@ private:
 #else
     /* Boo-specific text-rendering functionality */
     hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
+    hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf2;
 
     struct BooFontCharacters
     {
         TLockedToken<CRasterFont> m_font;
         hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
         boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
+        boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
         std::vector<CTextSupportShader::CharacterInstance> m_charData;
         u32 m_charCount = 0;
         bool m_dirty = true;
@@ -86,6 +88,7 @@ private:
         CFontImageDef m_imageDef;
         hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
         std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
+        std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
         CTextSupportShader::ImageInstance m_imageData;
         bool m_dirty = true;
         BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset);

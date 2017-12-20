@@ -109,10 +109,10 @@ public:
         xe7_29_actorActive = active;
         CEntity::SetActive(active);
     }
-    virtual void PreRender(CStateManager&, const zeus::CFrustum&) {}
-    virtual void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
-    virtual void Render(const CStateManager&) const {}
-    virtual bool CanRenderUnsorted(const CStateManager&) const { return false; }
+    virtual void PreRender(CStateManager&, const zeus::CFrustum&);
+    virtual void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+    virtual void Render(const CStateManager&) const;
+    virtual bool CanRenderUnsorted(const CStateManager&) const;
     virtual void CalculateRenderBounds();
     virtual CHealthInfo* HealthInfo(CStateManager&);
     virtual const CDamageVulnerability* GetDamageVulnerability() const;

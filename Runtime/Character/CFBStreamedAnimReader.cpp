@@ -339,6 +339,7 @@ bool CBitLevelLoader::LoadBool()
 
 CSegIdToIndexConverter::CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals)
 {
+    std::fill(std::begin(x0_indices), std::end(x0_indices), -1);
     for (u32 b=0 ; b<totals.x24_boneChanCount ; ++b)
     {
         u16 segId = totals.xc_segIds2[b];
@@ -360,13 +361,19 @@ CFBStreamedAnimReader::CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamed
 
 bool CFBStreamedAnimReader::HasOffset(const CSegId& seg) const
 {
-    return x7c_totals.Prior().x8_hasTrans1[x114_segIdToIndex.SegIdToIndex(seg)];
+    s32 idx = x114_segIdToIndex.SegIdToIndex(seg);
+    if (idx == -1)
+        return false;
+    return x7c_totals.Prior().x8_hasTrans1[idx];
 }
 
 zeus::CVector3f CFBStreamedAnimReader::GetOffset(const CSegId& seg) const
 {
-    const float* af = x7c_totals.Prior().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
-    const float* bf = x7c_totals.Next().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
+    s32 idx = x114_segIdToIndex.SegIdToIndex(seg);
+    if (idx == -1)
+        return {};
+    const float* af = x7c_totals.Prior().GetFloats(idx);
+    const float* bf = x7c_totals.Next().GetFloats(idx);
     zeus::CVector3f a(af[4], af[5], af[6]);
     zeus::CVector3f b(bf[4], bf[5], bf[6]);
     return zeus::CVector3f::lerp(a, b, x7c_totals.GetT());
@@ -374,8 +381,11 @@ zeus::CVector3f CFBStreamedAnimReader::GetOffset(const CSegId& seg) const
 
 zeus::CQuaternion CFBStreamedAnimReader::GetRotation(const CSegId& seg) const
 {
-    const float* af = x7c_totals.Prior().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
-    const float* bf = x7c_totals.Next().GetFloats(x114_segIdToIndex.SegIdToIndex(seg));
+    s32 idx = x114_segIdToIndex.SegIdToIndex(seg);
+    if (idx == -1)
+        return {};
+    const float* af = x7c_totals.Prior().GetFloats(idx);
+    const float* bf = x7c_totals.Next().GetFloats(idx);
     zeus::CQuaternion a(af[0], af[1], af[2], af[3]);
     zeus::CQuaternion b(bf[0], bf[1], bf[2], bf[3]);
     return zeus::CQuaternion::slerp(a, b, x7c_totals.GetT());
@@ -479,33 +489,40 @@ SAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& dt)
     SAdvancementResults res = {};
 
     CCharAnimTime animDur = x54_source->GetAnimationDuration();
-    if (xc_curTime >= animDur || dt.EqualsZero())
+    if (xc_curTime == animDur)
     {
-        xc_curTime = CCharAnimTime(0);
+        xc_curTime = CCharAnimTime();
         x7c_totals.SetTime(x108_bitLoader, xc_curTime);
+        res.x0_remTime = dt;
+        return res;
+    }
+    else if (dt.EqualsZero())
+    {
         return res;
     }
 
     zeus::CQuaternion priorQ = GetRotation(3);
     zeus::CVector3f priorV = GetOffset(3);
 
-    CCharAnimTime nextTime = xc_curTime + dt;
-    if (nextTime > animDur)
+    xc_curTime += dt;
+    CCharAnimTime overTime;
+    if (xc_curTime > animDur)
     {
-        nextTime = animDur;
-        res.x0_remTime = nextTime - animDur;
+        overTime = xc_curTime - animDur;
+        xc_curTime = animDur;
     }
-    xc_curTime = nextTime;
 
     x7c_totals.SetTime(x108_bitLoader, xc_curTime);
     if (x54_source->HasPOIData())
         UpdatePOIStates();
+
     zeus::CQuaternion nextQ = GetRotation(3);
     zeus::CVector3f nextV = GetOffset(3);
 
-    res.x8_deltas.xc_rotDelta = priorQ.inverse() * nextQ;
+    res.x0_remTime = overTime;
+    res.x8_deltas.xc_rotDelta = nextQ * priorQ.inverse();
     if (HasOffset(3))
-        res.x8_deltas.x0_posDelta = res.x8_deltas.xc_rotDelta.transform(nextV - priorV);
+        res.x8_deltas.x0_posDelta = nextQ.inverse().transform(nextV - priorV);
 
     return res;
 }

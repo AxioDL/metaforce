@@ -23,10 +23,12 @@ class CTextSupportShader
     static boo::ObjToken<boo::IVertexFormat> s_TextVtxFmt;
     static boo::ObjToken<boo::IShaderPipeline> s_TextAlphaPipeline;
     static boo::ObjToken<boo::IShaderPipeline> s_TextAddPipeline;
+    static boo::ObjToken<boo::IShaderPipeline> s_TextAddOverdrawPipeline;
 
     static boo::ObjToken<boo::IVertexFormat> s_ImageVtxFmt;
     static boo::ObjToken<boo::IShaderPipeline> s_ImageAlphaPipeline;
     static boo::ObjToken<boo::IShaderPipeline> s_ImageAddPipeline;
+    static boo::ObjToken<boo::IShaderPipeline> s_ImageAddOverdrawPipeline;
 
     struct Uniform
     {
@@ -67,9 +69,9 @@ public:
         case CGuiWidget::EGuiModelDrawFlags::Shadeless:
         case CGuiWidget::EGuiModelDrawFlags::Opaque:
         case CGuiWidget::EGuiModelDrawFlags::Alpha:
+        case CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw:
             return s_TextAlphaPipeline;
         case CGuiWidget::EGuiModelDrawFlags::Additive:
-        case CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw:
             return s_TextAddPipeline;
         default:
             return {};
@@ -83,13 +85,23 @@ public:
         case CGuiWidget::EGuiModelDrawFlags::Shadeless:
         case CGuiWidget::EGuiModelDrawFlags::Opaque:
         case CGuiWidget::EGuiModelDrawFlags::Alpha:
+        case CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw:
             return s_ImageAlphaPipeline;
         case CGuiWidget::EGuiModelDrawFlags::Additive:
-        case CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw:
             return s_ImageAddPipeline;
         default:
             return {};
         }
+    }
+
+    static boo::ObjToken<boo::IShaderPipeline> GetTextAdditiveOverdrawPipeline()
+    {
+        return s_TextAddOverdrawPipeline;
+    }
+
+    static boo::ObjToken<boo::IShaderPipeline> GetImageAdditiveOverdrawPipeline()
+    {
+        return s_ImageAddOverdrawPipeline;
     }
 
     static void UpdateBuffers()
