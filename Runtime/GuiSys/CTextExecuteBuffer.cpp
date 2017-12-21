@@ -250,6 +250,7 @@ int CTextExecuteBuffer::WrapOneLTR(const char16_t* str, int len)
 
 void CTextExecuteBuffer::MoveWordLTR()
 {
+    xa4_curLine->x8_curX -= (xb0_curX + xbc_spaceDistance);
     xa4_curLine->xc_curY = std::min(xa4_curLine->xc_curY, xb8_curWordY);
     xbc_spaceDistance = 0;
     --xa4_curLine->x4_wordCount;
@@ -258,7 +259,8 @@ void CTextExecuteBuffer::MoveWordLTR()
     xa4_curLine = static_cast<CLineInstruction*>(x0_instList.emplace(xa8_curWordIt,
         std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust, xc0_imageBaseline))->get());
 
-    x0_instList.emplace(xa8_curWordIt, std::make_shared<CWordInstruction>());
+    // Dunno what's up with this in the original; seems fine without
+    //x0_instList.emplace(xa8_curWordIt, std::make_shared<CWordInstruction>());
 
     ++xa0_curBlock->x34_lineCount;
 }

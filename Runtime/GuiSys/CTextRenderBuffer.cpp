@@ -199,10 +199,10 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
         CTextSupportShader::Uniform{mat, col};
     if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
     {
-        zeus::CColor colSq = col * col;
-        colSq.a = col.a;
+        zeus::CColor colPremul = col * col.a;
+        colPremul.a = col.a;
         const_cast<CTextRenderBuffer*>(this)->m_uniBuf2.access() =
-            CTextSupportShader::Uniform{mat, colSq};
+            CTextSupportShader::Uniform{mat, colPremul};
     }
 
     for (const BooFontCharacters& chs : m_fontCharacters)

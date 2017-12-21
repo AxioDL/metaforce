@@ -131,19 +131,30 @@ static const char* BlurFS =
 "    //this will be our alpha sum\n"
 "    float sum = 0.0;\n"
 "\n"
-"    //apply blurring, using a 9-tap filter with predefined gaussian weights\n"
-"\n"
-"    sum += maskTex.Sample(samp, vtf.uv - 4.0 * vtf.blurDir).a * 0.0162162162;\n"
-"    sum += maskTex.Sample(samp, vtf.uv - 3.0 * vtf.blurDir).a * 0.0540540541;\n"
-"    sum += maskTex.Sample(samp, vtf.uv - 2.0 * vtf.blurDir).a * 0.1216216216;\n"
-"    sum += maskTex.Sample(samp, vtf.uv - 1.0 * vtf.blurDir).a * 0.1945945946;\n"
-"\n"
-"    sum += maskTex.Sample(samp, vtf.uv).a * 0.2270270270;\n"
-"\n"
-"    sum += maskTex.Sample(samp, vtf.uv + 1.0 * vtf.blurDir).a * 0.1945945946;\n"
-"    sum += maskTex.Sample(samp, vtf.uv + 2.0 * vtf.blurDir).a * 0.1216216216;\n"
-"    sum += maskTex.Sample(samp, vtf.uv + 3.0 * vtf.blurDir).a * 0.0540540541;\n"
-"    sum += maskTex.Sample(samp, vtf.uv + 4.0 * vtf.blurDir).a * 0.0162162162;\n"
+"    //apply blurring, using a 23-tap filter with predefined gaussian weights\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -11.0 * vtf.blurDir).a * 0.007249;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -10.0 * vtf.blurDir).a * 0.011032;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -9.0 * vtf.blurDir).a * 0.016133;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -8.0 * vtf.blurDir).a * 0.022665;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -7.0 * vtf.blurDir).a * 0.030595;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -6.0 * vtf.blurDir).a * 0.039680;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -5.0 * vtf.blurDir).a * 0.049444;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -4.0 * vtf.blurDir).a * 0.059195;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -3.0 * vtf.blurDir).a * 0.068091;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -2.0 * vtf.blurDir).a * 0.075252;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + -1.0 * vtf.blurDir).a * 0.079905;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 0.0 * vtf.blurDir).a * 0.081519;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 1.0 * vtf.blurDir).a * 0.079905;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 2.0 * vtf.blurDir).a * 0.075252;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 3.0 * vtf.blurDir).a * 0.068091;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 4.0 * vtf.blurDir).a * 0.059195;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 5.0 * vtf.blurDir).a * 0.049444;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 6.0 * vtf.blurDir).a * 0.039680;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 7.0 * vtf.blurDir).a * 0.030595;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 8.0 * vtf.blurDir).a * 0.022665;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 9.0 * vtf.blurDir).a * 0.016133;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 10.0 * vtf.blurDir).a * 0.011032;\n"
+"    sum += maskTex.Sample(samp, vtf.uv + 11.0 * vtf.blurDir).a * 0.007249;\n"
 "\n"
 "    return float4(1.0, 1.0, 1.0, sum);\n"
 "}\n";
@@ -230,10 +241,10 @@ CPhazonSuitFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_BlurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
-    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, nullptr, nullptr, nullptr, s_VtxFmt, boo::BlendFactor::One,
-                                          boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
+    s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, nullptr, nullptr, nullptr, s_VtxFmt, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr, s_VtxFmt, boo::BlendFactor::One,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr, s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_BlurPipeline = ctx.newShaderPipeline(BlurVS, BlurFS, nullptr, nullptr, nullptr, s_BlurVtxFmt, boo::BlendFactor::One,

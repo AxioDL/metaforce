@@ -137,18 +137,22 @@ void CHudVisorBeamMenu::UpdateMenuWidgetTransform(int idx, CGuiWidget& w, float 
         w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() *
                           zeus::CTransform::Translate(0.f, 0.f, translate) *
                           zeus::CTransform::Scale(scale));
+        break;
     case 1:
         w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() *
                           zeus::CTransform::Translate(translate, 0.f, 0.f) *
                           zeus::CTransform::Scale(scale));
+        break;
     case 2:
         w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() *
                           zeus::CTransform::Translate(0.f, 0.f, -translate) *
                           zeus::CTransform::Scale(scale));
+        break;
     case 3:
         w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() *
                           zeus::CTransform::Translate(-translate, 0.f, 0.f) *
                           zeus::CTransform::Scale(scale));
+        break;
     default: break;
     }
 }

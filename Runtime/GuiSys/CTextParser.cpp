@@ -344,7 +344,8 @@ void CTextParser::ParseText(CTextExecuteBuffer& out, const char16_t* str, int le
         }
         if ((len == -1 || e+1 < len) && str[e+1] != u'&')
         {
-            out.AddString(str + b, e - b);
+            if (e > b)
+                out.AddString(str + b, e - b);
             ++e;
             b = e;
 

@@ -9,25 +9,25 @@ namespace urde
 {
 
 CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag)
-: CGuiWidget(parms), x108_modelId(modelId), x10c_lightMask(lightMask)
+: CGuiWidget(parms), xc8_modelId(modelId), xcc_lightMask(lightMask)
 {
     if (!flag || !modelId.IsValid() ||
         parms.x0_frame->GetGuiSys().GetUsageMode() == CGuiSys::EUsageMode::Two)
         return;
 
-    xf8_model = sp->GetObj({SBIG('CMDL'), modelId});
+    xb8_model = sp->GetObj({SBIG('CMDL'), modelId});
 }
 
 std::vector<CAssetId> CGuiModel::GetModelAssets() const
 {
-    return {x108_modelId};
+    return {xc8_modelId};
 }
 
 bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const
 {
-    if (!xf8_model)
+    if (!xb8_model)
         return true;
-    const CModel* model = xf8_model.GetObj();
+    const CModel* model = xb8_model.GetObj();
     if (!model)
         return false;
     model->GetInstance().Touch(0);
@@ -36,7 +36,7 @@ bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const
 
 void CGuiModel::Touch() const
 {
-    const CModel* model = xf8_model.GetObj();
+    const CModel* model = xb8_model.GetObj();
     if (model)
         model->GetInstance().Touch(0);
 }
@@ -44,11 +44,11 @@ void CGuiModel::Touch() const
 void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
 {
     CGraphics::SetModelMatrix(x34_worldXF);
-    if (!xf8_model)
+    if (!xb8_model)
         return;
     if (!GetIsFinishedLoading())
         return;
-    const CModel* model = xf8_model.GetObj();
+    const CModel* model = xb8_model.GetObj();
     if (!model)
         return;
 
@@ -56,7 +56,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
     {
         zeus::CColor moduCol = xa8_color2;
         moduCol.a *= parms.x0_alphaMod;
-        xb0_frame->EnableLights(x10c_lightMask, const_cast<CBooModel&>(model->GetInstance()));
+        xb0_frame->EnableLights(xcc_lightMask, const_cast<CBooModel&>(model->GetInstance()));
         //if (xb6_29_cullFaces)
         //    CGraphics::SetCullMode(ERglCullMode::Front);
 
@@ -78,29 +78,29 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         }
         case EGuiModelDrawFlags::Alpha:
         {
-            CModelFlags flags(4, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAlpha : EExtendedShader::ForcedAlphaNoCull;
+            CModelFlags flags(5, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
+            flags.m_noCull = !xb6_29_cullFaces;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::Additive:
         {
-            CModelFlags flags(3, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
-            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAdditive : EExtendedShader::ForcedAdditiveNoCull;
+            CModelFlags flags(7, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
+            flags.m_noCull = !xb6_29_cullFaces;
             model->Draw(flags);
             break;
         }
         case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
         {
-            CModelFlags flags(4, 0, xb6_31_depthTest, moduCol);
-            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAlpha : EExtendedShader::ForcedAlphaNoCull;
+            CModelFlags flags(5, 0, xb6_31_depthTest, moduCol);
+            flags.m_noCull = !xb6_29_cullFaces;
             model->Draw(flags);
 
-            flags.x0_blendMode = 5;
+            flags.x0_blendMode = 7;
             flags.x1_matSetIdx = 0;
             flags.x2_flags = (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest);
             flags.x4_color = moduCol;
-            flags.m_extendedShader = xb6_29_cullFaces ? EExtendedShader::ForcedAdditive : EExtendedShader::ForcedAdditiveNoCull;
+            flags.m_noCull = !xb6_29_cullFaces;
             model->Draw(flags);
             break;
         }

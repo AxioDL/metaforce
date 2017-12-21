@@ -11,9 +11,9 @@ class CSimplePool;
 
 class CGuiModel : public CGuiWidget
 {
-    TLockedToken<CModel> xf8_model;
-    CAssetId x108_modelId;
-    u32 x10c_lightMask;
+    TLockedToken<CModel> xb8_model;
+    CAssetId xc8_modelId;
+    u32 xcc_lightMask;
 public:
     CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag);
     FourCC GetWidgetTypeID() const { return FOURCC('MODL'); }

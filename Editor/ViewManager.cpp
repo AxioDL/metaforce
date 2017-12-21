@@ -215,6 +215,7 @@ void ViewManager::init(boo::IApplication* app)
     m_renderTex = root->renderTex();
     m_mainWindow->setWaitCursor(false);
     m_voiceEngine = boo::NewAudioVoiceEngine();
+    m_voiceEngine->setVolume(0.7f);
     m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
     for (const auto& arg : app->getArgs())
@@ -223,6 +224,8 @@ void ViewManager::init(boo::IApplication* app)
             m_deferedProject = arg;
         if (arg == _S("--no-shader-warmup"))
             m_noShaderWarmup = true;
+        else if (arg == _S("--no-sound"))
+            m_voiceEngine->setVolume(0.f);
     }
 }
 

@@ -243,7 +243,7 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::None, false, false, true);
+                              hecl::Backend::CullMode::None, true, false, true);
 
     /* Forced additive shading without culling */
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},

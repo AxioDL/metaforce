@@ -626,10 +626,40 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
         return;
 
     const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
-    boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[0];
-    if (flags.m_extendedShader < extendeds.size())
-        binding = extendeds[flags.m_extendedShader];
+    EExtendedShader extended = EExtendedShader::Flat;
+    if (flags.m_extendedShader == EExtendedShader::Lighting)
+    {
+        if (data.heclIr.m_blendSrc == boo::BlendFactor::One && data.heclIr.m_blendDst == boo::BlendFactor::Zero)
+        {
+            /* Override shader if originally opaque */
+            if (flags.x0_blendMode > 6)
+                extended = flags.m_noCull ? EExtendedShader::ForcedAdditiveNoCull : EExtendedShader::ForcedAdditive;
+            else if (flags.x0_blendMode > 4)
+                extended = flags.m_noCull ? EExtendedShader::ForcedAlphaNoCull : EExtendedShader::ForcedAlpha;
+            else
+                extended = EExtendedShader::Lighting;
+        }
+        else if (flags.m_noCull)
+        {
+            /* Substitute no-cull pipeline if available */
+            if (data.heclIr.m_blendDst == boo::BlendFactor::InvSrcAlpha)
+                extended = EExtendedShader::ForcedAlphaNoCull;
+            else if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+                extended = EExtendedShader::ForcedAdditiveNoCull;
+            else
+                extended = EExtendedShader::Lighting;
+        }
+        else
+        {
+            extended = EExtendedShader::Lighting;
+        }
+    }
+    else if (flags.m_extendedShader < extendeds.size())
+    {
+        extended = flags.m_extendedShader;
+    }
 
+    boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[extended];
     CGraphics::SetShaderDataBinding(binding);
     CGraphics::DrawArrayIndexed(surf.m_data.idxStart, surf.m_data.idxCount);
 }

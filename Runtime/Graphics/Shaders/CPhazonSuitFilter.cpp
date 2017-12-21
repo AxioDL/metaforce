@@ -3,7 +3,7 @@
 namespace urde
 {
 
-#define BLUR_SCALE (1.f / 32.f)
+#define BLUR_SCALE (1.f / 128.f)
 
 void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex)
 {
