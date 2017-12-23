@@ -1364,14 +1364,19 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
 
     /* Build bone ID map */
     std::unordered_map<std::string, atInt32> boneIdMap;
+    std::experimental::optional<CINF> rigCinf;
     std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
     for (const DNAANCS::Actor::Armature& arm : actor.armatures)
     {
-        CINF cinf(arm, boneIdMap);
         if (!rigInv)
         {
+            rigCinf.emplace(arm, boneIdMap);
             auto matrices = ds.getBoneMatrices(arm.name);
-            rigInv.emplace(cinf, matrices);
+            rigInv.emplace(*rigCinf, matrices);
+        }
+        else
+        {
+            CINF cinf(arm, boneIdMap);
         }
     }
 
