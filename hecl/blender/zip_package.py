@@ -11,7 +11,7 @@ package_path = 'hecl'
 target_zip = sys.argv[1]
 
 zf = zipfile.ZipFile(target_zip, mode='w', compression=zipfile.ZIP_DEFLATED)
-print('GENERATING', target_zip)
+#print('GENERATING', target_zip)
 if os.path.isdir(package_path):
     zipdir(package_path, zf)
 
