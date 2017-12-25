@@ -20,7 +20,7 @@ private:
     QStringList m_selectedFiles;
 
 public slots:
-        void chooseClicked();
+    void chooseClicked();
 public:
     FileDirDialog(QWidget* parent = nullptr);
     QStringList selectedFiles();

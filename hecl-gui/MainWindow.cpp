@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->heclTabs->setCurrentIndex(0);
     m_ui->splitter->setSizes({0,-1});
+    m_ui->aboutIcon->setPixmap(QApplication::windowIcon().pixmap(256, 256));
     initSlots();
 }
 

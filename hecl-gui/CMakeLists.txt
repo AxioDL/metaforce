@@ -6,9 +6,34 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5Widgets)
 
-add_executable(hecl-gui
+if(APPLE)
+  set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
+  find_library(FOUNDATION_LIBRARY Foundation)
+  set(PLAT_LIBS ${FOUNDATION_LIBRARY})
+endif()
+
+if(WIN32)
+  list(APPEND PLAT_SRCS platforms/win/urde.rc)
+elseif(APPLE)
+  list(APPEND PLAT_SRCS platforms/mac/mainicon.icns)
+  set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
+          MACOSX_PACKAGE_LOCATION Resources)
+endif()
+
+add_subdirectory(platforms/freedesktop)
+declare_qticon_target()
+list(APPEND PLAT_SRCS mainicon_qt.c)
+
+add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     MainWindow.ui MainWindow.hpp MainWindow.cpp
     FileDirDialog.hpp FileDirDialog.cpp
-    main.cpp)
+    SysReqTableView.hpp SysReqTableView.cpp
+    VectorISATableView.hpp VectorISATableView.cpp
+    VectorISATableModel.hpp VectorISATableModelIntel.hpp
+    SysInstallReport.hpp SysInstallReport.cpp
+    ${PLAT_SRCS} main.cpp)
 
-target_link_libraries(hecl-gui ${Qt5Widgets_LIBRARIES})
+set_target_properties(hecl-gui PROPERTIES
+  MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
+
+target_link_libraries(hecl-gui ${Qt5Widgets_LIBRARIES} ${PLAT_LIBS} zeus)
