@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <memory>
+#include "DownloadManager.hpp"
 class QTextEdit;
 class QTextCharFormat;
 
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
     QString m_ansiString;
     QString m_path;
     QProcess m_heclProc;
+    DownloadManager m_dlManager;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -28,6 +30,8 @@ private slots:
     void onReturnPressed();
 private:
     void initSlots();
+    void onIndexDownloaded(const QStringList& index);
+    void onBinaryDownloaded(const QString& file);
 };
 
 #endif // MAINWINDOW_HPP

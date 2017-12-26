@@ -2,7 +2,7 @@
 #define GUI_VECTORISATABLEVIEW_HPP
 
 #include <QTableView>
-#include <zeus/Math.hpp>
+#include "Common.hpp"
 
 #if ZEUS_ARCH_X86_64 || ZEUS_ARCH_X86
 #include "VectorISATableModelIntel.hpp"
@@ -21,7 +21,7 @@ class VectorISATableView : public QTableView
 public:
     VectorISATableView(QWidget* parent = Q_NULLPTR);
     void paintEvent(QPaintEvent* e) Q_DECL_OVERRIDE;
-    QString getISAString() const { return m_model.getISAString(m_maxISA); }
+    VectorISA getISA() const { return m_model.getISA(m_maxISA); }
 };
 
 #endif // GUI_VECTORISATABLEVIEW_HPP

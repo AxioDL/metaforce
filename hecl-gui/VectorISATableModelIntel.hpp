@@ -60,25 +60,26 @@ public:
         }
     }
 
-    QString getISAString(int idx) const
+    VectorISA getISA(int idx) const
     {
         switch (idx)
         {
-        case 0:
         default:
-            return QStringLiteral("x87");
+            return VectorISA::Invalid;
+        case 0:
+            return VectorISA::X87;
         case 1:
-            return QStringLiteral("sse");
+            return VectorISA::SSE;
         case 2:
-            return QStringLiteral("sse2");
+            return VectorISA::SSE2;
         case 3:
-            return QStringLiteral("sse3");
+            return VectorISA::SSE3;
         case 4:
-            return QStringLiteral("sse41");
+            return VectorISA::SSE41;
         case 5:
-            return QStringLiteral("avx");
+            return VectorISA::AVX;
         case 6:
-            return QStringLiteral("avx2");
+            return VectorISA::AVX2;
         }
     }
 };

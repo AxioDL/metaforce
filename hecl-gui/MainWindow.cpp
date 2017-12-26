@@ -11,12 +11,26 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
   , m_heclProc(this)
+  , m_dlManager(this)
 {
     m_ui->setupUi(this);
     m_ui->heclTabs->setCurrentIndex(0);
     m_ui->splitter->setSizes({0,-1});
+
     m_ui->aboutIcon->setPixmap(QApplication::windowIcon().pixmap(256, 256));
+
+    QFont mFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    mFont.setPointSize(m_ui->currentBinaryLabel->font().pointSize());
+    m_ui->currentBinaryLabel->setFont(mFont);
+    m_ui->recommendedBinaryLabel->setFont(mFont);
+
+    m_dlManager.connectWidgets(m_ui->downloadProgressBar, m_ui->downloadErrorLabel,
+                               std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
+                               std::bind(&MainWindow::onBinaryDownloaded, this, std::placeholders::_1));
+
     initSlots();
+
+    m_dlManager.fetchIndex();
 }
 
 MainWindow::~MainWindow()
@@ -544,6 +558,19 @@ void MainWindow::onReturnPressed()
 {
     if (sender() == m_ui->pathEdit && !m_ui->pathEdit->text().isEmpty())
         m_path = m_ui->pathEdit->text();
+}
+
+void MainWindow::onIndexDownloaded(const QStringList& index)
+{
+    m_ui->binaryComboBox->clear();
+    for (const QString& str : index)
+        m_ui->binaryComboBox->addItem(str);
+    m_ui->binaryComboBox->setEnabled(true);
+}
+
+void MainWindow::onBinaryDownloaded(const QString& file)
+{
+
 }
 
 void MainWindow::initSlots()
