@@ -46,10 +46,9 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
     }
     m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.f);
 #if _WIN32
-    MEMORYSTATUSEX memStat = {};
-    memStat.dwLength = sizeof(memStat);
-    GlobalMemoryStatusEx(&memStat);
-    m_memorySize = memStat.ullTotalPhys;
+    ULONGLONG memSize;
+    GetPhysicallyInstalledSystemMemory(&memSize);
+    m_memorySize = memSize * 1024;
 #else
     m_memorySize = uint64_t(sysconf(_SC_PHYS_PAGES)) * sysconf(_SC_PAGESIZE);
 #endif
