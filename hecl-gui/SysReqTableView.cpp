@@ -4,12 +4,34 @@
 #include <QHeaderView>
 
 #if _WIN32
+#include <Windows.h>
+#include <VersionHelpers.h>
 #else
 #include <unistd.h>
 #endif
 
 #if __APPLE__
 #include "MacOSSystemVersion.hpp"
+#elif _WIN32
+static QString GetWindowsVersionString()
+{
+    if (IsWindows10OrGreater())
+        return QStringLiteral("Windows 10");
+    else if (IsWindows8Point1OrGreater())
+        return QStringLiteral("Windows 8.1");
+    else if (IsWindows8OrGreater())
+        return QStringLiteral("Windows 8");
+    else if (IsWindows7SP1OrGreater())
+        return QStringLiteral("Windows 7 SP1");
+    else if (IsWindows7OrGreater())
+        return QStringLiteral("Windows 7");
+    else if (IsWindowsVistaOrGreater())
+        return QStringLiteral("Windows Vista");
+    else if (IsWindowsXPOrGreater())
+        return QStringLiteral("Windows XP");
+    else
+        return QStringLiteral("Windows Old And Won't Work");
+}
 #endif
 
 SysReqTableModel::SysReqTableModel(QObject* parent)
@@ -24,6 +46,10 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
     }
     m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.f);
 #if _WIN32
+    MEMORYSTATUSEX memStat = {};
+    memStat.dwLength = sizeof(memStat);
+    GlobalMemoryStatusEx(&memStat);
+    m_memorySize = memStat.ullTotalPhys;
 #else
     m_memorySize = uint64_t(sysconf(_SC_PHYS_PAGES)) * sysconf(_SC_PAGESIZE);
 #endif
@@ -34,6 +60,9 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
         m_osVersion.sprintf("macOS %d.%d", m_macosMajor, m_macosMinor);
     else
         m_osVersion.sprintf("macOS %d.%d.%d", m_macosMajor, m_macosMinor, m_macosPatch);
+#elif _WIN32
+    m_win7SP1OrGreater = IsWindows7SP1OrGreater();
+    m_osVersion = GetWindowsVersionString();
 #endif
 }
 
@@ -67,6 +96,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
         case 3:
 #ifdef __APPLE__
             return m_macosMajor > 10 || m_macosMinor >= 9;
+#elif defined(_WIN32)
+            return m_win7SP1OrGreater;
 #else
             return true;
 #endif
@@ -92,6 +123,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             case 3:
 #ifdef __APPLE__
                 return QStringLiteral("macOS 10.9");
+#elif defined(_WIN32)
+                return QStringLiteral("Windows 7 SP1");
 #else
                 return {};
 #endif

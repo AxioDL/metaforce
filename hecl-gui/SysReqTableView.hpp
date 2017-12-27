@@ -17,6 +17,8 @@ class SysReqTableModel : public QAbstractTableModel
     int m_macosMajor = 0;
     int m_macosMinor = 0;
     int m_macosPatch = 0;
+#elif _WIN32
+    bool m_win7SP1OrGreater = false;
 #endif
     QString m_osVersion;
 public:

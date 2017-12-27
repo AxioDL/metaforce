@@ -14,7 +14,7 @@ if(APPLE)
 endif()
 
 if(WIN32)
-  list(APPEND PLAT_SRCS platforms/win/urde.rc)
+  list(APPEND PLAT_SRCS platforms/win/hecl-gui.rc platforms/win/hecl-gui.manifest)
 elseif(APPLE)
   list(APPEND PLAT_SRCS platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
@@ -37,4 +37,4 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
 set_target_properties(hecl-gui PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
 
-target_link_libraries(hecl-gui ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${PLAT_LIBS} zeus)
+target_link_libraries(hecl-gui ${PLAT_LIBS} ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} zeus)

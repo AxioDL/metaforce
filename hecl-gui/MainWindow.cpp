@@ -721,7 +721,7 @@ void MainWindow::initSlots()
 
     connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
         FileDirDialog dialog(this);
-        dialog.setWindowTitle("Select ISO or Directory");
+        dialog.setWindowTitle("Select Working Directory");
         int res = dialog.exec();//QFileDialog::getOpenFileName(this, "Select ISO or Directory");
         if (res == QFileDialog::Rejected)
             return;

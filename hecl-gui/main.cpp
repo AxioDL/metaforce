@@ -3,8 +3,7 @@
 #include "MainWindow.hpp"
 #include "Common.hpp"
 
-extern const size_t MAINICON_QT_SZ;
-extern const uint8_t MAINICON_QT[];
+extern "C" const uint8_t MAINICON_QT[];
 
 static QIcon MakeAppIcon()
 {
