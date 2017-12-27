@@ -23,27 +23,32 @@ static logvisor::Module Log{"URDE"};
 static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf)
 {
     hecl::SystemString features;
-    if (cpuInf.AESNI)
-        features += _S("AES-NI");
-    if (cpuInf.SSE1)
+    auto AddFeature = [&features](const hecl::SystemChar* str)
     {
         if (!features.empty())
-            features += _S(", SSE1");
-        else
-            features += _S("SSE1");
-    }
+            features += _S(", ");
+        features += str;
+    };
+    if (cpuInf.AESNI)
+        AddFeature(_S("AES-NI"));
+    if (cpuInf.SSE1)
+        AddFeature(_S("SSE"));
     if (cpuInf.SSE2)
-        features += _S(", SSE2");
+        AddFeature(_S("SSE2"));
     if (cpuInf.SSE3)
-        features += _S(", SSE3");
+        AddFeature(_S("SSE3"));
     if (cpuInf.SSSE3)
-        features += _S(", SSSE3");
+        AddFeature(_S("SSSE3"));
     if (cpuInf.SSE4a)
-        features += _S(", SSE4a");
+        AddFeature(_S("SSE4a"));
     if (cpuInf.SSE41)
-        features += _S(", SSE4.1");
+        AddFeature(_S("SSE4.1"));
     if (cpuInf.SSE42)
-        features += _S(", SSE4.2");
+        AddFeature(_S("SSE4.2"));
+    if (cpuInf.AVX)
+        AddFeature(_S("AVX"));
+    if (cpuInf.AVX2)
+        AddFeature(_S("AVX2"));
     return features;
 }
 
@@ -160,6 +165,12 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
+    if (argc > 1 && !strcmp(argv[1], "--dlpackage"))
+    {
+        printf("%s\n", URDE_DLPACKAGE);
+        return 100;
+    }
+
     SetupBasics(IsClientLoggingEnabled(argc, argv));
 
     if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024))
