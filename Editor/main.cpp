@@ -165,7 +165,7 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
-    if (argc > 1 && !strcmp(argv[1], "--dlpackage"))
+    if (argc > 1 && !hecl::StrCmp(argv[1], _S("--dlpackage")))
     {
         printf("%s\n", URDE_DLPACKAGE);
         return 100;
