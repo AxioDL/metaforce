@@ -2,6 +2,7 @@
 #define GUI_COMMON_HPP
 
 #include <QString>
+#include <QMetaType>
 #include "zeus/Math.hpp"
 
 enum class Platform
@@ -37,17 +38,8 @@ enum class Architecture
 QString ArchitectureToString(Architecture arch);
 Architecture StringToArchitecture(const QString& str);
 
-#if ZEUS_ARCH_X86_64
-constexpr Architecture CurArchitecture = Architecture::X86_64;
-#elif ZEUS_ARCH_X86
-constexpr Architecture CurArchitecture = Architecture::X86;
-#elif ZEUS_ARCH_ARM
-constexpr Architecture CurArchitecture = Architecture::ARM;
-#elif ZEUS_ARCH_AARCH64
-constexpr Architecture CurArchitecture = Architecture::AARCH64;
-#endif
-
-extern const QString CurArchitectureString;
+extern Architecture CurArchitecture;
+extern QString CurArchitectureString;
 
 enum class VectorISA
 {
@@ -67,11 +59,22 @@ VectorISA StringToVectorISA(const QString& str);
 class URDEVersion
 {
     int m_version = -1;
-    VectorISA m_vectorISA;
+    Platform m_platform = CurPlatform;
+    Architecture m_architecture = CurArchitecture;
+    VectorISA m_vectorISA = VectorISA::Invalid;
+    QString m_extension;
 public:
+    URDEVersion() = default;
     explicit URDEVersion(const QString& filename);
     bool isValid() const { return m_version >= 0; }
-
+    QString fileString(bool withExtension) const;
+    int getVersion() const { return m_version; }
+    Platform getPlatform() const { return m_platform; }
+    Architecture getArchitecture() const { return m_architecture; }
+    VectorISA getVectorISA() const { return m_vectorISA; }
 };
+Q_DECLARE_METATYPE(URDEVersion);
+
+void InitializePlatform();
 
 #endif // GUI_COMMON_HPP

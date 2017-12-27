@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QStyleFactory>
 #include "MainWindow.hpp"
+#include "Common.hpp"
 
 extern const size_t MAINICON_QT_SZ;
 extern const uint8_t MAINICON_QT[];
@@ -26,6 +27,8 @@ static QIcon MakeAppIcon()
 
 int main(int argc, char* argv[])
 {
+    InitializePlatform();
+
     QApplication a(argc, argv);
     a.setStyle(QStyleFactory::create("Fusion"));
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
@@ -37,10 +40,10 @@ int main(int argc, char* argv[])
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));
     darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+    darkPalette.setColor(QPalette::Base, QColor(42,42,42));
     darkPalette.setColor(QPalette::Disabled, QPalette::Base, QColor(25,25,25,53));
     darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipBase, QColor(42,42,42));
     darkPalette.setColor(QPalette::ToolTipText, Qt::white);
     darkPalette.setColor(QPalette::Text, Qt::white);
     darkPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(255,255,255,120));
@@ -49,10 +52,11 @@ int main(int argc, char* argv[])
     darkPalette.setColor(QPalette::ButtonText, Qt::white);
     darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(255,255,255,120));
     darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(42, 130, 218, 53));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+    darkPalette.setColor(QPalette::Link, QColor(42,130,218));
+    darkPalette.setColor(QPalette::Highlight, QColor(42,130,218));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(42,130,218,53));
+    darkPalette.setColor(QPalette::HighlightedText, Qt::white);
+    darkPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(255,255,255,120));
     a.setPalette(darkPalette);
 
     MainWindow w;

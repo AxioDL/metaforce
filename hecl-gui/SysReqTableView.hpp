@@ -19,7 +19,6 @@ class SysReqTableModel : public QAbstractTableModel
     int m_macosPatch = 0;
 #endif
     QString m_osVersion;
-    bool m_is64Bit = true;
 public:
     SysReqTableModel(QObject* parent = Q_NULLPTR);
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
@@ -37,6 +36,13 @@ class SysReqTableView : public QTableView
 public:
     SysReqTableView(QWidget* parent = Q_NULLPTR);
     void paintEvent(QPaintEvent* e) Q_DECL_OVERRIDE;
+    const SysReqTableModel& getModel() const { return m_model; }
+    const VectorISATableView& getVectorISATable() const { return m_vectorISATable; }
+    bool willRun(const URDEVersion& v) const
+    {
+        return v.getArchitecture() == CurArchitecture && v.getPlatform() == CurPlatform &&
+               m_vectorISATable.willRun(v.getVectorISA());
+    }
 };
 
 #endif // GUI_SYSREQTABLEVIEW_HPP

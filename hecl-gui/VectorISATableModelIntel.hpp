@@ -82,6 +82,29 @@ public:
             return VectorISA::AVX2;
         }
     }
+
+    bool willRun(VectorISA visa) const
+    {
+        switch (visa)
+        {
+        default:
+            return false;
+        case VectorISA::X87:
+            return true;
+        case VectorISA::SSE:
+            return m_features.SSE1;
+        case VectorISA::SSE2:
+            return m_features.SSE2;
+        case VectorISA::SSE3:
+            return m_features.SSE3;
+        case VectorISA::SSE41:
+            return m_features.SSE41;
+        case VectorISA::AVX:
+            return m_features.AVX;
+        case VectorISA::AVX2:
+            return m_features.AVX2;
+        }
+    }
 };
 
 #endif // GUI_VECTORISATABLEMODELINTEL_HPP

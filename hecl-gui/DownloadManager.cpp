@@ -84,14 +84,12 @@ void DownloadManager::indexFinished()
 
     QStringList files;
 
-    while (true)
+    while (!m_indexInProgress->atEnd())
     {
-        if (m_indexInProgress->atEnd())
-            break;
-        QByteArray line = m_indexInProgress->readLine();
+        QString line = QString::fromUtf8(m_indexInProgress->readLine()).trimmed();
         if (line.isEmpty())
             continue;
-        files.push_back(QString::fromUtf8(line).trimmed());
+        files.push_back(line);
     }
 
     if (m_indexCompletionHandler)

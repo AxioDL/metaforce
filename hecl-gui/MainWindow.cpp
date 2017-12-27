@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow)
   , m_heclProc(this)
   , m_dlManager(this)
+  , m_settings("AxioDL", "HECL", this)
 {
     m_ui->setupUi(this);
     m_ui->heclTabs->setCurrentIndex(0);
@@ -23,6 +24,16 @@ MainWindow::MainWindow(QWidget *parent) :
     mFont.setPointSize(m_ui->currentBinaryLabel->font().pointSize());
     m_ui->currentBinaryLabel->setFont(mFont);
     m_ui->recommendedBinaryLabel->setFont(mFont);
+
+    m_updateURDEButton = new QPushButton(QStringLiteral("Update URDE"), m_ui->centralwidget);
+    m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
+    m_updateURDEButton->hide();
+    QPalette pal = m_updateURDEButton->palette();
+    pal.setColor(QPalette::Button, QColor(53,53,72));
+    m_updateURDEButton->setPalette(pal);
+    connect(m_updateURDEButton, SIGNAL(clicked()), this, SLOT(onUpdateURDEPressed()));
+
+    setPath(m_settings.value(QStringLiteral("working_dir")).toString());
 
     m_dlManager.connectWidgets(m_ui->downloadProgressBar, m_ui->downloadErrorLabel,
                                std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
@@ -557,20 +568,131 @@ void MainWindow::onExtract()
 void MainWindow::onReturnPressed()
 {
     if (sender() == m_ui->pathEdit && !m_ui->pathEdit->text().isEmpty())
-        m_path = m_ui->pathEdit->text();
+        setPath(m_ui->pathEdit->text());
 }
 
 void MainWindow::onIndexDownloaded(const QStringList& index)
 {
+    int bestVersion = 0;
     m_ui->binaryComboBox->clear();
     for (const QString& str : index)
-        m_ui->binaryComboBox->addItem(str);
+    {
+        URDEVersion version(str);
+        if (m_ui->sysReqTable->willRun(version))
+            bestVersion = m_ui->binaryComboBox->count();
+        m_ui->binaryComboBox->addItem(version.fileString(false), QVariant::fromValue(version));
+    }
+    m_ui->binaryComboBox->setCurrentIndex(bestVersion);
+    m_recommendedVersion = m_ui->binaryComboBox->itemData(bestVersion).value<URDEVersion>();
+    m_ui->recommendedBinaryLabel->setText(m_recommendedVersion.fileString(false));
     m_ui->binaryComboBox->setEnabled(true);
+
+    if (!m_path.isEmpty())
+    {
+        checkDownloadedBinary();
+        m_ui->downloadButton->setEnabled(true);
+    }
+}
+
+void MainWindow::onDownloadPressed()
+{
+    m_updateURDEButton->hide();
+    QString filename = m_ui->binaryComboBox->currentData().value<URDEVersion>().fileString(true);
+    printf("Downloading %s\n", filename.toUtf8().data());
+    m_ui->launchBtn->setEnabled(false);
+    m_dlManager.fetchBinary(filename, m_path + '/' + filename);
+}
+
+void MainWindow::onUpdateURDEPressed()
+{
+    m_ui->heclTabs->setCurrentIndex(1);
+    onDownloadPressed();
 }
 
 void MainWindow::onBinaryDownloaded(const QString& file)
 {
+    QFileInfo path(file);
+#ifndef _WIN32
+    QProcess untar;
+    untar.setWorkingDirectory(path.dir().absolutePath());
+    untar.start("tar", {"-xvf", path.fileName()});
+    untar.waitForFinished();
+#if __APPLE__
+    QFile::rename(path.dir().absoluteFilePath(path.baseName()) + ".app", "urde.app");
+#else
+    QFile::rename(path.dir().absoluteFilePath(path.baseName()), "urde");
+#endif
+    QFile::remove(file);
+#else
+    QFile::rename(file, "urde.exe");
+#endif
+    checkDownloadedBinary();
+}
 
+void MainWindow::checkDownloadedBinary()
+{
+    m_updateURDEButton->hide();
+
+#if __APPLE__
+    QString urdePath = m_path + "/urde.app/Contents/MacOS/urde";
+#elif _WIN32
+    QString urdePath = m_path + "urde.exe";
+#else
+    QString urdePath = m_path + "urde";
+#endif
+    QProcess proc;
+    proc.start(urdePath, {"--dlpackage"}, QIODevice::ReadOnly);
+    if (proc.waitForStarted())
+    {
+        proc.waitForFinished();
+        QString dlPackage = QString::fromUtf8(proc.readLine()).trimmed();
+        if (proc.exitCode() == 100)
+        {
+            if (dlPackage.isEmpty())
+            {
+                m_ui->currentBinaryLabel->setText(QStringLiteral("unknown"));
+            }
+            else
+            {
+                URDEVersion v(dlPackage);
+                m_ui->currentBinaryLabel->setText(v.fileString(false));
+                if (m_recommendedVersion.isValid() && v.isValid() &&
+                    m_recommendedVersion.getVersion() > v.getVersion())
+                {
+                    m_updateURDEButton->show();
+                }
+            }
+        }
+        else
+        {
+            m_ui->currentBinaryLabel->setText(QStringLiteral("unknown"));
+        }
+    }
+    else
+    {
+        m_ui->currentBinaryLabel->setText(QStringLiteral("none"));
+    }
+}
+
+void MainWindow::setPath(const QString& path)
+{
+    if (!path.isEmpty())
+    {
+        m_path = path;
+        m_settings.setValue(QStringLiteral("working_dir"), m_path);
+        m_ui->pathEdit->setText(m_path);
+        m_ui->extractBtn->setEnabled(true);
+        m_ui->packageBtn->setEnabled(true);
+        m_ui->downloadButton->setToolTip(QString());
+        m_ui->downloadButton->setEnabled(m_ui->binaryComboBox->isEnabled());
+        checkDownloadedBinary();
+    }
+    else
+    {
+        m_ui->downloadButton->setToolTip(QStringLiteral("Working directory must be set"));
+        m_ui->downloadButton->setEnabled(false);
+        m_ui->currentBinaryLabel->setText(QStringLiteral("none"));
+    }
 }
 
 void MainWindow::initSlots()
@@ -607,15 +729,8 @@ void MainWindow::initSlots()
         if (dialog.selectedFiles().size() <= 0)
             return;
 
-        QString path = dialog.selectedFiles().at(0);
         /* TODO: Add beacon detection */
-        if (!path.isEmpty())
-        {
-            m_path = path;
-            m_ui->pathEdit->setText(m_path);
-            m_ui->extractBtn->setEnabled(true);
-            m_ui->packageBtn->setEnabled(true);
-        }
+        setPath(dialog.selectedFiles().at(0));
     });
 
     connect(m_ui->packageBtn, &QPushButton::clicked, [=](){
@@ -632,6 +747,8 @@ void MainWindow::initSlots()
         m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
         m_heclProc.start("../hecl/driver/hecl.exe", {"package", "-y"});
     });
+
+    connect(m_ui->downloadButton, SIGNAL(clicked()), this, SLOT(onDownloadPressed()));
 }
 
 void MainWindow::setTextTermFormatting(QTextEdit* textEdit, const QString& text)

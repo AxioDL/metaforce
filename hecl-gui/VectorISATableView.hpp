@@ -22,6 +22,7 @@ public:
     VectorISATableView(QWidget* parent = Q_NULLPTR);
     void paintEvent(QPaintEvent* e) Q_DECL_OVERRIDE;
     VectorISA getISA() const { return m_model.getISA(m_maxISA); }
+    bool willRun(VectorISA visa) const { return m_model.willRun(visa); }
 };
 
 #endif // GUI_VECTORISATABLEVIEW_HPP

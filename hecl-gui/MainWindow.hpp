@@ -5,8 +5,10 @@
 #include <QProcess>
 #include <memory>
 #include "DownloadManager.hpp"
+#include "Common.hpp"
 class QTextEdit;
 class QTextCharFormat;
+class QPushButton;
 
 namespace Ui {
 class MainWindow;
@@ -20,6 +22,9 @@ class MainWindow : public QMainWindow
     QString m_path;
     QProcess m_heclProc;
     DownloadManager m_dlManager;
+    QSettings m_settings;
+    URDEVersion m_recommendedVersion;
+    QPushButton* m_updateURDEButton;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -28,7 +33,11 @@ public:
 private slots:
     void onExtract();
     void onReturnPressed();
+    void onDownloadPressed();
+    void onUpdateURDEPressed();
 private:
+    void checkDownloadedBinary();
+    void setPath(const QString& path);
     void initSlots();
     void onIndexDownloaded(const QStringList& index);
     void onBinaryDownloaded(const QString& file);

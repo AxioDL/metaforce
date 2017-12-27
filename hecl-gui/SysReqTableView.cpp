@@ -34,9 +34,6 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
         m_osVersion.sprintf("macOS %d.%d", m_macosMajor, m_macosMinor);
     else
         m_osVersion.sprintf("macOS %d.%d.%d", m_macosMajor, m_macosMinor, m_macosPatch);
-#elif _WIN32
-#else
-    m_is64Bit = sysconf(_SC_WORD_BIT) == 64;
 #endif
 }
 
@@ -84,7 +81,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             {
             case 0:
 #if ZEUS_ARCH_X86 || ZEUS_ARCH_X86_64
-                return QStringLiteral("x86, x86_64");
+                return QStringLiteral("x86_64");
 #else
                 return {};
 #endif
@@ -107,7 +104,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             {
             case 0:
 #if ZEUS_ARCH_X86 || ZEUS_ARCH_X86_64
-                return m_is64Bit ? QStringLiteral("x86_64") : QStringLiteral("x86");
+                return CurArchitectureString;
 #else
                 return {};
 #endif
