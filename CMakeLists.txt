@@ -9,6 +9,11 @@ endif()
 
 project(urde)
 
+option(URDE_CROSSCOMPILING "Don't build tools; attempt package import" Off)
+if (URDE_CROSSCOMPILING)
+  set(CMAKE_CROSSCOMPILING On)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
