@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>URDE</string>
+    <string>urde</string>
     <key>CFBundleGetInfoString</key>
     <string>Version BETA</string>
     <key>NSHumanReadableCopyright</key>
@@ -11,7 +11,7 @@
     <key>CFBundleIconFile</key>
     <string>mainicon.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>io.github.AxioDL.URDE</string>
+    <string>com.axiodl.URDE</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
