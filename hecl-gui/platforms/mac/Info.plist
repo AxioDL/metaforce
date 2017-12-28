@@ -11,7 +11,7 @@
     <key>CFBundleIconFile</key>
     <string>mainicon.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>io.github.AxioDL.HECL</string>
+    <string>com.axiodl.HECL</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
