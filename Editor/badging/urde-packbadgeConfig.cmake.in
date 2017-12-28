@@ -5,5 +5,5 @@ get_filename_component(PACKBADGE_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
  
 # Our library dependencies (contains definitions for IMPORTED targets)
 if(NOT TARGET packbadge AND NOT packbadge_BINARY_DIR)
-  include("${PACKBADGE_CMAKE_DIR}/packbadgeTargets.cmake")
+  include("${PACKBADGE_CMAKE_DIR}/urde-packbadgeTargets.cmake")
 endif()
