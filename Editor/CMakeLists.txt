@@ -101,7 +101,8 @@ if(COMMAND add_sanitizers)
 endif()
 
 set_target_properties(urde PROPERTIES
-                      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
+                      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
+                      MACOSX_BUNDLE_BUNDLE_NAME "URDE")
 
 if (NOT WINDOWS_STORE)
   add_dependencies(urde visigen hecl)
