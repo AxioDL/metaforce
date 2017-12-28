@@ -29,7 +29,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void setTextTermFormatting(QTextEdit* textEdit, QString const & text);
-    void parseEscapeSequence(int attribute, QListIterator< QString > & i, QTextCharFormat & textCharFormat, QTextCharFormat const & defaultTextCharFormat);
+    void parseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharFormat& textCharFormat,
+                             const QTextCharFormat& defaultTextCharFormat);
 private slots:
     void onExtract();
     void onReturnPressed();

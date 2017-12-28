@@ -51,8 +51,11 @@ MainWindow::~MainWindow()
     delete m_ui;
 }
 /* TODO: more complete Vt102 emulation */
-// based on information: http://en.m.wikipedia.org/wiki/ANSI_escape_code http://misc.flogisoft.com/bash/tip_colors_and_formatting http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-void MainWindow::parseEscapeSequence(int attribute, QListIterator< QString > & i, QTextCharFormat & textCharFormat, QTextCharFormat const & defaultTextCharFormat)
+// based on information: http://en.m.wikipedia.org/wiki/ANSI_escape_code
+// http://misc.flogisoft.com/bash/tip_colors_and_formatting
+// http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+void MainWindow::parseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharFormat& textCharFormat,
+                                     const QTextCharFormat& defaultTextCharFormat)
 {
     switch (attribute) {
     case 0 : { // Normal/Default (reset all attributes)
