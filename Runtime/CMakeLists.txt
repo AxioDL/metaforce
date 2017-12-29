@@ -45,7 +45,7 @@ if(APPLE)
                               CGameOptionsTouchBarMac.mm
                               PROPERTIES COMPILE_FLAGS -fobjc-arc)
   bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
-  list(APPEND PLAT_SRCS startButton.c CGameOptionsTouchBarMac.mm)
+  list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
 endif()
 
 add_library(RuntimeCommon
