@@ -1,8 +1,6 @@
 #include "EVNT.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 void EVNT::read(athena::io::IStreamReader& reader)
@@ -95,5 +93,4 @@ size_t EVNT::binarySize(size_t __isz) const
     return __isz + (version == 2 ? 20 : 16);
 }
 
-}
 }

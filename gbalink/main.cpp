@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include "GCNTypes.hpp"
 #include <memory>
 #include <thread>

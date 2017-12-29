@@ -3,9 +3,7 @@
 
 #include "CIOWin.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CStateSetterFlow : public CIOWin
@@ -15,7 +13,6 @@ public:
     EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
 };
 
-}
 }
 
 #endif // __URDE_MP1_CSTATESETTERFLOW_HPP__

@@ -1,8 +1,13 @@
 #ifndef URDE_SPACE_HPP
 #define URDE_SPACE_HPP
 
-#include <athena/DNAYaml.hpp>
-#include <specter/specter.hpp>
+#include "athena/DNAYaml.hpp"
+#include "specter/Space.hpp"
+#include "specter/IMenuNode.hpp"
+#include "specter/Button.hpp"
+#include "specter/MultiLineTextView.hpp"
+#include "specter/ViewResources.hpp"
+#include "specter/RootView.hpp"
 #include "ProjectManager.hpp"
 
 namespace specter
@@ -11,6 +16,7 @@ class View;
 class SplitView;
 class ViewResources;
 class Toolbar;
+struct Icon;
 }
 namespace urde
 {

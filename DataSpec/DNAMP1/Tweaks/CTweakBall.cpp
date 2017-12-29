@@ -1,8 +1,6 @@
 #include "CTweakBall.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
@@ -931,5 +929,4 @@ size_t CTweakBall::binarySize(size_t __isz) const
     return __isz + 456;
 }
 
-}
 }

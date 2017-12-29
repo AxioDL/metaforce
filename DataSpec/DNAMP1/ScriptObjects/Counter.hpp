@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Counter : IScriptObject
 {
@@ -18,7 +16,6 @@ struct Counter : IScriptObject
     Value<bool> unknown1;
     Value<bool> unknown2;
 };
-}
 }
 
 #endif

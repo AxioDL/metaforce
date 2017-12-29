@@ -1,9 +1,7 @@
 #include "STRG.hpp"
 #include "DNAMP2.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 void STRG::_read(athena::io::IStreamReader& reader)
@@ -247,5 +245,4 @@ const char* STRG::DNAType()
     return "urde::DNAMP2::STRG";
 }
 
-}
 }

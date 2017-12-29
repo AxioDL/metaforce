@@ -1,15 +1,12 @@
 #ifndef _DNAMP2_ANIM_HPP_
 #define _DNAMP2_ANIM_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "DNAMP2.hpp"
 #include "../DNACommon/ANIM.hpp"
 #include "../DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 struct ANIM : BigDNA
@@ -29,7 +26,7 @@ struct ANIM : BigDNA
         float mainInterval = 0.0;
         bool looping = false;
 
-        void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
+        void sendANIMToBlender(hecl::blender::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
     };
 
     struct ANIM0 : IANIM
@@ -211,14 +208,13 @@ struct ANIM : BigDNA
         return m_anim->binarySize(__isz + 4);
     }
 
-    void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool) const
+    void sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool) const
     {
         m_anim->sendANIMToBlender(os, rig);
     }
 
 };
 
-}
 }
 
 #endif // _DNAMP2_ANIM_HPP_

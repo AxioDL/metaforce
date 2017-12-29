@@ -3,9 +3,7 @@
 
 #include "../DNAMP1/DeafBabe.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 struct DeafBabe : BigDNA
@@ -135,27 +133,14 @@ struct DeafBabe : BigDNA
     Value<atUint32> vertCount;
     Vector<atVec3f, DNA_COUNT(vertCount)> verts;
 
-    static void BlenderInit(hecl::BlenderConnection::PyOutStream& os);
-    void insertNoClimb(hecl::BlenderConnection::PyOutStream& os) const
-    {
-        for (atInt16 edgeIdx : noClimbEdges)
-        {
-            if (edgeIdx == -1)
-                continue;
-            const Edge& edge = edgeVertConnections[edgeIdx];
-            os.format("edge = col_bm.edges.get((col_bm.verts[%u], col_bm.verts[%u]))\n"
-                      "if edge:\n"
-                      "    edge.seam = True\n",
-                      edge.verts[0], edge.verts[1]);
-        }
-    }
-    void sendToBlender(hecl::BlenderConnection::PyOutStream& os) const
+    static void BlenderInit(hecl::blender::PyOutStream& os);
+    void insertNoClimb(hecl::blender::PyOutStream& os) const;
+    void sendToBlender(hecl::blender::PyOutStream& os) const
     {
         DeafBabeSendToBlender(os, *this);
     }
 };
 
-}
 }
 
 #endif // _DNAMP2_DEAFBABE_HPP_

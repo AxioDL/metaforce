@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Camera : IScriptObject
 {
@@ -28,7 +26,6 @@ struct Camera : IScriptObject
     Value<bool> unknown11;
     Value<bool> unknown12;
 };
-}
 }
 
 #endif

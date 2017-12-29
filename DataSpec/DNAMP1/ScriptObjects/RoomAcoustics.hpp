@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct RoomAcoustics : IScriptObject
 {
@@ -39,7 +37,6 @@ struct RoomAcoustics : IScriptObject
     Value<atUint32> feedback[3];
     Value<atUint32> output[3];
 };
-}
 }
 
 #endif

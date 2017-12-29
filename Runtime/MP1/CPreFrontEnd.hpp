@@ -3,9 +3,7 @@
 
 #include "CIOWin.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CPreFrontEnd : public CIOWin
@@ -16,7 +14,6 @@ public:
     EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
 };
 
-}
 }
 
 #endif // __URDE_MP1_CPREFRONTEND_HPP__

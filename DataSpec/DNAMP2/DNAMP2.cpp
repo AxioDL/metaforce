@@ -19,9 +19,7 @@
 #include "../DNACommon/ATBL.hpp"
 #include "Runtime/GCNTypes.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 logvisor::Module Log("urde::DNAMP2");
 
@@ -297,5 +295,4 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK& pak, const
     return {};
 }
 
-}
 }

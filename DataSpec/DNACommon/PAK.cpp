@@ -393,7 +393,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
         return overrideSearch->second.getCookedPath(
                     *m_dataSpec.overrideDataSpec(overrideSearch->second,
                                                  m_dataSpec.getDataSpecEntry(),
-                                                 hecl::SharedBlenderToken));
+                                                 hecl::blender::SharedBlenderToken));
     }
 
     const PAKType* pak = m_pak.get();
@@ -512,7 +512,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool st
 }
 
 template <class BRIDGETYPE>
-bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::BlenderToken& btok,
+bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::blender::Token& btok,
                                              std::function<void(const hecl::SystemChar*, float)> progress)
 {
     enterPAKBridge(pakBridge);

@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct PathCamera : IScriptObject
 {
@@ -35,7 +33,6 @@ struct PathCamera : IScriptObject
     Value<float> unknown6;
     Value<float> unknown7;
 };
-}
 }
 
 #endif

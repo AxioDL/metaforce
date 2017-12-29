@@ -4,9 +4,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Actor : IScriptObject
 {
@@ -65,37 +63,8 @@ struct Actor : IScriptObject
         actorParameters.scanIDs(scansOut);
     }
 
-    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
-    {
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        zeus::CAABox aabbOut;
-
-        if (model)
-        {
-            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(model);
-            conn.openBlend(path);
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
-            auto aabb = ds.getMeshAABB();
-            aabbOut = zeus::CAABox(aabb.first, aabb.second);
-        }
-        else if (animationParameters.animationCharacterSet)
-        {
-            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(
-                animationParameters.animationCharacterSet);
-            conn.openBlend(path.getWithExtension(_S(".blend"), true));
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
-            auto aabb = ds.getMeshAABB();
-            aabbOut = zeus::CAABox(aabb.first, aabb.second);
-        }
-
-        if (aabbOut.min.x > aabbOut.max.x)
-            return {};
-
-        zeus::CTransform xf = ConvertEditorEulerToTransform4f(scale, orientation, location);
-        return aabbOut.getTransformedAABox(xf);
-    }
+    zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const;
 };
-}
 }
 
 #endif

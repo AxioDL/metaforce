@@ -4,9 +4,7 @@
 #include "../../DNACommon/Tweaks/ITweakSlideShow.hpp"
 #include "zeus/CColor.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakSlideShow final : ITweakSlideShow
@@ -40,7 +38,6 @@ struct CTweakSlideShow final : ITweakSlideShow
     float GetX54() const { return x54_; }
 };
 
-}
 }
 
 #endif // _DNAMP1_CTWEAKSLIDESHOW_HPP_

@@ -4,9 +4,7 @@
 #include "CPlayMovieBase.hpp"
 #include "RetroTypes.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CPlayMovie : public CPlayMovieBase
@@ -41,7 +39,6 @@ public:
     CPlayMovie(EWhichMovie which);
 };
 
-}
 }
 
 #endif // __URDE_CPLAYMOVIE_HPP__

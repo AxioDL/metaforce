@@ -25,3 +25,6 @@
 [submodule "sanitizers-cmake"]
 	path = sanitizers-cmake
 	url = git://github.com/arsenm/sanitizers-cmake.git
+[submodule "cotire"]
+	path = cotire
+	url = https://github.com/sakra/cotire.git

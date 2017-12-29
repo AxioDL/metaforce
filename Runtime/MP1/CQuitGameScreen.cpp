@@ -9,9 +9,7 @@
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Audio/CSfxManager.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 static const int Titles[] =
@@ -116,5 +114,4 @@ CQuitGameScreen::CQuitGameScreen(EQuitType tp)
         m_blackScreen.emplace(EFilterType::Blend);
 }
 
-}
 }

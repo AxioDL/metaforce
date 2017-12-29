@@ -4,9 +4,7 @@
 #include "World/CPatterned.hpp"
 #include "World/CAnimationParameters.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CMetroidData
@@ -37,7 +35,6 @@ public:
              const CActorParameters& aParms, const CMetroidData& metroidData);
 };
 
-}
 }
 
 #endif // CMETROID_HPP

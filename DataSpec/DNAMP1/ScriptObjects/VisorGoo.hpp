@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct VisorGoo : IScriptObject
 {
@@ -44,7 +42,6 @@ struct VisorGoo : IScriptObject
         g_curSpec->flattenDependencies(electric, pathsOut);
     }
 };
-}
 }
 
 #endif

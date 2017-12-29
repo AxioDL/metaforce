@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Water : IScriptObject
 {
@@ -191,14 +189,13 @@ struct Water : IScriptObject
         g_curSpec->flattenDependencies(unmorphVisorRunoffParticle, pathsOut);
     }
 
-    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const
     {
         zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
         zeus::CVector3f loc(location);
         return zeus::CAABox(loc - halfExtent, loc + halfExtent);
     }
 };
-}
 }
 
 #endif

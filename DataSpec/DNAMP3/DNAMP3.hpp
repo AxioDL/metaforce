@@ -4,9 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 extern logvisor::Module Log;
@@ -44,7 +42,6 @@ public:
             std::unordered_map<UniqueID64, hecl::ProjectPath>& pathOverrides) const;
 };
 
-}
 }
 
 #endif // __DNAMP3_HPP__

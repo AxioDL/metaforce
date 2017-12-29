@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct SpecialFunction : IScriptObject
 {
@@ -33,7 +31,6 @@ struct SpecialFunction : IScriptObject
     Value<atUint32> unknown8; // Used by SpinnerController 2
     Value<atUint32> unknown9; // Used by SpinnerController 3
 };
-}
 }
 
 #endif

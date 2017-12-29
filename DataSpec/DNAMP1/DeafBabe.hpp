@@ -3,9 +3,7 @@
 
 #include "../DNACommon/DeafBabe.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct DeafBabe : BigDNA
@@ -143,16 +141,15 @@ struct DeafBabe : BigDNA
     Vector<atVec3f, DNA_COUNT(vertCount)> verts;
 
     /* Dummy MP2 member */
-    void insertNoClimb(hecl::BlenderConnection::PyOutStream&) const {}
+    void insertNoClimb(hecl::blender::PyOutStream&) const {}
 
-    static void BlenderInit(hecl::BlenderConnection::PyOutStream& os);
-    void sendToBlender(hecl::BlenderConnection::PyOutStream& os) const
+    static void BlenderInit(hecl::blender::PyOutStream& os);
+    void sendToBlender(hecl::blender::PyOutStream& os) const
     {
         DeafBabeSendToBlender(os, *this);
     }
 };
 
-}
 }
 
 #endif // _DNAMP1_DEAFBABE_HPP_

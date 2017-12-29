@@ -1,8 +1,6 @@
 #include "DPSC.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 template <class IDType>
 void DPSM<IDType>::read(athena::io::YAMLDocReader& r)
@@ -411,5 +409,4 @@ template bool WriteDPSM<UniqueID32>(const DPSM<UniqueID32>& dpsm, const hecl::Pr
 template bool WriteDPSM<UniqueID64>(const DPSM<UniqueID64>& dpsm, const hecl::ProjectPath& outPath);
 
 
-}
 }

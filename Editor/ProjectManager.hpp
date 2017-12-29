@@ -1,8 +1,8 @@
 #ifndef URDE_PROJECT_MANAGER_HPP
 #define URDE_PROJECT_MANAGER_HPP
 
-#include <hecl/Database.hpp>
-#include <athena/DNAYaml.hpp>
+#include "hecl/Database.hpp"
+#include "athena/DNAYaml.hpp"
 #include "ProjectResourceFactoryMP1.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "hecl/Runtime.hpp"

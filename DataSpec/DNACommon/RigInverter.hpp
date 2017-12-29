@@ -4,11 +4,9 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CMatrix3f.hpp"
 #include "zeus/CQuaternion.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/hecl.hpp"
 
-namespace DataSpec
-{
-namespace DNAANIM
+namespace DataSpec::DNAANIM
 {
 
 /** One-shot process to invert CINF armature into connected rig,
@@ -32,8 +30,7 @@ private:
 public:
     RigInverter(const CINFType& cinf);
     RigInverter(const CINFType& cinf,
-                const std::unordered_map<std::string,
-                hecl::BlenderConnection::DataStream::Matrix3f>& matrices);
+                const std::unordered_map<std::string, hecl::blender::Matrix3f>& matrices);
     const CINFType& getCINF() const {return m_cinf;}
     const std::vector<Bone>& getBones() const {return m_bones;}
 
@@ -44,7 +41,6 @@ public:
     zeus::CVector3f restorePosition(atUint32 boneId, const zeus::CVector3f& origPos, bool subDelta) const;
 };
 
-}
 }
 
 #endif // __COMMON_RIGINVERTER_HPP__

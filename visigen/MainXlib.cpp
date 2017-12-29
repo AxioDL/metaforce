@@ -6,7 +6,7 @@
 #include "logvisor/logvisor.hpp"
 #include <thread>
 #include <condition_variable>
-#include <stdint.h>
+#include <cstdint>
 #include <limits.h>
 #include <signal.h>
 

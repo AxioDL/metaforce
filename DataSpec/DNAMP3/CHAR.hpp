@@ -5,15 +5,12 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"
 #include "../DNAMP2/ANCS.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct CHAR : BigYAML
@@ -312,7 +309,7 @@ struct CHAR : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
@@ -335,7 +332,7 @@ struct CHAR : BigYAML
 
             if (force || blendType == hecl::ProjectPath::Type::None)
             {
-                hecl::BlenderConnection& conn = btok.getBlenderConnection();
+                hecl::blender::Connection& conn = btok.getBlenderConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, CHAR, MaterialSet, DNACMDL::SurfaceHeader_3, 4>
                         (conn, aChar, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }
@@ -345,7 +342,6 @@ struct CHAR : BigYAML
     }
 };
 
-}
 }
 
 #endif // _DNAMP3_CHAR_HPP_

@@ -6,6 +6,7 @@
 #include "zeus/CTransform.hpp"
 #include "zeus/CAABox.hpp"
 #include "hecl/Runtime.hpp"
+#include "hecl/HMDLMeta.hpp"
 
 namespace urde
 {

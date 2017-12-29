@@ -3,11 +3,12 @@
 #include "zeus/CTransform.hpp"
 #include "DataSpec/DNAMP1/DCLN.hpp"
 #include "gmm/gmm.h"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec
 {
 
-using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
+using ColMesh = hecl::blender::ColMesh;
 
 struct FittedOBB
 {

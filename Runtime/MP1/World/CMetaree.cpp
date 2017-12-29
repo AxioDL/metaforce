@@ -4,9 +4,7 @@
 
 #include "CMetaree.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CDamageInfo& dInfo,
@@ -38,6 +36,5 @@ void CMetaree::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
         x5ca_25_ = true;
     else if (msg == EScriptObjectMessage::Registered)
         x450_bodyController->Activate(mgr);
-}
 }
 }

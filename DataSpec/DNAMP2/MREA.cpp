@@ -4,6 +4,7 @@
 #include "../DNAMP1/MREA.hpp"
 #include "../DNACommon/EGMC.hpp"
 #include "DeafBabe.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec
 {
@@ -165,7 +166,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    PAKRouter<PAKBridge>& pakRouter,
                    const DNAMP1::PAK::Entry& entry,
                    bool force,
-                   hecl::BlenderToken& btok,
+                   hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
@@ -194,8 +195,8 @@ bool MREA::Extract(const SpecBase& dataSpec,
     drs.seek(0, athena::Begin);
 
     /* Start up blender connection */
-    hecl::BlenderConnection& conn = btok.getBlenderConnection();
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Area))
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
+    if (!conn.createBlend(outPath, hecl::blender::BlendType::Area))
         return false;
 
     /* Calculate offset to EGMC section */
@@ -212,7 +213,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     drs.seek(0, athena::Begin);
 
     /* Open Py Stream and read sections */
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Vector\n"

@@ -1,8 +1,6 @@
 #include "AGSC.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 using namespace std::literals;
@@ -102,5 +100,4 @@ bool AGSC::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     return true;
 }
 
-}
 }

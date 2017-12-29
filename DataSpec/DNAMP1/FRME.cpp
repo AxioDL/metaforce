@@ -1,9 +1,8 @@
 #include "FRME.hpp"
 #include "../DNACommon/TXTR.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 void FRME::read(athena::io::IStreamReader& __dna_reader)
 {
@@ -317,23 +316,23 @@ bool FRME::Extract(const SpecBase &dataSpec,
                    PAKRouter<PAKBridge> &pakRouter,
                    const PAK::Entry &entry,
                    bool force,
-                   hecl::BlenderToken& btok,
+                   hecl::blender::Token& btok,
                    std::function<void (const hecl::SystemChar *)> fileChanged)
 {
     FRME frme;
     frme.read(rs);
 
-    hecl::BlenderConnection& conn = btok.getBlenderConnection();
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
 
 #if 0
     if (!force && outPath.isFile())
         return true;
 #endif
 
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Frame))
+    if (!conn.createBlend(outPath, hecl::blender::BlendType::Frame))
         return false;
 
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
 
     os << "import bpy, math, bmesh\n"
           "from mathutils import Matrix, Quaternion\n"
@@ -717,5 +716,4 @@ bool FRME::Extract(const SpecBase &dataSpec,
     return true;
 }
 
-}
 }

@@ -5,16 +5,13 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"
 #include "EVNT.hpp"
 #include "athena/FileReader.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct ANCS : BigYAML
@@ -552,7 +549,7 @@ struct ANCS : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged);
 
     static bool Cook(const hecl::ProjectPath& outPath,
@@ -571,11 +568,10 @@ struct ANCS : BigYAML
     static bool CookANIM(const hecl::ProjectPath& outPath,
                          const hecl::ProjectPath& inPath,
                          const DNAANCS::Actor& actor,
-                         hecl::BlenderConnection::DataStream& ds,
+                         hecl::blender::DataStream& ds,
                          bool pc);
 };
 
-}
 }
 
 #endif // _DNAMP1_ANCS_HPP_

@@ -5,9 +5,7 @@
 #include "../DNACommon/MAPA.hpp"
 #include "DNAMP3.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 struct MAPA : DNAMAPA::MAPA
 {
@@ -17,16 +15,16 @@ struct MAPA : DNAMAPA::MAPA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MAPA mapa;
         mapa.read(rs);
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         return DNAMAPA::ReadMAPAToBlender(conn, mapa, outPath, pakRouter, entry, force);
     }
 
-    static bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out)
+    static bool Cook(const hecl::blender::MapArea& mapa, const hecl::ProjectPath& out)
     {
         return DNAMAPA::Cook<MAPA>(mapa, out);
     }
@@ -36,7 +34,6 @@ struct MAPA : DNAMAPA::MAPA
     using MappableObject = DNAMAPA::MAPA::MappableObjectMP3;
 };
 
-}
 }
 
 #endif

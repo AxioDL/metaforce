@@ -4,9 +4,7 @@
 #include "CMemoryCardSys.hpp"
 #include "CGameState.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CMemoryCardDriver
@@ -211,7 +209,6 @@ public:
     }
 };
 
-}
 }
 
 #endif // __URDE_CMEMORYCARDDRIVER_HPP__

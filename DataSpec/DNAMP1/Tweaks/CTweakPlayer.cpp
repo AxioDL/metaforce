@@ -1,9 +1,7 @@
 #include "CTweakPlayer.hpp"
 #include "zeus/Math.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
 {
@@ -1940,6 +1938,5 @@ const char* CTweakPlayer::DNAType()
 size_t CTweakPlayer::binarySize(size_t __isz) const
 {
     return __isz + 785;
-}
 }
 }

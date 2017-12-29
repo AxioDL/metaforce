@@ -6,9 +6,7 @@
 #include "athena/FileWriter.hpp"
 #include "optional.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 template <class IDType>
 struct CRSM : BigYAML
@@ -37,6 +35,5 @@ bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 
 template <class IDType>
 bool WriteCRSM(const CRSM<IDType>& crsm, const hecl::ProjectPath& outPath);
-}
 }
 #endif // __COMMON_CRSC_HPP__

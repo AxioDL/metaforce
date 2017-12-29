@@ -3,9 +3,7 @@
 #include "Character/CCharLayoutInfo.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
@@ -23,5 +21,4 @@ void CBeetle::Accept(IVisitor &visitor)
     visitor.Visit(this);
 }
 
-}
 }

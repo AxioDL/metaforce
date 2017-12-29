@@ -4,9 +4,7 @@
 #include "World/CEntity.hpp"
 #include "CMetroidPrimeExo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CMetroidPrimeRelay : public CEntity
@@ -38,7 +36,6 @@ public:
     TUniqueId GetMetroidPrimeExoId() const { return x34_mpUid; }
 };
 
-}
 }
 
 #endif // CMETROIDPRIMERELAY_HPP

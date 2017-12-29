@@ -84,7 +84,7 @@ struct ResExtractor
 {
     std::function<bool(PAKEntryReadStream&, const hecl::ProjectPath&)> func_a;
     std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
-                       const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::BlenderToken&,
+                       const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::blender::Token&,
                        std::function<void(const hecl::SystemChar*)>)> func_b;
     std::array<const hecl::SystemChar*, 6> fileExts = {};
     unsigned weight = 0;
@@ -100,7 +100,7 @@ struct ResExtractor
     : func_a(std::move(func)), fileExts(std::move(fileExtsIn)), weight(weightin), func_name(std::move(nfunc)) {}
 
     ResExtractor(std::function<bool(const SpecBase&, PAKEntryReadStream&, const hecl::ProjectPath&, PAKRouter<PAKBRIDGE>&,
-                                    const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::BlenderToken&,
+                                    const typename PAKBRIDGE::PAKType::Entry&, bool, hecl::blender::Token&,
                                     std::function<void(const hecl::SystemChar*)>)> func,
                  std::array<const hecl::SystemChar*, 6>&& fileExtsIn, unsigned weightin=0,
                  std::function<void(const SpecBase&, PAKEntryReadStream&, PAKRouter<PAKBRIDGE>&,
@@ -203,7 +203,7 @@ public:
     std::string getBestEntryName(const EntryType& entry, bool stdOverride=true) const;
     std::string getBestEntryName(const IDType& entry, bool stdOverride=true) const;
 
-    bool extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::BlenderToken& btok,
+    bool extractResources(const BRIDGETYPE& pakBridge, bool force, hecl::blender::Token& btok,
                           std::function<void(const hecl::SystemChar*, float)> progress);
 
     const typename BRIDGETYPE::PAKType::Entry* lookupEntry(const IDType& entry,

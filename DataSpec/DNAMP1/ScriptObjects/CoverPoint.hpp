@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CoverPoint : IScriptObject
 {
@@ -22,7 +20,6 @@ struct CoverPoint : IScriptObject
     Value<float> unknown5;
     Value<float> unknown6;
 };
-}
 }
 
 #endif

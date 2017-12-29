@@ -5,9 +5,7 @@
 #include "CPauseScreenBase.hpp"
 #include "CArtifactDoll.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CLogBookScreen : public CPauseScreenBase
@@ -71,7 +69,6 @@ public:
     u32 GetRightTableCount() const;
 };
 
-}
 }
 
 #endif // __URDE_CLOGBOOKSCREEN_HPP__

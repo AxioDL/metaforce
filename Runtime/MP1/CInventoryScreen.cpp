@@ -5,9 +5,7 @@
 #include "Input/ControlMapper.hpp"
 #include "GameGlobalObjects.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 struct SInventoryItem
@@ -559,5 +557,4 @@ void CInventoryScreen::UpdateSamusDollPulses()
     x19c_samusDoll->SetPulseVisor(pulseVisor);
 }
 
-}
 }

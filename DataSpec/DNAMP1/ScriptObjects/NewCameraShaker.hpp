@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct NewCameraShaker : IScriptObject
 {
@@ -35,7 +33,6 @@ struct NewCameraShaker : IScriptObject
         CameraShakePoint fm;
     } shakerComponents[3];
 };
-}
 }
 
 #endif

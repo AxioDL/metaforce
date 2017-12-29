@@ -1,9 +1,7 @@
 #include "CSNG.hpp"
 #include "amuse/SongConverter.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
@@ -86,5 +84,4 @@ bool CSNG::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     return true;
 }
 
-}
 }

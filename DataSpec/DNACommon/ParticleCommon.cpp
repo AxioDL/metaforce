@@ -1,8 +1,6 @@
 #include "ParticleCommon.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 logvisor::Module LogModule("urde::DNAParticle");
 
@@ -948,5 +946,4 @@ void EmitterElementFactory::write(athena::io::IStreamWriter& w) const
         w.writeBytes((atInt8*)"NONE", 4);
 }
 
-}
 }

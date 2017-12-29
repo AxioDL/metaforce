@@ -1,19 +1,19 @@
 #ifndef _DNACOMMON_BABEDEAD_HPP_
 #define _DNACOMMON_BABEDEAD_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "zeus/Math.hpp"
+#include "hecl/hecl.hpp"
 #include <cfloat>
 
 namespace DataSpec
 {
 
 template<class BabeDeadLight>
-void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
+void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
                                 const BabeDeadLight& light, unsigned s, unsigned l);
 
 template<class BabeDeadLight>
-void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::BlenderConnection::DataStream::Light& lightIn);
+void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender::Light& lightIn);
 
 }
 

@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include "athena/MemoryReader.hpp"
 #include "athena/FileWriter.hpp"
 #include "athena/Checksums.hpp"

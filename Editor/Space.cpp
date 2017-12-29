@@ -6,6 +6,7 @@
 #include "InformationCenter.hpp"
 #include "GameMode.hpp"
 #include "icons/icons.hpp"
+#include "specter/Menu.hpp"
 
 namespace urde
 {

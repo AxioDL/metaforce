@@ -1,13 +1,10 @@
 #ifndef _DNAMP2_CINF_HPP_
 #define _DNAMP2_CINF_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/RigInverter.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 struct CINF : BigDNA
@@ -42,12 +39,11 @@ struct CINF : BigDNA
     atUint32 getInternalBoneIdxFromId(atUint32 id) const;
     atUint32 getBoneIdxFromId(atUint32 id) const;
     const std::string* getBoneNameFromId(atUint32 id) const;
-    void sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) const;
-    void sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const;
+    void sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const;
+    void sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const;
     static std::string GetCINFArmatureName(const UniqueID32& cinfId);
 };
 
-}
 }
 
 #endif // _DNAMP2_CINF_HPP_

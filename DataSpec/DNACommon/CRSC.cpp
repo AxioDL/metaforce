@@ -1,8 +1,6 @@
 #include "CRSC.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 static const std::vector<FourCC> GeneratorTypes =
 {
@@ -327,6 +325,5 @@ bool WriteCRSM(const CRSM<IDType>& crsm, const hecl::ProjectPath& outPath)
 }
 template bool WriteCRSM<UniqueID32>(const CRSM<UniqueID32>& crsm, const hecl::ProjectPath& outPath);
 template bool WriteCRSM<UniqueID64>(const CRSM<UniqueID64>& crsm, const hecl::ProjectPath& outPath);
-}
 }
 

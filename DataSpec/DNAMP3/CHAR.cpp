@@ -1,8 +1,6 @@
 #include "CHAR.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::IStreamReader& reader)
@@ -172,5 +170,4 @@ const char* CHAR::AnimationInfo::MetaAnimFactory::DNAType()
     return "urde::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory";
 }
 
-}
 }

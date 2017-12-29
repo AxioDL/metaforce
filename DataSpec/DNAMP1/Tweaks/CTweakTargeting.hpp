@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakTargeting.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CTweakTargeting final : public ITweakTargeting
 {
@@ -243,6 +241,5 @@ struct CTweakTargeting final : public ITweakTargeting
     float GetScanTargetClampMax() const { return x220_scanTargetClampMax; }
     float GetAngularLagSpeed() const { return x224_angularLagSpeed; }
 };
-}
 }
 #endif // _DNAMP1_CTWEAKTARGETING_HPP_

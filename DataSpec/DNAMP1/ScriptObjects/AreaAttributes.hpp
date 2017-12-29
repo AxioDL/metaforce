@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct AreaAttributes : IScriptObject
 {
@@ -34,7 +32,6 @@ struct AreaAttributes : IScriptObject
         g_curSpec->flattenDependencies(skybox, pathsOut);
     }
 };
-}
 }
 
 #endif

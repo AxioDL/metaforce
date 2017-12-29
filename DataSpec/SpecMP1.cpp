@@ -1,6 +1,6 @@
 #include <utility>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "SpecBase.hpp"
 #include "DNAMP1/DNAMP1.hpp"
@@ -45,6 +45,8 @@
 #include "DNAMP1/SnowForces.hpp"
 
 #include "hecl/ClientProcess.hpp"
+#include "hecl/Blender/Connection.hpp"
+#include "nod/nod.hpp"
 
 namespace DataSpec
 {
@@ -259,7 +261,7 @@ struct SpecMP1 : SpecBase
     bool checkFromStandaloneDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
                                  const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps)
     {
-        nod::Partition* partition = disc.getDataPartition();
+        nod::IPartition* partition = disc.getDataPartition();
         m_dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(m_dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
 
@@ -315,7 +317,7 @@ struct SpecMP1 : SpecBase
         if (!doExtract)
             return false;
 
-        nod::Partition* partition = disc.getDataPartition();
+        nod::IPartition* partition = disc.getDataPartition();
         nod::Node& root = partition->getFSTRoot();
         nod::Node::DirectoryIterator dolIt = root.find("rs5mp1_p.dol");
         if (dolIt == root.end())
@@ -420,7 +422,7 @@ struct SpecMP1 : SpecBase
             }
 
             auto pakName = hecl::SystemString(sysName.sys_str());
-            process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok) {
+            process.addLambdaTransaction([&, pakName](hecl::blender::Token& btok) {
                 m_pakRouter.extractResources(pak, force, btok, [&](const hecl::SystemChar* substr, float factor) {
                     std::unique_lock<std::mutex> lk(msgLock);
                     progress(pakName.c_str(), substr, compIdx, factor);
@@ -519,7 +521,7 @@ struct SpecMP1 : SpecBase
         });
     }
 
-    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const
     {
         if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
             return {SBIG('CINF'), path.hash().val32()};
@@ -559,17 +561,17 @@ struct SpecMP1 : SpecBase
 
         if (hecl::IsPathBlend(asBlend))
         {
-            hecl::BlenderConnection& conn = btok.getBlenderConnection();
+            hecl::blender::Connection& conn = btok.getBlenderConnection();
             if (!conn.openBlend(asBlend))
                 return {};
 
             switch (conn.getBlendType())
             {
-            case hecl::BlenderConnection::BlendType::Mesh:
+            case hecl::blender::BlendType::Mesh:
                 return {SBIG('CMDL'), path.hash().val32()};
-            case hecl::BlenderConnection::BlendType::ColMesh:
+            case hecl::blender::BlendType::ColMesh:
                 return {SBIG('DCLN'), path.hash().val32()};
-            case hecl::BlenderConnection::BlendType::Actor:
+            case hecl::blender::BlendType::Actor:
                 if (path.getAuxInfo().size())
                 {
                     if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".CINF")))
@@ -580,13 +582,13 @@ struct SpecMP1 : SpecBase
                         return {SBIG('ANIM'), path.getWithExtension(_S(".*"), true).hash().val32()};
                 }
                 return {SBIG('ANCS'), path.getWithExtension(_S(".*"), true).hash().val32()};
-            case hecl::BlenderConnection::BlendType::Area:
+            case hecl::blender::BlendType::Area:
             {
                 if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _S("PATH")))
                     return {SBIG('PATH'), path.hash().val32()};
                 return {SBIG('MREA'), path.hash().val32()};
             }
-            case hecl::BlenderConnection::BlendType::World:
+            case hecl::blender::BlendType::World:
             {
                 if (path.getAuxInfo().size())
                 {
@@ -597,11 +599,11 @@ struct SpecMP1 : SpecBase
                 }
                 return {SBIG('MLVL'), path.getWithExtension(_S(".*"), true).hash().val32()};
             }
-            case hecl::BlenderConnection::BlendType::MapArea:
+            case hecl::blender::BlendType::MapArea:
                 return {SBIG('MAPA'), path.hash().val32()};
-            case hecl::BlenderConnection::BlendType::MapUniverse:
+            case hecl::blender::BlendType::MapUniverse:
                 return {SBIG('MAPU'), path.hash().val32()};
-            case hecl::BlenderConnection::BlendType::Frame:
+            case hecl::blender::BlendType::Frame:
                 return {SBIG('FRME'), path.hash().val32()};
             default:
                 return {};
@@ -742,7 +744,7 @@ struct SpecMP1 : SpecBase
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                  hecl::BlenderToken& btok, FCookProgress progress)
+                  hecl::blender::Token& btok, FCookProgress progress)
     {
         Mesh mesh =
             ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, m_pc ? 16 : -1,
@@ -755,7 +757,7 @@ struct SpecMP1 : SpecBase
     }
 
     void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                     hecl::BlenderToken& btok, FCookProgress progress)
+                     hecl::blender::Token& btok, FCookProgress progress)
     {
         std::vector<ColMesh> mesh = ds.compileColMeshes();
         ds.close();
@@ -763,7 +765,7 @@ struct SpecMP1 : SpecBase
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                   hecl::BlenderToken& btok, FCookProgress progress)
+                   hecl::blender::Token& btok, FCookProgress progress)
     {
         if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".CINF")))
         {
@@ -797,7 +799,7 @@ struct SpecMP1 : SpecBase
     }
 
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                  hecl::BlenderToken& btok, FCookProgress progress)
+                  hecl::blender::Token& btok, FCookProgress progress)
     {
         if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S("PATH")))
         {
@@ -840,30 +842,30 @@ struct SpecMP1 : SpecBase
     }
 
     void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                   hecl::BlenderToken& btok, FCookProgress progress)
+                   hecl::blender::Token& btok, FCookProgress progress)
     {
         if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S("MAPW")))
         {
-            BlendStream::World world = ds.compileWorld();
+            hecl::blender::World world = ds.compileWorld();
             ds.close();
             DNAMP1::MLVL::CookMAPW(out, world, btok);
         }
         else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S("SAVW")))
         {
-            BlendStream::World world = ds.compileWorld();
+            hecl::blender::World world = ds.compileWorld();
             ds.close();
             DNAMP1::MLVL::CookSAVW(out, world);
         }
         else
         {
-            BlendStream::World world = ds.compileWorld();
+            hecl::blender::World world = ds.compileWorld();
             ds.close();
             DNAMP1::MLVL::Cook(out, in, world, btok);
         }
     }
 
     void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
-                      hecl::BlenderToken& btok, FCookProgress progress)
+                      hecl::blender::Token& btok, FCookProgress progress)
     {
         ds.compileGuiFrame(out.getAbsolutePathUTF8(), 0);
     }
@@ -1149,7 +1151,7 @@ struct SpecMP1 : SpecBase
 
     void buildWorldPakList(const hecl::ProjectPath& worldPath,
                            const hecl::ProjectPath& worldPathCooked,
-                           hecl::BlenderToken& btok,
+                           hecl::blender::Token& btok,
                            athena::io::FileWriter& w,
                            std::vector<urde::SObjectTag>& listOut,
                            atUint64& resTableOffset)
@@ -1265,7 +1267,7 @@ struct SpecMP1 : SpecBase
         }
     }
 
-    void buildPakList(hecl::BlenderToken& btok,
+    void buildPakList(hecl::blender::Token& btok,
                       athena::io::FileWriter& w,
                       const std::vector<urde::SObjectTag>& list,
                       const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
@@ -1369,20 +1371,20 @@ struct SpecMP1 : SpecBase
     }
 
     void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                     BlendStream& ds, hecl::BlenderToken& btok,
+                     BlendStream& ds, hecl::blender::Token& btok,
                      FCookProgress progress)
     {
-        BlendStream::MapArea mapa = ds.compileMapArea();
+        hecl::blender::MapArea mapa = ds.compileMapArea();
         ds.close();
         DNAMP1::MAPA::Cook(mapa, out);
         progress(_S("Done"));
     }
 
     void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                         BlendStream& ds, hecl::BlenderToken& btok,
+                         BlendStream& ds, hecl::blender::Token& btok,
                          FCookProgress progress)
     {
-        BlendStream::MapUniverse mapu = ds.compileMapUniverse();
+        hecl::blender::MapUniverse mapu = ds.compileMapUniverse();
         ds.close();
         DNAMAPU::MAPU::Cook(mapu, out);
         progress(_S("Done"));

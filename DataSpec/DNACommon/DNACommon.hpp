@@ -1,24 +1,24 @@
 #ifndef __DNA_COMMON_HPP__
 #define __DNA_COMMON_HPP__
 
-#include <stdio.h>
-#include <athena/DNAYaml.hpp>
-#include <athena/FileReader.hpp>
-#include <athena/FileWriter.hpp>
-#include <nod/DiscBase.hpp>
-#include "hecl/hecl.hpp"
+#include <cstdio>
+#include "logvisor/logvisor.hpp"
+#include "athena/DNAYaml.hpp"
 #include "hecl/Database.hpp"
 #include "../SpecBase.hpp"
 #include "boo/ThreadLocalPtr.hpp"
 #include "zeus/CColor.hpp"
 
+namespace hecl { class BlenderToken; }
+
 namespace DataSpec
 {
+struct SpecBase;
 
 extern logvisor::Module LogDNACommon;
 extern ThreadLocalPtr<SpecBase> g_curSpec;
 extern ThreadLocalPtr<class PAKRouterBase> g_PakRouter;
-extern ThreadLocalPtr<hecl::BlenderToken> g_ThreadBlenderToken;
+extern ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;
 
 /* This comes up a great deal */
 typedef athena::io::DNA<athena::BigEndian> BigDNA;

@@ -5,9 +5,7 @@
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 template <class IDType>
 struct ELSM : BigYAML
@@ -50,6 +48,5 @@ bool ExtractELSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteELSM(const ELSM<IDType>& elsm, const hecl::ProjectPath& outPath);
 
-}
 }
 #endif // __COMMON_ELSC_HPP__

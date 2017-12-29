@@ -1,15 +1,14 @@
 #include "ANIM.hpp"
 #include <cfloat>
 #include "zeus/Math.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
+namespace DataSpec::DNAMP3
 {
-namespace DNAMP3
-{
 
-using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
+using ANIMOutStream = hecl::blender::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os,
+void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os,
                                     const DNAANIM::RigInverter<CINF>& rig,
                                     bool additive) const
 {
@@ -550,5 +549,4 @@ size_t ANIM::ANIM1::binarySize(size_t __isz) const
     return __isz;
 }
 
-}
 }

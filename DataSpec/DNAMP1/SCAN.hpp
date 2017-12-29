@@ -5,9 +5,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 static const std::vector<std::string> PaneNames =
 {
@@ -208,7 +206,6 @@ struct SCAN : BigYAML
             g_curSpec->flattenDependencies(textures[i].texture, pathsOut);
     }
 };
-}
 }
 
 #endif

@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct RandomRelay : IScriptObject
 {
@@ -18,7 +16,6 @@ struct RandomRelay : IScriptObject
     Value<bool> unknown3;
     Value<bool> unknown4;
 };
-}
 }
 
 #endif

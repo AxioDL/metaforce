@@ -1,9 +1,7 @@
 #include "PAK.hpp"
 #include "DNAMP3.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 const hecl::FourCC CMPD("CMPD");
@@ -239,5 +237,4 @@ std::string PAK::bestEntryName(const Entry& entry, bool& named) const
     return entry.type.toString() + '_' + entry.id.toString();
 }
 
-}
 }

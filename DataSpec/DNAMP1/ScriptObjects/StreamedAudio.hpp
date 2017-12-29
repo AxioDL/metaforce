@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct StreamedAudio : IScriptObject
 {
@@ -22,7 +20,6 @@ struct StreamedAudio : IScriptObject
     Value<atUint32> oneShot;
     Value<bool> music;
 };
-}
 }
 
 #endif

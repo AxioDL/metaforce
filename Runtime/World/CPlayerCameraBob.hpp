@@ -1,7 +1,7 @@
 #ifndef __URDE_CPLAYERCAMERABOB_HPP__
 #define __URDE_CPLAYERCAMERABOB_HPP__
 
-#include <float.h>
+#include <cfloat>
 #include "RetroTypes.hpp"
 #include "zeus/CVector2f.hpp"
 #include "zeus/CTransform.hpp"

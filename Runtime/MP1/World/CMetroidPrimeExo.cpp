@@ -4,9 +4,7 @@
 #include "CSimplePool.hpp"
 #include "DataSpec/DNAMP1/ScriptObjects/MetroidPrimeStage1.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 SPrimeStruct2B::SPrimeStruct2B(CInputStream& in)
@@ -164,5 +162,4 @@ CMetroidPrimeExo::CMetroidPrimeExo(TUniqueId uid, std::string_view name, const C
 
 }
 
-}
 }

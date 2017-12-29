@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct SpindleCamera : IScriptObject
 {
@@ -32,7 +30,6 @@ struct SpindleCamera : IScriptObject
         Value<float> unknown8;
     } spindleCameraParameters[15];
 };
-}
 }
 
 #endif

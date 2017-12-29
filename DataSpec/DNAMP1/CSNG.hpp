@@ -4,9 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 class CSNG
@@ -25,7 +23,6 @@ public:
     static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
 };
 
-}
 }
 
 #endif // _DNAMP1_CSNG_HPP_

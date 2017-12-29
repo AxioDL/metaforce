@@ -4,9 +4,7 @@
 #include "Character/CModelData.hpp"
 #include "Character/CActorLights.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CSamusFaceReflection
@@ -24,7 +22,6 @@ public:
     void Update(float dt, const CStateManager& stateMgr, CRandom16& rand);
 };
 
-}
 }
 
 #endif // __URDE_CSAMUSFACEREFLECTION_HPP__

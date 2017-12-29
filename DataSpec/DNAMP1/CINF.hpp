@@ -1,13 +1,10 @@
 #ifndef _DNAMP1_CINF_HPP_
 #define _DNAMP1_CINF_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/RigInverter.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CINF : BigDNA
@@ -40,20 +37,20 @@ struct CINF : BigDNA
     atUint32 getInternalBoneIdxFromId(atUint32 id) const;
     atUint32 getBoneIdxFromId(atUint32 id) const;
     const std::string* getBoneNameFromId(atUint32 id) const;
-    void sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) const;
-    void sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const;
+    void sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const;
+    void sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const;
     static std::string GetCINFArmatureName(const UniqueID32& cinfId);
 
     CINF() = default;
-    using Armature = hecl::BlenderConnection::DataStream::Actor::Armature;
+    using Armature = hecl::blender::Armature;
+    using BlenderBone = hecl::blender::Bone;
 
-    int RecursiveAddArmatureBone(const Armature& armature, const Armature::Bone* bone, int parent, int& curId,
+    int RecursiveAddArmatureBone(const Armature& armature, const BlenderBone* bone, int parent, int& curId,
                                  std::unordered_map<std::string, atInt32>& idMap, std::map<std::string, int>& nameMap);
 
     CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& idMap);
 };
 
-}
 }
 
 #endif // _DNAMP1_CINF_HPP_

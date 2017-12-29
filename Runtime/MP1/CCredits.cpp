@@ -1,8 +1,6 @@
 #include "CCredits.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CCredits::CCredits()
@@ -21,5 +19,4 @@ void CCredits::Draw() const
 
 }
 
-}
 }

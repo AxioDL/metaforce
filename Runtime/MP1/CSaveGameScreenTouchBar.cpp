@@ -1,8 +1,6 @@
 #include "CSaveGameScreenTouchBar.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 int CSaveGameScreenTouchBar::PopOption() { return -1; }
@@ -17,5 +15,4 @@ std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar()
 }
 #endif
 
-}
 }

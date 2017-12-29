@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct RumbleEffect : IScriptObject
 {
@@ -25,7 +23,6 @@ struct RumbleEffect : IScriptObject
         Value<bool> unknown2;
     } rumbleParameters;
 };
-}
 }
 
 #endif

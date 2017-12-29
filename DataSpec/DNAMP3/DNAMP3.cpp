@@ -17,9 +17,7 @@
 #include "../DNACommon/DGRP.hpp"
 #include "Runtime/GCNTypes.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 logvisor::Module Log("urde::DNAMP3");
 
@@ -297,5 +295,4 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     return {};
 }
 
-}
 }

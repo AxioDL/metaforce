@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakPlayerControl.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakPlayerControl final : ITweakPlayerControl
@@ -17,7 +15,6 @@ struct CTweakPlayerControl final : ITweakPlayerControl
     CTweakPlayerControl(athena::io::IStreamReader& reader) {this->read(reader);}
 };
 
-}
 }
 
 #endif // _DNAMP1_CTWEAKPLAYERCONTROL_HPP_

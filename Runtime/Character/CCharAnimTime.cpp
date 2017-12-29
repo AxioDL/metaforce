@@ -1,7 +1,7 @@
 #include "CCharAnimTime.hpp"
 #include <algorithm>
 #include <cmath>
-#include <float.h>
+#include <cfloat>
 
 namespace urde
 {

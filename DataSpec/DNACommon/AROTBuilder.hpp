@@ -12,7 +12,7 @@ namespace DataSpec
 
 struct AROTBuilder
 {
-    using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
+    using ColMesh = hecl::blender::ColMesh;
 
     struct BitmapPool
     {

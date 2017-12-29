@@ -1,15 +1,12 @@
 #ifndef _DNAMP1_CMDL_MATERIALS_HPP_
 #define _DNAMP1_CMDL_MATERIALS_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/GX.hpp"
 #include "../DNACommon/CMDL.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct MaterialSet : BigDNA
@@ -365,15 +362,15 @@ struct MaterialSet : BigDNA
         };
         Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
 
-        static void AddTexture(hecl::BlenderConnection::PyOutStream& out,
+        static void AddTexture(hecl::blender::PyOutStream& out,
                                GX::TexGenSrc type, int mtxIdx, uint32_t texIdx);
-        static void AddTextureAnim(hecl::BlenderConnection::PyOutStream& out,
+        static void AddTextureAnim(hecl::blender::PyOutStream& out,
                                    MaterialSet::Material::UVAnimation::Mode type,
                                    unsigned idx, const float* vals);
-        static void AddKcolor(hecl::BlenderConnection::PyOutStream& out,
+        static void AddKcolor(hecl::blender::PyOutStream& out,
                               const GX::Color& col, unsigned idx);
-        static void AddDynamicColor(hecl::BlenderConnection::PyOutStream& out, unsigned idx);
-        static void AddDynamicAlpha(hecl::BlenderConnection::PyOutStream& out, unsigned idx);
+        static void AddDynamicColor(hecl::blender::PyOutStream& out, unsigned idx);
+        static void AddDynamicAlpha(hecl::blender::PyOutStream& out, unsigned idx);
 
         Material() = default;
         Material(const hecl::Backend::GX& gx,
@@ -388,12 +385,12 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
-    static void RegisterMaterialProps(hecl::BlenderConnection::PyOutStream& out);
-    static void ConstructMaterial(hecl::BlenderConnection::PyOutStream& out,
+    static void RegisterMaterialProps(hecl::blender::PyOutStream& out);
+    static void ConstructMaterial(hecl::blender::PyOutStream& out,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    void readToBlender(hecl::BlenderConnection::PyOutStream& os,
+    void readToBlender(hecl::blender::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
                        unsigned setIdx)
@@ -473,14 +470,13 @@ struct HMDLMaterialSet : BigDNA
         Material() = default;
         Material(hecl::Frontend::Frontend& FE,
                  const std::string& diagName,
-                 const hecl::BlenderConnection::DataStream::Mesh::Material& mat,
+                 const hecl::blender::Material& mat,
                  const std::unordered_map<std::string, int32_t>& iprops,
                  const std::vector<hecl::ProjectPath>& texPaths);
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 };
 
-}
 }
 
 #endif // _DNAMP1_CMDL_MATERIALS_HPP_

@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/DNACommon.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CTweakCameraBob : BigYAML
 {
@@ -25,7 +23,6 @@ struct CTweakCameraBob : BigYAML
     Value<float> gunBobMagnitude;
     Value<float> helmetBobMagnitude;
 };
-}
 }
 
 #endif // __URDE_CTWEAKCAMERABOB_HPP__

@@ -4,9 +4,7 @@
 #include "../../DNACommon/Tweaks/ITweakBall.hpp"
 #include "zeus/CVector3f.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CTweakBall final : public ITweakBall
 {
@@ -216,6 +214,5 @@ struct CTweakBall final : public ITweakBall
         }
     }
 };
-}
 }
 #endif // __DNAMP1_CTWEAKBALL_HPP__

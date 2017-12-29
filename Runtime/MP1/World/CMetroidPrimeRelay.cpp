@@ -1,9 +1,7 @@
 #include "CMetroidPrimeRelay.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
@@ -21,5 +19,4 @@ void CMetroidPrimeRelay::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-}
 }

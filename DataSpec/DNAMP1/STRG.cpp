@@ -1,9 +1,7 @@
 #include "STRG.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 const std::vector<FourCC> skLanguages = {FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'),
@@ -570,5 +568,4 @@ void STRG::write(athena::io::YAMLDocWriter& writer) const
 }
 
 const char* STRG::DNAType() { return "urde::DNAMP1::STRG"; }
-}
 }

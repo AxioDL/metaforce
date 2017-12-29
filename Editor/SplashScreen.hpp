@@ -1,12 +1,12 @@
 #ifndef URDE_SPLASH_SCREEN_HPP
 #define URDE_SPLASH_SCREEN_HPP
 
-#include <specter/View.hpp>
-#include <specter/ModalWindow.hpp>
-#include <specter/MultiLineTextView.hpp>
-#include <specter/FileBrowser.hpp>
-#include <specter/Menu.hpp>
-#include <specter/Icon.hpp>
+#include "specter/View.hpp"
+#include "specter/ModalWindow.hpp"
+#include "specter/MultiLineTextView.hpp"
+#include "specter/FileBrowser.hpp"
+#include "specter/Menu.hpp"
+#include "specter/Icon.hpp"
 
 #include "ViewManager.hpp"
 

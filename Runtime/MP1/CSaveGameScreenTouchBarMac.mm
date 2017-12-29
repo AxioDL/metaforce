@@ -84,9 +84,7 @@
 }
 @end
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CSaveGameScreenTouchBarMac : public CSaveGameScreenTouchBar
@@ -124,5 +122,4 @@ std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar()
     return std::make_unique<CSaveGameScreenTouchBarMac>();
 }
 
-}
 }

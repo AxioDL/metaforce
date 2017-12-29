@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakPlayerGun.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakPlayerGun final : ITweakPlayerGun
@@ -114,7 +112,6 @@ struct CTweakPlayerGun final : ITweakPlayerGun
     const SShotParam& GetPowerBombInfo() const { return x8c_powerBomb; }
     const SShotParam& GetMissileInfo() const { return x1d4_missile; }
 };
-}
 }
 
 #endif // _DNAMP1_CTWEAKPLAYERGUN_HPP_

@@ -2,6 +2,7 @@
 #include "MREA.hpp"
 #include "../DNAMP2/DeafBabe.hpp"
 #include "../DNACommon/BabeDead.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec
 {
@@ -46,7 +47,7 @@ void MREA::StreamReader::writeSecIdxs(athena::io::IStreamWriter& writer) const
     }
 }
 
-void MREA::ReadBabeDeadToBlender_3(hecl::BlenderConnection::PyOutStream& os,
+void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os,
                                    athena::io::IStreamReader& rs)
 {
     atUint32 bdMagic = rs.readUint32Big();
@@ -74,7 +75,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
                    bool force,
-                   hecl::BlenderToken& btok,
+                   hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
@@ -106,12 +107,12 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
 
     /* Start up blender connection */
-    hecl::BlenderConnection& conn = btok.getBlenderConnection();
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Area))
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
+    if (!conn.createBlend(outPath, hecl::blender::BlendType::Area))
         return false;
 
     /* Open Py Stream and read sections */
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Vector\n"

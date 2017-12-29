@@ -4,9 +4,7 @@
 #include "../../DataSpec/DNACommon/Tweaks/ITweakAutoMapper.hpp"
 #include "zeus/CVector3f.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CTweakAutoMapper final : public ITweakAutoMapper
 {
@@ -138,7 +136,6 @@ struct CTweakAutoMapper final : public ITweakAutoMapper
     const zeus::CColor& GetDoorColor(int idx) const { return x104_doorColors[idx]; }
     const zeus::CColor& GetOpenDoorColor() const { return x11c_openDoorColor; }
 };
-}
 }
 
 #endif // __DNAMP1_CTWEAKAUTOMAPPER_HPP__

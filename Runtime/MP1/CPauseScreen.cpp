@@ -9,9 +9,7 @@
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Input/ControlMapper.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CPauseScreen::CPauseScreen(ESubScreen subscreen,
@@ -313,5 +311,4 @@ float CPauseScreen::GetHelmetCamYOff() const
     return 0.f;
 }
 
-}
 }

@@ -4,12 +4,21 @@
 #include <functional>
 #include <thread>
 
-#include <hecl/Database.hpp>
-#include <nod/nod.hpp>
-#include <athena/DNAYaml.hpp>
-#include <athena/FileWriter.hpp>
-#include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/Database.hpp"
+#include "hecl/Blender/Token.hpp"
 #include "Runtime/RetroTypes.hpp"
+
+namespace nod
+{
+class DiscBase;
+class Node;
+}
+
+namespace athena::io
+{
+class FileWriter;
+class YAMLDocWriter;
+}
 
 namespace DataSpec
 {
@@ -21,16 +30,16 @@ struct SpecBase : hecl::Database::IDataSpec
     bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
     void doExtract(const ExtractPassInfo& info, FProgress progress);
 
-    bool canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok);
+    bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok);
     const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
                                                           const hecl::Database::DataSpecEntry* oldEntry,
-                                                          hecl::BlenderToken& btok) const;
+                                                          hecl::blender::Token& btok) const;
     void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
-                bool fast, hecl::BlenderToken& btok, FCookProgress progress);
+                bool fast, hecl::blender::Token& btok, FCookProgress progress);
 
     bool canPackage(const hecl::ProjectPath& path);
     void doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
-                   bool fast, hecl::BlenderToken& btok, FProgress progress, hecl::ClientProcess* cp);
+                   bool fast, hecl::blender::Token& btok, FProgress progress, hecl::ClientProcess* cp);
 
     /* Extract handlers */
     virtual bool checkStandaloneID(const char* id) const=0;
@@ -47,7 +56,7 @@ struct SpecBase : hecl::Database::IDataSpec
 
     /* Convert path to object tag */
     virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path,
-                                              hecl::BlenderToken& btok) const=0;
+                                              hecl::blender::Token& btok) const=0;
 
     /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
     virtual const hecl::Database::DataSpecEntry& getOriginalSpec() const=0;
@@ -62,29 +71,29 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual bool validateYAMLDNAType(athena::io::IStreamReader& fp) const=0;
 
     /* Cook handlers */
-    using BlendStream = hecl::BlenderConnection::DataStream;
-    using Mesh = BlendStream::Mesh;
-    using ColMesh = BlendStream::ColMesh;
-    using Light = BlendStream::Light;
-    using Actor = BlendStream::Actor;
+    using BlendStream = hecl::blender::DataStream;
+    using Mesh = hecl::blender::Mesh;
+    using ColMesh = hecl::blender::ColMesh;
+    using Light = hecl::blender::Light;
+    using Actor = hecl::blender::Actor;
 
     virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                          BlendStream& ds, bool fast, hecl::blender::Token& btok,
                           FCookProgress progress)=0;
     virtual void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                             BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                             BlendStream& ds, bool fast, hecl::blender::Token& btok,
                              FCookProgress progress)=0;
     virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                           BlendStream& ds, bool fast, hecl::blender::Token& btok,
                            FCookProgress progress)=0;
     virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                          BlendStream& ds, bool fast, hecl::blender::Token& btok,
                           FCookProgress progress)=0;
     virtual void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                           BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                           BlendStream& ds, bool fast, hecl::blender::Token& btok,
                            FCookProgress progress)=0;
     virtual void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                              BlendStream& ds, hecl::BlenderToken& btok,
+                              BlendStream& ds, hecl::blender::Token& btok,
                               FCookProgress progress)=0;
     virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           athena::io::IStreamReader& fin, FCookProgress progress)=0;
@@ -93,16 +102,16 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                           FCookProgress progress)=0;
     virtual void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                             BlendStream& ds, hecl::BlenderToken& btok,
+                             BlendStream& ds, hecl::blender::Token& btok,
                              FCookProgress progress)=0;
     virtual void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                                 BlendStream& ds, hecl::BlenderToken& btok,
+                                 BlendStream& ds, hecl::blender::Token& btok,
                                  FCookProgress progress)=0;
 
     /* Dependency flatteners */
     void flattenDependencies(const hecl::ProjectPath& in,
                              std::vector<hecl::ProjectPath>& pathsOut,
-                             hecl::BlenderToken& btok);
+                             hecl::blender::Token& btok);
     void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut);
     void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut);
     virtual void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
@@ -110,11 +119,11 @@ struct SpecBase : hecl::Database::IDataSpec
 
     virtual void buildWorldPakList(const hecl::ProjectPath& worldPath,
                                    const hecl::ProjectPath& worldPathCooked,
-                                   hecl::BlenderToken& btok,
+                                   hecl::blender::Token& btok,
                                    athena::io::FileWriter& w,
                                    std::vector<urde::SObjectTag>& listOut,
                                    atUint64& resTableOffset) {}
-    virtual void buildPakList(hecl::BlenderToken& btok,
+    virtual void buildPakList(hecl::blender::Token& btok,
                               athena::io::FileWriter& w,
                               const std::vector<urde::SObjectTag>& list,
                               const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
@@ -141,7 +150,7 @@ struct SpecBase : hecl::Database::IDataSpec
     void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath);
 
     /* Tag cache functions */
-    urde::SObjectTag tagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const;
+    urde::SObjectTag tagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const;
     hecl::ProjectPath pathFromTag(const urde::SObjectTag& tag) const;
     bool waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
     const urde::SObjectTag* getResourceIdByName(std::string_view name) const;
@@ -169,7 +178,7 @@ protected:
     std::unordered_map<urde::SObjectTag, std::string> m_catalogTagToName;
     void clearTagCache();
 
-    hecl::BlenderToken m_backgroundBlender;
+    hecl::blender::Token m_backgroundBlender;
     std::thread m_backgroundIndexTh;
     std::mutex m_backgroundIndexMutex;
     bool m_backgroundRunning = false;
@@ -190,7 +199,7 @@ protected:
     void recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
                                     std::unordered_set<urde::SObjectTag>& addedTags,
                                     const hecl::ProjectPath& path,
-                                    hecl::BlenderToken& btok);
+                                    hecl::blender::Token& btok);
     void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
                            const std::vector<urde::SObjectTag>& buildList,
                            const hecl::Database::DataSpecEntry* entry,

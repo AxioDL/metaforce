@@ -1,11 +1,11 @@
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include "tinyxml2/tinyxml2.h"
 #include "logvisor/logvisor.hpp"
 
 #ifndef _WIN32
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/statvfs.h>
-#include <errno.h>
+#include <cerrno>
 #else
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
@@ -22,7 +22,7 @@
 #define NOMINMAX
 #endif
 #include <Windows.h>
-#include <wchar.h>
+#include <cwchar>
 #if UNICODE
 #define IS_UCS2 1
 #endif

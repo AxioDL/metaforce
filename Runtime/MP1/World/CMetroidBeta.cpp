@@ -1,9 +1,7 @@
 #include "CMetroidBeta.hpp"
 #include "World/ScriptLoader.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info,
@@ -24,5 +22,4 @@ void CMetroidBeta::RenderHitBallEffect() const
 
 }
 
-}
 }

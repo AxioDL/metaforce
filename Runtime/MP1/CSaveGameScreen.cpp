@@ -9,9 +9,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "MP1/MP1.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 using EState = CMemoryCardDriver::EState;
@@ -700,5 +698,4 @@ std::unique_ptr<CMemoryCardDriver> CSaveGameScreen::ConstructCardDriver(bool imp
         g_ResFactory->GetResourceIdByName("TXTR_SaveIcon1")->id, importPersistent);
 }
 
-}
 }

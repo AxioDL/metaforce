@@ -1,14 +1,13 @@
 #include "ANIM.hpp"
 #include "zeus/CVector3f.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
+namespace DataSpec::DNAMP1
 {
-namespace DNAMP1
-{
 
-using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
+using ANIMOutStream = hecl::blender::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const
+void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const
 {
     os.format("act.hecl_fps = round(%f)\n"
               "act.hecl_looping = %s\n",
@@ -605,5 +604,4 @@ ANIM::ANIM(const BlenderAction& act,
     newAnim.mainInterval = act.interval;
 }
 
-}
 }

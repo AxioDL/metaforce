@@ -1,8 +1,8 @@
 #ifndef __URDE_GCTYPES_HPP__
 #define __URDE_GCTYPES_HPP__
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 using s8 = int8_t;
 using u8 = uint8_t;

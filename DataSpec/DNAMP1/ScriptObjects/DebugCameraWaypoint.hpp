@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct DebugCameraWaypoint : IScriptObject
 {
@@ -17,7 +15,6 @@ struct DebugCameraWaypoint : IScriptObject
     Value<atVec3f> orientation;
     Value<atUint32> unknown1;
 };
-}
 }
 
 #endif

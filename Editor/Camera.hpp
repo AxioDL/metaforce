@@ -1,5 +1,6 @@
 #ifndef URDE_CAMERA_HPP
 #define URDE_CAMERA_HPP
+
 #include "zeus/CProjection.hpp"
 #include "zeus/CFrustum.hpp"
 #include "zeus/CQuaternion.hpp"

@@ -5,9 +5,7 @@
 #include "DNACommon.hpp"
 #include "athena/FileWriter.hpp"
 
-namespace DataSpec
-{
-namespace DNAFSM2
+namespace DataSpec::DNAFSM2
 {
 struct IFSM : BigYAML
 {
@@ -158,6 +156,5 @@ bool ExtractFSM2(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteFSM2(const FSM2<IDType>& fsm2, const hecl::ProjectPath& outPath);
 
-}
 }
 #endif // __COMMON_FSM2_HPP__

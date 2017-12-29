@@ -8,9 +8,7 @@
 #include "Audio/CMidiManager.hpp"
 #include "Camera/CCinematicCamera.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
@@ -416,5 +414,4 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 
 void CMFGameLoader::Draw() const { g_GameState->GetWorldTransitionManager()->Draw(); }
 
-}
 }

@@ -4,9 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP2.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 class AGSC
@@ -27,7 +25,6 @@ public:
     static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
 };
 
-}
 }
 
 #endif // _DNAMP2_AGSC_HPP_

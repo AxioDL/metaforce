@@ -1,8 +1,6 @@
 #include "CPlayMovie.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 const char* kMovies[] =
@@ -29,5 +27,4 @@ CPlayMovie::CPlayMovie(EWhichMovie which)
 }
 
 
-}
 }

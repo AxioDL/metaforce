@@ -5,9 +5,7 @@
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
@@ -64,6 +62,5 @@ bool ExtractSWSH(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 
 template <class IDType>
 bool WriteSWSH(const SWSH<IDType>& gpsm, const hecl::ProjectPath& outPath);
-}
 }
 #endif // __COMMON_SWHC_HPP__

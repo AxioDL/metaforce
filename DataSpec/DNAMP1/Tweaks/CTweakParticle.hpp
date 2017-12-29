@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakParticle.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakParticle final : ITweakParticle
@@ -19,7 +17,6 @@ struct CTweakParticle final : ITweakParticle
     CTweakParticle(athena::io::IStreamReader& reader) { this->read(reader); }
 };
 
-}
 }
 
 #endif // _DNAMP1_CTWEAKPARTICLE_HPP_

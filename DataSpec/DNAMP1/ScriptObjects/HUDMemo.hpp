@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct HUDMemo : IScriptObject
 {
@@ -33,7 +31,6 @@ struct HUDMemo : IScriptObject
         g_curSpec->flattenDependencies(message, pathsOut);
     }
 };
-}
 }
 
 #endif

@@ -6,9 +6,7 @@
 #include "../SAVW.hpp"
 #include "specter/genie.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 enum class EPickupType : atUint32
@@ -511,7 +509,6 @@ struct BeamInfo : BigYAML
     }
 };
 
-}
 }
 
 #endif

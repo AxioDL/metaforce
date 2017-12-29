@@ -1,8 +1,6 @@
 #include "SWHC.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
@@ -529,5 +527,4 @@ bool WriteSWSH(const SWSH<IDType>& swsh, const hecl::ProjectPath& outPath)
 template bool WriteSWSH<UniqueID32>(const SWSH<UniqueID32>& swsh, const hecl::ProjectPath& outPath);
 template bool WriteSWSH<UniqueID64>(const SWSH<UniqueID64>& swsh, const hecl::ProjectPath& outPath);
 
-}
 }

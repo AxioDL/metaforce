@@ -1,9 +1,7 @@
 #include "SCLY.hpp"
 #include "ScriptObjects/ScriptTypes.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 void SCLY::read(athena::io::IStreamReader& rs)
@@ -220,5 +218,4 @@ const char* SCLY::ScriptLayer::DNAType()
     return "urde::DNAMP1::SCLY::ScriptLayer";
 }
 
-}
 }

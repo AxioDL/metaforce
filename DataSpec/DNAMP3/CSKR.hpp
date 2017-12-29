@@ -1,14 +1,11 @@
 #ifndef _DNAMP3_CSKR_HPP_
 #define _DNAMP3_CSKR_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
 #include "../DNAMP2/CSKR.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct CSKR : BigDNA
@@ -41,19 +38,9 @@ struct CSKR : BigDNA
         return mtxBindings.at(idx).mtxs;
     }
 
-    void weightVertex(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, atInt16 skinIdx) const
-    {
-        if (skinIdx < 0)
-            return;
-        const DNAMP2::CSKR::SkinningRule& rule = data.skinningRules[skinIdx];
-        for (const DNAMP2::CSKR::SkinningRule::Weight& weight : rule.weights)
-            os.format("vert[dvert_lay][%u] = %f\n",
-                      cinf.getBoneIdxFromId(weight.boneId),
-                      weight.weight);
-    }
+    void weightVertex(hecl::blender::PyOutStream& os, const CINF& cinf, atInt16 skinIdx) const;
 };
 
-}
 }
 
 #endif // _DNAMP3_CSKR_HPP_

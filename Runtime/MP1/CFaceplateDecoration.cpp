@@ -5,9 +5,7 @@
 #include "CSimplePool.hpp"
 #include "Particle/CGenDescription.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CFaceplateDecoration::CFaceplateDecoration(CStateManager& stateMgr) {}
@@ -50,5 +48,4 @@ void CFaceplateDecoration::Draw(CStateManager& stateMgr)
     }
 }
 
-}
 }

@@ -1,5 +1,5 @@
-#include <hecl/ClientProcess.hpp>
-#include <athena/MemoryReader.hpp>
+#include "hecl/ClientProcess.hpp"
+#include "athena/MemoryReader.hpp"
 #include "MREA.hpp"
 #include "SCLY.hpp"
 #include "PATH.hpp"
@@ -9,15 +9,14 @@
 #include "zeus/CAABox.hpp"
 #include "DataSpec/DNACommon/AROTBuilder.hpp"
 #include "ScriptObjects/ScriptTypes.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 extern hecl::SystemString ExeDir;
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
-void MREA::ReadBabeDeadToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
+void MREA::ReadBabeDeadToBlender_1_2(hecl::blender::PyOutStream& os,
                                      athena::io::IStreamReader& rs)
 {
     atUint32 bdMagic = rs.readUint32Big();
@@ -60,7 +59,7 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
 }
 
 /* Collision octree dumper */
-static void OutputOctreeNode(hecl::BlenderConnection::PyOutStream& os, athena::io::MemoryReader& r,
+static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryReader& r,
                              BspNodeType type, const zeus::CAABox& aabb)
 {
     if (type == BspNodeType::Branch)
@@ -140,7 +139,7 @@ static void OutputOctreeNode(hecl::BlenderConnection::PyOutStream& os, athena::i
 static const uint32_t AROTChildCounts[] = { 0, 2, 2, 4, 2, 4, 4, 8 };
 
 /* AROT octree dumper */
-static void OutputOctreeNode(hecl::BlenderConnection::PyOutStream& os, athena::io::MemoryReader& r,
+static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryReader& r,
                              const zeus::CAABox& aabb)
 {
     r.readUint16Big();
@@ -191,7 +190,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
                    bool force,
-                   hecl::BlenderToken& btok,
+                   hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)>)
 {
     using RigPair = std::pair<CSKR*, CINF*>;
@@ -205,12 +204,12 @@ bool MREA::Extract(const SpecBase& dataSpec,
     head.read(rs);
     rs.seekAlign32();
 
-    hecl::BlenderConnection& conn = btok.getBlenderConnection();
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Area))
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
+    if (!conn.createBlend(outPath, hecl::blender::BlendType::Area))
         return false;
 
     /* Open Py Stream and read sections */
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Vector\n"
@@ -414,7 +413,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                   const std::vector<DNACMDL::Mesh>& meshes,
                   const ColMesh& cMesh,
                   const std::vector<Light>& lights,
-                  hecl::BlenderToken& btok)
+                  hecl::blender::Token& btok)
 {
     /* Discover area layers */
     hecl::ProjectPath areaDirPath = inPath.getParentPath();
@@ -489,12 +488,12 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         arotBuilder.build(secs, fullAabb, meshAabbs, meshes);
 
 #if 0
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::BlenderConnection::BlendType::Area))
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
+        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::Connection::BlendType::Area))
             return false;
 
         /* Open Py Stream and read sections */
-        hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+        hecl::blender::PyOutStream os = conn.beginPythonOut(true);
         os.format("import bpy\n"
                       "import bmesh\n"
                       "from mathutils import Vector\n"
@@ -556,12 +555,12 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         DeafBabeBuildFromBlender(collision, cMesh);
 
 #if 0
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::BlenderConnection::BlendType::Area))
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
+        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::Connection::BlendType::Area))
             return false;
 
         /* Open Py Stream and read sections */
-        hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+        hecl::blender::PyOutStream os = conn.beginPythonOut(true);
         os.format("import bpy\n"
                       "import bmesh\n"
                       "from mathutils import Vector\n"
@@ -704,7 +703,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                     w.writeUint32Big(mesh.pos.size());
                     for (const auto& v : mesh.pos)
                     {
-                        atVec3f xfPos = hecl::BlenderConnection::DataStream::MtxVecMul4RM(mesh.sceneXf, v);
+                        atVec3f xfPos = hecl::blender::MtxVecMul4RM(mesh.sceneXf, v);
                         w.writeVec3fBig(xfPos);
                     }
 
@@ -714,7 +713,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
                         w.writeUint32Big(surf.verts.size());
                         for (const DNACMDL::Mesh::Surface::Vert& vert : surf.verts)
                             w.writeUint32Big(vert.iPos);
-                        const DNACMDL::Mesh::Material& mat = mesh.materialSets[0][surf.materialIdx];
+                        const DNACMDL::Material& mat = mesh.materialSets[0][surf.materialIdx];
                         w.writeBool(mat.transparent);
                     }
                 }
@@ -828,5 +827,4 @@ bool MREA::CookPath(const hecl::ProjectPath& outPath,
     return true;
 }
 
-}
 }

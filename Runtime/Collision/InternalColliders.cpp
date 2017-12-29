@@ -3,9 +3,7 @@
 #include "CCollidableCollisionSurface.hpp"
 #include "CCollidableSphere.hpp"
 
-namespace urde
-{
-namespace InternalColliders
+namespace urde::InternalColliders
 {
 void AddTypes()
 {
@@ -30,6 +28,5 @@ void AddColliders()
                                                "CCollidableAABox");
     CCollisionPrimitive::InitAddMovingCollider(CCollidableSphere::CollideMovingSphere, "CCollidableSphere",
                                                "CCollidableSphere");
-}
 }
 }

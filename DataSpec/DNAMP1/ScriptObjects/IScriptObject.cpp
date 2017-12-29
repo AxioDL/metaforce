@@ -1,9 +1,7 @@
 #include "IScriptObject.hpp"
 #include "ScriptTypes.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 namespace priv
 {
@@ -278,5 +276,4 @@ zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale,
            position;
 }
 
-}
 }

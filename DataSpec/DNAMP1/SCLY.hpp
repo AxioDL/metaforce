@@ -5,9 +5,7 @@
 #include "ScriptObjects/IScriptObject.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct SCLY : BigYAML
 {
@@ -44,6 +42,5 @@ struct SCLY : BigYAML
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
 };
-}
 }
 #endif

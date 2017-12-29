@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CameraFilterKeyframe : IScriptObject
 {
@@ -37,7 +35,6 @@ struct CameraFilterKeyframe : IScriptObject
         g_curSpec->flattenDependencies(texture, pathsOut);
     }
 };
-}
 }
 
 #endif

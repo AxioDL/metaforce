@@ -99,6 +99,9 @@ target_link_libraries(urde
 if(COMMAND add_sanitizers)
   add_sanitizers(urde)
 endif()
+if(COMMAND cotire)
+  cotire(urde)
+endif()
 
 set_target_properties(urde PROPERTIES
                       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"

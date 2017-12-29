@@ -4,9 +4,7 @@
 #include "DNACommon.hpp"
 #include <cmath>
 
-namespace DataSpec
-{
-namespace DNAANIM
+namespace DataSpec::DNAANIM
 {
 
 union Value
@@ -99,7 +97,6 @@ public:
           size_t& sizeOut);
 };
 
-}
 }
 
 #endif // _DNACOMMON_ANIMBITSTREAM_HPP_

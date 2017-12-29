@@ -5,9 +5,7 @@
 #include "DNAMP1.hpp"
 #include <athena/FileWriter.hpp>
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct FRME : BigDNA
 {
@@ -299,11 +297,10 @@ struct FRME : BigDNA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged);
 };
 
-}
 }
 
 #endif // _DNAMP1_FRME_HPP_

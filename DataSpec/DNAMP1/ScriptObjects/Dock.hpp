@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Dock : IScriptObject
 {
@@ -20,7 +18,6 @@ struct Dock : IScriptObject
     Value<atUint32> room;
     Value<bool> loadConnected;
 };
-}
 }
 
 #endif

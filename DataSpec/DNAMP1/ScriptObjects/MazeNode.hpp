@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct MazeNode : IScriptObject
 {
@@ -23,7 +21,6 @@ struct MazeNode : IScriptObject
     Value<atVec3f> unknown6;
     Value<atVec3f> unknown7;
 };
-}
 }
 
 #endif

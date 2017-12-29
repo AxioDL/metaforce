@@ -2,12 +2,13 @@
 #include "DataSpec/DNAMP1/MREA.hpp"
 #include "DataSpec/DNAMP3/MREA.hpp"
 #include "zeus/CTransform.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec
 {
 
 template<class BabeDeadLight>
-void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
+void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
                                 const BabeDeadLight& light, unsigned s, unsigned l)
 {
     switch (light.lightType)
@@ -92,14 +93,14 @@ void ReadBabeDeadLightToBlender(hecl::BlenderConnection::PyOutStream& os,
 }
 
 template void ReadBabeDeadLightToBlender<DNAMP1::MREA::BabeDeadLight>
-(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::MREA::BabeDeadLight& light, unsigned s, unsigned l);
+(hecl::blender::PyOutStream& os, const DNAMP1::MREA::BabeDeadLight& light, unsigned s, unsigned l);
 template void ReadBabeDeadLightToBlender<DNAMP3::MREA::BabeDeadLight>
-(hecl::BlenderConnection::PyOutStream& os, const DNAMP3::MREA::BabeDeadLight& light, unsigned s, unsigned l);
+(hecl::blender::PyOutStream& os, const DNAMP3::MREA::BabeDeadLight& light, unsigned s, unsigned l);
 
 template<class BabeDeadLight>
-void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::BlenderConnection::DataStream::Light& lightIn)
+void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender::Light& lightIn)
 {
-    using InterType = hecl::BlenderConnection::DataStream::Light::Type;
+    using InterType = hecl::blender::Light::Type;
     switch (lightIn.type)
     {
     case InterType::Ambient:
@@ -147,8 +148,8 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::BlenderC
 }
 
 template void WriteBabeDeadLightFromBlender<DNAMP1::MREA::BabeDeadLight>
-(DNAMP1::MREA::BabeDeadLight& lightOut, const hecl::BlenderConnection::DataStream::Light& lightIn);
+(DNAMP1::MREA::BabeDeadLight& lightOut, const hecl::blender::Light& lightIn);
 template void WriteBabeDeadLightFromBlender<DNAMP3::MREA::BabeDeadLight>
-(DNAMP3::MREA::BabeDeadLight& lightOut, const hecl::BlenderConnection::DataStream::Light& lightIn);
+(DNAMP3::MREA::BabeDeadLight& lightOut, const hecl::blender::Light& lightIn);
 
 }

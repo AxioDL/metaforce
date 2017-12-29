@@ -1,8 +1,6 @@
 #include "ANCS.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 void ANCS::CharacterSet::CharacterInfo::read(athena::io::IStreamReader& reader)
@@ -660,5 +658,4 @@ const char* ANCS::AnimationSet::EVNT::DNAType()
     return "urde::DNAMP2::ANCS::AnimationSet::EVNT";
 }
 
-}
 }

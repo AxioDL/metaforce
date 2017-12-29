@@ -6,9 +6,7 @@
 #include "World/CPlayer.hpp"
 #include "World/CWorld.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 static const zeus::CTransform PreXf = zeus::CTransform::Scale(0.3f) * zeus::CTransform::Translate(0.f, 0.5f, 0.f);
@@ -115,5 +113,4 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
     }
 }
 
-}
 }

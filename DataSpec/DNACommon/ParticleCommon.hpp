@@ -3,9 +3,7 @@
 
 #include "DNACommon.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 extern logvisor::Module LogModule;
 
@@ -1511,7 +1509,6 @@ struct ChildResourceFactory : BigYAML
     operator bool() const {return id.operator bool();}
 };
 
-}
 }
 
 #endif // __COMMON_PARTICLECOMMON_HPP__

@@ -1,13 +1,12 @@
 #include "ANIM.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
+namespace DataSpec::DNAMP2
 {
-namespace DNAMP2
-{
 
-using ANIMOutStream = hecl::BlenderConnection::PyOutStream::ANIMOutStream;
+using ANIMOutStream = hecl::blender::ANIMOutStream;
 
-void ANIM::IANIM::sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const
+void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const
 {
     os.format("act.hecl_fps = round(%f)\n"
               "act.hecl_looping = %s\n",
@@ -582,5 +581,4 @@ size_t ANIM::ANIM2::binarySize(size_t __isz) const
     return __isz + DNAANIM::ComputeBitstreamSize(frames.size(), channels);
 }
 
-}
 }

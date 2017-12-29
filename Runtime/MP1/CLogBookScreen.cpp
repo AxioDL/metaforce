@@ -5,9 +5,7 @@
 #include "GuiSys/CAuiImagePane.hpp"
 #include "MP1.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CLogBookScreen::CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame,
@@ -483,5 +481,4 @@ u32 CLogBookScreen::GetRightTableCount() const
     return x1f0_curViewScans.size();
 }
 
-}
 }

@@ -129,9 +129,7 @@
 #include <functional>
 #include <list>
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct ScriptObjectSpec
 {
@@ -140,6 +138,5 @@ struct ScriptObjectSpec
 };
 
 extern const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
-}
 }
 #endif

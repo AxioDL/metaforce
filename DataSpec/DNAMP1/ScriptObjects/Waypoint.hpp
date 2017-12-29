@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Waypoint : IScriptObject
 {
@@ -26,7 +24,6 @@ struct Waypoint : IScriptObject
     Value<atUint32> jumpFlags; // 0x2: single, 0x4: double
     Value<atUint32> unknown10;
 };
-}
 }
 
 #endif

@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct ActorKeyframe : IScriptObject
 {
@@ -20,7 +18,6 @@ struct ActorKeyframe : IScriptObject
     Value<atUint32> unknown3;
     Value<float>    totalPlayback;
 };
-}
 }
 
 #endif

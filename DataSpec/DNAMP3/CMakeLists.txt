@@ -16,8 +16,9 @@ set(DNAMP3_SOURCES
     ANIM.cpp
     CINF.cpp
     CHAR.cpp
-    CMDL.hpp
+    CMDL.hpp CMDL.cpp
     CMDLMaterials.cpp
+    CSKR.cpp
     STRG.hpp STRG.cpp
     MAPA.hpp
     MREA.cpp)

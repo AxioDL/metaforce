@@ -3,9 +3,7 @@
 #include "CSimplePool.hpp"
 #include "Graphics/CBooRenderer.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CGameCubeDoll::CGameCubeDoll()
@@ -65,5 +63,4 @@ bool CGameCubeDoll::CheckLoadComplete()
     return false;
 }
 
-}
 }

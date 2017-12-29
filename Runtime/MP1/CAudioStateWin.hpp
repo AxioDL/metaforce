@@ -3,9 +3,7 @@
 
 #include "../CIOWin.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 class CAudioStateWin : public CIOWin
 {
@@ -14,7 +12,6 @@ public:
     CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
 };
 
-}
 }
 
 #endif // __URDE_MP1_CAUDIOSTATEWIN_HPP__

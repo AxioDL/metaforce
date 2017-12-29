@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CameraHint : IScriptObject
 {
@@ -67,7 +65,6 @@ struct CameraHint : IScriptObject
     Value<float> clampVelTime;
     Value<float> controlInterpDur;
 };
-}
 }
 
 #endif

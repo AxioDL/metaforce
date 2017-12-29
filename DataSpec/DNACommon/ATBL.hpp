@@ -4,9 +4,7 @@
 #include "DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNAAudio
+namespace DataSpec::DNAAudio
 {
 
 class ATBL
@@ -16,7 +14,6 @@ public:
     static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
 };
 
-}
 }
 
 #endif // _DNACOMMON_ATBL_HPP_

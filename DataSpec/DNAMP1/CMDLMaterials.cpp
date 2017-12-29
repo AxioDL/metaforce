@@ -1,11 +1,10 @@
 #include "CMDLMaterials.hpp"
 #include "../DNAMP2/CMDLMaterials.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-using Stream = hecl::BlenderConnection::PyOutStream;
+using Stream = hecl::blender::PyOutStream;
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 using Material = MaterialSet::Material;
 
@@ -1152,7 +1151,7 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
 
 HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE,
                                     const std::string& diagName,
-                                    const hecl::BlenderConnection::DataStream::Mesh::Material& mat,
+                                    const hecl::blender::Material& mat,
                                     const std::unordered_map<std::string, int32_t>& iprops,
                                     const std::vector<hecl::ProjectPath>& texPaths)
 {
@@ -1298,11 +1297,8 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
 }
 
 }
-}
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 void MaterialSet::ConstructMaterial(Stream& out,
@@ -1311,5 +1307,4 @@ void MaterialSet::ConstructMaterial(Stream& out,
                                     unsigned matIdx)
 {DataSpec::DNAMP1::_ConstructMaterial(out, material, groupIdx, matIdx);}
 
-}
 }

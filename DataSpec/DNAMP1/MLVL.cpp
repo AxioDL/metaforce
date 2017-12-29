@@ -7,14 +7,13 @@
 #include "ScriptObjects/DoorArea.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
-                   PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::BlenderToken& btok,
+                   PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged)
 {
     MLVL mlvl;
@@ -57,12 +56,12 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
     athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
     mlvl.toYAMLStream(writer, static_cast<YAMLWriteMemberFn>(&MLVL::writeMeta));
-    hecl::BlenderConnection& conn = btok.getBlenderConnection();
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
     return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
 }
 
 bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const World& wld,
-                hecl::BlenderToken& btok)
+                hecl::blender::Token& btok)
 {
     MLVL mlvl = {};
     athena::io::FileReader reader(inPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
@@ -351,7 +350,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
 bool MLVL::CookMAPW(const hecl::ProjectPath& outPath,
                     const World& wld,
-                    hecl::BlenderToken& btok)
+                    hecl::blender::Token& btok)
 {
     std::vector<urde::SObjectTag> mapaTags;
     mapaTags.reserve(wld.areas.size());
@@ -520,5 +519,4 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath,
     return true;
 }
 
-}
 }

@@ -1,8 +1,8 @@
 #ifndef __URDE_CBASICS_HPP__
 #define __URDE_CBASICS_HPP__
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <chrono>
 
 #include "RetroTypes.hpp"

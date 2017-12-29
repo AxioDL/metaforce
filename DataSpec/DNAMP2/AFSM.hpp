@@ -3,11 +3,8 @@
 
 #include "../DNAMP1/AFSM.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 using AFSM = DNAMP1::AFSM;
-}
 }
 #endif // _RETRO_AFSM_HPP_

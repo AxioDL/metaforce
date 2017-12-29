@@ -18,7 +18,7 @@ set(DNACOMMON_SOURCES
     MAPU.cpp
     STRG.hpp STRG.cpp
     TXTR.hpp TXTR.cpp
-    ANCS.hpp
+    ANCS.hpp ANCS.cpp
     ANIM.hpp ANIM.cpp
     PART.hpp PART.cpp
     SWHC.hpp SWHC.cpp

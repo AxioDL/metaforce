@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct PuddleToadGamma : IScriptObject
 {
@@ -59,7 +57,6 @@ struct PuddleToadGamma : IScriptObject
         actorParameters.scanIDs(scansOut);
     }
 };
-}
 }
 
 #endif

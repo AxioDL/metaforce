@@ -118,11 +118,11 @@ protected:
     {
         return static_cast<DataSpec::SpecBase&>(*m_cookSpec).waitForTagReady(tag, pathOut);
     }
-    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const
     {
         return static_cast<DataSpec::SpecBase&>(*m_cookSpec).tagFromPath(path, btok);
     }
-    SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const
     {
         return static_cast<DataSpec::SpecBase&>(*m_cookSpec).buildTagFromPath(path, btok);
     }
@@ -177,7 +177,7 @@ public:
     SObjectTag TagFromPath(hecl::SystemStringView path) const
     {
         return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path),
-                           hecl::SharedBlenderToken);
+                           hecl::blender::SharedBlenderToken);
     }
 
     ~ProjectResourceFactoryBase() {Shutdown();}

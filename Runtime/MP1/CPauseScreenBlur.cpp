@@ -3,9 +3,7 @@
 #include "GameGlobalObjects.hpp"
 #include "Audio/CSfxManager.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CPauseScreenBlur::CPauseScreenBlur()
@@ -120,5 +118,4 @@ void CPauseScreenBlur::Draw(const CStateManager&) const
     }
 }
 
-}
 }

@@ -2,9 +2,7 @@
 #include "Character/CCharLayoutInfo.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CActorParameters& aParams, const CPatternedInfo& pInfo, CInputStream& in,
@@ -19,5 +17,4 @@ void CSpacePirate::Accept(IVisitor &visitor)
     visitor.Visit(this);
 }
 
-}
 }

@@ -1,8 +1,7 @@
 #include "CINF.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 atUint32 CINF::getInternalBoneIdxFromId(atUint32 id) const
@@ -37,7 +36,7 @@ const std::string* CINF::getBoneNameFromId(atUint32 id) const
     return nullptr;
 }
 
-void CINF::sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) const
+void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const
 {
     for (atUint32 bid : boneIds)
     {
@@ -52,7 +51,7 @@ void CINF::sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) c
     }
 }
 
-void CINF::sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const
+void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const
 {
     DNAANIM::RigInverter<CINF> inverter(*this);
 
@@ -92,7 +91,7 @@ std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId)
     return hecl::Format("CINF_%08X", cinfId.toUint32());
 }
 
-int CINF::RecursiveAddArmatureBone(const Armature& armature, const Armature::Bone* bone, int parent, int& curId,
+int CINF::RecursiveAddArmatureBone(const Armature& armature, const BlenderBone* bone, int parent, int& curId,
                                    std::unordered_map<std::string, atInt32>& idMap, std::map<std::string, int>& nameMap)
 {
     int selId;
@@ -114,7 +113,7 @@ int CINF::RecursiveAddArmatureBone(const Armature& armature, const Armature::Bon
     boneOut.linkedCount = bone->children.size() + 1;
     boneOut.linked.reserve(boneOut.linkedCount);
 
-    const Armature::Bone* child;
+    const BlenderBone* child;
     boneOut.linked.push_back(parent);
     for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
         boneOut.linked.push_back(RecursiveAddArmatureBone(armature, child, boneOut.id, curId, idMap, nameMap));
@@ -129,13 +128,13 @@ CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& i
 
     std::map<std::string, int> nameMap;
 
-    const Armature::Bone* bone = armature.getRoot();
+    const BlenderBone* bone = armature.getRoot();
     if (bone)
     {
         if (bone->children.size())
         {
             int curId = 4;
-            const Armature::Bone* child;
+            const BlenderBone* child;
             for (size_t i=0 ; (child = armature.getChild(bone, i)) ; ++i)
                 RecursiveAddArmatureBone(armature, child, 3, curId, idMap, nameMap);
         }
@@ -178,5 +177,4 @@ CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& i
         boneIds.push_back(it->id);
 }
 
-}
 }

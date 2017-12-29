@@ -3,9 +3,7 @@
 
 #include "World/CPatterned.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 class CSpacePirate : public CPatterned
 {
@@ -15,6 +13,5 @@ public:
 
     void Accept(IVisitor &visitor);
 };
-}
 }
 #endif // __URDE_MP1_CSPACEPIRATE_HPP__

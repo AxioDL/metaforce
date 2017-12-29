@@ -3,9 +3,7 @@
 
 #define DUMP_KEYS 0
 
-namespace DataSpec
-{
-namespace DNAANIM
+namespace DataSpec::DNAANIM
 {
 
 size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& channels)
@@ -519,5 +517,4 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
     return newData;
 }
 
-}
 }

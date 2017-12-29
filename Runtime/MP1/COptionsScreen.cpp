@@ -5,9 +5,7 @@
 #include "Input/RumbleFxTable.hpp"
 #include "CArchitectureQueue.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 COptionsScreen::COptionsScreen(const CStateManager& mgr, CGuiFrame& frame,
@@ -275,5 +273,4 @@ u32 COptionsScreen::GetRightTableCount() const
     return GameOptionsRegistry[x70_tablegroup_leftlog->GetUserSelection()].first;
 }
 
-}
 }

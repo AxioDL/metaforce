@@ -3,9 +3,7 @@
 #include "DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec
-{
-namespace SAVWCommon
+namespace DataSpec::SAVWCommon
 {
 enum class EScanCategory
 {
@@ -51,7 +49,6 @@ static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath
     return true;
 }
 
-}
 }
 
 #endif // __COMMON_SAVWCOMMON_HPP__

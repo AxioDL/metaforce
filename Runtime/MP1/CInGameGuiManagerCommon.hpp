@@ -3,9 +3,7 @@
 
 #include "RetroTypes.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 enum class EInGameGuiState
@@ -19,7 +17,6 @@ enum class EInGameGuiState
     PauseHUDMessage
 };
 
-}
 }
 
 #endif // __URDE_CINGAMEGUIMANAGERCOMMON_HPP__

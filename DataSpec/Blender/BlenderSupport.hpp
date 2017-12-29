@@ -3,14 +3,11 @@
 
 #include <hecl/hecl.hpp>
 
-namespace DataSpec
-{
-namespace Blender
+namespace DataSpec::Blender
 {
 
 bool BuildMasterShader(const hecl::ProjectPath& path);
 
-}
 }
 
 #endif // _RETRO_BLENDER_SUPPORT_HPP_

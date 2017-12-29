@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct ColorModulate : IScriptObject
 {
@@ -25,7 +23,6 @@ struct ColorModulate : IScriptObject
     Value<bool> unknown10;
     Value<bool> unknown11;
 };
-}
 }
 
 #endif

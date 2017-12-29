@@ -1,10 +1,9 @@
 #include "CMDLMaterials.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-using Stream = hecl::BlenderConnection::PyOutStream;
+using Stream = hecl::blender::PyOutStream;
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 using Material = MaterialSet::Material;
 
@@ -108,7 +107,7 @@ void MaterialSet::ConstructMaterial(Stream& out,
            "    new_nodetree.links.new(kcolor_nodes[-1][1].outputs[0], final_node.inputs['Alpha'])\n";
 }
 
-void Material::SectionPASS::constructNode(hecl::BlenderConnection::PyOutStream& out,
+void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out,
                                           const PAKRouter<PAKBridge>& pakRouter,
                                           const PAK::Entry& entry,
                                           const Material::ISection* prevSection,
@@ -259,7 +258,7 @@ void Material::SectionPASS::constructNode(hecl::BlenderConnection::PyOutStream& 
     out << "gridder.row_break(2)\n";
 }
 
-void Material::SectionCLR::constructNode(hecl::BlenderConnection::PyOutStream& out,
+void Material::SectionCLR::constructNode(hecl::blender::PyOutStream& out,
                                          const PAKRouter<PAKBridge>& pakRouter,
                                          const PAK::Entry& entry,
                                          const Material::ISection* prevSection,
@@ -279,7 +278,7 @@ void Material::SectionCLR::constructNode(hecl::BlenderConnection::PyOutStream& o
     }
 }
 
-void Material::SectionINT::constructNode(hecl::BlenderConnection::PyOutStream& out,
+void Material::SectionINT::constructNode(hecl::blender::PyOutStream& out,
                                          const PAKRouter<PAKBridge>& pakRouter,
                                          const PAK::Entry& entry,
                                          const Material::ISection* prevSection,
@@ -315,5 +314,4 @@ void Material::SectionINT::constructNode(hecl::BlenderConnection::PyOutStream& o
     }
 }
 
-}
 }

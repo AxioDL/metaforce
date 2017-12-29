@@ -1,7 +1,7 @@
 #ifndef URDE_RESOURCE_HPP
 #define URDE_RESOURCE_HPP
 
-#include <hecl/Database.hpp>
+#include "hecl/Database.hpp"
 #include "Space.hpp"
 
 namespace urde

@@ -7,9 +7,7 @@
 #include "../DNACommon/MAPU.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct MAPU : DNAMAPU::MAPU
@@ -20,16 +18,15 @@ struct MAPU : DNAMAPU::MAPU
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MAPU mapu;
         mapu.read(rs);
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         return DNAMAPU::ReadMAPUToBlender(conn, mapu, outPath, pakRouter, entry, force);
     }
 };
-}
 }
 
 #endif

@@ -22,11 +22,9 @@
 #include "CNESEmulator.hpp"
 #include "CQuitGameScreen.hpp"
 #include "Input/RumbleFxTable.hpp"
-#include <time.h>
+#include <ctime>
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 /* Music volume constants */
@@ -2798,5 +2796,4 @@ CIOWin::EMessageReturn CFrontEndUI::OnMessage(const CArchitectureMessage& msg, C
     return EMessageReturn::Normal;
 }
 
-}
 }

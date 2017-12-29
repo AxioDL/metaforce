@@ -1,8 +1,6 @@
 #include "FONT.hpp"
 
-namespace DataSpec
-{
-namespace DNAFont
+namespace DataSpec::DNAFont
 {
 logvisor::Module LogModule("urde::DNAFont");
 
@@ -571,5 +569,4 @@ bool WriteFONT(const FONT<IDType>& font, const hecl::ProjectPath& outPath)
 template bool WriteFONT<UniqueID32>(const FONT<UniqueID32>& font, const hecl::ProjectPath& outPath);
 template bool WriteFONT<UniqueID64>(const FONT<UniqueID64>& font, const hecl::ProjectPath& outPath);
 
-}
 }

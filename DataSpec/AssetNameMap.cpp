@@ -6,9 +6,7 @@ extern "C" uint32_t ASSET_NAME_MP32_SZ;
 extern "C" uint8_t ASSET_NAME_MP64[];
 extern "C" uint32_t ASSET_NAME_MP64_SZ;
 
-namespace DataSpec
-{
-namespace AssetNameMap
+namespace DataSpec::AssetNameMap
 {
 logvisor::Module Log("AssetNameMap");
 
@@ -83,5 +81,4 @@ const std::string* TranslateIdToName(const UniqueID32& id)
     return &g_AssetNameMap[id.toUint64()].name;
 }
 
-}
 }

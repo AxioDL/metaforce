@@ -3,9 +3,7 @@
 #include "GameGlobalObjects.hpp"
 #include "MP1.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CPreFrontEnd::CPreFrontEnd()
@@ -36,5 +34,4 @@ CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage& msg, 
     return EMessageReturn::RemoveIOWinAndExit;
 }
 
-}
 }

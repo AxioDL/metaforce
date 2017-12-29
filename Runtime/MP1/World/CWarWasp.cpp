@@ -2,9 +2,7 @@
 #include "Character/CCharLayoutInfo.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
@@ -16,5 +14,4 @@ CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info
 }
 
 void CWarWasp::Accept(IVisitor& visitor) { visitor.Visit(this); }
-}
 }

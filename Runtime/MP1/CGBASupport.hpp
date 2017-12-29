@@ -3,9 +3,7 @@
 
 #include "CDvdFile.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CGBASupport : public CDvdFile
@@ -52,7 +50,6 @@ public:
     bool IsFusionBeat() const { return x45_fusionBeat; }
 };
 
-}
 }
 
 #endif // __URDE_CGBASUPPORT_HPP__

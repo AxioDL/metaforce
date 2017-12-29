@@ -3,9 +3,7 @@
 
 #include "CIOWin.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 class CSaveGameScreen;
 class CAutoSave : CIOWin
@@ -14,6 +12,5 @@ class CAutoSave : CIOWin
 public:
     CAutoSave();
 };
-}
 }
 #endif // __URDE_CAUTOSAVE_HPP__

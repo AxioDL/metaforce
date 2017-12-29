@@ -3,13 +3,14 @@
 #include "DataSpec/DNAMP1/DeafBabe.hpp"
 #include "DataSpec/DNAMP2/DeafBabe.hpp"
 #include "DataSpec/DNAMP1/DCLN.hpp"
-#include <inttypes.h>
+#include "hecl/Blender/Connection.hpp"
+#include <cinttypes>
 
 namespace DataSpec
 {
 
 template<class DEAFBABE>
-void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFBABE& db, bool isDcln, atInt32 idx)
+void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, bool isDcln, atInt32 idx)
 {
     os << "material_index = []\n"
           "col_bm = bmesh.new()\n";
@@ -96,13 +97,13 @@ void DeafBabeSendToBlender(hecl::BlenderConnection::PyOutStream& os, const DEAFB
           "\n";
 }
 
-template void DeafBabeSendToBlender<DNAMP1::DeafBabe>(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::DeafBabe& db, bool isDcln, atInt32 idx);
-template void DeafBabeSendToBlender<DNAMP2::DeafBabe>(hecl::BlenderConnection::PyOutStream& os, const DNAMP2::DeafBabe& db, bool isDcln, atInt32 idx);
-template void DeafBabeSendToBlender<DNAMP1::DCLN::Collision>(hecl::BlenderConnection::PyOutStream& os, const DNAMP1::DCLN::Collision& db, bool isDcln, atInt32 idx);
+template void DeafBabeSendToBlender<DNAMP1::DeafBabe>(hecl::blender::PyOutStream& os, const DNAMP1::DeafBabe& db, bool isDcln, atInt32 idx);
+template void DeafBabeSendToBlender<DNAMP2::DeafBabe>(hecl::blender::PyOutStream& os, const DNAMP2::DeafBabe& db, bool isDcln, atInt32 idx);
+template void DeafBabeSendToBlender<DNAMP1::DCLN::Collision>(hecl::blender::PyOutStream& os, const DNAMP1::DCLN::Collision& db, bool isDcln, atInt32 idx);
 
 template<class DEAFBABE>
 static void PopulateAreaFields(DEAFBABE& db,
-    const hecl::BlenderConnection::DataStream::ColMesh& colMesh,
+    const hecl::blender::ColMesh& colMesh,
     const zeus::CAABox& fullAABB,
     std::enable_if_t<std::is_same<DEAFBABE, DNAMP1::DeafBabe>::value ||
                      std::is_same<DEAFBABE, DNAMP2::DeafBabe>::value, int>* = 0)
@@ -122,7 +123,7 @@ static void PopulateAreaFields(DEAFBABE& db,
 
 template<class DEAFBABE>
 static void PopulateAreaFields(DEAFBABE& db,
-    const hecl::BlenderConnection::DataStream::ColMesh& colMesh,
+    const hecl::blender::ColMesh& colMesh,
     const zeus::CAABox& fullAABB,
     std::enable_if_t<std::is_same<DEAFBABE, DNAMP1::DCLN::Collision>::value, int>* = 0)
 {
@@ -149,9 +150,9 @@ public:
 };
 
 template<class DEAFBABE>
-void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh)
+void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::blender::ColMesh& colMesh)
 {
-    using BlendMat = hecl::BlenderConnection::DataStream::ColMesh::Material;
+    using BlendMat = hecl::blender::ColMesh::Material;
 
     auto MakeMat = [](const BlendMat& mat, bool flipFace) -> typename DEAFBABE::Material
     {
@@ -255,8 +256,8 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::BlenderConnection::DataS
     PopulateAreaFields(db, colMesh, fullAABB);
 }
 
-template void DeafBabeBuildFromBlender<DNAMP1::DeafBabe>(DNAMP1::DeafBabe& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);
-template void DeafBabeBuildFromBlender<DNAMP2::DeafBabe>(DNAMP2::DeafBabe& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);
-template void DeafBabeBuildFromBlender<DNAMP1::DCLN::Collision>(DNAMP1::DCLN::Collision& db, const hecl::BlenderConnection::DataStream::ColMesh& colMesh);
+template void DeafBabeBuildFromBlender<DNAMP1::DeafBabe>(DNAMP1::DeafBabe& db, const hecl::blender::ColMesh& colMesh);
+template void DeafBabeBuildFromBlender<DNAMP2::DeafBabe>(DNAMP2::DeafBabe& db, const hecl::blender::ColMesh& colMesh);
+template void DeafBabeBuildFromBlender<DNAMP1::DCLN::Collision>(DNAMP1::DCLN::Collision& db, const hecl::blender::ColMesh& colMesh);
 
 }

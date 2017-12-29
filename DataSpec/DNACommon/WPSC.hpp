@@ -5,9 +5,7 @@
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 template <class IDType>
 struct WPSM : BigYAML
@@ -69,7 +67,6 @@ bool ExtractWPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteWPSM(const WPSM<IDType>& wpsm, const hecl::ProjectPath& outPath);
 
-}
 }
 
 #endif // __COMMON_WPSC_HPP__

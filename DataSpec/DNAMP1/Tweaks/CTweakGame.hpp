@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakGame.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakGame final : ITweakGame
@@ -58,7 +56,6 @@ struct CTweakGame final : ITweakGame
         x2b_splashScreensDisabled = false;
     }
 };
-}
 }
 
 #endif

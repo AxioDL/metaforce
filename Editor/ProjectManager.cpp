@@ -1,6 +1,7 @@
 #include "ProjectManager.hpp"
 #include "ViewManager.hpp"
 #include "../DataSpecRegistry.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace urde
 {
@@ -15,7 +16,7 @@ CToken ProjectResourcePool::GetObj(std::string_view name)
 
     hecl::ProjectPath path(*m_parent.project(), name);
     SObjectTag tag = static_cast<ProjectResourceFactoryBase&>(x18_factory).
-                     TagFromPath(path, hecl::SharedBlenderToken);
+                     TagFromPath(path, hecl::blender::SharedBlenderToken);
     if (tag)
         return CSimplePool::GetObj(tag);
 
@@ -30,7 +31,7 @@ CToken ProjectResourcePool::GetObj(std::string_view name, const CVParamTransfer&
 
     hecl::ProjectPath path(*m_parent.project(), name);
     SObjectTag tag = static_cast<ProjectResourceFactoryBase&>(x18_factory).
-                     TagFromPath(path, hecl::SharedBlenderToken);
+                     TagFromPath(path, hecl::blender::SharedBlenderToken);
     if (tag)
         return CSimplePool::GetObj(tag, pvxfer);
 
@@ -248,7 +249,7 @@ void ProjectManager::shutdown()
         m_mainMP1->Shutdown();
     m_clientProc.shutdown();
     m_factoryMP1.Shutdown();
-    hecl::BlenderConnection::Shutdown();
+    hecl::blender::Connection::Shutdown();
 }
 
 }

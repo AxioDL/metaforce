@@ -39,16 +39,16 @@ include(DNAMP2/CMakeLists.txt)
 include(DNAMP3/CMakeLists.txt)
 
 # Embed master shader script
-bintoc(RetroMasterShader.c Blender/RetroMasterShader.py RETRO_MASTER_SHADER)
+bintoc(RetroMasterShader.cpp Blender/RetroMasterShader.py RETRO_MASTER_SHADER)
 
 # Download asset name databases
 add_custom_command(OUTPUT AssetNameMap32.bin COMMAND ${CMAKE_COMMAND} ARGS -P
                    ${CMAKE_CURRENT_SOURCE_DIR}/AssetMap32Download.cmake)
-bintoc(AssetNameMap32.c ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin ASSET_NAME_MP32)
+bintoc(AssetNameMap32.cpp ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap32.bin ASSET_NAME_MP32)
 
 add_custom_command(OUTPUT AssetNameMap64.bin COMMAND ${CMAKE_COMMAND} ARGS -P
                    ${CMAKE_CURRENT_SOURCE_DIR}/AssetMap64Download.cmake)
-bintoc(AssetNameMap64.c ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin ASSET_NAME_MP64)
+bintoc(AssetNameMap64.cpp ${CMAKE_CURRENT_BINARY_DIR}/AssetNameMap64.bin ASSET_NAME_MP64)
 
 # Each game's DataSpec implementation
 add_library(RetroDataSpec
@@ -66,9 +66,12 @@ add_library(RetroDataSpec
             Blender/RetroMasterShader.py
             AssetNameMap.hpp
             AssetNameMap.cpp
-            AssetNameMap32.bin AssetNameMap32.c
-            AssetNameMap64.bin AssetNameMap64.c
-            RetroMasterShader.c)
+            AssetNameMap32.bin AssetNameMap32.cpp
+            AssetNameMap64.bin AssetNameMap64.cpp
+            RetroMasterShader.cpp)
 if(COMMAND add_sanitizers)
   add_sanitizers(RetroDataSpec)
+endif()
+if(COMMAND cotire)
+  cotire(RetroDataSpec)
 endif()

@@ -2,8 +2,8 @@
 #include "CPASAnimParmData.hpp"
 #include "CRandom16.hpp"
 #include "zeus/Math.hpp"
-#include <math.h>
-#include <float.h>
+#include <cmath>
+#include <cfloat>
 
 namespace urde
 {

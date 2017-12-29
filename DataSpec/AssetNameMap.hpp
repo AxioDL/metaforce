@@ -5,13 +5,10 @@
 #include <string>
 #include "DNACommon/DNACommon.hpp"
 
-namespace DataSpec
-{
-namespace AssetNameMap
+namespace DataSpec::AssetNameMap
 {
 void InitAssetNameMap();
 const std::string* TranslateIdToName(const UniqueID32&);
 const std::string* TranslateIdToName(const UniqueID64&);
-}
 }
 #endif // _DATASPEC_ASSETNAMEMAP_HPP_

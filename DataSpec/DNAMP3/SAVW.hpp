@@ -4,9 +4,7 @@
 #include "../DNACommon/SAVWCommon.hpp"
 #include "DNAMP3.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 struct Scan : BigYAML
 {
@@ -46,7 +44,6 @@ struct SAVW : BigYAML
     Value<atUint32> gameObjectCount;
     Vector<SavedState, DNA_COUNT(gameObjectCount)> gameObjects;
 };
-}
 }
 
 #endif // __DNAMP3_SAVW_HPP__

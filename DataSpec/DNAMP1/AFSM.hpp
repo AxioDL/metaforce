@@ -5,9 +5,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct AFSM : public BigYAML
 {
@@ -164,7 +162,6 @@ struct AFSM : public BigYAML
         return true;
     }
 };
-}
 }
 
 #endif // _RETRO_AFSM_HPP_

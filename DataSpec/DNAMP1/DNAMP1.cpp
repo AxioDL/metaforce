@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 
 #define NOD_ATHENA 1
 #include "DNAMP1.hpp"
@@ -46,9 +46,7 @@
 #include "MazeSeeds.hpp"
 #include "SnowForces.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 logvisor::Module Log("urde::DNAMP1");
 
@@ -431,5 +429,4 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     return {};
 }
 
-}
 }

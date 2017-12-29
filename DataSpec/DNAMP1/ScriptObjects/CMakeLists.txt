@@ -131,7 +131,10 @@ make_dnalist(liblist DNAMP1/ScriptObjects
 set(ScriptObjectsMP1_SOURCES
     ScriptTypes.hpp
     IScriptObject.cpp
-    Parameters.cpp)
+    Parameters.cpp
+    Actor.cpp
+    Platform.cpp
+    DoorArea.cpp)
 
 dataspec_add_list(DNAMP1/ScriptObjects ScriptObjectsMP1_SOURCES)
 list(APPEND ScriptObjectsMP1_SOURCES ${liblist})

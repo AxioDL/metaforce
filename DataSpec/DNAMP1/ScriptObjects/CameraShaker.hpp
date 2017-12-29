@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CameraShaker : IScriptObject
 {
@@ -22,7 +20,6 @@ struct CameraShaker : IScriptObject
     Value<float> duration;
     Value<bool> active;
 };
-}
 }
 
 #endif

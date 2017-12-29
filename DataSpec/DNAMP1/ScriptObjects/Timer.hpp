@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Timer : IScriptObject
 {
@@ -19,7 +17,6 @@ struct Timer : IScriptObject
     Value<bool> startImmediately;
     Value<bool> active;
 };
-}
 }
 
 #endif

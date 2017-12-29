@@ -3,9 +3,7 @@
 
 #include "DNACommon.hpp"
 
-namespace DataSpec
-{
-namespace DNAMAPU
+namespace DataSpec::DNAMAPU
 {
 struct MAPU : BigDNA
 {
@@ -31,18 +29,17 @@ struct MAPU : BigDNA
     };
     Vector<World, DNA_COUNT(worldCount)> worlds;
 
-    static bool Cook(const hecl::BlenderConnection::DataStream::MapUniverse& mapu, const hecl::ProjectPath& out);
+    static bool Cook(const hecl::blender::MapUniverse& mapu, const hecl::ProjectPath& out);
 };
 
 template <typename PAKRouter>
-bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
+bool ReadMAPUToBlender(hecl::blender::Connection& conn,
                        const MAPU& mapu,
                        const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
                        bool force);
 
-}
 }
 
 #endif // __DNACOMMON_MAPU_HPP__

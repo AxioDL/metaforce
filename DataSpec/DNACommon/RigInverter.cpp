@@ -2,10 +2,9 @@
 #include "DataSpec/DNAMP1/CINF.hpp"
 #include "DataSpec/DNAMP2/CINF.hpp"
 #include "DataSpec/DNAMP3/CINF.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAANIM
+namespace DataSpec::DNAANIM
 {
 
 template <class CINFType>
@@ -100,7 +99,7 @@ RigInverter<CINFType>::RigInverter(const CINFType& cinf)
 template <class CINFType>
 RigInverter<CINFType>::RigInverter(const CINFType& cinf,
                                    const std::unordered_map<std::string,
-                                   hecl::BlenderConnection::DataStream::Matrix3f>& matrices)
+                                   hecl::blender::Matrix3f>& matrices)
 : m_cinf(cinf)
 {
     m_bones.reserve(cinf.bones.size());
@@ -178,5 +177,4 @@ template class RigInverter<DNAMP1::CINF>;
 template class RigInverter<DNAMP2::CINF>;
 template class RigInverter<DNAMP3::CINF>;
 
-}
 }

@@ -1,9 +1,7 @@
 #include "CMetroid.hpp"
 #include "World/ScriptLoader.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CMetroidData::CMetroidData(CInputStream& in)
@@ -30,5 +28,4 @@ CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, con
 {
 }
 
-}
 }

@@ -1,8 +1,6 @@
 #include "PART.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
@@ -1396,5 +1394,4 @@ bool WriteGPSM(const GPSM<IDType>& gpsm, const hecl::ProjectPath& outPath)
 template bool WriteGPSM<UniqueID32>(const GPSM<UniqueID32>& gpsm, const hecl::ProjectPath& outPath);
 template bool WriteGPSM<UniqueID64>(const GPSM<UniqueID64>& gpsm, const hecl::ProjectPath& outPath);
 
-}
 }

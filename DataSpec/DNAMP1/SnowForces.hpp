@@ -5,9 +5,7 @@
 
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct SnowForces : BigYAML
 {
@@ -21,7 +19,6 @@ struct SnowForces : BigYAML
 
     Value<Force> forces[256];
 };
-}
 }
 
 #endif // __DNAMP1_SNOWFORCES_HPP__

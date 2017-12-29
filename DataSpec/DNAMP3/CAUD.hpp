@@ -4,9 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct CAUD : BigYAML
@@ -204,7 +202,6 @@ struct CAUD : BigYAML
         return true;
     }
 };
-}
 }
 
 #endif // _DNAMP3_CAUD_HPP_

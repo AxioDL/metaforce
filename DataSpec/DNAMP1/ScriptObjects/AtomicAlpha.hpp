@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct AtomicAlpha : IScriptObject
 {
@@ -62,7 +60,6 @@ struct AtomicAlpha : IScriptObject
         actorParameters.scanIDs(scansOut);
     }
 };
-}
 }
 
 #endif

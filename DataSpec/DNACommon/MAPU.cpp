@@ -3,14 +3,13 @@
 #include "../DNAMP2/DNAMP2.hpp"
 #include "../DNAMP3/DNAMP3.hpp"
 #include "zeus/CTransform.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMAPU
+namespace DataSpec::DNAMAPU
 {
 
 template <typename PAKRouter>
-bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
+bool ReadMAPUToBlender(hecl::blender::Connection& conn,
                        const MAPU& mapu,
                        const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
@@ -20,9 +19,9 @@ bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
     if (!force && outPath.isFile())
         return true;
 
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::MapUniverse))
+    if (!conn.createBlend(outPath, hecl::blender::BlendType::MapUniverse))
         return false;
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
 
     os << "import bpy\n"
           "from mathutils import Matrix\n"
@@ -96,7 +95,7 @@ bool ReadMAPUToBlender(hecl::BlenderConnection& conn,
 }
 
 template bool ReadMAPUToBlender<PAKRouter<DNAMP1::PAKBridge>>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const MAPU& mapu,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
@@ -104,14 +103,14 @@ template bool ReadMAPUToBlender<PAKRouter<DNAMP1::PAKBridge>>
  bool force);
 
 template bool ReadMAPUToBlender<PAKRouter<DNAMP2::PAKBridge>>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const MAPU& mapu,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
  bool force);
 
-bool MAPU::Cook(const hecl::BlenderConnection::DataStream::MapUniverse& mapuIn, const hecl::ProjectPath& out)
+bool MAPU::Cook(const hecl::blender::MapUniverse& mapuIn, const hecl::ProjectPath& out)
 {
     MAPU mapu;
 
@@ -121,7 +120,7 @@ bool MAPU::Cook(const hecl::BlenderConnection::DataStream::MapUniverse& mapuIn, 
 
     mapu.worldCount = mapuIn.worlds.size();
     mapu.worlds.reserve(mapuIn.worlds.size());
-    for (const hecl::BlenderConnection::DataStream::MapUniverse::World& wld : mapuIn.worlds)
+    for (const hecl::blender::MapUniverse::World& wld : mapuIn.worlds)
     {
         mapu.worlds.emplace_back();
         MAPU::World& wldOut = mapu.worlds.back();
@@ -132,7 +131,7 @@ bool MAPU::Cook(const hecl::BlenderConnection::DataStream::MapUniverse& mapuIn, 
         wldOut.transform.xf[2] = wld.xf.val[2];
         wldOut.hexCount = wld.hexagons.size();
         wldOut.hexTransforms.reserve(wld.hexagons.size());
-        for (const hecl::BlenderConnection::DataStream::Matrix4f& mtx : wld.hexagons)
+        for (const hecl::blender::Matrix4f& mtx : wld.hexagons)
         {
             wldOut.hexTransforms.emplace_back();
             MAPU::Transform& xf = wldOut.hexTransforms.back();
@@ -152,5 +151,4 @@ bool MAPU::Cook(const hecl::BlenderConnection::DataStream::MapUniverse& mapuIn, 
     return true;
 }
 
-}
 }

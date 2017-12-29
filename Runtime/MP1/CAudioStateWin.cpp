@@ -6,9 +6,7 @@
 #include "CGameState.hpp"
 #include "MP1.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
@@ -33,5 +31,4 @@ CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg
     return EMessageReturn::Normal;
 }
 
-}
 }

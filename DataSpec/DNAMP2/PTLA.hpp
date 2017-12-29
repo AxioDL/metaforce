@@ -3,9 +3,7 @@
 
 #include "../DNACommon/DNACommon.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 struct PTLA : BigDNA
 {
@@ -67,6 +65,5 @@ struct PTLA : BigDNA
     Value<atUint32> count3;
     Vector<UnknownStruct3, DNA_COUNT(count3)> entries3;
 };
-}
 }
 #endif // __DNAMP2_PTLA_HPP__

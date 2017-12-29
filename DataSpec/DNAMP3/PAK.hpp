@@ -7,9 +7,7 @@
 #include <nod/DiscBase.hpp>
 #include "../DNACommon/PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 extern const hecl::FourCC CMPD;
@@ -70,7 +68,6 @@ struct PAK : BigDNA
     typedef UniqueID64 IDType;
 };
 
-}
 }
 
 #endif // __DNAMP3_PAK_HPP__

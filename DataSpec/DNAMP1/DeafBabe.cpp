@@ -1,11 +1,10 @@
 #include "DeafBabe.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
-void DeafBabe::BlenderInit(hecl::BlenderConnection::PyOutStream& os)
+void DeafBabe::BlenderInit(hecl::blender::PyOutStream& os)
 {
     os << "TYPE_COLORS = {'NoSFX':(0.0, 0.0, 0.0),\n"
           "               'Stone':(1.0, 0.43, 0.15),\n"
@@ -231,5 +230,4 @@ void DeafBabe::BlenderInit(hecl::BlenderConnection::PyOutStream& os)
           "\n";
 }
 
-}
 }

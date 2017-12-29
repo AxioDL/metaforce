@@ -4,9 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct EVNT : BigYAML
@@ -107,7 +105,6 @@ struct EVNT : BigYAML
     }
 };
 
-}
 }
 
 #endif // __DNAMP1_EVNT_HPP__

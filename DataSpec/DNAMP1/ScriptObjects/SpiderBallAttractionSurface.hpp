@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct SpiderBallAttractionSurface : IScriptObject
 {
@@ -18,7 +16,6 @@ struct SpiderBallAttractionSurface : IScriptObject
     Value<atVec3f> scale;
     Value<bool> active;
 };
-}
 }
 
 #endif

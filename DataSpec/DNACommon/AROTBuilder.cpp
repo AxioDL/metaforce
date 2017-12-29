@@ -1,4 +1,5 @@
 #include "AROTBuilder.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec
 {

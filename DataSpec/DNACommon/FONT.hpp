@@ -4,9 +4,7 @@
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
 
-namespace DataSpec
-{
-namespace DNAFont
+namespace DataSpec::DNAFont
 {
 struct GlyphRect : BigYAML
 {
@@ -122,7 +120,6 @@ bool ExtractFONT(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteFONT(const FONT<IDType>& font, const hecl::ProjectPath& outPath);
 
-}
 }
 
 #endif // __COMMON_FONT_HPP__

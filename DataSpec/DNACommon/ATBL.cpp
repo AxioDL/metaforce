@@ -1,8 +1,6 @@
 #include "ATBL.hpp"
 
-namespace DataSpec
-{
-namespace DNAAudio
+namespace DataSpec::DNAAudio
 {
 
 bool ATBL::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
@@ -59,5 +57,4 @@ bool ATBL::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     return true;
 }
 
-}
 }

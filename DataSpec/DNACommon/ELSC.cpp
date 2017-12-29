@@ -1,8 +1,6 @@
 ﻿#include "ELSC.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 template <class IDType>
 void ELSM<IDType>::read(athena::io::YAMLDocReader& r)
@@ -427,5 +425,4 @@ bool WriteELSM(const ELSM<IDType>& elsm, const hecl::ProjectPath& outPath)
 template bool WriteELSM<UniqueID32>(const ELSM<UniqueID32>& gpsm, const hecl::ProjectPath& outPath);
 template bool WriteELSM<UniqueID64>(const ELSM<UniqueID64>& gpsm, const hecl::ProjectPath& outPath);
 
-}
 }

@@ -5,9 +5,7 @@
 #include "CMDLMaterials.hpp"
 #include "CSKR.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 struct MREA
@@ -123,11 +121,10 @@ struct MREA
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
                         bool,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)>);
 };
 
-}
 }
 
 #endif

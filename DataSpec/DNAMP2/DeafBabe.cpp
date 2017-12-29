@@ -1,11 +1,10 @@
 #include "DeafBabe.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
-void DeafBabe::BlenderInit(hecl::BlenderConnection::PyOutStream& os)
+void DeafBabe::BlenderInit(hecl::blender::PyOutStream& os)
 {
     os << "TYPE_COLORS = {'NoSFX':(0.0, 0.0, 0.0),\n"
           "               'Stone':(1.0, 0.43, 0.15),\n"
@@ -255,5 +254,18 @@ void DeafBabe::BlenderInit(hecl::BlenderConnection::PyOutStream& os)
           "\n";
 }
 
+void DeafBabe::insertNoClimb(hecl::blender::PyOutStream& os) const
+{
+    for (atInt16 edgeIdx : noClimbEdges)
+    {
+        if (edgeIdx == -1)
+            continue;
+        const Edge& edge = edgeVertConnections[edgeIdx];
+        os.format("edge = col_bm.edges.get((col_bm.verts[%u], col_bm.verts[%u]))\n"
+                      "if edge:\n"
+                      "    edge.seam = True\n",
+                  edge.verts[0], edge.verts[1]);
+    }
 }
+
 }

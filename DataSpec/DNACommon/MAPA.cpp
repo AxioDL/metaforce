@@ -7,10 +7,9 @@
 #include "../DNAMP3/MAPA.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CAABox.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMAPA
+namespace DataSpec::DNAMAPA
 {
 
 static logvisor::Module Log("DNAMAPA");
@@ -109,7 +108,7 @@ static const char* RetroMapObjVisModes[] =
 };
 
 template <typename PAKRouter>
-bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
+bool ReadMAPAToBlender(hecl::blender::Connection& conn,
                        const MAPA& mapa,
                        const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
@@ -119,9 +118,9 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
     if (!force && outPath.isFile())
         return true;
 
-    if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::MapArea))
+    if (!conn.createBlend(outPath, hecl::blender::BlendType::MapArea))
         return false;
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
 
     os << "import bpy, bmesh\n"
           "from mathutils import Matrix\n"
@@ -347,7 +346,7 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
 }
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP1::PAKBridge>>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const MAPA& mapa,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
@@ -355,7 +354,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP1::PAKBridge>>
  bool force);
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP2::PAKBridge>>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const MAPA& mapa,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
@@ -363,7 +362,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP2::PAKBridge>>
  bool force);
 
 template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const MAPA& mapa,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
@@ -371,7 +370,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>
  bool force);
 
 template <typename MAPAType>
-bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl::ProjectPath& out)
+bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out)
 {
     if (mapaIn.verts.size() >= 256)
     {
@@ -385,7 +384,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     mapa.version = MAPAType::Version();
 
     zeus::CAABox aabb;
-    for (const hecl::BlenderConnection::DataStream::Vector3f& vert : mapaIn.verts)
+    for (const hecl::blender::Vector3f& vert : mapaIn.verts)
         aabb.accumulateBounds(vert.val);
 
     mapa.header = std::make_unique<typename MAPAType::Header>();
@@ -399,7 +398,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     header.surfCount = mapaIn.surfaces.size();
 
     mapa.mappableObjects.reserve(mapaIn.pois.size());
-    for (const hecl::BlenderConnection::DataStream::MapArea::POI& poi : mapaIn.pois)
+    for (const hecl::blender::MapArea::POI& poi : mapaIn.pois)
     {
         mapa.mappableObjects.push_back(std::make_unique<typename MAPAType::MappableObject>());
         typename MAPAType::MappableObject& mobj =
@@ -413,7 +412,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     }
 
     mapa.vertices.reserve(mapaIn.verts.size());
-    for (const hecl::BlenderConnection::DataStream::Vector3f& vert : mapaIn.verts)
+    for (const hecl::blender::Vector3f& vert : mapaIn.verts)
         mapa.vertices.push_back(vert.val);
 
     size_t offsetCur = 0;
@@ -424,7 +423,7 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
 
     mapa.surfaceHeaders.reserve(mapaIn.surfaces.size());
     mapa.surfaces.reserve(mapaIn.surfaces.size());
-    for (const hecl::BlenderConnection::DataStream::MapArea::Surface& surfIn : mapaIn.surfaces)
+    for (const hecl::blender::MapArea::Surface& surfIn : mapaIn.surfaces)
     {
         mapa.surfaceHeaders.emplace_back();
         DNAMAPA::MAPA::SurfaceHeader& surfHead = mapa.surfaceHeaders.back();
@@ -475,9 +474,8 @@ bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapaIn, const hecl
     return true;
 }
 
-template bool Cook<DNAMP1::MAPA>(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
-template bool Cook<DNAMP2::MAPA>(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
-template bool Cook<DNAMP3::MAPA>(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
+template bool Cook<DNAMP1::MAPA>(const hecl::blender::MapArea& mapa, const hecl::ProjectPath& out);
+template bool Cook<DNAMP2::MAPA>(const hecl::blender::MapArea& mapa, const hecl::ProjectPath& out);
+template bool Cook<DNAMP3::MAPA>(const hecl::blender::MapArea& mapa, const hecl::ProjectPath& out);
 
-}
 }

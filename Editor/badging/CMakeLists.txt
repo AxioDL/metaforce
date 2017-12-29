@@ -32,7 +32,7 @@ add_custom_command(OUTPUT badge.bin COMMAND $<TARGET_FILE:packbadge>
                    ${CMAKE_CURRENT_BINARY_DIR}/badge.bin
                    MAIN_DEPENDENCY badge.png COMMENT "Generating badge.bin")
 
-bintoc(badge.c ${CMAKE_CURRENT_BINARY_DIR}/badge.bin URDE_BADGE)
+bintoc(badge.cpp ${CMAKE_CURRENT_BINARY_DIR}/badge.bin URDE_BADGE)
 add_library(UrdeBadging
-    badge.c badge.bin
+    badge.cpp badge.bin
     Badging.hpp Badging.cpp)

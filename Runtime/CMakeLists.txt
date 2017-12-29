@@ -44,7 +44,7 @@ if(APPLE)
                               MP1/CSaveGameScreenTouchBarMac.mm
                               CGameOptionsTouchBarMac.mm
                               PROPERTIES COMPILE_FLAGS -fobjc-arc)
-  bintoc(startButton.c Resources/startButton@2x.png START_BUTTON_2X)
+  bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
   list(APPEND PLAT_SRCS startButton.c CGameOptionsTouchBarMac.mm)
 endif()
 
@@ -119,6 +119,9 @@ add_library(RuntimeCommon
             ${PLAT_SRCS})
 if(COMMAND add_sanitizers)
   add_sanitizers(RuntimeCommon)
+endif()
+if(COMMAND cotire)
+  cotire(RuntimeCommon)
 endif()
 
 if(WINDOWS_STORE)

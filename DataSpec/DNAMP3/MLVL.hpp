@@ -5,9 +5,7 @@
 #include "../DNACommon/MLVL.hpp"
 #include "DNAMP3.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct MLVL : BigYAML
@@ -89,20 +87,19 @@ struct MLVL : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         MLVL mlvl;
         mlvl.read(rs);
         athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
         mlvl.toYAMLStream(writer);
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
                                           entry, force, fileChanged);
     }
 };
 
-}
 }
 
 #endif // __DNAMP3_MLVL_HPP__

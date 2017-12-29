@@ -5,9 +5,7 @@
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
@@ -60,7 +58,6 @@ bool ExtractDPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteDPSM(const DPSM<IDType>& dpsm, const hecl::ProjectPath& outPath);
 
-}
 }
 
 #endif // __COMMON_DPSC_HPP__

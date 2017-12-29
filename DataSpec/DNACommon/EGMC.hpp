@@ -3,9 +3,7 @@
 
 #include "DNACommon.hpp"
 
-namespace DataSpec
-{
-namespace DNACommon
+namespace DataSpec::DNACommon
 {
 struct EGMC : public BigDNA
 {
@@ -21,6 +19,5 @@ struct EGMC : public BigDNA
 
     Vector<Object, DNA_COUNT(count)> objects;
 };
-}
 }
 #endif // _DNACOMMON_EGMC_HPP_

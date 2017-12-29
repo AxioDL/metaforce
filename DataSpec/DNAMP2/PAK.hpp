@@ -3,15 +3,12 @@
 
 #include "../DNAMP1/PAK.hpp"
 
-namespace urde
-{
-namespace DNAMP2
+namespace urde::DNAMP2
 {
 
 /* Same PAK format as MP1 */
 using PAK = DNAMP1::PAK;
 
-}
 }
 
 #endif // __DNAMP2_PAK_HPP__

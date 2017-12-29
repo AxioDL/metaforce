@@ -5,15 +5,12 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "../DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "CINF.hpp"
 #include "CSKR.hpp"
 #include "ANIM.hpp"
 #include "../DNAMP1/ANCS.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 struct ANCS : BigYAML
@@ -223,7 +220,7 @@ struct ANCS : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const DNAMP1::PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
         hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
@@ -246,7 +243,7 @@ struct ANCS : BigYAML
 
             if (force || blendType == hecl::ProjectPath::Type::None)
             {
-                hecl::BlenderConnection& conn = btok.getBlenderConnection();
+                hecl::blender::Connection& conn = btok.getBlenderConnection();
                 DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_2, 4>
                         (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
             }
@@ -256,7 +253,6 @@ struct ANCS : BigYAML
     }
 };
 
-}
 }
 
 #endif // _DNAMP2_ANCS_HPP_

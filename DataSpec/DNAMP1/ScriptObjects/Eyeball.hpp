@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Eyeball : IScriptObject
 {
@@ -87,7 +85,6 @@ struct Eyeball : IScriptObject
         actorParameters.scanIDs(scansOut);
     }
 };
-}
 }
 
 #endif

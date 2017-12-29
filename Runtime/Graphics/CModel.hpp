@@ -9,7 +9,7 @@
 #include "DNACommon/CMDL.hpp"
 #include "DNAMP1/CMDLMaterials.hpp"
 #include "Shaders/CModelShaders.hpp"
-
+#include "hecl/HMDLMeta.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace urde

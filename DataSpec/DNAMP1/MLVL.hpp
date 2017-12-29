@@ -5,9 +5,7 @@
 #include "../DNACommon/MLVL.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct MLVL : BigYAML
@@ -146,25 +144,24 @@ struct MLVL : BigYAML
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool force,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged);
 
-    using World = hecl::BlenderConnection::DataStream::World;
+    using World = hecl::blender::World;
 
     static bool Cook(const hecl::ProjectPath& outPath,
                      const hecl::ProjectPath& inPath,
                      const World& wld,
-                     hecl::BlenderToken& btok);
+                     hecl::blender::Token& btok);
 
     static bool CookMAPW(const hecl::ProjectPath& outPath,
                          const World& wld,
-                         hecl::BlenderToken& btok);
+                         hecl::blender::Token& btok);
 
     static bool CookSAVW(const hecl::ProjectPath& outPath,
                          const World& wld);
 };
 
-}
 }
 
 #endif // __DNAMP1_MLVL_HPP__

@@ -1,9 +1,7 @@
 #include "STRG.hpp"
 #include "DNAMP3.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 void STRG::_read(athena::io::IStreamReader& reader)
@@ -266,5 +264,4 @@ const char* STRG::DNAType()
     return "urde::DNAMP3::STRG";
 }
 
-}
 }

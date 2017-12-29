@@ -16,6 +16,8 @@ set(DNAMP2_SOURCES
     ANIM.cpp
     AGSC.cpp
     CINF.cpp
+    CSKR.cpp
+    CMDL.cpp
     ANCS.cpp
     CMDL.hpp
     MREA.cpp

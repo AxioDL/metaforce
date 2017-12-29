@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct BallTrigger : IScriptObject
 {
@@ -22,7 +20,6 @@ struct BallTrigger : IScriptObject
     Value<atVec3f> unknown5;
     Value<bool> unknown6;
 };
-}
 }
 
 #endif

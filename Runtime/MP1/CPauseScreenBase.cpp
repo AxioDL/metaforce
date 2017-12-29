@@ -11,9 +11,7 @@
 #include "CGameState.hpp"
 #include "GuiSys/CStringTable.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
@@ -412,5 +410,4 @@ std::string CPauseScreenBase::GetImagePaneName(u32 i)
     return hecl::Format("imagepane_pane%s", PaneSuffixes[i]);
 }
 
-}
 }

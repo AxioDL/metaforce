@@ -8,9 +8,7 @@
 #include "CINF.hpp"
 #include "CSKR.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct CMDL
@@ -21,33 +19,10 @@ struct CMDL
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
-                        hecl::BlenderToken& btok,
-                        std::function<void(const hecl::SystemChar*)>)
-    {
-        /* Check for RigPair */
-        const PAKRouter<PAKBridge>::RigPair* rp = pakRouter.lookupCMDLRigPair(entry.id);
-        CINF cinf;
-        CSKR cskr;
-        std::pair<CSKR*,CINF*> loadRp(nullptr, nullptr);
-        if (rp)
-        {
-            pakRouter.lookupAndReadDNA(rp->first, cskr);
-            pakRouter.lookupAndReadDNA(rp->second, cinf);
-            loadRp.first = &cskr;
-            loadRp.second = &cinf;
-        }
-
-        /* Do extract */
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(outPath, hecl::BlenderConnection::BlendType::Mesh))
-            return false;
-        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_3, 5>
-                (conn, rs, pakRouter, entry, dataSpec, loadRp);
-        return conn.saveBlend();
-    }
+                        hecl::blender::Token& btok,
+                        std::function<void(const hecl::SystemChar*)>);
 };
 
-}
 }
 
 #endif // _DNAMP3_CMDL_HPP_

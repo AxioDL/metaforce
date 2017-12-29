@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Steam : IScriptObject
 {
@@ -40,7 +38,6 @@ struct Steam : IScriptObject
         g_curSpec->flattenDependencies(texture, pathsOut);
     }
 };
-}
 }
 
 #endif

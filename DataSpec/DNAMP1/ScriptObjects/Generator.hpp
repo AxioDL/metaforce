@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Generator : IScriptObject
 {
@@ -21,7 +19,6 @@ struct Generator : IScriptObject
     Value<float> unknown6;
     Value<float> unknown7;
 };
-}
 }
 
 #endif

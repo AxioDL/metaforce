@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct FogVolume : IScriptObject
 {
@@ -20,7 +18,6 @@ struct FogVolume : IScriptObject
     Value<atVec4f> unkonwn3;
     Value<bool> unknown4;
 };
-}
 }
 
 #endif

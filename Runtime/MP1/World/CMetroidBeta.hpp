@@ -4,9 +4,7 @@
 #include "World/CPatterned.hpp"
 #include "CMetroid.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CMetroidBeta : public CPatterned
@@ -20,7 +18,6 @@ public:
     void RenderHitBallEffect() const;
 };
 
-}
 }
 
 #endif // CMETROIDBETA_HPP

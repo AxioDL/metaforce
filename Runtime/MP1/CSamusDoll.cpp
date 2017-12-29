@@ -7,9 +7,7 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "World/CMorphBall.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 const zeus::CVector3f CSamusDoll::skInitialOffset = {0.f, 0.f, 0.8f};
@@ -801,5 +799,4 @@ void CSamusDoll::BeginViewInterpolate(bool zoomIn)
     x80_fixedZoom = zoomIn ? -2.2f : -3.6f;
 }
 
-}
 }

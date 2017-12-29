@@ -4,6 +4,7 @@
 #include "Space.hpp"
 #include "ViewManager.hpp"
 #include "specter/PathButtons.hpp"
+#include "specter/Table.hpp"
 
 namespace urde
 {

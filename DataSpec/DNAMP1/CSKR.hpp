@@ -1,13 +1,10 @@
 #ifndef _DNAMP1_CSKR_HPP_
 #define _DNAMP1_CSKR_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "../DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CSKR : BigDNA
@@ -34,22 +31,9 @@ struct CSKR : BigDNA
         return nullptr;
     }
 
-    void weightVertex(hecl::BlenderConnection::PyOutStream& os, const CINF& cinf, atUint32 idx) const
-    {
-        atUint32 accum = 0;
-        for (const SkinningRule& rule : skinningRules)
-        {
-            if (idx >= accum && idx < accum + rule.vertCount)
-                for (const SkinningRule::Weight& weight : rule.weights)
-                    os.format("vert[dvert_lay][%u] = %f\n",
-                              cinf.getBoneIdxFromId(weight.boneId),
-                              weight.weight);
-            accum += rule.vertCount;
-        }
-    }
+    void weightVertex(hecl::blender::PyOutStream& os, const CINF& cinf, atUint32 idx) const;
 };
 
-}
 }
 
 #endif // _DNAMP1_CSKR_HPP_

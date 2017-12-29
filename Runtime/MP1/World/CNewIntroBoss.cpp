@@ -2,9 +2,7 @@
 #include "Character/CCharLayoutInfo.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info,
@@ -21,5 +19,4 @@ void CNewIntroBoss::Accept(IVisitor &visitor)
     visitor.Visit(this);
 }
 
-}
 }

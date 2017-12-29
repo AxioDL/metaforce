@@ -4,9 +4,7 @@
 #include "jbus/Listener.hpp"
 #include "jbus/Endpoint.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 static jbus::Listener g_JbusListener;
@@ -222,5 +220,4 @@ void CGBASupport::StartLink()
     x40_siChan = -1;
 }
 
-}
 }

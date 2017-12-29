@@ -6,9 +6,7 @@
 #include "../DNAMP1/CMDLMaterials.hpp"
 #include "DNAMP3.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct MaterialSet : BigDNA
@@ -64,7 +62,7 @@ struct MaterialSet : BigDNA
                 INT = SBIG('INT ')
             } m_type;
             ISection(Type type) : m_type(type) {}
-            virtual void constructNode(hecl::BlenderConnection::PyOutStream& out,
+            virtual void constructNode(hecl::blender::PyOutStream& out,
                                        const PAKRouter<PAKBridge>& pakRouter,
                                        const PAK::Entry& entry,
                                        const Material::ISection* prevSection,
@@ -115,7 +113,7 @@ struct MaterialSet : BigDNA
             };
             Vector<UVAnimation, DNA_COUNT(uvAnimSize != 0)> uvAnim;
 
-            void constructNode(hecl::BlenderConnection::PyOutStream& out,
+            void constructNode(hecl::blender::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
                                const PAK::Entry& entry,
                                const Material::ISection* prevSection,
@@ -136,7 +134,7 @@ struct MaterialSet : BigDNA
             DNAFourCC subtype;
             GX::Color color;
 
-            void constructNode(hecl::BlenderConnection::PyOutStream& out,
+            void constructNode(hecl::blender::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
                                const PAK::Entry& entry,
                                const Material::ISection* prevSection,
@@ -160,7 +158,7 @@ struct MaterialSet : BigDNA
             DNAFourCC subtype;
             Value<atUint32> value;
 
-            void constructNode(hecl::BlenderConnection::PyOutStream& out,
+            void constructNode(hecl::blender::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
                                const PAK::Entry& entry,
                                const Material::ISection* prevSection,
@@ -236,14 +234,14 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(materialCount)> materials;
 
-    static void RegisterMaterialProps(hecl::BlenderConnection::PyOutStream& out);
-    static void ConstructMaterial(hecl::BlenderConnection::PyOutStream& out,
+    static void RegisterMaterialProps(hecl::blender::PyOutStream& out);
+    static void ConstructMaterial(hecl::blender::PyOutStream& out,
                                   const PAKRouter<PAKBridge>& pakRouter,
                                   const PAK::Entry& entry,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    void readToBlender(hecl::BlenderConnection::PyOutStream& os,
+    void readToBlender(hecl::blender::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
                        unsigned setIdx)
@@ -252,7 +250,6 @@ struct MaterialSet : BigDNA
     }
 };
 
-}
 }
 
 #endif // _DNAMP3_CMDL_MATERIALS_HPP_

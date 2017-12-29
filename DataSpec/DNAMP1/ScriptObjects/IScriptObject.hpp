@@ -6,7 +6,7 @@
 #include "zeus/CAABox.hpp"
 #include "specter/genie.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 #define SO_NAME_SPECPROP() SPECTER_PROPERTY("Name", "Instance name; Used to debug scripting events")
 #define SO_LOCATION_SPECPROP() SPECTER_PROPERTY("Location", "World relative location of the Actor instance")
@@ -16,9 +16,7 @@
 #define SO_COLLISION_OFFSET_SPECPROP() SPECTER_PROPERTY("Collision Offset", "")
 #define SO_ACTIVE_SPECPROP() SPECTER_PROPERTY("Active", "If enabled, object instance is drawn and updated")
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale,
@@ -48,9 +46,8 @@ struct IScriptObject : BigYAML
     virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}
     virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {}
     virtual void gatherScans(std::vector<Scan>& scansOut) const {}
-    virtual zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const { return {}; }
+    virtual zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const { return {}; }
 };
-}
 }
 
 #endif

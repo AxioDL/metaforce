@@ -10,9 +10,7 @@
 #include "GuiSys/CCompoundTargetReticle.hpp"
 #include "GuiSys/CTargetingManager.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CPlayerVisor::CPlayerVisor(CStateManager&)
@@ -733,5 +731,4 @@ float CPlayerVisor::GetDesiredViewportScaleY(const CStateManager& mgr) const
     return mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Combat ? 1.f : xc8_vpScaleY;
 }
 
-}
 }

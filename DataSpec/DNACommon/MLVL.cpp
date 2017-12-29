@@ -2,14 +2,13 @@
 #include "../DNAMP1/MLVL.hpp"
 #include "../DNAMP2/MLVL.hpp"
 #include "../DNAMP3/MLVL.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMLVL
+namespace DataSpec::DNAMLVL
 {
 
 template <class PAKRouter, typename MLVL>
-bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
+bool ReadMLVLToBlender(hecl::blender::Connection& conn,
                        const MLVL& mlvl,
                        const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
@@ -22,9 +21,9 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
         return true;
 
     /* Create World Blend */
-    if (!conn.createBlend(blendPath, hecl::BlenderConnection::BlendType::World))
+    if (!conn.createBlend(blendPath, hecl::blender::BlendType::World))
         return false;
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "from mathutils import Matrix\n"
@@ -102,7 +101,7 @@ bool ReadMLVLToBlender(hecl::BlenderConnection& conn,
 }
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MLVL>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const DNAMP1::MLVL& mlvl,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
@@ -111,7 +110,7 @@ template bool ReadMLVLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MLVL>
  std::function<void(const hecl::SystemChar*)> fileChanged);
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MLVL>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const DNAMP2::MLVL& mlvl,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
@@ -120,7 +119,7 @@ template bool ReadMLVLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MLVL>
  std::function<void(const hecl::SystemChar*)> fileChanged);
 
 template bool ReadMLVLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MLVL>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  const DNAMP3::MLVL& mlvl,
  const hecl::ProjectPath& outPath,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
@@ -128,5 +127,4 @@ template bool ReadMLVLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MLVL>
  bool force,
  std::function<void(const hecl::SystemChar*)> fileChanged);
 
-}
 }

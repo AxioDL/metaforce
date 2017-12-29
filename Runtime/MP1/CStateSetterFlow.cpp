@@ -1,9 +1,7 @@
 #include "CStateSetterFlow.hpp"
 #include "CArchitectureMessage.hpp"
 #include "GameGlobalObjects.hpp"
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CStateSetterFlow::CStateSetterFlow()
@@ -22,5 +20,4 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
     return EMessageReturn::Exit;
 }
 
-}
 }

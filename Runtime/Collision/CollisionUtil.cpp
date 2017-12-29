@@ -2,9 +2,7 @@
 #include "CCollisionInfo.hpp"
 #include "CCollisionInfoList.hpp"
 
-namespace urde
-{
-namespace CollisionUtil
+namespace urde::CollisionUtil
 {
 
 bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float& d)
@@ -1238,5 +1236,4 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
     return true;
 }
 
-}
 }

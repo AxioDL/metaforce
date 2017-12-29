@@ -4,9 +4,7 @@
 #include "../DNACommon/SAVWCommon.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Scan : BigYAML
 {
@@ -33,7 +31,6 @@ struct SAVW : BigYAML
     Value<atUint32> scanCount;
     Vector<Scan, DNA_COUNT(scanCount)> scans;
 };
-}
 }
 
 #endif // __DNAMP1_SAVW_HPP__

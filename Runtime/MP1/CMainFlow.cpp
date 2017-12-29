@@ -14,9 +14,7 @@
 #include "CNESEmulator.hpp"
 #include "CQuitGameScreen.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 void CMainFlow::AdvanceGameState(CArchitectureQueue& queue)
@@ -112,5 +110,4 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
 }
 
 
-}
 }

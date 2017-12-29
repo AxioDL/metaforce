@@ -6,9 +6,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "CStateManager.hpp"
 
-namespace urde
-{
-namespace NWeaponTypes
+namespace urde::NWeaponTypes
 {
 
 void primitive_set_to_token_vector(const CAnimData& animData, const std::set<CPrimitive>& primSet,
@@ -185,5 +183,4 @@ CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan)
     return hnd;
 }
 
-}
 }

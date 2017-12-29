@@ -4,9 +4,7 @@
 #include "../DNAMP1/SAVW.hpp"
 #include "DNAMP2.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 struct SAVW : DNAMP1::SAVW
 {
@@ -18,7 +16,6 @@ struct SAVW : DNAMP1::SAVW
     Value<atUint32> gameObjectCount;
     Vector<atUint32, DNA_COUNT(gameObjectCount)> gameObjects;
 };
-}
 }
 
 #endif // __DNAMP2_SAVW_HPP__

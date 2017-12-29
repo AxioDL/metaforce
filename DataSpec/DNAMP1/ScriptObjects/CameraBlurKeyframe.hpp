@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CameraBlurKeyframe : IScriptObject
 {
@@ -20,7 +18,6 @@ struct CameraBlurKeyframe : IScriptObject
     Value<float> timeIn;
     Value<float> timeOut;
 };
-}
 }
 
 #endif

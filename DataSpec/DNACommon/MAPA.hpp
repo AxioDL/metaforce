@@ -5,9 +5,7 @@
 #include "GX.hpp"
 
 
-namespace DataSpec
-{
-namespace DNAMAPA
+namespace DataSpec::DNAMAPA
 {
 struct MAPA : BigDNA
 {
@@ -185,7 +183,7 @@ struct MAPA : BigDNA
 };
 
 template <typename PAKRouter>
-bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
+bool ReadMAPAToBlender(hecl::blender::Connection& conn,
                        const MAPA& mapa,
                        const hecl::ProjectPath& outPath,
                        PAKRouter& pakRouter,
@@ -193,9 +191,8 @@ bool ReadMAPAToBlender(hecl::BlenderConnection& conn,
                        bool force);
 
 template <typename MAPAType>
-bool Cook(const hecl::BlenderConnection::DataStream::MapArea& mapa, const hecl::ProjectPath& out);
+bool Cook(const hecl::blender::MapArea& mapa, const hecl::ProjectPath& out);
 
-}
 }
 
 #endif // __DNACOMMON_MAPA_HPP__

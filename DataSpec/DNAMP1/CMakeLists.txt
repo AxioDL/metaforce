@@ -44,12 +44,14 @@ set(DNAMP1_SOURCES
     STRG.hpp STRG.cpp
     AGSC.cpp
     CSNG.cpp
+    CSKR.cpp
     ANCS.cpp
     ANIM.cpp
     CINF.cpp
     EVNT.cpp
-    CMDL.hpp
+    CMDL.hpp CMDL.cpp
     CMDLMaterials.cpp
+    DCLN.cpp
     MAPA.hpp
     MAPU.hpp
     MREA.cpp

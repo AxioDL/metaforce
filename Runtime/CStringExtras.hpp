@@ -2,7 +2,7 @@
 #define __URDE_CSTRINGEXTRAS_HPP__
 
 #include <string>
-#include <string.h>
+#include <cstring>
 
 namespace urde
 {

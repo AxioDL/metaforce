@@ -1,4 +1,5 @@
 #include "ANCS.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec
 {
@@ -1018,7 +1019,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
                    PAKRouter<PAKBridge>& pakRouter,
                    const PAK::Entry& entry,
                    bool force,
-                   hecl::BlenderToken& btok,
+                   hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged)
 {
     hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
@@ -1041,7 +1042,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
 
         if (force || blendType == hecl::ProjectPath::Type::None)
         {
-            hecl::BlenderConnection& conn = btok.getBlenderConnection();
+            hecl::blender::Connection& conn = btok.getBlenderConnection();
             DNAANCS::ReadANCSToBlender<PAKRouter<PAKBridge>, ANCS, MaterialSet, DNACMDL::SurfaceHeader_1, 2>
                     (conn, ancs, blendPath, pakRouter, entry, dataSpec, fileChanged, force);
         }
@@ -1123,7 +1124,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
             {
                 if (sub.armature >= 0)
                 {
-                    const DNAANCS::Actor::Armature& arm = actor.armatures[sub.armature];
+                    const DNAANCS::Armature& arm = actor.armatures[sub.armature];
                     hecl::SystemStringConv armSysName(arm.name);
                     ch.cinf = inPath.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF"));
                     ch.cmdl = sub.mesh;
@@ -1152,7 +1153,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
 
     /* Gather ANIM resources */
     ancs.animationSet.animResources.reserve(actor.actions.size());
-    for (const DNAANCS::Actor::Action& act : actor.actions)
+    for (const DNAANCS::Action& act : actor.actions)
     {
         hecl::SystemStringConv sysStr(act.name);
         hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".ANIM"));
@@ -1183,7 +1184,7 @@ bool ANCS::CookCINF(const hecl::ProjectPath& outPath,
     hecl::SystemString armName(inPath.getAuxInfo().begin(),
                                inPath.getAuxInfo().end() - 5);
 
-    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    for (const DNAANCS::Armature& arm : actor.armatures)
     {
         hecl::SystemStringConv sysStr(arm.name);
         if (sysStr.sys_str() == armName)
@@ -1220,7 +1221,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
 
     /* Build bone ID map */
     std::unordered_map<std::string, atInt32> boneIdMap;
-    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    for (const DNAANCS::Armature& arm : actor.armatures)
     {
         CINF cinf(arm, boneIdMap);
     }
@@ -1350,13 +1351,13 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
 bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
                     const hecl::ProjectPath& inPath,
                     const DNAANCS::Actor& actor,
-                    hecl::BlenderConnection::DataStream& ds,
+                    hecl::blender::DataStream& ds,
                     bool pc)
 {
     hecl::SystemString actName(inPath.getAuxInfo().begin(),
                                inPath.getAuxInfo().end() - 5);
     hecl::SystemUTF8Conv actNameView(actName);
-    DNAANCS::Actor::Action action = ds.compileActionChannelsOnly(actNameView.str());
+    DNAANCS::Action action = ds.compileActionChannelsOnly(actNameView.str());
 
     if (!actor.armatures.size())
         Log.report(logvisor::Fatal, _S("0 armatures in %s"),
@@ -1366,7 +1367,7 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
     std::unordered_map<std::string, atInt32> boneIdMap;
     std::experimental::optional<CINF> rigCinf;
     std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
-    for (const DNAANCS::Actor::Armature& arm : actor.armatures)
+    for (const DNAANCS::Armature& arm : actor.armatures)
     {
         if (!rigInv)
         {

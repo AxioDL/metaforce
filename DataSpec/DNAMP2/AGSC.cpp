@@ -1,8 +1,6 @@
 #include "AGSC.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
@@ -93,5 +91,4 @@ bool AGSC::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     return true;
 }
 
-}
 }

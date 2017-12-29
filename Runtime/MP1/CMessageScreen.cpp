@@ -8,9 +8,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CMessageScreen::CMessageScreen(CAssetId msg, float delayTime)
@@ -143,5 +141,4 @@ void CMessageScreen::Draw() const
     x18_loadedMsgScreen->Draw(CGuiWidgetDrawParms(x70_blurAmt, zeus::CVector3f::skZero));
 }
 
-}
 }

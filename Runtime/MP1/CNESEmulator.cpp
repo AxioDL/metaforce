@@ -1,10 +1,8 @@
 #include "CNESEmulator.hpp"
 #include "CGameState.hpp"
-#include <string.h>
+#include <cstring>
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 void CNESEmulator::ProcessUserInput(const CFinalInput& input, int)
@@ -28,5 +26,4 @@ void CNESEmulator::LoadState(const u8* state)
     x38_stateLoaded = true;
 }
 
-}
 }

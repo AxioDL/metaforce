@@ -1,9 +1,7 @@
 #include "Parameters.hpp"
 #include "../ANCS.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 UniqueID32 AnimationParameters::getCINF(PAKRouter<PAKBridge>& pakRouter) const
@@ -165,5 +163,4 @@ size_t ActorParameters::binarySize(size_t __isz) const
     return __isz + 20;
 }
 
-}
 }

@@ -6,9 +6,7 @@
 #include "../DNACommon/STRG.hpp"
 #include "DNAMP1.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct STRG : ISTRG
@@ -87,7 +85,6 @@ struct STRG : ISTRG
     void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const;
 };
 
-}
 }
 
 #endif // __DNAMP1_STRG_HPP__

@@ -13,9 +13,7 @@
 #include "TCastTo.hpp"
 #include "World/CGameLight.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 CSamusHud* CSamusHud::g_SamusHud = nullptr;
@@ -1836,5 +1834,4 @@ void CSamusHud::InternalDeferHintMemo(CAssetId strg, u32 strgIdx, const CHUDMemo
     x554_hudMemoIdx = strgIdx;
 }
 
-}
 }

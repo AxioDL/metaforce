@@ -6,6 +6,9 @@
 #include "amuse/BooBackend.hpp"
 #include "ProjectManager.hpp"
 #include "Space.hpp"
+#include "specter/IViewManager.hpp"
+#include "specter/FontCache.hpp"
+#include "specter/ViewResources.hpp"
 
 #include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/Particle/CElementGen.hpp"

@@ -11,8 +11,10 @@
 #include "DNACommon/MAPU.hpp"
 
 #include "hecl/ClientProcess.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 #include "Runtime/RetroTypes.hpp"
+#include "nod/nod.hpp"
 
 namespace DataSpec
 {
@@ -128,7 +130,7 @@ struct SpecMP2 : SpecBase
                                  const std::vector<hecl::SystemString>& args,
                                  std::vector<ExtractReport>& reps)
     {
-        nod::Partition* partition = disc.getDataPartition();
+        nod::IPartition* partition = disc.getDataPartition();
         std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
         const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
         if (!buildInfo)
@@ -182,7 +184,7 @@ struct SpecMP2 : SpecBase
         if (!doExtract)
             return false;
 
-        nod::Partition* partition = disc.getDataPartition();
+        nod::IPartition* partition = disc.getDataPartition();
         nod::Node& root = partition->getFSTRoot();
         nod::Node::DirectoryIterator dolIt = root.find("rs5mp2_p.dol");
         if (dolIt == root.end())
@@ -268,7 +270,7 @@ struct SpecMP2 : SpecBase
                 progress(sysName.c_str(), _S(""), compIdx, 0.0);
             }
             auto pakName = hecl::SystemString(sysName.sys_str());
-            process.addLambdaTransaction([&, pakName](hecl::BlenderToken& btok)
+            process.addLambdaTransaction([&, pakName](hecl::blender::Token& btok)
             {
                 m_pakRouter.extractResources(pak, force, btok,
                 [&](const hecl::SystemChar* substr, float factor)
@@ -320,43 +322,43 @@ struct SpecMP2 : SpecBase
         });
     }
 
-    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::BlenderToken& btok) const
+    urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const
     {
         return {};
     }
 
     void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                  BlendStream& ds, bool fast, hecl::blender::Token& btok,
                   FCookProgress progress)
     {
     }
 
     void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                     BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                     BlendStream& ds, bool fast, hecl::blender::Token& btok,
                      FCookProgress progress)
     {
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                   BlendStream& ds, bool fast, hecl::blender::Token& btok,
                    FCookProgress progress)
     {
     }
 
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                  BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                  BlendStream& ds, bool fast, hecl::blender::Token& btok,
                   FCookProgress progress)
     {
     }
 
     void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                   BlendStream& ds, bool fast, hecl::BlenderToken& btok,
+                   BlendStream& ds, bool fast, hecl::blender::Token& btok,
                    FCookProgress progress)
     {
     }
 
     void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                      BlendStream& ds, hecl::BlenderToken& btok,
+                      BlendStream& ds, hecl::blender::Token& btok,
                       FCookProgress progress)
     {
     }
@@ -389,20 +391,20 @@ struct SpecMP2 : SpecBase
     }
 
     void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                     BlendStream& ds, hecl::BlenderToken& btok,
+                     BlendStream& ds, hecl::blender::Token& btok,
                      FCookProgress progress)
     {
-        BlendStream::MapArea mapa = ds.compileMapArea();
+        hecl::blender::MapArea mapa = ds.compileMapArea();
         ds.close();
         DNAMP2::MAPA::Cook(mapa, out);
         progress(_S("Done"));
     }
 
     void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                         BlendStream& ds, hecl::BlenderToken& btok,
+                         BlendStream& ds, hecl::blender::Token& btok,
                          FCookProgress progress)
     {
-        BlendStream::MapUniverse mapu = ds.compileMapUniverse();
+        hecl::blender::MapUniverse mapu = ds.compileMapUniverse();
         ds.close();
         DNAMAPU::MAPU::Cook(mapu, out);
         progress(_S("Done"));

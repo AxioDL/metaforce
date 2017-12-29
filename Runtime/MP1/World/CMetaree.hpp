@@ -4,9 +4,7 @@
 #include "World/CPatterned.hpp"
 #include "World/CDamageInfo.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 class CMetaree : public CPatterned
 {
@@ -50,7 +48,6 @@ public:
         return x338_ == x568_;
     }
 };
-}
 }
 
 #endif //URDE_CMETAREE_HPP

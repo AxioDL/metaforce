@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakPlayer.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakPlayer final : ITweakPlayer
@@ -326,7 +324,6 @@ struct CTweakPlayer final : ITweakPlayer
     size_t binarySize(size_t __isz) const;
 };
 
-}
 }
 
 #endif // _DNAMP1_CTWEAKPLAYER_HPP_

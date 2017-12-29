@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct TeamAIMgr : IScriptObject
 {
@@ -23,7 +21,6 @@ struct TeamAIMgr : IScriptObject
     Value<float> unknown8;
     Value<float> unknown9;
 };
-}
 }
 
 #endif

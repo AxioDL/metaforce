@@ -1,11 +1,10 @@
 #include "CINF.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
-void CINF::sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID64& cinfId) const
+void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID64& cinfId) const
 {
     DNAANIM::RigInverter<CINF> inverter(*this);
 
@@ -49,5 +48,4 @@ std::string CINF::GetCINFArmatureName(const UniqueID64& cinfId)
     return hecl::Format("CINF_%016" PRIX64, cinfId.toUint64());
 }
 
-}
 }

@@ -3,9 +3,7 @@
 
 #include "CIOWin.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CCredits : public CIOWin
@@ -17,7 +15,6 @@ public:
     void Draw() const;
 };
 
-}
 }
 
 #endif // __URDE_MP1_CCREDITS_HPP__

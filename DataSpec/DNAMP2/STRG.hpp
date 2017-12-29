@@ -5,9 +5,7 @@
 #include "../DNACommon/PAK.hpp"
 #include "../DNACommon/STRG.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 struct STRG : ISTRG
@@ -84,7 +82,6 @@ struct STRG : ISTRG
     }
 };
 
-}
 }
 
 #endif // __DNAMP2_STRG_HPP__

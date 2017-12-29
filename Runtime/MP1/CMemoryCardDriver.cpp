@@ -2,9 +2,7 @@
 #include "MP1.hpp"
 #include "CCRC32.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 static const char* SaveFileNames[] =
@@ -938,5 +936,4 @@ void CMemoryCardDriver::Update()
     static_cast<CMain*>(g_Main)->SetCardBusy(cardBusy);
 }
 
-}
 }

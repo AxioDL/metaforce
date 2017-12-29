@@ -4,9 +4,7 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 struct HINT : BigYAML
 {
@@ -47,6 +45,5 @@ struct HINT : BigYAML
         return true;
     }
 };
-}
 }
 #endif // _DNAMP1_HINT_HPP_

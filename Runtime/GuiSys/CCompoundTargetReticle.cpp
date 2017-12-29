@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include "CCompoundTargetReticle.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Camera/CGameCamera.hpp"

@@ -1,8 +1,7 @@
 #include "CINF.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 atUint32 CINF::getInternalBoneIdxFromId(atUint32 id) const
@@ -37,7 +36,7 @@ const std::string* CINF::getBoneNameFromId(atUint32 id) const
     return nullptr;
 }
 
-void CINF::sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) const
+void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const
 {
     for (atUint32 bid : boneIds)
     {
@@ -52,7 +51,7 @@ void CINF::sendVertexGroupsToBlender(hecl::BlenderConnection::PyOutStream& os) c
     }
 }
 
-void CINF::sendCINFToBlender(hecl::BlenderConnection::PyOutStream& os, const UniqueID32& cinfId) const
+void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const
 {
     DNAANIM::RigInverter<CINF> inverter(*this);
 
@@ -92,5 +91,4 @@ std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId)
     return hecl::Format("CINF_%08X", cinfId.toUint32());
 }
 
-}
 }

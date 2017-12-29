@@ -4,9 +4,7 @@
 #include "DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNADGRP
+namespace DataSpec::DNADGRP
 {
 template <class IDType>
 struct DGRP : BigYAML
@@ -28,6 +26,5 @@ template <class IDType>
 bool ExtractDGRP(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteDGRP(const DGRP<IDType>& dgrp, const hecl::ProjectPath& outPath);
-}
 }
 #endif // __COMMON_DGRP_HPP__

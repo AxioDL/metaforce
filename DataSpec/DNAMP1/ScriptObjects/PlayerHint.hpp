@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct PlayerHint : IScriptObject
 {
@@ -19,7 +17,6 @@ struct PlayerHint : IScriptObject
     PlayerHintParameters playerHintParameters;
     Value<atUint32> unknown2;
 };
-}
 }
 
 #endif

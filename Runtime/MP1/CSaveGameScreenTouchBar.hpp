@@ -5,9 +5,7 @@
 #include <memory>
 #include <string>
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 class CSaveGameScreenTouchBar
@@ -22,7 +20,6 @@ public:
 
 std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar();
 
-}
 }
 
 #endif // __URDE_CSAVEUITOUCHBAR_HPP__

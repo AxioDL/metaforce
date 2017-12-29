@@ -6,9 +6,7 @@
 #include "CSKR.hpp"
 #include "../DNAMP2/MREA.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP3
+namespace DataSpec::DNAMP3
 {
 
 struct MREA
@@ -112,7 +110,7 @@ struct MREA
         Value<atUint32> unk13;
     };
 
-    static void ReadBabeDeadToBlender_3(hecl::BlenderConnection::PyOutStream& os,
+    static void ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os,
                                         athena::io::IStreamReader& rs);
 
     static bool Extract(const SpecBase& dataSpec,
@@ -121,13 +119,12 @@ struct MREA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)>);
 
     static bool ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& areaOut);
 };
 
-}
 }
 
 #endif // __DNAMP3_MREA_HPP__

@@ -3,9 +3,7 @@
 #include "DNAMP1.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 void PAK::read(athena::io::IStreamReader& reader)
@@ -179,5 +177,4 @@ std::string PAK::bestEntryName(const Entry& entry, bool& named) const
     return entry.type.toString() + '_' + entry.id.toString();
 }
 
-}
 }

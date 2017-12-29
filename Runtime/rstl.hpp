@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <type_traits>
-#include <stdlib.h>
+#include <cstdlib>
 #include "optional.hpp"
 #include <logvisor/logvisor.hpp>
 

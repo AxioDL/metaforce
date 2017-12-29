@@ -1,15 +1,12 @@
 #ifndef _DNAMP1_ANIM_HPP_
 #define _DNAMP1_ANIM_HPP_
 
-#include "hecl/Blender/BlenderConnection.hpp"
 #include "DNAMP1.hpp"
 #include "../DNACommon/ANIM.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct ANIM : BigDNA
@@ -30,7 +27,7 @@ struct ANIM : BigDNA
         UniqueID32 evnt;
         bool looping = false;
 
-        void sendANIMToBlender(hecl::BlenderConnection::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
+        void sendANIMToBlender(hecl::blender::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
     };
 
     struct ANIM0 : IANIM
@@ -231,7 +228,7 @@ struct ANIM : BigDNA
         return m_anim->binarySize(__isz + 4);
     }
 
-    void sendANIMToBlender(hecl::BlenderConnection::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool) const
+    void sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig, bool) const
     {
         m_anim->sendANIMToBlender(os, rig);
     }
@@ -243,7 +240,7 @@ struct ANIM : BigDNA
         return m_anim->looping;
     }
 
-    using BlenderAction = hecl::BlenderConnection::DataStream::Actor::Action;
+    using BlenderAction = hecl::blender::Action;
 
     ANIM() = default;
     ANIM(const BlenderAction& act,
@@ -252,7 +249,6 @@ struct ANIM : BigDNA
          bool pc);
 };
 
-}
 }
 
 #endif // _DNAMP1_ANIM_HPP_

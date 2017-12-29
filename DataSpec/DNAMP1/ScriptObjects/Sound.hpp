@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Sound : IScriptObject
 {
@@ -33,7 +31,6 @@ struct Sound : IScriptObject
     Value<bool> allowDuplicates;
     Value<atUint32> pitch;
 };
-}
 }
 
 #endif

@@ -6,9 +6,7 @@
 #include "../DNAMP1/CMDLMaterials.hpp"
 #include "DNAMP2.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 /* Structurally identical to DNAMP1::MaterialSet except unk0 and unk1 fields */
@@ -59,15 +57,15 @@ struct MaterialSet : BigDNA
     };
     Vector<Material, DNA_COUNT(head.materialCount)> materials;
 
-    static void RegisterMaterialProps(hecl::BlenderConnection::PyOutStream& out)
+    static void RegisterMaterialProps(hecl::blender::PyOutStream& out)
     {
         DNAMP1::MaterialSet::RegisterMaterialProps(out);
     }
-    static void ConstructMaterial(hecl::BlenderConnection::PyOutStream& out,
+    static void ConstructMaterial(hecl::blender::PyOutStream& out,
                                   const MaterialSet::Material& material,
                                   unsigned groupIdx, unsigned matIdx);
 
-    void readToBlender(hecl::BlenderConnection::PyOutStream& os,
+    void readToBlender(hecl::blender::PyOutStream& os,
                        const PAKRouter<PAKBridge>& pakRouter,
                        const PAKRouter<PAKBridge>::EntryType& entry,
                        unsigned setIdx)
@@ -76,7 +74,6 @@ struct MaterialSet : BigDNA
     }
 };
 
-}
 }
 
 #endif // _DNAMP2_CMDL_MATERIALS_HPP_

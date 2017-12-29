@@ -1,6 +1,6 @@
 #if _WIN32
 #define _CRT_RAND_S
-#include <stdlib.h>
+#include <cstdlib>
 #endif
 
 #include "SpecBase.hpp"
@@ -9,6 +9,8 @@
 #include "DNACommon/TXTR.hpp"
 #include "AssetNameMap.hpp"
 #include "hecl/ClientProcess.hpp"
+#include "nod/nod.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 #include <png.h>
 
@@ -121,7 +123,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
         if (!m_standalone)
         {
             progress(_S("Trilogy Files"), _S(""), 1, 0.0);
-            nod::Partition* data = m_disc->getDataPartition();
+            nod::IPartition* data = m_disc->getDataPartition();
             const nod::Node& root = data->getFSTRoot();
             for (const nod::Node& child : root)
                 if (child.getKind() == nod::Node::Kind::File)
@@ -166,7 +168,7 @@ static bool IsPathSong(const hecl::ProjectPath& path)
     return true;
 }
 
-bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
+bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok)
 {
     if (!checkPathPrefix(path))
         return false;
@@ -179,10 +181,10 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
 
     if (hecl::IsPathBlend(asBlend))
     {
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(asBlend))
             return false;
-        if (conn.getBlendType() != hecl::BlenderConnection::BlendType::None)
+        if (conn.getBlendType() != hecl::blender::BlendType::None)
             return true;
     }
     else if (hecl::IsPathPNG(path))
@@ -208,7 +210,7 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::BlenderToken& btok)
 
 const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::ProjectPath& path,
                                                                 const hecl::Database::DataSpecEntry* oldEntry,
-                                                                hecl::BlenderToken& btok) const
+                                                                hecl::blender::Token& btok) const
 {
     if (!checkPathPrefix(path))
         return nullptr;
@@ -225,16 +227,16 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
             hecl::StringUtils::EndsWith(path.getAuxInfo(), _S(".ANIM")))
             return oldEntry;
 
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(asBlend))
         {
             Log.report(logvisor::Error, _S("unable to cook '%s'"),
                        path.getAbsolutePath().data());
             return nullptr;
         }
-        hecl::BlenderConnection::BlendType type = conn.getBlendType();
-        if (type == hecl::BlenderConnection::BlendType::Mesh ||
-            type == hecl::BlenderConnection::BlendType::Area)
+        hecl::blender::BlendType type = conn.getBlendType();
+        if (type == hecl::blender::BlendType::Mesh ||
+            type == hecl::blender::BlendType::Area)
             return oldEntry;
     }
     else if (hecl::IsPathPNG(path))
@@ -245,7 +247,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 }
 
 void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
-                      bool fast, hecl::BlenderToken& btok, FCookProgress progress)
+                      bool fast, hecl::blender::Token& btok, FCookProgress progress)
 {
     cookedPath.makeDirChain(false);
     DataSpec::g_curSpec.reset(this);
@@ -258,56 +260,56 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
 
     if (hecl::IsPathBlend(asBlend))
     {
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(asBlend))
             return;
         switch (conn.getBlendType())
         {
-        case hecl::BlenderConnection::BlendType::Mesh:
+        case hecl::blender::BlendType::Mesh:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookMesh(cookedPath, path, ds, fast, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::ColMesh:
+        case hecl::blender::BlendType::ColMesh:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookColMesh(cookedPath, path, ds, fast, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::Actor:
+        case hecl::blender::BlendType::Actor:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookActor(cookedPath, path, ds, fast, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::Area:
+        case hecl::blender::BlendType::Area:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookArea(cookedPath, path, ds, fast, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::World:
+        case hecl::blender::BlendType::World:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookWorld(cookedPath, path, ds, fast, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::Frame:
+        case hecl::blender::BlendType::Frame:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookGuiFrame(cookedPath, path, ds, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::MapArea:
+        case hecl::blender::BlendType::MapArea:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookMapArea(cookedPath, path, ds, btok, progress);
             break;
         }
-        case hecl::BlenderConnection::BlendType::MapUniverse:
+        case hecl::blender::BlendType::MapUniverse:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             cookMapUniverse(cookedPath, path, ds, btok, progress);
             break;
         }
@@ -338,7 +340,7 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
 
 void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                                    std::vector<hecl::ProjectPath>& pathsOut,
-                                   hecl::BlenderToken& btok)
+                                   hecl::blender::Token& btok)
 {
     DataSpec::g_curSpec.reset(this);
     g_ThreadBlenderToken.reset(&btok);
@@ -351,24 +353,24 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
 
     if (hecl::IsPathBlend(asBlend))
     {
-        hecl::BlenderConnection& conn = btok.getBlenderConnection();
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(asBlend))
             return;
         switch (conn.getBlendType())
         {
-        case hecl::BlenderConnection::BlendType::Mesh:
+        case hecl::blender::BlendType::Mesh:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             std::vector<hecl::ProjectPath> texs = ds.getTextures();
             for (const hecl::ProjectPath& tex : texs)
                 pathsOut.push_back(tex);
             break;
         }
-        case hecl::BlenderConnection::BlendType::Actor:
+        case hecl::blender::BlendType::Actor:
         {
             hecl::ProjectPath asGlob = path.getWithExtension(_S(".*"), true);
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
-            hecl::BlenderConnection::DataStream::Actor actor = ds.compileActorCharacterOnly();
+            hecl::blender::DataStream ds = conn.beginData();
+            hecl::blender::Actor actor = ds.compileActorCharacterOnly();
             for (auto& sub : actor.subtypes)
             {
                 if (sub.armature >= 0)
@@ -412,9 +414,9 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
             pathsOut.push_back(asGlob);
             return;
         }
-        case hecl::BlenderConnection::BlendType::Area:
+        case hecl::blender::BlendType::Area:
         {
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             std::vector<hecl::ProjectPath> texs = ds.getTextures();
             for (const hecl::ProjectPath& tex : texs)
                 pathsOut.push_back(tex);
@@ -457,7 +459,7 @@ bool SpecBase::canPackage(const hecl::ProjectPath& path)
 void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
                                           std::unordered_set<urde::SObjectTag>& addedTags,
                                           const hecl::ProjectPath& path,
-                                          hecl::BlenderToken& btok)
+                                          hecl::blender::Token& btok)
 {
     hecl::DirectoryEnumerator dEnum(path.getAbsolutePath(),
                                     hecl::DirectoryEnumerator::Mode::DirsThenFilesSorted, false, false, true);
@@ -532,7 +534,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
 }
 
 void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
-                         bool fast, hecl::BlenderToken& btok, FProgress progress, hecl::ClientProcess* cp)
+                         bool fast, hecl::blender::Token& btok, FProgress progress, hecl::ClientProcess* cp)
 {
     /* Prepare complete resource index */
     if (!m_backgroundRunning && m_tagToPath.empty())
@@ -661,7 +663,7 @@ hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool
 {
     const hecl::Database::DataSpecEntry* spec = &getOriginalSpec();
     if (pcTarget)
-        spec = overrideDataSpec(working, getDataSpecEntry(), hecl::SharedBlenderToken);
+        spec = overrideDataSpec(working, getDataSpecEntry(), hecl::blender::SharedBlenderToken);
     if (!spec)
         return {};
     return working.getCookedPath(*spec);
@@ -751,7 +753,7 @@ hecl::ProjectPath SpecBase::pathFromTag(const urde::SObjectTag& tag) const
 }
 
 urde::SObjectTag SpecBase::tagFromPath(const hecl::ProjectPath& path,
-                                       hecl::BlenderToken& btok) const
+                                       hecl::blender::Token& btok) const
 {
     auto search = m_pathToTag.find(path.hash());
     if (search != m_pathToTag.cend())
@@ -1010,15 +1012,15 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
         /* Special multi-resource intermediates */
         if (pathTag.type == SBIG('ANCS'))
         {
-            hecl::BlenderConnection& conn = m_backgroundBlender.getBlenderConnection();
-            if (!conn.openBlend(path) || conn.getBlendType() != hecl::BlenderConnection::BlendType::Actor)
+            hecl::blender::Connection& conn = m_backgroundBlender.getBlenderConnection();
+            if (!conn.openBlend(path) || conn.getBlendType() != hecl::blender::BlendType::Actor)
                 return false;
 
             /* Transform tag to glob */
             pathTag = {SBIG('ANCS'), asGlob.hash().val32()};
             useGlob = true;
 
-            hecl::BlenderConnection::DataStream ds = conn.beginData();
+            hecl::blender::DataStream ds = conn.beginData();
             std::vector<std::string> armatureNames = ds.getArmatureNames();
             std::vector<std::string> subtypeNames = ds.getSubtypeNames();
             std::vector<std::string> actionNames = ds.getActionNames();

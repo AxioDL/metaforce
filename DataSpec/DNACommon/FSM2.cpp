@@ -4,9 +4,7 @@
 
 #include "FSM2.hpp"
 
-namespace DataSpec
-{
-namespace DNAFSM2
+namespace DataSpec::DNAFSM2
 {
 logvisor::Module LogDNAFSM2("urde::DNAFSM2");
 
@@ -1013,5 +1011,4 @@ bool WriteFSM2(const FSM2<IDType>& fsm2, const hecl::ProjectPath& outPath)
 template bool WriteFSM2<UniqueID32>(const FSM2<UniqueID32>& fsm2, const hecl::ProjectPath& outPath);
 template bool WriteFSM2<UniqueID64>(const FSM2<UniqueID64>& fsm2, const hecl::ProjectPath& outPath);
 
-}
 }

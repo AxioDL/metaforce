@@ -21,7 +21,7 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 {
     Log.report(logvisor::Warning, _S("sync-cooking %s"), working.getRelativePath().data());
-    return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::SharedBlenderToken);
+    return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::blender::SharedBlenderToken);
 }
 
 CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
@@ -76,7 +76,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
             m_cookedPath.getModtime() < path.getModtime())
         {
             /* Last chance type validation */
-            urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::SharedBlenderToken);
+            urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::blender::SharedBlenderToken);
             if (verifyTag.type != tag.type)
             {
                 Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
@@ -226,7 +226,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
         cooked.getModtime() < path.getModtime())
     {
         /* Last chance type validation */
-        urde::SObjectTag verifyTag = TagFromPath(path, hecl::SharedBlenderToken);
+        urde::SObjectTag verifyTag = TagFromPath(path, hecl::blender::SharedBlenderToken);
         if (verifyTag.type != tag.type)
         {
             Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),

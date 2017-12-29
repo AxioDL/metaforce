@@ -17,9 +17,7 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 static const char* InGameGuiDGRPs[] =
@@ -756,5 +754,4 @@ bool CInGameGuiManager::GetIsGameDraw() const
     //return x3c_pauseScreenBlur->IsGameDraw();
 }
 
-}
 }

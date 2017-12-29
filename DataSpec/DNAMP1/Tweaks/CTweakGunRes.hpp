@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakGunRes.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct CTweakGunRes final : ITweakGunRes
@@ -94,7 +92,6 @@ struct CTweakGunRes final : ITweakGunRes
     CTweakGunRes(athena::io::IStreamReader& in) { read(in); }
 };
 
-}
 }
 
 #endif // _DNAMP1_CTWEAKGUNRES_HPP_

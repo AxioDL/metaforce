@@ -7,10 +7,9 @@
 #include "../DNAMP3/CMDLMaterials.hpp"
 #include "../DNAMP3/CSKR.hpp"
 #include "zeus/CAABox.hpp"
+#include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec
-{
-namespace DNACMDL
+namespace DataSpec::DNACMDL
 {
 
 template <class MaterialSet>
@@ -68,7 +67,7 @@ void GetVertexAttributes(const MaterialSet& matSet,
 }
 
 template <class PAKRouter, class MaterialSet>
-void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
+void ReadMaterialSetToBlender_1_2(hecl::blender::PyOutStream& os,
                                   const MaterialSet& matSet,
                                   const PAKRouter& pakRouter,
                                   const typename PAKRouter::EntryType& entry,
@@ -112,7 +111,7 @@ void ReadMaterialSetToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
 }
 
 template <class PAKRouter, class MaterialSet>
-void ReadMaterialSetToBlender_3(hecl::BlenderConnection::PyOutStream& os,
+void ReadMaterialSetToBlender_3(hecl::blender::PyOutStream& os,
                                 const MaterialSet& matSet,
                                 const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry,
@@ -127,7 +126,7 @@ void ReadMaterialSetToBlender_3(hecl::BlenderConnection::PyOutStream& os,
 }
 
 template void ReadMaterialSetToBlender_3<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet>
-(hecl::BlenderConnection::PyOutStream& os,
+(hecl::blender::PyOutStream& os,
  const DNAMP3::MaterialSet& matSet,
  const PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
@@ -161,7 +160,7 @@ public:
         }
 
         template<class RigPair>
-        void sendAdditionalVertsToBlender(hecl::BlenderConnection::PyOutStream& os,
+        void sendAdditionalVertsToBlender(hecl::blender::PyOutStream& os,
                                           const RigPair& rp) const
         {
             atUint32 nextVert = 1;
@@ -420,7 +419,7 @@ public:
     }
 };
 
-void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
+void InitGeomBlenderContext(hecl::blender::PyOutStream& os,
                             const hecl::ProjectPath& masterShaderPath,
                             bool solidShading)
 {
@@ -522,7 +521,7 @@ void InitGeomBlenderContext(hecl::BlenderConnection::PyOutStream& os,
               "\n", masterShaderPath.getAbsolutePathUTF8().data());
 }
 
-void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
+void FinishBlenderMesh(hecl::blender::PyOutStream& os,
                        unsigned matSetCount, int meshIdx)
 {
     if (meshIdx < 0)
@@ -599,7 +598,7 @@ void FinishBlenderMesh(hecl::BlenderConnection::PyOutStream& os,
 }
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader>
-atUint32 ReadGeomSectionsToBlender(hecl::BlenderConnection::PyOutStream& os,
+atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                                    athena::io::IStreamReader& reader,
                                    PAKRouter& pakRouter,
                                    const typename PAKRouter::EntryType& entry,
@@ -1082,7 +1081,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::BlenderConnection::PyOutStream& os,
 }
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader, atUint32 Version>
-bool ReadCMDLToBlender(hecl::BlenderConnection& conn,
+bool ReadCMDLToBlender(hecl::blender::Connection& conn,
                        athena::io::IStreamReader& reader,
                        PAKRouter& pakRouter,
                        const typename PAKRouter::EntryType& entry,
@@ -1105,7 +1104,7 @@ bool ReadCMDLToBlender(hecl::BlenderConnection& conn,
     }
 
     /* Open Py Stream and read sections */
-    hecl::BlenderConnection::PyOutStream os = conn.beginPythonOut(true);
+    hecl::blender::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
               "import bmesh\n"
               "\n"
@@ -1130,7 +1129,7 @@ bool ReadCMDLToBlender(hecl::BlenderConnection& conn,
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet,
                                 std::pair<DNAMP1::CSKR*,DNAMP1::CINF*>, DNACMDL::SurfaceHeader_1, 2>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP1::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
@@ -1139,7 +1138,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSe
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSet,
                                 std::pair<DNAMP2::CSKR*,DNAMP2::CINF*>, DNACMDL::SurfaceHeader_2, 4>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP2::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry,
@@ -1148,7 +1147,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSe
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
                                 std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>, DNACMDL::SurfaceHeader_3, 4>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
@@ -1157,7 +1156,7 @@ template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSe
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
                                 std::pair<DNAMP3::CSKR*,DNAMP3::CINF*>, DNACMDL::SurfaceHeader_3, 5>
-(hecl::BlenderConnection& conn,
+(hecl::blender::Connection& conn,
  athena::io::IStreamReader& reader,
  PAKRouter<DNAMP3::PAKBridge>& pakRouter,
  const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry,
@@ -1236,7 +1235,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
     matSets.reserve(mesh.materialSets.size());
     {
         hecl::Frontend::Frontend FE;
-        for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
+        for (const std::vector<Material>& mset : mesh.materialSets)
         {
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
@@ -1246,7 +1245,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
             size_t endOff = 0;
             atUint32 nextGroupIdx = 0;
-            for (const Mesh::Material& mat : mset)
+            for (const Material& mat : mset)
             {
                 std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                 hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
@@ -1279,7 +1278,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
             }
 
             texPaths.reserve(mset.size()*4);
-            for (const Mesh::Material& mat : mset)
+            for (const Material& mat : mset)
             {
                 for (const hecl::ProjectPath& path : mat.texs)
                 {
@@ -1474,7 +1473,7 @@ template bool WriteCMDL<DNAMP1::MaterialSet, DNACMDL::SurfaceHeader_1, 2>
 
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
 bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
-                   const Mesh& mesh, hecl::PoolSkinIndex& poolSkinIndex)
+                   const Mesh& mesh, hecl::blender::PoolSkinIndex& poolSkinIndex)
 {
     Header head;
     head.magic = 0xDEADBABE;
@@ -1494,13 +1493,13 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     matSets.reserve(mesh.materialSets.size());
     {
         hecl::Frontend::Frontend FE;
-        for (const std::vector<Mesh::Material>& mset : mesh.materialSets)
+        for (const std::vector<Material>& mset : mesh.materialSets)
         {
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
             std::vector<hecl::ProjectPath> texPaths;
             texPaths.reserve(mset.size()*4);
-            for (const Mesh::Material& mat : mset)
+            for (const Material& mat : mset)
             {
                 for (const hecl::ProjectPath& path : mat.texs)
                 {
@@ -1519,7 +1518,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
             }
 
             size_t endOff = 0;
-            for (const Mesh::Material& mat : mset)
+            for (const Material& mat : mset)
             {
                 std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                 targetMSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
@@ -1537,7 +1536,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
         }
     }
 
-    hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(false, poolSkinIndex);
+    hecl::blender::HMDLBuffers bufs = mesh.getHMDLBuffers(false, poolSkinIndex);
 
     /* Metadata */
     size_t secSz = bufs.m_meta.binarySize(0);
@@ -1575,7 +1574,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
 
     /* Surfaces */
     size_t endOff = 0;
-    for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+    for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces)
     {
         head.secSizes.push_back(64);
         paddingSizes.push_back(0);
@@ -1619,7 +1618,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     ++padIt;
 
     /* Surfaces */
-    for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+    for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces)
     {
         const Mesh::Surface& osurf = surf.m_origSurf;
 
@@ -1645,7 +1644,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
 
 template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2>
 (const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh,
- hecl::PoolSkinIndex& poolSkinIndex);
+ hecl::blender::PoolSkinIndex& poolSkinIndex);
 
 template <class MaterialSet, class SurfaceHeader, class MeshHeader>
 bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
@@ -1663,12 +1662,12 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
     {
         struct MaterialPool
         {
-            std::vector<const Mesh::Material*> materials;
-            size_t addMaterial(const Mesh::Material& mat, bool& newMat)
+            std::vector<const Material*> materials;
+            size_t addMaterial(const Material& mat, bool& newMat)
             {
                 size_t ret = 0;
                 newMat = false;
-                for (const Mesh::Material* testMat : materials)
+                for (const Material* testMat : materials)
                 {
                     if (mat == *testMat)
                         return ret;
@@ -1696,7 +1695,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
                 std::vector<size_t> meshToGlobalMats;
                 meshToGlobalMats.reserve(mesh.materialSets[0].size());
 
-                for (const Mesh::Material& mat : mesh.materialSets[0])
+                for (const Material& mat : mesh.materialSets[0])
                 {
                     bool newMat;
                     size_t idx = matPool.addMaterial(mat, newMat);
@@ -1763,13 +1762,13 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
             meshHeader.write(w);
         }
 
-        hecl::PoolSkinIndex poolSkinIndex;
-        hecl::HMDLBuffers bufs = mesh.getHMDLBuffers(true, poolSkinIndex);
+        hecl::blender::PoolSkinIndex poolSkinIndex;
+        hecl::blender::HMDLBuffers bufs = mesh.getHMDLBuffers(true, poolSkinIndex);
 
         std::vector<size_t> surfEndOffs;
         surfEndOffs.reserve(bufs.m_surfaces.size());
         size_t endOff = 0;
-        for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+        for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces)
         {
             endOff += 96;
             surfEndOffs.push_back(endOff);
@@ -1806,7 +1805,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
         }
 
         /* Surfaces */
-        for (const hecl::HMDLBuffers::Surface& surf : bufs.m_surfaces)
+        for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces)
         {
             const Mesh::Surface& osurf = surf.m_origSurf;
 
@@ -2058,5 +2057,4 @@ size_t SurfaceHeader_3::binarySize(size_t __isz) const
     return __isz;
 }
 
-}
 }

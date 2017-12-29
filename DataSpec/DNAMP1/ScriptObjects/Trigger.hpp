@@ -5,9 +5,7 @@
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct Trigger : IScriptObject
 {
@@ -22,14 +20,13 @@ struct Trigger : IScriptObject
     Value<bool> unknown2;
     Value<bool> unknown3;
 
-    zeus::CAABox getVISIAABB(hecl::BlenderToken& btok) const
+    zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const
     {
         zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
         zeus::CVector3f loc(location);
         return zeus::CAABox(loc - halfExtent, loc + halfExtent);
     }
 };
-}
 }
 
 #endif

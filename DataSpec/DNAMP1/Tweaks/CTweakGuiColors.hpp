@@ -3,9 +3,7 @@
 
 #include "../../DNACommon/Tweaks/ITweakGuiColors.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 struct CTweakGuiColors final : public ITweakGuiColors
 {
@@ -232,7 +230,6 @@ struct CTweakGuiColors final : public ITweakGuiColors
         return {colors.x0_energyBarFilled, colors.x4_energyBarEmpty, colors.x8_energyBarShadow};
     }
 };
-}
 }
 
 #endif // __DNAMP1_CTWEAKGUICOLORS_HPP__

@@ -14,5 +14,5 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/maini
                    ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop/16x16/apps/urde.png
                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Editor/platforms/freedesktop
                    COMMENT "Generating mainicon_netwm.bin")
-bintoc(mainicon_netwm.c ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/mainicon_netwm.bin MAINICON_NETWM)
+bintoc(mainicon_netwm.cpp ${CMAKE_BINARY_DIR}/Editor/platforms/freedesktop/mainicon_netwm.bin MAINICON_NETWM)
 endmacro()

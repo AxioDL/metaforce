@@ -4,9 +4,7 @@
 #include "CStateManager.hpp"
 #include "Graphics/CBooRenderer.hpp"
 
-namespace urde
-{
-namespace MP1
+namespace urde::MP1
 {
 
 static const char* ArtifactPieceModels[] =
@@ -189,5 +187,4 @@ bool CArtifactDoll::CheckLoadComplete()
     return true;
 }
 
-}
 }

@@ -5,9 +5,7 @@
 #include "CMDLMaterials.hpp"
 #include "CSKR.hpp"
 
-namespace DataSpec
-{
-namespace DNAMP1
+namespace DataSpec::DNAMP1
 {
 
 struct MREA
@@ -101,7 +99,7 @@ struct MREA
         Value<float> unk9;
     };
 
-    static void ReadBabeDeadToBlender_1_2(hecl::BlenderConnection::PyOutStream& os,
+    static void ReadBabeDeadToBlender_1_2(hecl::blender::PyOutStream& os,
                                           athena::io::IStreamReader& rs);
 
     static void AddCMDLRigPairs(PAKEntryReadStream& rs,
@@ -114,7 +112,7 @@ struct MREA
                         PAKRouter<PAKBridge>& pakRouter,
                         const PAK::Entry& entry,
                         bool,
-                        hecl::BlenderToken& btok,
+                        hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)>);
 
     static void Name(const SpecBase& dataSpec,
@@ -122,8 +120,8 @@ struct MREA
                      PAKRouter<PAKBridge>& pakRouter,
                      PAK::Entry& entry);
 
-    using ColMesh = hecl::BlenderConnection::DataStream::ColMesh;
-    using Light = hecl::BlenderConnection::DataStream::Light;
+    using ColMesh = hecl::blender::ColMesh;
+    using Light = hecl::blender::Light;
 
     static bool Cook(const hecl::ProjectPath& outPath,
                      const hecl::ProjectPath& inPath,
@@ -136,13 +134,12 @@ struct MREA
                        const std::vector<DNACMDL::Mesh>& meshes,
                        const ColMesh& cMesh,
                        const std::vector<Light>& lights,
-                       hecl::BlenderToken& btok);
+                       hecl::blender::Token& btok);
 
     static bool CookPath(const hecl::ProjectPath& outPath,
                          const hecl::ProjectPath& inPath);
 };
 
-}
 }
 
 #endif

@@ -1,8 +1,6 @@
 #include "WPSC.hpp"
 
-namespace DataSpec
-{
-namespace DNAParticle
+namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
@@ -666,5 +664,4 @@ bool WriteWPSM(const WPSM<IDType>& wpsm, const hecl::ProjectPath& outPath)
 template bool WriteWPSM<UniqueID32>(const WPSM<UniqueID32>& wpsm, const hecl::ProjectPath& outPath);
 template bool WriteWPSM<UniqueID64>(const WPSM<UniqueID64>& wpsm, const hecl::ProjectPath& outPath);
 
-}
 }
