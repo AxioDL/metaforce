@@ -23,7 +23,7 @@ endif()
 
 add_subdirectory(platforms/freedesktop)
 declare_qticon_target()
-list(APPEND PLAT_SRCS mainicon_qt.c)
+list(APPEND PLAT_SRCS mainicon_qt.cpp)
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     MainWindow.ui MainWindow.hpp MainWindow.cpp

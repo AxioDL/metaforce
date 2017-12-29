@@ -14,5 +14,5 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/hecl-gui/platforms/freedesktop/mai
                    ${CMAKE_SOURCE_DIR}/hecl-gui/platforms/freedesktop/16x16/apps/hecl.png
                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/hecl-gui/platforms/freedesktop
                    COMMENT "Generating mainicon_qt.bin")
-bintoc(mainicon_qt.c ${CMAKE_BINARY_DIR}/hecl-gui/platforms/freedesktop/mainicon_qt.bin MAINICON_QT)
+bintoc(mainicon_qt.cpp ${CMAKE_BINARY_DIR}/hecl-gui/platforms/freedesktop/mainicon_qt.bin MAINICON_QT)
 endmacro()
