@@ -13,16 +13,15 @@
 #include <atomic>
 #include <fstream>
 #include <stdint.h>
-#include <assert.h>
+#include <cassert>
 
-#include <athena/IStreamReader.hpp>
+#include "athena/IStreamReader.hpp"
 #include "logvisor/logvisor.hpp"
 
 #include "hecl.hpp"
 
 namespace hecl
 {
-class BlenderToken;
 class ClientProcess;
 
 namespace Database
@@ -71,7 +70,7 @@ class IDataSpec
 public:
     IDataSpec(const DataSpecEntry* specEntry) : m_specEntry(specEntry) {}
     virtual ~IDataSpec() {}
-    using FProgress = hecl::Database::FProgress;
+    using FProgress = Database::FProgress;
     using FCookProgress = std::function<void(const SystemChar*)>;
 
     /**
@@ -107,20 +106,20 @@ public:
     virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
     {(void)info;(void)progress;}
 
-    virtual bool canCook(const ProjectPath& path, BlenderToken& btok)
+    virtual bool canCook(const ProjectPath& path, blender::Token& btok)
     {(void)path;LogModule.report(logvisor::Error, "not implemented");return false;}
     virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path,
                                                   const Database::DataSpecEntry* oldEntry,
-                                                  BlenderToken& btok) const
+                                                  blender::Token& btok) const
     {(void)path;return oldEntry;}
     virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath,
-                        bool fast, BlenderToken& btok, FCookProgress progress)
+                        bool fast, blender::Token& btok, FCookProgress progress)
     {(void)path;(void)cookedPath;(void)fast;(void)progress;}
 
-    virtual bool canPackage(const hecl::ProjectPath& path)
+    virtual bool canPackage(const ProjectPath& path)
     {(void)path;return false;}
-    virtual void doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
-                           bool fast, hecl::BlenderToken& btok, FProgress progress, ClientProcess* cp=nullptr)
+    virtual void doPackage(const ProjectPath& path, const Database::DataSpecEntry* entry,
+                           bool fast, blender::Token& btok, FProgress progress, ClientProcess* cp=nullptr)
     {(void)path;}
 
     const DataSpecEntry* getDataSpecEntry() const {return m_specEntry;}
@@ -263,7 +262,7 @@ private:
     std::unique_ptr<IDataSpec> m_lastPackageSpec;
     bool m_valid = false;
 public:
-    Project(const hecl::ProjectRootPath& rootPath);
+    Project(const ProjectRootPath& rootPath);
     operator bool() const {return m_valid;}
 
     /**

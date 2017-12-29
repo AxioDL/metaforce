@@ -4,13 +4,11 @@
 #include "Backend.hpp"
 #include "hecl/Runtime.hpp"
 #include <athena/DNA.hpp>
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <algorithm>
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 struct ProgrammableCommon : IBackend
@@ -137,7 +135,6 @@ private:
                              const std::string& a, const atInt8 swiz[4]) const;
 };
 
-}
 }
 
 #endif // HECLBACKEND_PROGCOMMON_HPP

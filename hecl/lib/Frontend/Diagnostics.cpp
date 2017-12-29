@@ -1,7 +1,7 @@
 #include "hecl/hecl.hpp"
 #include "hecl/Frontend.hpp"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 /* ANSI sequences */
 #define RED "\x1b[1;31m"

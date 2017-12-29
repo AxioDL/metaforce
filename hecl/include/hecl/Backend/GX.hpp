@@ -3,16 +3,14 @@
 
 #include "Backend.hpp"
 #include <athena/DNA.hpp>
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <algorithm>
 
 #undef min
 #undef max
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 struct GX : IBackend
@@ -573,7 +571,6 @@ private:
                                   TexMtx mtx, bool normalize, PTTexMtx pmtx);
 };
 
-}
 }
 
 #endif // HECLBACKEND_GX_HPP

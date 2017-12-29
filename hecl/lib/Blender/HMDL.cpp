@@ -1,11 +1,11 @@
-#include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/Blender/Connection.hpp"
 #include <cmath>
-#include <float.h>
+#include <cfloat>
 
-namespace hecl
+namespace hecl::blender
 {
 
-atVec3f BlenderConnection::DataStream::MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec)
+atVec3f MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec)
 {
     atVec3f res;
     res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2] + mtx[0].vec[3];
@@ -14,7 +14,7 @@ atVec3f BlenderConnection::DataStream::MtxVecMul4RM(const Matrix4f& mtx, const V
     return res;
 }
 
-atVec3f BlenderConnection::DataStream::MtxVecMul3RM(const Matrix4f& mtx, const Vector3f& vec)
+atVec3f MtxVecMul3RM(const Matrix4f& mtx, const Vector3f& vec)
 {
     atVec3f res;
     res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2];
@@ -23,8 +23,7 @@ atVec3f BlenderConnection::DataStream::MtxVecMul3RM(const Matrix4f& mtx, const V
     return res;
 }
 
-HMDLBuffers BlenderConnection::DataStream::Mesh::getHMDLBuffers(bool absoluteCoords,
-                                                                PoolSkinIndex& poolSkinIndex) const
+HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinIndex) const
 {
     /* If skinned, compute max weight vec count */
     size_t weightCount = 0;

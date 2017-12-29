@@ -6,9 +6,7 @@
 
 static logvisor::Module Log("hecl::Backend::Metal");
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 std::string Metal::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
@@ -432,7 +430,8 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 }
 
 }
-namespace Runtime
+
+namespace hecl::Runtime
 {
 
 struct MetalBackendFactory : IShaderBackendFactory
@@ -701,7 +700,6 @@ IShaderBackendFactory* _NewMetalBackendFactory()
     return new struct MetalBackendFactory();
 }
 
-}
 }
 
 #endif

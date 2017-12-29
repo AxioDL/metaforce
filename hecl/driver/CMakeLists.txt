@@ -5,11 +5,7 @@ add_executable(hecl main.cpp
     ToolExtract.hpp
     ToolInit.hpp
     ToolHelp.hpp
-    ToolGroup.hpp
     ToolCook.hpp
-    ToolClean.hpp
-    ToolAdd.hpp
-    ToolRemove.hpp
     ToolSpec.hpp
     ../DataSpecRegistry.hpp)
 if(COMMAND add_sanitizers)
@@ -30,4 +26,8 @@ target_link_libraries(hecl
     hecl-common hecl-blender-addon athena-core nod
     logvisor athena-libyaml ${PNG_LIB} squish xxhash zeus boo
     ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
+
+if(COMMAND cotire)
+  cotire(hecl)
+endif()
 endif()

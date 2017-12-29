@@ -2,7 +2,7 @@
 #define CTOOL_HELP
 
 #include "ToolBase.hpp"
-#include <stdio.h>
+#include <cstdio>
 #include <functional>
 
 class ToolHelp final : public ToolBase
@@ -66,16 +66,8 @@ public:
             helpFunc = ToolSpec::Help;
         else if (toolName == _S("extract"))
             helpFunc = ToolExtract::Help;
-        else if (toolName == _S("add"))
-            helpFunc = ToolAdd::Help;
-        else if (toolName == _S("remove") || toolName == _S("rm"))
-            helpFunc = ToolRemove::Help;
-        else if (toolName == _S("group"))
-            helpFunc = ToolGroup::Help;
         else if (toolName == _S("cook"))
             helpFunc = ToolCook::Help;
-        else if (toolName == _S("clean"))
-            helpFunc = ToolClean::Help;
         else if (toolName == _S("package") || toolName == _S("pack"))
             helpFunc = ToolPackage::Help;
         else if (toolName == _S("help"))

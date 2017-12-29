@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #ifndef _WIN32
 #include <unistd.h>

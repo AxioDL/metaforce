@@ -8,9 +8,7 @@
 using namespace Windows::Storage;
 #endif
 
-namespace hecl
-{
-namespace Runtime
+namespace hecl::Runtime
 {
 static logvisor::Module Log("FileStoreManager");
 
@@ -52,5 +50,4 @@ FileStoreManager::FileStoreManager(SystemStringView domain)
 #endif
 }
 
-}
 }

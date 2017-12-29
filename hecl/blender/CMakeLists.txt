@@ -14,20 +14,20 @@ list(APPEND PY_SOURCES
      hecl/mapu.py
      hecl/frme.py)
 
-bintoc(hecl_blendershell.c hecl_blendershell.py HECL_BLENDERSHELL)
+bintoc(hecl_blendershell.cpp hecl_blendershell.py HECL_BLENDERSHELL)
 
 add_custom_command(OUTPUT hecl.zip DEPENDS ${PY_SOURCES}
                    COMMAND python ARGS zip_package.py ${CMAKE_CURRENT_BINARY_DIR}/hecl.zip
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMENT "Generating addon package")
-bintoc(hecl_addon.c "${CMAKE_CURRENT_BINARY_DIR}/hecl.zip" HECL_ADDON)
-bintoc(hecl_startup.c hecl_startup.blend HECL_STARTUP)
+bintoc(hecl_addon.cpp "${CMAKE_CURRENT_BINARY_DIR}/hecl.zip" HECL_ADDON)
+bintoc(hecl_startup.cpp hecl_startup.blend HECL_STARTUP)
 
 add_library(hecl-blender-addon
             hecl_blendershell.py
-            hecl_blendershell.c
+            hecl_blendershell.cpp
             zip_package.py
             hecl.zip
-            hecl_addon.c
-            hecl_startup.c
+            hecl_addon.cpp
+            hecl_startup.cpp
             ${PY_SOURCES})

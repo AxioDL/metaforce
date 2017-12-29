@@ -1,9 +1,7 @@
 #include "hecl/Backend/ProgrammableCommon.hpp"
 #include <map>
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 unsigned ProgrammableCommon::addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize)
@@ -336,5 +334,4 @@ std::string ProgrammableCommon::EmitSwizzle1(Diagnostics& diag, const SourceLoca
     return retval;
 }
 
-}
 }

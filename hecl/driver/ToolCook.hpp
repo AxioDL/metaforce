@@ -2,7 +2,7 @@
 #define CTOOL_COOK
 
 #include "ToolBase.hpp"
-#include <stdio.h>
+#include <cstdio>
 #include "hecl/ClientProcess.hpp"
 
 class ToolCook final : public ToolBase

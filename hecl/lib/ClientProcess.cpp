@@ -1,7 +1,7 @@
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Database.hpp"
 #include "athena/FileReader.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -14,7 +14,7 @@
 
 namespace hecl
 {
-static logvisor::Module Log("hecl::ClientProcess");
+static logvisor::Module CP_Log("hecl::ClientProcess");
 
 ThreadLocalPtr<ClientProcess::Worker> ClientProcess::ThreadWorker;
 
@@ -29,13 +29,13 @@ static int GetCPUCount()
 #endif
 }
 
-void ClientProcess::BufferTransaction::run(BlenderToken& btok)
+void ClientProcess::BufferTransaction::run(blender::Token& btok)
 {
     athena::io::FileReader r(m_path.getAbsolutePath(), 32 * 1024, false);
     if (r.hasError())
     {
-        Log.report(logvisor::Fatal, _S("unable to background-buffer '%s'"),
-                   m_path.getAbsolutePath().data());
+        CP_Log.report(logvisor::Fatal, _S("unable to background-buffer '%s'"),
+                      m_path.getAbsolutePath().data());
         return;
     }
     if (m_offset)
@@ -44,14 +44,14 @@ void ClientProcess::BufferTransaction::run(BlenderToken& btok)
     m_complete = true;
 }
 
-void ClientProcess::CookTransaction::run(BlenderToken& btok)
+void ClientProcess::CookTransaction::run(blender::Token& btok)
 {
     m_dataSpec->setThreadProject();
     m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok);
     m_complete = true;
 }
 
-void ClientProcess::LambdaTransaction::run(BlenderToken& btok)
+void ClientProcess::LambdaTransaction::run(blender::Token& btok)
 {
     m_func(btok);
     m_complete = true;
@@ -137,7 +137,7 @@ ClientProcess::addCookTransaction(const hecl::ProjectPath& path, Database::IData
 }
 
 std::shared_ptr<const ClientProcess::LambdaTransaction>
-ClientProcess::addLambdaTransaction(std::function<void(BlenderToken&)>&& func)
+ClientProcess::addLambdaTransaction(std::function<void(blender::Token&)>&& func)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
     auto ret = std::make_shared<LambdaTransaction>(*this, std::move(func));
@@ -146,7 +146,7 @@ ClientProcess::addLambdaTransaction(std::function<void(BlenderToken&)>&& func)
     return ret;
 }
 
-bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, BlenderToken& btok)
+bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, blender::Token& btok)
 {
     if (spec->canCook(path, btok))
     {

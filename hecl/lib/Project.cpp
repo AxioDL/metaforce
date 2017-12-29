@@ -1,7 +1,7 @@
 #include <sys/stat.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 #include <system_error>
 
 #if _WIN32
@@ -10,12 +10,10 @@
 #endif
 
 #include "hecl/Database.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/Blender/Connection.hpp"
 #include "hecl/ClientProcess.hpp"
 
-namespace hecl
-{
-namespace Database
+namespace hecl::Database
 {
 
 logvisor::Module LogModule("hecl::Database");
@@ -397,7 +395,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
 {
     for (auto& spec : specInsts)
     {
-        if (spec->canCook(path, hecl::SharedBlenderToken))
+        if (spec->canCook(path, hecl::blender::SharedBlenderToken))
         {
             if (cp)
             {
@@ -406,7 +404,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
             else
             {
                 const DataSpecEntry* override = spec->overrideDataSpec(path, spec->getDataSpecEntry(),
-                                                                       hecl::SharedBlenderToken);
+                                                                       hecl::blender::SharedBlenderToken);
                 if (!override)
                     continue;
                 ProjectPath cooked = path.getCookedPath(*override);
@@ -416,7 +414,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
                     path.getModtime() > cooked.getModtime())
                 {
                     progress.reportFile(override);
-                    spec->doCook(path, cooked, fast, hecl::SharedBlenderToken,
+                    spec->doCook(path, cooked, fast, hecl::blender::SharedBlenderToken,
                                  [&](const SystemChar* extra)
                                  {
                                      progress.reportFile(override, extra);
@@ -539,7 +537,7 @@ bool Project::packagePath(const ProjectPath& path, FProgress progress, bool fast
 
     if (m_lastPackageSpec->canPackage(path))
     {
-        m_lastPackageSpec->doPackage(path, specEntry, fast, hecl::SharedBlenderToken, progress, cp);
+        m_lastPackageSpec->doPackage(path, specEntry, fast, hecl::blender::SharedBlenderToken, progress, cp);
         return true;
     }
 
@@ -578,5 +576,4 @@ const ProjectPath* Project::lookupBridgePath(uint64_t id) const
     return &search->second;
 }
 
-}
 }

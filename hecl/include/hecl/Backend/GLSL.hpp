@@ -3,9 +3,7 @@
 
 #include "ProgrammableCommon.hpp"
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 #define HECL_GLSL_VERT_UNIFORM_BLOCK_NAME "HECLVertUniform"
@@ -46,7 +44,6 @@ private:
     std::string EmitTexGenSource4(TexGenSrc src, int uvIdx) const;
 };
 
-}
 }
 
 #endif // HECLBACKEND_GLSL_HPP

@@ -13,7 +13,7 @@ macro(bintoc out in sym)
   endif()
   add_custom_command(OUTPUT ${theOut}
                      COMMAND $<TARGET_FILE:bintoc> ARGS ${theIn} ${theOut} ${sym}
-                     DEPENDS ${theIn})
+                     DEPENDS ${theIn} bintoc)
 endmacro()
 
 ##################

@@ -5,9 +5,7 @@
 
 #include "ProgrammableCommon.hpp"
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 struct Metal : ProgrammableCommon
@@ -46,7 +44,6 @@ private:
     std::string EmitTexGenSource4(TexGenSrc src, int uvIdx) const;
 };
 
-}
 }
 
 #endif // BOO_HAS_METAL

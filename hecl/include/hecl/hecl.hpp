@@ -2,7 +2,7 @@
 #define HECL_HPP
 
 #ifndef _WIN32
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
@@ -18,15 +18,15 @@
 #define NOMINMAX
 #endif
 #include <Windows.h>
-#include <wchar.h>
+#include <cwchar>
 #include <Shlwapi.h>
 #include "winsupport.hpp"
 #endif
 
-#include <inttypes.h>
-#include <time.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cinttypes>
+#include <ctime>
+#include <cstdarg>
+#include <cstdio>
 #include <functional>
 #include <string>
 #include <algorithm>
@@ -34,9 +34,10 @@
 #include <list>
 #include <map>
 #include "logvisor/logvisor.hpp"
-#include <athena/Global.hpp>
+#include "athena/Global.hpp"
 #include "../extern/boo/xxhash/xxhash.h"
 #include "SystemChar.hpp"
+#include "FourCC.hpp"
 
 namespace hecl
 {
@@ -44,6 +45,43 @@ namespace Database
 {
 class Project;
 struct DataSpecEntry;
+}
+
+namespace blender
+{
+enum class BlendType
+{
+    None,
+    Mesh,
+    ColMesh,
+    Actor,
+    Area,
+    World,
+    MapArea,
+    MapUniverse,
+    Frame
+};
+
+class Connection;
+class Token;
+class DataStream;
+class PyOutStream;
+class ANIMOutStream;
+struct Mesh;
+struct Material;
+struct ColMesh;
+struct World;
+struct Light;
+struct MapArea;
+struct MapUniverse;
+struct Actor;
+struct Armature;
+struct Action;
+struct Bone;
+struct Matrix3f;
+struct PoolSkinIndex;
+
+extern class Token SharedBlenderToken;
 }
 
 extern unsigned VerbosityLevel;
@@ -479,46 +517,6 @@ typedef std::regex_token_iterator<SystemString::const_iterator> SystemRegexToken
 typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;
 
 class ProjectRootPath;
-
-/**
- * @brief FourCC representation used within HECL's database
- *
- * FourCCs are efficient, mnemonic four-char-sequences used to represent types
- * while fitting comfortably in a 32-bit word. HECL uses a four-char array
- * to remain endian-independent.
- */
-class FourCC
-{
-protected:
-    union
-    {
-        char fcc[4];
-        uint32_t num;
-    };
-public:
-    FourCC() /* Sentinel FourCC */
-    : num(0) {}
-    FourCC(const FourCC& other)
-    {num = other.num;}
-    FourCC(const char* name)
-    : num(*(uint32_t*)name) {}
-    FourCC(uint32_t n)
-    : num(n) {}
-    bool operator==(const FourCC& other) const {return num == other.num;}
-    bool operator!=(const FourCC& other) const {return num != other.num;}
-    bool operator==(const char* other) const {return num == *(uint32_t*)other;}
-    bool operator!=(const char* other) const {return num != *(uint32_t*)other;}
-    bool operator==(int32_t other) const { return num == other;}
-    bool operator!=(int32_t other) const { return num != other;}
-    bool operator==(uint32_t other) const {return num == other;}
-    bool operator!=(uint32_t other) const {return num != other;}
-    std::string toString() const {return std::string(fcc, 4);}
-    uint32_t toUint32() const {return num;}
-    operator uint32_t() const {return num;}
-    const char* getChars() const {return fcc;}
-    char* getChars() {return fcc;}
-};
-#define FOURCC(chars) FourCC(SBIG(chars))
 
 /**
  * @brief Hash representation used for all storable and comparable objects
@@ -1465,27 +1463,16 @@ static inline double SBig(double val) {return val;}
 
 }
 
-#if _MSC_VER
-#define NOEXCEPT
-#else
-#define NOEXCEPT noexcept
-#endif
-
 namespace std
 {
-template <> struct hash<hecl::FourCC>
-{
-    size_t operator()(const hecl::FourCC& val) const NOEXCEPT
-    {return val.toUint32();}
-};
 template <> struct hash<hecl::ProjectPath>
 {
-    size_t operator()(const hecl::ProjectPath& val) const NOEXCEPT
+    size_t operator()(const hecl::ProjectPath& val) const noexcept
     {return val.hash().valSizeT();}
 };
 template <> struct hash<hecl::Hash>
 {
-    size_t operator()(const hecl::Hash& val) const NOEXCEPT
+    size_t operator()(const hecl::Hash& val) const noexcept
     {return val.valSizeT();}
 };
 }

@@ -2,7 +2,7 @@
 #define SYSTEMCHAR_HPP
 
 #ifndef _WIN32
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
 #include <sys/stat.h>
 #else
@@ -12,7 +12,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <wchar.h>
+#include <cwchar>
 #endif
 #include <string>
 #include <string_view>

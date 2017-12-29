@@ -1,9 +1,7 @@
 #include "hecl/Backend/GX.hpp"
 #include <map>
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 unsigned GX::addKColor(Diagnostics& diag, const SourceLocation& loc, const Color& color)
@@ -772,5 +770,4 @@ void GX::reset(const IR& ir, Diagnostics& diag)
     }
 }
 
-}
 }

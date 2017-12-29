@@ -6,9 +6,7 @@
 
 static logvisor::Module Log("hecl::Backend::HLSL");
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 std::string HLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
@@ -682,5 +680,4 @@ IShaderBackendFactory* _NewHLSLBackendFactory()
     return new struct HLSLBackendFactory();
 }
 
-}
 }

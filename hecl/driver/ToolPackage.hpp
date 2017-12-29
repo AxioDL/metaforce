@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "ToolBase.hpp"
-#include <stdio.h>
+#include <cstdio>
 
 class ToolPackage final : public ToolBase
 {

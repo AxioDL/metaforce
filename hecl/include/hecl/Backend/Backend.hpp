@@ -3,9 +3,7 @@
 
 #include "hecl/Frontend.hpp"
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 using IR = Frontend::IR;
@@ -76,7 +74,6 @@ public:
     virtual void reset(const IR& ir, Diagnostics& diag)=0;
 };
 
-}
 }
 
 #endif // HECLBACKEND_HPP

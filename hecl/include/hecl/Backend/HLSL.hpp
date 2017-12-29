@@ -3,9 +3,7 @@
 
 #include "ProgrammableCommon.hpp"
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 struct HLSL : ProgrammableCommon
@@ -42,7 +40,6 @@ private:
     std::string EmitTexGenSource4(TexGenSrc src, int uvIdx) const;
 };
 
-}
 }
 
 #endif // HECLBACKEND_HLSL_HPP

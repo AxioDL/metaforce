@@ -4,9 +4,9 @@
 #include "hecl.hpp"
 #include "Frontend.hpp"
 #include "Backend/Backend.hpp"
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <athena/DNA.hpp>
-#include <athena/FileReader.hpp>
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include "athena/DNA.hpp"
+#include "athena/FileReader.hpp"
 #include <unordered_map>
 
 namespace hecl
@@ -323,7 +323,7 @@ namespace std
 {
 template <> struct hash<hecl::Runtime::ShaderTag>
 {
-    size_t operator()(const hecl::Runtime::ShaderTag& val) const NOEXCEPT
+    size_t operator()(const hecl::Runtime::ShaderTag& val) const noexcept
     {return val.valSizeT();}
 };
 }

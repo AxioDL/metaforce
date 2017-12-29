@@ -47,7 +47,11 @@
 
 #ifdef PNG_SETJMP_SUPPORTED
    /* Required for the definition of jmp_buf and the declaration of longjmp: */
+#ifdef __cplusplus
+#  include <csetjmp>
+#else
 #  include <setjmp.h>
+#endif
 #endif
 
 #ifdef PNG_CONVERT_tIME_SUPPORTED

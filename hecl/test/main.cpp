@@ -4,17 +4,14 @@
 #include "hecl/Runtime.hpp"
 #include "hecl/HMDLMeta.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 
-namespace hecl
-{
-namespace Database
+namespace hecl::Database
 {
 std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
-}
 }
 
 struct HECLWindowCallback : boo::IWindowCallback

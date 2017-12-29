@@ -2,11 +2,9 @@
 #include "hecl/Runtime.hpp"
 #include <athena/MemoryReader.hpp>
 
-namespace hecl
+namespace hecl::Runtime
 {
-namespace Runtime
-{
-static logvisor::Module Log("HMDL");
+static logvisor::Module HMDL_Log("HMDL");
 
 HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx,
                    const void* metaData, const void* vbo, const void* ibo)
@@ -17,7 +15,7 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx,
         meta.read(r);
     }
     if (meta.magic != 'TACO')
-        Log.report(logvisor::Fatal, "invalid HMDL magic");
+        HMDL_Log.report(logvisor::Fatal, "invalid HMDL magic");
 
     m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
     m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);
@@ -101,5 +99,4 @@ boo::ObjToken<boo::IVertexFormat> ShaderTag::newVertexFormat(boo::IGraphicsDataF
     return ctx.newVertexFormat(elemCount, vdescs.get());
 }
 
-}
 }

@@ -8,13 +8,10 @@
 
 #include "hecl/Database.hpp"
 
-namespace hecl
-{
-namespace Database
+namespace hecl::Database
 {
 /* Centralized registry for DataSpec lookup */
 std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
-}
 }
 
 @HECL_DATASPEC_DECLS@

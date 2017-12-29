@@ -7,15 +7,15 @@
 #endif
 
 #include <clocale>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cstdarg>
 #include <signal.h>
 #include <regex>
 #include <list>
 #include "hecl/Database.hpp"
-#include "hecl/Blender/BlenderConnection.hpp"
+#include "hecl/Blender/Connection.hpp"
 #include "logvisor/logvisor.hpp"
 
 logvisor::Module LogModule("hecl::Driver");
@@ -24,11 +24,7 @@ logvisor::Module LogModule("hecl::Driver");
 #include "ToolInit.hpp"
 #include "ToolSpec.hpp"
 #include "ToolExtract.hpp"
-#include "ToolAdd.hpp"
-#include "ToolRemove.hpp"
-#include "ToolGroup.hpp"
 #include "ToolCook.hpp"
-#include "ToolClean.hpp"
 #include "ToolPackage.hpp"
 #include "ToolHelp.hpp"
 
@@ -58,7 +54,7 @@ static void printHelp(const hecl::SystemChar* pname)
 #elif HECL_VER
     hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
 #else
-    hecl::Printf(_S("\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
+    hecl::Printf(_S("\nUsage: %s extract|init|cook|package|help\n"), pname);
 #endif
 }
 
@@ -68,7 +64,7 @@ static const hecl::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMASc
 /* SIGINT will gracefully close blender connections and delete blends in progress */
 static void SIGINTHandler(int sig)
 {
-    hecl::BlenderConnection::Shutdown();
+    hecl::blender::Connection::Shutdown();
     exit(1);
 }
 
@@ -259,16 +255,8 @@ int main(int argc, const char** argv)
         tool.reset(new ToolSpec(info));
     else if (toolName == _S("extract"))
         tool.reset(new ToolExtract(info));
-    else if (toolName == _S("add"))
-        tool.reset(new ToolAdd(info));
-    else if (toolName == _S("remove") || toolName == _S("rm"))
-        tool.reset(new ToolRemove(info));
-    else if (toolName == _S("group"))
-        tool.reset(new ToolGroup(info));
     else if (toolName == _S("cook"))
         tool.reset(new ToolCook(info));
-    else if (toolName == _S("clean"))
-        tool.reset(new ToolClean(info));
     else if (toolName == _S("package") || toolName == _S("pack"))
         tool.reset(new ToolPackage(info));
     else if (toolName == _S("help"))
@@ -304,14 +292,14 @@ int main(int argc, const char** argv)
     int retval = tool->run();
     if (logvisor::ErrorCount > ErrorRef)
     {
-        hecl::BlenderConnection::Shutdown();
+        hecl::blender::Connection::Shutdown();
 #if WIN_PAUSE
         system("PAUSE");
 #endif
         return -1;
     }
 
-    hecl::BlenderConnection::Shutdown();
+    hecl::blender::Connection::Shutdown();
 #if WIN_PAUSE
     system("PAUSE");
 #endif

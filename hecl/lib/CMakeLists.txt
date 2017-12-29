@@ -39,6 +39,7 @@ add_library(hecl-common
             ../include/hecl/CVar.hpp
             ../include/hecl/CVarManager.hpp
             ../include/hecl/hecl.hpp
+            ../include/hecl/FourCC.hpp
             ../include/hecl/HMDLMeta.hpp
             ../include/hecl/Backend/Backend.hpp
             ../include/hecl/Backend/GX.hpp
@@ -46,7 +47,8 @@ add_library(hecl-common
             ../include/hecl/Backend/GLSL.hpp
             ../include/hecl/Backend/HLSL.hpp
             ../include/hecl/Backend/Metal.hpp
-            ../include/hecl/Blender/BlenderConnection.hpp
+        ../include/hecl/Blender/Connection.hpp
+        ../include/hecl/Blender/Token.hpp
             ../include/hecl/SteamFinder.hpp
             ../include/hecl/Frontend.hpp
             ../include/hecl/Database.hpp
@@ -66,6 +68,9 @@ add_library(hecl-common
             ${PLAT_SRCS})
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-common)
+endif()
+if(COMMAND cotire)
+  cotire(hecl-common)
 endif()
 
 if(WINDOWS_STORE)

@@ -20,7 +20,8 @@ int main(int argc, char** argv)
         fprintf(stderr, "Unable to open %s for writing\n", argv[2]);
         return 1;
     }
-    fprintf(fout, "#include <stdint.h>\n#include <stdlib.h>\nconst uint8_t %s[] =\n{\n", argv[3]);
+    fprintf(fout, "#include <cstdint>\n#include <cstddef>\n");
+    fprintf(fout, "extern \"C\" const uint8_t %s[] =\n{\n", argv[3]);
     size_t totalSz = 0;
     size_t readSz;
     uint8_t buf[32];
@@ -32,7 +33,7 @@ int main(int argc, char** argv)
             fprintf(fout, "0x%02X, ", buf[b]);
         fprintf(fout, "\n");
     }
-    fprintf(fout, "0x0};\nconst size_t %s_SZ = %zu;\n", argv[3], totalSz);
+    fprintf(fout, "0x0};\nextern \"C\" const size_t %s_SZ = %zu;\n", argv[3], totalSz);
     fclose(fin);
     fclose(fout);
     return 0;

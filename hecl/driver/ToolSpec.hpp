@@ -2,7 +2,7 @@
 #define CTOOL_SPEC
 
 #include "ToolBase.hpp"
-#include <stdio.h>
+#include <cstdio>
 #include <map>
 
 class ToolSpec final : public ToolBase

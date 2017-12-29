@@ -5,11 +5,9 @@
 #include <boo/graphicsdev/GL.hpp>
 #include <boo/graphicsdev/Vulkan.hpp>
 
-static logvisor::Module Log("hecl::Backend::GLSL");
+static logvisor::Module GLSL_Log("hecl::Backend::GLSL");
 
-namespace hecl
-{
-namespace Backend
+namespace hecl::Backend
 {
 
 std::string GLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
@@ -364,7 +362,8 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
 }
 
 }
-namespace Runtime
+
+namespace hecl::Runtime
 {
 
 static const char* STD_BLOCKNAMES[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
@@ -407,7 +406,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         cachedSz += fragSource.size() + 1;
 
         if (m_backend.m_texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+            GLSL_Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
 
         objOut =
         static_cast<boo::GLDataFactory::Context&>(ctx).
@@ -420,7 +419,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                   tag.getDepthWrite(), true, false,
                                   tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!objOut)
-            Log.report(logvisor::Fatal, "unable to build shader");
+            GLSL_Log.report(logvisor::Fatal, "unable to build shader");
 
         ShaderCachedData dataOut(tag, cachedSz);
         athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
@@ -448,7 +447,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
             return nullptr;
 
         if (texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+            GLSL_Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
 
         auto ret =
         static_cast<boo::GLDataFactory::Context&>(ctx).
@@ -460,7 +459,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                   tag.getDepthWrite(), true, false,
                                   tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
         if (!ret)
-            Log.report(logvisor::Fatal, "unable to build shader");
+            GLSL_Log.report(logvisor::Fatal, "unable to build shader");
         return ret;
     }
 
@@ -475,7 +474,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         size_t cachedSz = 3;
 
         if (m_backend.m_texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+            GLSL_Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
 
         std::vector<std::pair<std::string, std::string>> sources;
         sources.reserve(extensionSlots.size());
@@ -531,7 +530,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
                                       boo::CullMode(slot.cullMode));
             if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
+                GLSL_Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
         }
 
@@ -564,7 +563,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
             return false;
 
         if (texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
+            GLSL_Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
 
         for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
         {
@@ -614,7 +613,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
                                       boo::CullMode(slot.cullMode));
             if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
+                GLSL_Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
         }
 
@@ -926,5 +925,4 @@ IShaderBackendFactory* _NewSPIRVBackendFactory()
 
 #endif
 
-}
 }

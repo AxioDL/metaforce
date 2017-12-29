@@ -2,7 +2,7 @@
 #define CTOOL_INIT
 
 #include "ToolBase.hpp"
-#include <stdio.h>
+#include <cstdio>
 
 class ToolInit final : public ToolBase
 {

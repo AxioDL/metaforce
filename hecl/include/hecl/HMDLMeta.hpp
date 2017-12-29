@@ -1,8 +1,8 @@
 #ifndef HMDLMETA_HPP
 #define HMDLMETA_HPP
 
-#include <hecl/hecl.hpp>
-#include <athena/DNA.hpp>
+#include "hecl/hecl.hpp"
+#include "athena/DNA.hpp"
 
 namespace hecl
 {

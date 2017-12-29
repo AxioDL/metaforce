@@ -2,7 +2,7 @@
 #define CTOOL_EXTRACT
 
 #include "ToolBase.hpp"
-#include <stdio.h>
+#include <cstdio>
 
 #if _WIN32
 #include <conio.h>
