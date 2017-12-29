@@ -11,7 +11,7 @@
 #include "IMenuNode.hpp"
 #include "IViewManager.hpp"
 #include "optional.hpp"
-#include <boo/boo.hpp>
+#include "boo/boo.hpp"
 
 namespace specter
 {

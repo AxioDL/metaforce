@@ -5,7 +5,7 @@
 #include "specter/FontCache.hpp"
 #include "logvisor/logvisor.hpp"
 #include <athena/MemoryReader.hpp>
-#include <stdint.h>
+#include <cstdint>
 #include <zlib.h>
 
 #include FT_GZIP_H

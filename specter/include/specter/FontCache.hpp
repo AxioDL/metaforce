@@ -28,7 +28,7 @@ namespace std
 {
 template <> struct hash<specter::FontTag>
 {
-    size_t operator() (const specter::FontTag& handle) const NOEXCEPT
+    size_t operator() (const specter::FontTag& handle) const noexcept
     {return size_t(handle.hash());}
 };
 }
