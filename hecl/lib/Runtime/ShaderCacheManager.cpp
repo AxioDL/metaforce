@@ -8,6 +8,9 @@
 #include "hecl/Backend/GLSL.hpp"
 #include "hecl/Backend/Metal.hpp"
 
+#undef min
+#undef max
+
 namespace hecl::Runtime
 {
 #if BOO_HAS_GL

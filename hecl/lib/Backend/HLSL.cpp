@@ -347,7 +347,8 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
 }
 
 }
-namespace Runtime
+
+namespace hecl::Runtime
 {
 
 struct HLSLBackendFactory : IShaderBackendFactory

@@ -2,6 +2,9 @@
 #include <cmath>
 #include <cfloat>
 
+#undef min
+#undef max
+
 namespace hecl::blender
 {
 
