@@ -1,6 +1,9 @@
 #include "ProjectResourceFactoryBase.hpp"
 #include "Runtime/IObj.hpp"
 
+#undef min
+#undef max
+
 namespace urde
 {
 static logvisor::Module Log("urde::ProjectResourceFactoryBase");

@@ -69,8 +69,6 @@ elseif(UNIX)
   set(PLAT_SRCS mainicon_netwm.c)
 endif()
 
-set_source_files_properties(main.cpp PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
-
 add_executable(urde WIN32 MACOSX_BUNDLE
                main.cpp ${PLAT_SRCS}
                Space.hpp Space.cpp atdna_Space.cpp
@@ -84,6 +82,8 @@ add_executable(urde WIN32 MACOSX_BUNDLE
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp
                GameMode.hpp GameMode.cpp atdna_GameMode.cpp)
+
+set_target_properties(urde PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
 
 target_link_libraries(urde
                       UrdeLocales

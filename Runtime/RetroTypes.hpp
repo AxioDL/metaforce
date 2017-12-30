@@ -10,6 +10,9 @@
 #include "IOStreams.hpp"
 #include "hecl/hecl.hpp"
 
+#undef min
+#undef max
+
 using namespace std::literals;
 
 namespace urde

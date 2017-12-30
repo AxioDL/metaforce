@@ -70,13 +70,8 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
 
     if (!memcmp(gameID, "R3O", 3))
     {
-        unsigned int t = time(nullptr);
-#if _WIN32
-        rand_s(&t);
-        int r = t % MomErrCount;
-#else
-        int r = rand_r(&t) % MomErrCount;
-#endif
+        std::srand(std::time(0));
+        int r = std::rand() % MomErrCount;
         Log.report(logvisor::Fatal, MomErr[r]);
     }
 

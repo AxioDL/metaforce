@@ -3,6 +3,9 @@
 
 #include "IOStreams.hpp"
 
+#undef min
+#undef max
+
 namespace urde
 {
 
