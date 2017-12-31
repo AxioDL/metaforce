@@ -7,6 +7,8 @@
     URDE_CODESIGN_UID: VMFVV424V2
     URDE_DLPACKAGE: urde-$$CI_PIPELINE_ID-macos-x86_64-$$URDE_VECTOR_ISA
   script:
+    - echo "Vector ISA: $URDE_VECTOR_ISA"
+    - echo "DL Package: $URDE_DLPACKAGE"
     - mkdir build
     - cd build
     - >
