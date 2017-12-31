@@ -1,10 +1,62 @@
-job1:
+.build:macos: &macos_definition
   stage: build
+  tags:
+    - macos
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    URDE_CODESIGN_UID: VMFVV424V2
+    URDE_DLPACKAGE: urde-$$CI_PIPELINE_ID-macos-x86_64-$$URDE_VECTOR_ISA
   script:
-    - git submodule update --recursive --init
     - mkdir build
     - cd build
-    - cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-    - ninja
+    - cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DLLVM_ROOT_DIR=/opt/urde_llvm -DURDE_DLPACKAGE=$URDE_DLPACKAGE \
+      -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA ..
+    - ninja -j1
+    - cd Editor
+    - mkdir $CI_PROJECT_DIR/binaries
+    - cp -R urde.app $CI_PROJECT_DIR/binaries/URDE.app
+    - cd $CI_PROJECT_DIR/binaries
+    - codesign -s $URDE_CODESIGN_UID -v --deep URDE.app
   only:
     - release
+  artifacts:
+    name: "$URDE_DLPACKAGE"
+    paths:
+      - binaries/
+    expire_in: 1 week
+
+build:macos:sse3:
+  variables:
+    URDE_VECTOR_ISA: sse3
+  <<: *macos_definition
+
+build:macos:sse41:
+  variables:
+    URDE_VECTOR_ISA: sse41
+  <<: *macos_definition
+
+build:macos:avx:
+  variables:
+    URDE_VECTOR_ISA: avx
+  <<: *macos_definition
+
+build:macos:avx2:
+  variables:
+    URDE_VECTOR_ISA: avx2
+  <<: *macos_definition
+
+deploy:
+  stage: deploy
+  tags:
+    - server
+  script:
+    - cp /var/lib/gitlab/shared/artifacts/urde-$CI_PIPELINE_ID-macos*.zip /srv/releases/macos/
+    - cp /var/lib/gitlab/shared/artifacts/urde-$CI_PIPELINE_ID-linux*.zip /srv/releases/linux/
+    - cp /var/lib/gitlab/shared/artifacts/urde-$CI_PIPELINE_ID-win32*.zip /srv/releases/win32/
+    - cd /srv/releases/macos/
+    - ls -1 urde-$CI_PIPELINE_ID* > index.txt
+    - cd /srv/releases/linux/
+    - ls -1 urde-$CI_PIPELINE_ID* > index.txt
+    - cd /srv/releases/win32/
+    - ls -1 urde-$CI_PIPELINE_ID* > index.txt
