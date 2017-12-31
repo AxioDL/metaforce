@@ -4,7 +4,7 @@ job1:
     - git submodule update --recursive --init
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+    - cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
     - ninja
   only:
     - release
