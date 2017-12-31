@@ -121,6 +121,7 @@ if(COMMAND add_sanitizers)
   add_sanitizers(RuntimeCommon)
 endif()
 if(COMMAND cotire)
+  set_target_properties(RuntimeCommon PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
   cotire(RuntimeCommon)
 endif()
 

@@ -9,8 +9,6 @@
 #include "boo/ThreadLocalPtr.hpp"
 #include "zeus/CColor.hpp"
 
-namespace hecl { class BlenderToken; }
-
 namespace DataSpec
 {
 struct SpecBase;

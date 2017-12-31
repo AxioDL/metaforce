@@ -3,6 +3,9 @@ if(NOT CMAKE_CROSSCOMPILING)
 include_directories(${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_executable(packbadge packbadge.c)
 find_library(M_LIB m)
+if(NOT M_LIB)
+  unset(M_LIB CACHE)
+endif()
 target_link_libraries(packbadge ${PNG_LIB} ${ZLIB_LIBRARIES} ${M_LIB})
 
 ##################

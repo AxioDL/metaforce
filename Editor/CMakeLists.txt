@@ -100,7 +100,8 @@ if(COMMAND add_sanitizers)
   add_sanitizers(urde)
 endif()
 if(COMMAND cotire)
-  cotire(urde)
+    set_target_properties(urde PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    cotire(urde)
 endif()
 
 set_target_properties(urde PROPERTIES
