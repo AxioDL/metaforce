@@ -1,6 +1,7 @@
 job1:
   stage: build
   script:
+    - git submodule update --recursive --init
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
