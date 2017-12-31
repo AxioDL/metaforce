@@ -1,7 +1,8 @@
 if(NOT CMAKE_CROSSCOMPILING)
 include_directories(${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_executable(packicons packicons.c)
-target_link_libraries(packicons ${PNG_LIB} ${ZLIB_LIBRARIES})
+find_library(M_LIB m)
+target_link_libraries(packicons ${PNG_LIB} ${ZLIB_LIBRARIES} ${M_LIB})
 
 ##################
 # Package Export #
