@@ -2,6 +2,9 @@ if(NOT CMAKE_CROSSCOMPILING)
 include_directories(${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 add_executable(packicons packicons.c)
 find_library(M_LIB m)
+if(NOT M_LIB)
+  unset(M_LIB CACHE)
+endif()
 target_link_libraries(packicons ${PNG_LIB} ${ZLIB_LIBRARIES} ${M_LIB})
 
 ##################

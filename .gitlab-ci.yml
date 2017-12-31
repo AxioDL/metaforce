@@ -1,0 +1,9 @@
+job1:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+    - ninja
+  only:
+    - release
