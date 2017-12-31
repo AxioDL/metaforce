@@ -66,7 +66,7 @@ elseif(APPLE)
 elseif(UNIX)
   add_subdirectory(platforms/freedesktop)
   declare_wmicon_target()
-  set(PLAT_SRCS mainicon_netwm.c)
+  set(PLAT_SRCS mainicon_netwm.cpp)
 endif()
 
 add_executable(urde WIN32 MACOSX_BUNDLE
