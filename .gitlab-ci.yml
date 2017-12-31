@@ -9,8 +9,9 @@
   script:
     - mkdir build
     - cd build
-    - cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DLLVM_ROOT_DIR=/opt/urde-llvm -DURDE_DLPACKAGE=$URDE_DLPACKAGE \
+    - >
+      cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DLLVM_ROOT_DIR=/opt/urde-llvm -DURDE_DLPACKAGE=$URDE_DLPACKAGE
       -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA ..
     - ninja
     - cd Editor
