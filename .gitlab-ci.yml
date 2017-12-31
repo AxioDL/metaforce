@@ -2,7 +2,7 @@
   stage: build
   tags:
     - macos
-  variables:
+  variables: &macos_variables
     GIT_SUBMODULE_STRATEGY: recursive
     URDE_CODESIGN_UID: VMFVV424V2
     URDE_DLPACKAGE: urde-$$CI_PIPELINE_ID-macos-x86_64-$$URDE_VECTOR_ISA
@@ -32,21 +32,25 @@
 build:macos:sse3:
   variables:
     URDE_VECTOR_ISA: sse3
+    <<: *macos_variables
   <<: *macos_definition
 
 build:macos:sse41:
   variables:
     URDE_VECTOR_ISA: sse41
+    <<: *macos_variables
   <<: *macos_definition
 
 build:macos:avx:
   variables:
     URDE_VECTOR_ISA: avx
+    <<: *macos_variables
   <<: *macos_definition
 
 build:macos:avx2:
   variables:
     URDE_VECTOR_ISA: avx2
+    <<: *macos_variables
   <<: *macos_definition
 
 deploy:
