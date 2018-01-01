@@ -70,6 +70,7 @@ if(COMMAND add_sanitizers)
   add_sanitizers(hecl-common)
 endif()
 if(COMMAND cotire)
+  set_target_properties(hecl-common PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
   cotire(hecl-common)
 endif()
 

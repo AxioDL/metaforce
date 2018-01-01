@@ -28,6 +28,7 @@ target_link_libraries(hecl
     ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
 
 if(COMMAND cotire)
+  set_target_properties(hecl PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
   cotire(hecl)
 endif()
 endif()
