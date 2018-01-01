@@ -22,6 +22,9 @@
     - cd Editor
     - cp -R urde.app $CI_PROJECT_DIR/URDE.app
     - cd $CI_PROJECT_DIR
+    - strip -S -o URDE.app/Contents/MacOS/urde URDE.app/Contents/MacOS/urde
+    - strip -S -o URDE.app/Contents/MacOS/hecl URDE.app/Contents/MacOS/hecl
+    - strip -S -o URDE.app/Contents/MacOS/visigen URDE.app/Contents/MacOS/visigen
     - codesign -s $URDE_MACOS_CODESIGN_UID -v --deep URDE.app
   only:
     - release
@@ -71,10 +74,11 @@ build:macos:avx2:
       ..
     - ninja urde hecl visigen
     - cp Editor/urde $CI_PROJECT_DIR
+    - strip --strip-debug -o $CI_PROJECT_DIR/urde Editor/urde
     - rm -r $CI_PROJECT_DIR/hecl
-    - cp hecl/driver/hecl $CI_PROJECT_DIR
+    - strip --strip-debug -o $CI_PROJECT_DIR/hecl hecl/driver/hecl
     - rm -r $CI_PROJECT_DIR/visigen
-    - cp visigen/visigen $CI_PROJECT_DIR
+    - strip --strip-debug -o $CI_PROJECT_DIR/visigen visigen/visigen
   only:
     - release
   artifacts:
