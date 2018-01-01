@@ -115,6 +115,8 @@ build:linux:avx2:
 
 deploy:
   stage: deploy
+  only:
+    - release
   dependencies: []
   tags:
     - server
