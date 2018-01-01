@@ -1,10 +1,10 @@
 #include "AssetNameMap.hpp"
 #include "athena/MemoryReader.hpp"
 
-extern "C" uint8_t ASSET_NAME_MP32[];
-extern "C" uint32_t ASSET_NAME_MP32_SZ;
-extern "C" uint8_t ASSET_NAME_MP64[];
-extern "C" uint32_t ASSET_NAME_MP64_SZ;
+extern "C" const uint8_t ASSET_NAME_MP32[];
+extern "C" const size_t ASSET_NAME_MP32_SZ;
+extern "C" const uint8_t ASSET_NAME_MP64[];
+extern "C" const size_t ASSET_NAME_MP64_SZ;
 
 namespace DataSpec::AssetNameMap
 {

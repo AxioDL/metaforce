@@ -14,29 +14,13 @@
 #include "GuiSys/CHudThreatInterface.hpp"
 #include "GuiSys/CHudVisorBeamMenu.hpp"
 #include "Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "World/CHUDMemoParms.hpp"
 
 namespace urde
 {
 class CGuiFrame;
 class CStateManager;
 class CGuiLight;
-
-struct CHUDMemoParms
-{
-    float x0_alpha = 0.f;
-    bool x4_initializeMemo = false;
-    bool x5_hintDismissSound = false;
-    bool x6_hintMemo = false;
-    CHUDMemoParms() = default;
-    CHUDMemoParms(float alpha, bool initializeMemo, bool hintDismissSound, bool hintMemo)
-    : x0_alpha(alpha), x4_initializeMemo(initializeMemo),
-      x5_hintDismissSound(hintDismissSound), x6_hintMemo(hintMemo) {}
-    CHUDMemoParms(CInputStream& in)
-    {
-        x0_alpha = in.readFloatBig();
-        x4_initializeMemo = in.readBool();
-    }
-};
 
 enum class EHudState
 {
@@ -182,7 +166,7 @@ class CSamusHud
     CHUDMemoParms x548_hudMemoParms;
     TLockedToken<CStringTable> x550_hudMemoString;
     u32 x554_hudMemoIdx = 0;
-    float x558_messageTextAlpha = 0.f;
+    float x558_messageTextTime = 0.f;
     float x55c_lastSfxChars = 0.f;
     float x560_messageTextScale = 0.f;
     CSfxHandle x564_freeLookSfx;

@@ -1359,7 +1359,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     x5a0_base_model_abutton->SetColor(abuttonColor);
 
     if (!mgr.GetCameraManager()->IsInCinematicCamera() && oldAPulse < 0.f && x584_abuttonPulse >= 0.f &&
-        x598_base_basewidget_message->GetIsVisible() && (x558_messageTextAlpha == 0.f || x558_messageTextAlpha >= 1.f))
+        x598_base_basewidget_message->GetIsVisible() && (x558_messageTextTime == 0.f || x558_messageTextTime >= 1.f))
     {
         CSfxManager::SfxStart(1442, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1371,8 +1371,8 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         allTextAlpha = 1.f;
 
     float messageTextAlpha = 1.f;
-    if (x558_messageTextAlpha > 0.f)
-        messageTextAlpha = std::min(x558_messageTextAlpha, 1.f);
+    if (x558_messageTextTime > 0.f)
+        messageTextAlpha = std::min(x558_messageTextTime, 1.f);
     else if (!x59c_base_textpane_message->GetIsVisible() && !x598_base_basewidget_message->GetIsVisible())
         messageTextAlpha = 0.f;
 
@@ -1385,10 +1385,10 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         x550_hudMemoString = TLockedToken<CStringTable>();
     }
 
-    if (x558_messageTextAlpha > 0.f)
+    if (x558_messageTextTime > 0.f)
     {
-        x558_messageTextAlpha = std::max(0.f, x558_messageTextAlpha - dt);
-        if (x558_messageTextAlpha == 0.f)
+        x558_messageTextTime = std::max(0.f, x558_messageTextTime - dt);
+        if (x558_messageTextTime == 0.f)
         {
             x59c_base_textpane_message->TextSupport().SetTypeWriteEffectOptions(false, 0.f, 1.f);
             x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);
@@ -1408,8 +1408,8 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
 
     if (messageWidget == x598_base_basewidget_message)
     {
-        if (x558_messageTextAlpha > 0.f)
-            x560_messageTextScale = std::min(x558_messageTextAlpha, 1.f);
+        if (x558_messageTextTime > 0.f)
+            x560_messageTextScale = std::min(x558_messageTextTime, 1.f);
         else
             x560_messageTextScale = std::min(x560_messageTextScale + dt, 1.f);
 
@@ -1447,7 +1447,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         x594_base_textpane_counter->SetIsVisible(true);
 
         zeus::CColor counterColor = zeus::CColor::skWhite;
-        counterColor.a = zeus::clamp(0.f, std::min(1.f - std::min(x558_messageTextAlpha, 1.f), allTextAlpha), 1.f);
+        counterColor.a = zeus::clamp(0.f, std::min(1.f - std::min(x558_messageTextTime, 1.f), allTextAlpha), 1.f);
         x594_base_textpane_counter->SetColor(counterColor);
     }
     else
@@ -1780,21 +1780,21 @@ zeus::CTransform CSamusHud::BuildFinalCameraTransform(const zeus::CQuaternion& r
 void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info)
 {
     bool isWidgetVisible = x598_base_basewidget_message->GetIsVisible();
-    if (!isWidgetVisible || info.x6_hintMemo)
+    if (!isWidgetVisible || info.IsHintMemo())
     {
-        if (info.x5_hintDismissSound)
+        if (info.IsFadeOutOnly())
         {
-            if (!info.x6_hintMemo || !isWidgetVisible)
+            if (!info.IsHintMemo() || !isWidgetVisible)
                 return;
             CSfxManager::SfxStart(1449, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             return;
         }
         x598_base_basewidget_message->SetColor(zeus::CColor::skWhite);
         x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);
-        CGuiWidget* pane = info.x6_hintMemo ? x598_base_basewidget_message : x59c_base_textpane_message;
+        CGuiWidget* pane = info.IsHintMemo() ? x598_base_basewidget_message : x59c_base_textpane_message;
         pane->SetVisibility(true, ETraversalMode::Children);
         x59c_base_textpane_message->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 40.f);
-        if (info.x4_initializeMemo)
+        if (info.IsClearMemoWindow())
         {
             x55c_lastSfxChars = 0.f;
             x59c_base_textpane_message->TextSupport().SetCurTime(0.f);
@@ -1812,8 +1812,8 @@ void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info)
 
         x59c_base_textpane_message->SetColor(zeus::CColor::skWhite);
         x598_base_basewidget_message->SetColor(zeus::CColor::skWhite);
-        x558_messageTextAlpha = info.x0_alpha;
-        if (info.x6_hintMemo)
+        x558_messageTextTime = info.GetDisplayTime();
+        if (info.IsHintMemo())
         {
             if (!isWidgetVisible)
             {
