@@ -37,26 +37,81 @@ build:macos:sse3:
     <<: *build_variables
     URDE_VECTOR_ISA: sse3
 
-#build:macos:sse41:
-#  <<: *macos_definition
-#  variables:
-#    <<: *build_variables
-#    URDE_VECTOR_ISA: sse41
+build:macos:sse41:
+  <<: *macos_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: sse41
 
-#build:macos:avx:
-#  <<: *macos_definition
-#  variables:
-#    <<: *build_variables
-#    URDE_VECTOR_ISA: avx
+build:macos:avx:
+  <<: *macos_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: avx
 
-#build:macos:avx2:
-#  <<: *macos_definition
-#  variables:
-#    <<: *build_variables
-#    URDE_VECTOR_ISA: avx2
+build:macos:avx2:
+  <<: *macos_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: avx2
+
+.build:linux: &linux_definition
+  stage: build
+  tags:
+    - linux
+  script:
+    - mkdir build
+    - cd build
+    - >
+      cmake
+      -GNinja
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DURDE_DLPACKAGE=urde-$CI_PIPELINE_ID-linux-x86_64-$URDE_VECTOR_ISA
+      -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
+      ..
+    - ninja urde hecl visigen
+    - cp Editor/urde $CI_PROJECT_DIR
+    - rm -r $CI_PROJECT_DIR/hecl
+    - cp hecl/driver/hecl $CI_PROJECT_DIR
+    - rm -r $CI_PROJECT_DIR/visigen
+    - cp visigen/visigen $CI_PROJECT_DIR
+  only:
+    - release
+  artifacts:
+    name: "urde-$CI_PIPELINE_ID-linux-x86_64-$URDE_VECTOR_ISA"
+    paths:
+      - urde
+      - hecl
+      - visigen
+    expire_in: 1 week
+
+build:linux:sse3:
+  <<: *linux_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: sse3
+
+build:linux:sse41:
+  <<: *linux_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: sse41
+
+build:linux:avx:
+  <<: *linux_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: avx
+
+build:linux:avx2:
+  <<: *linux_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: avx2
 
 deploy:
   stage: deploy
+  dependencies: []
   tags:
     - server
   script:
