@@ -29,7 +29,7 @@
     name: "urde-$CI_PIPELINE_ID-macos-x86_64-$URDE_VECTOR_ISA"
     paths:
       - URDE.app/
-    expire_in: 1 day
+    expire_in: 1 week
 
 build:macos:sse3:
   <<: *macos_definition
@@ -37,27 +37,27 @@ build:macos:sse3:
     <<: *build_variables
     URDE_VECTOR_ISA: sse3
 
-build:macos:sse41:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: sse41
+#build:macos:sse41:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: sse41
 
-build:macos:avx:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: avx
+#build:macos:avx:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: avx
 
-build:macos:avx2:
-  <<: *macos_definition
-  variables:
-    <<: *build_variables
-    URDE_VECTOR_ISA: avx2
+#build:macos:avx2:
+#  <<: *macos_definition
+#  variables:
+#    <<: *build_variables
+#    URDE_VECTOR_ISA: avx2
 
 deploy:
   stage: deploy
   tags:
     - server
   script:
-    - python3 deploy_urde.py $CI_JOB_TOKEN $CI_PIPELINE_ID
+    - python3 /var/lib/gitlab-runner/deploy_urde.py $CI_PIPELINE_ID

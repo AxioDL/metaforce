@@ -41,7 +41,11 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
         GIT_BRANCH[0]      != '\0')
     {
         m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s",
+#ifdef URDE_DLPACKAGE
+                                      vm.translateOr("release", "Release").data(), URDE_DLPACKAGE,
+#else
                                       vm.translateOr("branch", "Branch").data(), GIT_BRANCH,
+#endif
                                       vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
                                       vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
     }
