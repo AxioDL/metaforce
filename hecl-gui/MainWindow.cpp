@@ -36,8 +36,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_updateURDEButton->setPalette(pal);
     connect(m_updateURDEButton, SIGNAL(clicked()), this, SLOT(onUpdateURDEPressed()));
 
-    setPath(m_settings.value(QStringLiteral("working_dir")).toString());
-
     m_dlManager.connectWidgets(m_ui->downloadProgressBar, m_ui->downloadErrorLabel,
                                std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
                                std::bind(&MainWindow::onBinaryDownloaded, this, std::placeholders::_1),
@@ -46,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     initSlots();
 
     m_dlManager.fetchIndex();
+
+    setPath(m_settings.value(QStringLiteral("working_dir")).toString());
 }
 
 MainWindow::~MainWindow()
@@ -797,7 +797,11 @@ bool MainWindow::checkDownloadedBinary()
     m_heclPath = QString();
 
     if (m_path.isEmpty())
+    {
+        m_ui->heclTabs->setCurrentIndex(1);
+        m_ui->downloadErrorLabel->setText(QStringLiteral("Set working directory to continue."), true);
         return false;
+    }
 
 #if __APPLE__
     QString urdePath = m_path + "/URDE.app/Contents/MacOS/urde";

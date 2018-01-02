@@ -2,6 +2,10 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 #include <QHeaderView>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QProcess>
 
 #if _WIN32
 #include <Windows.h>
@@ -37,6 +41,26 @@ static QString GetWindowsVersionString()
 SysReqTableModel::SysReqTableModel(QObject* parent)
 : QAbstractTableModel(parent)
 {
+#ifdef __linux__
+    QProcess lscpuProc;
+    lscpuProc.start("lscpu", {"-J"}, QProcess::ReadOnly);
+    lscpuProc.waitForFinished();
+    QJsonDocument lscpu = QJsonDocument::fromJson(lscpuProc.readAll());
+    QJsonValue lscpuObj = lscpu.object().take("lscpu");
+    if (lscpuObj.type() == QJsonValue::Array)
+    {
+        for (const QJsonValue& v: lscpuObj.toArray())
+        {
+            QJsonObject vObj = v.toObject();
+            if (vObj.take("field").toString() == "CPU MHz:")
+            {
+                double speed = vObj.take("data").toString().toDouble();
+                m_cpuSpeed = speed;
+                m_cpuSpeedStr.sprintf("%g GHz", speed / 1000.0);
+            }
+        }
+    }
+#else
     int regs[4] = {};
     zeus::getCpuInfo(0, regs);
     if (regs[0] >= 0x16)
@@ -45,6 +69,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
         m_cpuSpeed = uint64_t(regs[0]);
     }
     m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.f);
+#endif
 #if _WIN32
     ULONGLONG memSize;
     GetPhysicallyInstalledSystemMemory(&memSize);
@@ -62,6 +87,8 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
 #elif _WIN32
     m_win7SP1OrGreater = IsWindows7SP1OrGreater();
     m_osVersion = GetWindowsVersionString();
+#elif __linux__
+    m_osVersion = QStringLiteral("Linux");
 #endif
 }
 
@@ -124,6 +151,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
                 return QStringLiteral("macOS 10.9");
 #elif defined(_WIN32)
                 return QStringLiteral("Windows 7 SP1");
+#elif defined(__linux__)
+                return QStringLiteral("Linux");
 #else
                 return {};
 #endif

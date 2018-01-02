@@ -27,7 +27,7 @@ list(APPEND PLAT_SRCS mainicon_qt.cpp)
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     MainWindow.ui MainWindow.hpp MainWindow.cpp
-    FileDirDialog.hpp
+    FileDirDialog.hpp ErrorLabel.hpp
     SysReqTableView.hpp SysReqTableView.cpp
     VectorISATableView.hpp VectorISATableView.cpp
     VectorISATableModel.hpp VectorISATableModelIntel.hpp

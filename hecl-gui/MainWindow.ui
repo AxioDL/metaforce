@@ -88,7 +88,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Working Directory:</string>
+         <string>Wor&amp;king Directory:</string>
         </property>
         <property name="buddy">
          <cstring>pathEdit</cstring>
@@ -135,7 +135,7 @@
     <item row="1" column="0" colspan="5">
      <widget class="QTabWidget" name="heclTabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="dataTab">
        <attribute name="title">
