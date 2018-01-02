@@ -129,12 +129,12 @@ build:linux:avx2:
       -DURDE_VECTOR_ISA=%URDE_VECTOR_ISA%
       ..
     - ninja urde hecl visigen
-    - copy Editor\urde.exe %CI_PROJECT_DIR%\urde.exe
-    - pdbcopy Editor\urde.pdb %CI_PROJECT_DIR%\urde.pdb -p
-    - copy hecl\driver\hecl.exe %CI_PROJECT_DIR%\hecl.exe
-    - pdbcopy hecl\driver\hecl.pdb %CI_PROJECT_DIR%\hecl.pdb -p
-    - copy visigen\visigen.exe %CI_PROJECT_DIR%\visigen.exe
-    - pdbcopy visigen\visigen.pdb %CI_PROJECT_DIR%\visigen.pdb -p
+    - 'copy Editor\urde.exe "%CI_PROJECT_DIR%\urde.exe"'
+    - 'pdbcopy Editor\urde.pdb "%CI_PROJECT_DIR%\urde.pdb" -p'
+    - 'copy hecl\driver\hecl.exe "%CI_PROJECT_DIR%\hecl.exe"'
+    - 'pdbcopy hecl\driver\hecl.pdb "%CI_PROJECT_DIR%\hecl.pdb" -p'
+    - 'copy visigen\visigen.exe "%CI_PROJECT_DIR%\visigen.exe"'
+    - 'pdbcopy visigen\visigen.pdb "%CI_PROJECT_DIR%\visigen.pdb" -p'
   only:
     - release
   artifacts:
