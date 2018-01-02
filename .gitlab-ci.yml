@@ -124,6 +124,7 @@ build:linux:avx2:
     - >
       cmake
       -GNinja
+      -DCMAKE_MAKE_PROGRAM=C:\Gitlab-Runner\ninja.exe
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
       -DURDE_DLPACKAGE=urde-%CI_PIPELINE_ID%-win32-x86_64-%URDE_VECTOR_ISA%
       -DURDE_VECTOR_ISA=%URDE_VECTOR_ISA%
