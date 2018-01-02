@@ -90,6 +90,12 @@ int wmain(int argc, const wchar_t** argv)
 int main(int argc, const char** argv)
 #endif
 {
+    if (argc > 1 && !hecl::StrCmp(argv[1], _S("--dlpackage")))
+    {
+        printf("%s\n", HECL_DLPACKAGE);
+        return 100;
+    }
+
 #if _WIN32
     CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
 #else

@@ -27,6 +27,8 @@ target_link_libraries(hecl
     logvisor athena-libyaml ${PNG_LIB} squish xxhash zeus boo
     ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
 
+set_target_properties(hecl PROPERTIES COMPILE_DEFINITIONS HECL_DLPACKAGE="${HECL_DLPACKAGE}")
+
 if(COMMAND cotire)
   set_target_properties(hecl PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
   cotire(hecl)
