@@ -8,6 +8,11 @@
 #include <QTextCursor>
 #include "FileDirDialog.hpp"
 
+#if _WIN32
+#include <Windows.h>
+#include <shellapi.h>
+#endif
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
