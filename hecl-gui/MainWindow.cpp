@@ -818,6 +818,7 @@ bool MainWindow::checkDownloadedBinary()
 #endif
     urdePath = QFileInfo(urdePath).absoluteFilePath();
     heclPath = QFileInfo(heclPath).absoluteFilePath();
+    visigenPath = QFileInfo(visigenPath).absoluteFilePath();
 
     QString urdeDlPackage, heclDlPackage, visigenDlPackage;
     if (GetDLPackage(urdePath, urdeDlPackage) &&
