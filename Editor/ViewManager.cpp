@@ -22,6 +22,8 @@
 
 using YAMLNode = athena::io::YAMLNode;
 
+extern hecl::SystemString ExeDir;
+
 namespace urde
 {
 
@@ -226,6 +228,19 @@ void ViewManager::init(boo::IApplication* app)
             m_noShaderWarmup = true;
         else if (arg == _S("--no-sound"))
             m_voiceEngine->setVolume(0.f);
+    }
+
+    if (m_deferedProject.empty())
+    {
+        /* Default behavior - search upwards for packaged project containing the program */
+        if (hecl::ProjectRootPath root = hecl::SearchForProject(ExeDir))
+        {
+            hecl::SystemString rootPath(root.getAbsolutePath());
+            hecl::Sstat theStat;
+            if (!hecl::Stat((rootPath + _S("/out/MP1/!original_ids.upak")).c_str(), &theStat) &&
+                S_ISREG(theStat.st_mode))
+                m_deferedProject = rootPath + _S("/out");
+        }
     }
 }
 

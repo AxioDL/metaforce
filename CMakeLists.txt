@@ -130,6 +130,8 @@ if(USE_LD_GOLD AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_
     endif()
 endif()
 
+set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
+
 set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/boo/include)
 set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/include
                      ${CMAKE_CURRENT_SOURCE_DIR}/hecl/blender)

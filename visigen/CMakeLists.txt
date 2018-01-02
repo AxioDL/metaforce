@@ -24,5 +24,9 @@ endif()
 add_executable(visigen ${PLAT_SRCS}
                VISIRenderer.cpp VISIRenderer.hpp
                VISIBuilder.cpp VISIBuilder.hpp)
-target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS})
+
+set_target_properties(visigen PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
+
+target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew
+                      xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS})
 endif()
