@@ -145,6 +145,9 @@ void DownloadManager::binaryError(QNetworkReply::NetworkError error)
 
     if (m_progBar)
         m_progBar->setEnabled(false);
+
+    if (m_failedHandler)
+        m_failedHandler(m_outPath);
 }
 
 void DownloadManager::binaryValidateCert()

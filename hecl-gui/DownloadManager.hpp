@@ -19,6 +19,7 @@ class DownloadManager : public QObject
     QLabel* m_errorLabel = nullptr;
     std::function<void(const QStringList& index)> m_indexCompletionHandler;
     std::function<void(const QString& file)> m_completionHandler;
+    std::function<void(const QString& file)> m_failedHandler;
 
     void resetError()
     {
@@ -43,12 +44,14 @@ public:
     : QObject(parent), m_netManager(this) {}
     void connectWidgets(QProgressBar* progBar, QLabel* errorLabel,
                         std::function<void(const QStringList& index)>&& indexCompletionHandler,
-                        std::function<void(const QString& file)>&& completionHandler)
+                        std::function<void(const QString& file)>&& completionHandler,
+                        std::function<void(const QString& file)>&& failedHandler)
     {
         m_progBar = progBar;
         m_errorLabel = errorLabel;
         m_indexCompletionHandler = std::move(indexCompletionHandler);
         m_completionHandler = std::move(completionHandler);
+        m_failedHandler = std::move(failedHandler);
     }
     void fetchIndex();
     void fetchBinary(const QString& str, const QString& outPath);

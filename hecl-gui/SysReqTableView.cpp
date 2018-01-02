@@ -91,7 +91,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
         case 1:
             return m_cpuSpeed >= 1500;
         case 2:
-            return m_memorySize >= 0x100000000;
+            return m_memorySize >= 0xC0000000;
         case 3:
 #ifdef __APPLE__
             return m_macosMajor > 10 || m_macosMinor >= 9;
@@ -118,7 +118,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             case 1:
                 return QStringLiteral("1.5 GHz");
             case 2:
-                return QStringLiteral("4 GB");
+                return QStringLiteral("3 GB");
             case 3:
 #ifdef __APPLE__
                 return QStringLiteral("macOS 10.9");
