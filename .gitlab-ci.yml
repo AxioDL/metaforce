@@ -118,7 +118,6 @@ build:linux:avx2:
   tags:
     - win32
   script:
-    - 'set PATH=%PATH%;"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64"'
     - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64'
     - mkdir build
     - cd build
