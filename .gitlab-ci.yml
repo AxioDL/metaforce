@@ -112,6 +112,66 @@ build:linux:avx2:
   variables:
     <<: *build_variables
     URDE_VECTOR_ISA: avx2
+    
+.build:win32: &win32_definition
+  stage: build
+  tags:
+    - win32
+  script:
+    - set PATH=%PATH%;"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64"
+    - "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+    - mkdir build
+    - cd build
+    - >
+      cmake
+      -GNinja
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DURDE_DLPACKAGE=urde-%CI_PIPELINE_ID%-win32-x86_64-%URDE_VECTOR_ISA%
+      -DURDE_VECTOR_ISA=%URDE_VECTOR_ISA%
+      ..
+    - ninja urde hecl visigen
+    - cp Editor\urde.exe %CI_PROJECT_DIR%\urde.exe
+    - pdbcopy Editor\urde.pdb %CI_PROJECT_DIR%\urde.pdb -p
+    - cp hecl\driver\hecl.exe %CI_PROJECT_DIR%\hecl.exe
+    - pdbcopy hecl\driver\hecl.pdb %CI_PROJECT_DIR%\hecl.pdb -p
+    - cp visigen\visigen.exe %CI_PROJECT_DIR%\visigen.exe
+    - pdbcopy visigen\visigen.pdb %CI_PROJECT_DIR%\visigen.pdb -p
+  only:
+    - release
+  artifacts:
+    name: "urde-$CI_PIPELINE_ID-win32-x86_64-$URDE_VECTOR_ISA"
+    paths:
+      - urde.exe
+      - urde.pdb
+      - hecl.exe
+      - hecl.pdb
+      - visigen.exe
+      - visigen.pdb
+    expire_in: 1 week
+
+build:win32:sse2:
+  <<: *win32_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: sse2
+
+build:win32:sse41:
+  <<: *win32_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: sse41
+
+build:win32:avx:
+  <<: *win32_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: avx
+
+build:win32:avx2:
+  <<: *win32_definition
+  variables:
+    <<: *build_variables
+    URDE_VECTOR_ISA: avx2
 
 deploy:
   stage: deploy

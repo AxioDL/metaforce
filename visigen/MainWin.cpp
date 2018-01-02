@@ -50,7 +50,7 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 int wmain(int argc, const hecl::SystemChar** argv)
 {
-    if (argc > 1 && !_wcscmp(argv[1], L"--dlpackage"))
+    if (argc > 1 && !wcscmp(argv[1], L"--dlpackage"))
     {
         printf("%s\n", URDE_DLPACKAGE);
         return 100;
