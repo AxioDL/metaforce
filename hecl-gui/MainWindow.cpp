@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 #include <QFontDatabase>
+#include <QMessageBox>
 #include "EscapeSequenceParser.hpp"
 #include "FileDirDialog.hpp"
 
@@ -18,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->heclTabs->setCurrentIndex(0);
-    m_ui->splitter->setSizes({0,100});
 
     m_ui->aboutIcon->setPixmap(QApplication::windowIcon().pixmap(256, 256));
 
@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->recommendedBinaryLabel->setFont(mFont);
     mFont.setPointSize(10);
     m_ui->processOutput->setFont(mFont);
+    m_cursor = QTextCursor(m_ui->processOutput->document());
 
     m_updateURDEButton = new QPushButton(QStringLiteral("Update URDE"), m_ui->centralwidget);
     m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
@@ -60,15 +61,20 @@ void MainWindow::onExtract()
 {
     if (m_path.isEmpty())
         return;
-    QString imgPath = QFileDialog::getOpenFileName(this, QStringLiteral("Extract Image"), {},
+    QString imgPath = QFileDialog::getOpenFileName(this, QStringLiteral("Extract Image"), m_path,
                                                    QStringLiteral("Images (*.iso *.wbfs *.gcm)"));
-    m_ansiString.clear();
+    if (imgPath.isEmpty())
+        return;
+
     m_ui->processOutput->clear();
     m_heclProc.close();
     m_heclProc.terminate();
     m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     m_heclProc.setWorkingDirectory(m_path);
-    m_heclProc.start(m_heclPath, {"extract", "-y", imgPath, m_path});
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("TERM", "xterm-color");
+    m_heclProc.setProcessEnvironment(env);
+    m_heclProc.start(m_heclPath, {"extract", "-y", "-o", m_path, imgPath});
 
     m_ui->heclTabs->setCurrentIndex(0);
 
@@ -93,12 +99,14 @@ void MainWindow::onPackage()
 {
     if (m_path.isEmpty())
         return;
-    m_ansiString.clear();
     m_ui->processOutput->clear();
     m_heclProc.close();
     m_heclProc.terminate();
     m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     m_heclProc.setWorkingDirectory(m_path);
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("TERM", "xterm-color");
+    m_heclProc.setProcessEnvironment(env);
     m_heclProc.start(m_heclPath, {"package", "-y"});
 
     m_ui->heclTabs->setCurrentIndex(0);
@@ -124,12 +132,14 @@ void MainWindow::onLaunch()
 {
     if (m_path.isEmpty())
         return;
-    m_ansiString.clear();
     m_ui->processOutput->clear();
     m_heclProc.close();
     m_heclProc.terminate();
     m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     m_heclProc.setWorkingDirectory(m_path);
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("TERM", "xterm-color");
+    m_heclProc.setProcessEnvironment(env);
     m_heclProc.start(m_urdePath, {"--no-shader-warmup", m_path + "/out"});
 
     m_ui->heclTabs->setCurrentIndex(0);
@@ -148,6 +158,8 @@ void MainWindow::onLaunchFinished(int returnCode)
 void MainWindow::doHECLTerminate()
 {
     m_heclProc.terminate();
+    m_cursor.movePosition(QTextCursor::End);
+    m_cursor.insertText("\n");
 }
 
 void MainWindow::onReturnPressed()
@@ -235,13 +247,21 @@ void MainWindow::disableOperations()
     m_ui->extractBtn->setEnabled(false);
     m_ui->packageBtn->setEnabled(false);
     m_ui->launchBtn->setEnabled(false);
+    m_ui->pathEdit->setEnabled(false);
+    m_ui->browseBtn->setEnabled(false);
+    m_ui->downloadButton->setEnabled(false);
 }
 
 void MainWindow::enableOperations()
 {
     disableOperations();
+    m_ui->pathEdit->setEnabled(true);
+    m_ui->browseBtn->setEnabled(true);
+
     if (m_path.isEmpty())
         return;
+
+    m_ui->downloadButton->setEnabled(true);
 
     m_ui->extractBtn->setText(QStringLiteral("Extract"));
     m_ui->packageBtn->setText(QStringLiteral("Package"));
@@ -348,10 +368,29 @@ bool MainWindow::checkDownloadedBinary()
 
 void MainWindow::setPath(const QString& path)
 {
-    m_path = path;
+    QFileInfo finfo(path);
+    QString usePath = finfo.absoluteFilePath();
+    if (!finfo.exists())
+    {
+        if (QMessageBox::question(this, QStringLiteral("Make Directory"),
+            QStringLiteral("%1 does not exist. Create it now?").arg(usePath)) == QMessageBox::Yes)
+            QDir().mkpath(usePath);
+        else
+            usePath = QString();
+    }
+
+    if (!usePath.isEmpty() && !finfo.isDir())
+    {
+        QMessageBox::warning(this, QStringLiteral("Directory Error"),
+                              QStringLiteral("%1 is not a directory").arg(usePath),
+                             QMessageBox::Ok, QMessageBox::NoButton);
+        usePath = QString();
+    }
+
+    m_path = usePath;
     m_settings.setValue(QStringLiteral("working_dir"), m_path);
 
-    if (!path.isEmpty())
+    if (!m_path.isEmpty())
     {
         m_ui->pathEdit->setText(m_path);
         m_ui->downloadButton->setToolTip(QString());
@@ -373,8 +412,7 @@ void MainWindow::initSlots()
     m_heclProc.setEnvironment(QProcessEnvironment::systemEnvironment().toStringList() + QStringList("ConEmuANSI=ON"));
 #endif
     connect(&m_heclProc, &QProcess::readyRead, [=](){
-        m_ansiString = m_heclProc.readAll();
-        setTextTermFormatting(m_ansiString);
+        setTextTermFormatting(m_heclProc.readAll());
         m_ui->processOutput->ensureCursorVisible();
     });
 
@@ -384,15 +422,15 @@ void MainWindow::initSlots()
 
     connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
         FileDirDialog dialog(this);
+        dialog.setDirectory(m_path);
         dialog.setWindowTitle("Select Working Directory");
-        int res = dialog.exec();//QFileDialog::getOpenFileName(this, "Select ISO or Directory");
+        int res = dialog.exec();
         if (res == QFileDialog::Rejected)
             return;
 
         if (dialog.selectedFiles().size() <= 0)
             return;
 
-        /* TODO: Add beacon detection */
         setPath(dialog.selectedFiles().at(0));
     });
 
@@ -401,32 +439,74 @@ void MainWindow::initSlots()
 
 static void ReturnInsert(QTextCursor& cur, const QString& text)
 {
-    QStringList list = text.split('\r');
-    if (!list.front().isEmpty())
-        cur.insertText(list.front());
-    if (list.size() > 1)
+    auto DoLine = [&](const QString& line)
     {
-        for (auto it = list.begin() + 1; it != list.end(); ++it)
+        auto DoReturn = [&](const QString& ret)
         {
-            cur.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-            if (!it->isEmpty())
-                cur.insertText(*it);
+            if (!ret.isEmpty())
+            {
+                cur.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ret.size());
+                cur.insertText(ret);
+            }
+        };
+        QStringList list = line.split('\r');
+        DoReturn(list.front());
+        if (list.size() > 1)
+        {
+            for (auto it = list.begin() + 1; it != list.end(); ++it)
+            {
+                cur.movePosition(QTextCursor::StartOfLine);
+                DoReturn(*it);
+            }
+        }
+    };
+
+    QStringList lineSplit = text.split('\n');
+    DoLine(lineSplit.front());
+    if (lineSplit.size() > 1)
+    {
+        for (auto it = lineSplit.begin() + 1; it != lineSplit.end(); ++it)
+        {
+            cur.movePosition(QTextCursor::EndOfLine);
+            cur.insertText("\n");
+            DoLine(*it);
         }
     }
 }
 
 static void ReturnInsert(QTextCursor& cur, const QString& text, const QTextCharFormat& format)
 {
-    QStringList list = text.split('\r');
-    if (!list.front().isEmpty())
-        cur.insertText(list.front(), format);
-    if (list.size() > 1)
+    auto DoLine = [&](const QString& line)
     {
-        for (auto it = list.begin() + 1; it != list.end(); ++it)
+        auto DoReturn = [&](const QString& ret)
         {
-            cur.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-            if (!it->isEmpty())
-                cur.insertText(*it, format);
+            if (!ret.isEmpty())
+            {
+                cur.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ret.size());
+                cur.insertText(ret, format);
+            }
+        };
+        QStringList list = line.split('\r');
+        DoReturn(list.front());
+        if (list.size() > 1)
+        {
+            for (auto it = list.begin() + 1; it != list.end(); ++it)
+            {
+                cur.movePosition(QTextCursor::StartOfLine);
+                DoReturn(*it);
+            }
+        }
+    };
+
+    QStringList lineSplit = text.split('\n');
+    DoLine(lineSplit.front());
+    if (lineSplit.size() > 1)
+    {
+        for (auto it = lineSplit.begin() + 1; it != lineSplit.end(); ++it)
+        {
+            cur.movePosition(QTextCursor::EndOfLine);
+            cur.insertText("\n", format);
+            DoLine(*it);
         }
     }
 }
@@ -435,36 +515,32 @@ void MainWindow::setTextTermFormatting(const QString& text)
 {
     m_inContinueNote = false;
 
-    QTextDocument* document = m_ui->processOutput->document();
-    QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;]+)m)");
-    QTextCursor cursor(document);
-    cursor.movePosition(QTextCursor::End);
-    QTextCharFormat defaultTextCharFormat = cursor.charFormat();
-    cursor.beginEditBlock();
+    QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;\?]+)([mlh]))");
+    QTextCharFormat defaultTextCharFormat = m_cursor.charFormat();
     int offset = escapeSequenceExpression.indexIn(text);
-    ReturnInsert(cursor, text.mid(0, offset));
+    ReturnInsert(m_cursor, text.mid(0, offset));
     QTextCharFormat textCharFormat = defaultTextCharFormat;
-    while (!(offset < 0)) {
+    while (offset >= 0) {
         int previousOffset = offset + escapeSequenceExpression.matchedLength();
-        QStringList capturedTexts = escapeSequenceExpression.capturedTexts().back().split(';');
-        QListIterator< QString > i(capturedTexts);
-        while (i.hasNext()) {
-            bool ok = false;
-            int attribute = i.next().toInt(&ok);
-            Q_ASSERT(ok);
-            ParseEscapeSequence(attribute, i, textCharFormat, defaultTextCharFormat);
+        if (escapeSequenceExpression.capturedTexts()[2] == "m")
+        {
+            QStringList capturedTexts = escapeSequenceExpression.capturedTexts()[1].split(';');
+            QListIterator<QString> i(capturedTexts);
+            while (i.hasNext()) {
+                bool ok = false;
+                int attribute = i.next().toInt(&ok);
+                Q_ASSERT(ok);
+                ParseEscapeSequence(attribute, i, textCharFormat, defaultTextCharFormat);
+            }
         }
         offset = escapeSequenceExpression.indexIn(text, previousOffset);
         if (offset < 0) {
-            ReturnInsert(cursor, text.mid(previousOffset), textCharFormat);
+            ReturnInsert(m_cursor, text.mid(previousOffset), textCharFormat);
         } else {
-            ReturnInsert(cursor, text.mid(previousOffset, offset - previousOffset), textCharFormat);
+            ReturnInsert(m_cursor, text.mid(previousOffset, offset - previousOffset), textCharFormat);
         }
     }
-    cursor.setCharFormat(defaultTextCharFormat);
-    cursor.endEditBlock();
-    cursor.movePosition(QTextCursor::End);
-    m_ui->processOutput->setTextCursor(cursor);
+    m_cursor.setCharFormat(defaultTextCharFormat);
 }
 
 void MainWindow::insertContinueNote(const QString& text)
@@ -473,14 +549,8 @@ void MainWindow::insertContinueNote(const QString& text)
         return;
     m_inContinueNote = true;
 
-    QTextDocument* document = m_ui->processOutput->document();
-    QTextCursor cursor(document);
-    cursor.movePosition(QTextCursor::End);
-    QTextCharFormat textCharFormat = cursor.charFormat();
+    m_cursor.movePosition(QTextCursor::End);
+    QTextCharFormat textCharFormat = m_cursor.charFormat();
     textCharFormat.setForeground(QColor(0,255,0));
-    cursor.beginEditBlock();
-    cursor.insertText(text + '\n', textCharFormat);
-    cursor.endEditBlock();
-    cursor.movePosition(QTextCursor::End);
-    m_ui->processOutput->setTextCursor(cursor);
+    m_cursor.insertText(text + '\n', textCharFormat);
 }

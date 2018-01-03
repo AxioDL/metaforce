@@ -1,5 +1,6 @@
 #include "Common.hpp"
 #include <QStringList>
+#include <csignal>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -134,8 +135,13 @@ QString URDEVersion::fileString(bool withExtension) const
                                                VectorISAToString(m_vectorISA));
 }
 
+static void HUPHandler(int) {}
+
 void InitializePlatform()
 {
+    /* This can happen when terminating hecl - do nothing */
+    signal(SIGHUP, HUPHandler);
+
 #if ZEUS_ARCH_X86_64
     const_cast<Architecture&>(CurArchitecture) = Architecture::X86_64;
 #elif ZEUS_ARCH_X86

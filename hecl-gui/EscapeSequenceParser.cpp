@@ -167,37 +167,38 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
             }
             }
         } else {
+            /* Normally dark colors, but forced to light colors for visibility */
             switch (colorIndex) {
             case 0 : {
-                color = Qt::black;
+                color = Qt::darkGray;
                 break;
             }
             case 1 : {
-                color = Qt::darkRed;
+                color = Qt::red;
                 break;
             }
             case 2 : {
-                color = Qt::darkGreen;
+                color = Qt::green;
                 break;
             }
             case 3 : {
-                color = Qt::darkYellow;
+                color = Qt::yellow;
                 break;
             }
             case 4 : {
-                color = Qt::darkBlue;
+                color = Qt::blue;
                 break;
             }
             case 5 : {
-                color = Qt::darkMagenta;
+                color = Qt::magenta;
                 break;
             }
             case 6 : {
-                color = Qt::darkCyan;
+                color = Qt::cyan;
                 break;
             }
             case 7 : {
-                color = Qt::lightGray;
+                color = Qt::white;
                 break;
             }
             default : {
@@ -448,9 +449,9 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
             Q_ASSERT(false);
         }
         }
-        color.setRedF(color.redF() * 0.8);
-        color.setGreenF(color.greenF() * 0.8);
-        color.setBlueF(color.blueF() * 0.8);
+        //color.setRedF(color.redF() * 0.8);
+        //color.setGreenF(color.greenF() * 0.8);
+        //color.setBlueF(color.blueF() * 0.8);
         textCharFormat.setForeground(color);
         break;
     }
@@ -502,9 +503,9 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
             Q_ASSERT(false);
         }
         }
-        color.setRedF(color.redF() * 0.8);
-        color.setGreenF(color.greenF() * 0.8);
-        color.setBlueF(color.blueF() * 0.8);
+        //color.setRedF(color.redF() * 0.8);
+        //color.setGreenF(color.greenF() * 0.8);
+        //color.setBlueF(color.blueF() * 0.8);
         textCharFormat.setBackground(color);
         break;
     }

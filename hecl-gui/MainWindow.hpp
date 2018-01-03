@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QTextCursor>
 #include <memory>
 #include "DownloadManager.hpp"
 #include "Common.hpp"
@@ -18,7 +19,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     Ui::MainWindow* m_ui;
-    QString m_ansiString;
+    QTextCursor m_cursor;
     QString m_path;
     QString m_urdePath;
     QString m_heclPath;
