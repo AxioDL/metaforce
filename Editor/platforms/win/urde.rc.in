@@ -18,12 +18,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Antidote / Jackoalan"
             VALUE "FileDescription", "URDE"
-            VALUE "FileVersion", "BETA"
-            VALUE "LegalCopyright", "Copyright (C) 2015-2017 Antidote / Jackoalan"
+            VALUE "FileVersion", "@METADATA_VERSION_STRING@"
+            VALUE "LegalCopyright", "Copyright (C) 2015-2018 Antidote / Jackoalan"
             VALUE "InternalName", "urde"
             VALUE "OriginalFilename", "urde.exe"
             VALUE "ProductName", "URDE"
-            VALUE "ProductVersion", "BETA"
+            VALUE "ProductVersion", "@METADATA_VERSION_STRING@"
         END
     END
     BLOCK "VarFileInfo"

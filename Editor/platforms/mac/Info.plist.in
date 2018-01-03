@@ -5,9 +5,9 @@
     <key>CFBundleExecutable</key>
     <string>urde</string>
     <key>CFBundleGetInfoString</key>
-    <string>Version BETA</string>
+    <string>@METADATA_VERSION_STRING@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>2015-2017 Antidote / Jackoalan</string>
+    <string>2015-2018 Antidote / Jackoalan</string>
     <key>CFBundleIconFile</key>
     <string>mainicon.icns</string>
     <key>CFBundleIdentifier</key>
@@ -17,7 +17,7 @@
     <key>CFBundleName</key>
     <string>URDE</string>
     <key>CFBundleVersion</key>
-    <string>BETA</string>
+    <string>@METADATA_VERSION_STRING@</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

@@ -10,8 +10,15 @@ atdna(atdna_ParticleEditor.cpp ParticleEditor.hpp)
 atdna(atdna_InformationCenter.cpp InformationCenter.hpp)
 atdna(atdna_GameMode.cpp GameMode.hpp)
 
+if(URDE_DLPACKAGE)
+  set(METADATA_VERSION_STRING ${URDE_DLPACKAGE})
+else()
+  set(METADATA_VERSION_STRING "BETA")
+endif()
+
 if(WIN32)
-  set(PLAT_SRCS platforms/win/urde.rc)
+  configure_file(platforms/win/urde.rc.in "${CMAKE_CURRENT_BINARY_DIR}/urde.rc" @ONLY)
+  set(PLAT_SRCS "${CMAKE_CURRENT_BINARY_DIR}/urde.rc")
   if(WINDOWS_STORE)
       set(UWP_ASSETS
           platforms/win/Assets/LargeTile.scale-100.png
@@ -63,6 +70,7 @@ elseif(APPLE)
   set(PLAT_SRCS platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
                               MACOSX_PACKAGE_LOCATION Resources)
+  configure_file(platforms/mac/Info.plist.in "${CMAKE_CURRENT_BINARY_DIR}/Info.plist" @ONLY)
 elseif(UNIX)
   add_subdirectory(platforms/freedesktop)
   declare_wmicon_target()
@@ -105,7 +113,7 @@ if(COMMAND cotire)
 endif()
 
 set_target_properties(urde PROPERTIES
-                      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
+                      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
                       MACOSX_BUNDLE_BUNDLE_NAME "urde")
 
 if (NOT WINDOWS_STORE)
