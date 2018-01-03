@@ -35,22 +35,35 @@ public:
 
         if (!info.project)
         {
-            /* Get name from input file and init project there */
-            hecl::SystemString baseFile = info.args.front();
-            size_t slashPos = baseFile.rfind(_S('/'));
-            if (slashPos == hecl::SystemString::npos)
-                slashPos = baseFile.rfind(_S('\\'));
-            if (slashPos != hecl::SystemString::npos)
-                baseFile.assign(baseFile.begin() + slashPos + 1, baseFile.end());
-            size_t dotPos = baseFile.rfind(_S('.'));
-            if (dotPos != hecl::SystemString::npos)
-                baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
+            hecl::SystemString rootDir;
 
-            if (baseFile.empty())
-                LogModule.report(logvisor::Fatal, "hecl extract must be ran within a project directory");
+            if (info.output.empty())
+            {
+                /* Get name from input file and init project there */
+                hecl::SystemString baseFile = info.args.front();
+                size_t slashPos = baseFile.rfind(_S('/'));
+                if (slashPos == hecl::SystemString::npos)
+                    slashPos = baseFile.rfind(_S('\\'));
+                if (slashPos != hecl::SystemString::npos)
+                    baseFile.assign(baseFile.begin() + slashPos + 1, baseFile.end());
+                size_t dotPos = baseFile.rfind(_S('.'));
+                if (dotPos != hecl::SystemString::npos)
+                    baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
+
+                if (baseFile.empty())
+                    LogModule.report(logvisor::Fatal, "hecl extract must be ran within a project directory");
+
+                rootDir = info.cwd + baseFile;
+            }
+            else
+            {
+                if (hecl::PathRelative(info.output.c_str()))
+                    rootDir = info.cwd + info.output;
+                else
+                    rootDir = info.output;
+            }
 
             size_t ErrorRef = logvisor::ErrorCount;
-            hecl::SystemString rootDir = info.cwd + baseFile;
             hecl::ProjectRootPath newProjRoot(rootDir);
             newProjRoot.makeDir();
             m_fallbackProj.reset(new hecl::Database::Project(newProjRoot));
