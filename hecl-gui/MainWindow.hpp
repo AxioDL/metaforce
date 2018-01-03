@@ -33,8 +33,6 @@ public:
     ~MainWindow();
     void setTextTermFormatting(const QString& text);
     void insertContinueNote(const QString& text);
-    void parseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharFormat& textCharFormat,
-                             const QTextCharFormat& defaultTextCharFormat);
 private slots:
     void onExtract();
     void onExtractFinished(int exitCode);

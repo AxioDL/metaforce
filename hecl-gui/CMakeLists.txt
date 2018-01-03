@@ -6,6 +6,7 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5Widgets)
 find_package(Qt5Network)
+find_package(Qt5Xml)
 
 if(APPLE)
   set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
@@ -27,6 +28,7 @@ list(APPEND PLAT_SRCS mainicon_qt.cpp)
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     MainWindow.ui MainWindow.hpp MainWindow.cpp
+    EscapeSequenceParser.hpp EscapeSequenceParser.cpp
     FileDirDialog.hpp ErrorLabel.hpp
     SysReqTableView.hpp SysReqTableView.cpp
     VectorISATableView.hpp VectorISATableView.cpp
@@ -37,4 +39,5 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
 set_target_properties(hecl-gui PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
 
-target_link_libraries(hecl-gui ${PLAT_LIBS} ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} zeus)
+target_link_libraries(hecl-gui ${PLAT_LIBS}
+                      ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Xml_LIBRARIES} zeus)

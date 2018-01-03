@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDomDocument>
 #include <QProcess>
 
 #if _WIN32
@@ -60,7 +61,31 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
             }
         }
     }
+#elif defined(__APPLE__)
+    QProcess spProc;
+    spProc.start("system_profiler", {"-xml", "SPHardwareDataType"}, QProcess::ReadOnly);
+    spProc.waitForFinished();
+    QDomDocument spDoc;
+    spDoc.setContent(spProc.readAll());
+    QDomElement spDocElem = spDoc.documentElement();
+    QDomElement n = spDocElem.firstChildElement("array").firstChildElement("dict").firstChildElement("key");
+    while (!n.isNull() && n.text() != "_items")
+        n = n.nextSiblingElement("key");
+    if (!n.isNull())
+    {
+        n = n.nextSiblingElement("array").firstChildElement("dict").firstChildElement("key");
+        while (!n.isNull() && n.text() != "current_processor_speed")
+            n = n.nextSiblingElement("key");
+        if (!n.isNull())
+        {
+            n = n.nextSiblingElement("string");
+            double speed = n.text().split(' ').front().toDouble();
+            m_cpuSpeed = uint64_t(speed * 1000.0);
+            m_cpuSpeedStr.sprintf("%g GHz", speed);
+        }
+    }
 #else
+    /* This only works for Skylake+ */
     int regs[4] = {};
     zeus::getCpuInfo(0, regs);
     if (regs[0] >= 0x16)
