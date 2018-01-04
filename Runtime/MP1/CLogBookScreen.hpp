@@ -61,7 +61,7 @@ public:
     void Draw(float transInterp, float totalAlpha, float yOff);
     bool VReady() const;
     void VActivate();
-    void RightTableSelectionChanged(int selBegin, int selEnd);
+    void RightTableSelectionChanged(int oldSel, int newSel);
     void ChangedMode(EMode oldMode);
     void UpdateRightTable();
     bool ShouldLeftTableAdvance() const;

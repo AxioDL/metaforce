@@ -168,7 +168,7 @@ public:
         void DoPopupCancel(CGuiTableGroup* caller);
         void DoPopupAdvance(CGuiTableGroup* caller);
         void DoFileMenuCancel(CGuiTableGroup* caller);
-        void DoSelectionChange(CGuiTableGroup* caller, int userSel);
+        void DoSelectionChange(CGuiTableGroup* caller, int oldSel);
         void DoFileMenuAdvance(CGuiTableGroup* caller);
 
         static SFileMenuOption FindFileSelectOption(CGuiFrame* frame, int idx);
@@ -265,7 +265,7 @@ public:
         }
 
         void DoCancel(CGuiTableGroup* caller);
-        void DoSelectionChange(CGuiTableGroup* caller, int userSel);
+        void DoSelectionChange(CGuiTableGroup* caller, int oldSel);
         void DoAdvance(CGuiTableGroup* caller);
     };
 
@@ -299,7 +299,7 @@ public:
         void HandleActiveChange(CGuiTableGroup* active);
 
         void DoCancel(CGuiTableGroup* caller);
-        void DoSelectionChange(CGuiTableGroup* caller, int userSel);
+        void DoSelectionChange(CGuiTableGroup* caller, int oldSel);
         void DoAdvance(CGuiTableGroup* caller);
     };
 
@@ -361,7 +361,7 @@ public:
 
         void DoSliderChange(CGuiSliderGroup* caller, float value);
         void DoMenuCancel(CGuiTableGroup* caller);
-        void DoMenuSelectionChange(CGuiTableGroup* caller, int sel);
+        void DoMenuSelectionChange(CGuiTableGroup* caller, int oldSel);
         void DoLeftMenuAdvance(CGuiTableGroup* caller);
 
         void DeactivateRightMenu();

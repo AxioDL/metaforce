@@ -425,7 +425,7 @@ void CLogBookScreen::VActivate()
         x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
 }
 
-void CLogBookScreen::RightTableSelectionChanged(int selBegin, int selEnd)
+void CLogBookScreen::RightTableSelectionChanged(int oldSel, int newSel)
 {
     UpdateRightTitles();
 }

@@ -10,17 +10,20 @@ std::string CAnimTreeTransition::CreatePrimitiveName(const std::weak_ptr<CAnimTr
 }
 
 CAnimTreeTransition::CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
-                                         const std::weak_ptr<CAnimTreeNode>& b, const CCharAnimTime& time1,
-                                         const CCharAnimTime& time2, bool b2, bool b3, int flags,
+                                         const std::weak_ptr<CAnimTreeNode>& b, const CCharAnimTime& transDur,
+                                         const CCharAnimTime& timeInTrans, bool runA, bool loopA, int flags,
                                          std::string_view name, bool b4)
-: CAnimTreeTweenBase(b1, a, b, flags, name), x24_(time1), x2c_(time2), x34_(b2), x35_(b3), x36_(b4)
+: CAnimTreeTweenBase(b1, a, b, flags, name), x24_transDur(transDur), x2c_timeInTrans(timeInTrans),
+  x34_runA(runA), x35_loopA(loopA), x36_(b4)
 {
 }
 
 CAnimTreeTransition::CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
-                                         const std::weak_ptr<CAnimTreeNode>& b, const CCharAnimTime& time, bool b2,
+                                         const std::weak_ptr<CAnimTreeNode>& b,
+                                         const CCharAnimTime& transDur, bool runA,
                                          int flags, std::string_view name)
-: CAnimTreeTweenBase(b1, a, b, flags, name), x24_(time), x34_(b2), x35_(a.lock()->VGetBoolPOIState("Loop"))
+: CAnimTreeTweenBase(b1, a, b, flags, name), x24_transDur(transDur), x34_runA(runA),
+  x35_loopA(a.lock()->VGetBoolPOIState("Loop"))
 {
 }
 
@@ -32,35 +35,112 @@ std::shared_ptr<IAnimReader> CAnimTreeTransition::VGetBestUnblendedChild() const
 
 CCharAnimTime CAnimTreeTransition::VGetTimeRemaining() const
 {
-    CCharAnimTime time = x24_ * x2c_;
-    CCharAnimTime bTimeRem = x18_b->VGetTimeRemaining();
-
-    if (time < bTimeRem)
-        return bTimeRem;
-    return time;
+    CCharAnimTime transTimeRem = x24_transDur - x2c_timeInTrans;
+    CCharAnimTime rightTimeRem = x18_b->VGetTimeRemaining();
+    return (rightTimeRem < transTimeRem) ? transTimeRem : rightTimeRem;
 }
 
 CSteadyStateAnimInfo CAnimTreeTransition::VGetSteadyStateAnimInfo() const
 {
     CSteadyStateAnimInfo bInfo = x18_b->VGetSteadyStateAnimInfo();
 
-    if (x24_ < bInfo.GetDuration())
+    if (x24_transDur < bInfo.GetDuration())
         return CSteadyStateAnimInfo(bInfo.IsLooping(), bInfo.GetDuration(), bInfo.GetOffset());
-    return CSteadyStateAnimInfo(bInfo.IsLooping(), x24_, bInfo.GetOffset());
+    return CSteadyStateAnimInfo(bInfo.IsLooping(), x24_transDur, bInfo.GetOffset());
 }
 
 std::unique_ptr<IAnimReader> CAnimTreeTransition::VClone() const
 {
-    return std::make_unique<CAnimTreeTransition>(x20_31_b1, std::static_pointer_cast<CAnimTreeNode>(
+    return std::make_unique<CAnimTreeTransition>(x20_24_b1, std::static_pointer_cast<CAnimTreeNode>(
                                                      std::shared_ptr<IAnimReader>(x14_a->Clone())),
                                                  std::static_pointer_cast<CAnimTreeNode>(
-                                                     std::shared_ptr<IAnimReader>(x18_b->Clone())), x24_, x2c_,
-                                                 x34_, x35_, x1c_flags, x4_name, x36_);
+                                                     std::shared_ptr<IAnimReader>(x18_b->Clone())),
+                                                 x24_transDur, x2c_timeInTrans, x34_runA,
+                                                 x35_loopA, x1c_flags, x4_name, x36_);
 }
 
-SAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time) const
+std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VSimplified()
 {
-    return {};
+    if (zeus::close_enough(GetBlendingWeight(), 1.f))
+    {
+        if (auto simp = x18_b->Simplified())
+            return simp;
+        return {x18_b->Clone()};
+    }
+    return CAnimTreeTweenBase::VSimplified();
+}
+
+SAdvancementResults CAnimTreeTransition::AdvanceViewForTransitionalPeriod(const CCharAnimTime& time)
+{
+    IncAdvancementDepth();
+    CDoubleChildAdvancementResult res = AdvanceViewBothChildren(time, x34_runA, x35_loopA);
+    DecAdvancementDepth();
+    if (res.GetTrueAdvancement().EqualsZero())
+        return {};
+
+    float oldWeight = GetBlendingWeight();
+    x2c_timeInTrans += res.GetTrueAdvancement();
+    float newWeight = GetBlendingWeight();
+
+    if (ShouldCullTree())
+    {
+        if (newWeight < 0.5f)
+            x20_25_ = 1;
+        else
+            x20_25_ = 2;
+    }
+
+    if (x1c_flags & 0x1)
+    {
+        return {
+            res.GetTrueAdvancement(),
+            SAdvancementDeltas::Interpolate(res.GetLeftAdvancementDeltas(),
+                                            res.GetRightAdvancementDeltas(),
+                                            oldWeight, newWeight)
+        };
+    }
+
+    return {
+        res.GetTrueAdvancement(),
+        res.GetRightAdvancementDeltas()
+    };
+}
+
+SAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time)
+{
+    if (time.EqualsZero())
+    {
+        IncAdvancementDepth();
+        x18_b->VAdvanceView(time);
+        if (x34_runA)
+            x14_a->VAdvanceView(time);
+        DecAdvancementDepth();
+        if (ShouldCullTree())
+            x20_25_ = 1;
+        return {};
+    }
+
+    if (!x36_)
+        x36_ = true;
+
+    if (x2c_timeInTrans + time < x24_transDur)
+    {
+        SAdvancementResults res = AdvanceViewForTransitionalPeriod(time);
+        res.x0_remTime = time - res.x0_remTime;
+        return res;
+    }
+
+    CCharAnimTime transTimeRem = x24_transDur - x2c_timeInTrans;
+    SAdvancementResults res;
+    if (transTimeRem.GreaterThanZero())
+    {
+        res = AdvanceViewForTransitionalPeriod(transTimeRem);
+        if (res.x0_remTime != transTimeRem)
+            return res;
+    }
+
+    res.x0_remTime = time - transTimeRem;
+    return res;
 }
 
 void CAnimTreeTransition::SetBlendingWeight(float w)
@@ -70,8 +150,8 @@ void CAnimTreeTransition::SetBlendingWeight(float w)
 
 float CAnimTreeTransition::VGetBlendingWeight() const
 {
-    if (x24_.GreaterThanZero())
-        return (1.f / x24_.GetSeconds()) * x2c_.GetSeconds();
+    if (x24_transDur.GreaterThanZero())
+        return x2c_timeInTrans.GetSeconds() / x24_transDur.GetSeconds();
     return 0.f;
 }
 }

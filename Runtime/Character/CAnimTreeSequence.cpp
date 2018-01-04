@@ -38,12 +38,6 @@ std::shared_ptr<IAnimReader> CAnimTreeSequence::VGetBestUnblendedChild() const
                                                x28_, x18_, x4_name, x3c_fundamentals, x94_curTime);
 }
 
-void CAnimTreeSequence::VGetWeightedReaders
-(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const
-{
-    x14_child->VGetWeightedReaders(out, w);
-}
-
 SAdvancementResults CAnimTreeSequence::VAdvanceView(const CCharAnimTime& a)
 {
     return {};

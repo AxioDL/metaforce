@@ -7,13 +7,19 @@ s32 CAnimTreeTweenBase::sAdvancementDepth = 0;
 
 CAnimTreeTweenBase::CAnimTreeTweenBase(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
                                        const std::weak_ptr<CAnimTreeNode>& b, int flags, std::string_view name)
-: CAnimTreeDoubleChild(a, b, name), x1c_flags(flags), x20_31_b1(b1)
+: CAnimTreeDoubleChild(a, b, name), x1c_flags(flags)
 {
+    x20_24_b1 = b1;
+    x20_25_ = 0;
 }
 
-/*void CAnimTreeTweenBase::VGetTotalChildWeight(float t) const
+void CAnimTreeTweenBase::VGetWeightedReaders(
+    rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const
 {
-}*/
+    float weight = GetBlendingWeight();
+    x14_a->VGetWeightedReaders(out, (1.f - weight) * w);
+    x18_b->VGetWeightedReaders(out, weight * w);
+}
 
 void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const {}
 
@@ -49,5 +55,29 @@ zeus::CQuaternion CAnimTreeTweenBase::VGetRotation(const CSegId& seg) const
     return zeus::CQuaternion::slerp(qA, qB, weight);
 }
 
-std::pair<std::unique_ptr<IAnimReader>, bool> CAnimTreeTweenBase::VSimplified() { return {}; }
+std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTweenBase::VSimplified()
+{
+    if (x20_25_ == 0)
+    {
+        auto simpA = x14_a->Simplified();
+        auto simpB = x18_b->Simplified();
+        if (!simpA && !simpB)
+            return {};
+        auto clone = Clone();
+        if (simpA)
+            static_cast<CAnimTreeTweenBase&>(*clone).x14_a = CAnimTreeNode::Cast(std::move(*simpA));
+        if (simpB)
+            static_cast<CAnimTreeTweenBase&>(*clone).x18_b = CAnimTreeNode::Cast(std::move(*simpB));
+        return {std::move(clone)};
+    }
+    else
+    {
+        auto tmp = (x20_25_ == 1) ? x18_b : x14_a;
+        auto tmpUnblended = tmp->GetBestUnblendedChild();
+        if (!tmpUnblended)
+            return {tmp->Clone()};
+        else
+            return {tmpUnblended->Clone()};
+    }
+}
 }

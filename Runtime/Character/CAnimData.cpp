@@ -126,9 +126,9 @@ void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stS
 SAdvancementResults CAnimData::AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time)
 {
     SAdvancementResults ret = anim->VAdvanceView(time);
-    std::pair<std::unique_ptr<IAnimReader>, bool> simplified = anim->Simplified();
-    if (simplified.second)
-        anim = std::static_pointer_cast<CAnimTreeNode>(std::shared_ptr<IAnimReader>(std::move(simplified.first)));
+    auto simplified = anim->Simplified();
+    if (simplified)
+        anim = CAnimTreeNode::Cast(std::move(*simplified));
     return ret;
 }
 
@@ -883,7 +883,7 @@ SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat)
 {
     SAdvancementResults results;
-    std::pair<std::unique_ptr<IAnimReader>, bool> simplified = {};
+    std::experimental::optional<std::unique_ptr<IAnimReader>> simplified;
 
     if (x104_animDir == EAnimDir::Forward)
     {
@@ -891,11 +891,8 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
         simplified = x1f8_animRoot->Simplified();
     }
 
-    if (simplified.second)
-    {
-        x1f8_animRoot = std::static_pointer_cast<CAnimTreeNode>(
-            std::shared_ptr<IAnimReader>(std::move(simplified.first)));
-    }
+    if (simplified)
+        x1f8_animRoot = CAnimTreeNode::Cast(std::move(*simplified));
 
     if ((x220_28_ || x220_27_) && x210_passedIntCount > 0)
     {

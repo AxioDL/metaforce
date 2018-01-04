@@ -19,7 +19,7 @@ public:
     CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
     u32 VGetNumChildren() const;
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-    void VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const;
+    void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const;
 
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;
@@ -37,7 +37,7 @@ public:
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
     std::unique_ptr<IAnimReader> VClone() const;
-    std::pair<std::unique_ptr<IAnimReader>, bool> VSimplified();
+    std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
     void VSetPhase(float);
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
 };

@@ -4,6 +4,17 @@
 namespace urde
 {
 
+SAdvancementDeltas
+SAdvancementDeltas::Interpolate(const SAdvancementDeltas& a, const SAdvancementDeltas& b,
+                                float oldWeight, float newWeight)
+{
+    float weightSum = oldWeight + newWeight;
+    return {
+        b.x0_posDelta * weightSum * 0.5f - a.x0_posDelta * (weightSum - 2.f) * 0.5f,
+        zeus::CQuaternion::slerpShort(a.xc_rotDelta, b.xc_rotDelta, weightSum * 0.5f)
+    };
+}
+
 SAdvancementResults
 IAnimReader::VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const
 {

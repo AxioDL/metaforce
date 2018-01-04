@@ -83,12 +83,12 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, c
 
 bool CInventoryScreen::InputDisabled() const
 {
-    return std::fabs(x19c_samusDoll->GetViewInterpolation()) > 0 || x1a8_ == 1;
+    return std::fabs(x19c_samusDoll->GetViewInterpolation()) > 0 || x1a8_state == EState::Leaving;
 }
 
 void CInventoryScreen::TransitioningAway()
 {
-    x1a8_ = 1;
+    x1a8_state = EState::Leaving;
 }
 
 void CInventoryScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue)
@@ -98,21 +98,21 @@ void CInventoryScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& arc
 
     if (x10_mode == EMode::TextScroll)
     {
-        if (x1ad_textBodyVisible)
+        if (x1ad_textViewing)
             x1a4_textBodyAlpha = std::min(4.f * dt + x1a4_textBodyAlpha, 1.f);
         else
             x1a4_textBodyAlpha = std::max(0.f, x1a4_textBodyAlpha - 4.f * dt);
         x174_textpane_body->SetColor(zeus::CColor(1.f, x1a4_textBodyAlpha));
         x180_basewidget_yicon->SetColor(zeus::CColor(1.f, 1.f - x1a4_textBodyAlpha));
-        if (x1a4_textBodyAlpha == 0.f && x1a8_ == 0)
+        if (x1a4_textBodyAlpha == 0.f && x1a8_state == EState::Active)
             ChangeMode(EMode::RightTable);
     }
 
     x19c_samusDoll->SetInMorphball(
         x70_tablegroup_leftlog->GetUserSelection() == 1 && x10_mode != EMode::LeftTable);
     UpdateSamusDollPulses();
-    if (x1a8_ == 1 && x1a4_textBodyAlpha == 0.f)
-        x1a8_ = 2;
+    if (x1a8_state == EState::Leaving && x1a4_textBodyAlpha == 0.f)
+        x1a8_state = EState::Inactive;
 }
 
 void CInventoryScreen::Touch()
@@ -124,7 +124,7 @@ void CInventoryScreen::Touch()
 void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
 {
     float viewInterp = x19c_samusDoll->GetViewInterpolation();
-    if (x1a8_ == 2 || (viewInterp != 0.f && viewInterp != 1.f))
+    if (x1a8_state == EState::Inactive || (viewInterp != 0.f && viewInterp != 1.f))
         return;
 
     float absViewInterp = std::fabs(viewInterp);
@@ -168,7 +168,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
     }
     else
     {
-        x1ad_textBodyVisible = false;
+        x1ad_textViewing = false;
         if (x10_mode == EMode::TextScroll)
         {
             int oldPage = x174_textpane_body->TextSupport().GetPageCounter();
@@ -192,6 +192,9 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
                 x198_29_pulseTextArrowBottom = false;
                 x198_28_pulseTextArrowTop = false;
             }
+            if (!x1ac_textLeaveRequested)
+                x1ac_textLeaveRequested = input.PB() || (input.PA() && lastPage);
+            x1ad_textViewing = !x1ac_textLeaveRequested;
         }
         else
         {
@@ -199,8 +202,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
             x198_28_pulseTextArrowTop = false;
         }
 
-        if (x1a8_)
-            x1ad_textBodyVisible = false;
+        if (x1a8_state != EState::Active)
+            x1ad_textViewing = false;
 
         CPauseScreenBase::ProcessControllerInput(input);
     }
@@ -268,10 +271,12 @@ void CInventoryScreen::VActivate()
     x180_basewidget_yicon->SetVisibility(true, ETraversalMode::Children);
 }
 
-void CInventoryScreen::RightTableSelectionChanged(int selBegin, int selEnd) {}
+void CInventoryScreen::RightTableSelectionChanged(int oldSel, int newSel) {}
 
 void CInventoryScreen::UpdateTextBody()
 {
+    x1ac_textLeaveRequested = false;
+
     const SInventoryItem& sel = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].second[x1c_rightSel];
     std::u16string entryText = xc_pauseStrg.GetString(sel.entryStrIdx);
 
@@ -292,7 +297,7 @@ void CInventoryScreen::ChangedMode(EMode oldMode)
 {
     if (x10_mode == EMode::TextScroll)
     {
-        x1ad_textBodyVisible = true;
+        x1ad_textViewing = true;
         UpdateTextBody();
     }
 }

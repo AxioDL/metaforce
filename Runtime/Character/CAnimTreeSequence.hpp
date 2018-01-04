@@ -30,7 +30,6 @@ public:
 
     CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-    void VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const;
 
     SAdvancementResults VAdvanceView(const CCharAnimTime& a);
     CCharAnimTime VGetTimeRemaining() const;

@@ -23,6 +23,9 @@ struct SAdvancementDeltas
 {
     zeus::CVector3f x0_posDelta;
     zeus::CQuaternion xc_rotDelta;
+
+    static SAdvancementDeltas Interpolate(const SAdvancementDeltas& a, const SAdvancementDeltas& b,
+                                          float oldWeight, float newWeight);
 };
 
 struct SAdvancementResults
@@ -124,7 +127,7 @@ public:
     virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const=0;
     virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const=0;
     virtual std::unique_ptr<IAnimReader> VClone() const=0;
-    virtual std::pair<std::unique_ptr<IAnimReader>, bool> VSimplified() {return {};}
+    virtual std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified() {return {};}
     virtual void VSetPhase(float)=0;
     virtual SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
 
@@ -133,7 +136,7 @@ public:
     u32 GetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 GetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
 
-    std::pair<std::unique_ptr<IAnimReader>, bool> Simplified() { return VSimplified(); }
+    std::experimental::optional<std::unique_ptr<IAnimReader>> Simplified() { return VSimplified(); }
 
     std::unique_ptr<IAnimReader> Clone() const { return VClone(); }
 };

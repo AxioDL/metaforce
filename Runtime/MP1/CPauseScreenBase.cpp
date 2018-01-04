@@ -326,10 +326,10 @@ void CPauseScreenBase::UpdateRightTable()
     UpdateSideTable(x84_tablegroup_rightlog);
 }
 
-void CPauseScreenBase::SetRightTableSelection(int begin, int end)
+void CPauseScreenBase::SetRightTableSelection(int oldSel, int newSel)
 {
     int oldRightSel = x1c_rightSel;
-    x1c_rightSel = zeus::clamp(end, x1c_rightSel + (end - begin), int(GetRightTableCount()) - 1);
+    x1c_rightSel = zeus::clamp(0, x1c_rightSel + (newSel - oldSel), int(GetRightTableCount()) - 1);
     if (oldRightSel != x1c_rightSel)
         CSfxManager::SfxStart(1436, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
@@ -340,7 +340,7 @@ void CPauseScreenBase::SetRightTableSelection(int begin, int end)
 
     x84_tablegroup_rightlog->SetUserSelection(x1c_rightSel + 1 - x18_firstViewRightSel);
     UpdateSideTable(x84_tablegroup_rightlog);
-    RightTableSelectionChanged(begin, end);
+    RightTableSelectionChanged(oldSel, newSel);
 }
 
 void CPauseScreenBase::OnLeftTableAdvance(CGuiTableGroup* caller)
@@ -362,7 +362,7 @@ void CPauseScreenBase::OnRightTableAdvance(CGuiTableGroup* caller)
     }
 }
 
-void CPauseScreenBase::OnTableSelectionChange(CGuiTableGroup* caller, int sel)
+void CPauseScreenBase::OnTableSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     UpdateSideTable(caller);
     if (x70_tablegroup_leftlog == caller)
@@ -372,7 +372,7 @@ void CPauseScreenBase::OnTableSelectionChange(CGuiTableGroup* caller, int sel)
     }
     else
     {
-        SetRightTableSelection(sel, x84_tablegroup_rightlog->GetUserSelection());
+        SetRightTableSelection(oldSel, x84_tablegroup_rightlog->GetUserSelection());
     }
 }
 

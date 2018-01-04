@@ -47,7 +47,7 @@ void CAnimTreeTimeScale::VSetPhase(float phase)
     x14_child->VSetPhase(phase);
 }
 
-std::pair<std::unique_ptr<IAnimReader>, bool> CAnimTreeTimeScale::VSimplified()
+std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified()
 {
     return {};
 }

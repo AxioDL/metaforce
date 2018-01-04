@@ -56,7 +56,7 @@ void CQuitGameScreen::FinishedLoading()
     SetColors();
 }
 
-void CQuitGameScreen::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CQuitGameScreen::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     SetColors();
     CSfxManager::SfxStart(1424, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

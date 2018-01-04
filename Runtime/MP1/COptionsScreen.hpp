@@ -21,7 +21,7 @@ class COptionsScreen : public CPauseScreenBase
     void UpdateOptionView();
     void ResetOptionWidgetVisibility();
     void OnSliderChanged(CGuiSliderGroup* caller, float val);
-    void OnEnumChanged(CGuiTableGroup* caller, int sel);
+    void OnEnumChanged(CGuiTableGroup* caller, int oldSel);
 
 public:
     COptionsScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
@@ -34,7 +34,7 @@ public:
     void Draw(float transInterp, float totalAlpha, float yOff);
     bool VReady() const;
     void VActivate();
-    void RightTableSelectionChanged(int selBegin, int selEnd);
+    void RightTableSelectionChanged(int oldSel, int newSel);
     void ChangedMode(EMode oldMode);
     void UpdateRightTable();
     bool ShouldLeftTableAdvance() const;

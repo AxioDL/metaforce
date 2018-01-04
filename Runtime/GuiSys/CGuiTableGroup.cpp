@@ -195,10 +195,11 @@ bool CGuiTableGroup::PreDecrement()
 
 void CGuiTableGroup::DoDecrement()
 {
+    int oldSel = xc4_userSelection;
     if (!PreDecrement())
         return;
     if (x104_doMenuSelChange)
-        x104_doMenuSelChange(this, xc4_userSelection);
+        x104_doMenuSelChange(this, oldSel);
 }
 
 bool CGuiTableGroup::PreIncrement()
@@ -234,10 +235,11 @@ bool CGuiTableGroup::PreIncrement()
 
 void CGuiTableGroup::DoIncrement()
 {
+    int oldSel = xc4_userSelection;
     if (!PreIncrement())
         return;
     if (x104_doMenuSelChange)
-        x104_doMenuSelChange(this, xc4_userSelection);
+        x104_doMenuSelChange(this, oldSel);
 }
 
 std::shared_ptr<CGuiWidget> CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp)

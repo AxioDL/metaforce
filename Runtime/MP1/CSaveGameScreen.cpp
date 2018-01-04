@@ -608,7 +608,7 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller)
         CSfxManager::SfxStart(sfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-void CSaveGameScreen::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CSaveGameScreen::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     SetUIColors();
     CSfxManager::SfxStart(x88_navMoveSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

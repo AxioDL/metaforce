@@ -84,7 +84,7 @@ std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const ze
 
         {
             CFontRenderState rstate;
-            for (auto it2 = x0_instList.begin() ; it2 != x0_instList.end() ;)
+            for (auto it2 = x0_instList.begin() ; it2 != x0_instList.end() ; ++it2)
             {
                 const std::shared_ptr<CInstruction>& inst2 = *it2;
                 inst2->Invoke(rstate, &rbuf);
@@ -96,10 +96,13 @@ std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const ze
         InstList::const_iterator pageEnd = it;
         {
             CFontRenderState rstate;
-            for (auto it2 = x0_instList.begin() ; it2 != x0_instList.end() ;)
+            bool seekingToPage = true;
+            for (auto it2 = x0_instList.begin() ; it2 != x0_instList.end() ; ++it2)
             {
                 const std::shared_ptr<CInstruction>& inst2 = *it2;
-                if (it2 != it)
+                if (it2 == it)
+                    seekingToPage = false;
+                if (seekingToPage)
                 {
                     inst2->PageInvoke(rstate, &rbuf);
                 }

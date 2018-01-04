@@ -11,18 +11,22 @@ class CAnimTreeDoubleChild : public CAnimTreeNode
 public:
     class CDoubleChildAdvancementResult
     {
-        CCharAnimTime x0_;
-        SAdvancementDeltas x8_;
-        SAdvancementDeltas x24_;
+        CCharAnimTime x0_trueAdvancement;
+        SAdvancementDeltas x8_leftDeltas;
+        SAdvancementDeltas x24_rightDeltas;
     public:
-        CDoubleChildAdvancementResult(const CCharAnimTime&, const SAdvancementDeltas&, const SAdvancementDeltas);
-        void GetLeftAdvancementDeltas() const;
-        void GetRightAdvancementDeltas() const;
-        void GetTrueAdvancement() const;
+        CDoubleChildAdvancementResult(const CCharAnimTime& trueAdvancement, const SAdvancementDeltas& leftDeltas,
+                                      const SAdvancementDeltas& rightDeltas)
+        : x0_trueAdvancement(trueAdvancement), x8_leftDeltas(leftDeltas), x24_rightDeltas(rightDeltas) {}
+        const SAdvancementDeltas& GetLeftAdvancementDeltas() const { return x8_leftDeltas; }
+        const SAdvancementDeltas& GetRightAdvancementDeltas() const { return x24_rightDeltas; }
+        const CCharAnimTime& GetTrueAdvancement() const { return x0_trueAdvancement; }
     };
 protected:
     std::shared_ptr<CAnimTreeNode> x14_a;
     std::shared_ptr<CAnimTreeNode> x18_b;
+
+    CDoubleChildAdvancementResult AdvanceViewBothChildren(const CCharAnimTime& time, bool runLeft, bool loopLeft);
 
 public:
     CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
@@ -42,10 +46,8 @@ public:
     CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
     u32 VGetNumChildren() const;
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-    void VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const;
+    void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const;
 
-    //virtual float VGetTotalChildWeight(float) const = 0;
-    //float GetTotalChildWeight(float f) const { return VGetTotalChildWeight(f); }
     virtual float VGetRightChildWeight() const = 0;
     float GetRightChildWeight() const { return VGetRightChildWeight(); }
 

@@ -14,12 +14,19 @@ namespace MP1
 
 class CInventoryScreen : public CPauseScreenBase
 {
+    enum class EState
+    {
+        Active,
+        Leaving,
+        Inactive
+    };
+
     std::unique_ptr<CSamusDoll> x19c_samusDoll;
     float x1a0_ = 0.f;
     float x1a4_textBodyAlpha = 0.f;
-    u32 x1a8_ = 0;
-    bool x1ac_ = false;
-    bool x1ad_textBodyVisible;
+    EState x1a8_state = EState::Active;
+    bool x1ac_textLeaveRequested = false;
+    bool x1ad_textViewing;
 
     void UpdateSamusDollPulses();
     bool HasLeftInventoryItem(int idx) const;
@@ -39,7 +46,7 @@ public:
     float GetCameraYBias() const;
     bool VReady() const;
     void VActivate();
-    void RightTableSelectionChanged(int selBegin, int selEnd);
+    void RightTableSelectionChanged(int oldSel, int newSel);
     void ChangedMode(EMode oldMode);
     void UpdateRightTable();
     bool ShouldLeftTableAdvance() const;

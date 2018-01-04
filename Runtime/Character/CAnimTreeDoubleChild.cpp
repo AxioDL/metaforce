@@ -10,9 +10,56 @@ CAnimTreeDoubleChild::CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a
 {
 }
 
+CAnimTreeDoubleChild::CDoubleChildAdvancementResult
+CAnimTreeDoubleChild::AdvanceViewBothChildren(const CCharAnimTime& time, bool runLeft, bool loopLeft)
+{
+    CCharAnimTime lRemTime = time;
+    CCharAnimTime totalTime;
+    if (!runLeft)
+        totalTime = CCharAnimTime();
+    else if (loopLeft)
+        totalTime = CCharAnimTime::Infinity();
+    else
+        totalTime = x14_a->VGetTimeRemaining();
+
+    SAdvancementDeltas leftDeltas, rightDeltas;
+    CCharAnimTime rRemTime = time;
+    if (time.GreaterThanZero())
+    {
+        while (lRemTime.GreaterThanZero() && !lRemTime.EpsilonZero() &&
+               totalTime.GreaterThanZero() && (loopLeft || !totalTime.EpsilonZero()))
+        {
+            SAdvancementResults res = x14_a->VAdvanceView(lRemTime);
+            auto simp = x14_a->Simplified();
+            if (simp)
+                x14_a = CAnimTreeNode::Cast(std::move(*simp));
+            leftDeltas.x0_posDelta += res.x8_deltas.x0_posDelta;
+            leftDeltas.xc_rotDelta = leftDeltas.xc_rotDelta * res.x8_deltas.xc_rotDelta;
+            if (!loopLeft)
+                totalTime = x14_a->VGetTimeRemaining();
+            lRemTime = res.x0_remTime;
+        }
+
+        while (rRemTime.GreaterThanZero() && !rRemTime.EpsilonZero())
+        {
+            SAdvancementResults res = x18_b->VAdvanceView(rRemTime);
+            auto simp = x18_b->Simplified();
+            if (simp)
+                x18_b = CAnimTreeNode::Cast(std::move(*simp));
+            rightDeltas.x0_posDelta += res.x8_deltas.x0_posDelta;
+            rightDeltas.xc_rotDelta = rightDeltas.xc_rotDelta * res.x8_deltas.xc_rotDelta;
+            rRemTime = res.x0_remTime;
+        }
+    }
+
+    return {time, leftDeltas, rightDeltas};
+}
+
 SAdvancementResults CAnimTreeDoubleChild::VAdvanceView(const CCharAnimTime& a)
 {
-    return {};
+    SAdvancementResults resA = x14_a->VAdvanceView(a);
+    SAdvancementResults resB = x14_a->VAdvanceView(a);
+    return (resA.x0_remTime > resB.x0_remTime) ? resA : resB;
 }
 
 u32 CAnimTreeDoubleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut,
@@ -110,8 +157,11 @@ std::shared_ptr<IAnimReader> CAnimTreeDoubleChild::VGetBestUnblendedChild() cons
     return {};
 }
 
-void CAnimTreeDoubleChild::VGetWeightedReaders(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const
+void CAnimTreeDoubleChild::VGetWeightedReaders(
+    rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const
 {
+    x14_a->VGetWeightedReaders(out, w);
+    x18_b->VGetWeightedReaders(out, w);
 }
 
 }

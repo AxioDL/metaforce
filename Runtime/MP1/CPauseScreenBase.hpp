@@ -94,11 +94,11 @@ protected:
     void InitializeFrameGlue();
     void ChangeMode(EMode mode);
     void UpdateSideTable(CGuiTableGroup* table);
-    void SetRightTableSelection(int selBegin, int selEnd);
+    void SetRightTableSelection(int oldSel, int newSel);
 
     void OnLeftTableAdvance(CGuiTableGroup* caller);
     void OnRightTableAdvance(CGuiTableGroup* caller);
-    void OnTableSelectionChange(CGuiTableGroup* caller, int sel);
+    void OnTableSelectionChange(CGuiTableGroup* caller, int oldSel);
     void OnRightTableCancel(CGuiTableGroup* caller);
 
 public:
@@ -122,15 +122,15 @@ public:
     virtual float GetCameraYBias() const { return 0.f; }
     virtual bool VReady() const=0;
     virtual void VActivate()=0;
-    virtual void RightTableSelectionChanged(int selBegin, int selEnd) {}
+    virtual void RightTableSelectionChanged(int oldSel, int newSel) {}
     virtual void ChangedMode(EMode oldMode) {}
     virtual void UpdateRightTable();
     virtual bool ShouldLeftTableAdvance() const { return true; }
     virtual bool ShouldRightTableAdvance() const { return true; }
     virtual u32 GetRightTableCount() const=0;
     virtual bool IsRightLogDynamic() const { return false; }
-    virtual void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, zeus::CColor& inactiveColor) {}
-    virtual void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor, zeus::CColor& inactiveColor) {}
+    virtual void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor) {}
+    virtual void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor) {}
 };
 
 }

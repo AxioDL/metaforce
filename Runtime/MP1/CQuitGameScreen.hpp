@@ -42,7 +42,7 @@ class CQuitGameScreen
     void SetColors();
 public:
     void FinishedLoading();
-    void DoSelectionChange(CGuiTableGroup* caller, int userSel);
+    void DoSelectionChange(CGuiTableGroup* caller, int oldSel);
     void DoAdvance(CGuiTableGroup* caller);
     EQuitAction Update(float dt);
     void Draw();

@@ -10,10 +10,10 @@ namespace urde
 
 class CMetaTransTrans : public IMetaTrans
 {
-    CCharAnimTime x4_animTime;
+    CCharAnimTime x4_transDur;
     bool xc_;
-    bool xd_;
-    u32 x10_;
+    bool xd_runA;
+    u32 x10_flags;
 public:
     CMetaTransTrans(CInputStream& in);
     EMetaTransType GetType() const {return EMetaTransType::Trans;}

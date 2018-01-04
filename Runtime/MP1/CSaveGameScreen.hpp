@@ -107,7 +107,7 @@ public:
     void Draw() const;
 
     void DoAdvance(CGuiTableGroup* caller);
-    void DoSelectionChange(CGuiTableGroup* caller, int userSel);
+    void DoSelectionChange(CGuiTableGroup* caller, int oldSel);
 
     void ProcessUserInput(const CFinalInput& input);
     void StartGame(int idx);

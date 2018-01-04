@@ -31,6 +31,8 @@ public:
     SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
     u32 Depth() const;
     u32 VGetNumChildren() const;
+    void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const
+    { x14_child->VGetWeightedReaders(out, w); }
 };
 
 }

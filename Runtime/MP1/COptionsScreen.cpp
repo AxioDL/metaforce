@@ -80,7 +80,7 @@ void COptionsScreen::OnSliderChanged(CGuiSliderGroup* caller, float val)
     CGameOptions::SetOption(opt, caller->GetGurVal());
 }
 
-void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int sel)
+void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int oldSel)
 {
     if (x10_mode != EMode::RightTable)
         return;
@@ -225,7 +225,7 @@ void COptionsScreen::VActivate()
         std::bind(&COptionsScreen::OnEnumChanged, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-void COptionsScreen::RightTableSelectionChanged(int selBegin, int selEnd)
+void COptionsScreen::RightTableSelectionChanged(int oldSel, int newSel)
 {
     UpdateOptionView();
 }

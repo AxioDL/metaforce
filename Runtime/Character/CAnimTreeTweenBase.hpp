@@ -11,8 +11,8 @@ class CAnimTreeTweenBase : public CAnimTreeDoubleChild
     static s32 sAdvancementDepth;
 protected:
     int x1c_flags;
-    bool x20_31_b1;
-    bool x20_30_b2 = false;
+    bool x20_24_b1 : 1;
+    u8 x20_25_ : 2;
 public:
     CAnimTreeTweenBase(bool,
                        const std::weak_ptr<CAnimTreeNode>& a,
@@ -24,7 +24,7 @@ public:
 
     float GetBlendingWeight() const { return VGetBlendingWeight(); }
 
-    //void VGetTotalChildWeight(float) const;
+    void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const;
     float VGetRightChildWeight() const { return GetBlendingWeight(); }
 
     void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
@@ -33,9 +33,9 @@ public:
     zeus::CVector3f VGetOffset(const CSegId& seg) const;
     zeus::CQuaternion VGetRotation(const CSegId& seg) const;
 
-    std::pair<std::unique_ptr<IAnimReader>, bool> VSimplified();
-    bool ShouldCullTree() const { return false; }
+    std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
 
+    static bool ShouldCullTree() { return 3 <= sAdvancementDepth; }
     static void IncAdvancementDepth() { sAdvancementDepth++; }
     static void DecAdvancementDepth() { sAdvancementDepth--; }
 };

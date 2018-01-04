@@ -646,7 +646,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuCancel(CGuiTableGroup* caller)
     }
 }
 
-void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     HandleActiveChange(caller);
     CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -1172,7 +1172,7 @@ void CFrontEndUI::SFusionBonusFrame::DoCancel(CGuiTableGroup* caller)
     SetTableColors(x28_tablegroup_options);
 }
 
-void CFrontEndUI::SFusionBonusFrame::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CFrontEndUI::SFusionBonusFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     if (caller == x28_tablegroup_options)
     {
@@ -1381,7 +1381,7 @@ void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller)
     /* Intentionally empty */
 }
 
-void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller, int userSel)
+void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     HandleActiveChange(caller);
@@ -1619,7 +1619,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuCancel(CGuiTableGroup* caller)
     }
 }
 
-void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* caller, int sel)
+void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     SetTableColors(caller);
     if (x24_tablegroup_leftmenu == caller)

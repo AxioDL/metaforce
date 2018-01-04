@@ -30,12 +30,6 @@ std::shared_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VGetBestUnblendedChil
     return {};
 }
 
-void CAnimTreeAnimReaderContainer::VGetWeightedReaders
-(std::vector<std::pair<float, std::weak_ptr<IAnimReader>>>& out, float w) const
-{
-    out.push_back(std::make_pair(w, x14_reader));
-}
-
 SAdvancementResults CAnimTreeAnimReaderContainer::VAdvanceView(const CCharAnimTime& dt)
 {
     return x14_reader->VAdvanceView(dt);
@@ -120,7 +114,7 @@ std::unique_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VClone() const
     return std::make_unique<CAnimTreeAnimReaderContainer>(x4_name, x14_reader->Clone(), x1c_animDbIdx);
 }
 
-std::pair<std::unique_ptr<IAnimReader>, bool> CAnimTreeAnimReaderContainer::VSimplified()
+std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeAnimReaderContainer::VSimplified()
 {
     return {};
 }
@@ -133,6 +127,12 @@ void CAnimTreeAnimReaderContainer::VSetPhase(float ph)
 SAdvancementResults CAnimTreeAnimReaderContainer::VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const
 {
     return x14_reader->VGetAdvancementResults(a, b);
+}
+
+void CAnimTreeAnimReaderContainer::VGetWeightedReaders(
+    rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const
+{
+    out.emplace_back(std::make_pair(w, x14_reader));
 }
 
 }
