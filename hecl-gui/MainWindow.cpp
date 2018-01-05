@@ -348,7 +348,7 @@ bool MainWindow::checkDownloadedBinary()
         }
         else
         {
-            m_ui->currentBinaryLabel->setText(QStringLiteral("unknown... re-download recommended"));
+            m_ui->currentBinaryLabel->setText(QStringLiteral("unknown -- re-download recommended"));
         }
 
         enableOperations();
