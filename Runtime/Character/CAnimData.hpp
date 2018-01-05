@@ -129,7 +129,7 @@ private:
         {
             bool x220_24_animating : 1;
             bool x220_25_loop : 1;
-            bool x220_26_ : 1;
+            bool x220_26_aligningPos : 1;
             bool x220_27_ : 1;
             bool x220_28_ : 1;
             bool x220_29_animationJustStarted : 1;

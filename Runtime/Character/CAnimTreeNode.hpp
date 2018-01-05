@@ -31,6 +31,8 @@ public:
     CAnimTreeEffectiveContribution GetContributionOfHighestInfluence() const;
     u32 GetNumChildren() const;
     std::shared_ptr<IAnimReader> GetBestUnblendedChild() const;
+
+    std::string_view GetName() const { return x4_name; }
 };
 
 }

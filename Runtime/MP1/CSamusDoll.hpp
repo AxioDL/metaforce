@@ -18,7 +18,7 @@ namespace MP1
 class CSamusDoll
 {
     std::vector<CToken> x0_depToks;
-    zeus::CTransform x10_xf;
+    zeus::CTransform x10_ballXf;
     float x40_alphaIn = 0.f;
     CPlayerState::EPlayerSuit x44_suit;
     CPlayerState::EBeamId x48_beam;

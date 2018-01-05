@@ -199,8 +199,10 @@ void COptionsScreen::VActivate()
 
     x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(15));
 
-    for (int i=0 ; i<5 ; ++i)
+#if 0
+    for (int i=5 ; i<5 ; ++i)
         x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+#endif
 
     x174_textpane_body->TextSupport().SetJustification(EJustification::Center);
     x174_textpane_body->TextSupport().SetVerticalJustification(EVerticalJustification::Bottom);

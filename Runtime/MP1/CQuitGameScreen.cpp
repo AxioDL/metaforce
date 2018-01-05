@@ -39,6 +39,7 @@ void CQuitGameScreen::FinishedLoading()
 
     x14_tablegroup_quitgame = static_cast<CGuiTableGroup*>(
         x10_loadedFrame->FindWidget("tablegroup_quitgame"));
+    x14_tablegroup_quitgame->SetVertical(false);
     x14_tablegroup_quitgame->SetMenuAdvanceCallback(
         std::bind(&CQuitGameScreen::DoAdvance, this, std::placeholders::_1));
     x14_tablegroup_quitgame->SetMenuSelectionChangeCallback(
@@ -88,7 +89,7 @@ EQuitAction CQuitGameScreen::Update(float dt)
 void CQuitGameScreen::Draw()
 {
     if (x0_type == EQuitType::QuitGame)
-        m_blackScreen->draw(zeus::CColor::skBlack);
+        m_blackScreen->draw(zeus::CColor(0.f, 0.5f));
 
     if (x10_loadedFrame)
         x10_loadedFrame->Draw(CGuiWidgetDrawParms{1.f,

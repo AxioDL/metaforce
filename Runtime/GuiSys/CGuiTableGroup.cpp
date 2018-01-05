@@ -81,8 +81,7 @@ void CGuiTableGroup::ProcessUserInput(const CFinalInput& input)
 
 bool CGuiTableGroup::IsWorkerSelectable(int idx) const
 {
-    CGuiWidget* widget = GetWorkerWidget(idx);
-    if (widget)
+    if (CGuiWidget* widget = GetWorkerWidget(idx))
         return widget->GetIsSelectable();
     return false;
 }

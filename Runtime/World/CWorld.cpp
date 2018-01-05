@@ -475,8 +475,7 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
     x70_24_currentAreaNeedsAllocation = false;
     x68_curAreaId = aid;
 
-    CGameArea* toDeallocateAreas = x4c_chainHeads[0];
-    while (toDeallocateAreas)
+    while (CGameArea* toDeallocateAreas = x4c_chainHeads[0])
     {
         if (toDeallocateAreas->Invalidate(&mgr))
         {
@@ -486,15 +485,13 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         toDeallocateAreas = toDeallocateAreas->x130_next;
     }
 
-    CGameArea* aliveAreas = x4c_chainHeads[3];
-    while (aliveAreas)
+    while (CGameArea* aliveAreas = x4c_chainHeads[3])
     {
         MoveToChain(aliveAreas, EChain::AliveJudgement);
         aliveAreas = aliveAreas->x130_next;
     }
 
-    CGameArea* loadingAreas = x4c_chainHeads[2];
-    while (loadingAreas)
+    while (CGameArea* loadingAreas = x4c_chainHeads[2])
     {
         MoveToChain(loadingAreas, EChain::ToDeallocate);
         loadingAreas = loadingAreas->x130_next;
@@ -535,16 +532,14 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         }
     }
 
-    CGameArea* judgementArea = x4c_chainHeads[4];
-    while (judgementArea)
+    while (CGameArea* judgementArea = x4c_chainHeads[4])
     {
         MoveToChain(judgementArea, EChain::ToDeallocate);
         judgementArea = judgementArea->x130_next;
     }
 
     size_t toStreamCount = 0;
-    toDeallocateAreas = x4c_chainHeads[0];
-    while (toDeallocateAreas)
+    while (CGameArea* toDeallocateAreas = x4c_chainHeads[0])
     {
         toDeallocateAreas->RemoveStaticGeometry();
         toDeallocateAreas = toDeallocateAreas->x130_next;

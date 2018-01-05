@@ -362,7 +362,7 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input)
             x174_textpane_body->TextSupport().SetPage(newPage);
             if (oldPage != newPage)
                 CSfxManager::SfxStart(1444, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-            x198_28_pulseTextArrowTop = newPage > 1;
+            x198_28_pulseTextArrowTop = newPage > 0;
             x198_29_pulseTextArrowBottom = !lastPage;
         }
         else
@@ -421,8 +421,10 @@ void CLogBookScreen::VActivate()
 
     x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(0));
 
-    for (int i=0 ; i<5 ; ++i)
+#if 0
+    for (int i=5 ; i<5 ; ++i)
         x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+#endif
 }
 
 void CLogBookScreen::RightTableSelectionChanged(int oldSel, int newSel)

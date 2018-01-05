@@ -438,13 +438,13 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
                 (scaleAlign - scaleStart)) / *parms.GetObjectScale() *
                 (1.f / (timeAlign.GetSeconds() - timeStart.GetSeconds()));
                 x220_28_ = true;
-                x220_26_ = false;
+                x220_26_aligningPos = false;
             }
             else
             {
                 x1dc_alignPos = zeus::CVector3f::skZero;
                 x220_28_ = false;
-                x220_26_ = false;
+                x220_26_aligningPos = false;
             }
         }
     }
@@ -509,20 +509,20 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
                 (scaleAlign - scaleStart)) / *parms.GetObjectScale() *
                 (1.f / (timeAlign.GetSeconds() - timeStart.GetSeconds()));
                 x220_28_ = true;
-                x220_26_ = false;
+                x220_26_aligningPos = false;
             }
             else
             {
                 x1dc_alignPos = zeus::CVector3f::skZero;
                 x220_28_ = false;
-                x220_26_ = false;
+                x220_26_aligningPos = false;
             }
         }
         else
         {
             x1dc_alignPos = zeus::CVector3f::skZero;
             x220_28_ = false;
-            x220_26_ = false;
+            x220_26_aligningPos = false;
         }
     }
 }
@@ -632,6 +632,7 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
         x1f8_animRoot->VGetSegStatementSet(segIdList, segSet);
 
     AddAdditiveSegData(segIdList, segSet);
+
     for (const CSegId& id : segIdList.GetList())
     {
         if (id == 3)
@@ -842,7 +843,7 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& suspendParticles, CRando
                     x220_24_animating = false;
                     x1dc_alignPos = zeus::CVector3f::skZero;
                     x220_28_ = false;
-                    x220_26_ = false;
+                    x220_26_aligningPos = false;
                 }
             }
         }
@@ -904,14 +905,14 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
                 {
                 case EUserEventType::AlignTargetPosStart:
                 {
-                    x220_26_ = true;
+                    x220_26_aligningPos = true;
                     break;
                 }
                 case EUserEventType::AlignTargetPos:
                 {
                     x1dc_alignPos = zeus::CVector3f::skZero;
                     x220_28_ = false;
-                    x220_26_ = false;
+                    x220_26_aligningPos = false;
                     break;
                 }
                 case EUserEventType::AlignTargetRot:
@@ -927,7 +928,7 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
     }
 
     offset += results.x8_deltas.x0_posDelta;
-    if (x220_26_)
+    if (x220_26_aligningPos)
         offset += x1dc_alignPos * time.GetSeconds();
 
     zeus::CQuaternion rot = results.x8_deltas.xc_rotDelta * x1e8_alignRot;

@@ -60,7 +60,6 @@ public:
     CAnimSourceReaderBase(std::unique_ptr<IAnimSourceInfo>&& sourceInfo,
                           const CCharAnimTime& time);
 
-
     u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
     u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
@@ -72,6 +71,8 @@ public:
     virtual zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& b) const=0;
     virtual bool VSupportsReverseView() const=0;
     virtual SAdvancementResults VReverseView(const CCharAnimTime& time)=0;
+
+    const CCharAnimTime& GetCurTime() const { return xc_curTime; }
 };
 
 class CAnimSourceReader : public CAnimSourceReaderBase

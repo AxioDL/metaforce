@@ -350,7 +350,7 @@ CSegIdToIndexConverter::CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals
 }
 
 CFBStreamedAnimReader::CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time)
-: CAnimSourceReaderBase(std::make_unique<TAnimSourceInfo<CFBStreamedCompression>>(source), time), x54_source(source),
+: CAnimSourceReaderBase(std::make_unique<TAnimSourceInfo<CFBStreamedCompression>>(source), {}), x54_source(source),
   x64_steadyStateInfo(source->IsLooping(), source->GetAnimationDuration(), source->GetRootOffset()),
   x7c_totals(source), x104_bitstreamData(source->GetBitstreamPointer()), x108_bitLoader(x104_bitstreamData),
   x114_segIdToIndex(x7c_totals.x10_nextSel ? x7c_totals.x14_a : x7c_totals.x3c_b)

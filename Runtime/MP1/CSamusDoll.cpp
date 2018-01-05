@@ -116,7 +116,8 @@ static const u32 Character2and3Idxs[8][2] =
 CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp,
                        CPlayerState::EPlayerSuit suit, CPlayerState::EBeamId beam,
                        bool hasSpiderBall, bool hasGrappleBeam)
-: x44_suit(suit), x48_beam(beam)
+: x10_ballXf(zeus::CTransform::Translate(0.f, 0.f, 0.625f * g_tweakPlayer->GetPlayerBallHalfExtent())),
+  x44_suit(suit), x48_beam(beam)
 {
     x70_fixedRot.rotateZ(M_PIF);
     x90_userInterpRot = xb0_userRot = x70_fixedRot;
@@ -313,7 +314,7 @@ void CSamusDoll::Update(float dt, CRandom16& rand)
 
     SetupLights();
 
-    x22c_ballInnerGlowGen->SetGlobalTranslation(x10_xf.origin);
+    x22c_ballInnerGlowGen->SetGlobalTranslation(x10_ballXf.origin);
     x22c_ballInnerGlowGen->Update(dt);
 
     if (x238_ballTransitionFlashGen)
@@ -322,7 +323,7 @@ void CSamusDoll::Update(float dt, CRandom16& rand)
             x238_ballTransitionFlashGen.reset();
         if (x238_ballTransitionFlashGen)
         {
-            x22c_ballInnerGlowGen->SetGlobalTranslation(x10_xf.origin);
+            x22c_ballInnerGlowGen->SetGlobalTranslation(x10_ballXf.origin);
             x22c_ballInnerGlowGen->Update(dt);
         }
     }
@@ -470,17 +471,17 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
                 flags.x1_matSetIdx = x1e0_ballMatIdx;
                 flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
                 flags.x4_color = zeus::CColor::skWhite;
-                x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
+                x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
                 flags.m_extendedShader = EExtendedShader::ForcedAlpha;
                 flags.x4_color = zeus::CColor::skWhite;
                 flags.x4_color.a = alpha * ballAlpha;
-                x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
+                x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
                 flags.m_extendedShader = EExtendedShader::ForcedAdditive;
                 flags.x4_color = zeus::CColor::skWhite;
                 flags.x4_color.a = x6c_ballPulseFactor * alpha * ballAlpha * itemPulse;
-                x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
+                x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
             }
 
             if (x4d_selectedMorphball && ballT > 0.5f)
@@ -507,14 +508,14 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
                     flags.m_extendedShader = EExtendedShader::ForcedAdditive;
                     flags.x1_matSetIdx = x1e0_ballMatIdx;
                     flags.x4_color = zeus::CColor(1.f, spinAlpha * alpha);
-                    x184_ballModelData->Render(mgr, x10_xf * zeus::CTransform::RotateZ(spinAngle) * zeus::CTransform::Scale(spinScale),
+                    x184_ballModelData->Render(mgr, x10_ballXf * zeus::CTransform::RotateZ(spinAngle) * zeus::CTransform::Scale(spinScale),
                                                x24c_actorLights.get(), flags);
                 }
             }
 
             if (x270_24_hasSpiderBall)
             {
-                CGraphics::SetModelMatrix(x10_xf);
+                CGraphics::SetModelMatrix(x10_ballXf);
                 CModelFlags flags = {};
                 flags.x1_matSetIdx = x1e4_glassMatIdx;
                 x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
@@ -551,17 +552,17 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
         flags.x1_matSetIdx = x1e0_ballMatIdx;
         flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
         flags.x4_color = zeus::CColor::skWhite;
-        x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
+        x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = zeus::CColor::skWhite;
         flags.x4_color.a = alpha;
-        x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
+        x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAdditive;
         flags.x4_color = zeus::CColor::skWhite;
         flags.x4_color.a = x6c_ballPulseFactor * alpha * itemPulse;
-        x184_ballModelData->Render(mgr, x10_xf, x24c_actorLights.get(), flags);
+        x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         const u8* c = CMorphBall::BallGlowColors[x1e8_ballGlowColorIdx];
         zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
@@ -587,7 +588,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
         if (x270_24_hasSpiderBall)
         {
-            CGraphics::SetModelMatrix(x10_xf);
+            CGraphics::SetModelMatrix(x10_ballXf);
             CModelFlags flags = {};
             flags.x1_matSetIdx = x1e4_glassMatIdx;
             x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);

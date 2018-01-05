@@ -1,4 +1,5 @@
 #include "CAnimTreeAnimReaderContainer.hpp"
+#include "CFBStreamedAnimReader.hpp"
 
 namespace urde
 {

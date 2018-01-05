@@ -184,7 +184,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input)
                 x174_textpane_body->TextSupport().SetPage(newPage);
                 if (oldPage != newPage)
                     CSfxManager::SfxStart(1444, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-                x198_28_pulseTextArrowTop = newPage > 1;
+                x198_28_pulseTextArrowTop = newPage > 0;
                 x198_29_pulseTextArrowBottom = !lastPage;
             }
             else

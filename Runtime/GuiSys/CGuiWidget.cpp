@@ -8,13 +8,18 @@ static logvisor::Module Log("urde::CGuiWidget");
 CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 : x70_selfId(parms.x6_selfId), x72_parentId(parms.x8_parentId),
   xa4_color(parms.x10_color), xa8_color2(parms.x10_color),
-  xac_drawFlags(parms.x14_drawFlags), xb0_frame(parms.x0_frame),
-  xb6_24_pg(parms.xd_g), xb6_25_isVisible(parms.xa_defaultVisible),
-  xb6_26_isActive(parms.xb_defaultActive),
-  xb6_27_isSelectable(true), xb6_28_eventLock(false),
-  xb6_29_cullFaces(parms.xc_cullFaces), xb6_30_depthGreater(false),
-  xb6_31_depthTest(true), xb7_24_depthWrite(false), xb7_25_(true)
+  xac_drawFlags(parms.x14_drawFlags), xb0_frame(parms.x0_frame)
 {
+    xb6_24_pg = parms.xd_g;
+    xb6_25_isVisible = parms.xa_defaultVisible;
+    xb6_26_isActive = parms.xb_defaultActive;
+    xb6_27_isSelectable = true;
+    xb6_28_eventLock = false;
+    xb6_29_cullFaces = parms.xc_cullFaces;
+    xb6_30_depthGreater = false;
+    xb6_31_depthTest = true;
+    xb7_24_depthWrite = false;
+    xb7_25_ = true;
     RecalcWidgetColor(ETraversalMode::Single);
 }
 

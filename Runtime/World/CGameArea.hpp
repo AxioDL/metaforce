@@ -288,6 +288,7 @@ public:
 
     CGameArea(CInputStream& in, int idx, int mlvlVersion);
     CGameArea(CAssetId mreaId); // Warmup constructor
+    ~CGameArea();
 
     bool IsFinishedOccluding() const;
     void ReadDependencyList();

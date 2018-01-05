@@ -12,7 +12,7 @@ class CAnimTreeTweenBase : public CAnimTreeDoubleChild
 protected:
     int x1c_flags;
     bool x20_24_b1 : 1;
-    u8 x20_25_ : 2;
+    u8 x20_25_cullSelector : 2;
 public:
     CAnimTreeTweenBase(bool,
                        const std::weak_ptr<CAnimTreeNode>& a,
@@ -34,6 +34,8 @@ public:
     zeus::CQuaternion VGetRotation(const CSegId& seg) const;
 
     std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
+    virtual std::experimental::optional<std::unique_ptr<IAnimReader>> VReverseSimplified()
+    { return CAnimTreeTweenBase::VSimplified(); }
 
     static bool ShouldCullTree() { return 3 <= sAdvancementDepth; }
     static void IncAdvancementDepth() { sAdvancementDepth++; }

@@ -450,7 +450,7 @@ zeus::CQuaternion CAnimSourceReader::VGetRotation(const CSegId& seg) const
 
 CAnimSourceReader::CAnimSourceReader(const TSubAnimTypeToken<CAnimSource>& source,
                                      const CCharAnimTime& time)
-: CAnimSourceReaderBase(std::make_unique<CAnimSourceInfo>(source), CCharAnimTime()),
+: CAnimSourceReaderBase(std::make_unique<CAnimSourceInfo>(source), {}),
   x54_source(source), x64_steadyStateInfo(false, source->GetDuration(),
                                           source->GetOffset(source->GetRootBoneId(), time))
 {

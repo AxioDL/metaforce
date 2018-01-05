@@ -71,6 +71,17 @@ void CPauseScreenBase::InitializeFrameGlue()
     x54_tableTripleStart = x194_tablegroup_triple->GetIdlePosition();
 
     for (int i=0 ; i<5 ; ++i)
+        x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(true);
+
+    for (int i=0 ; i<x84_tablegroup_rightlog->GetElementCount() ; ++i)
+    {
+        CGuiWidget* w = x84_tablegroup_rightlog->GetWorkerWidget(i);
+        w->SetLocalTransform(zeus::CTransform::Translate(
+            x2c_rightTableStart + zeus::CVector3f(0.f, 0.f, x38_highlightPitch * i)));
+        w->SetIsSelectable(true);
+    }
+
+    for (int i=0 ; i<5 ; ++i)
     {
         xd8_textpane_titles.push_back(static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_title%d", i + 1))));
         x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_title%d", i + 1))));

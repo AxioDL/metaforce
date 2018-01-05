@@ -12,9 +12,9 @@ std::string CAnimTreeTransition::CreatePrimitiveName(const std::weak_ptr<CAnimTr
 CAnimTreeTransition::CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a,
                                          const std::weak_ptr<CAnimTreeNode>& b, const CCharAnimTime& transDur,
                                          const CCharAnimTime& timeInTrans, bool runA, bool loopA, int flags,
-                                         std::string_view name, bool b4)
+                                         std::string_view name, bool initialized)
 : CAnimTreeTweenBase(b1, a, b, flags, name), x24_transDur(transDur), x2c_timeInTrans(timeInTrans),
-  x34_runA(runA), x35_loopA(loopA), x36_(b4)
+  x34_runA(runA), x35_loopA(loopA), x36_initialized(initialized)
 {
 }
 
@@ -56,7 +56,7 @@ std::unique_ptr<IAnimReader> CAnimTreeTransition::VClone() const
                                                  std::static_pointer_cast<CAnimTreeNode>(
                                                      std::shared_ptr<IAnimReader>(x18_b->Clone())),
                                                  x24_transDur, x2c_timeInTrans, x34_runA,
-                                                 x35_loopA, x1c_flags, x4_name, x36_);
+                                                 x35_loopA, x1c_flags, x4_name, x36_initialized);
 }
 
 std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VSimplified()
@@ -68,6 +68,13 @@ std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::V
         return {x18_b->Clone()};
     }
     return CAnimTreeTweenBase::VSimplified();
+}
+
+std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VReverseSimplified()
+{
+    if (zeus::close_enough(GetBlendingWeight(), 0.f))
+        return {x14_a->Clone()};
+    return CAnimTreeTweenBase::VReverseSimplified();
 }
 
 SAdvancementResults CAnimTreeTransition::AdvanceViewForTransitionalPeriod(const CCharAnimTime& time)
@@ -85,9 +92,9 @@ SAdvancementResults CAnimTreeTransition::AdvanceViewForTransitionalPeriod(const 
     if (ShouldCullTree())
     {
         if (newWeight < 0.5f)
-            x20_25_ = 1;
+            x20_25_cullSelector = 1;
         else
-            x20_25_ = 2;
+            x20_25_cullSelector = 2;
     }
 
     if (x1c_flags & 0x1)
@@ -116,12 +123,12 @@ SAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time)
             x14_a->VAdvanceView(time);
         DecAdvancementDepth();
         if (ShouldCullTree())
-            x20_25_ = 1;
+            x20_25_cullSelector = 1;
         return {};
     }
 
-    if (!x36_)
-        x36_ = true;
+    if (!x36_initialized)
+        x36_initialized = true;
 
     if (x2c_timeInTrans + time < x24_transDur)
     {

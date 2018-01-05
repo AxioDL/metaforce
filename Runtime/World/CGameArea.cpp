@@ -493,6 +493,14 @@ CGameArea::CGameArea(CAssetId mreaId)
     CBooModel::SetDummyTextures(false);
 }
 
+CGameArea::~CGameArea()
+{
+    if (xf0_24_postConstructed)
+        RemoveStaticGeometry();
+    else
+        while (!Invalidate(nullptr)) {}
+}
+
 std::pair<std::unique_ptr<u8[]>, s32> CGameArea::IGetScriptingMemoryAlways() const
 {
     return GetScriptingMemoryAlways(*this);
