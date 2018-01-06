@@ -709,12 +709,12 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const
     CGraphics::DisableAllLights();
     CGraphics::SetModelMatrix(xf);
     g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
-    CGraphics::SetDepthRange(0.999f, 1.f);
+    CGraphics::SetDepthRange(DEPTH_SKY, DEPTH_FAR);
 
     CModelFlags flags(0, 0, 1, zeus::CColor::skWhite);
     model->Draw(flags);
 
-    CGraphics::SetDepthRange(0.125f, 1.f);
+    CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
 }
 
 void CWorld::StopGlobalSound(u16 id)

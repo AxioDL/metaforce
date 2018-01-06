@@ -174,7 +174,7 @@ void CCameraFilterPassPoly::SetFilter(EFilterType type, EFilterShape shape,
         m_filter->SetFilter(type, shape, time, color, txtr);
 }
 
-void CCameraBlurPass::Draw()
+void CCameraBlurPass::Draw(bool clearDepth)
 {
     if (x10_curType == EBlurType::NoBlur)
         return;
@@ -189,7 +189,9 @@ void CCameraBlurPass::Draw()
     {
         if (!m_shader)
             m_shader.emplace();
-        m_shader->draw(x1c_curValue);
+        m_shader->draw(x1c_curValue, clearDepth);
+        if (clearDepth)
+            CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
     }
 }
 

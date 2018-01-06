@@ -8,6 +8,7 @@
 #include "CPlayerState.hpp"
 #include "Graphics/CModel.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace urde
 {
@@ -61,7 +62,8 @@ class CPlayerVisor
     TCachedToken<CModel> xe4_scanFrameCenterTop;
     TCachedToken<CModel> xf0_scanFrameStretchSide;
     TCachedToken<CModel> xfc_scanFrameStretchTop;
-    TCachedToken<CModel> x108_newScanPane;
+    //TCachedToken<CModel> x108_newScanPane;
+    CTexturedQuadFilter x108_newScanPane;
     TCachedToken<CModel> x114_scanShield;
     int x120_assetLockCountdown = 0;
     TCachedToken<CModel> x124_scanIconNoncritical;
@@ -70,8 +72,6 @@ class CPlayerVisor
     TLockedToken<CTexture> x540_xrayPalette;
     float x54c_frameColorInterp = 0.f;
     float x550_frameColorImpulseInterp = 0.f;
-
-    std::unique_ptr<CBooModel> m_newScanPaneInst;
 
     int FindEmptyInactiveScanTarget() const;
     int FindCachedInactiveScanTarget(TUniqueId uid) const;

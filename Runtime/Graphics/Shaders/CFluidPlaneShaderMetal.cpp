@@ -62,7 +62,7 @@ static const char* VS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "\n"
 "struct Light\n"
 "{\n"
@@ -140,7 +140,7 @@ static const char* FS =
 static const char* FSDoor =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "\n"
 "struct Light\n"
 "{\n"

@@ -1687,10 +1687,10 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                 frmeAlpha = 1.f - frmeAlpha;
             }
         }
-        CGraphics::SetDepthRange(0.f, 0.f);
+        CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_NEAR);
         CGuiWidgetDrawParms parms(frmeAlpha, zeus::CVector3f::skZero);
         x28_frmeMapScreen->Draw(parms);
-        CGraphics::SetDepthRange(0.f, 1.f / 512.f);
+        CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_HUD);
     }
 }
 

@@ -77,7 +77,7 @@ static const char* VSNoFlip =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -94,7 +94,7 @@ static const char* FS =
 static const char* FSAlpha =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"

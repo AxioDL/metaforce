@@ -50,7 +50,8 @@ void CAuiImagePane::Update(float dt)
 }
 
 CAuiImagePane::Filters::Filters(TLockedToken<CTexture>& tex)
-: m_darkenerQuad(EFilterType::Blend, tex),
+: m_texId(tex.GetObjectTag()->id),
+  m_darkenerQuad(EFilterType::Blend, tex),
   m_flashQuad{{EFilterType::Add, tex}, {EFilterType::Add, tex}},
   m_alphaQuad{{EFilterType::Blend, tex}, {EFilterType::Blend, tex}},
   m_addQuad{{EFilterType::Add, tex}, {EFilterType::Add, tex}}
@@ -89,8 +90,8 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
     {
         {xe0_coords[0], (*useUVs)[0] + xd0_uvBias0},
         {xe0_coords[1], (*useUVs)[1] + xd0_uvBias0},
-        {xe0_coords[2], (*useUVs)[2] + xd0_uvBias0},
-        {xe0_coords[3], (*useUVs)[3] + xd0_uvBias0}
+        {xe0_coords[3], (*useUVs)[3] + xd0_uvBias0},
+        {xe0_coords[2], (*useUVs)[2] + xd0_uvBias0}
     };
 
     if (noBlur)
@@ -116,7 +117,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const
     if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded())
         return;
     GetIsFinishedLoadingWidgetSpecific();
-    if (!m_filters)
+    if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id)
         const_cast<CAuiImagePane*>(this)->m_filters.emplace(const_cast<CAuiImagePane*>(this)->xb8_tex0Tok);
     Filters& filters = const_cast<Filters&>(*m_filters);
     zeus::CColor color = xa8_color2;

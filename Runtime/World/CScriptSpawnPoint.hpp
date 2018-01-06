@@ -11,7 +11,7 @@ namespace urde
 class CScriptSpawnPoint : public CEntity
 {
     zeus::CTransform x34_xf;
-    std::vector<u32> x64_itemCounts;
+    rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)> x64_itemCounts;
     union
     {
         struct
@@ -22,8 +22,8 @@ class CScriptSpawnPoint : public CEntity
         u8 _dummy = 0;
     };
 public:
-    CScriptSpawnPoint(TUniqueId, std::string_view name, const CEntityInfo& info,
-                      const zeus::CTransform& xf, const std::vector<u32>& itemCounts,
+    CScriptSpawnPoint(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                      const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts,
                       bool, bool, bool);
 
     void Accept(IVisitor& visitor);

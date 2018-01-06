@@ -245,15 +245,12 @@ float CPlayerState::GetScanTime(CAssetId res) const
 
 bool CPlayerState::GetIsVisorTransitioning() const
 {
-    if (x14_currentVisor != x18_transitioningVisor || x1c_visorTransitionFactor < 0.2f)
-        return true;
-
-    return false;
+    return x14_currentVisor != x18_transitioningVisor || x1c_visorTransitionFactor < 0.2f;
 }
 
 float CPlayerState::GetVisorTransitionFactor() const
 {
-    return x1c_visorTransitionFactor;
+    return x1c_visorTransitionFactor / 0.2f;
 }
 
 void CPlayerState::UpdateVisorTransition(float dt)
@@ -273,9 +270,9 @@ void CPlayerState::UpdateVisorTransition(float dt)
         if (x1c_visorTransitionFactor < 0.f)
         {
             x14_currentVisor = x18_transitioningVisor;
-            x1c_visorTransitionFactor = fabs(x1c_visorTransitionFactor);
-            if (x1c_visorTransitionFactor < 0.19f)
-                x1c_visorTransitionFactor = 0.19f;
+            x1c_visorTransitionFactor = std::fabs(x1c_visorTransitionFactor);
+            if (x1c_visorTransitionFactor > 0.19999f)
+                x1c_visorTransitionFactor = 0.19999f;
         }
     }
 }
@@ -379,6 +376,10 @@ void CPlayerState::IncrPickup(EItemType type, s32 amount)
     {
         CPowerUp& pup = x24_powerups[u32(type)];
         pup.x0_amount = std::min(pup.x0_amount + amount, pup.x4_capacity);
+
+        if (type == CPlayerState::EItemType::Truth)
+            printf("");
+
         if (type == EItemType::EnergyTanks)
             IncrPickup(EItemType::HealthRefill, 9999);
         break;
@@ -409,6 +410,9 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
     if (type >= EItemType::Max)
         return;
 
+    if (type == CPlayerState::EItemType::Truth)
+        printf("");
+
     CPowerUp& pup = x24_powerups[(u32)type];
     pup.x4_capacity = zeus::clamp(u32(0), pup.x4_capacity + capacity, PowerUpMaxValues[u32(type)]);
     pup.x0_amount = std::min(pup.x0_amount, pup.x4_capacity);
@@ -427,6 +431,9 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
 
 void CPlayerState::ReInitalizePowerUp(CPlayerState::EItemType type, u32 capacity)
 {
+    if (type == CPlayerState::EItemType::Truth)
+        printf("");
+
     x24_powerups[u32(type)].x4_capacity = 0;
     InitializePowerUp(type, capacity);
 }

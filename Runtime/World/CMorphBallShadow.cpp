@@ -49,7 +49,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
                                              (aabb.min.y + aabb.max.y) * 0.5f,
                                              aabb.max.z));
 
-    CGraphics::SetDepthRange(0.f, 1.f);
+    CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
     float vpX = (aabb.max.x - aabb.min.x) * 0.5f;
     float vpY = (aabb.max.y - aabb.min.y) * 0.5f;
     float vpZ = (aabb.max.z - aabb.min.z) + FLT_EPSILON;

@@ -28,11 +28,13 @@ void CPauseScreenBase::InitializeFrameGlue()
     x6c_basewidget_leftlog = x8_frame.FindWidget("basewidget_leftlog");
     x70_tablegroup_leftlog = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_leftlog"));
     x74_basewidget_leftguages = x8_frame.FindWidget("basewidget_leftguages");
+    x74_basewidget_leftguages->SetColor(zeus::CColor(1.f, 0.f));
     x78_model_lefthighlight = static_cast<CGuiModel*>(x8_frame.FindWidget("model_lefthighlight"));
     x7c_basewidget_rightside = x8_frame.FindWidget("basewidget_rightside");
     x80_basewidget_rightlog = x8_frame.FindWidget("basewidget_rightlog");
     x84_tablegroup_rightlog = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_rightlog"));
     x88_basewidget_rightguages = x8_frame.FindWidget("basewidget_rightguages");
+    x88_basewidget_rightguages->SetColor(zeus::CColor(1.f, 0.f));
     x8c_model_righthighlight = static_cast<CGuiModel*>(x8_frame.FindWidget("model_righthighlight"));
     x90_model_textarrowtop = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textarrowtop"));
     x94_model_textarrowbottom = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textarrowbottom"));
@@ -44,6 +46,7 @@ void CPauseScreenBase::InitializeFrameGlue()
     x178_textpane_title = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_title"));
     x178_textpane_title->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
     x174_textpane_body = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_body"));
+    x174_textpane_body->SetColor(zeus::CColor(1.f, 0.f));
     x174_textpane_body->SetIsVisible(true);
     x174_textpane_body->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
     x174_textpane_body->TextSupport().SetPage(0);

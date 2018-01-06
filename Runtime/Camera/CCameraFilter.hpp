@@ -109,7 +109,7 @@ class CCameraBlurPass
     mutable std::experimental::optional<CXRayBlurFilter> m_xrayShader;
 
 public:
-    void Draw();
+    void Draw(bool clearDepth=false);
     void Update(float dt);
     void SetBlur(EBlurType type, float amount, float duration);
     void DisableBlur(float duration);

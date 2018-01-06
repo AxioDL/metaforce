@@ -200,7 +200,7 @@ int CTextExecuteBuffer::WrapOneLTR(const char16_t* str, int len)
     if (x18_textState.x7c_enableWordWrap)
     {
         if (w + xa4_curLine->x8_curX > xa0_curBlock->xc_blockExtentX &&
-            xa4_curLine->x4_wordCount > 1 &&
+            xa4_curLine->x4_wordCount >= 1 &&
             xb0_curX + w < xa0_curBlock->xc_blockExtentX)
         {
             MoveWordLTR();

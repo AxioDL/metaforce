@@ -823,10 +823,10 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
     zeus::CVector3f rotation;
     rotation.readBig(in);
 
-    std::vector<u32> itemCounts;
-    itemCounts.reserve(propCount - 6);
+    rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)> itemCounts;
+    itemCounts.resize(size_t(CPlayerState::EItemType::Max));
     for (int i = 0; i < propCount - 6; ++i)
-        itemCounts.push_back(in.readUint32Big());
+        itemCounts[i] = in.readUint32Big();
 
     bool defaultSpawn = in.readBool();
     bool active = in.readBool();

@@ -2481,7 +2481,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
         beamFlags.x4_color = zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor::skBlack, x39c_phazonMorphT);
 
     const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-    CGraphics::SetDepthRange(0.03125f, 0.125f);
+    CGraphics::SetDepthRange(DEPTH_GUN, DEPTH_WORLD);
     zeus::CTransform offsetWorldXf = zeus::CTransform::Translate(pos) * x4a8_gunWorldXf;
     zeus::CTransform elbowOffsetXf = offsetWorldXf * x508_elbowLocalXf;
     if (x32c_chargePhase != EChargePhase::NotCharging && (x2f8_stateFlags & 0x10) != 0x10)
@@ -2568,7 +2568,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
 
     RenderEnergyDrainEffects(mgr);
 
-    CGraphics::SetDepthRange(0.125f, 1.f);
+    CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     CGraphics::SetProjectionState(projState);
 }
 

@@ -80,6 +80,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         {
             CModelFlags flags(5, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
             flags.m_noCull = !xb6_29_cullFaces;
+            flags.m_noZWrite = !xb7_24_depthWrite;
             model->Draw(flags);
             break;
         }
@@ -87,6 +88,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         {
             CModelFlags flags(7, 0, (u32(xb7_24_depthWrite) << 1) | u32(xb6_31_depthTest), moduCol);
             flags.m_noCull = !xb6_29_cullFaces;
+            flags.m_noZWrite = !xb7_24_depthWrite;
             model->Draw(flags);
             break;
         }
@@ -94,6 +96,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const
         {
             CModelFlags flags(5, 0, xb6_31_depthTest, moduCol);
             flags.m_noCull = !xb6_29_cullFaces;
+            flags.m_noZWrite = !xb7_24_depthWrite;
             model->Draw(flags);
 
             flags.x0_blendMode = 7;

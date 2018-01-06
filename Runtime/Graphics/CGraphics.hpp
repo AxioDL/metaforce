@@ -206,6 +206,26 @@ enum class ETexelFormat
     CMPRPC  = 18,
 };
 
+/*
+#define DEPTH_FAR 1.f
+#define DEPTH_SKY 0.999f
+#define DEPTH_TARGET_MANAGER 0.12500012f
+#define DEPTH_WORLD (1.f / 8.f)
+#define DEPTH_GUN (1.f / 32.f)
+#define DEPTH_SCREEN_ACTORS (1.f / 64.f)
+#define DEPTH_HUD (1.f / 512.f)
+#define DEPTH_NEAR 0.f
+ */
+
+#define DEPTH_FAR 1.f
+#define DEPTH_SKY 0.999f
+#define DEPTH_TARGET_MANAGER 0.12500012f
+#define DEPTH_WORLD (1.f / 8.f)
+#define DEPTH_GUN (1.f / 32.f)
+#define DEPTH_SCREEN_ACTORS (1.f / 64.f)
+#define DEPTH_HUD (1.f / 512.f)
+#define DEPTH_NEAR 0.f
+
 class CGraphics
 {
 public:
@@ -334,10 +354,10 @@ public:
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);
     }
-    static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx=0)
+    static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx=0, bool clearDepth=false)
     {
         boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-        g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false);
+        g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
     }
     static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx=0)
     {

@@ -202,6 +202,8 @@ struct SCAN : BigYAML
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut)
     {
+        g_curSpec->flattenDependencies(frame, pathsOut);
+        g_curSpec->flattenDependencies(string, pathsOut);
         for (int i = 0; i < 4; ++i)
             g_curSpec->flattenDependencies(textures[i].texture, pathsOut);
     }

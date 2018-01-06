@@ -27,6 +27,7 @@ class CAuiImagePane : public CGuiWidget
     float x150_flashFactor = 0.f;
     struct Filters
     {
+        CAssetId m_texId;
         CTexturedQuadFilterAlpha m_darkenerQuad;
         CTexturedQuadFilterAlpha m_flashQuad[2];
         CTexturedQuadFilterAlpha m_alphaQuad[2];

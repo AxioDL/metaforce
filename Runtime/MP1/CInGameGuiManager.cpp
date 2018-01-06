@@ -598,7 +598,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
     //if (x3c_pauseScreenBlur->IsGameDraw())
     {
         x34_samusHud->GetTargetingManager().Draw(stateMgr, true);
-        CGraphics::SetDepthRange(0.015625f, 0.03125f);
+        CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
         bool scanVisor = stateMgr.GetPlayerState()->GetActiveVisor(stateMgr) == CPlayerState::EPlayerVisor::Scan;
         if (drawVisor && x1f0_enablePlayerVisor)
         {
@@ -612,7 +612,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
         x40_samusReflection->Draw(stateMgr);
         if (drawVisor)
         {
-            CGraphics::SetDepthRange(0.001953125f, 0.015625f);
+            CGraphics::SetDepthRange(DEPTH_HUD, DEPTH_SCREEN_ACTORS);
             if (staticAlpha > 0.f)
                 m_randomStatic.draw(zeus::CColor(1.f, staticAlpha), 1.f);
             x34_samusHud->Draw(stateMgr, x1f4_visorStaticAlpha * (1.f - staticAlpha),
@@ -621,7 +621,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
         }
     }
 
-    float preDrawBlur = true;
+    bool preDrawBlur = true;
     if (x1bc_prevState >= EInGameGuiState::Zero && x1bc_prevState <= EInGameGuiState::InGame)
         if (x1bc_prevState != EInGameGuiState::MapScreen && x1c0_nextState != EInGameGuiState::MapScreen)
             preDrawBlur = false;
@@ -647,7 +647,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr)
             mapAlpha = 0.f;
 
         x34_samusHud->GetBaseHudFrame()->GetFrameCamera()->Draw(CGuiWidgetDrawParms(0.f, zeus::CVector3f::skZero));
-        CGraphics::SetDepthRange(0.f, 0.001953125f);
+        CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_HUD);
         x148_model_automapper->SetIsVisible(true);
         x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, zeus::CVector3f::skZero));
         // ZTest no write

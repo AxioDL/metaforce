@@ -98,7 +98,7 @@ void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool b)
 
 void CPauseScreenBlur::Draw(const CStateManager&) const
 {
-    const_cast<CCameraBlurPass&>(x1c_camBlur).Draw();
+    const_cast<CCameraBlurPass&>(x1c_camBlur).Draw(true);
     float t = std::fabs(x18_blurAmt);
     if (x1c_camBlur.GetCurrType() != EBlurType::NoBlur)
     {

@@ -50,7 +50,7 @@ static const char* TextVS =
 static const char* TextFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -105,7 +105,7 @@ static const char* ImgVS =
 static const char* ImgFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"

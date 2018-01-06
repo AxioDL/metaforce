@@ -33,7 +33,7 @@ class CCameraBlurFilter
 
 public:
     CCameraBlurFilter();
-    void draw(float amount);
+    void draw(float amount, bool clearDepth=false);
 
     using _CLS = CCameraBlurFilter;
 #include "TShaderDecl.hpp"

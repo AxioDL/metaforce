@@ -28,7 +28,9 @@ enum EExtendedShader : uint8_t
     MorphBallShadow,
     WorldShadow,
     ForcedAlphaNoCull,
-    ForcedAdditiveNoCull
+    ForcedAdditiveNoCull,
+    ForcedAlphaNoCullNoZWrite,
+    ForcedAdditiveNoCullNoZWrite
 };
 
 class CModelShaders

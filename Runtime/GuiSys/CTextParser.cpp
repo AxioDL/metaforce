@@ -71,19 +71,17 @@ s32 CTextParser::ParseInt(const char16_t* str, int len, bool signVal)
 
 bool CTextParser::Equals(const char16_t* str, int len, const char16_t* other)
 {
-    int i=0;
-    for (; *other && i<len ; ++i, ++str, ++other)
+    for (int i=0 ; *other && i<len ; ++i, ++str, ++other)
     {
         if (*str != *other)
             return false;
     }
-    return other[i] == u'\0';
+    return *other == u'\0';
 }
 
 bool CTextParser::BeginsWith(const char16_t* str, int len, const char16_t* other)
 {
-    int i=0;
-    for (; *other && i<len ; ++i, ++str, ++other)
+    for (int i=0 ; *other && i<len ; ++i, ++str, ++other)
     {
         if (*str != *other)
             return false;

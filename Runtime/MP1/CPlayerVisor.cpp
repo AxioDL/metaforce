@@ -14,6 +14,7 @@ namespace urde::MP1
 {
 
 CPlayerVisor::CPlayerVisor(CStateManager&)
+: x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get())
 {
     x25_24_visorTransitioning = false;
     x25_25_ = false;
@@ -22,7 +23,7 @@ CPlayerVisor::CPlayerVisor(CStateManager&)
     xe4_scanFrameCenterTop = g_SimplePool->GetObj("CMDL_ScanFrameCenterTop");
     xf0_scanFrameStretchSide = g_SimplePool->GetObj("CMDL_ScanFrameStretchSide");
     xfc_scanFrameStretchTop = g_SimplePool->GetObj("CMDL_ScanFrameStretchTop");
-    x108_newScanPane = g_SimplePool->GetObj("CMDL_NewScanPane");
+    //x108_newScanPane = g_SimplePool->GetObj("CMDL_NewScanPane");
     x114_scanShield = g_SimplePool->GetObj("CMDL_ScanShield");
     x124_scanIconNoncritical = g_SimplePool->GetObj("CMDL_ScanIconNoncritical");
     x130_scanIconCritical = g_SimplePool->GetObj("CMDL_ScanIconCritical");
@@ -68,7 +69,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
     if (!x114_scanShield.IsLoaded())
         return false;
 
-    CGraphics::SetDepthRange(0.125f, 1.f);
+    CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     g_Renderer->SetViewportOrtho(true, 0.f, 4096.f);
 
     CGraphics::SetModelMatrix(
@@ -144,7 +145,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
         }
     }
 
-    CGraphics::SetDepthRange(0.015625f, 0.03125f);
+    CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
     return true;
 }
 
@@ -335,7 +336,7 @@ void CPlayerVisor::LockUnlockAssets()
         xe4_scanFrameCenterTop.Lock();
         xf0_scanFrameStretchSide.Lock();
         xfc_scanFrameStretchTop.Lock();
-        x108_newScanPane.Lock();
+        //x108_newScanPane.Lock();
         x114_scanShield.Lock();
         x124_scanIconNoncritical.Lock();
         x130_scanIconCritical.Lock();
@@ -347,7 +348,7 @@ void CPlayerVisor::LockUnlockAssets()
         xe4_scanFrameCenterTop.Unlock();
         xf0_scanFrameStretchSide.Unlock();
         xfc_scanFrameStretchTop.Unlock();
-        x108_newScanPane.Unlock();
+        //x108_newScanPane.Unlock();
         x114_scanShield.Unlock();
         x124_scanIconNoncritical.Unlock();
         x130_scanIconCritical.Unlock();
@@ -359,9 +360,9 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     bool indicatorsDrawn = DrawScanObjectIndicators(mgr);
     if (tgtMgr && indicatorsDrawn)
     {
-        CGraphics::SetDepthRange(0.12500012f, 0.12500012f);
+        CGraphics::SetDepthRange(DEPTH_TARGET_MANAGER, DEPTH_TARGET_MANAGER);
         tgtMgr->Draw(mgr, false);
-        CGraphics::SetDepthRange(0.015625f, 0.03125f);
+        CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
     }
 
     float transFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
@@ -374,11 +375,13 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     else
         t = (x3c_windowInterpTimer > scanSidesStart) ? 1.f : x3c_windowInterpTimer / scanSidesStart;
 
+    float vpScale = g_Viewport.xc_height / 448.f;
     float divisor = (transFactor * ((1.f - t) * x58_scanMagInterp + t * g_tweakGui->GetScanWindowScanningAspect()) + (1.f - transFactor));
-    float vpW = 169.218f * x48_interpWindowDims.x / divisor;
-    vpW = zeus::clamp(0.f, vpW, 640.f) * g_Viewport.x8_width / 640.f;
-    float vpH = 152.218f * x48_interpWindowDims.y / divisor;
-    vpH = zeus::clamp(0.f, vpH, 448.f) * g_Viewport.xc_height / 448.f;
+    divisor = 1.f / divisor;
+    float vpW = 169.218f * x48_interpWindowDims.x * divisor;
+    vpW = zeus::clamp(0.f, vpW, 640.f) * vpScale;
+    float vpH = 152.218f * x48_interpWindowDims.y * divisor;
+    vpH = zeus::clamp(0.f, vpH, 448.f) * vpScale;
 
     SClipScreenRect rect;
     rect.x4_left = (g_Viewport.x8_width - vpW) / 2.f;
@@ -392,20 +395,17 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     g_Renderer->SetViewportOrtho(true, -1.f, 1.f);
 
     zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x, 1.f, x48_interpWindowDims.y);
-    zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f, 1.f, 17.f);
+    zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
     CGraphics::SetModelMatrix(seventeenScale * windowScale);
 
-    if (x108_newScanPane.IsLoaded())
+    CTexturedQuadFilter::Vert rttVerts[4] =
     {
-        if (!m_newScanPaneInst)
-        {
-            CPlayerVisor* ncThis = const_cast<CPlayerVisor*>(this);
-            boo::ObjToken<boo::ITexture> texs[8] = {CGraphics::g_SpareTexture.get()};
-            ncThis->m_newScanPaneInst = ncThis->x108_newScanPane->MakeNewInstance(0, 1, texs);
-            ncThis->m_newScanPaneInst->VerifyCurrentShader(0);
-        }
-        m_newScanPaneInst->Draw(CModelFlags(5, 0, 3 | 4, zeus::CColor(1.f, transFactor)), nullptr, nullptr);
-    }
+        {{-5.f, 0.f, 4.45f}, {rect.x4_left / float(g_Viewport.x8_width), rect.x8_top / float(g_Viewport.xc_height)}},
+        {{ 5.f, 0.f, 4.45f}, {(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width), rect.x8_top / float(g_Viewport.xc_height)}},
+        {{-5.f, 0.f, -4.45f}, {rect.x4_left / float(g_Viewport.x8_width), (rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height)}},
+        {{ 5.f, 0.f, -4.45f}, {(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width), (rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height)}}
+    };
+    const_cast<CTexturedQuadFilter&>(x108_newScanPane).drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
     // No cull faces
 
@@ -418,6 +418,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     CModelFlags flags(5, 0, 0,
         frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
             zeus::CColor(x550_frameColorImpulseInterp, x550_frameColorImpulseInterp));
+    flags.m_noCull = true;
 
     zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
     zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);

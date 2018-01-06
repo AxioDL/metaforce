@@ -112,9 +112,14 @@ void COptionsScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
         (x18c_slidergroup_slider->GetState() != CGuiSliderGroup::EState::None))
     {
         if (x18c_slidergroup_slider->GetState() != CGuiSliderGroup::EState::None)
+        {
             x1a4_sliderSfx = CSfxManager::SfxStart(1451, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        }
         else
+        {
             CSfxManager::SfxStop(x1a4_sliderSfx);
+            x1a4_sliderSfx.reset();
+        }
     }
 
     if (x2a0_24_inOptionBody)
@@ -181,9 +186,9 @@ void COptionsScreen::Draw(float transInterp, float totalAlpha, float yOff)
     x1a0_gameCube->Draw(transInterp * (1.f - x29c_optionAlpha));
     if (x19c_quitGame)
     {
-        CGraphics::SetDepthRange(0.f, 0.001f);
+        CGraphics::SetDepthRange(DEPTH_NEAR, 0.001f);
         x19c_quitGame->Draw();
-        CGraphics::SetDepthRange(0.f, 1.f);
+        CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
     }
 }
 

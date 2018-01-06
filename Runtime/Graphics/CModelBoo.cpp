@@ -631,11 +631,17 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
     {
         if (data.heclIr.m_blendSrc == boo::BlendFactor::One && data.heclIr.m_blendDst == boo::BlendFactor::Zero)
         {
-            /* Override shader if originally opaque */
+            /* Override shader if originally opaque (typical for FRME models) */
             if (flags.x0_blendMode > 6)
-                extended = flags.m_noCull ? EExtendedShader::ForcedAdditiveNoCull : EExtendedShader::ForcedAdditive;
+                extended = flags.m_noCull ? (flags.m_noZWrite ?
+                                             EExtendedShader::ForcedAdditiveNoCullNoZWrite :
+                                             EExtendedShader::ForcedAdditiveNoCull) :
+                           EExtendedShader::ForcedAdditive;
             else if (flags.x0_blendMode > 4)
-                extended = flags.m_noCull ? EExtendedShader::ForcedAlphaNoCull : EExtendedShader::ForcedAlpha;
+                extended = flags.m_noCull ? (flags.m_noZWrite ?
+                                             EExtendedShader::ForcedAlphaNoCullNoZWrite :
+                                             EExtendedShader::ForcedAlphaNoCull) :
+                           EExtendedShader::ForcedAlpha;
             else
                 extended = EExtendedShader::Lighting;
         }

@@ -73,7 +73,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                 zeus::CVector2f backupDepthRange = CGraphics::g_CachedDepthRange;
                 m_shader.bindRenderTarget();
                 g_Renderer->SetViewport(0, 0, m_shader.GetWidth(), m_shader.GetHeight());
-                CGraphics::SetDepthRange(0.f, 1.f);
+                CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
 
                 x34_model = zeus::lookAt(centerPoint - zeus::CVector3f(0.f, 0.f, 0.1f), light.GetPosition());
                 CGraphics::SetModelMatrix(x34_model);

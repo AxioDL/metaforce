@@ -49,7 +49,7 @@ static const char* VS =
 static const char* IndFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -75,7 +75,7 @@ static const char* IndFS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 color;\n"
@@ -128,7 +128,7 @@ static const char* BlurVS =
 static const char* BlurFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear);\n"
+"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"

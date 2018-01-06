@@ -30,6 +30,7 @@ CLogBookScreen::~CLogBookScreen()
 bool CLogBookScreen::IsScanComplete(CSaveWorld::EScanCategory category, CAssetId scan,
                                     const CPlayerState& playerState)
 {
+    return true;
     float time = playerState.GetScanTime(scan);
     if (category == CSaveWorld::EScanCategory::Artifact)
         return time >= 0.5f;
@@ -148,9 +149,14 @@ void CLogBookScreen::PumpArticleLoad()
             {
                 scan.second = g_SimplePool->GetObj({FOURCC('STRG'), scan.first->GetStringTableId()});
                 scan.second.Lock();
+                --rem;
             }
         }
-        if (--rem == 0)
+        else if (scan.first.IsLocked())
+        {
+            --rem;
+        }
+        if (rem == 0)
             break;
     }
 
@@ -161,6 +167,8 @@ void CLogBookScreen::PumpArticleLoad()
         {
             x1f0_curViewScans[articleIdx].first.Lock();
             articleIdx = NextSurroundingArticleIndex(articleIdx);
+            if (articleIdx == -1)
+                break;
             --rem;
         }
     }
@@ -322,7 +330,7 @@ void CLogBookScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
         x70_tablegroup_leftlog->SetColor(invColor);
         x84_tablegroup_rightlog->SetColor(invColor);
         x17c_model_textalpha->SetColor(invColor);
-        x174_textpane_body->SetColor(invColor);
+        x174_textpane_body->SetColor(color);
 
         for (CAuiImagePane* pane : xf0_imagePanes)
             pane->SetDeResFactor(1.f - x254_viewInterp);

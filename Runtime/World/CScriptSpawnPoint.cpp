@@ -8,9 +8,9 @@
 namespace urde
 {
 
-CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf, const std::vector<u32>& itemCounts, bool defaultSpawn,
-                                     bool active, bool morphed)
+CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                                     const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts,
+                                     bool defaultSpawn, bool active, bool morphed)
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts)
 {
     x10c_24_firstSpawn = defaultSpawn;
@@ -76,7 +76,7 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
 u32 CScriptSpawnPoint::GetPowerup(CPlayerState::EItemType item) const
 {
     int idx = int(item);
-    if (idx >= x64_itemCounts.size())
+    if (idx >= int(CPlayerState::EItemType::Max) || idx < 0)
         return x64_itemCounts.front();
     return x64_itemCounts[idx];
 }

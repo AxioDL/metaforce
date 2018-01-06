@@ -40,7 +40,7 @@ static const char* VS =
 static const char* FS1Way =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -64,7 +64,7 @@ static const char* FS1Way =
 static const char* FS2Way =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
+"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"

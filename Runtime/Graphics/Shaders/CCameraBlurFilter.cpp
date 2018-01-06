@@ -14,13 +14,13 @@ CCameraBlurFilter::CCameraBlurFilter()
     });
 }
 
-void CCameraBlurFilter::draw(float amount)
+void CCameraBlurFilter::draw(float amount, bool clearDepth)
 {
     if (amount <= 0.f)
         return;
 
     SClipScreenRect clipRect(g_Viewport);
-    CGraphics::ResolveSpareTexture(clipRect);
+    CGraphics::ResolveSpareTexture(clipRect, 0, clearDepth);
     float aspect = CGraphics::g_CroppedViewport.xc_width / float(CGraphics::g_CroppedViewport.x10_height);
     
     float xFac = CGraphics::g_CroppedViewport.xc_width / float(g_Viewport.x8_width);
