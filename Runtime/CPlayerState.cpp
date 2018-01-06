@@ -377,9 +377,6 @@ void CPlayerState::IncrPickup(EItemType type, s32 amount)
         CPowerUp& pup = x24_powerups[u32(type)];
         pup.x0_amount = std::min(pup.x0_amount + amount, pup.x4_capacity);
 
-        if (type == CPlayerState::EItemType::Truth)
-            printf("");
-
         if (type == EItemType::EnergyTanks)
             IncrPickup(EItemType::HealthRefill, 9999);
         break;
@@ -410,9 +407,6 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
     if (type >= EItemType::Max)
         return;
 
-    if (type == CPlayerState::EItemType::Truth)
-        printf("");
-
     CPowerUp& pup = x24_powerups[(u32)type];
     pup.x4_capacity = zeus::clamp(u32(0), pup.x4_capacity + capacity, PowerUpMaxValues[u32(type)]);
     pup.x0_amount = std::min(pup.x0_amount, pup.x4_capacity);
@@ -431,9 +425,6 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
 
 void CPlayerState::ReInitalizePowerUp(CPlayerState::EItemType type, u32 capacity)
 {
-    if (type == CPlayerState::EItemType::Truth)
-        printf("");
-
     x24_powerups[u32(type)].x4_capacity = 0;
     InitializePowerUp(type, capacity);
 }
