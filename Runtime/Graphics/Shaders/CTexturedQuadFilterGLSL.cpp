@@ -184,7 +184,8 @@ struct CTexturedQuadFilterVulkanDataBindingFactory : TMultiBlendShader<CTextured
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
-        return cctx.newShaderDataBinding(SelectPipeline(type, filter.m_gequal), s_VtxFmt,
+        return cctx.newShaderDataBinding(SelectPipeline(type, filter.m_gequal,
+                                                        filter.m_booTex->type() == boo::TextureType::Render), s_VtxFmt,
                                          filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
                                          nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
     }
