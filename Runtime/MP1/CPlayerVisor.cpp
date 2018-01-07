@@ -324,6 +324,7 @@ CPlayerVisor::GetDesiredScanWindowState(const CStateManager& mgr) const
 
 void CPlayerVisor::LockUnlockAssets()
 {
+#if 0
     if (x1c_curVisor == CPlayerState::EPlayerVisor::Scan)
         x120_assetLockCountdown = 2;
     else if (x120_assetLockCountdown > 0)
@@ -353,6 +354,7 @@ void CPlayerVisor::LockUnlockAssets()
         x124_scanIconNoncritical.Unlock();
         x130_scanIconCritical.Unlock();
     }
+#endif
 }
 
 void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingManager* tgtMgr) const
