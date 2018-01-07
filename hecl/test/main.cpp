@@ -42,7 +42,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         hecl::VerbosityLevel = 2;
 
         /* Setup boo window */
-        m_mainWindow = app->newWindow(_S("HECL Test"), 1);
+        m_mainWindow = app->newWindow(_S("HECL Test"));
         m_mainWindow->setCallback(&m_windowCb);
 
         boo::ObjToken<boo::ITextureR> renderTex;
