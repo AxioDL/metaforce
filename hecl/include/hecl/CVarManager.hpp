@@ -55,6 +55,13 @@ public:
     bool registerCVar(CVar* cvar);
 
     CVar* findCVar(std::string_view name);
+    template<class... _Args>
+    CVar* findOrMakeCVar(std::string_view name, _Args&&... args)
+    {
+        if (CVar* cv = findCVar(name))
+            return cv;
+        return newCVar(name, std::forward<_Args>(args)...);
+    }
 
     std::vector<CVar*> archivedCVars() const;
     std::vector<CVar*> cvars() const;

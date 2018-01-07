@@ -195,7 +195,6 @@ class IShaderBackendFactory
 {
     friend class ShaderCacheManager;
 protected:
-    unsigned m_rtHint = 1;
     using FReturnExtensionShader = std::function<void(const boo::ObjToken<boo::IShaderPipeline>&)>;
     virtual ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
                                                const hecl::Frontend::IR& ir,
@@ -268,10 +267,6 @@ public:
     : ShaderCacheManager(storeMgr, gfxFactory, ShaderCacheExtensions()) {}
     void reload();
     void clearCachedPipelines() { m_pipelineLookup.clear(); }
-
-    /* Some platforms (like Metal) require information about the render target
-     * for encoding the pipeline state. This must be called before building shaders */
-    void setRenderTargetSamples(unsigned samps) {m_factory->m_rtHint = samps;}
 
     std::shared_ptr<ShaderPipelines> buildShader(const ShaderTag& tag, std::string_view source,
                                                  std::string_view diagName,

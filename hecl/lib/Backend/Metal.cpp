@@ -252,13 +252,12 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         blockCall += hecl::Format("block%" PRISize, i);
     }
 
-    std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
-    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
-    "constexpr sampler clampSamp(address::clamp_to_border, border_color::opaque_white, filter::linear, mip_filter::linear);\n" +
+    std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
     GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
-    "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n"
+    "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]],\n"
+    "sampler samp [[ sampler(0) ]], sampler clampSamp [[ sampler(1) ]]" + texMapDecl + ")\n"
     "{\n"
     "    FragOut out;\n";
 
@@ -364,14 +363,13 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         blockCall += hecl::Format("block%" PRISize, i);
     }
 
-    std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n"
-    "constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
-    "constexpr sampler clampSamp(address::clamp_to_border, border_color::opaque_white, filter::linear, mip_filter::linear);\n" +
+    std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
     GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
     postSrc + "\n" +
-    "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]]" + texMapDecl + ")\n"
+    "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]],\n"
+    "sampler samp [[ sampler(0) ]], sampler clampSamp [[ sampler(1) ]]" + texMapDecl + ")\n"
     "{\n"
     "    FragOut out;\n";
 
@@ -395,7 +393,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         if (lighting.m_entry)
         {
                 retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf" +
-                    (!strncmp(lighting.m_entry, "EXT", 3) ? (extTexCall.size() ? (", " + extTexCall) : "") : "") + ");\n";
+                    (!strncmp(lighting.m_entry, "EXT", 3) ? (extTexCall.size() ? (", samp, clampSamp," + extTexCall) : "") : "") + ");\n";
         }
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
@@ -412,14 +410,14 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     {
         retval += "    out.color = " + postEntry + "(" +
                   (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") +
-                      (!strncmp(post.m_entry, "EXT", 3) ? (extTexCall.size() ? (extTexCall + ", ") : "") : "")) : "") +
+                      (!strncmp(post.m_entry, "EXT", 3) ? (extTexCall.size() ? ("samp, clampSamp," + extTexCall + ", ") : "") : "")) : "") +
                   "float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
     }
     else
     {
         retval += "    out.color = " + postEntry + "(" +
                   (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") +
-                      (!strncmp(post.m_entry, "EXT", 3) ? (extTexCall.size() ? (extTexCall + ", ") : "") : "")) : "") +
+                      (!strncmp(post.m_entry, "EXT", 3) ? (extTexCall.size() ? ("samp, clampSamp," + extTexCall + ", ") : "") : "")) : "") +
                   "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
     }
 
@@ -444,10 +442,6 @@ struct MetalBackendFactory : IShaderBackendFactory
                                        boo::IGraphicsDataFactory::Context& ctx,
                                        boo::ObjToken<boo::IShaderPipeline>& objOut)
     {
-        if (!m_rtHint)
-            Log.report(logvisor::Fatal,
-                       "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-
         m_backend.reset(ir, diag);
         size_t cachedSz = 2;
 
@@ -465,7 +459,7 @@ struct MetalBackendFactory : IShaderBackendFactory
         static_cast<boo::MetalDataFactory::Context&>(ctx).
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                               &vertBlob, &fragBlob,
-                              tag.newVertexFormat(ctx), m_rtHint,
+                              tag.newVertexFormat(ctx),
                               boo::BlendFactor(m_backend.m_blendSrc),
                               boo::BlendFactor(m_backend.m_blendDst),
                               tag.getPrimType(),
@@ -492,10 +486,6 @@ struct MetalBackendFactory : IShaderBackendFactory
     boo::ObjToken<boo::IShaderPipeline> buildShaderFromCache(const ShaderCachedData& data,
                                                              boo::IGraphicsDataFactory::Context& ctx)
     {
-        if (!m_rtHint)
-            Log.report(logvisor::Fatal,
-                       "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
@@ -522,7 +512,7 @@ struct MetalBackendFactory : IShaderBackendFactory
         static_cast<boo::MetalDataFactory::Context&>(ctx).
             newShaderPipeline(nullptr, nullptr,
                               &vertBlob, &fragBlob,
-                              tag.newVertexFormat(ctx), m_rtHint,
+                              tag.newVertexFormat(ctx),
                               blendSrc, blendDst, tag.getPrimType(),
                               tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None, tag.getDepthWrite(), true, true,
                               tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
@@ -538,10 +528,6 @@ struct MetalBackendFactory : IShaderBackendFactory
                                                boo::IGraphicsDataFactory::Context& ctx,
                                                FReturnExtensionShader returnFunc)
     {
-        if (!m_rtHint)
-            Log.report(logvisor::Fatal,
-                       "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-
         m_backend.reset(ir, diag);
         size_t cachedSz = 2;
 
@@ -585,7 +571,7 @@ struct MetalBackendFactory : IShaderBackendFactory
             static_cast<boo::MetalDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   &blobs.back().first, &blobs.back().second,
-                                  tag.newVertexFormat(ctx), m_rtHint,
+                                  tag.newVertexFormat(ctx),
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                   tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
@@ -621,10 +607,6 @@ struct MetalBackendFactory : IShaderBackendFactory
                                       boo::IGraphicsDataFactory::Context& ctx,
                                       FReturnExtensionShader returnFunc)
     {
-        if (!m_rtHint)
-            Log.report(logvisor::Fatal,
-                       "ShaderCacheManager::setRenderTargetHint must be called before making metal shaders");
-
         const ShaderTag& tag = data.m_tag;
         athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
         hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
@@ -678,7 +660,7 @@ struct MetalBackendFactory : IShaderBackendFactory
             static_cast<boo::MetalDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
                                   &vertBlob, &fragBlob,
-                                  tag.newVertexFormat(ctx), m_rtHint,
+                                  tag.newVertexFormat(ctx),
                                   boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                   boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                   tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
