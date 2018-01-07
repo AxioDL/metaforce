@@ -253,14 +253,15 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
     static const char* TexFS =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
-    "constexpr sampler samp(address::repeat);\n"
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"
     "    float4 color;\n"
     "    float2 uv;\n"
     "};\n"
-    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
+    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+    "                      sampler samp [[ sampler(0) ]],\n"
+    "                      texture2d<float> tex [[ texture(0) ]])\n"
     "{\n"
     "    return tex.sample(samp, vtf.uv) * vtf.color;\n"
     "}\n";
@@ -272,7 +273,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
     };
     m_solidVtxFmt = ctx.newVertexFormat(2, solidvdescs);
 
-    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, nullptr, nullptr, m_solidVtxFmt, 1,
+    m_solidShader = ctx.newShaderPipeline(SolidVS, SolidFS, nullptr, nullptr, m_solidVtxFmt,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
@@ -283,7 +284,7 @@ void View::Resources::init(boo::MetalDataFactory::Context& ctx, const IThemeData
     };
     m_texVtxFmt = ctx.newVertexFormat(2, texvdescs);
 
-    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, nullptr, nullptr, m_texVtxFmt, 1,
+    m_texShader = ctx.newShaderPipeline(TexVS, TexFS, nullptr, nullptr, m_texVtxFmt,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                         boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 }

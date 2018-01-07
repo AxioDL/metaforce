@@ -224,14 +224,15 @@ void TextView::Resources::init(boo::MetalDataFactory::Context& ctx, FontCache* f
     static const char* FSReg =
     "#include <metal_stdlib>\n"
     "using namespace metal;\n"
-    "constexpr sampler samp(address::repeat);\n"
     "struct VertToFrag\n"
     "{\n"
     "    float4 position [[ position ]];\n"
     "    float3 uv;\n"
     "    float4 color;\n"
     "};\n"
-    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d_array<float> fontTex [[ texture(0) ]])\n"
+    "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+    "                      sampler samp [[ sampler(0) ]],\n"
+    "                      texture2d_array<float> fontTex [[ texture(0) ]])\n"
     "{\n"
     "    float4 colorOut = vtf.color;\n"
     "    colorOut.a *= fontTex.sample(samp, vtf.uv.xy, vtf.uv.z).r;\n"
@@ -257,7 +258,7 @@ void TextView::Resources::init(boo::MetalDataFactory::Context& ctx, FontCache* f
     m_vtxFmt = ctx.newVertexFormat(13, vdescs);
 
     m_regular =
-    ctx.newShaderPipeline(VS, FSReg, nullptr, nullptr, m_vtxFmt, 1,
+    ctx.newShaderPipeline(VS, FSReg, nullptr, nullptr, m_vtxFmt,
                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                           boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 }
