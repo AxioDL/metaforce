@@ -29,9 +29,9 @@ static const char* VS =
 "    VertToFrag vtf;\n"
 "    vtf.position = mul(mainMtx, float4(v.posIn.xy, 0.0, 1.0));\n"
 "    vtf.sceneUv = vtf.position.xy * float2(0.5, 0.5) + float2(0.5, 0.5);\n"
-"    vtf.sceneUv.y = -vtf.sceneUv.y;\n"
+"    vtf.sceneUv.y = 1.0 - vtf.sceneUv.y;\n"
 "    vtf.indUv = mul(float3x3(indMtx[0].xyz, indMtx[1].xyz, indMtx[2].xyz), float3(v.uvIn.xy, 1.0)).xy;\n"
-"    vtf.indUv.y = -vtf.indUv.y;\n"
+"    vtf.indUv.y = 1.0 - vtf.indUv.y;\n"
 "    vtf.strength = strength.xy;\n"
 "    return vtf;\n"
 "}\n";

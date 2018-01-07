@@ -62,7 +62,6 @@ static const char* VS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "\n"
 "struct Light\n"
 "{\n"
@@ -129,6 +128,7 @@ static const char* FS =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      constant LightingUniform& lu [[ buffer(4) ]]%s)\n" // Textures here
 "{\n"
 "    float4 lighting = LightingFunc(vtf.mvPos, normalize(vtf.mvNorm));\n"
@@ -140,7 +140,6 @@ static const char* FS =
 static const char* FSDoor =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "\n"
 "struct Light\n"
 "{\n"
@@ -186,6 +185,7 @@ static const char* FSDoor =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      constant LightingUniform& lu [[ buffer(4) ]]%s)\n" // Textures here
 "{\n"
 "    float4 colorOut;\n"
@@ -513,8 +513,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     asprintf(&finalVS, VS, additionalTCGs.c_str());
     asprintf(&finalFS, FS, textures.c_str(), combiner.c_str());
 
-    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr,
-                                     s_vtxFmt, CGraphics::g_ViewportSamples,
+    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr, s_vtxFmt,
                                      info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
                                      info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
                                      boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
@@ -576,8 +575,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     asprintf(&finalVS, VS, additionalTCGs.c_str());
     asprintf(&finalFS, FSDoor, textures.c_str(), combiner.c_str());
 
-    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr,
-                                     s_vtxFmt, CGraphics::g_ViewportSamples,
+    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr, s_vtxFmt,
                                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                      boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                      boo::CullMode::None);

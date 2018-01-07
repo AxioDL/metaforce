@@ -66,19 +66,19 @@ CFogVolumePlaneShader::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipelines[0] = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::Zero,
+                                           s_VtxFmt, boo::BlendFactor::Zero,
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::LEqual, true, false, false, boo::CullMode::Frontface);
     s_Pipelines[1] = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::Zero,
+                                           s_VtxFmt, boo::BlendFactor::Zero,
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, false, false, boo::CullMode::Frontface);
     s_Pipelines[2] = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::Zero,
+                                           s_VtxFmt, boo::BlendFactor::Zero,
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::LEqual, true, false, false, boo::CullMode::Backface);
     s_Pipelines[3] = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::Zero,
+                                           s_VtxFmt, boo::BlendFactor::Zero,
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::Greater, false, false, false, boo::CullMode::Backface);
     return new CFogVolumePlaneShaderMetalDataBindingFactory;

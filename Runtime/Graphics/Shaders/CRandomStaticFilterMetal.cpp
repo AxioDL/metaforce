@@ -157,23 +157,19 @@ CRandomStaticFilter::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                            s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_AlphaPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
                                             boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_AddPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                          s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_AddPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
                                           boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_MultPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
                                            boo::BlendFactor::Zero,
                                            boo::BlendFactor::SrcColor, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
-    s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, nullptr, nullptr,
-                                                   s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_CookieCutterPipeline = ctx.newShaderPipeline(VS, FSCookieCutter, nullptr, nullptr, s_VtxFmt,
                                                    boo::BlendFactor::SrcColor,
                                                    boo::BlendFactor::DstColor, boo::Primitive::TriStrips,
                                                    boo::ZTest::LEqual, true, false, false, boo::CullMode::None);

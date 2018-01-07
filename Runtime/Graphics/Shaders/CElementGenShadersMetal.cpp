@@ -43,7 +43,6 @@ static const char* VS_METAL_TEX =
 static const char* FS_METAL_TEX =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -52,6 +51,7 @@ static const char* FS_METAL_TEX =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> tex0 [[ texture(0) ]])\n"
 "{\n"
 "    return vtf.color * tex0.sample(samp, vtf.uv);\n"
@@ -60,7 +60,6 @@ static const char* FS_METAL_TEX =
 static const char* FS_METAL_TEX_REDTOALPHA =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -69,6 +68,7 @@ static const char* FS_METAL_TEX_REDTOALPHA =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> tex0 [[ texture(0) ]])\n"
 "{\n"
 "    return float4(vtf.color.rgb, tex0.sample(samp, vtf.uv).r);\n"
@@ -117,7 +117,6 @@ static const char* VS_METAL_INDTEX =
 static const char* FS_METAL_INDTEX =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -128,6 +127,7 @@ static const char* FS_METAL_INDTEX =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],"
 "                      texture2d<float> tex0 [[ texture(0) ]],\n"
 "                      texture2d<float> tex1 [[ texture(1) ]],\n"
 "                      texture2d<float> tex2 [[ texture(2) ]])\n"
@@ -142,7 +142,6 @@ static const char* FS_METAL_INDTEX =
 static const char* FS_METAL_CINDTEX =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -153,6 +152,7 @@ static const char* FS_METAL_CINDTEX =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> tex0 [[ texture(0) ]],\n"
 "                      texture2d<float> tex1 [[ texture(1) ]],\n"
 "                      texture2d<float> tex2 [[ texture(2) ]])\n"
@@ -315,112 +315,88 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
     };
     m_vtxFormatNoTex = ctx.newVertexFormat(5, TexFmtNoTex);
 
-    m_texZTestZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                             m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texZTestZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
-    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                               m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texNoZTestZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
-    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                               m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                                 m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texNoZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
-    m_texAdditiveZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                               m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texAdditiveZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                                 m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texAdditiveNoZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                  boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
-    m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr,
-                                                 m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texRedToAlphaZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr, m_vtxFormatTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, true, boo::CullMode::None);
-    m_texRedToAlphaNoZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr,
-                                                   m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texRedToAlphaNoZTest = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr, m_vtxFormatTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, boo::ZTest::None, false, true, true, boo::CullMode::None);
 
-    m_texZTestNoZWriteSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                                  m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texZTestNoZWriteSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                   boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                                   true, false, boo::CullMode::None);
-    m_texNoZTestNoZWriteSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr,
-                                                    m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texNoZTestNoZWriteSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_vtxFormatTex,
                                                     boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
                                                     boo::Primitive::TriStrips, boo::ZTest::None, false,
                                                     true, false, boo::CullMode::None);
 
-    m_texRedToAlphaZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr,
-                                                    m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texRedToAlphaZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr, m_vtxFormatTex,
                                                     boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
                                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                                     true, true, boo::CullMode::None);
-    m_texRedToAlphaNoZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr,
-                                                      m_vtxFormatTex, CGraphics::g_ViewportSamples,
+    m_texRedToAlphaNoZTestSub = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX_REDTOALPHA, nullptr, nullptr, m_vtxFormatTex,
                                                       boo::BlendFactor::Subtract, boo::BlendFactor::Subtract,
                                                       boo::Primitive::TriStrips, boo::ZTest::None, false,
                                                       true, true, boo::CullMode::None);
 
-    m_indTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr,
-                                           m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
+    m_indTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr, m_vtxFormatIndTex,
                                            boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                            boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
-    m_indTexNoZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr,
-                                             m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
+    m_indTexNoZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr, m_vtxFormatIndTex,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                              boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
-    m_indTexAdditive = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr,
-                                             m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
+    m_indTexAdditive = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_INDTEX, nullptr, nullptr, m_vtxFormatIndTex,
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                              boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
 
-    m_cindTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr,
-                                            m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
+    m_cindTexZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr, m_vtxFormatIndTex,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                             boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
-    m_cindTexNoZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr,
-                                              m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
+    m_cindTexNoZWrite = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr, m_vtxFormatIndTex,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                               boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
-    m_cindTexAdditive = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr,
-                                              m_vtxFormatIndTex, CGraphics::g_ViewportSamples,
+    m_cindTexAdditive = ctx.newShaderPipeline(VS_METAL_INDTEX, FS_METAL_CINDTEX, nullptr, nullptr, m_vtxFormatIndTex,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                               boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
 
-    m_noTexZTestZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
-                                               m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
+    m_noTexZTestZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_vtxFormatNoTex,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                boo::Primitive::TriStrips, boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
-    m_noTexNoZTestZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
-                                                 m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
+    m_noTexNoZTestZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_vtxFormatNoTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, boo::ZTest::None, true, true, false, boo::CullMode::None);
-    m_noTexZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
-                                                 m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
+    m_noTexZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_vtxFormatNoTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    m_noTexNoZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
-                                                   m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
+    m_noTexNoZTestNoZWrite = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_vtxFormatNoTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                                    boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 
-    m_noTexAdditiveZTest = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
-                                                 m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
+    m_noTexAdditiveZTest = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_vtxFormatNoTex,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    m_noTexAdditiveNoZTest = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr,
-                                                   m_vtxFormatNoTex, CGraphics::g_ViewportSamples,
+    m_noTexAdditiveNoZTest = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_vtxFormatNoTex,
                                                    boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                    boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
 

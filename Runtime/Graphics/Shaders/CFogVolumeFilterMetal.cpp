@@ -40,7 +40,6 @@ static const char* VS =
 static const char* FS1Way =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -49,6 +48,7 @@ static const char* FS1Way =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> zFrontfaceTex [[ texture(0) ]],\n"
 "                      texture2d<float> zBackfaceTex [[ texture(1) ]],\n"
 "                      texture2d<float> zLinearizer [[ texture(2) ]])\n"
@@ -64,7 +64,6 @@ static const char* FS1Way =
 static const char* FS2Way =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -73,6 +72,7 @@ static const char* FS2Way =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> zFrontfaceTex [[ texture(0) ]],\n"
 "                      texture2d<float> zBackfaceTex [[ texture(1) ]],\n"
 "                      texture2d<float> zLinearizer [[ texture(2) ]])\n"
@@ -126,11 +126,11 @@ CFogVolumeFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_1WayPipeline = ctx.newShaderPipeline(VS, FS1Way, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::DstAlpha,
+                                           s_VtxFmt, boo::BlendFactor::DstAlpha,
                                            boo::BlendFactor::One, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_2WayPipeline = ctx.newShaderPipeline(VS, FS2Way, nullptr, nullptr,
-                                           s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                           s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                            boo::BlendFactor::One, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CFogVolumeFilterMetalDataBindingFactory;

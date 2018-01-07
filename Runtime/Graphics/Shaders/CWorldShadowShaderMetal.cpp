@@ -78,11 +78,11 @@ CWorldShadowShader::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                       s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                       s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_ZPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                        s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                        s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                         boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                         boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     return new CWorldShadowShaderMetalDataBindingFactory;

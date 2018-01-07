@@ -42,7 +42,6 @@ static const char* VS_METAL_TEX =
 static const char* FS_METAL_TEX =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -51,6 +50,7 @@ static const char* FS_METAL_TEX =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> tex0 [[ texture(0) ]])\n"
 "{\n"
 "    return vtf.color * tex0.sample(samp, vtf.uv);\n"
@@ -157,22 +157,18 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
     m_noTexVtxFmt = ctx.newVertexFormat(2, VtxFmtNoTex);
 
     m_texAlpha = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
-                                       CGraphics::g_ViewportSamples,
                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None,
                                        false, true, false, boo::CullMode::None);
     m_texAdditive = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
-                                          CGraphics::g_ViewportSamples,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                           boo::Primitive::TriStrips, boo::ZTest::None,
                                           false, true, false, boo::CullMode::None);
     m_noTexAlpha = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
-                                         CGraphics::g_ViewportSamples,
                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                          boo::Primitive::TriStrips, boo::ZTest::None,
                                          false, true, false, boo::CullMode::None);
     m_noTexAdditive = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
-                                            CGraphics::g_ViewportSamples,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);

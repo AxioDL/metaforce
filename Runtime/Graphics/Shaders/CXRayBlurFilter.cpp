@@ -17,10 +17,10 @@ CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex)
             zeus::CVector2f m_uv;
         } verts[4] =
         {
-        {{-1.0, -1.0}, {0.0, 0.0}},
-        {{-1.0,  1.0}, {0.0, 1.0}},
-        {{ 1.0, -1.0}, {1.0, 0.0}},
-        {{ 1.0,  1.0}, {1.0, 1.0}},
+        {{-1.f, -1.f}, {0.f, 0.f}},
+        {{-1.f,  1.f}, {0.f, 1.f}},
+        {{ 1.f, -1.f}, {1.f, 0.f}},
+        {{ 1.f,  1.f}, {1.f, 1.f}},
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -36,9 +36,9 @@ void CXRayBlurFilter::draw(float amount)
     float blurL = amount * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
     float blurQ = amount * g_tweakGui->GetXrayBlurScaleQuadratic() * 0.25f;
 
-    for (int i=0 ; i<4 ; ++i)
+    for (int i=0 ; i<8 ; ++i)
     {
-        float iflt = i;
+        float iflt = i / 2.f;
         float uvScale = (1.f - (blurL * iflt + blurQ * iflt * iflt));
         float uvOffset = uvScale * -0.5f + 0.5f;
         m_uniform.m_uv[i][0][0] = uvScale;

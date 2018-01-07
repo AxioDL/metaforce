@@ -13,6 +13,8 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
                                      bool defaultSpawn, bool active, bool morphed)
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts)
 {
+    x64_itemCounts[int(CPlayerState::EItemType::ThermalVisor)] = 1;
+    x64_itemCounts[int(CPlayerState::EItemType::XRayVisor)] = 1;
     x10c_24_firstSpawn = defaultSpawn;
     x10c_25_morphed = morphed;
 }

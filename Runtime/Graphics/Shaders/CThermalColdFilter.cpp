@@ -16,10 +16,10 @@ CThermalColdFilter::CThermalColdFilter()
             zeus::CVector2f m_uv;
         } verts[4] =
         {
-        {{-1.0, -1.0}, {0.0, 0.0}},
-        {{-1.0,  1.0}, {0.0, 1.0}},
-        {{ 1.0, -1.0}, {1.0, 0.0}},
-        {{ 1.0,  1.0}, {1.0, 1.0}},
+        {{-1.f, -1.f}, {0.f, 0.f}},
+        {{-1.f,  1.f}, {0.f, 1.f}},
+        {{ 1.f, -1.f}, {1.f, 0.f}},
+        {{ 1.f,  1.f}, {1.f, 1.f}},
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -45,8 +45,8 @@ void CThermalColdFilter::setShift(unsigned shift)
             if (ny > 3)
                 ny = 3;
             unsigned nx = spx % 8;
-            m_shiftTexture[y][x][0] = nx * 255 / 7;
-            m_shiftTexture[y][x][1] = ny * 255 / 3;
+            m_shiftTexture[y][x][0] = u8(nx * 255 / 7);
+            m_shiftTexture[y][x][1] = u8(ny * 255 / 3);
         }
     }
     m_shiftTex->load(m_shiftTexture[0][0], sizeof(m_shiftTexture));

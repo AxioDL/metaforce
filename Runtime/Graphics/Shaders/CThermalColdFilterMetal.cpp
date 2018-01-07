@@ -46,7 +46,7 @@ static const char* VS =
 "    vtf.colorReg1 = tcu.colorReg1;\n"
 "    vtf.colorReg2 = tcu.colorReg2;\n"
 "    vtf.sceneUv = v.uvIn.xy;\n"
-"    vtf.sceneUv.y = -vtf.sceneUv.y;\n"
+"    vtf.sceneUv.y = 1.0 - vtf.sceneUv.y;\n"
 "    vtf.shiftUv = (float3x3(tcu.shiftMtx[0].xyz, tcu.shiftMtx[1].xyz, tcu.shiftMtx[2].xyz) * v.uvIn.xyz).xy;\n"
 "    vtf.shiftScale = tcu.shiftScale.xy;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
@@ -56,7 +56,6 @@ static const char* VS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -72,7 +71,10 @@ static const char* FS =
 "};\n"
 "\n"
 "constant float4 kRGBToYPrime = {0.299, 0.587, 0.114, 0.0};\n"
-"fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> sceneTex [[ texture(0) ]], texture2d<float> shiftTex [[ texture(1) ]])\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(2) ]],\n"
+"                      texture2d<float> sceneTex [[ texture(0) ]],\n"
+"                      texture2d<float> shiftTex [[ texture(1) ]])\n"
 "{\n"
 "    float2 shiftCoordTexel = shiftTex.sample(samp, vtf.shiftUv).xy;\n"
 "    float2 shiftCoord = vtf.sceneUv + shiftCoordTexel * vtf.shiftScale;\n"
@@ -112,7 +114,7 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                       s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::One,
+                                       s_VtxFmt, boo::BlendFactor::One,
                                        boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CThermalColdFilterMetalDataBindingFactory;

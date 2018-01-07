@@ -49,7 +49,6 @@ static const char* VS =
 static const char* IndFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -61,6 +60,7 @@ static const char* IndFS =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> screenTex [[ texture(0) ]],\n"
 "                      texture2d<float> indTex [[ texture(1) ]],\n"
 "                      texture2d<float> maskTex [[ texture(2) ]],\n"
@@ -75,7 +75,6 @@ static const char* IndFS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 color;\n"
@@ -86,12 +85,13 @@ static const char* FS =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler clampSamp [[ sampler(2) ]],\n"
 "                      texture2d<float> screenTex [[ texture(0) ]],\n"
 "                      texture2d<float> maskTex [[ texture(1) ]],\n"
 "                      texture2d<float> maskTexBlur [[ texture(2) ]])\n"
 "{\n"
-"    float maskBlurAlpha = saturate((maskTexBlur.sample(samp, vtf.maskUv).a - maskTex.sample(samp, vtf.maskUv).a) * 2.0);\n"
-"    return float4((vtf.color * screenTex.sample(samp, vtf.screenUv) * maskBlurAlpha).rgb, vtf.color.a);\n"
+"    float maskBlurAlpha = saturate((maskTexBlur.sample(clampSamp, vtf.maskUv).a - maskTex.sample(clampSamp, vtf.maskUv).a) * 2.0);\n"
+"    return float4((vtf.color * screenTex.sample(clampSamp, vtf.screenUv) * maskBlurAlpha).rgb, vtf.color.a);\n"
 "}\n";
 
 static const char* BlurVS =
@@ -128,7 +128,6 @@ static const char* BlurVS =
 static const char* BlurFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -137,35 +136,36 @@ static const char* BlurFS =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler clampSamp [[ sampler(2) ]],\n"
 "                      texture2d<float> maskTex [[ texture(0) ]])\n"
 "{\n"
 "    //this will be our alpha sum\n"
 "    float sum = 0.0;\n"
 "\n"
 "    //apply blurring, using a 23-tap filter with predefined gaussian weights\n"
-"    sum += maskTex.sample(samp, vtf.uv + -11.0 * vtf.blurDir).a * 0.007249;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -10.0 * vtf.blurDir).a * 0.011032;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -9.0 * vtf.blurDir).a * 0.016133;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -8.0 * vtf.blurDir).a * 0.022665;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -7.0 * vtf.blurDir).a * 0.030595;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -6.0 * vtf.blurDir).a * 0.039680;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -5.0 * vtf.blurDir).a * 0.049444;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -4.0 * vtf.blurDir).a * 0.059195;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -3.0 * vtf.blurDir).a * 0.068091;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -2.0 * vtf.blurDir).a * 0.075252;\n"
-"    sum += maskTex.sample(samp, vtf.uv + -1.0 * vtf.blurDir).a * 0.079905;\n"
-"    sum += maskTex.sample(samp, vtf.uv).a * 0.081519;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 1.0 * vtf.blurDir).a * 0.079905;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 2.0 * vtf.blurDir).a * 0.075252;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 3.0 * vtf.blurDir).a * 0.068091;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 4.0 * vtf.blurDir).a * 0.059195;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 5.0 * vtf.blurDir).a * 0.049444;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 6.0 * vtf.blurDir).a * 0.039680;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 7.0 * vtf.blurDir).a * 0.030595;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 8.0 * vtf.blurDir).a * 0.022665;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 9.0 * vtf.blurDir).a * 0.016133;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 10.0 * vtf.blurDir).a * 0.011032;\n"
-"    sum += maskTex.sample(samp, vtf.uv + 11.0 * vtf.blurDir).a * 0.007249;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -11.0 * vtf.blurDir).a * 0.007249;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -10.0 * vtf.blurDir).a * 0.011032;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -9.0 * vtf.blurDir).a * 0.016133;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -8.0 * vtf.blurDir).a * 0.022665;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -7.0 * vtf.blurDir).a * 0.030595;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -6.0 * vtf.blurDir).a * 0.039680;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -5.0 * vtf.blurDir).a * 0.049444;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -4.0 * vtf.blurDir).a * 0.059195;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -3.0 * vtf.blurDir).a * 0.068091;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -2.0 * vtf.blurDir).a * 0.075252;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + -1.0 * vtf.blurDir).a * 0.079905;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv).a * 0.081519;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 1.0 * vtf.blurDir).a * 0.079905;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 2.0 * vtf.blurDir).a * 0.075252;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 3.0 * vtf.blurDir).a * 0.068091;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 4.0 * vtf.blurDir).a * 0.059195;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 5.0 * vtf.blurDir).a * 0.049444;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 6.0 * vtf.blurDir).a * 0.039680;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 7.0 * vtf.blurDir).a * 0.030595;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 8.0 * vtf.blurDir).a * 0.022665;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 9.0 * vtf.blurDir).a * 0.016133;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 10.0 * vtf.blurDir).a * 0.011032;\n"
+"    sum += maskTex.sample(clampSamp, vtf.uv + 11.0 * vtf.blurDir).a * 0.007249;\n"
 "\n"
 "    return float4(1.0, 1.0, 1.0, sum);\n"
 "}\n";
@@ -252,15 +252,15 @@ CPhazonSuitFilter::Initialize(boo::MetalDataFactory::Context& ctx)
     };
     s_BlurVtxFmt = ctx.newVertexFormat(2, BlurVtxVmt);
     s_IndPipeline = ctx.newShaderPipeline(VS, IndFS, nullptr, nullptr, s_VtxFmt,
-                                          CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                          boo::BlendFactor::SrcAlpha,
                                           boo::BlendFactor::One, boo::Primitive::TriStrips,
                                           boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
-                                       CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                       boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::One, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     s_BlurPipeline = ctx.newShaderPipeline(BlurVS, BlurFS, nullptr, nullptr, s_BlurVtxFmt,
-                                           CGraphics::g_ViewportSamples, boo::BlendFactor::One,
+                                           boo::BlendFactor::One,
                                            boo::BlendFactor::Zero, boo::Primitive::TriStrips,
                                            boo::ZTest::None, false, false, true, boo::CullMode::None);
     return new CPhazonSuitFilterMetalDataBindingFactory;

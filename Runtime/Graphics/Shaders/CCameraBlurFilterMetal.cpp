@@ -41,19 +41,19 @@ static const char* VS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.uvReg = v.uvIn.xy;\n"
-"    vtf.uvReg.y = -vtf.uvReg.y;\n"
+"    vtf.uvReg.y = 1.0 - vtf.uvReg.y;\n"
 "    vtf.uv0 = cbu.uv0.xy + v.uvIn.xy;\n"
-"    vtf.uv0.y = -vtf.uv0.y;\n"
+"    vtf.uv0.y = 1.0 - vtf.uv0.y;\n"
 "    vtf.uv1 = cbu.uv1.xy + v.uvIn.xy;\n"
-"    vtf.uv1.y = -vtf.uv1.y;\n"
+"    vtf.uv1.y = 1.0 - vtf.uv1.y;\n"
 "    vtf.uv2 = cbu.uv2.xy + v.uvIn.xy;\n"
-"    vtf.uv2.y = -vtf.uv2.y;\n"
+"    vtf.uv2.y = 1.0 - vtf.uv2.y;\n"
 "    vtf.uv3 = cbu.uv3.xy + v.uvIn.xy;\n"
-"    vtf.uv3.y = -vtf.uv3.y;\n"
+"    vtf.uv3.y = 1.0 - vtf.uv3.y;\n"
 "    vtf.uv4 = cbu.uv4.xy + v.uvIn.xy;\n"
-"    vtf.uv4.y = -vtf.uv4.y;\n"
+"    vtf.uv4.y = 1.0 - vtf.uv4.y;\n"
 "    vtf.uv5 = cbu.uv5.xy + v.uvIn.xy;\n"
-"    vtf.uv5.y = -vtf.uv5.y;\n"
+"    vtf.uv5.y = 1.0 - vtf.uv5.y;\n"
 "    vtf.opacity = cbu.opacity;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
@@ -62,7 +62,6 @@ static const char* VS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -76,7 +75,8 @@ static const char* FS =
 "    float opacity;\n"
 "};\n"
 "\n"
-"fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> sceneTex [[ texture(0) ]])\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]], sampler samp [[ sampler(0) ]],\n"
+"                      texture2d<float> sceneTex [[ texture(0) ]])\n"
 "{\n"
 "    float4 colorSample = sceneTex.sample(samp, vtf.uvReg) * 0.14285715;\n"
 "    colorSample += sceneTex.sample(samp, vtf.uv0) * 0.14285715;\n"
@@ -117,7 +117,7 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                       s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                       s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
     return new CCameraBlurFilterMetalDataBindingFactory;

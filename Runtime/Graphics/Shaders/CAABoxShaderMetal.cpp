@@ -74,11 +74,11 @@ TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::MetalD
     };
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                       s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                       s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                        boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                        boo::ZTest::LEqual, true, true, false, boo::CullMode::None);
     s_zOnlyPipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                            s_VtxFmt, CGraphics::g_ViewportSamples, boo::BlendFactor::SrcAlpha,
+                                            s_VtxFmt, boo::BlendFactor::SrcAlpha,
                                             boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                             boo::ZTest::LEqual, true, false, false, boo::CullMode::None);
     return new CAABoxShaderMetalDataBindingFactory;

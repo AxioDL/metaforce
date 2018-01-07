@@ -39,7 +39,6 @@ static const char* VS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -47,7 +46,9 @@ static const char* FS =
 "    float2 uv;\n"
 "};\n"
 "\n"
-"fragment float4 fmain(VertToFrag vtf [[ stage_in ]], texture2d<float> tex [[ texture(0) ]])\n"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
+"                      texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
 "    return vtf.color * tex.sample(samp, vtf.uv);\n"
 "}\n";
@@ -86,8 +87,7 @@ CEnergyBarShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                       s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                        boo::Primitive::TriStrips, boo::ZTest::LEqual,
                                        false, true, false, boo::CullMode::None);

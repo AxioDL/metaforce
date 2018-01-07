@@ -268,7 +268,6 @@ public:
     static zeus::CTransform g_GXViewPointMatrix;
     static zeus::CTransform g_CameraMatrix;
     static SClipScreenRect g_CroppedViewport;
-    static unsigned int g_ViewportSamples;
     static bool g_IsGXModelMatrixIdentity;
 
     static void DisableAllLights();

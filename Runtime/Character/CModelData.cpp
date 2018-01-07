@@ -101,8 +101,10 @@ CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
     {
     case EWhichModel::XRay:
         ret = x10_animData->xf4_xrayModel.get();
+        break;
     case EWhichModel::Thermal:
         ret = x10_animData->xf8_infraModel.get();
+        break;
     default: break;
     }
     if (ret)
@@ -117,11 +119,13 @@ const std::unique_ptr<CBooModel>& CModelData::PickStaticModel(EWhichModel which)
     {
     case EWhichModel::XRay:
         ret = &m_xrayModelInst;
+        break;
     case EWhichModel::Thermal:
         ret = &m_infraModelInst;
+        break;
     default: break;
     }
-    if (ret)
+    if (ret && *ret)
         return *ret;
     return m_normalModelInst;
 }

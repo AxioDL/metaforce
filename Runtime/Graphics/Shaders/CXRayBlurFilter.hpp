@@ -19,7 +19,7 @@ class CXRayBlurFilter
 
     struct Uniform
     {
-        zeus::CMatrix4f m_uv[4];
+        zeus::CMatrix4f m_uv[8];
     };
     TLockedToken<CTexture> m_paletteTex;
     boo::ObjToken<boo::ITexture> m_booTex;

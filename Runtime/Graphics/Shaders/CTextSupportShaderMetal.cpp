@@ -50,7 +50,6 @@ static const char* TextVS =
 static const char* TextFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -61,9 +60,10 @@ static const char* TextFS =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler clampSamp [[ sampler(2) ]],\n"
 "                      texture2d_array<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    float4 texel = tex.sample(samp, vtf.uv.xy, vtf.uv.z);\n"
+"    float4 texel = tex.sample(clampSamp, vtf.uv.xy, vtf.uv.z);\n"
 "    return (vtf.fontColor * texel.r + vtf.outlineColor * texel.g) * vtf.mulColor;\n"
 "}\n";
 
@@ -105,7 +105,6 @@ static const char* ImgVS =
 static const char* ImgFS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::clamp_to_edge, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -114,9 +113,10 @@ static const char* ImgFS =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler clampSamp [[ sampler(2) ]],\n"
 "                      texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    float4 texel = tex.sample(samp, vtf.uv);\n"
+"    float4 texel = tex.sample(clampSamp, vtf.uv);\n"
 "    return vtf.color * texel;\n"
 "}\n";
 
@@ -138,16 +138,13 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 2},
     };
     s_TextVtxFmt = ctx.newVertexFormat(11, TextVtxVmt);
-    s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr,
-                                                s_TextVtxFmt, CGraphics::g_ViewportSamples,
+    s_TextAlphaPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, s_TextVtxFmt,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                                 boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr,
-                                              s_TextVtxFmt, CGraphics::g_ViewportSamples,
+    s_TextAddPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, s_TextVtxFmt,
                                               boo::BlendFactor::SrcAlpha, boo::BlendFactor::One, boo::Primitive::TriStrips,
                                               boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    s_TextAddOverdrawPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr,
-                                                s_TextVtxFmt, CGraphics::g_ViewportSamples,
+    s_TextAddOverdrawPipeline = ctx.newShaderPipeline(TextVS, TextFS, nullptr, nullptr, s_TextVtxFmt,
                                                 boo::BlendFactor::One, boo::BlendFactor::One, boo::Primitive::TriStrips,
                                                 boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 
@@ -164,16 +161,13 @@ CTextSupportShader::Initialize(boo::MetalDataFactory::Context& ctx)
         {nullptr, nullptr, boo::VertexSemantic::Color | boo::VertexSemantic::Instanced, 0},
     };
     s_ImageVtxFmt = ctx.newVertexFormat(9, ImageVtxVmt);
-    s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr,
-                                                 s_ImageVtxFmt, CGraphics::g_ViewportSamples,
+    s_ImageAlphaPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, s_ImageVtxFmt,
                                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
                                                  boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr,
-                                               s_ImageVtxFmt, CGraphics::g_ViewportSamples,
+    s_ImageAddPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, s_ImageVtxFmt,
                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::One, boo::Primitive::TriStrips,
                                                boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
-    s_ImageAddOverdrawPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr,
-                                                 s_ImageVtxFmt, CGraphics::g_ViewportSamples,
+    s_ImageAddOverdrawPipeline = ctx.newShaderPipeline(ImgVS, ImgFS, nullptr, nullptr, s_ImageVtxFmt,
                                                  boo::BlendFactor::One, boo::BlendFactor::One, boo::Primitive::TriStrips,
                                                  boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
 

@@ -40,7 +40,7 @@ static const char* VS =
 "    vtf.colorReg1 = colorReg1;\n"
 "    vtf.colorReg2 = colorReg2;\n"
 "    vtf.sceneUv = v.uvIn.xy;\n"
-"    vtf.sceneUv.y = -vtf.sceneUv.y;\n"
+"    vtf.sceneUv.y = 1.0 - vtf.sceneUv.y;\n"
 "    vtf.shiftUv = (mul(float3x3(shiftMtx[0].xyz, shiftMtx[1].xyz, shiftMtx[2].xyz), v.uvIn.xyz)).xy;\n"
 "    vtf.shiftScale = shiftScale.xy;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
@@ -50,7 +50,7 @@ static const char* VS =
 static const char* FS =
 "Texture2D sceneTex : register(t0);\n"
 "Texture2D shiftTex : register(t1);\n"
-"SamplerState samp : register(s0);\n"
+"SamplerState samp : register(s2);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position : SV_Position;\n"

@@ -57,6 +57,8 @@ struct Application : boo::IApplicationCallback
     hecl::Runtime::FileStoreManager m_fileMgr;
     hecl::CVarManager m_cvarManager;
     std::unique_ptr<ViewManager> m_viewManager;
+    hecl::CVar* m_drawSamples;
+    hecl::CVar* m_texAnisotropy;
 
     bool m_running = true;
 
@@ -64,6 +66,13 @@ struct Application : boo::IApplicationCallback
         m_fileMgr(_S("urde")),
         m_cvarManager(m_fileMgr)
     {
+        m_drawSamples = m_cvarManager.findOrMakeCVar("drawSamples"sv,
+                        "Number of MSAA samples to use for render targets"sv,
+                        1, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
+        m_texAnisotropy = m_cvarManager.findOrMakeCVar("texAnisotropy"sv,
+                          "Number of anisotropic samples to use for sampling textures"sv,
+                          1, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
+
         m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
     }
 
@@ -118,6 +127,16 @@ struct Application : boo::IApplicationCallback
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
         Log.report(logvisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
         Log.report(logvisor::Info, _S("CPU Features: %s"), CPUFeatureString(cpuInf).c_str());
+    }
+
+    uint32_t getSamples()
+    {
+        return uint32_t(std::max(1, m_drawSamples->toInteger()));
+    }
+
+    uint32_t getAnisotropy()
+    {
+        return uint32_t(std::max(1, m_texAnisotropy->toInteger()));
     }
 };
 
@@ -185,7 +204,7 @@ int main(int argc, const boo::SystemChar** argv)
 
     urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
-        appCb, _S("urde"), _S("URDE"), argc, argv, false);
+        appCb, _S("urde"), _S("URDE"), argc, argv, appCb.getSamples(), appCb.getAnisotropy(), false);
     printf("IM DYING!!\n");
     return ret;
 }

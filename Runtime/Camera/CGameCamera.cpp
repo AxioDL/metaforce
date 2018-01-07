@@ -72,31 +72,30 @@ zeus::CVector3f CGameCamera::ConvertToScreenSpace(const zeus::CVector3f& v) cons
     return mtx.multiplyOneOverW(rVec);
 }
 
-zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& a, const zeus::CTransform& b)
+zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& newXf, const zeus::CTransform& oldXf)
 {
-    zeus::CTransform xfCpy(a);
-    constexpr double epsilon = FLT_EPSILON * 1000.f;
-    if ((a.rightVector().magnitude() - 1.f) >= epsilon || (a.frontVector().magnitude() - 1.f) >= epsilon ||
-        (a.upVector().magnitude() - 1.f) >= epsilon)
+    zeus::CTransform xfCpy(newXf);
+    if (!zeus::close_enough(newXf.rightVector().magnitude(), 1.f) ||
+        !zeus::close_enough(newXf.frontVector().magnitude(), 1.f) ||
+        !zeus::close_enough(newXf.upVector().magnitude(), 1.f))
         xfCpy.orthonormalize();
-    float f2 = a.basis[1].dot(zeus::CVector3f::skUp);
-    if (std::fabs(f2) > 1.0f)
-        f2 = (f2 >= -0.f ? -1.0f : 1.0f);
+    float f2 = zeus::clamp(-1.f, newXf.frontVector().dot(zeus::CVector3f::skUp), 1.f);
     if (std::fabs(f2) > 0.999f)
-        xfCpy = b;
+        xfCpy = oldXf;
 
     if (xfCpy.upVector().z < -0.2f)
         xfCpy = zeus::CQuaternion::fromAxisAngle(xfCpy.frontVector(), M_PIF).toTransform() * xfCpy;
 
-    if (std::fabs(xfCpy.rightVector().z) >= 0.000009f && std::fabs(xfCpy.upVector().z) > 0.000009f)
+    if (!zeus::close_enough(xfCpy.rightVector().z, 0.f) &&
+        !zeus::close_enough(xfCpy.upVector().z, 0.f))
     {
         if (xfCpy.frontVector().canBeNormalized())
-            xfCpy = zeus::lookAt(zeus::CUnitVector3f(xfCpy.frontVector(), true), zeus::CVector3f::skZero);
+            xfCpy = zeus::lookAt(zeus::CVector3f::skZero, xfCpy.frontVector());
         else
-            xfCpy = b;
+            xfCpy = oldXf;
     }
 
-    xfCpy.origin = a.origin;
+    xfCpy.origin = newXf.origin;
     return xfCpy;
 }
 

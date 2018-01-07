@@ -39,7 +39,6 @@ static const char* VS =
 static const char* FS_TEX =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 pos [[ position ]];\n"
@@ -48,6 +47,7 @@ static const char* FS_TEX =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
 "    return vtf.color * tex.sample(samp, vtf.uv);\n"
@@ -97,44 +97,36 @@ TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::In
     };
     m_vtxFormat = ctx.newVertexFormat(3, VtxFmt);
 
-    m_texZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
-                                        m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr, m_vtxFormat,
                                         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                         boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                         true, false, boo::CullMode::None);
-    m_texNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
-                                          m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr, m_vtxFormat,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                           true, false, boo::CullMode::None);
-    m_texAdditiveZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
-                                                m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texAdditiveZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr, m_vtxFormat,
                                                 boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                 boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                                 true, false, boo::CullMode::None);
-    m_texAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr,
-                                                  m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_texAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_TEX, nullptr, nullptr, m_vtxFormat,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                                   true, false, boo::CullMode::None);
 
-    m_noTexZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
-                                          m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr, m_vtxFormat,
                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                           boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                           true, false, boo::CullMode::None);
-    m_noTexNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
-                                            m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr, m_vtxFormat,
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                             boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                             true, false, boo::CullMode::None);
-    m_noTexAdditiveZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
-                                                  m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexAdditiveZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr, m_vtxFormat,
                                                   boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                   boo::Primitive::TriStrips, boo::ZTest::LEqual, true,
                                                   true, false, boo::CullMode::None);
-    m_noTexAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr,
-                                                    m_vtxFormat, CGraphics::g_ViewportSamples,
+    m_noTexAdditiveNoZWrite = ctx.newShaderPipeline(VS, FS_NOTEX, nullptr, nullptr, m_vtxFormat,
                                                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false,
                                                     true, false, boo::CullMode::None);

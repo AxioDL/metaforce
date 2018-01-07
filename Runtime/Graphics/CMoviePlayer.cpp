@@ -129,14 +129,14 @@ SPECTER_METAL_VIEW_VERT_BLOCK
 static const char* FS_METAL_YUV =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
 "    float4 color;\n"
 "    float2 uv;\n"
 "};\n"
-"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],"
+"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> tex0 [[ texture(0) ]],\n"
 "                      texture2d<float> tex1 [[ texture(1) ]],\n"
 "                      texture2d<float> tex2 [[ texture(2) ]])\n"
@@ -232,7 +232,7 @@ void CMoviePlayer::Initialize()
 #if BOO_HAS_METAL
         case boo::IGraphicsDataFactory::Platform::Metal:
             YUVShaderPipeline = static_cast<boo::MetalDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_METAL_YUV, FS_METAL_YUV, nullptr, nullptr, YUVVTXFmt, 1,
+                    (VS_METAL_YUV, FS_METAL_YUV, nullptr, nullptr, YUVVTXFmt,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                      boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
             break;

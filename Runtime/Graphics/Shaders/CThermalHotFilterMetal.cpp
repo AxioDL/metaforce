@@ -31,7 +31,7 @@ static const char* VS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.sceneUv = v.uvIn.xy;\n"
-"    vtf.sceneUv.y = -vtf.sceneUv.y;\n"
+"    vtf.sceneUv.y = 1.0 - vtf.sceneUv.y;\n"
 "    vtf.position = float4(v.posIn.xyz, 1.0);\n"
 "    return vtf;\n"
 "}\n";
@@ -39,7 +39,6 @@ static const char* VS =
 static const char* FS =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
-"constexpr sampler samp(address::repeat, filter::linear, mip_filter::linear);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position [[ position ]];\n"
@@ -48,6 +47,7 @@ static const char* FS =
 "\n"
 "constant float4 kRGBToYPrime = float4(0.299, 0.587, 0.114, 0.0);\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
+"                      sampler samp [[ sampler(0) ]],\n"
 "                      texture2d<float> sceneTex [[ texture(0) ]],\n"
 "                      texture2d<float> paletteTex [[ texture(1) ]])\n"
 "{\n"
@@ -84,8 +84,7 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
         {nullptr, nullptr, boo::VertexSemantic::UV4}
     };
     s_VtxFmt = ctx.newVertexFormat(2, VtxVmt);
-    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr,
-                                       s_VtxFmt, CGraphics::g_ViewportSamples,
+    s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
                                        boo::BlendFactor::DstAlpha, boo::BlendFactor::InvDstAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None, false,
                                        true, false, boo::CullMode::None);
