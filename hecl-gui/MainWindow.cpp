@@ -4,17 +4,68 @@
 #include <QMessageBox>
 #include "EscapeSequenceParser.hpp"
 #include "FileDirDialog.hpp"
+#include "ExtractZip.hpp"
 
 #if _WIN32
 #include <Windows.h>
 #include <shellapi.h>
+#include <TlHelp32.h>
+
+static void KillProcessTree(QProcess& proc)
+{
+    Q_PID pid = proc.pid();
+    if (!pid)
+        return;
+
+    DWORD myprocID = pid->dwProcessId;
+    PROCESSENTRY32 pe = {};
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    HANDLE hSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+    if (::Process32First(hSnap, &pe))
+    {
+        BOOL bContinue = TRUE;
+
+        // kill child processes
+        while (bContinue)
+        {
+            // only kill child processes
+            if (pe.th32ParentProcessID == myprocID)
+            {
+                HANDLE hChildProc = ::OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
+
+                if (hChildProc)
+                {
+                    ::TerminateProcess(hChildProc, 1);
+                    ::CloseHandle(hChildProc);
+                }
+            }
+
+            bContinue = ::Process32Next(hSnap, &pe);
+        }
+    }
+
+    proc.close();
+    proc.terminate();
+}
+#else
+static void KillProcessTree(QProcess& proc)
+{
+    proc.close();
+    proc.terminate();
+}
 #endif
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow)
+    QMainWindow(parent)
+  , m_fileMgr(_S("urde"))
+  , m_cvarManager(m_fileMgr)
+  , m_cvarCommons(m_cvarManager)
+  , m_ui(new Ui::MainWindow)
   , m_heclProc(this)
   , m_dlManager(this)
+  , m_launchMenu(m_cvarCommons, this)
   , m_settings("AxioDL", "HECL", this)
 {
     m_ui->setupUi(this);
@@ -41,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dlManager.connectWidgets(m_ui->downloadProgressBar, m_ui->downloadErrorLabel,
                                std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
                                std::bind(&MainWindow::onBinaryDownloaded, this, std::placeholders::_1),
-                               std::bind(&MainWindow::onBinaryFailed, this, std::placeholders::_1));
+                               std::bind(&MainWindow::onBinaryFailed, this));
 
     initSlots();
 
@@ -52,8 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    m_heclProc.close();
-    m_heclProc.terminate();
+    KillProcessTree(m_heclProc);
     delete m_ui;
 }
 
@@ -67,14 +117,17 @@ void MainWindow::onExtract()
         return;
 
     m_ui->processOutput->clear();
-    m_heclProc.close();
-    m_heclProc.terminate();
+    KillProcessTree(m_heclProc);
     m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     m_heclProc.setWorkingDirectory(m_path);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert("TERM", "xterm-color");
+    env.insert("ConEmuANSI", "ON");
     m_heclProc.setProcessEnvironment(env);
-    m_heclProc.start(m_heclPath, {"extract", "-y", "-o", m_path, imgPath});
+    disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
+    connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onExtractFinished(int)));
+    m_heclProc.start(m_heclPath, {"extract", "-y", "-g", "-o", m_path, imgPath},
+                     QIODevice::ReadOnly | QIODevice::Unbuffered);
 
     m_ui->heclTabs->setCurrentIndex(0);
 
@@ -83,13 +136,12 @@ void MainWindow::onExtract()
     m_ui->extractBtn->setEnabled(true);
     disconnect(m_ui->extractBtn, SIGNAL(clicked()), nullptr, nullptr);
     connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(doHECLTerminate()));
-
-    disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
-    connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onExtractFinished(int)));
 }
 
 void MainWindow::onExtractFinished(int returnCode)
 {
+    m_cursor.movePosition(QTextCursor::End);
+    m_cursor.insertBlock();
     disconnect(m_ui->extractBtn, SIGNAL(clicked()), nullptr, nullptr);
     connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(onExtract()));
     checkDownloadedBinary();
@@ -100,14 +152,17 @@ void MainWindow::onPackage()
     if (m_path.isEmpty())
         return;
     m_ui->processOutput->clear();
-    m_heclProc.close();
-    m_heclProc.terminate();
+    KillProcessTree(m_heclProc);
     m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     m_heclProc.setWorkingDirectory(m_path);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert("TERM", "xterm-color");
+    env.insert("ConEmuANSI", "ON");
     m_heclProc.setProcessEnvironment(env);
-    m_heclProc.start(m_heclPath, {"package", "-y"});
+    disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
+    connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onPackageFinished(int)));
+    m_heclProc.start(m_heclPath, {"package", "-y", "-g"},
+                     QIODevice::ReadOnly | QIODevice::Unbuffered);
 
     m_ui->heclTabs->setCurrentIndex(0);
 
@@ -116,13 +171,12 @@ void MainWindow::onPackage()
     m_ui->packageBtn->setEnabled(true);
     disconnect(m_ui->packageBtn, SIGNAL(clicked()), nullptr, nullptr);
     connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(doHECLTerminate()));
-
-    disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
-    connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onPackageFinished(int)));
 }
 
 void MainWindow::onPackageFinished(int returnCode)
 {
+    m_cursor.movePosition(QTextCursor::End);
+    m_cursor.insertBlock();
     disconnect(m_ui->packageBtn, SIGNAL(clicked()), nullptr, nullptr);
     connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(onPackage()));
     checkDownloadedBinary();
@@ -133,33 +187,33 @@ void MainWindow::onLaunch()
     if (m_path.isEmpty())
         return;
     m_ui->processOutput->clear();
-    m_heclProc.close();
-    m_heclProc.terminate();
+    KillProcessTree(m_heclProc);
     m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     m_heclProc.setWorkingDirectory(m_path);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert("TERM", "xterm-color");
+    env.insert("ConEmuANSI", "ON");
     m_heclProc.setProcessEnvironment(env);
-    m_heclProc.start(m_urdePath, {"--no-shader-warmup", m_path + "/out"});
+    disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
+    connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onLaunchFinished(int)));
+    m_heclProc.start(m_urdePath, {"--no-shader-warmup", m_path + "/out"},
+                     QIODevice::ReadOnly | QIODevice::Unbuffered);
 
     m_ui->heclTabs->setCurrentIndex(0);
 
     disableOperations();
-
-    disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
-    connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onLaunchFinished(int)));
 }
 
 void MainWindow::onLaunchFinished(int returnCode)
 {
+    m_cursor.movePosition(QTextCursor::End);
+    m_cursor.insertBlock();
     checkDownloadedBinary();
 }
 
 void MainWindow::doHECLTerminate()
 {
-    m_heclProc.terminate();
-    m_cursor.movePosition(QTextCursor::End);
-    m_cursor.insertText("\n");
+    KillProcessTree(m_heclProc);
 }
 
 void MainWindow::onReturnPressed()
@@ -206,37 +260,26 @@ void MainWindow::onUpdateURDEPressed()
     onDownloadPressed();
 }
 
-void MainWindow::onBinaryDownloaded(const QString& file)
+void MainWindow::onBinaryDownloaded(QuaZip& file)
 {
-    QFileInfo path(file);
-#ifndef _WIN32
-    QProcess unzip;
-    unzip.setWorkingDirectory(path.dir().absolutePath());
-    unzip.start("unzip", {"-o", path.fileName()});
-    unzip.waitForFinished();
-    int err = unzip.exitCode();
-#else
-    SHFILEOPSTRUCT fileOp = {};
-    fileOp.wFunc = FO_COPY;
-    fileOp.pFrom = (path.absoluteFilePath().toStdWString() + L"\\*.*\0\0").c_str();
-    fileOp.pTo = (path.absolutePath().toStdWString() + L"\0\0").c_str();
-    fileOp.fFlags |= FOF_NOCONFIRMATION;
-    int err = SHFileOperationW(&fileOp);
-    if (fileOp.fAnyOperationsAborted)
-        err = 1;
-#endif
-    QFile::remove(file);
+    bool err = !ExtractZip::extractDir(file, m_path);
+
     if (err)
-        m_ui->downloadErrorLabel->setText(QStringLiteral("Error extracting ") + path.fileName());
+        m_ui->downloadErrorLabel->setText(QStringLiteral("Error extracting zip"));
     else
         m_ui->downloadErrorLabel->setText(QStringLiteral("Download successful"), true);
+
     m_ui->downloadButton->setEnabled(true);
     checkDownloadedBinary();
+
     if (!err && m_ui->extractBtn->isEnabled())
         m_ui->downloadErrorLabel->setText(QStringLiteral("Download successful - Press 'Extract' to continue."), true);
+    if (!err && !m_ui->sysReqTable->isBlenderVersionOk())
+        m_ui->downloadErrorLabel->setText(
+        QStringLiteral("Blender 2.78+ must be installed. Please download via Steam or blender.org."));
 }
 
-void MainWindow::onBinaryFailed(const QString& file)
+void MainWindow::onBinaryFailed()
 {
     m_ui->downloadButton->setEnabled(true);
     checkDownloadedBinary();
@@ -263,6 +306,9 @@ void MainWindow::enableOperations()
 
     m_ui->downloadButton->setEnabled(true);
 
+    if (m_heclPath.isEmpty())
+        return;
+
     m_ui->extractBtn->setText(QStringLiteral("Extract"));
     m_ui->packageBtn->setText(QStringLiteral("Package"));
     m_ui->launchBtn->setText(QStringLiteral("Launch"));
@@ -275,7 +321,9 @@ void MainWindow::enableOperations()
             m_ui->launchBtn->setEnabled(true);
     }
 
-    if (m_ui->launchBtn->isEnabled())
+    if (!m_ui->sysReqTable->isBlenderVersionOk())
+        insertContinueNote("Blender 2.78+ must be installed. Please download via Steam or blender.org.");
+    else if (m_ui->launchBtn->isEnabled())
         insertContinueNote("Package complete - Press 'Launch' to start URDE.");
     else if (m_ui->packageBtn->isEnabled())
         insertContinueNote("Extract complete - Press 'Package' to continue.");
@@ -299,7 +347,6 @@ static bool GetDLPackage(const QString& path, QString& dlPackage)
 
 bool MainWindow::checkDownloadedBinary()
 {
-    disableOperations();
     m_updateURDEButton->hide();
 
     m_urdePath = QString();
@@ -309,6 +356,7 @@ bool MainWindow::checkDownloadedBinary()
     {
         m_ui->heclTabs->setCurrentIndex(1);
         m_ui->downloadErrorLabel->setText(QStringLiteral("Set working directory to continue."), true);
+        enableOperations();
         return false;
     }
 
@@ -351,9 +399,9 @@ bool MainWindow::checkDownloadedBinary()
             m_ui->currentBinaryLabel->setText(QStringLiteral("unknown -- re-download recommended"));
         }
 
-        enableOperations();
         m_urdePath = urdePath;
         m_heclPath = heclPath;
+        enableOperations();
         return true;
     }
     else
@@ -361,6 +409,7 @@ bool MainWindow::checkDownloadedBinary()
         m_ui->currentBinaryLabel->setText(QStringLiteral("none"));
         m_ui->heclTabs->setCurrentIndex(1);
         m_ui->downloadErrorLabel->setText(QStringLiteral("Press 'Download' to fetch latest URDE binary."), true);
+        enableOperations();
     }
 
     return false;
@@ -370,7 +419,7 @@ void MainWindow::setPath(const QString& path)
 {
     QFileInfo finfo(path);
     QString usePath = finfo.absoluteFilePath();
-    if (!finfo.exists())
+    if (!usePath.isEmpty() && !finfo.exists())
     {
         if (QMessageBox::question(this, QStringLiteral("Make Directory"),
             QStringLiteral("%1 does not exist. Create it now?").arg(usePath)) == QMessageBox::Yes)
@@ -403,22 +452,22 @@ void MainWindow::setPath(const QString& path)
         m_ui->currentBinaryLabel->setText(QStringLiteral("none"));
     }
 
+    m_ui->sysReqTable->updateFreeDiskSpace(m_path);
     checkDownloadedBinary();
 }
 
 void MainWindow::initSlots()
 {
-#ifdef Q_OS_WIN
-    m_heclProc.setEnvironment(QProcessEnvironment::systemEnvironment().toStringList() + QStringList("ConEmuANSI=ON"));
-#endif
     connect(&m_heclProc, &QProcess::readyRead, [=](){
-        setTextTermFormatting(m_heclProc.readAll());
+        QByteArray bytes = m_heclProc.readAll();
+        setTextTermFormatting(bytes);
         m_ui->processOutput->ensureCursorVisible();
     });
 
     connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(onExtract()));
     connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(onPackage()));
     connect(m_ui->launchBtn, SIGNAL(clicked()), this, SLOT(onLaunch()));
+    m_ui->launchMenuBtn->setMenu(&m_launchMenu);
 
     connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
         FileDirDialog dialog(this);
@@ -435,80 +484,6 @@ void MainWindow::initSlots()
     });
 
     connect(m_ui->downloadButton, SIGNAL(clicked()), this, SLOT(onDownloadPressed()));
-}
-
-static void ReturnInsert(QTextCursor& cur, const QString& text)
-{
-    auto DoLine = [&](const QString& line)
-    {
-        auto DoReturn = [&](const QString& ret)
-        {
-            if (!ret.isEmpty())
-            {
-                cur.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ret.size());
-                cur.insertText(ret);
-            }
-        };
-        QStringList list = line.split('\r');
-        DoReturn(list.front());
-        if (list.size() > 1)
-        {
-            for (auto it = list.begin() + 1; it != list.end(); ++it)
-            {
-                cur.movePosition(QTextCursor::StartOfLine);
-                DoReturn(*it);
-            }
-        }
-    };
-
-    QStringList lineSplit = text.split('\n');
-    DoLine(lineSplit.front());
-    if (lineSplit.size() > 1)
-    {
-        for (auto it = lineSplit.begin() + 1; it != lineSplit.end(); ++it)
-        {
-            cur.movePosition(QTextCursor::EndOfLine);
-            cur.insertText("\n");
-            DoLine(*it);
-        }
-    }
-}
-
-static void ReturnInsert(QTextCursor& cur, const QString& text, const QTextCharFormat& format)
-{
-    auto DoLine = [&](const QString& line)
-    {
-        auto DoReturn = [&](const QString& ret)
-        {
-            if (!ret.isEmpty())
-            {
-                cur.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ret.size());
-                cur.insertText(ret, format);
-            }
-        };
-        QStringList list = line.split('\r');
-        DoReturn(list.front());
-        if (list.size() > 1)
-        {
-            for (auto it = list.begin() + 1; it != list.end(); ++it)
-            {
-                cur.movePosition(QTextCursor::StartOfLine);
-                DoReturn(*it);
-            }
-        }
-    };
-
-    QStringList lineSplit = text.split('\n');
-    DoLine(lineSplit.front());
-    if (lineSplit.size() > 1)
-    {
-        for (auto it = lineSplit.begin() + 1; it != lineSplit.end(); ++it)
-        {
-            cur.movePosition(QTextCursor::EndOfLine);
-            cur.insertText("\n", format);
-            DoLine(*it);
-        }
-    }
 }
 
 void MainWindow::setTextTermFormatting(const QString& text)
@@ -552,5 +527,6 @@ void MainWindow::insertContinueNote(const QString& text)
     m_cursor.movePosition(QTextCursor::End);
     QTextCharFormat textCharFormat = m_cursor.charFormat();
     textCharFormat.setForeground(QColor(0,255,0));
-    m_cursor.insertText(text + '\n', textCharFormat);
+    m_cursor.insertText(text, textCharFormat);
+    m_cursor.insertBlock();
 }

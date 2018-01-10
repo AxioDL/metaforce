@@ -7,6 +7,8 @@
 #include <QJsonArray>
 #include <QDomDocument>
 #include <QProcess>
+#include <QStorageInfo>
+#include "FindBlender.hpp"
 
 #if _WIN32
 #include <Windows.h>
@@ -84,6 +86,22 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
             m_cpuSpeedStr.sprintf("%g GHz", speed);
         }
     }
+#elif _WIN32
+    HKEY hkey;
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                     _S("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"),
+                     0, KEY_QUERY_VALUE, &hkey) == ERROR_SUCCESS)
+    {
+        DWORD MHz;
+        DWORD size = sizeof(MHz);
+        if (RegQueryValueEx(hkey, _S("~MHz"), nullptr, nullptr,
+                            (LPBYTE)&MHz, &size) == ERROR_SUCCESS)
+        {
+            m_cpuSpeed = uint64_t(MHz);
+            m_cpuSpeedStr.sprintf("%1.1f GHz", MHz / 1000.f);
+        }
+    }
+    RegCloseKey(hkey);
 #else
     /* This only works for Skylake+ */
     int regs[4] = {};
@@ -115,11 +133,32 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
 #elif __linux__
     m_osVersion = QStringLiteral("Linux");
 #endif
+    hecl::blender::FindBlender(m_blendMajor, m_blendMinor);
+    if (m_blendMajor)
+        m_blendVersionStr = QStringLiteral("Blender ") + QString::number(m_blendMajor) +
+                            '.' + QString::number(m_blendMinor);
+    else
+        m_blendVersionStr = QStringLiteral("Not Found");
+}
+
+void SysReqTableModel::updateFreeDiskSpace(const QString& path)
+{
+    if (path.isEmpty())
+    {
+        m_freeDiskSpace = 0;
+        m_freeDiskSpaceStr = QStringLiteral("<Set Working Directory>");
+    }
+    else
+    {
+        m_freeDiskSpace = QStorageInfo(path).bytesFree();
+        m_freeDiskSpaceStr.sprintf("%1.1f GB", m_freeDiskSpace / 1000.f / 1000.f / 1000.f);
+    }
+    emit dataChanged(index(3, 0), index(3, 0));
 }
 
 int SysReqTableModel::rowCount(const QModelIndex& parent) const
 {
-    return 5;
+    return 7;
 }
 
 int SysReqTableModel::columnCount(const QModelIndex& parent) const
@@ -145,6 +184,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
         case 2:
             return m_memorySize >= 0xC0000000;
         case 3:
+            return m_freeDiskSpace >= qint64(16) * 1000 * 1000 * 1000;
+        case 4:
 #ifdef __APPLE__
             return m_macosMajor > 10 || m_macosMinor >= 9;
 #elif defined(_WIN32)
@@ -152,6 +193,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
 #else
             return true;
 #endif
+        case 5:
+            return isBlenderVersionOk();
         }
     }
     else
@@ -172,6 +215,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             case 2:
                 return QStringLiteral("3 GB");
             case 3:
+                return QStringLiteral("16 GB (MP1)");
+            case 4:
 #ifdef __APPLE__
                 return QStringLiteral("macOS 10.9");
 #elif defined(_WIN32)
@@ -181,6 +226,8 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
 #else
                 return {};
 #endif
+            case 5:
+                return QStringLiteral("Blender 2.78");
             }
         }
         else if (index.column() == 1)
@@ -199,7 +246,11 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             case 2:
                 return m_memorySizeStr;
             case 3:
+                return m_freeDiskSpaceStr;
+            case 4:
                 return m_osVersion;
+            case 5:
+                return m_blendVersionStr;
             }
         }
     }
@@ -236,8 +287,12 @@ QVariant SysReqTableModel::headerData(int section, Qt::Orientation orientation, 
         case 2:
             return QStringLiteral("Memory");
         case 3:
-            return QStringLiteral("OS");
+            return QStringLiteral("Disk Space");
         case 4:
+            return QStringLiteral("OS");
+        case 5:
+            return QStringLiteral("Blender");
+        case 6:
             return QStringLiteral("Vector ISA");
         }
     }
@@ -248,9 +303,17 @@ void SysReqTableView::paintEvent(QPaintEvent* e)
     int tableWidth = columnWidth(0) + columnWidth(1);
     int tableX = verticalHeader()->width() + columnViewportPosition(0);
     int tableY = horizontalHeader()->height();
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 6; ++i)
     {
         QWidget* w = std::get<0>(m_backgroundWidgets[i]);
+
+        QPalette pal = palette();
+        if (m_model.data(m_model.index(i, 0), Qt::UserRole).toBool())
+            pal.setColor(QPalette::Background, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
+        else
+            pal.setColor(QPalette::Background, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
+        w->setPalette(pal);
+
         QSequentialAnimationGroup* animation = std::get<1>(m_backgroundWidgets[i]);
         QPropertyAnimation* pAnimation = static_cast<QPropertyAnimation*>(animation->animationAt(1));
         bool& running = std::get<2>(m_backgroundWidgets[i]);
@@ -274,15 +337,15 @@ SysReqTableView::SysReqTableView(QWidget* parent)
 : QTableView(parent), m_vectorISATable(this)
 {
     setModel(&m_model);
-    setIndexWidget(m_model.index(4, 0), &m_vectorISATable);
-    setSpan(4, 0, 1, 2);
+    setIndexWidget(m_model.index(6, 0), &m_vectorISATable);
+    setSpan(6, 0, 1, 2);
 
     horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
     setFocusPolicy(Qt::NoFocus);
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 6; ++i)
     {
         QWidget* w = new QWidget(this);
         std::get<0>(m_backgroundWidgets[i]) = w;

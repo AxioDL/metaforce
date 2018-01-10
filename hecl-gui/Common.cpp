@@ -135,12 +135,16 @@ QString URDEVersion::fileString(bool withExtension) const
                                                VectorISAToString(m_vectorISA));
 }
 
+#ifndef _WIN32
 static void HUPHandler(int) {}
+#endif
 
 void InitializePlatform()
 {
+#ifndef _WIN32
     /* This can happen when terminating hecl - do nothing */
     signal(SIGHUP, HUPHandler);
+#endif
 
 #if ZEUS_ARCH_X86_64
     const_cast<Architecture&>(CurArchitecture) = Architecture::X86_64;

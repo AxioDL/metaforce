@@ -7,6 +7,8 @@
 #include <QProgressBar>
 #include <QLabel>
 
+class QuaZip;
+
 class DownloadManager : public QObject
 {
     Q_OBJECT
@@ -18,8 +20,8 @@ class DownloadManager : public QObject
     QProgressBar* m_progBar = nullptr;
     QLabel* m_errorLabel = nullptr;
     std::function<void(const QStringList& index)> m_indexCompletionHandler;
-    std::function<void(const QString& file)> m_completionHandler;
-    std::function<void(const QString& file)> m_failedHandler;
+    std::function<void(QuaZip& file)> m_completionHandler;
+    std::function<void()> m_failedHandler;
 
     void resetError()
     {
@@ -44,8 +46,8 @@ public:
     : QObject(parent), m_netManager(this) {}
     void connectWidgets(QProgressBar* progBar, QLabel* errorLabel,
                         std::function<void(const QStringList& index)>&& indexCompletionHandler,
-                        std::function<void(const QString& file)>&& completionHandler,
-                        std::function<void(const QString& file)>&& failedHandler)
+                        std::function<void(QuaZip& file)>&& completionHandler,
+                        std::function<void()>&& failedHandler)
     {
         m_progBar = progBar;
         m_errorLabel = errorLabel;

@@ -6,7 +6,7 @@
 void VectorISATableView::paintEvent(QPaintEvent* e)
 {
     QTableView* p = static_cast<QTableView*>(parent()->parent());
-    int tableY = p->horizontalHeader()->height() + p->rowViewportPosition(4);
+    int tableY = p->horizontalHeader()->height() + p->rowViewportPosition(6);
     int rHeight = rowHeight(0);
     for (int i = 0; i < 2; ++i)
     {
@@ -89,7 +89,7 @@ VectorISATableView::VectorISATableView(QWidget* parent)
 
         QSequentialAnimationGroup* seq = new QSequentialAnimationGroup(this);
         std::get<1>(m_backgroundWidgets[i]) = seq;
-        seq->addPause(4 * 100);
+        seq->addPause(6 * 100);
         seq->addAnimation(animation);
     }
 }

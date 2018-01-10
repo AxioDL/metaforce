@@ -1,5 +1,7 @@
 #include "DownloadManager.hpp"
 #include "Common.hpp"
+#include <QBuffer>
+#include <quazip.h>
 
 static const char AxioDLPublicKeyPEM[] =
 "-----BEGIN PUBLIC KEY-----\n"
@@ -119,19 +121,19 @@ void DownloadManager::binaryFinished()
     if (m_progBar)
         m_progBar->setValue(100);
 
-    QFile fp(m_outPath);
-    if (!fp.open(QIODevice::WriteOnly))
+    QByteArray all = m_binaryInProgress->readAll();
+    QBuffer buff(&all);
+    QuaZip zip(&buff);
+    if (!zip.open(QuaZip::mdUnzip))
     {
-        setError(QNetworkReply::ContentAccessDenied, fp.errorString());
+        setError(QNetworkReply::UnknownContentError, "Unable to open zip archive.");
         m_binaryInProgress->deleteLater();
         m_binaryInProgress = nullptr;
         return;
     }
-    fp.write(m_binaryInProgress->readAll());
-    fp.close();
 
     if (m_completionHandler)
-        m_completionHandler(m_outPath);
+        m_completionHandler(zip);
 
     m_binaryInProgress->deleteLater();
     m_binaryInProgress = nullptr;
@@ -147,7 +149,7 @@ void DownloadManager::binaryError(QNetworkReply::NetworkError error)
         m_progBar->setEnabled(false);
 
     if (m_failedHandler)
-        m_failedHandler(m_outPath);
+        m_failedHandler();
 }
 
 void DownloadManager::binaryValidateCert()

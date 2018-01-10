@@ -28,13 +28,13 @@ int main(int argc, char* argv[])
 {
     InitializePlatform();
 
-    QApplication a(argc, argv);
-    a.setStyle(QStyleFactory::create("Fusion"));
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    a.setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
-    a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-    a.setWindowIcon(MakeAppIcon());
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    QApplication a(argc, argv);
+    QApplication::setWindowIcon(MakeAppIcon());
 
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));
