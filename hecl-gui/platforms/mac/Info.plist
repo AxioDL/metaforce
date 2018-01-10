@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>HECL</string>
+    <string>hecl-gui</string>
     <key>CFBundleGetInfoString</key>
     <string>Version BETA</string>
+    <key>CFBundleShortVersionString</key>
+    <string>BETA</string>
     <key>NSHumanReadableCopyright</key>
     <string>2015-2018 Antidote / Jackoalan</string>
     <key>CFBundleIconFile</key>

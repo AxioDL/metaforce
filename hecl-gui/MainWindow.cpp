@@ -401,6 +401,7 @@ bool MainWindow::checkDownloadedBinary()
 
         m_urdePath = urdePath;
         m_heclPath = heclPath;
+        m_ui->downloadErrorLabel->setText({}, true);
         enableOperations();
         return true;
     }
@@ -418,7 +419,9 @@ bool MainWindow::checkDownloadedBinary()
 void MainWindow::setPath(const QString& path)
 {
     QFileInfo finfo(path);
-    QString usePath = finfo.absoluteFilePath();
+    QString usePath;
+    if (!path.isEmpty())
+        usePath = finfo.absoluteFilePath();
     if (!usePath.isEmpty() && !finfo.exists())
     {
         if (QMessageBox::question(this, QStringLiteral("Make Directory"),
