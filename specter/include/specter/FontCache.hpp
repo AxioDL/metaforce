@@ -58,12 +58,16 @@ class FontAtlas
 {
     friend class FontCache;
     FT_Face m_face;
+    std::vector<uint8_t> m_texmap;
     boo::ObjToken<boo::ITextureSA> m_tex;
     uint32_t m_dpi;
     FT_Fixed m_ftXscale;
     FT_UShort m_ftXPpem;
     FT_Pos m_lineHeight;
+    unsigned m_finalHeight;
+    unsigned m_fullTexmapLayers;
     bool m_subpixel;
+    bool m_ready = false;
 
 public:
     struct Glyph
@@ -113,9 +117,9 @@ private:
     std::unordered_map<atUint32, size_t> m_glyphLookup;
 
 public:
-    FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
+    FontAtlas(FT_Face face, uint32_t dpi,
               bool subpixel, FCharFilter& filter, athena::io::FileWriter& writer);
-    FontAtlas(boo::IGraphicsDataFactory* gf, FT_Face face, uint32_t dpi,
+    FontAtlas(FT_Face face, uint32_t dpi,
               bool subpixel, FCharFilter& filter, athena::io::FileReader& reader);
     FontAtlas(const FontAtlas& other) = delete;
     FontAtlas& operator=(const FontAtlas& other) = delete;
@@ -124,7 +128,7 @@ public:
     FT_Fixed FT_Xscale() const {return m_ftXscale;}
     FT_UShort FT_XPPem() const {return m_ftXPpem;}
     FT_Pos FT_LineHeight() const {return m_lineHeight;}
-    const boo::ObjToken<boo::ITextureSA>& texture() const {return m_tex;}
+    boo::ObjToken<boo::ITextureSA> texture(boo::IGraphicsDataFactory* gf) const;
     bool subpixel() const {return m_subpixel;}
 
     const Glyph* lookupGlyph(atUint32 charcode) const
@@ -171,21 +175,21 @@ public:
     FontCache(const FontCache& other) = delete;
     FontCache& operator=(const FontCache& other) = delete;
 
-    FontTag prepCustomFont(boo::IGraphicsDataFactory* gf, std::string_view name, FT_Face face,
+    FontTag prepCustomFont(std::string_view name, FT_Face face,
                            FCharFilter filter=AllCharFilter, bool subpixel=false,
                            float points=10.0, uint32_t dpi=72);
 
-    FontTag prepMainFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=AllCharFilter,
+    FontTag prepMainFont(FCharFilter filter=AllCharFilter,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
-    {return prepCustomFont(gf, "droidsans-permissive", m_regFace, filter, subpixel, points, dpi);}
+    {return prepCustomFont("droidsans-permissive", m_regFace, filter, subpixel, points, dpi);}
 
-    FontTag prepMonoFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=AllCharFilter,
+    FontTag prepMonoFont(FCharFilter filter=AllCharFilter,
                          bool subpixel=false, float points=10.0, uint32_t dpi=72)
-    {return prepCustomFont(gf, "bmonofont", m_monoFace, filter, subpixel, points, dpi);}
+    {return prepCustomFont("bmonofont", m_monoFace, filter, subpixel, points, dpi);}
 
-    FontTag prepCurvesFont(boo::IGraphicsDataFactory* gf, FCharFilter filter=AllCharFilter,
+    FontTag prepCurvesFont(FCharFilter filter=AllCharFilter,
                            bool subpixel=false, float points=10.0, uint32_t dpi=72)
-    {return prepCustomFont(gf, "spectercurves", m_curvesFace, filter, subpixel, points, dpi);}
+    {return prepCustomFont("spectercurves", m_curvesFace, filter, subpixel, points, dpi);}
 
     void closeBuiltinFonts() {m_regFace.close(); m_monoFace.close(); m_curvesFace.close();}
 

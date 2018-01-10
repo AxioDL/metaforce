@@ -15,7 +15,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
     m_fcache = fcache;
     unsigned dpi = 72.f * m_pixelFactor;
 
-    m_curveFont = fcache->prepCurvesFont(factory, AllCharFilter, false, 8.f, dpi);
+    m_curveFont = fcache->prepCurvesFont(AllCharFilter, false, 8.f, dpi);
 
     factory->commitTransaction(
     [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
@@ -63,15 +63,15 @@ void ViewResources::prepFontCacheSync()
 {
     unsigned dpi = 72.f * m_pixelFactor;
     if (m_fcacheInterrupt) return;
-    m_mainFont = m_fcache->prepMainFont(m_factory, AllCharFilter, false, 10.f, dpi);
+    m_mainFont = m_fcache->prepMainFont(AllCharFilter, false, 10.f, dpi);
     if (m_fcacheInterrupt) return;
-    m_monoFont = m_fcache->prepMonoFont(m_factory, AllCharFilter, false, 10.f, dpi);
+    m_monoFont = m_fcache->prepMonoFont(AllCharFilter, false, 10.f, dpi);
     if (m_fcacheInterrupt) return;
-    m_heading14 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 14.f, dpi);
+    m_heading14 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 14.f, dpi);
     if (m_fcacheInterrupt) return;
-    m_heading18 = m_fcache->prepMainFont(m_factory, LatinAndJapaneseCharFilter, false, 18.f, dpi);
+    m_heading18 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 18.f, dpi);
     if (m_fcacheInterrupt) return;
-    m_titleFont = m_fcache->prepMainFont(m_factory, LatinCharFilter, false, 36.f, dpi);
+    m_titleFont = m_fcache->prepMainFont(LatinCharFilter, false, 36.f, dpi);
     if (m_fcacheInterrupt) return;
     m_fcache->closeBuiltinFonts();
     m_fcacheReady = true;
@@ -82,7 +82,6 @@ void ViewResources::prepFontCacheAsync(boo::IWindow* window)
     m_fcacheReady = false;
     m_fcacheThread = std::thread([this, window]()
     {
-        window->getLoadContextDataFactory();
         prepFontCacheSync();
     });
 }
@@ -91,7 +90,7 @@ void ViewResources::resetPixelFactor(float pf)
 {
     m_pixelFactor = pf;
     unsigned dpi = 72.f * m_pixelFactor;
-    m_curveFont = m_fcache->prepCurvesFont(m_factory, AllCharFilter, false, 8.f, dpi);
+    m_curveFont = m_fcache->prepCurvesFont(AllCharFilter, false, 8.f, dpi);
     prepFontCacheSync();
 }
 

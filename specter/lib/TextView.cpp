@@ -299,6 +299,7 @@ void TextView::Resources::init(boo::VulkanDataFactory::Context& ctx, FontCache* 
 void TextView::_commitResources(size_t capacity)
 {
     auto& res = rootView().viewRes();
+    auto fontTex = m_fontAtlas.texture(res.m_factory);
     View::commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
         buildResources(ctx, res);
@@ -318,7 +319,7 @@ void TextView::_commitResources(size_t capacity)
             boo::ObjToken<boo::IGraphicsBuffer> uBufs[] = {uBufInfo.first.get()};
             size_t uBufOffs[] = {size_t(uBufInfo.second)};
             size_t uBufSizes[] = {sizeof(ViewBlock)};
-            boo::ObjToken<boo::ITexture> texs[] = {m_fontAtlas.texture().get()};
+            boo::ObjToken<boo::ITexture> texs[] = {fontTex.get()};
 
             if (!res.m_textRes.m_vtxFmt)
             {
