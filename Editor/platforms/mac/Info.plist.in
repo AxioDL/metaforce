@@ -6,6 +6,8 @@
     <string>urde</string>
     <key>CFBundleGetInfoString</key>
     <string>@METADATA_VERSION_STRING@</string>
+    <key>CFBundleShortVersionString</key>
+    <string>@METADATA_VERSION_STRING@</string>
     <key>NSHumanReadableCopyright</key>
     <string>2015-2018 Antidote / Jackoalan</string>
     <key>CFBundleIconFile</key>
