@@ -65,6 +65,7 @@ static const hecl::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMASc
 static void SIGINTHandler(int sig)
 {
     hecl::blender::Connection::Shutdown();
+    logvisor::KillProcessTree();
     exit(1);
 }
 

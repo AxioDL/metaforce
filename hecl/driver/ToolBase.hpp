@@ -63,6 +63,7 @@ protected:
                 hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
             else
                 hecl::Printf(_S("\nContinue? (Y/n) "));
+            fflush(stdout);
 
             int ch;
 #ifndef _WIN32
@@ -269,9 +270,27 @@ static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg,
 #endif
 }
 
+static bool g_HasLastProgTime = false;
+static std::chrono::steady_clock::time_point g_LastProgTime;
+
 void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* submessage,
                        int lidx, float factor, int& lineIdx)
 {
+    if (g_HasLastProgTime)
+    {
+        std::chrono::steady_clock::time_point newPoint = std::chrono::steady_clock::now();
+        std::chrono::milliseconds::rep delta =
+                std::chrono::duration_cast<std::chrono::milliseconds>(newPoint - g_LastProgTime).count();
+        if (delta < 50)
+            return;
+        g_LastProgTime = newPoint;
+    }
+    else
+    {
+        g_HasLastProgTime = true;
+        g_LastProgTime = std::chrono::steady_clock::now();
+    }
+
     auto lk = logvisor::LockLog();
 
     bool blocks = factor >= 0.0;
@@ -297,17 +316,17 @@ void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* 
 
     if (!message)
         message = _S("");
-    size_t messageLen = hecl::StrLen(message);
+    int messageLen = hecl::StrLen(message);
     if (!submessage)
         submessage = _S("");
-    size_t submessageLen = hecl::StrLen(submessage);
+    int submessageLen = hecl::StrLen(submessage);
     if (half - messageLen < submessageLen-2)
         submessageLen = 0;
 
     if (submessageLen)
     {
         if (messageLen > half-submessageLen-1)
-            hecl::Printf(_S("%.*s... %s "), half-int(submessageLen)-4, message, submessage);
+            hecl::Printf(_S("%.*s... %s "), half-submessageLen-4, message, submessage);
         else
         {
             hecl::Printf(_S("%s"), message);
@@ -332,9 +351,9 @@ void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* 
     {
         if (XTERM_COLOR)
         {
-            size_t blocks = half - 7;
-            size_t filled = blocks * factor;
-            size_t rem = blocks - filled;
+            int blocks = half - 7;
+            int filled = blocks * factor;
+            int rem = blocks - filled;
             hecl::Printf(_S("" BOLD "%3d%% ["), iFactor);
             for (int b=0 ; b<filled ; ++b)
                 hecl::Printf(_S("#"));
@@ -344,9 +363,9 @@ void ToolPrintProgress(const hecl::SystemChar* message, const hecl::SystemChar* 
         }
         else
         {
-            size_t blocks = half - 7;
-            size_t filled = blocks * factor;
-            size_t rem = blocks - filled;
+            int blocks = half - 7;
+            int filled = blocks * factor;
+            int rem = blocks - filled;
             hecl::Printf(_S("%3d%% ["), iFactor);
             for (int b=0 ; b<filled ; ++b)
                 hecl::Printf(_S("#"));

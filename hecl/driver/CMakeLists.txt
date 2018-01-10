@@ -23,7 +23,7 @@ endif()
 
 target_link_libraries(hecl
     ${DATA_SPEC_LIBS}
-    hecl-common hecl-blender-addon athena-core nod
+    hecl-full hecl-blender-addon athena-core nod
     logvisor athena-libyaml ${PNG_LIB} squish xxhash zeus boo
     ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
 

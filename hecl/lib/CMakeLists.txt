@@ -24,56 +24,65 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "R
   add_definitions(-DHECL_MULTIPROCESSOR)
 endif()
 
-add_library(hecl-common
-            ${BLENDER_SOURCES}
+set(HECL_HEADERS
+    ../include/hecl/CVar.hpp
+    ../include/hecl/CVarManager.hpp
+    ../include/hecl/CVarCommons.hpp
+    ../include/hecl/hecl.hpp
+    ../include/hecl/FourCC.hpp
+    ../include/hecl/HMDLMeta.hpp
+    ../include/hecl/Backend/Backend.hpp
+    ../include/hecl/Backend/GX.hpp
+    ../include/hecl/Backend/ProgrammableCommon.hpp
+    ../include/hecl/Backend/GLSL.hpp
+    ../include/hecl/Backend/HLSL.hpp
+    ../include/hecl/Backend/Metal.hpp
+    ../include/hecl/Blender/Connection.hpp
+    ../include/hecl/Blender/Token.hpp
+    ../include/hecl/SteamFinder.hpp
+    ../include/hecl/Frontend.hpp
+    ../include/hecl/Database.hpp
+    ../include/hecl/Runtime.hpp
+    ../include/hecl/ClientProcess.hpp
+    ../include/hecl/SystemChar.hpp
+    ../include/hecl/BitVector.hpp
+    ../include/hecl/MathExtras.hpp
+    ../include/hecl/UniformBufferPool.hpp
+    ../include/hecl/VertexBufferPool.hpp)
+set(COMMON_SOURCES
+    hecl.cpp
+    Project.cpp
+    ProjectPath.cpp
+    HumanizeNumber.cpp
+    CVar.cpp
+    CVarManager.cpp
+    ClientProcess.cpp
+    SteamFinder.cpp
+    WideStringConvert.cpp
+    atdna_HMDLMeta.cpp
+    atdna_Frontend.cpp
+    atdna_Runtime.cpp
+    atdna_CVar.cpp)
+
+add_library(hecl-full
             ${BACKEND_SOURCES}
             ${FRONTEND_SOURCES}
             ${RUNTIME_SOURCES}
-            hecl.cpp
-            Project.cpp
-            ProjectPath.cpp
-            WideStringConvert.cpp
-            HumanizeNumber.cpp
-            CVar.cpp
-            CVarManager.cpp
-            ../include/hecl/CVar.hpp
-            ../include/hecl/CVarManager.hpp
-            ../include/hecl/hecl.hpp
-            ../include/hecl/FourCC.hpp
-            ../include/hecl/HMDLMeta.hpp
-            ../include/hecl/Backend/Backend.hpp
-            ../include/hecl/Backend/GX.hpp
-            ../include/hecl/Backend/ProgrammableCommon.hpp
-            ../include/hecl/Backend/GLSL.hpp
-            ../include/hecl/Backend/HLSL.hpp
-            ../include/hecl/Backend/Metal.hpp
-        ../include/hecl/Blender/Connection.hpp
-        ../include/hecl/Blender/Token.hpp
-            ../include/hecl/SteamFinder.hpp
-            ../include/hecl/Frontend.hpp
-            ../include/hecl/Database.hpp
-            ../include/hecl/Runtime.hpp
-            ../include/hecl/ClientProcess.hpp
-            ../include/hecl/SystemChar.hpp
-            ../include/hecl/BitVector.hpp
-            ../include/hecl/MathExtras.hpp
-            ../include/hecl/UniformBufferPool.hpp
-            ../include/hecl/VertexBufferPool.hpp
-            SteamFinder.cpp
-            ClientProcess.cpp
-            atdna_HMDLMeta.cpp
-            atdna_Frontend.cpp
-            atdna_Runtime.cpp
-            atdna_CVar.cpp
+            ${BLENDER_SOURCES}
+            ${COMMON_SOURCES}
+            ${HECL_HEADERS}
             ${PLAT_SRCS})
+add_library(hecl-light
+            ${RUNTIME_SOURCES}
+            ${COMMON_SOURCES}
+            ${HECL_HEADERS}
+            ${PLAT_SRCS})
+
 if(COMMAND add_sanitizers)
-  add_sanitizers(hecl-common)
-endif()
-if(COMMAND cotire)
-  set_target_properties(hecl-common PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-  cotire(hecl-common)
+  add_sanitizers(hecl-full)
+  add_sanitizers(hecl-light)
 endif()
 
 if(WINDOWS_STORE)
-    set_property(TARGET hecl-common PROPERTY VS_WINRT_COMPONENT TRUE)
+  set_property(TARGET hecl-full PROPERTY VS_WINRT_COMPONENT TRUE)
 endif()

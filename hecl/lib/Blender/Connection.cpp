@@ -278,7 +278,6 @@ Connection::Connection(int verbosityLevel)
     int installAttempt = 0;
     while (true)
     {
-
         /* Construct communication pipes */
 #if _WIN32
         _pipe(m_readpipe, 2048, _O_BINARY);
@@ -1648,7 +1647,7 @@ Action::Action(Connection& conn)
     subtypeAABBs.reserve(aabbCount);
     for (uint32_t i=0 ; i<aabbCount ; ++i)
     {
-        printf("AABB %s %d\n", name.c_str(), i);
+        //printf("AABB %s %d\n", name.c_str(), i);
         subtypeAABBs.emplace_back();
         subtypeAABBs.back().first.read(conn);
         subtypeAABBs.back().second.read(conn);
