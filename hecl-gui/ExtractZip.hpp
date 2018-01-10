@@ -13,4 +13,4 @@ public:
     static bool extractDir(QuaZip& zip, QString dir);
 };
 
-#endif GUI_EXTRACTZIP_HPP
+#endif // GUI_EXTRACTZIP_HPP
