@@ -416,22 +416,22 @@ struct ANCS : BigYAML
             MetaTransTrans()
             : IMetaTrans(Type::Trans, "Trans") {}
             DECL_YAML
-            Value<float> time;
-            Value<atUint32> unk1;
-            Value<atUint8> unk2;
-            Value<atUint8> unk3;
-            Value<atUint32> unk4;
+            Value<float> transDurTime;
+            Value<atUint32> transDurTimeMode;
+            Value<bool> unk2;
+            Value<bool> runA;
+            Value<atUint32> flags;
         };
         struct MetaTransPhaseTrans : IMetaTrans
         {
             MetaTransPhaseTrans()
             : IMetaTrans(Type::PhaseTrans, "PhaseTrans") {}
             DECL_YAML
-            Value<float> time;
-            Value<atUint32> unk1;
-            Value<atUint8> unk2;
-            Value<atUint8> unk3;
-            Value<atUint32> unk4;
+            Value<float> transDurTime;
+            Value<atUint32> transDurTimeMode;
+            Value<bool> unk2;
+            Value<bool> runA;
+            Value<atUint32> flags;
         };
 
         struct Transition : BigYAML

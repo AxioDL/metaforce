@@ -40,14 +40,18 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
         GIT_COMMIT_HASH[0] != '\0' &&
         GIT_BRANCH[0]      != '\0')
     {
-        m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s",
 #ifdef URDE_DLPACKAGE
-                                      vm.translateOr("release", "Release").data(), URDE_DLPACKAGE,
-#else
-                                      vm.translateOr("branch", "Branch").data(), GIT_BRANCH,
+        if ((URDE_DLPACKAGE)[0])
+            m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s",
+                                          vm.translateOr("release", "Release").data(), URDE_DLPACKAGE,
+                                          vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
+                                          vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
+        else
 #endif
-                                      vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
-                                      vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
+            m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s",
+                                          vm.translateOr("branch", "Branch").data(), GIT_BRANCH,
+                                          vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
+                                          vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
     }
 
     m_openProjBind.m_openRecentMenuRoot.m_text = vm.translateOr("recent_projects", "Recent Projects");

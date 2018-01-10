@@ -494,6 +494,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     {
         fprintf(stderr, "\r %" PRISize " / %" PRISize "  %.4s %08X", ++loadIdx, buildList.size(),
                 tag.type.getChars(), (unsigned int)tag.id.Value());
+        fflush(stderr);
 
         fileIndex.emplace_back();
         auto& thisIdx = fileIndex.back();
@@ -626,6 +627,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
         {
             fprintf(stderr, "\r %" PRISize " / %" PRISize "  %.4s %08X", ++loadIdx, buildList.size(),
                     tag.type.getChars(), (unsigned int)tag.id.Value());
+            fflush(stderr);
             if (addedTags.find(tag) != addedTags.end())
                 continue;
             addedTags.insert(tag);

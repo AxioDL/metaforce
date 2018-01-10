@@ -18,53 +18,53 @@ endif()
 
 if(WIN32)
   configure_file(platforms/win/urde.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc" @ONLY)
-  set(PLAT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc")
+  set(PLAT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc" platforms/win/urde.manifest)
   if(WINDOWS_STORE)
-      set(UWP_ASSETS
-          platforms/win/Assets/LargeTile.scale-100.png
-          platforms/win/Assets/LargeTile.scale-125.png
-          platforms/win/Assets/LargeTile.scale-150.png
-          platforms/win/Assets/LargeTile.scale-200.png
-          platforms/win/Assets/LargeTile.scale-400.png
-          platforms/win/Assets/SmallTile.scale-100.png
-          platforms/win/Assets/SmallTile.scale-125.png
-          platforms/win/Assets/SmallTile.scale-150.png
-          platforms/win/Assets/SmallTile.scale-200.png
-          platforms/win/Assets/SmallTile.scale-400.png
-          platforms/win/Assets/SplashScreen.scale-100.png
-          platforms/win/Assets/SplashScreen.scale-125.png
-          platforms/win/Assets/SplashScreen.scale-150.png
-          platforms/win/Assets/SplashScreen.scale-200.png
-          platforms/win/Assets/SplashScreen.scale-400.png
-          platforms/win/Assets/Square44x44Logo.scale-100.png
-          platforms/win/Assets/Square44x44Logo.scale-125.png
-          platforms/win/Assets/Square44x44Logo.scale-150.png
-          platforms/win/Assets/Square44x44Logo.scale-200.png
-          platforms/win/Assets/Square44x44Logo.scale-400.png
-          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-16.png
-          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-24.png
-          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-32.png
-          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-48.png
-          platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-256.png
-          platforms/win/Assets/Square150x150Logo.scale-100.png
-          platforms/win/Assets/Square150x150Logo.scale-125.png
-          platforms/win/Assets/Square150x150Logo.scale-150.png
-          platforms/win/Assets/Square150x150Logo.scale-200.png
-          platforms/win/Assets/Square150x150Logo.scale-400.png
-          platforms/win/Assets/urde.scale-100.png
-          platforms/win/Assets/urde.scale-125.png
-          platforms/win/Assets/urde.scale-150.png
-          platforms/win/Assets/urde.scale-200.png
-          platforms/win/Assets/urde.scale-400.png
-          platforms/win/Assets/WideTile.scale-100.png
-          platforms/win/Assets/WideTile.scale-125.png
-          platforms/win/Assets/WideTile.scale-150.png
-          platforms/win/Assets/WideTile.scale-200.png
-          platforms/win/Assets/WideTile.scale-400.png)
-      set_property(SOURCE platforms/win/Package.appxmanifest PROPERTY VS_DEPLOYMENT_CONTENT 1)
-      set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-      set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
-      list(APPEND PLAT_SRCS ${UWP_ASSETS} platforms/win/Package.appxmanifest)
+    set(UWP_ASSETS
+        platforms/win/Assets/LargeTile.scale-100.png
+        platforms/win/Assets/LargeTile.scale-125.png
+        platforms/win/Assets/LargeTile.scale-150.png
+        platforms/win/Assets/LargeTile.scale-200.png
+        platforms/win/Assets/LargeTile.scale-400.png
+        platforms/win/Assets/SmallTile.scale-100.png
+        platforms/win/Assets/SmallTile.scale-125.png
+        platforms/win/Assets/SmallTile.scale-150.png
+        platforms/win/Assets/SmallTile.scale-200.png
+        platforms/win/Assets/SmallTile.scale-400.png
+        platforms/win/Assets/SplashScreen.scale-100.png
+        platforms/win/Assets/SplashScreen.scale-125.png
+        platforms/win/Assets/SplashScreen.scale-150.png
+        platforms/win/Assets/SplashScreen.scale-200.png
+        platforms/win/Assets/SplashScreen.scale-400.png
+        platforms/win/Assets/Square44x44Logo.scale-100.png
+        platforms/win/Assets/Square44x44Logo.scale-125.png
+        platforms/win/Assets/Square44x44Logo.scale-150.png
+        platforms/win/Assets/Square44x44Logo.scale-200.png
+        platforms/win/Assets/Square44x44Logo.scale-400.png
+        platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-16.png
+        platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-24.png
+        platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-32.png
+        platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-48.png
+        platforms/win/Assets/Square44x44Logo.altform-unplated_targetsize-256.png
+        platforms/win/Assets/Square150x150Logo.scale-100.png
+        platforms/win/Assets/Square150x150Logo.scale-125.png
+        platforms/win/Assets/Square150x150Logo.scale-150.png
+        platforms/win/Assets/Square150x150Logo.scale-200.png
+        platforms/win/Assets/Square150x150Logo.scale-400.png
+        platforms/win/Assets/urde.scale-100.png
+        platforms/win/Assets/urde.scale-125.png
+        platforms/win/Assets/urde.scale-150.png
+        platforms/win/Assets/urde.scale-200.png
+        platforms/win/Assets/urde.scale-400.png
+        platforms/win/Assets/WideTile.scale-100.png
+        platforms/win/Assets/WideTile.scale-125.png
+        platforms/win/Assets/WideTile.scale-150.png
+        platforms/win/Assets/WideTile.scale-200.png
+        platforms/win/Assets/WideTile.scale-400.png)
+    set_property(SOURCE platforms/win/Package.appxmanifest PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    set_property(SOURCE ${UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
+    list(APPEND PLAT_SRCS ${UWP_ASSETS} platforms/win/Package.appxmanifest)
   endif()
 elseif(APPLE)
   set(PLAT_SRCS platforms/mac/mainicon.icns)
@@ -99,7 +99,7 @@ target_link_libraries(urde
                       UrdeBadging
                       RuntimeCommon
                       specter specter-fonts freetype ${DATA_SPEC_LIBS}
-                      hecl-common hecl-blender-addon
+                      hecl-full hecl-blender-addon
                       athena-core nod logvisor athena-libyaml amuse boo
                       ${PNG_LIB} libjpeg-turbo squish xxhash zeus
                       kabufuda jbus ${ZLIB_LIBRARIES} ${LZO_LIB}
@@ -108,8 +108,8 @@ if(COMMAND add_sanitizers)
   add_sanitizers(urde)
 endif()
 if(COMMAND cotire)
-    set_target_properties(urde PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-    cotire(urde)
+  set_target_properties(urde PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+  cotire(urde)
 endif()
 
 set_target_properties(urde PROPERTIES

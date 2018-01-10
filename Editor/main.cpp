@@ -5,6 +5,7 @@
 #include "Runtime/CBasics.hpp"
 #include "ViewManager.hpp"
 #include "hecl/hecl.hpp"
+#include "hecl/CVarCommons.hpp"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file,
@@ -56,23 +57,16 @@ struct Application : boo::IApplicationCallback
 {
     hecl::Runtime::FileStoreManager m_fileMgr;
     hecl::CVarManager m_cvarManager;
+    hecl::CVarCommons m_cvarCommons;
     std::unique_ptr<ViewManager> m_viewManager;
-    hecl::CVar* m_drawSamples;
-    hecl::CVar* m_texAnisotropy;
 
     bool m_running = true;
 
     Application() :
         m_fileMgr(_S("urde")),
-        m_cvarManager(m_fileMgr)
+        m_cvarManager(m_fileMgr),
+        m_cvarCommons(m_cvarManager)
     {
-        m_drawSamples = m_cvarManager.findOrMakeCVar("drawSamples"sv,
-                        "Number of MSAA samples to use for render targets"sv,
-                        1, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
-        m_texAnisotropy = m_cvarManager.findOrMakeCVar("texAnisotropy"sv,
-                          "Number of anisotropic samples to use for sampling textures"sv,
-                          1, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
-
         m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
     }
 
@@ -129,14 +123,19 @@ struct Application : boo::IApplicationCallback
         Log.report(logvisor::Info, _S("CPU Features: %s"), CPUFeatureString(cpuInf).c_str());
     }
 
-    uint32_t getSamples()
+    std::string getGraphicsApi() const
     {
-        return uint32_t(std::max(1, m_drawSamples->toInteger()));
+        return m_cvarCommons.getGraphicsApi();
     }
 
-    uint32_t getAnisotropy()
+    uint32_t getSamples() const
     {
-        return uint32_t(std::max(1, m_texAnisotropy->toInteger()));
+        return m_cvarCommons.getSamples();
+    }
+
+    uint32_t getAnisotropy() const
+    {
+        return m_cvarCommons.getAnisotropy();
     }
 };
 
@@ -204,8 +203,9 @@ int main(int argc, const boo::SystemChar** argv)
 
     urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
-        appCb, _S("urde"), _S("URDE"), argc, argv, appCb.getSamples(), appCb.getAnisotropy(), false);
-    printf("IM DYING!!\n");
+        appCb, _S("urde"), _S("URDE"), argc, argv, appCb.getGraphicsApi(),
+        appCb.getSamples(), appCb.getAnisotropy(), false);
+    //printf("IM DYING!!\n");
     return ret;
 }
 #endif
