@@ -1,5 +1,6 @@
 #include "hecl/CVarManager.hpp"
 #include "hecl/CVar.hpp"
+#include "hecl/Console.hpp"
 #include <athena/FileWriter.hpp>
 #include <athena/Utility.hpp>
 #include <hecl/Runtime.hpp>
@@ -173,6 +174,32 @@ void CVarManager::serialize()
 CVarManager* CVarManager::instance()
 {
     return m_instance;
+}
+
+void CVarManager::list(const std::vector<std::string> &args)
+{
+
+}
+
+void CVarManager::setCVar(const std::vector<std::string> &args)
+{
+
+}
+
+void CVarManager::getCVar(const std::vector<std::string> &args)
+{
+
+}
+
+bool CVarManager::restartRequired() const
+{
+    for (const auto& cv : m_cvars)
+    {
+        if (cv.second->isModified() && cv.second->modificationRequiresRestart())
+            return true;
+    }
+
+    return false;
 }
 
 bool CVarManager::suppressDeveloper()

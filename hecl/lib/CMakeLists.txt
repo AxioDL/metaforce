@@ -27,6 +27,7 @@ endif()
 set(HECL_HEADERS
     ../include/hecl/CVar.hpp
     ../include/hecl/CVarManager.hpp
+    ../include/hecl/Console.hpp
     ../include/hecl/CVarCommons.hpp
     ../include/hecl/hecl.hpp
     ../include/hecl/FourCC.hpp
@@ -56,6 +57,7 @@ set(COMMON_SOURCES
     HumanizeNumber.cpp
     CVar.cpp
     CVarManager.cpp
+    Console.cpp
     ClientProcess.cpp
     SteamFinder.cpp
     WideStringConvert.cpp

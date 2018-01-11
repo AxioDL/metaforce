@@ -71,6 +71,12 @@ public:
 
     static CVarManager* instance();
 
+    void list(const std::vector<std::string>& args);
+    void setCVar(const std::vector<std::string>& args);
+    void getCVar(const std::vector<std::string>& args);
+
+
+    bool restartRequired() const;
 private:
     bool suppressDeveloper();
     void restoreDeveloper(bool oldDeveloper);

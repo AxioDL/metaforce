@@ -31,7 +31,8 @@ enum EFlags
     Hidden   = (1 << 5),
     ReadOnly = (1 << 6),
     Archive  = (1 << 7),
-    Modified = (1 << 8)
+    Modified = (1 << 8),
+    ModifyRestart = (1 << 9) /*!< If this bit is set, any modification will inform the user that a restart is required */
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
@@ -98,6 +99,7 @@ public:
     bool isLiteral()  const { return m_type == EType::Literal; }
     bool isVec4f()    const { return m_type == EType::Vec4f; }
     bool isModified() const;
+    bool modificationRequiresRestart() const;
     bool isReadOnly() const;
     bool isCheat()    const;
     bool isHidden()   const;
