@@ -12,6 +12,8 @@ if(APPLE)
   set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
   find_library(FOUNDATION_LIBRARY Foundation)
   set(PLAT_LIBS ${FOUNDATION_LIBRARY})
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  set(PLAT_LIBS pthread dl)
 endif()
 
 if(WIN32)

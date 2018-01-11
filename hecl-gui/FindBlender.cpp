@@ -7,6 +7,8 @@ namespace hecl::blender
 
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
+#elif __linux__
+#define DEFAULT_BLENDER_BIN "/usr/bin/blender"
 #else
 #define DEFAULT_BLENDER_BIN "blender"
 #endif
@@ -85,6 +87,14 @@ hecl::SystemString FindBlender(int& major, int& minor)
                 {
                     blenderBin = nullptr;
                 }
+            }
+        }
+        else
+        {
+            blenderBin = DEFAULT_BLENDER_BIN;
+            if (!RegFileExists(blenderBin))
+            {
+                blenderBin = nullptr;
             }
         }
     }
