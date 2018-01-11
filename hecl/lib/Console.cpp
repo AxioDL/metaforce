@@ -16,7 +16,7 @@ Console::Console(CVarManager* cvarMgr)
     registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>", std::bind(&CVarManager::getCVar, cvarMgr, std::placeholders::_1));
 }
 
-void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(const std::vector<std::__cxx11::string> &)>&& func)
+void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(const std::vector<std::string> &)>&& func)
 {
     std::string lowName = name.data();
     athena::utility::tolower(lowName);
