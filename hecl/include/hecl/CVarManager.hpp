@@ -71,9 +71,9 @@ public:
 
     static CVarManager* instance();
 
-    void list(const std::vector<std::string>& args);
-    void setCVar(const std::vector<std::string>& args);
-    void getCVar(const std::vector<std::string>& args);
+    void list(class Console* con, const std::vector<std::string>& args);
+    void setCVar(class Console* con, const std::vector<std::string>& args);
+    void getCVar(class Console* con, const std::vector<std::string>& args);
 
 
     bool restartRequired() const;

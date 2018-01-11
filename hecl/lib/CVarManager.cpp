@@ -176,19 +176,18 @@ CVarManager* CVarManager::instance()
     return m_instance;
 }
 
-void CVarManager::list(const std::vector<std::string> &args)
+void CVarManager::list(Console* con, const std::vector<std::string> &args)
 {
 
 }
 
-void CVarManager::setCVar(const std::vector<std::string> &args)
+void CVarManager::setCVar(Console* con, const std::vector<std::string> &args)
 {
 
 }
 
-void CVarManager::getCVar(const std::vector<std::string> &args)
+void CVarManager::getCVar(Console* con, const std::vector<std::string> &args)
 {
-
 }
 
 bool CVarManager::restartRequired() const
