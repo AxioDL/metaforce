@@ -6,6 +6,7 @@
 #include "ViewManager.hpp"
 #include "hecl/hecl.hpp"
 #include "hecl/CVarCommons.hpp"
+#include "hecl/Console.hpp"
 
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file,
@@ -58,6 +59,7 @@ struct Application : boo::IApplicationCallback
     hecl::Runtime::FileStoreManager m_fileMgr;
     hecl::CVarManager m_cvarManager;
     hecl::CVarCommons m_cvarCommons;
+    hecl::Console m_console;
     std::unique_ptr<ViewManager> m_viewManager;
 
     bool m_running = true;
@@ -65,9 +67,11 @@ struct Application : boo::IApplicationCallback
     Application() :
         m_fileMgr(_S("urde")),
         m_cvarManager(m_fileMgr),
-        m_cvarCommons(m_cvarManager)
+        m_cvarCommons(m_cvarManager),
+        m_console(&m_cvarManager)
     {
         m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
+        m_console.registerCommand("quit", "Quits application instantly", "", std::bind(&Application::quit, this, std::placeholders::_1));
     }
 
     virtual ~Application() = default;
@@ -136,6 +140,11 @@ struct Application : boo::IApplicationCallback
     uint32_t getAnisotropy() const
     {
         return m_cvarCommons.getAnisotropy();
+    }
+
+    void quit(const std::vector<std::string>& arg = std::vector<std::string>())
+    {
+        m_running = false;
     }
 };
 
