@@ -70,8 +70,9 @@ struct Application : boo::IApplicationCallback
         m_cvarCommons(m_cvarManager),
         m_console(&m_cvarManager)
     {
+        //hecl::Console::RegisterLogger(&m_console);
         m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
-        m_console.registerCommand("quit", "Quits application instantly", "", std::bind(&Application::quit, this, std::placeholders::_1));
+        m_console.registerCommand("quit", "Quits application instantly", "", std::bind(&Application::quit, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     virtual ~Application() = default;
@@ -142,7 +143,7 @@ struct Application : boo::IApplicationCallback
         return m_cvarCommons.getAnisotropy();
     }
 
-    void quit(const std::vector<std::string>& arg = std::vector<std::string>())
+    void quit(hecl::Console* con = nullptr, const std::vector<std::string>& arg = std::vector<std::string>())
     {
         m_running = false;
     }
