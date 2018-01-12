@@ -53,13 +53,13 @@ class ToolPackage final : public ToolBase
                 CheckFile(childPath);
         }
 
-        /* Directory with 2 components not "Shared" or macOS app buundle
+        /* Directory with 2 components not "Shared" or macOS app bundle
          * and no nested !world.blend files == General PAK */
         if (checkGeneral && origSize == m_selectedItems.size())
         {
             auto pathComps = path.getPathComponents();
             if (pathComps.size() == 2 && pathComps[0] != _S("out") &&
-                pathComps[1] != _S("Shared") && pathComps[0].find(".app") == hecl::SystemString::npos)
+                pathComps[1] != _S("Shared") && pathComps[0].find(_S(".app")) == hecl::SystemString::npos)
                 AddSelectedItem(path);
         }
     }
