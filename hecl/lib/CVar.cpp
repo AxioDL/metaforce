@@ -352,6 +352,7 @@ bool CVar::fromLiteral(std::wstring_view val)
 }
 
 bool CVar::isModified() const { return int(m_flags & EFlags::Modified) != 0;}
+bool CVar::modificationRequiresRestart() const { return int(m_flags & EFlags::ModifyRestart) != 0; }
 
 bool CVar::isReadOnly() const { return int(m_flags & EFlags::ReadOnly) != 0; }
 
