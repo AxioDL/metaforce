@@ -588,7 +588,7 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
     //int vpTop = (vp.xc_height - vpHeight) / 2 + vp.x4_top;
     //g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
     CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
-    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * (1.f / xf2c_viewportScale.y) * 2.f);
+    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y * 2.f);
     float width = xf2c_viewportScale.x * vp.x8_width;
     float height = xf2c_viewportScale.y * vp.xc_height;
     g_Renderer->SetPerspective(zeus::radToDeg(fov), width, height,

@@ -556,8 +556,8 @@ void CPlayerVisor::BeginTransitionIn(const CStateManager&)
     {
     case CPlayerState::EPlayerVisor::XRay:
         x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f);
-        xc4_vpScaleX = 0.95f;
-        xc8_vpScaleY = 0.95f;
+        xc4_vpScaleX = 0.9f;
+        xc8_vpScaleY = 0.9f;
         CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     case CPlayerState::EPlayerVisor::Scan:
