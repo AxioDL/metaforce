@@ -53,11 +53,13 @@ class ToolPackage final : public ToolBase
                 CheckFile(childPath);
         }
 
-        /* Directory with 2 components not "Shared" and no nested !world.blend files == General PAK */
+        /* Directory with 2 components not "Shared" or macOS app buundle
+         * and no nested !world.blend files == General PAK */
         if (checkGeneral && origSize == m_selectedItems.size())
         {
             auto pathComps = path.getPathComponents();
-            if (pathComps.size() == 2 && pathComps[0] != _S("out") && pathComps[1] != _S("Shared"))
+            if (pathComps.size() == 2 && pathComps[0] != _S("out") &&
+                pathComps[1] != _S("Shared") && pathComps[0].find(".app") == hecl::SystemString::npos)
                 AddSelectedItem(path);
         }
     }
@@ -172,7 +174,7 @@ public:
             hecl::Printf(_S("ABOUT TO PACKAGE:\n"));
 
         for (auto& item : m_selectedItems)
-            hecl::Printf(_S("%s\n"), item.getRelativePath().data());
+            hecl::Printf(_S("  %s\n"), item.getRelativePath().data());
 
         if (continuePrompt())
         {
