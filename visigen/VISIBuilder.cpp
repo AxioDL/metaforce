@@ -1,5 +1,5 @@
 #include "VISIBuilder.hpp"
-#include <logvisor/logvisor.hpp>
+#include "logvisor/logvisor.hpp"
 
 #ifndef _WIN32
 #include <unistd.h>
