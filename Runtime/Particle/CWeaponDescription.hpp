@@ -30,7 +30,7 @@ public:
     std::unique_ptr<CModVectorElement> xc_PSVM;
     bool x10_VMD2;
     std::unique_ptr<CIntElement> x14_PSLT;
-    std::unique_ptr<CVectorElement> x18_PCSL;
+    std::unique_ptr<CVectorElement> x18_PSCL;
     std::unique_ptr<CColorElement> x1c_PCOL;
     std::unique_ptr<CVectorElement> x20_POFS;
     std::unique_ptr<CVectorElement> x24_OFST;

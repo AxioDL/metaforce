@@ -206,17 +206,6 @@ enum class ETexelFormat
     CMPRPC  = 18,
 };
 
-/*
-#define DEPTH_FAR 1.f
-#define DEPTH_SKY 0.999f
-#define DEPTH_TARGET_MANAGER 0.12500012f
-#define DEPTH_WORLD (1.f / 8.f)
-#define DEPTH_GUN (1.f / 32.f)
-#define DEPTH_SCREEN_ACTORS (1.f / 64.f)
-#define DEPTH_HUD (1.f / 512.f)
-#define DEPTH_NEAR 0.f
- */
-
 #define DEPTH_FAR 1.f
 #define DEPTH_SKY 0.999f
 #define DEPTH_TARGET_MANAGER 0.12500012f

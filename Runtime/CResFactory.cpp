@@ -22,11 +22,15 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
         if (size)
             ret = x5c_factoryMgr.MakeObjectFromMemory(tag, std::move(data), size,
                   x4_loader.GetResourceCompression(tag), xfer, selfRef);
+        else
+            ret = std::make_unique<TObjOwnerDerivedFromIObjUntyped>(nullptr);
     }
     else
     {
         if (auto rp = x4_loader.LoadNewResourceSync(tag, nullptr))
             ret = x5c_factoryMgr.MakeObject(tag, *rp, xfer, selfRef);
+        else
+            ret = std::make_unique<TObjOwnerDerivedFromIObjUntyped>(nullptr);
     }
     Log.report(logvisor::Warning, "sync-built %.4s %08X", tag.type.getChars(), tag.id.Value());
     return ret;
@@ -73,6 +77,10 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
             data.x10_loadBuffer = std::unique_ptr<u8[]>(new u8[data.x14_resSize]);
             data.x8_dvdReq = x4_loader.LoadResourceAsync(tag, data.x10_loadBuffer.get());
             AddToLoadList(std::move(data));
+        }
+        else
+        {
+            *target = std::make_unique<TObjOwnerDerivedFromIObjUntyped>(nullptr);
         }
     }
 }

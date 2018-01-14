@@ -42,7 +42,7 @@ void CObjectReference::Lock()
     {
         IFactory& fac = xC_objectStore->GetFactory();
         fac.BuildAsync(x4_objTag, x14_params, &x10_object, this);
-        x3_loading = true;
+        x3_loading = !x10_object.operator bool();
     }
 }
 

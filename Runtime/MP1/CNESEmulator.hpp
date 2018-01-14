@@ -18,6 +18,8 @@ class CNESEmulator
     bool x34_wantsLoad = false;
     bool x38_stateLoaded = false;
     u8 x39_loadState[18];
+    static void DescrambleROM(u8* dataIn, u8* dataOut, u32 dataOutLen = 0x20000, u8 descrambleInit = 0xe9,
+                              u32 descramble2Len = 0x1FFFC, u32 descramble2Magic = 0xA663);
 public:
     void ProcessUserInput(const CFinalInput& input, int);
     void Update();

@@ -372,9 +372,6 @@ struct SpecMP1 : SpecBase
         hecl::ProjectPath mp1OutPath(outPath, _S("MP1"));
         mp1OutPath.makeDir();
 
-        /* Generate original ID mapping for MLVL and SCAN entries */
-        OriginalIDs::Generate(m_pakRouter, m_project);
-
         /* Extract non-pak files */
         progress(_S("MP1 Root"), _S(""), 3, 0.0);
         int prog = 0;
@@ -435,6 +432,9 @@ struct SpecMP1 : SpecBase
         /* Extract part of .dol for RandomStatic entropy */
         hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _S("MP1/NoARAM"));
         extractRandomStaticEntropy(m_dolBuf.get() + 0x4f60, noAramPath);
+
+        /* Generate original ID mapping for MLVL and SCAN entries - marks complete project */
+        OriginalIDs::Generate(m_pakRouter, m_project);
 
         return true;
     }

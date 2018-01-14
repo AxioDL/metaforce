@@ -26,6 +26,7 @@ CWeaponDescription* CProjectileWeaponDataFactory::CreateGeneratorDescription(CIn
     {
         CWeaponDescription* desc = new CWeaponDescription;
         CreateWPSM(desc, in, resPool);
+        return desc;
     }
 
     return nullptr;
@@ -47,6 +48,9 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         case SBIG('IVEC'):
             desc->x4_IVEC.reset(CPF::GetVectorElement(in));
             break;
+        case SBIG('PSOV'):
+            desc->x8_PSOV.reset(CPF::GetVectorElement(in));
+            break;
         case SBIG('PSVM'):
             desc->xc_PSVM.reset(CPF::GetModVectorElement(in));
             break;
@@ -56,8 +60,8 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         case SBIG('PSLT'):
             desc->x14_PSLT.reset(CPF::GetIntElement(in));
             break;
-        case SBIG('PCSL'):
-            desc->x18_PCSL.reset(CPF::GetVectorElement(in));
+        case SBIG('PSCL'):
+            desc->x18_PSCL.reset(CPF::GetVectorElement(in));
             break;
         case SBIG('PCOL'):
             desc->x1c_PCOL.reset(CPF::GetColorElement(in));

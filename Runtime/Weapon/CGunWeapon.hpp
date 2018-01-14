@@ -92,7 +92,8 @@ protected:
     EFrozenFxType x204_frozenEffect = EFrozenFxType::None;
     u32 x208_muzzleEffectIdx = 0;
     u32 x20c_shaderIdx;
-    u32 x210_ = 0;
+    // 0x1: load request, 0x2: muzzle fx, 0x4: projectile data, 0x8: anims, 0x10: everything else
+    u32 x210_loadFlags = 0;
     CAssetId x214_ancsId;
     union
     {

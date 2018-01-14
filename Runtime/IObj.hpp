@@ -16,6 +16,7 @@ class TObjOwnerDerivedFromIObjUntyped : public IObj
 {
 protected:
     void* m_objPtr;
+public:
     TObjOwnerDerivedFromIObjUntyped(void* objPtr) : m_objPtr(objPtr) {}
 };
 

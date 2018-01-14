@@ -443,6 +443,7 @@ void WPSM<IDType>::read(athena::io::IStreamReader& r)
 template <class IDType>
 void WPSM<IDType>::write(athena::io::IStreamWriter &w) const
 {
+    w.writeBytes("WPSM", 4);
     if (x0_IORN)
     {
         w.writeBytes("IORN", 4);

@@ -460,7 +460,7 @@ void CGunWeapon::LoadFxIdle(float dt, CStateManager& mgr)
 {
     if (NWeaponTypes::are_tokens_ready(x12c_deps))
     {
-        if ((x210_ & 0x2) != 0 && (x210_ & 0x4) != 0 && (x210_ & 0x10) != 0)
+        if ((x210_loadFlags & 0x2) != 0 && (x210_loadFlags & 0x4) != 0 && (x210_loadFlags & 0x10) != 0)
             return;
         bool loaded = true;
         for (int i=0 ; i<2 ; ++i)
@@ -491,16 +491,16 @@ void CGunWeapon::LoadFxIdle(float dt, CStateManager& mgr)
 
         if (loaded)
         {
-            if ((x210_ & 0x2) != 0x2)
+            if ((x210_loadFlags & 0x2) != 0x2)
             {
                 LoadMuzzleFx(dt);
-                x210_ |= 0x2;
+                x210_loadFlags |= 0x2;
             }
-            x210_ |= 0x10;
-            if ((x210_ & 0x4) != 0x4)
+            x210_loadFlags |= 0x10;
+            if ((x210_loadFlags & 0x4) != 0x4)
             {
                 LoadProjectileData(mgr);
-                x210_ |= 0x4;
+                x210_loadFlags |= 0x4;
             }
         }
     }
@@ -521,21 +521,21 @@ void CGunWeapon::Update(float dt, CStateManager& mgr)
         {
             if (x104_gunCharacter.IsLoaded())
             {
-                if ((x210_ & 0x1) != 0x1)
+                if ((x210_loadFlags & 0x1) != 0x1)
                 {
                     LoadGunModels(mgr);
                     LoadAnimations();
-                    x210_ |= 0x1;
+                    x210_loadFlags |= 0x1;
                 }
-                if ((x210_ & 0x8) != 0x8)
+                if ((x210_loadFlags & 0x8) != 0x8)
                 {
                     if (IsAnimsLoaded())
-                        x210_ |= 0x8;
+                        x210_loadFlags |= 0x8;
                 }
             }
 
             LoadFxIdle(dt, mgr);
-            if ((x210_ & 0x1f) == 0x1f)
+            if ((x210_loadFlags & 0x1f) == 0x1f)
             {
                 if (x10_solidModelData->PickAnimatedModel(CModelData::EWhichModel::Normal).GetModel()->
                     IsLoaded(x20c_shaderIdx) && xb0_suitArmModelData->IsLoaded(0))
@@ -577,7 +577,7 @@ void CGunWeapon::Load(CStateManager& mgr, bool subtypeBasePose)
 void CGunWeapon::Unload(CStateManager& mgr)
 {
     UnlockTokens();
-    x210_ = 0;
+    x210_loadFlags = 0;
     x204_frozenEffect = EFrozenFxType::None;
     x10_solidModelData = std::experimental::nullopt;
     x60_holoModelData = std::experimental::nullopt;
