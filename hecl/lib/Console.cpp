@@ -7,6 +7,8 @@ namespace hecl
 {
 Console* Console::m_instance = nullptr;
 Console::Console(CVarManager* cvarMgr)
+    : m_overwrite(false)
+    , m_cursorAtEnd(false)
 {
     m_instance = this;
     registerCommand("help", "Prints information about a given function", "<command>", std::bind(&Console::help, this, std::placeholders::_1, std::placeholders::_2));
@@ -95,6 +97,7 @@ void Console::report(Level level, const char* fmt, va_list list)
     char tmp[2048];
     vsnprintf(tmp, 2048, fmt, list);
     m_log.emplace_back(std::string(tmp), level);
+    printf("%s\n", tmp);
 }
 
 void Console::report(Level level, const char* fmt, ...)
@@ -105,91 +108,256 @@ void Console::report(Level level, const char* fmt, ...)
     va_end(ap);
 }
 
-void Console::visorReport(Console::Level level, const char* mod, const wchar_t* fmt, va_list list)
+void Console::proc()
 {
-    wchar_t tmp[2048];
-    vswprintf(tmp, 2048, fmt, list);
-    std::string v = athena::utility::sprintf("[%s] %s", mod, athena::utility::wideToUtf8(tmp).c_str());
-    m_log.emplace_back(athena::utility::wideToUtf8(tmp), level);
+    if (m_state == State::Opened)
+    {
+        printf("\r%s                                   ", m_commandString.c_str());
+        fflush(stdout);
+    }
+    else if (m_state == State::Opening)
+        m_state = State::Opened;
+    else if (m_state == State::Closing)
+        m_state = State::Closed;
+
+
+    if (m_cursorPosition > (int)m_commandString.size() - 1)
+        m_cursorPosition = (int)m_commandString.size() - 1;
+    if (m_cursorPosition < -1)
+        m_cursorPosition = -1;
+
+    if (m_logOffset > (int)m_log.size() - 1)
+        m_logOffset = (int)m_log.size() - 1;
+    if (m_logOffset < 0)
+        m_logOffset = 0;
 }
 
-void Console::visorReport(Console::Level level, const char* mod, const wchar_t* fmt, ...)
+void Console::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
-    va_list ap;
-    va_start(ap, fmt);
-    report(level, mod, fmt, ap);
-    va_end(ap);
 }
 
-void Console::visorReportSource(Console::Level level, const char* mod, const char* file, unsigned line, const char* fmt, ...)
+void Console::handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repeat)
 {
-    va_list ap;
-    va_start(ap, fmt);
-    visorReportSource(level, mod, file, line, fmt, ap);
-    va_end(ap);
+    if (chr == U'`' || chr == U'~')
+    {
+        if (m_state == State::Closed || m_state == State::Closing)
+            m_state = State::Opening;
+        else
+            m_state = State::Closing;
+    }
+
+    if (m_state == State::Opened)
+    {
+        if (!m_commandString.empty() && m_cursorPosition + 1 < m_commandString.size())
+        {
+            if (m_overwrite)
+                m_commandString[m_cursorPosition + 1] = chr;
+            else
+                m_commandString.insert(m_commandString.begin() + m_cursorPosition + 1, chr);
+        }
+        else
+             m_commandString += chr;
+
+        ++m_cursorPosition;
+    }
 }
 
-void Console::visorReportSource(Console::Level level, const char *mod, const char *file, unsigned line, const wchar_t *fmt, va_list ap)
+void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, bool repeat)
 {
-    wchar_t tmp[2048];
-    vswprintf(tmp, 2048, fmt, ap);
-    std::string v = athena::utility::sprintf("[%s] %s %s:%i", mod, athena::utility::wideToUtf8(tmp).c_str(), file, line);
-    m_log.emplace_back(v, level);
+    if (m_state != Opened)
+        return;
+
+    switch (sp)
+    {
+    case boo::ESpecialKey::Insert:
+        m_overwrite ^= 1;
+        break;
+    case boo::ESpecialKey::Backspace:
+    {
+        if (!m_commandString.empty())
+        {
+            if (int(mod & boo::EModifierKey::Ctrl) != 0)
+            {
+                int index = m_commandString.rfind(' ', m_cursorPosition - 1);
+
+                if (index == (int)std::string::npos)
+                {
+                    m_commandString.clear();
+                    m_cursorPosition = -1;
+                }
+                else
+                {
+                    m_commandString.erase(index, (index - m_commandString.size()));
+                    m_cursorPosition = index;
+                }
+                break;
+            }
+            if (m_cursorPosition < 0)
+                break;
+
+            m_commandString.erase(m_cursorPosition, 1);
+            --m_cursorPosition;
+        }
+        break;
+    }
+    case boo::ESpecialKey::Delete:
+    {
+        if (!m_commandString.empty())
+        {
+            // Don't try to delete if the cursor is at the end of the line
+            if ((m_cursorPosition + 1) >= (int)m_commandString.size())
+                break;
+
+            if (int(mod & boo::EModifierKey::Ctrl) != 0)
+            {
+                int index = m_commandString.find_first_of(' ', m_cursorPosition + 1);
+                if (index != std::string::npos)
+                    m_commandString.erase(m_cursorPosition + 1, index + 1);
+                else
+                    m_commandString.erase(m_cursorPosition + 1, (m_cursorPosition + 1) - m_commandString.size());
+                break;
+            }
+            m_commandString.erase(m_cursorPosition + 1, 1);
+        }
+        break;
+    }
+    case boo::ESpecialKey::PgUp:
+    {
+        if (m_logOffset < (int)(m_log.size() - m_maxLines) - 1)
+            m_logOffset++;
+        break;
+    }
+    case boo::ESpecialKey::PgDown:
+    {
+        if (m_logOffset > 0)
+            m_logOffset--;
+        break;
+    }
+    case boo::ESpecialKey::Enter:
+    {
+        printf("\n");
+        executeString(m_commandString);
+        m_cursorPosition = -1;
+        m_commandHistory.insert(m_commandHistory.begin(), m_commandString);
+        m_commandString.clear();
+        //m_showCursor = true;
+        //m_cursorTime = 0;
+        break;
+    }
+    case boo::ESpecialKey::Left:
+    {
+        if (m_cursorPosition < 0)
+            break;
+
+        if (int(mod & boo::EModifierKey::Ctrl) != 0)
+            m_cursorPosition = (int)m_commandString.rfind(' ', m_cursorPosition) - 1;
+        else
+            m_cursorPosition--;
+
+        //m_showCursor = true;
+        //m_cursorTime = 0;
+        break;
+    }
+    case boo::ESpecialKey::Right:
+    {
+        if (m_cursorPosition >= (int)m_commandString.size() - 1)
+            break;
+
+        if (int(mod & boo::EModifierKey::Ctrl) != 0)
+        {
+            if (m_commandString[m_cursorPosition] == ' ')
+                m_cursorPosition++;
+
+            int tmpPos = m_commandString.find(' ', m_cursorPosition);
+            if (tmpPos == std::string::npos)
+                m_cursorPosition = m_commandString.size() - 1;
+            else
+                m_cursorPosition = tmpPos;
+        }
+        else
+            m_cursorPosition++;
+
+//        m_showCursor = true;
+//        m_cursorTime = 0;
+        break;
+    }
+
+    case boo::ESpecialKey::Up:
+    {
+        if (m_commandHistory.size() == 0)
+            break;
+
+        m_currentCommand++;
+
+        if (m_currentCommand > (int)m_commandHistory.size() - 1)
+            m_currentCommand = (int)m_commandHistory.size() - 1;
+
+        m_commandString = m_commandHistory[m_currentCommand];
+        m_cursorPosition = m_commandString.size();
+        break;
+    }
+    case boo::ESpecialKey::Down:
+    {
+        if (m_commandHistory.empty())
+            break;
+        m_currentCommand--;
+        if (m_currentCommand >= 0)
+        {
+            m_commandString = m_commandHistory[m_currentCommand];
+        }
+        else if (m_currentCommand <= -1)
+        {
+            m_currentCommand = -1;
+            m_commandString.clear();
+        }
+        m_cursorPosition = m_commandString.size();
+        break;
+    }
+    case boo::ESpecialKey::Home:
+        m_cursorPosition = -1;
+        break;
+    case boo::ESpecialKey::End:
+        m_cursorPosition = m_commandString.size() - 1;
+        break;
+    default:
+        break;
+    }
 }
 
-void Console::visorReportSource(Console::Level level, const char *mod, const char* file, unsigned line, const wchar_t* fmt, ...)
+void Console::handleSpecialKeyUp(boo::ESpecialKey sp, boo::EModifierKey mod)
 {
-    va_list ap;
-    va_start(ap, fmt);
-    visorReportSource(level, mod, file, line, fmt, ap);
-    va_end(ap);
-}
-
-void Console::visorReport(Console::Level level, const char* mod, const char* fmt, va_list ap)
-{
-    char tmp[2048];
-    vsnprintf(tmp, 2048, fmt, ap);
-    std::string v = athena::utility::sprintf("[%s] %s", mod, tmp);
-    m_log.emplace_back(v, level);
-}
-
-void Console::visorReport(Console::Level level, const char* mod, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    report(level, mod, fmt, ap);
-    va_end(ap);
-}
-
-void Console::visorReportSource(Console::Level level, const char* mod, const char* file, unsigned line, const char* fmt, va_list ap)
-{
-    char tmp[2048];
-    vsnprintf(tmp, 2048, fmt, ap);
-    std::string v = athena::utility::sprintf("[%s] %s %s:%i", mod, tmp, file, line);
-    m_log.emplace_back(v, level);
 }
 
 void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity, const char *format, va_list ap)
 {
-    m_con->visorReport(Console::Level(severity), modName, format, ap);
+    char tmp[2048];
+    vsnprintf(tmp, 2048, format, ap);
+    std::string v = athena::utility::sprintf("[%s] %s", modName, tmp);
+    m_con->m_log.emplace_back(v, Console::Level(severity));
 }
 
 void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity, const wchar_t* format, va_list ap)
 {
-    m_con->visorReport(Console::Level(severity), modName, format, ap);
+    wchar_t tmp[2048];
+    vswprintf(tmp, 2048, format, ap);
+    std::string v = athena::utility::sprintf("[%s] %s", modName, athena::utility::wideToUtf8(tmp).c_str());
+    m_con->m_log.emplace_back(v, Console::Level(severity));
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum, const char* format, va_list ap)
 {
-    m_con->visorReportSource(Console::Level(severity), modName, file, linenum, format, ap);
+    char tmp[2048];
+    vsnprintf(tmp, 2048, format, ap);
+    std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, tmp, file, linenum);
+    m_con->m_log.emplace_back(v, Console::Level(severity));
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum, const wchar_t* format, va_list ap)
 {
     wchar_t tmp[2048];
     vswprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::wideToUtf8(tmp);
-    m_con->visorReportSource(Console::Level(severity), modName, file, linenum, format, ap);
+    std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, athena::utility::wideToUtf8(tmp).c_str(), file, linenum);
+    m_con->m_log.emplace_back(v, Console::Level(severity));
 }
 
 void Console::dumpLog()

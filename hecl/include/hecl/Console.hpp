@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include "boo/IWindow.hpp"
 #include "logvisor/logvisor.hpp"
 
 namespace hecl
@@ -49,17 +50,28 @@ public:
         Error,       /**< Recoverable error message */
         Fatal        /**< Non-recoverable error message (Kept for compatibility with logvisor) */
     };
+
+    enum State
+    {
+        Closed,
+        Closing,
+        Opened,
+        Opening
+    };
+
 private:
     std::unordered_map<std::string, SConsoleCommand> m_commands;
     std::vector<std::pair<std::string, Level>> m_log;
-    void visorReport(Level level, const char* mod, const char* fmt, va_list list);
-    void visorReport(Level level, const char* mod, const char* fmt, ...);
-    void visorReportSource(Level, const char* mod, const char* file, unsigned line, const char* fmt, va_list);
-    void visorReportSource(Level, const char* mod, const char* file, unsigned line, const char* fmt, ...);
-    void visorReport(Level level, const char* mod, const wchar_t* fmt, va_list list);
-    void visorReport(Level level, const char* mod, const wchar_t* fmt, ...);
-    void visorReportSource(Level, const char* mod, const char* file, unsigned line, const wchar_t* fmt, va_list);
-    void visorReportSource(Level, const char* mod, const char* file, unsigned line, const wchar_t* fmt, ...);
+    int m_logOffset;
+    std::string m_commandString;
+    std::vector<std::string> m_commandHistory;
+    int m_cursorPosition = -1;
+    int m_currentCommand = -1;
+    int m_maxLines = 0;
+    bool m_overwrite : 1;
+    bool m_cursorAtEnd : 1;
+    State m_state = State::Closed;
+
 public:
     Console(class CVarManager*);
     void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func);
@@ -71,7 +83,13 @@ public:
     bool commandExists(std::string_view cmd);
 
     void report(Level level, const char *fmt, va_list list);
-    void report(Level, const char* fmt, ...);
+    void report(Level level, const char* fmt, ...);
+
+    void proc();
+    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repeat);
+    void handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, bool repeat);
+    void handleSpecialKeyUp(boo::ESpecialKey sp, boo::EModifierKey mod);
     void dumpLog();
     static Console* instance();
     static void RegisterLogger(Console* con);

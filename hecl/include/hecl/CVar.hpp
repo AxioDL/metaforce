@@ -78,6 +78,7 @@ public:
     std::string_view name() const { return m_name; }
     std::string_view rawHelp() const { return m_help; }
     std::string help() const;
+    std::string value() const { return m_value; }
 
     atVec4f toVec4f(bool* isValid = nullptr) const;
     float toFloat(bool* isValid = nullptr) const;
@@ -92,6 +93,8 @@ public:
     bool fromInteger(int val);
     bool fromLiteral(std::string_view val);
     bool fromLiteral(std::wstring_view val);
+    bool fromLiteralToType(std::string_view val);
+    bool fromLiteralToType(std::wstring_view val);
 
     bool isFloat()    const { return m_type == EType::Float; }
     bool isBoolean()  const { return m_type == EType::Boolean; }
@@ -132,7 +135,8 @@ private:
     std::string m_help;
     std::string m_defaultValue;
     EFlags      m_flags;
-    bool        m_allowedWrite;
+    EFlags      m_oldFlags;
+    bool        m_unlocked = false;
 
     CVarManager& m_mgr;
 
