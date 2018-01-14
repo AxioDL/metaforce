@@ -56,7 +56,6 @@ using FCharFilter = std::pair<std::string, std::function<bool(uint32_t)>>;
 
 class FontAtlas
 {
-    friend class FontCache;
     FT_Face m_face;
     std::vector<uint8_t> m_texmap;
     boo::ObjToken<boo::ITextureSA> m_tex;
@@ -128,6 +127,7 @@ public:
     FT_Fixed FT_Xscale() const {return m_ftXscale;}
     FT_UShort FT_XPPem() const {return m_ftXPpem;}
     FT_Pos FT_LineHeight() const {return m_lineHeight;}
+    bool isReady() const { return m_ready; }
     boo::ObjToken<boo::ITextureSA> texture(boo::IGraphicsDataFactory* gf) const;
     bool subpixel() const {return m_subpixel;}
 

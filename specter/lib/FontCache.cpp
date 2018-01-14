@@ -721,7 +721,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face,
             if (r.position() == 4 && magic == 'FONT')
             {
                 std::unique_ptr<FontAtlas> fa = std::make_unique<FontAtlas>(face, dpi, subpixel, filter, r);
-                if (fa->m_tex)
+                if (fa->isReady())
                 {
                     m_cachedAtlases.emplace(tag, std::move(fa));
                     return tag;
