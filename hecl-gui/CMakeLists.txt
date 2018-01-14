@@ -10,6 +10,8 @@ find_package(Qt5Xml)
 
 if(APPLE)
   set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
+  set_source_files_properties(MacOSSystemVersion.mm
+                              PROPERTIES COMPILE_FLAGS -fobjc-arc)
   find_library(FOUNDATION_LIBRARY Foundation)
   set(PLAT_LIBS ${FOUNDATION_LIBRARY})
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")

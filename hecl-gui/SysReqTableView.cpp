@@ -120,7 +120,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
 #else
     m_memorySize = uint64_t(sysconf(_SC_PHYS_PAGES)) * sysconf(_SC_PAGESIZE);
 #endif
-    m_memorySizeStr.sprintf("%g GB", m_memorySize / 1024.f / 1024.f / 1024.f);
+    m_memorySizeStr.sprintf("%g GiB", m_memorySize / 1024.f / 1024.f / 1024.f);
 #ifdef __APPLE__
     GetMacOSSystemVersion(m_macosMajor, m_macosMinor, m_macosPatch);
     if (m_macosPatch == 0)
@@ -213,7 +213,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             case 1:
                 return QStringLiteral("1.5 GHz");
             case 2:
-                return QStringLiteral("3 GB");
+                return QStringLiteral("3 GiB");
             case 3:
                 return QStringLiteral("16 GB (MP1)");
             case 4:

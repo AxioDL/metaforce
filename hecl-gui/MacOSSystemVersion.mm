@@ -2,6 +2,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
 
+#if !__has_feature(objc_arc)
+#error ARC Required
+#endif
+
 void GetMacOSSystemVersion(int& major, int& minor, int& patch)
 {
     major = 0;

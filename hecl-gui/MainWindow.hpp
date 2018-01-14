@@ -62,6 +62,7 @@ private:
     void onBinaryFailed();
     void disableOperations();
     void enableOperations();
+    bool isPackageComplete() const;
 };
 
 #endif // MAINWINDOW_HPP

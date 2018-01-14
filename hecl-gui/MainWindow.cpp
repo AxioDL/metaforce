@@ -317,7 +317,7 @@ void MainWindow::enableOperations()
     if (QFile::exists(m_path + "/MP1/!original_ids.yaml"))
     {
         m_ui->packageBtn->setEnabled(true);
-        if (QFile::exists(m_path + "/out/MP1/!original_ids.upak"))
+        if (isPackageComplete())
             m_ui->launchBtn->setEnabled(true);
     }
 
@@ -329,6 +329,30 @@ void MainWindow::enableOperations()
         insertContinueNote("Extract complete - Press 'Package' to continue.");
     else if (m_ui->extractBtn->isEnabled())
         insertContinueNote("Press 'Extract' to begin.");
+}
+
+bool MainWindow::isPackageComplete() const
+{
+    return
+        QFile::exists(m_path + "/out/MP1/!original_ids.upak") &&
+        QFile::exists(m_path + "/out/MP1/AudioGrp.upak") &&
+        QFile::exists(m_path + "/out/MP1/GGuiSys.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid1.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid2.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid3.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid4.upak") &&
+        QFile::exists(m_path + "/out/MP1/metroid5.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid6.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid7.upak") &&
+        QFile::exists(m_path + "/out/MP1/Metroid8.upak") &&
+        QFile::exists(m_path + "/out/MP1/MidiData.upak") &&
+        QFile::exists(m_path + "/out/MP1/MiscData.upak") &&
+        QFile::exists(m_path + "/out/MP1/NoARAM.upak") &&
+        QFile::exists(m_path + "/out/MP1/SamGunFx.upak") &&
+        QFile::exists(m_path + "/out/MP1/SamusGun.upak") &&
+        QFile::exists(m_path + "/out/MP1/SlideShow.upak") &&
+        QFile::exists(m_path + "/out/MP1/TestAnim.upak") &&
+        QFile::exists(m_path + "/out/MP1/Tweaks.upak");
 }
 
 static bool GetDLPackage(const QString& path, QString& dlPackage)
@@ -464,7 +488,6 @@ void MainWindow::initSlots()
     connect(&m_heclProc, &QProcess::readyRead, [=](){
         QByteArray bytes = m_heclProc.readAll();
         setTextTermFormatting(bytes);
-        m_ui->processOutput->ensureCursorVisible();
     });
 
     connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(onExtract()));
@@ -519,6 +542,7 @@ void MainWindow::setTextTermFormatting(const QString& text)
         }
     }
     m_cursor.setCharFormat(defaultTextCharFormat);
+    m_ui->processOutput->ensureCursorVisible();
 }
 
 void MainWindow::insertContinueNote(const QString& text)
@@ -532,4 +556,5 @@ void MainWindow::insertContinueNote(const QString& text)
     textCharFormat.setForeground(QColor(0,255,0));
     m_cursor.insertText(text, textCharFormat);
     m_cursor.insertBlock();
+    m_ui->processOutput->ensureCursorVisible();
 }
