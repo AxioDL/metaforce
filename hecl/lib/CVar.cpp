@@ -4,6 +4,7 @@
 
 #include <athena/Utility.hpp>
 #include <algorithm>
+#include <sstream>
 
 namespace hecl
 {
