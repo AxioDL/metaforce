@@ -129,10 +129,7 @@ void CVarManager::deserialize(CVar* cvar)
             }
 
             if (cvar->m_value != tmp.m_value)
-            {
                 cvar->m_value = tmp.m_value;
-                cvar->m_flags |= CVar::EFlags::Modified;
-            }
         }
     }
 }
@@ -178,16 +175,57 @@ CVarManager* CVarManager::instance()
 
 void CVarManager::list(Console* con, const std::vector<std::string> &args)
 {
-
+    for (const auto& cvar : m_cvars)
+    {
+        if (!cvar.second->isHidden())
+            con->report(Console::Level::Info, "%s: %s", cvar.first.c_str(), cvar.second->help().c_str());
+    }
 }
 
 void CVarManager::setCVar(Console* con, const std::vector<std::string> &args)
 {
+    if (args.size() < 2)
+    {
+        con->report(Console::Level::Info, "Usage setCvar <cvar> <value>");
+        return;
+    }
 
+    std::string cvName = args[0];
+    athena::utility::tolower(cvName);
+    if (m_cvars.find(cvName) == m_cvars.end())
+    {
+        con->report(Console::Level::Error, "CVar '%s' does not exist", args[0].c_str());
+        return;
+    }
+
+    CVar* cv = m_cvars[cvName];
+    std::string value = args[1];
+    auto it = args.begin() + 2;
+    for (; it != args.end(); ++it)
+        value += " " + *it;
+
+    if (!cv->fromLiteralToType(value))
+        con->report(Console::Level::Warning, "Unable to cvar '%s' to value '%s'", args[0].c_str(), value.c_str());
 }
 
 void CVarManager::getCVar(Console* con, const std::vector<std::string> &args)
 {
+    if (args.empty())
+    {
+        con->report(Console::Level::Info, "Usage getCVar <cvar>");
+        return;
+    }
+
+    std::string cvName = args[0];
+    athena::utility::tolower(cvName);
+    if (m_cvars.find(cvName) == m_cvars.end())
+    {
+        con->report(Console::Level::Error, "CVar '%s' does not exist", args[0].c_str());
+        return;
+    }
+
+    const CVar* cv = m_cvars[cvName];
+    con->report(Console::Level::Info, "'%s' = '%s'", cv->name().data(), cv->value().c_str());
 }
 
 bool CVarManager::restartRequired() const

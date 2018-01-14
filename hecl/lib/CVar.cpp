@@ -21,14 +21,12 @@ CVar::CVar(std::string_view name, std::string_view value, std::string_view help,
     m_help = help;
     m_type = type;
     m_flags = flags;
-    m_allowedWrite = false;
 }
 
 CVar::CVar(std::string_view name, std::string_view value, std::string_view help, CVar::EFlags flags, CVarManager& parent)
 : m_mgr(parent)
 {
     m_flags = flags;
-    m_allowedWrite = false;
     m_name = std::string(name);
     m_help = help;
     m_type = EType::Literal;
@@ -52,7 +50,6 @@ CVar::CVar(std::string_view name, const atVec4f& value, std::string_view help, E
     m_help = help;
     m_type = EType::Vec4f;
     m_flags = flags;
-    m_allowedWrite = false;
 
     // Unlock the cvar for writing if readonly
     unlock();
@@ -73,7 +70,6 @@ CVar::CVar(std::string_view name, float value, std::string_view help, EFlags fla
     m_help = help;
     m_type = EType::Float;
     m_flags = flags;
-    m_allowedWrite = false;
 
     // Unlock the cvar for writing if readonly
     unlock();
@@ -94,7 +90,6 @@ CVar::CVar(std::string_view name, bool value, std::string_view help, CVar::EFlag
     m_help = help;
     m_type = EType::Boolean;
     m_flags = flags;
-    m_allowedWrite = false;
 
     // Unlock the cvar for writing if readonly
     unlock();
@@ -115,7 +110,6 @@ CVar::CVar(std::string_view name, int value, std::string_view help, CVar::EFlags
     m_help = help;
     m_type = EType::Integer;
     m_flags = flags;
-    m_allowedWrite = false;
 
     // Unlock the cvar for writing if readonly
     unlock();
@@ -178,7 +172,7 @@ bool CVar::toBoolean(bool* isValid) const
 
     // We don't want to modify the original value;
     std::string tmp = m_value;
-    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
+    athena::utility::tolower(tmp);
 
     if (!tmp.compare("yes") || !tmp.compare("true") || !tmp.compare("1"))
     {
@@ -351,6 +345,84 @@ bool CVar::fromLiteral(std::wstring_view val)
     return true;
 }
 
+bool CVar::fromLiteralToType(std::string_view val)
+{
+    switch (m_type)
+    {
+    case EType::Literal: return fromLiteral(val);
+    case EType::Boolean:
+    {
+        std::stringstream ss;
+        ss << std::boolalpha << val;
+        bool v;
+        ss >> v;
+        return fromBoolean(v);
+    }
+    case EType::Float:
+    {
+        std::stringstream ss;
+        ss << val;
+        float v;
+        ss >> v;
+        return fromFloat(v);
+    }
+    case EType::Integer:
+    {
+        std::stringstream ss;
+        ss << val;
+        int v;
+        ss >> v;
+        return fromInteger(v);
+    }
+    case EType::Vec4f:
+    {
+        atVec4f vec;
+        std::sscanf(val.data(), "%f %f %f %f", &vec.vec[0], &vec.vec[1], &vec.vec[2], &vec.vec[3]);
+        return fromVec4f(vec);
+    }
+    }
+    return false;
+}
+
+bool CVar::fromLiteralToType(std::wstring_view val)
+{
+    switch (m_type)
+    {
+    case EType::Literal: return fromLiteral(val);
+    case EType::Boolean:
+    {
+        std::wstringstream ss;
+        ss << std::boolalpha << val;
+        bool v;
+        ss >> v;
+        return fromBoolean(v);
+    }
+    case EType::Float:
+    {
+        std::wstringstream ss;
+        ss << val;
+        float v;
+        ss >> v;
+        return fromFloat(v);
+    }
+    case EType::Integer:
+    {
+        std::wstringstream ss;
+        ss << val;
+        int v;
+        ss >> v;
+        return fromInteger(v);
+    }
+    case EType::Vec4f:
+    {
+        atVec4f vec;
+        std::swscanf(val.data(), L"%f %f %f %f", &vec.vec[0], &vec.vec[1], &vec.vec[2], &vec.vec[3]);
+        return fromVec4f(vec);
+    }
+    }
+    return false;
+}
+
 bool CVar::isModified() const { return int(m_flags & EFlags::Modified) != 0;}
 bool CVar::modificationRequiresRestart() const { return int(m_flags & EFlags::ModifyRestart) != 0; }
 
@@ -362,32 +434,30 @@ bool CVar::isHidden() const { return int(m_flags & EFlags::Hidden) != 0; }
 
 bool CVar::isArchive() const { return int(m_flags & EFlags::Archive) != 0; }
 
-void CVar::clearModified() { m_flags &= ~EFlags::Modified; }
+void CVar::clearModified()
+{
+    if (!modificationRequiresRestart())
+        m_flags &= ~EFlags::Modified;
+}
 
 void CVar::setModified() { m_flags |= EFlags::Modified; }
 
 void CVar::unlock()
 {
-    if (!isReadOnly())
-        return;
-
-    if (!m_allowedWrite)
+    if (isReadOnly() && !m_unlocked)
     {
-        m_allowedWrite = true;
+        m_oldFlags = m_flags;
         m_flags &= ~EFlags::ReadOnly;
+        m_unlocked = true;
     }
 }
 
 void CVar::lock()
 {
-    if (!isReadOnly())
-        return;
-
-    if (m_allowedWrite)
+    if (!isReadOnly() && m_unlocked)
     {
-        m_flags |= EFlags::ReadOnly;
-        m_allowedWrite = false;
-        clearModified();
+        m_flags = m_oldFlags;
+        m_unlocked = false;
     }
 }
 

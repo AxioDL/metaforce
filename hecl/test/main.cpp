@@ -1,13 +1,16 @@
 #include <boo/boo.hpp>
 #include "logvisor/logvisor.hpp"
+#include "hecl/Console.hpp"
+#include "hecl/CVarManager.hpp"
 #include <athena/MemoryWriter.hpp>
 #include "hecl/Runtime.hpp"
 #include "hecl/HMDLMeta.hpp"
-
 #include <cmath>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+
+using namespace std::literals;
 
 namespace hecl::Database
 {
@@ -18,7 +21,7 @@ struct HECLWindowCallback : boo::IWindowCallback
 {
     bool m_sizeDirty = false;
     boo::SWindowRect m_latestSize;
-    void resized(const boo::SWindowRect& rect)
+    void resized(const boo::SWindowRect& rect, bool sync)
     {
         m_sizeDirty = true;
         m_latestSize = rect;
@@ -29,13 +32,37 @@ struct HECLWindowCallback : boo::IWindowCallback
     {
         m_destroyed = true;
     }
+
+    void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
+    {
+        hecl::Console::instance()->handleCharCode(charCode, mods, isRepeat);
+    }
+    void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
+    {
+        hecl::Console::instance()->handleSpecialKeyDown(key, mods, isRepeat);
+    }
+    void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
+    {
+        hecl::Console::instance()->hecl::Console::handleSpecialKeyUp(key, mods);
+    }
 };
 
 struct HECLApplicationCallback : boo::IApplicationCallback
 {
     HECLWindowCallback m_windowCb;
+    hecl::Runtime::FileStoreManager m_fileStoreMgr;
+    hecl::CVarManager m_cvarManager;
+    hecl::Console m_console;
     std::shared_ptr<boo::IWindow> m_mainWindow;
     bool m_running = true;
+
+    HECLApplicationCallback()
+        : m_fileStoreMgr("heclTest"),
+          m_cvarManager(m_fileStoreMgr),
+          m_console(&m_cvarManager)
+    {
+        m_console.registerCommand("quit"sv, "Quits application"sv, "", std::bind(&HECLApplicationCallback::quit, this, std::placeholders::_1, std::placeholders::_2));
+    }
 
     int appMain(boo::IApplication* app)
     {
@@ -195,6 +222,8 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 m_windowCb.m_sizeDirty = false;
             }
 
+            m_console.proc();
+
             gfxQ->setRenderTarget(renderTex);
             boo::SWindowRect r = m_windowCb.m_latestSize;
             r.location[0] = 0;
@@ -212,6 +241,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             gfxQ->setShaderDataBinding(binding);
             gfxQ->drawIndexed(0, 4);
             gfxQ->resolveDisplay(renderTex);
+            m_console.draw(gfxQ);
             gfxQ->execute();
 
             ++frameIdx;
@@ -225,6 +255,11 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         return 0;
     }
     void appQuitting(boo::IApplication* app)
+    {
+        m_running = false;
+    }
+
+    void quit(hecl::Console* con, const std::vector<std::string>& args)
     {
         m_running = false;
     }
