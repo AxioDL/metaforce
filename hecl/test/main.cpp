@@ -12,16 +12,12 @@
 
 using namespace std::literals;
 
-namespace hecl::Database
-{
-std::vector<const struct DataSpecEntry*> DATA_SPEC_REGISTRY;
-}
-
 struct HECLWindowCallback : boo::IWindowCallback
 {
     bool m_sizeDirty = false;
     boo::SWindowRect m_latestSize;
-    void resized(const boo::SWindowRect& rect, bool sync)
+    virtual ~HECLWindowCallback();
+    void resized(const boo::SWindowRect& rect, bool /*sync*/)
     {
         m_sizeDirty = true;
         m_latestSize = rect;
@@ -47,6 +43,11 @@ struct HECLWindowCallback : boo::IWindowCallback
     }
 };
 
+HECLWindowCallback::~HECLWindowCallback()
+{
+
+}
+
 struct HECLApplicationCallback : boo::IApplicationCallback
 {
     HECLWindowCallback m_windowCb;
@@ -57,12 +58,14 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     bool m_running = true;
 
     HECLApplicationCallback()
-        : m_fileStoreMgr("heclTest"),
+        : m_fileStoreMgr(_S("heclTest")),
           m_cvarManager(m_fileStoreMgr),
           m_console(&m_cvarManager)
     {
         m_console.registerCommand("quit"sv, "Quits application"sv, "", std::bind(&HECLApplicationCallback::quit, this, std::placeholders::_1, std::placeholders::_2));
     }
+
+    virtual ~HECLApplicationCallback();
 
     int appMain(boo::IApplication* app)
     {
@@ -123,7 +126,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
             {
                 boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
-                renderTex = ctx.newRenderTexture(mainWindowRect.size[0], mainWindowRect.size[1],
+                renderTex = ctx.newRenderTexture(size_t(mainWindowRect.size[0]), size_t(mainWindowRect.size[1]),
                                                  boo::TextureClampMode::Repeat, 0, 0);
 
                 /* Generate meta structure (usually statically serialized) */
@@ -169,8 +172,8 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 for (int i=0 ; i<256 ; ++i)
                     for (int j=0 ; j<256 ; ++j)
                     {
-                        tex[i][j][0] = i;
-                        tex[i][j][1] = j;
+                        tex[i][j][0] = uint8_t(i);
+                        tex[i][j][1] = uint8_t(i);
                         tex[i][j][2] = 0;
                         tex[i][j][3] = 0xff;
                     }
@@ -217,8 +220,8 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             if (m_windowCb.m_sizeDirty)
             {
                 gfxQ->resizeRenderTexture(renderTex,
-                                          m_windowCb.m_latestSize.size[0],
-                                          m_windowCb.m_latestSize.size[1]);
+                                          size_t(m_windowCb.m_latestSize.size[0]),
+                                          size_t(m_windowCb.m_latestSize.size[1]));
                 m_windowCb.m_sizeDirty = false;
             }
 
@@ -230,12 +233,12 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             r.location[1] = 0;
             gfxQ->setViewport(r);
             gfxQ->setScissor(r);
-            float rgba[] = {sinf(frameIdx / 60.0), cosf(frameIdx / 60.0), 0.0, 1.0};
+            float rgba[] = {sinf(frameIdx / 60.0f), cosf(frameIdx / 60.0f), 0.0f, 1.0f};
             gfxQ->setClearColor(rgba);
             gfxQ->clearTarget();
 
-            vuboData.modelview[3][0] = sinf(frameIdx / 60.0) * 0.5;
-            vuboData.modelview[3][1] = cosf(frameIdx / 60.0) * 0.5;
+            vuboData.modelview[3][0] = sinf(frameIdx / 60.0f) * 0.5f;
+            vuboData.modelview[3][1] = cosf(frameIdx / 60.0f) * 0.5f;
             vubo.cast<boo::IGraphicsBufferD>()->load(&vuboData, sizeof(vuboData));
 
             gfxQ->setShaderDataBinding(binding);
@@ -248,31 +251,32 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         }
 
         std::unique_lock<std::mutex> finallk(loadmt);
+        m_cvarManager.serialize();
         finallk.unlock();
         gfxQ->stopRenderer();
         loadcv.notify_one();
         loaderThr.join();
         return 0;
     }
-    void appQuitting(boo::IApplication* app)
+    void appQuitting(boo::IApplication* /*app*/)
     {
         m_running = false;
     }
 
-    void quit(hecl::Console* con, const std::vector<std::string>& args)
+    void quit(hecl::Console* /*con*/, const std::vector<std::string>& /*args*/)
     {
         m_running = false;
     }
 };
 
 void AthenaExcHandler(athena::error::Level level,
-                      const char* file, const char* function,
+                      const char* file, const char* /*function*/,
                       int line, const char* fmt, ...)
 {
     static logvisor::Module Log("heclTest::AthenaExcHandler");
     va_list ap;
     va_start(ap, fmt);
-    Log.reportSource(logvisor::Level(level), file, line, fmt, ap);
+    Log.reportSource(logvisor::Level(level), file, uint32_t(line), fmt, ap);
     va_end(ap);
 }
 
@@ -324,3 +328,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
     return wmain(argc+1, booArgv);
 }
 #endif
+
+HECLApplicationCallback::~HECLApplicationCallback()
+{
+
+}

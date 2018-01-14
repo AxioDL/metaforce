@@ -15,14 +15,14 @@ CVar* com_enableCheats = nullptr;
 
 CVarManager* CVarManager::m_instance = nullptr;
 
-logvisor::Module CVarLog("CVarManager");
+static logvisor::Module CVarLog("CVarManager");
 CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
     : m_store(store),
       m_useBinary(useBinary)
 {
     m_instance = this;
     com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
-    com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::Cheat | CVar::EFlags::ReadOnly));
+    com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
     com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
 }
 
@@ -83,7 +83,7 @@ std::vector<CVar*> CVarManager::cvars() const
 
 void CVarManager::deserialize(CVar* cvar)
 {
-    if (!cvar || !cvar->isArchive())
+    if (!cvar || (!cvar->isArchive() && !cvar->isInternalArchivable()))
         return;
 
     CVarContainer container;
@@ -122,14 +122,14 @@ void CVarManager::deserialize(CVar* cvar)
         if (serialized != container.cvars.end())
         {
             DNACVAR::CVar& tmp = *serialized;
-            if (tmp.m_type != cvar->type())
-            {
-                CVarLog.report(logvisor::Error, _S("Stored type for %s does not match actual type!"), tmp.m_name.c_str());
-                return;
-            }
 
             if (cvar->m_value != tmp.m_value)
-                cvar->m_value = tmp.m_value;
+            {
+                cvar->unlock();
+                cvar->fromLiteralToType(tmp.m_value, true);
+                cvar->m_wasDeserialized = true;
+                cvar->lock();
+            }
         }
     }
 }
@@ -138,13 +138,13 @@ void CVarManager::serialize()
 {
     CVarContainer container;
     for (const std::pair<std::string, CVar*>& pair : m_cvars)
-        if (pair.second->isArchive())
+        if (pair.second->isArchive() || (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
         {
             CVar tmp = *pair.second;
             container.cvars.push_back(tmp);
         }
 
-    container.cvarCount = container.cvars.size();
+    container.cvarCount = atUint32(container.cvars.size());
 
 #if _WIN32
     hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
@@ -173,7 +173,7 @@ CVarManager* CVarManager::instance()
     return m_instance;
 }
 
-void CVarManager::list(Console* con, const std::vector<std::string> &args)
+void CVarManager::list(Console* con, const std::vector<std::string>& /*args*/)
 {
     for (const auto& cvar : m_cvars)
     {

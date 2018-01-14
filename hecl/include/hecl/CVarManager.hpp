@@ -11,7 +11,9 @@ namespace Runtime
 {
 class FileStoreManager;
 }
-
+extern CVar* com_developer;
+extern CVar* com_configfile;
+extern CVar* com_enableCheats;
 class CVarManager final
 {
     using CVarContainer = DNACVAR::CVarContainer;
@@ -21,8 +23,7 @@ class CVarManager final
         CVar* ret(new CVar(name, value, help, flags, *this));
         if (registerCVar(ret))
         {
-            if (ret->isArchive())
-                deserialize(ret);
+            deserialize(ret);
             return ret;
         }
         delete ret;

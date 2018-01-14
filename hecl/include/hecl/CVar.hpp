@@ -22,17 +22,17 @@ enum class EType : atUint8
 
 enum EFlags
 {
-    All      = -1, // NOTE: is this really necessary? It seems rather overkill
-    System   = (1 << 0),
-    Game     = (1 << 1),
-    Editor   = (1 << 2),
-    Gui      = (1 << 3),
-    Cheat    = (1 << 4),
-    Hidden   = (1 << 5),
-    ReadOnly = (1 << 6),
-    Archive  = (1 << 7),
-    Modified = (1 << 8),
-    ModifyRestart = (1 << 9) /*!< If this bit is set, any modification will inform the user that a restart is required */
+    System             = (1 << 0),
+    Game               = (1 << 1),
+    Editor             = (1 << 2),
+    Gui                = (1 << 3),
+    Cheat              = (1 << 4),
+    Hidden             = (1 << 5),
+    ReadOnly           = (1 << 6),
+    Archive            = (1 << 7),
+    InternalArchivable = (1 << 8),
+    Modified           = (1 << 9),
+    ModifyRestart      = (1 << 10) /*!< If this bit is set, any modification will inform the user that a restart is required */
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
@@ -42,7 +42,6 @@ public:
     DECL_YAML
     String<-1>    m_name;
     String<-1>    m_value;
-    Value<EType>  m_type;
 };
 
 struct CVarContainer : public athena::io::DNAYaml<athena::BigEndian>
@@ -93,8 +92,8 @@ public:
     bool fromInteger(int val);
     bool fromLiteral(std::string_view val);
     bool fromLiteral(std::wstring_view val);
-    bool fromLiteralToType(std::string_view val);
-    bool fromLiteralToType(std::wstring_view val);
+    bool fromLiteralToType(std::string_view val, bool setDefault = false);
+    bool fromLiteralToType(std::wstring_view val, bool setDefault = false);
 
     bool isFloat()    const { return m_type == EType::Float; }
     bool isBoolean()  const { return m_type == EType::Boolean; }
@@ -107,6 +106,9 @@ public:
     bool isCheat()    const;
     bool isHidden()   const;
     bool isArchive()  const;
+    bool isInternalArchivable() const;
+    bool wasDeserialized() const;
+    bool hasDefaultValue() const;
     void clearModified();
     void setModified();
 
@@ -132,11 +134,13 @@ public:
 
 private:
     void dispatch();
+    EType  m_type;
     std::string m_help;
     std::string m_defaultValue;
     EFlags      m_flags;
     EFlags      m_oldFlags;
     bool        m_unlocked = false;
+    bool        m_wasDeserialized = false;
 
     CVarManager& m_mgr;
 
