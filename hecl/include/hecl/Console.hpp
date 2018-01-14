@@ -10,7 +10,7 @@
 
 namespace hecl
 {
-
+class CVar;
 struct SConsoleCommand
 {
     std::string m_displayName;
@@ -67,11 +67,14 @@ private:
     std::vector<std::string> m_commandHistory;
     int m_cursorPosition = -1;
     int m_currentCommand = -1;
-    int m_maxLines = 0;
+    size_t m_maxLines = 0;
     bool m_overwrite : 1;
     bool m_cursorAtEnd : 1;
     State m_state = State::Closed;
-
+    CVar* m_conSpeed;
+    CVar* m_conHeight;
+    float m_cachedConSpeed;
+    float m_cachedConHeight;
 public:
     Console(class CVarManager*);
     void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func);

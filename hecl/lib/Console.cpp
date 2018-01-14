@@ -16,6 +16,10 @@ Console::Console(CVarManager* cvarMgr)
     registerCommand("listCVars", "Lists all available CVars", "", std::bind(&CVarManager::list, cvarMgr, std::placeholders::_1, std::placeholders::_2));
     registerCommand("setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>", std::bind(&CVarManager::setCVar, cvarMgr, std::placeholders::_1, std::placeholders::_2));
     registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>", std::bind(&CVarManager::getCVar, cvarMgr, std::placeholders::_1, std::placeholders::_2));
+    m_conSpeed = cvarMgr->findOrMakeCVar("con_speed", "Speed at which the console opens and closes, calculated as pixels per second", 1.f,
+                                         hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
+    m_conHeight = cvarMgr->findOrMakeCVar("con_height", "Maximum absolute height of the console, height is calculated from the top of the window, expects values ranged from [0.f,1.f]", 0.5f,
+                                          hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
 }
 
 void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func)
@@ -110,6 +114,18 @@ void Console::report(Level level, const char* fmt, ...)
 
 void Console::proc()
 {
+    if (m_conHeight->isModified())
+    {
+        m_cachedConHeight = m_conHeight->toFloat();
+        m_conHeight->clearModified();
+    }
+
+    if (m_conSpeed->isModified())
+    {
+        m_cachedConSpeed = m_conSpeed->toFloat();
+        m_conSpeed->clearModified();
+    }
+
     if (m_state == State::Opened)
     {
         printf("\r%s                                   ", m_commandString.c_str());
@@ -121,22 +137,22 @@ void Console::proc()
         m_state = State::Closed;
 
 
-    if (m_cursorPosition > (int)m_commandString.size() - 1)
-        m_cursorPosition = (int)m_commandString.size() - 1;
+    if (m_cursorPosition > int(m_commandString.size() - 1))
+        m_cursorPosition = int(m_commandString.size() - 1);
     if (m_cursorPosition < -1)
         m_cursorPosition = -1;
 
-    if (m_logOffset > (int)m_log.size() - 1)
-        m_logOffset = (int)m_log.size() - 1;
+    if (m_logOffset > int(m_log.size() - 1))
+        m_logOffset = int(m_log.size() - 1);
     if (m_logOffset < 0)
         m_logOffset = 0;
 }
 
-void Console::draw(boo::IGraphicsCommandQueue* gfxQ)
+void Console::draw(boo::IGraphicsCommandQueue* /*gfxQ*/)
 {
 }
 
-void Console::handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repeat)
+void Console::handleCharCode(unsigned long chr, boo::EModifierKey /*mod*/, bool /*repeat*/)
 {
     if (chr == U'`' || chr == U'~')
     {
@@ -148,21 +164,21 @@ void Console::handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repe
 
     if (m_state == State::Opened)
     {
-        if (!m_commandString.empty() && m_cursorPosition + 1 < m_commandString.size())
+        if (!m_commandString.empty() && m_cursorPosition + 1 < int(m_commandString.size()))
         {
             if (m_overwrite)
-                m_commandString[m_cursorPosition + 1] = chr;
+                m_commandString[unsigned(m_cursorPosition + 1)] = char(chr);
             else
-                m_commandString.insert(m_commandString.begin() + m_cursorPosition + 1, chr);
+                m_commandString.insert(m_commandString.begin() + m_cursorPosition + 1, char(chr));
         }
         else
-             m_commandString += chr;
+             m_commandString += char(chr);
 
         ++m_cursorPosition;
     }
 }
 
-void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, bool repeat)
+void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, bool /*repeat*/)
 {
     if (m_state != Opened)
         return;
@@ -178,9 +194,9 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         {
             if (int(mod & boo::EModifierKey::Ctrl) != 0)
             {
-                int index = m_commandString.rfind(' ', m_cursorPosition - 1);
+                size_t index = m_commandString.rfind(' ', size_t(m_cursorPosition - 1));
 
-                if (index == (int)std::string::npos)
+                if (index == std::string::npos)
                 {
                     m_commandString.clear();
                     m_cursorPosition = -1;
@@ -188,14 +204,14 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
                 else
                 {
                     m_commandString.erase(index, (index - m_commandString.size()));
-                    m_cursorPosition = index;
+                    m_cursorPosition = int(index);
                 }
                 break;
             }
             if (m_cursorPosition < 0)
                 break;
 
-            m_commandString.erase(m_cursorPosition, 1);
+            m_commandString.erase(size_t(m_cursorPosition), 1);
             --m_cursorPosition;
         }
         break;
@@ -205,25 +221,25 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         if (!m_commandString.empty())
         {
             // Don't try to delete if the cursor is at the end of the line
-            if ((m_cursorPosition + 1) >= (int)m_commandString.size())
+            if ((m_cursorPosition + 1) >= int(m_commandString.size()))
                 break;
 
             if (int(mod & boo::EModifierKey::Ctrl) != 0)
             {
-                int index = m_commandString.find_first_of(' ', m_cursorPosition + 1);
+                size_t index = m_commandString.find_first_of(' ', size_t(m_cursorPosition + 1));
                 if (index != std::string::npos)
-                    m_commandString.erase(m_cursorPosition + 1, index + 1);
+                    m_commandString.erase(size_t(m_cursorPosition + 1), index + 1);
                 else
-                    m_commandString.erase(m_cursorPosition + 1, (m_cursorPosition + 1) - m_commandString.size());
+                    m_commandString.erase(size_t(m_cursorPosition + 1), size_t(m_cursorPosition + 1) - m_commandString.size());
                 break;
             }
-            m_commandString.erase(m_cursorPosition + 1, 1);
+            m_commandString.erase(size_t(m_cursorPosition + 1), 1);
         }
         break;
     }
     case boo::ESpecialKey::PgUp:
     {
-        if (m_logOffset < (int)(m_log.size() - m_maxLines) - 1)
+        if (m_logOffset < int(m_log.size() - m_maxLines) - 1)
             m_logOffset++;
         break;
     }
@@ -250,7 +266,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
             break;
 
         if (int(mod & boo::EModifierKey::Ctrl) != 0)
-            m_cursorPosition = (int)m_commandString.rfind(' ', m_cursorPosition) - 1;
+            m_cursorPosition = int(m_commandString.rfind(' ', size_t(m_cursorPosition) - 1));
         else
             m_cursorPosition--;
 
@@ -260,19 +276,19 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     }
     case boo::ESpecialKey::Right:
     {
-        if (m_cursorPosition >= (int)m_commandString.size() - 1)
+        if (m_cursorPosition >= int(m_commandString.size() - 1))
             break;
 
         if (int(mod & boo::EModifierKey::Ctrl) != 0)
         {
-            if (m_commandString[m_cursorPosition] == ' ')
+            if (m_commandString[size_t(m_cursorPosition)] == ' ')
                 m_cursorPosition++;
 
-            int tmpPos = m_commandString.find(' ', m_cursorPosition);
+            size_t tmpPos = m_commandString.find(' ', size_t(m_cursorPosition));
             if (tmpPos == std::string::npos)
-                m_cursorPosition = m_commandString.size() - 1;
+                m_cursorPosition = int(m_commandString.size() - 1);
             else
-                m_cursorPosition = tmpPos;
+                m_cursorPosition = int(tmpPos);
         }
         else
             m_cursorPosition++;
@@ -289,11 +305,11 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
 
         m_currentCommand++;
 
-        if (m_currentCommand > (int)m_commandHistory.size() - 1)
-            m_currentCommand = (int)m_commandHistory.size() - 1;
+        if (m_currentCommand > int(m_commandHistory.size() - 1))
+            m_currentCommand = int(m_commandHistory.size() - 1);
 
-        m_commandString = m_commandHistory[m_currentCommand];
-        m_cursorPosition = m_commandString.size();
+        m_commandString = m_commandHistory[size_t(m_currentCommand)];
+        m_cursorPosition = int(m_commandString.size() - 1);
         break;
     }
     case boo::ESpecialKey::Down:
@@ -303,28 +319,28 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         m_currentCommand--;
         if (m_currentCommand >= 0)
         {
-            m_commandString = m_commandHistory[m_currentCommand];
+            m_commandString = m_commandHistory[size_t(m_currentCommand)];
         }
         else if (m_currentCommand <= -1)
         {
             m_currentCommand = -1;
             m_commandString.clear();
         }
-        m_cursorPosition = m_commandString.size();
+        m_cursorPosition = int(m_commandString.size());
         break;
     }
     case boo::ESpecialKey::Home:
         m_cursorPosition = -1;
         break;
     case boo::ESpecialKey::End:
-        m_cursorPosition = m_commandString.size() - 1;
+        m_cursorPosition = int(m_commandString.size() - 1);
         break;
     default:
         break;
     }
 }
 
-void Console::handleSpecialKeyUp(boo::ESpecialKey sp, boo::EModifierKey mod)
+void Console::handleSpecialKeyUp(boo::ESpecialKey /*sp*/, boo::EModifierKey /*mod*/)
 {
 }
 

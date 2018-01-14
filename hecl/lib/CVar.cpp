@@ -139,7 +139,7 @@ atVec4f CVar::toVec4f(bool* isValid) const
         return atVec4f{};
     }
 
-    if (isValid != NULL)
+    if (isValid != nullptr)
         *isValid = true;
 
     atVec4f vec;
@@ -345,7 +345,7 @@ bool CVar::fromLiteral(std::wstring_view val)
     return true;
 }
 
-bool CVar::fromLiteralToType(std::string_view val)
+bool CVar::fromLiteralToType(std::string_view val, bool setDefault)
 {
     switch (m_type)
     {
@@ -381,10 +381,12 @@ bool CVar::fromLiteralToType(std::string_view val)
         return fromVec4f(vec);
     }
     }
+    if (setDefault)
+        m_value = m_defaultValue;
     return false;
 }
 
-bool CVar::fromLiteralToType(std::wstring_view val)
+bool CVar::fromLiteralToType(std::wstring_view val, bool setDefault)
 {
     switch (m_type)
     {
@@ -420,6 +422,8 @@ bool CVar::fromLiteralToType(std::wstring_view val)
         return fromVec4f(vec);
     }
     }
+    if (setDefault)
+        m_value = m_defaultValue;
     return false;
 }
 
@@ -433,6 +437,12 @@ bool CVar::isCheat() const { return int(m_flags & EFlags::Cheat) != 0; }
 bool CVar::isHidden() const { return int(m_flags & EFlags::Hidden) != 0; }
 
 bool CVar::isArchive() const { return int(m_flags & EFlags::Archive) != 0; }
+
+bool CVar::isInternalArchivable() const { return int(m_flags & EFlags::InternalArchivable) != 0; }
+
+bool CVar::wasDeserialized() const { return m_wasDeserialized; }
+
+bool CVar::hasDefaultValue() const { return m_defaultValue == m_value; }
 
 void CVar::clearModified()
 {
