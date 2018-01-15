@@ -1,4 +1,6 @@
 #include "CScriptDebris.hpp"
+#include "Collision/CCollisionInfoList.hpp"
+#include "Particle/CElementGen.hpp"
 #include "TCastTo.hpp"
 
 namespace urde
@@ -11,8 +13,8 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData),
                 CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Debris),
                 mData.GetBounds(xf.getRotation()), SMoverData(f2), aParams, 0.3f, 0.1f)
-{
 
+{
 }
 
 CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -26,12 +28,33 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData),
                 CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Debris),
                 mData.GetBounds(xf.getRotation()), SMoverData(1.f), aParams, 0.3f, 0.1f)
-{
+{   
 }
 
 void CScriptDebris::Accept(IVisitor& visitor)
 {
     visitor.Visit(this);
+}
+
+rstl::optional_object<zeus::CAABox> CScriptDebris::GetTouchBounds() const
+{
+    return {};
+}
+
+void CScriptDebris::CollidedWith(TUniqueId, const CCollisionInfoList& colList, CStateManager&)
+{
+    if (colList.GetCount() == 0)
+        return;
+
+    if (x282_24_)
+    {
+        x274_ = x270_;
+        SetVelocityWR(zeus::CVector3f::skZero);
+    }
+    else
+    {
+        x2c8_collisionNormal = colList.GetItem(0).GetNormalLeft();
+    }
 }
 
 }

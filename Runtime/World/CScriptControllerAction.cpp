@@ -20,7 +20,7 @@ void CScriptControllerAction::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-void CScriptControllerAction::Think(float dt, CStateManager& stateMgr)
+void CScriptControllerAction::Think(float, CStateManager& stateMgr)
 {
     bool oldPressed = x3c_26_pressed;
     if (x3c_24_mapScreenResponse)

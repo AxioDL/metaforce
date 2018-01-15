@@ -219,7 +219,11 @@ void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
 
 zeus::CAABox CActor::GetSortingBounds(const CStateManager&) const { return x9c_renderBounds; }
 
-void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt) {}
+void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType event, float)
+{
+    if (event == EUserEventType::LoopedSoundStop)
+        RemoveEmitter();
+}
 
 void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4,
                             CStateManager& mgr)
@@ -234,7 +238,11 @@ void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes
     RemoveMaterial(t2, t3, mgr);
 }
 
-void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, CStateManager& mgr) { x68_material.Remove(t1); }
+void CActor::RemoveMaterial(EMaterialTypes t1, EMaterialTypes t2, CStateManager& mgr)
+{
+    x68_material.Remove(t1);
+    RemoveMaterial(t2, mgr);
+}
 
 void CActor::RemoveMaterial(EMaterialTypes t, CStateManager& mgr)
 {

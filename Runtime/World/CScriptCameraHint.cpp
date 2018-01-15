@@ -31,36 +31,33 @@ void CScriptCameraHint::Accept(IVisitor& visitor)
 void CScriptCameraHint::InitializeInArea(CStateManager& mgr)
 {
     x164_delegatedCamera = kInvalidUniqueId;
-    for (CEntity* e : mgr.GetAllObjectList())
+    for (CEntity* ent : mgr.GetAllObjectList())
     {
-        if (TCastToPtr<CEntity> ent = e)
+        for (const SConnection& conn : ent->GetConnectionList())
         {
-            for (const SConnection& conn : ent->GetConnectionList())
-            {
-                if (mgr.GetIdForScript(conn.x8_objId) != GetUniqueId())
-                    continue;
-                if (conn.x4_msg != EScriptObjectMessage::Increment &&
-                    conn.x4_msg != EScriptObjectMessage::Decrement)
-                    continue;
+            if (mgr.GetIdForScript(conn.x8_objId) != GetUniqueId())
+                continue;
+            if (conn.x4_msg != EScriptObjectMessage::Increment &&
+                conn.x4_msg != EScriptObjectMessage::Decrement)
+                continue;
 
-                for (auto it = ent->GetConnectionList().begin() ; it != ent->GetConnectionList().cend() ; ++it)
+            for (auto it = ent->GetConnectionList().begin() ; it != ent->GetConnectionList().cend() ; ++it)
+            {
+                const SConnection& conn2 = *it;
+                if (conn2.x4_msg != EScriptObjectMessage::Increment &&
+                    conn2.x4_msg != EScriptObjectMessage::Decrement)
+                    continue;
+                TUniqueId id = mgr.GetIdForScript(conn2.x8_objId);
+                if (TCastToPtr<CPathCamera>(mgr.ObjectById(id)) ||
+                    TCastToPtr<CScriptSpindleCamera>(mgr.ObjectById((id))))
                 {
-                    const SConnection& conn2 = *it;
-                    if (conn2.x4_msg != EScriptObjectMessage::Increment &&
-                        conn2.x4_msg != EScriptObjectMessage::Decrement)
-                        continue;
-                    TUniqueId id = mgr.GetIdForScript(conn2.x8_objId);
-                    if (TCastToPtr<CPathCamera>(mgr.ObjectById(id)) ||
-                        TCastToPtr<CScriptSpindleCamera>(mgr.ObjectById((id))))
-                    {
-                        ent->ConnectionList().erase(it);
-                        if (x164_delegatedCamera != id)
-                            x164_delegatedCamera = id;
-                        break;
-                    }
+                    ent->ConnectionList().erase(it);
+                    if (x164_delegatedCamera != id)
+                        x164_delegatedCamera = id;
+                    break;
                 }
-                break;
             }
+            break;
         }
     }
 }

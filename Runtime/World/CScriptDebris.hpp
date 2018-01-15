@@ -5,6 +5,7 @@
 
 namespace urde
 {
+class CElementGen;
 class CScriptDebris : public CPhysicsActor
 {
 public:
@@ -17,6 +18,14 @@ public:
     };
 
 private:
+
+    float x270_;
+    float x274_;
+    bool x282_24_ : 1;
+    zeus::CVector3f x2c8_collisionNormal;
+    std::unique_ptr<CElementGen> x2d4_;
+    std::unique_ptr<CElementGen> x2d8_;
+    std::unique_ptr<CElementGen> x2dc_;
     TReservedAverage<float, 8> x2e0_;
 public:
     CScriptDebris(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
@@ -31,6 +40,9 @@ public:
                   bool, bool, bool, bool);
 
     void Accept(IVisitor& visitor);
+    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+
+    void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&);
 };
 }
 
