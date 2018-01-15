@@ -3,10 +3,16 @@
 
 #include "../DNACommon.hpp"
 
+namespace hecl
+{
+class CVarManager;
+}
 namespace DataSpec
 {
 struct ITweak : BigYAML
 {
+
+    virtual void initCVars(hecl::CVarManager*) {}
 };
 }
 

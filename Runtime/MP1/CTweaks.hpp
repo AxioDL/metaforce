@@ -2,6 +2,10 @@
 #define __URDE_CTWEAKS_HPP__
 
 #include "RetroTypes.hpp"
+namespace hecl
+{
+class CVarManager;
+}
 
 namespace urde
 {
@@ -12,8 +16,8 @@ namespace MP1
 class CTweaks
 {
 public:
-    void RegisterTweaks();
-    void RegisterResourceTweaks();
+    void RegisterTweaks(hecl::CVarManager* cvarMgr);
+    void RegisterResourceTweaks(hecl::CVarManager* cvarMgr);
 };
 
 }

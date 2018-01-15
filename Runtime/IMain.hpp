@@ -7,6 +7,11 @@
 #include <amuse/amuse.hpp>
 #include "RetroTypes.hpp"
 
+namespace hecl
+{
+class CVarManager;
+}
+
 namespace urde
 {
 class CStopWatch;
@@ -34,6 +39,7 @@ class IMain
 public:
     virtual ~IMain() = default;
     virtual void Init(const hecl::Runtime::FileStoreManager& storeMgr,
+                      hecl::CVarManager* cvarMgr,
                       boo::IWindow* window,
                       boo::IAudioVoiceEngine* voiceEngine,
                       amuse::IBackendVoiceAllocator& backend)=0;

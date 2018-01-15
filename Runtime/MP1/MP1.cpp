@@ -239,11 +239,31 @@ CGameArchitectureSupport::~CGameArchitectureSupport()
     CStreamAudioManager::Shutdown();
 }
 
+void CGameArchitectureSupport::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
+{
+    x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
+    m_parent.m_console->handleCharCode(charCode, mods, isRepeat);
+}
+
+void CGameArchitectureSupport::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
+{
+    x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
+    m_parent.m_console->handleSpecialKeyDown(key, mods, isRepeat);
+}
+
+void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
+{
+    x30_inputGenerator.specialKeyUp(key, mods);
+    m_parent.m_console->handleSpecialKeyUp(key, mods);
+}
+
+
+
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore,
              boo::IGraphicsDataFactory* gfxFactory,
              boo::IGraphicsCommandQueue* cmdQ,
              const boo::ObjToken<boo::ITextureR>& spareTex)
-: m_booSetter(gfxFactory, cmdQ, spareTex),
+    : m_booSetter(gfxFactory, cmdQ, spareTex),
   x128_globalObjects(resFactory, resStore)
 {
     xe4_gameplayResult = EGameplayResult::Playing;
@@ -418,15 +438,19 @@ void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 }
 
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
+                 hecl::CVarManager* cvarMgr,
                  boo::IWindow* window,
                  boo::IAudioVoiceEngine* voiceEngine,
                  amuse::IBackendVoiceAllocator& backend)
 {
     m_mainWindow = window;
+    m_cvarMgr = cvarMgr;
+    m_console = std::make_unique<hecl::Console>(m_cvarMgr);
+    m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
     InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();
-    x70_tweaks.RegisterTweaks();
-    x70_tweaks.RegisterResourceTweaks();
+    x70_tweaks.RegisterTweaks(m_cvarMgr);
+    x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
     AddWorldPaks();
     FillInAssetIDs();
     x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
@@ -480,11 +504,16 @@ bool CMain::Proc()
     if (m_warmupTags.size())
         return false;
 
-    CGBASupport::GlobalPoll();
-    x164_archSupport->UpdateTicks();
-    x164_archSupport->Update();
-    CSfxManager::Update(1.f / 60.f);
-    CStreamAudioManager::Update(1.f / 60.f);
+    m_console->proc();
+    if (!m_console->isOpen())
+    {
+        CGBASupport::GlobalPoll();
+        x164_archSupport->UpdateTicks();
+        x164_archSupport->Update();
+        CSfxManager::Update(1.f / 60.f);
+        CStreamAudioManager::Update(1.f / 60.f);
+    }
+
     if (x164_archSupport->GetIOWinManager().IsEmpty() || CheckReset())
     {
         CStreamAudioManager::StopAll();
@@ -536,6 +565,7 @@ void CMain::Draw()
 
     CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
     x164_archSupport->Draw();
+    m_console->draw(CGraphics::g_BooMainCommandQueue);
 }
 
 void CMain::ShutdownSubsystems()

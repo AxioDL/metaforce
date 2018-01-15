@@ -37,6 +37,7 @@
 #include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
 #include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
 #include "World/CScriptMazeNode.hpp"
+#include "hecl/Console.hpp"
 
 namespace urde
 {
@@ -122,6 +123,7 @@ class CGameArchitectureSupport : public boo::IWindowCallback
 class CGameArchitectureSupport
 #endif
 {
+    friend class CMain;
     CMain& m_parent;
     CArchitectureQueue x4_archQueue;
     CAudioSys x0_audioSys;
@@ -142,7 +144,7 @@ class CGameArchitectureSupport
     boo::SWindowRect m_windowRect;
     bool m_rectIsDirty;
 
-    void destroyed() { x4_archQueue.Push(MakeMsg::CreateApplicationExit(EArchMsgTarget::ArchitectureSupport)); }
+    void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
 
     void resized(const boo::SWindowRect &rect)
     {
@@ -164,14 +166,11 @@ public:
     { x30_inputGenerator.mouseMove(coord); }
     void scroll(const boo::SWindowCoord &coord, const boo::SScrollDelta &scroll)
     { x30_inputGenerator.scroll(coord, scroll); }
-    void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat)
-    { x30_inputGenerator.charKeyDown(charCode, mods, isRepeat); }
-    void charKeyUp(unsigned long charCode, boo::EModifierKey mods)
-    { x30_inputGenerator.charKeyUp(charCode, mods); }
-    void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat)
-    { x30_inputGenerator.specialKeyDown(key, mods, isRepeat); }
-    void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods)
-    { x30_inputGenerator.specialKeyUp(key, mods); }
+    void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat);
+    void charKeyUp(unsigned long charCode, boo::EModifierKey mods)  { x30_inputGenerator.charKeyUp(charCode, mods); }
+    void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat);
+
+    void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
     void modKeyDown(boo::EModifierKey mod, bool isRepeat)
     { x30_inputGenerator.modKeyDown(mod, isRepeat);}
     void modKeyUp(boo::EModifierKey mod)
@@ -255,6 +254,8 @@ private:
 
     boo::IWindow* m_mainWindow = nullptr;
 
+    hecl::CVarManager* m_cvarMgr = nullptr;
+    std::unique_ptr<hecl::Console> m_console;
     // Warmup state
     std::vector<SObjectTag> m_warmupTags;
     std::vector<SObjectTag>::iterator m_warmupIt;
@@ -277,6 +278,7 @@ public:
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
     void Init(const hecl::Runtime::FileStoreManager& storeMgr,
+              hecl::CVarManager* cvarManager,
               boo::IWindow* window,
               boo::IAudioVoiceEngine* voiceEngine,
               amuse::IBackendVoiceAllocator& backend);
@@ -312,6 +314,9 @@ public:
     CGameArchitectureSupport* GetArchSupport() const { return x164_archSupport.get(); }
 
     size_t GetExpectedIdSize() const { return sizeof(u32); }
+    void quit(hecl::Console*, const std::vector<std::string>&)
+    {
+    }
 };
 
 }

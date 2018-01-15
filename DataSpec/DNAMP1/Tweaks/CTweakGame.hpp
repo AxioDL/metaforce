@@ -55,6 +55,8 @@ struct CTweakGame final : ITweakGame
         this->read(in);
         x2b_splashScreensDisabled = false;
     }
+
+    void initCVars(hecl::CVarManager* mgr);
 };
 }
 

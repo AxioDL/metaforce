@@ -13,8 +13,6 @@ enum class EArchMsgTarget
 {
     IOWinManager = 0,
     Game = 1,
-    /* URDE targets, we start at 255 */
-    ArchitectureSupport = 255,
 };
 
 enum class EArchMsgType
@@ -30,8 +28,6 @@ enum class EArchMsgType
     QuitGameplay = 8,
     FrameBegin = 10,
     FrameEnd = 11,
-    /* URDE messages, we start at 255 */
-    ApplicationExit = 255,
 };
 
 struct IArchMsgParm
@@ -176,9 +172,9 @@ public:
                                     std::make_shared<CArchMsgParmInt32>(a));
     }
     /* URDE Messages */
-    static CArchitectureMessage CreateApplicationExit(EArchMsgTarget target)
+    static CArchitectureMessage CreateRemoveAllIOWins(EArchMsgTarget target)
     {
-        return CArchitectureMessage(target, EArchMsgType::ApplicationExit,
+        return CArchitectureMessage(target, EArchMsgType::RemoveAllIOWins,
                                     std::make_shared<CArchMsgParmNull>());
     }
 };

@@ -60,7 +60,8 @@ set(DNAMP1_SOURCES
     DeafBabe.cpp
     Tweaks/CTweakPlayer.cpp
     Tweaks/CTweakTargeting.cpp
-    Tweaks/CTweakBall.cpp)
+    Tweaks/CTweakBall.cpp
+    Tweaks/CTweakGame.cpp)
 
 dataspec_add_list(DNAMP1 DNAMP1_SOURCES)
 list(APPEND DNAMP1_SOURCES ${liblist})
