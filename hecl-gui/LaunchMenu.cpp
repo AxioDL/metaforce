@@ -83,7 +83,9 @@ void LaunchMenu::initDeveloperMode()
 
 void LaunchMenu::apiTriggered()
 {
-    m_commons.setGraphicsApi(qobject_cast<QAction*>(sender())->text().toStdString());
+    QString apiStr = qobject_cast<QAction*>(sender())->text();
+    apiStr = apiStr.remove('&');
+    m_commons.setGraphicsApi(apiStr.toStdString());
     m_commons.serialize();
 }
 
