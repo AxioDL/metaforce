@@ -62,14 +62,13 @@ struct HECLApplicationCallback : boo::IApplicationCallback
           m_cvarManager(m_fileStoreMgr),
           m_console(&m_cvarManager)
     {
+        m_console.registerCommand("quit"sv, "Quits application"sv, "", std::bind(&HECLApplicationCallback::quit, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     virtual ~HECLApplicationCallback();
 
     int appMain(boo::IApplication* app)
     {
-        m_console.init();
-        m_console.registerCommand("quit"sv, "Quits application"sv, "", std::bind(&HECLApplicationCallback::quit, this, std::placeholders::_1, std::placeholders::_2));
         hecl::VerbosityLevel = 2;
 
         /* Setup boo window */

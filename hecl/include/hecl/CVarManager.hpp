@@ -100,6 +100,7 @@ public:
 
 
     bool restartRequired() const;
+    void setDeveloperMode(bool v, bool setDeserialized = false);
 private:
     bool suppressDeveloper();
     void restoreDeveloper(bool oldDeveloper);

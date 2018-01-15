@@ -70,6 +70,7 @@ ENABLE_BITWISE_ENUM(CVar::EFlags)
 template<typename T>
 class TCVar : public CVar
 {
+    friend class CVarManager;
 protected:
     T& m_value;
     T m_defaultValue;
@@ -98,6 +99,7 @@ public:
 
 class Vec3fCVar : public CVar
 {
+    friend class CVarManager;
     atVec3f& m_value;
     atVec3f m_defaultValue;
     bool _fromString(std::string_view v);
@@ -116,6 +118,7 @@ public:
 
 class Vec3dCVar : public CVar
 {
+    friend class CVarManager;
     atVec3d& m_value;
     atVec3d m_defaultValue;
     bool _fromString(std::string_view v);
@@ -133,6 +136,7 @@ public:
 
 class Vec4fCVar : public CVar
 {
+    friend class CVarManager;
     atVec4f& m_value;
     atVec4f m_defaultValue;
     bool _fromString(std::string_view v);
@@ -151,6 +155,7 @@ public:
 
 class Vec4dCVar : public CVar
 {
+    friend class CVarManager;
     atVec4d& m_value;
     atVec4d m_defaultValue;
     bool _fromString(std::string_view v);
@@ -168,6 +173,7 @@ public:
 
 class StringCVar : public CVar
 {
+    friend class CVarManager;
     std::string& m_value;
     std::string m_defaultValue;
     bool _fromString(std::string_view v);

@@ -205,6 +205,16 @@ bool CVarManager::restartRequired() const
     return false;
 }
 
+void CVarManager::setDeveloperMode(bool v, bool setDeserialized)
+{
+    com_developer->unlock();
+    com_developer->m_value = v;
+    if (setDeserialized)
+        com_developer->m_wasDeserialized = true;
+    com_developer->lock();
+    com_developer->setModified();
+}
+
 bool CVarManager::suppressDeveloper()
 {
     bool oldDeveloper = m_developerMode;

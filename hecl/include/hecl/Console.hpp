@@ -87,7 +87,6 @@ public:
     void report(Level level, const char *fmt, va_list list);
     void report(Level level, const char* fmt, ...);
 
-    void init();
     void proc();
     void draw(boo::IGraphicsCommandQueue* gfxQ);
     void handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repeat);

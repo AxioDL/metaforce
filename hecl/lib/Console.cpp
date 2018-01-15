@@ -11,6 +11,16 @@ Console::Console(CVarManager* cvarMgr)
     , m_overwrite(false)
     , m_cursorAtEnd(false)
 {
+    m_instance = this;
+    registerCommand("help", "Prints information about a given function", "<command>", std::bind(&Console::help, this, std::placeholders::_1, std::placeholders::_2));
+    registerCommand("listCommands", "Prints a list of all available Commands", "", std::bind(&Console::listCommands, this, std::placeholders::_1, std::placeholders::_2));
+    registerCommand("listCVars", "Lists all available CVars", "", std::bind(&CVarManager::list, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
+    registerCommand("setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>", std::bind(&CVarManager::setCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
+    registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>", std::bind(&CVarManager::getCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
+    m_cvarMgr->findOrMakeCVar("con_speed", "Speed at which the console opens and closes, calculated as pixels per second", m_conSpeed,
+                                         hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
+    m_cvarMgr->findOrMakeCVar("con_height", "Maximum absolute height of the console, height is calculated from the top of the window, expects values ranged from [0.f,1.f]", m_conHeight,
+                                          hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
 }
 
 void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func)
@@ -101,20 +111,6 @@ void Console::report(Level level, const char* fmt, ...)
     va_start(ap, fmt);
     report(level, fmt, ap);
     va_end(ap);
-}
-
-void Console::init()
-{
-    m_instance = this;
-    registerCommand("help", "Prints information about a given function", "<command>", std::bind(&Console::help, this, std::placeholders::_1, std::placeholders::_2));
-    registerCommand("listCommands", "Prints a list of all available Commands", "", std::bind(&Console::listCommands, this, std::placeholders::_1, std::placeholders::_2));
-    registerCommand("listCVars", "Lists all available CVars", "", std::bind(&CVarManager::list, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-    registerCommand("setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>", std::bind(&CVarManager::setCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-    registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>", std::bind(&CVarManager::getCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-    m_cvarMgr->findOrMakeCVar("con_speed", "Speed at which the console opens and closes, calculated as pixels per second", m_conSpeed,
-                                         hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
-    m_cvarMgr->findOrMakeCVar("con_height", "Maximum absolute height of the console, height is calculated from the top of the window, expects values ranged from [0.f,1.f]", m_conHeight,
-                                          hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
 }
 
 void Console::proc()
