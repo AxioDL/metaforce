@@ -18,18 +18,19 @@ class FileStoreManager;
 }
 class CVarManager final
 {
-    template <typename T>
-    CVar* _newCVar(std::string_view name, std::string_view help, T& value, CVar::EFlags flags)
+    CVar* _newCVar(CVar* cvar)
     {
-        TCVar<T>* ret = new TCVar<T>(value, name, help, flags);
-        if (registerCVar(ret))
+        if (registerCVar(cvar))
         {
-            deserialize(ret);
-            return ret;
+            deserialize(cvar);
+            return cvar;
         }
-        delete ret;
+        delete cvar;
         return nullptr;
     }
+    template <typename T>
+    CVar* _newCVar(std::string_view name, std::string_view help, T& value, CVar::EFlags flags)
+    { return _newCVar(new TCVar<T>(value, name, help, flags)); }
 
     hecl::Runtime::FileStoreManager& m_store;
     std::string m_configFile = "config";
@@ -47,15 +48,15 @@ public:
 
     void update();
     CVar* newCVar(std::string_view name, std::string_view help, atVec3f& value, CVar::EFlags flags)
-    { return new Vec3fCVar(value, name, help, flags); }
+    { return _newCVar(new Vec3fCVar(value, name, help, flags)); }
     CVar* newCVar(std::string_view name, std::string_view help, atVec3d& value, CVar::EFlags flags)
-    { return new Vec3dCVar(value, name, help, flags); }
+    { return _newCVar(new Vec3dCVar(value, name, help, flags)); }
     CVar* newCVar(std::string_view name, std::string_view help, atVec4f& value, CVar::EFlags flags)
-    { return new Vec4fCVar(value, name, help, flags); }
+    { return _newCVar(new Vec4fCVar(value, name, help, flags)); }
     CVar* newCVar(std::string_view name, std::string_view help, atVec4d& value, CVar::EFlags flags)
-    { return new Vec4dCVar(value, name, help, flags); }
+    { return _newCVar(new Vec4dCVar(value, name, help, flags)); }
     CVar* newCVar(std::string_view name, std::string_view help, std::string& value, CVar::EFlags flags)
-    { return new StringCVar(value, name, help, flags); }
+    { return _newCVar(new StringCVar(value, name, help, flags)); }
     CVar* newCVar(std::string_view name, std::string_view help, bool& value, CVar::EFlags flags)
     { return _newCVar<bool>(name, help, value, flags); }
     CVar* newCVar(std::string_view name, std::string_view help, float& value, CVar::EFlags flags)

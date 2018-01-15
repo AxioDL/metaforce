@@ -95,6 +95,7 @@ public:
     void dumpLog();
     static Console* instance();
     static void RegisterLogger(Console* con);
+    bool isOpen() { return m_state == State::Opened; }
 };
 }
 
