@@ -10,7 +10,7 @@ CWorldShadowShader::CWorldShadowShader(u32 w, u32 h)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 16, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TShader<CWorldShadowShader>::BuildShaderDataBinding(ctx, *this);
+        TShader<CWorldShadowShader>::BuildShaderDataBinding(ctx, *this);
         m_tex = ctx.newRenderTexture(m_w, m_h, boo::TextureClampMode::ClampToWhite, 1, 0);
         return true;
     });
@@ -54,7 +54,7 @@ void CWorldShadowShader::blendPreviousShadow()
 void CWorldShadowShader::resolveTexture()
 {
     boo::SWindowRect rect = {0, 0, int(m_w), int(m_h)};
-    CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_tex, rect, false, 0, true, false);
+    CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_tex, rect, false, 0, true, false, true);
 }
 
 URDE_SPECIALIZE_SHADER(CWorldShadowShader)

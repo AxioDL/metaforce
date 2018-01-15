@@ -164,7 +164,7 @@ void CAreaRenderOctTree::Node::RecursiveBuildOverlaps(u32* bmpOut,
             for (u32 c=0 ; c<childCount ; ++c)
             {
                 zeus::CAABox childAABB = GetNodeBounds(curAABB, c);
-                reinterpret_cast<Node*>(parent.x38_entries[parent.x34_indirectionTable[x4_children[c]]])->
+                reinterpret_cast<const Node*>(parent.x38_entries + parent.x34_indirectionTable[x4_children[c]])->
                     RecursiveBuildOverlaps(bmpOut, parent, childAABB, testAABB);
             }
         }
@@ -174,13 +174,13 @@ void CAreaRenderOctTree::Node::RecursiveBuildOverlaps(u32* bmpOut,
 void CAreaRenderOctTree::FindOverlappingModels(std::vector<u32>& out, const zeus::CAABox& testAABB) const
 {
     out.resize(x14_bitmapWordCount);
-    reinterpret_cast<Node*>(x38_entries[x34_indirectionTable[0]])->
+    reinterpret_cast<const Node*>(x38_entries + x34_indirectionTable[0])->
         RecursiveBuildOverlaps(out.data(), *this, x18_aabb, testAABB);
 }
 
 void CAreaRenderOctTree::FindOverlappingModels(u32* out, const zeus::CAABox& testAABB) const
 {
-    reinterpret_cast<Node*>(x38_entries[x34_indirectionTable[0]])->
+    reinterpret_cast<const Node*>(x38_entries + x34_indirectionTable[0])->
         RecursiveBuildOverlaps(out, *this, x18_aabb, testAABB);
 }
 
@@ -1217,9 +1217,10 @@ void CGameArea::FillInStaticGeometry(bool textures)
 
     CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
-        /* Shared geometry uniform buffer */
-        matSet.m_geomLayout->m_sharedBuffer =
-            ctx.newDynamicBuffer(boo::BufferUse::Uniform, matSet.m_geomLayout->m_geomBufferSize, 1);
+        /* Shared geometry uniform buffer - one for normal render, one for shadow render */
+        for (int i=0 ; i<2 ; ++i)
+            matSet.m_geomLayout->m_sharedBuffer[i] =
+                ctx.newDynamicBuffer(boo::BufferUse::Uniform, matSet.m_geomLayout->m_geomBufferSize, 1);
 
         /* Models */
         for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)

@@ -185,7 +185,7 @@ class CBooRenderer : public IRenderer
 
     void ActivateLightsForModel(CAreaListItem* item, CBooModel& model);
     void RenderBucketItems(CAreaListItem* item);
-    void HandleUnsortedModel(CAreaListItem* item, CBooModel& model);
+    void HandleUnsortedModel(CAreaListItem* item, CBooModel& model, const CModelFlags& flags);
     static void CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, const zeus::CVector3f* verts,
                                int numVerts, int iteration, int level, CFogVolumePlaneShader& fogVol);
     static void DrawFogSlices(const zeus::CPlane* planes, int numPlanes, int iteration,
@@ -211,10 +211,10 @@ public:
                            const SShader* shaderSet);
     void EnablePVS(const CPVSVisSet&, u32);
     void DisablePVS();
-    void UpdateAreaUniforms(int areaIdx);
+    void UpdateAreaUniforms(int areaIdx, bool shadowRender = false);
     void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
     void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
-    void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask);
+    void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false);
     void DrawSortedGeometry(int areaIdx, int mask, int targetMask);
     void DrawStaticGeometry(int areaIdx, int mask, int targetMask);
     void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly);

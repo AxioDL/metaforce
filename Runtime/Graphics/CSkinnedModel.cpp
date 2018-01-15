@@ -38,13 +38,15 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
 {
     if (morphEffect || g_PointGenFunc)
     {
-        boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr);
-        x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
-        if (morphEffect)
-            morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
-        if (g_PointGenFunc)
-            g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
-        x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
+        if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr))
+        {
+            x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
+            if (morphEffect)
+                morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
+            if (g_PointGenFunc)
+                g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
+            x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
+        }
     }
     else
     {

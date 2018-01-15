@@ -37,13 +37,13 @@ bool CCameraManager::IsInFirstPersonCamera() const
 
 zeus::CVector3f CCameraManager::GetGlobalCameraTranslation(const CStateManager& stateMgr) const
 {
-    TCastToConstPtr<CGameCamera> camera(GetCurrentCamera(stateMgr));
-    return camera->GetTransform() * x30_shakeOffset;
+    const CGameCamera* camera = GetCurrentCamera(stateMgr);
+    return camera->GetTransform().rotate(x30_shakeOffset);
 }
 
 zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& stateMgr) const
 {
-    TCastToConstPtr<CGameCamera> camera(GetCurrentCamera(stateMgr));
+    const CGameCamera* camera = GetCurrentCamera(stateMgr);
     return camera->GetTransform() * zeus::CTransform::Translate(x30_shakeOffset);
 }
 

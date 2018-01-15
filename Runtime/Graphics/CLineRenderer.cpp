@@ -97,8 +97,8 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
     });
 }
 
-rstl::reserved_vector<CLineRenderer::SDrawVertTex, 256> CLineRenderer::g_StaticLineVertsTex = {};
-rstl::reserved_vector<CLineRenderer::SDrawVertNoTex, 256> CLineRenderer::g_StaticLineVertsNoTex = {};
+rstl::reserved_vector<CLineRenderer::SDrawVertTex, 1024> CLineRenderer::g_StaticLineVertsTex = {};
+rstl::reserved_vector<CLineRenderer::SDrawVertNoTex, 1024> CLineRenderer::g_StaticLineVertsNoTex = {};
 
 static zeus::CVector2f IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa2,
                                       const zeus::CVector2f& pb1, const zeus::CVector2f& pb2)

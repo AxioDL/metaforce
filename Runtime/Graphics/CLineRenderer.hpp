@@ -59,8 +59,8 @@ private:
     zeus::CColor m_lastColor;
     float m_lastWidth;
 
-    static rstl::reserved_vector<SDrawVertTex, 256> g_StaticLineVertsTex;
-    static rstl::reserved_vector<SDrawVertNoTex, 256> g_StaticLineVertsNoTex;
+    static rstl::reserved_vector<SDrawVertTex, 1024> g_StaticLineVertsTex;
+    static rstl::reserved_vector<SDrawVertNoTex, 1024> g_StaticLineVertsNoTex;
 
     static hecl::VertexBufferPool<SDrawVertTex> s_vertPoolTex;
     static hecl::VertexBufferPool<SDrawVertNoTex> s_vertPoolNoTex;

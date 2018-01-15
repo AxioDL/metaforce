@@ -284,7 +284,7 @@ private:
             bool x832_30_requestReturnToDefault : 1;
             bool x832_31_inRestPose : 1;
 
-            bool x833_24_isFidgeting : 1;
+            bool x833_24_notFidgeting : 1;
             bool x833_25_ : 1;
             bool x833_26_ : 1;
             bool x833_27_ : 1;
@@ -379,7 +379,7 @@ public:
     void AsyncLoadSuit(CStateManager& mgr);
     void TouchModel(const CStateManager& stateMgr);
     EMissleMode GetMissleMode() const { return x31c_missileMode; }
-    bool IsFidgeting() const { return x833_24_isFidgeting; }
+    bool IsFidgeting() const { return x833_24_notFidgeting; }
     bool IsCharging() const { return x834_24_charging; }
     float GetChargeBeamFactor() const { return x340_chargeBeamFactor; }
     bool IsBombReady() const { return x835_28_bombReady; }

@@ -55,10 +55,10 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
                                                     playerId, EMaterialTypes::Player, sGunScale);
     x774_holoTransitionGen = std::make_unique<CElementGen>(
         g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->x24_holoTransition}));
-    x82c_shadow = std::make_unique<CWorldShadow>(32, 32, true);
+    x82c_shadow = std::make_unique<CWorldShadow>(256, 256, true);
 
     x832_31_inRestPose = true;
-    x833_24_isFidgeting = true;
+    x833_24_notFidgeting = true;
     x833_30_canShowAuxMuzzleEffect = true;
     x6e0_rightHandModel.SetSortThermal(true);
 
@@ -1933,7 +1933,7 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
         x388_enterFreeLookDelayTimer = 0.f;
         if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
         {
-            x833_24_isFidgeting = (player.GetSurfaceRestraint() != CPlayer::ESurfaceRestraints::Water &&
+            x833_24_notFidgeting = !(player.GetSurfaceRestraint() != CPlayer::ESurfaceRestraints::Water &&
                 mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan &&
                 (x2f4_fireButtonStates & 0x3) == 0 && x32c_chargePhase == EChargePhase::NotCharging &&
                 !x832_29_lockedOn && (x2f8_stateFlags & 0x8) != 0x8 && x364_gunStrikeCoolTimer <= 0.f &&
@@ -1944,7 +1944,7 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
                 player.GetGunHolsterState() == CPlayer::EGunHolsterState::Drawn &&
                 player.GetGrappleState() == CPlayer::EGrappleState::None && !x834_30_inBigStrike &&
                 !x835_25_inPhazonBeam);
-            if (x833_24_isFidgeting)
+            if (x833_24_notFidgeting)
             {
                 if (!x834_30_inBigStrike)
                 {
@@ -1966,7 +1966,7 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
                     if (!doWander || x834_26_animPlaying)
                         ResetIdle(mgr);
                 }
-                if (x394_damageTimer > 0.f)
+                else if (x394_damageTimer > 0.f)
                 {
                     x394_damageTimer -= dt;
                 }
@@ -2011,7 +2011,7 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
                 case CFidget::EState::StillMinorFidget:
                 case CFidget::EState::StillMajorFidget:
                     x550_camBob.SetState(CPlayerCameraBob::ECameraBobState::Walk, mgr);
-                    x833_24_isFidgeting = false;
+                    x833_24_notFidgeting = false;
                     x834_26_animPlaying = x834_25_gunMotionFidgeting ? x73c_gunMotion->IsAnimPlaying() :
                     x72c_currentBeam->GetSolidModelData().GetAnimationData()->IsAnimTimeRemaining(0.001f, "Whole Body");
                     if (!x834_26_animPlaying)

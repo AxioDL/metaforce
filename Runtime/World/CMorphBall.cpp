@@ -88,7 +88,7 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
     x19d0_ballInnerGlowGen = std::make_unique<CElementGen>(x1988_ballInnerGlow);
     x19d4_spiderBallMagnetEffectGen = std::make_unique<CElementGen>(x1990_spiderBallMagnetEffect);
     x19d8_boostBallGlowGen = std::make_unique<CElementGen>(x1998_boostBallGlow);
-    x1c14_worldShadow = std::make_unique<CWorldShadow>(16, 16, false);
+    x1c14_worldShadow = std::make_unique<CWorldShadow>(128, 128, false);
     x1c18_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, false, false, 0.1f);
     x1c1c_rainSplashGen = std::make_unique<CRainSplashGenerator>(x58_ballModel->GetScale(), 40, 2, 0.15f, 0.5f);
     x1de4_24_inBoost = false;

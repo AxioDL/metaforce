@@ -270,7 +270,7 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
     }
 }
 
-CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
+CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
 {
     if (!x40_24_texturesLoaded && !g_DummyTextures)
         return nullptr;
@@ -284,8 +284,10 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance()
     {
         /* Build geometry uniform buffer if shared not available */
         boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
-        if (m_geomLayout->m_sharedBuffer)
-            geomUniformBuf = m_geomLayout->m_sharedBuffer;
+        if (sharedLayoutBuf >= 0)
+        {
+            geomUniformBuf = m_geomLayout->m_sharedBuffer[sharedLayoutBuf];
+        }
         else
         {
             geomUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomLayout->m_geomBufferSize, 1);
@@ -767,9 +769,10 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         texMtxOut.vec[3].zeroOut();
 
         postMtxOut.vec[0].x = 0.5f;
+        postMtxOut.vec[1].y = 0.f;
         postMtxOut.vec[2].y = 0.5f;
-        postMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.5f;
-        postMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.5f;
+        postMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.05f;
+        postMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.05f;
         break;
     }
     case UVAnimation::Mode::CylinderEnvironment:
@@ -982,7 +985,8 @@ void GeometryUniformLayout::Update(const CModelFlags& flags,
 
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags,
                                                                   const CSkinRules* cskr,
-                                                                  const CPoseAsTransforms* pose) const
+                                                                  const CPoseAsTransforms* pose,
+                                                                  int sharedLayoutBuf) const
 {
     /* Invalidate instances if new shadow being drawn */
     if (flags.m_extendedShader == EExtendedShader::WorldShadow &&
@@ -995,7 +999,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     const ModelInstance* inst;
     if (m_instances.size() <= m_uniUpdateCount)
     {
-        inst = const_cast<CBooModel*>(this)->PushNewModelInstance();
+        inst = const_cast<CBooModel*>(this)->PushNewModelInstance(sharedLayoutBuf);
         if (!inst)
             return nullptr;
     }

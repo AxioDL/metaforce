@@ -73,7 +73,7 @@ using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
 
 struct GeometryUniformLayout
 {
-    boo::ObjToken<boo::IGraphicsBufferD> m_sharedBuffer;
+    boo::ObjToken<boo::IGraphicsBufferD> m_sharedBuffer[2];
     size_t m_geomBufferSize = 0;
     size_t m_skinBankCount = 0;
     size_t m_weightVecCount = 0;
@@ -174,7 +174,7 @@ private:
 
     boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
 
-    ModelInstance* PushNewModelInstance();
+    ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1);
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
     void DrawNormalSurfaces(const CModelFlags& flags) const;
     void DrawSurfaces(const CModelFlags& flags) const;
@@ -216,7 +216,8 @@ public:
     void VerifyCurrentShader(int shaderIdx);
     boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags,
                                                            const CSkinRules* cskr,
-                                                           const CPoseAsTransforms* pose) const;
+                                                           const CPoseAsTransforms* pose,
+                                                           int sharedLayoutBuf = -1) const;
     void DrawAlpha(const CModelFlags& flags,
                    const CSkinRules* cskr,
                    const CPoseAsTransforms* pose) const;

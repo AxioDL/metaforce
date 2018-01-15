@@ -395,7 +395,7 @@ void ANIM::ANIM2::write(athena::io::IStreamWriter& writer) const
         }
     }
     head.keyBitmapBitCount = keyBmp.getBitCount();
-    head.duration = frameCount * mainInterval;
+    head.duration = frames.back() * mainInterval;
     head.boneChannelCount = bones.size();
 
     size_t keyframeCount = frameCount - 1;

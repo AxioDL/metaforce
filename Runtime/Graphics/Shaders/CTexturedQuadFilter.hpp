@@ -58,6 +58,7 @@ public:
     void drawVerts(const zeus::CColor& color, const Vert verts[4], float lod=0.f);
     void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
     const TLockedToken<CTexture>& GetTex() const { return m_tex; }
+    const boo::ObjToken<boo::ITexture>& GetBooTex() const { return m_booTex; }
 
     using _CLS = CTexturedQuadFilter;
 #include "TMultiBlendShaderDecl.hpp"

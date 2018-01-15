@@ -303,12 +303,10 @@ void CBooRenderer::RenderBucketItems(CAreaListItem* item)
     }
 }
 
-void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model)
+void CBooRenderer::HandleUnsortedModel(CAreaListItem* item, CBooModel& model, const CModelFlags& flags)
 {
     //ActivateLightsForModel(item, model);
     CBooSurface* surf = model.x38_firstUnsortedSurface;
-    CModelFlags flags;
-    flags.m_extendedShader = EExtendedShader::Lighting;
     while (surf)
     {
         model.DrawSurface(*surf, flags);
@@ -790,12 +788,18 @@ void CBooRenderer::DisablePVS()
     xc8_pvs = std::experimental::nullopt;
 }
 
-void CBooRenderer::UpdateAreaUniforms(int areaIdx)
+void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
 {
     SetupRendererStates();
 
     CModelFlags flags;
-    flags.m_extendedShader = EExtendedShader::Lighting;
+    if (shadowRender)
+    {
+        flags.m_extendedShader = EExtendedShader::SolidColor;
+        flags.x4_color = zeus::CColor::skBlack;
+    }
+    else
+        flags.m_extendedShader = EExtendedShader::Lighting;
 
     for (CAreaListItem& item : x1c_areaListItems)
     {
@@ -803,7 +807,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx)
             continue;
 
         item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
-                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer);
+                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer[shadowRender]);
 
         for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it)
         {
@@ -811,7 +815,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx)
             if (model->TryLockTextures())
             {
                 ActivateLightsForModel(&item, *model);
-                model->UpdateUniformData(flags, nullptr, nullptr);
+                model->UpdateUniformData(flags, nullptr, nullptr, shadowRender);
             }
         }
     }
@@ -863,9 +867,12 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask)
     x318_30_inAreaDraw = false;
 }
 
-void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
+void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender)
 {
     //SetupRendererStates();
+    CModelFlags flags;
+    flags.m_extendedShader = shadowRender ? EExtendedShader::SolidColor : EExtendedShader::Lighting;
+
     CAreaListItem* lastOctreeItem = nullptr;
 
     for (CAreaListItem& item : x1c_areaListItems)
@@ -932,7 +939,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask)
             }
 
             model->x40_25_modelVisible = true;
-            HandleUnsortedModel(lastOctreeItem, *model);
+            HandleUnsortedModel(lastOctreeItem, *model, flags);
         }
 
     }

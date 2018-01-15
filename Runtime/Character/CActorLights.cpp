@@ -507,10 +507,6 @@ std::vector<CLight> CActorLights::BuildLightVector() const
 {
     std::vector<CLight> lights;
 
-    zeus::CColor ambColor = x288_ambientColor;
-    ambColor.a = 1.f;
-    lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
-
     if (x0_areaLights.size())
     {
         if (x2dc_brightLightLag && x299_25_useBrightLightLag)
@@ -536,6 +532,10 @@ std::vector<CLight> CActorLights::BuildLightVector() const
 
     for (const CLight& light : x144_dynamicLights)
         lights.push_back(light);
+
+    zeus::CColor ambColor = x288_ambientColor;
+    ambColor.a = 1.f;
+    lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
 
     return lights;
 }

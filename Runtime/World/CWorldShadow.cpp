@@ -89,7 +89,8 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                 CGraphics::SetModelMatrix(zeus::CTransform::Identity());
                 CBooModel::SetDrawingOccluders(true);
                 g_Renderer->PrepareDynamicLights({});
-                g_Renderer->DrawUnsortedGeometry(aid, 0, 0);
+                g_Renderer->UpdateAreaUniforms(aid, true);
+                g_Renderer->DrawUnsortedGeometry(aid, 0, 0, true);
                 CBooModel::SetDrawingOccluders(false);
 
                 if (lighten)
@@ -97,7 +98,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                     CGraphics::SetModelMatrix(x34_model);
                     /* No depth test or write */
                     /* Color white 25% alpha */
-                    m_shader.lightenShadow();
+                    //m_shader.lightenShadow();
                 }
 
                 if (motionBlur && !x88_blurReset)
@@ -105,7 +106,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                     /* No depth test or write */
                     /* Color white 85% alpha */
                     /* Draw in shadow texture */
-                    m_shader.blendPreviousShadow();
+                    //m_shader.blendPreviousShadow();
                 }
 
                 x88_blurReset = false;

@@ -18,7 +18,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
         os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
                   "bg_node.inputs[1].default_value = %f\n",
                   light.color.vec[0], light.color.vec[1], light.color.vec[2],
-                  light.q / 8.0);
+                  light.q / 8.f);
         return;
     case BabeDeadLight::LightType::Directional:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SUN')\n"
@@ -66,7 +66,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
               "lamp.node_tree.links.new(hue_sat_node.outputs[0], lamp.node_tree.nodes['Emission'].inputs[0])\n"
               "lamp_obj.location = (%f,%f,%f)\n"
               "bpy.context.scene.objects.link(lamp_obj)\n"
-              "\n", s, light.lightType, light.q / 8.0,
+              "\n", s, light.lightType, light.q / 8.f,
               light.color.vec[0], light.color.vec[1], light.color.vec[2],
               light.position.vec[0], light.position.vec[1], light.position.vec[2]);
 
@@ -118,8 +118,13 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender:
         break;
     }
 
-    if (lightIn.linear > lightIn.constant &&
-        lightIn.linear > lightIn.quadratic)
+    if (lightIn.type == InterType::Ambient)
+    {
+        lightOut.falloff = BabeDeadLight::Falloff::Constant;
+        lightOut.q = lightIn.energy * 8.f;
+    }
+    else if (lightIn.linear > lightIn.constant &&
+             lightIn.linear > lightIn.quadratic)
     {
         lightOut.falloff = BabeDeadLight::Falloff::Linear;
         lightOut.q = 1.f / (lightIn.linear / 250.f);
@@ -144,7 +149,7 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender:
     lightOut.position.vec[2] = lightIn.sceneXf[2].vec[3];
 
     zeus::CTransform lightXf(&lightIn.sceneXf[0]);
-    lightOut.direction = (lightXf.basis * zeus::CVector3f(0.f, 0.f, -1.f)).normalized();
+    lightOut.direction = (lightXf.basis.transposed() * zeus::CVector3f(0.f, 0.f, -1.f)).normalized();
 }
 
 template void WriteBabeDeadLightFromBlender<DNAMP1::MREA::BabeDeadLight>
