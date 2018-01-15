@@ -7,20 +7,21 @@
 
 namespace hecl
 {
+
+extern BoolCVar* com_developer;
+extern StringCVar* com_configfile;
+extern BoolCVar* com_enableCheats;
+
 namespace Runtime
 {
 class FileStoreManager;
 }
-extern CVar* com_developer;
-extern CVar* com_configfile;
-extern CVar* com_enableCheats;
 class CVarManager final
 {
-    using CVarContainer = DNACVAR::CVarContainer;
     template <typename T>
-    CVar* _newCVar(std::string_view name, std::string_view help, const T& value, CVar::EFlags flags)
+    CVar* _newCVar(std::string_view name, std::string_view help, T& value, CVar::EFlags flags)
     {
-        CVar* ret(new CVar(name, value, help, flags, *this));
+        TCVar<T>* ret = new TCVar<T>(value, name, help, flags);
         if (registerCVar(ret))
         {
             deserialize(ret);
@@ -31,7 +32,10 @@ class CVarManager final
     }
 
     hecl::Runtime::FileStoreManager& m_store;
+    std::string m_configFile = "config";
     bool m_useBinary;
+    bool m_developerMode = false;
+    bool m_enableCheats = false;
     static CVarManager* m_instance;
 public:
     CVarManager() = delete;
@@ -42,16 +46,34 @@ public:
     ~CVarManager();
 
     void update();
-    CVar* newCVar(std::string_view name, std::string_view help, const atVec4f& value, CVar::EFlags flags)
-    { return _newCVar<atVec4f>(name, help, value, flags); }
-    CVar* newCVar(std::string_view name, std::string_view help, std::string_view value, CVar::EFlags flags)
-    { return _newCVar<std::string_view>(name, help, value, flags); }
-    CVar* newCVar(std::string_view name, std::string_view help, bool value, CVar::EFlags flags)
+    CVar* newCVar(std::string_view name, std::string_view help, atVec3f& value, CVar::EFlags flags)
+    { return new Vec3fCVar(value, name, help, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, atVec3d& value, CVar::EFlags flags)
+    { return new Vec3dCVar(value, name, help, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, atVec4f& value, CVar::EFlags flags)
+    { return new Vec4fCVar(value, name, help, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, atVec4d& value, CVar::EFlags flags)
+    { return new Vec4dCVar(value, name, help, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, std::string& value, CVar::EFlags flags)
+    { return new StringCVar(value, name, help, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, bool& value, CVar::EFlags flags)
     { return _newCVar<bool>(name, help, value, flags); }
-    CVar* newCVar(std::string_view name, std::string_view help, float value, CVar::EFlags flags)
+    CVar* newCVar(std::string_view name, std::string_view help, float& value, CVar::EFlags flags)
     { return _newCVar<float>(name, help, value, flags); }
-    CVar* newCVar(std::string_view name, std::string_view help, int value, CVar::EFlags flags)
-    { return _newCVar<int>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, double& value, CVar::EFlags flags)
+    { return _newCVar<double>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, int16_t& value, CVar::EFlags flags)
+    { return _newCVar<int16_t>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, uint16_t& value, CVar::EFlags flags)
+    { return _newCVar<uint16_t>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, int32_t& value, CVar::EFlags flags)
+    { return _newCVar<int32_t>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, uint32_t& value, CVar::EFlags flags)
+    { return _newCVar<uint32_t>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, int64_t& value, CVar::EFlags flags)
+    { return _newCVar<int64_t>(name, help, value, flags); }
+    CVar* newCVar(std::string_view name, std::string_view help, uint64_t& value, CVar::EFlags flags)
+    { return _newCVar<uint64_t>(name, help, value, flags); }
 
     bool registerCVar(CVar* cvar);
 

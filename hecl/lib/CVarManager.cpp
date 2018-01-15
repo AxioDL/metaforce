@@ -9,9 +9,10 @@
 namespace hecl
 {
 
-CVar* com_developer = nullptr;
-CVar* com_configfile = nullptr;
-CVar* com_enableCheats = nullptr;
+BoolCVar* com_developer = nullptr;
+StringCVar* com_configfile = nullptr;
+BoolCVar* com_enableCheats = nullptr;
+
 
 CVarManager* CVarManager::m_instance = nullptr;
 
@@ -21,9 +22,9 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
       m_useBinary(useBinary)
 {
     m_instance = this;
-    com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
-    com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
-    com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
+    com_configfile = dynamic_cast<StringCVar*>(findOrMakeCVar("config", "File to store configuration", m_configFile, CVar::EFlags::System));
+    com_developer = dynamic_cast<BoolCVar*>(findOrMakeCVar("developer", "Enables developer mode", m_developerMode, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable)));
+    com_enableCheats = dynamic_cast<BoolCVar*>(findOrMakeCVar("iamaweiner", "Enable cheats", m_enableCheats, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden)));
 }
 
 CVarManager::~CVarManager()
@@ -35,7 +36,6 @@ void CVarManager::update()
     for (const std::pair<std::string, CVar*>& pair : m_cvars)
         if (pair.second->isModified())
         {
-            pair.second->dispatch();
             pair.second->clearModified();
         }
 }
@@ -86,87 +86,52 @@ void CVarManager::deserialize(CVar* cvar)
     if (!cvar || (!cvar->isArchive() && !cvar->isInternalArchivable()))
         return;
 
-    CVarContainer container;
 #if _WIN32
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + hecl::UTF8ToWide(m_configFile);
 #else
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + m_configFile;
 #endif
     hecl::Sstat st;
 
-    if (m_useBinary)
+    filename += _S(".yaml");
+    if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
+        return;
+    athena::io::FileReader reader(filename);
+    if (reader.isOpen())
     {
-        filename += _S(".bin");
-        if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
-            return;
-        athena::io::FileReader reader(filename);
-        if (reader.isOpen())
-            container.read(reader);
-    }
-    else
-    {
-        filename += _S(".yaml");
-        if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
-            return;
-        athena::io::FileReader reader(filename);
-        if (reader.isOpen())
-            container.fromYAMLStream(reader);
-    }
-
-
-    if (container.cvars.size() > 0)
-    {
-        auto serialized = std::find_if(container.cvars.begin(), container.cvars.end(), [&cvar](const DNACVAR::CVar& c) -> bool
-        { return c.m_name == cvar->name(); });
-
-        if (serialized != container.cvars.end())
+        athena::io::YAMLDocReader doc;
+        doc.parse(&reader);
+        if (doc.hasVal(cvar->name().c_str()))
         {
-            DNACVAR::CVar& tmp = *serialized;
-
-            if (cvar->m_value != tmp.m_value)
-            {
-                cvar->unlock();
-                cvar->fromLiteralToType(tmp.m_value, true);
-                cvar->m_wasDeserialized = true;
-                cvar->lock();
-            }
+            cvar->unlock();
+            cvar->deserialize(doc);
+            cvar->m_wasDeserialized = true;;
+            cvar->lock();
         }
     }
 }
 
 void CVarManager::serialize()
 {
-    CVarContainer container;
-    for (const std::pair<std::string, CVar*>& pair : m_cvars)
-        if (pair.second->isArchive() || (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
-        {
-            CVar tmp = *pair.second;
-            container.cvars.push_back(tmp);
-        }
-
-    container.cvarCount = atUint32(container.cvars.size());
 
 #if _WIN32
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + hecl::UTF8ToWide(m_configFile);
 #else
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + m_configFile;
 #endif
 
-    if (m_useBinary)
+    filename += _S(".yaml");
+    athena::io::FileWriter writer(filename);
+    if (writer.isOpen())
     {
-        filename += _S(".bin");
-        athena::io::FileWriter writer(filename);
-        if (writer.isOpen())
-            container.write(writer);
-    }
-    else
-    {
-        filename += _S(".yaml");
-        athena::io::FileWriter writer(filename);
-        if (writer.isOpen())
-            container.toYAMLStream(writer);
+        athena::io::YAMLDocWriter doc(nullptr);
+        for (const std::pair<std::string, CVar*>& pair : m_cvars)
+            if (pair.second->isArchive() || (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
+                pair.second->serialize(doc);
+        doc.finish(&writer);
     }
 }
+
 
 CVarManager* CVarManager::instance()
 {
@@ -204,8 +169,9 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string> &args)
     for (; it != args.end(); ++it)
         value += " " + *it;
 
-    if (!cv->fromLiteralToType(value))
+    if (!cv->fromString(value))
         con->report(Console::Level::Warning, "Unable to cvar '%s' to value '%s'", args[0].c_str(), value.c_str());
+
 }
 
 void CVarManager::getCVar(Console* con, const std::vector<std::string> &args)
@@ -225,7 +191,7 @@ void CVarManager::getCVar(Console* con, const std::vector<std::string> &args)
     }
 
     const CVar* cv = m_cvars[cvName];
-    con->report(Console::Level::Info, "'%s' = '%s'", cv->name().data(), cv->value().c_str());
+    con->report(Console::Level::Info, "'%s' = '%s'", cv->name().data(), cv->toString().c_str());
 }
 
 bool CVarManager::restartRequired() const
@@ -241,17 +207,15 @@ bool CVarManager::restartRequired() const
 
 bool CVarManager::suppressDeveloper()
 {
-    bool oldDeveloper = com_developer->toBoolean();
-    CVarUnlocker unlock(com_developer);
-    com_developer->fromBoolean(false);
-
+    bool oldDeveloper = m_developerMode;
+    m_developerMode = false;
     return oldDeveloper;
+
 }
 
 void CVarManager::restoreDeveloper(bool oldDeveloper)
 {
-    CVarUnlocker unlock(com_developer);
-    com_developer->fromBoolean(oldDeveloper);
+    m_developerMode = oldDeveloper;
 }
 
 }

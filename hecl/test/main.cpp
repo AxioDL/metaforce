@@ -62,13 +62,14 @@ struct HECLApplicationCallback : boo::IApplicationCallback
           m_cvarManager(m_fileStoreMgr),
           m_console(&m_cvarManager)
     {
-        m_console.registerCommand("quit"sv, "Quits application"sv, "", std::bind(&HECLApplicationCallback::quit, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     virtual ~HECLApplicationCallback();
 
     int appMain(boo::IApplication* app)
     {
+        m_console.init();
+        m_console.registerCommand("quit"sv, "Quits application"sv, "", std::bind(&HECLApplicationCallback::quit, this, std::placeholders::_1, std::placeholders::_2));
         hecl::VerbosityLevel = 2;
 
         /* Setup boo window */
@@ -100,6 +101,18 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 projection[3][3] = 1.0;
             }
         } vuboData;
+
+        /* Make ramp texture */
+        using Pixel = uint8_t[4];
+        static Pixel tex[256][256];
+        for (int i=0 ; i<256 ; ++i)
+            for (int j=0 ; j<256 ; ++j)
+            {
+                tex[i][j][0] = uint8_t(i);
+                tex[i][j][1] = uint8_t(i);
+                tex[i][j][2] = 0;
+                tex[i][j][3] = 0xff;
+            }
 
         std::mutex initmt;
         std::condition_variable initcv;
@@ -166,17 +179,6 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 /* Construct quad mesh against boo factory */
                 hecl::Runtime::HMDLData testData(ctx, testMetaBuf, quad, ibo);
 
-                /* Make ramp texture */
-                using Pixel = uint8_t[4];
-                static Pixel tex[256][256];
-                for (int i=0 ; i<256 ; ++i)
-                    for (int j=0 ; j<256 ; ++j)
-                    {
-                        tex[i][j][0] = uint8_t(i);
-                        tex[i][j][1] = uint8_t(i);
-                        tex[i][j][2] = 0;
-                        tex[i][j][3] = 0xff;
-                    }
                 boo::ObjToken<boo::ITexture> texture =
                 ctx.newStaticTexture(256, 256, 1, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, tex, 256*256*4).get();
 

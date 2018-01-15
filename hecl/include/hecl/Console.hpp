@@ -10,7 +10,7 @@
 
 namespace hecl
 {
-class CVar;
+class CVarManager;
 struct SConsoleCommand
 {
     std::string m_displayName;
@@ -60,6 +60,7 @@ public:
     };
 
 private:
+    CVarManager* m_cvarMgr;
     std::unordered_map<std::string, SConsoleCommand> m_commands;
     std::vector<std::pair<std::string, Level>> m_log;
     int m_logOffset;
@@ -71,12 +72,10 @@ private:
     bool m_overwrite : 1;
     bool m_cursorAtEnd : 1;
     State m_state = State::Closed;
-    CVar* m_conSpeed;
-    CVar* m_conHeight;
-    float m_cachedConSpeed;
-    float m_cachedConHeight;
+    float m_conSpeed = 1.f;
+    float m_conHeight = 0.5f;
 public:
-    Console(class CVarManager*);
+    Console(CVarManager*);
     void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func);
 
     void executeString(const std::string& strToExec);
@@ -88,6 +87,7 @@ public:
     void report(Level level, const char *fmt, va_list list);
     void report(Level level, const char* fmt, ...);
 
+    void init();
     void proc();
     void draw(boo::IGraphicsCommandQueue* gfxQ);
     void handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repeat);
