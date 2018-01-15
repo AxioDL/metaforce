@@ -55,7 +55,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
         for (const QJsonValue& v: lscpuObj.toArray())
         {
             QJsonObject vObj = v.toObject();
-            if (vObj.take("field").toString() == "CPU MHz:")
+            if (vObj.take("field").toString() == "CPU max MHz:")
             {
                 double speed = vObj.take("data").toString().toDouble();
                 m_cpuSpeed = speed;

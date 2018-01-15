@@ -1,6 +1,8 @@
 #include "LaunchMenu.hpp"
 #include "hecl/CVarCommons.hpp"
 
+extern hecl::BoolCVar* hecl::com_developer;
+
 LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
 : QMenu("Launch Menu", parent),
   m_commons(commons),
@@ -35,6 +37,7 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
     initAnisoAction(QStringLiteral("8"));
     initAnisoAction(QStringLiteral("16"));
 
+    initDeveloperMode();
     m_apiMenu.addActions(m_apiGroup.actions());
     m_msaaMenu.addActions(m_msaaGroup.actions());
     m_anisoMenu.addActions(m_anisoGroup.actions());
@@ -70,6 +73,14 @@ void LaunchMenu::initAnisoAction(const QString& action)
         act->setChecked(true);
 }
 
+void LaunchMenu::initDeveloperMode()
+{
+    QAction* act = addAction("&Developer Mode");
+    act->setCheckable(true);
+    act->setChecked(hecl::com_developer->value());
+    connect(act, SIGNAL(triggered()), this, SLOT(developerModeTriggered()));
+}
+
 void LaunchMenu::apiTriggered()
 {
     m_commons.setGraphicsApi(qobject_cast<QAction*>(sender())->text().toStdString());
@@ -78,12 +89,18 @@ void LaunchMenu::apiTriggered()
 
 void LaunchMenu::msaaTriggered()
 {
-    m_commons.setSamples(qobject_cast<QAction*>(sender())->text().toInt());
+    m_commons.setSamples(qobject_cast<QAction*>(sender())->text().toUInt());
     m_commons.serialize();
 }
 
 void LaunchMenu::anisoTriggered()
 {
-    m_commons.setAnisotropy(qobject_cast<QAction*>(sender())->text().toInt());
+    m_commons.setAnisotropy(qobject_cast<QAction*>(sender())->text().toUInt());
+    m_commons.serialize();
+}
+
+void LaunchMenu::developerModeTriggered()
+{
+    hecl::CVarManager::instance()->setDeveloperMode(qobject_cast<QAction*>(sender())->isChecked(), true);
     m_commons.serialize();
 }

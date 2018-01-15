@@ -20,6 +20,7 @@ class LaunchMenu : public QMenu
     void initApiAction(const QString& action);
     void initMsaaAction(const QString& action);
     void initAnisoAction(const QString& action);
+    void initDeveloperMode();
 
 public:
     LaunchMenu(hecl::CVarCommons& commons, QWidget* parent = Q_NULLPTR);
@@ -28,6 +29,7 @@ public slots:
     void apiTriggered();
     void msaaTriggered();
     void anisoTriggered();
+    void developerModeTriggered();
 };
 
 #endif // GUI_LAUNCHMENU_HPP
