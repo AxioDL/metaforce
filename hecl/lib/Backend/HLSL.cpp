@@ -80,7 +80,7 @@ std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCo
     return retval + "};\n";
 }
 
-std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, bool reflectionCoords) const
+std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionCoords) const
 {
     if (skinSlots == 0)
         skinSlots = 1;
@@ -91,16 +91,15 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "    float4x4 proj;\n"
                                       "};\n",
                                       skinSlots, skinSlots);
-    if (texMtxs)
-        retval += hecl::Format("struct TCGMtx\n"
-                               "{\n"
-                               "    float4x4 mtx;\n"
-                               "    float4x4 postMtx;\n"
-                               "};\n"
-                               "cbuffer HECLTCGMatrix : register(b1)\n"
-                               "{\n"
-                               "    TCGMtx texMtxs[%u];\n"
-                               "};\n", texMtxs);
+    retval += "struct TCGMtx\n"
+              "{\n"
+              "    float4x4 mtx;\n"
+              "    float4x4 postMtx;\n"
+              "};\n"
+              "cbuffer HECLTCGMatrix : register(b1)\n"
+              "{\n"
+              "    TCGMtx texMtxs[8];\n"
+              "};\n";
 
     if (reflectionCoords)
         retval += "cbuffer HECLReflectMtx : register(b3)\n"
@@ -144,13 +143,13 @@ void HLSL::reset(const IR& ir, Diagnostics& diag)
 }
 
 std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
-                           unsigned s, unsigned tm, size_t extTexCount,
+                           unsigned s, size_t extTexCount,
                            const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
     std::string retval =
             GenerateVertInStruct(col, uv, w) + "\n" +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
-            GenerateVertUniformStruct(s, tm, reflectionType != ReflectionType::None) + "\n" +
+            GenerateVertUniformStruct(s, reflectionType != ReflectionType::None) + "\n" +
             "VertToFrag main(in VertData v)\n"
             "{\n"
             "    VertToFrag vtf;\n";
@@ -365,7 +364,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
 
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr,
+                           tag.getSkinSlotCount(), 0, nullptr,
                            tag.getReflectionType());
 
         std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
@@ -505,7 +504,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         {
             std::string vertSource =
             m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                               tag.getSkinSlotCount(), slot.texCount, slot.texs,
                                tag.getReflectionType());
 
             std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,

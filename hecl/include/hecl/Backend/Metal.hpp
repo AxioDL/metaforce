@@ -12,7 +12,7 @@ struct Metal : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
-                         unsigned skinSlots, unsigned texMtxs, size_t extTexCount,
+                         unsigned skinSlots, size_t extTexCount,
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
                          ReflectionType reflectionType,

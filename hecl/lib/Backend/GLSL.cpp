@@ -87,7 +87,7 @@ std::string GLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCo
     return retval + "};\n";
 }
 
-std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, bool reflectionCoords) const
+std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionCoords) const
 {
     if (skinSlots == 0)
         skinSlots = 1;
@@ -98,16 +98,16 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs
                                       "    mat4 proj;\n"
                                       "};\n",
                                       skinSlots, skinSlots);
-    if (texMtxs)
-        retval += hecl::Format("struct HECLTCGMatrix\n"
-                               "{\n"
-                               "    mat4 mtx;\n"
-                               "    mat4 postMtx;\n"
-                               "};\n"
-                               "UBINDING1 uniform HECLTexMtxUniform\n"
-                               "{\n"
-                               "    HECLTCGMatrix texMtxs[%u];\n"
-                               "};\n", texMtxs);
+
+    retval += "struct HECLTCGMatrix\n"
+              "{\n"
+              "    mat4 mtx;\n"
+              "    mat4 postMtx;\n"
+              "};\n"
+              "UBINDING1 uniform HECLTexMtxUniform\n"
+              "{\n"
+              "    HECLTCGMatrix texMtxs[8];\n"
+              "};\n";
 
     if (reflectionCoords)
         retval += "UBINDING3 uniform HECLReflectMtx\n"
@@ -151,14 +151,14 @@ void GLSL::reset(const IR& ir, Diagnostics& diag)
 }
 
 std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
-                           unsigned s, unsigned tm, size_t extTexCount,
+                           unsigned s, size_t extTexCount,
                            const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
     extTexCount = std::min(int(extTexCount), BOO_GLSL_MAX_TEXTURE_COUNT - int(m_tcgs.size()));
     std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
             GenerateVertInStruct(col, uv, w) + "\n" +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
-            GenerateVertUniformStruct(s, tm, reflectionType != ReflectionType::None) +
+            GenerateVertUniformStruct(s, reflectionType != ReflectionType::None) +
             "SBINDING(0) out VertToFrag vtf;\n\n"
             "void main()\n{\n";
 
@@ -381,6 +381,18 @@ static const char* STD_TEXNAMES[] =
     "tex7"
 };
 
+static const char* EXT_TEXNAMES[] =
+{
+    "extTex0",
+    "extTex1",
+    "extTex2",
+    "extTex3",
+    "extTex4",
+    "extTex5",
+    "extTex6",
+    "extTex7"
+};
+
 struct GLSLBackendFactory : IShaderBackendFactory
 {
     Backend::GLSL m_backend;
@@ -397,7 +409,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert("#version 330",
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr, tag.getReflectionType());
+                           tag.getSkinSlotCount(), 0, nullptr, tag.getReflectionType());
         cachedSz += vertSource.size() + 1;
 
         std::string fragSource = m_backend.makeFrag("#version 330",
@@ -490,7 +502,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
 
             sources.emplace_back(m_backend.makeVert("#version 330",
                                                     tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                                                    tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount,
+                                                    tag.getSkinSlotCount(), slot.texCount,
                                                     slot.texs, tag.getReflectionType()),
                                  m_backend.makeFrag("#version 330",
                                                     tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
@@ -519,10 +531,16 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 break;
             }
 
+            const char* ExtTexnames[8];
+            for (int i=0 ; i<8 ; ++i)
+                ExtTexnames[i] = STD_TEXNAMES[i];
+            for (int i=0 ; i<slot.texCount ; ++i)
+                ExtTexnames[slot.texs[i].mapIdx] = EXT_TEXNAMES[slot.texs[i].mapIdx];
+
             auto ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
-                                      8, STD_TEXNAMES, bc, bn,
+                                      8, ExtTexnames, bc, bn,
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
@@ -602,10 +620,16 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 break;
             }
 
+            const char* ExtTexnames[8];
+            for (int i=0 ; i<8 ; ++i)
+                ExtTexnames[i] = STD_TEXNAMES[i];
+            for (int i=0 ; i<slot.texCount ; ++i)
+                ExtTexnames[slot.texs[i].mapIdx] = EXT_TEXNAMES[slot.texs[i].mapIdx];
+
             auto ret =
             static_cast<boo::GLDataFactory::Context&>(ctx).
                     newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      8, STD_TEXNAMES, bc, bn,
+                                      8, ExtTexnames, bc, bn,
                                       boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
                                       boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
@@ -643,7 +667,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
         std::string vertSource =
         m_backend.makeVert("#version 330",
                            tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr,
+                           tag.getSkinSlotCount(), 0, nullptr,
                            tag.getReflectionType());
 
         std::string fragSource = m_backend.makeFrag("#version 330",
@@ -771,7 +795,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
             std::string vertSource =
             m_backend.makeVert("#version 330",
                                tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                               tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                               tag.getSkinSlotCount(), slot.texCount, slot.texs,
                                tag.getReflectionType());
 
             std::string fragSource = m_backend.makeFrag("#version 330",

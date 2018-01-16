@@ -148,12 +148,10 @@ void Metal::reset(const IR& ir, Diagnostics& diag)
 }
 
 std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
-                            unsigned s, unsigned tm, size_t extTexCount,
+                            unsigned s, size_t extTexCount,
                             const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
-    std::string tmStr;
-    if (tm)
-        tmStr = hecl::Format(",\nconstant TexMtxs* texMtxs [[ buffer(3) ]]");
+    std::string tmStr = ",\nconstant TexMtxs* texMtxs [[ buffer(3) ]]";
     if (reflectionType != ReflectionType::None)
         tmStr += ",\nconstant ReflectTexMtxs& reflectMtxs [[ buffer(5) ]]";
     std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
@@ -447,7 +445,7 @@ struct MetalBackendFactory : IShaderBackendFactory
 
         std::string vertSource =
         m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), tag.getTexMtxCount(), 0, nullptr, tag.getReflectionType());
+                           tag.getSkinSlotCount(), 0, nullptr, tag.getReflectionType());
 
         std::string fragSource = m_backend.makeFrag(0, nullptr,
             tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
@@ -537,7 +535,7 @@ struct MetalBackendFactory : IShaderBackendFactory
         {
             std::string vertSource =
                 m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                                   tag.getSkinSlotCount(), tag.getTexMtxCount(), slot.texCount, slot.texs,
+                                   tag.getSkinSlotCount(), slot.texCount, slot.texs,
                                    slot.noReflection ? Backend::ReflectionType::None : tag.getReflectionType());
             std::string fragSource =
                 m_backend.makeFrag(slot.blockCount, slot.blockNames,

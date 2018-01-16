@@ -10,7 +10,7 @@ struct HLSL : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
-                         unsigned skinSlots, unsigned texMtxs, size_t extTexCount,
+                         unsigned skinSlots, size_t extTexCount,
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
                          const ShaderFunction& lighting=ShaderFunction()) const;
@@ -22,7 +22,7 @@ struct HLSL : ProgrammableCommon
 private:
     std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;
     std::string GenerateVertToFragStruct(size_t extTexCount, bool reflectionCoords) const;
-    std::string GenerateVertUniformStruct(unsigned skinSlots, unsigned texMtxs, bool reflectionCoords) const;
+    std::string GenerateVertUniformStruct(unsigned skinSlots, bool reflectionCoords) const;
     std::string GenerateAlphaTest() const;
     std::string GenerateReflectionExpr(ReflectionType type) const;
 
