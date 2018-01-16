@@ -133,6 +133,9 @@ endif()
 # Add discord-rpc here
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include)
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
+if (NOT CMAKE_INSTALL_LIBDIR)
+  set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
+endif()
 add_subdirectory(discord-rpc/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc/include)
 
