@@ -143,6 +143,11 @@ struct Application : boo::IApplicationCallback
         return m_cvarCommons.getAnisotropy();
     }
 
+    bool getDeepColor() const
+    {
+        return m_cvarCommons.getDeepColor();
+    }
+
     void quit(hecl::Console* con = nullptr, const std::vector<std::string>& arg = std::vector<std::string>())
     {
         m_running = false;
@@ -214,7 +219,7 @@ int main(int argc, const boo::SystemChar** argv)
     urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
         appCb, _S("urde"), _S("URDE"), argc, argv, appCb.getGraphicsApi(),
-        appCb.getSamples(), appCb.getAnisotropy(), false);
+        appCb.getSamples(), appCb.getAnisotropy(), appCb.getDeepColor(), false);
     //printf("IM DYING!!\n");
     return ret;
 }

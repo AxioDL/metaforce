@@ -54,6 +54,8 @@
 #include "CDependencyGroup.hpp"
 #include "MP1OriginalIDs.hpp"
 
+#include <discord-rpc.h>
+
 namespace urde
 {
 URDE_DECL_SPECIALIZE_SHADER(CParticleSwooshShaders)
@@ -437,12 +439,94 @@ void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
     g_GameState->HintOptions().SetNextHintTime();
 }
 
+static logvisor::Module DiscordLog("Discord");
+static const char* DISCORD_APPLICATION_ID = "402571593815031819";
+static int64_t DiscordStartTime;
+static CAssetId DiscordWorldSTRG;
+static TLockedToken<CStringTable> DiscordWorldSTRGObj;
+static std::string DiscordWorldName;
+static u32 DiscordItemPercent = 0xffffffff;
+static std::string DiscordState;
+
+void CMain::InitializeDiscord()
+{
+    DiscordStartTime = time(0);
+    DiscordEventHandlers handlers = {};
+    handlers.ready = HandleDiscordReady;
+    handlers.disconnected = HandleDiscordDisconnected;
+    handlers.errored = HandleDiscordErrored;
+    Discord_Initialize(DISCORD_APPLICATION_ID, &handlers, 1, nullptr);
+}
+
+void CMain::ShutdownDiscord()
+{
+    DiscordWorldSTRGObj = TLockedToken<CStringTable>();
+    Discord_Shutdown();
+}
+
+void CMain::UpdateDiscordPresence(CAssetId worldSTRG)
+{
+    bool updated = false;
+
+    if (worldSTRG != DiscordWorldSTRG)
+    {
+        DiscordWorldSTRG = worldSTRG;
+        DiscordWorldSTRGObj = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), worldSTRG});
+    }
+    if (DiscordWorldSTRGObj.IsLoaded())
+    {
+        DiscordWorldName = hecl::Char16ToUTF8(DiscordWorldSTRGObj->GetString(0));
+        DiscordWorldSTRGObj = TLockedToken<CStringTable>();
+        updated = true;
+    }
+
+    if (g_GameState)
+    {
+        if (CPlayerState* pState = g_GameState->GetPlayerState().get())
+        {
+            u32 itemPercent = u32(std::ceil(pState->CalculateItemCollectionRate() * 100.f /
+                                            pState->GetPickupTotal()));
+            if (DiscordItemPercent != itemPercent)
+            {
+                DiscordItemPercent = itemPercent;
+                DiscordState = hecl::Format("%d%%", itemPercent);
+                updated = true;
+            }
+        }
+    }
+
+    if (updated)
+    {
+        DiscordRichPresence discordPresence = {};
+        discordPresence.state = DiscordState.c_str();
+        discordPresence.details = DiscordWorldName.c_str();
+        discordPresence.startTimestamp = DiscordStartTime;
+        Discord_UpdatePresence(&discordPresence);
+    }
+}
+
+void CMain::HandleDiscordReady()
+{
+    DiscordLog.report(logvisor::Info, "Discord Ready");
+}
+
+void CMain::HandleDiscordDisconnected(int errorCode, const char* message)
+{
+    DiscordLog.report(logvisor::Warning, "Discord Disconnected: %s", message);
+}
+
+void CMain::HandleDiscordErrored(int errorCode, const char* message)
+{
+    DiscordLog.report(logvisor::Error, "Discord Error: %s", message);
+}
+
 void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
                  hecl::CVarManager* cvarMgr,
                  boo::IWindow* window,
                  boo::IAudioVoiceEngine* voiceEngine,
                  amuse::IBackendVoiceAllocator& backend)
 {
+    InitializeDiscord();
     m_mainWindow = window;
     m_cvarMgr = cvarMgr;
     m_console = std::make_unique<hecl::Console>(m_cvarMgr);
@@ -524,6 +608,9 @@ bool CMain::Proc()
         */
         x160_24_finished = true;
     }
+
+    Discord_RunCallbacks();
+
     return x160_24_finished;
 }
 
@@ -606,6 +693,7 @@ void CMain::Shutdown()
     TMultiBlendShader<CRandomStaticFilter>::Shutdown();
     CFluidPlaneShader::Shutdown();
     CGraphics::ShutdownBoo();
+    ShutdownDiscord();
 }
 
 boo::IWindow* CMain::GetMainWindow() const

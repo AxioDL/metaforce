@@ -2922,9 +2922,9 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CPlayer::SetVisorSteam(float f1, float f2, float f3, CAssetId txtr, bool affectsThermal)
+void CPlayer::SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId txtr, bool affectsThermal)
 {
-    x7a0_visorSteam.SetSteam(f1, f2, f3, txtr, affectsThermal);
+    x7a0_visorSteam.SetSteam(targetAlpha, alphaInDur, alphaOutDur, txtr, affectsThermal);
 }
 
 static const u16 skLeftStepSounds[] =

@@ -125,7 +125,7 @@ public:
 private:
     CBooModel* m_next = nullptr;
     CBooModel* m_prev = nullptr;
-    size_t m_uniUpdateCount = 0;
+    int m_uniUpdateCount = 0;
     TToken<CModel> m_modelTok;
     CModel* m_model;
     std::vector<CBooSurface>* x0_surfaces;

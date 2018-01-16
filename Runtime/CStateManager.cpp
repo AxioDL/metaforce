@@ -48,6 +48,7 @@
 #include "World/CScriptWater.hpp"
 #include "World/CScriptDoor.hpp"
 #include "Input/ControlMapper.hpp"
+#include "MP1/MP1.hpp"
 
 #include <cmath>
 
@@ -205,7 +206,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::ShadowProjector)] = ScriptLoader::LoadShadowProjector;
     x90c_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
 
-    CGameCollision::InitCollision();
+    //CGameCollision::InitCollision();
     ControlMapper::ResetCommandFilters();
     x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
 }
@@ -1837,6 +1838,8 @@ void CStateManager::UpdateGraphicsTiming(float dt)
 
 void CStateManager::Update(float dt)
 {
+    MP1::CMain::UpdateDiscordPresence(GetWorld()->IGetStringTableAssetId());
+
     CElementGen::SetGlobalSeed(x8d8_updateFrameIdx);
     CParticleElectric::SetGlobalSeed(x8d8_updateFrameIdx);
     CDecal::SetGlobalSeed(x8d8_updateFrameIdx);

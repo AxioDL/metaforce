@@ -18,6 +18,14 @@ void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 l
     texTransform = (texTransform * zeus::CTransform::Scale(float(M_SQRT2) * x64_objHalfExtent * f1)).inverse();
     texTransform = zeus::CTransform::Translate(0.5f, 0.f, 0.5f) * texTransform;
     CBooModel::EnableShadowMaps(m_shader.GetTexture().get(), texTransform);
+
+#if CWORLDSHADOW_FEEDBACK
+    if (!m_feedback)
+        m_feedback.emplace(EFilterType::Blend, m_shader.GetTexture().get());
+
+    zeus::CRectangle rect(0.4f, 0.4f, 0.2f, 0.2f);
+    m_feedback->draw(zeus::CColor::skWhite, 1.f, rect);
+#endif
 }
 
 void CWorldShadow::DisableModelProjectedShadow()
@@ -78,9 +86,6 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                 x34_model = zeus::lookAt(centerPoint - zeus::CVector3f(0.f, 0.f, 0.1f), light.GetPosition());
                 CGraphics::SetModelMatrix(x34_model);
 
-                m_shadowViewProj = CGraphics::GetPerspectiveProjectionMatrix(false) *
-                                   CGraphics::g_CameraMatrix.toMatrix4f();
-
                 float extent = float(M_SQRT2) * x64_objHalfExtent;
                 /* Depth test and write */
                 /* Color white 100% alpha */
@@ -98,7 +103,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                     CGraphics::SetModelMatrix(x34_model);
                     /* No depth test or write */
                     /* Color white 25% alpha */
-                    //m_shader.lightenShadow();
+                    m_shader.lightenShadow();
                 }
 
                 if (motionBlur && !x88_blurReset)
@@ -106,7 +111,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                     /* No depth test or write */
                     /* Color white 85% alpha */
                     /* Draw in shadow texture */
-                    //m_shader.blendPreviousShadow();
+                    m_shader.blendPreviousShadow();
                 }
 
                 x88_blurReset = false;

@@ -28,3 +28,9 @@
 [submodule "cotire"]
 	path = cotire
 	url = https://github.com/sakra/cotire.git
+[submodule "discord-rpc"]
+	path = discord-rpc
+	url = https://github.com/discordapp/discord-rpc.git
+[submodule "rapidjson"]
+	path = rapidjson
+	url = https://github.com/Tencent/rapidjson.git

@@ -48,7 +48,8 @@ void CWorldShadowShader::blendPreviousShadow()
 {
     if (!m_prevQuad)
         m_prevQuad.emplace(EFilterType::Blend, m_tex.get());
-    m_prevQuad->draw({1.f, 0.85f}, 1.f);
+    zeus::CRectangle rect(0.f, 1.f, 1.f, -1.f);
+    m_prevQuad->draw({1.f, 0.85f}, 1.f, rect);
 }
 
 void CWorldShadowShader::resolveTexture()

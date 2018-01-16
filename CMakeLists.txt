@@ -130,6 +130,12 @@ if(USE_LD_GOLD AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_
     endif()
 endif()
 
+# Add discord-rpc here
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include)
+set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
+add_subdirectory(discord-rpc/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc/include)
+
 set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
 
 set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/boo/include)

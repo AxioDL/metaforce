@@ -262,6 +262,11 @@ private:
     bool m_needsWarmupClear = false;
 
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
+    static void InitializeDiscord();
+    static void ShutdownDiscord();
+    static void HandleDiscordReady();
+    static void HandleDiscordDisconnected(int errorCode, const char* message);
+    static void HandleDiscordErrored(int errorCode, const char* message);
 
 public:
     CMain(IFactory* resFactory, CSimplePool* resStore,
@@ -275,6 +280,8 @@ public:
     void CheckTweakManagerDebugOptions() {}
     void SetMFGameBuilt(bool b) { x160_25_mfGameBuilt = b; }
     void SetScreenFading(bool b) { x160_26_screenFading = b; }
+
+    static void UpdateDiscordPresence(CAssetId worldSTRG = {});
 
     //int RsMain(int argc, const boo::SystemChar* argv[]);
     void Init(const hecl::Runtime::FileStoreManager& storeMgr,

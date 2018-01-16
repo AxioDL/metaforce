@@ -5,6 +5,8 @@
 #include "zeus/CAABox.hpp"
 #include "Graphics/Shaders/CWorldShadowShader.hpp"
 
+#define CWORLDSHADOW_FEEDBACK 0
+
 namespace urde
 {
 class CStateManager;
@@ -20,7 +22,9 @@ class CWorldShadow
     TAreaId x80_aid;
     s32 x84_lightIdx = -1;
     bool x88_blurReset = true;
-    zeus::CMatrix4f m_shadowViewProj;
+#if CWORLDSHADOW_FEEDBACK
+    std::experimental::optional<CTexturedQuadFilter> m_feedback;
+#endif
 public:
     CWorldShadow(u32 w, u32 h, bool rgba8);
     void EnableModelProjectedShadow(const zeus::CTransform& pos, s32 lightIdx, float f1);

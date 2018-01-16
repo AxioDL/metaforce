@@ -754,13 +754,13 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     case UVAnimation::Mode::HStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].x = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+        texMtxOut.vec[3].x = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::VStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].y = (float)(short)(float)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+        texMtxOut.vec[3].y = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::Model:
@@ -792,7 +792,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         postMtxOut = zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0,
                                                       0.0, 0.0, halfA,
                                                       0.0, 0.0, 0.0),
-                                   zeus::CVector3f(xy, z, 1.0)).toMatrix4f();
+                                      zeus::CVector3f(xy, z, 1.0)).toMatrix4f();
         break;
     }
     default: break;
@@ -997,15 +997,33 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     }
 
     const ModelInstance* inst;
-    if (m_instances.size() <= m_uniUpdateCount)
+    if (sharedLayoutBuf >= 0)
     {
-        inst = const_cast<CBooModel*>(this)->PushNewModelInstance(sharedLayoutBuf);
-        if (!inst)
-            return nullptr;
+        if (m_instances.size() <= sharedLayoutBuf)
+        {
+            do
+            {
+                inst = const_cast<CBooModel*>(this)->PushNewModelInstance(m_instances.size());
+                if (!inst)
+                    return nullptr;
+            } while (m_instances.size() <= sharedLayoutBuf);
+        }
+        else
+            inst = &m_instances[sharedLayoutBuf];
+        const_cast<CBooModel*>(this)->m_uniUpdateCount = sharedLayoutBuf + 1;
     }
     else
-        inst = &m_instances[m_uniUpdateCount];
-    ++const_cast<CBooModel*>(this)->m_uniUpdateCount;
+    {
+        if (m_instances.size() <= m_uniUpdateCount)
+        {
+            inst = const_cast<CBooModel*>(this)->PushNewModelInstance(sharedLayoutBuf);
+            if (!inst)
+                return nullptr;
+        }
+        else
+            inst = &m_instances[m_uniUpdateCount];
+        ++const_cast<CBooModel*>(this)->m_uniUpdateCount;
+    }
 
     if (inst->m_geomUniformBuffer)
         m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer);
@@ -1139,7 +1157,7 @@ SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& ma
         reflectionType = hecl::Backend::ReflectionType::None;
     hecl::Runtime::ShaderTag tag(mat.heclIr,
                                  meta.colorCount, meta.uvCount, meta.weightCount,
-                                 meta.weightCount * 4, 8, boo::Primitive(meta.topology),
+                                 meta.weightCount * 4, boo::Primitive(meta.topology),
                                  reflectionType, true, true, true);
     return CModelShaders::g_ModelShaders->buildExtendedShader
         (tag, mat.heclIr, "CMDL", *CGraphics::g_BooFactory);
