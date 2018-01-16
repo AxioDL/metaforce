@@ -37,13 +37,15 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
     initAnisoAction(QStringLiteral("8"));
     initAnisoAction(QStringLiteral("16"));
 
-    initDeveloperMode();
     m_apiMenu.addActions(m_apiGroup.actions());
     m_msaaMenu.addActions(m_msaaGroup.actions());
     m_anisoMenu.addActions(m_anisoGroup.actions());
     addMenu(&m_apiMenu);
     addMenu(&m_msaaMenu);
     addMenu(&m_anisoMenu);
+
+    initDeepColor();
+    initDeveloperMode();
 }
 
 void LaunchMenu::initApiAction(const QString& action)
@@ -73,6 +75,14 @@ void LaunchMenu::initAnisoAction(const QString& action)
         act->setChecked(true);
 }
 
+void LaunchMenu::initDeepColor()
+{
+    QAction* act = addAction("Deep Color");
+    act->setCheckable(true);
+    act->setChecked(m_commons.getDeepColor());
+    connect(act, SIGNAL(triggered()), this, SLOT(deepColorTriggered()));
+}
+
 void LaunchMenu::initDeveloperMode()
 {
     QAction* act = addAction("&Developer Mode");
@@ -98,6 +108,12 @@ void LaunchMenu::msaaTriggered()
 void LaunchMenu::anisoTriggered()
 {
     m_commons.setAnisotropy(qobject_cast<QAction*>(sender())->text().toUInt());
+    m_commons.serialize();
+}
+
+void LaunchMenu::deepColorTriggered()
+{
+    m_commons.setDeepColor(qobject_cast<QAction*>(sender())->isChecked());
     m_commons.serialize();
 }
 

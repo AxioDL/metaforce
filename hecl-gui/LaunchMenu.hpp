@@ -20,6 +20,7 @@ class LaunchMenu : public QMenu
     void initApiAction(const QString& action);
     void initMsaaAction(const QString& action);
     void initAnisoAction(const QString& action);
+    void initDeepColor();
     void initDeveloperMode();
 
 public:
@@ -29,6 +30,7 @@ public slots:
     void apiTriggered();
     void msaaTriggered();
     void anisoTriggered();
+    void deepColorTriggered();
     void developerModeTriggered();
 };
 
