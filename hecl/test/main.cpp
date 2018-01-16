@@ -130,7 +130,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             /* Compile HECL shader */
             static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
             //static std::string testShader = "HECLOpaque(vec3(1.0,1.0,1.0),1.0)";
-            hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, 0, boo::Primitive::TriStrips,
+            hecl::Runtime::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, boo::Primitive::TriStrips,
                                                    hecl::Backend::ReflectionType::None, false, false, false);
             std::shared_ptr<hecl::Runtime::ShaderPipelines> testShaderObj =
             shaderMgr.buildShader(testShaderTag, testShader, "testShader", *gfxF);
