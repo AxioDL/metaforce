@@ -166,6 +166,7 @@ public:
             _recursivePrint(0, rep);
             hecl::Printf(_S("\n"));
         }
+        fflush(stdout);
 
         if (continuePrompt())
         {

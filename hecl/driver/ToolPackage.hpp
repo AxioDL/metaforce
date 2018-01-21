@@ -175,6 +175,7 @@ public:
 
         for (auto& item : m_selectedItems)
             hecl::Printf(_S("  %s\n"), item.getRelativePath().data());
+        fflush(stdout);
 
         if (continuePrompt())
         {

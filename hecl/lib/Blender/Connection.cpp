@@ -406,7 +406,9 @@ Connection::Connection(int verbosityLevel)
                auto lk = logvisor::LockLog();
                if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer,
                                   nBytesRead, &nCharsWritten, NULL))
-                   BlenderLog.report(logvisor::Error, "Error with WriteConsole: %08X", GetLastError());
+               {
+                   //BlenderLog.report(logvisor::Error, "Error with WriteConsole: %08X", GetLastError());
+               }
             }
 
             CloseHandle(consoleOutRead);
