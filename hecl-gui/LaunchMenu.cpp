@@ -40,9 +40,9 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
     m_apiMenu.addActions(m_apiGroup.actions());
     m_msaaMenu.addActions(m_msaaGroup.actions());
     m_anisoMenu.addActions(m_anisoGroup.actions());
-    addMenu(&m_apiMenu);
-    addMenu(&m_msaaMenu);
-    addMenu(&m_anisoMenu);
+    addMenu(&m_apiMenu)->setToolTip(QStringLiteral("Graphics API to use for rendering graphics."));
+    addMenu(&m_msaaMenu)->setToolTip(QStringLiteral("Select number of samples for MSAA rendering."));
+    addMenu(&m_anisoMenu)->setToolTip(QStringLiteral("Select number of samples for anisotropic texture filtering."));
 
     initDeepColor();
     initDeveloperMode();
@@ -78,6 +78,7 @@ void LaunchMenu::initAnisoAction(const QString& action)
 void LaunchMenu::initDeepColor()
 {
     QAction* act = addAction("Deep Color");
+    act->setToolTip(QStringLiteral("Use 48-bit framebuffer for deep-color displays (e.g. 4K with HDR)."));
     act->setCheckable(true);
     act->setChecked(m_commons.getDeepColor());
     connect(act, SIGNAL(triggered()), this, SLOT(deepColorTriggered()));
@@ -86,6 +87,7 @@ void LaunchMenu::initDeepColor()
 void LaunchMenu::initDeveloperMode()
 {
     QAction* act = addAction("&Developer Mode");
+    act->setToolTip(QStringLiteral("Enable developer mode to use in-engine console commands."));
     act->setCheckable(true);
     act->setChecked(hecl::com_developer->value());
     connect(act, SIGNAL(triggered()), this, SLOT(developerModeTriggered()));
