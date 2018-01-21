@@ -11,6 +11,7 @@
 #include "Audio/CStreamAudioManager.hpp"
 #include "Graphics/CMoviePlayer.hpp"
 #include "CStateManager.hpp"
+#include "hecl/CVarManager.hpp"
 
 namespace urde
 {
@@ -26,7 +27,8 @@ static const SGameOption VisorOpts[] =
 
 static const SGameOption DisplayOpts[] =
 {
-    {EGameOption::ScreenBrightness, 25, 0.f, 8.f, 1.f, EOptionType::Float},
+    //{EGameOption::ScreenBrightness, 25, 0.f, 8.f, 1.f, EOptionType::Float},
+    {EGameOption::ScreenBrightness, 25, -100.f, 100.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenOffsetX, 26, -30.f, 30.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenOffsetY, 27, -30.f, 30.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenStretch, 28, -10.f, 10.f, 1.f, EOptionType::Float},
@@ -243,12 +245,30 @@ void CGameOptions::InitSoundMode()
     /* If system is mono, force x44 to mono, otherwise honor user preference */
 }
 static float BrightnessCopyFilter = 0.f;
-void CGameOptions::SetScreenBrightness(s32 val, bool b)
+void CGameOptions::SetScreenBrightness(s32 val, bool apply)
 {
     x48_screenBrightness = zeus::clamp(0, val, 8);
 
-    if (b)
+    if (apply)
         BrightnessCopyFilter = TuneScreenBrightness();
+}
+
+void CGameOptions::ApplyGamma()
+{
+    float gammaT = -m_gamma / 100.f + 1.f;
+    if (gammaT < 1.f)
+        gammaT = gammaT * 0.5f + 0.5f;
+    if (zeus::close_enough(gammaT, 1.f, 0.05f))
+        gammaT = 1.f;
+    CGraphics::g_BooFactory->setDisplayGamma(gammaT);
+}
+
+void CGameOptions::SetGamma(s32 val, bool apply)
+{
+    m_gamma = zeus::clamp(-100, val, 100);
+
+    if (apply)
+        ApplyGamma();
 }
 
 void CGameOptions::SetScreenPositionX(s32 pos, bool apply)
@@ -414,6 +434,7 @@ void CGameOptions::ResetControllerAssets(int controls)
 void CGameOptions::EnsureSettings()
 {
     SetScreenBrightness(x48_screenBrightness, true);
+    SetGamma(m_gamma, true);
     SetScreenPositionX(x4c_screenXOffset, true);
     SetScreenPositionY(x50_screenYOffset, true);
     SetScreenStretch(x54_screenStretch, true);
@@ -462,6 +483,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category,
 
     case 1:
         gameOptions.SetScreenBrightness(4, true);
+        gameOptions.SetGamma(0, true);
         gameOptions.SetScreenPositionX(0, true);
         gameOptions.SetScreenPositionY(0, true);
         gameOptions.SetScreenStretch(0, true);
@@ -502,7 +524,7 @@ void CGameOptions::SetOption(EGameOption option, int value)
         options.SetIsHintSystemEnabled(value);
         break;
     case EGameOption::ScreenBrightness:
-        options.SetScreenBrightness(value, true);
+        options.SetGamma(value, true);
         break;
     case EGameOption::ScreenOffsetX:
         options.SetScreenPositionX(value, true);
@@ -550,7 +572,7 @@ int CGameOptions::GetOption(EGameOption option)
     case EGameOption::HintSystem:
         return options.GetIsHintSystemEnabled();
     case EGameOption::ScreenBrightness:
-        return options.GetScreenBrightness();
+        return options.GetGamma();
     case EGameOption::ScreenOffsetX:
         return options.GetScreenPositionX();
     case EGameOption::ScreenOffsetY:

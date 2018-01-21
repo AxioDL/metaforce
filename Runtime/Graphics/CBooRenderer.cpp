@@ -793,13 +793,18 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
     SetupRendererStates();
 
     CModelFlags flags;
+    int bufIdx;
     if (shadowRender)
     {
         flags.m_extendedShader = EExtendedShader::SolidColor;
         flags.x4_color = zeus::CColor::skBlack;
+        bufIdx = 1;
     }
     else
+    {
         flags.m_extendedShader = EExtendedShader::Lighting;
+        bufIdx = 0;
+    }
 
     for (CAreaListItem& item : x1c_areaListItems)
     {
@@ -807,7 +812,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
             continue;
 
         item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
-                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer[shadowRender]);
+                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer[bufIdx]);
 
         for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it)
         {
@@ -815,7 +820,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
             if (model->TryLockTextures())
             {
                 ActivateLightsForModel(&item, *model);
-                model->UpdateUniformData(flags, nullptr, nullptr, shadowRender);
+                model->UpdateUniformData(flags, nullptr, nullptr, bufIdx);
             }
         }
     }

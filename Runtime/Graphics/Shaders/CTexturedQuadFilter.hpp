@@ -36,6 +36,7 @@ protected:
     boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
     bool m_gequal;
+    bool m_flipRect = false;
 
     CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex);
 

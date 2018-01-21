@@ -500,6 +500,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG)
         DiscordRichPresence discordPresence = {};
         discordPresence.state = DiscordState.c_str();
         discordPresence.details = DiscordWorldName.c_str();
+        discordPresence.largeImageKey = "default";
         discordPresence.startTimestamp = DiscordStartTime;
         Discord_UpdatePresence(&discordPresence);
     }

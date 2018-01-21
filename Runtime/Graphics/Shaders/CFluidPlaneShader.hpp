@@ -104,6 +104,7 @@ private:
         zeus::CMatrix4f m_proj;
         zeus::CMatrix4f m_texMtxs[9]; // Pad out to 768 bytes
         CModelShaders::LightingUniform m_lighting;
+        zeus::CVector3f m_pad; // Pad out to 768 bytes
     };
 
     std::experimental::optional<TLockedToken<CTexture>> m_patternTex1;
