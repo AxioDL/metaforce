@@ -7,11 +7,13 @@ namespace urde
 CTexturedQuadFilter::CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex)
 : m_booTex(tex)
 {
+    m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
 }
 
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, bool gequal)
 : m_booTex(tex), m_gequal(gequal)
 {
+    m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
     tex->setClampMode(boo::TextureClampMode::ClampToEdge);
     CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
     {
@@ -26,6 +28,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type,
                                          TLockedToken<CTexture> tex)
 : CTexturedQuadFilter(type, (tex ? tex->GetBooTexture() : nullptr))
 {
+    m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
     m_tex = tex;
 }
 
@@ -40,10 +43,20 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
     };
     m_vbo->load(verts, sizeof(verts));
 
-    m_uniform.m_matrix[0][0] = rect.size.x * 2.f;
-    m_uniform.m_matrix[1][1] = rect.size.y * 2.f;
-    m_uniform.m_matrix[3][0] = rect.position.x * 2.f - 1.f;
-    m_uniform.m_matrix[3][1] = rect.position.y * 2.f - 1.f;
+    if (!m_flipRect)
+    {
+        m_uniform.m_matrix[0][0] = rect.size.x * 2.f;
+        m_uniform.m_matrix[1][1] = rect.size.y * 2.f;
+        m_uniform.m_matrix[3][0] = rect.position.x * 2.f - 1.f;
+        m_uniform.m_matrix[3][1] = rect.position.y * 2.f - 1.f;
+    }
+    else
+    {
+        m_uniform.m_matrix[0][0] = rect.size.x * 2.f;
+        m_uniform.m_matrix[1][1] = rect.size.y * -2.f;
+        m_uniform.m_matrix[3][0] = rect.position.x * 2.f - 1.f;
+        m_uniform.m_matrix[3][1] = rect.position.y * -2.f + 1.f;
+    }
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 

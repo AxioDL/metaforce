@@ -129,6 +129,8 @@ class CGameOptions
     u32 x60_hudAlpha = 0xff;
     u32 x64_helmetAlpha = 0xff;
 
+    s32 m_gamma = 0;
+
     union
     {
         struct
@@ -155,6 +157,9 @@ public:
     float TuneScreenBrightness();
     void SetScreenBrightness(s32, bool);
     s32 GetScreenBrightness() const { return x48_screenBrightness; }
+    void ApplyGamma();
+    void SetGamma(s32, bool);
+    s32 GetGamma() const { return m_gamma; }
     void SetScreenPositionX(s32, bool);
     s32 GetScreenPositionX() const { return x4c_screenXOffset; }
     void SetScreenPositionY(s32, bool);
