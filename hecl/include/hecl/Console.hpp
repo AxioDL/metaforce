@@ -11,6 +11,7 @@
 namespace hecl
 {
 class CVarManager;
+class CVar;
 struct SConsoleCommand
 {
     std::string m_displayName;
@@ -72,8 +73,10 @@ private:
     bool m_overwrite : 1;
     bool m_cursorAtEnd : 1;
     State m_state = State::Closed;
-    float m_conSpeed = 1.f;
-    float m_conHeight = 0.5f;
+    CVar* m_conSpeed;
+    CVar* m_conHeight;
+    float m_cachedConSpeed;
+    float m_cachedConHeight;
 public:
     Console(CVarManager*);
     void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func);

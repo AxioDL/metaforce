@@ -17,10 +17,11 @@ Console::Console(CVarManager* cvarMgr)
     registerCommand("listCVars", "Lists all available CVars", "", std::bind(&CVarManager::list, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
     registerCommand("setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>", std::bind(&CVarManager::setCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
     registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>", std::bind(&CVarManager::getCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-    m_cvarMgr->findOrMakeCVar("con_speed", "Speed at which the console opens and closes, calculated as pixels per second", m_conSpeed,
+    m_conSpeed = cvarMgr->findOrMakeCVar("con_speed", "Speed at which the console opens and closes, calculated as pixels per second", 1.f,
                                          hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
-    m_cvarMgr->findOrMakeCVar("con_height", "Maximum absolute height of the console, height is calculated from the top of the window, expects values ranged from [0.f,1.f]", m_conHeight,
+    m_conHeight = cvarMgr->findOrMakeCVar("con_height", "Maximum absolute height of the console, height is calculated from the top of the window, expects values ranged from [0.f,1.f]", 0.5f,
                                           hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
+
 }
 
 void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func)
@@ -115,6 +116,18 @@ void Console::report(Level level, const char* fmt, ...)
 
 void Console::proc()
 {
+    if (m_conHeight->isModified())
+    {
+        m_cachedConHeight = m_conHeight->toFloat();
+        m_conHeight->clearModified();
+    }
+
+    if (m_conSpeed->isModified())
+    {
+        m_cachedConSpeed = m_conSpeed->toFloat();
+        m_conSpeed->clearModified();
+    }
+
     if (m_state == State::Opened)
     {
         printf("\r%s                                   ", m_commandString.c_str());
@@ -161,7 +174,7 @@ void Console::handleCharCode(unsigned long chr, boo::EModifierKey /*mod*/, bool 
                 m_commandString.insert(m_commandString.begin() + m_cursorPosition + 1, char(chr));
         }
         else
-             m_commandString += char(chr);
+            m_commandString += char(chr);
 
         ++m_cursorPosition;
     }
@@ -282,8 +295,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         else
             m_cursorPosition++;
 
-//        m_showCursor = true;
-//        m_cursorTime = 0;
+        //        m_showCursor = true;
+        //        m_cursorTime = 0;
         break;
     }
 
@@ -373,7 +386,7 @@ void Console::dumpLog()
         {
         case Level::Info:
             printf("%s\n", l.first.c_str());
-        break;
+            break;
         case Level::Warning:
             printf("[Warning] %s\n", l.first.c_str());
             break;

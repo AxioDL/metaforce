@@ -9,46 +9,97 @@
 
 namespace hecl
 {
-class CVar
+namespace DNACVAR
+{
+enum class EType : atUint8
+{
+    Boolean,
+    Integer,
+    Float,
+    Literal,
+    Vec4f
+};
+
+enum EFlags
+{
+    System             = (1 << 0),
+    Game               = (1 << 1),
+    Editor             = (1 << 2),
+    Gui                = (1 << 3),
+    Cheat              = (1 << 4),
+    Hidden             = (1 << 5),
+    ReadOnly           = (1 << 6),
+    Archive            = (1 << 7),
+    InternalArchivable = (1 << 8),
+    Modified           = (1 << 9),
+    ModifyRestart      = (1 << 10) /*!< If this bit is set, any modification will inform the user that a restart is required */
+};
+ENABLE_BITWISE_ENUM(EFlags)
+
+class CVar : public athena::io::DNAYaml<athena::BigEndian>
+{
+public:
+    DECL_YAML
+    String<-1>    m_name;
+    String<-1>    m_value;
+};
+
+struct CVarContainer : public athena::io::DNAYaml<athena::BigEndian>
+{
+    DECL_YAML
+    Value<atUint32> magic = 'CVAR';
+    Value<atUint32> cvarCount;
+    Vector<CVar, DNA_COUNT(cvarCount)> cvars;
+};
+
+}
+
+class CVarManager;
+class CVar : protected DNACVAR::CVar
 {
     friend class CVarManager;
-public:
-    enum EFlags
-    {
-        System             = (1 << 0),
-        Game               = (1 << 1),
-        Editor             = (1 << 2),
-        Gui                = (1 << 3),
-        Cheat              = (1 << 4),
-        Hidden             = (1 << 5),
-        ReadOnly           = (1 << 6),
-        Archive            = (1 << 7),
-        InternalArchivable = (1 << 8),
-        Modified           = (1 << 9),
-        ModifyRestart      = (1 << 10) /*!< If this bit is set, any modification will inform the user that a restart is required */
-    };
-protected:
-    std::string m_name;
-    std::string m_help;
-    EFlags m_flags;
-    EFlags m_oldFlags;
-    bool m_wasDeserialized = false;
-    bool m_unlocked = false;
+    Delete _d;
 
-    virtual bool _fromString(std::string_view sv) = 0;
 public:
-    CVar(std::string_view name, std::string_view help, EFlags flags);
-    virtual ~CVar() = default;
-    std::string name() const { return m_name; }
+    typedef std::function<void(CVar*)> ListenerFunc;
+
+    using EType = DNACVAR::EType;
+    using EFlags = DNACVAR::EFlags;
+
+    CVar(std::string_view name, std::string_view value, std::string_view help, EType type, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, std::string_view value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, float value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, bool  value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, int   value, std::string_view help, EFlags flags, CVarManager& parent);
+    CVar(std::string_view name, const atVec4f& value, std::string_view help, EFlags flags, CVarManager& parent);
+
+
+    std::string_view name() const { return m_name; }
+    std::string_view rawHelp() const { return m_help; }
     std::string help() const;
-    std::string rawHelp() const { return m_help; }
-    virtual std::string toString() const=0;
-    bool fromString(std::string_view v);
-    virtual void deserialize(athena::io::YAMLDocReader& reader) = 0;
-    virtual void serialize(athena::io::YAMLDocWriter& writer) const = 0;
-    virtual bool hasDefaultValue() const = 0;
-    virtual std::string defaultValueString() const = 0;
+    std::string value() const { return m_value; }
 
+    atVec4f toVec4f(bool* isValid = nullptr) const;
+    float toFloat(bool* isValid = nullptr) const;
+    bool  toBoolean(bool* isValid = nullptr) const;
+    int   toInteger(bool* isValid = nullptr) const;
+    const std::wstring toWideLiteral(bool* isValid = nullptr) const;
+    const std::string toLiteral(bool* isValid = nullptr) const;
+
+    bool fromVec4f(const atVec4f& val);
+    bool fromFloat(float val);
+    bool fromBoolean(bool val);
+    bool fromInteger(int val);
+    bool fromLiteral(std::string_view val);
+    bool fromLiteral(std::wstring_view val);
+    bool fromLiteralToType(std::string_view val, bool setDefault = false);
+    bool fromLiteralToType(std::wstring_view val, bool setDefault = false);
+
+    bool isFloat()    const { return m_type == EType::Float; }
+    bool isBoolean()  const { return m_type == EType::Boolean; }
+    bool isInteger()  const { return m_type == EType::Integer; }
+    bool isLiteral()  const { return m_type == EType::Literal; }
+    bool isVec4f()    const { return m_type == EType::Vec4f; }
     bool isModified() const;
     bool modificationRequiresRestart() const;
     bool isReadOnly() const;
@@ -57,36 +108,43 @@ public:
     bool isArchive()  const;
     bool isInternalArchivable() const;
     bool wasDeserialized() const;
+    bool hasDefaultValue() const;
     void clearModified();
     void setModified();
 
+    EType type() const  { return m_type; }
     EFlags flags() const  { return m_flags; }
+
+    /*!
+     * \brief Unlocks the CVar for writing if it is ReadOnly.
+     * <b>Handle with care!!!</b> if you use unlock(), make sure
+     * you lock the cvar using lock()
+     * \see lock
+     */
     void unlock();
+
+    /*!
+     * \brief Locks the CVar to prevent writing if it is ReadOnly.
+     * Unlike its partner function unlock, lock is harmless
+     * \see unlock
+     */
     void lock();
-};
-ENABLE_BITWISE_ENUM(CVar::EFlags)
 
+    void addListener(ListenerFunc func) { m_listeners.push_back(func); }
 
-template<typename T>
-class TCVar : public CVar
-{
-    friend class CVarManager;
-protected:
-    T& m_value;
-    T m_defaultValue;
-    bool _fromString(std::string_view sv);
-public:
-    TCVar(T& value, std::string_view name, std::string_view help, EFlags flags);
+private:
+    void dispatch();
+    EType  m_type;
+    std::string m_help;
+    std::string m_defaultValue;
+    EFlags      m_flags;
+    EFlags      m_oldFlags;
+    bool        m_unlocked = false;
+    bool        m_wasDeserialized = false;
 
-    virtual std::string toString() const;
-    std::wstring toWideString() const;
-    virtual void deserialize(athena::io::YAMLDocReader& reader);
-    virtual void serialize(athena::io::YAMLDocWriter& writer) const;
-    virtual bool hasDefaultValue() const;
+    CVarManager& m_mgr;
 
-    T value() const;
-    T defaultValue() const;
-    std::string defaultValueString() const;
+    std::vector<ListenerFunc> m_listeners;
 };
 
 class CVarUnlocker
@@ -97,107 +155,6 @@ public:
     ~CVarUnlocker() { if (m_cvar) m_cvar->lock(); }
 };
 
-class Vec3fCVar : public CVar
-{
-    friend class CVarManager;
-    atVec3f& m_value;
-    atVec3f m_defaultValue;
-    bool _fromString(std::string_view v);
-public:
-    Vec3fCVar(atVec3f& value, std::string_view name, std::string_view help, EFlags flags);
-
-    std::string toString() const;
-    bool hasDefaultValue() const;
-    void deserialize(athena::io::YAMLDocReader& reader);
-    void serialize(athena::io::YAMLDocWriter& writer) const;
-    atVec3f value() const { return m_value; }
-    atVec3f defaultValue() const { return m_defaultValue; }
-
-    std::string defaultValueString() const;
-};
-
-class Vec3dCVar : public CVar
-{
-    friend class CVarManager;
-    atVec3d& m_value;
-    atVec3d m_defaultValue;
-    bool _fromString(std::string_view v);
-public:
-    Vec3dCVar(atVec3d& value, std::string_view name, std::string_view help, EFlags flags);
-
-    std::string toString() const;
-    bool hasDefaultValue() const;
-    void deserialize(athena::io::YAMLDocReader& reader);
-    void serialize(athena::io::YAMLDocWriter& writer) const;
-    atVec3d value() const { return m_value; }
-    atVec3d defaultValue() const { return m_defaultValue; }
-    std::string defaultValueString() const;
-};
-
-class Vec4fCVar : public CVar
-{
-    friend class CVarManager;
-    atVec4f& m_value;
-    atVec4f m_defaultValue;
-    bool _fromString(std::string_view v);
-public:
-    Vec4fCVar(atVec4f& value, std::string_view name, std::string_view help, EFlags flags);
-    virtual ~Vec4fCVar() = default;
-
-    std::string toString() const;
-    bool hasDefaultValue() const;
-    void deserialize(athena::io::YAMLDocReader& reader);
-    void serialize(athena::io::YAMLDocWriter& writer) const;
-    atVec4f value() const { return m_value; }
-    atVec4f defaultValue() const { return m_defaultValue; }
-    std::string defaultValueString() const;
-};
-
-class Vec4dCVar : public CVar
-{
-    friend class CVarManager;
-    atVec4d& m_value;
-    atVec4d m_defaultValue;
-    bool _fromString(std::string_view v);
-public:
-    Vec4dCVar(atVec4d& value, std::string_view name, std::string_view help, EFlags flags);
-
-    std::string toString() const;
-    bool hasDefaultValue() const;
-    void deserialize(athena::io::YAMLDocReader& reader);
-    void serialize(athena::io::YAMLDocWriter& writer) const;
-    atVec4d value() const { return m_value; }
-    atVec4d defaultValue() const { return m_defaultValue; }
-    std::string defaultValueString() const;
-};
-
-class StringCVar : public CVar
-{
-    friend class CVarManager;
-    std::string& m_value;
-    std::string m_defaultValue;
-    bool _fromString(std::string_view v);
-public:
-    StringCVar(std::string& value, std::string_view name, std::string_view help, EFlags flags);
-
-    std::string toString() const;
-    bool hasDefaultValue() const;
-    void deserialize(athena::io::YAMLDocReader& reader);
-    void serialize(athena::io::YAMLDocWriter& writer) const;
-    const std::string& value() const { return m_value; }
-    const std::string& defaultValue() const { return m_defaultValue; }
-    std::string defaultValueString() const { return defaultValue(); }
-};
-
-using BoolCVar = TCVar<bool>;
-using Int16CVar = TCVar<int16_t>;
-using Uint16CVar = TCVar<uint16_t>;
-using Int32CVar = TCVar<int32_t>;
-using Uint32CVar = TCVar<uint32_t>;
-using Int64CVar = TCVar<int64_t>;
-using Uint64CVar = TCVar<uint64_t>;
-using FloatCVar = TCVar<float>;
-using DoubleCVar = TCVar<double>;
 }
 #endif // CVAR_HPP
 
