@@ -1,7 +1,7 @@
 #include "LaunchMenu.hpp"
 #include "hecl/CVarCommons.hpp"
 
-extern hecl::BoolCVar* hecl::com_developer;
+extern hecl::CVar* hecl::com_developer;
 
 LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
 : QMenu("Launch Menu", parent),
@@ -85,9 +85,9 @@ void LaunchMenu::initDeepColor()
 
 void LaunchMenu::initDeveloperMode()
 {
-    QAction* act = addAction("&Developer Mode");
+    QAction* act = addAction("Developer Mode");
     act->setCheckable(true);
-    act->setChecked(hecl::com_developer->value());
+    act->setChecked(hecl::com_developer->toBoolean());
     connect(act, SIGNAL(triggered()), this, SLOT(developerModeTriggered()));
 }
 
