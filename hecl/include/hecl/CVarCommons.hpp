@@ -19,14 +19,14 @@ using namespace std::literals;
 #define DEFAULT_GRAPHICS_API "OpenGL"sv
 #endif
 
-class CVarCommons
+struct CVarCommons
 {
     CVarManager& m_mgr;
     CVar* m_graphicsApi = nullptr;
     CVar* m_drawSamples = nullptr;
     CVar* m_texAnisotropy = nullptr;
     CVar* m_deepColor = nullptr;
-public:
+
     CVarCommons(CVarManager& manager) : m_mgr(manager)
     {
         m_graphicsApi = m_mgr.findOrMakeCVar("graphicsApi"sv,

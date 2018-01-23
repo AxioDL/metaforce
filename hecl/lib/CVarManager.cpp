@@ -75,7 +75,6 @@ void CVarManager::deserialize(CVar* cvar)
     if (!cvar || (!cvar->isArchive() && !cvar->isInternalArchivable()))
         return;
 
-    CVarContainer container;
 #if _WIN32
     hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
 #else
@@ -85,12 +84,33 @@ void CVarManager::deserialize(CVar* cvar)
 
     if (m_useBinary)
     {
+        CVarContainer container;
         filename += _S(".bin");
         if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
             return;
         athena::io::FileReader reader(filename);
         if (reader.isOpen())
             container.read(reader);
+
+        if (container.cvars.size() > 0)
+        {
+            auto serialized = std::find_if(container.cvars.begin(),
+                                           container.cvars.end(),
+            [&cvar](const DNACVAR::CVar& c) { return c.m_name == cvar->name(); });
+
+            if (serialized != container.cvars.end())
+            {
+                DNACVAR::CVar& tmp = *serialized;
+
+                if (cvar->m_value != tmp.m_value)
+                {
+                    cvar->unlock();
+                    cvar->fromLiteralToType(tmp.m_value, true);
+                    cvar->m_wasDeserialized = true;
+                    cvar->lock();
+                }
+            }
+        }
     }
     else
     {
@@ -99,25 +119,27 @@ void CVarManager::deserialize(CVar* cvar)
             return;
         athena::io::FileReader reader(filename);
         if (reader.isOpen())
-            container.fromYAMLStream(reader);
-    }
-
-
-    if (container.cvars.size() > 0)
-    {
-        auto serialized = std::find_if(container.cvars.begin(), container.cvars.end(), [&cvar](const DNACVAR::CVar& c) -> bool
-        { return c.m_name == cvar->name(); });
-
-        if (serialized != container.cvars.end())
         {
-            DNACVAR::CVar& tmp = *serialized;
-
-            if (cvar->m_value != tmp.m_value)
+            athena::io::YAMLDocReader docReader;
+            if (docReader.parse(&reader))
             {
-                cvar->unlock();
-                cvar->fromLiteralToType(tmp.m_value, true);
-                cvar->m_wasDeserialized = true;
-                cvar->lock();
+                std::unique_ptr<athena::io::YAMLNode> root = docReader.releaseRootNode();
+                auto serialized = std::find_if(root->m_mapChildren.begin(),
+                                               root->m_mapChildren.end(),
+                [&cvar](const auto& c) { return c.first == cvar->name(); });
+
+                if (serialized != root->m_mapChildren.end())
+                {
+                    const std::unique_ptr<athena::io::YAMLNode>& tmp = serialized->second;
+
+                    if (cvar->m_value != tmp->m_scalarString)
+                    {
+                        cvar->unlock();
+                        cvar->fromLiteralToType(tmp->m_scalarString, true);
+                        cvar->m_wasDeserialized = true;
+                        cvar->lock();
+                    }
+                }
             }
         }
     }
@@ -125,16 +147,6 @@ void CVarManager::deserialize(CVar* cvar)
 
 void CVarManager::serialize()
 {
-    CVarContainer container;
-    for (const std::pair<std::string, CVar*>& pair : m_cvars)
-        if (pair.second->isArchive() || (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
-        {
-            CVar tmp = *pair.second;
-            container.cvars.push_back(tmp);
-        }
-
-    container.cvarCount = atUint32(container.cvars.size());
-
 #if _WIN32
     hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
 #else
@@ -143,6 +155,13 @@ void CVarManager::serialize()
 
     if (m_useBinary)
     {
+        CVarContainer container;
+        for (const std::pair<std::string, CVar*>& pair : m_cvars)
+            if (pair.second->isArchive() || (pair.second->isInternalArchivable() &&
+                pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
+                container.cvars.push_back(*pair.second);
+        container.cvarCount = atUint32(container.cvars.size());
+
         filename += _S(".bin");
         athena::io::FileWriter writer(filename);
         if (writer.isOpen())
@@ -151,9 +170,20 @@ void CVarManager::serialize()
     else
     {
         filename += _S(".yaml");
-        athena::io::FileWriter writer(filename);
-        if (writer.isOpen())
-            container.toYAMLStream(writer);
+
+        athena::io::FileReader r(filename);
+        athena::io::YAMLDocWriter docWriter(nullptr, r.isOpen() ? &r : nullptr);
+        r.close();
+
+        docWriter.setStyle(athena::io::YAMLNodeStyle::Block);
+        for (const std::pair<std::string, CVar*>& pair : m_cvars)
+            if (pair.second->isArchive() || (pair.second->isInternalArchivable() &&
+                pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
+                docWriter.writeString(pair.second->name().data(), pair.second->toLiteral());
+
+        athena::io::FileWriter w(filename);
+        if (w.isOpen())
+            docWriter.finish(&w);
     }
 }
 
