@@ -1274,7 +1274,7 @@ void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr)
                     x2e0_chargeSfx = NWeaponTypes::play_sfx(skBeamChargeUpSound[int(x310_currentBeam)],
                                              x834_27_underwater, true, 0.165f);
                 if (x830_chargeRumbleHandle == -1)
-                    x830_chargeRumbleHandle = mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Twelve, 1.f,
+                    x830_chargeRumbleHandle = mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerGunCharge, 1.f,
                                                                             ERumblePriority::Three);
                 x832_27_chargeAnimStarted = true;
             }

@@ -282,7 +282,7 @@ void CGrappleArm::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
         x398_grappleHitGen->SetParticleEmission(false);
         x394_grappleClawGen->SetParticleEmission(true);
         NWeaponTypes::play_sfx(1526, false, false, -0.15f);
-        mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Fourteen, 1.f, ERumblePriority::Three);
+        mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerGrappleFire, 1.f, ERumblePriority::Three);
         break;
     default:
         break;
@@ -436,7 +436,7 @@ void CGrappleArm::UpdateSwingAction(float grappleSwingT, float dt, CStateManager
             x330_swooshSfx = NWeaponTypes::play_sfx(1528, false, false, -0.15f);
             if (x3b0_rumbleHandle != -1)
                 mgr.GetRumbleManager().StopRumble(x3b0_rumbleHandle);
-            x3b0_rumbleHandle = mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Seventeen, 1.f, ERumblePriority::Three);
+            x3b0_rumbleHandle = mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerGrappleSwoosh, 1.f, ERumblePriority::Three);
         }
     }
 

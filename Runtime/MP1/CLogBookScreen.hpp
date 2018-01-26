@@ -52,7 +52,6 @@ public:
     CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
     ~CLogBookScreen();
 
-
     bool InputDisabled() const;
     void TransitioningAway();
     void Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue);

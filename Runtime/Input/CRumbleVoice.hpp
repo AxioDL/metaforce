@@ -7,14 +7,14 @@ namespace urde
 {
 enum class ERumbleFxId
 {
-    Six = 6,
-    Seven = 7,
-    Eleven = 11,
-    Twelve = 12,
-    Thirteen = 13,
-    Fourteen = 14,
-    Fifteen = 15,
-    Seventeen = 17
+    CameraShake = 6,
+    EscapeSequenceShake = 7,
+    PlayerBump = 11,
+    PlayerGunCharge = 12,
+    PlayerMissileFire = 13,
+    PlayerGrappleFire = 14,
+    PlayerLand = 15,
+    PlayerGrappleSwoosh = 17
 };
 enum class ERumblePriority
 {
@@ -24,34 +24,28 @@ enum class ERumblePriority
     Three = 3
 };
 
-struct SAdsrData;
-class CRumbleVoice
-{
-public:
-    CRumbleVoice() {}
-    CRumbleVoice(const SAdsrData& data);
-};
-
 struct SAdsrData
 {
-    float x0 = 0.f;
-    float x4 = 0.f;
-    float x8 = 0.f;
-    float xc = 0.f;
-    float x10 = 0.f;
-    float x14 = 0.f;
+    float x0_attackGain = 0.f;
+    float x4_autoReleaseDur = 0.f;
+    float x8_attackDur = 0.f;
+    float xc_decayDur = 0.f;
+    float x10_sustainGain = 0.f;
+    float x14_releaseDur = 0.f;
     union
     {
-        struct { bool x18_24 : 1; bool x18_25 : 1; };
+        struct { bool x18_24_hasSustain : 1; bool x18_25_autoRelease : 1; };
         u8 dummy = 0;
     };
 
     SAdsrData() = default;
-    SAdsrData(float a, float b, float c, float d, float e, float f, bool g, bool h)
-        : x0(a), x4(b), x8(c), xc(d), x10(e), x14(f)
+    SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur,
+              float sustainGain, float releaseDur, bool hasSustain, bool autoRelease)
+    : x0_attackGain(attackGain), x4_autoReleaseDur(autoReleaseDur), x8_attackDur(attackDur),
+      xc_decayDur(decayDur), x10_sustainGain(sustainGain), x14_releaseDur(releaseDur)
     {
-        x18_24 = g;
-        x18_25 = h;
+        x18_24_hasSustain = hasSustain;
+        x18_25_autoRelease = autoRelease;
     }
 };
 
@@ -60,16 +54,22 @@ struct SAdsrDelta
     enum class EPhase
     {
         Stop,
-        Start,
+        Queued,
+        Attack,
+        Decay,
+        Sustain,
+        Release
     };
 
-    float x0 = 0.f;
-    float x4 = 0.f;
-    float x8 = 0.f;
-    float xc = 0.f;
-    float x10 = 0.f;
+    float x0_curLevel = 0.f;
+    float x4_attackTime = 0.f;
+    float x8_decayTime = 0.f;
+    float xc_releaseTime = 0.f;
+    float x10_autoReleaseTime = 0.f;
+    float x14_attackLevel;
+    float x18_sustainLevel;
     ERumblePriority x1c_priority;
-    EPhase          x20_phase;
+    EPhase x20_phase;
 
     SAdsrDelta(EPhase phase, ERumblePriority priority)
         : x1c_priority(priority), x20_phase(phase)
@@ -79,7 +79,29 @@ struct SAdsrDelta
     {}
 
     static SAdsrDelta Stopped() { return SAdsrDelta(EPhase::Stop); }
-    static SAdsrDelta Start(ERumblePriority priority) { return SAdsrDelta(EPhase::Start, priority); }
+    static SAdsrDelta Start(ERumblePriority priority, bool preQueue)
+    { return SAdsrDelta(preQueue ? EPhase::Queued : EPhase::Attack, priority); }
+};
+
+class CRumbleVoice
+{
+    std::vector<SAdsrData> x0_datas;
+    std::vector<SAdsrDelta> x10_deltas;
+    rstl::reserved_vector<s16, 4> x20_handleIds;
+    s16 x2c_usedChannels = 0;
+    u8 x2e_lastId = 0;
+    bool UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float dt);
+public:
+    CRumbleVoice();
+    s16 CreateRumbleHandle(s16 idx);
+    bool OwnsSustained(s16 id) const;
+    s16 GetFreeChannel() const;
+    float GetIntensity() const;
+    bool Update(float dt);
+    void HardReset();
+    s16 Activate(const SAdsrData& data, s16 idx, float gain, ERumblePriority prio);
+    void Deactivate(s16 id, bool b1);
+    ERumblePriority GetPriority(s16 idx) const { return x10_deltas[idx].x1c_priority; }
 };
 }
 

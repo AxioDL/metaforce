@@ -36,6 +36,7 @@ class CInventoryScreen : public CPauseScreenBase
 public:
     CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                      const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
+    ~CInventoryScreen();
 
     bool InputDisabled() const;
     void TransitioningAway();

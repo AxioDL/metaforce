@@ -212,6 +212,27 @@ public:
             }
         }
     }
+    void ControlAllMotors(const EMotorState* states)
+    {
+        if (smashAdapter)
+        {
+            for (int i=0 ; i<4 ; ++i)
+            {
+                switch (states[i])
+                {
+                case EMotorState::Stop:
+                    smashAdapter->stopRumble(i);
+                    break;
+                case EMotorState::Rumble:
+                    smashAdapter->startRumble(i);
+                    break;
+                case EMotorState::StopHard:
+                    smashAdapter->stopRumble(i, true);
+                    break;
+                }
+            }
+        }
+    }
 
     /* This is where the game thread enters */
     void Update(float dt, CArchitectureQueue& queue);

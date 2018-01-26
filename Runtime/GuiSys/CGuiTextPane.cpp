@@ -64,7 +64,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
     geomCol.a *= parms.x0_alphaMod;
     const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
 
-# if 0
+#if 0
     CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);
 
     switch (xac_drawFlags)

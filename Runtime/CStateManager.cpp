@@ -395,7 +395,7 @@ void CStateManager::UpdateEscapeSequenceTimer(float dt)
         float factor2 = factor * factor;
         CCameraShakeData shakeData(1.f, factor2 * 0.2f * x900_activeRandom->Range(0.5f, 1.f));
         x870_cameraManager->AddCameraShaker(shakeData, true);
-        x88c_rumbleManager->Rumble(*this, ERumbleFxId::Seven, 0.75f, ERumblePriority::One);
+        x88c_rumbleManager->Rumble(*this, ERumbleFxId::EscapeSequenceShake, 0.75f, ERumblePriority::One);
         g_EscapeShakeCountdown = -12.f * factor2 + 15.f;
     }
 }

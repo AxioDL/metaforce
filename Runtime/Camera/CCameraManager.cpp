@@ -628,7 +628,7 @@ void CCameraManager::UpdateRumble(float dt, CStateManager& mgr)
 
     if (!x14_shakers.empty() && !xa0_25_rumbling && xa0_24_pendingRumble)
     {
-        mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Six, 1.f, ERumblePriority::Two);
+        mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::CameraShake, 1.f, ERumblePriority::Two);
         xa0_25_rumbling = true;
     }
 

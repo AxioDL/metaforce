@@ -313,7 +313,7 @@ void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerS
     }
     else
     {
-        mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Thirteen, 0.5f, ERumblePriority::One);
+        mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerMissileFire, 0.5f, ERumblePriority::One);
     }
     x7c_comboSfx = NWeaponTypes::play_sfx(sfxId, underwater, false, 0.165f);
 }

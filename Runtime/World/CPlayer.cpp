@@ -1026,7 +1026,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
             float tmp = x55c_damageAmt / 25.f;
             if (std::fabs(tmp) > 1.f)
                 tmp = tmp > 0.f ? 1.f : -1.f;
-            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Eleven, ERumblePriority::One);
+            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, tmp, ERumblePriority::One);
         }
 
         if (x2f8_morphBallState != EPlayerMorphBallState::Unmorphed)
@@ -2786,7 +2786,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                 {
                     if (std::fabs(rumbleMag) > 0.8f)
                         rumbleMag = (rumbleMag > 0.f) ? 0.8f : -0.8f;
-                    mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Fifteen, rumbleMag, ERumblePriority::One);
+                    mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerLand, rumbleMag, ERumblePriority::One);
                 }
 
                 x2a0_ = 0.f;
@@ -2805,7 +2805,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                 float rumbleMag = -x138_velocity.z / 110.f * 0.5f;
                 if (std::fabs(rumbleMag) > 0.8f)
                     rumbleMag = (rumbleMag > 0.f) ? 0.8f : -0.8f;
-                mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Fifteen, rumbleMag, ERumblePriority::One);
+                mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerLand, rumbleMag, ERumblePriority::One);
                 x2a0_ = 0.f;
             }
             if (x138_velocity.z < -30.f)
@@ -2813,7 +2813,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                 float rumbleMag = -x138_velocity.z / 110.f;
                 if (std::fabs(rumbleMag) > 0.8f)
                     rumbleMag = (rumbleMag > 0.f) ? 0.8f : -0.8f;
-                mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Fifteen, rumbleMag, ERumblePriority::One);
+                mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerLand, rumbleMag, ERumblePriority::One);
                 x2a0_ = 0.f;
             }
         }
@@ -5406,7 +5406,7 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr)
         {
             float upVel = std::sqrt(2.f * std::fabs(g_tweakPlayer->GetNormalGravAccel()) *
                                       g_tweakPlayer->GetBombJumpRadius());
-            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Eleven, ERumblePriority::One);
+            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, 0.3f, ERumblePriority::One);
             x2a0_ = 0.01f;
             switch (GetSurfaceRestraint())
             {
@@ -5523,7 +5523,7 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr)
         {
             CSfxHandle hnd = CSfxManager::SfxStart(1470, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
-            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Eleven, ERumblePriority::One);
+            mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, 0.2015f, ERumblePriority::One);
             x288_startingJumpTimeout = g_tweakPlayer->GetAllowedDoubleJumpTime();
             x290_minJumpTimeout = g_tweakPlayer->GetAllowedDoubleJumpTime() - g_tweakPlayer->GetMinDoubleJumpTime();
             x28c_sjTimer = 0.f;
@@ -5870,7 +5870,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
                     SetVelocityWR(vel);
                     x778_dashSfx = CSfxManager::SfxStart(1560, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
                     ApplySubmergedPitchBend(x778_dashSfx);
-                    mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::Eleven, ERumblePriority::One);
+                    mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, 0.24375f, ERumblePriority::One);
                 }
             }
         }

@@ -81,6 +81,17 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, c
                                                   playerState.HasPowerUp(CPlayerState::EItemType::GrappleBeam));
 }
 
+CInventoryScreen::~CInventoryScreen()
+{
+    for (int i=0 ; i<5 ; ++i)
+    {
+        xd8_textpane_titles[i]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+        x15c_model_righttitledecos[i]->SetColor(zeus::CColor::skWhite);
+        x144_model_titles[i]->SetColor(zeus::CColor::skWhite);
+    }
+    x8c_model_righthighlight->SetColor(zeus::CColor::skWhite);
+}
+
 bool CInventoryScreen::InputDisabled() const
 {
     return std::fabs(x19c_samusDoll->GetViewInterpolation()) > 0 || x1a8_state == EState::Leaving;
