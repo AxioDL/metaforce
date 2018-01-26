@@ -15,8 +15,26 @@ CRumbleGenerator::~CRumbleGenerator()
     HardStopAll();
 }
 
+#define PWM_MONITOR 0
+#if PWM_MONITOR
+static bool b_tp = false;
+static std::chrono::steady_clock::time_point s_tp;
+#endif
+
 void CRumbleGenerator::Update(float dt)
 {
+#if PWM_MONITOR
+    std::chrono::milliseconds::rep ms = 0;
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    if (!b_tp)
+    {
+        b_tp = true;
+        s_tp = now;
+    }
+    else
+        ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - s_tp).count();
+#endif
+
     if (!xf0_24_disabled)
     {
         bool updated = false;
@@ -29,6 +47,10 @@ void CRumbleGenerator::Update(float dt)
                 xd0_onTime[i] = 0.f;
                 if (xe0_commandArray[i] != EMotorState::Stop)
                 {
+#if PWM_MONITOR
+                    s_tp = now;
+                    printf("%lldms ON\n", ms);
+#endif
                     xe0_commandArray[i] = EMotorState::Stop;
                     updated = true;
                 }
@@ -41,6 +63,10 @@ void CRumbleGenerator::Update(float dt)
                     xc0_periodTime[i] = 0.f;
                     if (xe0_commandArray[i] != EMotorState::Rumble)
                     {
+#if PWM_MONITOR
+                        s_tp = now;
+                        printf("%lldms Off\n", ms);
+#endif
                         xe0_commandArray[i] = EMotorState::Rumble;
                         updated = true;
                     }
@@ -53,6 +79,10 @@ void CRumbleGenerator::Update(float dt)
                         xd0_onTime[i] = 0.f;
                         if (xe0_commandArray[i] != EMotorState::Stop)
                         {
+#if PWM_MONITOR
+                            s_tp = now;
+                            printf("%lldms ON\n", ms);
+#endif
                             xe0_commandArray[i] = EMotorState::Stop;
                             updated = true;
                         }

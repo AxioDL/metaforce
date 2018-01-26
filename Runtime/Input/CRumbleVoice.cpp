@@ -38,17 +38,17 @@ s16 CRumbleVoice::GetFreeChannel() const
 float CRumbleVoice::GetIntensity() const
 {
     return std::min(2.f,
-                    std::max(x10_deltas[0].x0_curLevel,
-                    std::max(x10_deltas[1].x0_curLevel,
-                    std::max(x10_deltas[2].x0_curLevel,
-                             x10_deltas[3].x0_curLevel))));
+                    std::max(x10_deltas[0].x0_curIntensity,
+                    std::max(x10_deltas[1].x0_curIntensity,
+                    std::max(x10_deltas[2].x0_curIntensity,
+                             x10_deltas[3].x0_curIntensity))));
 }
 
 bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float dt)
 {
     switch (delta.x20_phase)
     {
-    case SAdsrDelta::EPhase::Queued:
+    case SAdsrDelta::EPhase::PrePulse:
         if (delta.x4_attackTime < (1.f/30.f))
         {
             delta.x4_attackTime += dt;
@@ -56,7 +56,7 @@ bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float
         else
         {
             delta.x20_phase = SAdsrDelta::EPhase::Attack;
-            delta.x0_curLevel = 0.f;
+            delta.x0_curIntensity = 0.f;
             delta.x4_attackTime = 0.f;
         }
         break;
@@ -64,12 +64,12 @@ bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float
         if (delta.x4_attackTime < data.x8_attackDur)
         {
             float t = delta.x4_attackTime / data.x8_attackDur;
-            delta.x0_curLevel = t * delta.x14_attackLevel;
+            delta.x0_curIntensity = t * delta.x14_attackIntensity;
             delta.x4_attackTime += dt;
         }
         else
         {
-            delta.x0_curLevel = delta.x14_attackLevel;
+            delta.x0_curIntensity = delta.x14_attackIntensity;
             delta.x20_phase = SAdsrDelta::EPhase::Decay;
         }
         break;
@@ -79,12 +79,12 @@ bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float
             if (delta.x8_decayTime < data.xc_decayDur)
             {
                 float t = delta.x8_decayTime / data.xc_decayDur;
-                delta.x0_curLevel = (1.f - t) * delta.x14_attackLevel + t * delta.x18_sustainLevel;
+                delta.x0_curIntensity = (1.f - t) * delta.x14_attackIntensity + t * delta.x18_sustainIntensity;
                 delta.x8_decayTime += dt;
             }
             else
             {
-                delta.x0_curLevel = delta.x18_sustainLevel;
+                delta.x0_curIntensity = delta.x18_sustainIntensity;
                 delta.x20_phase = SAdsrDelta::EPhase::Sustain;
             }
         }
@@ -93,12 +93,12 @@ bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float
             if (delta.x8_decayTime < data.xc_decayDur)
             {
                 float t = delta.x8_decayTime / data.xc_decayDur;
-                delta.x0_curLevel = (1.f - t) * delta.x14_attackLevel;
+                delta.x0_curIntensity = (1.f - t) * delta.x14_attackIntensity;
                 delta.x8_decayTime += dt;
             }
             else
             {
-                delta.x0_curLevel = 0.f;
+                delta.x0_curIntensity = 0.f;
                 delta.x20_phase = SAdsrDelta::EPhase::Stop;
             }
             if (delta.x20_phase != SAdsrDelta::EPhase::Decay)
@@ -110,16 +110,16 @@ bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float
         break;
     case SAdsrDelta::EPhase::Release:
     {
-        float a = data.x18_24_hasSustain ? delta.x18_sustainLevel : 0.f;
+        float a = data.x18_24_hasSustain ? delta.x18_sustainIntensity : 0.f;
         if (delta.xc_releaseTime < data.x14_releaseDur)
         {
             float t = delta.xc_releaseTime / data.x14_releaseDur;
-            delta.x0_curLevel = (1.f - t) * a;
+            delta.x0_curIntensity = (1.f - t) * a;
             delta.xc_releaseTime += dt;
         }
         else
         {
-            delta.x0_curLevel = 0.f;
+            delta.x0_curIntensity = 0.f;
             delta.x20_phase = SAdsrDelta::EPhase::Stop;
         }
         if (delta.x20_phase != SAdsrDelta::EPhase::Release)
@@ -154,7 +154,7 @@ bool CRumbleVoice::Update(float dt)
             {
                 if (UpdateChannel(x10_deltas[i], x0_datas[i], dt))
                 {
-                    x2c_usedChannels &= (1 << i);
+                    x2c_usedChannels &= ~(1 << i);
                     x10_deltas[i] = SAdsrDelta::Stopped();
                 }
             }
@@ -180,8 +180,8 @@ s16 CRumbleVoice::Activate(const SAdsrData& data, s16 idx, float gain, ERumblePr
     {
         x0_datas[idx] = data;
         x10_deltas[idx] = SAdsrDelta::Start(prio, !x2c_usedChannels);
-        x10_deltas[idx].x14_attackLevel = gain * x0_datas[idx].x0_attackGain;
-        x10_deltas[idx].x18_sustainLevel = gain * x0_datas[idx].x10_sustainGain;
+        x10_deltas[idx].x14_attackIntensity = gain * x0_datas[idx].x0_attackGain;
+        x10_deltas[idx].x18_sustainIntensity = gain * x0_datas[idx].x10_sustainGain;
         x2c_usedChannels |= 1 << idx;
         if (data.x18_24_hasSustain)
             return CreateRumbleHandle(idx);

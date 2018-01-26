@@ -54,25 +54,25 @@ struct SAdsrDelta
     enum class EPhase
     {
         Stop,
-        Queued,
+        PrePulse,
         Attack,
         Decay,
         Sustain,
         Release
     };
 
-    float x0_curLevel = 0.f;
+    float x0_curIntensity = 0.f;
     float x4_attackTime = 0.f;
     float x8_decayTime = 0.f;
     float xc_releaseTime = 0.f;
     float x10_autoReleaseTime = 0.f;
-    float x14_attackLevel;
-    float x18_sustainLevel;
+    float x14_attackIntensity;
+    float x18_sustainIntensity;
     ERumblePriority x1c_priority;
     EPhase x20_phase;
 
     SAdsrDelta(EPhase phase, ERumblePriority priority)
-        : x1c_priority(priority), x20_phase(phase)
+        : x0_curIntensity(phase == EPhase::PrePulse ? 2.f : 0.f), x1c_priority(priority), x20_phase(phase)
     {}
     SAdsrDelta(EPhase phase)
         : x1c_priority(ERumblePriority::None), x20_phase(phase)
@@ -80,7 +80,7 @@ struct SAdsrDelta
 
     static SAdsrDelta Stopped() { return SAdsrDelta(EPhase::Stop); }
     static SAdsrDelta Start(ERumblePriority priority, bool preQueue)
-    { return SAdsrDelta(preQueue ? EPhase::Queued : EPhase::Attack, priority); }
+    { return SAdsrDelta(preQueue ? EPhase::PrePulse : EPhase::Attack, priority); }
 };
 
 class CRumbleVoice
