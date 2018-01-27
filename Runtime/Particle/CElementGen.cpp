@@ -942,7 +942,6 @@ void CElementGen::Render()
 
 void CElementGen::RenderModels()
 {
-    return;
     CGenDescription* desc = x1c_genDesc.GetObj();
 
     if (x26d_26_modelsUseLights)
@@ -1456,7 +1455,6 @@ void CElementGen::RenderParticles()
             }
 
             float size = 0.5f * particle.x2c_lineLengthOrSize;
-            size = 0.5f;
             if (0.f == particle.x30_lineWidthOrRota)
             {
                 switch (m_shaderClass)
@@ -1494,7 +1492,7 @@ void CElementGen::RenderParticles()
             {
                 float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
                 float sinT = std::sin(theta) * size;
-                float cosT = sinf(theta) * size;
+                float cosT = std::cos(theta) * size;
 
                 switch (m_shaderClass)
                 {
@@ -1620,7 +1618,7 @@ void CElementGen::RenderParticles()
             {
                 float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
                 float sinT = std::sin(theta) * size;
-                float cosT = sinf(theta) * size;
+                float cosT = std::cos(theta) * size;
 
                 for (int i=0 ; i<mbspVal ; ++i)
                 {

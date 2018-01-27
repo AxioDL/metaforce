@@ -179,7 +179,7 @@ s16 CRumbleVoice::Activate(const SAdsrData& data, s16 idx, float gain, ERumblePr
     if (gain > 0.f)
     {
         x0_datas[idx] = data;
-        x10_deltas[idx] = SAdsrDelta::Start(prio, !x2c_usedChannels);
+        x10_deltas[idx] = SAdsrDelta::Start(prio, x2c_usedChannels == 0);
         x10_deltas[idx].x14_attackIntensity = gain * x0_datas[idx].x0_attackGain;
         x10_deltas[idx].x18_sustainIntensity = gain * x0_datas[idx].x10_sustainGain;
         x2c_usedChannels |= 1 << idx;

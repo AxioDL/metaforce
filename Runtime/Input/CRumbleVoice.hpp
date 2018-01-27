@@ -79,8 +79,8 @@ struct SAdsrDelta
     {}
 
     static SAdsrDelta Stopped() { return SAdsrDelta(EPhase::Stop); }
-    static SAdsrDelta Start(ERumblePriority priority, bool preQueue)
-    { return SAdsrDelta(preQueue ? EPhase::PrePulse : EPhase::Attack, priority); }
+    static SAdsrDelta Start(ERumblePriority priority, bool prePulse)
+    { return SAdsrDelta(prePulse ? EPhase::PrePulse : EPhase::Attack, priority); }
 };
 
 class CRumbleVoice

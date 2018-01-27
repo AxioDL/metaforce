@@ -190,7 +190,7 @@ bool CIERandom::GetValue(int frame, int& valOut) const
     int a, b;
     x4_min->GetValue(frame, a);
     x8_max->GetValue(frame, b);
-    if (frame > 0)
+    if (a > 0)
         valOut = CRandom16::GetRandomNumber()->Range(a, b);
     else
         valOut = CRandom16::GetRandomNumber()->Next();

@@ -895,7 +895,7 @@ void CPlayerGun::CMotionState::Update(bool firing, float dt, zeus::CTransform& x
             zeus::CTransform tmpXf =
                 zeus::CQuaternion::fromAxisAngle(xf.basis[1], zeus::degToRad(x10_curRotation)).toTransform() *
                     xf.getRotation();
-            tmpXf.basis = xf.basis;
+            tmpXf.origin = xf.origin;
             xf = tmpXf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
         }
         else
