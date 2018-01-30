@@ -15,6 +15,15 @@ SAdvancementDeltas::Interpolate(const SAdvancementDeltas& a, const SAdvancementD
     };
 }
 
+SAdvancementDeltas
+SAdvancementDeltas::Blend(const SAdvancementDeltas& a, const SAdvancementDeltas& b, float w)
+{
+    return {
+        b.x0_posDelta * w - a.x0_posDelta * (1.f - w),
+        zeus::CQuaternion::slerpShort(a.xc_rotDelta, b.xc_rotDelta, w)
+    };
+}
+
 SAdvancementResults
 IAnimReader::VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const
 {

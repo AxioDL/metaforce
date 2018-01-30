@@ -94,6 +94,8 @@ void CPowerBeam::EnableSecondaryFx(ESecondaryFxType type)
     switch (type)
     {
     case ESecondaryFxType::None:
+    case ESecondaryFxType::ToCombo:
+    case ESecondaryFxType::CancelCharge:
         if (x1cc_enabledSecondaryEffect != ESecondaryFxType::None && x238_power2ndGen)
             x238_power2ndGen->SetParticleEmission(false);
         x1cc_enabledSecondaryEffect = ESecondaryFxType::None;

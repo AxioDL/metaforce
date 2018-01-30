@@ -19,7 +19,7 @@ public:
                    const std::shared_ptr<CAnimTreeNode>& b,
                    float blendWeight, std::string_view name);
 
-    SAdvancementResults VAdvanceView(const CCharAnimTime& a);
+    SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
     CCharAnimTime VGetTimeRemaining() const;
     CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
     std::unique_ptr<IAnimReader> VClone() const;

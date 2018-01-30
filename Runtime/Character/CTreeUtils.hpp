@@ -11,8 +11,8 @@ struct CAnimSysContext;
 class CTreeUtils
 {
 public:
-    static std::shared_ptr<CAnimTreeNode> GetTransitionTree(const std::shared_ptr<CAnimTreeNode>& a,
-                                                            const std::shared_ptr<CAnimTreeNode>& b,
+    static std::shared_ptr<CAnimTreeNode> GetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
+                                                            const std::weak_ptr<CAnimTreeNode>& b,
                                                             const CAnimSysContext& animCtx);
 };
 

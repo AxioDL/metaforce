@@ -17,7 +17,8 @@ protected:
     bool x36_initialized = false;
     SAdvancementResults AdvanceViewForTransitionalPeriod(const CCharAnimTime& time);
 public:
-    static std::string CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&, const std::weak_ptr<CAnimTreeNode>&,
+    static std::string CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&,
+                                           const std::weak_ptr<CAnimTreeNode>&,
                                            float);
 
     CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a,

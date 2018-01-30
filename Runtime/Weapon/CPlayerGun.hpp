@@ -393,7 +393,7 @@ public:
     void SetAssistAimTransform(const zeus::CTransform& xf) { x478_assistAimXf = xf; }
     CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
     void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
-    void ResetCharge(CStateManager& mgr, bool b1);
+    void ResetCharge(CStateManager& mgr, bool resetBeam);
     void HandleBeamChange(const CFinalInput& input, CStateManager& mgr);
     void HandlePhazonBeamChange(CStateManager& mgr);
     void HandleWeaponChange(const CFinalInput& input, CStateManager& mgr);

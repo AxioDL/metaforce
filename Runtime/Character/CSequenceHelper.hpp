@@ -6,10 +6,10 @@
 #include "CInt32POINode.hpp"
 #include "CParticlePOINode.hpp"
 #include "CSoundPOINode.hpp"
+#include "CAnimSysContext.hpp"
 
 namespace urde
 {
-struct CAnimSysContext;
 class IMetaAnim;
 class CTransitionDatabaseGame;
 
@@ -21,9 +21,6 @@ class CSequenceFundamentals
     std::vector<CParticlePOINode> x38_particleNodes;
     std::vector<CSoundPOINode> x48_soundNodes;
 public:
-    /* HACK: Remove this default constructor */
-    CSequenceFundamentals() = default;
-
     CSequenceFundamentals(const CSteadyStateAnimInfo& ssInfo,
                           const std::vector<CBoolPOINode>& boolNodes,
                           const std::vector<CInt32POINode>& int32Nodes,
@@ -39,12 +36,10 @@ public:
 
 class CSequenceHelper
 {
-    TLockedToken<CTransitionDatabaseGame> x0_transDB;
+    CAnimSysContext x0_animCtx;
     std::vector<std::shared_ptr<CAnimTreeNode>> x10_treeNodes;
     std::vector<bool> x20_;
 public:
-    /* HACK: Remove this default constructor */
-    CSequenceHelper() = default;
     CSequenceHelper(const std::shared_ptr<CAnimTreeNode>& a,
                     const std::shared_ptr<CAnimTreeNode>& b,
                     const CAnimSysContext& animCtx);

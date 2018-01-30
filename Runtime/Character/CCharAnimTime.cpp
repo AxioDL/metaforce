@@ -16,7 +16,7 @@ CCharAnimTime CCharAnimTime::Infinity()
 bool CCharAnimTime::EqualsZero() const
 {
     if (x4_type == EType::ZeroIncreasing || x4_type == EType::ZeroSteady || x4_type == EType::ZeroDecreasing)
-        return false;
+        return true;
 
     return (x0_time == 0.f);
 }

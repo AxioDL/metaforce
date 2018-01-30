@@ -12,8 +12,8 @@ class CTransitionDatabaseGame;
 
 class CAnimTreeSequence : public CAnimTreeSingleChild
 {
-    CAnimSysContext x18_;
-    std::vector<std::shared_ptr<IMetaAnim>> x28_;
+    CAnimSysContext x18_animCtx;
+    std::vector<std::shared_ptr<IMetaAnim>> x28_sequence;
     u32 x38_curIdx = 0;
     CSequenceFundamentals x3c_fundamentals;
     CCharAnimTime x94_curTime;
@@ -30,8 +30,9 @@ public:
 
     CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
     std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
+    bool VSupportsReverseView() const { return false; }
 
-    SAdvancementResults VAdvanceView(const CCharAnimTime& a);
+    SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
     CCharAnimTime VGetTimeRemaining() const;
     CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
     u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;

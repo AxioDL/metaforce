@@ -37,10 +37,15 @@ CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
         return GetAnimationTree(animSys, modOrders);
     }
 
+#if 0
+    std::vector<std::string> anims;
+    anims.reserve(anims.size());
     for (const std::shared_ptr<IMetaAnim>& anim : x4_sequence)
     {
-
+        std::shared_ptr<CAnimTreeNode> chNode = anim->GetAnimationTree(animSys, orders);
+        anims.emplace_back(chNode->GetName());
     }
+#endif
 
     std::shared_ptr<CAnimTreeNode> ret =
         std::make_shared<CAnimTreeSequence>(x4_sequence, animSys, "");

@@ -13,7 +13,7 @@ protected:
 public:
     CAnimTreeSingleChild(const std::weak_ptr<CAnimTreeNode>& node, std::string_view name);
 
-    SAdvancementResults VAdvanceView(const CCharAnimTime& a);
+    SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
     CCharAnimTime VGetTimeRemaining() const;
     bool VHasOffset(const CSegId& seg) const;
     zeus::CVector3f VGetOffset(const CSegId& seg) const;

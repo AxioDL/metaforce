@@ -128,33 +128,55 @@ CParticleData::EParentedMode CAnimTreeDoubleChild::VGetParticlePOIState(const ch
     return x18_b->VGetParticlePOIState(name);
 }
 
-void CAnimTreeDoubleChild::VSetPhase(float)
+void CAnimTreeDoubleChild::VSetPhase(float phase)
 {
+    x14_a->VSetPhase(phase);
+    x18_b->VSetPhase(phase);
 }
 
 SAdvancementResults CAnimTreeDoubleChild::VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const
 {
-    return {};
+    SAdvancementResults resA = x14_a->VGetAdvancementResults(a, b);
+    SAdvancementResults resB = x18_b->VGetAdvancementResults(a, b);
+    return (resA.x0_remTime > resB.x0_remTime) ? resA : resB;
 }
 
 u32 CAnimTreeDoubleChild::Depth() const
 {
-    return 0;
+    return std::max(x14_a->Depth(), x18_b->Depth()) + 1;
 }
 
 CAnimTreeEffectiveContribution CAnimTreeDoubleChild::VGetContributionOfHighestInfluence() const
 {
-    return {0.f, "", CSteadyStateAnimInfo(), CCharAnimTime(), 0};
+    CAnimTreeEffectiveContribution cA = x14_a->GetContributionOfHighestInfluence();
+    CAnimTreeEffectiveContribution cB = x18_b->GetContributionOfHighestInfluence();
+
+    float leftWeight = (1.f - VGetRightChildWeight()) * cA.GetContributionWeight();
+    float rightWeight = VGetRightChildWeight() * cB.GetContributionWeight();
+
+    if (leftWeight > rightWeight)
+    {
+        return {leftWeight, cA.GetPrimitiveName(), cA.GetSteadyStateAnimInfo(),
+                cA.GetTimeRemaining(), cA.GetAnimDatabaseIndex()};
+    }
+    else
+    {
+        return {rightWeight, cB.GetPrimitiveName(), cB.GetSteadyStateAnimInfo(),
+                cB.GetTimeRemaining(), cB.GetAnimDatabaseIndex()};
+    }
 }
 
 u32 CAnimTreeDoubleChild::VGetNumChildren() const
 {
-    return 0;
+    return x14_a->VGetNumChildren() + x18_b->VGetNumChildren() + 2;
 }
 
 std::shared_ptr<IAnimReader> CAnimTreeDoubleChild::VGetBestUnblendedChild() const
 {
-    return {};
+    std::shared_ptr<CAnimTreeNode> bestChild = (VGetRightChildWeight() > 0.5f) ? x18_b : x14_a;
+    if (!bestChild)
+        return {};
+    return bestChild->GetBestUnblendedChild();
 }
 
 void CAnimTreeDoubleChild::VGetWeightedReaders(

@@ -1344,7 +1344,8 @@ void CElementGen::RenderParticles()
     zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
     systemViewPointMatrix.origin.zeroOut();
     zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x22c_globalOrientation;
-    systemViewPointMatrix = ((zeus::CTransform::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemViewPointMatrix) * x178_localScaleTransform;
+    systemViewPointMatrix = ((zeus::CTransform::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) *
+        systemViewPointMatrix) * x178_localScaleTransform;
     CGraphics::SetModelMatrix(systemViewPointMatrix);
 
     CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
@@ -1388,7 +1389,8 @@ void CElementGen::RenderParticles()
             const CParticle& particle = x30_particles[i];
             sortItems.emplace_back(i);
             CParticleListItem& sortItem = sortItems.back();
-            sortItem.x4_viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+            sortItem.x4_viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) *
+                                                              x80_timeDeltaScale + particle.x10_prevPos);
         }
 
         std::sort(sortItems.begin(), sortItems.end(),
@@ -1445,7 +1447,8 @@ void CElementGen::RenderParticles()
             if (desc->x44_28_x30_28_SORT)
                 viewPoint = sortItems[i].x4_viewPoint;
             else
-                viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+                viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) *
+                                                      x80_timeDeltaScale + particle.x10_prevPos);
 
             if (!constUVs)
             {
@@ -1577,7 +1580,7 @@ void CElementGen::RenderParticles()
             float size = 0.5f * particle.x2c_lineLengthOrSize;
             if (0.f == particle.x30_lineWidthOrRota)
             {
-                for (int i=0 ; i<mbspVal ; ++i)
+                for (int j=0 ; j<mbspVal ; ++j)
                 {
                     vec += mbspVec;
                     zeus::CVector3f vec2 = systemCameraMatrix * vec;
@@ -1620,7 +1623,7 @@ void CElementGen::RenderParticles()
                 float sinT = std::sin(theta) * size;
                 float cosT = std::cos(theta) * size;
 
-                for (int i=0 ; i<mbspVal ; ++i)
+                for (int j=0 ; j<mbspVal ; ++j)
                 {
                     vec += mbspVec;
                     zeus::CVector3f vec2 = systemCameraMatrix * vec;
@@ -1800,10 +1803,10 @@ void CElementGen::RenderParticlesIndirectTexture()
         inst.pos[2] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.pos[3] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.color = particle.x34_color;
-        inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMin, uvsInd.yMin};
-        inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
-        inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
-        inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMax, uvsInd.yMax};
+        inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMin, uvsInd.yMin};
+        inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
+        inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
+        inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMax, uvsInd.yMax};
         inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
     }
 

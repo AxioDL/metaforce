@@ -415,17 +415,18 @@ void CPlayerGun::StopChargeSound(CStateManager& mgr)
     }
 }
 
-void CPlayerGun::ResetCharge(CStateManager& mgr, bool b1)
+void CPlayerGun::ResetCharge(CStateManager& mgr, bool resetBeam)
 {
     if (x32c_chargePhase != EChargePhase::NotCharging)
         StopChargeSound(mgr);
 
     if ((x2f8_stateFlags & 0x8) != 0x8 && (x2f8_stateFlags & 0x10) != 0x10)
     {
-        bool r30 = !(mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed && !b1);
-        if (x832_27_chargeAnimStarted || r30)
+        bool doResetBeam = mgr.GetPlayer().GetMorphballTransitionState() ==
+                               CPlayer::EPlayerMorphBallState::Morphed || resetBeam;
+        if (x832_27_chargeAnimStarted || doResetBeam)
             PlayAnim(NWeaponTypes::EGunAnimType::BasePosition, false);
-        if (r30)
+        if (doResetBeam)
             x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
         if ((x2f8_stateFlags & 0x2) != 0x2 || x330_chargeState != EChargeState::Normal)
         {
@@ -2559,7 +2560,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
     }
 
     oldViewMtx = CGraphics::g_ViewMatrix;
-    CGraphics::SetModelMatrix(offsetWorldXf.inverse() * oldViewMtx);
+    CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
     CGraphics::SetModelMatrix(zeus::CTransform::Identity());
     x72c_currentBeam->PostRenderGunFx(mgr, offsetWorldXf);
     if (x832_26_comboFiring && x77c_comboXferGen)

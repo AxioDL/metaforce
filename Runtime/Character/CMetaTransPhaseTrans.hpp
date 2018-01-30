@@ -3,17 +3,17 @@
 
 #include "IMetaTrans.hpp"
 #include "IOStreams.hpp"
+#include "CCharAnimTime.hpp"
 
 namespace urde
 {
 
 class CMetaTransPhaseTrans : public IMetaTrans
 {
-    float x4_;
-    u32 x8_;
+    CCharAnimTime x4_transDur;
     bool xc_;
-    bool xd_;
-    u32 x10_;
+    bool xd_runA;
+    u32 x10_flags;
 public:
     CMetaTransPhaseTrans(CInputStream& in);
     EMetaTransType GetType() const {return EMetaTransType::PhaseTrans;}

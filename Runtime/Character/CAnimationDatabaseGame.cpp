@@ -40,6 +40,8 @@ void CAnimationDatabaseGame::GetAllUniquePrimitives(std::vector<CPrimitive>& pri
 
 void CAnimationDatabaseGame::GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>& primsOut,
                                                              std::string_view name) const
-{}
+{
+    // Empty
+}
 
 }

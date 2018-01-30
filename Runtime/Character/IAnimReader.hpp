@@ -26,6 +26,7 @@ struct SAdvancementDeltas
 
     static SAdvancementDeltas Interpolate(const SAdvancementDeltas& a, const SAdvancementDeltas& b,
                                           float oldWeight, float newWeight);
+    static SAdvancementDeltas Blend(const SAdvancementDeltas& a, const SAdvancementDeltas& b, float w);
 };
 
 struct SAdvancementResults
@@ -41,8 +42,6 @@ class CSteadyStateAnimInfo
     bool x14_looping = false;
 
 public:
-    /* HACK: Remove this default constructor */
-    CSteadyStateAnimInfo() = default;
     CSteadyStateAnimInfo(bool looping, const CCharAnimTime& duration, const zeus::CVector3f& offset)
     : x0_duration(duration), x8_offset(offset), x14_looping(looping) {}
 

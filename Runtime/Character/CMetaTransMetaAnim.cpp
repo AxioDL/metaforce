@@ -1,5 +1,6 @@
 #include "CMetaTransMetaAnim.hpp"
 #include "CMetaAnimFactory.hpp"
+#include "CAnimTreeLoopIn.hpp"
 
 namespace urde
 {
@@ -12,7 +13,10 @@ CMetaTransMetaAnim::VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
                                        const std::weak_ptr<CAnimTreeNode>& b,
                                        const CAnimSysContext& animSys) const
 {
-    return {};
+    std::shared_ptr<CAnimTreeNode> animNode =
+        x4_metaAnim->GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+    return std::make_shared<CAnimTreeLoopIn>(a, b, animNode, animSys,
+                                             CAnimTreeLoopIn::CreatePrimitiveName(a, b, animNode));
 }
 
 }

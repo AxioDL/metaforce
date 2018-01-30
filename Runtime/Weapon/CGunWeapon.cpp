@@ -228,7 +228,7 @@ void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const
 {
     CDamageInfo dInfo = GetDamageInfo(mgr, chargeState, chargeFactor1);
     zeus::CVector3f scale(chargeState == EChargeState::Normal ? 1.f : chargeFactor2);
-    bool partialCharge = chargeState == EChargeState::Normal ? false : std::fabs(chargeFactor1 - 1.f) >= 0.00001f;
+    bool partialCharge = chargeState == EChargeState::Normal ? false : !zeus::close_enough(chargeFactor1, 1.f);
     CWeapon::EProjectileAttrib attribs = CWeapon::EProjectileAttrib::ArmCannon;
     if (partialCharge)
         attribs |= CWeapon::EProjectileAttrib::PartialCharge;
