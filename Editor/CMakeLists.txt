@@ -97,7 +97,7 @@ target_link_libraries(urde
                       UrdeLocales
                       UrdeIcons
                       UrdeBadging
-                      RuntimeCommon
+                      RuntimeCommon NESEmulator
                       specter specter-fonts freetype ${DATA_SPEC_LIBS}
                       hecl-full hecl-blender-addon
                       athena-core nod logvisor athena-libyaml amuse boo

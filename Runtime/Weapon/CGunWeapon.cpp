@@ -235,14 +235,12 @@ void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const
     if (chargeState == EChargeState::Charged)
         attribs |= CWeapon::EProjectileAttrib::Charged;
 
-    /*
     CEnergyProjectile* proj = new CEnergyProjectile(true, x144_weapons[int(chargeState)], x1c0_weaponType,
                                                     xf, x1c8_playerMaterial, dInfo, mgr.AllocateUniqueId(),
                                                     kInvalidAreaId, x1c4_playerId, homingTarget, attribs,
                                                     underwater, scale, {}, -1, false);
     mgr.AddObject(proj);
     proj->Think(dt, mgr);
-     */
 
     if (chargeState == EChargeState::Charged)
     {

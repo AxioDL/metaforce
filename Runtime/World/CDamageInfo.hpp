@@ -43,14 +43,18 @@ public:
     CDamageInfo& operator=(const DataSpec::SShotParam& other);
 
     const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }
+    void SetWeaponMode(const CWeaponMode& mode) { x0_weaponMode = mode; }
     float GetRadius() const { return x10_radius; }
     void SetRadius(float r) { x10_radius = r; }
     float GetKnockBackPower() const { return x14_knockback; }
+    void SetKnockBackPower(float k) { x14_knockback = k; }
     float GetDamage() const { return x8_damage; }
+    void SetDamage(float d) { x8_damage = d; }
     float GetDamage(const CDamageVulnerability& dVuln) const;
     float GetRadiusDamage() const { return xc_radiusDamage; }
     float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
     bool NoImmunity() const { return x18_noImmunity; }
+    void SetNoImmunity(bool b) { x18_noImmunity = b; }
     void MultiplyDamage(float m)
     {
         x8_damage *= m;

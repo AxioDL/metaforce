@@ -1223,9 +1223,9 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
         }
         else if (g_GameState->SystemOptions().GetPlayerBeatFusion())
         {
-            x8_action = EAction::None;
+            //x8_action = EAction::None;
             CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-            //x8_action = EAction::PlayNESMetroid;
+            x8_action = EAction::PlayNESMetroid;
         }
         else
         {
@@ -1564,15 +1564,15 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi)
 void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const
 {
     zeus::CColor mulColor = zeus::CColor::skWhite;
-    bool doDraw = (saveUi && saveUi->GetUIType() != CSaveGameScreen::EUIType::SaveReady) ? false : true;
+    bool blackout = saveUi && saveUi->GetUIType() != CSaveGameScreen::EUIType::SaveReady;
 
-    if (doDraw)
+    if (blackout)
         mulColor = zeus::CColor::skBlack;
     else if (x8_quitScreen)
         mulColor = zeus::CColor{0.376470f, 0.376470f, 0.376470f, 1.f};
 
     x4_nesEmu->Draw(mulColor, x15_enableFiltering);
-    if (!doDraw && x8_quitScreen)
+    if (!blackout && x8_quitScreen)
         x8_quitScreen->Draw();
 
     if (x10_remTime >= 7.5f)
@@ -2007,7 +2007,7 @@ CFrontEndUI::CFrontEndUI()
     m_touchBar = NewFrontEndUITouchBar();
     m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
 
-    x14_phase = EPhase::ExitFrontEnd;
+    //x14_phase = EPhase::ExitFrontEnd;
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)
@@ -2533,7 +2533,7 @@ static const float AudioFadeTimeB[] =
 
 CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {
-    if (xdc_saveUI && x50_curScreen >= EScreen::FileSelect)
+    if (xdc_saveUI && (x50_curScreen >= EScreen::FileSelect || true))
     {
         switch (xdc_saveUI->Update(dt))
         {
@@ -2635,6 +2635,11 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
                 xf4_curAudio->StartMixing();
             }
             break;
+        }
+        else
+        {
+            xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
+            xdc_saveUI->ResetCardDriver();
         }
 
         if (xd2_deferSlideShow)

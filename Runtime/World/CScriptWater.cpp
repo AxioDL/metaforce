@@ -552,14 +552,14 @@ EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus:
     return EWeaponCollisionResponseTypes::Water;
 }
 
-s16 CScriptWater::GetSplashSound(float dt) const
+u16 CScriptWater::GetSplashSound(float mag) const
 {
-    return x298_splashSounds[GetSplashIndex(dt)];
+    return x298_splashSounds[GetSplashIndex(mag)];
 }
 
-const std::experimental::optional<TLockedToken<CGenDescription>>& CScriptWater::GetSplashEffect(float dt) const
+const std::experimental::optional<TLockedToken<CGenDescription>>& CScriptWater::GetSplashEffect(float mag) const
 {
-    return x264_splashEffects[GetSplashIndex(dt)];
+    return x264_splashEffects[GetSplashIndex(mag)];
 }
 
 float CScriptWater::GetSplashEffectScale(float dt) const
@@ -572,9 +572,9 @@ float CScriptWater::GetSplashEffectScale(float dt) const
     return ((1.f - s) * (s * kSplashScales[idx * 2])) + kSplashScales[idx];
 }
 
-u32 CScriptWater::GetSplashIndex(float dt) const
+u32 CScriptWater::GetSplashIndex(float mag) const
 {
-    auto idx = u32(dt * 3.f);
+    auto idx = u32(mag * 3.f);
     return (idx < 3 ? idx : idx - 1);
 }
 

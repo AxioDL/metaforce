@@ -43,9 +43,6 @@ public:
     void DeleteProjectileLight(CStateManager&);
     void CreateProjectileLight(std::string_view, const CLight&, CStateManager&);
     void Chase(float, CStateManager&);
-    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                           const CWeaponMode&, int) const
-    { return EWeaponCollisionResponseTypes::Projectile; }
     TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
 };
 }

@@ -326,7 +326,7 @@ void CAuxWeapon::Fire(float dt, bool underwater, CPlayerState::EBeamId currentBe
 
     CWeapon::EProjectileAttrib attrib = CWeapon::EProjectileAttrib::None;
     if (chargeState == EChargeState::Charged)
-        attrib = CGameProjectile::GetBeamAttribType(type) | CWeapon::EProjectileAttrib::Unknown1;
+        attrib = CGameProjectile::GetBeamAttribType(type) | CWeapon::EProjectileAttrib::ComboShot;
 
     if (chargeState == EChargeState::Normal)
     {

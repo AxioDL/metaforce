@@ -106,7 +106,7 @@ public:
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                            const CWeaponMode&, int) const;
 
-    s16 GetSplashSound(float) const;
+    u16 GetSplashSound(float) const;
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;
     float GetSplashEffectScale(float) const;
     u32 GetSplashIndex(float) const;

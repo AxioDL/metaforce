@@ -34,3 +34,6 @@
 [submodule "rapidjson"]
 	path = rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "NESEmulator/fixNES"]
+	path = NESEmulator/fixNES
+	url = https://github.com/jackoalan/fixNES.git

@@ -18,6 +18,7 @@
 #include "Graphics/Shaders/CAABoxShader.hpp"
 #include "Graphics/Shaders/CWorldShadowShader.hpp"
 #include "Graphics/Shaders/CParticleSwooshShaders.hpp"
+#include "NESEmulator/CNESShader.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
 
@@ -297,6 +298,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     TMultiBlendShader<CTextSupportShader>::Initialize();
     TMultiBlendShader<CScanLinesFilter>::Initialize();
     TMultiBlendShader<CRandomStaticFilter>::Initialize();
+    CNESShader::Initialize();
 }
 
 void CMain::RegisterResourceTweaks()
@@ -693,6 +695,7 @@ void CMain::Shutdown()
     TMultiBlendShader<CScanLinesFilter>::Shutdown();
     TMultiBlendShader<CRandomStaticFilter>::Shutdown();
     CFluidPlaneShader::Shutdown();
+    CNESShader::Shutdown();
     CGraphics::ShutdownBoo();
     ShutdownDiscord();
 }

@@ -11,7 +11,6 @@ set(MP1_SOURCES
     CTweaks.hpp CTweaks.cpp
     CInGameTweakManager.hpp CInGameTweakManager.cpp
     CGBASupport.hpp CGBASupport.cpp
-    CNESEmulator.hpp CNESEmulator.cpp
     CMainFlow.hpp CMainFlow.cpp
     CMFGame.hpp CMFGame.cpp
     CPlayMovie.hpp CPlayMovie.cpp

@@ -1,4 +1,7 @@
 #include "CFluidPlaneManager.hpp"
+#include "CScriptWater.hpp"
+#include "CExplosion.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -14,7 +17,11 @@ CFluidPlaneManager::CFluidPlaneManager()
 
 void CFluidPlaneManager::CFluidProfile::Clear()
 {
-
+    x0_ = 0.f;
+    x4_ = 0.f;
+    x8_ = 0.f;
+    xc_ = 0.f;
+    x10_ = 0.f;
 }
 
 void CFluidPlaneManager::StartFrame(bool b)
@@ -25,7 +32,14 @@ void CFluidPlaneManager::StartFrame(bool b)
 
 void CFluidPlaneManager::Update(float dt)
 {
-
+    x11c_uvT += dt;
+    x0_rippleManager.Update(dt);
+    for (CSplashRecord& record : x18_splashes)
+    {
+        record.SetTime(record.GetTime() + dt);
+        if (record.GetTime() > 9999.f)
+            record.SetTime(9999.f);
+    }
 }
 
 float CFluidPlaneManager::GetLastRippleDeltaTime(TUniqueId rippler) const
@@ -35,13 +49,47 @@ float CFluidPlaneManager::GetLastRippleDeltaTime(TUniqueId rippler) const
 
 float CFluidPlaneManager::GetLastSplashDeltaTime(TUniqueId splasher) const
 {
-    return 0.f;
+    float newestTime = 9999.f;
+    for (const CSplashRecord& record : x18_splashes)
+        if (record.GetUniqueId() == splasher && newestTime > record.GetTime())
+            newestTime = record.GetTime();
+    return newestTime;
 }
 
 void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr, const CScriptWater& water,
-                                      const zeus::CVector3f& pos, float factor, bool)
+                                      const zeus::CVector3f& pos, float factor, bool sfx)
 {
-
+    if (water.CanRippleAtPoint(pos))
+    {
+        float oldestTime = 0.f;
+        CSplashRecord* oldestRecord = nullptr;
+        for (CSplashRecord& record : x18_splashes)
+        {
+            if (record.GetTime() > oldestTime)
+            {
+                oldestRecord = &record;
+                oldestTime = record.GetTime();
+            }
+        }
+        if (oldestRecord)
+            *oldestRecord = CSplashRecord(0.f, splasher);
+        else
+            x18_splashes.emplace_back(0.f, splasher);
+        float splashScale = water.GetSplashEffectScale(factor);
+        if (water.GetSplashEffect(factor))
+        {
+            CExplosion* expl = new CExplosion(*water.GetSplashEffect(factor), mgr.AllocateUniqueId(), true,
+                                              CEntityInfo(water.GetAreaIdAlways(), CEntity::NullConnectionList),
+                                              "Splash", zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, pos),
+                                               1, zeus::CVector3f{splashScale}, water.GetSplashColor());
+            mgr.AddObject(expl);
+        }
+        if (sfx)
+        {
+            CSfxManager::AddEmitter(water.GetSplashSound(factor), pos, zeus::CVector3f::skUp,
+                                    true, false, 0x7f, kInvalidAreaId);
+        }
+    }
 }
 
 u8 CFluidPlaneManager::RippleValues[64][64] = {};

@@ -21,11 +21,12 @@ public:
         Wave = (1 << 4),
         Plasma = (1 << 5),
         Phazon = (1 << 6),
-        Unknown1 = (1 << 7),
+        ComboShot = (1 << 7),
         Bombs = (1 << 8),
         PowerBombs = (1 << 9),
         ArmCannon = (1 << 11),
         BigStrike = (1 << 12),
+        DamageFalloff = (1 << 13),
         StaticInterference = (1 << 14),
         KeepInCinematic = (1 << 17),
     };
@@ -35,12 +36,12 @@ private:
     TUniqueId xec_ownerId;
     EWeaponType xf0_weaponType;
     u32 xf4_;
-    CMaterialFilter xf8_;
+    CMaterialFilter xf8_filter;
     u32 x10c_;
-    CDamageInfo x110_;
-    CDamageInfo x12c_;
-    float x148_;
-    float x14c_;
+    CDamageInfo x110_origDamageInfo;
+    CDamageInfo x12c_curDamageInfo;
+    float x148_curTime;
+    float x14c_damageFalloffSpeed;
     float x150_damageDuration;
     float x154_interferenceDuration;
 public:
@@ -49,27 +50,25 @@ public:
             const CMaterialList& mList, const CDamageInfo&, EProjectileAttrib attribs, CModelData&& mData);
 
     virtual void Accept(IVisitor &visitor);
-    bool HasAttrib(EProjectileAttrib) const;
+    bool HasAttrib(EProjectileAttrib attrib) const
+    { return (int(xe8_projectileAttribs) & int(attrib)) == int(attrib); }
     EProjectileAttrib GetAttribField() const { return xe8_projectileAttribs; }
-    const CMaterialFilter& GetFilter() const;
-    void SetFilter(const CMaterialFilter&);
+    const CMaterialFilter& GetFilter() const { return xf8_filter; }
+    void SetFilter(const CMaterialFilter& filter) { xf8_filter = filter; }
     TUniqueId GetOwnerId() const { return xec_ownerId; }
     void SetOwnerId(TUniqueId oid) { xec_ownerId = oid; }
-    EWeaponType GetType() const;
-    const CDamageInfo& GetDamageInfo() const;
-    CDamageInfo& DamageInfo();
-    void SetDamageInfo(const CDamageInfo&);
+    EWeaponType GetType() const { return xf0_weaponType; }
+    const CDamageInfo& GetDamageInfo() const { return x12c_curDamageInfo; }
+    CDamageInfo& DamageInfo() { return x12c_curDamageInfo; }
+    void SetDamageInfo(const CDamageInfo& dInfo) { x12c_curDamageInfo = dInfo; }
     float GetDamageDuration() const { return x150_damageDuration; }
     float GetInterferenceDuration() const { return x154_interferenceDuration; }
 
-    void Think(float, CStateManager &) {}
-    void Render(const CStateManager&) const {}
+    void Think(float, CStateManager &);
+    void Render(const CStateManager&) const;
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                           const CWeaponMode&, int) const
-    {
-        return EWeaponCollisionResponseTypes::Default;
-    }
-    void FluidFXThink(EFluidState, CScriptWater&, CStateManager&) {}
+                                                           const CWeaponMode&, int) const;
+    void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr);
 };
 ENABLE_BITWISE_ENUM(CWeapon::EProjectileAttrib)
 }

@@ -23,7 +23,12 @@ void CRippleManager::SetTime(float)
 
 void CRippleManager::Update(float dt)
 {
-
+    for (CRipple& ripple : x4_ripples)
+    {
+        ripple.SetTime(ripple.GetTime() + dt);
+        if (ripple.GetTime() > 9999.f)
+            ripple.SetTime(9999.f);
+    }
 }
 
 float CRippleManager::GetLastRippleDeltaTime(TUniqueId rippler) const
