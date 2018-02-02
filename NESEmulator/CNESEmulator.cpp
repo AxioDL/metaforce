@@ -336,6 +336,8 @@ CNESEmulator::~CNESEmulator()
 
 int CNESEmulator::audioUpdate()
 {
+    int origProcBufs = m_procBufs;
+
     uint8_t *data = apuGetBuf();
     if(data != NULL && m_procBufs)
     {
@@ -347,13 +349,13 @@ int CNESEmulator::audioUpdate()
             m_headBuf = 0;
     }
 
-    //if (!m_procBufs)
+    //if (!origProcBufs)
         //printf("OVERRUN\n");
 
-    return m_procBufs;
+    return origProcBufs;
 }
 
-static const size_t AudioFrameSz = 2 * sizeof(int16_t);
+static constexpr size_t AudioFrameSz = 2 * sizeof(int16_t);
 
 size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
 {
@@ -397,7 +399,7 @@ void CNESEmulator::NesEmuMainLoop()
     int loopCount = 0;
     do
     {
-        if((!emuSkipVsync && emuRenderFrame) || nesPause)
+        if(emuRenderFrame || nesPause)
         {
 #if (WINDOWS_BUILD && DEBUG_MAIN_CALLS)
             emuMainTimesSkipped++;
@@ -496,6 +498,7 @@ void CNESEmulator::NesEmuMainLoop()
                 vrc7Clock++;
         }
 
+#if 1
         if ((loopCount % 5000) == 0 && GetTickCount() - start >= 14)
         {
 #if CATCHUP_SKIP
@@ -504,11 +507,14 @@ void CNESEmulator::NesEmuMainLoop()
 #endif
             break;
         }
+#endif
     }
     while(true);
 
+#if 0
     int end = GetTickCount();
-    printf("%dms\n", end - start);
+    printf("%dms %d %d\n", end - start, loopCount, m_procBufs);
+#endif
 
 #if (WINDOWS_BUILD && DEBUG_MAIN_CALLS)
     emuMainTimesCalled++;
