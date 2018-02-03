@@ -37,17 +37,18 @@ extern "C"
  * of the MIT license.  See the LICENSE file for details.
  */
 
-#define WINDOWS_BUILD 1
 #define DEBUG_HZ 0
 #define DEBUG_MAIN_CALLS 0
 #define DEBUG_KEY 0
 #define DEBUG_LOAD_INFO 1
 
+#ifndef _WIN32
 std::chrono::steady_clock::time_point s_tp = std::chrono::steady_clock::now();
 static std::chrono::milliseconds::rep GetTickCount()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - s_tp).count();
 }
+#endif
 
 static const char *VERSION_STRING = "fixNES Alpha v1.0.5";
 static char window_title[256];
@@ -87,10 +88,6 @@ static bool inResize = false;
 static bool inDiskSwitch = false;
 static bool inReset = false;
 
-#if WINDOWS_BUILD
-//#include <windows.h>
-//typedef bool (APIENTRY *PFNWGLSWAPINTERVALEXTPROC) (int interval);
-//PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 #if DEBUG_HZ
 static int emuFrameStart = 0;
 static int emuTimesCalled = 0;
@@ -101,7 +98,6 @@ static int emuMainFrameStart = 0;
 static int emuMainTimesCalled = 0;
 static int emuMainTimesSkipped = 0;
 static int emuMainTotalElapsed = 0;
-#endif
 #endif
 
 #define DOTS 341
@@ -239,14 +235,12 @@ void CNESEmulator::InitializeEmulator()
     sprintf(window_title, "%s NES - %s\n", nesPAL ? "PAL" : "NTSC", VERSION_STRING);
 
     sprintf(window_title_pause, "%s (Pause)", window_title);
-#if WINDOWS_BUILD
     #if DEBUG_HZ
 	emuFrameStart = GetTickCount();
 	#endif
 	#if DEBUG_MAIN_CALLS
 	emuMainFrameStart = GetTickCount();
 	#endif
-#endif
     cpuCycleTimer = nesPAL ? 16 : 12;
     //do full frame per update loop
     ppuCycleTimer = nesPAL ? 5 : 4;
@@ -386,7 +380,7 @@ size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t
     return frames;
 }
 
-#define CATCHUP_SKIP 1
+#define CATCHUP_SKIP 0
 #if CATCHUP_SKIP
 static int catchupFrames = 0;
 #endif
@@ -399,7 +393,7 @@ void CNESEmulator::NesEmuMainLoop()
     {
         if((!emuSkipVsync && emuRenderFrame) || nesPause)
         {
-#if (WINDOWS_BUILD && DEBUG_MAIN_CALLS)
+#if DEBUG_MAIN_CALLS
             emuMainTimesSkipped++;
 #endif
             //printf("LC RENDER: %d\n", loopCount);
@@ -420,7 +414,7 @@ void CNESEmulator::NesEmuMainLoop()
             {
                 if(!apuCycle())
                 {
-#if (WINDOWS_BUILD && DEBUG_MAIN_CALLS)
+#if DEBUG_MAIN_CALLS
                     emuMainTimesSkipped++;
 #endif
 #if CATCHUP_SKIP
@@ -459,7 +453,7 @@ void CNESEmulator::NesEmuMainLoop()
                 emuRenderFrame = true;
                 if(fm2playRunning())
                     fm2playUpdate();
-#if (WINDOWS_BUILD && DEBUG_HZ)
+#if DEBUG_HZ
                 emuTimesCalled++;
 				int end = GetTickCount();
 				emuTotalElapsed += end - emuFrameStart;
@@ -507,10 +501,12 @@ void CNESEmulator::NesEmuMainLoop()
     }
     while(true);
 
+#if 0
     int end = GetTickCount();
     printf("%dms\n", end - start);
+#endif
 
-#if (WINDOWS_BUILD && DEBUG_MAIN_CALLS)
+#if DEBUG_MAIN_CALLS
     emuMainTimesCalled++;
 	int end = GetTickCount();
     //printf("%dms\n", end - start);
