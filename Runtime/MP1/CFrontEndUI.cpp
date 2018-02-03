@@ -1586,7 +1586,10 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const
         return;
     if (xc_textSupport->GetIsTextSupportFinishedLoading())
     {
-        CGraphics::SetModelMatrix(zeus::CTransform::Translate(-280.f, 0.f, -160.f));
+        float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height) / 1.33f;
+        CGraphics::SetOrtho(-320.f * aspect, 320.f * aspect, 240.f, -240.f, -4096.f, 4096.f);
+        CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
+        CGraphics::SetModelMatrix(zeus::CTransform::Translate(-220.f, 0.f, -200.f));
         xc_textSupport->Render();
     }
 }

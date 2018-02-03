@@ -66,7 +66,7 @@ private:
                               u32 checkDataLen = 0x1FFFC, u32 checksumMagic = 0xA663);
     void InitializeEmulator();
     void DeinitializeEmulator();
-    bool NesEmuMainLoop();
+    void NesEmuMainLoop(bool forceDraw = false);
     static bool CheckForGameOver(const u8* vram, u8* passwordOut = nullptr);
     static EPasswordEntryState CheckForPasswordEntryScreen(const uint8_t* vram);
     static bool SetPasswordIntoEntryScreen(u8* vram, u8* wram, const u8* password);

@@ -397,9 +397,8 @@ size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t
 static int catchupFrames = 0;
 #endif
 
-bool CNESEmulator::NesEmuMainLoop()
+void CNESEmulator::NesEmuMainLoop(bool forceDraw)
 {
-    bool drawFrame = false;
     int start = GetTickCount();
     int loopCount = 0;
     do
@@ -411,7 +410,6 @@ bool CNESEmulator::NesEmuMainLoop()
 #endif
             //printf("LC RENDER: %d\n", loopCount);
             m_texture->load(textureImage, visibleImg);
-            drawFrame = true;
             emuRenderFrame = false;
 #if CATCHUP_SKIP
             if (catchupFrames)
@@ -431,7 +429,7 @@ bool CNESEmulator::NesEmuMainLoop()
                 //runs every 8th cpu clock
                 if(apuClock == 8)
                 {
-                    if(!apuCycleURDE())
+                    if(!apuCycleURDE() && !forceDraw)
                     {
 #if (WINDOWS_BUILD && DEBUG_MAIN_CALLS)
                         emuMainTimesSkipped++;
@@ -515,7 +513,7 @@ bool CNESEmulator::NesEmuMainLoop()
         }
 
 #if 1
-        if ((loopCount % 10000) == 0 && GetTickCount() - start >= 14)
+        if (!forceDraw && (loopCount % 10000) == 0 && GetTickCount() - start >= 14)
         {
 #if CATCHUP_SKIP
             if (catchupFrames < 50)
@@ -547,8 +545,6 @@ bool CNESEmulator::NesEmuMainLoop()
 	}
 	emuMainFrameStart = end;
 #endif
-
-    return drawFrame;
 }
 
 static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst)
@@ -884,11 +880,11 @@ bool CNESEmulator::SetPasswordIntoEntryScreen(u8* vram, u8* wram, const u8* pass
             ++encOff;
             break;
         case 1:
-            lastWord = (lastWord >> 6) | (password[encOff] << 2);
+            lastWord = (lastWord >> 6) | (u32(password[encOff]) << 2);
             ++encOff;
             break;
         case 2:
-            lastWord = (lastWord >> 4) | (password[encOff] << 4);
+            lastWord = (lastWord >> 6) | (u32(password[encOff]) << 4);
             ++encOff;
             break;
         case 3:
@@ -898,9 +894,9 @@ bool CNESEmulator::SetPasswordIntoEntryScreen(u8* vram, u8* wram, const u8* pass
             break;
         }
 
-        u8 name = u8(lastWord & 0x3f);
-        wram[0x99a + i] = name;
-        vram[0x109 + chOff] = name;
+        u8 chName = u8(lastWord & 0x3f);
+        wram[0x99a + i] = chName;
+        vram[0x109 + chOff] = chName;
         ++chOff;
         if (chOff == 0x6 || chOff == 0x46)
             ++chOff; // mid-line space
@@ -932,7 +928,7 @@ void CNESEmulator::Update()
         }
         if (gameOver && !x20_gameOver)
             for (int i=0 ; i<3 ; ++i) // Three draw loops to ensure password display
-                while (!NesEmuMainLoop()) {}
+                NesEmuMainLoop(true);
         else
             NesEmuMainLoop();
         x20_gameOver = gameOver;

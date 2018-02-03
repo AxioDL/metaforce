@@ -62,10 +62,10 @@ const std::pair<int, const SGameOption*> GameOptionsRegistry[] =
 CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
 {
     for (int b=0 ; b<98 ; ++b)
-        x0_[b] = stream.ReadEncoded(1);
+        x0_[b] = stream.ReadEncoded(8);
 
     for (int b=0 ; b<64 ; ++b)
-        x68_[b] = stream.ReadEncoded(1);
+        x68_[b] = stream.ReadEncoded(8);
 
     xc0_frozenFpsCount = stream.ReadEncoded(2);
     xc4_frozenBallCount = stream.ReadEncoded(2);
@@ -75,7 +75,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
     xd0_25_normalModeBeat = stream.ReadEncoded(1);
     xd0_26_hardModeBeat = stream.ReadEncoded(1);
     xd0_27_fusionBeat = stream.ReadEncoded(1);
-    xd0_28_fusionSuitActive = stream.ReadEncoded(1);
+    xd0_28_fusionSuitActive = false;
     xd0_29_allItemsCollected = stream.ReadEncoded(1);
     xbc_autoMapperKeyState = stream.ReadEncoded(2);
 
@@ -108,10 +108,10 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
 void CPersistentOptions::PutTo(CBitStreamWriter& w) const
 {
     for (int b=0 ; b<98 ; ++b)
-        w.WriteEncoded(x0_[b], 1);
+        w.WriteEncoded(x0_[b], 8);
 
     for (int b=0 ; b<64 ; ++b)
-        w.WriteEncoded(x68_[b], 1);
+        w.WriteEncoded(x68_[b], 8);
 
     w.WriteEncoded(xc0_frozenFpsCount, 2);
     w.WriteEncoded(xc4_frozenBallCount, 2);
@@ -121,7 +121,6 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const
     w.WriteEncoded(xd0_25_normalModeBeat, 1);
     w.WriteEncoded(xd0_26_hardModeBeat, 1);
     w.WriteEncoded(xd0_27_fusionBeat, 1);
-    w.WriteEncoded(xd0_28_fusionSuitActive, 1);
     w.WriteEncoded(xd0_29_allItemsCollected, 1);
     w.WriteEncoded(xbc_autoMapperKeyState, 2);
 
