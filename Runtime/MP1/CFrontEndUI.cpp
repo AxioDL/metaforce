@@ -1036,8 +1036,8 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI)
     else if (x24_loadedFrame)
         x24_loadedFrame->Update(dt);
 
-    bool showFusionSuit = g_GameState->SystemOptions().GetPlayerLinkedFusion() &&
-                          g_GameState->SystemOptions().GetPlayerBeatNormalMode();
+    bool showFusionSuit = (g_GameState->SystemOptions().GetPlayerLinkedFusion() &&
+                           g_GameState->SystemOptions().GetPlayerBeatNormalMode()) || m_gbaOverride;
     bool showFusionSuitProceed = showFusionSuit && x28_tablegroup_options->GetUserSelection() == 1;
     x2c_tablegroup_fusionsuit->SetIsActive(showFusionSuitProceed);
     x2c_tablegroup_fusionsuit->SetIsVisible(showFusionSuitProceed);
@@ -1060,11 +1060,6 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI)
             instructionStr = g_MainStringTable->GetString(79); // You have not completed fusion
         else if (!g_GameState->SystemOptions().GetPlayerBeatFusion())
             instructionStr = g_MainStringTable->GetString(77); // To play NES Metroid
-        else
-        {
-            instructionStr = u"NES Emulator currently unsupported";
-            x30_textpane_instructions.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skYellow);
-        }
     }
 
     x30_textpane_instructions.SetPairText(instructionStr);
@@ -1102,15 +1097,22 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
         }
         else if (x24_loadedFrame)
         {
-            bool showFusionSuit = g_GameState->SystemOptions().GetPlayerLinkedFusion() &&
-                                  g_GameState->SystemOptions().GetPlayerBeatNormalMode();
+            CFinalInput useInput = input;
+            if (input.PZ())
+            {
+                useInput.x2d_b28_PA = true;
+                m_gbaOverride = true;
+            }
+
+            bool showFusionSuit = (g_GameState->SystemOptions().GetPlayerLinkedFusion() &&
+                                   g_GameState->SystemOptions().GetPlayerBeatNormalMode()) || m_gbaOverride;
             if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::FusionBonus)
             {
                 m_touchBar.SetFusionBonusPhase(showFusionSuit &&
                                                g_GameState->SystemOptions().GetPlayerFusionSuitActive());
             }
 
-            x24_loadedFrame->ProcessUserInput(input);
+            x24_loadedFrame->ProcessUserInput(useInput);
 
             switch (tbAction)
             {
@@ -1196,7 +1198,7 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
     {
     case 1:
         /* Fusion Suit */
-        if (x3a_mpNotComplete)
+        if (x3a_mpNotComplete || m_gbaOverride)
         {
             x3a_mpNotComplete = false;
             PlayAdvanceSfx();
@@ -1216,12 +1218,12 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
         break;
     case 0:
         /* NES Metroid */
-        if (x39_fusionNotComplete)
+        if (x39_fusionNotComplete && !m_gbaOverride)
         {
             x39_fusionNotComplete = false;
             PlayAdvanceSfx();
         }
-        else if (g_GameState->SystemOptions().GetPlayerBeatFusion())
+        else if (g_GameState->SystemOptions().GetPlayerBeatFusion() || m_gbaOverride)
         {
             //x8_action = EAction::None;
             CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -1427,6 +1429,9 @@ CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame()
     xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::CColor::skWhite,
                                                        zeus::CColor::skBlack, zeus::CColor::skWhite,
                                                        0, 0, g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
+    xc_textSupport->SetText(g_MainStringTable->GetString(103));
+    xc_textSupport->AutoSetExtent();
+    xc_textSupport->ClearRenderBuffer();
 }
 
 void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode)
@@ -1498,9 +1503,9 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi)
     case EMode::Emulator:
     {
         x4_nesEmu->Update();
-        if (!x4_nesEmu->WantsQuit())
+        if (!x4_nesEmu->IsGameOver())
             x14_emulationSuspended = false;
-        if (x4_nesEmu->WantsQuit() && !x14_emulationSuspended)
+        if (x4_nesEmu->IsGameOver() && !x14_emulationSuspended)
         {
             x14_emulationSuspended = true;
             if (saveUi && !saveUi->IsSavingDisabled())
@@ -1511,8 +1516,8 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi)
             SetMode(EMode::ContinuePlaying);
             break;
         }
-        if (x4_nesEmu->WantsLoad() && saveUi)
-            x4_nesEmu->LoadState(g_GameState->SystemOptions().GetNESState());
+        if (x4_nesEmu->GetPasswordEntryState() == CNESEmulator::EPasswordEntryState::NotEntered && saveUi)
+            x4_nesEmu->LoadPassword(g_GameState->SystemOptions().GetNESState());
         break;
     }
 
@@ -1523,7 +1528,7 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi)
             EQuitAction action = x8_quitScreen->Update(dt);
             if (action == EQuitAction::Yes)
             {
-                memmove(g_GameState->SystemOptions().GetNESState(), x4_nesEmu->GetSaveState(), 18);
+                memmove(g_GameState->SystemOptions().GetNESState(), x4_nesEmu->GetPassword(), 18);
                 saveUi->SaveNESState();
                 SetMode(EMode::ContinuePlaying);
             }
@@ -2533,7 +2538,7 @@ static const float AudioFadeTimeB[] =
 
 CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
 {
-    if (xdc_saveUI && (x50_curScreen >= EScreen::FileSelect || true))
+    if (xdc_saveUI && x50_curScreen >= EScreen::FileSelect)
     {
         switch (xdc_saveUI->Update(dt))
         {
@@ -2635,11 +2640,6 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue)
                 xf4_curAudio->StartMixing();
             }
             break;
-        }
-        else
-        {
-            xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
-            xdc_saveUI->ResetCardDriver();
         }
 
         if (xd2_deferSlideShow)

@@ -19,6 +19,14 @@ namespace MP1
 
 class CNESEmulator : public boo::IAudioVoiceCallback
 {
+public:
+    enum class EPasswordEntryState
+    {
+        NotPasswordScreen,
+        NotEntered,
+        Entered
+    };
+private:
     static bool EmulatorConstructed;
 
     std::unique_ptr<u8[]> m_nesEmuPBuf;
@@ -49,26 +57,29 @@ class CNESEmulator : public boo::IAudioVoiceCallback
     size_t m_posInBuf = 0;
     boo::ObjToken<boo::IAudioVoice> m_booVoice;
 
-    bool x20_wantsQuit = false;
-    u8 x21_saveState[18];
-    bool x34_wantsLoad = false;
-    bool x38_stateLoaded = false;
-    u8 x39_loadState[18];
+    bool x20_gameOver = false;
+    u8 x21_passwordFromNES[18];
+    EPasswordEntryState x34_passwordEntryState = EPasswordEntryState::NotPasswordScreen;
+    bool x38_passwordPending = false;
+    u8 x39_passwordToNES[18];
     static void DecompressROM(u8* dataIn, u8* dataOut, u32 dataOutLen = 0x20000, u8 descrambleSeed = 0xe9,
                               u32 checkDataLen = 0x1FFFC, u32 checksumMagic = 0xA663);
     void InitializeEmulator();
     void DeinitializeEmulator();
-    void NesEmuMainLoop();
+    bool NesEmuMainLoop();
+    static bool CheckForGameOver(const u8* vram, u8* passwordOut = nullptr);
+    static EPasswordEntryState CheckForPasswordEntryScreen(const uint8_t* vram);
+    static bool SetPasswordIntoEntryScreen(u8* vram, u8* wram, const u8* password);
 public:
     CNESEmulator();
     ~CNESEmulator();
     void ProcessUserInput(const CFinalInput& input, int);
     void Update();
     void Draw(const zeus::CColor& mulColor, bool filtering);
-    void LoadState(const u8* state);
-    const u8* GetSaveState() const { return x21_saveState; }
-    bool WantsQuit() const { return x20_wantsQuit; }
-    bool WantsLoad() const { return x34_wantsLoad; }
+    void LoadPassword(const u8* state);
+    const u8* GetPassword() const { return x21_passwordFromNES; }
+    bool IsGameOver() const { return x20_gameOver; }
+    EPasswordEntryState GetPasswordEntryState() const { return x34_passwordEntryState; }
 
     int audioUpdate();
     void preSupplyAudio(boo::IAudioVoice& voice, double dt) {}
