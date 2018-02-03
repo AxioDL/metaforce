@@ -31,7 +31,7 @@ extern "C"
 #include "fixNES/mapper_h/nsf.h"
 
 /*
- * Copyright (C) 2017 FIX94
+ * Portions Copyright (C) 2017 FIX94
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -78,7 +78,7 @@ static uint32_t emuPrgRAMsize = 0;
 uint32_t textureImage[0xF000];
 bool nesPause = false;
 bool ppuDebugPauseFrame = false;
-bool doOverscan = true;
+bool doOverscan = false;
 bool nesPAL = false;
 bool nesEmuNSFPlayback = false;
 
@@ -134,6 +134,9 @@ static uint16_t ppuClock = 1;
 static uint16_t vrc7Clock = 1;
 
 extern bool fdsSwitch;
+
+bool apuCycleURDE();
+uint8_t* ppuGetVRAM();
 
 int audioUpdate()
 {
@@ -250,6 +253,7 @@ void CNESEmulator::InitializeEmulator()
 
     CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
+        // Nearest-neighbor FTW!
         m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw,
                                           boo::TextureFormat::RGBA8,
                                           boo::TextureClampMode::ClampToEdgeNearest);
@@ -330,6 +334,8 @@ CNESEmulator::~CNESEmulator()
 
 int CNESEmulator::audioUpdate()
 {
+    int origProcBufs = m_procBufs;
+
     uint8_t *data = apuGetBuf();
     if(data != NULL && m_procBufs)
     {
@@ -341,13 +347,13 @@ int CNESEmulator::audioUpdate()
             m_headBuf = 0;
     }
 
-    //if (!m_procBufs)
+    //if (!origProcBufs)
         //printf("OVERRUN\n");
 
-    return m_procBufs;
+    return origProcBufs;
 }
 
-static const size_t AudioFrameSz = 2 * sizeof(int16_t);
+static constexpr size_t AudioFrameSz = 2 * sizeof(int16_t);
 
 size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
 {
@@ -380,18 +386,18 @@ size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t
     return frames;
 }
 
-#define CATCHUP_SKIP 0
+#define CATCHUP_SKIP 1
 #if CATCHUP_SKIP
 static int catchupFrames = 0;
 #endif
 
-void CNESEmulator::NesEmuMainLoop()
+void CNESEmulator::NesEmuMainLoop(bool forceDraw)
 {
     int start = GetTickCount();
     int loopCount = 0;
     do
     {
-        if((!emuSkipVsync && emuRenderFrame) || nesPause)
+        if(emuRenderFrame || nesPause)
         {
 #if DEBUG_MAIN_CALLS
             emuMainTimesSkipped++;
@@ -409,26 +415,36 @@ void CNESEmulator::NesEmuMainLoop()
         ++loopCount;
         if(mainClock == cpuCycleTimer)
         {
-            //runs every 8th cpu clock
-            if(apuClock == 8)
+            //URDE uses this loop to pre-fill audio buffers,
+            //rather than executing multiple frame loops
+            bool breakout = false;
+            do
             {
-                if(!apuCycle())
+                //runs every 8th cpu clock
+                if(apuClock == 8)
                 {
+                    if(!apuCycleURDE() && !forceDraw)
+                    {
 #if DEBUG_MAIN_CALLS
-                    emuMainTimesSkipped++;
+                        emuMainTimesSkipped++;
 #endif
 #if CATCHUP_SKIP
-                    catchupFrames = 0;
+                        catchupFrames = 0;
 #endif
-                    //printf("LC SKIP\n");
-                    break;
+                        //printf("LC SKIP\n");
+                        breakout = true;
+                        break;
+                    }
+                    apuClock = 1;
                 }
-                apuClock = 1;
-            }
-            else
-                apuClock++;
-            //runs every cpu cycle
-            apuClockTimers();
+                else
+                    apuClock++;
+                //runs every cpu cycle
+                apuClockTimers();
+            } while (emuSkipVsync);
+            if (breakout)
+                break;
+
             //main CPU clock
             if(!cpuCycle())
                 exit(EXIT_SUCCESS);
@@ -490,7 +506,8 @@ void CNESEmulator::NesEmuMainLoop()
                 vrc7Clock++;
         }
 
-        if ((loopCount % 5000) == 0 && GetTickCount() - start >= 14)
+#if 1
+        if (!forceDraw && (loopCount % 10000) == 0 && GetTickCount() - start >= 14)
         {
 #if CATCHUP_SKIP
             if (catchupFrames < 50)
@@ -498,28 +515,29 @@ void CNESEmulator::NesEmuMainLoop()
 #endif
             break;
         }
+#endif
     }
     while(true);
 
 #if 0
     int end = GetTickCount();
-    printf("%dms\n", end - start);
+    printf("%dms %d %d\n", end - start, loopCount, m_procBufs);
 #endif
 
 #if DEBUG_MAIN_CALLS
     emuMainTimesCalled++;
-	int end = GetTickCount();
+    int end = GetTickCount();
     //printf("%dms\n", end - start);
-	emuMainTotalElapsed += end - emuMainFrameStart;
-	if(emuMainTotalElapsed >= 1000)
-	{
-		printf("\r%i calls, %i skips   ", emuMainTimesCalled, emuMainTimesSkipped);
+    emuMainTotalElapsed += end - emuMainFrameStart;
+    if(emuMainTotalElapsed >= 1000)
+    {
+        printf("\r%i calls, %i skips   ", emuMainTimesCalled, emuMainTimesSkipped);
         fflush(stdout);
-		emuMainTimesCalled = 0;
-		emuMainTimesSkipped = 0;
-		emuMainTotalElapsed = 0;
-	}
-	emuMainFrameStart = end;
+        emuMainTimesCalled = 0;
+        emuMainTimesSkipped = 0;
+        emuMainTotalElapsed = 0;
+    }
+    emuMainFrameStart = end;
 #endif
 }
 
@@ -745,16 +763,142 @@ void CNESEmulator::DecompressROM(u8* dataIn, u8* dataOut, u32 dataOutLen, u8 des
 
 void CNESEmulator::ProcessUserInput(const CFinalInput& input, int)
 {
+    if (input.ControllerIdx() != 0)
+        return;
+
+    if (GetPasswordEntryState() != EPasswordEntryState::NotPasswordScreen)
+    {
+        // Don't swap A/B
+        inValReads[BUTTON_A] = input.DA();
+        inValReads[BUTTON_B] = input.DB();
+    }
+    else
+    {
+        // Prime controls (B jumps, A shoots)
+        inValReads[BUTTON_B] = input.DA() | input.DY();
+        inValReads[BUTTON_A] = input.DB() | input.DX();
+    }
+
     inValReads[BUTTON_UP] = input.DDPUp() | input.DLAUp();
     inValReads[BUTTON_DOWN] = input.DDPDown() | input.DLADown();
     inValReads[BUTTON_LEFT] = input.DDPLeft() | input.DLALeft();
     inValReads[BUTTON_RIGHT] = input.DDPRight() | input.DLARight();
-    inValReads[BUTTON_A] = input.DA();
-    inValReads[BUTTON_B] = input.DB();
     inValReads[BUTTON_SELECT] = input.DZ();
     inValReads[BUTTON_START] = input.DStart();
-    if (input.PL())
-        x20_wantsQuit = true;
+}
+
+bool CNESEmulator::CheckForGameOver(const u8* vram, u8* passwordOut)
+{
+    // "PASS WORD"
+    if (memcmp(vram + 0x14B, "\x19\xa\x1c\x1c\xff\x20\x18\x1b\xd", 9))
+        return false;
+
+    int chOff = 0;
+    int encOff = 0;
+    u8 pwOut[18];
+    for (int i=0 ; i<24 ; ++i)
+    {
+        u8 chName = vram[0x1A9 + chOff];
+        ++chOff;
+        if (chOff == 0x6 || chOff == 0x46)
+            ++chOff; // mid-line space
+        else if (chOff == 0xd)
+            chOff = 64; // 2nd line
+
+        if (chName > 0x3f)
+            return false;
+
+        switch (i & 0x3)
+        {
+        case 0:
+            pwOut[encOff] = chName;
+            break;
+        case 1:
+            pwOut[encOff] |= chName << 6;
+            ++encOff;
+            pwOut[encOff] = chName >> 2;
+            break;
+        case 2:
+            pwOut[encOff] |= chName << 4;
+            ++encOff;
+            pwOut[encOff] = chName >> 4;
+            break;
+        case 3:
+            pwOut[encOff] |= chName << 2;
+            ++encOff;
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (passwordOut)
+        memmove(passwordOut, pwOut, 18);
+    return true;
+}
+
+CNESEmulator::EPasswordEntryState CNESEmulator::CheckForPasswordEntryScreen(const u8* vram)
+{
+    // "PASS WORD PLEASE"
+    if (memcmp(vram + 0x88, "\x19\xa\x1c\x1c\xff\x20\x18\x1b\xd\xff\x19\x15\xe\xa\x1c\xe", 16))
+        return EPasswordEntryState::NotPasswordScreen;
+
+    for (int i=0 ; i<13 ; ++i)
+        if (vram[0x109 + i] < 0x40 || vram[0x149 + i] < 0x40)
+            return EPasswordEntryState::Entered;
+
+    return EPasswordEntryState::NotEntered;
+}
+
+bool CNESEmulator::SetPasswordIntoEntryScreen(u8* vram, u8* wram, const u8* password)
+{
+    if (CheckForPasswordEntryScreen(vram) != EPasswordEntryState::NotEntered)
+        return false;
+
+    int i;
+    for (i=0 ; i<18 ; ++i)
+        if (password[i])
+            break;
+    if (i == 18)
+        return false;
+
+    int encOff = 0;
+    int chOff = 0;
+    u32 lastWord = 0;
+    for (i=0 ; i<24 ; ++i)
+    {
+        switch (i & 0x3)
+        {
+        case 0:
+            lastWord = password[encOff];
+            ++encOff;
+            break;
+        case 1:
+            lastWord = (lastWord >> 6) | (u32(password[encOff]) << 2);
+            ++encOff;
+            break;
+        case 2:
+            lastWord = (lastWord >> 6) | (u32(password[encOff]) << 4);
+            ++encOff;
+            break;
+        case 3:
+            lastWord = (lastWord >> 6);
+            break;
+        default:
+            break;
+        }
+
+        u8 chName = u8(lastWord & 0x3f);
+        wram[0x99a + i] = chName;
+        vram[0x109 + chOff] = chName;
+        ++chOff;
+        if (chOff == 0x6 || chOff == 0x46)
+            ++chOff; // mid-line space
+        else if (chOff == 0xd)
+            chOff = 64; // 2nd line
+    }
+
+    return true;
 }
 
 void CNESEmulator::Update()
@@ -769,7 +913,19 @@ void CNESEmulator::Update()
     }
     else
     {
-        NesEmuMainLoop();
+        bool gameOver = CheckForGameOver(ppuGetVRAM(), x21_passwordFromNES);
+        x34_passwordEntryState = CheckForPasswordEntryScreen(ppuGetVRAM());
+        if (x34_passwordEntryState == EPasswordEntryState::NotEntered && x38_passwordPending)
+        {
+            SetPasswordIntoEntryScreen(ppuGetVRAM(), emuPrgRAM, x39_passwordToNES);
+            x38_passwordPending = false;
+        }
+        if (gameOver && !x20_gameOver)
+            for (int i=0 ; i<3 ; ++i) // Three draw loops to ensure password display
+                NesEmuMainLoop(true);
+        else
+            NesEmuMainLoop();
+        x20_gameOver = gameOver;
     }
 }
 
@@ -791,10 +947,10 @@ void CNESEmulator::Draw(const zeus::CColor& mulColor, bool filtering)
     CGraphics::DrawArray(0, 4);
 }
 
-void CNESEmulator::LoadState(const u8* state)
+void CNESEmulator::LoadPassword(const u8* state)
 {
-    memmove(x39_loadState, state, 18);
-    x38_stateLoaded = true;
+    memmove(x39_passwordToNES, state, 18);
+    x38_passwordPending = true;
 }
 
 }

@@ -36,6 +36,7 @@ void CQuitGameScreen::SetColors()
 void CQuitGameScreen::FinishedLoading()
 {
     x10_loadedFrame = x4_frame.GetObj();
+    x10_loadedFrame->SetMaxAspect(1.33f);
 
     x14_tablegroup_quitgame = static_cast<CGuiTableGroup*>(
         x10_loadedFrame->FindWidget("tablegroup_quitgame"));

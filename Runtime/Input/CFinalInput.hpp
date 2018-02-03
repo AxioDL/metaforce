@@ -8,9 +8,8 @@
 namespace urde
 {
 
-class CFinalInput
+struct CFinalInput
 {
-    friend class CStateManager;
     float x0_dt;
     u32 x4_controllerIdx;
     float x8_anaLeftX;
@@ -63,7 +62,6 @@ class CFinalInput
     bool x2e_b30_PDPLeft:1;
     bool x2e_b31_PStart:1;
 
-public:
     CFinalInput();
     CFinalInput(int cIdx, float dt,
                 const boo::DolphinControllerState& data,

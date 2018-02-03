@@ -249,6 +249,8 @@ public:
 
         CFrontEndUITouchBar& m_touchBar;
 
+        bool m_gbaOverride = false;
+
         SFusionBonusFrame(CFrontEndUITouchBar& touchBar);
         void FinishedLoading();
         bool PumpLoad();
