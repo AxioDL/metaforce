@@ -17,7 +17,7 @@ class CPlayerGun;
 class CDamageInfo;
 class CScriptWater;
 class IVisitor;
-class CFinalInput;
+struct CFinalInput;
 class CPlayerCameraBob;
 class CFirstPersonCamera;
 class CCollidableSphere;

@@ -14,7 +14,7 @@ namespace urde
 class CGuiTextPane;
 class CGuiWidget;
 class CGuiModel;
-class CFinalInput;
+struct CFinalInput;
 class CGuiFrame;
 class CAuiImagePane;
 class CStringTable;

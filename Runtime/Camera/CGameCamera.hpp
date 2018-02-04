@@ -6,7 +6,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 
 class CGameCamera : public CActor
 {

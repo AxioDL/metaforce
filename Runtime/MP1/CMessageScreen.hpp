@@ -8,7 +8,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 class CGuiWidget;
 class CGuiTextPane;
 class CGuiModel;

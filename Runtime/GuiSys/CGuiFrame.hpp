@@ -12,7 +12,7 @@ namespace urde
 class CGuiSys;
 class CLight;
 class CGuiCamera;
-class CFinalInput;
+struct CFinalInput;
 class CGuiLight;
 class CVParamTransfer;
 class CObjectReference;

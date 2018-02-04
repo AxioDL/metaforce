@@ -19,7 +19,7 @@ namespace urde
 class CActorLights;
 class CPlayer;
 class CDamageInfo;
-class CFinalInput;
+struct CFinalInput;
 class CScriptWater;
 class CStateManager;
 

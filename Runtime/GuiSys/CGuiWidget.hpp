@@ -9,7 +9,7 @@ namespace urde
 {
 class CGuiFrame;
 class CGuiTextSupport;
-class CFinalInput;
+struct CFinalInput;
 class CSimplePool;
 
 enum class ETraversalMode

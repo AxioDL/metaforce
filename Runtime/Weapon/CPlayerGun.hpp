@@ -25,7 +25,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 
 class CPlayerGun
 {

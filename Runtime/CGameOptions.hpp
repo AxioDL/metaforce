@@ -7,7 +7,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 class CStateManager;
 
 /** Options presented in UI */

@@ -40,7 +40,7 @@ class CActor;
 class CLight;
 class CDamageInfo;
 class CMaterialFilter;
-class CFinalInput;
+struct CFinalInput;
 class CPlayer;
 class CWorld;
 class CTexture;

@@ -239,11 +239,11 @@ void CNESEmulator::InitializeEmulator()
 
     sprintf(window_title_pause, "%s (Pause)", window_title);
     #if DEBUG_HZ
-	emuFrameStart = GetTickCount();
-	#endif
-	#if DEBUG_MAIN_CALLS
-	emuMainFrameStart = GetTickCount();
-	#endif
+    emuFrameStart = GetTickCount();
+    #endif
+    #if DEBUG_MAIN_CALLS
+    emuMainFrameStart = GetTickCount();
+    #endif
     cpuCycleTimer = nesPAL ? 16 : 12;
     //do full frame per update loop
     ppuCycleTimer = nesPAL ? 5 : 4;
@@ -471,15 +471,15 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
                     fm2playUpdate();
 #if DEBUG_HZ
                 emuTimesCalled++;
-				int end = GetTickCount();
-				emuTotalElapsed += end - emuFrameStart;
-				if(emuTotalElapsed >= 1000)
-				{
-					printf("\r%iHz   ", emuTimesCalled);
-					emuTimesCalled = 0;
-					emuTotalElapsed = 0;
-				}
-				emuFrameStart = end;
+                int end = GetTickCount();
+                emuTotalElapsed += end - emuFrameStart;
+                if(emuTotalElapsed >= 1000)
+                {
+                    printf("\r%iHz   ", emuTimesCalled);
+                    emuTimesCalled = 0;
+                    emuTotalElapsed = 0;
+                }
+                emuFrameStart = end;
 #endif
                 if(ppuDebugPauseFrame)
                 {
