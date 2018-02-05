@@ -15,9 +15,9 @@ std::string GLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "posIn.xy";
+        return "vtf.mvPos.xy";
     case TexGenSrc::Normal:
-        return "normIn.xy";
+        return "vtf.mvNorm.xy";
     case TexGenSrc::UV:
         return hecl::Format("uvIn[%u]", uvIdx);
     default: break;
@@ -30,9 +30,9 @@ std::string GLSL::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "vec4(posIn, 1.0)";
+        return "vec4(vtf.mvPos.xyz, 1.0)";
     case TexGenSrc::Normal:
-        return "vec4(normIn, 1.0)";
+        return "vec4(vtf.mvNorm.xyz, 1.0)";
     case TexGenSrc::UV:
         return hecl::Format("vec4(uvIn[%u], 0.0, 1.0)", uvIdx);
     default: break;
@@ -546,7 +546,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
                                       (slot.cullMode == hecl::Backend::CullMode::Original) ?
                                       (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode));
+                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -635,7 +635,7 @@ struct GLSLBackendFactory : IShaderBackendFactory
                                       tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
                                       (slot.cullMode == hecl::Backend::CullMode::Original) ?
                                       (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode));
+                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);
@@ -817,7 +817,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                       !slot.noColorWrite, !slot.noAlphaWrite,
                                       (slot.cullMode == hecl::Backend::CullMode::Original) ?
                                       (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode));
+                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             cachedSz += pipeBlob.vert.size() * sizeof(unsigned int);
@@ -932,7 +932,7 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                                       !slot.noColorWrite, !slot.noAlphaWrite,
                                       (slot.cullMode == hecl::Backend::CullMode::Original) ?
                                       (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode));
+                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);

@@ -14,9 +14,9 @@ std::string Metal::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     switch (src)
     {
         case TexGenSrc::Position:
-            return "v.posIn.xy\n";
+            return "vtf.mvPos.xy\n";
         case TexGenSrc::Normal:
-            return "v.normIn.xy\n";
+            return "vtf.mvNorm.xy\n";
         case TexGenSrc::UV:
             return hecl::Format("v.uvIn%u", uvIdx);
         default: break;
@@ -29,9 +29,9 @@ std::string Metal::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     switch (src)
     {
         case TexGenSrc::Position:
-            return "float4(v.posIn, 1.0)\n";
+            return "float4(vtf.mvPos.xyz, 1.0)\n";
         case TexGenSrc::Normal:
-            return "float4(v.normIn, 1.0)\n";
+            return "float4(vtf.mvNorm.xyz, 1.0)\n";
         case TexGenSrc::UV:
             return hecl::Format("float4(v.uvIn%u, 0.0, 1.0)", uvIdx);
         default: break;
@@ -576,7 +576,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                                   !slot.noColorWrite, !slot.noAlphaWrite,
                                   (slot.cullMode == hecl::Backend::CullMode::Original) ?
                                   (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                  boo::CullMode(slot.cullMode));
+                                  boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
 
@@ -665,7 +665,7 @@ struct MetalBackendFactory : IShaderBackendFactory
                                   !slot.noColorWrite, !slot.noAlphaWrite,
                                   (slot.cullMode == hecl::Backend::CullMode::Original) ?
                                   (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                  boo::CullMode(slot.cullMode));
+                                  boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
             if (!ret)
                 Log.report(logvisor::Fatal, "unable to build shader");
             returnFunc(ret);

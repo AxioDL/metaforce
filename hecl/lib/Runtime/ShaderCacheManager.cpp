@@ -71,6 +71,8 @@ uint64_t ShaderCacheExtensions::hashExtensions() const
         UpdateFieldHash(&st, slot.noDepthWrite);
         UpdateFieldHash(&st, slot.noColorWrite);
         UpdateFieldHash(&st, slot.noAlphaWrite);
+        UpdateFieldHash(&st, slot.noAlphaOverwrite);
+        UpdateFieldHash(&st, slot.noReflection);
     }
     return XXH64_digest(&st);
 }

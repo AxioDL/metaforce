@@ -143,6 +143,7 @@ public:
         bool noDepthWrite = false;
         bool noColorWrite = false;
         bool noAlphaWrite = false;
+        bool noAlphaOverwrite = false;
         bool noReflection = false;
     };
     std::vector<ExtensionSlot> m_extensionSlots;
@@ -164,6 +165,7 @@ public:
                                    bool noDepthWrite = false,
                                    bool noColorWrite = false,
                                    bool noAlphaWrite = false,
+                                   bool noAlphaOverwrite = false,
                                    bool noReflection = false)
     {
         m_extensionSlots.emplace_back();
@@ -181,6 +183,7 @@ public:
         slot.noDepthWrite = noDepthWrite;
         slot.noColorWrite = noColorWrite;
         slot.noAlphaWrite = noAlphaWrite;
+        slot.noAlphaOverwrite = noAlphaOverwrite;
         slot.noReflection = noReflection;
         return m_extensionSlots.size() - 1;
     }
