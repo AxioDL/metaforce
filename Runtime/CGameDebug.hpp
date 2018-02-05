@@ -5,7 +5,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 
 const char* StringForControlOption(int);
 

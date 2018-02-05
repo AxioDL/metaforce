@@ -11,7 +11,7 @@
 namespace urde
 {
 class CGuiFrame;
-class CFinalInput;
+struct CFinalInput;
 class CStateManager;
 class CGuiCamera;
 class CGuiWidget;

@@ -3,7 +3,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 
 class ControlMapper
 {

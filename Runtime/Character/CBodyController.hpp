@@ -12,7 +12,7 @@ namespace urde
 
 class CActor;
 class CAnimPlaybackParms;
-class CFinalInput;
+struct CFinalInput;
 class CPASAnimParmData;
 class CRandom16;
 class CStateManager;

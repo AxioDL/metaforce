@@ -198,11 +198,11 @@ boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::I
                                                                           boo::ObjToken<boo::IGraphicsBufferD> uniBuf,
                                                                           boo::ObjToken<boo::ITextureD> tex)
 {
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
-    boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
-    return cctx.newShaderDataBinding(SelectPipeline(type, filter.m_gequal), s_VtxFmt,
-                                     filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
-                                     nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
+    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {uniBuf.get()};
+    boo::ObjToken<boo::ITexture> texs[] = {tex.get()};
+    return ctx.newShaderDataBinding(g_Pipeline, g_VtxFmt,
+                                    vbo.get(), nullptr, nullptr, 1, bufs,
+                                    nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
 }
 #endif
 
@@ -253,12 +253,11 @@ boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::V
                                                                           boo::ObjToken<boo::IGraphicsBufferD> uniBuf,
                                                                           boo::ObjToken<boo::ITextureD> tex)
 {
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
-    boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
-    return cctx.newShaderDataBinding(SelectPipeline(type, filter.m_gequal,
-                                                    filter.m_booTex->type() == boo::TextureType::Render), s_VtxFmt,
-                                     filter.m_vbo.get(), nullptr, nullptr, 1, bufs,
-                                     nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
+    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {uniBuf.get()};
+    boo::ObjToken<boo::ITexture> texs[] = {tex.get()};
+    return ctx.newShaderDataBinding(g_Pipeline, g_VtxFmt,
+                                    vbo.get(), nullptr, nullptr, 1, bufs,
+                                    nullptr, nullptr, nullptr, 1, texs, nullptr, nullptr);
 }
 #endif
 

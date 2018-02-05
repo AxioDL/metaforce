@@ -13,7 +13,7 @@ class CTexture;
 class CStringTable;
 class CGuiFrame;
 class CSaveWorld;
-class CFinalInput;
+struct CFinalInput;
 class CGuiTextPane;
 class CGuiTableGroup;
 

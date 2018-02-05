@@ -9,7 +9,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 class IDvdRequest;
 
 namespace MP1

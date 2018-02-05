@@ -14,7 +14,7 @@ class CGameCamera;
 class CCameraShakeData;
 class CScriptWater;
 class CInterpolationCamera;
-class CFinalInput;
+struct CFinalInput;
 class CScriptCameraHint;
 class CCinematicCamera;
 

@@ -10,7 +10,7 @@
 
 namespace urde
 {
-class CFinalInput;
+struct CFinalInput;
 class IWorld;
 class CMapWorldInfo;
 class CStateManager;
