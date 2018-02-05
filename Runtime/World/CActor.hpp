@@ -45,7 +45,7 @@ protected:
     TUniqueId xc6_nextDrawNode;
     int xc8_drawnToken = -1;
     int xcc_addedToken = -1;
-    float xd0_;
+    float xd0_thermalMag;
     float xd4_maxVol = 1.f;
     rstl::reserved_vector<CSfxHandle, 2> xd8_nonLoopingSfxHandles;
     union
@@ -58,20 +58,20 @@ protected:
             bool xe4_29_actorLightsDirty : 1;
             bool xe4_30_outOfFrustum : 1;
             bool xe4_31_lightsDirty : 1;
-            bool xe5_24_ : 1;
-            bool xe5_25_ : 1;
+            bool xe5_24_shadowEnabled : 1;
+            bool xe5_25_shadowDirty : 1;
             bool xe5_26_muted : 1;
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
-            bool xe5_29_ : 1;
+            bool xe5_29_globalTimeProvider : 1;
             bool xe5_30_ : 1;
-            bool xe5_31_ : 1;
+            bool xe5_31_pointGeneratorParticles : 1;
             u8 xe6_24_fluidCounter : 3;
             u8 xe6_27_renderVisorFlags : 2; // 1: thermal cold, 2: thermal hot
-            bool xe6_29_ : 1;
+            bool xe6_29_prePostParticles : 1;
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;
-            bool xe7_27_ : 1;
+            bool xe7_27_enableRender : 1;
             bool xe7_28_worldLightingDirty : 1;
             bool xe7_29_actorActive : 1;
             bool xe7_30_doTargetDistanceTest : 1;
@@ -81,6 +81,8 @@ protected:
     };
     void _CreateShadow();
     void UpdateSfxEmitters();
+    void DrawTouchBounds() const;
+    void RenderInternal(const CStateManager& mgr) const;
 
 public:
     enum class EFluidState
@@ -169,7 +171,7 @@ public:
     float GetYaw() const;
     const CModelData* GetModelData() const { return x64_modelData.get(); }
     CModelData* ModelData() { return x64_modelData.get(); }
-    void EnsureRendered(const CStateManager&);
+    void EnsureRendered(const CStateManager&) const;
     void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CAABox&) const;
     void ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff, float maxDist,
                            float minVol, float maxVol, const zeus::CVector3f& toListener,

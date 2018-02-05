@@ -31,7 +31,7 @@ void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) const
     CGraphics::SetViewPointMatrix(camXf);
     zeus::CFrustum frustum;
     frustum.updatePlanes(camXf, zeus::SProjPersp(zeus::degToRad(curCam->GetFov()),
-                                                 curCam->GetAspectRatio(), 1.f, 100.f));
+                                                 g_Viewport.x8_width / float(g_Viewport.xc_height), 1.f, 100.f));
     g_Renderer->SetClippingPlanes(frustum);
     g_Renderer->SetPerspective(curCam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height,
                                curCam->GetNearClipDistance(), curCam->GetFarClipDistance());

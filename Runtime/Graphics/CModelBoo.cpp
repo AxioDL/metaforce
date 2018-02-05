@@ -714,9 +714,11 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
+        /* Handled in-shader
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
         texMtxOut.vec[3].w = 1.f;
+         */
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.5f;
         postMtxOut.vec[3].x = 0.5f;
@@ -725,7 +727,8 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::MvInv:
     {
-        texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+        texMtxOut.vec[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
+        texMtxOut.vec[3].w = 1.f;
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.5f;
         postMtxOut.vec[3].x = 0.5f;
@@ -767,7 +770,6 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
         texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
-
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.f;
         postMtxOut.vec[2].y = 0.5f;
@@ -777,9 +779,11 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::CylinderEnvironment:
     {
+        /* Handled in-shader
         //texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
         texMtxOut = CGraphics::g_GXModelView.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
+         */
 
         const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
         float xy = (viewOrigin.x + viewOrigin.y) * 0.025f * anim.vals[1];
@@ -848,10 +852,12 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
         /* Special Mode0 matrix for exclusive Thermal Visor use */
         specialMtxOut.emplace();
 
+        /* This part handled in-shader
         zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
         texMtxOut.vec[3].zeroOut();
         texMtxOut.vec[3].w = 1.f;
+         */
 
         zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
         postMtxOut.vec[0].x = 0.5f;

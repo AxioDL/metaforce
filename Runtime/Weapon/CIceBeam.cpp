@@ -23,7 +23,7 @@ void CIceBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& 
 
 void CIceBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf)
 {
-    bool subtractBlend = mgr.GetParticleFlags() == 0;
+    bool subtractBlend = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
     if (subtractBlend)
         CElementGen::SetSubtractBlend(true);
     if (x240_smokeGen)

@@ -288,7 +288,7 @@ void CStateManager::RendererDrawCallback(const void* drawable, const void* ctx, 
         break;
     }
     case 1:
-        reinterpret_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex.GetObj());
+        reinterpret_cast<const CSimpleShadow*>(drawable)->Render(mgr.x8f0_shadowTex);
         break;
     case 2:
         reinterpret_cast<const CDecal*>(drawable)->Render();
@@ -578,6 +578,25 @@ void CStateManager::DrawAdditionalFilters() const
     }
 }
 
+zeus::CFrustum CStateManager::SetupDrawFrustum(const SViewport& vp) const
+{
+    zeus::CFrustum ret;
+    const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
+    zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
+    //int vpWidth = xf2c_viewportScale.x * vp.x8_width;
+    //int vpHeight = xf2c_viewportScale.y * vp.xc_height;
+    //int vpLeft = (vp.x8_width - vpWidth) / 2 + vp.x0_left;
+    //int vpTop = (vp.xc_height - vpHeight) / 2 + vp.x4_top;
+    //g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
+    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y) * 2.f;
+    float width = xf2c_viewportScale.x * vp.x8_width;
+    float height = xf2c_viewportScale.y * vp.xc_height;
+    zeus::CProjection proj;
+    proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
+    ret.updatePlanes(camXf, proj);
+    return ret;
+}
+
 zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
 {
     const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
@@ -616,7 +635,7 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
 
     zeus::CFrustum frustum;
     frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()),
-                                                            cam->GetAspectRatio(),
+                                                            g_Viewport.x8_width / float(g_Viewport.xc_height),
                                                             cam->GetNearClipDistance(),
                                                             cam->GetFarClipDistance()));
     g_Renderer->SetClippingPlanes(frustum);
@@ -681,13 +700,13 @@ void CStateManager::DrawWorld() const
     bool thermal = visor == CPlayerState::EPlayerVisor::Thermal;
     if (thermal)
     {
-        const_cast<CStateManager&>(*this).xf34_particleFlags = 1;
+        const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Cold;
         mask = 0x34;
         targetMask = 0;
     }
     else
     {
-        const_cast<CStateManager&>(*this).xf34_particleFlags = 2;
+        const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Bypass;
         mask = 1 << (visor == CPlayerState::EPlayerVisor::XRay ? 3 : 1);
         targetMask = 0;
     }
@@ -796,6 +815,7 @@ void CStateManager::DrawWorld() const
             CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
         }
         g_Renderer->DoThermalBlendCold();
+        const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Hot;
 
         for (TUniqueId id : x86c_stateManagerContainer->xf370_)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
@@ -871,7 +891,7 @@ void CStateManager::DrawWorld() const
     {
         g_Renderer->DoThermalBlendHot();
         g_Renderer->SetThermal(false, 0.f, zeus::CColor::skBlack);
-        const_cast<CStateManager&>(*this).xf34_particleFlags = 2;
+        const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Bypass;
     }
 
     DrawDebugStuff();
@@ -923,19 +943,14 @@ bool CStateManager::SetupFogForDraw() const
 
 void CStateManager::PreRender()
 {
-    if (xf94_24_)
+    if (xf94_24_readyToRender)
     {
+        zeus::CFrustum frustum = SetupDrawFrustum(g_Viewport);
         x86c_stateManagerContainer->xf370_.clear();
         x86c_stateManagerContainer->xf39c_renderLast.clear();
         xf7c_projectedShadow = nullptr;
         x850_world->PreRender();
         BuildDynamicLightListForWorld();
-        CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
-        zeus::CFrustum frustum;
-        zeus::CProjection proj;
-        proj.setPersp(zeus::SProjPersp{zeus::degToRad(cam->GetFov()),
-                                       cam->GetAspectRatio(), cam->GetNearClipDistance(), cam->GetFarClipDistance()});
-        frustum.updatePlanes(x870_cameraManager->GetCurrentCameraTransform(*this), proj);
         for (const CGameArea& area : *x850_world)
         {
             CGameArea::EOcclusionState occState = CGameArea::EOcclusionState::Occluded;
@@ -1939,7 +1954,7 @@ void CStateManager::Update(float dt)
 
     UpdateAreaSounds();
 
-    xf94_24_ = true;
+    xf94_24_readyToRender = true;
 
     if (xf94_27_inMapScreen)
     {

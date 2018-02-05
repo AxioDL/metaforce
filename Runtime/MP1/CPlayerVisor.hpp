@@ -70,8 +70,8 @@ class CPlayerVisor
     TLockedToken<CModel> x130_scanIconCritical;
     rstl::reserved_vector<SScanTarget, 64> x13c_scanTargets;
     TLockedToken<CTexture> x540_xrayPalette;
-    float x54c_frameColorInterp = 0.f;
-    float x550_frameColorImpulseInterp = 0.f;
+    float x54c_scanFrameColorInterp = 0.f;
+    float x550_scanFrameColorImpulseInterp = 0.f;
 
     int FindEmptyInactiveScanTarget() const;
     int FindCachedInactiveScanTarget(TUniqueId uid) const;

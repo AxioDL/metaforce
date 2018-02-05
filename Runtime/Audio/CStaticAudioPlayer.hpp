@@ -76,7 +76,7 @@ public:
 
     void StartMixing()
     {
-        //m_voice->start();
+        m_voice->start();
     }
     void StopMixing()
     {

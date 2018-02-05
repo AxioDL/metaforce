@@ -40,7 +40,7 @@ void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateMan
     for (s32 idx : m_ActiveIndexList)
     {
         CDecalManager::SDecal& decal = m_DecalPool[idx];
-        if (decal.x75_flags & 0x2 || mgr.GetParticleFlags())
+        if (decal.x75_flags & 0x2 || mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot)
         {
             const zeus::CVector3f& point = decal.x0_decal->xc_transform.origin;
             zeus::CAABox aabb(point, point);

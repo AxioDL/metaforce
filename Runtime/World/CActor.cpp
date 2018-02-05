@@ -9,6 +9,10 @@
 #include "Camera/CGameCamera.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "CWorld.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "CTimeProvider.hpp"
+#include "Graphics/CSkinnedModel.hpp"
 
 namespace urde
 {
@@ -33,7 +37,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     x90_actorLights = mData.IsNull() ? std::unique_ptr<CActorLights>() : params.x0_lightParms.MakeActorLights();
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
-    xd0_ = params.x64_;
+    xd0_thermalMag = params.x64_;
     xd8_nonLoopingSfxHandles.resize(2);
     xe4_27_notInSortedLists = true;
     xe4_28_ = true;
@@ -41,12 +45,12 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     xe4_31_lightsDirty = true;
     xe5_27_useInSortedLists = true;
     xe5_28_callTouch = true;
-    xe5_29_ = params.x58_24_;
+    xe5_29_globalTimeProvider = params.x58_24_;
     xe5_30_ = params.x58_26_;
     xe6_27_renderVisorFlags = u8(params.x58_25_thermalHeat ? 2 : 1);
-    xe6_29_ = true;
+    xe6_29_prePostParticles = true;
     xe6_31_targetableVisorFlags = params.GetVisorParameters().GetMask();
-    xe7_27_ = true;
+    xe7_27_enableRender = true;
     xe7_29_actorActive = active;
     xe7_30_doTargetDistanceTest = true;
     xe7_31_targetable = true;
@@ -123,19 +127,183 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CActor::PreRender(CStateManager&, const zeus::CFrustum&)
+void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes)
 {
+    if (!x64_modelData || x64_modelData->IsNull())
+        return;
 
+    xe4_30_outOfFrustum = !planes.aabbFrustumTest(x9c_renderBounds);
+    if (!xe4_30_outOfFrustum)
+    {
+        bool lightsDirty = false;
+        if (xe4_29_actorLightsDirty)
+        {
+            xe4_29_actorLightsDirty = false;
+            lightsDirty = true;
+            xe5_25_shadowDirty = true;
+        }
+        else if (xe7_28_worldLightingDirty)
+        {
+            lightsDirty = true;
+        }
+        else if (x90_actorLights && x90_actorLights->GetIsDirty())
+        {
+            lightsDirty = true;
+        }
+
+        if (xe5_25_shadowDirty && xe5_24_shadowEnabled && x94_simpleShadow)
+        {
+            x94_simpleShadow->Calculate(x64_modelData->GetBounds(), x34_transform, mgr);
+            xe5_25_shadowDirty = false;
+        }
+
+        if (xe4_31_lightsDirty && x90_actorLights)
+        {
+            zeus::CAABox bounds = x64_modelData->GetBounds(x34_transform);
+            if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
+            {
+                x90_actorLights->BuildConstantAmbientLighting();
+            }
+            else
+            {
+                if (lightsDirty && x4_areaId != kInvalidAreaId)
+                {
+                    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
+                    if (area->IsPostConstructed())
+                        if (x90_actorLights->BuildAreaLightList(mgr, *area, bounds))
+                            xe7_28_worldLightingDirty = false;
+                }
+                x90_actorLights->BuildDynamicLightList(mgr, bounds);
+            }
+        }
+
+        if (x64_modelData->HasAnimData())
+            x64_modelData->AnimationData()->PreRender();
+    }
+    else
+    {
+        if (xe4_29_actorLightsDirty)
+        {
+            xe4_29_actorLightsDirty = false;
+            xe5_25_shadowDirty = true;
+        }
+
+        if (xe5_25_shadowDirty && xe5_24_shadowEnabled && x94_simpleShadow)
+        {
+            zeus::CAABox bounds = x64_modelData->GetBounds(x34_transform);
+            if (planes.aabbFrustumTest(x94_simpleShadow->GetMaxShadowBox(bounds)))
+            {
+                x94_simpleShadow->Calculate(x64_modelData->GetBounds(), x34_transform, mgr);
+                xe5_25_shadowDirty = false;
+            }
+        }
+    }
 }
 
-void CActor::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const
+void CActor::AddToRenderer(const zeus::CFrustum& planes, const CStateManager& mgr) const
 {
+    if (!x64_modelData || x64_modelData->IsNull())
+        return;
 
+    if (xe6_29_prePostParticles)
+        x64_modelData->RenderParticles(planes);
+
+    if (!xe4_30_outOfFrustum)
+    {
+        if (CanRenderUnsorted(mgr))
+            Render(mgr);
+        else
+            EnsureRendered(mgr);
+    }
+
+    if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay &&
+        mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal &&
+        xe5_24_shadowEnabled && x94_simpleShadow->Valid() &&
+        planes.aabbFrustumTest(x94_simpleShadow->GetBounds()))
+        g_Renderer->AddDrawable(x94_simpleShadow.get(), x94_simpleShadow->GetTransform().origin,
+                                x94_simpleShadow->GetBounds(), 1, CBooRenderer::EDrawableSorting::SortedCallback);
 }
 
-void CActor::Render(const CStateManager&) const
+void CActor::DrawTouchBounds() const
 {
+    // Empty
+}
 
+void CActor::RenderInternal(const CStateManager& mgr) const
+{
+    CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
+    if (which == CModelData::EWhichModel::ThermalHot)
+    {
+        if (x64_modelData->GetSortThermal())
+        {
+            float addMag;
+            float mulMag = 1.f;
+            if (xd0_thermalMag <= 1.f)
+            {
+                mulMag = xd0_thermalMag;
+                addMag = 0.f;
+            }
+            else if (xd0_thermalMag < 2.f)
+            {
+                addMag = xd0_thermalMag - 1.f;
+            }
+            else
+            {
+                addMag = 1.f;
+            }
+
+            zeus::CColor mulColor(mulMag * xb4_drawFlags.x4_color.a, xb4_drawFlags.x4_color.a);
+            zeus::CColor addColor(addMag, xb4_drawFlags.x4_color.a / 4.f);
+            x64_modelData->RenderThermal(x34_transform, mulColor, addColor, xb4_drawFlags);
+            return;
+        }
+        else if (mgr.GetThermalColdScale2() > 0.00001f && !xb4_drawFlags.x0_blendMode)
+        {
+            zeus::CColor color(zeus::clamp(0.f,
+                std::min((mgr.GetThermalColdScale2() + mgr.GetThermalColdScale1()) * mgr.GetThermalColdScale2(),
+                         mgr.GetThermalColdScale2()), 1.f), 1.f);
+            CModelFlags flags(2, xb4_drawFlags.x1_matSetIdx, xb4_drawFlags.x2_flags, color);
+            x64_modelData->Render(mgr, x34_transform, x90_actorLights.get(), flags);
+            return;
+        }
+    }
+    x64_modelData->Render(which, x34_transform, x90_actorLights.get(), xb4_drawFlags);
+}
+
+void CActor::Render(const CStateManager& mgr) const
+{
+    if (x64_modelData && !x64_modelData->IsNull())
+    {
+        bool renderPrePostParticles = xe6_29_prePostParticles && x64_modelData && x64_modelData->HasAnimData();
+        if (renderPrePostParticles)
+            x64_modelData->AnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
+
+        if (xe7_27_enableRender)
+        {
+            if (xe5_31_pointGeneratorParticles)
+                mgr.SetupParticleHook(*this);
+            if (xe5_29_globalTimeProvider)
+            {
+                RenderInternal(mgr);
+            }
+            else
+            {
+                float timeSince = CGraphics::GetSecondsMod900() - xbc_time;
+                float tpTime = timeSince - std::floor(timeSince / 900.f) * 900.f;
+                CTimeProvider tp(tpTime);
+                RenderInternal(mgr);
+            }
+            if (xe5_31_pointGeneratorParticles)
+            {
+                CSkinnedModel::ClearPointGeneratorFunc();
+                mgr.GetActorModelParticles()->Render(*this);
+            }
+        }
+
+        if (renderPrePostParticles)
+            x64_modelData->AnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
+    }
+    DrawTouchBounds();
 }
 
 bool CActor::CanRenderUnsorted(const CStateManager&) const
@@ -291,10 +459,10 @@ void CActor::CreateShadow(bool b)
     if (b)
     {
         _CreateShadow();
-        if (!xe5_24_ && x94_simpleShadow)
-            xe5_25_ = true;
+        if (!xe5_24_shadowEnabled && x94_simpleShadow)
+            xe5_25_shadowDirty = true;
     }
-    xe5_24_ = b;
+    xe5_24_shadowEnabled = b;
 }
 
 void CActor::_CreateShadow()
@@ -371,7 +539,7 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
-void CActor::EnsureRendered(const CStateManager& mgr)
+void CActor::EnsureRendered(const CStateManager& mgr) const
 {
     zeus::CAABox aabb = GetSortingBounds(mgr);
     EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.origin), aabb);

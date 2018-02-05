@@ -131,7 +131,7 @@ static const char* ThermalPostGLSL =
 "};\n"
 "vec4 ThermalPostFunc(vec4 colorIn)\n"
 "{\n"
-"    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, 1.0);\n"
+"    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, tmulColor.a + addColor.a);\n"
 "}\n"
 "\n";
 
@@ -195,7 +195,7 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
     ext.registerExtensionSlot({}, {ThermalPostGLSL, "ThermalPostFunc"}, 3, ThermalBlockNames,
                               1, ThermalTextures, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, false, false, true);
+                              hecl::Backend::CullMode::Backface, false, false, false, true);
 
     /* Forced alpha shading */
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
@@ -251,7 +251,7 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
-                              hecl::Backend::CullMode::Backface, false, false, true, true);
+                              hecl::Backend::CullMode::Backface, false, false, true, false, true);
 
     /* World shadow shading (modified lighting) */
     ext.registerExtensionSlot({LightingShadowGLSL, "LightingShadowFunc"}, {MainPostGLSL, "MainPostFunc"},

@@ -22,6 +22,14 @@ class CTexturedQuadFilter
     friend struct CTexturedQuadFilterD3DDataBindingFactory;
     friend struct CTexturedQuadFilterAlphaD3DDataBindingFactory;
 
+public:
+    enum class ZTest
+    {
+        None,
+        LEqual,
+        GEqual
+    };
+
 protected:
     struct Uniform
     {
@@ -35,7 +43,7 @@ protected:
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
     boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
-    bool m_gequal;
+    ZTest m_zTest;
     bool m_flipRect = false;
 
     CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex);
@@ -48,8 +56,8 @@ public:
     };
 
     static const zeus::CRectangle DefaultRect;
-    CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex);
-    CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, bool gequal = false);
+    CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
+    CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, ZTest zTest = ZTest::None);
     CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
     CTexturedQuadFilter(CTexturedQuadFilter&&) = default;

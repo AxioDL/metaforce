@@ -47,7 +47,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    float sceneSample = dot(texture(sceneTex, vtf.sceneUv), kRGBToYPrime);\n"
 "    vec4 colorSample = texture(paletteTex, vec2(sceneSample / 17.0, 0.5));\n"
-"    colorOut = colorSample * sceneSample;\n"
+"    colorOut = vec4((colorSample * sceneSample).rgb, 0.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
@@ -100,7 +100,7 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
     const char* uniNames[] = {"ThermalHotUniform"};
     s_Pipeline = ctx.newShaderPipeline(VS, FS, 2, texNames, 1, uniNames, boo::BlendFactor::DstAlpha,
                                        boo::BlendFactor::InvDstAlpha, boo::Primitive::TriStrips,
-                                       boo::ZTest::None, false, true, false, boo::CullMode::None);
+                                       boo::ZTest::None, false, true, true, boo::CullMode::None);
     return new CThermalHotFilterGLDataBindingFactory;
 }
 

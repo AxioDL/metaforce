@@ -95,10 +95,12 @@ public:
     {
         Normal,
         XRay,
-        Thermal
+        Thermal,
+        ThermalHot
     };
 
     void SetSortThermal(bool v) { x14_25_sortThermal = v; }
+    bool GetSortThermal() const { return x14_25_sortThermal; }
 
     ~CModelData();
     CModelData(const CStaticRes& res, int instCount=1);
@@ -135,7 +137,8 @@ public:
     void RenderParticles(const zeus::CFrustum& frustum) const;
     void Touch(EWhichModel, int shaderIdx) const;
     void Touch(const CStateManager& stateMgr, int shaderIdx) const;
-    void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& a, const zeus::CColor& b) const;
+    void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor,
+                       const zeus::CColor& addColor, const CModelFlags& flags) const;
     void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf,
                              const CActorLights* lights, const CModelFlags& drawFlags) const;
     void Render(EWhichModel, const zeus::CTransform& xf,

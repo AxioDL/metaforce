@@ -88,7 +88,9 @@ CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& state
     case CPlayerState::EPlayerVisor::XRay:
         return CModelData::EWhichModel::XRay;
     case CPlayerState::EPlayerVisor::Thermal:
-        return CModelData::EWhichModel::Thermal;
+        if (stateMgr.GetThermalDrawFlag() == EThermalDrawFlag::Cold)
+            return CModelData::EWhichModel::Thermal;
+        return CModelData::EWhichModel::ThermalHot;
     default:
         return CModelData::EWhichModel::Normal;
     }
@@ -103,6 +105,7 @@ CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const
         ret = x10_animData->xf4_xrayModel.get();
         break;
     case EWhichModel::Thermal:
+    case EWhichModel::ThermalHot:
         ret = x10_animData->xf8_infraModel.get();
         break;
     default: break;
@@ -121,6 +124,7 @@ const std::unique_ptr<CBooModel>& CModelData::PickStaticModel(EWhichModel which)
         ret = &m_xrayModelInst;
         break;
     case EWhichModel::Thermal:
+    case EWhichModel::ThermalHot:
         ret = &m_infraModelInst;
         break;
     default: break;
@@ -323,23 +327,25 @@ void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) const
     Touch(const_cast<CModelData&>(*this).GetRenderingModel(stateMgr), shaderIdx);
 }
 
-void CModelData::RenderThermal(const zeus::CTransform& xf,
-                               const zeus::CColor& a, const zeus::CColor& b) const
+void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor,
+                               const zeus::CColor& addColor, const CModelFlags& flags) const
 {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
     CGraphics::DisableAllLights();
-    CModelFlags drawFlags;
-    drawFlags.m_extendedShader = EExtendedShader::ForcedAlpha;
+    CModelFlags drawFlags = flags;
+    drawFlags.x4_color *= mulColor;
+    drawFlags.addColor = addColor;
+    drawFlags.m_extendedShader = EExtendedShader::Thermal;
 
     if (x10_animData)
     {
-        CSkinnedModel& model = PickAnimatedModel(EWhichModel::Thermal);
+        CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);
         x10_animData->SetupRender(model, drawFlags, {}, nullptr);
         model.Draw(drawFlags);
     }
     else
     {
-        const auto& model = PickStaticModel(EWhichModel::Thermal);
+        const auto& model = PickStaticModel(EWhichModel::ThermalHot);
         model->Draw(drawFlags, nullptr, nullptr);
     }
 }
@@ -347,8 +353,8 @@ void CModelData::RenderThermal(const zeus::CTransform& xf,
 void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& xf,
                                      const CActorLights* lights, const CModelFlags& drawFlags) const
 {
-    if ((x14_25_sortThermal && which == EWhichModel::Thermal) ||
-        x10_animData || !x1c_normalModel || drawFlags.x0_blendMode > 2)
+    if ((x14_25_sortThermal && which == EWhichModel::ThermalHot) ||
+        x10_animData || !x1c_normalModel || drawFlags.x0_blendMode > 4)
     {
         const_cast<CModelData*>(this)->x14_24_renderSorted = false;
         return;
@@ -371,10 +377,10 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
 void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
                         const CActorLights* lights, const CModelFlags& drawFlags) const
 {
-    if (x14_25_sortThermal && which == EWhichModel::Thermal)
+    if (x14_25_sortThermal && which == EWhichModel::ThermalHot)
     {
-        zeus::CColor mul(drawFlags.x4_color.a, drawFlags.x4_color.a, drawFlags.x4_color.a, drawFlags.x4_color.a);
-        RenderThermal(xf, mul, {0.f, 0.f, 0.f, 0.25f});
+        zeus::CColor mul(drawFlags.x4_color.a, drawFlags.x4_color.a);
+        RenderThermal(xf, mul, {0.f, 0.f, 0.f, 0.25f}, drawFlags);
     }
     else
     {

@@ -4877,6 +4877,8 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
         switch (x304_orbitState)
         {
         case EPlayerOrbitState::NoOrbit:
+            /* Disabled transitions directly from NoOrbit to OrbitObject for better keyboard handling */
+#if 0
             if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input))
             {
                 SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
@@ -4890,11 +4892,14 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
             }
             else
             {
+#endif
                 if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitFar, input))
                     OrbitPoint(EPlayerOrbitType::Far, mgr);
                 if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitClose, input))
                     OrbitPoint(EPlayerOrbitType::Close, mgr);
+#if 0
             }
+#endif
             break;
         case EPlayerOrbitState::Grapple:
             if (x310_orbitTargetId == kInvalidUniqueId)

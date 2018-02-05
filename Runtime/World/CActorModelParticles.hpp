@@ -26,7 +26,7 @@ public:
         friend class CActorModelParticles;
         TUniqueId x0_id;
         TAreaId x4_areaId;
-        rstl::reserved_vector<std::pair<std::unique_ptr<CElementGen>, u32>, 8> x8_;
+        rstl::reserved_vector<std::pair<std::unique_ptr<CElementGen>, u32>, 8> x8_thermalHotParticles;
         float x6c_ = 0.f;
         bool x70_ = false;
         CSfxHandle x74_sfx;
@@ -34,7 +34,7 @@ public:
         u32 x80_ = 0;
         u32 x84_ = -1;
         u32 x88_seed1 = 99;
-        rstl::prereserved_vector<std::unique_ptr<CElementGen>, 4> x8c_;
+        rstl::prereserved_vector<std::unique_ptr<CElementGen>, 4> x8c_thermalColdParticles;
         s32 xb0_ = -1;
         u32 xb4_seed2 = 99;
         std::unique_ptr<CElementGen> xb8_;
@@ -52,8 +52,8 @@ public:
         {
             struct
             {
-                bool x12c_24_ : 1;
-                bool x12c_25_ : 1;
+                bool x12c_24_thermalCold : 1;
+                bool x12c_25_thermalHot : 1;
             };
             u16 _dummy = 0;
         };
@@ -94,6 +94,7 @@ public:
     void SetupHook(TUniqueId uid);
     std::list<CItem>::const_iterator FindSystem(TUniqueId uid) const;
     void StartIce(CActor& actor, CStateManager& mgr);
+    void Render(const CActor& actor) const;
 };
 }
 

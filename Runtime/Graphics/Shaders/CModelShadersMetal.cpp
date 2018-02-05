@@ -129,7 +129,9 @@ static const char* ThermalPostMetal =
 "static float4 EXTThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu,\n"
 "    sampler samp, sampler clampSamp, texture2d<float> extTex7, float4 colorIn)\n"
 "{\n"
-"    return float4(extTex7.sample(samp, vtf.extTcgs0).rrr * lu.tmulColor.rgb + lu.addColor.rgb, 1.0);\n"
+"    //return float4(vtf.extTcgs0.xy, 0.0, 1.0);\n"
+"    return float4(extTex7.sample(samp, vtf.extTcgs0).rrr * lu.tmulColor.rgb + lu.addColor.rgb,\n"
+"                  lu.tmulColor.a + lu.addColor.a);\n"
 "}\n"
 "\n";
 
@@ -183,7 +185,7 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
     ext.registerExtensionSlot({}, {ThermalPostMetal, "EXTThermalPostFunc"}, 1, ThermalBlockNames,
                               1, ThermalTextures, hecl::Backend::BlendFactor::One,
                               hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, false, false, true);
+                              hecl::Backend::CullMode::Backface, false, false, false, true);
 
     /* Forced alpha shading */
     ext.registerExtensionSlot({LightingMetal, "LightingFunc"}, {MainPostMetal, "MainPostFunc"},
@@ -239,7 +241,7 @@ CModelShaders::GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat
                               hecl::Backend::BlendFactor::SrcAlpha,
                               hecl::Backend::BlendFactor::InvSrcAlpha,
                               hecl::Backend::ZTest::Equal,
-                              hecl::Backend::CullMode::Backface, false, false, true, true);
+                              hecl::Backend::CullMode::Backface, false, false, true, false, true);
 
     /* World shadow shading (modified lighting) */
     ext.registerExtensionSlot({LightingShadowMetal, "EXTLightingShadowFunc"}, {MainPostMetal, "MainPostFunc"},

@@ -77,6 +77,13 @@ enum class EStateManagerTransition
     MessageScreen
 };
 
+enum class EThermalDrawFlag
+{
+    Hot,
+    Cold,
+    Bypass
+};
+
 class CStateManager
 {
     friend class MP1::CMFGameLoader;
@@ -193,7 +200,7 @@ private:
     float xf24_thermColdScale1 = 0.f;
     float xf28_thermColdScale2 = 0.f;
     zeus::CVector2f xf2c_viewportScale = {1.f, 1.f};
-    u32 xf34_particleFlags = 2;
+    EThermalDrawFlag xf34_thermalFlag = EThermalDrawFlag::Bypass;
     TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
     std::list<u32> xf3c_;
     std::list<u32> xf54_;
@@ -215,7 +222,7 @@ private:
     {
         struct
         {
-            bool xf94_24_ : 1;
+            bool xf94_24_readyToRender : 1;
             bool xf94_25_quitGame : 1;
             bool xf94_26_generatingObject : 1;
             bool xf94_27_inMapScreen : 1;
@@ -268,6 +275,7 @@ public:
     void RenderCamerasAndAreaLights() const;
     void DrawE3DeathEffect() const;
     void DrawAdditionalFilters() const;
+    zeus::CFrustum SetupDrawFrustum(const SViewport& vp) const;
     zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
     void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
     void DrawWorld() const;
@@ -431,7 +439,7 @@ public:
     TUniqueId GetLastRelayId() const { return xf76_lastRelay; }
     bool GetIsGeneratingObject() const { return xf94_26_generatingObject; }
     void SetIsGeneratingObject(bool gen) { xf94_26_generatingObject = gen; }
-    u32 GetParticleFlags() const { return xf34_particleFlags; }
+    EThermalDrawFlag GetThermalDrawFlag() const { return xf34_thermalFlag; }
     const CFinalInput& GetFinalInput() const { return xb54_finalInput; }
     void SetBossParams(TUniqueId bossId, float maxEnergy, u32 stringIdx);
     TUniqueId GetBossId() const { return xf18_bossId; }
@@ -439,6 +447,7 @@ public:
     u32 GetBossStringIdx() const { return xf20_bossStringIdx; }
     const SOnScreenTex& GetPendingScreenTex() const { return xef4_pendingScreenTex; }
     void SetViewportScale(const zeus::CVector2f& scale) { xf2c_viewportScale = scale; }
+    float GetThermalColdScale1() const { return xf24_thermColdScale1; }
     float GetThermalColdScale2() const { return xf28_thermColdScale2; }
     void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
     float IntegrateVisorFog(float f) const;

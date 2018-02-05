@@ -34,6 +34,7 @@ CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud)
     x78_basewidget_tickdeco0->SetColor(g_tweakGuiColors->GetTickDecoColor());
     x38_basePosition = x7c_basewidget_frame->GetLocalPosition();
     x44_baseRotation = x7c_basewidget_frame->GetLocalTransform().buildMatrix3f();
+    UpdateHudAlpha();
 }
 
 void CHudDecoInterfaceCombat::UpdateVisibility()

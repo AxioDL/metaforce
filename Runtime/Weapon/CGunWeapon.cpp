@@ -328,22 +328,30 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
     if (x1bc_rainSplashGenerator && x1bc_rainSplashGenerator->IsRaining())
         CSkinnedModel::SetPointGeneratorFunc(x1bc_rainSplashGenerator, PointGenerator);
 
-    if (mgr.GetParticleFlags() == 0 && x200_beamId != CPlayerState::EBeamId::Ice)
+    if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x200_beamId != CPlayerState::EBeamId::Ice)
     {
-        zeus::CColor color1(flags.x4_color.a, flags.x4_color.a);
-        zeus::CColor color2(0.25f, 0.25f);
+        /* Hot Draw */
+        zeus::CColor mulColor(flags.x4_color.a, flags.x4_color.a);
+        zeus::CColor addColor(0.25f, 0.25f);
         if (x218_29_drawHologram)
+        {
             DrawHologram(mgr, xf, flags);
+        }
         else
-            x10_solidModelData->RenderThermal(xf, color1, color2);
+        {
+            CModelFlags useFlags(0, 0, 3, zeus::CColor::skWhite);
+            x10_solidModelData->RenderThermal(xf, mulColor, addColor, useFlags);
+        }
 
         if (drawSuitArm && xb0_suitArmModelData)
         {
-            xb0_suitArmModelData->RenderThermal(xf, color1, color2);
+            CModelFlags useFlags(0, 0, 3, zeus::CColor::skWhite);
+            xb0_suitArmModelData->RenderThermal(xf, mulColor, addColor, useFlags);
         }
     }
     else
     {
+        /* Cold Draw */
         if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && !x218_29_drawHologram)
         {
             CModelFlags useFlags = flags;

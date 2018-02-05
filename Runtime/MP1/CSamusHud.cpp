@@ -320,7 +320,7 @@ void CSamusHud::InitializeDamageLight()
         parms, CLight::BuildSpot(zeus::CVector3f::skZero, zeus::CVector3f::skForward,
         zeus::CColor::skWhite, g_tweakGui->GetHudDamageLightSpotAngle()));
     x3d4_damageLight = light.get();
-    x3d4_damageLight->SetColor(zeus::CColor::skWhite);
+    x3d4_damageLight->SetColor(zeus::CColor::skBlack);
 
     zeus::CColor lightColor = g_tweakGuiColors->GetHudFrameColor();
     lightColor.r *= lightColor.a;

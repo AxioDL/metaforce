@@ -81,7 +81,8 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
     zeus::CTransform camMtx = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camMtx);
     zeus::CFrustum frustum;
-    frustum.updatePlanes(camMtx, zeus::CProjection(zeus::SProjPersp(cam->GetFov(), cam->GetAspectRatio(), 1.f, 100.f)));
+    frustum.updatePlanes(camMtx, zeus::CProjection(zeus::SProjPersp(cam->GetFov(),
+                                 g_Viewport.x8_width / float(g_Viewport.xc_height), 1.f, 100.f)));
     g_Renderer->SetClippingPlanes(frustum);
     g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height,
                                cam->GetNearClipDistance(), cam->GetFarClipDistance());
@@ -176,18 +177,18 @@ void CPlayerVisor::UpdateScanObjectIndicators(const CStateManager& mgr, float dt
             {
                 tgt.xc_inBox = inBox;
                 if (inBox)
-                    x550_frameColorImpulseInterp = 1.f;
+                    x550_scanFrameColorImpulseInterp = 1.f;
             }
             inBoxExists |= inBox;
         }
     }
 
     if (inBoxExists)
-        x54c_frameColorInterp = std::min(x54c_frameColorInterp + dt2, 1.f);
+        x54c_scanFrameColorInterp = std::min(x54c_scanFrameColorInterp + dt2, 1.f);
     else
-        x54c_frameColorInterp = std::max(0.f, x54c_frameColorInterp - dt2);
+        x54c_scanFrameColorInterp = std::max(0.f, x54c_scanFrameColorInterp - dt2);
 
-    x550_frameColorImpulseInterp = std::max(0.f, x550_frameColorImpulseInterp - dt);
+    x550_scanFrameColorImpulseInterp = std::max(0.f, x550_scanFrameColorImpulseInterp - dt);
     dt += FLT_EPSILON;
 
     TAreaId playerArea = mgr.GetPlayer().GetAreaIdAlways();
@@ -414,12 +415,12 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     zeus::CColor frameColor = zeus::CColor::lerp(
         g_tweakGuiColors->GetScanFrameInactiveColor(),
         g_tweakGuiColors->GetScanFrameActiveColor(),
-        x54c_frameColorInterp);
+        x54c_scanFrameColorInterp);
     frameColor.a = transFactor;
 
     CModelFlags flags(5, 0, 0,
         frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
-            zeus::CColor(x550_frameColorImpulseInterp, x550_frameColorImpulseInterp));
+            zeus::CColor(x550_scanFrameColorImpulseInterp, x550_scanFrameColorImpulseInterp));
     flags.m_noCull = true;
 
     zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);

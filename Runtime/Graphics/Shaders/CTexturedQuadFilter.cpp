@@ -10,8 +10,8 @@ CTexturedQuadFilter::CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex
     m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, bool gequal)
-: m_booTex(tex), m_gequal(gequal)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, ZTest ztest)
+: m_booTex(tex), m_zTest(ztest)
 {
     m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
     tex->setClampMode(boo::TextureClampMode::ClampToEdge);
@@ -25,8 +25,8 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<b
 }
 
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type,
-                                         TLockedToken<CTexture> tex)
-: CTexturedQuadFilter(type, (tex ? tex->GetBooTexture() : nullptr))
+                                         TLockedToken<CTexture> tex, ZTest ztest)
+: CTexturedQuadFilter(type, (tex ? tex->GetBooTexture() : nullptr), ztest)
 {
     m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
     m_tex = tex;

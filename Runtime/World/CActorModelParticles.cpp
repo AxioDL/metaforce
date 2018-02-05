@@ -16,7 +16,7 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
 : x0_id(ent.GetUniqueId()), x4_areaId(ent.GetAreaIdAlways()),
   xdc_ashy(parent.x48_ashy), x128_parent(parent)
 {
-    x8_.resize(8);
+    x8_thermalHotParticles.resize(8);
 }
 
 u32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, CRandom16& rnd)
@@ -39,7 +39,7 @@ u32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f, zeus::
 }
 void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn)
 {
-    for (std::pair<std::unique_ptr<CElementGen>, u32>& pair: x8_)
+    for (std::pair<std::unique_ptr<CElementGen>, u32>& pair: x8_thermalHotParticles)
     {
         if (pair.first)
         {
@@ -84,8 +84,8 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
 
         iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(vn[next].second)));
 
-        x8c_.push_back(std::move(iceGen));
-        xb0_ = (x8c_.size() == 4 ? -1 : next);
+        x8c_thermalColdParticles.push_back(std::move(iceGen));
+        xb0_ = (x8c_thermalColdParticles.size() == 4 ? -1 : next);
     }
 // TODO: Verify behavior
     if (xc0_particleElectric && xc0_particleElectric->GetParticleEmission())
@@ -195,8 +195,8 @@ CActorModelParticles::CActorModelParticles()
 
 void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr)
 {
-    bool isNotOne = mgr.GetParticleFlags() != 1;
-    bool isNotZero = mgr.GetParticleFlags() != 0;
+    bool isNotCold = mgr.GetThermalDrawFlag() != EThermalDrawFlag::Cold;
+    bool isNotHot = mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot;
 
     for (CItem& item : x0_items)
     {
@@ -210,38 +210,41 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr)
                 continue;
         }
         if (mgr.GetObjectById(item.x0_id) &&
-            ((isNotOne && item.x12c_24_) || (isNotZero && item.x12c_25_)))
+            ((isNotCold && item.x12c_24_thermalCold) || (isNotHot && item.x12c_25_thermalHot)))
         {
-            item.x12c_24_ = false;
-            item.x12c_25_ = false;
+            item.x12c_24_thermalCold = false;
+            item.x12c_25_thermalHot = false;
             continue;
         }
-        if (isNotOne)
+        if (isNotCold)
         {
+            /* Hot Draw */
             for (int i=0 ; i<8 ; ++i)
             {
-                std::unique_ptr<CElementGen>& gen = item.x8_[i].first;
+                std::unique_ptr<CElementGen>& gen = item.x8_thermalHotParticles[i].first;
                 if (gen)
                     g_Renderer->AddParticleGen(*gen);
             }
-            if (mgr.GetParticleFlags() && item.x78_)
+            if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && item.x78_)
                 g_Renderer->AddParticleGen(*item.x78_);
             if (item.xb8_)
                 g_Renderer->AddParticleGen(*item.xb8_);
             if (item.xc0_particleElectric)
                 g_Renderer->AddParticleGen(*item.xc0_particleElectric);
         }
-        if (isNotZero)
+        if (isNotHot)
         {
-            for (std::unique_ptr<CElementGen>& gen : item.x8c_)
+            /* Cold Draw */
+            for (std::unique_ptr<CElementGen>& gen : item.x8c_thermalColdParticles)
                 g_Renderer->AddParticleGen(*gen);
             if (item.xe4_)
                 g_Renderer->AddParticleGen(*item.xe4_);
         }
-        if (isNotOne)
+        if (isNotCold)
         {
-            item.x12c_24_ = false;
-            item.x12c_25_ = false;
+            /* Thermal Reset */
+            item.x12c_24_thermalCold = false;
+            item.x12c_25_thermalHot = false;
         }
     }
 }
@@ -273,6 +276,11 @@ std::list<CActorModelParticles::CItem>::const_iterator CActorModelParticles::Fin
 }
 
 void CActorModelParticles::StartIce(CActor& actor, CStateManager& mgr)
+{
+
+}
+
+void CActorModelParticles::Render(const CActor& actor) const
 {
 
 }

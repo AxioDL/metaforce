@@ -49,7 +49,7 @@ static const char* FS =
 "{\n"
 "    float sceneSample = dot(sceneTex.Sample(samp, vtf.sceneUv), kRGBToYPrime);\n"
 "    float4 colorSample = paletteTex.Sample(samp, float2(sceneSample / 17.0, 0.5));\n"
-"    return colorSample * sceneSample;\n"
+"    return float4((colorSample * sceneSample).rgb, 0.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
@@ -84,7 +84,7 @@ TShader<CThermalHotFilter>::IDataBindingFactory* CThermalHotFilter::Initialize(b
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr,
                                        s_VtxFmt, boo::BlendFactor::DstAlpha, boo::BlendFactor::InvDstAlpha,
                                        boo::Primitive::TriStrips, boo::ZTest::None,
-                                       false, true, false, boo::CullMode::None);
+                                       false, true, true, boo::CullMode::None);
     return new CThermalHotFilterD3DDataBindingFactory;
 }
 
