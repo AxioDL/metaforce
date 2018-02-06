@@ -2015,7 +2015,7 @@ CFrontEndUI::CFrontEndUI()
     m_touchBar = NewFrontEndUITouchBar();
     m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
 
-    x14_phase = EPhase::ExitFrontEnd;
+    //x14_phase = EPhase::ExitFrontEnd;
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)

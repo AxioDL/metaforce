@@ -66,10 +66,10 @@ void CStaticAudioPlayer::DecodeMonoAndMix(s16* bufOut, u32 numSamples,
             if (!loopState && cur + i == loopStartCur)
                 loopState.emplace(state);
 
-            *bufOut = SampClamp(((g721_decoder(*byte & 0xf, &state) * vol) >> 15) * 0.7f);
+            *bufOut = SampClamp(((g721_decoder(*byte & 0xf, &state) * vol) >> 15));
             bufOut += 2;
 
-            *bufOut = SampClamp(((g721_decoder(*byte >> 4 & 0xf, &state) * vol) >> 15) * 0.7f);
+            *bufOut = SampClamp(((g721_decoder(*byte >> 4 & 0xf, &state) * vol) >> 15));
             bufOut += 2;
         }
 

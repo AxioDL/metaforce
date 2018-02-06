@@ -12,8 +12,8 @@ namespace urde
 using ECardResult = kabufuda::ECardResult;
 
 static kabufuda::SystemString g_CardImagePaths[2] = {};
-static kabufuda::Card g_CardStates[2] = {};
-static kabufuda::ECardResult g_OpResults[2] = {};
+static kabufuda::Card g_CardStates[2] = {{"GM8E", "01"}, {"GM8E", "01"}};
+//static kabufuda::ECardResult g_OpResults[2] = {};
 
 CSaveWorldIntermediate::CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw)
 : x0_mlvlId(mlvl), x8_savwId(savw)
@@ -379,17 +379,17 @@ kabufuda::ProbeResults CMemoryCardSys::CardProbe(kabufuda::ECardSlot port)
     g_CardImagePaths[1] = ResolveDolphinCardPath(kabufuda::ECardSlot::SlotB);
 
     kabufuda::ProbeResults res = kabufuda::Card::probeCardFile(g_CardImagePaths[int(port)]);
-    g_OpResults[int(port)] = res.x0_error;
+    //g_OpResults[int(port)] = res.x0_error;
     return res;
 }
 
 ECardResult CMemoryCardSys::MountCard(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
-    card.close();
-    card = kabufuda::Card(g_CardImagePaths[int(port)], "GM8E", "01");
+    if (!card.open(g_CardImagePaths[int(port)]))
+        return ECardResult::NOCARD;
     ECardResult result = card.getError();
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     if (result == ECardResult::READY)
         return ECardResult::READY;
     return result;
@@ -400,11 +400,11 @@ ECardResult CMemoryCardSys::UnmountCard(kabufuda::ECardSlot port)
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
-    card = kabufuda::Card();
-    g_OpResults[int(port)] = ECardResult::READY;
+    card.commit();
+    //g_OpResults[int(port)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
@@ -412,7 +412,7 @@ ECardResult CMemoryCardSys::CheckCard(kabufuda::ECardSlot port)
 {
     kabufuda::Card& card = g_CardStates[int(port)];
     ECardResult result = card.getError();
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -421,12 +421,12 @@ ECardResult CMemoryCardSys::CreateFile(kabufuda::ECardSlot port, const char* nam
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     info.slot = port;
     ECardResult result = card.createFile(name, size, info.handle);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -435,12 +435,12 @@ ECardResult CMemoryCardSys::OpenFile(kabufuda::ECardSlot port, const char* name,
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     info.slot = port;
     ECardResult result = card.openFile(name, info.handle);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -449,12 +449,12 @@ ECardResult CMemoryCardSys::FastOpenFile(kabufuda::ECardSlot port, int fileNo, C
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     info.slot = port;
     ECardResult result = card.openFile(fileNo, info.handle);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -463,7 +463,7 @@ ECardResult CMemoryCardSys::CloseFile(CardFileHandle& info)
     kabufuda::Card& card = g_CardStates[int(info.slot)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(info.slot)] = err;
+        //g_OpResults[int(info.slot)] = err;
         return err;
     }
     card.closeFile(info.handle);
@@ -475,12 +475,12 @@ ECardResult CMemoryCardSys::ReadFile(CardFileHandle& info, void* buf, s32 length
     kabufuda::Card& card = g_CardStates[int(info.slot)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(info.slot)] = err;
+        //g_OpResults[int(info.slot)] = err;
         return err;
     }
     card.seek(info.handle, offset, kabufuda::SeekOrigin::Begin);
-    card.read(info.handle, buf, length);
-    g_OpResults[int(info.slot)] = ECardResult::READY;
+    card.asyncRead(info.handle, buf, length);
+    //g_OpResults[int(info.slot)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
@@ -489,12 +489,12 @@ ECardResult CMemoryCardSys::WriteFile(CardFileHandle& info, const void* buf, s32
     kabufuda::Card& card = g_CardStates[int(info.slot)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(info.slot)] = err;
+        //g_OpResults[int(info.slot)] = err;
         return err;
     }
     card.seek(info.handle, offset, kabufuda::SeekOrigin::Begin);
-    card.write(info.handle, buf, length);
-    g_OpResults[int(info.slot)] = ECardResult::READY;
+    card.asyncWrite(info.handle, buf, length);
+    //g_OpResults[int(info.slot)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
@@ -503,11 +503,11 @@ ECardResult CMemoryCardSys::GetNumFreeBytes(kabufuda::ECardSlot port, s32& freeB
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     card.getFreeBlocks(freeBytes, freeFiles);
-    g_OpResults[int(port)] = ECardResult::READY;
+    //g_OpResults[int(port)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
@@ -516,17 +516,18 @@ ECardResult CMemoryCardSys::GetSerialNo(kabufuda::ECardSlot port, u64& serialOut
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     card.getSerial(serialOut);
-    g_OpResults[int(port)] = ECardResult::READY;
+    //g_OpResults[int(port)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
 ECardResult CMemoryCardSys::GetResultCode(kabufuda::ECardSlot port)
 {
-    return g_OpResults[int(port)];
+    kabufuda::Card& card = g_CardStates[int(port)];
+    return card.getError();
 }
 
 ECardResult CMemoryCardSys::GetStatus(kabufuda::ECardSlot port, int fileNo, CardStat& statOut)
@@ -534,11 +535,11 @@ ECardResult CMemoryCardSys::GetStatus(kabufuda::ECardSlot port, int fileNo, Card
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     ECardResult result = card.getStatus(fileNo, statOut);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -547,11 +548,11 @@ ECardResult CMemoryCardSys::SetStatus(kabufuda::ECardSlot port, int fileNo, cons
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     ECardResult result = card.setStatus(fileNo, stat);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -560,11 +561,11 @@ ECardResult CMemoryCardSys::DeleteFile(kabufuda::ECardSlot port, const char* nam
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     ECardResult result = card.deleteFile(name);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -573,11 +574,11 @@ ECardResult CMemoryCardSys::FastDeleteFile(kabufuda::ECardSlot port, int fileNo)
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     ECardResult result = card.deleteFile(fileNo);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -586,11 +587,11 @@ ECardResult CMemoryCardSys::Rename(kabufuda::ECardSlot port, const char* oldName
     kabufuda::Card& card = g_CardStates[int(port)];
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
     ECardResult result = card.renameFile(oldName, newName);
-    g_OpResults[int(port)] = result;
+    //g_OpResults[int(port)] = result;
     return result;
 }
 
@@ -600,10 +601,10 @@ ECardResult CMemoryCardSys::FormatCard(kabufuda::ECardSlot port)
     card.format(port);
     if (CardResult err = card.getError())
     {
-        g_OpResults[int(port)] = err;
+        //g_OpResults[int(port)] = err;
         return err;
     }
-    g_OpResults[int(port)] = ECardResult::READY;
+    //g_OpResults[int(port)] = ECardResult::READY;
     return ECardResult::READY;
 }
 
