@@ -1178,8 +1178,8 @@ bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, co
 bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, const zeus::CVector3f& dir,
                         double& d, zeus::CVector3f& point, zeus::CVector3f& normal)
 {
-    zeus::CVector3d vecMin(DBL_MIN);
-    zeus::CVector3d vecMax(DBL_MAX);
+    zeus::CVector3d vecMin(-FLT_MAX);
+    zeus::CVector3d vecMax(FLT_MAX);
 
     for (int i=0 ; i<3 ; ++i)
     {
@@ -1221,10 +1221,10 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
     if (vecMin[2] > vecMin[maxAxis])
         maxAxis = 2;
 
-    float minMax = std::min(std::min(vecMax[2], vecMax[1]), vecMax[0]);
+    double minMax = std::min(std::min(vecMax[2], vecMax[1]), vecMax[0]);
     if (vecMin[maxAxis] > minMax)
         return false;
-    d = minMax;
+    d = vecMin[maxAxis];
 
     normal = zeus::CVector3f::skZero;
     normal[maxAxis] = dir[maxAxis] > 0.f ? -1.f : 1.f;

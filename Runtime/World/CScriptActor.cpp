@@ -14,24 +14,25 @@ namespace urde
 CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
                            const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-                           const CActorParameters& actParms, bool looping, bool active, u32 w1, float f3, bool b2,
-                           bool castsShadow, bool b4, bool b5)
+                           const CActorParameters& actParms, bool looping, bool active, u32 shaderIdx, float xrayAlpha,
+                           bool noThermalHotZ, bool castsShadow, bool scaleAdvancementDelta, bool materialFlag54)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), matList, aabb, SMoverData(mass), actParms, 0.3f, 0.1f)
 , x258_initialHealth(hInfo)
 , x260_currentHealth(hInfo)
 , x268_damageVulnerability(dVuln)
-, x2d8_(w1)
-, x2dc_xrayAlpha(f3)
-, x2e2_24_(b2)
-, x2e2_25_dead(false)
-, x2e2_26_animating(true)
-, x2e2_27_(std::fabs(1.f - f3) > 0.00001)
-, x2e2_28_(false)
-, x2e2_29_((x2e2_24_ && x2e2_25_dead && x2d8_ != 0))
-, x2e2_30_transposeRotate(b4)
-, x2e2_31_(b5)
-, x2e3_24_cameraMoveIntoAlpha(false)
+, x2d8_shaderIdx(shaderIdx)
+, x2dc_xrayAlpha(xrayAlpha)
 {
+    x2e2_24_noThermalHotZ = noThermalHotZ;
+    x2e2_25_dead = false;
+    x2e2_26_animating = true;
+    x2e2_27_xrayAlphaEnabled = !zeus::close_enough(1.f, xrayAlpha);
+    x2e2_28_inXrayAlpha = false;
+    x2e2_29_processModelFlags = (x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0);
+    x2e2_30_scaleAdvancementDelta = scaleAdvancementDelta;
+    x2e2_31_materialFlag54 = materialFlag54;
+    x2e3_24_cameraMoveIntoAlpha = false;
+
     if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow)
         CreateShadow(true);
 
@@ -77,7 +78,7 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
             }
         }
 
-        if (x2e2_31_)
+        if (x2e2_31_materialFlag54)
             CActor::AddMaterial(EMaterialTypes::Unknown54, mgr);
     }
 
@@ -100,7 +101,7 @@ void CScriptActor::Think(float dt, CStateManager& mgr)
         {
             x2e2_26_animating = true;
 
-            if (x2e2_30_transposeRotate)
+            if (x2e2_30_scaleAdvancementDelta)
                 MoveToOR(
                     x34_transform.rotate(x64_modelData->GetScale() * x34_transform.transposeRotate(deltas.x0_posDelta)),
                     dt);
@@ -131,42 +132,35 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
     if (xe4_30_outOfFrustum && TCastToPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)))
         xe4_30_outOfFrustum = false;
 
-    if (xe4_30_outOfFrustum && !x2e2_29_ && !x2e2_27_)
+    if (!xe4_30_outOfFrustum && x2e2_29_processModelFlags)
     {
-        zeus::CColor col(1.f, 1.f, x2dc_xrayAlpha);
-        if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
+        if (x2e2_27_xrayAlphaEnabled)
         {
-            xb4_drawFlags.x0_blendMode = 5;
-            xb4_drawFlags.x1_matSetIdx = 0;
-            xb4_drawFlags.x2_flags = 3;
-            xb4_drawFlags.x4_color = col;
-            x2e2_28_ = true;
-        }
-        else if (x2e2_28_)
-        {
-            x2e2_28_ = false;
-            if (xb4_drawFlags.x0_blendMode != 5 && xb4_drawFlags.x1_matSetIdx != 0 &&
-                xb4_drawFlags.x2_flags != 3 && xb4_drawFlags.x4_color != col)
+            zeus::CColor col(1.f, x2dc_xrayAlpha);
+            CModelFlags xrayFlags(5, 0, 3, col);
+            if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
             {
-                xb4_drawFlags.x0_blendMode = 5;
-                xb4_drawFlags.x1_matSetIdx = 0;
-                xb4_drawFlags.x2_flags = 3;
-                xb4_drawFlags.x4_color = col;
+                xb4_drawFlags = xrayFlags;
+                x2e2_28_inXrayAlpha = true;
+            }
+            else if (x2e2_28_inXrayAlpha)
+            {
+                x2e2_28_inXrayAlpha = false;
+                if (xb4_drawFlags == xrayFlags)
+                    xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
             }
         }
 
-        if (!x2e2_24_ && xe6_27_renderVisorFlags == 2 &&
-            mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
+        if (x2e2_24_noThermalHotZ && xe6_27_thermalVisorFlags == 2)
         {
-            xb4_drawFlags.x2_flags &= ~3;
-        }
-        else
-        {
-            xb4_drawFlags.x2_flags |= 3;
+            if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
+                xb4_drawFlags.x2_flags &= ~3; // Disable Z test/update
+            else
+                xb4_drawFlags.x2_flags |= 3; // Enable Z test/update
         }
 
-        if (x2d8_ != 0)
-            xb4_drawFlags.x1_matSetIdx = 0;
+        if (x2d8_shaderIdx != 0)
+            xb4_drawFlags.x1_matSetIdx = u8(x2d8_shaderIdx);
     }
 
     if (mgr.GetObjectById(x2e0_triggerId) == nullptr)
@@ -187,7 +181,7 @@ zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const
 
 EWeaponCollisionResponseTypes
 CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const
-                                        CWeaponMode& wMode, int w) const
+                                       CWeaponMode& wMode, int w) const
 {
     const CDamageVulnerability* dVuln = GetDamageVulnerability();
     if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Reflect)
@@ -206,5 +200,8 @@ rstl::optional_object<zeus::CAABox> CScriptActor::GetTouchBounds() const
     return {};
 }
 
-void CScriptActor::Touch(CActor&, CStateManager&) {}
+void CScriptActor::Touch(CActor&, CStateManager&)
+{
+    // Empty
+}
 }

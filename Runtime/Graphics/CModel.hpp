@@ -48,6 +48,18 @@ struct CModelFlags
         0x8: depth greater
         0x10: depth non-inclusive
      */
+
+    bool operator==(const CModelFlags& other) const
+    {
+        return x0_blendMode == other.x0_blendMode && x1_matSetIdx == other.x1_matSetIdx &&
+               x2_flags == other.x2_flags && x4_color == other.x4_color;
+    }
+
+    bool operator!=(const CModelFlags& other) const
+    {
+        return x0_blendMode != other.x0_blendMode || x1_matSetIdx != other.x1_matSetIdx ||
+               x2_flags != other.x2_flags || x4_color != other.x4_color;
+    }
 };
 
 /* urde addition: doesn't require hacky stashing of

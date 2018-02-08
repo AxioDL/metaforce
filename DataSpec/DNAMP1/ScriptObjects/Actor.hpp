@@ -15,24 +15,24 @@ struct Actor : IScriptObject
     Value<atVec3f> scale SO_SCALE_SPECPROP();
     Value<atVec3f> collisionExtent SO_COLLISION_EXTENT_SPECPROP();
     Value<atVec3f> collisionOffset SO_COLLISION_OFFSET_SPECPROP();
-    Value<float>   unknown2;
-    Value<float>   unknown3;
+    Value<float>   mass;
+    Value<float>   zMomentum;
     HealthInfo     healthInfo;
     DamageVulnerability damageVulnerability;
     UniqueID32     model;
     AnimationParameters animationParameters;
     ActorParameters actorParameters;
-    Value<bool>     unkown4;
-    Value<bool>     unkown5;
-    Value<bool>     unkown6;
-    Value<bool>     unkown7;
-    Value<bool>     unkown8;
-    Value<atUint32> unknown9;
-    Value<float>    unknown10;
-    Value<bool>     unknown11;
-    Value<bool>     unknown12;
-    Value<bool>     unknown13;
-    Value<bool>     unknown14;
+    Value<bool>     looping;
+    Value<bool>     snow;
+    Value<bool>     solid;
+    Value<bool>     cameraPassthrough;
+    Value<bool>     active;
+    Value<atUint32> shaderIdx;
+    Value<float>    xrayAlpha;
+    Value<bool>     noThermalHotZ;
+    Value<bool>     castsShadow;
+    Value<bool>     scaleAdvancementDelta;
+    Value<bool>     materialFlag54;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const

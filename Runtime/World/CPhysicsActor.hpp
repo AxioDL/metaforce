@@ -170,7 +170,7 @@ public:
     void MoveInOneFrameOR(const zeus::CVector3f& trans, float d);
     void RotateToOR(const zeus::CQuaternion& q, float d);
     void MoveToOR(const zeus::CVector3f& trans, float d);
-    void sub_8011B098(const zeus::CVector3f& v1, float d);
+    void MoveToInOneFrameWR(const zeus::CVector3f& v1, float d);
     void MoveToWR(const zeus::CVector3f& trans, float d);
     zeus::CAxisAngle GetRotateToORAngularMomentumWR(const zeus::CQuaternion& q, float d) const;
     zeus::CVector3f GetMoveToORImpulseWR(const zeus::CVector3f& trans, float d) const;

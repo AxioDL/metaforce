@@ -16,23 +16,25 @@ protected:
     CDamageVulnerability x268_damageVulnerability;
     float x2d0_alphaMax;
     float x2d4_alphaMin;
-    s32 x2d8_;
+    s32 x2d8_shaderIdx;
     float x2dc_xrayAlpha;
     TUniqueId x2e0_triggerId = kInvalidUniqueId;
-    bool x2e2_24_ : 1;
+    bool x2e2_24_noThermalHotZ : 1;
     bool x2e2_25_dead : 1;
     bool x2e2_26_animating : 1;
-    bool x2e2_27_ : 1;
-    bool x2e2_28_ : 1;
-    bool x2e2_29_ : 1;
-    bool x2e2_30_transposeRotate : 1;
-    bool x2e2_31_ : 1;
+    bool x2e2_27_xrayAlphaEnabled : 1;
+    bool x2e2_28_inXrayAlpha : 1;
+    bool x2e2_29_processModelFlags : 1;
+    bool x2e2_30_scaleAdvancementDelta : 1;
+    bool x2e2_31_materialFlag54 : 1;
     bool x2e3_24_cameraMoveIntoAlpha : 1;
 
 public:
-    CScriptActor(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-                 const zeus::CAABox& aabb, float, float, const CMaterialList& matList, const CHealthInfo&,
-                 const CDamageVulnerability&, const CActorParameters&, bool, bool, u32, float, bool, bool, bool, bool);
+    CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                 CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
+                 const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
+                 const CActorParameters& actParms, bool looping, bool active, u32 shaderIdx, float xrayAlpha,
+                 bool noThermalHotZ, bool castsShadow, bool scaleAdvancementDelta, bool materialFlag54);
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void Think(float, CStateManager&);

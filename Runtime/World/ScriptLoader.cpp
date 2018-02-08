@@ -397,12 +397,12 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     bool solid = in.readBool();
     bool cameraPassthrough = in.readBool();
     bool active = in.readBool();
-    u32 w2 = in.readUint32Big();
-    float f3 = in.readFloatBig();
-    bool b6 = in.readBool();
+    u32 shaderIdx = in.readUint32Big();
+    float xrayAlpha = in.readFloatBig();
+    bool noThermalHotZ = in.readBool();
     bool castsShadow = in.readBool();
-    bool xposeRotate = in.readBool();
-    bool b9 = in.readBool();
+    bool scaleAdvancementDelta = in.readBool();
+    bool materialFlag54 = in.readBool();
 
     FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
     if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
@@ -430,8 +430,8 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, mass,
-                            zMomentum, list, hInfo, dVuln, actParms, looping, active, w2, f3, b6, castsShadow,
-                            xposeRotate, b9);
+                            zMomentum, list, hInfo, dVuln, actParms, looping, active, shaderIdx, xrayAlpha,
+                            noThermalHotZ, castsShadow, scaleAdvancementDelta, materialFlag54);
 }
 
 CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

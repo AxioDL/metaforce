@@ -75,11 +75,11 @@ zeus::CAABox CPhysicsActor::GetMotionVolume(float dt) const
 
     float up = GetStepUpHeight();
     up = zeus::max(up, 0.f);
-    aabox.accumulateBounds(aabox.max + up);
+    aabox.accumulateBounds(aabox.max + zeus::CVector3f(0.5f, 0.5f, up + 1.f));
 
     float down = GetStepDownHeight();
     down = zeus::max(down, 0.f);
-    aabox.accumulateBounds(aabox.min + down);
+    aabox.accumulateBounds(aabox.min - zeus::CVector3f(0.5f, 0.5f, down + 1.5f));
     return aabox;
 }
 
@@ -194,7 +194,7 @@ void CPhysicsActor::MoveToOR(const zeus::CVector3f& trans, float d)
     ComputeDerivedQuantities();
 }
 
-void CPhysicsActor::sub_8011B098(const zeus::CVector3f& trans, float d)
+void CPhysicsActor::MoveToInOneFrameWR(const zeus::CVector3f& trans, float d)
 {
     x18c_moveImpulse += xe8_mass * (trans - x34_transform.origin) * (1.f / d);
 }

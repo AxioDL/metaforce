@@ -16,7 +16,7 @@ CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId 
     xf4_24_ = flags & 0x4;
     xf4_25_ = true;
     xf4_26_ = flags & 0x8;
-    xe6_27_renderVisorFlags = flags & 0x1 ? 1 : 2;
+    xe6_27_thermalVisorFlags = flags & 0x1 ? 1 : 2;
     xe8_particleGen->SetGlobalTranslation(xf.origin);
     xe8_particleGen->SetOrientation(xf.getRotation());
     xe8_particleGen->SetGlobalScale(scale);

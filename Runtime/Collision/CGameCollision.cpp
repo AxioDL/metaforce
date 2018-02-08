@@ -587,14 +587,16 @@ bool CGameCollision::DetectCollision_Cached_Moving(const CStateManager& mgr, CAr
                                                    const zeus::CVector3f& dir,
                                                    TUniqueId& idOut, CCollisionInfo& infoOut, double& d)
 {
+    bool ret = false;
     idOut = kInvalidUniqueId;
     if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision))
-    {
         if (CGameCollision::DetectStaticCollision_Cached_Moving(mgr, cache, prim, xf, filter, dir, infoOut, d))
-            return true;
-    }
+            ret = true;
 
-    return CGameCollision::DetectDynamicCollisionMoving(prim, xf, nearList, dir, idOut, infoOut, d, mgr);
+    if (CGameCollision::DetectDynamicCollisionMoving(prim, xf, nearList, dir, idOut, infoOut, d, mgr))
+        ret = true;
+
+    return ret;
 }
 
 bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
@@ -604,6 +606,7 @@ bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CColl
     if (prim.GetPrimType() == FOURCC('OBTG'))
         return false;
 
+    bool ret = false;
     if (prim.GetPrimType() == FOURCC('AABX'))
     {
         zeus::CAABox aabb = prim.CalculateAABox(xf);
@@ -612,7 +615,7 @@ bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CColl
             if (CMetroidAreaCollider::AABoxCollisionCheck(
                 *area.GetPostConstructed()->x0_collision, aabb, filter,
                 prim.GetMaterial(), list))
-                return true;
+                ret = true;
         }
     }
     else if (prim.GetPrimType() == FOURCC('SPHR'))
@@ -625,7 +628,7 @@ bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CColl
             if (CMetroidAreaCollider::SphereCollisionCheck(
                 *area.GetPostConstructed()->x0_collision, aabb, xfSphere,
                 prim.GetMaterial(), filter, list))
-                return true;
+                ret = true;
         }
     }
     else if (prim.GetPrimType() == FOURCC('ABSH'))
@@ -633,7 +636,7 @@ bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CColl
         // Combination AABB / Sphere cut from game
     }
 
-    return false;
+    return ret;
 }
 
 bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
@@ -643,6 +646,7 @@ bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAre
     if (prim.GetPrimType() == FOURCC('OBTG'))
         return false;
 
+    bool ret = false;
     zeus::CAABox calcAABB = prim.CalculateAABox(xf);
     if (!calcAABB.inside(cache.GetCacheBounds()))
     {
@@ -660,7 +664,7 @@ bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAre
         for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
             if (CMetroidAreaCollider::AABoxCollisionCheck_Cached(leafCache, calcAABB, filter,
                                                                  prim.GetMaterial(), list))
-                return true;
+                ret = true;
     }
     else if (prim.GetPrimType() == FOURCC('SPHR'))
     {
@@ -669,14 +673,14 @@ bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAre
         for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
             if (CMetroidAreaCollider::SphereCollisionCheck_Cached(leafCache, calcAABB, xfSphere,
                                                                   prim.GetMaterial(), filter, list))
-                return true;
+                ret = true;
     }
     else if (prim.GetPrimType() == FOURCC('ABSH'))
     {
         // Combination AABB / Sphere cut from game
     }
 
-    return false;
+    return ret;
 }
 
 bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
@@ -782,7 +786,6 @@ bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& pri
                 infoOut = info;
                 dOut = d;
                 idOut = actor->GetUniqueId();
-                return true;
             }
         }
     }

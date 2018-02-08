@@ -47,7 +47,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     xe5_28_callTouch = true;
     xe5_29_globalTimeProvider = params.x58_24_;
     xe5_30_ = params.x58_26_;
-    xe6_27_renderVisorFlags = u8(params.x58_25_thermalHeat ? 2 : 1);
+    xe6_27_thermalVisorFlags = u8(params.x58_25_thermalHeat ? 2 : 1);
     xe6_29_prePostParticles = true;
     xe6_31_targetableVisorFlags = params.GetVisorParameters().GetMask();
     xe7_27_enableRender = true;

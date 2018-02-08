@@ -67,7 +67,7 @@ protected:
             bool xe5_30_ : 1;
             bool xe5_31_pointGeneratorParticles : 1;
             u8 xe6_24_fluidCounter : 3;
-            u8 xe6_27_renderVisorFlags : 2; // 1: thermal cold, 2: thermal hot
+            u8 xe6_27_thermalVisorFlags : 2; // 1: thermal cold, 2: thermal hot
             bool xe6_29_prePostParticles : 1;
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;

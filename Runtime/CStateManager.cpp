@@ -206,7 +206,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::ShadowProjector)] = ScriptLoader::LoadShadowProjector;
     x90c_loaderFuncs[int(EScriptObjectType::EnergyBall)] = ScriptLoader::LoadEnergyBall;
 
-    //CGameCollision::InitCollision();
+    CGameCollision::InitCollision();
     ControlMapper::ResetCommandFilters();
     x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
 }
@@ -734,7 +734,7 @@ void CStateManager::DrawWorld() const
 
     for (TUniqueId id : x86c_stateManagerContainer->xf370_)
         if (const CActor* ent = static_cast<const CActor*>(GetObjectById(id)))
-            if (!thermal || ent->xe6_27_renderVisorFlags & 0x1)
+            if (!thermal || ent->xe6_27_thermalVisorFlags & 0x1)
                 ent->Render(*this);
 
     bool morphingPlayerVisible = false;
@@ -772,9 +772,9 @@ void CStateManager::DrawWorld() const
                         continue;
                     }
                 }
-                if (!thermal || actor->xe6_27_renderVisorFlags & 0x1)
+                if (!thermal || actor->xe6_27_thermalVisorFlags & 0x1)
                     actor->AddToRenderer(frustum, *this);
-                if (thermal && actor->xe6_27_renderVisorFlags & 0x2)
+                if (thermal && actor->xe6_27_thermalVisorFlags & 0x2)
                     thermalActorArr[thermalActorCount++] = actor.GetPtr();
             }
         }
@@ -810,7 +810,7 @@ void CStateManager::DrawWorld() const
             CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
             for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
                 if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                    if (actor->xe6_27_renderVisorFlags & 0x1)
+                    if (actor->xe6_27_thermalVisorFlags & 0x1)
                         actor->Render(*this);
             CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
         }
@@ -819,7 +819,7 @@ void CStateManager::DrawWorld() const
 
         for (TUniqueId id : x86c_stateManagerContainer->xf370_)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_renderVisorFlags & 0x2)
+                if (actor->xe6_27_thermalVisorFlags & 0x2)
                     actor->Render(*this);
 
         for (int i=areaCount-1 ; i>=0 ; --i)
@@ -882,7 +882,7 @@ void CStateManager::DrawWorld() const
         CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
         for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_renderVisorFlags & 0x2)
+                if (actor->xe6_27_thermalVisorFlags & 0x2)
                     actor->Render(*this);
         CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     }

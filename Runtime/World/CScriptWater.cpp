@@ -88,7 +88,7 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
     x90_actorLights->SetFindNearestDynamicLights(true);
     x148_24_detectCamera = true;
     CalculateRenderBounds();
-    xe6_27_renderVisorFlags = u8(thermalCold ? 2 : 1);
+    xe6_27_thermalVisorFlags = u8(thermalCold ? 2 : 1);
     if (!x30_24_active)
     {
         x2bc_alpha = 0.f;

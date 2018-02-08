@@ -14,7 +14,7 @@ CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescriptio
   x2ec_dir(xf.basis[1]), x2f8_mag(x2ec_dir.magnitude()),
   x2fc_camShake(CCameraShakeData::BuildProjectileCameraShake(0.5f, 0.75f))
 {
-    xe6_27_renderVisorFlags = 2;
+    xe6_27_thermalVisorFlags = 2;
 }
 
 }
