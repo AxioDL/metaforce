@@ -84,7 +84,7 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx)
 void CCameraManager::EnterCinematic(CStateManager& mgr)
 {
     mgr.GetPlayer().GetPlayerGun()->CancelFiring(mgr);
-    mgr.GetPlayer().Stop(mgr);
+    mgr.GetPlayer().UnFreeze(mgr);
 
     for (CEntity* ent : mgr.GetAllObjectList())
     {

@@ -55,6 +55,7 @@ private:
     zeus::CAABox xe8_aabox = zeus::CAABox::skNullBox;
     std::vector<CBoid> x108_boids;
     zeus::CVector3f x130_lastKilledOffset;
+    int x42c_lockOnId = -1;
 
 public:
     CWallCrawlerSwarm(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,
@@ -68,6 +69,11 @@ public:
     void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info,
                            CStateManager& stateMgr) {}
     const std::vector<CBoid>& GetBoids() const { return x108_boids; }
+    int GetCurrentLockOnId() const { return x42c_lockOnId; }
+    bool GetLockOnLocationValid(int id) const
+    { return id >= 0 && id < x108_boids.size() && x108_boids[id].GetActive(); }
+    const zeus::CVector3f& GetLockOnLocation(int id) const
+    { return x108_boids[id].GetTranslation(); }
 };
 }
 

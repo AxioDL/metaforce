@@ -8,17 +8,43 @@
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
 #include "Weapon/CProjectileWeapon.hpp"
+#include "Collision/CRayCastResult.hpp"
 
 namespace urde
 {
 class CGenDescription;
 class CWeaponDescription;
+
+class CProjectileTouchResult
+{
+    TUniqueId x0_id;
+    rstl::optional_object<CRayCastResult> x4_result;
+public:
+    CProjectileTouchResult(TUniqueId id, const rstl::optional_object<CRayCastResult>& result)
+    : x0_id(id), x4_result(result) {}
+    TUniqueId GetActorId() const { return x0_id; }
+    bool HasRayCastResult() const { return x4_result.operator bool(); }
+    const CRayCastResult& GetRayCastResult() const { return *x4_result; }
+};
+
 class CGameProjectile : public CWeapon
 {
-    //CProjectileWeapon x170_;
+    rstl::optional_object<TLockedToken<CGenDescription>> x158_visorParticle;
+    u16 x168_visorSfx;
+    CProjectileWeapon x170_projectile;
+    zeus::CVector3f x298_;
+    float x2a4_;
+    float x2a8_homingDt = 0.03f;
+    double x2b0_targetHomingTime = 0.0;
+    double x2b8_curHomingTime = x2a8_homingDt;
     TUniqueId x2c0_homingTargetId;
-    TUniqueId x2c8_projectileLight;
-    u32 x2cc_;
+    TUniqueId x2c2_ = kInvalidUniqueId;
+    TUniqueId x2c4_ = kInvalidUniqueId;
+    TUniqueId x2c6_ = kInvalidUniqueId;
+    TUniqueId x2c8_projectileLight = kInvalidUniqueId;
+    CAssetId x2cc_wpscId;
+    std::vector<CProjectileTouchResult> x2d0_touchResults;
+    float x2e0_minHomingDist = 0.f;
     union
     {
         struct
@@ -27,7 +53,7 @@ class CGameProjectile : public CWeapon
             bool x2e4_25_ : 1;
             bool x2e4_26_waterUpdate : 1;
             bool x2e4_27_inWater : 1;
-            bool x2e4_28_ : 1;
+            bool x2e4_28_sendProjectileCollideMsg : 1;
         };
     };
 public:
@@ -35,14 +61,27 @@ public:
                     EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes matType,
                     const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
-                    const rstl::optional_object<TLockedToken<CGenDescription>>& particle, s16 s1, bool b3);
+                    const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
+                    u16 visorSfx, bool sendCollideMsg);
 
     virtual void Accept(IVisitor &visitor);
+    virtual void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     static EProjectileAttrib GetBeamAttribType(EWeaponType wType);
     void DeleteProjectileLight(CStateManager&);
     void CreateProjectileLight(std::string_view, const CLight&, CStateManager&);
-    void Chase(float, CStateManager&);
+    void Chase(float dt, CStateManager& mgr);
+    void UpdateHoming(float dt, CStateManager& mgr);
+    void UpdateProjectileMovement(float dt, CStateManager& mgr);
+    CRayCastResult DoCollisionCheck(TUniqueId& idOut, CStateManager& mgr);
+    void ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo);
+    void FluidFxThink(EFluidState state, CScriptWater& water, CStateManager& mgr);
+    CRayCastResult RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVector3f& start,
+                                              const zeus::CVector3f& end, float mag,
+                                              const rstl::reserved_vector<TUniqueId, 1024>& nearList,
+                                              CStateManager& mgr);
+    CProjectileTouchResult CanCollideWith(CActor& act, CStateManager& mgr);
+    zeus::CAABox GetProjectileBounds() const;
     TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
 };
 }

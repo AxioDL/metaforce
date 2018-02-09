@@ -34,7 +34,7 @@ static TUniqueId _initializeLight(const std::weak_ptr<CParticleGen>& system, CSt
         stateMgr.AddObject(
             new CGameLight(ret, areaId, false, "ParticleLight",
                            zeus::CTransform(systemRef->GetOrientation().buildMatrix3f(), systemRef->GetTranslation()),
-                           kInvalidUniqueId, systemRef->GetLight(), lightId, 0, 0.f));
+                           kInvalidUniqueId, systemRef->GetLight(), u32(lightId), 0, 0.f));
     }
     return ret;
 }

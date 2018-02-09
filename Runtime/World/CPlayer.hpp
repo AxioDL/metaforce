@@ -487,7 +487,7 @@ public:
     void CalculateLeaveMorphBallDirection(const CFinalInput& input);
     void CalculatePlayerControlDirection(CStateManager& mgr);
     void CalculatePlayerMovementDirection(float dt);
-    void Stop(CStateManager& stateMgr);
+    void UnFreeze(CStateManager& stateMgr);
     void Freeze(CStateManager& stateMgr, CAssetId steamTxtr, u16 sfx, CAssetId iceTxtr);
     bool GetFrozenState() const;
     void UpdateFrozenState(const CFinalInput& input, CStateManager& mgr);

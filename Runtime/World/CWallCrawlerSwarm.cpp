@@ -23,4 +23,5 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
 }
 
 void CWallCrawlerSwarm::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
 }

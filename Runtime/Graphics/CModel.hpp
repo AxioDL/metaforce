@@ -25,7 +25,7 @@ struct CModelFlags
 {
     u8 x0_blendMode = 0; /* >6: additive, >4: blend, else opaque */
     u8 x1_matSetIdx = 0;
-    EExtendedShader m_extendedShader = EExtendedShader::Flat;
+    EExtendedShader m_extendedShader = EExtendedShader::Lighting;
     bool m_noCull = false;
     bool m_noZWrite = false;
     u16 x2_flags = 0; /* Flags */
@@ -35,7 +35,7 @@ struct CModelFlags
 
     CModelFlags() = default;
     CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
-    : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), m_extendedShader(EExtendedShader::Lighting),
+    : x0_blendMode(blendMode), x1_matSetIdx(shadIdx),
       x2_flags(flags), x4_color(col)
     {
         /* Blend mode will override this if the surface's original material is opaque */

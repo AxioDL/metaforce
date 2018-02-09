@@ -2092,7 +2092,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         x500_lookDir.normalize();
 }
 
-void CPlayer::Stop(CStateManager& stateMgr)
+void CPlayer::UnFreeze(CStateManager& stateMgr)
 {
     if (GetFrozenState())
     {
@@ -2163,11 +2163,11 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr)
     if (x750_frozenTimeout > 0.f)
         SetVisorSteam(0.7f, 0.42857146f, 0.071428575f, xa08_steamTextureId, false);
     else
-        Stop(mgr);
+        UnFreeze(mgr);
     if (x258_movementState == EPlayerMovementState::OnGround ||
         x258_movementState == EPlayerMovementState::FallingMorphed)
     {
-        Stop(mgr);
+        UnFreeze(mgr);
         ClearForcesAndTorques();
     }
     x7a0_visorSteam.Update(input.DeltaTime());
@@ -2200,7 +2200,7 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr)
                 g_GameState->SystemOptions().IncrementFrozenFpsCount();
                 CHUDMemoParms info(0.f, true, true, true);
                 MP1::CSamusHud::DisplayHudMemo(u"", info);
-                Stop(mgr);
+                UnFreeze(mgr);
             }
         }
         break;

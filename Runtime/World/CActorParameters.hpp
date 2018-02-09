@@ -30,7 +30,7 @@ class CActorParameters
     };
     float x5c_ = 0.f;
     float x60_ = 0.f;
-    float x64_ = 0.f;
+    float x64_thermalMag = 0.f;
 
 public:
     CActorParameters() : x58_24_(true), x58_25_thermalHeat(false), x58_26_(false), x58_27_noSortThermal(false) {}

@@ -8,7 +8,7 @@ std::experimental::optional<CModelShaders> CModelShaders::g_ModelShaders;
 
 void CModelShaders::LightingUniform::ActivateLights(const std::vector<CLight>& lts)
 {
-    ambient = zeus::CColor::skBlack;
+    ambient = zeus::CColor::skClear;
     size_t curLight = 0;
 
     for (const CLight& light : lts)

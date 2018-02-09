@@ -67,6 +67,7 @@ public:
     void OpenDoor(TUniqueId, CStateManager&);
     u32 GetDoorOpenCondition(CStateManager& mgr);
     void SetDoorAnimation(EDoorAnimType);
+    rstl::optional_object<zeus::CAABox> GetProjectileBounds() const;
 };
 
 }

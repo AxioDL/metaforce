@@ -1403,7 +1403,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
                 g_GameState->SystemOptions().IncrementFrozenBallCount();
                 CHUDMemoParms info = {0.f, true, true, true};
                 MP1::CSamusHud::DisplayHudMemo(u"", info);
-                player->Stop(*this);
+                player->UnFreeze(*this);
             }
             else
             {

@@ -37,7 +37,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     x90_actorLights = mData.IsNull() ? std::unique_ptr<CActorLights>() : params.x0_lightParms.MakeActorLights();
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
-    xd0_thermalMag = params.x64_;
+    xd0_thermalMag = params.x64_thermalMag;
     xd8_nonLoopingSfxHandles.resize(2);
     xe4_27_notInSortedLists = true;
     xe4_28_ = true;

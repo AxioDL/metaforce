@@ -208,7 +208,7 @@ void CMorphBall::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
             CGameLight* l = new CGameLight(x1c10_ballInnerGlowLight, kInvalidAreaId, false, "BallLight",
                                            GetBallToWorld(), x0_player.GetUniqueId(),
                                            x19d0_ballInnerGlowGen->GetLight(),
-                                           u32(reinterpret_cast<uintptr_t>(x1988_ballInnerGlow.GetObj())), 0, 0.f);
+                                           u32(x1988_ballInnerGlow.GetObjectTag()->id.Value()), 0, 0.f);
             mgr.AddObject(l);
         }
         break;

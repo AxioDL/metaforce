@@ -364,9 +364,15 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
 
     const auto& model = PickStaticModel(which);
     if (lights)
+    {
         lights->ActivateLights(*model);
+    }
     else
-        model->ActivateLights({});
+    {
+        std::vector<CLight> useLights;
+        useLights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x18_ambientColor));
+        model->ActivateLights(useLights);
+    }
 
     model->DrawNormal(drawFlags, nullptr, nullptr);
     // Set ambient to white
@@ -390,9 +396,15 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
         {
             CSkinnedModel& model = PickAnimatedModel(which);
             if (lights)
+            {
                 lights->ActivateLights(*model.GetModelInst());
+            }
             else
-                model.GetModelInst()->ActivateLights({});
+            {
+                std::vector<CLight> useLights;
+                useLights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x18_ambientColor));
+                model.GetModelInst()->ActivateLights(useLights);
+            }
 
             x10_animData->Render(model, drawFlags, {}, nullptr);
         }
@@ -400,9 +412,15 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
         {
             const auto& model = PickStaticModel(which);
             if (lights)
+            {
                 lights->ActivateLights(*model);
+            }
             else
-                model->ActivateLights({});
+            {
+                std::vector<CLight> useLights;
+                useLights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x18_ambientColor));
+                model->ActivateLights(useLights);
+            }
 
             if (x14_24_renderSorted)
                 model->DrawAlpha(drawFlags, nullptr, nullptr);

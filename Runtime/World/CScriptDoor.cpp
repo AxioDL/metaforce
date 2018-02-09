@@ -171,4 +171,11 @@ void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type)
         modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(s32(type), -1, 1.f, true), false);
 }
 
+rstl::optional_object<zeus::CAABox> CScriptDoor::GetProjectileBounds() const
+{
+    if (x2a8_28_)
+        return {{x284_modelBounds.min + GetTranslation(), x284_modelBounds.max + GetTranslation()}};
+    return {};
+}
+
 }
