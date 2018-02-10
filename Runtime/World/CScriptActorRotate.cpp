@@ -57,10 +57,12 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr)
             if (TCastToPtr<CActor> act = mgr.ObjectById(actorPair.first))
             {
                 zeus::CTransform xf =
-                    zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x)) *
+                    zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z)) *
                     zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y)) *
-                    zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z));
-                act->SetTransform({xf.basis, act->GetTranslation()});
+                    zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x));
+                zeus::CTransform localRot = actorPair.second * xf;
+                localRot.origin = act->GetTranslation();
+                act->SetTransform(localRot);
 
                 if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(actorPair.first))
                     UpdatePlatformRiders(*plat.GetPtr(), xf, mgr);
@@ -71,6 +73,7 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr)
         {
             if (!x58_25_skipSpiderBallWaypoints)
                 UpdateSpiderBallWaypoints(mgr);
+
             if (x58_26_updateActors)
                 UpdateActors(false, mgr);
         }
@@ -133,7 +136,7 @@ void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr)
     if (!x48_actors.empty())
     {
         x58_24_updateRotation = true;
-        x44_currentTime = (next ? 0.f : x40_maxTime);
+        x44_currentTime = (next ? x40_maxTime : 0.f);
     }
 }
 

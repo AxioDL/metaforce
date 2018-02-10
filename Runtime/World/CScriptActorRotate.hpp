@@ -12,7 +12,7 @@ class CScriptActorRotate : public CEntity
 {
     zeus::CVector3f x34_rotation;
     float x40_maxTime;
-    float x44_currentTime;
+    float x44_currentTime = 0.f;
     std::map<TUniqueId, zeus::CTransform> x48_actors;
 
     union

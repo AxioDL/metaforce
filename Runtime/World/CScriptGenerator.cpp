@@ -23,6 +23,7 @@ void CScriptGenerator::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
 {
+    return;
     if (msg == EScriptObjectMessage::SetToZero && GetActive() && !x20_conns.empty())
     {
         std::vector<TUniqueId> follows;
