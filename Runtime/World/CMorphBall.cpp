@@ -1202,19 +1202,19 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
     zeus::CTransform swooshToWorld = GetSwooshToWorld();
     x19b8_slowBlueTailSwooshGen->SetTranslation(swooshToWorld.rotate({0.1f, 0.f, 0.f}) + swooshToWorld.origin);
     x19b8_slowBlueTailSwooshGen->SetOrientation(swooshToWorld.getRotation());
-    x19b8_slowBlueTailSwooshGen->DoBallSwooshWarmup();
+    x19b8_slowBlueTailSwooshGen->DoWarmupUpdate();
     x19bc_slowBlueTailSwooshGen2->SetTranslation(swooshToWorld.rotate({-0.1f, 0.f, 0.f}) + swooshToWorld.origin);
     x19bc_slowBlueTailSwooshGen2->SetOrientation(swooshToWorld.getRotation());
-    x19bc_slowBlueTailSwooshGen2->DoBallSwooshWarmup();
+    x19bc_slowBlueTailSwooshGen2->DoWarmupUpdate();
     x19c0_slowBlueTailSwoosh2Gen->SetTranslation(swooshToWorld.rotate({0.f, 0.f, 0.65f}) + swooshToWorld.origin);
     x19c0_slowBlueTailSwoosh2Gen->SetOrientation(swooshToWorld.getRotation());
-    x19c0_slowBlueTailSwoosh2Gen->DoBallSwooshWarmup();
+    x19c0_slowBlueTailSwoosh2Gen->DoWarmupUpdate();
     x19c4_slowBlueTailSwoosh2Gen2->SetTranslation(swooshToWorld.rotate({0.f, 0.f, -0.65f}) + swooshToWorld.origin);
     x19c4_slowBlueTailSwoosh2Gen2->SetOrientation(swooshToWorld.getRotation());
-    x19c4_slowBlueTailSwoosh2Gen2->DoBallSwooshWarmup();
+    x19c4_slowBlueTailSwoosh2Gen2->DoWarmupUpdate();
     x19c8_jaggyTrailGen->SetTranslation(swooshToWorld.origin);
     x19c8_jaggyTrailGen->SetOrientation(swooshToWorld.getRotation());
-    x19c8_jaggyTrailGen->DoBallSwooshWarmup();
+    x19c8_jaggyTrailGen->DoWarmupUpdate();
     x19cc_wallSparkGen->Update(dt);
     x1bc8_wakeEffectGens[7]->Update(dt);
     bool emitRainWake = (x0_player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::OnGround &&

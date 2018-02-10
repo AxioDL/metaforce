@@ -23,7 +23,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
               {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType, EMaterialTypes::Solid}),
           CMaterialList(), dInfo, attribs | GetBeamAttribType(wType), CModelData::CModelDataNull()),
   x158_visorParticle(visorParticle), x168_visorSfx(visorSfx), x170_projectile(wDesc, xf.origin, xf.basis, scale,
-  (attribs & EProjectileAttrib::Sixteen) != EProjectileAttrib::None), x298_(xf.origin),
+  (attribs & EProjectileAttrib::Sixteen) == EProjectileAttrib::Sixteen), x298_(xf.origin),
   x2a4_((xe8_projectileAttribs & EProjectileAttrib::Ten) == EProjectileAttrib::Ten ? 0.25f : 0.1f),
   x2c0_homingTargetId(homingTarget), x2cc_wpscId(wDesc.GetObjectTag()->id)
 {
