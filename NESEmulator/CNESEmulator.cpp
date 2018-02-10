@@ -183,10 +183,12 @@ CNESEmulator::CNESEmulator()
 
 void CNESEmulator::InitializeEmulator()
 {
-    emuNesROMsize = 0x20000;
-    emuNesROM = (uint8_t*)malloc(emuNesROMsize);
-    DecompressROM(m_nesEmuPBuf.get(), emuNesROM);
-    m_nesEmuPBuf.reset();
+    nesPause = false;
+    ppuDebugPauseFrame = false;
+    mainClock = 1;
+    apuClock = 1;
+    ppuClock = 1;
+    vrc7Clock = 1;
 
     puts(VERSION_STRING);
     strcpy(window_title, VERSION_STRING);
@@ -229,7 +231,6 @@ void CNESEmulator::InitializeEmulator()
     if(!mapperInit(mapper, prgROM, prgROMsize, emuPrgRAM, emuPrgRAMsize, chrROM, chrROMsize))
     {
         printf("Mapper init failed!\n");
-        free(emuNesROM);
         return;
     }
 #if DEBUG_LOAD_INFO
@@ -303,9 +304,7 @@ void CNESEmulator::DeinitializeEmulator()
                 fclose(save);
             }
         }
-        free(emuNesROM);
     }
-    emuNesROM = NULL;
     if(emuPrgRAM != NULL)
     {
         if(emuSaveEnabled)
@@ -329,6 +328,11 @@ CNESEmulator::~CNESEmulator()
 {
     if (EmulatorInst)
         DeinitializeEmulator();
+    if (emuNesROM)
+    {
+        free(emuNesROM);
+        emuNesROM = nullptr;
+    }
     EmulatorConstructed = false;
 }
 
@@ -908,11 +912,22 @@ void CNESEmulator::Update()
         if (m_dvdReq && m_dvdReq->IsComplete())
         {
             m_dvdReq.reset();
+            emuNesROMsize = 0x20000;
+            emuNesROM = (uint8_t*)malloc(emuNesROMsize);
+            DecompressROM(m_nesEmuPBuf.get(), emuNesROM);
+            m_nesEmuPBuf.reset();
             InitializeEmulator();
         }
     }
     else
     {
+        if (nesPause)
+        {
+            DeinitializeEmulator();
+            InitializeEmulator();
+            return;
+        }
+
         bool gameOver = CheckForGameOver(ppuGetVRAM(), x21_passwordFromNES);
         x34_passwordEntryState = CheckForPasswordEntryScreen(ppuGetVRAM());
         if (x34_passwordEntryState == EPasswordEntryState::NotEntered && x38_passwordPending)
