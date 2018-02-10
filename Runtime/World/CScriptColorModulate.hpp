@@ -47,7 +47,7 @@ public:
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
     void Think(float, CStateManager &);
-    zeus::CColor CalculateFlags(const zeus::CColor&) const;
+    CModelFlags CalculateFlags(const zeus::CColor&) const;
     void SetTargetFlags(CStateManager&, const CModelFlags&);
     static void FadeOutHelper(CStateManager&, TUniqueId, float);
     static void FadeInHelper(CStateManager&, TUniqueId, float);
