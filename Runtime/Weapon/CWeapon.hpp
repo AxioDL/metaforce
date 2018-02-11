@@ -24,13 +24,13 @@ public:
         ComboShot = (1 << 7),
         Bombs = (1 << 8),
         PowerBombs = (1 << 9),
-        Ten = (1 << 10),
+        BigProjectile = (1 << 10),
         ArmCannon = (1 << 11),
         BigStrike = (1 << 12),
         DamageFalloff = (1 << 13),
         StaticInterference = (1 << 14),
         PlayerUnFreeze = (1 << 15),
-        Sixteen = (1 << 16),
+        ParticleOPTS = (1 << 16),
         KeepInCinematic = (1 << 17),
     };
 

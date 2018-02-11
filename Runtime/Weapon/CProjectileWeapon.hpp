@@ -96,6 +96,7 @@ public:
     virtual void Update(float dt);
     void SetGravity(const zeus::CVector3f& grav) { xbc_gravity = grav; }
     static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
+    CElementGen* GetAttachedPS1() const { return xfc_APSMGen.get(); }
 };
 }
 

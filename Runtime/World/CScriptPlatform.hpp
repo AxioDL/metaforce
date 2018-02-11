@@ -73,6 +73,7 @@ public:
     std::vector<SRiders>& GetX338() { return x338_; }
     const std::vector<SRiders>& GetX338() const { return x338_; }
     void AddSlave(TUniqueId, CStateManager&) {}
+    bool HasComplexCollision() const { return x314_treeGroup.operator bool(); }
 };
 }
 

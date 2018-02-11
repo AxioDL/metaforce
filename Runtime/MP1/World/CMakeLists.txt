@@ -7,10 +7,13 @@ set(MP1_WORLD_SOURCES
     CBabygoth.hpp CBabygoth.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
+    CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp
     CActorContraption.hpp CActorContraption.cpp
     CThardusRockProjectile.hpp CThardusRockProjectile.cpp
     CMetroidBeta.hpp CMetroidBeta.cpp
     CMetroid.hpp CMetroid.cpp
-    CMetaree.hpp CMetaree.cpp)
+    CMetaree.hpp CMetaree.cpp
+    CPuddleToadGamma.hpp CPuddleToadGamma.cpp
+    CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp)
 
 runtime_add_list(World MP1_WORLD_SOURCES)

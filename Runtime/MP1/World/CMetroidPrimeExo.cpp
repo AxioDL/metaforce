@@ -41,21 +41,6 @@ SPrimeStruct4::SPrimeStruct4(CInputStream& in)
   x8c_dInfo2(in)
 {}
 
-SPrimeStruct5B::SPrimeStruct5B(CInputStream& in)
-: x0_propertyCount(in.readUint32Big()),
-  x4_particle(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), in.readUint32Big()})),
-  xc_dInfo(in),
-  x28_(in.readFloatBig()),
-  x2c_(in.readFloatBig()),
-  x30_(in.readFloatBig()),
-  x34_texture(in.readUint32Big())
-{
-    x38_24_ = in.readBool();
-    x38_25_ = in.readBool();
-    x38_26_ = in.readBool();
-    x38_27_ = in.readBool();
-}
-
 SPrimeStruct6::SPrimeStruct6(CInputStream& in)
 : x0_propertyCount(in.readUint32Big()),
   x4_damageVulnerability(in),
@@ -152,7 +137,7 @@ CMetroidPrimeExo::CMetroidPrimeExo(TUniqueId uid, std::string_view name, const C
                                    const rstl::reserved_vector<SPrimeStruct4, 4>& struct4s, CAssetId wpsc1,
                                    const CDamageInfo& dInfo1, const CCameraShakeData& shakeData4, CAssetId wpsc2,
                                    const CDamageInfo& dInfo2, const CCameraShakeData& shakeData5,
-                                   const SPrimeStruct5B& struct5b, const CDamageInfo& dInfo3,
+                                   const SPrimeProjectileInfo& projectileInfo, const CDamageInfo& dInfo3,
                                    const CCameraShakeData& shakeData6, CAssetId particle2, CAssetId swoosh,
                                    CAssetId particle3, CAssetId particle4,
                                    const rstl::reserved_vector<SPrimeStruct6, 4>& struct6s)

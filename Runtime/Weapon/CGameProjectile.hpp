@@ -29,11 +29,12 @@ public:
 
 class CGameProjectile : public CWeapon
 {
+protected:
     rstl::optional_object<TLockedToken<CGenDescription>> x158_visorParticle;
     u16 x168_visorSfx;
     CProjectileWeapon x170_projectile;
-    zeus::CVector3f x298_;
-    float x2a4_;
+    zeus::CVector3f x298_lastOrigin;
+    float x2a4_projExtent;
     float x2a8_homingDt = 0.03f;
     double x2b0_targetHomingTime = 0.0;
     double x2b8_curHomingTime = x2a8_homingDt;
@@ -50,7 +51,7 @@ class CGameProjectile : public CWeapon
         struct
         {
             bool x2e4_24_ : 1;
-            bool x2e4_25_ : 1;
+            bool x2e4_25_startedUnderwater : 1;
             bool x2e4_26_waterUpdate : 1;
             bool x2e4_27_inWater : 1;
             bool x2e4_28_sendProjectileCollideMsg : 1;
@@ -81,6 +82,9 @@ public:
                                               const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                               CStateManager& mgr);
     CProjectileTouchResult CanCollideWith(CActor& act, CStateManager& mgr);
+    CProjectileTouchResult CanCollideWithComplexCollision(CActor& act, CStateManager& mgr);
+    CProjectileTouchResult CanCollideWithGameObject(CActor& act, CStateManager& mgr);
+    CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr);
     zeus::CAABox GetProjectileBounds() const;
     TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
 };

@@ -7,6 +7,9 @@
 #include "World/CWallCrawlerSwarm.hpp"
 #include "World/CScriptDoor.hpp"
 #include "Collision/CInternalRayCastStructure.hpp"
+#include "MP1/World/CPuddleToadGamma.hpp"
+#include "World/CScriptPlatform.hpp"
+#include "Collision/CCollisionActor.hpp"
 
 namespace urde
 {
@@ -23,12 +26,13 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
               {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType, EMaterialTypes::Solid}),
           CMaterialList(), dInfo, attribs | GetBeamAttribType(wType), CModelData::CModelDataNull()),
   x158_visorParticle(visorParticle), x168_visorSfx(visorSfx), x170_projectile(wDesc, xf.origin, xf.basis, scale,
-  (attribs & EProjectileAttrib::Sixteen) == EProjectileAttrib::Sixteen), x298_(xf.origin),
-  x2a4_((xe8_projectileAttribs & EProjectileAttrib::Ten) == EProjectileAttrib::Ten ? 0.25f : 0.1f),
+  (attribs & EProjectileAttrib::ParticleOPTS) == EProjectileAttrib::ParticleOPTS), x298_lastOrigin(xf.origin),
+  x2a4_projExtent((xe8_projectileAttribs & EProjectileAttrib::BigProjectile) ==
+                      EProjectileAttrib::BigProjectile ? 0.25f : 0.1f),
   x2c0_homingTargetId(homingTarget), x2cc_wpscId(wDesc.GetObjectTag()->id)
 {
     x2e4_24_ = true;
-    x2e4_25_ = underwater;
+    x2e4_25_startedUnderwater = underwater;
     x2e4_26_waterUpdate = underwater;
     x2e4_27_inWater = underwater;
     x2e4_28_sendProjectileCollideMsg = sendCollideMsg;
@@ -214,7 +218,7 @@ void CGameProjectile::UpdateProjectileMovement(float dt, CStateManager& mgr)
     if (x2e4_26_waterUpdate)
         useDt = 37.5f * dt * dt;
 
-    x298_ = x34_transform.origin;
+    x298_lastOrigin = x34_transform.origin;
     x170_projectile.Update(useDt);
     SetTransform(x170_projectile.GetTransform());
     SetTranslation(x170_projectile.GetTranslation());
@@ -227,12 +231,12 @@ CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager& mgr)
     CRayCastResult res;
     if (x2e4_24_)
     {
-        zeus::CVector3f posDelta = x34_transform.origin - x298_;
+        zeus::CVector3f posDelta = x34_transform.origin - x298_lastOrigin;
         rstl::reserved_vector<TUniqueId, 1024> nearList;
         mgr.BuildNearList(nearList, GetProjectileBounds(),
             CMaterialFilter::MakeExclude(EMaterialTypes::ProjectilePassthrough), this);
 
-        res = RayCollisionCheckWithWorld(idOut, x298_, x34_transform.origin,
+        res = RayCollisionCheckWithWorld(idOut, x298_lastOrigin, x34_transform.origin,
                                          posDelta.magnitude(), nearList, mgr);
 
     }
@@ -361,12 +365,174 @@ CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVecto
 
 CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManager& mgr)
 {
-    return {{}, {}};
+    if (act.GetDamageVulnerability()->GetVulnerability(x12c_curDamageInfo.GetWeaponMode(), false) ==
+        EVulnerability::PassThrough)
+    {
+        return {kInvalidUniqueId, {}};
+    }
+    else
+    {
+        if (TCastToPtr<CScriptTrigger>(act))
+        {
+            return CanCollideWithTrigger(act, mgr);
+        }
+        else if (TCastToPtr<CScriptPlatform>(act) || TCastToPtr<CCollisionActor>(act) ||
+                 CPatterned::CastTo<MP1::CPuddleToadGamma>(&act))
+        {
+            return CanCollideWithComplexCollision(act, mgr);
+        }
+        else
+        {
+            return CanCollideWithGameObject(act, mgr);
+        }
+    }
+}
+
+CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& act, CStateManager& mgr)
+{
+    CPhysicsActor* useAct = nullptr;
+    if (TCastToPtr<CScriptPlatform> plat = act)
+    {
+        if (plat->HasComplexCollision())
+            useAct = plat.GetPtr();
+    }
+    else if (MP1::CPuddleToadGamma* toad = CPatterned::CastTo<MP1::CPuddleToadGamma>(&act))
+    {
+        useAct = toad;
+    }
+    else if (TCastToPtr<CCollisionActor> cact = act)
+    {
+        if (cact->GetOwnerId() == xec_ownerId)
+            return {kInvalidUniqueId, {}};
+        useAct = cact.GetPtr();
+    }
+
+    if (useAct)
+    {
+        const CCollisionPrimitive* prim = useAct->GetCollisionPrimitive();
+        zeus::CTransform xf = useAct->GetPrimitiveTransform();
+        zeus::CVector3f deltaPos = GetTranslation() - x298_lastOrigin;
+        if (deltaPos.canBeNormalized())
+        {
+            zeus::CVector3f dir = deltaPos.normalized();
+            float mag = deltaPos.magnitude();
+            CRayCastResult res =
+            prim->CastRayInternal({x298_lastOrigin, dir, mag, xf,
+                                   CMaterialFilter::MakeIncludeExclude(
+                                       {EMaterialTypes::Solid},
+                                       {EMaterialTypes::ProjectilePassthrough})});
+            if (!res.IsValid())
+            {
+                if (prim->GetPrimType() == FOURCC('SPHR'))
+                {
+                    mag *= 2.f;
+                    CRayCastResult res2 =
+                    prim->CastRayInternal({x298_lastOrigin - dir * mag, dir, deltaPos.magnitude(), xf,
+                                           CMaterialFilter::MakeIncludeExclude(
+                                               {EMaterialTypes::Solid},
+                                               {EMaterialTypes::ProjectilePassthrough})});
+                    if (res2.IsValid())
+                        return {act.GetUniqueId(), {res2}};
+                }
+                else if (TCastToPtr<CCollisionActor> cAct = act)
+                {
+                    float rad = cAct->GetSphereRadius();
+                    if ((x298_lastOrigin - GetTranslation()).magSquared() < rad * rad)
+                    {
+                        zeus::CVector3f point = x298_lastOrigin - dir * rad * 1.125f;
+                        zeus::CUnitVector3f revDir(-dir);
+                        return {act.GetUniqueId(), {{0.f, point, {revDir, point.dot(revDir)}, act.GetMaterialList()}}};
+                    }
+                }
+                return {kInvalidUniqueId, {}};
+            }
+            else
+            {
+                return {act.GetUniqueId(), {res}};
+            }
+        }
+        else
+        {
+            return {kInvalidUniqueId, {}};
+        }
+    }
+    else
+    {
+        return {act.GetUniqueId(), {}};
+    }
+}
+
+CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CStateManager& mgr)
+{
+    TCastToPtr<CGameProjectile> proj = act;
+    if (!proj)
+    {
+        if (!act.GetMaterialList().HasMaterial(EMaterialTypes::Solid) && !act.HealthInfo(mgr))
+        {
+            return {kInvalidUniqueId, {}};
+        }
+        else if (act.GetUniqueId() == xec_ownerId)
+        {
+            return {kInvalidUniqueId, {}};
+        }
+        else if (act.GetUniqueId() == x2c2_)
+        {
+            return {kInvalidUniqueId, {}};
+        }
+        else if (xf8_filter.GetExcludeList().Intersection(act.GetMaterialList()))
+        {
+            return {kInvalidUniqueId, {}};
+        }
+        else if (TCastToPtr<CAi> ai = act)
+        {
+            if (!ai->CanBeShot(mgr, int(xe8_projectileAttribs)))
+                return {kInvalidUniqueId, {}};
+        }
+    }
+    else if ((xe8_projectileAttribs & EProjectileAttrib::PartialCharge) == EProjectileAttrib::PartialCharge ||
+             (proj->xe8_projectileAttribs & EProjectileAttrib::PartialCharge) == EProjectileAttrib::PartialCharge)
+    {
+        return {act.GetUniqueId(), {}};
+    }
+    else if ((xe8_projectileAttribs & EProjectileAttrib::PartialCharge) != EProjectileAttrib::PartialCharge &&
+             (proj->xe8_projectileAttribs & EProjectileAttrib::PartialCharge) != EProjectileAttrib::PartialCharge)
+    {
+        return {kInvalidUniqueId, {}};
+    }
+    return {act.GetUniqueId(), {}};
+}
+
+CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(CActor& act, CStateManager& mgr)
+{
+    bool isWater = TCastToPtr<CScriptWater>(act).operator bool();
+    if (isWater)
+    {
+        bool enteredWater = false;
+        if (isWater && !x2e4_25_startedUnderwater)
+        {
+            if (!x170_projectile.GetWeaponDescription()->xa4_EWTR)
+                enteredWater = true;
+        }
+        /* This case is logically unreachable */
+        bool leftWater = false;
+        if (!isWater && x2e4_25_startedUnderwater)
+        {
+            if (!x170_projectile.GetWeaponDescription()->xa5_LWTR)
+                leftWater = true;
+        }
+        return {(enteredWater || leftWater) ? act.GetUniqueId() : kInvalidUniqueId, {}};
+    }
+    return {kInvalidUniqueId, {}};
 }
 
 zeus::CAABox CGameProjectile::GetProjectileBounds() const
 {
-    return {};
+    return {{std::min(x298_lastOrigin.x, GetTranslation().x) - x2a4_projExtent,
+             std::min(x298_lastOrigin.y, GetTranslation().y) - x2a4_projExtent,
+             std::min(x298_lastOrigin.z, GetTranslation().z) - x2a4_projExtent},
+            {std::max(x298_lastOrigin.x, GetTranslation().x) + x2a4_projExtent,
+             std::max(x298_lastOrigin.y, GetTranslation().y) + x2a4_projExtent,
+             std::max(x298_lastOrigin.z, GetTranslation().z) + x2a4_projExtent}};
 }
 
 }

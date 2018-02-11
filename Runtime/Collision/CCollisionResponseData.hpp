@@ -62,7 +62,7 @@ public:
     const rstl::optional_object<TLockedToken<CGenDescription>>& GetParticleDescription(EWeaponCollisionResponseTypes) const;
     const rstl::optional_object<TLockedToken<CDecalDescription>>& GetDecalDescription(EWeaponCollisionResponseTypes type) const;
     s32 GetSoundEffectId(EWeaponCollisionResponseTypes) const;
-    EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32);
+    static EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32);
     static bool ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes);
     static bool ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes);
     static bool ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes);

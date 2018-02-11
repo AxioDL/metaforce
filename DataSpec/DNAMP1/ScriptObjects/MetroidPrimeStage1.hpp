@@ -202,16 +202,16 @@ struct MetroidPrimeStage1 : IScriptObject
         DamageInfo damageInfo3;
         CameraShakeData primeStruct2_5;
 
-        struct PrimeStruct5B : BigYAML
+        struct PrimeProjectileInfo : BigYAML
         {
             DECL_YAML
             Value<atUint32> propertyCount;
-            UniqueID32 particle5;
+            UniqueID32 particle;
             DamageInfo damageInfo4;
             Value<float> unknown9;
             Value<float> unknown10;
             Value<float> unknown11;
-            UniqueID32 texture2;
+            UniqueID32 texture;
             Value<bool> unknown12;
             Value<bool> unknown13;
             Value<bool> unknown14;
@@ -219,24 +219,24 @@ struct MetroidPrimeStage1 : IScriptObject
 
             void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
             {
-                if (particle5)
+                if (particle)
                 {
-                    PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
-                    ent->name = name + "_part5";
+                    PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+                    ent->name = name + "_part";
                 }
-                if (texture2)
+                if (texture)
                 {
-                    PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
-                    ent->name = name + "_tex2";
+                    PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
+                    ent->name = name + "_tex";
                 }
             }
 
             void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
             {
-                g_curSpec->flattenDependencies(particle5, pathsOut);
-                g_curSpec->flattenDependencies(texture2, pathsOut);
+                g_curSpec->flattenDependencies(particle, pathsOut);
+                g_curSpec->flattenDependencies(texture, pathsOut);
             }
-        } primeStruct5b;
+        } projectileInfo;
 
         DamageInfo damageInfo5;
         CameraShakeData primeStruct2_6;
@@ -299,7 +299,7 @@ struct MetroidPrimeStage1 : IScriptObject
             primeStruct4s[1].nameIDs(pakRouter, name + "_prime42");
             primeStruct4s[2].nameIDs(pakRouter, name + "_prime43");
             primeStruct4s[3].nameIDs(pakRouter, name + "_prime44");
-            primeStruct5b.nameIDs(pakRouter, name + "_prime5");
+            projectileInfo.nameIDs(pakRouter, name + "_projectileInfo");
         }
 
         void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
@@ -318,7 +318,7 @@ struct MetroidPrimeStage1 : IScriptObject
             primeStruct4s[1].depIDs(pathsOut);
             primeStruct4s[2].depIDs(pathsOut);
             primeStruct4s[3].depIDs(pathsOut);
-            primeStruct5b.depIDs(pathsOut);
+            projectileInfo.depIDs(pathsOut);
         }
 
         void scanIDs(std::vector<Scan>& scansOut) const

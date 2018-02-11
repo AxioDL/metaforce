@@ -9,7 +9,7 @@ namespace urde
 
 class CEnergyProjectile : public CGameProjectile
 {
-    u32 x2e8_ = 0;
+    CSfxHandle x2e8_sfx;
     zeus::CVector3f x2ec_dir;
     float x2f8_mag;
     CCameraShakeData x2fc_camShake;
@@ -25,14 +25,27 @@ class CEnergyProjectile : public CGameProjectile
         u32 _dummy = 0;
     };
     float x3d4_ = 0.f;
+    void StopProjectile(CStateManager& mgr);
 public:
     CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
                       const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
                       TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
                       EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
-                      const rstl::optional_object<TLockedToken<CGenDescription>>& particle,
-                      s16 w2, bool b2);
+                      const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
+                      u16 visorSfx, bool sendCollideMsg);
     void SetCameraShake(const CCameraShakeData& data) { x2fc_camShake = data; x3d0_27_camShakeDirty = true; }
+    void PlayImpactSound(const zeus::CVector3f& pos, EWeaponCollisionResponseTypes type);
+    void ChangeProjectileOwner(TUniqueId owner, CStateManager& mgr);
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+    void Accept(IVisitor& visitor);
+    void ResolveCollisionWithWorld(const CRayCastResult& res, CStateManager& mgr);
+    void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
+    void Think(float dt, CStateManager& mgr);
+    void Render(const CStateManager& mgr) const;
+    void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
+    void Touch(CActor& act, CStateManager& mgr);
+    virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& dir, EWeaponCollisionResponseTypes type,
+                         CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId exploder);
 };
 
 }

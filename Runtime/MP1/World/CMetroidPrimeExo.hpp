@@ -6,6 +6,7 @@
 #include "World/CActorParameters.hpp"
 #include "Camera/CCameraShakeData.hpp"
 #include "Weapon/CBeamInfo.hpp"
+#include "CMetroidPrimeProjectile.hpp"
 
 namespace urde
 {
@@ -54,22 +55,6 @@ struct SPrimeStruct4
     explicit SPrimeStruct4(CInputStream& in);
 };
 
-struct SPrimeStruct5B
-{
-    u32 x0_propertyCount;
-    TToken<CGenDescription> x4_particle;
-    CDamageInfo xc_dInfo;
-    float x28_;
-    float x2c_;
-    float x30_;
-    CAssetId x34_texture;
-    bool x38_24_ : 1;
-    bool x38_25_ : 1;
-    bool x38_26_ : 1;
-    bool x38_27_ : 1;
-    explicit SPrimeStruct5B(CInputStream& in);
-};
-
 struct SPrimeStruct6
 {
     u32 x0_propertyCount;
@@ -98,7 +83,7 @@ struct SPrimeExoParameters
     CAssetId x7fc_wpsc2;
     CDamageInfo x800_dInfo2;
     CCameraShakeData x81c_shakeData2;
-    SPrimeStruct5B x8f0_;
+    SPrimeProjectileInfo x8f0_;
     CDamageInfo x92c_;
     CCameraShakeData x948_;
     CAssetId xa1c_particle2;
@@ -125,9 +110,10 @@ public:
                      const CCameraShakeData& shakeData3, const SPrimeStruct2B& struct2b, CAssetId particle1,
                      const rstl::reserved_vector<SPrimeStruct4, 4>& struct4s, CAssetId wpsc1, const CDamageInfo& dInfo1,
                      const CCameraShakeData& shakeData4, CAssetId wpsc2, const CDamageInfo& dInfo2,
-                     const CCameraShakeData& shakeData5, const SPrimeStruct5B& struct5b, const CDamageInfo& dInfo3,
-                     const CCameraShakeData& shakeData6, CAssetId particle2, CAssetId swoosh, CAssetId particle3,
-                     CAssetId particle4, const rstl::reserved_vector<SPrimeStruct6, 4>& struct6s);
+                     const CCameraShakeData& shakeData5, const SPrimeProjectileInfo& projectileInfo,
+                     const CDamageInfo& dInfo3, const CCameraShakeData& shakeData6, CAssetId particle2,
+                     CAssetId swoosh, CAssetId particle3, CAssetId particle4,
+                     const rstl::reserved_vector<SPrimeStruct6, 4>& struct6s);
 };
 
 }

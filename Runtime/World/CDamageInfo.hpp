@@ -61,6 +61,13 @@ public:
         xc_radiusDamage *= m;
         x14_knockback *= m;
     }
+    void MultiplyDamageAndRadius(float m)
+    {
+        x8_damage *= m;
+        xc_radiusDamage *= m;
+        x10_radius *= m;
+        x14_knockback *= m;
+    }
 };
 }
 

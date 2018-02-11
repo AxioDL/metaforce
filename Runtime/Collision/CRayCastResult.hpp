@@ -19,7 +19,7 @@ private:
     zeus::CVector3f x4_point;
     zeus::CPlane x10_plane;
     EInvalid x20_invalid = EInvalid::Invalid;
-    CMaterialList x24_material;
+    CMaterialList x28_material;
 public:
     CRayCastResult() = default;
     CRayCastResult(const CRayCastResult& other, EInvalid invalid)
@@ -27,14 +27,14 @@ public:
           x4_point(other.x4_point),
           x10_plane(other.x10_plane),
           x20_invalid(invalid),
-          x24_material(other.x24_material)
+          x28_material(other.x28_material)
     {
     }
 
     CRayCastResult(float t, const zeus::CVector3f& point,
                    const zeus::CPlane& plane, const CMaterialList& matList)
     : x0_t(t), x4_point(point), x10_plane(plane),
-      x20_invalid(EInvalid::Valid), x24_material(matList)
+      x20_invalid(EInvalid::Valid), x28_material(matList)
     {}
 
     void MakeInvalid();
@@ -44,7 +44,7 @@ public:
     float GetT() const { return x0_t; }
     const zeus::CVector3f& GetPoint() const { return x4_point; }
     const zeus::CPlane& GetPlane() const { return x10_plane; }
-    const CMaterialList& GetMaterial() const { return x24_material; }
+    const CMaterialList& GetMaterial() const { return x28_material; }
 
     void Transform(const zeus::CTransform&);
 };
