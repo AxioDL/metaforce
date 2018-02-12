@@ -96,7 +96,9 @@ static const char* VS_HLSL_INDTEX =
 "{\n"
 "    VertToFrag vtf;\n"
 "    vtf.color = v.colorIn * moduColor;\n"
-"    vtf.uvScene = v.uvsInScene * float4(1.0, -1.0, 1.0, -1.0);\n"
+"    vtf.uvScene = v.uvsInScene;\n"
+"    vtf.uvScene.y = 1.0 - vtf.uvScene.y;\n"
+"    vtf.uvScene.w = 1.0 - vtf.uvScene.w;\n"
 "    vtf.uvTexr = v.uvsInTexrTind[vertId].xy;\n"
 "    vtf.uvTind = v.uvsInTexrTind[vertId].zw;\n"
 "    vtf.position = mul(mvp, v.posIn[vertId]);\n"
@@ -122,7 +124,7 @@ static const char* FS_HLSL_INDTEX =
 "    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).zw;\n"
 "    float4 sceneTexel = tex1.Sample(samp, lerp(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    float4 texrTexel = tex0.Sample(samp, vtf.uvTexr);\n"
-"    float4 colorOut = vtf.color * sceneTexel + texrTexel;\n"
+"    float4 colorOut = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;\n"
 "    colorOut.a = vtf.color.a * texrTexel.a;\n"
 "    return colorOut;\n"
 "}\n";
@@ -145,7 +147,7 @@ static const char* FS_HLSL_CINDTEX =
 "{\n"
 "    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).ba;\n"
 "    float4 sceneTexel = tex1.Sample(samp, lerp(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
-"    return vtf.color * sceneTexel * tex0.Sample(samp, vtf.uvTexr);\n"
+"    return vtf.color * float4(sceneTexel.rgb, 1.0) * tex0.Sample(samp, vtf.uvTexr);\n"
 "}\n";
 
 static const char* VS_HLSL_NOTEX =

@@ -117,7 +117,7 @@ void CGunWeapon::AllocResPools(CPlayerState::EBeamId beam)
     for (int i=0 ; i<2 ; ++i)
     {
         x16c_muzzleEffects.push_back(g_SimplePool->GetObj(muzzleNames[i]));
-        x144_weapons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('WPSC'), wPair[1]}));
+        x144_weapons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('WPSC'), wPair[i]}));
         x188_frozenEffects.push_back(g_SimplePool->GetObj(frozenNames[i]));
     }
 }

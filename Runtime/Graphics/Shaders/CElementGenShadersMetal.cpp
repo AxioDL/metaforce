@@ -107,7 +107,9 @@ static const char* VS_METAL_INDTEX =
 "    VertToFrag vtf;\n"
 "    constant VertData& v = va[instId];\n"
 "    vtf.color = v.colorIn * particle.moduColor;\n"
-"    vtf.uvScene = v.uvsInScene * float4(1.0, -1.0, 1.0, -1.0);\n"
+"    vtf.uvScene = v.uvsInScene;\n"
+"    vtf.uvScene.y = 1.0 - vtf.uvScene.y;\n"
+"    vtf.uvScene.w = 1.0 - vtf.uvScene.w;\n"
 "    vtf.uvTexr = v.uvsInTexrTind[vertId].xy;\n"
 "    vtf.uvTind = v.uvsInTexrTind[vertId].zw;\n"
 "    vtf.position = particle.mvp * v.posIn[vertId];\n"
@@ -135,7 +137,7 @@ static const char* FS_METAL_INDTEX =
 "    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;\n"
 "    float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    float4 texrTexel = tex0.sample(samp, vtf.uvTexr);\n"
-"    float4 colr = vtf.color * sceneTexel + texrTexel;\n"
+"    float4 colr = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;\n"
 "    return float4(colr.rgb, vtf.color.a * texrTexel.a);"
 "}\n";
 
@@ -159,7 +161,7 @@ static const char* FS_METAL_CINDTEX =
 "{\n"
 "    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;\n"
 "    float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
-"    return vtf.color * sceneTexel * tex0.sample(samp, vtf.uvTexr);\n"
+"    return vtf.color * float4(sceneTexel.rgb, 1.0) * tex0.sample(samp, vtf.uvTexr);\n"
 "}\n";
 
 static const char* VS_METAL_NOTEX =

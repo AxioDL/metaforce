@@ -59,7 +59,8 @@ void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
     case ESmokeState::Done:
         if (x234_shotSmokeGen)
         {
-            x234_shotSmokeGen->SetGlobalTranslation(x10_solidModelData->GetScaledLocatorTransform("LBEAM").origin);
+            zeus::CTransform locator = x10_solidModelData->GetScaledLocatorTransform("LBEAM");
+            x234_shotSmokeGen->SetGlobalTranslation(locator.origin);
             x234_shotSmokeGen->Update(dt);
             if (x240_smokeState == ESmokeState::Done && x234_shotSmokeGen->GetSystemCount() == 0)
                 x240_smokeState = ESmokeState::Inactive;

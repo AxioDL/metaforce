@@ -124,8 +124,7 @@ BOO_GLSL_BINDING_HEAD
 "    vec2 tindTexel = texture(tindMap, vtf.uvTind).zw;\n"
 "    vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
 "    vec4 texrTexel = texture(texrMap, vtf.uvTexr);\n"
-"    colorOut = vtf.color * sceneTexel + texrTexel;\n"
-"    colorOut.a = vtf.color.a * texrTexel.a;\n"
+"    colorOut = vtf.color * vec4(sceneTexel.rgb, 1.0) + texrTexel;\n"
 "}\n";
 
 static const char* FS_GLSL_CINDTEX =
@@ -148,7 +147,7 @@ BOO_GLSL_BINDING_HEAD
 "{\n"
 "    vec2 tindTexel = texture(tindMap, vtf.uvTind).zw;\n"
 "    vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));\n"
-"    colorOut = vtf.color * sceneTexel * texture(texrMap, vtf.uvTexr);\n"
+"    colorOut = vtf.color * vec4(sceneTexel.rgb, 1.0) * texture(texrMap, vtf.uvTexr);\n"
 "}\n";
 
 static const char* VS_GLSL_NOTEX =
