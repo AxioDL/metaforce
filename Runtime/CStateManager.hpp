@@ -279,6 +279,7 @@ public:
     zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
     void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
     void DrawWorld() const;
+    void SetupFogForArea(TAreaId area) const;
     void SetupFogForArea(const CGameArea& area) const;
     bool SetupFogForDraw() const;
     void PreRender();

@@ -30,10 +30,10 @@ class CAuxWeapon
     void DeleteFlameThrower(CStateManager& mgr);
     void CreateFlameThrower(const zeus::CTransform& xf, CStateManager& mgr, float dt);
     void DeleteWaveBusterBeam(CStateManager& mgr);
-    void CreateWaveBusterBeam(CWeapon::EProjectileAttrib attribs, TUniqueId homingTarget,
+    void CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homingTarget,
                               const zeus::CTransform& xf, CStateManager& mgr);
     void LaunchMissile(float dt, bool underwater, bool charged, CPlayerState::EBeamId currentBeam,
-                       CWeapon::EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId,
+                       EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId,
                        CStateManager& mgr);
 public:
     explicit CAuxWeapon(TUniqueId playerId);

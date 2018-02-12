@@ -116,9 +116,9 @@ void CScriptDamageableTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUnique
 
 EWeaponCollisionResponseTypes
 CScriptDamageableTrigger::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                   const CWeaponMode& weapMode, int) const
+                                                   const CWeaponMode& weapMode, EProjectileAttrib) const
 {
-    return x174_dVuln.WeaponHurts(weapMode, false) ? EWeaponCollisionResponseTypes::Unknown13 :
+    return x174_dVuln.WeaponHurts(weapMode, false) ? EWeaponCollisionResponseTypes::OtherProjectile :
     EWeaponCollisionResponseTypes::Unknown15;
 }
 

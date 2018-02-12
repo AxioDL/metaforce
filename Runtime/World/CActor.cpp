@@ -368,9 +368,9 @@ const zeus::CTransform CActor::GetLocatorTransform(std::string_view segName) con
 }
 
 EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                               const CWeaponMode&, s32) const
+                                                               const CWeaponMode&, EProjectileAttrib) const
 {
-    return EWeaponCollisionResponseTypes::Unknown13;
+    return EWeaponCollisionResponseTypes::OtherProjectile;
 }
 
 void CActor::FluidFXThink(CActor::EFluidState, CScriptWater&, CStateManager&) {}

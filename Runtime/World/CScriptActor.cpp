@@ -181,12 +181,12 @@ zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const
 
 EWeaponCollisionResponseTypes
 CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const
-                                       CWeaponMode& wMode, int w) const
+                                       CWeaponMode& wMode, EProjectileAttrib w) const
 {
     const CDamageVulnerability* dVuln = GetDamageVulnerability();
-    if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Reflect)
+    if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Deflect)
     {
-        EVulnerability phazonVuln = dVuln->GetPhazonVulnerability(wMode);
+        EVulnerability phazonVuln = dVuln->GetDeflectionType(wMode);
         if (phazonVuln < EVulnerability::PassThrough && phazonVuln >= EVulnerability::Normal)
             return EWeaponCollisionResponseTypes::Unknown15;
     }

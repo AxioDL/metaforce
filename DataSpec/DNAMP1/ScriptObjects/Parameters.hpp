@@ -157,7 +157,7 @@ struct DamageVulnerability : BigYAML
     Value<atUint32> enemyWeapon4;
     Value<atUint32> unkownWeapon1;
     Value<atUint32> unkownWeapon2;
-    Value<atUint32> unkownWeapon3;
+    Value<atUint32> deflected;
     struct ChargedBeams : BigYAML
     {
         DECL_YAML
@@ -166,7 +166,7 @@ struct DamageVulnerability : BigYAML
         Value<atUint32> ice;
         Value<atUint32> wave;
         Value<atUint32> plasma;
-        Value<atUint32> phazon;
+        Value<atUint32> deflected;
     } chargedBeams;
 
     struct BeamCombos : BigYAML
@@ -177,7 +177,7 @@ struct DamageVulnerability : BigYAML
         Value<atUint32> iceSpreader;
         Value<atUint32> wavebuster;
         Value<atUint32> flameThrower;
-        Value<atUint32> phazonCombo;
+        Value<atUint32> deflected;
     } beamCombos;
 };
 

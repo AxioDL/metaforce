@@ -547,7 +547,7 @@ zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager& mgr) const
 }
 
 EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                                     const CWeaponMode&, int) const
+                                                                     const CWeaponMode&, EProjectileAttrib) const
 {
     return EWeaponCollisionResponseTypes::Water;
 }

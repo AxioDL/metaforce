@@ -55,7 +55,7 @@ public:
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                           const CWeaponMode&, int) const;
+                                                           const CWeaponMode&, EProjectileAttrib) const;
     void Render(const CStateManager& mgr) const;
     void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
     void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);

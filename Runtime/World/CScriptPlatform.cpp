@@ -53,4 +53,15 @@ bool CScriptPlatform::IsRider(TUniqueId id) const
             return true;
     return false;
 }
+
+bool CScriptPlatform::IsSlave(TUniqueId id) const
+{
+    auto search = std::find_if(x328_slaves1.begin(), x328_slaves1.end(),
+                               [id](const SRiders& rider){ return rider.x0_uid == id; });
+    if (search != x328_slaves1.end())
+        return true;
+    search = std::find_if(x338_slaves2.begin(), x338_slaves2.end(),
+                          [id](const SRiders& rider){ return rider.x0_uid == id; });
+    return search != x338_slaves2.end();
+}
 }

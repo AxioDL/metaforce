@@ -29,7 +29,7 @@ CDamageInfo& CDamageInfo::operator=(const DataSpec::SShotParam& other)
 float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln) const
 {
     EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
-    if (vuln == EVulnerability::Reflect)
+    if (vuln == EVulnerability::Deflect)
         return 0.f;
     else if (vuln == EVulnerability::DoubleDamage)
         return 2.f * x8_damage;
@@ -40,7 +40,7 @@ float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln) const
 float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const
 {
     EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
-    if (vuln == EVulnerability::Reflect)
+    if (vuln == EVulnerability::Deflect)
         return 0.f;
     else if (vuln == EVulnerability::DoubleDamage)
         return 2.f * xc_radiusDamage;

@@ -11,6 +11,7 @@
 #include "Collision/CCollisionResponseData.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "CScannableObjectInfo.hpp"
+#include "Weapon/WeaponCommon.hpp"
 
 namespace urde
 {
@@ -127,7 +128,7 @@ public:
     virtual zeus::CVector3f GetHomingPosition(const CStateManager&, float) const;
     virtual zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&) const;
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                                   const CWeaponMode&, int) const;
+                                                                   const CWeaponMode&, EProjectileAttrib) const;
     virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
     virtual void OnScanStateChanged(EScanState, CStateManager&);
     virtual zeus::CAABox GetSortingBounds(const CStateManager&) const;

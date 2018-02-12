@@ -31,7 +31,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                       EProjectileAttrib::BigProjectile ? 0.25f : 0.1f),
   x2c0_homingTargetId(homingTarget), x2cc_wpscId(wDesc.GetObjectTag()->id)
 {
-    x2e4_24_ = true;
+    x2e4_24_active = true;
     x2e4_25_startedUnderwater = underwater;
     x2e4_26_waterUpdate = underwater;
     x2e4_27_inWater = underwater;
@@ -95,7 +95,7 @@ void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId /*uid*
         DeleteProjectileLight(mgr);
 }
 
-CWeapon::EProjectileAttrib CGameProjectile::GetBeamAttribType(EWeaponType wType)
+EProjectileAttrib CGameProjectile::GetBeamAttribType(EWeaponType wType)
 {
     if (wType == EWeaponType::Ice)
         return EProjectileAttrib::Ice;
@@ -200,7 +200,7 @@ void CGameProjectile::Chase(float dt, CStateManager& mgr)
 
 void CGameProjectile::UpdateHoming(float dt, CStateManager& mgr)
 {
-    if (!x2e4_24_ || x2c0_homingTargetId == kInvalidUniqueId || x2a8_homingDt <= 0.f)
+    if (!x2e4_24_active || x2c0_homingTargetId == kInvalidUniqueId || x2a8_homingDt <= 0.f)
         return;
 
     x2b0_targetHomingTime += dt;
@@ -229,7 +229,7 @@ CRayCastResult
 CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager& mgr)
 {
     CRayCastResult res;
-    if (x2e4_24_)
+    if (x2e4_24_active)
     {
         zeus::CVector3f posDelta = x34_transform.origin - x298_lastOrigin;
         rstl::reserved_vector<TUniqueId, 1024> nearList;

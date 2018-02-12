@@ -127,7 +127,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
             FourCC cid = CPF::GetClassID(in);
             if (cid == SBIG('NONE'))
                 break;
-            CAssetId id = CPF::GetInt(in);
+            CAssetId id(in);
             if (id.IsValid())
                 desc->x94_COLR = {resPool->GetObj({FOURCC('CRSC'), id}), true};
             break;

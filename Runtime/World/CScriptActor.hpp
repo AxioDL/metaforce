@@ -41,7 +41,7 @@ public:
     void PreRender(CStateManager&, const zeus::CFrustum&);
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                           const CWeaponMode&, int) const;
+                                                           const CWeaponMode&, EProjectileAttrib) const;
     rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);
     const CDamageVulnerability* GetDamageVulnerability() const { return &x268_damageVulnerability; }

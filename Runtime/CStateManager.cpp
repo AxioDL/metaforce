@@ -901,6 +901,15 @@ void CStateManager::DrawWorld() const
     DrawAdditionalFilters();
 }
 
+void CStateManager::SetupFogForArea(TAreaId area) const
+{
+    if (area == kInvalidAreaId)
+        area = x8cc_nextAreaId;
+    const CGameArea* areaObj = x850_world->GetAreaAlways(area);
+    if (areaObj->IsPostConstructed())
+        SetupFogForArea(*areaObj);
+}
+
 void CStateManager::SetupFogForArea(const CGameArea& area) const
 {
     if (SetupFogForDraw())
@@ -1305,7 +1314,7 @@ void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType
 void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const CDamageVulnerability& vuln,
                                    const zeus::CVector3f& pos, float dampen)
 {
-    if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Reflect)
+    if (vuln.GetVulnerability(info.GetWeaponMode(), false) == EVulnerability::Deflect)
         return;
     CHealthInfo* hInfo = actor.HealthInfo(*this);
     if (!hInfo)
@@ -1384,8 +1393,8 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
     bool bomb = false;
     TCastToPtr<CWeapon> weapon = const_cast<CActor&>(actor);
     if (weapon)
-        bomb = (weapon->GetAttribField() & (CWeapon::EProjectileAttrib::Bombs |
-        CWeapon::EProjectileAttrib::PowerBombs)) != CWeapon::EProjectileAttrib::None;
+        bomb = (weapon->GetAttribField() & (EProjectileAttrib::Bombs |
+        EProjectileAttrib::PowerBombs)) != EProjectileAttrib::None;
 
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     BuildNearList(nearList, aabb, filter, &actor);
@@ -1407,7 +1416,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
             }
             else
             {
-                if ((weapon->GetAttribField() & CWeapon::EProjectileAttrib::Bombs) != CWeapon::EProjectileAttrib::None)
+                if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs)
                     player->BombJump(pos, *this);
             }
         }
@@ -1604,17 +1613,16 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
 {
     if (TCastToPtr<CWeapon> wpn = const_cast<CActor&>(damager))
     {
-        if ((wpn->GetAttribField() & (CWeapon::EProjectileAttrib::Bombs |
-            CWeapon::EProjectileAttrib::PowerBombs)) != CWeapon::EProjectileAttrib::None)
+        if ((wpn->GetAttribField() & (EProjectileAttrib::Bombs |
+            EProjectileAttrib::PowerBombs)) != EProjectileAttrib::None)
         {
-            bool powerBomb = (wpn->GetAttribField() & CWeapon::EProjectileAttrib::Bombs) !=
-                             CWeapon::EProjectileAttrib::None;
+            bool powerBomb = (wpn->GetAttribField() & EProjectileAttrib::PowerBombs) == EProjectileAttrib::PowerBombs;
             if (TCastToPtr<CScriptWater> water = damagee)
             {
                 zeus::CAABox bounds = water->GetTriggerBoundsWR();
                 zeus::CVector3f hitPos(pos.x, pos.y, bounds.max.z);
                 float bombRad = powerBomb ? 4.f : 2.f;
-                float delta = -(pos.dot(zeus::CVector3f::skUp) - bounds.max.z);
+                float delta = bounds.max.z - pos.dot(zeus::CVector3f::skUp);
                 if (delta <= bombRad && delta > 0.f)
                 {
                     // Below surface
@@ -1626,7 +1634,8 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
                         water->GetFluidPlane().AddRipple(mag, damager.GetUniqueId(), hitPos, *water, *this);
                     }
                     if (!powerBomb)
-                        x87c_fluidPlaneManager->CreateSplash(damager.GetUniqueId(), *this, *water, hitPos, rippleFactor, true);
+                        x87c_fluidPlaneManager->CreateSplash(damager.GetUniqueId(), *this, *water, hitPos,
+                                                             rippleFactor, true);
                 }
                 else
                 {
@@ -1649,8 +1658,8 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
     }
 }
 
-bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& damagee, float dam,
-                                     const CWeaponMode& weapMode)
+bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& damagee,
+                                     float dam, const CWeaponMode& weapMode)
 {
     CHealthInfo* hInfo = damagee.HealthInfo(*this);
     if (!hInfo || dam < 0.f)

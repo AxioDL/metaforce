@@ -284,10 +284,9 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
         }
         else if (CWeapon* weap = TCastToPtr<CWeapon>(act))
         {
-            if ((weap->GetAttribField() & CWeapon::EProjectileAttrib::Bombs) != CWeapon::EProjectileAttrib::None)
+            if ((weap->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs)
                 testFlags |= ETriggerFlags::DetectBombs;
-            else if ((weap->GetAttribField() & CWeapon::EProjectileAttrib::PowerBombs) !=
-                     CWeapon::EProjectileAttrib::None)
+            else if ((weap->GetAttribField() & EProjectileAttrib::PowerBombs) == EProjectileAttrib::PowerBombs)
                 testFlags |= ETriggerFlags::DetectPowerBombs;
         }
 

@@ -1,7 +1,3 @@
-//
-// Created by Jack Andersen on 2/10/18.
-//
-
 #include "CFlaahgraProjectile.hpp"
 
 namespace urde::MP1

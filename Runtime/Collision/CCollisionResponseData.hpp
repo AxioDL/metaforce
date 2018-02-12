@@ -19,7 +19,7 @@ enum class EWeaponCollisionResponseTypes
     None,     Default,  Unknown2, Metal,
     Grass,    Ice,      Goo,      Wood,
     Water,    Mud,      Lava,     Sand,
-    Projectile,Unknown13,Unknown14,Unknown15,
+    Projectile,OtherProjectile,Unknown14,Unknown15,
     EnemyNormal,EnemySpecial,EnemyShielded,Unknown19,
     Unknown20,Unknown21,Unknown22,Unknown23,
     Unknown24,Unknown25,Unknown26,Unknown27,

@@ -17,7 +17,9 @@ namespace urde
 
 enum class EListenNoiseType
 {
-    Zero
+    Character,
+    Bomb,
+    Projectile
 };
 
 enum class EKnockBackType

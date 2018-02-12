@@ -34,6 +34,30 @@ enum class EWeaponType
     OrangePhazon = 14
 };
 
+enum class EProjectileAttrib
+{
+    None = 0,
+    PartialCharge = (1 << 0),
+    PlasmaProjectile = (1 << 1),
+    Charged = (1 << 2),
+    Ice = (1 << 3),
+    Wave = (1 << 4),
+    Plasma = (1 << 5),
+    Phazon = (1 << 6),
+    ComboShot = (1 << 7),
+    Bombs = (1 << 8),
+    PowerBombs = (1 << 9),
+    BigProjectile = (1 << 10),
+    ArmCannon = (1 << 11),
+    BigStrike = (1 << 12),
+    DamageFalloff = (1 << 13),
+    StaticInterference = (1 << 14),
+    PlayerUnFreeze = (1 << 15),
+    ParticleOPTS = (1 << 16),
+    KeepInCinematic = (1 << 17),
+};
+ENABLE_BITWISE_ENUM(EProjectileAttrib)
+
 namespace NWeaponTypes
 {
 

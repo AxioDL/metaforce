@@ -104,7 +104,7 @@ public:
     void CalculateRenderBounds();
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
     EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                           const CWeaponMode&, int) const;
+                                                           const CWeaponMode&, EProjectileAttrib) const;
 
     u16 GetSplashSound(float) const;
     const std::experimental::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;

@@ -2902,8 +2902,8 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     case EScriptObjectMessage::Damage:
         if (TCastToPtr<CEnergyProjectile> energ = mgr.ObjectById(sender))
         {
-            if ((energ->GetAttribField() & CWeapon::EProjectileAttrib::StaticInterference) !=
-                 CWeapon::EProjectileAttrib::None)
+            if ((energ->GetAttribField() & EProjectileAttrib::StaticInterference) !=
+                 EProjectileAttrib::None)
             {
                 mgr.GetPlayerState()->GetStaticInterference().
                     AddSource(GetUniqueId(), 0.3f, energ->GetInterferenceDuration());

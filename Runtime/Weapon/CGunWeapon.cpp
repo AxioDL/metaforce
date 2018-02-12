@@ -229,11 +229,11 @@ void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const
     CDamageInfo dInfo = GetDamageInfo(mgr, chargeState, chargeFactor1);
     zeus::CVector3f scale(chargeState == EChargeState::Normal ? 1.f : chargeFactor2);
     bool partialCharge = chargeState == EChargeState::Normal ? false : !zeus::close_enough(chargeFactor1, 1.f);
-    CWeapon::EProjectileAttrib attribs = CWeapon::EProjectileAttrib::ArmCannon;
+    EProjectileAttrib attribs = EProjectileAttrib::ArmCannon;
     if (partialCharge)
-        attribs |= CWeapon::EProjectileAttrib::PartialCharge;
+        attribs |= EProjectileAttrib::PartialCharge;
     if (chargeState == EChargeState::Charged)
-        attribs |= CWeapon::EProjectileAttrib::Charged;
+        attribs |= EProjectileAttrib::Charged;
 
     CEnergyProjectile* proj = new CEnergyProjectile(true, x144_weapons[int(chargeState)], x1c0_weaponType,
                                                     xf, x1c8_playerMaterial, dInfo, mgr.AllocateUniqueId(),

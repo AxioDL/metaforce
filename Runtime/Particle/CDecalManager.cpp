@@ -55,4 +55,10 @@ void CDecalManager::Update(float dt, CStateManager& mgr)
 
 }
 
+void CDecalManager::AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform& xf,
+                             bool b1, CStateManager& mgr)
+{
+
+}
+
 }

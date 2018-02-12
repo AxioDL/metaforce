@@ -70,6 +70,7 @@ public:
                       const zeus::CTransform& orient, const zeus::CVector3f& scale, s32);
     virtual ~CProjectileWeapon() = default;
     bool IsProjectileActive() const { return x124_24_active; }
+    rstl::optional_object<zeus::CAABox> GetBounds() const;
     const zeus::CVector3f& GetVelocity() const { return xb0_velocity; }
     void SetVelocity(const zeus::CVector3f& vel) { xb0_velocity = vel; }
     float GetMaxTurnRate() const { return xe0_maxTurnRate; }
@@ -79,11 +80,11 @@ public:
     GetDecalForCollision(EWeaponCollisionResponseTypes type) const;
     u16 GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const;
     rstl::optional_object<TLockedToken<CGenDescription>>
-    CollisionOccured(EWeaponCollisionResponseTypes type, bool alive, bool b2, const zeus::CVector3f& v1,
-                     const zeus::CVector3f& v2, const zeus::CVector3f& target);
+    CollisionOccured(EWeaponCollisionResponseTypes type, bool deflected, bool useTarget, const zeus::CVector3f& pos,
+                     const zeus::CVector3f& normal, const zeus::CVector3f& target);
     TLockedToken<CWeaponDescription> GetWeaponDescription() const { return x4_weaponDesc; }
     void RenderParticles() const;
-    virtual void UpdateParticles(double dt);
+    virtual void AddToRenderer() const;
     virtual void Render() const;
     bool IsSystemDeletable() const;
     void UpdateChildParticleSystems(float);
@@ -97,6 +98,7 @@ public:
     void SetGravity(const zeus::CVector3f& grav) { xbc_gravity = grav; }
     static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
     CElementGen* GetAttachedPS1() const { return xfc_APSMGen.get(); }
+    double GameTime() const { return xd0_curTime; }
 };
 }
 

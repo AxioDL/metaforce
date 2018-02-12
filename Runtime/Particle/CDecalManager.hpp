@@ -34,6 +34,8 @@ public:
     static void Shutdown();
     static void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr);
     static void Update(float dt, CStateManager& mgr);
+    static void AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform& xf,
+                         bool b1, CStateManager& mgr);
 };
 
 }

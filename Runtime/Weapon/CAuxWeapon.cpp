@@ -249,7 +249,7 @@ void CAuxWeapon::CreateFlameThrower(const zeus::CTransform& xf, CStateManager& m
     x6e_flameThrowerId = mgr.AllocateUniqueId();
     CNewFlameThrower* ft = new CNewFlameThrower(x28_combos[3], "Player_FlameThrower", EWeaponType::Plasma,
         resInfo, xf, EMaterialTypes::Player, CGunWeapon::GetShotDamageInfo(g_tweakPlayerGun->GetComboShotInfo(3), mgr),
-        x6e_flameThrowerId, kInvalidAreaId, x6c_playerId, CWeapon::EProjectileAttrib::None);
+        x6e_flameThrowerId, kInvalidAreaId, x6c_playerId, EProjectileAttrib::None);
     mgr.AddObject(ft);
     ft->Think(dt, mgr);
     ft->StartFiring(xf, mgr);
@@ -272,7 +272,7 @@ void CAuxWeapon::DeleteWaveBusterBeam(CStateManager& mgr)
     }
 }
 
-void CAuxWeapon::CreateWaveBusterBeam(CWeapon::EProjectileAttrib attribs, TUniqueId homingTarget,
+void CAuxWeapon::CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homingTarget,
                                       const zeus::CTransform& xf, CStateManager& mgr)
 {
     DeleteFlameThrower(mgr);
@@ -294,7 +294,7 @@ void CAuxWeapon::CreateWaveBusterBeam(CWeapon::EProjectileAttrib attribs, TUniqu
 static const u16 skSoundId[] = { 1810, 1837, 1847, 1842, 1810 };
 
 void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerState::EBeamId currentBeam,
-                               CWeapon::EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId,
+                               EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId,
                                CStateManager& mgr)
 {
     const SShotParam& info =
@@ -303,7 +303,7 @@ void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerS
     CEnergyProjectile* proj = new CEnergyProjectile(true, charged ? x28_combos[int(currentBeam)] : x0_missile,
         charged ? EWeaponType::Power : EWeaponType::Missile, xf, EMaterialTypes::Player,
         CGunWeapon::GetShotDamageInfo(info, mgr), mgr.AllocateUniqueId(), kInvalidAreaId, x6c_playerId, homingId,
-        attrib | CWeapon::EProjectileAttrib::ArmCannon, underwater, zeus::CVector3f::skOne, {}, -1, false);
+        attrib | EProjectileAttrib::ArmCannon, underwater, zeus::CVector3f::skOne, {}, -1, false);
     mgr.AddObject(proj);
     proj->Think(dt, mgr);
     if (charged)
@@ -324,9 +324,9 @@ void CAuxWeapon::Fire(float dt, bool underwater, CPlayerState::EBeamId currentBe
     if (!x80_24_isLoaded)
         return;
 
-    CWeapon::EProjectileAttrib attrib = CWeapon::EProjectileAttrib::None;
+    EProjectileAttrib attrib = EProjectileAttrib::None;
     if (chargeState == EChargeState::Charged)
-        attrib = CGameProjectile::GetBeamAttribType(type) | CWeapon::EProjectileAttrib::ComboShot;
+        attrib = CGameProjectile::GetBeamAttribType(type) | EProjectileAttrib::ComboShot;
 
     if (chargeState == EChargeState::Normal)
     {

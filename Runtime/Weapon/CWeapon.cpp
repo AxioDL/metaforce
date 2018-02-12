@@ -46,7 +46,7 @@ void CWeapon::Render(const CStateManager&) const
 }
 
 EWeaponCollisionResponseTypes CWeapon::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                                const CWeaponMode&, int) const
+                                                                const CWeaponMode&, EProjectileAttrib) const
 {
     return EWeaponCollisionResponseTypes::Projectile;
 }

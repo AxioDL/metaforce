@@ -17,14 +17,14 @@ class CEnergyProjectile : public CGameProjectile
     {
         struct
         {
-            bool x3d0_24_ : 1;
+            bool x3d0_24_dead : 1;
             bool x3d0_25_ : 1;
             bool x3d0_26_ : 1;
             bool x3d0_27_camShakeDirty : 1;
         };
         u32 _dummy = 0;
     };
-    float x3d4_ = 0.f;
+    float x3d4_curTime = 0.f;
     void StopProjectile(CStateManager& mgr);
 public:
     CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
@@ -44,8 +44,8 @@ public:
     void Render(const CStateManager& mgr) const;
     void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
     void Touch(CActor& act, CStateManager& mgr);
-    virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& dir, EWeaponCollisionResponseTypes type,
-                         CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId exploder);
+    virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
+                         CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor);
 };
 
 }

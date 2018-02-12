@@ -1,6 +1,8 @@
 #include "CProjectileWeapon.hpp"
 #include "Graphics/CModel.hpp"
 #include "Particle/CParticleGlobals.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -89,6 +91,61 @@ zeus::CVector3f CProjectileWeapon::GetTranslation() const
     return x14_localToWorldXf * (x44_localXf * x8c_projOffset + x80_localOffset) + x74_worldOffset;
 }
 
+rstl::optional_object<zeus::CAABox> CProjectileWeapon::GetBounds() const
+{
+    zeus::CAABox aabb;
+    bool ret = false;
+
+    if (xfc_APSMGen)
+    {
+        if (auto b = xfc_APSMGen->GetBounds())
+        {
+            aabb.accumulateBounds(*b);
+            ret = true;
+        }
+    }
+
+    if (x100_APS2Gen)
+    {
+        if (auto b = x100_APS2Gen->GetBounds())
+        {
+            aabb.accumulateBounds(*b);
+            ret = true;
+        }
+    }
+
+    if (x118_swoosh1)
+    {
+        if (auto b = x118_swoosh1->GetBounds())
+        {
+            aabb.accumulateBounds(*b);
+            ret = true;
+        }
+    }
+
+    if (x11c_swoosh2)
+    {
+        if (auto b = x11c_swoosh2->GetBounds())
+        {
+            aabb.accumulateBounds(*b);
+            ret = true;
+        }
+    }
+
+    if (x120_swoosh3)
+    {
+        if (auto b = x120_swoosh3->GetBounds())
+        {
+            aabb.accumulateBounds(*b);
+            ret = true;
+        }
+    }
+
+    if (ret)
+        return {aabb};
+    return {};
+}
+
 float CProjectileWeapon::GetAudibleFallOff() const
 {
     if (!x4_weaponDesc->x94_COLR)
@@ -119,15 +176,15 @@ u16 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type
 }
 
 rstl::optional_object<TLockedToken<CGenDescription>>
-CProjectileWeapon::CollisionOccured(EWeaponCollisionResponseTypes type, bool alive, bool b2,
-                                    const zeus::CVector3f& v1, const zeus::CVector3f& v2,
+CProjectileWeapon::CollisionOccured(EWeaponCollisionResponseTypes type, bool deflected, bool useTarget,
+                                    const zeus::CVector3f& pos, const zeus::CVector3f& normal,
                                     const zeus::CVector3f& target)
 {
-    x80_localOffset = x14_localToWorldXf.transposeRotate(v1 - x74_worldOffset) - x8c_projOffset;
+    x80_localOffset = x14_localToWorldXf.transposeRotate(pos - x74_worldOffset) - x8c_projOffset;
     zeus::CVector3f posToTarget = target - GetTranslation();
-    if (alive)
+    if (deflected)
     {
-        if (b2 && posToTarget.canBeNormalized())
+        if (useTarget && posToTarget.canBeNormalized())
         {
             SetWorldSpaceOrientation(zeus::lookAt(zeus::CVector3f::skZero, posToTarget.normalized()));
         }
@@ -135,7 +192,7 @@ CProjectileWeapon::CollisionOccured(EWeaponCollisionResponseTypes type, bool ali
         {
             zeus::CTransform xf = GetTransform();
             SetWorldSpaceOrientation(
-                zeus::lookAt(zeus::CVector3f::skZero, xf.basis[1] - v2 * (v2.dot(xf.basis[1]) * 2.f), v2));
+                zeus::lookAt(zeus::CVector3f::skZero, xf.basis[1] - normal * (normal.dot(xf.basis[1]) * 2.f), normal));
         }
         return {};
     }
@@ -174,20 +231,20 @@ void CProjectileWeapon::RenderParticles() const
         x104_->Render();
 }
 
-void CProjectileWeapon::UpdateParticles(double dt)
+void CProjectileWeapon::AddToRenderer() const
 {
     if (xfc_APSMGen)
-        xfc_APSMGen->Update(dt);
+        g_Renderer->AddParticleGen(*xfc_APSMGen);
     if (x100_APS2Gen)
-        x100_APS2Gen->Update(dt);
+        g_Renderer->AddParticleGen(*x100_APS2Gen);
     if (x118_swoosh1)
-        x118_swoosh1->Update(dt);
+        g_Renderer->AddParticleGen(*x118_swoosh1);
     if (x11c_swoosh2)
-        x11c_swoosh2->Update(dt);
+        g_Renderer->AddParticleGen(*x11c_swoosh2);
     if (x120_swoosh3)
-        x120_swoosh3->Update(dt);
+        g_Renderer->AddParticleGen(*x120_swoosh3);
     if (x104_)
-        x104_->Update(dt);
+        g_Renderer->AddParticleGen(*x104_);
 }
 
 void CProjectileWeapon::Render() const

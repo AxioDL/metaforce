@@ -96,8 +96,8 @@ void CCameraManager::EnterCinematic(CStateManager& mgr)
         {
             if (weap->GetActive())
             {
-                if ((weap->GetAttribField() & CWeapon::EProjectileAttrib::KeepInCinematic) ==
-                    CWeapon::EProjectileAttrib::None)
+                if ((weap->GetAttribField() & EProjectileAttrib::KeepInCinematic) ==
+                    EProjectileAttrib::None)
                 {
                     if (TCastToConstPtr<CAi>(mgr.GetObjectById(weap->GetOwnerId())) ||
                         TCastToConstPtr<CPlayer>(mgr.GetObjectById(weap->GetOwnerId())))
