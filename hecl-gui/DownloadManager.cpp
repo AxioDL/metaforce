@@ -17,10 +17,20 @@ static const char AxioDLPublicKeyPEM[] =
 static const QSslKey AxioDLPublicKey =
     QSslKey({AxioDLPublicKeyPEM}, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey);
 
+static const char AxioDLEdgePublicKeyPEM[] =
+"-----BEGIN PUBLIC KEY-----\n"
+"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4a8ZLg3LRU0FiK6m8g2pT3qVBTMA\n"
+"K2Uu5VGl7iamdGpUjynQ4uYWMx+WXf2Qkh7UZZgYvA6UeWHEs3M6ME8T6g==\n"
+"-----END PUBLIC KEY-----\n";
+
+static const QSslKey AxioDLEdgePublicKey =
+    QSslKey({AxioDLEdgePublicKeyPEM}, QSsl::Ec, QSsl::Pem, QSsl::PublicKey);
+
 void DownloadManager::_validateCert(QNetworkReply* reply)
 {
     QSslCertificate peerCert = reply->sslConfiguration().peerCertificate();
-    if (peerCert.publicKey() != AxioDLPublicKey)
+    QSslKey peerKey = peerCert.publicKey();
+    if (peerKey != AxioDLPublicKey && peerKey != AxioDLEdgePublicKey)
     {
         auto cn = peerCert.subjectInfo(QSslCertificate::CommonName);
         if (!cn.empty())
