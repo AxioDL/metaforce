@@ -50,7 +50,8 @@ static const char* FS =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return sceneTex.Sample(samp, vtf.sceneUv + (indTex.Sample(samp, vtf.indUv).xy * float2(2.0, 2.0) - float2(1.0 - 1.0 / 256.0, 1.0 - 1.0 / 256.0)) * vtf.strength.xy);\n"
+"    float2 indUv = indTex.Sample(samp, vtf.indUv).xy * float2(2.0, 2.0) - float2(1.0 - 1.0 / 256.0, 1.0 - 1.0 / 256.0);\n"
+"    return float4(sceneTex.Sample(samp, vtf.sceneUv + indUv * vtf.strength.xy).rgb, 1.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)

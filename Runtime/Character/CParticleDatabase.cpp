@@ -13,7 +13,7 @@ namespace urde
 CParticleDatabase::CParticleDatabase()
 {
     xb4_24_active = true;
-    xb4_25_drawingEnds = false;
+    xb4_25_anySystemsDrawnWithModel = false;
 }
 
 void CParticleDatabase::CacheParticleDesc(const SObjectTag &tag)
@@ -237,7 +237,7 @@ void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose, const CC
     UpdateParticleGenDB(dt, pose, charInfo, xf, scale, stateMgr, x8c_firstDraw, false);
     UpdateParticleGenDB(dt, pose, charInfo, xf, scale, stateMgr, xa0_lastDraw, false);
 
-    xb4_25_drawingEnds = (x50_firstDrawLoop.size() || x64_lastDrawLoop.size() || x8c_firstDraw.size() || xa0_lastDraw.size());
+    xb4_25_anySystemsDrawnWithModel = (x50_firstDrawLoop.size() || x64_lastDrawLoop.size() || x8c_firstDraw.size() || xa0_lastDraw.size());
 }
 
 void CParticleDatabase::RenderParticleGenMap(const std::map<std::string, std::unique_ptr<CParticleGenInfo>>& map)
@@ -513,7 +513,7 @@ void CParticleDatabase::InsertParticleGen(bool oneShot, int flags, std::string_v
     useMap->insert(std::make_pair(std::string(name), std::move(gen)));
 
     if (flags & 0x60)
-        xb4_25_drawingEnds = true;
+        xb4_25_anySystemsDrawnWithModel = true;
 }
 
 }

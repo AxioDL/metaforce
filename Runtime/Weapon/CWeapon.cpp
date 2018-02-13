@@ -9,10 +9,11 @@ namespace urde
 
 CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type,
                  std::string_view name, const zeus::CTransform& xf, const CMaterialFilter& filter,
-                 const CMaterialList& mList, const CDamageInfo&, EProjectileAttrib attribs, CModelData&& mData)
+                 const CMaterialList& mList, const CDamageInfo& dInfo, EProjectileAttrib attribs, CModelData&& mData)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf, std::move(mData), mList,
-         CActorParameters::None(), kInvalidUniqueId)
-, xf8_filter(filter)
+         CActorParameters::None(), kInvalidUniqueId),
+  xe8_projectileAttribs(attribs), xec_ownerId(owner), xf0_weaponType(type), xf8_filter(filter),
+  x110_origDamageInfo(dInfo), x12c_curDamageInfo(dInfo)
 {
 }
 

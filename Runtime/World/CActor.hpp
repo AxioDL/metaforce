@@ -65,11 +65,11 @@ protected:
             bool xe5_27_useInSortedLists : 1;
             bool xe5_28_callTouch : 1;
             bool xe5_29_globalTimeProvider : 1;
-            bool xe5_30_ : 1;
+            bool xe5_30_renderUnsorted : 1;
             bool xe5_31_pointGeneratorParticles : 1;
             u8 xe6_24_fluidCounter : 3;
             u8 xe6_27_thermalVisorFlags : 2; // 1: thermal cold, 2: thermal hot
-            bool xe6_29_prePostParticles : 1;
+            bool xe6_29_renderParticleDBInside : 1;
             bool xe6_30_enablePitchBend : 1;
             u8 xe6_31_targetableVisorFlags : 4;
             bool xe7_27_enableRender : 1;
@@ -84,6 +84,7 @@ protected:
     void UpdateSfxEmitters();
     void DrawTouchBounds() const;
     void RenderInternal(const CStateManager& mgr) const;
+    bool IsModelOpaque(const CStateManager& mgr) const;
 
 public:
     enum class EFluidState

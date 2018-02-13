@@ -65,9 +65,10 @@ zeus::CVector3f CGameCamera::ConvertToScreenSpace(const zeus::CVector3f& v) cons
 {
     zeus::CVector3f rVec = x34_transform.transposeRotate(v - x34_transform.origin);
 
-    if (rVec.x == 0.f && rVec.y == 0.f && rVec.z == 0.f)
+    if (rVec.isZero())
         return {-1.f, -1.f, 1.f};
 
+    rVec = zeus::CVector3f(rVec.x, rVec.z, -rVec.y);
     zeus::CMatrix4f mtx = GetPerspectiveMatrix();
     return mtx.multiplyOneOverW(rVec);
 }

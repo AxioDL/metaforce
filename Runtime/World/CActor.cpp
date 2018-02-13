@@ -45,10 +45,10 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     xe4_31_lightsDirty = true;
     xe5_27_useInSortedLists = true;
     xe5_28_callTouch = true;
-    xe5_29_globalTimeProvider = params.x58_24_;
-    xe5_30_ = params.x58_26_;
+    xe5_29_globalTimeProvider = params.x58_24_globalTimeProvider;
+    xe5_30_renderUnsorted = params.x58_26_renderUnsorted;
     xe6_27_thermalVisorFlags = u8(params.x58_25_thermalHeat ? 2 : 1);
-    xe6_29_prePostParticles = true;
+    xe6_29_renderParticleDBInside = true;
     xe6_31_targetableVisorFlags = params.GetVisorParameters().GetMask();
     xe7_27_enableRender = true;
     xe7_29_actorActive = active;
@@ -205,7 +205,7 @@ void CActor::AddToRenderer(const zeus::CFrustum& planes, const CStateManager& mg
     if (!x64_modelData || x64_modelData->IsNull())
         return;
 
-    if (xe6_29_prePostParticles)
+    if (xe6_29_renderParticleDBInside)
         x64_modelData->RenderParticles(planes);
 
     if (!xe4_30_outOfFrustum)
@@ -270,11 +270,22 @@ void CActor::RenderInternal(const CStateManager& mgr) const
     x64_modelData->Render(which, x34_transform, x90_actorLights.get(), xb4_drawFlags);
 }
 
+bool CActor::IsModelOpaque(const CStateManager& mgr) const
+{
+    if (xe5_31_pointGeneratorParticles)
+        return false;
+    if (!x64_modelData || x64_modelData->IsNull())
+        return true;
+    if (xb4_drawFlags.x0_blendMode > 4)
+        return false;
+    return x64_modelData->IsDefinitelyOpaque(CModelData::GetRenderingModel(mgr));
+}
+
 void CActor::Render(const CStateManager& mgr) const
 {
     if (x64_modelData && !x64_modelData->IsNull())
     {
-        bool renderPrePostParticles = xe6_29_prePostParticles && x64_modelData && x64_modelData->HasAnimData();
+        bool renderPrePostParticles = xe6_29_renderParticleDBInside && x64_modelData && x64_modelData->HasAnimData();
         if (renderPrePostParticles)
             x64_modelData->AnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
 
@@ -306,8 +317,14 @@ void CActor::Render(const CStateManager& mgr) const
     DrawTouchBounds();
 }
 
-bool CActor::CanRenderUnsorted(const CStateManager&) const
+bool CActor::CanRenderUnsorted(const CStateManager& mgr) const
 {
+    if (x64_modelData && x64_modelData->HasAnimData() &&
+        x64_modelData->GetAnimationData()->GetParticleDB().AreAnySystemsDrawnWithModel() &&
+        xe6_29_renderParticleDBInside)
+        return false;
+    else if (xe5_30_renderUnsorted || IsModelOpaque(mgr))
+        return true;
     return false;
 }
 
@@ -321,12 +338,15 @@ void CActor::CalculateRenderBounds()
 
 CHealthInfo* CActor::HealthInfo(CStateManager&) { return nullptr; }
 
-const CDamageVulnerability* CActor::GetDamageVulnerability() const { return nullptr; }
+const CDamageVulnerability* CActor::GetDamageVulnerability() const
+{
+    return &CDamageVulnerability::NormalVulnerabilty();
+}
 
 const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                            const CDamageInfo&) const
 {
-    return nullptr;
+    return GetDamageVulnerability();
 }
 
 rstl::optional_object<zeus::CAABox> CActor::GetTouchBounds() const { return {}; }
@@ -339,7 +359,16 @@ zeus::CVector3f CActor::GetAimPosition(const CStateManager&, float) const { retu
 
 zeus::CVector3f CActor::GetHomingPosition(const CStateManager& mgr, float f) const { return GetAimPosition(mgr, f); }
 
-zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager&) const { return {}; }
+zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager& mgr) const
+{
+    const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+    zeus::CVector3f orbitPos = GetOrbitPosition(mgr);
+    float camToOrbitPos = (cam->GetTranslation() - orbitPos).magnitude();
+    zeus::CVector3f boundsExtent = x9c_renderBounds.max - x9c_renderBounds.min;
+    float distFac = std::min(std::max(boundsExtent.x, std::max(boundsExtent.y, boundsExtent.z)) * 0.5f,
+                             camToOrbitPos - cam->GetNearClipDistance() - 0.1f);
+    return orbitPos - (orbitPos - cam->GetTranslation()).normalized() * distFac;
+}
 
 void CActor::RemoveEmitter()
 {

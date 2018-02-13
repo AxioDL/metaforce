@@ -14,15 +14,13 @@ protected:
     EProjectileAttrib xe8_projectileAttribs;
     TUniqueId xec_ownerId;
     EWeaponType xf0_weaponType;
-    u32 xf4_;
     CMaterialFilter xf8_filter;
-    u32 x10c_;
     CDamageInfo x110_origDamageInfo;
     CDamageInfo x12c_curDamageInfo;
-    float x148_curTime;
-    float x14c_damageFalloffSpeed;
-    float x150_damageDuration;
-    float x154_interferenceDuration;
+    float x148_curTime = 0.f;
+    float x14c_damageFalloffSpeed = 0.f;
+    float x150_damageDuration = 0.f;
+    float x154_interferenceDuration = 0.f;
 public:
     CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type,
             std::string_view name, const zeus::CTransform& xf, const CMaterialFilter& filter,

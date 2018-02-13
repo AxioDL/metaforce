@@ -141,6 +141,7 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     
     clipRect.x4_left += CGraphics::g_CroppedViewport.x4_left;
     clipRect.x8_top += CGraphics::g_CroppedViewport.x8_top;
+    clipRect.x8_top = g_Viewport.xc_height - clipRect.x10_height - clipRect.x8_top;
     CGraphics::ResolveSpareTexture(clipRect);
 
     m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f *

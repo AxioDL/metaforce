@@ -54,7 +54,8 @@ static const char* FS =
 "                      texture2d<float> sceneTex [[ texture(0) ]],\n"
 "                      texture2d<float> indTex [[ texture(1) ]])\n"
 "{\n"
-"    return sceneTex.sample(samp, vtf.sceneUv + (indTex.sample(samp, vtf.indUv).xy * float2(2.0) - float2(1.0 - 1.0 / 256.0)) * vtf.strength.xy);\n"
+"    float2 indUv = indTex.sample(samp, vtf.indUv).xy * float2(2.0) - float2(1.0 - 1.0 / 256.0);\n"
+"    return float4(sceneTex.sample(samp, vtf.sceneUv + indUv * vtf.strength.xy).rgb, 1.0);\n"
 "}\n";
 
 URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
