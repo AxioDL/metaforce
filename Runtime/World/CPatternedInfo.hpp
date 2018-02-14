@@ -35,7 +35,7 @@ class CPatternedInfo
     float xc8_height;
     zeus::CVector3f xcc_bodyOrigin;
     float xd8_stepUpHeight;
-    float xdc_;
+    float xdc_xDamage;
     float xe0_;
     float xe4_;
     u16 xe8_deathSfx;
@@ -52,9 +52,9 @@ class CPatternedInfo
 
     u32 x120_particle2Frames;
     zeus::CVector3f x124_particle2Scale;
-    CAssetId x130_particle2 = -1;
+    CAssetId x130_particle2;
 
-    u16 x134_iceShatterSfx = -1;
+    u16 x134_iceShatterSfx = 0xffff;
 
 public:
     CPatternedInfo(CInputStream& in, u32 pcount);

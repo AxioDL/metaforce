@@ -805,17 +805,17 @@ bool MREA::CookPath(const hecl::ProjectPath& outPath,
 {
     PATH path = {};
     path.version = 4;
-    path.unkStructCount = 1;
-    path.unkStructs.emplace_back();
-    PATH::UnknownStruct& s = path.unkStructs.back();
-    s.unk1 = 1;
-    s.unk2[0] = atVec3f{FLT_MAX, FLT_MAX, FLT_MAX};
-    s.unk2[1] = atVec3f{-FLT_MAX, -FLT_MAX, -FLT_MAX};
-    s.unk2[2] = atVec3f{0.f, 0.f, 0.f};
+    path.octreeNodeCount = 1;
+    path.octree.emplace_back();
+    PATH::OctreeNode& s = path.octree.back();
+    s.isLeaf = 1;
+    s.points[0] = atVec3f{FLT_MAX, FLT_MAX, FLT_MAX};
+    s.points[1] = atVec3f{-FLT_MAX, -FLT_MAX, -FLT_MAX};
+    s.points[2] = atVec3f{0.f, 0.f, 0.f};
     for (int i=0 ; i<8 ; ++i)
-        s.unk3[i] = ~0;
-    s.unk4 = 0;
-    s.unk5 = 0;
+        s.children[i] = 0xffffffff;
+    s.regionCount = 0;
+    s.regionStart = 0;
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     path.write(w);

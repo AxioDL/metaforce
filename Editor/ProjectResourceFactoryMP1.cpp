@@ -28,6 +28,7 @@
 #include "Runtime/AutoMapper/CMapArea.hpp"
 #include "Runtime/AutoMapper/CMapUniverse.hpp"
 #include "Runtime/CScannableObjectInfo.hpp"
+#include "Runtime/World/CPathFindArea.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "Audio/CMidiManager.hpp"
@@ -77,6 +78,7 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
     m_factoryMgr.AddFactory(FOURCC('DPSC'), FFactoryFunc(FDecalDataFactory));
     m_factoryMgr.AddFactory(FOURCC('MAPA'), FFactoryFunc(FMapAreaFactory));
     m_factoryMgr.AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
+    m_factoryMgr.AddFactory(FOURCC('PATH'), FMemFactoryFunc(FPathFindAreaFactory));
 }
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp)

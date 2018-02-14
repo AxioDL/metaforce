@@ -9,39 +9,65 @@ namespace urde
 class CPFArea;
 class CPFLink;
 class CPFRegionData;
+
+class CPFNode
+{
+    zeus::CVector3f x0_position;
+    zeus::CVector3f xc_normal;
+public:
+    CPFNode(CMemoryInStream& in);
+    const zeus::CVector3f& GetPos() const { return x0_position; }
+    const zeus::CVector3f& GetNormal() const { return xc_normal; }
+};
+
+class CPFLink
+{
+    u32 x0_region;
+    u32 x4_node;
+    float x8_2dWidth;
+    float xc_oo2dWidth;
+public:
+    CPFLink(CMemoryInStream& in);
+    u32 GetRegion() const { return x0_region; }
+    u32 GetNode() const { return x4_node; }
+    float Get2dWidth() const { return x8_2dWidth; }
+    float GetOO2dWidth() const { return xc_oo2dWidth; }
+};
+
 class CPFRegion
 {
-    u32 x0_ = 0;
-    u32 x4_ = 0;
-    u32 x8_ = 0;
-    u32 xc_ = 0;
-    u32 x10_ = 0;
-    float x14_ = 0.f;
-    zeus::CVector3f x18_;
-    u32 x24_ = 0;
-    zeus::CVector3f x28_;
-    zeus::CAABox x34_;
-    u32 x4c_;
+    u32 x0_numNodes = 0;
+    CPFNode* x4_startNode = nullptr;
+    u32 x8_numLinks = 0;
+    CPFLink* xc_startLink = nullptr;
+    u32 x10_flags = 0;
+    float x14_height = 0.f;
+    zeus::CVector3f x18_normal;
+    u32 x24_regionIdx = 0;
+    zeus::CVector3f x28_centroid;
+    zeus::CAABox x34_aabb;
+    CPFRegionData* x4c_regionData;
 public:
     CPFRegion() = default;
-    void SetData(CPFRegionData*) {}
-    CPFRegionData* Data() const;
+    CPFRegion(CMemoryInStream& in);
+    void SetData(CPFRegionData* data) { x4c_regionData = data; }
+    CPFRegionData* Data() const { return x4c_regionData; }
     void GetIndex() const;
-    float GetHeight() const;
-    void GetPathLink() const;
-    void GetNumLinks() const;
-    void GetFlags() const;
-    void GetLink(s32) const;
+    float GetHeight() const { return x14_height; }
+    void GetPathLink() const {}
+    u32 GetNumLinks() const { return x8_numLinks; }
+    u32 GetFlags() const { return x10_flags; }
+    const CPFLink* GetLink(u32 i) const { return xc_startLink + i; }
     void SetCentroid(const zeus::CVector3f&);
-    zeus::CVector3f GetCentroid() const;
-    void Fixup(CPFArea&, s32&);
+    const zeus::CVector3f& GetCentroid() const { return x28_centroid; }
+    void Fixup(CPFArea& area, u32& maxRegionNodes);
     bool IsPointInside(const zeus::CVector3f&);
-    zeus::CVector3f GetNormal();
-    s32 GetNumNodes() const;
-    void GetNode(s32) const;
+    const zeus::CVector3f& GetNormal() const { return x18_normal; }
+    u32 GetNumNodes() const { return x0_numNodes; }
+    const CPFNode* GetNode(u32 i) const { return x4_startNode + i; }
     void PointHeight(const zeus::CVector3f&);
-    void FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&, const zeus::CVector3f&,
-                                   bool);
+    void FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&,
+                                   const zeus::CVector3f&, bool);
     void FindBestPoint(std::vector<zeus::CVector3f>&, const zeus::CVector3f&, u32, float);
     void SetLinkTo(s32);
     void DropToGround(zeus::CVector3f&) const;
@@ -64,10 +90,10 @@ class CPFRegionData
 
 public:
     CPFRegionData() = default;
-    void SetOpenLess(CPFRegion*);
-    void SetOpenMore(CPFRegion*);
-    CPFRegion* GetOpenLess();
-    CPFRegion* GetOpenMore();
+    void SetOpenLess(CPFRegion* r) { x24_openLess = r; }
+    void SetOpenMore(CPFRegion* r) { x28_openMore = r; }
+    CPFRegion* GetOpenLess() const { return x24_openLess; }
+    CPFRegion* GetOpenMore() const { return x28_openMore; }
     void GetCost();
     void GetPathLink() const;
     void GetParent() const;
