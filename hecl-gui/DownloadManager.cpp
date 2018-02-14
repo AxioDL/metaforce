@@ -1,8 +1,10 @@
 #include "DownloadManager.hpp"
 #include "Common.hpp"
-#include <QBuffer>
 #include <quazip.h>
 
+#define KEY_PINNING 0
+
+#if KEY_PINNING
 static const char AxioDLPublicKeyPEM[] =
 "-----BEGIN PUBLIC KEY-----\n"
 "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvtshImzoP1a++9P5RK0k\n"
@@ -25,9 +27,11 @@ static const char AxioDLEdgePublicKeyPEM[] =
 
 static const QSslKey AxioDLEdgePublicKey =
     QSslKey({AxioDLEdgePublicKeyPEM}, QSsl::Ec, QSsl::Pem, QSsl::PublicKey);
+#endif
 
 void DownloadManager::_validateCert(QNetworkReply* reply)
 {
+#if KEY_PINNING
     QSslCertificate peerCert = reply->sslConfiguration().peerCertificate();
     QSslKey peerKey = peerCert.publicKey();
     if (peerKey != AxioDLPublicKey && peerKey != AxioDLEdgePublicKey)
@@ -41,6 +45,7 @@ void DownloadManager::_validateCert(QNetworkReply* reply)
                      QStringLiteral("Certificate pinning mismatch"));
         reply->abort();
     }
+#endif
 }
 
 static const QString Domain = QStringLiteral("https://releases.axiodl.com/");
