@@ -22,8 +22,8 @@ struct PATH : BigDNA
     struct Link : BigDNA
     {
         DECL_DNA
-        Value<atUint32> regionIdx;
         Value<atUint32> nodeIdx;
+        Value<atUint32> regionIdx;
         Value<float> width2d;
         Value<float> oneOverWidth2d;
     };

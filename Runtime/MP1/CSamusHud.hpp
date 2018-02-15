@@ -194,8 +194,8 @@ class CSamusHud
     CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic = { EFilterType::NoColor };
 
     static CSamusHud* g_SamusHud;
-    static rstl::prereserved_vector<bool, 4> BuildPlayerHasVisors(const CStateManager& mgr);
-    static rstl::prereserved_vector<bool, 4> BuildPlayerHasBeams(const CStateManager& mgr);
+    static rstl::reserved_vector<bool, 4> BuildPlayerHasVisors(const CStateManager& mgr);
+    static rstl::reserved_vector<bool, 4> BuildPlayerHasBeams(const CStateManager& mgr);
     void InitializeFrameGluePermanent(const CStateManager& mgr);
     void InitializeFrameGlueMutable(const CStateManager& mgr);
     void UninitializeFrameGlueMutable();

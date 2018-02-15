@@ -25,16 +25,16 @@ public:
 class CPFAreaOctree
 {
     u32 x0_isLeaf;
-    zeus::CVector3f x4_points[3];
+    zeus::CAABox x4_aabb;
+    zeus::CVector3f x1c_center;
     CPFAreaOctree* x28_children[8];
-    u32 x48_regionCount;
-    CPFRegion** x4c_regions;
+    rstl::prereserved_vector<CPFRegion*> x48_regions;
 public:
     CPFAreaOctree(CMemoryInStream& in);
     void Fixup(CPFArea& area);
-    void GetChildIndex(const zeus::CVector3f&) const;
+    int GetChildIndex(const zeus::CVector3f& point) const;
     void GetRegionList(const zeus::CVector3f&) const;
-    //void GetRegionListList(rstl::reserved_vector<rstl::prereserved_vector<CPFRegion>, 32>, const zeus::CVector3f&, float);
+    void GetRegionListList(rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32>, const zeus::CVector3f&, float);
     bool IsPointInPaddedAABox(const zeus::CVector3f&, float);
     void Render();
 };
@@ -102,13 +102,16 @@ class CPFArea
     CPFOpenList x78_;
     u32 x138_;
     //std::unique_ptr<u8[]> x13c_data;
+    /* Used to be prereserved_vectors backed by x13c_data
+     * This has been changed to meet storage requirements of
+     * modern systems */
     std::vector<CPFNode> x140_nodes; // x140: count, x144: ptr
     std::vector<CPFLink> x148_links; // x148: count, x14c: ptr
     std::vector<CPFRegion> x150_regions; // x150: count, x154: ptr
     std::vector<CPFAreaOctree> x158_octree; // x158: count, x15c: ptr
     std::vector<CPFRegion*> x160_octreeRegionLookup; // x160: count, x164: ptr
-    std::vector<u32> x168_connectionsA; // x168: word_count, x16c: ptr
-    std::vector<u32> x170_connectionsB; // x170: word_count, x174: ptr
+    std::vector<u32> x168_connectionsGround; // x168: word_count, x16c: ptr
+    std::vector<u32> x170_connectionsFlyers; // x170: word_count, x174: ptr
     std::vector<CPFRegionData> x178_regionDatas;
     zeus::CTransform x188_transform;
 public:
@@ -129,6 +132,7 @@ public:
     void FindRegions(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32);
     void FindClosestRegion(const zeus::CVector3f&, u32, float);
     void FindClosestReachablePoint(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32);
+    bool PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) const;
 };
 
 

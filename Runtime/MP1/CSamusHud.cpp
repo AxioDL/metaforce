@@ -51,12 +51,12 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
     x274_loadedFrmeBaseHud->SetMaxAspect(1.78f);
     x2a0_helmetIntf = std::make_unique<CHudHelmetInterface>(*x264_loadedFrmeHelmet);
 
-    rstl::prereserved_vector<bool, 4> hasVisors = BuildPlayerHasVisors(stateMgr);
+    rstl::reserved_vector<bool, 4> hasVisors = BuildPlayerHasVisors(stateMgr);
     x2a4_visorMenu = std::make_unique<CHudVisorBeamMenu>(*x274_loadedFrmeBaseHud,
                                                          CHudVisorBeamMenu::EHudVisorBeamMenu::Visor,
                                                          hasVisors);
 
-    rstl::prereserved_vector<bool, 4> hasBeams = BuildPlayerHasBeams(stateMgr);
+    rstl::reserved_vector<bool, 4> hasBeams = BuildPlayerHasBeams(stateMgr);
     x2a8_beamMenu = std::make_unique<CHudVisorBeamMenu>(*x274_loadedFrmeBaseHud,
                                                         CHudVisorBeamMenu::EHudVisorBeamMenu::Beam,
                                                         hasBeams);
@@ -76,23 +76,23 @@ CSamusHud::~CSamusHud()
     g_SamusHud = nullptr;
 }
 
-rstl::prereserved_vector<bool, 4> CSamusHud::BuildPlayerHasVisors(const CStateManager& mgr)
+rstl::reserved_vector<bool, 4> CSamusHud::BuildPlayerHasVisors(const CStateManager& mgr)
 {
-    rstl::prereserved_vector<bool, 4> ret;
-    ret[0] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::CombatVisor);
-    ret[1] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::XRayVisor);
-    ret[2] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::ScanVisor);
-    ret[3] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::ThermalVisor);
+    rstl::reserved_vector<bool, 4> ret;
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::CombatVisor));
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::XRayVisor));
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::ScanVisor));
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::ThermalVisor));
     return ret;
 }
 
-rstl::prereserved_vector<bool, 4> CSamusHud::BuildPlayerHasBeams(const CStateManager& mgr)
+rstl::reserved_vector<bool, 4> CSamusHud::BuildPlayerHasBeams(const CStateManager& mgr)
 {
-    rstl::prereserved_vector<bool, 4> ret;
-    ret[0] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PowerBeam);
-    ret[1] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::IceBeam);
-    ret[2] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::WaveBeam);
-    ret[3] = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PlasmaBeam);
+    rstl::reserved_vector<bool, 4> ret;
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PowerBeam));
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::IceBeam));
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::WaveBeam));
+    ret.push_back(mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PlasmaBeam));
     return ret;
 }
 

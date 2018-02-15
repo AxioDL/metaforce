@@ -52,7 +52,7 @@ static const u16 SelectionSfxs[] =
 };
 
 CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
-                                     const rstl::prereserved_vector<bool, 4>& enables)
+                                     const rstl::reserved_vector<bool, 4>& enables)
 : x0_baseHud(baseHud), x4_type(type)
 {
     x14_24_visibleDebug = true;
@@ -300,7 +300,7 @@ void CHudVisorBeamMenu::SetIsVisibleGame(bool v)
         Update(0.f, true);
 }
 
-void CHudVisorBeamMenu::SetPlayerHas(const rstl::prereserved_vector<bool, 4>& enables)
+void CHudVisorBeamMenu::SetPlayerHas(const rstl::reserved_vector<bool, 4>& enables)
 {
     for (int i=0 ; i<4 ; ++i)
     {

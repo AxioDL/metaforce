@@ -21,37 +21,17 @@ using optional_object = std::experimental::optional<T>;
 /**
  * @brief Base vector backed by statically-allocated array
  */
-template <class T, size_t N>
+template <class T>
 class _reserved_vector_base
 {
-protected:
-    union alignas(T) storage_t
-    {
-        struct {} _dummy;
-        T _value;
-        storage_t() : _dummy() {}
-        ~storage_t() {}
-    };
-    explicit _reserved_vector_base(size_t _init_sz) : x0_size(_init_sz) {}
-    size_t x0_size;
-    storage_t x4_data[N];
-    T& _value(std::ptrdiff_t idx) { return x4_data[idx]._value; }
-    const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]._value; }
-    template <typename Tp>
-    static void destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value &&
-        !std::is_trivially_destructible<Tp>::value>* = 0) { t.Tp::~Tp(); }
-    template <typename Tp>
-    static void destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value ||
-        std::is_trivially_destructible<Tp>::value>* = 0) {}
-
 public:
     class const_iterator
     {
         friend class _reserved_vector_base;
     protected:
         const T* m_val;
-        explicit const_iterator(const T* val) : m_val(val) {}
     public:
+        explicit const_iterator(const T* val) : m_val(val) {}
         using value_type = T;
         using difference_type = std::ptrdiff_t;
         using pointer = T*;
@@ -81,8 +61,8 @@ public:
     class iterator : public const_iterator
     {
         friend class _reserved_vector_base;
-        explicit iterator(T* val) : const_iterator(val) {}
     public:
+        explicit iterator(T* val) : const_iterator(val) {}
         T& operator*() const { return *const_cast<T*>(const_iterator::m_val); }
         T* operator->() const { return const_cast<T*>(const_iterator::m_val); }
         iterator& operator++() { ++const_iterator::m_val; return *this; }
@@ -102,8 +82,8 @@ public:
         friend class _reserved_vector_base;
     protected:
         const T* m_val;
-        explicit const_reverse_iterator(const T* val) : m_val(val) {}
     public:
+        explicit const_reverse_iterator(const T* val) : m_val(val) {}
         using value_type = T;
         using difference_type = std::ptrdiff_t;
         using pointer = T*;
@@ -133,8 +113,8 @@ public:
     class reverse_iterator : public const_reverse_iterator
     {
         friend class _reserved_vector_base;
-        explicit reverse_iterator(T* val) : const_reverse_iterator(val) {}
     public:
+        explicit reverse_iterator(T* val) : const_reverse_iterator(val) {}
         T& operator*() const { return *const_cast<T*>(const_reverse_iterator::m_val); }
         T* operator->() const { return const_cast<T*>(const_reverse_iterator::m_val); }
         reverse_iterator& operator++() { --const_reverse_iterator::m_val; return *this; }
@@ -150,6 +130,265 @@ public:
         std::ptrdiff_t operator-(const reverse_iterator& it) const { return it.m_val - const_reverse_iterator::m_val; }
         T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_reverse_iterator::m_val)[-i]; }
     };
+
+protected:
+    static iterator _const_cast_iterator(const const_iterator& it) { return iterator(const_cast<T*>(it.m_val)); }
+};
+
+/**
+ * @brief Vector backed by statically-allocated array with uninitialized storage
+ */
+template <class T, size_t N>
+class reserved_vector : public _reserved_vector_base<T>
+{
+    union alignas(T) storage_t
+    {
+        struct {} _dummy;
+        T _value;
+        storage_t() : _dummy() {}
+        ~storage_t() {}
+    };
+    size_t x0_size;
+    storage_t x4_data[N];
+    T& _value(std::ptrdiff_t idx) { return x4_data[idx]._value; }
+    const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]._value; }
+    template <typename Tp>
+    static void destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value &&
+                                                !std::is_trivially_destructible<Tp>::value>* = 0) { t.Tp::~Tp(); }
+    template <typename Tp>
+    static void destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value ||
+                                                std::is_trivially_destructible<Tp>::value>* = 0) {}
+
+public:
+    using base = _reserved_vector_base<T>;
+    using iterator = typename base::iterator;
+    using const_iterator = typename base::const_iterator;
+    using reverse_iterator = typename base::reverse_iterator;
+    using const_reverse_iterator = typename base::const_reverse_iterator;
+    reserved_vector() : x0_size(0) {}
+
+    reserved_vector(const reserved_vector& other) : x0_size(other.x0_size)
+    {
+        for (size_t i=0 ; i<x0_size ; ++i)
+            ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+    }
+
+    reserved_vector& operator=(const reserved_vector& other)
+    {
+        size_t i = 0;
+        if (other.x0_size > x0_size)
+        {
+            for (; i<x0_size ; ++i)
+                _value(i) = other._value(i);
+            for (; i<other.x0_size ; ++i)
+                ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+        }
+        else if (other.x0_size < x0_size)
+        {
+            for (; i<other.x0_size ; ++i)
+                _value(i) = other._value(i);
+            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+                for (; i<x0_size ; ++i)
+                    destroy(_value(i));
+        }
+        else
+        {
+            for (; i<other.x0_size ; ++i)
+                _value(i) = other._value(i);
+        }
+        x0_size = other.x0_size;
+        return *this;
+    }
+
+    reserved_vector(reserved_vector&& other) : x0_size(other.x0_size)
+    {
+        for (size_t i=0 ; i<x0_size ; ++i)
+            ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
+    }
+
+    reserved_vector& operator=(reserved_vector&& other)
+    {
+        size_t i = 0;
+        if (other.x0_size > x0_size)
+        {
+            for (; i<x0_size ; ++i)
+                _value(i) = std::forward<T>(other._value(i));
+            for (; i<other.x0_size ; ++i)
+                ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
+        }
+        else if (other.x0_size < x0_size)
+        {
+            for (; i<other.x0_size ; ++i)
+                _value(i) = std::forward<T>(other._value(i));
+            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+                for (; i<x0_size ; ++i)
+                    destroy(_value(i));
+        }
+        else
+        {
+            for (; i<other.x0_size ; ++i)
+                _value(i) = std::forward<T>(other._value(i));
+        }
+        x0_size = other.x0_size;
+        return *this;
+    }
+
+    ~reserved_vector()
+    {
+        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+            for (size_t i=0 ; i<x0_size ; ++i)
+                destroy(_value(i));
+    }
+
+    void push_back(const T& d)
+    {
+#ifndef NDEBUG
+        if (x0_size == N)
+            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
+#endif
+        ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(d);
+        ++x0_size;
+    }
+
+    void push_back(T&& d)
+    {
+#ifndef NDEBUG
+        if (x0_size == N)
+            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
+#endif
+        ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(d));
+        ++x0_size;
+    }
+
+    template<class... _Args>
+    void emplace_back(_Args&&... args)
+    {
+#ifndef NDEBUG
+        if (x0_size == N)
+            Log.report(logvisor::Fatal, "emplace_back() called on full rstl::reserved_vector.");
+#endif
+        ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<_Args>(args)...);
+        ++x0_size;
+    }
+
+    void pop_back()
+    {
+#ifndef NDEBUG
+        if (x0_size == 0)
+            Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
+#endif
+        --x0_size;
+        destroy(_value(x0_size));
+    }
+
+    iterator insert(const_iterator pos, const T& value)
+    {
+#ifndef NDEBUG
+        if (x0_size == N)
+            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+#endif
+        auto target_it = base::_const_cast_iterator(pos);
+        if (pos == cend())
+        {
+            ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(value);
+        }
+        else
+        {
+            ::new (static_cast<void*>(std::addressof(_value(x0_size))))
+                T(std::forward<T>(_value(x0_size - 1)));
+            for (auto it = end() - 1; it != target_it; --it)
+                *it = std::forward<T>(*(it - 1));
+            *target_it = value;
+        }
+        ++x0_size;
+        return target_it;
+    }
+
+    iterator insert(const_iterator pos, T&& value)
+    {
+#ifndef NDEBUG
+        if (x0_size == N)
+            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+#endif
+        auto target_it = base::_const_cast_iterator(pos);
+        if (pos == cend())
+        {
+            ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(value));
+        }
+        else
+        {
+            ::new (static_cast<void*>(std::addressof(_value(x0_size))))
+                T(std::forward<T>(_value(x0_size - 1)));
+            for (auto it = end() - 1; it != target_it; --it)
+                *it = std::forward<T>(*(it - 1));
+            *target_it = std::forward<T>(value);
+        }
+        ++x0_size;
+        return target_it;
+    }
+
+    void resize(size_t size)
+    {
+#ifndef NDEBUG
+        if (size > N)
+            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
+#endif
+        if (size > x0_size)
+        {
+            for (size_t i = x0_size; i < size; ++i)
+                ::new (static_cast<void*>(std::addressof(_value(i)))) T();
+            x0_size = size;
+        }
+        else if (size < x0_size)
+        {
+            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+                for (size_t i = size; i < x0_size; ++i)
+                    destroy(_value(i));
+            x0_size = size;
+        }
+    }
+
+    void resize(size_t size, const T& value)
+    {
+#ifndef NDEBUG
+        if (size > N)
+            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
+#endif
+        if (size > x0_size)
+        {
+            for (size_t i = x0_size; i < size; ++i)
+                ::new (static_cast<void*>(std::addressof(_value(i)))) T(value);
+            x0_size = size;
+        }
+        else if (size < x0_size)
+        {
+            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+                for (size_t i = size; i < x0_size; ++i)
+                    destroy(_value(i));
+            x0_size = size;
+        }
+    }
+
+    iterator erase(const_iterator pos)
+    {
+#ifndef NDEBUG
+        if (x0_size == 0)
+            Log.report(logvisor::Fatal, "erase() called on empty rstl::reserved_vector.");
+#endif
+        for (auto it = base::_const_cast_iterator(pos) + 1; it != end(); ++it)
+            *(it - 1) = std::forward<T>(*it);
+        --x0_size;
+        destroy(_value(x0_size));
+        return base::_const_cast_iterator(pos);
+    }
+
+    void clear()
+    {
+        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+            for (auto it = begin(); it != end(); ++it)
+                destroy(*it);
+        x0_size = 0;
+    }
 
     size_t size() const noexcept { return x0_size; }
     bool empty() const noexcept { return x0_size == 0; }
@@ -179,430 +418,58 @@ public:
 
     T& operator[](size_t idx) { return _value(idx); }
     const T& operator[](size_t idx) const { return _value(idx); }
-
-protected:
-    static iterator _const_cast_iterator(const const_iterator& it) { return iterator(const_cast<T*>(it.m_val)); }
 };
 
 /**
- * @brief Vector backed by statically-allocated array with uninitialized storage
+ * @brief Vector-style view backed by externally-allocated storage
  */
-template <class T, size_t N>
-class reserved_vector : public _reserved_vector_base<T, N>
+template <class T>
+class prereserved_vector : public _reserved_vector_base<T>
 {
+    size_t x0_size;
+    T* x4_data;
+    T& _value(std::ptrdiff_t idx) { return x4_data[idx]; }
+    const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]; }
+
 public:
-    using base = _reserved_vector_base<T, N>;
+    using base = _reserved_vector_base<T>;
     using iterator = typename base::iterator;
     using const_iterator = typename base::const_iterator;
-    reserved_vector() : base(0) {}
+    using reverse_iterator = typename base::reverse_iterator;
+    using const_reverse_iterator = typename base::const_reverse_iterator;
+    prereserved_vector() : x0_size(0), x4_data(nullptr) {}
+    prereserved_vector(size_t size, T* data) : x0_size(size), x4_data(data) {}
 
-    reserved_vector(const reserved_vector& other) : base(other.x0_size)
-    {
-        for (size_t i=0 ; i<base::x0_size ; ++i)
-            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(other.base::_value(i));
-    }
+    void set_size(size_t n) { x0_size = n; }
+    void set_data(T* data) { x4_data = data; }
 
-    reserved_vector& operator=(const reserved_vector& other)
-    {
-        size_t i = 0;
-        if (other.base::x0_size > base::x0_size)
-        {
-            for (; i<base::x0_size ; ++i)
-                base::_value(i) = other.base::_value(i);
-            for (; i<other.base::x0_size ; ++i)
-                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(other.base::_value(i));
-        }
-        else if (other.base::x0_size < base::x0_size)
-        {
-            for (; i<other.base::x0_size ; ++i)
-                base::_value(i) = other.base::_value(i);
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (; i<base::x0_size ; ++i)
-                    base::destroy(base::_value(i));
-        }
-        else
-        {
-            for (; i<other.base::x0_size ; ++i)
-                base::_value(i) = other.base::_value(i);
-        }
-        base::x0_size = other.base::x0_size;
-        return *this;
-    }
+    size_t size() const noexcept { return x0_size; }
+    bool empty() const noexcept { return x0_size == 0; }
+    const T* data() const noexcept { return x4_data; }
+    T* data() noexcept { return x4_data; }
 
-    reserved_vector(reserved_vector&& other) : base(other.x0_size)
-    {
-        for (size_t i=0 ; i<base::x0_size ; ++i)
-            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(std::forward<T>(other.base::_value(i)));
-    }
+    T& back() { return _value(x0_size - 1); }
+    T& front() { return _value(0); }
+    const T& back() const { return _value(x0_size - 1); }
+    const T& front() const { return _value(0); }
 
-    reserved_vector& operator=(reserved_vector&& other)
-    {
-        size_t i = 0;
-        if (other.base::x0_size > base::x0_size)
-        {
-            for (; i<base::x0_size ; ++i)
-                base::_value(i) = std::forward<T>(other.base::_value(i));
-            for (; i<other.base::x0_size ; ++i)
-                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(std::forward<T>(other.base::_value(i)));
-        }
-        else if (other.base::x0_size < base::x0_size)
-        {
-            for (; i<other.base::x0_size ; ++i)
-                base::_value(i) = std::forward<T>(other.base::_value(i));
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (; i<base::x0_size ; ++i)
-                    base::destroy(base::_value(i));
-        }
-        else
-        {
-            for (; i<other.base::x0_size ; ++i)
-                base::_value(i) = std::forward<T>(other.base::_value(i));
-        }
-        base::x0_size = other.base::x0_size;
-        return *this;
-    }
+    const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
+    const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
+    iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
+    iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
+    const_iterator cbegin() const noexcept { return begin(); }
+    const_iterator cend() const noexcept { return end(); }
 
-    ~reserved_vector()
-    {
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            for (size_t i=0 ; i<base::x0_size ; ++i)
-                base::destroy(base::_value(i));
-    }
+    const_reverse_iterator rbegin() const noexcept
+    { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
+    reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
+    reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
+    const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+    const_reverse_iterator crend() const noexcept { return rend(); }
 
-    void push_back(const T& d)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
-#endif
-        ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(d);
-        ++base::x0_size;
-    }
-
-    void push_back(T&& d)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
-#endif
-        ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<T>(d));
-        ++base::x0_size;
-    }
-
-    template<class... _Args>
-    void emplace_back(_Args&&... args)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "emplace_back() called on full rstl::reserved_vector.");
-#endif
-        ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<_Args>(args)...);
-        ++base::x0_size;
-    }
-
-    void pop_back()
-    {
-#ifndef NDEBUG
-        if (base::x0_size == 0)
-            Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
-#endif
-        --base::x0_size;
-        base::destroy(base::_value(base::x0_size));
-    }
-
-    iterator insert(const_iterator pos, const T& value)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
-#endif
-        auto target_it = base::_const_cast_iterator(pos);
-        if (pos == base::cend())
-        {
-            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(value);
-        }
-        else
-        {
-            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size))))
-                T(std::forward<T>(base::_value(base::x0_size - 1)));
-            for (auto it = base::end() - 1; it != target_it; --it)
-                *it = std::forward<T>(*(it - 1));
-            *target_it = value;
-        }
-        ++base::x0_size;
-        return target_it;
-    }
-
-    iterator insert(const_iterator pos, T&& value)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
-#endif
-        auto target_it = base::_const_cast_iterator(pos);
-        if (pos == base::cend())
-        {
-            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size)))) T(std::forward<T>(value));
-        }
-        else
-        {
-            ::new (static_cast<void*>(std::addressof(base::_value(base::x0_size))))
-                T(std::forward<T>(base::_value(base::x0_size - 1)));
-            for (auto it = base::end() - 1; it != target_it; --it)
-                *it = std::forward<T>(*(it - 1));
-            *target_it = std::forward<T>(value);
-        }
-        ++base::x0_size;
-        return target_it;
-    }
-
-    void resize(size_t size)
-    {
-#ifndef NDEBUG
-        if (size > N)
-            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
-#endif
-        if (size > base::x0_size)
-        {
-            for (size_t i = base::x0_size; i < size; ++i)
-                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T();
-            base::x0_size = size;
-        }
-        else if (size < base::x0_size)
-        {
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (size_t i = size; i < base::x0_size; ++i)
-                    base::destroy(base::_value(i));
-            base::x0_size = size;
-        }
-    }
-
-    void resize(size_t size, const T& value)
-    {
-#ifndef NDEBUG
-        if (size > N)
-            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
-#endif
-        if (size > base::x0_size)
-        {
-            for (size_t i = base::x0_size; i < size; ++i)
-                ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(value);
-            base::x0_size = size;
-        }
-        else if (size < base::x0_size)
-        {
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (size_t i = size; i < base::x0_size; ++i)
-                    base::destroy(base::_value(i));
-            base::x0_size = size;
-        }
-    }
-
-    iterator erase(const_iterator pos)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == 0)
-            Log.report(logvisor::Fatal, "erase() called on empty rstl::reserved_vector.");
-#endif
-        for (auto it = base::_const_cast_iterator(pos) + 1; it != base::end(); ++it)
-            *(it - 1) = std::forward<T>(*it);
-        --base::x0_size;
-        base::destroy(base::_value(base::x0_size));
-        return base::_const_cast_iterator(pos);
-    }
-
-    void clear()
-    {
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            for (auto it = base::begin(); it != base::end(); ++it)
-                base::destroy(*it);
-        base::x0_size = 0;
-    }
-};
-
-/**
- * @brief Vector backed by statically-allocated array with default-initialized elements
- */
-template <class T, size_t N>
-class prereserved_vector : public _reserved_vector_base<T, N>
-{
-    void _init()
-    {
-        for (auto& i : base::x4_data)
-            ::new (static_cast<void*>(std::addressof(i._value))) T();
-    }
-    void _deinit()
-    {
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            for (auto& i : base::x4_data)
-                base::destroy(i._value);
-    }
-public:
-    using base = _reserved_vector_base<T, N>;
-    using iterator = typename base::iterator;
-    using const_iterator = typename base::const_iterator;
-    prereserved_vector() : base(1) { _init(); }
-
-    prereserved_vector(const prereserved_vector& other) : base(other.x0_size)
-    {
-        for (size_t i=0 ; i<N ; ++i)
-            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(other.base::_value(i));
-    }
-
-    prereserved_vector& operator=(const prereserved_vector& other)
-    {
-        for (size_t i=0 ; i<N ; ++i)
-            base::_value(i) = other.base::_value(i);
-        base::x0_size = other.base::x0_size;
-        return *this;
-    }
-
-    prereserved_vector(prereserved_vector&& other) : base(other.x0_size)
-    {
-        for (size_t i=0 ; i<N ; ++i)
-            ::new (static_cast<void*>(std::addressof(base::_value(i)))) T(std::forward<T>(other.base::_value(i)));
-    }
-
-    prereserved_vector& operator=(prereserved_vector&& other)
-    {
-        for (size_t i=0 ; i<N ; ++i)
-            base::_value(i) = std::forward<T>(other.base::_value(i));
-        base::x0_size = other.base::x0_size;
-        return *this;
-    }
-
-    ~prereserved_vector() { _deinit(); }
-
-    void set_size(size_t n)
-    {
-        if (n <= N)
-            base::x0_size = n;
-    }
-
-    void set_data(const T* data) { memmove(base::x4_data, data, sizeof(T) * base::x0_size); }
-
-    void push_back(const T& d)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "push_back() called on full rstl::prereserved_vector.");
-#endif
-        base::_value(base::x0_size) = d;
-        ++base::x0_size;
-    }
-
-    void push_back(T&& d)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "push_back() called on full rstl::prereserved_vector.");
-#endif
-        base::_value(base::x0_size) = std::forward<T>(d);
-        ++base::x0_size;
-    }
-
-    template<class... _Args>
-    void emplace_back(_Args&&... args)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "emplace_back() called on full rstl::prereserved_vector.");
-#endif
-        base::_value(base::x0_size) = T(std::forward<_Args>(args)...);
-        ++base::x0_size;
-    }
-
-    void pop_back()
-    {
-#ifndef NDEBUG
-        if (base::x0_size == 0)
-            Log.report(logvisor::Fatal, "pop_back() called on empty rstl::prereserved_vector.");
-#endif
-        --base::x0_size;
-    }
-
-    iterator insert(const_iterator pos, const T& value)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
-#endif
-        auto target_it = base::_const_cast_iterator(pos);
-        if (pos == base::cend())
-        {
-            *target_it = value;
-        }
-        else
-        {
-            for (auto it = base::end(); it != target_it; --it)
-                *it = std::forward<T>(*(it - 1));
-            *target_it = value;
-        }
-        ++base::x0_size;
-        return target_it;
-    }
-
-    iterator insert(const_iterator pos, T&& value)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == N)
-            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
-#endif
-        auto target_it = base::_const_cast_iterator(pos);
-        if (pos == base::cend())
-        {
-            *target_it = std::forward<T>(value);
-        }
-        else
-        {
-            for (auto it = base::end(); it != target_it; --it)
-                *it = std::forward<T>(*(it - 1));
-            *target_it = std::forward<T>(value);
-        }
-        ++base::x0_size;
-        return target_it;
-    }
-
-    void resize(size_t size)
-    {
-#ifndef NDEBUG
-        if (size > N)
-            Log.report(logvisor::Fatal, "resized() call overflows rstl::prereserved_vector.");
-#endif
-        base::x0_size = size;
-    }
-
-    void resize(size_t size, const T& value)
-    {
-#ifndef NDEBUG
-        if (size > N)
-            Log.report(logvisor::Fatal, "resized() call overflows rstl::prereserved_vector.");
-#endif
-        if (size > base::x0_size)
-        {
-            for (size_t i = base::x0_size; i < size; ++i)
-                base::_value(i) = T(value);
-            base::x0_size = size;
-        }
-        else if (size < base::x0_size)
-        {
-            base::x0_size = size;
-        }
-    }
-
-    iterator erase(const_iterator pos)
-    {
-#ifndef NDEBUG
-        if (base::x0_size == 0)
-            Log.report(logvisor::Fatal, "erase() called on empty rstl::prereserved_vector.");
-#endif
-        for (auto it = base::_const_cast_iterator(pos) + 1; it != base::end(); ++it)
-            *(it - 1) = std::forward<T>(*it);
-        --base::x0_size;
-        return base::_const_cast_iterator(pos);
-    }
-
-    void clear() { base::x0_size = 0; }
+    T& operator[](size_t idx) { return _value(idx); }
+    const T& operator[](size_t idx) const { return _value(idx); }
 };
 
 template<class ForwardIt, class T>
