@@ -63,7 +63,7 @@ CPlayerState::CPlayerState()
 : x188_staticIntf(5)
 {
     x0_24_alive = true;
-    x24_powerups.set_size(41);
+    x24_powerups.resize(41);
 }
 
 CPlayerState::CPlayerState(CBitStreamReader& stream)
@@ -74,7 +74,7 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
     xc_health.SetHP(*reinterpret_cast<float*>(&tmp));
     x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
     x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
-    x24_powerups.set_size(41);
+    x24_powerups.resize(41);
     for (u32 i = 0; i < x24_powerups.size(); ++i)
     {
         if (PowerUpMaxValues[i] == 0)

@@ -22,14 +22,14 @@ public:
 
 class CPFLink
 {
-    u32 x0_region;
-    u32 x4_node;
+    u32 x0_node;
+    u32 x4_region;
     float x8_2dWidth;
     float xc_oo2dWidth;
 public:
     CPFLink(CMemoryInStream& in);
-    u32 GetRegion() const { return x0_region; }
-    u32 GetNode() const { return x4_node; }
+    u32 GetNode() const { return x0_node; }
+    u32 GetRegion() const { return x4_region; }
     float Get2dWidth() const { return x8_2dWidth; }
     float GetOO2dWidth() const { return xc_oo2dWidth; }
 };
@@ -52,7 +52,7 @@ public:
     CPFRegion(CMemoryInStream& in);
     void SetData(CPFRegionData* data) { x4c_regionData = data; }
     CPFRegionData* Data() const { return x4c_regionData; }
-    void GetIndex() const;
+    u32 GetIndex() const { return x24_regionIdx; }
     float GetHeight() const { return x14_height; }
     void GetPathLink() const {}
     u32 GetNumLinks() const { return x8_numLinks; }
@@ -72,8 +72,8 @@ public:
     void SetLinkTo(s32);
     void DropToGround(zeus::CVector3f&) const;
     void GetLinkMidPoint(const CPFLink&);
-    void FitThroughLink2d(const zeus::CVector3f&, const CPFLink&, const zeus::CVector3f&, float) const;
-    void FitThroughLink3d(const zeus::CVector3f&, const CPFLink&, float, const zeus::CVector3f&, float, float) const;
+    zeus::CVector3f FitThroughLink2d(const zeus::CVector3f&, const CPFLink&, const zeus::CVector3f&, float) const;
+    zeus::CVector3f FitThroughLink3d(const zeus::CVector3f&, const CPFLink&, float, const zeus::CVector3f&, float, float) const;
     void IsPointInsidePaddedAABox(const zeus::CVector3f&, float) const;
 };
 
@@ -81,12 +81,12 @@ class CPFRegionData
 {
     float x0_ = 0.f;
     zeus::CVector3f x4_;
-    s32 x10_ = -1;
+    s32 x10_cookie = -1;
     zeus::CVector3f x14_;
     s32 x20_ = 0;
     CPFRegion* x24_openLess = nullptr;
     CPFRegion* x28_openMore = nullptr;
-    s32 x2c_ = 0;
+    s32 x2c_pathLink = 0;
 
 public:
     CPFRegionData() = default;
@@ -95,16 +95,16 @@ public:
     CPFRegion* GetOpenLess() const { return x24_openLess; }
     CPFRegion* GetOpenMore() const { return x28_openMore; }
     void GetCost();
-    void GetPathLink() const;
+    s32 GetPathLink() const { return x2c_pathLink; }
+    void SetPathLink(s32 l) { x2c_pathLink = l; }
     void GetParent() const;
     void Setup(CPFRegion*, float, float);
     void SetBestPoint(const zeus::CVector3f&);
     void SetBestPointDistanceSquared(float);
     float GetBestPointDistanceSquared() const;
-    void SetPathLink(s32);
-    void SetCookie(s32);
     zeus::CVector3f GetBestPoint() const;
-    void GetCookie() const;
+    void SetCookie(s32 c) { x10_cookie = c; }
+    s32 GetCookie() const { return x10_cookie; }
 };
 }
 

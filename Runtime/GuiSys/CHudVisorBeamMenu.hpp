@@ -59,11 +59,11 @@ private:
     void UpdateMenuWidgetTransform(int, CGuiWidget& w, float);
 public:
     CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
-                      const rstl::prereserved_vector<bool, 4>& enables);
+                      const rstl::reserved_vector<bool, 4>& enables);
     void Update(float dt, bool init);
     void UpdateHudAlpha(float alpha);
     void SetIsVisibleGame(bool v);
-    void SetPlayerHas(const rstl::prereserved_vector<bool, 4>& enables);
+    void SetPlayerHas(const rstl::reserved_vector<bool, 4>& enables);
     void SetSelection(int, int, float);
 
 };

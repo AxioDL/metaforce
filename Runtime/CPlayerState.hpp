@@ -122,7 +122,7 @@ private:
     EPlayerVisor x18_transitioningVisor = x14_currentVisor;
     float x1c_visorTransitionFactor = 0.2f;
     EPlayerSuit x20_currentSuit = EPlayerSuit::Power;
-    rstl::prereserved_vector<CPowerUp, 41> x24_powerups;
+    rstl::reserved_vector<CPowerUp, 41> x24_powerups;
     rstl::reserved_vector<std::pair<CAssetId, float>, 846> x170_scanTimes;
     std::pair<u32, u32> x180_scanCompletionRate = {};
     CStaticInterference x188_staticIntf;
