@@ -9,11 +9,11 @@ namespace DataSpec::DNAMP2
 
 struct CINF : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> boneCount;
     struct Bone : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> id;
         Value<atUint32> parentId;
         Value<atVec3f> origin;
@@ -30,7 +30,7 @@ struct CINF : BigDNA
     Value<atUint32> nameCount;
     struct Name : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         String<-1> name;
         Value<atUint32> boneId;
     };

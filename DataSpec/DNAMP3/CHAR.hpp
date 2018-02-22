@@ -13,25 +13,25 @@
 namespace DataSpec::DNAMP3
 {
 
-struct CHAR : BigYAML
+struct CHAR : BigDNA
 {
     using CINFType = CINF;
     using CSKRType = CSKR;
     using ANIMType = ANIM;
 
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint16> version;
 
-    struct CharacterInfo : BigYAML
+    struct CharacterInfo : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         String<-1> name;
         UniqueID64 cmdl;
         UniqueID64 cskr;
         Value<atUint32> overlayCount;
-        struct Overlay : BigYAML
+        struct Overlay : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             DNAFourCC type;
             UniqueID64 cmdl;
             UniqueID64 cskr;
@@ -43,9 +43,9 @@ struct CHAR : BigYAML
         using MP1CharacterInfo = DNAMP1::ANCS::CharacterSet::CharacterInfo;
         MP1CharacterInfo::PASDatabase pasDatabase;
 
-        struct ParticleResData : BigYAML
+        struct ParticleResData : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> partCount;
             Vector<UniqueID64, DNA_COUNT(partCount)> part;
             Value<atUint32> swhcCount;
@@ -62,19 +62,19 @@ struct CHAR : BigYAML
 
     } characterInfo;
 
-    struct AnimationInfo : BigYAML
+    struct AnimationInfo : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
 
-        struct EVNT : BigYAML
+        struct EVNT : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> eventIdx;
             String<-1> eventName;
 
-            struct EventBase : BigYAML
+            struct EventBase : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 String<-1> name1;
                 Value<atUint16> unk0;
                 String<-1> name2;
@@ -96,7 +96,7 @@ struct CHAR : BigYAML
 
             struct EffectEvent : EventBase
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 DNAFourCC effectType;
                 UniqueID64 effectId;
                 Value<float> scale;
@@ -107,7 +107,7 @@ struct CHAR : BigYAML
 
             struct SFXEvent : EventBase
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Delete expl;
 
                 UniqueID64 caudId;
@@ -124,10 +124,9 @@ struct CHAR : BigYAML
         Value<atUint32> evntCount;
         Vector<EVNT, DNA_COUNT(evntCount)> evnts;
 
-        struct IMetaAnim : BigYAML
+        struct IMetaAnim : BigDNAVYaml
         {
             Delete expl;
-            virtual ~IMetaAnim() {}
             enum class Type
             {
                 Primitive = 0,
@@ -141,16 +140,17 @@ struct CHAR : BigYAML
             : m_type(type), m_typeStr(typeStr) {}
             virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out)=0;
         };
-        struct MetaAnimFactory : BigYAML
+        struct MetaAnimFactory : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Delete expl;
             std::unique_ptr<IMetaAnim> m_anim;
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
             MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             UniqueID64 animId;
             Value<atUint32> animIdx;
             String<-1> animName;
@@ -165,7 +165,8 @@ struct CHAR : BigYAML
         struct MetaAnimBlend : IMetaAnim
         {
             MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             MetaAnimFactory animA;
             MetaAnimFactory animB;
             Value<float> unkFloat;
@@ -180,7 +181,8 @@ struct CHAR : BigYAML
         struct MetaAnimPhaseBlend : IMetaAnim
         {
             MetaAnimPhaseBlend() : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             MetaAnimFactory animA;
             MetaAnimFactory animB;
             Value<float> unkFloat;
@@ -195,11 +197,12 @@ struct CHAR : BigYAML
         struct MetaAnimRandom : IMetaAnim
         {
             MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             Value<atUint32> animCount;
-            struct Child : BigYAML
+            struct Child : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 MetaAnimFactory anim;
                 Value<atUint32> probability;
             };
@@ -214,7 +217,8 @@ struct CHAR : BigYAML
         struct MetaAnimSequence : IMetaAnim
         {
             MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
 
@@ -225,18 +229,18 @@ struct CHAR : BigYAML
             }
         };
 
-        struct Animation : BigYAML
+        struct Animation : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             MetaAnimFactory metaAnim;
         };
         Value<atUint32> animationCount;
         Vector<Animation, DNA_COUNT(animationCount)> animations;
 
-        struct ActionAABB : BigYAML
+        struct ActionAABB : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             UniqueID64 animId;
             Value<atVec3f> aabb[2];
         };
@@ -250,14 +254,14 @@ struct CHAR : BigYAML
 
     } animationInfo;
 
-    struct HitboxSet : BigYAML
+    struct HitboxSet : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         String<-1> name;
         Value<atUint32> hitboxCount;
-        struct Hitbox : BigYAML
+        struct Hitbox : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> unk1;
             Value<atUint32> unk2;
             Value<atUint32> unk3;
@@ -327,7 +331,7 @@ struct CHAR : BigYAML
             if (force || yamlType == hecl::ProjectPath::Type::None)
             {
                 athena::io::FileWriter writer(yamlPath.getAbsolutePath());
-                aChar.toYAMLStream(writer);
+                athena::io::ToYAMLStream(aChar, writer);
             }
 
             if (force || blendType == hecl::ProjectPath::Type::None)

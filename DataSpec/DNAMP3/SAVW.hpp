@@ -6,28 +6,28 @@
 
 namespace DataSpec::DNAMP3
 {
-struct Scan : BigYAML
+struct Scan : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     UniqueID64 scanId;
     Value<SAVWCommon::EScanCategory> category;
 };
 
-struct SavedState : BigYAML
+struct SavedState : BigDNA
 {
-    DECL_YAML
-    struct ID : BigYAML
+    AT_DECL_DNA_YAML
+    struct ID : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint64> id[2];
     };
     ID id;
     Value<atUint32> instance;
 };
 
-struct SAVW : BigYAML
+struct SAVW : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     SAVWCommon::Header header;
     Value<atUint32> skippableCutsceneCount;
     Vector<SavedState, DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;

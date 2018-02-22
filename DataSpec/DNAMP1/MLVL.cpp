@@ -55,7 +55,7 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     }
 
     athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
-    mlvl.toYAMLStream(writer, static_cast<YAMLWriteMemberFn>(&MLVL::writeMeta));
+    athena::io::ToYAMLStream(mlvl, writer, &MLVL::writeMeta);
     hecl::blender::Connection& conn = btok.getBlenderConnection();
     return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
 }
@@ -65,7 +65,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 {
     MLVL mlvl = {};
     athena::io::FileReader reader(inPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
-    mlvl.fromYAMLStream(reader, static_cast<YAMLReadMemberFn>(&MLVL::readMeta));
+    athena::io::FromYAMLStream(mlvl, reader, &MLVL::readMeta);
 
     mlvl.magic = 0xDEAFBABE;
     mlvl.version = 0x11;
@@ -129,7 +129,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 athena::io::FileReader freader(objectsPath.getAbsolutePath());
                 if (!freader.isOpen())
                     continue;
-                if (!BigYAML::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
+                if (!athena::io::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
                     continue;
 
                 athena::io::YAMLDocReader reader;
@@ -432,7 +432,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath,
                 athena::io::FileReader freader(objectsPath.getAbsolutePath());
                 if (!freader.isOpen())
                     continue;
-                if (!BigYAML::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
+                if (!athena::io::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
                     continue;
 
                 athena::io::YAMLDocReader reader;

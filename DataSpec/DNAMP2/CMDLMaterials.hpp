@@ -14,12 +14,12 @@ struct MaterialSet : BigDNA
 {
     static constexpr bool OneSection() {return false;}
 
-    DECL_DNA
+    AT_DECL_DNA
     DNAMP1::MaterialSet::MaterialSetHead head;
 
     struct Material : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         using Flags = DNAMP1::MaterialSet::Material::Flags;
         Flags flags;
         const Flags& getFlags() const {return flags;}

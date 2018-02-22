@@ -7,19 +7,19 @@ namespace DataSpec::DNAMAPU
 {
 struct MAPU : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<uint32_t> magic;
     Value<uint32_t> version;
     UniqueID32 hexMapa;
     Value<uint32_t> worldCount;
     struct Transform : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atVec4f> xf[3];
     };
     struct World : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         String<-1> name;
         UniqueID32 mlvl;
         Transform transform;

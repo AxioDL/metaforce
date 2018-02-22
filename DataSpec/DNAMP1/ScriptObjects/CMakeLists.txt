@@ -134,7 +134,11 @@ set(ScriptObjectsMP1_SOURCES
     Parameters.cpp
     Actor.cpp
     Platform.cpp
-    DoorArea.cpp)
+    DoorArea.cpp
+    Oculus.cpp
+    Ridley.cpp
+    Water.cpp
+    WorldTeleporter.cpp)
 
 dataspec_add_list(DNAMP1/ScriptObjects ScriptObjectsMP1_SOURCES)
 list(APPEND ScriptObjectsMP1_SOURCES ${liblist})

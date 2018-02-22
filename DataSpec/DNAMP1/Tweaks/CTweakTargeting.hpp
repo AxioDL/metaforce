@@ -7,7 +7,7 @@ namespace DataSpec::DNAMP1
 {
 struct CTweakTargeting final : public ITweakTargeting
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> x4_targetRadiusMode;
     Value<float> x8_currLockOnExitDuration;
     Value<float> xc_currLockOnEnterDuration;
@@ -58,9 +58,9 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> xf0_outerBeamSquaresScale;
     DNAColor xf4_outerBeamSquareColor;
     Value<atUint32> xf8_outerBeamSquareAngleCount;
-    struct UnkVec : BigYAML
+    struct UnkVec : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<atUint32> count;
         Vector<float, DNA_COUNT(count)> floats;
     };

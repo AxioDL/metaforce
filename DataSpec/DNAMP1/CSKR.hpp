@@ -9,15 +9,15 @@ namespace DataSpec::DNAMP1
 
 struct CSKR : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> skinningRuleCount;
     struct SkinningRule : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> weightCount;
         struct Weight : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> boneId;
             Value<float> weight;
         };

@@ -11,7 +11,7 @@ class CSNG
 {
     struct Header : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> magic = 0x2;
         Value<atUint32> midiSetupId;
         Value<atUint32> songGroupId;

@@ -331,7 +331,7 @@ public:
     {
 #ifndef NDEBUG
         if (size > N)
-            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
+            Log.report(logvisor::Fatal, "resize() call overflows rstl::reserved_vector.");
 #endif
         if (size > x0_size)
         {
@@ -352,7 +352,7 @@ public:
     {
 #ifndef NDEBUG
         if (size > N)
-            Log.report(logvisor::Fatal, "resized() call overflows rstl::reserved_vector.");
+            Log.report(logvisor::Fatal, "resize() call overflows rstl::reserved_vector.");
 #endif
         if (size > x0_size)
         {

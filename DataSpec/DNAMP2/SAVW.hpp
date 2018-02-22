@@ -8,7 +8,7 @@ namespace DataSpec::DNAMP2
 {
 struct SAVW : DNAMP1::SAVW
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> systemVarCount;
     Vector<SAVWCommon::EnvironmentVariable, DNA_COUNT(systemVarCount)> systemVars;
     Value<atUint32> gameVarCount;

@@ -9,7 +9,9 @@ extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 namespace DNAMP1
 {
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumerate<BigDNA::Read>
+    (athena::io::IStreamReader& reader)
 {
     parmType = reader.readUint32Big();
     weightFunction = reader.readUint32Big();
@@ -36,7 +38,9 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(a
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumerate<BigDNA::Write>
+    (athena::io::IStreamWriter& writer)
 {
     writer.writeUint32Big(parmType);
     writer.writeUint32Big(weightFunction);
@@ -63,7 +67,8 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(
     }
 }
 
-size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::binarySize(size_t __isz) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     __isz += 12;
     switch (DataType(parmType))
@@ -78,10 +83,11 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::bina
         __isz += 2;
         break;
     }
-    return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumerate<BigDNA::ReadYaml>
+    (athena::io::YAMLDocReader& reader)
 {
     parmType = reader.readUint32("parmType");
     weightFunction = reader.readUint32("weightFunction");
@@ -113,7 +119,9 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::read(a
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumerate<BigDNA::WriteYaml>
+    (athena::io::YAMLDocWriter& writer)
 {
     writer.writeUint32("parmType", parmType);
     writer.writeUint32("weightFunction", weightFunction);
@@ -148,7 +156,9 @@ const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo:
     return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo";
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA::Read>
+    (athena::io::IStreamReader& reader)
 {
     id = reader.readUint32Big();
     atUint32 parmInfoCount = reader.readUint32Big();
@@ -186,7 +196,9 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(athena::io:
     });
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA::Write>
+    (athena::io::IStreamWriter& writer)
 {
     writer.writeUint32Big(id);
     writer.writeUint32Big(parmInfos.size());
@@ -225,10 +237,12 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(athena::io
     }
 }
 
-size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::binarySize(size_t __isz) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     __isz += 12;
-    __isz = __EnumerateSize(__isz, parmInfos);
+    for (const ParmInfo& pi : parmInfos)
+        pi.binarySize(__isz);
 
     __isz += animInfos.size() * 4;
     for (const ParmInfo& pi : parmInfos)
@@ -247,11 +261,11 @@ size_t ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::binarySize(siz
         default: break;
         }
     }
-
-    return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA::ReadYaml>
+    (athena::io::YAMLDocReader& reader)
 {
     id = reader.readUint32("id");
 
@@ -289,7 +303,9 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::read(athena::io:
     });
 }
 
-void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA::WriteYaml>
+    (athena::io::YAMLDocWriter& writer)
 {
     writer.writeUint32("id", id);
 
@@ -334,7 +350,8 @@ const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::DNAType()
     return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState";
 }
 
-void ANCS::CharacterSet::CharacterInfo::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     idx = reader.readUint32Big();
     atUint16 sectionCount = reader.readUint16Big();
@@ -394,7 +411,8 @@ void ANCS::CharacterSet::CharacterInfo::read(athena::io::IStreamReader& reader)
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     writer.writeUint32Big(idx);
 
@@ -466,7 +484,8 @@ void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer)
     }
 }
 
-size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     __isz += 6;
 
@@ -488,23 +507,28 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
     __isz += 12;
 
     __isz += 4;
-    __isz = __EnumerateSize(__isz, animations);
+    for (const Animation& a : animations)
+        a.binarySize(__isz);
 
-    __isz = pasDatabase.binarySize(__isz);
-
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.part);
+    pasDatabase.binarySize(__isz);
 
     __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.swhc);
+    for (const UniqueID32& id : partResData.part)
+        id.binarySize(__isz);
 
     __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.unk);
+    for (const UniqueID32& id : partResData.swhc)
+        id.binarySize(__isz);
+
+    __isz += 4;
+    for (const UniqueID32& id : partResData.unk)
+        id.binarySize(__isz);
 
     if (sectionCount > 5)
     {
         __isz += 4;
-        __isz = __EnumerateSize(__isz, partResData.elsc);
+        for (const UniqueID32& id : partResData.elsc)
+            id.binarySize(__isz);
     }
 
     __isz += 4;
@@ -512,13 +536,15 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
     if (sectionCount > 1)
     {
         __isz += 4;
-        __isz = __EnumerateSize(__isz, animAABBs);
+        for (const ActionAABB& aabb : animAABBs)
+            aabb.binarySize(__isz);
     }
 
     if (sectionCount > 2)
     {
         __isz += 4;
-        __isz = __EnumerateSize(__isz, effects);
+        for (const Effect& e : effects)
+            e.binarySize(__isz);
     }
 
     if (sectionCount > 3)
@@ -526,11 +552,10 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
 
     if (sectionCount > 4)
         __isz += 4 + animIdxs.size() * 4;
-
-    return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     idx = reader.readUint32("idx");
     atUint16 sectionCount = reader.readUint16("sectionCount");
@@ -579,7 +604,8 @@ void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     writer.writeUint32("idx", idx);
 
@@ -644,7 +670,8 @@ const char* ANCS::CharacterSet::CharacterInfo::DNAType()
     return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo";
 }
 
-void ANCS::AnimationSet::MetaAnimFactory::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
     switch (type)
@@ -675,7 +702,8 @@ void ANCS::AnimationSet::MetaAnimFactory::read(athena::io::IStreamReader& reader
     }
 }
 
-void ANCS::AnimationSet::MetaAnimFactory::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     if (!m_anim)
         return;
@@ -683,14 +711,17 @@ void ANCS::AnimationSet::MetaAnimFactory::write(athena::io::IStreamWriter& write
     m_anim->write(writer);
 }
 
-size_t ANCS::AnimationSet::MetaAnimFactory::binarySize(size_t __isz) const
+template <>
+void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     if (!m_anim)
-        return __isz;
-    return m_anim->binarySize(__isz + 4);
+        return;
+    __isz += 4;
+    m_anim->binarySize(__isz);
 }
 
-void ANCS::AnimationSet::MetaAnimFactory::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
@@ -723,10 +754,10 @@ void ANCS::AnimationSet::MetaAnimFactory::read(athena::io::YAMLDocReader& reader
     {
         m_anim.reset(nullptr);
     }
-
 }
 
-void ANCS::AnimationSet::MetaAnimFactory::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     if (!m_anim)
         return;
@@ -739,7 +770,8 @@ const char* ANCS::AnimationSet::MetaAnimFactory::DNAType()
     return "urde::DNAMP1::ANCS::AnimationSet::MetaAnimFactory";
 }
 
-void ANCS::AnimationSet::MetaTransFactory::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     IMetaTrans::Type type(IMetaTrans::Type(reader.readUint32Big()));
     switch (type)
@@ -763,7 +795,8 @@ void ANCS::AnimationSet::MetaTransFactory::read(athena::io::IStreamReader& reade
     }
 }
 
-void ANCS::AnimationSet::MetaTransFactory::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     if (!m_trans)
     {
@@ -774,14 +807,17 @@ void ANCS::AnimationSet::MetaTransFactory::write(athena::io::IStreamWriter& writ
     m_trans->write(writer);
 }
 
-size_t ANCS::AnimationSet::MetaTransFactory::binarySize(size_t __isz) const
+template <>
+void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
+    __isz += 4;
     if (!m_trans)
-        return __isz + 4;
-    return m_trans->binarySize(__isz + 4);
+        return;
+    m_trans->binarySize(__isz);
 }
 
-void ANCS::AnimationSet::MetaTransFactory::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
@@ -807,7 +843,8 @@ void ANCS::AnimationSet::MetaTransFactory::read(athena::io::YAMLDocReader& reade
 
 }
 
-void ANCS::AnimationSet::MetaTransFactory::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     if (!m_trans)
     {
@@ -823,7 +860,8 @@ const char* ANCS::AnimationSet::MetaTransFactory::DNAType()
     return "urde::DNAMP1::ANCS::AnimationSet::MetaTransFactory";
 }
 
-void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     atUint16 sectionCount = reader.readUint16Big();
 
@@ -858,7 +896,8 @@ void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
     }
 }
 
-void ANCS::AnimationSet::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     atUint16 sectionCount;
     if (animResources.size())
@@ -900,7 +939,8 @@ void ANCS::AnimationSet::write(athena::io::IStreamWriter& writer) const
     }
 }
 
-size_t ANCS::AnimationSet::binarySize(size_t __isz) const
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     atUint16 sectionCount;
     if (animResources.size())
@@ -913,35 +953,39 @@ size_t ANCS::AnimationSet::binarySize(size_t __isz) const
         sectionCount = 1;
 
     __isz += 6;
-    __isz = __EnumerateSize(__isz, animations);
+    for (const Animation& a : animations)
+        a.binarySize(__isz);
 
     __isz += 4;
-    __isz = __EnumerateSize(__isz, transitions);
-    __isz = defaultTransition.binarySize(__isz);
+    for (const Transition& t : transitions)
+        t.binarySize(__isz);
+    defaultTransition.binarySize(__isz);
 
     if (sectionCount > 1)
     {
         __isz += 4;
-        __isz = __EnumerateSize(__isz, additiveAnims);
+        for (const AdditiveAnimationInfo& aa : additiveAnims)
+            aa.binarySize(__isz);
         __isz += 8;
     }
 
     if (sectionCount > 2)
     {
         __isz += 4;
-        __isz = __EnumerateSize(__isz, halfTransitions);
+        for (const HalfTransition& ht : halfTransitions)
+            ht.binarySize(__isz);
     }
 
     if (sectionCount > 3)
     {
         __isz += 4;
-        __isz = __EnumerateSize(__isz, animResources);
+        for (const AnimationResources& ar : animResources)
+            ar.binarySize(__isz);
     }
-
-    return __isz;
 }
 
-void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
@@ -971,7 +1015,8 @@ void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::AnimationSet::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     atUint16 sectionCount;
     if (animResources.size())
@@ -1037,7 +1082,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
         if (force || yamlType == hecl::ProjectPath::Type::None)
         {
             athena::io::FileWriter writer(yamlPath.getAbsolutePath());
-            ancs.toYAMLStream(writer);
+            athena::io::ToYAMLStream(ancs, writer);
         }
 
         if (force || blendType == hecl::ProjectPath::Type::None)
@@ -1067,7 +1112,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
                 if (pakRouter.lookupAndReadDNA(res.second.evntId, evnt, true))
                 {
                     athena::io::FileWriter writer(evntYamlPath.getAbsolutePath());
-                    evnt.toYAMLStream(writer);
+                    athena::io::ToYAMLStream(evnt, writer);
                 }
             }
         }
@@ -1091,7 +1136,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         Log.report(logvisor::Fatal, _S("can't open '%s' for reading"),
                    yamlPath.getRelativePath().data());
 
-    if (!BigYAML::ValidateFromYAMLStream<ANCS>(reader))
+    if (!athena::io::ValidateFromYAMLStream<ANCS>(reader))
     {
         Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
                    yamlPath.getRelativePath().data());

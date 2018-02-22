@@ -14,7 +14,8 @@ namespace DataSpec::DNAMAPA
 
 static logvisor::Module Log("DNAMAPA");
 
-void MAPA::read(athena::io::IStreamReader& __dna_reader)
+template <>
+void MAPA::Enumerate<BigDNA::Read>(typename Read::StreamT& __dna_reader)
 {
     /* magic */
     magic = __dna_reader.readUint32Big();
@@ -58,7 +59,8 @@ void MAPA::read(athena::io::IStreamReader& __dna_reader)
     __dna_reader.enumerate(surfaces, header->surfaceCount());
 }
 
-void MAPA::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void MAPA::Enumerate<BigDNA::Write>(typename Write::StreamT& __dna_writer)
 {
     /* magic */
     __dna_writer.writeUint32Big(magic);
@@ -77,17 +79,20 @@ void MAPA::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.enumerate(surfaces);
 }
 
-size_t MAPA::binarySize(size_t __isz) const
+template <>
+void MAPA::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
-    __isz = header->binarySize(__isz);
+    header->binarySize(s);
 
     for (const std::unique_ptr<IMappableObject>& mo : mappableObjects)
-        __isz = mo->binarySize(__isz);
+        mo->binarySize(s);
 
-    __isz += vertices.size() * 12;
-    __isz = __EnumerateSize(__isz, surfaceHeaders);
-    __isz = __EnumerateSize(__isz, surfaces);
-    return __isz + 8;
+    s += vertices.size() * 12;
+    for (const SurfaceHeader& sh : surfaceHeaders)
+        sh.binarySize(s);
+    for (const Surface& su : surfaces)
+        su.binarySize(s);
+    s += 8;
 }
 
 static const char* RetroMapVisModes[] =
@@ -417,7 +422,7 @@ bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out)
 
     size_t offsetCur = 0;
     for (const auto& mo : mapa.mappableObjects)
-        offsetCur = mo->binarySize(offsetCur);
+        mo->binarySize(offsetCur);
     offsetCur += mapa.vertices.size() * 12;
     offsetCur += mapaIn.surfaces.size() * 32;
 
@@ -458,11 +463,12 @@ bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out)
         surfHead.normal = surfIn.normal.val;
         surfHead.centroid = surfIn.centerOfMass;
         surfHead.polyOff = offsetCur;
-        offsetCur = prim.binarySize(offsetCur + 4);
+        offsetCur += 4;
+        prim.binarySize(offsetCur);
         surfHead.edgeOff = offsetCur;
         offsetCur += 4;
         for (const auto& border : surf.borders)
-            offsetCur = border.binarySize(offsetCur);
+            border.binarySize(offsetCur);
     }
 
     athena::io::FileWriter f(out.getAbsolutePath());

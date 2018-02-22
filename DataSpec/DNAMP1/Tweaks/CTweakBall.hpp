@@ -8,8 +8,7 @@ namespace DataSpec::DNAMP1
 {
 struct CTweakBall final : public ITweakBall
 {
-    DECL_YAML
-    Delete __d;
+    AT_DECL_EXPLICIT_DNA_YAML
     Value<float> x4_maxTranslationAcceleration[8];
     Value<float> x24_translationFriction[8];
     Value<float> x44_translationMaxSpeed[8];

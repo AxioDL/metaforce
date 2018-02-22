@@ -8,10 +8,10 @@
 namespace DataSpec::DNAParticle
 {
 template <class IDType>
-struct WPSM : BigYAML
+struct WPSM : BigDNA
 {
-    static const char* DNAType() { return "WPSM"; }
-    const char* DNATypeV() const { return DNAType(); }
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_SUBDECL_DNA
     VectorElementFactory x0_IORN;
     VectorElementFactory x4_IVEC;
     VectorElementFactory x8_PSOV;
@@ -46,12 +46,6 @@ struct WPSM : BigYAML
     BoolHelper xunk_FC60;
     BoolHelper xunk_SPS1;
     BoolHelper xunk_SPS2;
-
-    void read(athena::io::YAMLDocReader& r);
-    void write(athena::io::YAMLDocWriter& w) const;
-    size_t binarySize(size_t __isz) const;
-    void read(athena::io::IStreamReader& r);
-    void write(athena::io::IStreamWriter& w) const;
 
     WPSM()
     {

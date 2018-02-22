@@ -8,9 +8,9 @@
 namespace DataSpec::DNAMP3
 {
 
-struct MLVL : BigYAML
+struct MLVL : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> magic;
     Value<atUint32> version;
     UniqueID64 worldNameId;
@@ -19,9 +19,9 @@ struct MLVL : BigYAML
     UniqueID64 worldSkyboxId;
 
     Value<atUint32> areaCount;
-    struct Area : BigYAML
+    struct Area : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         UniqueID64 areaNameId;
         Value<atVec4f> transformMtx[3];
         Value<atVec3f> aabb[2];
@@ -32,13 +32,13 @@ struct MLVL : BigYAML
         Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;
 
         Value<atUint32> dockCount;
-        struct Dock : BigYAML
+        struct Dock : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> endpointCount;
-            struct Endpoint : BigYAML
+            struct Endpoint : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
@@ -58,9 +58,9 @@ struct MLVL : BigYAML
     Value<atUint32> unknown3;
 
     Value<atUint32> layerFlagCount;
-    struct LayerFlags : BigYAML
+    struct LayerFlags : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> layerCount;
         Value<atUint64> flags;
     };
@@ -70,9 +70,9 @@ struct MLVL : BigYAML
     Vector<String<-1>, DNA_COUNT(layerNameCount)> layerNames;
 
     Value<atUint32> layerIDCount;
-    struct LayerID : BigYAML
+    struct LayerID : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint64> id[2];
     };
     Vector<LayerID, DNA_COUNT(layerIDCount)> layerIDs;
@@ -93,7 +93,7 @@ struct MLVL : BigYAML
         MLVL mlvl;
         mlvl.read(rs);
         athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
-        mlvl.toYAMLStream(writer);
+        athena::io::ToYAMLStream(mlvl, writer);
         hecl::blender::Connection& conn = btok.getBlenderConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
                                           entry, force, fileChanged);

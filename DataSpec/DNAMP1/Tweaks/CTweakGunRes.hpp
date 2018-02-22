@@ -8,7 +8,7 @@ namespace DataSpec::DNAMP1
 
 struct CTweakGunRes final : ITweakGunRes
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
 
     String<-1> m_gunMotion;
     String<-1> m_grappleArm;

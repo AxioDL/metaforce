@@ -127,7 +127,44 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os,
     }
 }
 
-void ANIM::ANIM0::read(athena::io::IStreamReader& reader)
+template <>
+void ANIM::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
+{
+    atUint32 version = reader.readUint32Big();
+    switch (version)
+    {
+    case 0:
+        m_anim.reset(new struct ANIM0);
+        m_anim->read(reader);
+        break;
+    case 1:
+        m_anim.reset(new struct ANIM1);
+        m_anim->read(reader);
+        break;
+    default:
+        Log.report(logvisor::Fatal, "unrecognized ANIM version");
+        break;
+    }
+}
+
+template <>
+void ANIM::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
+{
+    writer.writeUint32Big(m_anim->m_version);
+    m_anim->write(writer);
+}
+
+template <>
+void ANIM::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    s += 4;
+    m_anim->binarySize(s);
+}
+
+const char* ANIM::ANIM0::DNAType() { return "ANIM0"; }
+
+template <>
+void ANIM::ANIM0::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
@@ -253,7 +290,8 @@ void ANIM::ANIM0::read(athena::io::IStreamReader& reader)
     }
 }
 
-void ANIM::ANIM0::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANIM::ANIM0::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     Header head;
     head.unk0 = 0;
@@ -384,7 +422,8 @@ void ANIM::ANIM0::write(athena::io::IStreamWriter& writer) const
     }
 }
 
-size_t ANIM::ANIM0::binarySize(size_t __isz) const
+template <>
+void ANIM::ANIM0::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     Header head;
 
@@ -392,7 +431,7 @@ size_t ANIM::ANIM0::binarySize(size_t __isz) const
     for (const std::pair<atUint32, std::tuple<bool,bool,bool>>& bone : bones)
         maxId = std::max(maxId, bone.first);
 
-    __isz = head.binarySize(__isz);
+    head.binarySize(__isz);
     __isz += maxId + 1;
     __isz += bones.size() * 3 + 12;
 
@@ -406,8 +445,6 @@ size_t ANIM::ANIM0::binarySize(size_t __isz) const
         if (std::get<2>(bone.second))
             __isz += head.keyCount * 12;
     }
-
-    return __isz;
 }
 
 static float ComputeFrames(const std::vector<float>& keyTimes, std::vector<atUint32>& framesOut)
@@ -443,7 +480,10 @@ static float ComputeFrames(const std::vector<float>& keyTimes, std::vector<atUin
     return mainInterval;
 }
 
-void ANIM::ANIM1::read(athena::io::IStreamReader& reader)
+const char* ANIM::ANIM1::DNAType() { return "ANIM1"; }
+
+template <>
+void ANIM::ANIM1::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     Header head;
     head.read(reader);
@@ -540,13 +580,14 @@ void ANIM::ANIM1::read(athena::io::IStreamReader& reader)
     chanKeys = bsReader.read(bsData.get(), head.keyCount-1, channels, 32767, head.translationMult, head.scaleMult);
 }
 
-void ANIM::ANIM1::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANIM::ANIM1::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
 }
 
-size_t ANIM::ANIM1::binarySize(size_t __isz) const
+template <>
+void ANIM::ANIM1::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    return __isz;
 }
 
 }

@@ -10,8 +10,8 @@ namespace DataSpec::DNAMP2
 
 struct STRG : ISTRG
 {
-    DECL_YAML
-    Delete expl;
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_DECL_DNAV
     void _read(athena::io::IStreamReader& reader);
     std::vector<std::pair<FourCC, std::vector<std::u16string>>> langs;
     std::unordered_map<FourCC, std::vector<std::u16string>*> langMap;
@@ -67,7 +67,7 @@ struct STRG : ISTRG
         STRG strg;
         strg.read(rs);
         athena::io::TransactionalFileWriter writer(outPath.getAbsolutePath());
-        strg.toYAMLStream(writer);
+        athena::io::ToYAMLStream(strg, writer);
         return true;
     }
 
@@ -75,7 +75,7 @@ struct STRG : ISTRG
     {
         STRG strg;
         athena::io::FileReader reader(inPath.getAbsolutePath());
-        strg.fromYAMLStream(reader);
+        athena::io::FromYAMLStream(strg, reader);
         athena::io::TransactionalFileWriter ws(outPath.getAbsolutePath());
         strg.write(ws);
         return true;

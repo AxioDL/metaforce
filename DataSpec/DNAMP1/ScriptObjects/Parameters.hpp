@@ -91,9 +91,9 @@ enum class ESpecialFunctionType : atUint32
     WeaponSwitch // PAL Only
 } SPECTER_ENUM("Special Function", "", EPickupType);
 
-struct AnimationParameters : BigYAML
+struct AnimationParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     UniqueID32 animationCharacterSet;
     Value<atUint32> character;
     Value<atUint32> defaultAnimation;
@@ -115,9 +115,9 @@ struct AnimationParameters : BigYAML
     }
 };
 
-struct BehaveChance : BigYAML
+struct BehaveChance : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<float>    unknown1;
     Value<float>    unknown2;
@@ -128,9 +128,9 @@ struct BehaveChance : BigYAML
     Value<float>    unknown7;
 };
 
-struct DamageInfo : BigYAML
+struct DamageInfo : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<atUint32> weaponType;
     Value<float>    damage;
@@ -138,9 +138,9 @@ struct DamageInfo : BigYAML
     Value<float>    knockbackPower;
 };
 
-struct DamageVulnerability : BigYAML
+struct DamageVulnerability : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<atUint32> power;
     Value<atUint32> ice;
@@ -158,9 +158,9 @@ struct DamageVulnerability : BigYAML
     Value<atUint32> unkownWeapon1;
     Value<atUint32> unkownWeapon2;
     Value<atUint32> deflected;
-    struct ChargedBeams : BigYAML
+    struct ChargedBeams : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> propertyCount;
         Value<atUint32> power;
         Value<atUint32> ice;
@@ -169,9 +169,9 @@ struct DamageVulnerability : BigYAML
         Value<atUint32> deflected;
     } chargedBeams;
 
-    struct BeamCombos : BigYAML
+    struct BeamCombos : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> propertyCount;
         Value<atUint32> superMissiles;
         Value<atUint32> iceSpreader;
@@ -181,9 +181,9 @@ struct DamageVulnerability : BigYAML
     } beamCombos;
 };
 
-struct FlareDefinition : BigYAML
+struct FlareDefinition : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     UniqueID32      texture;
     Value<float>    unknown1;
@@ -205,9 +205,9 @@ struct FlareDefinition : BigYAML
     }
 };
 
-struct GrappleParameters : BigYAML
+struct GrappleParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<float>    unknown1;
     Value<float>    unknown2;
@@ -223,17 +223,17 @@ struct GrappleParameters : BigYAML
     Value<bool>     disableTurning;
 };
 
-struct HealthInfo : BigYAML
+struct HealthInfo : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<float>    health SPECTER_PROPERTY("Health", "Base health for object");
     Value<float>    knockbackResistence SPECTER_PROPERTY("Knockback Resistence", "");
 } SPECTER_PROPERTY("Health Info", "");
 
-struct LightParameters : BigYAML
+struct LightParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<bool>     unknown1;
     Value<float>    unknown2;
@@ -251,9 +251,9 @@ struct LightParameters : BigYAML
     Value<atUint32> layerIndex;
 };
 
-struct PatternedInfo : BigYAML
+struct PatternedInfo : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<float>    mass;
     Value<float>    speed;
@@ -323,9 +323,9 @@ struct PatternedInfo : BigYAML
     }
 };
 
-struct PlayerHintParameters : BigYAML
+struct PlayerHintParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<bool>     unknown1;
     Value<bool>     unknown2;
@@ -344,9 +344,9 @@ struct PlayerHintParameters : BigYAML
     Value<bool>     unknown15;
 };
 
-struct ScannableParameters : BigYAML
+struct ScannableParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     UniqueID32      scanId;
 
@@ -370,26 +370,25 @@ struct ScannableParameters : BigYAML
     }
 };
 
-struct VisorParameters : BigYAML
+struct VisorParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<bool>     unknown1;
     Value<bool>     unknown2;
     Value<atUint32> unknown3;
 };
 
-struct PlayerParameters : BigYAML
+struct PlayerParameters : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Vector<bool, DNA_COUNT(propertyCount)> bools;
 };
 
-struct ActorParameters : BigYAML
+struct ActorParameters : BigDNA
 {
-    DECL_YAML
-    Delete _d;
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     LightParameters lightParameters;
     ScannableParameters scannableParameters;
@@ -455,9 +454,9 @@ struct ActorParameters : BigYAML
     }
 };
 
-struct BeamInfo : BigYAML
+struct BeamInfo : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<atUint32> unknown1;
     UniqueID32 particle1;

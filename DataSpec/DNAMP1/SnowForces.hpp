@@ -7,12 +7,12 @@
 
 namespace DataSpec::DNAMP1
 {
-struct SnowForces : BigYAML
+struct SnowForces : BigDNA
 {
-    DECL_YAML
-    struct Force : BigYAML
+    AT_DECL_DNA_YAML
+    struct Force : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<float> gravity;
         Value<float> wind;
     };

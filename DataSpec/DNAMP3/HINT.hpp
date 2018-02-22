@@ -6,23 +6,23 @@
 
 namespace DataSpec::DNAMP3
 {
-struct HINT : BigYAML
+struct HINT : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> magic;
     Value<atUint32> version;
 
-    struct Hint : BigYAML
+    struct Hint : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         String<-1> name;
         Value<float> unknown1;
         Value<float> fadeInTime;
         UniqueID64 stringID;
         Value<atUint32> unknown2;
-        struct Location : BigYAML
+        struct Location : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             UniqueID64 worldAssetID;
             UniqueID64 areaAssetID;
             Value<atUint32> areaID;
@@ -41,7 +41,7 @@ struct HINT : BigYAML
         HINT hint;
         hint.read(rs);
         athena::io::FileWriter writer(outPath.getAbsolutePath());
-        hint.toYAMLStream(writer);
+        athena::io::ToYAMLStream(hint, writer);
         return true;
     }
 };

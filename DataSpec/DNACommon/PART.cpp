@@ -3,8 +3,14 @@
 namespace DataSpec::DNAParticle
 {
 
+template <>
+const char* GPSM<UniqueID32>::DNAType() {return "GPSM<UniqueID32>";}
+
+template <>
+const char* GPSM<UniqueID64>::DNAType() {return "GPSM<UniqueID64>";}
+
 template <class IDType>
-void GPSM<IDType>::read(athena::io::YAMLDocReader& r)
+void GPSM<IDType>::_read(typename ReadYaml::StreamT& r)
 {
     for (const auto& elem : r.getCurNode()->m_mapChildren)
     {
@@ -266,7 +272,7 @@ void GPSM<IDType>::read(athena::io::YAMLDocReader& r)
 }
 
 template <class IDType>
-void GPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
+void GPSM<IDType>::_write(typename WriteYaml::StreamT& w) const
 {
     if (x0_PSIV)
         if (auto rec = w.enterSubRecord("PSIV"))
@@ -496,176 +502,364 @@ void GPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 }
 
 template <class IDType>
-size_t GPSM<IDType>::binarySize(size_t __isz) const
+void GPSM<IDType>::_binarySize(typename BinarySize::StreamT& s) const
 {
-    __isz += 4;
+    s += 4;
     if (x0_PSIV)
-        __isz = x0_PSIV.binarySize(__isz + 4);
+    {
+        s += 4;
+        x0_PSIV.binarySize(s);
+    }
     if (x4_PSVM)
-        __isz = x4_PSVM.binarySize(__isz + 4);
+    {
+        s += 4;
+        x4_PSVM.binarySize(s);
+    }
     if (x8_PSOV)
-        __isz = x8_PSOV.binarySize(__isz + 4);
+    {
+        s += 4;
+        x8_PSOV.binarySize(s);
+    }
     if (xc_PSLT)
-        __isz = xc_PSLT.binarySize(__isz + 4);
+    {
+        s += 4;
+        xc_PSLT.binarySize(s);
+    }
     if (x10_PSWT)
-        __isz = x10_PSWT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x10_PSWT.binarySize(s);
+    }
     if (x14_PSTS)
-        __isz = x14_PSTS.binarySize(__isz + 4);
+    {
+        s += 4;
+        x14_PSTS.binarySize(s);
+    }
     if (x18_POFS)
-        __isz = x18_POFS.binarySize(__isz + 4);
+    {
+        s += 4;
+        x18_POFS.binarySize(s);
+    }
     if (x1c_SEED)
-        __isz = x1c_SEED.binarySize(__isz + 4);
+    {
+        s += 4;
+        x1c_SEED.binarySize(s);
+    }
     if (x20_LENG)
-        __isz = x20_LENG.binarySize(__isz + 4);
+    {
+        s += 4;
+        x20_LENG.binarySize(s);
+    }
     if (x24_WIDT)
-        __isz = x24_WIDT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x24_WIDT.binarySize(s);
+    }
     if (x28_MAXP)
-        __isz = x28_MAXP.binarySize(__isz + 4);
+    {
+        s += 4;
+        x28_MAXP.binarySize(s);
+    }
     if (x2c_GRTE)
-        __isz = x2c_GRTE.binarySize(__isz + 4);
+    {
+        s += 4;
+        x2c_GRTE.binarySize(s);
+    }
     if (x30_COLR)
-        __isz = x30_COLR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x30_COLR.binarySize(s);
+    }
     if (x34_LTME)
-        __isz = x34_LTME.binarySize(__isz + 4);
+    {
+        s += 4;
+        x34_LTME.binarySize(s);
+    }
     if (x38_ILOC)
-        __isz = x38_ILOC.binarySize(__isz + 4);
+    {
+        s += 4;
+        x38_ILOC.binarySize(s);
+    }
     if (x3c_IVEC)
-        __isz = x3c_IVEC.binarySize(__isz + 4);
+    {
+        s += 4;
+        x3c_IVEC.binarySize(s);
+    }
     if (x40_EMTR)
-        __isz = x40_EMTR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x40_EMTR.binarySize(s);
+    }
     if (x44_24_LINE)
-        __isz += 9;
+        s += 9;
     if (x44_25_FXLL)
-        __isz += 9;
+        s += 9;
     if (x44_26_AAPH)
-        __isz += 9;
+        s += 9;
     if (x44_27_ZBUF)
-        __isz += 9;
+        s += 9;
     if (x44_28_SORT)
-        __isz += 9;
+        s += 9;
     if (x44_29_LIT_)
-        __isz += 9;
+        s += 9;
     if (x44_30_MBLR)
-        __isz += 9;
+        s += 9;
     if (x44_31_PMAB)
-        __isz += 9;
+        s += 9;
     if (x45_24_PMUS)
-        __isz += 9;
+        s += 9;
     if (!x45_25_PMOO)
-        __isz += 9;
+        s += 9;
     if (x45_26_VMD1)
-        __isz += 9;
+        s += 9;
     if (x45_27_VMD2)
-        __isz += 9;
+        s += 9;
     if (x45_28_VMD3)
-        __isz += 9;
+        s += 9;
     if (x45_29_VMD4)
-        __isz += 9;
+        s += 9;
     if (x45_30_CIND)
-        __isz += 9;
+        s += 9;
     if (x45_31_OPTS)
-        __isz += 9;
+        s += 9;
     if (x30_30_ORNT)
-        __isz += 9;
+        s += 9;
     if (x30_31_RSOP)
-        __isz += 9;
+        s += 9;
     if (x48_MBSP)
-        __isz = x48_MBSP.binarySize(__isz + 4);
+    {
+        s += 4;
+        x48_MBSP.binarySize(s);
+    }
     if (x4c_SIZE)
-        __isz = x4c_SIZE.binarySize(__isz + 4);
+    {
+        s += 4;
+        x4c_SIZE.binarySize(s);
+    }
     if (x50_ROTA)
-        __isz = x50_ROTA.binarySize(__isz + 4);
+    {
+        s += 4;
+        x50_ROTA.binarySize(s);
+    }
     if (x54_TEXR)
-        __isz = x54_TEXR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x54_TEXR.binarySize(s);
+    }
     if (x58_TIND)
-        __isz = x58_TIND.binarySize(__isz + 4);
+    {
+        s += 4;
+        x58_TIND.binarySize(s);
+    }
     if (x5c_PMDL)
-        __isz = x5c_PMDL.binarySize(__isz + 4);
+    {
+        s += 4;
+        x5c_PMDL.binarySize(s);
+    }
     if (x6c_PMOP)
-        __isz = x6c_PMOP.binarySize(__isz + 4);
+    {
+        s += 4;
+        x6c_PMOP.binarySize(s);
+    }
     if (x70_PMRT)
-        __isz = x70_PMRT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x70_PMRT.binarySize(s);
+    }
     if (x74_PMSC)
-        __isz = x74_PMSC.binarySize(__isz + 4);
+    {
+        s += 4;
+        x74_PMSC.binarySize(s);
+    }
     if (x78_PMCL)
-        __isz = x78_PMCL.binarySize(__isz + 4);
+    {
+        s += 4;
+        x78_PMCL.binarySize(s);
+    }
     if (x7c_VEL1)
-        __isz = x7c_VEL1.binarySize(__isz + 4);
+    {
+        s += 4;
+        x7c_VEL1.binarySize(s);
+    }
     if (x80_VEL2)
-        __isz = x80_VEL2.binarySize(__isz + 4);
+    {
+        s += 4;
+        x80_VEL2.binarySize(s);
+    }
     if (x84_VEL3)
-        __isz = x84_VEL3.binarySize(__isz + 4);
+    {
+        s += 4;
+        x84_VEL3.binarySize(s);
+    }
     if (x88_VEL4)
-        __isz = x88_VEL4.binarySize(__isz + 4);
+    {
+        s += 4;
+        x88_VEL4.binarySize(s);
+    }
     if (x8c_ICTS)
-        __isz = x8c_ICTS.binarySize(__isz + 4);
+    {
+        s += 4;
+        x8c_ICTS.binarySize(s);
+    }
     if (x9c_NCSY)
-        __isz = x9c_NCSY.binarySize(__isz + 4);
+    {
+        s += 4;
+        x9c_NCSY.binarySize(s);
+    }
     if (xa0_CSSD)
-        __isz = xa0_CSSD.binarySize(__isz + 4);
+    {
+        s += 4;
+        xa0_CSSD.binarySize(s);
+    }
     if (xa4_IDTS)
-        __isz = xa4_IDTS.binarySize(__isz + 4);
+    {
+        s += 4;
+        xa4_IDTS.binarySize(s);
+    }
     if (xb4_NDSY)
-        __isz = xb4_NDSY.binarySize(__isz + 4);
+    {
+        s += 4;
+        xb4_NDSY.binarySize(s);
+    }
     if (xb8_IITS)
-        __isz = xb8_IITS.binarySize(__isz + 4);
+    {
+        s += 4;
+        xb8_IITS.binarySize(s);
+    }
     if (xc8_PISY)
-        __isz = xc8_PISY.binarySize(__isz + 4);
+    {
+        s += 4;
+        xc8_PISY.binarySize(s);
+    }
     if (xcc_SISY)
-        __isz = xcc_SISY.binarySize(__isz + 4);
+    {
+        s += 4;
+        xcc_SISY.binarySize(s);
+    }
     if (xd0_KSSM)
-        __isz = xd0_KSSM.binarySize(__isz + 4);
+    {
+        s += 4;
+        xd0_KSSM.binarySize(s);
+    }
     if (xd4_SSWH)
-        __isz = xd4_SSWH.binarySize(__isz + 4);
+    {
+        s += 4;
+        xd4_SSWH.binarySize(s);
+    }
     if (xd8_SELC)
-        __isz = xd8_SELC.binarySize(__isz + 4);
+    {
+        s += 4;
+        xd8_SELC.binarySize(s);
+    }
     if (xe4_SSSD)
-        __isz = xe4_SSSD.binarySize(__isz + 4);
+    {
+        s += 4;
+        xe4_SSSD.binarySize(s);
+    }
     if (xe8_SSPO)
-        __isz = xe8_SSPO.binarySize(__isz + 4);
+    {
+        s += 4;
+        xe8_SSPO.binarySize(s);
+    }
     if (xf8_SESD)
-        __isz = xf8_SESD.binarySize(__isz + 4);
+    {
+        s += 4;
+        xf8_SESD.binarySize(s);
+    }
     if (xfc_SEPO)
-        __isz = xfc_SEPO.binarySize(__isz + 4);
+    {
+        s += 4;
+        xfc_SEPO.binarySize(s);
+    }
     if (xec_PMLC)
-        __isz = xec_PMLC.binarySize(__isz + 4);
+    {
+        s += 4;
+        xec_PMLC.binarySize(s);
+    }
     if (x100_LTYP)
-        __isz = x100_LTYP.binarySize(__isz + 4);
+    {
+        s += 4;
+        x100_LTYP.binarySize(s);
+    }
     if (x104_LCLR)
-        __isz = x104_LCLR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x104_LCLR.binarySize(s);
+    }
     if (x108_LINT)
-        __isz = x108_LINT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x108_LINT.binarySize(s);
+    }
     if (x10c_LOFF)
-        __isz = x10c_LOFF.binarySize(__isz + 4);
+    {
+        s += 4;
+        x10c_LOFF.binarySize(s);
+    }
     if (x110_LDIR)
-        __isz = x110_LDIR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x110_LDIR.binarySize(s);
+    }
     if (x114_LFOT)
-        __isz = x114_LFOT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x114_LFOT.binarySize(s);
+    }
     if (x118_LFOR)
-        __isz = x118_LFOR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x118_LFOR.binarySize(s);
+    }
     if (x11c_LSLA)
-        __isz = x11c_LSLA.binarySize(__isz + 4);
+    {
+        s += 4;
+        x11c_LSLA.binarySize(s);
+    }
     if (x10c_ADV1)
-        __isz = x10c_ADV1.binarySize(__isz + 4);
+    {
+        s += 4;
+        x10c_ADV1.binarySize(s);
+    }
     if (x110_ADV2)
-        __isz = x110_ADV2.binarySize(__isz + 4);
+    {
+        s += 4;
+        x110_ADV2.binarySize(s);
+    }
     if (x114_ADV3)
-        __isz = x114_ADV3.binarySize(__isz + 4);
+    {
+        s += 4;
+        x114_ADV3.binarySize(s);
+    }
     if (x118_ADV4)
-        __isz = x118_ADV4.binarySize(__isz + 4);
+    {
+        s += 4;
+        x118_ADV4.binarySize(s);
+    }
     if (x11c_ADV5)
-        __isz = x11c_ADV5.binarySize(__isz + 4);
+    {
+        s += 4;
+        x11c_ADV5.binarySize(s);
+    }
     if (x120_ADV6)
-        __isz = x120_ADV6.binarySize(__isz + 4);
+    {
+        s += 4;
+        x120_ADV6.binarySize(s);
+    }
     if (x124_ADV7)
-        __isz = x124_ADV7.binarySize(__isz + 4);
+    {
+        s += 4;
+        x124_ADV7.binarySize(s);
+    }
     if (x128_ADV8)
-        __isz = x128_ADV8.binarySize(__isz + 4);
-    return __isz;
+    {
+        s += 4;
+        x128_ADV8.binarySize(s);
+    }
 }
 
 template <class IDType>
-void GPSM<IDType>::read(athena::io::IStreamReader& r)
+void GPSM<IDType>::_read(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -949,7 +1143,7 @@ void GPSM<IDType>::read(athena::io::IStreamReader& r)
 }
 
 template <class IDType>
-void GPSM<IDType>::write(athena::io::IStreamWriter& w) const
+void GPSM<IDType>::_write(typename Write::StreamT& w) const
 {
     w.writeBytes((atInt8*)"GPSM", 4);
     if (x0_PSIV)
@@ -1342,6 +1536,9 @@ void GPSM<IDType>::write(athena::io::IStreamWriter& w) const
     w.writeBytes("_END", 4);
 }
 
+AT_SUBSPECIALIZE_DNA_YAML(GPSM<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(GPSM<UniqueID64>)
+
 template <class IDType>
 void GPSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
 {
@@ -1370,7 +1567,7 @@ bool ExtractGPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         GPSM<IDType> gpsm;
         gpsm.read(rs);
-        gpsm.toYAMLStream(writer);
+        athena::io::ToYAMLStream(gpsm, writer);
         return true;
     }
     return false;

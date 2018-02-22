@@ -7,9 +7,9 @@
 
 namespace DataSpec::DNAMP1
 {
-struct MazeSeeds : BigYAML
+struct MazeSeeds : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> seeds[300];
 };
 }

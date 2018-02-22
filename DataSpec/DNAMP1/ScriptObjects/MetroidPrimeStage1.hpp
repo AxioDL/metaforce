@@ -9,7 +9,8 @@ namespace DataSpec::DNAMP1
 {
 struct MetroidPrimeStage1 : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     Value<atUint32> version;
     String<-1> name;
     Value<atVec3f> location;
@@ -26,9 +27,9 @@ struct MetroidPrimeStage1 : IScriptObject
     HealthInfo healthInfo2;
     Value<atUint32> unknown9;
 
-    struct PrimeParameters1 : BigYAML
+    struct PrimeParameters1 : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<atUint32> propertyCount;
         Value<float> unknown1;
         Value<float> unknown2;
@@ -49,26 +50,26 @@ struct MetroidPrimeStage1 : IScriptObject
     Value<atUint32> unknown10;
     Value<atUint32> unknown11;
 
-    struct MassivePrimeStruct : BigYAML
+    struct MassivePrimeStruct : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<atUint32> propertyCount;
         PatternedInfo patternedInfo;
         ActorParameters actorParameters;
         Value<atUint32> unknown2;
-        struct CameraShakeData : BigYAML
+        struct CameraShakeData : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA
             Value<bool> useSfx;
             Value<float> duration;
             Value<float> sfxDist;
-            struct CameraShakerComponent : BigYAML
+            struct CameraShakerComponent : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA
                 Value<bool> useModulation;
-                struct CameraShakePoint : BigYAML
+                struct CameraShakePoint : BigDNA
                 {
-                    DECL_YAML
+                    AT_DECL_DNA
                     Value<float> attackTime;
                     Value<float> sustainTime;
                     Value<float> duration;
@@ -79,9 +80,9 @@ struct MetroidPrimeStage1 : IScriptObject
             } shakerComponents[3];
         } shakeDatas[3];
 
-        struct PrimeStruct2B : BigYAML
+        struct PrimeStruct2B : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA
             Value<atUint32> propertyCount;
             UniqueID32 particle1;
             UniqueID32 particle2;
@@ -128,15 +129,15 @@ struct MetroidPrimeStage1 : IScriptObject
 
         UniqueID32 particle4;
 
-        struct PrimeStruct4 : BigYAML
+        struct PrimeStruct4 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA
             BeamInfo beamInfo;
             UniqueID32 wpsc;
             DamageInfo damageInfo1;
-            struct PrimeStruct5 : BigYAML
+            struct PrimeStruct5 : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA
                 Value<atUint32> propertyCount;
                 UniqueID32 unknown1;
                 Value<atUint32> unknown2;
@@ -202,9 +203,9 @@ struct MetroidPrimeStage1 : IScriptObject
         DamageInfo damageInfo3;
         CameraShakeData primeStruct2_5;
 
-        struct PrimeProjectileInfo : BigYAML
+        struct PrimeProjectileInfo : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA
             Value<atUint32> propertyCount;
             UniqueID32 particle;
             DamageInfo damageInfo4;
@@ -245,9 +246,9 @@ struct MetroidPrimeStage1 : IScriptObject
         UniqueID32 particle7;
         UniqueID32 particle8;
 
-        struct PrimeStruct6 : BigYAML
+        struct PrimeStruct6 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA
             Value<atUint32> propertyCount;
             DamageVulnerability damageVulnerability;
             DNAColor unknown1;

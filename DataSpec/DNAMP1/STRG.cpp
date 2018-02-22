@@ -393,7 +393,8 @@ void STRG::_read(athena::io::IStreamReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::read(athena::io::IStreamReader& reader)
+template <>
+void STRG::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     atUint32 magic = reader.readUint32Big();
     if (magic != 0x87654321)
@@ -406,7 +407,8 @@ void STRG::read(athena::io::IStreamReader& reader)
     _read(reader);
 }
 
-void STRG::write(athena::io::IStreamWriter& writer) const
+template <>
+void STRG::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     writer.writeUint32Big(0x87654321);
     writer.writeUint32Big(0);
@@ -475,29 +477,29 @@ void STRG::write(athena::io::IStreamWriter& writer) const
     }
 }
 
-size_t STRG::binarySize(size_t __isz) const
+template <>
+void STRG::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& _s)
 {
-    __isz += 16;
-    __isz += langs.size() * 12;
+    _s += 16;
+    _s += langs.size() * 12;
 
     size_t strCount = STRG::count();
-    __isz += langs.size() * strCount * 4;
+    _s += langs.size() * strCount * 4;
     for (const std::pair<FourCC, std::vector<std::u16string>>& lang : langs)
     {
         atUint32 langStrCount = lang.second.size();
         for (atUint32 s = 0; s < strCount; ++s)
         {
             if (s < langStrCount)
-                __isz += (CookString(lang.second[s]).size() + 1) * 2;
+                _s += (CookString(lang.second[s]).size() + 1) * 2;
             else
-                __isz += 1;
+                _s += 1;
         }
     }
-
-    return __isz;
 }
 
-void STRG::read(athena::io::YAMLDocReader& reader)
+template <>
+void STRG::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     const athena::io::YAMLNode* root = reader.getRootNode();
 
@@ -557,7 +559,8 @@ void STRG::read(athena::io::YAMLDocReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void STRG::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     for (const auto& lang : langs)
     {

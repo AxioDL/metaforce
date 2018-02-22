@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
     atUint8* data = in.data();
 
-    atUint32 newCkSum = athena::Checksums::crc32(data + 68, 8188, 0);
+    atUint32 newCkSum = athena::checksums::crc32(data + 68, 8188, 0);
     *(atUint32*)(data + 64) = SBIG(newCkSum);
     out->writeBytes(data, 8256);
 

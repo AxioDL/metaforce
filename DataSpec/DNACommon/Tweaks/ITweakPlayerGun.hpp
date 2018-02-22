@@ -7,9 +7,9 @@
 namespace DataSpec
 {
 /* Same as CDamageInfo */
-struct SShotParam : BigYAML
+struct SShotParam : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atInt32> weaponType = -1;
     bool charged : 1;
     bool combo : 1;
@@ -24,19 +24,19 @@ struct SShotParam : BigYAML
 
 struct SComboShotParam : SShotParam
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     SComboShotParam() { combo = true; }
 };
 
 struct SChargedShotParam : SShotParam
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     SChargedShotParam() { charged = true; }
 };
 
-struct SWeaponInfo : BigYAML
+struct SWeaponInfo : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<float> x0_coolDown = 0.1f;
     SShotParam x4_normal;
     SChargedShotParam x20_charged;
@@ -44,7 +44,7 @@ struct SWeaponInfo : BigYAML
 
 struct ITweakPlayerGun : ITweak
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     virtual float GetUpLookAngle() const = 0;
     virtual float GetDownLookAngle() const = 0;
     virtual float GetVerticalSpread() const = 0;

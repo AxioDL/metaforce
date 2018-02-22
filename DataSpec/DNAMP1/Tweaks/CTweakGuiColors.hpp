@@ -7,7 +7,7 @@ namespace DataSpec::DNAMP1
 {
 struct CTweakGuiColors final : public ITweakGuiColors
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     DNAColor x4_pauseBlurFilterColor;
     DNAColor x8_radarStuffColor;
     DNAColor xc_radarPlayerPaintColor;
@@ -120,9 +120,9 @@ struct CTweakGuiColors final : public ITweakGuiColors
     DNAColor x1b8_thermalLockColor;
     DNAColor x1bc_pauseItemAmber;
     DNAColor x1c0_pauseItemBlue;
-    struct PerVisorColors : BigYAML
+    struct PerVisorColors : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         DNAColor x0_energyBarFilled;
         DNAColor x4_energyBarEmpty;
         DNAColor x8_energyBarShadow;

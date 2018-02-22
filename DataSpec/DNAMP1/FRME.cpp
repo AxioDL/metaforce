@@ -4,7 +4,9 @@
 
 namespace DataSpec::DNAMP1
 {
-void FRME::read(athena::io::IStreamReader& __dna_reader)
+
+template <>
+void FRME::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader)
 {
     /* version */
     version = __dna_reader.readUint32Big();
@@ -23,7 +25,8 @@ void FRME::read(athena::io::IStreamReader& __dna_reader)
     });
 }
 
-void FRME::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void FRME::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer)
 {
     /* version */
     __dna_writer.writeUint32Big(version);
@@ -39,13 +42,16 @@ void FRME::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.enumerate(widgets);
 }
 
-size_t FRME::binarySize(size_t __isz) const
+template <>
+void FRME::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    __isz = __EnumerateSize(__isz, widgets);
-    return __isz + 20;
+    for (const Widget& w : widgets)
+        w.binarySize(__isz);
+    __isz += 20;
 }
 
-void FRME::Widget::read(athena::io::IStreamReader& __dna_reader)
+template <>
+void FRME::Widget::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader)
 {
     /* type */
     type.read(__dna_reader);
@@ -96,7 +102,8 @@ void FRME::Widget::read(athena::io::IStreamReader& __dna_reader)
     unk2 = __dna_reader.readInt16Big();
 }
 
-void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void FRME::Widget::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer)
 {
     /* type */
     DNAFourCC _type = widgetInfo ? widgetInfo->fourcc() : FOURCC('BWIG');
@@ -131,18 +138,20 @@ void FRME::Widget::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeInt16Big(unk2);
 }
 
-size_t FRME::Widget::binarySize(size_t __isz) const
+template <>
+void FRME::Widget::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    __isz = type.binarySize(__isz);
-    __isz = header.binarySize(__isz);
+    type.binarySize(__isz);
+    header.binarySize(__isz);
     if (widgetInfo)
-        __isz = widgetInfo->binarySize(__isz);
+        widgetInfo->binarySize(__isz);
     if (isWorker)
         __isz += 4;
-    return __isz + 67;
+    __isz += 67;
 }
 
-void FRME::Widget::CAMRInfo::read(athena::io::IStreamReader& __dna_reader)
+template <>
+void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader)
 {
     projectionType = ProjectionType(__dna_reader.readUint32Big());
     if (projectionType == ProjectionType::Perspective)
@@ -155,7 +164,8 @@ void FRME::Widget::CAMRInfo::read(athena::io::IStreamReader& __dna_reader)
     projection->read(__dna_reader);
 }
 
-void FRME::Widget::CAMRInfo::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer)
 {
     if (!projection)
         Log.report(logvisor::Fatal, _S("Invalid CAMR projection object!"));
@@ -166,15 +176,16 @@ void FRME::Widget::CAMRInfo::write(athena::io::IStreamWriter& __dna_writer) cons
     projection->write(__dna_writer);
 }
 
-size_t FRME::Widget::CAMRInfo::binarySize(size_t __isz) const
+template <>
+void FRME::Widget::CAMRInfo::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    __isz = projection->binarySize(__isz);
-    return __isz + 4;
+    projection->binarySize(__isz);
+    __isz += 4;
 }
 
-void FRME::Widget::LITEInfo::read(athena::io::IStreamReader& __dna_reader)
+template <>
+void FRME::Widget::LITEInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader)
 {
-    IWidgetInfo::read(__dna_reader);
     /* type */
     type = ELightType(__dna_reader.readUint32Big());
     /* distC */
@@ -197,9 +208,9 @@ void FRME::Widget::LITEInfo::read(athena::io::IStreamReader& __dna_reader)
         cutoff = __dna_reader.readFloatBig();
 }
 
-void FRME::Widget::LITEInfo::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void FRME::Widget::LITEInfo::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer)
 {
-    IWidgetInfo::write(__dna_writer);
     /* type */
     __dna_writer.writeUint32Big(atUint32(type));
     /* distC */
@@ -222,93 +233,35 @@ void FRME::Widget::LITEInfo::write(athena::io::IStreamWriter& __dna_writer) cons
         __dna_writer.writeFloatBig(cutoff);
 }
 
-size_t FRME::Widget::LITEInfo::binarySize(size_t __isz) const
+template <>
+void FRME::Widget::LITEInfo::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    __isz = IWidgetInfo::binarySize(__isz);
-    return __isz + ((type == ELightType::Spot) ? 36 : 32);
+    __isz += ((type == ELightType::Spot) ? 36 : 32);
 }
 
-void FRME::Widget::TXPNInfo::read(athena::io::IStreamReader& __dna_reader)
+template <class Op>
+void FRME::Widget::TXPNInfo::Enumerate(typename Op::StreamT& s)
 {
-    IWidgetInfo::read(__dna_reader);
-    /* xDim */
-    xDim = __dna_reader.readFloatBig();
-    /* zDim */
-    zDim = __dna_reader.readFloatBig();
-    /* scaleCenter */
-    scaleCenter = __dna_reader.readVec3fBig();
-    /* font */
-    font.read(__dna_reader);
-    /* unk1 */
-    wordWrap = __dna_reader.readBool();
-    /* unk2 */
-    horizontal = __dna_reader.readBool();
-    /* justification */
-    justification = Justification(__dna_reader.readUint32Big());
-    /* verticalJustification */
-    verticalJustification = VerticalJustification(__dna_reader.readUint32Big());
-    /* fillColor */
-    fillColor = __dna_reader.readVec4fBig();
-    /* outlineColor */
-    outlineColor = __dna_reader.readVec4fBig();
-    /* pointScale */
-    blockExtent = __dna_reader.readVec2fBig();
+    Do<Op>({"xDim"}, xDim, s);
+    Do<Op>({"zDim"}, zDim, s);
+    Do<Op>({"scaleCenter"}, scaleCenter, s);
+    Do<Op>({"font"}, font, s);
+    Do<Op>({"wordWrap"}, wordWrap, s);
+    Do<Op>({"horizontal"}, horizontal, s);
+    Do<Op>({"justification"}, justification, s);
+    Do<Op>({"verticalJustification"}, verticalJustification, s);
+    Do<Op>({"fillColor"}, fillColor, s);
+    Do<Op>({"outlineColor"}, outlineColor, s);
+    Do<Op>({"blockExtent"}, blockExtent, s);
     if (version == 1)
     {
-        /* jpnFont */
-        jpnFont.read(__dna_reader);
-        /* jpnPointScale[0] */
-        jpnPointScale[0] = __dna_reader.readInt32Big();
-        /* jpnPointScale[0] */
-        jpnPointScale[1] = __dna_reader.readInt32Big();
+        Do<Op>({"jpnFont"}, jpnFont, s);
+        Do<Op>({"jpnPointScale[0]"}, jpnPointScale[0], s);
+        Do<Op>({"jpnPointScale[1]"}, jpnPointScale[1], s);
     }
 }
 
-void FRME::Widget::TXPNInfo::write(athena::io::IStreamWriter& __dna_writer) const
-{
-    IWidgetInfo::write(__dna_writer);
-    /* xDim */
-    __dna_writer.writeFloatBig(xDim);
-    /* zDim */
-    __dna_writer.writeFloatBig(zDim);
-    /* scaleCenter */
-    __dna_writer.writeVec3fBig(scaleCenter);
-    /* font */
-    font.write(__dna_writer);
-    /* unk1 */
-    __dna_writer.writeBool(wordWrap);
-    /* unk2 */
-    __dna_writer.writeBool(horizontal);
-    /* justification */
-    __dna_writer.writeUint32Big(atUint32(justification));
-    /* verticalJustification */
-    __dna_writer.writeUint32Big(atUint32(verticalJustification));
-    /* fillColor */
-    __dna_writer.writeVec4fBig(fillColor);
-    /* outlineColor */
-    __dna_writer.writeVec4fBig(outlineColor);
-    /* pointScale */
-    __dna_writer.writeVec2fBig(blockExtent);
-    if (version == 1)
-    {
-        /* jpnFont */
-        jpnFont.write(__dna_writer);
-        /* jpnPointScale[0] */
-        __dna_writer.writeInt32Big(jpnPointScale[0]);
-        /* jpnPointScale[1] */
-        __dna_writer.writeInt32Big(jpnPointScale[1]);
-    }
-}
-
-size_t FRME::Widget::TXPNInfo::binarySize(size_t __isz) const
-{
-    __isz = IWidgetInfo::binarySize(__isz);
-    __isz = font.binarySize(__isz);
-    if (version == 1)
-        __isz = jpnFont.binarySize(__isz);
-
-    return __isz + (version == 1 ? 78 : 66);
-}
+AT_SPECIALIZE_DNA(FRME::Widget::TXPNInfo)
 
 bool FRME::Extract(const SpecBase &dataSpec,
                    PAKEntryReadStream &rs,

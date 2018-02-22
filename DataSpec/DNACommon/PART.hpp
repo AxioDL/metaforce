@@ -9,11 +9,10 @@ namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
-struct GPSM : BigYAML
+struct GPSM : BigDNA
 {
-    static const char* DNAType() {return "GPSM";}
-    const char* DNATypeV() const {return DNAType();}
-
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_SUBDECL_DNA
     VectorElementFactory x0_PSIV;
     ModVectorElementFactory x4_PSVM;
     VectorElementFactory x8_PSOV;
@@ -104,12 +103,6 @@ struct GPSM : BigYAML
     {
         x45_25_PMOO = true;
     }
-
-    void read(athena::io::YAMLDocReader& r);
-    void write(athena::io::YAMLDocWriter& w) const;
-    size_t binarySize(size_t __isz) const;
-    void read(athena::io::IStreamReader& r);
-    void write(athena::io::IStreamWriter& w) const;
 
     void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };

@@ -14,23 +14,23 @@
 namespace DataSpec::DNAMP1
 {
 
-struct ANCS : BigYAML
+struct ANCS : BigDNA
 {
     using CINFType = CINF;
     using CSKRType = CSKR;
     using ANIMType = ANIM;
 
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint16> version;
 
-    struct CharacterSet : BigYAML
+    struct CharacterSet : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint16> version;
         Value<atUint32> characterCount;
-        struct CharacterInfo : BigYAML
+        struct CharacterInfo : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Delete expl;
 
             atUint32 idx;
@@ -39,30 +39,30 @@ struct ANCS : BigYAML
             UniqueID32 cskr;
             UniqueID32 cinf;
 
-            struct Animation : BigYAML
+            struct Animation : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> animIdx;
                 String<-1> strA;
                 String<-1> strB;
             };
             std::vector<Animation> animations;
 
-            struct PASDatabase : BigYAML
+            struct PASDatabase : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> magic;
                 Value<atUint32> animStateCount;
                 Value<atUint32> defaultState;
-                struct AnimState : BigYAML
+                struct AnimState : BigDNA
                 {
-                    DECL_YAML
+                    AT_DECL_DNA_YAML
                     Delete expl;
                     atUint32 id;
 
-                    struct ParmInfo : BigYAML
+                    struct ParmInfo : BigDNA
                     {
-                        DECL_YAML
+                        AT_DECL_DNA_YAML
                         Delete expl;
                         enum class DataType
                         {
@@ -112,22 +112,22 @@ struct ANCS : BigYAML
 
             atUint32 unk1 = 0;
 
-            struct ActionAABB : BigYAML
+            struct ActionAABB : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 String<-1> name;
                 Value<atVec3f> aabb[2];
             };
             std::vector<ActionAABB> animAABBs;
 
-            struct Effect : BigYAML
+            struct Effect : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 String<-1> name;
                 Value<atUint32> compCount;
-                struct EffectComponent : BigYAML
+                struct EffectComponent : BigDNA
                 {
-                    DECL_YAML
+                    AT_DECL_DNA_YAML
                     String<-1> name;
                     DNAFourCC type;
                     UniqueID32 id;
@@ -148,16 +148,15 @@ struct ANCS : BigYAML
         Vector<CharacterInfo, DNA_COUNT(characterCount)> characters;
     } characterSet;
 
-    struct AnimationSet : BigYAML
+    struct AnimationSet : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Delete expl;
 
         struct MetaAnimPrimitive;
-        struct IMetaAnim : BigYAML
+        struct IMetaAnim : BigDNAVYaml
         {
             Delete expl;
-            virtual ~IMetaAnim() {}
             enum class Type
             {
                 Primitive = 0,
@@ -172,16 +171,15 @@ struct ANCS : BigYAML
             virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)=0;
             virtual bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)=0;
         };
-        struct MetaAnimFactory : BigYAML
+        struct MetaAnimFactory : BigDNA
         {
-            DECL_YAML
-            Delete expl;
+            AT_DECL_EXPLICIT_DNA_YAML
             std::unique_ptr<IMetaAnim> m_anim;
         };
         struct MetaAnimPrimitive : IMetaAnim
         {
-            Delete expl2;
-
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
 
             UniqueID32 animId;
@@ -189,70 +187,6 @@ struct ANCS : BigYAML
             String<-1> animName;
             Value<float> unk1;
             Value<atUint32> unk2;
-
-            void read(athena::io::IStreamReader& __dna_reader)
-            {
-                /* animId */
-                animId.read(__dna_reader);
-                /* animIdx */
-                animIdx = __dna_reader.readUint32Big();
-                /* animName */
-                animName = __dna_reader.readString(-1);
-                /* unk1 */
-                unk1 = __dna_reader.readFloatBig();
-                /* unk2 */
-                unk2 = __dna_reader.readUint32Big();
-            }
-
-            void write(athena::io::IStreamWriter& __dna_writer) const
-            {
-                /* animId */
-                animId.write(__dna_writer);
-                /* animIdx */
-                __dna_writer.writeUint32Big(animIdx);
-                /* animName */
-                __dna_writer.writeString(animName, -1);
-                /* unk1 */
-                __dna_writer.writeFloatBig(unk1);
-                /* unk2 */
-                __dna_writer.writeUint32Big(unk2);
-            }
-
-            void read(athena::io::YAMLDocReader& __dna_docin)
-            {
-                /* animIdx */
-                animIdx = __dna_docin.readUint32("animIdx");
-                /* animName */
-                animName = __dna_docin.readString("animName");
-                /* unk1 */
-                unk1 = __dna_docin.readFloat("unk1");
-                /* unk2 */
-                unk2 = __dna_docin.readUint32("unk2");
-            }
-
-            void write(athena::io::YAMLDocWriter& __dna_docout) const
-            {
-                /* animIdx */
-                __dna_docout.writeUint32("animIdx", animIdx);
-                /* animName */
-                __dna_docout.writeString("animName", animName);
-                /* unk1 */
-                __dna_docout.writeFloat("unk1", unk1);
-                /* unk2 */
-                __dna_docout.writeUint32("unk2", unk2);
-            }
-
-            static const char* DNAType()
-            {
-                return "DataSpec::DNAMP1::ANCS::AnimationSet::MetaAnimPrimitive";
-            }
-
-            size_t binarySize(size_t __isz) const
-            {
-                __isz = animId.binarySize(__isz);
-                __isz += animName.size() + 1;
-                return __isz + 12;
-            }
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
@@ -268,7 +202,8 @@ struct ANCS : BigYAML
         {
             MetaAnimBlend()
             : IMetaAnim(Type::Blend, "Blend") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             MetaAnimFactory animA;
             MetaAnimFactory animB;
             Value<float> unkFloat;
@@ -293,7 +228,8 @@ struct ANCS : BigYAML
         {
             MetaAnimPhaseBlend()
             : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             MetaAnimFactory animA;
             MetaAnimFactory animB;
             Value<float> unkFloat;
@@ -317,11 +253,12 @@ struct ANCS : BigYAML
         struct MetaAnimRandom : IMetaAnim
         {
             MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             Value<atUint32> animCount;
-            struct Child : BigYAML
+            struct Child : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA
                 MetaAnimFactory anim;
                 Value<atUint32> probability;
             };
@@ -344,7 +281,8 @@ struct ANCS : BigYAML
         struct MetaAnimSequence : IMetaAnim
         {
             MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
 
@@ -363,18 +301,17 @@ struct ANCS : BigYAML
             }
         };
 
-        struct Animation : BigYAML
+        struct Animation : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             MetaAnimFactory metaAnim;
         };
         std::vector<Animation> animations;
 
-        struct IMetaTrans : BigYAML
+        struct IMetaTrans : BigDNAVYaml
         {
             Delete expl;
-            virtual ~IMetaTrans() {}
             enum class Type
             {
                 MetaAnim = 0,
@@ -388,9 +325,9 @@ struct ANCS : BigYAML
             virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {}
             virtual bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {return true;}
         };
-        struct MetaTransFactory : BigYAML
+        struct MetaTransFactory : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Delete expl;
             std::unique_ptr<IMetaTrans> m_trans;
         };
@@ -398,7 +335,8 @@ struct ANCS : BigYAML
         {
             MetaTransMetaAnim()
             : IMetaTrans(Type::MetaAnim, "MetaAnim") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             MetaAnimFactory anim;
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
@@ -415,7 +353,8 @@ struct ANCS : BigYAML
         {
             MetaTransTrans()
             : IMetaTrans(Type::Trans, "Trans") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             Value<float> transDurTime;
             Value<atUint32> transDurTimeMode;
             Value<bool> unk2;
@@ -426,7 +365,8 @@ struct ANCS : BigYAML
         {
             MetaTransPhaseTrans()
             : IMetaTrans(Type::PhaseTrans, "PhaseTrans") {}
-            DECL_YAML
+            AT_DECL_DNA_YAML
+            AT_DECL_DNAV
             Value<float> transDurTime;
             Value<atUint32> transDurTimeMode;
             Value<bool> unk2;
@@ -434,9 +374,9 @@ struct ANCS : BigYAML
             Value<atUint32> flags;
         };
 
-        struct Transition : BigYAML
+        struct Transition : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> unk;
             Value<atUint32> animIdxA;
             Value<atUint32> animIdxB;
@@ -445,9 +385,9 @@ struct ANCS : BigYAML
         std::vector<Transition> transitions;
         MetaTransFactory defaultTransition;
 
-        struct AdditiveAnimationInfo : BigYAML
+        struct AdditiveAnimationInfo : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> animIdx;
             Value<float> unk1;
             Value<float> unk2;
@@ -457,17 +397,17 @@ struct ANCS : BigYAML
         float floatA = 0.0;
         float floatB = 0.0;
 
-        struct HalfTransition : BigYAML
+        struct HalfTransition : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> animIdx;
             MetaTransFactory metaTrans;
         };
         std::vector<HalfTransition> halfTransitions;
 
-        struct AnimationResources : BigYAML
+        struct AnimationResources : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             UniqueID32 animId;
             UniqueID32 evntId;
         };

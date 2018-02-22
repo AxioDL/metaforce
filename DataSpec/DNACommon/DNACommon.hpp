@@ -19,11 +19,12 @@ extern ThreadLocalPtr<class PAKRouterBase> g_PakRouter;
 extern ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;
 
 /* This comes up a great deal */
-typedef athena::io::DNA<athena::BigEndian> BigDNA;
-typedef athena::io::DNAYaml<athena::BigEndian> BigYAML;
+typedef athena::io::DNA<athena::Big> BigDNA;
+typedef athena::io::DNAV<athena::Big> BigDNAV;
+typedef athena::io::DNAVYaml<athena::Big> BigDNAVYaml;
 
 /** FourCC with DNA read/write */
-class DNAFourCC final : public BigYAML, public hecl::FourCC
+class DNAFourCC final : public BigDNA, public hecl::FourCC
 {
 public:
     DNAFourCC() : hecl::FourCC() {}
@@ -33,55 +34,53 @@ public:
     : hecl::FourCC(name) {}
     DNAFourCC(uint32_t n)
     : hecl::FourCC(n) {}
-
-    Delete expl;
-    void read(athena::io::IStreamReader& reader)
-    {reader.readUBytesToBuf(fcc, 4);}
-    void write(athena::io::IStreamWriter& writer) const
-    {writer.writeUBytes((atUint8*)fcc, 4);}
-    void read(athena::io::YAMLDocReader& reader)
-    {std::string rs = reader.readString(nullptr); strncpy(fcc, rs.c_str(), 4);}
-    void write(athena::io::YAMLDocWriter& writer) const
-    {writer.writeString(nullptr, std::string(fcc, 4));}
-    size_t binarySize(size_t __isz) const
-    {return __isz + 4;}
+    AT_DECL_EXPLICIT_DNA_YAML
 };
+template <> inline void DNAFourCC::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{ r.readUBytesToBuf(fcc, 4); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{ w.writeUBytes((atUint8*)fcc, 4); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{ std::string rs = r.readString(nullptr); strncpy(fcc, rs.c_str(), 4); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{ w.writeString(nullptr, std::string(fcc, 4)); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{ s += 4; }
 
-class DNAColor final : public BigYAML, public zeus::CColor
+class DNAColor final : public BigDNA, public zeus::CColor
 {
 public:
     DNAColor() = default;
     DNAColor(const zeus::CColor& color) : zeus::CColor(color) {}
-
-    Delete expl;
-    void read(athena::io::IStreamReader& reader)
-    {zeus::CColor::readRGBABig(reader);}
-    void write(athena::io::IStreamWriter& writer) const
-    {zeus::CColor::writeRGBABig(writer);}
-    void read(athena::io::YAMLDocReader& reader)
-    {
-        size_t count;
-        if (auto v = reader.enterSubVector(nullptr, count))
-        {
-            r = (count >= 1) ? reader.readFloat(nullptr) : 0.f;
-            g = (count >= 2) ? reader.readFloat(nullptr) : 0.f;
-            b = (count >= 3) ? reader.readFloat(nullptr) : 0.f;
-            a = (count >= 4) ? reader.readFloat(nullptr) : 0.f;
-        }
-    }
-    void write(athena::io::YAMLDocWriter& writer) const
-    {
-        if (auto v = writer.enterSubVector(nullptr))
-        {
-            writer.writeFloat(nullptr, r);
-            writer.writeFloat(nullptr, g);
-            writer.writeFloat(nullptr, b);
-            writer.writeFloat(nullptr, a);
-        }
-    }
-    size_t binarySize(size_t __isz) const
-    {return __isz + 16;}
+    AT_DECL_EXPLICIT_DNA_YAML
 };
+template <> inline void DNAColor::Enumerate<BigDNA::Read>(typename Read::StreamT& _r)
+{ zeus::CColor::readRGBABig(_r); }
+template <> inline void DNAColor::Enumerate<BigDNA::Write>(typename Write::StreamT& _w)
+{ zeus::CColor::writeRGBABig(_w); }
+template <> inline void DNAColor::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& _r)
+{
+    size_t count;
+    if (auto v = _r.enterSubVector(nullptr, count))
+    {
+        r = (count >= 1) ? _r.readFloat(nullptr) : 0.f;
+        g = (count >= 2) ? _r.readFloat(nullptr) : 0.f;
+        b = (count >= 3) ? _r.readFloat(nullptr) : 0.f;
+        a = (count >= 4) ? _r.readFloat(nullptr) : 0.f;
+    }
+}
+template <> inline void DNAColor::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& _w)
+{
+    if (auto v = _w.enterSubVector(nullptr))
+    {
+        _w.writeFloat(nullptr, r);
+        _w.writeFloat(nullptr, g);
+        _w.writeFloat(nullptr, b);
+        _w.writeFloat(nullptr, a);
+    }
+}
+template <> inline void DNAColor::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& _s)
+{ _s += 16; }
 
 using FourCC = hecl::FourCC;
 class UniqueID32;
@@ -136,19 +135,14 @@ public:
 };
 
 /** PAK 32-bit Unique ID */
-class UniqueID32 : public BigYAML
+class UniqueID32 : public BigDNA
 {
 protected:
     uint32_t m_id = 0xffffffff;
 public:
     static UniqueID32 kInvalidId;
-    Delete expl;
+    AT_DECL_EXPLICIT_DNA_YAML
     operator bool() const {return m_id != 0xffffffff && m_id != 0;}
-    void read(athena::io::IStreamReader& reader);
-    void write(athena::io::IStreamWriter& writer) const;
-    void read(athena::io::YAMLDocReader& reader);
-    void write(athena::io::YAMLDocWriter& writer) const;
-    size_t binarySize(size_t __isz) const;
     void assign(uint32_t id) { m_id = id ? id : 0xffffffff; }
 
     UniqueID32& operator=(const hecl::ProjectPath& path)
@@ -190,31 +184,24 @@ class AuxiliaryID32 : public UniqueID32
     const hecl::SystemChar* m_addExtension;
     UniqueID32 m_baseId;
 public:
+    AT_DECL_DNA
+    Delete __d2;
     AuxiliaryID32(const hecl::SystemChar* auxStr,
                   const hecl::SystemChar* addExtension=nullptr)
     : m_auxStr(auxStr), m_addExtension(addExtension) {}
 
     AuxiliaryID32& operator=(const hecl::ProjectPath& path);
     AuxiliaryID32& operator=(const UniqueID32& id);
-    void read(athena::io::IStreamReader& reader);
-    void write(athena::io::IStreamWriter& writer) const;
-    void read(athena::io::YAMLDocReader& reader);
-    void write(athena::io::YAMLDocWriter& writer) const;
     const UniqueID32& getBaseId() const {return m_baseId;}
 };
 
 /** PAK 64-bit Unique ID */
-class UniqueID64 : public BigYAML
+class UniqueID64 : public BigDNA
 {
     uint64_t m_id = 0xffffffffffffffff;
 public:
-    Delete expl;
+    AT_DECL_EXPLICIT_DNA_YAML
     operator bool() const {return m_id != 0xffffffffffffffff && m_id != 0;}
-    void read(athena::io::IStreamReader& reader);
-    void write(athena::io::IStreamWriter& writer) const;
-    void read(athena::io::YAMLDocReader& reader);
-    void write(athena::io::YAMLDocWriter& writer) const;
-    size_t binarySize(size_t __isz) const;
     void assign(uint64_t id) { m_id = id ? id : 0xffffffffffffffff; }
 
     UniqueID64& operator=(const hecl::ProjectPath& path)
@@ -258,7 +245,7 @@ public:
 };
 
 /** PAK 128-bit Unique ID */
-class UniqueID128 : public BigYAML
+class UniqueID128 : public BigDNA
 {
     union
     {
@@ -268,15 +255,10 @@ class UniqueID128 : public BigYAML
 #endif
     };
 public:
-    Delete expl;
+    AT_DECL_EXPLICIT_DNA_YAML
     UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
     operator bool() const
     {return m_id[0] != 0xffffffffffffffff && m_id[0] != 0 && m_id[1] != 0xffffffffffffffff && m_id[1] != 0;}
-    void read(athena::io::IStreamReader& reader);
-    void write(athena::io::IStreamWriter& writer) const;
-    void read(athena::io::YAMLDocReader& reader);
-    void write(athena::io::YAMLDocWriter& writer) const;
-    size_t binarySize(size_t __isz) const;
 
     UniqueID128& operator=(const hecl::ProjectPath& path)
     {

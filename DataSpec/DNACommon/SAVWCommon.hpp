@@ -15,26 +15,26 @@ enum class EScanCategory
     Artifact
 };
 
-struct Header : BigYAML
+struct Header : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> magic;
     Value<atUint32> version;
     Value<atUint32> areaCount;
 };
 
-struct EnvironmentVariable : BigYAML
+struct EnvironmentVariable : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     String<-1> name;
     Value<atUint32> unk1;
     Value<atUint32> unk2;
     Value<atUint32> unk3;
 };
 
-struct Layer : BigYAML
+struct Layer : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> areaId;
     Value<atUint32> layer;
 };
@@ -45,7 +45,7 @@ static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath
     SAVW savw;
     savw.read(rs);
     athena::io::FileWriter writer(outPath.getAbsolutePath());
-    savw.toYAMLStream(writer);
+    athena::io::ToYAMLStream(savw, writer);
     return true;
 }
 

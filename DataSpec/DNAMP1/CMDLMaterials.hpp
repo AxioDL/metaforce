@@ -13,10 +13,10 @@ struct MaterialSet : BigDNA
 {
     static constexpr bool OneSection() {return false;}
 
-    DECL_DNA
+    AT_DECL_DNA
     struct MaterialSetHead : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> textureCount = 0;
         Vector<UniqueID32, DNA_COUNT(textureCount)> textureIDs;
         Value<atUint32> materialCount = 0;
@@ -28,10 +28,10 @@ struct MaterialSet : BigDNA
 
     struct Material : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         struct Flags : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> flags = 0;
             bool konstValuesEnabled() const {return (flags & 0x8) != 0;}
             void setKonstValuesEnabled(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
@@ -62,7 +62,7 @@ struct MaterialSet : BigDNA
         Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
         struct VAFlags : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> vaFlags = 0;
             GX::AttrType position() const {return GX::AttrType(vaFlags & 0x3);}
             void setPosition(GX::AttrType val) {vaFlags &= ~0x3; vaFlags |= atUint32(val);}
@@ -143,7 +143,7 @@ struct MaterialSet : BigDNA
         Value<atUint32> colorChannelCount = 0;
         struct ColorChannel : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> flags = 0;
             bool lighting() const {return (flags & 0x1) != 0;}
             void setLighting(bool enabled) {flags &= ~0x1; flags |= atUint32(enabled);}
@@ -163,7 +163,7 @@ struct MaterialSet : BigDNA
         Value<atUint32> tevStageCount = 0;
         struct TEVStage : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> ciFlags = 0;
             Value<atUint32> aiFlags = 0;
             Value<atUint32> ccFlags = 0;
@@ -221,7 +221,7 @@ struct MaterialSet : BigDNA
         Vector<TEVStage, DNA_COUNT(tevStageCount)> tevStages;
         struct TEVStageTexInfo : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint16> pad = 0;
             Value<atUint8> texSlot = 0xff;
             Value<atUint8> tcgSlot = 0xff;
@@ -231,7 +231,7 @@ struct MaterialSet : BigDNA
         Value<atUint32> tcgCount = 0;
         struct TexCoordGen : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> flags = 0;
 
             GX::TexGenType type() const {return GX::TexGenType(flags & 0xf);}
@@ -251,7 +251,7 @@ struct MaterialSet : BigDNA
         Value<atUint32> uvAnimsCount = 0;
         struct UVAnimation : BigDNA
         {
-            Delete expl;
+            AT_DECL_EXPLICIT_DNA
             enum class Mode
             {
                 MvInvNoTranslation,
@@ -265,96 +265,6 @@ struct MaterialSet : BigDNA
                 Eight
             } mode;
             float vals[9];
-            void read(athena::io::IStreamReader& reader)
-            {
-                mode = Mode(reader.readUint32Big());
-                switch (mode)
-                {
-                case Mode::MvInvNoTranslation:
-                case Mode::MvInv:
-                case Mode::Model:
-                    break;
-                case Mode::Scroll:
-                case Mode::HStrip:
-                case Mode::VStrip:
-                    vals[0] = reader.readFloatBig();
-                    vals[1] = reader.readFloatBig();
-                    vals[2] = reader.readFloatBig();
-                    vals[3] = reader.readFloatBig();
-                    break;
-                case Mode::Rotation:
-                case Mode::CylinderEnvironment:
-                    vals[0] = reader.readFloatBig();
-                    vals[1] = reader.readFloatBig();
-                    break;
-                case Mode::Eight:
-                    vals[0] = reader.readFloatBig();
-                    vals[1] = reader.readFloatBig();
-                    vals[2] = reader.readFloatBig();
-                    vals[3] = reader.readFloatBig();
-                    vals[4] = reader.readFloatBig();
-                    vals[5] = reader.readFloatBig();
-                    vals[6] = reader.readFloatBig();
-                    vals[7] = reader.readFloatBig();
-                    vals[8] = reader.readFloatBig();
-                    break;
-                }
-            }
-            void write(athena::io::IStreamWriter& writer) const
-            {
-                writer.writeUint32Big(atUint32(mode));
-                switch (mode)
-                {
-                case Mode::MvInvNoTranslation:
-                case Mode::MvInv:
-                case Mode::Model:
-                    break;
-                case Mode::Scroll:
-                case Mode::HStrip:
-                case Mode::VStrip:
-                    writer.writeFloatBig(vals[0]);
-                    writer.writeFloatBig(vals[1]);
-                    writer.writeFloatBig(vals[2]);
-                    writer.writeFloatBig(vals[3]);
-                    break;
-                case Mode::Rotation:
-                case Mode::CylinderEnvironment:
-                    writer.writeFloatBig(vals[0]);
-                    writer.writeFloatBig(vals[1]);
-                    break;
-                case Mode::Eight:
-                    writer.writeFloatBig(vals[0]);
-                    writer.writeFloatBig(vals[1]);
-                    writer.writeFloatBig(vals[2]);
-                    writer.writeFloatBig(vals[3]);
-                    writer.writeFloatBig(vals[4]);
-                    writer.writeFloatBig(vals[5]);
-                    writer.writeFloatBig(vals[6]);
-                    writer.writeFloatBig(vals[7]);
-                    writer.writeFloatBig(vals[8]);
-                    break;
-                }
-            }
-            size_t binarySize(size_t __isz) const
-            {
-                switch (mode)
-                {
-                case Mode::MvInvNoTranslation:
-                case Mode::MvInv:
-                case Mode::Model:
-                    return __isz + 4;
-                case Mode::Scroll:
-                case Mode::HStrip:
-                case Mode::VStrip:
-                    return __isz + 20;
-                case Mode::Rotation:
-                case Mode::CylinderEnvironment:
-                    return __isz + 12;
-                case Mode::Eight:
-                    return __isz + 40;
-                }
-                return __isz + 4;
-            }
 
             UVAnimation() = default;
             UVAnimation(const std::string& gameFunction,
@@ -447,12 +357,12 @@ struct HMDLMaterialSet : BigDNA
 {
     static constexpr bool OneSection() {return false;}
 
-    DECL_DNA
+    AT_DECL_DNA
     MaterialSet::MaterialSetHead head;
 
     struct Material : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         MaterialSet::Material::Flags flags;
 
         Value<atUint32> textureCount = 0;

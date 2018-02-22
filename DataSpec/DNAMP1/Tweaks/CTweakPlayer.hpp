@@ -8,7 +8,7 @@ namespace DataSpec::DNAMP1
 
 struct CTweakPlayer final : ITweakPlayer
 {
-    Delete _d;
+    AT_DECL_EXPLICIT_DNA_YAML
     Value<float> x4_maxTranslationalAcceleration[8];
     Value<float> x24_maxRotationalAcceleration[8];
     Value<float> x44_translationFriction[8];
@@ -313,15 +313,7 @@ struct CTweakPlayer final : ITweakPlayer
         FixupValues();
     }
 
-    void read(athena::io::IStreamReader& __dna_reader);
-    void write(athena::io::IStreamWriter& __dna_writer) const;
-    void read(athena::io::YAMLDocReader& __dna_docin);
-    void write(athena::io::YAMLDocWriter& __dna_docout) const;
     void FixupValues();
-    static const char* DNAType();
-    const char* DNATypeV() const { return DNAType(); }
-
-    size_t binarySize(size_t __isz) const;
 };
 
 }

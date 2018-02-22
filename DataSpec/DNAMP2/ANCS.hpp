@@ -13,24 +13,23 @@
 namespace DataSpec::DNAMP2
 {
 
-struct ANCS : BigYAML
+struct ANCS : BigDNA
 {
     using CINFType = CINF;
     using CSKRType = CSKR;
     using ANIMType = ANIM;
 
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint16> version;
 
-    struct CharacterSet : BigYAML
+    struct CharacterSet : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint16> version;
         Value<atUint32> characterCount;
-        struct CharacterInfo : BigYAML
+        struct CharacterInfo : BigDNA
         {
-            DECL_YAML
-            Delete expl;
+            AT_DECL_EXPLICIT_DNA_YAML
             using MP1CharacterInfo = DNAMP1::ANCS::CharacterSet::CharacterInfo;
 
             atUint32 idx;
@@ -39,9 +38,9 @@ struct ANCS : BigYAML
             UniqueID32 cskr;
             UniqueID32 cinf;
 
-            struct Animation : BigYAML
+            struct Animation : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> animIdx;
                 String<-1> strA;
             };
@@ -62,14 +61,14 @@ struct ANCS : BigYAML
 
             std::vector<MP1CharacterInfo::ActionAABB> animAABBs;
 
-            struct Effect : BigYAML
+            struct Effect : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 String<-1> name;
                 Value<atUint32> compCount;
-                struct EffectComponent : BigYAML
+                struct EffectComponent : BigDNA
                 {
-                    DECL_YAML
+                    AT_DECL_DNA_YAML
                     String<-1> name;
                     DNAFourCC type;
                     UniqueID32 id;
@@ -90,9 +89,9 @@ struct ANCS : BigYAML
             atUint32 unk4;
             atUint8 unk5;
 
-            struct Extents : BigYAML
+            struct Extents : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> animIdx;
                 Value<atVec3f> aabb[2];
             };
@@ -101,9 +100,9 @@ struct ANCS : BigYAML
         Vector<CharacterInfo, DNA_COUNT(characterCount)> characters;
     } characterSet;
 
-    struct AnimationSet : BigYAML
+    struct AnimationSet : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Delete expl;
 
         using MP1AnimationSet = DNAMP1::ANCS::AnimationSet;
@@ -120,15 +119,14 @@ struct ANCS : BigYAML
 
         std::vector<MP1AnimationSet::HalfTransition> halfTransitions;
 
-        struct EVNT : BigYAML
+        struct EVNT : BigDNA
         {
-            DECL_YAML
-            Delete expl;
+            AT_DECL_EXPLICIT_DNA_YAML
             atUint32 version;
 
-            struct EventBase : BigYAML
+            struct EventBase : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint16> unk0;
                 String<-1> name;
                 Value<atUint16> type;
@@ -143,22 +141,24 @@ struct ANCS : BigYAML
 
             struct LoopEvent : EventBase
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint8> flag;
             };
-            std::vector<LoopEvent> loopEvents;
+            Value<atUint32> loopEventCount;
+            Vector<LoopEvent, DNA_COUNT(loopEventCount)> loopEvents;
 
             struct UEVTEvent : EventBase
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> uevtType;
                 String<-1> boneName;
             };
-            std::vector<UEVTEvent> uevtEvents;
+            Value<atUint32> uevtEventCount;
+            Vector<UEVTEvent, DNA_COUNT(uevtEventCount)> uevtEvents;
 
             struct EffectEvent : EventBase
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> frameCount;
                 DNAFourCC effectType;
                 UniqueID32 effectId;
@@ -166,11 +166,12 @@ struct ANCS : BigYAML
                 Value<float> scale;
                 Value<atUint32> parentMode;
             };
-            std::vector<EffectEvent> effectEvents;
+            Value<atUint32> effectEventCount;
+            Vector<EffectEvent, DNA_COUNT(effectEventCount)> effectEvents;
 
             struct SFXEvent : EventBase
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<atUint32> soundId;
                 Value<float> smallNum;
                 Value<float> bigNum;
@@ -179,7 +180,8 @@ struct ANCS : BigYAML
                 Value<atUint16> sfxUnk3;
                 Value<float> sfxUnk4;
             };
-            std::vector<SFXEvent> sfxEvents;
+            Value<atUint32> sfxEventCount;
+            Vector<SFXEvent, DNA_COUNT(sfxEventCount)> sfxEvents;
         };
         std::vector<EVNT> evnts;
     } animationSet;
@@ -238,7 +240,7 @@ struct ANCS : BigYAML
             if (force || yamlType == hecl::ProjectPath::Type::None)
             {
                 athena::io::FileWriter writer(yamlPath.getAbsolutePath());
-                ancs.toYAMLStream(writer);
+                athena::io::ToYAMLStream(ancs, writer);
             }
 
             if (force || blendType == hecl::ProjectPath::Type::None)

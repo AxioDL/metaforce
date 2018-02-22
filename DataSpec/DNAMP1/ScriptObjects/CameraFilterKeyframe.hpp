@@ -9,7 +9,8 @@ namespace DataSpec::DNAMP1
 {
 struct CameraFilterKeyframe : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name;
     Value<bool> active;
     Value<atUint32> ftype;

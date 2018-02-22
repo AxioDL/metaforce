@@ -7,19 +7,18 @@
 namespace DataSpec::DNAMP1
 {
 
-struct EVNT : BigYAML
+struct EVNT : BigDNA
 {
-    DECL_YAML
-    Delete expl;
+    AT_DECL_EXPLICIT_DNA_YAML
     Value<atUint32> version;
 
-    struct POINode : BigYAML
+    struct POINode : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint16> unk0;
         String<-1> name;
         Value<atUint16> type;
-        struct CharAnimTime : BigYAML
+        struct CharAnimTime : BigDNA
         {
             enum class Type : atUint32
             {
@@ -30,7 +29,7 @@ struct EVNT : BigYAML
                 Infinity
             };
 
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<float> time;
             Value<Type> type;
         };
@@ -45,22 +44,24 @@ struct EVNT : BigYAML
 
     struct BoolPOINode : POINode
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint8> value;
     };
-    std::vector<BoolPOINode> boolPOINodes;
+    Value<atUint32> boolPOICount;
+    Vector<BoolPOINode, DNA_COUNT(boolPOICount)> boolPOINodes;
 
     struct Int32POINode : POINode
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> value;
         String<-1> locator;
     };
-    std::vector<Int32POINode> int32POINodes;
+    Value<atUint32> int32POICount;
+    Vector<Int32POINode, DNA_COUNT(int32POICount)> int32POINodes;
 
     struct ParticlePOINode : POINode
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> duration;
         DNAFourCC ptype;
         UniqueID32 id;
@@ -68,23 +69,25 @@ struct EVNT : BigYAML
         Value<float> scale;
         Value<atUint32> parentMode;
     };
-    std::vector<ParticlePOINode> particlePOINodes;
+    Value<atUint32> particlePOICount;
+    Vector<ParticlePOINode, DNA_COUNT(particlePOICount)> particlePOINodes;
 
     struct SoundPOINode : POINode
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> soundId;
         Value<float> falloff;
         Value<float> maxDist;
     };
-    std::vector<SoundPOINode> soundPOINodes;
+    Value<atUint32> soundPOICount;
+    Vector<SoundPOINode, DNA_COUNT(soundPOICount)> soundPOINodes;
 
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         EVNT evnt;
         evnt.read(rs);
         athena::io::FileWriter writer(outPath.getAbsolutePath());
-        evnt.toYAMLStream(writer);
+        athena::io::ToYAMLStream(evnt, writer);
         return true;
     }
 
@@ -92,7 +95,7 @@ struct EVNT : BigYAML
     {
         EVNT evnt;
         athena::io::FileReader reader(inPath.getAbsolutePath());
-        evnt.fromYAMLStream(reader);
+        athena::io::FromYAMLStream(evnt, reader);
         athena::io::FileWriter ws(outPath.getAbsolutePath());
         evnt.write(ws);
         return true;

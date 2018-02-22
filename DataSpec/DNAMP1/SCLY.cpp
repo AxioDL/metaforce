@@ -4,7 +4,8 @@
 namespace DataSpec::DNAMP1
 {
 
-void SCLY::read(athena::io::IStreamReader& rs)
+template <>
+void SCLY::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs)
 {
     fourCC = rs.readUint32Little();
     version = rs.readUint32Big();
@@ -18,7 +19,8 @@ void SCLY::read(athena::io::IStreamReader& rs)
     });
 }
 
-void SCLY::write(athena::io::IStreamWriter& ws) const
+template <>
+void SCLY::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& ws)
 {
     ws.writeUint32Big(fourCC);
     ws.writeUint32Big(version);
@@ -27,11 +29,13 @@ void SCLY::write(athena::io::IStreamWriter& ws) const
     ws.enumerate(layers);
 }
 
-size_t SCLY::binarySize(size_t __isz) const
+template <>
+void SCLY::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     __isz += 12;
     __isz += layerSizes.size() * 4;
-    return __EnumerateSize(__isz, layers);
+    for (const ScriptLayer& layer : layers)
+        layer.binarySize(__isz);
 }
 
 void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge>& pakRouter, bool force) const
@@ -53,7 +57,7 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
         if (force || yamlFile.isNone())
         {
             athena::io::FileWriter writer(yamlFile.getAbsolutePath());
-            layers[i].toYAMLStream(writer);
+            athena::io::ToYAMLStream(layers[i], writer);
         }
     }
 }
@@ -84,7 +88,8 @@ void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
         obj->nameIDs(pakRouter);
 }
 
-void SCLY::read(athena::io::YAMLDocReader& docin)
+template <>
+void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin)
 {
     fourCC = docin.readUint32("fourCC");
     version = docin.readUint32("version");
@@ -92,7 +97,8 @@ void SCLY::read(athena::io::YAMLDocReader& docin)
     docin.enumerate("layers", layers);
 }
 
-void SCLY::write(athena::io::YAMLDocWriter& docout) const
+template <>
+void SCLY::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& docout)
 {
     docout.writeUint32("fourCC", fourCC);
     docout.writeUint32("version", version);
@@ -105,7 +111,8 @@ const char* SCLY::DNAType()
     return "urde::DNAMP1::SCLY";
 }
 
-void SCLY::ScriptLayer::read(athena::io::IStreamReader& rs)
+template <>
+void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs)
 {
     unknown = rs.readUByte();
     objectCount = rs.readUint32Big();
@@ -136,7 +143,8 @@ void SCLY::ScriptLayer::read(athena::io::IStreamReader& rs)
     }
 }
 
-void SCLY::ScriptLayer::read(athena::io::YAMLDocReader& rs)
+template <>
+void SCLY::ScriptLayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& rs)
 {
     unknown = rs.readUByte("unknown");
     size_t objCount;
@@ -169,14 +177,16 @@ void SCLY::ScriptLayer::read(athena::io::YAMLDocReader& rs)
         objectCount = 0;
 }
 
-void SCLY::ScriptLayer::write(athena::io::IStreamWriter& ws) const
+template <>
+void SCLY::ScriptLayer::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& ws)
 {
     ws.writeUByte(unknown);
     ws.writeUint32Big(objectCount);
     for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
         ws.writeByte(obj->type);
-        atUint32 expLen = obj->binarySize(0);
+        size_t expLen = 0;
+        obj->binarySize(expLen);
         ws.writeUint32Big(expLen);
         auto start = ws.position();
         obj->write(ws);
@@ -186,18 +196,19 @@ void SCLY::ScriptLayer::write(athena::io::IStreamWriter& ws) const
     }
 }
 
-size_t SCLY::ScriptLayer::binarySize(size_t __isz) const
+template <>
+void SCLY::ScriptLayer::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     __isz += 5;
     for (const std::unique_ptr<IScriptObject>& obj : objects)
     {
         __isz += 5;
-        __isz = obj->binarySize(__isz);
+        obj->binarySize(__isz);
     }
-    return __isz;
 }
 
-void SCLY::ScriptLayer::write(athena::io::YAMLDocWriter& ws) const
+template <>
+void SCLY::ScriptLayer::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& ws)
 {
     ws.writeUByte("unknown", unknown);
     if (auto v = ws.enterSubVector("objects"))

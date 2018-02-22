@@ -7,17 +7,9 @@
 
 namespace DataSpec::DNAMP1
 {
-static const std::vector<std::string> PaneNames =
+struct SCAN : BigDNA
 {
-    "imagepane_pane0",  "imagepane_pane1",   "imagepane_pane2",   "imagepane_pane3",   "imagepane_pane01",
-    "imagepane_pane12", "imagepane_pane23",  "imagepane_pane012", "imagepane_pane123", "imagepane_pane0123",
-    "imagepane_pane4",  "imagepane_pane5",   "imagepane_pane6",   "imagepane_pane7",   "imagepane_pane45",
-    "imagepane_pane56", "imagepane_pane67",  "imagepane_pane456", "imagepane_pane567", "imagepane_pane4567"
-};
-
-struct SCAN : BigYAML
-{
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> version;
     Value<atUint32> magic;
     UniqueID32      frame;
@@ -40,9 +32,9 @@ struct SCAN : BigYAML
 
     Value<bool> isImportant;
 
-    struct Texture : BigYAML
+    struct Texture : BigDNA
     {
-        Delete __delete;
+        AT_DECL_EXPLICIT_DNA_YAML
         UniqueID32 texture;
         Value<float> appearanceRange;
         enum class Position : atInt32
@@ -56,96 +48,6 @@ struct SCAN : BigYAML
         Value<atUint32> height;       // height of animation cell
         Value<float>    interval;     // 0.0 - 1.0
         Value<float>    fadeDuration; // 0.0 - 1.0
-
-        void read(athena::io::IStreamReader& __dna_reader)
-        {
-            /* texture */
-            texture.read(__dna_reader);
-            /* appearanceRange */
-            appearanceRange = __dna_reader.readFloatBig();
-            /* position */
-            position = Position(__dna_reader.readUint32Big());
-            /* width */
-            width = __dna_reader.readUint32Big();
-            /* height */
-            height = __dna_reader.readUint32Big();
-            /* interval */
-            interval = __dna_reader.readFloatBig();
-            /* fadeDuration */
-            fadeDuration = __dna_reader.readFloatBig();
-        }
-
-        void write(athena::io::IStreamWriter& __dna_writer) const
-        {
-            /* texture */
-            texture.write(__dna_writer);
-            /* appearanceRange */
-            __dna_writer.writeFloatBig(appearanceRange);
-            /* position */
-            __dna_writer.writeUint32Big(atUint32(position));
-            /* width */
-            __dna_writer.writeUint32Big(width);
-            /* height */
-            __dna_writer.writeUint32Big(height);
-            /* interval */
-            __dna_writer.writeFloatBig(interval);
-            /* fadeDuration */
-            __dna_writer.writeFloatBig(fadeDuration);
-        }
-
-        void read(athena::io::YAMLDocReader& __dna_docin)
-        {
-            /* texture */
-            __dna_docin.enumerate("texture", texture);
-            /* appearanceRange */
-            appearanceRange = __dna_docin.readFloat("appearanceRange");
-            /* position */
-            std::string tmp = __dna_docin.readString("position");
-
-            auto idx = std::find(PaneNames.begin(), PaneNames.end(), tmp);
-            if (idx != PaneNames.end())
-                position = Position(idx - PaneNames.begin());
-            else
-                position = Position::Invalid;
-
-            /* width */
-            width = __dna_docin.readUint32("width");
-            /* height */
-            height = __dna_docin.readUint32("height");
-            /* interval */
-            interval = __dna_docin.readFloat("interval");
-            /* fadeDuration */
-            fadeDuration = __dna_docin.readFloat("fadeDuration");
-        }
-
-        void write(athena::io::YAMLDocWriter& __dna_docout) const
-        {
-            /* texture */
-            __dna_docout.enumerate("texture", texture);
-            /* appearanceRange */
-            __dna_docout.writeFloat("appearanceRange", appearanceRange);
-            /* position */
-            if (position != Position::Invalid)
-                __dna_docout.writeString("position", PaneNames.at(atUint32(position)));
-            else
-                __dna_docout.writeString("position", "undefined");
-            /* width */
-            __dna_docout.writeUint32("width", width);
-            /* height */
-            __dna_docout.writeUint32("height", height);
-            /* interval */
-            __dna_docout.writeFloat("interval", interval);
-            /* fadeDuration */
-            __dna_docout.writeFloat("fadeDuration", fadeDuration);
-        }
-
-        const char* DNAType() { return "urde::DNAMP1::SCAN::Texture"; }
-        size_t binarySize(size_t __isz) const
-        {
-            __isz = texture.binarySize(__isz);
-            return __isz + 24;
-        }
-
     };
 
     Texture textures[4];
@@ -155,7 +57,7 @@ struct SCAN : BigYAML
         SCAN scan;
         scan.read(rs);
         athena::io::FileWriter writer(outPath.getAbsolutePath());
-        scan.toYAMLStream(writer);
+        athena::io::ToYAMLStream(scan, writer);
         return true;
     }
 
@@ -172,7 +74,7 @@ struct SCAN : BigYAML
         athena::io::FileReader reader(inPath.getAbsolutePath());
         if (reader.hasError())
             return Category::None;
-        if (!scan.fromYAMLStream(reader))
+        if (!athena::io::FromYAMLStream(scan, reader))
             return Category::None;
         return scan.category;
     }
@@ -208,6 +110,7 @@ struct SCAN : BigYAML
             g_curSpec->flattenDependencies(textures[i].texture, pathsOut);
     }
 };
+
 }
 
 #endif

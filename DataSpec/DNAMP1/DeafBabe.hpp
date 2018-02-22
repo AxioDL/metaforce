@@ -8,12 +8,12 @@ namespace DataSpec::DNAMP1
 
 struct DeafBabe : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     using BspNodeType = DataSpec::BspNodeType;
 
     struct Material : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> material = 0;
         bool unknown() const { return material & 1; }
         void setUnknown(bool v) { material &= ~1; material |= int(v); }
@@ -107,13 +107,13 @@ struct DeafBabe : BigDNA
 
     struct Edge : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint16> verts[2];
     };
 
     struct Triangle : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint16> edges[3];
     };
 

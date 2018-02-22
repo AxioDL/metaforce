@@ -9,7 +9,8 @@ namespace DataSpec::DNAMP1
 {
 struct Water : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> volume;
@@ -32,12 +33,12 @@ struct Water : IScriptObject
     Value<atUint32> fluidType;
     Value<bool> unknownBool;
     Value<float> alpha;
-    struct FluidUVMotion : BigYAML
+    struct FluidUVMotion : BigDNA
     {
-        DECL_YAML
-        struct FluidLayerMotion : BigYAML
+        AT_DECL_DNA
+        struct FluidLayerMotion : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA
             Value<atUint32> motionType;
             Value<float> timeToWrap;
             Value<float> orientation;
@@ -90,23 +91,9 @@ struct Water : IScriptObject
     Value<atUint32> unusedInt1;
     Value<atUint32> unusedInt2;
 
-    struct UnusedBitset : BigYAML
+    struct UnusedBitset : BigDNA
     {
-        Delete _d;
-        void read(athena::io::IStreamReader& in)
-        {
-            if (in.readBool())
-            {
-                atUint32 bitVal0 = in.readUint16Big();
-                atUint32 bitVal1 = in.readUint16Big();
-                atUint32 len = ((bitVal0 * bitVal1) + 31) / 31;
-                in.seek(len * 4);
-            }
-        }
-        void write(athena::io::IStreamWriter& out) const { out.writeBool(false); }
-        void read(athena::io::YAMLDocReader& reader) {}
-        void write(athena::io::YAMLDocWriter& writer) const {}
-        size_t binarySize(size_t __isz) const { return __isz + 1; }
+        AT_DECL_EXPLICIT_DNA
     } unusedBitset;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const

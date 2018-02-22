@@ -9,7 +9,8 @@ namespace DataSpec::DNAMP1
 {
 struct SpindleCamera : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
@@ -19,9 +20,9 @@ struct SpindleCamera : IScriptObject
     Value<float> unknown3;
     Value<float> unknown4;
     Value<float> unknown5;
-    struct SpindleCameraParameters : BigYAML
+    struct SpindleCameraParameters : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<atUint32> unknown1;
         PlayerParameters playerParameters;
         Value<float> unknown5;

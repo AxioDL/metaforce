@@ -7,7 +7,7 @@ namespace DataSpec::DNAMP1
 {
 struct CTweakGui final : ITweakGui
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<bool> x4_;
     Value<float> x8_mapAlphaInterp;
     Value<float> xc_pauseBlurFactor;

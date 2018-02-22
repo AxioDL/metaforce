@@ -89,15 +89,19 @@ void UniqueIDBridge::setThreadProject(hecl::Database::Project& project)
 }
 
 /** PAK 32-bit Unique ID */
-void UniqueID32::read(athena::io::IStreamReader& reader)
+template <>
+void UniqueID32::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {assign(reader.readUint32Big());}
-void UniqueID32::write(athena::io::IStreamWriter& writer) const
+template <>
+void UniqueID32::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {writer.writeUint32Big(m_id);}
-void UniqueID32::read(athena::io::YAMLDocReader& reader)
+template <>
+void UniqueID32::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     *this = UniqueIDBridge::MakePathFromString<UniqueID32>(reader.readString(nullptr));
 }
-void UniqueID32::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void UniqueID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     if (!operator bool())
         return;
@@ -108,8 +112,9 @@ void UniqueID32::write(athena::io::YAMLDocWriter& writer) const
         (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
          path.getRelativePathUTF8());
 }
-size_t UniqueID32::binarySize(size_t __isz) const
-{return __isz + 4;}
+template <>
+void UniqueID32::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{s += 4;}
 
 std::string UniqueID32::toString() const
 {
@@ -137,24 +142,25 @@ AuxiliaryID32& AuxiliaryID32::operator=(const UniqueID32& id)
     return *this;
 }
 
-void AuxiliaryID32::read(athena::io::IStreamReader& reader)
+template <>
+void AuxiliaryID32::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     assign(reader.readUint32Big());
     m_baseId = *this;
 }
-
-void AuxiliaryID32::write(athena::io::IStreamWriter& writer) const
+template <>
+void AuxiliaryID32::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     writer.writeUint32Big(m_id);
 }
-
-void AuxiliaryID32::read(athena::io::YAMLDocReader& reader)
+template <>
+void AuxiliaryID32::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     hecl::ProjectPath readPath = UniqueIDBridge::MakePathFromString<UniqueID32>(reader.readString(nullptr));
     *this = readPath.ensureAuxInfo(m_auxStr);
 }
-
-void AuxiliaryID32::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void AuxiliaryID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     if (!operator bool())
         return;
@@ -171,15 +177,19 @@ void AuxiliaryID32::write(athena::io::YAMLDocWriter& writer) const
 
 
 /** PAK 64-bit Unique ID */
-void UniqueID64::read(athena::io::IStreamReader& reader)
+template <>
+void UniqueID64::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {assign(reader.readUint64Big());}
-void UniqueID64::write(athena::io::IStreamWriter& writer) const
+template <>
+void UniqueID64::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {writer.writeUint64Big(m_id);}
-void UniqueID64::read(athena::io::YAMLDocReader& reader)
+template <>
+void UniqueID64::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     *this = UniqueIDBridge::MakePathFromString<UniqueID64>(reader.readString(nullptr));
 }
-void UniqueID64::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void UniqueID64::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     if (!operator bool())
         return;
@@ -187,11 +197,12 @@ void UniqueID64::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
-         path.getRelativePathUTF8());
+                                (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
+                                path.getRelativePathUTF8());
 }
-size_t UniqueID64::binarySize(size_t __isz) const
-{return __isz + 8;}
+template <>
+void UniqueID64::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{s += 8;}
 
 std::string UniqueID64::toString() const
 {
@@ -201,21 +212,25 @@ std::string UniqueID64::toString() const
 }
 
 /** PAK 128-bit Unique ID */
-void UniqueID128::read(athena::io::IStreamReader& reader)
+template <>
+void UniqueID128::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     m_id[0] = reader.readUint64Big();
     m_id[1] = reader.readUint64Big();
 }
-void UniqueID128::write(athena::io::IStreamWriter& writer) const
+template <>
+void UniqueID128::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     writer.writeUint64Big(m_id[0]);
     writer.writeUint64Big(m_id[1]);
 }
-void UniqueID128::read(athena::io::YAMLDocReader& reader)
+template <>
+void UniqueID128::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     *this = UniqueIDBridge::MakePathFromString<UniqueID128>(reader.readString(nullptr));
 }
-void UniqueID128::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void UniqueID128::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     if (!operator bool())
         return;
@@ -223,11 +238,12 @@ void UniqueID128::write(athena::io::YAMLDocWriter& writer) const
     if (!path)
         return;
     writer.writeString(nullptr, path.getAuxInfo().size() ?
-        (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
-         path.getRelativePathUTF8());
+                                (std::string(path.getRelativePathUTF8()) + '|' + path.getAuxInfoUTF8().data()) :
+                                path.getRelativePathUTF8());
 }
-size_t UniqueID128::binarySize(size_t __isz) const
-{return __isz + 16;}
+template <>
+void UniqueID128::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{s += 16;}
 
 std::string UniqueID128::toString() const
 {

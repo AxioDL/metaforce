@@ -28,7 +28,7 @@ bool ExtractTweak(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         T tweak;
         tweak.read(rs);
-        tweak.toYAMLStream(writer);
+        athena::io::ToYAMLStream(tweak, writer);
         return true;
     }
     return false;

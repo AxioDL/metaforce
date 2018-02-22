@@ -9,10 +9,10 @@ namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
-struct DPSM : BigYAML
+struct DPSM : BigDNA
 {
-    static const char* DNAType() { return "DPSM"; }
-    const char* DNATypeV() const { return DNAType(); }
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_SUBDECL_DNA
 
     struct SQuadDescr
     {
@@ -38,15 +38,10 @@ struct DPSM : BigYAML
         struct { bool x5c_24_DMAB : 1; bool x5c_25_DMOO : 1;};
         uint8_t dummy;
     };
-    void read(athena::io::YAMLDocReader& r);
-    void write(athena::io::YAMLDocWriter& w) const;
     template <class Reader>
     void readQuadDecalInfo(Reader& r, uint32_t clsId, SQuadDescr& quad);
     void writeQuadDecalInfo(athena::io::YAMLDocWriter& w, const SQuadDescr& quad, bool first) const;
-    size_t binarySize(size_t __isz) const;
-    size_t getQuadDecalBinarySize(size_t __isz, const SQuadDescr& ) const;
-    void read(athena::io::IStreamReader& r);
-    void write(athena::io::IStreamWriter& w) const;
+    void getQuadDecalBinarySize(size_t& s, const SQuadDescr& desc) const;
     void writeQuadDecalInfo(athena::io::IStreamWriter& w, const SQuadDescr& quad, bool first) const;
 
     void gatherDependencies(std::vector<hecl::ProjectPath>&) const;

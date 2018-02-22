@@ -507,11 +507,11 @@ struct SpecMP3 : SpecBase
 
     bool validateYAMLDNAType(athena::io::IStreamReader& fp) const
     {
-        if (BigYAML::ValidateFromYAMLStream<DNAMP3::MLVL>(fp))
+        if (athena::io::ValidateFromYAMLStream<DNAMP3::MLVL>(fp))
             return true;
-        if (BigYAML::ValidateFromYAMLStream<DNAMP3::STRG>(fp))
+        if (athena::io::ValidateFromYAMLStream<DNAMP3::STRG>(fp))
             return true;
-        if (BigYAML::ValidateFromYAMLStream<DNAMP2::STRG>(fp))
+        if (athena::io::ValidateFromYAMLStream<DNAMP2::STRG>(fp))
             return true;
         return false;
     }

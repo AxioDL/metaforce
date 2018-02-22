@@ -7,35 +7,26 @@
 
 namespace DataSpec::DNAMP1
 {
-struct SCLY : BigYAML
+struct SCLY : BigDNA
 {
-    DECL_EXPLICIT_YAML
-    Delete _d;
+    AT_DECL_EXPLICIT_DNA_YAML
     Value<FourCC> fourCC;
     Value<atUint32> version;
     Value<atUint32> layerCount;
 
     Vector<atUint32, DNA_COUNT(layerCount)> layerSizes;
 
-    struct ScriptLayer : BigYAML
+    struct ScriptLayer : BigDNA
     {
-        DECL_EXPLICIT_YAML
-        Delete _d;
+        AT_DECL_EXPLICIT_DNA_YAML
         Value<atUint8> unknown;
         Value<atUint32> objectCount;
         Vector<std::unique_ptr<IScriptObject>, DNA_COUNT(objectCount)> objects;
-        void read(athena::io::IStreamReader &rs);
-        void write(athena::io::IStreamWriter &ws) const;
-        size_t binarySize(size_t __isz) const;
         void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
         void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
     };
     Vector<ScriptLayer, DNA_COUNT(layerCount)> layers;
-
-    void read(athena::io::IStreamReader &rs);
-    void write(athena::io::IStreamWriter &ws) const;
-    size_t binarySize(size_t __isz) const;
 
     void exportToLayerDirectories(const PAK::Entry &, PAKRouter<PAKBridge>&, bool) const;
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,

@@ -13,7 +13,7 @@ struct MaterialSet : BigDNA
 {
     static constexpr bool OneSection() {return true;}
 
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> materialCount;
 
     /* Dummy methods from MP1/2 */
@@ -22,15 +22,15 @@ struct MaterialSet : BigDNA
 
     struct Material : BigDNA
     {
-        Delete expl;
+        AT_DECL_EXPLICIT_DNA
         using VAFlags = DNAMP1::MaterialSet::Material::VAFlags;
         struct Header : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> size;
             struct Flags : BigDNA
             {
-                DECL_DNA
+                AT_DECL_DNA
                 Value<atUint32> flags;
                 bool alphaBlending() const {return (flags & 0x8) != 0;}
                 void setAlphaBlending(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
@@ -52,7 +52,7 @@ struct MaterialSet : BigDNA
         const Header::Flags& getFlags() const {return header.flags;}
         const VAFlags& getVAFlags() const {return header.vaFlags;}
 
-        struct ISection : BigDNA
+        struct ISection : BigDNAV
         {
             Delete expl;
             enum class Type : atUint32
@@ -74,7 +74,8 @@ struct MaterialSet : BigDNA
         struct SectionPASS : ISection
         {
             SectionPASS() : ISection(ISection::Type::PASS) {}
-            DECL_DNA
+            AT_DECL_DNA
+            AT_DECL_DNAV
             Value<atUint32> size;
             enum class Subtype : atUint32
             {
@@ -96,7 +97,7 @@ struct MaterialSet : BigDNA
             DNAFourCC subtype;
             struct Flags : BigDNA
             {
-                DECL_DNA
+                AT_DECL_DNA
                 Value<atUint32> flags;
                 bool TRANInvert() const {return (flags & 0x10) != 0;}
                 void setTRANInvert(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
@@ -106,7 +107,7 @@ struct MaterialSet : BigDNA
             Value<atUint32> uvAnimSize;
             struct UVAnimation : BigDNA
             {
-                DECL_DNA
+                AT_DECL_DNA
                 Value<atUint16> unk1;
                 Value<atUint16> unk2;
                 DNAMP1::MaterialSet::Material::UVAnimation anim;
@@ -125,7 +126,8 @@ struct MaterialSet : BigDNA
         struct SectionCLR : ISection
         {
             SectionCLR() : ISection(ISection::Type::CLR) {}
-            DECL_DNA
+            AT_DECL_DNA
+            AT_DECL_DNAV
             enum class Subtype : atUint32
             {
                 CLR = SBIG('CLR '),
@@ -146,7 +148,8 @@ struct MaterialSet : BigDNA
         struct SectionINT : ISection
         {
             SectionINT() : ISection(ISection::Type::INT) {}
-            DECL_DNA
+            AT_DECL_DNA
+            AT_DECL_DNAV
             enum class Subtype : atUint32
             {
                 OPAC = SBIG('OPAC'),
@@ -169,68 +172,10 @@ struct MaterialSet : BigDNA
         };
         struct SectionFactory : BigDNA
         {
-            Delete expl;
+            AT_DECL_EXPLICIT_DNA
             std::unique_ptr<ISection> section;
-            void read(athena::io::IStreamReader& reader)
-            {
-                DNAFourCC type;
-                type.read(reader);
-                switch (ISection::Type(type.toUint32()))
-                {
-                case ISection::Type::PASS:
-                    section.reset(new struct SectionPASS);
-                    section->read(reader);
-                    break;
-                case ISection::Type::CLR:
-                    section.reset(new struct SectionCLR);
-                    section->read(reader);
-                    break;
-                case ISection::Type::INT:
-                    section.reset(new struct SectionINT);
-                    section->read(reader);
-                    break;
-                default:
-                    section.reset(nullptr);
-                    break;
-                }
-            }
-            void write(athena::io::IStreamWriter& writer) const
-            {
-                if (!section)
-                    return;
-                writer.writeUBytes((atUint8*)&section->m_type, 4);
-                section->write(writer);
-            }
-            size_t binarySize(size_t __isz) const
-            {
-                return section->binarySize(__isz + 4);
-            }
         };
         std::vector<SectionFactory> sections;
-        void read(athena::io::IStreamReader& reader)
-        {
-            header.read(reader);
-            sections.clear();
-            do {
-                sections.emplace_back();
-                sections.back().read(reader);
-            } while (sections.back().section);
-            sections.pop_back();
-        }
-        void write(athena::io::IStreamWriter& writer) const
-        {
-            header.write(writer);
-            for (const SectionFactory& section : sections)
-                section.write(writer);
-            writer.writeUBytes((atUint8*)"END ", 4);
-        }
-        size_t binarySize(size_t __isz) const
-        {
-            __isz = header.binarySize(__isz);
-            for (const SectionFactory& section : sections)
-                __isz = section.binarySize(__isz);
-            return __isz + 4;
-        }
     };
     Vector<Material, DNA_COUNT(materialCount)> materials;
 

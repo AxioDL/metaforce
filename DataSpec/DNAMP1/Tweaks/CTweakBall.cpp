@@ -3,7 +3,8 @@
 namespace DataSpec::DNAMP1
 {
 
-void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
+template <>
+void CTweakBall::Enumerate<BigDNA::Read>(typename Read::StreamT& __dna_reader)
 {
     /* x4_maxTranslationAcceleration[0] */
     x4_maxTranslationAcceleration[0] = __dna_reader.readFloatBig();
@@ -223,7 +224,8 @@ void CTweakBall::read(athena::io::IStreamReader& __dna_reader)
     x234_boostBallIncrementalSpeed2 = __dna_reader.readFloatBig();
 }
 
-void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void CTweakBall::Enumerate<BigDNA::Write>(typename Write::StreamT& __dna_writer)
 {
     /* x4_maxTranslationAcceleration[0] */
     __dna_writer.writeFloatBig(x4_maxTranslationAcceleration[0]);
@@ -443,7 +445,8 @@ void CTweakBall::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x234_boostBallIncrementalSpeed2);
 }
 
-void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
+template <>
+void CTweakBall::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& __dna_docin)
 {
     /* x4_maxTranslationAcceleration */
     size_t __x4_Count;
@@ -683,7 +686,8 @@ void CTweakBall::read(athena::io::YAMLDocReader& __dna_docin)
     x234_boostBallIncrementalSpeed2 = __dna_docin.readFloat("x234_boostBallIncrementalSpeed2");
 }
 
-void CTweakBall::write(athena::io::YAMLDocWriter& __dna_docout) const
+template <>
+void CTweakBall::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& __dna_docout)
 {
     /* x4_maxTranslationAcceleration */
     if (auto v = __dna_docout.enterSubVector("x4_maxTranslationAcceleration"))
@@ -924,9 +928,10 @@ const char* CTweakBall::DNAType()
     return "DataSpec::DNAMP1::CTweakBall";
 }
 
-size_t CTweakBall::binarySize(size_t __isz) const
+template <>
+void CTweakBall::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
-    return __isz + 456;
+    s += 456;
 }
 
 }

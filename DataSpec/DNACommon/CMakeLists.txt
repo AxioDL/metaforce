@@ -1,5 +1,8 @@
 make_dnalist(liblist DNACommon
              CMDL
+             FONT
+             DGRP
+             FSM2
              MAPA
              MAPU
              EGMC
@@ -27,8 +30,8 @@ set(DNACOMMON_SOURCES
     WPSC.hpp WPSC.cpp
     DPSC.hpp DPSC.cpp
     ParticleCommon.cpp
-    FONT.hpp FONT.cpp
-    DGRP.hpp DGRP.cpp
+    FONT.cpp
+    DGRP.cpp
     ATBL.hpp ATBL.cpp
     DeafBabe.hpp DeafBabe.cpp
     BabeDead.hpp BabeDead.cpp

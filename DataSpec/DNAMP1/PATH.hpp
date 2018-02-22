@@ -7,12 +7,12 @@ namespace DataSpec
 {
 struct PATH : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> version;
 
     struct Node : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atVec3f> position;
         Value<atVec3f> normal;
     };
@@ -21,7 +21,7 @@ struct PATH : BigDNA
 
     struct Link : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> nodeIdx;
         Value<atUint32> regionIdx;
         Value<float> width2d;
@@ -32,7 +32,7 @@ struct PATH : BigDNA
 
     struct Region : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> nodeCount;
         Value<atUint32> nodeStart;
         Value<atUint32> linkCount;
@@ -57,7 +57,7 @@ struct PATH : BigDNA
 
     struct OctreeNode : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> isLeaf;
         Value<atVec3f> points[3];
         Value<atUint32> children[8];

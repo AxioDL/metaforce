@@ -9,7 +9,8 @@ namespace DataSpec::DNAMP1
 {
 struct CameraShaker : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name;
     Value<float> xMag;
     Value<float> xB;

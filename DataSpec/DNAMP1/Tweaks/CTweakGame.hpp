@@ -8,7 +8,7 @@ namespace DataSpec::DNAMP1
 
 struct CTweakGame final : ITweakGame
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     String<-1> x4_worldPrefix;
     String<-1> x14_ruinsArea; // ????
     Value<float> x24_fov;

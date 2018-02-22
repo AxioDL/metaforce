@@ -9,7 +9,7 @@ class CVarManager;
 }
 namespace DataSpec
 {
-struct ITweak : BigYAML
+struct ITweak : BigDNA
 {
 
     virtual void initCVars(hecl::CVarManager*) {}

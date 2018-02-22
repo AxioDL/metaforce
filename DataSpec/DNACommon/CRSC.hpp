@@ -9,22 +9,15 @@
 namespace DataSpec::DNAParticle
 {
 template <class IDType>
-struct CRSM : BigYAML
+struct CRSM : BigDNA
 {
-    static const char* DNAType() { return "CRSM"; }
-    const char* DNATypeV() const { return DNAType(); }
-
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_SUBDECL_DNA
     std::unordered_map<FourCC, ChildResourceFactory<IDType>> x0_generators;
     std::unordered_map<FourCC, uint32_t> x10_sfx;
     std::unordered_map<FourCC, ChildResourceFactory<IDType>> x20_decals;
     float x30_RNGE;
     float x34_FOFF;
-
-    void read(athena::io::YAMLDocReader& r);
-    void write(athena::io::YAMLDocWriter& w) const;
-    size_t binarySize(size_t __isz) const;
-    void read(athena::io::IStreamReader& r);
-    void write(athena::io::IStreamWriter& w) const;
 
     CRSM();
 

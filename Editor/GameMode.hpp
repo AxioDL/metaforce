@@ -13,7 +13,8 @@ class GameMode : public ViewerSpace
 
     struct State : Space::State
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
         Value<bool> showToolbar = true;
     } m_state;
 

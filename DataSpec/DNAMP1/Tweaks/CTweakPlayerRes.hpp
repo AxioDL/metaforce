@@ -8,7 +8,7 @@ namespace DataSpec::DNAMP1
 
 struct CTweakPlayerRes final : ITweakPlayerRes
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
 
     String<-1> m_saveStationIcon;
     String<-1> m_missileStationIcon;

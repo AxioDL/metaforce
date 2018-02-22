@@ -6,17 +6,17 @@
 
 namespace DataSpec::DNAFont
 {
-struct GlyphRect : BigYAML
+struct GlyphRect : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<float> left;
     Value<float> top;
     Value<float> right;
     Value<float> bottom;
 };
-struct IGlyph : BigYAML
+struct IGlyph : BigDNAV
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint16> m_character;
     GlyphRect m_glyphRect;
 
@@ -39,7 +39,8 @@ struct IGlyph : BigYAML
 
 struct GlyphMP1 : IGlyph
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     Value<atInt32> m_leftPadding;
     Value<atInt32> m_advance;
     Value<atInt32> m_rightPadding;
@@ -59,7 +60,8 @@ struct GlyphMP1 : IGlyph
 
 struct GlyphMP2 : IGlyph
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     Value<atInt8> m_layer;
     Value<atInt8> m_leftPadding;
     Value<atInt8> m_advance;
@@ -79,18 +81,19 @@ struct GlyphMP2 : IGlyph
     atInt32 kerningIndex() const { return m_kerningIndex; }
 };
 
-struct KerningInfo : BigYAML
+struct KerningInfo : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint16> thisChar;
     Value<atUint16> nextChar;
     Value<atInt32>  adjust;
 };
 
 template <class IDType>
-struct FONT : BigYAML
+struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FONT : BigDNA
 {
-    DECL_YAML
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_SUBDECL_DNA
     Value<atUint32> version;
     Value<atUint32> unknown1;
     Value<atInt32> lineHeight;

@@ -4,7 +4,7 @@ namespace DataSpec::DNAParticle
 {
 
 template <class IDType>
-void WPSM<IDType>::read(athena::io::YAMLDocReader& r)
+void WPSM<IDType>::_read(athena::io::YAMLDocReader& r)
 {
     for (const auto& elem : r.getCurNode()->m_mapChildren)
     {
@@ -126,7 +126,7 @@ void WPSM<IDType>::read(athena::io::YAMLDocReader& r)
 }
 
 template <class IDType>
-void WPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
+void WPSM<IDType>::_write(athena::io::YAMLDocWriter& w) const
 {
     if (x0_IORN)
         if (auto rec = w.enterSubRecord("IORN"))
@@ -232,82 +232,180 @@ void WPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 }
 
 template <class IDType>
-size_t WPSM<IDType>::binarySize(size_t __isz) const
+void WPSM<IDType>::_binarySize(size_t& __isz) const
 {
     __isz += 4;
     if (x0_IORN)
-        __isz = x0_IORN.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x0_IORN.binarySize(__isz);
+    }
     if (x4_IVEC)
-        __isz = x4_IVEC.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x4_IVEC.binarySize(__isz);
+    }
     if (x8_PSOV)
-        __isz = x8_PSOV.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x8_PSOV.binarySize(__isz);
+    }
     if (xc_PSVM)
-        __isz = xc_PSVM.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xc_PSVM.binarySize(__isz);
+    }
     if (x10_VMD2)
-        __isz = x10_VMD2.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x10_VMD2.binarySize(__isz);
+    }
     if (x14_PSLT)
-        __isz = x14_PSLT.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x14_PSLT.binarySize(__isz);
+    }
     if (x18_PSCL)
-        __isz = x18_PSCL.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x18_PSCL.binarySize(__isz);
+    }
     if (x1c_PCOL)
-        __isz = x1c_PCOL.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x1c_PCOL.binarySize(__isz);
+    }
     if (x20_POFS)
-        __isz = x20_POFS.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x20_POFS.binarySize(__isz);
+    }
     if (x24_OFST)
-        __isz = x24_OFST.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x24_OFST.binarySize(__isz);
+    }
     if (x28_APSO)
-        __isz = x28_APSO.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x28_APSO.binarySize(__isz);
+    }
     if (x29_HOMG)
-        __isz = x29_HOMG.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x29_HOMG.binarySize(__isz);
+    }
     if (x2a_AP11)
-        __isz = x2a_AP11.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x2a_AP11.binarySize(__isz);
+    }
     if (x2b_AP21)
-        __isz = x2b_AP21.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x2b_AP21.binarySize(__isz);
+    }
     if (x2c_AS11)
-        __isz = x2c_AS11.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x2c_AS11.binarySize(__isz);
+    }
     if (x2d_AS12)
-        __isz = x2d_AS12.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x2d_AS12.binarySize(__isz);
+    }
     if (x2e_AS13)
-        __isz = x2e_AS13.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x2e_AS13.binarySize(__isz);
+    }
     if (x30_TRAT)
-        __isz = x30_TRAT.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x30_TRAT.binarySize(__isz);
+    }
     if (x34_APSM)
-        __isz = x34_APSM.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x34_APSM.binarySize(__isz);
+    }
     if (x44_APS2)
-        __isz = x44_APS2.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x44_APS2.binarySize(__isz);
+    }
     if (x54_ASW1)
-        __isz = x54_ASW1.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x54_ASW1.binarySize(__isz);
+    }
     if (x64_ASW2)
-        __isz = x64_ASW2.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x64_ASW2.binarySize(__isz);
+    }
     if (x74_ASW3)
-        __isz = x74_ASW3.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x74_ASW3.binarySize(__isz);
+    }
     if (x84_OHEF)
-        __isz = x84_OHEF.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x84_OHEF.binarySize(__isz);
+    }
     if (x94_COLR)
-        __isz = x94_COLR.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        x94_COLR.binarySize(__isz);
+    }
     if (!xa4_EWTR)
-        __isz = xa4_EWTR.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xa4_EWTR.binarySize(__isz);
+    }
     if (!xa5_LWTR)
-        __isz = xa5_LWTR.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xa5_LWTR.binarySize(__isz);
+    }
     if (!xa6_SWTR)
-        __isz = xa6_SWTR.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xa6_SWTR.binarySize(__isz);
+    }
     if (xa8_PJFX != ~0)
         __isz += 12;
     if (xac_RNGE)
-        __isz = xac_RNGE.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xac_RNGE.binarySize(__isz);
+    }
     if (xb0_FOFF)
-        __isz = xb0_FOFF.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xb0_FOFF.binarySize(__isz);
+    }
     if (xunk_FC60)
-        __isz = xunk_FC60.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xunk_FC60.binarySize(__isz);
+    }
     if (xunk_SPS1)
-        __isz = xunk_SPS1.binarySize(__isz + 4);
+    {
+        __isz += 4;
+        xunk_SPS1.binarySize(__isz);
+    }
     if (xunk_SPS2)
-        __isz = xunk_SPS2.binarySize(__isz + 4);
-    return __isz;
+    {
+        __isz += 4;
+        xunk_SPS2.binarySize(__isz);
+    }
 }
 
 template <class IDType>
-void WPSM<IDType>::read(athena::io::IStreamReader& r)
+void WPSM<IDType>::_read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -441,7 +539,7 @@ void WPSM<IDType>::read(athena::io::IStreamReader& r)
 }
 
 template <class IDType>
-void WPSM<IDType>::write(athena::io::IStreamWriter &w) const
+void WPSM<IDType>::_write(athena::io::IStreamWriter &w) const
 {
     w.writeBytes("WPSM", 4);
     if (x0_IORN)
@@ -618,6 +716,15 @@ void WPSM<IDType>::write(athena::io::IStreamWriter &w) const
     w.writeBytes("_END", 4);
 }
 
+AT_SUBSPECIALIZE_DNA_YAML(WPSM<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(WPSM<UniqueID64>)
+
+template <>
+const char* WPSM<UniqueID32>::DNAType() { return "WPSM<UniqueID32>"; }
+
+template <>
+const char* WPSM<UniqueID64>::DNAType() { return "WPSM<UniqueID64>"; }
+
 template <class IDType>
 void WPSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
 {
@@ -641,7 +748,7 @@ bool ExtractWPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         WPSM<IDType> wpsm;
         wpsm.read(rs);
-        wpsm.toYAMLStream(writer);
+        athena::io::ToYAMLStream(wpsm, writer);
         return true;
     }
     return false;

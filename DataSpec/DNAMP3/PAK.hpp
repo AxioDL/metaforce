@@ -19,7 +19,7 @@ struct PAK : BigDNA
 
     struct Header : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> version;
         Value<atUint32> headSz;
         Value<atUint8> md5sum[16];
@@ -28,7 +28,7 @@ struct PAK : BigDNA
 
     struct NameEntry : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         String<-1> name;
         DNAFourCC type;
         UniqueID64 id;
@@ -36,7 +36,7 @@ struct PAK : BigDNA
 
     struct Entry : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> compressed;
         DNAFourCC type;
         UniqueID64 id;
@@ -59,7 +59,7 @@ struct PAK : BigDNA
     std::vector<UniqueID64> m_firstEntries;
     std::unordered_map<std::string, UniqueID64> m_nameMap;
 
-    DECL_EXPLICIT_DNA
+    AT_DECL_EXPLICIT_DNA
 
     const Entry* lookupEntry(const UniqueID64& id) const;
     const Entry* lookupEntry(std::string_view name) const;

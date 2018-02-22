@@ -9,7 +9,8 @@ namespace DataSpec::DNAMP1
 {
 struct SpecialFunction : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
@@ -18,9 +19,9 @@ struct SpecialFunction : IScriptObject
     Value<float> unknown2;
     Value<float> unknown3;
     Value<float> unknown4;
-    struct LayerSwitch : BigYAML
+    struct LayerSwitch : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<atUint32> area;
         Value<atUint32> layerIdx;
     } layerSwitch;

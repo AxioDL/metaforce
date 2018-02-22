@@ -7,15 +7,15 @@ namespace DataSpec::DNAMP2
 {
 struct PTLA : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> magic;
     struct UnknownStruct1 : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> count;
         struct Entry : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<float> unknown1;
             Value<float> unknown2;
             Value<float> unknown3;
@@ -32,11 +32,11 @@ struct PTLA : BigDNA
 
     struct UnknownStruct2 : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> count;
         struct Entry : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<float> unknown1;
             Value<float> unknown2;
             Value<float> unknown3;
@@ -56,7 +56,7 @@ struct PTLA : BigDNA
 
     struct UnknownStruct3 : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atVec3f> unknown1[2];
         Value<atUint16> unknown2;
         Value<atUint16> unknown3;

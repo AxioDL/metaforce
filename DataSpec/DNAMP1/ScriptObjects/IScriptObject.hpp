@@ -23,14 +23,14 @@ zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale,
                                                  const zeus::CVector3f& orientation,
                                                  const zeus::CVector3f& position);
 
-struct IScriptObject : BigYAML
+struct IScriptObject : BigDNAVYaml
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     atUint32 type;
     Value<atUint32> id;
-    struct Connection : BigYAML
+    struct Connection : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> state;
         Value<atUint32> msg;
         Value<atUint32> target;

@@ -9,10 +9,10 @@ namespace DataSpec::DNAMAPA
 {
 struct MAPA : BigDNA
 {
-    Delete _d;
+    AT_DECL_EXPLICIT_DNA
     Value<atUint32> magic;
     Value<atUint32> version;
-    struct IMAPAHeader : BigDNA
+    struct IMAPAHeader : BigDNAV
     {
         Delete _d;
         virtual atUint32 visMode() const=0;
@@ -23,7 +23,8 @@ struct MAPA : BigDNA
 
     struct HeaderMP1 : IMAPAHeader
     {
-        DECL_DNA
+        AT_DECL_DNA
+        AT_DECL_DNAV
         Value<atUint32> unknown1 = 0;
         Value<atUint32> mapVisMode = 0;
         Value<atVec3f>  boundingBox[2] = {};
@@ -38,7 +39,8 @@ struct MAPA : BigDNA
 
     struct HeaderMP2 : IMAPAHeader
     {
-        DECL_DNA
+        AT_DECL_DNA
+        AT_DECL_DNAV
         Value<atUint32> unknown1 = 0;
         Value<atUint32> mapVisMode = 0;
         Value<atVec3f>  boundingBox[2] = {};
@@ -56,7 +58,8 @@ struct MAPA : BigDNA
 
     struct HeaderMP3 : IMAPAHeader
     {
-        DECL_DNA
+        AT_DECL_DNA
+        AT_DECL_DNAV
         Value<atUint32> unknown1 = 0;
         Value<atUint32> mapVisMode = 0;
         Value<atVec3f>  boundingBox[2] = {};
@@ -77,13 +80,9 @@ struct MAPA : BigDNA
     };
 
 
-    void read(athena::io::IStreamReader& __dna_reader);
-    void write(athena::io::IStreamWriter& __dna_writer) const;
-    size_t binarySize(size_t __isz) const;
-
     std::unique_ptr<IMAPAHeader> header;
 
-    struct IMappableObject : BigDNA
+    struct IMappableObject : BigDNAV
     {
         Delete _d;
         enum class Type : atUint32
@@ -111,24 +110,24 @@ struct MAPA : BigDNA
             SaveStation      = 34,
             MissileStation   = 37
         };
-        virtual ~IMappableObject()  {}
     };
 
     struct MappableObjectMP1_2 : IMappableObject
     {
-        DECL_DNA
+        AT_DECL_DNA
+        AT_DECL_DNAV
         Value<Type> type;
         Value<atUint32> visMode;
         Value<atUint32> sclyId;
         Value<atInt32> seek1 = -1;
         Value<atVec4f>  transformMtx[3];
         Value<atInt32> seek2[4] = {-1, -1, -1, -1};
-        virtual ~MappableObjectMP1_2()  {}
     };
 
     struct MappableObjectMP3 : IMappableObject
     {
-        DECL_DNA
+        AT_DECL_DNA
+        AT_DECL_DNAV
         Value<Type> type;
         Value<atUint32> visMode;
         Value<atUint32> sclyId;
@@ -136,7 +135,6 @@ struct MAPA : BigDNA
         Value<atInt32> seek1 = -1;
         Value<atVec4f>  transformMtx[3];
         Value<atInt32> seek2[4] = {-1, -1, -1, -1};
-        virtual ~MappableObjectMP3()  {}
     };
 
     std::vector<std::unique_ptr<IMappableObject>> mappableObjects;
@@ -144,7 +142,7 @@ struct MAPA : BigDNA
 
     struct SurfaceHeader : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atVec3f>  normal;
         Value<atVec3f>  centroid;
         Value<atUint32> polyOff;
@@ -155,11 +153,11 @@ struct MAPA : BigDNA
 
     struct Surface : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> primitiveCount;
         struct Primitive : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> type;
             Value<atUint32> indexCount;
             Vector<atUint8, DNA_COUNT(indexCount)> indices;
@@ -169,7 +167,7 @@ struct MAPA : BigDNA
         Value<atUint32> borderCount;
         struct Border : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> indexCount;
             Vector<atUint8, DNA_COUNT(indexCount)> indices;
             Align<4> align;
@@ -178,8 +176,6 @@ struct MAPA : BigDNA
     };
 
     Vector<Surface, DNA_COUNT(header->surfaceCount())> surfaces;
-
-
 };
 
 template <typename PAKRouter>

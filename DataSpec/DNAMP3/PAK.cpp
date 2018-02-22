@@ -6,7 +6,8 @@ namespace DataSpec::DNAMP3
 
 const hecl::FourCC CMPD("CMPD");
 
-void PAK::read(athena::io::IStreamReader& reader)
+template <>
+void PAK::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     m_header.read(reader);
     if (m_header.version != 2)
@@ -54,7 +55,9 @@ void PAK::read(athena::io::IStreamReader& reader)
     for (NameEntry& entry : m_nameEntries)
         m_nameMap[entry.name] = entry.id;
 }
-void PAK::write(athena::io::IStreamWriter& writer) const
+
+template <>
+void PAK::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     m_header.write(writer);
 
@@ -96,9 +99,11 @@ void PAK::write(athena::io::IStreamWriter& writer) const
     }
     writer.seek(rshdPad, athena::Current);
 }
-size_t PAK::binarySize(size_t __isz) const
+
+template <>
+void PAK::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    __isz = m_header.binarySize(__isz);
+    m_header.binarySize(__isz);
 
     size_t strgSz = 4;
     for (const NameEntry& entry : m_nameEntries)
@@ -112,15 +117,13 @@ size_t PAK::binarySize(size_t __isz) const
 
     __isz += 4;
     for (const NameEntry& entry : m_nameEntries)
-        __isz = entry.binarySize(__isz);
+        entry.binarySize(__isz);
     __isz += strgPad;
 
     __isz += 4;
     for (const auto& entry : m_entries)
-        __isz = entry.second.binarySize(__isz);
+        entry.second.binarySize(__isz);
     __isz += rshdPad;
-
-    return __isz;
 }
 
 std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64& szOut) const

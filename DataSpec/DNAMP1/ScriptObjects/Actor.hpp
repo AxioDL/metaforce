@@ -8,7 +8,8 @@ namespace DataSpec::DNAMP1
 {
 struct Actor : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name SO_NAME_SPECPROP();
     Value<atVec3f> location SO_LOCATION_SPECPROP();
     Value<atVec3f> orientation SO_ORIENTATION_SPECPROP();

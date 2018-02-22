@@ -1273,7 +1273,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
                                                   mesh.colorLayerCount, mesh.uvLayerCount,
                                                   false, false, groupIdx);
 
-                endOff = targetMSet.materials.back().binarySize(endOff);
+                targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
             }
 
@@ -1299,7 +1299,8 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
             for (const hecl::ProjectPath& path : texPaths)
                 targetMSet.head.addTexture(path);
 
-            size_t secSz = targetMSet.binarySize(0);
+            size_t secSz = 0;
+            targetMSet.binarySize(secSz);
             size_t secSz32 = ROUND_UP_32(secSz);
             head.secSizes.push_back(secSz32);
             paddingSizes.push_back(secSz32 - secSz);
@@ -1522,14 +1523,15 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
             {
                 std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                 targetMSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
-                endOff = targetMSet.materials.back().binarySize(endOff);
+                targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
             }
 
             for (const hecl::ProjectPath& path : texPaths)
                 targetMSet.head.addTexture(path);
 
-            size_t secSz = targetMSet.binarySize(0);
+            size_t secSz = 0;
+            targetMSet.binarySize(secSz);
             size_t secSz32 = ROUND_UP_32(secSz);
             head.secSizes.push_back(secSz32);
             paddingSizes.push_back(secSz32 - secSz);
@@ -1539,7 +1541,8 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     hecl::blender::HMDLBuffers bufs = mesh.getHMDLBuffers(false, poolSkinIndex);
 
     /* Metadata */
-    size_t secSz = bufs.m_meta.binarySize(0);
+    size_t secSz = 0;
+    bufs.m_meta.binarySize(secSz);
     size_t secSz32 = ROUND_UP_32(secSz);
     if (secSz32 == 0)
         secSz32 = 32;
@@ -1720,7 +1723,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
                     std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
                     matSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
-                    endOff = matSet.materials.back().binarySize(endOff);
+                    matSet.materials.back().binarySize(endOff);
                     matSet.head.addMaterialEndOff(endOff);
                 }
 
@@ -1731,7 +1734,9 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
         for (const hecl::ProjectPath& path : texPaths)
             matSet.head.addTexture(path);
 
-        secsOut.emplace_back(matSet.binarySize(0), 0);
+        size_t secSz = 0;
+        matSet.binarySize(secSz);
+        secsOut.emplace_back(secSz, 0);
         athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
         matSet.write(w);
     }
@@ -1757,7 +1762,9 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
             meshHeader.aabb[0] = aabb.min;
             meshHeader.aabb[1] = aabb.max;
 
-            secsOut.emplace_back(meshHeader.binarySize(0), 0);
+            size_t secSz = 0;
+            meshHeader.binarySize(secSz);
+            secsOut.emplace_back(secSz, 0);
             athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
             meshHeader.write(w);
         }
@@ -1776,7 +1783,9 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
         /* Metadata */
         {
-            secsOut.emplace_back(bufs.m_meta.binarySize(0), 0);
+            size_t secSz = 0;
+            bufs.m_meta.binarySize(secSz);
+            secsOut.emplace_back(secSz, 0);
             athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
             bufs.m_meta.write(w);
         }
@@ -1823,7 +1832,9 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
             header.aabb[0] = aabb.min;
             header.aabb[1] = aabb.max;
 
-            secsOut.emplace_back(header.binarySize(0), 0);
+            size_t secSz = 0;
+            header.binarySize(secSz);
+            secsOut.emplace_back(secSz, 0);
             athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
             header.write(w);
         }
@@ -1836,7 +1847,8 @@ template bool WriteHMDLMREASecs<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_
 (std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
  const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs);
 
-void SurfaceHeader_1::read(athena::io::IStreamReader& reader)
+template <>
+void SurfaceHeader_1::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     /* centroid */
     centroid = reader.readVec3fBig();
@@ -1867,7 +1879,8 @@ void SurfaceHeader_1::read(athena::io::IStreamReader& reader)
     reader.seekAlign32();
 }
 
-void SurfaceHeader_1::write(athena::io::IStreamWriter& writer) const
+template <>
+void SurfaceHeader_1::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     /* centroid */
     writer.writeVec3fBig(centroid);
@@ -1895,15 +1908,16 @@ void SurfaceHeader_1::write(athena::io::IStreamWriter& writer) const
     writer.seekAlign32();
 }
 
-size_t SurfaceHeader_1::binarySize(size_t __isz) const
+template <>
+void SurfaceHeader_1::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
-    __isz += (aabbSz ? 24 : 0);
-    __isz += 44;
-    __isz = (__isz + 31) & ~31;
-    return __isz;
+    s += (aabbSz ? 24 : 0);
+    s += 44;
+    s = (s + 31) & ~31;
 }
 
-void SurfaceHeader_2::read(athena::io::IStreamReader& reader)
+template <>
+void SurfaceHeader_2::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     /* centroid */
     centroid = reader.readVec3fBig();
@@ -1938,7 +1952,8 @@ void SurfaceHeader_2::read(athena::io::IStreamReader& reader)
     reader.seekAlign32();
 }
 
-void SurfaceHeader_2::write(athena::io::IStreamWriter& writer) const
+template <>
+void SurfaceHeader_2::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     /* centroid */
     writer.writeVec3fBig(centroid);
@@ -1970,15 +1985,16 @@ void SurfaceHeader_2::write(athena::io::IStreamWriter& writer) const
     writer.seekAlign32();
 }
 
-size_t SurfaceHeader_2::binarySize(size_t __isz) const
+template <>
+void SurfaceHeader_2::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
-    __isz += (aabbSz ? 24 : 0);
-    __isz += 48;
-    __isz = (__isz + 31) & ~31;
-    return __isz;
+    s += (aabbSz ? 24 : 0);
+    s += 48;
+    s = (s + 31) & ~31;
 }
 
-void SurfaceHeader_3::read(athena::io::IStreamReader& reader)
+template <>
+void SurfaceHeader_3::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     /* centroid */
     centroid = reader.readVec3fBig();
@@ -2015,7 +2031,8 @@ void SurfaceHeader_3::read(athena::io::IStreamReader& reader)
     reader.seekAlign32();
 }
 
-void SurfaceHeader_3::write(athena::io::IStreamWriter& writer) const
+template <>
+void SurfaceHeader_3::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     /* centroid */
     writer.writeVec3fBig(centroid);
@@ -2049,12 +2066,12 @@ void SurfaceHeader_3::write(athena::io::IStreamWriter& writer) const
     writer.seekAlign32();
 }
 
-size_t SurfaceHeader_3::binarySize(size_t __isz) const
+template <>
+void SurfaceHeader_3::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
-    __isz += (aabbSz ? 24 : 0);
-    __isz += 49;
-    __isz = (__isz + 31) & ~31;
-    return __isz;
+    s += (aabbSz ? 24 : 0);
+    s += 49;
+    s = (s + 31) & ~31;
 }
 
 }

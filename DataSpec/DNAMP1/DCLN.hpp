@@ -17,7 +17,7 @@ struct DCLN : BigDNA
 {
     using Mesh = hecl::blender::ColMesh;
 
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> colCount;
     struct Collision : BigDNA
     {
@@ -25,7 +25,7 @@ struct DCLN : BigDNA
         using Edge = DeafBabe::Edge;
         using Triangle = DeafBabe::Triangle;
 
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> magic;
         Value<atUint32> version;
         Value<atUint32> memSize;
@@ -46,11 +46,11 @@ struct DCLN : BigDNA
 
         struct Node : BigDNA
         {
-            Delete _d;
+            AT_DECL_EXPLICIT_DNA
 
             struct LeafData : BigDNA
             {
-                DECL_DNA
+                AT_DECL_DNA
                 Value<atUint32> triangleIndexCount;
                 Vector<atUint16, DNA_COUNT(triangleIndexCount)> triangleIndices;
                 size_t getMemoryUsage() const { return (((triangleIndices.size() * 2) + 16) + 3) & ~3; }
@@ -62,56 +62,6 @@ struct DCLN : BigDNA
             std::unique_ptr<LeafData> leafData;
             std::unique_ptr<Node> left;
             std::unique_ptr<Node> right;
-
-            void read(athena::io::IStreamReader & __dna_reader)
-            {
-                xf[0] = __dna_reader.readVec4fBig();
-                xf[1] = __dna_reader.readVec4fBig();
-                xf[2] = __dna_reader.readVec4fBig();
-                halfExtent = __dna_reader.readVec3fBig();
-                isLeaf = __dna_reader.readBool();
-                if (isLeaf)
-                {
-                    leafData.reset(new LeafData);
-                    leafData->read(__dna_reader);
-                }
-                else
-                {
-                    left.reset(new Node);
-                    left->read(__dna_reader);
-                    right.reset(new Node);
-                    right->read(__dna_reader);
-                }
-            }
-
-            void write(athena::io::IStreamWriter & __dna_writer) const
-            {
-                __dna_writer.writeVec4fBig(xf[0]);
-                __dna_writer.writeVec4fBig(xf[1]);
-                __dna_writer.writeVec4fBig(xf[2]);
-                __dna_writer.writeVec3fBig(halfExtent);
-                __dna_writer.writeBool(isLeaf);
-                if (isLeaf && leafData)
-                    leafData->write(__dna_writer);
-                else if (!isLeaf && left && right)
-                {
-                    left->write(__dna_writer);
-                    right->write(__dna_writer);
-                }
-            }
-
-            size_t binarySize(size_t __isz) const
-            {
-                __isz += 61;
-                if (isLeaf && leafData)
-                    __isz = leafData->binarySize(__isz);
-                else if (!isLeaf && left && right)
-                {
-                    __isz = left->binarySize(__isz);
-                    __isz = right->binarySize(__isz);
-                }
-                return __isz;
-            }
 
             size_t getMemoryUsage() const
             {

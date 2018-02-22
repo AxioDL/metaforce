@@ -6,14 +6,15 @@
 
 namespace DataSpec::DNADGRP
 {
+
 template <class IDType>
-struct DGRP : BigYAML
+struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) DGRP : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> dependCount;
-    struct ObjectTag : BigYAML
+    struct ObjectTag : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         DNAFourCC type;
         IDType id;
     };
@@ -21,10 +22,11 @@ struct DGRP : BigYAML
     Vector<ObjectTag, DNA_COUNT(dependCount)> depends;
 };
 
-
 template <class IDType>
 bool ExtractDGRP(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteDGRP(const DGRP<IDType>& dgrp, const hecl::ProjectPath& outPath);
+
 }
+
 #endif // __COMMON_DGRP_HPP__

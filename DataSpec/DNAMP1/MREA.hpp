@@ -12,7 +12,7 @@ struct MREA
 {
     struct Header : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> magic;
         Value<atUint32> version;
         Value<atVec4f> localToWorldMtx[3];
@@ -31,10 +31,10 @@ struct MREA
 
     struct MeshHeader : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         struct VisorFlags : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> flags;
             enum class ThermalLevel
             {
@@ -70,7 +70,7 @@ struct MREA
 
     struct BabeDeadLight : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         enum class LightType : atUint32
         {
             LocalAmbient,

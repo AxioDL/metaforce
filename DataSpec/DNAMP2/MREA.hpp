@@ -15,7 +15,7 @@ struct MREA
     protected:
         struct BlockInfo : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> bufSize;
             Value<atUint32> decompSize;
             Value<atUint32> compSize;
@@ -54,7 +54,7 @@ struct MREA
 
     struct Header : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> magic;
         Value<atUint32> version;
         Value<atVec4f> localToWorldMtx[3];
@@ -79,10 +79,10 @@ struct MREA
 
     struct MeshHeader : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         struct VisorFlags : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint32> flags;
             enum class ThermalLevel
             {

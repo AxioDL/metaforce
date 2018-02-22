@@ -9,16 +9,17 @@ namespace DataSpec::DNAMP1
 {
 struct CameraHint : IScriptObject
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
+    AT_DECL_DNAV
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<bool> active;
     Value<atUint32> priority;
     Value<atUint32> behaviour;
-    struct CameraHintParameters : BigYAML
+    struct CameraHintParameters : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<atUint32> propertyCount;
         Value<bool> calculateCamPos; // 0x1
         Value<bool> chaseAllowed; // 0x2
@@ -44,15 +45,15 @@ struct CameraHint : IScriptObject
         Value<bool> unknown22; // 0x200000
     } cameraHintParameters;
 
-    struct BoolFloat : BigYAML
+    struct BoolFloat : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<bool> active;
         Value<float> value;
     } minDist, maxDist, backwardsDist; // 0x400000, 0x800000, 0x1000000
-    struct BoolVec3f : BigYAML
+    struct BoolVec3f : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA
         Value<bool> active;
         Value<atVec3f> value;
     } lookAtOffset, chaseLookAtOffset; // 0x2000000, 0x4000000

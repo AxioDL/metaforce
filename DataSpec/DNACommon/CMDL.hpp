@@ -17,12 +17,12 @@ using Material = hecl::blender::Material;
 
 struct Header : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> magic;
     Value<atUint32> version;
     struct Flags : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> flags = 0;
         bool shortNormals() const {return (flags & 0x2) != 0;}
         void setShortNormals(bool val) {flags &= ~0x2; flags |= val << 1;}
@@ -39,7 +39,7 @@ struct Header : BigDNA
 
 struct SurfaceHeader_1 : BigDNA
 {
-    DECL_EXPLICIT_DNA
+    AT_DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
@@ -57,7 +57,7 @@ struct SurfaceHeader_1 : BigDNA
 
 struct SurfaceHeader_2 : BigDNA
 {
-    DECL_EXPLICIT_DNA
+    AT_DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;
@@ -77,7 +77,7 @@ struct SurfaceHeader_2 : BigDNA
 
 struct SurfaceHeader_3 : BigDNA
 {
-    DECL_EXPLICIT_DNA
+    AT_DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
     Value<atUint16> qDiv = 0x8000;

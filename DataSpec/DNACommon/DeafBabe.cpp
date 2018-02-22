@@ -114,7 +114,9 @@ static void PopulateAreaFields(DEAFBABE& db,
     db.bspSize = octree.second;
 
     db.unk1 = 0x1000000;
-    db.length = db.binarySize(0) - 8;
+    size_t dbSize = 0;
+    db.binarySize(dbSize);
+    db.length = dbSize - 8;
     db.magic = 0xDEAFBABE;
     db.version = 3;
     db.aabb[0] = fullAABB.min;

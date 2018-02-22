@@ -3,8 +3,14 @@
 namespace DataSpec::DNAParticle
 {
 
+template <>
+const char* SWSH<UniqueID32>::DNAType() { return "SWSH<UniqueID32>"; }
+
+template <>
+const char* SWSH<UniqueID64>::DNAType() { return "SWSH<UniqueID64>"; }
+
 template <class IDType>
-void SWSH<IDType>::read(athena::io::YAMLDocReader& r)
+void SWSH<IDType>::_read(typename BigDNA::ReadYaml::StreamT& r)
 {
     for (const auto& elem : r.getCurNode()->m_mapChildren)
     {
@@ -108,7 +114,7 @@ void SWSH<IDType>::read(athena::io::YAMLDocReader& r)
 }
 
 template <class IDType>
-void SWSH<IDType>::write(athena::io::YAMLDocWriter& w) const
+void SWSH<IDType>::_write(typename BigDNA::WriteYaml::StreamT& w) const
 {
     if (x0_PSLT)
         if (auto rec = w.enterSubRecord("PSLT"))
@@ -188,71 +194,120 @@ void SWSH<IDType>::write(athena::io::YAMLDocWriter& w) const
 
 
 template <class IDType>
-size_t SWSH<IDType>::binarySize(size_t __isz) const
+void SWSH<IDType>::_binarySize(typename BigDNA::BinarySize::StreamT& s) const
 {
-    __isz += 4;
+    s += 4;
     if (x0_PSLT)
-        __isz = x0_PSLT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x0_PSLT.binarySize(s);
+    }
     if (x4_TIME)
-        __isz = x4_TIME.binarySize(__isz + 4);
+    {
+        s += 4;
+        x4_TIME.binarySize(s);
+    }
     if (x8_LRAD)
-        __isz = x8_LRAD.binarySize(__isz + 4);
+    {
+        s += 4;
+        x8_LRAD.binarySize(s);
+    }
     if (xc_RRAD)
-        __isz = xc_RRAD.binarySize(__isz + 4);
+    {
+        s += 4;
+        xc_RRAD.binarySize(s);
+    }
     if (x10_LENG)
-        __isz = x10_LENG.binarySize(__isz + 4);
+    {
+        s += 4;
+        x10_LENG.binarySize(s);
+    }
     if (x14_COLR)
-        __isz = x14_COLR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x14_COLR.binarySize(s);
+    }
     if (x18_SIDE)
-        __isz = x18_SIDE.binarySize(__isz + 4);
+    {
+        s += 4;
+        x18_SIDE.binarySize(s);
+    }
     if (x1c_IROT)
-        __isz = x1c_IROT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x1c_IROT.binarySize(s);
+    }
     if (x20_ROTM)
-        __isz = x20_ROTM.binarySize(__isz + 4);
+    {
+        s += 4;
+        x20_ROTM.binarySize(s);
+    }
     if (x24_POFS)
-        __isz = x24_POFS.binarySize(__isz + 4);
+    {
+        s += 4;
+        x24_POFS.binarySize(s);
+    }
     if (x28_IVEL)
-        __isz = x28_IVEL.binarySize(__isz + 4);
+    {
+        s += 4;
+        x28_IVEL.binarySize(s);
+    }
     if (x2c_NPOS)
-        __isz = x2c_NPOS.binarySize(__isz + 4);
+    {
+        s += 4;
+        x2c_NPOS.binarySize(s);
+    }
     if (x30_VELM)
-        __isz = x30_VELM.binarySize(__isz + 4);
+    {
+        s += 4;
+        x30_VELM.binarySize(s);
+    }
     if (x34_VLM2)
-        __isz = x34_VLM2.binarySize(__isz + 4);
+    {
+        s += 4;
+        x34_VLM2.binarySize(s);
+    }
     if (x38_SPLN)
-        __isz = x38_SPLN.binarySize(__isz + 4);
+    {
+        s += 4;
+        x38_SPLN.binarySize(s);
+    }
     if (x3c_TEXR)
-        __isz = x3c_TEXR.binarySize(__isz + 4);
+    {
+        s += 4;
+        x3c_TEXR.binarySize(s);
+    }
     if (x40_TSPN)
-        __isz = x40_TSPN.binarySize(__isz + 4);
+    {
+        s += 4;
+        x40_TSPN.binarySize(s);
+    }
     if (x44_24_LLRD)
-        __isz += 9;
+        s += 9;
     if (!x44_25_CROS)
-        __isz += 9;
+        s += 9;
     if (x44_26_VLS1)
-        __isz += 9;
+        s += 9;
     if (x44_27_VLS2)
-        __isz += 9;
+        s += 9;
     if (x44_28_SROT)
-        __isz += 9;
+        s += 9;
     if (x44_29_WIRE)
-        __isz += 9;
+        s += 9;
     if (x44_30_TEXW)
-        __isz += 9;
+        s += 9;
     if (x44_31_AALP)
-        __isz += 9;
+        s += 9;
     if (x45_24_ZBUF)
-        __isz += 9;
+        s += 9;
     if (x45_25_ORNT)
-        __isz += 9;
+        s += 9;
     if (x45_26_CRND)
-        __isz += 9;
-
-    return __isz;
+        s += 9;
 }
 
 template <class IDType>
-void SWSH<IDType>::read(athena::io::IStreamReader& r)
+void SWSH<IDType>::_read(typename BigDNA::Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -371,7 +426,7 @@ void SWSH<IDType>::read(athena::io::IStreamReader& r)
 }
 
 template <class IDType>
-void SWSH<IDType>::write(athena::io::IStreamWriter& w) const
+void SWSH<IDType>::_write(typename BigDNA::Write::StreamT& w) const
 {
     w.writeBytes((atInt8*)"SWSH", 4);
     if (x0_PSLT)
@@ -485,6 +540,9 @@ void SWSH<IDType>::write(athena::io::IStreamWriter& w) const
     w.writeBytes("_END", 4);
 }
 
+AT_SUBSPECIALIZE_DNA_YAML(SWSH<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(SWSH<UniqueID64>)
+
 template <class IDType>
 void SWSH<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
 {
@@ -503,7 +561,7 @@ bool ExtractSWSH(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         SWSH<IDType> swsh;
         swsh.read(rs);
-        swsh.toYAMLStream(writer);
+        athena::io::ToYAMLStream(swsh, writer);
         return true;
     }
     return false;

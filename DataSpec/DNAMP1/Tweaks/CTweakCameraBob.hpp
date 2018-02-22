@@ -5,9 +5,9 @@
 
 namespace DataSpec::DNAMP1
 {
-struct CTweakCameraBob : BigYAML
+struct CTweakCameraBob : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<float> cameraBobExtentX;
     Value<float> cameraBobExtentY;
     Value<float> cameraBobPeriod;

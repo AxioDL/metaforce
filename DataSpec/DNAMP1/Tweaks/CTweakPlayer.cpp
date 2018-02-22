@@ -3,7 +3,9 @@
 
 namespace DataSpec::DNAMP1
 {
-void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
+
+template <>
+void CTweakPlayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader)
 {
     /* x4_maxTranslationalAcceleration[0] */
     x4_maxTranslationalAcceleration[0] = __dna_reader.readFloatBig();
@@ -443,7 +445,8 @@ void CTweakPlayer::read(athena::io::IStreamReader& __dna_reader)
     x308_phazonDamageReduction = __dna_reader.readFloatBig();
 }
 
-void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
+template <>
+void CTweakPlayer::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer)
 {
     /* x4_maxTranslationalAcceleration[0] */
     __dna_writer.writeFloatBig(x4_maxTranslationalAcceleration[0]);
@@ -883,7 +886,8 @@ void CTweakPlayer::write(athena::io::IStreamWriter& __dna_writer) const
     __dna_writer.writeFloatBig(x308_phazonDamageReduction);
 }
 
-void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
+template <>
+void CTweakPlayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& __dna_docin)
 {
     /* x4_maxTranslationalAcceleration */
     size_t __x4_Count;
@@ -1398,7 +1402,8 @@ void CTweakPlayer::read(athena::io::YAMLDocReader& __dna_docin)
     x308_phazonDamageReduction = __dna_docin.readFloat("x308_phazonDamageReduction");
 }
 
-void CTweakPlayer::write(athena::io::YAMLDocWriter& __dna_docout) const
+template <>
+void CTweakPlayer::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& __dna_docout)
 {
     /* x4_maxTranslationalAcceleration */
     if (auto v = __dna_docout.enterSubVector("x4_maxTranslationalAcceleration"))
@@ -1935,8 +1940,9 @@ const char* CTweakPlayer::DNAType()
     return "DataSpec::DNAMP1::CTweakPlayer";
 }
 
-size_t CTweakPlayer::binarySize(size_t __isz) const
+template <>
+void CTweakPlayer::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    return __isz + 785;
+    __isz += 785;
 }
 }

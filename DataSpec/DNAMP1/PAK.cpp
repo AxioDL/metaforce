@@ -6,7 +6,8 @@
 namespace DataSpec::DNAMP1
 {
 
-void PAK::read(athena::io::IStreamReader& reader)
+template <>
+void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     atUint32 version = reader.readUint32Big();
     if (version != 0x00030005)
@@ -48,7 +49,8 @@ void PAK::read(athena::io::IStreamReader& reader)
         m_nameMap[entry.name] = entry.id;
 }
 
-void PAK::write(athena::io::IStreamWriter& writer) const
+template <>
+void PAK::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     writer.writeUint32Big(0x00030005);
     writer.writeUint32Big(0);
@@ -71,16 +73,15 @@ void PAK::write(athena::io::IStreamWriter& writer) const
     }
 }
 
-size_t PAK::binarySize(size_t __isz) const
+template <>
+void PAK::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
-    __isz += 12;
+    s += 12;
 
     for (const NameEntry& entry : m_nameEntries)
-        __isz += 12 + entry.name.size();
+        s += 12 + entry.name.size();
 
-    __isz += m_entries.size() * 20 + 4;
-
-    return __isz;
+    s += m_entries.size() * 20 + 4;
 }
 
 std::unique_ptr<atUint8[]>

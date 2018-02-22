@@ -8,10 +8,10 @@
 namespace DataSpec::DNAParticle
 {
 template <class IDType>
-struct ELSM : BigYAML
+struct ELSM : BigDNA
 {
-    static const char* DNAType() { return "urde::ELSM"; }
-    const char* DNATypeV() const { return DNAType(); }
+    AT_DECL_EXPLICIT_DNA_YAML
+    AT_SUBDECL_DNA
     IntElementFactory x0_LIFE;
     IntElementFactory x4_SLIF;
     RealElementFactory x8_GRAT;
@@ -32,12 +32,6 @@ struct ELSM : BigYAML
     ChildResourceFactory<IDType> x50_GPSM;
     ChildResourceFactory<IDType> x60_EPSM;
     BoolHelper x70_ZERY;
-
-    void read(athena::io::YAMLDocReader& r);
-    void write(athena::io::YAMLDocWriter& w) const;
-    size_t binarySize(size_t __isz) const;
-    void read(athena::io::IStreamReader& r);
-    void write(athena::io::IStreamWriter& w) const;
 
     void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };

@@ -6,23 +6,23 @@
 
 namespace DataSpec::DNAMP1
 {
-struct HINT : BigYAML
+struct HINT : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     Value<atUint32> magic;
     Value<atUint32> version;
 
-    struct Hint : BigYAML
+    struct Hint : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         String<-1> name;
         Value<float> immediateTime;
         Value<float> normalTime;
         UniqueID32 stringID;
         Value<atUint32> textPageCount;
-        struct Location : BigYAML
+        struct Location : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             UniqueID32 worldAssetID;
             UniqueID32 areaAssetID;
             Value<atUint32> areaID;
@@ -41,7 +41,7 @@ struct HINT : BigYAML
         HINT hint;
         hint.read(rs);
         athena::io::FileWriter writer(outPath.getAbsolutePath());
-        hint.toYAMLStream(writer);
+        athena::io::ToYAMLStream(hint, writer);
         return true;
     }
 
@@ -49,7 +49,7 @@ struct HINT : BigYAML
     {
         HINT hint;
         athena::io::FileReader reader(inPath.getAbsolutePath());
-        hint.fromYAMLStream(reader);
+        athena::io::FromYAMLStream(hint, reader);
         athena::io::FileWriter ws(outPath.getAbsolutePath());
         hint.write(ws);
         return true;

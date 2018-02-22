@@ -3,7 +3,8 @@
 namespace DataSpec::DNAMP2
 {
 
-void ANCS::CharacterSet::CharacterInfo::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     idx = reader.readUint32Big();
     atUint16 sectionCount = reader.readUint16Big();
@@ -76,7 +77,8 @@ void ANCS::CharacterSet::CharacterInfo::read(athena::io::IStreamReader& reader)
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     writer.writeUint32Big(idx);
 
@@ -161,7 +163,8 @@ void ANCS::CharacterSet::CharacterInfo::write(athena::io::IStreamWriter& writer)
     }
 }
 
-size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
     atUint16 sectionCount;
     if (unk4 || unk5 || extents.size())
@@ -179,64 +182,73 @@ size_t ANCS::CharacterSet::CharacterInfo::binarySize(size_t __isz) const
     else
         sectionCount = 1;
 
-    __isz += 6;
+    s += 6;
 
-    __isz += name.size() + 1;
-    __isz += 12;
+    s += name.size() + 1;
+    s += 12;
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, animations);
+    s += 4;
+    for (const Animation& anim : animations)
+        anim.binarySize(s);
 
-    __isz = pasDatabase.binarySize(__isz);
+    pasDatabase.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.part);
+    s += 4;
+    for (const UniqueID32& id : partResData.part)
+        id.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.swhc);
+    s += 4;
+    for (const UniqueID32& id : partResData.swhc)
+        id.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.unk);
+    s += 4;
+    for (const UniqueID32& id : partResData.unk)
+        id.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.elsc);
+    s += 4;
+    for (const UniqueID32& id : partResData.elsc)
+        id.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.spsc);
+    s += 4;
+    for (const UniqueID32& id : partResData.spsc)
+        id.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, partResData.unk2);
+    s += 4;
+    for (const UniqueID32& id : partResData.unk2)
+        id.binarySize(s);
 
-    __isz += 4;
+    s += 4;
 
     if (sectionCount > 1)
     {
-        __isz += 4;
-        __isz = __EnumerateSize(__isz, animAABBs);
+        s += 4;
+        for (const MP1CharacterInfo::ActionAABB& aabb : animAABBs)
+            aabb.binarySize(s);
     }
 
     if (sectionCount > 2)
     {
-        __isz += 4;
-        __isz = __EnumerateSize(__isz, effects);
+        s += 4;
+        for (const Effect& e : effects)
+            e.binarySize(s);
     }
 
     if (sectionCount > 3)
-        __isz += 8;
+        s += 8;
 
     if (sectionCount > 4)
-        __isz += 4 + animIdxs.size() * 4;
+        s += 4 + animIdxs.size() * 4;
 
     if (sectionCount > 9)
     {
-        __isz += 9;
-        __isz = __EnumerateSize(__isz, extents);
+        s += 9;
+        for (const Extents& e : extents)
+            e.binarySize(s);
     }
-
-    return __isz;
 }
 
-void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     idx = reader.readUint32("idx");
     atUint16 sectionCount = reader.readUint16("sectionCount");
@@ -292,7 +304,8 @@ void ANCS::CharacterSet::CharacterInfo::read(athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::CharacterSet::CharacterInfo::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     writer.writeUint32("idx", idx);
 
@@ -367,7 +380,8 @@ const char* ANCS::CharacterSet::CharacterInfo::DNAType()
     return "urde::DNAMP2::ANCS::CharacterSet::CharacterInfo";
 }
 
-void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     atUint16 sectionCount = reader.readUint16Big();
 
@@ -402,7 +416,8 @@ void ANCS::AnimationSet::read(athena::io::IStreamReader& reader)
     }
 }
 
-void ANCS::AnimationSet::write(athena::io::IStreamWriter& writer) const
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     atUint16 sectionCount;
     if (evnts.size())
@@ -444,7 +459,8 @@ void ANCS::AnimationSet::write(athena::io::IStreamWriter& writer) const
     }
 }
 
-size_t ANCS::AnimationSet::binarySize(size_t __isz) const
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
     atUint16 sectionCount;
     if (evnts.size())
@@ -456,36 +472,40 @@ size_t ANCS::AnimationSet::binarySize(size_t __isz) const
     else
         sectionCount = 1;
 
-    __isz += 6;
-    __isz = __EnumerateSize(__isz, animations);
+    s += 6;
+    for (const MP1AnimationSet::Animation& anim : animations)
+        anim.binarySize(s);
 
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, transitions);
-    __isz = defaultTransition.binarySize(__isz);
+    s += 4;
+    for (const MP1AnimationSet::Transition& trans : transitions)
+        trans.binarySize(s);
+    defaultTransition.binarySize(s);
 
     if (sectionCount > 1)
     {
-        __isz += 4;
-        __isz = __EnumerateSize(__isz, additiveAnims);
-        __isz += 8;
+        s += 4;
+        for (const MP1AnimationSet::AdditiveAnimationInfo& aaInfo : additiveAnims)
+            aaInfo.binarySize(s);
+        s += 8;
     }
 
     if (sectionCount > 2)
     {
-        __isz += 4;
-        __isz = __EnumerateSize(__isz, halfTransitions);
+        s += 4;
+        for (const MP1AnimationSet::HalfTransition& ht : halfTransitions)
+            ht.binarySize(s);
     }
 
     if (sectionCount > 3)
     {
-        __isz += 4;
-        __isz = __EnumerateSize(__isz, evnts);
+        s += 4;
+        for (const EVNT& evnt : evnts)
+            evnt.binarySize(s);
     }
-
-    return __isz;
 }
 
-void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 {
     atUint16 sectionCount = reader.readUint16("sectionCount");
 
@@ -515,7 +535,8 @@ void ANCS::AnimationSet::read(athena::io::YAMLDocReader& reader)
     }
 }
 
-void ANCS::AnimationSet::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void ANCS::AnimationSet::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
 {
     atUint16 sectionCount;
     if (evnts.size())
@@ -557,101 +578,24 @@ const char* ANCS::AnimationSet::DNAType()
     return "urde::DNAMP2::ANCS::AnimationSet";
 }
 
-void ANCS::AnimationSet::EVNT::read(athena::io::IStreamReader& reader)
+template <class Op>
+void ANCS::AnimationSet::EVNT::Enumerate(typename Op::StreamT& s)
 {
-    version = reader.readUint32Big();
-
-    atUint32 loopCount = reader.readUint32Big();
-    reader.enumerate(loopEvents, loopCount);
-
-    uevtEvents.clear();
+    Do<Op>({"version"}, version, s);
+    DoSize<Op>({"loopEventCount"}, loopEventCount, s);
+    Do<Op>({"loopEvents"}, loopEvents, loopEventCount, s);
     if (version == 2)
     {
-        atUint32 uevtCount = reader.readUint32Big();
-        reader.enumerate(uevtEvents, uevtCount);
+        DoSize<Op>({"uevtEventCount"}, uevtEventCount, s);
+        Do<Op>({"uevtEvents"}, uevtEvents, uevtEventCount, s);
     }
-
-    atUint32 effectCount = reader.readUint32Big();
-    reader.enumerate(effectEvents, effectCount);
-
-    atUint32 sfxCount = reader.readUint32Big();
-    reader.enumerate(sfxEvents, sfxCount);
+    DoSize<Op>({"effectEventCount"}, effectEventCount, s);
+    Do<Op>({"effectEvents"}, effectEvents, effectEventCount, s);
+    DoSize<Op>({"sfxEventCount"}, sfxEventCount, s);
+    Do<Op>({"sfxEvents"}, sfxEvents, sfxEventCount, s);
 }
 
-void ANCS::AnimationSet::EVNT::write(athena::io::IStreamWriter& writer) const
-{
-    writer.writeUint32Big(version);
-
-    writer.writeUint32Big(loopEvents.size());
-    writer.enumerate(loopEvents);
-
-    if (version == 2)
-    {
-        writer.writeUint32Big(uevtEvents.size());
-        writer.enumerate(uevtEvents);
-    }
-
-    writer.writeUint32Big(effectEvents.size());
-    writer.enumerate(effectEvents);
-
-    writer.writeUint32Big(sfxEvents.size());
-    writer.enumerate(sfxEvents);
-}
-
-size_t ANCS::AnimationSet::EVNT::binarySize(size_t __isz) const
-{
-    __isz += 4;
-
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, loopEvents);
-
-    if (version == 2)
-    {
-        __isz += 4;
-        __isz = __EnumerateSize(__isz, uevtEvents);
-    }
-
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, effectEvents);
-
-    __isz += 4;
-    __isz = __EnumerateSize(__isz, sfxEvents);
-
-    return __isz;
-}
-
-void ANCS::AnimationSet::EVNT::read(athena::io::YAMLDocReader& reader)
-{
-    version = reader.readUint32("version");
-
-    reader.enumerate("loopEvents", loopEvents);
-
-    uevtEvents.clear();
-    if (version == 2)
-    {
-        reader.enumerate("uevtEvents", uevtEvents);
-    }
-
-    reader.enumerate("effectEvents", effectEvents);
-
-    reader.enumerate("sfxEvents", sfxEvents);
-}
-
-void ANCS::AnimationSet::EVNT::write(athena::io::YAMLDocWriter& writer) const
-{
-    writer.writeUint32("version", version);
-
-    writer.enumerate("loopEvents", loopEvents);
-
-    if (version == 2)
-    {
-        writer.enumerate("uevtEvents", uevtEvents);
-    }
-
-    writer.enumerate("effectEvents", effectEvents);
-
-    writer.enumerate("sfxEvents", sfxEvents);
-}
+AT_SPECIALIZE_DNA(ANCS::AnimationSet::EVNT)
 
 const char* ANCS::AnimationSet::EVNT::DNAType()
 {

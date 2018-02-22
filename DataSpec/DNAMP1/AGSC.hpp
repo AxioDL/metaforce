@@ -11,7 +11,7 @@ class AGSC
 {
     struct Header : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         String<-1> audioDir;
         String<-1> groupName;
     };

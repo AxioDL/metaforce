@@ -4,12 +4,13 @@
 #include "../DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 #include <athena/FileWriter.hpp>
+#include "athena/DNAOp.hpp"
 
 namespace DataSpec::DNAMP1
 {
 struct FRME : BigDNA
 {
-    DECL_EXPLICIT_DNA
+    AT_DECL_EXPLICIT_DNA
     Value<atUint32> version;
     Value<atUint32> unk1;
     Value<atUint32> modelCount; // Matches MODL widgets
@@ -18,12 +19,12 @@ struct FRME : BigDNA
 
     struct Widget : BigDNA
     {
-        DECL_EXPLICIT_DNA
+        AT_DECL_EXPLICIT_DNA
         FRME* owner;
         DNAFourCC type;
         struct WidgetHeader : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             String<-1> name;
             String<-1> parent;
             Value<bool> useAnimController;
@@ -34,12 +35,9 @@ struct FRME : BigDNA
             Value<atUint32> modelDrawFlags;
         } header;
 
-        struct IWidgetInfo : BigDNA
+        struct IWidgetInfo : BigDNAV
         {
-            Delete _d;
-            virtual void read(athena::io::IStreamReader&) {}
-            void write(athena::io::IStreamWriter&) const {}
-            size_t binarySize(size_t __isz) const { return __isz; }
+            Delete _dBase;
             virtual FourCC fourcc() const=0;
         };
 
@@ -54,19 +52,22 @@ struct FRME : BigDNA
 
         struct BWIGInfo : IWidgetInfo
         {
-            Delete _d2;
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::BWIG"; }
             FourCC fourcc() const { return FOURCC('BWIG'); }
         };
 
         struct HWIGInfo : IWidgetInfo
         {
-            Delete _d2;
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::HWIG"; }
             FourCC fourcc() const { return FOURCC('HWIG'); }
         };
 
         struct CAMRInfo : IWidgetInfo
         {
-            DECL_EXPLICIT_DNA
+            AT_DECL_EXPLICIT_DNA
+            const char* DNATypeV() const { return "FRME::CAMR"; }
             enum class ProjectionType
             {
                 Perspective,
@@ -74,7 +75,7 @@ struct FRME : BigDNA
             };
 
             Value<ProjectionType> projectionType;
-            struct IProjection : BigDNA
+            struct IProjection : BigDNAV
             {
                 Delete _d;
                 const ProjectionType type;
@@ -83,7 +84,8 @@ struct FRME : BigDNA
 
             struct PerspectiveProjection : IProjection
             {
-                DECL_DNA
+                AT_DECL_DNA
+                AT_DECL_DNAV
                 PerspectiveProjection() : IProjection(ProjectionType::Perspective) {}
                 Value<float> fov;
                 Value<float> aspect;
@@ -93,7 +95,8 @@ struct FRME : BigDNA
 
             struct OrthographicProjection : IProjection
             {
-                DECL_DNA
+                AT_DECL_DNA
+                AT_DECL_DNAV
                 OrthographicProjection() : IProjection(ProjectionType::Orthographic) {}
                 Value<float> left;
                 Value<float> right;
@@ -109,7 +112,8 @@ struct FRME : BigDNA
 
         struct MODLInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::MODL"; }
             UniqueID32 model;
             enum class BlendMode
             {
@@ -127,7 +131,8 @@ struct FRME : BigDNA
 
         struct LITEInfo : IWidgetInfo
         {
-            DECL_EXPLICIT_DNA
+            AT_DECL_EXPLICIT_DNA
+            const char* DNATypeV() const { return "FRME::LITE"; }
             enum class ELightType : atUint32
             {
                 Spot = 0,
@@ -152,7 +157,8 @@ struct FRME : BigDNA
 
         struct ENRGInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::ENRG"; }
             UniqueID32 texture;
 
             FourCC fourcc() const { return FOURCC('ENRG'); }
@@ -160,7 +166,8 @@ struct FRME : BigDNA
 
         struct METRInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::METR"; }
             Value<bool> unk1;
             Value<bool> noRoundUp;
             Value<atUint32> maxCapacity;
@@ -171,7 +178,8 @@ struct FRME : BigDNA
 
         struct GRUPInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::GRUP"; }
             Value<atInt16> defaultWorker;
             Value<bool> unk3;
 
@@ -180,7 +188,8 @@ struct FRME : BigDNA
 
         struct TBGPInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::TBGP"; }
             Value<atUint16> elementCount;
             Value<atUint16> unk2;
             Value<atUint32> unkEnum;
@@ -202,7 +211,8 @@ struct FRME : BigDNA
 
         struct SLGPInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::SLGP"; }
             Value<float> min;
             Value<float> max;
             Value<float> cur;
@@ -213,7 +223,8 @@ struct FRME : BigDNA
 
         struct PANEInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::PANE"; }
             Value<float> xDim;
             Value<float> zDim;
             Value<atVec3f> scaleCenter;
@@ -223,6 +234,7 @@ struct FRME : BigDNA
 
         struct TXPNInfo : IWidgetInfo
         {
+            const char* DNATypeV() const { return "FRME::TXPN"; }
             enum class Justification : atUint32
             {
                 Left = 0,
@@ -251,7 +263,8 @@ struct FRME : BigDNA
                 RightMono
             };
 
-            DECL_EXPLICIT_DNA
+            AT_DECL_EXPLICIT_DNA
+
             atUint32 version = 0;
             TXPNInfo() {}
             TXPNInfo(atUint32 version)
@@ -277,7 +290,8 @@ struct FRME : BigDNA
 
         struct IMGPInfo : IWidgetInfo
         {
-            DECL_DNA
+            AT_DECL_DNA
+            const char* DNATypeV() const { return "FRME::IMGP"; }
             UniqueID32 texture;
             Value<atUint32> unk1;
             Value<atUint32> unk2;

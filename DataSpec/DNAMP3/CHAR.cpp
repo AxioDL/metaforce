@@ -3,7 +3,8 @@
 namespace DataSpec::DNAMP3
 {
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::IStreamReader& reader)
+template <>
+void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     EventBase::read(reader);
     caudId.read(reader);
@@ -18,7 +19,8 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::IStreamReader& reader
         reader.seek(35, athena::Current);
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::write(athena::io::IStreamWriter& writer) const
+template <>
+void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     EventBase::write(writer);
     caudId.write(writer);
@@ -33,20 +35,21 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::write(athena::io::IStreamWriter& write
         writer.seek(35, athena::Current);
 }
 
-size_t CHAR::AnimationInfo::EVNT::SFXEvent::binarySize(size_t __isz) const
+template <>
+void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
-    __isz = EventBase::binarySize(__isz);
-    __isz = caudId.binarySize(__isz);
+    EventBase::binarySize(__isz);
+    caudId.binarySize(__isz);
     __isz += 16;
     __isz += unk3Vals.size() * 4;
     if (extraType == 1)
         __isz += 4;
     else if (extraType == 2)
         __isz += 35;
-    return __isz;
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::YAMLDocReader& reader)
+template <>
+void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     EventBase::read(reader);
     reader.enumerate("caudId", caudId);
@@ -58,7 +61,8 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::read(athena::io::YAMLDocReader& reader
         extraFloat = reader.readFloat("extraFloat");
 }
 
-void CHAR::AnimationInfo::EVNT::SFXEvent::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     EventBase::write(writer);
     writer.enumerate("caudId", caudId);
@@ -75,7 +79,8 @@ const char* CHAR::AnimationInfo::EVNT::SFXEvent::DNAType()
     return "urde::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent";
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::read(athena::io::IStreamReader& reader)
+template <>
+void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     IMetaAnim::Type type(IMetaAnim::Type(reader.readUint32Big()));
     switch (type)
@@ -106,7 +111,8 @@ void CHAR::AnimationInfo::MetaAnimFactory::read(athena::io::IStreamReader& reade
     }
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::write(athena::io::IStreamWriter& writer) const
+template <>
+void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     if (!m_anim)
         return;
@@ -114,14 +120,17 @@ void CHAR::AnimationInfo::MetaAnimFactory::write(athena::io::IStreamWriter& writ
     m_anim->write(writer);
 }
 
-size_t CHAR::AnimationInfo::MetaAnimFactory::binarySize(size_t __isz) const
+template <>
+void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     if (!m_anim)
-        return __isz;
-    return m_anim->binarySize(__isz + 4);
+        return;
+    __isz += 4;
+    m_anim->binarySize(__isz);
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::read(athena::io::YAMLDocReader& reader)
+template <>
+void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     std::string type = reader.readString("type");
     std::transform(type.begin(), type.end(), type.begin(), tolower);
@@ -157,7 +166,8 @@ void CHAR::AnimationInfo::MetaAnimFactory::read(athena::io::YAMLDocReader& reade
 
 }
 
-void CHAR::AnimationInfo::MetaAnimFactory::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     if (!m_anim)
         return;

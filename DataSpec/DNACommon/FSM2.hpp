@@ -7,46 +7,47 @@
 
 namespace DataSpec::DNAFSM2
 {
-struct IFSM : BigYAML
+struct IFSM : BigDNAVYaml
 {
     Delete _d;
 };
 
 template <class IDType>
-struct FSM2 : BigYAML
+struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : BigDNA
 {
-    struct Header : BigYAML
+    struct Header : BigDNA
     {
-        DECL_YAML
-        DNAFourCC magic;
+        AT_DECL_DNA_YAML
+        DNAFourCC magic = FOURCC('FSM2');
         Value<atUint32> version;
     } header;
 
-    struct CommonStruct : BigYAML
+    struct CommonStruct : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         String<-1> name;
         Value<atUint32> unknown;
     };
 
     struct FSMV1 : IFSM
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
         Value<atUint32> stateCount;
         Value<atUint32> unknown1Count;
         Value<atUint32> unknown2Count;
         Value<atUint32> unknown3Count;
-        struct State : BigYAML
+        struct State : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknownCount;
             Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
         };
 
-        struct Unknown1 : BigYAML
+        struct Unknown1 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<float> unknown1;
             Value<atUint32> unknown2Count;
@@ -54,17 +55,17 @@ struct FSM2 : BigYAML
             Value<atUint8> unknown3;
         };
 
-        struct Unknown2 : BigYAML
+        struct Unknown2 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknownCount;
             Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
         };
 
-        struct Unknown3 : BigYAML
+        struct Unknown3 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknownCount;
             Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
@@ -79,14 +80,15 @@ struct FSM2 : BigYAML
 
     struct FSMV2 : IFSM
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
         Value<atUint32> stateCount;
         Value<atUint32> unknown1Count;
         Value<atUint32> unknown2Count;
         Value<atUint32> unknown3Count;
-        struct State : BigYAML
+        struct State : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknown1;
             Value<atUint32> unknown2;
@@ -96,9 +98,9 @@ struct FSM2 : BigYAML
             Vector<CommonStruct, DNA_COUNT(unknown5Count)> unknown5;
         };
 
-        struct Unknown1 : BigYAML
+        struct Unknown1 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknown1;
             Value<atUint32> unknown2;
@@ -110,9 +112,9 @@ struct FSM2 : BigYAML
             Value<atUint8> unknown7;
         };
 
-        struct Unknown2 : BigYAML
+        struct Unknown2 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknown1;
             Value<atUint32> unknown2;
@@ -122,9 +124,9 @@ struct FSM2 : BigYAML
             Vector<CommonStruct, DNA_COUNT(unknown5Count)> unknown5;
         };
 
-        struct Unknown3 : BigYAML
+        struct Unknown3 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknown1;
             Value<atUint32> unknown2;
@@ -141,14 +143,8 @@ struct FSM2 : BigYAML
         Vector<Unknown3, DNA_COUNT(unknown3Count)> unknown3;
     };
 
-    void read(athena::io::IStreamReader& in);
-    void write(athena::io::IStreamWriter& out) const;
-    void read(athena::io::YAMLDocReader& in);
-    void write(athena::io::YAMLDocWriter& out) const;
     std::unique_ptr<IFSM> detail;
-    size_t binarySize(size_t __isz) const;
-    static const char* DNAType();
-    const char* DNATypeV() const;
+    AT_DECL_EXPLICIT_DNA_YAML
 };
 
 template <class IDType>

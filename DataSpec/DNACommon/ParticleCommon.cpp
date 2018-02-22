@@ -4,7 +4,180 @@ namespace DataSpec::DNAParticle
 {
 logvisor::Module LogModule("urde::DNAParticle");
 
-void RealElementFactory::read(athena::io::YAMLDocReader& r)
+template <>
+void REConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    val = r.readFloat(nullptr);
+}
+template <>
+void REConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    w.writeFloat(nullptr, val);
+}
+template <>
+void REConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    s += 4;
+}
+template <>
+void REConstant::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    val = r.readFloatBig();
+}
+template <>
+void REConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    w.writeFloatBig(val);
+}
+
+template <>
+void IEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    val = r.readUint32(nullptr);
+}
+template <>
+void IEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    w.writeUint32(nullptr, val);
+}
+template <>
+void IEConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    s += 4;
+}
+template <>
+void IEConstant::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    val = r.readUint32Big();
+}
+template <>
+void IEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    w.writeUint32Big(val);
+}
+
+template <>
+void VEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    size_t elemCount;
+    if (auto v = r.enterSubVector(nullptr, elemCount))
+    {
+        for (int i=0 ; i<3 && i<elemCount ; ++i)
+        {
+            if (auto rec = r.enterSubRecord(nullptr))
+                comps[i].read(r);
+        }
+    }
+}
+template <>
+void VEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    if (auto v = w.enterSubVector(nullptr))
+        for (int i=0 ; i<3 ; ++i)
+            if (auto rec = w.enterSubRecord(nullptr))
+                comps[i].write(w);
+}
+template <>
+void VEConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    comps[0].binarySize(s);
+    comps[1].binarySize(s);
+    comps[2].binarySize(s);
+}
+template <>
+void VEConstant::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    comps[0].read(r);
+    comps[1].read(r);
+    comps[2].read(r);
+}
+template <>
+void VEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    comps[0].write(w);
+    comps[1].write(w);
+    comps[2].write(w);
+}
+
+template <>
+void CEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    for (int i=0 ; i<4 ; ++i)
+        if (auto rec = r.enterSubRecord(nullptr))
+            comps[i].read(r);
+}
+template <>
+void CEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    if (auto v = w.enterSubVector(nullptr))
+        for (int i=0 ; i<4 ; ++i)
+            if (auto rec = w.enterSubRecord(nullptr))
+                comps[i].write(w);
+}
+template <>
+void CEConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    comps[0].binarySize(s);
+    comps[1].binarySize(s);
+    comps[2].binarySize(s);
+    comps[3].binarySize(s);
+}
+template <>
+void CEConstant::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    comps[0].read(r);
+    comps[1].read(r);
+    comps[2].read(r);
+    comps[3].read(r);
+}
+template <>
+void CEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    comps[0].write(w);
+    comps[1].write(w);
+    comps[2].write(w);
+    comps[3].write(w);
+}
+
+template <>
+void MVEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    for (int i=0 ; i<3 ; ++i)
+        if (auto rec = r.enterSubRecord(nullptr))
+            comps[i].read(r);
+}
+template <>
+void MVEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    if (auto v = w.enterSubVector(nullptr))
+        for (int i=0 ; i<3 ; ++i)
+            if (auto rec = w.enterSubRecord(nullptr))
+                comps[i].write(w);
+}
+template <>
+void MVEConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    comps[0].binarySize(s);
+    comps[1].binarySize(s);
+    comps[2].binarySize(s);
+}
+template <>
+void MVEConstant::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    comps[0].read(r);
+    comps[1].read(r);
+    comps[2].read(r);
+}
+template <>
+void MVEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    comps[0].write(w);
+    comps[1].write(w);
+    comps[2].write(w);
+}
+
+template <>
+void RealElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -127,22 +300,24 @@ void RealElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem->read(r);
 }
 
-void RealElementFactory::write(athena::io::YAMLDocWriter& w) const
+template <>
+void RealElementFactory::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
 {
     if (m_elem)
         if (auto rec = w.enterSubRecord(m_elem->ClassID()))
             m_elem->write(w);
 }
 
-size_t RealElementFactory::binarySize(size_t __isz) const
+template <>
+void RealElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
+    s += 4;
     if (m_elem)
-        return m_elem->binarySize(__isz + 4);
-    else
-        return __isz + 4;
+        m_elem->binarySize(s);
 }
 
-void RealElementFactory::read(athena::io::IStreamReader& r)
+template <>
+void RealElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -259,7 +434,8 @@ void RealElementFactory::read(athena::io::IStreamReader& r)
     m_elem->read(r);
 }
 
-void RealElementFactory::write(athena::io::IStreamWriter& w) const
+template <>
+void RealElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 {
     if (m_elem)
     {
@@ -271,7 +447,8 @@ void RealElementFactory::write(athena::io::IStreamWriter& w) const
 }
 
 
-void IntElementFactory::read(athena::io::YAMLDocReader& r)
+template <>
+void IntElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -346,22 +523,24 @@ void IntElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem->read(r);
 }
 
-void IntElementFactory::write(athena::io::YAMLDocWriter& w) const
+template <>
+void IntElementFactory::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
 {
     if (m_elem)
         if (auto rec = w.enterSubRecord(m_elem->ClassID()))
             m_elem->write(w);
 }
 
-size_t IntElementFactory::binarySize(size_t __isz) const
+template <>
+void IntElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
+    s += 4;
     if (m_elem)
-        return m_elem->binarySize(__isz + 4);
-    else
-        return __isz + 4;
+        m_elem->binarySize(s);
 }
 
-void IntElementFactory::read(athena::io::IStreamReader& r)
+template <>
+void IntElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -430,7 +609,8 @@ void IntElementFactory::read(athena::io::IStreamReader& r)
     m_elem->read(r);
 }
 
-void IntElementFactory::write(athena::io::IStreamWriter& w) const
+template <>
+void IntElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 {
     if (m_elem)
     {
@@ -441,7 +621,8 @@ void IntElementFactory::write(athena::io::IStreamWriter& w) const
         w.writeBytes((atInt8*)"NONE", 4);
 }
 
-void VectorElementFactory::read(athena::io::YAMLDocReader& r)
+template <>
+void VectorElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -516,22 +697,24 @@ void VectorElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem->read(r);
 }
 
-void VectorElementFactory::write(athena::io::YAMLDocWriter& w) const
+template <>
+void VectorElementFactory::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
 {
     if (m_elem)
         if (auto rec = w.enterSubRecord(m_elem->ClassID()))
             m_elem->write(w);
 }
 
-size_t VectorElementFactory::binarySize(size_t __isz) const
+template <>
+void VectorElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
+    s += 4;
     if (m_elem)
-        return m_elem->binarySize(__isz + 4);
-    else
-        return __isz + 4;
+        m_elem->binarySize(s);
 }
 
-void VectorElementFactory::read(athena::io::IStreamReader& r)
+template <>
+void VectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -600,7 +783,8 @@ void VectorElementFactory::read(athena::io::IStreamReader& r)
     m_elem->read(r);
 }
 
-void VectorElementFactory::write(athena::io::IStreamWriter& w) const
+template <>
+void VectorElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 {
     if (m_elem)
     {
@@ -612,7 +796,8 @@ void VectorElementFactory::write(athena::io::IStreamWriter& w) const
 }
 
 
-void ColorElementFactory::read(athena::io::YAMLDocReader& r)
+template <>
+void ColorElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -654,22 +839,24 @@ void ColorElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem->read(r);
 }
 
-void ColorElementFactory::write(athena::io::YAMLDocWriter& w) const
+template <>
+void ColorElementFactory::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
 {
     if (m_elem)
         if (auto rec = w.enterSubRecord(m_elem->ClassID()))
             m_elem->write(w);
 }
 
-size_t ColorElementFactory::binarySize(size_t __isz) const
+template <>
+void ColorElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
+    s += 4;
     if (m_elem)
-        return m_elem->binarySize(__isz + 4);
-    else
-        return __isz + 4;
+        m_elem->binarySize(s);
 }
 
-void ColorElementFactory::read(athena::io::IStreamReader& r)
+template <>
+void ColorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -705,7 +892,8 @@ void ColorElementFactory::read(athena::io::IStreamReader& r)
     m_elem->read(r);
 }
 
-void ColorElementFactory::write(athena::io::IStreamWriter& w) const
+template <>
+void ColorElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 {
     if (m_elem)
     {
@@ -717,7 +905,8 @@ void ColorElementFactory::write(athena::io::IStreamWriter& w) const
 }
 
 
-void ModVectorElementFactory::read(athena::io::YAMLDocReader& r)
+template <>
+void ModVectorElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -776,22 +965,24 @@ void ModVectorElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem->read(r);
 }
 
-void ModVectorElementFactory::write(athena::io::YAMLDocWriter& w) const
+template <>
+void ModVectorElementFactory::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
 {
     if (m_elem)
         if (auto rec = w.enterSubRecord(m_elem->ClassID()))
             m_elem->write(w);
 }
 
-size_t ModVectorElementFactory::binarySize(size_t __isz) const
+template <>
+void ModVectorElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
+    s += 4;
     if (m_elem)
-        return m_elem->binarySize(__isz + 4);
-    else
-        return __isz + 4;
+        m_elem->binarySize(s);
 }
 
-void ModVectorElementFactory::read(athena::io::IStreamReader& r)
+template <>
+void ModVectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -844,7 +1035,8 @@ void ModVectorElementFactory::read(athena::io::IStreamReader& r)
     m_elem->read(r);
 }
 
-void ModVectorElementFactory::write(athena::io::IStreamWriter& w) const
+template <>
+void ModVectorElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 {
     if (m_elem)
     {
@@ -856,7 +1048,8 @@ void ModVectorElementFactory::write(athena::io::IStreamWriter& w) const
 }
 
 
-void EmitterElementFactory::read(athena::io::YAMLDocReader& r)
+template <>
+void EmitterElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
 {
     const auto& mapChildren = r.getCurNode()->m_mapChildren;
     if (mapChildren.empty())
@@ -891,22 +1084,24 @@ void EmitterElementFactory::read(athena::io::YAMLDocReader& r)
         m_elem->read(r);
 }
 
-void EmitterElementFactory::write(athena::io::YAMLDocWriter& w) const
+template <>
+void EmitterElementFactory::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
 {
     if (m_elem)
         if (auto rec = w.enterSubRecord(m_elem->ClassID()))
             m_elem->write(w);
 }
 
-size_t EmitterElementFactory::binarySize(size_t __isz) const
+template <>
+void EmitterElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 {
+    s += 4;
     if (m_elem)
-        return m_elem->binarySize(__isz + 4);
-    else
-        return __isz + 4;
+        m_elem->binarySize(s);
 }
 
-void EmitterElementFactory::read(athena::io::IStreamReader& r)
+template <>
+void EmitterElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -935,7 +1130,8 @@ void EmitterElementFactory::read(athena::io::IStreamReader& r)
     m_elem->read(r);
 }
 
-void EmitterElementFactory::write(athena::io::IStreamWriter& w) const
+template <>
+void EmitterElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 {
     if (m_elem)
     {
@@ -945,5 +1141,474 @@ void EmitterElementFactory::write(athena::io::IStreamWriter& w) const
     else
         w.writeBytes((atInt8*)"NONE", 4);
 }
+
+template <>
+void BoolHelper::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    value = r.readBool(nullptr);
+}
+template <>
+void BoolHelper::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    w.writeBool(nullptr, value);
+}
+template <>
+void BoolHelper::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    s += 5;
+}
+template <>
+void BoolHelper::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId == SBIG('CNST'))
+        value = r.readBool();
+    else
+        value = false;
+}
+template <>
+void BoolHelper::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    w.writeBytes((atInt8*)"CNST", 4);
+    w.writeBool(value);
+}
+
+template <>
+void EESimpleEmitterTR::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{
+    position.m_elem.reset();
+    velocity.m_elem.reset();
+    if (auto rec = r.enterSubRecord("ILOC"))
+        position.read(r);
+    if (auto rec = r.enterSubRecord("IVEC"))
+        velocity.read(r);
+}
+template <>
+void EESimpleEmitterTR::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{
+    if (auto rec = w.enterSubRecord("ILOC"))
+        position.write(w);
+    if (auto rec = w.enterSubRecord("IVEC"))
+        velocity.write(w);
+}
+template <>
+void EESimpleEmitterTR::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    s += 8;
+    position.binarySize(s);
+    velocity.binarySize(s);
+}
+template <>
+void EESimpleEmitterTR::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{
+    position.m_elem.reset();
+    velocity.m_elem.reset();
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId == SBIG('ILOC'))
+    {
+        position.read(r);
+        r.readBytesToBuf(&clsId, 4);
+        if (clsId == SBIG('IVEC'))
+            velocity.read(r);
+    }
+}
+template <>
+void EESimpleEmitterTR::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{
+    w.writeBytes((atInt8*)"ILOC", 4);
+    position.write(w);
+    w.writeBytes((atInt8*)"IVEC", 4);
+    velocity.write(w);
+}
+
+template <class IDType>
+void UVEConstant<IDType>::_read(typename ReadYaml::StreamT& r)
+{
+    tex.clear();
+    if (auto rec = r.enterSubRecord("tex"))
+        tex.read(r);
+}
+template <class IDType>
+void UVEConstant<IDType>::_write(typename WriteYaml::StreamT& w) const
+{
+    if (auto rec = w.enterSubRecord("tex"))
+        tex.write(w);
+}
+template <class IDType>
+void UVEConstant<IDType>::_binarySize(typename BinarySize::StreamT& _s) const
+{
+    _s += 4;
+    tex.binarySize(_s);
+}
+template <class IDType>
+void UVEConstant<IDType>::_read(typename Read::StreamT& r)
+{
+    tex.clear();
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId == SBIG('CNST'))
+        tex.read(r);
+}
+template <class IDType>
+void UVEConstant<IDType>::_write(typename Write::StreamT& w) const
+{
+    w.writeBytes((atInt8*)"CNST", 4);
+    tex.write(w);
+}
+
+AT_SUBSPECIALIZE_DNA_YAML(UVEConstant<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(UVEConstant<UniqueID64>)
+
+template struct UVEConstant<UniqueID32>;
+template struct UVEConstant<UniqueID64>;
+
+template <class IDType>
+void UVEAnimTexture<IDType>::_read(typename ReadYaml::StreamT& r)
+{
+    tex.clear();
+    if (auto rec = r.enterSubRecord("tex"))
+        tex.read(r);
+    if (auto rec = r.enterSubRecord("tileW"))
+        tileW.read(r);
+    if (auto rec = r.enterSubRecord("tileH"))
+        tileH.read(r);
+    if (auto rec = r.enterSubRecord("strideW"))
+        strideW.read(r);
+    if (auto rec = r.enterSubRecord("strideH"))
+        strideH.read(r);
+    if (auto rec = r.enterSubRecord("cycleFrames"))
+        cycleFrames.read(r);
+    if (auto rec = r.enterSubRecord("loop"))
+        loop = r.readBool(nullptr);
+}
+template <class IDType>
+void UVEAnimTexture<IDType>::_write(typename WriteYaml::StreamT& w) const
+{
+    if (auto rec = w.enterSubRecord("tex"))
+        tex.write(w);
+    if (auto rec = w.enterSubRecord("tileW"))
+        tileW.write(w);
+    if (auto rec = w.enterSubRecord("tileH"))
+        tileH.write(w);
+    if (auto rec = w.enterSubRecord("strideW"))
+        strideW.write(w);
+    if (auto rec = w.enterSubRecord("strideH"))
+        strideH.write(w);
+    if (auto rec = w.enterSubRecord("cycleFrames"))
+        cycleFrames.write(w);
+    w.writeBool("loop", loop);
+}
+template <class IDType>
+void UVEAnimTexture<IDType>::_binarySize(typename BinarySize::StreamT& _s) const
+{
+    _s += 9;
+    tex.binarySize(_s);
+    tileW.binarySize(_s);
+    tileH.binarySize(_s);
+    strideW.binarySize(_s);
+    strideH.binarySize(_s);
+    cycleFrames.binarySize(_s);
+}
+template <class IDType>
+void UVEAnimTexture<IDType>::_read(typename Read::StreamT& r)
+{
+    tex.clear();
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId == SBIG('CNST'))
+        tex.read(r);
+    tileW.read(r);
+    tileH.read(r);
+    strideW.read(r);
+    strideH.read(r);
+    cycleFrames.read(r);
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId == SBIG('CNST'))
+        loop = r.readBool();
+}
+template <class IDType>
+void UVEAnimTexture<IDType>::_write(typename Write::StreamT& w) const
+{
+    w.writeBytes((atInt8*)"CNST", 4);
+    tex.write(w);
+    tileW.write(w);
+    tileH.write(w);
+    strideW.write(w);
+    strideH.write(w);
+    cycleFrames.write(w);
+    w.writeBytes((atInt8*)"CNST", 4);
+    w.writeBool(loop);
+}
+
+AT_SUBSPECIALIZE_DNA_YAML(UVEAnimTexture<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(UVEAnimTexture<UniqueID64>)
+
+template struct UVEAnimTexture<UniqueID32>;
+template struct UVEAnimTexture<UniqueID64>;
+
+template <class IDType>
+void UVElementFactory<IDType>::_read(typename Read::StreamT& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    switch (clsId)
+    {
+    case SBIG('CNST'):
+        m_elem.reset(new struct UVEConstant<IDType>);
+        break;
+    case SBIG('ATEX'):
+        m_elem.reset(new struct UVEAnimTexture<IDType>);
+        break;
+    default:
+        m_elem.reset();
+        return;
+    }
+    m_elem->read(r);
+}
+template <class IDType>
+void UVElementFactory<IDType>::_write(typename Write::StreamT& w) const
+{
+    if (m_elem)
+    {
+        w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+        m_elem->write(w);
+    }
+    else
+        w.writeBytes((atInt8*)"NONE", 4);
+}
+template <class IDType>
+void UVElementFactory<IDType>::_read(typename ReadYaml::StreamT& r)
+{
+    if (auto rec = r.enterSubRecord("CNST"))
+    {
+        m_elem.reset(new struct UVEConstant<IDType>);
+        m_elem->read(r);
+    }
+    else if (auto rec = r.enterSubRecord("ATEX"))
+    {
+        m_elem.reset(new struct UVEAnimTexture<IDType>);
+        m_elem->read(r);
+    }
+    else
+        m_elem.reset();
+}
+template <class IDType>
+void UVElementFactory<IDType>::_write(typename WriteYaml::StreamT& w) const
+{
+    if (m_elem)
+        if (auto rec = w.enterSubRecord(m_elem->ClassID()))
+            m_elem->write(w);
+}
+template <class IDType>
+void UVElementFactory<IDType>::_binarySize(typename BinarySize::StreamT& _s) const
+{
+    if (m_elem)
+        m_elem->binarySize(_s);
+    _s += 4;
+}
+
+AT_SUBSPECIALIZE_DNA_YAML(UVElementFactory<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(UVElementFactory<UniqueID64>)
+
+template struct UVElementFactory<UniqueID32>;
+template struct UVElementFactory<UniqueID64>;
+
+template <class IDType>
+template <class Op>
+void SpawnSystemKeyframeData<IDType>::SpawnSystemKeyframeInfo::Enumerate(typename Op::StreamT& s)
+{
+    Do<Op>({"id"}, id, s);
+    Do<Op>({"a"}, a, s);
+    Do<Op>({"b"}, b, s);
+    Do<Op>({"c"}, c, s);
+}
+
+template <class IDType>
+void SpawnSystemKeyframeData<IDType>::_read(typename ReadYaml::StreamT& r)
+{
+    if (auto rec = r.enterSubRecord("a"))
+        a = r.readUint32(nullptr);
+    if (auto rec = r.enterSubRecord("b"))
+        b = r.readUint32(nullptr);
+    if (auto rec = r.enterSubRecord("endFrame"))
+        endFrame = r.readUint32(nullptr);
+    if (auto rec = r.enterSubRecord("d"))
+        d = r.readUint32(nullptr);
+    spawns.clear();
+    size_t spawnCount;
+    if (auto v = r.enterSubVector("spawns", spawnCount))
+    {
+        spawns.reserve(spawnCount);
+        for (const auto& child : r.getCurNode()->m_seqChildren)
+        {
+            if (auto rec = r.enterSubRecord(nullptr))
+            {
+                spawns.emplace_back();
+                spawns.back().first = r.readUint32("startFrame");
+                size_t systemCount;
+                if (auto v = r.enterSubVector("systems", systemCount))
+                {
+                    spawns.back().second.reserve(systemCount);
+                    for (const auto& in : r.getCurNode()->m_seqChildren)
+                    {
+                        spawns.back().second.emplace_back();
+                        SpawnSystemKeyframeInfo& info = spawns.back().second.back();
+                        if (auto rec = r.enterSubRecord(nullptr))
+                            info.read(r);
+                    }
+                }
+            }
+        }
+    }
+}
+
+template <class IDType>
+void SpawnSystemKeyframeData<IDType>::_write(typename WriteYaml::StreamT& w) const
+{
+    if (spawns.empty())
+        return;
+    w.writeUint32("a", a);
+    w.writeUint32("b", b);
+    w.writeUint32("endFrame", endFrame);
+    w.writeUint32("d", d);
+    if (auto v = w.enterSubVector("spawns"))
+    {
+        for (const auto& spawn : spawns)
+        {
+            if (auto rec = w.enterSubRecord(nullptr))
+            {
+                w.writeUint32("startFrame", spawn.first);
+                if (auto v = w.enterSubVector("systems"))
+                    for (const auto& info : spawn.second)
+                        if (auto rec = w.enterSubRecord(nullptr))
+                            info.write(w);
+            }
+        }
+    }
+}
+
+template <class IDType>
+void SpawnSystemKeyframeData<IDType>::_binarySize(typename BinarySize::StreamT& s) const
+{
+    s += 20;
+    for (const auto& spawn : spawns)
+    {
+        s += 8;
+        for (const auto& info : spawn.second)
+            info.binarySize(s);
+    }
+}
+
+template <class IDType>
+void SpawnSystemKeyframeData<IDType>::_read(typename Read::StreamT& r)
+{
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId != SBIG('CNST'))
+        return;
+
+    a = r.readUint32Big();
+    b = r.readUint32Big();
+    endFrame = r.readUint32Big();
+    d = r.readUint32Big();
+    uint32_t count = r.readUint32Big();
+    spawns.clear();
+    spawns.reserve(count);
+    for (size_t i=0 ; i<count ; ++i)
+    {
+        spawns.emplace_back();
+        spawns.back().first = r.readUint32Big();
+        uint32_t infoCount = r.readUint32Big();
+        spawns.back().second.reserve(infoCount);
+        for (size_t j=0 ; j<infoCount ; ++j)
+        {
+            spawns.back().second.emplace_back();
+            spawns.back().second.back().read(r);
+        }
+    }
+}
+
+template <class IDType>
+void SpawnSystemKeyframeData<IDType>::_write(typename Write::StreamT& w) const
+{
+    if (spawns.empty())
+    {
+        w.writeBytes((atInt8*)"NONE", 4);
+        return;
+    }
+    w.writeBytes((atInt8*)"CNST", 4);
+    w.writeUint32Big(a);
+    w.writeUint32Big(b);
+    w.writeUint32Big(endFrame);
+    w.writeUint32Big(d);
+    w.writeUint32Big(spawns.size());
+    for (const auto& spawn : spawns)
+    {
+        w.writeUint32Big(spawn.first);
+        w.writeUint32Big(spawn.second.size());
+        for (const auto& info : spawn.second)
+            info.write(w);
+    }
+}
+
+AT_SUBSPECIALIZE_DNA_YAML(SpawnSystemKeyframeData<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(SpawnSystemKeyframeData<UniqueID64>)
+
+template struct SpawnSystemKeyframeData<UniqueID32>;
+template struct SpawnSystemKeyframeData<UniqueID64>;
+
+template <class IDType>
+void ChildResourceFactory<IDType>::_read(typename ReadYaml::StreamT& r)
+{
+    id.clear();
+    if (auto rec = r.enterSubRecord("CNST"))
+        id.read(r);
+}
+
+template <class IDType>
+void ChildResourceFactory<IDType>::_write(typename WriteYaml::StreamT& w) const
+{
+    if (id)
+        if (auto rec = w.enterSubRecord("CNST"))
+            id.write(w);
+}
+
+template <class IDType>
+void ChildResourceFactory<IDType>::_binarySize(typename BinarySize::StreamT& s) const
+{
+    if (id)
+        id.binarySize(s);
+    s += 4;
+}
+
+template <class IDType>
+void ChildResourceFactory<IDType>::_read(typename Read::StreamT& r)
+{
+    id.clear();
+    uint32_t clsId;
+    r.readBytesToBuf(&clsId, 4);
+    if (clsId == SBIG('CNST'))
+        id.read(r);
+}
+
+template <class IDType>
+void ChildResourceFactory<IDType>::_write(typename Write::StreamT& w) const
+{
+    if (id)
+    {
+        w.writeBytes((atInt8*)"CNST", 4);
+        id.write(w);
+    }
+    else
+        w.writeBytes((atInt8*)"NONE", 4);
+}
+
+AT_SUBSPECIALIZE_DNA_YAML(ChildResourceFactory<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(ChildResourceFactory<UniqueID64>)
+
+template struct ChildResourceFactory<UniqueID32>;
+template struct ChildResourceFactory<UniqueID64>;
 
 }

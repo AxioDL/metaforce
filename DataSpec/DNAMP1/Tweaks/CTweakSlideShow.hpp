@@ -9,7 +9,7 @@ namespace DataSpec::DNAMP1
 
 struct CTweakSlideShow final : ITweakSlideShow
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
 
     String<-1> x4_pakName;
     String<-1> x14_fontAssetName;

@@ -13,7 +13,8 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding
 {
     struct State : Space::State
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
         String<-1> path;
         Value<float> columnSplits[3] = {0.0f, 0.7f, 0.9f};
         enum class SortColumn

@@ -64,7 +64,8 @@ void STRG::_read(athena::io::IStreamReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::read(athena::io::IStreamReader& reader)
+template <>
+void STRG::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
 {
     atUint32 magic = reader.readUint32Big();
     if (magic != 0x87654321)
@@ -83,7 +84,8 @@ void STRG::read(athena::io::IStreamReader& reader)
     _read(reader);
 }
 
-void STRG::read(athena::io::YAMLDocReader& reader)
+template <>
+void STRG::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader)
 {
     const athena::io::YAMLNode* root = reader.getRootNode();
 
@@ -149,7 +151,8 @@ void STRG::read(athena::io::YAMLDocReader& reader)
         langMap.emplace(item.first, &item.second);
 }
 
-void STRG::write(athena::io::IStreamWriter& writer) const
+template <>
+void STRG::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
 {
     writer.writeUint32Big(0x87654321);
     writer.writeUint32Big(3);
@@ -209,7 +212,8 @@ void STRG::write(athena::io::IStreamWriter& writer) const
     }
 }
 
-size_t STRG::binarySize(size_t __isz) const
+template <>
+void STRG::Enumerate<BigDNA::BinarySize>(size_t& __isz)
 {
     __isz += 24;
     __isz += names.size() * 8;
@@ -237,11 +241,10 @@ size_t STRG::binarySize(size_t __isz) const
             }
         }
     }
-
-    return __isz;
 }
 
-void STRG::write(athena::io::YAMLDocWriter& writer) const
+template <>
+void STRG::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer)
 {
     for (const auto& item : langs)
     {

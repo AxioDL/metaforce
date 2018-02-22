@@ -7,9 +7,9 @@
 namespace DataSpec::DNAMP3
 {
 
-struct CAUD : BigYAML
+struct CAUD : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     DNAFourCC magic;
     Value<atUint32> version;
     String<-1> name;
@@ -21,9 +21,9 @@ struct CAUD : BigYAML
     Value<float> unknown4;
     Value<atUint32> unknown5;
 
-    struct CSMPInfo : BigYAML
+    struct CSMPInfo : BigDNA
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
         Value<atUint32> dataLen;
         UniqueID64 csmpId;
         Value<float> unknown1;
@@ -40,9 +40,9 @@ struct CAUD : BigYAML
         Value<float> unknown12;
         Value<float> unknown13;
         Value<atUint8> unknown14[8];
-        struct UnknownStruct1 : BigYAML
+        struct UnknownStruct1 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<float> unknown1;
             Value<float> unknown2;
             Value<atUint8> unknown3;
@@ -50,116 +50,30 @@ struct CAUD : BigYAML
         };
         Value<atUint32> unknown15;
         Vector<UnknownStruct1, DNA_COUNT(unknown15)> unknown16;
-        struct UnknownStruct2 : BigYAML
+        struct UnknownStruct2 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint8> unknown1;
             Vector<atUint8, DNA_COUNT(unknown1)> unknown2;
             Value<float> unknown3;
             Value<float> unknown4;
             Value<atUint16> unknown5;
-            struct UnknownPair : BigYAML
+            struct UnknownPair : BigDNA
             {
-                DECL_YAML
+                AT_DECL_DNA_YAML
                 Value<float> unknown1;
                 Value<atInt32> unknown2;
             };
             Value<atUint16> unknown6;
             Vector<UnknownPair, DNA_COUNT(unknown6)> unknown7;
-            struct UnknownQuad: BigYAML
+            struct UnknownQuad: BigDNA
             {
-                Delete __dna_delete;
+                AT_DECL_EXPLICIT_DNA_YAML
                 Value<float> unknown1;
                 Value<float> unknown2;
                 Value<atUint8> unknown3;
                 Value<atUint8> unknown4;
                 Value<float> unknown5[5];
-
-                void read(athena::io::IStreamReader& __dna_reader)
-                {
-                    /* unknown1 */
-                    unknown1 = __dna_reader.readFloatBig();
-                    /* unknown2 */
-                    unknown2 = __dna_reader.readFloatBig();
-                    /* unknown3 */
-                    unknown3 = __dna_reader.readUByte();
-                    /* unknown4 */
-                    unknown4 = __dna_reader.readUByte();
-                    if (unknown4 == 5)
-                    {
-                        unknown5[0] = __dna_reader.readFloatBig();
-                        unknown5[1] = __dna_reader.readFloatBig();
-                        unknown5[2] = __dna_reader.readFloatBig();
-                        unknown5[3] = __dna_reader.readFloatBig();
-                    }
-                }
-
-                void write(athena::io::IStreamWriter& __dna_writer) const
-                {
-                    /* unknown1 */
-                    __dna_writer.writeFloatBig(unknown1);
-                    /* unknown2 */
-                    __dna_writer.writeFloatBig(unknown2);
-                    /* unknown3 */
-                    __dna_writer.writeUByte(unknown3);
-                    /* unknown4 */
-                    __dna_writer.writeUByte(unknown4);
-                    if (unknown4 == 5)
-                    {
-                        __dna_writer.writeFloatBig(unknown5[0]);
-                        __dna_writer.writeFloatBig(unknown5[1]);
-                        __dna_writer.writeFloatBig(unknown5[2]);
-                        __dna_writer.writeFloatBig(unknown5[3]);
-                    }
-                }
-
-                void read(athena::io::YAMLDocReader& __dna_docin)
-                {
-                    /* unknown1 */
-                    unknown1 = __dna_docin.readFloat("unknown1");
-                    /* unknown2 */
-                    unknown2 = __dna_docin.readFloat("unknown2");
-                    /* unknown3 */
-                    unknown3 = __dna_docin.readUByte("unknown3");
-                    /* unknown4 */
-                    unknown4 = __dna_docin.readUByte("unknown4");
-                    if (unknown4 == 5)
-                    {
-                        unknown5[0] = __dna_docin.readFloat("unknown5");
-                        unknown5[1] = __dna_docin.readFloat("unknown5");
-                        unknown5[2] = __dna_docin.readFloat("unknown5");
-                        unknown5[3] = __dna_docin.readFloat("unknown5");
-                    }
-                }
-
-                void write(athena::io::YAMLDocWriter& __dna_docout) const
-                {
-                    /* unknown1 */
-                    __dna_docout.writeFloat("unknown1", unknown1);
-                    /* unknown2 */
-                    __dna_docout.writeFloat("unknown2", unknown2);
-                    /* unknown3 */
-                    __dna_docout.writeUByte("unknown3", unknown3);
-                    /* unknown4 */
-                    __dna_docout.writeUByte("unknown4", unknown4);
-                    if (unknown4 == 5)
-                    {
-                        __dna_docout.writeFloat("unknown5", unknown5[0]);
-                        __dna_docout.writeFloat("unknown5", unknown5[1]);
-                        __dna_docout.writeFloat("unknown5", unknown5[2]);
-                        __dna_docout.writeFloat("unknown5", unknown5[3]);
-                    }
-                }
-
-                const char* DNAType()
-                {
-                    return "DataSpec::DNAMP3::CAUD::CSMPInfo::UnknownStruct2::UnknownQuad";
-                }
-
-                size_t binarySize(size_t __isz) const
-                {
-                    return __isz + 10 + (unknown4 == 5 ? sizeof(float) * 4 : 0);
-                }
             };
 
             Value<atUint16> unknown8;
@@ -177,9 +91,9 @@ struct CAUD : BigYAML
         Value<atUint8> unknown26;
         Value<atUint8> unknown27;
         Value<atUint8> unknown28;
-        struct UnknownStruct3 : BigYAML
+        struct UnknownStruct3 : BigDNA
         {
-            DECL_YAML
+            AT_DECL_DNA_YAML
             Value<atUint32> unknown1;
             Value<float> unknown2;
             Value<atUint8> unknown3;
@@ -198,7 +112,7 @@ struct CAUD : BigYAML
         CAUD caud;
         caud.read(rs);
         athena::io::FileWriter writer(outPath.getAbsolutePath());
-        caud.toYAMLStream(writer);
+        athena::io::ToYAMLStream(caud, writer);
         return true;
     }
 };

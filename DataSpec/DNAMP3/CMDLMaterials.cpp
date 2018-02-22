@@ -7,6 +7,73 @@ namespace DataSpec::DNAMP3
 {
 using Material = MaterialSet::Material;
 
+template <>
+void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
+{
+    DNAFourCC type;
+    type.read(reader);
+    switch (ISection::Type(type.toUint32()))
+    {
+    case ISection::Type::PASS:
+        section.reset(new struct SectionPASS);
+        section->read(reader);
+        break;
+    case ISection::Type::CLR:
+        section.reset(new struct SectionCLR);
+        section->read(reader);
+        break;
+    case ISection::Type::INT:
+        section.reset(new struct SectionINT);
+        section->read(reader);
+        break;
+    default:
+        section.reset(nullptr);
+        break;
+    }
+}
+template <>
+void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
+{
+    if (!section)
+        return;
+    writer.writeUBytes((atUint8*)&section->m_type, 4);
+    section->write(writer);
+}
+template <>
+void MaterialSet::Material::SectionFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    s += 4;
+    section->binarySize(s);
+}
+
+template <>
+void MaterialSet::Material::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
+{
+    header.read(reader);
+    sections.clear();
+    do {
+        sections.emplace_back();
+        sections.back().read(reader);
+    } while (sections.back().section);
+    sections.pop_back();
+}
+template <>
+void MaterialSet::Material::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
+{
+    header.write(writer);
+    for (const SectionFactory& section : sections)
+        section.write(writer);
+    writer.writeUBytes((atUint8*)"END ", 4);
+}
+template <>
+void MaterialSet::Material::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{
+    header.binarySize(s);
+    for (const SectionFactory& section : sections)
+        section.binarySize(s);
+    s += 4;
+}
+
 void MaterialSet::RegisterMaterialProps(Stream& out)
 {
     out << "bpy.types.Material.retro_punchthrough_alpha = bpy.props.BoolProperty(name='Retro: Punchthrough Alpha')\n"

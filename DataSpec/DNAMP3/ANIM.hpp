@@ -11,9 +11,9 @@ namespace DataSpec::DNAMP3
 
 struct ANIM : BigDNA
 {
-    Delete expl;
+    AT_DECL_EXPLICIT_DNA
 
-    struct IANIM : BigDNA
+    struct IANIM : BigDNAV
     {
         Delete expl;
         atUint32 m_version;
@@ -33,12 +33,13 @@ struct ANIM : BigDNA
 
     struct ANIM0 : IANIM
     {
-        DECL_EXPLICIT_DNA
+        AT_DECL_EXPLICIT_DNA
+        AT_DECL_DNAV
         ANIM0() : IANIM(0) {}
 
         struct Header : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint16> unkS;
             Value<float> duration;
             Value<atUint32> unk0;
@@ -52,12 +53,13 @@ struct ANIM : BigDNA
 
     struct ANIM1 : IANIM
     {
-        DECL_EXPLICIT_DNA
+        AT_DECL_EXPLICIT_DNA
+        AT_DECL_DNAV
         ANIM1() : IANIM(1) {}
 
         struct Header : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atUint16> unk1;
             Value<atUint8> unk2;
             Value<atUint32> unk3;
@@ -81,35 +83,6 @@ struct ANIM : BigDNA
     };
 
     std::unique_ptr<IANIM> m_anim;
-    void read(athena::io::IStreamReader& reader)
-    {
-        atUint32 version = reader.readUint32Big();
-        switch (version)
-        {
-        case 0:
-            m_anim.reset(new struct ANIM0);
-            m_anim->read(reader);
-            break;
-        case 1:
-            m_anim.reset(new struct ANIM1);
-            m_anim->read(reader);
-            break;
-        default:
-            Log.report(logvisor::Fatal, "unrecognized ANIM version");
-            break;
-        }
-    }
-
-    void write(athena::io::IStreamWriter& writer) const
-    {
-        writer.writeUint32Big(m_anim->m_version);
-        m_anim->write(writer);
-    }
-
-    size_t binarySize(size_t __isz) const
-    {
-        return m_anim->binarySize(__isz + 4);
-    }
 
     void sendANIMToBlender(hecl::blender::PyOutStream& os,
                            const DNAANIM::RigInverter<CINF>& rig,

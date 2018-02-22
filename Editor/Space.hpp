@@ -45,7 +45,7 @@ public:
         GameMode
     };
 
-    struct State : athena::io::DNAYaml<athena::BigEndian> {Delete _d;};
+    struct State : athena::io::DNAVYaml<athena::Big> {Delete _d;};
     static Space* NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigReader& r);
     static RootSpace* NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r);
 
@@ -169,7 +169,8 @@ class RootSpace : public Space
     std::unique_ptr<Space> m_spaceTree;
     struct State : Space::State
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
     } m_state;
     const Space::State& spaceState() const {return m_state;}
 
@@ -238,7 +239,8 @@ class SplitSpace : public Space, public specter::ISplitSpaceController
     std::unique_ptr<specter::SplitView> m_splitView;
     struct State : Space::State
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
         Value<specter::SplitView::Axis> axis = specter::SplitView::Axis::Horizontal;
         Value<float> split = 0.5;
     } m_state;
@@ -397,7 +399,8 @@ public:
 
     struct State : Space::State
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
     } m_state;
     Space::State& spaceState() {return m_state;}
 

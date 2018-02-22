@@ -14,11 +14,11 @@ struct PAK : BigDNA
     bool m_useLzo;
     bool m_noShare;
     PAK(bool useLzo, bool noShare) : m_useLzo(useLzo), m_noShare(noShare) {}
-    DECL_EXPLICIT_DNA
+    AT_DECL_EXPLICIT_DNA
 
     struct NameEntry : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         DNAFourCC type;
         UniqueID32 id;
         Value<atUint32> nameLen;
@@ -27,7 +27,7 @@ struct PAK : BigDNA
 
     struct Entry : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> compressed;
         DNAFourCC type;
         UniqueID32 id;

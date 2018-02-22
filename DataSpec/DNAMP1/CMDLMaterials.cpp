@@ -1140,7 +1140,9 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
                 found = true;
                 ++uvAnimsCount;
                 uvAnims.emplace_back(tcg.m_gameFunction, tcg.m_gameArgs);
-                uvAnimsSize = uvAnims.back().binarySize(uvAnimsSize);
+                size_t tmpUvAnimsSize = uvAnimsSize;
+                uvAnims.back().binarySize(tmpUvAnimsSize);
+                uvAnimsSize = tmpUvAnimsSize;
                 break;
             }
         }
@@ -1233,7 +1235,9 @@ HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE,
 
         ++uvAnimsCount;
         uvAnims.emplace_back(sourceInst.m_call.m_name, gameArgs);
-        uvAnimsSize = uvAnims.back().binarySize(uvAnimsSize);
+        size_t tmpUvAnimsSize = uvAnimsSize;
+        uvAnims.back().binarySize(tmpUvAnimsSize);
+        uvAnimsSize = tmpUvAnimsSize;
     }
 }
 
@@ -1295,6 +1299,36 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     else
         Log.report(logvisor::Fatal, "unsupported UV anim '%s'", gameFunction.c_str());
 }
+
+template <class Op>
+void MaterialSet::Material::UVAnimation::Enumerate(typename Op::StreamT& s)
+{
+    Do<Op>({}, mode, s);
+    switch (mode)
+    {
+    case Mode::MvInvNoTranslation:
+    case Mode::MvInv:
+    case Mode::Model:
+        break;
+    case Mode::Scroll:
+    case Mode::HStrip:
+    case Mode::VStrip:
+        for (int i=0 ; i<4 ; ++i)
+            Do<Op>({}, vals[i], s);
+        break;
+    case Mode::Rotation:
+    case Mode::CylinderEnvironment:
+        for (int i=0 ; i<2 ; ++i)
+            Do<Op>({}, vals[i], s);
+        break;
+    case Mode::Eight:
+        for (int i=0 ; i<9 ; ++i)
+            Do<Op>({}, vals[i], s);
+        break;
+    }
+}
+
+AT_SPECIALIZE_DNA(MaterialSet::Material::UVAnimation)
 
 }
 

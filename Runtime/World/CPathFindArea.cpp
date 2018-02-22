@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "CPathFindArea.hpp"
 #include "IVParamObj.hpp"
 #include "CToken.hpp"

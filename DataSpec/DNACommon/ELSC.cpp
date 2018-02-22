@@ -2,197 +2,9 @@
 
 namespace DataSpec::DNAParticle
 {
-template <class IDType>
-void ELSM<IDType>::read(athena::io::YAMLDocReader& r)
-{
-    for (const auto& elem : r.getCurNode()->m_mapChildren)
-    {
-        if (elem.first.size() < 4)
-        {
-            LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
-            continue;
-        }
-        switch(*reinterpret_cast<const uint32_t*>(elem.first.data()))
-        {
-        case SBIG('LIFE'):
-            x0_LIFE.read(r);
-            break;
-        case SBIG('SLIF'):
-            x4_SLIF.read(r);
-            break;
-        case SBIG('GRAT'):
-            x8_GRAT.read(r);
-            break;
-        case SBIG('SCNT'):
-            xc_SCNT.read(r);
-            break;
-        case SBIG('SSEG'):
-            x10_SSEG.read(r);
-            break;
-        case SBIG('COLR'):
-            x14_COLR.read(r);
-            break;
-        case SBIG('IEMT'):
-            x18_IEMT.read(r);
-            break;
-        case SBIG('FEMT'):
-            x1c_FEMT.read(r);
-            break;
-        case SBIG('AMPL'):
-            x20_AMPL.read(r);
-            break;
-        case SBIG('AMPD'):
-            x24_AMPD.read(r);
-            break;
-        case SBIG('LWD1'):
-            x28_LWD1.read(r);
-            break;
-        case SBIG('LWD2'):
-            x2c_LWD2.read(r);
-            break;
-        case SBIG('LWD3'):
-            x30_LWD3.read(r);
-            break;
-        case SBIG('LCL1'):
-            x34_LCL1.read(r);
-            break;
-        case SBIG('LCL2'):
-            x38_LCL2.read(r);
-            break;
-        case SBIG('LCL3'):
-            x3c_LCL3.read(r);
-            break;
-        case SBIG('SSWH'):
-            x40_SSWH.read(r);
-            break;
-        case SBIG('GPSM'):
-            x50_GPSM.read(r);
-            break;
-        case SBIG('EPSM'):
-            x60_EPSM.read(r);
-            break;
-        case SBIG('ZERY'):
-            x70_ZERY.read(r);
-            break;
-        }
-    }
-}
 
 template <class IDType>
-void ELSM<IDType>::write(athena::io::YAMLDocWriter& w) const
-{
-    if (x0_LIFE)
-        if (auto rec = w.enterSubRecord("LIFE"))
-            x0_LIFE.write(w);
-    if (x4_SLIF)
-        if (auto rec = w.enterSubRecord("SLIF"))
-            x4_SLIF.write(w);
-    if (x8_GRAT)
-        if (auto rec = w.enterSubRecord("GRAT"))
-            x8_GRAT.write(w);
-    if (xc_SCNT)
-        if (auto rec = w.enterSubRecord("SCNT"))
-            xc_SCNT.write(w);
-    if (x10_SSEG)
-        if (auto rec = w.enterSubRecord("SSEG"))
-            x10_SSEG.write(w);
-    if (x14_COLR)
-        if (auto rec = w.enterSubRecord("COLR"))
-            x14_COLR.write(w);
-    if (x18_IEMT)
-        if (auto rec = w.enterSubRecord("IEMT"))
-            x18_IEMT.write(w);
-    if (x1c_FEMT)
-        if (auto rec = w.enterSubRecord("FEMT"))
-            x1c_FEMT.write(w);
-    if (x20_AMPL)
-        if (auto rec = w.enterSubRecord("AMPL"))
-            x20_AMPL.write(w);
-    if (x24_AMPD)
-        if (auto rec = w.enterSubRecord("AMPD"))
-            x24_AMPD.write(w);
-    if (x28_LWD1)
-        if (auto rec = w.enterSubRecord("LWD1"))
-            x28_LWD1.write(w);
-    if (x2c_LWD2)
-        if (auto rec = w.enterSubRecord("LWD2"))
-            x2c_LWD2.write(w);
-    if (x30_LWD3)
-        if (auto rec = w.enterSubRecord("LWD3"))
-            x30_LWD3.write(w);
-    if (x34_LCL1)
-        if (auto rec = w.enterSubRecord("LCL1"))
-            x34_LCL1.write(w);
-    if (x38_LCL2)
-        if (auto rec = w.enterSubRecord("LCL2"))
-            x38_LCL2.write(w);
-    if (x3c_LCL3)
-        if (auto rec = w.enterSubRecord("LCL3"))
-            x3c_LCL3.write(w);
-    if (x40_SSWH)
-        if (auto rec = w.enterSubRecord("SSWH"))
-            x40_SSWH.write(w);
-    if (x50_GPSM)
-        if (auto rec = w.enterSubRecord("GPSM"))
-            x50_GPSM.write(w);
-    if (x60_EPSM)
-        if (auto rec = w.enterSubRecord("EPSM"))
-            x60_EPSM.write(w);
-    if (x70_ZERY)
-        if (auto rec = w.enterSubRecord("ZERY"))
-            x70_ZERY.write(w);
-}
-
-template <class IDType>
-size_t ELSM<IDType>::binarySize(size_t __isz) const
-{
-    __isz += 4;
-    if (x0_LIFE)
-        __isz = x0_LIFE.binarySize(__isz + 4);
-    if (x4_SLIF)
-        __isz = x4_SLIF.binarySize(__isz + 4);
-    if (x8_GRAT)
-        __isz = x8_GRAT.binarySize(__isz + 4);
-    if (xc_SCNT)
-        __isz = xc_SCNT.binarySize(__isz + 4);
-    if (x10_SSEG)
-        __isz = x10_SSEG.binarySize(__isz + 4);
-    if (x14_COLR)
-        __isz = x14_COLR.binarySize(__isz + 4);
-    if (x18_IEMT)
-        __isz = x18_IEMT.binarySize(__isz + 4);
-    if (x1c_FEMT)
-        __isz = x1c_FEMT.binarySize(__isz + 4);
-    if (x20_AMPL)
-        __isz = x20_AMPL.binarySize(__isz + 4);
-    if (x24_AMPD)
-        __isz = x24_AMPD.binarySize(__isz + 4);
-    if (x28_LWD1)
-        __isz = x28_LWD1.binarySize(__isz + 4);
-    if (x2c_LWD2)
-        __isz = x2c_LWD2.binarySize(__isz + 4);
-    if (x30_LWD3)
-        __isz = x30_LWD3.binarySize(__isz + 4);
-    if (x34_LCL1)
-        __isz = x34_LCL1.binarySize(__isz + 4);
-    if (x38_LCL2)
-        __isz = x38_LCL2.binarySize(__isz + 4);
-    if (x3c_LCL3)
-        __isz = x3c_LCL3.binarySize(__isz + 4);
-    if (x40_SSWH)
-        __isz = x40_SSWH.binarySize(__isz + 4);
-    if (x50_GPSM)
-        __isz = x50_GPSM.binarySize(__isz + 4);
-    if (x60_EPSM)
-        __isz = x60_EPSM.binarySize(__isz + 4);
-    if (x70_ZERY)
-        __isz = x70_ZERY.binarySize(__isz + 4);
-
-    return __isz;
-}
-
-template <class IDType>
-void ELSM<IDType>::read(athena::io::IStreamReader& r)
+void ELSM<IDType>::_read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -276,7 +88,7 @@ void ELSM<IDType>::read(athena::io::IStreamReader& r)
 }
 
 template <class IDType>
-void ELSM<IDType>::write(athena::io::IStreamWriter& w) const
+void ELSM<IDType>::_write(athena::io::IStreamWriter& w) const
 {
     w.writeBytes((atInt8*)"ELSM", 4);
     if (x0_LIFE)
@@ -383,6 +195,262 @@ void ELSM<IDType>::write(athena::io::IStreamWriter& w) const
 }
 
 template <class IDType>
+void ELSM<IDType>::_binarySize(size_t& s) const
+{
+    s += 4;
+    if (x0_LIFE)
+    {
+        s += 4;
+        x0_LIFE.binarySize(s);
+    }
+    if (x4_SLIF)
+    {
+        s += 4;
+        x4_SLIF.binarySize(s);
+    }
+    if (x8_GRAT)
+    {
+        s += 4;
+        x8_GRAT.binarySize(s);
+    }
+    if (xc_SCNT)
+    {
+        s += 4;
+        xc_SCNT.binarySize(s);
+    }
+    if (x10_SSEG)
+    {
+        s += 4;
+        x10_SSEG.binarySize(s);
+    }
+    if (x14_COLR)
+    {
+        s += 4;
+        x14_COLR.binarySize(s);
+    }
+    if (x18_IEMT)
+    {
+        s += 4;
+        x18_IEMT.binarySize(s);
+    }
+    if (x1c_FEMT)
+    {
+        s += 4;
+        x1c_FEMT.binarySize(s);
+    }
+    if (x20_AMPL)
+    {
+        s += 4;
+        x20_AMPL.binarySize(s);
+    }
+    if (x24_AMPD)
+    {
+        s += 4;
+        x24_AMPD.binarySize(s);
+    }
+    if (x28_LWD1)
+    {
+        s += 4;
+        x28_LWD1.binarySize(s);
+    }
+    if (x2c_LWD2)
+    {
+        s += 4;
+        x2c_LWD2.binarySize(s);
+    }
+    if (x30_LWD3)
+    {
+        s += 4;
+        x30_LWD3.binarySize(s);
+    }
+    if (x34_LCL1)
+    {
+        s += 4;
+        x34_LCL1.binarySize(s);
+    }
+    if (x38_LCL2)
+    {
+        s += 4;
+        x38_LCL2.binarySize(s);
+    }
+    if (x3c_LCL3)
+    {
+        s += 4;
+        x3c_LCL3.binarySize(s);
+    }
+    if (x40_SSWH)
+    {
+        s += 4;
+        x40_SSWH.binarySize(s);
+    }
+    if (x50_GPSM)
+    {
+        s += 4;
+        x50_GPSM.binarySize(s);
+    }
+    if (x60_EPSM)
+    {
+        s += 4;
+        x60_EPSM.binarySize(s);
+    }
+    if (x70_ZERY)
+    {
+        s += 4;
+        x70_ZERY.binarySize(s);
+    }
+}
+
+template <class IDType>
+void ELSM<IDType>::_read(athena::io::YAMLDocReader& r)
+{
+    for (const auto& elem : r.getCurNode()->m_mapChildren)
+    {
+        if (elem.first.size() < 4)
+        {
+            LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+            continue;
+        }
+        switch(*reinterpret_cast<const uint32_t*>(elem.first.data()))
+        {
+        case SBIG('LIFE'):
+            x0_LIFE.read(r);
+            break;
+        case SBIG('SLIF'):
+            x4_SLIF.read(r);
+            break;
+        case SBIG('GRAT'):
+            x8_GRAT.read(r);
+            break;
+        case SBIG('SCNT'):
+            xc_SCNT.read(r);
+            break;
+        case SBIG('SSEG'):
+            x10_SSEG.read(r);
+            break;
+        case SBIG('COLR'):
+            x14_COLR.read(r);
+            break;
+        case SBIG('IEMT'):
+            x18_IEMT.read(r);
+            break;
+        case SBIG('FEMT'):
+            x1c_FEMT.read(r);
+            break;
+        case SBIG('AMPL'):
+            x20_AMPL.read(r);
+            break;
+        case SBIG('AMPD'):
+            x24_AMPD.read(r);
+            break;
+        case SBIG('LWD1'):
+            x28_LWD1.read(r);
+            break;
+        case SBIG('LWD2'):
+            x2c_LWD2.read(r);
+            break;
+        case SBIG('LWD3'):
+            x30_LWD3.read(r);
+            break;
+        case SBIG('LCL1'):
+            x34_LCL1.read(r);
+            break;
+        case SBIG('LCL2'):
+            x38_LCL2.read(r);
+            break;
+        case SBIG('LCL3'):
+            x3c_LCL3.read(r);
+            break;
+        case SBIG('SSWH'):
+            x40_SSWH.read(r);
+            break;
+        case SBIG('GPSM'):
+            x50_GPSM.read(r);
+            break;
+        case SBIG('EPSM'):
+            x60_EPSM.read(r);
+            break;
+        case SBIG('ZERY'):
+            x70_ZERY.read(r);
+            break;
+        }
+    }
+}
+
+template <class IDType>
+void ELSM<IDType>::_write(athena::io::YAMLDocWriter& w) const
+{
+    if (x0_LIFE)
+        if (auto rec = w.enterSubRecord("LIFE"))
+            x0_LIFE.write(w);
+    if (x4_SLIF)
+        if (auto rec = w.enterSubRecord("SLIF"))
+            x4_SLIF.write(w);
+    if (x8_GRAT)
+        if (auto rec = w.enterSubRecord("GRAT"))
+            x8_GRAT.write(w);
+    if (xc_SCNT)
+        if (auto rec = w.enterSubRecord("SCNT"))
+            xc_SCNT.write(w);
+    if (x10_SSEG)
+        if (auto rec = w.enterSubRecord("SSEG"))
+            x10_SSEG.write(w);
+    if (x14_COLR)
+        if (auto rec = w.enterSubRecord("COLR"))
+            x14_COLR.write(w);
+    if (x18_IEMT)
+        if (auto rec = w.enterSubRecord("IEMT"))
+            x18_IEMT.write(w);
+    if (x1c_FEMT)
+        if (auto rec = w.enterSubRecord("FEMT"))
+            x1c_FEMT.write(w);
+    if (x20_AMPL)
+        if (auto rec = w.enterSubRecord("AMPL"))
+            x20_AMPL.write(w);
+    if (x24_AMPD)
+        if (auto rec = w.enterSubRecord("AMPD"))
+            x24_AMPD.write(w);
+    if (x28_LWD1)
+        if (auto rec = w.enterSubRecord("LWD1"))
+            x28_LWD1.write(w);
+    if (x2c_LWD2)
+        if (auto rec = w.enterSubRecord("LWD2"))
+            x2c_LWD2.write(w);
+    if (x30_LWD3)
+        if (auto rec = w.enterSubRecord("LWD3"))
+            x30_LWD3.write(w);
+    if (x34_LCL1)
+        if (auto rec = w.enterSubRecord("LCL1"))
+            x34_LCL1.write(w);
+    if (x38_LCL2)
+        if (auto rec = w.enterSubRecord("LCL2"))
+            x38_LCL2.write(w);
+    if (x3c_LCL3)
+        if (auto rec = w.enterSubRecord("LCL3"))
+            x3c_LCL3.write(w);
+    if (x40_SSWH)
+        if (auto rec = w.enterSubRecord("SSWH"))
+            x40_SSWH.write(w);
+    if (x50_GPSM)
+        if (auto rec = w.enterSubRecord("GPSM"))
+            x50_GPSM.write(w);
+    if (x60_EPSM)
+        if (auto rec = w.enterSubRecord("EPSM"))
+            x60_EPSM.write(w);
+    if (x70_ZERY)
+        if (auto rec = w.enterSubRecord("ZERY"))
+            x70_ZERY.write(w);
+}
+
+AT_SUBSPECIALIZE_DNA_YAML(ELSM<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(ELSM<UniqueID64>)
+
+template <>
+const char* ELSM<UniqueID32>::DNAType() { return "urde::ELSM<UniqueID32>"; }
+
+template <>
+const char* ELSM<UniqueID64>::DNAType() { return "urde::ELSM<UniqueID64>"; }
+
+template <class IDType>
 void ELSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
 {
     g_curSpec->flattenDependencies(x40_SSWH.id, pathsOut);
@@ -401,7 +469,7 @@ bool ExtractELSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         ELSM<IDType> elsm;
         elsm.read(rs);
-        elsm.toYAMLStream(writer);
+        athena::io::ToYAMLStream(elsm, writer);
         return true;
     }
     return false;

@@ -10,7 +10,8 @@ class EffectEditor : public EditorSpace
 {
     struct State : Space::State
     {
-        DECL_YAML
+        AT_DECL_DNA_YAML
+        AT_DECL_DNAV
         String<-1> path;
     } m_state;
     const Space::State& spaceState() const {return m_state;}

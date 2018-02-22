@@ -6,9 +6,9 @@
 
 namespace DataSpec::DNAMP1
 {
-struct Scan : BigYAML
+struct Scan : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     UniqueID32 scanId;
     Value<SAVWCommon::EScanCategory> category;
 
@@ -16,9 +16,9 @@ struct Scan : BigYAML
     Scan(const UniqueID32& id) : scanId(id), category(SAVWCommon::EScanCategory::None) {}
 };
 
-struct SAVW : BigYAML
+struct SAVW : BigDNA
 {
-    DECL_YAML
+    AT_DECL_DNA_YAML
     SAVWCommon::Header header;
     Value<atUint32> skippableCutsceneCount;
     Vector<atUint32, DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;

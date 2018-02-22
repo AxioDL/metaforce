@@ -67,9 +67,14 @@ static const std::vector<FourCC> DecalTypes =
     SBIG('CHDL'),SBIG('ENDL')
 };
 
+template <>
+const char* CRSM<UniqueID32>::DNAType() { return "CRSM<UniqueID32>"; }
+
+template <>
+const char* CRSM<UniqueID64>::DNAType() { return "CRSM<UniqueID64>"; }
 
 template <class IDType>
-void CRSM<IDType>::read(athena::io::YAMLDocReader& r)
+void CRSM<IDType>::_read(athena::io::YAMLDocReader& r)
 {
     for (const auto& elem : r.getCurNode()->m_mapChildren)
     {
@@ -117,7 +122,7 @@ void CRSM<IDType>::read(athena::io::YAMLDocReader& r)
 }
 
 template <class IDType>
-void CRSM<IDType>::write(athena::io::YAMLDocWriter& w) const
+void CRSM<IDType>::_write(athena::io::YAMLDocWriter& w) const
 {
     for (const auto& pair : x0_generators)
         if (pair.second)
@@ -140,13 +145,16 @@ void CRSM<IDType>::write(athena::io::YAMLDocWriter& w) const
 }
 
 template <class IDType>
-size_t CRSM<IDType>::binarySize(size_t __isz) const
+void CRSM<IDType>::_binarySize(size_t& __isz) const
 {
     __isz += 4;
     for (const auto& pair : x0_generators)
     {
         if (pair.second)
-            __isz = pair.second.binarySize(__isz + 4);
+        {
+            __isz += 4;
+            pair.second.binarySize(__isz);
+        }
     }
     for (const auto& pair : x10_sfx)
     {
@@ -157,18 +165,20 @@ size_t CRSM<IDType>::binarySize(size_t __isz) const
     for (const auto& pair : x20_decals)
     {
         if (pair.second)
-            __isz = pair.second.binarySize(__isz + 4);
+        {
+            __isz += 4;
+            pair.second.binarySize(__isz);
+        }
     }
 
     if (x30_RNGE != 50.f)
         __isz += 12;
     if (x34_FOFF != 0.2f)
         __isz += 12;
-    return __isz;
 }
 
 template <class IDType>
-void CRSM<IDType>::read(athena::io::IStreamReader &r)
+void CRSM<IDType>::_read(athena::io::IStreamReader &r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -230,7 +240,7 @@ void CRSM<IDType>::read(athena::io::IStreamReader &r)
 }
 
 template <class IDType>
-void CRSM<IDType>::write(athena::io::IStreamWriter& w) const
+void CRSM<IDType>::_write(athena::io::IStreamWriter& w) const
 {
     w.writeBytes("CRSM", 4);
     for (const auto& pair : x0_generators)
@@ -273,6 +283,9 @@ void CRSM<IDType>::write(athena::io::IStreamWriter& w) const
     w.writeBytes("_END", 4);
 }
 
+AT_SUBSPECIALIZE_DNA_YAML(CRSM<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(CRSM<UniqueID64>)
+
 template <class IDType>
 void CRSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
 {
@@ -302,7 +315,7 @@ bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         CRSM<IDType> crsm;
         crsm.read(rs);
-        crsm.toYAMLStream(writer);
+        athena::io::ToYAMLStream(crsm, writer);
         return true;
     }
     return false;

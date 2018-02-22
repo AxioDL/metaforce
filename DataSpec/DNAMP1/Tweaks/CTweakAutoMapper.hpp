@@ -8,10 +8,10 @@ namespace DataSpec::DNAMP1
 {
 struct CTweakAutoMapper final : public ITweakAutoMapper
 {
-    DECL_YAML
-    Value<bool> x4_24_showOneMiniMapArea : 1;
-    Value<bool> x4_25_ : 1;
-    Value<bool> x4_26_scaleMoveSpeedWithCamDist : 1;
+    AT_DECL_DNA_YAML
+    Value<bool> x4_24_showOneMiniMapArea;
+    Value<bool> x4_25_;
+    Value<bool> x4_26_scaleMoveSpeedWithCamDist;
     Value<float> x8_camDist;
     Value<float> xc_minCamDist;
     Value<float> x10_maxCamDist;

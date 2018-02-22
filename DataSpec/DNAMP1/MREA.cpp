@@ -459,7 +459,9 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* Header section */
     {
-        secs.emplace_back(head.binarySize(0), 0);
+        size_t secSz = 0;
+        head.binarySize(secSz);
+        secs.emplace_back(secSz, 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
         head.write(w);
         int i = w.position();
@@ -530,7 +532,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
             athena::io::FileReader freader(layer.getAbsolutePath());
             if (!freader.isOpen())
                 continue;
-            if (!BigYAML::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
+            if (!athena::io::ValidateFromYAMLStream<DNAMP1::SCLY::ScriptLayer>(freader))
                 continue;
 
             athena::io::YAMLDocReader reader;
@@ -539,11 +541,15 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
             sclyData.layers.emplace_back();
             sclyData.layers.back().read(reader);
-            sclyData.layerSizes.push_back(sclyData.layers.back().binarySize(0));
+            size_t layerSize = 0;
+            sclyData.layers.back().binarySize(layerSize);
+            sclyData.layerSizes.push_back(layerSize);
         }
         sclyData.layerCount = sclyData.layers.size();
 
-        secs.emplace_back(sclyData.binarySize(0), 0);
+        size_t secSz = 0;
+        sclyData.binarySize(secSz);
+        secs.emplace_back(secSz, 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
         sclyData.write(w);
     }
@@ -577,7 +583,9 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         conn.saveBlend();
 #endif
 
-        secs.emplace_back(collision.binarySize(0), 0);
+        size_t secSz = 0;
+        collision.binarySize(secSz);
+        secs.emplace_back(secSz, 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
         collision.write(w);
     }

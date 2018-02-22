@@ -10,14 +10,14 @@ namespace DataSpec::DNAMP3
 
 struct CSKR : BigDNA
 {
-    DECL_DNA
+    AT_DECL_DNA
     DNAFourCC magic;
     Value<atUint32> version;
     DNAMP2::CSKR data;
     Value<atUint32> matrixCount;
     struct MatrixBindings : BigDNA
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atInt16> mtxs[10];
     };
     Vector<MatrixBindings, DNA_COUNT(matrixCount / 10)> mtxBindings;

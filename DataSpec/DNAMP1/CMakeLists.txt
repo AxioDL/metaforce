@@ -39,6 +39,7 @@ make_dnalist(liblist DNAMP1
 
 set(DNAMP1_SOURCES
     DNAMP1.hpp DNAMP1.cpp
+    AFSM.cpp
     PAK.cpp
     MLVL.cpp
     STRG.hpp STRG.cpp
@@ -57,6 +58,7 @@ set(DNAMP1_SOURCES
     MREA.cpp
     SCLY.hpp SCLY.cpp
     FRME.cpp
+    SCAN.cpp
     DeafBabe.cpp
     Tweaks/CTweakPlayer.cpp
     Tweaks/CTweakTargeting.cpp

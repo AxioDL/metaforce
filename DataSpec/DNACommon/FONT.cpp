@@ -4,66 +4,8 @@ namespace DataSpec::DNAFont
 {
 logvisor::Module LogModule("urde::DNAFont");
 
-void GlyphRect::read(athena::io::IStreamReader& __dna_reader)
-{
-    /* left */
-    left = __dna_reader.readFloatBig();
-    /* top */
-    top = __dna_reader.readFloatBig();
-    /* right */
-    right = __dna_reader.readFloatBig();
-    /* bottom */
-    bottom = __dna_reader.readFloatBig();
-}
-
-void GlyphRect::write(athena::io::IStreamWriter& __dna_writer) const
-{
-    /* left */
-    __dna_writer.writeFloatBig(left);
-    /* top */
-    __dna_writer.writeFloatBig(top);
-    /* right */
-    __dna_writer.writeFloatBig(right);
-    /* bottom */
-    __dna_writer.writeFloatBig(bottom);
-}
-
-void GlyphRect::read(athena::io::YAMLDocReader& __dna_docin)
-{
-    /* left */
-    left = __dna_docin.readFloat("left");
-    /* top */
-    top = __dna_docin.readFloat("top");
-    /* right */
-    right = __dna_docin.readFloat("right");
-    /* bottom */
-    bottom = __dna_docin.readFloat("bottom");
-}
-
-void GlyphRect::write(athena::io::YAMLDocWriter& __dna_docout) const
-{
-    /* left */
-    __dna_docout.writeFloat("left", left);
-    /* top */
-    __dna_docout.writeFloat("top", top);
-    /* right */
-    __dna_docout.writeFloat("right", right);
-    /* bottom */
-    __dna_docout.writeFloat("bottom", bottom);
-}
-
-const char* GlyphRect::DNAType()
-{
-    return "GlyphRect";
-}
-
-size_t GlyphRect::binarySize(size_t __isz) const
-{
-    return __isz + 16;
-}
-
 template <class IDType>
-void FONT<IDType>::read(athena::io::IStreamReader& __dna_reader)
+void FONT<IDType>::_read(athena::io::IStreamReader& __dna_reader)
 {
     /* magic */
     atUint32 magic;
@@ -115,7 +57,7 @@ void FONT<IDType>::read(athena::io::IStreamReader& __dna_reader)
 }
 
 template <class IDType>
-void FONT<IDType>::write(athena::io::IStreamWriter& __dna_writer) const
+void FONT<IDType>::_write(athena::io::IStreamWriter& __dna_writer) const
 {
     /* magic */
     __dna_writer.writeBytes((atInt8*)"FONT", 4);
@@ -155,7 +97,7 @@ void FONT<IDType>::write(athena::io::IStreamWriter& __dna_writer) const
 }
 
 template <class IDType>
-void FONT<IDType>::read(athena::io::YAMLDocReader& __dna_docin)
+void FONT<IDType>::_read(athena::io::YAMLDocReader& __dna_docin)
 {
     /* version */
     version = __dna_docin.readUint32("version");
@@ -204,7 +146,7 @@ void FONT<IDType>::read(athena::io::YAMLDocReader& __dna_docin)
 }
 
 template <class IDType>
-void FONT<IDType>::write(athena::io::YAMLDocWriter& __dna_docout) const
+void FONT<IDType>::_write(athena::io::YAMLDocWriter& __dna_docout) const
 {
     /* version */
     __dna_docout.writeUint32("version", version);
@@ -241,300 +183,32 @@ void FONT<IDType>::write(athena::io::YAMLDocWriter& __dna_docout) const
     __dna_docout.enumerate("kerningInfo", kerningInfo);
 }
 
-template <class IDType>
-const char* FONT<IDType>::DNAType()
+template <>
+const char* FONT<UniqueID32>::DNAType()
 {
-    return "FONT";
+    return "FONT<UniqueID32>";
+}
+
+template <>
+const char* FONT<UniqueID64>::DNAType()
+{
+    return "FONT<UniqueID64>";
 }
 
 template <class IDType>
-size_t FONT<IDType>::binarySize(size_t __isz) const
+void FONT<IDType>::_binarySize(size_t& __isz) const
 {
     __isz += name.size() + 1;
-    __isz = textureId.binarySize(__isz);
+    textureId.binarySize(__isz);
     for (const std::unique_ptr<IGlyph>& glyph : glyphs)
-        __isz = glyph->binarySize(__isz);
-    __isz = __EnumerateSize(__isz, kerningInfo);
-    return __isz + 46;
+        glyph->binarySize(__isz);
+    for (const KerningInfo& k : kerningInfo)
+        k.binarySize(__isz);
+    __isz += 46;
 }
 
-void IGlyph::read(athena::io::IStreamReader& __dna_reader)
-{
-    /* m_character */
-    m_character = __dna_reader.readUint16Big();
-    /* m_glyphRect */
-    m_glyphRect.read(__dna_reader);
-}
-
-void IGlyph::write(athena::io::IStreamWriter& __dna_writer) const
-{
-    /* m_character */
-    __dna_writer.writeUint16Big(m_character);
-    /* m_glyphRect */
-    m_glyphRect.write(__dna_writer);
-}
-
-void IGlyph::read(athena::io::YAMLDocReader& __dna_docin)
-{
-    /* m_character */
-    m_character = __dna_docin.readUint16("m_character");
-    /* m_glyphRect */
-    __dna_docin.enumerate("m_glyphRect", m_glyphRect);
-}
-
-void IGlyph::write(athena::io::YAMLDocWriter& __dna_docout) const
-{
-    /* m_character */
-    __dna_docout.writeUint16("m_character", m_character);
-    /* m_glyphRect */
-    __dna_docout.enumerate("m_glyphRect", m_glyphRect);
-}
-
-const char* IGlyph::DNAType()
-{
-    return "FONT::IGlyph";
-}
-
-size_t IGlyph::binarySize(size_t __isz) const
-{
-    __isz = m_glyphRect.binarySize(__isz);
-    return __isz + 2;
-}
-
-void GlyphMP1::read(athena::io::IStreamReader& __dna_reader)
-{
-    IGlyph::read(__dna_reader);
-    /* m_leftPadding */
-    m_leftPadding = __dna_reader.readInt32Big();
-    /* m_advance */
-    m_advance = __dna_reader.readInt32Big();
-    /* m_rightPadding */
-    m_rightPadding = __dna_reader.readInt32Big();
-    /* m_width */
-    m_width = __dna_reader.readInt32Big();
-    /* m_height */
-    m_height = __dna_reader.readInt32Big();
-    /* m_baseline */
-    m_baseline = __dna_reader.readInt32Big();
-    /* m_kerningIndex */
-    m_kerningIndex = __dna_reader.readInt32Big();
-}
-
-void GlyphMP1::write(athena::io::IStreamWriter& __dna_writer) const
-{
-    IGlyph::write(__dna_writer);
-    /* m_leftPadding */
-    __dna_writer.writeInt32Big(m_leftPadding);
-    /* m_advance */
-    __dna_writer.writeInt32Big(m_advance);
-    /* m_rightPadding */
-    __dna_writer.writeInt32Big(m_rightPadding);
-    /* m_width */
-    __dna_writer.writeInt32Big(m_width);
-    /* m_height */
-    __dna_writer.writeInt32Big(m_height);
-    /* m_baseline */
-    __dna_writer.writeInt32Big(m_baseline);
-    /* m_kerningIndex */
-    __dna_writer.writeInt32Big(m_kerningIndex);
-}
-
-void GlyphMP1::read(athena::io::YAMLDocReader& __dna_docin)
-{
-    IGlyph::read(__dna_docin);
-    /* m_leftPadding */
-    m_leftPadding = __dna_docin.readInt32("m_leftPadding");
-    /* m_advance */
-    m_advance = __dna_docin.readInt32("m_advance");
-    /* m_rightPadding */
-    m_rightPadding = __dna_docin.readInt32("m_rightPadding");
-    /* m_width */
-    m_width = __dna_docin.readInt32("m_width");
-    /* m_height */
-    m_height = __dna_docin.readInt32("m_height");
-    /* m_baseline */
-    m_baseline = __dna_docin.readInt32("m_baseline");
-    /* m_kerningIndex */
-    m_kerningIndex = __dna_docin.readInt32("m_kerningIndex");
-}
-
-void GlyphMP1::write(athena::io::YAMLDocWriter& __dna_docout) const
-{
-    IGlyph::write(__dna_docout);
-    /* m_leftPadding */
-    __dna_docout.writeInt32("m_leftPadding", m_leftPadding);
-    /* m_advance */
-    __dna_docout.writeInt32("m_advance", m_advance);
-    /* m_rightPadding */
-    __dna_docout.writeInt32("m_rightPadding", m_rightPadding);
-    /* m_width */
-    __dna_docout.writeInt32("m_width", m_width);
-    /* m_height */
-    __dna_docout.writeInt32("m_height", m_height);
-    /* m_baseline */
-    __dna_docout.writeInt32("m_baseline", m_baseline);
-    /* m_kerningIndex */
-    __dna_docout.writeInt32("m_kerningIndex", m_kerningIndex);
-}
-
-const char* GlyphMP1::DNAType()
-{
-    return "GlyphMP1";
-}
-
-size_t GlyphMP1::binarySize(size_t __isz) const
-{
-    __isz = IGlyph::binarySize(__isz);
-    return __isz + 28;
-}
-
-void GlyphMP2::read(athena::io::IStreamReader& __dna_reader)
-{
-    IGlyph::read(__dna_reader);
-    /* m_layer */
-    m_layer = __dna_reader.readByte();
-    /* m_leftPadding */
-    m_leftPadding = __dna_reader.readByte();
-    /* m_advance */
-    m_advance = __dna_reader.readByte();
-    /* m_rightPadding */
-    m_rightPadding = __dna_reader.readByte();
-    /* m_width */
-    m_width = __dna_reader.readByte();
-    /* m_height */
-    m_height = __dna_reader.readByte();
-    /* m_baseline */
-    m_baseline = __dna_reader.readByte();
-    /* m_kerningIndex */
-    m_kerningIndex = __dna_reader.readInt16Big();
-}
-
-void GlyphMP2::write(athena::io::IStreamWriter& __dna_writer) const
-{
-    IGlyph::write(__dna_writer);
-    /* m_layer */
-    __dna_writer.writeByte(m_layer);
-    /* m_leftPadding */
-    __dna_writer.writeByte(m_leftPadding);
-    /* m_advance */
-    __dna_writer.writeByte(m_advance);
-    /* m_rightPadding */
-    __dna_writer.writeByte(m_rightPadding);
-    /* m_width */
-    __dna_writer.writeByte(m_width);
-    /* m_height */
-    __dna_writer.writeByte(m_height);
-    /* m_baseline */
-    __dna_writer.writeByte(m_baseline);
-    /* m_kerningIndex */
-    __dna_writer.writeInt16Big(m_kerningIndex);
-}
-
-void GlyphMP2::read(athena::io::YAMLDocReader& __dna_docin)
-{
-    IGlyph::read(__dna_docin);
-    /* m_layer */
-    m_layer = __dna_docin.readByte("m_layer");
-    /* m_leftPadding */
-    m_leftPadding = __dna_docin.readByte("m_leftPadding");
-    /* m_advance */
-    m_advance = __dna_docin.readByte("m_advance");
-    /* m_rightPadding */
-    m_rightPadding = __dna_docin.readByte("m_rightPadding");
-    /* m_width */
-    m_width = __dna_docin.readByte("m_width");
-    /* m_height */
-    m_height = __dna_docin.readByte("m_height");
-    /* m_baseline */
-    m_baseline = __dna_docin.readByte("m_baseline");
-    /* m_kerningIndex */
-    m_kerningIndex = __dna_docin.readInt16("m_kerningIndex");
-}
-
-void GlyphMP2::write(athena::io::YAMLDocWriter& __dna_docout) const
-{
-    IGlyph::write(__dna_docout);
-    /* m_layer */
-    __dna_docout.writeByte("m_layer", m_layer);
-    /* m_leftPadding */
-    __dna_docout.writeByte("m_leftPadding", m_leftPadding);
-    /* m_advance */
-    __dna_docout.writeByte("m_advance", m_advance);
-    /* m_rightPadding */
-    __dna_docout.writeByte("m_rightPadding", m_rightPadding);
-    /* m_width */
-    __dna_docout.writeByte("m_width", m_width);
-    /* m_height */
-    __dna_docout.writeByte("m_height", m_height);
-    /* m_baseline */
-    __dna_docout.writeByte("m_baseline", m_baseline);
-    /* m_kerningIndex */
-    __dna_docout.writeInt16("m_kerningIndex", m_kerningIndex);
-}
-
-const char* GlyphMP2::DNAType()
-{
-    return "GlyphMP2";
-}
-
-size_t GlyphMP2::binarySize(size_t __isz) const
-{
-    __isz = IGlyph::binarySize(__isz);
-    return __isz + 9;
-}
-
-void KerningInfo::read(athena::io::IStreamReader& __dna_reader)
-{
-    /* thisChar */
-    thisChar = __dna_reader.readUint16Big();
-    /* nextChar */
-    nextChar = __dna_reader.readUint16Big();
-    /* adjust */
-    adjust = __dna_reader.readInt32Big();
-}
-
-void KerningInfo::write(athena::io::IStreamWriter& __dna_writer) const
-{
-    /* thisChar */
-    __dna_writer.writeUint16Big(thisChar);
-    /* nextChar */
-    __dna_writer.writeUint16Big(nextChar);
-    /* adjust */
-    __dna_writer.writeInt32Big(adjust);
-}
-
-void KerningInfo::read(athena::io::YAMLDocReader& __dna_docin)
-{
-    /* thisChar */
-    thisChar = __dna_docin.readUint16("thisChar");
-    /* nextChar */
-    nextChar = __dna_docin.readUint16("nextChar");
-    /* adjust */
-    adjust = __dna_docin.readInt32("adjust");
-}
-
-void KerningInfo::write(athena::io::YAMLDocWriter& __dna_docout) const
-{
-    /* thisChar */
-    __dna_docout.writeUint16("thisChar", thisChar);
-    /* nextChar */
-    __dna_docout.writeUint16("nextChar", nextChar);
-    /* adjust */
-    __dna_docout.writeInt32("adjust", adjust);
-}
-
-const char* KerningInfo::DNAType()
-{
-    return "KerningInfo";
-}
-
-size_t KerningInfo::binarySize(size_t __isz) const
-{
-    return __isz + 8;
-}
-
-template struct FONT<UniqueID32>;
-template struct FONT<UniqueID64>;
+AT_SUBSPECIALIZE_DNA_YAML(FONT<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(FONT<UniqueID64>)
 
 template <class IDType>
 bool ExtractFONT(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
@@ -544,7 +218,7 @@ bool ExtractFONT(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         FONT<IDType> font;
         font.read(rs);
-        font.toYAMLStream(writer);
+        athena::io::ToYAMLStream(font, writer);
         return true;
     }
     return false;

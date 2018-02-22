@@ -2,8 +2,15 @@
 
 namespace DataSpec::DNAParticle
 {
+
+template <>
+const char* DPSM<UniqueID32>::DNAType() { return "DPSM<UniqueID32>"; }
+
+template <>
+const char* DPSM<UniqueID64>::DNAType() { return "DPSM<UniqueID64>"; }
+
 template <class IDType>
-void DPSM<IDType>::read(athena::io::YAMLDocReader& r)
+void DPSM<IDType>::_read(athena::io::YAMLDocReader& r)
 {
     for (const auto& elem : r.getCurNode()->m_mapChildren)
     {
@@ -69,7 +76,7 @@ void DPSM<IDType>::read(athena::io::YAMLDocReader& r)
 }
 
 template <class IDType>
-void DPSM<IDType>::write(athena::io::YAMLDocWriter& w) const
+void DPSM<IDType>::_write(athena::io::YAMLDocWriter& w) const
 {
     writeQuadDecalInfo(w, x0_quad, true);
     writeQuadDecalInfo(w, x1c_quad, false);
@@ -164,53 +171,88 @@ void DPSM<IDType>::writeQuadDecalInfo(athena::io::YAMLDocWriter& w,
 }
 
 template <class IDType>
-size_t DPSM<IDType>::binarySize(size_t __isz) const
+void DPSM<IDType>::_binarySize(size_t& s) const
 {
-    __isz += 4;
-    __isz = getQuadDecalBinarySize(__isz, x0_quad);
-    __isz = getQuadDecalBinarySize(__isz, x1c_quad);
+    s += 4;
+    getQuadDecalBinarySize(s, x0_quad);
+    getQuadDecalBinarySize(s, x1c_quad);
     if (x38_DMDL)
-        __isz = x38_DMDL.binarySize(__isz + 4);
+    {
+        s += 4;
+        x38_DMDL.binarySize(s);
+    }
     if (x48_DLFT)
-        __isz = x48_DLFT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x48_DLFT.binarySize(s);
+    }
     if (x4c_DMOP)
-        __isz = x4c_DMOP.binarySize(__isz + 4);
+    {
+        s += 4;
+        x4c_DMOP.binarySize(s);
+    }
     if (x50_DMRT)
-        __isz = x50_DMRT.binarySize(__isz + 4);
+    {
+        s += 4;
+        x50_DMRT.binarySize(s);
+    }
     if (x54_DMSC)
-        __isz = x54_DMSC.binarySize(__isz + 4);
+    {
+        s += 4;
+        x54_DMSC.binarySize(s);
+    }
     if (x58_DMCL)
-        __isz = x58_DMCL.binarySize(__isz + 4);
+    {
+        x58_DMCL.binarySize(s);
+    }
     if (x5c_24_DMAB)
-        __isz += 9;
+        s += 9;
     if (x5c_25_DMOO)
-        __isz += 9;
-    return __isz;
+        s += 9;
 }
 
 template <class IDType>
-size_t DPSM<IDType>::getQuadDecalBinarySize(size_t __isz, const typename DPSM<IDType>::SQuadDescr& quad) const
+void DPSM<IDType>::getQuadDecalBinarySize(size_t& s, const typename DPSM<IDType>::SQuadDescr& quad) const
 {
     if (quad.x0_LFT)
-        __isz = quad.x0_LFT.binarySize(__isz + 4);
+    {
+        s += 4;
+        quad.x0_LFT.binarySize(s);
+    }
     if (quad.x4_SZE)
-        __isz = quad.x4_SZE.binarySize(__isz + 4);
+    {
+        s += 4;
+        quad.x4_SZE.binarySize(s);
+    }
     if (quad.x8_ROT)
-        __isz = quad.x8_ROT.binarySize(__isz + 4);
+    {
+        s += 4;
+        quad.x8_ROT.binarySize(s);
+    }
     if (quad.xc_OFF)
-        __isz = quad.xc_OFF.binarySize(__isz + 4);
+    {
+        s += 4;
+        quad.xc_OFF.binarySize(s);
+    }
     if (quad.x10_CLR)
-        __isz = quad.x10_CLR.binarySize(__isz + 4);
+    {
+        s += 4;
+        quad.x10_CLR.binarySize(s);
+    }
     if (quad.x14_TEX)
-        __isz = quad.x14_TEX.binarySize(__isz + 4);
+    {
+        s += 4;
+        quad.x14_TEX.binarySize(s);
+    }
     if (quad.x18_ADD)
-        __isz = quad.x18_ADD.binarySize(__isz + 4);
-
-    return __isz;
+    {
+        s += 4;
+        quad.x18_ADD.binarySize(s);
+    }
 }
 
 template <class IDType>
-void DPSM<IDType>::read(athena::io::IStreamReader& r)
+void DPSM<IDType>::_read(athena::io::IStreamReader& r)
 {
     uint32_t clsId;
     r.readBytesToBuf(&clsId, 4);
@@ -280,7 +322,7 @@ void DPSM<IDType>::read(athena::io::IStreamReader& r)
 }
 
 template <class IDType>
-void DPSM<IDType>::write(athena::io::IStreamWriter& w) const
+void DPSM<IDType>::_write(athena::io::IStreamWriter& w) const
 {
     w.writeBytes("DPSM", 4);
     writeQuadDecalInfo(w, x0_quad, true);
@@ -373,6 +415,8 @@ void DPSM<IDType>::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) 
     g_curSpec->flattenDependencies(x38_DMDL.id, pathsOut);
 }
 
+AT_SUBSPECIALIZE_DNA_YAML(DPSM<UniqueID32>)
+AT_SUBSPECIALIZE_DNA_YAML(DPSM<UniqueID64>)
 template struct DPSM<UniqueID32>;
 template struct DPSM<UniqueID64>;
 
@@ -384,7 +428,7 @@ bool ExtractDPSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {
         DPSM<IDType> dpsm;
         dpsm.read(rs);
-        dpsm.toYAMLStream(writer);
+        athena::io::ToYAMLStream(dpsm, writer);
         return true;
     }
     return false;
