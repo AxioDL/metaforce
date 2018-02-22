@@ -15,9 +15,9 @@ enum class HMDLTopology : atUint32
 
 #define HECL_HMDL_META_SZ 32
 
-struct HMDLMeta : athena::io::DNA<athena::BigEndian>
+struct HMDLMeta : athena::io::DNA<athena::Big>
 {
-    DECL_DNA
+    AT_DECL_DNA
     Value<atUint32> magic = 'TACO';
     Value<HMDLTopology> topology;
     Value<atUint32> vertStride;

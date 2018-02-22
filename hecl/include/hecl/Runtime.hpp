@@ -238,9 +238,9 @@ class ShaderCacheManager
     athena::io::FileReader m_idxFr;
     athena::io::FileReader m_datFr;
     hecl::Frontend::Frontend FE;
-    struct IndexEntry : athena::io::DNA<athena::BigEndian>
+    struct IndexEntry : athena::io::DNA<athena::Big>
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint64> m_hash;
         Value<atUint64> m_meta;
         Value<atUint64> m_compOffset;

@@ -36,17 +36,17 @@ enum EFlags
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
-class CVar : public athena::io::DNAYaml<athena::BigEndian>
+class CVar : public athena::io::DNA<athena::Big>
 {
 public:
-    DECL_YAML
+    AT_DECL_DNA
     String<-1>    m_name;
     String<-1>    m_value;
 };
 
-struct CVarContainer : public athena::io::DNAYaml<athena::BigEndian>
+struct CVarContainer : public athena::io::DNA<athena::Big>
 {
-    DECL_YAML
+    AT_DECL_DNA
     Value<atUint32> magic = 'CVAR';
     Value<atUint32> cvarCount;
     Vector<CVar, DNA_COUNT(cvarCount)> cvars;

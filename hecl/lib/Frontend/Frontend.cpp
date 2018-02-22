@@ -46,70 +46,27 @@ const atVec4f& IR::Instruction::getImmVec() const
     return m_loadImm.m_immVec;
 }
 
-void IR::Instruction::read(athena::io::IStreamReader& reader)
+template <class Op>
+void IR::Instruction::Enumerate(typename Op::StreamT& s)
 {
-    m_op = OpType(reader.readUByte());
-    m_target = reader.readUint16Big();
+    Do<Op>({"op"}, m_op, s);
+    Do<Op>({"target"}, m_target, s);
     switch (m_op)
     {
     default: break;
     case OpType::Call:
-        m_call.read(reader);
+        Do<Op>({"call"}, m_call, s);
         break;
     case OpType::LoadImm:
-        m_loadImm.read(reader);
+        Do<Op>({"loadImm"}, m_loadImm, s);
         break;
     case OpType::Arithmetic:
-        m_arithmetic.read(reader);
+        Do<Op>({"arithmetic"}, m_arithmetic, s);
         break;
     case OpType::Swizzle:
-        m_swizzle.read(reader);
+        Do<Op>({"swizzle"}, m_swizzle, s);
         break;
     }
-}
-
-void IR::Instruction::write(athena::io::IStreamWriter& writer) const
-{
-    writer.writeUByte(m_op);
-    writer.writeUint16Big(m_target);
-    switch (m_op)
-    {
-    default: break;
-    case OpType::Call:
-        m_call.write(writer);
-        break;
-    case OpType::LoadImm:
-        m_loadImm.write(writer);
-        break;
-    case OpType::Arithmetic:
-        m_arithmetic.write(writer);
-        break;
-    case OpType::Swizzle:
-        m_swizzle.write(writer);
-        break;
-    }
-}
-
-size_t IR::Instruction::binarySize(size_t sz) const
-{
-    sz += 3;
-    switch (m_op)
-    {
-    default: break;
-    case OpType::Call:
-        sz = m_call.binarySize(sz);
-        break;
-    case OpType::LoadImm:
-        sz = m_loadImm.binarySize(sz);
-        break;
-    case OpType::Arithmetic:
-        sz = m_arithmetic.binarySize(sz);
-        break;
-    case OpType::Swizzle:
-        sz = m_swizzle.binarySize(sz);
-        break;
-    }
-    return sz;
 }
 
 atInt8 IR::swizzleCompIdx(char aChar)
@@ -229,7 +186,8 @@ int IR::addInstruction(const IRNode& n, IR::RegID target)
     }
 }
 
-void IR::read(athena::io::IStreamReader& reader)
+template <>
+void IR::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
     m_hash = reader.readUint64Big();
     m_regCount = reader.readUint16Big();
@@ -261,7 +219,8 @@ void IR::read(athena::io::IStreamReader& reader)
     }
 }
 
-void IR::write(athena::io::IStreamWriter& writer) const
+template <>
+void IR::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
     writer.writeUint64Big(m_hash);
     writer.writeUint16Big(m_regCount);
@@ -270,12 +229,12 @@ void IR::write(athena::io::IStreamWriter& writer) const
         inst.write(writer);
 }
 
-size_t IR::binarySize(size_t sz) const
+template <>
+void IR::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& sz)
 {
     sz += 12;
     for (const Instruction& inst : m_instructions)
-        sz = inst.binarySize(sz);
-    return sz;
+        inst.binarySize(sz);
 }
 
 IR Frontend::compileSource(std::string_view source, std::string_view diagName)

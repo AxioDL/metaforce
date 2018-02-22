@@ -283,11 +283,11 @@ public:
     std::list<IRNode> parse();
 };
 
-using BigDNA = athena::io::DNA<athena::BigEndian>;
+using BigDNA = athena::io::DNA<athena::Big>;
 
 struct IR : BigDNA
 {
-    Delete _d;
+    AT_DECL_EXPLICIT_DNA
 
     enum OpType : uint8_t
     {
@@ -302,7 +302,7 @@ struct IR : BigDNA
 
     struct Instruction : BigDNA
     {
-        Delete _d;
+        AT_DECL_EXPLICIT_DNA
 
         OpType m_op = OpType::None;
         RegID m_target = RegID(-1);
@@ -310,7 +310,7 @@ struct IR : BigDNA
 
         struct Call : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             String<-1> m_name;
             Value<atUint16> m_argInstCount;
             Vector<atUint16, DNA_COUNT(m_argInstCount)> m_argInstIdxs;
@@ -318,7 +318,7 @@ struct IR : BigDNA
 
         struct LoadImm : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atVec4f> m_immVec = {};
         } m_loadImm;
 
@@ -333,14 +333,14 @@ struct IR : BigDNA
 
         struct Arithmetic : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<ArithmeticOpType> m_op = ArithmeticOpType::None;
             Value<atUint16> m_instIdxs[2];
         } m_arithmetic;
 
         struct Swizzle : BigDNA
         {
-            DECL_DNA
+            AT_DECL_DNA
             Value<atInt8> m_idxs[4] = {-1, -1, -1, -1};
             Value<atUint16> m_instIdx;
         } m_swizzle;
@@ -350,9 +350,6 @@ struct IR : BigDNA
         int getChildCount() const;
         const IR::Instruction& getChildInst(const IR& ir, size_t idx) const;
         const atVec4f& getImmVec() const;
-        void read(athena::io::IStreamReader& reader);
-        void write(athena::io::IStreamWriter& writer) const;
-        size_t binarySize(size_t sz) const;
 
         Instruction(athena::io::IStreamReader& reader) {read(reader);}
     };
@@ -367,9 +364,6 @@ struct IR : BigDNA
 
     static atInt8 swizzleCompIdx(char aChar);
     int addInstruction(const IRNode& n, IR::RegID target);
-    void read(athena::io::IStreamReader& reader);
-    void write(athena::io::IStreamWriter& writer) const;
-    size_t binarySize(size_t sz) const;
 };
 
 class Frontend

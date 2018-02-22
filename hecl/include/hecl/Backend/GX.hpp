@@ -408,7 +408,7 @@ struct GX : IBackend
     BlendFactor m_blendSrc;
     BlendFactor m_blendDst;
 
-    struct Color : athena::io::DNA<athena::BigEndian>
+    struct Color : athena::io::DNA<athena::Big>
     {
         union
         {
@@ -440,6 +440,15 @@ struct GX : IBackend
             color[3] = val;
             return *this;
         }
+        atVec4f toVec4f() const
+        {
+            atVec4f out;
+            out.vec[0] = color[0] / 255.f;
+            out.vec[1] = color[1] / 255.f;
+            out.vec[2] = color[2] / 255.f;
+            out.vec[3] = color[3] / 255.f;
+            return out;
+        }
         Color(const atVec4f& vec) {*this = vec;}
         Color(const atVec3f& vec) {*this = vec;}
         Color(uint8_t val) {*this = val;}
@@ -447,13 +456,7 @@ struct GX : IBackend
         bool operator!=(const Color& other) const {return num != other.num;}
         uint8_t operator[](size_t idx) const {return color[idx];}
         uint8_t& operator[](size_t idx) {return color[idx];}
-
-        void read(athena::io::IStreamReader& reader)
-        {reader.readUBytesToBuf(&num, 4);}
-        void write(athena::io::IStreamWriter& writer) const
-        {writer.writeUBytes(reinterpret_cast<const atUint8*>(&num), 4);}
-        size_t binarySize(size_t __isz) const
-        {return __isz + 4;}
+        AT_DECL_EXPLICIT_DNA
     };
     unsigned m_kcolorCount = 0;
     Color m_kcolors[4];
