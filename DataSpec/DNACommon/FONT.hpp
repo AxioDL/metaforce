@@ -104,7 +104,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FONT : Bi
     Value<atUint32> unknown4;
     Value<atUint32> fontSize; // in points
     String<-1> name;
-    IDType textureId;
+    Value<IDType> textureId;
     Value<atUint32> textureFormat;
     Value<atUint32> glyphCount;
     std::vector<std::unique_ptr<IGlyph>> glyphs;

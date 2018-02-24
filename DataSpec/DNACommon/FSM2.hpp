@@ -69,7 +69,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             String<-1> name;
             Value<atUint32> unknownCount;
             Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
-            IDType fsmId;
+            Value<IDType> fsmId;
         };
 
         Vector<State, DNA_COUNT(stateCount)> states;
@@ -134,7 +134,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             Value<atUint32> unknown4;
             Value<atUint32> unknown5Count;
             Vector<CommonStruct, DNA_COUNT(unknown5Count)> unknown5;
-            IDType fsmId;
+            Value<IDType> fsmId;
         };
 
         Vector<State, DNA_COUNT(stateCount)> states;

@@ -106,6 +106,8 @@ struct MREA
                                 PAKRouter<PAKBridge>& pakRouter,
                                 std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo);
 
+    static UniqueID32 GetPATHId(PAKEntryReadStream& rs);
+
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
                         const hecl::ProjectPath& outPath,

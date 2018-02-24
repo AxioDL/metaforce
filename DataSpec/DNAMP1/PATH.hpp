@@ -2,11 +2,15 @@
 #define __DNACOMMON_PATH_HPP__
 
 #include "../DNACommon/DNACommon.hpp"
+#include "../DNACommon/PAK.hpp"
+#include "DNAMP1.hpp"
 
-namespace DataSpec
+namespace DataSpec::DNAMP1
 {
 struct PATH : BigDNA
 {
+    using PathMesh = hecl::blender::PathMesh;
+
     AT_DECL_DNA
     Value<atUint32> version;
 
@@ -66,6 +70,23 @@ struct PATH : BigDNA
     };
     Value<atUint32> octreeNodeCount;
     Vector<OctreeNode, DNA_COUNT(octreeNodeCount)> octree;
+
+    void sendToBlender(hecl::blender::Connection& conn, std::string_view entryName,
+                       const zeus::CMatrix4f* xf);
+
+    static bool Extract(const SpecBase& dataSpec,
+                        PAKEntryReadStream& rs,
+                        const hecl::ProjectPath& outPath,
+                        PAKRouter<PAKBridge>& pakRouter,
+                        const PAK::Entry& entry,
+                        bool force,
+                        hecl::blender::Token& btok,
+                        std::function<void(const hecl::SystemChar*)> fileChanged);
+
+    static bool Cook(const hecl::ProjectPath& outPath,
+                     const hecl::ProjectPath& inPath,
+                     const PathMesh& mesh,
+                     hecl::blender::Connection* conn = nullptr);
 };
 }
 

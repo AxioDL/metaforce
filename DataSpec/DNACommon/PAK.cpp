@@ -472,6 +472,8 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry, bool
                 return "!area";
             else if (entry.type == FOURCC('MAPA'))
                 return "!map";
+            else if (entry.type == FOURCC('PATH'))
+                return "!path";
         }
 
         bool named;
@@ -501,6 +503,8 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool st
                 return "!area";
             else if (e->type == FOURCC('MAPA'))
                 return "!map";
+            else if (e->type == FOURCC('PATH'))
+                return "!path";
         }
 
         bool named;

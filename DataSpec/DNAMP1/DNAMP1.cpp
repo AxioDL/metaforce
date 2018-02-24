@@ -27,6 +27,7 @@
 #include "AGSC.hpp"
 #include "CSNG.hpp"
 #include "DCLN.hpp"
+#include "PATH.hpp"
 
 #include "../DNACommon/Tweaks/TweakWriter.hpp"
 #include "Tweaks/CTweakPlayerRes.hpp"
@@ -272,6 +273,21 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
     }
 }
 
+void PAKBridge::addPATHToMREA(PAKRouter<PAKBridge>& pakRouter,
+                              std::unordered_map<UniqueID32, UniqueID32>& pathToMrea) const
+{
+    for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries)
+    {
+        if (entry.second.type == FOURCC('MREA'))
+        {
+            PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
+            UniqueID32 pathID = MREA::GetPATHId(rs);
+            if (pathID)
+                pathToMrea[pathID] = entry.first;
+        }
+    }
+}
+
 static const atVec4f BottomRow = {0.f, 0.f, 0.f, 1.f};
 
 void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
@@ -294,6 +310,20 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
             for (const MLVL::Area& area : mlvl.areas)
             {
+                {
+                    /* Get PATH transform */
+                    const nod::Node* areaNode;
+                    const PAK::Entry* areaEntry = pakRouter.lookupEntry(area.areaMREAId, &areaNode);
+                    PAKEntryReadStream rs = areaEntry->beginReadStream(*areaNode);
+                    UniqueID32 pathId = MREA::GetPATHId(rs);
+                    if (pathId)
+                        addTo[pathId] = zeus::CMatrix4f(
+                            area.transformMtx[0],
+                            area.transformMtx[1],
+                            area.transformMtx[2],
+                            BottomRow).transposed();
+                }
+
                 hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
                 if (area.areaNameId)
                     pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _S("!name.yaml"));
@@ -361,6 +391,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
         return {MAPA::Extract, {_S(".blend")}, 4};
     case SBIG('MAPU'):
         return {MAPU::Extract, {_S(".blend")}, 5};
+    case SBIG('PATH'):
+        return {PATH::Extract, {_S(".blend")}, 5};
     case SBIG('PART'):
         return {DNAParticle::ExtractGPSM<UniqueID32>, {_S(".gpsm.yaml")}};
     case SBIG('ELSC'):

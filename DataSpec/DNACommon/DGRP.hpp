@@ -16,7 +16,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) DGRP : Bi
     {
         AT_DECL_DNA_YAML
         DNAFourCC type;
-        IDType id;
+        Value<IDType> id;
     };
 
     Vector<ObjectTag, DNA_COUNT(dependCount)> depends;

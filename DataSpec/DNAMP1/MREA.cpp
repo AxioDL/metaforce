@@ -58,6 +58,24 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
     scly.addCMDLRigPairs(pakRouter, addTo);
 }
 
+UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs)
+{
+    /* Do extract */
+    Header head;
+    head.read(rs);
+    rs.seekAlign32();
+
+    /* Skip to PATH */
+    atUint32 curSec = 0;
+    atUint64 secStart = rs.position();
+    while (curSec != head.pathSecIdx)
+        secStart += head.secSizes[curSec++];
+    if (!head.secSizes[curSec])
+        return {};
+    rs.seek(secStart, athena::Begin);
+    return {rs};
+}
+
 /* Collision octree dumper */
 static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryReader& r,
                              BspNodeType type, const zeus::CAABox& aabb)

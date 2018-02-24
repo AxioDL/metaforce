@@ -50,6 +50,7 @@ set(DNAMP1_SOURCES
     ANIM.cpp
     CINF.cpp
     EVNT.cpp
+    PATH.cpp
     CMDL.hpp CMDL.cpp
     CMDLMaterials.cpp
     DCLN.cpp

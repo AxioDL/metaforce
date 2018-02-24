@@ -37,6 +37,9 @@ public:
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const;
 
+    void addPATHToMREA(PAKRouter<PAKBridge>& pakRouter,
+                       std::unordered_map<UniqueID32, UniqueID32>& pathToMrea) const;
+
     void addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
             std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const;
