@@ -267,6 +267,15 @@ def dataout_loop():
             bpy.data.objects.remove(join_obj)
             bpy.data.meshes.remove(join_mesh)
 
+        elif cmdargs[0] == 'MESHCOMPILEPATH':
+            meshName = bpy.context.scene.hecl_path_obj
+            if meshName not in bpy.data.objects:
+                writepipestr(('mesh %s not found' % meshName).encode())
+                continue
+
+            writepipestr(b'OK')
+            hecl.path.cook(writepipebuf, bpy.data.objects[meshName])
+
         elif cmdargs[0] == 'WORLDCOMPILE':
             writepipestr(b'OK')
             hecl.swld.cook(writepipebuf)

@@ -12,7 +12,8 @@ list(APPEND PY_SOURCES
      hecl/swld/__init__.py
      hecl/mapa.py
      hecl/mapu.py
-     hecl/frme.py)
+     hecl/frme.py
+     hecl/path.py)
 
 bintoc(hecl_blendershell.cpp hecl_blendershell.py HECL_BLENDERSHELL)
 

@@ -9,7 +9,7 @@ bl_info = {
     "category": "System"}
 
 # Package import
-from . import hmdl, sact, srea, swld, mapa, mapu, frme, Nodegrid, Patching
+from . import hmdl, sact, srea, swld, mapa, mapu, frme, path, Nodegrid, Patching
 Nodegrid = Nodegrid.Nodegrid
 import bpy, os, sys, struct
 from bpy.app.handlers import persistent
@@ -26,7 +26,8 @@ hecl_typeS = [
 ('WORLD', "World", "Active scene represents a HECL World", swld.draw),
 ('MAPAREA', "Map Area", "Active scene represents a HECL Map Area", mapa.draw),
 ('MAPUNIVERSE', "Map Universe", "Active scene represents a HECL Map Universe", mapu.draw),
-('FRAME', "Gui Frame", "Active scene represents a HECL Gui Frame", frme.draw)]
+('FRAME', "Gui Frame", "Active scene represents a HECL Gui Frame", frme.draw),
+('PATH', "Path Mesh", "Active scene represents a HECL Path Mesh", path.draw)]
 
 # Main Scene Panel
 class hecl_scene_panel(bpy.types.Panel):
@@ -115,6 +116,15 @@ def scene_loaded(dummy):
         if o.library:
             o.hide = True
 
+    # Show PATH library objects as wireframes
+    if bpy.context.scene.hecl_type == 'PATH':
+        if bpy.context.scene.background_set:
+            for o in bpy.context.scene.background_set.objects:
+                o.draw_type = 'WIRE'
+        if bpy.context.scene.hecl_path_obj in bpy.context.scene.objects:
+            path_obj = bpy.context.scene.objects[bpy.context.scene.hecl_path_obj]
+            path_obj.show_wire = True
+
     # Linked-Child Detection
     for scene in bpy.data.scenes:
         if scene.hecl_type == 'ACTOR':
@@ -149,6 +159,7 @@ def register():
     frme.register()
     mapa.register()
     mapu.register()
+    path.register()
     bpy.utils.register_class(hecl_scene_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
     bpy.app.handlers.load_post.append(scene_loaded)
@@ -159,6 +170,7 @@ def unregister():
     hmdl.unregister()
     sact.unregister()
     srea.unregister()
+    path.unregister()
     bpy.utils.unregister_class(hecl_scene_panel)
     Patching.unregister()
 

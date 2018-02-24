@@ -59,7 +59,8 @@ enum class BlendType
     World,
     MapArea,
     MapUniverse,
-    Frame
+    Frame,
+    PathMesh
 };
 
 class Connection;
@@ -78,6 +79,7 @@ struct Actor;
 struct Armature;
 struct Action;
 struct Bone;
+struct PathMesh;
 struct Matrix3f;
 struct PoolSkinIndex;
 

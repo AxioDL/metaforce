@@ -608,6 +608,7 @@ static const char* BlendTypeStrs[] =
     "MAPAREA",
     "MAPUNIVERSE",
     "FRAME",
+    "PATH",
     nullptr
 };
 
@@ -778,20 +779,37 @@ void PyOutStream::linkBlend(const char* target, const char* objName, bool link)
 
 void PyOutStream::linkBackground(const char* target, const char* sceneName)
 {
-    format("if '%s' not in bpy.data.scenes:\n"
-           "    with bpy.data.libraries.load('''%s''', link=True, relative=True) as (data_from, data_to):\n"
-           "        data_to.scenes = data_from.scenes\n"
-           "    obj_scene = None\n"
-           "    for scene in data_to.scenes:\n"
-           "        if scene.name == '%s':\n"
-           "            obj_scene = scene\n"
-           "            break\n"
-           "    if not obj_scene:\n"
-           "        raise RuntimeError('''unable to find %s in %s. try deleting it and restart the extract.''')\n"
-           "\n"
-           "bpy.context.scene.background_set = bpy.data.scenes['%s']\n",
-           sceneName, target,
-           sceneName, sceneName, target, sceneName);
+    if (!sceneName)
+    {
+        format("with bpy.data.libraries.load('''%s''', link=True, relative=True) as (data_from, data_to):\n"
+               "    data_to.scenes = data_from.scenes\n"
+               "obj_scene = None\n"
+               "for scene in data_to.scenes:\n"
+               "    obj_scene = scene\n"
+               "    break\n"
+               "if not obj_scene:\n"
+               "    raise RuntimeError('''unable to find %s. try deleting it and restart the extract.''')\n"
+               "\n"
+               "bpy.context.scene.background_set = obj_scene\n",
+               target, target);
+    }
+    else
+    {
+        format("if '%s' not in bpy.data.scenes:\n"
+               "    with bpy.data.libraries.load('''%s''', link=True, relative=True) as (data_from, data_to):\n"
+               "        data_to.scenes = data_from.scenes\n"
+               "    obj_scene = None\n"
+               "    for scene in data_to.scenes:\n"
+               "        if scene.name == '%s':\n"
+               "            obj_scene = scene\n"
+               "            break\n"
+               "    if not obj_scene:\n"
+               "        raise RuntimeError('''unable to find %s in %s. try deleting it and restart the extract.''')\n"
+               "\n"
+               "bpy.context.scene.background_set = bpy.data.scenes['%s']\n",
+               sceneName, target,
+               sceneName, sceneName, target, sceneName);
+    }
 }
 
 void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max)
@@ -1502,6 +1520,11 @@ Actor::Actor(Connection& conn)
         actions.emplace_back(conn);
 }
 
+PathMesh::PathMesh(Connection& conn)
+{
+
+}
+
 const Bone* Armature::lookupBone(const char* name) const
 {
     for (const Bone& b : bones)
@@ -1893,6 +1916,22 @@ std::vector<Light> DataStream::compileLights()
         ret.emplace_back(*m_parent);
 
     return ret;
+}
+
+PathMesh DataStream::compilePathMesh()
+{
+    if (m_parent->getBlendType() != BlendType::PathMesh)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not a PATH blend"),
+                          m_parent->getBlendPath().getAbsolutePath().data());
+
+    m_parent->_writeStr("MESHCOMPILEPATH");
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to path collision mesh: %s", readBuf);
+
+    return PathMesh(*m_parent);
 }
 
 void DataStream::compileGuiFrame(std::string_view pathOut, int version)

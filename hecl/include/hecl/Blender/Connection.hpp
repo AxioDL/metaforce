@@ -99,7 +99,7 @@ public:
 #endif
     void format(const char* fmt, ...);
     void linkBlend(const char* target, const char* objName, bool link=true);
-    void linkBackground(const char* target, const char* sceneName);
+    void linkBackground(const char* target, const char* sceneName=nullptr);
     void AABBToBMesh(const atVec3f& min, const atVec3f& max);
     void centerView();
 
@@ -509,6 +509,12 @@ struct Actor
     Actor(Connection& conn);
 };
 
+/** Intermediate pathfinding representation prepared by blender */
+struct PathMesh
+{
+    PathMesh(Connection& conn);
+};
+
 class DataStream
 {
     friend class Connection;
@@ -548,6 +554,9 @@ public:
 
     /** Gather all lights in scene (AREA blends only) */
     std::vector<Light> compileLights();
+
+    /** Get PathMesh from scene (PATH blends only) */
+    PathMesh compilePathMesh();
 
     /** Compile GUI into FRME data (FRAME blends only) */
     void compileGuiFrame(std::string_view pathOut, int version);
