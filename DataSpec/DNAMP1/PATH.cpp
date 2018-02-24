@@ -44,10 +44,6 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
 
     os << "bm.verts.ensure_lookup_table()\n";
 
-    std::unordered_set<u32> uset;
-    FILE* fp = fopen("/Users/jacko/Desktop/PATHMats.txt", "a");
-    fprintf(fp, "%s\n", conn.getBlendPath().getRelativePathUTF8().data());
-
     for (const Region& r : regions)
     {
         os << "tri_verts = []\n";
@@ -68,14 +64,7 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
                   "hobj.layers[1] = True\n"
                   "bpy.context.scene.objects.link(hobj)\n"
                   "\n", r.flags, centroid.v[0], centroid.v[1], centroid.v[2] + r.height);
-
-        if (uset.find(r.flags) == uset.end())
-        {
-            fprintf(fp, "%08X\n", r.flags);
-        }
     }
-
-    fclose(fp);
 
     os << "path_mesh = bpy.data.meshes.new('PATH')\n"
           "bm.to_mesh(path_mesh)\n"
