@@ -101,7 +101,7 @@ void ClientProcess::Worker::proc()
 ClientProcess::ClientProcess(int verbosityLevel, bool fast, bool force)
 : m_verbosity(verbosityLevel), m_fast(fast), m_force(force)
 {
-#ifdef HECL_MULTIPROCESSOR
+#if HECL_MULTIPROCESSOR
     const int cpuCount = GetCPUCount();
 #else
     constexpr int cpuCount = 1;
