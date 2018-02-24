@@ -87,25 +87,25 @@ private:
     std::vector<Glyph> m_glyphs;
     std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>> m_kernAdjs;
 
-    struct TT_KernHead : athena::io::DNA<athena::BigEndian>
+    struct TT_KernHead : athena::io::DNA<athena::Big>
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint32> length;
         Value<atUint16> coverage;
     };
 
-    struct TT_KernSubHead : athena::io::DNA<athena::BigEndian>
+    struct TT_KernSubHead : athena::io::DNA<athena::Big>
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint16> nPairs;
         Value<atUint16> searchRange;
         Value<atUint16> entrySelector;
         Value<atUint16> rangeShift;
     };
 
-    struct TT_KernPair : athena::io::DNA<athena::BigEndian>
+    struct TT_KernPair : athena::io::DNA<athena::Big>
     {
-        DECL_DNA
+        AT_DECL_DNA
         Value<atUint16> left;
         Value<atUint16> right;
         Value<atInt16> value;
