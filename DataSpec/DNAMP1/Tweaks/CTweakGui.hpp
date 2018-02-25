@@ -162,7 +162,7 @@ struct CTweakGui final : ITweakGui
     Value<float> x2bc_hudLightAttMulLinear;
     Value<float> x2c0_hudLightAttMulQuadratic;
     Value<atUint32> m_scanSpeedsCount;
-    Vector<float, DNA_COUNT(m_scanSpeedsCount)> x2c4_scanSpeeds;
+    Vector<float, AT_DNA_COUNT(m_scanSpeedsCount)> x2c4_scanSpeeds;
     String<-1> x2d0_;
     String<-1> x2e0_;
     String<-1> x2f0_;

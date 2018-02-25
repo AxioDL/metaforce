@@ -72,7 +72,7 @@ struct MAPA : BigDNA
         Value<atUint32> surfCount = 0;
         Value<atUint32> internalNameLength = 0;
         Value<atUint32> unknown7 = 0;
-        String<DNA_COUNT(internalNameLength)> internalName;
+        String<AT_DNA_COUNT(internalNameLength)> internalName;
         atUint32 visMode() const { return mapVisMode; }
         atUint32 mappableObjectCount() const { return moCount;}
         atUint32 vertexCount() const  { return vtxCount; }
@@ -131,14 +131,14 @@ struct MAPA : BigDNA
         Value<Type> type;
         Value<atUint32> visMode;
         Value<atUint32> sclyId;
-        Buffer<DNA_COUNT(0x10)> unknownHash;
+        Buffer<AT_DNA_COUNT(0x10)> unknownHash;
         Value<atInt32> seek1 = -1;
         Value<atVec4f>  transformMtx[3];
         Value<atInt32> seek2[4] = {-1, -1, -1, -1};
     };
 
     std::vector<std::unique_ptr<IMappableObject>> mappableObjects;
-    Vector<atVec3f, DNA_COUNT(header->vertexCount())> vertices;
+    Vector<atVec3f, AT_DNA_COUNT(header->vertexCount())> vertices;
 
     struct SurfaceHeader : BigDNA
     {
@@ -149,7 +149,7 @@ struct MAPA : BigDNA
         Value<atUint32> edgeOff;
     };
 
-    Vector<SurfaceHeader, DNA_COUNT(header->surfaceCount())> surfaceHeaders;
+    Vector<SurfaceHeader, AT_DNA_COUNT(header->surfaceCount())> surfaceHeaders;
 
     struct Surface : BigDNA
     {
@@ -160,22 +160,22 @@ struct MAPA : BigDNA
             AT_DECL_DNA
             Value<atUint32> type;
             Value<atUint32> indexCount;
-            Vector<atUint8, DNA_COUNT(indexCount)> indices;
+            Vector<atUint8, AT_DNA_COUNT(indexCount)> indices;
             Align<4> align;
         };
-        Vector<Primitive, DNA_COUNT(primitiveCount)> primitives;
+        Vector<Primitive, AT_DNA_COUNT(primitiveCount)> primitives;
         Value<atUint32> borderCount;
         struct Border : BigDNA
         {
             AT_DECL_DNA
             Value<atUint32> indexCount;
-            Vector<atUint8, DNA_COUNT(indexCount)> indices;
+            Vector<atUint8, AT_DNA_COUNT(indexCount)> indices;
             Align<4> align;
         };
-        Vector<Border, DNA_COUNT(borderCount)> borders;
+        Vector<Border, AT_DNA_COUNT(borderCount)> borders;
     };
 
-    Vector<Surface, DNA_COUNT(header->surfaceCount())> surfaces;
+    Vector<Surface, AT_DNA_COUNT(header->surfaceCount())> surfaces;
 };
 
 template <typename PAKRouter>

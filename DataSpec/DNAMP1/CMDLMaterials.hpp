@@ -18,9 +18,9 @@ struct MaterialSet : BigDNA
     {
         AT_DECL_DNA
         Value<atUint32> textureCount = 0;
-        Vector<UniqueID32, DNA_COUNT(textureCount)> textureIDs;
+        Vector<UniqueID32, AT_DNA_COUNT(textureCount)> textureIDs;
         Value<atUint32> materialCount = 0;
-        Vector<atUint32, DNA_COUNT(materialCount)> materialEndOffs;
+        Vector<atUint32, AT_DNA_COUNT(materialCount)> materialEndOffs;
 
         void addTexture(const UniqueID32& id) {textureIDs.push_back(id); ++textureCount;}
         void addMaterialEndOff(atUint32 off) {materialEndOffs.push_back(off); ++materialCount;}
@@ -59,7 +59,7 @@ struct MaterialSet : BigDNA
         const Flags& getFlags() const {return flags;}
 
         Value<atUint32> textureCount = 0;
-        Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
+        Vector<atUint32, AT_DNA_COUNT(textureCount)> textureIdxs;
         struct VAFlags : BigDNA
         {
             AT_DECL_DNA
@@ -132,13 +132,13 @@ struct MaterialSet : BigDNA
         const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> groupIdx;
 
-        Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
-        Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
+        Vector<atUint32, AT_DNA_COUNT(flags.konstValuesEnabled())> konstCount;
+        Vector<GX::Color, AT_DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
         using BlendFactor = GX::BlendFactor;
         Value<BlendFactor> blendDstFac;
         Value<BlendFactor> blendSrcFac;
-        Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
+        Vector<atUint32, AT_DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
 
         Value<atUint32> colorChannelCount = 0;
         struct ColorChannel : BigDNA
@@ -158,7 +158,7 @@ struct MaterialSet : BigDNA
             GX::AttnFn attenuationFn() const {return GX::AttnFn(flags >> 13 & 0x3);}
             void setAttenuationFn(GX::AttnFn fn) {flags &= ~0x6000; flags |= atUint32(fn) << 13;}
         };
-        Vector<ColorChannel, DNA_COUNT(colorChannelCount)> colorChannels;
+        Vector<ColorChannel, AT_DNA_COUNT(colorChannelCount)> colorChannels;
 
         Value<atUint32> tevStageCount = 0;
         struct TEVStage : BigDNA
@@ -218,7 +218,7 @@ struct MaterialSet : BigDNA
             GX::TevKAlphaSel kAlphaIn() const {return GX::TevKAlphaSel(kaInput);}
             void setKAlphaIn(GX::TevKAlphaSel val) {kaInput = val;}
         };
-        Vector<TEVStage, DNA_COUNT(tevStageCount)> tevStages;
+        Vector<TEVStage, AT_DNA_COUNT(tevStageCount)> tevStages;
         struct TEVStageTexInfo : BigDNA
         {
             AT_DECL_DNA
@@ -226,7 +226,7 @@ struct MaterialSet : BigDNA
             Value<atUint8> texSlot = 0xff;
             Value<atUint8> tcgSlot = 0xff;
         };
-        Vector<TEVStageTexInfo, DNA_COUNT(tevStageCount)> tevStageTexInfo;
+        Vector<TEVStageTexInfo, AT_DNA_COUNT(tevStageCount)> tevStageTexInfo;
 
         Value<atUint32> tcgCount = 0;
         struct TexCoordGen : BigDNA
@@ -245,7 +245,7 @@ struct MaterialSet : BigDNA
             GX::PTTexMtx postMtx() const {return GX::PTTexMtx((flags >> 15 & 0x3f) + 64);}
             void setPostMtx(GX::PTTexMtx val) {flags &= ~0x1f8000; flags |= (atUint32(val)-64) << 15;}
         };
-        Vector<TexCoordGen, DNA_COUNT(tcgCount)> tcgs;
+        Vector<TexCoordGen, AT_DNA_COUNT(tcgCount)> tcgs;
 
         Value<atUint32> uvAnimsSize = 4;
         Value<atUint32> uvAnimsCount = 0;
@@ -270,7 +270,7 @@ struct MaterialSet : BigDNA
             UVAnimation(const std::string& gameFunction,
                         const std::vector<atVec4f>& gameArgs);
         };
-        Vector<UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
+        Vector<UVAnimation, AT_DNA_COUNT(uvAnimsCount)> uvAnims;
 
         static void AddTexture(hecl::blender::PyOutStream& out,
                                GX::TexGenSrc type, int mtxIdx, uint32_t texIdx);
@@ -293,7 +293,7 @@ struct MaterialSet : BigDNA
                  bool matrixSkinning,
                  atUint32 grpIdx);
     };
-    Vector<Material, DNA_COUNT(head.materialCount)> materials;
+    Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
 
     static void RegisterMaterialProps(hecl::blender::PyOutStream& out);
     static void ConstructMaterial(hecl::blender::PyOutStream& out,
@@ -366,13 +366,13 @@ struct HMDLMaterialSet : BigDNA
         MaterialSet::Material::Flags flags;
 
         Value<atUint32> textureCount = 0;
-        Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
+        Vector<atUint32, AT_DNA_COUNT(textureCount)> textureIdxs;
 
-        Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
+        Vector<atUint32, AT_DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
 
         Value<atUint32> uvAnimsSize = 4;
         Value<atUint32> uvAnimsCount = 0;
-        Vector<MaterialSet::Material::UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
+        Vector<MaterialSet::Material::UVAnimation, AT_DNA_COUNT(uvAnimsCount)> uvAnims;
 
         String<-1> heclSource;
         hecl::Frontend::IR heclIr;
@@ -384,7 +384,7 @@ struct HMDLMaterialSet : BigDNA
                  const std::unordered_map<std::string, int32_t>& iprops,
                  const std::vector<hecl::ProjectPath>& texPaths);
     };
-    Vector<Material, DNA_COUNT(head.materialCount)> materials;
+    Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
 };
 
 }

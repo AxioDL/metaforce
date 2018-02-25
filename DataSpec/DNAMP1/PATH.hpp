@@ -21,7 +21,7 @@ struct PATH : BigDNA
         Value<atVec3f> normal;
     };
     Value<atUint32> nodeCount;
-    Vector<Node, DNA_COUNT(nodeCount)> nodes;
+    Vector<Node, AT_DNA_COUNT(nodeCount)> nodes;
 
     struct Link : BigDNA
     {
@@ -32,7 +32,7 @@ struct PATH : BigDNA
         Value<float> oneOverWidth2d;
     };
     Value<atUint32> linkCount;
-    Vector<Link, DNA_COUNT(linkCount)> links;
+    Vector<Link, AT_DNA_COUNT(linkCount)> links;
 
     struct Region : BigDNA
     {
@@ -41,7 +41,8 @@ struct PATH : BigDNA
         Value<atUint32> nodeStart;
         Value<atUint32> linkCount;
         Value<atUint32> linkStart;
-        Value<atUint32> flags;
+        Value<atUint16> meshIndexMask;
+        Value<atUint16> meshTypeMask;
         Value<float> height;
         Value<atVec3f> normal;
         Value<atUint32> regionIdx;
@@ -50,26 +51,27 @@ struct PATH : BigDNA
         Value<atUint32> regionIdxPtr;
     };
     Value<atUint32> regionCount;
-    Vector<Region, DNA_COUNT(regionCount)> regions;
+    Vector<Region, AT_DNA_COUNT(regionCount)> regions;
 
-    Vector<atUint32, DNA_COUNT((((regionCount * (regionCount - 1)) / 2) + 31) / 32)> bitmap1;
-    Vector<atUint32, DNA_COUNT(bitmap1.size())> bitmap2;
-    Vector<atUint32, DNA_COUNT(((((regionCount * regionCount) + 31) / 32) - bitmap1.size()) * 2)> bitmap3;
+    Vector<atUint32, AT_DNA_COUNT((((regionCount * (regionCount - 1)) / 2) + 31) / 32)> bitmap1;
+    Vector<atUint32, AT_DNA_COUNT(bitmap1.size())> bitmap2;
+    Vector<atUint32, AT_DNA_COUNT(((((regionCount * regionCount) + 31) / 32) - bitmap1.size()) * 2)> bitmap3;
 
     Value<atUint32> octreeRegionLookupCount;
-    Vector<atUint32, DNA_COUNT(octreeRegionLookupCount)> octreeRegionLookup;
+    Vector<atUint32, AT_DNA_COUNT(octreeRegionLookupCount)> octreeRegionLookup;
 
     struct OctreeNode : BigDNA
     {
         AT_DECL_DNA
         Value<atUint32> isLeaf;
-        Value<atVec3f> points[3];
+        Value<atVec3f> aabb[2];
+        Value<atVec3f> centroid;
         Value<atUint32> children[8];
         Value<atUint32> regionCount;
         Value<atUint32> regionStart;
     };
     Value<atUint32> octreeNodeCount;
-    Vector<OctreeNode, DNA_COUNT(octreeNodeCount)> octree;
+    Vector<OctreeNode, AT_DNA_COUNT(octreeNodeCount)> octree;
 
     void sendToBlender(hecl::blender::Connection& conn, std::string_view entryName,
                        const zeus::CMatrix4f* xf);

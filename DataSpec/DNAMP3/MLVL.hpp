@@ -29,7 +29,7 @@ struct MLVL : BigDNA
         Value<atUint64> areaId;
 
         Value<atUint32> attachedAreaCount;
-        Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;
+        Vector<atUint16, AT_DNA_COUNT(attachedAreaCount)> attachedAreas;
 
         Value<atUint32> dockCount;
         struct Dock : BigDNA
@@ -42,16 +42,16 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
-            Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
+            Vector<Endpoint, AT_DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
-            Vector<atVec3f, DNA_COUNT(planeVertCount)> planeVerts;
+            Vector<atVec3f, AT_DNA_COUNT(planeVertCount)> planeVerts;
         };
-        Vector<Dock, DNA_COUNT(dockCount)> docks;
+        Vector<Dock, AT_DNA_COUNT(dockCount)> docks;
 
         String<-1> internalAreaName;
     };
-    Vector<Area, DNA_COUNT(areaCount)> areas;
+    Vector<Area, AT_DNA_COUNT(areaCount)> areas;
 
     UniqueID64 worldMap;
     Value<atUint8> unknown2;
@@ -64,10 +64,10 @@ struct MLVL : BigDNA
         Value<atUint32> layerCount;
         Value<atUint64> flags;
     };
-    Vector<LayerFlags, DNA_COUNT(layerFlagCount)> layerFlags;
+    Vector<LayerFlags, AT_DNA_COUNT(layerFlagCount)> layerFlags;
 
     Value<atUint32> layerNameCount;
-    Vector<String<-1>, DNA_COUNT(layerNameCount)> layerNames;
+    Vector<String<-1>, AT_DNA_COUNT(layerNameCount)> layerNames;
 
     Value<atUint32> layerIDCount;
     struct LayerID : BigDNA
@@ -75,10 +75,10 @@ struct MLVL : BigDNA
         AT_DECL_DNA_YAML
         Value<atUint64> id[2];
     };
-    Vector<LayerID, DNA_COUNT(layerIDCount)> layerIDs;
+    Vector<LayerID, AT_DNA_COUNT(layerIDCount)> layerIDs;
 
     Value<atUint32> layerNameOffsetCount;
-    Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
+    Vector<atUint32, AT_DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 
 
     static bool Extract(const SpecBase& dataSpec,

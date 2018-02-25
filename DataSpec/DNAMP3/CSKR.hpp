@@ -20,18 +20,18 @@ struct CSKR : BigDNA
         AT_DECL_DNA
         Value<atInt16> mtxs[10];
     };
-    Vector<MatrixBindings, DNA_COUNT(matrixCount / 10)> mtxBindings;
+    Vector<MatrixBindings, AT_DNA_COUNT(matrixCount / 10)> mtxBindings;
 
     Value<atUint32> unkCount1;
-    Vector<atUint8, DNA_COUNT(unkCount1)> unk1;
+    Vector<atUint8, AT_DNA_COUNT(unkCount1)> unk1;
     Value<atUint32> unkCount2;
-    Vector<atUint8, DNA_COUNT(unkCount2)> unk2;
+    Vector<atUint8, AT_DNA_COUNT(unkCount2)> unk2;
     Value<atUint32> unkCount3;
-    Vector<atUint8, DNA_COUNT(unkCount3)> unk3;
+    Vector<atUint8, AT_DNA_COUNT(unkCount3)> unk3;
     Value<atUint32> unkCount4;
-    Vector<atUint8, DNA_COUNT(unkCount4)> unk4;
+    Vector<atUint8, AT_DNA_COUNT(unkCount4)> unk4;
     Value<atUint32> unkCount5;
-    Vector<atUint8, DNA_COUNT(unkCount5)> unk5;
+    Vector<atUint8, AT_DNA_COUNT(unkCount5)> unk5;
 
     const atInt16* getMatrixBank(size_t idx) const
     {

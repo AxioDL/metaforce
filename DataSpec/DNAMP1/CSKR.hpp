@@ -21,10 +21,10 @@ struct CSKR : BigDNA
             Value<atUint32> boneId;
             Value<float> weight;
         };
-        Vector<Weight, DNA_COUNT(weightCount)> weights;
+        Vector<Weight, AT_DNA_COUNT(weightCount)> weights;
         Value<atUint32> vertCount;
     };
-    Vector<SkinningRule, DNA_COUNT(skinningRuleCount)> skinningRules;
+    Vector<SkinningRule, AT_DNA_COUNT(skinningRuleCount)> skinningRules;
 
     const atInt16* getMatrixBank(size_t) const
     {

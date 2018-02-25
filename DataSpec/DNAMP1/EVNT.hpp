@@ -48,7 +48,7 @@ struct EVNT : BigDNA
         Value<atUint8> value;
     };
     Value<atUint32> boolPOICount;
-    Vector<BoolPOINode, DNA_COUNT(boolPOICount)> boolPOINodes;
+    Vector<BoolPOINode, AT_DNA_COUNT(boolPOICount)> boolPOINodes;
 
     struct Int32POINode : POINode
     {
@@ -57,7 +57,7 @@ struct EVNT : BigDNA
         String<-1> locator;
     };
     Value<atUint32> int32POICount;
-    Vector<Int32POINode, DNA_COUNT(int32POICount)> int32POINodes;
+    Vector<Int32POINode, AT_DNA_COUNT(int32POICount)> int32POINodes;
 
     struct ParticlePOINode : POINode
     {
@@ -70,7 +70,7 @@ struct EVNT : BigDNA
         Value<atUint32> parentMode;
     };
     Value<atUint32> particlePOICount;
-    Vector<ParticlePOINode, DNA_COUNT(particlePOICount)> particlePOINodes;
+    Vector<ParticlePOINode, AT_DNA_COUNT(particlePOICount)> particlePOINodes;
 
     struct SoundPOINode : POINode
     {
@@ -80,7 +80,7 @@ struct EVNT : BigDNA
         Value<float> maxDist;
     };
     Value<atUint32> soundPOICount;
-    Vector<SoundPOINode, DNA_COUNT(soundPOICount)> soundPOINodes;
+    Vector<SoundPOINode, AT_DNA_COUNT(soundPOICount)> soundPOINodes;
 
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {

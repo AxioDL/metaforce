@@ -26,7 +26,7 @@ struct MLVL : BigDNA
         Value<atUint16> msg;
         Value<bool> active;
     };
-    Vector<MemRelayLink, DNA_COUNT(memRelayLinkCount)> memRelayLinks;
+    Vector<MemRelayLink, AT_DNA_COUNT(memRelayLinkCount)> memRelayLinks;
 
     Value<atUint32> areaCount;
     Value<atUint32> unknown1;
@@ -40,7 +40,7 @@ struct MLVL : BigDNA
         Value<atUint32> areaId;
 
         Value<atUint32> attachedAreaCount;
-        Vector<atUint16, DNA_COUNT(attachedAreaCount)> attachedAreas;
+        Vector<atUint16, AT_DNA_COUNT(attachedAreaCount)> attachedAreas;
         Value<atUint32> padding;
 
         Value<atUint32> depCount;
@@ -54,10 +54,10 @@ struct MLVL : BigDNA
             Dependency(const UniqueID32& idin, const hecl::FourCC& fcc)
             : id(idin), type(fcc) {}
         };
-        Vector<Dependency, DNA_COUNT(depCount)> deps;
+        Vector<Dependency, AT_DNA_COUNT(depCount)> deps;
 
         Value<atUint32> depLayerCount;
-        Vector<atUint32, DNA_COUNT(depLayerCount)> depLayers;
+        Vector<atUint32, AT_DNA_COUNT(depLayerCount)> depLayers;
 
         Value<atUint32> dockCount;
         struct Dock : BigDNA
@@ -70,14 +70,14 @@ struct MLVL : BigDNA
                 Value<atUint32> areaIdx;
                 Value<atUint32> dockIdx;
             };
-            Vector<Endpoint, DNA_COUNT(endpointCount)> endpoints;
+            Vector<Endpoint, AT_DNA_COUNT(endpointCount)> endpoints;
 
             Value<atUint32> planeVertCount;
-            Vector<atVec3f, DNA_COUNT(planeVertCount)> planeVerts;
+            Vector<atVec3f, AT_DNA_COUNT(planeVertCount)> planeVerts;
         };
-        Vector<Dock, DNA_COUNT(dockCount)> docks;
+        Vector<Dock, AT_DNA_COUNT(dockCount)> docks;
     };
-    Vector<Area, DNA_COUNT(areaCount)> areas;
+    Vector<Area, AT_DNA_COUNT(areaCount)> areas;
 
     void finishLastArea()
     {
@@ -102,7 +102,7 @@ struct MLVL : BigDNA
         Value<atUint32> groupId;
         UniqueID32 agscId;
     };
-    Vector<AudioGroup, DNA_COUNT(audioGroupCount)> audioGroups;
+    Vector<AudioGroup, AT_DNA_COUNT(audioGroupCount)> audioGroups;
     String<-1> unkString;
 
     Value<atUint32> layerFlagCount;
@@ -112,13 +112,13 @@ struct MLVL : BigDNA
         Value<atUint32> layerCount;
         Value<atUint64> flags;
     };
-    Vector<LayerFlags, DNA_COUNT(layerFlagCount)> layerFlags;
+    Vector<LayerFlags, AT_DNA_COUNT(layerFlagCount)> layerFlags;
 
     Value<atUint32> layerNameCount;
-    Vector<String<-1>, DNA_COUNT(layerNameCount)> layerNames;
+    Vector<String<-1>, AT_DNA_COUNT(layerNameCount)> layerNames;
 
     Value<atUint32> layerNameOffsetCount;
-    Vector<atUint32, DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
+    Vector<atUint32, AT_DNA_COUNT(layerNameOffsetCount)> layerNameOffsets;
 
     void readMeta(athena::io::YAMLDocReader& __dna_docin)
     {

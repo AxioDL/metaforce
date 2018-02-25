@@ -42,7 +42,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknownCount;
-            Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
+            Vector<CommonStruct, AT_DNA_COUNT(unknownCount)> unknown;
         };
 
         struct Unknown1 : BigDNA
@@ -51,7 +51,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             String<-1> name;
             Value<float> unknown1;
             Value<atUint32> unknown2Count;
-            Vector<CommonStruct, DNA_COUNT(unknown2Count)> unknown2;
+            Vector<CommonStruct, AT_DNA_COUNT(unknown2Count)> unknown2;
             Value<atUint8> unknown3;
         };
 
@@ -60,7 +60,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknownCount;
-            Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
+            Vector<CommonStruct, AT_DNA_COUNT(unknownCount)> unknown;
         };
 
         struct Unknown3 : BigDNA
@@ -68,14 +68,14 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             AT_DECL_DNA_YAML
             String<-1> name;
             Value<atUint32> unknownCount;
-            Vector<CommonStruct, DNA_COUNT(unknownCount)> unknown;
+            Vector<CommonStruct, AT_DNA_COUNT(unknownCount)> unknown;
             Value<IDType> fsmId;
         };
 
-        Vector<State, DNA_COUNT(stateCount)> states;
-        Vector<Unknown1, DNA_COUNT(unknown1Count)> unknown1;
-        Vector<Unknown2, DNA_COUNT(unknown2Count)> unknown2;
-        Vector<Unknown3, DNA_COUNT(unknown3Count)> unknown3;
+        Vector<State, AT_DNA_COUNT(stateCount)> states;
+        Vector<Unknown1, AT_DNA_COUNT(unknown1Count)> unknown1;
+        Vector<Unknown2, AT_DNA_COUNT(unknown2Count)> unknown2;
+        Vector<Unknown3, AT_DNA_COUNT(unknown3Count)> unknown3;
     };
 
     struct FSMV2 : IFSM
@@ -95,7 +95,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             Value<atUint32> unknown3;
             Value<atUint32> unknown4;
             Value<atUint32> unknown5Count;
-            Vector<CommonStruct, DNA_COUNT(unknown5Count)> unknown5;
+            Vector<CommonStruct, AT_DNA_COUNT(unknown5Count)> unknown5;
         };
 
         struct Unknown1 : BigDNA
@@ -108,7 +108,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             Value<atUint32> unknown4;
             Value<float> unknown5;
             Value<atUint32> unknown6Count;
-            Vector<CommonStruct, DNA_COUNT(unknown6Count)> unknown6;
+            Vector<CommonStruct, AT_DNA_COUNT(unknown6Count)> unknown6;
             Value<atUint8> unknown7;
         };
 
@@ -121,7 +121,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             Value<atUint32> unknown3;
             Value<atUint32> unknown4;
             Value<atUint32> unknown5Count;
-            Vector<CommonStruct, DNA_COUNT(unknown5Count)> unknown5;
+            Vector<CommonStruct, AT_DNA_COUNT(unknown5Count)> unknown5;
         };
 
         struct Unknown3 : BigDNA
@@ -133,14 +133,14 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
             Value<atUint32> unknown3;
             Value<atUint32> unknown4;
             Value<atUint32> unknown5Count;
-            Vector<CommonStruct, DNA_COUNT(unknown5Count)> unknown5;
+            Vector<CommonStruct, AT_DNA_COUNT(unknown5Count)> unknown5;
             Value<IDType> fsmId;
         };
 
-        Vector<State, DNA_COUNT(stateCount)> states;
-        Vector<Unknown1, DNA_COUNT(unknown1Count)> unknown1;
-        Vector<Unknown2, DNA_COUNT(unknown2Count)> unknown2;
-        Vector<Unknown3, DNA_COUNT(unknown3Count)> unknown3;
+        Vector<State, AT_DNA_COUNT(stateCount)> states;
+        Vector<Unknown1, AT_DNA_COUNT(unknown1Count)> unknown1;
+        Vector<Unknown2, AT_DNA_COUNT(unknown2Count)> unknown2;
+        Vector<Unknown3, AT_DNA_COUNT(unknown3Count)> unknown3;
     };
 
     std::unique_ptr<IFSM> detail;

@@ -99,7 +99,7 @@ struct ANCS : BigDNA
                     };
                     std::vector<AnimInfo> animInfos;
                 };
-                Vector<AnimState, DNA_COUNT(animStateCount)> animStates;
+                Vector<AnimState, AT_DNA_COUNT(animStateCount)> animStates;
             } pasDatabase;
 
             struct ParticleResData
@@ -136,7 +136,7 @@ struct ANCS : BigDNA
                     Value<atUint32> parentMode;
                     Value<atUint32> flags;
                 };
-                Vector<EffectComponent, DNA_COUNT(compCount)> comps;
+                Vector<EffectComponent, AT_DNA_COUNT(compCount)> comps;
             };
             std::vector<Effect> effects;
 
@@ -145,7 +145,7 @@ struct ANCS : BigDNA
 
             std::vector<atUint32> animIdxs;
         };
-        Vector<CharacterInfo, DNA_COUNT(characterCount)> characters;
+        Vector<CharacterInfo, AT_DNA_COUNT(characterCount)> characters;
     } characterSet;
 
     struct AnimationSet : BigDNA
@@ -262,7 +262,7 @@ struct ANCS : BigDNA
                 MetaAnimFactory anim;
                 Value<atUint32> probability;
             };
-            Vector<Child, DNA_COUNT(animCount)> children;
+            Vector<Child, AT_DNA_COUNT(animCount)> children;
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
@@ -284,7 +284,7 @@ struct ANCS : BigDNA
             AT_DECL_DNA_YAML
             AT_DECL_DNAV
             Value<atUint32> animCount;
-            Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
+            Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {

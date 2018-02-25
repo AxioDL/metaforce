@@ -36,7 +36,7 @@ struct CHAR : BigDNA
             UniqueID64 cmdl;
             UniqueID64 cskr;
         };
-        Vector<Overlay, DNA_COUNT(overlayCount)> overlays;
+        Vector<Overlay, AT_DNA_COUNT(overlayCount)> overlays;
         UniqueID64 cinf;
         UniqueID64 sand;
 
@@ -47,17 +47,17 @@ struct CHAR : BigDNA
         {
             AT_DECL_DNA_YAML
             Value<atUint32> partCount;
-            Vector<UniqueID64, DNA_COUNT(partCount)> part;
+            Vector<UniqueID64, AT_DNA_COUNT(partCount)> part;
             Value<atUint32> swhcCount;
-            Vector<UniqueID64, DNA_COUNT(swhcCount)> swhc;
+            Vector<UniqueID64, AT_DNA_COUNT(swhcCount)> swhc;
             Value<atUint32> unkCount;
-            Vector<UniqueID64, DNA_COUNT(unkCount)> unk;
+            Vector<UniqueID64, AT_DNA_COUNT(unkCount)> unk;
             Value<atUint32> elscCount;
-            Vector<UniqueID64, DNA_COUNT(elscCount)> elsc;
+            Vector<UniqueID64, AT_DNA_COUNT(elscCount)> elsc;
             Value<atUint32> spscCount;
-            Vector<UniqueID64, DNA_COUNT(spscCount)> spsc;
+            Vector<UniqueID64, AT_DNA_COUNT(spscCount)> spsc;
             Value<atUint32> unk2Count;
-            Vector<UniqueID64, DNA_COUNT(unk2Count)> unk2;
+            Vector<UniqueID64, AT_DNA_COUNT(unk2Count)> unk2;
         } partResData;
 
     } characterInfo;
@@ -103,7 +103,7 @@ struct CHAR : BigDNA
                 Value<atUint32> parentMode;
             };
             Value<atUint32> effectCount;
-            Vector<EffectEvent, DNA_COUNT(effectCount)> effectEvents;
+            Vector<EffectEvent, AT_DNA_COUNT(effectCount)> effectEvents;
 
             struct SFXEvent : EventBase
             {
@@ -119,10 +119,10 @@ struct CHAR : BigDNA
                 Value<float> extraFloat;
             };
             Value<atUint32> sfxCount;
-            Vector<SFXEvent, DNA_COUNT(sfxCount)> sfxEvents;
+            Vector<SFXEvent, AT_DNA_COUNT(sfxCount)> sfxEvents;
         };
         Value<atUint32> evntCount;
-        Vector<EVNT, DNA_COUNT(evntCount)> evnts;
+        Vector<EVNT, AT_DNA_COUNT(evntCount)> evnts;
 
         struct IMetaAnim : BigDNAVYaml
         {
@@ -206,7 +206,7 @@ struct CHAR : BigDNA
                 MetaAnimFactory anim;
                 Value<atUint32> probability;
             };
-            Vector<Child, DNA_COUNT(animCount)> children;
+            Vector<Child, AT_DNA_COUNT(animCount)> children;
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out)
             {
@@ -220,7 +220,7 @@ struct CHAR : BigDNA
             AT_DECL_DNA_YAML
             AT_DECL_DNAV
             Value<atUint32> animCount;
-            Vector<MetaAnimFactory, DNA_COUNT(animCount)> children;
+            Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
             void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out)
             {
@@ -236,7 +236,7 @@ struct CHAR : BigDNA
             MetaAnimFactory metaAnim;
         };
         Value<atUint32> animationCount;
-        Vector<Animation, DNA_COUNT(animationCount)> animations;
+        Vector<Animation, AT_DNA_COUNT(animationCount)> animations;
 
         struct ActionAABB : BigDNA
         {
@@ -245,12 +245,12 @@ struct CHAR : BigDNA
             Value<atVec3f> aabb[2];
         };
         Value<atUint32> animAABBCount;
-        Vector<ActionAABB, DNA_COUNT(animAABBCount)> animAABBs;
+        Vector<ActionAABB, AT_DNA_COUNT(animAABBCount)> animAABBs;
 
         Value<atUint8> unkByte;
 
         Value<atUint32> additiveMapCount;
-        Vector<bool, DNA_COUNT(additiveMapCount)> additiveMap;
+        Vector<bool, AT_DNA_COUNT(additiveMapCount)> additiveMap;
 
     } animationInfo;
 
@@ -278,10 +278,10 @@ struct CHAR : BigDNA
             String<-1> boneName;
             Value<float> unk14;
         };
-        Vector<Hitbox, DNA_COUNT(hitboxCount)> hitboxes;
+        Vector<Hitbox, AT_DNA_COUNT(hitboxCount)> hitboxes;
     };
     Value<atUint32> hitboxSetCount;
-    Vector<HitboxSet, DNA_COUNT(hitboxSetCount)> hitboxSets;
+    Vector<HitboxSet, AT_DNA_COUNT(hitboxSetCount)> hitboxSets;
 
     void getCharacterResInfo(std::vector<DNAANCS::CharacterResInfo<UniqueID64>>& out) const
     {

@@ -30,10 +30,10 @@ struct HINT : BigDNA
         };
 
         Value<atUint32> locationCount;
-        Vector<Location, DNA_COUNT(locationCount)> locations;
+        Vector<Location, AT_DNA_COUNT(locationCount)> locations;
     };
     Value<atUint32> hintCount;
-    Vector<Hint, DNA_COUNT(hintCount)> hints;
+    Vector<Hint, AT_DNA_COUNT(hintCount)> hints;
 
 
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)

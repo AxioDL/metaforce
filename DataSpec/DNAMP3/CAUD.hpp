@@ -14,7 +14,7 @@ struct CAUD : BigDNA
     Value<atUint32> version;
     String<-1> name;
     Value<atUint32> nameCount;
-    Vector<String<-1>, DNA_COUNT(nameCount)> names;
+    Vector<String<-1>, AT_DNA_COUNT(nameCount)> names;
     Value<float> unknown1;
     Value<atUint32> unknown2;
     Value<float> unknown3;
@@ -49,12 +49,12 @@ struct CAUD : BigDNA
             Value<atUint8> unknown4;
         };
         Value<atUint32> unknown15;
-        Vector<UnknownStruct1, DNA_COUNT(unknown15)> unknown16;
+        Vector<UnknownStruct1, AT_DNA_COUNT(unknown15)> unknown16;
         struct UnknownStruct2 : BigDNA
         {
             AT_DECL_DNA_YAML
             Value<atUint8> unknown1;
-            Vector<atUint8, DNA_COUNT(unknown1)> unknown2;
+            Vector<atUint8, AT_DNA_COUNT(unknown1)> unknown2;
             Value<float> unknown3;
             Value<float> unknown4;
             Value<atUint16> unknown5;
@@ -65,7 +65,7 @@ struct CAUD : BigDNA
                 Value<atInt32> unknown2;
             };
             Value<atUint16> unknown6;
-            Vector<UnknownPair, DNA_COUNT(unknown6)> unknown7;
+            Vector<UnknownPair, AT_DNA_COUNT(unknown6)> unknown7;
             struct UnknownQuad: BigDNA
             {
                 AT_DECL_EXPLICIT_DNA_YAML
@@ -77,7 +77,7 @@ struct CAUD : BigDNA
             };
 
             Value<atUint16> unknown8;
-            Vector<UnknownQuad, DNA_COUNT(unknown8)> unknown9;
+            Vector<UnknownQuad, AT_DNA_COUNT(unknown8)> unknown9;
         };
         UnknownStruct2 unknown17[4];
         Value<atUint16> unknown18;
@@ -99,13 +99,13 @@ struct CAUD : BigDNA
             Value<atUint8> unknown3;
             Value<atUint8> unknown4;
         };
-        Vector<UnknownStruct3, DNA_COUNT(unknown27)> unknown29;
+        Vector<UnknownStruct3, AT_DNA_COUNT(unknown27)> unknown29;
         Value<float> unknown30;
         Value<float> unknown31;
     };
 
     Value<atUint32> infoCount;
-    Vector<CSMPInfo, DNA_COUNT(infoCount)> info;
+    Vector<CSMPInfo, AT_DNA_COUNT(infoCount)> info;
 
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {

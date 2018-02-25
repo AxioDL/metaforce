@@ -33,7 +33,7 @@ struct Header : BigDNA
     Value<atVec3f> aabbMax;
     Value<atUint32> secCount;
     Value<atUint32> matSetCount;
-    Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+    Vector<atUint32, AT_DNA_COUNT(secCount)> secSizes;
     Align<32> align;
 };
 

@@ -19,7 +19,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) DGRP : Bi
         Value<IDType> id;
     };
 
-    Vector<ObjectTag, DNA_COUNT(dependCount)> depends;
+    Vector<ObjectTag, AT_DNA_COUNT(dependCount)> depends;
 };
 
 template <class IDType>

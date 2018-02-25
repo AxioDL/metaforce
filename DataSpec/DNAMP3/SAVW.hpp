@@ -30,19 +30,19 @@ struct SAVW : BigDNA
     AT_DECL_DNA_YAML
     SAVWCommon::Header header;
     Value<atUint32> skippableCutsceneCount;
-    Vector<SavedState, DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;
+    Vector<SavedState, AT_DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;
     Value<atUint32> relayCount;
-    Vector<SavedState, DNA_COUNT(relayCount)> relays;
+    Vector<SavedState, AT_DNA_COUNT(relayCount)> relays;
     Value<atUint32> doorCount;
-    Vector<SavedState, DNA_COUNT(doorCount)> doors;
+    Vector<SavedState, AT_DNA_COUNT(doorCount)> doors;
     Value<atUint32> scanCount;
-    Vector<Scan, DNA_COUNT(scanCount)> scans;
+    Vector<Scan, AT_DNA_COUNT(scanCount)> scans;
     Value<atUint32> systemVarCount;
-    Vector<SAVWCommon::EnvironmentVariable, DNA_COUNT(systemVarCount)> systemVars;
+    Vector<SAVWCommon::EnvironmentVariable, AT_DNA_COUNT(systemVarCount)> systemVars;
     Value<atUint32> gameVarCount;
-    Vector<SAVWCommon::EnvironmentVariable, DNA_COUNT(gameVarCount)> gameVars;
+    Vector<SAVWCommon::EnvironmentVariable, AT_DNA_COUNT(gameVarCount)> gameVars;
     Value<atUint32> gameObjectCount;
-    Vector<SavedState, DNA_COUNT(gameObjectCount)> gameObjects;
+    Vector<SavedState, AT_DNA_COUNT(gameObjectCount)> gameObjects;
 };
 }
 

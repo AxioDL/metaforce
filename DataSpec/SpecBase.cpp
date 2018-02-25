@@ -272,6 +272,12 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
             cookColMesh(cookedPath, path, ds, fast, btok, progress);
             break;
         }
+        case hecl::blender::BlendType::PathMesh:
+        {
+            hecl::blender::DataStream ds = conn.beginData();
+            cookPathMesh(cookedPath, path, ds, fast, btok, progress);
+            break;
+        }
         case hecl::blender::BlendType::Actor:
         {
             hecl::blender::DataStream ds = conn.beginData();
@@ -1105,17 +1111,6 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
             /* Transform tag to glob */
             pathTag = {SBIG('AGSC'), asGlob.hash().val32()};
             useGlob = true;
-        }
-        else if (pathTag.type == SBIG('MREA'))
-        {
-            hecl::ProjectPath subPath = path.ensureAuxInfo(_S("PATH"));
-            urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
-            m_tagToPath[pathTag] = subPath;
-            m_pathToTag[subPath.hash()] = pathTag;
-            WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-            DumpCacheAdd(pathTag, subPath);
-#endif
         }
 
         /* Cache in-memory */

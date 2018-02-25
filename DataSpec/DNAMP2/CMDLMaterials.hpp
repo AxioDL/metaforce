@@ -25,7 +25,7 @@ struct MaterialSet : BigDNA
         const Flags& getFlags() const {return flags;}
 
         Value<atUint32> textureCount;
-        Vector<atUint32, DNA_COUNT(textureCount)> textureIdxs;
+        Vector<atUint32, AT_DNA_COUNT(textureCount)> textureIdxs;
         using VAFlags = DNAMP1::MaterialSet::Material::VAFlags;
         DNAMP1::MaterialSet::Material::VAFlags vaFlags;
         const VAFlags& getVAFlags() const {return vaFlags;}
@@ -33,29 +33,29 @@ struct MaterialSet : BigDNA
         Value<atUint32> unk1; /* MP2 only */
         Value<atUint32> groupIdx;
 
-        Vector<atUint32, DNA_COUNT(flags.konstValuesEnabled())> konstCount;
-        Vector<GX::Color, DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
+        Vector<atUint32, AT_DNA_COUNT(flags.konstValuesEnabled())> konstCount;
+        Vector<GX::Color, AT_DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
 
         using BlendFactor = GX::BlendFactor;
         Value<BlendFactor> blendDstFac;
         Value<BlendFactor> blendSrcFac;
-        Vector<atUint32, DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
+        Vector<atUint32, AT_DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
 
         Value<atUint32> colorChannelCount;
-        Vector<DNAMP1::MaterialSet::Material::ColorChannel, DNA_COUNT(colorChannelCount)> colorChannels;
+        Vector<DNAMP1::MaterialSet::Material::ColorChannel, AT_DNA_COUNT(colorChannelCount)> colorChannels;
 
         Value<atUint32> tevStageCount;
-        Vector<DNAMP1::MaterialSet::Material::TEVStage, DNA_COUNT(tevStageCount)> tevStages;
-        Vector<DNAMP1::MaterialSet::Material::TEVStageTexInfo, DNA_COUNT(tevStageCount)> tevStageTexInfo;
+        Vector<DNAMP1::MaterialSet::Material::TEVStage, AT_DNA_COUNT(tevStageCount)> tevStages;
+        Vector<DNAMP1::MaterialSet::Material::TEVStageTexInfo, AT_DNA_COUNT(tevStageCount)> tevStageTexInfo;
 
         Value<atUint32> tcgCount;
-        Vector<DNAMP1::MaterialSet::Material::TexCoordGen, DNA_COUNT(tcgCount)> tcgs;
+        Vector<DNAMP1::MaterialSet::Material::TexCoordGen, AT_DNA_COUNT(tcgCount)> tcgs;
 
         Value<atUint32> uvAnimsSize;
         Value<atUint32> uvAnimsCount;
-        Vector<DNAMP1::MaterialSet::Material::UVAnimation, DNA_COUNT(uvAnimsCount)> uvAnims;
+        Vector<DNAMP1::MaterialSet::Material::UVAnimation, AT_DNA_COUNT(uvAnimsCount)> uvAnims;
     };
-    Vector<Material, DNA_COUNT(head.materialCount)> materials;
+    Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
 
     static void RegisterMaterialProps(hecl::blender::PyOutStream& out)
     {

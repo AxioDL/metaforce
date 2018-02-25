@@ -62,11 +62,11 @@ struct CTweakTargeting final : public ITweakTargeting
     {
         AT_DECL_DNA
         Value<atUint32> count;
-        Vector<float, DNA_COUNT(count)> floats;
+        Vector<float, AT_DNA_COUNT(count)> floats;
     };
-    Vector<UnkVec, DNA_COUNT(xf8_outerBeamSquareAngleCount)> xf8_outerBeamSquareAngles;
+    Vector<UnkVec, AT_DNA_COUNT(xf8_outerBeamSquareAngleCount)> xf8_outerBeamSquareAngles;
     Value<atUint32> x108_chargeGaugeAngleCount;
-    Vector<float, DNA_COUNT(x108_chargeGaugeAngleCount)> x108_chargeGaugeAngles;
+    Vector<float, AT_DNA_COUNT(x108_chargeGaugeAngleCount)> x108_chargeGaugeAngles;
     Value<float> x118_chargeGaugeScale;
     DNAColor x11c_chargeGaugeNonFullColor;
     Value<atUint32> x120_chargeTickCount;

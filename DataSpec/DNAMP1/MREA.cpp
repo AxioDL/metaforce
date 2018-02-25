@@ -798,7 +798,8 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* PATH */
     {
-        UniqueID32 pathId = inPath.ensureAuxInfo(_S("PATH"));
+        hecl::ProjectPath pathPath(inPath.getParentPath(), _S("!path.blend"));
+        UniqueID32 pathId = pathPath;
         secs.emplace_back(4, 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
         pathId.write(w);
@@ -822,33 +823,6 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     athena::io::FileWriter writer(outPath.getAbsolutePath());
     for (const std::vector<uint8_t>& sec : secs)
         writer.writeUBytes(sec.data(), sec.size());
-
-    return true;
-}
-
-bool MREA::CookPath(const hecl::ProjectPath& outPath,
-                    const hecl::ProjectPath& inPath)
-{
-    PATH path = {};
-    path.version = 4;
-    path.octreeNodeCount = 1;
-    path.octree.emplace_back();
-    PATH::OctreeNode& s = path.octree.back();
-    s.isLeaf = 1;
-    s.points[0] = atVec3f{FLT_MAX, FLT_MAX, FLT_MAX};
-    s.points[1] = atVec3f{-FLT_MAX, -FLT_MAX, -FLT_MAX};
-    s.points[2] = atVec3f{0.f, 0.f, 0.f};
-    for (int i=0 ; i<8 ; ++i)
-        s.children[i] = 0xffffffff;
-    s.regionCount = 0;
-    s.regionStart = 0;
-
-    athena::io::FileWriter w(outPath.getAbsolutePath());
-    path.write(w);
-    int64_t rem = w.position() % 32;
-    if (rem)
-        for (int64_t i=0 ; i<32-rem ; ++i)
-            w.writeUByte(0xff);
 
     return true;
 }

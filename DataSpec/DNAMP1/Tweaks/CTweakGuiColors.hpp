@@ -133,7 +133,7 @@ struct CTweakGuiColors final : public ITweakGuiColors
     };
     Value<atUint32> x1c4_perVisorCount;
     /* Combat, Scan, XRay, Thermal, Ball */
-    Vector<PerVisorColors, DNA_COUNT(x1c4_perVisorCount)> x1c4_perVisorColors;
+    Vector<PerVisorColors, AT_DNA_COUNT(x1c4_perVisorCount)> x1c4_perVisorColors;
 
     CTweakGuiColors() = default;
     CTweakGuiColors(athena::io::IStreamReader& r) { this->read(r); }

@@ -112,7 +112,7 @@ struct MaterialSet : BigDNA
                 Value<atUint16> unk2;
                 DNAMP1::MaterialSet::Material::UVAnimation anim;
             };
-            Vector<UVAnimation, DNA_COUNT(uvAnimSize != 0)> uvAnim;
+            Vector<UVAnimation, AT_DNA_COUNT(uvAnimSize != 0)> uvAnim;
 
             void constructNode(hecl::blender::PyOutStream& out,
                                const PAKRouter<PAKBridge>& pakRouter,
@@ -177,7 +177,7 @@ struct MaterialSet : BigDNA
         };
         std::vector<SectionFactory> sections;
     };
-    Vector<Material, DNA_COUNT(materialCount)> materials;
+    Vector<Material, AT_DNA_COUNT(materialCount)> materials;
 
     static void RegisterMaterialProps(hecl::blender::PyOutStream& out);
     static void ConstructMaterial(hecl::blender::PyOutStream& out,

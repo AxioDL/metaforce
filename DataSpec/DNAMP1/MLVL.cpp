@@ -314,7 +314,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 }
             }
 
-            urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(areaPath.ensureAuxInfo(_S("PATH")), btok);
+            hecl::ProjectPath pathPath(areaPath.getParentPath(), _S("!path.blend"));
+            urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath, btok);
             if (pathTag.id.IsValid())
                 areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
 

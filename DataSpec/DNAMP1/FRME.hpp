@@ -296,15 +296,15 @@ struct FRME : BigDNA
             Value<atUint32> unk1;
             Value<atUint32> unk2;
             Value<atUint32> quadCoordCount;
-            Vector<atVec3f, DNA_COUNT(quadCoordCount)> quadCoords;
+            Vector<atVec3f, AT_DNA_COUNT(quadCoordCount)> quadCoords;
             Value<atUint32> uvCoordCount;
-            Vector<atVec2f, DNA_COUNT(uvCoordCount)>  uvCoords;
+            Vector<atVec2f, AT_DNA_COUNT(uvCoordCount)>  uvCoords;
 
             FourCC fourcc() const { return FOURCC('IMGP'); }
         };
     };
 
-    Vector<Widget, DNA_COUNT(widgetCount)> widgets;
+    Vector<Widget, AT_DNA_COUNT(widgetCount)> widgets;
     static bool Extract(const SpecBase& dataSpec,
                         PAKEntryReadStream& rs,
                         const hecl::ProjectPath& outPath,

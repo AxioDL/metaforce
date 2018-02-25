@@ -383,7 +383,7 @@ struct PlayerParameters : BigDNA
 {
     AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
-    Vector<bool, DNA_COUNT(propertyCount)> bools;
+    Vector<bool, AT_DNA_COUNT(propertyCount)> bools;
 };
 
 struct ActorParameters : BigDNA

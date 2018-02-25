@@ -129,7 +129,7 @@ struct REKeyframeEmitter : IRealElement
     Value<atUint32> loopEnd;
     Value<atUint32> loopStart;
     Value<atUint32> count;
-    Vector<float, DNA_COUNT(count)> keys;
+    Vector<float, AT_DNA_COUNT(count)> keys;
     const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
@@ -339,7 +339,7 @@ struct IEKeyframeEmitter : IIntElement
     Value<atUint32> loopEnd;
     Value<atUint32> loopStart;
     Value<atUint32> count;
-    Vector<atUint32, DNA_COUNT(count)> keys;
+    Vector<atUint32, AT_DNA_COUNT(count)> keys;
     const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
@@ -544,7 +544,7 @@ struct VEKeyframeEmitter : IVectorElement
     Value<atUint32> loopEnd;
     Value<atUint32> loopStart;
     Value<atUint32> count;
-    Vector<atVec3f, DNA_COUNT(count)> keys;
+    Vector<atVec3f, AT_DNA_COUNT(count)> keys;
     const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 
@@ -620,7 +620,7 @@ struct CEKeyframeEmitter : IColorElement
     Value<atUint32> loopEnd;
     Value<atUint32> loopStart;
     Value<atUint32> count;
-    Vector<atVec4f, DNA_COUNT(count)> keys;
+    Vector<atVec4f, AT_DNA_COUNT(count)> keys;
     const char* ClassID() const {return percentageTween ? "KEYP" : "KEYE";}
 };
 

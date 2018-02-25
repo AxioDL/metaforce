@@ -11,7 +11,7 @@ struct AFSM : public BigDNA
 {
     AT_DECL_DNA_YAML
     Value<atUint32> stateCount;
-    Vector<String<-1>, DNA_COUNT(stateCount)> stateNames;
+    Vector<String<-1>, AT_DNA_COUNT(stateCount)> stateNames;
     Value<atUint32> triggerCount;
 
     struct State : public BigDNA
@@ -31,11 +31,11 @@ struct AFSM : public BigDNA
                 Value<float> parameter;
                 Value<atUint32> targetState;
             };
-            Vector<Trigger, DNA_COUNT(triggerCount)> triggers;
+            Vector<Trigger, AT_DNA_COUNT(triggerCount)> triggers;
         };
-        Vector<Transition, DNA_COUNT(transitionCount)> transitions;
+        Vector<Transition, AT_DNA_COUNT(transitionCount)> transitions;
     };
-    Vector<State, DNA_COUNT(stateCount)> states;
+    Vector<State, AT_DNA_COUNT(stateCount)> states;
 
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     {

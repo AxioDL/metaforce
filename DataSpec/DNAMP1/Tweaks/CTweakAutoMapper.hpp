@@ -74,7 +74,7 @@ struct CTweakAutoMapper final : public ITweakAutoMapper
     DNAColor xf8_;
     DNAColor xfc_;
     Value<atUint32> x100_doorColorCount;
-    Vector<DNAColor, DNA_COUNT(x100_doorColorCount)> x104_doorColors;
+    Vector<DNAColor, AT_DNA_COUNT(x100_doorColorCount)> x104_doorColors;
     DNAColor x118_doorBorderColor;
     DNAColor x11c_openDoorColor;
 

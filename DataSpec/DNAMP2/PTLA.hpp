@@ -23,12 +23,12 @@ struct PTLA : BigDNA
             Value<atUint16> unknown5;
             Value<atUint16> unknown6;
         };
-        Vector<Entry, DNA_COUNT(count)> entries;
+        Vector<Entry, AT_DNA_COUNT(count)> entries;
         Value<atUint16> unknown1;
         Value<atVec3f> unknown2[2];
     };
     Value<atUint32> count1;
-    Vector<UnknownStruct1, DNA_COUNT(count1)> entries1;
+    Vector<UnknownStruct1, AT_DNA_COUNT(count1)> entries1;
 
     struct UnknownStruct2 : BigDNA
     {
@@ -42,17 +42,17 @@ struct PTLA : BigDNA
             Value<float> unknown3;
             Value<float> unknown4;
         };
-        Vector<Entry, DNA_COUNT(count)> entries;
+        Vector<Entry, AT_DNA_COUNT(count)> entries;
         Value<atUint16> unknown;
     };
     Value<atUint32> count2;
-    Vector<UnknownStruct2, DNA_COUNT(count2)> entries2;
+    Vector<UnknownStruct2, AT_DNA_COUNT(count2)> entries2;
 
     Value<atUint32> shortCount1;
-    Vector<atUint16, DNA_COUNT(shortCount1)> shorts1;
+    Vector<atUint16, AT_DNA_COUNT(shortCount1)> shorts1;
 
     Value<atUint32> shortCount2;
-    Vector<atUint16, DNA_COUNT(shortCount2)> shorts2;
+    Vector<atUint16, AT_DNA_COUNT(shortCount2)> shorts2;
 
     struct UnknownStruct3 : BigDNA
     {
@@ -63,7 +63,7 @@ struct PTLA : BigDNA
         Value<atUint16> unknown4;
     };
     Value<atUint32> count3;
-    Vector<UnknownStruct3, DNA_COUNT(count3)> entries3;
+    Vector<UnknownStruct3, AT_DNA_COUNT(count3)> entries3;
 };
 }
 #endif // __DNAMP2_PTLA_HPP__

@@ -74,6 +74,7 @@ struct SpecBase : hecl::Database::IDataSpec
     using BlendStream = hecl::blender::DataStream;
     using Mesh = hecl::blender::Mesh;
     using ColMesh = hecl::blender::ColMesh;
+    using PathMesh = hecl::blender::PathMesh;
     using Light = hecl::blender::Light;
     using Actor = hecl::blender::Actor;
 
@@ -83,6 +84,9 @@ struct SpecBase : hecl::Database::IDataSpec
     virtual void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                              BlendStream& ds, bool fast, hecl::blender::Token& btok,
                              FCookProgress progress)=0;
+    virtual void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
+                              BlendStream& ds, bool fast, hecl::blender::Token& btok,
+                              FCookProgress progress)=0;
     virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
                            BlendStream& ds, bool fast, hecl::blender::Token& btok,
                            FCookProgress progress)=0;

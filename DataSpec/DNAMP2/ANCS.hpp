@@ -77,7 +77,7 @@ struct ANCS : BigDNA
                     Value<atUint32> unk2;
                     Value<atUint32> unk3;
                 };
-                Vector<EffectComponent, DNA_COUNT(compCount)> comps;
+                Vector<EffectComponent, AT_DNA_COUNT(compCount)> comps;
             };
             std::vector<Effect> effects;
 
@@ -97,7 +97,7 @@ struct ANCS : BigDNA
             };
             std::vector<Extents> extents;
         };
-        Vector<CharacterInfo, DNA_COUNT(characterCount)> characters;
+        Vector<CharacterInfo, AT_DNA_COUNT(characterCount)> characters;
     } characterSet;
 
     struct AnimationSet : BigDNA
@@ -145,7 +145,7 @@ struct ANCS : BigDNA
                 Value<atUint8> flag;
             };
             Value<atUint32> loopEventCount;
-            Vector<LoopEvent, DNA_COUNT(loopEventCount)> loopEvents;
+            Vector<LoopEvent, AT_DNA_COUNT(loopEventCount)> loopEvents;
 
             struct UEVTEvent : EventBase
             {
@@ -154,7 +154,7 @@ struct ANCS : BigDNA
                 String<-1> boneName;
             };
             Value<atUint32> uevtEventCount;
-            Vector<UEVTEvent, DNA_COUNT(uevtEventCount)> uevtEvents;
+            Vector<UEVTEvent, AT_DNA_COUNT(uevtEventCount)> uevtEvents;
 
             struct EffectEvent : EventBase
             {
@@ -167,7 +167,7 @@ struct ANCS : BigDNA
                 Value<atUint32> parentMode;
             };
             Value<atUint32> effectEventCount;
-            Vector<EffectEvent, DNA_COUNT(effectEventCount)> effectEvents;
+            Vector<EffectEvent, AT_DNA_COUNT(effectEventCount)> effectEvents;
 
             struct SFXEvent : EventBase
             {
@@ -181,7 +181,7 @@ struct ANCS : BigDNA
                 Value<float> sfxUnk4;
             };
             Value<atUint32> sfxEventCount;
-            Vector<SFXEvent, DNA_COUNT(sfxEventCount)> sfxEvents;
+            Vector<SFXEvent, AT_DNA_COUNT(sfxEventCount)> sfxEvents;
         };
         std::vector<EVNT> evnts;
     } animationSet;

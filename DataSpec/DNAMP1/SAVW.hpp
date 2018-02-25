@@ -21,15 +21,15 @@ struct SAVW : BigDNA
     AT_DECL_DNA_YAML
     SAVWCommon::Header header;
     Value<atUint32> skippableCutsceneCount;
-    Vector<atUint32, DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;
+    Vector<atUint32, AT_DNA_COUNT(skippableCutsceneCount)> skippableCutscenes;
     Value<atUint32> relayCount;
-    Vector<atUint32, DNA_COUNT(relayCount)> relays;
+    Vector<atUint32, AT_DNA_COUNT(relayCount)> relays;
     Value<atUint32> layerCount;
-    Vector<SAVWCommon::Layer, DNA_COUNT(layerCount)> layers;
+    Vector<SAVWCommon::Layer, AT_DNA_COUNT(layerCount)> layers;
     Value<atUint32> doorCount;
-    Vector<atUint32, DNA_COUNT(doorCount)> doors;
+    Vector<atUint32, AT_DNA_COUNT(doorCount)> doors;
     Value<atUint32> scanCount;
-    Vector<Scan, DNA_COUNT(scanCount)> scans;
+    Vector<Scan, AT_DNA_COUNT(scanCount)> scans;
 };
 }
 

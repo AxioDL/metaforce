@@ -30,19 +30,19 @@ struct DCLN : BigDNA
         Value<atUint32> version;
         Value<atUint32> memSize;
         Value<atUint32> materialCount;
-        Vector<Material, DNA_COUNT(materialCount)> materials;
+        Vector<Material, AT_DNA_COUNT(materialCount)> materials;
         Value<atUint32> vertMatsCount;
-        Vector<atUint8, DNA_COUNT(vertMatsCount)> vertMats;
+        Vector<atUint8, AT_DNA_COUNT(vertMatsCount)> vertMats;
         Value<atUint32> edgeMatsCount;
-        Vector<atUint8, DNA_COUNT(edgeMatsCount)> edgeMats;
+        Vector<atUint8, AT_DNA_COUNT(edgeMatsCount)> edgeMats;
         Value<atUint32> triMatsCount;
-        Vector<atUint8, DNA_COUNT(triMatsCount)> triMats;
+        Vector<atUint8, AT_DNA_COUNT(triMatsCount)> triMats;
         Value<atUint32> edgeVertsCount;
-        Vector<Edge, DNA_COUNT(edgeVertsCount)> edgeVertConnections;
+        Vector<Edge, AT_DNA_COUNT(edgeVertsCount)> edgeVertConnections;
         Value<atUint32> triangleEdgesCount;
-        Vector<Triangle, DNA_COUNT(triangleEdgesCount / 3)> triangleEdgeConnections;
+        Vector<Triangle, AT_DNA_COUNT(triangleEdgesCount / 3)> triangleEdgeConnections;
         Value<atUint32> vertCount;
-        Vector<atVec3f, DNA_COUNT(vertCount)> verts;
+        Vector<atVec3f, AT_DNA_COUNT(vertCount)> verts;
 
         struct Node : BigDNA
         {
@@ -52,7 +52,7 @@ struct DCLN : BigDNA
             {
                 AT_DECL_DNA
                 Value<atUint32> triangleIndexCount;
-                Vector<atUint16, DNA_COUNT(triangleIndexCount)> triangleIndices;
+                Vector<atUint16, AT_DNA_COUNT(triangleIndexCount)> triangleIndices;
                 size_t getMemoryUsage() const { return (((triangleIndices.size() * 2) + 16) + 3) & ~3; }
             };
 
@@ -92,7 +92,7 @@ struct DCLN : BigDNA
     };
 
 
-    Vector<Collision, DNA_COUNT(colCount)> collision;
+    Vector<Collision, AT_DNA_COUNT(colCount)> collision;
 
     void sendToBlender(hecl::blender::Connection& conn, std::string_view entryName);
 

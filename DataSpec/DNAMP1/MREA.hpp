@@ -26,7 +26,7 @@ struct MREA
         Value<atUint32> visiSecIdx;
         Value<atUint32> pathSecIdx;
         Value<atUint32> arotSecIdx;
-        Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+        Vector<atUint32, AT_DNA_COUNT(secCount)> secSizes;
     };
 
     struct MeshHeader : BigDNA
@@ -137,9 +137,6 @@ struct MREA
                        const ColMesh& cMesh,
                        const std::vector<Light>& lights,
                        hecl::blender::Token& btok);
-
-    static bool CookPath(const hecl::ProjectPath& outPath,
-                         const hecl::ProjectPath& inPath);
 };
 
 }

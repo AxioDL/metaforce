@@ -22,7 +22,7 @@ struct PAK : BigDNA
         DNAFourCC type;
         UniqueID32 id;
         Value<atUint32> nameLen;
-        String<DNA_COUNT(nameLen)> name;
+        String<AT_DNA_COUNT(nameLen)> name;
     };
 
     struct Entry : BigDNA

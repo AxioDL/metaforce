@@ -1,5 +1,6 @@
 #include "AROTBuilder.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "../DNAMP1/PATH.hpp"
 
 namespace DataSpec
 {
@@ -287,6 +288,60 @@ void AROTBuilder::Node::writeColNodes(uint8_t*& ptr, const zeus::CAABox& curAABB
     }
 }
 
+void AROTBuilder::Node::pathCountNodesAndLookups(size_t& nodeCount, size_t& lookupCount)
+{
+    ++nodeCount;
+    if (childNodes.empty())
+    {
+        lookupCount += childIndices.size();
+    }
+    else
+    {
+        for (int i=0 ; i<8 ; ++i)
+            childNodes[i].pathCountNodesAndLookups(nodeCount, lookupCount);
+    }
+}
+
+void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAABB)
+{
+    if (childNodes.empty())
+    {
+        path.octree.emplace_back();
+        DNAMP1::PATH::OctreeNode& n = path.octree.back();
+        n.isLeaf = 1;
+        n.aabb[0] = curAABB.min;
+        n.aabb[1] = curAABB.max;
+        n.centroid = curAABB.center();
+        for (int i=0 ; i<8 ; ++i)
+            n.children[i] = 0xffffffff;
+        n.regionCount = childIndices.size();
+        n.regionStart = path.octreeRegionLookup.size();
+        for (int r : childIndices)
+            path.octreeRegionLookup.push_back(r);
+    }
+    else
+    {
+        atUint32 children[8];
+        for (int i=0 ; i<8 ; ++i)
+        {
+            /* Head recursion (first node will be a leaf) */
+            children[i] = path.octree.size();
+            childNodes[i].pathWrite(path, SplitAABB(curAABB, i));
+        }
+
+        path.octree.emplace_back();
+        DNAMP1::PATH::OctreeNode& n = path.octree.back();
+        n.isLeaf = 0;
+        n.aabb[0] = curAABB.min;
+        n.aabb[1] = curAABB.max;
+        n.centroid = curAABB.center();
+        for (int i=0 ; i<8 ; ++i)
+            n.children[i] = children[i];
+        n.regionCount = 0;
+        n.regionStart = 0;
+    }
+}
+
 void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAABox& fullAabb,
                         const std::vector<zeus::CAABox>& meshAabbs, const std::vector<DNACMDL::Mesh>& meshes)
 {
@@ -389,6 +444,33 @@ std::pair<std::unique_ptr<uint8_t[]>, uint32_t> AROTBuilder::buildCol(const ColM
     rootNode.writeColNodes(ptr, fullAABB);
 
     return {std::move(ret), totalSize};
+}
+
+void AROTBuilder::buildPath(DNAMP1::PATH& path)
+{
+    /* Accumulate total AABB and gather region boxes */
+    std::vector<zeus::CAABox> regionBoxes;
+    regionBoxes.reserve(path.regions.size());
+    zeus::CAABox fullAABB;
+    for (const DNAMP1::PATH::Region& r : path.regions)
+    {
+        regionBoxes.emplace_back(r.aabb[0], r.aabb[1]);
+        fullAABB.accumulateBounds(regionBoxes.back());
+    }
+
+    /* Recursively split */
+    BspNodeType dontCare;
+    rootNode.addChild(0, 4, regionBoxes, fullAABB, dontCare);
+
+    /* Write out */
+    size_t nodeCount = 0;
+    size_t lookupCount = 0;
+    rootNode.pathCountNodesAndLookups(nodeCount, lookupCount);
+    path.octreeNodeCount = nodeCount;
+    path.octree.reserve(nodeCount);
+    path.octreeRegionLookupCount = lookupCount;
+    path.octreeRegionLookup.reserve(lookupCount);
+    rootNode.pathWrite(path, fullAABB);
 }
 
 }

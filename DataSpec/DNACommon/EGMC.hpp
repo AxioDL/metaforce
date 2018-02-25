@@ -17,7 +17,7 @@ struct EGMC : public BigDNA
         Value<atUint32> instanceId;
     };
 
-    Vector<Object, DNA_COUNT(count)> objects;
+    Vector<Object, AT_DNA_COUNT(count)> objects;
 };
 }
 #endif // _DNACOMMON_EGMC_HPP_

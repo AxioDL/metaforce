@@ -109,7 +109,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FONT : Bi
     Value<atUint32> glyphCount;
     std::vector<std::unique_ptr<IGlyph>> glyphs;
     Value<atUint32> kerningInfoCount;
-    Vector<KerningInfo, DNA_COUNT(kerningInfoCount)> kerningInfo;
+    Vector<KerningInfo, AT_DNA_COUNT(kerningInfoCount)> kerningInfo;
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {

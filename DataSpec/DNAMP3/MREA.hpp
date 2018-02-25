@@ -35,7 +35,7 @@ struct MREA
         Value<atUint32> compressedBlockCount;
         Value<atUint32> secIndexCount;
         Seek<20, athena::Current> align1;
-        Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+        Vector<atUint32, AT_DNA_COUNT(secCount)> secSizes;
 
         atUint32 getSecOffset(atUint32 idx) const
         {
@@ -70,9 +70,9 @@ struct MREA
             UniqueID64 id;
             DNAFourCC type;
         };
-        Vector<Dependency, DNA_COUNT(depCount)> deps;
+        Vector<Dependency, AT_DNA_COUNT(depCount)> deps;
         Value<atUint32> depLayerCount;
-        Vector<atUint32, DNA_COUNT(depLayerCount)> depLayers;
+        Vector<atUint32, AT_DNA_COUNT(depLayerCount)> depLayers;
     };
 
     struct BabeDeadLight : BigDNA

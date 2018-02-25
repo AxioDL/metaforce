@@ -24,10 +24,10 @@ struct MAPU : BigDNA
         UniqueID32 mlvl;
         Transform transform;
         Value<uint32_t> hexCount;
-        Vector<Transform, DNA_COUNT(hexCount)> hexTransforms;
+        Vector<Transform, AT_DNA_COUNT(hexCount)> hexTransforms;
         DNAColor hexColor;
     };
-    Vector<World, DNA_COUNT(worldCount)> worlds;
+    Vector<World, AT_DNA_COUNT(worldCount)> worlds;
 
     static bool Cook(const hecl::blender::MapUniverse& mapu, const hecl::ProjectPath& out);
 };

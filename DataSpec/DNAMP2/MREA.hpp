@@ -74,7 +74,7 @@ struct MREA
         Value<atUint32> egmcSecIdx;
         Value<atUint32> compressedBlockCount;
         Seek<12, athena::Current> align1;
-        Vector<atUint32, DNA_COUNT(secCount)> secSizes;
+        Vector<atUint32, AT_DNA_COUNT(secCount)> secSizes;
     };
 
     struct MeshHeader : BigDNA

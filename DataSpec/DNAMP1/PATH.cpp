@@ -1,6 +1,7 @@
 #include "PATH.hpp"
 #include "hecl/Blender/Connection.hpp"
-#include <unordered_set>
+#include "zeus/CAABox.hpp"
+#include "../DNACommon/AROTBuilder.hpp"
 
 namespace DataSpec::DNAMP1
 {
@@ -14,18 +15,41 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
               "import bmesh\n"
               "from mathutils import Vector, Matrix\n"
               "\n"
+              "bpy.types.Material.retro_path_idx_mask = bpy.props.IntProperty(name='Retro: Path Index Mask')\n"
+              "bpy.types.Material.retro_path_type_mask = bpy.props.IntProperty(name='Retro: Path Type Mask')\n"
+              "\n"
               "material_dict = {}\n"
               "material_index = []\n"
-              "def select_material(data):\n"
-              "    if data in material_index:\n"
-              "        return material_index.index(data)\n"
-              "    elif data in material_dict:\n"
-              "        material_index.append(data)\n"
+              "def make_ground_material(idxMask):\n"
+              "    mat = bpy.data.materials.new('Ground %%X' %% idxMask)\n"
+              "    mat.diffuse_color = (0.8, 0.460, 0.194)\n"
+              "    return mat\n"
+              "def make_flyer_material(idxMask):\n"
+              "    mat = bpy.data.materials.new('Flyer %%X' %% idxMask)\n"
+              "    mat.diffuse_color = (0.016, 0.8, 0.8)\n"
+              "    return mat\n"
+              "def make_swimmer_material(idxMask):\n"
+              "    mat = bpy.data.materials.new('Swimmer %%X' %% idxMask)\n"
+              "    mat.diffuse_color = (0.074, 0.293, 0.8)\n"
+              "    return mat\n"
+              "def select_material(meshIdxMask, meshTypeMask):\n"
+              "    key = (meshIdxMask, meshTypeMask)\n"
+              "    if key in material_index:\n"
+              "        return material_index.index(key)\n"
+              "    elif key in material_dict:\n"
+              "        material_index.append(key)\n"
               "        return len(material_index)-1\n"
               "    else:\n"
-              "        mat = bpy.data.materials.new(data)\n"
-              "        material_dict[data] = mat\n"
-              "        material_index.append(data)\n"
+              "        if meshTypeMask == 0x2:\n"
+              "            mat = make_flyer_material(meshIdxMask)\n"
+              "        elif meshTypeMask == 0x4:\n"
+              "            mat = make_swimmer_material(meshIdxMask)\n"
+              "        else:\n"
+              "            mat = make_ground_material(meshIdxMask)\n"
+              "        mat.retro_path_idx_mask = meshIdxMask\n"
+              "        mat.retro_path_type_mask = meshTypeMask\n"
+              "        material_dict[key] = mat\n"
+              "        material_index.append(key)\n"
               "        return len(material_index)-1\n"
               "\n"
               "bpy.context.scene.name = '%s'\n"
@@ -35,7 +59,8 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
               "        bpy.context.scene.objects.unlink(ob)\n"
               "        bpy.data.objects.remove(ob)\n"
               "\n"
-              "bm = bmesh.new()\n",
+              "bm = bmesh.new()\n"
+              "height_lay = bm.faces.layers.float.new('Height')\n",
               entryName.data());
 
     for (const Node& n : nodes)
@@ -50,23 +75,38 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
         for (int i=0 ; i<r.nodeCount ; ++i)
             os.format("tri_verts.append(bm.verts[%u])\n", r.nodeStart + i);
 
-        zeus::CVector3f centroid = r.centroid;
-        if (xf)
-            centroid = xf->multiplyOneOverW(centroid);
         os.format("face = bm.faces.get(tri_verts)\n"
                   "if face is None:\n"
                   "    face = bm.faces.new(tri_verts)\n"
                   "    face.normal_flip()\n"
-                  "face.material_index = select_material('0x%08X')\n"
+                  "face.material_index = select_material(0x%04X, 0x%04X)\n"
                   "face.smooth = False\n"
-                  "hobj = bpy.data.objects.new('Height', None)\n"
-                  "hobj.location = (%f,%f,%f)\n"
-                  "hobj.layers[1] = True\n"
-                  "bpy.context.scene.objects.link(hobj)\n"
-                  "\n", r.flags, centroid.v[0], centroid.v[1], centroid.v[2] + r.height);
+                  "face[height_lay] = %f\n"
+                  "\n", r.meshIndexMask, r.meshTypeMask, r.height);
+
+#if 0
+        zeus::CVector3f center = xf->multiplyOneOverW(r.centroid);
+        zeus::CAABox aabb(xf->multiplyOneOverW(r.aabb[0]), xf->multiplyOneOverW(r.aabb[1]));
+        os.format("aabb = bpy.data.objects.new('AABB', None)\n"
+                  "aabb.location = (%f,%f,%f)\n"
+                  "aabb.scale = (%f,%f,%f)\n"
+                  "aabb.empty_draw_type = 'CUBE'\n"
+                  "bpy.context.scene.objects.link(aabb)\n"
+                  "centr = bpy.data.objects.new('Center', None)\n"
+                  "centr.location = (%f,%f,%f)\n"
+                  "bpy.context.scene.objects.link(centr)\n",
+                  aabb.min.v[0] + (aabb.max.v[0] - aabb.min.v[0]) / 2.f,
+                  aabb.min.v[1] + (aabb.max.v[1] - aabb.min.v[1]) / 2.f,
+                  aabb.min.v[2] + (aabb.max.v[2] - aabb.min.v[2]) / 2.f,
+                  (aabb.max.v[0] - aabb.min.v[0]) / 2.f,
+                  (aabb.max.v[1] - aabb.min.v[1]) / 2.f,
+                  (aabb.max.v[2] - aabb.min.v[2]) / 2.f,
+                  center.x, center.y, center.z);
+#endif
     }
 
-    os << "path_mesh = bpy.data.meshes.new('PATH')\n"
+    os << "bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.001)\n"
+          "path_mesh = bpy.data.meshes.new('PATH')\n"
           "bm.to_mesh(path_mesh)\n"
           "path_mesh_obj = bpy.data.objects.new(path_mesh.name, path_mesh)\n"
           "\n"
@@ -129,7 +169,11 @@ bool PATH::Cook(const hecl::ProjectPath& outPath,
                 const PathMesh& mesh,
                 hecl::blender::Connection* conn)
 {
+    athena::io::MemoryReader r(mesh.data.data(), mesh.data.size());
     PATH path;
+    path.read(r);
+    AROTBuilder octreeBuilder;
+    octreeBuilder.buildPath(path);
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     path.write(w);

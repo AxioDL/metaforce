@@ -20,12 +20,12 @@ struct CINF : BigDNA
         Value<atVec4f> q1;
         Value<atVec4f> q2;
         Value<atUint32> linkedCount;
-        Vector<atUint32, DNA_COUNT(linkedCount)> linked;
+        Vector<atUint32, AT_DNA_COUNT(linkedCount)> linked;
     };
-    Vector<Bone, DNA_COUNT(boneCount)> bones;
+    Vector<Bone, AT_DNA_COUNT(boneCount)> bones;
 
     Value<atUint32> boneIdCount;
-    Vector<atUint32, DNA_COUNT(boneIdCount)> boneIds;
+    Vector<atUint32, AT_DNA_COUNT(boneIdCount)> boneIds;
 
     Value<atUint32> nameCount;
     struct Name : BigDNA
@@ -34,7 +34,7 @@ struct CINF : BigDNA
         String<-1> name;
         Value<atUint32> boneId;
     };
-    Vector<Name, DNA_COUNT(nameCount)> names;
+    Vector<Name, AT_DNA_COUNT(nameCount)> names;
     
     atUint32 getInternalBoneIdxFromId(atUint32 id) const;
     atUint32 getBoneIdxFromId(atUint32 id) const;

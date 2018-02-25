@@ -37,7 +37,7 @@ struct IScriptObject : BigDNAVYaml
     };
 
     Value<atUint32> connectionCount;
-    Vector<Connection, DNA_COUNT(connectionCount)> connections;
+    Vector<Connection, AT_DNA_COUNT(connectionCount)> connections;
     Value<atUint32> propertyCount;
     virtual ~IScriptObject() = default;
 
