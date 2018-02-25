@@ -1522,7 +1522,10 @@ Actor::Actor(Connection& conn)
 
 PathMesh::PathMesh(Connection& conn)
 {
-
+    uint32_t dataSize;
+    conn._readBuf(&dataSize, 4);
+    data.resize(dataSize);
+    conn._readBuf(data.data(), dataSize);
 }
 
 const Bone* Armature::lookupBone(const char* name) const

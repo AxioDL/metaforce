@@ -313,7 +313,7 @@ struct IR : BigDNA
             AT_DECL_DNA
             String<-1> m_name;
             Value<atUint16> m_argInstCount;
-            Vector<atUint16, DNA_COUNT(m_argInstCount)> m_argInstIdxs;
+            Vector<atUint16, AT_DNA_COUNT(m_argInstCount)> m_argInstIdxs;
         } m_call;
 
         struct LoadImm : BigDNA

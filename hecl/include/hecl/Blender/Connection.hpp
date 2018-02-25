@@ -512,6 +512,7 @@ struct Actor
 /** Intermediate pathfinding representation prepared by blender */
 struct PathMesh
 {
+    std::vector<uint8_t> data;
     PathMesh(Connection& conn);
 };
 
@@ -598,6 +599,7 @@ class Connection
     friend struct Armature;
     friend struct Action;
     friend struct Bone;
+    friend struct PathMesh;
     friend struct Vector2f;
     friend struct Vector3f;
     friend struct Vector4f;

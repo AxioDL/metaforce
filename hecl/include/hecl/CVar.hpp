@@ -49,7 +49,7 @@ struct CVarContainer : public athena::io::DNA<athena::Big>
     AT_DECL_DNA
     Value<atUint32> magic = 'CVAR';
     Value<atUint32> cvarCount;
-    Vector<CVar, DNA_COUNT(cvarCount)> cvars;
+    Vector<CVar, AT_DNA_COUNT(cvarCount)> cvars;
 };
 
 }
