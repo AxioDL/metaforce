@@ -180,13 +180,21 @@ err:
 
 size_t Connection::_readBuf(void* buf, size_t len)
 {
-    int ret = Read(m_readpipe[0], buf, len);
-    if (ret < 0)
-        goto err;
-    if (len >= 4)
-        if (!memcmp((char*)buf, "EXCEPTION", std::min(len, size_t(9))))
-            _blenderDied();
-    return ret;
+    uint8_t* cBuf = reinterpret_cast<uint8_t*>(buf);
+    size_t readLen = 0;
+    do
+    {
+        int ret = Read(m_readpipe[0], cBuf, len);
+        if (ret < 0)
+            goto err;
+        if (len >= 4)
+            if (!memcmp((char*) cBuf, "EXCEPTION", std::min(len, size_t(9))))
+                _blenderDied();
+        readLen += ret;
+        cBuf += ret;
+        len -= ret;
+    } while (len);
+    return readLen;
 err:
     _blenderDied();
     return 0;
@@ -194,10 +202,18 @@ err:
 
 size_t Connection::_writeBuf(const void* buf, size_t len)
 {
-    int ret = Write(m_writepipe[1], buf, len);
-    if (ret < 0)
-        goto err;
-    return ret;
+    const uint8_t* cBuf = reinterpret_cast<const uint8_t*>(buf);
+    size_t writeLen = 0;
+    do
+    {
+        int ret = Write(m_writepipe[1], cBuf, len);
+        if (ret < 0)
+            goto err;
+        writeLen += ret;
+        cBuf += ret;
+        len -= ret;
+    } while (len);
+    return writeLen;
 err:
     _blenderDied();
     return 0;
