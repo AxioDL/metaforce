@@ -106,9 +106,7 @@ bool DCLN::Extract(const SpecBase& dataSpec,
 }
 
 bool DCLN::Cook(const hecl::ProjectPath& outPath,
-                const hecl::ProjectPath& inPath,
-                const std::vector<Mesh>& meshes,
-                hecl::blender::Connection* conn)
+                const std::vector<Mesh>& meshes)
 {
     DCLN dcln;
     dcln.colCount = atUint32(meshes.size());

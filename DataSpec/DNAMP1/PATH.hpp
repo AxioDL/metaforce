@@ -86,9 +86,7 @@ struct PATH : BigDNA
                         std::function<void(const hecl::SystemChar*)> fileChanged);
 
     static bool Cook(const hecl::ProjectPath& outPath,
-                     const hecl::ProjectPath& inPath,
-                     const PathMesh& mesh,
-                     hecl::blender::Connection* conn = nullptr);
+                     const PathMesh& mesh);
 };
 }
 

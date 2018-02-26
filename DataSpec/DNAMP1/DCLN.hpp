@@ -106,9 +106,7 @@ struct DCLN : BigDNA
                  std::function<void(const hecl::SystemChar*)> fileChanged);
 
     static bool Cook(const hecl::ProjectPath& outPath,
-                     const hecl::ProjectPath& inPath,
-                     const std::vector<Mesh>& meshes,
-                     hecl::blender::Connection* conn = nullptr);
+                     const std::vector<Mesh>& meshes);
 };
 
 }

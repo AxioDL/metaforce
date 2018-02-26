@@ -760,7 +760,7 @@ struct SpecMP1 : SpecBase
     {
         std::vector<ColMesh> mesh = ds.compileColMeshes();
         ds.close();
-        DNAMP1::DCLN::Cook(out, in, mesh);
+        DNAMP1::DCLN::Cook(out, mesh);
     }
 
     void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
@@ -768,7 +768,7 @@ struct SpecMP1 : SpecBase
     {
         PathMesh mesh = ds.compilePathMesh();
         ds.close();
-        DNAMP1::PATH::Cook(out, in, mesh);
+        DNAMP1::PATH::Cook(out, mesh);
     }
 
     void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,

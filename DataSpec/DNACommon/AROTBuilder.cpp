@@ -8,6 +8,7 @@ logvisor::Module Log("AROTBuilder");
 
 #define AROT_MAX_LEVEL 6
 #define COLLISION_MIN_NODE_TRIANGLES 16
+#define PATH_MIN_NODE_REGIONS 16
 
 static zeus::CAABox SplitAABB(const zeus::CAABox& aabb, int i)
 {
@@ -460,7 +461,7 @@ void AROTBuilder::buildPath(DNAMP1::PATH& path)
 
     /* Recursively split */
     BspNodeType dontCare;
-    rootNode.addChild(0, 4, regionBoxes, fullAABB, dontCare);
+    rootNode.addChild(0, PATH_MIN_NODE_REGIONS, regionBoxes, fullAABB, dontCare);
 
     /* Write out */
     size_t nodeCount = 0;

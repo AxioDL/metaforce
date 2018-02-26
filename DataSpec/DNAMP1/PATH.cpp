@@ -165,15 +165,27 @@ bool PATH::Extract(const SpecBase& dataSpec,
 }
 
 bool PATH::Cook(const hecl::ProjectPath& outPath,
-                const hecl::ProjectPath& inPath,
-                const PathMesh& mesh,
-                hecl::blender::Connection* conn)
+                const PathMesh& mesh)
 {
     athena::io::MemoryReader r(mesh.data.data(), mesh.data.size());
     PATH path;
     path.read(r);
-    AROTBuilder octreeBuilder;
-    octreeBuilder.buildPath(path);
+    if (!path.regions.empty())
+    {
+        AROTBuilder octreeBuilder;
+        octreeBuilder.buildPath(path);
+    }
+    else
+    {
+        path.octreeNodeCount = 1;
+        path.octree.emplace_back();
+        OctreeNode& n = path.octree.back();
+        n.isLeaf = 1;
+        n.aabb[0] = zeus::CVector3f{FLT_MAX, FLT_MAX, FLT_MAX};
+        n.aabb[1] = zeus::CVector3f{-FLT_MAX, -FLT_MAX, -FLT_MAX};
+        for (int i=0 ; i<8 ; ++i)
+            n.children[i] = 0xffffffff;
+    }
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     path.write(w);

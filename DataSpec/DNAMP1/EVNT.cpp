@@ -20,7 +20,7 @@ void EVNT::Enumerate(typename Op::StreamT& s)
     if (version == 2)
     {
         DoSize<Op>({"soundPOICount"}, soundPOICount, s);
-        Do<Op>({"particlePOINodes"}, soundPOINodes, soundPOICount, s);
+        Do<Op>({"soundPOINodes"}, soundPOINodes, soundPOICount, s);
     }
 }
 
