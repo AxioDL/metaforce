@@ -51,7 +51,7 @@ if(MSVC)
   # Shaddup MSVC
   add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1 -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1
       -D_SCL_SECURE_NO_DEPRECATE=1 /IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4267 /wd4244 /wd4200 /wd4305
-      /wd4067 /wd4146 ${VS_DEFINES})
+      /wd4067 /wd4146 /wd4309 ${VS_DEFINES})
 
   if(WINDOWS_STORE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /AI\"$ENV{PROGRAMFILES\(X86\)}/Microsoft Visual Studio/2017/Community/Common7/IDE/VC/vcpackages\" /AI\"$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/UnionMetadata\"")
