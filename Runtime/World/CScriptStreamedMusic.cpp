@@ -50,7 +50,11 @@ CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info
                                            float fadeIn, float fadeOut, u32 volume, bool loop, bool music)
 : CEntity(id, info, active, name), x34_fileName(fileName), x44_noStopOnDeactivate(noStopOnDeactivate),
   x45_fileIsDsp(IsDSPFile(fileName)), x46_loop(loop), x47_music(music),
-  x48_fadeIn(fadeIn), x4c_fadeOut(fadeOut), x50_volume(volume) {}
+  x48_fadeIn(fadeIn), x4c_fadeOut(fadeOut), x50_volume(volume)
+{
+    while (x34_fileName.find("/audio") != std::string::npos)
+        x34_fileName.replace(x34_fileName.find("/audio"), std::strlen("/audio"), "/Audio");
+}
 
 void CScriptStreamedMusic::Stop(CStateManager& mgr)
 {

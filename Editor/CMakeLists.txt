@@ -16,6 +16,8 @@ else()
   set(METADATA_VERSION_STRING "BETA")
 endif()
 
+unset(URDE_PLAT_LIBS)
+
 if(WIN32)
   configure_file(platforms/win/urde.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc" @ONLY)
   set(PLAT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/platforms/win/urde.rc" platforms/win/urde.manifest)
@@ -75,6 +77,7 @@ elseif(UNIX)
   add_subdirectory(platforms/freedesktop)
   declare_wmicon_target()
   set(PLAT_SRCS mainicon_netwm.cpp)
+  set(URDE_PLAT_LIBS rt)
 endif()
 
 add_executable(urde WIN32 MACOSX_BUNDLE
@@ -103,7 +106,7 @@ target_link_libraries(urde
                       athena-core nod logvisor athena-libyaml amuse boo
                       ${PNG_LIB} libjpeg-turbo squish xxhash zeus
                       kabufuda jbus discord-rpc ${ZLIB_LIBRARIES} ${LZO_LIB}
-                      ${BOO_SYS_LIBS})
+                      ${BOO_SYS_LIBS} ${URDE_PLAT_LIBS})
 if(COMMAND add_sanitizers)
   add_sanitizers(urde)
 endif()
