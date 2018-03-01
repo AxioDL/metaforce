@@ -48,6 +48,128 @@ void CPFRegion::Fixup(CPFArea& area, u32& maxRegionNodes)
         maxRegionNodes = x0_numNodes;
 }
 
+float CPFRegion::PointHeight(const zeus::CVector3f& point) const
+{
+    return (point - x4_startNode->GetPos()).dot(x18_normal);
+}
+
+bool CPFRegion::FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>& polyPoints,
+                                          const zeus::CVector3f& normal,
+                                          const zeus::CVector3f& point, bool excludePolyPoints)
+{
+    bool found = false;
+    int i;
+    for (i=0 ; i<polyPoints.size() ; ++i)
+    {
+        const zeus::CVector3f& p0 = polyPoints[i];
+        const zeus::CVector3f& p1 = polyPoints[(i + 1) % polyPoints.size()];
+        if ((p1 - p0).cross(normal).dot(point - p0) < 0.f)
+            break;
+    }
+
+    if (i == polyPoints.size())
+    {
+        float distToPoly = (polyPoints.front() - point).dot(normal);
+        float distToPolySq = distToPoly * distToPoly;
+        if (distToPolySq < x4c_regionData->GetBestPointDistanceSquared())
+        {
+            found = true;
+            x4c_regionData->SetBestPointDistanceSquared(distToPolySq);
+            x4c_regionData->SetBestPoint(normal * distToPoly + point);
+        }
+    }
+    else
+    {
+        bool projected = false;
+        for (i=0 ; i<polyPoints.size() ; ++i)
+        {
+            const zeus::CVector3f& p0 = polyPoints[i];
+            const zeus::CVector3f& p1 = polyPoints[(i + 1) % polyPoints.size()];
+            zeus::CVector3f p0ToP1 = p1 - p0;
+            zeus::CVector3f p1ToPoint = point - p1;
+            zeus::CVector3f sum = p1ToPoint + p0ToP1;
+            if (p0ToP1.cross(normal).dot(p1ToPoint) < 0.f &&
+                p0ToP1.dot(p1ToPoint) <= 0.f &&
+                sum.dot(p0ToP1) >= 0.f)
+            {
+                projected = true;
+                p0ToP1.normalize();
+                sum -= p0ToP1.dot(sum) * p0ToP1;
+                float distSq = sum.magSquared();
+                if (distSq < x4c_regionData->GetBestPointDistanceSquared())
+                {
+                    found = true;
+                    x4c_regionData->SetBestPointDistanceSquared(distSq);
+                    x4c_regionData->SetBestPoint(point - sum);
+                }
+                break;
+            }
+        }
+
+        if (!projected && !excludePolyPoints)
+        {
+            for (i=0 ; i<polyPoints.size() ; ++i)
+            {
+                const zeus::CVector3f& p0 = polyPoints[i];
+                float distSq = (point - p0).magSquared();
+                if (distSq < x4c_regionData->GetBestPointDistanceSquared())
+                {
+                    found = true;
+                    x4c_regionData->SetBestPointDistanceSquared(distSq);
+                    x4c_regionData->SetBestPoint(p0);
+                }
+            }
+        }
+    }
+    return found;
+}
+
+bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& point,
+                              u32 flags, float paddingSq)
+{
+    bool found = false;
+    bool isFlyer = (flags & 0x2) != 0;
+    x4c_regionData->SetBestPointDistanceSquared(paddingSq);
+    if (!isFlyer)
+    {
+        for (int i=0 ; i<x0_numNodes ; ++i)
+        {
+            CPFNode& node = x4_startNode[i];
+            CPFNode& nextNode = x4_startNode[(i + 1) % x0_numNodes];
+            polyPoints.clear();
+            polyPoints.push_back(node.GetPos());
+            polyPoints.push_back(node.GetPos());
+            polyPoints.back().z += x14_height;
+            polyPoints.push_back(nextNode.GetPos());
+            polyPoints.back().z += x14_height;
+            polyPoints.push_back(nextNode.GetPos());
+            found |= FindClosestPointOnPolygon(polyPoints, node.GetNormal(), point, true);
+        }
+    }
+
+    polyPoints.clear();
+    for (int i=0 ; i<x0_numNodes ; ++i)
+    {
+        CPFNode& node = x4_startNode[i];
+        polyPoints.push_back(node.GetPos());
+    }
+    found |= FindClosestPointOnPolygon(polyPoints, x18_normal, point, false);
+
+    if (!isFlyer)
+    {
+        polyPoints.clear();
+        for (int i=x0_numNodes-1 ; i>=0 ; --i)
+        {
+            CPFNode& node = x4_startNode[i];
+            polyPoints.push_back(node.GetPos());
+            polyPoints.back().z += x14_height;
+        }
+        found |= FindClosestPointOnPolygon(polyPoints, -x18_normal, point, false);
+    }
+
+    return found;
+}
+
 zeus::CVector3f CPFRegion::FitThroughLink2d(const zeus::CVector3f& p1, const CPFLink& link,
                                             const zeus::CVector3f& p2, float f1) const
 {
@@ -111,6 +233,16 @@ zeus::CVector3f CPFRegion::FitThroughLink3d(const zeus::CVector3f& p1, const CPF
         z = (p1.z + p2.z) * 0.5f;
     }
     return {midPoint.x, midPoint.y, z};
+}
+
+bool CPFRegion::IsPointInsidePaddedAABox(const zeus::CVector3f& point, float padding) const
+{
+    return point.x >= x34_aabb.min.x - padding &&
+           point.x <= x34_aabb.max.x + padding &&
+           point.y >= x34_aabb.min.y - padding &&
+           point.y <= x34_aabb.max.y + padding &&
+           point.z >= x34_aabb.min.z - padding &&
+           point.z <= x34_aabb.max.z + padding;
 }
 
 }

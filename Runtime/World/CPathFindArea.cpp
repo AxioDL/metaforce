@@ -48,6 +48,36 @@ int CPFAreaOctree::GetChildIndex(const zeus::CVector3f& point) const
     return idx;
 }
 
+void CPFAreaOctree::GetRegionListList(rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32>& listOut,
+                                      const zeus::CVector3f& point, float padding)
+{
+    if (listOut.size() >= listOut.capacity())
+        return;
+
+    if (x0_isLeaf)
+    {
+        listOut.push_back(&x48_regions);
+        return;
+    }
+
+    for (int i=0 ; i<8 ; ++i)
+    {
+        CPFAreaOctree* ch = x28_children[i];
+        if (ch->IsPointInsidePaddedAABox(point, padding))
+            ch->GetRegionListList(listOut, point, padding);
+    }
+}
+
+bool CPFAreaOctree::IsPointInsidePaddedAABox(const zeus::CVector3f& point, float padding) const
+{
+    return point.x >= x4_aabb.min.x - padding &&
+           point.x <= x4_aabb.max.x + padding &&
+           point.y >= x4_aabb.min.y - padding &&
+           point.y <= x4_aabb.max.y + padding &&
+           point.z >= x4_aabb.min.z - padding &&
+           point.z <= x4_aabb.max.z + padding;
+}
+
 CPFOpenList::CPFOpenList()
 {
 
@@ -84,7 +114,7 @@ CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len)
         region.Fixup(*this, maxRegionNodes);
     maxRegionNodes = std::max(maxRegionNodes, 4u);
 
-    x10_.reserve(maxRegionNodes);
+    x10_tmpPolyPoints.reserve(maxRegionNodes);
 
     u32 numBitfieldWords = (numRegions * (numRegions - 1) / 2 + 31) / 32;
     x168_connectionsGround.reserve(numBitfieldWords);
@@ -111,6 +141,39 @@ CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len)
 
     for (CPFAreaOctree& node : x158_octree)
         node.Fixup(*this);
+}
+
+CPFRegion* CPFArea::FindClosestRegion(const zeus::CVector3f& point, u32 flags, u32 indexMask, float padding)
+{
+    rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32> regionListList;
+    x158_octree.back().GetRegionListList(regionListList, point, padding);
+    bool isFlyer = (flags & 0x2) != 0;
+    for (rstl::prereserved_vector<CPFRegion*>* list : regionListList)
+    {
+        for (CPFRegion* region : *list)
+        {
+            if (region->Data()->GetCookie() != x34_curRegionCookie)
+            {
+                if (region->GetFlags() & 0xff & flags &&
+                    (region->GetFlags() >> 16) & 0xff & indexMask &&
+                    region->IsPointInsidePaddedAABox(point, padding) &&
+                    (isFlyer || region->PointHeight(point) < 3.f))
+                {
+                    if (region->FindBestPoint(x10_tmpPolyPoints, point, flags, padding * padding))
+                    {
+                        // TODO: Finish
+                    }
+                }
+                region->Data()->SetCookie(x34_curRegionCookie);
+            }
+        }
+    }
+    return nullptr;
+}
+
+void CPFArea::FindClosestReachablePoint(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32)
+{
+
 }
 
 bool CPFArea::PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) const

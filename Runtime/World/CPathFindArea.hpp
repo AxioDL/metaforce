@@ -34,8 +34,9 @@ public:
     void Fixup(CPFArea& area);
     int GetChildIndex(const zeus::CVector3f& point) const;
     void GetRegionList(const zeus::CVector3f&) const;
-    void GetRegionListList(rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32>, const zeus::CVector3f&, float);
-    bool IsPointInPaddedAABox(const zeus::CVector3f&, float);
+    void GetRegionListList(rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32>& listOut,
+                           const zeus::CVector3f& point, float padding);
+    bool IsPointInsidePaddedAABox(const zeus::CVector3f& point, float padding) const;
     void Render();
 };
 
@@ -75,14 +76,15 @@ class CPFArea
 {
     friend class CPFRegion;
     friend class CPFAreaOctree;
+    friend class CPathFindSearch;
 
     float x0_ = FLT_MAX;
     zeus::CVector3f x4_;
-    std::vector<zeus::CVector3f> x10_;
+    std::vector<zeus::CVector3f> x10_tmpPolyPoints;
     u32 x20_ = 0;
     zeus::CVector3f x24_;
     bool x30_ = false;
-    u32 x34_ = 0;
+    s32 x34_curRegionCookie = 0;
     u32 x38_ = 0;
     u32 x3c_ = 0;
     u32 x40_ = 0;
@@ -129,8 +131,9 @@ public:
     const CPFAreaOctree& GetOctree(s32 i) const { return x158_octree[i]; }
     const CPFRegion* GetOctreeRegionPtrs(s32 i) const { return x160_octreeRegionLookup[i]; }
     void GetOctreeRegionList(const zeus::CVector3f&);
-    void FindRegions(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32);
-    void FindClosestRegion(const zeus::CVector3f&, u32, float);
+    u32 FindRegions(rstl::reserved_vector<CPFRegion, 4>& regions, const zeus::CVector3f& point,
+                    u32 flags, u32 indexMask);
+    CPFRegion* FindClosestRegion(const zeus::CVector3f& point, u32 flags, u32 indexMask, float padding);
     void FindClosestReachablePoint(rstl::reserved_vector<CPFRegion, 4>&, const zeus::CVector3f&, u32);
     bool PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) const;
 };

@@ -65,22 +65,22 @@ public:
     const zeus::CVector3f& GetNormal() const { return x18_normal; }
     u32 GetNumNodes() const { return x0_numNodes; }
     const CPFNode* GetNode(u32 i) const { return x4_startNode + i; }
-    void PointHeight(const zeus::CVector3f&);
-    void FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&,
+    float PointHeight(const zeus::CVector3f& point) const;
+    bool FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&,
                                    const zeus::CVector3f&, bool);
-    void FindBestPoint(std::vector<zeus::CVector3f>&, const zeus::CVector3f&, u32, float);
+    bool FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& point, u32 flags, float paddingSq);
     void SetLinkTo(s32);
     void DropToGround(zeus::CVector3f&) const;
     void GetLinkMidPoint(const CPFLink&);
     zeus::CVector3f FitThroughLink2d(const zeus::CVector3f&, const CPFLink&, const zeus::CVector3f&, float) const;
     zeus::CVector3f FitThroughLink3d(const zeus::CVector3f&, const CPFLink&, float, const zeus::CVector3f&, float, float) const;
-    void IsPointInsidePaddedAABox(const zeus::CVector3f&, float) const;
+    bool IsPointInsidePaddedAABox(const zeus::CVector3f& point, float padding) const;
 };
 
 class CPFRegionData
 {
-    float x0_ = 0.f;
-    zeus::CVector3f x4_;
+    float x0_bestPointDistSq = 0.f;
+    zeus::CVector3f x4_bestPoint;
     s32 x10_cookie = -1;
     zeus::CVector3f x14_;
     s32 x20_ = 0;
@@ -99,10 +99,10 @@ public:
     void SetPathLink(s32 l) { x2c_pathLink = l; }
     void GetParent() const;
     void Setup(CPFRegion*, float, float);
-    void SetBestPoint(const zeus::CVector3f&);
-    void SetBestPointDistanceSquared(float);
-    float GetBestPointDistanceSquared() const;
-    zeus::CVector3f GetBestPoint() const;
+    void SetBestPoint(const zeus::CVector3f& bestPoint) { x4_bestPoint = bestPoint; }
+    const zeus::CVector3f& GetBestPoint() const { return x4_bestPoint; }
+    void SetBestPointDistanceSquared(float distSq) { x0_bestPointDistSq = distSq; }
+    float GetBestPointDistanceSquared() const { return x0_bestPointDistSq; }
     void SetCookie(s32 c) { x10_cookie = c; }
     s32 GetCookie() const { return x10_cookie; }
 };
