@@ -165,8 +165,9 @@ CPathFindSearch::EResult CPathFindSearch::Search(const zeus::CVector3f& p1, cons
     u32 lastPoint = 0;
     do {
         reg->Data()->GetParent()->SetLinkTo(reg->GetIndex());
+        reg = reg->Data()->GetParent();
         ++lastPoint;
-    } while (reg->Data()->GetParent() != regions1Uniq[0]);
+    } while (reg != regions1Uniq[0]);
 
     /* Setup point range */
     bool includeP2 = true;

@@ -74,6 +74,10 @@ public:
         iterator& operator+=(std::ptrdiff_t i) { const_iterator::m_val += i; return *this; }
         iterator& operator-=(std::ptrdiff_t i) { const_iterator::m_val -= i; return *this; }
         std::ptrdiff_t operator-(const iterator& it) const { return const_iterator::m_val - it.m_val; }
+        bool operator>(const iterator& it) const { return const_iterator::m_val > it.m_val; }
+        bool operator<(const iterator& it) const { return const_iterator::m_val < it.m_val; }
+        bool operator>=(const iterator& it) const { return const_iterator::m_val >= it.m_val; }
+        bool operator<=(const iterator& it) const { return const_iterator::m_val <= it.m_val; }
         T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_iterator::m_val)[i]; }
     };
 
@@ -128,6 +132,10 @@ public:
         reverse_iterator& operator+=(std::ptrdiff_t i) { const_reverse_iterator::m_val -= i; return *this; }
         reverse_iterator& operator-=(std::ptrdiff_t i) { const_reverse_iterator::m_val += i; return *this; }
         std::ptrdiff_t operator-(const reverse_iterator& it) const { return it.m_val - const_reverse_iterator::m_val; }
+        bool operator>(const const_reverse_iterator& it) const { return it.m_val > const_reverse_iterator::m_val; }
+        bool operator<(const const_reverse_iterator& it) const { return it.m_val < const_reverse_iterator::m_val; }
+        bool operator>=(const const_reverse_iterator& it) const { return it.m_val >= const_reverse_iterator::m_val; }
+        bool operator<=(const const_reverse_iterator& it) const { return it.m_val <= const_reverse_iterator::m_val; }
         T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_reverse_iterator::m_val)[-i]; }
     };
 
