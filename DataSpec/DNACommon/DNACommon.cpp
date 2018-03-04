@@ -268,9 +268,9 @@ void WordBitmap::write(athena::io::IStreamWriter& writer) const
     for (atUint32 word : m_words)
         writer.writeUint32Big(word);
 }
-size_t WordBitmap::binarySize(size_t __isz) const
+void WordBitmap::binarySize(size_t& __isz) const
 {
-    return __isz + m_words.size() * 4;
+    __isz += m_words.size() * 4;
 }
 
 }

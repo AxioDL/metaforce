@@ -459,7 +459,6 @@ void ANIM::ANIM2::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
     head.binarySize(scratchSize);
     keyBmp.binarySize(scratchSize);
     scratchSize += bsSize;
-    head.scratchSize = scratchSize;
     if (m_version == 3)
     {
         for (const std::pair<atUint32, bool>& bone : bones)
@@ -468,7 +467,7 @@ void ANIM::ANIM2::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
             desc.keyCount1 = keyframeCount;
             if (bone.second)
                 desc.keyCount2 = keyframeCount;
-            head.scratchSize = desc.binarySize(head.scratchSize);
+            desc.binarySize(scratchSize);
         }
     }
     else
@@ -479,9 +478,10 @@ void ANIM::ANIM2::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
             desc.keyCount1 = keyframeCount;
             if (bone.second)
                 desc.keyCount2 = keyframeCount;
-            head.scratchSize = desc.binarySize(head.scratchSize);
+            desc.binarySize(scratchSize);
         }
     }
+    head.scratchSize = scratchSize;
 
     head.write(writer);
     keyBmp.write(writer);

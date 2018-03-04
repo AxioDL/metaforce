@@ -306,7 +306,7 @@ public:
     void read(athena::io::IStreamReader& reader, size_t bitCount);
     void write(athena::io::IStreamWriter& writer) const;
     void reserve(size_t bitCount) { m_words.reserve((bitCount + 31) / 32); }
-    size_t binarySize(size_t __isz) const;
+    void binarySize(size_t& __isz) const;
     size_t getBitCount() const {return m_bitCount;}
     bool getBit(size_t idx) const
     {

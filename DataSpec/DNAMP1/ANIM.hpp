@@ -133,12 +133,11 @@ struct ANIM : BigDNA
                     writer.writeUByte(qTZ);
                 }
             }
-            size_t binarySize(size_t __isz) const
+            void binarySize(size_t& __isz) const
             {
                 __isz += 17;
                 if (keyCount2)
                     __isz += 9;
-                return __isz;
             }
         };
 
@@ -185,12 +184,11 @@ struct ANIM : BigDNA
                     writer.writeUint32Big(QinitTZ);
                 }
             }
-            size_t binarySize(size_t __isz) const
+            void binarySize(size_t& __isz) const
             {
                 __isz += 24;
                 if (keyCount2)
                     __isz += 12;
-                return __isz;
             }
         };
     };
