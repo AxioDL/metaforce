@@ -44,12 +44,63 @@ CPathFindSearch::FindClosestReachablePoint(const zeus::CVector3f& p1, zeus::CVec
     return EResult::Success;
 }
 
+CPathFindSearch::EResult CPathFindSearch::PathExists(const zeus::CVector3f& p1, const zeus::CVector3f& p2) const
+{
+    if (!x0_area)
+        return EResult::InvalidArea;
+
+    /* Work in local PFArea coordinates */
+    zeus::CVector3f localP1 = x0_area->x188_transform.transposeRotate(p1 - x0_area->x188_transform.origin);
+    zeus::CVector3f localP2 = x0_area->x188_transform.transposeRotate(p2 - x0_area->x188_transform.origin);
+
+    /* Raise a bit above ground for step-up resolution */
+    if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
+    {
+        localP2.z += 0.3f;
+        localP1.z += 0.3f;
+    }
+
+    rstl::reserved_vector<CPFRegion*, 4> regions1;
+    if (x0_area->FindRegions(regions1, localP1, xdc_flags, xe0_indexMask) == 0)
+        return EResult::NoSourcePoint;
+
+    rstl::reserved_vector<CPFRegion*, 4> regions2;
+    if (x0_area->FindRegions(regions2, localP2, xdc_flags, xe0_indexMask) == 0)
+        return EResult::NoDestPoint;
+
+    for (CPFRegion* reg1 : regions1)
+        for (CPFRegion* reg2 : regions2)
+            if (reg1 == reg2 || x0_area->PathExists(reg1, reg2, xdc_flags))
+                return EResult::Success;
+
+    return EResult::NoPath;
+}
+
+CPathFindSearch::EResult CPathFindSearch::OnPath(const zeus::CVector3f& p1) const
+{
+    if (!x0_area)
+        return EResult::InvalidArea;
+
+    /* Work in local PFArea coordinates */
+    zeus::CVector3f localP1 = x0_area->x188_transform.transposeRotate(p1 - x0_area->x188_transform.origin);
+
+    /* Raise a bit above ground for step-up resolution */
+    if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
+        localP1.z += 0.3f;
+
+    rstl::reserved_vector<CPFRegion*, 4> regions1;
+    if (x0_area->FindRegions(regions1, localP1, xdc_flags, xe0_indexMask) == 0)
+        return EResult::NoSourcePoint;
+
+    return EResult::Success;
+}
+
 CPathFindSearch::EResult CPathFindSearch::Search(const zeus::CVector3f& p1, const zeus::CVector3f& p2)
 {
     u32 firstPoint = 0;
     u32 flyToOutsidePoint = 0;
     x4_waypoints.clear();
-    xc8_ = 0;
+    xc8_curWaypoint = 0;
 
     if (!x0_area || x0_area->x150_regions.size() > 512)
     {

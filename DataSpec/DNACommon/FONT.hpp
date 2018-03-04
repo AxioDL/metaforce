@@ -14,7 +14,7 @@ struct GlyphRect : BigDNA
     Value<float> right;
     Value<float> bottom;
 };
-struct IGlyph : BigDNAV
+struct IGlyph : BigDNAVYaml
 {
     AT_DECL_DNA_YAML
     Value<atUint16> m_character;

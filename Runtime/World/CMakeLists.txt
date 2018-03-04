@@ -18,7 +18,7 @@ set(WORLD_SOURCES
     CPathFindArea.hpp CPathFindArea.cpp
     CPathFindRegion.hpp CPathFindRegion.cpp
     CPathFindSearch.hpp CPathFindSearch.cpp
-    CPathFindSpline.hpp CPathFindSpline.cpp
+    CPathFindSpline.cpp
     CPathFindDraw.hpp CPathFindDraw.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp
     CEntity.hpp CEntity.cpp
