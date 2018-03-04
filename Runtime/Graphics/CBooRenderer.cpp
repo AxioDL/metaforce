@@ -186,12 +186,11 @@ void Buckets::Init()
     sMinMaxDistance[1] = skWorstMinMaxDistance[1];
 }
 
-CBooRenderer::CAreaListItem::CAreaListItem
-(const std::vector<CMetroidModelInstance>* geom,
- const CAreaRenderOctTree* octTree,
- std::vector<TCachedToken<CTexture>>&& textures,
- std::vector<CBooModel*>&& models, int areaIdx,
- const SShader* shaderSet)
+CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstance>* geom,
+                                           const CAreaRenderOctTree* octTree,
+                                           std::vector<TCachedToken<CTexture>>&& textures,
+                                           std::vector<CBooModel*>&& models, int areaIdx,
+                                           const SShader* shaderSet)
  : x0_geometry(geom), x4_octTree(octTree), x8_textures(std::move(textures)),
    x10_models(std::move(models)), x18_areaIdx(areaIdx), m_shaderSet(shaderSet) {}
 

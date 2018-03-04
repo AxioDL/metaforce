@@ -88,7 +88,6 @@ std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words,
     u32 bsWords = ComputeBitstreamWords(chans);
 
     u32* bsPtr = reinterpret_cast<u32*>(bs);
-    size_t wordsz = bsPtr - ret.get();
     for (u32 w=0 ; w<bsWords ; ++w)
         bsPtr[w] = in.readUint32Big();
 

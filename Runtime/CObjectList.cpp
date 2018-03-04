@@ -36,9 +36,9 @@ void CObjectList::RemoveObject(TUniqueId uid)
     }
     else
     {
+        x0_list[ent.prev].next = ent.next;
         if (ent.next != -1)
-            x0_list[ent.next].prev = -1;
-        x0_list[ent.prev].next = -1;
+            x0_list[ent.next].prev = ent.prev;
     }
     ent.entity = nullptr;
     ent.next = -1;

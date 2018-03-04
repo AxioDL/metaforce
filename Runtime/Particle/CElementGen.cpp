@@ -1965,7 +1965,7 @@ bool CElementGen::IsSystemDeletable() const
 rstl::optional_object<zeus::CAABox> CElementGen::GetBounds() const
 {
     if (GetParticleCountAll() == 0)
-        return {zeus::CAABox()};
+        return {};
     else
         return {x2f0_systemBounds};
 }

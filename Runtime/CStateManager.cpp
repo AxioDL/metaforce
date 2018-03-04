@@ -747,7 +747,7 @@ void CStateManager::DrawWorld() const
         bool isVisArea = area.x4_selfIdx == visAreaId;
         SetupFogForArea(area);
         g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-        for (CEntity* ent : *area.GetPostConstructed()->x10c0_areaObjs)
+        for (CEntity* ent : *area.GetAreaObjects())
         {
             if (TCastToPtr<CActor> actor = ent)
             {
