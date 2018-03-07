@@ -402,7 +402,7 @@ class SREARenderLightmaps(bpy.types.Operator):
                     obj.data.uv_textures.active_index = 0
 
             # Make lightmaps
-            bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE_DIRECT')
+            bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE', pass_filter={'DIRECT'})
 
         return {'FINISHED'}
 
