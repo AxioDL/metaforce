@@ -20,7 +20,7 @@ BEGIN
             VALUE "FileDescription", "HECL"
             VALUE "FileVersion", "BETA"
             VALUE "LegalCopyright", "Copyright (C) 2015-2018 Antidote / Jackoalan"
-            VALUE "InternalName", "urde"
+            VALUE "InternalName", "hecl"
             VALUE "OriginalFilename", "hecl.exe"
             VALUE "ProductName", "HECL"
             VALUE "ProductVersion", "BETA"
