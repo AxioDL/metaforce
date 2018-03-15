@@ -14,7 +14,7 @@
 namespace urde
 {
 CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& wDesc, std::string_view name,
-                                 EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes matType,
+                                 EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes excludeMat,
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                                  const zeus::CVector3f& scale,
@@ -22,8 +22,8 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                  u16 visorSfx, bool sendCollideMsg)
 : CWeapon(uid, aid, active, owner, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(
-              {EMaterialTypes::NonSolidDamageable, matType},
-              {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, matType, EMaterialTypes::Solid}),
+              {EMaterialTypes::Solid, EMaterialTypes::NonSolidDamageable},
+              {EMaterialTypes::Projectile, EMaterialTypes::ProjectilePassthrough, excludeMat}),
           CMaterialList(), dInfo, attribs | GetBeamAttribType(wType), CModelData::CModelDataNull()),
   x158_visorParticle(visorParticle), x168_visorSfx(visorSfx), x170_projectile(wDesc, xf.origin, xf.basis, scale,
   (attribs & EProjectileAttrib::ParticleOPTS) == EProjectileAttrib::ParticleOPTS), x298_lastOrigin(xf.origin),

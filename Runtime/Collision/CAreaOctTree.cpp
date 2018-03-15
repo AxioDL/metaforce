@@ -217,7 +217,7 @@ bool CAreaOctTree::Node::LineTestInternal(const zeus::CLine& line, const CMateri
 
 void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMaterialFilter& filter,
                                             SRayResult& res, float lT, float hT, float maxT,
-                                            const zeus::CVector3f& vec) const
+                                            const zeus::CVector3f& dirRecip) const
 {
     float lowT = (1.f - FLT_EPSILON * 100.f) * lT;
     float highT = (1.f + FLT_EPSILON * 100.f) * hT;
@@ -234,7 +234,7 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
     if (x20_nodeType == ETreeType::Leaf)
     {
         TriListReference triList = GetTriangleArray();
-        float f30 = highT;
+        float bestT = highT;
         bool foundTriangle = false;
         SRayResult tmpRes;
 
@@ -272,7 +272,7 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
 
             // Calculate T parameter and test bound
             float t = invDet * Q.dot(e1);
-            if (t >= f30 || t < lowT)
+            if (t >= bestT || t < lowT)
                 continue;
 
             // Calculate V parameter and test bound
@@ -282,9 +282,9 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
 
             // Do material filter
             CMaterialList matList(triangle.GetSurfaceFlags());
-            if (filter.Passes(matList) && t <= f30)
+            if (filter.Passes(matList) && t <= bestT)
             {
-                f30 = t;
+                bestT = t;
                 foundTriangle = true;
                 tmpRes.x10_surface.emplace(triangle);
                 tmpRes.x3c_t = t;
@@ -308,7 +308,7 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
                 float tf1 = lT;
                 float tf2 = hT;
                 if (BoxLineTest(child.GetBoundingBox(), line, tf1, tf2))
-                    child.LineTestExInternal(line, filter, tmpRes[i], tf1, tf2, maxT, vec);
+                    child.LineTestExInternal(line, filter, tmpRes[i], tf1, tf2, maxT, dirRecip);
             }
 
             if (!tmpRes[0].x10_surface && !tmpRes[1].x10_surface)
@@ -339,24 +339,25 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
 
         zeus::CVector3f center = x0_aabb.center(); // r26
 
-        zeus::CVector3f r25 = line.origin + lT * line.dir;
-        zeus::CVector3f r24 = line.origin + hT * line.dir;
-        int r19[] = {-1, -1, -1, 0};
-        float r20[3];
+        zeus::CVector3f lowPoint = line.origin + lT * line.dir;
+        zeus::CVector3f highPoint = line.origin + hT * line.dir;
+        int comps[] = {-1, -1, -1, 0};
+        float compT[3];
 
-        int r17 = 0;
+        int numComps = 0;
         for (int i=0 ; i<3 ; ++i)
         {
-            if (r25[i] < center[i] || r24[i] <= center[i])
-                if (r24[i] >= center[i] || r25[i] <= center[i])
+            if (lowPoint[i] >= center[i] || highPoint[i] <= center[i])
+                if (highPoint[i] >= center[i] || lowPoint[i] <= center[i])
                     continue;
             if (_close_enough(line.dir[i], 0.f, 0.000099999997f))
                 continue;
-            r19[r17++] = i;
-            r20[i] = vec[i] * (center[i] - line.origin[i]);
+            comps[numComps++] = i;
+            compT[i] = dirRecip[i] * (center[i] - line.origin[i]);
         }
 
-        switch (r17)
+        // Sort componentT least to greatest
+        switch (numComps)
         {
         default:
             return;
@@ -364,80 +365,80 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
         case 1:
             break;
         case 2:
-            if (r20[r19[1]] < r20[r19[0]])
-                std::swap(r19[1], r19[0]);
+            if (compT[comps[1]] < compT[comps[0]])
+                std::swap(comps[1], comps[0]);
             break;
         case 3:
-            if (r20[0] < r20[1])
+            if (compT[0] < compT[1])
             {
-                if (r20[0] >= r20[2])
+                if (compT[0] >= compT[2])
                 {
-                    r19[0] = 2;
-                    r19[1] = 0;
-                    r19[2] = 1;
+                    comps[0] = 2;
+                    comps[1] = 0;
+                    comps[2] = 1;
                 }
-                else if (r20[1] < r20[2])
+                else if (compT[1] < compT[2])
                 {
-                    r19[0] = 0;
-                    r19[1] = 1;
-                    r19[2] = 2;
+                    comps[0] = 0;
+                    comps[1] = 1;
+                    comps[2] = 2;
                 }
                 else
                 {
-                    r19[0] = 0;
-                    r19[1] = 2;
-                    r19[2] = 1;
+                    comps[0] = 0;
+                    comps[1] = 2;
+                    comps[2] = 1;
                 }
             }
             else
             {
-                if (r20[1] >= r20[2])
+                if (compT[1] >= compT[2])
                 {
-                    r19[0] = 2;
-                    r19[1] = 1;
-                    r19[2] = 0;
+                    comps[0] = 2;
+                    comps[1] = 1;
+                    comps[2] = 0;
                 }
-                else if (r20[0] < r20[2])
+                else if (compT[0] < compT[2])
                 {
-                    r19[0] = 1;
-                    r19[1] = 0;
-                    r19[2] = 2;
+                    comps[0] = 1;
+                    comps[1] = 0;
+                    comps[2] = 2;
                 }
                 else
                 {
-                    r19[0] = 1;
-                    r19[1] = 2;
-                    r19[2] = 0;
+                    comps[0] = 1;
+                    comps[1] = 2;
+                    comps[2] = 0;
                 }
             }
             break;
         }
 
-        zeus::CVector3f lineEnd = line.origin + (lT * line.dir);
+        zeus::CVector3f lineStart = line.origin + (lT * line.dir);
         int selector = 0;
-        if (lineEnd.x >= center.x)
+        if (lineStart.x >= center.x)
             selector = 1;
-        if (lineEnd.y >= center.y)
+        if (lineStart.y >= center.y)
             selector |= 1 << 1;
-        if (lineEnd.z >= center.z)
+        if (lineStart.z >= center.z)
             selector |= 1 << 2;
 
-        float loT = lT;
-        for (int i=-1 ; i<r17 ; ++i)
+        float tmpLoT = lT;
+        for (int i=-1 ; i<numComps ; ++i)
         {
             if (i >= 0)
-                selector ^= 1 << r19[i];
-            float hiT = (i < r17-1) ? r20[r19[i+1]] : hT;
-            if (hiT > lowT && loT <= hiT)
+                selector ^= 1 << comps[i];
+            float tmpHiT = (i < numComps-1) ? compT[comps[i+1]] : hT;
+            if (tmpHiT > lowT && tmpLoT <= tmpHiT)
             {
                 Node child = GetChild(selector);
                 if (child.x20_nodeType != ETreeType::Invalid)
-                    child.LineTestExInternal(line, filter, res, loT, hiT, maxT, vec);
+                    child.LineTestExInternal(line, filter, res, tmpLoT, tmpHiT, maxT, dirRecip);
                 if (res.x10_surface)
                     if (res.x3c_t > highT)
                         res = SRayResult();
             }
-            loT = hiT;
+            tmpLoT = tmpHiT;
         }
     }
 }
@@ -462,13 +463,13 @@ void CAreaOctTree::Node::LineTestEx(const zeus::CLine& line, const CMaterialFilt
     if (x20_nodeType == ETreeType::Invalid)
         return;
 
-    float f1 = 0.f;
-    float f2 = 0.f;
-    if (!BoxLineTest(x0_aabb, line, f1, f2))
+    float lT = 0.f;
+    float hT = 0.f;
+    if (!BoxLineTest(x0_aabb, line, lT, hT))
         return;
 
     zeus::CVector3f recip = 1.f / line.dir;
-    LineTestExInternal(line, filter, res, f1 - 0.000099999997f, f2 + 0.000099999997f, length, recip);
+    LineTestExInternal(line, filter, res, lT - 0.000099999997f, hT + 0.000099999997f, length, recip);
 }
 
 CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const

@@ -505,11 +505,9 @@ void CStateManager::CacheReflection()
     g_Renderer->CacheReflection(ReflectionDrawer, this, true);
 }
 
-bool CStateManager::CanCreateProjectile(TUniqueId uid, EWeaponType type, int test) const
+bool CStateManager::CanCreateProjectile(TUniqueId uid, EWeaponType type, int maxAllowed) const
 {
-    int num = x878_weaponManager->GetNumActive(uid, type);
-    int xorv = test ^ num;
-    return ((xorv >> 1) - xorv & test) >> 31;
+    return x878_weaponManager->GetNumActive(uid, type) < maxAllowed;
 }
 
 void CStateManager::BuildDynamicLightListForWorld()

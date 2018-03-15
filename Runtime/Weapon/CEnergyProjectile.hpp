@@ -28,7 +28,7 @@ class CEnergyProjectile : public CGameProjectile
     void StopProjectile(CStateManager& mgr);
 public:
     CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
-                      const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
+                      const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
                       TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
                       EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                       const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,

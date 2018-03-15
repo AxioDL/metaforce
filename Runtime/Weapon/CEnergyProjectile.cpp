@@ -16,12 +16,12 @@ namespace urde
 {
 
 CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
-                                     const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
+                                     const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
                                      TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
                                      EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                                      const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
                                      u16 visorSfx, bool sendCollideMsg)
-: CGameProjectile(active, desc, "GameProjectile", type, xf, materials, damage, uid, aid,
+: CGameProjectile(active, desc, "GameProjectile", type, xf, excludeMat, damage, uid, aid,
                   owner, homingTarget, attribs, underwater, scale, visorParticle, visorSfx, sendCollideMsg),
   x2ec_dir(xf.basis[1]), x2f8_mag(x2ec_dir.magnitude()),
   x2fc_camShake(CCameraShakeData::BuildProjectileCameraShake(0.5f, 0.75f))
