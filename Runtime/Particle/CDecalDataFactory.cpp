@@ -58,9 +58,9 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
         case SBIG('2TEX'):
         case SBIG('2ADD'):
             if (loadFirstDesc)
-                GetQuadDecalInfo(in, resPool, clsId, desc->x0_Quad);
+                GetQuadDecalInfo(in, resPool, clsId, desc->x0_Quads[0]);
             else
-                GetQuadDecalInfo(in, resPool, clsId, desc->x1c_Quad);
+                GetQuadDecalInfo(in, resPool, clsId, desc->x0_Quads[1]);
             break;
 
         case SBIG('DMDL'):
@@ -100,8 +100,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
     return true;
 }
 
-void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId,
-                                         CDecalDescription::SQuadDescr& quad)
+void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId, SQuadDescr& quad)
 {
     switch (clsId)
     {

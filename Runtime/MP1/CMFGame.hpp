@@ -50,6 +50,7 @@ class CMFGame : public CMFGameBase
 public:
     CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
             const CArchitectureQueue&);
+    ~CMFGame();
     CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void Touch();
     void Draw() const;

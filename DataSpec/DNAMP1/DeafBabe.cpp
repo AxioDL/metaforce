@@ -51,7 +51,7 @@ void DeafBabe::BlenderInit(hecl::blender::PyOutStream& os)
           "bpy.types.Material.retro_half_pipe = bpy.props.BoolProperty(name='Retro: Half Pipe (H)')\n"
           "bpy.types.Material.retro_surface_mud = bpy.props.BoolProperty(name='Retro Surface: Mud')\n"
           "bpy.types.Material.retro_surface_glass = bpy.props.BoolProperty(name='Retro Surface: Glass')\n"
-          "bpy.types.Material.retro_surface_shield = bpy.props.BoolProperty(name='Retro Surface: Sheild')\n"
+          "bpy.types.Material.retro_surface_shield = bpy.props.BoolProperty(name='Retro Surface: Shield')\n"
           "bpy.types.Material.retro_surface_sand = bpy.props.BoolProperty(name='Retro Surface: Sand')\n"
           "bpy.types.Material.retro_projectile_passthrough = bpy.props.BoolProperty(name='Retro: Projectile Passthrough (P)')\n"
           "bpy.types.Material.retro_solid = bpy.props.BoolProperty(name='Retro: Solid (K)')\n"

@@ -26,35 +26,9 @@ bool CElementGen::g_ParticleSystemInitialized = false;
 bool CElementGen::sMoveRedToAlphaBuffer = false;
 CParticle* CElementGen::g_currentParticle = nullptr;
 
-struct SParticleInstanceTex
-{
-    zeus::CVector4f pos[4];
-    zeus::CColor color;
-    zeus::CVector2f uvs[4];
-};
-static std::vector<SParticleInstanceTex> g_instTexData;
-
-struct SParticleInstanceIndTex
-{
-    zeus::CVector4f pos[4];
-    zeus::CColor color;
-    zeus::CVector4f texrTindUVs[4];
-    zeus::CVector4f sceneUVs;
-};
-static std::vector<SParticleInstanceIndTex> g_instIndTexData;
-
-struct SParticleInstanceNoTex
-{
-    zeus::CVector4f pos[4];
-    zeus::CColor color;
-};
-static std::vector<SParticleInstanceNoTex> g_instNoTexData;
-
-struct SParticleUniforms
-{
-    zeus::CMatrix4f mvp;
-    zeus::CColor moduColor;
-};
+std::vector<SParticleInstanceTex> g_instTexData;
+std::vector<SParticleInstanceIndTex> g_instIndTexData;
+std::vector<SParticleInstanceNoTex> g_instNoTexData;
 
 void CElementGen::Initialize()
 {

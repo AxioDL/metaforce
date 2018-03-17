@@ -182,6 +182,32 @@ CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* re
 const rstl::optional_object<TLockedToken<CGenDescription>>&
 CCollisionResponseData::GetParticleDescription(EWeaponCollisionResponseTypes type) const
 {
+    if (x0_generators[u32(type)])
+        return x0_generators[u32(type)];
+
+    bool foundType = false;
+    if (ResponseTypeIsEnemyNormal(type))
+    {
+        type = EWeaponCollisionResponseTypes::EnemyNormal;
+        foundType = true;
+    }
+    else if (ResponseTypeIsEnemySpecial(type))
+    {
+        type = EWeaponCollisionResponseTypes::EnemySpecial;
+        foundType = true;
+    }
+    else if (ResponseTypeIsEnemyShielded(type))
+    {
+        type = EWeaponCollisionResponseTypes::EnemyShielded;
+        foundType = true;
+    }
+
+    if (foundType && !x0_generators[u32(type)])
+        type = EWeaponCollisionResponseTypes::EnemyNormal;
+
+    if (!x0_generators[u32(type)] && type != EWeaponCollisionResponseTypes::None)
+        type = EWeaponCollisionResponseTypes::Default;
+
     return x0_generators[u32(type)];
 }
 
@@ -210,9 +236,8 @@ s32 CCollisionResponseData::GetSoundEffectId(EWeaponCollisionResponseTypes type)
 
 EWeaponCollisionResponseTypes CCollisionResponseData::GetWorldCollisionResponseType(s32 id)
 {
-    if (id < 0 || id >= s32(EWeaponCollisionResponseTypes::Unknown32))
+    if (id < 0 || id >= 32)
         return EWeaponCollisionResponseTypes::Default;
-
     return skWorldMaterialTable[id];
 }
 

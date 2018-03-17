@@ -53,7 +53,7 @@ void DeafBabe::BlenderInit(hecl::blender::PyOutStream& os)
           "bpy.types.Material.retro_unused4 = bpy.props.BoolProperty(description='Retro: Unused 4 (U)')\n"
           "bpy.types.Material.retro_surface_mud = bpy.props.BoolProperty(description='Retro Surface: Mud')\n"
           "bpy.types.Material.retro_surface_glass = bpy.props.BoolProperty(description='Retro Surface: Glass')\n"
-          "bpy.types.Material.retro_surface_shield = bpy.props.BoolProperty(description='Retro Surface: Sheild')\n"
+          "bpy.types.Material.retro_surface_shield = bpy.props.BoolProperty(description='Retro Surface: Shield')\n"
           "bpy.types.Material.retro_surface_sand = bpy.props.BoolProperty(description='Retro Surface: Sand')\n"
           "bpy.types.Material.retro_surface_moth_or_seed_organics = bpy.props.BoolProperty(description='Retro Surface: Moth/Seed Organics')\n"
           "bpy.types.Material.retro_surface_web = bpy.props.BoolProperty(description='Retro Surface: Web')\n"

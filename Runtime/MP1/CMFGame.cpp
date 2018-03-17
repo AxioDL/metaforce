@@ -19,6 +19,14 @@ CMFGame::CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_p
     static_cast<CMain&>(*g_Main).SetMFGameBuilt(true);
 }
 
+CMFGame::~CMFGame()
+{
+    CMain& main = static_cast<CMain&>(*g_Main);
+    main.SetMFGameBuilt(false);
+    main.SetScreenFading(false);
+    CDecalManager::Reinitialize();
+}
+
 CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
 {
     switch (msg.GetType())

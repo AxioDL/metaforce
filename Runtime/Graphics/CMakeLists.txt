@@ -19,6 +19,7 @@ if(WIN32)
       Shaders/CScanLinesFilterHLSL.cpp
       Shaders/CRandomStaticFilterHLSL.cpp
       Shaders/CElementGenShadersHLSL.cpp
+      Shaders/CDecalShadersHLSL.cpp
       Shaders/CParticleSwooshShadersHLSL.cpp
       Shaders/CFluidPlaneShaderHLSL.cpp
       Shaders/CAABoxShaderHLSL.cpp
@@ -44,6 +45,7 @@ elseif(BOO_HAS_METAL)
       Shaders/CScanLinesFilterMetal.cpp
       Shaders/CRandomStaticFilterMetal.cpp
       Shaders/CElementGenShadersMetal.cpp
+      Shaders/CDecalShadersMetal.cpp
       Shaders/CParticleSwooshShadersMetal.cpp
       Shaders/CFluidPlaneShaderMetal.cpp
       Shaders/CAABoxShaderMetal.cpp
@@ -71,6 +73,7 @@ if(NOT WINDOWS_STORE)
       Shaders/CScanLinesFilterGLSL.cpp
       Shaders/CRandomStaticFilterGLSL.cpp
       Shaders/CElementGenShadersGLSL.cpp
+      Shaders/CDecalShadersGLSL.cpp
       Shaders/CParticleSwooshShadersGLSL.cpp
       Shaders/CFluidPlaneShaderGLSL.cpp
       Shaders/CAABoxShaderGLSL.cpp
@@ -119,6 +122,7 @@ set(GRAPHICS_SOURCES
     Shaders/CScanLinesFilter.hpp Shaders/CScanLinesFilter.cpp
     Shaders/CRandomStaticFilter.hpp Shaders/CRandomStaticFilter.cpp
     Shaders/CElementGenShaders.hpp Shaders/CElementGenShaders.cpp
+    Shaders/CDecalShaders.hpp Shaders/CDecalShaders.cpp
     Shaders/CParticleSwooshShaders.hpp Shaders/CParticleSwooshShaders.cpp
     Shaders/CFluidPlaneShader.hpp Shaders/CFluidPlaneShader.cpp
     Shaders/CAABoxShader.hpp Shaders/CAABoxShader.cpp

@@ -1039,7 +1039,8 @@ void CBooRenderer::AddPlaneObject(const void*, const zeus::CAABox&, const zeus::
 
 }
 
-void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode, EDrawableSorting sorting)
+void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb,
+                               int mode, EDrawableSorting sorting)
 {
     if (sorting == EDrawableSorting::UnsortedCallback)
         xa8_drawableCallback(obj, xac_callbackContext, mode);

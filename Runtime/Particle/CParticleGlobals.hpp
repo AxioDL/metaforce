@@ -2,6 +2,8 @@
 #define __URDE_CPARTICLEGLOBALS_HPP__
 
 #include "zeus/CVector3f.hpp"
+#include "zeus/CVector4f.hpp"
+#include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
 #include <array>
@@ -48,6 +50,36 @@ public:
     };
 
     static SParticleSystem* g_currentParticleSystem;
+};
+
+struct SParticleInstanceTex
+{
+    zeus::CVector4f pos[4];
+    zeus::CColor color;
+    zeus::CVector2f uvs[4];
+};
+extern std::vector<SParticleInstanceTex> g_instTexData;
+
+struct SParticleInstanceIndTex
+{
+    zeus::CVector4f pos[4];
+    zeus::CColor color;
+    zeus::CVector4f texrTindUVs[4];
+    zeus::CVector4f sceneUVs;
+};
+extern std::vector<SParticleInstanceIndTex> g_instIndTexData;
+
+struct SParticleInstanceNoTex
+{
+    zeus::CVector4f pos[4];
+    zeus::CColor color;
+};
+extern std::vector<SParticleInstanceNoTex> g_instNoTexData;
+
+struct SParticleUniforms
+{
+    zeus::CMatrix4f mvp;
+    zeus::CColor moduColor;
 };
 
 }
