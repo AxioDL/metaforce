@@ -171,6 +171,11 @@ void MainWindow::onPackage()
     m_ui->packageBtn->setEnabled(true);
     disconnect(m_ui->packageBtn, SIGNAL(clicked()), nullptr, nullptr);
     connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(doHECLTerminate()));
+
+    QSize size = QWidget::size();
+    if (size.width() < 1100)
+        size.setWidth(1100);
+    resize(size);
 }
 
 void MainWindow::onPackageFinished(int returnCode)
@@ -516,22 +521,36 @@ void MainWindow::setTextTermFormatting(const QString& text)
 {
     m_inContinueNote = false;
 
-    QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;\?]+)([mlh]))");
+    QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;\?F]+)([mlh]?))");
     QTextCharFormat defaultTextCharFormat = m_cursor.charFormat();
     int offset = escapeSequenceExpression.indexIn(text);
     ReturnInsert(m_cursor, text.mid(0, offset));
     QTextCharFormat textCharFormat = defaultTextCharFormat;
     while (offset >= 0) {
         int previousOffset = offset + escapeSequenceExpression.matchedLength();
-        if (escapeSequenceExpression.capturedTexts()[2] == "m")
+        QStringList captures = escapeSequenceExpression.capturedTexts();
+        if (captures.size() >= 3 && captures[2] == "m")
         {
-            QStringList capturedTexts = escapeSequenceExpression.capturedTexts()[1].split(';');
+            QStringList capturedTexts = captures[1].split(';');
             QListIterator<QString> i(capturedTexts);
             while (i.hasNext()) {
                 bool ok = false;
                 int attribute = i.next().toInt(&ok);
                 Q_ASSERT(ok);
                 ParseEscapeSequence(attribute, i, textCharFormat, defaultTextCharFormat);
+            }
+        }
+        else if (captures.size() >= 2 && captures[1].endsWith('F'))
+        {
+            int lineCount = captures[1].chopped(1).toInt();
+            if (!lineCount)
+                lineCount = 1;
+            for (int i=0 ; i<lineCount ; ++i)
+            {
+                m_cursor.movePosition(QTextCursor::PreviousBlock);
+                m_cursor.select(QTextCursor::BlockUnderCursor);
+                m_cursor.removeSelectedText();
+                m_cursor.insertBlock();
             }
         }
         offset = escapeSequenceExpression.indexIn(text, previousOffset);

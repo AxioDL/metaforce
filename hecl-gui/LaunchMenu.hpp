@@ -2,7 +2,7 @@
 #define GUI_LAUNCHMENU_HPP
 
 #include <QMenu>
-namespace hecl { class CVarCommons; }
+namespace hecl { struct CVarCommons; }
 
 class LaunchMenu : public QMenu
 {
