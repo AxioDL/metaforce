@@ -40,7 +40,8 @@ CToken ProjectResourcePool::GetObj(std::string_view name, const CVParamTransfer&
 
 bool ProjectManager::m_registeredSpecs = false;
 ProjectManager::ProjectManager(ViewManager &vm)
-: m_vm(vm), m_clientProc(1), m_factoryMP1(m_clientProc), m_objStore(m_factoryMP1, *this)
+: m_vm(vm), m_clientProc(nullptr, 1),
+  m_factoryMP1(m_clientProc), m_objStore(m_factoryMP1, *this)
 {
     if (!m_registeredSpecs)
     {

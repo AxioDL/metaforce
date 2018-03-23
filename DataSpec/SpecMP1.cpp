@@ -46,6 +46,7 @@
 #include "DNAMP1/SnowForces.hpp"
 
 #include "hecl/ClientProcess.hpp"
+#include "hecl/MultiProgressPrinter.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "nod/nod.hpp"
 
@@ -356,7 +357,7 @@ struct SpecMP1 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(nod::DiscBase& disc, bool force, FProgress progress)
+    bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress)
     {
         m_project.enableDataSpecs({_S("MP1-PC")});
 
@@ -364,9 +365,10 @@ struct SpecMP1 : SpecBase
 
         m_workPath.makeDir();
 
-        progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
-        m_pakRouter.build(m_paks, [&progress](float factor) { progress(_S("Indexing PAKs"), _S(""), 2, factor); });
-        progress(_S("Indexing PAKs"), _S(""), 2, 1.0);
+        progress.startNewLine();
+        progress.print(_S("Indexing PAKs"), _S(""), 0.0);
+        m_pakRouter.build(m_paks, [&progress](float factor) { progress.print(_S("Indexing PAKs"), _S(""), factor); });
+        progress.print(_S("Indexing PAKs"), _S(""), 1.0);
 
         hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
         outPath.makeDir();
@@ -374,24 +376,23 @@ struct SpecMP1 : SpecBase
         mp1OutPath.makeDir();
 
         /* Extract non-pak files */
-        progress(_S("MP1 Root"), _S(""), 3, 0.0);
+        progress.startNewLine();
+        progress.print(_S("MP1 Root"), _S(""), 0.0);
         int prog = 0;
         ctx.progressCB = [&](std::string_view name, float) {
             hecl::SystemStringConv nameView(name);
-            progress(_S("MP1 Root"), nameView.c_str(), 3, prog / (float)m_nonPaks.size());
+            progress.print(_S("MP1 Root"), nameView.c_str(), prog / (float)m_nonPaks.size());
         };
         for (const nod::Node* node : m_nonPaks)
         {
             node->extractToDirectory(mp1OutPath.getAbsolutePath(), ctx);
             prog++;
         }
-        progress(_S("MP1 Root"), _S(""), 3, 1.0);
+        progress.print(_S("MP1 Root"), _S(""), 1.0);
 
         /* Extract unique resources */
-        std::mutex msgLock;
         hecl::ClientProcess process;
-        int compIdx = 4;
-        prog = 0;
+        progress.startNewLine();
         for (std::pair<const std::string, DNAMP1::PAKBridge*>& pair : m_orderedPaks)
         {
 #if 0
@@ -414,16 +415,12 @@ struct SpecMP1 : SpecBase
             auto name = pak.getName();
             hecl::SystemStringConv sysName(name);
 
-            {
-                std::unique_lock<std::mutex> lk(msgLock);
-                progress(sysName.c_str(), _S(""), compIdx, 0.0);
-            }
-
             auto pakName = hecl::SystemString(sysName.sys_str());
-            process.addLambdaTransaction([&, pakName](hecl::blender::Token& btok) {
-                m_pakRouter.extractResources(pak, force, btok, [&](const hecl::SystemChar* substr, float factor) {
-                    std::unique_lock<std::mutex> lk(msgLock);
-                    progress(pakName.c_str(), substr, compIdx, factor);
+            process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok) {
+                int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
+                m_pakRouter.extractResources(pak, force, btok,
+                [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor) {
+                    progress.print(pakName.c_str(), substr, factor, threadIdx);
                 });
             });
         }

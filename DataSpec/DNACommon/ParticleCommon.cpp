@@ -1223,6 +1223,11 @@ void EESimpleEmitterTR::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
     velocity.write(w);
 }
 
+template <>
+const char* UVEConstant<UniqueID32>::DNAType() { return "UVEConstant<UniqueID32>"; }
+template <>
+const char* UVEConstant<UniqueID64>::DNAType() { return "UVEConstant<UniqueID64>"; }
+
 template <class IDType>
 void UVEConstant<IDType>::_read(typename ReadYaml::StreamT& r)
 {
@@ -1263,6 +1268,11 @@ AT_SUBSPECIALIZE_DNA_YAML(UVEConstant<UniqueID64>)
 
 template struct UVEConstant<UniqueID32>;
 template struct UVEConstant<UniqueID64>;
+
+template <>
+const char* UVEAnimTexture<UniqueID32>::DNAType() { return "UVEAnimTexture<UniqueID32>"; }
+template <>
+const char* UVEAnimTexture<UniqueID64>::DNAType() { return "UVEAnimTexture<UniqueID64>"; }
 
 template <class IDType>
 void UVEAnimTexture<IDType>::_read(typename ReadYaml::StreamT& r)
@@ -1348,6 +1358,11 @@ AT_SUBSPECIALIZE_DNA_YAML(UVEAnimTexture<UniqueID64>)
 template struct UVEAnimTexture<UniqueID32>;
 template struct UVEAnimTexture<UniqueID64>;
 
+template <>
+const char* UVElementFactory<UniqueID32>::DNAType() { return "UVElementFactory<UniqueID32>"; }
+template <>
+const char* UVElementFactory<UniqueID64>::DNAType() { return "UVElementFactory<UniqueID64>"; }
+
 template <class IDType>
 void UVElementFactory<IDType>::_read(typename Read::StreamT& r)
 {
@@ -1415,6 +1430,13 @@ AT_SUBSPECIALIZE_DNA_YAML(UVElementFactory<UniqueID64>)
 template struct UVElementFactory<UniqueID32>;
 template struct UVElementFactory<UniqueID64>;
 
+template <>
+const char* SpawnSystemKeyframeData<UniqueID32>::SpawnSystemKeyframeInfo::DNAType()
+{ return "SpawnSystemKeyframeData<UniqueID32>::SpawnSystemKeyframeInfo"; }
+template <>
+const char* SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo::DNAType()
+{ return "SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo"; }
+
 template <class IDType>
 template <class Op>
 void SpawnSystemKeyframeData<IDType>::SpawnSystemKeyframeInfo::Enumerate(typename Op::StreamT& s)
@@ -1424,6 +1446,11 @@ void SpawnSystemKeyframeData<IDType>::SpawnSystemKeyframeInfo::Enumerate(typenam
     Do<Op>({"b"}, b, s);
     Do<Op>({"c"}, c, s);
 }
+
+template <>
+const char* SpawnSystemKeyframeData<UniqueID32>::DNAType() { return "SpawnSystemKeyframeData<UniqueID32>"; }
+template <>
+const char* SpawnSystemKeyframeData<UniqueID64>::DNAType() { return "SpawnSystemKeyframeData<UniqueID64>"; }
 
 template <class IDType>
 void SpawnSystemKeyframeData<IDType>::_read(typename ReadYaml::StreamT& r)
@@ -1558,6 +1585,11 @@ AT_SUBSPECIALIZE_DNA_YAML(SpawnSystemKeyframeData<UniqueID64>)
 
 template struct SpawnSystemKeyframeData<UniqueID32>;
 template struct SpawnSystemKeyframeData<UniqueID64>;
+
+template <>
+const char* ChildResourceFactory<UniqueID32>::DNAType() { return "ChildResourceFactory<UniqueID32>"; }
+template <>
+const char* ChildResourceFactory<UniqueID64>::DNAType() { return "ChildResourceFactory<UniqueID64>"; }
 
 template <class IDType>
 void ChildResourceFactory<IDType>::_read(typename ReadYaml::StreamT& r)

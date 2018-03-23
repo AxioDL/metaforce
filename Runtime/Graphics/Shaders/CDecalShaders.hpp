@@ -10,7 +10,7 @@
 
 namespace urde
 {
-class CQuadDecal;
+struct CQuadDecal;
 
 class CDecalShaders
 {

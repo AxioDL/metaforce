@@ -12,6 +12,7 @@
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/MultiProgressPrinter.hpp"
 
 #include "Runtime/RetroTypes.hpp"
 #include "nod/nod.hpp"
@@ -222,40 +223,40 @@ struct SpecMP2 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(nod::DiscBase&, bool force, FProgress progress)
+    bool extractFromDisc(nod::DiscBase&, bool force, const hecl::MultiProgressPrinter& progress)
     {
         nod::ExtractionContext ctx = {force, nullptr};
 
         m_workPath.makeDir();
 
-        progress(_S("Indexing PAKs"), _S(""), 2, 0.0);
+        progress.startNewLine();
+        progress.print(_S("Indexing PAKs"), _S(""), 0.0);
         m_pakRouter.build(m_paks, [&progress](float factor)
         {
-            progress(_S("Indexing PAKs"), _S(""), 2, factor);
+            progress.print(_S("Indexing PAKs"), _S(""), factor);
         });
-        progress(_S("Indexing PAKs"), _S(""), 2, 1.0);
+        progress.print(_S("Indexing PAKs"), _S(""), 1.0);
 
         hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
         outPath.makeDir();
         hecl::ProjectPath mp2OutPath(outPath, _S("MP2"));
         mp2OutPath.makeDir();
-        progress(_S("MP2 Root"), _S(""), 3, 0.0);
+        progress.startNewLine();
+        progress.print(_S("MP2 Root"), _S(""), 0.0);
         int prog = 0;
-        ctx.progressCB = [&](std::string_view name, float) {
+        ctx.progressCB = [&prog, &progress](std::string_view name, float) {
             hecl::SystemStringConv nameView(name);
-            progress(_S("MP2 Root"), nameView.c_str(), 3, prog);
+            progress.print(_S("MP2 Root"), nameView.c_str(), prog);
         };
         for (const nod::Node* node : m_nonPaks)
         {
             node->extractToDirectory(mp2OutPath.getAbsolutePath(), ctx);
             prog++;
         }
-        progress(_S("MP2 Root"), _S(""), 3, 1.0);
+        progress.print(_S("MP2 Root"), _S(""), 1.0);
 
-        std::mutex msgLock;
         hecl::ClientProcess process;
-        int compIdx = 4;
-        prog = 0;
+        progress.startNewLine();
         for (std::pair<const std::string, DNAMP2::PAKBridge*>& pair : m_orderedPaks)
         {
             DNAMP2::PAKBridge& pak = *pair.second;
@@ -265,18 +266,14 @@ struct SpecMP2 : SpecBase
             auto name = pak.getName();
             hecl::SystemStringConv sysName(name);
 
-            {
-                std::unique_lock<std::mutex> lk(msgLock);
-                progress(sysName.c_str(), _S(""), compIdx, 0.0);
-            }
             auto pakName = hecl::SystemString(sysName.sys_str());
-            process.addLambdaTransaction([&, pakName](hecl::blender::Token& btok)
+            process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok)
             {
+                int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
                 m_pakRouter.extractResources(pak, force, btok,
-                [&](const hecl::SystemChar* substr, float factor)
+                [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor)
                 {
-                    std::unique_lock<std::mutex> lk(msgLock);
-                    progress(pakName.c_str(), substr, compIdx, factor);
+                    progress.print(pakName.c_str(), substr, factor, threadIdx);
                 });
             });
         }

@@ -11,6 +11,7 @@
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/MultiProgressPrinter.hpp"
 
 #include "Runtime/RetroTypes.hpp"
 #include "nod/nod.hpp"
@@ -351,9 +352,8 @@ struct SpecMP3 : SpecBase
         return doMP3 || doMPTFE;
     }
 
-    bool extractFromDisc(nod::DiscBase&, bool force, FProgress progress)
+    bool extractFromDisc(nod::DiscBase&, bool force, const hecl::MultiProgressPrinter& progress)
     {
-        int compIdx = 2;
         hecl::SystemString currentTarget = _S("");
         size_t nodeCount = 0;
         int prog = 0;
@@ -361,25 +361,27 @@ struct SpecMP3 : SpecBase
         [&](std::string_view name, float)
         {
             hecl::SystemStringConv nameView(name);
-            progress(currentTarget.c_str(), nameView.c_str(), compIdx, prog / (float)nodeCount);
+            progress.print(currentTarget.c_str(), nameView.c_str(), prog / (float)nodeCount);
         }};
         if (doMP3)
         {
             m_workPath.makeDir();
 
-            progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
-            m_pakRouter.build(m_paks, [&progress, &compIdx](float factor)
+            progress.startNewLine();
+            progress.print(_S("Indexing PAKs"), _S(""), 0.0);
+            m_pakRouter.build(m_paks, [&progress](float factor)
             {
-                progress(_S("Indexing PAKs"), _S(""), compIdx, factor);
+                progress.print(_S("Indexing PAKs"), _S(""), factor);
             });
-            progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
+            progress.print(_S("Indexing PAKs"), _S(""), 1.0);
+            progress.startNewLine();
 
             hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
             outPath.makeDir();
             hecl::ProjectPath mp3OutPath(outPath, _S("MP3"));
             mp3OutPath.makeDir();
             currentTarget = _S("MP3 Root");
-            progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
+            progress.print(currentTarget.c_str(), _S(""), 0.0);
             prog = 0;
 
             nodeCount = m_nonPaks.size();
@@ -391,11 +393,10 @@ struct SpecMP3 : SpecBase
             }
             ctx.progressCB = nullptr;
 
-            progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
+            progress.print(currentTarget.c_str(), _S(""), 1.0);
+            progress.startNewLine();
 
-            std::mutex msgLock;
             hecl::ClientProcess process;
-            prog = 0;
             for (std::pair<const std::string, DNAMP3::PAKBridge*>& pair : m_orderedPaks)
             {
                 DNAMP3::PAKBridge& pak = *pair.second;
@@ -405,18 +406,14 @@ struct SpecMP3 : SpecBase
                 auto name = pak.getName();
                 hecl::SystemStringConv sysName(name);
 
-                {
-                    std::unique_lock<std::mutex> lk(msgLock);
-                    progress(sysName.c_str(), _S(""), compIdx, 0.0);
-                }
                 auto pakName = hecl::SystemString(sysName.sys_str());
-                process.addLambdaTransaction([&, pakName](hecl::blender::Token& btok)
+                process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok)
                 {
+                    int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
                     m_pakRouter.extractResources(pak, force, btok,
-                    [&](const hecl::SystemChar* substr, float factor)
+                    [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor)
                     {
-                        std::unique_lock<std::mutex> lk(msgLock);
-                        progress(pakName.c_str(), substr, compIdx, factor);
+                        progress.print(pakName.c_str(), substr, factor);
                     });
                 });
             }
@@ -428,19 +425,21 @@ struct SpecMP3 : SpecBase
         {
             m_feWorkPath.makeDir();
 
-            progress(_S("Indexing PAKs"), _S(""), compIdx, 0.0);
-            m_fePakRouter.build(m_fePaks, [&progress, &compIdx](float factor)
+            progress.startNewLine();
+            progress.print(_S("Indexing PAKs"), _S(""), 0.0);
+            m_fePakRouter.build(m_fePaks, [&progress](float factor)
             {
-                progress(_S("Indexing PAKs"), _S(""), compIdx, factor);
+                progress.print(_S("Indexing PAKs"), _S(""), factor);
             });
-            progress(_S("Indexing PAKs"), _S(""), compIdx++, 1.0);
+            progress.print(_S("Indexing PAKs"), _S(""), 1.0);
+            progress.startNewLine();
 
             hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
             outPath.makeDir();
             hecl::ProjectPath feOutPath(outPath, _S("fe"));
             feOutPath.makeDir();
             currentTarget = _S("fe Root");
-            progress(currentTarget.c_str(), _S(""), compIdx, 0.0);
+            progress.print(currentTarget.c_str(), _S(""), 0.0);
             prog = 0;
             nodeCount = m_feNonPaks.size();
 
@@ -450,11 +449,10 @@ struct SpecMP3 : SpecBase
                 node->extractToDirectory(feOutPath.getAbsolutePath(), ctx);
                 prog++;
             }
-            progress(currentTarget.c_str(), _S(""), compIdx++, 1.0);
+            progress.print(currentTarget.c_str(), _S(""), 1.0);
+            progress.startNewLine();
 
-            std::mutex msgLock;
             hecl::ClientProcess process;
-            prog = 0;
             for (std::pair<std::string, DNAMP3::PAKBridge*> pair : m_feOrderedPaks)
             {
                 DNAMP3::PAKBridge& pak = *pair.second;
@@ -464,18 +462,14 @@ struct SpecMP3 : SpecBase
                 auto name = pak.getName();
                 hecl::SystemStringConv sysName(name);
 
-                {
-                    std::unique_lock<std::mutex> lk(msgLock);
-                    progress(sysName.c_str(), _S(""), compIdx, 0.0);
-                }
                 hecl::SystemString pakName(sysName.sys_str());
-                process.addLambdaTransaction([&, pakName](hecl::blender::Token& btok)
+                process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok)
                 {
+                    int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
                     m_fePakRouter.extractResources(pak, force, btok,
-                    [&](const hecl::SystemChar* substr, float factor)
+                    [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor)
                     {
-                        std::unique_lock<std::mutex> lk(msgLock);
-                        progress(pakName.c_str(), substr, compIdx, factor);
+                        progress.print(pakName.c_str(), substr, factor);
                     });
                 });
             }

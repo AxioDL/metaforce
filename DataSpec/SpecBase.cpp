@@ -11,6 +11,7 @@
 #include "hecl/ClientProcess.hpp"
 #include "nod/nod.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/MultiProgressPrinter.hpp"
 
 #include <png.h>
 
@@ -103,7 +104,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
         return checkFromTrilogyDisc(*m_disc, *regstr, info.extractArgs, reps);
 }
 
-void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
+void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress)
 {
     DataSpec::g_curSpec.reset(this);
     if (!Blender::BuildMasterShader(m_masterShader))
@@ -117,13 +118,13 @@ void SpecBase::doExtract(const ExtractPassInfo& info, FProgress progress)
 
         if (!m_standalone)
         {
-            progress(_S("Trilogy Files"), _S(""), 1, 0.0);
+            progress.print(_S("Trilogy Files"), _S(""), 0.0);
             nod::IPartition* data = m_disc->getDataPartition();
             const nod::Node& root = data->getFSTRoot();
             for (const nod::Node& child : root)
                 if (child.getKind() == nod::Node::Kind::File)
                     child.extractToDirectory(outDir.getAbsolutePath(), ctx);
-            progress(_S("Trilogy Files"), _S(""), 1, 1.0);
+            progress.print(_S("Trilogy Files"), _S(""), 1.0);
         }
     }
     extractFromDisc(*m_disc, info.force, progress);
@@ -492,15 +493,16 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
 void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
                                  const std::vector<urde::SObjectTag>& buildList,
                                  const hecl::Database::DataSpecEntry* entry,
-                                 bool fast, FProgress progress, athena::io::FileWriter& pakOut)
+                                 bool fast, const hecl::MultiProgressPrinter& progress,
+                                 athena::io::FileWriter& pakOut)
 {
     fileIndex.reserve(buildList.size());
-    size_t loadIdx = 0;
+    int loadIdx = 0;
     for (const auto& tag : buildList)
     {
-        fprintf(stderr, "\r %" PRISize " / %" PRISize "  %.4s %08X", ++loadIdx, buildList.size(),
-                tag.type.getChars(), (unsigned int)tag.id.Value());
-        fflush(stderr);
+        hecl::SystemString str = hecl::SysFormat(_S("Copying %.4") FMT_CSTR_SYS " %08X",
+                                                 tag.type.getChars(), (unsigned int)tag.id.Value());
+        progress.print(str.c_str(), nullptr, ++loadIdx / float(buildList.size()));
 
         fileIndex.emplace_back();
         auto& thisIdx = fileIndex.back();
@@ -532,11 +534,12 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
                 pakOut.writeUByte(0xff);
         }
     }
-    fprintf(stderr, "\n");
+    progress.startNewLine();
 }
 
 void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
-                         bool fast, hecl::blender::Token& btok, FProgress progress, hecl::ClientProcess* cp)
+                         bool fast, hecl::blender::Token& btok, const hecl::MultiProgressPrinter& progress,
+                         hecl::ClientProcess* cp)
 {
     /* Prepare complete resource index */
     if (!m_backgroundRunning && m_tagToPath.empty())
@@ -560,7 +563,10 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
         !hecl::StrCmp(path.getLastComponent().data(), _S("!world.blend"))) /* World PAK */
     {
         /* Force-cook MLVL and write resource list structure */
-        m_project.cookPath(path, progress, false, true, fast);
+        m_project.cookPath(path, progress, false, true, fast, entry, cp);
+        if (cp)
+            cp->waitUntilComplete();
+        progress.startNewLine();
         hecl::ProjectPath cooked = getCookedPath(path, true);
         buildWorldPakList(path, cooked, btok, pakOut, buildList, resTableOffset);
         if (int64_t rem = pakOut.position() % 32)
@@ -628,12 +634,9 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
         addedTags.reserve(buildList.size());
 
         Log.report(logvisor::Info, _S("Validating resources"));
-        size_t loadIdx = 0;
+        progress.setMainIndeterminate(true);
         for (auto& tag : buildList)
         {
-            fprintf(stderr, "\r %" PRISize " / %" PRISize "  %.4s %08X", ++loadIdx, buildList.size(),
-                    tag.type.getChars(), (unsigned int)tag.id.Value());
-            fflush(stderr);
             if (addedTags.find(tag) != addedTags.end())
                 continue;
             addedTags.insert(tag);
@@ -641,15 +644,14 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
             hecl::ProjectPath depPath = pathFromTag(tag);
             if (!depPath)
             {
-                fprintf(stderr, "\n");
                 Log.report(logvisor::Fatal, _S("Unable to resolve %.4s %08X"),
                            tag.type.getChars(), tag.id.Value());
             }
-            m_project.cookPath(depPath, progress, false, false, fast, cp);
+            m_project.cookPath(depPath, progress, false, false, fast, entry, cp);
         }
-        fprintf(stderr, "\n");
-        Log.report(logvisor::Info, _S("Waiting for remaining cook transactions"));
+        progress.setMainIndeterminate(false);
         cp->waitUntilComplete();
+        progress.startNewLine();
     }
 
     /* Write resource data and build file index */
@@ -1205,9 +1207,12 @@ void SpecBase::backgroundIndexProc()
                         m_pathToTag[path.hash()] = pathTag;
                         WriteTag(cacheWriter, pathTag, path);
                     }
-                    fprintf(stderr, "\r %" PRISize " / %" PRISize, ++loadIdx, tagCount);
+
+                    ++loadIdx;
+                    if (!(loadIdx % 100))
+                        fprintf(stderr, "\r %" PRISize " / %" PRISize, loadIdx, tagCount);
                 }
-                fprintf(stderr, "\n");
+                fprintf(stderr, "\r %" PRISize " / %" PRISize "\n", loadIdx, tagCount);
             }
             Log.report(logvisor::Info, _S("Cache index of '%s' loaded; %d tags"),
                        getOriginalSpec().m_name.data(), m_tagToPath.size());

@@ -28,7 +28,7 @@ struct SpecBase : hecl::Database::IDataSpec
     /* HECL Adaptors */
     void setThreadProject();
     bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
-    void doExtract(const ExtractPassInfo& info, FProgress progress);
+    void doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress);
 
     bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok);
     const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
@@ -39,7 +39,8 @@ struct SpecBase : hecl::Database::IDataSpec
 
     bool canPackage(const hecl::ProjectPath& path);
     void doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
-                   bool fast, hecl::blender::Token& btok, FProgress progress, hecl::ClientProcess* cp);
+                   bool fast, hecl::blender::Token& btok, const hecl::MultiProgressPrinter& progress,
+                   hecl::ClientProcess* cp);
 
     /* Extract handlers */
     virtual bool checkStandaloneID(const char* id) const=0;
@@ -52,7 +53,7 @@ struct SpecBase : hecl::Database::IDataSpec
                                       const std::vector<hecl::SystemString>& args,
                                       std::vector<ExtractReport>& reps)=0;
     virtual bool extractFromDisc(nod::DiscBase& disc, bool force,
-                                 FProgress progress)=0;
+                                 const hecl::MultiProgressPrinter& progress)=0;
 
     /* Convert path to object tag */
     virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path,
@@ -207,7 +208,8 @@ protected:
     void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
                            const std::vector<urde::SObjectTag>& buildList,
                            const hecl::Database::DataSpecEntry* entry,
-                           bool fast, FProgress progress, athena::io::FileWriter& pakOut);
+                           bool fast, const hecl::MultiProgressPrinter& progress,
+                           athena::io::FileWriter& pakOut);
 
 private:
     std::unique_ptr<nod::DiscBase> m_disc;

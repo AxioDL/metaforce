@@ -24,7 +24,8 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 {
     Log.report(logvisor::Warning, _S("sync-cooking %s"), working.getRelativePath().data());
-    return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::blender::SharedBlenderToken);
+    return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::blender::SharedBlenderToken,
+                                 false, false);
 }
 
 CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag,
@@ -97,7 +98,8 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
                 m_cookedPath.getModtime() < path.getModtime())
             {
                 /* Start a background cook here */
-                m_cookTransaction = m_parent.m_clientProc.addCookTransaction(path, m_parent.m_cookSpec.get());
+                m_cookTransaction = m_parent.m_clientProc.
+                        addCookTransaction(path, m_parent.m_cookSpec.get(), false, false);
                 return;
             }
         }
