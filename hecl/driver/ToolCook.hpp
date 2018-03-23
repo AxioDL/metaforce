@@ -10,6 +10,7 @@ class ToolCook final : public ToolBase
     std::vector<hecl::ProjectPath> m_selectedItems;
     std::unique_ptr<hecl::Database::Project> m_fallbackProj;
     hecl::Database::Project* m_useProj;
+    const hecl::Database::DataSpecEntry* m_spec = nullptr;
     bool m_recursive = false;
     bool m_fast = false;
 public:
@@ -33,6 +34,21 @@ public:
                 else if (!arg.compare(_S("--fast")))
                 {
                     m_fast = true;
+                    continue;
+                }
+                else if (arg.size() >= 8 && !arg.compare(0, 7, _S("--spec=")))
+                {
+                    hecl::SystemString specName(arg.begin() + 7, arg.end());
+                    for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
+                    {
+                        if (!hecl::StrCaseCmp(spec->m_name.data(), specName.c_str()))
+                        {
+                            m_spec = spec;
+                            break;
+                        }
+                    }
+                    if (!m_spec)
+                        LogModule.report(logvisor::Fatal, "unable to find data spec '%s'", specName.c_str());
                     continue;
                 }
                 else if (arg.size() >= 2 && arg[0] == _S('-') && arg[1] == _S('-'))
@@ -80,7 +96,7 @@ public:
 
         help.secHead(_S("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl cook [-rf] [--fast] [<pathspec>...]\n"));
+        help.wrap(_S("hecl cook [-rf] [--fast] [--spec=<spec>] [<pathspec>...]\n"));
         help.endWrap();
 
         help.secHead(_S("DESCRIPTION"));
@@ -131,18 +147,29 @@ public:
         help.beginWrap();
         help.wrap(_S("Performs draft-optimization cooking for supported data types.\n"));
         help.endWrap();
+
+        help.optionHead(_S("--spec=<spec>"), _S("data specification"));
+        help.beginWrap();
+        help.wrap(_S("Specifies a DataSpec to use when cooking. ")
+                  _S("This build of hecl supports the following values of <spec>:\n"));
+        for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
+        {
+            if (!spec->m_factory)
+                continue;
+            help.wrap(_S("  "));
+            help.wrapBold(spec->m_name.data());
+            help.wrap(_S("\n"));
+        }
     }
 
     hecl::SystemString toolName() const {return _S("cook");}
 
     int run()
     {
-        hecl::ClientProcess cp(m_info.verbosityLevel, m_fast, m_info.force);
+        hecl::MultiProgressPrinter printer(true);
+        hecl::ClientProcess cp(&printer, m_info.verbosityLevel);
         for (const hecl::ProjectPath& path : m_selectedItems)
-        {
-            int lineIdx = 0;
-            m_useProj->cookPath(path, {}, m_recursive, m_info.force, m_fast, &cp);
-        }
+            m_useProj->cookPath(path, printer, m_recursive, m_info.force, m_fast, m_spec, &cp);
         cp.waitUntilComplete();
         return 0;
     }

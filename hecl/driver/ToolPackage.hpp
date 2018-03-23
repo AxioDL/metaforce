@@ -11,6 +11,7 @@ class ToolPackage final : public ToolBase
     std::vector<hecl::ProjectPath> m_selectedItems;
     std::unique_ptr<hecl::Database::Project> m_fallbackProj;
     hecl::Database::Project* m_useProj;
+    const hecl::Database::DataSpecEntry* m_spec = nullptr;
     bool m_fast = false;
 
     void AddSelectedItem(const hecl::ProjectPath& path)
@@ -85,6 +86,21 @@ public:
                     m_fast = true;
                     continue;
                 }
+                else if (arg.size() >= 8 && !arg.compare(0, 7, _S("--spec=")))
+                {
+                    hecl::SystemString specName(arg.begin() + 7, arg.end());
+                    for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
+                    {
+                        if (!hecl::StrCaseCmp(spec->m_name.data(), specName.c_str()))
+                        {
+                            m_spec = spec;
+                            break;
+                        }
+                    }
+                    if (!m_spec)
+                        LogModule.report(logvisor::Fatal, "unable to find data spec '%s'", specName.c_str());
+                    continue;
+                }
                 else if (arg.size() >= 2 && arg[0] == _S('-') && arg[1] == _S('-'))
                     continue;
 
@@ -133,7 +149,7 @@ public:
 
         help.secHead(_S("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl package [-a] [-o <package-out>] [<input-dir>]\n"));
+        help.wrap(_S("hecl package [--spec=<spec>] [<input-dir>]\n"));
         help.endWrap();
 
         help.secHead(_S("DESCRIPTION"));
@@ -144,23 +160,26 @@ public:
         help.endWrap();
 
         help.secHead(_S("OPTIONS"));
-        help.optionHead(_S("<dir>"), _S("input directory"));
+        help.optionHead(_S("--spec=<spec>"), _S("data specification"));
+        help.beginWrap();
+        help.wrap(_S("Specifies a DataSpec to use when cooking and generating the package. ")
+                  _S("This build of hecl supports the following values of <spec>:\n"));
+        for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
+        {
+            if (!spec->m_factory)
+                continue;
+            help.wrap(_S("  "));
+            help.wrapBold(spec->m_name.data());
+            help.wrap(_S("\n"));
+        }
+        help.endWrap();
+
+        help.secHead(_S("OPTIONS"));
+        help.optionHead(_S("<input-dir>"), _S("input directory"));
         help.beginWrap();
         help.wrap(_S("Specifies a project subdirectory to root the resulting package from. ")
-                  _S("If any dependent-files fall outside this subdirectory, they will implicitly ")
-                  _S("be gathered and packaged.\n"));
-        help.endWrap();
-
-        help.optionHead(_S("-o <package-out>"), _S("output package file"));
-        help.beginWrap();
-        help.wrap(_S("Specifies a target path to write the package. If not specified, the package ")
-                  _S("is written into <project-root>/out/<relative-input-dirs>/<input-dir>.upak\n"));
-        help.endWrap();
-
-        help.optionHead(_S("-a"), _S("auto cook"));
-        help.beginWrap();
-        help.wrap(_S("Any referenced objects that haven't already been cooked are automatically cooked as ")
-                  _S("part of the packaging process. If this flag is omitted, the packaging process will abort.\n"));
+                  _S("If any dependent files fall outside this subdirectory, they will be implicitly ")
+                  _S("gathered and packaged.\n"));
         help.endWrap();
     }
 
@@ -179,10 +198,11 @@ public:
 
         if (continuePrompt())
         {
-            hecl::ClientProcess cp(m_info.verbosityLevel, m_fast, m_info.force);
+            hecl::MultiProgressPrinter printer(true);
+            hecl::ClientProcess cp(&printer, m_info.verbosityLevel);
             for (const hecl::ProjectPath& path : m_selectedItems)
             {
-                if (!m_useProj->packagePath(path, {}, m_fast, &cp))
+                if (!m_useProj->packagePath(path, printer, m_fast, m_spec, &cp))
                     LogModule.report(logvisor::Error, _S("Unable to package %s"), path.getAbsolutePath().data());
             }
             cp.waitUntilComplete();

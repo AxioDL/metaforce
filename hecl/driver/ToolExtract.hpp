@@ -10,6 +10,8 @@
 #include <termios.h>
 #endif
 
+#include "hecl/MultiProgressPrinter.hpp"
+
 class ToolExtract final : public ToolBase
 {
     hecl::Database::IDataSpec::ExtractPassInfo m_einfo;
@@ -177,12 +179,7 @@ public:
                 else
                     hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name.data());
 
-                int lineIdx = 0;
-                ds.m_instance->doExtract(m_einfo,
-                                         [&lineIdx](const hecl::SystemChar* message,
-                                                    const hecl::SystemChar* submessage,
-                                                    int lidx, float factor)
-                                         {ToolPrintProgress(message, submessage, lidx, factor, lineIdx);});
+                ds.m_instance->doExtract(m_einfo, {true});
                 hecl::Printf(_S("\n\n"));
             }
         }

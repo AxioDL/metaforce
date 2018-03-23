@@ -30,8 +30,6 @@ class Project;
 
 extern logvisor::Module LogModule;
 
-typedef std::function<void(const hecl::SystemChar*, const hecl::SystemChar*, int, float)> FProgress;
-
 /**
  * @brief Nodegraph class for gathering dependency-resolved objects for packaging
  */
@@ -70,7 +68,6 @@ class IDataSpec
 public:
     IDataSpec(const DataSpecEntry* specEntry) : m_specEntry(specEntry) {}
     virtual ~IDataSpec() {}
-    using FProgress = Database::FProgress;
     using FCookProgress = std::function<void(const SystemChar*)>;
 
     /**
@@ -103,7 +100,7 @@ public:
 
     virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
     {(void)info;(void)reps;LogModule.report(logvisor::Error, "not implemented");return false;}
-    virtual void doExtract(const ExtractPassInfo& info, FProgress progress)
+    virtual void doExtract(const ExtractPassInfo& info, const MultiProgressPrinter& progress)
     {(void)info;(void)progress;}
 
     virtual bool canCook(const ProjectPath& path, blender::Token& btok)
@@ -119,7 +116,8 @@ public:
     virtual bool canPackage(const ProjectPath& path)
     {(void)path;return false;}
     virtual void doPackage(const ProjectPath& path, const Database::DataSpecEntry* entry,
-                           bool fast, blender::Token& btok, FProgress progress, ClientProcess* cp=nullptr)
+                           bool fast, blender::Token& btok, const MultiProgressPrinter& progress,
+                           ClientProcess* cp=nullptr)
     {(void)path;}
 
     const DataSpecEntry* getDataSpecEntry() const {return m_specEntry;}
@@ -385,14 +383,14 @@ public:
 
     /**
      * @brief Enable persistent user preference for particular spec string(s)
-     * @param specs String(s) representing unique spec(s) from listDataSpecs
+     * @param specs String(s) representing unique spec(s) from getDataSpecs
      * @return true on success
      */
     bool enableDataSpecs(const std::vector<SystemString>& specs);
 
     /**
      * @brief Disable persistent user preference for particular spec string(s)
-     * @param specs String(s) representing unique spec(s) from listDataSpecs
+     * @param specs String(s) representing unique spec(s) from getDataSpecs
      * @return true on success
      */
     bool disableDataSpecs(const std::vector<SystemString>& specs);
@@ -403,6 +401,7 @@ public:
      * @param feedbackCb a callback to run reporting cook-progress
      * @param recursive traverse subdirectories to cook as well
      * @param fast enables faster (draft) extraction for supported data types
+     * @param spec if non-null, cook using a manually-selected dataspec
      * @param cp if non-null, cook asynchronously via the ClientProcess
      * @return true on success
      *
@@ -410,19 +409,21 @@ public:
      * This method blocks execution during the procedure, with periodic
      * feedback delivered via feedbackCb.
      */
-    bool cookPath(const ProjectPath& path, FProgress feedbackCb,
+    bool cookPath(const ProjectPath& path, const MultiProgressPrinter& feedbackCb,
                   bool recursive=false, bool force=false, bool fast=false,
-                  ClientProcess* cp=nullptr);
+                  const DataSpecEntry* spec=nullptr, ClientProcess* cp=nullptr);
 
     /**
      * @brief Begin package process for specified !world.blend or directory
      * @param path Path to !world.blend or directory
      * @param feedbackCb a callback to run reporting cook-progress
      * @param fast enables faster (draft) extraction for supported data types
+     * @param spec if non-null, cook using a manually-selected dataspec
      * @param cp if non-null, cook asynchronously via the ClientProcess
      */
-    bool packagePath(const ProjectPath& path, FProgress feedbackCb,
-                     bool fast=false, ClientProcess* cp=nullptr);
+    bool packagePath(const ProjectPath& path, const MultiProgressPrinter& feedbackCb,
+                     bool fast=false, const DataSpecEntry* spec=nullptr,
+                     ClientProcess* cp=nullptr);
 
     /**
      * @brief Interrupts a cook in progress (call from SIGINT handler)

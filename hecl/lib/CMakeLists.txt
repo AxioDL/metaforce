@@ -30,6 +30,7 @@ set(HECL_HEADERS
     ../include/hecl/Console.hpp
     ../include/hecl/CVarCommons.hpp
     ../include/hecl/hecl.hpp
+    ../include/hecl/MultiProgressPrinter.hpp
     ../include/hecl/FourCC.hpp
     ../include/hecl/HMDLMeta.hpp
     ../include/hecl/Backend/Backend.hpp
@@ -52,6 +53,7 @@ set(HECL_HEADERS
     ../include/hecl/VertexBufferPool.hpp)
 set(COMMON_SOURCES
     hecl.cpp
+    MultiProgressPrinter.cpp
     Project.cpp
     ProjectPath.cpp
     HumanizeNumber.cpp

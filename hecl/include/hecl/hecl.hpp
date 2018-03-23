@@ -514,6 +514,8 @@ static inline int ConsoleWidth()
     return retval;
 }
 
+class MultiProgressPrinter;
+
 typedef std::basic_regex<SystemChar> SystemRegex;
 typedef std::regex_token_iterator<SystemString::const_iterator> SystemRegexTokenIterator;
 typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;

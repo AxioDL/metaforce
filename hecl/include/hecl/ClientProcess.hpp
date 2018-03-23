@@ -19,9 +19,10 @@ class ClientProcess
     std::condition_variable m_cv;
     std::condition_variable m_initCv;
     std::condition_variable m_waitCv;
+    const MultiProgressPrinter* m_progPrinter;
+    int m_completedCooks = 0;
+    int m_addedCooks = 0;
     int m_verbosity;
-    bool m_fast;
-    bool m_force;
 
 public:
     struct Transaction
@@ -55,9 +56,13 @@ public:
         ProjectPath m_path;
         Database::IDataSpec* m_dataSpec;
         bool m_returnResult = false;
+        bool m_force;
+        bool m_fast;
         void run(blender::Token& btok);
-        CookTransaction(ClientProcess& parent, const ProjectPath& path, Database::IDataSpec* spec)
-        : Transaction(parent, Type::Cook), m_path(path), m_dataSpec(spec) {}
+        CookTransaction(ClientProcess& parent, const ProjectPath& path,
+                        bool force, bool fast, Database::IDataSpec* spec)
+        : Transaction(parent, Type::Cook), m_path(path), m_dataSpec(spec),
+          m_force(force), m_fast(fast) {}
     };
     struct LambdaTransaction : Transaction
     {
@@ -86,16 +91,18 @@ private:
     static ThreadLocalPtr<ClientProcess::Worker> ThreadWorker;
 
 public:
-    ClientProcess(int verbosityLevel=1, bool fast=false, bool force=false);
+    ClientProcess(const MultiProgressPrinter* progPrinter=nullptr, int verbosityLevel=1);
     ~ClientProcess() {shutdown();}
     std::shared_ptr<const BufferTransaction>
     addBufferTransaction(const hecl::ProjectPath& path, void* target,
                          size_t maxLen, size_t offset);
     std::shared_ptr<const CookTransaction>
-    addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec);
+    addCookTransaction(const hecl::ProjectPath& path, bool force,
+                       bool fast, Database::IDataSpec* spec);
     std::shared_ptr<const LambdaTransaction>
     addLambdaTransaction(std::function<void(blender::Token&)>&& func);
-    bool syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, blender::Token& btok);
+    bool syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, blender::Token& btok,
+                  bool force, bool fast);
     void swapCompletedQueue(std::list<std::shared_ptr<Transaction>>& queue);
     void waitUntilComplete();
     void shutdown();

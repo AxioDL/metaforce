@@ -12,6 +12,7 @@
 #include "hecl/Database.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/ClientProcess.hpp"
+#include "hecl/MultiProgressPrinter.hpp"
 
 namespace hecl::Database
 {
@@ -353,14 +354,13 @@ bool Project::disableDataSpecs(const std::vector<SystemString>& specs)
 
 class CookProgress
 {
-    FProgress& m_progFunc;
+    const hecl::MultiProgressPrinter& m_progPrinter;
     const SystemChar* m_dir = nullptr;
     const SystemChar* m_file = nullptr;
-    int lidx = 0;
-    float m_prog = 0.0;
+    float m_prog = 0.f;
 public:
-    CookProgress(FProgress& progFunc) : m_progFunc(progFunc) {}
-    void changeDir(const SystemChar* dir) {m_dir = dir; ++lidx;}
+    CookProgress(const hecl::MultiProgressPrinter& progPrinter) : m_progPrinter(progPrinter) {}
+    void changeDir(const SystemChar* dir) {m_dir = dir; m_progPrinter.startNewLine();}
     void changeFile(const SystemChar* file, float prog) {m_file = file; m_prog = prog;}
     void reportFile(const DataSpecEntry* specEnt)
     {
@@ -368,8 +368,7 @@ public:
         submsg += _S(" (");
         submsg += specEnt->m_name.data();
         submsg += _S(')');
-        if (m_progFunc)
-            m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
+        m_progPrinter.print(m_dir, submsg.c_str(), m_prog);
     }
     void reportFile(const DataSpecEntry* specEnt, const SystemChar* extra)
     {
@@ -379,13 +378,11 @@ public:
         submsg += _S(", ");
         submsg += extra;
         submsg += _S(')');
-        if (m_progFunc)
-            m_progFunc(m_dir, submsg.c_str(), lidx, m_prog);
+        m_progPrinter.print(m_dir, submsg.c_str(), m_prog);
     }
     void reportDirComplete()
     {
-        if (m_progFunc)
-            m_progFunc(m_dir, nullptr, lidx, 1.0);
+        m_progPrinter.print(m_dir, nullptr, 1.f);
     }
 };
 
@@ -399,7 +396,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
         {
             if (cp)
             {
-                cp->addCookTransaction(path, spec.get());
+                cp->addCookTransaction(path, force, fast, spec.get());
             }
             else
             {
@@ -474,11 +471,21 @@ static void VisitDirectory(const ProjectPath& dir,
     }
 }
 
-bool Project::cookPath(const ProjectPath& path, FProgress progress,
-                       bool recursive, bool force, bool fast, ClientProcess* cp)
+bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter& progress,
+                       bool recursive, bool force, bool fast, const DataSpecEntry* spec,
+                       ClientProcess* cp)
 {
     /* Construct DataSpec instances for cooking */
-    if (m_cookSpecs.empty())
+    if (spec)
+    {
+        if (m_cookSpecs.size() != 1 || m_cookSpecs[0]->getDataSpecEntry() != spec)
+        {
+            m_cookSpecs.clear();
+            if (spec->m_factory)
+                m_cookSpecs.push_back(std::unique_ptr<IDataSpec>(spec->m_factory(*this, DataSpecTool::Cook)));
+        }
+    }
+    else if (m_cookSpecs.empty())
     {
         m_cookSpecs.reserve(m_compiledSpecs.size());
         for (const ProjectDataSpec& spec : m_compiledSpecs)
@@ -493,7 +500,7 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress,
     case ProjectPath::Type::File:
     case ProjectPath::Type::Glob:
     {
-        cookProg.changeFile(path.getLastComponent().data(), 0.0);
+        cookProg.changeFile(path.getLastComponent().data(), 0.f);
         VisitFile(path, force, fast, m_cookSpecs, cookProg, cp);
         break;
     }
@@ -508,23 +515,32 @@ bool Project::cookPath(const ProjectPath& path, FProgress progress,
     return true;
 }
 
-bool Project::packagePath(const ProjectPath& path, FProgress progress, bool fast, ClientProcess* cp)
+bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrinter& progress,
+                          bool fast, const DataSpecEntry* spec, ClientProcess* cp)
 {
     /* Construct DataSpec instance for packaging */
     const DataSpecEntry* specEntry = nullptr;
-    bool foundPC = false;
-    for (const ProjectDataSpec& spec : m_compiledSpecs)
+    if (spec)
     {
-        if (spec.active && spec.spec.m_factory)
+        if (spec->m_factory)
+            specEntry = spec;
+    }
+    else
+    {
+        bool foundPC = false;
+        for (const ProjectDataSpec& spec : m_compiledSpecs)
         {
-            if (hecl::StringUtils::EndsWith(spec.spec.m_name, _S("-PC")))
+            if (spec.active && spec.spec.m_factory)
             {
-                foundPC = true;
-                specEntry = &spec.spec;
-            }
-            else if (!foundPC)
-            {
-                specEntry = &spec.spec;
+                if (hecl::StringUtils::EndsWith(spec.spec.m_name, _S("-PC")))
+                {
+                    foundPC = true;
+                    specEntry = &spec.spec;
+                }
+                else if (!foundPC)
+                {
+                    specEntry = &spec.spec;
+                }
             }
         }
     }

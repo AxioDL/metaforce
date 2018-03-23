@@ -2,6 +2,7 @@
 #include "hecl/Database.hpp"
 #include "athena/FileReader.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/MultiProgressPrinter.hpp"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -47,7 +48,10 @@ void ClientProcess::BufferTransaction::run(blender::Token& btok)
 void ClientProcess::CookTransaction::run(blender::Token& btok)
 {
     m_dataSpec->setThreadProject();
-    m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok);
+    m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok, m_force, m_fast);
+    std::unique_lock<std::mutex> lk(m_parent.m_mutex);
+    ++m_parent.m_completedCooks;
+    m_parent.m_progPrinter->setMainFactor(m_parent.m_completedCooks / float(m_parent.m_addedCooks));
     m_complete = true;
 }
 
@@ -98,8 +102,8 @@ void ClientProcess::Worker::proc()
     m_blendTok.shutdown();
 }
 
-ClientProcess::ClientProcess(int verbosityLevel, bool fast, bool force)
-: m_verbosity(verbosityLevel), m_fast(fast), m_force(force)
+ClientProcess::ClientProcess(const MultiProgressPrinter* progPrinter, int verbosityLevel)
+: m_progPrinter(progPrinter), m_verbosity(verbosityLevel)
 {
 #if HECL_MULTIPROCESSOR
     const int cpuCount = GetCPUCount();
@@ -127,12 +131,15 @@ ClientProcess::addBufferTransaction(const ProjectPath& path, void* target,
 }
 
 std::shared_ptr<const ClientProcess::CookTransaction>
-ClientProcess::addCookTransaction(const hecl::ProjectPath& path, Database::IDataSpec* spec)
+ClientProcess::addCookTransaction(const hecl::ProjectPath& path, bool force,
+                                  bool fast, Database::IDataSpec* spec)
 {
     std::unique_lock<std::mutex> lk(m_mutex);
-    auto ret = std::make_shared<CookTransaction>(*this, path, spec);
+    auto ret = std::make_shared<CookTransaction>(*this, path, force, fast, spec);
     m_pendingQueue.emplace_back(ret);
     m_cv.notify_one();
+    ++m_addedCooks;
+    m_progPrinter->setMainFactor(m_completedCooks / float(m_addedCooks));
     return ret;
 }
 
@@ -146,7 +153,8 @@ ClientProcess::addLambdaTransaction(std::function<void(blender::Token&)>&& func)
     return ret;
 }
 
-bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, blender::Token& btok)
+bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, blender::Token& btok,
+                             bool force, bool fast)
 {
     if (spec->canCook(path, btok))
     {
@@ -154,20 +162,43 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
         if (specEnt)
         {
             hecl::ProjectPath cooked = path.getCookedPath(*specEnt);
-            if (m_fast)
+            if (fast)
                 cooked = cooked.getWithExtension(_S(".fast"));
             cooked.makeDirChain(false);
-            if (m_force || cooked.getPathType() == ProjectPath::Type::None ||
+            if (force || cooked.getPathType() == ProjectPath::Type::None ||
                 path.getModtime() > cooked.getModtime())
             {
-                if (path.getAuxInfo().empty())
-                    LogModule.report(logvisor::Info, _S("Cooking %s"),
-                                     path.getRelativePath().data());
+                if (m_progPrinter)
+                {
+                    hecl::SystemString str;
+                    if (path.getAuxInfo().empty())
+                        str = hecl::SysFormat(_S("Cooking %s"), path.getRelativePath().data());
+                    else
+                        str = hecl::SysFormat(_S("Cooking %s|%s"), path.getRelativePath().data(), path.getAuxInfo().data());
+                    m_progPrinter->print(str.c_str(), nullptr, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
+                    m_progPrinter->flush();
+                }
                 else
-                    LogModule.report(logvisor::Info, _S("Cooking %s|%s"),
-                                     path.getRelativePath().data(),
-                                     path.getAuxInfo().data());
+                {
+                    if (path.getAuxInfo().empty())
+                        LogModule.report(logvisor::Info, _S("Cooking %s"),
+                                         path.getRelativePath().data());
+                    else
+                        LogModule.report(logvisor::Info, _S("Cooking %s|%s"),
+                                         path.getRelativePath().data(),
+                                         path.getAuxInfo().data());
+                }
                 spec->doCook(path, cooked, false, btok, [](const SystemChar*) {});
+                if (m_progPrinter)
+                {
+                    hecl::SystemString str;
+                    if (path.getAuxInfo().empty())
+                        str = hecl::SysFormat(_S("Cooked  %s"), path.getRelativePath().data());
+                    else
+                        str = hecl::SysFormat(_S("Cooked  %s|%s"), path.getRelativePath().data(), path.getAuxInfo().data());
+                    m_progPrinter->print(str.c_str(), nullptr, -1.f, hecl::ClientProcess::GetThreadWorkerIdx());
+                    m_progPrinter->flush();
+                }
             }
             return true;
         }
