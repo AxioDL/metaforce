@@ -144,11 +144,12 @@ struct DataSpecEntry
 {
     SystemStringView m_name;
     SystemStringView m_desc;
-    std::function<IDataSpec*(Project&, DataSpecTool)> m_factory;
+    SystemStringView m_pakExt;
+    std::function<std::unique_ptr<IDataSpec>(Project&, DataSpecTool)> m_factory;
 
-    DataSpecEntry(SystemStringView name, SystemStringView desc,
-                  std::function<IDataSpec*(Project& project, DataSpecTool)>&& factory)
-    : m_name(name), m_desc(desc), m_factory(std::move(factory)) {}
+    DataSpecEntry(SystemStringView name, SystemStringView desc, SystemStringView pakExt,
+                  std::function<std::unique_ptr<IDataSpec>(Project& project, DataSpecTool)>&& factory)
+    : m_name(name), m_desc(desc), m_pakExt(pakExt), m_factory(std::move(factory)) {}
 };
 
 /**

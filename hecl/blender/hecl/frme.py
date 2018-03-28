@@ -273,7 +273,7 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
             recursive_cook(buffer, ch, version, path_hasher, obj.name)
 
 
-def cook(path_out, version, path_hasher):
+def cook(writepipebuf, version, path_hasher):
     global hjustifications, vjustifications, model_draw_flags_e
     hjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_hjustification[1]['items'])
     vjustifications = dict((i[0], i[3]) for i in bpy.types.Object.retro_textpane_vjustification[1]['items'])
@@ -292,12 +292,7 @@ def cook(path_out, version, path_hasher):
         if obj.retro_widget_type != 'RETRO_NONE' and not obj.parent:
             recursive_cook(buffer, obj, version, path_hasher, 'kGSYS_DummyWidgetID')
 
-    rem_bytes = 32 - len(buffer) % 32
-    for i in range(rem_bytes):
-        buffer.append(0xff)
-    fout = open(path_out, 'wb')
-    fout.write(buffer)
-    fout.close()
+    return buffer
 
 
 # Registration

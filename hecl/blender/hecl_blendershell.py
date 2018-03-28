@@ -217,13 +217,14 @@ def dataout_loop():
         elif cmdargs[0] == 'MESHCOMPILENAME':
             meshName = cmdargs[1]
             maxSkinBanks = int(cmdargs[3])
+            useLuv = int(cmdargs[4])
 
             if meshName not in bpy.data.objects:
                 writepipestr(('mesh %s not found' % meshName).encode())
                 continue
 
             writepipestr(b'OK')
-            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[2], maxSkinBanks)
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[2], maxSkinBanks, useLuv)
 
         elif cmdargs[0] == 'MESHCOMPILENAMECOLLISION':
             meshName = cmdargs[1]
@@ -281,15 +282,16 @@ def dataout_loop():
             hecl.swld.cook(writepipebuf)
 
         elif cmdargs[0] == 'FRAMECOMPILE':
-            pathOut = cmdargs[1]
-            version = int(cmdargs[2])
+            version = int(cmdargs[1])
             if version != 0 and version != 1:
                 writepipestr(b'bad version')
                 continue
 
             writepipestr(b'OK')
-            hecl.frme.cook(pathOut, version, PathHasher())
+            buffer = hecl.frme.cook(writepipebuf, version, PathHasher())
             writepipestr(b'FRAMEDONE')
+            writepipebuf(struct.pack('I', len(buffer)))
+            writepipebuf(buffer)
 
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
             writepipestr(b'OK')

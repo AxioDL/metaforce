@@ -14,9 +14,9 @@ static SystemString CanonRelPath(SystemStringView path)
     hecl::SystemRegexMatch matches;
     SystemString in(path);
     SanitizePath(in);
-    for (; std::regex_search(in, matches, regPATHCOMP) ; in = matches.suffix())
+    for (; std::regex_search(in, matches, regPATHCOMP) ; in = matches.suffix().str())
     {
-        const SystemString& match = matches[1];
+        hecl::SystemRegexMatch::const_reference match = matches[1];
         if (!match.compare(_S(".")))
             continue;
         else if (!match.compare(_S("..")))
@@ -30,7 +30,7 @@ static SystemString CanonRelPath(SystemStringView path)
             comps.pop_back();
             continue;
         }
-        comps.push_back(match);
+        comps.push_back(match.str());
     }
 
     /* Emit relative path */
@@ -210,7 +210,7 @@ static void _recursiveGlob(Database::Project& proj,
             return;
 
         if (S_ISDIR(theStat.st_mode))
-            _recursiveGlob(proj, outPaths, matches.suffix(), nextItStr, true);
+            _recursiveGlob(proj, outPaths, matches.suffix().str(), nextItStr, true);
         else
             outPaths.emplace_back(proj, nextItStr);
         return;
@@ -235,7 +235,7 @@ static void _recursiveGlob(Database::Project& proj,
                 continue;
 
             if (ent.m_isDir)
-                _recursiveGlob(proj, outPaths, matches.suffix(), nextItStr, true);
+                _recursiveGlob(proj, outPaths, matches.suffix().str(), nextItStr, true);
             else
                 outPaths.emplace_back(proj, nextItStr);
         }

@@ -495,7 +495,7 @@ static inline bool PathRelative(const SystemChar* path)
 #endif
 }
 
-static inline int ConsoleWidth()
+static inline int ConsoleWidth(bool* ok = nullptr)
 {
     int retval = 80;
 #if _WIN32
@@ -503,11 +503,19 @@ static inline int ConsoleWidth()
     CONSOLE_SCREEN_BUFFER_INFO info;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
     retval = info.dwSize.X;
+    if (ok)
+        *ok = true;
 #endif
 #else
+    if (ok)
+        *ok = false;
     struct winsize w;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1)
+    {
         retval = w.ws_col;
+        if (ok)
+            *ok = true;
+    }
 #endif
     if (retval < 10)
         return 10;
@@ -547,6 +555,7 @@ public:
     uint32_t val32() const {return uint32_t(hash) ^ uint32_t(hash >> 32);}
     uint64_t val64() const {return uint64_t(hash);}
     size_t valSizeT() const {return size_t(hash);}
+    template <typename T> T valT() const;
     Hash& operator=(const Hash& other) {hash = other.hash; return *this;}
     bool operator==(const Hash& other) const {return hash == other.hash;}
     bool operator!=(const Hash& other) const {return hash != other.hash;}
@@ -555,6 +564,8 @@ public:
     bool operator<=(const Hash& other) const {return hash <= other.hash;}
     bool operator>=(const Hash& other) const {return hash >= other.hash;}
 };
+template <> inline uint32_t Hash::valT<uint32_t>() const { return val32(); }
+template <> inline uint64_t Hash::valT<uint64_t>() const { return val64(); }
 
 /**
  * @brief Timestamp representation used for comparing modtimes of cooked resources

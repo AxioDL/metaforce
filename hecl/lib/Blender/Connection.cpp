@@ -1000,6 +1000,14 @@ Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, SurfPro
     for (uint32_t i=0 ; i<count ; ++i)
         uv.emplace_back(conn);
 
+    conn._readBuf(&luvLayerCount, 4);
+    if (luvLayerCount > 1)
+        LogModule.report(logvisor::Fatal, "mesh has %u LUV-layers; max 1", luvLayerCount);
+    conn._readBuf(&count, 4);
+    luv.reserve(count);
+    for (uint32_t i=0 ; i<count ; ++i)
+        luv.emplace_back(conn);
+
     conn._readBuf(&count, 4);
     boneNames.reserve(count);
     for (uint32_t i=0 ; i<count ; ++i)
@@ -1827,15 +1835,15 @@ Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount, Mesh::Sur
 }
 
 Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology,
-                             int skinSlotCount, Mesh::SurfProgFunc surfProg)
+                             int skinSlotCount, bool useLuv, Mesh::SurfProgFunc surfProg)
 {
     if (m_parent->getBlendType() != BlendType::Area)
         BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
-    snprintf(req, 128, "MESHCOMPILENAME %s %s %d", name.data(),
-             MeshOutputModeString(topology), skinSlotCount);
+    snprintf(req, 128, "MESHCOMPILENAME %s %s %d %d", name.data(),
+             MeshOutputModeString(topology), skinSlotCount, int(useLuv));
     m_parent->_writeStr(req);
 
     char readBuf[256];
@@ -1953,14 +1961,15 @@ PathMesh DataStream::compilePathMesh()
     return PathMesh(*m_parent);
 }
 
-void DataStream::compileGuiFrame(std::string_view pathOut, int version)
+std::vector<uint8_t> DataStream::compileGuiFrame(int version)
 {
+    std::vector<uint8_t> ret;
     if (m_parent->getBlendType() != BlendType::Frame)
         BlenderLog.report(logvisor::Fatal, _S("%s is not a FRAME blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[512];
-    snprintf(req, 512, "FRAMECOMPILE '%s' %d", pathOut.data(), version);
+    snprintf(req, 512, "FRAMECOMPILE %d", version);
     m_parent->_writeStr(req);
 
     char readBuf[1024];
@@ -1987,6 +1996,12 @@ void DataStream::compileGuiFrame(std::string_view pathOut, int version)
         snprintf(req, 512, "%016" PRIX64 , path.hash().val64());
         m_parent->_writeStr(req);
     }
+
+    uint32_t len;
+    m_parent->_readBuf(&len, 4);
+    ret.resize(len);
+    m_parent->_readBuf(&ret[0], len);
+    return ret;
 }
 
 std::vector<ProjectPath> DataStream::getTextures()
@@ -2386,7 +2401,7 @@ void Token::shutdown()
     {
         m_conn->quitBlender();
         m_conn.reset();
-        BlenderLog.report(logvisor::Info, "BlenderConnection Shutdown Successful");
+        BlenderLog.report(logvisor::Info, "Blender Shutdown Successful");
     }
 }
 

@@ -198,6 +198,8 @@ struct Mesh
     std::vector<Vector3f> color;
     uint32_t uvLayerCount = 0;
     std::vector<Vector2f> uv;
+    uint32_t luvLayerCount = 0;
+    std::vector<Vector2f> luv;
 
     /* Skinning data */
     std::vector<std::string> boneNames;
@@ -537,7 +539,7 @@ public:
                      Mesh::SurfProgFunc surfProg=[](int){});
 
     /** Compile mesh by name (AREA blends only) */
-    Mesh compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount=10,
+    Mesh compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount=10, bool useLuv=false,
                      Mesh::SurfProgFunc surfProg=[](int){});
 
     /** Compile collision mesh by name (AREA blends only) */
@@ -560,7 +562,7 @@ public:
     PathMesh compilePathMesh();
 
     /** Compile GUI into FRME data (FRAME blends only) */
-    void compileGuiFrame(std::string_view pathOut, int version);
+    std::vector<uint8_t> compileGuiFrame(int version);
 
     /** Gather all texture paths in scene */
     std::vector<ProjectPath> getTextures();

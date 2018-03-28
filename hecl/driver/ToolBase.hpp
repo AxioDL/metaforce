@@ -78,7 +78,10 @@ protected:
 #endif
             {
                 if (ch == 'n' || ch == 'N')
+                {
+                    hecl::Printf(_S("\n"));
                     return false;
+                }
                 if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
                     break;
             }

@@ -53,7 +53,7 @@ def cook(writebuf, mesh_obj):
     # Create master BMesh and VertPool
     bm_master = bmesh.new()
     bm_master.from_mesh(copy_obj.data)
-    vert_pool = VertPool(bm_master, rna_loops)
+    vert_pool = VertPool(bm_master, rna_loops, False, mesh_obj.material_slots)
 
     # Output vert pool
     vert_pool.write_out_map(writebuf)

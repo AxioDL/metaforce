@@ -19,8 +19,9 @@ class ToolExtract final : public ToolBase
     {
         const hecl::Database::DataSpecEntry* m_entry;
         std::unique_ptr<hecl::Database::IDataSpec> m_instance;
-        SpecExtractPass(const hecl::Database::DataSpecEntry* entry, hecl::Database::IDataSpec* instance)
-        : m_entry(entry), m_instance(instance) {}
+        SpecExtractPass(const hecl::Database::DataSpecEntry* entry,
+                        std::unique_ptr<hecl::Database::IDataSpec>&& instance)
+        : m_entry(entry), m_instance(std::move(instance)) {}
         SpecExtractPass(const SpecExtractPass& other) = delete;
         SpecExtractPass(SpecExtractPass&& other) = default;
     };
@@ -90,14 +91,9 @@ public:
         {
             if (entry->m_factory)
             {
-                hecl::Database::IDataSpec* ds = entry->m_factory(*m_useProj, hecl::Database::DataSpecTool::Extract);
-                if (ds)
-                {
-                    if (ds->canExtract(m_einfo, m_reps))
-                        m_specPasses.emplace_back(entry, ds);
-                    else
-                        delete ds;
-                }
+                auto ds = entry->m_factory(*m_useProj, hecl::Database::DataSpecTool::Extract);
+                if (ds && ds->canExtract(m_einfo, m_reps))
+                    m_specPasses.emplace_back(entry, std::move(ds));
             }
         }
     }

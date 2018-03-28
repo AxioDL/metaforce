@@ -482,7 +482,7 @@ bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter
         {
             m_cookSpecs.clear();
             if (spec->m_factory)
-                m_cookSpecs.push_back(std::unique_ptr<IDataSpec>(spec->m_factory(*this, DataSpecTool::Cook)));
+                m_cookSpecs.push_back(spec->m_factory(*this, DataSpecTool::Cook));
         }
     }
     else if (m_cookSpecs.empty())
@@ -490,7 +490,7 @@ bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter
         m_cookSpecs.reserve(m_compiledSpecs.size());
         for (const ProjectDataSpec& spec : m_compiledSpecs)
             if (spec.active && spec.spec.m_factory)
-                m_cookSpecs.push_back(std::unique_ptr<IDataSpec>(spec.spec.m_factory(*this, DataSpecTool::Cook)));
+                m_cookSpecs.push_back(spec.spec.m_factory(*this, DataSpecTool::Cook));
     }
 
     /* Iterate complete directory/file/glob list */
@@ -549,7 +549,7 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
         LogModule.report(logvisor::Fatal, "No matching DataSpec");
 
     if (!m_lastPackageSpec || m_lastPackageSpec->getDataSpecEntry() != specEntry)
-        m_lastPackageSpec = std::unique_ptr<IDataSpec>(specEntry->m_factory(*this, DataSpecTool::Package));
+        m_lastPackageSpec = specEntry->m_factory(*this, DataSpecTool::Package);
 
     if (m_lastPackageSpec->canPackage(path))
     {

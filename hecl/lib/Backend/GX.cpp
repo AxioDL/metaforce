@@ -260,6 +260,15 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 b->m_kColor = newKColor;
                 return TraceResult(b);
             }
+            else if (aTrace.type == TraceResult::Type::TEVColorArg &&
+                     bTrace.type == TraceResult::Type::TEVColorArg)
+            {
+                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                stage.m_color[0] = aTrace.tevColorArg;
+                stage.m_color[3] = bTrace.tevColorArg;
+                stage.m_kColor = newKColor;
+                return TraceResult(&stage);
+            }
             break;
         }
         case ArithmeticOp::Subtract:
@@ -291,6 +300,16 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
                 a->m_kColor = newKColor;
                 a->m_cop = TEV_SUB;
                 return TraceResult(a);
+            }
+            else if (aTrace.type == TraceResult::Type::TEVColorArg &&
+                     bTrace.type == TraceResult::Type::TEVColorArg)
+            {
+                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                stage.m_color[0] = aTrace.tevColorArg;
+                stage.m_color[3] = bTrace.tevColorArg;
+                stage.m_kColor = newKColor;
+                stage.m_cop = TEV_SUB;
+                return TraceResult(&stage);
             }
             break;
         }
@@ -544,6 +563,15 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 b->m_kAlpha = newKAlpha;
                 return TraceResult(b);
             }
+            else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
+                     bTrace.type == TraceResult::Type::TEVAlphaArg)
+            {
+                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                stage.m_alpha[0] = aTrace.tevAlphaArg;
+                stage.m_alpha[3] = bTrace.tevAlphaArg;
+                stage.m_kAlpha = newKAlpha;
+                return TraceResult(&stage);
+            }
             break;
         }
         case ArithmeticOp::Subtract:
@@ -582,6 +610,16 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 a->m_alpha[3] = bTrace.tevAlphaArg;
                 a->m_kAlpha = newKAlpha;
                 return TraceResult(a);
+            }
+            else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
+                     bTrace.type == TraceResult::Type::TEVAlphaArg)
+            {
+                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                stage.m_alpha[0] = aTrace.tevAlphaArg;
+                stage.m_alpha[3] = bTrace.tevAlphaArg;
+                stage.m_kAlpha = newKAlpha;
+                stage.m_aop = TEV_SUB;
+                return TraceResult(&stage);
             }
             break;
         }

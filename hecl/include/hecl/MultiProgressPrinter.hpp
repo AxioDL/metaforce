@@ -2,6 +2,7 @@
 #define HECLMULTIPROGRESSPRINTER_HPP
 
 #include "hecl.hpp"
+#include <thread>
 
 namespace hecl
 {
@@ -19,6 +20,7 @@ class MultiProgressPrinter
 #endif
         int width;
         bool xtermColor = false;
+        bool truncate = false;
     } m_termInfo;
 
     struct ThreadStat
@@ -34,7 +36,7 @@ class MultiProgressPrinter
     mutable int m_indeterminateCounter = 0;
     mutable int m_curThreadLines = 0;
     mutable int m_curProgLines = 0;
-    mutable int m_latestThread = 0;
+    mutable int m_latestThread = -1;
     mutable bool m_running = false;
     mutable bool m_dirty = false;
     mutable bool m_mainIndeterminate = false;

@@ -19,15 +19,17 @@ void MultiProgressPrinter::ThreadStat::print(const TermInfo& tinfo) const
     float factor = std::max(0.f, std::min(1.f, m_factor));
     int iFactor = factor * 100.f;
 
+    int messageLen = m_message.size();
+    int submessageLen = m_submessage.size();
+
     int half;
     if (blocks)
         half = (tinfo.width + 1) / 2 - 2;
-    else
+    else if (tinfo.truncate)
         half = tinfo.width - 4;
-    int rightHalf = tinfo.width - half - 4;
+    else
+        half = messageLen;
 
-    int messageLen = m_message.size();
-    int submessageLen = m_submessage.size();
     if (half - messageLen < submessageLen-2)
         submessageLen = 0;
 
@@ -57,6 +59,7 @@ void MultiProgressPrinter::ThreadStat::print(const TermInfo& tinfo) const
 
     if (blocks)
     {
+        int rightHalf = tinfo.width - half - 4;
         int blocks = rightHalf - 7;
         int filled = blocks * factor;
         int rem = blocks - filled;
@@ -176,7 +179,7 @@ void MultiProgressPrinter::DoPrint()
 
     if (m_dirty)
     {
-        m_termInfo.width = (hecl::GuiMode ? 120 : std::max(80, hecl::ConsoleWidth()));
+        m_termInfo.width = (hecl::GuiMode ? 120 : std::max(80, hecl::ConsoleWidth(&m_termInfo.truncate)));
         MoveCursorUp(m_curThreadLines + m_curProgLines);
         m_curThreadLines = m_curProgLines = 0;
 
@@ -237,7 +240,7 @@ void MultiProgressPrinter::DoPrint()
                 ++m_curProgLines;
             }
         }
-        else
+        else if (m_latestThread != -1)
         {
             const ThreadStat& stat = m_threadStats[m_latestThread];
             stat.print(m_termInfo);
@@ -365,6 +368,7 @@ void MultiProgressPrinter::startNewLine() const
     std::lock_guard<std::mutex> lk(m_logLock);
     const_cast<MultiProgressPrinter&>(*this).DoPrint();
     m_threadStats.clear();
+    m_latestThread = -1;
     m_curThreadLines = 0;
     m_mainFactor = -1.f;
     auto logLk = logvisor::LockLog();

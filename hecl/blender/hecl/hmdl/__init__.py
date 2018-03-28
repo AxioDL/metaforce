@@ -18,7 +18,6 @@ def write_out_material(writebuf, mat, mesh_obj):
         if isinstance(prop[1], int):
             prop_count += 1
     writebuf(struct.pack('I', prop_count))
-    prop_count = 0
     for prop in mat.items():
         if isinstance(prop[1], int):
             writebuf(struct.pack('I', len(prop[0])))
@@ -34,7 +33,7 @@ def write_out_material(writebuf, mat, mesh_obj):
 
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL
-def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None):
+def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
 
@@ -75,10 +74,9 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, max_octant_length=None
     # Create master BMesh and VertPool
     bm_master = bmesh.new()
     bm_master.from_mesh(copy_mesh)
-    vert_pool = HMDLMesh.VertPool(bm_master, rna_loops)
+    vert_pool = HMDLMesh.VertPool(bm_master, rna_loops, use_luv, mesh_obj.material_slots)
 
     # Tag edges where there are distinctive loops
-    splittable_edges = []
     for e in bm_master.edges:
         e.tag = vert_pool.splitable_edge(e)
 

@@ -5,17 +5,20 @@ from mathutils import Vector
 class VertPool:
 
     # Initialize hash-unique index for each available attribute
-    def __init__(self, bm, rna_loops):
+    def __init__(self, bm, rna_loops, use_luv, material_slots):
         self.bm = bm
         self.rna_loops = rna_loops
+        self.material_slots = material_slots
         self.pos = {}
         self.norm = {}
         self.skin = {}
         self.color = {}
         self.uv = {}
+        self.luv = {}
         self.dlay = None
         self.clays = []
         self.ulays = []
+        self.luvlay = None
 
         dlay = None
         if len(bm.verts.layers.deform):
@@ -27,6 +30,10 @@ class VertPool:
             clays.append(bm.loops.layers.color[cl])
         self.clays = clays
 
+        luvlay = None
+        if use_luv:
+            luvlay = bm.loops.layers.uv[0]
+            self.luvlay = luvlay
         ulays = []
         for ul in range(len(bm.loops.layers.uv)):
             ulays.append(bm.loops.layers.uv[ul])
@@ -48,6 +55,7 @@ class VertPool:
 
         # Per-loop pool attributes
         for f in bm.faces:
+            lightmapped = material_slots[f.material_index].material['retro_lightmapped']
             for l in f.loops:
                 if rna_loops:
                     nf = rna_loops[l.index].normal.copy().freeze()
@@ -57,7 +65,13 @@ class VertPool:
                     cf = l[clays[cl]].copy().freeze()
                     if cf not in self.color:
                         self.color[cf] = len(self.color)
-                for ul in range(len(ulays)):
+                start_uvlay = 0
+                if use_luv and lightmapped:
+                    start_uvlay = 1
+                    uf = l[luvlay].uv.copy().freeze()
+                    if uf not in self.luv:
+                        self.luv[uf] = len(self.luv)
+                for ul in range(start_uvlay, len(ulays)):
                     uf = l[ulays[ul]].uv.copy().freeze()
                     if uf not in self.uv:
                         self.uv[uf] = len(self.uv)
@@ -77,6 +91,13 @@ class VertPool:
 
         writebuf(struct.pack('II', len(self.ulays), len(self.uv)))
         for u in sorted(self.uv.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('ff', u[0][0], u[0][1]))
+
+        luv_count = 0
+        if self.luvlay is not None:
+            luv_count = 1
+        writebuf(struct.pack('II', luv_count, len(self.luv)))
+        for u in sorted(self.luv.items(), key=operator.itemgetter(1)):
             writebuf(struct.pack('ff', u[0][0], u[0][1]))
 
         writebuf(struct.pack('I', len(vert_groups)))
@@ -122,6 +143,10 @@ class VertPool:
         return self.color[cf]
 
     def get_uv_idx(self, loop, uidx):
+        if self.luvlay is not None and uidx == 0:
+            if self.material_slots[loop.face.material_index].material['retro_lightmapped']:
+                uf = loop[self.luvlay].uv.copy().freeze()
+                return self.luv[uf]
         uf = loop[self.ulays[uidx]].uv.copy().freeze()
         return self.uv[uf]
 
