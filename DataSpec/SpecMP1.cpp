@@ -17,6 +17,7 @@
 #include "DNAMP1/CSNG.hpp"
 #include "DNAMP1/MAPA.hpp"
 #include "DNAMP1/PATH.hpp"
+#include "DNAMP1/FRME.hpp"
 #include "DNACommon/ATBL.hpp"
 #include "DNACommon/FONT.hpp"
 #include "DNACommon/PART.hpp"
@@ -135,7 +136,7 @@ struct OriginalIDs
             originalIDs.push_back(std::make_pair(id, path.hash().val32()));
         }
         std::sort(originalIDs.begin(), originalIDs.end(),
-                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) -> bool {
+                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) {
                       return a.first < b.first;
                   });
 
@@ -148,7 +149,7 @@ struct OriginalIDs
         }
 
         std::sort(originalIDs.begin(), originalIDs.end(),
-                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) -> bool {
+                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) {
                       return a.second < b.second;
                   });
         for (const auto& idPair : originalIDs)
@@ -176,12 +177,22 @@ struct SpecMP1 : SpecBase
 
     std::unique_ptr<uint8_t[]> m_dolBuf;
 
+    IDRestorer<UniqueID32> m_idRestorer;
+
+    void setThreadProject()
+    {
+        SpecBase::setThreadProject();
+        UniqueIDBridge::SetIDRestorer(&m_idRestorer);
+    }
+
     SpecMP1(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
     : SpecBase(specEntry, project, pc)
     , m_workPath(project.getProjectWorkingPath(), _S("MP1"))
     , m_cookPath(project.getProjectCookedPath(SpecEntMP1), _S("MP1"))
     , m_pakRouter(*this, m_workPath, m_cookPath)
+    , m_idRestorer({project.getProjectWorkingPath(), "MP1/!original_ids.yaml"}, project)
     {
+        setThreadProject();
     }
 
     void buildPaks(nod::Node& root, const std::vector<hecl::SystemString>& args, ExtractReport& rep)
@@ -372,7 +383,8 @@ struct SpecMP1 : SpecBase
 
         hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
         outPath.makeDir();
-        hecl::ProjectPath mp1OutPath(outPath, _S("MP1"));
+        disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
+        hecl::ProjectPath mp1OutPath(outPath, m_standalone ? _S("files") : _S("files/MP1"));
         mp1OutPath.makeDir();
 
         /* Extract non-pak files */
@@ -780,15 +792,22 @@ struct SpecMP1 : SpecBase
         {
             Actor actor = ds.compileActorCharacterOnly();
             ds.close();
-            DNAMP1::ANCS::CookCSKR(out, in, actor, [&](const hecl::ProjectPath& modelPath) -> bool {
-                hecl::ProjectPath cooked;
-                if (m_pc)
-                    cooked = modelPath.getCookedPath(SpecEntMP1PC);
-                else
-                    cooked = modelPath.getCookedPath(SpecEntMP1);
-                doCook(modelPath, cooked, fast, btok, progress);
-                return true;
-            });
+            if (m_pc)
+            {
+                DNAMP1::ANCS::CookCSKRPC(out, in, actor, [&](const hecl::ProjectPath& modelPath) {
+                    hecl::ProjectPath cooked = modelPath.getCookedPath(SpecEntMP1PC);
+                    doCook(modelPath, cooked, fast, btok, progress);
+                    return true;
+                });
+            }
+            else
+            {
+                DNAMP1::ANCS::CookCSKR(out, in, actor, [&](const hecl::ProjectPath& modelPath) {
+                    hecl::ProjectPath cooked = modelPath.getCookedPath(SpecEntMP1);
+                    doCook(modelPath, cooked, fast, btok, progress);
+                    return true;
+                });
+            }
         }
         else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _S(".ANIM")))
         {
@@ -821,7 +840,7 @@ struct SpecMP1 : SpecBase
                 continue;
             }
             meshCompiles.push_back(ds.compileMesh(
-                mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1,
+                mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1, !m_pc,
                 [&](int surfCount) { progress(hecl::SysFormat(_S("%s %d"), meshSys.c_str(), surfCount).c_str()); }));
         }
 
@@ -832,10 +851,7 @@ struct SpecMP1 : SpecBase
 
         ds.close();
 
-        if (m_pc)
-            DNAMP1::MREA::PCCook(out, in, meshCompiles, *colMesh, lights, btok);
-        else
-            DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights);
+        DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights, btok, m_pc);
     }
 
     void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
@@ -864,7 +880,12 @@ struct SpecMP1 : SpecBase
     void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
                       hecl::blender::Token& btok, FCookProgress progress)
     {
-        ds.compileGuiFrame(out.getAbsolutePathUTF8(), 0);
+        auto data = ds.compileGuiFrame(0);
+        athena::io::MemoryReader r(data.data(), data.size());
+        DNAMP1::FRME frme;
+        frme.read(r);
+        athena::io::FileWriter w(out.getAbsolutePath());
+        frme.write(w);
     }
 
     void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, athena::io::IStreamReader& fin,
@@ -1131,7 +1152,9 @@ struct SpecMP1 : SpecBase
         }
     }
 
-    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
+    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin,
+                                     std::vector<hecl::ProjectPath>& pathsOut,
+                                     int charIdx)
     {
         athena::io::YAMLDocReader reader;
         if (reader.parse(&fin))
@@ -1141,9 +1164,23 @@ struct SpecMP1 : SpecBase
             {
                 DNAMP1::ANCS ancs;
                 ancs.read(reader);
-                ancs.gatherDependencies(pathsOut);
+                ancs.gatherDependencies(pathsOut, charIdx);
             }
         }
+    }
+
+    UniqueID32 newToOriginal(urde::CAssetId id) const
+    {
+        if (UniqueID32 origId = m_idRestorer.newToOriginal({uint32_t(id.Value()), true}))
+            return {origId.toUint32(), true};
+        return {uint32_t(id.Value()), true};
+    }
+
+    urde::CAssetId originalToNew(UniqueID32 id) const
+    {
+        if (UniqueID32 newId = m_idRestorer.originalToNew(id))
+            return newId.toUint32();
+        return id.toUint32();
     }
 
     void buildWorldPakList(const hecl::ProjectPath& worldPath,
@@ -1169,32 +1206,35 @@ struct SpecMP1 : SpecBase
 
         urde::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_S(".*"), true), btok);
 
-        w.writeUint32Big(0x80030005);
+        w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
         w.writeUint32Big(0);
 
         w.writeUint32Big(1);
         DNAMP1::PAK::NameEntry nameEnt;
         hecl::ProjectPath parentDir = worldPath.getParentPath();
         nameEnt.type = worldTag.type;
-        nameEnt.id = atUint32(worldTag.id.Value());
+        nameEnt.id = newToOriginal(worldTag.id);
         nameEnt.nameLen = atUint32(parentDir.getLastComponent().size());
         nameEnt.name = parentDir.getLastComponentUTF8();
         nameEnt.write(w);
 
         for (const auto& area : mlvl.areas)
         {
-            urde::SObjectTag nameTag(FOURCC('STRG'), area.areaNameId.toUint32());
+            urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(area.areaNameId));
             if (nameTag)
                 listOut.push_back(nameTag);
             for (const auto& dep : area.deps)
-                listOut.push_back({dep.type, dep.id.toUint32()});
+                listOut.push_back({dep.type, originalToNew(dep.id)});
+            urde::SObjectTag areaTag(FOURCC('MREA'), originalToNew(area.areaMREAId));
+            if (areaTag)
+                listOut.push_back(areaTag);
         }
 
-        urde::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint32());
+        urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(mlvl.worldNameId));
         if (nameTag)
             listOut.push_back(nameTag);
 
-        urde::SObjectTag savwTag(FOURCC('SAVW'), mlvl.saveWorldId.toUint32());
+        urde::SObjectTag savwTag(FOURCC('SAVW'), originalToNew(mlvl.saveWorldId));
         if (savwTag)
         {
             if (hecl::ProjectPath savwPath = pathFromTag(savwTag))
@@ -1202,7 +1242,7 @@ struct SpecMP1 : SpecBase
             listOut.push_back(savwTag);
         }
 
-        urde::SObjectTag mapTag(FOURCC('MAPW'), mlvl.worldMap.toUint32());
+        urde::SObjectTag mapTag(FOURCC('MAPW'), originalToNew(mlvl.worldMap));
         if (mapTag)
         {
             if (hecl::ProjectPath mapPath = pathFromTag(mapTag))
@@ -1222,14 +1262,14 @@ struct SpecMP1 : SpecBase
                     {
                         UniqueID32 id;
                         id.read(r);
-                        listOut.push_back({FOURCC('MAPA'), id.toUint32()});
+                        listOut.push_back({FOURCC('MAPA'), originalToNew(id)});
                     }
                 }
             }
             listOut.push_back(mapTag);
         }
 
-        urde::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint32());
+        urde::SObjectTag skyboxTag(FOURCC('CMDL'), originalToNew(mlvl.worldSkyboxId));
         if (skyboxTag)
         {
             listOut.push_back(skyboxTag);
@@ -1257,7 +1297,7 @@ struct SpecMP1 : SpecBase
             DNAMP1::PAK::Entry ent;
             ent.compressed = 0;
             ent.type = item.type;
-            ent.id = atUint32(item.id.Value());
+            ent.id = newToOriginal(item.id.Value());
             ent.size = 0;
             ent.offset = 0;
             ent.write(w);
@@ -1270,7 +1310,7 @@ struct SpecMP1 : SpecBase
                       const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
                       atUint64& resTableOffset)
     {
-        w.writeUint32Big(0x80030005);
+        w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
         w.writeUint32Big(0);
 
         w.writeUint32Big(atUint32(nameList.size()));
@@ -1278,7 +1318,7 @@ struct SpecMP1 : SpecBase
         {
             DNAMP1::PAK::NameEntry nameEnt;
             nameEnt.type = item.first.type;
-            nameEnt.id = atUint32(item.first.id.Value());
+            nameEnt.id = newToOriginal(item.first.id);
             nameEnt.nameLen = atUint32(item.second.size());
             nameEnt.name = item.second;
             nameEnt.write(w);
@@ -1291,7 +1331,7 @@ struct SpecMP1 : SpecBase
             DNAMP1::PAK::Entry ent;
             ent.compressed = 0;
             ent.type = item.type;
-            ent.id = atUint32(item.id.Value());
+            ent.id = newToOriginal(item.id);
             ent.size = 0;
             ent.offset = 0;
             ent.write(w);
@@ -1312,7 +1352,7 @@ struct SpecMP1 : SpecBase
             DNAMP1::PAK::Entry ent;
             ent.compressed = atUint32(std::get<2>(item));
             ent.type = tag.type;
-            ent.id = atUint32(tag.id.Value());
+            ent.id = newToOriginal(tag.id);
             ent.size = atUint32(std::get<1>(item));
             ent.offset = atUint32(std::get<0>(item));
             ent.write(w);
@@ -1350,7 +1390,7 @@ struct SpecMP1 : SpecBase
         uLong destLen = compressBound(len);
         std::pair<std::unique_ptr<uint8_t[]>, size_t> ret;
         ret.first.reset(new uint8_t[destLen]);
-        compress(ret.first.get(), &destLen, data, len);
+        compress2(ret.first.get(), &destLen, data, len, Z_BEST_COMPRESSION);
         ret.second = destLen;
         return ret;
     };
@@ -1389,19 +1429,19 @@ struct SpecMP1 : SpecBase
 };
 
 hecl::Database::DataSpecEntry SpecEntMP1 = {
-    _S("MP1"sv), _S("Data specification for original Metroid Prime engine"sv),
-    [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> hecl::Database::IDataSpec* {
-        return new struct SpecMP1(&SpecEntMP1, project, false);
+    _S("MP1"sv), _S("Data specification for original Metroid Prime engine"sv), _S(".pak"sv),
+    [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> std::unique_ptr<hecl::Database::IDataSpec> {
+        return std::make_unique<SpecMP1>(&SpecEntMP1, project, false);
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1PC = {
-    _S("MP1-PC"sv), _S("Data specification for PC-optimized Metroid Prime engine"sv),
-    [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool) -> hecl::Database::IDataSpec* {
+    _S("MP1-PC"sv), _S("Data specification for PC-optimized Metroid Prime engine"sv), _S(".upak"sv),
+    [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool) -> std::unique_ptr<hecl::Database::IDataSpec> {
         if (tool != hecl::Database::DataSpecTool::Extract)
-            return new struct SpecMP1(&SpecEntMP1PC, project, true);
-        return nullptr;
+            return std::make_unique<SpecMP1>(&SpecEntMP1PC, project, true);
+        return {};
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1ORIG = {
-    _S("MP1-ORIG"sv), _S("Data specification for unmodified Metroid Prime resources"sv), {}};
+    _S("MP1-ORIG"sv), _S("Data specification for unmodified Metroid Prime resources"sv), {}, {}};
 }

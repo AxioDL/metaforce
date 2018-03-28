@@ -84,7 +84,7 @@ void ViewManager::RootSpaceViewBuilt(specter::View *view)
 void ViewManager::ProjectChanged(hecl::Database::Project& proj)
 {
     CDvdFile::Shutdown();
-    CDvdFile::Initialize(hecl::ProjectPath(proj.getProjectWorkingPath(), _S("out/MP1")));
+    CDvdFile::Initialize(hecl::ProjectPath(proj.getProjectWorkingPath(), _S("out/files")));
 }
 
 void ViewManager::SetupEditorView()

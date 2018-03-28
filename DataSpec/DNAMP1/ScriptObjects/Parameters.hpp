@@ -111,6 +111,11 @@ struct AnimationParameters : BigDNA
 
     void depANCS(std::vector<hecl::ProjectPath>& pathsOut) const
     {
+        g_curSpec->flattenDependencies(animationCharacterSet, pathsOut, character);
+    }
+
+    void depANCSAll(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
         g_curSpec->flattenDependencies(animationCharacterSet, pathsOut);
     }
 };

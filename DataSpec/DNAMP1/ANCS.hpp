@@ -468,9 +468,9 @@ struct ANCS : BigDNA
             trans->enumeratePrimitives(func);
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, int charIdx) const
     {
-        for (const CharacterSet::CharacterInfo& ci : characterSet.characters)
+        auto doCi = [&](const CharacterSet::CharacterInfo& ci)
         {
             for (const auto& id : ci.partResData.part)
                 g_curSpec->flattenDependencies(id, pathsOut);
@@ -480,7 +480,12 @@ struct ANCS : BigDNA
                 g_curSpec->flattenDependencies(id, pathsOut);
             for (const auto& id : ci.partResData.elsc)
                 g_curSpec->flattenDependencies(id, pathsOut);
-        }
+        };
+        if (charIdx < 0)
+            for (const CharacterSet::CharacterInfo& ci : characterSet.characters)
+                doCi(ci);
+        else if (charIdx < characterSet.characters.size())
+            doCi(characterSet.characters[charIdx]);
     }
 
     static bool Extract(const SpecBase& dataSpec,
@@ -504,6 +509,10 @@ struct ANCS : BigDNA
                          const hecl::ProjectPath& inPath,
                          const DNAANCS::Actor& actor,
                          const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc);
+    static bool CookCSKRPC(const hecl::ProjectPath& outPath,
+                           const hecl::ProjectPath& inPath,
+                           const DNAANCS::Actor& actor,
+                           const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc);
 
     static bool CookANIM(const hecl::ProjectPath& outPath,
                          const hecl::ProjectPath& inPath,

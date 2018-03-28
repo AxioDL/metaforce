@@ -123,6 +123,9 @@ class UniqueIDBridge
     friend class UniqueID64;
 
     static ThreadLocalPtr<hecl::Database::Project> s_Project;
+    static ThreadLocalPtr<IDRestorer<UniqueID32>> s_restorer32;
+    static ThreadLocalPtr<IDRestorer<UniqueID64>> s_restorer64;
+    static ThreadLocalPtr<IDRestorer<UniqueID128>> s_restorer128;
 public:
     template <class IDType>
     static hecl::ProjectPath TranslatePakIdToPath(const IDType& id, bool silenceWarnings=false);
@@ -131,8 +134,49 @@ public:
     template <class IDType>
     static void TransformOldHashToNewHash(IDType& id);
 
-    static void setThreadProject(hecl::Database::Project& project);
+    static void SetThreadProject(hecl::Database::Project& project);
+
+    template <class IDType>
+    static IDRestorer<IDType>* GetIDRestorer();
+    template <class IDType>
+    static void SetIDRestorer(IDRestorer<IDType>* restorer);
 };
+
+template <>
+inline IDRestorer<UniqueID32>* UniqueIDBridge::GetIDRestorer<UniqueID32>()
+{
+    return s_restorer32.get();
+}
+
+template <>
+inline void UniqueIDBridge::SetIDRestorer<UniqueID32>(IDRestorer<UniqueID32>* restorer)
+{
+    s_restorer32.reset(restorer);
+}
+
+template <>
+inline IDRestorer<UniqueID64>* UniqueIDBridge::GetIDRestorer<UniqueID64>()
+{
+    return s_restorer64.get();
+}
+
+template <>
+inline void UniqueIDBridge::SetIDRestorer<UniqueID64>(IDRestorer<UniqueID64>* restorer)
+{
+    s_restorer64.reset(restorer);
+}
+
+template <>
+inline IDRestorer<UniqueID128>* UniqueIDBridge::GetIDRestorer<UniqueID128>()
+{
+    return s_restorer128.get();
+}
+
+template <>
+inline void UniqueIDBridge::SetIDRestorer<UniqueID128>(IDRestorer<UniqueID128>* restorer)
+{
+    s_restorer128.reset(restorer);
+}
 
 /** PAK 32-bit Unique ID */
 class UniqueID32 : public BigDNA
@@ -140,10 +184,11 @@ class UniqueID32 : public BigDNA
 protected:
     uint32_t m_id = 0xffffffff;
 public:
+    using value_type = uint32_t;
     static UniqueID32 kInvalidId;
     AT_DECL_EXPLICIT_DNA_YAML
     operator bool() const {return m_id != 0xffffffff && m_id != 0;}
-    void assign(uint32_t id) { m_id = id ? id : 0xffffffff; }
+    void assign(uint32_t id, bool noOriginal = false);
 
     UniqueID32& operator=(const hecl::ProjectPath& path)
     {assign(path.hash().val32()); return *this;}
@@ -157,7 +202,7 @@ public:
     void clear() {m_id = 0xffffffff;}
 
     UniqueID32() = default;
-    UniqueID32(uint32_t idin) {assign(idin);}
+    UniqueID32(uint32_t idin, bool noOriginal = false) {assign(idin, noOriginal);}
     UniqueID32(athena::io::IStreamReader& reader) {read(reader);}
     UniqueID32(const hecl::ProjectPath& path) {*this = path;}
     UniqueID32(const char* hexStr)
@@ -200,9 +245,10 @@ class UniqueID64 : public BigDNA
 {
     uint64_t m_id = 0xffffffffffffffff;
 public:
+    using value_type = uint64_t;
     AT_DECL_EXPLICIT_DNA_YAML
     operator bool() const {return m_id != 0xffffffffffffffff && m_id != 0;}
-    void assign(uint64_t id) { m_id = id ? id : 0xffffffffffffffff; }
+    void assign(uint64_t id, bool noOriginal = false);
 
     UniqueID64& operator=(const hecl::ProjectPath& path)
     {assign(path.hash().val64()); return *this;}
@@ -215,7 +261,7 @@ public:
     void clear() {m_id = 0xffffffffffffffff;}
 
     UniqueID64() = default;
-    UniqueID64(uint64_t idin) {assign(idin);}
+    UniqueID64(uint64_t idin, bool noOriginal = false) {assign(idin, noOriginal);}
     UniqueID64(athena::io::IStreamReader& reader) {read(reader);}
     UniqueID64(const hecl::ProjectPath& path) {*this = path;}
     UniqueID64(const char* hexStr)
@@ -247,23 +293,32 @@ public:
 /** PAK 128-bit Unique ID */
 class UniqueID128 : public BigDNA
 {
-    union
+public:
+    union Value
     {
-        uint64_t m_id[2];
+        uint64_t id[2];
 #if __SSE__
-        __m128i m_id128;
+        __m128i id128;
 #endif
     };
+private:
+    Value m_id;
 public:
+    using value_type = uint64_t;
     AT_DECL_EXPLICIT_DNA_YAML
-    UniqueID128() {m_id[0]=0xffffffffffffffff; m_id[1]=0xffffffffffffffff;}
+    UniqueID128() {m_id.id[0]=0xffffffffffffffff; m_id.id[1]=0xffffffffffffffff;}
+    UniqueID128(uint64_t idin, bool noOriginal = false)
+    {
+        m_id.id[0] = idin;
+        m_id.id[1] = 0;
+    }
     operator bool() const
-    {return m_id[0] != 0xffffffffffffffff && m_id[0] != 0 && m_id[1] != 0xffffffffffffffff && m_id[1] != 0;}
+    {return m_id.id[0] != 0xffffffffffffffff && m_id.id[0] != 0 && m_id.id[1] != 0xffffffffffffffff && m_id.id[1] != 0;}
 
     UniqueID128& operator=(const hecl::ProjectPath& path)
     {
-        m_id[0] = path.hash().val64();
-        m_id[1] = 0;
+        m_id.id[0] = path.hash().val64();
+        m_id.id[1] = 0;
         return *this;
     }
     UniqueID128(const hecl::ProjectPath& path) {*this = path;}
@@ -271,27 +326,27 @@ public:
     bool operator!=(const UniqueID128& other) const
     {
 #if __SSE__
-        __m128i vcmp = _mm_cmpeq_epi32(m_id128, other.m_id128);
+        __m128i vcmp = _mm_cmpeq_epi32(m_id.id128, other.m_id.id128);
         int vmask = _mm_movemask_epi8(vcmp);
         return vmask != 0xffff;
 #else
-        return (m_id[0] != other.m_id[0]) || (m_id[1] != other.m_id[1]);
+        return (m_id.id[0] != other.m_id.id[0]) || (m_id.id[1] != other.m_id.id[1]);
 #endif
     }
     bool operator==(const UniqueID128& other) const
     {
 #if __SSE__
-        __m128i vcmp = _mm_cmpeq_epi32(m_id128, other.m_id128);
+        __m128i vcmp = _mm_cmpeq_epi32(m_id.id128, other.m_id.id128);
         int vmask = _mm_movemask_epi8(vcmp);
         return vmask == 0xffff;
 #else
-        return (m_id[0] == other.m_id[0]) && (m_id[1] == other.m_id[1]);
+        return (m_id.id[0] == other.m_id.id[0]) && (m_id.id[1] == other.m_id.id[1]);
 #endif
     }
-    void clear() {m_id[0] = 0xffffffffffffffff; m_id[1] = 0xffffffffffffffff;}
-    uint64_t toUint64() const {return m_id[0];}
-    uint64_t toHighUint64() const {return m_id[0];}
-    uint64_t toLowUint64() const {return m_id[1];}
+    void clear() {m_id.id[0] = 0xffffffffffffffff; m_id.id[1] = 0xffffffffffffffff;}
+    uint64_t toUint64() const {return m_id.id[0];}
+    uint64_t toHighUint64() const {return m_id.id[0];}
+    uint64_t toLowUint64() const {return m_id.id[1];}
     std::string toString() const;
 
     static constexpr size_t BinarySize() {return 16;}

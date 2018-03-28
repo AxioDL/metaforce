@@ -74,6 +74,10 @@ bool CMDL::Cook(const hecl::ProjectPath& outPath,
         /* Output skinning intermediate */
         auto vertCountIt = skinMesh.contiguousSkinVertCounts.cbegin();
         athena::io::FileWriter writer(outPath.getWithExtension(_S(".skinint")).getAbsolutePath());
+        writer.writeUint32Big(skinMesh.boneNames.size());
+        for (const std::string& boneName : skinMesh.boneNames)
+            writer.writeString(boneName);
+
         writer.writeUint32Big(skinMesh.skins.size());
         for (const std::vector<DNACMDL::Mesh::SkinBind> skin : skinMesh.skins)
         {
@@ -86,9 +90,7 @@ bool CMDL::Cook(const hecl::ProjectPath& outPath,
             writer.writeUint32Big(*vertCountIt++);
         }
         writer.writeUint32Big(skinMesh.pos.size());
-        writer.writeUint32Big(skinMesh.boneNames.size());
-        for (const std::string& boneName : skinMesh.boneNames)
-            writer.writeString(boneName);
+        writer.writeUint32Big(skinMesh.norm.size());
     }
     else if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, mesh))
         return false;

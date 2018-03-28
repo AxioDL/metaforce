@@ -1199,7 +1199,8 @@ template void NameCMDL<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet>
  PAKRouter<DNAMP1::PAKBridge>::EntryType& entry,
  const SpecBase& dataspec);
 
-static void WriteDLVal(athena::io::FileWriter& writer, GX::AttrType type, atUint32 val)
+template <typename W>
+static void WriteDLVal(W& writer, GX::AttrType type, atUint32 val)
 {
     switch (type)
     {
@@ -1356,7 +1357,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         size_t vertSz = matSets.at(0).materials.at(surf.materialIdx).getVAFlags().vertDLSize();
         if (surf.verts.size() > 65536)
             LogDNACommon.report(logvisor::Fatal, "GX DisplayList overflow");
-        size_t secSz = 67 + surf.verts.size() * vertSz;
+        size_t secSz = 68 + surf.verts.size() * vertSz;
         secSz32 = ROUND_UP_32(secSz);
         if (secSz32 == 0)
             secSz32 = 32;
@@ -1430,7 +1431,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         SurfaceHeader header;
         header.centroid = surf.centroid;
         header.matIdx = surf.materialIdx;
-        header.dlSize = 3 + surf.verts.size() * vertSz;
+        header.dlSize = ROUND_UP_32(4 + surf.verts.size() * vertSz);
         header.reflectionNormal = surf.reflectionNormal;
         header.write(writer);
 
@@ -1460,6 +1461,8 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
             WriteDLVal(writer, vaFlags.tex5(), vert.iUv[5]);
             WriteDLVal(writer, vaFlags.tex6(), vert.iUv[6]);
         }
+
+        writer.writeUByte(0);
 
         writer.fill(atUint8(0), *padIt);
         ++padIt;
@@ -1649,12 +1652,318 @@ template bool WriteHMDLCMDL<DNAMP1::HMDLMaterialSet, DNACMDL::SurfaceHeader_2, 2
 (const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh,
  hecl::blender::PoolSkinIndex& poolSkinIndex);
 
+struct MaterialPool
+{
+    std::vector<const Material*> materials;
+    size_t addMaterial(const Material& mat, bool& newMat)
+    {
+        size_t ret = 0;
+        newMat = false;
+        for (const Material* testMat : materials)
+        {
+            if (mat == *testMat)
+                return ret;
+            ++ret;
+        }
+        materials.push_back(&mat);
+        newMat = true;
+        return ret;
+    }
+};
+
 template <class MaterialSet, class SurfaceHeader, class MeshHeader>
 bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
                    const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs)
 {
-    return false;
+    /* Build material set */
+    std::vector<size_t> surfToGlobalMats;
+    MaterialSet matSet;
+    {
+        MaterialPool matPool;
+
+        size_t surfCount = 0;
+        for (const Mesh& mesh : meshes)
+            surfCount += mesh.surfaces.size();
+        surfToGlobalMats.reserve(surfCount);
+
+        hecl::Frontend::Frontend FE;
+        size_t endOff = 0;
+        std::vector<hecl::ProjectPath> texPaths;
+        std::vector<hecl::Backend::GX> setBackends;
+        atUint32 nextGroupIdx = 0;
+        for (const Mesh& mesh : meshes)
+        {
+            if (mesh.materialSets.size())
+            {
+                std::vector<size_t> meshToGlobalMats;
+                meshToGlobalMats.reserve(mesh.materialSets[0].size());
+
+                for (const Material& mat : mesh.materialSets[0])
+                {
+                    bool newMat;
+                    size_t idx = matPool.addMaterial(mat, newMat);
+                    meshToGlobalMats.push_back(idx);
+                    if (!newMat)
+                        continue;
+
+                    for (const hecl::ProjectPath& path : mat.texs)
+                    {
+                        bool found = false;
+                        for (const hecl::ProjectPath& ePath : texPaths)
+                        {
+                            if (path == ePath)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                            texPaths.push_back(path);
+                    }
+
+                    std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
+                    hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
+                    setBackends.emplace_back();
+                    hecl::Backend::GX& matGX = setBackends.back();
+                    matGX.reset(matIR, FE.getDiagnostics());
+
+                    atUint32 groupIdx = -1;
+                    for (size_t i=0 ; i<setBackends.size()-1 ; ++i)
+                    {
+                        const hecl::Backend::GX& other = setBackends[i];
+                        if (matGX == other)
+                        {
+                            groupIdx = i;
+                            break;
+                        }
+                    }
+                    if (groupIdx == -1)
+                        groupIdx = nextGroupIdx++;
+
+                    auto lightmapped = mat.iprops.find("retro_lightmapped");
+                    bool lm = lightmapped != mat.iprops.cend() && lightmapped->second != 0;
+
+                    matSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
+                                                  mesh.colorLayerCount, mesh.uvLayerCount,
+                                                  lm, false, groupIdx);
+
+                    matSet.materials.back().binarySize(endOff);
+                    matSet.head.addMaterialEndOff(endOff);
+                }
+
+                for (const Mesh::Surface& surf : mesh.surfaces)
+                    surfToGlobalMats.push_back(meshToGlobalMats[surf.materialIdx]);
+            }
+        }
+        for (const hecl::ProjectPath& path : texPaths)
+            matSet.head.addTexture(path);
+
+        size_t secSz = 0;
+        matSet.binarySize(secSz);
+        secsOut.emplace_back(secSz, 0);
+        athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+        matSet.write(w);
+    }
+
+    /* Iterate meshes */
+    auto matIt = surfToGlobalMats.cbegin();
+    int meshIdx = 0;
+    for (const Mesh& mesh : meshes)
+    {
+        zeus::CTransform meshXf(mesh.sceneXf.val);
+        meshXf.basis.transpose();
+
+        /* Header */
+        {
+            MeshHeader meshHeader = {};
+            meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
+            memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+
+            zeus::CAABox aabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
+            aabb = aabb.getTransformedAABox(meshXf);
+            meshAABBs.push_back(aabb);
+            fullAABB.accumulateBounds(aabb);
+            meshHeader.aabb[0] = aabb.min;
+            meshHeader.aabb[1] = aabb.max;
+
+            size_t secSz = 0;
+            meshHeader.binarySize(secSz);
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            meshHeader.write(w);
+        }
+
+        std::vector<size_t> surfEndOffs;
+        surfEndOffs.reserve(mesh.surfaces.size());
+        size_t endOff = 0;
+        auto smatIt = matIt;
+        for (const Mesh::Surface& surf : mesh.surfaces)
+        {
+            const typename MaterialSet::Material::VAFlags& vaFlags =
+                matSet.materials.at(*smatIt++).getVAFlags();
+            size_t vertSz = vaFlags.vertDLSize();
+
+            endOff += 96 + vertSz * surf.verts.size() + 4;
+            endOff = ROUND_UP_32(endOff);
+            surfEndOffs.push_back(endOff);
+        }
+
+        /* Positions */
+        {
+            size_t secSz = ROUND_UP_32(mesh.pos.size() * 12);
+            if (secSz == 0)
+                secSz = 32;
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            for (const hecl::blender::Vector3f& v : mesh.pos)
+            {
+                zeus::CVector3f preXfPos = meshXf * zeus::CVector3f(v);
+                w.writeVec3fBig(preXfPos);
+            }
+        }
+
+        /* Normals */
+        {
+            size_t secSz = ROUND_UP_32(mesh.norm.size() * 6);
+            if (secSz == 0)
+                secSz = 32;
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            for (const hecl::blender::Vector3f& v : mesh.norm)
+            {
+                zeus::CVector3f preXfNorm = (meshXf.basis * zeus::CVector3f(v)).normalized();
+                for (int i=0 ; i<3 ; ++i)
+                {
+                    int tmpV = int(preXfNorm[i] * 16834.f);
+                    tmpV = zeus::clamp(-32768, tmpV, 32767);
+                    w.writeInt16Big(atInt16(tmpV));
+                }
+            }
+        }
+
+        /* Colors */
+        {
+            size_t secSz = ROUND_UP_32(mesh.color.size() * 4);
+            if (secSz == 0)
+                secSz = 32;
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            for (const hecl::blender::Vector3f& v : mesh.color)
+            {
+                zeus::CColor col((zeus::CVector4f(zeus::CVector3f(v))));
+                col.writeRGBA8(w);
+            }
+        }
+
+        /* UVs */
+        {
+            size_t secSz = ROUND_UP_32(mesh.uv.size() * 8);
+            if (secSz == 0)
+                secSz = 32;
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            for (const hecl::blender::Vector2f& v : mesh.uv)
+                w.writeVec2fBig(v.val);
+        }
+
+        /* LUVs */
+        {
+            size_t secSz = ROUND_UP_32(mesh.luv.size() * 4);
+            if (secSz == 0)
+                secSz = 32;
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            for (const hecl::blender::Vector2f& v : mesh.luv)
+            {
+                for (int i=0 ; i<2 ; ++i)
+                {
+                    int tmpV = int(v.val.vec[i] * 32768.f);
+                    tmpV = zeus::clamp(-32768, tmpV, 32767);
+                    w.writeInt16Big(atInt16(tmpV));
+                }
+            }
+        }
+
+        /* Surface index */
+        {
+            secsOut.emplace_back((surfEndOffs.size() + 1) * 4, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            w.writeUint32Big(surfEndOffs.size());
+            for (size_t off : surfEndOffs)
+                w.writeUint32Big(off);
+        }
+
+        /* Surfaces */
+        GX::Primitive prim;
+        if (mesh.topology == hecl::HMDLTopology::Triangles)
+            prim = GX::TRIANGLES;
+        else if (mesh.topology == hecl::HMDLTopology::TriStrips)
+            prim = GX::TRIANGLESTRIP;
+        else
+            LogDNACommon.report(logvisor::Fatal, "unrecognized mesh output mode");
+        for (const Mesh::Surface& surf : mesh.surfaces)
+        {
+            size_t matIdx = *matIt++;
+            const typename MaterialSet::Material::VAFlags& vaFlags =
+                matSet.materials.at(matIdx).getVAFlags();
+            size_t vertSz = vaFlags.vertDLSize();
+
+            SurfaceHeader header;
+            header.centroid = meshXf * zeus::CVector3f(surf.centroid);
+            header.matIdx = matIdx;
+            header.dlSize = ROUND_UP_32(4 + surf.verts.size() * vertSz);
+            header.reflectionNormal = (meshXf.basis * zeus::CVector3f(surf.reflectionNormal)).normalized();
+            header.aabbSz = 24;
+            zeus::CAABox aabb(zeus::CVector3f(surf.aabbMin), zeus::CVector3f(surf.aabbMax));
+            aabb = aabb.getTransformedAABox(meshXf);
+            header.aabb[0] = aabb.min;
+            header.aabb[1] = aabb.max;
+
+            size_t secSz = 0;
+            header.binarySize(secSz);
+            secSz += 4 + surf.verts.size() * vertSz;
+            secSz = ROUND_UP_32(secSz);
+            secsOut.emplace_back(secSz, 0);
+            athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
+            header.write(w);
+
+            w.writeUByte(prim);
+            w.writeUint16Big(surf.verts.size());
+
+            for (const Mesh::Surface::Vert& vert : surf.verts)
+            {
+                atUint32 skinIdx = vert.iBankSkin * 3;
+                WriteDLVal(w, vaFlags.pnMatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex0MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex1MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex2MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex3MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex4MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex5MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.tex6MatIdx(), skinIdx);
+                WriteDLVal(w, vaFlags.position(), vert.iPos);
+                WriteDLVal(w, vaFlags.normal(), vert.iNorm);
+                WriteDLVal(w, vaFlags.color0(), vert.iColor[0]);
+                WriteDLVal(w, vaFlags.color1(), vert.iColor[1]);
+                WriteDLVal(w, vaFlags.tex0(), vert.iUv[0]);
+                WriteDLVal(w, vaFlags.tex1(), vert.iUv[1]);
+                WriteDLVal(w, vaFlags.tex2(), vert.iUv[2]);
+                WriteDLVal(w, vaFlags.tex3(), vert.iUv[3]);
+                WriteDLVal(w, vaFlags.tex4(), vert.iUv[4]);
+                WriteDLVal(w, vaFlags.tex5(), vert.iUv[5]);
+                WriteDLVal(w, vaFlags.tex6(), vert.iUv[6]);
+            }
+
+            w.writeUByte(0);
+        }
+    }
+
+    return true;
 }
+
+template bool WriteMREASecs<DNAMP1::MaterialSet, DNACMDL::SurfaceHeader_1, DNAMP1::MREA::MeshHeader>
+    (std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
+     const std::vector<Mesh>& meshes, zeus::CAABox& fullAABB, std::vector<zeus::CAABox>& meshAABBs);
 
 template <class MaterialSet, class SurfaceHeader, class MeshHeader>
 bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::ProjectPath& inPath,
@@ -1663,24 +1972,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
     /* Build material set */
     std::vector<size_t> surfToGlobalMats;
     {
-        struct MaterialPool
-        {
-            std::vector<const Material*> materials;
-            size_t addMaterial(const Material& mat, bool& newMat)
-            {
-                size_t ret = 0;
-                newMat = false;
-                for (const Material* testMat : materials)
-                {
-                    if (mat == *testMat)
-                        return ret;
-                    ++ret;
-                }
-                materials.push_back(&mat);
-                newMat = true;
-                return ret;
-            }
-        } matPool;
+        MaterialPool matPool;
 
         size_t surfCount = 0;
         for (const Mesh& mesh : meshes)

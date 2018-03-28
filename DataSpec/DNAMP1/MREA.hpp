@@ -129,14 +129,9 @@ struct MREA
                      const hecl::ProjectPath& inPath,
                      const std::vector<DNACMDL::Mesh>& meshes,
                      const ColMesh& cMesh,
-                     const std::vector<Light>& lights);
-
-    static bool PCCook(const hecl::ProjectPath& outPath,
-                       const hecl::ProjectPath& inPath,
-                       const std::vector<DNACMDL::Mesh>& meshes,
-                       const ColMesh& cMesh,
-                       const std::vector<Light>& lights,
-                       hecl::blender::Token& btok);
+                     const std::vector<Light>& lights,
+                     hecl::blender::Token& btok,
+                     bool pc);
 };
 
 }

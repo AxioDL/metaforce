@@ -17,7 +17,7 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex
     m_proj = &proj;
     m_origSpec = &origSpec;
     m_pcSpec = &pcSpec;
-    m_cookSpec.reset(pcSpec.m_factory(proj, hecl::Database::DataSpecTool::Cook));
+    m_cookSpec = pcSpec.m_factory(proj, hecl::Database::DataSpecTool::Cook);
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).beginBackgroundIndex();
 }
 
@@ -99,7 +99,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
             {
                 /* Start a background cook here */
                 m_cookTransaction = m_parent.m_clientProc.
-                        addCookTransaction(path, m_parent.m_cookSpec.get(), false, false);
+                        addCookTransaction(path, false, false, m_parent.m_cookSpec.get());
                 return;
             }
         }

@@ -39,12 +39,13 @@ static const hecl::SystemChar* MomErr[] =
 };
 
 constexpr uint32_t MomErrCount = std::extent<decltype(MomErr)>::value;
+
 SpecBase::SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
 : hecl::Database::IDataSpec(specEntry), m_project(project), m_pc(pc),
   m_masterShader(project.getProjectWorkingPath(), ".hecl/RetroMasterShader.blend")
 {
     AssetNameMap::InitAssetNameMap();
-    DataSpec::UniqueIDBridge::setThreadProject(m_project);
+    SpecBase::setThreadProject();
 }
 
 SpecBase::~SpecBase()
@@ -59,8 +60,74 @@ static const hecl::SystemString regP = _S("PAL");
 
 void SpecBase::setThreadProject()
 {
-    UniqueIDBridge::setThreadProject(m_project);
+    UniqueIDBridge::SetThreadProject(m_project);
 }
+
+template <typename IDType>
+IDRestorer<IDType>::IDRestorer(const hecl::ProjectPath& yamlPath, const hecl::Database::Project& project)
+{
+    using ValType = typename IDType::value_type;
+    if (!yamlPath.isFile())
+        return;
+
+    athena::io::YAMLDocReader r;
+    athena::io::FileReader fr(yamlPath.getAbsolutePath());
+    if (!fr.isOpen() || !r.parse(&fr))
+        return;
+
+    m_newToOrig.reserve(r.getRootNode()->m_mapChildren.size());
+    m_origToNew.reserve(r.getRootNode()->m_mapChildren.size());
+    for (const auto& node : r.getRootNode()->m_mapChildren)
+    {
+        char* end = const_cast<char*>(node.first.c_str());
+        ValType id = strtoull(end, &end, 16);
+        if (end != node.first.c_str() + sizeof(ValType) * 2)
+            continue;
+
+        hecl::ProjectPath path(project.getProjectWorkingPath(), node.second->m_scalarString.c_str());
+        m_newToOrig.push_back(std::make_pair(IDType{path.hash().valT<ValType>(), true}, IDType{id, true}));
+        m_origToNew.push_back(std::make_pair(IDType{id, true}, IDType{path.hash().valT<ValType>(), true}));
+    }
+
+    std::sort(m_newToOrig.begin(), m_newToOrig.end(),
+              [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b) {
+                  return a.first < b.first;
+              });
+    std::sort(m_origToNew.begin(), m_origToNew.end(),
+              [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b) {
+                  return a.first < b.first;
+              });
+
+    Log.report(logvisor::Info, _S("Loaded Original IDs '%s'"), yamlPath.getRelativePath().data());
+}
+
+template <typename IDType>
+IDType IDRestorer<IDType>::newToOriginal(IDType id) const
+{
+    if (!id)
+        return {};
+    auto search = rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id,
+                                    [](const auto& id) { return id.first; });
+    if (search == m_newToOrig.cend())
+        return {};
+    return search->second;
+}
+
+template <typename IDType>
+IDType IDRestorer<IDType>::originalToNew(IDType id) const
+{
+    if (!id)
+        return {};
+    auto search = rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id,
+                                    [](const auto& id) { return id.first; });
+    if (search == m_origToNew.cend())
+        return {};
+    return search->second;
+}
+
+template class IDRestorer<UniqueID32>;
+template class IDRestorer<UniqueID64>;
+template class IDRestorer<UniqueID128>;
 
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps)
 {
@@ -340,9 +407,95 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
     }
 }
 
+void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in,
+                                        std::vector<hecl::ProjectPath>& pathsOut,
+                                        hecl::blender::Token& btok,
+                                        int charIdx)
+{
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
+    if (!conn.openBlend(in))
+        return;
+    switch (conn.getBlendType())
+    {
+    case hecl::blender::BlendType::Mesh:
+    {
+        hecl::blender::DataStream ds = conn.beginData();
+        std::vector<hecl::ProjectPath> texs = ds.getTextures();
+        for (const hecl::ProjectPath& tex : texs)
+            pathsOut.push_back(tex);
+        break;
+    }
+    case hecl::blender::BlendType::Actor:
+    {
+        hecl::ProjectPath asGlob = in.getWithExtension(_S(".*"), true);
+        hecl::blender::DataStream ds = conn.beginData();
+        hecl::blender::Actor actor = ds.compileActorCharacterOnly();
+
+        auto doSubtype = [&](Actor::Subtype& sub)
+        {
+            if (sub.armature >= 0)
+            {
+                pathsOut.push_back(sub.mesh);
+
+                hecl::SystemStringConv chSysName(sub.name);
+                pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR")));
+
+                const auto& arm = actor.armatures[sub.armature];
+                hecl::SystemStringConv armSysName(arm.name);
+                pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF")));
+                for (const auto& overlay : sub.overlayMeshes)
+                {
+                    hecl::SystemStringConv ovelaySys(overlay.first);
+                    pathsOut.push_back(overlay.second);
+                    pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
+                                                            ovelaySys.c_str() + _S(".CSKR")));
+                }
+            }
+        };
+        if (charIdx < 0)
+            for (auto& sub : actor.subtypes)
+                doSubtype(sub);
+        else if (charIdx < actor.subtypes.size())
+            doSubtype(actor.subtypes[charIdx]);
+
+        auto actNames = ds.getActionNames();
+        for (const auto& act : actNames)
+        {
+            hecl::SystemStringConv actSysName(act);
+            pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(actSysName.sys_str()) + _S(".ANIM")));
+            hecl::ProjectPath evntPath = asGlob.getWithExtension(
+                hecl::SysFormat(_S(".%s.evnt.yaml"), actSysName.c_str()).c_str(), true);
+            if (evntPath.isFile())
+                pathsOut.push_back(evntPath);
+        }
+        ds.close();
+
+        hecl::ProjectPath yamlPath = asGlob.getWithExtension(_S(".yaml"), true);
+        if (yamlPath.isFile())
+        {
+            athena::io::FileReader reader(yamlPath.getAbsolutePath());
+            flattenDependenciesANCSYAML(reader, pathsOut, charIdx);
+        }
+
+        pathsOut.push_back(asGlob);
+        return;
+    }
+    case hecl::blender::BlendType::Area:
+    {
+        hecl::blender::DataStream ds = conn.beginData();
+        std::vector<hecl::ProjectPath> texs = ds.getTextures();
+        for (const hecl::ProjectPath& tex : texs)
+            pathsOut.push_back(tex);
+        break;
+    }
+    default: break;
+    }
+}
+
 void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
                                    std::vector<hecl::ProjectPath>& pathsOut,
-                                   hecl::blender::Token& btok)
+                                   hecl::blender::Token& btok,
+                                   int charIdx)
 {
     DataSpec::g_curSpec.reset(this);
     g_ThreadBlenderToken.reset(&btok);
@@ -355,77 +508,7 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
 
     if (hecl::IsPathBlend(asBlend))
     {
-        hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(asBlend))
-            return;
-        switch (conn.getBlendType())
-        {
-        case hecl::blender::BlendType::Mesh:
-        {
-            hecl::blender::DataStream ds = conn.beginData();
-            std::vector<hecl::ProjectPath> texs = ds.getTextures();
-            for (const hecl::ProjectPath& tex : texs)
-                pathsOut.push_back(tex);
-            break;
-        }
-        case hecl::blender::BlendType::Actor:
-        {
-            hecl::ProjectPath asGlob = path.getWithExtension(_S(".*"), true);
-            hecl::blender::DataStream ds = conn.beginData();
-            hecl::blender::Actor actor = ds.compileActorCharacterOnly();
-            for (auto& sub : actor.subtypes)
-            {
-                if (sub.armature >= 0)
-                {
-                    pathsOut.push_back(sub.mesh);
-
-                    hecl::SystemStringConv chSysName(sub.name);
-                    pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR")));
-
-                    const auto& arm = actor.armatures[sub.armature];
-                    hecl::SystemStringConv armSysName(arm.name);
-                    pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF")));
-                    for (const auto& overlay : sub.overlayMeshes)
-                    {
-                        hecl::SystemStringConv ovelaySys(overlay.first);
-                        pathsOut.push_back(overlay.second);
-                        pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
-                                                                ovelaySys.c_str() + _S(".CSKR")));
-                    }
-                }
-            }
-            auto actNames = ds.getActionNames();
-            for (const auto& act : actNames)
-            {
-                hecl::SystemStringConv actSysName(act);
-                pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(actSysName.sys_str()) + _S(".ANIM")));
-                hecl::ProjectPath evntPath = asGlob.getWithExtension(
-                    hecl::SysFormat(_S(".%s.evnt.yaml"), actSysName.c_str()).c_str(), true);
-                if (evntPath.isFile())
-                    pathsOut.push_back(evntPath);
-            }
-            ds.close();
-
-            hecl::ProjectPath yamlPath = asGlob.getWithExtension(_S(".yaml"), true);
-            if (yamlPath.isFile())
-            {
-                athena::io::FileReader reader(yamlPath.getAbsolutePath());
-                flattenDependenciesANCSYAML(reader, pathsOut);
-            }
-
-            pathsOut.push_back(asGlob);
-            return;
-        }
-        case hecl::blender::BlendType::Area:
-        {
-            hecl::blender::DataStream ds = conn.beginData();
-            std::vector<hecl::ProjectPath> texs = ds.getTextures();
-            for (const hecl::ProjectPath& tex : texs)
-                pathsOut.push_back(tex);
-            break;
-        }
-        default: break;
-        }
+        flattenDependenciesBlend(asBlend, pathsOut, btok, charIdx);
     }
     else if (hecl::IsPathYAML(path))
     {
@@ -436,18 +519,18 @@ void SpecBase::flattenDependencies(const hecl::ProjectPath& path,
     pathsOut.push_back(path);
 }
 
-void SpecBase::flattenDependencies(const UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut)
+void SpecBase::flattenDependencies(const UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx)
 {
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
     if (path)
-        flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get());
+        flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get(), charIdx);
 }
 
-void SpecBase::flattenDependencies(const UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut)
+void SpecBase::flattenDependencies(const UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx)
 {
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
     if (path)
-        flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get());
+        flattenDependencies(path, pathsOut, *g_ThreadBlenderToken.get(), charIdx);
 }
 
 bool SpecBase::canPackage(const hecl::ProjectPath& path)
@@ -550,8 +633,13 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     auto components = path.getWithExtension(_S(""), true).getPathComponents();
     if (components.size() <= 1)
         return;
-    hecl::ProjectPath outPath(m_project.getProjectWorkingPath(),
-                             _S("out/") + components[0] + _S("/") + components[1] + _S(".upak"));
+    hecl::ProjectPath outPath;
+    if (hecl::ProjectPath(m_project.getProjectWorkingPath(), _S("out/files/") + components[0]).isDirectory())
+        outPath.assign(m_project.getProjectWorkingPath(),
+                       _S("out/files/") + components[0] + _S("/") + components[1] + entry->m_pakExt.data());
+    else
+        outPath.assign(m_project.getProjectWorkingPath(),
+                       _S("out/files/") + components[1] + entry->m_pakExt.data());
     outPath.makeDirChain(false);
 
     /* Output file */

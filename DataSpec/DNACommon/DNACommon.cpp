@@ -10,6 +10,9 @@ ThreadLocalPtr<SpecBase> g_curSpec;
 ThreadLocalPtr<PAKRouterBase> g_PakRouter;
 ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;
 ThreadLocalPtr<hecl::Database::Project> UniqueIDBridge::s_Project;
+ThreadLocalPtr<IDRestorer<UniqueID32>> UniqueIDBridge::s_restorer32;
+ThreadLocalPtr<IDRestorer<UniqueID64>> UniqueIDBridge::s_restorer64;
+ThreadLocalPtr<IDRestorer<UniqueID128>> UniqueIDBridge::s_restorer128;
 UniqueID32 UniqueID32::kInvalidId;
 
 template <class IDType>
@@ -38,11 +41,16 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
         LogDNACommon.report(logvisor::Fatal,
         "g_PakRouter or s_Project must be set to non-null before "
         "calling UniqueIDBridge::TranslatePakIdToPath");
+        return {};
     }
 
     const hecl::ProjectPath* search = project->lookupBridgePath(id.toUint64());
     if (!search)
     {
+        if (IDRestorer<IDType>* restorer = GetIDRestorer<IDType>())
+            if (IDType newId = restorer->originalToNew(id))
+                if (const hecl::ProjectPath* newSearch = project->lookupBridgePath(newId.toUint64()))
+                    return *newSearch;
         if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id)
             LogDNACommon.report(logvisor::Warning,
                                 "unable to translate %s to path", id.toString().c_str());
@@ -54,6 +62,8 @@ template
 hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const UniqueID32& id, bool silenceWarnings);
 template
 hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const UniqueID64& id, bool silenceWarnings);
+template
+hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const UniqueID128& id, bool silenceWarnings);
 
 template <class IDType>
 hecl::ProjectPath UniqueIDBridge::MakePathFromString(std::string_view str)
@@ -83,12 +93,21 @@ void UniqueIDBridge::TransformOldHashToNewHash(UniqueID32& id);
 template
 void UniqueIDBridge::TransformOldHashToNewHash(UniqueID64& id);
 
-void UniqueIDBridge::setThreadProject(hecl::Database::Project& project)
+void UniqueIDBridge::SetThreadProject(hecl::Database::Project& project)
 {
     s_Project.reset(&project);
 }
 
 /** PAK 32-bit Unique ID */
+void UniqueID32::assign(uint32_t id, bool noOriginal)
+{
+    m_id = id ? id : 0xffffffff;
+    if (!noOriginal)
+        if (IDRestorer<UniqueID32>* restorer = UniqueIDBridge::GetIDRestorer<UniqueID32>())
+            if (UniqueID32 origId = restorer->newToOriginal(*this))
+                *this = origId;
+}
+
 template <>
 void UniqueID32::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {assign(reader.readUint32Big());}
@@ -164,7 +183,7 @@ void AuxiliaryID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& wr
 {
     if (!operator bool())
         return;
-    hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this, true);
+    hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath<UniqueID32>(*this, true);
     if (!path)
         path = UniqueIDBridge::TranslatePakIdToPath(m_baseId);
     if (!path)
@@ -177,6 +196,15 @@ void AuxiliaryID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& wr
 
 
 /** PAK 64-bit Unique ID */
+void UniqueID64::assign(uint64_t id, bool noOriginal)
+{
+    m_id = id ? id : 0xffffffffffffffff;
+    if (!noOriginal)
+        if (IDRestorer<UniqueID64>* restorer = UniqueIDBridge::GetIDRestorer<UniqueID64>())
+            if (UniqueID64 origId = restorer->newToOriginal(*this))
+                *this = origId;
+}
+
 template <>
 void UniqueID64::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {assign(reader.readUint64Big());}
@@ -215,14 +243,14 @@ std::string UniqueID64::toString() const
 template <>
 void UniqueID128::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {
-    m_id[0] = reader.readUint64Big();
-    m_id[1] = reader.readUint64Big();
+    m_id.id[0] = reader.readUint64Big();
+    m_id.id[1] = reader.readUint64Big();
 }
 template <>
 void UniqueID128::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
 {
-    writer.writeUint64Big(m_id[0]);
-    writer.writeUint64Big(m_id[1]);
+    writer.writeUint64Big(m_id.id[0]);
+    writer.writeUint64Big(m_id.id[1]);
 }
 template <>
 void UniqueID128::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
@@ -248,7 +276,7 @@ void UniqueID128::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 std::string UniqueID128::toString() const
 {
     char buf[33];
-    snprintf(buf, 33, "%016" PRIX64 "%016" PRIX64, m_id[0], m_id[1]);
+    snprintf(buf, 33, "%016" PRIX64 "%016" PRIX64, m_id.id[0], m_id.id[1]);
     return std::string(buf);
 }
 

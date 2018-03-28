@@ -223,7 +223,7 @@ struct SpecMP2 : SpecBase
         return true;
     }
 
-    bool extractFromDisc(nod::DiscBase&, bool force, const hecl::MultiProgressPrinter& progress)
+    bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress)
     {
         nod::ExtractionContext ctx = {force, nullptr};
 
@@ -239,7 +239,8 @@ struct SpecMP2 : SpecBase
 
         hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
         outPath.makeDir();
-        hecl::ProjectPath mp2OutPath(outPath, _S("MP2"));
+        disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
+        hecl::ProjectPath mp2OutPath(outPath, m_standalone ? _S("files") : _S("files/MP2"));
         mp2OutPath.makeDir();
         progress.startNewLine();
         progress.print(_S("MP2 Root"), _S(""), 0.0);
@@ -375,7 +376,7 @@ struct SpecMP2 : SpecBase
     {
     }
 
-    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
+    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut, int charIdx)
     {
     }
 
@@ -417,21 +418,21 @@ struct SpecMP2 : SpecBase
 hecl::Database::DataSpecEntry SpecEntMP2
 (
     _S("MP2"sv),
-    _S("Data specification for original Metroid Prime 2 engine"sv),
+    _S("Data specification for original Metroid Prime 2 engine"sv), _S(".pak"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return new struct SpecMP2(&SpecEntMP2, project, false);}
+    -> std::unique_ptr<hecl::Database::IDataSpec> {return std::make_unique<SpecMP2>(&SpecEntMP2, project, false);}
 );
 
 hecl::Database::DataSpecEntry SpecEntMP2PC =
 {
     _S("MP2-PC"sv),
-    _S("Data specification for PC-optimized Metroid Prime 2 engine"sv),
+    _S("Data specification for PC-optimized Metroid Prime 2 engine"sv), _S(".upak"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
-    -> hecl::Database::IDataSpec*
+    -> std::unique_ptr<hecl::Database::IDataSpec>
     {
         if (tool != hecl::Database::DataSpecTool::Extract)
-            return new struct SpecMP2(&SpecEntMP2PC, project, true);
-        return nullptr;
+            return std::make_unique<SpecMP2>(&SpecEntMP2PC, project, true);
+        return {};
     }
 };
 
@@ -439,7 +440,7 @@ hecl::Database::DataSpecEntry SpecEntMP2ORIG =
 {
     _S("MP2-ORIG"sv),
     _S("Data specification for unmodified Metroid Prime 2 resources"sv),
-    {}
+    {}, {}
 };
 
 }

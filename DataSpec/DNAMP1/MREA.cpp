@@ -421,17 +421,9 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
                 const std::vector<DNACMDL::Mesh>& meshes,
                 const ColMesh& cMesh,
-                const std::vector<Light>& lights)
-{
-    return false;
-}
-
-bool MREA::PCCook(const hecl::ProjectPath& outPath,
-                  const hecl::ProjectPath& inPath,
-                  const std::vector<DNACMDL::Mesh>& meshes,
-                  const ColMesh& cMesh,
-                  const std::vector<Light>& lights,
-                  hecl::blender::Token& btok)
+                const std::vector<Light>& lights,
+                hecl::blender::Token& btok,
+                bool pc)
 {
     /* Discover area layers */
     hecl::ProjectPath areaDirPath = inPath.getParentPath();
@@ -448,7 +440,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
         }
     }
 
-    size_t secCount = 1 + meshes.size() * 5; /* (materials, 5 fixed model secs) */
+    size_t secCount = 1 + meshes.size() * (pc ? 5 : 7); /* (materials, 5/7 fixed model secs) */
 
     /* tally up surfaces */
     for (const DNACMDL::Mesh& mesh : meshes)
@@ -457,7 +449,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     /* Header */
     Header head = {};
     head.magic = 0xDEADBEEF;
-    head.version = 0x1000F;
+    head.version = pc ? 0x1000F : 0xF;
     head.localToWorldMtx[0].vec[0] = 1.f;
     head.localToWorldMtx[1].vec[1] = 1.f;
     head.localToWorldMtx[2].vec[2] = 1.f;
@@ -490,7 +482,6 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* Sizes section */
     secs.emplace_back();
-    std::vector<uint8_t>& sizesSec = secs.back();
 
     /* Pre-emptively build full AABB and mesh AABBs in world coords */
     zeus::CAABox fullAabb;
@@ -498,9 +489,18 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
     meshAabbs.reserve(meshes.size());
 
     /* Models */
-    if (!DNACMDL::WriteHMDLMREASecs<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, MeshHeader>
+    if (pc)
+    {
+        if (!DNACMDL::WriteHMDLMREASecs<HMDLMaterialSet, DNACMDL::SurfaceHeader_2, MeshHeader>
             (secs, inPath, meshes, fullAabb, meshAabbs))
-        return false;
+            return false;
+    }
+    else
+    {
+        if (!DNACMDL::WriteMREASecs<MaterialSet, DNACMDL::SurfaceHeader_1, MeshHeader>
+            (secs, inPath, meshes, fullAabb, meshAabbs))
+            return false;
+    }
 
     /* AROT */
     {
@@ -807,6 +807,7 @@ bool MREA::PCCook(const hecl::ProjectPath& outPath,
 
     /* Assemble sizes and add padding */
     {
+        std::vector<uint8_t>& sizesSec = secs[1];
         sizesSec.assign((((head.secCount) + 7) & ~7) * 4, 0);
         athena::io::MemoryWriter w(sizesSec.data(), sizesSec.size());
         for (auto it = secs.begin() + 2 ; it != secs.end() ; ++it)

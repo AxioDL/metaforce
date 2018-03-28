@@ -1303,6 +1303,126 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
     if (!modelPath->isFile())
         Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().data());
 
+    hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1).getWithExtension(_S(".skinint"));
+    if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
+        if (!modelCookFunc(*modelPath))
+            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath->getRelativePath().data());
+
+    athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
+    if (skinIO.hasError())
+        Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().data());
+
+    std::vector<std::string> boneNames;
+    uint32_t boneNameCount = skinIO.readUint32Big();
+    boneNames.reserve(boneNameCount);
+    for (uint32_t i=0 ; i<boneNameCount ; ++i)
+        boneNames.push_back(skinIO.readString());
+
+    std::vector<std::pair<std::vector<std::pair<uint32_t, float>>, uint32_t>> skins;
+    uint32_t skinCount = skinIO.readUint32Big();
+    skins.resize(skinCount);
+    for (uint32_t i=0 ; i<skinCount ; ++i)
+    {
+        std::pair<std::vector<std::pair<uint32_t, float>>, uint32_t>& virtualBone = skins[i];
+        uint32_t bindCount = skinIO.readUint32Big();
+        virtualBone.first.reserve(bindCount);
+        for (uint32_t j=0 ; j<bindCount ; ++j)
+        {
+            uint32_t bIdx = skinIO.readUint32Big();
+            float weight = skinIO.readFloatBig();
+            const std::string& name = boneNames[bIdx];
+            auto search = boneIdMap.find(name);
+            if (search == boneIdMap.cend())
+                Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
+                           name.c_str(), inPath.getRelativePathUTF8().data());
+            virtualBone.first.emplace_back(search->second, weight);
+        }
+        virtualBone.second = skinIO.readUint32Big();
+    }
+
+    uint32_t posCount = skinIO.readUint32Big();
+    uint32_t normCount = skinIO.readUint32Big();
+
+    skinIO.close();
+
+    athena::io::TransactionalFileWriter skinOut(outPath.getAbsolutePath());
+
+    skinOut.writeUint32Big(skins.size());
+    for (auto& virtuaBone : skins)
+    {
+        skinOut.writeUint32Big(virtuaBone.first.size());
+        for (auto& bind : virtuaBone.first)
+        {
+            skinOut.writeUint32Big(bind.first);
+            skinOut.writeFloatBig(bind.second);
+        }
+        skinOut.writeUint32Big(virtuaBone.second);
+    }
+
+    skinOut.writeUint32Big(0xffffffff);
+    skinOut.writeUint32Big(posCount);
+    skinOut.writeUint32Big(0xffffffff);
+    skinOut.writeUint32Big(normCount);
+
+    return true;
+}
+
+bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
+                      const hecl::ProjectPath& inPath,
+                      const DNAANCS::Actor& actor,
+                      const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc)
+{
+    hecl::SystemString subName(inPath.getAuxInfo().begin(),
+                               inPath.getAuxInfo().end() - 5);
+    hecl::SystemString overName;
+    auto dotPos = subName.rfind(_S('.'));
+    if (dotPos != hecl::SystemString::npos)
+    {
+        overName = hecl::SystemString(subName.begin() + dotPos + 1, subName.end());
+        subName = hecl::SystemString(subName.begin(), subName.begin() + dotPos);
+    }
+    hecl::SystemUTF8Conv subNameView(subName);
+    hecl::SystemUTF8Conv overNameView(overName);
+
+    /* Build bone ID map */
+    std::unordered_map<std::string, atInt32> boneIdMap;
+    for (const DNAANCS::Armature& arm : actor.armatures)
+    {
+        CINF cinf(arm, boneIdMap);
+    }
+
+    const DNAANCS::Actor::Subtype* subtype = nullptr;
+    for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+    {
+        if (!sub.name.compare(subNameView.str()))
+        {
+            subtype = &sub;
+            break;
+        }
+    }
+    if (!subtype)
+        Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
+
+    const hecl::ProjectPath* modelPath = nullptr;
+    if (overName.empty())
+    {
+        modelPath = &subtype->mesh;
+    }
+    else
+    {
+        for (const auto& overlay : subtype->overlayMeshes)
+            if (!overlay.first.compare(overNameView.str()))
+            {
+                modelPath = &overlay.second;
+                break;
+            }
+    }
+    if (!modelPath)
+        Log.report(logvisor::Fatal, _S("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
+
+    if (!modelPath->isFile())
+        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().data());
+
     hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
     if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
         if (!modelCookFunc(*modelPath))

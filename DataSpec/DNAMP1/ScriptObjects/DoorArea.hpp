@@ -40,8 +40,12 @@ struct DoorArea : IScriptObject
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
-        animationParameters.depANCS(pathsOut);
         actorParameters.depIDs(pathsOut);
+    }
+
+    void gatherBulkDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    {
+        animationParameters.depANCS(pathsOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

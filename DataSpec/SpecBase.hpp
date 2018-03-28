@@ -23,6 +23,17 @@ class YAMLDocWriter;
 namespace DataSpec
 {
 
+template <typename IDType>
+class IDRestorer
+{
+    std::vector<std::pair<IDType, IDType>> m_newToOrig;
+    std::vector<std::pair<IDType, IDType>> m_origToNew;
+public:
+    IDRestorer(const hecl::ProjectPath& yamlPath, const hecl::Database::Project& project);
+    IDType newToOriginal(IDType id) const;
+    IDType originalToNew(IDType id) const;
+};
+
 struct SpecBase : hecl::Database::IDataSpec
 {
     /* HECL Adaptors */
@@ -116,11 +127,18 @@ struct SpecBase : hecl::Database::IDataSpec
     /* Dependency flatteners */
     void flattenDependencies(const hecl::ProjectPath& in,
                              std::vector<hecl::ProjectPath>& pathsOut,
-                             hecl::blender::Token& btok);
-    void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut);
-    void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut);
+                             hecl::blender::Token& btok,
+                             int charIdx = -1);
+    void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx = -1);
+    void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx = -1);
+    void flattenDependenciesBlend(const hecl::ProjectPath& in,
+                                  std::vector<hecl::ProjectPath>& pathsOut,
+                                  hecl::blender::Token& btok,
+                                  int charIdx = -1);
     virtual void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
-    virtual void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
+    virtual void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin,
+                                             std::vector<hecl::ProjectPath>& pathsOut,
+                                             int charIdx = -1)=0;
 
     virtual void buildWorldPakList(const hecl::ProjectPath& worldPath,
                                    const hecl::ProjectPath& worldPathCooked,
@@ -211,7 +229,7 @@ protected:
                            bool fast, const hecl::MultiProgressPrinter& progress,
                            athena::io::FileWriter& pakOut);
 
-private:
+protected:
     std::unique_ptr<nod::DiscBase> m_disc;
     bool m_isWii;
     bool m_standalone;

@@ -60,6 +60,70 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
 }
 
+struct BulkResources
+{
+    std::unordered_map<hecl::Hash, size_t> addedBulkPaths;
+    bool addBulkPath(const hecl::ProjectPath& path, size_t areaIdx)
+    {
+        auto search = addedBulkPaths.find(path.hash());
+        if (search == addedBulkPaths.cend())
+        {
+            addedBulkPaths.insert(std::make_pair(path.hash(), areaIdx));
+            return true;
+        }
+        return false;
+    }
+};
+
+struct LayerResources
+{
+    BulkResources& bulkResources;
+    std::unordered_map<hecl::Hash, std::pair<size_t, size_t>> addedPaths;
+    std::vector<std::vector<hecl::ProjectPath>> layerPaths;
+    std::unordered_set<hecl::Hash> addedSharedPaths;
+    std::vector<hecl::ProjectPath> sharedPaths;
+    LayerResources(BulkResources& bulkResources) : bulkResources(bulkResources) {}
+    void beginLayer()
+    {
+        layerPaths.resize(layerPaths.size() + 1);
+    }
+    void addSharedPath(const hecl::ProjectPath& path)
+    {
+        auto search = addedSharedPaths.find(path.hash());
+        if (search == addedSharedPaths.cend())
+        {
+            sharedPaths.push_back(path);
+            addedSharedPaths.insert(path.hash());
+        }
+    }
+    void addPath(const hecl::ProjectPath& path)
+    {
+        auto search = addedPaths.find(path.hash());
+        if (search != addedPaths.cend())
+        {
+            if (search->second.first == layerPaths.size() - 1)
+                return;
+            else
+            {
+                hecl::ProjectPath& toMove = layerPaths[search->second.first][search->second.second];
+                addSharedPath(toMove);
+                toMove.clear();
+            }
+        }
+        else
+        {
+            layerPaths.back().push_back(path);
+            addedPaths.insert(std::make_pair(path.hash(),
+                std::make_pair(layerPaths.size() - 1, layerPaths.back().size() - 1)));
+        }
+    }
+    void addBulkPath(const hecl::ProjectPath& path, size_t areaIdx)
+    {
+        if (bulkResources.addBulkPath(path, areaIdx))
+            addPath(path);
+    }
+};
+
 bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const World& wld,
                 hecl::blender::Token& btok)
 {
@@ -80,6 +144,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
     size_t areaIdx = 0;
     size_t nameOffset = 0;
+    BulkResources bulkResources;
     for (const World::Area& area : wld.areas)
     {
         if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
@@ -110,6 +175,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         bool areaInit = false;
 
         size_t layerIdx = 0;
+        LayerResources layerResources(bulkResources);
         for (const hecl::DirectoryEnumerator::Entry& e : dEnum)
         {
             hecl::SystemString layerName;
@@ -138,6 +204,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
                 layer.read(reader);
             }
+
+            layerResources.beginLayer();
 
             /* Set active flag state */
             hecl::ProjectPath defActivePath(area.path, e.m_name + _S("/!defaultactive"));
@@ -221,14 +289,11 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 areaInit = true;
             }
 
-            MLVL::Area& areaOut = mlvl.areas.back();
-            areaOut.depLayers.push_back(areaOut.deps.size());
-
-
             /* Gather memory relays, scans, and dependencies */
             {
                 g_ThreadBlenderToken.reset(&btok);
                 std::vector<hecl::ProjectPath> depPaths;
+                std::vector<hecl::ProjectPath> bulkPaths;
                 for (std::unique_ptr<IScriptObject>& obj : layer.objects)
                 {
                     if (obj->type == int(urde::EScriptObjectType::MemoryRelay))
@@ -260,20 +325,14 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     }
 
                     obj->gatherDependencies(depPaths);
+                    obj->gatherBulkDependencies(bulkPaths);
                 }
 
                 /* Cull duplicate paths and add typed hash to list */
-                std::unordered_set<hecl::Hash> addedPaths;
                 for (const hecl::ProjectPath& path : depPaths)
-                {
-                    if (addedPaths.find(path.hash()) == addedPaths.cend())
-                    {
-                        addedPaths.insert(path.hash());
-                        urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
-                        if (tag.id.IsValid())
-                            areaOut.deps.emplace_back(tag.id.Value(), tag.type);
-                    }
-                }
+                    layerResources.addBulkPath(path, areaIdx);
+                for (const hecl::ProjectPath& path : bulkPaths)
+                    layerResources.addBulkPath(path, areaIdx);
             }
 
             hecl::SystemUTF8Conv layerU8(layerName);
@@ -288,6 +347,22 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             ++layerIdx;
         }
 
+        /* Build deplist */
+        MLVL::Area& areaOut = mlvl.areas.back();
+        for (const std::vector<hecl::ProjectPath>& layer : layerResources.layerPaths)
+        {
+            areaOut.depLayers.push_back(areaOut.deps.size());
+            for (const hecl::ProjectPath& path : layer)
+            {
+                if (path)
+                {
+                    urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
+                    if (tag.id.IsValid())
+                        areaOut.deps.emplace_back(tag.id.Value(), tag.type);
+                }
+            }
+        }
+
         /* Append Memory Relays */
         mlvl.memRelayLinks.insert(mlvl.memRelayLinks.end(), memRelayLinks.begin(), memRelayLinks.end());
 
@@ -295,33 +370,26 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         auto& conn = btok.getBlenderConnection();
         if (conn.openBlend(areaPath))
         {
-            MLVL::Area& areaOut = mlvl.areas.back();
             areaOut.depLayers.push_back(areaOut.deps.size());
 
             auto ds = conn.beginData();
             std::vector<hecl::ProjectPath> texs = ds.getTextures();
             ds.close();
 
-            std::unordered_set<hecl::Hash> addedPaths;
             for (const hecl::ProjectPath& path : texs)
+                layerResources.addSharedPath(path);
+
+            for (const hecl::ProjectPath& path : layerResources.sharedPaths)
             {
-                if (addedPaths.find(path.hash()) == addedPaths.cend())
-                {
-                    addedPaths.insert(path.hash());
-                    urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
-                    if (tag.id.IsValid())
-                        areaOut.deps.emplace_back(tag.id.Value(), tag.type);
-                }
+                urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
+                if (tag.id.IsValid())
+                    areaOut.deps.emplace_back(tag.id.Value(), tag.type);
             }
 
             hecl::ProjectPath pathPath(areaPath.getParentPath(), _S("!path.blend"));
             urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath, btok);
             if (pathTag.id.IsValid())
                 areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
-
-            urde::SObjectTag tag = g_curSpec->buildTagFromPath(areaPath, btok);
-            if (tag.id.IsValid())
-                areaOut.deps.emplace_back(tag.id.Value(), tag.type);
         }
 
         ++areaIdx;

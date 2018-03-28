@@ -50,8 +50,8 @@ public:
     virtual std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size)=0;
     virtual void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {}
 
-    virtual CAssetId TranslateOriginalToNew(CAssetId id) const { return -1; }
-    virtual CAssetId TranslateNewToOriginal(CAssetId id) const { return -1; }
+    virtual CAssetId TranslateOriginalToNew(CAssetId id) const { return {}; }
+    virtual CAssetId TranslateNewToOriginal(CAssetId id) const { return {}; }
 };
 
 }

@@ -17,7 +17,7 @@ class CResFactory : public IFactory
 {
     CResLoader x4_loader;
     CFactoryMgr x5c_factoryMgr;
-    TLockedToken<MP1OriginalIDs> m_origIds;
+    //TLockedToken<MP1OriginalIDs> m_origIds;
 
 public:
     struct SLoadingData

@@ -352,7 +352,7 @@ struct SpecMP3 : SpecBase
         return doMP3 || doMPTFE;
     }
 
-    bool extractFromDisc(nod::DiscBase&, bool force, const hecl::MultiProgressPrinter& progress)
+    bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress)
     {
         hecl::SystemString currentTarget = _S("");
         size_t nodeCount = 0;
@@ -378,7 +378,8 @@ struct SpecMP3 : SpecBase
 
             hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
             outPath.makeDir();
-            hecl::ProjectPath mp3OutPath(outPath, _S("MP3"));
+            disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
+            hecl::ProjectPath mp3OutPath(outPath, m_standalone ? _S("files") : _S("files/MP3"));
             mp3OutPath.makeDir();
             currentTarget = _S("MP3 Root");
             progress.print(currentTarget.c_str(), _S(""), 0.0);
@@ -436,7 +437,8 @@ struct SpecMP3 : SpecBase
 
             hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
             outPath.makeDir();
-            hecl::ProjectPath feOutPath(outPath, _S("fe"));
+            disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
+            hecl::ProjectPath feOutPath(outPath, m_standalone ? _S("files") : _S("files/fe"));
             feOutPath.makeDir();
             currentTarget = _S("fe Root");
             progress.print(currentTarget.c_str(), _S(""), 0.0);
@@ -566,7 +568,7 @@ struct SpecMP3 : SpecBase
     {
     }
 
-    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)
+    void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut, int charIdx)
     {
     }
 
@@ -600,20 +602,20 @@ struct SpecMP3 : SpecBase
 hecl::Database::DataSpecEntry SpecEntMP3
 (
     _S("MP3"sv),
-    _S("Data specification for original Metroid Prime 3 engine"sv),
+    _S("Data specification for original Metroid Prime 3 engine"sv), _S(".pak"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
-    -> hecl::Database::IDataSpec* {return new struct SpecMP3(&SpecEntMP3, project, false);}
+    -> std::unique_ptr<hecl::Database::IDataSpec> {return std::make_unique<SpecMP3>(&SpecEntMP3, project, false);}
 );
 
 hecl::Database::DataSpecEntry SpecEntMP3PC =
 {
     _S("MP3-PC"sv),
-    _S("Data specification for PC-optimized Metroid Prime 3 engine"sv),
+    _S("Data specification for PC-optimized Metroid Prime 3 engine"sv), _S(".upak"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
-    -> hecl::Database::IDataSpec*
+    -> std::unique_ptr<hecl::Database::IDataSpec>
     {
         if (tool != hecl::Database::DataSpecTool::Extract)
-            return new struct SpecMP3(&SpecEntMP3PC, project, true);
+            return std::make_unique<SpecMP3>(&SpecEntMP3PC, project, true);
         return nullptr;
     }
 };
@@ -622,7 +624,7 @@ hecl::Database::DataSpecEntry SpecEntMP3ORIG =
 {
     _S("MP3-ORIG"sv),
     _S("Data specification for unmodified Metroid Prime 3 resources"sv),
-    {}
+    {}, {}
 };
 
 }
